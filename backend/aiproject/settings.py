@@ -23,13 +23,31 @@ environ.Env.read_env()
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # Raises django's ImproperlyConfigured exception if SECRET_KEY not in os.environ
-SECRET_KEY = env("SECRET_KEY")
+# if not env("SECRET_KEY"):
+#     print("WARNING: secret key not set - setting a default for development.")
+# if 'SECRET_KEY' not in os.environ:
+#     SECRET_KEY='yl2w)c0boi_ma-1v5)935^2#&m*r!1s9z9^*9e5co^08_ixzo6'
+
+if 'SECRET_KEY' not in env:
+    print("WARNING: secret key not set - setting a default for development.")
+    SECRET_KEY = os.getenv('SECRET_KEY', 'default_secret_key')
+else:
+    SECRET_KEY = env("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+if 'DEBUG' not in env:
+    DEBUG = True
+else :
+    DEBUG=env("DEBUG")
 
-ALLOWED_HOSTS = []
+if 'ALLOWED_HOSTS' not in env:
+    ALLOWED_HOSTS = []
+else :
+    ALLOWED_HOSTS=[env("ALLOWED_HOSTS")]
 
-GDAL_LIBRARY_PATH = r'C:\Users\User\anaconda3\envs\tdb\Library\bin\gdal304' # for windows if gdal path is not found 
+if 'GDAL_LIBRARY_PATH' not in env:
+    pass
+else:
+    GDAL_LIBRARY_PATH = env('GDAL_LIBRARY_PATH')
 
 # Application definition
 
@@ -62,9 +80,11 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ALLOWED_ORIGINS = [
-env("ALLOWED_ORIGIN"),
-]
+if 'CORS_ALLOWED_ORIGINS' not in env:
+    CORS_ORIGIN_ALLOW_ALL = True
+    CORS_ALLOW_HEADERS = ['*']
+else:
+    CORS_ALLOWED_ORIGINS=[env('CORS_ALLOWED_ORIGINS')]
 
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
@@ -100,17 +120,29 @@ WSGI_APPLICATION = 'aiproject.wsgi.application'
 
 # Database
 # https://docs.aiproject.com/en/3.1/ref/settings/#databases
-
-DATABASES = {
-    'default': {        
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': env("DATABASE_NAME"),
-        'USER': env("DATABASE_USER"),
-        'PASSWORD': env("DATABASE_PASSWORD"),
-        'HOST': env("DATABASE_HOST"),
-        'PORT': env("DATABASE_PORT"),
+if 'DATABASE_NAME' not in env:
+    DATABASES = {
+        'default': {        
+            'ENGINE': 'django.contrib.gis.db.backends.postgis',
+            'NAME': 'ai',
+            'USER': 'admin',
+            'PASSWORD': 'password',
+            'HOST': 'localhost',
+            'PORT': 5432,
+        }
     }
-}
+else:
+     DATABASES = {
+        'default': {        
+            'ENGINE': 'django.contrib.gis.db.backends.postgis',
+            'NAME': env('DATABASE_NAME'),
+            'USER': env('DATABASE_USER'),
+            'PASSWORD': env('DATABASE_PASSWORD'),
+            'HOST': env('DATABASE_HOST'),
+            'PORT': env('DATABASE_PORT'),
+        }
+    }
+
 
 
 # Password validation
