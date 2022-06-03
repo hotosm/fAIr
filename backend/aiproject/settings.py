@@ -30,9 +30,9 @@ environ.Env.read_env()
 
 if 'SECRET_KEY' not in env:
     print("WARNING: secret key not set - setting a default for development.")
-SECRET_KEY = os.getenv('SECRET_KEY', 'default_secret_key')
-# SECRET_KEY = env('SECRET_KEY', 'default_secret_key')
-# SECRET_KEY = (env("SECRET_KEY"),)
+    SECRET_KEY = os.getenv('SECRET_KEY', 'default_secret_key')
+else:
+    SECRET_KEY = env("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
