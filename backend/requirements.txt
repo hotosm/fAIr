@@ -1,5 +1,5 @@
 django
-# GDAL==3.4.2 # uncomment with your gdal version
+# GDAL==3.4.2 # uncomment    with your gdal version
 psycopg2
 djangorestframework
 djangorestframework-gis

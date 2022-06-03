@@ -10,10 +10,13 @@ jobs:
   Build_On_Ubuntu:
 
     runs-on: ubuntu-latest
+    env:
+      CI: false
 
     strategy:
       matrix:
         node-version: [16.14.2]
+
 
     steps:
     - name: Checkout repository
@@ -27,7 +30,7 @@ jobs:
     - name: Install dependencies
       run: |
         cd frontend/
-        npm install
+        npm install --legacy-peer-deps
 
     - name: Build
       run: |
