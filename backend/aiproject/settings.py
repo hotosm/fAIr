@@ -42,9 +42,7 @@ else :
 if 'ALLOWED_HOSTS' not in env:
     ALLOWED_HOSTS = []
 else :
-    ALLOWED_HOSTS=list(env("ALLOWED_HOSTS"))
-
-
+    ALLOWED_HOSTS=[env("ALLOWED_HOSTS")]
 
 if 'GDAL_LIBRARY_PATH' not in env:
     pass
@@ -81,8 +79,12 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-CORS_ORIGIN_ALLOW_ALL = True
-CORS_ALLOW_HEADERS = ['*']
+
+if 'CORS_ALLOWED_ORIGINS' not in env:
+    CORS_ORIGIN_ALLOW_ALL = True
+    CORS_ALLOW_HEADERS = ['*']
+else:
+    CORS_ALLOWED_ORIGINS=[env('CORS_ALLOWED_ORIGINS')]
 
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
@@ -118,17 +120,29 @@ WSGI_APPLICATION = 'aiproject.wsgi.application'
 
 # Database
 # https://docs.aiproject.com/en/3.1/ref/settings/#databases
-
-DATABASES = {
-    'default': {        
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'ai',
-        'USER': 'admin',
-        'PASSWORD': 'password',
-        'HOST': 'localhost',
-        'PORT': 5432,
+if 'DATABASE_NAME' not in env:
+    DATABASES = {
+        'default': {        
+            'ENGINE': 'django.contrib.gis.db.backends.postgis',
+            'NAME': 'ai',
+            'USER': 'admin',
+            'PASSWORD': 'password',
+            'HOST': 'localhost',
+            'PORT': 5432,
+        }
     }
-}
+else:
+     DATABASES = {
+        'default': {        
+            'ENGINE': 'django.contrib.gis.db.backends.postgis',
+            'NAME': env('DATABASE_NAME'),
+            'USER': env('DATABASE_USER'),
+            'PASSWORD': env('DATABASE_PASSWORD'),
+            'HOST': env('DATABASE_HOST'),
+            'PORT': env('DATABASE_PORT'),
+        }
+    }
+
 
 
 # Password validation
