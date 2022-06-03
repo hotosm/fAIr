@@ -38,3 +38,5 @@ backend/media
 backend/data/*
 backend/aiproject/.env
 backend/config.txt
+
+.vscode
