@@ -28,7 +28,7 @@ environ.Env.read_env()
 # if 'SECRET_KEY' not in os.environ:
 #     SECRET_KEY='yl2w)c0boi_ma-1v5)935^2#&m*r!1s9z9^*9e5co^08_ixzo6'
 
-if 'SECRET_KEY' not in os.environ:
+if 'SECRET_KEY' not in env:
     print("WARNING: secret key not set - setting a default for development.")
 SECRET_KEY = os.getenv('SECRET_KEY', 'default_secret_key')
 # SECRET_KEY = env('SECRET_KEY', 'default_secret_key')
