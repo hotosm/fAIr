@@ -34,14 +34,22 @@ if 'SECRET_KEY' not in env:
 else:
     SECRET_KEY = env("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+if 'DEBUG' not in env:
+    DEBUG = True
+else :
+    DEBUG=env("DEBUG")
 
-ALLOWED_HOSTS = []
+if 'ALLOWED_HOSTS' not in env:
+    ALLOWED_HOSTS = []
+else :
+    ALLOWED_HOSTS=list(env("ALLOWED_HOSTS"))
 
 
 
-# if env("GDAL_LIBRARY_PATH"):
-#     GDAL_LIBRARY_PATH = env('GDAL_LIBRARY_PATH')
+if 'GDAL_LIBRARY_PATH' not in env:
+    pass
+else:
+    GDAL_LIBRARY_PATH = env('GDAL_LIBRARY_PATH')
 
 # Application definition
 
