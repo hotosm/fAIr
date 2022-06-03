@@ -29,7 +29,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-GDAL_LIBRARY_PATH = r'C:\Users\User\anaconda3\envs\tdb\Library\bin\gdal304' # for windows if gdal path is not found 
+if env("GDAL_LIBRARY_PATH"):
+    GDAL_LIBRARY_PATH = env('GDAL_LIBRARY_PATH')
 
 # Application definition
 
