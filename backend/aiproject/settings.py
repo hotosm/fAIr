@@ -107,11 +107,11 @@ WSGI_APPLICATION = 'aiproject.wsgi.application'
 DATABASES = {
     'default': {        
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': env("DATABASE_NAME",'ai'),
-        'USER': env("DATABASE_USER",'admin'),
-        'PASSWORD': env("DATABASE_PASSWORD",'password'),
-        'HOST': env("DATABASE_HOST",'localhost'),
-        'PORT': env("DATABASE_PORT",5432),
+        'NAME': 'ai',
+        'USER': 'admin',
+        'PASSWORD': 'password',
+        'HOST': 'localhost',
+        'PORT': 5432,
     }
 }
 
