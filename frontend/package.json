@@ -2,6 +2,9 @@
   "name": "tdb",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "16.14.2"
+  },
   "dependencies": {
     "@emotion/react": "^11.9.0",
     "@emotion/styled": "^11.8.1",
