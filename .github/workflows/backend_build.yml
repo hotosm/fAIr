@@ -26,6 +26,9 @@ jobs:
         uses: actions/setup-python@v1
         with:
           python-version: 3.8
+      - name: Check postgresql version 
+        run: |
+          psql -V
       - name: Install Postgis for Psql 
         run: |
           sudo apt-get update
