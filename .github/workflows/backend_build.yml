@@ -28,6 +28,9 @@ jobs:
       - name : Check gdal version
         run : |
           ogrinfo --version
+      - name : Install gdal python
+        run : |
+          pip install gdal==3.3.2
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
@@ -35,4 +38,5 @@ jobs:
           pip install -r requirements.txt
       - name: Test Build
         run: |
+          cd backend/
           python manage.py runserver
