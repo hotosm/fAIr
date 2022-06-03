@@ -67,9 +67,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ALLOWED_ORIGINS = [
-env("ALLOWED_ORIGIN"),
-]
+CORS_ALLOWED_ORIGINS = ['*']
 
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
@@ -109,11 +107,11 @@ WSGI_APPLICATION = 'aiproject.wsgi.application'
 DATABASES = {
     'default': {        
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': env("DATABASE_NAME"),
-        'USER': env("DATABASE_USER"),
-        'PASSWORD': env("DATABASE_PASSWORD"),
-        'HOST': env("DATABASE_HOST"),
-        'PORT': env("DATABASE_PORT"),
+        'NAME': env("DATABASE_NAME",'ai'),
+        'USER': env("DATABASE_USER",'admin'),
+        'PASSWORD': env("DATABASE_PASSWORD",'password'),
+        'HOST': env("DATABASE_HOST",'localhost'),
+        'PORT': env("DATABASE_PORT",5432),
     }
 }
 
