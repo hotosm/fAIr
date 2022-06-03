@@ -26,6 +26,10 @@ jobs:
         uses: actions/setup-python@v1
         with:
           python-version: 3.8
+      - name: Install Postgis for Psql 
+        run: |
+          sudo apt-get update
+          sudo apt install postgis postgresql-postgis
       - name : Install GDAL and psycopg2
         run : |
           sudo add-apt-repository ppa:ubuntugis/ppa && sudo apt-get update
