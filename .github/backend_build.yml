@@ -1,0 +1,38 @@
+name: Backend Build
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on:
+      ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+      - name : Install GDAL and psycopg2
+        run : |
+          sudo add-apt-repository ppa:ubuntugis/ppa && sudo apt-get update
+          sudo apt-get install gdal-bin
+          sudo apt-get install libgdal-dev
+          sudo apt-get install python3-psycopg2
+          export CPLUS_INCLUDE_PATH=/usr/include/gdal
+          export C_INCLUDE_PATH=/usr/include/gdal      
+      - name : Check gdal version
+        run : |
+          ogrinfo --version
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          cd backend/
+          pip install -r requirements.txt
+      - name: Test Build
+        run: |
+          python manage.py runserver
