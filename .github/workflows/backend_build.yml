@@ -8,7 +8,7 @@ on:
       - main
 
 jobs:
-  deploy:
+  Build_on_ubuntu:
     runs-on:
       ubuntu-latest
     services:
