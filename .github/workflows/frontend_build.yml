@@ -10,12 +10,13 @@ jobs:
   Build_On_Ubuntu:
 
     runs-on: ubuntu-latest
+    env:
+      CI: false
 
     strategy:
       matrix:
         node-version: [16.14.2]
-        env:
-          CI: false
+
 
     steps:
     - name: Checkout repository
