@@ -13,7 +13,7 @@ jobs:
       ubuntu-latest
     services:
       postgres: # we need a postgres docker image to be booted a side car service to run the tests that needs a db
-        image: postgres
+        image: postgres:12
         env: # the environment variable must match with app/settings.py if block of DATBASES variable otherwise test will fail due to connectivity issue.
           POSTGRES_USER: admin
           POSTGRES_PASSWORD: password
@@ -29,7 +29,7 @@ jobs:
       - name: Install Postgis for Psql 
         run: |
           sudo apt-get update
-          sudo apt install postgis postgresql-14-postgis
+          sudo apt install postgis postgresql-postgis
       - name : Install GDAL and psycopg2
         run : |
           sudo add-apt-repository ppa:ubuntugis/ppa && sudo apt-get update
