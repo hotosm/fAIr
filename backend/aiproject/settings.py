@@ -33,8 +33,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-if env("GDAL_LIBRARY_PATH"):
-    GDAL_LIBRARY_PATH = env('GDAL_LIBRARY_PATH')
+# if env("GDAL_LIBRARY_PATH"):
+#     GDAL_LIBRARY_PATH = env('GDAL_LIBRARY_PATH')
 
 # Application definition
 
