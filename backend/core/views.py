@@ -56,6 +56,7 @@ class RawdataApiView(APIView):
         file_download_url=result['download_url']
         process_rawdata(file_download_url,aoi_id)
         obj.download_status = 1
+        obj.last_fetched_date = datetime.datetime.now()
         obj.save()
         return Response("Success", status=status.HTTP_201_CREATED)
 
