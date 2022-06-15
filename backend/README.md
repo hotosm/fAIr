@@ -1,3 +1,4 @@
+![example workflow](https://github.com/omranlm/TDB/actions/workflows/backend_build.yml/badge.svg)
 
 ## Backend is created with [Django](https://www.djangoproject.com/)
 This project was bootstrapped with  [Geodjango Template](https://github.com/itskshitiz321/geodjangotemplate.git)
