@@ -21,6 +21,9 @@ import { makeStyles, withStyles } from "@material-ui/core/styles";
 import ScreenshotMonitorIcon from '@mui/icons-material/ScreenshotMonitor';
 
 import PlaylistRemoveIcon from '@mui/icons-material/PlaylistRemove';
+import { useMutation } from "react-query";
+import axios from '../axios'
+import AOIDetails from "./AOIDetails";
 const Demo = styled("div")(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
 }));
@@ -46,6 +49,33 @@ const AOI = (props) => {
     return () => {};
   }, [props]);
 
+  const fetchOSMLebels = async (aoiId) => {
+
+    try {       
+     
+
+     const res = await axios.post(`/fetch-raw/${aoiId}/`);
+
+      if (res.error){
+      // setMapError(res.error.response.statusText);
+      console.log(res.error.response.statusText);
+    }
+      else 
+      {
+
+        // success full fetch
+                 
+         return res.data;
+      }
+       
+    } catch (e) {
+      console.log("isError",e);
+      
+    } finally {
+      
+    }
+  };
+  const { mutate:mutateFetch, data:fetchResult } = useMutation(fetchOSMLebels);
 
   return (
     <>
@@ -78,13 +108,15 @@ const AOI = (props) => {
                     </Avatar>
                   </ListItemAvatar>
                   <ListItemText
-                    primary={"AOI id " + layer.id}
+                    primary={"AOI id " + layer.id+ " AOI DB id " + layer.aoiId}
                     secondary={<span>Area: {parseInt(layer.area).toLocaleString()} sqm <br/>
                     <span style={{color: "red"}}>{( parseInt(layer.area) < 5000 ? <>Area seems to be very small for an AOI<br/>Make sure it is not a Label</> : "")} 
                     </span>
-                    <br/>
                    
-                     
+                   {/* add here a container to get the AOI status from DB */}
+                     {layer.aoiId && 
+                      <AOIDetails aoiId={layer.aoiId}></AOIDetails>
+                      }
                      </span>}
                   />
                   <ListItemSecondaryAction>
@@ -94,7 +126,9 @@ const AOI = (props) => {
                 <IconButton aria-label="comments"
                 onClick={(e)=> {
 
+                  mutateFetch(layer.aoiId);
                   console.log("call galaxy API to fetch OSM labels")
+
                 }}>
                    <MapTwoTone />
                 </IconButton>
