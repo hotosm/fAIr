@@ -3,7 +3,7 @@ import { useQuery } from 'react-query';
 
 import axios from '../axios'
 
-import {timeSince} from '../utils'
+import {timeSince,aoiStatusText} from '../utils'
 const AOIDetails = props =>
 {
 
@@ -38,9 +38,7 @@ const AOIDetails = props =>
 
     return <>
      {data && <span key={props.aoiId}>
-        Status: {data.properties.download_status}
-        <br/>
-        Last fetched  {timeSince(new Date(data.properties.last_fetched_date)).minutes} minutes
+        {aoiStatusText(data.properties.download_status)} {data.properties.last_fetched_date && timeSince(new Date(data.properties.last_fetched_date),new Date()) }
         </span>}
     </>
 }

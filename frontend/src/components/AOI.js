@@ -108,7 +108,7 @@ const AOI = (props) => {
                     </Avatar>
                   </ListItemAvatar>
                   <ListItemText
-                    primary={"AOI id " + layer.id+ " AOI DB id " + layer.aoiId}
+                    primary={"AOI id " + layer.aoiId}
                     secondary={<span>Area: {parseInt(layer.area).toLocaleString()} sqm <br/>
                     <span style={{color: "red"}}>{( parseInt(layer.area) < 5000 ? <>Area seems to be very small for an AOI<br/>Make sure it is not a Label</> : "")} 
                     </span>
