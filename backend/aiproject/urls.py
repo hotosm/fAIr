@@ -32,4 +32,5 @@ urlpatterns = [
     path('api/v1/', include(router.urls)), # adding all the api to version 1 project is in development 
     path('api/v1/fetch-raw/<int:aoi_id>/', RawdataApiView.as_view()),
 
+
 ]

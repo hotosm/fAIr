@@ -3,6 +3,7 @@ from django.shortcuts import render
 from rest_framework import routers, serializers, viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework_gis.filters import InBBoxFilter
 from rest_framework import status
 from rest_framework import permissions
 from django.shortcuts import render, get_object_or_404
@@ -10,6 +11,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .models import *
 from .serializers import *
 import requests
+from rest_framework.generics import ListAPIView
 
 import json
 import datetime
@@ -31,8 +33,11 @@ class AOIViewSet(viewsets.ModelViewSet):
 class LabelViewSet(viewsets.ModelViewSet): 
     queryset = Label.objects.all()
     serializer_class = LabelSerializer # connecting serializer
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['aoi']
+    bbox_filter_field = 'geom'
+    filter_backends = (InBBoxFilter, DjangoFilterBackend,) # it will take bbox like this api/v1/fetch-label/?in_bbox=-90,29,-89,35
+    bbox_filter_include_overlapping = True # Optional
+    filterset_fields = ['aoi'] 
+
 
 class RawdataApiView(APIView):
     def get(self, request,aoi_id, *args, **kwargs):
