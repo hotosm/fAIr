@@ -18,6 +18,6 @@ class LabelSerializer(GeoFeatureModelSerializer): # serializers are used to tran
     class Meta:
         model = Label
         geo_field='geom' # this will be used as geometry in order to create geojson api , geofeatureserializer will let you create api in geojson 
-        auto_bbox = True
+        # auto_bbox = True
         fields = '__all__' # defining all the fields to  be included in curd for now , we can restrict few if we want 
 

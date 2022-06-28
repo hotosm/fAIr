@@ -118,7 +118,8 @@ def process_rawdata(file_download_url,aoi_id):
                 # Extract a single file from zip
                     zipObj.extract(fileName, geojson_file_path)
                     print(f"""Geojson file{fileName} from API wrote to disk""")
-        geojson_file=f"""{geojson_file_path}{fileName}"""
+                    break
+        geojson_file=f"""{geojson_file_path}{fileName}"""        
         process_geojson(geojson_file,aoi_id)
     remove_file(file_temp_path)
     remove_file(geojson_file)

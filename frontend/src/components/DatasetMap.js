@@ -474,7 +474,9 @@ const DatasetMap = (props) => {
         const { _animateToZoom } = e.target;
         console.log("moveend", e, e.target.getBounds());
         console.log("zoom is", _animateToZoom);
-        // upon moving, send request to API to get the elemts here.
+        console.log("see the map ", map);
+        // upon moving, send request to API to get the elemts here. Ok, I will do it :)
+        
       },
     });
     return null;

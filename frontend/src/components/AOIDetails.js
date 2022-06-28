@@ -34,7 +34,7 @@ const AOIDetails = props =>
           
         }
       };
-      const { data } = useQuery("fetchAOI" + props.aoiId,fetchAOI,{refetchInterval:5000});
+      const { data } = useQuery("fetchAOI" + props.aoiId,fetchAOI,{refetchInterval:60000});
 
     return <>
      {data && <span key={props.aoiId}>
