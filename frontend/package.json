@@ -17,6 +17,7 @@
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^12.1.4",
     "@testing-library/user-event": "^13.5.0",
+    "@turf/turf": "^6.5.0",
     "axios": "^0.26.1",
     "leaflet": "^1.7.1",
     "leaflet-draw": "^1.0.4",
