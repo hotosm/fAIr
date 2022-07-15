@@ -18,6 +18,12 @@ import "leaflet-draw/dist/leaflet.draw.css";
 import { Grid } from "@mui/material";
 import { useMutation } from "react-query";
 import {GeoJSON} from 'react-leaflet';
+import intersect from "@turf/intersect";
+import {
+  multiPolygon
+  
+} from "@turf/helpers";
+
 import axios from '../axios'
 const DatasetMap = (props) => {
   const [mapLayers, setMapLayers] = useState([]);
@@ -77,7 +83,7 @@ const DatasetMap = (props) => {
           aoiId: -1,
           feature:feature,
           type: "label",
-          latlngs: layer.getLatLngs(),
+          latlngs: layer.getLatLngs()[0],
          
         });
       
@@ -151,7 +157,7 @@ const DatasetMap = (props) => {
   const { mutate:mutateDeleteDB, data:deleteResult } = useMutation(deleteDB);
 
 
-  const createDB = async ({poly,leafletId,type}) => {
+  const createDB = async ({poly,leafletId,type,polyTemp}) => {
 
       try {   
         let body = {}    
@@ -161,20 +167,46 @@ const DatasetMap = (props) => {
           dataset: 1
         }
         else
-        body = {
-          geom: poly
+        {
+          const f1 = multiPolygon([polyTemp]);
+          // console.log('intersection f1',f1)
+          let aoiId = -1;
+          
+          mapLayers.filter(e=> e.type === "aoi").forEach(element => {
+
+            console.log('intersection mapLayers', converToGeoPolygon([element])[0],mapLayers)
+            const f2 = multiPolygon(converToGeoPolygon([element])[0]);
+            console.log('intersection f2',f2)
+          
+            const intersection = intersect(f1.geometry, f2.geometry);
+            if (intersection !== null && aoiId === -1)
+            {
+              console.log('intersection ',intersection,element)            
+              aoiId = element.aoiId              
+            }
+          })
+          //polyTemp
+          console.log('intersection aoiId',aoiId)
+          body = {
+          geom: poly,
+          aoi: aoiId
         }
+
+      }
         
 
        const res = await axios.post(`/${type}/`, body);
-  
+       console.log('res ',res)
+            
         if (res.error)
-        setMapError(res.error.response.statusText);
+          setMapError(JSON.stringify(res.error));
         else 
         {
 
           // add aoi ID to the state after insert
-          setMapLayers((layers) =>
+          if (type === "aoi")
+          {
+            setMapLayers((layers) =>
           layers.map((l) =>
            {
              if ( l.id === leafletId)
@@ -192,6 +224,29 @@ const DatasetMap = (props) => {
            }
           )
         );
+      }
+      if (type === "label")
+          {
+            setMapLayers((layers) =>
+          layers.map((l) =>
+           {
+             if ( l.id === leafletId)
+             {
+               const newAOI = {
+                ...l,
+                aoiId:res.data.id,
+                id:res.data.id,
+                feature:res.data,
+                
+              }                          
+              return newAOI
+            }
+          else
+          return l;
+           }
+          )
+        );
+      }
       
            return res.data;
         }
@@ -296,7 +351,7 @@ const DatasetMap = (props) => {
                                   "))"                        
                                                                             
       console.log("converToPolygon([layer])",polygon );
-      mutateCreateDB({poly:polygon,leafletId:_leaflet_id,type:str})
+      mutateCreateDB({poly:polygon,leafletId:_leaflet_id,type:str,polyTemp: converToGeoPolygon([newAOI ])[0][0]})
       setMapLayers((layers) => [
         ...layers,
         newAOI,
@@ -370,7 +425,7 @@ const DatasetMap = (props) => {
   };
 
   const _onDeleted = (e) => {
-    console.log(e);
+    console.log('_onDeleted',e);
     const {
       layers: { _layers },
     } = e;
@@ -414,19 +469,19 @@ const DatasetMap = (props) => {
 
   const blueOptions = { color: "#ADD8E6" };
   const greenOptions = { color: "green" };
-  const multiPolygon = [
-    [
-      [51.51, -0.12],
-      [51.51, -0.13],
-      [51.53, -0.13],
-      [51.53, -0.12],
-    ],
-    [
-      [51.51, -0.05],
-      [51.51, -0.07],
-      [51.53, -0.07],
-    ],
-  ];
+  // const multiPolygon = [
+  //   [
+  //     [51.51, -0.12],
+  //     [51.51, -0.13],
+  //     [51.53, -0.13],
+  //     [51.53, -0.12],
+  //   ],
+  //   [
+  //     [51.51, -0.05],
+  //     [51.51, -0.07],
+  //     [51.53, -0.07],
+  //   ],
+  // ];
 
   const corrdinatestoLatlngs = (layer) =>
   {
@@ -470,7 +525,8 @@ const DatasetMap = (props) => {
         if (l.feature === undefined)
         {
           // console.log("mapLayers", mapLayers)
-          l.feature = mapLayers.find(m => m.id === l._leaflet_id).feature
+          if (mapLayers.find(m => m.id === l._leaflet_id))
+            l.feature = mapLayers.find(m => m.id === l._leaflet_id).feature
         }
       })
     }
@@ -572,7 +628,7 @@ const DatasetMap = (props) => {
 
     leafletGeoJSON.eachLayer((layer) => {
   
-     const l = Object.values(_layers).find(x=> x.feature.id === layer.feature.id)
+     const l = Object.values(_layers).find(x=> x.feature && (x.feature.id === layer.feature.id) )
     //  console.log("found in leaflet already ", l)
         if (l === undefined)
      {
@@ -633,7 +689,7 @@ const DatasetMap = (props) => {
             map.removeLayer(l)
          
         });
-    
+        
         
         if (_animateToZoom >= 19)
         mutategetLabels(e.target.getBounds())
