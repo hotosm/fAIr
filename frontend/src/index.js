@@ -9,11 +9,8 @@ import theme from "./theme";
 import { QueryClient, QueryClientProvider } from "react-query";
 
 const queryClient = new QueryClient();
-if (process.env.REACT_APP_ENV ==='Production')
-    console.log = args =>
-    {
-      
-    }
+if (process.env.REACT_APP_ENV === "Production") console.log = (args) => {};
+// console.log = (args) => {};
 ReactDOM.render(
   <ThemeProvider theme={theme}>
     {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}

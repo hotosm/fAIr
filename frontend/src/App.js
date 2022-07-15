@@ -54,7 +54,7 @@ function App() {
           }}
         ></TileServerList>
         <TMProject addtoMap={AddtoMapHandler}></TMProject>
-        <AOI mapLayers={mapLayers} selectAOIHandler={selectAOIHandler}></AOI>
+        <AOI mapLayers={mapLayers.filter(i=> i.type ==="aoi")} selectAOIHandler={selectAOIHandler}></AOI>
 
       </Grid>
     </Grid>
