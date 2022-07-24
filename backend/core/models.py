@@ -15,6 +15,7 @@ class AOI (models.Model) :
         Dataset, to_field="id",on_delete=models.CASCADE)
     geom = geomodels.PolygonField(srid=4326)
     download_status=models.IntegerField(default=-1) # -1 Not Downloaded ,0 - Running , 1 - Downloaded 
+    imagery_status=models.IntegerField(default=-1) # -1 Not Downloaded ,0 - Running , 1 - Downloaded 
     last_fetched_date=models.DateTimeField(null=True,blank=True)
     created_date = models.DateTimeField(auto_now_add=True)
     last_modified= models.DateTimeField(auto_now=True)

@@ -36,6 +36,7 @@ backend/core/management/commands/__pycache__
 backend/core/migrations
 backend/media
 backend/data/*
+backend/training/*
 backend/aiproject/.env
 backend/config.txt
 

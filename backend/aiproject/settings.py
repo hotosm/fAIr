@@ -126,7 +126,7 @@ if 'DATABASE_NAME' not in env:
             'ENGINE': 'django.contrib.gis.db.backends.postgis',
             'NAME': 'ai',
             'USER': 'admin',
-            'PASSWORD': 'password',
+            'PASSWORD': 'admin',
             'HOST': 'localhost',
             'PORT': 5432,
         }

@@ -31,6 +31,8 @@ urlpatterns = [
     path('',schema_view), # for the swagger
     path('api/v1/', include(router.urls)), # adding all the api to version 1 project is in development 
     path('api/v1/fetch-raw/<int:aoi_id>/', RawdataApiView.as_view()),
+    path('api/v1/dataset/build/<int:dataset_id>/<str:source>/', DatasetApiView.as_view()),
+     path('api/v1/dataset/build/<int:dataset_id>/', DatasetApiView.as_view()),
 
 
 ]
