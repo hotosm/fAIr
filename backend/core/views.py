@@ -171,6 +171,15 @@ DEFAULT_ZOOM_LEVEL=19
    
 @api_view(['POST'])   
 def image_download_api(request):
+    """_summary_
+
+    Args:
+        dataset_id: int - id of the dataset
+        source : str - source url of OAM if present or any other URL - Optional
+
+    Returns:
+        Download status
+    """
     print(request.data)
 
     serializer=ImageDownloadSerializer(data=request.data)
