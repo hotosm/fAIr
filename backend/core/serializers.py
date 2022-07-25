@@ -21,3 +21,11 @@ class LabelSerializer(GeoFeatureModelSerializer): # serializers are used to tran
         # auto_bbox = True
         fields = '__all__' # defining all the fields to  be included in curd for now , we can restrict few if we want 
 
+class ImageDownloadSerializer(serializers.Serializer):
+    dataset_id = serializers.IntegerField()
+    source = serializers.URLField(required=False)
+    
+class ImageDownloadResponseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AOI
+        fields = ('id','imagery_status',)
