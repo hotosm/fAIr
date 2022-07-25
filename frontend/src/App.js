@@ -5,6 +5,7 @@ import AOI from "./components/AOI";
 import { useState } from "react";
 import TileServerList from "./components/TileServerList";
 import TMProject from "./components/TMProject";
+import MapActions from "./components/MapActions";
 
 function App() {
   const [mapLayers, setMapLayers] = useState([]);
@@ -43,7 +44,9 @@ function App() {
           oamImagery={oamImagery}
           geoJSON={geoJSON}
           emptyPassedgeoJSON={()=>{setgeoJSON(null)}}
+      
         ></DatasetMap>
+        <MapActions oamImagery={oamImagery} ></MapActions>
       </Grid>
       <Grid item xs={6} md={4}>
         <TileServerList
