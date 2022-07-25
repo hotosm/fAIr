@@ -243,6 +243,21 @@ def image_download_api(request):
     
     res_serializer=ImageDownloadResponseSerializer(data=list(aoi),many=True) 
     
+    aoi_list_queryset = AOI.objects.filter(dataset=dataset_id)
+    
+    aoi_list=[r.id for r in aoi_list_queryset]
+
+    label= Label.objects.filter(aoi__in=aoi_list).values()
+    serialized_field=LabelFileSerializer(data=list(label),many=True)
+    try:
+        if serialized_field.is_valid(raise_exception=True):
+            with open(f"training/{dataset_id}/labels.geojson", 'w', encoding='utf-8') as f: 
+                f.write(json.dumps(serialized_field.data))
+            f.close()
+
+    except Exception as ex :
+        print (ex)
+        raise ex
     
     if res_serializer.is_valid(raise_exception=True):
         print(res_serializer.data)
