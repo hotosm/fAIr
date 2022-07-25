@@ -24,7 +24,7 @@ class Label(models.Model):
     aoi = models.ForeignKey(
         AOI, to_field="id", on_delete=models.CASCADE)
     geom = geomodels.GeometryField(srid=4326)
-    osm_id = models.BigIntegerField(null=True,blank=True,unique=True)
+    osm_id = models.BigIntegerField(null=True,blank=True)
     created_date = models.DateTimeField(auto_now_add=True)
     last_modified= models.DateTimeField(auto_now=True)
 

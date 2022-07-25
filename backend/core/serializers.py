@@ -21,6 +21,14 @@ class LabelSerializer(GeoFeatureModelSerializer): # serializers are used to tran
         # auto_bbox = True
         fields = '__all__' # defining all the fields to  be included in curd for now , we can restrict few if we want 
 
+class LabelFileSerializer(GeoFeatureModelSerializer): # serializers are used to translate models objects to api 
+    class Meta:
+        model = Label
+        geo_field='geom' # this will be used as geometry in order to create geojson api , geofeatureserializer will let you create api in geojson 
+        # auto_bbox = True
+        fields = ('osm_id',) # defining all the fields to  be included in curd for now , we can restrict few if we want 
+
+
 class ImageDownloadSerializer(serializers.Serializer):
     dataset_id = serializers.IntegerField()
     source = serializers.URLField(required=False)
