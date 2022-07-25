@@ -312,63 +312,40 @@ def download_imagery(start : list , end :list , zm_level , dataset_id , source='
     source_name="OAM" #default
     
     while start_x <= stop_x: # download for x section while keeping y as constant 
-        download_path= [start_x,begin_y]
-        
-        
-        if source == 'maxar': 
-            try : 
-                connect_id=os.environ.get('MAXAR_CONNECT_ID')
-            except:
-                raise ImportError(
-                        "Connect id for maxar is not supplied"
-                )
-            source_name=source
-            download_url=f"https://services.digitalglobe.com/earthservice/tmsaccess/tms/1.0.0/DigitalGlobe:ImageryTileService@EPSG:3857@jpg/{zm_level}/{download_path[0]}/{download_path[1]}.jpg?connectId={connect_id}&flipy=true"
-        
-        #add multiple logic on supported sources here 
-        else:
-            # source should be url as string , like this :  https://tiles.openaerialmap.org/62dbd947d8499800053796ec/0/62dbd947d8499800053796ed/{z}/{x}/{y}
-            download_url=source.format(x=download_path[0],y=download_path[1],z=zm_level)
-        with open(f"{base_path}/{source_name}-{start_x}-{begin_y}-{zm_level}.png", 'wb') as handle:
-            response = requests.get(download_url, stream=True)
+        start_y=begin_y
+        while start_y >= stop_y: # download for y section while keeping x as constant 
+            download_path= [start_x,start_y]                
+            if source == 'maxar': 
+                try : 
+                    connect_id=os.environ.get('MAXAR_CONNECT_ID')
+                except:
+                    raise ImportError(
+                            "Connect id for maxar is not supplied"
+                    )
+                source_name=source
+                download_url=f"https://services.digitalglobe.com/earthservice/tmsaccess/tms/1.0.0/DigitalGlobe:ImageryTileService@EPSG:3857@jpg/{zm_level}/{download_path[0]}/{download_path[1]}.jpg?connectId={connect_id}&flipy=true"
+            
+            #add multiple logic on supported sources here 
+            else:
+                # source should be url as string , like this :  https://tiles.openaerialmap.org/62dbd947d8499800053796ec/0/62dbd947d8499800053796ed/{z}/{x}/{y}
+                download_url=source.format(x=download_path[0],y=download_path[1],z=zm_level)
+            with open(f"{base_path}/{source_name}-{start_x}-{start_y}-{zm_level}.png", 'wb') as handle:
+                response = requests.get(download_url, stream=True)
 
-            if not response.ok:
-                print(response)
+                if not response.ok:
+                    print(response)
 
-            for block in response.iter_content(1024):
-                if not block:
-                    break
-                handle.write(block)
-        print(f"Downloaded : {download_path}")
+                for block in response.iter_content(1024):
+                    if not block:
+                        break
+                    handle.write(block)
+            print(f"Downloaded : {download_path}")
+            start_y=start_y-1 # decrease the y 
+        
         start_x=start_x+1 # increase the x 
-    
-    while start_y >= stop_y: # download for y section while keeping x as constant 
-        download_path= [begin_x,start_y]
-        if source == 'maxar': 
-            try : 
-                connect_id=os.environ.get('MAXAR_CONNECT_ID')
-            except:
-                raise ImportError(
-                        "Connect id for maxar is not supplied"
-                )
-            download_url=f"https://services.digitalglobe.com/earthservice/tmsaccess/tms/1.0.0/DigitalGlobe:ImageryTileService@EPSG:3857@jpg/{zm_level}/{download_path[0]}/{download_path[1]}.jpg?connectId={connect_id}&flipy=true"
-        
-        #add multiple logic on supported sources here 
-        else:
-            # source should be url as string , like this :  https://tiles.openaerialmap.org/62dbd947d8499800053796ec/0/62dbd947d8499800053796ed/{z}/{x}/{y}
-            download_url=source.format(x=download_path[0],y=download_path[1],z=zm_level)    
-        with open(f"{base_path}/{source}-{begin_x}-{start_y}-{zm_level}.png", 'wb') as handle: # if the file is present it will overwrite
-            response = requests.get(download_url, stream=True)
 
-            if not response.ok:
-                print(response)
-
-            for block in response.iter_content(1024):
-                if not block:
-                    break
-                handle.write(block)
-        print(f"Downloaded : {download_path}")
-        start_y=start_y-1 # decrease the y 
+    #TODO: Save geojson labels to the same folder
+       
         
 
     

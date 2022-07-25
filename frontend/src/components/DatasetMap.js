@@ -25,6 +25,7 @@ import {
 } from "@turf/helpers";
 
 import axios from '../axios'
+import LoadingButton from "@mui/lab/LoadingButton";
 const DatasetMap = (props) => {
   const [mapLayers, setMapLayers] = useState([]);
   const [dummy, setDummy] = useState([]);
@@ -755,7 +756,7 @@ const DatasetMap = (props) => {
  <LayersControl.BaseLayer name="Google" >
             <TileLayer
               maxZoom={22}
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              attribution='&copy; <a href="https://www.google.com">Google</a>'
               url="http://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
             />
           </LayersControl.BaseLayer>
@@ -817,33 +818,35 @@ const DatasetMap = (props) => {
           />
         </FeatureGroup>
       </MapContainer>
-      <pre className="text-left">
-        all mapLayers{JSON.stringify(converToGeoPolygon(mapLayers), 0, 2)}
-      </pre>
-      <pre className="text-left">
-       all AOI from  mapLayers{JSON.stringify(
-          mapLayers.filter((e) => e.type === "aoi"),
-          0,
-          2
-        )}
-      </pre>
      
-      <p>all lbls from mapLayers</p>
-      <pre className="text-left">
-        {JSON.stringify(
-          mapLayers.filter((e) => e.type === "label"),
-          0,
-          2
-        )}
-      </pre>
-    <p>below for AOIs object </p>
-      <pre className="text-left">
-        {JSON.stringify(
-         AOIs,
-          0,
-          2
-        )}
-      </pre> 
+     {props.logs &&
+     <> <pre className="text-left">
+     all mapLayers{JSON.stringify(converToGeoPolygon(mapLayers), 0, 2)}
+   </pre>
+   <pre className="text-left">
+    all AOI from  mapLayers{JSON.stringify(
+       mapLayers.filter((e) => e.type === "aoi"),
+       0,
+       2
+     )}
+   </pre>
+  
+   <p>all lbls from mapLayers</p>
+   <pre className="text-left">
+     {JSON.stringify(
+       mapLayers.filter((e) => e.type === "label"),
+       0,
+       2
+     )}
+   </pre>
+ <p>below for AOIs object </p>
+   <pre className="text-left">
+     {JSON.stringify(
+      AOIs,
+       0,
+       2
+     )}
+   </pre> </>}
        </>
   );
 };
