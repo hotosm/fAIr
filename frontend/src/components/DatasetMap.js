@@ -742,7 +742,7 @@ const DatasetMap = (props) => {
               attribution='<a href="https://wiki.openstreetmap.org/wiki/DigitalGlobe" target="_blank"><img class="source-image" src="https://osmlab.github.io/editor-layer-index/sources/world/Maxar.png"><span class="attribution-text">Terms &amp; Feedback</span></a>'
               url={
                 "https://services.digitalglobe.com/earthservice/tmsaccess/tms/1.0.0/DigitalGlobe:ImageryTileService@EPSG:3857@jpg/{z}/{x}/{-y}.jpg?connectId=" +
-                process.env.REACT_APP_CONNECT_ID
+                process.env.REACT_APP_MAXAR_CONNECT_ID
               }
             />
           </LayersControl.BaseLayer>

@@ -23,7 +23,7 @@ from zipfile import ZipFile
 import math
 import logging
 import requests
-
+import shutil
 
 
 class DatasetViewSet(viewsets.ModelViewSet): #This is datasetviewset , viewset is defined in order to perform curd efficiently and also this will be tightly coupled with the models 
@@ -191,6 +191,14 @@ def image_download_api(request):
             source = None
     # need to get all the aoi associated with dataset, that's why filtering except getting 
     aois = AOI.objects.filter(dataset=dataset_id)
+
+    base_path=f"training/{dataset_id}" # this is the base path where imagery will be downloaded if not present it will create one 
+    if  os.path.exists(base_path):
+        shutil.rmtree(base_path)
+    os.makedirs(base_path)
+
+   
+
     # looping through each of them and processing it one by one , later on we can specify each aoi to no of threads available 
     for obj in aois :
         # TODO : Here assign each aoi to different thread as much as possible and available 
@@ -225,17 +233,17 @@ def image_download_api(request):
             try:
                 # start downloading 
                 if source : # if source is supplied from post request itself
-                    download_imagery(start,end,zm_level,dataset_id=dataset_id,source=source)
+                    download_imagery(start,end,zm_level,dataset_id=dataset_id,base_path=base_path,source=source)
                 else:
-                    download_imagery(start,end,zm_level,dataset_id=dataset_id) 
+                    download_imagery(start,end,zm_level,dataset_id=dataset_id,base_path=base_path) 
                 obj.imagery_status = 1
-                obj.last_fetched_date = datetime.datetime.utcnow()
+                # obj.last_fetched_date = datetime.datetime.utcnow()
                 obj.save()
                 
             except Exception as ex : # if download process is failed somehow then it should be indicated as not downloaded
                 print(ex)
                 obj.imagery_status = -1
-                obj.last_fetched_date = datetime.datetime.utcnow()
+                # obj.last_fetched_date = datetime.datetime.utcnow()
                 obj.save()
         else:
             print(f"There is running process already for : {obj.id} - dataset : {dataset_id} , Skippinggg")
@@ -301,7 +309,7 @@ def latlng2tile(zoom,lat,lng,tile_size):
     t_y=math.floor((w_y * zoom_byte) / tile_size)
     return t_x,t_y
 
-def download_imagery(start : list , end :list , zm_level , dataset_id , source='maxar'):
+def download_imagery(start : list , end :list , zm_level , dataset_id ,base_path, source='maxar'):
     """Downloads imagery from start to end tile coordinate system
 
     Args:
@@ -312,9 +320,7 @@ def download_imagery(start : list , end :list , zm_level , dataset_id , source='
         dataset_id (int) : Dataset id 
 
     """
-    base_path=f"training/{dataset_id}" # this is the base path where imagery will be downloaded if not present it will create one 
-    if not os.path.exists(base_path):
-        os.makedirs(base_path)
+    
     begin_x=start[0] # this will be the beginning of the download loop for x 
     begin_y=start[1] # this will be the beginning of the download loop for x
     stop_x=end[0] # this will be the end of the download loop for x
@@ -344,7 +350,11 @@ def download_imagery(start : list , end :list , zm_level , dataset_id , source='
             else:
                 # source should be url as string , like this :  https://tiles.openaerialmap.org/62dbd947d8499800053796ec/0/62dbd947d8499800053796ed/{z}/{x}/{y}
                 download_url=source.format(x=download_path[0],y=download_path[1],z=zm_level)
-            with open(f"{base_path}/{source_name}-{start_x}-{start_y}-{zm_level}.png", 'wb') as handle:
+            file = f"{base_path}/{source_name}-{start_x}-{start_y}-{zm_level}.png"
+            if os.path.exists(file):
+                os.remove(file)
+
+            with open(file, 'wb') as handle:
                 response = requests.get(download_url, stream=True)
 
                 if not response.ok:
