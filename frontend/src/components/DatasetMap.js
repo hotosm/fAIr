@@ -673,6 +673,7 @@ const DatasetMap = (props) => {
   };
   function MyComponent() {
     const map = useMapEvents({
+      
       zoomend: (e) => {
         const { _animateToZoom } = e.target;
         console.log("zoomend", e, _animateToZoom);
@@ -683,17 +684,26 @@ const DatasetMap = (props) => {
         console.log("moveend", e, e.target.getBounds());
         console.log("zoom is", _animateToZoom);
         console.log("see the map ", map);
+        const collection = document.getElementsByClassName("leaflet-marker-icon leaflet-div-icon leaflet-editing-icon leaflet-touch-icon leaflet-zoom-animated leaflet-interactive leaflet-marker-draggable");
+        console.log("Edit mode ", collection.length);
+        if (collection.length > 0)
+          return;
+        console.log("reload");
         // upon moving, send request to API to get the elemts here. Ok, I will do it :)
-        Object.values(_layers).map((l) => {
-    
-          if (l.feature && l.feature.properties && l.feature.properties.aoi)
-            map.removeLayer(l)
-         
-        });
+       
         
         
         if (_animateToZoom >= 19)
-        mutategetLabels(e.target.getBounds())
+        {
+          Object.values(_layers).map((l) => {
+    
+            if (l.feature && l.feature.properties && l.feature.properties.aoi)
+              map.removeLayer(l)
+           
+          });
+          mutategetLabels(e.target.getBounds())
+        }
+        
         
       },
     });
@@ -706,7 +716,10 @@ const DatasetMap = (props) => {
       {/* <button onClick={addGeoJSONHandler}>Add TM Project 11974</button>
       <button onClick={changePositionHandler}>Change position</button> */}
       <h1>Selected dataset #1</h1>
-      <p>zoom: {zoom} 
+      <p>zoom: {zoom}, 
+      mode: {document.getElementById("leaflet-marker-icon leaflet-div-icon leaflet-editing-icon leaflet-touch-icon leaflet-zoom-animated leaflet-interactive leaflet-marker-draggable") &&
+          document.getElementById("leaflet-marker-icon leaflet-div-icon leaflet-editing-icon leaflet-touch-icon leaflet-zoom-animated leaflet-interactive leaflet-marker-draggable").length 
+          }
       {mapError && <span style={{color: "red"}}> Error: {mapError} </span>}
       </p>
        <select defaultValue="aoi" id="selectedLayer">

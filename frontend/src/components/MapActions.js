@@ -50,7 +50,7 @@ const MapActions = props =>
               variant="contained"
               disabled={props.oamImagery === null}
             >
-              Build Dataset
+              Sync Dataset
             </LoadingButton>
             <br/>
             {error && error}
