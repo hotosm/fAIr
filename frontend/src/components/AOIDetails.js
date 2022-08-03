@@ -7,7 +7,7 @@ import {timeSince,aoiStatusText} from '../utils'
 const AOIDetails = props =>
 {
 
-    console.log("rendering AOIDetails",props)
+    // console.log("rendering AOIDetails",props)
     const fetchAOI = async () => {
 
         try {       
@@ -23,7 +23,7 @@ const AOIDetails = props =>
           {
     
             // success full fetch
-            console.log("API details, ",props.aoiId,res.data);
+            // console.log("API details, ",props.aoiId,res.data);
              return res.data;
           }
            

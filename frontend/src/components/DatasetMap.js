@@ -78,7 +78,7 @@ const DatasetMap = (props) => {
    const newLayers = [];
     leafletGeoJSON.eachLayer((layer) => {
       const { _leaflet_id, feature } = layer;
-     console.log("on get labels layer",layer,layer.getLatLngs(),L.GeometryUtil.geodesicArea(layer.getLatLngs()))
+    //  console.log("on get labels layer",layer,layer.getLatLngs(),L.GeometryUtil.geodesicArea(layer.getLatLngs()))
        newLayers.push({
           id: _leaflet_id,
           aoiId: -1,
@@ -517,7 +517,7 @@ const DatasetMap = (props) => {
   }
   const _onFeatureGroupReady = (reactFGref, _geoJsonLoadedFile) => {
     // console.log("_onFeatureGroupReady");
-    console.log("_onFeatureGroupReady reactFGref",reactFGref);
+    // console.log("_onFeatureGroupReady reactFGref",reactFGref);
     if (reactFGref)
     {
       // make sure each layer has a featre geojson for created ones
@@ -591,7 +591,7 @@ const DatasetMap = (props) => {
   };
   const _onFeatureGroupReadyLabels = (reactFGref, _geoJsonLoadedFile) => {
     // console.log("_onFeatureGroupReady");
-    console.log("_onFeatureGroupReadyLabels reactFGref",reactFGref);
+    // console.log("_onFeatureGroupReadyLabels reactFGref",reactFGref);
     // if (reactFGref)
     // {
     //   // make sure each layer has a featre geojson for created ones
@@ -613,9 +613,9 @@ const DatasetMap = (props) => {
     setgeoJsonLoadedLabels(null)
     // populate the leaflet FeatureGroup with the geoJson layers
 
-    console.log("importing service labels",geoJsonLoadedFile);
+    // console.log("importing service labels",geoJsonLoadedFile);
     let leafletGeoJSON = new L.GeoJSON(geoJsonLoadedFile);
-    console.log("leafletGeoJSON labels", leafletGeoJSON._layers);
+    // console.log("leafletGeoJSON labels", leafletGeoJSON._layers);
     const {_layers} = leafletFG
       
     Object.values(_layers).map((l) => {
@@ -702,6 +702,15 @@ const DatasetMap = (props) => {
            
           });
           mutategetLabels(e.target.getBounds())
+        }
+        else
+        {
+          Object.values(_layers).map((l) => {
+    
+            if (l.feature && l.feature.properties && l.feature.properties.aoi)
+              map.removeLayer(l)
+           
+          });
         }
         
         
