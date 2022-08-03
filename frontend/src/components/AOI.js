@@ -44,7 +44,7 @@ const AOI = (props) => {
     setPage(p);
     _DATA.jump(p);
   };
-  console.log("_DATA", _DATA);
+  // console.log("_DATA", _DATA);
   useEffect(() => {
     return () => {};
   }, [props]);

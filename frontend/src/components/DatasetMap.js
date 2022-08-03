@@ -143,10 +143,10 @@ const DatasetMap = (props) => {
     
      const res = await axios.delete(`/${type}/${id}/`);
       console.log("res from edit ", res)
-      if (res.error)
-        setMapError(res.error);
-      else 
-        return res.data;
+      if (res.status === 204 || res.error)
+          return;
+      
+      return res.data;
     } catch (e) {
       console.log("isError",e);
       setMapError(e)
@@ -434,7 +434,8 @@ const DatasetMap = (props) => {
     Object.values(_layers).map(({ _leaflet_id ,feature}) => {
       
       console.log('delete feature',feature);
-      mutateDeleteDB({id:feature.id,type: (feature && feature.properties && feature.properties.aoi ? "label": "aoi" )});
+      if (feature.id)
+        mutateDeleteDB({id:feature.id,type: (feature && feature.properties && feature.properties.aoi ? "label": "aoi" )});
     });
 
     Object.values(_layers).map(({ _leaflet_id }) => {
