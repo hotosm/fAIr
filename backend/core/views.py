@@ -91,7 +91,10 @@ def request_rawdata(request_params):
                 "Galaxy URL is not defined on env variable"
         )
     #following block should be a background task and api should deliver response quickly as possible
-    headers = {'Content-type': "text/plain; charset=utf-8"}
+    headers = {
+          "accept": "application/json",
+          "Content-Type": "application/json",
+        }
     print(request_params)
     with requests.post(url = galaxy_url, data = json.dumps(request_params) ,headers=headers) as r : # no curl option , only request for now curl can be implemented when we see it's usage
         response_back = r.json()
