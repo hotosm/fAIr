@@ -17,4 +17,4 @@ Put your credentials inside .env by following .env [sample](https://github.com/o
 
  `npm start`
 
-#### Note : Build and Run [Backend](https://github.com/omranlm/TDB/tree/feature/download_training_dataset/backend) First before building frontend
+#### Note : Build and Run Backend First before building frontend
