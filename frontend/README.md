@@ -11,10 +11,10 @@ This project is tested with Node v14.17.3 and Node v16.14.2
 
 ### Create .env file inside root dir 
 
-Put your credentials inside .env by following .env sample 
+Put your credentials inside .env by following .env [sample](https://github.com/omranlm/TDB/blob/main/frontend/.env%20sample)
 
 ### Start development server
 
  `npm start`
 
-#### Note : Run Backend First before building frontend
+#### Note : Build and Run [Backend](https://github.com/omranlm/TDB/tree/feature/download_training_dataset/backend) First before building frontend
