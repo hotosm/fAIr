@@ -388,10 +388,10 @@ def download_training_data(request,dataset_id: int):
     
     file_path = f"""training/{dataset_id}/"""
     zip_temp_path = f"""training/{dataset_id}.zip"""
-    zf = zipfile.ZipFile(zip_temp_path, "w", zipfile.ZIP_DEFLATED)
 
     directory = pathlib.Path(file_path)
     if os.path.exists(directory):
+        zf = zipfile.ZipFile(zip_temp_path, "w", zipfile.ZIP_DEFLATED)
         for file_path in directory.iterdir():
             zf.write(file_path, arcname=file_path.name)
         zf.close()
@@ -400,6 +400,7 @@ def download_training_data(request,dataset_id: int):
             response.headers['Content-Type'] = 'application/x-zip-compressed'
             
             response.headers["Content-Disposition"] = f"attachment; filename=training_{dataset_id}_all_data.zip"
+            return response
         else:
             # "error": "File Doesn't Exist or has been cleared up from system",
             return  HttpResponse(status=204)        
