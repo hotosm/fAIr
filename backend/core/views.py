@@ -26,6 +26,11 @@ import requests
 import shutil
 
 
+import zipfile
+import pathlib
+from django.http import HttpResponse
+from datetime import datetime
+
 class DatasetViewSet(viewsets.ModelViewSet): #This is datasetviewset , viewset is defined in order to perform curd efficiently and also this will be tightly coupled with the models 
     queryset = Dataset.objects.all()
     serializer_class = DatasetSerializer # connecting serializer
@@ -373,7 +378,33 @@ def download_imagery(start : list , end :list , zm_level , dataset_id ,base_path
         start_x=start_x+1 # increase the x 
 
     #TODO: Save geojson labels to the same folder
-       
-        
 
+
+@api_view(['GET'])   
+def download_training_data(request,dataset_id: int):
+    """Used for Delivering our training folder to user.
+    Returns zip file if it is present on our server if not returns error 
+    """
     
+    file_path = f"""training/{dataset_id}/"""
+    zip_temp_path = f"""training/{dataset_id}.zip"""
+
+    directory = pathlib.Path(file_path)
+    if os.path.exists(directory):
+        zf = zipfile.ZipFile(zip_temp_path, "w", zipfile.ZIP_DEFLATED)
+        for file_path in directory.iterdir():
+            zf.write(file_path, arcname=file_path.name)
+        zf.close()
+        if  os.path.exists(zip_temp_path):
+            response = HttpResponse(open(zip_temp_path,'rb'))
+            response.headers['Content-Type'] = 'application/x-zip-compressed'
+            
+            response.headers["Content-Disposition"] = f"attachment; filename=training_{dataset_id}_all_data.zip"
+            return response
+        else:
+            # "error": "File Doesn't Exist or has been cleared up from system",
+            return  HttpResponse(status=204)        
+      
+    else :
+        # "error": "Dataset haven't been downloaded or doesn't exist",
+        return  HttpResponse(status=204)        
