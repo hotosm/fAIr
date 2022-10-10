@@ -36,3 +36,23 @@
     transform: rotate(360deg);
   }
 }
+
+
+.leaflet-tile-container img 
+{
+  padding: 0.5px;
+}
+
+.MuiButtonBase-root
+{
+  background-color: #D63F40 !important;
+}
+
+.margin1
+{
+  margin-left: 2px !important;
+}
+.margin20
+{
+  margin-left: 14px !important;
+}

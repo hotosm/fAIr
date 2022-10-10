@@ -70,10 +70,18 @@ const TMProject = props =>
                loading={isLoading}
               loadingPosition="end"
               variant="contained"
-              disabled={!projectId}
+              disabled={true}
+
             >
               Import
             </LoadingButton>
+            
+          </Grid>
+          <Grid item md={12} padding={1}>
+          <Alert severity="info" >
+                <AlertTitle>Importing validated tasks from HOT Tasking Manager ptoject is still an idea</AlertTitle>
+               
+              </Alert>
           </Grid>
           <Grid item md={12} padding={1}>
              {error && <Alert severity="error" onClose={() => {setError(false)}} >

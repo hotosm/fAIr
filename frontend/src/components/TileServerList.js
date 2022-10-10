@@ -66,6 +66,7 @@ const TileServerList = (props) => {
               secondaryAction={
                 <>
                   <IconButton
+                  className="margin20"
                     edge={"end"}
                     aria-label="zoom"
                     onClick={(e) => {
@@ -74,7 +75,8 @@ const TileServerList = (props) => {
                   >
                     <ZoomInMap />
                   </IconButton>
-                  <IconButton
+                  <IconButton 
+                   className="margin20"
                     edge={"end"}
                     aria-label="delete"
                     onClick={(e) => {

@@ -39,43 +39,42 @@ const AOI = (props) => {
   const [dense, setDense] = useState(true);
   const count = Math.ceil(props.mapLayers.length / PER_PAGE);
   let [page, setPage] = useState(1);
-  let _DATA = usePagination(props.mapLayers.filter(e=> e.type ==='aoi'), PER_PAGE);
+  let _DATA = usePagination(props.mapLayers.filter(e => e.type === 'aoi'), PER_PAGE);
   const handleChange = (e, p) => {
     setPage(p);
     _DATA.jump(p);
   };
   // console.log("_DATA", _DATA);
   useEffect(() => {
-    return () => {};
+    return () => { };
   }, [props]);
 
   const fetchOSMLebels = async (aoiId) => {
 
-    try {       
-     
+    try {
 
-     const res = await axios.post(`/fetch-raw/${aoiId}/`);
 
-      if (res.error){
-      // setMapError(res.error.response.statusText);
-      console.log(res.error.response.statusText);
-    }
-      else 
-      {
+      const res = await axios.post(`/fetch-raw/${aoiId}/`);
+
+      if (res.error) {
+        // setMapError(res.error.response.statusText);
+        console.log(res.error.response.statusText);
+      }
+      else {
 
         // success full fetch
-                 
-         return res.data;
+
+        return res.data;
       }
-       
+
     } catch (e) {
-      console.log("isError",e);
-      
+      console.log("isError", e);
+
     } finally {
-      
+
     }
   };
-  const { mutate:mutateFetch, data:fetchResult } = useMutation(fetchOSMLebels);
+  const { mutate: mutateFetch, data: fetchResult } = useMutation(fetchOSMLebels);
 
   return (
     <>
@@ -100,7 +99,7 @@ const AOI = (props) => {
               _DATA.currentData().map((layer) => (
                 <ListItemWithWiderSecondaryAction className="classname"
                   key={layer.id}
-                  
+
                 >
                   <ListItemAvatar>
                     <Avatar>
@@ -109,37 +108,41 @@ const AOI = (props) => {
                   </ListItemAvatar>
                   <ListItemText
                     primary={"AOI id " + layer.aoiId}
-                    secondary={<span>Area: {parseInt(layer.area).toLocaleString()} sqm <br/>
-                    <span style={{color: "red"}}>{( parseInt(layer.area) < 5000 ? <>Area seems to be very small for an AOI<br/>Make sure it is not a Label</> : "")} 
-                    </span>
-                   
-                   {/* add here a container to get the AOI status from DB */}
-                     {layer.aoiId && 
-                      <AOIDetails aoiId={layer.aoiId}></AOIDetails>
+                    secondary={<span>Area: {parseInt(layer.area).toLocaleString()} sqm <br />
+                      <span style={{ color: "red" }}>{(parseInt(layer.area) < 5000 ? <>Area seems to be very small for an AOI<br />Make sure it is not a Label</> : "")}
+                      </span>
+
+                      {/* add here a container to get the AOI status from DB */}
+                      {layer.aoiId &&
+                        <AOIDetails aoiId={layer.aoiId}></AOIDetails>
                       }
-                     </span>}
+                    </span>}
                   />
                   <ListItemSecondaryAction>
-                {/* <IconButton aria-label="comments">
+                    {/* <IconButton aria-label="comments">
                    <DeleteIcon />
                 </IconButton> */}
-                <IconButton aria-label="comments"
-                onClick={(e)=> {
+                    <IconButton aria-label="comments"
+                      className="margin1"
+                      onClick={(e) => {
 
-                  mutateFetch(layer.aoiId);
-                  console.log("call galaxy API to fetch OSM labels")
+                        mutateFetch(layer.aoiId);
+                        console.log("call galaxy API to fetch OSM labels")
 
-                }}>
-                   <MapTwoTone />
-                </IconButton>
-                <IconButton aria-label="comments"
+                      }}>
+                      <MapTwoTone />
+                    </IconButton>
+                    {/* <IconButton aria-label="comments"
+                className="margin1"
+                disabled
                 onClick={(e)=> {
 
                   console.log("Remove labels ")
                 }}>
                    <PlaylistRemoveIcon />
-                </IconButton>
-                <IconButton
+                </IconButton> */}
+                    <IconButton
+                      className="margin1"
                       edge={"end"}
                       aria-label="delete"
                       onClick={(e) => {
@@ -150,7 +153,7 @@ const AOI = (props) => {
                           ) {
                             return accumulator + curValue.lat;
                           },
-                          0) / layer.latlngs.length;
+                            0) / layer.latlngs.length;
                         const lng =
                           layer.latlngs.reduce(function (
                             accumulator,
@@ -158,14 +161,14 @@ const AOI = (props) => {
                           ) {
                             return accumulator + curValue.lng;
                           },
-                          0) / layer.latlngs.length;
+                            0) / layer.latlngs.length;
                         // [lat, lng] are the centroid of the polygon
-                        props.selectAOIHandler([lat, lng],17);
+                        props.selectAOIHandler([lat, lng], 17);
                       }}
                     >
-                      <ZoomInMap />                
+                      <ZoomInMap />
                     </IconButton>
-              </ListItemSecondaryAction>
+                  </ListItemSecondaryAction>
                 </ListItemWithWiderSecondaryAction>
               ))}
           </List>
