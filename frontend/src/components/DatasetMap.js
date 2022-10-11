@@ -16,7 +16,7 @@ import { EditControl } from "react-leaflet-draw";
 
 import "leaflet-draw/dist/leaflet.draw.css";
 import { Grid } from "@mui/material";
-import { useMutation } from "react-query";
+import { useMutation, useQuery } from "react-query";
 import {GeoJSON} from 'react-leaflet';
 import intersect from "@turf/intersect";
 import {
@@ -26,9 +26,11 @@ import {
 
 import axios from '../axios'
 import LoadingButton from "@mui/lab/LoadingButton";
+import {approximateGeom } from "./../utils"
 const DatasetMap = (props) => {
   const [mapLayers, setMapLayers] = useState([]);
-  const [dummy, setDummy] = useState([]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editMode, setEditMode] = useState("aoi");
   const [geoJsonLoadedFile, setgeoJsonLoadedFile] = useState(props.geoJSON);
   const [geoJsonLoadedLabels, setgeoJsonLoadedLabels] = useState();
   
@@ -285,15 +287,15 @@ const DatasetMap = (props) => {
         
       }
     };
-    const { mutate:mutateGetAOI, data:AOIs } = useMutation(getAOI);
+    const { data:AOIs, refetch } = useQuery("getAOI",getAOI, {refetchInterval: 2000});
 
-    useEffect(() => {
-       mutateGetAOI()
+    // useEffect(() => {
+    //    mutateGetAOI()
     
-      return () => {
+    //   return () => {
        
-      }
-    }, [])
+    //   }
+    // }, [])
     
  useEffect(() => {
      if (AOIs)
@@ -344,12 +346,14 @@ const DatasetMap = (props) => {
         latlngs: layer.getLatLngs()[0],
         area: L.GeometryUtil.geodesicArea(layer.getLatLngs()[0]),
       }
-      const polygon = "SRID=4326;POLYGON((" + JSON.stringify(converToGeoPolygon([newAOI ])[0][0].reduce(
-                                                                            (p,c,i)=> ( p + c[1] + " " + c[0] + "," ),
-                                                                            ""
-                                                                            )
-                                  ).slice(1,-2) +
-                                  "))"                        
+      const points = JSON.stringify(converToGeoPolygon([newAOI ])[0][0].reduce(
+        (p,c,i)=> ( p + c[1] + " " + c[0] + "," ),
+        ""
+        )
+).slice(1,-2)
+      console.log("points",points)
+      const approximated = approximateGeom(points)
+      const polygon = "SRID=4326;POLYGON((" + approximated + "))"                        
                                                                             
       console.log("converToPolygon([layer])",polygon );
       mutateCreateDB({poly:polygon,leafletId:_leaflet_id,type:str,polyTemp: converToGeoPolygon([newAOI ])[0][0]})
@@ -357,9 +361,8 @@ const DatasetMap = (props) => {
         ...layers,
         newAOI,
       ]);
-
-
-
+      refetch();
+      
     }
   };
 
@@ -423,6 +426,9 @@ const DatasetMap = (props) => {
 
       return null;
     });
+
+    setIsEditing(false)
+    
   };
 
   const _onDeleted = (e) => {
@@ -442,7 +448,9 @@ const DatasetMap = (props) => {
       setMapLayers((layers) => layers.filter((l) => l.id !== _leaflet_id));
     });
   };
-
+  const _onEditStart = (e) => {
+      setIsEditing(true);
+  }
   const converToPolygon = (layer) => {
 
     const allPoly = [];
@@ -517,7 +525,7 @@ const DatasetMap = (props) => {
     // ]
   }
   const _onFeatureGroupReady = (reactFGref, _geoJsonLoadedFile) => {
-    // console.log("_onFeatureGroupReady");
+    console.log("_onFeatureGroupReady, reactFGref",reactFGref);
     // console.log("_onFeatureGroupReady reactFGref",reactFGref);
     if (reactFGref)
     {
@@ -531,6 +539,12 @@ const DatasetMap = (props) => {
             l.feature = mapLayers.find(m => m.id === l._leaflet_id).feature
         }
       })
+    }
+    if (reactFGref && fromDB && !isEditing)
+    {
+      setFromDB(false);
+      console.log("fromDB",fromDB)
+      console.log("reactFGref",reactFGref)
     }
     if (reactFGref === null || _geoJsonLoadedFile === null) {
       return;
@@ -555,6 +569,15 @@ const DatasetMap = (props) => {
         // // const getlatlngs = feature.properties.dataset ? corrdinatestoLatlngs(layer) :layer._latlngs[0][0]
         // // newLayer._latlngs[0] = getlatlngs;       
         // console.log("newLayer", newLayer);
+
+        // Add if not exist by feature ID
+        const {_layers} = leafletFG        
+        Object.values(_layers).map((l) => {
+    
+          if (l.feature && l.feature.id === layer.feature.id)
+            leafletFG.removeLayer(l)
+         
+        });
         leafletFG.addLayer(layer);
       }
       if (feature.properties.taskStatus === "VALIDATED" )
@@ -719,6 +742,7 @@ const DatasetMap = (props) => {
     });
     return null;
   }
+ 
   return (
     <>
       {/* <EditControlExample></EditControlExample> */}
@@ -727,12 +751,14 @@ const DatasetMap = (props) => {
       <button onClick={changePositionHandler}>Change position</button> */}
       <h1>Selected dataset #1</h1>
       <p>zoom: {zoom}, 
-      mode: {document.getElementById("leaflet-marker-icon leaflet-div-icon leaflet-editing-icon leaflet-touch-icon leaflet-zoom-animated leaflet-interactive leaflet-marker-draggable") &&
-          document.getElementById("leaflet-marker-icon leaflet-div-icon leaflet-editing-icon leaflet-touch-icon leaflet-zoom-animated leaflet-interactive leaflet-marker-draggable").length 
-          }
+      mode: editing {editMode}
       {mapError && <span style={{color: "red"}}> Error: {mapError} </span>}
       </p>
-       <select defaultValue="aoi" id="selectedLayer">
+       <select defaultValue="aoi" id="selectedLayer" onChange={
+        (e)=>{
+          setEditMode(e.target.value)
+        }
+       }>
         <option value="label">Labels</option>
         <option value="aoi">AOIs</option>
       </select>
@@ -761,7 +787,8 @@ const DatasetMap = (props) => {
 
           <LayersControl.BaseLayer name="Maxar Preimum">
             <TileLayer
-              maxZoom={21}
+              maxNativeZoom={21}
+              maxZoom={24}
               attribution='<a href="https://wiki.openstreetmap.org/wiki/DigitalGlobe" target="_blank"><img class="source-image" src="https://osmlab.github.io/editor-layer-index/sources/world/Maxar.png"><span class="attribution-text">Terms &amp; Feedback</span></a>'
               url={
                 "https://services.digitalglobe.com/earthservice/tmsaccess/tms/1.0.0/DigitalGlobe:ImageryTileService@EPSG:3857@jpg/{z}/{x}/{-y}.jpg?connectId=" +
@@ -771,14 +798,16 @@ const DatasetMap = (props) => {
           </LayersControl.BaseLayer>
           <LayersControl.BaseLayer name="OSM" checked>
             <TileLayer
-              maxZoom={19}
+              maxZoom={24}
+              maxNativeZoom={19}
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
           </LayersControl.BaseLayer>
  <LayersControl.BaseLayer name="Google" >
             <TileLayer
-              maxZoom={22}
+              maxNativeZoom={22}
+              maxZoom={26}
               attribution='&copy; <a href="https://www.google.com">Google</a>'
               url="http://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
             />
@@ -826,13 +855,16 @@ const DatasetMap = (props) => {
         >
           <EditControl
             position="topleft"
+            
             onCreated={(e) => {
               _onCreate(e, document.getElementById("selectedLayer").value);
             }}
             onEdited={_onEdited}
             onDeleted={_onDeleted}
+            onEditStart={_onEditStart}
             draw={{
               polyline: false,
+              polygon: (editMode === "label"),
               rectangle: true,
               circle: false,
               circlemarker: false,

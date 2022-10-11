@@ -79,7 +79,7 @@ const TMProject = props =>
           </Grid>
           <Grid item md={12} padding={1}>
           <Alert severity="info" >
-                <AlertTitle>Importing validated tasks from HOT Tasking Manager ptoject is still an idea</AlertTitle>
+                <AlertTitle>Importing validated tasks from HOT Tasking Manager project is still an idea</AlertTitle>
                
               </Alert>
           </Grid>

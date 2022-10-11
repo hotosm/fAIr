@@ -40,12 +40,18 @@
 
 .leaflet-tile-container img 
 {
-  padding: 0.5px;
+  padding: 1px;
 }
 
 .MuiButtonBase-root
 {
-  background-color: #D63F40 !important;
+  background-color: #D73434 !important;
+}
+
+.MuiButtonBase-root:disabled
+{
+  background-color: #cccccc !important;
+  color: white !important;
 }
 
 .margin1
