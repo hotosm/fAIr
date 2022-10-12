@@ -186,7 +186,7 @@ def process_geojson(geojson_file_path, aoi_id):
     print("writing to database finished")
 
 
-DEFAULT_TILE_SIZE = 254
+DEFAULT_TILE_SIZE = 256
 DEFAULT_ZOOM_LEVEL = 19
 
 
@@ -204,7 +204,10 @@ def image_download_api(request):
     serializer = ImageDownloadSerializer(data=request.data)
     if serializer.is_valid(raise_exception=True):
         dataset_id = request.data.get("dataset_id")
-        source = request.data.get("source", None)
+        # get source imagery url if supplied else use maxar
+        source = request.data.get("source", "maxar")
+    # update the dataset if source imagery is supplied
+    Dataset.objects.filter(id=dataset_id).update(source_imagery=source)
 
     # need to get all the aoi associated with dataset
     aois = AOI.objects.filter(dataset=dataset_id)
@@ -261,8 +264,7 @@ def image_download_api(request):
             end = [end_x, end_y]
             try:
                 # start downloading
-                if source:  # if source is supplied from post request itself
-                    download_imagery(
+                download_imagery(
                         start,
                         end,
                         zm_level,
@@ -270,11 +272,7 @@ def image_download_api(request):
                         base_path=base_path,
                         source=source,
                     )
-                else:
-                    download_imagery(
-                        start, end, zm_level, dataset_id=dataset_id,
-                        base_path=base_path
-                    )
+
                 obj.imagery_status = 1
                 # obj.last_fetched_date = datetime.datetime.utcnow()
                 obj.save()
