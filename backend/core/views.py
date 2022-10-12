@@ -196,6 +196,7 @@ def image_download_api(request):
     Args:
         dataset_id: int - id of the dataset
         source : str - source url of OAM if present or any other URL - Optional
+        zoom_level : int - zoom level default is 19
     Returns:
         Download status
     """
@@ -203,9 +204,12 @@ def image_download_api(request):
 
     serializer = ImageDownloadSerializer(data=request.data)
     if serializer.is_valid(raise_exception=True):
-        dataset_id = request.data.get("dataset_id")
+        dataset_id = int(request.data.get("dataset_id"))
         # get source imagery url if supplied else use maxar
         source = request.data.get("source", "maxar")
+        zoom_level = int(request.data.get("zoom_level", 19))
+
+    DEFAULT_ZOOM_LEVEL = zoom_level
     # update the dataset if source imagery is supplied
     Dataset.objects.filter(id=dataset_id).update(source_imagery=source)
 
@@ -230,7 +234,6 @@ def image_download_api(request):
             )
             obj.imagery_status = 0
             obj.save()
-            print(obj.geom.coords)
             bbox_coords = bbox(obj.geom.coords[0])
             print(f"bbox is : {bbox_coords}")
 
