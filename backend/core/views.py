@@ -357,12 +357,6 @@ def latlng2tile(zoom, lat, lng, tile_size):
     """By dividing the pixel coordinates by the tile size and taking the
         integer parts of the result, you produce as a by-product the tile
         coordinate at the current zoom level."""
-    lat_rad = math.radians(lat)
-    n = 2.0 ** zoom
-    t_x_1 = int((lng + 180.0) / 360.0 * n)
-    t_y_2 = int((1.0 - math.asinh(math.tan(lat_rad)) / math.pi) / 2.0 * n)
-    print(t_x_1, t_y_2)
-
     zoom_byte = 1 << zoom  # converting zoom level to pixel bytes
     # print(zoom_byte)
     w_x, w_y = convert2worldcd(lat, lng, tile_size)
