@@ -196,7 +196,7 @@ def image_download_api(request):
     Args:
         dataset_id: int - id of the dataset
         source : str - source url of OAM if present or any other URL - Optional
-        zoom_level : int - zoom level default is 19
+        zoom_level : list[int] - zoom level default is 19
     Returns:
         Download status
     """
@@ -207,9 +207,8 @@ def image_download_api(request):
         dataset_id = int(request.data.get("dataset_id"))
         # get source imagery url if supplied else use maxar
         source = request.data.get("source", "maxar")
-        zoom_level = int(request.data.get("zoom_level", 19))
+        zoom_level = list(request.data.get("zoom_level", [19]))
 
-    DEFAULT_ZOOM_LEVEL = zoom_level
     # update the dataset if source imagery is supplied
     Dataset.objects.filter(id=dataset_id).update(source_imagery=source)
 
@@ -228,63 +227,65 @@ def image_download_api(request):
         # TODO : Here assign each aoi to different thread as much as possible
         # and available
         if obj.imagery_status != 0:
-            print(
-                f"""Running Download process for
-                aoi : {obj.id} - dataset : {dataset_id}"""
-            )
-            obj.imagery_status = 0
-            obj.save()
-            bbox_coords = bbox(obj.geom.coords[0])
-            print(f"bbox is : {bbox_coords}")
-
-            tile_size = DEFAULT_TILE_SIZE  # by default
-            zm_level = DEFAULT_ZOOM_LEVEL
-
-            # start point where we will start downloading the tiles
-
-            start_point_lng = bbox_coords[0]  # getting the starting lat lng
-            start_point_lat = bbox_coords[1]
-
-            # end point where we should stop downloading the tile
-            end_point_lng = bbox_coords[2]  # getting the ending lat lng
-            end_point_lat = bbox_coords[3]
-
-            # Note :  lat=y-axis, lng=x-axis
-            # getting tile coordinate for first point of bbox
-            start_x, start_y = latlng2tile(
-                zoom=zm_level,
-                lat=start_point_lat,
-                lng=start_point_lng,
-                tile_size=tile_size,
-            )
-            start = [start_x, start_y]
-
-            # getting tile coordinate for last point of bbox
-            end_x, end_y = latlng2tile(
-                zoom=zm_level, lat=end_point_lat,
-                lng=end_point_lng, tile_size=tile_size
-            )
-            end = [end_x, end_y]
-            try:
-                # start downloading
-                download_imagery(
-                        start,
-                        end,
-                        zm_level,
-                        dataset_id=dataset_id,
-                        base_path=base_path,
-                        source=source,
-                    )
-
-                obj.imagery_status = 1
-                # obj.last_fetched_date = datetime.datetime.utcnow()
+            for z in zoom_level:
+                DEFAULT_ZOOM_LEVEL = int(z)
+                print(
+                    f"""Running Download process for
+                    aoi : {obj.id} - dataset : {dataset_id} , zoom : {DEFAULT_ZOOM_LEVEL}"""
+                )
+                obj.imagery_status = 0
                 obj.save()
+                bbox_coords = bbox(obj.geom.coords[0])
+                print(f"bbox is : {bbox_coords}")
 
-            except Exception as ex:  # if download process is failed somehow
-                print(ex)
-                obj.imagery_status = -1  # not downloaded
-                # obj.last_fetched_date = datetime.datetime.utcnow()
-                obj.save()
+                tile_size = DEFAULT_TILE_SIZE  # by default
+                zm_level = DEFAULT_ZOOM_LEVEL
+
+                # start point where we will start downloading the tiles
+
+                start_point_lng = bbox_coords[0]  # getting the starting lat lng
+                start_point_lat = bbox_coords[1]
+
+                # end point where we should stop downloading the tile
+                end_point_lng = bbox_coords[2]  # getting the ending lat lng
+                end_point_lat = bbox_coords[3]
+
+                # Note :  lat=y-axis, lng=x-axis
+                # getting tile coordinate for first point of bbox
+                start_x, start_y = latlng2tile(
+                    zoom=zm_level,
+                    lat=start_point_lat,
+                    lng=start_point_lng,
+                    tile_size=tile_size,
+                )
+                start = [start_x, start_y]
+
+                # getting tile coordinate for last point of bbox
+                end_x, end_y = latlng2tile(
+                    zoom=zm_level, lat=end_point_lat,
+                    lng=end_point_lng, tile_size=tile_size
+                )
+                end = [end_x, end_y]
+                try:
+                    # start downloading
+                    download_imagery(
+                            start,
+                            end,
+                            zm_level,
+                            dataset_id=dataset_id,
+                            base_path=base_path,
+                            source=source,
+                        )
+
+                    obj.imagery_status = 1
+                    # obj.last_fetched_date = datetime.datetime.utcnow()
+                    obj.save()
+
+                except Exception as ex:  # if download process is failed somehow
+                    print(ex)
+                    obj.imagery_status = -1  # not downloaded
+                    # obj.last_fetched_date = datetime.datetime.utcnow()
+                    obj.save()
         else:
             print(
                 f"""There is running process already for
