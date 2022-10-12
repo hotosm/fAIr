@@ -427,7 +427,7 @@ const DatasetMap = (props) => {
       return null;
     });
 
-    setIsEditing(false)
+   
     
   };
 
@@ -450,6 +450,9 @@ const DatasetMap = (props) => {
   };
   const _onEditStart = (e) => {
       setIsEditing(true);
+  }
+  const _onEditStop = (e) => {
+      setIsEditing(false);
   }
   const converToPolygon = (layer) => {
 
@@ -546,7 +549,7 @@ const DatasetMap = (props) => {
       console.log("fromDB",fromDB)
       console.log("reactFGref",reactFGref)
     }
-    if (reactFGref === null || _geoJsonLoadedFile === null) {
+    if (reactFGref === null || _geoJsonLoadedFile === null || isEditing) {
       return;
     }
     let leafletFG = reactFGref;
@@ -628,7 +631,7 @@ const DatasetMap = (props) => {
     //     }
     //   })
     // }
-    if (reactFGref === null || _geoJsonLoadedFile === null) {
+    if (reactFGref === null || _geoJsonLoadedFile === null ) {
       return;
     }
     let leafletFG = reactFGref;
@@ -751,7 +754,10 @@ const DatasetMap = (props) => {
       <button onClick={changePositionHandler}>Change position</button> */}
       <h1>Selected dataset #1</h1>
       <p>zoom: {zoom}, 
-      mode: editing {editMode}
+      {"Editing " + editMode} 
+      <br/>
+      Mode: {isEditing ? "Edit/Create" : "View" }
+
       {mapError && <span style={{color: "red"}}> Error: {mapError} </span>}
       </p>
        <select defaultValue="aoi" id="selectedLayer" onChange={
@@ -814,7 +820,7 @@ const DatasetMap = (props) => {
           </LayersControl.BaseLayer>
           {props.oamImagery && (
             <LayersControl.BaseLayer name={props.oamImagery.name}>
-              <TileLayer
+              <TileLayer     
                 maxZoom={props.oamImagery.maxzoom}
                 minZoom={props.oamImagery.minzoom}
                 attribution={props.oamImagery.name}
@@ -862,9 +868,12 @@ const DatasetMap = (props) => {
             onEdited={_onEdited}
             onDeleted={_onDeleted}
             onEditStart={_onEditStart}
+            onEditStop={_onEditStop}
+            onDrawStart={_onEditStart}
+            onDrawStop={_onEditStop}
             draw={{
               polyline: false,
-              polygon: (editMode === "label"),
+              polygon: true,
               rectangle: true,
               circle: false,
               circlemarker: false,

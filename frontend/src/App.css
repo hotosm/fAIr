@@ -62,3 +62,8 @@
 {
   margin-left: 14px !important;
 }
+
+.MuiSvgIcon-root
+{
+  color: white;
+}
