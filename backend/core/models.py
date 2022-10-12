@@ -1,26 +1,35 @@
 from django.contrib.gis.db import models as geomodels
 from django.db import models
-
 # Create your models here.
 
 
 class Dataset(models.Model):
+    class DatasetStatus(models.IntegerChoices):
+        ARCHIVED = 1
+        ACTIVE = 0
+
     name = models.CharField(max_length=255)
     created_by = models.IntegerField()
     last_modified = models.DateTimeField(auto_now=True)
     created_date = models.DateTimeField(auto_now_add=True)
     source_imagery = models.URLField(blank=True, null=True)
+    status = models.IntegerField(default=0, choices=DatasetStatus.choices)  # 0 for active , 1 for archieved
 
 
 class AOI(models.Model):
+    class DownloadStatus(models.IntegerChoices):
+        DOWNLOADED = 1
+        NOT_DOWNLOADED = -1
+        RUNNING = 0
+
     dataset = models.ForeignKey(Dataset, to_field="id", on_delete=models.CASCADE)
     geom = geomodels.PolygonField(srid=4326)
     download_status = models.IntegerField(
-        default=-1
-    )  # -1 Not Downloaded ,0 - Running , 1 - Downloaded
+        default=-1, choices=DownloadStatus.choices
+    )
     imagery_status = models.IntegerField(
-        default=-1
-    )  # -1 Not Downloaded ,0 - Running , 1 - Downloaded
+        default=-1, choices=DownloadStatus.choices
+    )
     last_fetched_date = models.DateTimeField(null=True, blank=True)
     created_date = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now=True)
