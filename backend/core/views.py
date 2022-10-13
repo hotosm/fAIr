@@ -17,7 +17,7 @@ from .serializers import (
 )
 import requests
 import json
-import datetime
+from datetime import datetime
 import os
 from uuid import uuid4
 from zipfile import ZipFile
@@ -55,10 +55,10 @@ class LabelViewSet(viewsets.ModelViewSet):
 
 
 class RawdataApiView(APIView):
-    def get(self, aoi_id, *args, **kwargs):
+    def get(self, request, aoi_id, *args, **kwargs):
         pass
 
-    def post(self, aoi_id, *args, **kwargs):
+    def post(self, request, aoi_id, *args, **kwargs):
         obj = AOI.objects.get(id=aoi_id)
         if not obj:
             return Response(
@@ -171,7 +171,7 @@ def process_geojson(geojson_file_path, aoi_id):
             osm_id = properties["osm_id"]
             geometry = data["features"][i]["geometry"]
             print(osm_id)
-            if Label.objects.filters(osm_id=int(osm_id)).exists():
+            if Label.objects.filter(osm_id=int(osm_id)).exists():
                 print("already exists")
                 pass
             else:
