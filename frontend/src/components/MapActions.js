@@ -17,7 +17,8 @@ const MapActions = props =>
             const body = 
             {
                 dataset_id: 1,
-                source: props.oamImagery.url
+                source: props.oamImagery.url,
+                zoom_level: [19,20,21]
             }
             setError(false)
             const res = await axios.post("/dataset_image/build/",body);
@@ -41,7 +42,8 @@ const MapActions = props =>
 
     return <>
     { JSON.stringify(props.oamImagery) }
-    <br/>
+    {/* <br/> */}
+    
      <LoadingButton
               onClick={(e)=>{ console.log("Build") ; mutate() }}
               endIcon={<ImportExportIcon  />}
