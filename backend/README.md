@@ -33,4 +33,12 @@ To login on admin panel , create your superuser and login with your credentials 
 
     python manage.py createsuperuser
 
-
+## Authentication 
+fAIr uses oauth2.0 Authentication using [osm-login-python](https://github.com/kshitijrajsharma/osm-login-python)
+1. Get your login Url
+    Hit ```/api/v1/auth/login/ ```
+    - URL will give you login URL which you can use to provide your osm credentials and authorize fAIr 
+    - After successfull login  you will get access-token that you can use accross all osm login required endpoints in fAIr
+2. Check authentiation by getting back your data 
+    Hit ```/api/v1/auth/me/```
+    - URL requires access-token as header and in return you will see your osm username , id and image url 
