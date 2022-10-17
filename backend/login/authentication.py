@@ -1,7 +1,7 @@
 from rest_framework import authentication
 from rest_framework import exceptions
 from django.conf import settings
-from osm_auth.app import Auth
+from osm_login_python.core import Auth
 
 # initialize osm_auth with our credentials
 

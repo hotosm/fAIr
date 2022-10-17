@@ -1,5 +1,5 @@
 from django.conf import settings
-from osm_auth.app import Auth
+from osm_login_python.core import Auth
 from django.http import JsonResponse
 import json
 from rest_framework.decorators import authentication_classes, permission_classes
