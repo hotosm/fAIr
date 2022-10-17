@@ -16,9 +16,6 @@ class IsOsmAuthenticated(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
 
-        if obj.author == request.user:
-            return True
-
         if request.user.is_staff and request.method not in self.edit_methods:
             return True
 
