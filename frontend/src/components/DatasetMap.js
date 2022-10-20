@@ -299,6 +299,17 @@ const DatasetMap = (props) => {
   }, [AOIs])
 
   useEffect(() => {
+    document.querySelectorAll(".leaflet-bar a").forEach(e => {
+      e.style.backgroundColor = "rgb(51, 136, 255)"
+      console.log("leaflet-bar a",e.style) 
+    })
+    return () => {
+    
+    }
+  }, [AOIs])
+  
+  
+  useEffect(() => {
     props.onMapLayersChange(mapLayers);
     if (props.geoJSON) {
       setgeoJsonLoadedFile(props.geoJSON);
@@ -468,7 +479,7 @@ const DatasetMap = (props) => {
 
   };
 
-  const blueOptions = { color: "#D73434", opacity: "10%" };
+  const blueOptions = { color: "rgb(51, 136, 255)", opacity: "10%" };
   const greenOptions = { color: "green" };
   // const multiPolygon = [
   //   [
@@ -642,7 +653,7 @@ const DatasetMap = (props) => {
       const l = Object.values(_layers).find(x => x.feature && (x.feature.id === layer.feature.id))
       //  console.log("found in leaflet already ", l)
       if (l === undefined) {
-        layer.setStyle({ fillColor: 'blue', weight: 2, fillOpacity: "30%" })
+        layer.setStyle({ fillColor: '#D73434', weight: 2, fillOpacity: "30%",color:'#D73434' })
         leafletFG.addLayer(layer);
       }
       // }
@@ -734,7 +745,7 @@ const DatasetMap = (props) => {
       {/* <button onClick={addGeoJSONHandler}>Add TM Project 11974</button>
       <button onClick={changePositionHandler}>Change position</button> */}
       <h1>{props.dataset.name}</h1>
-      <p>zoom: {zoom},
+      <p>zoom: {zoom && +zoom.toFixed(1)},
         {"Editing " + editMode}
         <br />
         Mode: {isEditing ? "Edit/Create" : "View"}
@@ -744,7 +755,26 @@ const DatasetMap = (props) => {
       <select defaultValue="aoi" id="selectedLayer" onChange={
         (e) => {
           setEditMode(e.target.value)
+          if (e.target.value === "aoi")
+          {
+            // console.log("leaflet-bar a",document.querySelectorAll(".leaflet-bar a"))
+
+          document.querySelectorAll(".leaflet-bar a").forEach(e => {
+            e.style.backgroundColor = "rgb(51, 136, 255)"
+            console.log("leaflet-bar a",e.style)
+            
+          })
         }
+        else
+        {
+          console.log("leaflet-bar a",document.querySelectorAll(".leaflet-bar a"))
+
+          document.querySelectorAll(".leaflet-bar a").forEach(e => {
+            e.style.backgroundColor = "#D73434"
+            console.log("leaflet-bar a",e.style)
+          })
+        }
+       }   
       }>
         <option value="label">Labels</option>
         <option value="aoi">AOIs</option>
@@ -757,7 +787,11 @@ const DatasetMap = (props) => {
           width: "100%",
         }}
         zoom={zoom}
+        zoomDelta={0.5}
+        zoomSnap={0}
         whenCreated={setMap}
+        
+      
       >
         <MyComponent />
 
@@ -813,7 +847,7 @@ const DatasetMap = (props) => {
 
         <FeatureGroup >
           <Polygon
-
+            color="rgb(51, 136, 255)"
             pathOptions={blueOptions}
             positions={converToPolygon(
               mapLayers.filter((e) => e.type === "aoi")

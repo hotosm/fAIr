@@ -4,6 +4,7 @@ import LoadingButton from "@mui/lab/LoadingButton";
 import ImportExportIcon from '@mui/icons-material/ImportExport';
 import axios from '../axios'
 import { useMutation } from 'react-query';
+import { Grid } from '@mui/material';
 
 const MapActions = props =>
 {
@@ -41,9 +42,9 @@ const MapActions = props =>
     const { mutate, data, isLoading } = useMutation(downloadDS);
 
     return <>
-    { JSON.stringify(props.oamImagery) }
+    {/* { JSON.stringify(props.oamImagery) } */}
     {/* <br/> */}
-    
+    <Grid item xs={12} md={12} paddingTop={1}>     
      <LoadingButton
               onClick={(e)=>{ console.log("Build") ; mutate() }}
               endIcon={<ImportExportIcon  />}
@@ -56,7 +57,9 @@ const MapActions = props =>
             </LoadingButton>
             <br/>
             {error && error}
-            </>;
+            </Grid>
+      </>
+        
 
 }
 export default MapActions;

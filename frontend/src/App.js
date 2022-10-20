@@ -23,7 +23,7 @@ function App() {
     setCurrentPosision([e[0], e[1], zoom]);
   };
   const navigateToCenter = (e) => {
-    setCurrentPosision([e[1], e[0], e[2]]);
+    setCurrentPosision([e[1], e[0], 15]);
   };
   const addImageryHandler = (imageryDetails, url) => {
     setOAMImagery({ ...imageryDetails, url });
@@ -90,9 +90,9 @@ function App() {
           }}
           dataset={dataset}
         ></TileServerList>
-        <TMProject addtoMap={AddtoMapHandler}></TMProject>
         <AOI mapLayers={mapLayers.filter(i=> i.type ==="aoi")} selectAOIHandler={selectAOIHandler}></AOI>
-
+        <TMProject addtoMap={AddtoMapHandler}></TMProject>
+        
       </Grid>
     </Grid>}
     </>

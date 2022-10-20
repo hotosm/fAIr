@@ -34,7 +34,7 @@ const ListItemWithWiderSecondaryAction = withStyles({
   }
 })(ListItem);
 
-const PER_PAGE = 10;
+const PER_PAGE = 5;
 const AOI = (props) => {
   const [dense, setDense] = useState(true);
   const count = Math.ceil(props.mapLayers.length / PER_PAGE);
@@ -91,6 +91,7 @@ const AOI = (props) => {
               variant="outlined"
               shape="rounded"
               onChange={handleChange}
+              
             />
           )}
           <List dense={dense}>
