@@ -2,16 +2,18 @@ import "./App.css";
 import DatasetMap from "./components/DatasetMap";
 import { Box, Container, Grid, Typography } from "@mui/material";
 import AOI from "./components/AOI";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import TileServerList from "./components/TileServerList";
 import TMProject from "./components/TMProject";
 import MapActions from "./components/MapActions";
-
+import axios from './axios'
+import { useMutation } from "react-query";
 function App() {
   const [mapLayers, setMapLayers] = useState([]);
   const [currentPosision, setCurrentPosision] = useState([]);
   const [oamImagery, setOAMImagery] = useState(null);
   const [geoJSON, setgeoJSON] = useState(null);
+  const [error, setError] = useState(null);
 
   const mapLayersChangedHandler = (layers) => {
     setMapLayers(layers);
@@ -29,8 +31,39 @@ function App() {
    const AddtoMapHandler = (geoJSON) => {
       setgeoJSON(geoJSON);
   };
+  const getDataset = async (id) => {
+    try {
+     
+    
+      const res = await axios.get("/dataset/" + id);
+
+      if (res.error) 
+        setError(res.error.response.statusText);
+              
+     console.log("dataset",res.data);
+      return res.data;
+    } catch (e) {
+      console.log("isError");
+      setError(e);
+    } finally {
+      
+    }
+  };
+  const { mutate, data:dataset, isLoading} = useMutation(getDataset);
+
+  useEffect(() => {
+    mutate(1)
+  
+    return () => {
+      
+    }
+  }, [])
+  
   return (
-    <Grid container padding={2} spacing={2}>
+  <>
+  {isLoading && "Loading ............"}
+    { dataset &&
+     <Grid container padding={2} spacing={2}>
       <Grid item xs={6} md={8}>
         <DatasetMap
           onMapLayersChange={mapLayersChangedHandler}
@@ -44,7 +77,7 @@ function App() {
           oamImagery={oamImagery}
           geoJSON={geoJSON}
           emptyPassedgeoJSON={()=>{setgeoJSON(null)}}
-      
+          dataset={dataset}
         ></DatasetMap>
         <MapActions oamImagery={oamImagery} ></MapActions>
       </Grid>
@@ -55,12 +88,14 @@ function App() {
           removeImagery={(e) => {
             setOAMImagery(null);
           }}
+          dataset={dataset}
         ></TileServerList>
         <TMProject addtoMap={AddtoMapHandler}></TMProject>
         <AOI mapLayers={mapLayers.filter(i=> i.type ==="aoi")} selectAOIHandler={selectAOIHandler}></AOI>
 
       </Grid>
-    </Grid>
+    </Grid>}
+    </>
   );
 }
 

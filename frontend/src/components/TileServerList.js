@@ -11,7 +11,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { MapTwoTone, RemoveCircle, ZoomInMap } from "@mui/icons-material";
 import LoadingButton from "@mui/lab/LoadingButton";
@@ -24,7 +24,33 @@ const TileServerList = (props) => {
   const [inputError, setInputError] = useState(false);
   const [imageryDetails, setImageryDetails] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [oamURL, setOAMURL] = useState("https://tiles.openaerialmap.org/5ac4fc6f26964b0010033112/0/5ac4fc6f26964b0010033113/{z}/{x}/{y}");
+  const [oamURL, setOAMURL] = useState(props.dataset.source_imagery);
+
+  const saveImageryToDataset = async (id) => {
+    try {
+     
+      setLoading(true);
+      setInputError(false);
+      console.log("saveImageryToDataset",oamURL )
+      const body = {
+        "source_imagery": oamURL
+      }
+      const res = await axios.patch(`/dataset/${id}/`,body);
+      if (!res)
+          setInputError("error");
+      if (res.error) 
+        setInputError(res.error.response.statusText);
+              
+
+      return res.data;
+    } catch (e) {
+      console.log("isError");
+      setInputError(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const { mutate:mutateSaveImageryToDataset} = useMutation(saveImageryToDataset);
 
   const getImageryDetails = async (url) => {
     try {
@@ -37,6 +63,7 @@ const TileServerList = (props) => {
 
       props.addImagery(res.data, url);
       setImageryDetails(res.data);
+      props.navigateToCenter(res.data.center);
       return res.data;
     } catch (e) {
       console.log("isError");
@@ -52,8 +79,21 @@ const TileServerList = (props) => {
       "7586487389962e3f6e31ab2ed8ca321f2f3fe2cf87f1dedce8fc918b4692efd86fcd816ab8a35303effb1be9abe39b1cce3fe6db2c740044364ae68560822c88373d2c784325baf4e1fa007c6dbedab4cea3fa0dd86ee0ae4feeef032d33dcac28e4b16c90d55a42087c6b66526423ea1b4cc7e63c613940eb1c60f48270060bf41c5fcb6a628985ebe6801e9e71f015cf9dd7a76f004360017065667dc1cfe028f1332689e2d001bd06d4ebf019f829f3aac2";
     console.log("utilAesDecrypt(template)", utilAesDecrypt(template));
     mutate(oamURL);
+    mutateSaveImageryToDataset(props.dataset.id)
   };
-
+  useEffect(() => {
+    console.log("useEffect ",props)
+   
+        setOAMURL(props.dataset.source_imagery)
+        if (props.dataset.source_imagery)
+          getImageryDetails(props.dataset.source_imagery)
+     
+      
+    return () => {
+      
+    }
+  }, [])
+  
   return (
     <>
       <Grid item md={12}>
@@ -124,8 +164,7 @@ const TileServerList = (props) => {
               onChange={(e) => {
                 setInputError(false)
                 setOAMURL(e.target.value.trim());
-                let regUrl = /^(https?|chrome):\/\/[^\s$.?#].[^\s]*$/;
-                
+                let regUrl = /^(https?|chrome):\/\/[^\s$.?#].[^\s]*$/;                
                 setError(!regUrl.test(e.target.value.trim()))
               }}
             />
@@ -137,7 +176,7 @@ const TileServerList = (props) => {
               loading={loading}
               loadingPosition="end"
               variant="contained"
-              disabled={oamURL.trim() === "" || inputError || error}
+              disabled={!oamURL || oamURL.trim() === "" || inputError || error}
             >
               Add
             </LoadingButton>

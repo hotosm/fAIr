@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import {
   FeatureGroup,
@@ -39,7 +39,7 @@ const DatasetMap = (props) => {
   const [geoJSON, setgeoJSON] = useState();
   const [mapError, setMapError] = useState();
   const [fromDB, setFromDB] = useState(false);
-
+  const leafletObjects = useRef();
   // props.oamImagery && console.log("props.oamImagery.url", props.oamImagery.url);
 
   const getLabels = async (box) => {
@@ -119,7 +119,7 @@ const DatasetMap = (props) => {
         geom: poly
       }
       console.log(" edit data ", data)
-
+      // type is even label or aoi and it goes to cooresponding API end point 
       const res = await axios.patch(`/${type}/${id}/`, data);
       console.log("res from edit ", res)
       if (res.error)
@@ -317,6 +317,8 @@ const DatasetMap = (props) => {
     }
     return () => { };
   }, [mapLayers, props, map, props.geoJSON]);
+
+  
 
   const _onCreate = (e, str) => {
     console.log("_onCreate", e);
@@ -731,7 +733,7 @@ const DatasetMap = (props) => {
 
       {/* <button onClick={addGeoJSONHandler}>Add TM Project 11974</button>
       <button onClick={changePositionHandler}>Change position</button> */}
-      <h1>Selected dataset #1</h1>
+      <h1>{props.dataset.name}</h1>
       <p>zoom: {zoom},
         {"Editing " + editMode}
         <br />
@@ -781,7 +783,7 @@ const DatasetMap = (props) => {
               }
             />
           </LayersControl.BaseLayer>
-          <LayersControl.BaseLayer name="OSM" checked>
+          <LayersControl.BaseLayer name="OSM" checked={true}>
             <TileLayer
               maxZoom={24}
               maxNativeZoom={19}
@@ -789,7 +791,7 @@ const DatasetMap = (props) => {
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
           </LayersControl.BaseLayer>
-          <LayersControl.BaseLayer name="Google" >
+          <LayersControl.BaseLayer name="Google"  >
             <TileLayer
               maxNativeZoom={22}
               maxZoom={26}
@@ -798,7 +800,7 @@ const DatasetMap = (props) => {
             />
           </LayersControl.BaseLayer>
           {props.oamImagery && (
-            <LayersControl.BaseLayer name={props.oamImagery.name}>
+            <LayersControl.BaseLayer name={props.oamImagery.name} checked>
               <TileLayer
                 maxZoom={props.oamImagery.maxzoom}
                 minZoom={props.oamImagery.minzoom}
