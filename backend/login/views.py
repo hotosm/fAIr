@@ -42,3 +42,5 @@ class GetMyData(APIView):
 
     def get(self, request, format=None):
         return JsonResponse(request.user)
+
+

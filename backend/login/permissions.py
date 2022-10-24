@@ -6,17 +6,11 @@ from rest_framework import permissions
 class IsOsmAuthenticated(permissions.BasePermission):
 
     def has_permission(self, request, view):
-        if request.user: # if user is authenticated give him permission
+
+        permission_allowed_methods = getattr(view, "permission_allowed_methods", [])
+        if request.method in permission_allowed_methods: # if request method is set to allowed give them permission
             return True
-
-
-        if request.user.is_superuser:
-            return True
-
-        if request.method in permissions.SAFE_METHODS:
-            return True
-
-        if request.user.is_staff and request.method not in self.edit_methods:
+        if request.user:
             return True
 
         return False
