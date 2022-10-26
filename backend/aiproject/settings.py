@@ -11,7 +11,7 @@ https://docs.aiproject.com/en/3.1/ref/settings/
 """
 
 from pathlib import Path
-import os 
+import os
 import environ
 
 env = environ.Env()
@@ -49,6 +49,14 @@ if 'GDAL_LIBRARY_PATH' not in env:
 else:
     GDAL_LIBRARY_PATH = env('GDAL_LIBRARY_PATH')
 
+OSM_CLIENT_ID=os.getenv('osm_client_id')
+OSM_CLIENT_SECRET=os.getenv('osm_client_secret')
+OSM_URL=os.getenv('osm_url')
+OSM_SCOPE=os.getenv('osm_scope','read_prefs')
+OSM_LOGIN_REDIRECT_URI=os.getenv('osm_login_redirect_uri')
+OSM_SECRET_KEY=os.getenv('osm_secret_key')
+
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -66,6 +74,7 @@ INSTALLED_APPS = [
     'rest_framework_swagger',
     'django_filters',
     'corsheaders',
+    'login'
 ]
 
 MIDDLEWARE = [
@@ -89,8 +98,6 @@ else:
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-    ],
 }
 
 ROOT_URLCONF = 'aiproject.urls'
@@ -107,7 +114,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
-            'libraries': {  
+            'libraries': {
                 'staticfiles': 'django.templatetags.static',
                 },
         },
@@ -122,7 +129,7 @@ WSGI_APPLICATION = 'aiproject.wsgi.application'
 # https://docs.aiproject.com/en/3.1/ref/settings/#databases
 if 'DATABASE_NAME' not in env:
     DATABASES = {
-        'default': {        
+        'default': {
             'ENGINE': 'django.contrib.gis.db.backends.postgis',
             'NAME': 'ai',
             'USER': 'admin',
@@ -133,7 +140,7 @@ if 'DATABASE_NAME' not in env:
     }
 else:
      DATABASES = {
-        'default': {        
+        'default': {
             'ENGINE': 'django.contrib.gis.db.backends.postgis',
             'NAME': env('DATABASE_NAME'),
             'USER': env('DATABASE_USER'),
@@ -184,3 +191,6 @@ USE_TZ = True
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 
+
+import os
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
