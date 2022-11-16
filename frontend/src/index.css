@@ -38,6 +38,12 @@ code {
   width: 3em !important;
 }
 
+.MuiIcon-root2
+{
+  height: 2em !important;
+  width: 2em !important;
+}
+
 .MuiTypography-root
 {
   color: #2c3038 !important;
@@ -69,4 +75,12 @@ code {
 .MuiMenuItem-root:hover
 {
   background-color: #cccccc !important;
+}
+
+
+.logo:hover 
+{
+  cursor: pointer;
+  border: #cccccc 1px solid;
+    border-radius: 6px;
 }

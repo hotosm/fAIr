@@ -53,10 +53,10 @@ function Header() {
     <AppBar position="sticky">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-            <Icon className={"logo"}>
-                <img className={""} src="/hotosm_logo.svg" alt='HOTOSM logo'/>
+            <Icon className={"logo"} onClick={()=> navigate("/")}>
+                <img className={""} src="/hotosm_logo.svg" alt='HOTOSM logo' />
             </Icon>
-             <Icon className={"logo"}>
+             <Icon className={"logo MuiIcon-root2"}  onClick={()=> navigate("/")}>
                 <img className={""} src="/tech_out_logo.svg" alt='tech out logo'/>
             </Icon>
           <Typography
