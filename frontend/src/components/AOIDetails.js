@@ -37,9 +37,9 @@ const AOIDetails = props =>
       const { data } = useQuery("fetchAOI" + props.aoiId,fetchAOI,{refetchInterval:5000});
 
     return <>
-     {data && <span key={props.aoiId}>
+     {data && <p key={props.aoiId} className="MuiTypography-root MuiTypography-body2 MuiListItemText-secondary css-83ijpv-MuiTypography-root" >
         {aoiStatusText(data.properties.download_status)} {data.properties.last_fetched_date && timeSince(new Date(data.properties.last_fetched_date),new Date()) }
-        </span>}
+        </p>}
     </>
 }
 

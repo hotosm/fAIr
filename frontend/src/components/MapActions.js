@@ -19,7 +19,7 @@ const MapActions = props =>
             {
                 dataset_id: 1,
                 source: props.oamImagery.url,
-                zoom_level: [19,20,21]
+                zoom_level: [19,20]
             }
             setError(false)
             const res = await axios.post("/dataset_image/build/",body);

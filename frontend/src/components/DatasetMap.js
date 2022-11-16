@@ -783,7 +783,7 @@ const DatasetMap = (props) => {
         className="pointer"
         center={[-0.29815, 36.07572]}
         style={{
-          height: "700px",
+          height: "1200px",
           width: "100%",
         }}
         zoom={zoom}

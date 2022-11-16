@@ -64,7 +64,7 @@ function App() {
   {isLoading && "Loading ............"}
     { dataset &&
      <Grid container padding={2} spacing={2}>
-      <Grid item xs={6} md={8}>
+      <Grid item xs={6} md={9}>
         <DatasetMap
           onMapLayersChange={mapLayersChangedHandler}
           currentPosision={
@@ -81,7 +81,7 @@ function App() {
         ></DatasetMap>
         <MapActions oamImagery={oamImagery} ></MapActions>
       </Grid>
-      <Grid item xs={6} md={4}>
+      <Grid item xs={6} md={3}>
         <TileServerList
           navigateToCenter={navigateToCenter}
           addImagery={addImageryHandler}
