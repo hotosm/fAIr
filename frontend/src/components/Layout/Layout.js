@@ -5,7 +5,7 @@ const Layout = props => {
 
 
     return <>
-        <p>Slide bar</p>
+        {/* <p>Slide bar</p> */}
         <p>Header</p>
         <p>Content</p>
         <Link to="/">Home</Link>

@@ -21,12 +21,7 @@ const Fair = () => {
                             name={route.name}
                             element={route.element}
                         />)}
-                    <Route
-                        path="/"
-
-                        name="Home"
-                        element={<Home />}
-                    />
+                    {/* fallback routes bellow */}
                     <Route
                         path="*"
 
