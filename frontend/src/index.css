@@ -46,6 +46,7 @@ code {
 .MuiButtonBase-root
 {
   background-color: #D73434 !important;
+  font-weight: bold !important;
 }
 
 .MuiButtonBase-root:hover
@@ -62,6 +63,7 @@ code {
 .MuiMenuItem-root
 {
   background-color: transparent !important;
+  
 }
 
 .MuiMenuItem-root:hover
