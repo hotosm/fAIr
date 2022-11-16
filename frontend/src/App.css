@@ -43,16 +43,7 @@
   padding: 1px;
 }
 
-.MuiButtonBase-root
-{
-  background-color: #D73434 !important;
-}
 
-.MuiButtonBase-root:disabled
-{
-  background-color: #cccccc !important;
-  color: white !important;
-}
 
 .margin1
 {

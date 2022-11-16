@@ -1,12 +1,14 @@
 import React from 'react'
 import { Link } from 'react-router-dom';
+import Footer from '../Footer/Footer';
+import Header from '../Header/Header';
 
 const Layout = props => {
 
 
     return <>
         {/* <p>Slide bar</p> */}
-        <p>Header</p>
+        <Header />
         <p>Content</p>
         <Link to="/">Home</Link>
         <br></br>
@@ -14,7 +16,7 @@ const Layout = props => {
 
         {props.children}
 
-        <p>Footer</p>
+        <Footer />
     </>;
 
 }

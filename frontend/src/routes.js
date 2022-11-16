@@ -1,5 +1,5 @@
 import React from 'react';
-import Home from './components/Home/Home';
+import Home from './components/Layout/Home/Home';
 
 const TrainingDS = React.lazy(() => import('./components/TrainingDS/TrainingDS'));
 const App = React.lazy(() => import('./App'));
