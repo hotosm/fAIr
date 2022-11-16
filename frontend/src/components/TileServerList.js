@@ -96,7 +96,7 @@ const TileServerList = (props) => {
   
   return (
     <>
-      <Grid item md={12}>
+      <Grid item md={12} >
         <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
           Open Aerial Imagery
         </Typography>
@@ -138,10 +138,13 @@ const TileServerList = (props) => {
               <ListItemText
                 primary={imageryDetails.name}
                 secondary={
-                  "Max zoom:" +
+                  <Typography key={props.aoiId} component={'span'} variant="caption" display="block" gutterBottom >
+                    { "Max zoom:" +
                   imageryDetails.maxzoom +
                   ", Min zoom:" +
-                  imageryDetails.minzoom
+                  imageryDetails.minzoom}
+                  </Typography>
+                 
                 }
               />
             </ListItem>

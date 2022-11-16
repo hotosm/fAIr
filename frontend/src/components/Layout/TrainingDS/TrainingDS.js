@@ -1,10 +1,11 @@
 import React from 'react'
+import App from '../../../App';
 
 const TrainingDS = props => {
 
 
     return <>
-    <p>TrainingDS Componenet</p>
+    <App ></App>
     </>;
 }
 

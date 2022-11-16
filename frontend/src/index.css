@@ -87,7 +87,7 @@ code {
 
 .footer , .footer a
 {
-  height: 300px;
+  height: auto;
   background-color: #2c3038;
   color: white;
 }

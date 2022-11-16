@@ -1,3 +1,4 @@
+import { Typography } from '@material-ui/core';
 import React from 'react'
 import { useQuery } from 'react-query';
 
@@ -37,9 +38,9 @@ const AOIDetails = props =>
       const { data } = useQuery("fetchAOI" + props.aoiId,fetchAOI,{refetchInterval:5000});
 
     return <>
-     {data && <p key={props.aoiId} className="MuiTypography-root MuiTypography-body2 MuiListItemText-secondary css-83ijpv-MuiTypography-root" >
+     {data && <Typography key={props.aoiId} component={'span'} variant="caption" display="block" gutterBottom >
         {aoiStatusText(data.properties.download_status)} {data.properties.last_fetched_date && timeSince(new Date(data.properties.last_fetched_date),new Date()) }
-        </p>}
+        </Typography>}
     </>
 }
 
