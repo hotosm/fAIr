@@ -9,11 +9,6 @@ const Layout = props => {
     return <>
         {/* <p>Slide bar</p> */}
         <Header />
-        <p>Content</p>
-        <Link to="/">Home</Link>
-        <br></br>
-        <Link to="/training-datasets">training-datasets</Link>
-
         {props.children}
 
         <Footer />

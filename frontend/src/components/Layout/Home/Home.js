@@ -3,7 +3,7 @@ import React from 'react'
 const Home = props => {
 
     return <>
-    Home page content
+    <p>Home page content</p>
     </>;
 }
 export default Home

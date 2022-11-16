@@ -13,13 +13,22 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 import { Icon } from '@material-ui/core';
+import { useNavigate } from 'react-router-dom';
 
-const pages = ['Get Started', 'Why fAIr?', 'Training Datasets','AI Models', 'Start Mapping with fAIr','Documentation'];
+const pages = [
+  {name: 'Get Started', path:"/get-started"}, 
+{name: 'Why fAIr?', path:"/why"}, 
+{name: 'Training Datasets', path:"/training-datasets"}, 
+{name: 'AI Models', path:"/ai-models"}, 
+{name: 'Start Mapping with fAIr', path:"/start-mapping-with-fair"}, 
+{name: 'Documentation', path:"/documentation"}];
+
 const settings = ['Option', 'Logout'];
 
 function Header() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const navigate = useNavigate();
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -31,7 +40,9 @@ function Header() {
   const handleCloseNavMenu = (e) => {
     setAnchorElNav(null);
 
-    console.log('menu selected',e.target.value)
+    console.log('menu selected',e)
+    if (e && e !== '')
+      navigate(e)
   };
 
   const handleCloseUserMenu = () => {
@@ -96,8 +107,8 @@ function Header() {
               }}
             >
               {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography textAlign="center">{page}</Typography>
+                <MenuItem key={page.name} onClick={() => handleCloseNavMenu(page.path)}>
+                  <Typography textAlign="center">{page.name}</Typography>
                 </MenuItem>
               ))}
             </Menu>
@@ -123,11 +134,11 @@ function Header() {
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
             {pages.map((page) => (
               <Button
-                key={page}
-                onClick={handleCloseNavMenu}
+                key={page.path}
+                onClick={()=> handleCloseNavMenu(page.path)}
                 sx={{ my: 2, color: 'primary', display: 'block',margin: "0px 3px", backgroundColor:"transparent  !important" }}
               >
-                {page}
+                {page.name}
               </Button>
             ))}
           </Box>
