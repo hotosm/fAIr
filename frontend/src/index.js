@@ -7,6 +7,8 @@ import { ThemeProvider } from "@mui/material/styles";
 import reportWebVitals from "./reportWebVitals";
 import theme from "./theme";
 import { QueryClient, QueryClientProvider } from "react-query";
+import Fair from "./Fair/Fair";
+import { BrowserRouter } from "react-router-dom";
 
 const queryClient = new QueryClient();
 if (process.env.REACT_APP_ENV === "Production") console.log = (args) => {};
@@ -17,7 +19,10 @@ ReactDOM.render(
     <CssBaseline />
     <QueryClientProvider client={queryClient}>
       <React.StrictMode>
-        <App />
+      <BrowserRouter>
+        <Fair />
+      </BrowserRouter>
+        
       </React.StrictMode>
     </QueryClientProvider>
   </ThemeProvider>,

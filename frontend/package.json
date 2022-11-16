@@ -27,6 +27,7 @@
     "react-leaflet": "3.2.1",
     "react-leaflet-draw": "0.19.8",
     "react-query": "^3.34.19",
+    "react-router-dom": "^6.4.3",
     "react-scripts": "5.0.0",
     "uninstall": "^0.0.0",
     "web-vitals": "^2.1.4"
