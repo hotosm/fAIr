@@ -306,7 +306,7 @@ const DatasetMap = (props) => {
     return () => {
     
     }
-  }, [AOIs])
+  }, [])
   
   
   useEffect(() => {
