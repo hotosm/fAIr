@@ -17,7 +17,7 @@ import { useNavigate } from 'react-router-dom';
 
 const pages = [
   {name: 'Get Started', path:"/get-started"}, 
-{name: 'Why fAIr?', path:"/why"}, 
+{name: 'Why fAIr?', path:"/why-fair"}, 
 {name: 'Training Datasets', path:"/training-datasets"}, 
 {name: 'AI Models', path:"/ai-models"}, 
 {name: 'Start Mapping with fAIr', path:"/start-mapping-with-fair"}, 
