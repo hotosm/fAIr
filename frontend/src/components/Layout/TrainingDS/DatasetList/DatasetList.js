@@ -7,6 +7,7 @@ import Alert from '@material-ui/lab/Alert';
 import EditIcon from '@material-ui/icons/Edit';
 import AddIcon from '@material-ui/icons/Add';
 import { useNavigate } from 'react-router-dom';
+import ArchiveIcon from '@material-ui/icons/Archive';
 const DatasetList = props => {
 
     const [error, setError] = useState(null)
@@ -32,7 +33,7 @@ const DatasetList = props => {
 
         }
     };
-    const { data, isLoading } = useQuery("getDatasets", getDatasets, { refetchInterval: 10000 });
+    const { data, isLoading ,refetch } = useQuery("getDatasets", getDatasets, { refetchInterval: 10000 });
 
     const columns = [
         { field: 'id', headerName: 'ID', width: 90 },
@@ -63,14 +64,6 @@ const DatasetList = props => {
             ,
         },
         {
-            field: 'status',
-            headerName: 'Status',
-            width: 100,
-            renderCell: (params) => {
-                return <p>{`${params.value}`}</p>;
-            }
-        },
-        {
             field: 'source_imagery',
             headerName: 'Imagery',
             width: 100,
@@ -81,16 +74,46 @@ const DatasetList = props => {
             }
         },
         {
+            field: 'created_by',
+            headerName: 'User',
+            width: 100,
+            renderCell: (params) => {
+                return <span> {params.value}</span>
+                ;
+            }
+        },
+        {
+            field: 'status',
+            headerName: 'Status',
+            width: 100,
+            renderCell: (params) => {
+                return <>{`${params.value}`}</>;
+            }
+        },
+        {
             field: 'actions',
             headerName: 'Actions',
-            width: 200,
+            width: 110,
             renderCell: (params) => {
-                return <IconButton aria-label="comments"
+                return <><Tooltip title="Edit dataset" aria-label="Edit">
+                <IconButton aria-label="comments"
+                
                     onClick={(e) => {
                         navigate(`/training-datasets/${params.row.id}`)
                     }}>
                     <EditIcon />
                 </IconButton>
+            </Tooltip>
+            <Tooltip title="Archive dataset" aria-label="Archive">
+                <IconButton aria-label="comments"
+                className='margin1'
+                    onClick={(e) => {
+                       console.log('call Archive')
+                    }}>
+                    <ArchiveIcon />
+                </IconButton>
+            </Tooltip>
+            </>
                 //  <p>{`${params.row.status} and id ${params.row.id}`}</p>;
             }
         }
@@ -137,9 +160,12 @@ const DatasetList = props => {
                         columns={columns}
                         pageSize={10}
                         rowsPerPageOptions={[10]}
-                        checkboxSelection
                         disableSelectionOnClick
-
+                        onFilterModelChange={(filter)=> { console.log('grid filter',filter); localStorage.setItem('dsFilter',JSON.stringify(filter)); refetch();}}
+                        onSortModelChange={(sorter)=> { console.log('grid sorter',sorter); localStorage.setItem('dsSorter', JSON.stringify(sorter)); refetch();}}
+                        filterModel={localStorage.getItem('dsFilter')? JSON.parse(localStorage.getItem('dsFilter')) : {}}
+                        sortModel={localStorage.getItem('dsSorter')? JSON.parse(localStorage.getItem('dsSorter')) : []}
+                        
                     />
                 </div>}
 
