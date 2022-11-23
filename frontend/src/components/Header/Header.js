@@ -38,8 +38,6 @@ function Header() {
 
   const handleCloseNavMenu = (e) => {
     setAnchorElNav(null);
-
-    console.log('menu selected',e)
     if (e && e !== '')
       navigate(e)
   };

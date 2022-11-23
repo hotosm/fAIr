@@ -15,7 +15,7 @@ import L from "leaflet";
 import { EditControl } from "react-leaflet-draw";
 
 import "leaflet-draw/dist/leaflet.draw.css";
-import { Grid } from "@mui/material";
+import { Grid, Typography } from "@mui/material";
 import { useMutation, useQuery } from "react-query";
 import { GeoJSON } from 'react-leaflet';
 import intersect from "@turf/intersect";
@@ -260,7 +260,7 @@ const DatasetMap = (props) => {
     try {
 
 
-      const res = await axios.get("/aoi/?dataset=1");
+      const res = await axios.get(`/aoi/?dataset=${props.dataset.id}`);
 
       if (res.error)
         setMapError(res.error.response.statusText);
@@ -744,7 +744,8 @@ const DatasetMap = (props) => {
 
       {/* <button onClick={addGeoJSONHandler}>Add TM Project 11974</button>
       <button onClick={changePositionHandler}>Change position</button> */}
-      <h1>{props.dataset.name}</h1>
+      <Typography variant="h4" component="h2">{props.dataset.name}</Typography>
+      
       <p>zoom: {zoom && +zoom.toFixed(1)},
         {"Editing " + editMode}
         <br />
