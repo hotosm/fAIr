@@ -84,3 +84,23 @@ code {
   border: #cccccc 1px solid;
     border-radius: 6px;
 }
+
+.footer , .footer a
+{
+  height: auto;
+  background-color: #2c3038;
+  color: white;
+}
+
+.mb1
+{
+  margin-bottom: 0.25rem;
+}
+.MuiListItemAvatar-root {
+  min-width: 32px  !important;
+}
+
+
+.MuiListItem-secondaryAction .MuiListItemAvatar-root .MuiSvgIcon-root{
+  font-size: 1rem !important;
+}

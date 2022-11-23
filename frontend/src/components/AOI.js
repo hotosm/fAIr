@@ -102,10 +102,10 @@ const AOI = (props) => {
                   key={layer.id}
 
                 >
-                  <ListItemAvatar>
-                    <Avatar>
-                      <FolderIcon />
-                    </Avatar>
+                  <ListItemAvatar >
+                    <Avatar sx={{ width: 24, height: 24 }}>
+                      <FolderIcon  />
+                    </Avatar >
                   </ListItemAvatar>
                   <ListItemText
                     primary={"AOI id " + layer.aoiId}

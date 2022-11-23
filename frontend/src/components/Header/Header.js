@@ -11,13 +11,12 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
-import AdbIcon from '@mui/icons-material/Adb';
 import { Icon } from '@material-ui/core';
 import { useNavigate } from 'react-router-dom';
 
 const pages = [
   {name: 'Get Started', path:"/get-started"}, 
-{name: 'Why fAIr?', path:"/why"}, 
+{name: 'Why fAIr?', path:"/why-fair"}, 
 {name: 'Training Datasets', path:"/training-datasets"}, 
 {name: 'AI Models', path:"/ai-models"}, 
 {name: 'Start Mapping with fAIr', path:"/start-mapping-with-fair"}, 
@@ -60,11 +59,9 @@ function Header() {
                 <img className={""} src="/tech_out_logo.svg" alt='tech out logo'/>
             </Icon>
           <Typography
-            variant="h6"
-            noWrap
+            variant="span"
             component="a"
-            href="/"
-            sx={{
+           sx={{
               mr: 2,
               display: { xs: 'none', md: 'flex' },
               fontFamily: 'monospace',
@@ -74,7 +71,7 @@ function Header() {
               textDecoration: 'none',
             }}
           >
-            fAIr
+           <h2> fAIr</h2>
           </Typography>
 
           <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
@@ -114,10 +111,9 @@ function Header() {
             </Menu>
           </Box>
           <Typography
-            variant="h5"
-            noWrap
+            variant="span"
             component="a"
-            href=""
+            href="/"
             sx={{
               mr: 2,
               display: { xs: 'flex', md: 'none' },
@@ -129,7 +125,7 @@ function Header() {
               textDecoration: 'none',
             }}
           >
-            fAIr
+           <h2> fAIr</h2>
           </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
             {pages.map((page) => (
