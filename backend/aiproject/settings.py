@@ -34,7 +34,7 @@ EXPORT_TOOL_API_URL = env(
     default="https://galaxy-api.hotosm.org/v1/raw-data/current-snapshot/",
 )
 
-ALLOWED_HOSTS = [HOSTNAME]
+ALLOWED_HOSTS = ['localhost',HOSTNAME]
 
 if env("GDAL_LIBRARY_PATH", default=False):
     GDAL_LIBRARY_PATH = env("GDAL_LIBRARY_PATH")
