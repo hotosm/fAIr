@@ -3,6 +3,7 @@ django
 psycopg2
 djangorestframework
 djangorestframework-gis
+dj-database-url
 django-leaflet
 django-rest-swagger
 Pillow
