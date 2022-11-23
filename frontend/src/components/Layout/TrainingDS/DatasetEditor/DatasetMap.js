@@ -24,9 +24,9 @@ import {
 
 } from "@turf/helpers";
 
-import axios from '../axios'
+import axios from '../../../../axios'
 import LoadingButton from "@mui/lab/LoadingButton";
-import { approximateGeom } from "./../utils"
+import { approximateGeom } from "../../../../utils"
 const DatasetMap = (props) => {
   const [mapLayers, setMapLayers] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
@@ -115,7 +115,7 @@ const DatasetMap = (props) => {
     try {
 
       let data = {
-        dataset: 1,
+        dataset: props.dataset.id,
         geom: poly
       }
       console.log(" edit data ", data)

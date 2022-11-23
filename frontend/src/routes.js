@@ -7,7 +7,6 @@ const Documentation = React.lazy(() => import('./components/Layout/Documentation
 const GetStarted = React.lazy(() => import('./components/Layout/GetStarted/GetStarted'));
 const Start = React.lazy(() => import('./components/Layout/Start/Start'));
 const Why = React.lazy(() => import('./components/Layout/Why/Why'));
-const App = React.lazy(() => import('./components/Layout/TrainingDS/App'));
 
 export const publicRoutes = [
     // add here all route you wish to implement and associate each one with a component, recommended to use lazy loading

@@ -2,9 +2,9 @@ import { Typography } from '@material-ui/core';
 import React from 'react'
 import { useQuery } from 'react-query';
 
-import axios from '../axios'
+import axios from '../../../../axios'
 
-import {timeSince,aoiStatusText} from '../utils'
+import {timeSince,aoiStatusText} from '../../../../utils'
 const AOIDetails = props =>
 {
 

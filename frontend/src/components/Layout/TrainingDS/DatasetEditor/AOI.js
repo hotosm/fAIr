@@ -22,7 +22,7 @@ import ScreenshotMonitorIcon from '@mui/icons-material/ScreenshotMonitor';
 
 import PlaylistRemoveIcon from '@mui/icons-material/PlaylistRemove';
 import { useMutation } from "react-query";
-import axios from '../axios'
+import axios from '../../../../axios'
 import AOIDetails from "./AOIDetails";
 const Demo = styled("div")(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,

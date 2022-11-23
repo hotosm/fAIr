@@ -1,20 +1,22 @@
-import "./App.css";
-import DatasetMap from "../../DatasetMap";
+import "./DatasetEditor.css";
+import DatasetMap from "./DatasetMap";
 import { Box, Container, Grid, Typography } from "@mui/material";
-import AOI from "../../AOI";
+import AOI from "./AOI";
 import { useEffect, useState } from "react";
-import TileServerList from "../../TileServerList";
-import TMProject from "../../TMProject";
-import MapActions from "../../MapActions";
-import axios from '../../../axios'
+import TileServerList from "./TileServerList";
+import TMProject from "./TMProject";
+import MapActions from "./MapActions";
+import axios from '../../../../axios'
 import { useMutation } from "react-query";
-function App() {
+import { useLocation, useMatch, useParams } from "react-router-dom";
+
+function DatasetEditor() {
   const [mapLayers, setMapLayers] = useState([]);
   const [currentPosision, setCurrentPosision] = useState([]);
   const [oamImagery, setOAMImagery] = useState(null);
   const [geoJSON, setgeoJSON] = useState(null);
   const [error, setError] = useState(null);
-
+  let { id } = useParams();
   const mapLayersChangedHandler = (layers) => {
     setMapLayers(layers);
   };
@@ -52,7 +54,7 @@ function App() {
   const { mutate, data:dataset, isLoading} = useMutation(getDataset);
 
   useEffect(() => {
-    mutate(1)
+    mutate(id)
   
     return () => {
       
@@ -61,9 +63,12 @@ function App() {
   
   return (
   <>
+  {/* <p>datasetId= {id}</p> */}
   {isLoading && "Loading ............"}
     { dataset &&
      <Grid container padding={2} spacing={2}>
+     <p>datasetId= {JSON.stringify(dataset)}</p>
+   
       <Grid item xs={6} md={9}>
         <DatasetMap
           onMapLayersChange={mapLayersChangedHandler}
@@ -99,4 +104,4 @@ function App() {
   );
 }
 
-export default App;
+export default DatasetEditor;
