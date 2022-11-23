@@ -96,3 +96,11 @@ code {
 {
   margin-bottom: 0.25rem;
 }
+.MuiListItemAvatar-root {
+  min-width: 32px  !important;
+}
+
+
+.MuiListItem-secondaryAction .MuiListItemAvatar-root .MuiSvgIcon-root{
+  font-size: 1rem !important;
+}

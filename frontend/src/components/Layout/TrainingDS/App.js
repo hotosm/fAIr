@@ -1,12 +1,12 @@
 import "./App.css";
-import DatasetMap from "./components/DatasetMap";
+import DatasetMap from "../../DatasetMap";
 import { Box, Container, Grid, Typography } from "@mui/material";
-import AOI from "./components/AOI";
+import AOI from "../../AOI";
 import { useEffect, useState } from "react";
-import TileServerList from "./components/TileServerList";
-import TMProject from "./components/TMProject";
-import MapActions from "./components/MapActions";
-import axios from './axios'
+import TileServerList from "../../TileServerList";
+import TMProject from "../../TMProject";
+import MapActions from "../../MapActions";
+import axios from '../../../axios'
 import { useMutation } from "react-query";
 function App() {
   const [mapLayers, setMapLayers] = useState([]);

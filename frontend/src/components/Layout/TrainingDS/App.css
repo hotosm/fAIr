@@ -1,0 +1,24 @@
+.App {
+  text-align: center;
+}
+
+.leaflet-tile-container img 
+{
+  padding: 1px;
+}
+
+
+
+.margin1
+{
+  margin-left: 2px !important;
+}
+.margin20
+{
+  margin-left: 14px !important;
+}
+
+.MuiSvgIcon-root
+{
+  color: white;
+}
