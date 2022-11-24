@@ -22,9 +22,9 @@ import { utilAesDecrypt } from "@id-sdk/util";
 const TileServerList = (props) => {
   const [error, setError] = useState(false);
   const [inputError, setInputError] = useState(false);
-  const [imageryDetails, setImageryDetails] = useState(null);
+  const [imageryDetails, setImageryDetails] = useState(undefined);
   const [loading, setLoading] = useState(false);
-  const [oamURL, setOAMURL] = useState(props.dataset.source_imagery);
+  const [oamURL, setOAMURL] = useState(props.dataset.source_imagery? props.dataset.source_imagery : undefined);
 
   const saveImageryToDataset = async (id) => {
     try {
@@ -75,16 +75,16 @@ const TileServerList = (props) => {
   const { mutate, data } = useMutation(getImageryDetails);
 
   const addImageryHandler = (e) => {
-    const template =
-      "7586487389962e3f6e31ab2ed8ca321f2f3fe2cf87f1dedce8fc918b4692efd86fcd816ab8a35303effb1be9abe39b1cce3fe6db2c740044364ae68560822c88373d2c784325baf4e1fa007c6dbedab4cea3fa0dd86ee0ae4feeef032d33dcac28e4b16c90d55a42087c6b66526423ea1b4cc7e63c613940eb1c60f48270060bf41c5fcb6a628985ebe6801e9e71f015cf9dd7a76f004360017065667dc1cfe028f1332689e2d001bd06d4ebf019f829f3aac2";
-    console.log("utilAesDecrypt(template)", utilAesDecrypt(template));
+    // const template =
+    //   "7586487389962e3f6e31ab2ed8ca321f2f3fe2cf87f1dedce8fc918b4692efd86fcd816ab8a35303effb1be9abe39b1cce3fe6db2c740044364ae68560822c88373d2c784325baf4e1fa007c6dbedab4cea3fa0dd86ee0ae4feeef032d33dcac28e4b16c90d55a42087c6b66526423ea1b4cc7e63c613940eb1c60f48270060bf41c5fcb6a628985ebe6801e9e71f015cf9dd7a76f004360017065667dc1cfe028f1332689e2d001bd06d4ebf019f829f3aac2";
+    // console.log("utilAesDecrypt(template)", utilAesDecrypt(template));
     mutate(oamURL);
     mutateSaveImageryToDataset(props.dataset.id)
   };
   useEffect(() => {
     console.log("useEffect ",props)
    
-        setOAMURL(props.dataset.source_imagery)
+        // setOAMURL(props.dataset.source_imagery)
         if (props.dataset.source_imagery)
           getImageryDetails(props.dataset.source_imagery)
      
