@@ -112,10 +112,10 @@ export const approximateGeom = (points) => {
     
     const geo = getClosestCorner(lat,lon,zoom)
     // console.log("geo",geo)
-    newValues += geo.lon_deg + " " + geo.lat_deg + ","
-    console.log("newValues",newValues.slice(0,-1))
+    newValues += geo.lon_deg + " " + geo.lat_deg + ",";
+   
   });
-
+  console.log("newValues",newValues.slice(0,-1));
   return newValues.slice(0,-1);
 
 }

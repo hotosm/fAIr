@@ -167,7 +167,7 @@ const DatasetMap = (props) => {
       if (type === "aoi")
         body = {
           geom: poly,
-          dataset: 1
+          dataset: props.dataset.id
         }
       else {
         const f1 = multiPolygon([polyTemp]);
