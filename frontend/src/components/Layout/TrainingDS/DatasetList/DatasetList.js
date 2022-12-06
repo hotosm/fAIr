@@ -8,6 +8,8 @@ import EditIcon from '@material-ui/icons/Edit';
 import AddIcon from '@material-ui/icons/Add';
 import { useNavigate } from 'react-router-dom';
 import ArchiveIcon from '@material-ui/icons/Archive';
+
+const DEFAULT_FILTER = {"items":[{"columnField":"created_date","id":8537,"operatorValue":"contains"}],"linkOperator":"and","quickFilterValues":[],"quickFilterLogicOperator":"and"}
 const DatasetList = props => {
 
     const [error, setError] = useState(null)
@@ -163,9 +165,9 @@ const DatasetList = props => {
                         disableSelectionOnClick
                         onFilterModelChange={(filter)=> { console.log('grid filter',filter); localStorage.setItem('dsFilter',JSON.stringify(filter)); refetch();}}
                         onSortModelChange={(sorter)=> { console.log('grid sorter',sorter); localStorage.setItem('dsSorter', JSON.stringify(sorter)); refetch();}}
-                        filterModel={localStorage.getItem('dsFilter')? JSON.parse(localStorage.getItem('dsFilter')) : {}}
+                        filterModel={localStorage.getItem('dsFilter') ? JSON.parse(localStorage.getItem('dsFilter')) : DEFAULT_FILTER}
                         sortModel={localStorage.getItem('dsSorter')? JSON.parse(localStorage.getItem('dsSorter')) : []}
-                        
+                        // TODO: BUG when no filter sorter check
                     />
                 </div>}
 

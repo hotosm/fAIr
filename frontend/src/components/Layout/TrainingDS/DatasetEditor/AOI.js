@@ -78,7 +78,7 @@ const AOI = (props) => {
 
   return (
     <>
-      <Grid item md={12}>
+      <Grid item md={12} className="card">
         <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
           List of Area of Interests
         </Typography>
@@ -174,6 +174,10 @@ const AOI = (props) => {
               ))}
           </List>
         </Demo>
+        {props.mapLayers && props.mapLayers.length === 0 &&
+         <Typography variant="body1" component="h2" >
+            No AOIs yet, start creating one by selecting AOIs on the top and create a polygon
+        </Typography> }
       </Grid>
     </>
   );

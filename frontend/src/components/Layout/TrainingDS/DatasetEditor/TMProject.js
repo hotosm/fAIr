@@ -44,7 +44,7 @@ const TMProject = props =>
         mutate(projectId);
     }
     return <>
-    <Grid item md={12}>
+    <Grid item md={12} className="card">
         <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
          Import TM Project Validated Tasks
         </Typography>

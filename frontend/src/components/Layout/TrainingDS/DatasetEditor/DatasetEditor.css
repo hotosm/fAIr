@@ -22,3 +22,71 @@
 {
   color: white;
 }
+
+.dataset-editor-header
+{
+  margin-top: 75px;
+}
+
+.MuiAppBar-root2:hover {
+  background-color: #FFF !important;
+}
+
+.MuiAppBar-root2 {
+ color: #000 !important;
+  height: 75px;
+}
+
+.column2
+{
+  margin-top: 75px;
+}
+
+.small-radio-aoi
+{
+  height: 50%;
+  width: 75%;
+  background-color: rgb(51, 136, 255) !important;
+  color: black;
+}
+
+.small-radio-label
+{
+  height: 50%;
+  width: 70%;
+  
+}
+
+.switcher-margin
+{
+  margin-top: -20px;
+}
+
+.card
+{
+  border: 2px solid ;
+  border-radius: 10px;
+  box-shadow: 5px 5px 5px #cdcdcd;
+  margin-bottom: 5px;
+  padding: 10px 5px;
+}
+
+.small-checkbox
+{
+  height: 20px;
+  width: 20px;  
+  margin-right: 2px;
+  margin-left: 5px;
+}
+
+.small-checkbox svg
+{
+  height: 15px;
+  width: 15px;  
+  margin-left: 1px;  
+  margin-top: -1;
+}
+.margin-checkbox
+{
+  margin-top: -14px;
+}

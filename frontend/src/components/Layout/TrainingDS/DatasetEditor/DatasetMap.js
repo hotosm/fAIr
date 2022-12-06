@@ -27,6 +27,7 @@ import {
 import axios from '../../../../axios'
 import LoadingButton from "@mui/lab/LoadingButton";
 import { approximateGeom } from "../../../../utils"
+import DatasetEditorHeader from "./DatasetEditorHeader";
 const DatasetMap = (props) => {
   const [mapLayers, setMapLayers] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
@@ -310,7 +311,7 @@ const DatasetMap = (props) => {
   
   
   useEffect(() => {
-    props.onMapLayersChange(mapLayers);
+    props.onMapLayersChange(mapLayers.sort((a,b) => (a.aoiId > b.aoiId ? 1 : -1)));
     if (props.geoJSON) {
       setgeoJsonLoadedFile(props.geoJSON);
       props.emptyPassedgeoJSON();
@@ -744,48 +745,27 @@ const DatasetMap = (props) => {
 
       {/* <button onClick={addGeoJSONHandler}>Add TM Project 11974</button>
       <button onClick={changePositionHandler}>Change position</button> */}
-      <Typography variant="h4" component="h2">{props.dataset.name}</Typography>
-      
-      <p>zoom: {zoom && +zoom.toFixed(1)},
-        {"Editing " + editMode}
-        <br />
-        Mode: {isEditing ? "Edit/Create" : "View"}
+      <DatasetEditorHeader 
+      dsName={props.dataset.name} 
+      zoom={zoom}
+      editMode={editMode}
+      oamImagery={props.oamImagery} 
+      setEditMode={setEditMode}
+      mapLayersLength={mapLayers.length}
+      >
 
-        {mapError && <span style={{ color: "red" }}> Error: {mapError} </span>}
-      </p>
-      <select defaultValue="aoi" id="selectedLayer" onChange={
-        (e) => {
-          setEditMode(e.target.value)
-          if (e.target.value === "aoi")
-          {
-            // console.log("leaflet-bar a",document.querySelectorAll(".leaflet-bar a"))
+      </DatasetEditorHeader>
 
-          document.querySelectorAll(".leaflet-bar a").forEach(e => {
-            e.style.backgroundColor = "rgb(51, 136, 255)"
-            console.log("leaflet-bar a",e.style)
-            
-          })
-        }
-        else
-        {
-          console.log("leaflet-bar a",document.querySelectorAll(".leaflet-bar a"))
+      {mapError && <span style={{ color: "red" }}> Error: {mapError} </span>}
 
-          document.querySelectorAll(".leaflet-bar a").forEach(e => {
-            e.style.backgroundColor = "#D73434"
-            console.log("leaflet-bar a",e.style)
-          })
-        }
-       }   
-      }>
-        <option value="label">Labels</option>
-        <option value="aoi">AOIs</option>
-      </select>
+     
       <MapContainer
         className="pointer"
         center={[-0.29815, 36.07572]}
         style={{
           height: "800px",
           width: "100%",
+          marginTop: "75px"
         }}
         zoom={zoom}
         zoomDelta={0.5}
@@ -878,7 +858,8 @@ const DatasetMap = (props) => {
             position="topleft"
 
             onCreated={(e) => {
-              _onCreate(e, document.getElementById("selectedLayer").value);
+              console.log("selectedLayer",document.querySelector('input[name="selectedLayer"]:checked').value)
+              _onCreate(e, document.querySelector('input[name="selectedLayer"]:checked').value);
             }}
             onEdited={_onEdited}
             onDeleted={_onDeleted}

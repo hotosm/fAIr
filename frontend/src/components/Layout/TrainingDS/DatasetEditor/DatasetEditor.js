@@ -63,12 +63,10 @@ function DatasetEditor() {
   
   return (
   <>
-  <p>datasetId= {id}</p>
-  {isLoading && "Loading ............"}
+    {isLoading && "Loading ............"}
+
     { dataset &&
      <Grid container padding={2} spacing={2}>
-     <p>datasetId= {JSON.stringify(dataset)}</p>
-   
       <Grid item xs={6} md={9}>
         <DatasetMap
           onMapLayersChange={mapLayersChangedHandler}
@@ -84,9 +82,9 @@ function DatasetEditor() {
           emptyPassedgeoJSON={()=>{setgeoJSON(null)}}
           dataset={dataset}
         ></DatasetMap>
-        <MapActions oamImagery={oamImagery} ></MapActions>
+       
       </Grid>
-      <Grid item xs={6} md={3}>
+      <Grid item xs={6} md={3} className="column2"  >
         <TileServerList
           navigateToCenter={navigateToCenter}
           addImagery={addImageryHandler}

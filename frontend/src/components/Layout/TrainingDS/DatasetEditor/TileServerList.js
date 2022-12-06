@@ -26,7 +26,7 @@ const TileServerList = (props) => {
   const [loading, setLoading] = useState(false);
   const [oamURL, setOAMURL] = useState(props.dataset.source_imagery? props.dataset.source_imagery : undefined);
 
-  const saveImageryToDataset = async (id) => {
+  const saveImageryToDataset = async (id,oamURL) => {
     try {
      
       setLoading(true);
@@ -64,6 +64,7 @@ const TileServerList = (props) => {
       props.addImagery(res.data, url);
       setImageryDetails(res.data);
       props.navigateToCenter(res.data.center);
+      mutateSaveImageryToDataset(props.dataset.id,url)
       return res.data;
     } catch (e) {
       console.log("isError");
@@ -79,7 +80,7 @@ const TileServerList = (props) => {
     //   "7586487389962e3f6e31ab2ed8ca321f2f3fe2cf87f1dedce8fc918b4692efd86fcd816ab8a35303effb1be9abe39b1cce3fe6db2c740044364ae68560822c88373d2c784325baf4e1fa007c6dbedab4cea3fa0dd86ee0ae4feeef032d33dcac28e4b16c90d55a42087c6b66526423ea1b4cc7e63c613940eb1c60f48270060bf41c5fcb6a628985ebe6801e9e71f015cf9dd7a76f004360017065667dc1cfe028f1332689e2d001bd06d4ebf019f829f3aac2";
     // console.log("utilAesDecrypt(template)", utilAesDecrypt(template));
     mutate(oamURL);
-    mutateSaveImageryToDataset(props.dataset.id)
+   
   };
   useEffect(() => {
     console.log("useEffect ",props)
@@ -96,8 +97,11 @@ const TileServerList = (props) => {
   
   return (
     <>
-      <Grid item md={12} >
-        <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
+    <Grid container className="card">
+
+    
+      <Grid item md={12}  >
+        <Typography  variant="h6" component="div">
           Open Aerial Imagery
         </Typography>
         <List dense={true}>
@@ -123,6 +127,7 @@ const TileServerList = (props) => {
                       console.log("delete imagery");
                       setImageryDetails(null);
                       props.removeImagery();
+                      mutateSaveImageryToDataset(props.dataset.id,"")
                     }}
                   >
                     <RemoveCircle />
@@ -194,6 +199,7 @@ const TileServerList = (props) => {
           )}
         </>
       )}
+      </Grid>
     </>
   );
 };
