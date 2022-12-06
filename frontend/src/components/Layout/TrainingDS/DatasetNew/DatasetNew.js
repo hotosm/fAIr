@@ -51,7 +51,8 @@ const DatasetNew = props =>
             
             <Grid item xs={12}>
                 <Typography variant="body1" component="div">
-                    Enter a name that represents the training datasets. It is recommedned to use a local name of the are where the training dataset exists
+                    Enter a name that represents the training datasets. 
+                    It is recommedned to use a local name of the area where the training dataset exists
                 </Typography>
             </Grid>
            
