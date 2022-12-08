@@ -83,7 +83,7 @@
 {
   height: 15px;
   width: 15px;  
-  margin-left: 1px;  
+  margin-left: -1px;  
   margin-top: -1;
 }
 .margin-checkbox
