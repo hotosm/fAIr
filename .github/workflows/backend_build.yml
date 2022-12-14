@@ -55,7 +55,7 @@ jobs:
         run: |
           cd backend/
           mv sample_env .env
-          export DATABASE_URL=postgis://admin:password@winhost:5432/ai
+          export DATABASE_URL=postgis://admin:password@localhost:5432/ai
       - name: Test Build
         run: |
           cd backend/
