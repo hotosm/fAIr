@@ -1,13 +1,13 @@
-django
+django==4.1.4
 # GDAL==3.4.2 # uncomment    with your gdal version
 psycopg2
-djangorestframework
-djangorestframework-gis
-dj-database-url
-django-leaflet
-django-rest-swagger
+djangorestframework==3.14.0
+djangorestframework-gis==1.0
+dj-database-url==1.2.0
+django-leaflet==0.28.3
+django-rest-swagger==2.2.0
 Pillow
-django-environ # used for environment
-django-filter
-django-cors-headers # used for enabling cors when frontend is hosted on different server / origin
+django-environ==0.9.0 # used for environment
+django-filter==22.1
+django-cors-headers==3.13.0 # used for enabling cors when frontend is hosted on different server / origin
 osm-login-python==0.0.2
