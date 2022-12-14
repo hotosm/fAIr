@@ -51,6 +51,10 @@ jobs:
           python -m pip install --upgrade pip
           cd backend/
           pip install -r requirements.txt
+      - name: Creating env
+        run: |
+          mv .sample.env .env
+          export DATABASE_URL=postgis://admin:password@winhost:5432/ai
       - name: Test Build
         run: |
           cd backend/
