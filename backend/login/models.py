@@ -3,5 +3,5 @@ from django.db import models
 
 
 class OsmUser(AbstractUser):
-    REQUIRED_FIELDS = "osm_id"
+    REQUIRED_FIELDS = ("osm_id",)
     osm_id = models.BigIntegerField(blank=False, unique=True, null=False)

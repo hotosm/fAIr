@@ -64,7 +64,9 @@ class Training(models.Model):
     )
     model = models.ForeignKey(Model, to_field="id", on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now=True)
-    status = models.CharField(choices=STATUS_CHOICES, default="SUBMITTED")
+    status = models.CharField(
+        choices=STATUS_CHOICES, default="SUBMITTED", max_length=10
+    )
     created_by = models.BigIntegerField(null=True, blank=True)  # osm_id
     started_at = models.DateTimeField(null=True, blank=True)
     finished_at = models.DateTimeField(null=True, blank=True)
