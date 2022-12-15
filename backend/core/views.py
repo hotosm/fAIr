@@ -21,7 +21,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_gis.filters import InBBoxFilter
 
-from .models import AOI, Dataset, Label
+from .models import AOI, Dataset, Label, Model, Training
 from .serializers import (
     AOISerializer,
     DatasetSerializer,
@@ -29,6 +29,8 @@ from .serializers import (
     ImageDownloadSerializer,
     LabelFileSerializer,
     LabelSerializer,
+    ModelSerializer,
+    TrainingSerializer,
 )
 
 
@@ -40,6 +42,26 @@ class DatasetViewSet(
     permission_allowed_methods = ["GET"]
     queryset = Dataset.objects.all()
     serializer_class = DatasetSerializer  # connecting serializer
+
+
+class TrainingViewSet(
+    viewsets.ModelViewSet
+):  # This is datasetviewset , will be tightly coupled with the models
+    authentication_classes = [OsmAuthentication]
+    permission_classes = [IsOsmAuthenticated]
+    permission_allowed_methods = ["GET"]
+    queryset = Training.objects.all()
+    serializer_class = TrainingSerializer  # connecting serializer
+
+
+class ModelViewSet(
+    viewsets.ModelViewSet
+):  # This is datasetviewset , will be tightly coupled with the models
+    authentication_classes = [OsmAuthentication]
+    permission_classes = [IsOsmAuthenticated]
+    permission_allowed_methods = ["GET"]
+    queryset = Model.objects.all()
+    serializer_class = ModelSerializer  # connecting serializer
 
 
 class AOIViewSet(viewsets.ModelViewSet):

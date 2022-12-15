@@ -20,6 +20,32 @@ class DatasetSerializer(
         return super().create(validated_data)
 
 
+class TrainingSerializer(
+    serializers.ModelSerializer
+):  # serializers are used to translate models objects to api
+    class Meta:
+        model = Training
+        fields = "__all__"  # defining all the fields to  be included in curd for now , we can restrict few if we want
+
+    def create(self, validated_data):
+        user = self.context["request"].user
+        validated_data["created_by"] = user
+        return super().create(validated_data)
+
+
+class ModelSerializer(
+    serializers.ModelSerializer
+):  # serializers are used to translate models objects to api
+    class Meta:
+        model = Model
+        fields = "__all__"  # defining all the fields to  be included in curd for now , we can restrict few if we want
+
+    def create(self, validated_data):
+        user = self.context["request"].user
+        validated_data["created_by"] = user
+        return super().create(validated_data)
+
+
 class AOISerializer(
     GeoFeatureModelSerializer
 ):  # serializers are used to translate models objects to api
