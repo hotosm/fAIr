@@ -13,7 +13,9 @@ import requests
 from django.conf import settings
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import status, viewsets
+from login.authentication import OsmAuthentication
+from login.permissions import IsOsmAuthenticated
+from rest_framework import decorators, status, viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -33,11 +35,17 @@ from .serializers import (
 class DatasetViewSet(
     viewsets.ModelViewSet
 ):  # This is datasetviewset , will be tightly coupled with the models
+    authentication_classes = [OsmAuthentication]
+    permission_classes = [IsOsmAuthenticated]
+    permission_allowed_methods = ["GET"]
     queryset = Dataset.objects.all()
     serializer_class = DatasetSerializer  # connecting serializer
 
 
 class AOIViewSet(viewsets.ModelViewSet):
+    authentication_classes = [OsmAuthentication]
+    permission_classes = [IsOsmAuthenticated]
+    permission_allowed_methods = ["GET"]
     queryset = AOI.objects.all()
     serializer_class = AOISerializer  # connecting serializer
     filter_backends = [DjangoFilterBackend]
@@ -45,6 +53,9 @@ class AOIViewSet(viewsets.ModelViewSet):
 
 
 class LabelViewSet(viewsets.ModelViewSet):
+    authentication_classes = [OsmAuthentication]
+    permission_classes = [IsOsmAuthenticated]
+    permission_allowed_methods = ["GET"]
     queryset = Label.objects.all()
     serializer_class = LabelSerializer  # connecting serializer
     bbox_filter_field = "geom"
@@ -57,6 +68,10 @@ class LabelViewSet(viewsets.ModelViewSet):
 
 
 class RawdataApiView(APIView):
+    authentication_classes = [OsmAuthentication]
+    permission_classes = [IsOsmAuthenticated]
+    permission_allowed_methods = ["GET"]
+
     def get(self, request, aoi_id, *args, **kwargs):
         pass
 
@@ -191,6 +206,8 @@ DEFAULT_ZOOM_LEVEL = 19
 
 
 @api_view(["POST"])
+@decorators.authentication_classes([OsmAuthentication])
+@decorators.permission_classes([IsOsmAuthenticated])
 def image_download_api(request):
     """Downloads the image for the dataset.
     Args:

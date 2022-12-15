@@ -14,6 +14,11 @@ class DatasetSerializer(
         model = Dataset
         fields = "__all__"  # defining all the fields to  be included in curd for now , we can restrict few if we want
 
+    def create(self, validated_data):
+        user = self.context["request"].user
+        validated_data["created_by"] = user
+        return super().create(validated_data)
+
 
 class AOISerializer(
     GeoFeatureModelSerializer

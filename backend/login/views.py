@@ -7,7 +7,6 @@ from login.authentication import OsmAuthentication
 from login.permissions import IsOsmAuthenticated
 from osm_login_python.core import Auth
 from rest_framework import status
-from rest_framework.decorators import authentication_classes, permission_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
