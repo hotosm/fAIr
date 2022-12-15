@@ -14,7 +14,7 @@ class OsmAuthentication(authentication.BaseAuthentication):
         )  # get the access token as header
         # if not access_token: # no access token passed on header
         #     raise exceptions.AuthenticationFailed('Access token not supplied')
-        user_data = None
+        user = None
         if access_token:
             try:
                 osm_auth = Auth(
