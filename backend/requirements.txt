@@ -1,5 +1,5 @@
 django==4.1.4
-# GDAL==3.4.2 # uncomment    with your gdal version
+gdal
 psycopg2
 djangorestframework==3.14.0
 djangorestframework-gis==1.0
