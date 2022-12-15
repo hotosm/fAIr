@@ -55,9 +55,5 @@ class GetMyData(APIView):
     permission_classes = [IsOsmAuthenticated]
 
     def get(self, request, format=None):
-        print(request.user)
-        print(request.user.id)
-
         serialized_field = UserSerializer(instance=request.user)
-
         return Response(serialized_field.data, status=status.HTTP_201_CREATED)
