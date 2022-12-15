@@ -24,6 +24,10 @@ This project was bootstrapped with  [Geodjango Template](https://github.com/itsk
 
 #### Default database settings: 
     Create .env in root backend project , and add the credentials as provided on .env_sample , Export your secret key and database url to your env
+
+    Export your database url 
+
+    export DATABASE_URL=postgis://postgres:postgres@localhost:5432/ai
 #### Now change your username , password and db name in settings.py accordingly to your database
     python manage.py makemigrations
     python manage.py migrate
@@ -42,3 +46,17 @@ fAIr uses oauth2.0 Authentication using [osm-login-python](https://github.com/ks
 2. Check authentiation by getting back your data 
     Hit ```/api/v1/auth/me/```
     - URL requires access-token as header and in return you will see your osm username , id and image url 
+
+
+## Start celery workers 
+1. Install redis server in your pc 
+
+```
+sudo apt install redis
+```
+
+2. Start celery workers 
+
+```
+celery -A aiproject worker --loglevel=info
+```

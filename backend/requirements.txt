@@ -11,3 +11,5 @@ django-environ==0.9.0 # used for environment
 django-filter==22.1
 django-cors-headers==3.13.0 # used for enabling cors when frontend is hosted on different server / origin
 osm-login-python==0.0.2
+celery==5.2.7
+redis==4.4.0

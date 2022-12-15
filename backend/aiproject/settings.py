@@ -34,7 +34,7 @@ EXPORT_TOOL_API_URL = env(
     default="https://galaxy-api.hotosm.org/v1/raw-data/current-snapshot/",
 )
 
-ALLOWED_HOSTS = ['localhost',HOSTNAME]
+ALLOWED_HOSTS = ["localhost", HOSTNAME]
 
 if env("GDAL_LIBRARY_PATH", default=False):
     GDAL_LIBRARY_PATH = env("GDAL_LIBRARY_PATH")
@@ -164,3 +164,9 @@ MEDIA_URL = "/media/"
 
 if DEBUG:
     os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
+
+
+# celery configuration
+
+CELERY_BROKER_URL = env("CELERY_BROKER_URL", default="redis://127.0.0.1:6379/0")
+CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND", default="redis://127.0.0.1:6379/0")
