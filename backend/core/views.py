@@ -127,6 +127,10 @@ class RawdataApiView(APIView):
         return Response("Success", status=status.HTTP_201_CREATED)
 
 
+DEFAULT_TILE_SIZE = 256
+DEFAULT_ZOOM_LEVEL = 19
+
+
 class ImageDownloadView(APIView):
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsOsmAuthenticated]

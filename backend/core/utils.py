@@ -11,9 +11,6 @@ from django.conf import settings
 from .models import Label
 from .serializers import LabelSerializer
 
-DEFAULT_TILE_SIZE = 256
-DEFAULT_ZOOM_LEVEL = 19
-
 
 def bbox(coord_list):
     """_summary_
