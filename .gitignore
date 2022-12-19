@@ -35,7 +35,7 @@ backend/**/migrations/**
 backend/media
 backend/data/*
 backend/training/*
-backend/aiproject/.env
+backend/.env
 backend/config.txt
 
 **/.vscode/**

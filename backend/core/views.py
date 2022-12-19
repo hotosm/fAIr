@@ -1,31 +1,33 @@
-from xml.dom import ValidationErr
-from rest_framework import viewsets
-from rest_framework.decorators import api_view
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework_gis.filters import InBBoxFilter
-from rest_framework import status
-from django_filters.rest_framework import DjangoFilterBackend
-from .models import AOI, Dataset, Label
-from .serializers import (
-    ImageDownloadSerializer,
-    DatasetSerializer,
-    AOISerializer,
-    LabelSerializer,
-    LabelFileSerializer,
-    ImageDownloadResponseSerializer,
-)
-import requests
 import json
-from datetime import datetime
-import os
-from uuid import uuid4
-from zipfile import ZipFile
 import math
+import os
+import pathlib
 import shutil
 import zipfile
-import pathlib
+from datetime import datetime
+from uuid import uuid4
+from xml.dom import ValidationErr
+from zipfile import ZipFile
+
+import requests
+from django.conf import settings
 from django.http import HttpResponse
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import status, viewsets
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework_gis.filters import InBBoxFilter
+
+from .models import AOI, Dataset, Label
+from .serializers import (
+    AOISerializer,
+    DatasetSerializer,
+    ImageDownloadResponseSerializer,
+    ImageDownloadSerializer,
+    LabelFileSerializer,
+    LabelSerializer,
+)
 
 
 class DatasetViewSet(
@@ -93,10 +95,9 @@ def request_rawdata(request_params):
     Returns:
         Response(json): API Response
     """
-    try:
-        galaxy_url = os.environ.get("GALAXY_URL")
-    except Exception as ex:
-        raise ex
+
+    export_tool_api_url = settings.EXPORT_TOOL_API_URL
+
     # following block should be a background task
     headers = {
         "accept": "application/json",
@@ -104,7 +105,7 @@ def request_rawdata(request_params):
     }
     print(request_params)
     with requests.post(
-        url=galaxy_url, data=json.dumps(request_params), headers=headers
+        url=export_tool_api_url, data=json.dumps(request_params), headers=headers
     ) as r:  # curl can also be option
         response_back = r.json()
         print(response_back)
@@ -113,8 +114,8 @@ def request_rawdata(request_params):
 
 def process_rawdata(file_download_url, aoi_id):
     """This will create temp directory , Downloads file from URL provided,
-        Unzips it Finds a geojson file , Process it and finally removes
-        processed Geojson file and downloaded zip file from Directory"""
+    Unzips it Finds a geojson file , Process it and finally removes
+    processed Geojson file and downloaded zip file from Directory"""
     r = requests.get(file_download_url)
     # Check whether the export path exists or not
     path = "temp/"
@@ -176,8 +177,7 @@ def process_geojson(geojson_file_path, aoi_id):
                 pass
             else:
                 label = LabelSerializer(
-                    data={"osm_id": int(osm_id),
-                          "geom": geometry, "aoi": aoi_id}
+                    data={"osm_id": int(osm_id), "geom": geometry, "aoi": aoi_id}
                 )
                 if label.is_valid():
                     label.save()
@@ -262,20 +262,22 @@ def image_download_api(request):
 
                 # getting tile coordinate for last point of bbox
                 end_x, end_y = latlng2tile(
-                    zoom=zm_level, lat=end_point_lat,
-                    lng=end_point_lng, tile_size=tile_size
+                    zoom=zm_level,
+                    lat=end_point_lat,
+                    lng=end_point_lng,
+                    tile_size=tile_size,
                 )
                 end = [end_x, end_y]
                 try:
                     # start downloading
                     download_imagery(
-                            start,
-                            end,
-                            zm_level,
-                            dataset_id=dataset_id,
-                            base_path=base_path,
-                            source=source,
-                        )
+                        start,
+                        end,
+                        zm_level,
+                        dataset_id=dataset_id,
+                        base_path=base_path,
+                        source=source,
+                    )
 
                     obj.imagery_status = 1
                     # obj.last_fetched_date = datetime.datetime.utcnow()
@@ -333,8 +335,12 @@ def bbox(coord_list):
         res = sorted(coord_list, key=lambda x: x[i])
         box.append((res[0][i], res[-1][i]))
     correction = 0.000001  # need crctn because coordinate comming from js
-    ret = [box[0][0]+correction, box[1][0]+correction,
-           box[0][1]-correction, box[1][1]-correction]
+    ret = [
+        box[0][0] + correction,
+        box[1][0] + correction,
+        box[0][1] - correction,
+        box[1][1] - correction,
+    ]
     return ret
 
 
@@ -350,15 +356,15 @@ def convert2worldcd(lat, lng, tile_size):
     siny = math.sin((lat * math.pi) / 180)
     siny = min(max(siny, -0.9999), 0.9999)
     world_x = tile_size * (0.5 + (lng / 360))
-    world_y = tile_size *(0.5 - math.log((1 + siny) / (1 - siny)) / (4 * math.pi))
+    world_y = tile_size * (0.5 - math.log((1 + siny) / (1 - siny)) / (4 * math.pi))
     # print("world coordinate space is %s, %s",world_x,world_y)
     return world_x, world_y
 
 
 def latlng2tile(zoom, lat, lng, tile_size):
     """By dividing the pixel coordinates by the tile size and taking the
-        integer parts of the result, you produce as a by-product the tile
-        coordinate at the current zoom level."""
+    integer parts of the result, you produce as a by-product the tile
+    coordinate at the current zoom level."""
     zoom_byte = 1 << zoom  # converting zoom level to pixel bytes
     # print(zoom_byte)
     w_x, w_y = convert2worldcd(lat, lng, tile_size)

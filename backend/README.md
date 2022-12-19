@@ -23,7 +23,7 @@ This project was bootstrapped with  [Geodjango Template](https://github.com/itsk
 
 
 #### Default database settings: 
-    Create .env inside backend/aiproject , and add the credentials as provided on .env_sample
+    Create .env in root backend project , and add the credentials as provided on .env_sample , Export your secret key and database url to your env
 #### Now change your username , password and db name in settings.py accordingly to your database
     python manage.py makemigrations
     python manage.py migrate
