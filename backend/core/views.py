@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 import json
 import os
 import pathlib
@@ -5,6 +7,8 @@ import shutil
 import zipfile
 from datetime import datetime
 
+from celery import current_app
+from celery.result import AsyncResult
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
@@ -27,6 +31,7 @@ from .serializers import (
     ModelSerializer,
     TrainingSerializer,
 )
+from .tasks import train_model
 from .utils import bbox, download_imagery, latlng2tile, process_rawdata, request_rawdata
 
 
@@ -296,7 +301,27 @@ def run_training(request, training_id: int):
         training_id (int): _description_
     """
     try:
-        obj = Training.objects.get(id=training_id)
-        print(obj)
+        # obj = Training.objects.get(id=training_id)
+        task = train_model.delay("test")
+        return Response(
+            {"run_task_id": task.id, "track_link": f"/training/run/status/{task.id}/"}
+        )
     except ObjectDoesNotExist:
         return Response({"error": "The requested training doesn't exist."}, status=404)
+
+
+@api_view(["GET"])
+def run_task_status(request, run_id: str):
+    """Gives the status of running task from background process
+
+    Args:
+        request (_type_): _description_
+        run_id (_type_): _description_
+    """
+    task_result = AsyncResult(run_id, app=current_app)
+    result = {
+        "id": run_id,
+        "status": task_result.state,
+        "result": task_result.result if task_result.status == "SUCCESS" else None,
+    }
+    return Response(result)

@@ -11,9 +11,7 @@ class Dataset(models.Model):
         ACTIVE = 0
 
     name = models.CharField(max_length=255)
-    created_by = models.ForeignKey(
-        OsmUser, to_field="username", on_delete=models.CASCADE
-    )
+    created_by = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
     last_modified = models.DateTimeField(auto_now=True)
     created_date = models.DateTimeField(auto_now_add=True)
     source_imagery = models.URLField(blank=True, null=True)
@@ -54,9 +52,7 @@ class Model(models.Model):
     name = models.CharField(max_length=255)
     created_date = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now=True)
-    created_by = models.ForeignKey(
-        OsmUser, to_field="username", on_delete=models.CASCADE
-    )
+    created_by = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
     status = models.IntegerField(default=0, choices=ModelStatus.choices)  #
 
 
@@ -73,9 +69,7 @@ class Training(models.Model):
     status = models.CharField(
         choices=STATUS_CHOICES, default="SUBMITTED", max_length=10
     )
-    created_by = models.ForeignKey(
-        OsmUser, to_field="username", on_delete=models.CASCADE
-    )
+    created_by = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
     started_at = models.DateTimeField(null=True, blank=True)
     finished_at = models.DateTimeField(null=True, blank=True)
     accuracy = models.FloatField(null=True, blank=True)
