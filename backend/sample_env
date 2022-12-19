@@ -10,3 +10,5 @@ OSM_URL=https://www.openstreetmap.org
 OSM_SCOPE=read_prefs
 OSM_LOGIN_REDIRECT_URI=http://127.0.0.1:8000/api/v1/auth/callback/
 OSM_SECRET_KEY=LGnZ0mA8cCniMxDAsEJKWAcwLqZDimTY
+CELERY_BROKER_URL="redis://localhost:6379/0"
+CELERY_RESULT_BACKEND="redis://localhost:6379/0"
