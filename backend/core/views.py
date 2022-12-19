@@ -94,10 +94,16 @@ class RawdataApiView(APIView):
     permission_classes = [IsOsmAuthenticated]
     permission_allowed_methods = ["GET"]
 
-    def get(self, request, aoi_id, *args, **kwargs):
-        pass
-
     def post(self, request, aoi_id, *args, **kwargs):
+        """Downloads available osm data within given aoi
+
+        Args:
+            request (_type_): _description_
+            aoi_id (_type_): _description_
+
+        Returns:
+            status: Success/Failed
+        """
         obj = AOI.objects.get(id=aoi_id)
         if not obj:
             return Response(
