@@ -63,10 +63,10 @@ INSTALLED_APPS = [
     "leaflet",
     "rest_framework",
     "rest_framework_gis",
-    "rest_framework_swagger",
     "django_filters",
     "corsheaders",
     "login",
+    "drf_yasg",
 ]
 
 MIDDLEWARE = [
