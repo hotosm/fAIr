@@ -58,7 +58,7 @@ sudo apt install redis
 2. Start celery workers 
 
 ```
-celery -A aiproject worker --loglevel=info -n my_worker
+celery -A aiproject worker --loglevel=debug -n my_worker
 ```
 
 3. Monitor using flower 
