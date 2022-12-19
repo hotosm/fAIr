@@ -73,3 +73,5 @@ class Training(models.Model):
     started_at = models.DateTimeField(null=True, blank=True)
     finished_at = models.DateTimeField(null=True, blank=True)
     accuracy = models.FloatField(null=True, blank=True)
+    epochs = models.PositiveIntegerField()
+    batch_size = models.PositiveIntegerField()
