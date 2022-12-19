@@ -162,7 +162,7 @@ class ImageDownloadView(APIView):
         Dataset.objects.filter(id=dataset_id).update(source_imagery=source)
 
         # need to get all the aoi associated with dataset
-        aois = AOI.objects.filter(dataset=dataset_id)
+        aois = get_object_or_404(AOI, dataset=dataset_id)
         # this is the base path where imagery will be downloaded if not present it
         # will create one
         base_path = f"training/{dataset_id}"
