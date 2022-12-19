@@ -68,6 +68,7 @@ class Training(models.Model):
         ("FAILED", "FAILED"),
     )
     model = models.ForeignKey(Model, to_field="id", on_delete=models.CASCADE)
+    description = models.TextField(max_length=500, null=True, blank=True)
     created_at = models.DateTimeField(auto_now=True)
     status = models.CharField(
         choices=STATUS_CHOICES, default="SUBMITTED", max_length=10
