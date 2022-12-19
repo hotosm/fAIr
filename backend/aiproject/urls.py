@@ -67,4 +67,5 @@ urlpatterns = [
     path("api/v1/fetch-raw/<int:aoi_id>/", RawdataApiView.as_view()),
     path("api/v1/dataset_image/build/", image_download_api),
     path("api/v1/download/<int:dataset_id>/", download_training_data),
+    path("api/v1/training/run/<int:training_id>/", run_training),
 ]
