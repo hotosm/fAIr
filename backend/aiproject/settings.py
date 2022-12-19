@@ -177,3 +177,9 @@ CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND", default="redis://127.0.0.1:
 
 
 AUTH_USER_MODEL = "login.OsmUser"
+
+SWAGGER_SETTINGS = {
+    "SECURITY_DEFINITIONS": {
+        "OSM": {"type": "apiKey", "name": "access-token", "in": "header"},
+    }
+}

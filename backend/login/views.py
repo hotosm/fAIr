@@ -22,31 +22,33 @@ osm_auth = Auth(
 )
 
 
-def login(request):
-    """Generates login url for OSM Login
+class login(APIView):
+    def get(self, request, format=None):
+        """Generates login url for OSM Login
 
-    Args:
-        request (get): _description_
+        Args:
+            request (get): _description_
 
-    Returns:
-        json: login_url
-    """
-    login_url = osm_auth.login()
-    return JsonResponse(json.loads(login_url))
+        Returns:
+            json: login_url
+        """
+        login_url = osm_auth.login()
+        return JsonResponse(json.loads(login_url))
 
 
-def callback(request):
-    """Callback method redirected from osm callback method
+class callback(APIView):
+    def get(self, request, format=None):
+        """Callback method redirected from osm callback method
 
-    Args:
-        request (_type_): contains code and state as parametr redirected from osm
+        Args:
+            request (_type_): contains code and state as parametr redirected from osm
 
-    Returns:
-        json: access_token
-    """
-    # Generating token through osm_auth library method
-    token = osm_auth.callback(request.build_absolute_uri())
-    return JsonResponse(json.loads(token))
+        Returns:
+            json: access_token
+        """
+        # Generating token through osm_auth library method
+        token = osm_auth.callback(request.build_absolute_uri())
+        return JsonResponse(json.loads(token))
 
 
 class GetMyData(APIView):

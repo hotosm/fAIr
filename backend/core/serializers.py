@@ -104,4 +104,14 @@ class ImageDownloadResponseSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = OsmUser
-        fields = "__all__"  # defining all the fields to  be included in curd for now , we can restrict few if we want
+        fields = [
+            "osm_id",
+            "username",
+            "is_superuser",
+            "is_active",
+            "is_staff",
+            "date_joined",
+            "email",
+            "img_url",
+            "user_permissions",
+        ]
