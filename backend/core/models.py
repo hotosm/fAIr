@@ -13,7 +13,7 @@ class Dataset(models.Model):
     name = models.CharField(max_length=255)
     created_by = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
     last_modified = models.DateTimeField(auto_now=True)
-    created_date = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
     source_imagery = models.URLField(blank=True, null=True)
     status = models.IntegerField(
         default=0, choices=DatasetStatus.choices
@@ -31,7 +31,7 @@ class AOI(models.Model):
     download_status = models.IntegerField(default=-1, choices=DownloadStatus.choices)
     imagery_status = models.IntegerField(default=-1, choices=DownloadStatus.choices)
     last_fetched_date = models.DateTimeField(null=True, blank=True)
-    created_date = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now=True)
 
 
@@ -39,7 +39,7 @@ class Label(models.Model):
     aoi = models.ForeignKey(AOI, to_field="id", on_delete=models.CASCADE)
     geom = geomodels.GeometryField(srid=4326)
     osm_id = models.BigIntegerField(null=True, blank=True)
-    created_date = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now=True)
 
 
@@ -50,9 +50,10 @@ class Model(models.Model):
 
     dataset = models.ForeignKey(Dataset, to_field="id", on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
-    created_date = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now=True)
     created_by = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
+    published_training = models.PositiveIntegerField(null=True, blank=True)
     status = models.IntegerField(default=0, choices=ModelStatus.choices)  #
 
 
