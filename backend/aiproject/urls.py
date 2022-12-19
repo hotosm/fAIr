@@ -65,7 +65,7 @@ urlpatterns = [
         "api/v1/", include(router.urls)
     ),  # adding all the api to version 1 project is in development
     path("api/v1/fetch-raw/<int:aoi_id>/", RawdataApiView.as_view()),
-    path("api/v1/dataset_image/build/", image_download_api),
+    path("api/v1/dataset_image/build/", ImageDownloadView.as_view()),
     path("api/v1/download/<int:dataset_id>/", download_training_data),
     path("api/v1/training/status/<str:run_id>/", run_task_status),
 ]

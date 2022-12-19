@@ -116,9 +116,12 @@ class LabelFileSerializer(
 
 
 class ImageDownloadSerializer(serializers.Serializer):
-    dataset_id = serializers.IntegerField()
+    dataset_id = serializers.IntegerField(required=True)
     source = serializers.URLField(required=False)
-    zoom_level = serializers.ListField(required=False)
+    zoom_level = serializers.ListField(required=True)
+
+    class Meta:
+        fields = ("dataset_id", "source", "zoom_level")
 
     def validate(self, data):
         """

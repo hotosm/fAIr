@@ -9,12 +9,13 @@ from datetime import datetime
 
 from celery import current_app
 from celery.result import AsyncResult
-from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
+from drf_yasg.utils import swagger_auto_schema
 from login.authentication import OsmAuthentication
 from login.permissions import IsOsmAuthenticated
-from rest_framework import decorators, status, viewsets
+from rest_framework import status, viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -31,7 +32,6 @@ from .serializers import (
     ModelSerializer,
     TrainingSerializer,
 )
-from .tasks import train_model
 from .utils import bbox, download_imagery, latlng2tile, process_rawdata, request_rawdata
 
 
@@ -94,7 +94,6 @@ class LabelViewSet(viewsets.ModelViewSet):
 class RawdataApiView(APIView):
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsOsmAuthenticated]
-    permission_allowed_methods = ["GET"]
 
     def post(self, request, aoi_id, *args, **kwargs):
         """Downloads available osm data within given aoi
@@ -128,136 +127,146 @@ class RawdataApiView(APIView):
         return Response("Success", status=status.HTTP_201_CREATED)
 
 
-@api_view(["POST"])
-@decorators.authentication_classes([OsmAuthentication])
-@decorators.permission_classes([IsOsmAuthenticated])
-def image_download_api(request):
-    """Downloads the image for the dataset.
-    Args:
-        dataset_id: int - id of the dataset
-        source : str - source url of OAM if present or any other URL - Optional
-        zoom_level : list[int] - zoom level default is 19
-    Returns:
-        Download status
-    """
-    print(request.data)
+class ImageDownloadView(APIView):
+    authentication_classes = [OsmAuthentication]
+    permission_classes = [IsOsmAuthenticated]
 
-    serializer = ImageDownloadSerializer(data=request.data)
-    if serializer.is_valid(raise_exception=True):
-        dataset_id = int(request.data.get("dataset_id"))
-        # get source imagery url if supplied else use maxar
-        source = request.data.get("source", "maxar")
-        zoom_level = list(request.data.get("zoom_level", [19]))
+    @swagger_auto_schema(
+        request_body=ImageDownloadSerializer, responses={status.HTTP_200_OK: "ok"}
+    )
+    def post(self, request, *args, **kwargs):
+        """Downloads the image for the dataset.
+        Args:
+            dataset_id: int - id of the dataset
+            source : str - source url of OAM if present or any other URL - Optional
+            zoom_level : list[int] - zoom level default is 19
+        Returns:
+            Download status
+        """
+        serializer = ImageDownloadSerializer(data=request.data)
 
-    # update the dataset if source imagery is supplied
-    Dataset.objects.filter(id=dataset_id).update(source_imagery=source)
+        if serializer.is_valid(raise_exception=True):
+            dataset_id = int(request.data.get("dataset_id"))
+            # get source imagery url if supplied else use maxar
 
-    # need to get all the aoi associated with dataset
-    aois = AOI.objects.filter(dataset=dataset_id)
-    # this is the base path where imagery will be downloaded if not present it
-    # will create one
-    base_path = f"training/{dataset_id}"
-    if os.path.exists(base_path):
-        shutil.rmtree(base_path)
-    os.makedirs(base_path)
+            source_img_in_dataset = get_object_or_404(
+                Dataset, id=dataset_id
+            ).source_imagery
 
-    # looping through each of them and processing it one by one ,
-    # later on we can specify each aoi to no of threads available
-    for obj in aois:
-        # TODO : Here assign each aoi to different thread as much as possible
-        # and available
-        if obj.imagery_status != 0:
-            for z in zoom_level:
-                DEFAULT_ZOOM_LEVEL = int(z)
-                print(
-                    f"""Running Download process for
-                    aoi : {obj.id} - dataset : {dataset_id} , zoom : {DEFAULT_ZOOM_LEVEL}"""
-                )
-                obj.imagery_status = 0
-                obj.save()
-                bbox_coords = bbox(obj.geom.coords[0])
-                print(f"bbox is : {bbox_coords}")
-
-                tile_size = DEFAULT_TILE_SIZE  # by default
-                zm_level = DEFAULT_ZOOM_LEVEL
-
-                # start point where we will start downloading the tiles
-
-                start_point_lng = bbox_coords[0]  # getting the starting lat lng
-                start_point_lat = bbox_coords[1]
-
-                # end point where we should stop downloading the tile
-                end_point_lng = bbox_coords[2]  # getting the ending lat lng
-                end_point_lat = bbox_coords[3]
-
-                # Note :  lat=y-axis, lng=x-axis
-                # getting tile coordinate for first point of bbox
-                start_x, start_y = latlng2tile(
-                    zoom=zm_level,
-                    lat=start_point_lat,
-                    lng=start_point_lng,
-                    tile_size=tile_size,
-                )
-                start = [start_x, start_y]
-
-                # getting tile coordinate for last point of bbox
-                end_x, end_y = latlng2tile(
-                    zoom=zm_level,
-                    lat=end_point_lat,
-                    lng=end_point_lng,
-                    tile_size=tile_size,
-                )
-                end = [end_x, end_y]
-                try:
-                    # start downloading
-                    download_imagery(
-                        start,
-                        end,
-                        zm_level,
-                        dataset_id=dataset_id,
-                        base_path=base_path,
-                        source=source,
-                    )
-
-                    obj.imagery_status = 1
-                    # obj.last_fetched_date = datetime.datetime.utcnow()
-                    obj.save()
-
-                except Exception as ex:  # if download process is failed somehow
-                    print(ex)
-                    obj.imagery_status = -1  # not downloaded
-                    # obj.last_fetched_date = datetime.datetime.utcnow()
-                    obj.save()
-        else:
-            print(
-                f"""There is running process already for
-                : {obj.id} - dataset : {dataset_id} , Skippinggg"""
+            source = request.data.get(
+                "source", source_img_in_dataset if source_img_in_dataset else "maxar"
             )
-    aoi = AOI.objects.filter(dataset=dataset_id).values()
+            zoom_level = list(request.data.get("zoom_level", [19]))
 
-    res_serializer = ImageDownloadResponseSerializer(data=list(aoi), many=True)
+        # update the dataset if source imagery is supplied
+        Dataset.objects.filter(id=dataset_id).update(source_imagery=source)
 
-    aoi_list_queryset = AOI.objects.filter(dataset=dataset_id)
+        # need to get all the aoi associated with dataset
+        aois = AOI.objects.filter(dataset=dataset_id)
+        # this is the base path where imagery will be downloaded if not present it
+        # will create one
+        base_path = f"training/{dataset_id}"
+        if os.path.exists(base_path):
+            shutil.rmtree(base_path)
+        os.makedirs(base_path)
 
-    aoi_list = [r.id for r in aoi_list_queryset]
+        # looping through each of them and processing it one by one ,
+        # later on we can specify each aoi to no of threads available
+        for obj in aois:
+            # TODO : Here assign each aoi to different thread as much as possible
+            # and available
+            if obj.imagery_status != 0:
+                for z in zoom_level:
+                    DEFAULT_ZOOM_LEVEL = int(z)
+                    print(
+                        f"""Running Download process for
+                        aoi : {obj.id} - dataset : {dataset_id} , zoom : {DEFAULT_ZOOM_LEVEL}"""
+                    )
+                    obj.imagery_status = 0
+                    obj.save()
+                    bbox_coords = bbox(obj.geom.coords[0])
+                    print(f"bbox is : {bbox_coords}")
 
-    label = Label.objects.filter(aoi__in=aoi_list).values()
-    serialized_field = LabelFileSerializer(data=list(label), many=True)
-    try:
-        if serialized_field.is_valid(raise_exception=True):
-            with open(
-                f"training/{dataset_id}/labels.geojson", "w", encoding="utf-8"
-            ) as f:
-                f.write(json.dumps(serialized_field.data))
-            f.close()
+                    tile_size = DEFAULT_TILE_SIZE  # by default
+                    zm_level = DEFAULT_ZOOM_LEVEL
 
-    except Exception as ex:
-        print(ex)
-        raise ex
+                    # start point where we will start downloading the tiles
 
-    if res_serializer.is_valid(raise_exception=True):
-        print(res_serializer.data)
-        return Response(res_serializer.data, status=status.HTTP_201_CREATED)
+                    start_point_lng = bbox_coords[0]  # getting the starting lat lng
+                    start_point_lat = bbox_coords[1]
+
+                    # end point where we should stop downloading the tile
+                    end_point_lng = bbox_coords[2]  # getting the ending lat lng
+                    end_point_lat = bbox_coords[3]
+
+                    # Note :  lat=y-axis, lng=x-axis
+                    # getting tile coordinate for first point of bbox
+                    start_x, start_y = latlng2tile(
+                        zoom=zm_level,
+                        lat=start_point_lat,
+                        lng=start_point_lng,
+                        tile_size=tile_size,
+                    )
+                    start = [start_x, start_y]
+
+                    # getting tile coordinate for last point of bbox
+                    end_x, end_y = latlng2tile(
+                        zoom=zm_level,
+                        lat=end_point_lat,
+                        lng=end_point_lng,
+                        tile_size=tile_size,
+                    )
+                    end = [end_x, end_y]
+                    try:
+                        # start downloading
+                        download_imagery(
+                            start,
+                            end,
+                            zm_level,
+                            dataset_id=dataset_id,
+                            base_path=base_path,
+                            source=source,
+                        )
+
+                        obj.imagery_status = 1
+                        # obj.last_fetched_date = datetime.datetime.utcnow()
+                        obj.save()
+
+                    except Exception as ex:  # if download process is failed somehow
+                        print(ex)
+                        obj.imagery_status = -1  # not downloaded
+                        # obj.last_fetched_date = datetime.datetime.utcnow()
+                        obj.save()
+            else:
+                print(
+                    f"""There is running process already for
+                    : {obj.id} - dataset : {dataset_id} , Skippinggg"""
+                )
+        aoi = AOI.objects.filter(dataset=dataset_id).values()
+
+        res_serializer = ImageDownloadResponseSerializer(data=list(aoi), many=True)
+
+        aoi_list_queryset = AOI.objects.filter(dataset=dataset_id)
+
+        aoi_list = [r.id for r in aoi_list_queryset]
+
+        label = Label.objects.filter(aoi__in=aoi_list).values()
+        serialized_field = LabelFileSerializer(data=list(label), many=True)
+        try:
+            if serialized_field.is_valid(raise_exception=True):
+                with open(
+                    f"training/{dataset_id}/labels.geojson", "w", encoding="utf-8"
+                ) as f:
+                    f.write(json.dumps(serialized_field.data))
+                f.close()
+
+        except Exception as ex:
+            print(ex)
+            raise ex
+
+        if res_serializer.is_valid(raise_exception=True):
+            print(res_serializer.data)
+            return Response(res_serializer.data, status=status.HTTP_201_CREATED)
 
 
 @api_view(["GET"])
