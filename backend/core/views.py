@@ -52,6 +52,7 @@ class TrainingViewSet(
     permission_classes = [IsOsmAuthenticated]
     permission_allowed_methods = ["GET"]
     queryset = Training.objects.all()
+    http_method_names = ["get", "post", "delete"]
     serializer_class = TrainingSerializer  # connecting serializer
 
 
@@ -288,26 +289,6 @@ def download_training_data(request, dataset_id: int):
     else:
         # "error": "Dataset haven't been downloaded or doesn't exist",
         return HttpResponse(status=204)
-
-
-@api_view(["POST"])
-@decorators.authentication_classes([OsmAuthentication])
-@decorators.permission_classes([IsOsmAuthenticated])
-def run_training(request, training_id: int):
-    """Runs training on the basis of training_id configuration
-
-    Args:
-        request (_type_): _description_
-        training_id (int): _description_
-    """
-    try:
-        # obj = Training.objects.get(id=training_id)
-        task = train_model.delay("test")
-        return Response(
-            {"run_task_id": task.id, "track_link": f"/training/run/status/{task.id}/"}
-        )
-    except ObjectDoesNotExist:
-        return Response({"error": "The requested training doesn't exist."}, status=404)
 
 
 @api_view(["GET"])

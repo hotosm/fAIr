@@ -5,6 +5,7 @@ from rest_framework_gis.serializers import (
 )
 
 from .models import *
+from .tasks import train_model
 
 
 class DatasetSerializer(
@@ -13,6 +14,11 @@ class DatasetSerializer(
     class Meta:
         model = Dataset
         fields = "__all__"  # defining all the fields to  be included in curd for now , we can restrict few if we want
+        read_only_fields = (
+            "created_by",
+            "created_at",
+            "last_modified",
+        )
 
     def create(self, validated_data):
         user = self.context["request"].user
@@ -26,11 +32,24 @@ class TrainingSerializer(
     class Meta:
         model = Training
         fields = "__all__"  # defining all the fields to  be included in curd for now , we can restrict few if we want
+        read_only_fields = (
+            "created_at",
+            "status",
+            "created_by",
+            "started_at",
+            "finished_at",
+            "accuracy",
+        )
 
     def create(self, validated_data):
         user = self.context["request"].user
         validated_data["created_by"] = user
-        return super().create(validated_data)
+        # create the model instance
+        instance = Training.objects.create(**validated_data)
+        # run your function here
+        print(instance)
+        train_model.delay("test")
+        return instance
 
 
 class ModelSerializer(
@@ -39,6 +58,12 @@ class ModelSerializer(
     class Meta:
         model = Model
         fields = "__all__"  # defining all the fields to  be included in curd for now , we can restrict few if we want
+        read_only_fields = (
+            "created_at",
+            "last_modified",
+            "created_by",
+            "published_training",
+        )
 
     def create(self, validated_data):
         user = self.context["request"].user
@@ -54,6 +79,14 @@ class AOISerializer(
         geo_field = "geom"  # this will be used as geometry in order to create geojson api , geofeatureserializer will let you create api in geojson
         fields = "__all__"  # defining all the fields to  be included in curd for now , we can restrict few if we want
 
+        read_only_fields = (
+            "created_at",
+            "last_modified",
+            "last_fetched_date",
+            "imagery_status",
+            "download_status",
+        )
+
 
 class LabelSerializer(
     GeoFeatureModelSerializer
@@ -63,6 +96,11 @@ class LabelSerializer(
         geo_field = "geom"  # this will be used as geometry in order to create geojson api , geofeatureserializer will let you create api in geojson
         # auto_bbox = True
         fields = "__all__"  # defining all the fields to  be included in curd for now , we can restrict few if we want
+
+        read_only_fields = (
+            "created_at",
+            "last_modified",
+        )
 
 
 class LabelFileSerializer(
