@@ -58,5 +58,13 @@ sudo apt install redis
 2. Start celery workers 
 
 ```
-celery -A aiproject worker --loglevel=info
+celery -A aiproject worker --loglevel=info -n my_worker
 ```
+
+3. Monitor using flower 
+if  you are using redis as result backend , api supports both options django / redis 
+You can start flower to start monitoring your tasks
+```
+celery -A aiproject  --broker=redis://127.0.0.1:6379/0 flower 
+```
+

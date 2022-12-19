@@ -13,3 +13,4 @@ django-cors-headers==3.13.0 # used for enabling cors when frontend is hosted on 
 osm-login-python==0.0.2
 "celery[redis]"==5.2.7
 django_celery_results==2.4.0
+flower==1.2.0

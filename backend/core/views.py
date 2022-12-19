@@ -290,7 +290,7 @@ def download_training_data(request, dataset_id: int):
         return HttpResponse(status=204)
 
 
-@api_view(["GET"])
+@api_view(["POST"])
 @decorators.authentication_classes([OsmAuthentication])
 @decorators.permission_classes([IsOsmAuthenticated])
 def run_training(request, training_id: int):
