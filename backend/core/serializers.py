@@ -144,9 +144,6 @@ class PredictionParamSerializer(serializers.Serializer):
     model_id = serializers.IntegerField(required=True)
     zoom_level = serializers.IntegerField(required=True)
 
-    class Meta:
-        fields = ("dataset_id", "source", "zoom_level")
-
     def validate(self, data):
         """
         Check supplied data
