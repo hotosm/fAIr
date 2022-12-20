@@ -1,15 +1,30 @@
-import React from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import {
     Routes, Route, Navigate,
 } from "react-router-dom";
 import Home from '../components/Layout/Home/Home';
 import Layout from '../components/Layout/Layout';
+import AuthContext from '../Context/AuthContext';
+import { AuthContextProvidor } from '../Context/AuthContext';
 import { publicRoutes } from '../routes';
 
 const Fair = () => {
 
+    const {accessToken,authenticate} = useContext(AuthContext)
 
+    useEffect(() => {
+      if(!accessToken && localStorage.getItem("token"))
+      {
+            authenticate(localStorage.getItem("token"))
+      }
+    
+      return () => {
+        
+      }
+    }, [accessToken,authenticate])
+    
     return <>
+    
         <Layout>
             <React.Suspense fallback={<div>Loading...</div>}>
                 <Routes>
@@ -31,8 +46,7 @@ const Fair = () => {
 
             </React.Suspense>
         </Layout>
-
-
+   
     </>;
 }
 

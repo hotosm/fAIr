@@ -1,5 +1,6 @@
 import React from 'react';
 import Home from './components/Layout/Home/Home';
+import Authenticate from './components/Login/Authenticate';
 
 const TrainingDS = React.lazy(() => import('./components/Layout/TrainingDS/TrainingDS'));
 const AIModels = React.lazy(() => import('./components/Layout/AIModels/AIModels'));
@@ -16,6 +17,7 @@ export const publicRoutes = [
     { path: '/get-started', name: 'Training Datasets', element: <GetStarted /> },
     { path: '/start-mapping-with-fair', name: 'Training Datasets', element: <Start /> },
     { path: '/why-fair', name: 'Training Datasets', element: <Why /> },
+    { path: '/authenticate', name: 'Authenticate', element: <Authenticate /> },
     { path: '/', name: 'Home', element: <Home /> },
     
   

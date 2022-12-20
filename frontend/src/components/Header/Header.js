@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useContext } from 'react'
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -13,18 +13,21 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import { Icon } from '@material-ui/core';
 import { useNavigate } from 'react-router-dom';
+import Login from '../Login/Login';
+import authContext from '../../Context/AuthContext';
 
 const pages = [
-  {name: 'Get Started', path:"/get-started"}, 
-{name: 'Why fAIr?', path:"/why-fair"}, 
-{name: 'Training Datasets', path:"/training-datasets"}, 
-{name: 'AI Models', path:"/ai-models"}, 
-{name: 'Start Mapping with fAIr', path:"/start-mapping-with-fair"}, 
-{name: 'Documentation', path:"/documentation"}];
+  { name: 'Get Started', path: "/get-started" },
+  { name: 'Why fAIr?', path: "/why-fair" },
+  { name: 'Training Datasets', path: "/training-datasets" },
+  { name: 'AI Models', path: "/ai-models" },
+  { name: 'Start Mapping with fAIr', path: "/start-mapping-with-fair" },
+  { name: 'Documentation', path: "/documentation" }];
 
-const settings = ['Option', 'Logout'];
+const settings = ['Log in with OSM Account', 'Logout'];
 
 function Header() {
+  const { accessToken,authenticate } = useContext(authContext)
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
   const navigate = useNavigate();
@@ -44,22 +47,31 @@ function Header() {
 
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
+
   };
+
+  const logOut = () =>
+  {
+    handleCloseUserMenu();
+    localStorage.removeItem("token")
+    authenticate("")
+
+  }
 
   return (
     <AppBar position="sticky">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-            <Icon className={"logo"} onClick={()=> navigate("/")}>
-                <img className={""} src="/hotosm_logo.svg" alt='HOTOSM logo' />
-            </Icon>
-             <Icon className={"logo MuiIcon-root2"}  onClick={()=> navigate("/")}>
-                <img className={""} src="/tech_out_logo.svg" alt='tech out logo'/>
-            </Icon>
+          <Icon className={"logo"} onClick={() => navigate("/")}>
+            <img className={""} src="/hotosm_logo.svg" alt='HOTOSM logo' />
+          </Icon>
+          <Icon className={"logo MuiIcon-root2"} onClick={() => navigate("/")}>
+            <img className={""} src="/tech_out_logo.svg" alt='tech out logo' />
+          </Icon>
           <Typography
             variant="span"
             component="a"
-           sx={{
+            sx={{
               mr: 2,
               display: { xs: 'none', md: 'flex' },
               fontFamily: 'monospace',
@@ -69,7 +81,7 @@ function Header() {
               textDecoration: 'none',
             }}
           >
-           <h2> fAIr</h2>
+            <h2> fAIr</h2>
           </Typography>
 
           <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
@@ -123,14 +135,14 @@ function Header() {
               textDecoration: 'none',
             }}
           >
-           <h2> fAIr</h2>
+            <h2> fAIr</h2>
           </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
             {pages.map((page) => (
               <Button
                 key={page.path}
-                onClick={()=> handleCloseNavMenu(page.path)}
-                sx={{ my: 2, color: 'primary', display: 'block',margin: "0px 3px", backgroundColor:"transparent  !important" }}
+                onClick={() => handleCloseNavMenu(page.path)}
+                sx={{ my: 2, color: 'primary', display: 'block', margin: "0px 3px", backgroundColor: "transparent  !important" }}
               >
                 {page.name}
               </Button>
@@ -159,16 +171,18 @@ function Header() {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
-              {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography textAlign="center">{setting}</Typography>
-                </MenuItem>
-              ))}
+              {!accessToken && <Login handleCloseUserMenu={handleCloseUserMenu}>
+              </Login>}
+             {accessToken && <MenuItem onClick={logOut}>
+                <Typography textAlign="center">Log out </Typography>
+              </MenuItem>}
+
             </Menu>
           </Box>
         </Toolbar>
       </Container>
     </AppBar>
+
   );
 }
 export default Header;

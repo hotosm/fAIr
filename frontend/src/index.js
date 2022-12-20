@@ -9,6 +9,7 @@ import theme from "./theme";
 import { QueryClient, QueryClientProvider } from "react-query";
 import Fair from "./Fair/Fair";
 import { BrowserRouter } from "react-router-dom";
+import { AuthContextProvidor } from "./Context/AuthContext";
 
 const queryClient = new QueryClient();
 if (process.env.REACT_APP_ENV === "Production") console.log = (args) => {};
@@ -20,7 +21,9 @@ ReactDOM.render(
     <QueryClientProvider client={queryClient}>
       <React.StrictMode>
       <BrowserRouter>
+      <AuthContextProvidor>
         <Fair />
+        </AuthContextProvidor>
       </BrowserRouter>
         
       </React.StrictMode>

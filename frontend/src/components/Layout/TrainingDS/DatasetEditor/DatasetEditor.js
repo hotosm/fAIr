@@ -8,7 +8,7 @@ import TMProject from "./TMProject";
 import MapActions from "./MapActions";
 import axios from '../../../../axios'
 import { useMutation } from "react-query";
-import { useLocation, useMatch, useParams } from "react-router-dom";
+import {  useParams } from "react-router-dom";
 
 function DatasetEditor() {
   const [mapLayers, setMapLayers] = useState([]);
