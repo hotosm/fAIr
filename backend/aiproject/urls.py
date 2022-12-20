@@ -13,13 +13,14 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from core.views import *
 from django.conf.urls import include
 from django.contrib import admin
 from django.urls import path, re_path
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions, routers
+
+from core.views import *
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -64,8 +65,8 @@ urlpatterns = [
     path(
         "api/v1/", include(router.urls)
     ),  # adding all the api to version 1 project is in development
-    path("api/v1/fetch-raw/<int:aoi_id>/", RawdataApiView.as_view()),
-    path("api/v1/dataset_image/build/", ImageDownloadView.as_view()),
+    path("api/v1/label/osm/fetch/<int:aoi_id>/", RawdataApiView.as_view()),
+    path("api/v1/dataset/image/build/", ImageDownloadView.as_view()),
     path("api/v1/download/<int:dataset_id>/", download_training_data),
     path("api/v1/training/status/<str:run_id>/", run_task_status),
 ]

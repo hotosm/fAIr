@@ -13,13 +13,14 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
-from login.authentication import OsmAuthentication
-from login.permissions import IsOsmAuthenticated
 from rest_framework import status, viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_gis.filters import InBBoxFilter
+
+from login.authentication import OsmAuthentication
+from login.permissions import IsOsmAuthenticated
 
 from .models import AOI, Dataset, Label, Model, Training
 from .serializers import (
@@ -96,7 +97,7 @@ class RawdataApiView(APIView):
     permission_classes = [IsOsmAuthenticated]
 
     def post(self, request, aoi_id, *args, **kwargs):
-        """Downloads available osm data within given aoi
+        """Downloads available osm data as labels within given aoi
 
         Args:
             request (_type_): _description_
@@ -105,12 +106,7 @@ class RawdataApiView(APIView):
         Returns:
             status: Success/Failed
         """
-        obj = AOI.objects.get(id=aoi_id)
-        if not obj:
-            return Response(
-                {"res": "Object with Dataset id does not exists"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        obj = get_object_or_404(AOI, id=aoi_id)
         obj.download_status = 0
         obj.save()
         raw_data_params = {
@@ -139,7 +135,7 @@ class ImageDownloadView(APIView):
         request_body=ImageDownloadSerializer, responses={status.HTTP_200_OK: "ok"}
     )
     def post(self, request, *args, **kwargs):
-        """Downloads the image for the dataset.
+        """Downloads the image for the dataset and creates labels.geojson from available labels inside dataset.
         Args:
             dataset_id: int - id of the dataset
             source : str - source url of OAM if present or any other URL - Optional
@@ -166,9 +162,11 @@ class ImageDownloadView(APIView):
         Dataset.objects.filter(id=dataset_id).update(source_imagery=source)
 
         # need to get all the aoi associated with dataset
-        aois = get_object_or_404(AOI, dataset=dataset_id)
-        # this is the base path where imagery will be downloaded if not present it
-        # will create one
+        if get_object_or_404(AOI, dataset=dataset_id):
+
+            aois = AOI.objects.filter(dataset=dataset_id)
+            # this is the base path where imagery will be downloaded if not present it
+            # will create one
         base_path = f"training/{dataset_id}"
         if os.path.exists(base_path):
             shutil.rmtree(base_path)

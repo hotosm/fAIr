@@ -156,6 +156,7 @@ def request_rawdata(request_params):
     with requests.post(
         url=export_tool_api_url, data=json.dumps(request_params), headers=headers
     ) as r:  # curl can also be option
+        r.raise_for_status()
         response_back = r.json()
         print(response_back)
         return response_back
