@@ -1,8 +1,9 @@
-from login.models import OsmUser
 from rest_framework import serializers
 from rest_framework_gis.serializers import (
     GeoFeatureModelSerializer,  # this will be used if we used to serialize as geojson
 )
+
+from login.models import OsmUser
 
 from .models import *
 from .tasks import train_model
@@ -47,8 +48,11 @@ class TrainingSerializer(
         # create the model instance
         instance = Training.objects.create(**validated_data)
         # run your function here
-        print(instance)
-        train_model.delay("test")
+        train_model.delay(
+            training_id=instance.id,
+            epochs=instance.epochs,
+            batch_size=instance.batch_size,
+        )
         return instance
 
 
