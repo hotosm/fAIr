@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework_gis import serializers as geoserializers
 from rest_framework_gis.serializers import (
     GeoFeatureModelSerializer,  # this will be used if we used to serialize as geojson
 )
@@ -123,7 +124,6 @@ class LabelFileSerializer(
 
 class ImageDownloadSerializer(serializers.Serializer):
     dataset_id = serializers.IntegerField(required=True)
-    source = serializers.URLField(required=False)
     zoom_level = serializers.ListField(required=True)
 
     class Meta:
@@ -136,6 +136,25 @@ class ImageDownloadSerializer(serializers.Serializer):
         for i in data["zoom_level"]:
             if int(i) < 19 or int(i) > 21:
                 raise serializers.ValidationError("Zoom level Supported between 19-21")
+        return data
+
+
+class PredictionParamSerializer(serializers.Serializer):
+    bbox = serializers.ListField(child=serializers.FloatField(), required=True)
+    model_id = serializers.IntegerField(required=True)
+    zoom_level = serializers.IntegerField(required=True)
+
+    class Meta:
+        fields = ("dataset_id", "source", "zoom_level")
+
+    def validate(self, data):
+        """
+        Check supplied data
+        """
+        if len(data["bbox"]) != 4:
+            raise serializers.ValidationError("Not a valid bbox")
+        if data["zoom_level"] < 19 or data["zoom_level"] > 21:
+            raise serializers.ValidationError("Zoom level Supported between 19-21")
         return data
 
 

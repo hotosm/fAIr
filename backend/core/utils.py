@@ -67,9 +67,39 @@ def latlng2tile(zoom, lat, lng, tile_size):
     return t_x, t_y
 
 
-def download_imagery(
-    start: list, end: list, zm_level, dataset_id, base_path, source="maxar"
-):
+def get_start_end_download_coords(bbox_coords, zm_level, tile_size):
+
+    # start point where we will start downloading the tiles
+
+    start_point_lng = bbox_coords[0]  # getting the starting lat lng
+    start_point_lat = bbox_coords[1]
+
+    # end point where we should stop downloading the tile
+    end_point_lng = bbox_coords[2]  # getting the ending lat lng
+    end_point_lat = bbox_coords[3]
+
+    # Note :  lat=y-axis, lng=x-axis
+    # getting tile coordinate for first point of bbox
+    start_x, start_y = latlng2tile(
+        zoom=zm_level,
+        lat=start_point_lat,
+        lng=start_point_lng,
+        tile_size=tile_size,
+    )
+    start = [start_x, start_y]
+
+    # getting tile coordinate for last point of bbox
+    end_x, end_y = latlng2tile(
+        zoom=zm_level,
+        lat=end_point_lat,
+        lng=end_point_lng,
+        tile_size=tile_size,
+    )
+    end = [end_x, end_y]
+    return start, end
+
+
+def download_imagery(start: list, end: list, zm_level, base_path, source="maxar"):
     """Downloads imagery from start to end tile coordinate system
 
     Args:
@@ -77,7 +107,6 @@ def download_imagery(
         end (list): [tile_x,tile_y],
         source (string): it should be eithre url string or maxar value
         zm_level : Zoom level
-        dataset_id (int) : Dataset id
 
     """
 
