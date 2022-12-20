@@ -49,6 +49,7 @@ class TrainingSerializer(
         instance = Training.objects.create(**validated_data)
         # run your function here
         train_model.delay(
+            dataset_id=instance.model.dataset.id,
             training_id=instance.id,
             epochs=instance.epochs,
             batch_size=instance.batch_size,

@@ -187,3 +187,11 @@ SWAGGER_SETTINGS = {
         "OSM": {"type": "apiKey", "name": "access-token", "in": "header"},
     }
 }
+# get ramp home and set it to environ
+RAMP_HOME = env("RAMP_HOME")
+os.environ["RAMP_HOME"] = RAMP_HOME
+
+# training workspace
+TRAINING_WORKSPACE = env(
+    "TRAINING_WORKSPACE", default=os.path.join(os.getcwd(), "training")
+)

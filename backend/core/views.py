@@ -9,6 +9,7 @@ from datetime import datetime
 
 from celery import current_app
 from celery.result import AsyncResult
+from django.conf import settings
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -167,7 +168,7 @@ class ImageDownloadView(APIView):
             aois = AOI.objects.filter(dataset=dataset_id)
             # this is the base path where imagery will be downloaded if not present it
             # will create one
-        base_path = f"training/{dataset_id}"
+        base_path = os.path.join(settings.TRAINING_WORKSPACE, str(dataset_id), "input")
         if os.path.exists(base_path):
             shutil.rmtree(base_path)
         os.makedirs(base_path)
@@ -257,7 +258,7 @@ class ImageDownloadView(APIView):
         try:
             if serialized_field.is_valid(raise_exception=True):
                 with open(
-                    f"training/{dataset_id}/labels.geojson", "w", encoding="utf-8"
+                    os.path.join(base_path, "labels.geojson"), "w", encoding="utf-8"
                 ) as f:
                     f.write(json.dumps(serialized_field.data))
                 f.close()
@@ -265,7 +266,7 @@ class ImageDownloadView(APIView):
         except Exception as ex:
             print(ex)
             raise ex
-
+        print(f"Finished and avilable at : {base_path}")
         if res_serializer.is_valid(raise_exception=True):
             print(res_serializer.data)
             return Response(res_serializer.data, status=status.HTTP_201_CREATED)
@@ -277,8 +278,8 @@ def download_training_data(request, dataset_id: int):
     Returns zip file if it is present on our server if not returns error
     """
 
-    file_path = f"training/{dataset_id}/"
-    zip_temp_path = f"training/{dataset_id}.zip"
+    file_path = os.path.join(settings.TRAINING_WORKSPACE, str(dataset_id), "input")
+    zip_temp_path = os.path.join(settings.TRAINING_WORKSPACE, f"{dataset_id}.zip")
     directory = pathlib.Path(file_path)
     if os.path.exists(directory):
         zf = zipfile.ZipFile(zip_temp_path, "w", zipfile.ZIP_DEFLATED)
