@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from rest_framework_gis import serializers as geoserializers
 from rest_framework_gis.serializers import (
     GeoFeatureModelSerializer,  # this will be used if we used to serialize as geojson
 )
