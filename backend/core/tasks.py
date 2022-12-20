@@ -25,7 +25,7 @@ def train_model(dataset_id, training_id, epochs, batch_size):
         base_path = os.path.join(settings.RAMP_HOME, "ramp-data", str(dataset_id))
         destination_image_input = os.path.join(base_path, "input")
         training_input_base_path = os.path.join(
-            settings.TRAINING_WORKSPACE, str(dataset_id)
+            settings.TRAINING_WORKSPACE, f"dataset_{dataset_id}"
         )
         training_input_image_source = os.path.join(training_input_base_path, "input")
         logging.info(training_input_image_source)
@@ -61,7 +61,9 @@ def train_model(dataset_id, training_id, epochs, batch_size):
         )
 
         # copy final model to output
-        output_path = os.path.join(training_input_base_path, "output")
+        output_path = os.path.join(
+            training_input_base_path, "output", f"training_{training_id}"
+        )
         if os.path.exists(output_path):
             shutil.rmtree(output_path)
         shutil.copytree(final_model_path, os.path.join(output_path, "checkpoint.tf"))

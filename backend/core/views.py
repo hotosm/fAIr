@@ -168,7 +168,9 @@ class ImageDownloadView(APIView):
             aois = AOI.objects.filter(dataset=dataset_id)
             # this is the base path where imagery will be downloaded if not present it
             # will create one
-        base_path = os.path.join(settings.TRAINING_WORKSPACE, str(dataset_id), "input")
+        base_path = os.path.join(
+            settings.TRAINING_WORKSPACE, f"dataset_{dataset_id}", "input"
+        )
         if os.path.exists(base_path):
             shutil.rmtree(base_path)
         os.makedirs(base_path)
@@ -278,8 +280,12 @@ def download_training_data(request, dataset_id: int):
     Returns zip file if it is present on our server if not returns error
     """
 
-    file_path = os.path.join(settings.TRAINING_WORKSPACE, str(dataset_id), "input")
-    zip_temp_path = os.path.join(settings.TRAINING_WORKSPACE, f"{dataset_id}.zip")
+    file_path = os.path.join(
+        settings.TRAINING_WORKSPACE, f"dataset_{dataset_id}", "input"
+    )
+    zip_temp_path = os.path.join(
+        settings.TRAINING_WORKSPACE, f"dataset_{dataset_id}.zip"
+    )
     directory = pathlib.Path(file_path)
     if os.path.exists(directory):
         zf = zipfile.ZipFile(zip_temp_path, "w", zipfile.ZIP_DEFLATED)

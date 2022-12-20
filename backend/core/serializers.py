@@ -48,12 +48,13 @@ class TrainingSerializer(
         # create the model instance
         instance = Training.objects.create(**validated_data)
         # run your function here
-        train_model.delay(
+        task = train_model.delay(
             dataset_id=instance.model.dataset.id,
             training_id=instance.id,
             epochs=instance.epochs,
             batch_size=instance.batch_size,
         )
+        print(f"Saved train model request to queue with id {task.id}")
         return instance
 
 
