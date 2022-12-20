@@ -34,7 +34,7 @@ EXPORT_TOOL_API_URL = env(
     default="https://galaxy-api.hotosm.org/v1/raw-data/current-snapshot/",
 )
 
-ALLOWED_HOSTS = ['localhost',HOSTNAME]
+ALLOWED_HOSTS = ["localhost", HOSTNAME]
 
 if env("GDAL_LIBRARY_PATH", default=False):
     GDAL_LIBRARY_PATH = env("GDAL_LIBRARY_PATH")
@@ -63,10 +63,12 @@ INSTALLED_APPS = [
     "leaflet",
     "rest_framework",
     "rest_framework_gis",
-    "rest_framework_swagger",
     "django_filters",
     "corsheaders",
     "login",
+    "drf_yasg",
+    "celery",
+    "django_celery_results",
 ]
 
 MIDDLEWARE = [
@@ -87,6 +89,10 @@ CORS_ALLOWED_ORIGINS = [ALLOWED_ORIGINS]
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema",
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.BasicAuthentication",
+        "login.authentication.OsmAuthentication",
+    ],
 }
 
 ROOT_URLCONF = "aiproject.urls"
@@ -164,3 +170,20 @@ MEDIA_URL = "/media/"
 
 if DEBUG:
     os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
+
+
+# celery configuration
+
+CELERY_BROKER_URL = env("CELERY_BROKER_URL", default="redis://127.0.0.1:6379/0")
+CELERY_RESULT_BACKEND = env(
+    "CELERY_RESULT_BACKEND", default="redis://127.0.0.1:6379/0"
+)  # if you don't want to use redis pass 'django-db' to use app db itself
+
+
+AUTH_USER_MODEL = "login.OsmUser"
+
+SWAGGER_SETTINGS = {
+    "SECURITY_DEFINITIONS": {
+        "OSM": {"type": "apiKey", "name": "access-token", "in": "header"},
+    }
+}

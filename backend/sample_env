@@ -1,5 +1,5 @@
 SECRET_KEY=yl2w)c0boi_ma-1v5)935^2#&m*r!1s9z9^*9e5co^08_ixzo6
-export DATABASE_URL=postgis://admin:password@localhost:5432/ai
+DATABASE_URL=postgis://admin:password@localhost:5432/ai
 EXPORT_TOOL_API_URL=http://44.203.33.53:8000/raw-data/current-snapshot/
 CORS_ALLOWED_ORIGINS=http://localhost:3000
 GDAL_LIBRARY_PATH=''
@@ -9,4 +9,6 @@ OSM_CLIENT_SECRET=
 OSM_URL=https://www.openstreetmap.org
 OSM_SCOPE=read_prefs
 OSM_LOGIN_REDIRECT_URI=http://127.0.0.1:8000/api/v1/auth/callback/
-OSM_SECRET_KEY=LGnZ0mA8cCniMxDAsEJKWAcwLqZDimTY
+OSM_SECRET_KEY=
+CELERY_BROKER_URL="redis://localhost:6379/0"
+CELERY_RESULT_BACKEND="redis://localhost:6379/0"
