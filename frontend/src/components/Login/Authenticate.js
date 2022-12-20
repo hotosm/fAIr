@@ -22,9 +22,9 @@ const Authenticate = props => {
           if (res.error) 
             setError(res.error.response.statusText);
                 
-         console.log("callback access_token",res.data.access_token);
+         
          authenticate(res.data.access_token)
-         console.log("location.search",location.search);
+         
        
          navigate(`${localStorage.getItem("redirect") ? localStorage.getItem("redirect")  : "/"}`)
           return res.data;
@@ -39,7 +39,7 @@ const Authenticate = props => {
 
     useEffect(() => {
       
-        console.log(location)
+        // console.log(location)
         mutate()
       return () => {
        

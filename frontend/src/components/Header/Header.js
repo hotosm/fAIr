@@ -15,6 +15,7 @@ import { Icon } from '@material-ui/core';
 import { useNavigate } from 'react-router-dom';
 import Login from '../Login/Login';
 import authContext from '../../Context/AuthContext';
+import UserProfile from './UserProfile';
 
 const pages = [
   { name: 'Get Started', path: "/get-started" },
@@ -152,7 +153,7 @@ function Header() {
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+               <UserProfile></UserProfile>
               </IconButton>
             </Tooltip>
             <Menu

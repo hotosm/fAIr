@@ -14,6 +14,7 @@ import os
 
 import dj_database_url
 import environ
+from corsheaders.defaults import default_headers
 
 env = environ.Env()
 
@@ -35,7 +36,9 @@ EXPORT_TOOL_API_URL = env(
 )
 
 ALLOWED_HOSTS = ["localhost", HOSTNAME]
-
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    "access-token",
+]
 if env("GDAL_LIBRARY_PATH", default=False):
     GDAL_LIBRARY_PATH = env("GDAL_LIBRARY_PATH")
 

@@ -5,10 +5,10 @@ const AuthContext = createContext();
 
 export const AuthContextProvidor = ({children})=>
 {
-    const [accessToken, setAccessToekn] = useState("")
+    const [accessToken, setAccessToekn] = useState(localStorage.getItem("token") ? localStorage.getItem("token"): "")
        
     const authenticate = token => {
-        console.log("authenticate in context")
+        // console.log("authenticate in context")
         localStorage.setItem("token",token)
         setAccessToekn(token)
     }
