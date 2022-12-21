@@ -80,7 +80,11 @@ jobs:
       - name : Install fair utilities 
         run:
           pip install -e . 
-      
+
+      - name : Navigate back to fAIr Home 
+        run : 
+          cd ../
+
       - name : Psycopg2
         run : |
           sudo apt-get install python3-psycopg2
@@ -96,7 +100,6 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          python -m pip install --upgrade pip
           cd backend/
           pip install -r requirements.txt
       - name: Creating env
