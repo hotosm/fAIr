@@ -163,7 +163,7 @@ const TileServerList = (props) => {
               error={error}
               id="standard-error-helper-text"
               label="OAM Link"
-              helperText={<>Link style should be <strong> {"https://tiles.openaerialmap.org/****/*/***/{z}/{x}/{y}"} </strong></>}
+              helperText={<>Link style should be <strong> {"https://tiles.openaerialmap.org/ ****/*/***/{z}/{x}/{y}"} </strong></>}
               variant="standard"
               value={
                 oamURL
