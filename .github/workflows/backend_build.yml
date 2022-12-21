@@ -33,6 +33,10 @@ jobs:
 
       - name: Prepare fAIr utilities for Home
         run: cd fAIr-utilities/
+        
+      - name : Get my current working dir 
+        run : 
+          pwd
 
       - name: Clone Basemodel
         run: git clone https://github.com/radiantearth/model_ramp_baseline.git
@@ -75,7 +79,7 @@ jobs:
       - name: Navigate back to fAIr Home
         run: cd ../
 
-      - name: Psycopg2
+      - name: Install Psycopg2
         run: |
           sudo apt-get install python3-psycopg2
 
