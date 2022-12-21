@@ -32,7 +32,9 @@ jobs:
         run: git clone https://github.com/hotosm/fAIr-utilities.git
 
       - name: Prepare fAIr utilities for Home
-        run: cd fAIr-utilities
+        working-directory: ./fAIr-utilities
+        run :
+          pwd
 
       - name : Get my current working dir 
         run : 
