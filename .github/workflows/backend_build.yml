@@ -28,7 +28,7 @@ jobs:
         uses: actions/setup-python@v1
         with:
           python-version: 3.8
-          
+
       - name: Get my current working dir
         run: pwd
 
@@ -63,7 +63,7 @@ jobs:
           cd ramp-code && cd colab && make install
 
       - name: Install fair utilities
-        run: pip install hot-fair-utilities==1.0.40
+        run: pip install hot-fair-utilities==1.0.41
 
       - name: Install Psycopg2
         run: |
