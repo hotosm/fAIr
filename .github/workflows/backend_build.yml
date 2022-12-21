@@ -31,9 +31,8 @@ jobs:
       - name: Clone fAIr utilities
         run: git clone https://github.com/hotosm/fAIr-utilities.git
 
-      - name : Get my current working dir 
-        run : 
-          pwd
+      - name: Get my current working dir
+        run: pwd
 
       - name: Clone Basemodel
         run: git clone https://github.com/radiantearth/model_ramp_baseline.git
@@ -64,7 +63,6 @@ jobs:
       - name: Install ramp dependecies
         run: |
           cd ramp-code && cd colab && make install
-
 
       - name: Install fair utilities
         run: cd fAIr utilities && pip install -e .
