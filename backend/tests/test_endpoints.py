@@ -1,8 +1,8 @@
-from rest_framework.test import APIRequestFactory
+from rest_framework.test import APIClient
 
-factory = APIRequestFactory()
+client = APIClient()
 
 
 def test_dataset():
-    response = factory.get("api/v1/dataset/")
+    response = client.get("api/v1/dataset/")
     assert response.status_code == 200
