@@ -97,28 +97,26 @@ jobs:
           sudo apt-get update
           sudo apt-get install redis
           redis-cli ping
+      - name : Setup Backend 
+        run :
+          cd backend/
 
       - name: Install Dependencies
         run: |
-          cd backend/
           pip install -r requirements.txt
       - name: Creating env
         run: |
-          cd backend/
           mv sample_env .env
           export DATABASE_URL=postgis://admin:password@localhost:5432/ai
       - name: Run celery worker
         run: |
-          cd backend/
           celery -A aiproject worker --loglevel=debug &
       - name: Run flower dashboard
         run: |
-          cd backend/
           celery -A aiproject --broker=redis://localhost:6379/ flower  &
       
       - name: Test Build
         run: |
-          cd backend/
           python manage.py makemigrations
           python manage.py makemigrations core
           python manage.py makemigrations login
