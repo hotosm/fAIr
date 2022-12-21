@@ -28,9 +28,7 @@ jobs:
         uses: actions/setup-python@v1
         with:
           python-version: 3.8
-      - name: Clone fAIr utilities
-        run: git clone https://github.com/hotosm/fAIr-utilities.git
-
+          
       - name: Get my current working dir
         run: pwd
 
@@ -65,7 +63,7 @@ jobs:
           cd ramp-code && cd colab && make install
 
       - name: Install fair utilities
-        run: cd fAIr utilities && pip install -e .
+        run: pip install hot-fair-utilities==1.0.40
 
       - name: Install Psycopg2
         run: |
