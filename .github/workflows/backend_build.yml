@@ -32,8 +32,8 @@ jobs:
         run: git clone https://github.com/hotosm/fAIr-utilities.git
 
       - name: Prepare fAIr utilities for Home
-        run: cd fAIr-utilities/
-        
+        run: cd fAIr-utilities
+
       - name : Get my current working dir 
         run : 
           pwd
