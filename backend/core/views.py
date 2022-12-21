@@ -16,14 +16,13 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
 from hot_fair_utilities import polygonize, predict
+from login.authentication import OsmAuthentication
+from login.permissions import IsOsmAuthenticated
 from rest_framework import decorators, status, viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_gis.filters import InBBoxFilter
-
-from login.authentication import OsmAuthentication
-from login.permissions import IsOsmAuthenticated
 
 from .models import AOI, Dataset, Label, Model, Training
 from .serializers import (
@@ -329,7 +328,11 @@ class PredictionView(APIView):
             )
 
             source_img_in_dataset = model_instance.dataset.source_imagery
-            source = source_img_in_dataset if source_img_in_dataset else "maxar"
+            source = (
+                deserialized_data["model_id"]
+                if deserialized_data["model_id"]
+                else source_img_in_dataset
+            )
             zoom_level = deserialized_data["zoom_level"]
             start, end = get_start_end_download_coords(
                 bbox, zoom_level, DEFAULT_TILE_SIZE

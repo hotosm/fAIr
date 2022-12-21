@@ -1,9 +1,8 @@
+from login.models import OsmUser
 from rest_framework import serializers
 from rest_framework_gis.serializers import (
     GeoFeatureModelSerializer,  # this will be used if we used to serialize as geojson
 )
-
-from login.models import OsmUser
 
 from .models import *
 from .tasks import train_model
@@ -142,6 +141,7 @@ class PredictionParamSerializer(serializers.Serializer):
     bbox = serializers.ListField(child=serializers.FloatField(), required=True)
     model_id = serializers.IntegerField(required=True)
     zoom_level = serializers.IntegerField(required=True)
+    source = serializers.URLField(required=False)
 
     def validate(self, data):
         """
