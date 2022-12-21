@@ -21,7 +21,7 @@ jobs:
         ports:
           - 5432:5432
         # needed because the postgres container does not provide a healthcheck
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 2
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python 3.8
@@ -30,11 +30,6 @@ jobs:
           python-version: 3.8
       - name: Clone fAIr utilities
         run: git clone https://github.com/hotosm/fAIr-utilities.git
-
-      - name: Prepare fAIr utilities for Home
-        working-directory: ./fAIr-utilities
-        run :
-          pwd
 
       - name : Get my current working dir 
         run : 
@@ -70,16 +65,9 @@ jobs:
         run: |
           cd ramp-code && cd colab && make install
 
-      - name: Navigate to fair utilities dir
-        run: |
-          cd ../.. 
-          ls
 
       - name: Install fair utilities
-        run: pip install -e .
-
-      - name: Navigate back to fAIr Home
-        run: cd ../
+        run: cd fAIr utilities && pip install -e .
 
       - name: Install Psycopg2
         run: |
@@ -94,25 +82,30 @@ jobs:
           sudo apt-get install redis
           redis-cli ping
 
-      - name: Setup Backend
-        run: cd backend/
-
       - name: Install Dependencies
         run: |
+          cd backend/
           pip install -r requirements.txt
       - name: Creating env
         run: |
+          cd backend/
           mv sample_env .env
           export DATABASE_URL=postgis://admin:password@localhost:5432/ai
+          export RAMP_HOME="/home/runner/work/fAIr/fAIr"
+          export TRAINING_WORKSPACE="/home/runner/work/fAIr/fAIr/backend/training"
+
       - name: Run celery worker
         run: |
+          cd backend/
           celery -A aiproject worker --loglevel=debug &
       - name: Run flower dashboard
         run: |
+          cd backend/
           celery -A aiproject --broker=redis://localhost:6379/ flower  &
 
       - name: Test Build
         run: |
+          cd backend/
           python manage.py makemigrations
           python manage.py makemigrations core
           python manage.py makemigrations login

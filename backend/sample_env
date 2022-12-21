@@ -13,4 +13,4 @@ OSM_SECRET_KEY=
 CELERY_BROKER_URL="redis://localhost:6379/0"
 CELERY_RESULT_BACKEND="redis://localhost:6379/0"
 RAMP_HOME="/home/kshitij/hotosm/fAIr-utilities"
-TRAINING_WORKSPACE="/home/kshitij/hotosm/fAIr/training"
+TRAINING_WORKSPACE="/home/kshitij/hotosm/fAIr/backend/training"
