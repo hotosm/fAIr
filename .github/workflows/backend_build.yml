@@ -9,8 +9,7 @@ on:
 
 jobs:
   Build_on_ubuntu:
-    runs-on:
-      ubuntu-latest
+    runs-on: ubuntu-latest
     services:
       postgres:
         image: postgis/postgis:14-3.2
@@ -29,64 +28,55 @@ jobs:
         uses: actions/setup-python@v1
         with:
           python-version: 3.8
-      - name : Clone fAIr utilities 
-        run :
-          git clone https://github.com/hotosm/fAIr-utilities.git
-      
-      - name : Prepare fAIr utilities for Home 
-        run : 
-          cd fAIr-utilities/
+      - name: Clone fAIr utilities
+        run: git clone https://github.com/hotosm/fAIr-utilities.git
 
-      - name : Clone Basemodel
-        run :
-            git clone https://github.com/radiantearth/model_ramp_baseline.git
+      - name: Prepare fAIr utilities for Home
+        run: cd fAIr-utilities/
 
-      - name : Clone Ramp 
-        run : 
-          git clone https://github.com/kshitijrajsharma/ramp-code-fAIr.git ramp-code  
+      - name: Clone Basemodel
+        run: git clone https://github.com/radiantearth/model_ramp_baseline.git
 
-      - name : Copy Basemodel 
-        run : 
-          cp -r model_ramp_baseline/data/input/checkpoint.tf ramp-code/ramp/checkpoint.tf
-      
-      - name : Remove Basemodel
-        run :
-          rm -rf model_ramp_baseline
+      - name: Clone Ramp
+        run: git clone https://github.com/kshitijrajsharma/ramp-code-fAIr.git ramp-code
+
+      - name: Copy Basemodel
+        run: cp -r model_ramp_baseline/data/input/checkpoint.tf ramp-code/ramp/checkpoint.tf
+
+      - name: Remove Basemodel
+        run: rm -rf model_ramp_baseline
 
       - name: Add ubuntugis ppa & Update
-        run:
-          sudo add-apt-repository ppa:ubuntugis/ppa && sudo apt-get update
-      
-      - name : Install numpy
-        run:
-          pip install numpy==1.23.5
-      
-      - name: Install gdal 
+        run: sudo add-apt-repository ppa:ubuntugis/ppa && sudo apt-get update
+
+      - name: Install numpy
+        run: pip install numpy==1.23.5
+
+      - name: Install gdal
         run: |
           sudo apt-get install gdal-bin
           sudo apt-get install libgdal-dev
           export CPLUS_INCLUDE_PATH=/usr/include/gdal
           export C_INCLUDE_PATH=/usr/include/gdal
           pip install --global-option=build_ext --global-option="-I/usr/include/gdal" GDAL==`gdal-config --version`
-      
+
       - name: Install ramp dependecies
         run: |
-          cd ramp-code && cd colab && make install 
-      
+          cd ramp-code && cd colab && make install
+
       - name: Navigate to fair utilities dir
         run: |
           cd ../.. 
           ls
-      - name : Install fair utilities 
-        run:
-          pip install -e . 
 
-      - name : Navigate back to fAIr Home 
-        run : 
-          cd ../
+      - name: Install fair utilities
+        run: pip install -e .
 
-      - name : Psycopg2
-        run : |
+      - name: Navigate back to fAIr Home
+        run: cd ../
+
+      - name: Psycopg2
+        run: |
           sudo apt-get install python3-psycopg2
 
       - name: Install redis
@@ -97,9 +87,9 @@ jobs:
           sudo apt-get update
           sudo apt-get install redis
           redis-cli ping
-      - name : Setup Backend 
-        run :
-          cd backend/
+
+      - name: Setup Backend
+        run: cd backend/
 
       - name: Install Dependencies
         run: |
@@ -114,7 +104,7 @@ jobs:
       - name: Run flower dashboard
         run: |
           celery -A aiproject --broker=redis://localhost:6379/ flower  &
-      
+
       - name: Test Build
         run: |
           python manage.py makemigrations
@@ -123,4 +113,3 @@ jobs:
           python manage.py migrate
           python manage.py migrate core
           python manage.py migrate login
-
