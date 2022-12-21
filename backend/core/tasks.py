@@ -5,12 +5,11 @@ import shutil
 import hot_fair_utilities
 import ramp.utils
 from celery import shared_task
+from core.models import Training
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from hot_fair_utilities import preprocess, train
-
-from core.models import Training
 
 
 @shared_task
@@ -67,6 +66,7 @@ def train_model(dataset_id, training_id, epochs, batch_size):
         if os.path.exists(output_path):
             shutil.rmtree(output_path)
         shutil.copytree(final_model_path, os.path.join(output_path, "checkpoint.tf"))
+        shutil.copytree(preprocess_output, os.path.join(output_path, "preprocessed"))
 
         graph_output_path = f"{base_path}/train/graphs"
         shutil.copytree(graph_output_path, os.path.join(output_path, "graphs"))

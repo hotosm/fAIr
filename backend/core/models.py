@@ -9,6 +9,7 @@ class Dataset(models.Model):
     class DatasetStatus(models.IntegerChoices):
         ARCHIVED = 1
         ACTIVE = 0
+        DRAFT = -1
 
     name = models.CharField(max_length=255)
     created_by = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
@@ -16,7 +17,7 @@ class Dataset(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     source_imagery = models.URLField(blank=True, null=True)
     status = models.IntegerField(
-        default=0, choices=DatasetStatus.choices
+        default=-1, choices=DatasetStatus.choices
     )  # 0 for active , 1 for archieved
 
 
@@ -47,6 +48,7 @@ class Model(models.Model):
     class ModelStatus(models.IntegerChoices):
         ARCHIVED = 1
         PUBLISHED = 0
+        DRAFT = -1
 
     dataset = models.ForeignKey(Dataset, to_field="id", on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
@@ -54,7 +56,7 @@ class Model(models.Model):
     last_modified = models.DateTimeField(auto_now=True)
     created_by = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
     published_training = models.PositiveIntegerField(null=True, blank=True)
-    status = models.IntegerField(default=0, choices=ModelStatus.choices)  #
+    status = models.IntegerField(default=-1, choices=ModelStatus.choices)  #
 
 
 class Training(models.Model):
