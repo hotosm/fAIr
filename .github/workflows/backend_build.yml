@@ -32,18 +32,27 @@ jobs:
       - name : Clone fAIr utilities 
         run :
           git clone https://github.com/hotosm/fAIr-utilities.git
+      
+      - name : Prepare fAIr utilities for Home 
+        run : 
+          cd fAIr-utilities/
+
       - name : Clone Basemodel
         run :
             git clone https://github.com/radiantearth/model_ramp_baseline.git
+
       - name : Clone Ramp 
         run : 
-          cd fAIr-utilities/
           git clone https://github.com/kshitijrajsharma/ramp-code-fAIr.git ramp-code  
 
       - name : Copy Basemodel 
         run : 
-          cp -r model_ramp_baseline/data/input/checkpoint.tf fAIr-utilities/ramp-code/ramp/checkpoint.tf
-     
+          cp -r model_ramp_baseline/data/input/checkpoint.tf ramp-code/ramp/checkpoint.tf
+      
+      - name : Remove Basemodel
+        run :
+          rm -rf model_ramp_baseline
+
       - name: Add ubuntugis ppa & Update
         run:
           sudo add-apt-repository ppa:ubuntugis/ppa && sudo apt-get update
@@ -62,7 +71,7 @@ jobs:
       
       - name: Install ramp dependecies
         run: |
-          cd fAIr-utilities/ramp-code && cd colab && make install 
+          cd ramp-code && cd colab && make install 
       
       - name: Navigate to fair utilities dir
         run: |
@@ -71,7 +80,7 @@ jobs:
       - name : Install fair utilities 
         run:
           pip install -e . 
-
+      
       - name : Psycopg2
         run : |
           sudo apt-get install python3-psycopg2
