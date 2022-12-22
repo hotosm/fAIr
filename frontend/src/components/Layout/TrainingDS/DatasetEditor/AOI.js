@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Avatar,
   Grid,
@@ -24,6 +24,7 @@ import PlaylistRemoveIcon from '@mui/icons-material/PlaylistRemove';
 import { useMutation } from "react-query";
 import axios from '../../../../axios'
 import AOIDetails from "./AOIDetails";
+import AuthContext from "../../../../Context/AuthContext";
 const Demo = styled("div")(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
 }));
@@ -49,12 +50,16 @@ const AOI = (props) => {
     return () => { };
   }, [props]);
 
+  const {accessToken} = useContext(AuthContext)
   const fetchOSMLebels = async (aoiId) => {
 
     try {
 
+      const headers = {
+        "access-token": accessToken
+      }
 
-      const res = await axios.post(`/fetch-raw/${aoiId}/`);
+      const res = await axios.post(`/label/osm/fetch/${aoiId}/`,null,{headers});
 
       if (res.error) {
         // setMapError(res.error.response.statusText);

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import LoadingButton from "@mui/lab/LoadingButton";
 
 import ImportExportIcon from '@mui/icons-material/ImportExport';
@@ -6,12 +6,14 @@ import axios from '../../../../axios'
 import { useMutation } from 'react-query';
 import { Checkbox, FormControlLabel, FormGroup, Grid, Tooltip } from '@mui/material';
 import { useParams } from 'react-router-dom';
+import AuthContext from '../../../../Context/AuthContext';
 
 const MapActions = props => {
 
   const [error, setError] = useState(false)
   const  { id: datasetId } = useParams();
   const [selectedZooms, setSelectedZooms] = useState([])
+  const {accessToken} = useContext(AuthContext)
   const handleCheckZoom = e =>
   {
     let temp = [];
@@ -43,8 +45,12 @@ const MapActions = props => {
         source: props.oamImagery.url,
         zoom_level: selectedZooms
       }
+      console.log('body',body)
       setError(false)
-      const res = await axios.post("/dataset_image/build/", body);
+      const headers = {
+        "access-token": accessToken
+      }
+      const res = await axios.post("/dataset/image/build/", body,{headers});
 
       console.log(res)
       if (res.error) {

@@ -11,7 +11,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { MapTwoTone, RemoveCircle, ZoomInMap } from "@mui/icons-material";
 import LoadingButton from "@mui/lab/LoadingButton";
@@ -19,23 +19,28 @@ import SendIcon from "@mui/icons-material/Send";
 import { useMutation } from "react-query";
 import axios from "../../../../axios";
 import { utilAesDecrypt } from "@id-sdk/util";
+import AuthContext from "../../../../Context/AuthContext";
 const TileServerList = (props) => {
   const [error, setError] = useState(false);
   const [inputError, setInputError] = useState(false);
   const [imageryDetails, setImageryDetails] = useState(undefined);
   const [loading, setLoading] = useState(false);
-  const [oamURL, setOAMURL] = useState(props.dataset.source_imagery? props.dataset.source_imagery : undefined);
+  const [oamURL, setOAMURL] = useState(props.dataset.source_imagery ? props.dataset.source_imagery : undefined);
 
-  const saveImageryToDataset = async (id,oamURL) => {
+  const {accessToken} = useContext(AuthContext)
+  const saveImageryToDataset = async ({id, url}) => {
     try {
      
       setLoading(true);
       setInputError(false);
-      console.log("saveImageryToDataset",oamURL )
+      console.log("saveImageryToDataset & accessToken",url,accessToken )
       const body = {
-        "source_imagery": oamURL
+        "source_imagery": url
       }
-      const res = await axios.patch(`/dataset/${id}/`,body);
+      const headers = {
+        "access-token" : accessToken
+      }
+      const res = await axios.patch(`/dataset/${id}/`,body,{headers});
       if (!res)
           setInputError("error");
       if (res.error) 
@@ -64,7 +69,9 @@ const TileServerList = (props) => {
       props.addImagery(res.data, url);
       setImageryDetails(res.data);
       props.navigateToCenter(res.data.center);
-      mutateSaveImageryToDataset(props.dataset.id,url)
+      // console.log("getImageryDetails url",url )
+      
+      mutateSaveImageryToDataset({id: props.dataset.id,url})
       return res.data;
     } catch (e) {
       console.log("isError");
@@ -127,7 +134,7 @@ const TileServerList = (props) => {
                       console.log("delete imagery");
                       setImageryDetails(null);
                       props.removeImagery();
-                      mutateSaveImageryToDataset(props.dataset.id,"")
+                      mutateSaveImageryToDataset({id:props.dataset.id,url:""})
                     }}
                   >
                     <RemoveCircle />

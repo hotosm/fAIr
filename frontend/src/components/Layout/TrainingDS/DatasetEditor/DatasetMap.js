@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 
 import {
   FeatureGroup,
@@ -28,6 +28,7 @@ import axios from '../../../../axios'
 import LoadingButton from "@mui/lab/LoadingButton";
 import { approximateGeom } from "../../../../utils"
 import DatasetEditorHeader from "./DatasetEditorHeader";
+import AuthContext from "../../../../Context/AuthContext";
 const DatasetMap = (props) => {
   const [mapLayers, setMapLayers] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
@@ -41,6 +42,7 @@ const DatasetMap = (props) => {
   const [mapError, setMapError] = useState();
   const [fromDB, setFromDB] = useState(false);
   const leafletObjects = useRef();
+  const {accessToken} = useContext(AuthContext)
   // props.oamImagery && console.log("props.oamImagery.url", props.oamImagery.url);
 
   const getLabels = async (box) => {
@@ -50,7 +52,10 @@ const DatasetMap = (props) => {
       setgeoJsonLoadedLabels(null)
       console.log(" getLabels for box", box)
 
-      const res = await axios.get(`/label/?in_bbox=${box._southWest.lng},${box._southWest.lat},${box._northEast.lng},${box._northEast.lat}`);
+      const headers = {
+        "access-token" : accessToken
+      }
+      const res = await axios.get(`/label/?in_bbox=${box._southWest.lng},${box._southWest.lat},${box._northEast.lng},${box._northEast.lat}`,{headers});
       console.log("res from getLabels ", res)
       if (res.error)
         setMapError(res.error);
@@ -121,7 +126,10 @@ const DatasetMap = (props) => {
       }
       console.log(" edit data ", data)
       // type is even label or aoi and it goes to cooresponding API end point 
-      const res = await axios.patch(`/${type}/${id}/`, data);
+      const headers = {
+        "access-token" : accessToken
+      }
+      const res = await axios.patch(`/${type}/${id}/`, data,{headers});
       console.log("res from edit ", res)
       if (res.error)
         setMapError(res.error);
@@ -144,7 +152,10 @@ const DatasetMap = (props) => {
 
       console.log(" delete ")
 
-      const res = await axios.delete(`/${type}/${id}/`);
+      const headers = {
+        "access-token" : accessToken
+      }
+      const res = await axios.delete(`/${type}/${id}/`,{headers});
       console.log("res from edit ", res)
       if (res.status === 204 || res.error)
         return;
@@ -196,8 +207,10 @@ const DatasetMap = (props) => {
 
       }
 
-
-      const res = await axios.post(`/${type}/`, body);
+      const headers = {
+        "access-token" : accessToken
+      }
+      const res = await axios.post(`/${type}/`, body,{headers});
       console.log('res ', res)
 
       if (res.error)
@@ -260,13 +273,13 @@ const DatasetMap = (props) => {
 
     try {
 
-
+      
       const res = await axios.get(`/aoi/?dataset=${props.dataset.id}`);
 
       if (res.error)
         setMapError(res.error.response.statusText);
       else {
-        console.log("getAOI", res.data)
+        // console.log("getAOI", res.data)
         setFromDB(true)
         return res.data;
       }
@@ -527,7 +540,7 @@ const DatasetMap = (props) => {
     // ]
   }
   const _onFeatureGroupReady = (reactFGref, _geoJsonLoadedFile) => {
-    console.log("_onFeatureGroupReady, reactFGref", reactFGref);
+    // console.log("_onFeatureGroupReady, reactFGref", reactFGref);
     // console.log("_onFeatureGroupReady reactFGref",reactFGref);
     if (reactFGref) {
       // make sure each layer has a featre geojson for created ones
@@ -542,8 +555,8 @@ const DatasetMap = (props) => {
     }
     if (reactFGref && fromDB && !isEditing) {
       setFromDB(false);
-      console.log("fromDB", fromDB)
-      console.log("reactFGref", reactFGref)
+      // console.log("fromDB", fromDB)
+      // console.log("reactFGref", reactFGref)
     }
     if (reactFGref === null || _geoJsonLoadedFile === null || isEditing) {
       return;
