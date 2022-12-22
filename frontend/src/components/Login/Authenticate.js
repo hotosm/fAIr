@@ -1,4 +1,5 @@
 
+import { LinearProgress, Stack } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react'
 import { useMutation } from 'react-query';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -48,7 +49,17 @@ const Authenticate = props => {
     
     return <>
 
-
+    <Stack sx={{ width: '100%', color: 'grey.500' }} spacing={2}>
+      <LinearProgress color="hot" />
+      <LinearProgress color="hot" />
+      <LinearProgress color="hot" />
+      <LinearProgress color="hot" />
+      <LinearProgress color="hot" />
+      <LinearProgress color="hot" />
+      <LinearProgress color="hot" />
+      <LinearProgress color="hot" />
+      <LinearProgress color="hot" />
+    </Stack>
      </>
 }
 
