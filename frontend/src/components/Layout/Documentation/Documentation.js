@@ -3,13 +3,14 @@ import AuthContext from '../../../Context/AuthContext';
 
 const Documentation = props => {
 
-    const { accessToken,redirect } = useContext(AuthContext);
+    // const { accessToken,redirect } = useContext(AuthContext);
     return <>
        
             <div style={{ height: "600px", width: "500px", }} >
-                Documentation conponenet  {accessToken}
+                Documentation conponenet 
                 <br/>
-                redirect   {redirect}  </div>
+
+            </div>
      
     </>
 }
