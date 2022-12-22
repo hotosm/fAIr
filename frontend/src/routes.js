@@ -15,7 +15,7 @@ export const publicRoutes = [
     { path: '/ai-models', name: 'Training Datasets', element: <AIModels /> },
     { path: '/documentation', name: 'Training Datasets', element: <Documentation /> },
     { path: '/get-started', name: 'Training Datasets', element: <GetStarted /> },
-    { path: '/start-mapping-with-fair', name: 'Training Datasets', element: <Start /> },
+    { path: '/start-mapping', name: 'Training Datasets', element: <Start /> },
     { path: '/why-fair', name: 'Training Datasets', element: <Why /> },
     { path: '/authenticate', name: 'Authenticate', element: <Authenticate /> },
     { path: '/', name: 'Home', element: <Home /> },

@@ -22,7 +22,7 @@ const pages = [
   { name: 'Why fAIr?', path: "/why-fair" },
   { name: 'Training Datasets', path: "/training-datasets" },
   { name: 'AI Models', path: "/ai-models" },
-  { name: 'Start Mapping with fAIr', path: "/start-mapping-with-fair" },
+  { name: 'Start Mapping', path: "/start-mapping" },
   { name: 'Documentation', path: "/documentation" }];
 
 const settings = ['Log in with OSM Account', 'Logout'];
@@ -75,9 +75,8 @@ function Header() {
             sx={{
               mr: 2,
               display: { xs: 'none', md: 'flex' },
-              fontFamily: 'monospace',
               fontWeight: 700,
-              letterSpacing: '.3rem',
+              letterSpacing: '.2rem',
               color: 'primary',
               textDecoration: 'none',
             }}
@@ -129,9 +128,8 @@ function Header() {
               mr: 2,
               display: { xs: 'flex', md: 'none' },
               flexGrow: 1,
-              fontFamily: 'monospace',
               fontWeight: 700,
-              letterSpacing: '.3rem',
+              letterSpacing: '.2rem',
               color: 'primary',
               textDecoration: 'none',
             }}
@@ -143,21 +141,25 @@ function Header() {
               <Button
                 key={page.path}
                 onClick={() => handleCloseNavMenu(page.path)}
-                sx={{ my: 2, color: 'primary', display: 'block', margin: "0px 3px", backgroundColor: "transparent  !important" }}
+                sx={{ my: 2, 
+                  color: 'primary', 
+                  display: 'block', 
+                  margin: "0px 0px", 
+                  backgroundColor: "transparent  !important",
+                }}
+                
               >
                 {page.name}
               </Button>
             ))}
           </Box>
 
-          <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="Open settings">
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-               <UserProfile></UserProfile>
-              </IconButton>
-            </Tooltip>
+          <Box sx={
+            { flexGrow: 0, textAlign: "center", marginRight: '-20px', marginTop: '10px' } 
+            }>
+                 <UserProfile handleOpenUserMenu={handleOpenUserMenu}></UserProfile>                          
             <Menu
-              sx={{ mt: '45px' }}
+              sx={{ mt: '35px',  }}
               id="menu-appbar"
               anchorEl={anchorElUser}
               anchorOrigin={{

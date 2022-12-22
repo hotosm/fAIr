@@ -1,4 +1,4 @@
-import { Avatar } from '@mui/material'
+import { Avatar, IconButton, Typography } from '@mui/material'
 import React, { useContext, useEffect } from 'react'
 import AuthContext from '../../Context/AuthContext'
 import axios from '../../axios'
@@ -44,7 +44,13 @@ const UserProfile = props => {
     }, [accessToken, refetch])
 
     return (
-        <Avatar alt="Remy Sharp" src={accessToken && data && data.img_url} />
+
+        <div>
+            <IconButton onClick={props.handleOpenUserMenu} sx={{ p: 0 }} >
+                <Avatar alt="Remy Sharp" src={accessToken && data && data.img_url} />
+            </IconButton>
+            <Typography variant="caption" display="block" textAlign="center" gutterBottom>{accessToken && data ? data.username : "Login here"}</Typography>
+        </div>
     )
 }
 
