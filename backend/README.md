@@ -26,6 +26,9 @@ git clone https://github.com/kshitijrajsharma/ramp-code-fAIr.git ramp-code
 ```
 cp -r model_ramp_baseline/data/input/checkpoint.tf ramp-code/ramp/checkpoint.tf
 ```
+Our Basemodel is available for public download [here](https://drive.google.com/file/d/139vx5yWOGgMWpZV0xXZS3mHQACJmLG-l/view?usp=share_link)
+
+
 - Remove basemodel repo wedon't need it anymore 
 ```
 rm -rf model_ramp_baseline
