@@ -130,3 +130,10 @@ You can start flower to start monitoring your tasks
 celery -A aiproject  --broker=redis://127.0.0.1:6379/0 flower 
 ```
 
+## Run Tests 
+
+```
+python manage.py test
+```
+
+
