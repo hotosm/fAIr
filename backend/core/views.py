@@ -175,7 +175,10 @@ class ImageDownloadView(APIView):
         try:
             aois = AOI.objects.filter(dataset=dataset_id)
         except AOI.DoesNotExist:
-            raise ValueError("Couldn't find AOI associated with dataset id")
+            return Response(
+                "No AOI is attached with supplied datastet id, Create AOI first",
+                status=404,
+            )
             # this is the base path where imagery will be downloaded if not present it
             # will create one
         base_path = os.path.join(
