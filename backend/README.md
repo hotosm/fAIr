@@ -92,7 +92,11 @@ pip install -r requirements.txt
     You will need more env variables (Such as Ramp home , Training Home) that can be found on ```.sample_env```  
 
 #### Now change your username , password and db name in settings.py accordingly to your database
-    python manage.py makemigrations
+    python manage.py makemigrations login
+    python manage.py migrate login
+    python manage.py makemigrations core
+    python manage.py migrate core 
+    python manage.py makemigrations 
     python manage.py migrate
     python manage.py runserver
 ### Now server will be available in your 8000 port in web , you can check out your localhost:8000/admin for admin panel 

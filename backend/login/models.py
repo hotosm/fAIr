@@ -3,6 +3,9 @@ from django.db import models
 
 
 class OsmUser(AbstractUser):
+    class Meta:
+        db_table = "auth_user"
+
     REQUIRED_FIELDS = ("osm_id",)
     osm_id = models.BigIntegerField(blank=False, unique=True, null=False)
     img_url = models.URLField(null=True, blank=True, max_length=1000)
