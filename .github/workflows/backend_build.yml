@@ -32,17 +32,17 @@ jobs:
       - name: Get my current working dir
         run: pwd
 
-      - name: Clone Basemodel
-        run: git clone https://github.com/radiantearth/model_ramp_baseline.git
-
       - name: Clone Ramp
         run: git clone https://github.com/kshitijrajsharma/ramp-code-fAIr.git ramp-code
 
-      - name: Copy Basemodel
-        run: cp -r model_ramp_baseline/data/input/checkpoint.tf ramp-code/ramp/checkpoint.tf
+      - name : Install gdown
+        run : pip install gdown
 
-      - name: Remove Basemodel
-        run: rm -rf model_ramp_baseline
+      - name: Download Basemodel
+        run: gdown --fuzzy https://drive.google.com/file/d/139vx5yWOGgMWpZV0xXZS3mHQACJmLG-l/view\?usp\=share_link
+
+      - name: Unzip and Move Basemodel
+        run: unzip checkpoint.tf.zip -d ramp-code/ramp
 
       - name: Add ubuntugis ppa & Update
         run: sudo add-apt-repository ppa:ubuntugis/ppa && sudo apt-get update
