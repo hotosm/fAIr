@@ -28,9 +28,6 @@ jobs:
         uses: actions/setup-python@v1
         with:
           python-version: 3.8
-      - name: Set environment variable
-        env:
-          TESTING_TOKEN: ${{ secrets.TESTING_TOKEN }}
 
       - name: Get my current working dir
         run: pwd
@@ -103,6 +100,8 @@ jobs:
           celery -A aiproject --broker=redis://localhost:6379/ flower  &
 
       - name: Run tests
+        env:
+          TESTING_TOKEN: ${{ secrets.TESTING_TOKEN }}
         run: |
           cd backend/
           python manage.py makemigrations
