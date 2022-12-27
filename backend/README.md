@@ -20,7 +20,7 @@ git clone https://github.com/radiantearth/model_ramp_baseline.git
 OR Download from google drive 
 ```
 pip install gdown
-gdown --fuzzy https://drive.google.com/file/d/139vx5yWOGgMWpZV0xXZS3mHQACJmLG-l/view\?usp\=share_link
+gdown --fuzzy https://drive.google.com/file/d/1wvJhkiOrSlHmmvJ0avkAdu9sslFf5_I0/view?usp=sharing
 ```
 
 - Clone Ramp - Code 
@@ -33,7 +33,7 @@ git clone https://github.com/kshitijrajsharma/ramp-code-fAIr.git ramp-code
 cp -r model_ramp_baseline/data/input/checkpoint.tf ramp-code/ramp/checkpoint.tf
 ```
 
-Our Basemodel is available for public download [here](https://drive.google.com/file/d/139vx5yWOGgMWpZV0xXZS3mHQACJmLG-l/view?usp=share_link)
+Our Basemodel is available for public download [here](https://drive.google.com/file/d/1wvJhkiOrSlHmmvJ0avkAdu9sslFf5_I0/view?usp=sharing)
 
 You can unzip and  move the downloaded basemodel 
 ```

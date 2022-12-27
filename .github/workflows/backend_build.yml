@@ -39,7 +39,7 @@ jobs:
         run : pip install gdown
 
       - name: Download Basemodel
-        run: gdown --fuzzy https://drive.google.com/file/d/139vx5yWOGgMWpZV0xXZS3mHQACJmLG-l/view\?usp\=share_link
+        run: gdown --fuzzy https://drive.google.com/file/d/1wvJhkiOrSlHmmvJ0avkAdu9sslFf5_I0/view?usp=sharing
 
       - name: Unzip and Move Basemodel
         run: unzip checkpoint.tf.zip -d ramp-code/ramp
