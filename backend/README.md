@@ -101,6 +101,12 @@ import tensorflow as tf
 print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
 ```
 
+If you are having problem with new keras installation you can set SM_FRAMEWORK as tf.keras on recent version of tensorflow after 2.9.2
+
+```
+%env SM_FRAMEWORK=tf.keras
+```
+
 - Install psycopg2
 Again based on your os/env you can do manual installation 
 for eg : on ubuntu : 
