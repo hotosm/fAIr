@@ -68,6 +68,15 @@ pip install --global-option=build_ext --global-option="-I/usr/include/gdal" GDAL
 cd ramp-code && cd colab && make install
 ```
 
+- For Conda users : You may need to install rtree , gdal , rasterio & imagecodecs separately 
+
+```
+conda install -c conda-forge rtree
+conda install -c conda-forge gdal
+conda install -c conda-forge rasterio
+conda install -c conda-forge imagecodecs
+```
+
 ##### Install necessary libraries for fAIr
 
 - Install Tensorflow  from [here] (https://www.tensorflow.org/install/pip) According to your os (Tested Versions : 2.9.2, 2.8.0)
