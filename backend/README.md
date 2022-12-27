@@ -60,6 +60,12 @@ cd ramp-code && cd colab && make install
 
 - Install Tensorflow  from [here] (https://www.tensorflow.org/install/pip) According to your os (Tested Versions : 2.9.2, 2.8.0)
 
+- Upgrade your setuptools before installing fair-utilities
+
+```
+pip install --upgrade setuptools
+```
+
 - Install fAIr Utilities 
 ```
 pip install hot-fair-utilities==1.0.41
