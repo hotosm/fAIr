@@ -16,13 +16,14 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
 from hot_fair_utilities import polygonize, predict
-from login.authentication import OsmAuthentication
-from login.permissions import IsOsmAuthenticated
 from rest_framework import decorators, status, viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_gis.filters import InBBoxFilter
+
+from login.authentication import OsmAuthentication
+from login.permissions import IsOsmAuthenticated
 
 from .models import AOI, Dataset, Label, Model, Training
 from .serializers import (
@@ -57,7 +58,7 @@ class DatasetViewSet(
 
 class TrainingViewSet(
     viewsets.ModelViewSet
-):  # This is datasetviewset , will be tightly coupled with the models
+):  # This is TrainingViewSet , will be tightly coupled with the models
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsOsmAuthenticated]
     permission_allowed_methods = ["GET"]
@@ -69,7 +70,7 @@ class TrainingViewSet(
 
 class ModelViewSet(
     viewsets.ModelViewSet
-):  # This is datasetviewset , will be tightly coupled with the models
+):  # This is ModelViewSet , will be tightly coupled with the models
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsOsmAuthenticated]
     permission_allowed_methods = ["GET"]
