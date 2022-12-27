@@ -58,7 +58,7 @@ cd ramp-code && cd colab && make install
 
 ##### Install necessary libraries for fAIr
 
-
+- Install Tensorflow  from [here] (https://www.tensorflow.org/install/pip) According to your os (Tested Versions : 2.9.2, 2.8.0)
 
 - Install fAIr Utilities 
 ```
