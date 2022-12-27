@@ -2,7 +2,7 @@ import validators
 from django.conf import settings
 from django.test import TestCase
 from rest_framework import status
-from rest_framework.test import APIClient
+from rest_framework.test import APIClient, APITestCase
 
 API_BASE = "http://testserver/api/v1"
 
@@ -14,7 +14,7 @@ headersList = {
 # Set the custom header
 
 
-class TaskApiTest(TestCase):
+class TaskApiTest(APITestCase):
     def setUp(self):
         # Create a request factory instance
         self.client = APIClient()
