@@ -58,10 +58,22 @@ cd ramp-code && cd colab && make install
 
 ##### Install necessary libraries for fAIr
 
+
+
 - Install fAIr Utilities 
 ```
 pip install hot-fair-utilities==1.0.41
 ```
+
+**Remember In order to run fAIr , You need to configure your PC with tensorflow - GPU Support** 
+
+You can check your GPU by : 
+
+```
+import tensorflow as tf
+print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
+```
+
 - Install psycopg2
 Again based on your os/env you can do manual installation 
 for eg : on ubuntu : 
