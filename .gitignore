@@ -37,5 +37,5 @@ backend/data/*
 backend/training/*
 backend/.env
 backend/config.txt
-
+backend/postgres-data
 **/.vscode/**

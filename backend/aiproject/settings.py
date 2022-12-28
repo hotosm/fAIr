@@ -35,7 +35,7 @@ EXPORT_TOOL_API_URL = env(
     default="https://galaxy-api.hotosm.org/v1/raw-data/current-snapshot/",
 )
 
-ALLOWED_HOSTS = ["localhost", HOSTNAME]
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', HOSTNAME]
 CORS_ALLOW_HEADERS = list(default_headers) + [
     "access-token",
 ]
