@@ -117,5 +117,5 @@ jobs:
           python manage.py migrate
           python manage.py migrate login
           python manage.py migrate core
-          python manage.py test
+          python manage.py test -v 2 
 
