@@ -28,6 +28,7 @@ class OsmAuthentication(authentication.BaseAuthentication):
                 user_data = osm_auth.deserialize_access_token(
                     access_token
                 )  # get the user
+                print(user_data)
                 try:
                     user = OsmUser.objects.get(osm_id=user_data["id"])
                 except OsmUser.DoesNotExist:
@@ -40,6 +41,6 @@ class OsmAuthentication(authentication.BaseAuthentication):
             except Exception as ex:
                 print(ex)
                 raise exceptions.AuthenticationFailed(
-                    "Osm Authentication Failed"
+                    f"Osm Authentication Failed"
                 )  # raise exception if user does not exist
         return (user, None)  # authentication successful return id,user_name,img

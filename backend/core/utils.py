@@ -1,3 +1,4 @@
+import concurrent.futures
 import json
 import math
 import os
@@ -67,9 +68,44 @@ def latlng2tile(zoom, lat, lng, tile_size):
     return t_x, t_y
 
 
-def download_imagery(
-    start: list, end: list, zm_level, dataset_id, base_path, source="maxar"
-):
+def get_start_end_download_coords(bbox_coords, zm_level, tile_size):
+
+    # start point where we will start downloading the tiles
+
+    start_point_lng = bbox_coords[0]  # getting the starting lat lng
+    start_point_lat = bbox_coords[1]
+
+    # end point where we should stop downloading the tile
+    end_point_lng = bbox_coords[2]  # getting the ending lat lng
+    end_point_lat = bbox_coords[3]
+
+    # Note :  lat=y-axis, lng=x-axis
+    # getting tile coordinate for first point of bbox
+    start_x, start_y = latlng2tile(
+        zoom=zm_level,
+        lat=start_point_lat,
+        lng=start_point_lng,
+        tile_size=tile_size,
+    )
+    start = [start_x, start_y]
+
+    # getting tile coordinate for last point of bbox
+    end_x, end_y = latlng2tile(
+        zoom=zm_level,
+        lat=end_point_lat,
+        lng=end_point_lng,
+        tile_size=tile_size,
+    )
+    end = [end_x, end_y]
+    return start, end
+
+
+def download_image(url):
+    response = requests.get(url)
+    return response.content
+
+
+def download_imagery(start: list, end: list, zm_level, base_path, source="maxar"):
     """Downloads imagery from start to end tile coordinate system
 
     Args:
@@ -77,7 +113,6 @@ def download_imagery(
         end (list): [tile_x,tile_y],
         source (string): it should be eithre url string or maxar value
         zm_level : Zoom level
-        dataset_id (int) : Dataset id
 
     """
 
@@ -91,7 +126,7 @@ def download_imagery(
     start_x = begin_x  # starting loop from beginning
     start_y = begin_y  # starting y loop from beginnig
     source_name = "OAM"  # default
-
+    download_urls = []
     while start_x <= stop_x:  # download  x section while keeping y as c
         start_y = begin_y
         while start_y >= stop_y:  # download  y section while keeping x as c
@@ -110,24 +145,27 @@ def download_imagery(
                 download_url = source.format(
                     x=download_path[0], y=download_path[1], z=zm_level
                 )
-            file = f"{base_path}/{source_name}-{start_x}-{start_y}-{zm_level}.png"
-            if os.path.exists(file):
-                os.remove(file)
+            download_urls.append(download_url)
 
-            with open(file, "wb") as handle:
-                response = requests.get(download_url, stream=True)
-
-                if not response.ok:
-                    print(response)
-
-                for block in response.iter_content(1024):
-                    if not block:
-                        break
-                    handle.write(block)
-            print(f"Downloaded : {download_path}")
             start_y = start_y - 1  # decrease the y
 
         start_x = start_x + 1  # increase the x
+
+    # Use the ThreadPoolExecutor to download the images in parallel
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        # Use `map` to apply the `download_image` function to each element in the `urls` list
+        results = executor.map(download_image, download_urls)
+
+        # Iterate over the results and save the images to disk
+        for url, image in zip(download_urls, results):
+            # considering url pattern is /z/x/y/ if not change this logic TODO for maxar
+            url_splitted_list = url.split("/")
+            with open(
+                f"{base_path}/{source_name}-{url_splitted_list[-2]}-{url_splitted_list[-1]}-{url_splitted_list[-3]}.png",
+                "wb",
+            ) as f:
+                f.write(image)
+            print(f"Downloaded : {url}")
 
     # TODO: Save geojson labels to the same folder
 

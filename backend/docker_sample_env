@@ -1,0 +1,17 @@
+SECRET_KEY=yl2w)c0boi_ma-1v5)935^2#&m*r!1s9z9^*9e5co^08_ixzo6
+DATABASE_URL=postgis://postgres:admin@pgsql:5432/ai
+EXPORT_TOOL_API_URL=http://44.203.33.53:8000/raw-data/current-snapshot/
+CORS_ALLOWED_ORIGINS=http://localhost:3000
+GDAL_LIBRARY_PATH=''
+MAXAR_CONNECT_ID=
+OSM_CLIENT_ID=
+OSM_CLIENT_SECRET=
+OSM_URL=https://www.openstreetmap.org
+OSM_SCOPE=read_prefs
+OSM_LOGIN_REDIRECT_URI=http://127.0.0.1:8000/api/v1/auth/callback/
+OSM_SECRET_KEY=
+CELERY_BROKER_URL="redis://redis:6379/0"
+CELERY_RESULT_BACKEND="redis://redis:6379/0"
+RAMP_HOME="/home/kshitij/hotosm/fAIr-utilities"
+TRAINING_WORKSPACE="/home/kshitij/hotosm/fAIr/backend/training"
+TESTING_TOKEN=

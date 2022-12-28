@@ -4,16 +4,20 @@ import json
 import os
 import pathlib
 import shutil
+import uuid
 import zipfile
 from datetime import datetime
 
+import tensorflow as tf
 from celery import current_app
 from celery.result import AsyncResult
+from django.conf import settings
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import status, viewsets
+from hot_fair_utilities import polygonize, predict
+from rest_framework import decorators, status, viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -31,9 +35,16 @@ from .serializers import (
     LabelFileSerializer,
     LabelSerializer,
     ModelSerializer,
+    PredictionParamSerializer,
     TrainingSerializer,
 )
-from .utils import bbox, download_imagery, latlng2tile, process_rawdata, request_rawdata
+from .utils import (
+    bbox,
+    download_imagery,
+    get_start_end_download_coords,
+    process_rawdata,
+    request_rawdata,
+)
 
 
 class DatasetViewSet(
@@ -48,18 +59,19 @@ class DatasetViewSet(
 
 class TrainingViewSet(
     viewsets.ModelViewSet
-):  # This is datasetviewset , will be tightly coupled with the models
+):  # This is TrainingViewSet , will be tightly coupled with the models
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsOsmAuthenticated]
     permission_allowed_methods = ["GET"]
     queryset = Training.objects.all()
     http_method_names = ["get", "post", "delete"]
     serializer_class = TrainingSerializer  # connecting serializer
+    filterset_fields = ["model", "status"]
 
 
 class ModelViewSet(
     viewsets.ModelViewSet
-):  # This is datasetviewset , will be tightly coupled with the models
+):  # This is ModelViewSet , will be tightly coupled with the models
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsOsmAuthenticated]
     permission_allowed_methods = ["GET"]
@@ -162,12 +174,18 @@ class ImageDownloadView(APIView):
         Dataset.objects.filter(id=dataset_id).update(source_imagery=source)
 
         # need to get all the aoi associated with dataset
-        if get_object_or_404(AOI, dataset=dataset_id):
-
+        try:
             aois = AOI.objects.filter(dataset=dataset_id)
+        except AOI.DoesNotExist:
+            return Response(
+                "No AOI is attached with supplied datastet id, Create AOI first",
+                status=404,
+            )
             # this is the base path where imagery will be downloaded if not present it
             # will create one
-        base_path = f"training/{dataset_id}"
+        base_path = os.path.join(
+            settings.TRAINING_WORKSPACE, f"dataset_{dataset_id}", "input"
+        )
         if os.path.exists(base_path):
             shutil.rmtree(base_path)
         os.makedirs(base_path)
@@ -186,46 +204,18 @@ class ImageDownloadView(APIView):
                     )
                     obj.imagery_status = 0
                     obj.save()
-                    bbox_coords = bbox(obj.geom.coords[0])
-                    print(f"bbox is : {bbox_coords}")
-
                     tile_size = DEFAULT_TILE_SIZE  # by default
                     zm_level = DEFAULT_ZOOM_LEVEL
-
-                    # start point where we will start downloading the tiles
-
-                    start_point_lng = bbox_coords[0]  # getting the starting lat lng
-                    start_point_lat = bbox_coords[1]
-
-                    # end point where we should stop downloading the tile
-                    end_point_lng = bbox_coords[2]  # getting the ending lat lng
-                    end_point_lat = bbox_coords[3]
-
-                    # Note :  lat=y-axis, lng=x-axis
-                    # getting tile coordinate for first point of bbox
-                    start_x, start_y = latlng2tile(
-                        zoom=zm_level,
-                        lat=start_point_lat,
-                        lng=start_point_lng,
-                        tile_size=tile_size,
+                    bbox_coords = bbox(obj.geom.coords[0])
+                    start, end = get_start_end_download_coords(
+                        bbox_coords, zm_level, tile_size
                     )
-                    start = [start_x, start_y]
-
-                    # getting tile coordinate for last point of bbox
-                    end_x, end_y = latlng2tile(
-                        zoom=zm_level,
-                        lat=end_point_lat,
-                        lng=end_point_lng,
-                        tile_size=tile_size,
-                    )
-                    end = [end_x, end_y]
                     try:
                         # start downloading
                         download_imagery(
                             start,
                             end,
                             zm_level,
-                            dataset_id=dataset_id,
                             base_path=base_path,
                             source=source,
                         )
@@ -257,7 +247,7 @@ class ImageDownloadView(APIView):
         try:
             if serialized_field.is_valid(raise_exception=True):
                 with open(
-                    f"training/{dataset_id}/labels.geojson", "w", encoding="utf-8"
+                    os.path.join(base_path, "labels.geojson"), "w", encoding="utf-8"
                 ) as f:
                     f.write(json.dumps(serialized_field.data))
                 f.close()
@@ -265,7 +255,7 @@ class ImageDownloadView(APIView):
         except Exception as ex:
             print(ex)
             raise ex
-
+        print(f"Finished and avilable at : {base_path}")
         if res_serializer.is_valid(raise_exception=True):
             print(res_serializer.data)
             return Response(res_serializer.data, status=status.HTTP_201_CREATED)
@@ -277,8 +267,12 @@ def download_training_data(request, dataset_id: int):
     Returns zip file if it is present on our server if not returns error
     """
 
-    file_path = f"training/{dataset_id}/"
-    zip_temp_path = f"training/{dataset_id}.zip"
+    file_path = os.path.join(
+        settings.TRAINING_WORKSPACE, f"dataset_{dataset_id}", "input"
+    )
+    zip_temp_path = os.path.join(
+        settings.TRAINING_WORKSPACE, f"dataset_{dataset_id}.zip"
+    )
     directory = pathlib.Path(file_path)
     if os.path.exists(directory):
         zf = zipfile.ZipFile(zip_temp_path, "w", zipfile.ZIP_DEFLATED)
@@ -317,3 +311,101 @@ def run_task_status(request, run_id: str):
         "result": task_result.result if task_result.status == "SUCCESS" else None,
     }
     return Response(result)
+
+
+class PredictionView(APIView):
+    authentication_classes = [OsmAuthentication]
+    permission_classes = [IsOsmAuthenticated]
+
+    @swagger_auto_schema(
+        request_body=PredictionParamSerializer, responses={status.HTTP_200_OK: "ok"}
+    )
+    def post(self, request, *args, **kwargs):
+        """Predicts on bbox by published model"""
+        res_serializer = PredictionParamSerializer(data=request.data)
+        if res_serializer.is_valid(raise_exception=True):
+            deserialized_data = res_serializer.data
+            bbox = deserialized_data["bbox"]
+            model_instance = get_object_or_404(Model, id=deserialized_data["model_id"])
+            if not model_instance.published_training:
+                return Response("Model is not published yet", status=404)
+            training_instance = get_object_or_404(
+                Training, id=model_instance.published_training
+            )
+
+            source_img_in_dataset = model_instance.dataset.source_imagery
+            source = (
+                deserialized_data["model_id"]
+                if deserialized_data["model_id"]
+                else source_img_in_dataset
+            )
+            zoom_level = deserialized_data["zoom_level"]
+            start, end = get_start_end_download_coords(
+                bbox, zoom_level, DEFAULT_TILE_SIZE
+            )
+            temp_path = f"temp/{uuid.uuid4()}/"
+            os.mkdir(temp_path)
+            try:
+                download_imagery(
+                    start,
+                    end,
+                    zoom_level,
+                    base_path=temp_path,
+                    source=source,
+                )
+                prediction_output = f"{temp_path}/prediction/output"
+                predict(
+                    checkpoint_path=os.path.join(
+                        settings.TRAINING_WORKSPACE,
+                        f"dataset_{model_instance.dataset.id}",
+                        "output",
+                        f"training_{training_instance.id}",
+                        "checkpoint.tf",
+                    ),
+                    input_path=temp_path,
+                    prediction_path=prediction_output,
+                )
+                geojson_output = f"{prediction_output}/prediction.geojson"
+                polygonize(
+                    input_path=prediction_output,
+                    output_path=geojson_output,
+                    remove_inputs=True,
+                )
+                with open(geojson_output, "r") as f:
+                    geojson_data = json.load(f)
+                shutil.rmtree(temp_path)
+                return Response(geojson_data, status=status.HTTP_201_CREATED)
+            except Exception as ex:
+                print(ex)
+                shutil.rmtree(temp_path)
+                return Response("Prediction Error", status=404)
+
+
+@api_view(["POST"])
+@decorators.authentication_classes([OsmAuthentication])
+@decorators.permission_classes([IsOsmAuthenticated])
+def publish_training(request, training_id: int):
+    """Publishes training for model"""
+    training_instance = get_object_or_404(Training, id=training_id)
+    if training_instance.status != "FINISHED":
+        return Response("Training is not FINISHED", status=404)
+    if training_instance.accuracy < 70:
+        return Response(
+            "Can't publish the training since it's accuracy is below 70 %", status=404
+        )
+    model_instance = get_object_or_404(Model, id=training_instance.model.id)
+    model_instance.published_training = training_instance.id
+    model_instance.save()
+    return Response("Training Published", status=status.HTTP_201_CREATED)
+
+
+class APIStatus(APIView):
+    def get(self, request):
+        res = {
+            "tensorflow_version": tf.__version__,
+            "No of GPU Available": len(
+                tf.config.experimental.list_physical_devices("GPU")
+            ),
+            "API Status": "Healthy",  # static for now should be dynamic TODO
+        }
+        return Response(res, status=status.HTTP_200_OK)

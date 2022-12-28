@@ -1,14 +1,15 @@
 import json
 
-from core.serializers import UserSerializer
 from django.conf import settings
 from django.http import JsonResponse
-from login.authentication import OsmAuthentication
-from login.permissions import IsOsmAuthenticated
 from osm_login_python.core import Auth
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+from core.serializers import UserSerializer
+from login.authentication import OsmAuthentication
+from login.permissions import IsOsmAuthenticated
 
 # Create your views here.
 # initialize osm_auth with our credentials

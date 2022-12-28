@@ -15,3 +15,4 @@ celery==5.2.7
 redis==4.4.0
 django_celery_results==2.4.0
 flower==1.2.0
+validators==0.20.0

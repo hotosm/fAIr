@@ -2,15 +2,14 @@ name: Backend Build
 on:
   push:
     branches:
-      - main
+      - master
   pull_request:
     branches:
-      - main
+      - master
 
 jobs:
   Build_on_ubuntu:
-    runs-on:
-      ubuntu-latest
+    runs-on: ubuntu-latest
     services:
       postgres:
         image: postgis/postgis:14-3.2
@@ -22,30 +21,58 @@ jobs:
         ports:
           - 5432:5432
         # needed because the postgres container does not provide a healthcheck
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 2
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python 3.8
         uses: actions/setup-python@v1
         with:
           python-version: 3.8
-      - name: Check postgresql version 
+
+      - name: Get my current working dir
+        run: pwd
+
+      - name: Test env vars for python
+        env:
+          TESTING_TOKEN: ${{ secrets.TESTING_TOKEN }}
+        run: python -c "import os; print(os.environ['TESTING_TOKEN'])"
+
+      - name: Clone Ramp
+        run: git clone https://github.com/kshitijrajsharma/ramp-code-fAIr.git ramp-code
+
+      - name : Install gdown
+        run : pip install gdown
+
+      - name: Download Basemodel
+        run: gdown --fuzzy https://drive.google.com/file/d/1wvJhkiOrSlHmmvJ0avkAdu9sslFf5_I0/view?usp=sharing
+
+      - name: Unzip and Move Basemodel
+        run: unzip checkpoint.tf.zip -d ramp-code/ramp
+
+      - name: Add ubuntugis ppa & Update
+        run: sudo add-apt-repository ppa:ubuntugis/ppa && sudo apt-get update
+
+      - name: Install numpy
+        run: pip install numpy==1.23.5
+
+      - name: Install gdal
         run: |
-          psql -V
-      - name : Install GDAL and psycopg2
-        run : |
-          sudo add-apt-repository ppa:ubuntugis/ppa && sudo apt-get update
           sudo apt-get install gdal-bin
           sudo apt-get install libgdal-dev
-          sudo apt-get install python3-psycopg2
           export CPLUS_INCLUDE_PATH=/usr/include/gdal
-          export C_INCLUDE_PATH=/usr/include/gdal      
-      - name : Check gdal version
-        run : |
-          ogrinfo --version
-      - name : Install gdal python
-        run : |
+          export C_INCLUDE_PATH=/usr/include/gdal
           pip install --global-option=build_ext --global-option="-I/usr/include/gdal" GDAL==`gdal-config --version`
+
+      - name: Install ramp dependecies
+        run: |
+          cd ramp-code && cd colab && make install
+
+      - name: Install fair utilities
+        run: pip install hot-fair-utilities==1.0.41
+
+      - name: Install Psycopg2
+        run: |
+          sudo apt-get install python3-psycopg2
 
       - name: Install redis
         run: |
@@ -58,7 +85,6 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          python -m pip install --upgrade pip
           cd backend/
           pip install -r requirements.txt
       - name: Creating env
@@ -66,6 +92,9 @@ jobs:
           cd backend/
           mv sample_env .env
           export DATABASE_URL=postgis://admin:password@localhost:5432/ai
+          export RAMP_HOME="/home/runner/work/fAIr/fAIr"
+          export TRAINING_WORKSPACE="/home/runner/work/fAIr/fAIr/backend/training"
+
       - name: Run celery worker
         run: |
           cd backend/
@@ -74,14 +103,19 @@ jobs:
         run: |
           cd backend/
           celery -A aiproject --broker=redis://localhost:6379/ flower  &
-      
-      - name: Test Build
+
+      - name: Run tests
+        env:
+          TESTING_TOKEN: ${{ secrets.TESTING_TOKEN }}
         run: |
           cd backend/
+
+          export TESTING_TOKEN=$TESTING_TOKEN
           python manage.py makemigrations
           python manage.py makemigrations core
           python manage.py makemigrations login
           python manage.py migrate
-          python manage.py migrate core
           python manage.py migrate login
+          python manage.py migrate core
+
 

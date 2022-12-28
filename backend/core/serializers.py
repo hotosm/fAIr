@@ -47,8 +47,13 @@ class TrainingSerializer(
         # create the model instance
         instance = Training.objects.create(**validated_data)
         # run your function here
-        print(instance)
-        train_model.delay("test")
+        task = train_model.delay(
+            dataset_id=instance.model.dataset.id,
+            training_id=instance.id,
+            epochs=instance.epochs,
+            batch_size=instance.batch_size,
+        )
+        print(f"Saved train model request to queue with id {task.id}")
         return instance
 
 
@@ -117,7 +122,6 @@ class LabelFileSerializer(
 
 class ImageDownloadSerializer(serializers.Serializer):
     dataset_id = serializers.IntegerField(required=True)
-    source = serializers.URLField(required=False)
     zoom_level = serializers.ListField(required=True)
 
     class Meta:
@@ -130,6 +134,23 @@ class ImageDownloadSerializer(serializers.Serializer):
         for i in data["zoom_level"]:
             if int(i) < 19 or int(i) > 21:
                 raise serializers.ValidationError("Zoom level Supported between 19-21")
+        return data
+
+
+class PredictionParamSerializer(serializers.Serializer):
+    bbox = serializers.ListField(child=serializers.FloatField(), required=True)
+    model_id = serializers.IntegerField(required=True)
+    zoom_level = serializers.IntegerField(required=True)
+    source = serializers.URLField(required=False)
+
+    def validate(self, data):
+        """
+        Check supplied data
+        """
+        if len(data["bbox"]) != 4:
+            raise serializers.ValidationError("Not a valid bbox")
+        if data["zoom_level"] < 19 or data["zoom_level"] > 21:
+            raise serializers.ValidationError("Zoom level Supported between 19-21")
         return data
 
 

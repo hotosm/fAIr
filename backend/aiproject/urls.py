@@ -69,4 +69,7 @@ urlpatterns = [
     path("api/v1/dataset/image/build/", ImageDownloadView.as_view()),
     path("api/v1/download/<int:dataset_id>/", download_training_data),
     path("api/v1/training/status/<str:run_id>/", run_task_status),
+    path("api/v1/training/publish/<int:training_id>/", publish_training),
+    path("api/v1/prediction/", PredictionView.as_view()),
+    path("api/v1/status/", APIStatus.as_view()),
 ]
