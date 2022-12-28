@@ -182,9 +182,10 @@ python manage.py test
 
 
 # Build fAIr with Docker for Development 
-- Install all the required drivers for you graphics in order to access it from containers 
+- Install all the required drivers for you graphics in order to access it from containers , check your graphics and drivers with ```nvidia-smi```
 - Follow docker_sample_env to create ```.env``` file in your dir 
 - Build the Image
+
 ```
 docker-compose up -d --build
 ```
