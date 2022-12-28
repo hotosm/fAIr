@@ -9,6 +9,7 @@ on:
 
 jobs:
   Build_on_ubuntu:
+    environment: .env
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -104,7 +105,8 @@ jobs:
           TESTING_TOKEN: ${{ secrets.TESTING_TOKEN }}
         run: |
           cd backend/
-          export TESTING_TOKEN=${{ secrets.TESTING_TOKEN }}
+
+          export TESTING_TOKEN=$TESTING_TOKEN
           python manage.py makemigrations
           python manage.py makemigrations core
           python manage.py makemigrations login
