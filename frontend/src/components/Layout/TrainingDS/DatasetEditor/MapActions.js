@@ -33,7 +33,7 @@ const MapActions = props => {
       });
       setSelectedZooms(temp)
     }
-    console.log("handleCheckZoom",e.target.checked,e.target.value,selectedZooms)
+    console.log("handleCheckZoom",e.target.checked,e.target.value,temp)
   }
   const downloadDS = async () => {
 

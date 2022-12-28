@@ -33,7 +33,7 @@ const TileServerList = (props) => {
      
       setLoading(true);
       setInputError(false);
-      console.log("saveImageryToDataset & accessToken",url,accessToken )
+      // console.log("saveImageryToDataset & accessToken",url,accessToken )
       const body = {
         "source_imagery": url
       }
