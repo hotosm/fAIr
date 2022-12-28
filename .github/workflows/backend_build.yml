@@ -9,7 +9,6 @@ on:
 
 jobs:
   Build_on_ubuntu:
-    environment: .env
     runs-on: ubuntu-latest
     services:
       postgres:
