@@ -11,7 +11,7 @@ API_BASE = "http://testserver/api/v1"
 # Set the custom headers to pass 
 headersList = {
     "accept": "application/json",
-    "access-token": os.environ["TESTING_TOKEN"] ,
+    "access-token": os.environ.get("TESTING_TOKEN") ,
 }
 
 
