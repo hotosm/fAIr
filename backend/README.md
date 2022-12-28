@@ -188,3 +188,4 @@ python manage.py test
 ```
 docker-compose up -d --build
 ```
+- Once the image is build , Open the API container terminal and run the migrations

@@ -8,6 +8,7 @@ import uuid
 import zipfile
 from datetime import datetime
 
+import tensorflow as tf
 from celery import current_app
 from celery.result import AsyncResult
 from django.conf import settings
@@ -396,3 +397,15 @@ def publish_training(request, training_id: int):
     model_instance.published_training = training_instance.id
     model_instance.save()
     return Response("Training Published", status=status.HTTP_201_CREATED)
+
+
+class APIStatus(APIView):
+    def get(self, request):
+        res = {
+            "tensorflow_version": tf.__version__,
+            "No of GPU Available": len(
+                tf.config.experimental.list_physical_devices("GPU")
+            ),
+            "API Status": "Healthy",  # static for now should be dynamic TODO
+        }
+        return Response(res, status=status.HTTP_200_OK)
