@@ -36,7 +36,7 @@ jobs:
       - name: Test env vars for python
         env:
           TESTING_TOKEN: ${{ secrets.TESTING_TOKEN }}
-        run: python -c 'import os;print(os.environ['TESTING_TOKEN'])
+        run: python -c "import os; print(os.environ['TESTING_TOKEN'])"
 
       - name: Clone Ramp
         run: git clone https://github.com/kshitijrajsharma/ramp-code-fAIr.git ramp-code
