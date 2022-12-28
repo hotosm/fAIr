@@ -22,6 +22,7 @@ class TaskApiTest(APILiveServerTestCase):
 
     def test_auth_me(self):
         res = self.client.get(f"{API_BASE}/auth/me/", headers=headersList)
+        print(res.json())
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
 
     def test_auth_login(self):
