@@ -48,7 +48,7 @@ services:
   worker-dashboard:
     build: .
     container_name: flower
-    command:  celery -A aiproject worker --broker=redis://redis:6379//  flower --address=0.0.0.0 --port=5000
+    command:  celery -A aiproject --broker=redis://redis:6379//  flower --address=0.0.0.0 --port=5000
     ports:
       - 5500:5000
     depends_on:
