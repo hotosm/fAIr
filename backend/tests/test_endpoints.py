@@ -1,17 +1,17 @@
 import json
+import os
 
 import validators
 from django.conf import settings
 from rest_framework import status
 from rest_framework.test import APILiveServerTestCase, RequestsClient
-import os 
 
 API_BASE = "http://testserver/api/v1"
 
-# Set the custom headers to pass 
+# Set the custom headers
 headersList = {
     "accept": "application/json",
-    "access-token": os.environ.get("TESTING_TOKEN") ,
+    "access-token": os.environ.get("TESTING_TOKEN"),
 }
 
 
