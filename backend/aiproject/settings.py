@@ -196,5 +196,3 @@ TRAINING_WORKSPACE = env(
     "TRAINING_WORKSPACE", default=os.path.join(os.getcwd(), "training")
 )
 
-# only required for testing
-TESTING_TOKEN = env("TESTING_TOKEN", default=None)
