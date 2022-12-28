@@ -25,6 +25,12 @@ services:
     build: .
     container_name: api
     command: python manage.py runserver 0.0.0.0:8000
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              capabilities: [gpu]
     ports:
       - 8000:8000
     volumes:
@@ -37,6 +43,12 @@ services:
     build: .
     container_name: worker
     command: celery -A aiproject worker --loglevel=INFO
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              capabilities: [gpu]
     volumes:
       - .:/app
     depends_on:
