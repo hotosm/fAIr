@@ -147,21 +147,6 @@ def download_imagery(start: list, end: list, zm_level, base_path, source="maxar"
                 )
             download_urls.append(download_url)
 
-            # file = f"{base_path}/{source_name}-{start_x}-{start_y}-{zm_level}.png"
-            # if os.path.exists(file):
-            #     os.remove(file)
-
-            # with open(file, "wb") as handle:
-            #     response = requests.get(download_url, stream=True)
-
-            #     if not response.ok:
-            #         print(response)
-
-            #     for block in response.iter_content(1024):
-            #         if not block:
-            #             break
-            #         handle.write(block)
-            # print(f"Downloaded : {download_path}")
             start_y = start_y - 1  # decrease the y
 
         start_x = start_x + 1  # increase the x
