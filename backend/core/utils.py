@@ -158,7 +158,7 @@ def download_imagery(start: list, end: list, zm_level, base_path, source="maxar"
 
         # Iterate over the results and save the images to disk
         for url, image in zip(download_urls, results):
-            # considering url pattern is /z/x/y/ if not change this logic
+            # considering url pattern is /z/x/y/ if not change this logic TODO for maxar
             url_splitted_list = url.split("/")
             with open(
                 f"{base_path}/{source_name}-{url_splitted_list[-2]}-{url_splitted_list[-1]}-{url_splitted_list[-3]}.png",
