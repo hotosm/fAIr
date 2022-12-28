@@ -3,6 +3,7 @@
 ## Backend is created with [Django](https://www.djangoproject.com/)
 This project was bootstrapped with  [Geodjango Template](https://github.com/itskshitiz321/geodjangotemplate.git)
 #### For Quickly Getting Started
+**Note :** Depending upon your OS and Env installation will vary , This project tightly depend on [Tensorflow](https://www.tensorflow.org/install/pip) with GPU support so accordingly build your development environment 
 ### Install Python3, pip and virtualenv first
 ##### Skip this, step if you already have one
     sudo apt-get install python3
@@ -180,3 +181,10 @@ python manage.py test
 ```
 
 
+# Build fAIr with Docker for Development 
+- Install all the required drivers for you graphics in order to access it from containers 
+- Follow docker_sample_env to create ```.env``` file in your dir 
+- Build the Image
+```
+docker-compose up -d --build
+```
