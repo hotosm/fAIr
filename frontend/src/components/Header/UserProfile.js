@@ -5,7 +5,7 @@ import axios from '../../axios'
 import { useQuery } from 'react-query'
 const UserProfile = props => {
 
-    const { accessToken } = useContext(AuthContext);
+    const { accessToken,authenticate } = useContext(AuthContext);
 
     const authMe = async () => {
 
@@ -19,6 +19,10 @@ const UserProfile = props => {
             if (res.error) {
                 // setMapError(res.error.response.statusText);
                 console.log(res);
+                if (res.error.response.status === 403)
+                {
+                    authenticate('')
+                }
             }
             else {
                 console.log('Auth me ', res.data)
