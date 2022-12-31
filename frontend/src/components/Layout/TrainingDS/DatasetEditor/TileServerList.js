@@ -23,9 +23,9 @@ import AuthContext from "../../../../Context/AuthContext";
 const TileServerList = (props) => {
   const [error, setError] = useState(false);
   const [inputError, setInputError] = useState(false);
-  const [imageryDetails, setImageryDetails] = useState(undefined);
+  const [imageryDetails, setImageryDetails] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [oamURL, setOAMURL] = useState(props.dataset.source_imagery ? props.dataset.source_imagery : undefined);
+  const [oamURL, setOAMURL] = useState(props.dataset.source_imagery ? props.dataset.source_imagery : "");
 
   const {accessToken} = useContext(AuthContext)
   const saveImageryToDataset = async ({id, url}) => {
