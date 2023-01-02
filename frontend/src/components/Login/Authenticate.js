@@ -7,7 +7,7 @@ import axios from '../../axios'
 import AuthContext from '../../Context/AuthContext';
 const Authenticate = props => {
 
-    const {redirect, authenticate} = useContext(AuthContext);
+    const {authenticate} = useContext(AuthContext);
     const [error, setError] = useState(false)
     let location = useLocation();
     const navigate = useNavigate()
@@ -20,6 +20,9 @@ const Authenticate = props => {
         // console.log('location.search.split("&")',location.search.split("&"))
           const res = await axios.get(`/auth/callback/${params}`);
             
+          if (!res)
+          setError("OSM Authentication API is not avialble, please contact HOT tech team tech@hotosm.org");
+         
           if (res.error) 
             setError(res.error.response.statusText);
                 
@@ -48,7 +51,7 @@ const Authenticate = props => {
     }, [])
     
     return <>
-
+{isLoading &&
     <Stack sx={{ width: '100%', color: 'grey.500' }} spacing={2}>
       <LinearProgress color="hot" />
       <LinearProgress color="hot" />
@@ -59,7 +62,8 @@ const Authenticate = props => {
       <LinearProgress color="hot" />
       <LinearProgress color="hot" />
       <LinearProgress color="hot" />
-    </Stack>
+    </Stack>}
+    {error && error}
      </>
 }
 
