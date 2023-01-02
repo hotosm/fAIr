@@ -17,7 +17,7 @@ const Authenticate = props => {
          
             // const params = `?${location.search.split("&")[1]}&${location.search.split("&")[2]}`
             const params =location.search;
-        // console.log('location.search.split("&")',location.search.split("&"))
+          console.log('calling auth/callback')
           const res = await axios.get(`/auth/callback/${params}`);
             
           if (!res)

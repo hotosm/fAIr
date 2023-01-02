@@ -135,3 +135,30 @@ export const componentLoader = (lazyComponent, attemptsLeft) => {
     });
   });
 };
+export const modelStatus = (status) => {
+  switch (status) {
+    case -1:
+      return "DRAFT";
+    case 0:
+      return "PUBLISHED";
+    case 1:
+      return "ARCHIVED";
+
+    default:
+      break;
+  }
+};
+
+export const trainingDSStatus = (status) => {
+  switch (status) {
+    case -1:
+      return "DRAFT";
+    case 0:
+      return "ACTIVE";
+    case 1:
+      return "ARCHIVED";
+
+    default:
+      break;
+  }
+};

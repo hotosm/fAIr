@@ -12,7 +12,7 @@ const Why = React.lazy(() => import('./components/Layout/Why/Why'));
 export const publicRoutes = [
     // add here all route you wish to implement and associate each one with a component, recommended to use lazy loading
     { path: '/training-datasets/*', name: 'Training Datasets', element: <TrainingDS /> },
-    { path: '/ai-models', name: 'Training Datasets', element: <AIModels /> },
+    { path: '/ai-models/*', name: 'Training Datasets', element: <AIModels /> },
     { path: '/documentation', name: 'Training Datasets', element: <Documentation /> },
     { path: '/get-started', name: 'Training Datasets', element: <GetStarted /> },
     { path: '/start-mapping', name: 'Training Datasets', element: <Start /> },

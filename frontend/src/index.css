@@ -104,3 +104,9 @@ code {
 .MuiListItem-secondaryAction .MuiListItemAvatar-root .MuiSvgIcon-root{
   font-size: 1rem !important;
 }
+
+.MuiSvgIcon-root
+{
+  color: white;
+}
+
