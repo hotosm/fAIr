@@ -781,10 +781,7 @@ const DatasetMap = (props) => {
           marginTop: "75px"
         }}
         zoom={zoom}
-        zoomDelta={0.5}
-        zoomSnap={0}
         whenCreated={setMap}
-        
       
       >
         <MyComponent />
