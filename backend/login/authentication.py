@@ -31,6 +31,13 @@ class OsmAuthentication(authentication.BaseAuthentication):
                 print(user_data)
                 try:
                     user = OsmUser.objects.get(osm_id=user_data["id"])
+
+                    if user.username != user_data["username"]:  # if username changed
+                        user.username = user_data["username"]
+                    if user.img_url != user_data["img_url"]:  # if img url changed
+                        user.img_url = user_data["img_url"]
+                    user.save()
+
                 except OsmUser.DoesNotExist:
                     user = OsmUser.objects.create(
                         osm_id=user_data["id"],
