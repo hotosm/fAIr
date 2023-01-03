@@ -13,18 +13,17 @@ from celery import current_app
 from celery.result import AsyncResult
 from django.conf import settings
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
 from hot_fair_utilities import polygonize, predict
+from login.authentication import OsmAuthentication
+from login.permissions import IsOsmAuthenticated
 from rest_framework import decorators, status, viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_gis.filters import InBBoxFilter
-
-from login.authentication import OsmAuthentication
-from login.permissions import IsOsmAuthenticated
 
 from .models import AOI, Dataset, Label, Model, Training
 from .serializers import (
@@ -45,6 +44,10 @@ from .utils import (
     process_rawdata,
     request_rawdata,
 )
+
+
+def home(request):
+    return redirect("schema-swagger-ui")
 
 
 class DatasetViewSet(
