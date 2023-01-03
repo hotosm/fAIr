@@ -37,7 +37,7 @@ const AIModelsList = props => {
 
         }
     };
-    const { data, isLoading ,refetch } = useQuery("getModels", getModels, { refetchInterval: 10000 });
+    const { data, isLoading ,refetch } = useQuery("getModels", getModels, { refetchInterval: 60000 });
 
     const columns = [
         { field: 'id', headerName: 'ID', width: 90 },

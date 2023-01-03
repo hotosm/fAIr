@@ -37,7 +37,7 @@ const DatasetList = props => {
 
         }
     };
-    const { data, isLoading ,refetch } = useQuery("getDatasets", getDatasets, { refetchInterval: 10000 });
+    const { data, isLoading ,refetch } = useQuery("getDatasets", getDatasets, { refetchInterval: 60000 });
 
     const columns = [
         { field: 'id', headerName: 'ID', width: 90 },
