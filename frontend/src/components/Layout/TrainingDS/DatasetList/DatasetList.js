@@ -47,7 +47,7 @@ const DatasetList = props => {
 
         },
         {
-            field: 'created_date',
+            field: 'created_at',
             headerName: 'Created at',
 
             width: 200,
