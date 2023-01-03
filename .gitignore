@@ -29,6 +29,7 @@ frontend/.env
 
 # for 
 backend/static
+backend/api_static
 backend/env
 backend/temp
 backend/**/__pycache__/**

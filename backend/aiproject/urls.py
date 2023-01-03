@@ -13,14 +13,13 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from core.views import *
 from django.conf.urls import include
 from django.contrib import admin
 from django.urls import path, re_path
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions, routers
-
-from core.views import *
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -48,20 +47,23 @@ router.register(r"model", ModelViewSet)  # gets crud operation for the model dat
 
 urlpatterns = [
     re_path(
-        r"^swagger(?P<format>\.json|\.yaml)$",
+        r"^api/swagger(?P<format>\.json|\.yaml)$",
         schema_view.without_ui(cache_timeout=0),
         name="schema-json",
     ),
     re_path(
-        r"^swagger/$",
+        r"^api/swagger/$",
         schema_view.with_ui("swagger", cache_timeout=0),
         name="schema-swagger-ui",
     ),
     re_path(
-        r"^redoc/$", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"
+        r"^api/redoc/$",
+        schema_view.with_ui("redoc", cache_timeout=0),
+        name="schema-redoc",
     ),
+    path("api/", home, name="home"),
     path("api/v1/auth/", include("login.urls")),  # add auth urls
-    path("admin/", admin.site.urls),
+    path("api/admin/", admin.site.urls),
     path(
         "api/v1/", include(router.urls)
     ),  # adding all the api to version 1 project is in development
