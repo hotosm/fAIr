@@ -9,6 +9,7 @@ import AddIcon from '@material-ui/icons/Add';
 import { useNavigate } from 'react-router-dom';
 import ArchiveIcon from '@material-ui/icons/Archive';
 import { modelStatus } from '../../../../utils';
+import OSMUser from '../../../Shared/OSMUser';
 
 const DEFAULT_FILTER = {"items":[{"columnField":"created_date","id":8537,"operatorValue":"contains"}],"linkOperator":"and","quickFilterValues":[],"quickFilterLogicOperator":"and"}
 const AIModelsList = props => {
@@ -65,8 +66,9 @@ const AIModelsList = props => {
         {
             field: 'created_by',
             headerName: 'User',
+            minWidth: 120,
              renderCell: (params) => {
-                return <span> {params.value}</span>
+                return  <OSMUser uid={params.value}></OSMUser> 
                 ;
             }
         },

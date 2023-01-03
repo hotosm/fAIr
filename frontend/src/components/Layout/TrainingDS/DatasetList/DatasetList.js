@@ -9,6 +9,7 @@ import AddIcon from '@material-ui/icons/Add';
 import { useNavigate } from 'react-router-dom';
 import ArchiveIcon from '@material-ui/icons/Archive';
 import { trainingDSStatus } from '../../../../utils';
+import OSMUser from '../../../Shared/OSMUser';
 
 const DEFAULT_FILTER = {"items":[{"columnField":"created_date","id":8537,"operatorValue":"contains"}],"linkOperator":"and","quickFilterValues":[],"quickFilterLogicOperator":"and"}
 const DatasetList = props => {
@@ -79,16 +80,16 @@ const DatasetList = props => {
         {
             field: 'created_by',
             headerName: 'User',
-            width: 100,
+            minWidth: 120,
             renderCell: (params) => {
-                return <span> {params.value}</span>
+                return <OSMUser uid={params.value}></OSMUser> 
                 ;
             }
         },
         {
             field: 'status',
             headerName: 'Status',
-            width: 100,
+           
             renderCell: (params) => {
                 return <>{`${trainingDSStatus(params.value)}`}</>;
             }
