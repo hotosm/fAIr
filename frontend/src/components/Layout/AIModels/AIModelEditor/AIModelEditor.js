@@ -13,6 +13,7 @@ const AIModelEditor = props => {
     let { id } = useParams();
     const [error, setError] = useState(null)
     const [epochs, setEpochs] = useState(20)
+    const [random, setRandom] = useState(Math.random())
     const [batchSize, setBatchSize] = useState(8)
     const [description, setDescription] = useState("")
     const { accessToken } = useContext(AuthContext)
@@ -57,7 +58,7 @@ const AIModelEditor = props => {
             }
 
             console.log("/training/", res)
-
+            setRandom(Math.random())
             return res.data;
         } catch (e) {
             console.log("isError");
@@ -162,7 +163,7 @@ const AIModelEditor = props => {
 
                     </Grid>}
                     <Grid item xs={12}>
-                        <Trainings modelId={id}></Trainings>
+                        <Trainings modelId={id} random={random}></Trainings>
                     </Grid>
             </Grid>}
     </>;

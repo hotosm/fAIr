@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { DataGrid } from '@mui/x-data-grid';
 import { Grid, IconButton, Tooltip, Typography } from '@mui/material';
 import { useQuery } from 'react-query';
@@ -12,7 +12,6 @@ const DEFAULT_FILTER = {"items":[{"columnField":"created_date","id":8537,"operat
 const AIModelsList = props => {
 
     const [error, setError] = useState(null)
-    const navigate = useNavigate();
     const getTraingings = async () => {
 
         try {
@@ -36,11 +35,20 @@ const AIModelsList = props => {
     };
     const { data, isLoading ,refetch } = useQuery("getTraingings", getTraingings, { refetchInterval: 60000 });
 
+
     const columns = [
-        { field: 'id', headerName: 'ID', width: 90 },
+        { field: 'id', headerName: 'ID', width: 70 },
         {
             field: 'description',
             headerName: 'Description',
+        },
+        {
+            field: 'epochs',
+            headerName: 'Epochs',
+        },
+        {
+            field: 'batch_size',
+            headerName: 'Batch Size',
         },
         {
             field: 'started_at',
@@ -106,13 +114,21 @@ const AIModelsList = props => {
         }
 
     ];
-
+    useEffect(() => {
+      if (props.random)
+        refetch();
+        
+      return () => {
+      
+      }
+    }, [props.random])
+    
     return <>
 
         <Grid container padding={2} spacing={2}>
             <Grid item xs={9}>
                 <Typography variant="h6" component="div">
-                    Model {props.modelId} Trainings
+                    Model {props.modelId} Trainings 
                 </Typography>
             </Grid>
             <Grid item xs={3}>
