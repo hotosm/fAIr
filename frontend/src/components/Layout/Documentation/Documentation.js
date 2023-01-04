@@ -7,7 +7,7 @@ const Documentation = props => {
     return <>
        
             <div style={{ height: "600px", width: "500px", }} >
-                Documentation conponenet 
+                Documentation Componenet 
                 <br/>
 
             </div>
