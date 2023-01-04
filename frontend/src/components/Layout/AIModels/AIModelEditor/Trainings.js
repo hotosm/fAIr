@@ -137,10 +137,10 @@ const AIModelsList = props => {
                         pageSize={10}
                         rowsPerPageOptions={[10]}
                         disableSelectionOnClick
-                        onFilterModelChange={(filter)=> { console.log('grid filter',filter); localStorage.setItem('modelFilter',JSON.stringify(filter)); refetch();}}
-                        onSortModelChange={(sorter)=> { console.log('grid sorter',sorter); localStorage.setItem('modelSorter', JSON.stringify(sorter)); refetch();}}
-                        filterModel={localStorage.getItem('modelFilter') ? JSON.parse(localStorage.getItem('modelFilter')) : DEFAULT_FILTER}
-                        sortModel={localStorage.getItem('modelSorter')? JSON.parse(localStorage.getItem('modelSorter')) : []}
+                        onFilterModelChange={(filter)=> { console.log('grid filter',filter); localStorage.setItem('modelTrainingFilter',JSON.stringify(filter)); refetch();}}
+                        onSortModelChange={(sorter)=> { console.log('grid sorter',sorter); localStorage.setItem('modelTrainingSorter', JSON.stringify(sorter)); refetch();}}
+                        filterModel={localStorage.getItem('modelTrainingFilter') ? JSON.parse(localStorage.getItem('modelTrainingFilter')) : DEFAULT_FILTER}
+                        sortModel={localStorage.getItem('modelTrainingSorter')? JSON.parse(localStorage.getItem('modelTrainingSorter')) : []}
                         // TODO: BUG when no filter sorter check
                     />
                 </div>}
