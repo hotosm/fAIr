@@ -162,3 +162,15 @@ export const trainingDSStatus = (status) => {
       break;
   }
 };
+
+export const timeSpan = (start,end) => {
+  
+  if (start && end) {
+      const s = new Date(start)
+      const e = new Date(end)
+      const delta = e -s ;
+      return (Math.abs(delta) / 36e5).toFixed(2);
+  }
+  else 
+    return "";   
+};

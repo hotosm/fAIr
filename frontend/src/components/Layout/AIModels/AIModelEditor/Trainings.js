@@ -7,6 +7,7 @@ import Alert from '@material-ui/lab/Alert';
 import PublishIcon from '@material-ui/icons/Publish';
 import { useNavigate } from 'react-router-dom';
 import OSMUser from '../../../Shared/OSMUser';
+import { timeSpan } from '../../../../utils';
 
 const DEFAULT_FILTER = {"items":[{"columnField":"created_date","id":8537,"operatorValue":"contains"}],"linkOperator":"and","quickFilterValues":[],"quickFilterLogicOperator":"and"}
 const AIModelsList = props => {
@@ -37,7 +38,7 @@ const AIModelsList = props => {
 
 
     const columns = [
-        { field: 'id', headerName: 'ID', width: 70 },
+        { field: 'id', headerName: 'ID', width: 60 },
         {
             field: 'description',
             headerName: 'Description',
@@ -45,6 +46,8 @@ const AIModelsList = props => {
         {
             field: 'epochs',
             headerName: 'Epochs',
+            
+            
         },
         {
             field: 'batch_size',
@@ -65,6 +68,17 @@ const AIModelsList = props => {
             minWidth:170,
             valueGetter: (params) => {
                 return params.value && new Date(params.value).toLocaleString();
+            }
+            ,
+        },
+        {
+            field: 'timeSpan',
+            headerName: 'Time (hrs)',
+            minWidth:40,
+            valueGetter: (params) => {
+                console.log("params",params)
+                if (params.row.status === "FINISHED")
+                return timeSpan(params.row.started_at,params.row.finished_at);
             }
             ,
         },
