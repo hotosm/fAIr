@@ -121,7 +121,7 @@ def download_imagery(start: list, end: list, zm_level, base_path, source="maxar"
     stop_x = end[0]  # this will be the end of the download loop for x
     stop_y = end[1]  # this will be the end of the download loop for x
 
-    print(f"Download starting from {start} to {end}")
+    print(f"Download starting from {start} to {end} using source {source}")
 
     start_x = begin_x  # starting loop from beginning
     start_y = begin_y  # starting y loop from beginnig
