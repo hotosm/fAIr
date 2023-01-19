@@ -55,7 +55,7 @@ const DatasetMap = (props) => {
       const headers = {
         "access-token" : accessToken
       }
-      const res = await axios.get(`/label/?in_bbox=${box._southWest.lng},${box._southWest.lat},${box._northEast.lng},${box._northEast.lat}`,{headers});
+      const res = await axios.get(`/label/?aoi__dataset=${props.dataset.id}&in_bbox=${box._southWest.lng},${box._southWest.lat},${box._northEast.lng},${box._northEast.lat}`,{headers});
       console.log("res from getLabels ", res)
       if (res.error)
         setMapError(res.error);
