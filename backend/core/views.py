@@ -17,13 +17,14 @@ from django.shortcuts import get_object_or_404, redirect
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
 from hot_fair_utilities import polygonize, predict
-from login.authentication import OsmAuthentication
-from login.permissions import IsOsmAuthenticated
 from rest_framework import decorators, status, viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_gis.filters import InBBoxFilter
+from rest_framework_gis.filters import InBBoxFilter, TMSTileFilter
+
+from login.authentication import OsmAuthentication
+from login.permissions import IsOsmAuthenticated
 
 from .models import AOI, Dataset, Label, Model, Training
 from .serializers import (
@@ -100,11 +101,14 @@ class LabelViewSet(viewsets.ModelViewSet):
     serializer_class = LabelSerializer  # connecting serializer
     bbox_filter_field = "geom"
     filter_backends = (
-        InBBoxFilter,
+        InBBoxFilter,  # it will take bbox like this api/v1/label/?in_bbox=-90,29,-89,35 ,
+        # TMSTileFilter,  # will serve as tms tiles https://wiki.openstreetmap.org/wiki/TMS ,  use like this ?tile=8/100/200 z/x/y which is equivalent to filtering on the bbox (-39.37500,-71.07406,-37.96875,-70.61261) # Note that the tile address start in the upper left, not the lower left origin used by some implementations.
         DjangoFilterBackend,
-    )  # it will take bbox like this api/v1/fetch-label/?in_bbox=-90,29,-89,35
-    bbox_filter_include_overlapping = True  # Optional
-    filterset_fields = ["aoi"]
+    )
+    bbox_filter_include_overlapping = (
+        True  # Optional to include overlapping labels in the tile served
+    )
+    filterset_fields = ["aoi", "aoi__dataset"]
 
 
 class RawdataApiView(APIView):
