@@ -38,25 +38,29 @@ const AIModelsList = props => {
 
 
     const columns = [
-        { field: 'id', headerName: 'ID', width: 60 },
+        { field: 'id', headerName: 'ID', width: 60,flex: 1 },
         {
             field: 'description',
             headerName: 'Description',
+            flex: 1
         },
         {
             field: 'epochs',
             headerName: 'Epochs',
+            flex: 1
             
             
         },
         {
             field: 'batch_size',
             headerName: 'Batch Size',
+            flex: 1
         },
         {
             field: 'started_at',
             headerName: 'Started at',
             minWidth:170,
+            flex: 1,
             valueGetter: (params) => {
 
                 return params.value && new Date(params.value).toLocaleString();
@@ -66,6 +70,7 @@ const AIModelsList = props => {
             field: 'finished_at',
             headerName: 'Finished at',
             minWidth:170,
+            flex: 1,
             valueGetter: (params) => {
                 return params.value && new Date(params.value).toLocaleString();
             }
@@ -75,8 +80,9 @@ const AIModelsList = props => {
             field: 'timeSpan',
             headerName: 'Time (hrs)',
             minWidth:40,
+            flex: 1,
             valueGetter: (params) => {
-                console.log("params",params)
+                // console.log("params",params)
                 if (params.row.status === "FINISHED")
                 return timeSpan(params.row.started_at,params.row.finished_at);
             }
@@ -86,6 +92,7 @@ const AIModelsList = props => {
             field: 'created_by',
             headerName: 'User',
             minWidth: 120,
+            flex: 1,
              renderCell: (params) => {
                 return  <OSMUser uid={params.value}></OSMUser> 
                 ;
@@ -95,6 +102,7 @@ const AIModelsList = props => {
             field: 'status',
             headerName: 'Status',
             width: 100,
+            flex: 1,
             renderCell: (params) => {
                 return <>{`${params.value}`}</>;
             }
@@ -103,6 +111,7 @@ const AIModelsList = props => {
             field: 'accuracy',
             headerName: 'Accuracy',
             minWidth: 150,
+            flex: 1,
             renderCell: (params) => {
                 return params.value && params.value;
             }
@@ -111,6 +120,7 @@ const AIModelsList = props => {
             field: 'actions',
             headerName: 'Actions',
             width: 110,
+            flex: 1,
             renderCell: (params) => {
                 return <><Tooltip title="Publish Traning" aria-label="Publish">
                 <IconButton aria-label="comments"
@@ -142,7 +152,7 @@ const AIModelsList = props => {
         <Grid container padding={2} spacing={2}>
             <Grid item xs={9}>
                 <Typography variant="h6" component="div">
-                    Model {props.modelId} Trainings 
+                    Model {props.modelId} Trainings
                 </Typography>
             </Grid>
             <Grid item xs={3}>
@@ -162,6 +172,7 @@ const AIModelsList = props => {
                 {isLoading && <p>Loading ... </p>}
                 {!isLoading && <div style={{ height: 600, width: '100%' }}>
                     <DataGrid
+                        
                         rows={data}
                         columns={columns}
                         pageSize={10}
