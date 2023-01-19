@@ -338,8 +338,8 @@ class PredictionView(APIView):
 
             source_img_in_dataset = model_instance.dataset.source_imagery
             source = (
-                deserialized_data["model_id"]
-                if deserialized_data["model_id"]
+                deserialized_data["source"]
+                if deserialized_data["source"]
                 else source_img_in_dataset
             )
             zoom_level = deserialized_data["zoom_level"]
