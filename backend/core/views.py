@@ -102,9 +102,9 @@ class LabelViewSet(viewsets.ModelViewSet):
     bbox_filter_field = "geom"
     filter_backends = (
         InBBoxFilter,  # it will take bbox like this api/v1/label/?in_bbox=-90,29,-89,35 ,
-        TMSTileFilter,  # will serve as tms tiles https://wiki.openstreetmap.org/wiki/TMS ,  use like this ?tile=8/100/200 which is equivalent to filtering on the bbox (-39.37500,-71.07406,-37.96875,-70.61261)
+        # TMSTileFilter,  # will serve as tms tiles https://wiki.openstreetmap.org/wiki/TMS ,  use like this ?tile=8/100/200 z/x/y which is equivalent to filtering on the bbox (-39.37500,-71.07406,-37.96875,-70.61261) # Note that the tile address start in the upper left, not the lower left origin used by some implementations.
         DjangoFilterBackend,
-    )  # Note that the tile address start in the upper left, not the lower left origin used by some implementations.
+    )
     bbox_filter_include_overlapping = (
         True  # Optional to include overlapping labels in the tile served
     )
