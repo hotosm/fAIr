@@ -17,14 +17,13 @@ from django.shortcuts import get_object_or_404, redirect
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
 from hot_fair_utilities import polygonize, predict
+from login.authentication import OsmAuthentication
+from login.permissions import IsOsmAuthenticated
 from rest_framework import decorators, status, viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_gis.filters import InBBoxFilter, TMSTileFilter
-
-from login.authentication import OsmAuthentication
-from login.permissions import IsOsmAuthenticated
 
 from .models import AOI, Dataset, Label, Model, Training
 from .serializers import (
@@ -126,20 +125,26 @@ class RawdataApiView(APIView):
             status: Success/Failed
         """
         obj = get_object_or_404(AOI, id=aoi_id)
-        obj.download_status = 0
-        obj.save()
-        raw_data_params = {
-            "geometry": json.loads(obj.geom.geojson),
-            "filters": {"tags": {"polygon": {"building": []}}},
-            "geometryType": ["polygon"],
-        }
-        result = request_rawdata(raw_data_params)
-        file_download_url = result["download_url"]
-        process_rawdata(file_download_url, aoi_id)
-        obj.download_status = 1
-        obj.last_fetched_date = datetime.utcnow()
-        obj.save()
-        return Response("Success", status=status.HTTP_201_CREATED)
+        try:
+            obj.download_status = 0
+            obj.save()
+            raw_data_params = {
+                "geometry": json.loads(obj.geom.geojson),
+                "filters": {"tags": {"polygon": {"building": []}}},
+                "geometryType": ["polygon"],
+            }
+            result = request_rawdata(raw_data_params)
+            file_download_url = result["download_url"]
+            process_rawdata(file_download_url, aoi_id)
+            obj.download_status = 1
+            obj.last_fetched_date = datetime.utcnow()
+            obj.save()
+            return Response("Success", status=status.HTTP_201_CREATED)
+        except Exception as ex:
+            obj.download_status = -1
+            obj.save()
+            raise ex
+            return Response("OSM Fetch Failed", status=500)
 
 
 DEFAULT_TILE_SIZE = 256
