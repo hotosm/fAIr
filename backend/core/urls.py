@@ -14,6 +14,7 @@ from .views import (
     PredictionView,
     RawdataApiView,
     TrainingViewSet,
+    TrainingWorkspaceView,
     download_training_data,
     publish_training,
     run_task_status,
@@ -38,4 +39,6 @@ urlpatterns = [
     path("prediction/", PredictionView.as_view()),
     path("status/", APIStatus.as_view()),
     path("aoi/gpx/<int:aoi_id>/", GenerateGpxView.as_view()),
+    path("workspace/<str:lookup_dir>/", TrainingWorkspaceView.as_view()),
+    # path("training/workspace/<str:file_path>/", dir_download),
 ]
