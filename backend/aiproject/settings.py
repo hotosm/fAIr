@@ -35,7 +35,7 @@ EXPORT_TOOL_API_URL = env(
     default="https://galaxy-api.hotosm.org/v1/raw-data/current-snapshot/",
 )
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', HOSTNAME]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", HOSTNAME]
 CORS_ALLOW_HEADERS = list(default_headers) + [
     "access-token",
 ]
@@ -85,9 +85,11 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
-ALLOWED_ORIGINS = env("CORS_ALLOWED_ORIGINS", default="http://127.0.0.1:8000")
+# ALLOWED_ORIGINS = env("CORS_ALLOWED_ORIGINS", default="http://127.0.0.1:8000")
 
-CORS_ALLOWED_ORIGINS = [ALLOWED_ORIGINS]
+# CORS_ALLOWED_ORIGINS = [ALLOWED_ORIGINS]
+CORS_ALLOWED_ORIGINS = ["*"]
+
 
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema",
