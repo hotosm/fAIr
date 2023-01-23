@@ -444,7 +444,7 @@ class GenerateGpxView(APIView):
         gpx.time = datetime.now()
         gpx.link = "https://github.com/hotosm/fAIr"
         gpx.link_text = "AI Assisted Mapping - fAIr : HOTOSM"
-        return Response(gpx.to_xml(), content_type="text/xml; charset=utf-8")
+        return HttpResponse(gpx.to_xml(), content_type="application/xml")
 
 
 class TrainingWorkspaceView(APIView):
