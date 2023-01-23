@@ -13,13 +13,13 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from core.views import *
+from core.views import home
 from django.conf.urls import include
 from django.contrib import admin
 from django.urls import path, re_path
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
-from rest_framework import permissions, routers
+from rest_framework import permissions
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -33,16 +33,6 @@ schema_view = get_schema_view(
     public=True,
     permission_classes=[permissions.AllowAny],
 )
-
-
-router = routers.DefaultRouter()
-router.register(r"dataset", DatasetViewSet)  # gets crud operation for the model dataset
-router.register(r"aoi", AOIViewSet)  # gets crud operation for the model dataset
-router.register(r"label", LabelViewSet)  # gets crud operation for the model dataset
-router.register(
-    r"training", TrainingViewSet
-)  # gets crud operation for the model dataset
-router.register(r"model", ModelViewSet)  # gets crud operation for the model dataset
 
 
 urlpatterns = [
@@ -63,15 +53,6 @@ urlpatterns = [
     ),
     path("api/", home, name="home"),
     path("api/v1/auth/", include("login.urls")),  # add auth urls
+    path("api/v1/", include("core.urls")),  # add core urls
     path("api/admin/", admin.site.urls),
-    path(
-        "api/v1/", include(router.urls)
-    ),  # adding all the api to version 1 project is in development
-    path("api/v1/label/osm/fetch/<int:aoi_id>/", RawdataApiView.as_view()),
-    path("api/v1/dataset/image/build/", ImageDownloadView.as_view()),
-    path("api/v1/download/<int:dataset_id>/", download_training_data),
-    path("api/v1/training/status/<str:run_id>/", run_task_status),
-    path("api/v1/training/publish/<int:training_id>/", publish_training),
-    path("api/v1/prediction/", PredictionView.as_view()),
-    path("api/v1/status/", APIStatus.as_view()),
 ]
