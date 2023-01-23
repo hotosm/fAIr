@@ -426,10 +426,6 @@ class APIStatus(APIView):
 
 
 class GenerateGpxView(APIView):
-
-    # @swagger_auto_schema(
-    #     request_body=ImageDownloadSerializer, responses={status.HTTP_200_OK: "ok"}
-    # )
     def get(self, request, aoi_id: int):
         aoi = get_object_or_404(AOI, id=aoi_id)
         # Convert the polygon field to GPX format
