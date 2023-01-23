@@ -85,12 +85,16 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
-# ALLOWED_ORIGINS = env("CORS_ALLOWED_ORIGINS", default="http://127.0.0.1:8000")
+ALLOWED_ORIGINS = env("CORS_ALLOWED_ORIGINS", default="http://127.0.0.1:8000")
 
-# CORS_ALLOWED_ORIGINS = [ALLOWED_ORIGINS]
+CORS_ORIGIN_WHITELIST = [
+    ALLOWED_ORIGINS,
+    "https://www.openstreetmap.org",
+    "https://mapwith.ai",
+]
 # CORS_ALLOWED_ORIGINS = ["*"]
 
-CORS_ORIGIN_ALLOW_ALL = True
+# CORS_ORIGIN_ALLOW_ALL = True
 
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema",
