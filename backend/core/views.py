@@ -12,10 +12,12 @@ import tensorflow as tf
 from celery import current_app
 from celery.result import AsyncResult
 from django.conf import settings
+from django.core.serializers import serialize
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
+from gpxpy.gpx import GPX, GPXTrack, GPXTrackSegment, GPXWaypoint
 from hot_fair_utilities import polygonize, predict
 from login.authentication import OsmAuthentication
 from login.permissions import IsOsmAuthenticated
@@ -421,3 +423,29 @@ class APIStatus(APIView):
             "API Status": "Healthy",  # static for now should be dynamic TODO
         }
         return Response(res, status=status.HTTP_200_OK)
+
+
+class GenerateGpxView(APIView):
+
+    # @swagger_auto_schema(
+    #     request_body=ImageDownloadSerializer, responses={status.HTTP_200_OK: "ok"}
+    # )
+    def get(self, request, aoi_id: int):
+        aoi = get_object_or_404(AOI, id=aoi_id)
+        # Convert the polygon field to GPX format
+        geom_json = json.loads(aoi.geom.json)
+        # Create a new GPX object
+        gpx = GPX()
+        gpx_track = GPXTrack()
+        gpx.tracks.append(gpx_track)
+        gpx_segment = GPXTrackSegment()
+        gpx_track.segments.append(gpx_segment)
+        for point in geom_json["coordinates"][0]:
+            # Append each point as a GPXWaypoint to the GPXTrackSegment
+            gpx_segment.points.append(GPXWaypoint(point[1], point[0]))
+        gpx.creator = "fAIr Backend"
+        gpx.name = f"AOI of id {aoi_id} , Don't Edit this Boundary"
+        gpx.time = datetime.now()
+        gpx.link = "https://github.com/hotosm/fAIr"
+        gpx.link_text = "AI Assisted Mapping - fAIr : HOTOSM"
+        return HttpResponse(gpx.to_xml(), content_type="text/xml; charset=utf-8")

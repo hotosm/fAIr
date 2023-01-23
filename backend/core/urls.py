@@ -7,6 +7,7 @@ from .views import (
     AOIViewSet,
     APIStatus,
     DatasetViewSet,
+    GenerateGpxView,
     ImageDownloadView,
     LabelViewSet,
     ModelViewSet,
@@ -36,4 +37,5 @@ urlpatterns = [
     path("training/publish/<int:training_id>/", publish_training),
     path("prediction/", PredictionView.as_view()),
     path("status/", APIStatus.as_view()),
+    path("aoi/gpx/<int:aoi_id>/", GenerateGpxView.as_view()),
 ]
