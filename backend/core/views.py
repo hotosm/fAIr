@@ -491,8 +491,8 @@ class TrainingWorkspaceDownloadView(APIView):
         if (
             get_dir_size(base_dir)
             if os.path.isdir(base_dir)
-            else os.path.getsize(base_dir) * 0.000001 > 500
-        ):  # if file is greater than 500 mb exit
+            else os.path.getsize(base_dir) / (1024**2) > 1024
+        ):  # if file is greater than 1024 mb exit
             return Response({"Errr: File Size Exceed More than 500 MB"}, status=403)
 
         if os.path.isfile(base_dir):
