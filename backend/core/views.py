@@ -480,8 +480,8 @@ class TrainingWorkspaceView(APIView):
 
 
 class TrainingWorkspaceDownloadView(APIView):
-    # authentication_classes = [OsmAuthentication]
-    # permission_classes = [IsOsmAuthenticated]
+    authentication_classes = [OsmAuthentication]
+    permission_classes = [IsOsmAuthenticated]
 
     def get(self, request, lookup_dir):
         base_dir = os.path.join(settings.TRAINING_WORKSPACE, lookup_dir)
