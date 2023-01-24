@@ -93,7 +93,7 @@ function DatasetEditor() {
           }}
           dataset={dataset}
         ></TileServerList>
-        <AOI mapLayers={mapLayers.filter(i=> i.type ==="aoi")} selectAOIHandler={selectAOIHandler}></AOI>
+        <AOI oamImagery={oamImagery} mapLayers={mapLayers.filter(i=> i.type ==="aoi")} selectAOIHandler={selectAOIHandler}></AOI>
         <TMProject addtoMap={AddtoMapHandler}></TMProject>
         
       </Grid>

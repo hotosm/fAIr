@@ -136,7 +136,7 @@ const AOI = (props) => {
 
                         // mutateFetch(layer.aoiId);
                         // console.log("Open in Editor")
-                        window.open(`https://mapwith.ai/rapid#background=Bing&datasets=fbRoads,msBuildings&disable_features=boundaries&map=16.00/17.9253/120.4841&gpx=&gpx=https://fair-dev.hotosm.org/api/v1/aoi/gpx/${layer.aoiId}`, '_blank', 'noreferrer');
+                        window.open(`https://mapwith.ai/rapid#background=${props.oamImagery ? "custom:"+props.oamImagery.url : "Bing"}&datasets=fbRoads,msBuildings&disable_features=boundaries&map=16.00/17.9253/120.4841&gpx=&gpx=https://fair-dev.hotosm.org/api/v1/aoi/gpx/${layer.aoiId}`, '_blank', 'noreferrer');
 
                       }}>
                       {/* <MapTwoTone   /> */}
@@ -149,7 +149,7 @@ const AOI = (props) => {
 
                         // mutateFetch(layer.aoiId);
                         // console.log("Open in Editor")
-                        window.open(`https://www.openstreetmap.org/edit/#background=Bing&disable_features=boundaries&gpx=https://fair-dev.hotosm.org/api/v1/aoi/gpx/${layer.aoiId}&map=10.70/18.9226/81.6991`, '_blank', 'noreferrer');
+                        window.open(`https://www.openstreetmap.org/edit/#background=${props.oamImagery ? "custom:"+props.oamImagery.url : "Bing"}&disable_features=boundaries&gpx=https://fair-dev.hotosm.org/api/v1/aoi/gpx/${layer.aoiId}&map=10.70/18.9226/81.6991`, '_blank', 'noreferrer');
 
                       }}>
                       {/* <MapTwoTone   /> */}
