@@ -456,30 +456,19 @@ class TrainingWorkspaceView(APIView):
             base_dir = os.path.join(base_dir, lookup_dir)
             if not os.path.exists(base_dir):
                 return Response({"Errr:File/Dir not Found"}, status=404)
-        data = {}
-        for dirpath, dirnames, filenames in os.walk(base_dir):
-            api_path = str(dirpath).replace(str(base_dir), "")
-            api_path = f"{api_path}/"
-            data[api_path] = {"files": {}, "dir": {}}
-            for filename in filenames:
-                file_path = os.path.join(dirpath, filename)
-                file_size = os.path.getsize(file_path)
-                data[api_path]["files"][filename] = {
-                    "size": file_size,
-                }
-            data[api_path]["dir"]["length"] = len(dirnames)
-            data[api_path]["files"]["length"] = len(filenames)
+        data = {"files": {}, "dir": {}}
 
-            for dirname in dirnames:
-                subdir_path = os.path.join(dirpath, dirname)
+        for entry in os.scandir(base_dir):
+            if entry.is_file():
+                data["files"][entry.name] = {
+                    "size": entry.stat().st_size,
+                }
+            elif entry.is_dir():
                 subdir_size = sum(
-                    [
-                        os.path.getsize(os.path.join(subdir_path, f))
-                        for f in os.listdir(subdir_path)
-                    ]
+                    [f.stat().st_size for f in os.scandir(entry.path) if f.is_file()]
                 )
-                data[api_path]["dir"][dirname] = {
-                    "length": len(os.listdir(subdir_path)),
+                data["dir"][entry.name] = {
+                    "len": sum(1 for _ in os.scandir(entry.path)),
                     "size": subdir_size,
                 }
 
