@@ -291,7 +291,7 @@ const DatasetMap = (props) => {
 
     }
   };
-  const { data: AOIs, refetch } = useQuery("getAOI", getAOI, { refetchInterval: 2000 });
+  const { data: AOIs, refetch } = useQuery("getAOI"+props.dataset.id, getAOI, { refetchInterval: 2000 });
 
   // useEffect(() => {
   //    mutateGetAOI()
