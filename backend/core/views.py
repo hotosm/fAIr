@@ -487,13 +487,15 @@ class TrainingWorkspaceDownloadView(APIView):
         base_dir = os.path.join(settings.TRAINING_WORKSPACE, lookup_dir)
         if not os.path.exists(base_dir):
             return Response({"Errr: File/Dir not found"}, status=404)
-
-        if (
+        size = (
             get_dir_size(base_dir)
             if os.path.isdir(base_dir)
-            else os.path.getsize(base_dir) / (1024**2) > 1024
-        ):  # if file is greater than 1024 mb exit
-            return Response({"Errr: File Size Exceed More than 500 MB"}, status=403)
+            else os.path.getsize(base_dir)
+        ) / (1024**2)
+        if size > 1024:  # if file is greater than 1024 mb exit
+            return Response(
+                {f"Errr: File Size {size} MB Exceed More than 500 MB"}, status=403
+            )
 
         if os.path.isfile(base_dir):
             response = FileResponse(open(base_dir, "rb"))
