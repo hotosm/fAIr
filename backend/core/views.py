@@ -7,12 +7,13 @@ import shutil
 import uuid
 import zipfile
 from datetime import datetime
+from tempfile import NamedTemporaryFile
 
 import tensorflow as tf
 from celery import current_app
 from celery.result import AsyncResult
 from django.conf import settings
-from django.http import HttpResponse
+from django.http import FileResponse, HttpResponse, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
@@ -476,3 +477,35 @@ class TrainingWorkspaceView(APIView):
             }
 
         return Response(data, status=status.HTTP_201_CREATED)
+
+
+class TrainingWorkspaceDownloadView(APIView):
+    # authentication_classes = [OsmAuthentication]
+    # permission_classes = [IsOsmAuthenticated]
+
+    def get(self, request, lookup_dir):
+        base_dir = os.path.join(settings.TRAINING_WORKSPACE, lookup_dir)
+        if not os.path.exists(base_dir):
+            return Response({"Errr: File/Dir not found"}, status=404)
+
+        if (
+            get_dir_size(base_dir)
+            if os.path.isdir(base_dir)
+            else os.path.getsize(base_dir) * 0.000001 > 500
+        ):  # if file is greater than 500 mb exit
+            return Response({"Errr: File Size Exceed More than 500 MB"}, status=403)
+
+        if os.path.isfile(base_dir):
+            response = FileResponse(open(base_dir, "rb"))
+            response["Content-Disposition"] = 'attachment; filename="{}"'.format(
+                os.path.basename(base_dir)
+            )
+            return response
+        else:
+            temp = NamedTemporaryFile()
+            shutil.make_archive(temp.name, "zip", base_dir)
+            response = StreamingHttpResponse(temp, content_type="application/zip")
+            response["Content-Disposition"] = 'attachment; filename="{}.zip"'.format(
+                os.path.basename(base_dir)
+            )
+            return response
