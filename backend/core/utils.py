@@ -13,6 +13,16 @@ from .models import AOI, Label
 from .serializers import LabelSerializer
 
 
+def get_dir_size(directory):
+    total_size = 0
+    for entry in os.scandir(directory):
+        if entry.is_file():
+            total_size += entry.stat().st_size
+        elif entry.is_dir():
+            total_size += get_dir_size(entry.path)
+    return total_size
+
+
 def bbox(coord_list):
     """_summary_
 

@@ -7,12 +7,13 @@ import shutil
 import uuid
 import zipfile
 from datetime import datetime
+from tempfile import NamedTemporaryFile
 
 import tensorflow as tf
 from celery import current_app
 from celery.result import AsyncResult
 from django.conf import settings
-from django.http import HttpResponse
+from django.http import FileResponse, HttpResponse, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
@@ -41,6 +42,7 @@ from .serializers import (
 from .utils import (
     bbox,
     download_imagery,
+    get_dir_size,
     get_start_end_download_coords,
     process_rawdata,
     request_rawdata,
@@ -448,21 +450,64 @@ class GenerateGpxView(APIView):
 
 
 class TrainingWorkspaceView(APIView):
-    def get(self, request, lookup_dir: str = None):
-        """List out status of training workspace"""
+    def get(self, request, lookup_dir=None):
+        """List out status of training workspace : size in bytes"""
         # {workspace_dir:{file_name:{size:20,type:file},dir_name:{size:20,len:4,type:dir}}}
         base_dir = settings.TRAINING_WORKSPACE
-        workspace = os.listdir(base_dir)
+        if lookup_dir:
+            base_dir = os.path.join(base_dir, lookup_dir)
+            if not os.path.exists(base_dir):
+                return Response({"Errr:File/Dir not Found"}, status=404)
+        data = {"file": {}, "dir": {}}
+        if os.path.isdir(base_dir):
+            for entry in os.scandir(base_dir):
+                if entry.is_file():
+                    data["file"][entry.name] = {
+                        "size": entry.stat().st_size,
+                    }
+                elif entry.is_dir():
+                    subdir_size = get_dir_size(entry.path)
+                    data["dir"][entry.name] = {
+                        "len": sum(1 for _ in os.scandir(entry.path)),
+                        "size": subdir_size,
+                    }
+        elif os.path.isfile(base_dir):
+            data["file"][os.path.basename(base_dir)] = {
+                "size": os.path.getsize(base_dir)
+            }
 
-        for item in workspace:
-            item_path = os.path.join(base_dir, item)
-            if os.path.isfile(item_path):
-                is_type = "file"
-                size = os.path.getsize(size)
-            elif os.path.isdir(item_path):
-                is_type = "dir"
-                length = len(item_path)
+        return Response(data, status=status.HTTP_201_CREATED)
 
-        return Response(
-            {"num_files": num_files, "size": size}, status=status.HTTP_201_CREATED
-        )
+
+class TrainingWorkspaceDownloadView(APIView):
+    authentication_classes = [OsmAuthentication]
+    permission_classes = [IsOsmAuthenticated]
+
+    def get(self, request, lookup_dir):
+        base_dir = os.path.join(settings.TRAINING_WORKSPACE, lookup_dir)
+        if not os.path.exists(base_dir):
+            return Response({"Errr: File/Dir not found"}, status=404)
+        size = (
+            get_dir_size(base_dir)
+            if os.path.isdir(base_dir)
+            else os.path.getsize(base_dir)
+        ) / (1024**2)
+        if size > 500:  # if file is greater than 500 mb exit
+            return Response(
+                {f"Errr: File Size {size} MB Exceed More than 1024 MB"}, status=403
+            )
+
+        if os.path.isfile(base_dir):
+            response = FileResponse(open(base_dir, "rb"))
+            response["Content-Disposition"] = 'attachment; filename="{}"'.format(
+                os.path.basename(base_dir)
+            )
+            return response
+        else:
+            temp = NamedTemporaryFile()
+            shutil.make_archive(temp.name, "zip", base_dir)
+            response = StreamingHttpResponse(temp, content_type="application/zip")
+            response["Content-Disposition"] = 'attachment; filename="{}.zip"'.format(
+                os.path.basename(base_dir)
+            )
+            return response
