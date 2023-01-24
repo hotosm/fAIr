@@ -448,21 +448,39 @@ class GenerateGpxView(APIView):
 
 
 class TrainingWorkspaceView(APIView):
-    def get(self, request, lookup_dir: str = None):
+    def get(self, request, lookup_dir=None):
         """List out status of training workspace"""
         # {workspace_dir:{file_name:{size:20,type:file},dir_name:{size:20,len:4,type:dir}}}
         base_dir = settings.TRAINING_WORKSPACE
-        workspace = os.listdir(base_dir)
+        if lookup_dir:
+            base_dir = os.path.join(base_dir, lookup_dir)
+            if not os.path.exists(base_dir):
+                return Response({"Errr:File/Dir not Found"}, status=404)
+        data = {}
+        for dirpath, dirnames, filenames in os.walk(base_dir):
+            api_path = str(dirpath).replace(str(base_dir), "")
+            api_path = f"{api_path}/"
+            data[api_path] = {"files": {}, "dir": {}}
+            for filename in filenames:
+                file_path = os.path.join(dirpath, filename)
+                file_size = os.path.getsize(file_path)
+                data[api_path]["files"][filename] = {
+                    "size": file_size,
+                }
+            data[api_path]["dir"]["length"] = len(dirnames)
+            data[api_path]["files"]["length"] = len(filenames)
 
-        for item in workspace:
-            item_path = os.path.join(base_dir, item)
-            if os.path.isfile(item_path):
-                is_type = "file"
-                size = os.path.getsize(size)
-            elif os.path.isdir(item_path):
-                is_type = "dir"
-                length = len(item_path)
+            for dirname in dirnames:
+                subdir_path = os.path.join(dirpath, dirname)
+                subdir_size = sum(
+                    [
+                        os.path.getsize(os.path.join(subdir_path, f))
+                        for f in os.listdir(subdir_path)
+                    ]
+                )
+                data[api_path]["dir"][dirname] = {
+                    "length": len(os.listdir(subdir_path)),
+                    "size": subdir_size,
+                }
 
-        return Response(
-            {"num_files": num_files, "size": size}, status=status.HTTP_201_CREATED
-        )
+        return Response(data, status=status.HTTP_201_CREATED)
