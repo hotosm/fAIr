@@ -41,6 +41,7 @@ from .serializers import (
 from .utils import (
     bbox,
     download_imagery,
+    get_dir_size,
     get_start_end_download_coords,
     process_rawdata,
     request_rawdata,
@@ -449,7 +450,7 @@ class GenerateGpxView(APIView):
 
 class TrainingWorkspaceView(APIView):
     def get(self, request, lookup_dir=None):
-        """List out status of training workspace"""
+        """List out status of training workspace : size in bytes"""
         # {workspace_dir:{file_name:{size:20,type:file},dir_name:{size:20,len:4,type:dir}}}
         base_dir = settings.TRAINING_WORKSPACE
         if lookup_dir:
@@ -464,9 +465,7 @@ class TrainingWorkspaceView(APIView):
                     "size": entry.stat().st_size,
                 }
             elif entry.is_dir():
-                subdir_size = sum(
-                    [f.stat().st_size for f in os.scandir(entry.path) if f.is_file()]
-                )
+                subdir_size = get_dir_size(entry.path)
                 data["dir"][entry.name] = {
                     "len": sum(1 for _ in os.scandir(entry.path)),
                     "size": subdir_size,
