@@ -457,18 +457,22 @@ class TrainingWorkspaceView(APIView):
             base_dir = os.path.join(base_dir, lookup_dir)
             if not os.path.exists(base_dir):
                 return Response({"Errr:File/Dir not Found"}, status=404)
-        data = {"files": {}, "dir": {}}
-
-        for entry in os.scandir(base_dir):
-            if entry.is_file():
-                data["files"][entry.name] = {
-                    "size": entry.stat().st_size,
-                }
-            elif entry.is_dir():
-                subdir_size = get_dir_size(entry.path)
-                data["dir"][entry.name] = {
-                    "len": sum(1 for _ in os.scandir(entry.path)),
-                    "size": subdir_size,
-                }
+        data = {"file": {}, "dir": {}}
+        if os.path.isdir(base_dir):
+            for entry in os.scandir(base_dir):
+                if entry.is_file():
+                    data["file"][entry.name] = {
+                        "size": entry.stat().st_size,
+                    }
+                elif entry.is_dir():
+                    subdir_size = get_dir_size(entry.path)
+                    data["dir"][entry.name] = {
+                        "len": sum(1 for _ in os.scandir(entry.path)),
+                        "size": subdir_size,
+                    }
+        elif os.path.isfile(base_dir):
+            data["file"][os.path.basename(base_dir)] = {
+                "size": os.path.getsize(base_dir)
+            }
 
         return Response(data, status=status.HTTP_201_CREATED)
