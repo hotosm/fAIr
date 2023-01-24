@@ -9,8 +9,10 @@ import {
   ListItemSecondaryAction,
   ListItemText,
   Pagination,
+  SvgIcon,
   Typography,
 } from "@mui/material";
+
 import { styled } from "@mui/material/styles";
 import DeleteIcon from "@mui/icons-material/Delete";
 import MapIcon from "@mui/icons-material/Map";
@@ -128,7 +130,33 @@ const AOI = (props) => {
                     {/* <IconButton aria-label="comments">
                    <DeleteIcon />
                 </IconButton> */}
-                    <IconButton aria-label="comments"
+                <IconButton aria-label="comments" sx={{ width: 24, height: 24 }}
+                      className="margin1 transparent"
+                      onClick={(e) => {
+
+                        // mutateFetch(layer.aoiId);
+                        // console.log("Open in Editor")
+                        window.open(`https://mapwith.ai/rapid#background=Bing&datasets=fbRoads,msBuildings&disable_features=boundaries&map=16.00/17.9253/120.4841&gpx=&gpx=https://fair-dev.hotosm.org/api/v1/aoi/gpx/${layer.aoiId}`, '_blank', 'noreferrer');
+
+                      }}>
+                      {/* <MapTwoTone   /> */}
+                      <img alt="RapiD logo" className="rapid-logo-small" src="https://mapwith.ai/splash/prod/e70aaae-dist/svg/RapidLogo.svg"  />
+
+                    </IconButton>
+                   <IconButton aria-label="comments" sx={{ width: 24, height: 24 }}
+                      className="margin1 transparent"
+                      onClick={(e) => {
+
+                        // mutateFetch(layer.aoiId);
+                        // console.log("Open in Editor")
+                        window.open(`https://www.openstreetmap.org/edit/#background=Bing&disable_features=boundaries&gpx=https://fair-dev.hotosm.org/api/v1/aoi/gpx/${layer.aoiId}&map=10.70/18.9226/81.6991`, '_blank', 'noreferrer');
+
+                      }}>
+                      {/* <MapTwoTone   /> */}
+                      <img alt="OSM logo" className="osm-logo-small" src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Openstreetmap_logo.svg/256px-Openstreetmap_logo.svg.png"  />
+
+                    </IconButton>
+                    <IconButton aria-label="comments" sx={{ width: 24, height: 24 }}
                       className="margin1"
                       onClick={(e) => {
 
@@ -136,7 +164,7 @@ const AOI = (props) => {
                         console.log("call galaxy API to fetch OSM labels")
 
                       }}>
-                      <MapTwoTone />
+                      <MapTwoTone fontSize="small"/>
                     </IconButton>
                     {/* <IconButton aria-label="comments"
                 className="margin1"
@@ -147,7 +175,7 @@ const AOI = (props) => {
                 }}>
                    <PlaylistRemoveIcon />
                 </IconButton> */}
-                    <IconButton
+                    <IconButton sx={{ width: 24, height: 24 }}
                       className="margin1"
                       edge={"end"}
                       aria-label="delete"
@@ -172,7 +200,7 @@ const AOI = (props) => {
                         props.selectAOIHandler([lat, lng], 17);
                       }}
                     >
-                      <ZoomInMap />
+                      <ZoomInMap fontSize="small"/>
                     </IconButton>
                   </ListItemSecondaryAction>
                 </ListItemWithWiderSecondaryAction>

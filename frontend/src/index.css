@@ -110,3 +110,19 @@ code {
   color: white;
 }
 
+.osm-logo-small
+{
+  height: 20px;
+  width: 20px;
+}
+
+.rapid-logo-small
+{
+  height: 20px;
+  width: 30px;
+}
+
+.transparent
+{
+  background-color: transparent !important;
+}
