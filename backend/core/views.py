@@ -13,7 +13,7 @@ import tensorflow as tf
 from celery import current_app
 from celery.result import AsyncResult
 from django.conf import settings
-from django.http import FileResponse, HttpResponse
+from django.http import FileResponse, HttpResponse, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
@@ -504,11 +504,12 @@ class TrainingWorkspaceDownloadView(APIView):
             )
             return response
         else:
+            # TODO : This will take time to zip also based on the reading/writing speed of the dir
             temp = NamedTemporaryFile()
             shutil.make_archive(temp.name, "zip", base_dir)
             # rewind the file so it can be read from the beginning
             temp.seek(0)
-            response = HttpResponse(
+            response = StreamingHttpResponse(
                 open(temp.name + ".zip", "rb").read(), content_type="application/zip"
             )
             response["Content-Disposition"] = 'attachment; filename="{}.zip"'.format(
