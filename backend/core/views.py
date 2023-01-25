@@ -13,7 +13,7 @@ import tensorflow as tf
 from celery import current_app
 from celery.result import AsyncResult
 from django.conf import settings
-from django.http import FileResponse, HttpResponse, StreamingHttpResponse
+from django.http import FileResponse, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
@@ -480,8 +480,8 @@ class TrainingWorkspaceView(APIView):
 
 
 class TrainingWorkspaceDownloadView(APIView):
-    authentication_classes = [OsmAuthentication]
-    permission_classes = [IsOsmAuthenticated]
+    # authentication_classes = [OsmAuthentication]
+    # permission_classes = [IsOsmAuthenticated]
 
     def get(self, request, lookup_dir):
         base_dir = os.path.join(settings.TRAINING_WORKSPACE, lookup_dir)
@@ -506,7 +506,11 @@ class TrainingWorkspaceDownloadView(APIView):
         else:
             temp = NamedTemporaryFile()
             shutil.make_archive(temp.name, "zip", base_dir)
-            response = StreamingHttpResponse(temp, content_type="application/zip")
+            # rewind the file so it can be read from the beginning
+            temp.seek(0)
+            response = HttpResponse(
+                open(temp.name + ".zip", "rb").read(), content_type="application/zip"
+            )
             response["Content-Disposition"] = 'attachment; filename="{}.zip"'.format(
                 os.path.basename(base_dir)
             )
