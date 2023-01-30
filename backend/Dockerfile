@@ -24,7 +24,6 @@ RUN pip install /tmp/solaris --use-feature=in-tree-build
 RUN pip install scikit-fmm --use-feature=in-tree-build
 
 RUN pip install setuptools --upgrade 
-RUN pip install hot-fair-utilities
 
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
