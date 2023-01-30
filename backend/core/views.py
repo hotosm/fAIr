@@ -480,8 +480,8 @@ class TrainingWorkspaceView(APIView):
 
 
 class TrainingWorkspaceDownloadView(APIView):
-    authentication_classes = [OsmAuthentication]
-    permission_classes = [IsOsmAuthenticated]
+    # authentication_classes = [OsmAuthentication]
+    # permission_classes = [IsOsmAuthenticated]
 
     def get(self, request, lookup_dir):
         base_dir = os.path.join(settings.TRAINING_WORKSPACE, lookup_dir)
@@ -492,9 +492,9 @@ class TrainingWorkspaceDownloadView(APIView):
             if os.path.isdir(base_dir)
             else os.path.getsize(base_dir)
         ) / (1024**2)
-        if size > 500:  # if file is greater than 500 mb exit
+        if size > 200:  # if file is greater than 200 mb exit
             return Response(
-                {f"Errr: File Size {size} MB Exceed More than 1024 MB"}, status=403
+                {f"Errr: File Size {size} MB Exceed More than 200 MB"}, status=403
             )
 
         if os.path.isfile(base_dir):
@@ -504,9 +504,14 @@ class TrainingWorkspaceDownloadView(APIView):
             )
             return response
         else:
+            # TODO : This will take time to zip also based on the reading/writing speed of the dir
             temp = NamedTemporaryFile()
             shutil.make_archive(temp.name, "zip", base_dir)
-            response = StreamingHttpResponse(temp, content_type="application/zip")
+            # rewind the file so it can be read from the beginning
+            temp.seek(0)
+            response = StreamingHttpResponse(
+                open(temp.name + ".zip", "rb").read(), content_type="application/zip"
+            )
             response["Content-Disposition"] = 'attachment; filename="{}.zip"'.format(
                 os.path.basename(base_dir)
             )
