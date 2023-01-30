@@ -35,6 +35,7 @@ services:
       - 8000:8000
     volumes:
       - .:/app
+      # - C:/Users/ommrn/Documents/HOT/fAIr-utilities:/RAMP_HOME
     depends_on:
       - redis
       - postgres
@@ -51,6 +52,7 @@ services:
               capabilities: [gpu]
     volumes:
       - .:/app
+      # - C:/Users/ommrn/Documents/HOT/fAIr-utilities:/RAMP_HOME
     depends_on:
       - app
       - redis
@@ -60,7 +62,7 @@ services:
   worker-dashboard:
     build: .
     container_name: flower
-    command:  celery -A aiproject --broker=redis://redis:6379//  flower --address=0.0.0.0 --port=5000
+    command:  celery --broker=redis://redis:6379//  flower --address=0.0.0.0 --port=5000
     ports:
       - 5500:5000
     depends_on:
