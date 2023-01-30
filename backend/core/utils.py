@@ -9,8 +9,18 @@ from zipfile import ZipFile
 import requests
 from django.conf import settings
 
-from .models import Label
+from .models import AOI, Label
 from .serializers import LabelSerializer
+
+
+def get_dir_size(directory):
+    total_size = 0
+    for entry in os.scandir(directory):
+        if entry.is_file():
+            total_size += entry.stat().st_size
+        elif entry.is_dir():
+            total_size += get_dir_size(entry.path)
+    return total_size
 
 
 def bbox(coord_list):
@@ -121,7 +131,7 @@ def download_imagery(start: list, end: list, zm_level, base_path, source="maxar"
     stop_x = end[0]  # this will be the end of the download loop for x
     stop_y = end[1]  # this will be the end of the download loop for x
 
-    print(f"Download starting from {start} to {end}")
+    print(f"Download starting from {start} to {end} using source {source}")
 
     start_x = begin_x  # starting loop from beginning
     start_y = begin_y  # starting y loop from beginnig
@@ -252,6 +262,7 @@ def process_geojson(geojson_file_path, aoi_id):
         ValidationErr: _description_
     """
     print("Geojson Processing Started")
+    dataset_id = AOI.objects.get(id=aoi_id).dataset
 
     with open(geojson_file_path) as f:
         data = json.load(f)
@@ -259,16 +270,27 @@ def process_geojson(geojson_file_path, aoi_id):
             properties = data["features"][i]["properties"]
             osm_id = properties["osm_id"]
             geometry = data["features"][i]["geometry"]
-            print(osm_id)
-            if Label.objects.filter(osm_id=int(osm_id)).exists():
-                print("already exists")
-                pass
+
+            if Label.objects.filter(
+                osm_id=int(osm_id), aoi__dataset=dataset_id
+            ).exists():
+
+                Label.objects.filter(
+                    osm_id=int(osm_id), aoi__dataset=dataset_id
+                ).delete()
+                print(f"Existing record Found and Dropped {osm_id}")
+            # else:
+            label = LabelSerializer(
+                data={"osm_id": int(osm_id), "geom": geometry, "aoi": aoi_id}
+            )
+            if label.is_valid():
+                label.save()  # update if it exists create if not
+                # for data in label.validated_data:
+                #     # checking if data exists else creating an object in User1 model
+                #     # user = data['user'] --> filter to check if that user exist
+                #     Label.objects.update_or_create(defaults=data)
+
             else:
-                label = LabelSerializer(
-                    data={"osm_id": int(osm_id), "geom": geometry, "aoi": aoi_id}
-                )
-                if label.is_valid():
-                    label.save()
-                else:
-                    raise ValidationErr(label.errors)
+                raise ValidationErr(label.errors)
+            print(f"Created {osm_id}")
     print("writing to database finished")

@@ -1,6 +1,7 @@
 import logging
 import os
 import shutil
+from shutil import rmtree
 
 import hot_fair_utilities
 import ramp.utils
@@ -22,6 +23,10 @@ def train_model(dataset_id, training_id, epochs, batch_size):
     try:
         # prepare data
         base_path = os.path.join(settings.RAMP_HOME, "ramp-data", str(dataset_id))
+        # Check if the path exists
+        if os.path.exists(base_path):
+            # Delete the directory and its contents
+            rmtree(base_path)
         destination_image_input = os.path.join(base_path, "input")
         training_input_base_path = os.path.join(
             settings.TRAINING_WORKSPACE, f"dataset_{dataset_id}"

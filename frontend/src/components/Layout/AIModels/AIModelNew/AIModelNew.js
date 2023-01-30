@@ -6,29 +6,36 @@ import { useMutation } from 'react-query';
 import axios from "../../../../axios"
 import { useNavigate } from 'react-router-dom';
 import AuthContext from '../../../../Context/AuthContext';
-const DatasetNew = props => {
+const AIModelNew = props => {
 
   const [error, setError] = useState(null)
-  const [DSName, setDSName] = useState("")
+  const [modelName, setmodelName] = useState("")
+
+  const [errorDatasetID, setErrorDatasetID] = useState(null)
+  const [datasetID, setDatasetID] = useState(props.datasetID ? props.datasetID : 0)
+  
   const navigate = useNavigate();
   const { accessToken } = useContext(AuthContext)
   const saveDataset = async () => {
     try {
 
       const body = {
-        "name": DSName,
-        "status": 0
+        "name": modelName,
+        "dataset": datasetID
       }
       const headers = {
         "access-token": accessToken
       }
-      const res = await axios.post("/dataset/", body, { headers });
+      const res = await axios.post("/model/", body, { headers });
 
       if (res.error)
-        setError(res.error.response.statusText);
+        {
+          setError(res.error.response.statusText + " / " + JSON.stringify(res.error.response.data));
+          return
+        }
 
-      console.log("/training-datasets/", res)
-      navigate(`/training-datasets/${res.data.id}`)
+      console.log("/ai-models/", res)
+      navigate(`/ai-models/${res.data.id}`)
 
       return res.data;
     } catch (e) {
@@ -46,14 +53,14 @@ const DatasetNew = props => {
       <Grid container padding={2} spacing={2}>
         <Grid item xs={12}>
           <Typography variant="h6" component="div">
-            Create New Training Dataset
+            Create New Local AI Model
           </Typography>
         </Grid>
 
         <Grid item xs={12}>
           <Typography variant="body1" component="div">
-            Enter a name that represents the training datasets.
-            It is recommedned to use a local name of the area where the training dataset exists
+            Enter a name that represents the AI model.
+            It is recommedned to use a local name of the area where the AI model is trained as using the model in similar location might be performing better
           </Typography>
         </Grid>
 
@@ -64,13 +71,13 @@ const DatasetNew = props => {
             helperText="Maximum 256 characters"
 
             type="text"
-            value={DSName}
+            value={modelName}
             fullWidth
             onChange={(e) => {
-              setDSName(e.target.value)
+              setmodelName(e.target.value)
 
             }}
-            error={DSName.trim() === ""}
+            error={modelName.trim() === ""}
           />
         </Grid>
        
@@ -80,19 +87,53 @@ const DatasetNew = props => {
             <Button
               variant="contained"
               color="primary"
-              startIcon={<SaveIcon />}
               size="small"
+              startIcon={<SaveIcon />}
               onClick={() => {
                 console.log("save")
                 mutate()
               }}
-              disabled={DSName.trim() === "" || isLoading}
+              disabled={datasetID === 0 || modelName.trim() === "" || isLoading}
 
             >
-              Create Training Dataset
+              Create AI Model
             </Button>
           </Grid>
         
+        </Grid>
+        <Grid item xs={9} md={9} padding={1}>
+          <TextField
+            id="ds-datasetId"
+            label="Dataset ID"
+            helperText="Enter the dataset ID"
+
+            type="number"
+            value={datasetID}
+            fullWidth
+            onChange={(e) => {
+              setDatasetID(+e.target.value)
+
+            }}
+            
+            error={datasetID === null || datasetID === 0}
+          />
+        </Grid>
+        <Grid item xs={3} md={3}>
+        
+        </Grid>
+        <Grid item xs={9} md={9} padding={1}>
+          <TextField
+            id="ds-baseModel"
+            label="Base Model"
+            helperText="Select the base model, only RAMP is supported so far"
+
+            type="text"
+            value={"RAMP"}
+            fullWidth
+            disabled
+            
+            // error={parseInt(datasetID) || datasetID === null || datasetID.trim() === 0}
+          />
         </Grid>
   {error &&
           <Grid item xs={12}>
@@ -106,4 +147,4 @@ const DatasetNew = props => {
   </>
 }
 
-export default DatasetNew;
+export default AIModelNew;
