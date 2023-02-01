@@ -219,13 +219,13 @@ class ImageDownloadView(APIView):
                     )
                     obj.imagery_status = 0
                     obj.save()
-                    tile_size = DEFAULT_TILE_SIZE  # by default
-                    zm_level = DEFAULT_ZOOM_LEVEL
-                    bbox_coords = bbox(obj.geom.coords[0])
-                    start, end = get_start_end_download_coords(
-                        bbox_coords, zm_level, tile_size
-                    )
                     try:
+                        tile_size = DEFAULT_TILE_SIZE  # by default
+                        zm_level = DEFAULT_ZOOM_LEVEL
+                        bbox_coords = bbox(obj.geom.coords[0])
+                        start, end = get_start_end_download_coords(
+                            bbox_coords, zm_level, tile_size
+                        )
                         # start downloading
                         download_imagery(
                             start,
@@ -248,6 +248,10 @@ class ImageDownloadView(APIView):
                 print(
                     f"""There is running process already for
                     : {obj.id} - dataset : {dataset_id} , Skippinggg"""
+                )
+                return Response(
+                    f"Already running process for aoi {obj.id} - dataset : {dataset_id}",
+                    status=422,
                 )
         aoi = AOI.objects.filter(dataset=dataset_id).values()
 
