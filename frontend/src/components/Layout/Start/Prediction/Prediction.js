@@ -122,8 +122,9 @@ const Prediction = (props) => {
       console.log("prediction res", res);
       if (res.error) {
         setError(
-          res.error.response.statusText + ", ",
-          JSON.stringify(res.error.response)
+          res.error.response.statusText +
+            ", " +
+            JSON.stringify(res.error.response)
         );
         return;
       }
@@ -227,7 +228,7 @@ const Prediction = (props) => {
           <LoadingButton
             variant="contained"
             color="primary"
-            disabled={zoom < 19 || !zoom}
+            disabled={zoom < 19 || !zoom || zoom > 21}
             loading={predictionLoading}
             onClick={() => {
               setError(false);
@@ -242,7 +243,7 @@ const Prediction = (props) => {
             <div>
               <span>Zoom {JSON.stringify(zoom)}</span>
               <br />
-              <span>Zoom to level +=19 to detect features</span>
+              <span>Zoom to level 19, 20, 21 to detect features</span>
               <br />
               <span>Model Id {id}</span>
             </div>
