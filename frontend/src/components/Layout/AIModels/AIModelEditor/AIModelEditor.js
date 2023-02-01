@@ -87,7 +87,7 @@ const AIModelEditor = (props) => {
             <Typography variant="h6" component="div">
               Status: {modelStatus(data.status)}
               {data.published_training &&
-                ", Published trainings:" + data.published_training}
+                ", training: " + data.published_training}
             </Typography>
             <Typography variant="h6" component="div">
               <Link
