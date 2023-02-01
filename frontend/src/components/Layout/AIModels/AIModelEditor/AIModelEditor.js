@@ -87,7 +87,19 @@ const AIModelEditor = (props) => {
             <Typography variant="h6" component="div">
               Status: {modelStatus(data.status)}
               {data.published_training &&
-                ", training: " + data.published_training}
+                ", training: " + data.published_training + ", "}
+              {data.status === 0 && (
+                <Link
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate("/start-mapping/" + data.id);
+                  }}
+                  color="inherit"
+                >
+                  Start mapping
+                </Link>
+              )}
             </Typography>
             <Typography variant="h6" component="div">
               <Link
