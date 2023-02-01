@@ -410,6 +410,7 @@ def publish_training(request, training_id: int):
         )
     model_instance = get_object_or_404(Model, id=training_instance.model.id)
     model_instance.published_training = training_instance.id
+    model_instance.status = 0
     model_instance.save()
     return Response("Training Published", status=status.HTTP_201_CREATED)
 
