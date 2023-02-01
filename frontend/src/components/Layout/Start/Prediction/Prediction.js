@@ -121,7 +121,10 @@ const Prediction = (props) => {
 
       console.log("prediction res", res);
       if (res.error) {
-        setError(res.error.response.statusText + ", ", res.error.response.data);
+        setError(
+          res.error.response.statusText + ", ",
+          JSON.stringify(res.error.response)
+        );
         return;
       }
 
