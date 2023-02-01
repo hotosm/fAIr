@@ -110,9 +110,17 @@ def get_start_end_download_coords(bbox_coords, zm_level, tile_size):
     return start, end
 
 
-def download_image(url):
+def download_image(url, base_path, source_name):
     response = requests.get(url)
-    return response.content
+    image = response.content
+
+    url_splitted_list = url.split("/")
+    filename = f"{base_path}/{source_name}-{url_splitted_list[-2]}-{url_splitted_list[-1]}-{url_splitted_list[-3]}.png"
+
+    with open(filename, "wb") as f:
+        f.write(image)
+
+    print(f"Downloaded: {url}")
 
 
 def download_imagery(start: list, end: list, zm_level, base_path, source="maxar"):
@@ -163,19 +171,22 @@ def download_imagery(start: list, end: list, zm_level, base_path, source="maxar"
     max_workers = os.cpu_count()
     # Use the ThreadPoolExecutor to download the images in parallel
     with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
-        # Use `map` to apply the `download_image` function to each element in the `urls` list
-        results = executor.map(download_image, download_urls)
+        for url in download_urls:
+            executor.submit(download_image, url, base_path, source_name)
+    # with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+    #     # Use `map` to apply the `download_image` function to each element in the `urls` list
+    #     results = executor.map(download_image, download_urls)
 
-        # Iterate over the results and save the images to disk
-        for url, image in zip(download_urls, results):
-            # considering url pattern is /z/x/y/ if not change this logic TODO for maxar
-            url_splitted_list = url.split("/")
-            with open(
-                f"{base_path}/{source_name}-{url_splitted_list[-2]}-{url_splitted_list[-1]}-{url_splitted_list[-3]}.png",
-                "wb",
-            ) as f:
-                f.write(image)
-            print(f"Downloaded : {url}")
+    #     # # Iterate over the results and save the images to disk
+    #     # for url, image in zip(download_urls, results):
+    #     #     # considering url pattern is /z/x/y/ if not change this logic TODO for maxar
+    #     #     url_splitted_list = url.split("/")
+    #     #     with open(
+    #     #         f"{base_path}/{source_name}-{url_splitted_list[-2]}-{url_splitted_list[-1]}-{url_splitted_list[-3]}.png",
+    #     #         "wb",
+    #     #     ) as f:
+    #     #         f.write(image)
+    #     #     print(f"Downloaded : {url}")
 
     # TODO: Save geojson labels to the same folder
 
