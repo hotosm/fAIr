@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import { Grid, IconButton, Tooltip, Typography } from "@mui/material";
-import { useQuery } from "react-query";
+import { useMutation, useQuery } from "react-query";
 import axios from "../../../../axios";
 import Alert from "@material-ui/lab/Alert";
 import PublishIcon from "@material-ui/icons/Publish";
@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import OSMUser from "../../../Shared/OSMUser";
 import { timeSpan } from "../../../../utils";
 import TrainingSize from "./TrainingSize";
+import AuthContext from "../../../../Context/AuthContext";
 
 const DEFAULT_FILTER = {
   items: [{ columnField: "created_date", id: 8537, operatorValue: "contains" }],
@@ -134,16 +135,19 @@ const AIModelsList = (props) => {
       renderCell: (params) => {
         return (
           <>
-            <Tooltip title="Publish Traning" aria-label="Publish">
-              <IconButton
-                aria-label="comments"
-                onClick={(e) => {
-                  console.log("publish action");
-                }}
-              >
-                <PublishIcon />
-              </IconButton>
-            </Tooltip>
+            {params.row.status === "FINISHED" && (
+              <Tooltip title="Publish Traning" aria-label="Publish">
+                <IconButton
+                  aria-label="comments"
+                  onClick={(e) => {
+                    console.log("publish action");
+                    mutate(params.row.id);
+                  }}
+                >
+                  <PublishIcon />
+                </IconButton>
+              </Tooltip>
+            )}
           </>
         );
         //  <p>{`${params.row.status} and id ${params.row.id}`}</p>;
@@ -156,6 +160,33 @@ const AIModelsList = (props) => {
     return () => {};
   }, [props.random]);
 
+  const { accessToken } = useContext(AuthContext);
+  const publishModel = async (trainingId) => {
+    try {
+      const headers = {
+        "access-token": accessToken,
+      };
+      const res = await axios.post(`training/publish/${trainingId}/`, null, {
+        headers,
+      });
+
+      if (res.error) {
+        setError(
+          res.error.response.statusText +
+            " / " +
+            JSON.stringify(res.error.response.data)
+        );
+        return;
+      }
+      console.log("Model published", res.data);
+      return res.data;
+    } catch (e) {
+      console.log("isError");
+      setError(JSON.stringify(e));
+    } finally {
+    }
+  };
+  const { mutate } = useMutation(publishModel);
   return (
     <>
       <Grid container padding={2} spacing={2}>
