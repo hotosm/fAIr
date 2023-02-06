@@ -253,6 +253,27 @@ def remove_file(path: str) -> None:
     os.unlink(path)
 
 
+def process_feature(feature, aoi_id, dataset_id):
+    """Multi thread process of features"""
+    properties = feature["properties"]
+    osm_id = properties["osm_id"]
+    geometry = feature["geometry"]
+
+    if Label.objects.filter(osm_id=int(osm_id), aoi__dataset=dataset_id).exists():
+
+        Label.objects.filter(osm_id=int(osm_id), aoi__dataset=dataset_id).delete()
+        print(f"Existing record Found and Dropped {osm_id}")
+
+    label = LabelSerializer(
+        data={"osm_id": int(osm_id), "geom": geometry, "aoi": aoi_id}
+    )
+    if label.is_valid():
+        label.save()  # update if it exists create if not
+    else:
+        raise ValidationErr(label.errors)
+    print(f"Created {osm_id}")
+
+
 def process_geojson(geojson_file_path, aoi_id):
     """Responsible for Processing Geojson file from directory ,
         Opens the file reads the record , Checks either record
@@ -267,34 +288,17 @@ def process_geojson(geojson_file_path, aoi_id):
     """
     print("Geojson Processing Started")
     dataset_id = AOI.objects.get(id=aoi_id).dataset
+    max_workers = (
+        (os.cpu_count() - 1) if os.cpu_count() != 1 else 1
+    )  # leave one cpu free always
 
     with open(geojson_file_path) as f:
         data = json.load(f)
-        for i in range(len(data["features"])):
-            properties = data["features"][i]["properties"]
-            osm_id = properties["osm_id"]
-            geometry = data["features"][i]["geometry"]
-
-            if Label.objects.filter(
-                osm_id=int(osm_id), aoi__dataset=dataset_id
-            ).exists():
-
-                Label.objects.filter(
-                    osm_id=int(osm_id), aoi__dataset=dataset_id
-                ).delete()
-                print(f"Existing record Found and Dropped {osm_id}")
-            # else:
-            label = LabelSerializer(
-                data={"osm_id": int(osm_id), "geom": geometry, "aoi": aoi_id}
-            )
-            if label.is_valid():
-                label.save()  # update if it exists create if not
-                # for data in label.validated_data:
-                #     # checking if data exists else creating an object in User1 model
-                #     # user = data['user'] --> filter to check if that user exist
-                #     Label.objects.update_or_create(defaults=data)
-
-            else:
-                raise ValidationErr(label.errors)
-            print(f"Created {osm_id}")
+        with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = [
+                executor.submit(process_feature, feature, aoi_id, dataset_id)
+                for feature in data["features"]
+            ]
+            for future in futures:
+                future.result()
     print("writing to database finished")
