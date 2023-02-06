@@ -8,6 +8,7 @@ from zipfile import ZipFile
 
 import requests
 from django.conf import settings
+from tqdm import tqdm
 
 from .models import AOI, Label
 from .serializers import LabelSerializer
@@ -262,7 +263,7 @@ def process_feature(feature, aoi_id, dataset_id):
     if Label.objects.filter(osm_id=int(osm_id), aoi__dataset=dataset_id).exists():
 
         Label.objects.filter(osm_id=int(osm_id), aoi__dataset=dataset_id).delete()
-        print(f"Existing record Found and Dropped {osm_id}")
+        # print(f"Existing record Found and Dropped {osm_id}")
 
     label = LabelSerializer(
         data={"osm_id": int(osm_id), "geom": geometry, "aoi": aoi_id}
@@ -271,7 +272,7 @@ def process_feature(feature, aoi_id, dataset_id):
         label.save()  # update if it exists create if not
     else:
         raise ValidationErr(label.errors)
-    print(f"Created {osm_id}")
+    # print(f"Created {osm_id}")
 
 
 def process_geojson(geojson_file_path, aoi_id):
@@ -301,6 +302,7 @@ def process_geojson(geojson_file_path, aoi_id):
                 executor.submit(process_feature, feature, aoi_id, dataset_id)
                 for feature in data["features"]
             ]
-            for future in futures:
-                future.result()
+            for f in tqdm(futures, total=len(data["features"])):
+                f.result()
+
     print("writing to database finished")

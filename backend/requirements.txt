@@ -18,3 +18,4 @@ flower==1.2.0
 validators==0.20.0
 gpxpy==1.5.0
 hot-fair-utilities==1.0.49
+tqdm==4.64.1
