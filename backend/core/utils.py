@@ -288,9 +288,11 @@ def process_geojson(geojson_file_path, aoi_id):
     """
     print("Geojson Processing Started")
     dataset_id = AOI.objects.get(id=aoi_id).dataset
-    max_workers = (
-        (os.cpu_count() - 1) if os.cpu_count() != 1 else 1
-    )  # leave one cpu free always
+    # max_workers = (
+    #     (os.cpu_count() - 1) if os.cpu_count() != 1 else 1
+    # )  # leave one cpu free always
+
+    max_workers = os.cpu_count()  # get total cpu count available on the system
 
     with open(geojson_file_path) as f:
         data = json.load(f)
