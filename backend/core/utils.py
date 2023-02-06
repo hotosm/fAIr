@@ -169,16 +169,10 @@ def download_imagery(start: list, end: list, zm_level, base_path, source="maxar"
             start_y = start_y - 1  # decrease the y
 
         start_x = start_x + 1  # increase the x
-    # for url in download_urls:
-    #     try:
-    #         download_image(url, base_path, source_name)
-    #     except Exception as ex:
-    #         print(ex)
-    #         raise ex
-
-    max_workers = (
-        (os.cpu_count() - 1) if os.cpu_count() != 1 else 1
-    )  # leave one cpu free always
+    # max_workers = (
+    #     (os.cpu_count() - 1) if os.cpu_count() != 1 else 1
+    # )  # leave one cpu free always
+    max_workers = os.cpu_count()
     # Use the ThreadPoolExecutor to download the images in parallel
     with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
         for url in download_urls:
