@@ -168,34 +168,20 @@ def download_imagery(start: list, end: list, zm_level, base_path, source="maxar"
             start_y = start_y - 1  # decrease the y
 
         start_x = start_x + 1  # increase the x
-    for url in download_urls:
-        try:
-            download_image(url, base_path, source_name)
-        except Exception as ex:
-            print(ex)
-            raise ex
+    # for url in download_urls:
+    #     try:
+    #         download_image(url, base_path, source_name)
+    #     except Exception as ex:
+    #         print(ex)
+    #         raise ex
 
-    # max_workers = (os.cpu_count() - 1) if os.cpu_count() != 1 else 1
+    max_workers = (
+        (os.cpu_count() - 1) if os.cpu_count() != 1 else 1
+    )  # leave one cpu free always
     # Use the ThreadPoolExecutor to download the images in parallel
-    # with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
-    #     for url in download_urls:
-    #         executor.submit(download_image, url, base_path, source_name)
-    # with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
-    #     # Use `map` to apply the `download_image` function to each element in the `urls` list
-    #     results = executor.map(download_image, download_urls)
-
-    #     # # Iterate over the results and save the images to disk
-    #     # for url, image in zip(download_urls, results):
-    #     #     # considering url pattern is /z/x/y/ if not change this logic TODO for maxar
-    #     #     url_splitted_list = url.split("/")
-    #     #     with open(
-    #     #         f"{base_path}/{source_name}-{url_splitted_list[-2]}-{url_splitted_list[-1]}-{url_splitted_list[-3]}.png",
-    #     #         "wb",
-    #     #     ) as f:
-    #     #         f.write(image)
-    #     #     print(f"Downloaded : {url}")
-
-    # TODO: Save geojson labels to the same folder
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+        for url in download_urls:
+            executor.submit(download_image, url, base_path, source_name)
 
 
 def request_rawdata(request_params):
