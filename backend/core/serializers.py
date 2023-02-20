@@ -152,7 +152,7 @@ class PredictionParamSerializer(serializers.Serializer):
             raise serializers.ValidationError("Not a valid bbox")
         if data["zoom_level"] < 18 or data["zoom_level"] > 22:
             raise serializers.ValidationError(
-                f"""Invalid Zoom level : {data["zoom_level"]}, Supported between 19-21"""
+                f"""Invalid Zoom level : {data["zoom_level"]}, Supported between 18-22"""
             )
         return data
 
