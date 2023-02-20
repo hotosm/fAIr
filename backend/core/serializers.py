@@ -1,8 +1,9 @@
-from login.models import OsmUser
 from rest_framework import serializers
 from rest_framework_gis.serializers import (
     GeoFeatureModelSerializer,  # this will be used if we used to serialize as geojson
 )
+
+from login.models import OsmUser
 
 from .models import *
 from .tasks import train_model
@@ -149,7 +150,7 @@ class PredictionParamSerializer(serializers.Serializer):
         """
         if len(data["bbox"]) != 4:
             raise serializers.ValidationError("Not a valid bbox")
-        if data["zoom_level"] < 19 or data["zoom_level"] > 21:
+        if data["zoom_level"] <= 19 or data["zoom_level"] >= 21:
             raise serializers.ValidationError("Zoom level Supported between 19-21")
         return data
 
