@@ -119,8 +119,7 @@ pip install hot-fair-utilities==1.0.41
 You can check your GPU by :
 
 ```
-import tensorflow as tf
-print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
+python3 -c "import tensorflow as tf; print(tf.config.list_physical_devices('GPU'))"
 ```
 
 - Install psycopg2
