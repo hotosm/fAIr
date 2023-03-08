@@ -66,7 +66,7 @@ def train_model(
                         start,
                         end,
                         zm_level,
-                        base_path=base_path,
+                        base_path=training_input_image_source,
                         source=source_imagery,
                     )
                 except Exception as ex:
