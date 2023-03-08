@@ -86,6 +86,9 @@ class TrainingSerializer(
             training_id=instance.id,
             epochs=instance.epochs,
             batch_size=instance.batch_size,
+            zoom_level=instance.zoom_level,
+            source_imagery=instance.source_imagery
+            or instance.model.dataset.source_imagery,
         )
         print(f"Saved train model request to queue with id {task.id}")
         return instance
