@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 import shutil
@@ -6,32 +7,93 @@ from shutil import rmtree
 import hot_fair_utilities
 import ramp.utils
 from celery import shared_task
-from core.models import Training
+from core.models import AOI, Label, Training
+from core.serializers import LabelFileSerializer
+from core.utils import bbox, download_imagery, get_start_end_download_coords
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from hot_fair_utilities import preprocess, train
 
+# from core.serializers import LabelFileSerializer
+
+
+DEFAULT_TILE_SIZE = 256
+DEFAULT_ZOOM_LEVEL = 19
+
 
 @shared_task
-def train_model(dataset_id, training_id, epochs, batch_size):
+def train_model(
+    dataset_id, training_id, epochs, batch_size, zoom_level, source_imagery
+):
 
     training_instance = get_object_or_404(Training, id=training_id)
     training_instance.status = "RUNNING"
     training_instance.started_at = timezone.now()
     training_instance.save()
+
     try:
-        # prepare data
+        ## -----------IMAGE DOWNLOADER---------
+        try:
+            aois = AOI.objects.filter(dataset=dataset_id)
+        except AOI.DoesNotExist:
+            raise ValueError(
+                f"No AOI is attached with supplied dataset id:{dataset_id}, Create AOI first",
+            )
+        training_input_base_path = os.path.join(
+            settings.TRAINING_WORKSPACE, f"dataset_{dataset_id}"
+        )
+        training_input_image_source = os.path.join(training_input_base_path, "input")
+        if os.path.exists(training_input_image_source):  # always build dataset
+            shutil.rmtree(training_input_image_source)
+        os.makedirs(training_input_image_source)
+        for obj in aois:
+            for z in zoom_level:
+                zm_level = z
+                print(
+                    f"""Running Download process for
+                        aoi : {obj.id} - dataset : {dataset_id} , zoom : {zm_level}"""
+                )
+                try:
+                    tile_size = DEFAULT_TILE_SIZE  # by default
+                    zm_level = DEFAULT_ZOOM_LEVEL
+                    bbox_coords = bbox(obj.geom.coords[0])
+                    start, end = get_start_end_download_coords(
+                        bbox_coords, zm_level, tile_size
+                    )
+                    # start downloading
+                    download_imagery(
+                        start,
+                        end,
+                        zm_level,
+                        base_path=base_path,
+                        source=source_imagery,
+                    )
+                except Exception as ex:
+                    raise ex
+
+        ## -----------LABEL GENERATOR---------
+        aoi_list = [r.id for r in aois]
+        label = Label.objects.filter(aoi__in=aoi_list).values()
+        serialized_field = LabelFileSerializer(data=list(label), many=True)
+
+        if serialized_field.is_valid(raise_exception=True):
+            with open(
+                os.path.join(training_input_image_source, "labels.geojson"),
+                "w",
+                encoding="utf-8",
+            ) as f:
+                f.write(json.dumps(serialized_field.data))
+            f.close()
+
+        ## --------- Data Preparation ----------
         base_path = os.path.join(settings.RAMP_HOME, "ramp-data", str(dataset_id))
         # Check if the path exists
         if os.path.exists(base_path):
             # Delete the directory and its contents
             rmtree(base_path)
         destination_image_input = os.path.join(base_path, "input")
-        training_input_base_path = os.path.join(
-            settings.TRAINING_WORKSPACE, f"dataset_{dataset_id}"
-        )
-        training_input_image_source = os.path.join(training_input_base_path, "input")
+
         logging.info(training_input_image_source)
         if not os.path.exists(training_input_image_source):
             raise ValueError(

@@ -21,7 +21,7 @@ from gpxpy.gpx import GPX, GPXTrack, GPXTrackSegment, GPXWaypoint
 from hot_fair_utilities import polygonize, predict
 from login.authentication import OsmAuthentication
 from login.permissions import IsOsmAuthenticated
-from rest_framework import decorators, status, viewsets
+from rest_framework import decorators, serializers, status, viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -37,8 +37,8 @@ from .serializers import (
     LabelSerializer,
     ModelSerializer,
     PredictionParamSerializer,
-    TrainingSerializer,
 )
+from .tasks import train_model
 from .utils import (
     bbox,
     download_imagery,
@@ -61,6 +61,37 @@ class DatasetViewSet(
     permission_allowed_methods = ["GET"]
     queryset = Dataset.objects.all()
     serializer_class = DatasetSerializer  # connecting serializer
+
+
+class TrainingSerializer(
+    serializers.ModelSerializer
+):  # serializers are used to translate models objects to api
+    class Meta:
+        model = Training
+        fields = "__all__"  # defining all the fields to  be included in curd for now , we can restrict few if we want
+        read_only_fields = (
+            "created_at",
+            "status",
+            "created_by",
+            "started_at",
+            "finished_at",
+            "accuracy",
+        )
+
+    def create(self, validated_data):
+        user = self.context["request"].user
+        validated_data["created_by"] = user
+        # create the model instance
+        instance = Training.objects.create(**validated_data)
+        # run your function here
+        task = train_model.delay(
+            dataset_id=instance.model.dataset.id,
+            training_id=instance.id,
+            epochs=instance.epochs,
+            batch_size=instance.batch_size,
+        )
+        print(f"Saved train model request to queue with id {task.id}")
+        return instance
 
 
 class TrainingViewSet(
