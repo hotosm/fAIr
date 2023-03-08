@@ -58,7 +58,6 @@ class AOISerializer(
             "created_at",
             "last_modified",
             "last_fetched_date",
-            "imagery_status",
             "download_status",
         )
 
@@ -124,15 +123,6 @@ class PredictionParamSerializer(serializers.Serializer):
                 f"""Invalid Zoom level : {data["zoom_level"]}, Supported between 18-22"""
             )
         return data
-
-
-class ImageDownloadResponseSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AOI
-        fields = (
-            "id",
-            "imagery_status",
-        )
 
 
 class UserSerializer(serializers.ModelSerializer):
