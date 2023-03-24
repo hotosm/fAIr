@@ -3,7 +3,7 @@
 ## Backend is created with [Django](https://www.djangoproject.com/)
 This project was bootstrapped with  [Geodjango Template](https://github.com/itskshitiz321/geodjangotemplate.git)
 #### For Quickly Getting Started
-**Note :** Depending upon your OS and Env installation will vary , This project tightly depend on [Tensorflow](https://www.tensorflow.org/install/pip) with GPU support so accordingly build your development environment 
+**Note:** Depending upon your OS and Env installation will vary, This project tightly depends on [Tensorflow](https://www.tensorflow.org/install/pip) with GPU support so accordingly build your development environment 
 ### Install Python3, pip and virtualenv first
 ##### Skip this, step if you already have one
     sudo apt-get install python3
@@ -25,7 +25,7 @@ gdown --fuzzy https://drive.google.com/file/d/1wvJhkiOrSlHmmvJ0avkAdu9sslFf5_I0/
 ```
 
 - Clone Ramp - Code 
-Note : This clone location will be your RAMP_HOME 
+Note: This clone location will be your RAMP_HOME 
 ```
 git clone https://github.com/kshitijrajsharma/ramp-code-fAIr.git ramp-code
 ```
@@ -42,7 +42,7 @@ unzip checkpoint.tf.zip -d ramp-code/ramp
 ```
 
 
-- Remove basemodel repo wedon't need it anymore 
+- Remove basemodel repo we don't need it anymore 
 ```
 rm -rf model_ramp_baseline
 ```
@@ -69,7 +69,7 @@ pip install --global-option=build_ext --global-option="-I/usr/include/gdal" GDAL
 cd ramp-code && cd colab && make install
 ```
 
-- For Conda users : You may need to install rtree , gdal , rasterio & imagecodecs separately 
+- For Conda users : You may need to install rtree, gdal , rasterio & imagecodecs separately 
 
 ```
 conda install -c conda-forge rtree
@@ -110,13 +110,13 @@ for eg : on ubuntu :
 sudo apt-get install python3-psycopg2
 ```
 
-- Install redis server in your pc 
+- Install redis server on your pc 
 
 ```
 sudo apt install redis
 ```
 
-- Finally installl pip dependecies 
+- Finally installl pip dependencies 
 
 ```
 pip install -r requirements.txt
@@ -126,16 +126,16 @@ pip install -r requirements.txt
 
 
 #### Configure .env: 
-    Create .env in root backend project , and add the credentials as provided on .env_sample , Export your secret key and database url to your env
+    Create .env in the root backend project , and add the credentials as provided on .env_sample , Export your secret key and database url to your env
 
     Export your database url 
     ```
     export DATABASE_URL=postgis://postgres:postgres@localhost:5432/ai
     ```
     
-    You will need more env variables (Such as Ramp home , Training Home) that can be found on ```.sample_env```  
+    You will need more env variables (Such as Ramp home, Training Home) that can be found on ```.sample_env```  
 
-#### Now change your username , password and db name in settings.py accordingly to your database
+#### Now change your username, password and db name in settings.py accordingly to your database
     python manage.py makemigrations login
     python manage.py migrate login
     python manage.py makemigrations core
@@ -143,8 +143,8 @@ pip install -r requirements.txt
     python manage.py makemigrations 
     python manage.py migrate
     python manage.py runserver
-### Now server will be available in your 8000 port in web , you can check out your localhost:8000/admin for admin panel 
-To login on admin panel , create your superuser and login with your credentials restarting the server
+### Now server will be available in your 8000 port on web, you can check out your localhost:8000/admin for admin panel 
+To login on admin panel, create your superuser and login with your credentials restarting the server
 
     python manage.py createsuperuser
 
@@ -153,10 +153,10 @@ fAIr uses oauth2.0 Authentication using [osm-login-python](https://github.com/ks
 1. Get your login Url
     Hit ```/api/v1/auth/login/ ```
     - URL will give you login URL which you can use to provide your osm credentials and authorize fAIr 
-    - After successfull login  you will get access-token that you can use accross all osm login required endpoints in fAIr
-2. Check authentiation by getting back your data 
+    - After successful login  you will get access-token that you can use across all osm login required endpoints in fAIr
+2. Check authentication by getting back your data 
     Hit ```/api/v1/auth/me/```
-    - URL requires access-token as header and in return you will see your osm username , id and image url 
+    - URL requires access-token as header and in return you will see your osm username, id and image url 
 
 
 ## Start celery workers 
@@ -168,7 +168,7 @@ celery -A aiproject worker --loglevel=debug -n my_worker
 ```
 
 - Monitor using flower 
-if  you are using redis as result backend , api supports both options django / redis 
+if  you are using redis as result backend, api supports both options django / redis 
 You can start flower to start monitoring your tasks
 ```
 celery -A aiproject  --broker=redis://127.0.0.1:6379/0 flower 
@@ -182,11 +182,11 @@ python manage.py test
 
 
 # Build fAIr with Docker for Development 
-- Install all the required drivers for you graphics in order to access it from containers , check your graphics and drivers with ```nvidia-smi``` . Up to now only nvidia is Supported 
+- Install all the required drivers for your graphics to access it from containers, and check your graphics and drivers with ```nvidia-smi``` . Up to now only nvidia is Supported 
 - Follow docker_sample_env to create ```.env``` file in your dir 
 - Build the Image
 
 ```
 docker-compose up -d --build
 ```
-- Once the image is build , Open the API container terminal and run the migrations
+- Once the image is build, Open the API container terminal and run the migrations
