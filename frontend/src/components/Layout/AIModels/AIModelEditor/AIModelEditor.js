@@ -13,17 +13,25 @@ import axios from "../../../../axios";
 import { useMutation, useQuery } from "react-query";
 import OSMUser from "../../../Shared/OSMUser";
 import SaveIcon from "@material-ui/icons/Save";
+import Checkbox from "@material-ui/core/Checkbox";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import { FormControl, FormLabel } from "@material-ui/core";
+
 import AuthContext from "../../../../Context/AuthContext";
 import Trainings from "./Trainings";
 import DatasetCurrent from "./DatasetCurrent";
+
 const AIModelEditor = (props) => {
   let { id } = useParams();
   const [error, setError] = useState(null);
   const [epochs, setEpochs] = useState(20);
+  const [zoomLevel, setZoomLevel] = useState([]);
+
   const [random, setRandom] = useState(Math.random());
   const [batchSize, setBatchSize] = useState(8);
   const [description, setDescription] = useState("");
   const { accessToken } = useContext(AuthContext);
+  const zoomLevels = [18, 19, 20];
   const getModelById = async () => {
     try {
       const modelId = +id;
@@ -48,6 +56,7 @@ const AIModelEditor = (props) => {
         epochs: epochs,
         batch_size: batchSize,
         model: id,
+        zoom_level: zoomLevels,
         description: description,
       };
       const headers = {
@@ -171,6 +180,30 @@ const AIModelEditor = (props) => {
             />
           </Grid>
           <Grid item xs={12} md={6}>
+            <FormControl>
+              <FormLabel component="legend">Zoom Levels</FormLabel>
+              {zoomLevels.map((level) => (
+                <FormControlLabel
+                  key={level}
+                  control={
+                    <Checkbox
+                      checked={zoomLevel.includes(level)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setZoomLevel([...zoomLevel, level]);
+                        } else {
+                          setZoomLevel(zoomLevel.filter((l) => l !== level));
+                        }
+                      }}
+                      name={`zoom-level-${level}`}
+                    />
+                  }
+                  label={`Level ${level}`}
+                />
+              ))}
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} md={6}>
             <TextField
               id="model-description"
               label="Short Description (optional)"
@@ -188,6 +221,7 @@ const AIModelEditor = (props) => {
               }}
             />
           </Grid>
+
           <Grid item xs={12} md={6}></Grid>
           <Grid item xs={12} md={6}></Grid>
           <Grid item xs={12} md={6}>
