@@ -297,6 +297,7 @@ class PredictionView(APIView):
                 )
                 prediction_process.start()
                 prediction_process.join()  # Wait for process to complete
+                print("Prediction is Complete , Vectorizing images")
 
                 geojson_output = f"{prediction_output}/prediction.geojson"
                 polygonize(
