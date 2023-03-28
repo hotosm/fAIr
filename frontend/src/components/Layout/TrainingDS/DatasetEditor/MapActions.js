@@ -1,51 +1,42 @@
-import React, { useContext, useState } from "react";
-import axios from "../../../../axios";
-import { useMutation } from "react-query";
-
-import { useParams } from "react-router-dom";
-import AuthContext from "../../../../Context/AuthContext";
-
-const MapActions = (props) => {
-  const [error, setError] = useState(false);
+import React from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import Button from "@mui/material/Button";
+import { Tooltip } from "@mui/material";
+const MapActions = () => {
   const { id: datasetId } = useParams();
-  const [selectedZooms, setSelectedZooms] = useState([]);
-  const { accessToken } = useContext(AuthContext);
-  const downloadDS = async () => {
-    try {
-      const body = {
-        dataset_id: datasetId,
-        source: props.oamImagery.url,
-        zoom_level: selectedZooms,
-      };
-      console.log("body", body);
-      setError(false);
-      const headers = {
-        "access-token": accessToken,
-      };
-      const res = await axios.post("/dataset/image/build/", body, { headers });
+  const navigate = useNavigate();
 
-      console.log(res);
-      if (res.error) {
-        setError(res.error.response.data.Error);
-        return;
-      }
-
-      return res.data;
-    } catch (e) {
-      console.log("isError");
-      setError(e);
-    } finally {
-    }
+  const handleListModelsClick = () => {
+    const DEFAULT_FILTER = {
+      items: [
+        {
+          columnField: "dataset",
+          id: 28949,
+          operatorValue: "equals",
+          value: datasetId,
+        },
+      ],
+      linkOperator: "and",
+      quickFilterValues: [],
+      quickFilterLogicOperator: "and",
+    };
+    localStorage.setItem("modelFilter", JSON.stringify(DEFAULT_FILTER));
+    navigate("/ai-models");
   };
-
-  const { mutate, data, isLoading } = useMutation(downloadDS);
 
   return (
     <>
-      {/* { JSON.stringify(props.oamImagery) } */}
-      {/* <br/> */}
-      {/* <p>{JSON.stringify(selectedZooms)}</p> */}
+      <Tooltip title="View associated models with this training dataset">
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleListModelsClick}
+        >
+          View Models
+        </Button>
+      </Tooltip>
     </>
   );
 };
+
 export default MapActions;
