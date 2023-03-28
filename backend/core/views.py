@@ -21,7 +21,7 @@ from gpxpy.gpx import GPX, GPXTrack, GPXTrackSegment, GPXWaypoint
 from hot_fair_utilities import polygonize, predict
 from login.authentication import OsmAuthentication
 from login.permissions import IsOsmAuthenticated
-from rest_framework import decorators, status, viewsets
+from rest_framework import decorators, serializers, status, viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -31,14 +31,11 @@ from .models import AOI, Dataset, Label, Model, Training
 from .serializers import (
     AOISerializer,
     DatasetSerializer,
-    ImageDownloadResponseSerializer,
-    ImageDownloadSerializer,
-    LabelFileSerializer,
     LabelSerializer,
     ModelSerializer,
     PredictionParamSerializer,
-    TrainingSerializer,
 )
+from .tasks import train_model
 from .utils import (
     bbox,
     download_imagery,
@@ -61,6 +58,40 @@ class DatasetViewSet(
     permission_allowed_methods = ["GET"]
     queryset = Dataset.objects.all()
     serializer_class = DatasetSerializer  # connecting serializer
+
+
+class TrainingSerializer(
+    serializers.ModelSerializer
+):  # serializers are used to translate models objects to api
+    class Meta:
+        model = Training
+        fields = "__all__"  # defining all the fields to  be included in curd for now , we can restrict few if we want
+        read_only_fields = (
+            "created_at",
+            "status",
+            "created_by",
+            "started_at",
+            "finished_at",
+            "accuracy",
+        )
+
+    def create(self, validated_data):
+        user = self.context["request"].user
+        validated_data["created_by"] = user
+        # create the model instance
+        instance = Training.objects.create(**validated_data)
+        # run your function here
+        task = train_model.delay(
+            dataset_id=instance.model.dataset.id,
+            training_id=instance.id,
+            epochs=instance.epochs,
+            batch_size=instance.batch_size,
+            zoom_level=instance.zoom_level,
+            source_imagery=instance.source_imagery
+            or instance.model.dataset.source_imagery,
+        )
+        print(f"Saved train model request to queue with id {task.id}")
+        return instance
 
 
 class TrainingViewSet(
@@ -146,128 +177,8 @@ class RawdataApiView(APIView):
         except Exception as ex:
             obj.download_status = -1
             obj.save()
-            raise ex
+            # raise ex
             return Response("OSM Fetch Failed", status=500)
-
-
-DEFAULT_TILE_SIZE = 256
-DEFAULT_ZOOM_LEVEL = 19
-
-
-class ImageDownloadView(APIView):
-    authentication_classes = [OsmAuthentication]
-    permission_classes = [IsOsmAuthenticated]
-
-    @swagger_auto_schema(
-        request_body=ImageDownloadSerializer, responses={status.HTTP_200_OK: "ok"}
-    )
-    def post(self, request, *args, **kwargs):
-        """Downloads the image for the dataset and creates labels.geojson from available labels inside dataset.
-        Args:
-            dataset_id: int - id of the dataset
-            source : str - source url of OAM if present or any other URL - Optional
-            zoom_level : list[int] - zoom level default is 19
-        Returns:
-            Download status
-        """
-        serializer = ImageDownloadSerializer(data=request.data)
-
-        if serializer.is_valid(raise_exception=True):
-            dataset_id = int(request.data.get("dataset_id"))
-            # get source imagery url if supplied else use maxar
-
-            source_img_in_dataset = get_object_or_404(
-                Dataset, id=dataset_id
-            ).source_imagery
-
-            source = request.data.get(
-                "source", source_img_in_dataset if source_img_in_dataset else "maxar"
-            )
-            zoom_level = list(request.data.get("zoom_level", [19]))
-
-        # update the dataset if source imagery is supplied
-        Dataset.objects.filter(id=dataset_id).update(source_imagery=source)
-
-        # need to get all the aoi associated with dataset
-        try:
-            aois = AOI.objects.filter(dataset=dataset_id)
-        except AOI.DoesNotExist:
-            return Response(
-                "No AOI is attached with supplied datastet id, Create AOI first",
-                status=404,
-            )
-            # this is the base path where imagery will be downloaded if not present it
-            # will create one
-        base_path = os.path.join(
-            settings.TRAINING_WORKSPACE, f"dataset_{dataset_id}", "input"
-        )
-        if os.path.exists(base_path):
-            shutil.rmtree(base_path)
-        os.makedirs(base_path)
-
-        # looping through each of them and processing it one by one ,
-        # later on we can specify each aoi to no of threads available
-        for obj in aois:
-            # TODO : Here assign each aoi to different thread as much as possible
-            for z in zoom_level:
-                DEFAULT_ZOOM_LEVEL = int(z)
-                print(
-                    f"""Running Download process for
-                    aoi : {obj.id} - dataset : {dataset_id} , zoom : {DEFAULT_ZOOM_LEVEL}"""
-                )
-                obj.imagery_status = 0
-                obj.save()
-                try:
-                    tile_size = DEFAULT_TILE_SIZE  # by default
-                    zm_level = DEFAULT_ZOOM_LEVEL
-                    bbox_coords = bbox(obj.geom.coords[0])
-                    start, end = get_start_end_download_coords(
-                        bbox_coords, zm_level, tile_size
-                    )
-                    # start downloading
-                    download_imagery(
-                        start,
-                        end,
-                        zm_level,
-                        base_path=base_path,
-                        source=source,
-                    )
-
-                    obj.imagery_status = 1
-                    # obj.last_fetched_date = datetime.datetime.utcnow()
-                    obj.save()
-
-                except Exception as ex:  # if download process is failed somehow
-                    print(ex)
-                    obj.imagery_status = -1  # not downloaded
-                    # obj.last_fetched_date = datetime.datetime.utcnow()
-                    obj.save()
-
-        aoi = AOI.objects.filter(dataset=dataset_id).values()
-
-        res_serializer = ImageDownloadResponseSerializer(data=list(aoi), many=True)
-
-        aoi_list_queryset = AOI.objects.filter(dataset=dataset_id)
-
-        aoi_list = [r.id for r in aoi_list_queryset]
-
-        label = Label.objects.filter(aoi__in=aoi_list).values()
-        serialized_field = LabelFileSerializer(data=list(label), many=True)
-        try:
-            if serialized_field.is_valid(raise_exception=True):
-                with open(
-                    os.path.join(base_path, "labels.geojson"), "w", encoding="utf-8"
-                ) as f:
-                    f.write(json.dumps(serialized_field.data))
-                f.close()
-
-        except Exception as ex:
-            print(ex)
-            raise ex
-        print(f"Finished and avilable at : {base_path}")
-        if res_serializer.is_valid(raise_exception=True):
-            print(res_serializer.data)
-            return Response(res_serializer.data, status=status.HTTP_201_CREATED)
 
 
 @api_view(["GET"])
@@ -322,6 +233,11 @@ def run_task_status(request, run_id: str):
     return Response(result)
 
 
+import multiprocessing
+
+DEFAULT_TILE_SIZE = 256
+
+
 class PredictionView(APIView):
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsOsmAuthenticated]
@@ -363,17 +279,25 @@ class PredictionView(APIView):
                     source=source,
                 )
                 prediction_output = f"{temp_path}/prediction/output"
-                predict(
-                    checkpoint_path=os.path.join(
-                        settings.TRAINING_WORKSPACE,
-                        f"dataset_{model_instance.dataset.id}",
-                        "output",
-                        f"training_{training_instance.id}",
-                        "checkpoint.tf",
+
+                # Spawn a new process for the prediction task
+                prediction_process = multiprocessing.Process(
+                    target=predict,
+                    args=(
+                        os.path.join(
+                            settings.TRAINING_WORKSPACE,
+                            f"dataset_{model_instance.dataset.id}",
+                            "output",
+                            f"training_{training_instance.id}",
+                            "checkpoint.tf",
+                        ),
+                        temp_path,
+                        prediction_output,
                     ),
-                    input_path=temp_path,
-                    prediction_path=prediction_output,
                 )
+                prediction_process.start()
+                prediction_process.join()  # Wait for process to complete
+
                 geojson_output = f"{prediction_output}/prediction.geojson"
                 polygonize(
                     input_path=prediction_output,
@@ -383,6 +307,10 @@ class PredictionView(APIView):
                 with open(geojson_output, "r") as f:
                     geojson_data = json.load(f)
                 shutil.rmtree(temp_path)
+
+                # Terminate the prediction process
+                prediction_process.terminate()
+
                 return Response(geojson_data, status=status.HTTP_201_CREATED)
             except Exception as ex:
                 print(ex)

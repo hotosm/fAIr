@@ -8,7 +8,6 @@ from .views import (
     APIStatus,
     DatasetViewSet,
     GenerateGpxView,
-    ImageDownloadView,
     LabelViewSet,
     ModelViewSet,
     PredictionView,
@@ -33,7 +32,6 @@ router.register(r"model", ModelViewSet)
 urlpatterns = [
     path("", include(router.urls)),
     path("label/osm/fetch/<int:aoi_id>/", RawdataApiView.as_view()),
-    path("dataset/image/build/", ImageDownloadView.as_view()),
     # path("download/<int:dataset_id>/", download_training_data),
     path("training/status/<str:run_id>/", run_task_status),
     path("training/publish/<int:training_id>/", publish_training),

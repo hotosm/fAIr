@@ -12,6 +12,7 @@ import {
   SvgIcon,
   Typography,
 } from "@mui/material";
+import Tooltip from "@mui/material/Tooltip";
 
 import { styled } from "@mui/material/styles";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -139,71 +140,77 @@ const AOI = (props) => {
                     {/* <IconButton aria-label="comments">
                    <DeleteIcon />
                 </IconButton> */}
-                    <IconButton
-                      aria-label="comments"
-                      sx={{ width: 24, height: 24 }}
-                      className="margin1 transparent"
-                      onClick={(e) => {
-                        // mutateFetch(layer.aoiId);
-                        // console.log("Open in Editor")
-                        window.open(
-                          `https://mapwith.ai/rapid#background=${
-                            props.oamImagery
-                              ? "custom:" + props.oamImagery.url
-                              : "Bing"
-                          }&datasets=fbRoads,msBuildings&disable_features=boundaries&map=16.00/17.9253/120.4841&gpx=&gpx=https://fair-dev.hotosm.org/api/v1/aoi/gpx/${
-                            layer.aoiId
-                          }`,
-                          "_blank",
-                          "noreferrer"
-                        );
-                      }}
-                    >
-                      {/* <MapTwoTone   /> */}
-                      <img
-                        alt="RapiD logo"
-                        className="rapid-logo-small"
-                        src="https://mapwith.ai/splash/prod/e70aaae-dist/svg/RapidLogo.svg"
-                      />
-                    </IconButton>
-                    <IconButton
-                      aria-label="comments"
-                      sx={{ width: 24, height: 24 }}
-                      className="margin1 transparent"
-                      onClick={(e) => {
-                        // mutateFetch(layer.aoiId);
-                        // console.log("Open in Editor")
-                        window.open(
-                          `https://www.openstreetmap.org/edit/#background=${
-                            props.oamImagery
-                              ? "custom:" + props.oamImagery.url
-                              : "Bing"
-                          }&disable_features=boundaries&gpx=https://fair-dev.hotosm.org/api/v1/aoi/gpx/${
-                            layer.aoiId
-                          }&map=10.70/18.9226/81.6991`,
-                          "_blank",
-                          "noreferrer"
-                        );
-                      }}
-                    >
-                      {/* <MapTwoTone   /> */}
-                      <img
-                        alt="OSM logo"
-                        className="osm-logo-small"
-                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Openstreetmap_logo.svg/256px-Openstreetmap_logo.svg.png"
-                      />
-                    </IconButton>
-                    <IconButton
-                      aria-label="comments"
-                      sx={{ width: 24, height: 24 }}
-                      className="margin1"
-                      onClick={(e) => {
-                        mutateFetch(layer.aoiId);
-                        console.log("call galaxy API to fetch OSM labels");
-                      }}
-                    >
-                      <MapTwoTone fontSize="small" />
-                    </IconButton>
+                    <Tooltip title="Create Labels on RapID Editor">
+                      <IconButton
+                        aria-label="comments"
+                        sx={{ width: 24, height: 24 }}
+                        className="margin1 transparent"
+                        onClick={(e) => {
+                          // mutateFetch(layer.aoiId);
+                          // console.log("Open in Editor")
+                          window.open(
+                            `https://mapwith.ai/rapid#background=${
+                              props.oamImagery
+                                ? "custom:" + props.oamImagery.url
+                                : "Bing"
+                            }&datasets=fbRoads,msBuildings&disable_features=boundaries&map=16.00/17.9253/120.4841&gpx=&gpx=https://fair-dev.hotosm.org/api/v1/aoi/gpx/${
+                              layer.aoiId
+                            }`,
+                            "_blank",
+                            "noreferrer"
+                          );
+                        }}
+                      >
+                        {/* <MapTwoTone   /> */}
+                        <img
+                          alt="RapiD logo"
+                          className="rapid-logo-small"
+                          src="https://mapwith.ai/splash/prod/e70aaae-dist/svg/RapidLogo.svg"
+                        />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Create Labels on ID Editor">
+                      <IconButton
+                        aria-label="comments"
+                        sx={{ width: 24, height: 24 }}
+                        className="margin1 transparent"
+                        onClick={(e) => {
+                          // mutateFetch(layer.aoiId);
+                          // console.log("Open in Editor")
+                          window.open(
+                            `https://www.openstreetmap.org/edit/#background=${
+                              props.oamImagery
+                                ? "custom:" + props.oamImagery.url
+                                : "Bing"
+                            }&disable_features=boundaries&gpx=https://fair-dev.hotosm.org/api/v1/aoi/gpx/${
+                              layer.aoiId
+                            }&map=10.70/18.9226/81.6991`,
+                            "_blank",
+                            "noreferrer"
+                          );
+                        }}
+                      >
+                        {/* <MapTwoTone   /> */}
+                        <img
+                          alt="OSM logo"
+                          className="osm-logo-small"
+                          src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Openstreetmap_logo.svg/256px-Openstreetmap_logo.svg.png"
+                        />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Fetch OSM Data in this AOI">
+                      <IconButton
+                        aria-label="comments"
+                        sx={{ width: 24, height: 24 }}
+                        className="margin1"
+                        onClick={(e) => {
+                          mutateFetch(layer.aoiId);
+                          console.log("call raw data API to fetch OSM labels");
+                        }}
+                      >
+                        <MapTwoTone fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
                     {/* <IconButton aria-label="comments"
                 className="margin1"
                 disabled
@@ -213,34 +220,36 @@ const AOI = (props) => {
                 }}>
                    <PlaylistRemoveIcon />
                 </IconButton> */}
-                    <IconButton
-                      sx={{ width: 24, height: 24 }}
-                      className="margin1"
-                      edge={"end"}
-                      aria-label="delete"
-                      onClick={(e) => {
-                        const lat =
-                          layer.latlngs.reduce(function (
-                            accumulator,
-                            curValue
-                          ) {
-                            return accumulator + curValue.lat;
-                          },
-                          0) / layer.latlngs.length;
-                        const lng =
-                          layer.latlngs.reduce(function (
-                            accumulator,
-                            curValue
-                          ) {
-                            return accumulator + curValue.lng;
-                          },
-                          0) / layer.latlngs.length;
-                        // [lat, lng] are the centroid of the polygon
-                        props.selectAOIHandler([lat, lng], 17);
-                      }}
-                    >
-                      <ZoomInMap fontSize="small" />
-                    </IconButton>
+                    <Tooltip title="Zoom to layer">
+                      <IconButton
+                        sx={{ width: 24, height: 24 }}
+                        className="margin1"
+                        edge={"end"}
+                        aria-label="delete"
+                        onClick={(e) => {
+                          const lat =
+                            layer.latlngs.reduce(function (
+                              accumulator,
+                              curValue
+                            ) {
+                              return accumulator + curValue.lat;
+                            },
+                            0) / layer.latlngs.length;
+                          const lng =
+                            layer.latlngs.reduce(function (
+                              accumulator,
+                              curValue
+                            ) {
+                              return accumulator + curValue.lng;
+                            },
+                            0) / layer.latlngs.length;
+                          // [lat, lng] are the centroid of the polygon
+                          props.selectAOIHandler([lat, lng], 17);
+                        }}
+                      >
+                        <ZoomInMap fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
                   </ListItemSecondaryAction>
                 </ListItemWithWiderSecondaryAction>
               ))}

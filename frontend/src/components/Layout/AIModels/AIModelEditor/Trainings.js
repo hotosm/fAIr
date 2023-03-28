@@ -240,7 +240,7 @@ const AIModelsList = (props) => {
                 sortModel={
                   localStorage.getItem("modelTrainingSorter")
                     ? JSON.parse(localStorage.getItem("modelTrainingSorter"))
-                    : []
+                    : [{ field: "id", sort: "desc" }]
                 }
                 // TODO: BUG when no filter sorter check
               />

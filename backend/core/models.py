@@ -1,4 +1,5 @@
 from django.contrib.gis.db import models as geomodels
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from login.models import OsmUser
 
@@ -30,7 +31,6 @@ class AOI(models.Model):
     dataset = models.ForeignKey(Dataset, to_field="id", on_delete=models.CASCADE)
     geom = geomodels.PolygonField(srid=4326)
     download_status = models.IntegerField(default=-1, choices=DownloadStatus.choices)
-    imagery_status = models.IntegerField(default=-1, choices=DownloadStatus.choices)
     last_fetched_date = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now=True)
@@ -67,10 +67,15 @@ class Training(models.Model):
         ("FAILED", "FAILED"),
     )
     model = models.ForeignKey(Model, to_field="id", on_delete=models.CASCADE)
+    source_imagery = models.URLField(blank=True, null=True)
     description = models.TextField(max_length=500, null=True, blank=True)
     created_at = models.DateTimeField(auto_now=True)
     status = models.CharField(
         choices=STATUS_CHOICES, default="SUBMITTED", max_length=10
+    )
+    zoom_level = ArrayField(
+        models.PositiveIntegerField(),
+        size=4,
     )
     created_by = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
     started_at = models.DateTimeField(null=True, blank=True)

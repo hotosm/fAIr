@@ -113,7 +113,7 @@ const Prediction = (props) => {
           bounds._northEast.lat,
         ],
         model_id: id,
-        zoom_level: zoom - 1,
+        zoom_level: zoom,
         source: dataset.source_imagery,
       };
       console.log(body);

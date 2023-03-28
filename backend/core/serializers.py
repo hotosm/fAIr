@@ -1,12 +1,12 @@
+from login.models import OsmUser
 from rest_framework import serializers
 from rest_framework_gis.serializers import (
     GeoFeatureModelSerializer,  # this will be used if we used to serialize as geojson
 )
 
-from login.models import OsmUser
-
 from .models import *
-from .tasks import train_model
+
+# from .tasks import train_model
 
 
 class DatasetSerializer(
@@ -25,37 +25,6 @@ class DatasetSerializer(
         user = self.context["request"].user
         validated_data["created_by"] = user
         return super().create(validated_data)
-
-
-class TrainingSerializer(
-    serializers.ModelSerializer
-):  # serializers are used to translate models objects to api
-    class Meta:
-        model = Training
-        fields = "__all__"  # defining all the fields to  be included in curd for now , we can restrict few if we want
-        read_only_fields = (
-            "created_at",
-            "status",
-            "created_by",
-            "started_at",
-            "finished_at",
-            "accuracy",
-        )
-
-    def create(self, validated_data):
-        user = self.context["request"].user
-        validated_data["created_by"] = user
-        # create the model instance
-        instance = Training.objects.create(**validated_data)
-        # run your function here
-        task = train_model.delay(
-            dataset_id=instance.model.dataset.id,
-            training_id=instance.id,
-            epochs=instance.epochs,
-            batch_size=instance.batch_size,
-        )
-        print(f"Saved train model request to queue with id {task.id}")
-        return instance
 
 
 class ModelSerializer(
@@ -89,7 +58,6 @@ class AOISerializer(
             "created_at",
             "last_modified",
             "last_fetched_date",
-            "imagery_status",
             "download_status",
         )
 
@@ -155,15 +123,6 @@ class PredictionParamSerializer(serializers.Serializer):
                 f"""Invalid Zoom level : {data["zoom_level"]}, Supported between 18-22"""
             )
         return data
-
-
-class ImageDownloadResponseSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AOI
-        fields = (
-            "id",
-            "imagery_status",
-        )
 
 
 class UserSerializer(serializers.ModelSerializer):
