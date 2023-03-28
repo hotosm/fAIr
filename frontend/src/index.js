@@ -9,26 +9,29 @@ import theme from "./theme";
 import { QueryClient, QueryClientProvider } from "react-query";
 import Fair from "./Fair/Fair";
 import { BrowserRouter } from "react-router-dom";
+import HttpsRedirect from "react-https-redirect";
 import { AuthContextProvidor } from "./Context/AuthContext";
 
 const queryClient = new QueryClient();
 if (process.env.REACT_APP_ENV === "Production") console.log = (args) => {};
 // console.log = (args) => {};
 ReactDOM.render(
-  <ThemeProvider theme={theme}>
-    {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
-    <CssBaseline />
-    <QueryClientProvider client={queryClient}>
-      <React.StrictMode>
-      <BrowserRouter>
-      <AuthContextProvidor>
-        <Fair />
-        </AuthContextProvidor>
-      </BrowserRouter>
-        
-      </React.StrictMode>
-    </QueryClientProvider>
-  </ThemeProvider>,
+  <HttpsRedirect>
+    <ThemeProvider theme={theme}>
+      {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
+      <CssBaseline />
+      <QueryClientProvider client={queryClient}>
+        <React.StrictMode>
+          <BrowserRouter>
+            <AuthContextProvidor>
+              <Fair />
+            </AuthContextProvidor>
+          </BrowserRouter>
+        </React.StrictMode>
+      </QueryClientProvider>
+    </ThemeProvider>
+  </HttpsRedirect>,
+
   document.getElementById("root")
 );
 
