@@ -13,8 +13,7 @@ import axios from "../../../../axios";
 import { useMutation, useQuery } from "react-query";
 import OSMUser from "../../../Shared/OSMUser";
 import SaveIcon from "@material-ui/icons/Save";
-import Checkbox from "@material-ui/core/Checkbox";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
+import { Checkbox, FormControlLabel } from "@mui/material";
 import { FormControl, FormLabel } from "@material-ui/core";
 
 import AuthContext from "../../../../Context/AuthContext";
@@ -25,13 +24,13 @@ const AIModelEditor = (props) => {
   let { id } = useParams();
   const [error, setError] = useState(null);
   const [epochs, setEpochs] = useState(20);
-  const [zoomLevel, setZoomLevel] = useState([]);
+  const [zoomLevel, setZoomLevel] = useState([19]);
 
   const [random, setRandom] = useState(Math.random());
   const [batchSize, setBatchSize] = useState(8);
   const [description, setDescription] = useState("");
   const { accessToken } = useContext(AuthContext);
-  const zoomLevels = [18, 19, 20];
+  const zoomLevels = [19, 20, 21];
   const getModelById = async () => {
     try {
       const modelId = +id;
@@ -179,14 +178,16 @@ const AIModelEditor = (props) => {
               error={batchSize === null || batchSize <= 0}
             />
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} md={6} container>
             <FormControl>
               <FormLabel component="legend">Zoom Levels</FormLabel>
               {zoomLevels.map((level) => (
                 <FormControlLabel
                   key={level}
+                  sx={{ mr: "0.5rem", flexDirection: "row" }}
                   control={
                     <Checkbox
+                      sx={{ transform: "scale(0.8)" }}
                       checked={zoomLevel.includes(level)}
                       onChange={(e) => {
                         if (e.target.checked) {
@@ -198,7 +199,7 @@ const AIModelEditor = (props) => {
                       name={`zoom-level-${level}`}
                     />
                   }
-                  label={`Level ${level}`}
+                  label={`Zoom ${level}`}
                 />
               ))}
             </FormControl>
