@@ -233,6 +233,11 @@ def run_task_status(request, run_id: str):
     return Response(result)
 
 
+import multiprocessing
+
+DEFAULT_TILE_SIZE = 256
+
+
 class PredictionView(APIView):
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsOsmAuthenticated]
@@ -274,17 +279,25 @@ class PredictionView(APIView):
                     source=source,
                 )
                 prediction_output = f"{temp_path}/prediction/output"
-                predict(
-                    checkpoint_path=os.path.join(
-                        settings.TRAINING_WORKSPACE,
-                        f"dataset_{model_instance.dataset.id}",
-                        "output",
-                        f"training_{training_instance.id}",
-                        "checkpoint.tf",
+
+                # Spawn a new process for the prediction task
+                prediction_process = multiprocessing.Process(
+                    target=predict,
+                    args=(
+                        os.path.join(
+                            settings.TRAINING_WORKSPACE,
+                            f"dataset_{model_instance.dataset.id}",
+                            "output",
+                            f"training_{training_instance.id}",
+                            "checkpoint.tf",
+                        ),
+                        temp_path,
+                        prediction_output,
                     ),
-                    input_path=temp_path,
-                    prediction_path=prediction_output,
                 )
+                prediction_process.start()
+                prediction_process.join()  # Wait for process to complete
+
                 geojson_output = f"{prediction_output}/prediction.geojson"
                 polygonize(
                     input_path=prediction_output,
@@ -294,6 +307,10 @@ class PredictionView(APIView):
                 with open(geojson_output, "r") as f:
                     geojson_data = json.load(f)
                 shutil.rmtree(temp_path)
+
+                # Terminate the prediction process
+                prediction_process.terminate()
+
                 return Response(geojson_data, status=status.HTTP_201_CREATED)
             except Exception as ex:
                 print(ex)
