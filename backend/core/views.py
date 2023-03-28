@@ -209,46 +209,40 @@ class ImageDownloadView(APIView):
         # later on we can specify each aoi to no of threads available
         for obj in aois:
             # TODO : Here assign each aoi to different thread as much as possible
-            # and available
-            if obj.imagery_status != 0:
-                for z in zoom_level:
-                    DEFAULT_ZOOM_LEVEL = int(z)
-                    print(
-                        f"""Running Download process for
-                        aoi : {obj.id} - dataset : {dataset_id} , zoom : {DEFAULT_ZOOM_LEVEL}"""
-                    )
-                    obj.imagery_status = 0
-                    obj.save()
+            for z in zoom_level:
+                DEFAULT_ZOOM_LEVEL = int(z)
+                print(
+                    f"""Running Download process for
+                    aoi : {obj.id} - dataset : {dataset_id} , zoom : {DEFAULT_ZOOM_LEVEL}"""
+                )
+                obj.imagery_status = 0
+                obj.save()
+                try:
                     tile_size = DEFAULT_TILE_SIZE  # by default
                     zm_level = DEFAULT_ZOOM_LEVEL
                     bbox_coords = bbox(obj.geom.coords[0])
                     start, end = get_start_end_download_coords(
                         bbox_coords, zm_level, tile_size
                     )
-                    try:
-                        # start downloading
-                        download_imagery(
-                            start,
-                            end,
-                            zm_level,
-                            base_path=base_path,
-                            source=source,
-                        )
+                    # start downloading
+                    download_imagery(
+                        start,
+                        end,
+                        zm_level,
+                        base_path=base_path,
+                        source=source,
+                    )
 
-                        obj.imagery_status = 1
-                        # obj.last_fetched_date = datetime.datetime.utcnow()
-                        obj.save()
+                    obj.imagery_status = 1
+                    # obj.last_fetched_date = datetime.datetime.utcnow()
+                    obj.save()
 
-                    except Exception as ex:  # if download process is failed somehow
-                        print(ex)
-                        obj.imagery_status = -1  # not downloaded
-                        # obj.last_fetched_date = datetime.datetime.utcnow()
-                        obj.save()
-            else:
-                print(
-                    f"""There is running process already for
-                    : {obj.id} - dataset : {dataset_id} , Skippinggg"""
-                )
+                except Exception as ex:  # if download process is failed somehow
+                    print(ex)
+                    obj.imagery_status = -1  # not downloaded
+                    # obj.last_fetched_date = datetime.datetime.utcnow()
+                    obj.save()
+
         aoi = AOI.objects.filter(dataset=dataset_id).values()
 
         res_serializer = ImageDownloadResponseSerializer(data=list(aoi), many=True)

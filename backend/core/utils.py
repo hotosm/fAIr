@@ -8,6 +8,7 @@ from zipfile import ZipFile
 
 import requests
 from django.conf import settings
+from tqdm import tqdm
 
 from .models import AOI, Label
 from .serializers import LabelSerializer
@@ -110,9 +111,17 @@ def get_start_end_download_coords(bbox_coords, zm_level, tile_size):
     return start, end
 
 
-def download_image(url):
+def download_image(url, base_path, source_name):
     response = requests.get(url)
-    return response.content
+    image = response.content
+
+    url_splitted_list = url.split("/")
+    filename = f"{base_path}/{source_name}-{url_splitted_list[-2]}-{url_splitted_list[-1]}-{url_splitted_list[-3]}.png"
+
+    with open(filename, "wb") as f:
+        f.write(image)
+
+    print(f"Downloaded: {url}")
 
 
 def download_imagery(start: list, end: list, zm_level, base_path, source="maxar"):
@@ -160,24 +169,14 @@ def download_imagery(start: list, end: list, zm_level, base_path, source="maxar"
             start_y = start_y - 1  # decrease the y
 
         start_x = start_x + 1  # increase the x
+    # max_workers = (
+    #     (os.cpu_count() - 1) if os.cpu_count() != 1 else 1
+    # )  # leave one cpu free always
     max_workers = os.cpu_count()
     # Use the ThreadPoolExecutor to download the images in parallel
     with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
-        # Use `map` to apply the `download_image` function to each element in the `urls` list
-        results = executor.map(download_image, download_urls)
-
-        # Iterate over the results and save the images to disk
-        for url, image in zip(download_urls, results):
-            # considering url pattern is /z/x/y/ if not change this logic TODO for maxar
-            url_splitted_list = url.split("/")
-            with open(
-                f"{base_path}/{source_name}-{url_splitted_list[-2]}-{url_splitted_list[-1]}-{url_splitted_list[-3]}.png",
-                "wb",
-            ) as f:
-                f.write(image)
-            print(f"Downloaded : {url}")
-
-    # TODO: Save geojson labels to the same folder
+        for url in download_urls:
+            executor.submit(download_image, url, base_path, source_name)
 
 
 def request_rawdata(request_params):
@@ -249,6 +248,27 @@ def remove_file(path: str) -> None:
     os.unlink(path)
 
 
+def process_feature(feature, aoi_id, dataset_id):
+    """Multi thread process of features"""
+    properties = feature["properties"]
+    osm_id = properties["osm_id"]
+    geometry = feature["geometry"]
+
+    if Label.objects.filter(osm_id=int(osm_id), aoi__dataset=dataset_id).exists():
+
+        Label.objects.filter(osm_id=int(osm_id), aoi__dataset=dataset_id).delete()
+        # print(f"Existing record Found and Dropped {osm_id}")
+
+    label = LabelSerializer(
+        data={"osm_id": int(osm_id), "geom": geometry, "aoi": aoi_id}
+    )
+    if label.is_valid():
+        label.save()  # update if it exists create if not
+    else:
+        raise ValidationErr(label.errors)
+    # print(f"Created {osm_id}")
+
+
 def process_geojson(geojson_file_path, aoi_id):
     """Responsible for Processing Geojson file from directory ,
         Opens the file reads the record , Checks either record
@@ -263,34 +283,20 @@ def process_geojson(geojson_file_path, aoi_id):
     """
     print("Geojson Processing Started")
     dataset_id = AOI.objects.get(id=aoi_id).dataset
+    max_workers = (
+        (os.cpu_count() - 1) if os.cpu_count() != 1 else 1
+    )  # leave one cpu free always
+
+    # max_workers = os.cpu_count()  # get total cpu count available on the
 
     with open(geojson_file_path) as f:
         data = json.load(f)
-        for i in range(len(data["features"])):
-            properties = data["features"][i]["properties"]
-            osm_id = properties["osm_id"]
-            geometry = data["features"][i]["geometry"]
+        with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = [
+                executor.submit(process_feature, feature, aoi_id, dataset_id)
+                for feature in data["features"]
+            ]
+            for f in tqdm(futures, total=len(data["features"])):
+                f.result()
 
-            if Label.objects.filter(
-                osm_id=int(osm_id), aoi__dataset=dataset_id
-            ).exists():
-
-                Label.objects.filter(
-                    osm_id=int(osm_id), aoi__dataset=dataset_id
-                ).delete()
-                print(f"Existing record Found and Dropped {osm_id}")
-            # else:
-            label = LabelSerializer(
-                data={"osm_id": int(osm_id), "geom": geometry, "aoi": aoi_id}
-            )
-            if label.is_valid():
-                label.save()  # update if it exists create if not
-                # for data in label.validated_data:
-                #     # checking if data exists else creating an object in User1 model
-                #     # user = data['user'] --> filter to check if that user exist
-                #     Label.objects.update_or_create(defaults=data)
-
-            else:
-                raise ValidationErr(label.errors)
-            print(f"Created {osm_id}")
     print("writing to database finished")
