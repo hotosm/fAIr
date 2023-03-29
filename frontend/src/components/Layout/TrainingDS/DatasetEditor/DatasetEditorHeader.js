@@ -70,14 +70,14 @@ const DatasetEditorHeader = (props) => {
                   label="AOIs"
                   labelPlacement="top"
                 />
-                <FormControlLabel
+                {/* <FormControlLabel
                   value="label"
                   control={
                     <Radio color="primary" className="small-radio-label" />
                   }
                   label="Labels"
                   labelPlacement="top"
-                />
+                /> */}
               </RadioGroup>
             </FormControl>
 
