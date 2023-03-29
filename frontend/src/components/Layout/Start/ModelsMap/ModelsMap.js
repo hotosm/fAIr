@@ -44,7 +44,7 @@ const PublishedAIModelsList = (props) => {
     {
       field: "dataset_name",
       headerName: "Dataset",
-      minWidth: 170,
+      minWidth: 300,
       renderCell: (params) => {
         return <TrainingMap datasetId={params.row.dataset}></TrainingMap>;
       },
@@ -52,7 +52,7 @@ const PublishedAIModelsList = (props) => {
     {
       field: "training_desc",
       headerName: "Training",
-      minWidth: 250,
+      minWidth: 300,
       renderCell: (params) => {
         return (
           <DatasetMap trainingId={params.row.published_training}></DatasetMap>

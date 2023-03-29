@@ -152,8 +152,16 @@ const Prediction = () => {
                   attribution="&copy; credits to OSM"
                   data={predictions}
                   style={() => ({
-                    color: "pink",
-                    weight: 4,
+                    color: "darkred",
+                    weight: 6,
+                    fillPattern: {
+                      weight: 1,
+                      opacity: 1,
+                      pattern: /\/\/\/\//,
+                      strokeOpacity: 0.5,
+                      strokeWeight: 1,
+                      strokeColor: "red",
+                    },
                   })}
                 />
               )}
