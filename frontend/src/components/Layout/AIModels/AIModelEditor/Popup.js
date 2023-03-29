@@ -65,6 +65,15 @@ const Popup = ({ open, handleClose, row }) => {
         </p>
         <p>Started at: {row.started_at}</p>
         <p>Task_id: {row.task_id}</p>
+        <p>
+          Zoom Level:{" "}
+          {typeof row.zoom_level === "string"
+            ? row.zoom_level
+                .split(",")
+                .reduce((acc, cur, i) => (i % 2 ? acc + ", " + cur : acc + cur))
+            : row.zoom_level.toString()}
+        </p>
+
         <p>Finished at: {row.finished_at}</p>
         {row.status === "FAILED" && (
           <>
