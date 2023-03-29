@@ -90,6 +90,8 @@ class TrainingSerializer(
             source_imagery=instance.source_imagery
             or instance.model.dataset.source_imagery,
         )
+        instance.task_id = task.id
+        instance.save()
         print(f"Saved train model request to queue with id {task.id}")
         return instance
 
@@ -225,12 +227,23 @@ def run_task_status(request, run_id: str):
         run_id (_type_): _description_
     """
     task_result = AsyncResult(run_id, app=current_app)
-    result = {
-        "id": run_id,
-        "status": task_result.state,
-        "result": task_result.result if task_result.status == "SUCCESS" else None,
-    }
-    return Response(result)
+    if task_result.failed():
+        return Response(
+            {
+                "id": run_id,
+                "status": task_result.state,
+                "error": str(task_result.result),
+                "traceback": str(task_result.traceback),
+            },
+            status=500,
+        )
+    else:
+        result = {
+            "id": run_id,
+            "status": task_result.state,
+            "result": task_result.result,
+        }
+        return Response(result)
 
 
 import multiprocessing

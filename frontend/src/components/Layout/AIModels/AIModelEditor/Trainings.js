@@ -25,7 +25,7 @@ const AIModelsList = (props) => {
 
       if (res.error) setError(res.error.response.statusText);
       else {
-        console.log("gettraining", res.data);
+        // console.log("gettraining", res.data);
 
         return res.data;
       }
@@ -121,10 +121,10 @@ const AIModelsList = (props) => {
     {
       field: "accuracy",
       headerName: "Accuracy",
-      minWidth: 150,
+      minWidth: 80,
       flex: 1,
       renderCell: (params) => {
-        return params.value && params.value;
+        return params.value && params.value.toFixed(2);
       },
     },
     {

@@ -73,6 +73,7 @@ class Training(models.Model):
     status = models.CharField(
         choices=STATUS_CHOICES, default="SUBMITTED", max_length=10
     )
+    task_id = models.CharField(null=True, blank=True, max_length=100)
     zoom_level = ArrayField(
         models.PositiveIntegerField(),
         size=4,

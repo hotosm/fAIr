@@ -1,5 +1,5 @@
-import React from "react";
-import { useQuery } from "react-query";
+import React, { useEffect } from "react";
+import { useMutation } from "react-query";
 import axios from "../../../../axios";
 
 const TrainingSize = (props) => {
@@ -15,7 +15,7 @@ const TrainingSize = (props) => {
       if (res.error) {
         // setMapError(res.error.response.statusText);
       } else {
-        console.log("TrainingSize ", res.data);
+        // console.log("TrainingSize ", res.data);
         return res.data;
       }
     } catch (e) {
@@ -23,9 +23,14 @@ const TrainingSize = (props) => {
     } finally {
     }
   };
-  const { data, isLoading } = useQuery("getTrainingSize", getTrainingSize, {
-    refetchInterval: 120000,
-  });
+  const { mutate, data, isLoading } = useMutation(getTrainingSize);
+
+  useEffect(() => {
+    mutate();
+
+    return () => {};
+  }, [mutate]);
+
   return (
     <>
       {isLoading && "Loading ..."}

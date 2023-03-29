@@ -37,7 +37,7 @@ const AIModelEditor = (props) => {
       const res = await axios.get(`/model/${modelId}`);
       if (res.error) setError(res.error.response.statusText);
       else {
-        console.log("getmodel", res.data);
+        // console.log("getmodel", res.data);
         return res.data;
       }
     } catch (e) {

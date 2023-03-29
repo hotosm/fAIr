@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import shutil
+import traceback
 from shutil import rmtree
 
 import hot_fair_utilities
