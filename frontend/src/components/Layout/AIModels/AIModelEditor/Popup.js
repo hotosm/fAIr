@@ -61,23 +61,30 @@ const Popup = ({ open, handleClose, row }) => {
       </DialogTitle>
       <DialogContent>
         <p>
-          Epochs/ Batch Size: {row.epochs}/{row.batch_size}
+          <b>Epochs/ Batch Size:</b> {row.epochs}/{row.batch_size}
         </p>
-        <p>Started at: {row.started_at}</p>
-        <p>Task_id: {row.task_id}</p>
         <p>
-          Zoom Level:{" "}
+          <b>Started at:</b> {row.started_at}
+        </p>
+        <p>
+          <b>Task_id:</b> {row.task_id}
+        </p>
+        <p>
+          <b>Zoom Level:</b>{" "}
           {typeof row.zoom_level === "string"
             ? row.zoom_level
                 .split(",")
                 .reduce((acc, cur, i) => (i % 2 ? acc + ", " + cur : acc + cur))
             : row.zoom_level.toString()}
         </p>
-
-        <p>Finished at: {row.finished_at}</p>
+        <p>
+          <b>Accuracy:</b> {row.accuracy}
+        </p>
         {row.status === "FAILED" && (
           <>
-            <p>Error: {error}</p>
+            <p>
+              <b>Error:</b> {error}
+            </p>
             {traceback && (
               <div
                 style={{
@@ -98,6 +105,7 @@ const Popup = ({ open, handleClose, row }) => {
           </div>
         )}
       </DialogContent>
+
       <DialogActions>
         <Button onClick={handleClose} style={{ color: "white" }}>
           Close
