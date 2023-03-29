@@ -1,17 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { Grid, Select, MenuItem, FormControl, InputLabel } from "@mui/material";
+import axios from "../../../../axios";
 
 function DatasetSelect(props) {
   const [datasets, setDatasets] = useState([]);
   const [selectedDataset, setSelectedDataset] = useState(props.datasetID || "");
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/v1/dataset/")
-      .then((response) => response.json())
-      .then((data) => {
-        setDatasets(data);
+    axios
+      .get("/dataset/")
+      .then((response) => {
+        setDatasets(response.data);
       })
-      .catch((error) => console.error(error));
+      .catch((error) => {
+        console.error(error);
+      });
   }, []);
 
   const handleDatasetChange = (event) => {
