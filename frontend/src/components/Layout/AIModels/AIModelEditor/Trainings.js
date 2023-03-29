@@ -9,6 +9,9 @@ import { useNavigate } from "react-router-dom";
 import OSMUser from "../../../Shared/OSMUser";
 import { timeSpan } from "../../../../utils";
 import TrainingSize from "./TrainingSize";
+import Popup from "./Popup";
+import InfoIcon from "@mui/icons-material/Info";
+
 import AuthContext from "../../../../Context/AuthContext";
 
 const DEFAULT_FILTER = {
@@ -19,6 +22,18 @@ const DEFAULT_FILTER = {
 };
 const AIModelsList = (props) => {
   const [error, setError] = useState(null);
+  const [popupOpen, setPopupOpen] = useState(false);
+  const [popupRow, setPopupRow] = useState(null);
+
+  const handlePopupOpen = (row) => {
+    setPopupOpen(true);
+    setPopupRow(row);
+  };
+
+  const handlePopupClose = () => {
+    setPopupOpen(false);
+    setPopupRow(null);
+  };
   const getTraingings = async () => {
     try {
       const res = await axios.get(`/training/?model=${props.modelId}`);
@@ -112,11 +127,24 @@ const AIModelsList = (props) => {
     {
       field: "status",
       headerName: "Status",
-      width: 100,
+      width: 50,
       flex: 1,
       renderCell: (params) => {
         return <>{`${params.value}`}</>;
       },
+    },
+    {
+      field: "popup",
+      headerName: "Info",
+      width: 10,
+      renderCell: (params) => (
+        <IconButton
+          onClick={() => handlePopupOpen(params.row)}
+          aria-label="popup"
+        >
+          <InfoIcon size="small" />
+        </IconButton>
+      ),
     },
     {
       field: "accuracy",
@@ -154,6 +182,7 @@ const AIModelsList = (props) => {
       },
     },
   ];
+
   useEffect(() => {
     if (props.random) refetch();
 
@@ -248,6 +277,9 @@ const AIModelsList = (props) => {
           )}
         </Grid>
       </Grid>
+      {popupOpen && (
+        <Popup open={popupOpen} handleClose={handlePopupClose} row={popupRow} />
+      )}
     </>
   );
 };

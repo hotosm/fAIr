@@ -234,8 +234,7 @@ def run_task_status(request, run_id: str):
                 "status": task_result.state,
                 "error": str(task_result.result),
                 "traceback": str(task_result.traceback),
-            },
-            status=500,
+            }
         )
     else:
         result = {
