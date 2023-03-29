@@ -68,7 +68,7 @@ const Popup = ({ open, handleClose, row }) => {
         <p>Finished at: {row.finished_at}</p>
         {row.status === "FAILED" && (
           <>
-            <p>Status: {row.status}</p>
+            <p>Error: {error}</p>
             {traceback && (
               <div
                 style={{
