@@ -124,7 +124,7 @@ const Prediction = () => {
             className="pointer"
             center={[-0.29815, 36.07572]}
             style={{
-              height: windowSize[1] - 150,
+              height: windowSize[1] - 100,
               width: "100%",
               display: "flex",
             }}
@@ -183,9 +183,9 @@ const Prediction = () => {
           </LoadingButton>
           {map && (
             <>
-              <span>Zoom {JSON.stringify(zoom)}</span>
               <br />
-              <span>Zoom to level 19, 20, 21 to detect features</span>
+              <br />
+              <span>Zoom {JSON.stringify(zoom)}</span>
               <br />
               <span>Model Id {id}</span>
             </>
