@@ -121,10 +121,10 @@ const AIModelsList = (props) => {
     {
       field: "accuracy",
       headerName: "Accuracy",
-      minWidth: 150,
+      minWidth: 80,
       flex: 1,
       renderCell: (params) => {
-        return params.value && params.value;
+        return params.value && params.value.toFixed(2);
       },
     },
     {
