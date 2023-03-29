@@ -38,7 +38,7 @@ const Popup = ({ open, handleClose, row }) => {
         console.error(res.error);
       } else {
         setImageUrl(
-          `/workspace/download/dataset_${res.data.dataset}/output/training_${row.id}/graphs/training_validation_sparse_categorical_accuracy.png`
+          `${axios.defaults.baseURL}/workspace/download/dataset_${res.data.dataset}/output/training_${row.id}/graphs/training_validation_sparse_categorical_accuracy.png`
         );
       }
     } catch (e) {
@@ -85,7 +85,7 @@ const Popup = ({ open, handleClose, row }) => {
         )}
         {row.status === "FINISHED" && imageUrl && (
           <div style={{ display: "flex", justifyContent: "center" }}>
-            <img src={imageUrl} alt="training graph" />
+            <img src={imageUrl} alt="training graph" style={{ width: "98%" }} />
           </div>
         )}
       </DialogContent>
