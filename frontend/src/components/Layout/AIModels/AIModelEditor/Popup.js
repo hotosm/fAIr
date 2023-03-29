@@ -90,7 +90,9 @@ const Popup = ({ open, handleClose, row }) => {
         )}
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleClose}>Close</Button>
+        <Button onClick={handleClose} style={{ color: "white" }}>
+          Close
+        </Button>
       </DialogActions>
     </Dialog>
   );
