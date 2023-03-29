@@ -90,6 +90,8 @@ class TrainingSerializer(
             source_imagery=instance.source_imagery
             or instance.model.dataset.source_imagery,
         )
+        if not instance.source_imagery:
+            instance.source_imagery = instance.model.dataset.source_imagery
         instance.task_id = task.id
         instance.save()
         print(f"Saved train model request to queue with id {task.id}")

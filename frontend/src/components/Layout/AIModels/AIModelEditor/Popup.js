@@ -64,10 +64,12 @@ const Popup = ({ open, handleClose, row }) => {
           <b>Epochs/ Batch Size:</b> {row.epochs}/{row.batch_size}
         </p>
         <p>
-          <b>Started at:</b> {row.started_at}
+          <b>Source Image (TMS): </b>
+          {row.source_imagery}
         </p>
+
         <p>
-          <b>Task_id:</b> {row.task_id}
+          <b>Task Id:</b> {row.task_id}
         </p>
         <p>
           <b>Zoom Level:</b>{" "}
