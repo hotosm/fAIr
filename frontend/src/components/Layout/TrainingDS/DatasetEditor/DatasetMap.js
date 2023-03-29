@@ -15,14 +15,14 @@ import L from "leaflet";
 import { EditControl } from "react-leaflet-draw";
 
 import "leaflet-draw/dist/leaflet.draw.css";
-import { Grid, Typography } from "@mui/material";
+
 import { useMutation, useQuery } from "react-query";
-import { GeoJSON } from "react-leaflet";
+
 import intersect from "@turf/intersect";
 import { multiPolygon } from "@turf/helpers";
 
 import axios from "../../../../axios";
-import LoadingButton from "@mui/lab/LoadingButton";
+
 import { approximateGeom } from "../../../../utils";
 import DatasetEditorHeader from "./DatasetEditorHeader";
 import AuthContext from "../../../../Context/AuthContext";
@@ -35,12 +35,11 @@ const DatasetMap = (props) => {
 
   const [map, setMap] = useState(null);
   const [zoom, setZoom] = useState(17);
-  const [geoJSON, setgeoJSON] = useState();
+
   const [mapError, setMapError] = useState();
   const [fromDB, setFromDB] = useState(false);
-  const leafletObjects = useRef();
+
   const { accessToken } = useContext(AuthContext);
-  // props.oamImagery && console.log("props.oamImagery.url", props.oamImagery.url);
 
   const getLabels = async (box) => {
     try {
@@ -63,21 +62,6 @@ const DatasetMap = (props) => {
         // remove from state
         setMapLayers((layers) => layers.filter((l) => l.type === "aoi"));
 
-        //      const newLayers = [];
-        // Object.values(res.data.features).map((feture) => {
-        //      newLayers.push({
-        //     id: _leaflet_id,
-        //     aoiId: -1,
-        //     feature:feature,
-        //     type: "lbl",
-        //     latlngs: layer.getLatLngs(),
-        //     area: L.GeometryUtil.geodesicArea(layer.getLatLngs()),
-        //   });
-        // });
-        //     setMapLayers((layers) => {
-        // // console.log('How many', layers.length)
-        // return [...layers, ...newLayers];
-        //   });
         let leafletGeoJSON = new L.GeoJSON(res.data);
         const newLayers = [];
         leafletGeoJSON.eachLayer((layer) => {
@@ -258,14 +242,6 @@ const DatasetMap = (props) => {
     getAOI,
     { refetchInterval: 2000 }
   );
-
-  // useEffect(() => {
-  //    mutateGetAOI()
-
-  //   return () => {
-
-  //   }
-  // }, [])
 
   useEffect(() => {
     if (AOIs) {
@@ -463,21 +439,7 @@ const DatasetMap = (props) => {
     return newAll;
   };
 
-  const blueOptions = { color: "rgb(51, 136, 255)", opacity: "10%" };
-  const greenOptions = { color: "green" };
-  // const multiPolygon = [
-  //   [
-  //     [51.51, -0.12],
-  //     [51.51, -0.13],
-  //     [51.53, -0.13],
-  //     [51.53, -0.12],
-  //   ],
-  //   [
-  //     [51.51, -0.05],
-  //     [51.51, -0.07],
-  //     [51.53, -0.07],
-  //   ],
-  // ];
+  const blueOptions = { color: "#03002e", width: 10, opacity: 1 };
 
   const corrdinatestoLatlngs = (layer) => {
     const latlngs = [];
@@ -488,30 +450,8 @@ const DatasetMap = (props) => {
       latlngs.push({ lat: element[1], lng: element[0] });
     }
     return latlngs;
-
-    // layer
-    // [
-    //   {
-    //     "lat": -0.29876588491525485,
-    //     "lng": 36.074897276690386
-    //   },
-    //   {
-    //     "lat": -0.29701710827394917,
-    //     "lng": 36.074897276690386
-    //   },
-    //   {
-    //     "lat": -0.29701710827394917,
-    //     "lng": 36.077172973400586
-    //   },
-    //   {
-    //     "lat": -0.29876588491525485,
-    //     "lng": 36.077172973400586
-    //   }
-    // ]
   };
   const _onFeatureGroupReady = (reactFGref, _geoJsonLoadedFile) => {
-    // console.log("_onFeatureGroupReady, reactFGref", reactFGref);
-    // console.log("_onFeatureGroupReady reactFGref",reactFGref);
     if (reactFGref) {
       // make sure each layer has a featre geojson for created ones
       reactFGref.eachLayer((l) => {
@@ -525,8 +465,6 @@ const DatasetMap = (props) => {
     }
     if (reactFGref && fromDB && !isEditing) {
       setFromDB(false);
-      // console.log("fromDB", fromDB)
-      // console.log("reactFGref", reactFGref)
     }
     if (reactFGref === null || _geoJsonLoadedFile === null || isEditing) {
       return;
@@ -546,12 +484,6 @@ const DatasetMap = (props) => {
 
       const { feature } = layer;
       if (feature.properties.dataset) {
-        // console.log("_latlngs");
-        // console.log("layer added", layer);
-        // // const getlatlngs = feature.properties.dataset ? corrdinatestoLatlngs(layer) :layer._latlngs[0][0]
-        // // newLayer._latlngs[0] = getlatlngs;
-        // console.log("newLayer", newLayer);
-
         // Add if not exist by feature ID
         const { _layers } = leafletFG;
         Object.values(_layers).map((l) => {
@@ -597,20 +529,6 @@ const DatasetMap = (props) => {
     });
   };
   const _onFeatureGroupReadyLabels = (reactFGref, _geoJsonLoadedFile) => {
-    // console.log("_onFeatureGroupReady");
-    // console.log("_onFeatureGroupReadyLabels reactFGref",reactFGref);
-    // if (reactFGref)
-    // {
-    //   // make sure each layer has a featre geojson for created ones
-    //   reactFGref.eachLayer(l => {
-    //     // console.log("each layer", l)
-    //     if (l.feature === undefined)
-    //     {
-    //       // console.log("mapLayers", mapLayers)
-    //       l.feature = mapLayers.find(m => m.id === l._leaflet_id).feature
-    //     }
-    //   })
-    // }
     if (reactFGref === null || _geoJsonLoadedFile === null) {
       return;
     }
@@ -646,26 +564,6 @@ const DatasetMap = (props) => {
       }
       // }
     });
-
-    //  const newAOI = {
-    //   id: _leaflet_id,
-    //   type: str,
-    //   latlngs: layer.getLatLngs()[0],
-    //   area: L.GeometryUtil.geodesicArea(layer.getLatLngs()[0]),
-    // }
-    // const polygon = "SRID=4326;POLYGON((" + JSON.stringify(converToGeoPolygon([newAOI ])[0][0].reduce(
-    //                                                                       (p,c,i)=> ( p + c[1] + " " + c[0] + "," ),
-    //                                                                       ""
-    //                                                                       )
-    //                             ).slice(1,-2) +
-    //                             "))"
-
-    // console.log("converToPolygon([layer])",polygon );
-
-    // setMapLayers((layers) => [
-    //   ...layers,
-    //   newAOI,
-    // ]);
 
     console.log("all good");
   };
@@ -718,10 +616,6 @@ const DatasetMap = (props) => {
 
   return (
     <>
-      {/* <EditControlExample></EditControlExample> */}
-
-      {/* <button onClick={addGeoJSONHandler}>Add TM Project 11974</button>
-      <button onClick={changePositionHandler}>Change position</button> */}
       <DatasetEditorHeader
         dsId={props.dataset.id}
         dsName={props.dataset.name}
@@ -748,16 +642,6 @@ const DatasetMap = (props) => {
         <MyComponent />
 
         <LayersControl position="topright">
-          {/* <LayersControl.BaseLayer name="Google" >
-            <TileLayer
-              maxZoom={24}
-              attribution={"Copyright &copy; Google"}
-              url={
-                "http://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
-              }
-            />
-          </LayersControl.BaseLayer>  */}
-
           <LayersControl.BaseLayer name="Maxar Preimum">
             <TileLayer
               maxNativeZoom={21}
@@ -799,20 +683,11 @@ const DatasetMap = (props) => {
 
         <FeatureGroup>
           <Polygon
-            color="rgb(51, 136, 255)"
             pathOptions={blueOptions}
             positions={converToPolygon(
               mapLayers.filter((e) => e.type === "aoi")
             )}
           />
-          {/* <Polygon
-            pathOptions={greenOptions}
-            positions={converToPolygon(
-              mapLayers.filter((e) => e.type === "lbl")
-            )}
-          /> */}
-          {/* {geoJsonLoadedLabels && 
-         <GeoJSON attribution="&copy; credits to OSM" data={geoJsonLoadedLabels} />} */}
         </FeatureGroup>
         <FeatureGroup
           ref={(reactFGref) => {

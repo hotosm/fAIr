@@ -118,6 +118,7 @@ class ModelViewSet(
     permission_allowed_methods = ["GET"]
     queryset = Model.objects.all()
     serializer_class = ModelSerializer  # connecting serializer
+    filterset_fields = ["status"]
 
 
 class AOIViewSet(viewsets.ModelViewSet):
