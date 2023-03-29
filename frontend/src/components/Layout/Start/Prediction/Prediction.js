@@ -47,7 +47,7 @@ const Prediction = (props) => {
 
       if (res.error) setError(res.error.response.statusText);
       else {
-        console.log("getmodel", res.data);
+        // console.log("getmodel", res.data);
         mutate(res.data.dataset);
         return res.data;
       }

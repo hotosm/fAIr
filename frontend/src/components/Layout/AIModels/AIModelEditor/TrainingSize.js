@@ -1,21 +1,20 @@
-import React from "react";
-import { useQuery } from "react-query";
+import React, { useEffect } from "react";
+import { useMutation } from "react-query";
 import axios from "../../../../axios";
 
 const TrainingSize = (props) => {
-  console.log("inside trainingsize");
+  // const { accessToken,authenticate } = useContext(AuthContext);
   console.log(props);
 
-  // const { accessToken,authenticate } = useContext(AuthContext);
-
   const getTrainingSize = async () => {
-    console.log(
-      `/workspace/dataset_${props.datasetId}/output/training_${props.trainingId}/preprocessed/`
-    );
     // if (!accessToken) return;
+    console.log(
+      `/workspace/dataset_${props.datasetId}/output/training_${props.trainingId}/preprocessed`
+    );
+
     try {
       const res = await axios.get(
-        `/workspace/dataset_${props.datasetId}/output/training_${props.trainingId}/preprocessed/`
+        `/workspace/dataset_${props.datasetId}/output/training_${props.trainingId}/preprocessed`
       );
 
       if (res.error) {
@@ -29,25 +28,19 @@ const TrainingSize = (props) => {
     } finally {
     }
   };
-  const { data, isLoading } = useQuery("getTrainingSize", getTrainingSize, {
-    refetchInterval: 120000,
-  });
+  const { mutate, data, isLoading } = useMutation(getTrainingSize);
+
+  useEffect(() => {
+    mutate();
+
+    return () => {};
+  }, [mutate]);
+
   return (
     <>
       {isLoading && "Loading ..."}
       {data && data.dir && data.dir.chips && (
-        <>
-          {Array.isArray(data.dir.chips) && data.dir.chips.length > 0 ? (
-            data.dir.chips.map((chip, index) => (
-              <div key={index}>
-                <span>Chip {index + 1}: </span>
-                <span>{chip.len} images</span>
-              </div>
-            ))
-          ) : (
-            <span>No chips found</span>
-          )}
-        </>
+        <span>{data.dir.chips.len} images</span>
       )}
     </>
   );
