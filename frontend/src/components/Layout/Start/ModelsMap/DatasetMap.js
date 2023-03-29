@@ -32,7 +32,7 @@ const DatasetMap = (props) => {
     <>
       {data && (
         <p>
-          Id : {data.id}, {data.description} Accuracy : {data.accuracy}
+          Accuracy : {data.accuracy},Id : {data.id}, {data.description}
         </p>
       )}
     </>
