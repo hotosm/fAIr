@@ -20,7 +20,6 @@ from hot_fair_utilities import preprocess, train
 
 
 DEFAULT_TILE_SIZE = 256
-DEFAULT_ZOOM_LEVEL = 19
 
 
 @shared_task
@@ -57,7 +56,6 @@ def train_model(
                 )
                 try:
                     tile_size = DEFAULT_TILE_SIZE  # by default
-                    zm_level = DEFAULT_ZOOM_LEVEL
                     bbox_coords = bbox(obj.geom.coords[0])
                     start, end = get_start_end_download_coords(
                         bbox_coords, zm_level, tile_size

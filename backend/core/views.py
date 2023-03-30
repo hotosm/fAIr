@@ -80,6 +80,7 @@ class TrainingSerializer(
         validated_data["created_by"] = user
         # create the model instance
         instance = Training.objects.create(**validated_data)
+
         # run your function here
         task = train_model.delay(
             dataset_id=instance.model.dataset.id,
