@@ -23,6 +23,7 @@ from login.authentication import OsmAuthentication
 from login.permissions import IsOsmAuthenticated
 from rest_framework import decorators, serializers, status, viewsets
 from rest_framework.decorators import api_view
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_gis.filters import InBBoxFilter, TMSTileFilter
@@ -76,6 +77,15 @@ class TrainingSerializer(
         )
 
     def create(self, validated_data):
+        model_id = validated_data["model"].id
+        existing_trainings = Training.objects.filter(model_id=model_id).exclude(
+            status__in=["FINISHED", "FAILED"]
+        )
+        if existing_trainings.exists():
+            raise ValidationError(
+                "Another training is already running or submitted for this model."
+            )
+
         user = self.context["request"].user
         validated_data["created_by"] = user
         # create the model instance
