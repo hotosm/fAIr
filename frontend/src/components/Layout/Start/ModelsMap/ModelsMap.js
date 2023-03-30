@@ -30,7 +30,23 @@ const PublishedAIModelsList = (props) => {
   const navigate = useNavigate();
 
   const columns = [
-    { field: "id", headerName: "ID" },
+    {
+      field: "id",
+      headerName: "ID",
+      renderCell: (params) => {
+        const handleClick = () => {
+          navigate(`/ai-models/${params.value}`);
+        };
+        return (
+          <div
+            style={{ cursor: "pointer", textDecoration: "underline" }}
+            onClick={handleClick}
+          >
+            {params.value}
+          </div>
+        );
+      },
+    },
     { field: "name", headerName: "Name" },
     {
       field: "last_modified",

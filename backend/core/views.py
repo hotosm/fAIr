@@ -4,6 +4,7 @@ import json
 import os
 import pathlib
 import shutil
+import subprocess
 import uuid
 import zipfile
 from datetime import datetime
@@ -250,6 +251,22 @@ def run_task_status(request, run_id: str):
                 "traceback": str(task_result.traceback),
             }
         )
+    elif task_result.state == "PENDING" or task_result.state == "STARTED":
+        log_file = os.path.join(settings.LOG_PATH, f"run_{run_id}_log.txt")
+        try:
+            # read the last 10 lines of the log file
+            output = subprocess.check_output(["tail", "-n", "10", log_file]).decode(
+                "utf-8"
+            )
+        except Exception as e:
+            output = str(e)
+        result = {
+            "id": run_id,
+            "status": task_result.state,
+            "result": task_result.result,
+            "traceback": str(output),
+        }
+        return Response(result)
     else:
         result = {
             "id": run_id,
