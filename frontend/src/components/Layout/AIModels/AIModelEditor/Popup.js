@@ -47,7 +47,7 @@ const Popup = ({ open, handleClose, row }) => {
   };
 
   useEffect(() => {
-    if (row.status === "FAILED") {
+    if (row.status === "FAILED" || row.status === "RUNNING") {
       getTrainingStatus(row.task_id);
     } else if (row.status === "FINISHED") {
       getDatasetId(row.model);
@@ -82,25 +82,26 @@ const Popup = ({ open, handleClose, row }) => {
         <p>
           <b>Accuracy:</b> {row.accuracy}
         </p>
-        {row.status === "FAILED" && (
-          <>
-            <p>
-              <b>Error:</b> {error}
-            </p>
-            {traceback && (
-              <div
-                style={{
-                  backgroundColor: "black",
-                  color: "white",
-                  padding: "10px",
-                  whiteSpace: "pre-wrap",
-                }}
-              >
-                {traceback}
-              </div>
-            )}
-          </>
-        )}
+        {row.status === "FAILED" ||
+          (row.status === "RUNNING" && (
+            <>
+              <p>
+                <b>Status:</b> {row.status}
+              </p>
+              {traceback && (
+                <div
+                  style={{
+                    backgroundColor: "black",
+                    color: "white",
+                    padding: "10px",
+                    whiteSpace: "pre-wrap",
+                  }}
+                >
+                  {traceback}
+                </div>
+              )}
+            </>
+          ))}
         {row.status === "FINISHED" && imageUrl && (
           <div style={{ display: "flex", justifyContent: "center" }}>
             <img src={imageUrl} alt="training graph" style={{ width: "98%" }} />

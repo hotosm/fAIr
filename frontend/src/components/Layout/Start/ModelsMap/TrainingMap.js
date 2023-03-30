@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { useMutation } from "react-query";
 import axios from "../../../../axios";
+import { Link } from "react-router-dom";
 const TrainingMap = (props) => {
   const getDataset = async () => {
     try {
@@ -32,7 +33,8 @@ const TrainingMap = (props) => {
     <>
       {data && (
         <p>
-          Id : {data.id}, {data.name}
+          <Link to={`/training-datasets/${data.id}`}>Id: {data.id}</Link>,{" "}
+          {data.name}
         </p>
       )}
     </>
