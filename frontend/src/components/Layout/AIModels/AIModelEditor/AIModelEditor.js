@@ -55,7 +55,7 @@ const AIModelEditor = (props) => {
         epochs: epochs,
         batch_size: batchSize,
         model: id,
-        zoom_level: zoomLevels,
+        zoom_level: zoomLevel,
         description: description,
       };
       const headers = {
@@ -191,6 +191,8 @@ const AIModelEditor = (props) => {
                       checked={zoomLevel.includes(level)}
                       onChange={(e) => {
                         if (e.target.checked) {
+                          console.log(e.target.value);
+                          console.log(level);
                           setZoomLevel([...zoomLevel, level]);
                         } else {
                           setZoomLevel(zoomLevel.filter((l) => l !== level));
