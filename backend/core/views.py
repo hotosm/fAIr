@@ -5,6 +5,7 @@ import os
 import pathlib
 import shutil
 import subprocess
+import sys
 import uuid
 import zipfile
 from datetime import datetime
@@ -355,6 +356,9 @@ class PredictionView(APIView):
 
                 # Terminate the prediction process
                 prediction_process.terminate()
+                print(
+                    f"Printing size of geojson data {sys.getsizeof(geojson_data)*0.001} kb"
+                )
                 print("Vectorization complete")
                 return Response(geojson_data, status=status.HTTP_201_CREATED)
             except Exception as ex:
