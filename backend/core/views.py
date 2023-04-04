@@ -322,6 +322,7 @@ class PredictionView(APIView):
                     source=source,
                 )
                 prediction_output = f"{temp_path}/prediction/output"
+                print("Image Downloaded , Starting Inference")
 
                 # Spawn a new process for the prediction task
                 prediction_process = multiprocessing.Process(
@@ -354,7 +355,7 @@ class PredictionView(APIView):
 
                 # Terminate the prediction process
                 prediction_process.terminate()
-
+                print("Vectorization complete")
                 return Response(geojson_data, status=status.HTTP_201_CREATED)
             except Exception as ex:
                 print(ex)

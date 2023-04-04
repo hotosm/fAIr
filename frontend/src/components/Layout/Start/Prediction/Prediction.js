@@ -19,6 +19,7 @@ const Prediction = () => {
   const [error, setError] = useState(false);
   const [map, setMap] = useState(null);
   const [zoom, setZoom] = useState(0);
+  const [responseTime, setResponseTime] = useState(0);
   const [bounds, setBounds] = useState({});
   const [windowSize, setWindowSize] = useState([
     window.innerWidth,
@@ -91,7 +92,10 @@ const Prediction = () => {
       zoom_level: zoom,
       source: dataset.source_imagery,
     };
+    const startTime = new Date().getTime(); // measure start time
     const res = await axios.post(`/prediction/`, body, { headers });
+    const endTime = new Date().getTime(); // measure end time
+    setResponseTime((endTime - startTime) / 1000); // calculate and store response time in seconds
     if (res.error) {
       setError(
         `${res.error.response.statusText}, ${JSON.stringify(
@@ -188,6 +192,8 @@ const Prediction = () => {
               <span>Zoom {JSON.stringify(zoom)}</span>
               <br />
               <span>Model Id {id}</span>
+              <br />
+              <span>Response Time {responseTime} seconds</span>
             </>
           )}
           {error && <Alert severity="error">{error}</Alert>}
