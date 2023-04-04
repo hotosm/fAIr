@@ -189,11 +189,11 @@ const Prediction = () => {
             <>
               <br />
               <br />
-              <span>Zoom {JSON.stringify(zoom)}</span>
+              <span>Zoom : {JSON.stringify(zoom)}</span>
               <br />
-              <span>Model Id {id}</span>
+              <span>Model : {id}</span>
               <br />
-              <span>Response Time {responseTime} seconds</span>
+              <span>Response : {responseTime} sec</span>
             </>
           )}
           {error && <Alert severity="error">{error}</Alert>}
