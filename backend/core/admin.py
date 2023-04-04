@@ -11,11 +11,29 @@ class DatasetAdmin(geoadmin.GeoModelAdmin):
     list_display = ["name", "created_by"]
 
 
-@admin.register(AOI)
-class AOIAdmin(geoadmin.GeoModelAdmin):
-    list_display = ["dataset", "created_at"]
+@admin.register(Model)
+class ModelAdmin(geoadmin.GeoModelAdmin):
+    list_display = ["get_dataset_id", "name", "status", "created_at"]
+
+    def get_dataset_id(self, obj):
+        return obj.dataset.id
+
+    get_dataset_id.short_description = "Dataset"
 
 
-@admin.register(Label)
-class LabelAdmin(geoadmin.GeoModelAdmin):
-    list_display = ["aoi", "created_at"]
+@admin.register(Training)
+class TrainingAdmin(geoadmin.GeoModelAdmin):
+    list_display = [
+        "get_model_id",
+        "description",
+        "status",
+        "zoom_level",
+        "created_by",
+        "accuracy",
+    ]
+    list_filter = ["status"]
+
+    def get_model_id(self, obj):
+        return obj.model.id
+
+    get_model_id.short_description = "Model"
