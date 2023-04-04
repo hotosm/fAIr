@@ -362,7 +362,7 @@ class PredictionView(APIView):
                     f"Printing size of geojson data {sys.getsizeof(geojson_data)*0.001} kb"
                 )
                 print(
-                    f"Vectorization complete : Total : {round(start_time-time.time())} sec"
+                    f"Vectorization complete : Total : {round(time.time()-start_time)} sec"
                 )
                 return Response(geojson_data, status=status.HTTP_201_CREATED)
             except Exception as ex:
