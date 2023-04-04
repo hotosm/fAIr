@@ -6,6 +6,7 @@ import pathlib
 import shutil
 import subprocess
 import sys
+import time
 import uuid
 import zipfile
 from datetime import datetime
@@ -291,6 +292,7 @@ class PredictionView(APIView):
     )
     def post(self, request, *args, **kwargs):
         """Predicts on bbox by published model"""
+        start_time = time.time()
         res_serializer = PredictionParamSerializer(data=request.data)
         if res_serializer.is_valid(raise_exception=True):
             deserialized_data = res_serializer.data
@@ -359,7 +361,9 @@ class PredictionView(APIView):
                 print(
                     f"Printing size of geojson data {sys.getsizeof(geojson_data)*0.001} kb"
                 )
-                print("Vectorization complete")
+                print(
+                    f"Vectorization complete : Total : {round(start_time-time.time())} sec"
+                )
                 return Response(geojson_data, status=status.HTTP_201_CREATED)
             except Exception as ex:
                 print(ex)
