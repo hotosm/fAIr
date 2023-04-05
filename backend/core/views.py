@@ -328,40 +328,29 @@ class PredictionView(APIView):
                 print("Image Downloaded , Starting Inference")
                 start_time = time.time()
                 # Spawn a new process for the prediction task
-                predict(
-                    os.path.join(
-                        settings.TRAINING_WORKSPACE,
-                        f"dataset_{model_instance.dataset.id}",
-                        "output",
-                        f"training_{training_instance.id}",
-                        "checkpoint.tf",
-                    ),
-                    temp_path,
-                    prediction_output,
-                )
-                # with ProcessPoolExecutor(max_workers=1) as executor:
-                #     try:
-                #         future = executor.submit(
-                #             predict,
-                #             os.path.join(
-                #                 settings.TRAINING_WORKSPACE,
-                #                 f"dataset_{model_instance.dataset.id}",
-                #                 "output",
-                #                 f"training_{training_instance.id}",
-                #                 "checkpoint.tf",
-                #             ),
-                #             temp_path,
-                #             prediction_output,
-                #         )
-                #         future.result(
-                #             timeout=30
-                #         )  # Wait for process to complete, wait for max 30 sec
-                #     except TimeoutError:
-                #         print("Preiction Timeout")
-                #         return Response(
-                #             "Prediction Timeout , Took more than 30 sec : Use smaller models/area",
-                #             status=500,
-                #         )
+                with ProcessPoolExecutor(max_workers=1) as executor:
+                    try:
+                        future = executor.submit(
+                            predict,
+                            os.path.join(
+                                settings.TRAINING_WORKSPACE,
+                                f"dataset_{model_instance.dataset.id}",
+                                "output",
+                                f"training_{training_instance.id}",
+                                "checkpoint.tf",
+                            ),
+                            temp_path,
+                            prediction_output,
+                        )
+                        future.result(
+                            timeout=30
+                        )  # Wait for process to complete, wait for max 30 sec
+                    except TimeoutError:
+                        print("Preiction Timeout")
+                        return Response(
+                            "Prediction Timeout , Took more than 30 sec : Use smaller models/area",
+                            status=500,
+                        )
 
                 print("Prediction is Complete, Vectorizing images")
 
