@@ -9,6 +9,7 @@ import sys
 import time
 import uuid
 import zipfile
+from concurrent.futures import ProcessPoolExecutor, TimeoutError
 from datetime import datetime
 from tempfile import NamedTemporaryFile
 
@@ -327,27 +328,31 @@ class PredictionView(APIView):
                 print("Image Downloaded , Starting Inference")
                 start_time = time.time()
                 # Spawn a new process for the prediction task
-                prediction_process = multiprocessing.Process(
-                    target=predict,
-                    args=(
-                        os.path.join(
-                            settings.TRAINING_WORKSPACE,
-                            f"dataset_{model_instance.dataset.id}",
-                            "output",
-                            f"training_{training_instance.id}",
-                            "checkpoint.tf",
-                        ),
-                        temp_path,
-                        prediction_output,
-                    ),
-                )
-                prediction_process.start()
-                prediction_process.join(
-                    30
-                )  # Wait for process to complete , wait for max 30 sec
-                print(f"Prediction is Complete, Vectorizing images")
-                # Terminate the prediction process
-                prediction_process.terminate()
+                with ProcessPoolExecutor(max_workers=1) as executor:
+                    try:
+                        future = executor.submit(
+                            predict,
+                            os.path.join(
+                                settings.TRAINING_WORKSPACE,
+                                f"dataset_{model_instance.dataset.id}",
+                                "output",
+                                f"training_{training_instance.id}",
+                                "checkpoint.tf",
+                            ),
+                            temp_path,
+                            prediction_output,
+                        )
+                        future.result(
+                            timeout=30
+                        )  # Wait for process to complete, wait for max 30 sec
+                    except TimeoutError:
+                        print("Preiction Timeout")
+                        return Response(
+                            "Prediction Timeout , Took more than 30 sec : Use smaller models/area",
+                            status=500,
+                        )
+
+                print("Prediction is Complete, Vectorizing images")
 
                 geojson_output = f"{prediction_output}/prediction.geojson"
                 polygonize(
