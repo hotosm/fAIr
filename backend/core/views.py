@@ -22,7 +22,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
 from gpxpy.gpx import GPX, GPXTrack, GPXTrackSegment, GPXWaypoint
-from hot_fair_utilities import polygonize, predict
+from hot_fair_utilities import polygonize, predict, vectorize
 from login.authentication import OsmAuthentication
 from login.permissions import IsOsmAuthenticated
 from rest_framework import decorators, serializers, status, viewsets
@@ -343,10 +343,10 @@ class PredictionView(APIView):
                             prediction_output,
                         )
                         future.result(
-                            timeout=30
-                        )  # Wait for process to complete, wait for max 30 sec
+                            timeout=45
+                        )  # Wait for process to complete, wait for max 45 sec
                     except TimeoutError:
-                        print("Preiction Timeout")
+                        print("Prediction Timeout")
                         return Response(
                             "Prediction Timeout , Took more than 30 sec : Use smaller models/area",
                             status=500,
@@ -356,10 +356,15 @@ class PredictionView(APIView):
                 start = time.time()
 
                 geojson_output = f"{prediction_output}/prediction.geojson"
-                polygonize(
+                # polygonize(
+                #     input_path=prediction_output,
+                #     output_path=geojson_output,
+                #     remove_inputs=True,
+                # )
+
+                vectorize(
                     input_path=prediction_output,
                     output_path=geojson_output,
-                    remove_inputs=True,
                 )
                 with open(geojson_output, "r") as f:
                     geojson_data = json.load(f)
