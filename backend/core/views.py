@@ -346,6 +346,8 @@ class PredictionView(APIView):
                     30
                 )  # Wait for process to complete , wait for max 30 sec
                 print(f"Prediction is Complete, Vectorizing images")
+                # Terminate the prediction process
+                prediction_process.terminate()
 
                 geojson_output = f"{prediction_output}/prediction.geojson"
                 polygonize(
@@ -357,8 +359,6 @@ class PredictionView(APIView):
                     geojson_data = json.load(f)
                 shutil.rmtree(temp_path)
 
-                # Terminate the prediction process
-                prediction_process.terminate()
                 print(
                     f"Printing size of geojson data {sys.getsizeof(geojson_data)*0.001} kb"
                 )
@@ -367,7 +367,7 @@ class PredictionView(APIView):
             except Exception as ex:
                 print(ex)
                 shutil.rmtree(temp_path)
-                return Response("Prediction Error", status=404)
+                return Response("Prediction Error", status=500)
 
 
 @api_view(["POST"])
