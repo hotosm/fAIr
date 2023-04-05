@@ -75,7 +75,6 @@ def latlng2tile(zoom, lat, lng, tile_size):
 
     t_x = math.floor((w_x * zoom_byte) / tile_size)
     t_y = math.floor((w_y * zoom_byte) / tile_size)
-    print(t_x, t_y)
     return t_x, t_y
 
 
@@ -121,7 +120,7 @@ def download_image(url, base_path, source_name):
     with open(filename, "wb") as f:
         f.write(image)
 
-    print(f"Downloaded: {url}")
+    # print(f"Downloaded: {url}")
 
 
 def download_imagery(start: list, end: list, zm_level, base_path, source="maxar"):

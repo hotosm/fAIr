@@ -292,7 +292,6 @@ class PredictionView(APIView):
     )
     def post(self, request, *args, **kwargs):
         """Predicts on bbox by published model"""
-        start_time = time.time()
         res_serializer = PredictionParamSerializer(data=request.data)
         if res_serializer.is_valid(raise_exception=True):
             deserialized_data = res_serializer.data
@@ -326,7 +325,7 @@ class PredictionView(APIView):
                 )
                 prediction_output = f"{temp_path}/prediction/output"
                 print("Image Downloaded , Starting Inference")
-
+                start_time = time.time()
                 # Spawn a new process for the prediction task
                 prediction_process = multiprocessing.Process(
                     target=predict,
@@ -344,7 +343,9 @@ class PredictionView(APIView):
                 )
                 prediction_process.start()
                 prediction_process.join()  # Wait for process to complete
-                print("Prediction is Complete , Vectorizing images")
+                print(
+                    f"Prediction is Complete ({round(time.time()-start_time)} sec), Vectorizing images"
+                )
 
                 geojson_output = f"{prediction_output}/prediction.geojson"
                 polygonize(
@@ -361,9 +362,7 @@ class PredictionView(APIView):
                 print(
                     f"Printing size of geojson data {sys.getsizeof(geojson_data)*0.001} kb"
                 )
-                print(
-                    f"Vectorization complete : Total : {round(time.time()-start_time)} sec"
-                )
+                print(f"Vectorization complete")
                 return Response(geojson_data, status=status.HTTP_201_CREATED)
             except Exception as ex:
                 print(ex)
