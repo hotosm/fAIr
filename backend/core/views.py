@@ -353,6 +353,7 @@ class PredictionView(APIView):
                         )
 
                 print("Prediction is Complete, Vectorizing images")
+                start = time.time()
 
                 geojson_output = f"{prediction_output}/prediction.geojson"
                 polygonize(
@@ -365,9 +366,9 @@ class PredictionView(APIView):
                 shutil.rmtree(temp_path)
 
                 print(
-                    f"Printing size of geojson data {sys.getsizeof(geojson_data)*0.001} kb"
+                    f"It took {round(time.time()-start)}sec for vectorization , Produced :{sys.getsizeof(geojson_data)*0.001} kb"
                 )
-                print(f"Vectorization complete ({round(time.time()-start_time)} sec)")
+                print(f"Prediction API took ({round(time.time()-start_time)} sec)")
                 return Response(geojson_data, status=status.HTTP_201_CREATED)
             except Exception as ex:
                 print(ex)
