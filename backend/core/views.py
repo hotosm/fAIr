@@ -342,7 +342,9 @@ class PredictionView(APIView):
                     ),
                 )
                 prediction_process.start()
-                prediction_process.join()  # Wait for process to complete
+                prediction_process.join(
+                    30
+                )  # Wait for process to complete , wait for max 30 sec
                 print(f"Prediction is Complete, Vectorizing images")
 
                 geojson_output = f"{prediction_output}/prediction.geojson"
