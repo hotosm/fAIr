@@ -15,6 +15,6 @@ CELERY_BROKER_URL="redis://localhost:6379/0"
 CELERY_RESULT_BACKEND="redis://localhost:6379/0"
 RAMP_HOME="/home/kshitij/hotosm/fAIr-utilities"
 TRAINING_WORKSPACE="/home/kshitij/hotosm/fAIr/backend/training"
-LOG_PATH="/home/kshitij/hotosm/fAIr/backend/training/log"
+LOG_PATH="/home/kshitij/hotosm/fAIr/backend/"
 
 TESTING_TOKEN = your_osm_access_token_only_if_you_run_tets
