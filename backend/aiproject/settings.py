@@ -29,7 +29,8 @@ DEBUG = env("DEBUG", default=False)
 # set secret key in production always
 SECRET_KEY = env("SECRET_KEY", default="default_secret_key")
 LOG_PATH = env("LOG_PATH", default=os.path.join(os.getcwd(), "log"))
-os.makedirs(LOG_PATH, exist_ok=True)
+if not os.path.exists(LOG_PATH):
+    os.makedirs(LOG_PATH)
 HOSTNAME = env("HOSTNAME", default="127.0.0.1")
 EXPORT_TOOL_API_URL = env(
     "EXPORT_TOOL_API_URL",
