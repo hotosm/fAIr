@@ -54,7 +54,7 @@ const Popup = ({ open, handleClose, row }) => {
     return traceback.split("\n").map((line, index) => (
       <div key={index} style={{ display: "flex" }}>
         <span style={{ color: "gray", marginRight: "1em" }}>{index + 1}.</span>
-        <span>{line}</span>
+        <span style={{ whiteSpace: "nowrap" }}>{line}</span>
       </div>
     ));
   };
@@ -74,7 +74,7 @@ const Popup = ({ open, handleClose, row }) => {
       </DialogTitle>
       <DialogContent>
         <p>
-          <b>Epochs/ Batch Size:</b> {row.epochs}/{row.batch_size}
+          <b>Epochs / Batch Size:</b> {row.epochs}/{row.batch_size}
         </p>
         <p>
           <b>Source Image (TMS): </b>
