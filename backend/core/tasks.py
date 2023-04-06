@@ -37,6 +37,8 @@ def train_model(
 
     try:
         ## -----------IMAGE DOWNLOADER---------
+        os.makedirs(settings.LOG_PATH, exist_ok=True)
+
         log_file = os.path.join(
             settings.LOG_PATH, f"run_{train_model.request.id}_log.txt"
         )

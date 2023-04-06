@@ -5,8 +5,11 @@ import os
 import pathlib
 import shutil
 import subprocess
+import sys
+import time
 import uuid
 import zipfile
+from concurrent.futures import ProcessPoolExecutor, TimeoutError
 from datetime import datetime
 from tempfile import NamedTemporaryFile
 
@@ -19,7 +22,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
 from gpxpy.gpx import GPX, GPXTrack, GPXTrackSegment, GPXWaypoint
-from hot_fair_utilities import polygonize, predict
+from hot_fair_utilities import polygonize, predict, vectorize
 from login.authentication import OsmAuthentication
 from login.permissions import IsOsmAuthenticated
 from rest_framework import decorators, serializers, status, viewsets
@@ -322,44 +325,60 @@ class PredictionView(APIView):
                     source=source,
                 )
                 prediction_output = f"{temp_path}/prediction/output"
-
+                print("Image Downloaded , Starting Inference")
+                start_time = time.time()
                 # Spawn a new process for the prediction task
-                prediction_process = multiprocessing.Process(
-                    target=predict,
-                    args=(
-                        os.path.join(
-                            settings.TRAINING_WORKSPACE,
-                            f"dataset_{model_instance.dataset.id}",
-                            "output",
-                            f"training_{training_instance.id}",
-                            "checkpoint.tf",
-                        ),
-                        temp_path,
-                        prediction_output,
-                    ),
-                )
-                prediction_process.start()
-                prediction_process.join()  # Wait for process to complete
-                print("Prediction is Complete , Vectorizing images")
+                with ProcessPoolExecutor(max_workers=1) as executor:
+                    try:
+                        future = executor.submit(
+                            predict,
+                            os.path.join(
+                                settings.TRAINING_WORKSPACE,
+                                f"dataset_{model_instance.dataset.id}",
+                                "output",
+                                f"training_{training_instance.id}",
+                                "checkpoint.tf",
+                            ),
+                            temp_path,
+                            prediction_output,
+                        )
+                        future.result(
+                            timeout=45
+                        )  # Wait for process to complete, wait for max 45 sec
+                    except TimeoutError:
+                        print("Prediction Timeout")
+                        return Response(
+                            "Prediction Timeout , Took more than 30 sec : Use smaller models/area",
+                            status=500,
+                        )
+
+                print("Prediction is Complete, Vectorizing images")
+                start = time.time()
 
                 geojson_output = f"{prediction_output}/prediction.geojson"
-                polygonize(
+                # polygonize(
+                #     input_path=prediction_output,
+                #     output_path=geojson_output,
+                #     remove_inputs=True,
+                # )
+
+                vectorize(
                     input_path=prediction_output,
                     output_path=geojson_output,
-                    remove_inputs=True,
                 )
                 with open(geojson_output, "r") as f:
                     geojson_data = json.load(f)
                 shutil.rmtree(temp_path)
 
-                # Terminate the prediction process
-                prediction_process.terminate()
-
+                print(
+                    f"It took {round(time.time()-start)}sec for vectorization , Produced :{sys.getsizeof(geojson_data)*0.001} kb"
+                )
+                print(f"Prediction API took ({round(time.time()-start_time)} sec)")
                 return Response(geojson_data, status=status.HTTP_201_CREATED)
             except Exception as ex:
                 print(ex)
                 shutil.rmtree(temp_path)
-                return Response("Prediction Error", status=404)
+                return Response("Prediction Error", status=500)
 
 
 @api_view(["POST"])
