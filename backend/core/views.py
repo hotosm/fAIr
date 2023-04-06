@@ -327,18 +327,28 @@ class PredictionView(APIView):
                 prediction_output = f"{temp_path}/prediction/output"
                 print("Image Downloaded , Starting Inference")
                 start_time = time.time()
+                model_path = os.path.join(
+                    settings.TRAINING_WORKSPACE,
+                    f"dataset_{model_instance.dataset.id}",
+                    "output",
+                    f"training_{training_instance.id}",
+                    "checkpoint.h5",
+                )
+                # give high priority to h5 model format if not avilable fall back to .tf
+                if not os.path.exists(model_path):
+                    model_path = os.path.join(
+                        settings.TRAINING_WORKSPACE,
+                        f"dataset_{model_instance.dataset.id}",
+                        "output",
+                        f"training_{training_instance.id}",
+                        "checkpoint.tf",
+                    )
                 # Spawn a new process for the prediction task
                 with ProcessPoolExecutor(max_workers=1) as executor:
                     try:
                         future = executor.submit(
                             predict,
-                            os.path.join(
-                                settings.TRAINING_WORKSPACE,
-                                f"dataset_{model_instance.dataset.id}",
-                                "output",
-                                f"training_{training_instance.id}",
-                                "checkpoint.tf",
-                            ),
+                            model_path,
                             temp_path,
                             prediction_output,
                         )
