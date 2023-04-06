@@ -8,6 +8,7 @@ from shutil import rmtree
 
 import hot_fair_utilities
 import ramp.utils
+import tensorflow as tf
 from celery import shared_task
 from core.models import AOI, Label, Training
 from core.serializers import LabelFileSerializer
@@ -147,12 +148,20 @@ def train_model(
             shutil.copytree(
                 final_model_path, os.path.join(output_path, "checkpoint.tf")
             )
+
             shutil.copytree(
                 preprocess_output, os.path.join(output_path, "preprocessed")
             )
 
             graph_output_path = f"{base_path}/train/graphs"
             shutil.copytree(graph_output_path, os.path.join(output_path, "graphs"))
+
+            # convert model to hdf5 for faster inference
+            model = tf.keras.models.load_model(
+                os.path.join(output_path, "checkpoint.tf")
+            )
+            # Save the model in HDF5 format
+            model.save(os.path.join(output_path, "checkpoint.h5"))
 
             # now remove the ramp-data all our outputs are copied to our training workspace
             shutil.rmtree(base_path)
@@ -162,7 +171,8 @@ def train_model(
             training_instance.save()
             response = {}
             response["accuracy"] = float(final_accuracy)
-            response["model_path"] = os.path.join(output_path, "checkpoint.tf")
+            # response["model_path"] = os.path.join(output_path, "checkpoint.tf")
+            response["model_path"] = os.path.join(output_path, "checkpoint.h5")
             response["graph_path"] = os.path.join(output_path, "graphs")
             sys.stdout = sys.__stdout__
         logger.info(f"Training task {training_id} completed successfully")

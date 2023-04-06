@@ -46,6 +46,19 @@ const Popup = ({ open, handleClose, row }) => {
     }
   };
 
+  const renderTraceback = () => {
+    if (!traceback) {
+      return null;
+    }
+
+    return traceback.split("\n").map((line, index) => (
+      <div key={index} style={{ display: "flex" }}>
+        <span style={{ color: "gray", marginRight: "1em" }}>{index + 1}.</span>
+        <span style={{ whiteSpace: "nowrap" }}>{line}</span>
+      </div>
+    ));
+  };
+
   useEffect(() => {
     if (row.status === "FAILED" || row.status === "RUNNING") {
       getTrainingStatus(row.task_id);
@@ -61,7 +74,7 @@ const Popup = ({ open, handleClose, row }) => {
       </DialogTitle>
       <DialogContent>
         <p>
-          <b>Epochs/ Batch Size:</b> {row.epochs}/{row.batch_size}
+          <b>Epochs / Batch Size:</b> {row.epochs}/{row.batch_size}
         </p>
         <p>
           <b>Source Image (TMS): </b>
@@ -82,26 +95,28 @@ const Popup = ({ open, handleClose, row }) => {
         <p>
           <b>Accuracy:</b> {row.accuracy}
         </p>
-        {row.status === "FAILED" ||
-          (row.status === "RUNNING" && (
-            <>
-              <p>
-                <b>Status:</b> {row.status}
-              </p>
-              {traceback && (
-                <div
-                  style={{
-                    backgroundColor: "black",
-                    color: "white",
-                    padding: "10px",
-                    whiteSpace: "pre-wrap",
-                  }}
-                >
-                  {traceback}
-                </div>
-              )}
-            </>
-          ))}
+        {(row.status === "FAILED" || row.status === "RUNNING") && (
+          <>
+            <p>
+              <b>Status:</b> {row.status}
+            </p>
+            {traceback && (
+              <div
+                style={{
+                  backgroundColor: "black",
+                  color: "white",
+                  padding: "10px",
+                  fontSize: "12px",
+                  whiteSpace: "pre-wrap",
+                  fontFamily: "monospace",
+                  overflow: "auto",
+                }}
+              >
+                {renderTraceback()}
+              </div>
+            )}
+          </>
+        )}
         {row.status === "FINISHED" && imageUrl && (
           <div style={{ display: "flex", justifyContent: "center" }}>
             <img src={imageUrl} alt="training graph" style={{ width: "98%" }} />
