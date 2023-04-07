@@ -119,15 +119,23 @@ const Prediction = () => {
       const response = await axios.post("/geojson2osm/", {
         geojson: predictions,
       });
-
       if (response.status === 200) {
         const osmUrl = new URL("http://127.0.0.1:8111/load_data");
         osmUrl.searchParams.set("new_layer", "true");
-        osmUrl.searchParams.set("data", response);
+        osmUrl.searchParams.set("data", response.data);
 
         const josmResponse = await fetch(osmUrl);
+        const Imgurl = new URL("http://127.0.0.1:8111/imagery");
+        Imgurl.searchParams.set("type", "tms");
+        Imgurl.searchParams.set("title", oamImagery.name);
+        Imgurl.searchParams.set("url", dataset.source_imagery);
+
+        const imgResponse = await fetch(Imgurl);
+
         if (!josmResponse.ok) {
-          throw new Error("JOSM remote control failed");
+          throw new Error(
+            "JOSM remote control failed, Make sure you have JOSM Open and Remote Control Enabled"
+          );
         }
       } else {
         setError("OSM XML conversion failed");
@@ -225,12 +233,20 @@ const Prediction = () => {
               <span>Model : {id}</span>
               <br />
               <span>Response : {responseTime} sec</span>
+              <br />
+              <br />
             </>
           )}
           {error && <Alert severity="error">{error}</Alert>}
-          <Button variant="contained" color="secondary" onClick={openWithJosm}>
-            Open with JOSM
-          </Button>
+          {predictions && (
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={openWithJosm}
+            >
+              Open with JOSM
+            </Button>
+          )}
         </Grid>
       </Grid>
     </>
