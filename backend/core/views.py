@@ -245,7 +245,7 @@ def download_training_data(request, dataset_id: int):
 @api_view(["POST"])
 def geojson2osmconverter(request):
     try:
-        geojson_data = json.loads(request.body)
+        geojson_data = json.loads(request.body)["geojson"]
     except json.JSONDecodeError:
         return HttpResponseBadRequest("Invalid input")
 

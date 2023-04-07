@@ -21,10 +21,12 @@ const Prediction = () => {
   const [zoom, setZoom] = useState(0);
   const [responseTime, setResponseTime] = useState(0);
   const [bounds, setBounds] = useState({});
+
   const [windowSize, setWindowSize] = useState([
     window.innerWidth,
     window.innerHeight,
   ]);
+  const [josmEnabled, setJosmEnabled] = useState(false);
 
   useEffect(() => {
     getModel();
@@ -107,6 +109,34 @@ const Prediction = () => {
     return res.data;
   });
 
+  async function openWithJosm() {
+    if (!predictions) {
+      setError("No predictions available");
+      return;
+    }
+
+    try {
+      const response = await axios.post("/geojson2osm/", {
+        geojson: predictions,
+      });
+
+      if (response.status === 200) {
+        const osmUrl = new URL("http://127.0.0.1:8111/load_data");
+        osmUrl.searchParams.set("new_layer", "true");
+        osmUrl.searchParams.set("data", response);
+
+        const josmResponse = await fetch(osmUrl);
+        if (!josmResponse.ok) {
+          throw new Error("JOSM remote control failed");
+        }
+      } else {
+        setError("OSM XML conversion failed");
+      }
+    } catch (error) {
+      setError(error.message);
+    }
+  }
+
   function MyComponent() {
     const map = useMapEvents({
       zoomend: (e) => {
@@ -185,6 +215,7 @@ const Prediction = () => {
           >
             Detect
           </LoadingButton>
+
           {map && (
             <>
               <br />
@@ -197,6 +228,9 @@ const Prediction = () => {
             </>
           )}
           {error && <Alert severity="error">{error}</Alert>}
+          <Button variant="contained" color="secondary" onClick={openWithJosm}>
+            Open with JOSM
+          </Button>
         </Grid>
       </Grid>
     </>
