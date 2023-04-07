@@ -21,10 +21,12 @@ const Prediction = () => {
   const [zoom, setZoom] = useState(0);
   const [responseTime, setResponseTime] = useState(0);
   const [bounds, setBounds] = useState({});
+
   const [windowSize, setWindowSize] = useState([
     window.innerWidth,
     window.innerHeight,
   ]);
+  const [josmEnabled, setJosmEnabled] = useState(false);
 
   useEffect(() => {
     getModel();
@@ -107,6 +109,42 @@ const Prediction = () => {
     return res.data;
   });
 
+  async function openWithJosm() {
+    if (!predictions) {
+      setError("No predictions available");
+      return;
+    }
+
+    try {
+      const response = await axios.post("/geojson2osm/", {
+        geojson: predictions,
+      });
+      if (response.status === 200) {
+        const osmUrl = new URL("http://127.0.0.1:8111/load_data");
+        osmUrl.searchParams.set("new_layer", "true");
+        osmUrl.searchParams.set("data", response.data);
+
+        const josmResponse = await fetch(osmUrl);
+        const Imgurl = new URL("http://127.0.0.1:8111/imagery");
+        Imgurl.searchParams.set("type", "tms");
+        Imgurl.searchParams.set("title", oamImagery.name);
+        Imgurl.searchParams.set("url", dataset.source_imagery);
+
+        const imgResponse = await fetch(Imgurl);
+
+        if (!josmResponse.ok) {
+          throw new Error(
+            "JOSM remote control failed, Make sure you have JOSM Open and Remote Control Enabled"
+          );
+        }
+      } else {
+        setError("OSM XML conversion failed");
+      }
+    } catch (error) {
+      setError(error.message);
+    }
+  }
+
   function MyComponent() {
     const map = useMapEvents({
       zoomend: (e) => {
@@ -185,6 +223,7 @@ const Prediction = () => {
           >
             Detect
           </LoadingButton>
+
           {map && (
             <>
               <br />
@@ -194,9 +233,20 @@ const Prediction = () => {
               <span>Model : {id}</span>
               <br />
               <span>Response : {responseTime} sec</span>
+              <br />
+              <br />
             </>
           )}
           {error && <Alert severity="error">{error}</Alert>}
+          {predictions && (
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={openWithJosm}
+            >
+              Open with JOSM
+            </Button>
+          )}
         </Grid>
       </Grid>
     </>
