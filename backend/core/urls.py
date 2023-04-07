@@ -16,6 +16,7 @@ from .views import (
     TrainingWorkspaceDownloadView,
     TrainingWorkspaceView,
     download_training_data,
+    geojson2osmconverter,
     publish_training,
     run_task_status,
 )
@@ -37,6 +38,7 @@ urlpatterns = [
     path("training/publish/<int:training_id>/", publish_training),
     path("prediction/", PredictionView.as_view()),
     path("status/", APIStatus.as_view()),
+    path("geojson2osm/", geojson2osmconverter, name="geojson2osmconverter"),
     path("aoi/gpx/<int:aoi_id>/", GenerateGpxView.as_view()),
     path("workspace/", TrainingWorkspaceView.as_view()),
     path(

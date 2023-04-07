@@ -17,10 +17,16 @@ import tensorflow as tf
 from celery import current_app
 from celery.result import AsyncResult
 from django.conf import settings
-from django.http import FileResponse, HttpResponse, StreamingHttpResponse
+from django.http import (
+    FileResponse,
+    HttpResponse,
+    HttpResponseBadRequest,
+    StreamingHttpResponse,
+)
 from django.shortcuts import get_object_or_404, redirect
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
+from geojson2osm import geojson2osm
 from gpxpy.gpx import GPX, GPXTrack, GPXTrackSegment, GPXWaypoint
 from hot_fair_utilities import polygonize, predict, vectorize
 from login.authentication import OsmAuthentication
@@ -236,6 +242,18 @@ def download_training_data(request, dataset_id: int):
         return HttpResponse(status=204)
 
 
+@api_view(["POST"])
+def geojson2osmconverter(request):
+    try:
+        geojson_data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return HttpResponseBadRequest("Invalid input")
+
+    osm_xml = geojson2osm(geojson_data)
+
+    return HttpResponse(osm_xml, content_type="application/xml")
+
+
 @api_view(["GET"])
 def run_task_status(request, run_id: str):
     """Gives the status of running task from background process
@@ -378,12 +396,19 @@ class PredictionView(APIView):
                 )
                 with open(geojson_output, "r") as f:
                     geojson_data = json.load(f)
+
+                for feature in geojson_data["features"]:
+                    feature["properties"]["building"] = "yes"
+                    feature["properties"]["source"] = "fAIr"
+
                 shutil.rmtree(temp_path)
 
                 print(
                     f"It took {round(time.time()-start)}sec for vectorization , Produced :{sys.getsizeof(geojson_data)*0.001} kb"
                 )
                 print(f"Prediction API took ({round(time.time()-start_time)} sec)")
+
+                ## TODO : can send osm xml format from here as well using geojson2osm
                 return Response(geojson_data, status=status.HTTP_201_CREATED)
             except Exception as ex:
                 print(ex)

@@ -191,9 +191,20 @@ const TileServerList = (props) => {
                 fullWidth
                 onChange={(e) => {
                   setInputError(false);
-                  setOAMURL(e.target.value.trim());
+                  let trimmedValue = e.target.value.trim();
                   let regUrl = /^(https?|chrome):\/\/[^\s$.?#].[^\s]*$/;
-                  setError(!regUrl.test(e.target.value.trim()));
+                  let endsWithPng = trimmedValue.endsWith(".png");
+                  if (endsWithPng) {
+                    trimmedValue = trimmedValue.slice(0, -4);
+                  }
+                  let hasZXY = trimmedValue.endsWith("{z}/{x}/{y}");
+                  let isValid =
+                    regUrl.test(trimmedValue) &&
+                    hasZXY &&
+                    trimmedValue !== "" &&
+                    trimmedValue != null;
+                  setError(!isValid);
+                  setOAMURL(trimmedValue);
                 }}
               />
             </Grid>
