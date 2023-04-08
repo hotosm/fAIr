@@ -11,9 +11,7 @@ const AIModels = React.lazy(() =>
 const Documentation = React.lazy(() =>
   import("./components/Layout/Documentation/Documentation")
 );
-const GetStarted = React.lazy(() =>
-  import("./components/Layout/GetStarted/GetStarted")
-);
+const Learn = React.lazy(() => import("./components/Layout/Learn/Learn"));
 const Start = React.lazy(() => import("./components/Layout/Start/Start"));
 const Why = React.lazy(() => import("./components/Layout/Why/Why"));
 
@@ -30,9 +28,9 @@ export const publicRoutes = [
     name: "Training Datasets",
     element: <Documentation />,
   },
-  { path: "/get-started", name: "Training Datasets", element: <GetStarted /> },
+  { path: "/learn", name: "Learn", element: <Learn /> },
   { path: "/start-mapping/*", name: "Training Datasets", element: <Start /> },
-  { path: "/why-fair", name: "Training Datasets", element: <Why /> },
+  // { path: "/why-fair", name: "Training Datasets", element: <Why /> },
   { path: "/authenticate", name: "Authenticate", element: <Authenticate /> },
   { path: "/", name: "Home", element: <Home /> },
 ];

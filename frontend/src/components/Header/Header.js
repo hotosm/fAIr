@@ -18,8 +18,7 @@ import authContext from "../../Context/AuthContext";
 import UserProfile from "./UserProfile";
 
 const pages = [
-  { name: "Get Started", path: "/get-started" },
-  { name: "Why fAIr?", path: "/why-fair" },
+  { name: "Learn", path: "/learn" },
   { name: "Training Datasets", path: "/training-datasets" },
   { name: "AI Models", path: "/ai-models" },
   { name: "Start Mapping", path: "/start-mapping" },
