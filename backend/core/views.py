@@ -91,6 +91,11 @@ class TrainingSerializer(
         existing_trainings = Training.objects.filter(model_id=model_id).exclude(
             status__in=["FINISHED", "FAILED"]
         )
+        model = get_object_or_404(Model, id=model_id)
+        if not Label.objects.filter(
+            aoi__in=AOI.objects.filter(dataset=model.dataset)
+        ).exists():
+            raise ValidationError("Error: No labels associated with the model")
         if existing_trainings.exists():
             raise ValidationError(
                 "Another training is already running or submitted for this model."
