@@ -1,6 +1,13 @@
 import React, { useContext, useEffect, useState } from "react";
 import { DataGrid } from "@mui/x-data-grid";
-import { Grid, IconButton, Tooltip, Typography } from "@mui/material";
+import {
+  Grid,
+  IconButton,
+  Tooltip,
+  Typography,
+  CircularProgress,
+} from "@mui/material";
+
 import { useMutation, useQuery } from "react-query";
 import axios from "../../../../axios";
 import Alert from "@material-ui/lab/Alert";
@@ -23,6 +30,8 @@ const DEFAULT_FILTER = {
 const AIModelsList = (props) => {
   const [error, setError] = useState(null);
   const [popupOpen, setPopupOpen] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+
   const [popupRow, setPopupRow] = useState(null);
 
   const handlePopupOpen = (row) => {
@@ -61,6 +70,13 @@ const AIModelsList = (props) => {
       field: "description",
       headerName: "Description",
       flex: 1,
+      renderCell: (params) => {
+        return (
+          <Tooltip title={params.value} placement="right">
+            <span>{params.value}</span>
+          </Tooltip>
+        );
+      },
     },
     {
       field: "epochs",
@@ -172,13 +188,16 @@ const AIModelsList = (props) => {
                     mutate(params.row.id);
                   }}
                 >
-                  <PublishIcon />
+                  {publishing ? (
+                    <CircularProgress size={24} />
+                  ) : (
+                    <PublishIcon />
+                  )}
                 </IconButton>
               </Tooltip>
             )}
           </>
         );
-        //  <p>{`${params.row.status} and id ${params.row.id}`}</p>;
       },
     },
   ];
@@ -191,6 +210,7 @@ const AIModelsList = (props) => {
 
   const { accessToken } = useContext(AuthContext);
   const publishModel = async (trainingId) => {
+    setPublishing(true);
     try {
       const headers = {
         "access-token": accessToken,
@@ -213,8 +233,10 @@ const AIModelsList = (props) => {
       console.log("isError");
       setError(JSON.stringify(e));
     } finally {
+      setPublishing(false);
     }
   };
+
   const { mutate } = useMutation(publishModel);
   return (
     <>

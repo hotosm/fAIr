@@ -11,6 +11,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { modelStatus } from "../../../../utils";
 import axios from "../../../../axios";
 import { useMutation, useQuery } from "react-query";
+import Popup from "./Popup";
+
 import OSMUser from "../../../Shared/OSMUser";
 import SaveIcon from "@material-ui/icons/Save";
 import { Checkbox, FormControlLabel } from "@mui/material";
@@ -25,6 +27,8 @@ const AIModelEditor = (props) => {
   const [error, setError] = useState(null);
   const [epochs, setEpochs] = useState(20);
   const [zoomLevel, setZoomLevel] = useState([19]);
+  const [popupOpen, setPopupOpen] = useState(false);
+  const [popupRowData, setPopupRowData] = useState(null);
 
   const [random, setRandom] = useState(Math.random());
   const [batchSize, setBatchSize] = useState(8);
@@ -45,6 +49,20 @@ const AIModelEditor = (props) => {
     } finally {
     }
   };
+  const openPopupWithTrainingId = async (trainingId) => {
+    try {
+      const response = await axios.get(`/training/${trainingId}/`);
+      setPopupRowData(response.data);
+      setPopupOpen(true);
+    } catch (error) {
+      console.error("Error fetching training information:", error);
+    }
+  };
+  const handlePopupOpen = (row) => {
+    setPopupRowData(row);
+    setPopupOpen(true);
+  };
+
   const { data, isLoading, refetch } = useQuery("getModelById", getModelById, {
     refetchInterval: 60000,
   });
@@ -92,23 +110,43 @@ const AIModelEditor = (props) => {
             <Typography variant="h6" component="div">
               Model ID: {data.id}
             </Typography>
-            <Typography variant="h6" component="div">
-              Status: {modelStatus(data.status)}
-              {data.published_training &&
-                ", training: " + data.published_training + ", "}
+            <Typography
+              variant="h6"
+              component="div"
+              style={{ display: "flex", justifyContent: "space-between" }}
+            >
+              <div>
+                Status: <b>{modelStatus(data.status)}</b>
+                {data.published_training && (
+                  <>
+                    ,
+                    <Link
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        openPopupWithTrainingId(data.published_training);
+                      }}
+                      color="inherit"
+                    >
+                      <b>Training: {data.published_training}</b>
+                    </Link>
+                  </>
+                )}
+              </div>
               {data.status === 0 && (
-                <Link
-                  href="#"
+                <Button
+                  variant="contained"
+                  color="primary"
                   onClick={(e) => {
                     e.preventDefault();
                     navigate("/start-mapping/" + data.id);
                   }}
-                  color="inherit"
                 >
                   Start mapping
-                </Link>
+                </Button>
               )}
             </Typography>
+
             <Typography variant="h6" component="div">
               <Link
                 href="#"
@@ -256,6 +294,13 @@ const AIModelEditor = (props) => {
             ></Trainings>
           </Grid>
         </Grid>
+      )}
+      {popupRowData && (
+        <Popup
+          open={popupOpen}
+          handleClose={() => setPopupOpen(false)}
+          row={popupRowData}
+        />
       )}
     </>
   );

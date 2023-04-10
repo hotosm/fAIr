@@ -52,6 +52,13 @@ const DatasetList = (props) => {
       field: "name",
       headerName: "Name",
       width: 250,
+      renderCell: (params) => {
+        return (
+          <Tooltip title={params.value} placement="right">
+            <span>{params.value}</span>
+          </Tooltip>
+        );
+      },
     },
     {
       field: "created_at",

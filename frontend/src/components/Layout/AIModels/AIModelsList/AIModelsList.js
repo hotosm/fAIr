@@ -51,6 +51,14 @@ const AIModelsList = (props) => {
     {
       field: "name",
       headerName: "Name",
+      width: 250,
+      renderCell: (params) => {
+        return (
+          <Tooltip title={params.value} placement="right">
+            <span>{params.value}</span>
+          </Tooltip>
+        );
+      },
     },
     {
       field: "created_at",
@@ -79,6 +87,7 @@ const AIModelsList = (props) => {
     {
       field: "dataset",
       headerName: "Dataset ID",
+      width: 150,
 
       renderCell: (params) => {
         return <span> {params.value}</span>;
