@@ -25,6 +25,8 @@ import { GeoJSON } from "react-leaflet";
 const Prediction = () => {
   const { id } = useParams();
   const [error, setError] = useState(false);
+  const [josmLoading, setJosmLoading] = useState(false);
+
   const [apiCallInProgress, setApiCallInProgress] = useState(false);
 
   const [map, setMap] = useState(null);
@@ -193,6 +195,7 @@ const Prediction = () => {
   });
 
   async function openWithJosm() {
+    setJosmLoading(true);
     if (!predictions) {
       setError("No predictions available");
       return;
@@ -225,6 +228,8 @@ const Prediction = () => {
       }
     } catch (error) {
       setError(error.message);
+    } finally {
+      setJosmLoading(false);
     }
   }
 
@@ -362,13 +367,14 @@ const Prediction = () => {
           )}
           {error && <Alert severity="error">{error}</Alert>}
           {predictions && (
-            <Button
+            <LoadingButton
               variant="contained"
               color="secondary"
               onClick={openWithJosm}
+              loading={josmLoading}
             >
               Open Results with JOSM
-            </Button>
+            </LoadingButton>
           )}
         </Grid>
       </Grid>
