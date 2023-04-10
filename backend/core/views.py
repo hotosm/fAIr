@@ -95,7 +95,10 @@ class TrainingSerializer(
         if not Label.objects.filter(
             aoi__in=AOI.objects.filter(dataset=model.dataset)
         ).exists():
-            raise ValidationError("Error: No labels associated with the model")
+            raise ValidationError(
+                "Error: No labels associated with the model, Create AOI & Labels for Dataset"
+            )
+
         if existing_trainings.exists():
             raise ValidationError(
                 "Another training is already running or submitted for this model."
