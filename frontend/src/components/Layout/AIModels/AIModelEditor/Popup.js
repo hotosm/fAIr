@@ -5,6 +5,7 @@ import {
   DialogContent,
   DialogActions,
   Button,
+  CircularProgress,
 } from "@mui/material";
 import axios from "../../../../axios";
 
@@ -12,6 +13,7 @@ const Popup = ({ open, handleClose, row }) => {
   const [error, setError] = useState(null);
   const [traceback, setTraceback] = useState(null);
   const [imageUrl, setImageUrl] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const getTrainingStatus = async (taskId) => {
     try {
@@ -60,10 +62,13 @@ const Popup = ({ open, handleClose, row }) => {
   };
 
   useEffect(() => {
+    setLoading(true);
     if (row.status === "FAILED" || row.status === "RUNNING") {
-      getTrainingStatus(row.task_id);
+      getTrainingStatus(row.task_id).finally(() => setLoading(false));
     } else if (row.status === "FINISHED") {
-      getDatasetId(row.model);
+      getDatasetId(row.model).finally(() => setLoading(false));
+    } else {
+      setLoading(false);
     }
   }, [row.status, row.task_id, row.model]);
 
@@ -95,32 +100,52 @@ const Popup = ({ open, handleClose, row }) => {
         <p>
           <b>Accuracy:</b> {row.accuracy}
         </p>
+        <p>
+          <b>Status:</b> {row.status}
+        </p>
         {(row.status === "FAILED" || row.status === "RUNNING") && (
           <>
-            <p>
-              <b>Status:</b> {row.status}
-            </p>
-            {traceback && (
-              <div
-                style={{
-                  backgroundColor: "black",
-                  color: "white",
-                  padding: "10px",
-                  fontSize: "12px",
-                  whiteSpace: "pre-wrap",
-                  fontFamily: "monospace",
-                  overflow: "auto",
-                }}
-              >
-                {renderTraceback()}
+            {loading ? (
+              <div style={{ display: "flex", justifyContent: "center" }}>
+                <CircularProgress />
               </div>
+            ) : (
+              traceback && (
+                <div
+                  style={{
+                    backgroundColor: "black",
+                    color: "white",
+                    padding: "10px",
+                    fontSize: "12px",
+                    whiteSpace: "pre-wrap",
+                    fontFamily: "monospace",
+                    overflow: "auto",
+                  }}
+                >
+                  {renderTraceback()}
+                </div>
+              )
             )}
           </>
         )}
-        {row.status === "FINISHED" && imageUrl && (
-          <div style={{ display: "flex", justifyContent: "center" }}>
-            <img src={imageUrl} alt="training graph" style={{ width: "98%" }} />
-          </div>
+        {row.status === "FINISHED" && (
+          <>
+            {loading ? (
+              <div style={{ display: "flex", justifyContent: "center" }}>
+                <CircularProgress />
+              </div>
+            ) : (
+              imageUrl && (
+                <div style={{ display: "flex", justifyContent: "center" }}>
+                  <img
+                    src={imageUrl}
+                    alt="training graph"
+                    style={{ width: "98%" }}
+                  />
+                </div>
+              )
+            )}
+          </>
         )}
       </DialogContent>
 
