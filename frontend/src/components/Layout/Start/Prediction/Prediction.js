@@ -54,6 +54,7 @@ const Prediction = () => {
       // Fetch training information
       const trainingRes = await axios.get(`/training/${trainingId}`);
       const { accuracy, description, zoom_level: zoomLevel } = trainingRes.data;
+      const zoomLevels = zoomLevel.join(", ");
 
       // Fetch workspace data
       const workspaceRes = await axios.get(
@@ -79,7 +80,7 @@ const Prediction = () => {
         lastModified: modelRes.data.last_modified,
         trainingId,
         trainingDescription: description,
-        trainingZoomLevel: zoomLevel,
+        trainingZoomLevel: zoomLevels,
         trainingAccuracy: accuracy,
         modelSize: modelSizeInMB,
       });
@@ -349,7 +350,7 @@ const Prediction = () => {
                     </Typography>
                     <Typography variant="body1">
                       <strong>Training Accuracy:</strong>{" "}
-                      {modelInfo.trainingAccuracy}
+                      {modelInfo.trainingAccuracy} %
                     </Typography>
                     <Typography variant="body1">
                       <strong>Model Size:</strong> {modelInfo.modelSize} MB
