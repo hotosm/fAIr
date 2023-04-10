@@ -70,6 +70,13 @@ const AIModelsList = (props) => {
       field: "description",
       headerName: "Description",
       flex: 1,
+      renderCell: (params) => {
+        return (
+          <Tooltip title={params.value} placement="right">
+            <span>{params.value}</span>
+          </Tooltip>
+        );
+      },
     },
     {
       field: "epochs",

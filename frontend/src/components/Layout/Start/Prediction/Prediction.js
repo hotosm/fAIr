@@ -17,6 +17,8 @@ import { GeoJSON } from "react-leaflet";
 const Prediction = () => {
   const { id } = useParams();
   const [error, setError] = useState(false);
+  const [apiCallInProgress, setApiCallInProgress] = useState(false);
+
   const [map, setMap] = useState(null);
   const [zoom, setZoom] = useState(0);
   const [responseTime, setResponseTime] = useState(0);
@@ -27,6 +29,20 @@ const Prediction = () => {
     window.innerHeight,
   ]);
   const [josmEnabled, setJosmEnabled] = useState(false);
+
+  useEffect(() => {
+    if (!apiCallInProgress) {
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setResponseTime((prevResponseTime) => prevResponseTime + 1);
+    }, 1000);
+
+    return () => {
+      clearInterval(timer);
+    };
+  }, [apiCallInProgress]);
 
   useEffect(() => {
     getModel();
@@ -80,6 +96,7 @@ const Prediction = () => {
     data: predictions,
     isLoading: predictionLoading,
   } = useMutation(async () => {
+    setApiCallInProgress(true);
     const headers = {
       "access-token": accessToken,
     };
@@ -98,6 +115,7 @@ const Prediction = () => {
     const res = await axios.post(`/prediction/`, body, { headers });
     const endTime = new Date().getTime(); // measure end time
     setResponseTime((endTime - startTime) / 1000); // calculate and store response time in seconds
+    setApiCallInProgress(false);
     if (res.error) {
       setError(
         `${res.error.response.statusText}, ${JSON.stringify(
