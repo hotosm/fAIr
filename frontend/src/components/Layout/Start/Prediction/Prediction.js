@@ -1,5 +1,13 @@
 import LoadingButton from "@mui/lab/LoadingButton";
-import { Alert, Button, Grid } from "@mui/material";
+import {
+  Alert,
+  Button,
+  Grid,
+  Box,
+  CircularProgress,
+  Paper,
+  Typography,
+} from "@mui/material";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import {
   FeatureGroup,
@@ -29,6 +37,61 @@ const Prediction = () => {
     window.innerHeight,
   ]);
   const [josmEnabled, setJosmEnabled] = useState(false);
+  const [modelInfo, setModelInfo] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      // Fetch model information
+      const modelRes = await axios.get(`/model/${id}`);
+      const {
+        name,
+        published_training: trainingId,
+        dataset: datasetId,
+      } = modelRes.data;
+
+      // Fetch training information
+      const trainingRes = await axios.get(`/training/${trainingId}`);
+      const { accuracy, description, zoom_level: zoomLevel } = trainingRes.data;
+
+      // Fetch workspace data
+      const workspaceRes = await axios.get(
+        `/workspace/dataset_${datasetId}/output/training_${trainingId}/`
+      );
+      const { dir } = workspaceRes.data;
+
+      // Calculate model size
+      let modelSize = 0;
+      if (dir["checkpoint.h5"]) {
+        modelSize = dir["checkpoint.h5"].size;
+      } else if (dir["checkpoint.tf"]) {
+        modelSize = dir["checkpoint.tf"].size;
+      }
+
+      // Convert bytes to human-readable format
+      const modelSizeInMB = ((modelSize / 1024) * 0.001).toFixed(2);
+
+      // Set the state with the fetched data
+      setModelInfo({
+        id,
+        name,
+        lastModified: modelRes.data.last_modified,
+        trainingId,
+        trainingDescription: description,
+        trainingZoomLevel: zoomLevel,
+        trainingAccuracy: accuracy,
+        modelSize: modelSizeInMB,
+      });
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   useEffect(() => {
     if (!apiCallInProgress) {
@@ -97,6 +160,7 @@ const Prediction = () => {
     isLoading: predictionLoading,
   } = useMutation(async () => {
     setApiCallInProgress(true);
+    setResponseTime(0);
     const headers = {
       "access-token": accessToken,
     };
@@ -114,7 +178,7 @@ const Prediction = () => {
     const startTime = new Date().getTime(); // measure start time
     const res = await axios.post(`/prediction/`, body, { headers });
     const endTime = new Date().getTime(); // measure end time
-    setResponseTime((endTime - startTime) / 1000); // calculate and store response time in seconds
+    setResponseTime(((endTime - startTime) / 1000).toFixed(0)); // calculate and store response time in seconds
     setApiCallInProgress(false);
     if (res.error) {
       setError(
@@ -239,21 +303,61 @@ const Prediction = () => {
               callPredict();
             }}
           >
-            Detect
+            Run Prediction
           </LoadingButton>
 
           {map && (
-            <>
-              <br />
-              <br />
-              <span>Zoom : {JSON.stringify(zoom)}</span>
-              <br />
-              <span>Model : {id}</span>
-              <br />
-              <span>Response : {responseTime} sec</span>
-              <br />
-              <br />
-            </>
+            <Box mt={3}>
+              <Typography variant="h6">
+                Current Zoom: {JSON.stringify(zoom)}
+              </Typography>
+              <Typography variant="h7">Response: {responseTime} sec</Typography>
+
+              {loading ? (
+                <Box display="flex" justifyContent="center" mt={2}>
+                  <CircularProgress />
+                </Box>
+              ) : (
+                modelInfo && (
+                  <Paper elevation={3} sx={{ padding: 2, marginTop: 2 }}>
+                    <Typography variant="h6" gutterBottom>
+                      <strong>Loaded Model</strong>
+                    </Typography>
+                    <Typography variant="body1">
+                      <strong>Model ID:</strong> {modelInfo.id}
+                    </Typography>
+                    <Typography variant="body1">
+                      <strong>Model Name:</strong> {modelInfo.name}
+                    </Typography>
+                    <Typography variant="body1">
+                      <strong>Model Last Modified:</strong>{" "}
+                      {new Date(modelInfo.lastModified).toLocaleString()}
+                    </Typography>
+                    <Typography variant="h6" gutterBottom mt={2}>
+                      <strong>Published Training</strong>
+                    </Typography>
+                    <Typography variant="body1">
+                      <strong>Training ID:</strong> {modelInfo.trainingId}
+                    </Typography>
+                    <Typography variant="body1">
+                      <strong>Training Description:</strong>{" "}
+                      {modelInfo.trainingDescription}
+                    </Typography>
+                    <Typography variant="body1">
+                      <strong>Training Zoom Level:</strong>{" "}
+                      {modelInfo.trainingZoomLevel}
+                    </Typography>
+                    <Typography variant="body1">
+                      <strong>Training Accuracy:</strong>{" "}
+                      {modelInfo.trainingAccuracy}
+                    </Typography>
+                    <Typography variant="body1">
+                      <strong>Model Size:</strong> {modelInfo.modelSize} MB
+                    </Typography>
+                  </Paper>
+                )
+              )}
+            </Box>
           )}
           {error && <Alert severity="error">{error}</Alert>}
           {predictions && (
@@ -262,7 +366,7 @@ const Prediction = () => {
               color="secondary"
               onClick={openWithJosm}
             >
-              Open with JOSM
+              Open Results with JOSM
             </Button>
           )}
         </Grid>
