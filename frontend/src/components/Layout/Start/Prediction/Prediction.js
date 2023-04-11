@@ -8,6 +8,14 @@ import {
   Paper,
   Typography,
 } from "@mui/material";
+import {
+  FormControl,
+  InputLabel,
+  Tooltip,
+  MenuItem,
+  Select,
+} from "@mui/material";
+
 import React, { useContext, useEffect, useRef, useState } from "react";
 import {
   FeatureGroup,
@@ -28,6 +36,7 @@ const Prediction = () => {
   const [josmLoading, setJosmLoading] = useState(false);
 
   const [apiCallInProgress, setApiCallInProgress] = useState(false);
+  const [confidence, setConfidence] = useState(50);
 
   const [map, setMap] = useState(null);
   const [zoom, setZoom] = useState(0);
@@ -177,6 +186,7 @@ const Prediction = () => {
       model_id: id,
       zoom_level: zoom,
       source: dataset.source_imagery,
+      confidence: confidence,
     };
     const startTime = new Date().getTime(); // measure start time
     const res = await axios.post(`/prediction/`, body, { headers });
@@ -311,13 +321,36 @@ const Prediction = () => {
           >
             Run Prediction
           </LoadingButton>
+          <Box display="flex" alignItems="center" mt={1}>
+            <Tooltip title="Select confidence threshold probability for filtering out low-confidence predictions">
+              <Typography variant="h7" style={{ marginRight: "8px" }}>
+                <strong>Confidence: </strong>
+              </Typography>
+            </Tooltip>
+            <FormControl size="small">
+              <Select
+                value={confidence}
+                onChange={(e) => setConfidence(e.target.value)}
+                style={{ width: "90px" }}
+                disableUnderline
+                MenuProps={{ disablePortal: true }}
+              >
+                <MenuItem value={25}>25 %</MenuItem>
+                <MenuItem value={50}>50 %</MenuItem>
+                <MenuItem value={75}>75 %</MenuItem>
+                <MenuItem value={90}>90 %</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
 
           {map && (
-            <Box mt={3}>
-              <Typography variant="h6">
-                Current Zoom: {JSON.stringify(zoom)}
+            <Box>
+              <Typography variant="h7">
+                <strong> Current Zoom:</strong> {JSON.stringify(zoom)}
               </Typography>
-              <Typography variant="h7">Response: {responseTime} sec</Typography>
+              <Typography variant="h7">
+                <strong> Response: </strong> {responseTime} sec
+              </Typography>
 
               {loading ? (
                 <Box display="flex" justifyContent="center" mt={2}>

@@ -377,6 +377,9 @@ class PredictionView(APIView):
                             model_path,
                             temp_path,
                             prediction_output,
+                            deserialized_data["confidence"] / 100
+                            if "confidence" in deserialized_data
+                            else 0.5,
                         )
                         future.result(
                             timeout=45
