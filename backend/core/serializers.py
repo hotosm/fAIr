@@ -110,12 +110,18 @@ class PredictionParamSerializer(serializers.Serializer):
     bbox = serializers.ListField(child=serializers.FloatField(), required=True)
     model_id = serializers.IntegerField(required=True)
     zoom_level = serializers.IntegerField(required=True)
+    confidence = serializers.IntegerField(required=False)
     source = serializers.URLField(required=False)
 
     def validate(self, data):
         """
         Check supplied data
         """
+        if "confidence" in data:
+            if data["confidence"] < 0 or data["confidence"] > 100:
+                raise serializers.ValidationError(
+                    f"""Invalid Confidence threshold : {data["confidence"]}, Should be between 0-100"""
+                )
         if len(data["bbox"]) != 4:
             raise serializers.ValidationError("Not a valid bbox")
         if data["zoom_level"] < 18 or data["zoom_level"] > 22:
