@@ -28,7 +28,7 @@ export const publicRoutes = [
     name: "Training Datasets",
     element: <Documentation />,
   },
-  { path: "/learn", name: "Learn", element: <Learn /> },
+  { path: "/learn/*", name: "Learn", element: <Learn /> },
   { path: "/start-mapping/*", name: "Training Datasets", element: <Start /> },
   // { path: "/why-fair", name: "Training Datasets", element: <Why /> },
   { path: "/authenticate", name: "Authenticate", element: <Authenticate /> },

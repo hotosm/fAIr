@@ -77,7 +77,9 @@ function Header() {
               letterSpacing: ".2rem",
               color: "primary",
               textDecoration: "none",
+              cursor: "pointer",
             }}
+            onClick={() => navigate("/")}
           >
             <h2> fAIr</h2>
           </Typography>

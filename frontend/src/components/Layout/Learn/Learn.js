@@ -20,7 +20,7 @@ const Learn = () => {
   const steps = [
     {
       id: 1,
-      title: "Step 1: Click on the button Start Creating Dataset",
+      title: "Step 1: First Login & Click on the button Start Creating Dataset",
       description:
         "To create a new training dataset, start by clicking on the 'Start Creating Dataset' button.",
       image: "/learn/1.png",
@@ -34,7 +34,7 @@ const Learn = () => {
     },
     {
       id: 3,
-      title: "Step 3: Click on the input field , Give you Dataset Name",
+      title: "Step 3: Click on the input field , Give your Dataset Name",
       description:
         "To name your dataset, click on the input field and type in your desired name & click on the 'Create Training Dataset'",
       image: "/learn/3.png",
@@ -127,7 +127,7 @@ const Learn = () => {
       id: 16,
       title: "Step 16: Create Training for Your Model",
       description:
-        "After creating Model for your dataset you will see following page. From here You can submit Trainings for your model. Give your epochs , Batch size and Zoom level for Training . Epochs refers to the number of times the learning algorithm will go through the entire training dataset, recommended between 20 - 60. The higher it is the longer model training takes . Batch size refers to number of sample pairs to work through before updating the internal model parameters. 8 is recommended and preferred to be 8, 16, 32 ...etc . Zoom levels are the image sizes that will be downloaded during trainings (20 is recommended ) You can train on all of zoom levels . you can play with the parameters for your training after visualizing your results , Increase batchsize / epochs or your training labels to achieve best performing model",
+        "After creating Model for your dataset you will see following page. From here You can submit Trainings for your model. Give your epochs , Batch size and Zoom level for Training . Epochs refers to the number of times the learning algorithm will go through the entire training dataset, recommended between 20 - 60.  Batch size refers to number of sample pairs to work through before updating the internal model parameters. 8 is recommended and preferred to be 8, 16, 32 ...etc . Zoom levels are the image sizes that will be downloaded during trainings (20 is recommended ) You can train on all of zoom levels . you can play with the parameters for your training after visualizing your results , Increase- Decrease batchsize / epochs or your training labels to achieve best performing model , You can Use Goldilocks Method to find best parameter for your dataset",
       image: "/learn/15.png", // Add image URL here
     },
     {
