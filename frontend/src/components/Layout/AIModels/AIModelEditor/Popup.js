@@ -7,13 +7,31 @@ import {
   Button,
   CircularProgress,
 } from "@mui/material";
+import FileStructure from "./FileStructure";
+
 import axios from "../../../../axios";
 
 const Popup = ({ open, handleClose, row }) => {
   const [error, setError] = useState(null);
   const [traceback, setTraceback] = useState(null);
   const [imageUrl, setImageUrl] = useState(null);
+  const [trainingWorkspaceURL, settrainingWorkspaceURL] = useState(null);
+
   const [loading, setLoading] = useState(false);
+  const [fileStructure, setFileStructure] = useState(null);
+
+  const getFileStructure = async () => {
+    try {
+      const res = await axios.get(`/workspace/${trainingWorkspaceURL}`);
+      if (res.error) {
+        console.error(res.error);
+      } else {
+        setFileStructure(res.data);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const getTrainingStatus = async (taskId) => {
     try {
@@ -41,6 +59,9 @@ const Popup = ({ open, handleClose, row }) => {
       } else {
         setImageUrl(
           `${axios.defaults.baseURL}/workspace/download/dataset_${res.data.dataset}/output/training_${row.id}/graphs/training_validation_sparse_categorical_accuracy.png`
+        );
+        settrainingWorkspaceURL(
+          `dataset_${res.data.dataset}/output/training_${row.id}/`
         );
       }
     } catch (e) {
@@ -103,6 +124,10 @@ const Popup = ({ open, handleClose, row }) => {
         <p>
           <b>Status:</b> {row.status}
         </p>
+        <Button onClick={getFileStructure} style={{ color: "white" }}>
+          Show File Structure
+        </Button>
+
         {(row.status === "FAILED" || row.status === "RUNNING") && (
           <>
             {loading ? (
@@ -130,6 +155,15 @@ const Popup = ({ open, handleClose, row }) => {
         )}
         {row.status === "FINISHED" && (
           <>
+            {fileStructure && (
+              <FileStructure
+                name="root"
+                content={fileStructure}
+                path=""
+                isFile={false}
+                downloadUrl={`${axios.defaults.baseURL}/workspace/download/`}
+              />
+            )}
             {loading ? (
               <div style={{ display: "flex", justifyContent: "center" }}>
                 <CircularProgress />
