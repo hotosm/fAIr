@@ -195,7 +195,7 @@ const Popup = ({ open, handleClose, row }) => {
                   dirHistory.length > 0 ? dirHistory[dirHistory.length - 1] : ""
                 }
                 isFile={false}
-                downloadUrl={`${axios.defaults.baseURL}/workspace/download/`}
+                downloadUrl={`${axios.defaults.baseURL}/workspace/download/${trainingWorkspaceURL}`}
                 onDirClick={handleDirClick}
               />
             )}
