@@ -19,10 +19,13 @@ const Popup = ({ open, handleClose, row }) => {
 
   const [loading, setLoading] = useState(false);
   const [fileStructure, setFileStructure] = useState(null);
+  const [dirHistory, setDirHistory] = useState([]);
 
-  const getFileStructure = async () => {
+  const getFileStructure = async (currentPath = "") => {
     try {
-      const res = await axios.get(`/workspace/${trainingWorkspaceURL}`);
+      const res = await axios.get(
+        `/workspace/${trainingWorkspaceURL}${currentPath}`
+      );
       if (res.error) {
         console.error(res.error);
       } else {
@@ -33,6 +36,22 @@ const Popup = ({ open, handleClose, row }) => {
     }
   };
 
+  const handleDirClick = (newPath) => {
+    setDirHistory([...dirHistory, newPath]);
+    getFileStructure(newPath);
+  };
+
+  const handleGoBack = () => {
+    const newHistory = [...dirHistory];
+    newHistory.pop();
+    setDirHistory(newHistory);
+
+    if (newHistory.length > 0) {
+      getFileStructure(newHistory[newHistory.length - 1]);
+    } else {
+      getFileStructure();
+    }
+  };
   const getTrainingStatus = async (taskId) => {
     try {
       const res = await axios.get(`/training/status/${taskId}`);
@@ -124,10 +143,23 @@ const Popup = ({ open, handleClose, row }) => {
         <p>
           <b>Status:</b> {row.status}
         </p>
-        <Button onClick={getFileStructure} style={{ color: "white" }}>
-          Show File Structure
-        </Button>
-
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <Button
+            onClick={() => getFileStructure()}
+            style={{ color: "white", fontSize: "0.875rem" }}
+          >
+            File Structure
+          </Button>
+          {row.status === "FINISHED" && (
+            <Button
+              onClick={handleGoBack}
+              disabled={dirHistory.length === 0}
+              style={{ color: "white", fontSize: "0.875rem" }}
+            >
+              Go Back
+            </Button>
+          )}
+        </div>
         {(row.status === "FAILED" || row.status === "RUNNING") && (
           <>
             {loading ? (
@@ -157,11 +189,14 @@ const Popup = ({ open, handleClose, row }) => {
           <>
             {fileStructure && (
               <FileStructure
-                name="root"
+                name={`training_${row.id}`}
                 content={fileStructure}
-                path=""
+                path={
+                  dirHistory.length > 0 ? dirHistory[dirHistory.length - 1] : ""
+                }
                 isFile={false}
                 downloadUrl={`${axios.defaults.baseURL}/workspace/download/`}
+                onDirClick={handleDirClick}
               />
             )}
             {loading ? (

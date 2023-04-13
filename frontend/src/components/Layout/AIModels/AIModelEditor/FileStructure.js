@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { ListItem, ListItemIcon, ListItemText, Collapse } from "@mui/material";
+import {
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  CircularProgress,
+  Collapse,
+  Box,
+} from "@mui/material";
 import {
   Folder,
   InsertDriveFile,
@@ -7,13 +14,24 @@ import {
   ExpandMore,
 } from "@mui/icons-material";
 
-const FileStructure = ({ name, content, path, isFile, downloadUrl }) => {
+const FileStructure = ({
+  name,
+  content,
+  path,
+  isFile,
+  downloadUrl,
+  onDirClick,
+}) => {
   const [open, setOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleClick = () => {
     console.log("button clicked ");
     if (!isFile) {
       setOpen(!open);
+      setIsLoading(true);
+      onDirClick(`${path}/`);
+      setIsLoading(false);
     } else {
       window.open(`${downloadUrl}${path}`, "_blank");
     }
@@ -30,6 +48,7 @@ const FileStructure = ({ name, content, path, isFile, downloadUrl }) => {
         path={`${path}${key}/`}
         isFile={false}
         downloadUrl={downloadUrl}
+        onDirClick={onDirClick}
       />
     ));
 
@@ -59,11 +78,15 @@ const FileStructure = ({ name, content, path, isFile, downloadUrl }) => {
   };
 
   return (
-    <>
+    <Box bgcolor="#f5f5f5" borderRadius="5px" padding="8px">
       <ListItem
         button
         onClick={handleClick}
-        style={{ paddingLeft: isFile ? "32px" : "16px" }}
+        style={{
+          paddingLeft: isFile ? "32px" : "16px",
+          color: "#212121",
+          background: "none",
+        }}
       >
         <ListItemIcon style={iconStyles}>
           {isFile ? (
@@ -84,9 +107,13 @@ const FileStructure = ({ name, content, path, isFile, downloadUrl }) => {
           ))}
       </ListItem>
       <Collapse in={open} timeout="auto" unmountOnExit>
-        {renderContent()}
+        {isLoading ? (
+          <CircularProgress size={20} style={{ margin: "16px" }} />
+        ) : (
+          renderContent()
+        )}
       </Collapse>
-    </>
+    </Box>
   );
 };
 
