@@ -7,14 +7,51 @@ import {
   Button,
   CircularProgress,
 } from "@mui/material";
+import FileStructure from "./FileStructure";
+
 import axios from "../../../../axios";
 
 const Popup = ({ open, handleClose, row }) => {
   const [error, setError] = useState(null);
   const [traceback, setTraceback] = useState(null);
   const [imageUrl, setImageUrl] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [trainingWorkspaceURL, settrainingWorkspaceURL] = useState(null);
 
+  const [loading, setLoading] = useState(false);
+  const [fileStructure, setFileStructure] = useState(null);
+  const [dirHistory, setDirHistory] = useState([]);
+
+  const getFileStructure = async (currentPath = "") => {
+    try {
+      const res = await axios.get(
+        `/workspace/${trainingWorkspaceURL}${currentPath}`
+      );
+      if (res.error) {
+        console.error(res.error);
+      } else {
+        setFileStructure(res.data);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleDirClick = (newPath) => {
+    setDirHistory([...dirHistory, newPath]);
+    getFileStructure(newPath);
+  };
+
+  const handleGoBack = () => {
+    const newHistory = [...dirHistory];
+    newHistory.pop();
+    setDirHistory(newHistory);
+
+    if (newHistory.length > 0) {
+      getFileStructure(newHistory[newHistory.length - 1]);
+    } else {
+      getFileStructure();
+    }
+  };
   const getTrainingStatus = async (taskId) => {
     try {
       const res = await axios.get(`/training/status/${taskId}`);
@@ -41,6 +78,9 @@ const Popup = ({ open, handleClose, row }) => {
       } else {
         setImageUrl(
           `${axios.defaults.baseURL}/workspace/download/dataset_${res.data.dataset}/output/training_${row.id}/graphs/training_validation_sparse_categorical_accuracy.png`
+        );
+        settrainingWorkspaceURL(
+          `dataset_${res.data.dataset}/output/training_${row.id}/`
         );
       }
     } catch (e) {
@@ -103,6 +143,23 @@ const Popup = ({ open, handleClose, row }) => {
         <p>
           <b>Status:</b> {row.status}
         </p>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <Button
+            onClick={() => getFileStructure()}
+            style={{ color: "white", fontSize: "0.875rem" }}
+          >
+            Training Files
+          </Button>
+          {row.status === "FINISHED" && (
+            <Button
+              onClick={handleGoBack}
+              disabled={dirHistory.length === 0}
+              style={{ color: "white", fontSize: "0.875rem" }}
+            >
+              Go Back
+            </Button>
+          )}
+        </div>
         {(row.status === "FAILED" || row.status === "RUNNING") && (
           <>
             {loading ? (
@@ -130,6 +187,18 @@ const Popup = ({ open, handleClose, row }) => {
         )}
         {row.status === "FINISHED" && (
           <>
+            {fileStructure && (
+              <FileStructure
+                name={`training_${row.id}`}
+                content={fileStructure}
+                path={
+                  dirHistory.length > 0 ? dirHistory[dirHistory.length - 1] : ""
+                }
+                isFile={false}
+                downloadUrl={`${axios.defaults.baseURL}/workspace/download/${trainingWorkspaceURL}`}
+                onDirClick={handleDirClick}
+              />
+            )}
             {loading ? (
               <div style={{ display: "flex", justifyContent: "center" }}>
                 <CircularProgress />
