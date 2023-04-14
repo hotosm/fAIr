@@ -107,7 +107,7 @@ const FileStructure = ({
         style={{
           paddingLeft: isFile ? "32px" : "16px",
           color: "white",
-          background: "#FABFBF",
+          background: "#E7D6BD",
         }}
       >
         <ListItemIcon style={iconStyles}>
