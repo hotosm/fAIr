@@ -40,32 +40,14 @@ const FileStructure = ({
   };
 
   const renderContent = () => {
-    if (isFile) {
-      // Get file size and length information
-      const { size, len } = content;
+    if (isFile) return null;
 
-      if (len > 100) {
-        return (
-          <ListItem>
-            <ListItemText primary={`${name} (${len} characters)`} />
-            <ListItemText primary={`File size: ${size}`} />
-            <ListItemText primary="File too large to display." />
-          </ListItem>
-        );
-      }
-
-      return (
-        <ListItem>
-          <ListItemText primary={`${name} (${len} characters)`} />
-          <ListItemText primary={`File size: ${size}`} />
-          <ListItemText primary="File content goes here." />
-        </ListItem>
-      );
-    }
     const dirContent = Object.entries(content.dir || {}).map(([key, value]) => (
       <FileStructure
         key={key}
         name={key}
+        length={value["len"]}
+        size={value["size"]}
         content={value}
         path={`${path}${key}/`}
         isFile={false}
@@ -79,6 +61,7 @@ const FileStructure = ({
         <FileStructure
           key={key}
           name={key}
+          size={value["size"]}
           content={value}
           path={`${path}${key}`}
           isFile={true}
