@@ -17,6 +17,8 @@ import {
 const FileStructure = ({
   name,
   content,
+  lenght,
+  size,
   path,
   isFile,
   downloadUrl,
@@ -38,8 +40,28 @@ const FileStructure = ({
   };
 
   const renderContent = () => {
-    if (isFile) return null;
+    if (isFile) {
+      // Get file size and length information
+      const { size, len } = content;
 
+      if (len > 100) {
+        return (
+          <ListItem>
+            <ListItemText primary={`${name} (${len} characters)`} />
+            <ListItemText primary={`File size: ${size}`} />
+            <ListItemText primary="File too large to display." />
+          </ListItem>
+        );
+      }
+
+      return (
+        <ListItem>
+          <ListItemText primary={`${name} (${len} characters)`} />
+          <ListItemText primary={`File size: ${size}`} />
+          <ListItemText primary="File content goes here." />
+        </ListItem>
+      );
+    }
     const dirContent = Object.entries(content.dir || {}).map(([key, value]) => (
       <FileStructure
         key={key}
@@ -75,6 +97,7 @@ const FileStructure = ({
 
   const listItemTextStyles = {
     fontSize: "0.875rem",
+    color: "white",
   };
 
   return (
@@ -84,8 +107,8 @@ const FileStructure = ({
         onClick={handleClick}
         style={{
           paddingLeft: isFile ? "32px" : "16px",
-          color: "#212121",
-          background: "none",
+          color: "white",
+          background: "white",
         }}
       >
         <ListItemIcon style={iconStyles}>
@@ -97,6 +120,7 @@ const FileStructure = ({
         </ListItemIcon>
         <ListItemText
           primary={name}
+          secondary={`${size ? `${Math.round(size / 1024)} kb` : ""}`}
           primaryTypographyProps={{ style: listItemTextStyles }}
         />
         {!isFile &&
