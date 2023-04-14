@@ -6,6 +6,7 @@ import {
   CircularProgress,
   Collapse,
   Box,
+  Button,
 } from "@mui/material";
 import {
   Folder,
@@ -17,7 +18,7 @@ import {
 const FileStructure = ({
   name,
   content,
-  lenght,
+  length,
   size,
   path,
   isFile,
@@ -28,7 +29,6 @@ const FileStructure = ({
   const [isLoading, setIsLoading] = useState(false);
 
   const handleClick = () => {
-    console.log("button clicked ");
     if (!isFile) {
       setOpen(!open);
       setIsLoading(true);
@@ -38,23 +38,38 @@ const FileStructure = ({
       window.open(`${downloadUrl}${path}`, "_blank");
     }
   };
+  const formatFileSize = (sizeInBytes) => {
+    const units = ["bytes", "KB", "MB", "GB", "TB"];
+
+    let formattedSize = sizeInBytes;
+    let unitIndex = 0;
+
+    while (formattedSize > 1024 && unitIndex < units.length - 1) {
+      formattedSize /= 1024;
+      unitIndex++;
+    }
+
+    return `${formattedSize.toFixed(2)} ${units[unitIndex]}`;
+  };
 
   const renderContent = () => {
     if (isFile) return null;
 
-    const dirContent = Object.entries(content.dir || {}).map(([key, value]) => (
-      <FileStructure
-        key={key}
-        name={key}
-        length={value["len"]}
-        size={value["size"]}
-        content={value}
-        path={`${path}${key}/`}
-        isFile={false}
-        downloadUrl={downloadUrl}
-        onDirClick={onDirClick}
-      />
-    ));
+    const dirContent = Object.entries(content.dir || {}).map(([key, value]) => {
+      return (
+        <FileStructure
+          key={key}
+          name={key}
+          length={value["len"]}
+          size={value["size"]}
+          content={value}
+          path={`${path}${key}/`}
+          isFile={false}
+          downloadUrl={downloadUrl}
+          onDirClick={onDirClick}
+        />
+      );
+    });
 
     const fileContent = Object.entries(content.file || {}).map(
       ([key, value]) => (
@@ -62,6 +77,7 @@ const FileStructure = ({
           key={key}
           name={key}
           size={value["size"]}
+          length={value["len"]}
           content={value}
           path={`${path}${key}`}
           isFile={true}
@@ -84,14 +100,14 @@ const FileStructure = ({
   };
 
   return (
-    <Box bgcolor="#f5f5f5" borderRadius="5px" padding="8px">
+    <Box borderRadius="5px" padding="8px">
       <ListItem
-        button
+        Button
         onClick={handleClick}
         style={{
           paddingLeft: isFile ? "32px" : "16px",
           color: "white",
-          background: "white",
+          background: "#FABFBF",
         }}
       >
         <ListItemIcon style={iconStyles}>
@@ -103,9 +119,12 @@ const FileStructure = ({
         </ListItemIcon>
         <ListItemText
           primary={name}
-          secondary={`${size ? `${Math.round(size / 1024)} kb` : ""}`}
+          secondary={`${size ? formatFileSize(size) : ""} ${
+            length ? `${length} file` : ""
+          }`}
           primaryTypographyProps={{ style: listItemTextStyles }}
         />
+
         {!isFile &&
           (open ? (
             <ExpandLess fontSize="small" />
