@@ -148,7 +148,7 @@ const Popup = ({ open, handleClose, row }) => {
             onClick={() => getFileStructure()}
             style={{ color: "white", fontSize: "0.875rem" }}
           >
-            File Structure
+            Training Files
           </Button>
           {row.status === "FINISHED" && (
             <Button
