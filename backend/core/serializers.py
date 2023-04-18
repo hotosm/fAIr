@@ -62,6 +62,20 @@ class AOISerializer(
         )
 
 
+class FeedbackSerializer(GeoFeatureModelSerializer):
+    class Meta:
+        model = Feedback
+        geo_field = "geom"
+        auto_bbox = True
+        fields = "__all__"
+        read_only_fields = ("created_at", "last_modified", "validated", "user")
+
+    def create(self, validated_data):
+        user = self.context["request"].user
+        validated_data["user"] = user
+        return super().create(validated_data)
+
+
 class LabelSerializer(
     GeoFeatureModelSerializer
 ):  # serializers are used to translate models objects to api

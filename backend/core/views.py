@@ -38,10 +38,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_gis.filters import InBBoxFilter, TMSTileFilter
 
-from .models import AOI, Dataset, Label, Model, Training
+from .models import AOI, Dataset, Feedback, Label, Model, Training
 from .serializers import (
     AOISerializer,
     DatasetSerializer,
+    FeedbackSerializer,
     LabelSerializer,
     ModelSerializer,
     PredictionParamSerializer,
@@ -137,6 +138,16 @@ class TrainingViewSet(
     http_method_names = ["get", "post", "delete"]
     serializer_class = TrainingSerializer  # connecting serializer
     filterset_fields = ["model", "status"]
+
+
+class FeedbackViewset(viewsets.ModelViewSet):
+    authentication_classes = [OsmAuthentication]
+    permission_classes = [IsOsmAuthenticated]
+    permission_allowed_methods = ["GET"]
+    queryset = Feedback.objects.all()
+    http_method_names = ["get", "post", "delete"]
+    serializer_class = FeedbackSerializer  # connecting serializer
+    filterset_fields = ["training", "user", "feedback_type", "validated"]
 
 
 class ModelViewSet(

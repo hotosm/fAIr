@@ -7,6 +7,7 @@ from .views import (
     AOIViewSet,
     APIStatus,
     DatasetViewSet,
+    FeedbackViewset,
     GenerateGpxView,
     LabelViewSet,
     ModelViewSet,
@@ -28,6 +29,7 @@ router.register(r"aoi", AOIViewSet)
 router.register(r"label", LabelViewSet)
 router.register(r"training", TrainingViewSet)
 router.register(r"model", ModelViewSet)
+router.register(r"feedback", FeedbackViewset)
 
 
 urlpatterns = [
