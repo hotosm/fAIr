@@ -1,6 +1,7 @@
 from django.contrib.gis.db import models as geomodels
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
+
 from login.models import OsmUser
 
 # Create your models here.
@@ -84,3 +85,13 @@ class Training(models.Model):
     accuracy = models.FloatField(null=True, blank=True)
     epochs = models.PositiveIntegerField()
     batch_size = models.PositiveIntegerField()
+
+
+# class Feedback(models.Model):
+#     geom = geomodels.GeometryField(srid=4326)
+#     training = model = models.ForeignKey(
+#         Training, to_field="id", on_delete=models.CASCADE
+#     )
+#     created_at = models.DateTimeField(auto_now_add=True)
+#     last_modified = models.DateTimeField(auto_now=True)
+#     user = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)

@@ -24,6 +24,7 @@ import {
   TileLayer,
   useMapEvents,
 } from "react-leaflet";
+import L from "leaflet";
 import { useMutation, useQuery } from "react-query";
 import { useParams } from "react-router-dom";
 import axios from "../../../../axios";
@@ -39,9 +40,10 @@ const Prediction = () => {
   const [confidence, setConfidence] = useState(50);
 
   const [map, setMap] = useState(null);
-  const [zoom, setZoom] = useState(0);
+  const [zoom, setZoom] = useState(15);
   const [responseTime, setResponseTime] = useState(0);
   const [bounds, setBounds] = useState({});
+  const [modifiedFeatures, setModifiedFeatures] = useState(null);
 
   const [windowSize, setWindowSize] = useState([
     window.innerWidth,
@@ -201,7 +203,8 @@ const Prediction = () => {
       );
       return;
     }
-    return res.data;
+    const updatedPredictions = addIdsToPredictions(res.data);
+    return updatedPredictions;
   });
 
   async function openWithJosm() {
@@ -255,6 +258,68 @@ const Prediction = () => {
     });
     return null;
   }
+  function changeFeatureColor(featureId, color, predictionStatus) {
+    const updatedFeatures = { ...modifiedFeatures };
+    updatedFeatures[featureId] = { color, predictionStatus };
+    setModifiedFeatures(updatedFeatures);
+    const feature = predictions.features.find(
+      (feature) => feature.properties.id === featureId
+    );
+    if (feature) {
+      feature.properties.predictionStatus = predictionStatus;
+    }
+  }
+
+  function addIdsToPredictions(predictions) {
+    predictions.features.forEach((feature, index) => {
+      feature.properties.id = index;
+      feature.properties.predictionStatus = "initial";
+    });
+    return predictions;
+  }
+  function onEachFeature(feature, layer) {
+    layer.on("click", (e) => {
+      // Create the popup content
+      const popupContent = `
+        <div>
+          <strong>Provide Feedback:</strong><br />
+          <button id="rightButton" style="background-color: red; margin-right: 5px;">Right</button>
+          <button id="wrongButton" style="background-color: green;">Wrong</button>
+        </div>
+      `;
+
+      const popup = L.popup()
+        .setLatLng(e.latlng)
+        .setContent(popupContent)
+        .openOn(e.target._map);
+
+      const popupElement = popup.getElement();
+      popupElement
+        .querySelector("#rightButton")
+        .addEventListener("click", () => {
+          changeFeatureColor(feature.properties.id, "green", "right");
+          e.target.closePopup();
+        });
+      popupElement
+        .querySelector("#wrongButton")
+        .addEventListener("click", () => {
+          changeFeatureColor(feature.properties.id, "blue", "wrong");
+          e.target.closePopup();
+        });
+    });
+  }
+
+  function getFeatureStyle(feature) {
+    const color =
+      feature.properties.color ||
+      (feature.properties.predictionStatus === "wrong" ? "green" : "red");
+
+    return {
+      color: color,
+      weight: 8,
+      opacity: 1,
+    };
+  }
 
   return (
     <>
@@ -291,18 +356,8 @@ const Prediction = () => {
                 <GeoJSON
                   attribution="&copy; credits to OSM"
                   data={predictions}
-                  style={() => ({
-                    color: "darkred",
-                    weight: 6,
-                    fillPattern: {
-                      weight: 1,
-                      opacity: 1,
-                      pattern: /\/\/\/\//,
-                      strokeOpacity: 0.5,
-                      strokeWeight: 1,
-                      strokeColor: "red",
-                    },
-                  })}
+                  style={getFeatureStyle}
+                  onEachFeature={onEachFeature} // Attach the onEachFeature function
                 />
               )}
             </FeatureGroup>
@@ -332,7 +387,7 @@ const Prediction = () => {
                 value={confidence}
                 onChange={(e) => setConfidence(e.target.value)}
                 style={{ width: "90px" }}
-                disableUnderline
+                sx={{ "& .MuiSelect-select": { borderBottom: "none" } }}
                 MenuProps={{ disablePortal: true }}
               >
                 <MenuItem value={25}>25 %</MenuItem>
