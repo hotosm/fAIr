@@ -35,6 +35,7 @@ const Prediction = () => {
   const { id } = useParams();
   const [error, setError] = useState(false);
   const [josmLoading, setJosmLoading] = useState(false);
+  const [feedbackLoading, setFeedbackLoading] = useState(false);
 
   const [apiCallInProgress, setApiCallInProgress] = useState(false);
   const [confidence, setConfidence] = useState(50);
@@ -209,6 +210,41 @@ const Prediction = () => {
     return updatedPredictions;
   });
 
+  const handleSubmitFeedback = async () => {
+    setFeedbackLoading(true);
+    const incorrectFeatures = predictions.features.filter(
+      (feature) => feature.properties.feedbackType === "INCORRECT"
+    );
+    try {
+      for (let i = 0; i < incorrectFeatures.length; i++) {
+        const { geometry } = incorrectFeatures[i];
+        const body = {
+          geom: geometry,
+          feedback_type: "INCORRECT",
+          training: modelInfo.trainingId,
+        };
+        console.log(body);
+        const headers = {
+          "access-token": accessToken,
+          Authorization: `Bearer ${accessToken}`,
+        };
+        await axios.post("/feedback/", body, { headers });
+      }
+      const correctFeatures = predictions.features.filter(
+        (feature) => feature.properties.feedbackType !== "INCORRECT"
+      );
+      predictions.features = correctFeatures;
+      setModifiedFeatures(null);
+      settotalPredictionsCount(predictions.features.length);
+      setFeedbackLoading(false);
+      setWrongPredictionsCount(0);
+    } catch (error) {
+      console.error(error);
+      setFeedbackLoading(false);
+      window.alert("An error occurred while submitting feedback.");
+    }
+  };
+
   async function openWithJosm() {
     setJosmLoading(true);
     if (!predictions) {
@@ -216,9 +252,23 @@ const Prediction = () => {
       return;
     }
 
+    // Remove the "id" and "featuretype" properties from each feature in the "features" array
+    const modifiedPredictions = {
+      ...predictions,
+      features: predictions.features
+        .filter((feature) => feature.properties.featuretype !== "INCORRECT")
+        .map((feature) => {
+          const { id, featuretype, ...newProps } = feature.properties;
+          return {
+            ...feature,
+            properties: newProps,
+          };
+        }),
+    };
+
     try {
       const response = await axios.post("/geojson2osm/", {
-        geojson: predictions,
+        geojson: modifiedPredictions,
       });
       if (response.status === 200) {
         const osmUrl = new URL("http://127.0.0.1:8111/load_data");
@@ -242,7 +292,7 @@ const Prediction = () => {
         setError("OSM XML conversion failed");
       }
     } catch (error) {
-      setError(error.message);
+      setError("Couldn't Open JOSM , Check if JOSM is Open");
     } finally {
       setJosmLoading(false);
     }
@@ -260,18 +310,18 @@ const Prediction = () => {
     });
     return null;
   }
-  function changeFeatureColor(featureId, color, predictionStatus) {
+  function changeFeatureColor(featureId, color, feedbackType) {
     const updatedFeatures = { ...modifiedFeatures };
-    updatedFeatures[featureId] = { color, predictionStatus };
+    updatedFeatures[featureId] = { color, feedbackType };
     setModifiedFeatures(updatedFeatures);
     const feature = predictions.features.find(
       (feature) => feature.properties.id === featureId
     );
     if (feature) {
-      feature.properties.predictionStatus = predictionStatus;
-      if (predictionStatus === "wrong") {
+      feature.properties.feedbackType = feedbackType;
+      if (feedbackType === "INCORRECT") {
         setWrongPredictionsCount((prevCount) => prevCount + 1);
-      } else if (feature.properties.predictionStatus === "wrong") {
+      } else if (feature.properties.feedbackType === "INCORRECT") {
         setWrongPredictionsCount((prevCount) => prevCount - 1);
       }
     }
@@ -284,7 +334,7 @@ const Prediction = () => {
         properties: {
           ...feature.properties,
           id: index,
-          predictionStatus: "initial",
+          feedbackType: "Correct",
         },
       };
     });
@@ -318,7 +368,7 @@ const Prediction = () => {
       popupElement
         .querySelector("#wrongButton")
         .addEventListener("click", () => {
-          changeFeatureColor(feature.properties.id, "blue", "wrong");
+          changeFeatureColor(feature.properties.id, "blue", "INCORRECT");
           e.target.closePopup();
         });
     });
@@ -327,7 +377,7 @@ const Prediction = () => {
   function getFeatureStyle(feature) {
     const color =
       feature.properties.color ||
-      (feature.properties.predictionStatus === "wrong" ? "green" : "red");
+      (feature.properties.feedbackType === "INCORRECT" ? "green" : "red");
 
     return {
       color: color,
@@ -437,15 +487,16 @@ const Prediction = () => {
                     {wrongPredictionsCount}
                   </Typography>
                   {wrongPredictionsCount > 1 && (
-                    <Button
+                    <LoadingButton
                       variant="contained"
                       color="primary"
-                      onClick={() => {}}
+                      onClick={handleSubmitFeedback}
                       size="small"
+                      loading={feedbackLoading}
                       sx={{ mt: 1 }}
                     >
                       Submit my feedback
-                    </Button>
+                    </LoadingButton>
                   )}
                 </Paper>
               )}

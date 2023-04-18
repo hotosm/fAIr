@@ -66,7 +66,6 @@ class FeedbackSerializer(GeoFeatureModelSerializer):
     class Meta:
         model = Feedback
         geo_field = "geom"
-        auto_bbox = True
         fields = "__all__"
         read_only_fields = ("created_at", "last_modified", "validated", "user")
 

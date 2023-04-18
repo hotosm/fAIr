@@ -145,7 +145,7 @@ class FeedbackViewset(viewsets.ModelViewSet):
     permission_classes = [IsOsmAuthenticated]
     permission_allowed_methods = ["GET"]
     queryset = Feedback.objects.all()
-    http_method_names = ["get", "post", "delete"]
+    http_method_names = ["get", "post", "put", "delete"]
     serializer_class = FeedbackSerializer  # connecting serializer
     filterset_fields = ["training", "user", "feedback_type", "validated"]
 
@@ -432,6 +432,11 @@ class PredictionView(APIView):
 
                 ## TODO : can send osm xml format from here as well using geojson2osm
                 return Response(geojson_data, status=status.HTTP_201_CREATED)
+            except ValueError as e:
+                if str(e) == "No Features Found":
+                    return Response("No features found", status=204)
+                else:
+                    return Response(str(e), status=500)
             except Exception as ex:
                 print(ex)
                 shutil.rmtree(temp_path)
