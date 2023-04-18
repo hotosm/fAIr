@@ -78,6 +78,25 @@ code {
 }
 
 
+.feedback-button {
+  background-color: #f44336; /* Red */
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 12px;
+  cursor: pointer;
+  outline: none;
+  margin-right: 5px;
+  font-weight: bold;
+  font-size: 1.0em;
+}
+
+.feedback-button:last-child {
+  background-color: #4caf50; /* Green */
+}
+
+
+
 .logo:hover 
 {
   cursor: pointer;

@@ -281,11 +281,10 @@ const Prediction = () => {
     layer.on("click", (e) => {
       // Create the popup content
       const popupContent = `
-        <div>
-          <strong>Provide Feedback:</strong><br />
-          <button id="rightButton" style="background-color: red; margin-right: 5px;">Right</button>
-          <button id="wrongButton" style="background-color: green;">Wrong</button>
-        </div>
+      <div>
+        <button id="rightButton" class="feedback-button">&#128077; Right</button>
+        <button id="wrongButton" class="feedback-button">&#128078; Wrong</button>
+      </div>
       `;
 
       const popup = L.popup()
@@ -400,10 +399,10 @@ const Prediction = () => {
 
           {map && (
             <Box>
-              <Typography variant="h7">
+              <Typography variant="h8">
                 <strong> Current Zoom:</strong> {JSON.stringify(zoom)}
               </Typography>
-              <Typography variant="h7">
+              <Typography variant="h8">
                 <strong> Response: </strong> {responseTime} sec
               </Typography>
 
@@ -413,40 +412,35 @@ const Prediction = () => {
                 </Box>
               ) : (
                 modelInfo && (
-                  <Paper elevation={3} sx={{ padding: 2, marginTop: 2 }}>
-                    <Typography variant="h6" gutterBottom>
+                  <Paper elevation={2} sx={{ padding: 2, marginTop: 1 }}>
+                    <Typography variant="h7" gutterBottom>
                       <strong>Loaded Model</strong>
                     </Typography>
-                    <Typography variant="body1">
-                      <strong>Model ID:</strong> {modelInfo.id}
+                    <Typography variant="body2">ID: {modelInfo.id}</Typography>
+                    <Typography variant="body2">
+                      Name: {modelInfo.name}
                     </Typography>
-                    <Typography variant="body1">
-                      <strong>Model Name:</strong> {modelInfo.name}
-                    </Typography>
-                    <Typography variant="body1">
-                      <strong>Model Last Modified:</strong>{" "}
+                    <Typography variant="body2">
+                      Last Modified:{" "}
                       {new Date(modelInfo.lastModified).toLocaleString()}
                     </Typography>
-                    <Typography variant="h6" gutterBottom mt={2}>
+                    <Typography variant="h7" gutterBottom mt={2}>
                       <strong>Published Training</strong>
                     </Typography>
-                    <Typography variant="body1">
-                      <strong>Training ID:</strong> {modelInfo.trainingId}
+                    <Typography variant="body2">
+                      ID: {modelInfo.trainingId}
                     </Typography>
-                    <Typography variant="body1">
-                      <strong>Training Description:</strong>{" "}
-                      {modelInfo.trainingDescription}
+                    <Typography variant="body2">
+                      Description: {modelInfo.trainingDescription}
                     </Typography>
-                    <Typography variant="body1">
-                      <strong>Training Zoom Level:</strong>{" "}
-                      {modelInfo.trainingZoomLevel}
+                    <Typography variant="body2">
+                      Zoom Level: {modelInfo.trainingZoomLevel}
                     </Typography>
-                    <Typography variant="body1">
-                      <strong>Training Accuracy:</strong>{" "}
-                      {modelInfo.trainingAccuracy} %
+                    <Typography variant="body2">
+                      Accuracy: {modelInfo.trainingAccuracy} %
                     </Typography>
-                    <Typography variant="body1">
-                      <strong>Model Size:</strong> {modelInfo.modelSize} MB
+                    <Typography variant="body2">
+                      Model Size: {modelInfo.modelSize} MB
                     </Typography>
                   </Paper>
                 )
@@ -460,6 +454,8 @@ const Prediction = () => {
               color="secondary"
               onClick={openWithJosm}
               loading={josmLoading}
+              size="small"
+              sx={{ mt: 1 }}
             >
               Open Results with JOSM
             </LoadingButton>
