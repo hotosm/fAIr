@@ -391,31 +391,31 @@ const Prediction = () => {
           >
             Run Prediction
           </LoadingButton>
-          <Box display="flex" alignItems="center" mt={1} ml={1}>
-            <Tooltip title="Select confidence threshold probability for filtering out low-confidence predictions">
-              <Typography variant="body2" style={{ marginRight: "10px" }}>
-                <strong>Confidence: </strong>
-              </Typography>
-            </Tooltip>
-            <FormControl size="small">
-              <Select
-                value={confidence}
-                onChange={(e) => setConfidence(e.target.value)}
-                style={{ width: "80px", fontSize: "12px" }} // Adjust width and font size
-                sx={{ "& .MuiSelect-select": { borderBottom: "none" } }}
-                MenuProps={{ disablePortal: true }}
-              >
-                <MenuItem value={25}>25 %</MenuItem>
-                <MenuItem value={50}>50 %</MenuItem>
-                <MenuItem value={75}>75 %</MenuItem>
-                <MenuItem value={90}>90 %</MenuItem>
-              </Select>
-            </FormControl>
-          </Box>
 
           {map && (
             <Box>
-              <Paper elevation={1} sx={{ padding: 2, marginTop: 0.5 }}>
+              <Paper elevation={1} sx={{ padding: 2, marginTop: 0 }}>
+                <Box display="flex" alignItems="center">
+                  <Tooltip title="Select confidence threshold probability for filtering out low-confidence predictions">
+                    <Typography variant="body2" style={{ marginRight: "10px" }}>
+                      <strong>Confidence: </strong>
+                    </Typography>
+                  </Tooltip>
+                  <FormControl size="small">
+                    <Select
+                      value={confidence}
+                      onChange={(e) => setConfidence(e.target.value)}
+                      style={{ width: "80px", fontSize: "12px" }} // Adjust width and font size
+                      sx={{ "& .MuiSelect-select": { borderBottom: "none" } }}
+                      MenuProps={{ disablePortal: true }}
+                    >
+                      <MenuItem value={25}>25 %</MenuItem>
+                      <MenuItem value={50}>50 %</MenuItem>
+                      <MenuItem value={75}>75 %</MenuItem>
+                      <MenuItem value={90}>90 %</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Box>
                 <Typography variant="body2">
                   <strong> Current Zoom:</strong> {JSON.stringify(zoom)}
                 </Typography>
@@ -425,7 +425,7 @@ const Prediction = () => {
               </Paper>
               {predictions && (
                 <Paper elevation={1} sx={{ padding: 2, marginTop: 0.5 }}>
-                  <Typography variant="h7" gutterBottom>
+                  <Typography variant="h8" gutterBottom>
                     <strong>Feedback</strong>
                   </Typography>
                   <Typography variant="body2">
@@ -456,7 +456,7 @@ const Prediction = () => {
               ) : (
                 modelInfo && (
                   <Paper elevation={2} sx={{ padding: 2, marginTop: 1 }}>
-                    <Typography variant="h7" gutterBottom>
+                    <Typography variant="h8" gutterBottom>
                       <strong>Loaded Model</strong>
                     </Typography>
                     <Typography variant="body2">ID: {modelInfo.id}</Typography>
@@ -467,7 +467,7 @@ const Prediction = () => {
                       Last Modified:{" "}
                       {new Date(modelInfo.lastModified).toLocaleString()}
                     </Typography>
-                    <Typography variant="h7" gutterBottom mt={2}>
+                    <Typography variant="h8" gutterBottom mt={2}>
                       <strong>Published Training</strong>
                     </Typography>
                     <Typography variant="body2">
