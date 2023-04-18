@@ -38,6 +38,8 @@ const Prediction = () => {
 
   const [apiCallInProgress, setApiCallInProgress] = useState(false);
   const [confidence, setConfidence] = useState(50);
+  const [wrongPredictionsCount, setWrongPredictionsCount] = useState(0);
+  const [totalPredictionsCount, settotalPredictionsCount] = useState(0);
 
   const [map, setMap] = useState(null);
   const [zoom, setZoom] = useState(15);
@@ -267,15 +269,29 @@ const Prediction = () => {
     );
     if (feature) {
       feature.properties.predictionStatus = predictionStatus;
+      if (predictionStatus === "wrong") {
+        setWrongPredictionsCount((prevCount) => prevCount + 1);
+      } else if (feature.properties.predictionStatus === "wrong") {
+        setWrongPredictionsCount((prevCount) => prevCount - 1);
+      }
     }
   }
 
   function addIdsToPredictions(predictions) {
-    predictions.features.forEach((feature, index) => {
-      feature.properties.id = index;
-      feature.properties.predictionStatus = "initial";
+    const features = predictions.features.map((feature, index) => {
+      return {
+        ...feature,
+        properties: {
+          ...feature.properties,
+          id: index,
+          predictionStatus: "initial",
+        },
+      };
     });
-    return predictions;
+
+    settotalPredictionsCount(features.length);
+
+    return { ...predictions, features };
   }
   function onEachFeature(feature, layer) {
     layer.on("click", (e) => {
@@ -375,9 +391,9 @@ const Prediction = () => {
           >
             Run Prediction
           </LoadingButton>
-          <Box display="flex" alignItems="center" mt={1}>
+          <Box display="flex" alignItems="center" mt={1} ml={1}>
             <Tooltip title="Select confidence threshold probability for filtering out low-confidence predictions">
-              <Typography variant="h7" style={{ marginRight: "8px" }}>
+              <Typography variant="body2" style={{ marginRight: "10px" }}>
                 <strong>Confidence: </strong>
               </Typography>
             </Tooltip>
@@ -385,7 +401,7 @@ const Prediction = () => {
               <Select
                 value={confidence}
                 onChange={(e) => setConfidence(e.target.value)}
-                style={{ width: "90px" }}
+                style={{ width: "80px", fontSize: "12px" }} // Adjust width and font size
                 sx={{ "& .MuiSelect-select": { borderBottom: "none" } }}
                 MenuProps={{ disablePortal: true }}
               >
@@ -399,13 +415,40 @@ const Prediction = () => {
 
           {map && (
             <Box>
-              <Typography variant="h8">
-                <strong> Current Zoom:</strong> {JSON.stringify(zoom)}
-              </Typography>
-              <Typography variant="h8">
-                <strong> Response: </strong> {responseTime} sec
-              </Typography>
-
+              <Paper elevation={1} sx={{ padding: 2, marginTop: 0.5 }}>
+                <Typography variant="body2">
+                  <strong> Current Zoom:</strong> {JSON.stringify(zoom)}
+                </Typography>
+                <Typography variant="body2">
+                  <strong> Response: </strong> {responseTime} sec
+                </Typography>
+              </Paper>
+              {predictions && (
+                <Paper elevation={1} sx={{ padding: 2, marginTop: 0.5 }}>
+                  <Typography variant="h7" gutterBottom>
+                    <strong>Feedback</strong>
+                  </Typography>
+                  <Typography variant="body2">
+                    Total Predictions:
+                    {totalPredictionsCount}
+                  </Typography>
+                  <Typography variant="body2">
+                    Wrong Predictions:
+                    {wrongPredictionsCount}
+                  </Typography>
+                  {wrongPredictionsCount > 1 && (
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={() => {}}
+                      size="small"
+                      sx={{ mt: 1 }}
+                    >
+                      Submit my feedback
+                    </Button>
+                  )}
+                </Paper>
+              )}
               {loading ? (
                 <Box display="flex" justifyContent="center" mt={2}>
                   <CircularProgress />
