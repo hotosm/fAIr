@@ -74,6 +74,11 @@ class FeedbackSerializer(GeoFeatureModelSerializer):
         validated_data["user"] = user
         return super().create(validated_data)
 
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        ret["properties"]["id"] = instance.id
+        return ret
+
 
 class LabelSerializer(
     GeoFeatureModelSerializer
