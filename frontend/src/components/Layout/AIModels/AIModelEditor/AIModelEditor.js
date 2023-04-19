@@ -31,6 +31,7 @@ const AIModelEditor = (props) => {
   const [popupOpen, setPopupOpen] = useState(false);
   const [popupRowData, setPopupRowData] = useState(null);
   const [feedbackCount, setFeedbackCount] = useState(0);
+  const [feedbackData, setFeedbackData] = useState(null);
   const [random, setRandom] = useState(Math.random());
   const [batchSize, setBatchSize] = useState(8);
   const [description, setDescription] = useState("");
@@ -72,9 +73,8 @@ const AIModelEditor = (props) => {
       const response = await axios.get(
         `/feedback/?training=${data.published_training}`
       );
-      console.log(response.data.features);
+      setFeedbackData(response.data);
       const feedbackCount = response.data.features.length;
-      console.log(feedbackCount);
       setFeedbackCount(feedbackCount);
     } catch (error) {
       console.error("Error fetching feedback information:", error);
@@ -126,7 +126,12 @@ const AIModelEditor = (props) => {
       {data && (
         <Grid container padding={2} spacing={2}>
           <Grid item xs={6} md={6}>
-            <FeedbackToast count={feedbackCount} />
+            {data.published_training && (
+              <FeedbackToast
+                count={feedbackCount}
+                feedbackData={feedbackData}
+              />
+            )}
             <Typography variant="h6" component="div">
               Model ID: {data.id}
             </Typography>

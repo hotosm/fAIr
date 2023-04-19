@@ -3,6 +3,7 @@ import { makeStyles } from "@mui/styles";
 import Snackbar from "@mui/material/Snackbar";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
+import FeedbackPopup from "./FeedbackPopup";
 import { useNavigate } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
@@ -11,13 +12,16 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const FeedbackToast = ({ count }) => {
+const FeedbackToast = ({ count, feedbackData }) => {
   const classes = useStyles();
   const navigate = useNavigate();
   const [open, setOpen] = React.useState(false);
+  const [popupOpen, setPopupOpen] = React.useState(false);
 
   const handleClick = () => {
+    console.log("Clicked snackbar");
     setOpen(true);
+    setPopupOpen(true);
   };
 
   const handleClose = (event, reason) => {
@@ -26,12 +30,11 @@ const FeedbackToast = ({ count }) => {
     }
 
     setOpen(false);
-    // navigate(`/feedback/${data.published_training}`);
   };
 
   React.useEffect(() => {
     if (count > 0) {
-      handleClick();
+      setOpen(true);
     }
   }, [count]);
 
@@ -59,7 +62,15 @@ const FeedbackToast = ({ count }) => {
             </IconButton>
           </>
         }
+        onClick={handleClick}
       />
+      {popupOpen && (
+        <FeedbackPopup
+          feedbackData={feedbackData}
+          isOpen={popupOpen}
+          onClose={() => setPopupOpen(false)}
+        />
+      )}
     </>
   );
 };
