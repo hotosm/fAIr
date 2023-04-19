@@ -11,7 +11,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const FeedbackPopup = ({ feedbackData, onClose }) => {
+const FeedbackPopup = ({ feedbackData, onClose, sourceImagery }) => {
   const classes = useStyles();
   const [open, setOpen] = useState(true);
 
@@ -22,9 +22,12 @@ const FeedbackPopup = ({ feedbackData, onClose }) => {
 
   return (
     <Dialog open={open} onClose={handleClose} fullWidth maxWidth="md">
-      <DialogTitle>Feedback</DialogTitle>
+      <DialogTitle>Published Model Feedbacks</DialogTitle>
       <DialogContent className={classes.content}>
-        <FeedbackMap feedbackData={feedbackData} />
+        <FeedbackMap
+          feedbackData={feedbackData}
+          sourceImagery={sourceImagery}
+        />
       </DialogContent>
     </Dialog>
   );

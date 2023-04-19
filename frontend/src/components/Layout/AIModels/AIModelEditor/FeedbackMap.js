@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, GeoJSON, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
-const FeedbackMap = ({ feedbackData }) => {
+const FeedbackMap = ({ feedbackData, sourceImagery }) => {
   const onEachFeature = (feature, layer) => {
     const date = new Date(feature.properties.created_at);
     const formattedDate = date.toLocaleString();
@@ -36,12 +36,12 @@ const FeedbackMap = ({ feedbackData }) => {
   return (
     <MapContainer
       center={[51.505, -0.09]}
-      zoom={16}
-      minZoom={16}
-      maxZoom={22}
+      zoom={18}
+      minZoom={17}
+      maxZoom={20}
       style={{ height: "400px", width: "100%" }}
     >
-      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+      <TileLayer url={sourceImagery} />
       <GeoJSON
         data={feedbackData}
         onEachFeature={onEachFeature}

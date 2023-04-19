@@ -130,6 +130,7 @@ const AIModelEditor = (props) => {
               <FeedbackToast
                 count={feedbackCount}
                 feedbackData={feedbackData}
+                trainingId={data.published_training}
               />
             )}
             <Typography variant="h6" component="div">

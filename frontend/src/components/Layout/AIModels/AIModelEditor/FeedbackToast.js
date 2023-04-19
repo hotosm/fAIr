@@ -5,6 +5,7 @@ import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import FeedbackPopup from "./FeedbackPopup";
 import { useNavigate } from "react-router-dom";
+import axios from "../../../../axios";
 
 const useStyles = makeStyles((theme) => ({
   close: {
@@ -12,15 +13,23 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const FeedbackToast = ({ count, feedbackData }) => {
+const FeedbackToast = ({ count, feedbackData, trainingId }) => {
   const classes = useStyles();
   const navigate = useNavigate();
   const [open, setOpen] = React.useState(false);
   const [popupOpen, setPopupOpen] = React.useState(false);
+  const [sourceImagery, setSourceImagery] = React.useState(null);
 
-  const handleClick = () => {
-    console.log("Clicked snackbar");
-    setOpen(true);
+  const handleClick = async () => {
+    if (sourceImagery === null) {
+      try {
+        const response = await axios.get(`/training/${trainingId}/`);
+        setSourceImagery(response.data.source_imagery);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    setOpen(false);
     setPopupOpen(true);
   };
 
@@ -68,6 +77,7 @@ const FeedbackToast = ({ count, feedbackData }) => {
         <FeedbackPopup
           feedbackData={feedbackData}
           isOpen={popupOpen}
+          sourceImagery={sourceImagery}
           onClose={() => setPopupOpen(false)}
         />
       )}
