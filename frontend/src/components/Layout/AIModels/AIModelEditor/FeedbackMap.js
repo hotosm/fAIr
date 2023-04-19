@@ -36,12 +36,10 @@ const FeedbackMap = ({ feedbackData, sourceImagery }) => {
   return (
     <MapContainer
       center={[51.505, -0.09]}
-      zoom={18}
-      minZoom={17}
-      maxZoom={20}
+      minZoom={18}
       style={{ height: "400px", width: "100%" }}
     >
-      <TileLayer url={sourceImagery} />
+      <TileLayer maxZoom={22} minZoom={18} url={sourceImagery} />
       <GeoJSON
         data={feedbackData}
         onEachFeature={onEachFeature}
