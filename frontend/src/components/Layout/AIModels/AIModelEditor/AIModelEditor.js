@@ -6,7 +6,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { modelStatus } from "../../../../utils";
 import axios from "../../../../axios";
@@ -21,6 +21,7 @@ import { FormControl, FormLabel } from "@material-ui/core";
 import AuthContext from "../../../../Context/AuthContext";
 import Trainings from "./Trainings";
 import DatasetCurrent from "./DatasetCurrent";
+import FeedbackToast from "./FeedbackToast";
 
 const AIModelEditor = (props) => {
   let { id } = useParams();
@@ -29,7 +30,7 @@ const AIModelEditor = (props) => {
   const [zoomLevel, setZoomLevel] = useState([19]);
   const [popupOpen, setPopupOpen] = useState(false);
   const [popupRowData, setPopupRowData] = useState(null);
-
+  const [feedbackCount, setFeedbackCount] = useState(0);
   const [random, setRandom] = useState(Math.random());
   const [batchSize, setBatchSize] = useState(8);
   const [description, setDescription] = useState("");
@@ -66,6 +67,24 @@ const AIModelEditor = (props) => {
   const { data, isLoading, refetch } = useQuery("getModelById", getModelById, {
     refetchInterval: 60000,
   });
+  const getFeedbackCount = async () => {
+    try {
+      const response = await axios.get(
+        `/feedback/?training=${data.published_training}`
+      );
+      console.log(response.data.features);
+      const feedbackCount = response.data.features.length;
+      console.log(feedbackCount);
+      setFeedbackCount(feedbackCount);
+    } catch (error) {
+      console.error("Error fetching feedback information:", error);
+    }
+  };
+  useEffect(() => {
+    if (data?.published_training) {
+      getFeedbackCount();
+    }
+  }, [data]);
 
   const saveTraining = async () => {
     try {
@@ -107,6 +126,7 @@ const AIModelEditor = (props) => {
       {data && (
         <Grid container padding={2} spacing={2}>
           <Grid item xs={6} md={6}>
+            <FeedbackToast count={feedbackCount} />
             <Typography variant="h6" component="div">
               Model ID: {data.id}
             </Typography>
