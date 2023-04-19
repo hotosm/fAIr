@@ -79,7 +79,8 @@ code {
 
 
 .feedback-button {
-  background-color: #f44336; /* Red */
+  background-color: #4caf50; 
+  margin-top: 2px;
   color: #fff;
   border: none;
   border-radius: 4px;
@@ -92,7 +93,7 @@ code {
 }
 
 .feedback-button:last-child {
-  background-color: #4caf50; /* Green */
+  background-color: #f44336; 
 }
 
 

@@ -368,7 +368,7 @@ const Prediction = () => {
       popupElement
         .querySelector("#wrongButton")
         .addEventListener("click", () => {
-          changeFeatureColor(feature.properties.id, "blue", "INCORRECT");
+          changeFeatureColor(feature.properties.id, "red", "INCORRECT");
           e.target.closePopup();
         });
     });
@@ -377,7 +377,7 @@ const Prediction = () => {
   function getFeatureStyle(feature) {
     const color =
       feature.properties.color ||
-      (feature.properties.feedbackType === "INCORRECT" ? "green" : "red");
+      (feature.properties.feedbackType === "INCORRECT" ? "red" : "green");
 
     return {
       color: color,

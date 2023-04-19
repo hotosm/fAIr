@@ -4,9 +4,13 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
 const FeedbackMap = ({ feedbackData }) => {
-  console.log(feedbackData);
   const onEachFeature = (feature, layer) => {
-    layer.bindPopup(feature.properties.id);
+    const date = new Date(feature.properties.created_at);
+    const formattedDate = date.toLocaleString();
+    const validateButton = `<button class="feedback-button">Validate</button>`;
+    const deleteButton = `<button class="feedback-button">Delete</button>`;
+    const content = `<strong>${feature.properties.feedback_type}</strong><br>${formattedDate}<br>${validateButton} ${deleteButton}`;
+    layer.bindPopup(content);
   };
 
   const ChangeMapView = () => {
