@@ -67,7 +67,8 @@ class FeedbackSerializer(GeoFeatureModelSerializer):
         model = Feedback
         geo_field = "geom"
         fields = "__all__"
-        read_only_fields = ("created_at", "last_modified", "validated", "user")
+        read_only_fields = ("created_at", "last_modified", "user")
+        partial = True
 
     def create(self, validated_data):
         user = self.context["request"].user

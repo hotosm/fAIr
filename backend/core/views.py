@@ -145,7 +145,7 @@ class FeedbackViewset(viewsets.ModelViewSet):
     permission_classes = [IsOsmAuthenticated]
     permission_allowed_methods = ["GET"]
     queryset = Feedback.objects.all()
-    http_method_names = ["get", "post", "put", "delete"]
+    http_method_names = ["get", "post", "patch", "delete"]
     serializer_class = FeedbackSerializer  # connecting serializer
     filterset_fields = ["training", "user", "feedback_type", "validated"]
 
