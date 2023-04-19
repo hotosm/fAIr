@@ -8,7 +8,7 @@ const FeedbackMap = ({ feedbackData }) => {
     const date = new Date(feature.properties.created_at);
     const formattedDate = date.toLocaleString();
     const validateButton = `<button class="feedback-button">Validate</button>`;
-    const deleteButton = `<button class="feedback-button">Delete</button>`;
+    const deleteButton = `<button class="feedback-button">Discard</button>`;
     const content = `<strong>${feature.properties.feedback_type}</strong><br>${formattedDate}<br>${validateButton} ${deleteButton}`;
     layer.bindPopup(content);
   };
