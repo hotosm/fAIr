@@ -30,9 +30,16 @@ import { useParams } from "react-router-dom";
 import axios from "../../../../axios";
 import AuthContext from "../../../../Context/AuthContext";
 import { GeoJSON } from "react-leaflet";
+import Snackbar from "@mui/material/Snackbar";
 
 const Prediction = () => {
   const { id } = useParams();
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [feedbackSubmittedCount, setFeedbackSubmittedCount] = useState(0);
+
+  const handleCloseSnackbar = () => {
+    setSnackbarOpen(false);
+  };
   const [error, setError] = useState(false);
   const [josmLoading, setJosmLoading] = useState(false);
   const [feedbackLoading, setFeedbackLoading] = useState(false);
@@ -238,6 +245,8 @@ const Prediction = () => {
       settotalPredictionsCount(predictions.features.length);
       setFeedbackLoading(false);
       setWrongPredictionsCount(0);
+      setFeedbackSubmittedCount(incorrectFeatures.length);
+      setSnackbarOpen(true);
     } catch (error) {
       console.error(error);
       setFeedbackLoading(false);
@@ -555,6 +564,16 @@ const Prediction = () => {
             </LoadingButton>
           )}
         </Grid>
+        <Snackbar
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "right",
+          }}
+          open={snackbarOpen}
+          autoHideDuration={3000}
+          onClose={handleCloseSnackbar}
+          message={`Thanks! Your ${feedbackSubmittedCount} feedback has been submitted and removed from predictions.`}
+        />
       </Grid>
     </>
   );
