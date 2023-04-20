@@ -412,6 +412,8 @@ const Prediction = () => {
             whenCreated={setMap}
           >
             <MyComponent />
+            <CustomGridLayer key={Date.now()} />
+
             <LayersControl position="topright">
               {/* code for TileLayer components */}
               {oamImagery && dataset && (
@@ -425,7 +427,6 @@ const Prediction = () => {
                 </LayersControl.BaseLayer>
               )}
             </LayersControl>
-            <CustomGridLayer />
 
             <FeatureGroup>
               {predictions && (

@@ -7,7 +7,7 @@ const CustomGridLayer = () => {
 
   const createTile = () => {
     const tile = document.createElement("div");
-    tile.style.outline = "2px solid rgba(255, 255, 255, 0.4)";
+    tile.style.outline = "3px solid rgba(255, 255, 255, 0.4)";
     tile.style.width = "256px";
     tile.style.height = "256px";
     return tile;
