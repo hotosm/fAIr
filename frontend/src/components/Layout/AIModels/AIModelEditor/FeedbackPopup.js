@@ -4,6 +4,7 @@ import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import FeedbackMap from "./FeedbackMap";
+import LoadingButton from "@mui/lab/LoadingButton";
 
 const useStyles = makeStyles((theme) => ({
   content: {
@@ -28,6 +29,15 @@ const FeedbackPopup = ({ feedbackData, onClose, sourceImagery }) => {
           feedbackData={feedbackData}
           sourceImagery={sourceImagery}
         />
+        <LoadingButton
+          variant="contained"
+          color="primary"
+          size="small"
+          sx={{ mt: 1 }}
+          onClick={() => {}}
+        >
+          Apply Validated Feedback to Model
+        </LoadingButton>
       </DialogContent>
     </Dialog>
   );

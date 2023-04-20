@@ -1,5 +1,6 @@
 from django.contrib.gis.db import models as geomodels
 from django.contrib.postgres.fields import ArrayField
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from login.models import OsmUser
 
@@ -94,6 +95,9 @@ class Feedback(models.Model):
     geom = geomodels.GeometryField(srid=4326)
     training = models.ForeignKey(Training, to_field="id", on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
+    zoom_level = models.PositiveIntegerField(
+        validators=[MinValueValidator(18), MaxValueValidator(23)]
+    )
     feedback_type = models.CharField(choices=FEEDBACK_TYPE, max_length=10)
     last_modified = models.DateTimeField(auto_now=True)
     user = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)

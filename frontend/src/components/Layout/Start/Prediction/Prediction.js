@@ -15,6 +15,7 @@ import {
   MenuItem,
   Select,
 } from "@mui/material";
+import CustomGridLayer from "./GridLayer";
 
 import React, { useContext, useEffect, useRef, useState } from "react";
 import {
@@ -424,6 +425,7 @@ const Prediction = () => {
                 </LayersControl.BaseLayer>
               )}
             </LayersControl>
+            <CustomGridLayer />
 
             <FeatureGroup>
               {predictions && (
