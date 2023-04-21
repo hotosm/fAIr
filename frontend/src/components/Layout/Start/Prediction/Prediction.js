@@ -44,17 +44,17 @@ const Prediction = () => {
   const [error, setError] = useState(false);
   const [josmLoading, setJosmLoading] = useState(false);
   const [feedbackLoading, setFeedbackLoading] = useState(false);
+  const [predictionZoomlevel, setpredictionZoomlevel] = useState(null);
 
   const [apiCallInProgress, setApiCallInProgress] = useState(false);
   const [confidence, setConfidence] = useState(50);
-  const [wrongPredictionsCount, setWrongPredictionsCount] = useState(0);
+  const [totalFeedbackCount, settotalFeedbackCount] = useState(0);
   const [totalPredictionsCount, settotalPredictionsCount] = useState(0);
-
+  const [totalReviewNeedCount, settotalReviewNeedCount] = useState(0);
   const [map, setMap] = useState(null);
   const [zoom, setZoom] = useState(15);
   const [responseTime, setResponseTime] = useState(0);
   const [bounds, setBounds] = useState({});
-  const [modifiedFeatures, setModifiedFeatures] = useState(null);
 
   const [windowSize, setWindowSize] = useState([
     window.innerWidth,
@@ -214,6 +214,7 @@ const Prediction = () => {
       );
       return;
     }
+    setpredictionZoomlevel(zoom);
     const updatedPredictions = addIdsToPredictions(res.data);
     return updatedPredictions;
   });
@@ -230,6 +231,7 @@ const Prediction = () => {
           geom: geometry,
           feedback_type: "INCORRECT",
           training: modelInfo.trainingId,
+          zoom_level: predictionZoomlevel,
         };
         console.log(body);
         const headers = {
@@ -242,10 +244,9 @@ const Prediction = () => {
         (feature) => feature.properties.feedbackType !== "INCORRECT"
       );
       predictions.features = correctFeatures;
-      setModifiedFeatures(null);
       settotalPredictionsCount(predictions.features.length);
       setFeedbackLoading(false);
-      setWrongPredictionsCount(0);
+      settotalFeedbackCount(0);
       setFeedbackSubmittedCount(incorrectFeatures.length);
       setSnackbarOpen(true);
     } catch (error) {
@@ -320,20 +321,42 @@ const Prediction = () => {
     });
     return null;
   }
+  function latLngToTile(lat, lng, zoom) {
+    const tileX = Math.floor(((lng + 180) / 360) * Math.pow(2, zoom));
+    const tileY = Math.floor(
+      ((1 -
+        Math.log(
+          Math.tan((lat * Math.PI) / 180) + 1 / Math.cos((lat * Math.PI) / 180)
+        ) /
+          Math.PI) /
+        2) *
+        Math.pow(2, zoom)
+    );
+
+    return { tileX, tileY };
+  }
+
   function changeFeatureColor(featureId, color, feedbackType) {
-    const updatedFeatures = { ...modifiedFeatures };
-    updatedFeatures[featureId] = { color, feedbackType };
-    setModifiedFeatures(updatedFeatures);
     const feature = predictions.features.find(
       (feature) => feature.properties.id === featureId
     );
+
     if (feature) {
-      feature.properties.feedbackType = feedbackType;
-      if (feedbackType === "INCORRECT") {
-        setWrongPredictionsCount((prevCount) => prevCount + 1);
-      } else if (feature.properties.feedbackType === "INCORRECT") {
-        setWrongPredictionsCount((prevCount) => prevCount - 1);
+      feature.properties.color = color;
+      if (
+        (feature.properties.feedbackType === "INITIAL" ||
+          feature.properties.feedbackType === "NEED REVIEW") &&
+        feedbackType !== "NEED REVIEW"
+      ) {
+        settotalFeedbackCount((prevCount) => prevCount + 1);
       }
+      if (
+        feature.properties.feedbackType === "NEED REVIEW" &&
+        feedbackType !== "NEED REVIEW"
+      ) {
+        settotalReviewNeedCount((prevCount) => prevCount - 1);
+      }
+      feature.properties.feedbackType = feedbackType;
     }
   }
 
@@ -344,7 +367,7 @@ const Prediction = () => {
         properties: {
           ...feature.properties,
           id: index,
-          feedbackType: "Correct",
+          feedbackType: "INITIAL",
         },
       };
     });
@@ -353,11 +376,54 @@ const Prediction = () => {
 
     return { ...predictions, features };
   }
+
+  function getPolygonCentroid(coordinates) {
+    let xSum = 0;
+    let ySum = 0;
+    let count = 0;
+
+    coordinates[0].forEach(([lng, lat]) => {
+      xSum += lng;
+      ySum += lat;
+      count++;
+    });
+
+    return {
+      lat: ySum / count,
+      lng: xSum / count,
+    };
+  }
+
+  function highlightNeighbors(tileX, tileY, zoom) {
+    if (!predictions) return;
+
+    predictions.features.forEach((feature) => {
+      const centroid = getPolygonCentroid(feature.geometry.coordinates);
+      const currentTile = latLngToTile(centroid.lat, centroid.lng, zoom);
+      if (
+        currentTile.tileX === tileX &&
+        currentTile.tileY === tileY &&
+        feature.properties.feedbackType == "INITIAL"
+      ) {
+        console.log("Neighbour on same tile", feature.properties.id);
+        settotalReviewNeedCount((prevCount) => prevCount + 1);
+        changeFeatureColor(feature.properties.id, "yellow", "NEED REVIEW");
+      }
+    });
+  }
+
   function onEachFeature(feature, layer) {
     layer.on("click", (e) => {
+      const zoom = predictionZoomlevel;
+      const { tileX, tileY } = latLngToTile(e.latlng.lat, e.latlng.lng, zoom);
+
       // Create the popup content
-      const popupContent = `
+      const popupContent =
+        `
       <div>
+        <p> <strong>Feedback:</strong> ` +
+        feature.properties.feedbackType +
+        `</p>
         <button id="rightButton" class="feedback-button">&#128077; Right</button>
         <button id="wrongButton" class="feedback-button">&#128078; Wrong</button>
       </div>
@@ -372,12 +438,14 @@ const Prediction = () => {
       popupElement
         .querySelector("#rightButton")
         .addEventListener("click", () => {
-          changeFeatureColor(feature.properties.id, "green", "right");
+          changeFeatureColor(feature.properties.id, "green", "CORRECT");
           e.target.closePopup();
         });
       popupElement
         .querySelector("#wrongButton")
         .addEventListener("click", () => {
+          // Highlight neighboring features
+          highlightNeighbors(tileX, tileY, zoom);
           changeFeatureColor(feature.properties.id, "red", "INCORRECT");
           e.target.closePopup();
         });
@@ -385,9 +453,15 @@ const Prediction = () => {
   }
 
   function getFeatureStyle(feature) {
-    const color =
-      feature.properties.color ||
-      (feature.properties.feedbackType === "INCORRECT" ? "red" : "green");
+    let color = "green";
+
+    if (feature.properties.feedbackType === "NEED REVIEW") {
+      color = "yellow";
+    } else if (feature.properties.feedbackType === "INCORRECT") {
+      color = "red";
+    } else if (feature.properties.feedbackType === "CORRECT") {
+      color = "green";
+    }
 
     return {
       color: color,
@@ -481,6 +555,11 @@ const Prediction = () => {
                 <Typography variant="body2">
                   <strong> Current Zoom:</strong> {JSON.stringify(zoom)}
                 </Typography>
+                {predictions && (
+                  <Typography variant="body2">
+                    <strong> Predicted on:</strong> {predictionZoomlevel} Zoom
+                  </Typography>
+                )}
                 <Typography variant="body2">
                   <strong> Response: </strong> {responseTime} sec
                 </Typography>
@@ -495,10 +574,16 @@ const Prediction = () => {
                     {totalPredictionsCount}
                   </Typography>
                   <Typography variant="body2">
-                    Wrong Predictions:
-                    {wrongPredictionsCount}
+                    Total Feedbacks:
+                    {totalFeedbackCount}
                   </Typography>
-                  {wrongPredictionsCount > 1 && (
+                  {totalReviewNeedCount > 0 && (
+                    <Typography variant="body2">
+                      Review Needed:
+                      {totalReviewNeedCount}
+                    </Typography>
+                  )}
+                  {totalFeedbackCount > 1 && totalReviewNeedCount === 0 && (
                     <LoadingButton
                       variant="contained"
                       color="primary"
