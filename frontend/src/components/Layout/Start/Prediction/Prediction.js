@@ -15,7 +15,6 @@ import {
   MenuItem,
   Select,
 } from "@mui/material";
-import CustomGridLayer from "./GridLayer";
 
 import React, { useContext, useEffect, useRef, useState } from "react";
 import {
@@ -38,6 +37,7 @@ const Prediction = () => {
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [feedbackSubmittedCount, setFeedbackSubmittedCount] = useState(0);
+  const [addedTiles, setAddedTiles] = useState(new Set());
 
   const handleCloseSnackbar = () => {
     setSnackbarOpen(false);
@@ -433,7 +433,8 @@ const Prediction = () => {
     layer.on("click", (e) => {
       const zoom = predictionZoomlevel;
       const [tileX, tileY] = deg2tile(e.latlng.lat, e.latlng.lng, zoom);
-      console.log(tileX, tileY);
+      const key = `${tileX}_${tileY}_${zoom}`;
+      console.log(key);
 
       // Create the popup content
       const popupContent =
@@ -457,12 +458,16 @@ const Prediction = () => {
         .querySelector("#rightButton")
         .addEventListener("click", () => {
           changeFeatureColor(feature.properties.id, "green", "CORRECT");
-          const bounds = tile2boundingbox(tileX, tileY, zoom);
-
-          console.log(bounds);
-          const tileBoundaryLayer = L.rectangle(bounds, { color: "red" });
-          map.addLayer(tileBoundaryLayer);
-          map.fitBounds(tileBoundaryLayer.getBounds());
+          if (!addedTiles.has(key)) {
+            const bounds = tile2boundingbox(tileX, tileY, zoom);
+            const tileBoundaryLayer = L.rectangle(bounds, {
+              color: "yellow",
+              fill: false,
+            });
+            map.addLayer(tileBoundaryLayer);
+            map.fitBounds(tileBoundaryLayer.getBounds());
+            setAddedTiles(new Set([...addedTiles, key]));
+          }
           e.target.closePopup();
         });
       popupElement
@@ -510,7 +515,6 @@ const Prediction = () => {
             whenCreated={setMap}
           >
             <MyComponent />
-            <CustomGridLayer key={Date.now()} />
 
             <LayersControl position="topright">
               {/* code for TileLayer components */}
