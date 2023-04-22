@@ -29,19 +29,23 @@ import { useMutation, useQuery } from "react-query";
 import { useParams } from "react-router-dom";
 import axios from "../../../../axios";
 import AuthContext from "../../../../Context/AuthContext";
-import { GeoJSON } from "react-leaflet";
 import Snackbar from "@mui/material/Snackbar";
+
+import "@geoman-io/leaflet-geoman-free";
+import "@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css";
+import EditableGeoJSON from "./EditableGeoJSON";
 
 const Prediction = () => {
   const { id } = useParams();
-
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [predictions, setPredictions] = useState(null);
   const [feedbackSubmittedCount, setFeedbackSubmittedCount] = useState(0);
   const [addedTiles, setAddedTiles] = useState(new Set());
 
   const handleCloseSnackbar = () => {
     setSnackbarOpen(false);
   };
+  let tileBoundaryLayer = null;
   const [error, setError] = useState(false);
   const [josmLoading, setJosmLoading] = useState(false);
   const [feedbackLoading, setFeedbackLoading] = useState(false);
@@ -49,9 +53,10 @@ const Prediction = () => {
 
   const [apiCallInProgress, setApiCallInProgress] = useState(false);
   const [confidence, setConfidence] = useState(50);
-  const [totalFeedbackCount, settotalFeedbackCount] = useState(0);
   const [totalPredictionsCount, settotalPredictionsCount] = useState(0);
-  const [totalReviewNeedCount, settotalReviewNeedCount] = useState(0);
+  const [DeletedCount, setDeletedCount] = useState(0);
+  const [CreatedCount, setCreatedCount] = useState(0);
+  const [ModifiedCount, setModifiedCount] = useState(0);
   const [map, setMap] = useState(null);
   const [zoom, setZoom] = useState(15);
   const [responseTime, setResponseTime] = useState(0);
@@ -182,11 +187,12 @@ const Prediction = () => {
 
   const {
     mutate: callPredict,
-    data: predictions,
+    data: returnedpredictions,
     isLoading: predictionLoading,
   } = useMutation(async () => {
     setApiCallInProgress(true);
     setResponseTime(0);
+
     const headers = {
       "access-token": accessToken,
     };
@@ -217,20 +223,27 @@ const Prediction = () => {
     }
     setpredictionZoomlevel(zoom);
     const updatedPredictions = addIdsToPredictions(res.data);
+    setPredictions(updatedPredictions);
+    settotalPredictionsCount(updatedPredictions.features.length);
+    setCreatedCount(0);
+    setModifiedCount(0);
+    setDeletedCount(0);
+    if (addedTiles.size > 0) {
+      console.log("Map has tileboundarylayer");
+    }
     return updatedPredictions;
   });
 
   const handleSubmitFeedback = async () => {
     setFeedbackLoading(true);
-    const incorrectFeatures = predictions.features.filter(
-      (feature) => feature.properties.feedbackType === "INCORRECT"
-    );
+    console.log(predictions.features.length);
     try {
-      for (let i = 0; i < incorrectFeatures.length; i++) {
-        const { geometry } = incorrectFeatures[i];
+      for (let i = 0; i < predictions.features.length; i++) {
+        console.log(predictions.features[i]);
+        const { geometry } = predictions.features[i];
         const body = {
           geom: geometry,
-          feedback_type: "INCORRECT",
+          action: predictions.features[i].properties.status,
           training: modelInfo.trainingId,
           zoom_level: predictionZoomlevel,
         };
@@ -241,14 +254,9 @@ const Prediction = () => {
         };
         await axios.post("/feedback/", body, { headers });
       }
-      const correctFeatures = predictions.features.filter(
-        (feature) => feature.properties.feedbackType !== "INCORRECT"
-      );
-      predictions.features = correctFeatures;
-      settotalPredictionsCount(predictions.features.length);
       setFeedbackLoading(false);
-      settotalFeedbackCount(0);
-      setFeedbackSubmittedCount(incorrectFeatures.length);
+      setFeedbackSubmittedCount(predictions.features.length);
+
       setSnackbarOpen(true);
     } catch (error) {
       console.error(error);
@@ -267,15 +275,13 @@ const Prediction = () => {
     // Remove the "id" and "featuretype" properties from each feature in the "features" array
     const modifiedPredictions = {
       ...predictions,
-      features: predictions.features
-        .filter((feature) => feature.properties.featuretype !== "INCORRECT")
-        .map((feature) => {
-          const { id, featuretype, ...newProps } = feature.properties;
-          return {
-            ...feature,
-            properties: newProps,
-          };
-        }),
+      features: predictions.features.map((feature) => {
+        const { id, status, ...newProps } = feature.properties;
+        return {
+          ...feature,
+          properties: newProps,
+        };
+      }),
     };
 
     try {
@@ -323,30 +329,6 @@ const Prediction = () => {
     return null;
   }
 
-  function changeFeatureColor(featureId, color, feedbackType) {
-    const feature = predictions.features.find(
-      (feature) => feature.properties.id === featureId
-    );
-
-    if (feature) {
-      feature.properties.color = color;
-      if (
-        (feature.properties.feedbackType === "INITIAL" ||
-          feature.properties.feedbackType === "NEED REVIEW") &&
-        feedbackType !== "NEED REVIEW"
-      ) {
-        settotalFeedbackCount((prevCount) => prevCount + 1);
-      }
-      if (
-        feature.properties.feedbackType === "NEED REVIEW" &&
-        feedbackType !== "NEED REVIEW"
-      ) {
-        settotalReviewNeedCount((prevCount) => prevCount - 1);
-      }
-      feature.properties.feedbackType = feedbackType;
-    }
-  }
-
   function addIdsToPredictions(predictions) {
     const features = predictions.features.map((feature, index) => {
       return {
@@ -354,7 +336,7 @@ const Prediction = () => {
         properties: {
           ...feature.properties,
           id: index,
-          feedbackType: "INITIAL",
+          status: "INITIAL",
         },
       };
     });
@@ -364,123 +346,74 @@ const Prediction = () => {
     return { ...predictions, features };
   }
 
-  function getPolygonCentroid(coordinates) {
-    let xSum = 0;
-    let ySum = 0;
-    let count = 0;
+  // function highlightNeighbors(tileX, tileY, zoom) {
+  //   if (!predictions) return;
 
-    coordinates[0].forEach(([lng, lat]) => {
-      xSum += lng;
-      ySum += lat;
-      count++;
-    });
+  //   predictions.features.forEach((feature) => {
+  //     const centroid = getPolygonCentroid(feature.geometry.coordinates);
+  //     const currentTile = deg2tile(centroid.lat, centroid.lng, zoom);
+  //     if (
+  //       currentTile.xtile === tileX &&
+  //       currentTile.ytile === tileY &&
+  //       feature.properties.feedbackType == "INITIAL"
+  //     ) {
+  //       console.log("Neighbour on same tile", feature.properties.id);
+  //       settotalReviewNeedCount((prevCount) => prevCount + 1);
+  //       changeFeatureColor(feature.properties.id, "yellow", "NEED REVIEW");
+  //     }
+  //   });
+  // }
 
-    return {
-      lat: ySum / count,
-      lng: xSum / count,
-    };
-  }
+  // function onEachFeature(feature, layer) {
+  //   layer.on("click", (e) => {
+  //     const zoom = predictionZoomlevel;
 
-  function deg2tile(lat_deg, lon_deg, zoom) {
-    const lat_rad = (Math.PI / 180) * lat_deg;
-    const n = Math.pow(2, zoom);
-    const xtile = Math.floor(((lon_deg + 180) / 360) * n);
-    const ytile = Math.floor(
-      ((1 - Math.log(Math.tan(lat_rad) + 1 / Math.cos(lat_rad)) / Math.PI) /
-        2) *
-        n
-    );
-    return [xtile, ytile];
-  }
+  //     // Create the popup content
+  //     const popupContent =
+  //       `
+  //     <div>
+  //       <p> <strong>Feedback:</strong> ` +
+  //       feature.properties.feedbackType +
+  //       `</p>
+  //       <button id="rightButton" class="feedback-button">&#128077; Right</button>
+  //       <button id="wrongButton" class="feedback-button">&#128078; Wrong</button>
+  //     </div>
+  //     `;
 
-  function num2deg(xtile, ytile, zoom) {
-    const n = Math.pow(2, zoom);
-    const lon_deg = (xtile / n) * 360.0 - 180.0;
-    const lat_rad = Math.atan(Math.sinh(Math.PI * (1 - (2 * ytile) / n)));
-    const lat_deg = (lat_rad * 180.0) / Math.PI;
-    return [lat_deg, lon_deg];
-  }
+  //     const popup = L.popup()
+  //       .setLatLng(e.latlng)
+  //       .setContent(popupContent)
+  //       .openOn(e.target._map);
 
-  function tile2boundingbox(xtile, ytile, zoom) {
-    const [lat_deg, lon_deg] = num2deg(xtile, ytile, zoom);
-    const cornerNW = L.latLng(lat_deg, lon_deg);
-
-    const [lat_deg1, lon_deg1] = num2deg(xtile + 1, ytile + 1, zoom);
-    const cornerSE = L.latLng(lat_deg1, lon_deg1);
-
-    return L.latLngBounds(cornerNW, cornerSE);
-  }
-
-  function highlightNeighbors(tileX, tileY, zoom) {
-    if (!predictions) return;
-
-    predictions.features.forEach((feature) => {
-      const centroid = getPolygonCentroid(feature.geometry.coordinates);
-      const currentTile = deg2tile(centroid.lat, centroid.lng, zoom);
-      if (
-        currentTile.xtile === tileX &&
-        currentTile.ytile === tileY &&
-        feature.properties.feedbackType == "INITIAL"
-      ) {
-        console.log("Neighbour on same tile", feature.properties.id);
-        settotalReviewNeedCount((prevCount) => prevCount + 1);
-        changeFeatureColor(feature.properties.id, "yellow", "NEED REVIEW");
-      }
-    });
-  }
-
-  function onEachFeature(feature, layer) {
-    layer.on("click", (e) => {
-      const zoom = predictionZoomlevel;
-      const [tileX, tileY] = deg2tile(e.latlng.lat, e.latlng.lng, zoom);
-      const key = `${tileX}_${tileY}_${zoom}`;
-
-      // Create the popup content
-      const popupContent =
-        `
-      <div>
-        <p> <strong>Feedback:</strong> ` +
-        feature.properties.feedbackType +
-        `</p>
-        <button id="rightButton" class="feedback-button">&#128077; Right</button>
-        <button id="wrongButton" class="feedback-button">&#128078; Wrong</button>
-      </div>
-      `;
-
-      const popup = L.popup()
-        .setLatLng(e.latlng)
-        .setContent(popupContent)
-        .openOn(e.target._map);
-
-      const popupElement = popup.getElement();
-      popupElement
-        .querySelector("#rightButton")
-        .addEventListener("click", () => {
-          changeFeatureColor(feature.properties.id, "green", "CORRECT");
-          if (!addedTiles.has(key)) {
-            console.log("Key doesn't present in map");
-            const bounds = tile2boundingbox(tileX, tileY, zoom);
-            const tileBoundaryLayer = L.rectangle(bounds, {
-              color: "yellow",
-              fill: false,
-            });
-            map.addLayer(tileBoundaryLayer);
-            map.fitBounds(tileBoundaryLayer.getBounds());
-            addedTiles.add(key);
-            setAddedTiles(addedTiles);
-          }
-          e.target.closePopup();
-        });
-      popupElement
-        .querySelector("#wrongButton")
-        .addEventListener("click", () => {
-          // Highlight neighboring features
-          highlightNeighbors(tileX, tileY, zoom);
-          changeFeatureColor(feature.properties.id, "red", "INCORRECT");
-          e.target.closePopup();
-        });
-    });
-  }
+  //     const popupElement = popup.getElement();
+  //     popupElement
+  //       .querySelector("#rightButton")
+  //       .addEventListener("click", () => {
+  //         changeFeatureColor(feature.properties.id, "green", "CORRECT");
+  //         if (!addedTiles.has(key)) {
+  //           console.log("Key doesn't present in map");
+  //           const bounds = tile2boundingbox(tileX, tileY, zoom);
+  //           const tileBoundaryLayer = L.rectangle(bounds, {
+  //             color: "yellow",
+  //             fill: false,
+  //           });
+  //           map.addLayer(tileBoundaryLayer);
+  //           map.fitBounds(tileBoundaryLayer.getBounds());
+  //           addedTiles.add(key);
+  //           setAddedTiles(addedTiles);
+  //         }
+  //         e.target.closePopup();
+  //       });
+  //     popupElement
+  //       .querySelector("#wrongButton")
+  //       .addEventListener("click", () => {
+  //         // Highlight neighboring features
+  //         highlightNeighbors(tileX, tileY, zoom);
+  //         changeFeatureColor(feature.properties.id, "red", "INCORRECT");
+  //         e.target.closePopup();
+  //       });
+  //   });
+  // }
 
   function getFeatureStyle(feature) {
     let color = "green";
@@ -532,12 +465,26 @@ const Prediction = () => {
             </LayersControl>
 
             <FeatureGroup>
-              {predictions && (
+              {/* {predictions && (
                 <GeoJSON
                   attribution="&copy; credits to OSM"
                   data={predictions}
                   style={getFeatureStyle}
                   onEachFeature={onEachFeature} // Attach the onEachFeature function
+                />
+              )} */}
+              {predictions && (
+                <EditableGeoJSON
+                  data={predictions}
+                  setPredictions={setPredictions}
+                  mapref={map}
+                  predictionZoomlevel={predictionZoomlevel}
+                  addedTiles={addedTiles}
+                  setAddedTiles={setAddedTiles}
+                  setCreatedCount={setCreatedCount}
+                  setModifiedCount={setModifiedCount}
+                  setDeletedCount={setDeletedCount}
+                  tileBoundaryLayer={tileBoundaryLayer}
                 />
               )}
             </FeatureGroup>
@@ -599,20 +546,28 @@ const Prediction = () => {
                     <strong>Feedback</strong>
                   </Typography>
                   <Typography variant="body2">
-                    Total Predictions:
+                    Initial Predictions:
                     {totalPredictionsCount}
                   </Typography>
-                  <Typography variant="body2">
-                    Total Feedbacks:
-                    {totalFeedbackCount}
-                  </Typography>
-                  {totalReviewNeedCount > 0 && (
+                  {CreatedCount > 0 && (
                     <Typography variant="body2">
-                      Review Needed:
-                      {totalReviewNeedCount}
+                      Total Created:
+                      {CreatedCount}
                     </Typography>
                   )}
-                  {totalFeedbackCount > 1 && totalReviewNeedCount === 0 && (
+                  {ModifiedCount > 0 && (
+                    <Typography variant="body2">
+                      Total Modified:
+                      {ModifiedCount}
+                    </Typography>
+                  )}
+                  {DeletedCount > 0 && (
+                    <Typography variant="body2">
+                      Total Deleted:
+                      {DeletedCount}
+                    </Typography>
+                  )}
+                  {CreatedCount + ModifiedCount + DeletedCount > 1 && (
                     <LoadingButton
                       variant="contained"
                       color="primary"

@@ -88,9 +88,10 @@ class Training(models.Model):
 
 
 class Feedback(models.Model):
-    FEEDBACK_TYPE = (
-        ("MISSING", "MISSING"),
-        ("INCORRECT", "INCORRECT"),
+    ACTION_TYPE = (
+        ("CREATE", "CREATE"),
+        ("MODIFY", "MODIFY"),
+        ("INITIAL", "INITIAL"),
     )
     geom = geomodels.GeometryField(srid=4326)
     training = models.ForeignKey(Training, to_field="id", on_delete=models.CASCADE)
@@ -98,7 +99,7 @@ class Feedback(models.Model):
     zoom_level = models.PositiveIntegerField(
         validators=[MinValueValidator(18), MaxValueValidator(23)]
     )
-    feedback_type = models.CharField(choices=FEEDBACK_TYPE, max_length=10)
+    action = models.CharField(choices=ACTION_TYPE, max_length=10)
     last_modified = models.DateTimeField(auto_now=True)
     user = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
     validated = models.BooleanField(default=False)

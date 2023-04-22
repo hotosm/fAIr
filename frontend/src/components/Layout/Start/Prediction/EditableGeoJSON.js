@@ -1,0 +1,192 @@
+import React, { useEffect, useState } from "react";
+import L from "leaflet";
+
+import { GeoJSON } from "react-leaflet";
+import "@geoman-io/leaflet-geoman-free";
+import "@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css";
+
+function deg2tile(lat_deg, lon_deg, zoom) {
+  const lat_rad = (Math.PI / 180) * lat_deg;
+  const n = Math.pow(2, zoom);
+  const xtile = Math.floor(((lon_deg + 180) / 360) * n);
+  const ytile = Math.floor(
+    ((1 - Math.log(Math.tan(lat_rad) + 1 / Math.cos(lat_rad)) / Math.PI) / 2) *
+      n
+  );
+  return [xtile, ytile];
+}
+
+function num2deg(xtile, ytile, zoom) {
+  const n = Math.pow(2, zoom);
+  const lon_deg = (xtile / n) * 360.0 - 180.0;
+  const lat_rad = Math.atan(Math.sinh(Math.PI * (1 - (2 * ytile) / n)));
+  const lat_deg = (lat_rad * 180.0) / Math.PI;
+  return [lat_deg, lon_deg];
+}
+
+function tile2boundingbox(xtile, ytile, zoom) {
+  const [lat_deg, lon_deg] = num2deg(xtile, ytile, zoom);
+  const cornerNW = L.latLng(lat_deg, lon_deg);
+
+  const [lat_deg1, lon_deg1] = num2deg(xtile + 1, ytile + 1, zoom);
+  const cornerSE = L.latLng(lat_deg1, lon_deg1);
+
+  return L.latLngBounds(cornerNW, cornerSE);
+}
+
+function addTileBoundaryLayer(
+  mapref,
+  addedTiles,
+  tileX,
+  tileY,
+  zoom,
+  setAddedTiles,
+  tileBoundaryLayer
+) {
+  const key = `${tileX}_${tileY}_${zoom}`;
+
+  if (!addedTiles.has(key)) {
+    console.log("Key doesn't present in map");
+    const bounds = tile2boundingbox(tileX, tileY, zoom);
+    const tileName = "tilebounds";
+    tileBoundaryLayer = L.rectangle(bounds, {
+      color: "yellow",
+      fill: false,
+      pmIgnore: true,
+    });
+    tileBoundaryLayer.name = "Tile Box";
+    mapref.addLayer(tileBoundaryLayer);
+    mapref.fitBounds(tileBoundaryLayer.getBounds());
+    addedTiles.add(key);
+    setAddedTiles(addedTiles);
+  }
+}
+
+const EditableGeoJSON = ({
+  data,
+  setPredictions,
+  mapref,
+  predictionZoomlevel,
+  addedTiles,
+  setAddedTiles,
+  setCreatedCount,
+  setModifiedCount,
+  setDeletedCount,
+  tileBoundaryLayer,
+}) => {
+  const style = () => ({
+    color: "red",
+    weight: 5,
+  });
+  const onPMCreate = (event) => {
+    console.log("Created");
+    const createdLayer = event.layer;
+    setCreatedCount((prevCount) => prevCount + 1);
+    const newFeature = createdLayer.toGeoJSON();
+    newFeature.properties = {
+      ...newFeature.properties,
+      status: "CREATE",
+      id: Math.random().toString(36).substring(2, 10),
+    };
+    console.log(newFeature);
+    setPredictions((prevData) => ({
+      ...prevData,
+      features: [...prevData.features, newFeature],
+    }));
+    const centroid = createdLayer.getBounds().getCenter();
+    const [tileX, tileY] = deg2tile(
+      centroid.lat,
+      centroid.lng,
+      predictionZoomlevel
+    );
+    addTileBoundaryLayer(
+      mapref,
+      addedTiles,
+      tileX,
+      tileY,
+      predictionZoomlevel,
+      setAddedTiles,
+      tileBoundaryLayer
+    );
+    mapref.removeLayer(createdLayer);
+  };
+  const onEachFeature = (feature, layer) => {
+    layer.on({
+      "pm:update": (event) => {
+        console.log(event);
+        console.log(feature);
+        const centroid = layer.getBounds().getCenter();
+        const [tileX, tileY] = deg2tile(
+          centroid.lat,
+          centroid.lng,
+          predictionZoomlevel
+        );
+        const editedLayer = event.target;
+        const editedData = editedLayer.toGeoJSON();
+        const editedFeatureIndex = data.features.findIndex(
+          (feature) => feature.id === editedData.id
+        );
+        const newData = { ...data };
+        newData.features[editedFeatureIndex] = editedData;
+        setPredictions(newData);
+        if (feature.properties.status !== "MODIFY") {
+          feature.properties.status = "MODIFY";
+          setModifiedCount((prevCount) => prevCount + 1);
+        }
+
+        addTileBoundaryLayer(
+          mapref,
+          addedTiles,
+          tileX,
+          tileY,
+          predictionZoomlevel,
+          setAddedTiles
+        );
+      },
+      "pm:remove": (event) => {
+        console.log(event.layer);
+        const deletedLayer = event.layer;
+        const newFeatures = data.features.filter(
+          (feature) =>
+            feature.properties.id !== deletedLayer.feature.properties.id
+        );
+        setPredictions({ ...data, features: newFeatures });
+        setDeletedCount((prevCount) => prevCount + 1);
+      },
+    });
+  };
+
+  useEffect(() => {
+    const map = mapref;
+
+    map.pm.addControls({
+      position: "topleft",
+      drawMarker: false,
+      drawPolygon: true,
+      drawCircleMarker: false,
+      drawCircle: false,
+      drawPolyline: false,
+      drawText: false,
+      editMode: true,
+      dragMode: true,
+      cutPolygon: false,
+      tooltips: true,
+      removalMode: true,
+      oneBlock: true,
+      allowSelfIntersection: false,
+    });
+    map.on("pm:create", onPMCreate);
+  }, [mapref]);
+
+  return (
+    <GeoJSON
+      key={JSON.stringify(data)}
+      data={data}
+      pmIgnore={false}
+      onEachFeature={onEachFeature}
+      style={style}
+    />
+  );
+};
+
+export default EditableGeoJSON;
