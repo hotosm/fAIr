@@ -35,6 +35,7 @@ import Snackbar from "@mui/material/Snackbar";
 
 const Prediction = () => {
   const { id } = useParams();
+
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [feedbackSubmittedCount, setFeedbackSubmittedCount] = useState(0);
 
@@ -321,20 +322,6 @@ const Prediction = () => {
     });
     return null;
   }
-  function latLngToTile(lat, lng, zoom) {
-    const tileX = Math.floor(((lng + 180) / 360) * Math.pow(2, zoom));
-    const tileY = Math.floor(
-      ((1 -
-        Math.log(
-          Math.tan((lat * Math.PI) / 180) + 1 / Math.cos((lat * Math.PI) / 180)
-        ) /
-          Math.PI) /
-        2) *
-        Math.pow(2, zoom)
-    );
-
-    return { tileX, tileY };
-  }
 
   function changeFeatureColor(featureId, color, feedbackType) {
     const feature = predictions.features.find(
@@ -394,15 +381,45 @@ const Prediction = () => {
     };
   }
 
+  function deg2tile(lat_deg, lon_deg, zoom) {
+    const lat_rad = (Math.PI / 180) * lat_deg;
+    const n = Math.pow(2, zoom);
+    const xtile = Math.floor(((lon_deg + 180) / 360) * n);
+    const ytile = Math.floor(
+      ((1 - Math.log(Math.tan(lat_rad) + 1 / Math.cos(lat_rad)) / Math.PI) /
+        2) *
+        n
+    );
+    return [xtile, ytile];
+  }
+
+  function num2deg(xtile, ytile, zoom) {
+    const n = Math.pow(2, zoom);
+    const lon_deg = (xtile / n) * 360.0 - 180.0;
+    const lat_rad = Math.atan(Math.sinh(Math.PI * (1 - (2 * ytile) / n)));
+    const lat_deg = (lat_rad * 180.0) / Math.PI;
+    return [lat_deg, lon_deg];
+  }
+
+  function tile2boundingbox(xtile, ytile, zoom) {
+    const [lat_deg, lon_deg] = num2deg(xtile, ytile, zoom);
+    const cornerNW = L.latLng(lat_deg, lon_deg);
+
+    const [lat_deg1, lon_deg1] = num2deg(xtile + 1, ytile + 1, zoom);
+    const cornerSE = L.latLng(lat_deg1, lon_deg1);
+
+    return L.latLngBounds(cornerNW, cornerSE);
+  }
+
   function highlightNeighbors(tileX, tileY, zoom) {
     if (!predictions) return;
 
     predictions.features.forEach((feature) => {
       const centroid = getPolygonCentroid(feature.geometry.coordinates);
-      const currentTile = latLngToTile(centroid.lat, centroid.lng, zoom);
+      const currentTile = deg2tile(centroid.lat, centroid.lng, zoom);
       if (
-        currentTile.tileX === tileX &&
-        currentTile.tileY === tileY &&
+        currentTile.xtile === tileX &&
+        currentTile.ytile === tileY &&
         feature.properties.feedbackType == "INITIAL"
       ) {
         console.log("Neighbour on same tile", feature.properties.id);
@@ -415,7 +432,8 @@ const Prediction = () => {
   function onEachFeature(feature, layer) {
     layer.on("click", (e) => {
       const zoom = predictionZoomlevel;
-      const { tileX, tileY } = latLngToTile(e.latlng.lat, e.latlng.lng, zoom);
+      const [tileX, tileY] = deg2tile(e.latlng.lat, e.latlng.lng, zoom);
+      console.log(tileX, tileY);
 
       // Create the popup content
       const popupContent =
@@ -439,6 +457,12 @@ const Prediction = () => {
         .querySelector("#rightButton")
         .addEventListener("click", () => {
           changeFeatureColor(feature.properties.id, "green", "CORRECT");
+          const bounds = tile2boundingbox(tileX, tileY, zoom);
+
+          console.log(bounds);
+          const tileBoundaryLayer = L.rectangle(bounds, { color: "red" });
+          map.addLayer(tileBoundaryLayer);
+          map.fitBounds(tileBoundaryLayer.getBounds());
           e.target.closePopup();
         });
       popupElement
