@@ -434,7 +434,6 @@ const Prediction = () => {
       const zoom = predictionZoomlevel;
       const [tileX, tileY] = deg2tile(e.latlng.lat, e.latlng.lng, zoom);
       const key = `${tileX}_${tileY}_${zoom}`;
-      console.log(key);
 
       // Create the popup content
       const popupContent =
@@ -459,6 +458,7 @@ const Prediction = () => {
         .addEventListener("click", () => {
           changeFeatureColor(feature.properties.id, "green", "CORRECT");
           if (!addedTiles.has(key)) {
+            console.log("Key doesn't present in map");
             const bounds = tile2boundingbox(tileX, tileY, zoom);
             const tileBoundaryLayer = L.rectangle(bounds, {
               color: "yellow",
@@ -466,7 +466,8 @@ const Prediction = () => {
             });
             map.addLayer(tileBoundaryLayer);
             map.fitBounds(tileBoundaryLayer.getBounds());
-            setAddedTiles(new Set([...addedTiles, key]));
+            addedTiles.add(key);
+            setAddedTiles(addedTiles);
           }
           e.target.closePopup();
         });
