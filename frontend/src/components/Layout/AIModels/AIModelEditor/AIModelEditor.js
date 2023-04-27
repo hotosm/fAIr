@@ -291,20 +291,36 @@ const AIModelEditor = (props) => {
 
           <Grid item xs={12} md={6}></Grid>
           <Grid item xs={12} md={6}></Grid>
-          <Grid item xs={12} md={6}>
-            <Button
-              variant="contained"
-              color="primary"
-              size="small"
-              startIcon={<SaveIcon />}
-              onClick={() => {
-                console.log("save");
-                mutate();
-              }}
-              disabled={epochs <= 0 || batchSize <= 0}
-            >
-              Submit a training request
-            </Button>
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={6}>
+              <Button
+                variant="contained"
+                color="primary"
+                size="small"
+                startIcon={<SaveIcon />}
+                onClick={() => {
+                  console.log("save");
+                  mutate();
+                }}
+                disabled={epochs <= 0 || batchSize <= 0}
+                sx={{ pl: 2 }}
+              >
+                Submit a training request
+              </Button>
+            </Grid>
+            <Grid item xs={12} md={6} textAlign="right">
+              <Button
+                variant="contained"
+                color="primary"
+                size="small"
+                onClick={() => {
+                  console.log("view feedbacks");
+                  // add logic to view feedbacks here
+                }}
+              >
+                View Feedbacks
+              </Button>
+            </Grid>
           </Grid>
 
           {error && (

@@ -10,13 +10,15 @@ import hot_fair_utilities
 import ramp.utils
 import tensorflow as tf
 from celery import shared_task
-from core.models import AOI, Label, Training
-from core.serializers import LabelFileSerializer
+from core.models import AOI, Feedback, Label, Training
+from core.serializers import FeedbackFileSerializer, LabelFileSerializer
 from core.utils import bbox, download_imagery, get_start_end_download_coords
 from django.conf import settings
+from django.contrib.gis.db.models.aggregates import Extent
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from hot_fair_utilities import preprocess, train
+from hot_fair_utilities.training import run_feedback
 
 logger = logging.getLogger(__name__)
 
@@ -28,9 +30,14 @@ DEFAULT_TILE_SIZE = 256
 
 @shared_task
 def train_model(
-    dataset_id, training_id, epochs, batch_size, zoom_level, source_imagery
+    dataset_id,
+    training_id,
+    epochs,
+    batch_size,
+    zoom_level,
+    source_imagery,
+    feedback=None,
 ):
-
     training_instance = get_object_or_404(Training, id=training_id)
     training_instance.status = "RUNNING"
     training_instance.started_at = timezone.now()
@@ -46,12 +53,6 @@ def train_model(
         with open(log_file, "w") as f:
             # redirect stdout to the log file
             sys.stdout = f
-            try:
-                aois = AOI.objects.filter(dataset=dataset_id)
-            except AOI.DoesNotExist:
-                raise ValueError(
-                    f"No AOI is attached with supplied dataset id:{dataset_id}, Create AOI first",
-                )
             training_input_base_path = os.path.join(
                 settings.TRAINING_WORKSPACE, f"dataset_{dataset_id}"
             )
@@ -61,16 +62,21 @@ def train_model(
             if os.path.exists(training_input_image_source):  # always build dataset
                 shutil.rmtree(training_input_image_source)
             os.makedirs(training_input_image_source)
-            for obj in aois:
+            if feedback:
+                feedback_objects = Feedback.objects.filter(
+                    training__id=feedback,
+                    validated=True,
+                )
+                bbox = feedback_objects.aggregate(Extent("geom"))["geom__extent"]
                 for z in zoom_level:
                     zm_level = z
                     print(
                         f"""Running Download process for
-                            aoi : {obj.id} - dataset : {dataset_id} , zoom : {zm_level}"""
+                                feedback {training_id} - dataset : {dataset_id} , zoom : {zm_level}"""
                     )
                     try:
                         tile_size = DEFAULT_TILE_SIZE  # by default
-                        bbox_coords = bbox(obj.geom.coords[0])
+                        bbox_coords = list(bbox)
                         start, end = get_start_end_download_coords(
                             bbox_coords, zm_level, tile_size
                         )
@@ -85,19 +91,58 @@ def train_model(
                     except Exception as ex:
                         raise ex
 
-            ## -----------LABEL GENERATOR---------
-            aoi_list = [r.id for r in aois]
-            label = Label.objects.filter(aoi__in=aoi_list).values()
-            serialized_field = LabelFileSerializer(data=list(label), many=True)
+            else:
+                try:
+                    aois = AOI.objects.filter(dataset=dataset_id)
+                except AOI.DoesNotExist:
+                    raise ValueError(
+                        f"No AOI is attached with supplied dataset id:{dataset_id}, Create AOI first",
+                    )
 
-            if serialized_field.is_valid(raise_exception=True):
-                with open(
-                    os.path.join(training_input_image_source, "labels.geojson"),
-                    "w",
-                    encoding="utf-8",
-                ) as f:
-                    f.write(json.dumps(serialized_field.data))
-                f.close()
+                for obj in aois:
+                    for z in zoom_level:
+                        zm_level = z
+                        print(
+                            f"""Running Download process for
+                                aoi : {obj.id} - dataset : {dataset_id} , zoom : {zm_level}"""
+                        )
+                        try:
+                            tile_size = DEFAULT_TILE_SIZE  # by default
+                            bbox_coords = bbox(obj.geom.coords[0])
+                            start, end = get_start_end_download_coords(
+                                bbox_coords, zm_level, tile_size
+                            )
+                            # start downloading
+                            download_imagery(
+                                start,
+                                end,
+                                zm_level,
+                                base_path=training_input_image_source,
+                                source=source_imagery,
+                            )
+                        except Exception as ex:
+                            raise ex
+
+            ## -----------LABEL GENERATOR---------
+            logging.debug("Label Generator started")
+            if feedback:
+                feedback_objects = Feedback.objects.filter(
+                    training__id=feedback,
+                    validated=True,
+                )
+                serialized_field = FeedbackFileSerializer(feedback_objects, many=True)
+            else:
+                aoi_list = [r.id for r in aois]
+                label = Label.objects.filter(aoi__in=aoi_list).values()
+                serialized_field = LabelFileSerializer(data=list(label), many=True)
+
+            with open(
+                os.path.join(training_input_image_source, "labels.geojson"),
+                "w",
+                encoding="utf-8",
+            ) as f:
+                f.write(json.dumps(serialized_field.data))
+            f.close()
 
             ## --------- Data Preparation ----------
             base_path = os.path.join(settings.RAMP_HOME, "ramp-data", str(dataset_id))
@@ -130,14 +175,28 @@ def train_model(
             # train
 
             train_output = f"{base_path}/train"
-            final_accuracy, final_model_path = train(
-                input_path=preprocess_output,
-                output_path=train_output,
-                epoch_size=epochs,
-                batch_size=batch_size,
-                model="ramp",
-                model_home=os.environ["RAMP_HOME"],
-            )
+            if feedback:
+                final_accuracy, final_model_path = run_feedback(
+                    input_path=preprocess_output,
+                    output_path=train_output,
+                    feedback_base_model=os.path.join(
+                        settings.TRAINING_WORKSPACE,
+                        f"dataset_{dataset_id}",
+                        "output",
+                        f"training_{feedback}",
+                        "checkpoint.tf",
+                    ),
+                    model_home=os.environ["RAMP_HOME"],
+                )
+            else:
+                final_accuracy, final_model_path = train(
+                    input_path=preprocess_output,
+                    output_path=train_output,
+                    epoch_size=epochs,
+                    batch_size=batch_size,
+                    model="ramp",
+                    model_home=os.environ["RAMP_HOME"],
+                )
 
             # copy final model to output
             output_path = os.path.join(

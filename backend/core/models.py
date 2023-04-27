@@ -91,6 +91,7 @@ class Feedback(models.Model):
     ACTION_TYPE = (
         ("CREATE", "CREATE"),
         ("MODIFY", "MODIFY"),
+        ("ACCEPT", "ACCEPT"),
         ("INITIAL", "INITIAL"),
     )
     geom = geomodels.GeometryField(srid=4326)

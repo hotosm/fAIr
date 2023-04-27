@@ -79,7 +79,7 @@ code {
 
 
 .feedback-button {
-  background-color: #4caf50; 
+  background-color: #f44336; 
   margin-top: 2px;
   color: #fff;
   border: none;
@@ -87,13 +87,12 @@ code {
   padding: 8px 12px;
   cursor: pointer;
   outline: none;
-  margin-right: 5px;
   font-weight: bold;
   font-size: 1.0em;
 }
 
 .feedback-button:last-child {
-  background-color: #f44336; 
+  background-color: #4caf50; 
 }
 
 

@@ -48,7 +48,6 @@ function addTileBoundaryLayer(
   if (!addedTiles.has(key)) {
     console.log("Key doesn't present in map");
     const bounds = tile2boundingbox(tileX, tileY, zoom);
-    const tileName = "tilebounds";
     tileBoundaryLayer = L.rectangle(bounds, {
       color: "yellow",
       fill: false,
@@ -60,6 +59,18 @@ function addTileBoundaryLayer(
     addedTiles.add(key);
     setAddedTiles(addedTiles);
   }
+}
+
+function getFeatureStyle(feature) {
+  let color = "red";
+  if (feature.properties.action !== "INITIAL") {
+    color = "green";
+  }
+
+  return {
+    color: color,
+    weight: 5,
+  };
 }
 
 const EditableGeoJSON = ({
@@ -74,10 +85,6 @@ const EditableGeoJSON = ({
   setDeletedCount,
   tileBoundaryLayer,
 }) => {
-  const style = () => ({
-    color: "red",
-    weight: 5,
-  });
   const onPMCreate = (event) => {
     console.log("Created");
     const createdLayer = event.layer;
@@ -85,7 +92,7 @@ const EditableGeoJSON = ({
     const newFeature = createdLayer.toGeoJSON();
     newFeature.properties = {
       ...newFeature.properties,
-      status: "CREATE",
+      action: "CREATE",
       id: Math.random().toString(36).substring(2, 10),
     };
     console.log(newFeature);
@@ -129,8 +136,8 @@ const EditableGeoJSON = ({
         const newData = { ...data };
         newData.features[editedFeatureIndex] = editedData;
         setPredictions(newData);
-        if (feature.properties.status !== "MODIFY") {
-          feature.properties.status = "MODIFY";
+        if (feature.properties.action !== "MODIFY") {
+          feature.properties.action = "MODIFY";
           setModifiedCount((prevCount) => prevCount + 1);
         }
 
@@ -153,6 +160,44 @@ const EditableGeoJSON = ({
         setPredictions({ ...data, features: newFeatures });
         setDeletedCount((prevCount) => prevCount + 1);
       },
+    });
+    layer.on("click", (e) => {
+      if (feature.properties.action === "INITIAL") {
+        const popupContent =
+          `
+      <div>
+        <p> <strong>` +
+          feature.properties.action +
+          `</strong></p>
+        <button id="rightButton" class="feedback-button">&#128077; Accept</button>
+      </div>
+      `;
+        const popup = L.popup()
+          .setLatLng(e.latlng)
+          .setContent(popupContent)
+          .openOn(e.target._map);
+        const popupElement = popup.getElement();
+        popupElement
+          .querySelector("#rightButton")
+          .addEventListener("click", () => {
+            feature.properties.action = "ACCEPT";
+            const centroid = layer.getBounds().getCenter();
+            const [tileX, tileY] = deg2tile(
+              centroid.lat,
+              centroid.lng,
+              predictionZoomlevel
+            );
+            addTileBoundaryLayer(
+              mapref,
+              addedTiles,
+              tileX,
+              tileY,
+              predictionZoomlevel,
+              setAddedTiles
+            );
+            e.target.closePopup();
+          });
+      }
     });
   };
 
@@ -183,8 +228,8 @@ const EditableGeoJSON = ({
       key={JSON.stringify(data)}
       data={data}
       pmIgnore={false}
+      style={getFeatureStyle}
       onEachFeature={onEachFeature}
-      style={style}
     />
   );
 };

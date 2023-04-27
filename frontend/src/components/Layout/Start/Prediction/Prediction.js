@@ -37,6 +37,7 @@ import EditableGeoJSON from "./EditableGeoJSON";
 
 const Prediction = () => {
   const { id } = useParams();
+  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [predictions, setPredictions] = useState(null);
   const [feedbackSubmittedCount, setFeedbackSubmittedCount] = useState(0);
@@ -213,6 +214,11 @@ const Prediction = () => {
     const endTime = new Date().getTime(); // measure end time
     setResponseTime(((endTime - startTime) / 1000).toFixed(0)); // calculate and store response time in seconds
     setApiCallInProgress(false);
+    if (res.status === 204) {
+      // Add this if statement
+      setError("No features found on requested bbox");
+      return;
+    }
     if (res.error) {
       setError(
         `${res.error.response.statusText}, ${JSON.stringify(
@@ -237,27 +243,33 @@ const Prediction = () => {
   const handleSubmitFeedback = async () => {
     setFeedbackLoading(true);
     console.log(predictions.features.length);
+    let count = 0;
     try {
       for (let i = 0; i < predictions.features.length; i++) {
         console.log(predictions.features[i]);
         const { geometry } = predictions.features[i];
-        const body = {
-          geom: geometry,
-          action: predictions.features[i].properties.status,
-          training: modelInfo.trainingId,
-          zoom_level: predictionZoomlevel,
-        };
-        console.log(body);
-        const headers = {
-          "access-token": accessToken,
-          Authorization: `Bearer ${accessToken}`,
-        };
-        await axios.post("/feedback/", body, { headers });
+        const { action } = predictions.features[i].properties;
+        if (action !== "INITIAL") {
+          // Add this if statement
+          const body = {
+            geom: geometry,
+            action,
+            training: modelInfo.trainingId,
+            zoom_level: predictionZoomlevel,
+          };
+          console.log(body);
+          const headers = {
+            "access-token": accessToken,
+            Authorization: `Bearer ${accessToken}`,
+          };
+          await axios.post("/feedback/", body, { headers });
+          count = count + 1;
+        }
       }
       setFeedbackLoading(false);
-      setFeedbackSubmittedCount(predictions.features.length);
-
+      setFeedbackSubmittedCount(count);
       setSnackbarOpen(true);
+      setFeedbackSubmitted(true);
     } catch (error) {
       console.error(error);
       setFeedbackLoading(false);
@@ -276,7 +288,7 @@ const Prediction = () => {
     const modifiedPredictions = {
       ...predictions,
       features: predictions.features.map((feature) => {
-        const { id, status, ...newProps } = feature.properties;
+        const { id, action, ...newProps } = feature.properties;
         return {
           ...feature,
           properties: newProps,
@@ -336,7 +348,7 @@ const Prediction = () => {
         properties: {
           ...feature.properties,
           id: index,
-          status: "INITIAL",
+          action: "INITIAL",
         },
       };
     });
@@ -344,93 +356,6 @@ const Prediction = () => {
     settotalPredictionsCount(features.length);
 
     return { ...predictions, features };
-  }
-
-  // function highlightNeighbors(tileX, tileY, zoom) {
-  //   if (!predictions) return;
-
-  //   predictions.features.forEach((feature) => {
-  //     const centroid = getPolygonCentroid(feature.geometry.coordinates);
-  //     const currentTile = deg2tile(centroid.lat, centroid.lng, zoom);
-  //     if (
-  //       currentTile.xtile === tileX &&
-  //       currentTile.ytile === tileY &&
-  //       feature.properties.feedbackType == "INITIAL"
-  //     ) {
-  //       console.log("Neighbour on same tile", feature.properties.id);
-  //       settotalReviewNeedCount((prevCount) => prevCount + 1);
-  //       changeFeatureColor(feature.properties.id, "yellow", "NEED REVIEW");
-  //     }
-  //   });
-  // }
-
-  // function onEachFeature(feature, layer) {
-  //   layer.on("click", (e) => {
-  //     const zoom = predictionZoomlevel;
-
-  //     // Create the popup content
-  //     const popupContent =
-  //       `
-  //     <div>
-  //       <p> <strong>Feedback:</strong> ` +
-  //       feature.properties.feedbackType +
-  //       `</p>
-  //       <button id="rightButton" class="feedback-button">&#128077; Right</button>
-  //       <button id="wrongButton" class="feedback-button">&#128078; Wrong</button>
-  //     </div>
-  //     `;
-
-  //     const popup = L.popup()
-  //       .setLatLng(e.latlng)
-  //       .setContent(popupContent)
-  //       .openOn(e.target._map);
-
-  //     const popupElement = popup.getElement();
-  //     popupElement
-  //       .querySelector("#rightButton")
-  //       .addEventListener("click", () => {
-  //         changeFeatureColor(feature.properties.id, "green", "CORRECT");
-  //         if (!addedTiles.has(key)) {
-  //           console.log("Key doesn't present in map");
-  //           const bounds = tile2boundingbox(tileX, tileY, zoom);
-  //           const tileBoundaryLayer = L.rectangle(bounds, {
-  //             color: "yellow",
-  //             fill: false,
-  //           });
-  //           map.addLayer(tileBoundaryLayer);
-  //           map.fitBounds(tileBoundaryLayer.getBounds());
-  //           addedTiles.add(key);
-  //           setAddedTiles(addedTiles);
-  //         }
-  //         e.target.closePopup();
-  //       });
-  //     popupElement
-  //       .querySelector("#wrongButton")
-  //       .addEventListener("click", () => {
-  //         // Highlight neighboring features
-  //         highlightNeighbors(tileX, tileY, zoom);
-  //         changeFeatureColor(feature.properties.id, "red", "INCORRECT");
-  //         e.target.closePopup();
-  //       });
-  //   });
-  // }
-
-  function getFeatureStyle(feature) {
-    let color = "green";
-
-    if (feature.properties.feedbackType === "NEED REVIEW") {
-      color = "yellow";
-    } else if (feature.properties.feedbackType === "INCORRECT") {
-      color = "red";
-    } else if (feature.properties.feedbackType === "CORRECT") {
-      color = "green";
-    }
-
-    return {
-      color: color,
-      weight: 8,
-      opacity: 1,
-    };
   }
 
   return (
@@ -567,18 +492,19 @@ const Prediction = () => {
                       {DeletedCount}
                     </Typography>
                   )}
-                  {CreatedCount + ModifiedCount + DeletedCount > 1 && (
-                    <LoadingButton
-                      variant="contained"
-                      color="primary"
-                      onClick={handleSubmitFeedback}
-                      size="small"
-                      loading={feedbackLoading}
-                      sx={{ mt: 1 }}
-                    >
-                      Submit my feedback
-                    </LoadingButton>
-                  )}
+                  {CreatedCount + ModifiedCount + DeletedCount > 1 &&
+                    !feedbackSubmitted && (
+                      <LoadingButton
+                        variant="contained"
+                        color="primary"
+                        onClick={handleSubmitFeedback}
+                        size="small"
+                        loading={feedbackLoading}
+                        sx={{ mt: 1 }}
+                      >
+                        Submit my feedback
+                      </LoadingButton>
+                    )}
                 </Paper>
               )}
               {loading ? (
@@ -644,7 +570,7 @@ const Prediction = () => {
           open={snackbarOpen}
           autoHideDuration={3000}
           onClose={handleCloseSnackbar}
-          message={`Thanks! Your ${feedbackSubmittedCount} feedback has been submitted and removed from predictions.`}
+          message={`Thanks! Your ${feedbackSubmittedCount} feedback has been submitted.`}
         />
       </Grid>
     </>

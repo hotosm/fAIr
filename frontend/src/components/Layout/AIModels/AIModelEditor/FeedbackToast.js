@@ -78,6 +78,7 @@ const FeedbackToast = ({ count, feedbackData, trainingId }) => {
           feedbackData={feedbackData}
           isOpen={popupOpen}
           sourceImagery={sourceImagery}
+          trainingId={trainingId}
           onClose={() => setPopupOpen(false)}
         />
       )}

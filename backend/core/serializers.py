@@ -103,9 +103,14 @@ class LabelFileSerializer(
         model = Label
         geo_field = "geom"  # this will be used as geometry in order to create geojson api , geofeatureserializer will let you create api in geojson
         # auto_bbox = True
-        fields = (
-            "osm_id",
-        )  # defining all the fields to  be included in curd for now , we can restrict few if we want
+        fields = ("osm_id",)
+
+
+class FeedbackFileSerializer(GeoFeatureModelSerializer):
+    class Meta:
+        fields = ("training",)
+        model = Feedback
+        geo_field = "geom"
 
 
 class ImageDownloadSerializer(serializers.Serializer):
@@ -123,6 +128,10 @@ class ImageDownloadSerializer(serializers.Serializer):
             if int(i) < 19 or int(i) > 21:
                 raise serializers.ValidationError("Zoom level Supported between 19-21")
         return data
+
+
+class FeedbackParamSerializer(serializers.Serializer):
+    training_id = serializers.IntegerField(required=True)
 
 
 class PredictionParamSerializer(serializers.Serializer):

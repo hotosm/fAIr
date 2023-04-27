@@ -23,7 +23,7 @@ const FeedbackMap = ({ feedbackData, sourceImagery }) => {
     const validateButton = `<button id="validate-${feature.properties.id}" class="feedback-button">${validateButtonText}</button>`;
     const deleteButton = `<button id="discard-${feature.properties.id}" class="feedback-button">Discard</button>`;
     const buttonsContainer = `<div style="display: flex">${validateButton} ${deleteButton}</div>`;
-    const content = `<strong>${feature.properties.feedback_type}</strong><br>${formattedDate}<br>${buttonsContainer}`;
+    const content = `<strong>${feature.properties.action}</strong><br>${formattedDate}<br>${buttonsContainer}`;
     layer.bindPopup(content);
     layer.setStyle({
       color: color,

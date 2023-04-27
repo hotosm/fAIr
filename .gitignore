@@ -37,6 +37,7 @@ backend/**/__pycache__/**
 backend/**/migrations/**
 backend/media
 backend/data/*
+backend/log/*
 backend/training/*
 backend/.env
 backend/config.txt
