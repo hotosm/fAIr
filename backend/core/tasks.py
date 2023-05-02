@@ -67,7 +67,9 @@ def train_model(
                     training__id=feedback,
                     validated=True,
                 )
-                bbox = feedback_objects.aggregate(Extent("geom"))["geom__extent"]
+                bbox_feedback = feedback_objects.aggregate(Extent("geom"))[
+                    "geom__extent"
+                ]
                 for z in zoom_level:
                     zm_level = z
                     print(
@@ -76,7 +78,7 @@ def train_model(
                     )
                     try:
                         tile_size = DEFAULT_TILE_SIZE  # by default
-                        bbox_coords = list(bbox)
+                        bbox_coords = list(bbox_feedback)
                         start, end = get_start_end_download_coords(
                             bbox_coords, zm_level, tile_size
                         )

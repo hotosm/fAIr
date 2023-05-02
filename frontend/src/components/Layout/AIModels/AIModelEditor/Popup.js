@@ -104,7 +104,14 @@ const Popup = ({ open, handleClose, row }) => {
   useEffect(() => {
     setLoading(true);
     if (row.status === "FAILED" || row.status === "RUNNING") {
+      // Call getTrainingStatus every 3 seconds
+      const intervalId = setInterval(() => {
+        getTrainingStatus(row.task_id);
+      }, 3000);
+
       getTrainingStatus(row.task_id).finally(() => setLoading(false));
+
+      return () => clearInterval(intervalId);
     } else if (row.status === "FINISHED") {
       getDatasetId(row.model).finally(() => setLoading(false));
     } else {
