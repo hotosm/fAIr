@@ -135,8 +135,8 @@ def train_model(
                 serialized_field = FeedbackFileSerializer(feedback_objects, many=True)
             else:
                 aoi_list = [r.id for r in aois]
-                label = Label.objects.filter(aoi__in=aoi_list).values()
-                serialized_field = LabelFileSerializer(data=list(label), many=True)
+                label = Label.objects.filter(aoi__in=aoi_list)
+                serialized_field = LabelFileSerializer(label, many=True)
 
             with open(
                 os.path.join(training_input_image_source, "labels.geojson"),
