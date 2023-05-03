@@ -374,30 +374,16 @@ const Prediction = () => {
             whenCreated={setMap}
           >
             <MyComponent />
-
-            <LayersControl position="topright">
-              {/* code for TileLayer components */}
-              {oamImagery && dataset && (
-                <LayersControl.BaseLayer name={oamImagery.name} checked>
-                  <TileLayer
-                    maxZoom={oamImagery.maxzoom}
-                    minZoom={oamImagery.minzoom}
-                    attribution={oamImagery.name}
-                    url={dataset.source_imagery}
-                  />
-                </LayersControl.BaseLayer>
-              )}
-            </LayersControl>
+            {oamImagery && dataset && (
+              <TileLayer
+                maxZoom={oamImagery.maxzoom}
+                minZoom={oamImagery.minzoom}
+                attribution={oamImagery.name}
+                url={dataset.source_imagery}
+              />
+            )}
 
             <FeatureGroup>
-              {/* {predictions && (
-                <GeoJSON
-                  attribution="&copy; credits to OSM"
-                  data={predictions}
-                  style={getFeatureStyle}
-                  onEachFeature={onEachFeature} // Attach the onEachFeature function
-                />
-              )} */}
               {predictions && (
                 <EditableGeoJSON
                   data={predictions}
