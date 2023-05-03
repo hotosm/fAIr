@@ -100,34 +100,48 @@ const EditableGeoJSON = ({
       ...prevData,
       features: [...prevData.features, newFeature],
     }));
-    const centroid = createdLayer.getBounds().getCenter();
-    const [tileX, tileY] = deg2tile(
-      centroid.lat,
-      centroid.lng,
-      predictionZoomlevel
-    );
-    addTileBoundaryLayer(
-      mapref,
-      addedTiles,
-      tileX,
-      tileY,
-      predictionZoomlevel,
-      setAddedTiles,
-      tileBoundaryLayer
-    );
+    const bounds = event.layer.getBounds();
+    const corners = [bounds.getSouthWest(), bounds.getNorthEast()];
+
+    for (const corner of corners) {
+      const [tileX, tileY] = deg2tile(
+        corner.lat,
+        corner.lng,
+        predictionZoomlevel
+      );
+      addTileBoundaryLayer(
+        mapref,
+        addedTiles,
+        tileX,
+        tileY,
+        predictionZoomlevel,
+        setAddedTiles
+      );
+    }
     mapref.removeLayer(createdLayer);
   };
   const onEachFeature = (feature, layer) => {
     layer.on({
       "pm:update": (event) => {
-        console.log(event);
-        console.log(feature);
-        const centroid = layer.getBounds().getCenter();
-        const [tileX, tileY] = deg2tile(
-          centroid.lat,
-          centroid.lng,
-          predictionZoomlevel
-        );
+        const bounds = event.layer.getBounds();
+        const corners = [bounds.getSouthWest(), bounds.getNorthEast()];
+
+        for (const corner of corners) {
+          const [tileX, tileY] = deg2tile(
+            corner.lat,
+            corner.lng,
+            predictionZoomlevel
+          );
+          addTileBoundaryLayer(
+            mapref,
+            addedTiles,
+            tileX,
+            tileY,
+            predictionZoomlevel,
+            setAddedTiles
+          );
+        }
+
         const editedLayer = event.target;
         const editedData = editedLayer.toGeoJSON();
         const editedFeatureIndex = data.features.findIndex(
@@ -140,18 +154,26 @@ const EditableGeoJSON = ({
           feature.properties.action = "MODIFY";
           setModifiedCount((prevCount) => prevCount + 1);
         }
-
-        addTileBoundaryLayer(
-          mapref,
-          addedTiles,
-          tileX,
-          tileY,
-          predictionZoomlevel,
-          setAddedTiles
-        );
       },
       "pm:remove": (event) => {
-        console.log(event.layer);
+        const bounds = event.layer.getBounds();
+        const corners = [bounds.getSouthWest(), bounds.getNorthEast()];
+
+        for (const corner of corners) {
+          const [tileX, tileY] = deg2tile(
+            corner.lat,
+            corner.lng,
+            predictionZoomlevel
+          );
+          addTileBoundaryLayer(
+            mapref,
+            addedTiles,
+            tileX,
+            tileY,
+            predictionZoomlevel,
+            setAddedTiles
+          );
+        }
         const deletedLayer = event.layer;
         const newFeatures = data.features.filter(
           (feature) =>
@@ -162,13 +184,10 @@ const EditableGeoJSON = ({
       },
     });
     layer.on("click", (e) => {
+      console.log(e);
       if (feature.properties.action === "INITIAL") {
-        const popupContent =
-          `
+        const popupContent = `
       <div>
-        <p> <strong>` +
-          feature.properties.action +
-          `</strong></p>
         <button id="rightButton" class="feedback-button">&#128077; Accept</button>
       </div>
       `;
@@ -181,21 +200,23 @@ const EditableGeoJSON = ({
           .querySelector("#rightButton")
           .addEventListener("click", () => {
             feature.properties.action = "ACCEPT";
-            const centroid = layer.getBounds().getCenter();
-            const [tileX, tileY] = deg2tile(
-              centroid.lat,
-              centroid.lng,
-              predictionZoomlevel
-            );
-            addTileBoundaryLayer(
-              mapref,
-              addedTiles,
-              tileX,
-              tileY,
-              predictionZoomlevel,
-              setAddedTiles
-            );
-            e.target.closePopup();
+            const bounds = layer.getBounds();
+            const corners = [bounds.getSouthWest(), bounds.getNorthEast()];
+            for (const corner of corners) {
+              const [tileX, tileY] = deg2tile(
+                corner.lat,
+                corner.lng,
+                predictionZoomlevel
+              );
+              addTileBoundaryLayer(
+                mapref,
+                addedTiles,
+                tileX,
+                tileY,
+                predictionZoomlevel,
+                setAddedTiles
+              );
+            }
           });
       }
     });

@@ -144,6 +144,36 @@ const FeedbackPopup = ({
             >
               Validate All
             </LoadingButton>
+            <LoadingButton
+              variant="contained"
+              color="primary"
+              size="small"
+              sx={{ ml: 1, mb: 1 }}
+              onClick={() => {
+                setLoading(true);
+                const feedbackIds = feedbackData.features.map(
+                  (feature) => feature.properties.id
+                );
+                Promise.all(
+                  feedbackIds.map((id) =>
+                    axios.delete(`/feedback/${id}/`, {
+                      headers: { "access-token": accessToken },
+                    })
+                  )
+                )
+                  .then(() => {
+                    setLoading(false);
+                    console.log("All feedback deleted successfully!");
+                  })
+                  .catch((error) => {
+                    setLoading(false);
+                    console.error(error);
+                  });
+              }}
+              loading={loading}
+            >
+              Discard All
+            </LoadingButton>
           </Grid>
         </Grid>
         <FeedbackMap

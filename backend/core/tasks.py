@@ -15,6 +15,7 @@ from core.serializers import FeedbackFileSerializer, LabelFileSerializer
 from core.utils import bbox, download_imagery, get_start_end_download_coords
 from django.conf import settings
 from django.contrib.gis.db.models.aggregates import Extent
+from django.contrib.gis.geos import GEOSGeometry
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from hot_fair_utilities import preprocess, train
@@ -70,6 +71,18 @@ def train_model(
                 bbox_feedback = feedback_objects.aggregate(Extent("geom"))[
                     "geom__extent"
                 ]
+                bbox_geo = GEOSGeometry(
+                    f"POLYGON(({bbox_feedback[0]} {bbox_feedback[1]},{bbox_feedback[2]} {bbox_feedback[1]},{bbox_feedback[2]} {bbox_feedback[3]},{bbox_feedback[0]} {bbox_feedback[3]},{bbox_feedback[0]} {bbox_feedback[1]}))"
+                )
+                print(training_input_image_source)
+                print(bbox_feedback)
+                with open(
+                    os.path.join(training_input_image_source, "labels_bbox.geojson"),
+                    "w",
+                    encoding="utf-8",
+                ) as f:
+                    f.write(bbox_geo.geojson)
+
                 for z in zoom_level:
                     zm_level = z
                     print(
@@ -102,6 +115,7 @@ def train_model(
                     )
 
                 for obj in aois:
+                    bbox_coords = bbox(obj.geom.coords[0])
                     for z in zoom_level:
                         zm_level = z
                         print(
@@ -110,7 +124,7 @@ def train_model(
                         )
                         try:
                             tile_size = DEFAULT_TILE_SIZE  # by default
-                            bbox_coords = bbox(obj.geom.coords[0])
+
                             start, end = get_start_end_download_coords(
                                 bbox_coords, zm_level, tile_size
                             )
@@ -144,7 +158,6 @@ def train_model(
                 encoding="utf-8",
             ) as f:
                 f.write(json.dumps(serialized_field.data))
-            f.close()
 
             ## --------- Data Preparation ----------
             base_path = os.path.join(settings.RAMP_HOME, "ramp-data", str(dataset_id))
