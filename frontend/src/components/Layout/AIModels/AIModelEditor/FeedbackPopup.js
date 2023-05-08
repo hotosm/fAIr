@@ -117,6 +117,11 @@ const FeedbackPopup = ({
               color="primary"
               size="small"
               sx={{ mb: 1 }}
+              disabled={
+                feedbackData.features.filter(
+                  (feature) => !feature.properties.validated
+                ).length < 1
+              }
               onClick={() => {
                 setLoading(true);
                 const feedbackIds = feedbackData.features.map(
@@ -149,6 +154,11 @@ const FeedbackPopup = ({
               color="primary"
               size="small"
               sx={{ ml: 1, mb: 1 }}
+              disabled={
+                feedbackData.features.filter(
+                  (feature) => !feature.properties.validated
+                ).length < 1
+              }
               onClick={() => {
                 setLoading(true);
                 const feedbackIds = feedbackData.features.map(
@@ -187,6 +197,11 @@ const FeedbackPopup = ({
           sx={{ mt: 1 }}
           onClick={handleApplyFeedback}
           loading={loading}
+          disabled={
+            feedbackData.features.filter(
+              (feature) => feature.properties.validated
+            ).length < 5
+          }
         >
           Apply Validated Feedback to Model
         </LoadingButton>

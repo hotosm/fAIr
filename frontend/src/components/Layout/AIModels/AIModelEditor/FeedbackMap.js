@@ -1,4 +1,4 @@
-import React, { useEffect, useContext, useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { MapContainer, TileLayer, GeoJSON, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
@@ -7,109 +7,108 @@ import AuthContext from "../../../../Context/AuthContext";
 
 const FeedbackMap = ({ feedbackData, sourceImagery }) => {
   const { accessToken } = useContext(AuthContext);
-  const [mapFeedbackData, setMapFeedbackData] = useState(null);
-  console.log(feedbackData);
+  const [mapData, setMapData] = useState(feedbackData);
+
   useEffect(() => {
-    // Update mapFeedbackData state variable
-    setMapFeedbackData(feedbackData);
+    if (feedbackData?.features?.length > 0) {
+      setMapData(feedbackData);
+    }
   }, [feedbackData]);
 
-  const onEachFeature = (feature, layer) => {
-    const date = new Date(feature.properties.created_at);
-    const formattedDate = date.toLocaleString();
-    let validated = feature.properties.validated || false;
-    let color = validated ? "green" : "red";
-    let validateButtonText = validated ? "Invalidate" : "Validate";
-    const validateButton = `<button id="validate-${feature.properties.id}" class="feedback-button">${validateButtonText}</button>`;
-    const deleteButton = `<button id="discard-${feature.properties.id}" class="feedback-button">Discard</button>`;
-    const buttonsContainer = `<div style="display: flex">${validateButton} ${deleteButton}</div>`;
-    const content = `<strong>${feature.properties.action}</strong><br>${formattedDate}<br>${buttonsContainer}`;
-    layer.bindPopup(content);
-    layer.setStyle({
-      color: color,
-    });
-
-    layer.on("popupopen", () => {
-      const validateButtonElement = document.getElementById(
-        `validate-${feature.properties.id}`
-      );
-      validateButtonElement.innerHTML = validateButtonText;
-      validateButtonElement.addEventListener("click", () => {
-        const id = feature.properties.id;
-        validated = !validated;
-        color = validated ? "green" : "red";
-        validateButtonText = validated ? "Invalidate" : "Validate";
-        axios
-          .patch(
-            `/feedback/${id}/`,
-            { validated: validated },
-            { headers: { "access-token": accessToken } }
-          )
-          .then(() => {
-            feature.properties.validated = validated;
-            layer.setStyle({
-              color: color,
-            });
-            validateButtonElement.innerHTML = validateButtonText;
-          })
-          .catch((error) => {
-            console.error(error);
+  useEffect(() => {
+    if (mapData?.features?.length > 0) {
+      const geoJSON = new L.GeoJSON(mapData, {
+        onEachFeature: (feature, layer) => {
+          const validated = feature.properties.validated || false;
+          const color = validated ? "green" : "red";
+          layer.setStyle({
+            color: color,
           });
-      });
+          layer.bindPopup(`
+            Action: <strong>${feature.properties.action}</strong><br>
+            Created at: <strong>${new Date(
+              feature.properties.created_at
+            ).toLocaleString()}</strong><br>
+            <button id="validate-${
+              feature.properties.id
+            }" class="feedback-button">${
+            validated ? "Invalidate" : "Validate"
+          }</button>
+            <button id="discard-${
+              feature.properties.id
+            }" class="feedback-button">Discard</button>
+          `);
 
-      const deleteButtonElement = document.getElementById(
-        `discard-${feature.properties.id}`
-      );
-      deleteButtonElement.addEventListener("click", () => {
-        const id = feature.properties.id;
-        axios
-          .delete(`/feedback/${id}/`, {
-            headers: { "access-token": accessToken },
-          })
-          .then(() => {
-            console.log("deleted");
-            const filteredFeatures = mapFeedbackData.features.filter(
-              (f) => f.properties.id !== id
+          layer.on("popupopen", () => {
+            const validateButtonElement = document.getElementById(
+              `validate-${feature.properties.id}`
             );
-            console.log(filteredFeatures.length);
-            setMapFeedbackData({
-              ...mapFeedbackData,
-              features: filteredFeatures,
+            validateButtonElement.addEventListener("click", () => {
+              const id = feature.properties.id;
+              const newValidated = !validated;
+              axios
+                .patch(
+                  `/feedback/${id}/`,
+                  { validated: newValidated },
+                  { headers: { "access-token": accessToken } }
+                )
+                .then(() => {
+                  feature.properties.validated = newValidated;
+                  layer.setStyle({ color: newValidated ? "green" : "red" });
+                  validateButtonElement.innerHTML = newValidated
+                    ? "Invalidate"
+                    : "Validate";
+                })
+                .catch((error) => console.error(error));
             });
-          })
-          .catch((error) => {
-            console.error(error);
+
+            const deleteButtonElement = document.getElementById(
+              `discard-${feature.properties.id}`
+            );
+            deleteButtonElement.addEventListener("click", () => {
+              const id = feature.properties.id;
+              axios
+                .delete(`/feedback/${id}/`, {
+                  headers: { "access-token": accessToken },
+                })
+                .then(() => {
+                  const filteredFeatures = mapData.features.filter(
+                    (f) => f.properties.id !== id
+                  );
+                  const newMapData = {
+                    type: "FeatureCollection",
+                    features: filteredFeatures,
+                  };
+                  setMapData(newMapData);
+                })
+                .catch((error) => console.error(error));
+            });
           });
+        },
+        style: (feature) => ({
+          color: feature.properties.validated ? "green" : "red",
+        }),
       });
-    });
-  };
+      if (geoJSONLayer) {
+        geoJSONLayer.remove();
+      }
 
-  const getFeatureStyle = (feature) => {
-    const validated = feature.properties.validated || false;
-    return {
-      color: validated ? "green" : "red",
-    };
-  };
+      setGeoJSONLayer(geoJSON);
+    }
+  }, [mapData]);
 
-  const ChangeMapView = () => {
+  const [geoJSONLayer, setGeoJSONLayer] = useState(null);
+  const ChangeMapView = ({ geoJSONLayer }) => {
     const map = useMap();
-
-    console.log("mapFeedbackData:", mapFeedbackData.length);
-
     useEffect(() => {
-      if (mapFeedbackData && mapFeedbackData.features.length > 0) {
-        const geoJSONLayer = new L.GeoJSON(mapFeedbackData, {
-          onEachFeature: onEachFeature,
-          style: getFeatureStyle,
-        });
+      if (geoJSONLayer) {
         const bounds = geoJSONLayer.getBounds();
         if (bounds.isValid()) {
           map.fitBounds(bounds);
         }
         geoJSONLayer.addTo(map);
       }
-    }, [map, mapFeedbackData]);
-
+    }, [map, geoJSONLayer]);
     return null;
   };
 
@@ -120,7 +119,7 @@ const FeedbackMap = ({ feedbackData, sourceImagery }) => {
       style={{ height: "400px", width: "100%" }}
     >
       <TileLayer maxZoom={22} minZoom={18} url={sourceImagery} />
-      <ChangeMapView />
+      <ChangeMapView geoJSONLayer={geoJSONLayer} />
     </MapContainer>
   );
 };

@@ -22,6 +22,7 @@ import AuthContext from "../../../../Context/AuthContext";
 import Trainings from "./Trainings";
 import DatasetCurrent from "./DatasetCurrent";
 import FeedbackToast from "./FeedbackToast";
+import FeedbackPopup from "./FeedbackPopup";
 
 const AIModelEditor = (props) => {
   let { id } = useParams();
@@ -29,12 +30,15 @@ const AIModelEditor = (props) => {
   const [epochs, setEpochs] = useState(20);
   const [zoomLevel, setZoomLevel] = useState([19]);
   const [popupOpen, setPopupOpen] = useState(false);
+  const [sourceImagery, setSourceImagery] = React.useState(null);
+
   const [popupRowData, setPopupRowData] = useState(null);
   const [feedbackCount, setFeedbackCount] = useState(0);
   const [feedbackData, setFeedbackData] = useState(null);
   const [random, setRandom] = useState(Math.random());
   const [batchSize, setBatchSize] = useState(8);
   const [description, setDescription] = useState("");
+  const [feedbackPopupOpen, setFeedbackPopupOpen] = React.useState(false);
   const { accessToken } = useContext(AuthContext);
   const zoomLevels = [19, 20, 21];
   const getModelById = async () => {
@@ -85,6 +89,19 @@ const AIModelEditor = (props) => {
       getFeedbackCount();
     }
   }, [data]);
+
+  const handleFeedbackClick = async (trainingId) => {
+    getFeedbackCount();
+    if (sourceImagery === null) {
+      try {
+        const response = await axios.get(`/training/${trainingId}/`);
+        setSourceImagery(response.data.source_imagery);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    setFeedbackPopupOpen(true);
+  };
 
   const saveTraining = async () => {
     try {
@@ -314,9 +331,10 @@ const AIModelEditor = (props) => {
                 color="primary"
                 size="small"
                 onClick={() => {
-                  console.log("view feedbacks");
+                  handleFeedbackClick(data.published_training);
                   // add logic to view feedbacks here
                 }}
+                disabled={feedbackCount < 0}
               >
                 View Feedbacks
               </Button>
@@ -342,6 +360,15 @@ const AIModelEditor = (props) => {
           open={popupOpen}
           handleClose={() => setPopupOpen(false)}
           row={popupRowData}
+        />
+      )}
+      {feedbackPopupOpen && data.published_training && (
+        <FeedbackPopup
+          isOpen={feedbackPopupOpen}
+          feedbackData={feedbackData}
+          sourceImagery={sourceImagery}
+          trainingId={data.published_training}
+          onClose={() => setFeedbackPopupOpen(false)}
         />
       )}
     </>
