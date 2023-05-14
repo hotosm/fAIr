@@ -53,7 +53,7 @@ const Prediction = () => {
   const [predictionZoomlevel, setpredictionZoomlevel] = useState(null);
 
   const [apiCallInProgress, setApiCallInProgress] = useState(false);
-  const [confidence, setConfidence] = useState(50);
+  const [confidence, setConfidence] = useState(90);
   const [totalPredictionsCount, settotalPredictionsCount] = useState(0);
   const [DeletedCount, setDeletedCount] = useState(0);
   const [CreatedCount, setCreatedCount] = useState(0);
