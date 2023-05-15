@@ -405,7 +405,7 @@ const Prediction = () => {
           <LoadingButton
             variant="contained"
             color="primary"
-            disabled={zoom < 20 || !zoom || zoom > 22}
+            disabled={zoom < 19 || !zoom || zoom > 22}
             loading={predictionLoading}
             onClick={() => {
               setError(false);
