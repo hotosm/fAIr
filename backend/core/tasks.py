@@ -202,6 +202,8 @@ def train_model(
                         "checkpoint.tf",
                     ),
                     model_home=os.environ["RAMP_HOME"],
+                    epoch_size=epochs,
+                    batch_size=batch_size,
                 )
             else:
                 final_accuracy, final_model_path = train(

@@ -338,14 +338,16 @@ class FeedbackView(APIView):
                 .distinct()
             )
             zoom_level = [z["zoom_level"] for z in unique_zoom_levels]
+            epochs = deserialized_data.get("epochs", 20)
+            batch_size = deserialized_data.get("batch_size", 8)
             instance = Training.objects.create(
                 model=training_instance.model,
                 status="SUBMITTED",
                 description=f"Feedback of Training {training_id}",
                 created_by=self.request.user,
                 zoom_level=zoom_level,
-                epochs=1,
-                batch_size=1,
+                epochs=epochs,
+                batch_size=batch_size,
                 source_imagery=training_instance.source_imagery,
             )
 
