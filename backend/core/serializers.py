@@ -132,8 +132,8 @@ class ImageDownloadSerializer(serializers.Serializer):
 
 class FeedbackParamSerializer(serializers.Serializer):
     training_id = serializers.IntegerField(required=True)
-    epochs = serializers.IntegerField()
-    batch_size = serializers.IntegerField()
+    epochs = serializers.IntegerField(required=False)
+    batch_size = serializers.IntegerField(required=False)
 
 
 class PredictionParamSerializer(serializers.Serializer):
