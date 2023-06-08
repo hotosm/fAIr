@@ -26,7 +26,7 @@ import {
 } from "react-leaflet";
 import L from "leaflet";
 import { useMutation, useQuery } from "react-query";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "../../../../axios";
 import AuthContext from "../../../../Context/AuthContext";
 import Snackbar from "@mui/material/Snackbar";
@@ -357,6 +357,7 @@ const Prediction = () => {
 
     return { ...predictions, features };
   }
+  const navigate = useNavigate();
 
   return (
     <>
@@ -503,7 +504,17 @@ const Prediction = () => {
                     <Typography variant="h8" gutterBottom>
                       <strong>Loaded Model</strong>
                     </Typography>
-                    <Typography variant="body2">ID: {modelInfo.id}</Typography>
+                    
+                    <Typography variant="body2"><Link
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate("/ai-models/" + modelInfo.id);
+                }}
+                color="inherit"
+              >
+                ID: {modelInfo.id}
+              </Link></Typography>
                     <Typography variant="body2">
                       Name: {modelInfo.name}
                     </Typography>
