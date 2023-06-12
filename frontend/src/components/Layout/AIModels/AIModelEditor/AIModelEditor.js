@@ -33,7 +33,7 @@ const AIModelEditor = (props) => {
   const [zoomLevel, setZoomLevel] = useState([19, 20]);
   const [popupOpen, setPopupOpen] = useState(false);
   const [sourceImagery, setSourceImagery] = React.useState(null);
-  const [fixLayers, setFixLayers] = useState(false);
+  const [freezeLayers, setFreezeLayers] = useState(false);
 
   const [popupRowData, setPopupRowData] = useState(null);
   const [feedbackCount, setFeedbackCount] = useState(0);
@@ -111,6 +111,7 @@ const AIModelEditor = (props) => {
       const body = {
         epochs: epochs,
         batch_size: batchSize,
+        freeze_layers:freezeLayers,
         model: id,
         zoom_level: zoomLevel,
         description: description,
@@ -291,23 +292,7 @@ const AIModelEditor = (props) => {
             </FormControl>
           </Grid>
 
-          {/* <Grid item xs={12} md={6} container>
-            <FormControl component="fieldset">
-              <FormLabel component="legend">Fix Layers</FormLabel>
-              <FormGroup row>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={fixLayers}
-                      onChange={(e) => setFixLayers(e.target.checked)}
-                      name="fix-layers"
-                    />
-                  }
-                  label="Fix Layers"
-                />
-              </FormGroup>
-            </FormControl>
-          </Grid> */}
+
 
           <Grid item xs={12} md={6}>
             <TextField
@@ -327,6 +312,24 @@ const AIModelEditor = (props) => {
               }}
             />
           </Grid>
+          <Grid item xs={12} md={6} container>
+            <FormControl component="fieldset">
+              <FormLabel component="legend">Freeze Layers</FormLabel>
+              <FormGroup row>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      sx={{ transform: "scale(0.8)" }}
+                      checked={freezeLayers}
+                      onChange={(e) => setFreezeLayers(e.target.checked)}
+                      name="freeze-layers"
+                    />
+                  }
+                  label="Freeze Layers"
+                />
+              </FormGroup>
+            </FormControl>
+          </Grid> 
 
           <Grid item xs={12} md={6}></Grid>
           <Grid item xs={12} md={6}></Grid>

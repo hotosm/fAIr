@@ -134,7 +134,7 @@ class FeedbackParamSerializer(serializers.Serializer):
     training_id = serializers.IntegerField(required=True)
     epochs = serializers.IntegerField(required=False)
     batch_size = serializers.IntegerField(required=False)
-
+    freeze_layers = serializers.BooleanField(required=False)
 
 class PredictionParamSerializer(serializers.Serializer):
     bbox = serializers.ListField(child=serializers.FloatField(), required=True)

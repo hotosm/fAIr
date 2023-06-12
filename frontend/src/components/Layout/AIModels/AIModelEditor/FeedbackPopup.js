@@ -10,6 +10,9 @@ import AuthContext from "../../../../Context/AuthContext";
 import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid";
 import TextField from "@mui/material/TextField";
+import { FormControl, FormLabel } from "@material-ui/core";
+import FormGroup from "@mui/material/FormGroup";
+import { Checkbox, FormControlLabel } from "@mui/material";
 
 
 const useStyles = makeStyles((theme) => ({
@@ -27,6 +30,8 @@ const FeedbackPopup = ({
   const classes = useStyles();
   const [open, setOpen] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [freezeLayers, setFreezeLayers] = useState(false);
+
   const { accessToken } = useContext(AuthContext);
   const actionCounts = {
     CREATE: 0,
@@ -61,7 +66,7 @@ const FeedbackPopup = ({
     axios
       .post(
         "/apply/feedback/",
-        { training_id: trainingId, epochs: epochs, batch_size: batchSize},
+        { training_id: trainingId, epochs: epochs, batch_size: batchSize, freeze_layers: freezeLayers },
         { headers: { "access-token": accessToken } }
       )
       .then((response) => {
@@ -213,6 +218,24 @@ const FeedbackPopup = ({
           fullWidth
           margin="normal"
         />
+        <Grid item xs={12} md={6} container>
+          <FormControl component="fieldset">
+            <FormLabel component="legend">Freeze Layers</FormLabel>
+            <FormGroup row>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    sx={{ transform: "scale(0.8)" }}
+                    checked={freezeLayers}
+                    onChange={(e) => setFreezeLayers(e.target.checked)}
+                    name="freeze-layers"
+                  />
+                }
+                label="Freeze Layers"
+              />
+            </FormGroup>
+          </FormControl>
+        </Grid>
 
         <LoadingButton
           variant="contained"

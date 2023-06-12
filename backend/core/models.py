@@ -85,6 +85,7 @@ class Training(models.Model):
     accuracy = models.FloatField(null=True, blank=True)
     epochs = models.PositiveIntegerField()
     batch_size = models.PositiveIntegerField()
+    freeze_layers = models.BooleanField(default=False)
 
 
 class Feedback(models.Model):
