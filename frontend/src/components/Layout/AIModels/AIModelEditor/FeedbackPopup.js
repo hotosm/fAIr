@@ -9,6 +9,8 @@ import axios from "../../../../axios";
 import AuthContext from "../../../../Context/AuthContext";
 import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid";
+import TextField from "@mui/material/TextField";
+
 
 const useStyles = makeStyles((theme) => ({
   content: {
@@ -31,6 +33,9 @@ const FeedbackPopup = ({
     MODIFY: 0,
     ACCEPT: 0,
   };
+  const [epochs, setEpochs] = useState(2);
+  const [batchSize, setBatchSize] = useState(1);
+
   feedbackData.features.forEach((feature) => {
     switch (feature.properties.action) {
       case "CREATE":
@@ -56,7 +61,7 @@ const FeedbackPopup = ({
     axios
       .post(
         "/apply/feedback/",
-        { training_id: trainingId },
+        { training_id: trainingId, epochs: epochs, batch_size: batchSize},
         { headers: { "access-token": accessToken } }
       )
       .then((response) => {
@@ -190,6 +195,25 @@ const FeedbackPopup = ({
           feedbackData={feedbackData}
           sourceImagery={sourceImagery}
         />
+        <TextField
+          label="Epochs"
+          type="number"
+          value={epochs}
+          onChange={(e) => setEpochs(Math.max(0, parseInt(e.target.value)))}
+          inputProps={{ min: 1, step: 1 }}
+          fullWidth
+          margin="normal"
+        />
+        <TextField
+          label="Batch Size"
+          type="number"
+          value={batchSize}
+          onChange={(e) => setBatchSize(Math.max(0, parseInt(e.target.value)))}
+          inputProps={{ min: 1, step: 1 }}
+          fullWidth
+          margin="normal"
+        />
+
         <LoadingButton
           variant="contained"
           color="primary"

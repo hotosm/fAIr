@@ -23,14 +23,17 @@ import Trainings from "./Trainings";
 import DatasetCurrent from "./DatasetCurrent";
 import FeedbackToast from "./FeedbackToast";
 import FeedbackPopup from "./FeedbackPopup";
+import FormGroup from "@mui/material/FormGroup";
+
 
 const AIModelEditor = (props) => {
   let { id } = useParams();
   const [error, setError] = useState(null);
   const [epochs, setEpochs] = useState(20);
-  const [zoomLevel, setZoomLevel] = useState([19,20]);
+  const [zoomLevel, setZoomLevel] = useState([19, 20]);
   const [popupOpen, setPopupOpen] = useState(false);
   const [sourceImagery, setSourceImagery] = React.useState(null);
+  const [fixLayers, setFixLayers] = useState(false);
 
   const [popupRowData, setPopupRowData] = useState(null);
   const [feedbackCount, setFeedbackCount] = useState(0);
@@ -120,8 +123,8 @@ const AIModelEditor = (props) => {
       if (res.error) {
         setError(
           res.error.response.statusText +
-            " / " +
-            JSON.stringify(res.error.response.data)
+          " / " +
+          JSON.stringify(res.error.response.data)
         );
         return;
       }
@@ -260,33 +263,52 @@ const AIModelEditor = (props) => {
             />
           </Grid>
           <Grid item xs={12} md={6} container>
-            <FormControl>
+            <FormControl component="fieldset">
               <FormLabel component="legend">Zoom Levels</FormLabel>
-              {zoomLevels.map((level) => (
-                <FormControlLabel
-                  key={level}
-                  sx={{ mr: "0.5rem", flexDirection: "row" }}
-                  control={
-                    <Checkbox
-                      sx={{ transform: "scale(0.8)" }}
-                      checked={zoomLevel.includes(level)}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          console.log(e.target.value);
-                          console.log(level);
-                          setZoomLevel([...zoomLevel, level]);
-                        } else {
-                          setZoomLevel(zoomLevel.filter((l) => l !== level));
-                        }
-                      }}
-                      name={`zoom-level-${level}`}
-                    />
-                  }
-                  label={`Zoom ${level}`}
-                />
-              ))}
+              <FormGroup row>
+                {zoomLevels.map((level) => (
+                  <FormControlLabel
+                    key={level}
+                    sx={{ mr: "0.5rem" }}
+                    control={
+                      <Checkbox
+                        sx={{ transform: "scale(0.8)" }}
+                        checked={zoomLevel.includes(level)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setZoomLevel([...zoomLevel, level]);
+                          } else {
+                            setZoomLevel(zoomLevel.filter((l) => l !== level));
+                          }
+                        }}
+                        name={`zoom-level-${level}`}
+                      />
+                    }
+                    label={`Zoom ${level}`}
+                  />
+                ))}
+              </FormGroup>
             </FormControl>
           </Grid>
+
+          {/* <Grid item xs={12} md={6} container>
+            <FormControl component="fieldset">
+              <FormLabel component="legend">Fix Layers</FormLabel>
+              <FormGroup row>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={fixLayers}
+                      onChange={(e) => setFixLayers(e.target.checked)}
+                      name="fix-layers"
+                    />
+                  }
+                  label="Fix Layers"
+                />
+              </FormGroup>
+            </FormControl>
+          </Grid> */}
+
           <Grid item xs={12} md={6}>
             <TextField
               id="model-description"
