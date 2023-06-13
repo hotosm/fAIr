@@ -150,6 +150,9 @@ const Popup = ({ open, handleClose, row }) => {
         <p>
           <b>Status:</b> {row.status}
         </p>
+        <p>
+          <b>Freeze Layers:</b> {row.freeze_layers}
+        </p>
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           <Button
             onClick={() => getFileStructure()}
