@@ -38,6 +38,7 @@ def train_model(
     zoom_level,
     source_imagery,
     feedback=None,
+    freeze_layers=False,
 ):
     training_instance = get_object_or_404(Training, id=training_id)
     training_instance.status = "RUNNING"
@@ -204,6 +205,7 @@ def train_model(
                     model_home=os.environ["RAMP_HOME"],
                     epoch_size=epochs,
                     batch_size=batch_size,
+                    freeze_layers=freeze_layers,
                 )
             else:
                 final_accuracy, final_model_path = train(
@@ -213,6 +215,7 @@ def train_model(
                     batch_size=batch_size,
                     model="ramp",
                     model_home=os.environ["RAMP_HOME"],
+                    freeze_layers=freeze_layers,
                 )
 
             # copy final model to output

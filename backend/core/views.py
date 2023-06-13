@@ -121,6 +121,7 @@ class TrainingSerializer(
             zoom_level=instance.zoom_level,
             source_imagery=instance.source_imagery
             or instance.model.dataset.source_imagery,
+            freeze_layers=instance.freeze_layers,
         )
         if not instance.source_imagery:
             instance.source_imagery = instance.model.dataset.source_imagery
@@ -359,6 +360,7 @@ class FeedbackView(APIView):
                 zoom_level=instance.zoom_level,
                 source_imagery=instance.source_imagery,
                 feedback=training_id,
+                freeze_layers=instance.freeze_layers,
             )
             if not instance.source_imagery:
                 instance.source_imagery = instance.model.dataset.source_imagery
