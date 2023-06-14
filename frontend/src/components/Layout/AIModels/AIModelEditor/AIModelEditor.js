@@ -25,7 +25,6 @@ import FeedbackToast from "./FeedbackToast";
 import FeedbackPopup from "./FeedbackPopup";
 import FormGroup from "@mui/material/FormGroup";
 
-
 const AIModelEditor = (props) => {
   let { id } = useParams();
   const [error, setError] = useState(null);
@@ -72,9 +71,13 @@ const AIModelEditor = (props) => {
     setPopupOpen(true);
   };
 
-  const { data, isLoading, refetch } = useQuery("getModelById", getModelById, {
-    refetchInterval: 60000,
-  });
+  const { data, isLoading, refetch } = useQuery(
+    "getModelById" + id,
+    getModelById,
+    {
+      refetchInterval: 60000,
+    }
+  );
   const getFeedbackCount = async () => {
     try {
       const response = await axios.get(
@@ -111,7 +114,7 @@ const AIModelEditor = (props) => {
       const body = {
         epochs: epochs,
         batch_size: batchSize,
-        freeze_layers:freezeLayers,
+        freeze_layers: freezeLayers,
         model: id,
         zoom_level: zoomLevel,
         description: description,
@@ -124,8 +127,8 @@ const AIModelEditor = (props) => {
       if (res.error) {
         setError(
           res.error.response.statusText +
-          " / " +
-          JSON.stringify(res.error.response.data)
+            " / " +
+            JSON.stringify(res.error.response.data)
         );
         return;
       }
@@ -292,8 +295,6 @@ const AIModelEditor = (props) => {
             </FormControl>
           </Grid>
 
-
-
           <Grid item xs={12} md={6}>
             <TextField
               id="model-description"
@@ -329,7 +330,7 @@ const AIModelEditor = (props) => {
                 />
               </FormGroup>
             </FormControl>
-          </Grid> 
+          </Grid>
 
           <Grid item xs={12} md={6}></Grid>
           <Grid item xs={12} md={6}></Grid>

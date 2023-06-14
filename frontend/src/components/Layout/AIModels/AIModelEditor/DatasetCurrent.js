@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useQuery } from "react-query";
 import axios from "../../../../axios";
 
@@ -9,9 +9,9 @@ const DatasetCurrent = (props) => {
     // if (!accessToken) return;
     try {
       const res = await axios.get(`/workspace/dataset_${props.datasetId}/`);
-
+      console.log(`/workspace/dataset_${props.datasetId}/`, res);
       if (res.error) {
-        // setMapError(res.error.response.statusText);
+        console.log("isError", res.error);
       } else {
         return res.data;
       }
@@ -20,15 +20,24 @@ const DatasetCurrent = (props) => {
     } finally {
     }
   };
-  const { data, isLoading } = useQuery("getDatasetSepcs", getDatasetSepcs, {
-    refetchInterval: 120000,
-  });
+  const { data, isLoading } = useQuery(
+    "getDatasetSepcs" + props.datasetId,
+    getDatasetSepcs,
+    {
+      refetchInterval: 30000,
+    }
+  );
+  useEffect(() => {
+    return () => {};
+  }, []);
+
   return (
     <>
       {isLoading && "Loading ..."}
       {data && data.dir && data.dir.input && (
         <span>{data.dir.input.len - 1} images</span>
       )}
+      {data === undefined && <span>Not downloaded yet</span>}
     </>
   );
 };
