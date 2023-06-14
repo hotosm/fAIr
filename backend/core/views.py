@@ -38,10 +38,13 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_gis.filters import InBBoxFilter, TMSTileFilter
 
-from .models import AOI, Dataset, Label, Model, Training
+from .models import AOI, Dataset, Feedback, Label, Model, Training
 from .serializers import (
     AOISerializer,
     DatasetSerializer,
+    FeedbackFileSerializer,
+    FeedbackParamSerializer,
+    FeedbackSerializer,
     LabelSerializer,
     ModelSerializer,
     PredictionParamSerializer,
@@ -118,6 +121,7 @@ class TrainingSerializer(
             zoom_level=instance.zoom_level,
             source_imagery=instance.source_imagery
             or instance.model.dataset.source_imagery,
+            freeze_layers=instance.freeze_layers,
         )
         if not instance.source_imagery:
             instance.source_imagery = instance.model.dataset.source_imagery
@@ -137,6 +141,16 @@ class TrainingViewSet(
     http_method_names = ["get", "post", "delete"]
     serializer_class = TrainingSerializer  # connecting serializer
     filterset_fields = ["model", "status"]
+
+
+class FeedbackViewset(viewsets.ModelViewSet):
+    authentication_classes = [OsmAuthentication]
+    permission_classes = [IsOsmAuthenticated]
+    permission_allowed_methods = ["GET"]
+    queryset = Feedback.objects.all()
+    http_method_names = ["get", "post", "patch", "delete"]
+    serializer_class = FeedbackSerializer  # connecting serializer
+    filterset_fields = ["training", "user", "action", "validated"]
 
 
 class ModelViewSet(
@@ -305,7 +319,56 @@ def run_task_status(request, run_id: str):
         return Response(result)
 
 
-import multiprocessing
+class FeedbackView(APIView):
+    authentication_classes = [OsmAuthentication]
+    permission_classes = [IsOsmAuthenticated]
+
+    @swagger_auto_schema(
+        request_body=FeedbackParamSerializer, responses={status.HTTP_200_OK: "ok"}
+    )
+    def post(self, request, *args, **kwargs):
+        res_serializer = FeedbackParamSerializer(data=request.data)
+        if res_serializer.is_valid(raise_exception=True):
+            deserialized_data = res_serializer.data
+            training_id = deserialized_data["training_id"]
+            training_instance = Training.objects.get(id=training_id)
+
+            unique_zoom_levels = (
+                Feedback.objects.filter(training__id=training_id, validated=True)
+                .values("zoom_level")
+                .distinct()
+            )
+            zoom_level = [z["zoom_level"] for z in unique_zoom_levels]
+            epochs = deserialized_data.get("epochs", 20)
+            batch_size = deserialized_data.get("batch_size", 8)
+            instance = Training.objects.create(
+                model=training_instance.model,
+                status="SUBMITTED",
+                description=f"Feedback of Training {training_id}",
+                created_by=self.request.user,
+                zoom_level=zoom_level,
+                epochs=epochs,
+                batch_size=batch_size,
+                source_imagery=training_instance.source_imagery,
+            )
+
+            task = train_model.delay(
+                dataset_id=instance.model.dataset.id,
+                training_id=instance.id,
+                epochs=instance.epochs,
+                batch_size=instance.batch_size,
+                zoom_level=instance.zoom_level,
+                source_imagery=instance.source_imagery,
+                feedback=training_id,
+                freeze_layers=instance.freeze_layers,
+            )
+            if not instance.source_imagery:
+                instance.source_imagery = instance.model.dataset.source_imagery
+            instance.task_id = task.id
+            instance.save()
+            print(f"Saved Feedback train model request to queue with id {task.id}")
+            return HttpResponse(status=200)
+
 
 DEFAULT_TILE_SIZE = 256
 
@@ -421,6 +484,11 @@ class PredictionView(APIView):
 
                 ## TODO : can send osm xml format from here as well using geojson2osm
                 return Response(geojson_data, status=status.HTTP_201_CREATED)
+            except ValueError as e:
+                if str(e) == "No Features Found":
+                    return Response("No features found", status=204)
+                else:
+                    return Response(str(e), status=500)
             except Exception as ex:
                 print(ex)
                 shutil.rmtree(temp_path)

@@ -57,7 +57,7 @@ const GetStarted = () => {
           sx={{ marginRight: "30px" }}
           onClick={() => navigate("/training-datasets")}
         >
-          Start Creating Dataset
+          Try Demo
         </Button>
         <Button
           variant="contained"

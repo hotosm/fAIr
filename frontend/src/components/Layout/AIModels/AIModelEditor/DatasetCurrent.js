@@ -13,7 +13,6 @@ const DatasetCurrent = (props) => {
       if (res.error) {
         // setMapError(res.error.response.statusText);
       } else {
-        console.log("DatasetCurrent ", res.data);
         return res.data;
       }
     } catch (e) {

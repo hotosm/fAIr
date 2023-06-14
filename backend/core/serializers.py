@@ -62,6 +62,25 @@ class AOISerializer(
         )
 
 
+class FeedbackSerializer(GeoFeatureModelSerializer):
+    class Meta:
+        model = Feedback
+        geo_field = "geom"
+        fields = "__all__"
+        read_only_fields = ("created_at", "last_modified", "user")
+        partial = True
+
+    def create(self, validated_data):
+        user = self.context["request"].user
+        validated_data["user"] = user
+        return super().create(validated_data)
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        ret["properties"]["id"] = instance.id
+        return ret
+
+
 class LabelSerializer(
     GeoFeatureModelSerializer
 ):  # serializers are used to translate models objects to api
@@ -84,9 +103,14 @@ class LabelFileSerializer(
         model = Label
         geo_field = "geom"  # this will be used as geometry in order to create geojson api , geofeatureserializer will let you create api in geojson
         # auto_bbox = True
-        fields = (
-            "osm_id",
-        )  # defining all the fields to  be included in curd for now , we can restrict few if we want
+        fields = ("osm_id",)
+
+
+class FeedbackFileSerializer(GeoFeatureModelSerializer):
+    class Meta:
+        fields = ("training",)
+        model = Feedback
+        geo_field = "geom"
 
 
 class ImageDownloadSerializer(serializers.Serializer):
@@ -105,6 +129,12 @@ class ImageDownloadSerializer(serializers.Serializer):
                 raise serializers.ValidationError("Zoom level Supported between 19-21")
         return data
 
+
+class FeedbackParamSerializer(serializers.Serializer):
+    training_id = serializers.IntegerField(required=True)
+    epochs = serializers.IntegerField(required=False)
+    batch_size = serializers.IntegerField(required=False)
+    freeze_layers = serializers.BooleanField(required=False)
 
 class PredictionParamSerializer(serializers.Serializer):
     bbox = serializers.ListField(child=serializers.FloatField(), required=True)

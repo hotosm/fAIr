@@ -6,7 +6,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { modelStatus } from "../../../../utils";
 import axios from "../../../../axios";
@@ -21,18 +21,27 @@ import { FormControl, FormLabel } from "@material-ui/core";
 import AuthContext from "../../../../Context/AuthContext";
 import Trainings from "./Trainings";
 import DatasetCurrent from "./DatasetCurrent";
+import FeedbackToast from "./FeedbackToast";
+import FeedbackPopup from "./FeedbackPopup";
+import FormGroup from "@mui/material/FormGroup";
+
 
 const AIModelEditor = (props) => {
   let { id } = useParams();
   const [error, setError] = useState(null);
   const [epochs, setEpochs] = useState(20);
-  const [zoomLevel, setZoomLevel] = useState([19]);
+  const [zoomLevel, setZoomLevel] = useState([19, 20]);
   const [popupOpen, setPopupOpen] = useState(false);
-  const [popupRowData, setPopupRowData] = useState(null);
+  const [sourceImagery, setSourceImagery] = React.useState(null);
+  const [freezeLayers, setFreezeLayers] = useState(false);
 
+  const [popupRowData, setPopupRowData] = useState(null);
+  const [feedbackCount, setFeedbackCount] = useState(0);
+  const [feedbackData, setFeedbackData] = useState(null);
   const [random, setRandom] = useState(Math.random());
   const [batchSize, setBatchSize] = useState(8);
   const [description, setDescription] = useState("");
+  const [feedbackPopupOpen, setFeedbackPopupOpen] = React.useState(false);
   const { accessToken } = useContext(AuthContext);
   const zoomLevels = [19, 20, 21];
   const getModelById = async () => {
@@ -66,12 +75,43 @@ const AIModelEditor = (props) => {
   const { data, isLoading, refetch } = useQuery("getModelById", getModelById, {
     refetchInterval: 60000,
   });
+  const getFeedbackCount = async () => {
+    try {
+      const response = await axios.get(
+        `/feedback/?training=${data.published_training}`
+      );
+      setFeedbackData(response.data);
+      const feedbackCount = response.data.features.length;
+      setFeedbackCount(feedbackCount);
+    } catch (error) {
+      console.error("Error fetching feedback information:", error);
+    }
+  };
+  useEffect(() => {
+    if (data?.published_training) {
+      getFeedbackCount();
+    }
+  }, [data]);
+
+  const handleFeedbackClick = async (trainingId) => {
+    getFeedbackCount();
+    if (sourceImagery === null) {
+      try {
+        const response = await axios.get(`/training/${trainingId}/`);
+        setSourceImagery(response.data.source_imagery);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    setFeedbackPopupOpen(true);
+  };
 
   const saveTraining = async () => {
     try {
       const body = {
         epochs: epochs,
         batch_size: batchSize,
+        freeze_layers:freezeLayers,
         model: id,
         zoom_level: zoomLevel,
         description: description,
@@ -84,8 +124,8 @@ const AIModelEditor = (props) => {
       if (res.error) {
         setError(
           res.error.response.statusText +
-            " / " +
-            JSON.stringify(res.error.response.data)
+          " / " +
+          JSON.stringify(res.error.response.data)
         );
         return;
       }
@@ -107,6 +147,13 @@ const AIModelEditor = (props) => {
       {data && (
         <Grid container padding={2} spacing={2}>
           <Grid item xs={6} md={6}>
+            {data.published_training && (
+              <FeedbackToast
+                count={feedbackCount}
+                feedbackData={feedbackData}
+                trainingId={data.published_training}
+              />
+            )}
             <Typography variant="h6" component="div">
               Model ID: {data.id}
             </Typography>
@@ -217,33 +264,36 @@ const AIModelEditor = (props) => {
             />
           </Grid>
           <Grid item xs={12} md={6} container>
-            <FormControl>
+            <FormControl component="fieldset">
               <FormLabel component="legend">Zoom Levels</FormLabel>
-              {zoomLevels.map((level) => (
-                <FormControlLabel
-                  key={level}
-                  sx={{ mr: "0.5rem", flexDirection: "row" }}
-                  control={
-                    <Checkbox
-                      sx={{ transform: "scale(0.8)" }}
-                      checked={zoomLevel.includes(level)}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          console.log(e.target.value);
-                          console.log(level);
-                          setZoomLevel([...zoomLevel, level]);
-                        } else {
-                          setZoomLevel(zoomLevel.filter((l) => l !== level));
-                        }
-                      }}
-                      name={`zoom-level-${level}`}
-                    />
-                  }
-                  label={`Zoom ${level}`}
-                />
-              ))}
+              <FormGroup row>
+                {zoomLevels.map((level) => (
+                  <FormControlLabel
+                    key={level}
+                    sx={{ mr: "0.5rem" }}
+                    control={
+                      <Checkbox
+                        sx={{ transform: "scale(0.8)" }}
+                        checked={zoomLevel.includes(level)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setZoomLevel([...zoomLevel, level]);
+                          } else {
+                            setZoomLevel(zoomLevel.filter((l) => l !== level));
+                          }
+                        }}
+                        name={`zoom-level-${level}`}
+                      />
+                    }
+                    label={`Zoom ${level}`}
+                  />
+                ))}
+              </FormGroup>
             </FormControl>
           </Grid>
+
+
+
           <Grid item xs={12} md={6}>
             <TextField
               id="model-description"
@@ -262,23 +312,58 @@ const AIModelEditor = (props) => {
               }}
             />
           </Grid>
+          <Grid item xs={12} md={6} container>
+            <FormControl component="fieldset">
+              <FormLabel component="legend">Freeze Layers</FormLabel>
+              <FormGroup row>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      sx={{ transform: "scale(0.8)" }}
+                      checked={freezeLayers}
+                      onChange={(e) => setFreezeLayers(e.target.checked)}
+                      name="freeze-layers"
+                    />
+                  }
+                  label="Freeze Layers"
+                />
+              </FormGroup>
+            </FormControl>
+          </Grid> 
 
           <Grid item xs={12} md={6}></Grid>
           <Grid item xs={12} md={6}></Grid>
-          <Grid item xs={12} md={6}>
-            <Button
-              variant="contained"
-              color="primary"
-              size="small"
-              startIcon={<SaveIcon />}
-              onClick={() => {
-                console.log("save");
-                mutate();
-              }}
-              disabled={epochs <= 0 || batchSize <= 0}
-            >
-              Submit a training request
-            </Button>
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={6}>
+              <Button
+                variant="contained"
+                color="primary"
+                size="small"
+                startIcon={<SaveIcon />}
+                onClick={() => {
+                  console.log("save");
+                  mutate();
+                }}
+                disabled={epochs <= 0 || batchSize <= 0}
+                sx={{ pl: 2 }}
+              >
+                Submit a training request
+              </Button>
+            </Grid>
+            <Grid item xs={12} md={6} textAlign="right">
+              <Button
+                variant="contained"
+                color="primary"
+                size="small"
+                onClick={() => {
+                  handleFeedbackClick(data.published_training);
+                  // add logic to view feedbacks here
+                }}
+                disabled={feedbackCount < 0}
+              >
+                View Feedbacks
+              </Button>
+            </Grid>
           </Grid>
 
           {error && (
@@ -300,6 +385,15 @@ const AIModelEditor = (props) => {
           open={popupOpen}
           handleClose={() => setPopupOpen(false)}
           row={popupRowData}
+        />
+      )}
+      {feedbackPopupOpen && data.published_training && (
+        <FeedbackPopup
+          isOpen={feedbackPopupOpen}
+          feedbackData={feedbackData}
+          sourceImagery={sourceImagery}
+          trainingId={data.published_training}
+          onClose={() => setFeedbackPopupOpen(false)}
         />
       )}
     </>

@@ -13,6 +13,7 @@ import {
   InputLabel,
   Tooltip,
   MenuItem,
+  Link,
   Select,
 } from "@mui/material";
 
@@ -24,22 +25,42 @@ import {
   TileLayer,
   useMapEvents,
 } from "react-leaflet";
+import L from "leaflet";
 import { useMutation, useQuery } from "react-query";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "../../../../axios";
 import AuthContext from "../../../../Context/AuthContext";
-import { GeoJSON } from "react-leaflet";
+import Snackbar from "@mui/material/Snackbar";
+
+import "@geoman-io/leaflet-geoman-free";
+import "@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css";
+import EditableGeoJSON from "./EditableGeoJSON";
 
 const Prediction = () => {
   const { id } = useParams();
+  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [predictions, setPredictions] = useState(null);
+  const [feedbackSubmittedCount, setFeedbackSubmittedCount] = useState(0);
+  const [addedTiles, setAddedTiles] = useState(new Set());
+
+  const handleCloseSnackbar = () => {
+    setSnackbarOpen(false);
+  };
+  let tileBoundaryLayer = null;
   const [error, setError] = useState(false);
   const [josmLoading, setJosmLoading] = useState(false);
+  const [feedbackLoading, setFeedbackLoading] = useState(false);
+  const [predictionZoomlevel, setpredictionZoomlevel] = useState(null);
 
   const [apiCallInProgress, setApiCallInProgress] = useState(false);
-  const [confidence, setConfidence] = useState(50);
-
+  const [confidence, setConfidence] = useState(90);
+  const [totalPredictionsCount, settotalPredictionsCount] = useState(0);
+  const [DeletedCount, setDeletedCount] = useState(0);
+  const [CreatedCount, setCreatedCount] = useState(0);
+  const [ModifiedCount, setModifiedCount] = useState(0);
   const [map, setMap] = useState(null);
-  const [zoom, setZoom] = useState(0);
+  const [zoom, setZoom] = useState(15);
   const [responseTime, setResponseTime] = useState(0);
   const [bounds, setBounds] = useState({});
 
@@ -168,11 +189,12 @@ const Prediction = () => {
 
   const {
     mutate: callPredict,
-    data: predictions,
+    data: returnedpredictions,
     isLoading: predictionLoading,
   } = useMutation(async () => {
     setApiCallInProgress(true);
     setResponseTime(0);
+
     const headers = {
       "access-token": accessToken,
     };
@@ -193,6 +215,11 @@ const Prediction = () => {
     const endTime = new Date().getTime(); // measure end time
     setResponseTime(((endTime - startTime) / 1000).toFixed(0)); // calculate and store response time in seconds
     setApiCallInProgress(false);
+    if (res.status === 204) {
+      // Add this if statement
+      setError("No features found on requested bbox");
+      return;
+    }
     if (res.error) {
       setError(
         `${res.error.response.statusText}, ${JSON.stringify(
@@ -201,8 +228,55 @@ const Prediction = () => {
       );
       return;
     }
-    return res.data;
+    setpredictionZoomlevel(zoom);
+    const updatedPredictions = addIdsToPredictions(res.data);
+    setPredictions(updatedPredictions);
+    settotalPredictionsCount(updatedPredictions.features.length);
+    setCreatedCount(0);
+    setModifiedCount(0);
+    setDeletedCount(0);
+    if (addedTiles.size > 0) {
+      console.log("Map has tileboundarylayer");
+    }
+    return updatedPredictions;
   });
+
+  const handleSubmitFeedback = async () => {
+    setFeedbackLoading(true);
+    console.log(predictions.features.length);
+    let count = 0;
+    try {
+      for (let i = 0; i < predictions.features.length; i++) {
+        console.log(predictions.features[i]);
+        const { geometry } = predictions.features[i];
+        const { action } = predictions.features[i].properties;
+        if (action !== "INITIAL") {
+          // Add this if statement
+          const body = {
+            geom: geometry,
+            action,
+            training: modelInfo.trainingId,
+            zoom_level: predictionZoomlevel,
+          };
+          console.log(body);
+          const headers = {
+            "access-token": accessToken,
+            Authorization: `Bearer ${accessToken}`,
+          };
+          await axios.post("/feedback/", body, { headers });
+          count = count + 1;
+        }
+      }
+      setFeedbackLoading(false);
+      setFeedbackSubmittedCount(count);
+      setSnackbarOpen(true);
+      setFeedbackSubmitted(true);
+    } catch (error) {
+      console.error(error);
+      setFeedbackLoading(false);
+      window.alert("An error occurred while submitting feedback.");
+    }
+  };
 
   async function openWithJosm() {
     setJosmLoading(true);
@@ -211,9 +285,21 @@ const Prediction = () => {
       return;
     }
 
+    // Remove the "id" and "featuretype" properties from each feature in the "features" array
+    const modifiedPredictions = {
+      ...predictions,
+      features: predictions.features.map((feature) => {
+        const { id, action, ...newProps } = feature.properties;
+        return {
+          ...feature,
+          properties: newProps,
+        };
+      }),
+    };
+
     try {
       const response = await axios.post("/geojson2osm/", {
-        geojson: predictions,
+        geojson: modifiedPredictions,
       });
       if (response.status === 200) {
         const osmUrl = new URL("http://127.0.0.1:8111/load_data");
@@ -237,7 +323,7 @@ const Prediction = () => {
         setError("OSM XML conversion failed");
       }
     } catch (error) {
-      setError(error.message);
+      setError("Couldn't Open JOSM , Check if JOSM is Open");
     } finally {
       setJosmLoading(false);
     }
@@ -256,6 +342,24 @@ const Prediction = () => {
     return null;
   }
 
+  function addIdsToPredictions(predictions) {
+    const features = predictions.features.map((feature, index) => {
+      return {
+        ...feature,
+        properties: {
+          ...feature.properties,
+          id: index,
+          action: "INITIAL",
+        },
+      };
+    });
+
+    settotalPredictionsCount(features.length);
+
+    return { ...predictions, features };
+  }
+  const navigate = useNavigate();
+
   return (
     <>
       <Grid container padding={2} spacing={2}>
@@ -272,37 +376,28 @@ const Prediction = () => {
             whenCreated={setMap}
           >
             <MyComponent />
-            <LayersControl position="topright">
-              {/* code for TileLayer components */}
-              {oamImagery && dataset && (
-                <LayersControl.BaseLayer name={oamImagery.name} checked>
-                  <TileLayer
-                    maxZoom={oamImagery.maxzoom}
-                    minZoom={oamImagery.minzoom}
-                    attribution={oamImagery.name}
-                    url={dataset.source_imagery}
-                  />
-                </LayersControl.BaseLayer>
-              )}
-            </LayersControl>
+            {oamImagery && dataset && (
+              <TileLayer
+                maxZoom={oamImagery.maxzoom}
+                minZoom={oamImagery.minzoom}
+                attribution={oamImagery.name}
+                url={dataset.source_imagery}
+              />
+            )}
 
             <FeatureGroup>
               {predictions && (
-                <GeoJSON
-                  attribution="&copy; credits to OSM"
+                <EditableGeoJSON
                   data={predictions}
-                  style={() => ({
-                    color: "darkred",
-                    weight: 6,
-                    fillPattern: {
-                      weight: 1,
-                      opacity: 1,
-                      pattern: /\/\/\/\//,
-                      strokeOpacity: 0.5,
-                      strokeWeight: 1,
-                      strokeColor: "red",
-                    },
-                  })}
+                  setPredictions={setPredictions}
+                  mapref={map}
+                  predictionZoomlevel={predictionZoomlevel}
+                  addedTiles={addedTiles}
+                  setAddedTiles={setAddedTiles}
+                  setCreatedCount={setCreatedCount}
+                  setModifiedCount={setModifiedCount}
+                  setDeletedCount={setDeletedCount}
+                  tileBoundaryLayer={tileBoundaryLayer}
                 />
               )}
             </FeatureGroup>
@@ -312,7 +407,7 @@ const Prediction = () => {
           <LoadingButton
             variant="contained"
             color="primary"
-            disabled={zoom < 20 || !zoom || zoom > 22}
+            disabled={zoom < 19 || !zoom || zoom > 22}
             loading={predictionLoading}
             onClick={() => {
               setError(false);
@@ -321,77 +416,130 @@ const Prediction = () => {
           >
             Run Prediction
           </LoadingButton>
-          <Box display="flex" alignItems="center" mt={1}>
-            <Tooltip title="Select confidence threshold probability for filtering out low-confidence predictions">
-              <Typography variant="h7" style={{ marginRight: "8px" }}>
-                <strong>Confidence: </strong>
-              </Typography>
-            </Tooltip>
-            <FormControl size="small">
-              <Select
-                value={confidence}
-                onChange={(e) => setConfidence(e.target.value)}
-                style={{ width: "90px" }}
-                disableUnderline
-                MenuProps={{ disablePortal: true }}
-              >
-                <MenuItem value={25}>25 %</MenuItem>
-                <MenuItem value={50}>50 %</MenuItem>
-                <MenuItem value={75}>75 %</MenuItem>
-                <MenuItem value={90}>90 %</MenuItem>
-              </Select>
-            </FormControl>
-          </Box>
 
           {map && (
             <Box>
-              <Typography variant="h7">
-                <strong> Current Zoom:</strong> {JSON.stringify(zoom)}
-              </Typography>
-              <Typography variant="h7">
-                <strong> Response: </strong> {responseTime} sec
-              </Typography>
-
+              <Paper elevation={1} sx={{ padding: 2, marginTop: 0 }}>
+                <Box display="flex" alignItems="center">
+                  <Tooltip title="Select confidence threshold probability for filtering out low-confidence predictions">
+                    <Typography variant="body2" style={{ marginRight: "10px" }}>
+                      <strong>Confidence: </strong>
+                    </Typography>
+                  </Tooltip>
+                  <FormControl size="small">
+                    <Select
+                      value={confidence}
+                      onChange={(e) => setConfidence(e.target.value)}
+                      style={{ width: "80px", fontSize: "12px" }} // Adjust width and font size
+                      sx={{ "& .MuiSelect-select": { borderBottom: "none" } }}
+                      MenuProps={{ disablePortal: true }}
+                    >
+                      <MenuItem value={25}>25 %</MenuItem>
+                      <MenuItem value={50}>50 %</MenuItem>
+                      <MenuItem value={75}>75 %</MenuItem>
+                      <MenuItem value={90}>90 %</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Box>
+                <Typography variant="body2">
+                  <strong> Current Zoom:</strong> {JSON.stringify(zoom)}
+                </Typography>
+                {predictions && (
+                  <Typography variant="body2">
+                    <strong> Predicted on:</strong> {predictionZoomlevel} Zoom
+                  </Typography>
+                )}
+                <Typography variant="body2">
+                  <strong> Response: </strong> {responseTime} sec
+                </Typography>
+              </Paper>
+              {predictions && (
+                <Paper elevation={1} sx={{ padding: 2, marginTop: 0.5 }}>
+                  <Typography variant="h8" gutterBottom>
+                    <strong>Feedback</strong>
+                  </Typography>
+                  <Typography variant="body2">
+                    Initial Predictions:
+                    {totalPredictionsCount}
+                  </Typography>
+                  {CreatedCount > 0 && (
+                    <Typography variant="body2">
+                      Total Created:
+                      {CreatedCount}
+                    </Typography>
+                  )}
+                  {ModifiedCount > 0 && (
+                    <Typography variant="body2">
+                      Total Modified:
+                      {ModifiedCount}
+                    </Typography>
+                  )}
+                  {DeletedCount > 0 && (
+                    <Typography variant="body2">
+                      Total Deleted:
+                      {DeletedCount}
+                    </Typography>
+                  )}
+                  {CreatedCount + ModifiedCount + DeletedCount > 1 &&
+                    !feedbackSubmitted && (
+                      <LoadingButton
+                        variant="contained"
+                        color="primary"
+                        onClick={handleSubmitFeedback}
+                        size="small"
+                        loading={feedbackLoading}
+                        sx={{ mt: 1 }}
+                      >
+                        Submit my feedback
+                      </LoadingButton>
+                    )}
+                </Paper>
+              )}
               {loading ? (
                 <Box display="flex" justifyContent="center" mt={2}>
                   <CircularProgress />
                 </Box>
               ) : (
                 modelInfo && (
-                  <Paper elevation={3} sx={{ padding: 2, marginTop: 2 }}>
-                    <Typography variant="h6" gutterBottom>
+                  <Paper elevation={2} sx={{ padding: 2, marginTop: 1 }}>
+                    <Typography variant="h8" gutterBottom>
                       <strong>Loaded Model</strong>
                     </Typography>
-                    <Typography variant="body1">
-                      <strong>Model ID:</strong> {modelInfo.id}
+                    
+                    <Typography variant="body2"><Link
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate("/ai-models/" + modelInfo.id);
+                }}
+                color="inherit"
+              >
+                ID: {modelInfo.id}
+              </Link></Typography>
+                    <Typography variant="body2">
+                      Name: {modelInfo.name}
                     </Typography>
-                    <Typography variant="body1">
-                      <strong>Model Name:</strong> {modelInfo.name}
-                    </Typography>
-                    <Typography variant="body1">
-                      <strong>Model Last Modified:</strong>{" "}
+                    <Typography variant="body2">
+                      Last Modified:{" "}
                       {new Date(modelInfo.lastModified).toLocaleString()}
                     </Typography>
-                    <Typography variant="h6" gutterBottom mt={2}>
+                    <Typography variant="h8" gutterBottom mt={2}>
                       <strong>Published Training</strong>
                     </Typography>
-                    <Typography variant="body1">
-                      <strong>Training ID:</strong> {modelInfo.trainingId}
+                    <Typography variant="body2">
+                      ID: {modelInfo.trainingId}
                     </Typography>
-                    <Typography variant="body1">
-                      <strong>Training Description:</strong>{" "}
-                      {modelInfo.trainingDescription}
+                    <Typography variant="body2">
+                      Description: {modelInfo.trainingDescription}
                     </Typography>
-                    <Typography variant="body1">
-                      <strong>Training Zoom Level:</strong>{" "}
-                      {modelInfo.trainingZoomLevel}
+                    <Typography variant="body2">
+                      Zoom Level: {modelInfo.trainingZoomLevel}
                     </Typography>
-                    <Typography variant="body1">
-                      <strong>Training Accuracy:</strong>{" "}
-                      {modelInfo.trainingAccuracy} %
+                    <Typography variant="body2">
+                      Accuracy: {modelInfo.trainingAccuracy} %
                     </Typography>
-                    <Typography variant="body1">
-                      <strong>Model Size:</strong> {modelInfo.modelSize} MB
+                    <Typography variant="body2">
+                      Model Size: {modelInfo.modelSize} MB
                     </Typography>
                   </Paper>
                 )
@@ -405,11 +553,23 @@ const Prediction = () => {
               color="secondary"
               onClick={openWithJosm}
               loading={josmLoading}
+              size="small"
+              sx={{ mt: 1 }}
             >
               Open Results with JOSM
             </LoadingButton>
           )}
         </Grid>
+        <Snackbar
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "right",
+          }}
+          open={snackbarOpen}
+          autoHideDuration={3000}
+          onClose={handleCloseSnackbar}
+          message={`Thanks! Your ${feedbackSubmittedCount} feedback has been submitted.`}
+        />
       </Grid>
     </>
   );
