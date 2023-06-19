@@ -40,8 +40,8 @@ jobs:
       - name: Clone Ramp
         run: git clone https://github.com/kshitijrajsharma/ramp-code-fAIr.git ramp-code
 
-      - name : Install gdown
-        run : pip install gdown
+      - name: Install gdown
+        run: pip install gdown
 
       - name: Download Basemodel
         run: gdown --fuzzy https://drive.google.com/file/d/1wvJhkiOrSlHmmvJ0avkAdu9sslFf5_I0/view?usp=sharing
@@ -49,19 +49,10 @@ jobs:
       - name: Unzip and Move Basemodel
         run: unzip checkpoint.tf.zip -d ramp-code/ramp
 
-      - name: Add ubuntugis ppa & Update
-        run: sudo add-apt-repository ppa:ubuntugis/ppa && sudo apt-get update
-
-      - name: Install numpy
-        run: pip install numpy==1.23.5
-
       - name: Install gdal
         run: |
-          sudo apt-get install gdal-bin
-          sudo apt-get install libgdal-dev
-          export CPLUS_INCLUDE_PATH=/usr/include/gdal
-          export C_INCLUDE_PATH=/usr/include/gdal
-          pip install --global-option=build_ext --global-option="-I/usr/include/gdal" GDAL==`gdal-config --version`
+          sudo apt-get -y install gdal-bin libgdal-dev python3-gdal && sudo apt-get -y autoremove && sudo apt-get clean
+          pip install GDAL==$(gdal-config --version) --global-option=build_ext --global-option="-I/usr/include/gdal"
 
       - name: Install ramp dependecies
         run: |
@@ -87,6 +78,7 @@ jobs:
         run: |
           cd backend/
           pip install -r requirements.txt
+
       - name: Creating env
         run: |
           cd backend/
@@ -104,6 +96,12 @@ jobs:
           cd backend/
           celery -A aiproject --broker=redis://localhost:6379/ flower  &
 
+      - name: Fix gdal array
+        run: |
+          pip uninstall -y gdal
+          pip install numpy
+          pip install GDAL==$(gdal-config --version) --global-option=build_ext --global-option="-I/usr/include/gdal"
+
       - name: Run tests
         env:
           TESTING_TOKEN: ${{ secrets.TESTING_TOKEN }}
@@ -117,5 +115,3 @@ jobs:
           python manage.py migrate
           python manage.py migrate login
           python manage.py migrate core
-
-
