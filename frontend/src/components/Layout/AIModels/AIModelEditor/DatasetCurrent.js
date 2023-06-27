@@ -37,7 +37,7 @@ const DatasetCurrent = (props) => {
       {data && data.dir && data.dir.input && (
         <span>{data.dir.input.len - 1} images</span>
       )}
-      {data === undefined && <span>Not downloaded yet</span>}
+      {data === undefined && !isLoading && <span>Not downloaded yet</span>}
     </>
   );
 };

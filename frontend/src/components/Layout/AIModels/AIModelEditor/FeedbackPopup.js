@@ -14,7 +14,6 @@ import { FormControl, FormLabel } from "@material-ui/core";
 import FormGroup from "@mui/material/FormGroup";
 import { Checkbox, FormControlLabel } from "@mui/material";
 
-
 const useStyles = makeStyles((theme) => ({
   content: {
     padding: theme.spacing(2),
@@ -66,7 +65,12 @@ const FeedbackPopup = ({
     axios
       .post(
         "/apply/feedback/",
-        { training_id: trainingId, epochs: epochs, batch_size: batchSize, freeze_layers: freezeLayers },
+        {
+          training_id: trainingId,
+          epochs: epochs,
+          batch_size: batchSize,
+          freeze_layers: freezeLayers,
+        },
         { headers: { "access-token": accessToken } }
       )
       .then((response) => {
@@ -247,7 +251,7 @@ const FeedbackPopup = ({
           disabled={
             feedbackData.features.filter(
               (feature) => feature.properties.validated
-            ).length < 5
+            ).length < 1
           }
         >
           Apply Validated Feedback to Model

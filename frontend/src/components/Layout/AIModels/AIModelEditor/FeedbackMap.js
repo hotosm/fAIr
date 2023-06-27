@@ -14,6 +14,7 @@ const FeedbackMap = ({ feedbackData, sourceImagery }) => {
       setMapData(feedbackData);
     }
   }, [feedbackData]);
+  const [geoJSONLayer, setGeoJSONLayer] = useState(null);
 
   useEffect(() => {
     if (mapData?.features?.length > 0) {
@@ -97,7 +98,6 @@ const FeedbackMap = ({ feedbackData, sourceImagery }) => {
     }
   }, [mapData]);
 
-  const [geoJSONLayer, setGeoJSONLayer] = useState(null);
   const ChangeMapView = ({ geoJSONLayer }) => {
     const map = useMap();
     useEffect(() => {
