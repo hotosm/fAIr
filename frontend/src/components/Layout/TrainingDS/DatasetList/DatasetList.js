@@ -174,7 +174,11 @@ const DatasetList = (props) => {
         </Grid>
         <Grid item xs={12}>
           <Typography variant="body1" component="div">
-            Description long
+            A dataset would be a list of area of interests (AIOs) and its
+            labels. OpenStreetMap data can be downlaoded automatically and used
+            as initial labels. It is our responsibility as model creators to
+            make sure labels align with the feature before proceeding to
+            training phase.
           </Typography>
         </Grid>
         {error && (
