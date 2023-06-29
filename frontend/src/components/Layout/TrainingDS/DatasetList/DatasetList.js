@@ -5,6 +5,7 @@ import {
   Container,
   Grid,
   IconButton,
+  Link,
   Tooltip,
   Typography,
 } from "@mui/material";
@@ -19,7 +20,7 @@ import { trainingDSStatus } from "../../../../utils";
 import OSMUser from "../../../Shared/OSMUser";
 
 const DEFAULT_FILTER = {
-  items: [{ columnField: "created_date", id: 8537, operatorValue: "contains" }],
+  items: [],
   linkOperator: "and",
   quickFilterValues: [],
   quickFilterLogicOperator: "and",
@@ -186,6 +187,32 @@ const DatasetList = (props) => {
             <Alert severity="error">{error}</Alert>
           </Grid>
         )}
+        {localStorage.getItem("dsFilter") !== null &&
+          JSON.parse(localStorage.getItem("dsFilter")).items.length > 0 &&
+          JSON.parse(localStorage.getItem("dsFilter")).items[0].value && (
+            <Grid item xs={12}>
+              <Grid container justifyContent="flex-end">
+                <Alert severity="info">
+                  Below list is filtered, click{" "}
+                  <Link
+                    href="#"
+                    color="inherit"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      localStorage.setItem(
+                        "dsFilter",
+                        JSON.stringify(DEFAULT_FILTER)
+                      );
+                      refetch();
+                    }}
+                  >
+                    here
+                  </Link>{" "}
+                  to show all training dataset
+                </Alert>
+              </Grid>
+            </Grid>
+          )}
         <Grid item xs={12}>
           {isLoading && <p>Loading ... </p>}
           {!isLoading && (

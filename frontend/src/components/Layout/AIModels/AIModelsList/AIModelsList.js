@@ -5,6 +5,7 @@ import {
   Container,
   Grid,
   IconButton,
+  Link,
   Tooltip,
   Typography,
 } from "@mui/material";
@@ -170,6 +171,32 @@ const AIModelsList = (props) => {
             <Alert severity="error">{error}</Alert>
           </Grid>
         )}
+        {localStorage.getItem("modelFilter") !== null &&
+          JSON.parse(localStorage.getItem("modelFilter")).items.length > 0 &&
+          JSON.parse(localStorage.getItem("modelFilter")).items[0].value && (
+            <Grid item xs={12}>
+              <Grid container justifyContent="flex-end">
+                <Alert severity="info">
+                  Below list is filtered, click{" "}
+                  <Link
+                    href="#"
+                    color="inherit"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      localStorage.setItem(
+                        "modelFilter",
+                        JSON.stringify(DEFAULT_FILTER)
+                      );
+                      refetch();
+                    }}
+                  >
+                    here
+                  </Link>{" "}
+                  to show all models
+                </Alert>
+              </Grid>
+            </Grid>
+          )}
         <Grid item xs={12}>
           {isLoading && <p>Loading ... </p>}
           {!isLoading && (
