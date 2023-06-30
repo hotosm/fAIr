@@ -13,7 +13,6 @@ import {
   Typography,
 } from "@mui/material";
 import Tooltip from "@mui/material/Tooltip";
-
 import { styled } from "@mui/material/styles";
 import DeleteIcon from "@mui/icons-material/Delete";
 import MapIcon from "@mui/icons-material/Map";
@@ -86,9 +85,11 @@ const AOI = (props) => {
   return (
     <>
       <Grid item md={12} className="card">
-        <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
-          List of Area of Interests
-        </Typography>
+        <Tooltip title="For each AOI, we need to make sure labels inside it are alighed and complete to acheive best model accuracy">
+          <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
+            List of Area of Interests{` (${props.mapLayers.length})`}
+          </Typography>
+        </Tooltip>
         <Demo>
           {props.mapLayers && props.mapLayers.length > PER_PAGE && (
             <Pagination

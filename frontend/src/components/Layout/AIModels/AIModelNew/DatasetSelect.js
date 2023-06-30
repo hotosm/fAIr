@@ -10,7 +10,7 @@ function DatasetSelect(props) {
     axios
       .get("/dataset/")
       .then((response) => {
-        setDatasets(response.data);
+        setDatasets(response.data.sort((a, b) => (a.id > b.id ? -1 : 1)));
       })
       .catch((error) => {
         console.error(error);

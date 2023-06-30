@@ -27,7 +27,7 @@ const DEFAULT_FILTER = {
   quickFilterValues: [],
   quickFilterLogicOperator: "and",
 };
-const AIModelsList = (props) => {
+const TrainingsList = (props) => {
   const [error, setError] = useState(null);
   const [popupOpen, setPopupOpen] = useState(false);
   const [publishing, setPublishing] = useState(false);
@@ -228,6 +228,7 @@ const AIModelsList = (props) => {
         return;
       }
       console.log("Model published", res.data);
+      props.refetshModelDetails();
       return res.data;
     } catch (e) {
       console.log("isError");
@@ -306,4 +307,4 @@ const AIModelsList = (props) => {
   );
 };
 
-export default AIModelsList;
+export default TrainingsList;

@@ -142,6 +142,9 @@ const AIModelEditor = (props) => {
     } finally {
     }
   };
+  const refetshModelDetails = () => {
+    refetch();
+  };
   const { mutate, isLoading: isLoadingSaveTraining } =
     useMutation(saveTraining);
   const navigate = useNavigate();
@@ -266,7 +269,7 @@ const AIModelEditor = (props) => {
               error={batchSize === null || batchSize <= 0}
             />
           </Grid>
-          <Grid item xs={12} md={6} container>
+          <Grid item xs={12} md={6}>
             <FormControl component="fieldset">
               <FormLabel component="legend">Zoom Levels</FormLabel>
               <FormGroup row>
@@ -313,7 +316,7 @@ const AIModelEditor = (props) => {
               }}
             />
           </Grid>
-          <Grid item xs={12} md={6} container>
+          <Grid item xs={12} md={6}>
             <FormControl component="fieldset">
               <FormLabel component="legend">Freeze Layers</FormLabel>
               <FormGroup row>
@@ -332,39 +335,36 @@ const AIModelEditor = (props) => {
             </FormControl>
           </Grid>
 
-          <Grid item xs={12} md={6}></Grid>
-          <Grid item xs={12} md={6}></Grid>
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={6}>
-              <Button
-                variant="contained"
-                color="primary"
-                size="small"
-                startIcon={<SaveIcon />}
-                onClick={() => {
-                  console.log("save");
-                  mutate();
-                }}
-                disabled={epochs <= 0 || batchSize <= 0}
-                sx={{ pl: 2 }}
-              >
-                Submit a training request
-              </Button>
-            </Grid>
-            <Grid item xs={12} md={6} textAlign="right">
-              <Button
-                variant="contained"
-                color="primary"
-                size="small"
-                onClick={() => {
-                  handleFeedbackClick(data.published_training);
-                  // add logic to view feedbacks here
-                }}
-                disabled={feedbackCount < 0}
-              >
-                View Feedbacks
-              </Button>
-            </Grid>
+          <Grid item xs={12} md={12}></Grid>
+          <Grid item xs={6} md={6}>
+            <Button
+              variant="contained"
+              color="primary"
+              size="small"
+              startIcon={<SaveIcon />}
+              onClick={() => {
+                console.log("save");
+                mutate();
+              }}
+              disabled={epochs <= 0 || batchSize <= 0}
+              sx={{ pl: 2 }}
+            >
+              Submit a training request
+            </Button>
+          </Grid>
+          <Grid item xs={6} md={6} textAlign="right">
+            <Button
+              variant="contained"
+              color="primary"
+              size="small"
+              onClick={() => {
+                handleFeedbackClick(data.published_training);
+                // add logic to view feedbacks here
+              }}
+              disabled={feedbackCount <= 0}
+            >
+              View Feedbacks
+            </Button>
           </Grid>
 
           {error && (
@@ -377,6 +377,7 @@ const AIModelEditor = (props) => {
               modelId={id}
               datasetId={data.dataset}
               random={random}
+              refetshModelDetails={refetshModelDetails}
             ></Trainings>
           </Grid>
         </Grid>
