@@ -26,6 +26,7 @@ AI models: AI is wide term and it includes lots of approaches and techniques. In
 <br>
 ## What , How and for Whom?
 Unlike other AI data producers, fAIr is an intuitive, fair and open-source AI-assisted mapping tool where AI models are created and trained by the people living and working in the local communities. By working with the local communities (and getting constant feedback on the models), we strive to eliminate model biases as we ensure the models are relevant to the communities where the maps are being created to improve the conditions of the people living there.
+
 ![OAM+pics](https://github.com/hotosm/fAIr/assets/97789856/c01a25fa-2a32-49a8-876e-0ab8f540766b)
 <br>
 <br>
