@@ -25,3 +25,13 @@ To eliminate model biases, fAIr is built to work with the local communities and 
 See below a suggested product roadmap [subject to change] that provides high-level overview for planned work.
 ![image](https://user-images.githubusercontent.com/98902727/218769416-b3c71d3b-7c20-4d40-ab1e-88442d06445d.png)
 
+# General Workflow of fAIr 
+Adding photos here on general workflow to be used in the docs.
+![fAIr1](https://github.com/hotosm/fAIr/assets/97789856/01c0e3b6-a00c-439d-a2ed-1c14b62e6364)
+
+![fAIr2](https://github.com/hotosm/fAIr/assets/97789856/63394f65-ce0d-4a3d-8683-7455f14fb366)
+
+
+
+
+
