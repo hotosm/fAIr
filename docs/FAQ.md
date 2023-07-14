@@ -65,7 +65,7 @@ A : Yes, fAIr follows coding standards and guidelines outlined in the project's 
 
 **Q : Can I propose new AI models or enhancements to existing models?**
 
-A : Absolutely! The fAIr project welcomes contributions related to new AI models or enhancements to existing models. If you have developed a new model that aligns with the project's goals or if you have ideas to improve the current models, you can propose them through the GitHub repository and engage in discussions with the community . Once approved community will be able go use it . 
+A : Absolutely! The fAIr project welcomes contributions related to new AI models or enhancements to existing models. If you have developed a new model that aligns with the project's goals or if you have ideas to improve the current models, you can propose them through the GitHub repository at [fAIr-utilities](https://github.com/hotosm/fAIr-utilities) and engage in discussions with the community . Once approved community will be able go use it .
 
 <hr>
 
