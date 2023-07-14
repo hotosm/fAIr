@@ -33,5 +33,7 @@ The backend codebase is organised into the following main directories and files:
 The user can pull and deploy fAIr backend by running:
 
 '''
-docker build .
+docker build . && docker run 
 '''
+
+Once insider the docker container, the application is boostrapped by calling '''manage.py''' to bootstrap the geodjango application.
