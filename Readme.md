@@ -26,10 +26,26 @@ See below a suggested product roadmap [subject to change] that provides high-lev
 ![image](https://user-images.githubusercontent.com/98902727/218769416-b3c71d3b-7c20-4d40-ab1e-88442d06445d.png)
 
 # General Workflow of fAIr 
-Adding photos here on general workflow to be used in the docs.
+
 ![fAIr1](https://github.com/hotosm/fAIr/assets/97789856/01c0e3b6-a00c-439d-a2ed-1c14b62e6364)
 
+1. Project Area by tha project manager and imagery from Open Areal Map is submitted to the task manager which then is sent to Open Street Map after undergoing the process of manual mapping and validation.
+2. Local dataset(created using the imagery and raw API data as inputs) is trained and local model is created and trained.
+3. It is then validated , published , mapped and pushed back into Open Street Map.
+4. Finally according to the feedback , the published model is sent for improvement and training .
+<hr>
+
+# fAIr Architecture
 ![fAIr2](https://github.com/hotosm/fAIr/assets/97789856/63394f65-ce0d-4a3d-8683-7455f14fb366)
+
+1. Third party extensions are sent to fAIr backend which then generates data for OSM raw data API , osmconflator and geoson2osm xml .
+2. Data from fAIr backend is sent to fAIr utilities . The backend is using s separate library we call it fAIr-utilities to handle:
+
+     1. Data preparation for the models
+     2. models trainings
+     3. inference process
+     4. post processing (converting the predicted features to geo data)
+3. The public API is then sent to the fAIr frontend.
 
 
 
