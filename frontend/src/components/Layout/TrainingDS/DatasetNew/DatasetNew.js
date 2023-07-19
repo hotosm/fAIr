@@ -12,6 +12,7 @@ const DatasetNew = (props) => {
   const navigate = useNavigate();
   const [oamURL, setOAMURL] = useState();
   const { accessToken } = useContext(AuthContext);
+  const regUrl = /^(https?|chrome):\/\/[^\s$.?#].[^\s]*$/;
   const saveDataset = async () => {
     try {
       const body = {
@@ -118,7 +119,13 @@ const DatasetNew = (props) => {
                   console.log("save");
                   mutate();
                 }}
-                disabled={DSName.trim() === "" || !oamURL || isLoading}
+                disabled={
+                  !oamURL ||
+                  !regUrl.test(oamURL) ||
+                  DSName.trim() === "" ||
+                  !oamURL.endsWith("{z}/{x}/{y}") ||
+                  isLoading
+                }
               >
                 Create Training Dataset
               </Button>
