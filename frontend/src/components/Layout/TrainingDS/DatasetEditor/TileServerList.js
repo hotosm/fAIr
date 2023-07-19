@@ -63,6 +63,10 @@ const TileServerList = (props) => {
       setInputError(false);
       const res = await axios.get(url.replace("/{z}/{x}/{y}", ""));
 
+      if (!res) {
+        setInputError("Invalid OAM Link");
+        return;
+      }
       if (res.error) setInputError(res.error.response.statusText);
 
       props.addImagery(res.data, url);
@@ -74,7 +78,8 @@ const TileServerList = (props) => {
       return res.data;
     } catch (e) {
       console.log("isError");
-      setInputError(e);
+      // setInputError(e);
+      setInputError("Invalid OAM Link");
     } finally {
       setLoading(false);
     }
