@@ -505,17 +505,19 @@ const Prediction = () => {
                     <Typography variant="h8" gutterBottom>
                       <strong>Loaded Model</strong>
                     </Typography>
-                    
-                    <Typography variant="body2"><Link
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  navigate("/ai-models/" + modelInfo.id);
-                }}
-                color="inherit"
-              >
-                ID: {modelInfo.id}
-              </Link></Typography>
+
+                    <Typography variant="body2">
+                      <Link
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          navigate("/ai-models/" + modelInfo.id);
+                        }}
+                        color="inherit"
+                      >
+                        ID: {modelInfo.id}
+                      </Link>
+                    </Typography>
                     <Typography variant="body2">
                       Name: {modelInfo.name}
                     </Typography>
