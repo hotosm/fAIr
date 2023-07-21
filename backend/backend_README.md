@@ -4,10 +4,10 @@ This repository contains the backend sourcecode for the fAIr project. The backen
 is composed of several services that are orchestrated using Docker Compose.
 
 The backend of fAIr is powered by
-: tensorflow:2.9.2
-: django 3.1.2 & geodjango
-: celery and flower
-: solaris
+- tensorflow:2.9.2
+- django 3.1.2 & geodjango
+- celery and flower
+- solaris
 
 The pretrained Convolutional Neural Network is base-model is provided by [radiant earth ramp baseline model](https://github.com/radiantearth/model_ramp_baseline)
 
@@ -35,7 +35,7 @@ The backend codebase is organised into the following main directories and files:
 The user can pull and deploy fAIr backend by running:
 
 '''
-docker build . && docker run 
+docker build . && docker run  ...
 '''
 
 Once insider the docker container, the application is boostrapped by calling `manage.py` to bootstrap the geodjango application.
@@ -56,10 +56,14 @@ bootstraps the various API communication services.
 - **Worker**: This is the Celery service that manages the AWS resources. The queueing process can be monitored using **Flower**
 nke
 
+#### Flowchart
+
+![architecture_flowchart]("./fAIr_backend.png")
+
 #### Ports
 
 The services are exposed on the following ports:
-: PostgreSQL: 5434
-: Redis: 6379
-: App: 8000
-: Worker Dashboard(Flower): 5500
+- PostgreSQL: 5434
+- Redis: 6379
+- App: 8000
+- Worker Dashboard(Flower): 5500
