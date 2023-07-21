@@ -58,7 +58,7 @@ nke
 
 #### Flowchart
 
-![architecture_flowchart]("./fAIr_backend.png")
+![architecture_flowchart](./fAIr_backend.png)
 
 #### Ports
 
