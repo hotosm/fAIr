@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  postgres:
+    restart: always
+    image: postgis/postgis
+    container_name: pgsql
+    environment:
+      - POSTGRES_DB=ai
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=admin
+    ports:
+      - '5434:5432'
+        
+  redis:
+    image: redis
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  backend-api:
+    build:
+      context: ./backend 
+      dockerfile: Dockerfile
+    container_name: api
+    command: python manage.py runserver 0.0.0.0:8000
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              capabilities: [gpu]
+    ports:
+      - 8000:8000
+    volumes:
+      - ${RAMP_HOME}:/RAMP_HOME
+      - ${TRAINING_WORKSPACE}:/TRAINING_WORKSPACE
+    depends_on:
+      - redis
+      - postgres
+
+  backend-worker:
+    build:
+      context: ./backend  
+      dockerfile: Dockerfile
+    container_name: worker
+    command: celery -A aiproject worker --loglevel=INFO
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              capabilities: [gpu]
+    volumes:
+      - ${RAMP_HOME}:/RAMP_HOME
+      - ${TRAINING_WORKSPACE}:/TRAINING_WORKSPACE
+    depends_on:
+      - backend-api
+      - redis
+      - postgres
+
+  worker-dashboard:
+    image: mher/flower
+    container_name: flower
+    command: celery --broker=redis://redis:6379// flower --address=0.0.0.0 --port=5000
+    ports:
+      - 5500:5000
+    depends_on:
+      - backend-api
+      - redis
+      - backend-worker
+
+  frontend:
+    build:
+      context: ./frontend  
+      dockerfile: Dockerfile.frontend
+    container_name: frontend
+    command: npm start  -- --host 0.0.0.0 --port 3000
+    ports:
+      - 3000:3000 
+    depends_on:
+      - backend-api
