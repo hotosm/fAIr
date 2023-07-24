@@ -12,7 +12,7 @@ Docker Compose is created with redis , worker , postgis database ,  api and fron
 
     If docker is not installed , Install it from [here](https://docs.docker.com/engine/install/) 
     ```
-    docker-compose --version
+    docker compose version
     ```
 
 3. Check your Graphics 
