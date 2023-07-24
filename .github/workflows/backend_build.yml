@@ -58,7 +58,7 @@ jobs:
           cd ramp-code && cd colab && make install
 
       - name: Install fair utilities
-        run: pip install hot-fair-utilities==1.0.41
+        run: pip install hot-fair-utilities
 
       - name: Install Psycopg2
         run: |
