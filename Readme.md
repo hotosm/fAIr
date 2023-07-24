@@ -25,3 +25,8 @@ To eliminate model biases, fAIr is built to work with the local communities and 
 See below a suggested product roadmap [subject to change] that provides high-level overview for planned work.
 ![image](https://user-images.githubusercontent.com/98902727/218769416-b3c71d3b-7c20-4d40-ab1e-88442d06445d.png)
 
+
+## Local Installation [DEV]
+
+Checkout Docker Installation [docs](./docs/Docker-installation.md)## Local Installation [DEV]
+
