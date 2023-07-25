@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   postgres:
@@ -10,8 +10,8 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=admin
     ports:
-      - '5434:5432'
-        
+      - "5434:5432"
+
   redis:
     image: redis
     container_name: redis
@@ -20,7 +20,7 @@ services:
 
   backend-api:
     build:
-      context: ./backend 
+      context: ./backend
       dockerfile: Dockerfile
     container_name: api
     command: python manage.py runserver 0.0.0.0:8000
@@ -34,14 +34,14 @@ services:
       - 8000:8000
     volumes:
       - ${RAMP_HOME}:/RAMP_HOME
-      - ${TRAINING_WORKSPACE}:/TRAINING_WORKSPACE
+      # - ${TRAINING_WORKSPACE}:/TRAINING_WORKSPACE
     depends_on:
       - redis
       - postgres
 
   backend-worker:
     build:
-      context: ./backend  
+      context: ./backend
       dockerfile: Dockerfile
     container_name: worker
     command: celery -A aiproject worker --loglevel=INFO
@@ -53,7 +53,7 @@ services:
               capabilities: [gpu]
     volumes:
       - ${RAMP_HOME}:/RAMP_HOME
-      - ${TRAINING_WORKSPACE}:/TRAINING_WORKSPACE
+      # - ${TRAINING_WORKSPACE}:/TRAINING_WORKSPACE
     depends_on:
       - backend-api
       - redis
@@ -72,11 +72,11 @@ services:
 
   frontend:
     build:
-      context: ./frontend  
+      context: ./frontend
       dockerfile: Dockerfile.frontend
     container_name: frontend
     command: npm start  -- --host 0.0.0.0 --port 3000
     ports:
-      - 3000:3000 
+      - 3000:3000
     depends_on:
       - backend-api

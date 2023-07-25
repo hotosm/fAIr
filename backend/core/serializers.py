@@ -57,9 +57,30 @@ class AOISerializer(
         read_only_fields = (
             "created_at",
             "last_modified",
-            "last_fetched_date",
-            "download_status",
+            "label_fetched",
+            "label_status",
         )
+
+
+class FeedbackAOISerializer(GeoFeatureModelSerializer):
+    class Meta:
+        model = FeedbackAOI
+        geo_field = "geom"
+        fields = "__all__"
+        partial = True
+
+        read_only_fields = (
+            "created_at",
+            "last_modified",
+            "label_fetched",
+            "label_status",
+            "user",
+        )
+
+    def create(self, validated_data):
+        user = self.context["request"].user
+        validated_data["user"] = user
+        return super().create(validated_data)
 
 
 class FeedbackSerializer(GeoFeatureModelSerializer):
@@ -90,10 +111,15 @@ class LabelSerializer(
         # auto_bbox = True
         fields = "__all__"  # defining all the fields to  be included in curd for now , we can restrict few if we want
 
-        read_only_fields = (
-            "created_at",
-            "last_modified",
-        )
+        read_only_fields = ("created_at", "osm_id")
+
+
+class FeedbackLabelSerializer(GeoFeatureModelSerializer):
+    class Meta:
+        model = FeedbackLabel
+        geo_field = "geom"
+        fields = "__all__"
+        read_only_fields = ("created_at", "osm_id")
 
 
 class LabelFileSerializer(
@@ -135,6 +161,7 @@ class FeedbackParamSerializer(serializers.Serializer):
     epochs = serializers.IntegerField(required=False)
     batch_size = serializers.IntegerField(required=False)
     freeze_layers = serializers.BooleanField(required=False)
+
 
 class PredictionParamSerializer(serializers.Serializer):
     bbox = serializers.ListField(child=serializers.FloatField(), required=True)

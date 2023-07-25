@@ -38,11 +38,22 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_gis.filters import InBBoxFilter, TMSTileFilter
 
-from .models import AOI, Dataset, Feedback, Label, Model, Training
+from .models import (
+    AOI,
+    Dataset,
+    Feedback,
+    FeedbackAOI,
+    FeedbackLabel,
+    Label,
+    Model,
+    Training,
+)
 from .serializers import (
     AOISerializer,
     DatasetSerializer,
+    FeedbackAOISerializer,
     FeedbackFileSerializer,
+    FeedbackLabelSerializer,
     FeedbackParamSerializer,
     FeedbackSerializer,
     LabelSerializer,
@@ -150,7 +161,30 @@ class FeedbackViewset(viewsets.ModelViewSet):
     queryset = Feedback.objects.all()
     http_method_names = ["get", "post", "patch", "delete"]
     serializer_class = FeedbackSerializer  # connecting serializer
-    filterset_fields = ["training", "user", "action", "validated"]
+    filterset_fields = ["training", "user", "feedback_type"]
+
+
+class FeedbackAOIViewset(viewsets.ModelViewSet):
+    authentication_classes = [OsmAuthentication]
+    permission_classes = [IsOsmAuthenticated]
+    permission_allowed_methods = ["GET"]
+    queryset = FeedbackAOI.objects.all()
+    http_method_names = ["get", "post", "patch", "delete"]
+    serializer_class = FeedbackAOISerializer
+    filterset_fields = [
+        "training",
+        "user",
+    ]
+
+
+class FeedbackLabelViewset(viewsets.ModelViewSet):
+    authentication_classes = [OsmAuthentication]
+    permission_classes = [IsOsmAuthenticated]
+    permission_allowed_methods = ["GET"]
+    queryset = FeedbackLabel.objects.all()
+    http_method_names = ["get", "post", "patch", "delete"]
+    serializer_class = FeedbackLabelSerializer
+    filterset_fields = ["feedback_aoi"]
 
 
 class ModelViewSet(
@@ -208,7 +242,7 @@ class RawdataApiView(APIView):
         """
         obj = get_object_or_404(AOI, id=aoi_id)
         try:
-            obj.download_status = 0
+            obj.label_status = 0
             obj.save()
             raw_data_params = {
                 "geometry": json.loads(obj.geom.geojson),
@@ -218,12 +252,12 @@ class RawdataApiView(APIView):
             result = request_rawdata(raw_data_params)
             file_download_url = result["download_url"]
             process_rawdata(file_download_url, aoi_id)
-            obj.download_status = 1
-            obj.last_fetched_date = datetime.utcnow()
+            obj.label_status = 1
+            obj.label_fetched = datetime.utcnow()
             obj.save()
             return Response("Success", status=status.HTTP_201_CREATED)
         except Exception as ex:
-            obj.download_status = -1
+            obj.label_status = -1
             obj.save()
             # raise ex
             return Response("OSM Fetch Failed", status=500)
