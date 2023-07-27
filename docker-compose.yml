@@ -33,6 +33,7 @@ services:
     ports:
       - 8000:8000
     volumes:
+      - ./backend:/app
       - ${RAMP_HOME}:/RAMP_HOME
       # - ${TRAINING_WORKSPACE}:/TRAINING_WORKSPACE
     depends_on:
@@ -52,6 +53,7 @@ services:
             - driver: nvidia
               capabilities: [gpu]
     volumes:
+      - ./backend:/app
       - ${RAMP_HOME}:/RAMP_HOME
       # - ${TRAINING_WORKSPACE}:/TRAINING_WORKSPACE
     depends_on:
@@ -80,3 +82,5 @@ services:
       - 3000:3000
     depends_on:
       - backend-api
+    volumes:
+      - ./frontend:/app
