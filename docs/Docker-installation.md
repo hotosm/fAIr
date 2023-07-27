@@ -56,6 +56,13 @@ Docker Compose is created with redis , worker , postgis database ,  api and fron
         ```
         eg : export RAMP_HOME=/home/kshitij/ramp
 
+    - Export ```TRAINING_WORKSPACE``` Env
+        Training workspace is the folder where fAIr will store its training files 
+        for eg :
+        ```
+        export TRAINING_WORKSPACE=/home/kshitij/hotosm/fAIr/trainings
+        ```
+
 5. Register your Local setup to OSM 
 
     - Go to [OpenStreetMap](https://www.openstreetmap.org/) , Login/Create Account
@@ -73,12 +80,7 @@ Docker Compose is created with redis , worker , postgis database ,  api and fron
     - Fill out the details of ```OSM_CLIENT_ID``` &```OSM_CLIENT_SECRET``` in .env file and generate a unique key & paste it to ```OSM_SECRET_KEY``` (It can be random for dev setup)
     
         Leave rest of the items as it is unless you know what you are doing
-    - Export ```TRAINING_WORKSPACE``` Env
-        Training workspace is the folder where fAIr will store its training files 
-        for eg :
-        ```
-        export TRAINING_WORKSPACE=/home/kshitij/hotosm/fAIr/trainings
-        ```
+
     - Create ```.env``` in /frontend
         ```
         cp .env_sample .env
@@ -110,7 +112,7 @@ Docker Compose is created with redis , worker , postgis database ,  api and fron
 
         python manage.py makemigrations
         python manage.py makemigrations login
-        python manage.py makemigrations login
+        python manage.py makemigrations core
         python manage.py migrate
 
 9. Play and Develop 
