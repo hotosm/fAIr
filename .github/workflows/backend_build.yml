@@ -51,15 +51,17 @@ jobs:
 
       - name: Install gdal
         run: |
-          sudo apt-get -y install gdal-bin libgdal-dev python3-gdal && sudo apt-get -y autoremove && sudo apt-get clean
-          pip install GDAL==$(gdal-config --version) --global-option=build_ext --global-option="-I/usr/include/gdal"
-
+          sudo apt-get update && sudo apt-get -y install gdal-bin libgdal-dev python3-gdal && sudo apt-get -y autoremove && sudo apt-get clean
+          pip install GDAL==$(gdal-config --version)
       - name: Install ramp dependecies
         run: |
           cd ramp-code && cd colab && make install
 
+      - name: Install tensorflow
+        run: pip install tensorflow==2.9.2
+
       - name: Install fair utilities
-        run: pip install hot-fair-utilities==1.0.41
+        run: pip install hot-fair-utilities
 
       - name: Install Psycopg2
         run: |
