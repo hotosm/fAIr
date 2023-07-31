@@ -150,7 +150,7 @@ const AOI = (props) => {
                           // mutateFetch(layer.aoiId);
                           // console.log("Open in Editor")
                           window.open(
-                            `https://rapideditor.org//rapid#background=${
+                            `https://rapideditor.org/rapid#background=${
                               props.oamImagery
                                 ? "custom:" + props.oamImagery.url
                                 : "Bing"
