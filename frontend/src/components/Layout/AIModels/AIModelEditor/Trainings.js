@@ -20,6 +20,7 @@ import Popup from "./Popup";
 import InfoIcon from "@mui/icons-material/Info";
 
 import AuthContext from "../../../../Context/AuthContext";
+import Feedback from "./Feedback";
 
 const DEFAULT_FILTER = {
   items: [{ columnField: "created_date", id: 8537, operatorValue: "contains" }],
@@ -151,16 +152,22 @@ const TrainingsList = (props) => {
     },
     {
       field: "popup",
-      headerName: "Info",
-      width: 10,
-      renderCell: (params) => (
-        <IconButton
-          onClick={() => handlePopupOpen(params.row)}
-          aria-label="popup"
-        >
-          <InfoIcon size="small" />
-        </IconButton>
-      ),
+      headerName: "Info/Feedback",
+      width: 100,
+      renderCell: (params) => {
+        console.log("params in info row", params);
+        return (
+          <div>
+            <IconButton
+              onClick={() => handlePopupOpen(params.row)}
+              aria-label="popup"
+            >
+              <InfoIcon size="small" />
+            </IconButton>
+            <Feedback trainingId={params.row.id}></Feedback>
+          </div>
+        );
+      },
     },
     {
       field: "accuracy",
