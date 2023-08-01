@@ -45,7 +45,7 @@ We will also need to mount it:
 git clone https://github.com/kshitijrajsharma/ramp-code-fAIr.git ramp-code &&\
 pip install gdown &&\
 gdown --fuzzy 'https://drive.google.com/u/0/uc?id=1wvJhkiOrSlHmmvJ0avkAdu9sslFf5_I0&export=download' &&\
-unzip checkpoint.tf.zip -d ramp-code/ramp  
+unzip checkpoint.tf.zip -d ./ramp-code/ramp && rm -rf checkpoint.tf.zip
 ```
 
 
