@@ -155,7 +155,7 @@ const TrainingsList = (props) => {
       headerName: "Info/Feedback",
       width: 100,
       renderCell: (params) => {
-        console.log("params in info row", params);
+        // console.log("params in info row", params);
         return (
           <div>
             <IconButton
