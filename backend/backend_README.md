@@ -43,8 +43,7 @@ We will also need to mount it:
 
 ```bash
 git clone https://github.com/kshitijrajsharma/ramp-code-fAIr.git ramp-code &&\
-cp -r model_ramp_baseline/data/input/checkpoint.tf ramp-code/ramp/checkpoint.tf &&\
-wget https://drive.google.com/file/d/1wvJhkiOrSlHmmvJ0avkAdu9sslFf5_I0/view?usp=sharing
+wget https://drive.google.com/file/d/1wvJhkiOrSlHmmvJ0avkAdu9sslFf5_I0/view?usp=sharing &&\
 unzip checkpoint.tf.zip -d ramp-code/ramp  
 ```
 
