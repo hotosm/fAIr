@@ -19,7 +19,7 @@ const Feedback = ({ trainingId }) => {
 
       if (res.error) {
       } else {
-        console.log(`/feedback/?training=${trainingId}`, res.data);
+        // console.log(`/feedback/?training=${trainingId}`, res.data);
         return res.data;
       }
     } catch (e) {
