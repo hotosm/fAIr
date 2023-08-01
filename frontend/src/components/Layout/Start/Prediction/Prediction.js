@@ -16,7 +16,7 @@ import {
   Link,
   Select,
 } from "@mui/material";
-
+import L from "leaflet";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import {
   FeatureGroup,
@@ -25,7 +25,6 @@ import {
   TileLayer,
   useMapEvents,
 } from "react-leaflet";
-import L from "leaflet";
 import { useMutation, useQuery } from "react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "../../../../axios";
@@ -56,9 +55,9 @@ const Prediction = () => {
   const [apiCallInProgress, setApiCallInProgress] = useState(false);
   const [confidence, setConfidence] = useState(90);
   const [totalPredictionsCount, settotalPredictionsCount] = useState(0);
-  const [DeletedCount, setDeletedCount] = useState(0);
-  const [CreatedCount, setCreatedCount] = useState(0);
-  const [ModifiedCount, setModifiedCount] = useState(0);
+  // const [DeletedCount, setDeletedCount] = useState(0);
+  // const [CreatedCount, setCreatedCount] = useState(0);
+  // const [ModifiedCount, setModifiedCount] = useState(0);
   const [map, setMap] = useState(null);
   const [zoom, setZoom] = useState(15);
   const [responseTime, setResponseTime] = useState(0);
@@ -232,9 +231,7 @@ const Prediction = () => {
     const updatedPredictions = addIdsToPredictions(res.data);
     setPredictions(updatedPredictions);
     settotalPredictionsCount(updatedPredictions.features.length);
-    setCreatedCount(0);
-    setModifiedCount(0);
-    setDeletedCount(0);
+
     if (addedTiles.size > 0) {
       console.log("Map has tileboundarylayer");
     }
@@ -359,7 +356,37 @@ const Prediction = () => {
     return { ...predictions, features };
   }
   const navigate = useNavigate();
+  const getFeedback = async (trainingId) => {
+    if (!modelInfo || !modelInfo.trainingId) return;
+    try {
+      const headers = {
+        "access-token": accessToken,
+      };
+      const res = await axios.get(
+        `/feedback/?training=${modelInfo.trainingId}`,
+        null,
+        {
+          headers,
+        }
+      );
 
+      if (res.error) {
+      } else {
+        console.log("getFeedback ", res.data);
+        return res.data;
+      }
+    } catch (e) {
+      console.log("isError", e);
+    } finally {
+    }
+  };
+  const { data: feedbackData, refetch: refetchFeedback } = useQuery(
+    "getfeedback" + (modelInfo && modelInfo.trainingId),
+    getFeedback,
+    {
+      refetchInterval: 120000,
+    }
+  );
   return (
     <>
       <Grid container padding={2} spacing={2}>
@@ -386,18 +413,24 @@ const Prediction = () => {
             )}
 
             <FeatureGroup>
-              {predictions && (
+              {predictions && dataset && (
                 <EditableGeoJSON
                   data={predictions}
                   setPredictions={setPredictions}
+                  modelId={id}
+                  trainingId={modelInfo.trainingId}
                   mapref={map}
+                  sourceImagery={dataset.source_imagery}
                   predictionZoomlevel={predictionZoomlevel}
                   addedTiles={addedTiles}
-                  setAddedTiles={setAddedTiles}
-                  setCreatedCount={setCreatedCount}
-                  setModifiedCount={setModifiedCount}
-                  setDeletedCount={setDeletedCount}
+                  // setAddedTiles={setAddedTiles}
+                  // setCreatedCount={setCreatedCount}
+                  // setModifiedCount={setModifiedCount}
+                  // setDeletedCount={setDeletedCount}
                   tileBoundaryLayer={tileBoundaryLayer}
+                  refestchFeeedback={() => {
+                    refetchFeedback();
+                  }}
                 />
               )}
             </FeatureGroup>
@@ -453,48 +486,22 @@ const Prediction = () => {
                   <strong> Response: </strong> {responseTime} sec
                 </Typography>
               </Paper>
-              {predictions && (
-                <Paper elevation={1} sx={{ padding: 2, marginTop: 0.5 }}>
-                  <Typography variant="h8" gutterBottom>
-                    <strong>Feedback</strong>
-                  </Typography>
+
+              <Paper elevation={1} sx={{ padding: 2, marginTop: 0.5 }}>
+                <Typography variant="h8" gutterBottom>
+                  <strong>Feedback</strong>
+                </Typography>
+                <Typography variant="body2">
+                  Initial Predictions:
+                  {totalPredictionsCount}
+                </Typography>
+                {feedbackData && feedbackData.features && (
                   <Typography variant="body2">
-                    Initial Predictions:
-                    {totalPredictionsCount}
+                    Total feedbacks count:{feedbackData.features.length}
                   </Typography>
-                  {CreatedCount > 0 && (
-                    <Typography variant="body2">
-                      Total Created:
-                      {CreatedCount}
-                    </Typography>
-                  )}
-                  {ModifiedCount > 0 && (
-                    <Typography variant="body2">
-                      Total Modified:
-                      {ModifiedCount}
-                    </Typography>
-                  )}
-                  {DeletedCount > 0 && (
-                    <Typography variant="body2">
-                      Total Deleted:
-                      {DeletedCount}
-                    </Typography>
-                  )}
-                  {CreatedCount + ModifiedCount + DeletedCount > 1 &&
-                    !feedbackSubmitted && (
-                      <LoadingButton
-                        variant="contained"
-                        color="primary"
-                        onClick={handleSubmitFeedback}
-                        size="small"
-                        loading={feedbackLoading}
-                        sx={{ mt: 1 }}
-                      >
-                        Submit my feedback
-                      </LoadingButton>
-                    )}
-                </Paper>
-              )}
+                )}
+              </Paper>
+
               {loading ? (
                 <Box display="flex" justifyContent="center" mt={2}>
                   <CircularProgress />
