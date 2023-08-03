@@ -25,6 +25,27 @@ To eliminate model biases, fAIr is built to work with the local communities and 
 See below a suggested product roadmap [subject to change] that provides high-level overview for planned work.
 ![image](https://user-images.githubusercontent.com/98902727/218769416-b3c71d3b-7c20-4d40-ab1e-88442d06445d.png)
 
+# General Workflow of fAIr 
+
+![fAIr1](https://github.com/hotosm/fAIr/assets/97789856/01c0e3b6-a00c-439d-a2ed-1c14b62e6364)
+
+1. First We expect there should be a fully mapped and validated task in project Area where model will be trained on 
+2. fAIr uses OSM features as labels which are fetched from [Raw Data API] (https://github.com/hotosm/raw-data-api) and Tiles from OpenAerialMap (https://map.openaerialmap.org/)
+4. Once data is ready fAIr supports creation of local model with the input area provided , Publishes model for that area which can be implemented on the rest of the similar area 
+5. Feedback is important aspect , If mappers is not satisfied with the prediction that fAIr is making they can submit their feedback and community manager can apply feedback to model so that model will learn 
+<hr>
+
+# fAIr Architecture
+![fAIr2](https://github.com/hotosm/fAIr/assets/97789856/63394f65-ce0d-4a3d-8683-7455f14fb366)
+
+  The backend is using library we call it [fAIr utilities](https://github.com/hotosm/fAIr-utilities) to handle:
+
+     1. Data preparation for the models
+     2. Models trainings
+     3. Inference process
+     4. Post processing (converting the predicted features to geo data)
+
+
 
 ## Local Installation [DEV]
 
