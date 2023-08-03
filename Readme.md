@@ -28,5 +28,4 @@ See below a suggested product roadmap [subject to change] that provides high-lev
 
 ## Local Installation [DEV]
 
-Checkout Docker Installation [docs](./docs/Docker-installation.md)## Local Installation [DEV]
-
+Checkout Docker Installation [docs](./docs/Docker-installation.md)
