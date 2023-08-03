@@ -1,10 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import L from "leaflet";
 
 import { GeoJSON } from "react-leaflet";
 import "@geoman-io/leaflet-geoman-free";
 import "@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css";
-
+import { useMutation } from "react-query";
+// import L from "leaflet";
+import AuthContext from "../../../../Context/AuthContext";
+import axios from "../../../../axios";
+import { converToGeoPolygon } from "../../../../utils";
 function deg2tile(lat_deg, lon_deg, zoom) {
   const lat_rad = (Math.PI / 180) * lat_deg;
   const n = Math.pow(2, zoom);
@@ -34,32 +38,32 @@ function tile2boundingbox(xtile, ytile, zoom) {
   return L.latLngBounds(cornerNW, cornerSE);
 }
 
-function addTileBoundaryLayer(
-  mapref,
-  addedTiles,
-  tileX,
-  tileY,
-  zoom,
-  setAddedTiles,
-  tileBoundaryLayer
-) {
-  const key = `${tileX}_${tileY}_${zoom}`;
+// function addTileBoundaryLayer(
+//   mapref,
+//   addedTiles,
+//   tileX,
+//   tileY,
+//   zoom,
+//   setAddedTiles,
+//   tileBoundaryLayer
+// ) {
+//   const key = `${tileX}_${tileY}_${zoom}`;
 
-  if (!addedTiles.has(key)) {
-    console.log("Key doesn't present in map");
-    const bounds = tile2boundingbox(tileX, tileY, zoom);
-    tileBoundaryLayer = L.rectangle(bounds, {
-      color: "yellow",
-      fill: false,
-      pmIgnore: true,
-    });
-    tileBoundaryLayer.name = "Tile Box";
-    mapref.addLayer(tileBoundaryLayer);
-    mapref.fitBounds(tileBoundaryLayer.getBounds());
-    addedTiles.add(key);
-    setAddedTiles(addedTiles);
-  }
-}
+//   if (!addedTiles.has(key)) {
+//     console.log("Key doesn't present in map");
+//     const bounds = tile2boundingbox(tileX, tileY, zoom);
+//     tileBoundaryLayer = L.rectangle(bounds, {
+//       color: "yellow",
+//       fill: false,
+//       pmIgnore: true,
+//     });
+//     tileBoundaryLayer.name = "Tile Box";
+//     mapref.addLayer(tileBoundaryLayer);
+//     mapref.fitBounds(tileBoundaryLayer.getBounds());
+//     addedTiles.add(key);
+//     setAddedTiles(addedTiles);
+//   }
+// }
 
 function getFeatureStyle(feature) {
   let color = "red";
@@ -84,6 +88,10 @@ const EditableGeoJSON = ({
   setModifiedCount,
   setDeletedCount,
   tileBoundaryLayer,
+  modelId,
+  trainingId,
+  sourceImagery,
+  refestchFeeedback,
 }) => {
   const onPMCreate = (event) => {
     console.log("Created");
@@ -109,86 +117,131 @@ const EditableGeoJSON = ({
         corner.lng,
         predictionZoomlevel
       );
-      addTileBoundaryLayer(
-        mapref,
-        addedTiles,
-        tileX,
-        tileY,
-        predictionZoomlevel,
-        setAddedTiles
-      );
+      // addTileBoundaryLayer(
+      //   mapref,
+      //   addedTiles,
+      //   tileX,
+      //   tileY,
+      //   predictionZoomlevel,
+      //   setAddedTiles
+      // );
     }
     mapref.removeLayer(createdLayer);
   };
+  const { accessToken } = useContext(AuthContext);
+
+  const submitFeedback = async (layer) => {
+    try {
+      // console.log("layer", layer);
+      const newAOI = {
+        id: Math.random(),
+        latlngs: layer.getLatLngs()[0],
+      };
+      const points = JSON.stringify(
+        converToGeoPolygon([newAOI])[0][0].reduce(
+          (p, c, i) => p + c[1] + " " + c[0] + ",",
+          ""
+        )
+      ).slice(1, -2);
+
+      const polygon = "SRID=4326;POLYGON((" + points + "))";
+
+      let body = {
+        geom: polygon,
+        zoom_level: predictionZoomlevel,
+        feedback_type: "TN",
+        source_imagery: sourceImagery,
+        training: trainingId,
+        comments: "comments is not support yet",
+      };
+
+      const headers = {
+        "access-token": accessToken,
+      };
+      const res = await axios.post(`/feedback/`, body, { headers });
+      console.log("res ", res);
+      refestchFeeedback();
+    } catch (error) {
+      console.log("Error in submitting feedback", error);
+    } finally {
+    }
+  };
+  const { mutate: mutateSubmitFeedback } = useMutation(submitFeedback);
+
   const onEachFeature = (feature, layer) => {
-    layer.on({
-      "pm:update": (event) => {
-        const bounds = event.layer.getBounds();
-        const corners = [bounds.getSouthWest(), bounds.getNorthEast()];
+    // layer.on({
+    //   "pm:update": (event) => {
+    //     const bounds = event.layer.getBounds();
+    //     const corners = [bounds.getSouthWest(), bounds.getNorthEast()];
 
-        for (const corner of corners) {
-          const [tileX, tileY] = deg2tile(
-            corner.lat,
-            corner.lng,
-            predictionZoomlevel
-          );
-          addTileBoundaryLayer(
-            mapref,
-            addedTiles,
-            tileX,
-            tileY,
-            predictionZoomlevel,
-            setAddedTiles
-          );
-        }
+    //     for (const corner of corners) {
+    //       const [tileX, tileY] = deg2tile(
+    //         corner.lat,
+    //         corner.lng,
+    //         predictionZoomlevel
+    //       );
+    //       // addTileBoundaryLayer(
+    //       //   mapref,
+    //       //   addedTiles,
+    //       //   tileX,
+    //       //   tileY,
+    //       //   predictionZoomlevel,
+    //       //   setAddedTiles
+    //       // );
+    //     }
 
-        const editedLayer = event.target;
-        const editedData = editedLayer.toGeoJSON();
-        const editedFeatureIndex = data.features.findIndex(
-          (feature) => feature.id === editedData.id
-        );
-        const newData = { ...data };
-        newData.features[editedFeatureIndex] = editedData;
-        setPredictions(newData);
-        if (feature.properties.action !== "MODIFY") {
-          feature.properties.action = "MODIFY";
-          setModifiedCount((prevCount) => prevCount + 1);
-        }
-      },
-      "pm:remove": (event) => {
-        const bounds = event.layer.getBounds();
-        const corners = [bounds.getSouthWest(), bounds.getNorthEast()];
+    //     const editedLayer = event.target;
+    //     const editedData = editedLayer.toGeoJSON();
+    //     const editedFeatureIndex = data.features.findIndex(
+    //       (feature) => feature.id === editedData.id
+    //     );
+    //     const newData = { ...data };
+    //     newData.features[editedFeatureIndex] = editedData;
+    //     setPredictions(newData);
+    //     if (feature.properties.action !== "MODIFY") {
+    //       feature.properties.action = "MODIFY";
+    //       setModifiedCount((prevCount) => prevCount + 1);
+    //     }
+    //   },
+    //   "pm:remove": (event) => {
+    //     const bounds = event.layer.getBounds();
+    //     const corners = [bounds.getSouthWest(), bounds.getNorthEast()];
 
-        for (const corner of corners) {
-          const [tileX, tileY] = deg2tile(
-            corner.lat,
-            corner.lng,
-            predictionZoomlevel
-          );
-          addTileBoundaryLayer(
-            mapref,
-            addedTiles,
-            tileX,
-            tileY,
-            predictionZoomlevel,
-            setAddedTiles
-          );
-        }
-        const deletedLayer = event.layer;
-        const newFeatures = data.features.filter(
-          (feature) =>
-            feature.properties.id !== deletedLayer.feature.properties.id
-        );
-        setPredictions({ ...data, features: newFeatures });
-        setDeletedCount((prevCount) => prevCount + 1);
-      },
-    });
+    //     for (const corner of corners) {
+    //       const [tileX, tileY] = deg2tile(
+    //         corner.lat,
+    //         corner.lng,
+    //         predictionZoomlevel
+    //       );
+    //       // addTileBoundaryLayer(
+    //       //   mapref,
+    //       //   addedTiles,
+    //       //   tileX,
+    //       //   tileY,
+    //       //   predictionZoomlevel,
+    //       //   setAddedTiles
+    //       // );
+    //     }
+    //     const deletedLayer = event.layer;
+    //     const newFeatures = data.features.filter(
+    //       (feature) =>
+    //         feature.properties.id !== deletedLayer.feature.properties.id
+    //     );
+    //     setPredictions({ ...data, features: newFeatures });
+    //     setDeletedCount((prevCount) => prevCount + 1);
+    //   },
+    // });
     layer.on("click", (e) => {
       console.log(e);
       if (feature.properties.action === "INITIAL") {
         const popupContent = `
       <div>
-        <button id="rightButton" class="feedback-button">&#128077; Accept</button>
+      <p>
+      This feedback will be presented on the model (id: ${modelId}, training id: ${trainingId}) for improvements
+      </p>
+      <span>Comments:<span/><input type="text" id="comments" name="comments" />
+      <br>
+        <button id="rightButton" class="feedback-button" type="submit">&#128077; Submit</button>
       </div>
       `;
         const popup = L.popup()
@@ -200,23 +253,10 @@ const EditableGeoJSON = ({
           .querySelector("#rightButton")
           .addEventListener("click", () => {
             feature.properties.action = "ACCEPT";
-            const bounds = layer.getBounds();
-            const corners = [bounds.getSouthWest(), bounds.getNorthEast()];
-            for (const corner of corners) {
-              const [tileX, tileY] = deg2tile(
-                corner.lat,
-                corner.lng,
-                predictionZoomlevel
-              );
-              addTileBoundaryLayer(
-                mapref,
-                addedTiles,
-                tileX,
-                tileY,
-                predictionZoomlevel,
-                setAddedTiles
-              );
-            }
+            console.log("popup layer ", layer);
+            // handle submitting feedback
+            mutateSubmitFeedback(layer);
+            popup.close();
           });
       }
     });

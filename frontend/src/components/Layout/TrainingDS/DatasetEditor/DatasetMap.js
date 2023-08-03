@@ -23,7 +23,11 @@ import { multiPolygon } from "@turf/helpers";
 
 import axios from "../../../../axios";
 
-import { approximateGeom } from "../../../../utils";
+import {
+  approximateGeom,
+  converToGeoPolygon,
+  converToPolygon,
+} from "../../../../utils";
 import DatasetEditorHeader from "./DatasetEditorHeader";
 import AuthContext from "../../../../Context/AuthContext";
 const DatasetMap = (props) => {
@@ -414,29 +418,6 @@ const DatasetMap = (props) => {
   };
   const _onEditStop = (e) => {
     setIsEditing(false);
-  };
-  const converToPolygon = (layer) => {
-    const allPoly = [];
-    layer.forEach((element) => {
-      const x = element.latlngs.map((e) => [e.lat, e.lng]);
-      allPoly.push([x]);
-    });
-    return allPoly;
-  };
-
-  const converToGeoPolygon = (layer) => {
-    if (layer.length === 0) return [];
-    const allPoly = converToPolygon(layer);
-
-    // console.log("converToGeoPolygon",allPoly)
-
-    const newAll = [];
-    allPoly.forEach((element) => {
-      const x = [...element[0], element[0][0]];
-
-      newAll.push([x]);
-    });
-    return newAll;
   };
 
   const blueOptions = { color: "#03002e", width: 10, opacity: 1 };

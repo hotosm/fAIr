@@ -3,7 +3,7 @@ export const timeSince = (when, then) => {
   const seconds = (then.getTime() - when.getTime()) / 1000;
 
   if (seconds > 86400 * 30)
-    return " +" + ((seconds / (86400 * 30))).toFixed() + " month(s) ago";
+    return " +" + (seconds / (86400 * 30)).toFixed() + " month(s) ago";
   if (seconds > 604800)
     return " +" + (seconds / 604800).toFixed() + " week(s) ago";
   if (seconds > 86400)
@@ -164,4 +164,28 @@ export const timeSpan = (start, end) => {
     const delta = e - s;
     return (Math.abs(delta) / 36e5).toFixed(2);
   } else return "";
+};
+
+export const converToPolygon = (layer) => {
+  const allPoly = [];
+  layer.forEach((element) => {
+    const x = element.latlngs.map((e) => [e.lat, e.lng]);
+    allPoly.push([x]);
+  });
+  return allPoly;
+};
+
+export const converToGeoPolygon = (layer) => {
+  if (layer.length === 0) return [];
+  const allPoly = converToPolygon(layer);
+
+  // console.log("converToGeoPolygon",allPoly)
+
+  const newAll = [];
+  allPoly.forEach((element) => {
+    const x = [...element[0], element[0][0]];
+
+    newAll.push([x]);
+  });
+  return newAll;
 };

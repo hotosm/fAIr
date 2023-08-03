@@ -35,7 +35,7 @@ services:
     volumes:
       - ./backend:/app
       - ${RAMP_HOME}:/RAMP_HOME
-      - ${TRAINING_WORKSPACE}:/TRAINING_WORKSPACE
+      # - ${TRAINING_WORKSPACE}:/TRAINING_WORKSPACE
     depends_on:
       - redis
       - postgres
@@ -55,7 +55,7 @@ services:
     volumes:
       - ./backend:/app
       - ${RAMP_HOME}:/RAMP_HOME
-      - ${TRAINING_WORKSPACE}:/TRAINING_WORKSPACE
+      # - ${TRAINING_WORKSPACE}:/TRAINING_WORKSPACE
     depends_on:
       - backend-api
       - redis

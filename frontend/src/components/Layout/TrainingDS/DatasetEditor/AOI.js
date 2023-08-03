@@ -150,7 +150,7 @@ const AOI = (props) => {
                           // mutateFetch(layer.aoiId);
                           // console.log("Open in Editor")
                           window.open(
-                            `https://mapwith.ai/rapid#background=${
+                            `https://rapideditor.org/rapid#background=${
                               props.oamImagery
                                 ? "custom:" + props.oamImagery.url
                                 : "Bing"
@@ -166,7 +166,7 @@ const AOI = (props) => {
                         <img
                           alt="RapiD logo"
                           className="rapid-logo-small"
-                          src="https://mapwith.ai/splash/prod/e70aaae-dist/svg/RapidLogo.svg"
+                          src="/rapid-logo.png"
                         />
                       </IconButton>
                     </Tooltip>
