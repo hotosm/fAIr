@@ -48,13 +48,78 @@ gdown --fuzzy 'https://drive.google.com/u/0/uc?id=1wvJhkiOrSlHmmvJ0avkAdu9sslFf5
 unzip checkpoint.tf.zip -d ./ramp-code/ramp && rm -rf checkpoint.tf.zip
 ```
 
-
-Once insider the docker container, the application is boostrapped by calling `manage.py` to bootstrap the geodjango application.
-
+Run the built container using
 
 ```bash
 docker run .
 ```
+
+Once insider the docker container, there are several more additional steps to communicate\
+with the database
+
+### Make sure you have postgresql installed with postgis extension enabled
+
+Configure .env:
+
+Create .env in the root backend project , and add the credentials as provided on .env_sample , Export your secret key and database url to your env
+
+```bash
+# Export your database url 
+export DATABASE_URL=postgis://postgres:postgres@localhost:5432/ai
+```
+
+You will need more env variables (Such as Ramp home, Training Home) that can be found on ```.sample_env```  
+
+Now change your username, password and db name in settings.py accordingly to your database
+
+> The application is boostrapped by calling `manage.py` to bootstrap the geodjango application.
+
+``` bash
+python manage.py makemigrations login
+python manage.py migrate login
+python manage.py makemigrations core
+python manage.py migrate core 
+python manage.py makemigrations 
+python manage.py migrate
+python manage.py runserver
+```
+
+### Now server will be available in your 8000 port on web, you can check out your localhost:8000/admin for admin panel
+
+To login on admin panel, create your superuser and login with your credentials restarting the server
+
+```bash
+python manage.py createsuperuser
+```
+
+### Authentication
+
+fAIr uses oauth2.0 Authentication using ![osm-login-python](https://github.com/kshitijrajsharma/osm-login-python)
+
+1. Get your login Url Hit /api/v1/auth/login/ 
+- URL will give you login URL which you can use to provide your osm credentials and authorize fAIr
+- After successful login you will get access-token that you can use across all osm login required endpoints in fAIr
+2. Check authentication by getting back your data Hit /api/v1/auth/me/
+- URL requires access-token as header and in return you will see your osm username, id and image url
+
+### Start celery workers
+
+```bash
+celery -A aiproject worker --loglevel=debug -n my_worker
+```
+
+Monitor using flower if you are using redis as result backend, api supports both options django / redis You can start flower to start monitoring your tasks
+
+```bash
+celery -A aiproject  --broker=redis://127.0.0.1:6379/0 flower 
+```
+
+### Run Tests
+
+```bash
+python manage.py test
+```
+
 
 ### Services
 
