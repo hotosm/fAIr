@@ -21,40 +21,24 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const FeedbackPopup = ({
-  feedbackData,
   onClose,
   sourceImagery,
   trainingId,
+  feedbackData,
 }) => {
   const classes = useStyles();
   const [open, setOpen] = useState(true);
   const [loading, setLoading] = useState(false);
   const [freezeLayers, setFreezeLayers] = useState(false);
-
   const { accessToken } = useContext(AuthContext);
   const actionCounts = {
     CREATE: 0,
     MODIFY: 0,
     ACCEPT: 0,
   };
+
   const [epochs, setEpochs] = useState(2);
   const [batchSize, setBatchSize] = useState(1);
-
-  feedbackData.features.forEach((feature) => {
-    switch (feature.properties.action) {
-      case "CREATE":
-        actionCounts.CREATE++;
-        break;
-      case "MODIFY":
-        actionCounts.MODIFY++;
-        break;
-      case "ACCEPT":
-        actionCounts.ACCEPT++;
-        break;
-      default:
-        break;
-    }
-  });
 
   const handleClose = () => {
     setOpen(false);
