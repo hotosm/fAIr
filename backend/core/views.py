@@ -118,6 +118,18 @@ class TrainingSerializer(
                 "Another training is already running or submitted for this model."
             )
 
+        epochs = validated_data["epochs"]
+        batch_size = validated_data["batch_size"]
+
+        if epochs > settings.EPOCHS_LIMIT:
+            raise ValidationError(
+                f"Epochs can't be greater than {settings.EPOCHS_LIMIT} on this server"
+            )
+        if batch_size > settings.BATCH_SIZE_LIMIT:
+            raise ValidationError(
+                f"Batch size can't be greater than {settings.BATCH_SIZE_LIMIT} on this server"
+            )
+
         user = self.context["request"].user
         validated_data["created_by"] = user
         # create the model instance
