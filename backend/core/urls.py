@@ -15,7 +15,8 @@ from .views import (
     LabelViewSet,
     ModelViewSet,
     PredictionView,
-    RawdataApiView,
+    RawdataApiAOIView,
+    RawdataApiFeedbackView,
     TrainingViewSet,
     TrainingWorkspaceDownloadView,
     TrainingWorkspaceView,
@@ -39,7 +40,11 @@ router.register(r"feedback-label", FeedbackLabelViewset)
 
 urlpatterns = [
     path("", include(router.urls)),
-    path("label/osm/fetch/<int:aoi_id>/", RawdataApiView.as_view()),
+    path("label/osm/fetch/<int:aoi_id>/", RawdataApiAOIView.as_view()),
+    path(
+        "label/feedback/osm/fetch/<int:feedbackaoi_id>/",
+        RawdataApiFeedbackView.as_view(),
+    ),
     # path("download/<int:dataset_id>/", download_training_data),
     path("training/status/<str:run_id>/", run_task_status),
     path("training/publish/<int:training_id>/", publish_training),

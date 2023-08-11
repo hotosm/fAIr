@@ -13,7 +13,7 @@ class DatasetAdmin(geoadmin.GeoModelAdmin):
 
 @admin.register(Model)
 class ModelAdmin(geoadmin.GeoModelAdmin):
-    list_display = ["get_dataset_id", "name", "status", "created_at"]
+    list_display = ["get_dataset_id", "name", "status", "created_at", "created_by"]
 
     def get_dataset_id(self, obj):
         return obj.dataset.id
@@ -37,3 +37,14 @@ class TrainingAdmin(geoadmin.GeoModelAdmin):
         return obj.model.id
 
     get_model_id.short_description = "Model"
+
+
+# dsaf
+@admin.register(FeedbackAOI)
+class FeedbackAOIAdmin(geoadmin.GeoModelAdmin):
+    list_display = ["training", "user"]
+
+
+@admin.register(FeedbackLabel)
+class FeedbackLabelAdmin(geoadmin.GeoModelAdmin):
+    list_display = ["feedback_aoi", "created_at"]
