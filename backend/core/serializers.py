@@ -120,12 +120,18 @@ class FeedbackLabelSerializer(GeoFeatureModelSerializer):
         # read_only_fields = ("created_at", "osm_id")
 
 
-class LabelFileSerializer(
-    GeoFeatureModelSerializer
-):  # serializers are used to translate models objects to api
+class LabelFileSerializer(GeoFeatureModelSerializer):
     class Meta:
         model = Label
-        geo_field = "geom"  # this will be used as geometry in order to create geojson api , geofeatureserializer will let you create api in geojson
+        geo_field = "geom"
+        # auto_bbox = True
+        fields = ("osm_id",)
+
+
+class FeedbackLabelFileSerializer(GeoFeatureModelSerializer):
+    class Meta:
+        model = FeedbackLabel
+        geo_field = "geom"
         # auto_bbox = True
         fields = ("osm_id",)
 
@@ -158,7 +164,19 @@ class FeedbackParamSerializer(serializers.Serializer):
     training_id = serializers.IntegerField(required=True)
     epochs = serializers.IntegerField(required=False)
     batch_size = serializers.IntegerField(required=False)
-    freeze_layers = serializers.BooleanField(required=False)
+    zoom_level = serializers.ListField(required=False)
+
+    def validate(self, data):
+        """
+        Check supplied data
+        """
+        if "zoom_level" in data:
+            for i in data["zoom_level"]:
+                if int(i) < 19 or int(i) > 21:
+                    raise serializers.ValidationError(
+                        "Zoom level Supported between 19-21"
+                    )
+        return data
 
 
 class PredictionParamSerializer(serializers.Serializer):

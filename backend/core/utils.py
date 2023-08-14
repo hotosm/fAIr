@@ -2,12 +2,14 @@ import concurrent.futures
 import json
 import math
 import os
+from datetime import datetime
 from uuid import uuid4
 from xml.dom import ValidationErr
 from zipfile import ZipFile
 
 import requests
 from django.conf import settings
+from gpxpy.gpx import GPX, GPXTrack, GPXTrackSegment, GPXWaypoint
 from tqdm import tqdm
 
 from .models import AOI, FeedbackAOI, FeedbackLabel, Label
@@ -241,6 +243,33 @@ def process_rawdata(file_download_url, aoi_id, feedback=False):
 def remove_file(path: str) -> None:
     """Used for removing temp file"""
     os.unlink(path)
+
+
+def gpx_generator(geom_json):
+    """Generates GPX for give geojson geometry
+
+    Args:
+        geom_json (_type_): _description_
+
+    Returns:
+        xml: gpx
+    """
+
+    gpx = GPX()
+    gpx_track = GPXTrack()
+    gpx.tracks.append(gpx_track)
+    gpx_segment = GPXTrackSegment()
+    gpx_track.segments.append(gpx_segment)
+    for point in geom_json["coordinates"][0]:
+        # Append each point as a GPXWaypoint to the GPXTrackSegment
+        gpx_segment.points.append(GPXWaypoint(point[1], point[0]))
+    gpx.creator = "fAIr"
+    gpx_track.name = "Don't Edit this Boundary"
+    gpx_track.description = "Map inside this boundary and go back to fAIr UI"
+    gpx.time = datetime.now()
+    gpx.link = "https://github.com/hotosm/fAIr"
+    gpx.link_text = "AI Assisted Mapping - fAIr : HOTOSM"
+    return gpx.to_xml()
 
 
 def process_feature(feature, aoi_id, foreign_key_id, feedback=False):
