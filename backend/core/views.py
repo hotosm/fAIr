@@ -27,7 +27,6 @@ from django.shortcuts import get_object_or_404, redirect
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
 from geojson2osm import geojson2osm
-from gpxpy.gpx import GPX, GPXTrack, GPXTrackSegment, GPXWaypoint
 from hot_fair_utilities import polygonize, predict, vectorize
 from login.authentication import OsmAuthentication
 from login.permissions import IsOsmAuthenticated
@@ -66,6 +65,7 @@ from .utils import (
     download_imagery,
     get_dir_size,
     get_start_end_download_coords,
+    gpx_generator,
     process_rawdata,
     request_rawdata,
 )
@@ -624,21 +624,19 @@ class GenerateGpxView(APIView):
         # Convert the polygon field to GPX format
         geom_json = json.loads(aoi.geom.json)
         # Create a new GPX object
-        gpx = GPX()
-        gpx_track = GPXTrack()
-        gpx.tracks.append(gpx_track)
-        gpx_segment = GPXTrackSegment()
-        gpx_track.segments.append(gpx_segment)
-        for point in geom_json["coordinates"][0]:
-            # Append each point as a GPXWaypoint to the GPXTrackSegment
-            gpx_segment.points.append(GPXWaypoint(point[1], point[0]))
-        gpx.creator = "fAIr Backend"
-        gpx_track.name = f"AOI of id {aoi_id} , Don't Edit this Boundary"
-        gpx_track.description = "This is coming from AI Assisted Mapping - fAIr : HOTOSM , Map inside this boundary and go back to fAIr UI"
-        gpx.time = datetime.now()
-        gpx.link = "https://github.com/hotosm/fAIr"
-        gpx.link_text = "AI Assisted Mapping - fAIr : HOTOSM"
-        return HttpResponse(gpx.to_xml(), content_type="application/xml")
+        gpx_xml=gpx_generator(geom_json)
+        return HttpResponse(gpx_xml, content_type="application/xml")
+
+
+class GenerateFeedbackAOIGpxView(APIView):
+    def get(self, request, feedback_aoi_id: int):
+        aoi = get_object_or_404(FeedbackAOI, id=feedback_aoi_id)
+        # Convert the polygon field to GPX format
+        geom_json = json.loads(aoi.geom.json)
+        # Create a new GPX object
+        gpx_xml=gpx_generator(geom_json)
+        return HttpResponse(gpx_xml, content_type="application/xml")
+
 
 
 class TrainingWorkspaceView(APIView):
