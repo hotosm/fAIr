@@ -244,8 +244,8 @@ class LabelViewSet(viewsets.ModelViewSet):
 
 
 class RawdataApiFeedbackView(APIView):
-    authentication_classes = [OsmAuthentication]
-    permission_classes = [IsOsmAuthenticated]
+    # authentication_classes = [OsmAuthentication]
+    # permission_classes = [IsOsmAuthenticated]
 
     def post(self, request, feedbackaoi_id, *args, **kwargs):
         """Downloads available osm data as labels within given feedback aoi
