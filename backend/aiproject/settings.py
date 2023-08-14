@@ -53,6 +53,11 @@ OSM_LOGIN_REDIRECT_URI = env(
 OSM_SECRET_KEY = env("OSM_SECRET_KEY")
 
 
+# Limiter
+EPOCHS_LIMIT = env("EPOCHS_LIMIT", default=30)
+BATCH_SIZE_LIMIT = env("BATCH_SIZE_LIMIT", default=8)
+
+
 # Application definition
 
 INSTALLED_APPS = [

@@ -102,16 +102,14 @@ class FeedbackSerializer(GeoFeatureModelSerializer):
         return ret
 
 
-class LabelSerializer(
-    GeoFeatureModelSerializer
-):  # serializers are used to translate models objects to api
+class LabelSerializer(GeoFeatureModelSerializer):
     class Meta:
         model = Label
-        geo_field = "geom"  # this will be used as geometry in order to create geojson api , geofeatureserializer will let you create api in geojson
+        geo_field = "geom"
         # auto_bbox = True
-        fields = "__all__"  # defining all the fields to  be included in curd for now , we can restrict few if we want
+        fields = "__all__"
 
-        read_only_fields = ("created_at", "osm_id")
+        # read_only_fields = ("created_at", "osm_id")
 
 
 class FeedbackLabelSerializer(GeoFeatureModelSerializer):
@@ -119,7 +117,7 @@ class FeedbackLabelSerializer(GeoFeatureModelSerializer):
         model = FeedbackLabel
         geo_field = "geom"
         fields = "__all__"
-        read_only_fields = ("created_at", "osm_id")
+        # read_only_fields = ("created_at", "osm_id")
 
 
 class LabelFileSerializer(

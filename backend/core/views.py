@@ -118,6 +118,18 @@ class TrainingSerializer(
                 "Another training is already running or submitted for this model."
             )
 
+        epochs = validated_data["epochs"]
+        batch_size = validated_data["batch_size"]
+
+        if epochs > settings.EPOCHS_LIMIT:
+            raise ValidationError(
+                f"Epochs can't be greater than {settings.EPOCHS_LIMIT} on this server"
+            )
+        if batch_size > settings.BATCH_SIZE_LIMIT:
+            raise ValidationError(
+                f"Batch size can't be greater than {settings.BATCH_SIZE_LIMIT} on this server"
+            )
+
         user = self.context["request"].user
         validated_data["created_by"] = user
         # create the model instance
@@ -184,7 +196,12 @@ class FeedbackLabelViewset(viewsets.ModelViewSet):
     queryset = FeedbackLabel.objects.all()
     http_method_names = ["get", "post", "patch", "delete"]
     serializer_class = FeedbackLabelSerializer
-    filterset_fields = ["feedback_aoi"]
+    bbox_filter_field = "geom"
+    filter_backends = (
+        InBBoxFilter,  # it will take bbox like this api/v1/label/?in_bbox=-90,29,-89,35 ,
+    )
+    bbox_filter_include_overlapping = True
+    filterset_fields = ["feedback_aoi", "feedback_aoi__training"]
 
 
 class ModelViewSet(
@@ -226,12 +243,49 @@ class LabelViewSet(viewsets.ModelViewSet):
     filterset_fields = ["aoi", "aoi__dataset"]
 
 
-class RawdataApiView(APIView):
+class RawdataApiFeedbackView(APIView):
+    # authentication_classes = [OsmAuthentication]
+    # permission_classes = [IsOsmAuthenticated]
+
+    def post(self, request, feedbackaoi_id, *args, **kwargs):
+        """Downloads available osm data as labels within given feedback aoi
+
+        Args:
+            request (_type_): _description_
+            feedbackaoi_id (_type_): _description_
+
+        Returns:
+            status: Success/Failed
+        """
+        obj = get_object_or_404(FeedbackAOI, id=feedbackaoi_id)
+        try:
+            obj.label_status = 0
+            obj.save()
+            raw_data_params = {
+                "geometry": json.loads(obj.geom.geojson),
+                "filters": {"tags": {"polygon": {"building": []}}},
+                "geometryType": ["polygon"],
+            }
+            result = request_rawdata(raw_data_params)
+            file_download_url = result["download_url"]
+            process_rawdata(file_download_url, feedbackaoi_id, feedback=True)
+            obj.label_status = 1
+            obj.label_fetched = datetime.utcnow()
+            obj.save()
+            return Response("Success", status=status.HTTP_201_CREATED)
+        except Exception as ex:
+            obj.label_status = -1
+            obj.save()
+            # raise ex
+            return Response("OSM Fetch Failed", status=500)
+
+
+class RawdataApiAOIView(APIView):
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsOsmAuthenticated]
 
     def post(self, request, aoi_id, *args, **kwargs):
-        """Downloads available osm data as labels within given aoi
+        """Downloads available osm data as labels within given feedback
 
         Args:
             request (_type_): _description_

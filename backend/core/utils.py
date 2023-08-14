@@ -10,8 +10,8 @@ import requests
 from django.conf import settings
 from tqdm import tqdm
 
-from .models import AOI, Label
-from .serializers import LabelSerializer
+from .models import AOI, FeedbackAOI, FeedbackLabel, Label
+from .serializers import FeedbackLabelSerializer, LabelSerializer
 
 
 def get_dir_size(directory):
@@ -79,7 +79,6 @@ def latlng2tile(zoom, lat, lng, tile_size):
 
 
 def get_start_end_download_coords(bbox_coords, zm_level, tile_size):
-
     # start point where we will start downloading the tiles
 
     start_point_lng = bbox_coords[0]  # getting the starting lat lng
@@ -205,7 +204,7 @@ def request_rawdata(request_params):
         return response_back
 
 
-def process_rawdata(file_download_url, aoi_id):
+def process_rawdata(file_download_url, aoi_id, feedback=False):
     """This will create temp directory , Downloads file from URL provided,
     Unzips it Finds a geojson file , Process it and finally removes
     processed Geojson file and downloaded zip file from Directory"""
@@ -234,7 +233,7 @@ def process_rawdata(file_download_url, aoi_id):
                     print(f"""Geojson file{fileName} from API wrote to disk""")
                     break
         geojson_file = f"""{geojson_file_path}{fileName}"""
-        process_geojson(geojson_file, aoi_id)
+        process_geojson(geojson_file, aoi_id, feedback)
     remove_file(file_temp_path)
     remove_file(geojson_file)
 
@@ -244,28 +243,41 @@ def remove_file(path: str) -> None:
     os.unlink(path)
 
 
-def process_feature(feature, aoi_id, dataset_id):
+def process_feature(feature, aoi_id, foreign_key_id, feedback=False):
     """Multi thread process of features"""
     properties = feature["properties"]
     osm_id = properties["osm_id"]
     geometry = feature["geometry"]
+    if feedback:
+        if FeedbackLabel.objects.filter(
+            osm_id=int(osm_id), feedback_aoi__training=foreign_key_id
+        ).exists():
+            FeedbackLabel.objects.filter(
+                osm_id=int(osm_id), feedback_aoi__training=foreign_key_id
+            ).delete()
 
-    if Label.objects.filter(osm_id=int(osm_id), aoi__dataset=dataset_id).exists():
+        label = FeedbackLabelSerializer(
+            data={"osm_id": int(osm_id), "geom": geometry, "feedback_aoi": aoi_id}
+        )
 
-        Label.objects.filter(osm_id=int(osm_id), aoi__dataset=dataset_id).delete()
-        # print(f"Existing record Found and Dropped {osm_id}")
+    else:
+        if Label.objects.filter(
+            osm_id=int(osm_id), aoi__dataset=foreign_key_id
+        ).exists():
+            Label.objects.filter(
+                osm_id=int(osm_id), aoi__dataset=foreign_key_id
+            ).delete()
 
-    label = LabelSerializer(
-        data={"osm_id": int(osm_id), "geom": geometry, "aoi": aoi_id}
-    )
+        label = LabelSerializer(
+            data={"osm_id": int(osm_id), "geom": geometry, "aoi": aoi_id}
+        )
     if label.is_valid():
-        label.save()  # update if it exists create if not
+        label.save()
     else:
         raise ValidationErr(label.errors)
-    # print(f"Created {osm_id}")
 
 
-def process_geojson(geojson_file_path, aoi_id):
+def process_geojson(geojson_file_path, aoi_id, feedback=False):
     """Responsible for Processing Geojson file from directory ,
         Opens the file reads the record , Checks either record
         present or not if not inserts into database
@@ -278,7 +290,10 @@ def process_geojson(geojson_file_path, aoi_id):
         ValidationErr: _description_
     """
     print("Geojson Processing Started")
-    dataset_id = AOI.objects.get(id=aoi_id).dataset
+    if feedback:
+        foreign_key_id = FeedbackAOI.objects.get(id=aoi_id).training
+    else:
+        foreign_key_id = AOI.objects.get(id=aoi_id).dataset
     max_workers = (
         (os.cpu_count() - 1) if os.cpu_count() != 1 else 1
     )  # leave one cpu free always
@@ -289,7 +304,9 @@ def process_geojson(geojson_file_path, aoi_id):
         data = json.load(f)
         with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
             futures = [
-                executor.submit(process_feature, feature, aoi_id, dataset_id)
+                executor.submit(
+                    process_feature, feature, aoi_id, foreign_key_id, feedback
+                )
                 for feature in data["features"]
             ]
             for f in tqdm(futures, total=len(data["features"])):

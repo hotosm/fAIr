@@ -7,13 +7,13 @@ from .models import *
 
 
 @admin.register(Dataset)
-class DatasetAdmin(geoadmin.GeoModelAdmin):
+class DatasetAdmin(geoadmin.OSMGeoAdmin):
     list_display = ["name", "created_by"]
 
 
 @admin.register(Model)
-class ModelAdmin(geoadmin.GeoModelAdmin):
-    list_display = ["get_dataset_id", "name", "status", "created_at"]
+class ModelAdmin(geoadmin.OSMGeoAdmin):
+    list_display = ["get_dataset_id", "name", "status", "created_at", "created_by"]
 
     def get_dataset_id(self, obj):
         return obj.dataset.id
@@ -22,7 +22,7 @@ class ModelAdmin(geoadmin.GeoModelAdmin):
 
 
 @admin.register(Training)
-class TrainingAdmin(geoadmin.GeoModelAdmin):
+class TrainingAdmin(geoadmin.OSMGeoAdmin):
     list_display = [
         "get_model_id",
         "description",
@@ -37,3 +37,13 @@ class TrainingAdmin(geoadmin.GeoModelAdmin):
         return obj.model.id
 
     get_model_id.short_description = "Model"
+
+
+@admin.register(FeedbackAOI)
+class FeedbackAOIAdmin(geoadmin.OSMGeoAdmin):
+    list_display = ["training", "user"]
+
+
+@admin.register(Feedback)
+class FeedbackAdmin(geoadmin.OSMGeoAdmin):
+    list_display = ["feedback_type", "training", "user", "created_at"]
