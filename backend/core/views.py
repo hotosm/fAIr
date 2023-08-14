@@ -244,8 +244,8 @@ class LabelViewSet(viewsets.ModelViewSet):
 
 
 class RawdataApiFeedbackView(APIView):
-    # authentication_classes = [OsmAuthentication]
-    # permission_classes = [IsOsmAuthenticated]
+    authentication_classes = [OsmAuthentication]
+    permission_classes = [IsOsmAuthenticated]
 
     def post(self, request, feedbackaoi_id, *args, **kwargs):
         """Downloads available osm data as labels within given feedback aoi
@@ -408,6 +408,15 @@ def run_task_status(request, run_id: str):
 
 
 class FeedbackView(APIView):
+    """Applies Associated feedback to Training Published Checkpoint
+
+    Args:
+        APIView (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsOsmAuthenticated]
 
@@ -421,12 +430,7 @@ class FeedbackView(APIView):
             training_id = deserialized_data["training_id"]
             training_instance = Training.objects.get(id=training_id)
 
-            unique_zoom_levels = (
-                Feedback.objects.filter(training__id=training_id, validated=True)
-                .values("zoom_level")
-                .distinct()
-            )
-            zoom_level = [z["zoom_level"] for z in unique_zoom_levels]
+            zoom_level = deserialized_data.get("zoom_level", [19, 20])
             epochs = deserialized_data.get("epochs", 20)
             batch_size = deserialized_data.get("batch_size", 8)
             instance = Training.objects.create(
@@ -448,7 +452,7 @@ class FeedbackView(APIView):
                 zoom_level=instance.zoom_level,
                 source_imagery=instance.source_imagery,
                 feedback=training_id,
-                freeze_layers=instance.freeze_layers,
+                freeze_layers=True,  # True by default for feedback
             )
             if not instance.source_imagery:
                 instance.source_imagery = instance.model.dataset.source_imagery

@@ -10,8 +10,12 @@ import hot_fair_utilities
 import ramp.utils
 import tensorflow as tf
 from celery import shared_task
-from core.models import AOI, Feedback, Label, Training
-from core.serializers import FeedbackFileSerializer, LabelFileSerializer
+from core.models import AOI, Feedback, FeedbackAOI, FeedbackLabel, Label, Training
+from core.serializers import (
+    FeedbackFileSerializer,
+    FeedbackLabelFileSerializer,
+    LabelFileSerializer,
+)
 from core.utils import bbox, download_imagery, get_start_end_download_coords
 from django.conf import settings
 from django.contrib.gis.db.models.aggregates import Extent
@@ -65,34 +69,32 @@ def train_model(
                 shutil.rmtree(training_input_image_source)
             os.makedirs(training_input_image_source)
             if feedback:
-                feedback_objects = Feedback.objects.filter(
-                    training__id=feedback,
-                    validated=True,
-                )
-                bbox_feedback = feedback_objects.aggregate(Extent("geom"))[
-                    "geom__extent"
-                ]
-                bbox_geo = GEOSGeometry(
-                    f"POLYGON(({bbox_feedback[0]} {bbox_feedback[1]},{bbox_feedback[2]} {bbox_feedback[1]},{bbox_feedback[2]} {bbox_feedback[3]},{bbox_feedback[0]} {bbox_feedback[3]},{bbox_feedback[0]} {bbox_feedback[1]}))"
-                )
-                print(training_input_image_source)
-                print(bbox_feedback)
-                with open(
-                    os.path.join(training_input_image_source, "labels_bbox.geojson"),
-                    "w",
-                    encoding="utf-8",
-                ) as f:
-                    f.write(bbox_geo.geojson)
+                try:
+                    aois = FeedbackAOI.objects.filter(training=feedback)
+                except FeedbackAOI.DoesNotExist:
+                    raise ValueError(
+                        f"No Feedback AOI is attached with supplied training id:{dataset_id}, Create AOI first",
+                    )
 
+            else:
+                try:
+                    aois = AOI.objects.filter(dataset=dataset_id)
+                except AOI.DoesNotExist:
+                    raise ValueError(
+                        f"No AOI is attached with supplied dataset id:{dataset_id}, Create AOI first",
+                    )
+
+            for obj in aois:
+                bbox_coords = bbox(obj.geom.coords[0])
                 for z in zoom_level:
                     zm_level = z
                     print(
                         f"""Running Download process for
-                                feedback {training_id} - dataset : {dataset_id} , zoom : {zm_level}"""
+                            aoi : {obj.id} - dataset : {dataset_id} , zoom : {zm_level}"""
                     )
                     try:
                         tile_size = DEFAULT_TILE_SIZE  # by default
-                        bbox_coords = list(bbox_feedback)
+
                         start, end = get_start_end_download_coords(
                             bbox_coords, zm_level, tile_size
                         )
@@ -107,49 +109,17 @@ def train_model(
                     except Exception as ex:
                         raise ex
 
-            else:
-                try:
-                    aois = AOI.objects.filter(dataset=dataset_id)
-                except AOI.DoesNotExist:
-                    raise ValueError(
-                        f"No AOI is attached with supplied dataset id:{dataset_id}, Create AOI first",
-                    )
-
-                for obj in aois:
-                    bbox_coords = bbox(obj.geom.coords[0])
-                    for z in zoom_level:
-                        zm_level = z
-                        print(
-                            f"""Running Download process for
-                                aoi : {obj.id} - dataset : {dataset_id} , zoom : {zm_level}"""
-                        )
-                        try:
-                            tile_size = DEFAULT_TILE_SIZE  # by default
-
-                            start, end = get_start_end_download_coords(
-                                bbox_coords, zm_level, tile_size
-                            )
-                            # start downloading
-                            download_imagery(
-                                start,
-                                end,
-                                zm_level,
-                                base_path=training_input_image_source,
-                                source=source_imagery,
-                            )
-                        except Exception as ex:
-                            raise ex
-
             ## -----------LABEL GENERATOR---------
-            logging.debug("Label Generator started")
+            logging.info("Label Generator started")
+            aoi_list = [r.id for r in aois]
+            logging.info(aoi_list)
+
             if feedback:
-                feedback_objects = Feedback.objects.filter(
-                    training__id=feedback,
-                    validated=True,
-                )
-                serialized_field = FeedbackFileSerializer(feedback_objects, many=True)
+                label = FeedbackLabel.objects.filter(feedback_aoi__in=aoi_list)
+                logging.info(label)
+
+                serialized_field = FeedbackLabelFileSerializer(label, many=True)
             else:
-                aoi_list = [r.id for r in aois]
                 label = Label.objects.filter(aoi__in=aoi_list)
                 serialized_field = LabelFileSerializer(label, many=True)
 
