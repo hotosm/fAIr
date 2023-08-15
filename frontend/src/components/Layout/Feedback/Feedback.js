@@ -76,6 +76,31 @@ const Feedback = (props) => {
     } finally {
     }
   };
+  const [originalAOIs, setOriginalAOIs] = useState(null);
+  const [datasetId, setDatasetId] = useState(null);
+  const getOriginalAOIs = async () => {
+    try {
+      const headers = {
+        "access-token": accessToken,
+      };
+      const res = await axios.get(`/model/${id}`, null, {
+        headers,
+      });
+
+      if (res.error) {
+      } else {
+        const datasetId = res.data.dataset;
+        setDatasetId(datasetId);
+        const resAOIs = await axios.get(`/aoi/?dataset=${datasetId}`, null, {
+          headers,
+        });
+        setOriginalAOIs(resAOIs.data);
+      }
+    } catch (e) {
+      console.log("isError", e);
+    } finally {
+    }
+  };
   //   const { data: feedbackData, isLoading } = useQuery(
   //     "getFeedback" + trainingId,
   //     getFeedback,
@@ -85,7 +110,7 @@ const Feedback = (props) => {
   //   );
   useEffect(() => {
     getFeedback();
-
+    getOriginalAOIs();
     return () => {};
   }, []);
 
@@ -249,6 +274,9 @@ const Feedback = (props) => {
     return null;
   }
   const navigate = useNavigate();
+  const onEachFeatureOriginalAOIs = (feature, layer) => {
+    layer.bindPopup("Original dataset AOI");
+  };
   return (
     <>
       {!feedbackData && (
@@ -337,6 +365,16 @@ const Feedback = (props) => {
                       weight: 4,
                     }}
                   />
+                  <GeoJSON
+                    key={Math.random()}
+                    data={originalAOIs}
+                    pmIgnore={false}
+                    style={{
+                      color: "rgb(51, 136, 255)",
+                      weight: 4,
+                    }}
+                    onEachFeature={onEachFeatureOriginalAOIs}
+                  />
                   {zoom >= 19 && (
                     <GeoJSON
                       key={JSON.stringify(labelsData)}
@@ -397,8 +435,19 @@ const Feedback = (props) => {
                 , Training id: {trainingId}
               </Typography>
               <Typography variant="body1" component="h2">
-                Total feedbacks: {feedbackData && feedbackData.features.length}
+                <Link
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate("/training-datasets/" + datasetId);
+                  }}
+                >
+                  Original dataset id: {datasetId}
+                </Link>
               </Typography>
+              <Typography variant="body1" component="h2">
+                Total feedbacks: {feedbackData && feedbackData.features.length}
+              </Typography>{" "}
               <Typography variant="body1" component="h2">
                 Zoom: {zoom.toFixed(1)}
               </Typography>
@@ -421,7 +470,10 @@ const Feedback = (props) => {
                 ></FeedbackAOI>
               )}
             </Grid>
-            <FeedackTraining trainingId={trainingId}></FeedackTraining>
+            <FeedackTraining
+              trainingId={trainingId}
+              modelId={id}
+            ></FeedackTraining>
           </Grid>
         </Grid>
       )}

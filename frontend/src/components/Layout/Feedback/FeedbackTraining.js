@@ -1,24 +1,29 @@
 import LoadingButton from "@mui/lab/LoadingButton/LoadingButton";
 import {
+  Alert,
+  AlertTitle,
   Checkbox,
   FormControl,
   FormControlLabel,
   FormGroup,
   FormLabel,
   Grid,
+  Link,
   TextField,
 } from "@mui/material";
 import React, { useContext, useState } from "react";
 import AuthContext from "../../../Context/AuthContext";
 import axios from "../../../axios";
 import { useMutation } from "react-query";
+import { useNavigate } from "react-router-dom";
 
 const FeedackTraining = (props) => {
   const [epochs, setEpochs] = useState(20);
   const [batchSize, setBatchSize] = useState(8);
   const [error, setError] = useState(null);
   const { accessToken } = useContext(AuthContext);
-  const publishModel = async () => {
+  const navigate = useNavigate();
+  const submitFeedbackTraining = async () => {
     try {
       const headers = {
         "access-token": accessToken,
@@ -51,7 +56,12 @@ const FeedackTraining = (props) => {
     }
   };
 
-  const { mutate, isLoading } = useMutation(publishModel);
+  const {
+    mutate,
+    isLoading,
+    status,
+    error: apiError,
+  } = useMutation(submitFeedbackTraining);
   return (
     <Grid item xs={12} className="card">
       <TextField
@@ -72,7 +82,7 @@ const FeedackTraining = (props) => {
         fullWidth
         margin="normal"
       />
-      <FormControl margin="5,5">
+      <FormControl margin="normal">
         <FormLabel component="legend">Freeze Layers</FormLabel>
         <FormGroup row>
           <FormControlLabel
@@ -101,6 +111,29 @@ const FeedackTraining = (props) => {
       >
         Apply Feedback training to Model
       </LoadingButton>
+
+      {status === "success" && (
+        <Alert severity="success">
+          <AlertTitle>
+            Training is submitted successfully, go to{" "}
+            <Link
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                navigate("/ai-models/" + props.modelId);
+              }}
+            >
+              Model id: {props.modelId}
+            </Link>{" "}
+            for more details
+          </AlertTitle>
+        </Alert>
+      )}
+      {apiError && (
+        <Alert severity="error">
+          <AlertTitle>{apiError}</AlertTitle>
+        </Alert>
+      )}
     </Grid>
   );
 };

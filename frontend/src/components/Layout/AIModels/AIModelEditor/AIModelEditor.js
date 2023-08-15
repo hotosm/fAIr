@@ -80,12 +80,15 @@ const AIModelEditor = (props) => {
       refetchInterval: 60000,
     }
   );
+  const [isLoadingFeedbackCount, setIsLoadingFeedbackCount] = useState(true);
   const getFeedbackCount = async (trainingId) => {
     try {
+      setFeedbackCount(0);
       const response = await axios.get(`/feedback/?training=${trainingId}`);
       setFeedbackData(response.data);
       console.log(`/feedback/?training=${trainingId}`, response.data);
       setFeedbackCount(response.data.features.length);
+      setIsLoadingFeedbackCount(false);
     } catch (error) {
       console.error("Error fetching feedback information:", error);
     }
@@ -366,8 +369,11 @@ const AIModelEditor = (props) => {
                 );
               }}
               disabled={feedbackCount <= 0}
+              loading={isLoadingFeedbackCount}
             >
-              View Feedbacks
+              {feedbackCount > 0
+                ? "View Feedbacks"
+                : "No feedback for published training"}
             </LoadingButton>
           </Grid>
 
