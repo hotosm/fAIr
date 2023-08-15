@@ -425,7 +425,8 @@ class FeedbackView(APIView):
     )
     def post(self, request, *args, **kwargs):
         res_serializer = FeedbackParamSerializer(data=request.data)
-        if res_serializer.is_valid(raise_exception=True):
+
+        if res_serializer.is_valid():
             deserialized_data = res_serializer.data
             training_id = deserialized_data["training_id"]
             training_instance = Training.objects.get(id=training_id)
@@ -460,6 +461,8 @@ class FeedbackView(APIView):
             instance.save()
             print(f"Saved Feedback train model request to queue with id {task.id}")
             return HttpResponse(status=200)
+
+        return Response(res_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 DEFAULT_TILE_SIZE = 256
@@ -624,7 +627,7 @@ class GenerateGpxView(APIView):
         # Convert the polygon field to GPX format
         geom_json = json.loads(aoi.geom.json)
         # Create a new GPX object
-        gpx_xml=gpx_generator(geom_json)
+        gpx_xml = gpx_generator(geom_json)
         return HttpResponse(gpx_xml, content_type="application/xml")
 
 
@@ -634,9 +637,8 @@ class GenerateFeedbackAOIGpxView(APIView):
         # Convert the polygon field to GPX format
         geom_json = json.loads(aoi.geom.json)
         # Create a new GPX object
-        gpx_xml=gpx_generator(geom_json)
+        gpx_xml = gpx_generator(geom_json)
         return HttpResponse(gpx_xml, content_type="application/xml")
-
 
 
 class TrainingWorkspaceView(APIView):
