@@ -1,3 +1,4 @@
+from django.conf import settings
 from login.models import OsmUser
 from rest_framework import serializers
 from rest_framework_gis.serializers import (
@@ -164,18 +165,54 @@ class FeedbackParamSerializer(serializers.Serializer):
     training_id = serializers.IntegerField(required=True)
     epochs = serializers.IntegerField(required=False)
     batch_size = serializers.IntegerField(required=False)
-    zoom_level = serializers.ListField(required=False)
+    zoom_level = serializers.ListField(child=serializers.IntegerField(), required=False)
+
+    def validate_training_id(self, value):
+        try:
+            Training.objects.get(id=value)
+        except Training.DoesNotExist:
+            raise serializers.ValidationError("Training doesn't exist")
+
+        return value
 
     def validate(self, data):
-        """
-        Check supplied data
-        """
+        training_id = data.get("training_id")
+
+        try:
+            fd_aois = FeedbackAOI.objects.filter(training=training_id)
+        except FeedbackAOI.DoesNotExist:
+            raise serializers.ValidationError(
+                "No feedback AOI is associated with Training"
+            )
+
+        if fd_aois.filter(
+            label_status=FeedbackAOI.DownloadStatus.NOT_DOWNLOADED
+        ).exists():
+            raise serializers.ValidationError(
+                "Not all AOIs have their labels downloaded"
+            )
+
+        if "epochs" in data and (
+            data["epochs"] > settings.EPOCHS_LIMIT or data["epochs"] <= 0
+        ):
+            raise serializers.ValidationError(
+                f"Epochs should be 1 - {settings.EPOCHS_LIMIT} on this server"
+            )
+
+        if "batch_size" in data and (
+            data["batch_size"] > settings.BATCH_SIZE_LIMIT or data["batch_size"] <= 0
+        ):
+            raise serializers.ValidationError(
+                f"Batch size should be 1 - {settings.BATCH_SIZE_LIMIT} on this server"
+            )
+
         if "zoom_level" in data:
-            for i in data["zoom_level"]:
-                if int(i) < 19 or int(i) > 21:
+            for zoom in data["zoom_level"]:
+                if zoom < 19 or zoom > 21:
                     raise serializers.ValidationError(
-                        "Zoom level Supported between 19-21"
+                        "Zoom level must be between 19 and 21"
                     )
+
         return data
 
 
