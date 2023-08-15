@@ -83,6 +83,7 @@ const AIModelEditor = (props) => {
   const [isLoadingFeedbackCount, setIsLoadingFeedbackCount] = useState(true);
   const getFeedbackCount = async (trainingId) => {
     try {
+      if (!trainingId) return;
       setFeedbackCount(0);
       const response = await axios.get(`/feedback/?training=${trainingId}`);
       setFeedbackData(response.data);
@@ -357,24 +358,26 @@ const AIModelEditor = (props) => {
             </Button>
           </Grid>
           <Grid item xs={6} md={6} textAlign="right">
-            <LoadingButton
-              variant="contained"
-              color="primary"
-              size="small"
-              onClick={() => {
-                //handleFeedbackClick(data.published_training);
-                // add logic to view feedbacks here
-                navigate(
-                  `/ai-models/${data.id}/${data.published_training}/feedback`
-                );
-              }}
-              disabled={feedbackCount <= 0}
-              loading={isLoadingFeedbackCount}
-            >
-              {feedbackCount > 0
-                ? "View Feedbacks"
-                : "No feedback for published training"}
-            </LoadingButton>
+            {data && data.published_training && (
+              <LoadingButton
+                variant="contained"
+                color="primary"
+                size="small"
+                onClick={() => {
+                  //handleFeedbackClick(data.published_training);
+                  // add logic to view feedbacks here
+                  navigate(
+                    `/ai-models/${data.id}/${data.published_training}/feedback`
+                  );
+                }}
+                disabled={feedbackCount <= 0}
+                loading={isLoadingFeedbackCount}
+              >
+                {feedbackCount > 0
+                  ? "View Feedbacks"
+                  : "No feedback for published training"}
+              </LoadingButton>
+            )}
           </Grid>
 
           {error && (

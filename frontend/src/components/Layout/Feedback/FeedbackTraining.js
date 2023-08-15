@@ -25,6 +25,7 @@ const FeedackTraining = (props) => {
   const navigate = useNavigate();
   const submitFeedbackTraining = async () => {
     try {
+      setError(null);
       const headers = {
         "access-token": accessToken,
       };
@@ -37,7 +38,7 @@ const FeedackTraining = (props) => {
       const res = await axios.post(`/feedback/training/submit/`, body, {
         headers,
       });
-
+      console.log("/feedback/training/submit", res);
       if (res.error) {
         setError(
           res.error.response.statusText +
@@ -112,7 +113,7 @@ const FeedackTraining = (props) => {
         Apply Feedback training to Model
       </LoadingButton>
 
-      {status === "success" && (
+      {status === "success" && !error && (
         <Alert severity="success">
           <AlertTitle>
             Training is submitted successfully, go to{" "}
@@ -132,6 +133,11 @@ const FeedackTraining = (props) => {
       {apiError && (
         <Alert severity="error">
           <AlertTitle>{apiError}</AlertTitle>
+        </Alert>
+      )}
+      {error && (
+        <Alert severity="error">
+          <AlertTitle>{error}</AlertTitle>
         </Alert>
       )}
     </Grid>
