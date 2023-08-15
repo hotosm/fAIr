@@ -105,17 +105,17 @@ class TrainingSerializer(
         existing_trainings = Training.objects.filter(model_id=model_id).exclude(
             status__in=["FINISHED", "FAILED"]
         )
+        if existing_trainings.exists():
+            raise ValidationError(
+                "Another training is already running or submitted for this model."
+            )
+
         model = get_object_or_404(Model, id=model_id)
         if not Label.objects.filter(
             aoi__in=AOI.objects.filter(dataset=model.dataset)
         ).exists():
             raise ValidationError(
                 "Error: No labels associated with the model, Create AOI & Labels for Dataset"
-            )
-
-        if existing_trainings.exists():
-            raise ValidationError(
-                "Another training is already running or submitted for this model."
             )
 
         epochs = validated_data["epochs"]
@@ -430,10 +430,17 @@ class FeedbackView(APIView):
             deserialized_data = res_serializer.data
             training_id = deserialized_data["training_id"]
             training_instance = Training.objects.get(id=training_id)
+            if Training.objects.filter(
+                model_id=training_instance.model, status__in=["RUNNING", "SUBMITTED"]
+            ).exists():
+                raise ValidationError(
+                    "Another training/feedback is in progress or submitted for this model."
+                )
 
             zoom_level = deserialized_data.get("zoom_level", [19, 20])
             epochs = deserialized_data.get("epochs", 20)
             batch_size = deserialized_data.get("batch_size", 8)
+
             instance = Training.objects.create(
                 model=training_instance.model,
                 status="SUBMITTED",
