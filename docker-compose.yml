@@ -9,6 +9,8 @@ services:
       - POSTGRES_DB=ai
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=admin
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
     ports:
       - "5434:5432"
 
@@ -45,7 +47,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: worker
-    command: celery -A aiproject worker --loglevel=INFO
+    command: celery -A aiproject worker --loglevel=INFO --concurrency=1
     deploy:
       resources:
         reservations:
