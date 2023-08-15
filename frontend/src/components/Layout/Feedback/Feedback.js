@@ -1,13 +1,22 @@
 import React, { useContext, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import AuthContext from "../../../Context/AuthContext";
 import axios from "../../../axios";
 import { useMutation, useQuery } from "react-query";
-import { Alert, AlertTitle, Grid, Typography } from "@mui/material";
+import {
+  Alert,
+  AlertTitle,
+  Grid,
+  LinearProgress,
+  Stack,
+  Typography,
+} from "@mui/material";
 import { EditControl } from "react-leaflet-draw";
-import { GeoJSON } from "react-leaflet";
+import { GeoJSON, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet-draw/dist/leaflet.draw.css";
+import centroid from "@turf/centroid";
+import polygonize from "@turf/polygonize";
 import {
   FeatureGroup,
   LayersControl,
@@ -18,12 +27,20 @@ import {
 } from "react-leaflet";
 import FeedbackAOI from "./FeedbackAOI";
 import { approximateGeom, converToGeoPolygon } from "../../../utils";
+import { icon } from "leaflet";
+import FeedackTraining from "./FeedbackTraining";
+const ICON = icon({
+  iconUrl: "/hot-marker.png",
+  iconSize: new L.Point(100, 100),
+  className: "leaflet-div-icon",
+});
 const Feedback = (props) => {
   let { id, trainingId } = useParams();
 
   const { accessToken } = useContext(AuthContext);
 
   const [sourceImagery, setSourceImagery] = useState("");
+  const [AOIs, setAOIs] = useState(null);
   const getSourceImagery = async () => {
     try {
       const response = await axios.get(`/training/${trainingId}/`);
@@ -107,7 +124,7 @@ const Feedback = (props) => {
 
   function getFeatureStyle(feature) {
     return {
-      color: "red",
+      color: "green",
       weight: 3,
     };
   }
@@ -140,7 +157,7 @@ const Feedback = (props) => {
     }
   };
   const { mutate: mutateCreateDB, data: createResult } = useMutation(createDB);
-  const _onCreate = (e, str) => {
+  const _onCreate = (e) => {
     console.log("_onCreate", e);
     const { layerType, layer } = e;
 
@@ -149,7 +166,6 @@ const Feedback = (props) => {
     // call the API and add the AOI to DB
     const newAOI = {
       id: _leaflet_id,
-      type: str,
       latlngs: layer.getLatLngs()[0],
       area: L.GeometryUtil.geodesicArea(layer.getLatLngs()[0]),
     };
@@ -160,7 +176,7 @@ const Feedback = (props) => {
       )
     ).slice(1, -2);
     // console.log("points",points)
-    const approximated = str === "aoi" ? approximateGeom(points) : points;
+    const approximated = approximateGeom(points);
     const polygon = "SRID=4326;POLYGON((" + approximated + "))";
 
     console.log("converToPolygon([layer])", polygon);
@@ -171,9 +187,83 @@ const Feedback = (props) => {
     });
   };
   const [refresh, setRefresh] = useState(Math.random());
+  const getLabels = async (box) => {
+    try {
+      console.log(" getLabels for box", box);
+
+      const headers = {
+        "access-token": accessToken,
+      };
+      const res = await axios.get(
+        `/feedback-label/?in_bbox=${box._southWest.lng},${box._southWest.lat},${box._northEast.lng},${box._northEast.lat}`,
+        { headers }
+      );
+      console.log("res from getLabels ", res);
+      if (res.error) setError(res.error);
+      else {
+        // show on the map
+        let leafletGeoJSON = new L.GeoJSON(res.data);
+        const newLayers = [];
+        leafletGeoJSON.eachLayer((layer) => {
+          const { _leaflet_id, feature } = layer;
+          //  console.log("on get labels layer",layer,layer.getLatLngs(),L.GeometryUtil.geodesicArea(layer.getLatLngs()))
+          newLayers.push({
+            id: _leaflet_id,
+            aoiId: -1,
+            feature: feature,
+            type: "label",
+            latlngs: layer.getLatLngs()[0],
+          });
+        });
+
+        return res.data;
+      }
+    } catch (e) {
+      console.log("isError", e);
+      setError(e);
+    } finally {
+    }
+  };
+  const { mutate: mutategetLabels, data: labelsData } = useMutation(getLabels);
+
+  function MyComponent() {
+    const map = useMapEvents({
+      zoomend: (e) => {
+        const { _animateToZoom } = e.target;
+        console.log("zoomend", e, _animateToZoom);
+        setZoom(_animateToZoom);
+      },
+      moveend: (e) => {
+        const { _animateToZoom, _layers } = e.target;
+        console.log("moveend", e, e.target.getBounds());
+        console.log("zoom is", _animateToZoom);
+        // console.log("see the map ", map);
+
+        if (_animateToZoom >= 19) {
+          mutategetLabels(e.target.getBounds());
+        } else {
+          // remote labels layer
+        }
+      },
+    });
+    return null;
+  }
+  const navigate = useNavigate();
   return (
     <>
-      {!feedbackData && "Loading ..."}
+      {!feedbackData && (
+        <Stack sx={{ width: "100%", color: "grey.500" }} spacing={2}>
+          <LinearProgress color="hot" />
+          <LinearProgress color="hot" />
+          <LinearProgress color="hot" />
+          <LinearProgress color="hot" />
+          <LinearProgress color="hot" />
+          <LinearProgress color="hot" />
+          <LinearProgress color="hot" />
+          <LinearProgress color="hot" />
+          <LinearProgress color="hot" />
+        </Stack>
+      )}
 
       {feedbackData && (
         <Grid container spacing={2} padding={2}>
@@ -188,9 +278,14 @@ const Feedback = (props) => {
                   display: "flex",
                 }}
                 zoom={15}
+                zoomDelta={0.25}
+                wheelPxPerZoomLevel={Math.round(36 / 0.5)}
+                zoomSnap={0}
+                scrollWheelZoom={true}
+                inertia={true}
                 whenCreated={setMap}
               >
-                {/* <MyComponent /> */}
+                <MyComponent />
                 {oamImagery && (
                   <TileLayer
                     maxZoom={oamImagery.maxzoom}
@@ -214,6 +309,46 @@ const Feedback = (props) => {
                     style={getFeatureStyle}
                     // onEachFeature={onEachFeature}
                   />
+
+                  {feedbackData &&
+                    feedbackData.features.map((f, indx) => {
+                      return (
+                        <Marker
+                          key={indx}
+                          position={[
+                            centroid(f).geometry.coordinates[1],
+                            centroid(f).geometry.coordinates[0],
+                          ]}
+                          icon={ICON}
+                        >
+                          <Popup>
+                            <span>Feedback</span>
+                          </Popup>
+                        </Marker>
+                      );
+                    })}
+
+                  <GeoJSON
+                    key={Math.random()}
+                    data={AOIs}
+                    pmIgnore={false}
+                    style={{
+                      color: "blue",
+                      weight: 4,
+                    }}
+                  />
+                  {zoom >= 19 && (
+                    <GeoJSON
+                      key={JSON.stringify(labelsData)}
+                      data={labelsData}
+                      pmIgnore={false}
+                      style={{
+                        color: "red",
+                        weight: 4,
+                      }}
+                      // onEachFeature={onEachFeature}
+                    />
+                  )}
                 </FeatureGroup>
                 <FeatureGroup
                   ref={(reactFGref) => {
@@ -249,9 +384,29 @@ const Feedback = (props) => {
           </Grid>
           <Grid paddingTop={2} paddingLeft={2} item xs={3}>
             <Grid item xs={12} marginBottom={1}>
+              <Typography variant="body1" component="h2">
+                <Link
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate("/ai-models/" + id);
+                  }}
+                >
+                  Model id: {id}
+                </Link>
+                , Training id: {trainingId}
+              </Typography>
+              <Typography variant="body1" component="h2">
+                Total feedbacks: {feedbackData && feedbackData.features.length}
+              </Typography>
+              <Typography variant="body1" component="h2">
+                Zoom: {zoom.toFixed(1)}
+              </Typography>
+            </Grid>
+            <Grid item xs={12} marginBottom={1}>
               <Alert severity="info">
                 <AlertTitle>
-                  Mappers feedback is show in red in the map
+                  Mappers feedback is shown in markers on the map
                 </AlertTitle>
               </Alert>
             </Grid>
@@ -259,11 +414,14 @@ const Feedback = (props) => {
               {oamImagery && (
                 <FeedbackAOI
                   oamImagery={oamImagery}
+                  sourceImagery={sourceImagery}
                   trainingId={trainingId}
                   refresh={refresh}
+                  setAOIs={setAOIs}
                 ></FeedbackAOI>
               )}
             </Grid>
+            <FeedackTraining trainingId={trainingId}></FeedackTraining>
           </Grid>
         </Grid>
       )}

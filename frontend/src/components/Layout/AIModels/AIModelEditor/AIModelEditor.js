@@ -30,7 +30,7 @@ const AIModelEditor = (props) => {
   let { id } = useParams();
   const [error, setError] = useState(null);
   const [epochs, setEpochs] = useState(20);
-  const [zoomLevel, setZoomLevel] = useState([19, 20]);
+  const [zoomLevel, setZoomLevel] = useState([19, 20, 21]);
   const [popupOpen, setPopupOpen] = useState(false);
   const [sourceImagery, setSourceImagery] = React.useState(null);
   const [freezeLayers, setFreezeLayers] = useState(false);

@@ -84,7 +84,7 @@ const AOI = (props) => {
 
   return (
     <>
-      <Grid item md={12} className="card">
+      <Grid item md={12} className="card" marginBottom={1}>
         <Tooltip title="For each AOI, we need to make sure labels inside it are alighed and complete to acheive best model accuracy">
           <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
             List of Area of Interests{` (${props.mapLayers.length})`}

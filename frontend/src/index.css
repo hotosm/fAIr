@@ -147,7 +147,7 @@ code {
   background-color: transparent !important;
 }
 
-.leaflet-tile-container img, .leaflet-pane.leaflet-tile-pane img
+.leaflet-tile-container img, .leaflet-pane.leaflet-tile-pane img,  div.leaflet-pane.leaflet-tile-pane img 
 {
   padding: 1px;
 }
@@ -164,4 +164,9 @@ code {
 .margin-left-12
 {
   margin-left: 12px !important;
+}
+
+.leaflet-interactive {
+  width: 30px !important;
+  height: 30px !important;
 }
