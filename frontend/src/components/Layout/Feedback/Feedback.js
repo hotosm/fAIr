@@ -264,7 +264,7 @@ const Feedback = (props) => {
         console.log("zoom is", _animateToZoom);
         // console.log("see the map ", map);
 
-        if (_animateToZoom >= 19) {
+        if (_animateToZoom >= 18) {
           mutategetLabels(e.target.getBounds());
         } else {
           // remote labels layer
@@ -375,7 +375,7 @@ const Feedback = (props) => {
                     }}
                     onEachFeature={onEachFeatureOriginalAOIs}
                   />
-                  {zoom >= 19 && (
+                  {zoom >= 18 && (
                     <GeoJSON
                       key={JSON.stringify(labelsData)}
                       data={labelsData}
