@@ -49,6 +49,8 @@ const Prediction = () => {
   let tileBoundaryLayer = null;
   const [error, setError] = useState(false);
   const [josmLoading, setJosmLoading] = useState(false);
+  const [conflateLoading, setConflateLoading] = useState(false);
+
   const [feedbackLoading, setFeedbackLoading] = useState(false);
   const [predictionZoomlevel, setpredictionZoomlevel] = useState(null);
 
@@ -282,11 +284,12 @@ const Prediction = () => {
       return;
     }
 
-    // Remove the "id" and "featuretype" properties from each feature in the "features" array
-    const modifiedPredictions = {
+    // Remove the "id", action , duplicate and intersect propertiesproperties from each feature in the "features" array
+    const postprocessed_predictions = {
       ...predictions,
       features: predictions.features.map((feature) => {
-        const { id, action, ...newProps } = feature.properties;
+        const { id, action, duplicate, intersect, ...newProps } =
+          feature.properties;
         return {
           ...feature,
           properties: newProps,
@@ -296,7 +299,7 @@ const Prediction = () => {
 
     try {
       const response = await axios.post("/geojson2osm/", {
-        geojson: modifiedPredictions,
+        geojson: postprocessed_predictions,
       });
       if (response.status === 200) {
         const osmUrl = new URL("http://127.0.0.1:8111/load_data");
@@ -323,6 +326,40 @@ const Prediction = () => {
       setError("Couldn't Open JOSM , Check if JOSM is Open");
     } finally {
       setJosmLoading(false);
+    }
+  }
+
+  async function conflateFeatures() {
+    setConflateLoading(true);
+    if (!predictions) {
+      setError("No predictions available");
+      return;
+    }
+    // Remove the "id" , "action"  from each feature in the "features" array
+    const modifiedPredictions = {
+      ...predictions,
+      features: predictions.features.map((feature) => {
+        const { id, action, ...newProps } = feature.properties;
+        return {
+          ...feature,
+          properties: newProps,
+        };
+      }),
+    };
+    try {
+      const response = await axios.post("/conflate/", {
+        geojson: modifiedPredictions,
+      });
+      if (response.status == 200) {
+        setPredictions(null);
+        const updatedPredictions = addIdsToPredictions(response.data);
+        setPredictions(updatedPredictions);
+        settotalPredictionsCount(updatedPredictions.features.length);
+      }
+    } catch (error) {
+      setError(error);
+    } finally {
+      setConflateLoading(false);
     }
   }
 
@@ -556,6 +593,18 @@ const Prediction = () => {
             </Box>
           )}
           {error && <Alert severity="error">{error}</Alert>}
+          {predictions && (
+            <LoadingButton
+              variant="contained"
+              color="secondary"
+              onClick={conflateFeatures}
+              loading={conflateLoading}
+              size="small"
+              sx={{ mt: 1 }}
+            >
+              Conflate OSM Features
+            </LoadingButton>
+          )}
           {predictions && (
             <LoadingButton
               variant="contained"

@@ -30,6 +30,7 @@ from geojson2osm import geojson2osm
 from hot_fair_utilities import polygonize, predict, vectorize
 from login.authentication import OsmAuthentication
 from login.permissions import IsOsmAuthenticated
+from osmconflator import conflate_geojson
 from rest_framework import decorators, serializers, status, viewsets
 from rest_framework.decorators import api_view
 from rest_framework.exceptions import ValidationError
@@ -362,6 +363,18 @@ def geojson2osmconverter(request):
     osm_xml = geojson2osm(geojson_data)
 
     return HttpResponse(osm_xml, content_type="application/xml")
+
+
+@api_view(["POST"])
+def ConflateGeojson(request):
+    try:
+        geojson_data = json.loads(request.body)["geojson"]
+    except json.JSONDecodeError:
+        return HttpResponseBadRequest("Invalid input")
+
+    conflated_geojson = conflate_geojson(geojson_data, remove_conflated=True)
+
+    return Response(conflated_geojson,status = 200)
 
 
 @api_view(["GET"])

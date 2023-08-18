@@ -19,3 +19,4 @@ validators==0.20.0
 gpxpy==1.5.0
 hot-fair-utilities
 geojson2osm==0.0.1
+osmconflator==0.0.3
