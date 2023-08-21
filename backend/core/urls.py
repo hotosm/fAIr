@@ -11,11 +11,13 @@ from .views import (
     FeedbackLabelViewset,
     FeedbackView,
     FeedbackViewset,
+    GenerateFeedbackAOIGpxView,
     GenerateGpxView,
     LabelViewSet,
     ModelViewSet,
     PredictionView,
-    RawdataApiView,
+    RawdataApiAOIView,
+    RawdataApiFeedbackView,
     TrainingViewSet,
     TrainingWorkspaceDownloadView,
     TrainingWorkspaceView,
@@ -39,15 +41,22 @@ router.register(r"feedback-label", FeedbackLabelViewset)
 
 urlpatterns = [
     path("", include(router.urls)),
-    path("label/osm/fetch/<int:aoi_id>/", RawdataApiView.as_view()),
+    path("label/osm/fetch/<int:aoi_id>/", RawdataApiAOIView.as_view()),
+    path(
+        "label/feedback/osm/fetch/<int:feedbackaoi_id>/",
+        RawdataApiFeedbackView.as_view(),
+    ),
     # path("download/<int:dataset_id>/", download_training_data),
     path("training/status/<str:run_id>/", run_task_status),
     path("training/publish/<int:training_id>/", publish_training),
     path("prediction/", PredictionView.as_view()),
-    path("apply/feedback/", FeedbackView.as_view()),
+    path("feedback/training/submit/", FeedbackView.as_view()),
     path("status/", APIStatus.as_view()),
     path("geojson2osm/", geojson2osmconverter, name="geojson2osmconverter"),
     path("aoi/gpx/<int:aoi_id>/", GenerateGpxView.as_view()),
+    path(
+        "feedback-aoi/gpx/<int:feedback_aoi_id>/", GenerateFeedbackAOIGpxView.as_view()
+    ),
     path("workspace/", TrainingWorkspaceView.as_view()),
     path(
         "workspace/download/<path:lookup_dir>/", TrainingWorkspaceDownloadView.as_view()

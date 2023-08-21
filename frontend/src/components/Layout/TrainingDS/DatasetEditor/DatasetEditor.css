@@ -2,11 +2,6 @@
   text-align: center;
 }
 
-.leaflet-tile-container img 
-{
-  padding: 1px;
-}
-
 .margin1
 {
   margin-left: 2px !important;
@@ -55,14 +50,6 @@
   margin-top: -20px;
 }
 
-.card
-{
-  border: 2px solid ;
-  border-radius: 10px;
-  box-shadow: 5px 5px 5px #cdcdcd;
-  margin-bottom: 5px;
-  padding: 10px 5px;
-}
 
 .small-checkbox
 {

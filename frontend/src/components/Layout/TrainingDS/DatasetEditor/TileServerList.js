@@ -61,21 +61,34 @@ const TileServerList = (props) => {
     try {
       setLoading(true);
       setInputError(false);
-      const res = await axios.get(url.replace("/{z}/{x}/{y}", ""));
+      if (url.includes("openaerial")) {
+        const res = await axios.get(url.replace("/{z}/{x}/{y}", ""));
 
-      if (!res) {
-        setInputError("Invalid OAM Link");
-        return;
+        if (!res) {
+          setInputError("Invalid OAM Link");
+          return;
+        }
+        if (res.error) setInputError(res.error.response.statusText);
+
+        props.addImagery(res.data, url);
+        setImageryDetails(res.data);
+        props.navigateToCenter(res.data.center);
+        // console.log("getImageryDetails url",url )
+
+        mutateSaveImageryToDataset({ id: props.dataset.id, url });
+        return res.data;
+      } else {
+        // private imagery
+        mutateSaveImageryToDataset({ id: props.dataset.id, url });
+        const obj = {
+          center: [0, 0],
+          name: "Private",
+          minzoom: 15,
+          maxzoom: 23,
+        };
+        props.addImagery(obj, url);
+        setImageryDetails(obj);
       }
-      if (res.error) setInputError(res.error.response.statusText);
-
-      props.addImagery(res.data, url);
-      setImageryDetails(res.data);
-      props.navigateToCenter(res.data.center);
-      // console.log("getImageryDetails url",url )
-
-      mutateSaveImageryToDataset({ id: props.dataset.id, url });
-      return res.data;
     } catch (e) {
       console.log("isError");
       // setInputError(e);
@@ -96,8 +109,17 @@ const TileServerList = (props) => {
     console.log("useEffect ", props);
 
     // setOAMURL(props.dataset.source_imagery)
-    if (props.dataset.source_imagery)
+    if (props.dataset.source_imagery.includes("openaerial"))
       getImageryDetails(props.dataset.source_imagery);
+    else {
+      // load imagery
+      setImageryDetails({
+        center: [0, 0],
+        name: "Private",
+        minzoom: 15,
+        maxzoom: 23,
+      });
+    }
 
     return () => {};
   }, []);
@@ -198,11 +220,11 @@ const TileServerList = (props) => {
                   setInputError(false);
                   let trimmedValue = e.target.value.trim();
                   let regUrl = /^(https?|chrome):\/\/[^\s$.?#].[^\s]*$/;
-                  let endsWithPng = trimmedValue.endsWith(".png");
-                  if (endsWithPng) {
-                    trimmedValue = trimmedValue.slice(0, -4);
-                  }
-                  let hasZXY = trimmedValue.endsWith("{z}/{x}/{y}");
+                  // let endsWithPng = trimmedValue.endsWith(".png");
+                  // if (endsWithPng) {
+                  //   trimmedValue = trimmedValue.slice(0, -4);
+                  // }
+                  let hasZXY = trimmedValue.includes("{z}/{x}/{y}");
                   let isValid =
                     regUrl.test(trimmedValue) &&
                     hasZXY &&

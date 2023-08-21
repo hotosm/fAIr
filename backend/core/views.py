@@ -27,7 +27,6 @@ from django.shortcuts import get_object_or_404, redirect
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
 from geojson2osm import geojson2osm
-from gpxpy.gpx import GPX, GPXTrack, GPXTrackSegment, GPXWaypoint
 from hot_fair_utilities import polygonize, predict, vectorize
 from login.authentication import OsmAuthentication
 from login.permissions import IsOsmAuthenticated
@@ -66,6 +65,7 @@ from .utils import (
     download_imagery,
     get_dir_size,
     get_start_end_download_coords,
+    gpx_generator,
     process_rawdata,
     request_rawdata,
 )
@@ -105,17 +105,17 @@ class TrainingSerializer(
         existing_trainings = Training.objects.filter(model_id=model_id).exclude(
             status__in=["FINISHED", "FAILED"]
         )
+        if existing_trainings.exists():
+            raise ValidationError(
+                "Another training is already running or submitted for this model."
+            )
+
         model = get_object_or_404(Model, id=model_id)
         if not Label.objects.filter(
             aoi__in=AOI.objects.filter(dataset=model.dataset)
         ).exists():
             raise ValidationError(
                 "Error: No labels associated with the model, Create AOI & Labels for Dataset"
-            )
-
-        if existing_trainings.exists():
-            raise ValidationError(
-                "Another training is already running or submitted for this model."
             )
 
         epochs = validated_data["epochs"]
@@ -196,7 +196,12 @@ class FeedbackLabelViewset(viewsets.ModelViewSet):
     queryset = FeedbackLabel.objects.all()
     http_method_names = ["get", "post", "patch", "delete"]
     serializer_class = FeedbackLabelSerializer
-    filterset_fields = ["feedback_aoi"]
+    bbox_filter_field = "geom"
+    filter_backends = (
+        InBBoxFilter,  # it will take bbox like this api/v1/label/?in_bbox=-90,29,-89,35 ,
+    )
+    bbox_filter_include_overlapping = True
+    filterset_fields = ["feedback_aoi", "feedback_aoi__training"]
 
 
 class ModelViewSet(
@@ -238,12 +243,49 @@ class LabelViewSet(viewsets.ModelViewSet):
     filterset_fields = ["aoi", "aoi__dataset"]
 
 
-class RawdataApiView(APIView):
+class RawdataApiFeedbackView(APIView):
+    authentication_classes = [OsmAuthentication]
+    permission_classes = [IsOsmAuthenticated]
+
+    def post(self, request, feedbackaoi_id, *args, **kwargs):
+        """Downloads available osm data as labels within given feedback aoi
+
+        Args:
+            request (_type_): _description_
+            feedbackaoi_id (_type_): _description_
+
+        Returns:
+            status: Success/Failed
+        """
+        obj = get_object_or_404(FeedbackAOI, id=feedbackaoi_id)
+        try:
+            obj.label_status = 0
+            obj.save()
+            raw_data_params = {
+                "geometry": json.loads(obj.geom.geojson),
+                "filters": {"tags": {"polygon": {"building": []}}},
+                "geometryType": ["polygon"],
+            }
+            result = request_rawdata(raw_data_params)
+            file_download_url = result["download_url"]
+            process_rawdata(file_download_url, feedbackaoi_id, feedback=True)
+            obj.label_status = 1
+            obj.label_fetched = datetime.utcnow()
+            obj.save()
+            return Response("Success", status=status.HTTP_201_CREATED)
+        except Exception as ex:
+            obj.label_status = -1
+            obj.save()
+            # raise ex
+            return Response("OSM Fetch Failed", status=500)
+
+
+class RawdataApiAOIView(APIView):
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsOsmAuthenticated]
 
     def post(self, request, aoi_id, *args, **kwargs):
-        """Downloads available osm data as labels within given aoi
+        """Downloads available osm data as labels within given feedback
 
         Args:
             request (_type_): _description_
@@ -366,6 +408,15 @@ def run_task_status(request, run_id: str):
 
 
 class FeedbackView(APIView):
+    """Applies Associated feedback to Training Published Checkpoint
+
+    Args:
+        APIView (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsOsmAuthenticated]
 
@@ -374,19 +425,22 @@ class FeedbackView(APIView):
     )
     def post(self, request, *args, **kwargs):
         res_serializer = FeedbackParamSerializer(data=request.data)
-        if res_serializer.is_valid(raise_exception=True):
+
+        if res_serializer.is_valid():
             deserialized_data = res_serializer.data
             training_id = deserialized_data["training_id"]
             training_instance = Training.objects.get(id=training_id)
+            if Training.objects.filter(
+                model_id=training_instance.model, status__in=["RUNNING", "SUBMITTED"]
+            ).exists():
+                raise ValidationError(
+                    "Another training/feedback is in progress or submitted for this model."
+                )
 
-            unique_zoom_levels = (
-                Feedback.objects.filter(training__id=training_id, validated=True)
-                .values("zoom_level")
-                .distinct()
-            )
-            zoom_level = [z["zoom_level"] for z in unique_zoom_levels]
+            zoom_level = deserialized_data.get("zoom_level", [19, 20])
             epochs = deserialized_data.get("epochs", 20)
             batch_size = deserialized_data.get("batch_size", 8)
+
             instance = Training.objects.create(
                 model=training_instance.model,
                 status="SUBMITTED",
@@ -406,7 +460,7 @@ class FeedbackView(APIView):
                 zoom_level=instance.zoom_level,
                 source_imagery=instance.source_imagery,
                 feedback=training_id,
-                freeze_layers=instance.freeze_layers,
+                freeze_layers=True,  # True by default for feedback
             )
             if not instance.source_imagery:
                 instance.source_imagery = instance.model.dataset.source_imagery
@@ -414,6 +468,8 @@ class FeedbackView(APIView):
             instance.save()
             print(f"Saved Feedback train model request to queue with id {task.id}")
             return HttpResponse(status=200)
+
+        return Response(res_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 DEFAULT_TILE_SIZE = 256
@@ -578,21 +634,18 @@ class GenerateGpxView(APIView):
         # Convert the polygon field to GPX format
         geom_json = json.loads(aoi.geom.json)
         # Create a new GPX object
-        gpx = GPX()
-        gpx_track = GPXTrack()
-        gpx.tracks.append(gpx_track)
-        gpx_segment = GPXTrackSegment()
-        gpx_track.segments.append(gpx_segment)
-        for point in geom_json["coordinates"][0]:
-            # Append each point as a GPXWaypoint to the GPXTrackSegment
-            gpx_segment.points.append(GPXWaypoint(point[1], point[0]))
-        gpx.creator = "fAIr Backend"
-        gpx_track.name = f"AOI of id {aoi_id} , Don't Edit this Boundary"
-        gpx_track.description = "This is coming from AI Assisted Mapping - fAIr : HOTOSM , Map inside this boundary and go back to fAIr UI"
-        gpx.time = datetime.now()
-        gpx.link = "https://github.com/hotosm/fAIr"
-        gpx.link_text = "AI Assisted Mapping - fAIr : HOTOSM"
-        return HttpResponse(gpx.to_xml(), content_type="application/xml")
+        gpx_xml = gpx_generator(geom_json)
+        return HttpResponse(gpx_xml, content_type="application/xml")
+
+
+class GenerateFeedbackAOIGpxView(APIView):
+    def get(self, request, feedback_aoi_id: int):
+        aoi = get_object_or_404(FeedbackAOI, id=feedback_aoi_id)
+        # Convert the polygon field to GPX format
+        geom_json = json.loads(aoi.geom.json)
+        # Create a new GPX object
+        gpx_xml = gpx_generator(geom_json)
+        return HttpResponse(gpx_xml, content_type="application/xml")
 
 
 class TrainingWorkspaceView(APIView):

@@ -1,3 +1,4 @@
+from django.conf import settings
 from login.models import OsmUser
 from rest_framework import serializers
 from rest_framework_gis.serializers import (
@@ -102,16 +103,14 @@ class FeedbackSerializer(GeoFeatureModelSerializer):
         return ret
 
 
-class LabelSerializer(
-    GeoFeatureModelSerializer
-):  # serializers are used to translate models objects to api
+class LabelSerializer(GeoFeatureModelSerializer):
     class Meta:
         model = Label
-        geo_field = "geom"  # this will be used as geometry in order to create geojson api , geofeatureserializer will let you create api in geojson
+        geo_field = "geom"
         # auto_bbox = True
-        fields = "__all__"  # defining all the fields to  be included in curd for now , we can restrict few if we want
+        fields = "__all__"
 
-        read_only_fields = ("created_at", "osm_id")
+        # read_only_fields = ("created_at", "osm_id")
 
 
 class FeedbackLabelSerializer(GeoFeatureModelSerializer):
@@ -119,15 +118,21 @@ class FeedbackLabelSerializer(GeoFeatureModelSerializer):
         model = FeedbackLabel
         geo_field = "geom"
         fields = "__all__"
-        read_only_fields = ("created_at", "osm_id")
+        # read_only_fields = ("created_at", "osm_id")
 
 
-class LabelFileSerializer(
-    GeoFeatureModelSerializer
-):  # serializers are used to translate models objects to api
+class LabelFileSerializer(GeoFeatureModelSerializer):
     class Meta:
         model = Label
-        geo_field = "geom"  # this will be used as geometry in order to create geojson api , geofeatureserializer will let you create api in geojson
+        geo_field = "geom"
+        # auto_bbox = True
+        fields = ("osm_id",)
+
+
+class FeedbackLabelFileSerializer(GeoFeatureModelSerializer):
+    class Meta:
+        model = FeedbackLabel
+        geo_field = "geom"
         # auto_bbox = True
         fields = ("osm_id",)
 
@@ -160,7 +165,55 @@ class FeedbackParamSerializer(serializers.Serializer):
     training_id = serializers.IntegerField(required=True)
     epochs = serializers.IntegerField(required=False)
     batch_size = serializers.IntegerField(required=False)
-    freeze_layers = serializers.BooleanField(required=False)
+    zoom_level = serializers.ListField(child=serializers.IntegerField(), required=False)
+
+    def validate_training_id(self, value):
+        try:
+            Training.objects.get(id=value)
+        except Training.DoesNotExist:
+            raise serializers.ValidationError("Training doesn't exist")
+
+        return value
+
+    def validate(self, data):
+        training_id = data.get("training_id")
+
+        try:
+            fd_aois = FeedbackAOI.objects.filter(training=training_id)
+        except FeedbackAOI.DoesNotExist:
+            raise serializers.ValidationError(
+                "No feedback AOI is associated with Training"
+            )
+
+        if fd_aois.filter(
+            label_status=FeedbackAOI.DownloadStatus.NOT_DOWNLOADED
+        ).exists():
+            raise serializers.ValidationError(
+                "Not all AOIs have their labels downloaded"
+            )
+
+        if "epochs" in data and (
+            data["epochs"] > settings.EPOCHS_LIMIT or data["epochs"] <= 0
+        ):
+            raise serializers.ValidationError(
+                f"Epochs should be 1 - {settings.EPOCHS_LIMIT} on this server"
+            )
+
+        if "batch_size" in data and (
+            data["batch_size"] > settings.BATCH_SIZE_LIMIT or data["batch_size"] <= 0
+        ):
+            raise serializers.ValidationError(
+                f"Batch size should be 1 - {settings.BATCH_SIZE_LIMIT} on this server"
+            )
+
+        if "zoom_level" in data:
+            for zoom in data["zoom_level"]:
+                if zoom < 19 or zoom > 21:
+                    raise serializers.ValidationError(
+                        "Zoom level must be between 19 and 21"
+                    )
+
+        return data
 
 
 class PredictionParamSerializer(serializers.Serializer):

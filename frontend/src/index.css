@@ -146,3 +146,27 @@ code {
 {
   background-color: transparent !important;
 }
+
+.leaflet-tile-container img, .leaflet-pane.leaflet-tile-pane img,  div.leaflet-pane.leaflet-tile-pane img 
+{
+  padding: 1px;
+}
+
+.card
+{
+  border: 2px solid ;
+  border-radius: 10px;
+  box-shadow: 5px 5px 5px #cdcdcd;
+  margin-bottom: 5px;
+  padding: 10px 5px;
+}
+
+.margin-left-12
+{
+  margin-left: 12px !important;
+}
+
+.leaflet-interactive {
+  width: 30px !important;
+  height: 30px !important;
+}

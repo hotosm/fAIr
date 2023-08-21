@@ -564,6 +564,7 @@ const DatasetMap = (props) => {
         const { _animateToZoom } = e.target;
         console.log("zoomend", e, _animateToZoom);
         setZoom(_animateToZoom);
+        props.setZoom(_animateToZoom);
       },
       moveend: (e) => {
         const { _animateToZoom, _layers } = e.target;
@@ -595,18 +596,9 @@ const DatasetMap = (props) => {
     return null;
   }
 
+  // console.log("props.oamImagery", props.oamImagery);
   return (
     <>
-      <DatasetEditorHeader
-        dsId={props.dataset.id}
-        dsName={props.dataset.name}
-        zoom={zoom}
-        editMode={editMode}
-        oamImagery={props.oamImagery}
-        setEditMode={setEditMode}
-        mapLayersLength={mapLayers.length}
-      ></DatasetEditorHeader>
-
       {mapError && <span style={{ color: "red" }}> Error: {mapError} </span>}
 
       <MapContainer
@@ -615,9 +607,13 @@ const DatasetMap = (props) => {
         style={{
           height: "800px",
           width: "100%",
-          marginTop: "75px",
         }}
         zoom={zoom}
+        zoomDelta={0.25}
+        wheelPxPerZoomLevel={Math.round(36 / 0.5)}
+        zoomSnap={0}
+        scrollWheelZoom={true}
+        // inertia={true}
         whenCreated={setMap}
       >
         <MyComponent />
@@ -683,16 +679,12 @@ const DatasetMap = (props) => {
           <EditControl
             position="topleft"
             onCreated={(e) => {
-              console.log(
-                "selectedLayer",
-                document.querySelector('input[name="selectedLayer"]:checked')
-                  .value
-              );
-              _onCreate(
-                e,
-                document.querySelector('input[name="selectedLayer"]:checked')
-                  .value
-              );
+              // console.log(
+              //   "selectedLayer",
+              //   document.querySelector('input[name="selectedLayer"]:checked')
+              //     .value
+              // );
+              _onCreate(e, "aoi");
             }}
             onEdited={_onEdited}
             onDeleted={_onDeleted}

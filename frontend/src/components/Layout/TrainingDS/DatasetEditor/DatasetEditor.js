@@ -9,6 +9,7 @@ import MapActions from "./MapActions";
 import axios from "../../../../axios";
 import { useMutation } from "react-query";
 import { useParams } from "react-router-dom";
+import DatasetEditorHeader from "./DatasetEditorHeader";
 
 function DatasetEditor() {
   const [mapLayers, setMapLayers] = useState([]);
@@ -40,6 +41,14 @@ function DatasetEditor() {
       if (res.error) setError(res.error.response.statusText);
 
       console.log("dataset", res.data);
+      setOAMImagery({
+        center: [0, 0],
+        name: "Private",
+        minzoom: 0,
+        maxzoom: 23,
+        attribution: res.data.source_imagery,
+        url: res.data.source_imagery,
+      });
       return res.data;
     } catch (e) {
       console.log("isError");
@@ -54,7 +63,7 @@ function DatasetEditor() {
 
     return () => {};
   }, []);
-
+  const [zoom, setZoom] = useState(15);
   return (
     <>
       {isLoading && "Loading ............"}
@@ -77,9 +86,20 @@ function DatasetEditor() {
                 setgeoJSON(null);
               }}
               dataset={dataset}
+              setZoom={setZoom}
             ></DatasetMap>
           </Grid>
-          <Grid item xs={6} md={3} className="column2">
+          <Grid item xs={6} md={3}>
+            <DatasetEditorHeader
+              dsId={dataset.id}
+              dsName={dataset.name}
+              zoom={zoom}
+              // editMode={editMode}
+              oamImagery={oamImagery}
+              // setEditMode={setEditMode}
+              mapLayersLength={mapLayers.length}
+            ></DatasetEditorHeader>
+
             <TileServerList
               navigateToCenter={navigateToCenter}
               addImagery={addImageryHandler}

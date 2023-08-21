@@ -24,12 +24,13 @@ import DatasetCurrent from "./DatasetCurrent";
 import FeedbackToast from "./FeedbackToast";
 import FeedbackPopup from "./FeedbackPopup";
 import FormGroup from "@mui/material/FormGroup";
+import LoadingButton from "@mui/lab/LoadingButton/LoadingButton";
 
 const AIModelEditor = (props) => {
   let { id } = useParams();
   const [error, setError] = useState(null);
   const [epochs, setEpochs] = useState(20);
-  const [zoomLevel, setZoomLevel] = useState([19, 20]);
+  const [zoomLevel, setZoomLevel] = useState([19, 20, 21]);
   const [popupOpen, setPopupOpen] = useState(false);
   const [sourceImagery, setSourceImagery] = React.useState(null);
   const [freezeLayers, setFreezeLayers] = useState(false);
@@ -50,6 +51,7 @@ const AIModelEditor = (props) => {
       if (res.error) setError(res.error.response.statusText);
       else {
         // console.log("getmodel", res.data);
+        getFeedbackCount(res.data.published_training);
         return res.data;
       }
     } catch (e) {
@@ -78,23 +80,26 @@ const AIModelEditor = (props) => {
       refetchInterval: 60000,
     }
   );
-  const getFeedbackCount = async () => {
+  const [isLoadingFeedbackCount, setIsLoadingFeedbackCount] = useState(true);
+  const getFeedbackCount = async (trainingId) => {
     try {
-      const response = await axios.get(
-        `/feedback/?training=${data.published_training}`
-      );
+      if (!trainingId) return;
+      setFeedbackCount(0);
+      const response = await axios.get(`/feedback/?training=${trainingId}`);
       setFeedbackData(response.data);
-      const feedbackCount = response.data.features.length;
-      setFeedbackCount(feedbackCount);
+      console.log(`/feedback/?training=${trainingId}`, response.data);
+      setFeedbackCount(response.data.features.length);
+      setIsLoadingFeedbackCount(false);
     } catch (error) {
       console.error("Error fetching feedback information:", error);
     }
   };
-  useEffect(() => {
-    if (data?.published_training) {
-      getFeedbackCount();
-    }
-  }, [data]);
+
+  // useEffect(() => {
+  //   if (data?.published_training) {
+  //     getFeedbackCount();
+  //   }
+  // }, [data]);
 
   const handleFeedbackClick = async (trainingId) => {
     getFeedbackCount();
@@ -153,13 +158,13 @@ const AIModelEditor = (props) => {
       {data && (
         <Grid container padding={2} spacing={2}>
           <Grid item xs={6} md={6}>
-            {data.published_training && (
+            {/* {data.published_training && (
               <FeedbackToast
                 count={feedbackCount}
                 feedbackData={feedbackData}
                 trainingId={data.published_training}
               />
-            )}
+            )} */}
             <Typography variant="h6" component="div">
               Model ID: {data.id}
             </Typography>
@@ -316,7 +321,7 @@ const AIModelEditor = (props) => {
               }}
             />
           </Grid>
-          <Grid item xs={12} md={6}>
+          {/* <Grid item xs={12} md={6}>
             <FormControl component="fieldset">
               <FormLabel component="legend">Freeze Layers</FormLabel>
               <FormGroup row>
@@ -333,7 +338,7 @@ const AIModelEditor = (props) => {
                 />
               </FormGroup>
             </FormControl>
-          </Grid>
+          </Grid> */}
 
           <Grid item xs={12} md={12}></Grid>
           <Grid item xs={6} md={6}>
@@ -353,18 +358,26 @@ const AIModelEditor = (props) => {
             </Button>
           </Grid>
           <Grid item xs={6} md={6} textAlign="right">
-            <Button
-              variant="contained"
-              color="primary"
-              size="small"
-              onClick={() => {
-                handleFeedbackClick(data.published_training);
-                // add logic to view feedbacks here
-              }}
-              disabled={feedbackCount <= 0}
-            >
-              View Feedbacks
-            </Button>
+            {data && data.published_training && (
+              <LoadingButton
+                variant="contained"
+                color="primary"
+                size="small"
+                onClick={() => {
+                  //handleFeedbackClick(data.published_training);
+                  // add logic to view feedbacks here
+                  navigate(
+                    `/ai-models/${data.id}/${data.published_training}/feedback`
+                  );
+                }}
+                disabled={feedbackCount <= 0}
+                loading={isLoadingFeedbackCount}
+              >
+                {feedbackCount > 0
+                  ? "View Feedbacks"
+                  : "No feedback for published training"}
+              </LoadingButton>
+            )}
           </Grid>
 
           {error && (

@@ -8,6 +8,7 @@ frontend/.pnp.js
 
 # testing
 frontend/coverage
+postgres-data/*
 
 # production
 frontend/build
