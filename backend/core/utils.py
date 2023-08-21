@@ -2,6 +2,7 @@ import concurrent.futures
 import json
 import math
 import os
+import re
 from datetime import datetime
 from uuid import uuid4
 from xml.dom import ValidationErr
@@ -111,9 +112,14 @@ def get_start_end_download_coords(bbox_coords, zm_level, tile_size):
     return start, end
 
 
+import logging
+
+
 def download_image(url, base_path, source_name):
     response = requests.get(url)
     image = response.content
+    url = re.sub(r"\.(png|jpeg)$", "", url)
+    logging.info(url)
 
     url_splitted_list = url.split("/")
     filename = f"{base_path}/{source_name}-{url_splitted_list[-2]}-{url_splitted_list[-1]}-{url_splitted_list[-3]}.png"
