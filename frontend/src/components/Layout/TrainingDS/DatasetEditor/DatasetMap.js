@@ -596,6 +596,7 @@ const DatasetMap = (props) => {
     return null;
   }
 
+  // console.log("props.oamImagery", props.oamImagery);
   return (
     <>
       {mapError && <span style={{ color: "red" }}> Error: {mapError} </span>}

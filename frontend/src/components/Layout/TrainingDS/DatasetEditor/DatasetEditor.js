@@ -41,6 +41,14 @@ function DatasetEditor() {
       if (res.error) setError(res.error.response.statusText);
 
       console.log("dataset", res.data);
+      setOAMImagery({
+        center: [0, 0],
+        name: "Private",
+        minzoom: 0,
+        maxzoom: 23,
+        attribution: res.data.source_imagery,
+        url: res.data.source_imagery,
+      });
       return res.data;
     } catch (e) {
       console.log("isError");

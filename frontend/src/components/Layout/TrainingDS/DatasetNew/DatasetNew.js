@@ -91,12 +91,14 @@ const DatasetNew = (props) => {
               fullWidth
               onChange={(e) => {
                 let trimmedValue = e.target.value.trim();
-                let regUrl = /^(https?|chrome):\/\/[^\s$.?#].[^\s]*$/;
-                let endsWithPng = trimmedValue.endsWith(".png");
-                if (endsWithPng) {
-                  trimmedValue = trimmedValue.slice(0, -4);
-                }
-                let hasZXY = trimmedValue.endsWith("{z}/{x}/{y}");
+                // let regUrl = /^(https?|chrome):\/\/[^\s$.?#].[^\s]*$/;
+                // let endsWithPng =
+                //   trimmedValue.endsWith(".png") ||
+                //   trimmedValue.endsWith(".jpeg");
+                // if (endsWithPng) {
+                //   trimmedValue = trimmedValue.slice(0, -4);
+                // }
+                let hasZXY = trimmedValue.includes("{z}/{x}/{y}");
                 let isValid =
                   regUrl.test(trimmedValue) &&
                   hasZXY &&
@@ -123,7 +125,7 @@ const DatasetNew = (props) => {
                   !oamURL ||
                   !regUrl.test(oamURL) ||
                   DSName.trim() === "" ||
-                  !oamURL.endsWith("{z}/{x}/{y}") ||
+                  !oamURL.includes("{z}/{x}/{y}") ||
                   isLoading
                 }
               >
