@@ -221,6 +221,7 @@ class PredictionParamSerializer(serializers.Serializer):
     model_id = serializers.IntegerField(required=True)
     zoom_level = serializers.IntegerField(required=True)
     confidence = serializers.IntegerField(required=False)
+    use_josm_q = serializers.BooleanField(required=False)
     source = serializers.URLField(required=False)
 
     def validate(self, data):
