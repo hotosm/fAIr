@@ -30,6 +30,7 @@ from geojson2osm import geojson2osm
 from hot_fair_utilities import polygonize, predict, vectorize
 from login.authentication import OsmAuthentication
 from login.permissions import IsOsmAuthenticated
+from orthogonalizer import othogonalize_poly
 from osmconflator import conflate_geojson
 from rest_framework import decorators, serializers, status, viewsets
 from rest_framework.decorators import api_view
@@ -374,7 +375,7 @@ def ConflateGeojson(request):
 
     conflated_geojson = conflate_geojson(geojson_data, remove_conflated=True)
 
-    return Response(conflated_geojson,status = 200)
+    return Response(conflated_geojson, status=200)
 
 
 @api_view(["GET"])
@@ -501,6 +502,7 @@ class PredictionView(APIView):
         if res_serializer.is_valid(raise_exception=True):
             deserialized_data = res_serializer.data
             bbox = deserialized_data["bbox"]
+            use_josm_q = deserialized_data["use_josm_q"]
             model_instance = get_object_or_404(Model, id=deserialized_data["model_id"])
             if not model_instance.published_training:
                 return Response("Model is not published yet", status=404)
@@ -589,6 +591,8 @@ class PredictionView(APIView):
                 for feature in geojson_data["features"]:
                     feature["properties"]["building"] = "yes"
                     feature["properties"]["source"] = "fAIr"
+                    if use_josm_q is True:
+                        feature["geometry"] = othogonalize_poly(feature["geometry"])
 
                 shutil.rmtree(temp_path)
 

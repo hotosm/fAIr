@@ -4,6 +4,7 @@ import {
   Button,
   Grid,
   Box,
+  Switch,
   CircularProgress,
   Paper,
   Typography,
@@ -56,6 +57,10 @@ const Prediction = () => {
 
   const [apiCallInProgress, setApiCallInProgress] = useState(false);
   const [confidence, setConfidence] = useState(90);
+  const [use_josm_q, setUse_josm_q] = useState(true);
+  const handleUseJosmToggle = () => {
+    setUse_josm_q(!use_josm_q);
+  };
   const [totalPredictionsCount, settotalPredictionsCount] = useState(0);
   // const [DeletedCount, setDeletedCount] = useState(0);
   // const [CreatedCount, setCreatedCount] = useState(0);
@@ -210,6 +215,7 @@ const Prediction = () => {
       zoom_level: zoom,
       source: dataset.source_imagery,
       confidence: confidence,
+      use_josm_q: use_josm_q,
     };
     const startTime = new Date().getTime(); // measure start time
     const res = await axios.post(`/prediction/`, body, { headers });
@@ -498,6 +504,7 @@ const Prediction = () => {
                   </Tooltip>
                   <FormControl size="small">
                     <Select
+                      size="small"
                       value={confidence}
                       onChange={(e) => setConfidence(e.target.value)}
                       style={{ width: "80px", fontSize: "12px" }} // Adjust width and font size
@@ -510,6 +517,17 @@ const Prediction = () => {
                       <MenuItem value={90}>90 %</MenuItem>
                     </Select>
                   </FormControl>
+                </Box>
+                <Box display="flex" alignItems="center" mt={2}>
+                  <Typography variant="body2" style={{ marginRight: "10px" }}>
+                    <strong>Use JOSM Q: </strong>
+                  </Typography>
+                  <Switch
+                    size="small"
+                    checked={use_josm_q}
+                    onChange={handleUseJosmToggle}
+                    color="primary"
+                  />
                 </Box>
                 <Typography variant="body2">
                   <strong> Current Zoom:</strong> {JSON.stringify(zoom)}

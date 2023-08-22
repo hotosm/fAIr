@@ -119,7 +119,6 @@ def download_image(url, base_path, source_name):
     response = requests.get(url)
     image = response.content
     url = re.sub(r"\.(png|jpeg)$", "", url)
-    logging.info(url)
 
     url_splitted_list = url.split("/")
     filename = f"{base_path}/{source_name}-{url_splitted_list[-2]}-{url_splitted_list[-1]}-{url_splitted_list[-3]}.png"
