@@ -92,9 +92,6 @@ https://github.com/hotosm/fAIr/assets/97789856/f4eae99f-e9a2-4424-806f-fdfce80e6
 
 
 
-https://github.com/hotosm/fAIr/assets/97789856/27fc1a0e-ce58-448c-b220-9c63e41caa3b
-
-
 ## Steps to create a project in fAIr
 
 1. Go to [fAIr](https://fair-dev.hotosm.org/) .
