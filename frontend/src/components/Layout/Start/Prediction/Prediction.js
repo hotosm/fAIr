@@ -15,6 +15,7 @@ import {
   Tooltip,
   MenuItem,
   Link,
+  TextField,
   Select,
 } from "@mui/material";
 import L from "leaflet";
@@ -77,7 +78,10 @@ const Prediction = () => {
   const [josmEnabled, setJosmEnabled] = useState(false);
   const [modelInfo, setModelInfo] = useState(null);
   const [loading, setLoading] = useState(false);
-
+  const [maxAngleChange, setMaxAngleChange] = useState(15);
+  const [skewTolerance, setSkewTolerance] = useState(15);
+  const [tolerance, setTolerance] = useState(0.2);
+  const [areaThreshold, setAreaThreshold] = useState(3);
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -193,6 +197,23 @@ const Prediction = () => {
 
   const { accessToken } = useContext(AuthContext);
 
+  const downloadPredictions = () => {
+    if (!predictions) {
+      return;
+    }
+
+    const content = JSON.stringify(predictions);
+    const blob = new Blob([content], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "predictions.geojson";
+    link.click();
+
+    URL.revokeObjectURL(url);
+  };
+
   const {
     mutate: callPredict,
     data: returnedpredictions,
@@ -216,6 +237,10 @@ const Prediction = () => {
       source: dataset.source_imagery,
       confidence: confidence,
       use_josm_q: use_josm_q,
+      max_angle_change: maxAngleChange,
+      skew_tolerance: skewTolerance,
+      tolerance: tolerance,
+      area_threshold: areaThreshold,
     };
     const startTime = new Date().getTime(); // measure start time
     const res = await axios.post(`/prediction/`, body, { headers });
@@ -496,10 +521,37 @@ const Prediction = () => {
           {map && (
             <Box>
               <Paper elevation={1} sx={{ padding: 2, marginTop: 0 }}>
+                <Typography variant="body2">
+                  <strong> Current Zoom:</strong> {JSON.stringify(zoom)}
+                </Typography>
+                {predictions && (
+                  <Typography variant="body2">
+                    <strong> Predicted on:</strong> {predictionZoomlevel} Zoom
+                  </Typography>
+                )}
+                <Typography variant="body2">
+                  <strong> Response: </strong> {responseTime} sec
+                </Typography>
+              </Paper>
+              <Paper elevation={1} sx={{ padding: 2, marginTop: 0.5 }}>
+                <Typography variant="h8" gutterBottom>
+                  <strong>Config</strong>
+                </Typography>
+                <Box display="flex" alignItems="center">
+                  <Typography variant="body2" style={{ marginRight: "10px" }}>
+                    Use JOSM Q:
+                  </Typography>
+                  <Switch
+                    size="small"
+                    checked={use_josm_q}
+                    onChange={handleUseJosmToggle}
+                    color="primary"
+                  />
+                </Box>
                 <Box display="flex" alignItems="center">
                   <Tooltip title="Select confidence threshold probability for filtering out low-confidence predictions">
                     <Typography variant="body2" style={{ marginRight: "10px" }}>
-                      <strong>Confidence: </strong>
+                      Confidence:
                     </Typography>
                   </Tooltip>
                   <FormControl size="small">
@@ -518,30 +570,78 @@ const Prediction = () => {
                     </Select>
                   </FormControl>
                 </Box>
-                <Box display="flex" alignItems="center" mt={2}>
-                  <Typography variant="body2" style={{ marginRight: "10px" }}>
-                    <strong>Use JOSM Q: </strong>
-                  </Typography>
-                  <Switch
-                    size="small"
-                    checked={use_josm_q}
-                    onChange={handleUseJosmToggle}
-                    color="primary"
-                  />
+                <Typography variant="body2">Vectorization Config :</Typography>
+                <Box mt={2} display="flex" alignItems="center">
+                  <Tooltip title="Tolerance distance for simplying feature in meter">
+                    <TextField
+                      label="Tolerance"
+                      type="number"
+                      value={tolerance}
+                      onChange={(e) => setTolerance(e.target.value)}
+                      InputProps={{
+                        inputProps: { min: 0, step: 1 },
+                        style: { width: "80px", fontSize: "12px" },
+                      }}
+                      variant="outlined"
+                      size="small"
+                    />
+                  </Tooltip>
+                  <Tooltip title="Area Threshold to remove feature in Sqm">
+                    <TextField
+                      label="Area"
+                      type="number"
+                      value={areaThreshold}
+                      onChange={(e) => setAreaThreshold(e.target.value)}
+                      InputProps={{
+                        inputProps: { min: 0, step: 1 },
+                        style: {
+                          width: "80px",
+                          fontSize: "12px",
+                          marginLeft: "10px",
+                        },
+                      }}
+                      variant="outlined"
+                      size="small"
+                    />
+                  </Tooltip>
                 </Box>
-                <Typography variant="body2">
-                  <strong> Current Zoom:</strong> {JSON.stringify(zoom)}
-                </Typography>
-                {predictions && (
-                  <Typography variant="body2">
-                    <strong> Predicted on:</strong> {predictionZoomlevel} Zoom
-                  </Typography>
+                {use_josm_q && (
+                  <Box mt={2} display="flex" alignItems="center">
+                    <Tooltip title="Accepted Maximum angle deviation in degree">
+                      <TextField
+                        label="Max Angle Change"
+                        type="number"
+                        value={maxAngleChange}
+                        onChange={(e) => setMaxAngleChange(e.target.value)}
+                        InputProps={{
+                          inputProps: { min: 0, step: 1 },
+                          style: { width: "80px", fontSize: "12px" },
+                        }}
+                        variant="outlined"
+                        size="small"
+                      />
+                    </Tooltip>
+                    <Tooltip title="Tolerance angle in degree">
+                      <TextField
+                        label="Skew Tolerance"
+                        type="number"
+                        value={skewTolerance}
+                        onChange={(e) => setSkewTolerance(e.target.value)}
+                        InputProps={{
+                          inputProps: { min: 0, step: 1 },
+                          style: {
+                            width: "80px",
+                            fontSize: "12px",
+                            marginLeft: "10px",
+                          },
+                        }}
+                        variant="outlined"
+                        size="small"
+                      />
+                    </Tooltip>
+                  </Box>
                 )}
-                <Typography variant="body2">
-                  <strong> Response: </strong> {responseTime} sec
-                </Typography>
               </Paper>
-
               <Paper elevation={1} sx={{ padding: 2, marginTop: 0.5 }}>
                 <Typography variant="h8" gutterBottom>
                   <strong>Feedback</strong>
@@ -600,7 +700,7 @@ const Prediction = () => {
                       Zoom Level: {modelInfo.trainingZoomLevel}
                     </Typography>
                     <Typography variant="body2">
-                      Accuracy: {modelInfo.trainingAccuracy} %
+                      Accuracy: {modelInfo.trainingAccuracy.toFixed(2)} %
                     </Typography>
                     <Typography variant="body2">
                       Model Size: {modelInfo.modelSize} MB
@@ -612,28 +712,44 @@ const Prediction = () => {
           )}
           {error && <Alert severity="error">{error}</Alert>}
           {predictions && (
-            <LoadingButton
-              variant="contained"
-              color="secondary"
-              onClick={conflateFeatures}
-              loading={conflateLoading}
-              size="small"
-              sx={{ mt: 1 }}
-            >
-              Conflate OSM Features
-            </LoadingButton>
-          )}
-          {predictions && (
-            <LoadingButton
-              variant="contained"
-              color="secondary"
-              onClick={openWithJosm}
-              loading={josmLoading}
-              size="small"
-              sx={{ mt: 1 }}
-            >
-              Open Results with JOSM
-            </LoadingButton>
+            <Paper elevation={2} sx={{ padding: 2, marginTop: 1 }}>
+              <Typography variant="h8" gutterBottom>
+                <strong>Options</strong>
+                <hr></hr>
+              </Typography>
+
+              <LoadingButton
+                variant="contained"
+                color="secondary"
+                onClick={conflateFeatures}
+                loading={conflateLoading}
+                size="small"
+                sx={{ mt: 1 }}
+              >
+                Remove OSM Features
+              </LoadingButton>
+
+              <LoadingButton
+                variant="contained"
+                color="secondary"
+                onClick={openWithJosm}
+                loading={josmLoading}
+                size="small"
+                sx={{ mt: 1, mr: 1 }}
+              >
+                Open with JOSM
+              </LoadingButton>
+
+              <LoadingButton
+                variant="contained"
+                onClick={downloadPredictions}
+                color="secondary"
+                size="small"
+                sx={{ mt: 1 }}
+              >
+                Download as Geojson
+              </LoadingButton>
+            </Paper>
           )}
         </Grid>
         <Snackbar

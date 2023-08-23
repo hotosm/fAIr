@@ -220,9 +220,48 @@ class PredictionParamSerializer(serializers.Serializer):
     bbox = serializers.ListField(child=serializers.FloatField(), required=True)
     model_id = serializers.IntegerField(required=True)
     zoom_level = serializers.IntegerField(required=True)
-    confidence = serializers.IntegerField(required=False)
     use_josm_q = serializers.BooleanField(required=False)
     source = serializers.URLField(required=False)
+    # configs
+    confidence = serializers.IntegerField(required=False)
+    # for josm q
+    max_angle_change = serializers.IntegerField(required=False)
+    skew_tolerance = serializers.IntegerField(required=False)
+    # for vectorization
+    tolerance = serializers.FloatField(required=False)
+    area_threshold = serializers.FloatField(required=False)
+
+    def validate_max_angle_change(self, value):
+        if value is not None:
+            if value < 0 or value > 45:
+                raise serializers.ValidationError(
+                    f"Invalid Max Angle Change: {value}, Should be between 0 and 45"
+                )
+        return value
+
+    def validate_skew_tolerance(self, value):
+        if value is not None:
+            if value < 0 or value > 45:
+                raise serializers.ValidationError(
+                    f"Invalid Skew Tolerance: {value}, Should be between 0 and 45"
+                )
+        return value
+
+    def validate_tolerance(self, value):
+        if value is not None:
+            if value < 0 or value > 10:
+                raise serializers.ValidationError(
+                    f"Invalid Tolerance: {value}, Should be between 0 and 10"
+                )
+        return value
+
+    def validate_area_threshold(self, value):
+        if value is not None:
+            if value < 0 or value > 20:
+                raise serializers.ValidationError(
+                    f"Invalid Area Threshold: {value}, Should be between 0 and 20"
+                )
+        return value
 
     def validate(self, data):
         """
@@ -238,6 +277,24 @@ class PredictionParamSerializer(serializers.Serializer):
         if data["zoom_level"] < 18 or data["zoom_level"] > 22:
             raise serializers.ValidationError(
                 f"""Invalid Zoom level : {data["zoom_level"]}, Supported between 18-22"""
+            )
+
+        if "max_angle_change" in data:
+            data["max_angle_change"] = self.validate_max_angle_change(
+                data["max_angle_change"]
+            )
+
+        if "skew_tolerance" in data:
+            data["skew_tolerance"] = self.validate_skew_tolerance(
+                data["skew_tolerance"]
+            )
+
+        if "tolerance" in data:
+            data["tolerance"] = self.validate_tolerance(data["tolerance"])
+
+        if "area_threshold" in data:
+            data["area_threshold"] = self.validate_area_threshold(
+                data["area_threshold"]
             )
         return data
 
