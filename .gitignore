@@ -44,3 +44,4 @@ backend/.env
 backend/config.txt
 backend/postgres-data
 **/.vscode/**
+postgres-data/

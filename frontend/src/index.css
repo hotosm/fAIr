@@ -170,3 +170,8 @@ code {
   width: 30px !important;
   height: 30px !important;
 }
+
+.MuiDialog-paper
+{
+  max-width: 80% !important;
+}

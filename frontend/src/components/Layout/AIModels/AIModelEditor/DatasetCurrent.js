@@ -9,7 +9,7 @@ const DatasetCurrent = (props) => {
     // if (!accessToken) return;
     try {
       const res = await axios.get(`/workspace/dataset_${props.datasetId}/`);
-      console.log(`/workspace/dataset_${props.datasetId}/`, res);
+      // console.log(`/workspace/dataset_${props.datasetId}/`, res);
       if (res.error) {
         console.log("isError", res.error);
       } else {

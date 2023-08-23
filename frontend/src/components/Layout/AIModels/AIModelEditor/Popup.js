@@ -10,6 +10,8 @@ import {
 import FileStructure from "./FileStructure";
 
 import axios from "../../../../axios";
+import FilesTree from "./FilesTree";
+import LoadingButton from "@mui/lab/LoadingButton/LoadingButton";
 
 const Popup = ({ open, handleClose, row }) => {
   const [error, setError] = useState(null);
@@ -145,21 +147,21 @@ const Popup = ({ open, handleClose, row }) => {
             : row.zoom_level.toString()}
         </p>
         <p>
-          <b>Accuracy:</b> {row.accuracy}
+          <b>Accuracy:</b> {row.accuracy.toFixed(2)} %
         </p>
         <p>
           <b>Status:</b> {row.status}
         </p>
-        <p>
+        {/* <p>
           <b>Freeze Layers:</b> {row.freeze_layers}
-        </p>
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <Button
+        </p> */}
+        {/* <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <LoadingButton
             onClick={() => getFileStructure()}
             style={{ color: "white", fontSize: "0.875rem" }}
           >
             Training Files
-          </Button>
+          </LoadingButton>
           {row.status === "FINISHED" && (
             <Button
               onClick={handleGoBack}
@@ -169,7 +171,7 @@ const Popup = ({ open, handleClose, row }) => {
               Go Back
             </Button>
           )}
-        </div>
+        </div> */}
         {(row.status === "FAILED" || row.status === "RUNNING") && (
           <>
             {loading ? (
@@ -197,17 +199,26 @@ const Popup = ({ open, handleClose, row }) => {
         )}
         {row.status === "FINISHED" && (
           <>
-            {fileStructure && (
-              <FileStructure
-                name={`training_${row.id}`}
-                content={fileStructure}
-                path={
-                  dirHistory.length > 0 ? dirHistory[dirHistory.length - 1] : ""
-                }
-                isFile={false}
-                downloadUrl={`${axios.defaults.baseURL}/workspace/download/${trainingWorkspaceURL}`}
-                onDirClick={handleDirClick}
-              />
+            {trainingWorkspaceURL && (
+              <>
+                {/* <FileStructure
+                  name={`training_${row.id}`}
+                  content={fileStructure}
+                  path={
+                    dirHistory.length > 0
+                      ? dirHistory[dirHistory.length - 1]
+                      : ""
+                  }
+                  isFile={false}
+                  downloadUrl={`${axios.defaults.baseURL}/workspace/download/${trainingWorkspaceURL}`}
+                  onDirClick={handleDirClick}
+                /> */}
+                <FilesTree
+                  trainingId={row.id}
+                  downloadUrl={`${axios.defaults.baseURL}/workspace/download/${trainingWorkspaceURL}`}
+                  trainingWorkspaceURL={trainingWorkspaceURL}
+                ></FilesTree>
+              </>
             )}
             {loading ? (
               <div style={{ display: "flex", justifyContent: "center" }}>
