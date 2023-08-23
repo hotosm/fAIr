@@ -80,7 +80,7 @@ const Prediction = () => {
   const [loading, setLoading] = useState(false);
   const [maxAngleChange, setMaxAngleChange] = useState(15);
   const [skewTolerance, setSkewTolerance] = useState(15);
-  const [tolerance, setTolerance] = useState(0.2);
+  const [tolerance, setTolerance] = useState(0.5);
   const [areaThreshold, setAreaThreshold] = useState(3);
   const fetchData = async () => {
     setLoading(true);
