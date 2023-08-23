@@ -586,7 +586,7 @@ const Prediction = () => {
                       size="small"
                     />
                   </Tooltip>
-                  <Tooltip title="Area Threshold to remove feature in Sqm">
+                  <Tooltip title="Area threshold to remove small feature in Sqm">
                     <TextField
                       label="Area"
                       type="number"
@@ -607,7 +607,7 @@ const Prediction = () => {
                 </Box>
                 {use_josm_q && (
                   <Box mt={2} display="flex" alignItems="center">
-                    <Tooltip title="Accepted Maximum angle deviation in degree">
+                    <Tooltip title="Accepted maximum angle deviation in degree">
                       <TextField
                         label="Max Angle Change"
                         type="number"
