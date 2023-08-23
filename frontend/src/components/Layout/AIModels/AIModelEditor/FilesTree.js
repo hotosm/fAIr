@@ -13,7 +13,7 @@ const FilesTree = (props) => {
   const [currentList, setCurrentList] = useState(null);
   const [dirHistory, setDirHistory] = useState([]);
   const [loadingStrcture, setLoadingStrcture] = useState(false);
-  const getFileStructure = async (currentPath = "") => {
+  const getFileStructure = async () => {
     try {
       setLoadingStrcture(true);
       let path = "";
