@@ -372,7 +372,6 @@ def ConflateGeojson(request):
         geojson_data = json.loads(request.body)["geojson"]
     except json.JSONDecodeError:
         return HttpResponseBadRequest("Invalid input")
-    print(geojson_data)
 
     conflated_geojson = conflate_geojson(geojson_data, remove_conflated=True)
 
