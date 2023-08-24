@@ -372,6 +372,7 @@ def ConflateGeojson(request):
         geojson_data = json.loads(request.body)["geojson"]
     except json.JSONDecodeError:
         return HttpResponseBadRequest("Invalid input")
+    print(geojson_data)
 
     conflated_geojson = conflate_geojson(geojson_data, remove_conflated=True)
 
@@ -584,6 +585,12 @@ class PredictionView(APIView):
                 vectorize(
                     input_path=prediction_output,
                     output_path=geojson_output,
+                    tolerance=deserialized_data["tolerance"]
+                    if "tolerance" in deserialized_data
+                    else 0.2,  # in meters
+                    area_threshold=deserialized_data["area_threshold"]
+                    if "area_threshold" in deserialized_data
+                    else 3,  # in sqm
                 )
                 with open(geojson_output, "r") as f:
                     geojson_data = json.load(f)
@@ -592,7 +599,15 @@ class PredictionView(APIView):
                     feature["properties"]["building"] = "yes"
                     feature["properties"]["source"] = "fAIr"
                     if use_josm_q is True:
-                        feature["geometry"] = othogonalize_poly(feature["geometry"])
+                        feature["geometry"] = othogonalize_poly(
+                            feature["geometry"],
+                            maxAngleChange=deserialized_data["max_angle_change"]
+                            if "max_angle_change" in deserialized_data
+                            else 15,
+                            skewTolerance=deserialized_data["skew_tolerance"]
+                            if "skew_tolerance" in deserialized_data
+                            else 15,
+                        )
 
                 shutil.rmtree(temp_path)
 
