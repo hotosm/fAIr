@@ -58,7 +58,7 @@ const Prediction = () => {
 
   const [apiCallInProgress, setApiCallInProgress] = useState(false);
   const [confidence, setConfidence] = useState(90);
-  const [use_josm_q, setUse_josm_q] = useState(true);
+  const [use_josm_q, setUse_josm_q] = useState(false);
   const handleUseJosmToggle = () => {
     setUse_josm_q(!use_josm_q);
   };
@@ -80,8 +80,8 @@ const Prediction = () => {
   const [loading, setLoading] = useState(false);
   const [maxAngleChange, setMaxAngleChange] = useState(15);
   const [skewTolerance, setSkewTolerance] = useState(15);
-  const [tolerance, setTolerance] = useState(0.5);
-  const [areaThreshold, setAreaThreshold] = useState(3);
+  const [tolerance, setTolerance] = useState(0.3);
+  const [areaThreshold, setAreaThreshold] = useState(4);
   const fetchData = async () => {
     setLoading(true);
     try {
