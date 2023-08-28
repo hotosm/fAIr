@@ -147,7 +147,7 @@ const Popup = ({ open, handleClose, row }) => {
             : row.zoom_level.toString()}
         </p>
         <p>
-          <b>Accuracy:</b> {row.accuracy.toFixed(2)} %
+          <b>Accuracy:</b> {row.accuracy && row.accuracy.toFixed(2)} %
         </p>
         <p>
           <b>Status:</b> {row.status}
