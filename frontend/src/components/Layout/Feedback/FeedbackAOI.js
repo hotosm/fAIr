@@ -29,6 +29,7 @@ import AOIDetails from "./FeedbackAOIDetails";
 import AuthContext from "../../../Context/AuthContext";
 import FeedbackAOIDetails from "./FeedbackAOIDetails";
 import area from "@turf/area";
+import centroid from "@turf/centroid";
 const Demo = styled("div")(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
 }));
@@ -98,7 +99,7 @@ const FeedbackAOI = (props) => {
         console.log(res.error.response.statusText);
       } else {
         // success full fetch
-        props.refresh();
+        // props.setRefresh(Math.random());
         return res.data;
       }
     } catch (e) {
@@ -282,23 +283,11 @@ const FeedbackAOI = (props) => {
                           edge={"end"}
                           aria-label="delete"
                           onClick={(e) => {
-                            const lat =
-                              layer.latlngs.reduce(function (
-                                accumulator,
-                                curValue
-                              ) {
-                                return accumulator + curValue.lat;
-                              },
-                              0) / layer.latlngs.length;
-                            const lng =
-                              layer.latlngs.reduce(function (
-                                accumulator,
-                                curValue
-                              ) {
-                                return accumulator + curValue.lng;
-                              },
-                              0) / layer.latlngs.length;
-                            // [lat, lng] are the centroid of the polygon
+                            console.log("centroid(e)", centroid(layer));
+                            const cneter = centroid(layer);
+                            const lat = cneter.geometry.coordinates[1];
+                            const lng = cneter.geometry.coordinates[0];
+
                             props.selectAOIHandler([lat, lng], 17);
                           }}
                         >

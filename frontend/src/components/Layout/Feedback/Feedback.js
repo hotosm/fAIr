@@ -123,11 +123,27 @@ const Feedback = (props) => {
     getOriginalAOIs();
     return () => {};
   }, []);
+  const [currentPosision, setCurrentPosision] = useState(null);
+  const [map, setMap] = useState(null);
+
+  useEffect(() => {
+    if (
+      map &&
+      currentPosision &&
+      currentPosision.length > 0 &&
+      currentPosision[0]
+    ) {
+      console.log("props.currentPosision", currentPosision);
+      map.setView(currentPosision, 17);
+      // setZoom(props.zoom);
+      // props.clearCurrentPosision();
+    }
+
+    return () => {};
+  }, [currentPosision, map]);
 
   const [zoom, setZoom] = useState(15);
   const [bounds, setBounds] = useState({});
-
-  const [map, setMap] = useState(null);
 
   const [windowSize, setWindowSize] = useState([
     window.innerWidth,
@@ -143,6 +159,11 @@ const Feedback = (props) => {
     }
     if (map)
       map.setView([res.data.center[1], res.data.center[0]], res.data.center[2]);
+    setCurrentPosision([
+      res.data.center[1],
+      res.data.center[0],
+      res.data.center[2],
+    ]);
     console.log("OAM data", res.data, "map", map);
     setImagery({
       maxzoom: res.data.maxzoom,
@@ -282,6 +303,10 @@ const Feedback = (props) => {
   const navigate = useNavigate();
   const onEachFeatureOriginalAOIs = (feature, layer) => {
     layer.bindPopup("Original dataset AOI");
+  };
+
+  const selectAOIHandler = (e, zoom) => {
+    setCurrentPosision([e[0], e[1], zoom]);
   };
   return (
     <>
@@ -483,7 +508,7 @@ const Feedback = (props) => {
                 Total feedbacks: {feedbackData && feedbackData.features.length}
               </Typography>{" "}
               <Typography variant="body1" component="h2">
-                Zoom: {zoom.toFixed(1)}
+                Zoom: {zoom && zoom.toFixed(1)}
               </Typography>
             </Grid>
             <Grid item xs={12} marginBottom={1}>
@@ -500,6 +525,7 @@ const Feedback = (props) => {
                   trainingId={trainingId}
                   refresh={refresh}
                   setAOIs={setAOIs}
+                  selectAOIHandler={selectAOIHandler}
                 ></FeedbackAOI>
               )}
             </Grid>
