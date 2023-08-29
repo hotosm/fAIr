@@ -88,7 +88,7 @@ const FilesTree = (props) => {
               <TreeItem
                 key={idx}
                 nodeId={"nodefile" + idx}
-                icon={<FileDownloadIcon color="secondary" />}
+                icon={<FileDownloadIcon color="hot" />}
                 label={
                   <p>
                     <a href={`${props.downloadUrl}${path}/${obj[0]}`} download>
@@ -107,7 +107,7 @@ const FilesTree = (props) => {
               <TreeItem
                 key={idx}
                 nodeId={"nodedir" + idx}
-                icon={<FolderIcon color="secondary" />}
+                icon={<FolderIcon color="hot" />}
                 label={
                   <p>
                     {" "}
