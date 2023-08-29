@@ -187,10 +187,17 @@ def download_imagery(start: list, end: list, zm_level, base_path, source="maxar"
 
         start_x = start_x + 1  # increase the x
 
-    # Use the ThreadPoolExecutor to download the images in parallel
     with concurrent.futures.ThreadPoolExecutor() as executor:
-        for url in download_urls:
+        futures = [
             executor.submit(download_image, url, base_path, source_name)
+            for url in download_urls
+        ]
+        for future in concurrent.futures.as_completed(futures):
+            try:
+                future.result()
+            except Exception as e:
+                print(f"An exception occurred in a thread: {e}")
+                raise e
 
 
 def request_rawdata(request_params):
