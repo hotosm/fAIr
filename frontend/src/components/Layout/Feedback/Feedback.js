@@ -282,13 +282,13 @@ const Feedback = (props) => {
     const map = useMapEvents({
       zoomend: (e) => {
         const { _animateToZoom } = e.target;
-        console.log("zoomend", e, _animateToZoom);
+        // console.log("zoomend", e, _animateToZoom);
         setZoom(_animateToZoom);
       },
       moveend: (e) => {
         const { _animateToZoom, _layers } = e.target;
-        console.log("moveend", e, e.target.getBounds());
-        console.log("zoom is", _animateToZoom);
+        // console.log("moveend", e, e.target.getBounds());
+        // console.log("zoom is", _animateToZoom);
         // console.log("see the map ", map);
 
         if (_animateToZoom >= 18) {
