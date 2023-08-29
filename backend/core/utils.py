@@ -115,12 +115,24 @@ def get_start_end_download_coords(bbox_coords, zm_level, tile_size):
 import logging
 
 
+def is_dir_empty(directory_path):
+    return not any(os.scandir(directory_path))
+
+
 def download_image(url, base_path, source_name):
     response = requests.get(url)
-    image = response.content
-    url = re.sub(r"\.(png|jpeg)$", "", url)
 
+    # Check if the URL request was successful
+    if response.status_code != 200:
+        raise ValueError(
+            f"Failed to download image from {url}. Status code: {response.status_code}"
+        )
+
+    image = response.content
+
+    url = re.sub(r"\.(png|jpeg)$", "", url)
     url_splitted_list = url.split("/")
+
     filename = f"{base_path}/{source_name}-{url_splitted_list[-2]}-{url_splitted_list[-1]}-{url_splitted_list[-3]}.png"
 
     with open(filename, "wb") as f:
