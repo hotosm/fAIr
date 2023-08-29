@@ -66,7 +66,7 @@ const FeedackTraining = (props) => {
   const [zoomLevel, setZoomLevel] = useState([19, 20, 21]);
   return (
     <Grid item xs={12} className="card">
-      <Grid item xs={6} md={6}>
+      <Grid item xs={12} md={12}>
         <TextField
           label="Epochs"
           type="number"
@@ -77,7 +77,7 @@ const FeedackTraining = (props) => {
           margin="normal"
         />
       </Grid>
-      <Grid item xs={6} md={6}>
+      <Grid item xs={12} md={12}>
         {" "}
         <TextField
           label="Batch Size"
@@ -100,7 +100,7 @@ const FeedackTraining = (props) => {
                 sx={{ mr: "0.5rem" }}
                 control={
                   <Checkbox
-                    sx={{ transform: "scale(0.8)" }}
+                    sx={{ transform: "scale(0.7)" }}
                     checked={zoomLevel.includes(level)}
                     onChange={(e) => {
                       if (e.target.checked) {
@@ -118,23 +118,25 @@ const FeedackTraining = (props) => {
           </FormGroup>
         </FormControl>
       </Grid>
-      <FormControl margin="normal">
-        <FormLabel component="legend">Freeze Layers</FormLabel>
-        <FormGroup row>
-          <FormControlLabel
-            control={
-              <Checkbox
-                sx={{ transform: "scale(0.8)" }}
-                checked={true}
-                // onChange={(e) => setFreezeLayers(e.target.checked)}
-                name="freeze-layers"
-                disabled={true}
-              />
-            }
-            label="Freeze Layers"
-          />
-        </FormGroup>
-      </FormControl>
+      <Grid item xs={12} md={12}>
+        <FormControl margin="normal">
+          <FormLabel component="legend">Freeze Layers</FormLabel>
+          <FormGroup row>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  sx={{ transform: "scale(0.7)" }}
+                  checked={true}
+                  // onChange={(e) => setFreezeLayers(e.target.checked)}
+                  name="freeze-layers"
+                  disabled={true}
+                />
+              }
+              label="Freeze Layers"
+            />
+          </FormGroup>
+        </FormControl>
+      </Grid>
       <LoadingButton
         variant="contained"
         color="primary"
