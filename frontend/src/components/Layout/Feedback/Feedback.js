@@ -32,7 +32,7 @@ import FeedackTraining from "./FeedbackTraining";
 const ICON = icon({
   iconUrl: "/hot-marker.png",
   iconSize: new L.Point(100, 100),
-  className: "leaflet-div-icon",
+  // className: "leaflet-div-icon",
 });
 const Feedback = (props) => {
   let { id, trainingId } = useParams();

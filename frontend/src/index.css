@@ -19,7 +19,7 @@ code {
   width : 10px  !important;
   height : 10px  !important;
   border-radius: 5px !important;
-  opacity: 0.5 !important;
+  /* opacity: 0.5 !important; */
 }
 
 
