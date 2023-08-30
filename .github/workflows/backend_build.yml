@@ -108,6 +108,7 @@ jobs:
       - name : Check Opencv version
         run: |
           pip freeze | grep opencv
+          pip install opencv-python-headless==4.7.0.68
 
       - name: Run tests
         env:
