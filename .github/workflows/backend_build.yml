@@ -105,11 +105,16 @@ jobs:
           pip install numpy
           pip install GDAL==$(gdal-config --version) --global-option=build_ext --global-option="-I/usr/include/gdal"
 
+      - name : Check Opencv version
+        run: |
+          pip freeze | grep opencv
+
       - name: Run tests
         env:
           TESTING_TOKEN: ${{ secrets.TESTING_TOKEN }}
         run: |
           cd backend/
+          
 
           export TESTING_TOKEN=$TESTING_TOKEN
           python manage.py makemigrations
