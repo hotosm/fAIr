@@ -65,7 +65,7 @@ const AOI = (props) => {
         "access-token": accessToken,
       };
 
-      const res = await axios.get(`/label/osm/fetch/${aoiId}/`, null, {
+      const res = await axios.post(`/label/osm/fetch/${aoiId}/`, null, {
         headers,
       });
 
