@@ -40,7 +40,8 @@ munch==2.5.0
 munkres==1.1.4
 networkx
 numpy
-opencv-python==4.5.5.64
+opencv-python<=4.5.5.64
+opencv-python-headless<=4.7.0.68
 packaging==21.3
 pandas
 partd==1.2.0
