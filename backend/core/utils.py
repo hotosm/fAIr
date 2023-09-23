@@ -166,9 +166,17 @@ def download_imagery(start: list, end: list, zm_level, base_path, source="maxar"
             # add multiple logic on supported sources here
             else:
                 # source should be url as string , like this :  https://tiles.openaerialmap.org/62dbd947d8499800053796ec/0/62dbd947d8499800053796ed/{z}/{x}/{y}
+                if "{-y}" in source:
+                    # If it does, use -y in the URL by negating the y-coordinate
+                    y_value = -download_path[1]
+                else:
+                    # If it doesn't, use the positive y-coordinate
+                    y_value = download_path[1]
                 download_url = source.format(
-                    x=download_path[0], y=download_path[1], z=zm_level
+                    x=download_path[0], y=y_value, z=zm_level
                 )
+
+
             download_urls.append(download_url)
 
             start_y = start_y - 1  # decrease the y
