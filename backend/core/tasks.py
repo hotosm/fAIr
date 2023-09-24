@@ -16,7 +16,12 @@ from core.serializers import (
     FeedbackLabelFileSerializer,
     LabelFileSerializer,
 )
-from core.utils import bbox, download_imagery, get_start_end_download_coords
+from core.utils import (
+    bbox,
+    download_imagery,
+    get_start_end_download_coords,
+    is_dir_empty,
+)
 from django.conf import settings
 from django.contrib.gis.db.models.aggregates import Extent
 from django.contrib.gis.geos import GEOSGeometry
@@ -106,8 +111,11 @@ def train_model(
                             base_path=training_input_image_source,
                             source=source_imagery,
                         )
+
                     except Exception as ex:
                         raise ex
+                if is_dir_empty(training_input_image_source):
+                    raise ValueError("No images found in the area")
 
             ## -----------LABEL GENERATOR---------
             logging.info("Label Generator started")

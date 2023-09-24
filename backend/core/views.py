@@ -68,6 +68,7 @@ from .utils import (
     get_dir_size,
     get_start_end_download_coords,
     gpx_generator,
+    is_dir_empty,
     process_rawdata,
     request_rawdata,
 )
@@ -532,6 +533,8 @@ class PredictionView(APIView):
                 )
                 prediction_output = f"{temp_path}/prediction/output"
                 print("Image Downloaded , Starting Inference")
+                if is_dir_empty(temp_path):
+                    return Response("No Images found", status=500)
                 start_time = time.time()
                 model_path = os.path.join(
                     settings.TRAINING_WORKSPACE,

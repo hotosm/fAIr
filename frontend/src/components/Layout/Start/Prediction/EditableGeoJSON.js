@@ -73,7 +73,7 @@ function getFeatureStyle(feature) {
 
   return {
     color: color,
-    weight: 5,
+    weight: 1.5,
   };
 }
 
