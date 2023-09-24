@@ -58,7 +58,7 @@ const Prediction = () => {
 
   const [apiCallInProgress, setApiCallInProgress] = useState(false);
   const [confidence, setConfidence] = useState(90);
-  const [use_josm_q, setUse_josm_q] = useState(true);
+  const [use_josm_q, setUse_josm_q] = useState(false);
   const handleUseJosmToggle = () => {
     setUse_josm_q(!use_josm_q);
   };
@@ -80,8 +80,8 @@ const Prediction = () => {
   const [loading, setLoading] = useState(false);
   const [maxAngleChange, setMaxAngleChange] = useState(15);
   const [skewTolerance, setSkewTolerance] = useState(15);
-  const [tolerance, setTolerance] = useState(0.5);
-  const [areaThreshold, setAreaThreshold] = useState(3);
+  const [tolerance, setTolerance] = useState(0.3);
+  const [areaThreshold, setAreaThreshold] = useState(4);
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -175,11 +175,21 @@ const Prediction = () => {
     }
   });
 
+  const [imagery, setImagery] = useState(null);
   const { mutate, data: dataset } = useMutation(async (datasetId) => {
     const res = await axios.get(`/dataset/${datasetId}`);
     if (res.error) setError(res.error.response.statusText);
     else {
-      getImagery(res.data.source_imagery);
+      if (res.data.source_imagery.includes("openaerialmap")) {
+        getImagery(res.data.source_imagery);
+      } else {
+        setImagery({
+          maxzoom: 23,
+          minzoom: 5,
+          name: res.data.source_imagery,
+          url: res.data.source_imagery,
+        });
+      }
       return res.data;
     }
   });
@@ -192,6 +202,14 @@ const Prediction = () => {
     }
     if (map)
       map.setView([res.data.center[1], res.data.center[0]], res.data.center[2]);
+
+    // setImagery(res.data);
+    setImagery({
+      maxzoom: res.data.maxzoom,
+      minzoom: res.data.minzoom,
+      name: res.data.name,
+      url: url,
+    });
     return res.data;
   });
 
@@ -340,7 +358,7 @@ const Prediction = () => {
         const josmResponse = await fetch(osmUrl);
         const Imgurl = new URL("http://127.0.0.1:8111/imagery");
         Imgurl.searchParams.set("type", "tms");
-        Imgurl.searchParams.set("title", oamImagery.name);
+        Imgurl.searchParams.set("title", imagery.name);
         Imgurl.searchParams.set("url", dataset.source_imagery);
 
         const imgResponse = await fetch(Imgurl);
@@ -471,14 +489,36 @@ const Prediction = () => {
             whenCreated={setMap}
           >
             <MyComponent />
-            {oamImagery && dataset && (
-              <TileLayer
-                maxZoom={oamImagery.maxzoom}
-                minZoom={oamImagery.minzoom}
-                attribution={oamImagery.name}
-                url={dataset.source_imagery}
-              />
-            )}
+            <LayersControl position="topright">
+              <LayersControl.BaseLayer name="OSM" checked={true}>
+                <TileLayer
+                  maxZoom={24}
+                  maxNativeZoom={19}
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+              </LayersControl.BaseLayer>
+              <LayersControl.BaseLayer name="Google - view only">
+                <TileLayer
+                  maxNativeZoom={22}
+                  maxZoom={26}
+                  attribution='&copy; <a href="https://www.google.com">Google</a>'
+                  url="http://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
+                />
+              </LayersControl.BaseLayer>
+              {imagery && dataset && (
+                <LayersControl.BaseLayer name={imagery.name} checked={true}>
+                  (
+                  <TileLayer
+                    maxZoom={imagery.maxzoom}
+                    minZoom={imagery.minzoom}
+                    attribution={imagery.name}
+                    url={imagery.url}
+                  />
+                  )
+                </LayersControl.BaseLayer>
+              )}
+            </LayersControl>
 
             <FeatureGroup>
               {predictions && dataset && (
@@ -579,7 +619,7 @@ const Prediction = () => {
                       value={tolerance}
                       onChange={(e) => setTolerance(e.target.value)}
                       InputProps={{
-                        inputProps: { min: 0, step: 1 },
+                        inputProps: { min: 0, step: 0.1 },
                         style: { width: "80px", fontSize: "12px" },
                       }}
                       variant="outlined"

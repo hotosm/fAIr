@@ -32,7 +32,7 @@ import FeedackTraining from "./FeedbackTraining";
 const ICON = icon({
   iconUrl: "/hot-marker.png",
   iconSize: new L.Point(100, 100),
-  className: "leaflet-div-icon",
+  // className: "leaflet-div-icon",
 });
 const Feedback = (props) => {
   let { id, trainingId } = useParams();
@@ -45,7 +45,17 @@ const Feedback = (props) => {
     try {
       const response = await axios.get(`/training/${trainingId}/`);
       setSourceImagery(response.data.source_imagery);
-      getImagery(response.data.source_imagery);
+
+      if (response.data.source_imagery.includes("openaerial")) {
+        getImagery(response.data.source_imagery);
+      } else {
+        setImagery({
+          maxzoom: 23,
+          minzoom: 0,
+          name: response.data.source_imagery,
+          url: response.data.source_imagery,
+        });
+      }
     } catch (error) {
       console.error(error);
     }
@@ -113,16 +123,34 @@ const Feedback = (props) => {
     getOriginalAOIs();
     return () => {};
   }, []);
+  const [currentPosision, setCurrentPosision] = useState(null);
+  const [map, setMap] = useState(null);
+
+  useEffect(() => {
+    if (
+      map &&
+      currentPosision &&
+      currentPosision.length > 0 &&
+      currentPosision[0]
+    ) {
+      console.log("props.currentPosision", currentPosision);
+      map.setView(currentPosision, 17);
+      // setZoom(props.zoom);
+      // props.clearCurrentPosision();
+    }
+
+    return () => {};
+  }, [currentPosision, map]);
 
   const [zoom, setZoom] = useState(15);
   const [bounds, setBounds] = useState({});
-
-  const [map, setMap] = useState(null);
 
   const [windowSize, setWindowSize] = useState([
     window.innerWidth,
     window.innerHeight,
   ]);
+  const [imagery, setImagery] = useState(null);
+
   const { mutate: getImagery, data: oamImagery } = useMutation(async (url) => {
     const res = await axios.get(url.replace("/{z}/{x}/{y}", ""));
     if (res.error) {
@@ -131,21 +159,20 @@ const Feedback = (props) => {
     }
     if (map)
       map.setView([res.data.center[1], res.data.center[0]], res.data.center[2]);
+    setCurrentPosision([
+      res.data.center[1],
+      res.data.center[0],
+      res.data.center[2],
+    ]);
     console.log("OAM data", res.data, "map", map);
+    setImagery({
+      maxzoom: res.data.maxzoom,
+      minzoom: res.data.minzoom,
+      name: res.data.name,
+      url: url,
+    });
     return res.data;
   });
-
-  //   useEffect(() => {
-  //     console.log("map && oamImagery", map, oamImagery);
-
-  //     if (map && oamImagery) {
-  //       //   map.setView(
-  //       //     ([oamImagery.center[1], oamImagery.center[0]], oamImagery.center[2])
-  //       //   );
-  //       //   setZoom(oamImagery.center[2]);
-  //     }
-  //     return () => {};
-  //   }, [map, oamImagery]);
 
   function getFeatureStyle(feature) {
     return {
@@ -255,13 +282,13 @@ const Feedback = (props) => {
     const map = useMapEvents({
       zoomend: (e) => {
         const { _animateToZoom } = e.target;
-        console.log("zoomend", e, _animateToZoom);
+        // console.log("zoomend", e, _animateToZoom);
         setZoom(_animateToZoom);
       },
       moveend: (e) => {
         const { _animateToZoom, _layers } = e.target;
-        console.log("moveend", e, e.target.getBounds());
-        console.log("zoom is", _animateToZoom);
+        // console.log("moveend", e, e.target.getBounds());
+        // console.log("zoom is", _animateToZoom);
         // console.log("see the map ", map);
 
         if (_animateToZoom >= 18) {
@@ -276,6 +303,10 @@ const Feedback = (props) => {
   const navigate = useNavigate();
   const onEachFeatureOriginalAOIs = (feature, layer) => {
     layer.bindPopup("Original dataset AOI");
+  };
+
+  const selectAOIHandler = (e, zoom) => {
+    setCurrentPosision([e[0], e[1], zoom]);
   };
   return (
     <>
@@ -296,10 +327,14 @@ const Feedback = (props) => {
       {feedbackData && (
         <Grid container spacing={2} padding={2}>
           <Grid item xs={9}>
-            {oamImagery && (
+            {sourceImagery && (
               <MapContainer
                 className="pointer"
-                center={[oamImagery.center[1], oamImagery.center[0]]}
+                center={
+                  oamImagery
+                    ? [oamImagery.center[1], oamImagery.center[0]]
+                    : [0, 0]
+                }
                 style={{
                   height: windowSize[1] - 100,
                   width: "100%",
@@ -314,22 +349,46 @@ const Feedback = (props) => {
                 whenCreated={setMap}
               >
                 <MyComponent />
-                {oamImagery && (
+                <LayersControl position="topright">
+                  <LayersControl.BaseLayer name="OSM" checked={true}>
+                    <TileLayer
+                      maxZoom={24}
+                      maxNativeZoom={19}
+                      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    />
+                  </LayersControl.BaseLayer>
+                  <LayersControl.BaseLayer name="Google - view only">
+                    <TileLayer
+                      maxNativeZoom={22}
+                      maxZoom={26}
+                      attribution='&copy; <a href="https://www.google.com">Google</a>'
+                      url="http://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
+                    />
+                  </LayersControl.BaseLayer>
+                  {imagery && (
+                    <LayersControl.BaseLayer name={imagery.name} checked={true}>
+                      (
+                      <TileLayer
+                        maxZoom={imagery.maxzoom}
+                        minZoom={imagery.minzoom}
+                        attribution={imagery.name}
+                        url={imagery.url}
+                      />
+                      )
+                    </LayersControl.BaseLayer>
+                  )}
+                </LayersControl>
+                {/* {oamImagery && (
                   <TileLayer
                     maxZoom={oamImagery.maxzoom}
                     minZoom={oamImagery.minzoom}
                     attribution={oamImagery.name}
                     url={sourceImagery}
                   />
-                )}
+                )} */}
 
                 <FeatureGroup>
-                  {/* <Polygon
-            pathOptions={blueOptions}
-            positions={converToPolygon(
-              mapLayers.filter((e) => e.type === "aoi")
-            )}
-          /> */}
                   <GeoJSON
                     key={JSON.stringify(feedbackData)}
                     data={feedbackData}
@@ -449,7 +508,7 @@ const Feedback = (props) => {
                 Total feedbacks: {feedbackData && feedbackData.features.length}
               </Typography>{" "}
               <Typography variant="body1" component="h2">
-                Zoom: {zoom.toFixed(1)}
+                Zoom: {zoom && zoom.toFixed(1)}
               </Typography>
             </Grid>
             <Grid item xs={12} marginBottom={1}>
@@ -460,13 +519,13 @@ const Feedback = (props) => {
               </Alert>
             </Grid>
             <Grid item xs={12}>
-              {oamImagery && (
+              {sourceImagery && (
                 <FeedbackAOI
-                  oamImagery={oamImagery}
                   sourceImagery={sourceImagery}
                   trainingId={trainingId}
                   refresh={refresh}
                   setAOIs={setAOIs}
+                  selectAOIHandler={selectAOIHandler}
                 ></FeedbackAOI>
               )}
             </Grid>

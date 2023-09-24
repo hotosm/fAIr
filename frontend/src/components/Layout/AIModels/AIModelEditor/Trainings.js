@@ -60,7 +60,7 @@ const TrainingsList = (props) => {
     }
   };
   const { data, isLoading, refetch } = useQuery(
-    "getTraingings",
+    "getTraingings" + props.modelId,
     getTraingings,
     { refetchInterval: 60000 }
   );

@@ -87,7 +87,7 @@ const AIModelEditor = (props) => {
       setFeedbackCount(0);
       const response = await axios.get(`/feedback/?training=${trainingId}`);
       setFeedbackData(response.data);
-      console.log(`/feedback/?training=${trainingId}`, response.data);
+      // console.log(`/feedback/?training=${trainingId}`, response.data);
       setFeedbackCount(response.data.features.length);
       setIsLoadingFeedbackCount(false);
     } catch (error) {

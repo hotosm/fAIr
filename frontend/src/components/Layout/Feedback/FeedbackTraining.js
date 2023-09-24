@@ -33,7 +33,7 @@ const FeedackTraining = (props) => {
         training_id: props.trainingId,
         epochs: epochs,
         batch_size: batchSize,
-        zoom_level: [19, 20, 21],
+        zoom_level: zoomLevel,
       };
       const res = await axios.post(`/feedback/training/submit/`, body, {
         headers,
@@ -63,43 +63,80 @@ const FeedackTraining = (props) => {
     status,
     error: apiError,
   } = useMutation(submitFeedbackTraining);
+  const [zoomLevel, setZoomLevel] = useState([19, 20, 21]);
   return (
     <Grid item xs={12} className="card">
-      <TextField
-        label="Epochs"
-        type="number"
-        value={epochs}
-        onChange={(e) => setEpochs(Math.max(0, parseInt(e.target.value)))}
-        inputProps={{ min: 1, step: 1 }}
-        fullWidth
-        margin="normal"
-      />
-      <TextField
-        label="Batch Size"
-        type="number"
-        value={batchSize}
-        onChange={(e) => setBatchSize(Math.max(0, parseInt(e.target.value)))}
-        inputProps={{ min: 1, step: 1 }}
-        fullWidth
-        margin="normal"
-      />
-      <FormControl margin="normal">
-        <FormLabel component="legend">Freeze Layers</FormLabel>
-        <FormGroup row>
-          <FormControlLabel
-            control={
-              <Checkbox
-                sx={{ transform: "scale(0.8)" }}
-                checked={true}
-                // onChange={(e) => setFreezeLayers(e.target.checked)}
-                name="freeze-layers"
-                disabled={true}
+      <Grid item xs={12} md={12}>
+        <TextField
+          label="Epochs"
+          type="number"
+          value={epochs}
+          onChange={(e) => setEpochs(Math.max(0, parseInt(e.target.value)))}
+          inputProps={{ min: 1, step: 1 }}
+          fullWidth
+          margin="normal"
+        />
+      </Grid>
+      <Grid item xs={12} md={12}>
+        {" "}
+        <TextField
+          label="Batch Size"
+          type="number"
+          value={batchSize}
+          onChange={(e) => setBatchSize(Math.max(0, parseInt(e.target.value)))}
+          inputProps={{ min: 1, step: 1 }}
+          fullWidth
+          margin="normal"
+        />
+      </Grid>
+
+      <Grid item xs={12} md={6}>
+        <FormControl component="fieldset">
+          <FormLabel component="legend">Zoom Levels</FormLabel>
+          <FormGroup row>
+            {[19, 20, 21].map((level) => (
+              <FormControlLabel
+                key={level}
+                sx={{ mr: "0.5rem" }}
+                control={
+                  <Checkbox
+                    sx={{ transform: "scale(0.7)" }}
+                    checked={zoomLevel.includes(level)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setZoomLevel([...zoomLevel, level]);
+                      } else {
+                        setZoomLevel(zoomLevel.filter((l) => l !== level));
+                      }
+                    }}
+                    name={`zoom-level-${level}`}
+                  />
+                }
+                label={`Zoom ${level}`}
               />
-            }
-            label="Freeze Layers"
-          />
-        </FormGroup>
-      </FormControl>
+            ))}
+          </FormGroup>
+        </FormControl>
+      </Grid>
+      <Grid item xs={12} md={12}>
+        <FormControl margin="normal">
+          <FormLabel component="legend">Freeze Layers</FormLabel>
+          <FormGroup row>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  sx={{ transform: "scale(0.7)" }}
+                  checked={true}
+                  // onChange={(e) => setFreezeLayers(e.target.checked)}
+                  name="freeze-layers"
+                  disabled={true}
+                />
+              }
+              label="Freeze Layers"
+            />
+          </FormGroup>
+        </FormControl>
+      </Grid>
       <LoadingButton
         variant="contained"
         color="primary"

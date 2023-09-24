@@ -189,3 +189,17 @@ export const converToGeoPolygon = (layer) => {
   });
   return newAll;
 };
+
+export const formatFileSize = (sizeInBytes) => {
+  const units = ["bytes", "KB", "MB", "GB", "TB"];
+
+  let formattedSize = sizeInBytes;
+  let unitIndex = 0;
+
+  while (formattedSize > 1024 && unitIndex < units.length - 1) {
+    formattedSize /= 1024;
+    unitIndex++;
+  }
+
+  return `${formattedSize.toFixed(2)} ${units[unitIndex]}`;
+};

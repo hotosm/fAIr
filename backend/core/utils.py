@@ -115,12 +115,24 @@ def get_start_end_download_coords(bbox_coords, zm_level, tile_size):
 import logging
 
 
+def is_dir_empty(directory_path):
+    return not any(os.scandir(directory_path))
+
+
 def download_image(url, base_path, source_name):
     response = requests.get(url)
-    image = response.content
-    url = re.sub(r"\.(png|jpeg)$", "", url)
 
+    # Check if the URL request was successful
+    if response.status_code != 200:
+        raise ValueError(
+            f"Failed to download image from {url}. Status code: {response.status_code}"
+        )
+
+    image = response.content
+
+    url = re.sub(r"\.(png|jpeg)$", "", url)
     url_splitted_list = url.split("/")
+
     filename = f"{base_path}/{source_name}-{url_splitted_list[-2]}-{url_splitted_list[-1]}-{url_splitted_list[-3]}.png"
 
     with open(filename, "wb") as f:
@@ -175,10 +187,17 @@ def download_imagery(start: list, end: list, zm_level, base_path, source="maxar"
 
         start_x = start_x + 1  # increase the x
 
-    # Use the ThreadPoolExecutor to download the images in parallel
     with concurrent.futures.ThreadPoolExecutor() as executor:
-        for url in download_urls:
+        futures = [
             executor.submit(download_image, url, base_path, source_name)
+            for url in download_urls
+        ]
+        for future in concurrent.futures.as_completed(futures):
+            try:
+                future.result()
+            except Exception as e:
+                print(f"An exception occurred in a thread: {e}")
+                raise e
 
 
 def request_rawdata(request_params):
