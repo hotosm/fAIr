@@ -32,6 +32,7 @@ from login.authentication import OsmAuthentication
 from login.permissions import IsOsmAuthenticated
 from orthogonalizer import othogonalize_poly
 from osmconflator import conflate_geojson
+from predictor import download
 from rest_framework import decorators, serializers, status, viewsets
 from rest_framework.decorators import api_view
 from rest_framework.exceptions import ValidationError
@@ -63,10 +64,7 @@ from .serializers import (
 )
 from .tasks import train_model
 from .utils import (
-    bbox,
-    download_imagery,
     get_dir_size,
-    get_start_end_download_coords,
     gpx_generator,
     is_dir_empty,
     process_rawdata,
@@ -244,6 +242,27 @@ class LabelViewSet(viewsets.ModelViewSet):
         True  # Optional to include overlapping labels in the tile served
     )
     filterset_fields = ["aoi", "aoi__dataset"]
+
+    def create(self, request, *args, **kwargs):
+        aoi_id = request.data.get("aoi")
+        geom = request.data.get("geom")
+
+        # Check if a label with the same AOI and geometry exists
+        existing_label = Label.objects.filter(aoi=aoi_id, geom=geom).first()
+
+        if existing_label:
+            # If it exists, update the existing label
+            serializer = LabelSerializer(existing_label, data=request.data)
+        else:
+            # If it doesn't exist, create a new label
+            serializer = LabelSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                serializer.data, status=status.HTTP_200_OK
+            )  # 200 for update, 201 for create
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class RawdataApiFeedbackView(APIView):
@@ -518,22 +537,21 @@ class PredictionView(APIView):
                 else source_img_in_dataset
             )
             zoom_level = deserialized_data["zoom_level"]
-            start, end = get_start_end_download_coords(
-                bbox, zoom_level, DEFAULT_TILE_SIZE
-            )
+
             temp_path = f"temp/{uuid.uuid4()}/"
             os.mkdir(temp_path)
             try:
-                download_imagery(
-                    start,
-                    end,
+                download_image_path = download(
+                    bbox,
                     zoom_level,
-                    base_path=temp_path,
-                    source=source,
+                    tms_url=source,
+                    tile_size=DEFAULT_TILE_SIZE,
+                    download_path=temp_path,
                 )
+
                 prediction_output = f"{temp_path}/prediction/output"
                 print("Image Downloaded , Starting Inference")
-                if is_dir_empty(temp_path):
+                if is_dir_empty(download_image_path):
                     return Response("No Images found", status=500)
                 start_time = time.time()
                 model_path = os.path.join(

@@ -16,12 +16,7 @@ from core.serializers import (
     FeedbackLabelFileSerializer,
     LabelFileSerializer,
 )
-from core.utils import (
-    bbox,
-    download_imagery,
-    get_start_end_download_coords,
-    is_dir_empty,
-)
+from core.utils import bbox, is_dir_empty
 from django.conf import settings
 from django.contrib.gis.db.models.aggregates import Extent
 from django.contrib.gis.geos import GEOSGeometry
@@ -29,6 +24,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from hot_fair_utilities import preprocess, train
 from hot_fair_utilities.training import run_feedback
+from predictor import download
 
 logger = logging.getLogger(__name__)
 
@@ -99,17 +95,12 @@ def train_model(
                     )
                     try:
                         tile_size = DEFAULT_TILE_SIZE  # by default
-
-                        start, end = get_start_end_download_coords(
-                            bbox_coords, zm_level, tile_size
-                        )
-                        # start downloading
-                        download_imagery(
-                            start,
-                            end,
+                        download(
+                            bbox_coords,
                             zm_level,
-                            base_path=training_input_image_source,
-                            source=source_imagery,
+                            source_imagery,
+                            tile_size,
+                            training_input_image_source,
                         )
 
                     except Exception as ex:

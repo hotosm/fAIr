@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { Dialog, DialogContent, CircularProgress } from "@mui/material";
 
-const UploadProgressModal = ({ open, onClose, progress }) => {
+const UploadProgressModal = ({ open, progress }) => {
+  console.log(progress);
   return (
-    <Dialog open={open} onClose={onClose}>
+    <Dialog open={open}>
       <DialogContent>
         <div style={{ textAlign: "center" }}>
           <CircularProgress />

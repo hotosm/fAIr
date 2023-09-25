@@ -18,6 +18,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import MapIcon from "@mui/icons-material/Map";
 import FolderIcon from "@mui/icons-material/Folder";
 import { MapTwoTone, ZoomInMap } from "@mui/icons-material";
+import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
+import RefreshIcon from "@mui/icons-material/Refresh";
 import usePagination from "./Pagination";
 import { makeStyles, withStyles } from "@material-ui/core/styles";
 import ScreenshotMonitorIcon from "@mui/icons-material/ScreenshotMonitor";
@@ -85,6 +87,7 @@ const AOI = (props) => {
 
   const handleFileChange = async (event, aoiId) => {
     try {
+      setIsModalOpen(true);
       setIsLoading(true);
       const file = event.target.files[0];
       if (!file) return;
@@ -104,12 +107,15 @@ const AOI = (props) => {
       const geometries = geoJsonData.features.map(
         (feature) => feature.geometry
       );
-
+      let feature_count = 0;
       for (const geometry of geometries) {
-        setProgress({
-          current: progress.current + 1,
+        feature_count = feature_count + 1;
+        const progress_updater = {
+          current: feature_count,
           total: geometries.length,
-        });
+        };
+        setProgress(progress_updater);
+        console.log(feature_count);
         const data = {
           geom: JSON.stringify(geometry),
           aoi: aoiId,
@@ -221,11 +227,7 @@ const AOI = (props) => {
             List of Area of Interests{` (${props.mapLayers.length})`}
           </Typography>
         </Tooltip>
-        <UploadProgressModal
-          open={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          progress={progress}
-        />
+        <UploadProgressModal open={isModalOpen} progress={progress} />
         <Demo>
           {props.mapLayers && props.mapLayers.length > PER_PAGE && (
             <Pagination
@@ -345,7 +347,7 @@ const AOI = (props) => {
                           console.log("call raw data API to fetch OSM labels");
                         }}
                       >
-                        <MapTwoTone fontSize="small" />
+                        <RefreshIcon fontSize="small" />
                       </IconButton>
                     </Tooltip>
                     <Tooltip title="Download this AOI">
@@ -358,7 +360,7 @@ const AOI = (props) => {
                           console.log("Downloading AOI as Geojson");
                         }}
                       >
-                        <MapTwoTone fontSize="small" />
+                        <CloudDownloadIcon fontSize="small" />
                       </IconButton>
                     </Tooltip>
 
@@ -372,27 +374,9 @@ const AOI = (props) => {
                           console.log("Downloading AOI Labels as Geojson");
                         }}
                       >
-                        <MapTwoTone fontSize="small" />
+                        <CloudDownloadIcon fontSize="small" />
                       </IconButton>
                     </Tooltip>
-
-                    <input
-                      type="file"
-                      accept=".geojson"
-                      style={{ display: "block" }}
-                      id={`file-input-${layer.aoiId}`}
-                      onChange={(e) => handleFileChange(e, layer.aoiId)}
-                    />
-
-                    {/* <IconButton aria-label="comments"
-                className="margin1"
-                disabled
-                onClick={(e)=> {
-
-                  console.log("Remove labels ")
-                }}>
-                   <PlaylistRemoveIcon />
-                </IconButton> */}
                     <Tooltip title="Zoom to layer">
                       <IconButton
                         sx={{ width: 24, height: 24 }}
@@ -423,6 +407,23 @@ const AOI = (props) => {
                         <ZoomInMap fontSize="small" />
                       </IconButton>
                     </Tooltip>
+                    <input
+                      type="file"
+                      accept=".geojson"
+                      style={{ display: "block" }}
+                      id={`file-input-${layer.aoiId}`}
+                      onChange={(e) => handleFileChange(e, layer.aoiId)}
+                    />
+
+                    {/* <IconButton aria-label="comments"
+                className="margin1"
+                disabled
+                onClick={(e)=> {
+
+                  console.log("Remove labels ")
+                }}>
+                   <PlaylistRemoveIcon />
+                </IconButton> */}
                   </ListItemSecondaryAction>
                 </ListItemWithWiderSecondaryAction>
               ))}
