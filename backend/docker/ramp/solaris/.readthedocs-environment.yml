@@ -1,8 +1,0 @@
-name: solaris
-dependencies:
-  - python
-  - pip
-  - gdal
-  - pip:
-    - sphinx_bootstrap_theme
-    - nbsphinx

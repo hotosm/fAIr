@@ -115,6 +115,113 @@ def get_start_end_download_coords(bbox_coords, zm_level, tile_size):
 import logging
 
 
+def download_image(url, base_path, source_name):
+    response = requests.get(url)
+    image = response.content
+    pattern = r"/(\d+)/(\d+)/(\d+)(?:\.\w+)?"
+    match = re.search(pattern, url)
+    # filename = z-x-y
+    filename = f"{base_path}/{source_name}-{match.group(2)}-{match.group(3)}-{match.group(1)}.png"
+
+    with open(filename, "wb") as f:
+        f.write(image)
+
+
+def download_imagery(start: list, end: list, zm_level, base_path, source="maxar"):
+    """Downloads imagery from start to end tile coordinate system
+
+    Args:
+        start (list):[tile_x,tile_y]
+        end (list): [tile_x,tile_y],
+        source (string): it should be eithre url string or maxar value
+        zm_level : Zoom level
+    """
+
+    begin_x = start[0]  # this will be the beginning of the download loop for x
+    begin_y = start[1]  # this will be the beginning of the download loop for x
+    stop_x = end[0]  # this will be the end of the download loop for x
+    stop_y = end[1]  # this will be the end of the download loop for x
+
+    print(f"Download starting from {start} to {end} using source {source} - {zm_level}")
+
+    start_x = begin_x  # starting loop from beginning
+    start_y = begin_y  # starting y loop from beginnig
+    source_name = "OAM"  # default
+    download_urls = []
+    while start_x <= stop_x:  # download  x section while keeping y as c
+        start_y = begin_y
+        while start_y >= stop_y:  # download  y section while keeping x as c
+            download_path = [start_x, start_y]
+            if source == "maxar":
+                try:
+                    connect_id = os.environ.get("MAXAR_CONNECT_ID")
+                except Exception as ex:
+                    raise ex
+                source_name = source
+                download_url = f"https://services.digitalglobe.com/earthservice/tmsaccess/tms/1.0.0/DigitalGlobe:ImageryTileService@EPSG:3857@jpg/{zm_level}/{download_path[0]}/{download_path[1]}.jpg?connectId={connect_id}&flipy=true"
+
+            else:
+                # source should be url as string , like this :  https://tiles.openaerialmap.org/62dbd947d8499800053796ec/0/62dbd947d8499800053796ed/{z}/{x}/{y}
+                if "{-y}" in source:
+                    ## negative TMS
+                    source_value = source.replace("{-y}", "{y}")
+                    # conversion from normal tms
+                    y_value = int((2**zm_level) - download_path[1] - 1)
+
+                else:
+                    # If it doesn't, use the positive y-coordinate
+                    y_value = download_path[1]
+                    source_value = source
+                download_url = source_value.format(
+                    x=download_path[0], y=y_value, z=zm_level
+                )
+
+            download_urls.append(download_url)
+
+            start_y = start_y - 1  # decrease the y
+
+        start_x = start_x + 1  # increase the x
+
+    logging.info(download_urls)
+
+    # Use the ThreadPoolExecutor to download the images in parallel
+
+    # with concurrent.futures.ThreadPoolExecutor() as executor:
+    #     for url in download_urls:
+    #         executor.submit(download_image, url, base_path, source_name)
+
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        futures = [
+            executor.submit(download_image, url, base_path, source_name)
+            for url in download_urls
+        ]
+
+        for future in concurrent.futures.as_completed(futures):
+            try:
+                future.result()
+            except Exception as e:
+                print(f"Error occurred: {e}")
+                raise e
+
+
+def download(
+    bbox,
+    zoom_level,
+    tms_url,
+    tile_size=256,
+    download_path=None,
+):
+    start, end = get_start_end_download_coords(bbox, zoom_level, tile_size)
+    download_imagery(
+        start,
+        end,
+        zoom_level,
+        base_path=download_path,
+        source=tms_url,
+    )
+    return download_path
+
+
 def is_dir_empty(directory_path):
     return not any(os.scandir(directory_path))
 

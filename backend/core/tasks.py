@@ -24,7 +24,8 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from hot_fair_utilities import preprocess, train
 from hot_fair_utilities.training import run_feedback
-from predictor import download
+
+from .utils import download
 
 logger = logging.getLogger(__name__)
 
@@ -89,9 +90,9 @@ def train_model(
                 bbox_coords = bbox(obj.geom.coords[0])
                 for z in zoom_level:
                     zm_level = z
-                    print(
+                    logger.info(
                         f"""Running Download process for
-                            aoi : {obj.id} - dataset : {dataset_id} , zoom : {zm_level}"""
+                            aoi : {obj.id} - dataset : {dataset_id} , zoom : {zm_level} using {source_imagery}"""
                     )
                     try:
                         tile_size = DEFAULT_TILE_SIZE  # by default

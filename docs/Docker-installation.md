@@ -124,3 +124,12 @@ Docker Compose is created with redis , worker , postgis database ,  api and fron
     ```
 
     Frontend will be available on 5000 port , Backend will be on 8000 , Flower will be on 5500 
+
+
+### fAIr setup for CPU : 
+
+This is still in test , Currently CPU version can be swamp by 
+
+```
+docker compose -f docker-compose_cpu.yml up
+```

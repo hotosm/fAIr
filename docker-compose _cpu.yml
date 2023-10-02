@@ -3,7 +3,7 @@ version: "3.8"
 services:
   postgres:
     restart: always
-    image: postgis/postgis:15-3.4
+    image: postgis/postgis
     container_name: pgsql
     environment:
       - POSTGRES_DB=ai
@@ -23,7 +23,7 @@ services:
   backend-api:
     build:
       context: ./backend
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile_CPU
     container_name: api
     command: python manage.py runserver 0.0.0.0:8000
     network_mode: host
@@ -40,16 +40,9 @@ services:
   backend-worker:
     build:
       context: ./backend
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile_CPU
     container_name: worker
     command: celery -A aiproject worker --loglevel=INFO --concurrency=1
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              capabilities: [gpu]
-
     network_mode: host
     volumes:
       - ./backend:/app

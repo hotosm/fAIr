@@ -156,8 +156,8 @@ class ImageDownloadSerializer(serializers.Serializer):
         Check supplied data
         """
         for i in data["zoom_level"]:
-            if int(i) < 19 or int(i) > 21:
-                raise serializers.ValidationError("Zoom level Supported between 19-21")
+            if int(i) < 18 or int(i) > 23:
+                raise serializers.ValidationError("Zoom level Supported between 18-23")
         return data
 
 
@@ -208,9 +208,9 @@ class FeedbackParamSerializer(serializers.Serializer):
 
         if "zoom_level" in data:
             for zoom in data["zoom_level"]:
-                if zoom < 19 or zoom > 21:
+                if zoom < 18 or zoom > 23:
                     raise serializers.ValidationError(
-                        "Zoom level must be between 19 and 21"
+                        "Zoom level must be between 18 and 23"
                     )
 
         return data
@@ -274,9 +274,9 @@ class PredictionParamSerializer(serializers.Serializer):
                 )
         if len(data["bbox"]) != 4:
             raise serializers.ValidationError("Not a valid bbox")
-        if data["zoom_level"] < 18 or data["zoom_level"] > 22:
+        if data["zoom_level"] < 18 or data["zoom_level"] > 23:
             raise serializers.ValidationError(
-                f"""Invalid Zoom level : {data["zoom_level"]}, Supported between 18-22"""
+                f"""Invalid Zoom level : {data["zoom_level"]}, Supported between 18-23"""
             )
 
         if "max_angle_change" in data:
