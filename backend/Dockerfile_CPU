@@ -1,11 +1,12 @@
-# Use a specific base image with GPU support
-FROM tensorflow/tensorflow:2.9.2-gpu
+# Use a specific base image with the desired TensorFlow version
+FROM tensorflow/tensorflow:2.9.2
 
 # Update package lists and install necessary dependencies in a single step
 RUN apt-get update && \
-    apt-get install -y python3-opencv gdal-bin libgdal-dev && \
+    apt-get install -y software-properties-common python3-opencv && \
     add-apt-repository ppa:ubuntugis/ppa && \
     apt-get update && \
+    apt-get install -y gdal-bin libgdal-dev && \
     rm -rf /var/lib/apt/lists/*
 
 # Set environment variables for GDAL
