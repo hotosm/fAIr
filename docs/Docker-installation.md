@@ -131,5 +131,5 @@ Docker Compose is created with redis , worker , postgis database ,  api and fron
 This is still in test , Currently CPU version can be swamp by 
 
 ```
-docker compose -f docker-compose_cpu.yml up
+docker compose -f docker-compose-cpu.yml up
 ```
