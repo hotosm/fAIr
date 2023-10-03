@@ -43,12 +43,7 @@ services:
       dockerfile: Dockerfile
     container_name: worker
     command: celery -A aiproject worker --loglevel=INFO --concurrency=1
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              capabilities: [gpu]
+
     volumes:
       - ./backend:/app
       - ${RAMP_HOME}:/RAMP_HOME
