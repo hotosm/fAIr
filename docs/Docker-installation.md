@@ -17,11 +17,11 @@ Docker Compose is created with redis , worker , postgis database ,  api and fron
 
 3. Check your Graphics 
 
-    fAIr works best with graphics card. It is highly recommended to use graphics card . It might not work with CPU only . Nvidia Graphics cards are tested 
+    fAIr works best with graphics card. It is highly recommended to use graphics card . It might not work with CPU only (You can setup and test from bottom of this document). Nvidia Graphics cards are tested 
 
     You need to make sure you can see your graphics card details and can be accessed through docker by installing necessary drivers
 
-    By following command you can see your graphics and graphics driver details 
+    By following command you can see your graphics and graphics driver details & nvidia container toolkit is installed More details [here](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)
     ```
     nvidia-smi
     ```
@@ -75,6 +75,7 @@ Docker Compose is created with redis , worker , postgis database ,  api and fron
 6. Create Env variables 
     - Create a file ```.env``` in backend with [docker_sample_env](../backend/docker_sample_env) content 
         ```
+        cd backend
         cp docker_sample_env .env
         ```
     - Fill out the details of ```OSM_CLIENT_ID``` &```OSM_CLIENT_SECRET``` in .env file and generate a unique key & paste it to ```OSM_SECRET_KEY``` (It can be random for dev setup)
@@ -83,6 +84,7 @@ Docker Compose is created with redis , worker , postgis database ,  api and fron
 
     - Create ```.env``` in /frontend
         ```
+        cd frontend
         cp .env_sample .env
         ```
         You can leave it as it is for dev setup
@@ -99,13 +101,17 @@ Docker Compose is created with redis , worker , postgis database ,  api and fron
 
 8. Run Migrations 
 
-    See Running containers grab their ID and launch bash to make migrations (This is needed for the first time to set database)
+    Run directly bash script : 
 
-        docker container ps
+    ```
+    bash run_migrations.sh
+    ```
 
-    Grab Container ID & Open Bash
+    OR 
 
-        docker exec -it CONTAINER_ID bash
+    Grab API container & Open Bash
+
+        docker exec -it api bash
 
 
     Once Bash is promoted hit following commands 

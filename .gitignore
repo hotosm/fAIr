@@ -6,6 +6,11 @@ frontend/node_modules
 frontend/.pnp
 frontend/.pnp.js
 
+#standard
+.env
+**/.vscode/**
+postgres-data/
+
 # testing
 frontend/coverage
 postgres-data/*
@@ -28,7 +33,7 @@ frontend/package-lock*
 
 frontend/.env
 
-# for 
+# for backend 
 backend/static
 backend/api_static
 backend/env
@@ -40,8 +45,7 @@ backend/media
 backend/data/*
 backend/log/*
 backend/training/*
+trainings/*
 backend/.env
 backend/config.txt
 backend/postgres-data
-**/.vscode/**
-postgres-data/

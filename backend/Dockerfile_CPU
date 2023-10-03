@@ -1,32 +1,39 @@
+# Use a specific base image with the desired TensorFlow version
 FROM tensorflow/tensorflow:2.9.2
 
-RUN apt-get update && apt-get install -y python3-opencv
-RUN add-apt-repository ppa:ubuntugis/ppa && apt-get update
-RUN apt-get update
-RUN apt-get install -y gdal-bin
-RUN apt-get install -y libgdal-dev
+# Update package lists and install necessary dependencies in a single step
+RUN apt-get update && \
+    apt-get install -y software-properties-common python3-opencv && \
+    add-apt-repository ppa:ubuntugis/ppa && \
+    apt-get update && \
+    apt-get install -y gdal-bin libgdal-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+# Set environment variables for GDAL
 ENV CPLUS_INCLUDE_PATH=/usr/include/gdal
 ENV C_INCLUDE_PATH=/usr/include/gdal
 
-#install numpy before gdal 
+# Install specific version of NumPy
 RUN pip install numpy==1.23.5
 
-# pip install dependencies.
-RUN pip install --global-option=build_ext --global-option="-I/usr/include/gdal" GDAL==`gdal-config --version`
+# Install GDAL with specified options
+RUN pip install --global-option=build_ext --global-option="-I/usr/include/gdal" GDAL==$(gdal-config --version)
 
-COPY docker/ramp/docker-requirements.txt docker-requirements.txt
-RUN pip install -r docker-requirements.txt
+# Copy and install Python requirements
+COPY docker/ramp/docker-requirements.txt /tmp/docker-requirements.txt
+RUN pip install -r /tmp/docker-requirements.txt
 
-# pip install solaris -- try with tmp-free build
+# Upgrade setuptools
+RUN pip install --upgrade setuptools
+
+COPY requirements.txt /tmp/requirements.txt
+RUN pip install -r /tmp/requirements.txt
+
+# Install solaris and scikit-fmm packages
 COPY docker/ramp/solaris /tmp/solaris
-RUN pip install /tmp/solaris --use-feature=in-tree-build
+RUN pip install /tmp/solaris --use-feature=in-tree-build && \
+    pip install scikit-fmm --use-feature=in-tree-build
 
-RUN pip install scikit-fmm --use-feature=in-tree-build
-
-RUN pip install setuptools --upgrade 
-
-COPY requirements.txt requirements.txt
-RUN pip install -r requirements.txt
-
+# Set working directory and copy the application code
 WORKDIR /app
 COPY . /app
