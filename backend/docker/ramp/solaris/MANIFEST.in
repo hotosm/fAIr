@@ -1,0 +1,10 @@
+include *.txt
+include *.md
+include *json
+include *.csv
+include *.pkl
+include *.tif
+include *.txt
+include *.npy
+
+graft solaris/data

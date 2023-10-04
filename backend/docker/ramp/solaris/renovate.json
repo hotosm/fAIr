@@ -1,0 +1,13 @@
+{
+  "extends": [
+    "config:base"
+  ],
+  "pip_setup": {
+    "enabled": true
+  },
+  "assignees": ["nrweir"],
+  "baseBranches": ["dev"],
+  "ignoreDeps": ["GDAL", "tensorflow"],
+  "labels": ["dependencies"],
+  "reviewers": ["nrweir"]
+}

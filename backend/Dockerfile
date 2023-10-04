@@ -1,27 +1,38 @@
+# Use a specific base image with GPU support
 FROM tensorflow/tensorflow:2.9.2-gpu
 
-# ENV PIP_NO_CACHE_DIR=1
-ENV PYTHONUNBUFFERED=1
-ENV DEBIAN_FRONTEND=noninteractive
-
-COPY requirements.txt requirements.txt
-COPY docker/ramp/docker-requirements.txt docker-requirements.txt
-
-RUN apt-get update &&\
-    apt-get install -y --no-install-recommends \
-        gdal-bin \
-        libgdal-dev \
-        python3-opencv && \
-    pip install --upgrade --user pip \
-    && pip install --global-option=build_ext --global-option="-I/usr/include/gdal" GDAL==`gdal-config --version` \
-    && pip install --user  -r docker-requirements.txt \
-    && pip install --user  fair-solaris==0.4.1 \
-    && pip install --user  ramp-fair \
-    && pip install --user  setuptools --upgrade \
-    && pip install --user  -r requirements.txt && \
-    apt-get clean -y && \
-    apt-get autoremove -y && \c
+# Update package lists and install necessary dependencies in a single step
+RUN apt-get update && \
+    apt-get install -y python3-opencv gdal-bin libgdal-dev && \
+    add-apt-repository ppa:ubuntugis/ppa && \
+    apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
+# Set environment variables for GDAL
+ENV CPLUS_INCLUDE_PATH=/usr/include/gdal
+ENV C_INCLUDE_PATH=/usr/include/gdal
+
+# Install specific version of NumPy
+RUN pip install numpy==1.23.5
+
+# Install GDAL with specified options
+RUN pip install --global-option=build_ext --global-option="-I/usr/include/gdal" GDAL==$(gdal-config --version)
+
+# Copy and install Python requirements
+COPY docker/ramp/docker-requirements.txt /tmp/docker-requirements.txt
+RUN pip install -r /tmp/docker-requirements.txt
+
+# Upgrade setuptools
+RUN pip install --upgrade setuptools
+
+COPY requirements.txt /tmp/requirements.txt
+RUN pip install -r /tmp/requirements.txt
+
+# Install solaris and scikit-fmm packages
+COPY docker/ramp/solaris /tmp/solaris
+RUN pip install /tmp/solaris --use-feature=in-tree-build && \
+    pip install scikit-fmm --use-feature=in-tree-build
+
+# Set working directory and copy the application code
 WORKDIR /app
 COPY . /app

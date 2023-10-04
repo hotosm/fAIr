@@ -13,16 +13,12 @@ services:
       - ./postgres-data:/var/lib/postgresql/data
     ports:
       - "5434:5432"
-    networks:
-      - fAIrnetwork
 
   redis:
     image: redis
     container_name: redis
     ports:
       - "6379:6379"
-    networks:
-      - fAIrnetwork
 
   backend-api:
     build:
@@ -30,8 +26,7 @@ services:
       dockerfile: Dockerfile_CPU
     container_name: api
     command: python manage.py runserver 0.0.0.0:8000
-    networks:
-      - fAIrnetwork
+
     ports:
       - 8000:8000
     volumes:
@@ -48,8 +43,7 @@ services:
       dockerfile: Dockerfile_CPU
     container_name: worker
     command: celery -A aiproject worker --loglevel=INFO --concurrency=1
-    networks:
-      - fAIrnetwork
+
     volumes:
       - ./backend:/app
       - ${RAMP_HOME}:/RAMP_HOME
@@ -62,9 +56,7 @@ services:
   worker-dashboard:
     image: mher/flower
     container_name: flower
-    command: celery --broker=redis://redis:6379/ flower --address=0.0.0.0 --port=5000
-    networks:
-      - fAIrnetwork
+    command: celery --broker=redis://redis:6379// flower --address=0.0.0.0 --port=5000
     ports:
       - 5500:5000
     depends_on:
@@ -77,14 +69,8 @@ services:
       context: ./frontend
       dockerfile: Dockerfile.frontend
     container_name: frontend
-    command: npm start -- --host 0.0.0.0 --port 3000
-    networks:
-      - fAIrnetwork
+    command: npm start  -- --host 0.0.0.0 --port 3000
     ports:
       - 3000:3000
     depends_on:
       - backend-api
-
-networks:
-  fAIrnetwork:
-    driver: bridge

@@ -182,8 +182,6 @@ def download_imagery(start: list, end: list, zm_level, base_path, source="maxar"
 
         start_x = start_x + 1  # increase the x
 
-    logging.info(download_urls)
-
     # Use the ThreadPoolExecutor to download the images in parallel
 
     # with concurrent.futures.ThreadPoolExecutor() as executor:

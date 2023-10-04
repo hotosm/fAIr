@@ -43,7 +43,7 @@ const AIModelEditor = (props) => {
   const [description, setDescription] = useState("");
   const [feedbackPopupOpen, setFeedbackPopupOpen] = React.useState(false);
   const { accessToken } = useContext(AuthContext);
-  const zoomLevels = [18, 19, 20, 21, 22, 23];
+  const zoomLevels = [18, 19, 20, 21, 22];
   const getModelById = async () => {
     try {
       const modelId = +id;
