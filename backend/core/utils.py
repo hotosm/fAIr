@@ -122,18 +122,13 @@ def is_dir_empty(directory_path):
 def download_image(url, base_path, source_name):
     response = requests.get(url)
 
-    # Check if the URL request was successful
-    if response.status_code != 200:
-        raise ValueError(
-            f"Failed to download image from {url}. Status code: {response.status_code}"
-        )
-
     image = response.content
 
-    url = re.sub(r"\.(png|jpeg)$", "", url)
-    url_splitted_list = url.split("/")
+    pattern = r"/(\d+)/(\d+)/(\d+)(?:\.\w+)?"
+    match = re.search(pattern, url)
+    # filename = z-x-y
+    filename = f"{base_path}/{source_name}-{match.group(2)}-{match.group(3)}-{match.group(1)}.png"
 
-    filename = f"{base_path}/{source_name}-{url_splitted_list[-2]}-{url_splitted_list[-1]}-{url_splitted_list[-3]}.png"
 
     with open(filename, "wb") as f:
         f.write(image)
@@ -178,14 +173,29 @@ def download_imagery(start: list, end: list, zm_level, base_path, source="maxar"
             # add multiple logic on supported sources here
             else:
                 # source should be url as string , like this :  https://tiles.openaerialmap.org/62dbd947d8499800053796ec/0/62dbd947d8499800053796ed/{z}/{x}/{y}
-                download_url = source.format(
-                    x=download_path[0], y=download_path[1], z=zm_level
-                )
+                if "{-y}" in source:
+                    ## negative TMS
+                    source_value = source.replace("{-y}", "{y}")
+                    # conversion from normal tms
+                    y_value = int((2**zm_level) - download_path[1] - 1)
+
+                else:
+                    # If it doesn't, use the positive y-coordinate
+                    y_value = download_path[1]
+                    source_value = source
+                download_url = source_value.format(
+                    x=download_path[0], y=y_value, z=zm_level)
             download_urls.append(download_url)
 
             start_y = start_y - 1  # decrease the y
 
         start_x = start_x + 1  # increase the x
+
+    # Use the ThreadPoolExecutor to download the images in parallel
+
+    # with concurrent.futures.ThreadPoolExecutor() as executor:
+    #     for url in download_urls:
+    #         executor.submit(download_image, url, base_path, source_name)
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futures = [
