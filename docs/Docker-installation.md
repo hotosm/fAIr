@@ -130,3 +130,57 @@ Docker Compose is created with redis , worker , postgis database ,  api and fron
     ```
 
     Frontend will be available on 5000 port , Backend will be on 8000 , Flower will be on 5500 
+
+10. Want to run your local tiles ? 
+
+    You can use [titler](https://github.com/developmentseed/titiler) , [gdals2tiles](https://gdal.org/programs/gdal2tiles.html) or nginx to run your own TMS server and add following to docker compose in order to access your localhost through docker containers . Add those to API and Worker . Make sure you update the .env variable accordingly 
+
+    ```
+    network_mode: "host"
+    ```
+    Example docker compose : 
+
+    ```
+    backend-api:
+        build:
+        context: ./backend
+        dockerfile: Dockerfile_CPU
+        container_name: api
+        command: python manage.py runserver 0.0.0.0:8000
+
+        ports:
+        - 8000:8000
+        volumes:
+        - ./backend:/app
+        - ${RAMP_HOME}:/RAMP_HOME
+        - ${TRAINING_WORKSPACE}:/TRAINING_WORKSPACE
+        depends_on:
+        - redis
+        - postgres
+        network_mode: "host"
+
+    backend-worker:
+        build:
+        context: ./backend
+        dockerfile: Dockerfile_CPU
+        container_name: worker
+        command: celery -A aiproject worker --loglevel=INFO --concurrency=1
+
+        volumes:
+        - ./backend:/app
+        - ${RAMP_HOME}:/RAMP_HOME
+        - ${TRAINING_WORKSPACE}:/TRAINING_WORKSPACE
+        depends_on:
+        - backend-api
+        - redis
+        - postgres
+        network_mode: "host"
+    ```
+
+    Example .env after host change : 
+
+    ```
+    DATABASE_URL=postgis://postgres:admin@localhost:5434/ai
+    CELERY_BROKER_URL="redis://localhost:6379/0"
+    CELERY_RESULT_BACKEND="redis://localhost:6379/0"
+    ```
