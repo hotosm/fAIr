@@ -109,13 +109,13 @@ const TrainingsList = (props) => {
     },
     {
       field: "timeSpan",
-      headerName: "Time (hrs)",
+      headerName: "Time (mins)",
       minWidth: 40,
       flex: 1,
       valueGetter: (params) => {
         // console.log("params",params)
         if (params.row.status === "FINISHED")
-          return timeSpan(params.row.started_at, params.row.finished_at);
+          return timeSpan(params.row.started_at, params.row.finished_at) * 60;
       },
     },
     {
