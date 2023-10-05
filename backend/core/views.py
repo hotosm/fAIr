@@ -245,6 +245,27 @@ class LabelViewSet(viewsets.ModelViewSet):
     )
     filterset_fields = ["aoi", "aoi__dataset"]
 
+    def create(self, request, *args, **kwargs):
+        aoi_id = request.data.get("aoi")
+        geom = request.data.get("geom")
+
+        # Check if a label with the same AOI and geometry exists
+        existing_label = Label.objects.filter(aoi=aoi_id, geom=geom).first()
+
+        if existing_label:
+            # If it exists, update the existing label
+            serializer = LabelSerializer(existing_label, data=request.data)
+        else:
+            # If it doesn't exist, create a new label
+            serializer = LabelSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                serializer.data, status=status.HTTP_200_OK
+            )  # 200 for update, 201 for create
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class RawdataApiFeedbackView(APIView):
     authentication_classes = [OsmAuthentication]

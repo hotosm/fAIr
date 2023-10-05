@@ -91,17 +91,11 @@ const DatasetNew = (props) => {
               fullWidth
               onChange={(e) => {
                 let trimmedValue = e.target.value.trim();
-                // let regUrl = /^(https?|chrome):\/\/[^\s$.?#].[^\s]*$/;
-                // let endsWithPng =
-                //   trimmedValue.endsWith(".png") ||
-                //   trimmedValue.endsWith(".jpeg");
-                // if (endsWithPng) {
-                //   trimmedValue = trimmedValue.slice(0, -4);
-                // }
                 let hasZXY = trimmedValue.includes("{z}/{x}/{y}");
+                let hasZXYNegative = trimmedValue.includes("{z}/{x}/{-y}");
                 let isValid =
                   regUrl.test(trimmedValue) &&
-                  hasZXY &&
+                  (hasZXY || hasZXYNegative) &&
                   trimmedValue !== "" &&
                   trimmedValue != null;
                 setError(!isValid);
