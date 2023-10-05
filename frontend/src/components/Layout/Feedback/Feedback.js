@@ -176,7 +176,7 @@ const Feedback = (props) => {
 
   function getFeatureStyle(feature) {
     return {
-      color: "green",
+      color: "blue",
       weight: 3,
     };
   }
