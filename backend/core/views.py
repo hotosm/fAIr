@@ -32,7 +32,7 @@ from login.authentication import OsmAuthentication
 from login.permissions import IsOsmAuthenticated
 from orthogonalizer import othogonalize_poly
 from osmconflator import conflate_geojson
-from predictor import download
+from .utils import download
 from rest_framework import decorators, serializers, status, viewsets
 from rest_framework.decorators import api_view
 from rest_framework.exceptions import ValidationError
