@@ -173,9 +173,7 @@ def download_imagery(start: list, end: list, zm_level, base_path, source="maxar"
                     y_value = download_path[1]
                     source_value = source
                 download_url = source_value.format(
-                    x=download_path[0], y=y_value, z=zm_level
-                )
-
+                    x=download_path[0], y=y_value, z=zm_level)
             download_urls.append(download_url)
 
             start_y = start_y - 1  # decrease the y

@@ -54,7 +54,9 @@ def train_model(
     try:
         ## -----------IMAGE DOWNLOADER---------
         os.makedirs(settings.LOG_PATH, exist_ok=True)
-
+        if training_instance.task_id is None or training_instance.task_id.strip() == '': 
+            training_instance.task_id=train_model.request.id
+            training_instance.save()
         log_file = os.path.join(
             settings.LOG_PATH, f"run_{train_model.request.id}_log.txt"
         )
