@@ -133,7 +133,7 @@ const EditableGeoJSON = ({
     mapref.removeLayer(createdLayer);
   };
   const { accessToken } = useContext(AuthContext);
-
+  const [render, setRender] = useState(Math.random());
   const submitFeedback = async (layer) => {
     try {
       // console.log("layer", layer);
@@ -271,7 +271,7 @@ const EditableGeoJSON = ({
             // console.log("popup layer ", layer);
             // handle submitting feedback
             // mutateSubmitFeedback(layer);
-
+            setRender(Math.random());
             popup.close();
           });
       }
