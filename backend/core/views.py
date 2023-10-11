@@ -543,7 +543,7 @@ class PredictionView(APIView):
                 bbox, zoom_level, DEFAULT_TILE_SIZE
             )
             temp_path = f"temp/{uuid.uuid4()}/"
-            os.mkdir(temp_path)
+            os.makedirs(temp_path,exist_ok=True)
             try:
                 download_imagery(
                     start,
