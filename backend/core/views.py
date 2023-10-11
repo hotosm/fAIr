@@ -539,7 +539,7 @@ class PredictionView(APIView):
             zoom_level = deserialized_data["zoom_level"]
 
             temp_path = f"temp/{uuid.uuid4()}/"
-            os.mkdir(temp_path)
+            os.makedirs(temp_path,exist_ok=True)
             try:
                 download_image_path = download(
                     bbox,
