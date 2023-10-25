@@ -10,7 +10,7 @@ const OSMUser = (props) => {
       // console.log("get OSM user data ")
 
       const res = await axios.get(
-        "https://www.openstreetmap.org/api/0.6/user/" + props.uid,
+        "https://api.openstreetmap.org/api/0.6/user/" + props.uid,
         { headers }
       );
 
@@ -55,7 +55,7 @@ const OSMUser = (props) => {
         <a
           target={"_blank"}
           rel={"noreferrer"}
-          href={"https://www.openstreetmap.org/api/0.6/user/" + props.uid}
+          href={"https://api.openstreetmap.org/api/0.6/user/" + props.uid}
         >
           {" "}
           {props.uid}
