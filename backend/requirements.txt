@@ -21,4 +21,4 @@ hot-fair-utilities==1.2.3
 geojson2osm==0.0.1
 osmconflator
 orthogonalizer
-fairpredictor==0.0.24
+fairpredictor==0.0.25
