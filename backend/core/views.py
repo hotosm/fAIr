@@ -7,9 +7,7 @@ import shutil
 import subprocess
 import sys
 import time
-import uuid
 import zipfile
-from concurrent.futures import ProcessPoolExecutor, TimeoutError
 from datetime import datetime
 from tempfile import NamedTemporaryFile
 
@@ -27,7 +25,6 @@ from django.shortcuts import get_object_or_404, redirect
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
 from geojson2osm import geojson2osm
-from hot_fair_utilities import polygonize, predict, vectorize
 from login.authentication import OsmAuthentication
 from login.permissions import IsOsmAuthenticated
 from orthogonalizer import othogonalize_poly
@@ -38,6 +35,8 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_gis.filters import InBBoxFilter, TMSTileFilter
+
+from predictor import predict
 
 from .models import (
     AOI,
@@ -63,12 +62,8 @@ from .serializers import (
 )
 from .tasks import train_model
 from .utils import (
-    bbox,
-    download_imagery,
     get_dir_size,
-    get_start_end_download_coords,
     gpx_generator,
-    is_dir_empty,
     process_rawdata,
     request_rawdata,
 )
@@ -539,85 +534,36 @@ class PredictionView(APIView):
                 else source_img_in_dataset
             )
             zoom_level = deserialized_data["zoom_level"]
-            start, end = get_start_end_download_coords(
-                bbox, zoom_level, DEFAULT_TILE_SIZE
-            )
-            temp_path = f"temp/{uuid.uuid4()}/"
-            os.mkdir(temp_path)
             try:
-                download_imagery(
-                    start,
-                    end,
-                    zoom_level,
-                    base_path=temp_path,
-                    source=source,
-                )
-                prediction_output = f"{temp_path}/prediction/output"
-                print("Image Downloaded , Starting Inference")
-                if is_dir_empty(temp_path):
-                    return Response("No Images found", status=500)
                 start_time = time.time()
                 model_path = os.path.join(
                     settings.TRAINING_WORKSPACE,
                     f"dataset_{model_instance.dataset.id}",
                     "output",
                     f"training_{training_instance.id}",
-                    "checkpoint.h5",
+                    "checkpoint.tflite",
                 )
-                # give high priority to h5 model format if not avilable fall back to .tf
+                # give high priority to tflite model format if not avilable fall back to .h5 if not use default .tf
                 if not os.path.exists(model_path):
                     model_path = os.path.join(
                         settings.TRAINING_WORKSPACE,
                         f"dataset_{model_instance.dataset.id}",
                         "output",
                         f"training_{training_instance.id}",
-                        "checkpoint.tf",
+                        "checkpoint.h5",
                     )
-                # Spawn a new process for the prediction task
-                with ProcessPoolExecutor(max_workers=1) as executor:
-                    try:
-                        future = executor.submit(
-                            predict,
-                            model_path,
-                            temp_path,
-                            prediction_output,
-                            deserialized_data["confidence"] / 100
-                            if "confidence" in deserialized_data
-                            else 0.5,
+                    if not os.path.exists(model_path):
+                        model_path = os.path.join(
+                            settings.TRAINING_WORKSPACE,
+                            f"dataset_{model_instance.dataset.id}",
+                            "output",
+                            f"training_{training_instance.id}",
+                            "checkpoint.tf",
                         )
-                        future.result(
-                            timeout=45
-                        )  # Wait for process to complete, wait for max 45 sec
-                    except TimeoutError:
-                        print("Prediction Timeout")
-                        return Response(
-                            "Prediction Timeout , Took more than 30 sec : Use smaller models/area",
-                            status=500,
-                        )
-
-                print("Prediction is Complete, Vectorizing images")
-                start = time.time()
-
-                geojson_output = f"{prediction_output}/prediction.geojson"
-                # polygonize(
-                #     input_path=prediction_output,
-                #     output_path=geojson_output,
-                #     remove_inputs=True,
-                # )
-
-                vectorize(
-                    input_path=prediction_output,
-                    output_path=geojson_output,
-                    tolerance=deserialized_data["tolerance"]
-                    if "tolerance" in deserialized_data
-                    else 0.2,  # in meters
-                    area_threshold=deserialized_data["area_threshold"]
-                    if "area_threshold" in deserialized_data
-                    else 3,  # in sqm
+                geojson_data = predict(bbox=bbox,model_path=model_path,zoom_level=zoom_level,tms_url=source, tile_size=DEFAULT_TILE_SIZE,confidence=deserialized_data["confidence"] / 100 if "confidence" in deserialized_data else 0.5,tile_overlap_distance=deserialized_data["tile_overlap_distance"] if "tile_overlap_distance" in deserialized_data else 0.15)
+                print(
+                    f"It took {round(time.time()-start_time)}sec for generating predictions"
                 )
-                with open(geojson_output, "r") as f:
-                    geojson_data = json.load(f)
-
                 for feature in geojson_data["features"]:
                     feature["properties"]["building"] = "yes"
                     feature["properties"]["source"] = "fAIr"
@@ -632,12 +578,7 @@ class PredictionView(APIView):
                             else 15,
                         )
 
-                shutil.rmtree(temp_path)
-
-                print(
-                    f"It took {round(time.time()-start)}sec for vectorization , Produced :{sys.getsizeof(geojson_data)*0.001} kb"
-                )
-                print(f"Prediction API took ({round(time.time()-start_time)} sec)")
+                print(f"Prediction API took ({round(time.time()-start_time)} sec) in total")
 
                 ## TODO : can send osm xml format from here as well using geojson2osm
                 return Response(geojson_data, status=status.HTTP_201_CREATED)
@@ -648,7 +589,6 @@ class PredictionView(APIView):
                     return Response(str(e), status=500)
             except Exception as ex:
                 print(ex)
-                shutil.rmtree(temp_path)
                 return Response("Prediction Error", status=500)
 
 
