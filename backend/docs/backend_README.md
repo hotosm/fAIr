@@ -24,11 +24,11 @@ The platform that fAIr provides is a further fine-tuning of the base-line model 
 
 The backend codebase is organised into the following main directories and files:
 
-- docker: This directory contains the Docker configurations for the project.
+- [docker](../docker/): This directory contains the Docker configurations for the project.
     - ramp: This directory contains the RAMP (Rapid Analytics and Model Prototyping) configurations.
     - solaris: This directory contains the Solaris configurations, a Python library for piping and translation between geospatial and ML formats
     
-- requirements.txt: This file lists the Python dependencies required by the project.
+- [requirements.txt](../requirements.txt): This file lists the Python dependencies required by the project.
 
 ### Deploying
 

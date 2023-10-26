@@ -66,8 +66,12 @@ function tile2boundingbox(xtile, ytile, zoom) {
 // }
 
 function getFeatureStyle(feature) {
-  let color = "red";
-  if (feature.properties.action !== "INITIAL") {
+  let color = "";
+  if (feature.properties.action === "ACCEPT") {
+    color = "blue";
+  } else if (feature.properties.action === "INITIAL") {
+    color = "red";
+  } else if (feature.properties.action === "JOSM") {
     color = "green";
   }
 
@@ -129,7 +133,7 @@ const EditableGeoJSON = ({
     mapref.removeLayer(createdLayer);
   };
   const { accessToken } = useContext(AuthContext);
-
+  const [render, setRender] = useState(Math.random());
   const submitFeedback = async (layer) => {
     try {
       // console.log("layer", layer);
@@ -240,8 +244,9 @@ const EditableGeoJSON = ({
       This feedback will be presented on the model (id: ${modelId}, training id: ${trainingId}) for improvements
       </p>
       <span>Comments:<span/><input type="text" id="comments" name="comments" />
-      <br>
-        <button id="rightButton" class="feedback-button" type="submit">&#128077; Submit</button>
+      <br/>
+        <button id="rightButton" class="feedback-button" type="submit">Submit feedback</button>
+        <button id="josmButton" class="feedback-button" type="submit">&#128077; Accept</button>
       </div>
       `;
         const popup = L.popup()
@@ -256,6 +261,17 @@ const EditableGeoJSON = ({
             console.log("popup layer ", layer);
             // handle submitting feedback
             mutateSubmitFeedback(layer);
+            popup.close();
+          });
+
+        popupElement
+          .querySelector("#josmButton")
+          .addEventListener("click", () => {
+            feature.properties.action = "JOSM";
+            // console.log("popup layer ", layer);
+            // handle submitting feedback
+            // mutateSubmitFeedback(layer);
+            setRender(Math.random());
             popup.close();
           });
       }

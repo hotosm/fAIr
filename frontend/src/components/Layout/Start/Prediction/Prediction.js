@@ -328,22 +328,27 @@ const Prediction = () => {
 
   async function openWithJosm() {
     setJosmLoading(true);
+    setError("");
     if (!predictions) {
       setError("No predictions available");
       return;
     }
 
+    console.log("predictions for JOSM", predictions);
     // Remove the "id", action , duplicate and intersect propertiesproperties from each feature in the "features" array
     const postprocessed_predictions = {
       ...predictions,
-      features: predictions.features.map((feature) => {
-        const { id, action, duplicate, intersect, ...newProps } =
-          feature.properties;
-        return {
-          ...feature,
-          properties: newProps,
-        };
-      }),
+      features: predictions.features
+        .filter((f) => f.properties.action === "JOSM")
+        .map((feature) => {
+          const { id, action, duplicate, intersect, ...newProps } =
+            feature.properties;
+          // if (action === "JOSM")
+          return {
+            ...feature,
+            properties: newProps,
+          };
+        }),
     };
 
     try {
