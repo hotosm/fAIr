@@ -37,3 +37,4 @@ RUN pip install /tmp/solaris --use-feature=in-tree-build && \
 # Set working directory and copy the application code
 WORKDIR /app
 COPY . /app
+

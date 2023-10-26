@@ -16,12 +16,7 @@ from core.serializers import (
     FeedbackLabelFileSerializer,
     LabelFileSerializer,
 )
-from core.utils import (
-    bbox,
-    download_imagery,
-    get_start_end_download_coords,
-    is_dir_empty,
-)
+from core.utils import bbox, is_dir_empty
 from django.conf import settings
 from django.contrib.gis.db.models.aggregates import Extent
 from django.contrib.gis.geos import GEOSGeometry
@@ -29,6 +24,8 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from hot_fair_utilities import preprocess, train
 from hot_fair_utilities.training import run_feedback
+
+from .utils import download
 
 logger = logging.getLogger(__name__)
 
@@ -95,23 +92,18 @@ def train_model(
                 bbox_coords = bbox(obj.geom.coords[0])
                 for z in zoom_level:
                     zm_level = z
-                    print(
+                    logger.info(
                         f"""Running Download process for
-                            aoi : {obj.id} - dataset : {dataset_id} , zoom : {zm_level}"""
+                            aoi : {obj.id} - dataset : {dataset_id} , zoom : {zm_level} using {source_imagery}"""
                     )
                     try:
                         tile_size = DEFAULT_TILE_SIZE  # by default
-
-                        start, end = get_start_end_download_coords(
-                            bbox_coords, zm_level, tile_size
-                        )
-                        # start downloading
-                        download_imagery(
-                            start,
-                            end,
+                        download(
+                            bbox_coords,
                             zm_level,
-                            base_path=training_input_image_source,
-                            source=source_imagery,
+                            source_imagery,
+                            tile_size,
+                            training_input_image_source,
                         )
 
                     except Exception as ex:

@@ -131,6 +131,7 @@ Docker Compose is created with redis , worker , postgis database ,  api and fron
 
     Frontend will be available on 5000 port , Backend will be on 8000 , Flower will be on 5500 
 
+
 10. Want to run your local tiles ? 
 
     You can use [titler](https://github.com/developmentseed/titiler) , [gdals2tiles](https://gdal.org/programs/gdal2tiles.html) or nginx to run your own TMS server and add following to docker compose in order to access your localhost through docker containers . Add those to API and Worker . Make sure you update the .env variable accordingly 
@@ -184,3 +185,10 @@ Docker Compose is created with redis , worker , postgis database ,  api and fron
     CELERY_BROKER_URL="redis://localhost:6379/0"
     CELERY_RESULT_BACKEND="redis://localhost:6379/0"
     ```
+### fAIr setup for CPU : 
+
+This is still in test , Currently CPU version can be swamp by 
+
+```
+docker compose -f docker-compose-cpu.yml up
+```

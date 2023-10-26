@@ -115,25 +115,16 @@ def get_start_end_download_coords(bbox_coords, zm_level, tile_size):
 import logging
 
 
-def is_dir_empty(directory_path):
-    return not any(os.scandir(directory_path))
-
-
 def download_image(url, base_path, source_name):
     response = requests.get(url)
-
     image = response.content
-
     pattern = r"/(\d+)/(\d+)/(\d+)(?:\.\w+)?"
     match = re.search(pattern, url)
     # filename = z-x-y
     filename = f"{base_path}/{source_name}-{match.group(2)}-{match.group(3)}-{match.group(1)}.png"
 
-
     with open(filename, "wb") as f:
         f.write(image)
-
-    # print(f"Downloaded: {url}")
 
 
 def download_imagery(start: list, end: list, zm_level, base_path, source="maxar"):
@@ -144,7 +135,6 @@ def download_imagery(start: list, end: list, zm_level, base_path, source="maxar"
         end (list): [tile_x,tile_y],
         source (string): it should be eithre url string or maxar value
         zm_level : Zoom level
-
     """
 
     begin_x = start[0]  # this will be the beginning of the download loop for x
@@ -170,7 +160,6 @@ def download_imagery(start: list, end: list, zm_level, base_path, source="maxar"
                 source_name = source
                 download_url = f"https://services.digitalglobe.com/earthservice/tmsaccess/tms/1.0.0/DigitalGlobe:ImageryTileService@EPSG:3857@jpg/{zm_level}/{download_path[0]}/{download_path[1]}.jpg?connectId={connect_id}&flipy=true"
 
-            # add multiple logic on supported sources here
             else:
                 # source should be url as string , like this :  https://tiles.openaerialmap.org/62dbd947d8499800053796ec/0/62dbd947d8499800053796ed/{z}/{x}/{y}
                 if "{-y}" in source:
@@ -202,12 +191,35 @@ def download_imagery(start: list, end: list, zm_level, base_path, source="maxar"
             executor.submit(download_image, url, base_path, source_name)
             for url in download_urls
         ]
+
         for future in concurrent.futures.as_completed(futures):
             try:
                 future.result()
             except Exception as e:
-                print(f"An exception occurred in a thread: {e}")
+                print(f"Error occurred: {e}")
                 raise e
+
+
+def download(
+    bbox,
+    zoom_level,
+    tms_url,
+    tile_size=256,
+    download_path=None,
+):
+    start, end = get_start_end_download_coords(bbox, zoom_level, tile_size)
+    download_imagery(
+        start,
+        end,
+        zoom_level,
+        base_path=download_path,
+        source=tms_url,
+    )
+    return download_path
+
+
+def is_dir_empty(directory_path):
+    return not any(os.scandir(directory_path))
 
 
 def request_rawdata(request_params):

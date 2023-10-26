@@ -36,6 +36,7 @@ services:
     depends_on:
       - redis
       - postgres
+    network_mode: "host"
 
   backend-worker:
     build:
@@ -52,6 +53,7 @@ services:
       - backend-api
       - redis
       - postgres
+    network_mode: "host"
 
   worker-dashboard:
     image: mher/flower
