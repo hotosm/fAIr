@@ -1,5 +1,5 @@
 django==4.1.4
-gdal
+# gdal
 psycopg2
 djangorestframework==3.14.0
 djangorestframework-gis==1.0
@@ -22,3 +22,4 @@ geojson2osm==0.0.1
 osmconflator
 orthogonalizer
 fairpredictor==0.0.25
+tflite-runtime==2.14.0
