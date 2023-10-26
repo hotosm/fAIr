@@ -21,5 +21,5 @@ hot-fair-utilities==1.2.3
 geojson2osm==0.0.1
 osmconflator
 orthogonalizer
-fairpredictor==0.0.25
+fairpredictor==0.0.26
 tflite-runtime==2.14.0
