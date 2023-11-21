@@ -230,6 +230,7 @@ class PredictionParamSerializer(serializers.Serializer):
     # for vectorization
     tolerance = serializers.FloatField(required=False)
     area_threshold = serializers.FloatField(required=False)
+    tile_overlap_distance = serializers.FloatField(required=False)
 
     def validate_max_angle_change(self, value):
         if value is not None:
@@ -252,6 +253,14 @@ class PredictionParamSerializer(serializers.Serializer):
             if value < 0 or value > 10:
                 raise serializers.ValidationError(
                     f"Invalid Tolerance: {value}, Should be between 0 and 10"
+                )
+        return value
+
+    def validate_tile_overlap_distance(self, value):
+        if value is not None:
+            if value < 0 or value > 1:
+                raise serializers.ValidationError(
+                    f"Invalid Tile Overlap Distance : {value}, Should be between 0 and 1"
                 )
         return value
 

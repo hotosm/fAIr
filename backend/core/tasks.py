@@ -16,10 +16,9 @@ from core.serializers import (
     FeedbackLabelFileSerializer,
     LabelFileSerializer,
 )
+from predictor import download_imagery,get_start_end_download_coords
 from core.utils import (
     bbox,
-    download_imagery,
-    get_start_end_download_coords,
     is_dir_empty,
 )
 from django.conf import settings
