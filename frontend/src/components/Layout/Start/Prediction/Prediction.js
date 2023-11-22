@@ -359,14 +359,23 @@ const Prediction = () => {
         const osmUrl = new URL("http://127.0.0.1:8111/load_data");
         osmUrl.searchParams.set("new_layer", "true");
         osmUrl.searchParams.set("data", response.data);
-
         const josmResponse = await fetch(osmUrl);
+
         const Imgurl = new URL("http://127.0.0.1:8111/imagery");
         Imgurl.searchParams.set("type", "tms");
         Imgurl.searchParams.set("title", imagery.name);
         Imgurl.searchParams.set("url", dataset.source_imagery);
-
         const imgResponse = await fetch(Imgurl);
+        // bounds._southWest.lng,
+        // bounds._southWest.lat,
+        // bounds._northEast.lng,
+        // bounds._northEast.lat,
+        const loadurl = new URL("http://127.0.0.1:8111/load_and_zoom");
+        loadurl.searchParams.set("bottom", bounds._southWest.lat);
+        loadurl.searchParams.set("top", bounds._northEast.lat);
+        loadurl.searchParams.set("left", bounds._southWest.lng);
+        loadurl.searchParams.set("right", bounds._northEast.lng);
+        const loadResponse = await fetch(loadurl);
 
         if (!josmResponse.ok) {
           throw new Error(
