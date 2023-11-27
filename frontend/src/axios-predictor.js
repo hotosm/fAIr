@@ -1,9 +1,12 @@
 import axios from "axios";
 
-console.log("process.env.REACT_APP_API_BASE", process.env.REACT_APP_API_BASE);
+console.log(
+  "process.env.REACT_APP_PREDICTOR_API_BASE",
+  process.env.REACT_APP_PREDICTOR_API_BASE
+);
 
 const instance = axios.create({
-  baseURL: process.env.REACT_APP_API_BASE,
+  baseURL: process.env.REACT_APP_PREDICTOR_API_BASE,
 });
 
 instance.interceptors.response.use(

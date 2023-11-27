@@ -30,6 +30,7 @@ import {
 import { useMutation, useQuery } from "react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "../../../../axios";
+import axiosPrediction from "../../../../axios-predictor";
 import AuthContext from "../../../../Context/AuthContext";
 import Snackbar from "@mui/material/Snackbar";
 
@@ -250,7 +251,8 @@ const Prediction = () => {
         bounds._northEast.lng,
         bounds._northEast.lat,
       ],
-      model_id: id,
+      // model_id: id, // for /prediction
+      checkpoint: `/mnt/efsmount/data/trainings/dataset_${dataset.id}/output/training_${modelInfo.trainingId}/checkpoint.tflite`,
       zoom_level: zoom,
       source: dataset.source_imagery,
       confidence: confidence,
@@ -261,7 +263,7 @@ const Prediction = () => {
       area_threshold: areaThreshold,
     };
     const startTime = new Date().getTime(); // measure start time
-    const res = await axios.post(`/prediction/`, body, { headers });
+    const res = await axiosPrediction.post(`/predict/`, body, { headers });
     const endTime = new Date().getTime(); // measure end time
     setResponseTime(((endTime - startTime) / 1000).toFixed(0)); // calculate and store response time in seconds
     setApiCallInProgress(false);
