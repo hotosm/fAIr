@@ -45,7 +45,9 @@ const Prediction = () => {
   const [predictions, setPredictions] = useState(null);
   const [feedbackSubmittedCount, setFeedbackSubmittedCount] = useState(0);
   const [addedTiles, setAddedTiles] = useState(new Set());
-
+  const [PredictionAPI, setPredictionAPI] = useState(
+    process.env.REACT_APP_PREDICTOR_API_BASE
+  );
   const handleCloseSnackbar = () => {
     setSnackbarOpen(false);
   };
@@ -251,8 +253,8 @@ const Prediction = () => {
         bounds._northEast.lng,
         bounds._northEast.lat,
       ],
-      // model_id: id, // for /prediction
-      checkpoint: `/mnt/efsmount/data/trainings/dataset_${dataset.id}/output/training_${modelInfo.trainingId}/checkpoint.tflite`,
+      model_id: id, // this will be used when PredictionAPI is empty and calling same base API
+      checkpoint: `/mnt/efsmount/data/trainings/dataset_${dataset.id}/output/training_${modelInfo.trainingId}/checkpoint.tflite`, // this will be used when there is PredictionAPI different from the base API
       zoom_level: zoom,
       source: dataset.source_imagery,
       confidence: confidence,
@@ -263,7 +265,11 @@ const Prediction = () => {
       area_threshold: areaThreshold,
     };
     const startTime = new Date().getTime(); // measure start time
-    const res = await axiosPrediction.post(`/predict/`, body, { headers });
+    const res = await (PredictionAPI ? axiosPrediction : axios).post(
+      `/${PredictionAPI ? "predict" : "prediction"}/`,
+      body,
+      { headers }
+    );
     const endTime = new Date().getTime(); // measure end time
     setResponseTime(((endTime - startTime) / 1000).toFixed(0)); // calculate and store response time in seconds
     setApiCallInProgress(false);
