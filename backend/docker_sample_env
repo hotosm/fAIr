@@ -1,7 +1,7 @@
 DEBUG=True
 SECRET_KEY=yl2w)c0boi_ma-1v5)935^2#&m*r!1s9z9^*9e5co^08_ixzo6
 DATABASE_URL=postgis://postgres:admin@pgsql:5432/ai
-EXPORT_TOOL_API_URL=https://galaxy-api.hotosm.org/v1/raw-data/current-snapshot/
+EXPORT_TOOL_API_URL=https://raw api url.hotosm.org/v1
 CORS_ALLOWED_ORIGINS=http://127.0.0.1:3000
 OSM_CLIENT_ID=
 OSM_CLIENT_SECRET=

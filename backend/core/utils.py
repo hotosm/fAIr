@@ -1,8 +1,11 @@
 import concurrent.futures
+import io
 import json
 import math
 import os
 import re
+import time
+import zipfile
 from datetime import datetime
 from uuid import uuid4
 from xml.dom import ValidationErr
@@ -55,35 +58,65 @@ def is_dir_empty(directory_path):
     return not any(os.scandir(directory_path))
 
 
+class RawDataAPI:
+    def __init__(self, BASE_API_URL):
+        self.BASE_API_URL = BASE_API_URL
 
-def request_rawdata(request_params):
-    """will make call to galaxy API & provides response as json
+    def request_snapshot(self, geometry):
+        headers = {"accept": "application/json", "Content-Type": "application/json"}
+        # Lets start with buildings for now
+        payload = {
+            "geometry": json.loads(geometry),
+            "filters": {"tags": {"all_geometry": {"join_or": {"building": []}}}},
+            "geometryType": ["polygon"],
+        }
+        response = requests.post(
+            f"{self.BASE_API_URL}/snapshot/", data=json.dumps(payload), headers=headers
+        )
+        response.raise_for_status()
+        return response.json()
+
+    def poll_task_status(self, task_link):
+        stop_loop = False
+        while not stop_loop:
+            check_result = requests.get(url=f"{self.BASE_API_URL}{task_link}")
+            check_result.raise_for_status()
+            res = check_result.json()
+            if res["status"] == "SUCCESS" or res["status"] == "FAILED":
+                stop_loop = True
+            time.sleep(1)
+        return res
+
+
+import logging
+
+
+def request_rawdata(geometry):
+    """will make call to Raw Data API & provides response as json
 
     Args:
-        request_params (dict): Galaxy API Request Body
+        geometry (dict): geometry to request
 
     Raises:
-        ImportError: If galaxy url is not exists
+        ImportError: If raw data api url is not exists
 
     Returns:
         Response(json): API Response
     """
 
     export_tool_api_url = settings.EXPORT_TOOL_API_URL
-
-    # following block should be a background task
-    headers = {
-        "accept": "application/json",
-        "Content-Type": "application/json",
-    }
-    print(request_params)
-    with requests.post(
-        url=export_tool_api_url, data=json.dumps(request_params), headers=headers
-    ) as r:  # curl can also be option
-        r.raise_for_status()
-        response_back = r.json()
-        print(response_back)
-        return response_back
+    api = RawDataAPI(export_tool_api_url)
+    snapshot_data = api.request_snapshot(geometry)
+    task_link = snapshot_data["track_link"]
+    logging.info("Fetching latest OSM snapshot")
+    task_result = api.poll_task_status(task_link)
+    logging.info(f"Fetch Task result: {task_result['status']}")
+    if task_result["status"] != "SUCCESS":
+        raise RuntimeError(
+            "Raw Data API did not respond correctly. Please try again later."
+        )
+    snapshot_url = task_result["result"]["download_url"]
+    return snapshot_url
 
 
 def process_rawdata(file_download_url, aoi_id, feedback=False):
@@ -99,7 +132,6 @@ def process_rawdata(file_download_url, aoi_id, feedback=False):
         os.makedirs(path)
     file_temp_path = os.path.join(path, f"{str(uuid4())}.zip")  # unique
     open(file_temp_path, "wb").write(r.content)
-    print("Zip File from API wrote to disk")
     with ZipFile(file_temp_path, "r") as zipObj:
         # Get a list of all archived file names from the zip
         listOfFileNames = zipObj.namelist()
