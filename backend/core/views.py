@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 import json
+import logging
 import os
 import pathlib
 import shutil
@@ -29,14 +30,13 @@ from login.authentication import OsmAuthentication
 from login.permissions import IsOsmAuthenticated
 from orthogonalizer import othogonalize_poly
 from osmconflator import conflate_geojson
+from predictor import predict
 from rest_framework import decorators, serializers, status, viewsets
 from rest_framework.decorators import api_view
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_gis.filters import InBBoxFilter, TMSTileFilter
-
-from predictor import predict
 
 from .models import (
     AOI,
@@ -61,12 +61,7 @@ from .serializers import (
     PredictionParamSerializer,
 )
 from .tasks import train_model
-from .utils import (
-    get_dir_size,
-    gpx_generator,
-    process_rawdata,
-    request_rawdata,
-)
+from .utils import get_dir_size, gpx_generator, process_rawdata, request_rawdata
 
 
 def home(request):
@@ -280,13 +275,7 @@ class RawdataApiFeedbackView(APIView):
         try:
             obj.label_status = 0
             obj.save()
-            raw_data_params = {
-                "geometry": json.loads(obj.geom.geojson),
-                "filters": {"tags": {"polygon": {"building": []}}},
-                "geometryType": ["polygon"],
-            }
-            result = request_rawdata(raw_data_params)
-            file_download_url = result["download_url"]
+            file_download_url = request_rawdata(obj.geom.geojson)
             process_rawdata(file_download_url, feedbackaoi_id, feedback=True)
             obj.label_status = 1
             obj.label_fetched = datetime.utcnow()
@@ -296,6 +285,7 @@ class RawdataApiFeedbackView(APIView):
             obj.label_status = -1
             obj.save()
             # raise ex
+            logging.error(ex)
             return Response("OSM Fetch Failed", status=500)
 
 
@@ -317,13 +307,7 @@ class RawdataApiAOIView(APIView):
         try:
             obj.label_status = 0
             obj.save()
-            raw_data_params = {
-                "geometry": json.loads(obj.geom.geojson),
-                "filters": {"tags": {"polygon": {"building": []}}},
-                "geometryType": ["polygon"],
-            }
-            result = request_rawdata(raw_data_params)
-            file_download_url = result["download_url"]
+            file_download_url = request_rawdata(obj.geom.geojson)
             process_rawdata(file_download_url, aoi_id)
             obj.label_status = 1
             obj.label_fetched = datetime.utcnow()
@@ -560,7 +544,19 @@ class PredictionView(APIView):
                             f"training_{training_instance.id}",
                             "checkpoint.tf",
                         )
-                geojson_data = predict(bbox=bbox,model_path=model_path,zoom_level=zoom_level,tms_url=source, tile_size=DEFAULT_TILE_SIZE,confidence=deserialized_data["confidence"] / 100 if "confidence" in deserialized_data else 0.5,tile_overlap_distance=deserialized_data["tile_overlap_distance"] if "tile_overlap_distance" in deserialized_data else 0.15)
+                geojson_data = predict(
+                    bbox=bbox,
+                    model_path=model_path,
+                    zoom_level=zoom_level,
+                    tms_url=source,
+                    tile_size=DEFAULT_TILE_SIZE,
+                    confidence=deserialized_data["confidence"] / 100
+                    if "confidence" in deserialized_data
+                    else 0.5,
+                    tile_overlap_distance=deserialized_data["tile_overlap_distance"]
+                    if "tile_overlap_distance" in deserialized_data
+                    else 0.15,
+                )
                 print(
                     f"It took {round(time.time()-start_time)}sec for generating predictions"
                 )
@@ -578,7 +574,9 @@ class PredictionView(APIView):
                             else 15,
                         )
 
-                print(f"Prediction API took ({round(time.time()-start_time)} sec) in total")
+                print(
+                    f"Prediction API took ({round(time.time()-start_time)} sec) in total"
+                )
 
                 ## TODO : can send osm xml format from here as well using geojson2osm
                 return Response(geojson_data, status=status.HTTP_201_CREATED)
