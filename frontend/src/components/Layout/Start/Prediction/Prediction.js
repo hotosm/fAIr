@@ -30,6 +30,7 @@ import {
 import { useMutation, useQuery } from "react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "../../../../axios";
+import axiosPrediction from "../../../../axios-predictor";
 import AuthContext from "../../../../Context/AuthContext";
 import Snackbar from "@mui/material/Snackbar";
 
@@ -44,7 +45,9 @@ const Prediction = () => {
   const [predictions, setPredictions] = useState(null);
   const [feedbackSubmittedCount, setFeedbackSubmittedCount] = useState(0);
   const [addedTiles, setAddedTiles] = useState(new Set());
-
+  const [PredictionAPI, setPredictionAPI] = useState(
+    process.env.REACT_APP_PREDICTOR_API_BASE
+  );
   const handleCloseSnackbar = () => {
     setSnackbarOpen(false);
   };
@@ -250,7 +253,8 @@ const Prediction = () => {
         bounds._northEast.lng,
         bounds._northEast.lat,
       ],
-      model_id: id,
+      model_id: id, // this will be used when PredictionAPI is empty and calling same base API
+      checkpoint: `/mnt/efsmount/data/trainings/dataset_${dataset.id}/output/training_${modelInfo.trainingId}/checkpoint.tflite`, // this will be used when there is PredictionAPI different from the base API
       zoom_level: zoom,
       source: dataset.source_imagery,
       confidence: confidence,
@@ -261,7 +265,11 @@ const Prediction = () => {
       area_threshold: areaThreshold,
     };
     const startTime = new Date().getTime(); // measure start time
-    const res = await axios.post(`/prediction/`, body, { headers });
+    const res = await (PredictionAPI ? axiosPrediction : axios).post(
+      `/${PredictionAPI ? "predict" : "prediction"}/`,
+      body,
+      { headers }
+    );
     const endTime = new Date().getTime(); // measure end time
     setResponseTime(((endTime - startTime) / 1000).toFixed(0)); // calculate and store response time in seconds
     setApiCallInProgress(false);
@@ -359,14 +367,23 @@ const Prediction = () => {
         const osmUrl = new URL("http://127.0.0.1:8111/load_data");
         osmUrl.searchParams.set("new_layer", "true");
         osmUrl.searchParams.set("data", response.data);
-
         const josmResponse = await fetch(osmUrl);
+
         const Imgurl = new URL("http://127.0.0.1:8111/imagery");
         Imgurl.searchParams.set("type", "tms");
         Imgurl.searchParams.set("title", imagery.name);
         Imgurl.searchParams.set("url", dataset.source_imagery);
-
         const imgResponse = await fetch(Imgurl);
+        // bounds._southWest.lng,
+        // bounds._southWest.lat,
+        // bounds._northEast.lng,
+        // bounds._northEast.lat,
+        const loadurl = new URL("http://127.0.0.1:8111/load_and_zoom");
+        loadurl.searchParams.set("bottom", bounds._southWest.lat);
+        loadurl.searchParams.set("top", bounds._northEast.lat);
+        loadurl.searchParams.set("left", bounds._southWest.lng);
+        loadurl.searchParams.set("right", bounds._northEast.lng);
+        const loadResponse = await fetch(loadurl);
 
         if (!josmResponse.ok) {
           throw new Error(
