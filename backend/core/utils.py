@@ -69,6 +69,7 @@ class RawDataAPI:
             "geometry": json.loads(geometry),
             "filters": {"tags": {"all_geometry": {"join_or": {"building": []}}}},
             "geometryType": ["polygon"],
+            "useStWithin": "false",
         }
         response = requests.post(
             f"{self.BASE_API_URL}/snapshot/", data=json.dumps(payload), headers=headers
