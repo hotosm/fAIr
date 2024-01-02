@@ -22,8 +22,7 @@ Unlike other AI data producers, fAIr is a free and open-source AI service that a
 To eliminate model biases, fAIr is built to work with the local communities and receive constant feedback on the models, which will result in the progressive intelligence of computer vision models. The AI models suggest detected features to be added to OpenStreetMap (OSM), but mass import into OSM is not planned. Whenever an OSM mapper uses the AI models for assisted mapping and completes corrections, fAIr can take those corrections as feedback to enhance the AI model’s accuracy.
 
 # Product Roadmap
-See below a suggested product roadmap [subject to change] that provides high-level overview for planned work.
-![image](https://user-images.githubusercontent.com/98902727/218769416-b3c71d3b-7c20-4d40-ab1e-88442d06445d.png)
+You can access the 2024 fAIr product roadmap under [Project on Github](https://github.com/orgs/hotosm/projects/30).
 
 # General Workflow of fAIr 
 
