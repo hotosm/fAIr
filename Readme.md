@@ -50,3 +50,8 @@ See below a suggested product roadmap [subject to change] that provides high-lev
 ## Local Installation [DEV]
 
 Checkout Docker Installation [docs](./docs/Docker-installation.md)
+
+## Get involved!
+
+* Start by reading our [Code of conduct](https://github.com/hotosm/fAIr/blob/master/docs/Code-of-Conduct.md)
+* Get familiar with our [contributor guidelines](https://github.com/hotosm/fAIr/blob/master/docs/Contribution.md) explaining the different ways in which you can support this project! We need your help!
