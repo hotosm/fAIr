@@ -16,7 +16,7 @@ The [issue queue](https://github.com/hotosm/fAIr/issues) is the best way to get 
 
 ## Code contributions
 
-Fork repo , Maintain your local changes on branch and Create pull requests (PRs) for changes that you think are needed. We would really appreciate your help!
+Fork repo, Maintain your local changes on branch and Create pull requests (PRs) for changes that you think are needed. We would really appreciate your help! 
 
 ## Documentation contributions 
 
