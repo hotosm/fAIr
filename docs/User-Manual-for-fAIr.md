@@ -1,4 +1,4 @@
-# User Manual for FMTM
+# User Manual for fAIr
 <br>
 This manual is a step by step guide for the community project managers on how to get started with the fAIr.
 
