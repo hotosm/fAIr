@@ -630,6 +630,14 @@ const DatasetMap = (props) => {
               }
             />
           </LayersControl.BaseLayer>
+          <LayersControl.BaseLayer name="ESRI World Imagery">
+            <TileLayer
+              maxNativeZoom={18}
+              maxZoom={24}
+              attribution="ESRI World Imagery"
+              url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+            />
+          </LayersControl.BaseLayer>
           <LayersControl.BaseLayer name="OSM" checked={true}>
             <TileLayer
               maxZoom={24}
@@ -653,6 +661,11 @@ const DatasetMap = (props) => {
                 minZoom={props.oamImagery.minzoom}
                 attribution={props.oamImagery.name}
                 url={props.oamImagery.url}
+                maxNativeZoom={
+                  props.oamImagery.url.includes("opena")
+                    ? props.oamImagery.maxzoom
+                    : 18
+                }
               />
             </LayersControl.BaseLayer>
           )}
