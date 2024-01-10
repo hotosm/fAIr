@@ -10,6 +10,15 @@ import hot_fair_utilities
 import ramp.utils
 import tensorflow as tf
 from celery import shared_task
+from django.conf import settings
+from django.contrib.gis.db.models.aggregates import Extent
+from django.contrib.gis.geos import GEOSGeometry
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
+from hot_fair_utilities import preprocess, train
+from hot_fair_utilities.training import run_feedback
+from predictor import download_imagery, get_start_end_download_coords
+
 from core.models import AOI, Feedback, FeedbackAOI, FeedbackLabel, Label, Training
 from core.serializers import (
     AOISerializer,
@@ -19,14 +28,6 @@ from core.serializers import (
     LabelFileSerializer,
 )
 from core.utils import bbox, is_dir_empty
-from django.conf import settings
-from django.contrib.gis.db.models.aggregates import Extent
-from django.contrib.gis.geos import GEOSGeometry
-from django.shortcuts import get_object_or_404
-from django.utils import timezone
-from hot_fair_utilities import preprocess, train
-from hot_fair_utilities.training import run_feedback
-from predictor import download_imagery, get_start_end_download_coords
 
 logger = logging.getLogger(__name__)
 
@@ -243,16 +244,12 @@ def train_model(
                 f.write(json.dumps(serialized_field.data))
 
             # dump used aois as featurecollection in output
-            aois_geojson = {
-                "type": "FeatureCollection",
-                "features": aoi_serializer.data,
-            }
             with open(
                 os.path.join(output_path, "aois.geojson"),
                 "w",
                 encoding="utf-8",
             ) as f:
-                f.write(json.dumps(aois_geojson))
+                f.write(json.dumps(aoi_serializer.data))
 
             # now remove the ramp-data all our outputs are copied to our training workspace
             shutil.rmtree(base_path)
