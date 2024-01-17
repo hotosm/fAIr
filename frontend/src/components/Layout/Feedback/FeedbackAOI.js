@@ -179,7 +179,7 @@ const FeedbackAOI = (props) => {
                               <>
                                 Area seems to be very small for an AOI
                                 <br />
-                                Make sure it is not a Label
+                                Please delete it and create a bigger AOI
                               </>
                             ) : (
                               ""
@@ -218,7 +218,7 @@ const FeedbackAOI = (props) => {
                           {/* <MapTwoTone   /> */}
                           <img
                             alt="RapiD logo"
-                            className="rapid-logo-small"
+                            className="editor-logo-small"
                             src="/rapid-logo.png"
                           />
                         </IconButton>

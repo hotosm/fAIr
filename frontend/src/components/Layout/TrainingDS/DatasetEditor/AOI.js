@@ -153,7 +153,7 @@ const AOI = (props) => {
                             <>
                               Area seems to be very small for an AOI
                               <br />
-                              Make sure it is not a Label
+                              Please delete it and create a bigger AOI
                             </>
                           ) : (
                             ""
