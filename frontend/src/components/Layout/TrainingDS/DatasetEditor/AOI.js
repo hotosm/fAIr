@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import {
+  Alert,
   Avatar,
   Grid,
   IconButton,
@@ -9,6 +10,7 @@ import {
   ListItemSecondaryAction,
   ListItemText,
   Pagination,
+  Snackbar,
   SvgIcon,
   Typography,
 } from "@mui/material";
@@ -42,6 +44,7 @@ const AOI = (props) => {
   const [dense, setDense] = useState(true);
   const count = Math.ceil(props.mapLayers.length / PER_PAGE);
   let [page, setPage] = useState(1);
+  const [openSnack, setOpenSnack] = useState(false);
   let _DATA = usePagination(
     props.mapLayers.filter((e) => e.type === "aoi"),
     PER_PAGE
@@ -167,7 +170,7 @@ const AOI = (props) => {
                     {/* <IconButton aria-label="comments">
                    <DeleteIcon />
                 </IconButton> */}
-                    <Tooltip title="Create Labels on RapID Editor">
+                    {/* <Tooltip title="Create Labels on RapID Editor">
                       <IconButton
                         aria-label="comments"
                         sx={{ width: 24, height: 24 }}
@@ -188,11 +191,74 @@ const AOI = (props) => {
                           );
                         }}
                       >
-                        {/* <MapTwoTone   /> */}
+                       
                         <img
                           alt="RapiD logo"
-                          className="rapid-logo-small"
+                          className="editor-logo-small"
                           src="/rapid-logo.png"
+                        />
+                      </IconButton>
+                    </Tooltip> */}
+                    <Tooltip title="Create Labels on JOSM Editor">
+                      <IconButton
+                        aria-label="comments"
+                        sx={{ width: 24, height: 24 }}
+                        className="margin1 transparent"
+                        onClick={async (e) => {
+                          try {
+                            // mutateFetch(layer.aoiId);
+                            console.log("layer", layer);
+
+                            const Imgurl = new URL(
+                              "http://127.0.0.1:8111/imagery"
+                            );
+                            Imgurl.searchParams.set("type", "tms");
+                            Imgurl.searchParams.set(
+                              "title",
+                              props.oamImagery.name
+                            );
+                            Imgurl.searchParams.set(
+                              "url",
+                              props.oamImagery.url
+                            );
+                            const imgResponse = await fetch(Imgurl);
+                            // bounds._southWest.lng,
+                            // bounds._southWest.lat,
+                            // bounds._northEast.lng,
+                            // bounds._northEast.lat,
+                            const loadurl = new URL(
+                              "http://127.0.0.1:8111/load_and_zoom"
+                            );
+                            loadurl.searchParams.set(
+                              "bottom",
+                              layer.latlngs[0].lat
+                            );
+                            loadurl.searchParams.set(
+                              "top",
+                              layer.latlngs[1].lat
+                            );
+                            loadurl.searchParams.set(
+                              "left",
+                              layer.latlngs[0].lng
+                            );
+                            loadurl.searchParams.set(
+                              "right",
+                              layer.latlngs[2].lng
+                            );
+                            const loadResponse = await fetch(loadurl);
+
+                            if (!imgResponse.ok) {
+                              setOpenSnack(true);
+                            }
+                          } catch (error) {
+                            setOpenSnack(true);
+                          }
+                        }}
+                      >
+                        <img
+                          alt="RapiD logo"
+                          className="editor-logo-small"
+                          src="/josm-logo.png"
                         />
                       </IconButton>
                     </Tooltip>
@@ -305,6 +371,32 @@ const AOI = (props) => {
           </Typography>
         )}
       </Grid>
+      <Snackbar
+        open={openSnack}
+        autoHideDuration={5000}
+        onClose={() => {
+          console.log("openSnack", openSnack);
+          setOpenSnack(false);
+        }}
+        message={
+          <Alert severity="error">
+            <span>
+              Please make sure JOSM is open and Remote Control feature is
+              enabled{" "}
+              <a
+                target="_blank"
+                rel="noreferrer"
+                href="https://josm.openstreetmap.de/wiki/Help/Preferences/RemoteControl"
+              >
+                Click here for more details
+              </a>
+            </span>
+          </Alert>
+        }
+        // action={action}
+        color="red"
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      />
     </>
   );
 };
