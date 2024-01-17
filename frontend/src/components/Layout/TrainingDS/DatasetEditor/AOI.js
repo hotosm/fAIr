@@ -82,6 +82,32 @@ const AOI = (props) => {
   const { mutate: mutateFetch, data: fetchResult } =
     useMutation(fetchOSMLebels);
 
+  const DeleteAOI = async (id, leafletId) => {
+    try {
+      const headers = {
+        "access-token": accessToken,
+      };
+
+      const res = await axios.delete(`/aoi/${id}`, {
+        headers,
+      });
+
+      if (res.error) {
+        console.log(res);
+        console.log(res.error.response.statusText);
+      } else {
+        console.log(`AOI ${id} deleted from DB`);
+
+        props.deleteAOIButton(id, leafletId);
+        return res.data;
+      }
+    } catch (e) {
+      console.log("isError", e);
+    } finally {
+    }
+  };
+  const { mutate: mutateDeleteAOI } = useMutation(DeleteAOI);
+
   return (
     <>
       <Grid item md={12} className="card" marginBottom={1}>
@@ -212,6 +238,7 @@ const AOI = (props) => {
                         <MapTwoTone fontSize="small" />
                       </IconButton>
                     </Tooltip>
+
                     {/* <IconButton aria-label="comments"
                 className="margin1"
                 disabled
@@ -249,6 +276,21 @@ const AOI = (props) => {
                         }}
                       >
                         <ZoomInMap fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Delete AOI">
+                      <IconButton
+                        aria-label="comments"
+                        sx={{ width: 24, height: 24 }}
+                        className="margin-left-13"
+                        onClick={(e) => {
+                          // console.log(
+                          //   `layer.aoiId ${layer.aoiId} and layer.id ${layer.id}`
+                          // );
+                          mutateDeleteAOI(layer.aoiId, layer.id);
+                        }}
+                      >
+                        <DeleteIcon fontSize="small" />
                       </IconButton>
                     </Tooltip>
                   </ListItemSecondaryAction>
