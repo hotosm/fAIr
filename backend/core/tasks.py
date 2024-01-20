@@ -10,17 +10,6 @@ import hot_fair_utilities
 import ramp.utils
 import tensorflow as tf
 from celery import shared_task
-from core.models import AOI, Feedback, FeedbackAOI, FeedbackLabel, Label, Training
-from core.serializers import (
-    FeedbackFileSerializer,
-    FeedbackLabelFileSerializer,
-    LabelFileSerializer,
-)
-from predictor import download_imagery,get_start_end_download_coords
-from core.utils import (
-    bbox,
-    is_dir_empty,
-)
 from django.conf import settings
 from django.contrib.gis.db.models.aggregates import Extent
 from django.contrib.gis.geos import GEOSGeometry
@@ -28,6 +17,17 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from hot_fair_utilities import preprocess, train
 from hot_fair_utilities.training import run_feedback
+from predictor import download_imagery, get_start_end_download_coords
+
+from core.models import AOI, Feedback, FeedbackAOI, FeedbackLabel, Label, Training
+from core.serializers import (
+    AOISerializer,
+    FeedbackAOISerializer,
+    FeedbackFileSerializer,
+    FeedbackLabelFileSerializer,
+    LabelFileSerializer,
+)
+from core.utils import bbox, is_dir_empty
 
 logger = logging.getLogger(__name__)
 
@@ -56,8 +56,8 @@ def train_model(
     try:
         ## -----------IMAGE DOWNLOADER---------
         os.makedirs(settings.LOG_PATH, exist_ok=True)
-        if training_instance.task_id is None or training_instance.task_id.strip() == '': 
-            training_instance.task_id=train_model.request.id
+        if training_instance.task_id is None or training_instance.task_id.strip() == "":
+            training_instance.task_id = train_model.request.id
             training_instance.save()
         log_file = os.path.join(
             settings.LOG_PATH, f"run_{train_model.request.id}_log.txt"
@@ -77,6 +77,8 @@ def train_model(
             if feedback:
                 try:
                     aois = FeedbackAOI.objects.filter(training=feedback)
+                    aoi_serializer = FeedbackAOISerializer(aois, many=True)
+
                 except FeedbackAOI.DoesNotExist:
                     raise ValueError(
                         f"No Feedback AOI is attached with supplied training id:{dataset_id}, Create AOI first",
@@ -85,11 +87,12 @@ def train_model(
             else:
                 try:
                     aois = AOI.objects.filter(dataset=dataset_id)
+                    aoi_serializer = AOISerializer(aois, many=True)
+
                 except AOI.DoesNotExist:
                     raise ValueError(
                         f"No AOI is attached with supplied dataset id:{dataset_id}, Create AOI first",
                     )
-
             for obj in aois:
                 bbox_coords = bbox(obj.geom.coords[0])
                 for z in zoom_level:
@@ -223,14 +226,30 @@ def train_model(
 
             logger.info(model.inputs)
             logger.info(model.outputs)
-            
+
             # Convert the model to tflite for android/ios.
             converter = tf.lite.TFLiteConverter.from_keras_model(model)
             tflite_model = converter.convert()
 
             # Save the model.
-            with open(os.path.join(output_path, "checkpoint.tflite"), 'wb') as f:
+            with open(os.path.join(output_path, "checkpoint.tflite"), "wb") as f:
                 f.write(tflite_model)
+
+            # dump labels to output folder as well
+            with open(
+                os.path.join(output_path, "labels.geojson"),
+                "w",
+                encoding="utf-8",
+            ) as f:
+                f.write(json.dumps(serialized_field.data))
+
+            # dump used aois as featurecollection in output
+            with open(
+                os.path.join(output_path, "aois.geojson"),
+                "w",
+                encoding="utf-8",
+            ) as f:
+                f.write(json.dumps(aoi_serializer.data))
 
             # now remove the ramp-data all our outputs are copied to our training workspace
             shutil.rmtree(base_path)

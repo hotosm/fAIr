@@ -189,6 +189,7 @@ def process_feature(feature, aoi_id, foreign_key_id, feedback=False):
     """Multi thread process of features"""
     properties = feature["properties"]
     osm_id = properties["osm_id"]
+    tags = properties["tags"]
     geometry = feature["geometry"]
     if feedback:
         if FeedbackLabel.objects.filter(
@@ -199,7 +200,12 @@ def process_feature(feature, aoi_id, foreign_key_id, feedback=False):
             ).delete()
 
         label = FeedbackLabelSerializer(
-            data={"osm_id": int(osm_id), "geom": geometry, "feedback_aoi": aoi_id}
+            data={
+                "osm_id": int(osm_id),
+                "tags": tags,
+                "geom": geometry,
+                "feedback_aoi": aoi_id,
+            }
         )
 
     else:
@@ -211,7 +217,7 @@ def process_feature(feature, aoi_id, foreign_key_id, feedback=False):
             ).delete()
 
         label = LabelSerializer(
-            data={"osm_id": int(osm_id), "geom": geometry, "aoi": aoi_id}
+            data={"osm_id": int(osm_id), "tags": tags, "geom": geometry, "aoi": aoi_id}
         )
     if label.is_valid():
         label.save()
