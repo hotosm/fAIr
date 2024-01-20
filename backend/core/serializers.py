@@ -126,7 +126,7 @@ class LabelFileSerializer(GeoFeatureModelSerializer):
         model = Label
         geo_field = "geom"
         # auto_bbox = True
-        fields = ("osm_id",)
+        fields = ("osm_id", "tags")
 
 
 class FeedbackLabelFileSerializer(GeoFeatureModelSerializer):
@@ -134,7 +134,7 @@ class FeedbackLabelFileSerializer(GeoFeatureModelSerializer):
         model = FeedbackLabel
         geo_field = "geom"
         # auto_bbox = True
-        fields = ("osm_id",)
+        fields = ("osm_id", "tags")
 
 
 class FeedbackFileSerializer(GeoFeatureModelSerializer):
