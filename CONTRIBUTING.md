@@ -9,3 +9,8 @@ We welcome and encourage contributors of all skill levels and we are committed t
 ## Code contributions
 
 Fork repo, Maintain your local changes on branch and Create pull requests (PRs) for changes that you think are needed. We would really appreciate your help! 
+
+
+## Documentation contributions 
+
+Create pull requests (PRs) for changes that you think are needed to the documentation of fAIr.As of now you can find the documentation work at the [docs](./docs) directory.
