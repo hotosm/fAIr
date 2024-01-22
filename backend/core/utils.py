@@ -246,7 +246,7 @@ def process_geojson(geojson_file_path, aoi_id, feedback=False):
         (os.cpu_count() - 1) if os.cpu_count() != 1 else 1
     )  # leave one cpu free always
     if feedback:
-        FeedbackLabel.objects.filter(aoi__id=aoi_id).delete()
+        FeedbackLabel.objects.filter(feedback_aoi__id=aoi_id).delete()
     else : 
         Label.objects.filter(aoi__id=aoi_id).delete()
     # max_workers = os.cpu_count()  # get total cpu count available on the
