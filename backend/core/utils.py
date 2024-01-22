@@ -192,6 +192,7 @@ def process_feature(feature, aoi_id, foreign_key_id, feedback=False):
     tags = properties["tags"]
     geometry = feature["geometry"]
     if feedback:
+        FeedbackLabel.objects.filter(aoi__id=aoi_id).delete()
         if FeedbackLabel.objects.filter(
             osm_id=int(osm_id), feedback_aoi__training=foreign_key_id
         ).exists():
@@ -209,6 +210,7 @@ def process_feature(feature, aoi_id, foreign_key_id, feedback=False):
         )
 
     else:
+        Label.objects.filter(aoi__id=aoi_id).delete()
         if Label.objects.filter(
             osm_id=int(osm_id), aoi__dataset=foreign_key_id
         ).exists():
