@@ -180,3 +180,8 @@ code {
 {
   max-width: 80% !important;
 }
+
+.leaflet-draw.leaflet-control > div:nth-child(2)
+{
+  display: none;
+}
