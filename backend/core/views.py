@@ -192,6 +192,7 @@ class FeedbackLabelViewset(viewsets.ModelViewSet):
     bbox_filter_field = "geom"
     filter_backends = (
         InBBoxFilter,  # it will take bbox like this api/v1/label/?in_bbox=-90,29,-89,35 ,
+        DjangoFilterBackend
     )
     bbox_filter_include_overlapping = True
     filterset_fields = ["feedback_aoi", "feedback_aoi__training"]
