@@ -189,6 +189,7 @@ def process_feature(feature, aoi_id, foreign_key_id, feedback=False):
     """Multi thread process of features"""
     properties = feature["properties"]
     osm_id = properties["osm_id"]
+    tags = properties["tags"]
     geometry = feature["geometry"]
     if feedback:
         if FeedbackLabel.objects.filter(
@@ -199,7 +200,12 @@ def process_feature(feature, aoi_id, foreign_key_id, feedback=False):
             ).delete()
 
         label = FeedbackLabelSerializer(
-            data={"osm_id": int(osm_id), "geom": geometry, "feedback_aoi": aoi_id}
+            data={
+                "osm_id": int(osm_id),
+                "tags": tags,
+                "geom": geometry,
+                "feedback_aoi": aoi_id,
+            }
         )
 
     else:
@@ -211,7 +217,7 @@ def process_feature(feature, aoi_id, foreign_key_id, feedback=False):
             ).delete()
 
         label = LabelSerializer(
-            data={"osm_id": int(osm_id), "geom": geometry, "aoi": aoi_id}
+            data={"osm_id": int(osm_id), "tags": tags, "geom": geometry, "aoi": aoi_id}
         )
     if label.is_valid():
         label.save()
@@ -239,7 +245,10 @@ def process_geojson(geojson_file_path, aoi_id, feedback=False):
     max_workers = (
         (os.cpu_count() - 1) if os.cpu_count() != 1 else 1
     )  # leave one cpu free always
-
+    if feedback:
+        FeedbackLabel.objects.filter(feedback_aoi__id=aoi_id).delete()
+    else : 
+        Label.objects.filter(aoi__id=aoi_id).delete()
     # max_workers = os.cpu_count()  # get total cpu count available on the
 
     with open(geojson_file_path) as f:
