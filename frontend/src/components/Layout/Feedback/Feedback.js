@@ -247,7 +247,7 @@ const Feedback = (props) => {
         "access-token": accessToken,
       };
       const res = await axios.get(
-        `/feedback-label/?in_bbox=${box._southWest.lng},${box._southWest.lat},${box._northEast.lng},${box._northEast.lat}`,
+        `/feedback-label/?in_bbox=${box._southWest.lng},${box._southWest.lat},${box._northEast.lng},${box._northEast.lat}&feedback_aoi__training=${trainingId}`,
         { headers }
       );
       console.log("res from getLabels ", res);
