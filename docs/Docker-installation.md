@@ -33,11 +33,11 @@ Docker Compose is created with redis , worker , postgis database ,  api and fron
         ```
         mkdir ramp
         ```
-    - Download BaseModel Checkpoint from [here](https://drive.google.com/file/d/1wvJhkiOrSlHmmvJ0avkAdu9sslFf5_I0/view?usp=sharing) 
+    - Download BaseModel Checkpoint from [here](https://drive.google.com/file/d/1YQsY61S_rGfJ_f6kLQq4ouYE2l3iRe1k/view) 
         OR You can use basemodel from [Model Ramp Baseline](https://github.com/radiantearth/model_ramp_baseline/tree/main/data/input/checkpoint.tf)
         ```
         pip install gdown
-        gdown --fuzzy https://drive.google.com/file/d/1wvJhkiOrSlHmmvJ0avkAdu9sslFf5_I0/view?usp=sharing
+        gdown --fuzzy https://drive.google.com/file/d/1YQsY61S_rGfJ_f6kLQq4ouYE2l3iRe1k/view
         ```
     - Clone Ramp Code 
 
