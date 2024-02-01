@@ -128,56 +128,56 @@ const Learn = () => {
       title: "Step 16: Create Training for Your Model",
       description:
         "After creating Model for your dataset you will see following page. From here You can submit Trainings for your model. Give your epochs , Batch size and Zoom level for Training . Epochs refers to the number of times the learning algorithm will go through the entire training dataset, recommended between 20 - 60.  Batch size refers to number of sample pairs to work through before updating the internal model parameters. 8 is recommended and preferred to be 8, 16, 32 ...etc . Zoom levels are the image sizes that will be downloaded during trainings (20 is recommended ) You can train on all of zoom levels . you can play with the parameters for your training after visualizing your results , Increase- Decrease batchsize / epochs or your training labels to achieve best performing model , You can Use Goldilocks Method to find best parameter for your dataset",
-      image: "/learn/15.png", // Add image URL here
+      image: "/learn-resources/15.png", // Add image URL here
     },
     {
       id: 17,
       title: "Step 17: Submit Your Training",
       description:
         "Click on Submit Training Request and slide down, you will see your training listed there , You can check its status by clicking on info, Based on your dataset , AOI , your parameter model training may take time you can check progress on status. SUBMITTED , RUNNING , FINISHED . You can see your model accuracy and use it after it is finished. If it fails you can check the reason for it and adapt accordingly",
-      image: "/learn/16.png", // Add image URL here
+      image: "/learn-resources/16.png", // Add image URL here
     },
     {
       id: 18,
       title: "Step 18: Check info of your Trainings",
       description:
         "Click on i icon button next to your training to visualize current terminal and process of your training , It will display accuracy validation graph after training is finished",
-      image: "/learn/17.png", // Add image URL here
+      image: "/learn-resources/17.png", // Add image URL here
     },
     {
       id: 19,
       title: "Step 19: Finished Training",
       description:
         "You can visualize your trainings accuracy and it's graph after it is finished like this",
-      image: "/learn/18.png", // Add image URL here
+      image: "/learn-resources/18.png", // Add image URL here
     },
     {
       id: 20,
       title: "Step 20: Publish Your Training",
       description:
         "Once you are statisfied accuracy and want to visualize its prediction you need to publish the training. You can run multiple trainings for same model to find best performing checkpoint, Each training will result different checkpoint. You can always publish another training. Click on PUblish Training button to Publish Model",
-      image: "/learn/19.png", // Add image URL here
+      image: "/learn-resources/19.png", // Add image URL here
     },
     {
       id: 21,
       title: "Step 21: Start Mapping",
       description:
         "Once Model is Published it will be listed here on Model page as Published Training ID , Click on Start Mapping to See its Prediction",
-      image: "/learn/20.png", // Add image URL here
+      image: "/learn-resources/20.png", // Add image URL here
     },
     {
       id: 22,
       title: "Step 22: Visualize Your Model's Prediction",
       description:
         "Zoom to the area you want to see predictions and Click Detect to Run your Published training Model. It will load the model and Run live predictions ",
-      image: "/learn/21.png", // Add image URL here
+      image: "/learn-resources/21.png", // Add image URL here
     },
     {
       id: 23,
       title: "Step 23: Bring Predictions to OSM",
       description:
         "Your Predictions will be visualized on Map, Now you can bring them to OSM Modify them remove bad predictions and Push it back to OSM. fAIr should be able to have feedback loop when user discards the prediction or modifies it ( it is work in Prrogress) , you can launch JOSM with prediction data though",
-      image: "/learn/22.png", // Add image URL here
+      image: "/learn-resources/22.png", // Add image URL here
     },
   ];
 
