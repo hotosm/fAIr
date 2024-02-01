@@ -256,7 +256,7 @@ const AOI = (props) => {
                         }}
                       >
                         <img
-                          alt="RapiD logo"
+                          alt="JOSM logo"
                           className="editor-logo-small"
                           src="/josm-logo.png"
                         />

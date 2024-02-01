@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import {
+  Alert,
   Avatar,
   Grid,
   IconButton,
@@ -9,6 +10,7 @@ import {
   ListItemSecondaryAction,
   ListItemText,
   Pagination,
+  Snackbar,
   SvgIcon,
   Typography,
 } from "@mui/material";
@@ -43,6 +45,8 @@ const ListItemWithWiderSecondaryAction = withStyles({
 const PER_PAGE = 5;
 const FeedbackAOI = (props) => {
   const [dense, setDense] = useState(true);
+  const [openSnack, setOpenSnack] = useState(false);
+
   const getFeedbackAOIs = async () => {
     try {
       const res = await axios.get(
@@ -203,23 +207,64 @@ const FeedbackAOI = (props) => {
                           aria-label="comments"
                           sx={{ width: 24, height: 24 }}
                           className="margin1 transparent"
-                          onClick={(e) => {
-                            const url = `https://rapideditor.org/rapid#background=${
-                              props.sourceImagery
-                                ? "custom:" + props.sourceImagery
-                                : "Bing"
-                            }&datasets=fbRoads,msBuildings&disable_features=boundaries&map=16.00/17.9253/120.4841&gpx=&gpx=https://fair-dev.hotosm.org/api/v1/feedback-aoi/gpx/${
-                              layer.id
-                            }`;
-                            console.log(url);
-                            window.open(url, "_blank", "noreferrer");
+                          onClick={async (e) => {
+                            try {
+                              // mutateFetch(layer.aoiId);
+                              console.log("layer", layer);
+                              console.log(
+                                " props.sourceImagery",
+                                props.sourceImagery
+                              );
+
+                              const Imgurl = new URL(
+                                "http://127.0.0.1:8111/imagery"
+                              );
+                              Imgurl.searchParams.set("type", "tms");
+                              Imgurl.searchParams.set("title", "Imagery");
+                              Imgurl.searchParams.set(
+                                "url",
+                                props.sourceImagery
+                              );
+                              const imgResponse = await fetch(Imgurl);
+                              // bounds._southWest.lng,
+                              // bounds._southWest.lat,
+                              // bounds._northEast.lng,
+                              // bounds._northEast.lat,
+                              const loadurl = new URL(
+                                "http://127.0.0.1:8111/load_and_zoom"
+                              );
+                              loadurl.searchParams.set(
+                                "bottom",
+                                layer.geometry.coordinates[0][0][1]
+                              );
+                              loadurl.searchParams.set(
+                                "top",
+                                layer.geometry.coordinates[0][1][1]
+                              );
+                              loadurl.searchParams.set(
+                                "left",
+                                layer.geometry.coordinates[0][0][0]
+                              );
+                              loadurl.searchParams.set(
+                                "right",
+                                layer.geometry.coordinates[0][2][0]
+                              );
+                              const loadResponse = await fetch(loadurl);
+
+                              if (!imgResponse.ok) {
+                                setOpenSnack(true);
+                              }
+                            } catch (error) {
+                              console.log("error", error);
+                              setOpenSnack(true);
+                            }
                           }}
                         >
                           {/* <MapTwoTone   /> */}
                           <img
-                            alt="RapiD logo"
+                            alt="JOSM logo"
                             className="editor-logo-small"
-                            src="/rapid-logo.png"
+                            src="/josm-logo.png"
                           />
                         </IconButton>
                       </Tooltip>
@@ -319,6 +364,32 @@ const FeedbackAOI = (props) => {
           </Typography>
         )}
       </Grid>
+      <Snackbar
+        open={openSnack}
+        autoHideDuration={5000}
+        onClose={() => {
+          console.log("openSnack", openSnack);
+          setOpenSnack(false);
+        }}
+        message={
+          <Alert severity="error">
+            <span>
+              Please make sure JOSM is open and Remote Control feature is
+              enabled{" "}
+              <a
+                target="_blank"
+                rel="noreferrer"
+                href="https://josm.openstreetmap.de/wiki/Help/Preferences/RemoteControl"
+              >
+                Click here for more details
+              </a>
+            </span>
+          </Alert>
+        }
+        // action={action}
+        color="red"
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      />
     </>
   );
 };
