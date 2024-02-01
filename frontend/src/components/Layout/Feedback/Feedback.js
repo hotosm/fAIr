@@ -101,9 +101,14 @@ const Feedback = (props) => {
       } else {
         const datasetId = res.data.dataset;
         setDatasetId(datasetId);
-        const resAOIs = await axios.get(`/aoi/?dataset=${datasetId}`, null, {
-          headers,
-        });
+        const resAOIs = await axios.get(
+          `/workspace/download/dataset_${datasetId}/output/training_${trainingId}/aois.geojson`,
+          null,
+          {
+            headers,
+          }
+        );
+        // console.log("resAOIs", resAOIs);
         setOriginalAOIs(resAOIs.data);
       }
     } catch (e) {
