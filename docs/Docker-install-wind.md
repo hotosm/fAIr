@@ -150,9 +150,7 @@ To check whether Docker is installed, type
     To use your local fAIr installation, go to [Local fAIr](http://127.0.0.1:3000) with your web browser.
     ***TODO*** There is a list of port numbers, but it doesn't include 3000, which seems to be the most important one. Is this a bug or a feature?
 
-Extra: Want to run your local tiles? 
-
-***TODO*** What is this? What does it do?
+Extra: Do you want to run your local tiles from local .geotiff without uploading to OAM? 
 
     You can use [TiTiler](https://github.com/developmentseed/titiler), [gdals2tiles](https://gdal.org/programs/gdal2tiles.html) or nginx to run your own TMS server and add the following to docker compose in order to access your localhost through docker containers. Add this to API and Worker. Also update the .env variable accordingly 
 
