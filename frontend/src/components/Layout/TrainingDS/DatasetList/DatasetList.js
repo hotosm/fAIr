@@ -175,11 +175,12 @@ const DatasetList = (props) => {
         </Grid>
         <Grid item xs={12}>
           <Typography variant="body1" component="div">
-            A dataset would be a list of area of interests (AIOs) and its
-            labels. OpenStreetMap data can be downlaoded automatically and used
-            as initial labels. It is our responsibility as model creators to
-            make sure labels align with the feature before proceeding to
-            training phase.
+            A dataset is a list of areas of interest (AIOs). fAIr uses image and map
+            data for the area to train the model. OpenStreetMap data can be downloaded 
+            and used in training. Training data needs to be of high quality, because
+            the trained model will try to mimic it, including systematic defects. 
+            So ensure that map features align with the corresponding image before 
+            proceeding to training.
           </Typography>
         </Grid>
         {error && (
