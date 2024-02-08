@@ -99,6 +99,8 @@ To check whether Docker is installed, type
         ```
 
     - Fill in the details of ```OSM_CLIENT_ID``` and ```OSM_CLIENT_SECRET``` in the .env file and generate a unique key and paste it to ```OSM_SECRET_KEY``` (It can be any value in a setup for development).
+
+    - Change EXPORT_TOOL_API_URL to be https://api-prod.raw-data.hotosm.org/v1 
     
         Leave the other items as they are, unless you have a specific, well-defined need.
 
