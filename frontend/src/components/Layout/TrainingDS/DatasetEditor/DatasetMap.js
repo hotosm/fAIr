@@ -7,10 +7,11 @@ import {
   Popup,
   TileLayer,
   MapContainer,
-  Rectangle,
+  GeoJSON,
   Polygon,
   useMapEvents,
 } from "react-leaflet";
+
 import L from "leaflet";
 import { EditControl } from "react-leaflet-draw";
 
@@ -231,7 +232,7 @@ const DatasetMap = (props) => {
 
       if (res.error) setMapError(res.error.response.statusText);
       else {
-        // console.log("getAOI", res.data)
+        // console.log("getAOI", res.data);
         setFromDB(true);
         return res.data;
       }
@@ -420,7 +421,7 @@ const DatasetMap = (props) => {
     setIsEditing(false);
   };
 
-  const blueOptions = { color: "#03002e", width: 10, opacity: 1 };
+  const blueOptions = { color: "#03002e", width: 10, opacity: 0 };
 
   const corrdinatestoLatlngs = (layer) => {
     const latlngs = [];
@@ -436,7 +437,7 @@ const DatasetMap = (props) => {
     if (reactFGref) {
       // make sure each layer has a featre geojson for created ones
       reactFGref.eachLayer((l) => {
-        // console.log("each layer", l)
+        // console.log("each layer", l);
         if (l.feature === undefined) {
           // console.log("mapLayers", mapLayers)
           if (mapLayers.find((m) => m.id === l._leaflet_id))
@@ -630,10 +631,18 @@ const DatasetMap = (props) => {
               }
             />
           </LayersControl.BaseLayer>
+          <LayersControl.BaseLayer name="ESRI World Imagery">
+            <TileLayer
+              maxNativeZoom={18}
+              maxZoom={24}
+              attribution="ESRI World Imagery"
+              url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+            />
+          </LayersControl.BaseLayer>
           <LayersControl.BaseLayer name="OSM" checked={true}>
             <TileLayer
               maxZoom={24}
-              maxNativeZoom={19}
+              maxNativeZoom={22}
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
@@ -653,19 +662,34 @@ const DatasetMap = (props) => {
                 minZoom={props.oamImagery.minzoom}
                 attribution={props.oamImagery.name}
                 url={props.oamImagery.url}
+                maxNativeZoom={
+                  props.oamImagery.url.includes("opena")
+                    ? props.oamImagery.maxzoom
+                    : 18
+                }
               />
             </LayersControl.BaseLayer>
           )}
         </LayersControl>
 
-        <FeatureGroup>
+        {/* <FeatureGroup>
           <Polygon
             pathOptions={blueOptions}
             positions={converToPolygon(
               mapLayers.filter((e) => e.type === "aoi")
             )}
           />
-        </FeatureGroup>
+        </FeatureGroup> */}
+
+        <GeoJSON
+          key={Math.random()}
+          data={AOIs}
+          style={{
+            color: "rgb(51, 136, 255)",
+            weight: 4,
+          }}
+          // onEachFeature={onEachFeatureOriginalAOIs}
+        />
         <FeatureGroup
           ref={(reactFGref) => {
             _onFeatureGroupReady(reactFGref, geoJsonLoadedFile);
@@ -686,12 +710,12 @@ const DatasetMap = (props) => {
               // );
               _onCreate(e, "aoi");
             }}
-            onEdited={_onEdited}
-            onDeleted={_onDeleted}
-            onEditStart={_onEditStart}
-            onEditStop={_onEditStop}
-            onDrawStart={_onEditStart}
-            onDrawStop={_onEditStop}
+            // onEdited={_onEdited}
+            // onDeleted={_onDeleted}
+            // onEditStart={_onEditStart}
+            // onEditStop={_onEditStop}
+            // onDrawStart={_onEditStart}
+            // onDrawStop={_onEditStop}
             draw={{
               polyline: false,
               polygon: false,

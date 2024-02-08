@@ -101,9 +101,14 @@ const Feedback = (props) => {
       } else {
         const datasetId = res.data.dataset;
         setDatasetId(datasetId);
-        const resAOIs = await axios.get(`/aoi/?dataset=${datasetId}`, null, {
-          headers,
-        });
+        const resAOIs = await axios.get(
+          `/workspace/download/dataset_${datasetId}/output/training_${trainingId}/aois.geojson`,
+          null,
+          {
+            headers,
+          }
+        );
+        // console.log("resAOIs", resAOIs);
         setOriginalAOIs(resAOIs.data);
       }
     } catch (e) {
@@ -247,7 +252,7 @@ const Feedback = (props) => {
         "access-token": accessToken,
       };
       const res = await axios.get(
-        `/feedback-label/?in_bbox=${box._southWest.lng},${box._southWest.lat},${box._northEast.lng},${box._northEast.lat}`,
+        `/feedback-label/?in_bbox=${box._southWest.lng},${box._southWest.lat},${box._northEast.lng},${box._northEast.lat}&feedback_aoi__training=${trainingId}`,
         { headers }
       );
       console.log("res from getLabels ", res);

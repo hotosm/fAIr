@@ -33,7 +33,7 @@ LOG_PATH = env("LOG_PATH", default=os.path.join(os.getcwd(), "log"))
 HOSTNAME = env("HOSTNAME", default="127.0.0.1")
 EXPORT_TOOL_API_URL = env(
     "EXPORT_TOOL_API_URL",
-    default="	https://api-prod.raw-data.hotosm.org/v1",
+    default="https://api-prod.raw-data.hotosm.org/v1",
 )
 
 ALLOWED_HOSTS = ["localhost", "127.0.0.1", HOSTNAME]

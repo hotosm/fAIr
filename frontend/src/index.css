@@ -136,7 +136,7 @@ code {
   width: 20px;
 }
 
-.rapid-logo-small
+.editor-logo-small
 {
   height: 20px;
   width: 30px;
@@ -166,6 +166,11 @@ code {
   margin-left: 12px !important;
 }
 
+.margin-left-13
+{
+  margin-left: 13px !important;
+}
+
 .leaflet-interactive {
   width: 30px !important;
   height: 30px !important;
@@ -174,4 +179,9 @@ code {
 .MuiDialog-paper
 {
   max-width: 80% !important;
+}
+
+.leaflet-draw.leaflet-control > div:nth-child(2)
+{
+  display: none;
 }

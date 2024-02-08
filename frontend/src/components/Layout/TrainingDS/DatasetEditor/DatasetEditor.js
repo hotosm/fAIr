@@ -64,6 +64,10 @@ function DatasetEditor() {
     return () => {};
   }, []);
   const [zoom, setZoom] = useState(15);
+  const deleteAOIButton = (id, leafletId) => {
+    setMapLayers((layers) => layers.filter((l) => l.id !== leafletId));
+    window.location.reload(false);
+  };
   return (
     <>
       {isLoading && "Loading ............"}
@@ -112,6 +116,7 @@ function DatasetEditor() {
               oamImagery={oamImagery}
               mapLayers={mapLayers.filter((i) => i.type === "aoi")}
               selectAOIHandler={selectAOIHandler}
+              deleteAOIButton={deleteAOIButton}
             ></AOI>
             <TMProject addtoMap={AddtoMapHandler}></TMProject>
           </Grid>

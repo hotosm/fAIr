@@ -41,6 +41,7 @@ class Label(models.Model):
     aoi = models.ForeignKey(AOI, to_field="id", on_delete=models.CASCADE)
     geom = geomodels.GeometryField(srid=4326)
     osm_id = models.BigIntegerField(null=True, blank=True)
+    tags = models.JSONField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
 
@@ -101,7 +102,7 @@ class Feedback(models.Model):
         validators=[MinValueValidator(18), MaxValueValidator(23)]
     )
     feedback_type = models.CharField(choices=FEEDBACK_TYPE, max_length=10)
-    comments = models.TextField(max_length=100,null=True,blank=True)
+    comments = models.TextField(max_length=100, null=True, blank=True)
     user = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
     source_imagery = models.URLField()
 
@@ -111,6 +112,7 @@ class FeedbackAOI(models.Model):
         DOWNLOADED = 1
         NOT_DOWNLOADED = -1
         RUNNING = 0
+
     training = models.ForeignKey(Training, to_field="id", on_delete=models.CASCADE)
     geom = geomodels.PolygonField(srid=4326)
     label_status = models.IntegerField(default=-1, choices=DownloadStatus.choices)
@@ -123,6 +125,10 @@ class FeedbackAOI(models.Model):
 
 class FeedbackLabel(models.Model):
     osm_id = models.BigIntegerField(null=True, blank=True)
-    feedback_aoi = models.ForeignKey(FeedbackAOI, to_field="id", on_delete=models.CASCADE)
+    feedback_aoi = models.ForeignKey(
+        FeedbackAOI, to_field="id", on_delete=models.CASCADE
+    )
+    tags = models.JSONField(null=True, blank=True)
+
     geom = geomodels.PolygonField(srid=4326)
     created_at = models.DateTimeField(auto_now_add=True)
