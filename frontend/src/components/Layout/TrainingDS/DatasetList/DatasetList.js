@@ -175,11 +175,11 @@ const DatasetList = (props) => {
         </Grid>
         <Grid item xs={12}>
           <Typography variant="body1" component="div">
-            A dataset would be a list of area of interests (AIOs) and its
-            labels. OpenStreetMap data can be downlaoded automatically and used
-            as initial labels. It is our responsibility as model creators to
-            make sure labels align with the feature before proceeding to
-            training phase.
+            A dataset is a set of images of areas of interest (AOIs) and 
+            corresponding OSM map data. The OSM data will be used to teach 
+            the model how to create map features from images. The OSM
+            data for the AOI needs to be of high quality, because the 
+            model will try to mimic all its tendencies, even the bad ones.
           </Typography>
         </Grid>
         {error && (
