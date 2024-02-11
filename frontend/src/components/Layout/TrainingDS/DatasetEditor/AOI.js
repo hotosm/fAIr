@@ -114,9 +114,9 @@ const AOI = (props) => {
   return (
     <>
       <Grid item md={12} className="card" marginBottom={1}>
-        <Tooltip title="For each AOI, we need to make sure labels inside it are alighed and complete to acheive best model accuracy">
+        <Tooltip title="For each AOI, we need to make sure that the map data inside it is aligned and complete">
           <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
-            List of Area of Interests{` (${props.mapLayers.length})`}
+            Areas of Interest{` (${props.mapLayers.length})`}
           </Typography>
         </Tooltip>
         <Demo>
@@ -151,9 +151,9 @@ const AOI = (props) => {
                         <span style={{ color: "red" }}>
                           {parseInt(layer.area) < 5000 ? (
                             <>
-                              Area seems to be very small for an AOI
+                              The area is very small for an AOI
                               <br />
-                              Please delete it and create a bigger AOI
+                              Delete it and create a bigger AOI
                             </>
                           ) : (
                             ""
@@ -170,7 +170,7 @@ const AOI = (props) => {
                     {/* <IconButton aria-label="comments">
                    <DeleteIcon />
                 </IconButton> */}
-                    {/* <Tooltip title="Create Labels on RapID Editor">
+                    {/* <Tooltip title="Create map data in RapID Editor">
                       <IconButton
                         aria-label="comments"
                         sx={{ width: 24, height: 24 }}
@@ -199,7 +199,7 @@ const AOI = (props) => {
                         />
                       </IconButton>
                     </Tooltip> */}
-                    <Tooltip title="Create Labels on JOSM Editor">
+                    <Tooltip title="Create map data in JOSM Editor">
                       <IconButton
                         aria-label="comments"
                         sx={{ width: 24, height: 24 }}
@@ -262,7 +262,7 @@ const AOI = (props) => {
                         />
                       </IconButton>
                     </Tooltip>
-                    <Tooltip title="Create Labels on ID Editor">
+                    <Tooltip title="Create map data in ID Editor">
                       <IconButton
                         aria-label="comments"
                         sx={{ width: 24, height: 24 }}
@@ -286,19 +286,18 @@ const AOI = (props) => {
                         {/* <MapTwoTone   /> */}
                         <img
                           alt="OSM logo"
-                          className="osm-logo-small"
-                          src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Openstreetmap_logo.svg/256px-Openstreetmap_logo.svg.png"
+                          className="osm-logo-small"                         src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Openstreetmap_logo.svg/256px-Openstreetmap_logo.svg.png"
                         />
                       </IconButton>
                     </Tooltip>
-                    <Tooltip title="Fetch OSM Data in this AOI">
+                    <Tooltip title="Fetch OSM data for this AOI">
                       <IconButton
                         aria-label="comments"
                         sx={{ width: 24, height: 24 }}
                         className="margin1"
                         onClick={(e) => {
                           mutateFetch(layer.aoiId);
-                          console.log("call raw data API to fetch OSM labels");
+                          console.log("Call raw data API to fetch OSM labels");
                         }}
                       >
                         <MapTwoTone fontSize="small" />
@@ -310,11 +309,11 @@ const AOI = (props) => {
                 disabled
                 onClick={(e)=> {
 
-                  console.log("Remove labels ")
+                  console.log("Remove labels")
                 }}>
                    <PlaylistRemoveIcon />
                 </IconButton> */}
-                    <Tooltip title="Zoom to layer">
+                    <Tooltip title="Zoom to AOI">
                       <IconButton
                         sx={{ width: 24, height: 24 }}
                         className="margin1"
@@ -366,8 +365,8 @@ const AOI = (props) => {
         </Demo>
         {props.mapLayers && props.mapLayers.length === 0 && (
           <Typography variant="body1" component="h2">
-            No AOIs yet, start creating one by selecting AOIs on the top and
-            create a polygon
+            No AOIs yet, start creating one by clicking Draw a rectangle, 3rd down at the top 
+            left of the image/map
           </Typography>
         )}
       </Grid>
