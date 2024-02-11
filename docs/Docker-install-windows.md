@@ -6,17 +6,17 @@ In the following, four directories are created: ```fair, ramp-code, ramp``` and 
 
 1. Check your graphics card
 
-    It is highly recommended to use a graphics card to run fAIr. It might not work with CPU only. (You can set up and test from bottom of this document). ***TODO*** What does this mean? The bottom of this document is about a tile server. But it is not a GPU test?!  
+    It is highly recommended to use a graphics card to run fAIr. It might not work with CPU only. The graphics card is orders of magnitude more powerful then the CPU for the heavy computations involved in model training. 
 
-    For the local fAIr installation to work, the necessary drivers for the graphics card need to be installed.
-
-    By the following command you can see your graphics card and the graphics driver details and the NVIDIA container toolkit that is installed. There is more information on the [NVIDIA site](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html).
+    For the local fAIr installation to work, the necessary drivers for the graphics card need to be installed. By the following command you can see your graphics card and the graphics driver details and the NVIDIA container toolkit that is installed. If it returns, then you have set up your drivers correctly. If not, then either you don't have a graphics card or the drivers are not set up correctly. There is more information on the [NVIDIA site](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html and [another NVIDIA page]https://www.nvidia.com/Download/index.aspx).
 
     ```
     nvidia-smi
     ```
 
-    You need to see your graphics card details here. If you do, then fAIr is able to use your graphics card for model training. (The graphics card is orders of magnitude more powerful then the CPU for the heavy computations involved in model training.) We have tested fAIr on several different NVIDIA cards. It may be difficult to get it to work on graphics cards from other brands.
+    You need to see your graphics card details here. If you do, then fAIr is able to use your graphics card for model training.
+
+We have tested fAIr on several different NVIDIA cards. It may be difficult to get it to work on graphics cards from other brands.
 
 2. Install Docker Compose
 
