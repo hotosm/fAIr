@@ -6,9 +6,9 @@ In the following, four directories are created: ```fair, ramp-code, ramp``` and 
 
 1. Check your graphics card
 
-    It is highly recommended to use a graphics card to run fAIr. It might not work with CPU only. (You can set up and test from bottom of this document). ***TODO*** What does this mean? NVIDIA graphics cards are tested. The bottom of this document is about a tile server, whatever that is. But it is not a GPU test?! ***TODO*** Does this mean that it works for NVIDIA cards but not for cards from other brands? 
+    It is highly recommended to use a graphics card to run fAIr. It might not work with CPU only. (You can set up and test from bottom of this document). ***TODO*** What does this mean? The bottom of this document is about a tile server. But it is not a GPU test?!  
 
-    For the local fAIr installation to work the necessary drivers for the graphics card need to be installed.
+    For the local fAIr installation to work, the necessary drivers for the graphics card need to be installed.
 
     By the following command you can see your graphics card and the graphics driver details and the NVIDIA container toolkit that is installed. There is more information on the [NVIDIA site](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html).
 
@@ -16,7 +16,7 @@ In the following, four directories are created: ```fair, ramp-code, ramp``` and 
     nvidia-smi
     ```
 
-    You need to see your graphics card details here. ***TODO*** Does this mean that if this command shows details about my GPU, then it is OK for fAIr?
+    You need to see your graphics card details here. If you do, then fAIr is able to use your graphics card for model training. (The graphics card is orders of magnitude more powerful then the CPU for the heavy computations involved in model training.) We have tested fAIr on several different NVIDIA cards. It may be difficult to get it to work on graphics cards from other brands.
 
 2. Install Docker Compose
 
@@ -72,8 +72,7 @@ To check whether Docker is installed, type
 
     - Create environment variable TRAINING_WORKSPACE
 
-        Training workspace is the directory where fAIr will store its training files 
-        for example. ***TODO*** Is this about a new checkpoint after fine-tuning? The name implies that this is for temporary files.
+        Training workspace is the directory where fAIr will store its training files, including permanent storage of training results.
 
         ```
         mkdir trainings
@@ -126,13 +125,13 @@ To check whether Docker is installed, type
 
     ***TODO*** What does "migration" mean in this context?
 
-    Grab API container and Open Bash: In another command window, go to directory fAIr and execute: 
+    Grab API container and Open Bash: In another Command Prompt window, go to directory fAIr and execute: 
 
     ```
     docker exec -it api bash
     ```
 
-    Once bash is promoted run the following commands, one at a time: ***TODO*** How do we know when bash is promoted? What does "promoted" mean in this context?
+    It will say "TensorFlow" with big fancy letters. On the new prompt line, run the following commands, one at a time:
 
         python manage.py makemigrations
         python manage.py makemigrations login
@@ -141,7 +140,7 @@ To check whether Docker is installed, type
 
 9. Play 
 
-    Restart containers 
+    In the Command Prompt window where Docker is up, stop it (^C) and restart the containers: 
 
     ```
     docker compose restart
@@ -150,7 +149,6 @@ To check whether Docker is installed, type
     Frontend will be available on port 5000, Backend on 8000, and Flower on 5500. 
 
     To use your local fAIr installation, go to [Local fAIr](http://127.0.0.1:3000) with your web browser.
-    ***TODO*** There is a list of port numbers, but it doesn't include 3000, which seems to be the most important one. Is this a bug or a feature?
 
 Extra. Do you want to run your local tiles? 
 
