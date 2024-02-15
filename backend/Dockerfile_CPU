@@ -34,6 +34,7 @@ COPY docker/ramp/solaris /tmp/solaris
 RUN pip install /tmp/solaris --use-feature=in-tree-build && \
     pip install scikit-fmm --use-feature=in-tree-build
 
-# Set working directory and copy the application code
 WORKDIR /app
 COPY . /app
+
+CMD ['python', 'manage.py', 'runserver', '0.0.0.0:8000']
