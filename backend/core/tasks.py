@@ -5,6 +5,7 @@ import shutil
 import sys
 import traceback
 from shutil import rmtree
+import tarfile
 
 import hot_fair_utilities
 import ramp.utils
@@ -35,6 +36,25 @@ logger = logging.getLogger(__name__)
 
 
 DEFAULT_TILE_SIZE = 256
+
+def xz_folder(folder_path, output_filename, remove_original=False):
+    """
+    Compresses a folder and its contents into a .tar.xz file and optionally removes the original folder.
+
+    Parameters:
+    - folder_path: The path to the folder to compress.
+    - output_filename: The name of the output .tar.xz file.
+    - remove_original: If True, the original folder is removed after compression.
+    """
+
+    if not output_filename.endswith('.tar.xz'):
+        output_filename += '.tar.xz'
+
+    with tarfile.open(output_filename, "w:xz") as tar:
+        tar.add(folder_path, arcname=os.path.basename(folder_path))
+
+    if remove_original:
+        shutil.rmtree(folder_path)
 
 
 @shared_task
@@ -210,9 +230,9 @@ def train_model(
                 final_model_path, os.path.join(output_path, "checkpoint.tf")
             )
 
-            shutil.copytree(
-                preprocess_output, os.path.join(output_path, "preprocessed")
-            )
+            # shutil.copytree(
+            #     preprocess_output, os.path.join(output_path, "preprocessed")
+            # )
 
             graph_output_path = f"{base_path}/train/graphs"
             shutil.copytree(graph_output_path, os.path.join(output_path, "graphs"))
@@ -250,6 +270,11 @@ def train_model(
                 encoding="utf-8",
             ) as f:
                 f.write(json.dumps(aoi_serializer.data))
+
+            # copy aois and labels to preprocess output before compressing it to tar
+            shutil.copyfile(os.path.join(output_path, "aois.geojson"), os.path.join(preprocess_output,'aois.geojson'))
+            shutil.copyfile(os.path.join(output_path, "labels.geojson"), os.path.join(preprocess_output,'labels.geojson'))
+            xz_folder(preprocess_output, os.path.join(output_path, "preprocessed.tar.xz"), remove_original=True)
 
             # now remove the ramp-data all our outputs are copied to our training workspace
             shutil.rmtree(base_path)
