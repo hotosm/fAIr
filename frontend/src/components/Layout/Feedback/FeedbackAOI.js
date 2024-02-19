@@ -141,9 +141,8 @@ const FeedbackAOI = (props) => {
   return (
     <>
       <Grid item md={12} className="card" marginBottom={1}>
-        <Tooltip title="For each AOI, we need to make sure labels inside it are alighed and complete to acheive best model accuracy">
-          <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
-            List of feedback area of Interests{` (${data?.features.length})`}
+        <Tooltip title="For maximum model accuracy, the map features need to be aligned and complete in every TA.">          <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
+            List of feedback for TAs{` (${data?.features.length})`}
           </Typography>
         </Tooltip>
         <Demo>
@@ -181,9 +180,9 @@ const FeedbackAOI = (props) => {
                           <span style={{ color: "red" }}>
                             {parseInt(layer.area) < 5000 ? (
                               <>
-                                Area seems to be very small for an AOI
+                                The area is very small for a TA
                                 <br />
-                                Please delete it and create a bigger AOI
+                                Delete it and create a bigger TA
                               </>
                             ) : (
                               ""
@@ -297,7 +296,7 @@ const FeedbackAOI = (props) => {
                           />
                         </IconButton>
                       </Tooltip>
-                      <Tooltip title="Fetch OSM Data in this AOI">
+                      <Tooltip title="Fetch OSM Data in this TA">
                         <IconButton
                           aria-label="comments"
                           sx={{ width: 24, height: 24 }}
@@ -339,7 +338,7 @@ const FeedbackAOI = (props) => {
                           <ZoomInMap fontSize="small" />
                         </IconButton>
                       </Tooltip>
-                      <Tooltip title="Delete AOI">
+                      <Tooltip title="Delete this TA">
                         <IconButton
                           aria-label="comments"
                           sx={{ width: 24, height: 24 }}
@@ -359,8 +358,7 @@ const FeedbackAOI = (props) => {
         </Demo>
         {props.mapLayers && props.mapLayers.length === 0 && (
           <Typography variant="body1" component="h2">
-            No AOIs yet, start creating one by selecting AOIs on the top and
-            create a polygon
+            No TA yet. Start creating one by selecting Draw a rectangle, 3rd down at the top left.
           </Typography>
         )}
       </Grid>

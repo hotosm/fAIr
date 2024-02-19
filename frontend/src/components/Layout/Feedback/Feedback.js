@@ -307,7 +307,7 @@ const Feedback = (props) => {
   }
   const navigate = useNavigate();
   const onEachFeatureOriginalAOIs = (feature, layer) => {
-    layer.bindPopup("Original dataset AOI");
+    layer.bindPopup("Original dataset TA");
   };
 
   const selectAOIHandler = (e, zoom) => {
