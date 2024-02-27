@@ -116,7 +116,7 @@ const AOI = (props) => {
       <Grid item md={12} className="card" marginBottom={1}>
         <Tooltip title="For each AOI, we need to make sure that the map data inside it is aligned and complete">
           <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
-            Areas of Interest{` (${props.mapLayers.length})`}
+            Training Areas{` (${props.mapLayers.length})`}
           </Typography>
         </Tooltip>
         <Demo>

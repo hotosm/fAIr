@@ -161,9 +161,9 @@ const AIModelsList = (props) => {
         </Grid>
         <Grid item xs={12}>
           <Typography variant="body1" component="div">
-            Each model is trained using a specific training data and has a
-            status. Published Models can be used to predect features on the same
-            imagery used in the training dataset.
+            Each model is trained using one of the training datasets. Published models can be used to 
+            find mappable features in imagery that is similar to the training areas that dataset
+            comes from.
           </Typography>
         </Grid>
         {error && (
