@@ -175,11 +175,11 @@ const DatasetList = (props) => {
         </Grid>
         <Grid item xs={12}>
           <Typography variant="body1" component="div">
-            A dataset is a set of images of areas of interest (AOIs) and 
-            corresponding OSM map data. The OSM data will be used to teach 
-            the model how to create map features from images. The OSM
-            data for the AOI needs to be of high quality, because the 
-            model will try to mimic all its tendencies, even the bad ones.
+            A dataset is a set of images of Training Areas (TAs) and
+            corresponding OSM map data. The OSM data will be used to teach
+            the model how to create map features from images. The OSM data
+            for the TA needs to be of high quality, because the model will
+            try to mimic all its tendencies, even the bad ones.
           </Typography>
         </Grid>
         {error && (
