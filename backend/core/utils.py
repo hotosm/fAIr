@@ -125,7 +125,7 @@ def process_rawdata(file_download_url, aoi_id, feedback=False):
     Unzips it Finds a geojson file , Process it and finally removes
     processed Geojson file and downloaded zip file from Directory"""
     headers = {
-        'Referer': 'https://fAIr-dev.hotosm.org/' # TODO : Use request uri 
+        'Referer': 'https://fair-dev.hotosm.org/' # TODO : Use request uri 
     }
     r = requests.get(file_download_url, headers=headers)
     # Check whether the export path exists or not
