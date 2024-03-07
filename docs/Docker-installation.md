@@ -131,6 +131,8 @@ Docker Compose is created with redis , worker , postgis database ,  api and fron
 
     Frontend will be available on 5000 port , Backend will be on 8000 , Flower will be on 5500 
 
+    Please open the frontend using URL `127.0.0.1:3000` instead of `localhost:3000` to ensure login functionality.
+
 10. Want to run your local tiles ? 
 
     You can use [titler](https://github.com/developmentseed/titiler) , [gdals2tiles](https://gdal.org/programs/gdal2tiles.html) or nginx to run your own TMS server and add following to docker compose in order to access your localhost through docker containers . Add those to API and Worker . Make sure you update the .env variable accordingly 
