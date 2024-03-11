@@ -141,7 +141,8 @@ const FeedbackAOI = (props) => {
   return (
     <>
       <Grid item md={12} className="card" marginBottom={1}>
-        <Tooltip title="For maximum model accuracy, the map features need to be aligned and complete in every TA.">          <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
+        <Tooltip title="For maximum model accuracy, the map features need to be aligned and complete in every TA.">
+          <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
             List of feedback for TAs{` (${data?.features.length})`}
           </Typography>
         </Tooltip>
@@ -358,7 +359,8 @@ const FeedbackAOI = (props) => {
         </Demo>
         {props.mapLayers && props.mapLayers.length === 0 && (
           <Typography variant="body1" component="h2">
-            No TA yet. Start creating one by selecting Draw a rectangle, 3rd down at the top left.
+            No TA yet. Start creating one by selecting Draw a rectangle, 3rd
+            down at the top left.
           </Typography>
         )}
       </Grid>
