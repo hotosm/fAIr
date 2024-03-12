@@ -49,3 +49,7 @@ trainings/*
 backend/.env
 backend/config.txt
 backend/postgres-data
+
+# virtualenvs
+.venv/
+.env/

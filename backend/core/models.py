@@ -22,6 +22,9 @@ class Dataset(models.Model):
         default=-1, choices=DatasetStatus.choices
     )  # 0 for active , 1 for archieved
 
+    def __str__(self):
+        return self.name
+
 
 class AOI(models.Model):
     class DownloadStatus(models.IntegerChoices):
