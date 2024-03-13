@@ -188,6 +188,7 @@ def train_model(
                 rasterize=True,
                 rasterize_options=["binary"],
                 georeference_images=True,
+                multimasks=True,
             )
 
             # train
