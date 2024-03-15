@@ -26,7 +26,7 @@ Docker Compose is created with redis , worker , postgis database ,  api and fron
     nvidia-smi
     ```
 
-4. Clonse Base Model and Create RAMP_HOME
+4. Clone Base Model and Create RAMP_HOME
 
     - Create a new folder called RAMP , outside fAIr
 
@@ -72,7 +72,8 @@ Docker Compose is created with redis , worker , postgis database ,  api and fron
     - Check permissions for ```Read user preferences``` and Redirect URI to be ```http://127.0.0.1:3000/authenticate/``` , Give it name as ```fAIr Dev Local```
     - You will get ```OSM_CLIENT_ID``` , ```OSM_CLIENT_SECRET``` Copy them 
 
-6. Create Env variables 
+6. Create Env variables
+   Backend
     - Create a file ```.env``` in backend with [docker_sample_env](../backend/docker_sample_env) content 
         ```
         cd backend
@@ -82,14 +83,15 @@ Docker Compose is created with redis , worker , postgis database ,  api and fron
     
         Leave rest of the items as it is unless you know what you are doing
 
-    - Create ```.env``` in /frontend
+      Frontend
+    - Create ```.env``` file in /frontend
         ```
         cd frontend
         cp .env_sample .env
         ```
         You can leave it as it is for dev setup
     
-7. Build & Run containers 
+8. Build & Run containers 
 
     ```
     docker compose build
@@ -99,7 +101,7 @@ Docker Compose is created with redis , worker , postgis database ,  api and fron
     docker compose up
     ```
 
-8. Run Migrations 
+9. Run Migrations 
 
     Run directly bash script : 
 
@@ -121,7 +123,7 @@ Docker Compose is created with redis , worker , postgis database ,  api and fron
         python manage.py makemigrations core
         python manage.py migrate
 
-9. Play and Develop 
+10. Play and Develop 
 
     Restart containers 
 
@@ -133,7 +135,7 @@ Docker Compose is created with redis , worker , postgis database ,  api and fron
 
     Please open the frontend using URL `127.0.0.1:3000` instead of `localhost:3000` to ensure login functionality.
 
-10. Want to run your local tiles ? 
+11. Want to run your local tiles ? 
 
     You can use [titler](https://github.com/developmentseed/titiler) , [gdals2tiles](https://gdal.org/programs/gdal2tiles.html) or nginx to run your own TMS server and add following to docker compose in order to access your localhost through docker containers . Add those to API and Worker . Make sure you update the .env variable accordingly 
 
