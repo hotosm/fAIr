@@ -91,7 +91,7 @@ Docker Compose is created with redis , worker , postgis database ,  api and fron
         ```
         You can leave it as it is for dev setup
     
-8. Build & Run containers 
+7. Build & Run containers 
 
     ```
     docker compose build
@@ -101,7 +101,7 @@ Docker Compose is created with redis , worker , postgis database ,  api and fron
     docker compose up
     ```
 
-9. Run Migrations 
+8. Run Migrations 
 
     Run directly bash script : 
 
@@ -123,7 +123,7 @@ Docker Compose is created with redis , worker , postgis database ,  api and fron
         python manage.py makemigrations core
         python manage.py migrate
 
-10. Play and Develop 
+9. Play and Develop 
 
     Restart containers 
 
@@ -135,7 +135,7 @@ Docker Compose is created with redis , worker , postgis database ,  api and fron
 
     Please open the frontend using URL `127.0.0.1:3000` instead of `localhost:3000` to ensure login functionality.
 
-11. Want to run your local tiles ? 
+10. Want to run your local tiles ? 
 
     You can use [titler](https://github.com/developmentseed/titiler) , [gdals2tiles](https://gdal.org/programs/gdal2tiles.html) or nginx to run your own TMS server and add following to docker compose in order to access your localhost through docker containers . Add those to API and Worker . Make sure you update the .env variable accordingly 
 
