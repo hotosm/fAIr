@@ -26,7 +26,7 @@ Docker Compose is created with redis , worker , postgis database ,  api and fron
     nvidia-smi
     ```
 
-4. Clonse Base Model and Create RAMP_HOME
+4. Clone Base Model and Create RAMP_HOME
 
     - Create a new folder called RAMP , outside fAIr
 
@@ -72,7 +72,8 @@ Docker Compose is created with redis , worker , postgis database ,  api and fron
     - Check permissions for ```Read user preferences``` and Redirect URI to be ```http://127.0.0.1:3000/authenticate/``` , Give it name as ```fAIr Dev Local```
     - You will get ```OSM_CLIENT_ID``` , ```OSM_CLIENT_SECRET``` Copy them 
 
-6. Create Env variables 
+6. Create Env variables
+   Backend
     - Create a file ```.env``` in backend with [docker_sample_env](../backend/docker_sample_env) content 
         ```
         cd backend
@@ -82,7 +83,8 @@ Docker Compose is created with redis , worker , postgis database ,  api and fron
     
         Leave rest of the items as it is unless you know what you are doing
 
-    - Create ```.env``` in /frontend
+      Frontend
+    - Create ```.env``` file in /frontend
         ```
         cd frontend
         cp .env_sample .env
