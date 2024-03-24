@@ -135,11 +135,17 @@ class TrainingSerializer(
         user = self.context["request"].user
         validated_data["created_by"] = user
         # create the model instance
-        instance = Training.objects.create(**validated_data)
-
         multimasks = validated_data.get("multimasks", False)
         input_contact_spacing = validated_data.get("input_contact_spacing", 0.75)
         input_boundary_width = validated_data.get("input_boundary_width", 0.5)
+
+        pop_keys = ["multimasks", "input_contact_spacing", "input_boundary_width"]
+
+        for key in pop_keys:
+            if key in validated_data.keys():
+                validated_data.pop(key)
+
+        instance = Training.objects.create(**validated_data)
 
         # run your function here
         task = train_model.delay(
