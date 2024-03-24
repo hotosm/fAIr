@@ -81,6 +81,15 @@ class DatasetViewSet(
 class TrainingSerializer(
     serializers.ModelSerializer
 ):  # serializers are used to translate models objects to api
+
+    multimasks = serializers.BooleanField(required=False, default=False)
+    input_contact_spacing = serializers.FloatField(
+        required=False, default=0.75, min_value=0, max_value=5
+    )
+    input_boundary_width = serializers.FloatField(
+        required=False, default=0.5, min_value=0, max_value=5
+    )
+
     class Meta:
         model = Training
         fields = "__all__"  # defining all the fields to  be included in curd for now , we can restrict few if we want
@@ -128,6 +137,10 @@ class TrainingSerializer(
         # create the model instance
         instance = Training.objects.create(**validated_data)
 
+        multimasks = validated_data.get("multimasks", False)
+        input_contact_spacing = validated_data.get("input_contact_spacing", 0.75)
+        input_boundary_width = validated_data.get("input_boundary_width", 0.5)
+
         # run your function here
         task = train_model.delay(
             dataset_id=instance.model.dataset.id,
@@ -138,9 +151,14 @@ class TrainingSerializer(
             source_imagery=instance.source_imagery
             or instance.model.dataset.source_imagery,
             freeze_layers=instance.freeze_layers,
+            multimasks=multimasks,
+            input_contact_spacing=input_contact_spacing,
+            input_boundary_width=input_boundary_width,
         )
         if not instance.source_imagery:
             instance.source_imagery = instance.model.dataset.source_imagery
+        if multimasks:
+            instance.description += f" Multimask params (ct/bw): {input_contact_spacing}/{input_boundary_width}"
         instance.task_id = task.id
         instance.save()
         print(f"Saved train model request to queue with id {task.id}")
@@ -192,7 +210,7 @@ class FeedbackLabelViewset(viewsets.ModelViewSet):
     bbox_filter_field = "geom"
     filter_backends = (
         InBBoxFilter,  # it will take bbox like this api/v1/label/?in_bbox=-90,29,-89,35 ,
-        DjangoFilterBackend
+        DjangoFilterBackend,
     )
     bbox_filter_include_overlapping = True
     filterset_fields = ["feedback_aoi", "feedback_aoi__training"]
@@ -343,9 +361,9 @@ def download_training_data(request, dataset_id: int):
             response = HttpResponse(open(zip_temp_path, "rb"))
             response.headers["Content-Type"] = "application/x-zip-compressed"
 
-            response.headers[
-                "Content-Disposition"
-            ] = f"attachment; filename=training_{dataset_id}_all_data.zip"
+            response.headers["Content-Disposition"] = (
+                f"attachment; filename=training_{dataset_id}_all_data.zip"
+            )
             return response
         else:
             # "error": "File Doesn't Exist or has been cleared up from system",
@@ -553,12 +571,16 @@ class PredictionView(APIView):
                     zoom_level=zoom_level,
                     tms_url=source,
                     tile_size=DEFAULT_TILE_SIZE,
-                    confidence=deserialized_data["confidence"] / 100
-                    if "confidence" in deserialized_data
-                    else 0.5,
-                    tile_overlap_distance=deserialized_data["tile_overlap_distance"]
-                    if "tile_overlap_distance" in deserialized_data
-                    else 0.15,
+                    confidence=(
+                        deserialized_data["confidence"] / 100
+                        if "confidence" in deserialized_data
+                        else 0.5
+                    ),
+                    tile_overlap_distance=(
+                        deserialized_data["tile_overlap_distance"]
+                        if "tile_overlap_distance" in deserialized_data
+                        else 0.15
+                    ),
                 )
                 print(
                     f"It took {round(time.time()-start_time)}sec for generating predictions"
@@ -569,12 +591,16 @@ class PredictionView(APIView):
                     if use_josm_q is True:
                         feature["geometry"] = othogonalize_poly(
                             feature["geometry"],
-                            maxAngleChange=deserialized_data["max_angle_change"]
-                            if "max_angle_change" in deserialized_data
-                            else 15,
-                            skewTolerance=deserialized_data["skew_tolerance"]
-                            if "skew_tolerance" in deserialized_data
-                            else 15,
+                            maxAngleChange=(
+                                deserialized_data["max_angle_change"]
+                                if "max_angle_change" in deserialized_data
+                                else 15
+                            ),
+                            skewTolerance=(
+                                deserialized_data["skew_tolerance"]
+                                if "skew_tolerance" in deserialized_data
+                                else 15
+                            ),
                         )
 
                 print(

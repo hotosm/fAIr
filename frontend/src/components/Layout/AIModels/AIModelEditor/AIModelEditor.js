@@ -13,6 +13,9 @@ import axios from "../../../../axios";
 import { useMutation, useQuery } from "react-query";
 import Popup from "./Popup";
 
+import { Accordion, AccordionSummary, AccordionDetails } from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+
 import OSMUser from "../../../Shared/OSMUser";
 import SaveIcon from "@material-ui/icons/Save";
 import { Checkbox, FormControlLabel } from "@mui/material";
@@ -34,6 +37,10 @@ const AIModelEditor = (props) => {
   const [popupOpen, setPopupOpen] = useState(false);
   const [sourceImagery, setSourceImagery] = React.useState(null);
   const [freezeLayers, setFreezeLayers] = useState(false);
+
+  const [multimasks, setMultimasks] = React.useState(false);
+  const [inputContactSpacing, setInputContactSpacing] = React.useState(0.75);
+  const [inputBoundaryWidth, setInputBoundaryWidth] = React.useState(0.5);
 
   const [popupRowData, setPopupRowData] = useState(null);
   const [feedbackCount, setFeedbackCount] = useState(0);
@@ -123,6 +130,9 @@ const AIModelEditor = (props) => {
         model: id,
         zoom_level: zoomLevel,
         description: description,
+        input_contact_spacing: inputContactSpacing,
+        input_boundary_width: inputBoundaryWidth,
+        multimasks: multimasks,
       };
       const headers = {
         "access-token": accessToken,
@@ -310,7 +320,7 @@ const AIModelEditor = (props) => {
               helperText={
                 <span>
                   A short description to document why you submitted this
-                  training
+                  training or extra additional info
                 </span>
               }
               type="text"
@@ -339,6 +349,130 @@ const AIModelEditor = (props) => {
               </FormGroup>
             </FormControl>
           </Grid> */}
+          <Grid item xs={6}>
+            <Accordion sx={{ boxShadow: "none", background: "none" }}>
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon sx={{ fontSize: "1rem" }} />}
+                aria-controls="panel1a-content"
+                id="panel1a-header"
+                sx={{
+                  minHeight: "32px",
+                  height: "32px",
+                  background: "white !important",
+                  "& .MuiAccordionSummary-content": {
+                    margin: "0",
+                    alignItems: "center",
+                  },
+                  "& .MuiAccordionSummary-expandIconWrapper": {
+                    padding: "0",
+                    "&.Mui-expanded": {
+                      transform: "rotate(180deg)",
+                    },
+                  },
+                  // Prevent changes in background or elevation when expanded
+                  "&.Mui-expanded": {
+                    minHeight: "32px",
+                    margin: "0",
+                  },
+                  "&:hover": {
+                    background: "white",
+                  },
+                  "&.Mui-focusVisible": {
+                    backgroundColor: "white",
+                  },
+                }}
+              >
+                <Typography
+                  variant="body2"
+                  sx={{ color: "primary", fontSize: "0.875rem" }}
+                >
+                  Advanced Parameters
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails sx={{ padding: "8px 16px 16px" }}>
+                <Grid container spacing={1}>
+                  <Grid item xs={12}>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          sx={{ transform: "scale(0.8)", marginLeft: "-10px" }}
+                          checked={multimasks}
+                          onChange={(e) => setMultimasks(e.target.checked)}
+                          name="multimasks"
+                        />
+                      }
+                      label={
+                        <Typography
+                          variant="body2"
+                          sx={{ fontSize: "0.875rem", padding: "1" }}
+                        >
+                          Take boundary of footprints into account during
+                          training
+                        </Typography>
+                      }
+                      sx={{ margin: "0" }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      size="small"
+                      id="input-contact-spacing"
+                      label="Input Contact Spacing"
+                      type="number"
+                      helperText={
+                        <span>
+                          Enter the distance in meters to extend the area around
+                          each building. This will be used to find points where
+                          buildings come into contact or are in close proximity
+                          to one another. For example, entering '0.75' will
+                          explore areas within 75 centimers outside the original
+                          building shapes to detect nearby buildings
+                        </span>
+                      }
+                      value={inputContactSpacing}
+                      fullWidth
+                      onChange={(e) => setInputContactSpacing(e.target.value)}
+                      InputProps={{
+                        sx: { fontSize: "0.875rem", height: "40px" },
+                      }}
+                      InputLabelProps={{
+                        sx: { fontSize: "0.875rem" },
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      size="small"
+                      id="input-boundary-width"
+                      label="Input Boundary Width"
+                      type="number"
+                      value={inputBoundaryWidth}
+                      helperText={
+                        <span>
+                          Specify the width in meters to reduce the original
+                          building shape inwardly, creating a boundary or margin
+                          around each building. A smaller value creates a
+                          tighter boundary close to the building's edges, while
+                          a larger value creates a wider surrounding area. For
+                          example, entering '0.5' will create a boundary that is
+                          50 centimeters inside from the original building
+                          edges.
+                        </span>
+                      }
+                      fullWidth
+                      onChange={(e) => setInputBoundaryWidth(e.target.value)}
+                      InputProps={{
+                        sx: { fontSize: "0.875rem", height: "40px" },
+                      }}
+                      InputLabelProps={{
+                        sx: { fontSize: "0.875rem" },
+                      }}
+                    />
+                  </Grid>
+                </Grid>
+              </AccordionDetails>
+            </Accordion>
+          </Grid>
 
           <Grid item xs={12} md={12}></Grid>
           <Grid item xs={6} md={6}>
