@@ -39,8 +39,8 @@ const AIModelEditor = (props) => {
   const [freezeLayers, setFreezeLayers] = useState(false);
 
   const [multimasks, setMultimasks] = React.useState(false);
-  const [inputContactSpacing, setInputContactSpacing] = React.useState(1);
-  const [inputBoundaryWidth, setInputBoundaryWidth] = React.useState(0.25);
+  const [inputContactSpacing, setInputContactSpacing] = React.useState(8);
+  const [inputBoundaryWidth, setInputBoundaryWidth] = React.useState(3);
 
   const [popupRowData, setPopupRowData] = useState(null);
   const [feedbackCount, setFeedbackCount] = useState(0);
@@ -421,12 +421,12 @@ const AIModelEditor = (props) => {
                       type="number"
                       helperText={
                         <span>
-                          Enter the distance in meters to extend the area around
+                          Enter the distance in pixels to extend the area around
                           each building. This will be used to find points where
                           buildings come into contact or are in close proximity
-                          to one another. For example, entering '0.75' will
-                          explore areas within 75 centimers outside the original
-                          building shapes to detect nearby buildings
+                          to one another. For example, entering '8' will explore
+                          areas within 8 pixels outside the original building
+                          shapes to detect nearby buildings
                         </span>
                       }
                       value={inputContactSpacing}
@@ -449,14 +449,13 @@ const AIModelEditor = (props) => {
                       value={inputBoundaryWidth}
                       helperText={
                         <span>
-                          Specify the width in meters to reduce the original
+                          Specify the width in pixels to reduce the original
                           building shape inwardly, creating a boundary or margin
                           around each building. A smaller value creates a
                           tighter boundary close to the building's edges, while
                           a larger value creates a wider surrounding area. For
-                          example, entering '0.5' will create a boundary that is
-                          50 centimeters inside from the original building
-                          edges.
+                          example, entering '3' will create a boundary that 3
+                          pixles inside from the original building edges.
                         </span>
                       }
                       fullWidth

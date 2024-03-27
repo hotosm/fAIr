@@ -83,11 +83,11 @@ class TrainingSerializer(
 ):  # serializers are used to translate models objects to api
 
     multimasks = serializers.BooleanField(required=False, default=False)
-    input_contact_spacing = serializers.FloatField(
-        required=False, default=0.75, min_value=0, max_value=5
+    input_contact_spacing = serializers.IntegerField(
+        required=False, default=8, min_value=0, max_value=20
     )
-    input_boundary_width = serializers.FloatField(
-        required=False, default=0.5, min_value=0, max_value=5
+    input_boundary_width = serializers.IntegerField(
+        required=False, default=3, min_value=0, max_value=10
     )
 
     class Meta:

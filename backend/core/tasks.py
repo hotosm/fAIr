@@ -68,8 +68,8 @@ def train_model(
     feedback=None,
     freeze_layers=False,
     multimasks=False,
-    input_contact_spacing=0.75,
-    input_boundary_width=0.5,
+    input_contact_spacing=8,
+    input_boundary_width=3,
 ):
     training_instance = get_object_or_404(Training, id=training_id)
     training_instance.status = "RUNNING"
