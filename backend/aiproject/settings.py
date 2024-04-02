@@ -97,7 +97,7 @@ ALLOWED_ORIGINS = env("CORS_ALLOWED_ORIGINS", default="http://127.0.0.1:8000").s
 
 CORS_ORIGIN_WHITELIST = ALLOWED_ORIGINS
 
-# CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_ALLOW_ALL = env("CORS_ORIGIN_ALLOW_ALL", default= False)
 
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema",
