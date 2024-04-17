@@ -5,10 +5,12 @@ on:
     branches: [ master ]
     paths:
       - 'frontend/**'
+      - '.github/workflows/frontend_build.yml'
   pull_request:
     branches: [ master ]
     paths:
       - 'frontend/**'
+      - '.github/workflows/frontend_build.yml'
 
 jobs:
   Build_On_Ubuntu:

@@ -6,11 +6,13 @@ on:
       - fix/build
     paths:
       - 'backend/**'
+      - '.github/workflows/backend_build.yml'
   pull_request:
     branches:
       - master
     paths:
       - 'backend/**'
+      - '.github/workflows/backend_build.yml'
 
 jobs:
   Build_on_ubuntu:

@@ -5,10 +5,12 @@ on:
     branches: [ master ]
     paths:
       - 'frontend/**'
+      - '.github/workflows/frontend_build_push.yml'
   pull_request:
     branches: [ master ]
     paths:
       - 'frontend/**'
+      - '.github/workflows/frontend_build_push.yml'
 
 permissions:
   id-token: write
