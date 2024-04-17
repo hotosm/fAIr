@@ -48,4 +48,4 @@ jobs:
         role-session-name: fAIrGithub
 
     - name: Upload to S3
-      run: ls -lh frontend/build && aws s3 cp frontend/build/ s3://${{ vars.FRONTEND_BUCKET }}/
+      run: cd frontend/build && aws s3 sync . s3://${{ vars.FRONTEND_BUCKET }}/
