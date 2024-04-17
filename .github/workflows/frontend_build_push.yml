@@ -1,0 +1,53 @@
+name: Frontend Build and upload to S3
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  Build_On_Ubuntu:
+
+    runs-on: ubuntu-latest
+    env:
+      CI: false
+
+    strategy:
+      matrix:
+        node-version: [ 16 ]
+
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Install dependencies
+      run: |
+        cd frontend/
+        npm install --legacy-peer-deps
+
+    - name: Build
+      run: |
+        cd frontend/
+        npm run build
+
+    - name: Upload to S3
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-region: us-east-1
+        role-to-assume: ${{ secrets.AWS_OIDC_ROLE }}
+        role-session-name: fAIrGithub
+
+    - name: Install AWS CLI
+      run: |
+        aws s3 cp build/* s3://${{ env.FRONTEND_BUCKET }}/
