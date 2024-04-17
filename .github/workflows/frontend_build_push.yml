@@ -40,14 +40,12 @@ jobs:
     - name: Build frontend
       run: cd frontend/ && npm run build
 
-    - name: Upload to S3
+    - name: Authenticate to AWS
       uses: aws-actions/configure-aws-credentials@v4
       with:
         aws-region: us-east-1
         role-to-assume: ${{ secrets.AWS_OIDC_ROLE }}
         role-session-name: fAIrGithub
 
-    - name: Install AWS CLI
-      run: |
-        ls -lh;
-        aws s3 cp build/ s3://${{ vars.FRONTEND_BUCKET }}/
+    - name: Upload to S3
+      run: aws s3 cp frontend/build/* s3://${{ vars.FRONTEND_BUCKET }}/
