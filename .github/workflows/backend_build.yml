@@ -4,9 +4,13 @@ on:
     branches:
       - master
       - fix/build
+    paths:
+      - 'backend/**'
   pull_request:
     branches:
       - master
+    paths:
+      - 'backend/**'
 
 jobs:
   Build_on_ubuntu:
