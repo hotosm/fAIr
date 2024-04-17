@@ -39,6 +39,10 @@ jobs:
 
     - name: Build frontend
       run: cd frontend/ && npm run build
+      env:
+        REACT_APP_API_BASE: ${{ vars.REACT_APP_API_BASE }}
+        REACT_APP_PREDICTOR_API_BASE: ${{ vars.REACT_APP_PREDICTOR_API_BASE }}
+        REACT_APP_ENV: Dev
 
     - name: Authenticate to AWS
       uses: aws-actions/configure-aws-credentials@v4
