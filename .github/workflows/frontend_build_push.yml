@@ -48,4 +48,6 @@ jobs:
         role-session-name: fAIrGithub
 
     - name: Install AWS CLI
-      run: aws s3 cp build/* s3://${{ env.FRONTEND_BUCKET }}/
+      run: |
+        ls -lh;
+        aws s3 cp build/ s3://${{ vars.FRONTEND_BUCKET }}/
