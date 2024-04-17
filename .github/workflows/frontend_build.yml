@@ -3,8 +3,12 @@ name: Frontend Build
 on:
   push:
     branches: [ master ]
+    paths:
+      - 'frontend/**'
   pull_request:
     branches: [ master ]
+    paths:
+      - 'frontend/**'
 
 jobs:
   Build_On_Ubuntu:
@@ -15,15 +19,14 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [16.14.2]
-
+        node-version: [ 16.14.2, 16, 18, 20 ]
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Set up Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
 
@@ -36,3 +39,4 @@ jobs:
       run: |
         cd frontend/
         npm run build
+
