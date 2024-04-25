@@ -127,7 +127,7 @@ class TrainingSerializer(
         validated_data["created_by"] = user
         # create the model instance
         instance = Training.objects.create(**validated_data)
-
+        logging.info("Sending record to redis queue")
         # run your function here
         task = train_model.delay(
             dataset_id=instance.model.dataset.id,
@@ -139,6 +139,8 @@ class TrainingSerializer(
             or instance.model.dataset.source_imagery,
             freeze_layers=instance.freeze_layers,
         )
+        logging.info("Record saved in queue")
+
         if not instance.source_imagery:
             instance.source_imagery = instance.model.dataset.source_imagery
         instance.task_id = task.id
