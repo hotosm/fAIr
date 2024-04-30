@@ -4,9 +4,15 @@ on:
     branches:
       - master
       - fix/build
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend_build.yml'
   pull_request:
     branches:
       - master
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend_build.yml'
 
 jobs:
   Build_on_ubuntu:
@@ -24,9 +30,9 @@ jobs:
         # needed because the postgres container does not provide a healthcheck
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 2
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Set up Python 3.8
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v5
         with:
           python-version: 3.8
 

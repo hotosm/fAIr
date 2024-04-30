@@ -718,7 +718,7 @@ const DatasetMap = (props) => {
             // onDrawStop={_onEditStop}
             draw={{
               polyline: false,
-              polygon: true,
+              polygon: false,
               rectangle: true,
               circle: false,
               circlemarker: false,

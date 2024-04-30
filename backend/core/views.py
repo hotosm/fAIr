@@ -146,7 +146,7 @@ class TrainingSerializer(
                 validated_data.pop(key)
 
         instance = Training.objects.create(**validated_data)
-
+        logging.info("Sending record to redis queue")
         # run your function here
         task = train_model.delay(
             dataset_id=instance.model.dataset.id,
@@ -161,6 +161,8 @@ class TrainingSerializer(
             input_contact_spacing=input_contact_spacing,
             input_boundary_width=input_boundary_width,
         )
+        logging.info("Record saved in queue")
+
         if not instance.source_imagery:
             instance.source_imagery = instance.model.dataset.source_imagery
         if multimasks:
@@ -719,9 +721,9 @@ class TrainingWorkspaceDownloadView(APIView):
             if os.path.isdir(base_dir)
             else os.path.getsize(base_dir)
         ) / (1024**2)
-        if size > 200:  # if file is greater than 200 mb exit
+        if size > settings.TRAINING_WORKSPACE_DOWNLOAD_LIMIT:  # if file is greater than 200 mb exit
             return Response(
-                {f"Errr: File Size {size} MB Exceed More than 200 MB"}, status=403
+                {f"Errr: File Size {size} MB Exceed More than {settings.TRAINING_WORKSPACE_DOWNLOAD_LIMIT} MB"}, status=403
             )
 
         if os.path.isfile(base_dir):
