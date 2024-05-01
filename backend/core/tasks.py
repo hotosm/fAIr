@@ -231,6 +231,7 @@ def train_model(
                     model="ramp",
                     model_home=os.environ["RAMP_HOME"],
                     freeze_layers=freeze_layers,
+                    multimasks=multimasks
                 )
 
             # copy final model to output
