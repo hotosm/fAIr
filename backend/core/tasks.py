@@ -11,6 +11,15 @@ import hot_fair_utilities
 import ramp.utils
 import tensorflow as tf
 from celery import shared_task
+from django.conf import settings
+from django.contrib.gis.db.models.aggregates import Extent
+from django.contrib.gis.geos import GEOSGeometry
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
+from hot_fair_utilities import preprocess, train
+from hot_fair_utilities.training import run_feedback
+from predictor import download_imagery, get_start_end_download_coords
+
 from core.models import AOI, Feedback, FeedbackAOI, FeedbackLabel, Label, Training
 from core.serializers import (
     AOISerializer,
@@ -20,14 +29,6 @@ from core.serializers import (
     LabelFileSerializer,
 )
 from core.utils import bbox, is_dir_empty
-from django.conf import settings
-from django.contrib.gis.db.models.aggregates import Extent
-from django.contrib.gis.geos import GEOSGeometry
-from django.shortcuts import get_object_or_404
-from django.utils import timezone
-from hot_fair_utilities import preprocess, train
-from hot_fair_utilities.training import run_feedback
-from predictor import download_imagery, get_start_end_download_coords
 
 logger = logging.getLogger(__name__)
 
@@ -219,6 +220,7 @@ def train_model(
                     ),
                     model_home=os.environ["RAMP_HOME"],
                     epoch_size=epochs,
+                    multimasks=multimasks,
                     batch_size=batch_size,
                     freeze_layers=freeze_layers,
                 )
@@ -231,7 +233,7 @@ def train_model(
                     model="ramp",
                     model_home=os.environ["RAMP_HOME"],
                     freeze_layers=freeze_layers,
-                    multimasks=multimasks
+                    multimasks=multimasks,
                 )
 
             # copy final model to output
