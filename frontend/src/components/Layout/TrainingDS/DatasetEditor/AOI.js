@@ -183,7 +183,9 @@ const AOI = (props) => {
                               props.oamImagery
                                 ? "custom:" + props.oamImagery.url
                                 : "Bing"
-                            }&datasets=fbRoads,msBuildings&disable_features=boundaries&map=16.00/17.9253/120.4841&gpx=&gpx=https://fair-dev.hotosm.org/api/v1/aoi/gpx/${
+                            }&datasets=fbRoads,msBuildings&disable_features=boundaries&map=16.00/17.9253/120.4841&gpx=&gpx=${
+                              process.env.REACT_APP_API_BASE
+                            }/aoi/gpx/${
                               layer.aoiId
                             }`,
                             "_blank",
@@ -275,9 +277,9 @@ const AOI = (props) => {
                               props.oamImagery
                                 ? "custom:" + props.oamImagery.url
                                 : "Bing"
-                            }&disable_features=boundaries&gpx=https://fair-dev.hotosm.org/api/v1/aoi/gpx/${
-                              layer.aoiId
-                            }&map=10.70/18.9226/81.6991`,
+                            }&disable_features=boundaries&gpx=${
+                              process.env.REACT_APP_API_BASE
+                            }/aoi/gpx/${layer.aoiId}&map=10.70/18.9226/81.6991`,
                             "_blank",
                             "noreferrer"
                           );
@@ -286,7 +288,8 @@ const AOI = (props) => {
                         {/* <MapTwoTone   /> */}
                         <img
                           alt="OSM logo"
-                          className="osm-logo-small"                         src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Openstreetmap_logo.svg/256px-Openstreetmap_logo.svg.png"
+                          className="osm-logo-small"
+                          src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Openstreetmap_logo.svg/256px-Openstreetmap_logo.svg.png"
                         />
                       </IconButton>
                     </Tooltip>
@@ -365,8 +368,8 @@ const AOI = (props) => {
         </Demo>
         {props.mapLayers && props.mapLayers.length === 0 && (
           <Typography variant="body1" component="h2">
-            No TAs yet, start creating one by clicking Draw a rectangle, 3rd down at the top 
-            left of the image/map
+            No TAs yet, start creating one by clicking Draw a rectangle, 3rd
+            down at the top left of the image/map
           </Typography>
         )}
       </Grid>
