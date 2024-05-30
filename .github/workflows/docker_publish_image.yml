@@ -5,9 +5,11 @@ on:
     branches:
       - master
     paths-ignore:
-      - '.github/workflows/backend_build.yml'
-      - '.github/workflows/frontend_build.yml'
-      - '.github/workflows/frontend_build_push.yml'
+      - ".github/workflows/backend_build.yml"
+      - ".github/workflows/frontend_build.yml"
+      - ".github/workflows/frontend_build_push.yml"
+  release:
+    types: [released]
 
 env:
   REGISTRY: ghcr.io

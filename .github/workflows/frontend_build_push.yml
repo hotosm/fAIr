@@ -1,11 +1,11 @@
 name: Frontend Build and upload to S3
 
 on:
-  push:
-    branches: [ master ]
+  release:
+    types: [released]
     paths:
-      - 'frontend/**'
-      - '.github/workflows/frontend_build_push.yml'
+      - "frontend/**"
+      - ".github/workflows/frontend_build_push.yml"
 
 permissions:
   id-token: write
@@ -13,7 +13,6 @@ permissions:
 
 jobs:
   build_and_upload:
-
     runs-on: ubuntu-latest
     environment: Production
     env:
@@ -21,30 +20,30 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [ 16.14.2 ]
+        node-version: [16.14.2]
 
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
 
-    - name: Install dependencies
-      run: cd frontend/ && npm install --legacy-peer-deps
+      - name: Install dependencies
+        run: cd frontend/ && npm install --legacy-peer-deps
 
-    - name: Build frontend
-      run: cd frontend/ && npm run build
-      env:
-        REACT_APP_API_BASE: ${{ vars.REACT_APP_API_BASE }}
-        REACT_APP_PREDICTOR_API_BASE: ${{ vars.REACT_APP_PREDICTOR_API_BASE }}
-        REACT_APP_ENV: Dev
+      - name: Build frontend
+        run: cd frontend/ && npm run build
+        env:
+          REACT_APP_API_BASE: ${{ vars.REACT_APP_API_BASE }}
+          REACT_APP_PREDICTOR_API_BASE: ${{ vars.REACT_APP_PREDICTOR_API_BASE }}
+          REACT_APP_ENV: Dev
 
-    - name: Authenticate to AWS
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-region: us-east-1
-        role-to-assume: ${{ secrets.AWS_OIDC_ROLE }}
-        role-session-name: fAIrGithub
+      - name: Authenticate to AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-east-1
+          role-to-assume: ${{ secrets.AWS_OIDC_ROLE }}
+          role-session-name: fAIrGithub
 
-    - name: Upload to S3
-      run: cd frontend/build && aws s3 sync . s3://${{ vars.FRONTEND_BUCKET }}/
+      - name: Upload to S3
+        run: cd frontend/build && aws s3 sync . s3://${{ vars.FRONTEND_BUCKET }}/
