@@ -206,6 +206,8 @@ def train_model(
             training_instance.chips_length = get_file_count(
                 os.path.join(preprocess_output, "chips")
             )
+            training_instance.save()
+
             # train
 
             train_output = f"{base_path}/train"
