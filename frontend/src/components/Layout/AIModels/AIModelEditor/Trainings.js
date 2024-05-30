@@ -50,7 +50,7 @@ const TrainingsList = (props) => {
 
       if (res.error) setError(res.error.response.statusText);
       else {
-        // console.log("gettraining", res.data);
+        //console.log("gettraining", res.data);
 
         return res.data;
       }
@@ -123,17 +123,11 @@ const TrainingsList = (props) => {
       },
     },
     {
-      field: "c",
+      field: "chips_length",
       headerName: "DS size",
       flex: 1,
       renderCell: (params) => {
-        if (params.row.status === "FINISHED")
-          return (
-            <TrainingSize
-              datasetId={props.datasetId}
-              trainingId={params.row.id}
-            ></TrainingSize>
-          );
+        return <>{`${params.value === 0 ? "" : params.value}`}</>;
       },
     },
     {

@@ -383,6 +383,10 @@ const Prediction = () => {
         loadurl.searchParams.set("top", bounds._northEast.lat);
         loadurl.searchParams.set("left", bounds._southWest.lng);
         loadurl.searchParams.set("right", bounds._northEast.lng);
+        loadurl.searchParams.set(
+          "changeset_hashtags",
+          process.env.REACT_APP_HASHTAG_PREFIX
+        );
         const loadResponse = await fetch(loadurl);
 
         if (!josmResponse.ok) {
