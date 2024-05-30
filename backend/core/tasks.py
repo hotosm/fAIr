@@ -3,23 +3,14 @@ import logging
 import os
 import shutil
 import sys
+import tarfile
 import traceback
 from shutil import rmtree
-import tarfile
 
 import hot_fair_utilities
 import ramp.utils
 import tensorflow as tf
 from celery import shared_task
-from django.conf import settings
-from django.contrib.gis.db.models.aggregates import Extent
-from django.contrib.gis.geos import GEOSGeometry
-from django.shortcuts import get_object_or_404
-from django.utils import timezone
-from hot_fair_utilities import preprocess, train
-from hot_fair_utilities.training import run_feedback
-from predictor import download_imagery, get_start_end_download_coords
-
 from core.models import AOI, Feedback, FeedbackAOI, FeedbackLabel, Label, Training
 from core.serializers import (
     AOISerializer,
@@ -29,6 +20,14 @@ from core.serializers import (
     LabelFileSerializer,
 )
 from core.utils import bbox, is_dir_empty
+from django.conf import settings
+from django.contrib.gis.db.models.aggregates import Extent
+from django.contrib.gis.geos import GEOSGeometry
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
+from hot_fair_utilities import preprocess, train
+from hot_fair_utilities.training import run_feedback
+from predictor import download_imagery, get_start_end_download_coords
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +35,7 @@ logger = logging.getLogger(__name__)
 
 
 DEFAULT_TILE_SIZE = 256
+
 
 def xz_folder(folder_path, output_filename, remove_original=False):
     """
@@ -47,14 +47,28 @@ def xz_folder(folder_path, output_filename, remove_original=False):
     - remove_original: If True, the original folder is removed after compression.
     """
 
-    if not output_filename.endswith('.tar.xz'):
-        output_filename += '.tar.xz'
+    if not output_filename.endswith(".tar.xz"):
+        output_filename += ".tar.xz"
 
     with tarfile.open(output_filename, "w:xz") as tar:
         tar.add(folder_path, arcname=os.path.basename(folder_path))
 
     if remove_original:
         shutil.rmtree(folder_path)
+
+
+def get_file_count(path):
+    try:
+        return len(
+            [
+                entry
+                for entry in os.listdir(path)
+                if os.path.isfile(os.path.join(path, entry))
+            ]
+        )
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return 0
 
 
 @shared_task
@@ -189,6 +203,10 @@ def train_model(
                 rasterize_options=["binary"],
                 georeference_images=True,
             )
+            training_instance.chips_length = get_file_count(
+                os.path.join(preprocess_output, "chips")
+            )
+            training_instance.save()
 
             # train
 
@@ -272,9 +290,19 @@ def train_model(
                 f.write(json.dumps(aoi_serializer.data))
 
             # copy aois and labels to preprocess output before compressing it to tar
-            shutil.copyfile(os.path.join(output_path, "aois.geojson"), os.path.join(preprocess_output,'aois.geojson'))
-            shutil.copyfile(os.path.join(output_path, "labels.geojson"), os.path.join(preprocess_output,'labels.geojson'))
-            xz_folder(preprocess_output, os.path.join(output_path, "preprocessed.tar.xz"), remove_original=True)
+            shutil.copyfile(
+                os.path.join(output_path, "aois.geojson"),
+                os.path.join(preprocess_output, "aois.geojson"),
+            )
+            shutil.copyfile(
+                os.path.join(output_path, "labels.geojson"),
+                os.path.join(preprocess_output, "labels.geojson"),
+            )
+            xz_folder(
+                preprocess_output,
+                os.path.join(output_path, "preprocessed.tar.xz"),
+                remove_original=True,
+            )
 
             # now remove the ramp-data all our outputs are copied to our training workspace
             shutil.rmtree(base_path)

@@ -84,6 +84,7 @@ class Training(models.Model):
     finished_at = models.DateTimeField(null=True, blank=True)
     accuracy = models.FloatField(null=True, blank=True)
     epochs = models.PositiveIntegerField()
+    chips_length = models.PositiveIntegerField(default=0)
     batch_size = models.PositiveIntegerField()
     freeze_layers = models.BooleanField(default=False)
 
