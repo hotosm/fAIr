@@ -1,0 +1,23 @@
+django==4.1.4
+# gdal==3.6.2
+# psycopg2==2.9.9
+djangorestframework==3.14.0
+djangorestframework-gis==1.0
+dj-database-url==1.2.0
+django-leaflet==0.28.3
+drf-yasg==1.21.4
+django-environ==0.9.0 # used for environment
+django-filter==22.1
+django-cors-headers==3.13.0 # used for enabling cors when frontend is hosted on different server / origin
+osm-login-python==0.0.2
+celery==5.2.7
+redis==4.4.0
+django_celery_results==2.4.0
+flower==1.2.0
+validators==0.20.0
+gpxpy==1.5.0
+geojson2osm==0.0.1
+osmconflator==0.0.9
+orthogonalizer==0.0.4
+fairpredictor==0.0.26
+tflite-runtime==2.14.0

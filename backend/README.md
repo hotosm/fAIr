@@ -14,14 +14,14 @@ This project was bootstrapped with  [Geodjango Template](https://github.com/itsk
     source ./env/bin/activate
 
 ##### Setup Basemodels (Ramp Supported Currently)
+- Install git lfs
+```bash
+sudo apt-get install git-lfs
+```
+
 - Clone Ramp Basemodel 
 ```
 git clone https://github.com/radiantearth/model_ramp_baseline.git
-```
-OR Download from google drive 
-```
-pip install gdown
-gdown --fuzzy https://drive.google.com/file/d/1wvJhkiOrSlHmmvJ0avkAdu9sslFf5_I0/view?usp=sharing
 ```
 
 - Clone Ramp - Code 
@@ -29,16 +29,10 @@ Note: This clone location will be your RAMP_HOME
 ```
 git clone https://github.com/kshitijrajsharma/ramp-code-fAIr.git ramp-code
 ```
+
 - Copy Basemodel checkpoint to ramp-code
 ```
 cp -r model_ramp_baseline/data/input/checkpoint.tf ramp-code/ramp/checkpoint.tf
-```
-
-Our Basemodel is available for public download [here](https://drive.google.com/file/d/1wvJhkiOrSlHmmvJ0avkAdu9sslFf5_I0/view?usp=sharing)
-
-You can unzip and  move the downloaded basemodel 
-```
-unzip checkpoint.tf.zip -d ramp-code/ramp  
 ```
 
 
@@ -136,11 +130,7 @@ pip install -r requirements.txt
     You will need more env variables (Such as Ramp home, Training Home) that can be found on ```.sample_env```  
 
 #### Now change your username, password and db name in settings.py accordingly to your database
-    python manage.py makemigrations login
-    python manage.py migrate login
-    python manage.py makemigrations core
-    python manage.py migrate core 
-    python manage.py makemigrations 
+    python manage.py makemigrations login core
     python manage.py migrate
     python manage.py runserver
 ### Now server will be available in your 8000 port on web, you can check out your localhost:8000/admin for admin panel 
