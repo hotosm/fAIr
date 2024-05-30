@@ -12,7 +12,7 @@ import zipfile
 from datetime import datetime
 from tempfile import NamedTemporaryFile
 
-import tensorflow as tf
+# import tensorflow as tf
 from celery import current_app
 from celery.result import AsyncResult
 from django.conf import settings
@@ -60,7 +60,8 @@ from .serializers import (
     ModelSerializer,
     PredictionParamSerializer,
 )
-from .tasks import train_model
+# from .tasks import train_model
+from celery import Celery
 from .utils import get_dir_size, gpx_generator, process_rawdata, request_rawdata
 
 
@@ -127,9 +128,11 @@ class TrainingSerializer(
         validated_data["created_by"] = user
         # create the model instance
         instance = Training.objects.create(**validated_data)
-        logging.info("Sending record to redis queue")
+
+        celery = Celery()
+
         # run your function here
-        task = train_model.delay(
+        task = celery.train_model.delay(
             dataset_id=instance.model.dataset.id,
             training_id=instance.id,
             epochs=instance.epochs,
@@ -471,8 +474,9 @@ class FeedbackView(APIView):
                 batch_size=batch_size,
                 source_imagery=training_instance.source_imagery,
             )
+            celery = Celery()
 
-            task = train_model.delay(
+            task = celery.train_model.delay(
                 dataset_id=instance.model.dataset.id,
                 training_id=instance.id,
                 epochs=instance.epochs,
@@ -614,16 +618,16 @@ def publish_training(request, training_id: int):
     return Response("Training Published", status=status.HTTP_201_CREATED)
 
 
-class APIStatus(APIView):
-    def get(self, request):
-        res = {
-            "tensorflow_version": tf.__version__,
-            "No of GPU Available": len(
-                tf.config.experimental.list_physical_devices("GPU")
-            ),
-            "API Status": "Healthy",  # static for now should be dynamic TODO
-        }
-        return Response(res, status=status.HTTP_200_OK)
+# class APIStatus(APIView):
+#     def get(self, request):
+#         res = {
+#             "tensorflow_version": tf.__version__,
+#             "No of GPU Available": len(
+#                 tf.config.experimental.list_physical_devices("GPU")
+#             ),
+#             "API Status": "Healthy",  # static for now should be dynamic TODO
+#         }
+#         return Response(res, status=status.HTTP_200_OK)
 
 
 class GenerateGpxView(APIView):
