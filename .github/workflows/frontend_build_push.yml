@@ -6,11 +6,6 @@ on:
     paths:
       - 'frontend/**'
       - '.github/workflows/frontend_build_push.yml'
-  pull_request:
-    branches: [ master ]
-    paths:
-      - 'frontend/**'
-      - '.github/workflows/frontend_build_push.yml'
 
 permissions:
   id-token: write
@@ -26,7 +21,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [ 16 ]
+        node-version: [ 16.14.2 ]
 
     steps:
     - uses: actions/checkout@v4

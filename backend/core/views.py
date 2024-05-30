@@ -128,7 +128,9 @@ class TrainingSerializer(
         validated_data["created_by"] = user
         # create the model instance
         instance = Training.objects.create(**validated_data)
+
         celery = Celery()
+
         # run your function here
         task = celery.train_model.delay(
             dataset_id=instance.model.dataset.id,
@@ -140,6 +142,8 @@ class TrainingSerializer(
             or instance.model.dataset.source_imagery,
             freeze_layers=instance.freeze_layers,
         )
+        logging.info("Record saved in queue")
+
         if not instance.source_imagery:
             instance.source_imagery = instance.model.dataset.source_imagery
         instance.task_id = task.id
@@ -689,9 +693,9 @@ class TrainingWorkspaceDownloadView(APIView):
             if os.path.isdir(base_dir)
             else os.path.getsize(base_dir)
         ) / (1024**2)
-        if size > 200:  # if file is greater than 200 mb exit
+        if size > settings.TRAINING_WORKSPACE_DOWNLOAD_LIMIT:  # if file is greater than 200 mb exit
             return Response(
-                {f"Errr: File Size {size} MB Exceed More than 200 MB"}, status=403
+                {f"Errr: File Size {size} MB Exceed More than {settings.TRAINING_WORKSPACE_DOWNLOAD_LIMIT} MB"}, status=403
             )
 
         if os.path.isfile(base_dir):
