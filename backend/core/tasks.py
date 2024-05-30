@@ -78,7 +78,7 @@ def train_model(
     feedback=None,
     freeze_layers=False,
 ):
-    #importing them here so that it won't be necessary when sending tasks
+    #importing them here so that it won't be necessary when sending tasks ( api only)
     import hot_fair_utilities
     import ramp.utils
     import tensorflow as tf
