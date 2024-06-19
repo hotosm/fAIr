@@ -77,6 +77,9 @@ def train_model(
     source_imagery,
     feedback=None,
     freeze_layers=False,
+    multimasks=False,
+    input_contact_spacing=8,
+    input_boundary_width=3,
 ):
     #importing them here so that it won't be necessary when sending tasks ( api only)
     import hot_fair_utilities
@@ -199,12 +202,22 @@ def train_model(
             # preprocess
             model_input_image_path = f"{base_path}/input"
             preprocess_output = f"/{base_path}/preprocessed"
+
+            if multimasks:
+                logger.info(
+                    "Using multiple masks for training : background, footprint, boundary, contact"
+                )
+            else:
+                logger.info("Using binary masks for training : background, footprint")
             preprocess(
                 input_path=model_input_image_path,
                 output_path=preprocess_output,
                 rasterize=True,
                 rasterize_options=["binary"],
                 georeference_images=True,
+                multimasks=multimasks,
+                input_contact_spacing=input_contact_spacing,
+                input_boundary_width=input_boundary_width,
             )
             training_instance.chips_length = get_file_count(
                 os.path.join(preprocess_output, "chips")
@@ -227,6 +240,7 @@ def train_model(
                     ),
                     model_home=os.environ["RAMP_HOME"],
                     epoch_size=epochs,
+                    multimasks=multimasks,
                     batch_size=batch_size,
                     freeze_layers=freeze_layers,
                 )
@@ -239,6 +253,7 @@ def train_model(
                     model="ramp",
                     model_home=os.environ["RAMP_HOME"],
                     freeze_layers=freeze_layers,
+                    multimasks=multimasks,
                 )
 
             # copy final model to output
