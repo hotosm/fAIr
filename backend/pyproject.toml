@@ -1,0 +1,56 @@
+[project]
+name = "fAIr"
+version = "1.0.1"
+description = "AI Assisted Mapping"
+authors = [
+    {name = "HOTOSM", email = "sysadmin@hotosm.org"},
+]
+dependencies = [
+    "django==4.1.4",
+    "psycopg2",
+    "djangorestframework==3.14.0",
+    "djangorestframework-gis==1.0",
+    "dj-database-url==1.2.0",
+    "django-leaflet==0.28.3",
+    "drf-yasg==1.21.4",
+    "django-environ==0.9.0",
+    "django-filter==22.1",
+    "django-cors-headers==3.13.0",
+    "osm-login-python==0.0.2",
+    "celery==5.2.7",
+    "redis==4.4.0",
+    "django-celery-results==2.4.0",
+    "flower==1.2.0",
+    "validators==0.20.0",
+    "gpxpy==1.5.0",
+    "geojson2osm==0.0.1",
+    "osmconflator==0.0.9",
+    "orthogonalizer==0.0.4",
+    "fairpredictor==0.0.26",
+    "tflite-runtime==2.14.0",
+    "hot-fair-utilities==1.2.3",
+]
+requires-python = ">=3.10"
+readme = "README.md"
+license = {text = "AGPL-3.0 license"}
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+
+[tool.pdm]
+distribution = true
+
+[tool.pdm.dev-dependencies]
+dev = [
+    "commitizen>=3.27.0",
+    "ruff>=0.4.9",
+]
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+tag_format = "\"v$version\""
+version_scheme = "semver2"
+version = "1.0.1"
+update_changelog_on_bump = true
