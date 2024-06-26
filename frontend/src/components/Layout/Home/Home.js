@@ -26,23 +26,13 @@ const GetStarted = () => {
         variant="body1"
         style={{ color: "#3D3D3D", fontSize: "18px", marginBottom: "50px" }}
       >
-        fAIr is an open AI-assisted mapping service developed by the
-        Humanitarian OpenStreetMap Team (HOT) that aims to improve the
-        efficiency and accuracy of mapping efforts for humanitarian purposes.
-        The service uses AI models, specifically computer vision techniques, to
-        detect objects such as buildings, roads, waterways, and trees from
-        satellite and UAV imagery. The name fAIr is derived from the following
-        terms:
+        fAIr performs mapping in the same way as human mappers using HOT's Tasking Manager. It looks at UAV imagery and produces map data that can be added to OpenStreetMap (OSM). Tests show a 100% speedup compared to manual mapping. It uses Artificial Intelligence (AI) to accomplish this.
         <br />
         <br />
-        <ul style={{ listStyleType: "none", paddingLeft: 0 }}>
-          <li>f: for freedom and free and open-source software</li>
-          <li>AI: for Artificial Intelligence</li>
-          <li>
-            r: for resilience and our responsibility for our communities and the
-            role we play within humanitarian mapping
-          </li>
-        </ul>
+        fAIr is developed by the Humanitarian OpenStreetMap Team (HOT) and all the software is free and open source.
+        <br />
+        <br />
+        Before fAIr is used, it needs to be fine-tuned by training on high quality map data for a small representative part of the geographical region where it is to be used.
       </Typography>
       <div
         style={{
