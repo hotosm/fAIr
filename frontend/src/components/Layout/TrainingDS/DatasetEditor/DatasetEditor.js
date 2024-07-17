@@ -117,6 +117,7 @@ function DatasetEditor() {
               mapLayers={mapLayers.filter((i) => i.type === "aoi")}
               selectAOIHandler={selectAOIHandler}
               deleteAOIButton={deleteAOIButton}
+              datasetId={dataset.id}
             ></AOI>
             <TMProject addtoMap={AddtoMapHandler}></TMProject>
           </Grid>
