@@ -11,24 +11,25 @@ import {
   ListItemText,
   Pagination,
   Snackbar,
-  SvgIcon,
+  Tooltip,
   Typography,
+  Button,
 } from "@mui/material";
-import Tooltip from "@mui/material/Tooltip";
 import { styled } from "@mui/material/styles";
 import DeleteIcon from "@mui/icons-material/Delete";
-import MapIcon from "@mui/icons-material/Map";
+import AddIcon from "@mui/icons-material/Add";
 import FolderIcon from "@mui/icons-material/Folder";
 import { MapTwoTone, ZoomInMap } from "@mui/icons-material";
 import usePagination from "./Pagination";
 import { makeStyles, withStyles } from "@material-ui/core/styles";
 import ScreenshotMonitorIcon from "@mui/icons-material/ScreenshotMonitor";
-
 import PlaylistRemoveIcon from "@mui/icons-material/PlaylistRemove";
 import { useMutation } from "react-query";
 import axios from "../../../../axios";
 import AOIDetails from "./AOIDetails";
 import AuthContext from "../../../../Context/AuthContext";
+import * as Terraformer from "@terraformer/wkt";
+
 const Demo = styled("div")(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
 }));
@@ -40,11 +41,36 @@ const ListItemWithWiderSecondaryAction = withStyles({
 })(ListItem);
 
 const PER_PAGE = 5;
+const DEFAULT_FILTER = {
+  items: [],
+  linkOperator: "and",
+  quickFilterValues: [],
+  quickFilterLogicOperator: "and",
+};
+
+const postAoi = async (polygon, dataset, accessToken) => {
+  console.log("Posting AOI");
+  console.log(dataset);
+  const headers = {
+    "Content-Type": "application/json",
+    "access-token": accessToken,
+  };
+  const data = {
+    geom: `SRID=4326;${polygon}`,
+    dataset,
+  };
+  const response = await axios.post("/aoi/", data, { headers });
+  console.log(response.data);
+  return response.data;
+};
+
 const AOI = (props) => {
   const [dense, setDense] = useState(true);
   const count = Math.ceil(props.mapLayers.length / PER_PAGE);
   let [page, setPage] = useState(1);
   const [openSnack, setOpenSnack] = useState(false);
+  const [fileError, setFileError] = useState(null);
+  const [geoJsonFile, setGeoJsonFile] = useState(null);
   let _DATA = usePagination(
     props.mapLayers.filter((e) => e.type === "aoi"),
     PER_PAGE
@@ -53,7 +79,7 @@ const AOI = (props) => {
     setPage(p);
     _DATA.jump(p);
   };
-  // console.log("_DATA", _DATA);
+
   useEffect(() => {
     return () => {};
   }, [props]);
@@ -70,16 +96,12 @@ const AOI = (props) => {
       });
 
       if (res.error) {
-        // setMapError(res.error.response.statusText);
         console.log(res.error.response.statusText);
       } else {
-        // success full fetch
-
         return res.data;
       }
     } catch (e) {
       console.log("isError", e);
-    } finally {
     }
   };
   const { mutate: mutateFetch, data: fetchResult } =
@@ -106,10 +128,73 @@ const AOI = (props) => {
       }
     } catch (e) {
       console.log("isError", e);
-    } finally {
     }
   };
   const { mutate: mutateDeleteAOI } = useMutation(DeleteAOI);
+
+  const handleFileUpload = async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const fileName = file.name.toLowerCase();
+      if (!fileName.endsWith(".geojson")) {
+        setFileError("Invalid file format. Please upload a .geojson file.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          const geoJson = JSON.parse(e.target.result);
+          let geometry;
+
+          if (geoJson.type === "FeatureCollection") {
+            // if (geoJson.features.length > 1) {
+            //   setFileError(
+            //     "Feature collection contains multiple features. Only uploaded first one"
+            //   );
+            // }
+            // TODO : for featurecollection loop through the features and add AOI one by one
+            const feature = geoJson.features[0];
+            if (
+              feature.geometry.type !== "Polygon" &&
+              feature.geometry.type !== "MultiPolygon"
+            ) {
+              setFileError("GeoJSON must contain a Polygon or MultiPolygon.");
+              return;
+            }
+            geometry = feature.geometry;
+          } else if (geoJson.type === "Feature") {
+            if (
+              geoJson.geometry.type !== "Polygon" &&
+              geoJson.geometry.type !== "MultiPolygon"
+            ) {
+              setFileError(
+                "Feature geometry type must be Polygon or MultiPolygon."
+              );
+              return;
+            }
+            geometry = geoJson.geometry;
+          } else if (
+            geoJson.type === "Polygon" ||
+            geoJson.type === "MultiPolygon"
+          ) {
+            geometry = geoJson;
+          } else {
+            setFileError("Invalid GeoJSON format.");
+            return;
+          }
+
+          const wkt = Terraformer.geojsonToWKT(geometry);
+          await postAoi(wkt, props.datasetId, accessToken);
+          setFileError(null);
+          setGeoJsonFile(null);
+        } catch (error) {
+          console.error(error);
+          setFileError("Error processing GeoJSON file.");
+        }
+      };
+      reader.readAsText(file);
+    }
+  };
 
   return (
     <>
@@ -119,6 +204,28 @@ const AOI = (props) => {
             Training Areas{` (${props.mapLayers.length})`}
           </Typography>
         </Tooltip>
+        <input
+          accept=".geojson"
+          style={{ display: "none" }}
+          id="geojson-upload"
+          type="file"
+          onChange={handleFileUpload}
+        />
+        <label htmlFor="geojson-upload">
+          <Button
+            variant="contained"
+            color="primary"
+            component="span"
+            startIcon={<AddIcon />}
+          >
+            Upload
+          </Button>
+        </label>
+        {fileError && (
+          <Alert severity="error" onClose={() => setFileError(null)}>
+            {fileError}
+          </Alert>
+        )}
         <Demo>
           {props.mapLayers && props.mapLayers.length > PER_PAGE && (
             <Pagination
@@ -159,7 +266,6 @@ const AOI = (props) => {
                             ""
                           )}
                         </span>
-                        {/* add here a container to get the AOI status from DB */}
                         {layer.aoiId && (
                           <AOIDetails aoiId={layer.aoiId}></AOIDetails>
                         )}
@@ -167,40 +273,6 @@ const AOI = (props) => {
                     }
                   />
                   <ListItemSecondaryAction>
-                    {/* <IconButton aria-label="comments">
-                   <DeleteIcon />
-                </IconButton> */}
-                    {/* <Tooltip title="Create map data in RapID Editor">
-                      <IconButton
-                        aria-label="comments"
-                        sx={{ width: 24, height: 24 }}
-                        className="margin1 transparent"
-                        onClick={(e) => {
-                          // mutateFetch(layer.aoiId);
-                          // console.log("Open in Editor")
-                          window.open(
-                            `https://rapideditor.org/rapid#background=${
-                              props.oamImagery
-                                ? "custom:" + props.oamImagery.url
-                                : "Bing"
-                            }&datasets=fbRoads,msBuildings&disable_features=boundaries&map=16.00/17.9253/120.4841&gpx=&gpx=${
-                              process.env.REACT_APP_API_BASE
-                            }/aoi/gpx/${
-                              layer.aoiId
-                            }`,
-                            "_blank",
-                            "noreferrer"
-                          );
-                        }}
-                      >
-                       
-                        <img
-                          alt="RapiD logo"
-                          className="editor-logo-small"
-                          src="/rapid-logo.png"
-                        />
-                      </IconButton>
-                    </Tooltip> */}
                     <Tooltip title="Create map data in JOSM Editor">
                       <IconButton
                         aria-label="comments"
@@ -208,9 +280,6 @@ const AOI = (props) => {
                         className="margin1 transparent"
                         onClick={async (e) => {
                           try {
-                            // mutateFetch(layer.aoiId);
-                            console.log("layer", layer);
-
                             const Imgurl = new URL(
                               "http://127.0.0.1:8111/imagery"
                             );
@@ -224,10 +293,6 @@ const AOI = (props) => {
                               props.oamImagery.url
                             );
                             const imgResponse = await fetch(Imgurl);
-                            // bounds._southWest.lng,
-                            // bounds._southWest.lat,
-                            // bounds._northEast.lng,
-                            // bounds._northEast.lat,
                             const loadurl = new URL(
                               "http://127.0.0.1:8111/load_and_zoom"
                             );
@@ -270,8 +335,6 @@ const AOI = (props) => {
                         sx={{ width: 24, height: 24 }}
                         className="margin1 transparent"
                         onClick={(e) => {
-                          // mutateFetch(layer.aoiId);
-                          // console.log("Open in Editor")
                           window.open(
                             `https://www.openstreetmap.org/edit/#background=${
                               props.oamImagery
@@ -285,7 +348,6 @@ const AOI = (props) => {
                           );
                         }}
                       >
-                        {/* <MapTwoTone   /> */}
                         <img
                           alt="OSM logo"
                           className="osm-logo-small"
@@ -300,22 +362,12 @@ const AOI = (props) => {
                         className="margin1"
                         onClick={(e) => {
                           mutateFetch(layer.aoiId);
-                          console.log("Call raw data API to fetch OSM data");
                         }}
                       >
                         <MapTwoTone fontSize="small" />
                       </IconButton>
                     </Tooltip>
 
-                    {/* <IconButton aria-label="comments"
-                className="margin1"
-                disabled
-                onClick={(e)=> {
-
-                  console.log("Remove labels")
-                }}>
-                   <PlaylistRemoveIcon />
-                </IconButton> */}
                     <Tooltip title="Zoom to TA">
                       <IconButton
                         sx={{ width: 24, height: 24 }}
@@ -339,7 +391,6 @@ const AOI = (props) => {
                               return accumulator + curValue.lng;
                             },
                             0) / layer.latlngs.length;
-                          // [lat, lng] are the centroid of the polygon
                           props.selectAOIHandler([lat, lng], 17);
                         }}
                       >
@@ -352,9 +403,6 @@ const AOI = (props) => {
                         sx={{ width: 24, height: 24 }}
                         className="margin-left-13"
                         onClick={(e) => {
-                          // console.log(
-                          //   `layer.aoiId ${layer.aoiId} and layer.id ${layer.id}`
-                          // );
                           mutateDeleteAOI(layer.aoiId, layer.id);
                         }}
                       >
@@ -377,7 +425,6 @@ const AOI = (props) => {
         open={openSnack}
         autoHideDuration={5000}
         onClose={() => {
-          console.log("openSnack", openSnack);
           setOpenSnack(false);
         }}
         message={
@@ -395,7 +442,6 @@ const AOI = (props) => {
             </span>
           </Alert>
         }
-        // action={action}
         color="red"
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
       />
