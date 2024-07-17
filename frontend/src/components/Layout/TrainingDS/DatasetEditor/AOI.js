@@ -41,12 +41,6 @@ const ListItemWithWiderSecondaryAction = withStyles({
 })(ListItem);
 
 const PER_PAGE = 5;
-const DEFAULT_FILTER = {
-  items: [],
-  linkOperator: "and",
-  quickFilterValues: [],
-  quickFilterLogicOperator: "and",
-};
 
 const postAoi = async (polygon, dataset, accessToken) => {
   console.log("Posting AOI");
