@@ -46,6 +46,7 @@ distribution = true
 dev = [
     "commitizen>=3.27.0",
     "ruff>=0.4.9",
+    "coverage>=7.6.0",
 ]
 
 [tool.commitizen]
@@ -54,3 +55,8 @@ tag_format = "\"v$version\""
 version_scheme = "semver2"
 version = "1.0.1"
 update_changelog_on_bump = true
+
+[tool.coverage.run]
+omit = [
+    "/usr/*"
+]
