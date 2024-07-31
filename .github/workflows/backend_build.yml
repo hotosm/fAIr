@@ -89,7 +89,7 @@ jobs:
           pip install coverage
           pip install factory-boy
 
-      - name: Creating env
+      - name: Create env
         run: |
           cd backend/
           mv sample_env .env
