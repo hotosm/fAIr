@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - master
-      - fix/ci-tests
     paths:
       - "backend/**"
       - ".github/workflows/backend_build.yml"
