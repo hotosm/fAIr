@@ -87,6 +87,8 @@ jobs:
         run: |
           cd backend/
           pip install -r requirements.txt
+          pip install coverage
+          pip install factory-boy
 
       - name: Creating env
         run: |
