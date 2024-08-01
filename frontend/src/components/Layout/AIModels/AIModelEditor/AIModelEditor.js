@@ -39,8 +39,8 @@ const AIModelEditor = (props) => {
   const [freezeLayers, setFreezeLayers] = useState(false);
 
   const [multimasks, setMultimasks] = React.useState(false);
-  const [inputContactSpacing, setInputContactSpacing] = React.useState(8);
-  const [inputBoundaryWidth, setInputBoundaryWidth] = React.useState(3);
+  const [inputContactSpacing, setInputContactSpacing] = React.useState(4);
+  const [inputBoundaryWidth, setInputBoundaryWidth] = React.useState(2);
 
   const [popupRowData, setPopupRowData] = useState(null);
   const [feedbackCount, setFeedbackCount] = useState(0);
