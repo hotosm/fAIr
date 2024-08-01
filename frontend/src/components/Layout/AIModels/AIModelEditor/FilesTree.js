@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import TreeView from "@mui/lab/TreeView";
+import { SimpleTreeView } from "@mui/x-tree-view";
 import TreeItem from "@mui/lab/TreeItem";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
@@ -73,7 +73,7 @@ const FilesTree = (props) => {
           <LinearProgress color="hot" />
         </Stack>
       )}
-      <TreeView
+      <SimpleTreeView
         aria-label="file system navigator"
         defaultCollapseIcon={<ExpandMoreIcon />}
         defaultExpandIcon={<ExpandLessIcon />}
@@ -126,7 +126,7 @@ const FilesTree = (props) => {
         {/* <TreeItem key={key} nodeId="1" label="Applications">
               <TreeItem nodeId="2" label="Calendar" />
             </TreeItem> */}
-      </TreeView>
+      </SimpleTreeView>
     </>
   );
 };

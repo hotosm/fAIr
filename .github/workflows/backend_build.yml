@@ -1,18 +1,17 @@
-name: Backend Build
+name: Backend Build and Tests
 on:
   push:
     branches:
       - master
-      - fix/build
     paths:
-      - 'backend/**'
-      - '.github/workflows/backend_build.yml'
+      - "backend/**"
+      - ".github/workflows/backend_build.yml"
   pull_request:
     branches:
       - master
     paths:
-      - 'backend/**'
-      - '.github/workflows/backend_build.yml'
+      - "backend/**"
+      - ".github/workflows/backend_build.yml"
 
 jobs:
   Build_on_ubuntu:
@@ -87,6 +86,8 @@ jobs:
         run: |
           cd backend/
           pip install -r requirements.txt
+          pip install coverage
+          pip install factory-boy
 
       - name: Creating env
         run: |
@@ -111,22 +112,31 @@ jobs:
           pip install numpy
           pip install GDAL==$(gdal-config --version) --global-option=build_ext --global-option="-I/usr/include/gdal"
 
-      - name : Check Opencv version
+      - name: Check Opencv version
         run: |
           pip freeze | grep opencv
           pip install opencv-python-headless==4.7.0.68
 
-      - name: Run tests
+      - name: Run migrations
         env:
           TESTING_TOKEN: ${{ secrets.TESTING_TOKEN }}
         run: |
           cd backend/
-          
-
-          export TESTING_TOKEN=$TESTING_TOKEN
           python manage.py makemigrations
           python manage.py makemigrations core
           python manage.py makemigrations login
           python manage.py migrate
           python manage.py migrate login
           python manage.py migrate core
+
+      - name : Run tests
+        env :
+          TESTING_TOKEN: ${{ secrets.TESTING_TOKEN }}
+          OSM_CLIENT_ID: ${{ secrets.OSM_CLIENT_ID }}
+          OSM_CLIENT_SECRET: ${{ secrets.OSM_CLIENT_SECRET }}
+          OSM_SECRET_KEY: ""
+
+        run : |
+          cd backend/
+          coverage run manage.py test tests
+          coverage report

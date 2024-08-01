@@ -5,7 +5,7 @@ from rest_framework import routers
 # now import the views.py file into this code
 from .views import (
     AOIViewSet,
-    APIStatus,
+    # APIStatus,
     ConflateGeojson,
     DatasetViewSet,
     FeedbackAOIViewset,
@@ -52,7 +52,7 @@ urlpatterns = [
     path("training/publish/<int:training_id>/", publish_training),
     path("prediction/", PredictionView.as_view()),
     path("feedback/training/submit/", FeedbackView.as_view()),
-    path("status/", APIStatus.as_view()),
+    # path("status/", APIStatus.as_view()),
     path("geojson2osm/", geojson2osmconverter, name="geojson2osmconverter"),
     path("conflate/", ConflateGeojson, name="Conflate Geojson"),
     path("aoi/gpx/<int:aoi_id>/", GenerateGpxView.as_view()),

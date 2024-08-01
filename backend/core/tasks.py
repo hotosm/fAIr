@@ -7,19 +7,8 @@ import tarfile
 import traceback
 from shutil import rmtree
 
-import hot_fair_utilities
-import ramp.utils
-import tensorflow as tf
-from celery import shared_task
-from django.conf import settings
-from django.contrib.gis.db.models.aggregates import Extent
-from django.contrib.gis.geos import GEOSGeometry
-from django.shortcuts import get_object_or_404
-from django.utils import timezone
-from hot_fair_utilities import preprocess, train
-from hot_fair_utilities.training import run_feedback
-from predictor import download_imagery, get_start_end_download_coords
 
+from celery import shared_task
 from core.models import AOI, Feedback, FeedbackAOI, FeedbackLabel, Label, Training
 from core.serializers import (
     AOISerializer,
@@ -29,6 +18,12 @@ from core.serializers import (
     LabelFileSerializer,
 )
 from core.utils import bbox, is_dir_empty
+from django.conf import settings
+from django.contrib.gis.db.models.aggregates import Extent
+from django.contrib.gis.geos import GEOSGeometry
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
+from predictor import download_imagery, get_start_end_download_coords
 
 logger = logging.getLogger(__name__)
 
@@ -58,6 +53,20 @@ def xz_folder(folder_path, output_filename, remove_original=False):
         shutil.rmtree(folder_path)
 
 
+def get_file_count(path):
+    try:
+        return len(
+            [
+                entry
+                for entry in os.listdir(path)
+                if os.path.isfile(os.path.join(path, entry))
+            ]
+        )
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return 0
+
+
 @shared_task
 def train_model(
     dataset_id,
@@ -72,6 +81,13 @@ def train_model(
     input_contact_spacing=8,
     input_boundary_width=3,
 ):
+    #importing them here so that it won't be necessary when sending tasks ( api only)
+    import hot_fair_utilities
+    import ramp.utils
+    import tensorflow as tf
+    from hot_fair_utilities import preprocess, train
+    from hot_fair_utilities.training import run_feedback
+
     training_instance = get_object_or_404(Training, id=training_id)
     training_instance.status = "RUNNING"
     training_instance.started_at = timezone.now()
@@ -203,6 +219,10 @@ def train_model(
                 input_contact_spacing=input_contact_spacing,
                 input_boundary_width=input_boundary_width,
             )
+            training_instance.chips_length = get_file_count(
+                os.path.join(preprocess_output, "chips")
+            )
+            training_instance.save()
 
             # train
 

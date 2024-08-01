@@ -89,58 +89,9 @@ class TaskApiTest(APILiveServerTestCase):
 
         # download labels from osm for 1
 
-        res = self.client.post(
-            f"{API_BASE}/label/osm/fetch/1/", "", headers=headersList
-        )
-        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        ## Fetch AOI
 
-        # download labels from osm for 2
-
-        res = self.client.post(
-            f"{API_BASE}/label/osm/fetch/2/", "", headers=headersList
-        )
-        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-
-        # build the dataset
-
-        build_dt_payload = {"dataset_id": 1, "zoom_level": ["19"]}
-        res = self.client.post(
-            f"{API_BASE}/dataset/image/build/",
-            json.dumps(build_dt_payload),
-            headers=json_type_header,
-        )
-        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-
-        # build dataset on multiple zoom levels
-
-        build_dt_payload = {"dataset_id": 1, "zoom_level": ["19", "20"]}
-        res = self.client.post(
-            f"{API_BASE}/dataset/image/build/",
-            json.dumps(build_dt_payload),
-            headers=json_type_header,
-        )
-        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-
-        # create model
-
-        model_payload = {"name": "My test model", "dataset": 1}
-        res = self.client.post(
-            f"{API_BASE}/model/", json.dumps(model_payload), headers=json_type_header
-        )
-        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-
-        # create training inside model
-        training_payload = {
-            "description": "My very first training",
-            "epochs": 1,
-            "batch_size": 1,
-            "model": 1,
-        }
-        res = self.client.post(
-            f"{API_BASE}/training/",
-            json.dumps(training_payload),
-            headers=json_type_header,
-        )
-        print(res.json())
-        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-        # test
+        aoi_res = self.client.get(f"{API_BASE}/aoi/?dataset=1")
+        self.assertEqual(aoi_res.status_code, 200)
+        aoi_res_json = aoi_res.json()
+        self.assertEqual(len(aoi_res_json["features"]), 2)

@@ -12,7 +12,7 @@ import zipfile
 from datetime import datetime
 from tempfile import NamedTemporaryFile
 
-import tensorflow as tf
+# import tensorflow as tf
 from celery import current_app
 from celery.result import AsyncResult
 from django.conf import settings
@@ -146,7 +146,7 @@ class TrainingSerializer(
                 validated_data.pop(key)
 
         instance = Training.objects.create(**validated_data)
-        logging.info("Sending record to redis queue")
+
         # run your function here
         task = train_model.delay(
             dataset_id=instance.model.dataset.id,
@@ -495,7 +495,6 @@ class FeedbackView(APIView):
                 batch_size=batch_size,
                 source_imagery=training_instance.source_imagery,
             )
-
             task = train_model.delay(
                 dataset_id=instance.model.dataset.id,
                 training_id=instance.id,
@@ -646,16 +645,16 @@ def publish_training(request, training_id: int):
     return Response("Training Published", status=status.HTTP_201_CREATED)
 
 
-class APIStatus(APIView):
-    def get(self, request):
-        res = {
-            "tensorflow_version": tf.__version__,
-            "No of GPU Available": len(
-                tf.config.experimental.list_physical_devices("GPU")
-            ),
-            "API Status": "Healthy",  # static for now should be dynamic TODO
-        }
-        return Response(res, status=status.HTTP_200_OK)
+# class APIStatus(APIView):
+#     def get(self, request):
+#         res = {
+#             "tensorflow_version": tf.__version__,
+#             "No of GPU Available": len(
+#                 tf.config.experimental.list_physical_devices("GPU")
+#             ),
+#             "API Status": "Healthy",  # static for now should be dynamic TODO
+#         }
+#         return Response(res, status=status.HTTP_200_OK)
 
 
 class GenerateGpxView(APIView):

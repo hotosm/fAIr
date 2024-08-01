@@ -282,7 +282,9 @@ const FeedbackAOI = (props) => {
                               props.sourceImagery
                                 ? "custom:" + props.sourceImagery
                                 : "Bing"
-                            }&disable_features=boundaries&gpx=https://fair-dev.hotosm.org/api/v1/feedback-aoi/gpx/${
+                            }&disable_features=boundaries&gpx=${
+                              process.env.REACT_APP_API_BASE
+                            }/feedback-aoi/gpx/${
                               layer.id
                             }&map=10.70/18.9226/81.6991`;
                             console.log(url);
