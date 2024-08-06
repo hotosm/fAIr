@@ -38,7 +38,7 @@ class login(APIView):
 
 
 class callback(APIView):
-    def get(self, request, format=None):
+    def get(self, request, format=None):  # pragma: no cover
         """Callback method redirected from osm callback method
 
         Args:
