@@ -65,6 +65,8 @@ const AOI = (props) => {
   const [openSnack, setOpenSnack] = useState(false);
   const [fileError, setFileError] = useState(null);
   const [geoJsonFile, setGeoJsonFile] = useState(null);
+  const [fetchError, setFetchError] = useState(null);
+
   let _DATA = usePagination(
     props.mapLayers.filter((e) => e.type === "aoi"),
     PER_PAGE
@@ -80,6 +82,7 @@ const AOI = (props) => {
 
   const { accessToken } = useContext(AuthContext);
   const fetchOSMLebels = async (aoiId) => {
+    setFetchError(null);
     try {
       const headers = {
         "access-token": accessToken,
@@ -91,15 +94,21 @@ const AOI = (props) => {
 
       if (res.error) {
         console.log(res.error.response.statusText);
+        setFetchError("Failed to fetch OSM data. Please try again.");
       } else {
         return res.data;
       }
     } catch (e) {
       console.log("isError", e);
+      setFetchError("Failed to fetch OSM data. Please check your connection.");
     }
   };
-  const { mutate: mutateFetch, data: fetchResult } =
-    useMutation(fetchOSMLebels);
+
+  const { mutate: mutateFetch } = useMutation(fetchOSMLebels, {
+    onError: () => {
+      setFetchError("Failed to fetch OSM data. Please try again.");
+    },
+  });
 
   const DeleteAOI = async (id, leafletId) => {
     try {
@@ -408,6 +417,11 @@ const AOI = (props) => {
               ))}
           </List>
         </Demo>
+        {fetchError && (
+          <Typography variant="body2">
+            {fetchError}
+          </Typography>
+        )}
         {props.mapLayers && props.mapLayers.length === 0 && (
           <Typography variant="body1" component="h2">
             No TAs yet, start creating one by clicking Draw a rectangle, 3rd
