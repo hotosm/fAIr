@@ -85,6 +85,7 @@ const Prediction = () => {
   const [skewTolerance, setSkewTolerance] = useState(15);
   const [tolerance, setTolerance] = useState(0.3);
   const [areaThreshold, setAreaThreshold] = useState(4);
+  const [acceptedFeatures, setAcceptedFeatures] = useState([]);
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -235,6 +236,23 @@ const Prediction = () => {
     URL.revokeObjectURL(url);
   };
 
+  const downloadAcceptedFeatures = () => {
+    if (acceptedFeatures.length === 0) {
+      return;
+    }
+  
+    const content = JSON.stringify(acceptedFeatures);
+    const blob = new Blob([content], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+  
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "accepted_predictions.geojson";
+    link.click();
+  
+    URL.revokeObjectURL(url);
+  };
+
   const {
     mutate: callPredict,
     data: returnedpredictions,
@@ -296,6 +314,10 @@ const Prediction = () => {
     }
     return updatedPredictions;
   });
+
+  const handleAcceptFeature = (feature) => {
+    setAcceptedFeatures((prev) => [...prev, feature]);
+  };
 
   const handleSubmitFeedback = async () => {
     setFeedbackLoading(true);
@@ -565,6 +587,7 @@ const Prediction = () => {
                   refestchFeeedback={() => {
                     refetchFeedback();
                   }}
+                  onAcceptFeature={handleAcceptFeature}
                 />
               )}
             </FeatureGroup>
@@ -813,8 +836,20 @@ const Prediction = () => {
                 size="small"
                 sx={{ mt: 1 }}
               >
-                Download as Geojson
+                Download All Features as Geojson
               </LoadingButton>
+
+              {acceptedFeatures.length > 0 && (
+                <LoadingButton
+                  variant="contained"
+                  onClick={downloadAcceptedFeatures}
+                  color="secondary"
+                  size="small"
+                  sx={{ mt: 1 }}
+                >
+                  Download Accepted Features as Geojson
+                </LoadingButton>
+              )}
             </Paper>
           )}
         </Grid>
