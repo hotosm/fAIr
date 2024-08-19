@@ -29,11 +29,14 @@ To eliminate model biases, fAIr is built to work with the local communities and 
 |✅| training of local AI models using local datasets |
 |✅| prediction of map features using locally trained models |
 |✅| iterative re-training of models via user feedback |
-|⚙️| multi-mask training for better building feature prediction |
-|⚙️| improvements to the prediction algorithm: YOLOv8 inference and finetunning |
-| | mapping predictions into OSM using JOSM |
+|✅| mapping predictions into OSM using JOSM |
+|⚙️| improvements to the prediction algorithm: adopting YOLOv8 model |
+|⚙️| UI/UX redesign to enhance the user experience |
 | | remove overlapping predictions from final output |
 | | improvements to testing suite to improve code resilience going forward |
+| | multi-mask training for better building feature prediction |
+
+
 <!-- prettier-ignore-end -->
 
 A more developer-facing roadmap can be found
