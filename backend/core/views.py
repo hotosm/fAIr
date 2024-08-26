@@ -26,17 +26,17 @@ from django.shortcuts import get_object_or_404, redirect
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
 from geojson2osm import geojson2osm
-from login.authentication import OsmAuthentication
-from login.permissions import IsOsmAuthenticated
 from orthogonalizer import othogonalize_poly
 from osmconflator import conflate_geojson
-from predictor import predict
 from rest_framework import decorators, serializers, status, viewsets
 from rest_framework.decorators import api_view
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_gis.filters import InBBoxFilter, TMSTileFilter
+
+from login.authentication import OsmAuthentication
+from login.permissions import IsOsmAuthenticated
 
 from .models import (
     AOI,
@@ -62,6 +62,9 @@ from .serializers import (
 )
 from .tasks import train_model
 from .utils import get_dir_size, gpx_generator, process_rawdata, request_rawdata
+
+if settings.ENABLE_PREDICTION_API:
+    from predictor import predict
 
 
 def home(request):
@@ -194,7 +197,7 @@ class FeedbackLabelViewset(viewsets.ModelViewSet):
     bbox_filter_field = "geom"
     filter_backends = (
         InBBoxFilter,  # it will take bbox like this api/v1/label/?in_bbox=-90,29,-89,35 ,
-        DjangoFilterBackend
+        DjangoFilterBackend,
     )
     bbox_filter_include_overlapping = True
     filterset_fields = ["feedback_aoi", "feedback_aoi__training"]
@@ -345,9 +348,9 @@ def download_training_data(request, dataset_id: int):
             response = HttpResponse(open(zip_temp_path, "rb"))
             response.headers["Content-Type"] = "application/x-zip-compressed"
 
-            response.headers[
-                "Content-Disposition"
-            ] = f"attachment; filename=training_{dataset_id}_all_data.zip"
+            response.headers["Content-Disposition"] = (
+                f"attachment; filename=training_{dataset_id}_all_data.zip"
+            )
             return response
         else:
             # "error": "File Doesn't Exist or has been cleared up from system",
@@ -493,105 +496,116 @@ class FeedbackView(APIView):
 
 DEFAULT_TILE_SIZE = 256
 
+if settings.ENABLE_PREDICTION_API:
 
-class PredictionView(APIView):
-    authentication_classes = [OsmAuthentication]
-    permission_classes = [IsOsmAuthenticated]
+    class PredictionView(APIView):
+        authentication_classes = [OsmAuthentication]
+        permission_classes = [IsOsmAuthenticated]
 
-    @swagger_auto_schema(
-        request_body=PredictionParamSerializer, responses={status.HTTP_200_OK: "ok"}
-    )
-    def post(self, request, *args, **kwargs):
-        """Predicts on bbox by published model"""
-        res_serializer = PredictionParamSerializer(data=request.data)
-        if res_serializer.is_valid(raise_exception=True):
-            deserialized_data = res_serializer.data
-            bbox = deserialized_data["bbox"]
-            use_josm_q = deserialized_data["use_josm_q"]
-            model_instance = get_object_or_404(Model, id=deserialized_data["model_id"])
-            if not model_instance.published_training:
-                return Response("Model is not published yet", status=404)
-            training_instance = get_object_or_404(
-                Training, id=model_instance.published_training
-            )
-
-            source_img_in_dataset = model_instance.dataset.source_imagery
-            source = (
-                deserialized_data["source"]
-                if deserialized_data["source"]
-                else source_img_in_dataset
-            )
-            zoom_level = deserialized_data["zoom_level"]
-            try:
-                start_time = time.time()
-                model_path = os.path.join(
-                    settings.TRAINING_WORKSPACE,
-                    f"dataset_{model_instance.dataset.id}",
-                    "output",
-                    f"training_{training_instance.id}",
-                    "checkpoint.tflite",
+        @swagger_auto_schema(
+            request_body=PredictionParamSerializer, responses={status.HTTP_200_OK: "ok"}
+        )
+        def post(self, request, *args, **kwargs):
+            """Predicts on bbox by published model"""
+            res_serializer = PredictionParamSerializer(data=request.data)
+            if res_serializer.is_valid(raise_exception=True):
+                deserialized_data = res_serializer.data
+                bbox = deserialized_data["bbox"]
+                use_josm_q = deserialized_data["use_josm_q"]
+                model_instance = get_object_or_404(
+                    Model, id=deserialized_data["model_id"]
                 )
-                # give high priority to tflite model format if not avilable fall back to .h5 if not use default .tf
-                if not os.path.exists(model_path):
+                if not model_instance.published_training:
+                    return Response("Model is not published yet", status=404)
+                training_instance = get_object_or_404(
+                    Training, id=model_instance.published_training
+                )
+
+                source_img_in_dataset = model_instance.dataset.source_imagery
+                source = (
+                    deserialized_data["source"]
+                    if deserialized_data["source"]
+                    else source_img_in_dataset
+                )
+                zoom_level = deserialized_data["zoom_level"]
+                try:
+                    start_time = time.time()
                     model_path = os.path.join(
                         settings.TRAINING_WORKSPACE,
                         f"dataset_{model_instance.dataset.id}",
                         "output",
                         f"training_{training_instance.id}",
-                        "checkpoint.h5",
+                        "checkpoint.tflite",
                     )
+                    # give high priority to tflite model format if not avilable fall back to .h5 if not use default .tf
                     if not os.path.exists(model_path):
                         model_path = os.path.join(
                             settings.TRAINING_WORKSPACE,
                             f"dataset_{model_instance.dataset.id}",
                             "output",
                             f"training_{training_instance.id}",
-                            "checkpoint.tf",
+                            "checkpoint.h5",
                         )
-                geojson_data = predict(
-                    bbox=bbox,
-                    model_path=model_path,
-                    zoom_level=zoom_level,
-                    tms_url=source,
-                    tile_size=DEFAULT_TILE_SIZE,
-                    confidence=deserialized_data["confidence"] / 100
-                    if "confidence" in deserialized_data
-                    else 0.5,
-                    tile_overlap_distance=deserialized_data["tile_overlap_distance"]
-                    if "tile_overlap_distance" in deserialized_data
-                    else 0.15,
-                )
-                print(
-                    f"It took {round(time.time()-start_time)}sec for generating predictions"
-                )
-                for feature in geojson_data["features"]:
-                    feature["properties"]["building"] = "yes"
-                    feature["properties"]["source"] = "fAIr"
-                    if use_josm_q is True:
-                        feature["geometry"] = othogonalize_poly(
-                            feature["geometry"],
-                            maxAngleChange=deserialized_data["max_angle_change"]
-                            if "max_angle_change" in deserialized_data
-                            else 15,
-                            skewTolerance=deserialized_data["skew_tolerance"]
-                            if "skew_tolerance" in deserialized_data
-                            else 15,
-                        )
+                        if not os.path.exists(model_path):
+                            model_path = os.path.join(
+                                settings.TRAINING_WORKSPACE,
+                                f"dataset_{model_instance.dataset.id}",
+                                "output",
+                                f"training_{training_instance.id}",
+                                "checkpoint.tf",
+                            )
+                    geojson_data = predict(
+                        bbox=bbox,
+                        model_path=model_path,
+                        zoom_level=zoom_level,
+                        tms_url=source,
+                        tile_size=DEFAULT_TILE_SIZE,
+                        confidence=(
+                            deserialized_data["confidence"] / 100
+                            if "confidence" in deserialized_data
+                            else 0.5
+                        ),
+                        tile_overlap_distance=(
+                            deserialized_data["tile_overlap_distance"]
+                            if "tile_overlap_distance" in deserialized_data
+                            else 0.15
+                        ),
+                    )
+                    print(
+                        f"It took {round(time.time()-start_time)}sec for generating predictions"
+                    )
+                    for feature in geojson_data["features"]:
+                        feature["properties"]["building"] = "yes"
+                        feature["properties"]["source"] = "fAIr"
+                        if use_josm_q is True:
+                            feature["geometry"] = othogonalize_poly(
+                                feature["geometry"],
+                                maxAngleChange=(
+                                    deserialized_data["max_angle_change"]
+                                    if "max_angle_change" in deserialized_data
+                                    else 15
+                                ),
+                                skewTolerance=(
+                                    deserialized_data["skew_tolerance"]
+                                    if "skew_tolerance" in deserialized_data
+                                    else 15
+                                ),
+                            )
 
-                print(
-                    f"Prediction API took ({round(time.time()-start_time)} sec) in total"
-                )
+                    print(
+                        f"Prediction API took ({round(time.time()-start_time)} sec) in total"
+                    )
 
-                ## TODO : can send osm xml format from here as well using geojson2osm
-                return Response(geojson_data, status=status.HTTP_201_CREATED)
-            except ValueError as e:
-                if str(e) == "No Features Found":
-                    return Response("No features found", status=204)
-                else:
-                    return Response(str(e), status=500)
-            except Exception as ex:
-                print(ex)
-                return Response("Prediction Error", status=500)
+                    ## TODO : can send osm xml format from here as well using geojson2osm
+                    return Response(geojson_data, status=status.HTTP_201_CREATED)
+                except ValueError as e:
+                    if str(e) == "No Features Found":
+                        return Response("No features found", status=204)
+                    else:
+                        return Response(str(e), status=500)
+                except Exception as ex:
+                    print(ex)
+                    return Response("Prediction Error", status=500)
 
 
 @api_view(["POST"])
@@ -688,9 +702,14 @@ class TrainingWorkspaceDownloadView(APIView):
             if os.path.isdir(base_dir)
             else os.path.getsize(base_dir)
         ) / (1024**2)
-        if size > settings.TRAINING_WORKSPACE_DOWNLOAD_LIMIT:  # if file is greater than 200 mb exit
+        if (
+            size > settings.TRAINING_WORKSPACE_DOWNLOAD_LIMIT
+        ):  # if file is greater than 200 mb exit
             return Response(
-                {f"Errr: File Size {size} MB Exceed More than {settings.TRAINING_WORKSPACE_DOWNLOAD_LIMIT} MB"}, status=403
+                {
+                    f"Errr: File Size {size} MB Exceed More than {settings.TRAINING_WORKSPACE_DOWNLOAD_LIMIT} MB"
+                },
+                status=403,
             )
 
         if os.path.isfile(base_dir):

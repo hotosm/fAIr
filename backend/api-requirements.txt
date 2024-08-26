@@ -1,6 +1,7 @@
 django==4.1.4
 # gdal==3.6.2
 psycopg2
+numpy<2.0
 djangorestframework==3.14.0
 djangorestframework-gis==1.0
 dj-database-url==1.2.0
@@ -20,4 +21,4 @@ geojson2osm==0.0.1
 osmconflator==0.0.9
 orthogonalizer==0.0.4
 fairpredictor==0.0.26
-tflite-runtime==2.14.0
+# tflite-runtime==2.14.0
