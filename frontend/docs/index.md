@@ -4,7 +4,7 @@ The `architecture` folder comprises of subfolders and markdowns that documents t
 
 ## Folder Arrangement
 
-We following the recommendations from Michael Nygard (quoted below) in the folder arrangement.
+We follow the recommendations from Michael Nygard (quoted below) in the folder arrangement.
 
 > ADRs will be numbered sequentially and monotonically. Numbers will not be reused.
 
