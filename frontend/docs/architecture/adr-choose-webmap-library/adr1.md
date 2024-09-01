@@ -1,7 +1,7 @@
 # Architecture Decision Record 1: Maplibre GL for Web Mapping Library
 
 Date: 01/09/2024
-s
+
 # Context
 
 We are building a web application that requires rendering medium to large sized polygons on a map interface. The solution must integrate well with React.js, be fast and performant, and should not significantly increase the bundle size. The development team is familiar with OpenLayers, Leaflet, MapLibre GL, and Deck.GL, making them all viable options. Given the nature of our use case, the focus is on performance, rendering capabilities, and overall size efficiency.
@@ -32,7 +32,7 @@ All four options (OpenLayers, Leaflet, MapLibre GL, and Deck.GL) are licensed un
 
 # Status
 
-Proposed or Accepted or Deprecated or Superseded
+Proposed.
 
 # Consequences
 
