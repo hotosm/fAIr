@@ -217,3 +217,6 @@ TRAINING_WORKSPACE = env(
 )
 
 ENABLE_PREDICTION_API = env("ENABLE_PREDICTION_API", default=False)
+
+
+TEST_RUNNER = 'tests.test_runners.NoDestroyTestRunner'
