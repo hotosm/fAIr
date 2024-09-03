@@ -96,6 +96,7 @@ const EditableGeoJSON = ({
   trainingId,
   sourceImagery,
   refestchFeeedback,
+  onAcceptFeature,
 }) => {
   const onPMCreate = (event) => {
     console.log("Created");
@@ -258,6 +259,7 @@ const EditableGeoJSON = ({
           .querySelector("#rightButton")
           .addEventListener("click", () => {
             feature.properties.action = "ACCEPT";
+            onAcceptFeature(feature);
             console.log("popup layer ", layer);
             // handle submitting feedback
             mutateSubmitFeedback(layer);
