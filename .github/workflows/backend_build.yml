@@ -35,14 +35,6 @@ jobs:
         with:
           python-version: 3.8
 
-      - name: Get my current working dir
-        run: pwd
-
-      - name: Test env vars for python
-        env:
-          TESTING_TOKEN: ${{ secrets.TESTING_TOKEN }}
-        run: python -c "import os; print(os.environ['TESTING_TOKEN'])"
-
       - name: Clone Ramp
         run: git clone https://github.com/kshitijrajsharma/ramp-code-fAIr.git ramp-code
 
@@ -92,7 +84,6 @@ jobs:
       - name: Create env
         run: |
           cd backend/
-          mv sample_env .env
           export DATABASE_URL=postgis://admin:password@localhost:5432/ai
           export RAMP_HOME="/home/runner/work/fAIr/fAIr"
           export TRAINING_WORKSPACE="/home/runner/work/fAIr/fAIr/backend/training"
@@ -134,7 +125,7 @@ jobs:
           TESTING_TOKEN: ${{ secrets.TESTING_TOKEN }}
           OSM_CLIENT_ID: ${{ secrets.OSM_CLIENT_ID }}
           OSM_CLIENT_SECRET: ${{ secrets.OSM_CLIENT_SECRET }}
-          OSM_SECRET_KEY: ""
+          OSM_SECRET_KEY: ${{ secrets.OSM_SECRET_KEY }}
 
         run : |
           cd backend/
