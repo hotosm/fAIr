@@ -1,9 +1,10 @@
 from django.conf import settings
-from login.models import OsmUser
 from rest_framework import serializers
 from rest_framework_gis.serializers import (
     GeoFeatureModelSerializer,  # this will be used if we used to serialize as geojson
 )
+
+from login.models import OsmUser
 
 from .models import *
 
@@ -111,6 +112,13 @@ class LabelSerializer(GeoFeatureModelSerializer):
         fields = "__all__"
 
         # read_only_fields = ("created_at", "osm_id")
+
+
+class ApprovedPredictionsSerializer(GeoFeatureModelSerializer):
+    class Meta:
+        model = ApprovedPredictions
+        geo_field = "geom"
+        fields = "__all__"
 
 
 class FeedbackLabelSerializer(GeoFeatureModelSerializer):

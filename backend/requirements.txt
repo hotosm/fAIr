@@ -1,2 +1,3 @@
 -r api-requirements.txt
 hot-fair-utilities==1.2.3
+tflite-runtime==2.14.0

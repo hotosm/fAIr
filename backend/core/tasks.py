@@ -7,8 +7,13 @@ import tarfile
 import traceback
 from shutil import rmtree
 
-
 from celery import shared_task
+from django.conf import settings
+from django.contrib.gis.db.models.aggregates import Extent
+from django.contrib.gis.geos import GEOSGeometry
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
+
 from core.models import AOI, Feedback, FeedbackAOI, FeedbackLabel, Label, Training
 from core.serializers import (
     AOISerializer,
@@ -18,12 +23,6 @@ from core.serializers import (
     LabelFileSerializer,
 )
 from core.utils import bbox, is_dir_empty
-from django.conf import settings
-from django.contrib.gis.db.models.aggregates import Extent
-from django.contrib.gis.geos import GEOSGeometry
-from django.shortcuts import get_object_or_404
-from django.utils import timezone
-from predictor import download_imagery, get_start_end_download_coords
 
 logger = logging.getLogger(__name__)
 
@@ -81,17 +80,20 @@ def train_model(
     input_contact_spacing=8,
     input_boundary_width=3,
 ):
-    #importing them here so that it won't be necessary when sending tasks ( api only)
+    # importing them here so that it won't be necessary when sending tasks ( api only)
     import hot_fair_utilities
     import ramp.utils
     import tensorflow as tf
     from hot_fair_utilities import preprocess, train
     from hot_fair_utilities.training import run_feedback
+    from predictor import download_imagery, get_start_end_download_coords
 
     training_instance = get_object_or_404(Training, id=training_id)
     training_instance.status = "RUNNING"
     training_instance.started_at = timezone.now()
     training_instance.save()
+    if settings.RAMP_HOME is None:
+        raise ValueError("Ramp Home is not configured")
 
     try:
         ## -----------IMAGE DOWNLOADER---------

@@ -1,0 +1,62 @@
+## docker build -t fair-api -f Dockerfile.API . 
+
+## For Development:
+
+## docker run --env-file .env --rm -p 8000:8000 -v $(pwd):/app/code --name fair-api-container fair-api
+
+## in order to access localhost port to your system from docker env you might wanna use : host.docker.internal or ip 
+
+FROM python:3.11-slim-bookworm AS build
+
+RUN apt-get update && apt-get --no-install-recommends -y install \
+    build-essential \
+    libpq-dev \
+    libgdal-dev \
+    python3-dev \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+ENV CPLUS_INCLUDE_PATH=/usr/include/gdal
+ENV C_INCLUDE_PATH=/usr/include/gdal
+
+WORKDIR /app
+
+RUN python3 -m venv /app/venv
+
+RUN /app/venv/bin/pip install --no-cache-dir --upgrade pip setuptools wheel
+
+COPY api-requirements.txt api-requirements.txt ./
+
+RUN /app/venv/bin/pip install --no-cache-dir -r api-requirements.txt
+
+WORKDIR /app/code
+COPY aiproject /app/code/aiproject
+COPY core /app/code/core
+COPY login /app/code/login
+COPY manage.py /app/code/manage.py
+COPY tests /app/code/tests
+
+FROM python:3.11-slim-bookworm
+
+RUN apt-get update && apt-get --no-install-recommends -y install \
+    libgdal-dev \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+ENV CPLUS_INCLUDE_PATH=/usr/include/gdal
+ENV C_INCLUDE_PATH=/usr/include/gdal
+
+WORKDIR /app
+
+COPY --from=build /app/venv /app/venv
+
+COPY --from=build /app/code /app/code
+ENV PATH="/app/venv/bin:$PATH"
+COPY api-entrypoint.sh ./api-entrypoint-lock.sh
+RUN chmod +x ./api-entrypoint-lock.sh
+
+WORKDIR /app/code
+
+EXPOSE 8000
+
+ENTRYPOINT ["/app/api-entrypoint-lock.sh"]
+
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

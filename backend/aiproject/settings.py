@@ -56,7 +56,9 @@ OSM_SECRET_KEY = env("OSM_SECRET_KEY")
 # Limiter
 EPOCHS_LIMIT = env("EPOCHS_LIMIT", default=30)
 BATCH_SIZE_LIMIT = env("BATCH_SIZE_LIMIT", default=8)
-TRAINING_WORKSPACE_DOWNLOAD_LIMIT = env("TRAINING_WORKSPACE_DOWNLOAD_LIMIT", default=200)
+TRAINING_WORKSPACE_DOWNLOAD_LIMIT = env(
+    "TRAINING_WORKSPACE_DOWNLOAD_LIMIT", default=200
+)
 
 
 # Application definition
@@ -98,7 +100,7 @@ ALLOWED_ORIGINS = env("CORS_ALLOWED_ORIGINS", default="http://127.0.0.1:8000").s
 
 CORS_ORIGIN_WHITELIST = ALLOWED_ORIGINS
 
-CORS_ORIGIN_ALLOW_ALL = env("CORS_ORIGIN_ALLOW_ALL", default= False)
+CORS_ORIGIN_ALLOW_ALL = env("CORS_ORIGIN_ALLOW_ALL", default=False)
 
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema",
@@ -205,10 +207,16 @@ SWAGGER_SETTINGS = {
     }
 }
 # get ramp home and set it to environ
-RAMP_HOME = env("RAMP_HOME")
-os.environ["RAMP_HOME"] = RAMP_HOME
+RAMP_HOME = env("RAMP_HOME",default=None)
+if RAMP_HOME:
+    os.environ["RAMP_HOME"] = RAMP_HOME
 
 # training workspace
 TRAINING_WORKSPACE = env(
     "TRAINING_WORKSPACE", default=os.path.join(os.getcwd(), "training")
 )
+
+ENABLE_PREDICTION_API = env("ENABLE_PREDICTION_API", default=False)
+
+
+TEST_RUNNER = 'tests.test_runners.NoDestroyTestRunner'
