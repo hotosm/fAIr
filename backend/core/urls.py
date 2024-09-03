@@ -6,6 +6,7 @@ from rest_framework import routers
 # now import the views.py file into this code
 from .views import (  # APIStatus,
     AOIViewSet,
+    ApprovedPredictionsViewSet,
     ConflateGeojson,
     DatasetViewSet,
     FeedbackAOIViewset,
@@ -35,6 +36,7 @@ router = routers.DefaultRouter()
 router.register(r"dataset", DatasetViewSet)
 router.register(r"aoi", AOIViewSet)
 router.register(r"label", LabelViewSet)
+router.register(r"approved-prediction", ApprovedPredictionsViewSet)
 router.register(r"training", TrainingViewSet)
 router.register(r"model", ModelViewSet)
 router.register(r"feedback", FeedbackViewset)

@@ -89,6 +89,8 @@ def train_model(
     training_instance.status = "RUNNING"
     training_instance.started_at = timezone.now()
     training_instance.save()
+    if settings.RAMP_HOME is None:
+        raise ValueError("Ramp Home is not configured")
 
     try:
         ## -----------IMAGE DOWNLOADER---------

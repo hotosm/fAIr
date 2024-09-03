@@ -40,6 +40,7 @@ from login.permissions import IsOsmAuthenticated
 
 from .models import (
     AOI,
+    ApprovedPredictions,
     Dataset,
     Feedback,
     FeedbackAOI,
@@ -50,6 +51,7 @@ from .models import (
 )
 from .serializers import (
     AOISerializer,
+    ApprovedPredictionsSerializer,
     DatasetSerializer,
     FeedbackAOISerializer,
     FeedbackFileSerializer,
@@ -260,6 +262,43 @@ class LabelViewSet(viewsets.ModelViewSet):
             return Response(
                 serializer.data, status=status.HTTP_200_OK
             )  # 200 for update, 201 for create
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ApprovedPredictionsViewSet(viewsets.ModelViewSet):
+    authentication_classes = [OsmAuthentication]
+    permission_classes = [IsOsmAuthenticated]
+    permission_allowed_methods = ["GET"]
+    queryset = ApprovedPredictions.objects.all()
+    serializer_class = ApprovedPredictionsSerializer
+    bbox_filter_field = "geom"
+    filter_backends = (
+        InBBoxFilter,
+        # TMSTileFilter,
+        DjangoFilterBackend,
+    )
+    bbox_filter_include_overlapping = True
+    filterset_fields = ["training"]
+
+    def create(self, request, *args, **kwargs):
+        training_id = request.data.get("training")
+        geom = request.data.get("geom")
+
+        existing_approved_feature = ApprovedPredictions.objects.filter(
+            training=training_id, geom=geom
+        ).first()
+
+        if existing_approved_feature:
+            serializer = ApprovedPredictionsSerializer(
+                existing_approved_feature, data=request.data
+            )
+        else:
+
+            serializer = ApprovedPredictionsSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

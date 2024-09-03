@@ -206,8 +206,9 @@ SWAGGER_SETTINGS = {
     }
 }
 # get ramp home and set it to environ
-RAMP_HOME = env("RAMP_HOME")
-os.environ["RAMP_HOME"] = RAMP_HOME
+RAMP_HOME = env("RAMP_HOME",default=None)
+if RAMP_HOME:
+    os.environ["RAMP_HOME"] = RAMP_HOME
 
 # training workspace
 TRAINING_WORKSPACE = env(

@@ -4,7 +4,9 @@
 
 ## docker run --env-file .env --rm -p 8000:8000 -v $(pwd):/app/code --name fair-api-container fair-api
 
-FROM python:3.11-slim-bookworm as build
+## in order to access localhost port to your system from docker env you might wanna use : host.docker.internal or ip 
+
+FROM python:3.11-slim-bookworm AS build
 
 RUN apt-get update && apt-get --no-install-recommends -y install \
     build-essential \
