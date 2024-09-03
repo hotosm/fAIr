@@ -1,6 +1,6 @@
 django==4.1.4
 # gdal==3.6.2
-psycopg2==2.9.9
+psycopg2<=2.9.9
 djangorestframework==3.14.0
 djangorestframework-gis==1.0
 dj-database-url==1.2.0
