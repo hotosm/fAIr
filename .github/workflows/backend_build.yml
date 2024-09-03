@@ -111,6 +111,9 @@ jobs:
       - name: Run migrations
         env:
           TESTING_TOKEN: ${{ secrets.TESTING_TOKEN }}
+          OSM_CLIENT_ID: ${{ secrets.OSM_CLIENT_ID }}
+          OSM_CLIENT_SECRET: ${{ secrets.OSM_CLIENT_SECRET }}
+          OSM_SECRET_KEY: ${{ secrets.OSM_SECRET_KEY }}
         run: |
           cd backend/
           python manage.py makemigrations
