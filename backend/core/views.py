@@ -86,6 +86,15 @@ class DatasetViewSet(
 class TrainingSerializer(
     serializers.ModelSerializer
 ):  # serializers are used to translate models objects to api
+
+    multimasks = serializers.BooleanField(required=False, default=False)
+    input_contact_spacing = serializers.IntegerField(
+        required=False, default=8, min_value=0, max_value=20
+    )
+    input_boundary_width = serializers.IntegerField(
+        required=False, default=3, min_value=0, max_value=10
+    )
+
     class Meta:
         model = Training
         fields = "__all__"  # defining all the fields to  be included in curd for now , we can restrict few if we want
@@ -131,6 +140,16 @@ class TrainingSerializer(
         user = self.context["request"].user
         validated_data["created_by"] = user
         # create the model instance
+        multimasks = validated_data.get("multimasks", False)
+        input_contact_spacing = validated_data.get("input_contact_spacing", 0.75)
+        input_boundary_width = validated_data.get("input_boundary_width", 0.5)
+
+        pop_keys = ["multimasks", "input_contact_spacing", "input_boundary_width"]
+
+        for key in pop_keys:
+            if key in validated_data.keys():
+                validated_data.pop(key)
+
         instance = Training.objects.create(**validated_data)
 
         # run your function here
@@ -143,11 +162,16 @@ class TrainingSerializer(
             source_imagery=instance.source_imagery
             or instance.model.dataset.source_imagery,
             freeze_layers=instance.freeze_layers,
+            multimasks=multimasks,
+            input_contact_spacing=input_contact_spacing,
+            input_boundary_width=input_boundary_width,
         )
         logging.info("Record saved in queue")
 
         if not instance.source_imagery:
             instance.source_imagery = instance.model.dataset.source_imagery
+        if multimasks:
+            instance.description += f" Multimask params (ct/bw): {input_contact_spacing}/{input_boundary_width}"
         instance.task_id = task.id
         instance.save()
         print(f"Saved train model request to queue with id {task.id}")
@@ -583,7 +607,44 @@ if settings.ENABLE_PREDICTION_API:
                             f"dataset_{model_instance.dataset.id}",
                             "output",
                             f"training_{training_instance.id}",
-                            "checkpoint.h5",
+                            "checkpoint.tf",
+                        )
+                geojson_data = predict(
+                    bbox=bbox,
+                    model_path=model_path,
+                    zoom_level=zoom_level,
+                    tms_url=source,
+                    tile_size=DEFAULT_TILE_SIZE,
+                    confidence=(
+                        deserialized_data["confidence"] / 100
+                        if "confidence" in deserialized_data
+                        else 0.5
+                    ),
+                    tile_overlap_distance=(
+                        deserialized_data["tile_overlap_distance"]
+                        if "tile_overlap_distance" in deserialized_data
+                        else 0.15
+                    ),
+                )
+                print(
+                    f"It took {round(time.time()-start_time)}sec for generating predictions"
+                )
+                for feature in geojson_data["features"]:
+                    feature["properties"]["building"] = "yes"
+                    feature["properties"]["source"] = "fAIr"
+                    if use_josm_q is True:
+                        feature["geometry"] = othogonalize_poly(
+                            feature["geometry"],
+                            maxAngleChange=(
+                                deserialized_data["max_angle_change"]
+                                if "max_angle_change" in deserialized_data
+                                else 15
+                            ),
+                            skewTolerance=(
+                                deserialized_data["skew_tolerance"]
+                                if "skew_tolerance" in deserialized_data
+                                else 15
+                            ),
                         )
                         if not os.path.exists(model_path):
                             model_path = os.path.join(

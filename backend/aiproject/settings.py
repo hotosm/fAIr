@@ -11,7 +11,7 @@ https://docs.aiproject.com/en/3.1/ref/settings/
 """
 
 import os
-
+import logging
 import dj_database_url
 import environ
 from corsheaders.defaults import default_headers
@@ -187,6 +187,7 @@ MEDIA_URL = "/media/"
 STATIC_ROOT = os.path.join(BASE_DIR, "api_static")
 
 if DEBUG:
+    logging.info("Enabling oauthlib insecure transport in debug mode")
     os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 
 
