@@ -609,51 +609,6 @@ if settings.ENABLE_PREDICTION_API:
                             f"training_{training_instance.id}",
                             "checkpoint.tf",
                         )
-                geojson_data = predict(
-                    bbox=bbox,
-                    model_path=model_path,
-                    zoom_level=zoom_level,
-                    tms_url=source,
-                    tile_size=DEFAULT_TILE_SIZE,
-                    confidence=(
-                        deserialized_data["confidence"] / 100
-                        if "confidence" in deserialized_data
-                        else 0.5
-                    ),
-                    tile_overlap_distance=(
-                        deserialized_data["tile_overlap_distance"]
-                        if "tile_overlap_distance" in deserialized_data
-                        else 0.15
-                    ),
-                )
-                print(
-                    f"It took {round(time.time()-start_time)}sec for generating predictions"
-                )
-                for feature in geojson_data["features"]:
-                    feature["properties"]["building"] = "yes"
-                    feature["properties"]["source"] = "fAIr"
-                    if use_josm_q is True:
-                        feature["geometry"] = othogonalize_poly(
-                            feature["geometry"],
-                            maxAngleChange=(
-                                deserialized_data["max_angle_change"]
-                                if "max_angle_change" in deserialized_data
-                                else 15
-                            ),
-                            skewTolerance=(
-                                deserialized_data["skew_tolerance"]
-                                if "skew_tolerance" in deserialized_data
-                                else 15
-                            ),
-                        )
-                        if not os.path.exists(model_path):
-                            model_path = os.path.join(
-                                settings.TRAINING_WORKSPACE,
-                                f"dataset_{model_instance.dataset.id}",
-                                "output",
-                                f"training_{training_instance.id}",
-                                "checkpoint.tf",
-                            )
                     geojson_data = predict(
                         bbox=bbox,
                         model_path=model_path,
@@ -703,9 +658,6 @@ if settings.ENABLE_PREDICTION_API:
                         return Response("No features found", status=204)
                     else:
                         return Response(str(e), status=500)
-                except Exception as ex:
-                    print(ex)
-                    return Response("Prediction Error", status=500)
 
 
 @api_view(["POST"])
