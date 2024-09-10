@@ -1,4 +1,4 @@
-# Architecture Decision Record 2: Shoelace for Styling Library
+# Architecture Decision Record 2: Use Shoelace for Styling Library
 
 Date: 10/09/2024
 
