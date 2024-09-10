@@ -29,7 +29,9 @@ import axios from "../../../../axios";
 import AOIDetails from "./AOIDetails";
 import AuthContext from "../../../../Context/AuthContext";
 import * as Terraformer from "@terraformer/wkt";
-
+import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
+import RefreshIcon from "@mui/icons-material/Refresh";
+import UploadProgressModal from "./UploadProgressModal";
 const Demo = styled("div")(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
 }));
@@ -60,6 +62,9 @@ const postAoi = async (polygon, dataset, accessToken) => {
 
 const AOI = (props) => {
   const [dense, setDense] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [progress, setProgress] = useState({ current: 0, total: 0 });
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const count = Math.ceil(props.mapLayers.length / PER_PAGE);
   let [page, setPage] = useState(1);
   const [openSnack, setOpenSnack] = useState(false);
@@ -81,6 +86,134 @@ const AOI = (props) => {
   }, [props]);
 
   const { accessToken } = useContext(AuthContext);
+
+  const handleFileChange = async (event, aoiId) => {
+    try {
+      setIsModalOpen(true);
+      setIsLoading(true);
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const headers = {
+        "access-token": accessToken,
+      };
+
+      const fileContent = await file.text();
+      const geoJsonData = JSON.parse(fileContent);
+
+      if (geoJsonData.type !== "FeatureCollection") {
+        console.error("Invalid GeoJSON format");
+        return;
+      }
+
+      const geometries = geoJsonData.features.map(
+        (feature) => feature.geometry
+      );
+      let feature_count = 0;
+      for (const geometry of geometries) {
+        feature_count = feature_count + 1;
+        const progress_updater = {
+          current: feature_count,
+          total: geometries.length,
+        };
+        setProgress(progress_updater);
+        console.log(feature_count);
+        const data = {
+          geom: JSON.stringify(geometry),
+          aoi: aoiId,
+        };
+
+        // Send a POST request to the /label/ API for each geometry
+        const res = await axios.post(`/label/`, data, {
+          headers,
+        });
+
+        if (res.error) {
+          console.error(res.error.response.statusText);
+        } else {
+          console.log("Label uploaded successfully");
+        }
+      }
+    } catch (e) {
+      console.error("Error uploading labels", e);
+    } finally {
+      setIsLoading(false);
+      setIsModalOpen(false);
+    }
+  };
+
+  const downloadAOI = async (aoiId) => {
+    try {
+      const headers = {
+        "access-token": accessToken,
+      };
+
+      const res = await axios.get(`/aoi/${aoiId}/`, {
+        headers,
+        responseType: "json",
+      });
+
+      if (res.error) {
+        console.log(res.error.response.statusText);
+      } else {
+        const jsonStr = JSON.stringify(res.data);
+        console.log(jsonStr);
+        const blob = new Blob([jsonStr], { type: "application/json" });
+        const url = window.URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.style.display = "none";
+        a.href = url;
+        a.download = `AOI_${aoiId}.geojson`;
+
+        document.body.appendChild(a);
+
+        a.click();
+
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      }
+    } catch (e) {
+      console.log("Error:", e);
+    }
+  };
+
+  const downloadLabels = async (aoiId) => {
+    try {
+      const headers = {
+        "access-token": accessToken,
+      };
+
+      const res = await axios.get(`/label/?aoi=${aoiId}`, {
+        headers,
+        responseType: "json",
+      });
+
+      if (res.error) {
+        console.log(res.error.response.statusText);
+      } else {
+        const jsonStr = JSON.stringify(res.data);
+        console.log(jsonStr);
+        const blob = new Blob([jsonStr], { type: "application/json" });
+        const url = window.URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.style.display = "none";
+        a.href = url;
+        a.download = `AOI_Labels_${aoiId}.geojson`;
+
+        document.body.appendChild(a);
+
+        a.click();
+
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      }
+    } catch (e) {
+      console.log("Error:", e);
+    }
+  };
+
   const fetchOSMLebels = async (aoiId) => {
     setFetchError(null);
     try {
@@ -109,6 +242,10 @@ const AOI = (props) => {
       setFetchError("Failed to fetch OSM data. Please try again.");
     },
   });
+
+  const { mutate: mutateDownload, data: fetchdwnld } = useMutation(downloadAOI);
+  const { mutate: mutateDownloadLables, data: fetchdwnldlabels } =
+    useMutation(downloadLabels);
 
   const DeleteAOI = async (id, leafletId) => {
     try {
@@ -229,6 +366,7 @@ const AOI = (props) => {
             {fileError}
           </Alert>
         )}
+        <UploadProgressModal open={isModalOpen} progress={progress} />
         <Demo>
           {props.mapLayers && props.mapLayers.length > PER_PAGE && (
             <Pagination
@@ -368,6 +506,34 @@ const AOI = (props) => {
                         }}
                       >
                         <MapTwoTone fontSize="small" />
+                        {/* <RefreshIcon fontSize="small" /> */}
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Download this AOI">
+                      <IconButton
+                        aria-label="comments"
+                        sx={{ width: 24, height: 24 }}
+                        className="margin1"
+                        onClick={(e) => {
+                          mutateDownload(layer.aoiId);
+                          console.log("Downloading AOI as Geojson");
+                        }}
+                      >
+                        <CloudDownloadIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+
+                    <Tooltip title="Download Labels in this AOI">
+                      <IconButton
+                        aria-label="comments"
+                        sx={{ width: 24, height: 24 }}
+                        className="margin1"
+                        onClick={(e) => {
+                          mutateDownloadLables(layer.aoiId);
+                          console.log("Downloading AOI Labels as Geojson");
+                        }}
+                      >
+                        <CloudDownloadIcon fontSize="small" />
                       </IconButton>
                     </Tooltip>
 
@@ -412,16 +578,20 @@ const AOI = (props) => {
                         <DeleteIcon fontSize="small" />
                       </IconButton>
                     </Tooltip>
+
+                    <input
+                      type="file"
+                      accept=".geojson"
+                      style={{ display: "block" }}
+                      id={`file-input-${layer.aoiId}`}
+                      onChange={(e) => handleFileChange(e, layer.aoiId)}
+                    />
                   </ListItemSecondaryAction>
                 </ListItemWithWiderSecondaryAction>
               ))}
           </List>
         </Demo>
-        {fetchError && (
-          <Typography variant="body2">
-            {fetchError}
-          </Typography>
-        )}
+        {fetchError && <Typography variant="body2">{fetchError}</Typography>}
         {props.mapLayers && props.mapLayers.length === 0 && (
           <Typography variant="body1" component="h2">
             No TAs yet, start creating one by clicking Draw a rectangle, 3rd
