@@ -16,8 +16,8 @@ We need a fast and efficient bundler for our React app development. The chosen t
 
 ## Considered Options
 
-- Use Webpack for bundling, which is highly configurable but can be slow.
-- Use Vite, which offers faster builds and simpler configuration for modern projects.
+- Use [Webpack](https://webpack.js.org/) for bundling, which is highly configurable but can be slow.
+- Use [Vite](https://vitejs.dev/), which offers faster builds and simpler configuration for modern projects.
 
 
 # Decision
