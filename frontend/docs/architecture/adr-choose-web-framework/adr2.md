@@ -1,4 +1,4 @@
-# Architecture Decision Record 2: React JS for Web Development Framework
+# Architecture Decision Record 2: Use React JS for Web Development Framework
 
 Date: 09/09/2024
 

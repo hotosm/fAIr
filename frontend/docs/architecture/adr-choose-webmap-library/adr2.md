@@ -1,4 +1,4 @@
-# Architecture Decision Record 1: Maplibre GL for Web Mapping Library
+# Architecture Decision Record 2: Use Maplibre GL for Web Mapping Library
 
 Date: 08/09/2024
 

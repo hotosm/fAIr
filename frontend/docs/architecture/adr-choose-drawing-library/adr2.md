@@ -1,4 +1,4 @@
-# Architecture Decision Record 2: TerraDraw for Drawing Library
+# Architecture Decision Record 2: Use TerraDraw for Drawing Library
 
 Date: 08/09/2024
 
