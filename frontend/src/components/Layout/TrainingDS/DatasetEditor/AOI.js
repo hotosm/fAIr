@@ -1,4 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
+import { Collapse, Box } from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import {
   Alert,
   Avatar,
@@ -71,7 +74,11 @@ const AOI = (props) => {
   const [fileError, setFileError] = useState(null);
   const [geoJsonFile, setGeoJsonFile] = useState(null);
   const [fetchError, setFetchError] = useState(null);
+  const [expandedAoi, setExpandedAoi] = useState(null);
 
+  const handleExpandClick = (aoiId) => {
+    setExpandedAoi(expandedAoi === aoiId ? null : aoiId);
+  };
   let _DATA = usePagination(
     props.mapLayers.filter((e) => e.type === "aoi"),
     PER_PAGE
@@ -414,53 +421,43 @@ const AOI = (props) => {
                     }
                   />
                   <ListItemSecondaryAction>
+                    {/* JOSM Editor Button */}
                     <Tooltip title="Create map data in JOSM Editor">
                       <IconButton
                         aria-label="comments"
                         sx={{ width: 24, height: 24 }}
                         className="margin1 transparent"
                         onClick={async (e) => {
-                          try {
-                            const Imgurl = new URL(
-                              "http://127.0.0.1:8111/imagery"
-                            );
-                            Imgurl.searchParams.set("type", "tms");
-                            Imgurl.searchParams.set(
-                              "title",
-                              props.oamImagery.name
-                            );
-                            Imgurl.searchParams.set(
-                              "url",
-                              props.oamImagery.url
-                            );
-                            const imgResponse = await fetch(Imgurl);
-                            const loadurl = new URL(
-                              "http://127.0.0.1:8111/load_and_zoom"
-                            );
-                            loadurl.searchParams.set(
-                              "bottom",
-                              layer.latlngs[0].lat
-                            );
-                            loadurl.searchParams.set(
-                              "top",
-                              layer.latlngs[1].lat
-                            );
-                            loadurl.searchParams.set(
-                              "left",
-                              layer.latlngs[0].lng
-                            );
-                            loadurl.searchParams.set(
-                              "right",
-                              layer.latlngs[2].lng
-                            );
-                            const loadResponse = await fetch(loadurl);
+                          const Imgurl = new URL(
+                            "http://127.0.0.1:8111/imagery"
+                          );
+                          Imgurl.searchParams.set("type", "tms");
+                          Imgurl.searchParams.set(
+                            "title",
+                            props.oamImagery.name
+                          );
+                          Imgurl.searchParams.set("url", props.oamImagery.url);
+                          const imgResponse = await fetch(Imgurl);
 
-                            if (!imgResponse.ok) {
-                              setOpenSnack(true);
-                            }
-                          } catch (error) {
-                            setOpenSnack(true);
-                          }
+                          const loadurl = new URL(
+                            "http://127.0.0.1:8111/load_and_zoom"
+                          );
+                          loadurl.searchParams.set(
+                            "bottom",
+                            layer.latlngs[0].lat
+                          );
+                          loadurl.searchParams.set("top", layer.latlngs[1].lat);
+                          loadurl.searchParams.set(
+                            "left",
+                            layer.latlngs[0].lng
+                          );
+                          loadurl.searchParams.set(
+                            "right",
+                            layer.latlngs[2].lng
+                          );
+                          await fetch(loadurl);
+
+                          if (!imgResponse.ok) setOpenSnack(true);
                         }}
                       >
                         <img
@@ -470,6 +467,8 @@ const AOI = (props) => {
                         />
                       </IconButton>
                     </Tooltip>
+
+                    {/* ID Editor Button */}
                     <Tooltip title="Create map data in ID Editor">
                       <IconButton
                         aria-label="comments"
@@ -496,9 +495,11 @@ const AOI = (props) => {
                         />
                       </IconButton>
                     </Tooltip>
+
+                    {/* Fetch OSM Data */}
                     <Tooltip title="Fetch OSM data for this TA">
                       <IconButton
-                        aria-label="comments"
+                        aria-label="fetch OSM data"
                         sx={{ width: 24, height: 24 }}
                         className="margin1"
                         onClick={(e) => {
@@ -506,86 +507,114 @@ const AOI = (props) => {
                         }}
                       >
                         <MapTwoTone fontSize="small" />
-                        {/* <RefreshIcon fontSize="small" /> */}
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Download this AOI">
-                      <IconButton
-                        aria-label="comments"
-                        sx={{ width: 24, height: 24 }}
-                        className="margin1"
-                        onClick={(e) => {
-                          mutateDownload(layer.aoiId);
-                          console.log("Downloading AOI as Geojson");
-                        }}
-                      >
-                        <CloudDownloadIcon fontSize="small" />
                       </IconButton>
                     </Tooltip>
 
-                    <Tooltip title="Download Labels in this AOI">
-                      <IconButton
-                        aria-label="comments"
-                        sx={{ width: 24, height: 24 }}
-                        className="margin1"
-                        onClick={(e) => {
-                          mutateDownloadLables(layer.aoiId);
-                          console.log("Downloading AOI Labels as Geojson");
-                        }}
-                      >
-                        <CloudDownloadIcon fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
-
+                    {/* Zoom to TA */}
                     <Tooltip title="Zoom to TA">
                       <IconButton
                         sx={{ width: 24, height: 24 }}
                         className="margin1"
-                        edge={"end"}
-                        aria-label="delete"
                         onClick={(e) => {
                           const lat =
-                            layer.latlngs.reduce(function (
-                              accumulator,
-                              curValue
-                            ) {
-                              return accumulator + curValue.lat;
-                            },
-                            0) / layer.latlngs.length;
+                            layer.latlngs.reduce(
+                              (accumulator, curValue) =>
+                                accumulator + curValue.lat,
+                              0
+                            ) / layer.latlngs.length;
                           const lng =
-                            layer.latlngs.reduce(function (
-                              accumulator,
-                              curValue
-                            ) {
-                              return accumulator + curValue.lng;
-                            },
-                            0) / layer.latlngs.length;
+                            layer.latlngs.reduce(
+                              (accumulator, curValue) =>
+                                accumulator + curValue.lng,
+                              0
+                            ) / layer.latlngs.length;
                           props.selectAOIHandler([lat, lng], 17);
                         }}
                       >
                         <ZoomInMap fontSize="small" />
                       </IconButton>
                     </Tooltip>
-                    <Tooltip title="Delete TA">
+
+                    {/* Expand More Options */}
+                    <Tooltip
+                      title={
+                        expandedAoi === layer.aoiId
+                          ? "Hide More Options"
+                          : "Show More Options"
+                      }
+                    >
                       <IconButton
-                        aria-label="comments"
                         sx={{ width: 24, height: 24 }}
-                        className="margin-left-13"
-                        onClick={(e) => {
-                          mutateDeleteAOI(layer.aoiId, layer.id);
-                        }}
+                        className="margin1"
+                        onClick={() => handleExpandClick(layer.aoiId)}
                       >
-                        <DeleteIcon fontSize="small" />
+                        {expandedAoi === layer.aoiId ? (
+                          <ExpandLessIcon fontSize="small" />
+                        ) : (
+                          <ExpandMoreIcon fontSize="small" />
+                        )}
                       </IconButton>
                     </Tooltip>
 
-                    <input
-                      type="file"
-                      accept=".geojson"
-                      style={{ display: "block" }}
-                      id={`file-input-${layer.aoiId}`}
-                      onChange={(e) => handleFileChange(e, layer.aoiId)}
-                    />
+                    {/* Collapsible section for more options */}
+                    <Collapse
+                      in={expandedAoi === layer.aoiId}
+                      timeout="auto"
+                      unmountOnExit
+                    >
+                      <Box sx={{ display: "flex", flexDirection: "column" }}>
+                        {/* Download AOI */}
+                        <Tooltip title="Download this AOI">
+                          <IconButton
+                            aria-label="download AOI"
+                            sx={{ width: 24, height: 24 }}
+                            className="margin1"
+                            onClick={(e) => {
+                              mutateDownload(layer.aoiId);
+                            }}
+                          >
+                            <CloudDownloadIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+
+                        {/* Download Labels */}
+                        <Tooltip title="Download Labels in this AOI">
+                          <IconButton
+                            aria-label="download labels"
+                            sx={{ width: 24, height: 24 }}
+                            className="margin1"
+                            onClick={(e) => {
+                              mutateDownloadLables(layer.aoiId);
+                            }}
+                          >
+                            <CloudDownloadIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+
+                        {/* Delete TA */}
+                        <Tooltip title="Delete TA">
+                          <IconButton
+                            aria-label="delete TA"
+                            sx={{ width: 24, height: 24 }}
+                            className="margin1"
+                            onClick={(e) => {
+                              mutateDeleteAOI(layer.aoiId, layer.id);
+                            }}
+                          >
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+
+                        {/* Upload GeoJSON */}
+                        <input
+                          type="file"
+                          accept=".geojson"
+                          style={{ display: "block" }}
+                          id={`file-input-${layer.aoiId}`}
+                          onChange={(e) => handleFileChange(e, layer.aoiId)}
+                        />
+                      </Box>
+                    </Collapse>
                   </ListItemSecondaryAction>
                 </ListItemWithWiderSecondaryAction>
               ))}
