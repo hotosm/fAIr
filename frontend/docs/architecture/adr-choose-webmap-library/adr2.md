@@ -33,7 +33,7 @@ All four options (OpenLayers, Leaflet, MapLibre GL, and Deck.GL) are licensed un
 
 # Status
 
-Approved.
+Accepted.
 
 # Consequences
 

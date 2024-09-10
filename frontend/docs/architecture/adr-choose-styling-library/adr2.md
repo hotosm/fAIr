@@ -42,7 +42,7 @@ We've chosen to use Shoelace because it meets all our key decision criteria and 
  
 # Status
 
-Approved.
+Accepted.
 
 # Consequences
 

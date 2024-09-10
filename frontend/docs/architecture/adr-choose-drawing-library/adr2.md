@@ -23,7 +23,7 @@ We’ve chosen TerraDraw as the drawing library for this project. After developi
 
 # Status
 
-Approved.
+Accepted.
 
 # Consequences
 

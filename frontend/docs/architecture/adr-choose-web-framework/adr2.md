@@ -31,7 +31,7 @@ React.js is licensed under very permissive open-source licenses (MIT) meaning it
 
 # Status
 
-Approved.
+Accepted.
 
 # Consequences
 
