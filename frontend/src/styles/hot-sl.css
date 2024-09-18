@@ -1,0 +1,106 @@
+/*  HOT theme for Shoelace
+    Accessed from: https://github.com/hotosm/ui/blob/main/theme/hot-sl.css
+    Last accessed:  17/09/2024.
+*/
+
+
+@import '@shoelace-style/shoelace/dist/themes/light.css';
+
+:root,
+:host,
+.sl-theme-light {
+  --sl-color-primary-950: #b9302d;
+  --sl-color-primary-900: #b9302d;
+  --sl-color-primary-800: #c93938;
+  --sl-color-primary-700: #d63f3f;
+  --sl-color-primary-600: #e84846;
+  --sl-color-primary-500: #f75047;
+  --sl-color-primary-400: #f15f5e;
+  --sl-color-primary-300: #e67c7e;
+  --sl-color-primary-200: #efa0a2;
+  --sl-color-primary-100: #fed1d7;
+  --sl-color-primary-50: #feecf0;
+
+  --sl-color-danger-950: #5b1018;
+  --sl-color-danger-900: #5b1018;
+  --sl-color-danger-800: #6c2020;
+  --sl-color-danger-700: #7c2e26;
+  --sl-color-danger-600: #8d3a2f;
+  --sl-color-danger-500: #994335;
+  --sl-color-danger-400: #b15e4e;
+  --sl-color-danger-300: #c87968;
+  --sl-color-danger-200: #e69b8c;
+  --sl-color-danger-100: #ffbead;
+  --sl-color-danger-50: #ffdec8;
+
+  --sl-color-neutral-950: #2c3038;
+  --sl-color-neutral-900: #2c3038;
+  --sl-color-neutral-800: #3f444f;
+  --sl-color-neutral-700: #4f5765;
+  --sl-color-neutral-600: #606a7c;
+  --sl-color-neutral-500: #6e798d;
+  --sl-color-neutral-400: #848c9d;
+  --sl-color-neutral-300: #9aa1af;
+  --sl-color-neutral-200: #b7bcc5;
+  --sl-color-neutral-100: #d3d7dc;
+  --sl-color-neutral-50: #eeeef0;
+
+  --sl-color-success-950: #105950;
+  --sl-color-success-900: #105950;
+  --sl-color-success-800: #15766e;
+  --sl-color-success-700: #17867e;
+  --sl-color-success-600: #1a978f;
+  --sl-color-success-500: #1da49d;
+  --sl-color-success-400: #34b3ad;
+  --sl-color-success-300: #57c1bd;
+  --sl-color-success-200: #87d3d1;
+  --sl-color-success-100: #b7e4e3;
+  --sl-color-success-50: #e2f4f4;
+
+  --sl-color-warning-950: #ef7e1a;
+  --sl-color-warning-900: #ef7e1a;
+  --sl-color-warning-800: #f4a628;
+  --sl-color-warning-700: #f6bd30;
+  --sl-color-warning-600: #f9d538;
+  --sl-color-warning-500: #f7e53a;
+  --sl-color-warning-400: #faea58;
+  --sl-color-warning-300: #fcef77;
+  --sl-color-warning-200: #fdf39d;
+  --sl-color-warning-100: #fef8c4;
+  --sl-color-warning-50: #fefde7;
+
+  /* fAIr color tokens */
+
+  --hot-fair-color-white: #fff;
+  --hot-fair-color-black:#2C3038;
+  --hot-fair-color-pink: #F0EFEF;
+  --hot-fair-color-red:#D63F40;
+  
+
+  /* Spacings */
+
+  --sl-spacing-3x-small: 0.125rem; /* 2px */
+  --sl-spacing-2x-small: 0.25rem; /* 4px */
+  --sl-spacing-x-small: 0.5rem; /* 8px */
+  --sl-spacing-small: 0.75rem; /* 12px */
+  --sl-spacing-medium: 1rem; /* 16px */
+  --sl-spacing-large: 1.25rem; /* 20px */
+  --sl-spacing-x-large: 1.75rem; /* 28px */
+  --sl-spacing-2x-large: 2.25rem; /* 36px */
+  --sl-spacing-3x-large: 3rem; /* 48px */
+  --sl-spacing-4x-large: 4.5rem; /* 72px */
+
+  /*
+   * Typography
+   */
+
+  /* Fonts */
+  --sl-font-sans: 'Archivo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+
+  /* fAIr font size tokens */
+
+  --hot-fair-text-regular: 1rem; /* 16px */
+  --hot-fair-text-large: 3rem; /* 48px */
+  
+}

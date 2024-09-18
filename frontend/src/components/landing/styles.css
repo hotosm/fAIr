@@ -1,0 +1,26 @@
+.kpi{
+    background-color: var(--hot-fair-color-pink);
+    display: flex;
+    height: 200px;
+    align-items: center;
+    justify-content: space-around;
+
+}
+
+.kpi-item{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.kpi-item h1{
+    text-transform: uppercase;
+    color: var(--hot-fair-color-red);
+    font-size: var(--hot-fair-text-large);
+}
+
+.kpi-item h3{
+    color: var(--hot-fair-color-black);
+    font-size: var(--hot-fair-text-regular);
+}

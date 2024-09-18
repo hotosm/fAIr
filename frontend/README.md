@@ -48,3 +48,10 @@ export default tseslint.config({
   },
 })
 ```
+
+
+# Notes
+
+Inspirations: 
+1. https://github.com/alan2207/bulletproof-react/tree/master
+2. https://github.com/tomekbuszewski/ts-react-starter-v2
