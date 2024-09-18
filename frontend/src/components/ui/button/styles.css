@@ -1,0 +1,10 @@
+sl-button.button::part(base){
+    border-radius: 0 !important;
+    text-transform: uppercase;
+    border: none;
+}
+
+sl-button.secondary::part(base){
+    background-color: var(--hot-fair-color-white);
+    color: var(--hot-fair-color-black);
+}
