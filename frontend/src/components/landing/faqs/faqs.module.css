@@ -1,0 +1,26 @@
+.FAQS {
+    padding: 0 var(--hot-fair-spacing-5x-large)
+}
+
+.heading {
+    width: 218px;
+    text-align: center;
+    font-size: var(--hot-fair-font-size-title-1);
+    font-weight: var(--hot-fair-font-weight-semibold);
+    font-family: var(--hot-fair-font-family-archivo-condensed);
+    background-color: var(--hot-fair-color-primary);
+    color: var(--hot-fair-color-white);
+    display: inline-block;
+    padding: var(--sl-spacing-x-small) var(--sl-spacing-medium);
+}
+
+
+.seeMore {
+    font-size: var(--hot-fair-font-size-body-text-3);
+    font-weight: var(--hot-fair-font-weight-semibold);
+
+}
+
+.seeMore span {
+    margin: 0 10px;
+}

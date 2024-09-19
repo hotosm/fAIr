@@ -69,26 +69,31 @@
   --sl-color-warning-100: #fef8c4;
   --sl-color-warning-50: #fefde7;
 
-  /* fAIr color tokens */
-
-  --hot-fair-color-white: #fff;
-  --hot-fair-color-black:#2C3038;
-  --hot-fair-color-pink: #F0EFEF;
-  --hot-fair-color-red:#D63F40;
-  
 
   /* Spacings */
 
-  --sl-spacing-3x-small: 0.125rem; /* 2px */
-  --sl-spacing-2x-small: 0.25rem; /* 4px */
-  --sl-spacing-x-small: 0.5rem; /* 8px */
-  --sl-spacing-small: 0.75rem; /* 12px */
-  --sl-spacing-medium: 1rem; /* 16px */
-  --sl-spacing-large: 1.25rem; /* 20px */
-  --sl-spacing-x-large: 1.75rem; /* 28px */
-  --sl-spacing-2x-large: 2.25rem; /* 36px */
-  --sl-spacing-3x-large: 3rem; /* 48px */
-  --sl-spacing-4x-large: 4.5rem; /* 72px */
+  --sl-spacing-3x-small: 0.125rem;
+  /* 2px */
+  --sl-spacing-2x-small: 0.25rem;
+  /* 4px */
+  --sl-spacing-x-small: 0.5rem;
+  /* 8px */
+  --sl-spacing-small: 0.75rem;
+  /* 12px */
+  --sl-spacing-medium: 1rem;
+  /* 16px */
+  --sl-spacing-large: 1.25rem;
+  /* 20px */
+  --sl-spacing-x-large: 1.75rem;
+  /* 28px */
+  --sl-spacing-2x-large: 2.25rem;
+  /* 36px */
+  --sl-spacing-3x-large: 3rem;
+  /* 48px */
+  --sl-spacing-4x-large: 4.5rem;
+  /* 72px */
+
+
 
   /*
    * Typography
@@ -98,9 +103,6 @@
   --sl-font-sans: 'Archivo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif,
     'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
 
-  /* fAIr font size tokens */
 
-  --hot-fair-text-regular: 1rem; /* 16px */
-  --hot-fair-text-large: 3rem; /* 48px */
-  
+
 }
