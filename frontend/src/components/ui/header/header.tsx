@@ -8,12 +8,14 @@ const Header = () => {
       <NavBar />
       <main className='main'>
         <div className='main-content'>
-          <h1>Your AI Mapping Partner</h1>
-          <p>
-            AI-powered assistant that replicates your mapping samples
-            intelligently and quickly, helping you map smarter and faster.
-          </p>
-          <div className='buttons'>
+          <div className='jumbotron-text'>
+            <h1>Your AI Mapping Partner</h1>
+            <p>
+              AI-powered assistant that replicates your mapping samples
+              intelligently and quickly, helping you map smarter and faster.
+            </p>
+          </div>
+          <div className='cta-buttons'>
             <Button variant='primary'>Create Model</Button>
             <Button variant='secondary'>Start Mapping</Button>
           </div>

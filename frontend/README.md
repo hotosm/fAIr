@@ -55,3 +55,7 @@ export default tseslint.config({
 Inspirations: 
 1. https://github.com/alan2207/bulletproof-react/tree/master
 2. https://github.com/tomekbuszewski/ts-react-starter-v2
+
+
+# Todo
+- Move content outside of components for better support for internalization

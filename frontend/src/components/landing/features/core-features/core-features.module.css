@@ -1,0 +1,31 @@
+.coreFeature {
+    background-color: var(--hot-fair-color-secondary);
+    display: flex;
+    height: 200px;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0 var(--hot-fair-spacing-5x-large);
+
+}
+
+.coreFeatureItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.coreFeatureItem h1 {
+    text-transform: uppercase;
+    color: var(--hot-fair-color-primary);
+    font-size: var(--hot-fair-font-size-title-1);
+    font-weight: var(--hot-fair-font-weight-semibold);
+    font-family: var(--hot-fair-font-family-archivo-condensed);
+}
+
+.coreFeatureItem h3 {
+    color: var(--hot-fair-color-dark);
+    font-size: var(--hot-fair-font-size-body-text-2);
+    font-weight: var(--hot-fair-font-weight-semibold);
+    font-family: var(--sl-font-sans);
+}

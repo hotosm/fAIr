@@ -1,4 +1,4 @@
-import './styles.css'
+import styles from './kpi.module.css'
 
 type TKPIS = {
   figure: string
@@ -26,9 +26,9 @@ const KPIs: TKPIS = [
 
 const KPI = () => {
   return (
-    <section className='kpi'>
+    <section className={styles.kpi}>
       {KPIs.map((kpi, id) => (
-        <div key={`kpi-${id}`} className='kpi-item'>
+        <div key={`kpi-${id}`} className={styles.kpiItem}>
           <h1>{kpi.figure}</h1>
           <h3>{kpi.label}</h3>
         </div>

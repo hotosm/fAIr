@@ -1,10 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+
+
+html {
+  font-family: var(--sl-font-sans);
 }
 
-html{
-  font-family: var(--sl-font-sans);
+:root,
+:host,
+.sl-theme-light {
+
+  /* color tokens */
+
+  --hot-fair-color-primary: #D63F40;
+  --hot-fair-color-secondary: #FFEDED;
+  --hot-fair-color-dark: #2C3038;
+  --hot-fair-color-gray: #687075;
+  --hot-fair-color-light-gray: #E0E4EB;
+  --hot-fair-color-off-white: #F0EFEF;
+  --hot-fair-color-white: #fff;
+
+
+
+  /* Font families */
+  --hot-fair-font-family-archivo-condensed: 'Archivo Condensed', sans-serif;
+
+
+  /* Font sizes in rem */
+  --hot-fair-font-size-large-title: 3rem;
+  /* 48px */
+  --hot-fair-font-size-title-1: 2.375rem;
+  /* 38px */
+  --hot-fair-font-size-title-2: 1.75rem;
+  /* 28px */
+  --hot-fair-font-size-title-3: 1.5rem;
+  /* 24px */
+  --hot-fair-font-size-body-text-1: 1.25rem;
+  /* 20px */
+  --hot-fair-font-size-body-text-2: 1.125rem;
+  /* 18px */
+  --hot-fair-font-size-body-text-3: 0.875rem;
+  /* 14px */
+
+  /* Font weights */
+  --hot-fair-font-weight-regular: 400;
+  --hot-fair-font-weight-medium: 500;
+  --hot-fair-font-weight-semibold: 600;
+  --hot-fair-font-weight-bold: 700;
+
+  /* Spacing */
+  --hot-fair-spacing-5x-large: 5rem;
+  /* 80px */
 }
