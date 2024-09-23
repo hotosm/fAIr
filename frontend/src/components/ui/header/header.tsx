@@ -1,24 +1,31 @@
-import Button from '../button/button'
+import { Button } from '@/components/ui/button'
 import NavBar from './navbar'
-import './styles.css'
+import styles from './header.module.css'
+import BackgroundImage from '@/assets/images/header_bg.png'
+import { APP_CONTENT } from '@/utils/content'
+import { Image } from '@/components/ui/image'
+
+
 
 const Header = () => {
   return (
-    <header>
+    <header className={styles.headerContainer}>
       <NavBar />
-      <main className='main'>
-        <div className='main-content'>
-          <div className='jumbotron-text'>
-            <h1>Your AI Mapping Partner</h1>
+      <main className={styles.jumbotronContainer}>
+        <div className={styles.jumbotronContentContainer}>
+          <div className={styles.jumbotronText}>
+            <h1>{APP_CONTENT.homepage.jumbotronTitle}</h1>
             <p>
-              AI-powered assistant that replicates your mapping samples
-              intelligently and quickly, helping you map smarter and faster.
+              {APP_CONTENT.homepage.jumbotronHeadline}
             </p>
           </div>
-          <div className='cta-buttons'>
-            <Button variant='primary'>Create Model</Button>
-            <Button variant='secondary'>Start Mapping</Button>
+          <div className={styles.ctaButtons}>
+            <Button variant='primary'> {APP_CONTENT.homepage.ctaPrimaryButton}</Button>
+            <Button variant='secondary'>{APP_CONTENT.homepage.ctaSecondaryButton}</Button>
           </div>
+        </div>
+        <div className={styles.jumbotronImage}>
+          <Image src={BackgroundImage} alt={APP_CONTENT.homepage.jumbotronImageAlt} width='100%' height='100%' />
         </div>
       </main>
     </header>

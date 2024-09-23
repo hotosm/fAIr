@@ -58,4 +58,7 @@ Inspirations:
 
 
 # Todo
-- Move content outside of components for better support for internalization
+- revisit fair process
+- migrate footer to css modules
+- Implement authentication and update navbar design with profile
+- Revisit the fair process section to make it resemble ui design.

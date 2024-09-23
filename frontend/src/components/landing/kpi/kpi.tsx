@@ -26,7 +26,7 @@ const KPIs: TKPIS = [
 
 const KPI = () => {
   return (
-    <section className={styles.kpi}>
+    <section className={styles.kpiContainer}>
       {KPIs.map((kpi, id) => (
         <div key={`kpi-${id}`} className={styles.kpiItem}>
           <h1>{kpi.figure}</h1>

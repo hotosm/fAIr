@@ -1,47 +1,37 @@
 import SlDetails from '@shoelace-style/shoelace/dist/react/details/index.js';
 import styles from './faqs.module.css'
+import SlIcon from '@shoelace-style/shoelace/dist/react/icon/index.js';
+import { APP_CONTENT } from '@/utils/content';
+
+
+
 type TFAQItem = {
     question: string
     answer: string
 }
 
 
-const faqs: TFAQItem[] = [
-    {
-        question: 'What is fAIr?',
-        answer: " Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
-    },
-    {
-        question: 'Who can use fAIr?',
-        answer: " Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
-    },
-    {
-        question: 'Can I use fAIr without having a sound knowledge of AI?',
-        answer: " Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
-    },
-
-]
-
-
 const FAQItem: React.FC<{ faq: TFAQItem }> = ({ faq }) => (
     <SlDetails summary={faq.question}>
+        <SlIcon name="chevron-up" slot="expand-icon" />
+        <SlIcon name="chevron-down" slot="collapse-icon" />
         {faq.answer}
     </SlDetails>
 );
 
 const FAQs = () => {
     return (
-        <div className={styles.FAQS}>
-            <div className='flex items-center justify-between w-full'>
-                <h1 className={styles.heading}>FAQs</h1>
+        <section className={styles.FAQS}>
+            <h1 className={styles.heading}>{APP_CONTENT.homepage.faqs.sectionTitle}</h1>
+            <div className={styles.FAQContentContainer}>
                 <div>
                     {
-                        faqs.map((faq, id) => <FAQItem faq={faq} key={`faq-item-${id}`} />)
+                        APP_CONTENT.homepage.faqs.content.map((faq, id) => <FAQItem faq={faq} key={`faq-item-${id}`} />)
                     }
-                    <h3 className={styles.seeMore}>See more<span></span>&gt;</h3>
                 </div>
+                <h3 className={styles.seeMore}>{APP_CONTENT.homepage.faqs.cta}<span></span>&gt;</h3>
             </div>
-        </div>
+        </section>
 
     )
 }
