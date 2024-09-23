@@ -15,7 +15,7 @@ export default {
         "off-white": 'var(--hot-fair-color-off-white)',
       },
       fontFamily: {
-        'archivo-condensed': "var(--hot-fair-font-family-archivo-condensed)",
+
         'archivo': 'var(--sl-font-sans)',
       },
       fontSize: {
@@ -33,6 +33,10 @@ export default {
         bold: 'var(--hot-fair-font-weight-bold)',
         semibold: 'var(--hot-fair-font-weight-semibold)'
       },
+      screens: {
+
+        mdx: '960px'
+      }
 
     },
   },

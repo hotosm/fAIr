@@ -4,7 +4,7 @@ const router = createBrowserRouter([
   {
     path: '/',
     lazy: async () => {
-      const { LandingPageRoute } = await import('./routes/landing')
+      const { LandingPageRoute } = await import('@/app/routes/landing')
       return { Component: LandingPageRoute }
     }
   }

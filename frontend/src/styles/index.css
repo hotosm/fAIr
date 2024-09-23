@@ -3,14 +3,11 @@
 @tailwind utilities;
 
 
-
-html {
-  font-family: var(--sl-font-sans);
-}
-
 :root,
 :host,
 .sl-theme-light {
+
+  font-family: var(--sl-font-sans);
 
   /* color tokens */
 
@@ -22,10 +19,6 @@ html {
   --hot-fair-color-off-white: #F0EFEF;
   --hot-fair-color-white: #fff;
 
-
-
-  /* Font families */
-  --hot-fair-font-family-archivo-condensed: 'Archivo Condensed', sans-serif;
 
 
   /* Font sizes in rem */
@@ -41,6 +34,8 @@ html {
   /* 20px */
   --hot-fair-font-size-body-text-2: 1.125rem;
   /* 18px */
+  --hot-fair-font-size-body-text-2base: 1rem;
+  /* 16px  */
   --hot-fair-font-size-body-text-3: 0.875rem;
   /* 14px */
 
@@ -53,4 +48,8 @@ html {
   /* Spacing */
   --hot-fair-spacing-5x-large: 5rem;
   /* 80px */
+
+
+
+
 }

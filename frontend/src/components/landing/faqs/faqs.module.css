@@ -1,13 +1,13 @@
 .FAQS {
-    padding: 0 var(--hot-fair-spacing-5x-large)
+    padding: 0 var(--sl-spacing-large);
 }
 
 .heading {
-    width: 218px;
+    width: auto;
     text-align: center;
-    font-size: var(--hot-fair-font-size-title-1);
-    font-weight: var(--hot-fair-font-weight-semibold);
-    font-family: var(--hot-fair-font-family-archivo-condensed);
+    font-size: var(--hot-fair-font-size-title-2);
+    font-weight: var(--hot-fair-font-weight-bold);
+    text-transform: uppercase;
     background-color: var(--hot-fair-color-primary);
     color: var(--hot-fair-color-white);
     display: inline-block;
@@ -18,9 +18,75 @@
 .seeMore {
     font-size: var(--hot-fair-font-size-body-text-3);
     font-weight: var(--hot-fair-font-weight-semibold);
-
 }
 
 .seeMore span {
     margin: 0 10px;
+}
+
+/* Customizing shoelace styles to suit the UI Design */
+
+/* Customizing shoelace styles to suit the UI Design */
+sl-details::part(base) {
+    border: none;
+    border-bottom: 1px solid #E3E5E5;
+    border-radius: 0px;
+
+}
+
+sl-details::part(header),
+sl-details::part(content) {
+    padding: var(--sl-spacing-large) 0;
+}
+
+
+sl-details::part(header) {
+    color: var(--hot-fair-color-dark);
+    font-size: var(--hot-fair-font-size-body-text-2);
+    font-weight: var(--hot-fair-font-weight-medium);
+}
+
+
+sl-details::part(summary-icon) {
+    background-color: var(--hot-fair-color-light-gray);
+    padding: 10px;
+    border-radius: 100%;
+    color: var(--hot-fair-color-dark);
+    rotate: 360deg;
+}
+
+.FAQContentContainer {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sl-spacing-2x-large);
+}
+
+/* md: */
+@media (min-width: 768px) {
+
+    .FAQS {
+        padding: 0 var(--hot-fair-spacing-5x-large)
+    }
+
+    .heading {
+        max-width: 218px;
+        font-size: var(--hot-fair-font-size-title-1);
+        font-weight: var(--hot-fair-font-weight-semibold);
+    }
+
+    sl-details::part(header),
+    sl-details::part(content) {
+        padding: var(--sl-spacing-x-large) 0;
+    }
+
+
+    sl-details::part(header) {
+        font-size: var(--hot-fair-font-size-title-3);
+
+    }
+
+    .FAQContentContainer {
+        margin: 0 auto;
+        max-width: 844px;
+    }
 }

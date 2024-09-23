@@ -1,19 +1,21 @@
 import SlButton from '@shoelace-style/shoelace/dist/react/button/index.js'
-import './styles.css'
+import './button.css'
 
 type ButtonVariant = 'primary' | 'secondary'
 
-// todo - link buttons, action buttons etc
+
 
 const Button = ({
   children,
-  variant
+  variant,
+  className
 }: {
   children: React.ReactNode
-  variant: ButtonVariant
+  variant: ButtonVariant,
+  className?: string
 }) => {
   return (
-    <SlButton variant='primary' size='large' className={`button ${variant}`}>
+    <SlButton variant='primary' size='large' className={`button ${variant} ${className}`} style={{ width: '100%' }}>
       {children}
     </SlButton>
   )
