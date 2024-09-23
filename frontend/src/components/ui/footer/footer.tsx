@@ -1,4 +1,4 @@
-import styles from './footer.module.css'
+// import styles from './footer.module.css'
 import CreativeCommonsBadge from '@/assets/images/cc_by_badge.png'
 import FacebookLogo from '@/assets/socials/facebook_logo.svg'
 import GitHubLogo from '@/assets/socials/github_logo.svg'
