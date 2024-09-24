@@ -152,17 +152,14 @@ export const APP_CONTENT = {
             pageNotFound: 'go to homepage'
         }
     },
-    cookieConsentBanner: {
-        heading: 'About the information we collect',
-        paragraph: {
-            firstSection: `We use cookies and similar technologies to recognize and analyze your visits, and measure traffic usage and activity.
-                        You can learn about how we use the data about your visit or information you provide by reading our`,
-            privacyPolicy: 'privacy policy',
-            lastSection: ' By clicking "I Agree", you consent to the use of cookies.'
-        },
-        buttons: {
-            agree: 'I agree',
-            disagree: 'I do not agree'
-        }
+    protectedPage: {
+        ctaButton: 'login',
+        messageParagraph: 'To access this page you have to login.',
+        messageTitle: 'This page is private'
+    },
+    errorBoundary: {
+        title: 'Ooops, Something went wrong :(',
+        button: 'refresh'
     }
+
 }

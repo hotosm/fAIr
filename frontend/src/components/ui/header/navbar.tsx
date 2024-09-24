@@ -6,26 +6,18 @@ import { Drawer } from '@/components/ui/drawer'
 import { useState } from 'react'
 import { Link } from '@/components/ui/link'
 import { Image } from '@/components/ui/image'
-import { APP_CONTENT } from '@/utils/content'
-import { authService } from '@/services'
-import { HOT_FAIR_SESSION_REDIRECT_KEY, useAuth } from '@/app/providers/auth-provider'
-import { useLocation } from 'react-router-dom'
-import { useSessionStorage } from '@/hooks/storage'
+import { APP_CONTENT, APPLICATION_ROUTES } from '@/utils'
+import { useAuth } from '@/app/providers/auth-provider'
 import UserProfile from './user-profile'
+import { useLogin } from '@/hooks/use-login'
 
 
 
 const NavBar = () => {
-  const [open, setOpen] = useState(false);
-  const { user, logout, isAuthenticated } = useAuth();
-  const location = useLocation();
-  const { setValue } = useSessionStorage();
 
-  const handleLogin = async () => {
-    const currentPath = location.pathname;
-    setValue(HOT_FAIR_SESSION_REDIRECT_KEY, currentPath);
-    await authService.initializeOAuthFlow();
-  }
+  const [open, setOpen] = useState(false);
+  const { user, logout, isAuthenticated, } = useAuth();
+  const handleLogin = useLogin();
 
   return (
     <>
@@ -89,19 +81,19 @@ type TNavBarLinks = {
 const navLinks: TNavBarLinks = [
   {
     title: APP_CONTENT.navbar.routes.exploreModels,
-    href: '#'
+    href: APPLICATION_ROUTES.MODELS
   },
   {
     title: APP_CONTENT.navbar.routes.learn,
-    href: '#'
+    href: APPLICATION_ROUTES.LEARN
   },
   {
     title: APP_CONTENT.navbar.routes.about,
-    href: '#'
+    href: APPLICATION_ROUTES.ABOUT
   },
   {
     title: APP_CONTENT.navbar.routes.resources,
-    href: '#'
+    href: APPLICATION_ROUTES.RESOURCES
   }
 ]
 

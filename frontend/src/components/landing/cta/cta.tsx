@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button/";
 import HOTTeam from '@/assets/images/hot_team_2.jpg'
 import styles from './cta.module.css'
-import { APP_CONTENT } from "@/utils/content";
+import { APP_CONTENT } from "@/utils";
 import { Image } from "@/components/ui/image";
 
 const CallToAction = () => {

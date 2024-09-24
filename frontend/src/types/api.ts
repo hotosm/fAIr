@@ -1,4 +1,6 @@
-// user/me 
+/**
+ * This file contains the different types/schema for the API responses from the backend.
+ */
 
 export type TLogin = {
     login_url: string

@@ -2,6 +2,10 @@ import { TAuthenticate, TLogin, TUser } from "@/types/api";
 import { apiClient } from "./api-client";
 import { API_ENDPOINTS } from "./api-routes";
 
+
+/**
+ * This class encapsulate the various authentication services.
+ */
 class AuthService {
     //inspired by https://github.com/hotosm/tasking-manager/blob/develop/frontend/src/utils/login.js
     private async createPopUp(url: string): Promise<Window | null> {
@@ -27,9 +31,14 @@ class AuthService {
      * @returns 
     */
     private async getOAuthURL(): Promise<TLogin> {
-        const response = await apiClient.get(API_ENDPOINTS.LOGIN);
-        const oauthUrl: TLogin = await response.data;
-        return oauthUrl
+        try {
+            const response = await apiClient.get(API_ENDPOINTS.LOGIN);
+            const oauthUrl: TLogin = await response.data;
+            return oauthUrl
+        } catch (error) {
+            console.error("Failed to get OAuth URL", error);
+            throw new Error("Unable to retrieve login URL.");
+        }
     }
     /**
      * Initialize the oauth flow after the user clicks the login button.
@@ -37,10 +46,16 @@ class AuthService {
      * @returns 
      */
     async initializeOAuthFlow(): Promise<void> {
-        const oauthUrl = await this.getOAuthURL();
-        await this.createPopUp(oauthUrl.login_url);
-        // My browser is not showing the popup, I think probably due to security reasons
-        // so for now we will default to redirection to a new window.
+        try {
+            const oauthUrl = await this.getOAuthURL();
+            const popup = await this.createPopUp(oauthUrl.login_url);
+            if (!popup) {
+                throw new Error("Popup blocked or not created.");
+            }
+        } catch (error) {
+            console.error("OAuth flow initialization failed", error);
+            throw error;
+        }
     }
 
     /**
@@ -48,8 +63,13 @@ class AuthService {
     * @returns The user object.
     */
     async getUser(): Promise<TUser> {
-        const response = await apiClient.get(API_ENDPOINTS.USER);
-        return response.data
+        try {
+            const response = await apiClient.get(API_ENDPOINTS.USER);
+            return response.data;
+        } catch (error) {
+            console.error("Failed to fetch user data", error);
+            throw new Error("Unable to retrieve user data.");
+        }
     }
 
     /**
@@ -58,8 +78,13 @@ class AuthService {
      * @returns The access token from the backend.
      */
     async authenticate(state: string, code: string): Promise<TAuthenticate> {
-        const response = await apiClient.get(`${API_ENDPOINTS.AUTH_CALLBACK}?code=${code}&state=${state}`);
-        return response.data
+        try {
+            const response = await apiClient.get(`${API_ENDPOINTS.AUTH_CALLBACK}?code=${code}&state=${state}`);
+            return response.data;
+        } catch (error) {
+            console.error("Authentication failed", error);
+            throw new Error("Failed to authenticate user.");
+        }
     }
 }
 

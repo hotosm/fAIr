@@ -1,4 +1,4 @@
-// import styles from './footer.module.css'
+
 import CreativeCommonsBadge from '@/assets/images/cc_by_badge.png'
 import FacebookLogo from '@/assets/socials/facebook_logo.svg'
 import GitHubLogo from '@/assets/socials/github_logo.svg'
@@ -7,6 +7,7 @@ import InstagramLogo from '@/assets/socials/instagram_logo.svg'
 import YoutTubeLogo from '@/assets/socials/youtube_logo.svg'
 import { APP_CONTENT } from '@/utils/content'
 import { Image } from '@/components/ui/image'
+import { Link } from '../link'
 
 
 
@@ -44,13 +45,17 @@ const Footer = () => {
                     <div className='col-span-8 uppercase text-[16px] flex  lg:col-start-7 lg:col-span-4  w-full justify-between'>
                         <ul className='space-y-4'>
                             {
-                                APP_CONTENT.footer.siteMap.groupOne.map((route, id) => <li key={`footer-link-${id}`}>{route.title}</li>)
+                                APP_CONTENT.footer.siteMap.groupOne.map((route, id) => <li key={`footer-link-${id}`}>
+                                    <Link href={route.route} title={route.title} className='!text-white'>{route.title}</Link>
+                                </li>)
                             }
                         </ul>
 
                         <ul className='space-y-4'>
                             {
-                                APP_CONTENT.footer.siteMap.groupTwo.map((route, id) => <li key={`footer-links2-${id}`}>{route.title}</li>)
+                                APP_CONTENT.footer.siteMap.groupTwo.map((route, id) => <li key={`footer-links2-${id}`}>
+                                    <Link href={route.route} title={route.title} className='!text-white'>{route.title}</Link>
+                                </li>)
                             }
                         </ul>
                     </div>
@@ -70,7 +75,9 @@ const Footer = () => {
                             {
                                 socials.map((media, id) =>
                                     <li key={`social-link-${id}`} className='w-7 h-7 flex  items-center justify-center bg-white rounded-full'>
-                                        <Image src={media.logo} alt={`${media.name} Icon`} title={`${media.name}`} />
+                                        <Link href={media.url} title={media.name} blank>
+                                            <Image src={media.logo} alt={`${media.name} Icon`} title={`${media.name}`} />
+                                        </Link>
                                     </li>
                                 )
                             }

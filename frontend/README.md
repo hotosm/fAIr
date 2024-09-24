@@ -58,19 +58,4 @@ Inspirations:
 
 
 # Todo
-
-- Private page - create a demo route that requires authentication to test it. Name it login page so when a user visits a protected route, they get take to the page
-- then from there they will be redirected back the their previous page.
-- normally, models page and training datasets page are protected
-
 - revisit fair process and follow UI design.
-- Make footer linkables and socials, then omran will fill in later.
-
-- SEO for each pages
-- todo, handle api call errors, interceptors, react query etc
-- Error Handler/Error Boundary
-
-- Styling improvements:
-
-- migrate cookie consent to custom tailwind classes
-- migrate footer to css modules

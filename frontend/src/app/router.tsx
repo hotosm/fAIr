@@ -1,6 +1,7 @@
 import { RootLayout } from '@/components/layouts'
-import { APPLICATION_ROUTES } from '@/utils/constants'
+import { APPLICATION_ROUTES } from '@/utils'
 import { Navigate, RouterProvider, createBrowserRouter } from 'react-router-dom'
+import { ProtectedPage } from './routes/protected-route'
 
 const router = createBrowserRouter([
   {
@@ -12,6 +13,32 @@ const router = createBrowserRouter([
         lazy: async () => {
           const { LandingPage } = await import('@/app/routes/landing')
           return { Component: LandingPage }
+        }
+      },
+      {
+        path: APPLICATION_ROUTES.MODELS,
+        lazy: async () => {
+          const { ModelsPage } = await import('@/app/routes/models')
+          return {
+            Component: () => (
+              <ProtectedPage>
+                <ModelsPage />
+              </ProtectedPage>
+            )
+          }
+        }
+      },
+      {
+        path: APPLICATION_ROUTES.TRAINING_DATASETS,
+        lazy: async () => {
+          const { TrainingDatasetsPage } = await import('@/app/routes/training-datasets')
+          return {
+            Component: () => (
+              <ProtectedPage>
+                <TrainingDatasetsPage />
+              </ProtectedPage>
+            )
+          }
         }
       },
       {

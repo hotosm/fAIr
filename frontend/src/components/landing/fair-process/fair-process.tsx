@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react'
 import styles from './fair-process.module.css';
 import { AnimatedBeam } from '@/components/ui/animated-beam';
 import { BotIcon, FeedbackIcon, PredictionsIcon } from '@/components/ui/icons';
-import { IconProps } from '@/utils/types';
+import { IconProps } from '@/types';
 import DesktopFlowIcon from '@/components/ui/icons/desktop-flow-icon';
 import { APP_CONTENT } from '@/utils/content';
 
@@ -97,11 +97,11 @@ const TheFAIRProcess = () => {
                             className={`transition-all p-1 w-[40px] h-[40px] md:w-[68px] md:h-[68px] rounded-full self-start shadow-xl items-center flex justify-center ${activeIndex === id ? 'bg-primary' : ''}`}
                             ref={itemRefs[id]}
                         >
-                            <step.icon className={`w-8 p-1 h-8 transition-all ${activeIndex !== id ? 'text-[#A6A6A6]' : 'text-white scale-125'}`} />
+                            <step.icon className={`w-8 p-1 h-8 transition-all ${activeIndex !== id ? 'text-gray-disabled' : 'text-white scale-125'}`} />
                         </div>
 
                         <div className="inline-flex flex-col gap-y-4">
-                            <h3 className={`text-[20px] md:text-2xl md:mt-4 font-bold transition-all  ${activeIndex !== id ? 'text-[#A6A6A6]' : 'text-dark'}`}>{step.title}</h3>
+                            <h3 className={`text-[20px] md:text-2xl md:mt-4 font-bold transition-all  ${activeIndex !== id ? 'text-gray-disabled' : 'text-dark'}`}>{step.title}</h3>
                             <p className={`text-[16px] md:text-[18px] mt-2 ${activeIndex !== id ? 'text-gray' : 'text-gray-600 '}`}>{step.paragraph}</p>
                         </div>
                     </div>

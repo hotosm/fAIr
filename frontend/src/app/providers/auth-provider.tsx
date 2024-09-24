@@ -1,4 +1,4 @@
-import { useLocalStorage, useSessionStorage } from '@/hooks/storage';
+import { useLocalStorage, useSessionStorage } from '@/hooks/use-storage';
 import { authService } from '@/services';
 import { apiClient } from '@/services/api-client';
 import { TUser } from '@/types/api';
@@ -12,6 +12,7 @@ type TAuthContext = {
     authenticateUser: (state: string, code: string) => Promise<void>
     logout: () => void
     isAuthenticated: boolean
+
 }
 
 //@ts-ignore
@@ -21,7 +22,7 @@ export const useAuth = () => useContext(AuthContext);
 
 
 
-const HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY: string = '___hot_fair_access_token';
+export const HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY: string = '___hot_fair_access_token';
 
 export const HOT_FAIR_SESSION_REDIRECT_KEY: string = '___hot_fair_redirect_after_login';
 
@@ -113,9 +114,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
     };
 
+
+
+
     return (
         //@ts-ignore
-        <AuthContext.Provider value={{ token, user, authenticateUser, logout, isAuthenticated }}>
+        <AuthContext.Provider value={{ token, user, authenticateUser, logout, isAuthenticated, }}>
             {children}
         </AuthContext.Provider>
     );

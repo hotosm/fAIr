@@ -1,4 +1,4 @@
-import { IconProps } from '@/utils/types';
+import { IconProps } from '@/types';
 import React from 'react';
 
 

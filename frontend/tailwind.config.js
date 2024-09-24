@@ -13,6 +13,7 @@ export default {
         gray: 'var(--hot-fair-color-gray)',
         "light-gray": 'var(--hot-fair-color-light-gray)',
         "off-white": 'var(--hot-fair-color-off-white)',
+        "gray-disabled": "var(--hot-fair-color-gray-disabled)"
       },
       fontFamily: {
 

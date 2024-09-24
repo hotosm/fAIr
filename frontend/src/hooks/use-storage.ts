@@ -1,4 +1,9 @@
 
+
+/**
+ * This hook is used to manage the retrieval, creation and deletion of objects in the localstorage.
+ * @returns getValue(), setValue(), removeValue().
+ */
 export const useLocalStorage = () => {
 
     const getValue = (key: string): string | undefined => {
@@ -30,7 +35,10 @@ export const useLocalStorage = () => {
     return { getValue, setValue, removeValue };
 };
 
-
+/**
+ * This hook is used to manage the retrieval, creation and deletion of objects in the session storage.
+ * @returns getValue(), setValue(), removeValue().
+ */
 export const useSessionStorage = () => {
     const getValue = (key: string): string | undefined => {
         try {

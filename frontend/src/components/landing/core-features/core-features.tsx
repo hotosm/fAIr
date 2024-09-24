@@ -1,6 +1,6 @@
 import { GuageIcon, LoopIcon, TimerIcon } from '@/components/ui/icons';
 import styles from './core-features.module.css'
-import { IconProps } from '@/utils/types';
+import { IconProps } from '@/types';
 import { APP_CONTENT } from '@/utils/content';
 
 

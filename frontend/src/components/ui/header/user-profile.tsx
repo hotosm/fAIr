@@ -4,7 +4,7 @@ import SlAvatar from '@shoelace-style/shoelace/dist/react/avatar/index.js';
 import { DropDown } from "../dropdown";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { APP_CONTENT } from "@/utils/content";
+import { APP_CONTENT } from "@/utils";
 import ChevronDownIcon from "../icons/chevron-down";
 
 
