@@ -7,9 +7,26 @@ import { useState } from 'react'
 import { Link } from '@/components/ui/link'
 import { Image } from '@/components/ui/image'
 import { APP_CONTENT } from '@/utils/content'
+import { authService } from '@/services'
+import { HOT_FAIR_SESSION_REDIRECT_KEY, useAuth } from '@/app/providers/auth-provider'
+import { useLocation } from 'react-router-dom'
+import { useSessionStorage } from '@/hooks/storage'
+import UserProfile from './user-profile'
+
+
 
 const NavBar = () => {
   const [open, setOpen] = useState(false);
+  const { user, logout, isAuthenticated } = useAuth();
+  const location = useLocation();
+  const { setValue } = useSessionStorage();
+
+  const handleLogin = async () => {
+    const currentPath = location.pathname;
+    setValue(HOT_FAIR_SESSION_REDIRECT_KEY, currentPath);
+    await authService.initializeOAuthFlow();
+  }
+
   return (
     <>
       <Drawer open={open} setOpen={setOpen} placement='end'>
@@ -26,7 +43,10 @@ const NavBar = () => {
             <NavBarLinks className={styles.mobileNavLinks} />
           </div>
           <div className={styles.loginButtonContainer}>
-            <Button variant='primary'>{APP_CONTENT.navbar.loginButton}</Button>
+            {
+              isAuthenticated ? <UserProfile logout={logout} user={user} /> :
+                <Button variant='primary' onClick={handleLogin}>{APP_CONTENT.navbar.loginButton}</Button>
+            }
           </div>
         </div>
       </Drawer>
@@ -40,7 +60,13 @@ const NavBar = () => {
           <NavBarLinks className={styles.webNavLinks} />
         </div>
         <div>
-          <Button variant='primary' className={styles.loginButton}>{APP_CONTENT.navbar.loginButton}</Button>
+          {
+            isAuthenticated ?
+              <div className={styles.profileContainer}>
+                <UserProfile logout={logout} user={user} />
+              </div> :
+              <Button variant='primary' className={styles.loginButton} onClick={handleLogin}>{APP_CONTENT.navbar.loginButton}</Button>
+          }
         </div>
         <button className={styles.hamburgerMenu} onClick={() => setOpen(true)}>
           <Image src={HamburgerIcon} alt={APP_CONTENT.navbar.hamburgerMenuAlt} title={APP_CONTENT.navbar.hamburgerMenuTitle} width='20px' height='20px' />

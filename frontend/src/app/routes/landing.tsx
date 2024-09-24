@@ -10,7 +10,7 @@ import FAQs from "@/components/landing/faqs/faqs"
 import KPI from "@/components/landing/kpi/kpi"
 import TaglineBanner from "@/components/landing/tagline/tagline"
 
-export const LandingPageRoute = () => {
+export const LandingPage = () => {
   return (
 
     <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr)) max-w-[1800px] mx-auto">

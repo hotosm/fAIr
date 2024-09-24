@@ -1,20 +1,22 @@
 import SlDetails from '@shoelace-style/shoelace/dist/react/details/index.js';
 import styles from './faqs.module.css'
-import SlIcon from '@shoelace-style/shoelace/dist/react/icon/index.js';
 import { APP_CONTENT } from '@/utils/content';
+import ChevronDownIcon from '@/components/ui/icons/chevron-down';
 
 
 
-type TFAQItem = {
+type FAQItemProps = {
     question: string
     answer: string
 }
 
 
-const FAQItem: React.FC<{ faq: TFAQItem }> = ({ faq }) => (
+const FAQItem: React.FC<{ faq: FAQItemProps }> = ({ faq }) => (
     <SlDetails summary={faq.question}>
-        <SlIcon name="chevron-up" slot="expand-icon" />
-        <SlIcon name="chevron-down" slot="collapse-icon" />
+        {/* @ts-ignore */}
+        <ChevronDownIcon className='w-4 h-4 rotate-0' slot="expand-icon" />
+        {/* @ts-ignore */}
+        <ChevronDownIcon className='w-4 h-4 rotate-180' slot="collapse-icon" />
         {faq.answer}
     </SlDetails>
 );

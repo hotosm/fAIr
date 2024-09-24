@@ -1,13 +1,15 @@
 .link {
     text-decoration: none;
-    color: var(--hot-fair-color-dark);
     font-weight: var(--hot-fair-font-weight-medium);
     text-transform: uppercase;
     font-size: var(--hot-fair-font-size-body-text-2base);
+    text-wrap: nowrap;
+    color: var(--hot-fair-color-primary);
 }
 
-/* md: */
-@media (min-width:768px) {
+
+/* xl: */
+@media (min-width:1280px) {
     .link {
         font-size: var(--hot-fair-font-size-body-text-2);
     }

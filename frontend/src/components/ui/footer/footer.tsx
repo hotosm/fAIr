@@ -6,6 +6,7 @@ import XLogo from '@/assets/socials/x_logo.svg'
 import InstagramLogo from '@/assets/socials/instagram_logo.svg'
 import YoutTubeLogo from '@/assets/socials/youtube_logo.svg'
 import { APP_CONTENT } from '@/utils/content'
+import { Image } from '@/components/ui/image'
 
 
 
@@ -57,7 +58,7 @@ const Footer = () => {
                 <div className='col-span-12 grid grid-cols-8 lg:grid-cols-12 lg:grid-rows-1 gap-x-[40px] gap-y-[40px] lg:gap-y-0'>
                     <div className='col-span-8 lg:col-span-4 flex flex-col gap-y-5'>
                         <div>
-                            <img src={CreativeCommonsBadge} alt='Creative Commons Badge' title='Creative Commons Badge'></img>
+                            <Image src={CreativeCommonsBadge} alt='Creative Commons Badge' title='Creative Commons Badge' />
                         </div>
                         <div className='space-y-5 text-[14px]'>
                             <p>{APP_CONTENT.footer.copyright.firstSegment}</p>
@@ -69,7 +70,7 @@ const Footer = () => {
                             {
                                 socials.map((media, id) =>
                                     <li key={`social-link-${id}`} className='w-7 h-7 flex  items-center justify-center bg-white rounded-full'>
-                                        <img src={media.logo} alt={`${media.name} Icon`} title={`${media.name}`}></img>
+                                        <Image src={media.logo} alt={`${media.name} Icon`} title={`${media.name}`} />
                                     </li>
                                 )
                             }

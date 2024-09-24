@@ -1,0 +1,12 @@
+/*  
+    Customizing the menu item for the logout button in the user profile dropdown. 
+    The 'logoutButton' class is passed from the userprofile component.
+*/
+
+sl-menu-item.logoutButton::part(base) {
+    color: var(--hot-fair-color-primary);
+}
+
+/* sl-menu-item.logoutButton::part(base):hover {
+    color: var(--hot-fair-color-white);
+} */

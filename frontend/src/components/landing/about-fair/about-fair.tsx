@@ -1,6 +1,7 @@
 import AIIcon from '@/assets/fair_ai_icon.svg';
 import styles from './about-fair.module.css'
 import { APP_CONTENT } from '@/utils/content';
+import { Image } from '@/components/ui/image';
 
 const WhatIsFAIR = () => {
     return (
@@ -12,7 +13,7 @@ const WhatIsFAIR = () => {
                 </p>
             </div>
             <div className={styles.imageContainer}>
-                <img src={AIIcon} alt="AI Icon" />
+                <Image src={AIIcon} alt="AI Icon" />
                 <div className={`${styles.dottedBorder}`}></div>
             </div>
         </section>

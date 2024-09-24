@@ -8,6 +8,7 @@ nav {
     justify-content: space-between;
     align-items: center;
     padding: 0 var(--sl-spacing-large);
+
 }
 
 .webNavLinks {
@@ -57,6 +58,9 @@ nav {
 
 .loginButtonContainer {
     grid-column: 3 / 7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .closeButton {
@@ -65,6 +69,28 @@ nav {
 
 /* NavBar styles ends */
 
+/* Profile styles starts */
+
+.profileContainer {
+    display: none;
+}
+
+.userProfile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.userProfileName {
+    font-size: var(--hot-fair-font-size-body-text-2);
+    color: var(--hot-fair-color-dark);
+    text-wrap: nowrap;
+}
+
+
+/* Profile styles ends */
 
 /* Jumbotron styles begins */
 
@@ -157,6 +183,12 @@ nav {
     .jumbotronImage {
         display: none;
     }
+
+    .userProfileName {
+        text-wrap: wrap;
+    }
+
+
 }
 
 /* mdx: */
@@ -170,6 +202,8 @@ nav {
         align-items: center;
         height: 80px;
         padding: 0 var(--hot-fair-spacing-5x-large);
+        gap: var(--sl-spacing-medium);
+
     }
 
     nav ul {
@@ -178,6 +212,7 @@ nav {
         padding: 0;
         display: flex;
         align-items: center;
+
     }
 
     .webNavLinks {
@@ -191,6 +226,11 @@ nav {
 
     .hamburgerMenu {
         display: none
+    }
+
+
+    .profileContainer {
+        display: block;
     }
 
     /* NavBar styles ends */
@@ -235,7 +275,7 @@ nav {
 }
 
 
-/* xl: */
+/* lg: */
 @media (min-width:1280px) {
     .jumbotronContentContainer {
         max-width: 50%;

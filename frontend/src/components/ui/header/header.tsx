@@ -1,5 +1,4 @@
 import { Button } from '@/components/ui/button'
-import NavBar from './navbar'
 import styles from './header.module.css'
 import BackgroundImage from '@/assets/images/header_bg.png'
 import { APP_CONTENT } from '@/utils/content'
@@ -10,7 +9,6 @@ import { Image } from '@/components/ui/image'
 const Header = () => {
   return (
     <header className={styles.headerContainer}>
-      <NavBar />
       <main className={styles.jumbotronContainer}>
         <div className={styles.jumbotronContentContainer}>
           <div className={styles.jumbotronText}>
