@@ -18,7 +18,7 @@ const CookieConsentBanner = () => {
                 <div className="flex flex-col text-center py-4 lg:py-10 text-white gap-y-6 lg:px-4">
                     <h1 className="text-[16px] lg:text-xl font-semibold">{APP_CONTENT.cookieConsentBanner.heading}</h1>
                     <p className="text-sm lg:text-lg">{APP_CONTENT.cookieConsentBanner.paragraph.firstSection}
-                        <Link href={APPLICATION_ROUTES.PRIVACY_POLICY} title="Privacy Policy" className="text-primary !lowercase mx-1">
+                        <Link href={APPLICATION_ROUTES.PRIVACY_POLICY} title="Privacy Policy" className="!text-primary !lowercase mx-1">
                             {APP_CONTENT.cookieConsentBanner.paragraph.privacyPolicy}
                         </Link>.
                         {APP_CONTENT.cookieConsentBanner.paragraph.lastSection}
