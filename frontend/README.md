@@ -108,7 +108,7 @@ See [LICENSE](../LICENSE).
 
 ## Todo
 
-[] fix the fair process styling.
-[] Write unit tests.
-[] setup husky to run pnpm lint before committing.
-[] fix rollup bug with hotosm imports during building.
+- fix the fair process styling.
+- Write unit tests and e2e.
+- setup husky to run pnpm lint before committing.
+- fix rollup bug with hotosm imports during building.
