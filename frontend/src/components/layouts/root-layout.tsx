@@ -14,7 +14,7 @@ const RootLayout = () => {
             <Outlet />
             <div className="fixed bottom-0 z-[10000]">
                 {/* @ts-ignore  */}
-                <hot-tracking site-id={ENVS.MATOMO_ID} domain={ENVS.APP_DOMAIN} force></hot-tracking>
+                <hot-tracking site-id={ENVS.MATOMO_ID} domain={ENVS.MATOMO_APP_DOMAIN} force></hot-tracking>
             </div>
         </main>
     )

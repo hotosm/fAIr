@@ -8,5 +8,6 @@
 @media (min-width: 768px) {
     .fairProcess {
         padding: 100px var(--hot-fair-spacing-5x-large);
+
     }
 }
