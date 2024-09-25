@@ -4,9 +4,6 @@ import { Outlet } from 'react-router-dom';
 import { ENVS } from "@/config/env";
 
 
-import '@hotosm/ui/dist/style.css';
-import '@hotosm/ui/dist/hotosm-ui.js';
-
 const RootLayout = () => {
     return (
         <main className="min-h-screen relative">

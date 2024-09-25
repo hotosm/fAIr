@@ -8,9 +8,6 @@ importers:
 
   .:
     dependencies:
-      '@hotosm/ui':
-        specifier: 0.2.0-b4
-        version: 0.2.0-b4
       '@shoelace-style/shoelace':
         specifier: ^2.16.0
         version: 2.16.0(@types/react@18.3.6)
@@ -372,10 +369,6 @@ packages:
 
   '@floating-ui/utils@0.2.8':
     resolution: {integrity: sha512-kym7SodPp8/wloecOpcmSnWJsK7M0E5Wg8UcFA+uO4B9s5d0ywXOEro/8HM9x0rW+TljRzul/14UYz3TleT3ig==}
-
-  '@hotosm/ui@0.2.0-b4':
-    resolution: {integrity: sha512-dSZSg8I7YgCx01LJKDy7xEt7Frdju0P16hZiXMnhC9YxBZbCq0BFEs075gl1HioemMpdPrZ/cU7RNqs4RzR/kQ==}
-    engines: {node: '>=14.17'}
 
   '@humanwhocodes/module-importer@1.0.1':
     resolution: {integrity: sha512-bxveV4V8v5Yb4ncFTT3rPSgZBOpCkjfK0y4oVVVJwIuDVBRMDXrPyXRL988i5ap9m9bnyEEjWfm5WkBmtffLfA==}
@@ -1966,8 +1959,6 @@ snapshots:
       '@floating-ui/utils': 0.2.8
 
   '@floating-ui/utils@0.2.8': {}
-
-  '@hotosm/ui@0.2.0-b4': {}
 
   '@humanwhocodes/module-importer@1.0.1': {}
 

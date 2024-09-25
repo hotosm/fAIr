@@ -7,11 +7,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "prepare": "cd .. && husky install frontend/.husky"
+    "preview": "vite preview"
   },
   "dependencies": {
-    "@hotosm/ui": "0.2.0-b4",
     "@shoelace-style/shoelace": "^2.16.0",
     "axios": "^1.7.7",
     "clsx": "^2.1.1",

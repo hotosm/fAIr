@@ -106,9 +106,12 @@ Please refer to the [CONTRIBUTING](../CONTRIBUTING.md) guide for more informatio
 See [LICENSE](../LICENSE).
 
 
+## Notes
+
+The **@hotosm/ui** installation directory behavior is not consisitent and failed while deploying. However using the CDN and injecting it in the `index.html` works for now.
+
 ## Todo
 
 - fix the fair process styling.
 - Write unit tests and e2e.
 - setup husky to run pnpm lint before committing.
-- fix rollup bug with hotosm imports during building.
