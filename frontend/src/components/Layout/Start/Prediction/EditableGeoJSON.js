@@ -83,6 +83,7 @@ function getFeatureStyle(feature) {
 
 const EditableGeoJSON = ({
   data,
+  config,
   setPredictions,
   mapref,
   predictionZoomlevel,
@@ -191,6 +192,7 @@ const EditableGeoJSON = ({
         config: {},
         geom: polygon,
         training: trainingId,
+        config: config,
       };
 
       const headers = {

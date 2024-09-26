@@ -572,6 +572,15 @@ const Prediction = () => {
               {predictions && dataset && (
                 <EditableGeoJSON
                   data={predictions}
+                  config={{
+                    confidence: confidence,
+                    tolerance: tolerance,
+                    use_josm_q: use_josm_q,
+                    areaThreshold: areaThreshold,
+                    maxAngleChange: maxAngleChange,
+                    skewTolerance: skewTolerance,
+                    zoomLevel: predictionZoomlevel,
+                  }}
                   setPredictions={setPredictions}
                   modelId={id}
                   trainingId={modelInfo.trainingId}
