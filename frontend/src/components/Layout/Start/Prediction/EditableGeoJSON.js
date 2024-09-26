@@ -67,7 +67,7 @@ function tile2boundingbox(xtile, ytile, zoom) {
 
 function getFeatureStyle(feature) {
   let color = "";
-  if (feature.properties.action === "ACCEPT") {
+  if (feature.properties.action === "FEEDBACK") {
     color = "blue";
   } else if (feature.properties.action === "INITIAL") {
     color = "red";
@@ -95,7 +95,7 @@ const EditableGeoJSON = ({
   modelId,
   trainingId,
   sourceImagery,
-  refestchFeeedback,
+  refetchFeedback,
   onAcceptFeature,
 }) => {
   const onPMCreate = (event) => {
@@ -165,13 +165,49 @@ const EditableGeoJSON = ({
       };
       const res = await axios.post(`/feedback/`, body, { headers });
       console.log("res ", res);
-      refestchFeeedback();
+      refetchFeedback();
     } catch (error) {
       console.log("Error in submitting feedback", error);
     } finally {
     }
   };
   const { mutate: mutateSubmitFeedback } = useMutation(submitFeedback);
+
+  const submitAcceptedPrediction = async (layer) => {
+    const newAOI = {
+      id: Math.random(),
+      latlngs: layer.getLatLngs()[0],
+    };
+    const points = JSON.stringify(
+      converToGeoPolygon([newAOI])[0][0].reduce(
+        (p, c, i) => p + c[1] + " " + c[0] + ",",
+        ""
+      )
+    ).slice(1, -2);
+
+    const polygon = "SRID=4326;POLYGON((" + points + "))";
+    try {
+      const body = {
+        config: {},
+        geom: polygon,
+        training: trainingId,
+      };
+
+      const headers = {
+        "access-token": accessToken,
+      };
+
+      const res = await axios.post(`/approved-prediction/`, body, { headers });
+      console.log("res ", res);
+      refetchFeedback();
+    } catch (error) {
+      console.log("Error in submitting accepted prediction", error);
+    } finally {
+    }
+  };
+  const { mutate: mutatesubmitAcceptedPrediction } = useMutation(
+    submitAcceptedPrediction
+  );
 
   const onEachFeature = (feature, layer) => {
     // layer.on({
@@ -246,8 +282,8 @@ const EditableGeoJSON = ({
       </p>
       <span>Comments:<span/><input type="text" id="comments" name="comments" />
       <br/>
-        <button id="rightButton" class="feedback-button" type="submit">Submit feedback</button>
-        <button id="josmButton" class="feedback-button" type="submit">&#128077; Accept</button>
+        <button id="submitFeedback" class="feedback-button" type="submit">Submit feedback</button>
+        <button id="acceptFeedback" class="feedback-button" type="submit">&#128077; Accept</button>
       </div>
       `;
         const popup = L.popup()
@@ -256,23 +292,25 @@ const EditableGeoJSON = ({
           .openOn(e.target._map);
         const popupElement = popup.getElement();
         popupElement
-          .querySelector("#rightButton")
+          .querySelector("#submitFeedback")
           .addEventListener("click", () => {
-            feature.properties.action = "ACCEPT";
+            feature.properties.action = "FEEDBACK";
             onAcceptFeature(feature);
             console.log("popup layer ", layer);
             // handle submitting feedback
             mutateSubmitFeedback(layer);
+
             popup.close();
           });
 
         popupElement
-          .querySelector("#josmButton")
+          .querySelector("#acceptFeedback")
           .addEventListener("click", () => {
             feature.properties.action = "JOSM";
             // console.log("popup layer ", layer);
             // handle submitting feedback
             // mutateSubmitFeedback(layer);
+            mutatesubmitAcceptedPrediction(layer);
             setRender(Math.random());
             popup.close();
           });

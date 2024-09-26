@@ -240,16 +240,16 @@ const Prediction = () => {
     if (acceptedFeatures.length === 0) {
       return;
     }
-  
+
     const content = JSON.stringify(acceptedFeatures);
     const blob = new Blob([content], { type: "application/json" });
     const url = URL.createObjectURL(blob);
-  
+
     const link = document.createElement("a");
     link.href = url;
     link.download = "accepted_predictions.geojson";
     link.click();
-  
+
     URL.revokeObjectURL(url);
   };
 
@@ -584,7 +584,7 @@ const Prediction = () => {
                   // setModifiedCount={setModifiedCount}
                   // setDeletedCount={setDeletedCount}
                   tileBoundaryLayer={tileBoundaryLayer}
-                  refestchFeeedback={() => {
+                  refetchFeedback={() => {
                     refetchFeedback();
                   }}
                   onAcceptFeature={handleAcceptFeature}
