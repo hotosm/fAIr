@@ -575,11 +575,11 @@ const Prediction = () => {
                   config={{
                     confidence: confidence,
                     tolerance: tolerance,
-                    use_josm_q: use_josm_q,
-                    areaThreshold: areaThreshold,
-                    maxAngleChange: maxAngleChange,
-                    skewTolerance: skewTolerance,
-                    zoomLevel: predictionZoomlevel,
+                    josmq: use_josm_q,
+                    areathreshold: areaThreshold,
+                    maxanglechange: maxAngleChange,
+                    skewtolerance: skewTolerance,
+                    zoomlevel: predictionZoomlevel,
                   }}
                   setPredictions={setPredictions}
                   modelId={id}
