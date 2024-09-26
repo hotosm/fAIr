@@ -2,6 +2,10 @@ import { useLocalStorage, useSessionStorage } from "@/hooks/use-storage";
 import { authService } from "@/services";
 import { apiClient } from "@/services/api-client";
 import { TUser } from "@/types/api";
+import {
+  HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY,
+  HOT_FAIR_SESSION_REDIRECT_KEY,
+} from "@/utils";
 import React, {
   createContext,
   useContext,
@@ -11,23 +15,17 @@ import React, {
 } from "react";
 
 type TAuthContext = {
-  token: string | null;
-  user: TUser;
+  token: string | undefined;
+  user: TUser | null;
   authenticateUser: (state: string, code: string) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
 };
 
-//@ts-ignore
+// @ts-expect-error No need to initialize with empty object, so supressing the warning.
 const AuthContext = createContext<TAuthContext>(null);
 
 export const useAuth = () => useContext(AuthContext);
-
-export const HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY: string =
-  "___hot_fAIr_access_token";
-
-export const HOT_FAIR_SESSION_REDIRECT_KEY: string =
-  "___hot_fAIr_redirect_after_login";
 
 type AuthProviderProps = {
   children: React.ReactNode;
@@ -118,7 +116,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   return (
-    //@ts-ignore
     <AuthContext.Provider
       value={{ token, user, authenticateUser, logout, isAuthenticated }}
     >

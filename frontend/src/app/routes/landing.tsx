@@ -6,7 +6,7 @@ import Corevalues from "@/components/landing/core-values/core-values";
 import CallToAction from "@/components/landing/cta/cta";
 import TheFAIRProcess from "@/components/landing/fair-process/fair-process";
 import FAQs from "@/components/landing/faqs/faqs";
-import KPI from "@/components/landing/kpi/kpi";
+import Kpi from "@/components/landing/kpi/kpi";
 import TaglineBanner from "@/components/landing/tagline/tagline";
 import { Head } from "@/components/seo";
 
@@ -16,7 +16,7 @@ export const LandingPage = () => {
       <Head title="Home" />
       <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr)) max-w-[1800px] mx-auto">
         <Header />
-        <KPI />
+        <Kpi />
         <WhatIsFAIR />
         <TheFAIRProcess />
         <CoreFeatures />

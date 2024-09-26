@@ -8,7 +8,8 @@ const RootLayout = () => {
       <NavBar />
       <Outlet />
       <div className="fixed bottom-0 z-[10000]">
-        {/* @ts-ignore  */}
+        {/* @ts-expect-error 
+         The hot-tracking component from the @hotosm/ui */}
         <hot-tracking
           site-id={ENVS.MATOMO_ID}
           domain={ENVS.MATOMO_APP_DOMAIN}

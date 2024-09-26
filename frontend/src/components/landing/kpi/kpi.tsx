@@ -24,7 +24,7 @@ const KPIs: TKPIS = [
   },
 ];
 
-const KPI = () => {
+const Kpi = () => {
   return (
     <section className={styles.kpiContainer}>
       {KPIs.map((kpi, id) => (
@@ -37,4 +37,4 @@ const KPI = () => {
   );
 };
 
-export default KPI;
+export default Kpi;

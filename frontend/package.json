@@ -12,7 +12,7 @@
     "prepare": "cd .. && husky install frontend/.husky"
   },
   "lint-staged": {
-    "src/**/*.{js,jsx,ts,tsx}": [
+    "**/*.{ts,tsx}": [
       "eslint --fix",
       "prettier --write --ignore-unknown"
     ]

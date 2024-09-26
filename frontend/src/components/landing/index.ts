@@ -1,4 +1,4 @@
-export { default as KPI } from "./kpi/kpi";
+export { default as Kpi } from "./kpi/kpi";
 export { default as WhatIsFAIR } from "./about-fair/about-fair";
 export { default as TheFAIRProcess } from "./fair-process/fair-process";
 export { default as FAQs } from "./faqs/faqs";

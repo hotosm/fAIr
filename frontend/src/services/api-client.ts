@@ -1,6 +1,6 @@
 import Axios, { InternalAxiosRequestConfig } from "axios";
 import { ENVS } from "@/config/env";
-import { HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY } from "@/app/providers/auth-provider";
+import { HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY } from "@/utils";
 
 /**
  * The global axios API client.

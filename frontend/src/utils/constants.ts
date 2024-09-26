@@ -12,3 +12,9 @@ export const APPLICATION_ROUTES = {
   ABOUT: "/about",
   RESOURCES: "/resources",
 };
+
+export const HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY: string =
+  "___hot_fAIr_access_token";
+
+export const HOT_FAIR_SESSION_REDIRECT_KEY: string =
+  "___hot_fAIr_redirect_after_login";

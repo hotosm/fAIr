@@ -49,8 +49,8 @@ const steps: TSteps[] = [
 
 const TheFAIRProcess = () => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const itemRefs: React.RefObject<HTMLDivElement>[] = steps.map(() =>
-    useRef(null),
+  const itemRefs = useRef<Array<React.RefObject<HTMLDivElement>>>(
+    steps.map(() => React.createRef<HTMLDivElement>()),
   );
 
   const [activeIndex, setActiveIndex] = useState<number>(0);
@@ -86,8 +86,8 @@ const TheFAIRProcess = () => {
         delay={activeIndex === 0 ? 2 : 0}
         duration={2}
         containerRef={containerRef}
-        fromRef={itemRefs[activeIndex]}
-        toRef={itemRefs[(activeIndex + 1) % steps.length]}
+        fromRef={itemRefs.current[activeIndex]}
+        toRef={itemRefs.current[(activeIndex + 1) % steps.length]}
       />
     );
   }, [steps.length, activeIndex]);
@@ -106,7 +106,7 @@ const TheFAIRProcess = () => {
           >
             <div
               className={`transition-all p-1 w-[40px] h-[40px] md:w-[68px] md:h-[68px] rounded-full self-start shadow-xl items-center flex justify-center ${activeIndex === id ? "bg-primary" : ""}`}
-              ref={itemRefs[id]}
+              ref={itemRefs.current[id]}
             >
               <step.icon
                 className={`w-8 p-1 h-8 transition-all ${activeIndex !== id ? "text-gray-disabled" : "text-white scale-125"}`}
