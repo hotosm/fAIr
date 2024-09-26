@@ -95,7 +95,7 @@ const EditableGeoJSON = ({
   modelId,
   trainingId,
   sourceImagery,
-  refestchFeeedback,
+  refetchFeedback,
   onAcceptFeature,
 }) => {
   const onPMCreate = (event) => {
@@ -165,13 +165,49 @@ const EditableGeoJSON = ({
       };
       const res = await axios.post(`/feedback/`, body, { headers });
       console.log("res ", res);
-      refestchFeeedback();
+      refetchFeedback();
     } catch (error) {
       console.log("Error in submitting feedback", error);
     } finally {
     }
   };
   const { mutate: mutateSubmitFeedback } = useMutation(submitFeedback);
+  const { mutate: mutatesubmitAcceptedPrediction } = useMutation(
+    submitAcceptedPrediction
+  );
+
+  const submitAcceptedPrediction = async (layer) => {
+    const newAOI = {
+      id: Math.random(),
+      latlngs: layer.getLatLngs()[0],
+    };
+    const points = JSON.stringify(
+      converToGeoPolygon([newAOI])[0][0].reduce(
+        (p, c, i) => p + c[1] + " " + c[0] + ",",
+        ""
+      )
+    ).slice(1, -2);
+
+    const polygon = "SRID=4326;POLYGON((" + points + "))";
+    try {
+      const body = {
+        config: {},
+        geom: polygon,
+        training: trainingId,
+      };
+
+      const headers = {
+        "access-token": accessToken,
+      };
+
+      const res = await axios.post(`/approved-prediction/`, body, { headers });
+      console.log("res ", res);
+      refetchFeedback();
+    } catch (error) {
+      console.log("Error in submitting accepted prediction", error);
+    } finally {
+    }
+  };
 
   const onEachFeature = (feature, layer) => {
     // layer.on({
@@ -263,6 +299,7 @@ const EditableGeoJSON = ({
             console.log("popup layer ", layer);
             // handle submitting feedback
             mutateSubmitFeedback(layer);
+            mutatesubmitAcceptedPrediction(layer);
             popup.close();
           });
 
