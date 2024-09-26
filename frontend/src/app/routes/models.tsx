@@ -1,9 +1,7 @@
-
-
 export const ModelsPage = () => {
-    return (
-        <>
-            <p>models page</p>
-        </>
-    )
-}
+  return (
+    <>
+      <p>models page</p>
+    </>
+  );
+};

@@ -4,7 +4,7 @@
 */
 
 sl-menu-item.logoutButton::part(base) {
-    color: var(--hot-fair-color-primary);
+  color: var(--hot-fair-color-primary);
 }
 
 /* sl-menu-item.logoutButton::part(base):hover {

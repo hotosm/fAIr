@@ -1,56 +1,57 @@
 .coreFeatures {
-    background-color: var(--hot-fair-color-secondary);
-    display: flex;
-    height: auto;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-around;
-    gap: var(--hot-fair-spacing-5x-large);
-    padding: var(--hot-fair-spacing-5x-large) 0;
+  background-color: var(--hot-fair-color-secondary);
+  display: flex;
+  height: auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  gap: var(--hot-fair-spacing-5x-large);
+  padding: var(--hot-fair-spacing-5x-large) 0;
 }
 
 .coreFeatureItem {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: var(--sl-spacing-large);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sl-spacing-large);
 }
 
-
 .coreFeatureIconContainer {
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    padding: var(--sl-spacing-medium);
-    background-color: var(--hot-fair-color-white);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    --tw-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-    --tw-shadow-colored: 0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);
-    box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  padding: var(--sl-spacing-medium);
+  background-color: var(--hot-fair-color-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  --tw-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --tw-shadow-colored: 0 10px 15px -3px var(--tw-shadow-color),
+    0 4px 6px -4px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
+    var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
 
 .coreFeatureIcon {
-    width: 40px;
-    height: 40px;
-    color: var(--hot-fair-color-primary);
+  width: 40px;
+  height: 40px;
+  color: var(--hot-fair-color-primary);
 }
 
 .coreFeatureItem h3 {
-    color: var(--hot-fair-color-dark);
-    font-size: var(--hot-fair-font-size-body-text-2);
-    font-weight: var(--hot-fair-font-weight-semibold);
-    font-family: var(--sl-font-sans);
+  color: var(--hot-fair-color-dark);
+  font-size: var(--hot-fair-font-size-body-text-2);
+  font-weight: var(--hot-fair-font-weight-semibold);
+  font-family: var(--sl-font-sans);
 }
-
 
 /* md: */
 @media (min-width: 768px) {
-    .coreFeatures {
-        flex-direction: row;
-        min-height: 200px;
-        padding: 0 var(--hot-fair-spacing-5x-large);
-    }
+  .coreFeatures {
+    flex-direction: row;
+    min-height: 200px;
+    padding: 0 var(--hot-fair-spacing-5x-large);
+  }
 }

@@ -1,1 +1,1 @@
-export * from './animated-beam'
+export * from "./animated-beam";

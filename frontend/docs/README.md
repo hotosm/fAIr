@@ -10,9 +10,7 @@ We follow the recommendations from Michael Nygard (quoted below) in the folder a
 
 > If a decision is reversed, we will keep the old one around, but mark it as superseded. (It's still relevant to know that it was the decision, but is no longer the decision.)
 
-
 In the `architecture` folder there are subfolders for each decision making. In each subfolders, there are ADRs numbered sequentially. Also the numbers are reflected in the _Title_ when you open the ADR.
-
 
 ## Quick Links
 
@@ -20,7 +18,6 @@ In the `architecture` folder there are subfolders for each decision making. In e
 2. [Styling Library Decision](./architecture/adr-choose-styling-library/adr1.md)
 3. [Web mapping Library Decision](./architecture/adr-choose-webmap-library/adr1.md)
 4. [Drawing Library Decision](./architecture/adr-choose-drawing-library/adr1.md)
-
 
 ## References
 

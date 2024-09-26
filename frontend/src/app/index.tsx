@@ -1,13 +1,10 @@
-
-
-import { HelmetProvider } from 'react-helmet-async'
-import { AuthProvider } from './providers/auth-provider'
-import { AppRouter } from './router'
+import { HelmetProvider } from "react-helmet-async";
+import { AuthProvider } from "@/app/providers/auth-provider";
+import { AppRouter } from "@/app/router";
 import { ErrorBoundary } from "react-error-boundary";
-import { MainErrorFallback } from '@/components/errors'
+import { MainErrorFallback } from "@/components/errors";
 
 export const App = () => {
-
   return (
     <ErrorBoundary FallbackComponent={MainErrorFallback}>
       <HelmetProvider>
@@ -16,5 +13,5 @@ export const App = () => {
         </AuthProvider>
       </HelmetProvider>
     </ErrorBoundary>
-  )
-}
+  );
+};

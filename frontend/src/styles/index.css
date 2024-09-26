@@ -2,8 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-
-
 body {
   font-family: var(--sl-font-sans);
 }
@@ -11,19 +9,17 @@ body {
 :root,
 :host,
 .sl-theme-light {
-
   font-family: var(--sl-font-sans);
   /* color tokens */
 
-  --hot-fair-color-primary: #D63F40;
-  --hot-fair-color-secondary: #FFEDED;
-  --hot-fair-color-dark: #2C3038;
+  --hot-fair-color-primary: #d63f40;
+  --hot-fair-color-secondary: #ffeded;
+  --hot-fair-color-dark: #2c3038;
   --hot-fair-color-gray: #687075;
-  --hot-fair-color-light-gray: #E0E4EB;
-  --hot-fair-color-off-white: #F0EFEF;
+  --hot-fair-color-light-gray: #e0e4eb;
+  --hot-fair-color-off-white: #f0efef;
   --hot-fair-color-white: #fff;
-  --hot-fair-color-gray-disabled: #A6A6A6;
-
+  --hot-fair-color-gray-disabled: #a6a6a6;
 
   /* Font sizes in rem */
   --hot-fair-font-size-large-title: 3rem;

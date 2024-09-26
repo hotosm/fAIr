@@ -1,4 +1,3 @@
-
 # fAIr Frontend
 
 This project is a frontend web application built using **React 19**, **TypeScript**, and **Vite**. The app leverages modern libraries such as **@hotosm/ui**, **Shoelace**, and **Framer Motion** for UI components, and **React Router** for client-side routing.
@@ -29,7 +28,7 @@ cd fAIr/frontend
 pnpm install
 ```
 
-3. Create .env file inside root dir by following .env [sample](./.env.sample). 
+3. Create .env file inside root dir by following .env [sample](./.env.sample).
 
 ```bash
 touch .env
@@ -56,21 +55,21 @@ This will create an optimized build of your app in the dist/ folder, which can b
 Here's an overview of the folder structure:
 
 ```markdown
-├── public/              # Static assets like favicon, robots.txt and manifests.
-├── src/                 # main application codes are here.
-│   ├── app/             # Contains the application routes and providers.
-│   ├── assets/          # Static assets specific to the app (images, icons, etc.).
-│   ├── components/      # Reusable components and layouts.
-│   ├── hook/            # Reusable hooks.
-│   ├── styles/          # Global styles.
-│   ├── utils/           # Utility functions, application content and constants.
-│   ├── config/          # Environment variable configuration object.
-│   ├── services/        # Axios API clients and services.
-│   ├── types/           # Reusable types.
-│   └── main.tsx         # Entry point of the React app.
-├── docs/                # ARD documentation for some of the decisions made for the app.
-└── vercel.json          # To prevent the custom 404 page from Vercel when a route is visited. (This is just for the demo site deployed on Vercel.)
-└── ...                  # Other configuration files like tsconfig.json, vite.config.mts etc.
+├── public/ # Static assets like favicon, robots.txt and manifests.
+├── src/ # main application codes are here.
+│ ├── app/ # Contains the application routes and providers.
+│ ├── assets/ # Static assets specific to the app (images, icons, etc.).
+│ ├── components/ # Reusable components and layouts.
+│ ├── hook/ # Reusable hooks.
+│ ├── styles/ # Global styles.
+│ ├── utils/ # Utility functions, application content and constants.
+│ ├── config/ # Environment variable configuration object.
+│ ├── services/ # Axios API clients and services.
+│ ├── types/ # Reusable types.
+│ └── main.tsx # Entry point of the React app.
+├── docs/ # ARD documentation for some of the decisions made for the app.
+└── vercel.json # To prevent the custom 404 page from Vercel when a route is visited. (This is just for the demo site deployed on Vercel.)
+└── ... # Other configuration files like tsconfig.json, vite.config.mts etc.
 ```
 
 ## Codebase Standards
@@ -91,7 +90,7 @@ This codebase is written in TypeScript.
 
 #### Absolute imports
 
-We use absolute imports (such as `@components`, `@hooks`, etc.), to make it easier to move files around and avoid messy import paths such as `../../../component`. 
+We use absolute imports (such as `@/components`, `@/hooks`, etc.), to make it easier to move files around and avoid messy import paths such as `../../../component`.
 
 #### File naming conventions
 
@@ -105,7 +104,6 @@ Please refer to the [CONTRIBUTING](../CONTRIBUTING.md) guide for more informatio
 
 See [LICENSE](../LICENSE).
 
-
 ## Notes
 
 The **@hotosm/ui** installation directory behavior is not consisitent and failed while deploying. However using the CDN and injecting it in the `index.html` works for now.
@@ -115,3 +113,6 @@ The **@hotosm/ui** installation directory behavior is not consisitent and failed
 - fix the fair process styling.
 - Write unit tests and e2e.
 - setup husky to run pnpm lint before committing.
+- Add 'Under developmemt' to empty pages
+- Fix dropdown issue with the shoelace profile button.
+- Add loading spinner to login button and setup alert components.

@@ -1,4 +1,3 @@
-
 # Architecture Decision Record 1: Use pnpm as the Package Manager
 
 Date: 10/10/2024
@@ -13,13 +12,11 @@ We need a package manager to efficiently manage dependencies for our React appli
 - Support for monorepo structure if needed in the future.
 - Reduced disk space usage by avoiding duplicate packages.
 
-
 ## Considered Options
 
 - Use [npm](https://www.npmjs.com/) as the default package manager.
 - Use [Yarn](https://yarnpkg.com/) for faster installs and better cache management.
 - Use [pnpm](https://pnpm.io/), which offers fast installs and reduced disk space usage.
-
 
 # Decision
 
@@ -32,5 +29,3 @@ Accepted.
 # Consequences
 
 May require some developers to adapt to a different package management workflow if they are unfamiliar with pnpm.
-
-
