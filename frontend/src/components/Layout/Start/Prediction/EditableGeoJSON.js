@@ -67,7 +67,7 @@ function tile2boundingbox(xtile, ytile, zoom) {
 
 function getFeatureStyle(feature) {
   let color = "";
-  if (feature.properties.action === "ACCEPT") {
+  if (feature.properties.action === "FEEDBACK") {
     color = "blue";
   } else if (feature.properties.action === "INITIAL") {
     color = "red";
@@ -172,9 +172,6 @@ const EditableGeoJSON = ({
     }
   };
   const { mutate: mutateSubmitFeedback } = useMutation(submitFeedback);
-  // const { mutate: mutatesubmitAcceptedPrediction } = useMutation(
-  //   submitAcceptedPrediction
-  // );
 
   const submitAcceptedPrediction = async (layer) => {
     const newAOI = {
@@ -208,6 +205,9 @@ const EditableGeoJSON = ({
     } finally {
     }
   };
+  const { mutate: mutatesubmitAcceptedPrediction } = useMutation(
+    submitAcceptedPrediction
+  );
 
   const onEachFeature = (feature, layer) => {
     // layer.on({
@@ -282,8 +282,8 @@ const EditableGeoJSON = ({
       </p>
       <span>Comments:<span/><input type="text" id="comments" name="comments" />
       <br/>
-        <button id="rightButton" class="feedback-button" type="submit">Submit feedback</button>
-        <button id="josmButton" class="feedback-button" type="submit">&#128077; Accept</button>
+        <button id="submitFeedback" class="feedback-button" type="submit">Submit feedback</button>
+        <button id="acceptFeedback" class="feedback-button" type="submit">&#128077; Accept</button>
       </div>
       `;
         const popup = L.popup()
@@ -292,24 +292,25 @@ const EditableGeoJSON = ({
           .openOn(e.target._map);
         const popupElement = popup.getElement();
         popupElement
-          .querySelector("#rightButton")
+          .querySelector("#submitFeedback")
           .addEventListener("click", () => {
-            feature.properties.action = "ACCEPT";
+            feature.properties.action = "FEEDBACK";
             onAcceptFeature(feature);
             console.log("popup layer ", layer);
             // handle submitting feedback
             mutateSubmitFeedback(layer);
-            mutatesubmitAcceptedPrediction(layer);
+
             popup.close();
           });
 
         popupElement
-          .querySelector("#josmButton")
+          .querySelector("#acceptFeedback")
           .addEventListener("click", () => {
             feature.properties.action = "JOSM";
             // console.log("popup layer ", layer);
             // handle submitting feedback
             // mutateSubmitFeedback(layer);
+            mutatesubmitAcceptedPrediction(layer);
             setRender(Math.random());
             popup.close();
           });
