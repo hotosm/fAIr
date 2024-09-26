@@ -172,9 +172,9 @@ const EditableGeoJSON = ({
     }
   };
   const { mutate: mutateSubmitFeedback } = useMutation(submitFeedback);
-  const { mutate: mutatesubmitAcceptedPrediction } = useMutation(
-    submitAcceptedPrediction
-  );
+  // const { mutate: mutatesubmitAcceptedPrediction } = useMutation(
+  //   submitAcceptedPrediction
+  // );
 
   const submitAcceptedPrediction = async (layer) => {
     const newAOI = {
