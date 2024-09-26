@@ -145,3 +145,6 @@ class ApprovedPredictions(models.Model):
         srid=4326
     )  ## Making this geometry field to support point/line prediction later on
     approved_at = models.DateTimeField(auto_now_add=True)
+    approved_by = models.ForeignKey(
+        OsmUser, to_field="osm_id", on_delete=models.CASCADE
+    )
