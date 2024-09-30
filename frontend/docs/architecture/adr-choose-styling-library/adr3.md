@@ -44,7 +44,7 @@ These three offer flexibility, speed of development, and also in tune with futur
 
 # Status
 
-Proposed.
+Approved.
 
 # Consequences
 
