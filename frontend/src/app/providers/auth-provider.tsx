@@ -18,8 +18,8 @@ import React, {
 import { useToast } from "./toast-provider";
 
 type TAuthContext = {
-  token: string | undefined;
-  user: TUser | null;
+  token: string;
+  user: TUser;
   authenticateUser: (state: string, code: string) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
@@ -137,6 +137,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   return (
     <AuthContext.Provider
+      // @ts-expect-error supressing the warning.
       value={{ token, user, authenticateUser, logout, isAuthenticated }}
     >
       {children}

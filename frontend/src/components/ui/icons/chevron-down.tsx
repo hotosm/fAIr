@@ -1,7 +1,12 @@
 import { IconProps } from "@/types";
 import React from "react";
 
-const ChevronDownIcon: React.FC<IconProps> = (props) => (
+
+type ShoelaceSlotProps = {
+  slot?: string;
+}
+
+const ChevronDownIcon: React.FC<ShoelaceSlotProps & IconProps> = (props) => (
   <svg
     viewBox="0 0 16 8"
     fill="none"

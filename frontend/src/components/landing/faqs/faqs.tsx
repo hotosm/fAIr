@@ -10,11 +10,7 @@ type FAQItemProps = {
 
 const FAQItem: React.FC<{ faq: FAQItemProps }> = ({ faq }) => (
   <SlDetails summary={faq.question}>
-    {/*The slot prop is needed by shoelace*/}
-    {/* @ts-ignore e*/}
     <ChevronDownIcon className="w-4 h-4 rotate-0" slot="expand-icon" />
-    {/*The slot prop is needed by shoelace*/}
-    {/* @ts-ignore e*/}
     <ChevronDownIcon className="w-4 h-4 rotate-180" slot="collapse-icon" />
     {faq.answer}
   </SlDetails>
