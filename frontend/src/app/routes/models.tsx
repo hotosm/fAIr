@@ -1,7 +1,10 @@
-import { PageUnderConstruction } from "@/components/errors"
+
+import { ModelsPageSkeleton } from "@/components/models"
 
 export const ModelsPage = () => {
   return (
-      <PageUnderConstruction />
+    <div className="my-10">
+      <ModelsPageSkeleton />
+    </div>
   );
 };

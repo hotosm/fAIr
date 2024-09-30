@@ -1,5 +1,5 @@
 import { Footer } from "@/components/ui/footer";
-import { Header } from "@/components/ui/header";
+import { Header, NavBar } from "@/components/ui/header";
 import WhatIsFAIR from "@/components/landing/about-fair/about-fair";
 import CoreFeatures from "@/components/landing/core-features/core-features";
 import Corevalues from "@/components/landing/core-values/core-values";
@@ -14,18 +14,17 @@ export const LandingPage = () => {
   return (
     <>
       <Head title="Home" />
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr)) max-w-[1800px] mx-auto">
-        <Header />
-        <Kpi />
-        <WhatIsFAIR />
-        <TheFAIRProcess />
-        <CoreFeatures />
-        <Corevalues />
-        <FAQs />
-        <TaglineBanner />
-        <CallToAction />
-        <Footer />
-      </div>
+      <NavBar />
+      <Header />
+      <Kpi />
+      <WhatIsFAIR />
+      <TheFAIRProcess />
+      <CoreFeatures />
+      <Corevalues />
+      <FAQs />
+      <TaglineBanner />
+      <CallToAction />
+      <Footer />
     </>
   );
 };

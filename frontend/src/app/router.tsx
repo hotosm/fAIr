@@ -10,15 +10,15 @@ import { ProtectedPage } from "@/app/routes/protected-route";
 const router = createBrowserRouter([
   {
     path: APPLICATION_ROUTES.HOMEPAGE,
+    lazy: async () => {
+      const { LandingPage } = await import("@/app/routes/landing");
+      return { Component: LandingPage };
+    },
+  },
+  {
     element: <RootLayout />,
     children: [
-      {
-        path: APPLICATION_ROUTES.HOMEPAGE,
-        lazy: async () => {
-          const { LandingPage } = await import("@/app/routes/landing");
-          return { Component: LandingPage };
-        },
-      },
+
       {
         path: APPLICATION_ROUTES.LEARN,
         lazy: async () => {
@@ -53,9 +53,7 @@ const router = createBrowserRouter([
           const { ModelsPage } = await import("@/app/routes/models");
           return {
             Component: () => (
-              <ProtectedPage>
-                <ModelsPage />
-              </ProtectedPage>
+              <ModelsPage />
             ),
           };
         },
