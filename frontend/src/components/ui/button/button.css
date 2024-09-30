@@ -4,7 +4,11 @@ sl-button.button::part(base) {
   border: none;
   font-size: var(--hot-fair-font-size-body-text-3);
   font-weight: var(--hot-fair-font-weight-semibold);
+  display: flex;
+  align-items: center;
+  gap: 3px;
 }
+
 
 sl-button.secondary::part(base) {
   background-color: #fff;

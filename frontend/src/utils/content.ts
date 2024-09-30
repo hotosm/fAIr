@@ -176,4 +176,10 @@ export const APP_CONTENT = {
     title: "Ooops, Something went wrong :(",
     button: "refresh",
   },
+  construction: {
+    message: 'This page is under construction. Please check back.',
+    button: 'Go home'
+  },
+  loginButtonLoading: 'Logging in...',
+
 };

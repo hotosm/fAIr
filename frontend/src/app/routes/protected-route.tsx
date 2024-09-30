@@ -11,7 +11,7 @@ type ProtectedRouteProps = {
 
 export const ProtectedPage: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { isAuthenticated } = useAuth();
-  const handleLogin = useLogin();
+  const {handleLogin,loading} = useLogin();
 
   if (!isAuthenticated) {
     return (
@@ -35,8 +35,9 @@ export const ProtectedPage: React.FC<ProtectedRouteProps> = ({ children }) => {
             variant="primary"
             onClick={handleLogin}
             className="max-w-[300px]"
+            spinner={loading}
           >
-            {APP_CONTENT.protectedPage.ctaButton}
+            {loading ? APP_CONTENT.loginButtonLoading : APP_CONTENT.protectedPage.ctaButton}
           </Button>
         </section>
       </>

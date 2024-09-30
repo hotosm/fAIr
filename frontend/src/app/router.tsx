@@ -20,6 +20,34 @@ const router = createBrowserRouter([
         },
       },
       {
+        path: APPLICATION_ROUTES.LEARN,
+        lazy: async () => {
+          const { LearnPage } = await import("@/app/routes/learn");
+          return { Component: LearnPage };
+        },
+      },
+      {
+        path: APPLICATION_ROUTES.ABOUT,
+        lazy: async () => {
+          const { AboutPage } = await import("@/app/routes/about");
+          return { Component: AboutPage };
+        },
+      },
+      {
+        path: APPLICATION_ROUTES.RESOURCES,
+        lazy: async () => {
+          const { ResourcesPage } = await import("@/app/routes/resources");
+          return { Component: ResourcesPage };
+        },
+      },
+      {
+        path: APPLICATION_ROUTES.TRAINING_DATASETS,
+        lazy: async () => {
+          const {TrainingDatasetsPage } = await import("@/app/routes/training-datasets");
+          return { Component: TrainingDatasetsPage };
+        },
+      },
+      {
         path: APPLICATION_ROUTES.MODELS,
         lazy: async () => {
           const { ModelsPage } = await import("@/app/routes/models");

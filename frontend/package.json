@@ -8,22 +8,15 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "precommit": "lint-staged",
-    "preview": "vite preview",
-    "prepare": "cd .. && husky install frontend/.husky"
-  },
-  "lint-staged": {
-    "**/*.{ts,tsx}": [
-      "eslint --fix",
-      "prettier --write --ignore-unknown"
-    ]
+    "preview": "vite preview"
   },
   "dependencies": {
     "@shoelace-style/shoelace": "^2.16.0",
     "axios": "^1.7.7",
     "clsx": "^2.1.1",
-    "framer-motion": "12.0.0-alpha.0",
-    "react": "19.0.0-rc-a7d1240c-20240731",
-    "react-dom": "19.0.0-rc-a7d1240c-20240731",
+    "framer-motion": "^11.5.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "react-error-boundary": "^4.0.13",
     "react-helmet-async": "^2.0.5",
     "react-router-dom": "^6.26.2",
@@ -41,8 +34,6 @@
     "eslint-plugin-react-hooks": "^5.1.0-rc.0",
     "eslint-plugin-react-refresh": "^0.4.9",
     "globals": "^15.9.0",
-    "husky": "^9.1.6",
-    "lint-staged": "^15.2.10",
     "postcss": "^8.4.47",
     "prettier": "3.3.3",
     "tailwindcss": "^3.4.12",

@@ -1,6 +1,6 @@
 import { PageUnderConstruction } from "@/components/errors"
 
-export const ModelsPage = () => {
+export const LearnPage = () => {
   return (
       <PageUnderConstruction />
   );

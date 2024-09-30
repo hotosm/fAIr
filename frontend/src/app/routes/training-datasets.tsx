@@ -1,10 +1,8 @@
-import { Head } from "@/components/seo";
+import { PageUnderConstruction } from "@/components/errors";
+
 
 export const TrainingDatasetsPage = () => {
   return (
-    <>
-      <Head title="Training Datasets" />
-      Training dataset page
-    </>
+    <PageUnderConstruction />
   );
 };

@@ -96,6 +96,11 @@ We use absolute imports (such as `@/components`, `@/hooks`, etc.), to make it ea
 
 We use the `kebab-case` to name all files. This helps to keep your codebase consistent and easier to navigate.
 
+#### Husky
+
+We use the `husky` to trigger `eslint` and `prettier` configurations when committing code to the repository.
+
+
 ## Contributing
 
 Please refer to the [CONTRIBUTING](../CONTRIBUTING.md) guide for more information.
@@ -112,7 +117,6 @@ The **@hotosm/ui** installation directory behavior is not consisitent and failed
 
 - fix the fair process styling.
 - Write unit tests and e2e.
-- setup husky to run pnpm lint before committing.
-- Add 'Under developmemt' to empty pages
 - Fix dropdown issue with the shoelace profile button.
-- Add loading spinner to login button and setup alert components.
+- and setup alert components properly
+- logging button not changing in navbar
