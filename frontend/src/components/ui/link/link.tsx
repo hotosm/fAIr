@@ -1,4 +1,6 @@
 import styles from "./link.module.css";
+import { Link as ReactRouterLink } from "react-router-dom";
+
 
 type LinkProps = {
   href: string;
@@ -6,6 +8,7 @@ type LinkProps = {
   blank?: boolean;
   children: React.ReactNode;
   className?: string;
+  nativeAnchor?: boolean
 };
 
 const Link: React.FC<LinkProps> = ({
@@ -14,16 +17,24 @@ const Link: React.FC<LinkProps> = ({
   blank = false,
   children,
   className,
+  nativeAnchor = true
 }) => {
   return (
-    <a
-      href={href}
-      title={title}
-      target={blank ? "_blank" : "_self"}
-      className={`${styles.link} ${className}`}
-    >
-      {children}
-    </a>
+    <>
+      {
+        nativeAnchor ? <a
+          href={href}
+          title={title}
+          target={blank ? "_blank" : "_self"}
+          className={`${styles.link} ${className}`}
+        >
+          {children}
+        </a> :
+          <ReactRouterLink to={href} className={`${styles.link} ${className}`} title={title}>
+            {children}
+          </ReactRouterLink>
+      }
+    </>
   );
 };
 
