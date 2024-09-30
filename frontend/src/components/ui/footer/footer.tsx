@@ -51,6 +51,7 @@ const Footer = () => {
                     href={route.route}
                     title={route.title}
                     className="!text-white"
+                    nativeAnchor={false}
                   >
                     {route.title}
                   </Link>
@@ -65,6 +66,7 @@ const Footer = () => {
                     href={route.route}
                     title={route.title}
                     className="!text-white"
+                    nativeAnchor={false}
                   >
                     {route.title}
                   </Link>

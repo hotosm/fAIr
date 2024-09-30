@@ -1,6 +1,8 @@
 // App wide text contents. Extracted outside of components
 // for easier internalization when necessary.
 
+import { APPLICATION_ROUTES } from "./constants";
+
 export const APP_CONTENT = {
   navbar: {
     logoAlt: "HOT fAIr Logo",
@@ -41,21 +43,21 @@ export const APP_CONTENT = {
       groupOne: [
         {
           title: "explore models",
-          route: "#",
+          route: APPLICATION_ROUTES.MODELS,
         },
         {
           title: "learn",
-          route: "#",
+          route: APPLICATION_ROUTES.LEARN,
         },
         {
           title: "about",
-          route: "#",
+          route: APPLICATION_ROUTES.ABOUT,
         },
       ],
       groupTwo: [
         {
           title: "resources",
-          route: "#",
+          route: APPLICATION_ROUTES.RESOURCES,
         },
         {
           title: "privacy policy",

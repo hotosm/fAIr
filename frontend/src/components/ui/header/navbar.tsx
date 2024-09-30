@@ -52,7 +52,7 @@ const NavBar = () => {
       </Drawer>
       <nav className={styles.nav}>
         <div>
-          <Link href="/" title={APP_CONTENT.navbar.logoAlt}>
+          <Link href="/" title={APP_CONTENT.navbar.logoAlt} nativeAnchor={false}>
             <Image
               src={HOTFairLogo}
               alt={APP_CONTENT.navbar.logoAlt}
@@ -129,7 +129,7 @@ const NavBarLinks: React.FC<NavBarLinksProps> = ({ className }) => {
     <ul className={className}>
       {navLinks.map((link, id) => (
         <li key={`navbar-item-${id}`}>
-          <Link href={link.href} title={link.title}>
+          <Link href={link.href} title={link.title} nativeAnchor={false}>
             {link.title}
           </Link>
         </li>
