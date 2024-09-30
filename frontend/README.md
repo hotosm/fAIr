@@ -116,5 +116,5 @@ The **@hotosm/ui** installation directory behavior is not consisitent and failed
 ## Todo
 
 - fix the fair process styling.
-- Write unit tests and e2e.
+- use react router Link 
 
