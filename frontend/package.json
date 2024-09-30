@@ -7,7 +7,6 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "precommit": "lint-staged",
     "preview": "vite preview"
   },
   "dependencies": {

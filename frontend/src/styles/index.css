@@ -95,3 +95,12 @@ sl-alert.success::part(base) {
   border-color: var(--hot-fair-toast-success-color);
 
 }
+
+
+/* Matomo placement */
+
+.hot-matomo {
+  position: fixed;
+  z-index: 10000;
+  bottom: 0;
+}
