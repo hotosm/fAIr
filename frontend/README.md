@@ -1,6 +1,6 @@
 # fAIr Frontend
 
-This project is a frontend web application built using **React 19**, **TypeScript**, and **Vite**. The app leverages modern libraries such as **@hotosm/ui**, **Shoelace**, and **Framer Motion** for UI components, and **React Router** for client-side routing.
+This project is a frontend web application built using **React 18**, **TypeScript**, and **Vite**. The app leverages modern libraries such as **@hotosm/ui**, **Shoelace**, and **Framer Motion** for UI components, and **React Router** for client-side routing.
 
 ## Table of Contents
 
