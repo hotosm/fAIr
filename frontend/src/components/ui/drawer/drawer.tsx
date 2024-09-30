@@ -1,5 +1,5 @@
 import SlDrawer from "@shoelace-style/shoelace/dist/react/drawer/index.js";
-import "./drawer.module.css";
+import "./drawer.css";
 
 type DrawerProps = {
   open: boolean;
