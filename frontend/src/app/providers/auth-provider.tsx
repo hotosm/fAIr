@@ -3,7 +3,9 @@ import { authService } from "@/services";
 import { apiClient } from "@/services/api-client";
 import { TUser } from "@/types/api";
 import {
+  APP_CONTENT,
   HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY,
+  HOT_FAIR_LOGIN_SUCCESSFUL_SESSION_KEY,
   HOT_FAIR_SESSION_REDIRECT_KEY,
 } from "@/utils";
 import React, {
@@ -13,6 +15,7 @@ import React, {
   useEffect,
   useMemo,
 } from "react";
+import { useToast } from "./toast-provider";
 
 type TAuthContext = {
   token: string | undefined;
@@ -33,7 +36,7 @@ type AuthProviderProps = {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const { getValue, setValue, removeValue } = useLocalStorage();
-  const { getValue: getSessionValue, removeValue: removeSessionValue } =
+  const { getValue: getSessionValue, removeValue: removeSessionValue, setValue: setSessionValue } =
     useSessionStorage();
 
   const [token, setToken] = useState<string | undefined>(
@@ -41,6 +44,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   );
   const [user, setUser] = useState<TUser | null>(null);
 
+  const { notify } = useToast()
   // For use across the application.
 
   const isAuthenticated = useMemo(() => {
@@ -61,10 +65,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (redirectTo) {
       // remove it before redirecting.
       removeSessionValue(HOT_FAIR_SESSION_REDIRECT_KEY);
+      // this this is the last stage of the auth, we can assume that the login is successful, then store a reference
+      // in the session storage.
+      setSessionValue(HOT_FAIR_LOGIN_SUCCESSFUL_SESSION_KEY, 'success');
       console.info(redirectTo, "redirecting...");
       window.location.replace(redirectTo);
     }
   };
+
+  //To show the login success after completing redirection if any.
+
+  useEffect(() => {
+    const loginSuccessful = getSessionValue(HOT_FAIR_LOGIN_SUCCESSFUL_SESSION_KEY)
+    if (loginSuccessful == 'success') {
+      notify(APP_CONTENT.toasts.loginSuccess, 'success');
+      removeSessionValue(HOT_FAIR_LOGIN_SUCCESSFUL_SESSION_KEY);
+    }
+  }, [])
+
 
   // Proceed with the oauth flow when the state and code are in the url params.
   useEffect(() => {
@@ -96,6 +114,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setToken(undefined);
     setUser(null);
     removeValue(HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY);
+    notify(APP_CONTENT.toasts.logoutSuccess, 'success')
   };
 
   /**
@@ -111,6 +130,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       fetchUserProfile();
       handleRedirection();
     } catch (error) {
+      notify(APP_CONTENT.toasts.authenticationFailed, 'danger');
       console.error("Authentication failed:", error);
     }
   };

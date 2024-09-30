@@ -41,9 +41,9 @@ const Footer = () => {
       <div className="grid grid-cols-12 grid-rows-2 gap-y-[67px] px-[20px] lg:px-[80px] bg-dark text-white py-[77px]">
         <div className="col-span-12 grid grid-cols-8 lg:grid-cols-12  gap-x-[40px] gap-y-[40px]">
           <div className="col-span-8 lg:col-span-4">
-            <p className="text-[20px]">{APP_CONTENT.footer.title}</p>
+            <p className="text-body-1">{APP_CONTENT.footer.title}</p>
           </div>
-          <div className="col-span-8 uppercase text-[16px] flex  lg:col-start-7 lg:col-span-4  w-full justify-between">
+          <div className="col-span-8 uppercase text-body-2 flex  lg:col-start-7 lg:col-span-4  w-full justify-between">
             <ul className="space-y-4">
               {APP_CONTENT.footer.siteMap.groupOne.map((route, id) => (
                 <li key={`footer-link-${id}`}>
@@ -82,7 +82,7 @@ const Footer = () => {
                 title="Creative Commons Badge"
               />
             </div>
-            <div className="space-y-5 text-[14px]">
+            <div className="space-y-5 text-body-3">
               <p>{APP_CONTENT.footer.copyright.firstSegment}</p>
               <p>{APP_CONTENT.footer.copyright.secondSegment}</p>
             </div>
@@ -104,13 +104,13 @@ const Footer = () => {
                 </li>
               ))}
             </ul>
-            <p className="text-[14px]">{APP_CONTENT.footer.socials.ctaText}</p>
+            <p className="text-body-3">{APP_CONTENT.footer.socials.ctaText}</p>
           </div>
         </div>
       </div>
 
       <div className="flex items-center justify-center bg-white w-full h-[56px]">
-        <p className="text-[14px] text-center space-x-1">
+        <p className="text-body-3 text-center space-x-1">
           <span>{APP_CONTENT.footer.madeWithLove.firstSegment}</span>
           <strong>{APP_CONTENT.footer.madeWithLove.secondSegment}</strong>
           <span>{APP_CONTENT.footer.madeWithLove.thirdSegment}</span>

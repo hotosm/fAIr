@@ -26,7 +26,6 @@ apiClient.interceptors.response.use(
   },
   (error) => {
     // if unauthorized request, simply clear the local storage to log them out.
-    // we can also show an alert here.
     if (!error.response) {
       console.error("Network error");
     }

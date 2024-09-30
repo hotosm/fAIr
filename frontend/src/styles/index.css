@@ -49,3 +49,49 @@ body {
   --hot-fair-spacing-5x-large: 5rem;
   /* 80px */
 }
+
+
+/* Overriding the toast design to match figma design */
+
+sl-alert::part(close-button__base),
+sl-alert::part(close-button__base):hover {
+  color: var(--hot-fair-color-dark);
+  font-size: var(--hot-fair-font-size-title-3);
+}
+
+sl-alert::part(base) {
+  background-color: var(--hot-fair-color-white);
+  font-size: var(--hot-fair-font-size-body-text-2);
+  border: 1.5px solid;
+}
+
+sl-alert.danger::part(base) {
+  color: var(--hot-fair-color-primary);
+  border-color: var(--hot-fair-color-primary);
+}
+
+
+sl-alert.primary::part(base) {
+  --hot-fair-toast-primary-color: #48A7F8;
+  color: var(--hot-fair-toast-primary-color);
+  border-color: var(--hot-fair-toast-primary-color);
+}
+
+sl-alert.neutral::part(base) {
+  color: var(--hot-fair-color-gray);
+  border-color: var(--hot-fair-color-gray);
+}
+
+sl-alert.warning::part(base) {
+  --hot-fair-toast-warning-color: #FFBE0B;
+  color: var(--hot-fair-toast-warning-color);
+  border-color: var(--hot-fair-toast-warning-color);
+
+}
+
+sl-alert.success::part(base) {
+  --hot-fair-toast-success-color: #23C16B;
+  color: var(--hot-fair-toast-success-color);
+  border-color: var(--hot-fair-toast-success-color);
+
+}

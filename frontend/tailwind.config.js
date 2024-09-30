@@ -22,6 +22,7 @@ export default {
         "title-3": "var(--hot-fair-font-size-title-3)",
         "body-1": "var(--hot-fair-font-size-body-text-1)",
         "body-2": "var(--hot-fair-font-size-body-text-2)",
+        "body-2base": "var(--hot-fair-font-size-body-text-2base)",
         "body-3": "var(--hot-fair-font-size-body-text-3)",
       },
       fontWeight: {

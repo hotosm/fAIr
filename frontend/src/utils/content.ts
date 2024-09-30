@@ -181,5 +181,9 @@ export const APP_CONTENT = {
     button: 'Go home'
   },
   loginButtonLoading: 'Logging in...',
-
+  toasts: {
+    authenticationFailed: 'Login failed.',
+    loginSuccess: 'Login successful.',
+    logoutSuccess: 'Logout successful.'
+  }
 };

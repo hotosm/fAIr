@@ -1,9 +1,9 @@
 import { useLocation } from "react-router-dom";
 import { useSessionStorage } from "@/hooks/use-storage";
 import { authService } from "@/services";
-import { HOT_FAIR_SESSION_REDIRECT_KEY } from "@/utils";
+import { APP_CONTENT, HOT_FAIR_SESSION_REDIRECT_KEY } from "@/utils";
 import { useState } from "react";
-import { useAlert } from "@/app/providers/alert-provider";
+import { useToast } from "@/app/providers/toast-provider";
 
 /**
  * This hook is to be used to handle the login button click event. It encapsulate the actions that's necessary to be performed when the login button is clicked.
@@ -14,7 +14,7 @@ export const useLogin = () => {
   const currentPath = location.pathname;
   const { setValue } = useSessionStorage();
   const [loading, setLoading] = useState(false);
-  const { setAlert } = useAlert();
+  const { notify } = useToast();
 
   const handleLogin = async (): Promise<void> => {
     setLoading(true);
@@ -22,8 +22,7 @@ export const useLogin = () => {
     try {
       await authService.initializeOAuthFlow();
     } catch (error) {
-      setAlert("Login failed")
-      console.log(error)
+      notify(APP_CONTENT.toasts.authenticationFailed, 'danger')
     } finally {
       setLoading(false);
     }

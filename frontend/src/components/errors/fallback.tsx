@@ -5,7 +5,7 @@ const MainErrorFallback = () => {
   return (
     <section className="min-h-[80vh] flex flex-col mt-20 items-center justify-around">
       <div>
-        <p className="text-[20px] lg:text-[38px] font-semibold text-dark text-center">
+        <p className="text-body-1 lg:text-title-1 font-semibold text-dark text-center">
           {APP_CONTENT.errorBoundary.title}
         </p>
       </div>

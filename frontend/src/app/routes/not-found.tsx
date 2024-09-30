@@ -19,7 +19,7 @@ export const PageNotFound = () => {
       <Head title="Page Not Found" />
       <section className="min-h-[80vh] flex flex-col mt-20 items-center justify-around lg:justify-center">
         <div>
-          <p className="text-[20px] lg:text-[38px] font-semibold text-dark text-center">
+          <p className="text-body-1 lg:text-title1 font-semibold text-dark text-center">
             {APP_CONTENT.pageNotFound.messages.constant}{" "}
             {modelNotFound
               ? APP_CONTENT.pageNotFound.messages.modelNotFound

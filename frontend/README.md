@@ -117,6 +117,4 @@ The **@hotosm/ui** installation directory behavior is not consisitent and failed
 
 - fix the fair process styling.
 - Write unit tests and e2e.
-- Fix dropdown issue with the shoelace profile button.
-- and setup alert components properly
-- logging button not changing in navbar
+

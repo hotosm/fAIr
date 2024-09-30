@@ -94,7 +94,7 @@ const TheFAIRProcess = () => {
 
   return (
     <section className={styles.fairProcess} ref={containerRef}>
-      <h2 className="text-[28px] lg:text-4xl font-semibold mb-[73px]">
+      <h2 className="text-title-2 lg:text-4xl font-semibold mb-[73px]">
         The fAIr process
       </h2>
       <div className="flex flex-col md:flex-row justify-between items-start gap-y-20 gap-x-[73px] relative">
@@ -115,12 +115,12 @@ const TheFAIRProcess = () => {
 
             <div className="inline-flex flex-col gap-y-4">
               <h3
-                className={`text-[20px] md:text-2xl md:mt-4 font-bold transition-all  ${activeIndex !== id ? "text-gray-disabled" : "text-dark"}`}
+                className={`text-body-1 md:text-2xl md:mt-4 font-bold transition-all  ${activeIndex !== id ? "text-gray-disabled" : "text-dark"}`}
               >
                 {step.title}
               </h3>
               <p
-                className={`text-[16px] md:text-[18px] mt-2 ${activeIndex !== id ? "text-gray" : "text-gray-600 "}`}
+                className={`text-body-2base md:text-body-2 mt-2 ${activeIndex !== id ? "text-gray" : "text-gray-600 "}`}
               >
                 {step.paragraph}
               </p>

@@ -14,8 +14,7 @@ import { useLogin } from "@/hooks/use-login";
 const NavBar = () => {
   const [open, setOpen] = useState(false);
   const { user, logout, isAuthenticated } = useAuth();
-  const {handleLogin,loading} = useLogin();
-  console.log(loading,'navbar');
+  const { handleLogin, loading } = useLogin();
 
   return (
     <>
@@ -45,7 +44,7 @@ const NavBar = () => {
               <UserProfile logout={logout} user={user} />
             ) : (
               <Button variant="primary" onClick={handleLogin} spinner={loading}>
-                {loading ? APP_CONTENT.loginButtonLoading: APP_CONTENT.navbar.loginButton }
+                {loading ? APP_CONTENT.loginButtonLoading : APP_CONTENT.navbar.loginButton}
               </Button>
             )}
           </div>
@@ -75,8 +74,9 @@ const NavBar = () => {
               variant="primary"
               className={styles.loginButton}
               onClick={handleLogin}
+              spinner={loading}
             >
-              {APP_CONTENT.navbar.loginButton}
+              {loading ? APP_CONTENT.loginButtonLoading : APP_CONTENT.navbar.loginButton}
             </Button>
           )}
         </div>

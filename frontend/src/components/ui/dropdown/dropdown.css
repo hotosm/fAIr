@@ -3,10 +3,16 @@
     The 'logoutButton' class is passed from the userprofile component.
 */
 
+
+sl-menu-item::part(base) {
+  color: var(--hot-fair-color-dark);
+  background-color: var(--hot-fair-color-white);
+}
+
+sl-menu-item::part(base):hover {
+  background-color: var(--hot-fair-color-secondary);
+}
+
 sl-menu-item.logoutButton::part(base) {
   color: var(--hot-fair-color-primary);
 }
-
-/* sl-menu-item.logoutButton::part(base):hover {
-    color: var(--hot-fair-color-white);
-} */

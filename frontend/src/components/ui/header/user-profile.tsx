@@ -4,7 +4,7 @@ import SlAvatar from "@shoelace-style/shoelace/dist/react/avatar/index.js";
 import { DropDown } from "@/components/ui/dropdown";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { APP_CONTENT } from "@/utils";
+import { APP_CONTENT, APPLICATION_ROUTES } from "@/utils";
 import ChevronDownIcon from "@/components/ui/icons/chevron-down";
 
 type UserProfileProps = {
@@ -30,11 +30,11 @@ const UserProfile: React.FC<UserProfileProps> = ({ logout, user }) => {
       menuItems={[
         {
           value: APP_CONTENT.navbar.userProfile.projects,
-          onClick: () => navigate("#"),
+          onClick: () => navigate(APPLICATION_ROUTES.ACCOUNT_PROJECTS),
         },
         {
           value: APP_CONTENT.navbar.userProfile.settings,
-          onClick: () => navigate("#"),
+          onClick: () => navigate(APPLICATION_ROUTES.ACCOUNT_SETTINGS),
         },
         {
           value: APP_CONTENT.navbar.userProfile.logout,

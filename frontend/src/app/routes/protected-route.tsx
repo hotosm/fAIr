@@ -11,7 +11,7 @@ type ProtectedRouteProps = {
 
 export const ProtectedPage: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { isAuthenticated } = useAuth();
-  const {handleLogin,loading} = useLogin();
+  const { handleLogin, loading } = useLogin();
 
   if (!isAuthenticated) {
     return (
@@ -23,10 +23,10 @@ export const ProtectedPage: React.FC<ProtectedRouteProps> = ({ children }) => {
               <ShieldIcon className="w-14 h-14" />
             </div>
             <div className="flex flex-col gap-y-10">
-              <h1 className="text-[20px] lg:text-[38px] font-semibold text-dark text-center">
+              <h1 className="text-body-1 lg:text-title-1 font-semibold text-dark text-center">
                 {APP_CONTENT.protectedPage.messageTitle}
               </h1>
-              <p className="text-[16px] lg:text-[18px] text-dark text-center">
+              <p className="text-body-2base lg:text-body2 text-dark text-center">
                 {APP_CONTENT.protectedPage.messageParagraph}
               </p>
             </div>

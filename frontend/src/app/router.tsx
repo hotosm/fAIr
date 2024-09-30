@@ -43,7 +43,7 @@ const router = createBrowserRouter([
       {
         path: APPLICATION_ROUTES.TRAINING_DATASETS,
         lazy: async () => {
-          const {TrainingDatasetsPage } = await import("@/app/routes/training-datasets");
+          const { TrainingDatasetsPage } = await import("@/app/routes/training-datasets");
           return { Component: TrainingDatasetsPage };
         },
       },
@@ -70,6 +70,36 @@ const router = createBrowserRouter([
             Component: () => (
               <ProtectedPage>
                 <TrainingDatasetsPage />
+              </ProtectedPage>
+            ),
+          };
+        },
+      },
+      {
+        path: APPLICATION_ROUTES.ACCOUNT_SETTINGS,
+        lazy: async () => {
+          const { UserAccountSettingsPage } = await import(
+            "@/app/routes/account/settings"
+          );
+          return {
+            Component: () => (
+              <ProtectedPage>
+                <UserAccountSettingsPage />
+              </ProtectedPage>
+            ),
+          };
+        },
+      },
+      {
+        path: APPLICATION_ROUTES.ACCOUNT_PROJECTS,
+        lazy: async () => {
+          const { UserAccountProjectsPage } = await import(
+            "@/app/routes/account/projects"
+          );
+          return {
+            Component: () => (
+              <ProtectedPage>
+                <UserAccountProjectsPage />
               </ProtectedPage>
             ),
           };
