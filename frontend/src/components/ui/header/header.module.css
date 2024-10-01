@@ -189,6 +189,7 @@ nav {
 
 /* mdx: */
 @media (min-width: 960px) {
+
   /* NavBar styles start */
   nav {
     display: flex;

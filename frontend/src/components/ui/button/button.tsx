@@ -9,17 +9,17 @@ type ButtonProps = {
   variant: ButtonVariant;
   className?: string;
   onClick?: () => void;
-  spinner?:boolean
+  spinner?: boolean
 };
 const Button: React.FC<ButtonProps> = ({
   children,
   variant,
   className,
   onClick,
-  spinner=false 
+  spinner = false
 }) => {
-  const spinnerColor = variant === 'primary' ? 'white' :'red';
-  const trackColor = variant === 'primary' ? 'red' :'white';
+  const spinnerColor = variant === 'primary' ? 'white' : 'red';
+  const trackColor = variant === 'primary' ? 'red' : 'white';
 
   return (
     <SlButton
@@ -30,15 +30,15 @@ const Button: React.FC<ButtonProps> = ({
       onClick={onClick}
     >
       {
-       children
-      }   
+        children
+      }
       {
-         spinner && 
-         <Spinner style={{
-           '--indicator-color': trackColor,
-           '--track-color': spinnerColor
-         }}/>
-      }   
+        spinner &&
+        <Spinner style={{
+          '--indicator-color': trackColor,
+          '--track-color': spinnerColor
+        }} />
+      }
     </SlButton>
   );
 };

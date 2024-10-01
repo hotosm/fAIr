@@ -17,17 +17,17 @@ RUN pip install --global-option=build_ext --global-option="-I/usr/include/gdal" 
 COPY docker/ramp/docker-requirements.txt /tmp/docker-requirements.txt
 RUN pip install -r /tmp/docker-requirements.txt
 
-
-RUN pip install --upgrade setuptools
+# RUN pip install --upgrade pip
+# RUN pip install --upgrade setuptools
 COPY requirements.txt /tmp/requirements.txt
 COPY api-requirements.txt /tmp/api-requirements.txt
 
-RUN pip install -r /tmp/requirements.txt
+RUN pip install --use-deprecated=legacy-resolver -r /tmp/requirements.txt 
 
 
 COPY docker/ramp/solaris /tmp/solaris
 RUN pip install /tmp/solaris --use-feature=in-tree-build && \
     pip install scikit-fmm --use-feature=in-tree-build
-    
+
 WORKDIR /app
 COPY . /app

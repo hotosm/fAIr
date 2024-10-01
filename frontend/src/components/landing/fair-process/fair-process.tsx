@@ -16,7 +16,8 @@ import { APP_CONTENT } from "@/utils/content";
  * The delay in seconds before switching to the next step. This can be adjust accordingly.
  * The lower it is, the longer time it takes before the beam animates from the origin node to the destination node.
  */
-const AUTOSCROLL_DELAY: number = 2500;
+const AUTOSCROLL_DELAY: number = 3500;
+
 
 type TSteps = {
   title: string;
@@ -54,7 +55,7 @@ const TheFAIRProcess = () => {
   );
 
   const [activeIndex, setActiveIndex] = useState<number>(0);
-
+  const [showBeam, setShowBeam] = useState<boolean>(false);
   const handleClick = (index: number) => {
     setActiveIndex(index);
   };
@@ -70,7 +71,9 @@ const TheFAIRProcess = () => {
   }, [activeIndex, stepsLength]);
 
   useEffect(() => {
+    setShowBeam(false);
     const interval = setInterval(() => {
+      setShowBeam(true);
       checkDirection();
     }, AUTOSCROLL_DELAY);
     return () => clearInterval(interval);
@@ -78,13 +81,12 @@ const TheFAIRProcess = () => {
 
   const renderAnimatedBeam = useMemo(() => {
     // When it gets to the last item, don't show this beam
-    if (activeIndex + 1 === steps.length) return;
-
+    if (activeIndex + 1 === steps.length && !showBeam) return;
     // when it gets to the first item delay a bit before showing the beam
     return (
       <AnimatedBeam
-        delay={activeIndex === 0 ? 2 : 0}
-        duration={2}
+        delay={3}
+        duration={3.5}
         containerRef={containerRef}
         fromRef={itemRefs.current[activeIndex]}
         toRef={itemRefs.current[(activeIndex + 1) % steps.length]}
@@ -97,38 +99,48 @@ const TheFAIRProcess = () => {
       <h2 className="text-title-2 lg:text-4xl font-semibold mb-[73px]">
         The fAIr process
       </h2>
-      <div className="flex flex-col md:flex-row justify-between items-start gap-y-20 gap-x-[73px] relative">
+      <ol className="flex flex-col md:flex-row justify-between items-start  w-full">
         {steps.map((step, id) => (
-          <div
+          <li
             key={`fair-process-${id}`}
-            className="w-full flex flex-row gap-x-6 md:flex-col gap-y-[34px] cursor-pointer"
+            className="cursor-pointer flex flex-row md:flex-col"
             onClick={() => handleClick(id)}
           >
             <div
-              className={`transition-all p-1 w-[40px] h-[40px] md:w-[68px] md:h-[68px] rounded-full self-start shadow-xl items-center flex justify-center ${activeIndex === id ? "bg-primary" : ""}`}
-              ref={itemRefs.current[id]}
+              className='flex flex-col md:flex-row items-center'
             >
-              <step.icon
-                className={`w-8 p-1 h-8 transition-all ${activeIndex !== id ? "text-gray-disabled" : "text-white scale-125"}`}
-              />
+              <div
+                className={`${activeIndex === id ? "bg-primary" : ""} p-1 z-10 shadow-xl flex items-center justify-center transition-all w-11 h-11 md:w-16 md:h-16 rounded-full`}
+                ref={itemRefs.current[id]}>
+                <step.icon
+                  className={`w-7 h-7 md:w-8 md:h-8 p-1 transition-all ${activeIndex !== id ? "text-gray-disabled" : "text-white scale-125"}`}
+                />
+              </div>
+              {/* Disable for the last timeline on web. */}
+              {
+                id !== steps.length - 1 && <div className='hidden md:inline-flex w-full h-[2px] bg-[#E4E4E4]' style={{ width: `calc(100% - 4rem)` }}></div>
+              }
+              {/* Disable for the last timeline on mobile. */}
+              {
+                id !== steps.length - 1 && <div className='md:hidden inline-flex w-[2px] bg-[#E4E4E4]' style={{ height: `calc(100% - 2.5rem)` }}></div>
+              }
             </div>
 
-            <div className="inline-flex flex-col gap-y-4">
+            <div className="inline-flex flex-col gap-y-4 pe-8 md:mt-[34px] ml-6 md:ml-0">
               <h3
                 className={`text-body-1 md:text-2xl md:mt-4 font-bold transition-all  ${activeIndex !== id ? "text-gray-disabled" : "text-dark"}`}
               >
                 {step.title}
               </h3>
               <p
-                className={`text-body-2base md:text-body-2 mt-2 ${activeIndex !== id ? "text-gray" : "text-gray-600 "}`}
+                className={`text-body-2base md:text-body-2 mb-[68px] md:mb-0 md:mt-2 ${activeIndex !== id ? "text-gray" : "text-gray-600 "}`}
               >
                 {step.paragraph}
               </p>
             </div>
-          </div>
+          </li>
         ))}
-        {/* <span className='absolute left-0 top-8 transform-gpu h-0.5 bg-[#E4E4E4] w-full'></span> */}
-      </div>
+      </ol>
       {renderAnimatedBeam}
     </section>
   );

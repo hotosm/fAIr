@@ -307,6 +307,7 @@ class ApprovedPredictionsViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         training_id = request.data.get("training")
         geom = request.data.get("geom")
+        request.data["approved_by"] = self.request.user.osm_id
 
         existing_approved_feature = ApprovedPredictions.objects.filter(
             training=training_id, geom=geom
