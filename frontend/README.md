@@ -112,7 +112,3 @@ See [LICENSE](../LICENSE).
 ## Notes
 
 The **@hotosm/ui** installation directory behavior is not consisitent and failed while deploying. However using the CDN and injecting it in the `index.html` works for now.
-
-## Todo
-- fix the fair process styling.
-

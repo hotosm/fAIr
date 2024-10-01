@@ -3,8 +3,8 @@
   position: relative;
 }
 
-/* md: */
-@media (min-width: 768px) {
+/* lg: */
+@media (min-width: 1024px) {
   .fairProcess {
     padding: 100px var(--hot-fair-spacing-5x-large);
   }
