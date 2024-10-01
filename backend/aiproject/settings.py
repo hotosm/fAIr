@@ -15,6 +15,7 @@ import logging
 import dj_database_url
 import environ
 from corsheaders.defaults import default_headers
+from socket import gethostbyname, gethostname
 
 env = environ.Env()
 
@@ -36,7 +37,7 @@ EXPORT_TOOL_API_URL = env(
     default="https://api-prod.raw-data.hotosm.org/v1",
 )
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", HOSTNAME]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", HOSTNAME, gethostbyname(gethostname())]
 CORS_ALLOW_HEADERS = list(default_headers) + [
     "access-token",
 ]
