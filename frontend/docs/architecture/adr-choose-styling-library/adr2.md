@@ -39,7 +39,6 @@ We are building the fAIr website that requires a responsive and customizable use
 # Decision
 
 We've chosen to use Shoelace because it meets all our key decision criteria and aligns with the future requirements of [HOT UI](https://github.com/hotosm/ui). This alignment ensures long-term compatibility and simplifies any potential migration to a different framework in the future, if needed.
- 
 # Status
 
 Accepted.

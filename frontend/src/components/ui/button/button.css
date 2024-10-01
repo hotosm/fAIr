@@ -1,29 +1,30 @@
 sl-button.button::part(base) {
-    border-radius: 0 !important;
-    text-transform: uppercase;
-    border: none;
-    font-size: var(--hot-fair-font-size-body-text-3);
-    font-weight: var(--hot-fair-font-weight-semibold);
-
+  border-radius: 0 !important;
+  text-transform: uppercase;
+  border: none;
+  font-size: var(--hot-fair-font-size-body-text-3);
+  font-weight: var(--hot-fair-font-weight-semibold);
+  display: flex;
+  align-items: center;
+  gap: 3px;
 }
 
+
 sl-button.secondary::part(base) {
-    background-color: #fff;
-    color: var(--hot-fair-color-dark);
+  background-color: #fff;
+  color: var(--hot-fair-color-dark);
 }
 
 sl-button.primary::part(base):hover {
-    background-color: #DD5F60;
+  background-color: #dd5f60;
 }
 
 sl-button.secondary::part(base):hover {
-    background-color: #F4F4F4;
-
+  background-color: #f4f4f4;
 }
 
-@media (min-width:600px) {
-
-    sl-button.button::part(base) {
-        font-size: var(--hot-fair-font-size-body-text-2base);
-    }
+@media (min-width: 600px) {
+  sl-button.button::part(base) {
+    font-size: var(--hot-fair-font-size-body-text-2base);
+  }
 }

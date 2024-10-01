@@ -1,12 +1,11 @@
 .fairProcess {
-    padding: 100px var(--sl-spacing-large);
-    position: relative;
+  padding: 100px var(--sl-spacing-large);
+  position: relative;
 }
-
 
 /* md: */
 @media (min-width: 768px) {
-    .fairProcess {
-        padding: 100px var(--hot-fair-spacing-5x-large);
-    }
+  .fairProcess {
+    padding: 100px var(--hot-fair-spacing-5x-large);
+  }
 }

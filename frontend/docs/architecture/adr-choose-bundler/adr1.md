@@ -1,11 +1,10 @@
-
 # Architecture Decision Record 1: Use Vite for Development Bundling and Build Tooling
 
 Date: 10/10/2024
 
 # Context
 
-We need a fast and efficient bundler for our React app development. The chosen tool must support modern  TypeScript features while offering an optimal development experience.
+We need a fast and efficient bundler for our React app development. The chosen tool must support modern TypeScript features while offering an optimal development experience.
 
 ## Decision Drivers
 
@@ -13,12 +12,10 @@ We need a fast and efficient bundler for our React app development. The chosen t
 - Support for TypeScript and modern ES modules.
 - Simple configuration.
 
-
 ## Considered Options
 
 - Use [Webpack](https://webpack.js.org/) for bundling, which is highly configurable but can be slow.
 - Use [Vite](https://vitejs.dev/), which offers faster builds and simpler configuration for modern projects.
-
 
 # Decision
 
@@ -31,5 +28,3 @@ Accepted.
 # Consequences
 
 There may be some minor limitations in terms of plugins compared to Webpack, but Vite’s ecosystem is growing rapidly, and we don't foresee any complex plugin requirements.
-
-

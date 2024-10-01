@@ -19,7 +19,6 @@ We are building the fAIr platform that requires high performance, fast developme
 
 - [Next.js](https://nextjs.org/): Built on top of React, offers server-side rendering and static site generation out of the box, optimized for performance and SEO, familiar to the team.
 
-
 # Decision
 
 We will use React.js as the framework for this project. This decision leverages the team's extensive knowledge of React.js and its established use within HOT. Additionally, React.js offers straightforward deployment options, which potentially aligns well with HOT's current DevOps processes. In contrast, while Next.js provides some advanced features, concerns over potential vendor lock-in with Vercel and the complexity of alternative deployment methods make it less suitable for our needs at this time. React.js ensures a smoother and more efficient deployment process without compromising our flexibility.

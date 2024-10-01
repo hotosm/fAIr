@@ -1,108 +1,194 @@
 /*  HOT theme for Shoelace
     Accessed from: https://github.com/hotosm/ui/blob/main/theme/hot-sl.css
-    Last accessed:  17/09/2024.
+    Last accessed:  24/09/2024.
 */
 
+/* HOT theme for Shoelace */
 
-@import '@shoelace-style/shoelace/dist/themes/light.css';
+@import "@shoelace-style/shoelace/dist/themes/light.css";
 
 :root,
 :host,
 .sl-theme-light {
-  --sl-color-primary-950: #b9302d;
-  --sl-color-primary-900: #b9302d;
-  --sl-color-primary-800: #c93938;
-  --sl-color-primary-700: #d63f3f;
-  --sl-color-primary-600: #e84846;
-  --sl-color-primary-500: #f75047;
-  --sl-color-primary-400: #f15f5e;
-  --sl-color-primary-300: #e67c7e;
-  --sl-color-primary-200: #efa0a2;
-  --sl-color-primary-100: #fed1d7;
-  --sl-color-primary-50: #feecf0;
+  /*
+   * Color primitives
+   */
 
-  --sl-color-danger-950: #5b1018;
-  --sl-color-danger-900: #5b1018;
-  --sl-color-danger-800: #6c2020;
-  --sl-color-danger-700: #7c2e26;
-  --sl-color-danger-600: #8d3a2f;
-  --sl-color-danger-500: #994335;
-  --sl-color-danger-400: #b15e4e;
-  --sl-color-danger-300: #c87968;
-  --sl-color-danger-200: #e69b8c;
-  --sl-color-danger-100: #ffbead;
-  --sl-color-danger-50: #ffdec8;
+  /* red - red */
 
-  --sl-color-neutral-950: #2c3038;
-  --sl-color-neutral-900: #2c3038;
-  --sl-color-neutral-800: #3f444f;
-  --sl-color-neutral-700: #4f5765;
-  --sl-color-neutral-600: #606a7c;
-  --sl-color-neutral-500: #6e798d;
-  --sl-color-neutral-400: #848c9d;
-  --sl-color-neutral-300: #9aa1af;
-  --sl-color-neutral-200: #b7bcc5;
-  --sl-color-neutral-100: #d3d7dc;
-  --sl-color-neutral-50: #eeeef0;
+  --sl-color-red-950: #a52a28;
+  --sl-color-red-900: #b9302d;
+  --sl-color-red-800: #c93938;
+  --sl-color-red-700: #d73f3f;
+  --sl-color-red-600: #e84846;
+  --sl-color-red-500: #f75047;
+  --sl-color-red-400: #f15f5e;
+  --sl-color-red-300: #e67c7e;
+  --sl-color-red-200: #efa0a2;
+  --sl-color-red-100: #fed1d7;
+  --sl-color-red-50: #feecf0;
 
-  --sl-color-success-950: #105950;
-  --sl-color-success-900: #105950;
-  --sl-color-success-800: #15766e;
-  --sl-color-success-700: #17867e;
-  --sl-color-success-600: #1a978f;
-  --sl-color-success-500: #1da49d;
-  --sl-color-success-400: #34b3ad;
-  --sl-color-success-300: #57c1bd;
-  --sl-color-success-200: #87d3d1;
-  --sl-color-success-100: #b7e4e3;
-  --sl-color-success-50: #e2f4f4;
+  /* rose - persian plum */
 
-  --sl-color-warning-950: #ef7e1a;
-  --sl-color-warning-900: #ef7e1a;
-  --sl-color-warning-800: #f4a628;
-  --sl-color-warning-700: #f6bd30;
-  --sl-color-warning-600: #f9d538;
-  --sl-color-warning-500: #f7e53a;
-  --sl-color-warning-400: #faea58;
-  --sl-color-warning-300: #fcef77;
-  --sl-color-warning-200: #fdf39d;
-  --sl-color-warning-100: #fef8c4;
-  --sl-color-warning-50: #fefde7;
+  --sl-color-rose-950: #6c2020;
+  --sl-color-rose-900: #7a3632;
+  --sl-color-rose-800: #864740;
+  --sl-color-rose-700: #92584f;
+  --sl-color-rose-600: #9e6960;
+  --sl-color-rose-500: #ab7b71;
+  --sl-color-rose-400: #b79086;
+  --sl-color-rose-300: #c6a59e;
+  --sl-color-rose-200: #d5bdb7;
+  --sl-color-rose-100: #e3d5cf;
+  --sl-color-rose-50: #f4efed;
 
+  /* yellow - bright yellow */
 
-  /* Spacings */
+  --sl-yellow-950: #faa71e;
+  --sl-yellow-900: #fcb343;
+  --sl-yellow-800: #fdba58;
+  --sl-yellow-700: #fdc26d;
+  --sl-yellow-600: #feca7f;
+  --sl-yellow-500: #fed293;
+  --sl-yellow-400: #ffdaa6;
+  --sl-yellow-300: #ffe2ba;
+  --sl-yellow-200: #ffebcf;
+  --sl-yellow-100: #fff3e3;
+  --sl-yellow-50: #fff9f3;
 
-  --sl-spacing-3x-small: 0.125rem;
-  /* 2px */
-  --sl-spacing-2x-small: 0.25rem;
-  /* 4px */
-  --sl-spacing-x-small: 0.5rem;
-  /* 8px */
-  --sl-spacing-small: 0.75rem;
-  /* 12px */
-  --sl-spacing-medium: 1rem;
-  /* 16px */
-  --sl-spacing-large: 1.25rem;
-  /* 20px */
-  --sl-spacing-x-large: 1.75rem;
-  /* 28px */
-  --sl-spacing-2x-large: 2.25rem;
-  /* 36px */
-  --sl-spacing-3x-large: 3rem;
-  /* 48px */
-  --sl-spacing-4x-large: 4.5rem;
-  /* 72px */
+  /* blue - space cadet */
 
+  --sl-blue-950: #20365b;
+  --sl-blue-900: #374668;
+  --sl-blue-800: #4a5374;
+  --sl-blue-700: #5a607e;
+  --sl-blue-600: #70718d;
+  --sl-blue-500: #82839c;
+  --sl-blue-400: #9595aa;
+  --sl-blue-300: #acacbc;
+  --sl-blue-200: #c1c1cd;
+  --sl-blue-100: #dadadf;
+  --sl-blue-50: #f1eff2;
 
+  /* cyan - cadet blue */
+
+  --sl-blue-950: #259592;
+  --sl-blue-900: #49afac;
+  --sl-blue-800: #57c1be;
+  --sl-blue-700: #7dcfcd;
+  --sl-blue-600: #8cd5d3;
+  --sl-blue-500: #9ddbd9;
+  --sl-blue-400: #b0e2e1;
+  --sl-blue-300: #c4eae9;
+  --sl-blue-200: #d5f0ef;
+  --sl-blue-100: #e6f6f5;
+  --sl-blue-50: #f5fbfb;
+
+  /* cyan - cadet blue */
+
+  --sl-cyan-950: #259592;
+  --sl-cyan-900: #49afac;
+  --sl-cyan-800: #57c1be;
+  --sl-cyan-700: #7dcfcd;
+  --sl-cyan-600: #8cd5d3;
+  --sl-cyan-500: #9ddbd9;
+  --sl-cyan-400: #b0e2e1;
+  --sl-cyan-300: #c4eae9;
+  --sl-cyan-200: #d5f0ef;
+  --sl-cyan-100: #e6f6f5;
+  --sl-cyan-50: #f5fbfb;
+
+  /* gray - dark slate gray */
+
+  --sl-gray-950: #2c3038;
+  --sl-gray-900: #404248;
+  --sl-gray-800: #515057;
+  --sl-gray-700: #615f66;
+  --sl-gray-600: #716f73;
+  --sl-gray-500: #828085;
+  --sl-gray-400: #9a969b;
+  --sl-gray-300: #b3b0b3;
+  --sl-gray-200: #c4c3c5;
+  --sl-gray-100: #e1e0e1;
+  --sl-gray-50: #f3f3f3;
+
+  /* neutral - black & white */
+
+  --sl-neutral-1000: #000;
+  --sl-neutral-0: #fff;
+
+  /*
+   * Color tokens
+   */
+
+  --sl-color-primary-950: var(--sl-color-red-950);
+  --sl-color-primary-900: var(--sl-color-red-900);
+  --sl-color-primary-800: var(--sl-color-red-800);
+  --sl-color-primary-700: var(--sl-color-red-700);
+  --sl-color-primary-600: var(--sl-color-red-600);
+  --sl-color-primary-500: var(--sl-color-red-500);
+  --sl-color-primary-400: var(--sl-color-red-400);
+  --sl-color-primary-300: var(--sl-color-red-300);
+  --sl-color-primary-200: var(--sl-color-red-200);
+  --sl-color-primary-100: var(--sl-color-red-100);
+  --sl-color-primary-50: var(--sl-color-red-50);
+
+  --sl-color-danger-950: var(--sl-color-rose-950);
+  --sl-color-danger-900: var(--sl-color-rose-900);
+  --sl-color-danger-800: var(--sl-color-rose-800);
+  --sl-color-danger-700: var(--sl-color-rose-700);
+  --sl-color-danger-600: var(--sl-color-rose-600);
+  --sl-color-danger-500: var(--sl-color-rose-500);
+  --sl-color-danger-400: var(--sl-color-rose-400);
+  --sl-color-danger-300: var(--sl-color-rose-300);
+  --sl-color-danger-200: var(--sl-color-rose-200);
+  --sl-color-danger-100: var(--sl-color-rose-100);
+  --sl-color-danger-50: var(--sl-color-rose-50);
+
+  --sl-color-neutral-950: var(--sl-color-gray-950);
+  --sl-color-neutral-900: var(--sl-color-gray-900);
+  --sl-color-neutral-800: var(--sl-color-gray-800);
+  --sl-color-neutral-700: var(--sl-color-gray-700);
+  --sl-color-neutral-600: var(--sl-color-gray-600);
+  --sl-color-neutral-500: var(--sl-color-gray-500);
+  --sl-color-neutral-400: var(--sl-color-gray-400);
+  --sl-color-neutral-300: var(--sl-color-gray-300);
+  --sl-color-neutral-200: var(--sl-color-gray-200);
+  --sl-color-neutral-100: var(--sl-color-gray-100);
+  --sl-color-neutral-50: var(--sl-color-gray-50);
+
+  --sl-color-success-950: var(--sl-color-cyan-950);
+  --sl-color-success-900: var(--sl-color-cyan-900);
+  --sl-color-success-800: var(--sl-color-cyan-800);
+  --sl-color-success-700: var(--sl-color-cyan-700);
+  --sl-color-success-600: var(--sl-color-cyan-600);
+  --sl-color-success-500: var(--sl-color-cyan-500);
+  --sl-color-success-400: var(--sl-color-cyan-400);
+  --sl-color-success-300: var(--sl-color-cyan-300);
+  --sl-color-success-200: var(--sl-color-cyan-200);
+  --sl-color-success-100: var(--sl-color-cyan-100);
+  --sl-color-success-50: var(--sl-color-cyan-50);
+
+  --sl-color-warning-950: var(--sl-color-yellow-950);
+  --sl-color-warning-900: var(--sl-color-yellow-900);
+  --sl-color-warning-800: var(--sl-color-yellow-800);
+  --sl-color-warning-700: var(--sl-color-yellow-700);
+  --sl-color-warning-600: var(--sl-color-yellow-600);
+  --sl-color-warning-500: var(--sl-color-yellow-500);
+  --sl-color-warning-400: var(--sl-color-yellow-400);
+  --sl-color-warning-300: var(--sl-color-yellow-300);
+  --sl-color-warning-200: var(--sl-color-yellow-200);
+  --sl-color-warning-100: var(--sl-color-yellow-100);
+  --sl-color-warning-50: var(--sl-color-yellow-50);
 
   /*
    * Typography
    */
 
   /* Fonts */
-  --sl-font-sans: 'Archivo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif,
-    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
-
-
-
+  --sl-font-sans: Archivo, -apple-system, Roboto, Helvetica, Arial, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  --sl-font-sans-variant: "Barlow Condensed";
+  --sl-font-sefif: Georgia, "Times New Roman", serif;
+  --sl-font-mono: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
 }
