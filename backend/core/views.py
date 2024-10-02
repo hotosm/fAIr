@@ -47,6 +47,7 @@ from .models import (
     FeedbackLabel,
     Label,
     Model,
+    OsmUser,
     Training,
 )
 from .serializers import (
@@ -62,6 +63,7 @@ from .serializers import (
     ModelCentroidSerializer,
     ModelSerializer,
     PredictionParamSerializer,
+    UserSerializer,
 )
 from .tasks import train_model
 from .utils import get_dir_size, gpx_generator, process_rawdata, request_rawdata
@@ -263,6 +265,20 @@ class ModelCentroidView(ListAPIView):
     )
     filterset_fields = ["id"]
     search_fields = ["name"]
+
+
+class UsersView(ListAPIView):
+    authentication_classes = [OsmAuthentication]
+    permission_classes = [IsOsmAuthenticated]
+    queryset = OsmUser.objects.all()
+    serializer_class = UserSerializer
+    filter_backends = (
+        # InBBoxFilter,
+        DjangoFilterBackend,
+        filters.SearchFilter,
+    )
+    filterset_fields = ["id"]
+    search_fields = ["username"]
 
 
 class AOIViewSet(viewsets.ModelViewSet):

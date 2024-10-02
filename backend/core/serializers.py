@@ -28,9 +28,27 @@ class DatasetSerializer(
         return super().create(validated_data)
 
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OsmUser
+        fields = [
+            "osm_id",
+            "username",
+            # "is_superuser",
+            # "is_active",
+            # "is_staff",
+            "date_joined",
+            # "email",
+            "img_url",
+            # "user_permissions",
+        ]
+
+
 class ModelSerializer(
     serializers.ModelSerializer
 ):  # serializers are used to translate models objects to api
+    created_by = UserSerializer(read_only=True)
+
     class Meta:
         model = Model
         fields = "__all__"  # defining all the fields to  be included in curd for now , we can restrict few if we want
@@ -333,19 +351,3 @@ class PredictionParamSerializer(serializers.Serializer):
                 data["area_threshold"]
             )
         return data
-
-
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = OsmUser
-        fields = [
-            "osm_id",
-            "username",
-            "is_superuser",
-            "is_active",
-            "is_staff",
-            "date_joined",
-            "email",
-            "img_url",
-            "user_permissions",
-        ]
