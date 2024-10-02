@@ -242,8 +242,13 @@ class ModelViewSet(
         DjangoFilterBackend,
         filters.SearchFilter,
     )
-    serializer_class = ModelSerializer  # connecting serializer
-    filterset_fields = ["status", "created_at", "last_modified", "created_by"]
+    serializer_class = ModelSerializer
+    filterset_fields = {
+        "status": ["exact"],
+        "created_at": ["exact", "gt", "gte", "lt", "lte"],
+        "last_modified": ["exact", "gt", "gte", "lt", "lte"],
+        "created_by": ["exact"],
+    }
     search_fields = ["name"]
 
 
