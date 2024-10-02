@@ -248,6 +248,7 @@ class ModelViewSet(
         "created_at": ["exact", "gt", "gte", "lt", "lte"],
         "last_modified": ["exact", "gt", "gte", "lt", "lte"],
         "created_by": ["exact"],
+        "id": ["exact"],
     }
     search_fields = ["name"]
 
