@@ -1,10 +1,9 @@
 from django.conf import settings
+from login.models import OsmUser
 from rest_framework import serializers
 from rest_framework_gis.serializers import (
     GeoFeatureModelSerializer,  # this will be used if we used to serialize as geojson
 )
-
-from login.models import OsmUser
 
 from .models import *
 
@@ -46,6 +45,26 @@ class ModelSerializer(
         user = self.context["request"].user
         validated_data["created_by"] = user
         return super().create(validated_data)
+
+
+class ModelCentroidSerializer(serializers.ModelSerializer):
+    geometry = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Model
+        fields = ("id", "name", "geometry")
+
+    def get_geometry(self, obj):
+        """
+        Get the centroid of the AOI linked to the dataset of the given model.
+        """
+        aoi = AOI.objects.filter(dataset=obj.dataset).first()
+        if aoi and aoi.geom:
+            return {
+                "type": "Point",
+                "coordinates": aoi.geom.centroid.coords,
+            }
+        return None
 
 
 class AOISerializer(

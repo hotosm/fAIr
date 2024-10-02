@@ -26,17 +26,17 @@ from django.shortcuts import get_object_or_404, redirect
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
 from geojson2osm import geojson2osm
+from login.authentication import OsmAuthentication
+from login.permissions import IsOsmAuthenticated
 from orthogonalizer import othogonalize_poly
 from osmconflator import conflate_geojson
-from rest_framework import decorators, serializers, status, viewsets
+from rest_framework import decorators, filters, serializers, status, viewsets
 from rest_framework.decorators import api_view
 from rest_framework.exceptions import ValidationError
+from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_gis.filters import InBBoxFilter, TMSTileFilter
-
-from login.authentication import OsmAuthentication
-from login.permissions import IsOsmAuthenticated
 
 from .models import (
     AOI,
@@ -59,6 +59,7 @@ from .serializers import (
     FeedbackParamSerializer,
     FeedbackSerializer,
     LabelSerializer,
+    ModelCentroidSerializer,
     ModelSerializer,
     PredictionParamSerializer,
 )
@@ -236,8 +237,26 @@ class ModelViewSet(
     permission_classes = [IsOsmAuthenticated]
     permission_allowed_methods = ["GET"]
     queryset = Model.objects.all()
+    filter_backends = (
+        InBBoxFilter,  # it will take bbox like this api/v1/model/?in_bbox=-90,29,-89,35 ,
+        DjangoFilterBackend,
+        filters.SearchFilter,
+    )
     serializer_class = ModelSerializer  # connecting serializer
-    filterset_fields = ["status"]
+    filterset_fields = ["status", "created_at", "last_modified", "created_by"]
+    search_fields = ["name"]
+
+
+class ModelCentroidView(ListAPIView):
+    queryset = Model.objects.all()
+    serializer_class = ModelCentroidSerializer
+    filter_backends = (
+        # InBBoxFilter,
+        DjangoFilterBackend,
+        filters.SearchFilter,
+    )
+    filterset_fields = ["id"]
+    search_fields = ["name"]
 
 
 class AOIViewSet(viewsets.ModelViewSet):
