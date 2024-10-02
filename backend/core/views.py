@@ -278,7 +278,7 @@ class UsersView(ListAPIView):
         filters.SearchFilter,
     )
     filterset_fields = ["id"]
-    search_fields = ["username"]
+    search_fields = ["username", "id"]
 
 
 class AOIViewSet(viewsets.ModelViewSet):
