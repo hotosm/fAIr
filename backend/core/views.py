@@ -243,6 +243,7 @@ class ModelViewSet(
         InBBoxFilter,  # it will take bbox like this api/v1/model/?in_bbox=-90,29,-89,35 ,
         DjangoFilterBackend,
         filters.SearchFilter,
+        filters.OrderingFilter,
     )
     serializer_class = ModelSerializer
     filterset_fields = {
@@ -252,6 +253,7 @@ class ModelViewSet(
         "created_by": ["exact"],
         "id": ["exact"],
     }
+    ordering_fields = ["created_at", "last_modified", "id", "status"]
     search_fields = ["name"]
 
 
