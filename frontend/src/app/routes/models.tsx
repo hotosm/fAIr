@@ -60,7 +60,11 @@ export const ModelsPage = () => {
 
   useEffect(() => {
     const params: any = {};
-    if (debouncedSearchTerm) params.q = debouncedSearchTerm;
+    if (debouncedSearchTerm) {
+      params.q = debouncedSearchTerm
+      // To reset the offset when a user is searching
+      setOffset(0)
+    };
     if (category) params.category = category;
     if (date) params.date = date;
     if (author) params.author = author;
