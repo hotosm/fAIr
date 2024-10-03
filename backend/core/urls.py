@@ -1,11 +1,12 @@
+from django.conf import settings
 from django.conf.urls import include
 from django.urls import path
 from rest_framework import routers
 
 # now import the views.py file into this code
-from .views import (
+from .views import (  # APIStatus,
     AOIViewSet,
-    # APIStatus,
+    ApprovedPredictionsViewSet,
     ConflateGeojson,
     DatasetViewSet,
     FeedbackAOIViewset,
@@ -16,7 +17,6 @@ from .views import (
     GenerateGpxView,
     LabelViewSet,
     ModelViewSet,
-    PredictionView,
     RawdataApiAOIView,
     RawdataApiFeedbackView,
     TrainingViewSet,
@@ -28,11 +28,15 @@ from .views import (
     run_task_status,
 )
 
+if settings.ENABLE_PREDICTION_API:
+    from .views import PredictionView
+
 # CURD Block
 router = routers.DefaultRouter()
 router.register(r"dataset", DatasetViewSet)
 router.register(r"aoi", AOIViewSet)
 router.register(r"label", LabelViewSet)
+router.register(r"approved-prediction", ApprovedPredictionsViewSet)
 router.register(r"training", TrainingViewSet)
 router.register(r"model", ModelViewSet)
 router.register(r"feedback", FeedbackViewset)
@@ -50,7 +54,6 @@ urlpatterns = [
     # path("download/<int:dataset_id>/", download_training_data),
     path("training/status/<str:run_id>/", run_task_status),
     path("training/publish/<int:training_id>/", publish_training),
-    path("prediction/", PredictionView.as_view()),
     path("feedback/training/submit/", FeedbackView.as_view()),
     # path("status/", APIStatus.as_view()),
     path("geojson2osm/", geojson2osmconverter, name="geojson2osmconverter"),
@@ -65,3 +68,5 @@ urlpatterns = [
     ),
     path("workspace/<path:lookup_dir>/", TrainingWorkspaceView.as_view()),
 ]
+if settings.ENABLE_PREDICTION_API:
+    urlpatterns.append(path("prediction/", PredictionView.as_view()))

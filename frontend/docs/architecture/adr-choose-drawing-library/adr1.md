@@ -26,5 +26,3 @@ Decision will be based on the web mapping library approved.
 Proposed.
 
 # Consequences
-
-

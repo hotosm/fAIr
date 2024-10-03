@@ -2,6 +2,7 @@ from django.contrib.gis.db import models as geomodels
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+
 from login.models import OsmUser
 
 # Create your models here.
@@ -133,3 +134,17 @@ class FeedbackLabel(models.Model):
 
     geom = geomodels.PolygonField(srid=4326)
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class ApprovedPredictions(models.Model):
+    training = models.ForeignKey(Training, to_field="id", on_delete=models.DO_NOTHING)
+    config = models.JSONField(
+        null=True, blank=True
+    )  ### Config meant to be kept for vectorization config / zoom config , to know what user is using for the most of the time
+    geom = geomodels.GeometryField(
+        srid=4326
+    )  ## Making this geometry field to support point/line prediction later on
+    approved_at = models.DateTimeField(auto_now_add=True)
+    approved_by = models.ForeignKey(
+        OsmUser, to_field="osm_id", on_delete=models.CASCADE
+    )

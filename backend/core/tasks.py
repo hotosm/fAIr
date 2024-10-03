@@ -7,8 +7,13 @@ import tarfile
 import traceback
 from shutil import rmtree
 
-
 from celery import shared_task
+from django.conf import settings
+from django.contrib.gis.db.models.aggregates import Extent
+from django.contrib.gis.geos import GEOSGeometry
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
+
 from core.models import AOI, Feedback, FeedbackAOI, FeedbackLabel, Label, Training
 from core.serializers import (
     AOISerializer,
@@ -18,12 +23,6 @@ from core.serializers import (
     LabelFileSerializer,
 )
 from core.utils import bbox, is_dir_empty
-from django.conf import settings
-from django.contrib.gis.db.models.aggregates import Extent
-from django.contrib.gis.geos import GEOSGeometry
-from django.shortcuts import get_object_or_404
-from django.utils import timezone
-from predictor import download_imagery, get_start_end_download_coords
 
 logger = logging.getLogger(__name__)
 
@@ -77,18 +76,24 @@ def train_model(
     source_imagery,
     feedback=None,
     freeze_layers=False,
+    multimasks=False,
+    input_contact_spacing=8,
+    input_boundary_width=3,
 ):
-    #importing them here so that it won't be necessary when sending tasks ( api only)
+    # importing them here so that it won't be necessary when sending tasks ( api only)
     import hot_fair_utilities
     import ramp.utils
     import tensorflow as tf
     from hot_fair_utilities import preprocess, train
     from hot_fair_utilities.training import run_feedback
+    from predictor import download_imagery, get_start_end_download_coords
 
     training_instance = get_object_or_404(Training, id=training_id)
     training_instance.status = "RUNNING"
     training_instance.started_at = timezone.now()
     training_instance.save()
+    if settings.RAMP_HOME is None:
+        raise ValueError("Ramp Home is not configured")
 
     try:
         ## -----------IMAGE DOWNLOADER---------
@@ -199,12 +204,22 @@ def train_model(
             # preprocess
             model_input_image_path = f"{base_path}/input"
             preprocess_output = f"/{base_path}/preprocessed"
+
+            if multimasks:
+                logger.info(
+                    "Using multiple masks for training : background, footprint, boundary, contact"
+                )
+            else:
+                logger.info("Using binary masks for training : background, footprint")
             preprocess(
                 input_path=model_input_image_path,
                 output_path=preprocess_output,
                 rasterize=True,
                 rasterize_options=["binary"],
                 georeference_images=True,
+                multimasks=multimasks,
+                input_contact_spacing=input_contact_spacing,
+                input_boundary_width=input_boundary_width,
             )
             training_instance.chips_length = get_file_count(
                 os.path.join(preprocess_output, "chips")
@@ -227,6 +242,7 @@ def train_model(
                     ),
                     model_home=os.environ["RAMP_HOME"],
                     epoch_size=epochs,
+                    multimasks=multimasks,
                     batch_size=batch_size,
                     freeze_layers=freeze_layers,
                 )
@@ -239,6 +255,7 @@ def train_model(
                     model="ramp",
                     model_home=os.environ["RAMP_HOME"],
                     freeze_layers=freeze_layers,
+                    multimasks=multimasks,
                 )
 
             # copy final model to output

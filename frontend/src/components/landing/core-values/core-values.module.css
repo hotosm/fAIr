@@ -1,0 +1,243 @@
+.coreValues {
+  padding: 0 var(--sl-spacing-large);
+  margin: 152px 0;
+  margin-bottom: 80px;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 70px;
+}
+
+.section {
+  display: flex;
+  align-items: start;
+  flex-direction: column;
+  width: 100%;
+  gap: 30px;
+}
+
+.imageBlock {
+  width: 100%;
+  position: relative;
+}
+
+.textBlock {
+  max-width: 100%;
+  padding-right: 0;
+}
+
+.textBlock h2 {
+  font-size: var(--hot-fair-font-size-title-2);
+  margin-bottom: 20px;
+}
+
+.svgContainer {
+  display: inline-block;
+  position: relative;
+  width: fit-content;
+}
+
+.svgText {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 var(--sl-spacing-x-small);
+  color: var(--hot-fair-color-white);
+  font-size: var(--hot-fair-font-size-body-text-1);
+  text-wrap: nowrap;
+}
+
+.svgIcon {
+  width: 120px;
+  height: auto;
+  display: block;
+  position: relative;
+  z-index: -1;
+}
+
+.sectionTitle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  flex-wrap: wrap;
+  width: 100%;
+  margin: 0 auto;
+  margin-bottom: 97px;
+  padding: var(--sl-spacing-2x-small);
+  gap: var(--sl-spacing-2x-small);
+}
+
+.sectionTitle h1 {
+  font-size: var(--hot-fair-font-size-body-text-1);
+}
+
+.stretch {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.textBlock h2 {
+  font-weight: var(--hot-fair-font-weight-bold);
+  font-size: var(--hot-fair-font-size-title-3);
+  margin-bottom: var(--sl-spacing-large);
+}
+
+.dashedLineWrapper {
+  display: none;
+  position: absolute;
+  width: 950px;
+  right: 50%;
+  transform: translateX(50%);
+  top: 200px;
+  z-index: -10;
+}
+
+/* Image rectangles style begins */
+.primaryRectangle {
+  position: absolute;
+  width: 8px;
+  height: 40%;
+  top: 0;
+  background-color: var(--hot-fair-color-primary);
+}
+
+.rightDirection {
+  right: -8px;
+}
+
+.leftDirection {
+  left: -8px;
+}
+
+.lightGrayRectangle {
+  position: absolute;
+  width: 50%;
+  height: 28px;
+  bottom: -28px;
+  background-color: var(--hot-fair-color-light-gray);
+}
+
+.lightGrayLeft {
+  left: 0;
+}
+
+.lightGrayRight {
+  right: 0;
+}
+
+/* Image rectangles style ends */
+
+/* md: */
+@media (min-width: 768px) {
+  .coreValues {
+    padding: 0 var(--hot-fair-spacing-5x-large);
+    margin-bottom: 200px;
+    /* Adding the height of the rectangle */
+  }
+
+  .svgIcon {
+    width: 170px;
+  }
+
+  .sectionTitle {
+    margin-bottom: 152px;
+  }
+
+  .sectionTitle>*+* {
+    margin-left: 10px;
+  }
+
+  .svgText,
+  .sectionTitle h1 {
+    font-size: var(--hot-fair-font-size-title-2);
+  }
+
+  .container {
+    gap: 84px;
+  }
+
+  .section {
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .community {
+    flex-direction: row-reverse;
+  }
+
+  .humans {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .imageBlock {
+    width: 55%;
+    max-width: 100%;
+  }
+
+  .image {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+
+  .textBlock {
+    max-width: 45%;
+  }
+}
+
+/* : */
+@media (min-width: 1024px) {
+  .textBlock {
+    max-width: 35%;
+    padding-right: 80px;
+  }
+
+  .textBlock h2 {
+    font-size: var(--hot-fair-font-size-title-1);
+    margin-bottom: var(--sl-spacing-3x-large);
+  }
+
+  .primaryRectangle {
+    width: 12px;
+    right: -12px;
+  }
+
+  .lightGrayRectangle {
+    height: 48px;
+    bottom: -48px;
+  }
+
+  .dashedLineWrapper {
+    display: block;
+  }
+
+  .sectionTitle h1 {
+    font-size: var(--hot-fair-font-size-large-title);
+  }
+
+  .svgText {
+    font-size: var(--hot-fair-font-size-large-title);
+  }
+
+  .svgIcon {
+    width: 300px;
+  }
+}
+
+/* lg: */
+@media (min-width: 1280px) {
+  .dashedLineWrapper {
+    top: 320px;
+  }
+}

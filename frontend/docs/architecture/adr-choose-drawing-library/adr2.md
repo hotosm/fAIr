@@ -1,4 +1,4 @@
-# Architecture Decision Record 2: TerraDraw for Drawing Library
+# Architecture Decision Record 2: Use TerraDraw for Drawing Library
 
 Date: 08/09/2024
 
@@ -23,7 +23,7 @@ We’ve chosen TerraDraw as the drawing library for this project. After developi
 
 # Status
 
-Approved.
+Accepted.
 
 # Consequences
 

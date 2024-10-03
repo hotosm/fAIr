@@ -1,0 +1,115 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: var(--sl-font-sans);
+}
+
+:root,
+:host,
+.sl-theme-light {
+  font-family: var(--sl-font-sans);
+  /* color tokens */
+
+  --hot-fair-color-primary: #d63f40;
+  --hot-fair-color-secondary: #ffeded;
+  --hot-fair-color-dark: #2c3038;
+  --hot-fair-color-gray: #687075;
+  --hot-fair-color-light-gray: #e0e4eb;
+  --hot-fair-color-off-white: #f0efef;
+  --hot-fair-color-white: #fff;
+  --hot-fair-color-gray-disabled: #a6a6a6;
+
+  /* Font sizes in rem */
+  --hot-fair-font-size-large-title: 3rem;
+  /* 48px */
+  --hot-fair-font-size-title-1: 2.375rem;
+  /* 38px */
+  --hot-fair-font-size-title-2: 1.75rem;
+  /* 28px */
+  --hot-fair-font-size-title-3: 1.5rem;
+  /* 24px */
+  --hot-fair-font-size-body-text-1: 1.25rem;
+  /* 20px */
+  --hot-fair-font-size-body-text-2: 1.125rem;
+  /* 18px */
+  --hot-fair-font-size-body-text-2base: 1rem;
+  /* 16px  */
+  --hot-fair-font-size-body-text-3: 0.875rem;
+  /* 14px */
+
+  /* Font weights */
+  --hot-fair-font-weight-regular: 400;
+  --hot-fair-font-weight-medium: 500;
+  --hot-fair-font-weight-semibold: 600;
+  --hot-fair-font-weight-bold: 700;
+
+  /* Spacing */
+  --hot-fair-spacing-5x-large: 5rem;
+  /* 80px */
+}
+
+
+/* Overriding the toast design to match figma design */
+
+sl-alert::part(close-button__base),
+sl-alert::part(close-button__base):hover {
+  color: var(--hot-fair-color-dark);
+  font-size: var(--hot-fair-font-size-title-3);
+}
+
+sl-alert::part(base) {
+  background-color: var(--hot-fair-color-white);
+  font-size: var(--hot-fair-font-size-body-text-2);
+  border: 1.5px solid;
+}
+
+sl-alert.danger::part(base) {
+  color: var(--hot-fair-color-primary);
+  border-color: var(--hot-fair-color-primary);
+}
+
+
+sl-alert.primary::part(base) {
+  --hot-fair-toast-primary-color: #48A7F8;
+  color: var(--hot-fair-toast-primary-color);
+  border-color: var(--hot-fair-toast-primary-color);
+}
+
+sl-alert.neutral::part(base) {
+  color: var(--hot-fair-color-gray);
+  border-color: var(--hot-fair-color-gray);
+}
+
+sl-alert.warning::part(base) {
+  --hot-fair-toast-warning-color: #FFBE0B;
+  color: var(--hot-fair-toast-warning-color);
+  border-color: var(--hot-fair-toast-warning-color);
+
+}
+
+sl-alert.success::part(base) {
+  --hot-fair-toast-success-color: #23C16B;
+  color: var(--hot-fair-toast-success-color);
+  border-color: var(--hot-fair-toast-success-color);
+
+}
+
+
+/* Matomo placement */
+
+.hot-matomo {
+  position: fixed;
+  z-index: 10000;
+  bottom: 0;
+}
+
+/* Toast stack placement */
+
+.sl-toast-stack {
+  left: 0;
+  right: auto;
+  top: auto;
+  bottom: 0;
+}

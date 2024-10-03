@@ -1,4 +1,4 @@
-# Architecture Decision Record 1: Maplibre GL for Web Mapping Library
+# Architecture Decision Record 2: Use Maplibre GL for Web Mapping Library
 
 Date: 08/09/2024
 
@@ -28,12 +28,11 @@ We are building a web application that requires rendering medium to large sized 
 
 We have decided to use MapLibre GL as the web mapping library for this project due to its balanced performance, polygon rendering capabilities, and seamless integration with React.js. MapLibre GL's WebGL-based performance makes it well-suited for rendering medium to large polygons, while its size is more moderate compared to alternatives like OpenLayers and Deck.GL. Additionally, since HOT plans to transition all their web mapping projects to MapLibre GL JS, this decision aligns with their future direction.
 
-
 All four options (OpenLayers, Leaflet, MapLibre GL, and Deck.GL) are licensed under very permissive open-source licenses (BSD or MIT) meaning they align with HOT license requirements.
 
 # Status
 
-Approved.
+Accepted.
 
 # Consequences
 

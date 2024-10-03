@@ -63,7 +63,11 @@ class RawDataAPI:
         self.BASE_API_URL = BASE_API_URL
 
     def request_snapshot(self, geometry):
-        headers = {"accept": "application/json", "Content-Type": "application/json"}
+        headers = {
+            "accept": "application/json",
+            "Content-Type": "application/json",
+            "Referer": "fAIr",
+        }
         # Lets start with buildings for now
         payload = {
             "geometry": json.loads(geometry),
@@ -124,9 +128,7 @@ def process_rawdata(file_download_url, aoi_id, feedback=False):
     """This will create temp directory , Downloads file from URL provided,
     Unzips it Finds a geojson file , Process it and finally removes
     processed Geojson file and downloaded zip file from Directory"""
-    headers = {
-        'Referer': 'https://fair-dev.hotosm.org/' # TODO : Use request uri 
-    }
+    headers = {"Referer": "https://fair-dev.hotosm.org/"}  # TODO : Use request uri
     r = requests.get(file_download_url, headers=headers)
     # Check whether the export path exists or not
     path = "temp/"
@@ -250,7 +252,7 @@ def process_geojson(geojson_file_path, aoi_id, feedback=False):
     )  # leave one cpu free always
     if feedback:
         FeedbackLabel.objects.filter(feedback_aoi__id=aoi_id).delete()
-    else : 
+    else:
         Label.objects.filter(aoi__id=aoi_id).delete()
     # max_workers = os.cpu_count()  # get total cpu count available on the
 

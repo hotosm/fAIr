@@ -48,7 +48,6 @@ After considering the options, we will use Tailwind CSS for the following reason
 
 - Size & Performance: Unlike other considered options, Tailwing is smaller and ships less than 10KB to the client.
 
-
 We will use Tailwind CSS's utility classes to build the UI for our project. The development team will use its atomic and modular design system to write efficient and scalable CSS code. We will leverage Tailwind's pre-built templates and visual components to speed up the development process while utilizing custom styles to match the branding and theme of HOT.
 
 # Status
@@ -59,4 +58,3 @@ Proposed.
 
 - New developers onboarding this project may face a slight learning curve.
 - Since most UI elements will be built from scratch, there could be minor development slowdown compared to using component-based frameworks like Material UI or Chakra UI. Although component-based frameworks may also introduce some learning curve and inflexibility.
-

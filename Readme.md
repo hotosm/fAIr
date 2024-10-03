@@ -32,6 +32,7 @@ To eliminate model biases, fAIr is built to work with the local communities and 
 |✅| mapping predictions into OSM using JOSM |
 |⚙️| improvements to the prediction algorithm: adopting YOLOv8 model |
 |⚙️| UI/UX redesign to enhance the user experience |
+|⚙️| fAIr evaluation research with Masaryk University & Missing Maps Czechia and Slovakia, welcome to join the efforts, [here](https://hotosm.slack.com/archives/C0542U7DLA0/p1725445186654019) |
 | | remove overlapping predictions from final output |
 | | improvements to testing suite to improve code resilience going forward |
 | | multi-mask training for better building feature prediction |
@@ -71,4 +72,4 @@ Checkout Docker Installation [docs](./docs/Docker-installation.md)
 ## Get involved!
 
 * Start by reading our [Code of conduct](https://github.com/hotosm/fAIr/blob/master/docs/Code-of-Conduct.md)
-* Get familiar with our [contributor guidelines](https://github.com/hotosm/fAIr/blob/master/docs/Contribution.md) explaining the different ways in which you can support this project! We need your help!
+* Get familiar with our [contributor guidelines](CONTRIBUTING.md) explaining the different ways in which you can support this project! We need your help!
