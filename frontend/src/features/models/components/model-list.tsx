@@ -4,11 +4,11 @@ import { LayoutView } from "@/app/routes/models"
 
 type ModelListProps = {
     models?: TModel[]
-    layout: LayoutView
+    layout?: LayoutView
 }
 
 
-const ModelList: React.FC<ModelListProps> = ({ models, layout }) => {
+const ModelList: React.FC<ModelListProps> = ({ models }) => {
     return (
         <>
             {

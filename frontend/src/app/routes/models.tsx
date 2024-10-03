@@ -43,7 +43,7 @@ export const ModelsPage = () => {
 
   const { data, isPending, error, isPlaceholderData } = useModels({ searchQuery: debouncedSearchTerm, limit: PAGE_LIMIT, offset });
   const { data: mapData, isPending: modelMapDataIsPending, error: modelsMapDataError } = useModelsMapData()
-  console.log(mapData)
+  console.log(mapData, modelMapDataIsPending, modelsMapDataError)
   const handleNextPage = () => {
     if (!isPlaceholderData && data?.hasNext) {
       setOffset((prevOffset) => prevOffset + PAGE_LIMIT);
@@ -254,7 +254,7 @@ const ModelPaginator: React.FC<PaginatorProps> = (
             </div>
             <div className="flex min-w-[216px] items-center justify-between ">
               <p className="text-body-3">
-                <span className="font-semibold ">{offset + 1} - {offset + PAGE_LIMIT < totalLength ? offset + PAGE_LIMIT : totalLength}</span> of {totalLength}
+                <span className="font-semibold ">{offset + 1} - {offset + PAGE_LIMIT < (totalLength ? totalLength : 0) ? offset + PAGE_LIMIT : totalLength}</span> of {totalLength}
               </p>
               <div className="flex items-center gap-x-4 ">
                 <button className="w-4 cursor-pointer" title="Prev" disabled={!hasPrevPage} onClick={handlePreviousPage}>

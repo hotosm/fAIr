@@ -148,9 +148,11 @@ const ModelsMap: React.FC<ModelsMapProps> = ({ mapResults }) => {
         }
 
         /* refill the source on mapResults changes */
-        if (mapInstance !== null && mapInstance.getSource(mapSourceName) !== undefined && someResultsReady) {
-            mapInstance.getSource(mapSourceName)?.setData(mapResults);
-        }
+        // since it's not sure if there'll be a filter, remove this for now.
+        // mapInstance.getSource(mapSourceName)?.setData(mapResults);
+        // if (mapInstance !== null && mapInstance.getSource(mapSourceName) !== undefined && someResultsReady) {
+
+        // }
     }, [mapInstance, mapResults, handleClickOnModelID]);
 
 

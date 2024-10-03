@@ -129,3 +129,4 @@ The **@hotosm/ui** installation directory behavior is not consisitent and failed
 ## Note to Kshitij
 - Don't paginate centroids since it's geoson, there is no way to handle pagination on the map.
  just return a feature collection straight.
+ - Also make it to support filter such as by ID so it can show on the map alone.

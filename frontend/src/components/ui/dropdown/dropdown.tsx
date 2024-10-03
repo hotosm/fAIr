@@ -19,7 +19,7 @@ type DropDownProps = {
   menuItems: DropdownMenuItem[];
   dropdownIsOpened: boolean;
   className?: string,
-  handleMenuSelection: (arg: any) => void
+  handleMenuSelection?: (arg: any) => void
   chevronClassName?: string
   disabled?: boolean
 };
