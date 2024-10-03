@@ -1,6 +1,7 @@
 import SlButton from "@shoelace-style/shoelace/dist/react/button/index.js";
 import "./button.css";
-import { Spinner } from "../spinner";
+import { Spinner } from "@/components/ui/spinner";
+import { AddIcon } from "@/components/ui/icons";
 
 type ButtonVariant = "primary" | "secondary";
 
@@ -9,14 +10,16 @@ type ButtonProps = {
   variant: ButtonVariant;
   className?: string;
   onClick?: () => void;
-  spinner?: boolean
+  spinner?: boolean;
+  create?: boolean
 };
 const Button: React.FC<ButtonProps> = ({
   children,
   variant,
   className,
   onClick,
-  spinner = false
+  spinner = false,
+  create = false
 }) => {
   const spinnerColor = variant === 'primary' ? 'white' : 'red';
   const trackColor = variant === 'primary' ? 'red' : 'white';
@@ -29,16 +32,22 @@ const Button: React.FC<ButtonProps> = ({
       style={{ width: "100%" }}
       onClick={onClick}
     >
-      {
-        children
-      }
-      {
-        spinner &&
-        <Spinner style={{
-          '--indicator-color': trackColor,
-          '--track-color': spinnerColor
-        }} />
-      }
+      <div className="flex items-center gap-x-2">
+        {
+          create &&
+          <AddIcon />
+        }
+        {
+          children
+        }
+        {
+          spinner &&
+          <Spinner style={{
+            '--indicator-color': trackColor,
+            '--track-color': spinnerColor
+          }} />
+        }
+      </div>
     </SlButton>
   );
 };

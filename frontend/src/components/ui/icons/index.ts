@@ -5,3 +5,7 @@ export { default as LoopIcon } from "./loop-icon";
 export { default as GuageIcon } from "./guage-icon";
 export { default as TimerIcon } from "./timer-icon";
 export { default as ShieldIcon } from "./shield-icon";
+export { default as AddIcon } from "./add-icon";
+export { default as SearchIcon } from './search-icon';
+export { default as CategoryIcon } from './category-icon'
+export { default as ListIcon } from './list-icon'

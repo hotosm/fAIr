@@ -1,0 +1,23 @@
+sl-input.customInput::part(base) {
+    margin-left: 8px;
+    border: none;
+    color: #404446;
+    outline: none;
+    box-shadow: none;
+    padding-inline: 0;
+    padding-block: 0;
+}
+
+
+
+sl-input.customInput::part(form-control-input):focus {
+    outline: none;
+    border: none;
+    box-shadow: none;
+}
+
+
+sl-input.customInput::part(input)::placeholder {
+    color: #8A9094;
+    font-size: var(--hot-fair-font-size-body-text-3);
+}

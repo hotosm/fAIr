@@ -6,4 +6,8 @@ export const API_ENDPOINTS = {
   LOGIN: "auth/login/",
   AUTH_CALLBACK: "auth/callback/",
   USER: "auth/me/",
+
+  //Models
+  GET_MODELS: 'model/',
+  GET_MODELS_CENTROIDS: 'models/centroid'
 };

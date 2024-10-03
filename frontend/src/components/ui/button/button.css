@@ -3,7 +3,6 @@ sl-button.button::part(base) {
   text-transform: uppercase;
   border: none;
   font-size: var(--hot-fair-font-size-body-text-3);
-  font-weight: var(--hot-fair-font-weight-semibold);
   display: flex;
   align-items: center;
   gap: 3px;
@@ -23,7 +22,7 @@ sl-button.secondary::part(base):hover {
   background-color: #f4f4f4;
 }
 
-@media (min-width: 600px) {
+@media (min-width: 768px) {
   sl-button.button::part(base) {
     font-size: var(--hot-fair-font-size-body-text-2base);
   }

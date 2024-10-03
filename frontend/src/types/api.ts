@@ -21,3 +21,29 @@ export type TUser = {
   user_permission: [];
   username: string;
 };
+
+export type TModel = {
+  id: number,
+  name: string,
+  created_at: string,
+  last_modified: string,
+  published_training: number,
+  status: number,
+  dataset: number,
+  created_by: {
+    date_joined: string
+    img_url: string
+    osm_id: number
+    username: string
+  }
+}
+
+export type PaginatedModels = {
+  count: number
+  next: string | null
+  previous: string | null
+  results: TModel[]
+  hasNext: boolean
+  hasPrev: boolean
+}
+

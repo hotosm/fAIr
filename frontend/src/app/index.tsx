@@ -6,6 +6,8 @@ import { MainErrorFallback } from "@/components/errors";
 import { ToastProvider } from "@/app/providers/toast-provider";
 import { useEffect } from "react";
 import { ENVS } from "@/config/env";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 export const App = () => {
 
@@ -26,13 +28,16 @@ export const App = () => {
     setupHotTracking();
     return
   }, []);
-
+  const queryClient = new QueryClient();
   return (
     <ErrorBoundary FallbackComponent={MainErrorFallback}>
       <HelmetProvider>
         <ToastProvider>
           <AuthProvider>
-            <AppRouter />
+            <QueryClientProvider client={queryClient}>
+              <ReactQueryDevtools initialIsOpen={false} />
+              <AppRouter />
+            </QueryClientProvider>
           </AuthProvider>
         </ToastProvider>
       </HelmetProvider>

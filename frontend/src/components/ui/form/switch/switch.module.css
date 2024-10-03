@@ -1,0 +1,18 @@
+sl-switch.customSwitch::part(control) {
+    border: none;
+    width: 40px;
+    height: 20px;
+    background-color: var(--hot-fair-color-light-gray);
+
+}
+
+sl-switch.checked::part(control) {
+    background-color: var(--hot-fair-color-primary);
+}
+
+
+sl-switch.customSwitch::part(thumb) {
+    border: none;
+    width: 16px;
+    height: 16px;
+}

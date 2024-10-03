@@ -112,3 +112,20 @@ See [LICENSE](../LICENSE).
 ## Notes
 
 The **@hotosm/ui** installation directory behavior is not consisitent and failed while deploying. However using the CDN and injecting it in the `index.html` works for now.
+
+
+# Todo
+- Table view and skeleton for list view
+- move texts to the content file
+- Error boundary
+- Componentize models page further if some component will be reused
+- revisit model card - clip long titles and descriptions (depends on limit set in form)
+- use tailwind cn where necessary
+- Reorganize things - move some things to config.  Inspiration from TM.
+- move repeating styles to styles.css
+- abstract grid to e.g two-column, three-column etc
+- todo - use tab to indicate active page.
+
+## Note to Kshitij
+- Don't paginate centroids since it's geoson, there is no way to handle pagination on the map.
+ just return a feature collection straight.

@@ -20,7 +20,7 @@ body {
   --hot-fair-color-off-white: #f0efef;
   --hot-fair-color-white: #fff;
   --hot-fair-color-gray-disabled: #a6a6a6;
-
+  --hot-fair-color-gray-border: #E4E4E4;
   /* Font sizes in rem */
   --hot-fair-font-size-large-title: 3rem;
   /* 48px */
