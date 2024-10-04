@@ -21,14 +21,15 @@ RUN pip install -r /tmp/docker-requirements.txt
 COPY requirements.txt requirements.txt
 COPY api-requirements.txt api-requirements.txt
 # Don't use legacy resolver , TODO : fix this dependencies 
-RUN pip install --use-deprecated=legacy-resolver -r api-requirements.txt 
+# RUN pip install --use-deprecated=legacy-resolver -r api-requirements.txt 
 
 RUN pip install setuptools==68.2.2
-RUN pip install build==0.41.3
+RUN pip install wheel==0.41.3
+RUN pip install build==1.0.0
 
-RUN pip install --use-deprecated=legacy-resolver -r requirements.txt 
+RUN pip install  -r requirements.txt 
 
-
+# RUN pip install --use-deprecated=legacy-resolver -r requirements.txt 
 COPY docker/ramp/solaris /tmp/solaris
 RUN pip install /tmp/solaris --use-feature=in-tree-build && \
     pip install scikit-fmm --use-feature=in-tree-build
