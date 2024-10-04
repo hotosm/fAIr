@@ -19,9 +19,10 @@ RUN pip install -r /tmp/docker-requirements.txt
 
 # RUN pip install --upgrade pip
 # RUN pip install --upgrade setuptools
+
 COPY requirements.txt /tmp/requirements.txt
 COPY api-requirements.txt /tmp/api-requirements.txt
-
+# Don't use legacy resolver , TODO : fix this dependencies 
 RUN pip install --use-deprecated=legacy-resolver -r /tmp/requirements.txt 
 
 
