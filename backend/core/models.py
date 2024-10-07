@@ -56,6 +56,7 @@ class Model(models.Model):
     name = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now=True)
+    description = models.TextField(max_length=500, null=True, blank=True)
     created_by = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
     published_training = models.PositiveIntegerField(null=True, blank=True)
     status = models.IntegerField(default=-1, choices=ModelStatus.choices)  #
