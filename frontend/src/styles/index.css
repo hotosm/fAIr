@@ -113,3 +113,13 @@ sl-alert.success::part(base) {
   top: auto;
   bottom: 0;
 }
+
+/* Models page */
+
+.two-columns {
+  @apply col-span-1 2xl:col-span-2 grid grid-cols-1 xl:grid-cols-2
+}
+
+.three-columns {
+  @apply col-span-1 2xl:col-span-2 grid grid-cols-1 xl:grid-cols-2
+}

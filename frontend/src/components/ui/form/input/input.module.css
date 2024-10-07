@@ -21,3 +21,9 @@ sl-input.customInput::part(input)::placeholder {
     color: #8A9094;
     font-size: var(--hot-fair-font-size-body-text-3);
 }
+
+.customInput::part(clear-button) {
+    background-color: var(--hot-fair-color-white);
+    color: #404446;
+    font-size: 20px;
+}

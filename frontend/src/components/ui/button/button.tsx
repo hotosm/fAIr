@@ -3,7 +3,7 @@ import "./button.css";
 import { Spinner } from "@/components/ui/spinner";
 import { AddIcon } from "@/components/ui/icons";
 
-type ButtonVariant = "primary" | "secondary";
+type ButtonVariant = "primary" | "secondary" | 'tertiary';
 
 type ButtonProps = {
   children: React.ReactNode;
@@ -12,6 +12,7 @@ type ButtonProps = {
   onClick?: () => void;
   spinner?: boolean;
   create?: boolean
+  size?: 'large' | 'medium' | 'small'
 };
 const Button: React.FC<ButtonProps> = ({
   children,
@@ -19,7 +20,8 @@ const Button: React.FC<ButtonProps> = ({
   className,
   onClick,
   spinner = false,
-  create = false
+  create = false,
+  size = 'large'
 }) => {
   const spinnerColor = variant === 'primary' ? 'white' : 'red';
   const trackColor = variant === 'primary' ? 'red' : 'white';
@@ -27,7 +29,7 @@ const Button: React.FC<ButtonProps> = ({
   return (
     <SlButton
       variant="primary"
-      size="large"
+      size={size}
       className={`button ${variant} ${className}`}
       style={{ width: "100%" }}
       onClick={onClick}

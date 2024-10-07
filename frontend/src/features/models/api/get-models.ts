@@ -7,8 +7,10 @@ import { PaginatedModels } from '@/types/api';
 export const getModels = async (
     limit: number,
     offset: number,
+    orderBy: string,
     status?: number,
     searchQuery?: string,
+
 ): Promise<PaginatedModels> => {
     const res = (
         await apiClient.get(API_ENDPOINTS.GET_MODELS, {
@@ -16,7 +18,8 @@ export const getModels = async (
                 status,
                 limit,
                 search: searchQuery,
-                offset
+                offset,
+                ordering: orderBy
             },
         })
     ).data
@@ -43,14 +46,15 @@ type TMmodelQuerysOptions = {
     id?: number
     limit: number
     offset: number
+    orderBy: string
 
 }
 export const getModelsQueryOptions = ({
-    status, searchQuery, limit, offset
+    status, searchQuery, limit, offset, orderBy
 }: TMmodelQuerysOptions) => {
     return queryOptions({
-        queryKey: ['models', { status, searchQuery, offset }],
-        queryFn: () => getModels(limit, offset, status, searchQuery),
+        queryKey: ['models', { status, searchQuery, offset, orderBy }],
+        queryFn: () => getModels(limit, offset, orderBy, status, searchQuery,),
         placeholderData: keepPreviousData
 
     });
@@ -63,12 +67,13 @@ type useModelsOptions = {
     searchQuery?: string
     date?: string
     offset: number
+    orderBy: string
 
 }
 
-export const useModels = ({ limit, offset, status = 0, searchQuery = '', }: useModelsOptions) => {
+export const useModels = ({ limit, offset, status = 0, orderBy, searchQuery = '', }: useModelsOptions) => {
     return useQuery({
-        ...getModelsQueryOptions({ status, offset, searchQuery, limit })
+        ...getModelsQueryOptions({ status, offset, orderBy, searchQuery, limit })
     })
 }
 

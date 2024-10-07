@@ -14,6 +14,7 @@ const ModelList: React.FC<ModelListProps> = ({ models }) => {
             {
                 models?.map((model, id) => <ModelCard key={`model-${id}`} model={model} />)
             }
+            {/* Tabular View */}
         </>
     )
 }

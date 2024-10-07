@@ -19,9 +19,10 @@ const ModelCard: React.FC<ModelCardProps> = ({ model }) => {
                     <p className="font-medium text-body-1 text-black">{model.name}</p>
                     <p className="text-gray text-body-2">ID: <span>{model.id}</span></p>
                 </div>
-                {/* desription */}
+                {/* accuracy */}
                 <div>
-                    <p className="text-gray text-body-3">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.</p>
+                    <p className="text-gray text-body-3">Accuracy:</p>
+                    <p className="text-dark font-semibold text-body-2">{model.accuracy ?? 0}</p>
                 </div>
                 {/* Name and date */}
                 <div className="inline-flex flex-col gap-y-2">

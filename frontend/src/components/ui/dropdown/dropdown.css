@@ -10,9 +10,31 @@ sl-menu-item::part(base) {
 }
 
 sl-menu-item::part(base):hover {
-  background-color: var(--hot-fair-color-secondary);
+  background-color: #F5F5F5;
 }
 
 sl-menu-item.logoutButton::part(base) {
   color: var(--hot-fair-color-primary);
+}
+
+
+sl-menu-item.small::part(base) {
+  font-size: var(--hot-fair-font-size-body-text-3);
+}
+
+
+/* Checkbox customization */
+
+sl-checkbox::part(control) {
+  background-color: white;
+  color: var(--hot-fair-color-dark);
+  border: 2px solid var(--hot-fair-color-dark);
+  border-radius: 3px;
+}
+
+
+sl-checkbox::part(checked-icon) {
+  background-color: var(--hot-fair-color-dark);
+  width: 6px;
+  height: 6px;
 }

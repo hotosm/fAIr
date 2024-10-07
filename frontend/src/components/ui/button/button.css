@@ -6,12 +6,20 @@ sl-button.button::part(base) {
   display: flex;
   align-items: center;
   gap: 3px;
+
 }
 
 
 sl-button.secondary::part(base) {
   background-color: #fff;
   color: var(--hot-fair-color-dark);
+}
+
+sl-button.tertiary::part(base) {
+  background-color: #404446;
+  color: var(--hot-fair-color-white);
+  text-transform: none;
+  opacity: 0.7;
 }
 
 sl-button.primary::part(base):hover {

@@ -2,14 +2,21 @@ import { MAP_STYLE } from '@/config';
 import maplibregl, { Map, } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import mapMarker from '@/assets/images/mapMarker.png';
 
 const mapSourceName = 'models'
 const licensedFonts = ['Open Sans Semibold'];
 
-// Inspired by:https://github.com/hotosm/tasking-manager/blob/develop/frontend/src/components/projects/projectsMap
+let markerIcon = new Image(17, 20);
+markerIcon.src = mapMarker;
+
+// Inspired by:https://github.com/hotosm/tasking-manager/blob/develop/frontend/src/components/projects/projectsMap.js
 
 
 export const maplibreLayerDefn = (map: Map, mapResults: any, handleClickOnModelID: (clickedId: string) => void, disablePoiClick = false) => {
+    //@ts-expect-error
+    map.addImage('mapMarker', markerIcon, { width: 15, height: 15, data: markerIcon });
+
 
     map.addSource(mapSourceName, {
         type: 'geojson',
@@ -48,11 +55,13 @@ export const maplibreLayerDefn = (map: Map, mapResults: any, handleClickOnModelI
     });
 
     map.addLayer({
-        id: 'projects-unclustered-points',
+        id: 'models-unclustered-points',
         type: 'symbol',
         source: mapSourceName,
         filter: ['!', ['has', 'point_count']],
         layout: {
+            'icon-image': 'mapMarker',
+            'text-field': '#{id}',
             'text-font': licensedFonts,
             'text-offset': [0, 0.6],
             'text-anchor': 'top',
@@ -75,8 +84,7 @@ export const maplibreLayerDefn = (map: Map, mapResults: any, handleClickOnModelI
     });
 
     map.on('click', 'models-unclustered-points', (e: any) => {
-        console.log(e.features)
-        const value = e.features && e.features[0].properties && e.features[0].properties.projectId;
+        const value = e.features && e.features[0].properties && e.features[0].properties.id;
         handleClickOnModelID(value);
     });
 };
@@ -116,7 +124,9 @@ const ModelsMap: React.FC<ModelsMapProps> = ({ mapResults }) => {
                 // @ts-ignore
                 style: MAP_STYLE,
                 center: [0, 0],
-                zoom: 0.5
+                zoom: 0.5,
+                minZoom: 1,
+                maxZoom: 20
             })
         )
         return () => {

@@ -36,6 +36,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ logout, user }) => {
           className: "logoutButton",
         },
       ]}
+      placement="bottom-end"
     >
       <div className={styles.userProfile} >
         <SlAvatar

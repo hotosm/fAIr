@@ -21,6 +21,67 @@ export enum LayoutView {
 }
 
 const PAGE_LIMIT = 20;
+// Category
+
+const categoryFilters: DropdownMenuItem[] = [
+  {
+    value: 'Buildings',
+    disabled: true // the endpoint does not support filtering by categories for now, so we'll default to this
+  },
+  {
+    value: 'Roads',
+    disabled: true
+  },
+  {
+    value: 'Rivers',
+    disabled: true
+  },
+  {
+    value: 'Forest',
+    disabled: true
+  },
+  {
+    value: 'All',
+    disabled: true
+  }
+]
+
+
+const ORDERING_FIELDS: DropdownMenuItem[] = [
+  {
+    value: 'Oldest Created',
+    apiValue: 'created_at',
+
+  },
+  {
+    value: 'Newest Created',
+    apiValue: '-created_at',
+
+  },
+  {
+    value: 'Oldest Updated',
+    apiValue: 'last_modified',
+
+  },
+  {
+    value: 'Newest Updated',
+    apiValue: '-last_modified',
+
+  },
+]
+
+
+// todo - will it be a date picker?
+const dateFilters: DropdownMenuItem[] = [
+  {
+    value: '2024/10/24',
+  },
+  {
+    value: '2025/10/23',
+  }
+]
+
+
 
 export const ModelsPage = () => {
 
@@ -29,19 +90,17 @@ export const ModelsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [offset, setOffset] = useState<number>(Number(searchParams.get('offset')) || 0);
   const [searchQuery, setSearchQuery] = useState<string>(searchParams.get('q') || '');
-  const [category, setCategory] = useState<string>(searchParams.get('category') || '');
   const [date, setDate] = useState<string>(searchParams.get('date') || '');
-  const [author, setAuthor] = useState<string>(searchParams.get('author') || '');
+  const [orderingField, setOrderingField] = useState<string>(searchParams.get('orderBy') || ORDERING_FIELDS[0].apiValue as string);
   const [mapview, setMapview] = useState<boolean>(searchParams.get('map') === 'true');
   const [layoutView, setLayoutView] = useState<LayoutView>(
     //default to grid
     searchParams.get('view') === 'list' ? LayoutView.LIST : LayoutView.GRID
   );
 
-
   const debouncedSearchTerm = useDebounce(searchQuery, 300);
 
-  const { data, isPending, error, isPlaceholderData } = useModels({ searchQuery: debouncedSearchTerm, limit: PAGE_LIMIT, offset });
+  const { data, isPending, error, isPlaceholderData } = useModels({ searchQuery: debouncedSearchTerm, limit: PAGE_LIMIT, offset, orderBy: orderingField });
   const { data: mapData, isPending: modelMapDataIsPending, error: modelsMapDataError } = useModelsMapData()
   console.log(mapData, modelMapDataIsPending, modelsMapDataError)
   const handleNextPage = () => {
@@ -65,31 +124,15 @@ export const ModelsPage = () => {
       // To reset the offset when a user is searching
       setOffset(0)
     };
-    if (category) params.category = category;
     if (date) params.date = date;
-    if (author) params.author = author;
     if (offset > 0) params.offset = String(offset);
+    params.orderBy = orderingField
     params.map = mapview ? 'true' : 'false';
     params.view = layoutView === LayoutView.GRID ? 'grid' : 'list';
     setSearchParams(params);
-  }, [offset, debouncedSearchTerm, category, date, author, mapview, layoutView]);
+  }, [offset, orderingField, debouncedSearchTerm, date, mapview, layoutView]);
 
 
-  // Category
-
-  const categoryFilters: DropdownMenuItem[] = [
-    {
-      value: 'Category1',
-    },
-    {
-      value: 'Category2',
-    }
-  ]
-
-  function handleCategorySelection(event: any) {
-    const selectedItem: DropdownMenuItem = event.detail.item;
-    setCategory(selectedItem.value)
-  }
   const {
     dropdownIsOpened: categoryDropdownMenuIsOpened,
     onDropdownHide: onCategoryDropdownMenuHide,
@@ -97,17 +140,6 @@ export const ModelsPage = () => {
   } = useDropdownMenu();
 
   // Date 
-
-  // todo - will it be a date picker?
-  const dateFilters: DropdownMenuItem[] = [
-    {
-      value: '2024/10/24',
-    },
-    {
-      value: '2025/10/23',
-    }
-  ]
-
   function handleDateSelection(event: any) {
     const selectedItem: DropdownMenuItem = event.detail.item;
     setDate(selectedItem.value)
@@ -118,24 +150,15 @@ export const ModelsPage = () => {
     onDropdownShow: onDateDropdownMenuShow
   } = useDropdownMenu();
 
-  // Author
-  const authorFilters: DropdownMenuItem[] = [
-    {
-      value: 'Author 1',
-    },
-    {
-      value: 'Author 2',
-    }
-  ]
+  // Sort
+  const handleOrderingSelection = (selectedItem: string) => {
+    setOrderingField(ORDERING_FIELDS.find(v => v.value === selectedItem)?.apiValue as string)
+  };
 
-  function handleAuthorSelection(event: any) {
-    const selectedItem: DropdownMenuItem = event.detail.item;
-    setAuthor(selectedItem.value)
-  }
   const {
-    dropdownIsOpened: authorDropdownMenuIsOpened,
-    onDropdownHide: onAuthorDropdownMenuHide,
-    onDropdownShow: onAuthorDropdownMenuShow
+    dropdownIsOpened: sortDropdownMenuIsOpened,
+    onDropdownHide: onSortDropdownMenuHide,
+    onDropdownShow: onSortDropdownMenuShow
   } = useDropdownMenu();
 
   // Search
@@ -148,7 +171,11 @@ export const ModelsPage = () => {
     setLayoutView(layoutView === LayoutView.GRID ? LayoutView.LIST : LayoutView.GRID)
   }
 
-  // create the key using the filters
+  const clearFilters = () => {
+    setSearchQuery('')
+    setDate('')
+  }
+
 
   // handle error notification ? - handle here or from the query hook?
   if (error) {
@@ -173,24 +200,18 @@ export const ModelsPage = () => {
         onDateDropdownMenuShow={onDateDropdownMenuShow}
         dateFilters={dateFilters}
         handleDateSelection={handleDateSelection}
-        author={author}
-        authorFilters={authorFilters}
-        handleAuthorSelection={handleAuthorSelection}
-        onAuthorDropdownMenuShow={onAuthorDropdownMenuShow}
-        onAuthorDropdownMenuHide={onAuthorDropdownMenuHide}
-        authorDropdownMenuIsOpened={authorDropdownMenuIsOpened}
-        category={category}
-        handleCategorySelection={handleCategorySelection}
         onCategoryDropdownMenuHide={onCategoryDropdownMenuHide}
         onCategoryDropdownMenuShow={onCategoryDropdownMenuShow}
         categoryFilters={categoryFilters}
         categoryDropdownMenuIsOpened={categoryDropdownMenuIsOpened}
         layoutView={layoutView}
         handleLayoutView={handleLayoutView}
+        clearFilters={clearFilters}
       />
 
-      {/* Paginator */}
-      <ModelPaginator totalLength={data?.count}
+      {/* Paginator and Sort */}
+      {/* Todo - when in mapview, this will be disabled, use infinite scrolling for the cards/table  */}
+      <ModelPaginatorAndSort totalLength={data?.count}
         parameter="models"
         isPending={isPending}
         hasNextPage={data?.hasNext}
@@ -199,6 +220,12 @@ export const ModelsPage = () => {
         handlePreviousPage={handlePreviousPage}
         offset={offset}
         isPlaceholderData={isPlaceholderData}
+        handleOrderingSelection={handleOrderingSelection}
+        sortDropdownMenuIsOpened={sortDropdownMenuIsOpened}
+        onSortDropdownMenuHide={onSortDropdownMenuHide}
+        onSortDropdownMenuShow={onSortDropdownMenuShow}
+        orderingField={orderingField}
+
       />
 
       <div className={`${!mapview && '2xl:grid-cols-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-x-[28px] gap-y-[69.73px]'}`}>
@@ -206,12 +233,15 @@ export const ModelsPage = () => {
           isPending ?
             <ModelsPageSkeleton layout={layoutView} /> :
             mapview ?
-              <div className="w-full grid md:grid-cols-4 2xl:grid-cols-5 border rounded-md p-2 border-gray-border gap-x-2">
-                <div className="col-span-1 2xl:col-span-2 grid grid-cols-1 xl:grid-cols-2 gap-x-[28px] gap-y-[52.73px] overflow-scroll max-h-[500px]">
-                  {/* Filtered model result will be here. So column span will change to accommodate it. */}
+              <div className="w-full grid md:grid-cols-4 2xl:grid-cols-5 border rounded-md p-2 border-gray-border gap-x-2 mt-10">
+                <div className="col-span-1 md:col-span-2  grid grid-cols-1 xl:grid-cols-2 gap-x-[28px] gap-y-[52.73px] overflow-scroll h-[500px]">
+                  {/* Filtered model result will be here. So column span will change to accommodate it.
+                  Todo - handle skeleton when mapview is activated
+                  Todo - add margin to skeleton for pagination . margin top
+                   */}
                   <ModelList models={data?.results} layout={layoutView} />
                 </div>
-                <div className="col-span-2 2xl:col-span-3 max-h-[500px]">
+                <div className="col-span-2 md:col-span-2 2xl:col-span-3 h-[500px]">
                   <ModelsMap mapResults={mapData} />
                 </div>
               </div> :
@@ -221,6 +251,8 @@ export const ModelsPage = () => {
     </section>
   );
 };
+
+
 
 
 type PaginatorProps = {
@@ -233,8 +265,13 @@ type PaginatorProps = {
   handleNextPage: () => void
   handlePreviousPage: () => void
   isPlaceholderData: boolean
+  handleOrderingSelection: (selectedItem: string) => void
+  sortDropdownMenuIsOpened: boolean
+  onSortDropdownMenuHide: () => void
+  onSortDropdownMenuShow: () => void
+  orderingField: string
 }
-const ModelPaginator: React.FC<PaginatorProps> = (
+const ModelPaginatorAndSort: React.FC<PaginatorProps> = (
   { handleNextPage,
     handlePreviousPage,
     offset,
@@ -242,7 +279,12 @@ const ModelPaginator: React.FC<PaginatorProps> = (
     totalLength,
     parameter,
     hasNextPage,
-    hasPrevPage, isPlaceholderData
+    hasPrevPage,
+    isPlaceholderData,
+    handleOrderingSelection,
+    sortDropdownMenuIsOpened,
+    onSortDropdownMenuHide,
+    onSortDropdownMenuShow, orderingField
   }
 ) => {
 
@@ -256,17 +298,37 @@ const ModelPaginator: React.FC<PaginatorProps> = (
             <div>
               <p className="font-semibold text-body-3">{totalLength} {parameter}</p>
             </div>
-            <div className="flex min-w-[216px] items-center justify-between ">
-              <p className="text-body-3">
-                <span className="font-semibold ">{offset + 1} - {offset + PAGE_LIMIT < (totalLength ? totalLength : 0) ? offset + PAGE_LIMIT : totalLength}</span> of {totalLength}
-              </p>
-              <div className="flex items-center gap-x-4 ">
-                <button className="w-4 cursor-pointer" title="Prev" disabled={!hasPrevPage} onClick={handlePreviousPage}>
-                  <ChevronDownIcon className={`rotate-90  ${hasPrevPage ? 'text-dark' : 'text-light-gray'}`} />
-                </button>
-                <button className="w-4 cursor-pointer" title="Next" disabled={!hasNextPage || isPlaceholderData} onClick={handleNextPage}>
-                  <ChevronDownIcon className={`-rotate-90  ${hasNextPage ? 'text-dark' : 'text-light-gray'}`} />
-                </button>
+            <div className="flex items-center gap-x-9">
+              {/* Sort */}
+              <div>
+                <DropDown
+                  menuItems={ORDERING_FIELDS}
+                  dropdownIsOpened={sortDropdownMenuIsOpened}
+                  onDropdownHide={onSortDropdownMenuHide}
+                  onDropdownShow={onSortDropdownMenuShow}
+                  handleMenuSelection={handleOrderingSelection}
+                  chevronClassName="text-[#404446]"
+                  disabled={isPending}
+                  withCheckbox
+                  defaultSelectedItem={ORDERING_FIELDS.find(v => v.apiValue === orderingField)?.value}
+                >
+                  <p className="text-sm text-[#404446] text-nowrap">Sort by</p>
+                </DropDown>
+              </div>
+
+              {/* Paginator */}
+              <div className="flex min-w-[216px] items-center justify-between ">
+                <p className="text-body-3">
+                  <span className="font-semibold ">{offset + 1} - {offset + PAGE_LIMIT < (totalLength ? totalLength : 0) ? offset + PAGE_LIMIT : totalLength}</span> of {totalLength}
+                </p>
+                <div className="flex items-center gap-x-4 ">
+                  <button className="w-4 cursor-pointer" title="Prev" disabled={!hasPrevPage} onClick={handlePreviousPage}>
+                    <ChevronDownIcon className={`rotate-90  ${hasPrevPage ? 'text-dark' : 'text-light-gray'}`} />
+                  </button>
+                  <button className="w-4 cursor-pointer" title="Next" disabled={!hasNextPage || isPlaceholderData} onClick={handleNextPage}>
+                    <ChevronDownIcon className={`-rotate-90  ${hasNextPage ? 'text-dark' : 'text-light-gray'}`} />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -304,55 +366,46 @@ type ModelPageFiltersProps = {
   categoryDropdownMenuIsOpened: boolean
   onCategoryDropdownMenuShow: () => void
   onCategoryDropdownMenuHide: () => void
-  handleCategorySelection: (event: any) => void
-  category: string
   dateFilters: DropdownMenuItem[]
   dateDropdownMenuIsOpened: boolean
   onDateDropdownMenuHide: () => void
   onDateDropdownMenuShow: () => void
   handleDateSelection: (event: string) => void
   date: string
-  author: string
-  authorFilters: DropdownMenuItem[]
   mapview: boolean
-  authorDropdownMenuIsOpened: boolean
-  onAuthorDropdownMenuHide: () => void
-  onAuthorDropdownMenuShow: () => void
-  handleAuthorSelection: (arg: string) => void
   setMapview: (arg: boolean) => void
   layoutView: LayoutView
   handleLayoutView: (event: any) => void
+  clearFilters: () => void
 
 }
 
 const ModelPageFilters: React.FC<ModelPageFiltersProps> = (
-  { handleAuthorSelection,
-    onAuthorDropdownMenuShow,
-    onAuthorDropdownMenuHide,
+  {
     setMapview,
-    authorDropdownMenuIsOpened,
     mapview,
-    author,
-    authorFilters,
     date,
     handleDateSelection,
     onDateDropdownMenuShow,
     onDateDropdownMenuHide,
     dateDropdownMenuIsOpened,
     dateFilters,
-    category,
-    handleCategorySelection,
     onCategoryDropdownMenuHide,
     onCategoryDropdownMenuShow,
     searchQuery,
     handleSearchInput,
     isPending,
     categoryFilters,
-    categoryDropdownMenuIsOpened, layoutView, handleLayoutView }) => {
+    categoryDropdownMenuIsOpened,
+    layoutView,
+    handleLayoutView, clearFilters
+  }) => {
+
+  const canClearFilters = date && searchQuery;
+
   return (
     <div className=" flex items-center justify-between">
       <div className="flex items-center gap-x-4">
-
         {/* Search */}
         <div className="flex items-center  px-4 w-full border border-gray-border">
           <SearchIcon className="w-6 h-6" />
@@ -371,11 +424,14 @@ const ModelPageFilters: React.FC<ModelPageFiltersProps> = (
             dropdownIsOpened={categoryDropdownMenuIsOpened}
             onDropdownHide={onCategoryDropdownMenuHide}
             onDropdownShow={onCategoryDropdownMenuShow}
-            handleMenuSelection={handleCategorySelection}
+            handleMenuSelection={() => null}
             chevronClassName="text-[#404446]"
             disabled={isPending}
+            withCheckbox
+            defaultSelectedItem={categoryFilters[0].value}
+            menuItemTextSize="small"
           >
-            <p className="text-sm text-[#404446] text-nowrap">{category ? category : 'Category'}</p>
+            <p className="text-sm text-[#404446] text-nowrap">{categoryFilters[0].value}</p>
           </DropDown>
         </div>
 
@@ -394,21 +450,16 @@ const ModelPageFilters: React.FC<ModelPageFiltersProps> = (
             <p className="text-sm text-[#404446] text-nowrap">{date ? date : 'Date'}</p>
           </DropDown>
         </div>
+        {/* Clear button */}
+        {
+          canClearFilters &&
+          (
+            <Button variant="tertiary" size="medium" onClick={clearFilters} >
+              Clear all
+            </Button>
+          )
+        }
 
-        {/* Author */}
-        <div className="border border-gray-border py-2 px-4">
-          <DropDown
-            menuItems={authorFilters}
-            dropdownIsOpened={authorDropdownMenuIsOpened}
-            onDropdownHide={onAuthorDropdownMenuHide}
-            onDropdownShow={onAuthorDropdownMenuShow}
-            handleMenuSelection={handleAuthorSelection}
-            chevronClassName="text-[#404446]"
-            disabled={isPending}
-          >
-            <p className="text-sm  text-[#404446] text-nowrap">{author ? author : 'Author'}</p>
-          </DropDown>
-        </div>
       </div>
 
 

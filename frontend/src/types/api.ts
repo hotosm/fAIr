@@ -30,6 +30,7 @@ export type TModel = {
   published_training: number,
   status: number,
   dataset: number,
+  accuracy: number,
   created_by: {
     date_joined: string
     img_url: string

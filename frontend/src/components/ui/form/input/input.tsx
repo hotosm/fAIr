@@ -12,6 +12,7 @@ type InputProps = {
 };
 
 const Input: React.FC<InputProps> = ({ handleInput, value, className = '', placeholder = '', clearable = false, disabled = false }) => {
+
   return (
     <SlInput
       onSlInput={handleInput}
@@ -20,8 +21,8 @@ const Input: React.FC<InputProps> = ({ handleInput, value, className = '', place
       placeholder={placeholder}
       clearable={clearable}
       disabled={disabled}
-
-    />
+    >
+    </SlInput>
   );
 };
 
