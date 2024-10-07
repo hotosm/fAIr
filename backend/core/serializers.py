@@ -68,18 +68,19 @@ class ModelSerializer(
 
     def get_accuracy(
         self, obj
-    ):  ### Don't make this to production , add accuracy and centroid to model itself so that API call will be faster for getting all models without foreign table call
+    ):  ## this might have performance problem when db grows bigger , consider adding indexes / view in db
         training = Training.objects.filter(id=obj.published_training).first()
         if training:
             return training.accuracy
         return None
 
 
-class ModelCentroidSerializer(serializers.ModelSerializer):
+class ModelCentroidSerializer(GeoFeatureModelSerializer):
     geometry = serializers.SerializerMethodField()
 
     class Meta:
         model = Model
+        geo_field = "geometry"
         fields = ("id", "name", "geometry")
 
     def get_geometry(self, obj):
