@@ -77,11 +77,12 @@ class ModelSerializer(
 
 class ModelCentroidSerializer(GeoFeatureModelSerializer):
     geometry = serializers.SerializerMethodField()
+    mid = serializers.IntegerField(source="id")
 
     class Meta:
         model = Model
         geo_field = "geometry"
-        fields = ("id", "name", "geometry")
+        fields = ("mid", "name", "geometry")
 
     def get_geometry(self, obj):
         """
@@ -95,13 +96,13 @@ class ModelCentroidSerializer(GeoFeatureModelSerializer):
             }
         return None
 
-    def to_representation(self, instance):
-        """
-        Override to_representation to customize GeoJSON structure.
-        """
-        representation = super().to_representation(instance)
-        representation["properties"]["id"] = representation.pop("id")
-        return representation
+    # def to_representation(self, instance):
+    #     """
+    #     Override to_representation to customize GeoJSON structure.
+    #     """
+    #     representation = super().to_representation(instance)
+    #     representation["properties"]["id"] = representation.pop("id")
+    #     return representation
 
 
 class AOISerializer(
