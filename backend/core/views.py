@@ -28,9 +28,10 @@ from drf_yasg.utils import swagger_auto_schema
 from geojson2osm import geojson2osm
 from orthogonalizer import othogonalize_poly
 from osmconflator import conflate_geojson
-from rest_framework import decorators, serializers, status, viewsets
+from rest_framework import decorators, filters, serializers, status, viewsets
 from rest_framework.decorators import api_view
 from rest_framework.exceptions import ValidationError
+from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_gis.filters import InBBoxFilter, TMSTileFilter
@@ -47,6 +48,7 @@ from .models import (
     FeedbackLabel,
     Label,
     Model,
+    OsmUser,
     Training,
 )
 from .serializers import (
@@ -59,8 +61,10 @@ from .serializers import (
     FeedbackParamSerializer,
     FeedbackSerializer,
     LabelSerializer,
+    ModelCentroidSerializer,
     ModelSerializer,
     PredictionParamSerializer,
+    UserSerializer,
 )
 from .tasks import train_model
 from .utils import get_dir_size, gpx_generator, process_rawdata, request_rawdata
@@ -236,8 +240,49 @@ class ModelViewSet(
     permission_classes = [IsOsmAuthenticated]
     permission_allowed_methods = ["GET"]
     queryset = Model.objects.all()
-    serializer_class = ModelSerializer  # connecting serializer
-    filterset_fields = ["status"]
+    filter_backends = (
+        InBBoxFilter,  # it will take bbox like this api/v1/model/?in_bbox=-90,29,-89,35 ,
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
+    )
+    serializer_class = ModelSerializer
+    filterset_fields = {
+        "status": ["exact"],
+        "created_at": ["exact", "gt", "gte", "lt", "lte"],
+        "last_modified": ["exact", "gt", "gte", "lt", "lte"],
+        "created_by": ["exact"],
+        "id": ["exact"],
+    }
+    ordering_fields = ["created_at", "last_modified", "id", "status"]
+    search_fields = ["name"]
+
+
+class ModelCentroidView(ListAPIView):
+    queryset = Model.objects.filter(status=0)  ## only deliver the published model
+    serializer_class = ModelCentroidSerializer
+    filter_backends = (
+        # InBBoxFilter,
+        DjangoFilterBackend,
+        filters.SearchFilter,
+    )
+    filterset_fields = ["id"]
+    search_fields = ["name"]
+    pagination_class = None
+
+
+class UsersView(ListAPIView):
+    authentication_classes = [OsmAuthentication]
+    permission_classes = [IsOsmAuthenticated]
+    queryset = OsmUser.objects.all()
+    serializer_class = UserSerializer
+    filter_backends = (
+        # InBBoxFilter,
+        DjangoFilterBackend,
+        filters.SearchFilter,
+    )
+    filterset_fields = ["id"]
+    search_fields = ["username", "id"]
 
 
 class AOIViewSet(viewsets.ModelViewSet):

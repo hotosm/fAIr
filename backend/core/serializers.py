@@ -29,12 +29,31 @@ class DatasetSerializer(
         return super().create(validated_data)
 
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OsmUser
+        fields = [
+            "osm_id",
+            "username",
+            # "is_superuser",
+            # "is_active",
+            # "is_staff",
+            "date_joined",
+            # "email",
+            "img_url",
+            # "user_permissions",
+        ]
+
+
 class ModelSerializer(
     serializers.ModelSerializer
 ):  # serializers are used to translate models objects to api
+    created_by = UserSerializer(read_only=True)
+    accuracy = serializers.SerializerMethodField()
+
     class Meta:
         model = Model
-        fields = "__all__"  # defining all the fields to  be included in curd for now , we can restrict few if we want
+        fields = "__all__"
         read_only_fields = (
             "created_at",
             "last_modified",
@@ -46,6 +65,44 @@ class ModelSerializer(
         user = self.context["request"].user
         validated_data["created_by"] = user
         return super().create(validated_data)
+
+    def get_accuracy(
+        self, obj
+    ):  ## this might have performance problem when db grows bigger , consider adding indexes / view in db
+        training = Training.objects.filter(id=obj.published_training).first()
+        if training:
+            return training.accuracy
+        return None
+
+
+class ModelCentroidSerializer(GeoFeatureModelSerializer):
+    geometry = serializers.SerializerMethodField()
+    mid = serializers.IntegerField(source="id")
+
+    class Meta:
+        model = Model
+        geo_field = "geometry"
+        fields = ("mid", "name", "geometry")
+
+    def get_geometry(self, obj):
+        """
+        Get the centroid of the AOI linked to the dataset of the given model.
+        """
+        aoi = AOI.objects.filter(dataset=obj.dataset).first()
+        if aoi and aoi.geom:
+            return {
+                "type": "Point",
+                "coordinates": aoi.geom.centroid.coords,
+            }
+        return None
+
+    # def to_representation(self, instance):
+    #     """
+    #     Override to_representation to customize GeoJSON structure.
+    #     """
+    #     representation = super().to_representation(instance)
+    #     representation["properties"]["id"] = representation.pop("id")
+    #     return representation
 
 
 class AOISerializer(
@@ -314,19 +371,3 @@ class PredictionParamSerializer(serializers.Serializer):
                 data["area_threshold"]
             )
         return data
-
-
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = OsmUser
-        fields = [
-            "osm_id",
-            "username",
-            "is_superuser",
-            "is_active",
-            "is_staff",
-            "date_joined",
-            "email",
-            "img_url",
-            "user_permissions",
-        ]
