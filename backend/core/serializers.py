@@ -100,7 +100,7 @@ class ModelCentroidSerializer(GeoFeatureModelSerializer):
         Override to_representation to customize GeoJSON structure.
         """
         representation = super().to_representation(instance)
-        representation["properties"]["id"] = representation["id"]
+        representation["properties"]["id"] = representation.pop("id")
         return representation
 
 
