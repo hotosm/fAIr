@@ -1,9 +1,10 @@
 from django.conf import settings
-from login.models import OsmUser
 from rest_framework import serializers
 from rest_framework_gis.serializers import (
     GeoFeatureModelSerializer,  # this will be used if we used to serialize as geojson
 )
+
+from login.models import OsmUser
 
 from .models import *
 
@@ -48,10 +49,11 @@ class ModelSerializer(
     serializers.ModelSerializer
 ):  # serializers are used to translate models objects to api
     created_by = UserSerializer(read_only=True)
+    accuracy = serializers.SerializerMethodField()
 
     class Meta:
         model = Model
-        fields = "__all__"  # defining all the fields to  be included in curd for now , we can restrict few if we want
+        fields = "__all__"
         read_only_fields = (
             "created_at",
             "last_modified",
@@ -63,6 +65,12 @@ class ModelSerializer(
         user = self.context["request"].user
         validated_data["created_by"] = user
         return super().create(validated_data)
+
+    def get_accuracy(self, obj):
+        training = Training.objects.filter(id=obj.published_training).first()
+        if training:
+            return training.accuracy
+        return None
 
 
 class ModelCentroidSerializer(serializers.ModelSerializer):
