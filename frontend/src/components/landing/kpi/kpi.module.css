@@ -1,0 +1,47 @@
+.kpiContainer {
+  background-color: var(--hot-fair-color-off-white);
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  justify-content: space-between;
+  gap: var(--sl-spacing-4x-large);
+  padding: var(--sl-spacing-4x-large) 0;
+}
+
+.kpiItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.kpiItem h1 {
+  text-transform: uppercase;
+  color: var(--hot-fair-color-primary);
+  font-size: var(--hot-fair-font-size-title-1);
+  font-weight: var(--hot-fair-font-weight-semibold);
+}
+
+.kpiItem h3 {
+  color: var(--hot-fair-color-dark);
+  font-size: var(--hot-fair-font-size-body-text-2base);
+  font-weight: var(--hot-fair-font-weight-semibold);
+}
+
+/* md: */
+@media (min-width: 768px) {
+  .kpiContainer {
+    background-color: var(--hot-fair-color-off-white);
+    display: flex;
+    min-height: 200px;
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-around;
+    grid-column: span auto;
+    grid-row: 2;
+  }
+
+  .kpiItem h3 {
+    font-size: var(--hot-fair-font-size-body-text-2);
+  }
+}

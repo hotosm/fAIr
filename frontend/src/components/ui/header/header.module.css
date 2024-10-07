@@ -1,0 +1,275 @@
+.headerContainer {
+  color: var(--hot-fair-color-dark);
+}
+
+/* NavBar styles start */
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 var(--sl-spacing-large);
+}
+
+.webNavLinks {
+  display: none;
+}
+
+.mobileNavLinks {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-transform: uppercase;
+  font-weight: var(--sl-spacing-medium);
+  font-size: var(--hot-fair-font-size-body-text-3);
+  gap: var(--sl-spacing-3x-large);
+}
+
+.loginButton {
+  display: none;
+}
+
+.hamburgerMenu {
+  display: block;
+}
+
+/* Mobile Nav */
+
+.drawerContentContainer {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  row-gap: var(--sl-spacing-3x-large);
+}
+
+.drawerHeaderContainer {
+  grid-column: span 12;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.navLinksContainer {
+  grid-column: span 12;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sl-spacing-3x-large);
+}
+
+.loginButtonContainer {
+  grid-column: 3 / 7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.closeButton {
+  font-size: var(--hot-fair-font-size-title-3);
+}
+
+/* NavBar styles ends */
+
+/* Profile styles starts */
+
+.profileContainer {
+  display: none;
+}
+
+.userProfile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.userProfileName {
+  font-size: var(--hot-fair-font-size-body-text-2);
+  color: var(--hot-fair-color-dark);
+  text-wrap: nowrap;
+}
+
+/* Profile styles ends */
+
+/* Jumbotron styles begins */
+
+.jumbotronContainer {
+  background-image: none;
+  height: auto;
+  width: 100%;
+}
+
+.jumbotronContentContainer {
+  padding: var(--hot-fair-spacing-5x-large) var(--sl-spacing-large);
+  background-color: var(--hot-fair-color-dark);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  color: var(--hot-fair-color-white);
+  gap: var(--sl-spacing-large);
+  background-image: url("../../../assets/contour_background.svg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: auto;
+  width: 100%;
+}
+
+.jumbotronImage {
+  height: auto;
+  padding: 0;
+  background-color: rebeccapurple;
+}
+
+.jumbotronImage img {
+  width: 100%;
+  height: 100%;
+}
+
+.jumbotronText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sl-spacing-large);
+}
+
+.jumbotronText h1 {
+  font-size: var(--hot-fair-font-size-title-2);
+  color: var(--hot-fair-color-white);
+  text-transform: uppercase;
+}
+
+.jumbotronText p {
+  font-size: var(--hot-fair-font-size-body-text-3);
+  color: var(--hot-fair-color-white);
+  font-weight: var(--hot-fair-font-weight-regular);
+}
+
+.ctaButtons {
+  max-width: 50%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sl-spacing-large);
+}
+
+/* Jumbotron styles ends */
+
+/* md: */
+@media (min-width: 768px) {
+  .jumbotronContainer {
+    max-width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    padding: var(--sl-spacing-large);
+    background-image: url("../../../assets/images/header_bg.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    min-height: 70vh;
+  }
+
+  .jumbotronContentContainer {
+    max-width: 60%;
+    max-height: 100%;
+    padding: var(--sl-spacing-large);
+    display: flex;
+    flex-direction: column;
+    gap: var(--sl-spacing-2x-large);
+    height: auto;
+  }
+
+  .jumbotronImage {
+    display: none;
+  }
+
+  .userProfileName {
+    text-wrap: wrap;
+  }
+}
+
+/* mdx: */
+@media (min-width: 960px) {
+
+  /* NavBar styles start */
+  nav {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    height: 80px;
+    padding: 0 var(--hot-fair-spacing-5x-large);
+    gap: var(--sl-spacing-medium);
+  }
+
+  nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  .webNavLinks {
+    display: flex;
+    gap: var(--sl-spacing-3x-large);
+  }
+
+  .loginButton {
+    display: flex;
+  }
+
+  .hamburgerMenu {
+    display: none;
+  }
+
+  .profileContainer {
+    display: block;
+  }
+
+  /* NavBar styles ends */
+
+  /* Jumbotron style begins */
+
+  .jumbotronContainer {
+    padding: var(--hot-fair-spacing-5x-large);
+  }
+
+  .jumbotronContentContainer {
+    max-width: 60%;
+    max-height: 100%;
+    background-color: var(--hot-fair-color-dark);
+    padding: var(--sl-spacing-4x-large);
+    display: flex;
+    flex-direction: column;
+    gap: var(--sl-spacing-3x-large);
+  }
+
+  .jumbotronText {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sl-spacing-2x-large);
+  }
+
+  .jumbotronText h1 {
+    font-size: var(--hot-fair-font-size-title-1);
+  }
+
+  .jumbotronText p {
+    font-size: var(--hot-fair-font-size-body-text-2);
+  }
+
+  .ctaButtons {
+    display: flex;
+    gap: var(--sl-spacing-large);
+    flex-direction: row;
+  }
+
+  /* Jumbotron style ends */
+}
+
+/* lg: */
+@media (min-width: 1280px) {
+  .jumbotronContentContainer {
+    max-width: 50%;
+  }
+}
