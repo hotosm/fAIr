@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - master
+      - develop
     paths:
       - "backend/**"
       - ".github/workflows/backend_build.yml"
