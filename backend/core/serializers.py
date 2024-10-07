@@ -66,7 +66,9 @@ class ModelSerializer(
         validated_data["created_by"] = user
         return super().create(validated_data)
 
-    def get_accuracy(self, obj):
+    def get_accuracy(
+        self, obj
+    ):  ### Don't make this to production , add accuracy and centroid to model itself so that API call will be faster for getting all models without foreign table call
         training = Training.objects.filter(id=obj.published_training).first()
         if training:
             return training.accuracy
