@@ -65,12 +65,12 @@ class ModelSerializer(serializers.ModelSerializer):
         validated_data["created_by"] = user
         return super().create(validated_data)
 
-    def get_training(self, obj):
-        if not hasattr(self, "_cached_training"):
-            self._cached_training = Training.objects.filter(
-                id=obj.published_training
-            ).first()
-        return self._cached_training
+    # def get_training(self, obj):
+    #     if not hasattr(self, "_cached_training"):
+    #         self._cached_training = Training.objects.filter(
+    #             id=obj.published_training
+    #         ).first()
+    #     return self._cached_training
 
     def get_thumbnail_url(self, obj):
         training = Training.objects.filter(id=obj.published_training).first()
