@@ -45,12 +45,10 @@ class UserSerializer(serializers.ModelSerializer):
         ]
 
 
-class ModelSerializer(
-    serializers.ModelSerializer
-):  # serializers are used to translate models objects to api
+class ModelSerializer(serializers.ModelSerializer):
     created_by = UserSerializer(read_only=True)
     accuracy = serializers.SerializerMethodField()
-    tile = serializers.SerializerMethodField()
+    thumbnail_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Model
@@ -67,20 +65,31 @@ class ModelSerializer(
         validated_data["created_by"] = user
         return super().create(validated_data)
 
-    def get_tile(self, obj):
-        aoi = AOI.objects.filter(dataset=obj.dataset).first()
-        if aoi and aoi.geom:
-            centroid = aoi.geom.centroid.coords
-            try:
-                tile = mercantile.tile(centroid[0], centroid[1], zoom=18)
-                return [tile.x, tile.y, 18]
-            except:
-                pass
+    def get_training(self, obj):
+        if not hasattr(self, "_cached_training"):
+            self._cached_training = Training.objects.filter(
+                id=obj.published_training
+            ).first()
+        return self._cached_training
+
+    def get_thumbnail_url(self, obj):
+        training = Training.objects.filter(id=obj.published_training).first()
+
+        if training:
+            if training.source_imagery:
+                aoi = AOI.objects.filter(dataset=obj.dataset).first()
+                if aoi and aoi.geom:
+                    centroid = (
+                        aoi.geom.centroid.coords
+                    )  ## Centroid can be stored in db table if required when project grows bigger
+                    try:
+                        tile = mercantile.tile(centroid[0], centroid[1], zoom=18)
+                        return training.source_imagery.format(x=tile.x, y=tile.y, z=18)
+                    except Exception as ex:
+                        pass
         return None
 
-    def get_accuracy(
-        self, obj
-    ):  ## this might have performance problem when db grows bigger , consider adding indexes / view in db
+    def get_accuracy(self, obj):
         training = Training.objects.filter(id=obj.published_training).first()
         if training:
             return training.accuracy
