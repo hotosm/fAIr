@@ -1,10 +1,10 @@
+import mercantile
 from django.conf import settings
+from login.models import OsmUser
 from rest_framework import serializers
 from rest_framework_gis.serializers import (
     GeoFeatureModelSerializer,  # this will be used if we used to serialize as geojson
 )
-
-from login.models import OsmUser
 
 from .models import *
 
@@ -50,6 +50,7 @@ class ModelSerializer(
 ):  # serializers are used to translate models objects to api
     created_by = UserSerializer(read_only=True)
     accuracy = serializers.SerializerMethodField()
+    tile = serializers.SerializerMethodField()
 
     class Meta:
         model = Model
@@ -65,6 +66,17 @@ class ModelSerializer(
         user = self.context["request"].user
         validated_data["created_by"] = user
         return super().create(validated_data)
+
+    def get_tile(self, obj):
+        aoi = AOI.objects.filter(dataset=obj.dataset).first()
+        if aoi and aoi.geom:
+            centroid = aoi.geom.centroid.coords
+            try:
+                tile = mercantile.tile(centroid[0], centroid[1], zoom=18)
+                return [tile.x, tile.y, 18]
+            except:
+                pass
+        return None
 
     def get_accuracy(
         self, obj
@@ -82,7 +94,8 @@ class ModelCentroidSerializer(GeoFeatureModelSerializer):
     class Meta:
         model = Model
         geo_field = "geometry"
-        fields = ("mid", "name", "geometry")
+        fields = ("mid", "geometry")
+        # fields = ("mid", "name", "geometry")
 
     def get_geometry(self, obj):
         """
