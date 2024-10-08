@@ -1,10 +1,10 @@
+import mercantile
 from django.conf import settings
+from login.models import OsmUser
 from rest_framework import serializers
 from rest_framework_gis.serializers import (
     GeoFeatureModelSerializer,  # this will be used if we used to serialize as geojson
 )
-
-from login.models import OsmUser
 
 from .models import *
 
@@ -45,11 +45,10 @@ class UserSerializer(serializers.ModelSerializer):
         ]
 
 
-class ModelSerializer(
-    serializers.ModelSerializer
-):  # serializers are used to translate models objects to api
+class ModelSerializer(serializers.ModelSerializer):
     created_by = UserSerializer(read_only=True)
     accuracy = serializers.SerializerMethodField()
+    thumbnail_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Model
@@ -66,9 +65,31 @@ class ModelSerializer(
         validated_data["created_by"] = user
         return super().create(validated_data)
 
-    def get_accuracy(
-        self, obj
-    ):  ## this might have performance problem when db grows bigger , consider adding indexes / view in db
+    # def get_training(self, obj):
+    #     if not hasattr(self, "_cached_training"):
+    #         self._cached_training = Training.objects.filter(
+    #             id=obj.published_training
+    #         ).first()
+    #     return self._cached_training
+
+    def get_thumbnail_url(self, obj):
+        training = Training.objects.filter(id=obj.published_training).first()
+
+        if training:
+            if training.source_imagery:
+                aoi = AOI.objects.filter(dataset=obj.dataset).first()
+                if aoi and aoi.geom:
+                    centroid = (
+                        aoi.geom.centroid.coords
+                    )  ## Centroid can be stored in db table if required when project grows bigger
+                    try:
+                        tile = mercantile.tile(centroid[0], centroid[1], zoom=18)
+                        return training.source_imagery.format(x=tile.x, y=tile.y, z=18)
+                    except Exception as ex:
+                        pass
+        return None
+
+    def get_accuracy(self, obj):
         training = Training.objects.filter(id=obj.published_training).first()
         if training:
             return training.accuracy
@@ -82,7 +103,8 @@ class ModelCentroidSerializer(GeoFeatureModelSerializer):
     class Meta:
         model = Model
         geo_field = "geometry"
-        fields = ("mid", "name", "geometry")
+        fields = ("mid", "geometry")
+        # fields = ("mid", "name", "geometry")
 
     def get_geometry(self, obj):
         """
