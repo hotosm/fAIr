@@ -1,3 +1,4 @@
+import { APP_CONTENT } from "@/utils";
 import styles from "./kpi.module.css";
 
 type TKPIS = {
@@ -7,21 +8,22 @@ type TKPIS = {
 
 const KPIs: TKPIS = [
   {
-    figure: "162,1M",
-    label: "Building Mapped",
+    figure: "15",
+    label: APP_CONTENT.homepage.kpi.publishedAIModels,
   },
   {
-    figure: "590",
-    label: "Published Models",
+    figure: "120",
+    label: APP_CONTENT.homepage.kpi.totalUsers,
   },
   {
-    figure: "100.3K",
-    label: "Mappers",
-  },
-  {
-    figure: "86",
-    label: "Mappers",
-  },
+    figure: "100",
+    label: APP_CONTENT.homepage.kpi.humanFeedback,
+  }
+  // ,
+  // {
+  //   figure: "86",
+  //   label: "Mappers",
+  // },
 ];
 
 const Kpi = () => {
