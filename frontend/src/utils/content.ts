@@ -79,33 +79,34 @@ export const APP_CONTENT = {
       humanFeedback: "Human Feedback"
     },
     aboutTitle: "WHAT IS fAIr?",
-    aboutContent: `fAIr is an open AI-assisted mapping platform developed by the Humanitarian OpenStreetMap Team (HOT) that aims to improve the efficiency and accuracy of mapping efforts for humanitarian purposes. The service uses AI models, specifically computer vision techniques, to detect objects in satellite and UAV imagery.`,
+    aboutContent: `fAIr is an open AI-assisted mapping service developed by the Humanitarian OpenStreetMap Team (HOT) that aims to improve the efficiency and accuracy of mapping efforts for humanitarian purposes. The service uses AI models, specifically computer vision techniques, to detect objects in satellite and UAV imagery.`,
     fairProcess: {
+      title: "fAIr process",
       stepOne: {
         title: "Create Model",
         description:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",
+          "Create a customized and localized AI models using open source (or your) imagery and your customized labels with support by OSM open data",
       },
       stepTwo: {
         title: "Run Prediction",
         description:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",
+          "Run prediction/inference in a live environment or define your area of interest to run your local model and get the data.",
       },
       stepThree: {
         title: "Feedback",
         description:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",
+          "Get live human feedback about the quality of your localized model to support your decision to enhance the model accuracy.",
       },
       stepFour: {
         title: "Use Data",
         description:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",
+          "Make the produced data open and available for humanitarian actors to take actions for impact",
       },
     },
     coreFeatures: {
       featureOne: "Time Efficient",
       featureTwo: "High Accuracy",
-      featureThree: "Time Efficient",
+      featureThree: "Re-usable/Resilience",
     },
     coreValues: {
       sectionTitle: {
@@ -118,12 +119,12 @@ export const APP_CONTENT = {
       community: {
         title: "Community Driven",
         description:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",
+          "fAIr follows a community driven approach to decide on the features that will be implemented. We are continuously engaging with local communities to shape the direction and the future of AI-assisted humanitarian mapping",
       },
       humansNotReplaced: {
-        title: "Humans not Replaced",
+        title: "Humans in the loop",
         description:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",
+          "As part of the community approach, humans are involved in the whole fAIr process, from creating models till reaching high quality data and gather feedback",
       },
     },
     faqs: {

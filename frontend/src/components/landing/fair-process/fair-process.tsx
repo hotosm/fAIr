@@ -97,7 +97,7 @@ const TheFAIRProcess = () => {
   return (
     <section className={styles.fairProcess} ref={containerRef}>
       <h2 className="text-title-2 lg:text-4xl font-semibold mb-[73px]">
-        The fAIr process
+        {APP_CONTENT.homepage.fairProcess.title}
       </h2>
       <ol className="flex flex-col md:flex-row justify-between items-start  w-full">
         {steps.map((step, id) => (
