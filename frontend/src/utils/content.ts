@@ -23,7 +23,7 @@ export const APP_CONTENT = {
   },
   footer: {
     title:
-      "fAIr is a platform where individuals can use an AI model for mapping in OpenStreetMap",
+      "We pursue Just tech to amplify connections between human[itarian] needs and open map data.",
     copyright: {
       firstSegment:
         "Images are screenshots of fAIr may be shared under a Creatives Commons Attribution-ShareAlike 4.0 International License.",
@@ -69,10 +69,15 @@ export const APP_CONTENT = {
   homepage: {
     jumbotronTitle: "Your AI Mapping Partner",
     jumbotronHeadline:
-      "AI-powered assistant that replicates your mapping samples intelligently and quickly, helping you map smarter and faster.",
+      "AI-powered assistant that amplify your mapping efforts intelligently and quickly, helping you map smarter and faster.",
     ctaPrimaryButton: "Create Model",
     ctaSecondaryButton: "Start Mapping",
     jumbotronImageAlt: "A user engaging in a mapping activity",
+    kpi: {
+      publishedAIModels:"Published AI Models",
+      totalUsers:"Total Registered Users",
+      humanFeedback: "Human Feedback"
+    },
     aboutTitle: "WHAT IS fAIr?",
     aboutContent: `fAIr is an open AI-assisted mapping platform developed by the Humanitarian OpenStreetMap Team (HOT) that aims to improve the efficiency and accuracy of mapping efforts for humanitarian purposes. The service uses AI models, specifically computer vision techniques, to detect objects in satellite and UAV imagery.`,
     fairProcess: {
