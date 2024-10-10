@@ -1,7 +1,8 @@
 import { TModel } from "@/types"
 import FairModelPlaceholderImage from '@/assets/fair_model_placeholder_image.png'
 import { Image } from "@/components/ui/image"
-import { extractDatePart } from "@/utils"
+import { APPLICATION_ROUTES, extractDatePart } from "@/utils"
+import { Link } from "@/components/ui/link"
 
 
 type ModelCardProps = {
@@ -10,9 +11,13 @@ type ModelCardProps = {
 
 const ModelCard: React.FC<ModelCardProps> = ({ model }) => {
     return (
-        <div className="max-w-[299px] min-h-[471px] flex flex-col border border-gray-border">
-            <div className="h-[200px]">
-                <Image src={FairModelPlaceholderImage} alt={model.name} />
+        <Link nativeAnchor={false} disableLinkStyle href={`${APPLICATION_ROUTES.MODELS}/${model.id}`} title={model.name} className="max-w-[300px] min-h-[450px] flex flex-col border border-gray-border hover:shadow-md overflow-hidden group">
+            <div className="h-[200px] w-full">
+                <Image
+                    src={FairModelPlaceholderImage}
+                    alt={model.name}
+                    className="w-full h-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-105"
+                />
             </div>
             <div className="p-5 flex flex-col gap-y-6">
                 <div className="inline-flex flex-col gap-y-2">
@@ -22,7 +27,7 @@ const ModelCard: React.FC<ModelCardProps> = ({ model }) => {
                 {/* accuracy */}
                 <div>
                     <p className="text-gray text-body-3">Accuracy:</p>
-                    <p className="text-dark font-semibold text-body-2">{model.accuracy ?? 0}</p>
+                    <p className="text-dark font-semibold text-body-2">{model.accuracy?.toFixed(2) ?? 0} %</p>
                 </div>
                 {/* Name and date */}
                 <div className="inline-flex flex-col gap-y-2">
@@ -30,7 +35,7 @@ const ModelCard: React.FC<ModelCardProps> = ({ model }) => {
                     <p className="text-gray text-body-3">Last Modified: <span className="font-bold">{extractDatePart(model.last_modified)}</span></p>
                 </div>
             </div>
-        </div>
+        </Link>
     )
 }
 

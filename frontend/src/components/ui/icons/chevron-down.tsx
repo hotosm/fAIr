@@ -1,10 +1,5 @@
-import { IconProps } from "@/types";
+import { IconProps, ShoelaceSlotProps } from "@/types";
 import React from "react";
-
-
-type ShoelaceSlotProps = {
-  slot?: string;
-}
 
 const ChevronDownIcon: React.FC<ShoelaceSlotProps & IconProps> = (props) => (
   <svg

@@ -10,11 +10,14 @@ import { APP_CONTENT, APPLICATION_ROUTES } from "@/utils";
 import { useAuth } from "@/app/providers/auth-provider";
 import UserProfile from "@/components/ui/header/user-profile";
 import { useLogin } from "@/hooks/use-login";
+import { useLocation } from "react-router-dom";
 
 const NavBar = () => {
   const [open, setOpen] = useState(false);
   const { user, logout, isAuthenticated } = useAuth();
   const { handleLogin, loading } = useLogin();
+
+
 
   return (
     <>
@@ -125,11 +128,16 @@ type NavBarLinksProps = {
 };
 
 const NavBarLinks: React.FC<NavBarLinksProps> = ({ className }) => {
+  const location = useLocation();
+
+
   return (
     <ul className={className}>
       {navLinks.map((link, id) => (
-        <li key={`navbar-item-${id}`}>
-          <Link href={link.href} title={link.title} nativeAnchor={false}>
+        <li key={`navbar-item-${id}`} className={`${styles.navLinkItem} ${location.pathname.includes(link.href) && styles.activeLink}`}>
+          <Link href={link.href}
+            title={link.title} nativeAnchor={false}
+          >
             {link.title}
           </Link>
         </li>

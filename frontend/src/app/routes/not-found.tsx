@@ -6,12 +6,16 @@ import { Head } from "@/components/seo";
 
 export const PageNotFound = () => {
   const location = useLocation();
+
   const modelNotFound = location.state?.from.includes(
     APPLICATION_ROUTES.MODELS,
   );
+
   const trainingDatasetNotFound = location.state?.from.includes(
     APPLICATION_ROUTES.TRAINING_DATASETS,
   );
+
+
   const navigate = useNavigate();
 
   return (
@@ -21,11 +25,12 @@ export const PageNotFound = () => {
         <div>
           <p className="text-body-1 lg:text-title1 font-semibold text-dark text-center">
             {APP_CONTENT.pageNotFound.messages.constant}{" "}
-            {modelNotFound
-              ? APP_CONTENT.pageNotFound.messages.modelNotFound
-              : trainingDatasetNotFound
-                ? APP_CONTENT.pageNotFound.messages.trainingDatasetNotFound
-                : APP_CONTENT.pageNotFound.messages.pageNotFound}
+            {location.state?.error ? location.state?.error :
+              modelNotFound
+                ? APP_CONTENT.pageNotFound.messages.modelNotFound
+                : trainingDatasetNotFound
+                  ? APP_CONTENT.pageNotFound.messages.trainingDatasetNotFound
+                  : APP_CONTENT.pageNotFound.messages.pageNotFound}
           </p>
         </div>
         <h1 className="w-[200px] text-[200px] lg:w-[450px] lg:text-[450px] flex items-center justify-center font-semibold text-light-gray relative">
@@ -68,7 +73,7 @@ export const PageNotFound = () => {
                 ? APPLICATION_ROUTES.MODELS
                 : trainingDatasetNotFound
                   ? APPLICATION_ROUTES.TRAINING_DATASETS
-                  : APPLICATION_ROUTES.HOMEPAGE,
+                  : APPLICATION_ROUTES.HOMEPAGE
             );
           }}
           className="max-w-[300px]"

@@ -1,0 +1,4 @@
+sl-dialog::part(title) {
+    font-size: var(--hot-fair-font-size-title-3);
+    font-weight: var(--hot-fair-font-weight-semibold);
+}

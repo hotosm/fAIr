@@ -36,17 +36,19 @@ const UserProfile: React.FC<UserProfileProps> = ({ logout, user }) => {
           className: "logoutButton",
         },
       ]}
+      distance={0}
       placement="bottom-end"
+      triggerComponent={
+        <div className={styles.userProfile} >
+          <SlAvatar
+            image={user.img_url}
+            label={user.username}
+            loading="lazy"
+            initials={user.username.charAt(0)}
+          />
+          <p className={styles.userProfileName}>{user.username}</p>
+        </div>}
     >
-      <div className={styles.userProfile} >
-        <SlAvatar
-          image={user.img_url}
-          label={user.username}
-          loading="lazy"
-          initials={user.username.charAt(0)}
-        />
-        <p className={styles.userProfileName}>{user.username}</p>
-      </div>
     </DropDown>
   );
 };

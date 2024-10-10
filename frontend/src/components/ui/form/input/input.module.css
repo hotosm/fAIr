@@ -1,14 +1,19 @@
 sl-input.customInput::part(base) {
-    margin-left: 8px;
     border: none;
-    color: #404446;
+    color: var(--hot-fair-color-dark);
     outline: none;
     box-shadow: none;
     padding-inline: 0;
     padding-block: 0;
+    width: 100%;
+
 }
 
 
+sl-input.showBorder::part(form-control-input) {
+    border: 1px solid var(--hot-fair-color-gray-border);
+    border-radius: 0px;
+}
 
 sl-input.customInput::part(form-control-input):focus {
     outline: none;
@@ -22,8 +27,13 @@ sl-input.customInput::part(input)::placeholder {
     font-size: var(--hot-fair-font-size-body-text-3);
 }
 
+sl-input.customInput::part(input)::placeholder {
+    color: #8A9094;
+    font-size: var(--hot-fair-font-size-body-text-3);
+}
+
 .customInput::part(clear-button) {
     background-color: var(--hot-fair-color-white);
-    color: #404446;
+    color: var(--hot-fair-color-dark);
     font-size: 20px;
 }

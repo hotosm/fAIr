@@ -9,6 +9,7 @@ type LinkProps = {
   children: React.ReactNode;
   className?: string;
   nativeAnchor?: boolean
+  disableLinkStyle?: boolean
 };
 
 const Link: React.FC<LinkProps> = ({
@@ -17,7 +18,8 @@ const Link: React.FC<LinkProps> = ({
   blank = false,
   children,
   className,
-  nativeAnchor = true
+  nativeAnchor = true,
+  disableLinkStyle = false,
 }) => {
   return (
     <>
@@ -30,7 +32,7 @@ const Link: React.FC<LinkProps> = ({
         >
           {children}
         </a> :
-          <ReactRouterLink to={href} className={`${styles.link} ${className}`} title={title}>
+          <ReactRouterLink to={href} className={`${!disableLinkStyle && styles.link} ${className}`} title={title}>
             {children}
           </ReactRouterLink>
       }

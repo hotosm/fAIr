@@ -4,11 +4,15 @@
 
 body {
   font-family: var(--sl-font-sans);
+
 }
+
+
 
 :root,
 :host,
 .sl-theme-light {
+
   font-family: var(--sl-font-sans);
   /* color tokens */
 

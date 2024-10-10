@@ -6,6 +6,7 @@ import {
   createBrowserRouter,
 } from "react-router-dom";
 import { ProtectedPage } from "@/app/routes/protected-route";
+import { MainErrorFallback } from "@/components/errors";
 
 const router = createBrowserRouter([
   {
@@ -54,6 +55,17 @@ const router = createBrowserRouter([
           return {
             Component: () => (
               <ModelsPage />
+            ),
+          };
+        },
+      },
+      {
+        path: APPLICATION_ROUTES.MODEL_DETAILS,
+        lazy: async () => {
+          const { ModelDetailsPage } = await import("@/app/routes/models/model-details");
+          return {
+            Component: () => (
+              <ModelDetailsPage />
             ),
           };
         },
@@ -121,6 +133,7 @@ const router = createBrowserRouter([
         ),
       },
     ],
+    errorElement: <MainErrorFallback />
   },
 ]);
 

@@ -20,17 +20,18 @@ type DropDownProps = {
   children?: React.ReactNode;
   onDropdownShow?: () => void;
   onDropdownHide?: () => void;
-  menuItems: DropdownMenuItem[];
+  menuItems?: DropdownMenuItem[];
   dropdownIsOpened: boolean;
   className?: string;
   handleMenuSelection?: (selectedItems?: string[] | any) => void;
-  chevronClassName?: string;
   disabled?: boolean;
   withCheckbox?: boolean;
   defaultSelectedItems?: string[];
   defaultSelectedItem?: string;
   menuItemTextSize?: 'default' | 'small'
-  multiSelect?: boolean
+  multiSelect?: boolean,
+  triggerComponent: React.ReactNode
+  distance?: number
 };
 
 const DropDown: React.FC<DropDownProps> = ({
@@ -42,13 +43,14 @@ const DropDown: React.FC<DropDownProps> = ({
   dropdownIsOpened,
   className,
   handleMenuSelection,
-  chevronClassName = 'text-[#2C3038]',
   disabled = false,
   withCheckbox = false,
   defaultSelectedItems = [],
   defaultSelectedItem = '',
   multiSelect = false,
-  menuItemTextSize = 'default'
+  menuItemTextSize = 'default',
+  triggerComponent,
+  distance = 20,
 }) => {
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [selectedItem, setSelectedItem] = useState<string>('');
@@ -99,36 +101,41 @@ const DropDown: React.FC<DropDownProps> = ({
       onSlHide={onDropdownHide}
       className={className}
       disabled={disabled}
-      distance={10}
+      distance={distance}
       stayOpenOnSelect={withCheckbox} // when selecting a single item, we can close the dropdown after selection.
     >
       <div slot="trigger" className="inline-flex items-center w-full cursor-pointer">
-        {children}
+        {triggerComponent}
         <ChevronDownIcon
-          className={`w-3 h-3 ${chevronClassName} ml-2 transition-all ${dropdownIsOpened && "rotate-180"}`}
+          className={`w-3 h-3 text-dark  ml-2 transition-all ${dropdownIsOpened && "rotate-180"}`}
         />
       </div>
-
-      <SlMenu onSlSelect={handleSelect}>
-        {menuItems.map((menuItem, id) => (
-          <SlMenuItem
-            key={`dropdown-menu-item-${id}`}
-            value={menuItem.value}
-            className={`${menuItem.className} ${menuItemTextSize}`}
-            onClick={menuItem.onClick}
-            disabled={menuItem.disabled ?? false}
-          >
-            {withCheckbox && (
-              <SlCheckbox
-                slot="prefix"
-                size="small"
-                checked={!multiSelect ? menuItem.value === selectedItem : selectedItems.includes(menuItem.value)}
-              ></SlCheckbox>
-            )}
-            {menuItem.value}
-          </SlMenuItem>
-        ))}
-      </SlMenu>
+      <div className="shadow-2xl">
+        {
+          menuItems && menuItems.length > 0 ?
+            <SlMenu onSlSelect={handleSelect}>
+              {menuItems?.map((menuItem, id) => (
+                <SlMenuItem
+                  key={`dropdown-menu-item-${id}`}
+                  value={menuItem.value}
+                  className={`${menuItem.className} ${menuItemTextSize}`}
+                  onClick={menuItem.onClick}
+                  disabled={menuItem.disabled ?? false}
+                >
+                  {withCheckbox && (
+                    <SlCheckbox
+                      slot="prefix"
+                      size="small"
+                      checked={!multiSelect ? menuItem.value === selectedItem : selectedItems.includes(menuItem.value)}
+                    ></SlCheckbox>
+                  )}
+                  {menuItem.value}
+                </SlMenuItem>
+              ))}
+            </SlMenu> :
+            children
+        }
+      </div>
     </SlDropdown>
   );
 };

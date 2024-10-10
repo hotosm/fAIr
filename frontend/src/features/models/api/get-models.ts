@@ -1,85 +1,39 @@
-import { keepPreviousData, queryOptions, useQuery } from '@tanstack/react-query';
-import { apiClient, API_ENDPOINTS, } from '@/services';
-import { PaginatedModels } from '@/types/api';
-
-
+import { apiClient, API_ENDPOINTS } from '@/services';
+import { FeatureCollection, PaginatedModels, TModelDetails } from '@/types/api';
 
 export const getModels = async (
     limit: number,
     offset: number,
     orderBy: string,
-    status?: number,
-    searchQuery?: string,
-
+    status: number,
+    searchQuery: string,
+    dateFilters: Record<string, string>,
 ): Promise<PaginatedModels> => {
-    const res = (
-        await apiClient.get(API_ENDPOINTS.GET_MODELS, {
-            params: {
-                status,
-                limit,
-                search: searchQuery,
-                offset,
-                ordering: orderBy
-            },
-        })
-    ).data
-    return {
-        ...res,
-        hasNext: res?.next !== null,
-        hasPrev: res?.previous !== null
-    }
-};
-
-export const getModelsMapData = async (
-): Promise<any> => {
-    return {
-        "type": 'FeatureCollection',
-        "features": (
-            await apiClient.get(API_ENDPOINTS.GET_MODELS_CENTROIDS)
-        ).data?.results
-    }
-};
-
-type TMmodelQuerysOptions = {
-    status?: number
-    searchQuery?: string
-    id?: number
-    limit: number
-    offset: number
-    orderBy: string
-
-}
-export const getModelsQueryOptions = ({
-    status, searchQuery, limit, offset, orderBy
-}: TMmodelQuerysOptions) => {
-    return queryOptions({
-        queryKey: ['models', { status, searchQuery, offset, orderBy }],
-        queryFn: () => getModels(limit, offset, orderBy, status, searchQuery,),
-        placeholderData: keepPreviousData
-
+    const res = await apiClient.get(API_ENDPOINTS.GET_MODELS, {
+        params: {
+            status,
+            limit,
+            search: searchQuery,
+            offset,
+            ordering: orderBy,
+            ...dateFilters,
+        },
     });
+    return {
+        ...res.data,
+        hasNext: res.data.next !== null,
+        hasPrev: res.data.previous !== null,
+    };
+};
+
+export const getModelDetails = async (id: string): Promise<TModelDetails> => {
+    const res = await apiClient.get(API_ENDPOINTS.GET_MODEL_DETAILS(id));
+    return res.data;
+};
+
+export const getModelsMapData = async (): Promise<FeatureCollection> => {
+    const res = await apiClient.get(API_ENDPOINTS.GET_MODELS_CENTROIDS);
+    return res.data;
 };
 
 
-type useModelsOptions = {
-    limit: number
-    status?: number
-    searchQuery?: string
-    date?: string
-    offset: number
-    orderBy: string
-
-}
-
-export const useModels = ({ limit, offset, status = 0, orderBy, searchQuery = '', }: useModelsOptions) => {
-    return useQuery({
-        ...getModelsQueryOptions({ status, offset, orderBy, searchQuery, limit })
-    })
-}
-
-export const useModelsMapData = () => {
-    return useQuery({
-        queryKey: ['models-centroid',],
-        queryFn: () => getModelsMapData(),
-    })
-}

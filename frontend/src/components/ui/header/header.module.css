@@ -10,6 +10,14 @@ nav {
   padding: 0 var(--sl-spacing-large);
 }
 
+.navLinkItem:hover,
+.activeLink {
+  padding: 5px 0;
+  border-bottom: 2px solid var(--hot-fair-color-primary);
+}
+
+
+
 .webNavLinks {
   display: none;
 }

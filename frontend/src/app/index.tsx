@@ -1,12 +1,9 @@
-import { HelmetProvider } from "react-helmet-async";
-import { AuthProvider } from "@/app/providers/auth-provider";
+
 import { AppRouter } from "@/app/router";
-import { ErrorBoundary } from "react-error-boundary";
-import { MainErrorFallback } from "@/components/errors";
-import { ToastProvider } from "@/app/providers/toast-provider";
+import { useToast } from "@/app/providers/toast-provider";
 import { useEffect } from "react";
 import { ENVS } from "@/config/env";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 export const App = () => {
@@ -28,19 +25,25 @@ export const App = () => {
     setupHotTracking();
     return
   }, []);
-  const queryClient = new QueryClient();
+
+  const { notify } = useToast();
+
+  const queryClient = new QueryClient({
+    queryCache: new QueryCache({
+      onError: (error, query) => {
+        // only show error toasts if we already have data in the cache
+        // which indicates a failed background update
+        if (query.state.data !== undefined) {
+          notify(`Something went wrong: ${error.message}`, 'danger')
+        }
+      },
+    }),
+
+  });
   return (
-    <ErrorBoundary FallbackComponent={MainErrorFallback}>
-      <HelmetProvider>
-        <ToastProvider>
-          <AuthProvider>
-            <QueryClientProvider client={queryClient}>
-              <ReactQueryDevtools initialIsOpen={false} />
-              <AppRouter />
-            </QueryClientProvider>
-          </AuthProvider>
-        </ToastProvider>
-      </HelmetProvider>
-    </ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <ReactQueryDevtools initialIsOpen={false} />
+      <AppRouter />
+    </QueryClientProvider>
   );
 };

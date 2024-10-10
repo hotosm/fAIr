@@ -96,10 +96,9 @@ We use absolute imports (such as `@/components`, `@/hooks`, etc.), to make it ea
 
 We use the `kebab-case` to name all files. This helps to keep your codebase consistent and easier to navigate.
 
-#### Husky
+#### Architectural Decisions
 
-We use the `husky` to trigger `eslint` and `prettier` configurations when committing code to the repository.
-
+See [the documentation](./docs/) for more information on the architectural decisions.
 
 ## Contributing
 

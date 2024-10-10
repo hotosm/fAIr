@@ -1,25 +1,46 @@
 sl-button.button::part(base) {
   border-radius: 0 !important;
-  text-transform: uppercase;
+
   border: none;
   font-size: var(--hot-fair-font-size-body-text-3);
   display: flex;
   align-items: center;
   gap: 3px;
-
 }
 
 
+sl-button.capitalize::part(base) {
+  text-transform: uppercase;
+}
+
 sl-button.secondary::part(base) {
-  background-color: #fff;
+  background-color: var(--hot-fair-color-white);
   color: var(--hot-fair-color-dark);
 }
 
+sl-button.dark::part(base) {
+  background-color: var(--hot-fair-color-dark);
+  color: var(--hot-fair-color-white);
+}
+
+sl-button.outline::part(base) {
+  border-color: var(--hot-fair-color-dark);
+  color: var(--hot-fair-color-dark);
+  background-color: var(--hot-fair-color-white);
+}
+
 sl-button.tertiary::part(base) {
-  background-color: #404446;
+  background-color: var(--hot-fair-color-dark);
   color: var(--hot-fair-color-white);
   text-transform: none;
   opacity: 0.7;
+}
+
+sl-button.default::part(base) {
+  background-color: var(--hot-fair-color-white);
+  color: var(--hot-fair-color-dark);
+  text-transform: none;
+  border: 1px solid var(--hot-fair-color-gray-border)
 }
 
 sl-button.primary::part(base):hover {

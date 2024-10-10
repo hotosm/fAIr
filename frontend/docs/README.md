@@ -18,6 +18,9 @@ In the `architecture` folder there are subfolders for each decision making. In e
 2. [Styling Library Decision](./architecture/adr-choose-styling-library/adr1.md)
 3. [Web mapping Library Decision](./architecture/adr-choose-webmap-library/adr1.md)
 4. [Drawing Library Decision](./architecture/adr-choose-drawing-library/adr1.md)
+5. [Package Manager Decision](./architecture/adr-choose-package-manager/adr1.md)
+6. [Programming Language Decision](./architecture/adr-choose-language/adr1.md)
+7. [Bundler Decision](./architecture/adr-choose-bundler/adr1.md)
 
 ## References
 
