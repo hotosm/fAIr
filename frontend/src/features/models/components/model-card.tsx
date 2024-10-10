@@ -10,7 +10,6 @@ type ModelCardProps = {
 }
 
 const ModelCard: React.FC<ModelCardProps> = ({ model }) => {
-    console.log(model)
     return (
         <Link nativeAnchor={false} disableLinkStyle href={`${APPLICATION_ROUTES.MODELS}/${model.id}`} title={model.name} className="max-w-[300px] min-h-[450px] flex flex-col border border-gray-border hover:shadow-md overflow-hidden group">
             <div className="h-[200px] w-full">

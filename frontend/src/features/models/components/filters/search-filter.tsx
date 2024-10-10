@@ -50,7 +50,7 @@ const SearchFilter: React.FC<SearchFilterProps> = ({ updateQuery, query, clearAl
     }, [clearAll, updateQuery]);
 
     return (
-        <div className="flex items-center px-1 md:px-4 border border-gray-border w-full">
+        <div className="flex items-center md:px-4 border border-gray-border w-full">
             <SearchIcon className="w-6 h-6" />
             <Input
                 handleInput={onSearchInput}

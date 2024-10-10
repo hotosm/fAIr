@@ -216,7 +216,7 @@ export const ModelsPage = () => {
     <section className="my-10 min-h-screen">
       <PageHeader />
       <div className=" flex items-center justify-between">
-        <div className="flex items-center justify-between gap-x-4 w-full">
+        <div className="flex items-center justify-between gap-x-4">
           {memoizedSearchFilter}
           {memoizedCategoryFilter}
           <LayoutToggle updateQuery={updateQuery} query={query} isMobile />
