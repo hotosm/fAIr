@@ -2,7 +2,6 @@ from django.contrib.gis.db import models as geomodels
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-
 from login.models import OsmUser
 
 # Create your models here.
@@ -89,6 +88,7 @@ class Training(models.Model):
     chips_length = models.PositiveIntegerField(default=0)
     batch_size = models.PositiveIntegerField()
     freeze_layers = models.BooleanField(default=False)
+    centroid = geomodels.PointField(srid=4326, null=True, blank=True)
 
 
 class Feedback(models.Model):
