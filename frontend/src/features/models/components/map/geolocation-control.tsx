@@ -14,7 +14,7 @@ const GeolocationControl = ({ map }: { map: Map | null }) => {
                     const { latitude, longitude } = position.coords;
                     map.flyTo({
                         center: [longitude, latitude],
-                        zoom: 15,
+                        zoom: 12,
                         essential: true
                     });
                 },
