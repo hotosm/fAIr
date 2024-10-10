@@ -64,7 +64,7 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({ trainingId, thumbnail
         }
     }, [isError, error, notify])
 
-    const { accuracy: trainingAccuracy, zoom_level, epochs, batch_size, input_contact_spacing, input_boundary_width, source_imagery } = data || {}
+    const { accuracy: trainingAccuracy, chips_length, zoom_level, epochs, batch_size, input_contact_spacing, input_boundary_width, source_imagery } = data || {}
 
     const content = useMemo(() => {
         if (isPending) {
@@ -80,7 +80,7 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({ trainingId, thumbnail
                     <PropertyDisplay label="Batch Size" value={batch_size} tooltip="The batch size is the..." />
                     <PropertyDisplay label="Contact Spacing" value={input_contact_spacing} tooltip="The contact spacing is the..." />
                     <PropertyDisplay label="Boundary Width" value={input_boundary_width} tooltip="The boundary width is the..." />
-                    <PropertyDisplay label="Current dataset size" value={'N/A'} />
+                    <PropertyDisplay label="Current dataset size" value={chips_length} />
                     <PropertyDisplay label="Source Image (TMS)" value={source_imagery} isTMS />
                 </div>
 
