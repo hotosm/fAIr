@@ -40,29 +40,6 @@ type OrderingFilterProps = {
 
 const OrderingFilter: React.FC<OrderingFilterProps> = ({ disabled, query, updateQuery }) => {
 
-    const ORDERING_FIELDS: DropdownMenuItem[] = [
-        {
-            value: 'Oldest Created',
-            apiValue: 'created_at', // The actual filter from the backend. This is what is used to update the search params.
-
-        },
-        {
-            value: 'Newest Created',
-            apiValue: '-created_at',
-
-        },
-        {
-            value: 'Oldest Updated',
-            apiValue: 'last_modified',
-
-        },
-        {
-            value: 'Newest Updated',
-            apiValue: '-last_modified',
-
-        },
-    ]
-
     const onSortSelect = (selectedItem: string) => {
         updateQuery({
             [SEARCH_PARAMS.ordering]: ORDERING_FIELDS.find(v => v.value === selectedItem)?.apiValue as string

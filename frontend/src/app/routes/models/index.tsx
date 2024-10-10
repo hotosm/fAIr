@@ -102,7 +102,7 @@ export const ModelsPage = () => {
   const defaultQueries = {
     [SEARCH_PARAMS.offset]: 0,
     [SEARCH_PARAMS.searchQuery]: searchParams.get(SEARCH_PARAMS.searchQuery) || '',
-    [SEARCH_PARAMS.ordering]: searchParams.get(SEARCH_PARAMS.ordering) || ORDERING_FIELDS[0].apiValue as string,
+    [SEARCH_PARAMS.ordering]: searchParams.get(SEARCH_PARAMS.ordering) || ORDERING_FIELDS[1].apiValue as string,
     [SEARCH_PARAMS.mapIsActive]: searchParams.get(SEARCH_PARAMS.mapIsActive) || false,
     [SEARCH_PARAMS.startDate]: searchParams.get(SEARCH_PARAMS.startDate) || '',
     [SEARCH_PARAMS.endDate]: searchParams.get(SEARCH_PARAMS.endDate) || '',
