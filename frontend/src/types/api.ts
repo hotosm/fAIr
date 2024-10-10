@@ -41,7 +41,8 @@ export type TModel = {
   status: number,
   dataset: number,
   accuracy: number,
-  created_by: TOSMUser
+  created_by: TOSMUser,
+  thumbnail_url: string
 }
 
 export type PaginatedModels = {
@@ -57,7 +58,6 @@ export type PaginatedModels = {
 
 export type TModelDetails = TModel & {
   description: string,
-  thumbnail_url: string,
 }
 
 // Training types
