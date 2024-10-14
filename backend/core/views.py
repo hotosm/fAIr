@@ -84,7 +84,7 @@ class DatasetViewSet(
 ):  # This is datasetviewset , will be tightly coupled with the models
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsOsmAuthenticated]
-    permission_allowed_methods = ["GET"]
+    public_methods = ["GET"]
     queryset = Dataset.objects.all()
     serializer_class = DatasetSerializer  # connecting serializer
 
@@ -189,7 +189,7 @@ class TrainingViewSet(
 ):  # This is TrainingViewSet , will be tightly coupled with the models
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsOsmAuthenticated]
-    permission_allowed_methods = ["GET"]
+    public_methods = ["GET"]
     queryset = Training.objects.all()
     http_method_names = ["get", "post", "delete"]
     serializer_class = TrainingSerializer  # connecting serializer
@@ -209,7 +209,7 @@ class TrainingViewSet(
 class FeedbackViewset(viewsets.ModelViewSet):
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsOsmAuthenticated]
-    permission_allowed_methods = ["GET"]
+    public_methods = ["GET"]
     queryset = Feedback.objects.all()
     http_method_names = ["get", "post", "patch", "delete"]
     serializer_class = FeedbackSerializer  # connecting serializer
@@ -219,7 +219,7 @@ class FeedbackViewset(viewsets.ModelViewSet):
 class FeedbackAOIViewset(viewsets.ModelViewSet):
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsOsmAuthenticated]
-    permission_allowed_methods = ["GET"]
+    public_methods = ["GET"]
     queryset = FeedbackAOI.objects.all()
     http_method_names = ["get", "post", "patch", "delete"]
     serializer_class = FeedbackAOISerializer
@@ -232,7 +232,7 @@ class FeedbackAOIViewset(viewsets.ModelViewSet):
 class FeedbackLabelViewset(viewsets.ModelViewSet):
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsOsmAuthenticated]
-    permission_allowed_methods = ["GET"]
+    public_methods = ["GET"]
     queryset = FeedbackLabel.objects.all()
     http_method_names = ["get", "post", "patch", "delete"]
     serializer_class = FeedbackLabelSerializer
@@ -250,7 +250,7 @@ class ModelViewSet(
 ):  # This is ModelViewSet , will be tightly coupled with the models
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsOsmAuthenticated]
-    permission_allowed_methods = ["GET"]
+    public_methods = ["GET"]
     queryset = Model.objects.all()
     filter_backends = (
         InBBoxFilter,  # it will take bbox like this api/v1/model/?in_bbox=-90,29,-89,35 ,
@@ -300,7 +300,7 @@ class UsersView(ListAPIView):
 class AOIViewSet(viewsets.ModelViewSet):
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsOsmAuthenticated]
-    permission_allowed_methods = ["GET"]
+    public_methods = ["GET"]
     queryset = AOI.objects.all()
     serializer_class = AOISerializer  # connecting serializer
     filter_backends = [DjangoFilterBackend]
@@ -310,7 +310,7 @@ class AOIViewSet(viewsets.ModelViewSet):
 class LabelViewSet(viewsets.ModelViewSet):
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsOsmAuthenticated]
-    permission_allowed_methods = ["GET"]
+    public_methods = ["GET"]
     queryset = Label.objects.all()
     serializer_class = LabelSerializer  # connecting serializer
     bbox_filter_field = "geom"
@@ -349,7 +349,7 @@ class LabelViewSet(viewsets.ModelViewSet):
 class ApprovedPredictionsViewSet(viewsets.ModelViewSet):
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsOsmAuthenticated]
-    permission_allowed_methods = ["GET"]
+    public_methods = ["GET"]
     queryset = ApprovedPredictions.objects.all()
     serializer_class = ApprovedPredictionsSerializer
     bbox_filter_field = "geom"
@@ -364,7 +364,7 @@ class ApprovedPredictionsViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         training_id = request.data.get("training")
         geom = request.data.get("geom")
-        request.data["user"] = self.request.user.osm_id
+        request.data["approved_by"] = self.request.user.osm_id
 
         existing_approved_feature = ApprovedPredictions.objects.filter(
             training=training_id, geom=geom
@@ -848,7 +848,6 @@ class BannerViewSet(viewsets.ModelViewSet):
     serializer_class = BannerSerializer
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsStaffUser, IsAdminUser]
-    permission_allowed_methods = ["GET"]
 
     def get_queryset(self):
         now = timezone.now()

@@ -47,6 +47,7 @@ class OsmAuthentication(authentication.BaseAuthentication):
 
             except Exception as ex:
                 print(ex)
+                # raise ex
                 raise exceptions.AuthenticationFailed(
                     f"Osm Authentication Failed"
                 )  # raise exception if user does not exist

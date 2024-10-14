@@ -45,7 +45,7 @@ router.register(r"model", ModelViewSet)
 router.register(r"feedback", FeedbackViewset)
 router.register(r"feedback-aoi", FeedbackAOIViewset)
 router.register(r"feedback-label", FeedbackLabelViewset)
-router.register(r"banners", BannerViewSet)
+router.register(r"banner", BannerViewSet)
 
 
 urlpatterns = [

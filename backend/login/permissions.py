@@ -7,8 +7,8 @@ class IsOsmAuthenticated(permissions.BasePermission):
 
     def has_permission(self, request, view):
 
-        permission_allowed_methods = getattr(view, "permission_allowed_methods", [])
-        if request.method in permission_allowed_methods:
+        public_methods = getattr(view, "public_methods", [])
+        if request.method in public_methods:
             return True
         # If the user is authenticated, allow access
         if request.user and request.user.is_authenticated:
