@@ -313,7 +313,7 @@ def train_model(
             ) as f:
                 f.write(json.dumps(aoi_serializer.data))
 
-            tippecanoe_command = f"""tippecanoe -o {os.path.join(output_path,'meta.pmtiles')} -Z7 -z18 --named-layer={os.path.join(output_path, "aois.geojson")} --named-layer={os.path.join(output_path, "labels.geojson")} --force --read-parallel -rg --drop-densest-as-needed"""
+            tippecanoe_command = f"""tippecanoe -o {os.path.join(output_path,'meta.pmtiles')} -Z7 -z18 --named-layer=aois {os.path.join(output_path, "aois.geojson")} --named-layer=labels {os.path.join(output_path, "labels.geojson")} --force --read-parallel -rg --drop-densest-as-needed"""
             logging.info("Starting to generate vector tiles for aois and labels")
             try:
                 subprocess.check_output(tippecanoe_command)
