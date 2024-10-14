@@ -313,15 +313,6 @@ def train_model(
             ) as f:
                 f.write(json.dumps(aoi_serializer.data))
 
-            tippecanoe_command = f"""tippecanoe -o {os.path.join(output_path,'meta.pmtiles')} -Z7 -z18 -L aois:{os.path.join(output_path, "aois.geojson")} -L labels:{os.path.join(output_path, "labels.geojson")} --force --read-parallel -rg --drop-densest-as-needed"""
-            logging.info("Starting to generate vector tiles for aois and labels")
-            try:
-                subprocess.check_output(tippecanoe_command)
-            except subprocess.CalledProcessError as ex:
-                logger.error(ex.output)
-                raise ex
-            logging.info("Vector tile generation done !")
-
             # copy aois and labels to preprocess output before compressing it to tar
             shutil.copyfile(
                 os.path.join(output_path, "aois.geojson"),
@@ -336,6 +327,15 @@ def train_model(
                 os.path.join(output_path, "preprocessed.tar.xz"),
                 remove_original=True,
             )
+
+            tippecanoe_command = f"""tippecanoe -o {os.path.join(output_path,'meta.pmtiles')} -Z7 -z18 -L aois:{os.path.join(output_path, "aois.geojson")} -L labels:{os.path.join(output_path, "labels.geojson")} --force --read-parallel -rg --drop-densest-as-needed"""
+            logging.info("Starting to generate vector tiles for aois and labels")
+            try:
+                subprocess.check_output(tippecanoe_command)
+            except subprocess.CalledProcessError as ex:
+                logger.error(ex.output)
+                raise ex
+            logging.info("Vector tile generation done !")
 
             # now remove the ramp-data all our outputs are copied to our training workspace
             shutil.rmtree(base_path)
