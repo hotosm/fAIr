@@ -47,6 +47,11 @@ class Label(models.Model):
 
 
 class Model(models.Model):
+    FOUNDATION_MODEL_CHOICES = (
+        ("RAMP", "RAMP"),
+        ("YOLO", "YOLO"),
+    )
+
     class ModelStatus(models.IntegerChoices):
         ARCHIVED = 1
         PUBLISHED = 0
@@ -59,7 +64,10 @@ class Model(models.Model):
     description = models.TextField(max_length=500, null=True, blank=True)
     user = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
     published_training = models.PositiveIntegerField(null=True, blank=True)
-    status = models.IntegerField(default=-1, choices=ModelStatus.choices)  #
+    status = models.IntegerField(default=-1, choices=ModelStatus.choices)
+    foundation_model = models.CharField(
+        choices=FOUNDATION_MODEL_CHOICES, default="RAMP", max_length=10
+    )
 
 
 class Training(models.Model):
