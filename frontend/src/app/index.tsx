@@ -6,6 +6,7 @@ import { ENVS } from "@/config/env";
 import { QueryCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
+
 export const App = () => {
 
   const hotTrackingTagName = 'hot-tracking';
@@ -47,3 +48,7 @@ export const App = () => {
     </QueryClientProvider>
   );
 };
+
+
+
+

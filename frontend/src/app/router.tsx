@@ -4,6 +4,7 @@ import {
   Navigate,
   RouterProvider,
   createBrowserRouter,
+
 } from "react-router-dom";
 import { ProtectedPage } from "@/app/routes/protected-route";
 import { MainErrorFallback } from "@/components/errors";
@@ -138,5 +139,7 @@ const router = createBrowserRouter([
 ]);
 
 export const AppRouter = () => {
-  return <RouterProvider router={router} />;
+
+
+  return <RouterProvider router={router} />
 };

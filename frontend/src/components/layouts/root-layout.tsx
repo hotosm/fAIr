@@ -1,10 +1,14 @@
 import { NavBar } from "@/components/ui/header";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { Footer } from "@/components/ui/footer";
+import { useEffect } from "react";
 
 
 const RootLayout = () => {
-
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
   return (
     <main className="min-h-screen relative max-w-[1800px] mx-auto" >
       <NavBar />
