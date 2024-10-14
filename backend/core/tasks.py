@@ -313,6 +313,18 @@ def train_model(
             ) as f:
                 f.write(json.dumps(aoi_serializer.data))
 
+            tippecanoe_command = f"""tippecanoe -o {os.path.join(output_path,"meta.pmtiles")} -Z7 -z18 -L aois:{ os.path.join(output_path, "aois.geojson")} -L labels:{os.path.join(output_path, "labels.geojson")} --force --read-parallel -rg --drop-densest-as-needed"""
+            logging.info("Starting to generate vector tiles for aois and labels")
+            try:
+                result = subprocess.run(
+                    tippecanoe_command, shell=True, check=True, capture_output=True
+                )
+                logging.info(result.stdout.decode("utf-8"))
+            except subprocess.CalledProcessError as ex:
+                logger.error(ex.output)
+                raise ex
+            logging.info("Vector tile generation done !")
+
             # copy aois and labels to preprocess output before compressing it to tar
             shutil.copyfile(
                 os.path.join(output_path, "aois.geojson"),
@@ -328,15 +340,6 @@ def train_model(
                 remove_original=True,
             )
 
-            tippecanoe_command = f"""tippecanoe -o {os.path.join(output_path,'meta.pmtiles')} -Z7 -z18 -L aois:{ os.path.join(output_path, "aois.geojson")} -L labels:{os.path.join(output_path, "labels.geojson")} --force --read-parallel -rg --drop-densest-as-needed"""
-            logging.info("Starting to generate vector tiles for aois and labels")
-            try:
-                subprocess.check_output(tippecanoe_command)
-            except subprocess.CalledProcessError as ex:
-                logger.error(ex.output)
-                raise ex
-            logging.info("Vector tile generation done !")
-
             # now remove the ramp-data all our outputs are copied to our training workspace
             shutil.rmtree(base_path)
             training_instance.accuracy = float(final_accuracy)
@@ -345,7 +348,7 @@ def train_model(
             training_instance.save()
             response = {}
             response["accuracy"] = float(final_accuracy)
-            # response["model_path"] = os.path.join(output_path, "checkpoint.tf")
+            response["tiles_path"] = os.path.join(output_path, "meta.pmtiles")
             response["model_path"] = os.path.join(output_path, "checkpoint.h5")
             response["graph_path"] = os.path.join(output_path, "graphs")
             sys.stdout = sys.__stdout__
