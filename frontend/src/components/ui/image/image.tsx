@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 type ImageProps = {
   src: string;
   alt: string;
@@ -5,6 +7,7 @@ type ImageProps = {
   width?: string;
   height?: string;
   className?: string;
+  placeHolder?: any
 };
 
 const Image: React.FC<ImageProps> = ({
@@ -14,15 +17,24 @@ const Image: React.FC<ImageProps> = ({
   width,
   height,
   className,
+  placeHolder
 }) => {
+
+
+  const [imageSrc, setImageSrc] = useState(src);
+
+  const handleError = () => {
+    setImageSrc(placeHolder);
+  };
   return (
     <img
-      src={src}
+      src={imageSrc}
       alt={alt}
       title={title || alt}
       width={width}
       height={height}
       className={className}
+      onError={handleError}
     ></img>
   );
 };

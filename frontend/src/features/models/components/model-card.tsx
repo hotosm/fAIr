@@ -1,5 +1,5 @@
 import { TModel } from "@/types"
-import FairModelPlaceholderImage from '@/assets/fair_model_placeholder_image.png'
+import FairModelPlaceholderImage from '@/assets/images/model_placeholder_image.png'
 import { Image } from "@/components/ui/image"
 import { APPLICATION_ROUTES, extractDatePart } from "@/utils"
 import { Link } from "@/components/ui/link"
@@ -9,7 +9,9 @@ type ModelCardProps = {
     model: TModel
 }
 
+
 const ModelCard: React.FC<ModelCardProps> = ({ model }) => {
+
 
     return (
         <Link nativeAnchor={false} disableLinkStyle href={`${APPLICATION_ROUTES.MODELS}/${model.id}`} title={model.name} className="max-w-[300px] min-h-[450px] flex flex-col border border-gray-border hover:shadow-md overflow-hidden group">
@@ -17,6 +19,7 @@ const ModelCard: React.FC<ModelCardProps> = ({ model }) => {
                 <Image
                     src={model.thumbnail_url ? `${model.thumbnail_url}.png` : FairModelPlaceholderImage}
                     alt={model.name}
+                    placeHolder={FairModelPlaceholderImage}
                     className="w-full h-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-105"
                 />
             </div>

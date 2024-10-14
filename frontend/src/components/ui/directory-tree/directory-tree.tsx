@@ -11,7 +11,6 @@ type DirectoryTreeProps = {
     trainingId: number;
 };
 
-
 const DirectoryLoadingSkeleton = () => {
     return (
         <ul className='flex gap-y-4 flex-col'>
@@ -25,12 +24,12 @@ const DirectoryLoadingSkeleton = () => {
     );
 };
 
+
 const DirectoryTree: React.FC<DirectoryTreeProps> = ({ datasetId, trainingId }) => {
     const [lazyDirs, setLazyDirs] = useState<{ [key: string]: boolean }>({});
     const [expandedDirs, setExpandedDirs] = useState<{ [key: string]: any }>({});
     const [initialData, setInitialData] = useState<any>(null);
     const [currentDirectory, setCurrentDirectory] = useState<string>('');
-
 
     const { data: rootData, isLoading: loadingRoot, isError: errorRoot } = useTrainingWorkspace(datasetId, trainingId, '');
 
@@ -42,20 +41,16 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({ datasetId, trainingId }) 
         }
     }, [rootData]);
 
-
     const handleLazyLoad = (dirKey: string, parentPath: string) => {
         const newPath = parentPath ? `${parentPath}/${dirKey}` : dirKey;
         setLazyDirs(prev => ({ ...prev, [newPath]: false }));
         setCurrentDirectory(newPath);
     };
 
-
     const { data, isError } = useTrainingWorkspace(datasetId, trainingId, currentDirectory);
 
     useEffect(() => {
-        console.log(currentDirectory)
         if (data && currentDirectory) {
-
             setExpandedDirs(prev => ({
                 ...prev,
                 [currentDirectory]: {
@@ -66,51 +61,47 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({ datasetId, trainingId }) 
         }
     }, [data, currentDirectory]);
 
-
     const renderTreeItems = (items: any, parentKey: string = '') => {
-
         const combinedItems = {
             ...items.dir,
             ...items.file
         };
-        console.log(parentKey)
         return Object.entries(combinedItems).map(([key, value]: [string, any]) => {
             const isDirectory = typeof value === 'object' && value.hasOwnProperty('len');
-
+            console.log(key, isDirectory)
             return (
                 <SlTreeItem
                     key={`${parentKey}-${key}`}
-                    lazy={isDirectory && lazyDirs[key] !== false}
+                    lazy={isDirectory && lazyDirs[`${parentKey}/${key}`] !== false}
                     onSlLazyLoad={() => handleLazyLoad(key, parentKey)}
                 >
-                    {isDirectory ? (
-                        <>
-                            <DirectoryIcon className="w-4 h-4 mr-2" />
-                            <span title={key} className='text-nowrap'>{truncateString(key)}</span>
-                            <span className='ml-3 text-body-3 text-gray text-nowrap'>
-                                <SlFormatBytes value={value.size} /> {value.len} {value.len > 1 ? 'files' : 'file'}
-                            </span>
-                            {lazyDirs[key] === false && isError && <div>Error loading directory</div>}
-                            {lazyDirs[key] === false && expandedDirs[key] && renderTreeItems(expandedDirs[key], key)}
-                        </>
-                    ) : (
-                        <div className='flex items-center gap-x-3'>
-                            <FileIcon className="w-4 h-4 mr-2" />
-                            <span title={key} className='text-nowrap'>{truncateString(key)}</span>
-                            <span className='text-body-3 text-gray text-nowrap'>
-                                <SlFormatBytes value={value.size} />
-                            </span>
-                        </div>
-                    )}
+                    <div className='flex flex-row items-center gap-x-3'>
+                        {isDirectory ? (
+                            <>
+                                <DirectoryIcon className="w-4 h-4 mr-2" />
+                                <span title={key}>{truncateString(key)}</span>
+                                <span className='ml-3 text-body-3 text-gray'>
+                                    <SlFormatBytes value={value.size} /> {value.len} {value.len > 1 ? 'files' : 'file'}
+                                </span>
+                                {/* Render nested items if loaded */}
+                                {lazyDirs[`${parentKey}/${key}`] === false && expandedDirs[`${parentKey}/${key}`] && renderTreeItems(expandedDirs[`${parentKey}/${key}`], `${parentKey}/${key}`)}
+                            </>
+                        ) : (
+                            <div className='flex items-center gap-x-3' title={key}>
+                                <FileIcon className="w-4 h-4 mr-2" />
+                                {truncateString(key)}
+                                <span className='text-body-3 text-gray'>
+                                    <SlFormatBytes value={value.size} />
+                                </span>
+                            </div>
+                        )}
+                    </div>
                 </SlTreeItem>
             );
         });
     };
 
-
     if (loadingRoot) return <DirectoryLoadingSkeleton />;
-
-
     if (errorRoot) return <div className='flex items-center justify-center'>An error occurred while loading the root directory.</div>;
 
     return (
