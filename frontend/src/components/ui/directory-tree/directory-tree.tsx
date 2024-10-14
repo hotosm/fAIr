@@ -44,7 +44,6 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({ datasetId, trainingId }) 
 
 
     const handleLazyLoad = (dirKey: string, parentPath: string) => {
-
         const newPath = parentPath ? `${parentPath}/${dirKey}` : dirKey;
         setLazyDirs(prev => ({ ...prev, [newPath]: false }));
         setCurrentDirectory(newPath);
@@ -54,6 +53,7 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({ datasetId, trainingId }) 
     const { data, isError } = useTrainingWorkspace(datasetId, trainingId, currentDirectory);
 
     useEffect(() => {
+        console.log(currentDirectory)
         if (data && currentDirectory) {
 
             setExpandedDirs(prev => ({
@@ -73,7 +73,7 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({ datasetId, trainingId }) 
             ...items.dir,
             ...items.file
         };
-
+        console.log(parentKey)
         return Object.entries(combinedItems).map(([key, value]: [string, any]) => {
             const isDirectory = typeof value === 'object' && value.hasOwnProperty('len');
 
@@ -125,7 +125,7 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({ datasetId, trainingId }) 
             >
                 <DirectoryIcon className="w-4 h-4 mr-2" />
                 Root Directory
-                {initialData.dir && renderTreeItems(initialData)}
+                {initialData && renderTreeItems(initialData)}
             </SlTreeItem>
         </SlTree>
     );
