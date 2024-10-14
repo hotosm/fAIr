@@ -26,6 +26,8 @@ from django.shortcuts import get_object_or_404, redirect
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
 from geojson2osm import geojson2osm
+from login.authentication import OsmAuthentication
+from login.permissions import IsOsmAuthenticated
 from orthogonalizer import othogonalize_poly
 from osmconflator import conflate_geojson
 from rest_framework import decorators, filters, serializers, status, viewsets
@@ -35,9 +37,6 @@ from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_gis.filters import InBBoxFilter, TMSTileFilter
-
-from login.authentication import OsmAuthentication
-from login.permissions import IsOsmAuthenticated
 
 from .models import (
     AOI,
@@ -255,7 +254,7 @@ class ModelViewSet(
         "id": ["exact"],
     }
     ordering_fields = ["created_at", "last_modified", "id", "status"]
-    search_fields = ["name"]
+    search_fields = ["name", "id"]
 
 
 class ModelCentroidView(ListAPIView):
