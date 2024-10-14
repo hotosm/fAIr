@@ -2,6 +2,7 @@ from django.contrib.gis.db import models as geomodels
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.utils import timezone
 from login.models import OsmUser
 
 # Create your models here.
@@ -149,3 +150,21 @@ class ApprovedPredictions(models.Model):
     approved_by = models.ForeignKey(
         OsmUser, to_field="osm_id", on_delete=models.CASCADE
     )
+
+
+class Banner(models.Model):
+    message = models.CharField(max_length=255)
+    start_date = models.DateTimeField(default=timezone.now)
+    end_date = models.DateTimeField(null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+
+    def is_displayable(self):
+        now = timezone.now()
+        return (
+            self.is_active
+            and (self.start_date <= now)
+            and (self.end_date is None or self.end_date >= now)
+        )
+
+    def __str__(self):
+        return self.message

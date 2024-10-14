@@ -7,6 +7,7 @@ from rest_framework import routers
 from .views import (  # APIStatus,
     AOIViewSet,
     ApprovedPredictionsViewSet,
+    BannerViewSet,
     ConflateGeojson,
     DatasetViewSet,
     FeedbackAOIViewset,
@@ -44,6 +45,7 @@ router.register(r"model", ModelViewSet)
 router.register(r"feedback", FeedbackViewset)
 router.register(r"feedback-aoi", FeedbackAOIViewset)
 router.register(r"feedback-label", FeedbackLabelViewset)
+router.register(r"banners", BannerViewSet)
 
 
 urlpatterns = [

@@ -23,6 +23,7 @@ from django.http import (
     StreamingHttpResponse,
 )
 from django.shortcuts import get_object_or_404, redirect
+from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
 from geojson2osm import geojson2osm
@@ -41,6 +42,7 @@ from rest_framework_gis.filters import InBBoxFilter, TMSTileFilter
 from .models import (
     AOI,
     ApprovedPredictions,
+    Banner,
     Dataset,
     Feedback,
     FeedbackAOI,
@@ -53,6 +55,7 @@ from .models import (
 from .serializers import (
     AOISerializer,
     ApprovedPredictionsSerializer,
+    BannerSerializer,
     DatasetSerializer,
     FeedbackAOISerializer,
     FeedbackFileSerializer,
@@ -838,3 +841,14 @@ class TrainingWorkspaceDownloadView(APIView):
                 os.path.basename(base_dir)
             )
             return response
+
+
+class BannerViewSet(viewsets.ModelViewSet):
+    queryset = Banner.objects.all()
+    serializer_class = BannerSerializer
+
+    def get_queryset(self):
+        now = timezone.now()
+        return Banner.objects.filter(is_active=True, start_date__lte=now).filter(
+            end_date__gte=now
+        ) | Banner.objects.filter(is_active=True, end_date__isnull=True)

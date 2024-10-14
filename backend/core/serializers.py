@@ -393,3 +393,17 @@ class PredictionParamSerializer(serializers.Serializer):
                 data["area_threshold"]
             )
         return data
+
+
+class BannerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Banner
+        fields = [
+            "id",
+            "message",
+            "start_date",
+            "end_date",
+            "is_active",
+            "is_displayable",
+        ]
+        read_only_fields = ["is_displayable"]
