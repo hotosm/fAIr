@@ -192,6 +192,16 @@ class TrainingViewSet(
     serializer_class = TrainingSerializer  # connecting serializer
     filterset_fields = ["model", "status"]
 
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        feedback_count = Feedback.objects.filter(
+            training=instance.id
+        ).count()  # cal feedback count
+        data = serializer.data
+        data["feedback_count"] = feedback_count
+        return Response(data, status=status.HTTP_200_OK)
+
 
 class FeedbackViewset(viewsets.ModelViewSet):
     authentication_classes = [OsmAuthentication]
