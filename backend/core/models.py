@@ -15,7 +15,7 @@ class Dataset(models.Model):
         DRAFT = -1
 
     name = models.CharField(max_length=255)
-    created_by = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
+    user = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
     last_modified = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
     source_imagery = models.URLField(blank=True, null=True)
@@ -57,7 +57,7 @@ class Model(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now=True)
     description = models.TextField(max_length=500, null=True, blank=True)
-    created_by = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
+    user = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
     published_training = models.PositiveIntegerField(null=True, blank=True)
     status = models.IntegerField(default=-1, choices=ModelStatus.choices)  #
 
@@ -81,7 +81,7 @@ class Training(models.Model):
         models.PositiveIntegerField(),
         size=4,
     )
-    created_by = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
+    user = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
     started_at = models.DateTimeField(null=True, blank=True)
     finished_at = models.DateTimeField(null=True, blank=True)
     accuracy = models.FloatField(null=True, blank=True)
@@ -147,9 +147,7 @@ class ApprovedPredictions(models.Model):
         srid=4326
     )  ## Making this geometry field to support point/line prediction later on
     approved_at = models.DateTimeField(auto_now_add=True)
-    approved_by = models.ForeignKey(
-        OsmUser, to_field="osm_id", on_delete=models.CASCADE
-    )
+    user = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
 
 
 class Banner(models.Model):

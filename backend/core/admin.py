@@ -8,12 +8,12 @@ from .models import *
 
 @admin.register(Dataset)
 class DatasetAdmin(geoadmin.OSMGeoAdmin):
-    list_display = ["name", "created_by"]
+    list_display = ["name", "user"]
 
 
 @admin.register(Model)
 class ModelAdmin(geoadmin.OSMGeoAdmin):
-    list_display = ["get_dataset_id", "name", "status", "created_at", "created_by"]
+    list_display = ["get_dataset_id", "name", "status", "created_at", "user"]
 
     def get_dataset_id(self, obj):
         return obj.dataset.id
@@ -28,7 +28,7 @@ class TrainingAdmin(geoadmin.OSMGeoAdmin):
         "description",
         "status",
         "zoom_level",
-        "created_by",
+        "user",
         "accuracy",
     ]
     list_filter = ["status"]

@@ -28,7 +28,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
 from geojson2osm import geojson2osm
 from login.authentication import OsmAuthentication
-from login.permissions import IsOsmAuthenticated
+from login.permissions import IsAdminUser, IsOsmAuthenticated, IsStaffUser
 from orthogonalizer import othogonalize_poly
 from osmconflator import conflate_geojson
 from rest_framework import decorators, filters, serializers, status, viewsets
@@ -107,7 +107,7 @@ class TrainingSerializer(
         read_only_fields = (
             "created_at",
             "status",
-            "created_by",
+            "user",
             "started_at",
             "finished_at",
             "accuracy",
@@ -144,7 +144,7 @@ class TrainingSerializer(
             )
 
         user = self.context["request"].user
-        validated_data["created_by"] = user
+        validated_data["user"] = user
         # create the model instance
         multimasks = validated_data.get("multimasks", False)
         input_contact_spacing = validated_data.get("input_contact_spacing", 0.75)
@@ -263,7 +263,7 @@ class ModelViewSet(
         "status": ["exact"],
         "created_at": ["exact", "gt", "gte", "lt", "lte"],
         "last_modified": ["exact", "gt", "gte", "lt", "lte"],
-        "created_by": ["exact"],
+        "user": ["exact"],
         "id": ["exact"],
     }
     ordering_fields = ["created_at", "last_modified", "id", "status"]
@@ -364,7 +364,7 @@ class ApprovedPredictionsViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         training_id = request.data.get("training")
         geom = request.data.get("geom")
-        request.data["approved_by"] = self.request.user.osm_id
+        request.data["user"] = self.request.user.osm_id
 
         existing_approved_feature = ApprovedPredictions.objects.filter(
             training=training_id, geom=geom
@@ -589,7 +589,7 @@ class FeedbackView(APIView):
                 model=training_instance.model,
                 status="SUBMITTED",
                 description=f"Feedback of Training {training_id}",
-                created_by=self.request.user,
+                user=self.request.user,
                 zoom_level=zoom_level,
                 epochs=epochs,
                 batch_size=batch_size,
@@ -847,7 +847,7 @@ class BannerViewSet(viewsets.ModelViewSet):
     queryset = Banner.objects.all()
     serializer_class = BannerSerializer
     authentication_classes = [OsmAuthentication]
-    permission_classes = [IsOsmAuthenticated]
+    permission_classes = [IsStaffUser, IsAdminUser]
     permission_allowed_methods = ["GET"]
 
     def get_queryset(self):

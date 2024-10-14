@@ -18,14 +18,14 @@ class DatasetSerializer(
         model = Dataset
         fields = "__all__"  # defining all the fields to  be included in curd for now , we can restrict few if we want
         read_only_fields = (
-            "created_by",
+            "user",
             "created_at",
             "last_modified",
         )
 
     def create(self, validated_data):
         user = self.context["request"].user
-        validated_data["created_by"] = user
+        validated_data["user"] = user
         return super().create(validated_data)
 
 
@@ -46,7 +46,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class ModelSerializer(serializers.ModelSerializer):
-    created_by = UserSerializer(read_only=True)
+    user = UserSerializer(read_only=True)
     accuracy = serializers.SerializerMethodField()
     thumbnail_url = serializers.SerializerMethodField()
 
@@ -56,13 +56,13 @@ class ModelSerializer(serializers.ModelSerializer):
         read_only_fields = (
             "created_at",
             "last_modified",
-            "created_by",
+            "user",
             "published_training",
         )
 
     def create(self, validated_data):
         user = self.context["request"].user
-        validated_data["created_by"] = user
+        validated_data["user"] = user
         return super().create(validated_data)
 
     # def get_training(self, obj):
