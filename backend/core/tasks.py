@@ -328,7 +328,7 @@ def train_model(
                 remove_original=True,
             )
 
-            tippecanoe_command = f"""tippecanoe -o {os.path.join(output_path,'meta.pmtiles')} -Z7 -z18 -L aois:{os.path.join(output_path, "aois.geojson")} -L labels:{os.path.join(output_path, "labels.geojson")} --force --read-parallel -rg --drop-densest-as-needed"""
+            tippecanoe_command = f"""tippecanoe -o {os.path.join(output_path,'meta.pmtiles')} -Z7 -z18 -L aois:{ os.path.join(output_path, "aois.geojson")} -L labels:{os.path.join(output_path, "labels.geojson")} --force --read-parallel -rg --drop-densest-as-needed"""
             logging.info("Starting to generate vector tiles for aois and labels")
             try:
                 subprocess.check_output(tippecanoe_command)
