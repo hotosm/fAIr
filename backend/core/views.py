@@ -846,6 +846,9 @@ class TrainingWorkspaceDownloadView(APIView):
 class BannerViewSet(viewsets.ModelViewSet):
     queryset = Banner.objects.all()
     serializer_class = BannerSerializer
+    authentication_classes = [OsmAuthentication]
+    permission_classes = [IsOsmAuthenticated]
+    permission_allowed_methods = ["GET"]
 
     def get_queryset(self):
         now = timezone.now()
