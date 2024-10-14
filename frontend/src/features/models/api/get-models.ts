@@ -37,3 +37,4 @@ export const getModelsMapData = async (): Promise<FeatureCollection> => {
 };
 
 
+

@@ -14,4 +14,6 @@ export const API_ENDPOINTS = {
 
   //Trainings
   GET_TRAINING_DETAILS: (id: number) => `training/${id}`,
+  GET_TRAINING_FEEDBACKS: (trainingId: number) => `/feedback/?training=${trainingId}`,
+  GET_TRAINING_WORKSPACE: (datasetId: number, trainingId: number, directory_name: string) => `/workspace/dataset_${datasetId}/output/training_${trainingId}/${directory_name}`
 };

@@ -1,0 +1,31 @@
+import { IconButton } from "@/components/ui/button"
+import { ChatbubbleIcon } from "@/components/ui/icons"
+import { useTrainingFeedbacks } from "../hooks/use-training";
+
+const ModelFeedbacks = ({ trainingId }: { trainingId: number }) => {
+    const { data, isLoading, isError } = useTrainingFeedbacks(trainingId)
+
+    if (isLoading) {
+        return (
+            <div className="w-20 h-6 animate-pulse bg-light-gray">
+            </div>
+        )
+    }
+
+    return (
+        <>
+            <p className="text-dark text-body-2">
+                {isError ? 'N/A' : data?.count}
+                <span className="text-gray"> Feedbacks</span>
+            </p>
+            <IconButton
+                label="view feedbacks"
+                variant="dark"
+                size="medium"
+                prefixIcon={ChatbubbleIcon}
+            />
+        </>
+    )
+}
+
+export default ModelFeedbacks

@@ -39,3 +39,5 @@ export const useModelsMapData = () => {
         throwOnError: (error) => error.response?.status >= 500,
     });
 };
+
+

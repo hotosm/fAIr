@@ -1,10 +1,11 @@
 
 import { IconButton } from "@/components/ui/button";
 import { Divider } from "@/components/ui/divider";
-import { ChatbubbleIcon, DirectoryIcon, ExternalLinkIcon, MapIcon, RequestIcon } from "@/components/ui/icons";
+import { DirectoryIcon, ExternalLinkIcon, MapIcon, RequestIcon } from "@/components/ui/icons";
 import ChevronDownIcon from "@/components/ui/icons/chevron-down";
 import { ModelProperties } from "@/features/models/components";
 import { TrainingAreaDialog, ModelFilesDialog } from "@/features/models/components/dialogs";
+import ModelFeedbacks from "@/features/models/components/model-feedbacks";
 import { ModelDetailsSkeleton } from "@/features/models/components/skeletons";
 import { useModelDetails } from "@/features/models/hooks/use-models";
 import { useDialog } from "@/hooks/use-dialog";
@@ -64,12 +65,14 @@ export const ModelDetailsPage = () => {
             <ModelFilesDialog
                 setOpen={toggleModelFilesDialog}
                 isOpened={isModelFilesDialogOpened}
+                trainingId={data?.published_training as number}
+                datasetId={data?.dataset as number}
             />
             <TrainingAreaDialog
                 isOpened={isOpened}
                 setOpen={toggle}
             />
-            <div className="my-12 flex flex-col gap-y-20 ">
+            <div className="my-12 flex flex-col gap-y-20">
                 <section className="flex flex-col gap-y-8">
                     <div className="flex flex-col gap-y-4">
                         <div className="flex flex-col">
@@ -98,7 +101,7 @@ export const ModelDetailsPage = () => {
                     <div className="grid grid-cols-3">
 
                         <div className="flex flex-col gap-y-4">
-                            <DetailItem label="Created by" value={data?.created_by.username} />
+                            <DetailItem label="Created by" value={data?.user.username} />
                             <DetailItem label="Created on" value={formatDate(data?.created_at as string)} />
                             <DetailItem label="Last Modified" value={formatDate(data?.last_modified as string)} />
                         </div>
@@ -117,16 +120,7 @@ export const ModelDetailsPage = () => {
                         </div>
 
                         <div className="col-span-1 flex flex-col items-end justify-between gap-y-4">
-                            <p className="text-dark text-body-2">
-                                38
-                                <span className="text-gray"> Feedbacks</span>
-                            </p>
-                            <IconButton
-                                label="view feedbacks"
-                                variant="dark"
-                                size="medium"
-                                prefixIcon={ChatbubbleIcon}
-                            />
+                            <ModelFeedbacks trainingId={data?.published_training as number} />
                         </div>
                     </div>
                 </section>

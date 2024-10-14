@@ -41,7 +41,7 @@ export type TModel = {
   status: number,
   dataset: number,
   accuracy: number,
-  created_by: TOSMUser,
+  user: TOSMUser,
   thumbnail_url: string
 }
 
@@ -86,6 +86,20 @@ export type TTrainingDetails = {
   freeze_layers: boolean,
   model: number,
   created_by: number
+}
+
+
+// Training workspace
+
+export type TrainingWorkspace = {
+  dir: Record<string, Record<string, number>>,
+  file: Record<string, Record<string, number>>
+}
+export type TTrainingFeedbacks = {
+  count: number
+  next: string | null
+  previous: string | null
+  results: FeatureCollection
 }
 
 // Centroid types

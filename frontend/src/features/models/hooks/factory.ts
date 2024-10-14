@@ -1,6 +1,6 @@
 import { queryOptions, keepPreviousData, } from '@tanstack/react-query';
 import { getModels, getModelDetails, getModelsMapData } from '@/features/models/api/get-models';
-import { getTrainingDetails } from '@/features/models/api/get-trainings';
+import { getTrainingDetails, getTrainingFeedbacks, getTrainingWorkspace } from '@/features/models/api/get-trainings';
 
 
 // Models
@@ -52,3 +52,21 @@ export const getTrainingDetailsQueryOptions = (id: number) => {
     queryFn: () => getTrainingDetails(id),
   });
 };
+
+
+export const getTrainingFeedbacksQueryOptions = (id: number) => {
+  return queryOptions({
+    queryKey: ['training-feedbacks', id],
+    queryFn: () => getTrainingFeedbacks(id),
+  });
+};
+
+
+export const getTrainingWorkspaceQueryOptions = (datasetId: number, trainingId: number, directory_name: string) => {
+  return queryOptions({
+    queryKey: ['training-workspace', datasetId, trainingId, directory_name],
+    queryFn: () => getTrainingWorkspace(datasetId, trainingId, directory_name),
+  });
+};
+
+

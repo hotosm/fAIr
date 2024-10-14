@@ -10,6 +10,7 @@ type ModelCardProps = {
 }
 
 const ModelCard: React.FC<ModelCardProps> = ({ model }) => {
+
     return (
         <Link nativeAnchor={false} disableLinkStyle href={`${APPLICATION_ROUTES.MODELS}/${model.id}`} title={model.name} className="max-w-[300px] min-h-[450px] flex flex-col border border-gray-border hover:shadow-md overflow-hidden group">
             <div className="h-[200px] w-full">
@@ -31,7 +32,7 @@ const ModelCard: React.FC<ModelCardProps> = ({ model }) => {
                 </div>
                 {/* Name and date */}
                 <div className="inline-flex flex-col gap-y-2">
-                    <p className="font-semibold text-body-2base text-dark">{model.created_by.username}</p>
+                    <p className="font-semibold text-body-2base text-dark">{model.user.username}</p>
                     <p className="text-gray text-body-3">Last Modified: <span className="font-bold">{extractDatePart(model.last_modified)}</span></p>
                 </div>
             </div>

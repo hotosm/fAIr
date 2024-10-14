@@ -107,6 +107,7 @@ sl-alert.success::part(base) {
   position: fixed;
   z-index: 10000;
   bottom: 0;
+  width: 100vw;
 }
 
 /* Toast stack placement */
