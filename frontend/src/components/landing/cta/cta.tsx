@@ -5,6 +5,10 @@ import { APP_CONTENT } from "@/utils";
 import { Image } from "@/components/ui/image";
 
 const CallToAction = () => {
+  const joinTheCommunityClick = () =>
+  {
+      window.open("https://slack.hotosm.org/")
+  }
   return (
     <section className={styles.container}>
       <div className={styles.cta}>
@@ -13,7 +17,7 @@ const CallToAction = () => {
           <p>{APP_CONTENT.homepage.callToAction.paragraph}</p>
         </div>
         <div className={styles.ctaButtonContainer}>
-          <Button variant="primary">
+          <Button variant="primary" onClick={joinTheCommunityClick}>
             {" "}
             {APP_CONTENT.homepage.callToAction.ctaButton}
           </Button>

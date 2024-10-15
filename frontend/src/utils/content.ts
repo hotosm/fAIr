@@ -2,7 +2,6 @@
 // for easier internalization when necessary.
 
 import { APPLICATION_ROUTES } from "./constants";
-
 export const APP_CONTENT = {
   navbar: {
     logoAlt: "HOT fAIr Logo",
@@ -76,7 +75,8 @@ export const APP_CONTENT = {
     kpi: {
       publishedAIModels:"Published AI Models",
       totalUsers:"Total Registered Users",
-      humanFeedback: "Human Feedback"
+      humanFeedback: "Human Feedbacks",
+      acceptedPrediction: "Accepted Prediction"
     },
     aboutTitle: "WHAT IS fAIr?",
     aboutContent: `fAIr is an open AI-assisted mapping service developed by the Humanitarian OpenStreetMap Team (HOT) that aims to improve the efficiency and accuracy of mapping efforts for humanitarian purposes. The service uses AI models, specifically computer vision techniques, to detect objects in satellite and UAV imagery.`,
@@ -134,17 +134,17 @@ export const APP_CONTENT = {
         {
           question: "What is fAIr?",
           answer:
-            " Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+            "fAIr is a free and open source AI assisted mapping tool that gives local communities the ability to create their localized AI models to amplify their humanitarian mapping efforts.",
         },
         {
           question: "Who can use fAIr?",
           answer:
-            " Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+            "Anyone can use fAIr with basic authentication (log in) and they will be able to explore the community crated AI models and use them for mapping and create their own new models.",
         },
         {
           question: "Can I use fAIr without having a sound knowledge of AI?",
           answer:
-            " Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+            "fAIr is design for users without the need for python or any programming skills. However, basic knowledge in  humanitarian mapping and Geographical Information Systems (GIS) would be sufficient for self exploration.",
         },
       ],
     },
@@ -158,8 +158,7 @@ export const APP_CONTENT = {
     callToAction: {
       title: `We can't do it without you`,
       ctaButton: "Join The Community",
-      paragraph:
-        " Lorem ipsum dolor sit, amet consectetur adipisicing elit. Fugiat esse ipsam amet molestias impedit at nulla fuga, sed ducimus nesciunt dolore facere cum velit voluptatem provident reiciendis iure quo rerum.",
+      paragraph: "fAIr is a collaborative project. We welcome all types of experience to join our community on HOTOSM Slack. There is always a room for AI/ML for earth observation expertise, community engagement enthusiastic, academic researcher or student looking for an academic challenge around social impact."   
     },
   },
   pageNotFound: {
