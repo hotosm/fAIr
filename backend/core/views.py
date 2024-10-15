@@ -24,6 +24,9 @@ from django.http import (
 )
 from django.shortcuts import get_object_or_404, redirect
 from django.utils import timezone
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+from django.views.decorators.vary import vary_on_cookie, vary_on_headers
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
 from geojson2osm import geojson2osm
@@ -865,6 +868,8 @@ class BannerViewSet(viewsets.ModelViewSet):
         ) | Banner.objects.filter(end_date__isnull=True)
 
 
+@cache_page(60 * 15)  ## Cache for 15 mins
+# @vary_on_cookie , if you wanna do user specific cache
 @api_view(["GET"])
 def get_kpi_stats(request):
     total_models_with_status_published = Model.objects.filter(status=0).count()
