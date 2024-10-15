@@ -28,10 +28,15 @@ class IsOsmAuthenticated(permissions.BasePermission):
         # Allow modification (PUT, DELETE) if the user is staff or admin
         if request.user.is_staff or request.user.is_superuser:
             return True
-
-        if hasattr(obj, "user") and obj.user == request.user:
-            return True
-
+        ## if the object it is trying to access has user info
+        if hasattr(obj, "user"):
+            # in order to change it it needs to be in his/her name
+            if obj.user == request.user:
+                return True
+        else:
+            if request.method == "POST":
+                # if object doesn't have user in it then he has permission to access the object , considered as common object
+                return True
         return False
 
 
