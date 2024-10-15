@@ -2,7 +2,6 @@
 // for easier internalization when necessary.
 
 import { APPLICATION_ROUTES } from "./constants";
-
 export const APP_CONTENT = {
   navbar: {
     logoAlt: "HOT fAIr Logo",
@@ -23,7 +22,7 @@ export const APP_CONTENT = {
   },
   footer: {
     title:
-      "fAIr is a platform where individuals can use an AI model for mapping in OpenStreetMap",
+      "We pursue Just tech to amplify connections between human[itarian] needs and open map data.",
     copyright: {
       firstSegment:
         "Images are screenshots of fAIr may be shared under a Creatives Commons Attribution-ShareAlike 4.0 International License.",
@@ -69,38 +68,45 @@ export const APP_CONTENT = {
   homepage: {
     jumbotronTitle: "Your AI Mapping Partner",
     jumbotronHeadline:
-      "AI-powered assistant that replicates your mapping samples intelligently and quickly, helping you map smarter and faster.",
+      "AI-powered assistant that amplify your mapping efforts intelligently and quickly, helping you map smarter and faster.",
     ctaPrimaryButton: "Create Model",
     ctaSecondaryButton: "Start Mapping",
     jumbotronImageAlt: "A user engaging in a mapping activity",
+    kpi: {
+      publishedAIModels:"Published AI Models",
+      totalUsers:"Total Registered Users",
+      humanFeedback: "Human Feedbacks",
+      acceptedPrediction: "Accepted Prediction"
+    },
     aboutTitle: "WHAT IS fAIr?",
-    aboutContent: `fAIr is an open AI-assisted mapping platform developed by the Humanitarian OpenStreetMap Team (HOT) that aims to improve the efficiency and accuracy of mapping efforts for humanitarian purposes. The service uses AI models, specifically computer vision techniques, to detect objects in satellite and UAV imagery.`,
+    aboutContent: `fAIr is an open AI-assisted mapping service developed by the Humanitarian OpenStreetMap Team (HOT) that aims to improve the efficiency and accuracy of mapping efforts for humanitarian purposes. The service uses AI models, specifically computer vision techniques, to detect objects in satellite and UAV imagery.`,
     fairProcess: {
+      title: "fAIr process",
       stepOne: {
         title: "Create Model",
         description:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",
+          "Create a customized and localized AI models using open source (or your) imagery and your customized labels with support by OSM open data",
       },
       stepTwo: {
         title: "Run Prediction",
         description:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",
+          "Run prediction/inference in a live environment or define your area of interest to run your local model and get the data.",
       },
       stepThree: {
         title: "Feedback",
         description:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",
+          "Get live human feedback about the quality of your localized model to support your decision to enhance the model accuracy.",
       },
       stepFour: {
         title: "Use Data",
         description:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",
+          "Make the produced data open and available for humanitarian actors to take actions for impact",
       },
     },
     coreFeatures: {
       featureOne: "Time Efficient",
       featureTwo: "High Accuracy",
-      featureThree: "Time Efficient",
+      featureThree: "Re-usable/Resilience",
     },
     coreValues: {
       sectionTitle: {
@@ -113,12 +119,12 @@ export const APP_CONTENT = {
       community: {
         title: "Community Driven",
         description:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",
+          "fAIr follows a community driven approach to decide on the features that will be implemented. We are continuously engaging with local communities to shape the direction and the future of AI-assisted humanitarian mapping",
       },
       humansNotReplaced: {
-        title: "Humans not Replaced",
+        title: "Humans in the loop",
         description:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",
+          "As part of the community approach, humans are involved in the whole fAIr process, from creating models till reaching high quality data and gather feedback",
       },
     },
     faqs: {
@@ -128,17 +134,17 @@ export const APP_CONTENT = {
         {
           question: "What is fAIr?",
           answer:
-            " Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+            "fAIr is a free and open source AI assisted mapping tool that gives local communities the ability to create their localized AI models to amplify their humanitarian mapping efforts.",
         },
         {
           question: "Who can use fAIr?",
           answer:
-            " Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+            "Anyone can use fAIr with basic authentication (log in) and they will be able to explore the community crated AI models and use them for mapping and create their own new models.",
         },
         {
           question: "Can I use fAIr without having a sound knowledge of AI?",
           answer:
-            " Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+            "fAIr is design for users without the need for python or any programming skills. However, basic knowledge in  humanitarian mapping and Geographical Information Systems (GIS) would be sufficient for self exploration.",
         },
       ],
     },
@@ -152,8 +158,7 @@ export const APP_CONTENT = {
     callToAction: {
       title: `We can't do it without you`,
       ctaButton: "Join The Community",
-      paragraph:
-        " Lorem ipsum dolor sit, amet consectetur adipisicing elit. Fugiat esse ipsam amet molestias impedit at nulla fuga, sed ducimus nesciunt dolore facere cum velit voluptatem provident reiciendis iure quo rerum.",
+      paragraph: "fAIr is a collaborative project. We welcome all types of experience to join our community on HOTOSM Slack. There is always a room for AI/ML for earth observation expertise, community engagement enthusiastic, academic researcher or student looking for an academic challenge around social impact."   
     },
   },
   pageNotFound: {
