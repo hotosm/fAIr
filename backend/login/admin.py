@@ -86,6 +86,8 @@ class OsmUserAdmin(admin.ModelAdmin):
             },
         ),
     )
-    formfield_overrides = {
-        models.CharField: {"validators": []},
-    }
+
+    def formfield_for_dbfield(self, db_field, request, **kwargs):
+        if db_field.name == "username":
+            kwargs["validators"] = []  ## override the validation for sername
+        return super().formfield_for_dbfield(db_field, request, **kwargs)

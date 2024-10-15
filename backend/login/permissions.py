@@ -10,9 +10,9 @@ class IsOsmAuthenticated(permissions.BasePermission):
         public_methods = getattr(view, "public_methods", [])
         if request.method in public_methods:
             return True
-        # If the user is authenticated, allow access
+
         if request.user and request.user.is_authenticated:
-            # Global access for staff and admin users
+            # Global access
             if request.user.is_staff or request.user.is_superuser:
                 return True
 
@@ -21,7 +21,7 @@ class IsOsmAuthenticated(permissions.BasePermission):
         return False
 
     def has_object_permission(self, request, view, obj):
-        # Allow read-only access for any authenticated user
+
         if request.method in permissions.SAFE_METHODS:
             return True
 
@@ -29,8 +29,7 @@ class IsOsmAuthenticated(permissions.BasePermission):
         if request.user.is_staff or request.user.is_superuser:
             return True
 
-        # Check if the object has a 'creator' field and if the user is the creator
-        if hasattr(obj, "creator") and obj.creator == request.user:
+        if hasattr(obj, "user") and obj.user == request.user:
             return True
 
         return False

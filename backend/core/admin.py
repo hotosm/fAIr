@@ -51,8 +51,8 @@ class FeedbackAdmin(geoadmin.OSMGeoAdmin):
 
 @admin.register(Banner)
 class BannerAdmin(admin.ModelAdmin):
-    list_display = ("message", "start_date", "end_date", "is_active", "is_displayable")
-    list_filter = ("is_active", "start_date", "end_date")
+    list_display = ("message", "start_date", "end_date", "is_displayable")
+    list_filter = ("start_date", "end_date")
     search_fields = ("message",)
     readonly_fields = ("is_displayable",)
 

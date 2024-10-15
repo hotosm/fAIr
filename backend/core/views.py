@@ -724,16 +724,24 @@ if settings.ENABLE_PREDICTION_API:
 def publish_training(request, training_id: int):
     """Publishes training for model"""
     training_instance = get_object_or_404(Training, id=training_id)
+
     if training_instance.status != "FINISHED":
         return Response("Training is not FINISHED", status=404)
     if training_instance.accuracy < 70:
         return Response(
-            "Can't publish the training since it's accuracy is below 70 %", status=404
+            "Can't publish the training since its accuracy is below 70%", status=404
         )
+
     model_instance = get_object_or_404(Model, id=training_instance.model.id)
+
+    # Check if the current user is the owner of the model
+    if model_instance.user != request.user:
+        return Response("You are not allowed to publish this training", status=403)
+
     model_instance.published_training = training_instance.id
     model_instance.status = 0
     model_instance.save()
+
     return Response("Training Published", status=status.HTTP_201_CREATED)
 
 
@@ -800,8 +808,8 @@ class TrainingWorkspaceView(APIView):
 
 
 class TrainingWorkspaceDownloadView(APIView):
-    # authentication_classes = [OsmAuthentication]
-    # permission_classes = [IsOsmAuthenticated]
+    authentication_classes = [OsmAuthentication]
+    permission_classes = [IsOsmAuthenticated]
 
     def get(self, request, lookup_dir):
         base_dir = os.path.join(settings.TRAINING_WORKSPACE, lookup_dir)
@@ -847,7 +855,8 @@ class BannerViewSet(viewsets.ModelViewSet):
     queryset = Banner.objects.all()
     serializer_class = BannerSerializer
     authentication_classes = [OsmAuthentication]
-    permission_classes = [IsStaffUser, IsAdminUser]
+    permission_classes = [IsAdminUser, IsStaffUser]
+    public_methods = ["GET"]
 
     def get_queryset(self):
         now = timezone.now()

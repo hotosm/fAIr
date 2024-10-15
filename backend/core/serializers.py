@@ -403,7 +403,6 @@ class BannerSerializer(serializers.ModelSerializer):
             "message",
             "start_date",
             "end_date",
-            "is_active",
             "is_displayable",
         ]
         read_only_fields = ["is_displayable"]

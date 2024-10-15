@@ -47,7 +47,7 @@ class Label(models.Model):
 
 
 class Model(models.Model):
-    FOUNDATION_MODEL_CHOICES = (
+    BASE_MODEL_CHOICES = (
         ("RAMP", "RAMP"),
         ("YOLO", "YOLO"),
     )
@@ -65,8 +65,8 @@ class Model(models.Model):
     user = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
     published_training = models.PositiveIntegerField(null=True, blank=True)
     status = models.IntegerField(default=-1, choices=ModelStatus.choices)
-    foundation_model = models.CharField(
-        choices=FOUNDATION_MODEL_CHOICES, default="RAMP", max_length=10
+    base_model = models.CharField(
+        choices=BASE_MODEL_CHOICES, default="RAMP", max_length=10
     )
 
 
@@ -159,17 +159,14 @@ class ApprovedPredictions(models.Model):
 
 
 class Banner(models.Model):
-    message = models.CharField(max_length=255)
+    message = models.TextField()
     start_date = models.DateTimeField(default=timezone.now)
     end_date = models.DateTimeField(null=True, blank=True)
-    is_active = models.BooleanField(default=True)
 
     def is_displayable(self):
         now = timezone.now()
-        return (
-            self.is_active
-            and (self.start_date <= now)
-            and (self.end_date is None or self.end_date >= now)
+        return (self.start_date <= now) and (
+            self.end_date is None or self.end_date >= now
         )
 
     def __str__(self):
