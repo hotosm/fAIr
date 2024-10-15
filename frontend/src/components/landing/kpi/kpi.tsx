@@ -18,6 +18,10 @@ const KPIs: TKPIS = [
   {
     figure: "100",
     label: APP_CONTENT.homepage.kpi.humanFeedback,
+  },
+  {
+    figure: "15",
+    label: APP_CONTENT.homepage.kpi.acceptedPrediction,
   }
   // ,
   // {
