@@ -860,6 +860,23 @@ class BannerViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         now = timezone.now()
-        return Banner.objects.filter(is_active=True, start_date__lte=now).filter(
+        return Banner.objects.filter(start_date__lte=now).filter(
             end_date__gte=now
-        ) | Banner.objects.filter(is_active=True, end_date__isnull=True)
+        ) | Banner.objects.filter(end_date__isnull=True)
+
+
+@api_view(["GET"])
+def get_kpi_stats(request):
+    total_models_with_status_published = Model.objects.filter(status=0).count()
+    total_registered_users = OsmUser.objects.count()
+    total_approved_predictions = ApprovedPredictions.objects.count()
+    total_feedback_labels = FeedbackLabel.objects.count()
+
+    data = {
+        "total_models_published": total_models_with_status_published,
+        "total_registered_users": total_registered_users,
+        "total_accepted_predictions": total_approved_predictions,
+        "total_feedback_labels": total_feedback_labels,
+    }
+
+    return Response(data)

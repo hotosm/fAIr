@@ -37,6 +37,9 @@ class IsOsmAuthenticated(permissions.BasePermission):
 
 class IsAdminUser(permissions.BasePermission):
     def has_permission(self, request, view):
+        public_methods = getattr(view, "public_methods", [])
+        if request.method in public_methods:
+            return True
         return (
             request.user and request.user.is_authenticated and request.user.is_superuser
         )
@@ -44,4 +47,7 @@ class IsAdminUser(permissions.BasePermission):
 
 class IsStaffUser(permissions.BasePermission):
     def has_permission(self, request, view):
+        public_methods = getattr(view, "public_methods", [])
+        if request.method in public_methods:
+            return True
         return request.user and request.user.is_authenticated and request.user.is_staff

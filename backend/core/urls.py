@@ -27,6 +27,7 @@ from .views import (  # APIStatus,
     UsersView,
     download_training_data,
     geojson2osmconverter,
+    get_kpi_stats,
     publish_training,
     run_task_status,
 )
@@ -73,6 +74,7 @@ urlpatterns = [
         "workspace/download/<path:lookup_dir>/", TrainingWorkspaceDownloadView.as_view()
     ),
     path("workspace/<path:lookup_dir>/", TrainingWorkspaceView.as_view()),
+    path("kpi/stats/", get_kpi_stats, name="get_kpi_stats"),
 ]
 if settings.ENABLE_PREDICTION_API:
     urlpatterns.append(path("prediction/", PredictionView.as_view()))
