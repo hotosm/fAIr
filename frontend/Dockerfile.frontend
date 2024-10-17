@@ -1,0 +1,15 @@
+
+FROM node:20.18
+
+WORKDIR /app
+
+
+COPY . /app
+
+
+RUN npm install --force
+
+
+# RUN npm run build
+
+# EXPOSE 3000

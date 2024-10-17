@@ -2,18 +2,13 @@ import json
 import logging
 import os
 import shutil
+import subprocess
 import sys
 import tarfile
 import traceback
 from shutil import rmtree
 
 from celery import shared_task
-from django.conf import settings
-from django.contrib.gis.db.models.aggregates import Extent
-from django.contrib.gis.geos import GEOSGeometry
-from django.shortcuts import get_object_or_404
-from django.utils import timezone
-
 from core.models import AOI, Feedback, FeedbackAOI, FeedbackLabel, Label, Training
 from core.serializers import (
     AOISerializer,
@@ -23,6 +18,11 @@ from core.serializers import (
     LabelFileSerializer,
 )
 from core.utils import bbox, is_dir_empty
+from django.conf import settings
+from django.contrib.gis.db.models.aggregates import Extent
+from django.contrib.gis.geos import GEOSGeometry
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 
@@ -135,6 +135,10 @@ def train_model(
                     raise ValueError(
                         f"No AOI is attached with supplied dataset id:{dataset_id}, Create AOI first",
                     )
+            first_aoi_centroid = aois[0].geom.centroid
+            training_instance.centroid = first_aoi_centroid
+            training_instance.save()
+
             for obj in aois:
                 bbox_coords = bbox(obj.geom.coords[0])
                 for z in zoom_level:
@@ -309,6 +313,18 @@ def train_model(
             ) as f:
                 f.write(json.dumps(aoi_serializer.data))
 
+            tippecanoe_command = f"""tippecanoe -o {os.path.join(output_path,"meta.pmtiles")} -Z7 -z18 -L aois:{ os.path.join(output_path, "aois.geojson")} -L labels:{os.path.join(output_path, "labels.geojson")} --force --read-parallel -rg --drop-densest-as-needed"""
+            logging.info("Starting to generate vector tiles for aois and labels")
+            try:
+                result = subprocess.run(
+                    tippecanoe_command, shell=True, check=True, capture_output=True
+                )
+                logging.info(result.stdout.decode("utf-8"))
+            except subprocess.CalledProcessError as ex:
+                logger.error(ex.output)
+                raise ex
+            logging.info("Vector tile generation done !")
+
             # copy aois and labels to preprocess output before compressing it to tar
             shutil.copyfile(
                 os.path.join(output_path, "aois.geojson"),
@@ -332,7 +348,7 @@ def train_model(
             training_instance.save()
             response = {}
             response["accuracy"] = float(final_accuracy)
-            # response["model_path"] = os.path.join(output_path, "checkpoint.tf")
+            response["tiles_path"] = os.path.join(output_path, "meta.pmtiles")
             response["model_path"] = os.path.join(output_path, "checkpoint.h5")
             response["graph_path"] = os.path.join(output_path, "graphs")
             sys.stdout = sys.__stdout__

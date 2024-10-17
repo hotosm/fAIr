@@ -7,6 +7,7 @@ from rest_framework import routers
 from .views import (  # APIStatus,
     AOIViewSet,
     ApprovedPredictionsViewSet,
+    BannerViewSet,
     ConflateGeojson,
     DatasetViewSet,
     FeedbackAOIViewset,
@@ -26,6 +27,7 @@ from .views import (  # APIStatus,
     UsersView,
     download_training_data,
     geojson2osmconverter,
+    get_kpi_stats,
     publish_training,
     run_task_status,
 )
@@ -44,6 +46,7 @@ router.register(r"model", ModelViewSet)
 router.register(r"feedback", FeedbackViewset)
 router.register(r"feedback-aoi", FeedbackAOIViewset)
 router.register(r"feedback-label", FeedbackLabelViewset)
+router.register(r"banner", BannerViewSet)
 
 
 urlpatterns = [
@@ -71,6 +74,7 @@ urlpatterns = [
         "workspace/download/<path:lookup_dir>/", TrainingWorkspaceDownloadView.as_view()
     ),
     path("workspace/<path:lookup_dir>/", TrainingWorkspaceView.as_view()),
+    path("kpi/stats/", get_kpi_stats, name="get_kpi_stats"),
 ]
 if settings.ENABLE_PREDICTION_API:
     urlpatterns.append(path("prediction/", PredictionView.as_view()))

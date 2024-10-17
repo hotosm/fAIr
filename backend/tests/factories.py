@@ -1,16 +1,16 @@
 import factory
-from login.models import OsmUser
-from django.contrib.gis.geos import Polygon
 from core.models import (
-    Dataset,
     AOI,
-    Label,
-    Model,
-    Training,
+    Dataset,
     Feedback,
     FeedbackAOI,
     FeedbackLabel,
+    Label,
+    Model,
+    Training,
 )
+from django.contrib.gis.geos import Polygon
+from login.models import OsmUser
 
 
 class OsmUserFactory(factory.django.DjangoModelFactory):
@@ -26,7 +26,7 @@ class DatasetFactory(factory.django.DjangoModelFactory):
 
     name = "My test dataset"
     source_imagery = "https://tiles.openaerialmap.org/5ac4fc6f26964b0010033112/0/5ac4fc6f26964b0010033113/{z}/{x}/{y}"
-    created_by = factory.SubFactory(OsmUserFactory)
+    user = factory.SubFactory(OsmUserFactory)
 
 
 class AoiFactory(factory.django.DjangoModelFactory):
@@ -67,7 +67,7 @@ class ModelFactory(factory.django.DjangoModelFactory):
 
     dataset = factory.SubFactory(DatasetFactory)
     name = "My test model"
-    created_by = factory.SubFactory(OsmUserFactory)
+    user = factory.SubFactory(OsmUserFactory)
 
 
 class TrainingFactory(factory.django.DjangoModelFactory):
@@ -76,7 +76,7 @@ class TrainingFactory(factory.django.DjangoModelFactory):
 
     model = factory.SubFactory(ModelFactory)
     description = "My very first training"
-    created_by = factory.SubFactory(OsmUserFactory)
+    user = factory.SubFactory(OsmUserFactory)
     epochs = 1
     zoom_level = [20, 21]
     batch_size = 1
