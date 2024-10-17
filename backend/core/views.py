@@ -95,7 +95,7 @@ class DatasetViewSet(
 class TrainingSerializer(
     serializers.ModelSerializer
 ):  # serializers are used to translate models objects to api
-
+    user = UserSerializer(read_only=True)
     multimasks = serializers.BooleanField(required=False, default=False)
     input_contact_spacing = serializers.IntegerField(
         required=False, default=8, min_value=0, max_value=20
