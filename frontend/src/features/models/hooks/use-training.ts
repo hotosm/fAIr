@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getTrainingDetailsQueryOptions, getTrainingFeedbacksQueryOptions, getTrainingWorkspaceQueryOptions } from "./factory";
+import { getTrainingDetailsQueryOptions, getTrainingFeedbacksQueryOptions, getTrainingHistoryQueryOptions, getTrainingWorkspaceQueryOptions } from "./factory";
 
 
 export const useTrainingDetails = (id: number) => {
@@ -26,6 +26,19 @@ export const useTrainingWorkspace = (datasetId: number, trainingId: number, dire
         throwOnError: (error) => error?.response?.status >= 500,
     });
 };
+
+
+export const useTrainingHistory = (modelId: string, offset: number, limit: number) => {
+    return useQuery({
+        ...getTrainingHistoryQueryOptions(modelId, offset, limit),
+        //@ts-expect-error
+        throwOnError: (error) => error?.response?.status >= 500,
+        refetchInterval: 10000, // 10 seconds
+        refetchIntervalInBackground: true,
+    });
+};
+
+
 
 
 

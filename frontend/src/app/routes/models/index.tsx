@@ -1,11 +1,10 @@
 import { useModels, useModelsMapData } from "@/features/models/hooks/use-models";
-import { ModelsPageSkeleton } from "@/features/models/components"
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { CategoryIcon, ListIcon } from "@/components/ui/icons";
+import { CategoryIcon, FilterIcon, ListIcon } from "@/components/ui/icons";
 import { Switch } from "@/components/ui/form";
-import { ModelList, } from "@/features/models/components";
+import { ModelListGridLayout, ModelListTableLayout } from "@/features/models/layouts";
 import { ModelsMap } from "@/features/models/components";
 import { CategoryFilter, DateRangeFilter, OrderingFilter, SearchFilter } from "@/features/models/components/filters";
 import Pagination, { PAGE_LIMIT } from "@/features/models/components/pagination";
@@ -14,6 +13,11 @@ import { PageHeader } from "@/features/models/components/";
 import { dateFilters } from "@/features/models/components/filters/date-range-filter";
 import { ORDERING_FIELDS } from "@/features/models/components/filters/ordering-filter";
 import { FeatureCollection, TQueryParams } from "@/types";
+import ModelNotFound from "@/features/models/components/model-not-found";
+import useDebounce from "@/hooks/use-debounce";
+import { useDialog } from "@/hooks/use-dialog";
+import ModelFiltersDialog from "@/features/models/components/dialogs/model-filters-dialog";
+import { Head } from "@/components/seo";
 
 
 export enum LayoutView {
@@ -30,7 +34,8 @@ export const SEARCH_PARAMS = {
   searchQuery: 'q',
   offset: 'offset',
   dateFilter: 'dateFilter',
-  layout: 'layout'
+  layout: 'layout',
+  id: 'id'
 }
 
 
@@ -40,14 +45,14 @@ const ClearFilters = ({ query, handleClearFilters }: {
   query: TQueryParams
 }) => {
 
-  const canClearAllFilters = Boolean(query[SEARCH_PARAMS.searchQuery] || query[SEARCH_PARAMS.startDate] || query[SEARCH_PARAMS.endDate]);
+  const canClearAllFilters = Boolean(query[SEARCH_PARAMS.searchQuery] || query[SEARCH_PARAMS.startDate] || query[SEARCH_PARAMS.endDate] || query[SEARCH_PARAMS.id]);
 
   return (
     <div className="hidden md:block">
       {
         canClearAllFilters ?
           <Button variant="tertiary" size="medium" onClick={handleClearFilters} >
-            Clear all
+            Clear filters
           </Button>
           : null
       }
@@ -62,9 +67,10 @@ const SetMapToggle = ({ query, updateQuery, isMobile }: {
 }) => {
 
   return (
-    <div className={`${isMobile ? 'inline-flex md:hidden' : 'hidden md:inline-flex'} items-center gap-x-4`}>
-      <p className="text-body-2base">Map View</p>
+    <div className={`${isMobile ? 'inline-flex md:hidden' : 'hidden md:inline-flex'} items-center gap-x-4`} role="button" >
+      <p className="text-body-2base text-nowrap">Map View</p>
       <Switch checked={query[SEARCH_PARAMS.mapIsActive] as boolean}
+        disabled={query[SEARCH_PARAMS.layout] == LayoutView.LIST}
         handleSwitchChange={() => {
           updateQuery({
             [SEARCH_PARAMS.mapIsActive]: !query[SEARCH_PARAMS.mapIsActive]
@@ -82,16 +88,31 @@ const LayoutToggle = ({ query, updateQuery, isMobile }: {
   const activeLayout = query[SEARCH_PARAMS.layout]
   return (
     <div
+      role="button"
+      title={`Switch to ${query[SEARCH_PARAMS.layout] === LayoutView.GRID ? LayoutView.LIST : LayoutView.GRID as string} layout`}
       className={`${isMobile ? 'flex md:hidden' : 'hidden md:flex'} border border-gray-border p-2 items-center justify-center text-dark cursor-pointer`}
       onClick={() => updateQuery({
         [SEARCH_PARAMS.layout]: activeLayout === LayoutView.GRID ? LayoutView.LIST : LayoutView.GRID
       })}>
-      {activeLayout !== LayoutView.LIST ? <ListIcon /> : <CategoryIcon />}
+      {activeLayout !== LayoutView.LIST ? <ListIcon className="icon-lg" /> : <CategoryIcon className="icon-lg" />}
     </div>
   )
 }
 
 
+const MobileFilter = ({ openMobileFilterModal }: {
+  openMobileFilterModal: () => void
+  isMobile?: boolean
+}) => {
+  return (
+    <div
+      role="button"
+      className={'flex md:hidden  border border-gray-border p-2 items-center justify-center text-dark cursor-pointer'}
+      onClick={openMobileFilterModal}>
+      {<FilterIcon className="icon-lg" />}
+    </div>
+  )
+}
 
 
 export const ModelsPage = () => {
@@ -107,17 +128,21 @@ export const ModelsPage = () => {
     [SEARCH_PARAMS.startDate]: searchParams.get(SEARCH_PARAMS.startDate) || '',
     [SEARCH_PARAMS.endDate]: searchParams.get(SEARCH_PARAMS.endDate) || '',
     [SEARCH_PARAMS.dateFilter]: searchParams.get(SEARCH_PARAMS.dateFilter) || dateFilters[0].searchParams,
-    [SEARCH_PARAMS.layout]: searchParams.get(SEARCH_PARAMS.layout) || LayoutView.GRID
+    [SEARCH_PARAMS.layout]: searchParams.get(SEARCH_PARAMS.layout) || LayoutView.GRID,
+    [SEARCH_PARAMS.id]: searchParams.get(SEARCH_PARAMS.id) || '',
   }
 
   const [query, setQuery] = useState<TQueryParams>(defaultQueries);
-  const [clearAll, setClearAll] = useState<boolean>(false);
+
+
+  const debouncedSearchText = useDebounce(query[SEARCH_PARAMS.searchQuery] as string, 300);
 
   const { data, isPending, isPlaceholderData } = useModels({
-    searchQuery: query[SEARCH_PARAMS.searchQuery] as string,
+    searchQuery: debouncedSearchText,
     limit: PAGE_LIMIT,
     offset: query[SEARCH_PARAMS.offset] as number,
     orderBy: query[SEARCH_PARAMS.ordering] as string,
+    id: query[SEARCH_PARAMS.id] as number,
     dateFilters: buildDateFilterQueryString(
       dateFilters.find(filter => filter.searchParams === query[SEARCH_PARAMS.dateFilter]),
       query[SEARCH_PARAMS.startDate] as string,
@@ -145,9 +170,9 @@ export const ModelsPage = () => {
     setSearchParams(updatedParams);
   }, [searchParams, setSearchParams]);
 
-  //reset offset back to 0 when searching.
+  //reset offset back to 0 when searching or when ID filtering is applied from the map.
   useEffect(() => {
-    if (query[SEARCH_PARAMS.searchQuery] !== '' && query[SEARCH_PARAMS.offset] as number > 0) {
+    if ((query[SEARCH_PARAMS.searchQuery] !== '' || query[SEARCH_PARAMS.id] !== '') && query[SEARCH_PARAMS.offset] as number > 0) {
       updateQuery({ [SEARCH_PARAMS.offset]: 0 })
     }
   }, [query])
@@ -162,20 +187,21 @@ export const ModelsPage = () => {
       [SEARCH_PARAMS.endDate]: defaultQueries[SEARCH_PARAMS.endDate],
       [SEARCH_PARAMS.dateFilter]: defaultQueries[SEARCH_PARAMS.dateFilter],
       [SEARCH_PARAMS.layout]: defaultQueries[SEARCH_PARAMS.layout],
-      [SEARCH_PARAMS.searchQuery]: searchParams.get(SEARCH_PARAMS.searchQuery) || '',
+      [SEARCH_PARAMS.searchQuery]: defaultQueries[SEARCH_PARAMS.searchQuery],
+      [SEARCH_PARAMS.id]: defaultQueries[SEARCH_PARAMS.id],
     };
     setQuery(newQuery);
   }, []);
 
 
-  // pass in map component the filter setter, so it can update the search box with the id here.
-  const { data: mapData, isPending: modelMapDataIsPending, } = useModelsMapData();
-  console.log(modelMapDataIsPending)
-  // Since it's just a static filter, it's better to memoize it.
-  const memoizedCategoryFilter = useMemo(() => <CategoryFilter disabled={isPending} />, [isPending])
+  const { data: mapData, isPending: modelsMapDataIsPending, } = useModelsMapData();
 
-  const mapViewIsActive = useMemo(() => query[SEARCH_PARAMS.mapIsActive], [query])
-  // const isGridLayout = useMemo(() => query[SEARCH_PARAMS.layout], [query])
+  // Since it's just a static filter, it's better to memoize it.
+  const memoizedCategoryFilter = useMemo(() => <CategoryFilter disabled={isPending} />, [isPending]);
+
+  const mapViewIsActive = useMemo(() => query[SEARCH_PARAMS.mapIsActive], [query]);
+
+
 
   const clearAllFilters = useCallback(() => {
     setQuery((prev) => ({
@@ -186,6 +212,7 @@ export const ModelsPage = () => {
       [SEARCH_PARAMS.searchQuery]: defaultQueries[SEARCH_PARAMS.searchQuery],
       [SEARCH_PARAMS.startDate]: defaultQueries[SEARCH_PARAMS.startDate],
       [SEARCH_PARAMS.endDate]: defaultQueries[SEARCH_PARAMS.endDate],
+      [SEARCH_PARAMS.id]: defaultQueries[SEARCH_PARAMS.id],
 
       // Keep other params 
       [SEARCH_PARAMS.mapIsActive]: prev[SEARCH_PARAMS.mapIsActive],
@@ -194,100 +221,135 @@ export const ModelsPage = () => {
     }));
     const resetParams = new URLSearchParams();
     setSearchParams(resetParams);
-    setClearAll(true);
-    setTimeout(() => setClearAll(false), 0);
   }, []);
 
   const handleClearFilters = () => {
     clearAllFilters();
   };
 
-  const memoizedSearchFilter = useMemo(() => {
-    return (
-      <SearchFilter
-        updateQuery={updateQuery}
-        query={query}
-        clearAll={clearAll}
-      />
-    )
-  }, [query[SEARCH_PARAMS.searchQuery]])
+  const { isOpened, toggle } = useDialog();
+
+  const renderContent = () => {
+
+    if (data?.count === 0) {
+      return (
+        <div className="h-[400px] flex w-full col-span-5 items-center justify-center">
+          <ModelNotFound />
+        </div>
+      )
+    }
+
+    if (mapViewIsActive) {
+      return (
+        <div className="w-full grid md:grid-cols-4 md:border rounded-md p-2 md:border-gray-border gap-x-2 mt-10 grid-rows-2 md:grid-rows-1 gap-y-10 md:gap-y-0 h-screen md:h-[500px]">
+          <div className="col-span-1 md:col-span-2 md:row-start-1 grid grid-cols-1 xl:grid-cols-2 gap-x-7 gap-y-14 overflow-scroll">
+            <ModelListGridLayout models={data?.results} isPending={isPending} />
+          </div>
+          <div className="col-span-2 md:col-span-2 row-start-1">
+            {
+              modelsMapDataIsPending ? <div className="w-full h-full animate-pulse bg-light-gray"></div> : <ModelsMap mapResults={mapData as FeatureCollection} updateQuery={updateQuery} />
+            }
+          </div>
+        </div>
+      );
+    }
+    // Table list view 
+    if (query[SEARCH_PARAMS.layout] === LayoutView.LIST) {
+      return (
+        <div className="col-span-5">
+          <ModelListTableLayout isPending={isPending} models={data?.results} />
+        </div>
+      )
+    }
+    return <ModelListGridLayout isPending={isPending} models={data?.results} />;
+  };
 
   return (
-    <section className="my-10 min-h-screen">
-      <PageHeader />
-      <div className=" flex items-center justify-between">
-        <div className="flex items-center justify-between gap-x-4">
-          {memoizedSearchFilter}
-          {memoizedCategoryFilter}
-          <LayoutToggle updateQuery={updateQuery} query={query} isMobile />
-          <DateRangeFilter
-            disabled={isPending}
-            updateQuery={updateQuery}
-            query={query}
-          />
-          <ClearFilters query={query} handleClearFilters={handleClearFilters} />
-        </div>
-        <div className="inline-flex items-center gap-x-12">
-          <SetMapToggle updateQuery={updateQuery} query={query} />
-          <LayoutToggle updateQuery={updateQuery} query={query} />
-        </div>
-      </div>
-
-      {
-        isPending ?
-          <div className="w-full h-10 mt-10 bg-light-gray animate-pulse text-dark"></div>
-          :
-          <div className="flex items-center justify-between w-full my-10">
-            <div className="w-full flex items-center justify-between">
-              <p className="font-semibold text-body-3">{data?.count} models</p>
-              <SetMapToggle
-                query={query}
-                updateQuery={updateQuery}
-                isMobile
-              />
+    <>
+      <Head title="Explore fAIr Models" />
+      <ModelFiltersDialog isOpened={isOpened} setOpen={toggle} query={query} updateQuery={updateQuery} />
+      <section className="my-10 min-h-screen">
+        <PageHeader />
+        <div className=" flex items-center justify-between w-full ">
+          <div className="flex items-center justify-between w-full md:gap-x-4 gap-y-2 md:gap-y-0  md:w-auto">
+            <SearchFilter
+              updateQuery={updateQuery}
+              query={query}
+            />
+            {memoizedCategoryFilter}
+            {/* Mobile filters */}
+            <div className="flex md:hidden items-center gap-x-4">
+              <MobileFilter openMobileFilterModal={toggle} />
+              <LayoutToggle updateQuery={updateQuery} query={query} isMobile />
             </div>
-            <div className="flex items-center gap-x-9">
-              <OrderingFilter
-                disabled={isPending}
-                query={query}
-                updateQuery={updateQuery}
-              />
-              <Pagination
-                totalLength={data?.count}
-                hasNextPage={data?.hasNext}
-                hasPrevPage={data?.hasPrev}
-                disableNextPage={!data?.hasNext || isPlaceholderData}
-                disablePrevPage={!data?.hasPrev}
-                pageLimit={PAGE_LIMIT}
-                query={query}
-                updateQuery={updateQuery}
-                isPlaceholderData={isPlaceholderData}
-              />
-            </div>
+            <DateRangeFilter
+              disabled={isPending}
+              updateQuery={updateQuery}
+              query={query}
+            />
+            <ClearFilters query={query} handleClearFilters={handleClearFilters} />
           </div>
-      }
+          <div className="md:flex items-center gap-x-10 hidden">
+            <SetMapToggle updateQuery={updateQuery} query={query} />
+            <LayoutToggle updateQuery={updateQuery} query={query} />
+          </div>
+        </div>
 
-      <div className={`${!mapViewIsActive && '2xl:grid-cols-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-x-[28px] gap-y-[69.73px]'}`}>
         {
           isPending ?
-            <ModelsPageSkeleton layout={LayoutView.GRID} /> :
-            mapViewIsActive ?
-              <div className="w-full grid md:grid-cols-4 2xl:grid-cols-5 border rounded-md p-2 border-gray-border gap-x-2 mt-10">
-                <div className="col-span-1 md:col-span-2  grid grid-cols-1 xl:grid-cols-2 gap-x-[28px] gap-y-[52.73px] overflow-scroll h-[500px]">
-                  {/* Filtered model result will be here. So column span will change to accommodate it.
-                  Todo - handle skeleton when mapview is activated check if it's pending.
-                  Todo - add margin to skeleton for pagination . margin top
-                   */}
-                  <ModelList models={data?.results} layout={LayoutView.GRID} />
+            <div className="w-full h-10 mt-10 bg-light-gray animate-pulse text-dark"></div>
+            :
+            <div className="flex items-center justify-between w-full my-10">
+              <div className="w-full flex items-center justify-between">
+                <p className="font-semibold text-body-3">{data?.count} models</p>
+                <SetMapToggle
+                  query={query}
+                  updateQuery={updateQuery}
+                  isMobile
+                />
+              </div>
+              <div className="flex items-center gap-x-9">
+                <OrderingFilter
+                  disabled={isPending}
+                  query={query}
+                  updateQuery={updateQuery}
+                />
+                <div className="hidden md:flex">
+                  <Pagination
+                    totalLength={data?.count}
+                    hasNextPage={data?.hasNext}
+                    hasPrevPage={data?.hasPrev}
+                    disableNextPage={!data?.hasNext || isPlaceholderData}
+                    disablePrevPage={!data?.hasPrev}
+                    pageLimit={PAGE_LIMIT}
+                    query={query}
+                    updateQuery={updateQuery}
+                    isPlaceholderData={isPlaceholderData}
+                  />
                 </div>
-                <div className="col-span-2 md:col-span-2 2xl:col-span-3 h-[500px]">
-                  <ModelsMap mapResults={mapData as FeatureCollection} updateQuery={updateQuery} />
-                </div>
-              </div> :
-              <ModelList models={data?.results} layout={LayoutView.GRID} />
+              </div>
+            </div>
         }
-      </div>
-    </section>
+
+        <div className={`my-10 ${mapViewIsActive ? '' : 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-7 gap-y-14'}`}>
+          {renderContent()}
+        </div>
+        {/* mobile pagination */}
+        <div className="w-full flex items-center justify-center md:hidden">
+          <Pagination
+            totalLength={data?.count}
+            hasNextPage={data?.hasNext}
+            hasPrevPage={data?.hasPrev}
+            disableNextPage={!data?.hasNext || isPlaceholderData}
+            disablePrevPage={!data?.hasPrev}
+            pageLimit={PAGE_LIMIT}
+            query={query}
+            updateQuery={updateQuery}
+            isPlaceholderData={isPlaceholderData}
+          />
+        </div>
+      </section>
+    </>
   );
 };
 

@@ -1,6 +1,10 @@
-import { Button } from "@/components/ui/button"
+import { ButtonWithIcon } from "@/components/ui/button"
+import { AddIcon } from "@/components/ui/icons"
+import { APPLICATION_ROUTES } from "@/utils"
+import { useNavigate } from "react-router-dom"
 
 const PageHeader = () => {
+    const navigate = useNavigate();
     return (
         <div className="flex flex-col gap-y-8 my-12">
             <div>
@@ -11,9 +15,7 @@ const PageHeader = () => {
                     Each model is trained using one of the training datasets. Published models can be used to find mappable features in imagery that is similar to the training areas that dataset comes from.
                 </p>
                 <div className="self-start">
-                    <Button variant="primary" create>
-                        Create Model
-                    </Button>
+                    <ButtonWithIcon variant="primary" prefixIcon={AddIcon} label="Create Model" onClick={() => navigate(APPLICATION_ROUTES.CREATE_NEW_MODEL)} />
                 </div>
             </div>
         </div>

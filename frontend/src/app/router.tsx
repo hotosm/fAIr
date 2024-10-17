@@ -72,6 +72,21 @@ const router = createBrowserRouter([
         },
       },
       {
+        path: APPLICATION_ROUTES.CREATE_NEW_MODEL,
+        lazy: async () => {
+          const { ModelCreationPage } = await import(
+            "@/app/routes/models/create-new"
+          );
+          return {
+            Component: () => (
+              <ProtectedPage>
+                <ModelCreationPage />
+              </ProtectedPage>
+            ),
+          };
+        },
+      },
+      {
         path: APPLICATION_ROUTES.TRAINING_DATASETS,
         lazy: async () => {
           const { TrainingDatasetsPage } = await import(

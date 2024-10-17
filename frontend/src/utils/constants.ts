@@ -6,6 +6,7 @@ export const APPLICATION_ROUTES = {
   HOMEPAGE: "/",
   MODELS: "/models",
   MODEL_DETAILS: '/models/:id',
+  CREATE_NEW_MODEL: '/models/new',
   TRAINING_DATASETS: "/training-datasets",
   NOTFOUND: "/404",
   PRIVACY_POLICY: "/privacy",

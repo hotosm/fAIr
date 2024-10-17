@@ -1,6 +1,5 @@
 sl-button.button::part(base) {
   border-radius: 0 !important;
-
   border: none;
   font-size: var(--hot-fair-font-size-body-text-3);
   display: flex;
@@ -23,11 +22,7 @@ sl-button.dark::part(base) {
   color: var(--hot-fair-color-white);
 }
 
-sl-button.outline::part(base) {
-  border-color: var(--hot-fair-color-dark);
-  color: var(--hot-fair-color-dark);
-  background-color: var(--hot-fair-color-white);
-}
+
 
 sl-button.tertiary::part(base) {
   background-color: var(--hot-fair-color-dark);

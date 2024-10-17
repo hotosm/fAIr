@@ -15,9 +15,11 @@ type PaginationProps = {
     disablePrevPage: boolean
     totalLength?: number
     pageLimit: number
-    query: TQueryParams
-    updateQuery: (params: TQueryParams,) => void
+    query?: TQueryParams
+    updateQuery?: (params: TQueryParams,) => void
     isPlaceholderData: boolean
+    offset?: number
+    setOffset?: (offset: number) => void
 }
 
 
@@ -30,38 +32,41 @@ const Pagination: React.FC<PaginationProps> = ({
     pageLimit,
     query,
     updateQuery,
-    isPlaceholderData
+    isPlaceholderData,
+    offset,
+    setOffset
 }) => {
 
-    const offset = query[SEARCH_PARAMS.offset] as number
+    const _offset = offset ?? query?.[SEARCH_PARAMS.offset] as number
 
     const onNextPage = () => {
-        console.log('here', offset + PAGE_LIMIT)
-        if (!isPlaceholderData && hasNextPage) {
-            updateQuery({
-                [SEARCH_PARAMS.offset]: offset + PAGE_LIMIT
-            })
 
+        if (!isPlaceholderData && hasNextPage) {
+            const nextOffset = _offset + pageLimit
+            updateQuery?.({
+                [SEARCH_PARAMS.offset]: _offset + pageLimit
+            })
+            setOffset?.(nextOffset)
         }
     };
 
     const onPrevPage = () => {
         if (hasPrevPage) {
-            console.log('here', offset ?? 0 + Math.max(offset - PAGE_LIMIT, 0))
-            updateQuery({
-                [SEARCH_PARAMS.offset]: Math.max(offset - PAGE_LIMIT, 0)
+            const prevOffset = _offset - pageLimit
+            updateQuery?.({
+                [SEARCH_PARAMS.offset]: Math.max(prevOffset, 0)
             })
-
+            setOffset?.(Math.max(prevOffset, 0))
         }
     };
 
 
     return (
-        <div className="hidden md:flex min-w-[216px] items-center justify-between ">
+        <div className="flex min-w-[216px] items-center justify-between ">
             <p className="hidden md:inline-block text-body-3">
-                <span className="font-semibold ">{offset + 1} - {offset + pageLimit < (totalLength ? totalLength : 0) ? offset + pageLimit : totalLength}</span> of {totalLength}
+                <span className="font-semibold ">{_offset + 1} - {_offset + pageLimit < (totalLength ? totalLength : 0) ? _offset + pageLimit : totalLength}</span> of {totalLength}
             </p>
-            <div className="flex items-center gap-x-4 ">
+            <div className="flex items-center gap-x-10 justify-center w-full md:w-fit md:gap-x-4 ">
                 <button className="w-4 cursor-pointer" title="Prev" disabled={disablePrevPage} onClick={onPrevPage}>
                     <ChevronDownIcon className={`rotate-90  ${hasPrevPage ? 'text-dark' : 'text-light-gray'}`} />
                 </button>

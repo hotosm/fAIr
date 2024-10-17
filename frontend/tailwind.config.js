@@ -11,7 +11,8 @@ export default {
         "light-gray": "var(--hot-fair-color-light-gray)",
         "off-white": "var(--hot-fair-color-off-white)",
         "gray-disabled": "var(--hot-fair-color-gray-disabled)",
-        "gray-border": "var(--hot-fair-color-gray-border)"
+        "gray-border": "var(--hot-fair-color-gray-border)",
+        "hover-accent": "var( --hot-fair-color-hover-accent)"
       },
       fontFamily: {
         archivo: "var(--sl-font-sans)",

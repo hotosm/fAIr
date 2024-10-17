@@ -14,6 +14,9 @@ export const API_ENDPOINTS = {
 
   //Trainings
   GET_TRAINING_DETAILS: (id: number) => `training/${id}`,
+  UPDATE_TRAINING: (id: number) => `training/publish/${id}/`,
+  GET_MODEL_TRAINING_HISTORY: (id: string) => `training/?model=${id}`,
   GET_TRAINING_FEEDBACKS: (trainingId: number) => `/feedback/?training=${trainingId}`,
-  GET_TRAINING_WORKSPACE: (datasetId: number, trainingId: number, directory_name: string) => `/workspace/dataset_${datasetId}/output/training_${trainingId}/${directory_name}`
+  GET_TRAINING_WORKSPACE: (datasetId: number, trainingId: number, directory_name: string) => `/workspace/dataset_${datasetId}/output/training_${trainingId}/${directory_name}`,
+  DOWNLOAD_TRAINING_FILE: (datasetId: number, trainingId: number, directory_name: string) => `/workspace/download/dataset_${datasetId}/output/training_${trainingId}/${directory_name}`,
 };

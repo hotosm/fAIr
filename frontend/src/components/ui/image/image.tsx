@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type ImageProps = {
   src: string;
@@ -7,7 +7,7 @@ type ImageProps = {
   width?: string;
   height?: string;
   className?: string;
-  placeHolder?: any
+  placeHolder?: string;
 };
 
 const Image: React.FC<ImageProps> = ({
@@ -19,23 +19,36 @@ const Image: React.FC<ImageProps> = ({
   className,
   placeHolder
 }) => {
-
-
+  const [isLoading, setIsLoading] = useState(true);
   const [imageSrc, setImageSrc] = useState(src);
 
-  const handleError = () => {
-    setImageSrc(placeHolder);
+  const handleLoad = () => {
+    setIsLoading(false);
   };
+
+  const handleError = () => {
+    setImageSrc(placeHolder || "");
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    if (!src) return
+    setImageSrc(src);
+  }, [src]);
   return (
-    <img
-      src={imageSrc}
-      alt={alt}
-      title={title || alt}
-      width={width}
-      height={height}
-      className={className}
-      onError={handleError}
-    ></img>
+    <>
+      {isLoading && <div className="animate-pulse bg-light-gray w-full h-full"></div>}
+      <img
+        src={imageSrc}
+        alt={alt}
+        title={title || alt}
+        width={width}
+        height={height}
+        className={` ${className} ${isLoading ? "hidden" : ""}`}
+        onLoad={handleLoad}
+        onError={handleError}
+      />
+    </>
   );
 };
 

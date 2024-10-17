@@ -25,6 +25,7 @@ body {
   --hot-fair-color-white: #fff;
   --hot-fair-color-gray-disabled: #a6a6a6;
   --hot-fair-color-gray-border: #E4E4E4;
+  --hot-fair-color-hover-accent: #F5F5F5;
   /* Font sizes in rem */
   --hot-fair-font-size-large-title: 3rem;
   /* 48px */
@@ -119,12 +120,13 @@ sl-alert.success::part(base) {
   bottom: 0;
 }
 
-/* Models page */
+/* Icon styles */
+@layer components {
+  .icon {
+    @apply inline-block h-4 w-4;
+  }
 
-.two-columns {
-  @apply col-span-1 2xl:col-span-2 grid grid-cols-1 xl:grid-cols-2
-}
-
-.three-columns {
-  @apply col-span-1 2xl:col-span-2 grid grid-cols-1 xl:grid-cols-2
+  .icon-lg {
+    @apply inline-block h-6 w-6;
+  }
 }

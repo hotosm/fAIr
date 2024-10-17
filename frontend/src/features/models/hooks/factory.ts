@@ -1,6 +1,6 @@
 import { queryOptions, keepPreviousData, } from '@tanstack/react-query';
 import { getModels, getModelDetails, getModelsMapData } from '@/features/models/api/get-models';
-import { getTrainingDetails, getTrainingFeedbacks, getTrainingWorkspace } from '@/features/models/api/get-trainings';
+import { getModelTrainingHistory, getTrainingDetails, getTrainingFeedbacks, getTrainingWorkspace } from '@/features/models/api/get-trainings';
 
 
 // Models
@@ -12,6 +12,7 @@ type TModelQueryOptions = {
   searchQuery: string;
   dateFilters: Record<string, string>,
   status: number;
+  id: number
 };
 
 export const getModelsQueryOptions = ({
@@ -21,10 +22,11 @@ export const getModelsQueryOptions = ({
   offset,
   orderBy,
   dateFilters,
+  id
 }: TModelQueryOptions) => {
   return queryOptions({
-    queryKey: ['models', { status, searchQuery, offset, orderBy, dateFilters, }],
-    queryFn: () => getModels(limit, offset, orderBy, status, searchQuery, dateFilters,),
+    queryKey: ['models', { status, searchQuery, offset, orderBy, dateFilters, id }],
+    queryFn: () => getModels(limit, offset, orderBy, status, searchQuery, dateFilters, id),
     placeholderData: keepPreviousData,
   });
 };
@@ -69,4 +71,13 @@ export const getTrainingWorkspaceQueryOptions = (datasetId: number, trainingId: 
   });
 };
 
+
+
+export const getTrainingHistoryQueryOptions = (modelId: string, offset: number, limit: number) => {
+  return queryOptions({
+    queryKey: ['training-history', modelId, offset, limit],
+    queryFn: () => getModelTrainingHistory(modelId, offset, limit),
+    placeholderData: keepPreviousData,
+  });
+};
 

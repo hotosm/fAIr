@@ -4,7 +4,7 @@ const ModelPropertiesSkeleton = () => {
     return (
         <div className="flex flex-col gap-y-10 w-full">
             <SectionTitleSkeleton />
-            <div className="w-full grid grid-cols-5 h-[500px]">
+            <div className="w-full grid grid-cols-1 md:grid-cols-5 h-[500px]">
                 <div className="col-span-2 grid grid-cols-2 grid-rows-4 gap-6 h-full">
                     {
                         new Array(8).fill(1).map((_, id) =>

@@ -12,7 +12,7 @@ let markerIcon = new Image(17, 20);
 markerIcon.src = mapMarker;
 
 
-export const maplibreLayerDefn = (
+const maplibreLayerDefn = (
     map: Map,
     mapResults: any,
     handleClickOnModelID: (clickedId: string) => void,
@@ -95,15 +95,16 @@ export const maplibreLayerDefn = (
 type ModelsMapProps = {
     mapResults: FeatureCollection;
     updateQuery: (newParams: TQueryParams) => void
+
 };
 
-const ModelsMap: React.FC<ModelsMapProps> = ({ mapResults, updateQuery }) => {
+const ModelsMap: React.FC<ModelsMapProps> = ({ mapResults, updateQuery, }) => {
     const [mapInstance, setMapInstance] = useState<Map | null>(null);
 
     const handleClickOnModelID = useCallback(
         (clickedModel: string) => {
             updateQuery({
-                [SEARCH_PARAMS.searchQuery]: clickedModel
+                [SEARCH_PARAMS.id]: clickedModel
             })
         },
         []
@@ -129,7 +130,7 @@ const ModelsMap: React.FC<ModelsMapProps> = ({ mapResults, updateQuery }) => {
 
     return (
         <div className="h-full w-full">
-            <MapComponent onMapLoad={handleMapLoad} geolocationControl layoutControl />
+            <MapComponent onMapLoad={handleMapLoad} geolocationControl />
         </div>
     );
 };

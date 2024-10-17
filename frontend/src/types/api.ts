@@ -55,6 +55,16 @@ export type PaginatedModels = {
 }
 
 
+export type PaginatedTrainings = {
+  count: number
+  next: string | null
+  previous: string | null
+  results: TTrainingDetails[]
+  hasNext: boolean
+  hasPrev: boolean
+}
+
+
 
 export type TModelDetails = TModel & {
   description: string,
@@ -85,7 +95,8 @@ export type TTrainingDetails = {
   batch_size: number,
   freeze_layers: boolean,
   model: number,
-  created_by: number
+  created_by: number,
+  user: TUser
 }
 
 

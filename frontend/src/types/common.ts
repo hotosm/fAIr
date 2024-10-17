@@ -13,3 +13,5 @@ export type DateFilter = {
 }
 
 export type TQueryParams = Record<string, string | number | boolean>
+
+export type TBadgeVariants = 'green' | 'red' | 'yellow' | 'blue' | 'default'

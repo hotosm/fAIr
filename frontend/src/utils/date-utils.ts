@@ -37,3 +37,19 @@ export const formatDate = (isoString: string): string => {
 
     return `${day}/${month}/${year}, ${hours}:${minutes}:${seconds}`;
 }
+
+
+export const formatDuration = (startDate: Date, endDate: Date): string => {
+    const diff = Math.abs(endDate.getTime() - startDate.getTime());
+
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+    let result = '';
+    if (hours > 0) result += `${hours}hr `;
+    if (minutes > 0) result += `${minutes} Mins `;
+    if (seconds > 0 || result === '') result += `${seconds} Secs`;
+
+    return result.trim();
+}

@@ -1,32 +1,34 @@
 import Button, { ButtonSize, ButtonVariant } from "./button";
 
 
-const IconButton = ({
+const ButtonWithIcon = ({
     onClick,
     prefixIcon: PrefixIcon,
     suffixIcon: SuffixIcon,
     label,
     variant = 'default',
     size = "medium",
-    capitalizeText = true
+    capitalizeText = true,
+    className
 }: {
     onClick?: () => void;
     label: string;
     variant: ButtonVariant;
-    size: ButtonSize,
+    size?: ButtonSize,
     prefixIcon: React.ElementType;
     suffixIcon?: React.ElementType;
-    capitalizeText?: boolean
+    capitalizeText?: boolean;
+    className?: string;
 }) => (
 
-    <div>
-        <Button variant={variant} size={size} onClick={onClick} capitalizeText={capitalizeText}>
-            <PrefixIcon className="w-4 h-4" />
-            <p>{label}</p>
-            {SuffixIcon && <SuffixIcon className="w-4 h-4" />}
+    <div role="button">
+        <Button variant={variant} size={size} onClick={onClick} capitalizeText={capitalizeText} className={className}>
+            <PrefixIcon className="icon" />
+            <span>{label}</span>
+            {SuffixIcon && <SuffixIcon className="icon" />}
         </Button>
     </div>
 );
 
 
-export default IconButton
+export default ButtonWithIcon

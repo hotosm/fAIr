@@ -1,5 +1,5 @@
 import { Dialog } from "@/components/ui/dialog"
-import { DirectoryTree } from "@/components/ui/directory-tree"
+import DirectoryTree from "@/features/models/components/directory-tree"
 import { useDevice } from "@/hooks/use-device"
 
 
@@ -13,7 +13,7 @@ type TrainingAreaDialogProps = {
 const ModelFilesDialog: React.FC<TrainingAreaDialogProps> = ({ isOpened, setOpen, datasetId, trainingId }) => {
     const isMobile = useDevice();
     return (
-        <Dialog isOpened={isOpened} setOpen={setOpen} label={'Model Files'} size={isMobile ? 'large' : 'medium'}>
+        <Dialog isOpened={isOpened} setOpen={setOpen} label={'Model Files'} size={isMobile ? 'extra-large' : 'medium'}>
             <DirectoryTree trainingId={trainingId} datasetId={datasetId} />
         </Dialog>
     )

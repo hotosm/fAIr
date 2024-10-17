@@ -34,11 +34,11 @@ export const ORDERING_FIELDS: DropdownMenuItem[] = [
 type OrderingFilterProps = {
     updateQuery: (params: TQueryParams,) => void
     query: TQueryParams
-    disabled: boolean
+    disabled?: boolean
 }
 
 
-const OrderingFilter: React.FC<OrderingFilterProps> = ({ disabled, query, updateQuery }) => {
+const OrderingFilter: React.FC<OrderingFilterProps> = ({ disabled = false, query, updateQuery }) => {
 
     const onSortSelect = (selectedItem: string) => {
         updateQuery({

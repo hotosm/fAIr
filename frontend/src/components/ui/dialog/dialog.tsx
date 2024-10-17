@@ -13,7 +13,8 @@ type DialogProps = {
 const Dialog: React.FC<DialogProps> = ({ isOpened, setOpen, label, children, size = 'medium' }) => {
 
   return (
-    <SlDialog label={label}
+    <SlDialog
+      label={label}
       open={isOpened}
       onSlAfterHide={(e) => {
         e.stopPropagation();

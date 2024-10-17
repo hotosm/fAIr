@@ -10,7 +10,7 @@ sl-menu-item::part(base) {
 }
 
 sl-menu-item::part(base):hover {
-  background-color: #F5F5F5;
+  background-color: var(--hot-fair-color-hover-accent);
 }
 
 sl-menu-item.logoutButton::part(base) {

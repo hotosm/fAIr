@@ -32,6 +32,7 @@ type DropDownProps = {
   multiSelect?: boolean,
   triggerComponent: React.ReactNode
   distance?: number
+  disableCheveronIcon?: boolean
 };
 
 const DropDown: React.FC<DropDownProps> = ({
@@ -51,6 +52,7 @@ const DropDown: React.FC<DropDownProps> = ({
   menuItemTextSize = 'default',
   triggerComponent,
   distance = 20,
+  disableCheveronIcon = false
 }) => {
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [selectedItem, setSelectedItem] = useState<string>('');
@@ -106,9 +108,9 @@ const DropDown: React.FC<DropDownProps> = ({
     >
       <div slot="trigger" className="inline-flex items-center w-full cursor-pointer">
         {triggerComponent}
-        <ChevronDownIcon
+        {!disableCheveronIcon && <ChevronDownIcon
           className={`w-3 h-3 text-dark  ml-2 transition-all ${dropdownIsOpened && "rotate-180"}`}
-        />
+        />}
       </div>
       <div className="shadow-2xl">
         {

@@ -9,11 +9,12 @@ type UseModelsOptions = {
     searchQuery: string;
     dateFilters: Record<string, string>;
     status?: number;
+    id: number
 };
 
-export const useModels = ({ limit, offset, status = 0, orderBy, searchQuery, dateFilters }: UseModelsOptions) => {
+export const useModels = ({ limit, offset, status = 0, orderBy, searchQuery, dateFilters, id }: UseModelsOptions) => {
     return useQuery({
-        ...getModelsQueryOptions({ limit, offset, orderBy, status, searchQuery, dateFilters }),
+        ...getModelsQueryOptions({ limit, offset, orderBy, status, searchQuery, dateFilters, id }),
         //@ts-expect-error
         throwOnError: (error) => error.response?.status >= 500,
     });

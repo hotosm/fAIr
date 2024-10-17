@@ -12,7 +12,7 @@ nav {
 
 .navLinkItem:hover,
 .activeLink {
-  padding: 5px 0;
+
   border-bottom: 2px solid var(--hot-fair-color-primary);
 }
 
@@ -193,6 +193,13 @@ nav {
   .userProfileName {
     text-wrap: wrap;
   }
+
+  .navLinkItem:hover,
+  .activeLink {
+
+    border-bottom: 2px solid var(--hot-fair-color-primary);
+  }
+
 }
 
 /* mdx: */

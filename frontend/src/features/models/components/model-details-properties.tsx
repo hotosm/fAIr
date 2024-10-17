@@ -13,8 +13,8 @@ import { ModelPropertiesSkeleton } from "./skeletons"
 const LinkDisplay = ({ value, label }: { value: string, label: string }) => {
     return (
         <Link href={value as string} blank nativeAnchor className="flex items-center gap-x-3" title={label}>
-            URL
-            <ExternalLinkIcon className="w-4 h-4" />
+            <span className="text-dark font-semibold text-title-3">URL</span>
+            <ExternalLinkIcon className="w-4 h-4 " />
         </Link>
     )
 }
@@ -30,7 +30,7 @@ type PropertyDisplayProps = {
 
 const PropertyDisplay: React.FC<PropertyDisplayProps> = ({ label, value, tooltip, isAccuracy, isTMS }) => (
     <div className="row-span-1 col-span-1 flex flex-col gap-y-5">
-        <span className="text-gray text-body-2 flex items-center gap-x-4">
+        <span className="text-gray text-body-2 flex items-center gap-x-4 text-nowrap">
             {label}
             {tooltip && <ToolTip content={tooltip} />}
         </span>
@@ -52,7 +52,7 @@ type ModelPropertiesProps = {
 }
 
 
-const ModelProperties: React.FC<ModelPropertiesProps> = ({ trainingId, thumbnailURL }) => {
+const ModelDetailsProperties: React.FC<ModelPropertiesProps> = ({ trainingId, thumbnailURL }) => {
     const { isPending, data, error, isError } = useTrainingDetails(trainingId)
     const { notify } = useToast()
 
@@ -72,8 +72,8 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({ trainingId, thumbnail
         }
 
         return (
-            <div className="grid grid-cols-5 gap-4">
-                <div className="col-span-2 grid grid-cols-2 grid-rows-4 gap-y-10">
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-14 items-center">
+                <div className="col-span-3  grid grid-cols-1 sm:grid-cols-2 grid-rows-4 gap-y-4 md:gap-y-10">
                     <PropertyDisplay label="Zoom levels" value={zoom_level?.join(' ') || 'N/A'} tooltip="Zoom levels are the..." />
                     <PropertyDisplay label="Accuracy" value={trainingAccuracy} isAccuracy />
                     <PropertyDisplay label="Epochs" value={epochs} tooltip="The epoch is the..." />
@@ -85,8 +85,8 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({ trainingId, thumbnail
                 </div>
 
                 {thumbnailURL && (
-                    <div className="col-span-3">
-                        <div className="h-full w-full flex justify-end">
+                    <div className="col-span-2">
+                        <div className=" flex lg:justify-end">
                             <Image src={thumbnailURL} alt={'Prediction accuracy chart.'} />
                         </div>
                     </div>
@@ -98,4 +98,4 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({ trainingId, thumbnail
     return isError ? <ModelPropertiesSkeleton /> : content
 }
 
-export default ModelProperties;
+export default ModelDetailsProperties;

@@ -1,9 +1,9 @@
 import SlButton from "@shoelace-style/shoelace/dist/react/button/index.js";
 import "./button.css";
 import { Spinner } from "@/components/ui/spinner";
-import { AddIcon } from "@/components/ui/icons";
 
-export type ButtonVariant = "primary" | "secondary" | 'tertiary' | 'default' | 'dark' | 'outline';
+
+export type ButtonVariant = "primary" | "secondary" | 'tertiary' | 'default' | 'dark';
 
 export type ButtonSize = 'large' | 'medium' | 'small'
 
@@ -14,7 +14,6 @@ type ButtonProps = {
   className?: string;
   onClick?: (event: any) => void;
   spinner?: boolean;
-  create?: boolean
   size?: ButtonSize
   disabled?: boolean
   capitalizeText?: boolean
@@ -25,7 +24,6 @@ const Button: React.FC<ButtonProps> = ({
   className,
   onClick,
   spinner = false,
-  create = false,
   size = 'large',
   disabled = false,
   capitalizeText = true
@@ -44,10 +42,6 @@ const Button: React.FC<ButtonProps> = ({
       disabled={disabled}
     >
       <div className="flex items-center gap-x-2">
-        {
-          create &&
-          <AddIcon />
-        }
         {
           children
         }

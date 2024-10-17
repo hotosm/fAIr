@@ -8,6 +8,7 @@ export const getModels = async (
     status: number,
     searchQuery: string,
     dateFilters: Record<string, string>,
+    id: number
 ): Promise<PaginatedModels> => {
     const res = await apiClient.get(API_ENDPOINTS.GET_MODELS, {
         params: {
@@ -16,6 +17,7 @@ export const getModels = async (
             search: searchQuery,
             offset,
             ordering: orderBy,
+            id: id,
             ...dateFilters,
         },
     });

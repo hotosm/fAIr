@@ -15,6 +15,7 @@ type InputProps = {
   type?: 'date' | 'text'
   showBorder?: boolean
   label?: string
+  size?: 'small' | 'medium'
 
 };
 
@@ -26,6 +27,7 @@ const Input: React.FC<InputProps> = ({
   type = 'text',
   showBorder = false,
   label,
+  size = 'medium'
 
 }) => {
   const { isChrome } = useBrowserType();
@@ -49,8 +51,8 @@ const Input: React.FC<InputProps> = ({
       //@ts-expect-error
       ref={dateInputRef}
       label={label}
+      size={size}
     >
-
 
       {/* 
         We're using the native browser date picker. 
@@ -61,7 +63,7 @@ const Input: React.FC<InputProps> = ({
        
        */}
       {
-        !isChrome && type === 'date' && <CalenderIcon className=' w-4 h-4 text-dark cursor-pointer' slot="suffix" onClick={openNativeDatePicker} />
+        !isChrome && type === 'date' && <CalenderIcon className='icon text-dark cursor-pointer' slot="suffix" onClick={openNativeDatePicker} />
       }
     </SlInput>
   );

@@ -1,15 +1,28 @@
 import { API_ENDPOINTS, apiClient } from "@/services";
-import { TrainingWorkspace, TTrainingDetails, TTrainingFeedbacks } from "@/types";
+import { PaginatedTrainings, TrainingWorkspace, TTrainingDetails, TTrainingFeedbacks } from "@/types";
 
 
-
-// This may potential be moved.
 
 export const getTrainingDetails = async (id: number): Promise<TTrainingDetails> => {
     const res = await apiClient.get(API_ENDPOINTS.GET_TRAINING_DETAILS(id));
     return res.data;
 };
 
+
+
+export const getModelTrainingHistory = async (id: string, offset: number, limit: number): Promise<PaginatedTrainings> => {
+    const res = await apiClient.get(API_ENDPOINTS.GET_MODEL_TRAINING_HISTORY(id), {
+        params: {
+            limit,
+            offset,
+        },
+    });
+    return {
+        ...res.data,
+        hasNext: res.data.next !== null,
+        hasPrev: res.data.previous !== null,
+    };
+};
 
 export const getTrainingFeedbacks = async (id: number): Promise<TTrainingFeedbacks> => {
     const res = await apiClient.get(API_ENDPOINTS.GET_TRAINING_FEEDBACKS(id));
