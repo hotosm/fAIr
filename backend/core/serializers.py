@@ -38,7 +38,7 @@ class UserSerializer(serializers.ModelSerializer):
             # "is_superuser",
             # "is_active",
             # "is_staff",
-            "date_joined",
+            # "date_joined",
             # "email",
             "img_url",
             # "user_permissions",
