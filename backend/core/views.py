@@ -95,7 +95,7 @@ class DatasetViewSet(
 class TrainingSerializer(
     serializers.ModelSerializer
 ):  # serializers are used to translate models objects to api
-
+    user = UserSerializer(read_only=True)
     multimasks = serializers.BooleanField(required=False, default=False)
     input_contact_spacing = serializers.IntegerField(
         required=False, default=8, min_value=0, max_value=20
@@ -729,10 +729,10 @@ def publish_training(request, training_id: int):
     training_instance = get_object_or_404(Training, id=training_id)
 
     if training_instance.status != "FINISHED":
-        return Response("Training is not FINISHED", status=404)
+        return Response("Training is not FINISHED", status=409)
     if training_instance.accuracy < 70:
         return Response(
-            "Can't publish the training since its accuracy is below 70%", status=404
+            "Can't publish the training since its accuracy is below 70%", status=403
         )
 
     model_instance = get_object_or_404(Model, id=training_instance.model.id)
