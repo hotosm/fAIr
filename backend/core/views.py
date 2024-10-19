@@ -783,7 +783,7 @@ class GenerateFeedbackAOIGpxView(APIView):
 class TrainingWorkspaceView(APIView):
     @method_decorator(cache_page(60 * 15))
     # @method_decorator(vary_on_headers("access-token"))
-    def get(self, request, lookup_dir=None):
+    def get(self, request, lookup_dir):
         """List out status of training workspace : size in bytes"""
         # {workspace_dir:{file_name:{size:20,type:file},dir_name:{size:20,len:4,type:dir}}}
         base_dir = settings.TRAINING_WORKSPACE
