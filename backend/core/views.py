@@ -781,8 +781,21 @@ class GenerateFeedbackAOIGpxView(APIView):
 
 
 class TrainingWorkspaceView(APIView):
-    def get(self, request, lookup_dir=None):
-        """List out status of training workspace : size in bytes"""
+    @method_decorator(cache_page(60 * 15))
+    # @method_decorator(vary_on_headers("access-token"))
+    def get(self, request, lookup_dir):
+        """
+        List the status of the training workspace.
+
+        ### Returns:
+        - **Size**: The total size of the workspace in bytes.
+        - **dir/file**: The current dir/file on the lookup_dir.
+
+        ### Workspace Structure:
+        By default, the training workspace is organized as follows:
+        - Training files are stored in the directory: `dataset{dataset_id}/output/training_{training}`
+        """
+
         # {workspace_dir:{file_name:{size:20,type:file},dir_name:{size:20,len:4,type:dir}}}
         base_dir = settings.TRAINING_WORKSPACE
         if lookup_dir:
@@ -813,6 +826,15 @@ class TrainingWorkspaceView(APIView):
 class TrainingWorkspaceDownloadView(APIView):
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsOsmAuthenticated]
+
+    def dispatch(self, request, *args, **kwargs):
+        lookup_dir = kwargs.get("lookup_dir")
+        if lookup_dir.endswith("training_validation_sparse_categorical_accuracy.png"):
+            # bypass
+            self.authentication_classes = []
+            self.permission_classes = []
+
+        return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, lookup_dir):
         base_dir = os.path.join(settings.TRAINING_WORKSPACE, lookup_dir)
@@ -860,6 +882,7 @@ class BannerViewSet(viewsets.ModelViewSet):
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsAdminUser, IsStaffUser]
     public_methods = ["GET"]
+    pagination_class = None
 
     def get_queryset(self):
         now = timezone.now()
@@ -869,7 +892,7 @@ class BannerViewSet(viewsets.ModelViewSet):
 
 
 @cache_page(60 * 15)  ## Cache for 15 mins
-# @vary_on_cookie , if you wanna do user specific cache
+# @vary_on_cookie
 @api_view(["GET"])
 def get_kpi_stats(request):
     total_models_with_status_published = Model.objects.filter(status=0).count()
