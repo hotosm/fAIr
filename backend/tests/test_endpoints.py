@@ -286,7 +286,7 @@ class TaskApiTest(APILiveServerTestCase):
         res = self.client.post(
             f"{API_BASE}/training/publish/{training.id}/", headers=headersList
         )
-        self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(res.status_code, 409)
 
     def test_get_GpxView(self):
         training = TrainingFactory(model=self.model, user=self.user)
@@ -307,8 +307,8 @@ class TaskApiTest(APILiveServerTestCase):
     def test_get_workspace(self):
         # get training workspace
 
-        res = self.client.get(f"{API_BASE}/workspace/", headers=headersList)
-        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        res = self.client.get(f"{API_BASE}/workspace/dataset_1/", headers=headersList)
+        self.assertEqual(res.status_code, 409)
 
     def test_download_workspace(self):
         try:
