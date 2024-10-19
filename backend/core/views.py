@@ -784,7 +784,18 @@ class TrainingWorkspaceView(APIView):
     @method_decorator(cache_page(60 * 15))
     # @method_decorator(vary_on_headers("access-token"))
     def get(self, request, lookup_dir):
-        """List out status of training workspace : size in bytes"""
+        """
+        List the status of the training workspace.
+
+        ### Returns:
+        - **Size**: The total size of the workspace in bytes.
+        - **dir/file**: The current dir/file on the lookup_dir.
+
+        ### Workspace Structure:
+        By default, the training workspace is organized as follows:
+        - Training files are stored in the directory: `dataset{dataset_id}/output/training_{training}`
+        """
+
         # {workspace_dir:{file_name:{size:20,type:file},dir_name:{size:20,len:4,type:dir}}}
         base_dir = settings.TRAINING_WORKSPACE
         if lookup_dir:
