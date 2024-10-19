@@ -307,8 +307,8 @@ class TaskApiTest(APILiveServerTestCase):
     def test_get_workspace(self):
         # get training workspace
 
-        res = self.client.get(f"{API_BASE}/workspace/dataset_1/")
-        self.assertEqual(res.status_code, 409)
+        res = self.client.get(f"{API_BASE}/workspace/dataset_1/", headers=headersList)
+        self.assertEqual(res.status_code, 404)
 
     def test_download_workspace(self):
         try:
