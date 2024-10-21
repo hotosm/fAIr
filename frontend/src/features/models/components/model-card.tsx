@@ -6,11 +6,14 @@ import { Link } from "@/components/ui/link";
 import { truncateString } from "@/utils";
 import { roundNumber } from "@/utils/number-utils";
 
+
 type ModelCardProps = {
   model: TModel;
 };
 
+
 const ModelCard: React.FC<ModelCardProps> = ({ model }) => {
+  
   return (
     <div className="flex items-center  w-full">
       <Link

@@ -13,6 +13,7 @@ import { ModelPropertiesSkeleton } from "./skeletons";
 import CodeBlock from "@/components/ui/codeblock/codeblock";
 import ChevronDownIcon from "@/components/ui/icons/chevron-down";
 import { APP_CONTENT, cn } from "@/utils";
+import { ENVS } from "@/config/env";
 
 enum TrainingStatus {
   FAILED = "FAILED",
@@ -74,13 +75,13 @@ const PropertyDisplay: React.FC<PropertyDisplayProps> = ({
 type ModelPropertiesProps = {
   trainingId: number;
   accuracy?: number;
-  thumbnailURL?: string;
+  datasetId?: number;
   isTrainingDetailsDialog?: boolean;
 };
 
 const ModelProperties: React.FC<ModelPropertiesProps> = ({
   trainingId,
-  thumbnailURL,
+  datasetId,
   isTrainingDetailsDialog = false,
 }) => {
   const { isPending, data, error, isError } = useTrainingDetails(trainingId);
@@ -106,6 +107,9 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
     source_imagery,
   } = data || {};
 
+  
+  const trainingResultsGraph = `${ENVS.BASE_API_URL}workspace/download/dataset_${datasetId}/output/training_${data?.id}/graphs/training_validation_sparse_categorical_accuracy.png`
+  
   const content = useMemo(() => {
     if (isPending) {
       return <ModelPropertiesSkeleton isTrainingDetailsDialog />;
@@ -114,7 +118,7 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
     return (
       <div
         className={cn(
-          `grid ${isTrainingDetailsDialog ? "grid-cols-2" : "grid-cols-1 lg:grid-cols-5"} gap-14 items-center`,
+          `grid ${isTrainingDetailsDialog ? "grid-cols-2" : "grid-cols-1 lg:grid-cols-5"} gap-14 items-center `,
         )}
       >
         <div className="col-span-3 grid grid-cols-1 sm:grid-cols-2 grid-rows-4 gap-y-4 md:gap-y-10">
@@ -197,13 +201,10 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
             isTMS
           />
         </div>
-        {thumbnailURL && (
-          <div className="col-span-2">
-            <div className=" flex lg:justify-end">
-              <Image src={thumbnailURL} alt={"Prediction accuracy chart."} />
-            </div>
-          </div>
-        )}
+        
+        <div className={`col-span-3 lg:col-span-2 ${isTrainingDetailsDialog && 'lg:col-span-3'}`}>
+            <Image src={trainingResultsGraph} alt={""} />
+        </div>
         {/* Show logs only in modal and when status failed */}
         {isTrainingDetailsDialog && data?.status === TrainingStatus.FAILED && (
           //@ts-expect-error bad type definition
@@ -220,7 +221,7 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
     input_contact_spacing,
     input_boundary_width,
     source_imagery,
-    thumbnailURL,
+    trainingResultsGraph
   ]);
 
   return isError ? (

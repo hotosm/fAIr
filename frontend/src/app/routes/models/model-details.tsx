@@ -66,7 +66,7 @@ export const ModelDetailsPage = () => {
         >
           <ModelDetailsProperties
             trainingId={data?.published_training as number}
-            thumbnailURL={data?.thumbnail_url}
+            datasetId={data?.dataset}
           />
         </ModelDetailsSection>
         <div className="flex md:hidden">
@@ -95,6 +95,7 @@ export const ModelDetailsPage = () => {
             modelId={data?.id as string}
             trainingId={data?.published_training as number}
             modelOwner={data?.user.username as string}
+            datasetId={data?.dataset as number}
           />
         </ModelDetailsSection>
       </div>
