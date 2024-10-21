@@ -1,6 +1,7 @@
 import { ButtonWithIcon } from "@/components/ui/button";
 import { ChatbubbleIcon } from "@/components/ui/icons";
-import { useTrainingFeedbacks } from "../hooks/use-training";
+import { useTrainingFeedbacks } from "@/features/models/hooks/use-training";
+import { APP_CONTENT } from "@/utils";
 
 const ModelFeedbacks = ({ trainingId }: { trainingId: number }) => {
   const { data, isLoading, isError } = useTrainingFeedbacks(trainingId);
@@ -13,11 +14,13 @@ const ModelFeedbacks = ({ trainingId }: { trainingId: number }) => {
     <>
       <p className="text-dark text-body-2">
         {isError ? "N/A" : data?.count}
-        <span className="text-gray"> Feedbacks</span>
+        <span className="text-gray">
+          {APP_CONTENT.models.modelsDetailsCard.feedbacks}
+        </span>
       </p>
       <div className="max-w-fit">
         <ButtonWithIcon
-          label="view feedbacks"
+          label={APP_CONTENT.models.modelsDetailsCard.feedbacks}
           variant="dark"
           size="medium"
           prefixIcon={ChatbubbleIcon}

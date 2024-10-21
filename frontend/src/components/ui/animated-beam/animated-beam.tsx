@@ -5,9 +5,9 @@ import { RefObject, useEffect, useId, useState } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/utils";
 
-export interface AnimatedBeamProps {
+type AnimatedBeamProps = {
   className?: string;
-  containerRef: RefObject<HTMLElement>; // Container ref
+  containerRef: RefObject<HTMLElement>;
   fromRef: RefObject<HTMLElement>;
   toRef: RefObject<HTMLElement>;
   curvature?: number;
@@ -23,9 +23,9 @@ export interface AnimatedBeamProps {
   startYOffset?: number;
   endXOffset?: number;
   endYOffset?: number;
-}
+};
 
-export const AnimatedBeam: React.FC<AnimatedBeamProps> = ({
+const AnimatedBeam: React.FC<AnimatedBeamProps> = ({
   className,
   containerRef,
   fromRef,
@@ -187,3 +187,5 @@ export const AnimatedBeam: React.FC<AnimatedBeamProps> = ({
     </svg>
   );
 };
+
+export default AnimatedBeam;

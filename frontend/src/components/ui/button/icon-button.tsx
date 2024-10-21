@@ -1,6 +1,17 @@
-import Button, { ButtonSize, ButtonVariant } from "./button";
+import { ButtonSize, ButtonVariant } from "@/types";
+import { Button } from "@/components/ui/button";
 
-const ButtonWithIcon = ({
+type ButtonWithIconProps = {
+  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  label: string;
+  variant: ButtonVariant;
+  size?: ButtonSize;
+  prefixIcon: React.ElementType;
+  suffixIcon?: React.ElementType;
+  capitalizeText?: boolean;
+  className?: string;
+};
+const ButtonWithIcon: React.FC<ButtonWithIconProps> = ({
   onClick,
   prefixIcon: PrefixIcon,
   suffixIcon: SuffixIcon,
@@ -9,15 +20,6 @@ const ButtonWithIcon = ({
   size = "medium",
   capitalizeText = true,
   className,
-}: {
-  onClick?: () => void;
-  label: string;
-  variant: ButtonVariant;
-  size?: ButtonSize;
-  prefixIcon: React.ElementType;
-  suffixIcon?: React.ElementType;
-  capitalizeText?: boolean;
-  className?: string;
 }) => (
   <div role="button">
     <Button

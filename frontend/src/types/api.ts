@@ -2,7 +2,7 @@
  * This file contains the different types/schema for the API responses from the backend.
  */
 
-// Auth and User types
+// Auth and User API response types
 
 export type TLogin = {
   login_url: string;
@@ -31,7 +31,7 @@ type TOSMUser = {
   username: string;
 };
 
-// Model types
+// Models API response types
 export type TModel = {
   id: string;
   name: string;
@@ -67,7 +67,7 @@ export type TModelDetails = TModel & {
   description: string;
 };
 
-// Training types
+// Training API response types
 
 export type TTrainingDetails = {
   id: number;
@@ -98,7 +98,7 @@ export type TTrainingStatus = {
   status: "PENDING";
   traceback: string;
 };
-// Training workspace
+// Training workspace API response types
 
 export type TrainingWorkspace = {
   dir: Record<string, Record<string, number>>;
@@ -111,7 +111,7 @@ export type TTrainingFeedbacks = {
   results: FeatureCollection;
 };
 
-// Centroid types
+// Centroid API response types
 
 export type Geometry = {
   type:

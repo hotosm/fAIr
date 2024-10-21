@@ -6,8 +6,8 @@ import { ColumnDef, SortingState } from "@tanstack/react-table";
 import { useState } from "react";
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { SortableHeader } from "../components/table-header";
-import { TableSkeleton } from "../components/skeletons";
+import { SortableHeader } from "@/features/models/components/table-header";
+import { TableSkeleton } from "@/features/models/components/skeletons";
 
 type ModelListProps = {
   models?: TModel[];

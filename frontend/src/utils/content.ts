@@ -188,4 +188,97 @@ export const APP_CONTENT = {
     loginSuccess: "Login successful.",
     logoutSuccess: "Logout successful.",
   },
+  models: {
+    modelsList: {
+      pageTitle: "fAIr AI models",
+      description: `Each model is trained using one of the training datasets. Published models can be used to find mappable features in imagery that is similar to the training areas that dataset comes from.`,
+      ctaButton: "Create Model",
+      filtersSection: {
+        searchPlaceHolder: "Search",
+        mapViewToggleText: "Map View",
+      },
+      sortingAndPaginationSection: {
+        modelCountSuffix: "models",
+        sortingTitle: "Sort by",
+      },
+      modelCard: {
+        accuracy: "Accuracy:",
+        lastModified: "Last Modified:",
+      },
+    },
+    modelsDetailsCard: {
+      modelId: "Model ID",
+      detailsSectionTitle: "Details",
+      createdBy: "Created By",
+      createdOn: "Created On",
+      lastModified: "Last Modified",
+      trainingId: "Training ID:",
+      propertiesSectionTitle: "Properties",
+      trainingHistorySectionTitle: "Training History",
+      submitTrainingRequest: "Submit a training request",
+      feedbacks: " Feedbacks",
+      startMapping: "Start Mapping",
+      modelDescriptionNotAvailable: "Model description is not available.",
+      viewTrainingArea: "View Training Area",
+      viewFeedbacks: "View Feedbacks",
+      modelFiles: "Model Files",
+      properties: {
+        zoomLevels: {
+          title: "Zoom Levels",
+          tooltip: "",
+        },
+        epochs: {
+          title: "Epochs",
+          tooltip: "",
+        },
+        contactSpacing: {
+          title: "Contact Spacing",
+          tooltip: "",
+        },
+        currentDatasetSize: {
+          title: "Current Dataset Size",
+          tooltip: "",
+        },
+        sourceImage: {
+          title: "Source Image (TMS)",
+          tooltip: "",
+        },
+        batchSize: {
+          title: "Batch Size",
+          tooltip: "",
+        },
+        accuracy: {
+          title: "Accuracy",
+          tooltip: "",
+        },
+        boundaryWidth: {
+          title: "Boundary Width",
+          tooltip: "",
+        },
+      },
+      trainingHistoryTableHeader: {
+        trainingHistoryCount: "Training History",
+        id: "ID",
+        epochAndBatchSize: "Epochs / Batch Size",
+        startedAt: "Started At",
+        sumittedBy: "Submitted by",
+        duration: "Duration",
+        dsSize: "DS Size",
+        accuracy: "Accuracy (%)",
+        status: "Status",
+        info: "Info",
+        action: "Action",
+        inUse: "In Use",
+      },
+      modelFilesDialog: {
+        rootDirectory: "Root Directory",
+        dialogTitle: "Model Files",
+        error: "Error loading directories.",
+      },
+      trainingInfoDialog: {
+        status: "Status",
+        logs: "Logs",
+      },
+    },
+  },
 };

@@ -1,7 +1,7 @@
 import { DirectoryIcon, FileIcon } from "@/components/ui/icons";
 import SlFormatBytes from "@shoelace-style/shoelace/dist/react/format-bytes/index.js";
 import { useState, useEffect } from "react";
-import { truncateString } from "@/utils";
+import { APP_CONTENT, truncateString } from "@/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   SlTree,
@@ -222,14 +222,19 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
   };
 
   if (isLoading) return <DirectoryLoadingSkeleton />;
-  if (hasError) return <div>Error loading directories.</div>;
+  if (hasError)
+    return (
+      <div>{APP_CONTENT.models.modelsDetailsCard.modelFilesDialog.error}.</div>
+    );
 
   return (
     //@ts-expect-error bad type definition
     <SlTree style={{ "--indent-guide-width": "1px" }}>
       <SlTreeItem key="root">
         <DirectoryIcon className="w-4 h-4 mr-2" />
-        <span>Root Directory</span>
+        <span>
+          {APP_CONTENT.models.modelsDetailsCard.modelFilesDialog.rootDirectory}
+        </span>
         {directoryTree && renderTreeItems(directoryTree)}
       </SlTreeItem>
     </SlTree>

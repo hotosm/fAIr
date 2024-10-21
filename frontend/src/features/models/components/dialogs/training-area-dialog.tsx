@@ -1,6 +1,7 @@
 import { Dialog } from "@/components/ui/dialog";
-import { useDevice } from "@/hooks/use-device";
+import useDevice from "@/hooks/use-device";
 import { MapComponent } from "@/features/models/components/map";
+import { cn } from "@/utils";
 
 type TrainingAreaDialogProps = {
   isOpened: boolean;
@@ -20,7 +21,7 @@ const TrainingAreaDialog: React.FC<TrainingAreaDialogProps> = ({
       label={"Training Area"}
       size={isMobile ? "extra-large" : "large"}
     >
-      <div className={`${!isMobile ? "h-[600px]" : "h-[350px]"}`}>
+      <div className={cn(`${!isMobile ? "h-[600px]" : "h-[350px]"}`)}>
         <div className="h-full w-full">
           <MapComponent onMapLoad={() => undefined} />
         </div>

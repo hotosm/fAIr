@@ -14,7 +14,7 @@ import {
 import { ModelDetailsSkeleton } from "@/features/models/components/skeletons";
 import { useModelDetails } from "@/features/models/hooks/use-models";
 import { useDialog } from "@/hooks/use-dialog";
-import { APPLICATION_ROUTES } from "@/utils";
+import { APP_CONTENT, APPLICATION_ROUTES } from "@/utils";
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -61,7 +61,9 @@ export const ModelDetailsPage = () => {
           openModelFilesDialog={openModelFilesDialog}
           openTrainingAreaDialog={openDialog}
         />
-        <ModelDetailsSection title="Properties">
+        <ModelDetailsSection
+          title={APP_CONTENT.models.modelsDetailsCard.propertiesSectionTitle}
+        >
           <ModelDetailsProperties
             trainingId={data?.published_training as number}
             thumbnailURL={data?.thumbnail_url}
@@ -69,17 +71,21 @@ export const ModelDetailsPage = () => {
         </ModelDetailsSection>
         <div className="flex md:hidden">
           <ButtonWithIcon
-            label="Submit a training request"
+            label={APP_CONTENT.models.modelsDetailsCard.submitTrainingRequest}
             variant="dark"
             size="medium"
             prefixIcon={RequestIcon}
           />
         </div>
         {/* mobile */}
-        <ModelDetailsSection title="Training History">
+        <ModelDetailsSection
+          title={
+            APP_CONTENT.models.modelsDetailsCard.trainingHistorySectionTitle
+          }
+        >
           <div className="md:flex self-end hidden">
             <ButtonWithIcon
-              label="Submit a training request"
+              label={APP_CONTENT.models.modelsDetailsCard.submitTrainingRequest}
               variant="dark"
               size="medium"
               prefixIcon={RequestIcon}

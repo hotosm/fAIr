@@ -6,8 +6,17 @@ import { useState } from "react";
 import { useToast } from "@/app/providers/toast-provider";
 
 /**
- * This hook is to be used to handle the login button click event. It encapsulate the actions that's necessary to be performed when the login button is clicked.
- * @returns Promise
+ * Custom hook to handle the login button click event.
+ *
+ * This hook encapsulates the actions that need to be performed when the login button is clicked,
+ * such as starting the OAuth login flow, handling the loading state, and showing error notifications.
+ * It also stores the current page's path in session storage so that the user can be redirected back
+ * after successful authentication.
+ *
+ * @returns {Object}
+ * - `loading: boolean`: Indicates whether the login process is in progress.
+ * - `handleLogin: () => Promise<void>`: Function to handle the login button click event, initiating the OAuth flow.
+ *
  */
 export const useLogin = () => {
   const location = useLocation();

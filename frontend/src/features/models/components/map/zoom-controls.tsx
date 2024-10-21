@@ -1,3 +1,4 @@
+import { cn } from "@/utils";
 import { Map } from "maplibre-gl";
 import { useCallback, useEffect, useState } from "react";
 
@@ -11,7 +12,9 @@ const ZoomButton = ({
   svgPath: string;
 }) => (
   <button
-    className={`p-2 bg-white flex items-center justify-center ${disabled ? "text-gray-border cursor-not-allowed" : "text-dark"}`}
+    className={cn(
+      `p-2 bg-white flex items-center justify-center ${disabled ? "text-gray-border cursor-not-allowed" : "text-dark"}`,
+    )}
     onClick={onClick}
     disabled={disabled}
   >

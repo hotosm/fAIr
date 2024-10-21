@@ -1,3 +1,4 @@
+import { cn } from "@/utils";
 import { useEffect, useState } from "react";
 
 type ImageProps = {
@@ -46,7 +47,7 @@ const Image: React.FC<ImageProps> = ({
         title={title || alt}
         width={width}
         height={height}
-        className={` ${className} ${isLoading ? "hidden" : ""}`}
+        className={cn(`${className} ${isLoading ? "hidden" : ""}`)}
         onLoad={handleLoad}
         onError={handleError}
       />

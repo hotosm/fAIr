@@ -4,6 +4,7 @@ import { DropdownMenuItem } from "@/components/ui/dropdown/dropdown";
 import { CheckboxGroup } from "@/components/ui/form";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { TQueryParams } from "@/types";
+import { APP_CONTENT } from "@/utils";
 
 export const ORDERING_FIELDS: DropdownMenuItem[] = [
   {
@@ -65,7 +66,12 @@ const OrderingFilter: React.FC<OrderingFilterProps> = ({
             )?.value
           }
           triggerComponent={
-            <p className="text-sm text-dark text-nowrap">Sort by</p>
+            <p className="text-sm text-dark text-nowrap">
+              {
+                APP_CONTENT.models.modelsList.sortingAndPaginationSection
+                  .sortingTitle
+              }
+            </p>
           }
         ></DropDown>
       </div>

@@ -5,6 +5,7 @@ import SlCheckbox from "@shoelace-style/shoelace/dist/react/checkbox/index.js";
 import "./dropdown.css";
 import ChevronDownIcon from "../icons/chevron-down";
 import { useEffect, useState } from "react";
+import { cn } from "@/utils";
 
 export type DropdownMenuItem = {
   value: string;
@@ -18,8 +19,8 @@ export type DropdownMenuItem = {
 type DropDownProps = {
   placement?: "bottom-end" | "top-end" | "bottom-start";
   children?: React.ReactNode;
-  onDropdownShow?: () => void;
-  onDropdownHide?: () => void;
+  onDropdownShow?: (event: React.MouseEvent<HTMLDivElement>) => void;
+  onDropdownHide?: (event: React.MouseEvent<HTMLDivElement>) => void;
   menuItems?: DropdownMenuItem[];
   dropdownIsOpened: boolean;
   className?: string;
@@ -97,7 +98,9 @@ const DropDown: React.FC<DropDownProps> = ({
   return (
     <SlDropdown
       placement={placement}
+      // @ts-expect-error bad type definition
       onSlShow={onDropdownShow}
+      // @ts-expect-error bad type definition
       onSlHide={onDropdownHide}
       className={className}
       disabled={disabled}
@@ -111,7 +114,9 @@ const DropDown: React.FC<DropDownProps> = ({
         {triggerComponent}
         {!disableCheveronIcon && (
           <ChevronDownIcon
-            className={`w-3 h-3 text-dark  ml-2 transition-all ${dropdownIsOpened && "rotate-180"}`}
+            className={cn(
+              `w-3 h-3 text-dark  ml-2 transition-all ${dropdownIsOpened && "rotate-180"}`,
+            )}
           />
         )}
       </div>
@@ -122,7 +127,7 @@ const DropDown: React.FC<DropDownProps> = ({
               <SlMenuItem
                 key={`dropdown-menu-item-${id}`}
                 value={menuItem.value}
-                className={`${menuItem.className} ${menuItemTextSize}`}
+                className={cn(`${menuItem.className} ${menuItemTextSize}`)}
                 onClick={menuItem.onClick}
                 disabled={menuItem.disabled ?? false}
               >

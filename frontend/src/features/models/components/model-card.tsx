@@ -1,7 +1,7 @@
 import { TModel } from "@/types";
 import FairModelPlaceholderImage from "@/assets/images/model_placeholder_image.png";
 import { Image } from "@/components/ui/image";
-import { APPLICATION_ROUTES, extractDatePart } from "@/utils";
+import { APP_CONTENT, APPLICATION_ROUTES, extractDatePart } from "@/utils";
 import { Link } from "@/components/ui/link";
 import { truncateString } from "@/utils";
 import { roundNumber } from "@/utils/number-utils";
@@ -43,7 +43,9 @@ const ModelCard: React.FC<ModelCardProps> = ({ model }) => {
           </div>
           {/* accuracy */}
           <div>
-            <p className="text-gray text-body-3">Accuracy:</p>
+            <p className="text-gray text-body-3">
+              {APP_CONTENT.models.modelsList.modelCard.accuracy}
+            </p>
             <p className="text-dark font-semibold text-body-2">
               {roundNumber(model.accuracy)} %
             </p>
@@ -54,7 +56,7 @@ const ModelCard: React.FC<ModelCardProps> = ({ model }) => {
               {model.user.username}
             </p>
             <p className="text-gray text-body-3">
-              Last Modified:{" "}
+              {APP_CONTENT.models.modelsList.modelCard.lastModified}{" "}
               <span className="font-bold">
                 {extractDatePart(model.last_modified)}
               </span>

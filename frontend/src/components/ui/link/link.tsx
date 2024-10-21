@@ -1,3 +1,4 @@
+import { cn } from "@/utils";
 import styles from "./link.module.css";
 import { Link as ReactRouterLink } from "react-router-dom";
 
@@ -34,7 +35,7 @@ const Link: React.FC<LinkProps> = ({
       ) : (
         <ReactRouterLink
           to={href}
-          className={`${!disableLinkStyle && styles.link} ${className}`}
+          className={cn(`${!disableLinkStyle && styles.link} ${className}`)}
           title={title}
         >
           {children}

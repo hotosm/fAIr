@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import Input from "@/components/ui/form/input/input";
+import { cn } from "@/utils";
 
 type DateRangePickerProps = {
   startDate: string;
@@ -24,7 +25,9 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
     <div className="flex flex-col gap-y-7 w-full">
       {/* Native date pickers */}
       <div
-        className={`w-full flex items-center ${isMobileFilterModal ? "flex-col gap-y-4" : "flex-row gap-x-4 "}`}
+        className={cn(
+          `w-full flex items-center ${isMobileFilterModal ? "flex-col gap-y-4" : "flex-row gap-x-4 "}`,
+        )}
       >
         <Input
           type="date"
@@ -47,11 +50,14 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
       {/* Only show when there is at least an input in either of the dates */}
       {(startDate || endDate) && (
         <div
-          className={`flex ${!isMobileFilterModal && "self-end"} items-center gap-x-3`}
+          className={cn(
+            `flex ${!isMobileFilterModal && "self-end"} items-center gap-x-3`,
+          )}
         >
           <Button variant="default" size="medium" onClick={onClear}>
             Clear
           </Button>
+          {/* @ts-expect-error bad type definition */}
           <Button variant="tertiary" size="medium" onClick={onApply}>
             Apply
           </Button>

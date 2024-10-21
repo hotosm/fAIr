@@ -33,7 +33,7 @@ export const PageNotFound = () => {
                   : APP_CONTENT.pageNotFound.messages.pageNotFound}
           </p>
         </div>
-        <h1 className="w-[200px] text-[200px] lg:w-[450px] lg:text-[450px] flex items-center justify-center font-semibold text-light-gray relative">
+        <h1 className="w-72 text-[200px] lg:w-[450px] lg:text-[450px] flex items-center justify-center font-semibold text-light-gray relative">
           404
           <span className="absolute flex items-center w-full justify-center h-full">
             {/* Icon */}

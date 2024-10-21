@@ -1,5 +1,6 @@
 import { SlSwitch } from "@shoelace-style/shoelace/dist/react";
 import styles from "./switch.module.css";
+import { cn } from "@/utils";
 
 type SwitchProps = {
   disabled?: boolean;
@@ -16,7 +17,7 @@ const Switch: React.FC<SwitchProps> = ({
       checked={checked}
       disabled={disabled}
       onSlChange={handleSwitchChange}
-      className={`${styles.customSwitch} ${checked && styles.checked}`}
+      className={cn(`${styles.customSwitch} ${checked && styles.checked}`)}
     ></SlSwitch>
   );
 };

@@ -21,7 +21,7 @@ import {
 import Pagination, {
   PAGE_LIMIT,
 } from "@/features/models/components/pagination";
-import { buildDateFilterQueryString } from "@/utils";
+import { APP_CONTENT, buildDateFilterQueryString } from "@/utils";
 import { PageHeader } from "@/features/models/components/";
 import { dateFilters } from "@/features/models/components/filters/date-range-filter";
 import { ORDERING_FIELDS } from "@/features/models/components/filters/ordering-filter";
@@ -68,6 +68,7 @@ const ClearFilters = ({
   return (
     <div className={`${isMobile ? "block md:hidden" : "hidden md:block"}`}>
       {canClearAllFilters ? (
+        // @ts-expect-error bad type definition
         <Button variant="tertiary" size="medium" onClick={clearAllFilters}>
           Clear filters
         </Button>
@@ -90,7 +91,9 @@ const SetMapToggle = ({
       className={`${isMobile ? "inline-flex md:hidden" : "hidden md:inline-flex"} items-center gap-x-4`}
       role="button"
     >
-      <p className="text-body-2base text-nowrap">Map View</p>
+      <p className="text-body-2base text-nowrap">
+        {APP_CONTENT.models.modelsList.filtersSection.mapViewToggleText}
+      </p>
       <Switch
         checked={query[SEARCH_PARAMS.mapIsActive] as boolean}
         disabled={query[SEARCH_PARAMS.layout] == LayoutView.LIST}
@@ -370,7 +373,13 @@ export const ModelsPage = () => {
         ) : (
           <div className="flex items-center justify-between w-full my-10">
             <div className="w-full flex items-center justify-between">
-              <p className="font-semibold text-body-3">{data?.count} models</p>
+              <p className="font-semibold text-body-3">
+                {data?.count}{" "}
+                {
+                  APP_CONTENT.models.modelsList.sortingAndPaginationSection
+                    .modelCountSuffix
+                }
+              </p>
               <SetMapToggle query={query} updateQuery={updateQuery} isMobile />
             </div>
             <div className="flex items-center gap-x-9">

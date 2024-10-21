@@ -5,7 +5,7 @@ import { useEffect } from "react";
 
 const RootLayout = () => {
   const { pathname } = useLocation();
-  // Scroll to top on new page.
+  // Scroll to top on page switch.
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);

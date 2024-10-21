@@ -1,4 +1,5 @@
 import { TBadgeVariants } from "@/types";
+import { cn } from "@/utils";
 
 type BadgeProps = {
   variant: TBadgeVariants;
@@ -24,7 +25,9 @@ const Badge: React.FC<BadgeProps> = ({
   };
   return (
     <button
-      className={`h-8 w-fit ${variants[variant]} ${rounded ? "rounded-full p-2" : "rounded-2xl py-1 px-3 "} ${className}`}
+      className={cn(
+        `h-8 w-fit ${variants[variant]} ${rounded ? "rounded-full p-2" : "rounded-2xl py-1 px-3 "} ${className}`,
+      )}
       onClick={onClick}
     >
       <span className="font-medium capitalize text-body-3 flex items-center justify-center">

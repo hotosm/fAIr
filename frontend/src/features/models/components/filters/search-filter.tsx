@@ -1,6 +1,7 @@
 import { SEARCH_PARAMS } from "@/app/routes/models";
 import { Input } from "@/components/ui/form";
 import { SearchIcon } from "@/components/ui/icons";
+import { APP_CONTENT } from "@/utils";
 import { useCallback } from "react";
 
 type SearchFilterProps = {
@@ -25,7 +26,9 @@ const SearchFilter: React.FC<SearchFilterProps> = ({ updateQuery, query }) => {
       <Input
         handleInput={onSearchInput}
         value={query[SEARCH_PARAMS.searchQuery] as string}
-        placeholder="Search"
+        placeholder={
+          APP_CONTENT.models.modelsList.filtersSection.searchPlaceHolder
+        }
         className="w-[80%]"
       />
     </div>

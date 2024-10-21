@@ -1,6 +1,15 @@
 import { useEffect, useState } from "react";
 
-export const useDevice = () => {
+/**
+ * Custom hook to detect whether the current device is mobile based on the window width.
+ *
+ * This hook tracks the window width and returns `true` if the width is less than 768 pixels,
+ * indicating a mobile device, and `false` otherwise. It dynamically updates as the window is resized.
+ *
+ * @returns {boolean} isMobile - A boolean indicating whether the current device is considered mobile.
+ *
+ */
+const useDevice = () => {
   const [isMobile, setIsMobile] = useState(false);
 
   const handleResize = () => {
@@ -18,3 +27,5 @@ export const useDevice = () => {
 
   return isMobile;
 };
+
+export default useDevice;

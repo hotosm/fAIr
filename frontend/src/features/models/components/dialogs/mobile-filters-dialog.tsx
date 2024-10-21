@@ -1,5 +1,5 @@
 import { Dialog } from "@/components/ui/dialog";
-import { useDevice } from "@/hooks/use-device";
+import useDevice from "@/hooks/use-device";
 import {
   CategoryFilter,
   DateRangeFilter,

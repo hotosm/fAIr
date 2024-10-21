@@ -51,7 +51,7 @@ body {
   /* 80px */
 }
 
-/* Overriding the toast design to match figma design */
+/* Overriding the toast design style begins */
 
 sl-alert::part(close-button__base),
 sl-alert::part(close-button__base):hover {
@@ -93,7 +93,9 @@ sl-alert.success::part(base) {
   border-color: var(--hot-fair-toast-success-color);
 }
 
-/* Matomo placement */
+/* Overriding the toast design styles ends*/
+
+/* Matomo placement style begins */
 
 .hot-matomo {
   position: fixed;
@@ -102,7 +104,9 @@ sl-alert.success::part(base) {
   width: 100vw;
 }
 
-/* Toast stack placement */
+/* Matomo placement style ends */
+
+/* Toast stack placement style begins */
 
 .sl-toast-stack {
   left: 0;
@@ -111,7 +115,9 @@ sl-alert.success::part(base) {
   bottom: 0;
 }
 
-/* Icon styles */
+/* Toast stack placement style ends */
+
+/* Icon styles begins */
 @layer components {
   .icon {
     @apply inline-block h-4 w-4;
@@ -121,3 +127,5 @@ sl-alert.success::part(base) {
     @apply inline-block h-6 w-6;
   }
 }
+
+/* Icon styles ends */

@@ -16,7 +16,7 @@ const MainErrorFallback = () => {
         <Button
           variant="primary"
           onClick={() => window.location.reload()}
-          className="max-w-[300px]"
+          className="max-w-80"
         >
           {APP_CONTENT.errorBoundary.button}
         </Button>

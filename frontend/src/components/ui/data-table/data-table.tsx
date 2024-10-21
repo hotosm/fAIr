@@ -20,21 +20,21 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-interface DataTableProps<TData, TValue> {
+type DataTableProps<TData, TValue> = {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   sorting?: SortingState;
   setSorting?: React.Dispatch<React.SetStateAction<SortingState>>;
   onRowClick?: (row: TData) => void;
-}
+};
 
-export function DataTable<TData, TValue>({
+const DataTable = <TData, TValue>({
   columns,
   data,
   sorting,
   setSorting,
   onRowClick,
-}: DataTableProps<TData, TValue>) {
+}: DataTableProps<TData, TValue>) => {
   const table = useReactTable({
     data,
     columns,
@@ -91,4 +91,6 @@ export function DataTable<TData, TValue>({
       </TableBody>
     </Table>
   );
-}
+};
+
+export default DataTable;

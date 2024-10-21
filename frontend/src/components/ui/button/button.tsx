@@ -1,21 +1,14 @@
 import SlButton from "@shoelace-style/shoelace/dist/react/button/index.js";
 import "./button.css";
 import { Spinner } from "@/components/ui/spinner";
-
-export type ButtonVariant =
-  | "primary"
-  | "secondary"
-  | "tertiary"
-  | "default"
-  | "dark";
-
-export type ButtonSize = "large" | "medium" | "small";
+import { cn } from "@/utils";
+import { ButtonSize, ButtonVariant } from "@/types";
 
 type ButtonProps = {
   children: React.ReactNode;
   variant?: ButtonVariant;
   className?: string;
-  onClick?: (event: any) => void;
+  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   spinner?: boolean;
   size?: ButtonSize;
   disabled?: boolean;
@@ -41,8 +34,11 @@ const Button: React.FC<ButtonProps> = ({
       //@ts-expect-error bad type definition
       variant={variant}
       size={size}
-      className={`button ${variant} ${className} ${capitalizeText && "capitalize"}`}
+      className={cn(
+        `button ${variant} ${className} ${capitalizeText && "capitalize"}`,
+      )}
       style={{ width: "100%" }}
+      //@ts-expect-error bad type definition
       onClick={onClick}
       disabled={disabled}
       slot={slot}

@@ -12,6 +12,7 @@ import { ExternalLinkIcon } from "@/components/ui/icons";
 import { ModelPropertiesSkeleton } from "./skeletons";
 import CodeBlock from "@/components/ui/codeblock/codeblock";
 import ChevronDownIcon from "@/components/ui/icons/chevron-down";
+import { APP_CONTENT, cn } from "@/utils";
 
 enum TrainingStatus {
   FAILED = "FAILED",
@@ -60,7 +61,9 @@ const PropertyDisplay: React.FC<PropertyDisplayProps> = ({
       <LinkDisplay value={value as string} label={label} />
     ) : (
       <span
-        className={`${animate && "animate-pulse"} text-dark font-semibold text-title-3`}
+        className={cn(
+          `${animate && "animate-pulse"} text-dark font-semibold text-title-3`,
+        )}
       >
         {value ?? "N/A"}
       </span>
@@ -110,50 +113,86 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
 
     return (
       <div
-        className={`grid ${isTrainingDetailsDialog ? "grid-cols-2" : "grid-cols-1 lg:grid-cols-5"} gap-14 items-center`}
+        className={cn(
+          `grid ${isTrainingDetailsDialog ? "grid-cols-2" : "grid-cols-1 lg:grid-cols-5"} gap-14 items-center`,
+        )}
       >
         <div className="col-span-3 grid grid-cols-1 sm:grid-cols-2 grid-rows-4 gap-y-4 md:gap-y-10">
           <PropertyDisplay
-            label="Zoom levels"
+            label={
+              APP_CONTENT.models.modelsDetailsCard.properties.zoomLevels.title
+            }
             value={zoom_level?.join(" ") || "N/A"}
-            tooltip="Zoom levels are the..."
+            tooltip={
+              APP_CONTENT.models.modelsDetailsCard.properties.zoomLevels.tooltip
+            }
           />
           <PropertyDisplay
-            label="Accuracy"
+            label={
+              APP_CONTENT.models.modelsDetailsCard.properties.accuracy.title
+            }
             value={trainingAccuracy}
             isAccuracy
           />
           <PropertyDisplay
-            label="Epochs"
+            label={APP_CONTENT.models.modelsDetailsCard.properties.epochs.title}
             value={epochs}
-            tooltip="The epoch is the..."
+            tooltip={
+              APP_CONTENT.models.modelsDetailsCard.properties.epochs.tooltip
+            }
           />
           <PropertyDisplay
-            label="Batch Size"
+            label={
+              APP_CONTENT.models.modelsDetailsCard.properties.batchSize.title
+            }
             value={batch_size}
-            tooltip="The batch size is the..."
+            tooltip={
+              APP_CONTENT.models.modelsDetailsCard.properties.batchSize.tooltip
+            }
           />
           <PropertyDisplay
-            label="Contact Spacing"
+            label={
+              APP_CONTENT.models.modelsDetailsCard.properties.contactSpacing
+                .title
+            }
             value={input_contact_spacing}
-            tooltip="The contact spacing is the..."
+            tooltip={
+              APP_CONTENT.models.modelsDetailsCard.properties.contactSpacing
+                .tooltip
+            }
           />
           <PropertyDisplay
-            label="Boundary Width"
+            label={
+              APP_CONTENT.models.modelsDetailsCard.properties.boundaryWidth
+                .title
+            }
             value={input_boundary_width}
-            tooltip="The boundary width is the..."
+            tooltip={
+              APP_CONTENT.models.modelsDetailsCard.properties.boundaryWidth
+                .tooltip
+            }
           />
-          <PropertyDisplay label="Current Dataset Size" value={chips_length} />
+          <PropertyDisplay
+            label={
+              APP_CONTENT.models.modelsDetailsCard.properties.currentDatasetSize
+                .title
+            }
+            value={chips_length}
+          />
           {/* Animate the status when it's in progress. */}
           {isTrainingDetailsDialog && (
             <PropertyDisplay
-              label="Status"
+              label={
+                APP_CONTENT.models.modelsDetailsCard.trainingInfoDialog.status
+              }
               value={data?.status}
               animate={data?.status === TrainingStatus.IN_PROGRESS}
             />
           )}
           <PropertyDisplay
-            label="Source Image (TMS)"
+            label={
+              APP_CONTENT.models.modelsDetailsCard.properties.sourceImage.title
+            }
             value={source_imagery}
             isTMS
           />
@@ -209,7 +248,7 @@ const FailedTrainingTraceBack = ({ taskId }: { taskId: string }) => {
         role="button"
         className="flex items-center gap-x-2"
       >
-        <p>Logs</p>
+        <p>{APP_CONTENT.models.modelsDetailsCard.trainingInfoDialog.logs}</p>
         <ChevronDownIcon className={`icon ${showLogs && "rotate-180"}`} />
       </div>
       {showLogs && <CodeBlock content={data?.traceback as string} />}

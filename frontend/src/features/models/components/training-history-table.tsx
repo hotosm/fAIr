@@ -1,7 +1,8 @@
-import { useTrainingHistory } from "../hooks/use-training";
+import { useTrainingHistory } from "@/features/models/hooks/use-training";
 import { DataTable } from "@/components/ui/data-table";
 import { TBadgeVariants, TTrainingDetails } from "@/types";
 import {
+  APP_CONTENT,
   formatDate,
   formatDuration,
   roundNumber,
@@ -9,8 +10,8 @@ import {
 } from "@/utils";
 import { ColumnDef, SortingState } from "@tanstack/react-table";
 import { useState } from "react";
-import { SortableHeader } from "./table-header";
-import { TableSkeleton } from "./skeletons";
+import { SortableHeader } from "@/features/models/components/table-header";
+import { TableSkeleton } from "@/features/models/components/skeletons";
 import { DropDown } from "@/components/ui/dropdown";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { useAuth } from "@/app/providers/auth-provider";
@@ -18,10 +19,12 @@ import { Badge } from "@/components/ui/badge";
 import CheckIcon from "@/components/ui/icons/check-icon";
 import { ElipsisIcon, InfoIcon } from "@/components/ui/icons";
 import { useDialog } from "@/hooks/use-dialog";
-import { TrainingDetailsDialog } from "./dialogs";
-import { useUpdateTraining } from "../api/update-trainings";
+import { TrainingDetailsDialog } from "@/features/models/components/dialogs";
+import { useUpdateTraining } from "@/features/models/api/update-trainings";
 import { useToast } from "@/app/providers/toast-provider";
-import Pagination, { PAGE_LIMIT } from "./pagination";
+import Pagination, {
+  PAGE_LIMIT,
+} from "@/features/models/components/pagination";
 
 type TrainingHistoryTableProps = {
   modelId: string;
@@ -42,7 +45,9 @@ const columnDefinitions = (
     header: ({ column }) => <SortableHeader title={"ID"} column={column} />,
   },
   {
-    header: "Epochs / Batch Size",
+    header:
+      APP_CONTENT.models.modelsDetailsCard.trainingHistoryTableHeader
+        .epochAndBatchSize,
     accessorFn: (row) => `${row.epochs}/${row.batch_size}`,
     cell: (row) => (
       <span title={row.getValue() as string}>{row.getValue() as string}</span>
@@ -50,20 +55,24 @@ const columnDefinitions = (
   },
   {
     accessorKey: "started_at",
-    header: "Started At",
+    header:
+      APP_CONTENT.models.modelsDetailsCard.trainingHistoryTableHeader.startedAt,
     cell: ({ row }) => {
       return <span>{formatDate(row.getValue("started_at"))}</span>;
     },
   },
   {
     accessorKey: "user.username",
-    header: "Submitted by",
+    header:
+      APP_CONTENT.models.modelsDetailsCard.trainingHistoryTableHeader
+        .sumittedBy,
     cell: ({ row }) => {
       return <span>{truncateString(row.original.user.username)}</span>;
     },
   },
   {
-    header: "Duration",
+    header:
+      APP_CONTENT.models.modelsDetailsCard.trainingHistoryTableHeader.duration,
     accessorFn: (row) =>
       formatDuration(new Date(row.started_at), new Date(row.finished_at)),
     cell: (row) => (
@@ -72,7 +81,8 @@ const columnDefinitions = (
   },
   {
     accessorKey: "input_contact_spacing",
-    header: "DS Size",
+    header:
+      APP_CONTENT.models.modelsDetailsCard.trainingHistoryTableHeader.dsSize,
     cell: ({ row }) => {
       return <span>{row.getValue("input_contact_spacing") ?? 0}</span>;
     },
@@ -80,7 +90,13 @@ const columnDefinitions = (
   {
     accessorKey: "accuracy",
     header: ({ column }) => (
-      <SortableHeader title={"Accuracy (%)"} column={column} />
+      <SortableHeader
+        title={
+          APP_CONTENT.models.modelsDetailsCard.trainingHistoryTableHeader
+            .accuracy
+        }
+        column={column}
+      />
     ),
     cell: ({ row }) => {
       return (
@@ -93,7 +109,8 @@ const columnDefinitions = (
     },
   },
   {
-    header: "Status",
+    header:
+      APP_CONTENT.models.modelsDetailsCard.trainingHistoryTableHeader.status,
     accessorKey: "status",
     cell: (row) => {
       const statusToVariant: Record<string, TBadgeVariants> = {
@@ -117,8 +134,9 @@ const columnDefinitions = (
     },
   },
   {
-    header: "In Use",
-    // accessorFn: row => row.freeze_layers,
+    header:
+      APP_CONTENT.models.modelsDetailsCard.trainingHistoryTableHeader.inUse,
+
     cell: ({ row }) => {
       return (
         <span>
@@ -134,8 +152,10 @@ const columnDefinitions = (
   ...(modelOwner !== authUsername
     ? [
         {
-          header: "Info",
-          // accessorFn: (row: TTrainingDetails) => row.multimasks,
+          header:
+            APP_CONTENT.models.modelsDetailsCard.trainingHistoryTableHeader
+              .info,
+
           cell: ({ row }: { row: any }) => {
             return (
               <Badge
@@ -153,8 +173,10 @@ const columnDefinitions = (
   ...(modelOwner === authUsername && isAuthenticated
     ? [
         {
-          header: "Actions",
-          // accessorFn: (row: TTrainingDetails) => row.model,
+          header:
+            APP_CONTENT.models.modelsDetailsCard.trainingHistoryTableHeader
+              .action,
+
           cell: ({ row }: { row: any }) => {
             const { dropdownIsOpened, onDropdownHide, onDropdownShow } =
               useDropdownMenu();
@@ -245,7 +267,14 @@ const TrainingHistoryTable: React.FC<TrainingHistoryTableProps> = ({
       />
       <div className="h-full">
         <div className="w-full items-center text-body-3 flex justify-between my-4">
-          <p className="text-nowrap"> {data?.count} Training History</p>
+          <p className="text-nowrap">
+            {" "}
+            {data?.count}{" "}
+            {
+              APP_CONTENT.models.modelsDetailsCard.trainingHistoryTableHeader
+                .trainingHistoryCount
+            }
+          </p>
           <div className="self-end">
             <Pagination
               totalLength={data?.count}

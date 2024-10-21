@@ -1,6 +1,6 @@
 import { Dialog } from "@/components/ui/dialog";
-import { useDevice } from "@/hooks/use-device";
-import ModelProperties from "../model-details-properties";
+import useDevice from "@/hooks/use-device";
+import ModelProperties from "@/features/models/components/model-details-properties";
 
 type TrainingDetailsDialogProps = {
   isOpened: boolean;

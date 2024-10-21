@@ -1,11 +1,11 @@
 import { SlInput } from "@shoelace-style/shoelace/dist/react";
 import styles from "./input.module.css";
 import { CalenderIcon } from "@/components/ui/icons";
-import { useBrowserType } from "@/hooks/use-browser-type";
+import useBrowserType from "@/hooks/use-browser-type";
 import { useRef } from "react";
 
 type InputProps = {
-  handleInput: (arg: any) => void;
+  handleInput: (arg: React.ChangeEvent<HTMLInputElement>) => void;
   value: string;
   className?: string;
   placeholder?: string;
@@ -40,6 +40,7 @@ const Input: React.FC<InputProps> = ({
 
   return (
     <SlInput
+      // @ts-expect-error bad type definition
       onSlInput={handleInput}
       value={value}
       className={`${className} ${styles.customInput} ${showBorder && styles.showBorder}`}

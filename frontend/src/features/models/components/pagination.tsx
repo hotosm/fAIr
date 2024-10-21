@@ -54,7 +54,7 @@ const Pagination: React.FC<PaginationProps> = ({
   };
 
   return (
-    <div className="flex min-w-[216px] items-center justify-between ">
+    <div className="flex md:min-w-60 items-center justify-between ">
       <p className="hidden md:inline-block text-body-3">
         <span className="font-semibold ">
           {_offset + 1} -{" "}
