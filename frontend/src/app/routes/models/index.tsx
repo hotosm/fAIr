@@ -290,7 +290,7 @@ export const ModelsPage = () => {
 
     if (mapViewIsActive) {
       return (
-        <div className="w-full grid md:grid-cols-4 md:border rounded-md p-2 md:border-gray-border gap-x-2 mt-10 grid-rows-2 md:grid-rows-1 gap-y-10 md:gap-y-0 min-h-screen">
+        <div className="w-full grid md:grid-cols-4 md:border rounded-md p-2 md:border-gray-border gap-x-2 mt-10 grid-rows-2 md:grid-rows-1 gap-y-10 md:gap-y-0 h-screen">
           <div className="col-span-1 md:col-span-2 md:row-start-1 grid grid-cols-1 xl:grid-cols-2 gap-x-7 gap-y-14 overflow-scroll">
             <ModelListGridLayout models={data?.results} isPending={isPending} />
           </div>
