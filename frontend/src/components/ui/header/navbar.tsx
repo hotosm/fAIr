@@ -10,6 +10,7 @@ import { APP_CONTENT, APPLICATION_ROUTES } from "@/utils";
 import { useAuth } from "@/app/providers/auth-provider";
 import UserProfile from "@/components/ui/header/user-profile";
 import { useLogin } from "@/hooks/use-login";
+import { useLocation } from "react-router-dom";
 
 const NavBar = () => {
   const [open, setOpen] = useState(false);
@@ -37,14 +38,16 @@ const NavBar = () => {
             </button>
           </div>
           <div className={styles.navLinksContainer}>
-            <NavBarLinks className={styles.mobileNavLinks} />
+            <NavBarLinks className={styles.mobileNavLinks} setOpen={setOpen} />
           </div>
           <div className={styles.loginButtonContainer}>
             {isAuthenticated ? (
               <UserProfile logout={logout} user={user} />
             ) : (
               <Button variant="primary" onClick={handleLogin} spinner={loading}>
-                {loading ? APP_CONTENT.loginButtonLoading : APP_CONTENT.navbar.loginButton}
+                {loading
+                  ? APP_CONTENT.loginButtonLoading
+                  : APP_CONTENT.navbar.loginButton}
               </Button>
             )}
           </div>
@@ -52,7 +55,11 @@ const NavBar = () => {
       </Drawer>
       <nav className={styles.nav}>
         <div>
-          <Link href="/" title={APP_CONTENT.navbar.logoAlt} nativeAnchor={false}>
+          <Link
+            href="/"
+            title={APP_CONTENT.navbar.logoAlt}
+            nativeAnchor={false}
+          >
             <Image
               src={HOTFairLogo}
               alt={APP_CONTENT.navbar.logoAlt}
@@ -76,7 +83,9 @@ const NavBar = () => {
               onClick={handleLogin}
               spinner={loading}
             >
-              {loading ? APP_CONTENT.loginButtonLoading : APP_CONTENT.navbar.loginButton}
+              {loading
+                ? APP_CONTENT.loginButtonLoading
+                : APP_CONTENT.navbar.loginButton}
             </Button>
           )}
         </div>
@@ -122,13 +131,23 @@ const navLinks: TNavBarLinks = [
 
 type NavBarLinksProps = {
   className: string;
+  setOpen?: (arg: boolean) => void;
 };
 
-const NavBarLinks: React.FC<NavBarLinksProps> = ({ className }) => {
+const NavBarLinks: React.FC<NavBarLinksProps> = ({ className, setOpen }) => {
+  const location = useLocation();
+
   return (
     <ul className={className}>
       {navLinks.map((link, id) => (
-        <li key={`navbar-item-${id}`}>
+        <li
+          key={`navbar-item-${id}`}
+          onClick={() => {
+            //close the drawer after navigating to a new page on mobile
+            setOpen && setOpen(false);
+          }}
+          className={`${styles.navLinkItem} ${location.pathname.includes(link.href) && styles.activeLink}`}
+        >
           <Link href={link.href} title={link.title} nativeAnchor={false}>
             {link.title}
           </Link>

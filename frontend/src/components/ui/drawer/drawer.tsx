@@ -3,7 +3,7 @@ import "./drawer.css";
 
 type DrawerProps = {
   open: boolean;
-  setOpen: (v: boolean) => void;
+  setOpen: (open: boolean) => void;
   placement: "top" | "bottom" | "end";
   children: React.ReactNode;
   label?: string;

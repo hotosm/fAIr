@@ -18,7 +18,6 @@ import { APP_CONTENT } from "@/utils/content";
  */
 const AUTOSCROLL_DELAY: number = 3500;
 
-
 type TSteps = {
   title: string;
   paragraph: string;
@@ -106,24 +105,29 @@ const TheFAIRProcess = () => {
             className="cursor-pointer flex flex-row md:flex-col"
             onClick={() => handleClick(id)}
           >
-            <div
-              className='flex flex-col md:flex-row items-center'
-            >
+            <div className="flex flex-col md:flex-row items-center">
               <div
                 className={`${activeIndex === id ? "bg-primary" : ""} p-1 z-10 shadow-xl flex items-center justify-center transition-all w-11 h-11 md:w-16 md:h-16 rounded-full`}
-                ref={itemRefs.current[id]}>
+                ref={itemRefs.current[id]}
+              >
                 <step.icon
                   className={`w-7 h-7 md:w-8 md:h-8 p-1 transition-all ${activeIndex !== id ? "text-gray-disabled" : "text-white scale-125"}`}
                 />
               </div>
               {/* Disable for the last timeline on web. */}
-              {
-                id !== steps.length - 1 && <div className='hidden md:inline-flex w-full h-[2px] bg-[#E4E4E4]' style={{ width: `calc(100% - 4rem)` }}></div>
-              }
+              {id !== steps.length - 1 && (
+                <div
+                  className="hidden md:inline-flex w-full h-[2px] bg-[#E4E4E4]"
+                  style={{ width: `calc(100% - 4rem)` }}
+                ></div>
+              )}
               {/* Disable for the last timeline on mobile. */}
-              {
-                id !== steps.length - 1 && <div className='md:hidden inline-flex w-[2px] bg-[#E4E4E4]' style={{ height: `calc(100% - 2.5rem)` }}></div>
-              }
+              {id !== steps.length - 1 && (
+                <div
+                  className="md:hidden inline-flex w-[2px] bg-[#E4E4E4]"
+                  style={{ height: `calc(100% - 2.5rem)` }}
+                ></div>
+              )}
             </div>
 
             <div className="inline-flex flex-col gap-y-4 pe-8 md:mt-[34px] ml-6 md:ml-0">

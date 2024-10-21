@@ -6,19 +6,19 @@ import {
   createBrowserRouter,
 } from "react-router-dom";
 import { ProtectedPage } from "@/app/routes/protected-route";
+import { MainErrorFallback } from "@/components/errors";
 
 const router = createBrowserRouter([
   {
     path: APPLICATION_ROUTES.HOMEPAGE,
+    lazy: async () => {
+      const { LandingPage } = await import("@/app/routes/landing");
+      return { Component: LandingPage };
+    },
+  },
+  {
     element: <RootLayout />,
     children: [
-      {
-        path: APPLICATION_ROUTES.HOMEPAGE,
-        lazy: async () => {
-          const { LandingPage } = await import("@/app/routes/landing");
-          return { Component: LandingPage };
-        },
-      },
       {
         path: APPLICATION_ROUTES.LEARN,
         lazy: async () => {
@@ -43,7 +43,9 @@ const router = createBrowserRouter([
       {
         path: APPLICATION_ROUTES.TRAINING_DATASETS,
         lazy: async () => {
-          const { TrainingDatasetsPage } = await import("@/app/routes/training-datasets");
+          const { TrainingDatasetsPage } = await import(
+            "@/app/routes/training-datasets"
+          );
           return { Component: TrainingDatasetsPage };
         },
       },
@@ -52,9 +54,31 @@ const router = createBrowserRouter([
         lazy: async () => {
           const { ModelsPage } = await import("@/app/routes/models");
           return {
+            Component: () => <ModelsPage />,
+          };
+        },
+      },
+      {
+        path: APPLICATION_ROUTES.MODEL_DETAILS,
+        lazy: async () => {
+          const { ModelDetailsPage } = await import(
+            "@/app/routes/models/model-details"
+          );
+          return {
+            Component: () => <ModelDetailsPage />,
+          };
+        },
+      },
+      {
+        path: APPLICATION_ROUTES.CREATE_NEW_MODEL,
+        lazy: async () => {
+          const { ModelCreationPage } = await import(
+            "@/app/routes/models/create-new"
+          );
+          return {
             Component: () => (
               <ProtectedPage>
-                <ModelsPage />
+                <ModelCreationPage />
               </ProtectedPage>
             ),
           };
@@ -123,6 +147,7 @@ const router = createBrowserRouter([
         ),
       },
     ],
+    errorElement: <MainErrorFallback />,
   },
 ]);
 

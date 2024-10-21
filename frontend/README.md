@@ -1,6 +1,6 @@
 # fAIr Frontend
 
-This project is a frontend web application built using **React 18**, **TypeScript**, and **Vite**. The app leverages modern libraries such as **@hotosm/ui**, **Shoelace**, and **Framer Motion** for UI components, and **React Router** for client-side routing.
+This project is a frontend web application built using **React 18**, **TypeScript**, and **Vite**. The app leverages modern libraries such as **@hotosm/ui**, and **Shoelace** for UI components, and **React Router** for client-side routing.
 
 ## Table of Contents
 
@@ -60,6 +60,7 @@ Here's an overview of the folder structure:
 │ ├── app/ # Contains the application routes and providers.
 │ ├── assets/ # Static assets specific to the app (images, icons, etc.).
 │ ├── components/ # Reusable components and layouts.
+| |── features/ # Contains the main features of the application.
 │ ├── hook/ # Reusable hooks.
 │ ├── styles/ # Global styles.
 │ ├── utils/ # Utility functions, application content and constants.
@@ -96,10 +97,9 @@ We use absolute imports (such as `@/components`, `@/hooks`, etc.), to make it ea
 
 We use the `kebab-case` to name all files. This helps to keep your codebase consistent and easier to navigate.
 
-#### Husky
+#### Architectural Decisions
 
-We use the `husky` to trigger `eslint` and `prettier` configurations when committing code to the repository.
-
+See [the documentation](./docs/) for more information on the architectural decisions.
 
 ## Contributing
 

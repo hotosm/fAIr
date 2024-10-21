@@ -23,34 +23,6 @@
   margin: 0 10px;
 }
 
-/* Customizing shoelace styles to suit the UI Design */
-
-/* Customizing shoelace styles to suit the UI Design */
-sl-details::part(base) {
-  border: none;
-  border-bottom: 1px solid #e3e5e5;
-  border-radius: 0px;
-}
-
-sl-details::part(header),
-sl-details::part(content) {
-  padding: var(--sl-spacing-large) 0;
-}
-
-sl-details::part(header) {
-  color: var(--hot-fair-color-dark);
-  font-size: var(--hot-fair-font-size-body-text-2);
-  font-weight: var(--hot-fair-font-weight-medium);
-}
-
-sl-details::part(summary-icon) {
-  background-color: var(--hot-fair-color-light-gray);
-  padding: 10px;
-  border-radius: 100%;
-  color: var(--hot-fair-color-dark);
-  rotate: 360deg;
-}
-
 .FAQContentContainer {
   display: flex;
   flex-direction: column;
@@ -67,15 +39,6 @@ sl-details::part(summary-icon) {
     max-width: 218px;
     font-size: var(--hot-fair-font-size-title-1);
     font-weight: var(--hot-fair-font-weight-semibold);
-  }
-
-  sl-details::part(header),
-  sl-details::part(content) {
-    padding: var(--sl-spacing-x-large) 0;
-  }
-
-  sl-details::part(header) {
-    font-size: var(--hot-fair-font-size-title-3);
   }
 
   .FAQContentContainer {

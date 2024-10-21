@@ -2,10 +2,9 @@ import { TUser } from "@/types/api";
 import styles from "./header.module.css";
 import SlAvatar from "@shoelace-style/shoelace/dist/react/avatar/index.js";
 import { DropDown } from "@/components/ui/dropdown";
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { APP_CONTENT, APPLICATION_ROUTES } from "@/utils";
-import ChevronDownIcon from "@/components/ui/icons/chevron-down";
+import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 
 type UserProfileProps = {
   logout: () => void;
@@ -13,20 +12,15 @@ type UserProfileProps = {
 };
 
 const UserProfile: React.FC<UserProfileProps> = ({ logout, user }) => {
-  const [dropdownIsOpened, setDropdownIsOpened] = useState(false);
+  const { onDropdownHide, onDropdownShow, dropdownIsOpened } =
+    useDropdownMenu();
   const navigate = useNavigate();
-  const onDropdownShow = () => {
-    setDropdownIsOpened(true);
-  };
-
-  const onDropdownHide = () => {
-    setDropdownIsOpened(false);
-  };
 
   return (
     <DropDown
       onDropdownShow={onDropdownShow}
       onDropdownHide={onDropdownHide}
+      dropdownIsOpened={dropdownIsOpened}
       menuItems={[
         {
           value: APP_CONTENT.navbar.userProfile.projects,
@@ -42,20 +36,20 @@ const UserProfile: React.FC<UserProfileProps> = ({ logout, user }) => {
           className: "logoutButton",
         },
       ]}
-    >
-      <div className={styles.userProfile} slot="trigger">
-        <SlAvatar
-          image={user.img_url}
-          label={user.username}
-          loading="lazy"
-          initials={user.username.charAt(0)}
-        />
-        <p className={styles.userProfileName}>{user.username}</p>
-        <ChevronDownIcon
-          className={`w-4 h-4 ${dropdownIsOpened && "rotate-180"}`}
-        />
-      </div>
-    </DropDown>
+      distance={0}
+      placement="bottom-end"
+      triggerComponent={
+        <div className={styles.userProfile}>
+          <SlAvatar
+            image={user.img_url}
+            label={user.username}
+            loading="lazy"
+            initials={user.username.charAt(0)}
+          />
+          <p className={styles.userProfileName}>{user.username}</p>
+        </div>
+      }
+    ></DropDown>
   );
 };
 

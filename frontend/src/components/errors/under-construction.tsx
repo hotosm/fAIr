@@ -13,7 +13,7 @@ const PageUnderConstruction = () => {
       <Button
         variant="primary"
         onClick={() => window.location.assign(window.location.origin)}
-        className="max-w-[300px]"
+        className="max-w-80"
       >
         {APP_CONTENT.construction.button}
       </Button>

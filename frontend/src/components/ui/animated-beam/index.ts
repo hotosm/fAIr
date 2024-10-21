@@ -1,1 +1,1 @@
-export * from "./animated-beam";
+export { default as AnimatedBeam } from "./animated-beam";

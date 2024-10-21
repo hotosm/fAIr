@@ -33,7 +33,6 @@ apiClient.interceptors.response.use(
       console.error("Unauthorized, logging out...");
       localStorage.removeItem(HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY);
     }
-    // should we handle more errors here?
     return Promise.reject(error);
   },
 );

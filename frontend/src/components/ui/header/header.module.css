@@ -10,6 +10,11 @@ nav {
   padding: 0 var(--sl-spacing-large);
 }
 
+.navLinkItem:hover,
+.activeLink {
+  border-bottom: 2px solid var(--hot-fair-color-primary);
+}
+
 .webNavLinks {
   display: none;
 }
@@ -185,11 +190,15 @@ nav {
   .userProfileName {
     text-wrap: wrap;
   }
+
+  .navLinkItem:hover,
+  .activeLink {
+    border-bottom: 2px solid var(--hot-fair-color-primary);
+  }
 }
 
 /* mdx: */
 @media (min-width: 960px) {
-
   /* NavBar styles start */
   nav {
     display: flex;

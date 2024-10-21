@@ -1,6 +1,6 @@
+import { cn } from "@/utils";
 import styles from "./link.module.css";
 import { Link as ReactRouterLink } from "react-router-dom";
-
 
 type LinkProps = {
   href: string;
@@ -8,7 +8,8 @@ type LinkProps = {
   blank?: boolean;
   children: React.ReactNode;
   className?: string;
-  nativeAnchor?: boolean
+  nativeAnchor?: boolean;
+  disableLinkStyle?: boolean;
 };
 
 const Link: React.FC<LinkProps> = ({
@@ -17,23 +18,29 @@ const Link: React.FC<LinkProps> = ({
   blank = false,
   children,
   className,
-  nativeAnchor = true
+  nativeAnchor = true,
+  disableLinkStyle = false,
 }) => {
   return (
     <>
-      {
-        nativeAnchor ? <a
+      {nativeAnchor ? (
+        <a
           href={href}
           title={title}
           target={blank ? "_blank" : "_self"}
           className={`${styles.link} ${className}`}
         >
           {children}
-        </a> :
-          <ReactRouterLink to={href} className={`${styles.link} ${className}`} title={title}>
-            {children}
-          </ReactRouterLink>
-      }
+        </a>
+      ) : (
+        <ReactRouterLink
+          to={href}
+          className={cn(`${!disableLinkStyle && styles.link} ${className}`)}
+          title={title}
+        >
+          {children}
+        </ReactRouterLink>
+      )}
     </>
   );
 };

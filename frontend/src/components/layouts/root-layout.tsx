@@ -1,13 +1,21 @@
 import { NavBar } from "@/components/ui/header";
-import { Outlet } from "react-router-dom";
-
+import { Outlet, useLocation } from "react-router-dom";
+import { Footer } from "@/components/ui/footer";
+import { useEffect } from "react";
 
 const RootLayout = () => {
-
+  const { pathname } = useLocation();
+  // Scroll to top on page switch.
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
   return (
-    <main className="min-h-screen relative">
+    <main className="min-h-screen relative max-w-[1800px] mx-auto">
       <NavBar />
-      <Outlet />
+      <div className="px-[1.25rem] lg:px-[5rem]">
+        <Outlet />
+      </div>
+      <Footer />
     </main>
   );
 };

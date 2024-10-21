@@ -152,7 +152,7 @@
     margin-bottom: 152px;
   }
 
-  .sectionTitle>*+* {
+  .sectionTitle > * + * {
     margin-left: 10px;
   }
 

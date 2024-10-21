@@ -20,7 +20,8 @@ body {
   --hot-fair-color-off-white: #f0efef;
   --hot-fair-color-white: #fff;
   --hot-fair-color-gray-disabled: #a6a6a6;
-
+  --hot-fair-color-gray-border: #e4e4e4;
+  --hot-fair-color-hover-accent: #f5f5f5;
   /* Font sizes in rem */
   --hot-fair-font-size-large-title: 3rem;
   /* 48px */
@@ -50,8 +51,7 @@ body {
   /* 80px */
 }
 
-
-/* Overriding the toast design to match figma design */
+/* Overriding the toast design style begins */
 
 sl-alert::part(close-button__base),
 sl-alert::part(close-button__base):hover {
@@ -70,9 +70,8 @@ sl-alert.danger::part(base) {
   border-color: var(--hot-fair-color-primary);
 }
 
-
 sl-alert.primary::part(base) {
-  --hot-fair-toast-primary-color: #48A7F8;
+  --hot-fair-toast-primary-color: #48a7f8;
   color: var(--hot-fair-toast-primary-color);
   border-color: var(--hot-fair-toast-primary-color);
 }
@@ -83,29 +82,31 @@ sl-alert.neutral::part(base) {
 }
 
 sl-alert.warning::part(base) {
-  --hot-fair-toast-warning-color: #FFBE0B;
+  --hot-fair-toast-warning-color: #ffbe0b;
   color: var(--hot-fair-toast-warning-color);
   border-color: var(--hot-fair-toast-warning-color);
-
 }
 
 sl-alert.success::part(base) {
-  --hot-fair-toast-success-color: #23C16B;
+  --hot-fair-toast-success-color: #23c16b;
   color: var(--hot-fair-toast-success-color);
   border-color: var(--hot-fair-toast-success-color);
-
 }
 
+/* Overriding the toast design styles ends*/
 
-/* Matomo placement */
+/* Matomo placement style begins */
 
 .hot-matomo {
   position: fixed;
   z-index: 10000;
   bottom: 0;
+  width: 100vw;
 }
 
-/* Toast stack placement */
+/* Matomo placement style ends */
+
+/* Toast stack placement style begins */
 
 .sl-toast-stack {
   left: 0;
@@ -113,3 +114,18 @@ sl-alert.success::part(base) {
   top: auto;
   bottom: 0;
 }
+
+/* Toast stack placement style ends */
+
+/* Icon styles begins */
+@layer components {
+  .icon {
+    @apply inline-block h-4 w-4;
+  }
+
+  .icon-lg {
+    @apply inline-block h-6 w-6;
+  }
+}
+
+/* Icon styles ends */
