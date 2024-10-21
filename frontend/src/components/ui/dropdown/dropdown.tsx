@@ -1,7 +1,7 @@
 import SlDropdown from "@shoelace-style/shoelace/dist/react/dropdown/index.js";
 import SlMenu from "@shoelace-style/shoelace/dist/react/menu/index.js";
 import SlMenuItem from "@shoelace-style/shoelace/dist/react/menu-item/index.js";
-import SlCheckbox from '@shoelace-style/shoelace/dist/react/checkbox/index.js';
+import SlCheckbox from "@shoelace-style/shoelace/dist/react/checkbox/index.js";
 import "./dropdown.css";
 import ChevronDownIcon from "../icons/chevron-down";
 import { useEffect, useState } from "react";
@@ -11,12 +11,12 @@ export type DropdownMenuItem = {
   onClick?: () => void;
   className?: string;
   name?: string;
-  disabled?: boolean
-  apiValue?: string
+  disabled?: boolean;
+  apiValue?: string;
 };
 
 type DropDownProps = {
-  placement?: "bottom-end" | "top-end" | 'bottom-start';
+  placement?: "bottom-end" | "top-end" | "bottom-start";
   children?: React.ReactNode;
   onDropdownShow?: () => void;
   onDropdownHide?: () => void;
@@ -28,11 +28,11 @@ type DropDownProps = {
   withCheckbox?: boolean;
   defaultSelectedItems?: string[];
   defaultSelectedItem?: string;
-  menuItemTextSize?: 'default' | 'small'
-  multiSelect?: boolean,
-  triggerComponent: React.ReactNode
-  distance?: number
-  disableCheveronIcon?: boolean
+  menuItemTextSize?: "default" | "small";
+  multiSelect?: boolean;
+  triggerComponent: React.ReactNode;
+  distance?: number;
+  disableCheveronIcon?: boolean;
 };
 
 const DropDown: React.FC<DropDownProps> = ({
@@ -47,22 +47,21 @@ const DropDown: React.FC<DropDownProps> = ({
   disabled = false,
   withCheckbox = false,
   defaultSelectedItems = [],
-  defaultSelectedItem = '',
+  defaultSelectedItem = "",
   multiSelect = false,
-  menuItemTextSize = 'default',
+  menuItemTextSize = "default",
   triggerComponent,
   distance = 20,
-  disableCheveronIcon = false
+  disableCheveronIcon = false,
 }) => {
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
-  const [selectedItem, setSelectedItem] = useState<string>('');
-
+  const [selectedItem, setSelectedItem] = useState<string>("");
 
   useEffect(() => {
     if (defaultSelectedItem) {
       setSelectedItem(defaultSelectedItem);
     }
-    if (!multiSelect) return
+    if (!multiSelect) return;
     if (defaultSelectedItems.length) {
       setSelectedItems(defaultSelectedItems);
     }
@@ -77,7 +76,9 @@ const DropDown: React.FC<DropDownProps> = ({
           let updatedSelectedItems;
 
           if (isSelected) {
-            updatedSelectedItems = prevSelectedItems.filter(item => item !== value);
+            updatedSelectedItems = prevSelectedItems.filter(
+              (item) => item !== value,
+            );
           } else {
             updatedSelectedItems = [...prevSelectedItems, value];
           }
@@ -88,13 +89,10 @@ const DropDown: React.FC<DropDownProps> = ({
         setSelectedItem(value);
         handleMenuSelection?.(value);
       }
-
     } else {
-      handleMenuSelection?.(event)
+      handleMenuSelection?.(event);
     }
-
   };
-
 
   return (
     <SlDropdown
@@ -106,37 +104,46 @@ const DropDown: React.FC<DropDownProps> = ({
       distance={distance}
       stayOpenOnSelect={withCheckbox} // when selecting a single item, we can close the dropdown after selection.
     >
-      <div slot="trigger" className="inline-flex items-center w-full cursor-pointer">
+      <div
+        slot="trigger"
+        className="inline-flex items-center w-full cursor-pointer"
+      >
         {triggerComponent}
-        {!disableCheveronIcon && <ChevronDownIcon
-          className={`w-3 h-3 text-dark  ml-2 transition-all ${dropdownIsOpened && "rotate-180"}`}
-        />}
+        {!disableCheveronIcon && (
+          <ChevronDownIcon
+            className={`w-3 h-3 text-dark  ml-2 transition-all ${dropdownIsOpened && "rotate-180"}`}
+          />
+        )}
       </div>
       <div className="shadow-2xl">
-        {
-          menuItems && menuItems.length > 0 ?
-            <SlMenu onSlSelect={handleSelect}>
-              {menuItems?.map((menuItem, id) => (
-                <SlMenuItem
-                  key={`dropdown-menu-item-${id}`}
-                  value={menuItem.value}
-                  className={`${menuItem.className} ${menuItemTextSize}`}
-                  onClick={menuItem.onClick}
-                  disabled={menuItem.disabled ?? false}
-                >
-                  {withCheckbox && (
-                    <SlCheckbox
-                      slot="prefix"
-                      size="small"
-                      checked={!multiSelect ? menuItem.value === selectedItem : selectedItems.includes(menuItem.value)}
-                    ></SlCheckbox>
-                  )}
-                  {menuItem.value}
-                </SlMenuItem>
-              ))}
-            </SlMenu> :
-            children
-        }
+        {menuItems && menuItems.length > 0 ? (
+          <SlMenu onSlSelect={handleSelect}>
+            {menuItems?.map((menuItem, id) => (
+              <SlMenuItem
+                key={`dropdown-menu-item-${id}`}
+                value={menuItem.value}
+                className={`${menuItem.className} ${menuItemTextSize}`}
+                onClick={menuItem.onClick}
+                disabled={menuItem.disabled ?? false}
+              >
+                {withCheckbox && (
+                  <SlCheckbox
+                    slot="prefix"
+                    size="small"
+                    checked={
+                      !multiSelect
+                        ? menuItem.value === selectedItem
+                        : selectedItems.includes(menuItem.value)
+                    }
+                  ></SlCheckbox>
+                )}
+                {menuItem.value}
+              </SlMenuItem>
+            ))}
+          </SlMenu>
+        ) : (
+          children
+        )}
       </div>
     </SlDropdown>
   );

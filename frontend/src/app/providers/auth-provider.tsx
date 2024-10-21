@@ -25,7 +25,7 @@ type TAuthContext = {
   isAuthenticated: boolean;
 };
 
-// @ts-expect-error No need to initialize with empty object, so supressing the warning.
+// @ts-expect-error bad type definition
 const AuthContext = createContext<TAuthContext>(null);
 
 export const useAuth = () => useContext(AuthContext);
@@ -36,15 +36,18 @@ type AuthProviderProps = {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const { getValue, setValue, removeValue } = useLocalStorage();
-  const { getValue: getSessionValue, removeValue: removeSessionValue, setValue: setSessionValue } =
-    useSessionStorage();
+  const {
+    getValue: getSessionValue,
+    removeValue: removeSessionValue,
+    setValue: setSessionValue,
+  } = useSessionStorage();
 
   const [token, setToken] = useState<string | undefined>(
     getValue(HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY),
   );
   const [user, setUser] = useState<TUser | null>(null);
 
-  const { notify } = useToast()
+  const { notify } = useToast();
   // For use across the application.
 
   const isAuthenticated = useMemo(() => {
@@ -67,8 +70,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       removeSessionValue(HOT_FAIR_SESSION_REDIRECT_KEY);
       // this this is the last stage of the auth, we can assume that the login is successful, then store a reference
       // in the session storage.
-      setSessionValue(HOT_FAIR_LOGIN_SUCCESSFUL_SESSION_KEY, 'success');
-      console.info(redirectTo, "redirecting...");
+      setSessionValue(HOT_FAIR_LOGIN_SUCCESSFUL_SESSION_KEY, "success");
       window.location.replace(redirectTo);
     }
   };
@@ -76,13 +78,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   //To show the login success after completing redirection if any.
 
   useEffect(() => {
-    const loginSuccessful = getSessionValue(HOT_FAIR_LOGIN_SUCCESSFUL_SESSION_KEY)
-    if (loginSuccessful == 'success') {
-      notify(APP_CONTENT.toasts.loginSuccess, 'success');
+    const loginSuccessful = getSessionValue(
+      HOT_FAIR_LOGIN_SUCCESSFUL_SESSION_KEY,
+    );
+    if (loginSuccessful == "success") {
+      notify(APP_CONTENT.toasts.loginSuccess, "success");
       removeSessionValue(HOT_FAIR_LOGIN_SUCCESSFUL_SESSION_KEY);
     }
-  }, [])
-
+  }, []);
 
   // Proceed with the oauth flow when the state and code are in the url params.
   useEffect(() => {
@@ -114,7 +117,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setToken(undefined);
     setUser(null);
     removeValue(HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY);
-    notify(APP_CONTENT.toasts.logoutSuccess, 'success')
+    notify(APP_CONTENT.toasts.logoutSuccess, "success");
   };
 
   /**
@@ -130,14 +133,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       fetchUserProfile();
       handleRedirection();
     } catch (error) {
-      notify(APP_CONTENT.toasts.authenticationFailed, 'danger');
+      notify(APP_CONTENT.toasts.authenticationFailed, "danger");
       console.error("Authentication failed:", error);
     }
   };
 
   return (
     <AuthContext.Provider
-      // @ts-expect-error supressing the warning.
+      // @ts-expect-error bad type definition
       value={{ token, user, authenticateUser, logout, isAuthenticated }}
     >
       {children}

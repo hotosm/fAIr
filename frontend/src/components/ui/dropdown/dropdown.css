@@ -3,7 +3,6 @@
     The 'logoutButton' class is passed from the userprofile component.
 */
 
-
 sl-menu-item::part(base) {
   color: var(--hot-fair-color-dark);
   background-color: var(--hot-fair-color-white);
@@ -17,11 +16,9 @@ sl-menu-item.logoutButton::part(base) {
   color: var(--hot-fair-color-primary);
 }
 
-
 sl-menu-item.small::part(base) {
   font-size: var(--hot-fair-font-size-body-text-3);
 }
-
 
 /* Checkbox customization */
 
@@ -31,7 +28,6 @@ sl-checkbox::part(control) {
   border: 2px solid var(--hot-fair-color-dark);
   border-radius: 3px;
 }
-
 
 sl-checkbox::part(checked-icon) {
   background-color: var(--hot-fair-color-dark);

@@ -179,13 +179,13 @@ export const APP_CONTENT = {
     button: "refresh",
   },
   construction: {
-    message: 'This page is under construction. Please check back.',
-    button: 'Go home'
+    message: "This page is under construction. Please check back.",
+    button: "Go home",
   },
-  loginButtonLoading: 'Logging in...',
+  loginButtonLoading: "Logging in...",
   toasts: {
-    authenticationFailed: 'Login failed.',
-    loginSuccess: 'Login successful.',
-    logoutSuccess: 'Logout successful.'
-  }
+    authenticationFailed: "Login failed.",
+    loginSuccess: "Login successful.",
+    logoutSuccess: "Logout successful.",
+  },
 };

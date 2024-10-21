@@ -22,8 +22,8 @@ export const useLogin = () => {
     try {
       await authService.initializeOAuthFlow();
     } catch (error) {
-      notify(APP_CONTENT.toasts.authenticationFailed, 'danger');
-      console.error('An error occured while authenticating', error);
+      notify(APP_CONTENT.toasts.authenticationFailed, "danger");
+      console.error("An error occured while authenticating", error);
     } finally {
       setLoading(false);
     }

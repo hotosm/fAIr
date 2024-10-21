@@ -1,7 +1,5 @@
-import { PageUnderConstruction } from "@/components/errors"
+import { PageUnderConstruction } from "@/components/errors";
 
 export const LearnPage = () => {
-  return (
-      <PageUnderConstruction />
-  );
+  return <PageUnderConstruction />;
 };

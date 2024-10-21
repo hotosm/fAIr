@@ -15,7 +15,6 @@ export const PageNotFound = () => {
     APPLICATION_ROUTES.TRAINING_DATASETS,
   );
 
-
   const navigate = useNavigate();
 
   return (
@@ -25,8 +24,9 @@ export const PageNotFound = () => {
         <div>
           <p className="text-body-1 lg:text-title1 font-semibold text-dark text-center">
             {APP_CONTENT.pageNotFound.messages.constant}{" "}
-            {location.state?.error ? location.state?.error :
-              modelNotFound
+            {location.state?.error
+              ? location.state?.error
+              : modelNotFound
                 ? APP_CONTENT.pageNotFound.messages.modelNotFound
                 : trainingDatasetNotFound
                   ? APP_CONTENT.pageNotFound.messages.trainingDatasetNotFound
@@ -73,7 +73,7 @@ export const PageNotFound = () => {
                 ? APPLICATION_ROUTES.MODELS
                 : trainingDatasetNotFound
                   ? APPLICATION_ROUTES.TRAINING_DATASETS
-                  : APPLICATION_ROUTES.HOMEPAGE
+                  : APPLICATION_ROUTES.HOMEPAGE,
             );
           }}
           className="max-w-[300px]"

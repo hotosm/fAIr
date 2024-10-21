@@ -1,9 +1,6 @@
-
 import styles from "./faqs.module.css";
 import { APP_CONTENT } from "@/utils/content";
 import { Accordion } from "@/components/ui/accordion";
-
-
 
 const FAQs = () => {
   return (
@@ -14,7 +11,11 @@ const FAQs = () => {
       <div className={styles.FAQContentContainer}>
         <div>
           {APP_CONTENT.homepage.faqs.content.map((faq, id) => (
-            <Accordion summary={faq.question} content={faq.answer} key={`faq-item-${id}`} />
+            <Accordion
+              summary={faq.question}
+              content={faq.answer}
+              key={`faq-item-${id}`}
+            />
           ))}
         </div>
         <h3 className={styles.seeMore}>

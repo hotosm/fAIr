@@ -4,7 +4,6 @@ import {
   Navigate,
   RouterProvider,
   createBrowserRouter,
-
 } from "react-router-dom";
 import { ProtectedPage } from "@/app/routes/protected-route";
 import { MainErrorFallback } from "@/components/errors";
@@ -20,7 +19,6 @@ const router = createBrowserRouter([
   {
     element: <RootLayout />,
     children: [
-
       {
         path: APPLICATION_ROUTES.LEARN,
         lazy: async () => {
@@ -45,7 +43,9 @@ const router = createBrowserRouter([
       {
         path: APPLICATION_ROUTES.TRAINING_DATASETS,
         lazy: async () => {
-          const { TrainingDatasetsPage } = await import("@/app/routes/training-datasets");
+          const { TrainingDatasetsPage } = await import(
+            "@/app/routes/training-datasets"
+          );
           return { Component: TrainingDatasetsPage };
         },
       },
@@ -54,20 +54,18 @@ const router = createBrowserRouter([
         lazy: async () => {
           const { ModelsPage } = await import("@/app/routes/models");
           return {
-            Component: () => (
-              <ModelsPage />
-            ),
+            Component: () => <ModelsPage />,
           };
         },
       },
       {
         path: APPLICATION_ROUTES.MODEL_DETAILS,
         lazy: async () => {
-          const { ModelDetailsPage } = await import("@/app/routes/models/model-details");
+          const { ModelDetailsPage } = await import(
+            "@/app/routes/models/model-details"
+          );
           return {
-            Component: () => (
-              <ModelDetailsPage />
-            ),
+            Component: () => <ModelDetailsPage />,
           };
         },
       },
@@ -149,12 +147,10 @@ const router = createBrowserRouter([
         ),
       },
     ],
-    errorElement: <MainErrorFallback />
+    errorElement: <MainErrorFallback />,
   },
 ]);
 
 export const AppRouter = () => {
-
-
-  return <RouterProvider router={router} />
+  return <RouterProvider router={router} />;
 };

@@ -3,7 +3,6 @@ import { APP_CONTENT } from "@/utils";
 import { NavBar } from "../ui/header";
 
 const MainErrorFallback = () => {
-
   return (
     <>
       <NavBar />
@@ -22,7 +21,6 @@ const MainErrorFallback = () => {
           {APP_CONTENT.errorBoundary.button}
         </Button>
       </section>
-
     </>
   );
 };

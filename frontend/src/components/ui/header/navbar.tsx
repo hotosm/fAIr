@@ -17,8 +17,6 @@ const NavBar = () => {
   const { user, logout, isAuthenticated } = useAuth();
   const { handleLogin, loading } = useLogin();
 
-
-
   return (
     <>
       <Drawer open={open} setOpen={setOpen} placement="end">
@@ -47,7 +45,9 @@ const NavBar = () => {
               <UserProfile logout={logout} user={user} />
             ) : (
               <Button variant="primary" onClick={handleLogin} spinner={loading}>
-                {loading ? APP_CONTENT.loginButtonLoading : APP_CONTENT.navbar.loginButton}
+                {loading
+                  ? APP_CONTENT.loginButtonLoading
+                  : APP_CONTENT.navbar.loginButton}
               </Button>
             )}
           </div>
@@ -55,7 +55,11 @@ const NavBar = () => {
       </Drawer>
       <nav className={styles.nav}>
         <div>
-          <Link href="/" title={APP_CONTENT.navbar.logoAlt} nativeAnchor={false}>
+          <Link
+            href="/"
+            title={APP_CONTENT.navbar.logoAlt}
+            nativeAnchor={false}
+          >
             <Image
               src={HOTFairLogo}
               alt={APP_CONTENT.navbar.logoAlt}
@@ -79,7 +83,9 @@ const NavBar = () => {
               onClick={handleLogin}
               spinner={loading}
             >
-              {loading ? APP_CONTENT.loginButtonLoading : APP_CONTENT.navbar.loginButton}
+              {loading
+                ? APP_CONTENT.loginButtonLoading
+                : APP_CONTENT.navbar.loginButton}
             </Button>
           )}
         </div>
@@ -130,14 +136,14 @@ type NavBarLinksProps = {
 const NavBarLinks: React.FC<NavBarLinksProps> = ({ className }) => {
   const location = useLocation();
 
-
   return (
     <ul className={className}>
       {navLinks.map((link, id) => (
-        <li key={`navbar-item-${id}`} className={`${styles.navLinkItem} ${location.pathname.includes(link.href) && styles.activeLink}`}>
-          <Link href={link.href}
-            title={link.title} nativeAnchor={false}
-          >
+        <li
+          key={`navbar-item-${id}`}
+          className={`${styles.navLinkItem} ${location.pathname.includes(link.href) && styles.activeLink}`}
+        >
+          <Link href={link.href} title={link.title} nativeAnchor={false}>
             {link.title}
           </Link>
         </li>

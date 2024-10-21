@@ -1,17 +1,20 @@
-
-import SlDialog from '@shoelace-style/shoelace/dist/react/dialog/index.js';
-import './dialog.css';
-
+import SlDialog from "@shoelace-style/shoelace/dist/react/dialog/index.js";
+import "./dialog.css";
 
 type DialogProps = {
-  label?: string
-  isOpened: boolean
-  setOpen: () => void
-  children: React.ReactNode
-  size?: 'small' | 'medium' | 'large' | 'extra-large'
-}
-const Dialog: React.FC<DialogProps> = ({ isOpened, setOpen, label, children, size = 'medium' }) => {
-
+  label?: string;
+  isOpened: boolean;
+  closeDialog: () => void;
+  children: React.ReactNode;
+  size?: "small" | "medium" | "large" | "extra-large";
+};
+const Dialog: React.FC<DialogProps> = ({
+  isOpened,
+  closeDialog,
+  label,
+  children,
+  size = "medium",
+}) => {
   return (
     <SlDialog
       label={label}
@@ -19,10 +22,20 @@ const Dialog: React.FC<DialogProps> = ({ isOpened, setOpen, label, children, siz
       onSlAfterHide={(e) => {
         e.stopPropagation();
         e.preventDefault();
-        setOpen();
+        closeDialog();
       }}
-      //@ts-expect-error
-      style={{ '--width': size === 'small' ? '25vw' : size === 'medium' ? '50vw' : size === 'extra-large' ? '100vw' : '75vw' }}>
+      //@ts-expect-error bad type definition
+      style={{
+        "--width":
+          size === "small"
+            ? "25vw"
+            : size === "medium"
+              ? "50vw"
+              : size === "extra-large"
+                ? "100vw"
+                : "75vw",
+      }}
+    >
       {children}
     </SlDialog>
   );

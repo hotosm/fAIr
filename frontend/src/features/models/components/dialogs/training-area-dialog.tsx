@@ -1,25 +1,32 @@
-import { Dialog } from "@/components/ui/dialog"
-import { useDevice } from "@/hooks/use-device"
-import { MapComponent } from "@/features/models/components/map"
-
+import { Dialog } from "@/components/ui/dialog";
+import { useDevice } from "@/hooks/use-device";
+import { MapComponent } from "@/features/models/components/map";
 
 type TrainingAreaDialogProps = {
-    isOpened: boolean
-    setOpen: () => void
-}
+  isOpened: boolean;
+  closeDialog: () => void;
+};
 
-const TrainingAreaDialog: React.FC<TrainingAreaDialogProps> = ({ isOpened, setOpen }) => {
-    const isMobile = useDevice();
+const TrainingAreaDialog: React.FC<TrainingAreaDialogProps> = ({
+  isOpened,
+  closeDialog,
+}) => {
+  const isMobile = useDevice();
 
-    return (
-        <Dialog isOpened={isOpened} setOpen={setOpen} label={'Training Area'} size={isMobile ? 'extra-large' : 'large'}>
-            <div className={`${!isMobile ? 'h-[600px]' : 'h-[350px]'}`}>
-                <div className="h-full w-full">
-                    <MapComponent onMapLoad={() => undefined} />
-                </div>
-            </div>
-        </Dialog>
-    )
-}
+  return (
+    <Dialog
+      isOpened={isOpened}
+      closeDialog={closeDialog}
+      label={"Training Area"}
+      size={isMobile ? "extra-large" : "large"}
+    >
+      <div className={`${!isMobile ? "h-[600px]" : "h-[350px]"}`}>
+        <div className="h-full w-full">
+          <MapComponent onMapLoad={() => undefined} />
+        </div>
+      </div>
+    </Dialog>
+  );
+};
 
-export default TrainingAreaDialog
+export default TrainingAreaDialog;

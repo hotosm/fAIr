@@ -17,7 +17,7 @@ const Image: React.FC<ImageProps> = ({
   width,
   height,
   className,
-  placeHolder
+  placeHolder,
 }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [imageSrc, setImageSrc] = useState(src);
@@ -32,12 +32,14 @@ const Image: React.FC<ImageProps> = ({
   };
 
   useEffect(() => {
-    if (!src) return
+    if (!src) return;
     setImageSrc(src);
   }, [src]);
   return (
     <>
-      {isLoading && <div className="animate-pulse bg-light-gray w-full h-full"></div>}
+      {isLoading && (
+        <div className="animate-pulse bg-light-gray w-full h-full"></div>
+      )}
       <img
         src={imageSrc}
         alt={alt}

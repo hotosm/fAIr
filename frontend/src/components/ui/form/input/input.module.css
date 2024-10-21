@@ -1,27 +1,25 @@
 sl-input.customInput::part(base) {
-    border: none;
-    color: var(--hot-fair-color-dark);
-    outline: none;
-    box-shadow: none;
-    padding-inline: 0;
-    padding-block: 0;
-    width: 100%;
+  border: none;
+  color: var(--hot-fair-color-dark);
+  outline: none;
+  box-shadow: none;
+  padding-inline: 0;
+  padding-block: 0;
+  width: 100%;
 }
 
-
 sl-input.showBorder::part(form-control-input) {
-    border: 1px solid var(--hot-fair-color-gray-border);
-    border-radius: 0px;
+  border: 1px solid var(--hot-fair-color-gray-border);
+  border-radius: 0px;
 }
 
 sl-input.customInput::part(form-control-input):focus {
-    outline: none;
-    border: none;
-    box-shadow: none;
+  outline: none;
+  border: none;
+  box-shadow: none;
 }
 
-
 sl-input.customInput::part(input)::placeholder {
-    color: var(--hot-fair-color-gray);
-    font-size: var(--hot-fair-font-size-body-text-3);
+  color: var(--hot-fair-color-gray);
+  font-size: var(--hot-fair-font-size-body-text-3);
 }

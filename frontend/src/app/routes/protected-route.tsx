@@ -37,7 +37,9 @@ export const ProtectedPage: React.FC<ProtectedRouteProps> = ({ children }) => {
             className="max-w-[300px]"
             spinner={loading}
           >
-            {loading ? APP_CONTENT.loginButtonLoading : APP_CONTENT.protectedPage.ctaButton}
+            {loading
+              ? APP_CONTENT.loginButtonLoading
+              : APP_CONTENT.protectedPage.ctaButton}
           </Button>
         </section>
       </>

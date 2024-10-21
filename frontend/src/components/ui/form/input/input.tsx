@@ -1,9 +1,8 @@
-
-import { SlInput } from '@shoelace-style/shoelace/dist/react';
-import styles from './input.module.css';
-import { CalenderIcon } from '@/components/ui/icons';
-import { useBrowserType } from '@/hooks/use-browser-type';
-import { useRef } from 'react';
+import { SlInput } from "@shoelace-style/shoelace/dist/react";
+import styles from "./input.module.css";
+import { CalenderIcon } from "@/components/ui/icons";
+import { useBrowserType } from "@/hooks/use-browser-type";
+import { useRef } from "react";
 
 type InputProps = {
   handleInput: (arg: any) => void;
@@ -11,31 +10,31 @@ type InputProps = {
   className?: string;
   placeholder?: string;
   clearable?: boolean;
-  disabled?: boolean
-  type?: 'date' | 'text'
-  showBorder?: boolean
-  label?: string
-  size?: 'small' | 'medium'
-
+  disabled?: boolean;
+  type?: "date" | "text";
+  showBorder?: boolean;
+  label?: string;
+  size?: "small" | "medium";
 };
 
 const Input: React.FC<InputProps> = ({
-  handleInput, value, className = '',
-  placeholder = '',
+  handleInput,
+  value,
+  className = "",
+  placeholder = "",
   clearable = false,
   disabled = false,
-  type = 'text',
+  type = "text",
   showBorder = false,
   label,
-  size = 'medium'
-
+  size = "medium",
 }) => {
   const { isChrome } = useBrowserType();
 
   const openNativeDatePicker = () => {
     dateInputRef.current?.focus();
     dateInputRef.current?.showPicker();
-  }
+  };
 
   const dateInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -48,12 +47,11 @@ const Input: React.FC<InputProps> = ({
       clearable={clearable}
       disabled={disabled}
       type={type}
-      //@ts-expect-error
+      //@ts-expect-error bad type definition
       ref={dateInputRef}
       label={label}
       size={size}
     >
-
       {/* 
         We're using the native browser date picker. 
         In chrome it displays a calender icon which unfortunately could not be customized as at 08/10/2024.
@@ -62,9 +60,13 @@ const Input: React.FC<InputProps> = ({
         This is a trade off to save some Kb in the app build size.
        
        */}
-      {
-        !isChrome && type === 'date' && <CalenderIcon className='icon text-dark cursor-pointer' slot="suffix" onClick={openNativeDatePicker} />
-      }
+      {!isChrome && type === "date" && (
+        <CalenderIcon
+          className="icon text-dark cursor-pointer"
+          slot="suffix"
+          onClick={openNativeDatePicker}
+        />
+      )}
     </SlInput>
   );
 };

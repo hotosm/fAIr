@@ -12,8 +12,8 @@ type UserProfileProps = {
 };
 
 const UserProfile: React.FC<UserProfileProps> = ({ logout, user }) => {
-
-  const { onDropdownHide, onDropdownShow, dropdownIsOpened } = useDropdownMenu()
+  const { onDropdownHide, onDropdownShow, dropdownIsOpened } =
+    useDropdownMenu();
   const navigate = useNavigate();
 
   return (
@@ -39,7 +39,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ logout, user }) => {
       distance={0}
       placement="bottom-end"
       triggerComponent={
-        <div className={styles.userProfile} >
+        <div className={styles.userProfile}>
           <SlAvatar
             image={user.img_url}
             label={user.username}
@@ -47,9 +47,9 @@ const UserProfile: React.FC<UserProfileProps> = ({ logout, user }) => {
             initials={user.username.charAt(0)}
           />
           <p className={styles.userProfileName}>{user.username}</p>
-        </div>}
-    >
-    </DropDown>
+        </div>
+      }
+    ></DropDown>
   );
 };
 

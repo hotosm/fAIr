@@ -59,9 +59,11 @@
   top: -90px;
   right: 0;
   left: 0;
-  background-image: radial-gradient(circle,
-      var(--hot-fair-color-primary) 1px,
-      transparent 1px);
+  background-image: radial-gradient(
+    circle,
+    var(--hot-fair-color-primary) 1px,
+    transparent 1px
+  );
   background-size: var(--sl-spacing-2x-small) var(--sl-spacing-2x-small);
 }
 
@@ -102,7 +104,7 @@
     font-size: var(--hot-fair-font-size-title-2);
   }
 
-  .container .cta>div {
+  .container .cta > div {
     margin-bottom: 40px;
   }
 

@@ -1,12 +1,10 @@
-import { Head } from "@/components/seo"
+import { Head } from "@/components/seo";
 
 export const ModelCreationPage = () => {
-    return (
-        <>
-            <Head title="Create New Model" />
-            <div>
-                Create New Model
-            </div>
-        </>
-    )
-}
+  return (
+    <>
+      <Head title="Create New Model" />
+      <div>Create New Model</div>
+    </>
+  );
+};
