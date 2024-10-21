@@ -167,6 +167,7 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
         )}
         {/* Show logs only in modal and when status failed */}
         {isTrainingDetailsDialog && data?.status === TrainingStatus.FAILED && (
+          //@ts-expect-error bad type definition
           <FailedTrainingTraceBack taskId={data?.task_id} />
         )}
       </div>

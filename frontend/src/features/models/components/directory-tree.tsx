@@ -179,8 +179,8 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
       window.URL.revokeObjectURL(url);
       notify("File downloaded successfully!", "success");
     } catch (error) {
-      //@ts-expect-error bad type definition
       const errorMessage =
+        //@ts-expect-error bad type definition
         error.response?.statusText || "Failed to download file.";
       notify(errorMessage, "danger");
     } finally {

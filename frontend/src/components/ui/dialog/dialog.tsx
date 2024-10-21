@@ -24,8 +24,9 @@ const Dialog: React.FC<DialogProps> = ({
         e.preventDefault();
         closeDialog();
       }}
-      //@ts-expect-error bad type definition
+     
       style={{
+        //@ts-expect-error bad type definition
         "--width":
           size === "small"
             ? "25vw"
