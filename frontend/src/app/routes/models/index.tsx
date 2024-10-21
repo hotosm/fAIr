@@ -111,15 +111,16 @@ const LayoutToggle = ({
   query,
   updateQuery,
   isMobile,
+  disabled=false
 }: {
   updateQuery: (params: TQueryParams) => void;
   query: TQueryParams;
   isMobile?: boolean;
+  disabled?:boolean 
 }) => {
   const activeLayout = query[SEARCH_PARAMS.layout];
   return (
-    <div
-      role="button"
+    <button
       title={`Switch to ${query[SEARCH_PARAMS.layout] === LayoutView.GRID ? LayoutView.LIST : (LayoutView.GRID as string)} layout`}
       className={`${isMobile ? "flex md:hidden" : "hidden md:flex"} border border-gray-border p-2 items-center justify-center text-dark cursor-pointer`}
       onClick={() =>
@@ -130,13 +131,14 @@ const LayoutToggle = ({
               : LayoutView.GRID,
         })
       }
+      disabled={disabled}
     >
       {activeLayout !== LayoutView.LIST ? (
-        <ListIcon className="icon-lg" />
+        <ListIcon className="icon-lg"/>
       ) : (
         <CategoryIcon className="icon-lg" />
       )}
-    </div>
+    </button>
   );
 };
 
@@ -290,11 +292,13 @@ export const ModelsPage = () => {
 
     if (mapViewIsActive) {
       return (
-        <div className="w-full grid md:grid-cols-4 md:border rounded-md p-2 md:border-gray-border gap-x-2 mt-10 grid-rows-2 md:grid-rows-1 gap-y-10 md:gap-y-0 h-screen">
-          <div className="col-span-1 md:col-span-2 md:row-start-1 grid grid-cols-1 xl:grid-cols-2 gap-x-7 gap-y-14 overflow-scroll">
+        <div className="w-full grid md:grid-cols-4 md:border rounded-md p-2 md:border-gray-border gap-x-2 mt-10 grid-rows-2 md:grid-rows-1 gap-y-6 md:gap-y-0 h-screen">
+          <div className="overflow-scroll md:row-start-1 col-span-1 md:col-span-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-10">
             <ModelListGridLayout models={data?.results} isPending={isPending} />
+            </div>
           </div>
-          <div className="col-span-2 md:col-span-2 row-start-1">
+          <div className="col-span-2 md:col-span-2 row-start-1 ">
             {modelsMapDataIsPending ? (
               <div className="w-full h-full animate-pulse bg-light-gray"></div>
             ) : (
@@ -342,6 +346,7 @@ export const ModelsPage = () => {
                   updateQuery={updateQuery}
                   query={query}
                   isMobile
+                  disabled={mapViewIsActive as boolean}
                 />
               </div>
               <DateRangeFilter
@@ -355,7 +360,7 @@ export const ModelsPage = () => {
             <div className="md:flex items-center gap-x-10 hidden">
               {/* Desktop */}
               <SetMapToggle updateQuery={updateQuery} query={query} />
-              <LayoutToggle updateQuery={updateQuery} query={query} />
+              <LayoutToggle updateQuery={updateQuery} query={query} disabled={mapViewIsActive as boolean}/>
             </div>
           </div>
           {/* Mobile */}

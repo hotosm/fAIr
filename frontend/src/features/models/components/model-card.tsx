@@ -21,10 +21,12 @@ const ModelCard: React.FC<ModelCardProps> = ({ model }) => {
         disableLinkStyle
         href={`${APPLICATION_ROUTES.MODELS}/${model.id}`}
         title={model.name}
-        className="w-[300px] mx-auto min-h-[450px] flex flex-col border border-gray-border hover:shadow-md overflow-hidden group"
+        className="w-[300px] mx-auto h-auto flex flex-col border border-gray-border hover:shadow-md overflow-hidden group"
       >
         <div className="h-[200px] w-full">
           <Image
+            height='256px'
+            width='256px'
             src={
               model.thumbnail_url
                 ? `${model.thumbnail_url}.png`
