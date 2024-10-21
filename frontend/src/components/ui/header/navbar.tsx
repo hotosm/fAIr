@@ -38,7 +38,7 @@ const NavBar = () => {
             </button>
           </div>
           <div className={styles.navLinksContainer}>
-            <NavBarLinks className={styles.mobileNavLinks} />
+            <NavBarLinks className={styles.mobileNavLinks} setOpen={setOpen}/>
           </div>
           <div className={styles.loginButtonContainer}>
             {isAuthenticated ? (
@@ -131,9 +131,10 @@ const navLinks: TNavBarLinks = [
 
 type NavBarLinksProps = {
   className: string;
+  setOpen?:(arg:boolean)=>void 
 };
 
-const NavBarLinks: React.FC<NavBarLinksProps> = ({ className }) => {
+const NavBarLinks: React.FC<NavBarLinksProps> = ({ className,setOpen }) => {
   const location = useLocation();
 
   return (
@@ -141,6 +142,10 @@ const NavBarLinks: React.FC<NavBarLinksProps> = ({ className }) => {
       {navLinks.map((link, id) => (
         <li
           key={`navbar-item-${id}`}
+          onClick={()=>{
+            //close the drawer after navigating to a new page on mobile
+            setOpen && setOpen(false)
+          }}
           className={`${styles.navLinkItem} ${location.pathname.includes(link.href) && styles.activeLink}`}
         >
           <Link href={link.href} title={link.title} nativeAnchor={false}>
