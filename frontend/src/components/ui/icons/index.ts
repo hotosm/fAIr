@@ -24,8 +24,8 @@ export { default as FilterIcon } from "./filter-icon";
 export { default as SortIcon } from "./sort-icon";
 export { default as ElipsisIcon } from "./elipsis-icon";
 export { default as SettingsIcon } from "./settings-icon";
-export { default as TagsIcon } from './tag-icon'
-export { default as DatabaseIcon } from './database-icon'
-export { default as SquareShadowIcon } from './square-shadow-icon'
-export { default as CloudIcon } from './cloud-icon'
-export { default as StarIcon } from './star-icon'
+export { default as TagsIcon } from "./tag-icon";
+export { default as DatabaseIcon } from "./database-icon";
+export { default as SquareShadowIcon } from "./square-shadow-icon";
+export { default as CloudIcon } from "./cloud-icon";
+export { default as StarIcon } from "./star-icon";

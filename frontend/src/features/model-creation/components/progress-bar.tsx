@@ -1,4 +1,11 @@
-import { CloudIcon, DatabaseIcon, SettingsIcon, SquareShadowIcon, StarIcon, TagsIcon } from "@/components/ui/icons";
+import {
+  CloudIcon,
+  DatabaseIcon,
+  SettingsIcon,
+  SquareShadowIcon,
+  StarIcon,
+  TagsIcon,
+} from "@/components/ui/icons";
 import CheckIcon from "@/components/ui/icons/check-icon";
 import { cn } from "@/utils";
 

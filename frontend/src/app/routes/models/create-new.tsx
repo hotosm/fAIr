@@ -7,6 +7,7 @@ import { useState } from "react";
 export const ModelCreationPage = () => {
   const [currentStep, setCurrentStep] = useState<number>(1);
 
+  // @ts-expect-error declared but never read
   const [formData, setFormData] = useState({
     modelName: "",
     modelDescription: "",
