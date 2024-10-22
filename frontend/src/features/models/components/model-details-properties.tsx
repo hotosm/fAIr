@@ -135,6 +135,9 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
             label={
               APP_CONTENT.models.modelsDetailsCard.properties.accuracy.title
             }
+            tooltip={
+              APP_CONTENT.models.modelsDetailsCard.properties.accuracy.tooltip
+            }
             value={trainingAccuracy}
             isAccuracy
           />
@@ -181,6 +184,10 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
               APP_CONTENT.models.modelsDetailsCard.properties.currentDatasetSize
                 .title
             }
+            tooltip={
+              APP_CONTENT.models.modelsDetailsCard.properties.currentDatasetSize
+                .tooltip
+            }
             value={chips_length}
           />
           {/* Animate the status when it's in progress. */}
@@ -196,6 +203,10 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
           <PropertyDisplay
             label={
               APP_CONTENT.models.modelsDetailsCard.properties.sourceImage.title
+            }
+            tooltip={
+              APP_CONTENT.models.modelsDetailsCard.properties.sourceImage
+                .tooltip
             }
             value={source_imagery}
             isTMS
