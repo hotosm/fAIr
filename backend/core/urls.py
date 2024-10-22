@@ -7,6 +7,7 @@ from rest_framework import routers
 from .views import (  # APIStatus,
     AOIViewSet,
     ApprovedPredictionsViewSet,
+    BannerViewSet,
     ConflateGeojson,
     DatasetViewSet,
     FeedbackAOIViewset,
@@ -16,14 +17,17 @@ from .views import (  # APIStatus,
     GenerateFeedbackAOIGpxView,
     GenerateGpxView,
     LabelViewSet,
+    ModelCentroidView,
     ModelViewSet,
     RawdataApiAOIView,
     RawdataApiFeedbackView,
     TrainingViewSet,
     TrainingWorkspaceDownloadView,
     TrainingWorkspaceView,
+    UsersView,
     download_training_data,
     geojson2osmconverter,
+    get_kpi_stats,
     publish_training,
     run_task_status,
 )
@@ -42,6 +46,7 @@ router.register(r"model", ModelViewSet)
 router.register(r"feedback", FeedbackViewset)
 router.register(r"feedback-aoi", FeedbackAOIViewset)
 router.register(r"feedback-label", FeedbackLabelViewset)
+router.register(r"banner", BannerViewSet)
 
 
 urlpatterns = [
@@ -51,6 +56,8 @@ urlpatterns = [
         "label/feedback/osm/fetch/<int:feedbackaoi_id>/",
         RawdataApiFeedbackView.as_view(),
     ),
+    path("users/", UsersView.as_view(), name="user-list-view"),
+    path("models/centroid/", ModelCentroidView.as_view(), name="model-centroid"),
     # path("download/<int:dataset_id>/", download_training_data),
     path("training/status/<str:run_id>/", run_task_status),
     path("training/publish/<int:training_id>/", publish_training),
@@ -62,11 +69,12 @@ urlpatterns = [
     path(
         "feedback-aoi/gpx/<int:feedback_aoi_id>/", GenerateFeedbackAOIGpxView.as_view()
     ),
-    path("workspace/", TrainingWorkspaceView.as_view()),
+    # path("workspace/", TrainingWorkspaceView.as_view()),
     path(
         "workspace/download/<path:lookup_dir>/", TrainingWorkspaceDownloadView.as_view()
     ),
     path("workspace/<path:lookup_dir>/", TrainingWorkspaceView.as_view()),
+    path("kpi/stats/", get_kpi_stats, name="get_kpi_stats"),
 ]
 if settings.ENABLE_PREDICTION_API:
     urlpatterns.append(path("prediction/", PredictionView.as_view()))

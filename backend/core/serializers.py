@@ -1,10 +1,10 @@
+import mercantile
 from django.conf import settings
+from login.models import OsmUser
 from rest_framework import serializers
 from rest_framework_gis.serializers import (
     GeoFeatureModelSerializer,  # this will be used if we used to serialize as geojson
 )
-
-from login.models import OsmUser
 
 from .models import *
 
@@ -18,34 +18,113 @@ class DatasetSerializer(
         model = Dataset
         fields = "__all__"  # defining all the fields to  be included in curd for now , we can restrict few if we want
         read_only_fields = (
-            "created_by",
+            "user",
             "created_at",
             "last_modified",
         )
 
     def create(self, validated_data):
         user = self.context["request"].user
-        validated_data["created_by"] = user
+        validated_data["user"] = user
         return super().create(validated_data)
 
 
-class ModelSerializer(
-    serializers.ModelSerializer
-):  # serializers are used to translate models objects to api
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OsmUser
+        fields = [
+            "osm_id",
+            "username",
+            # "is_superuser",
+            # "is_active",
+            # "is_staff",
+            # "date_joined",
+            # "email",
+            "img_url",
+            # "user_permissions",
+        ]
+
+
+class ModelSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    accuracy = serializers.SerializerMethodField()
+    thumbnail_url = serializers.SerializerMethodField()
+
     class Meta:
         model = Model
-        fields = "__all__"  # defining all the fields to  be included in curd for now , we can restrict few if we want
+        fields = "__all__"
         read_only_fields = (
             "created_at",
             "last_modified",
-            "created_by",
+            "user",
             "published_training",
         )
 
     def create(self, validated_data):
         user = self.context["request"].user
-        validated_data["created_by"] = user
+        validated_data["user"] = user
         return super().create(validated_data)
+
+    # def get_training(self, obj):
+    #     if not hasattr(self, "_cached_training"):
+    #         self._cached_training = Training.objects.filter(
+    #             id=obj.published_training
+    #         ).first()
+    #     return self._cached_training
+
+    def get_thumbnail_url(self, obj):
+        training = Training.objects.filter(id=obj.published_training).first()
+
+        if training:
+            if training.source_imagery:
+                aoi = AOI.objects.filter(dataset=obj.dataset).first()
+                if aoi and aoi.geom:
+                    centroid = (
+                        aoi.geom.centroid.coords
+                    )  ## Centroid can be stored in db table if required when project grows bigger
+                    try:
+                        tile = mercantile.tile(centroid[0], centroid[1], zoom=18)
+                        return training.source_imagery.format(x=tile.x, y=tile.y, z=18)
+                    except Exception as ex:
+                        pass
+        return None
+
+    def get_accuracy(self, obj):
+        training = Training.objects.filter(id=obj.published_training).first()
+        if training:
+            return training.accuracy
+        return None
+
+
+class ModelCentroidSerializer(GeoFeatureModelSerializer):
+    geometry = serializers.SerializerMethodField()
+    mid = serializers.IntegerField(source="id")
+
+    class Meta:
+        model = Model
+        geo_field = "geometry"
+        fields = ("mid", "geometry")
+        # fields = ("mid", "name", "geometry")
+
+    def get_geometry(self, obj):
+        """
+        Get the centroid of the AOI linked to the dataset of the given model.
+        """
+        aoi = AOI.objects.filter(dataset=obj.dataset).first()
+        if aoi and aoi.geom:
+            return {
+                "type": "Point",
+                "coordinates": aoi.geom.centroid.coords,
+            }
+        return None
+
+    # def to_representation(self, instance):
+    #     """
+    #     Override to_representation to customize GeoJSON structure.
+    #     """
+    #     representation = super().to_representation(instance)
+    #     representation["properties"]["id"] = representation.pop("id")
+    #     return representation
 
 
 class AOISerializer(
@@ -316,17 +395,12 @@ class PredictionParamSerializer(serializers.Serializer):
         return data
 
 
-class UserSerializer(serializers.ModelSerializer):
+class BannerSerializer(serializers.ModelSerializer):
     class Meta:
-        model = OsmUser
+        model = Banner
         fields = [
-            "osm_id",
-            "username",
-            "is_superuser",
-            "is_active",
-            "is_staff",
-            "date_joined",
-            "email",
-            "img_url",
-            "user_permissions",
+            "id",
+            "message",
+            "start_date",
+            "end_date",
         ]

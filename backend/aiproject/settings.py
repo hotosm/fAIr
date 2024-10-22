@@ -10,8 +10,10 @@ For the full list of settings and their values, see
 https://docs.aiproject.com/en/3.1/ref/settings/
 """
 
-import os
 import logging
+import os
+from socket import gethostbyname, gethostname
+
 import dj_database_url
 import environ
 from corsheaders.defaults import default_headers
@@ -36,7 +38,7 @@ EXPORT_TOOL_API_URL = env(
     default="https://api-prod.raw-data.hotosm.org/v1",
 )
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", HOSTNAME]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", HOSTNAME, gethostbyname(gethostname())]
 CORS_ALLOW_HEADERS = list(default_headers) + [
     "access-token",
 ]
@@ -101,6 +103,7 @@ ALLOWED_ORIGINS = env("CORS_ALLOWED_ORIGINS", default="http://127.0.0.1:8000").s
 CORS_ORIGIN_WHITELIST = ALLOWED_ORIGINS
 
 CORS_ORIGIN_ALLOW_ALL = env("CORS_ORIGIN_ALLOW_ALL", default=False)
+DEFAULT_PAGINATION_SIZE = env("DEFAULT_PAGINATION_SIZE", default=50)
 
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema",
@@ -109,6 +112,8 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.BasicAuthentication",
         "login.authentication.OsmAuthentication",
     ],
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
+    "PAGE_SIZE": DEFAULT_PAGINATION_SIZE,
 }
 
 ROOT_URLCONF = "aiproject.urls"
@@ -207,7 +212,7 @@ SWAGGER_SETTINGS = {
     }
 }
 # get ramp home and set it to environ
-RAMP_HOME = env("RAMP_HOME",default=None)
+RAMP_HOME = env("RAMP_HOME", default=None)
 if RAMP_HOME:
     os.environ["RAMP_HOME"] = RAMP_HOME
 
@@ -219,4 +224,4 @@ TRAINING_WORKSPACE = env(
 ENABLE_PREDICTION_API = env("ENABLE_PREDICTION_API", default=False)
 
 
-TEST_RUNNER = 'tests.test_runners.NoDestroyTestRunner'
+TEST_RUNNER = "tests.test_runners.NoDestroyTestRunner"

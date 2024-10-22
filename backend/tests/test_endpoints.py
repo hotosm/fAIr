@@ -2,18 +2,19 @@ import json
 import os
 import shutil
 
-from django.conf import settings
 import validators
+from django.conf import settings
 from rest_framework import status
 from rest_framework.test import APILiveServerTestCase, RequestsClient
+
 from .factories import (
-    OsmUserFactory,
-    TrainingFactory,
-    DatasetFactory,
     AoiFactory,
+    DatasetFactory,
+    FeedbackAoiFactory,
     LabelFactory,
     ModelFactory,
-    FeedbackAoiFactory,
+    OsmUserFactory,
+    TrainingFactory,
 )
 
 API_BASE = "http://testserver/api/v1"
@@ -30,9 +31,9 @@ class TaskApiTest(APILiveServerTestCase):
         # Create a request factory instance
         self.client = RequestsClient()
         self.user = OsmUserFactory(osm_id=123)
-        self.dataset = DatasetFactory(created_by=self.user)
+        self.dataset = DatasetFactory(user=self.user)
         self.aoi = AoiFactory(dataset=self.dataset)
-        self.model = ModelFactory(dataset=self.dataset, created_by=self.user)
+        self.model = ModelFactory(dataset=self.dataset, user=self.user)
         self.json_type_header = headersList.copy()
         self.json_type_header["content-type"] = "application/json"
 
@@ -187,11 +188,11 @@ class TaskApiTest(APILiveServerTestCase):
         )
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
-        self.training = TrainingFactory(model=self.model, created_by=self.user)
+        self.training = TrainingFactory(model=self.model, user=self.user)
 
     def test_create_label(self):
         self.label = LabelFactory(aoi=self.aoi)
-        self.training = TrainingFactory(model=self.model, created_by=self.user)
+        self.training = TrainingFactory(model=self.model, user=self.user)
 
         # create label
 
@@ -236,7 +237,7 @@ class TaskApiTest(APILiveServerTestCase):
 
     def test_fetch_feedbackAoi_osm_label(self):
         # create feedback aoi
-        training = TrainingFactory(model=self.model, created_by=self.user)
+        training = TrainingFactory(model=self.model, user=self.user)
         feedbackAoi = FeedbackAoiFactory(training=training, user=self.user)
 
         # download available osm data as labels for the feedback aoi
@@ -249,7 +250,7 @@ class TaskApiTest(APILiveServerTestCase):
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
 
     def test_get_runStatus(self):
-        training = TrainingFactory(model=self.model, created_by=self.user)
+        training = TrainingFactory(model=self.model, user=self.user)
 
         # get running training status
 
@@ -259,7 +260,7 @@ class TaskApiTest(APILiveServerTestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
     def test_submit_training_feedback(self):
-        training = TrainingFactory(model=self.model, created_by=self.user)
+        training = TrainingFactory(model=self.model, user=self.user)
 
         # apply feedback to training published checkpoints
 
@@ -278,17 +279,17 @@ class TaskApiTest(APILiveServerTestCase):
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_publish_training(self):
-        training = TrainingFactory(model=self.model, created_by=self.user)
+        training = TrainingFactory(model=self.model, user=self.user)
 
         # publish an unfinished training should not pass
 
         res = self.client.post(
             f"{API_BASE}/training/publish/{training.id}/", headers=headersList
         )
-        self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(res.status_code, 409)
 
     def test_get_GpxView(self):
-        training = TrainingFactory(model=self.model, created_by=self.user)
+        training = TrainingFactory(model=self.model, user=self.user)
         feedbackAoi = FeedbackAoiFactory(training=training, user=self.user)
 
         # generate aoi GPX view - aoi_id
@@ -306,8 +307,8 @@ class TaskApiTest(APILiveServerTestCase):
     def test_get_workspace(self):
         # get training workspace
 
-        res = self.client.get(f"{API_BASE}/workspace/", headers=headersList)
-        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        res = self.client.get(f"{API_BASE}/workspace/dataset_1/", headers=headersList)
+        self.assertEqual(res.status_code, 404)
 
     def test_download_workspace(self):
         try:

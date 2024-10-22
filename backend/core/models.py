@@ -2,7 +2,7 @@ from django.contrib.gis.db import models as geomodels
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-
+from django.utils import timezone
 from login.models import OsmUser
 
 # Create your models here.
@@ -15,7 +15,7 @@ class Dataset(models.Model):
         DRAFT = -1
 
     name = models.CharField(max_length=255)
-    created_by = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
+    user = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
     last_modified = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
     source_imagery = models.URLField(blank=True, null=True)
@@ -47,6 +47,11 @@ class Label(models.Model):
 
 
 class Model(models.Model):
+    BASE_MODEL_CHOICES = (
+        ("RAMP", "RAMP"),
+        ("YOLO", "YOLO"),
+    )
+
     class ModelStatus(models.IntegerChoices):
         ARCHIVED = 1
         PUBLISHED = 0
@@ -56,9 +61,13 @@ class Model(models.Model):
     name = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now=True)
-    created_by = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
+    description = models.TextField(max_length=500, null=True, blank=True)
+    user = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
     published_training = models.PositiveIntegerField(null=True, blank=True)
-    status = models.IntegerField(default=-1, choices=ModelStatus.choices)  #
+    status = models.IntegerField(default=-1, choices=ModelStatus.choices)
+    base_model = models.CharField(
+        choices=BASE_MODEL_CHOICES, default="RAMP", max_length=10
+    )
 
 
 class Training(models.Model):
@@ -80,7 +89,7 @@ class Training(models.Model):
         models.PositiveIntegerField(),
         size=4,
     )
-    created_by = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
+    user = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
     started_at = models.DateTimeField(null=True, blank=True)
     finished_at = models.DateTimeField(null=True, blank=True)
     accuracy = models.FloatField(null=True, blank=True)
@@ -88,6 +97,7 @@ class Training(models.Model):
     chips_length = models.PositiveIntegerField(default=0)
     batch_size = models.PositiveIntegerField()
     freeze_layers = models.BooleanField(default=False)
+    centroid = geomodels.PointField(srid=4326, null=True, blank=True)
 
 
 class Feedback(models.Model):
@@ -145,6 +155,19 @@ class ApprovedPredictions(models.Model):
         srid=4326
     )  ## Making this geometry field to support point/line prediction later on
     approved_at = models.DateTimeField(auto_now_add=True)
-    approved_by = models.ForeignKey(
-        OsmUser, to_field="osm_id", on_delete=models.CASCADE
-    )
+    user = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
+
+
+class Banner(models.Model):
+    message = models.TextField()
+    start_date = models.DateTimeField(default=timezone.now)
+    end_date = models.DateTimeField(null=True, blank=True)
+
+    def is_displayable(self):
+        now = timezone.now()
+        return (self.start_date <= now) and (
+            self.end_date is None or self.end_date >= now
+        )
+
+    def __str__(self):
+        return self.message

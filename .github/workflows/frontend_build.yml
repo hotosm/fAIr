@@ -2,12 +2,12 @@ name: Frontend Build
 
 on:
   push:
-    branches: [master]
+    branches: [master,develop]
     paths:
       - "frontend/**"
       - ".github/workflows/frontend_build.yml"
   pull_request:
-    branches: [master]
+    branches: [master,develop]
     paths:
       - "frontend/**"
       - ".github/workflows/frontend_build.yml"
@@ -34,7 +34,7 @@ jobs:
       - name: Install dependencies
         run: |
           cd frontend/
-          npm install --legacy-peer-deps
+          npm install 
 
       - name: Build
         run: |

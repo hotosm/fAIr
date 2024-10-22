@@ -4,12 +4,16 @@ on:
   push:
     branches:
       - master
+      - develop
+
     paths:
       - "backend/**"
       - ".github/workflows/docker_build.yml"
   pull_request:
     branches:
       - master
+      - develop
+
     paths:
       - "backend/**"
       - ".github/workflows/docker_build.yml"

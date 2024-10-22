@@ -8,12 +8,12 @@ from .models import *
 
 @admin.register(Dataset)
 class DatasetAdmin(geoadmin.OSMGeoAdmin):
-    list_display = ["name", "created_by"]
+    list_display = ["name", "user"]
 
 
 @admin.register(Model)
 class ModelAdmin(geoadmin.OSMGeoAdmin):
-    list_display = ["get_dataset_id", "name", "status", "created_at", "created_by"]
+    list_display = ["get_dataset_id", "name", "status", "created_at", "user"]
 
     def get_dataset_id(self, obj):
         return obj.dataset.id
@@ -28,7 +28,7 @@ class TrainingAdmin(geoadmin.OSMGeoAdmin):
         "description",
         "status",
         "zoom_level",
-        "created_by",
+        "user",
         "accuracy",
     ]
     list_filter = ["status"]
@@ -47,3 +47,17 @@ class FeedbackAOIAdmin(geoadmin.OSMGeoAdmin):
 @admin.register(Feedback)
 class FeedbackAdmin(geoadmin.OSMGeoAdmin):
     list_display = ["feedback_type", "training", "user", "created_at"]
+
+
+@admin.register(Banner)
+class BannerAdmin(admin.ModelAdmin):
+    list_display = ("message", "start_date", "end_date", "is_displayable")
+    list_filter = ("start_date", "end_date")
+    search_fields = ("message",)
+    readonly_fields = ("is_displayable",)
+
+    def is_displayable(self, obj):
+        return obj.is_displayable()
+
+    is_displayable.boolean = True
+    is_displayable.short_description = "Currently Displayable"
