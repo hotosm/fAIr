@@ -8,9 +8,9 @@ import {
   SlTreeItem,
 } from "@shoelace-style/shoelace/dist/react/index.js";
 import { getTrainingWorkspaceQueryOptions } from "@/features/models/hooks/factory";
-import { API_ENDPOINTS } from "@/services";
-import { Link } from "@/components/ui/link";
-import { ENVS } from "@/config/env";
+import { useToast } from "@/app/providers/toast-provider";
+import { API_ENDPOINTS, apiClient } from "@/services";
+import { Spinner } from "@/components/ui/spinner";
 
 type DirectoryTreeProps = {
   datasetId: number;
@@ -31,37 +31,30 @@ const DirectoryLoadingSkeleton = () => (
   </ul>
 );
 
-
 const FileItem = ({
   keyName,
   size,
-  datasetId, 
-  trainingId, 
-  validPath
+  onDownload,
+  isDownloading,
 }: {
   keyName: string;
   size: number;
-  datasetId:number 
-  trainingId:number 
-  validPath:string 
-}) => {
-  const fullURL = `${ENVS.BASE_API_URL}${API_ENDPOINTS.DOWNLOAD_TRAINING_FILE(datasetId, trainingId, validPath)}`
-  return(
-    <Link href={fullURL} download blank nativeAnchor title={truncateString(keyName) as string} className="!lowercase">
-    <div className="flex items-center gap-x-2">
-      <FileIcon className="w-4 h-4" />
-      <div className="flex flex-col md:flex-row gap-x-2">
-        <span title={keyName} className="text-dark text-nowrap text-body-2base">
-          {truncateString(keyName)}
-        </span>
-        <span className="text-gray text-body-3 text-nowrap flex items-center gap-x-2">
-          <SlFormatBytes value={size} />
-        </span>
-      </div>
+  onDownload: () => void;
+  isDownloading: boolean;
+}) => (
+  <div className="flex items-center gap-x-2" onClick={onDownload}>
+    <FileIcon className="w-4 h-4" />
+    <div className="flex flex-col md:flex-row gap-x-2">
+      <span title={keyName} className="text-dark text-nowrap text-body-2base">
+        {truncateString(keyName)}
+      </span>
+      <span className="text-gray text-body-3 text-nowrap flex items-center gap-x-2">
+        <SlFormatBytes value={size} />
+        {isDownloading && <Spinner />}
+      </span>
     </div>
-  </Link>
-  )
-};
+  </div>
+);
 
 const DirectoryItem = ({
   keyName,
@@ -102,8 +95,9 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
   const [directoryTree, setDirectoryTree] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
+  const { notify } = useToast();
   const queryClient = useQueryClient();
-
+  const [downLoadingFilePath, setDownLoadingFilePath] = useState<string>("");
 
   const fetchDirectoryData = async (path: string = "") => {
     try {
@@ -158,6 +152,42 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
     fetchAllDirectories();
   }, [datasetId, trainingId]);
 
+  const handleFileDownload = async (validPath: string) => {
+    try {
+      setDownLoadingFilePath(validPath);
+      const response = await apiClient.get(
+        API_ENDPOINTS.DOWNLOAD_TRAINING_FILE(datasetId, trainingId, validPath),
+        {
+          responseType: "blob",
+        },
+      );
+
+      if (response.status !== 200) {
+        notify("Failed to download file.", "danger");
+        return;
+      }
+
+      const blob = new Blob([response.data], { type: response.data.type });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      //@ts-expect-error bad type definition
+      a.download = validPath.split("/").pop();
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+      notify("File downloaded successfully!", "success");
+    } catch (error) {
+      const errorMessage =
+        //@ts-expect-error bad type definition
+        error.response?.statusText || "Failed to download file.";
+      notify(errorMessage, "danger");
+    } finally {
+      setDownLoadingFilePath("");
+    }
+  };
+
   const renderTreeItems = (items: any, parentKey: string = "") => {
     const combinedItems = {
       ...items.dir,
@@ -182,9 +212,8 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
             <FileItem
               keyName={key}
               size={value.size}
-              datasetId={datasetId}
-              trainingId={trainingId}
-              validPath={currentPath}
+              onDownload={() => handleFileDownload(currentPath)}
+              isDownloading={downLoadingFilePath === currentPath}
             />
           )}
         </SlTreeItem>
