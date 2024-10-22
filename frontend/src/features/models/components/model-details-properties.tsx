@@ -107,9 +107,8 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
     source_imagery,
   } = data || {};
 
-  
-  const trainingResultsGraph = `${ENVS.BASE_API_URL}workspace/download/dataset_${datasetId}/output/training_${data?.id}/graphs/training_validation_sparse_categorical_accuracy.png`
-  
+  const trainingResultsGraph = `${ENVS.BASE_API_URL}workspace/download/dataset_${datasetId}/output/training_${data?.id}/graphs/training_validation_sparse_categorical_accuracy.png`;
+
   const content = useMemo(() => {
     if (isPending) {
       return <ModelPropertiesSkeleton isTrainingDetailsDialog />;
@@ -201,9 +200,11 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
             isTMS
           />
         </div>
-        
-        <div className={`col-span-3 lg:col-span-2 ${isTrainingDetailsDialog && 'lg:col-span-3'}`}>
-            <Image src={trainingResultsGraph} alt={""} />
+
+        <div
+          className={`col-span-3 lg:col-span-2 ${isTrainingDetailsDialog && "lg:col-span-3"}`}
+        >
+          <Image src={trainingResultsGraph} alt={""} />
         </div>
         {/* Show logs only in modal and when status failed */}
         {isTrainingDetailsDialog && data?.status === TrainingStatus.FAILED && (
@@ -221,7 +222,7 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
     input_contact_spacing,
     input_boundary_width,
     source_imagery,
-    trainingResultsGraph
+    trainingResultsGraph,
   ]);
 
   return isError ? (

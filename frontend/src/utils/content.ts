@@ -73,10 +73,10 @@ export const APP_CONTENT = {
     ctaSecondaryButton: "Start Mapping",
     jumbotronImageAlt: "A user engaging in a mapping activity",
     kpi: {
-      publishedAIModels:"Published AI Models",
-      totalUsers:"Total Registered Users",
+      publishedAIModels: "Published AI Models",
+      totalUsers: "Total Registered Users",
       humanFeedback: "Human Feedbacks",
-      acceptedPrediction: "Accepted Prediction"
+      acceptedPrediction: "Accepted Prediction",
     },
     aboutTitle: "WHAT IS fAIr?",
     aboutContent: `fAIr is an open AI-assisted mapping service developed by the Humanitarian OpenStreetMap Team (HOT) that aims to improve the efficiency and accuracy of mapping efforts for humanitarian purposes. The service uses AI models, specifically computer vision techniques, to detect objects in satellite and UAV imagery.`,
@@ -144,7 +144,7 @@ export const APP_CONTENT = {
         {
           question: "Can I use fAIr without having a sound knowledge of AI?",
           answer:
-            "fAIr is design for users without the need for python or any programming skills. However, basic knowledge in  humanitarian mapping and Geographical Information Systems (GIS) would be sufficient for self exploration.",
+            "fAIr is designed for users without the need for Python or any programming skills. However, basic knowledge in  humanitarian mapping and Geographical Information Systems (GIS) would be sufficient for self exploration.",
         },
       ],
     },
@@ -158,7 +158,9 @@ export const APP_CONTENT = {
     callToAction: {
       title: `We can't do it without you`,
       ctaButton: "Join The Community",
-      paragraph: "fAIr is a collaborative project. We welcome all types of experience to join our community on HOTOSM Slack. There is always a room for AI/ML for earth observation expertise, community engagement enthusiastic, academic researcher or student looking for an academic challenge around social impact."   
+      ctaLink: "https://slack.hotosm.org",
+      paragraph:
+        "fAIr is a collaborative project. We welcome all types of experience to join our community on HOTOSM Slack. There is always a room for AI/ML for earth observation expertise, community engagement enthusiastic, academic researcher or student looking for an academic challenge around social impact.",
     },
   },
   pageNotFound: {
@@ -212,7 +214,7 @@ export const APP_CONTENT = {
       },
     },
     modelsDetailsCard: {
-      modelId: "Model ID",
+      modelId: "Model ID:",
       detailsSectionTitle: "Details",
       createdBy: "Created By",
       createdOn: "Created On",

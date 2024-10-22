@@ -111,12 +111,12 @@ const LayoutToggle = ({
   query,
   updateQuery,
   isMobile,
-  disabled=false
+  disabled = false,
 }: {
   updateQuery: (params: TQueryParams) => void;
   query: TQueryParams;
   isMobile?: boolean;
-  disabled?:boolean 
+  disabled?: boolean;
 }) => {
   const activeLayout = query[SEARCH_PARAMS.layout];
   return (
@@ -134,7 +134,7 @@ const LayoutToggle = ({
       disabled={disabled}
     >
       {activeLayout !== LayoutView.LIST ? (
-        <ListIcon className="icon-lg"/>
+        <ListIcon className="icon-lg" />
       ) : (
         <CategoryIcon className="icon-lg" />
       )}
@@ -295,7 +295,10 @@ export const ModelsPage = () => {
         <div className="w-full grid md:grid-cols-4 md:border rounded-md p-2 md:border-gray-border gap-x-2 mt-10 grid-rows-2 md:grid-rows-1 gap-y-6 md:gap-y-0 h-screen">
           <div className="overflow-scroll md:row-start-1 col-span-1 md:col-span-2">
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-10">
-            <ModelListGridLayout models={data?.results} isPending={isPending} />
+              <ModelListGridLayout
+                models={data?.results}
+                isPending={isPending}
+              />
             </div>
           </div>
           <div className="col-span-2 md:col-span-2 row-start-1 ">
@@ -360,7 +363,11 @@ export const ModelsPage = () => {
             <div className="md:flex items-center gap-x-10 hidden">
               {/* Desktop */}
               <SetMapToggle updateQuery={updateQuery} query={query} />
-              <LayoutToggle updateQuery={updateQuery} query={query} disabled={mapViewIsActive as boolean}/>
+              <LayoutToggle
+                updateQuery={updateQuery}
+                query={query}
+                disabled={mapViewIsActive as boolean}
+              />
             </div>
           </div>
           {/* Mobile */}

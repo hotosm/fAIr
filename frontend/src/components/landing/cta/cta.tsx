@@ -3,12 +3,9 @@ import HOTTeam from "@/assets/images/hot_team_2.jpg";
 import styles from "./cta.module.css";
 import { APP_CONTENT } from "@/utils";
 import { Image } from "@/components/ui/image";
+import { Link } from "@/components/ui/link";
 
 const CallToAction = () => {
-  const joinTheCommunityClick = () =>
-  {
-      window.open("https://slack.hotosm.org/")
-  }
   return (
     <section className={styles.container}>
       <div className={styles.cta}>
@@ -17,10 +14,16 @@ const CallToAction = () => {
           <p>{APP_CONTENT.homepage.callToAction.paragraph}</p>
         </div>
         <div className={styles.ctaButtonContainer}>
-          <Button variant="primary" onClick={joinTheCommunityClick}>
-            {" "}
-            {APP_CONTENT.homepage.callToAction.ctaButton}
-          </Button>
+          <Link
+            href={APP_CONTENT.homepage.callToAction.ctaLink}
+            title={APP_CONTENT.homepage.callToAction.ctaButton}
+            nativeAnchor
+            blank
+          >
+            <Button variant="primary">
+              {APP_CONTENT.homepage.callToAction.ctaButton}
+            </Button>
+          </Link>
         </div>
       </div>
       <div className={styles.imageBlock}>

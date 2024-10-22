@@ -30,7 +30,7 @@ type TrainingHistoryTableProps = {
   modelId: string;
   trainingId: number;
   modelOwner: string;
-  datasetId:number 
+  datasetId: number;
 };
 
 const columnDefinitions = (
@@ -226,7 +226,7 @@ const TrainingHistoryTable: React.FC<TrainingHistoryTableProps> = ({
   trainingId,
   modelId,
   modelOwner,
-  datasetId
+  datasetId,
 }) => {
   const [offset, setOffset] = useState(0);
   const { data, isPending, isPlaceholderData } = useTrainingHistory(

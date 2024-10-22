@@ -6,14 +6,11 @@ import { Link } from "@/components/ui/link";
 import { truncateString } from "@/utils";
 import { roundNumber } from "@/utils/number-utils";
 
-
 type ModelCardProps = {
   model: TModel;
 };
 
-
 const ModelCard: React.FC<ModelCardProps> = ({ model }) => {
-  
   return (
     <div className="flex items-center  w-full">
       <Link
@@ -25,8 +22,8 @@ const ModelCard: React.FC<ModelCardProps> = ({ model }) => {
       >
         <div className="h-[200px] w-full">
           <Image
-            height='256px'
-            width='256px'
+            height="256px"
+            width="256px"
             src={
               model.thumbnail_url
                 ? `${model.thumbnail_url}.png`

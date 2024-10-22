@@ -6,13 +6,14 @@ type TrainingDetailsDialogProps = {
   isOpened: boolean;
   closeDialog: () => void;
   trainingId: number;
-  datasetId:number 
+  datasetId: number;
 };
 
 const TrainingDetailsDialog: React.FC<TrainingDetailsDialogProps> = ({
   isOpened,
   closeDialog,
-  trainingId,datasetId
+  trainingId,
+  datasetId,
 }) => {
   const isMobile = useDevice();
 
@@ -23,7 +24,11 @@ const TrainingDetailsDialog: React.FC<TrainingDetailsDialogProps> = ({
       label={`Training ${trainingId}`}
       size={isMobile ? "extra-large" : "medium"}
     >
-      <ModelProperties trainingId={trainingId} isTrainingDetailsDialog datasetId={datasetId}/>
+      <ModelProperties
+        trainingId={trainingId}
+        isTrainingDetailsDialog
+        datasetId={datasetId}
+      />
     </Dialog>
   );
 };
