@@ -207,7 +207,7 @@ export const APP_CONTENT = {
       },
     },
     modelsDetailsCard: {
-      modelId: "Model ID",
+      modelId: "Model ID:",
       detailsSectionTitle: "Details",
       createdBy: "Created By",
       createdOn: "Created On",
