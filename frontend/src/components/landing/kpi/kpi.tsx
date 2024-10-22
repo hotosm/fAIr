@@ -21,7 +21,7 @@ const fetchKPIStats = async (): Promise<TKPIResponse> => {
 };
 
 const Kpi = () => {
-  const { data, isLoading,isError,error} = useQuery({
+  const { data, isLoading, isError, error } = useQuery({
     queryKey: ["kpis"],
     queryFn: fetchKPIStats,
   });
@@ -31,7 +31,7 @@ const Kpi = () => {
       <section className={styles.kpiContainer}>
         <div>
           <h2>Error fetching KPI Stats</h2>
-          <p>{(error as Error)?.message || 'An unknown error occurred.'}</p>
+          <p>{(error as Error)?.message || "An unknown error occurred."}</p>
         </div>
       </section>
     );

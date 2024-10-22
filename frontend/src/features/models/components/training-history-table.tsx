@@ -75,7 +75,9 @@ const columnDefinitions = (
     header:
       APP_CONTENT.models.modelsDetailsCard.trainingHistoryTableHeader.duration,
     accessorFn: (row) =>
-      formatDuration(new Date(row.started_at), new Date(row.finished_at)),
+      row.finished_at && row.started_at
+        ? formatDuration(new Date(row.started_at), new Date(row.finished_at))
+        : "-",
     cell: (row) => (
       <span title={row.getValue() as string}>{row.getValue() as string}</span>
     ),
