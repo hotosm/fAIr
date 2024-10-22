@@ -7,6 +7,10 @@ export const API_ENDPOINTS = {
   AUTH_CALLBACK: "auth/callback/",
   USER: "auth/me/",
 
+  //KPIs
+
+  GET_KPI_STATS: "kpi/stats/ ",
+
   //Models
   GET_MODELS: "model/",
   GET_MODEL_DETAILS: (id: string) => `model/${id}`,
