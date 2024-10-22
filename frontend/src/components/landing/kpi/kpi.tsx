@@ -61,7 +61,7 @@ const Kpi = () => {
       {KPIs.map((kpi, id) => (
         <div key={`kpi-${id}`} className={styles.kpiItem}>
           <h1 className={`${isLoading ? "animate-pulse" : ""}`}>
-            {kpi.figure}
+            {kpi.figure?.toLocaleString()}
           </h1>
           <h3>{kpi.label}</h3>
         </div>
