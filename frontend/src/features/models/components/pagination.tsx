@@ -1,4 +1,4 @@
-import ChevronDownIcon from "@/components/ui/icons/chevron-down";
+import ChevronDownIcon from "@/components/ui/icons/chevron-down-icon";
 import { SEARCH_PARAMS } from "@/app/routes/models";
 import { TQueryParams } from "@/types";
 

@@ -8,39 +8,28 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import AccuracyDisplay from "./accuracy-display";
 import { Link } from "@/components/ui/link";
-import { ExternalLinkIcon } from "@/components/ui/icons";
+import { CopyIcon, ExternalLinkIcon } from "@/components/ui/icons";
 import { ModelPropertiesSkeleton } from "./skeletons";
 import CodeBlock from "@/components/ui/codeblock/codeblock";
-import ChevronDownIcon from "@/components/ui/icons/chevron-down";
+import ChevronDownIcon from "@/components/ui/icons/chevron-down-icon";
 import { APP_CONTENT, cn } from "@/utils";
 import { ENVS } from "@/config/env";
+import useCopyToClipboard from "@/hooks/use-clipboard";
 
 enum TrainingStatus {
   FAILED = "FAILED",
   IN_PROGRESS = "IN PROGRESS",
 }
-const LinkDisplay = ({ value, label }: { value: string; label: string }) => {
-  return (
-    <Link
-      href={value as string}
-      blank
-      nativeAnchor
-      className="flex items-center gap-x-3"
-      title={label}
-    >
-      <span className="text-dark font-semibold text-title-3">URL</span>
-      <ExternalLinkIcon className="w-4 h-4 " />
-    </Link>
-  );
-};
 
 type PropertyDisplayProps = {
   label: string;
   value?: string | number | null;
   tooltip?: string;
   isAccuracy?: boolean;
-  isTMS?: boolean;
+  isLink?: boolean;
   animate?: boolean;
+  href?: string;
+  isCopy?: boolean;
 };
 
 const PropertyDisplay: React.FC<PropertyDisplayProps> = ({
@@ -48,41 +37,63 @@ const PropertyDisplay: React.FC<PropertyDisplayProps> = ({
   value,
   tooltip,
   isAccuracy,
-  isTMS,
+  isLink,
   animate,
-}) => (
-  <div className="row-span-1 col-span-1 flex flex-col gap-y-5">
-    <span className="text-gray text-body-2 flex items-center gap-x-4 text-nowrap ">
-      {label}
-      {tooltip && <ToolTip content={tooltip} />}
-    </span>
-    {isAccuracy ? (
-      <AccuracyDisplay accuracy={typeof value === "number" ? value : 0} />
-    ) : isTMS ? (
-      <LinkDisplay value={value as string} label={label} />
-    ) : (
-      <span
-        className={cn(
-          `${animate && "animate-pulse"} text-dark font-semibold text-title-3`,
-        )}
-      >
-        {value ?? "N/A"}
+  href,
+  isCopy,
+}) => {
+  const { copyToClipboard } = useCopyToClipboard();
+  return (
+    <div className="row-span-1 col-span-1 flex flex-col gap-y-5">
+      <span className="text-gray text-body-2 flex items-center gap-x-4 text-nowrap ">
+        {label}
+        {tooltip && <ToolTip content={tooltip} />}
       </span>
-    )}
-  </div>
-);
-
+      {isAccuracy ? (
+        <AccuracyDisplay accuracy={typeof value === "number" ? value : 0} />
+      ) : isLink ? (
+        <Link
+          href={href as string}
+          blank
+          nativeAnchor
+          className="flex items-center gap-x-3"
+          title={label}
+        >
+          <span className="text-dark font-semibold text-title-3">{value}</span>
+          <ExternalLinkIcon className="icon" />
+        </Link>
+      ) : isCopy ? (
+        <div className="flex items-center gap-x-3">
+          <span className="text-dark font-semibold text-title-3">URL</span>
+          <button onClick={() => copyToClipboard(value as string)}>
+            <CopyIcon className="icon md:icon-lg" />
+          </button>
+        </div>
+      ) : (
+        <span
+          className={cn(
+            `${animate && "animate-pulse"} text-dark font-semibold text-title-3`,
+          )}
+        >
+          {value ?? "N/A"}
+        </span>
+      )}
+    </div>
+  );
+};
 type ModelPropertiesProps = {
   trainingId: number;
   accuracy?: number;
   datasetId?: number;
   isTrainingDetailsDialog?: boolean;
+  baseModel: string;
 };
 
 const ModelProperties: React.FC<ModelPropertiesProps> = ({
   trainingId,
   datasetId,
   isTrainingDetailsDialog = false,
+  baseModel,
 }) => {
   const { isPending, data, error, isError } = useTrainingDetails(trainingId);
 
@@ -180,7 +191,7 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
               APP_CONTENT.models.modelsDetailsCard.properties.currentDatasetSize
                 .title
             }
-            value={chips_length}
+            value={`${chips_length} Images`}
           />
           {/* Animate the status when it's in progress. */}
           {isTrainingDetailsDialog && (
@@ -194,10 +205,25 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
           )}
           <PropertyDisplay
             label={
+              APP_CONTENT.models.modelsDetailsCard.properties.baseModel.title
+            }
+            value={baseModel}
+            isLink
+            href={
+              // @ts-expect-error bad type definition
+              APP_CONTENT.models.modelsDetailsCard.properties.baseModel.href[
+                baseModel
+              ]
+            }
+          />
+
+          {/* Copy icon */}
+          <PropertyDisplay
+            label={
               APP_CONTENT.models.modelsDetailsCard.properties.sourceImage.title
             }
             value={source_imagery}
-            isTMS
+            isCopy
           />
         </div>
 

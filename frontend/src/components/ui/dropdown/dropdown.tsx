@@ -3,7 +3,7 @@ import SlMenu from "@shoelace-style/shoelace/dist/react/menu/index.js";
 import SlMenuItem from "@shoelace-style/shoelace/dist/react/menu-item/index.js";
 import SlCheckbox from "@shoelace-style/shoelace/dist/react/checkbox/index.js";
 import "./dropdown.css";
-import ChevronDownIcon from "../icons/chevron-down";
+import ChevronDownIcon from "../icons/chevron-down-icon";
 import { useEffect, useState } from "react";
 import { cn } from "@/utils";
 

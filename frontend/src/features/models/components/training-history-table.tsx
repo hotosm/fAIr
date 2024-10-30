@@ -31,6 +31,7 @@ type TrainingHistoryTableProps = {
   trainingId: number;
   modelOwner: string;
   datasetId: number;
+  baseModel: string;
 };
 
 const columnDefinitions = (
@@ -229,6 +230,7 @@ const TrainingHistoryTable: React.FC<TrainingHistoryTableProps> = ({
   modelId,
   modelOwner,
   datasetId,
+  baseModel,
 }) => {
   const [offset, setOffset] = useState(0);
   const { data, isPending, isPlaceholderData } = useTrainingHistory(
@@ -269,6 +271,7 @@ const TrainingHistoryTable: React.FC<TrainingHistoryTableProps> = ({
         closeDialog={closeDialog}
         trainingId={activeTrainingId}
         datasetId={datasetId}
+        baseModel={baseModel}
       />
       <div className="h-full">
         <div className="w-full items-center text-body-3 flex justify-between my-4">

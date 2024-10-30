@@ -4,5 +4,5 @@
 export const ENVS = {
   BASE_API_URL: import.meta.env.VITE_BASE_API_URL,
   MATOMO_ID: import.meta.env.VITE_MATOMO_ID,
-  MATOMO_APP_DOMAIN: import.meta.env.VITE_MATOMO_APP_DOMAIN
+  MATOMO_APP_DOMAIN: import.meta.env.VITE_MATOMO_APP_DOMAIN,
 };
