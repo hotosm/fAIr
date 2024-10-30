@@ -35,7 +35,7 @@ const Button: React.FC<ButtonProps> = ({
       variant={variant}
       size={isMobile ? "medium" : "large"}
       className={cn(
-        `button ${variant} ${className} ${capitalizeText && "capitalize"}`,
+        `button ${variant} ${capitalizeText && "capitalize"} ${className} `,
       )}
       style={{ width: "100%" }}
       //@ts-expect-error bad type definition

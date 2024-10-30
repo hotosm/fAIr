@@ -1,14 +1,9 @@
 import { ButtonWithIcon } from "@/components/ui/button";
-import StepHeading from "../../step-heading";
+import { StepHeading } from "@/features/model-creation/components/";
 import ChevronDownIcon from "@/components/ui/icons/chevron-down";
 import CreateNewTrainingDatasetForm from "./create-new";
 import SelectExistingTrainingDatasetForm from "./select-existing";
-
-export enum TrainingDatasetOption {
-  CREATE_NEW = "new",
-  USE_EXISTING = "existing",
-  NONE = "none",
-}
+import { TrainingDatasetOption } from "./enums";
 
 const TrainingDatasetForm = ({
   setSelectedTrainingDatasetOption,

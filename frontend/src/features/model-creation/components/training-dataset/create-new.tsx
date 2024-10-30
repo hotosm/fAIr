@@ -16,6 +16,7 @@ const CreateNewTrainingDatasetForm = () => {
         placeholder="San Jose Buildings"
         showBorder
         helpText="This is the dataset name..."
+        required
       />
       <div className="flex flex-col gap-y-4">
         <p className="text-gray">
@@ -33,6 +34,7 @@ const CreateNewTrainingDatasetForm = () => {
         placeholder="https://tiles.openaerialmap.org/****/*/***/{z}/{x}/{y}"
         showBorder
         helpText="TMS imagery link should look like this https://tiles.openaerialmap.org/****/*/***/{z}/{x}/{y}"
+        required
       />
     </div>
   );

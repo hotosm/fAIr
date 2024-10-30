@@ -1,5 +1,6 @@
 import SlTextarea from "@shoelace-style/shoelace/dist/react/textarea/index.js";
-import { ToolTip } from "@/components/ui/tooltip";
+import "./text-area.css";
+import { HelpText, FormLabel } from "@/components/ui/form";
 
 type TextAreaProps = {
   toolTipContent?: string;
@@ -9,6 +10,11 @@ type TextAreaProps = {
   placeholder?: string;
   disabled?: boolean;
   children?: React.ReactNode;
+  handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  value: string;
+  required?: boolean;
+  maxLength?: number;
+  minLength?: number;
 };
 
 const TextArea: React.FC<TextAreaProps> = ({
@@ -19,23 +25,36 @@ const TextArea: React.FC<TextAreaProps> = ({
   placeholder,
   disabled = false,
   children,
+  handleChange,
+  value,
+  required = false,
+  maxLength,
+  minLength,
 }) => {
   return (
-    <SlTextarea placeholder={placeholder} resize="none" disabled={disabled}>
+    <SlTextarea
+      placeholder={placeholder}
+      resize="none"
+      disabled={disabled}
+      // @ts-expect-error bad type definition
+      onSlInput={handleChange}
+      value={value}
+      rows={10}
+      minlength={minLength}
+      maxlength={maxLength}
+    >
       {label && (
-        <p
-          slot="label"
-          className="flex text-base items-center gap-x-2 text-gray mb-1"
-        >
-          {label}
-          {labelWithTooltip && <ToolTip content={toolTipContent}></ToolTip>}
-        </p>
+        <FormLabel
+          label={label as string}
+          withTooltip={labelWithTooltip as boolean}
+          toolTipContent={toolTipContent as string}
+          required={required}
+          currentLength={String(value).length}
+          maxLength={maxLength}
+        />
       )}
-      {helpText && (
-        <p className="mt-1 text-sm" slot="help-text">
-          {helpText}
-        </p>
-      )}
+
+      {helpText && <HelpText content={helpText} />}
       {children}
     </SlTextarea>
   );

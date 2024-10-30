@@ -1,65 +1,34 @@
-import {
-  CloudIcon,
-  DatabaseIcon,
-  SettingsIcon,
-  SquareShadowIcon,
-  StarIcon,
-  TagsIcon,
-} from "@/components/ui/icons";
 import CheckIcon from "@/components/ui/icons/check-icon";
-import { cn } from "@/utils";
+import { APPLICATION_ROUTES, cn } from "@/utils";
+import { useNavigate } from "react-router-dom";
 
 type ProgressBarProps = {
-  currentStep: number;
-  setCurrentStep: (currentStep: number) => void;
+  currentPath: string;
+  currentPageIndex: number;
+  pages: { id: number; title: string; icon: React.ElementType; path: string }[];
 };
 
-const steps: { title: string; icon: React.ElementType; id: number }[] = [
-  {
-    title: "Model Details",
-    icon: TagsIcon,
-    id: 1,
-  },
-  {
-    title: "Training Dataset",
-    icon: DatabaseIcon,
-    id: 2,
-  },
-  {
-    title: "Training Area",
-    icon: SquareShadowIcon,
-    id: 3,
-  },
-  {
-    title: "Training Settings",
-    icon: SettingsIcon,
-    id: 4,
-  },
-  {
-    title: "Submit Model",
-    icon: CloudIcon,
-    id: 5,
-  },
-  {
-    title: "Confirmation",
-    icon: StarIcon,
-    id: 6,
-  },
-];
 const ProgressBar: React.FC<ProgressBarProps> = ({
-  currentStep,
-  setCurrentStep,
+  currentPath,
+  currentPageIndex,
+  pages,
 }) => {
+  const navigate = useNavigate();
+
   return (
     <div className="flex items-center justify-between px-10">
-      {steps.map((step) => {
-        const activeStep = step.id === currentStep;
+      {pages.map((step) => {
+        const activeStep = step.path === currentPath;
         return (
           <button
+            key={`current-form-progress-${step.id}`}
             className="flex items-center gap-x-3 cursor-pointer"
-            onClick={() => setCurrentStep(step.id)}
+            disabled={
+              step.path === APPLICATION_ROUTES.CREATE_NEW_MODEL_CONFIRMATION
+            }
+            onClick={() => navigate(step.path)}
           >
-            {step.id < currentStep ? (
+            {step.id < currentPageIndex + 1 ? (
               <span className="rounded-full bg-primary flex items-center justify-center w-9 h-9">
                 <CheckIcon className="icon-lg text-primary bg-white rounded-full p-1" />
               </span>

@@ -1,6 +1,7 @@
 import { SlOption, SlSelect } from "@shoelace-style/shoelace/dist/react";
-import { ToolTip } from "@/components/ui/tooltip";
 import useDevice from "@/hooks/use-device";
+import { HelpText, FormLabel } from "@/components/ui/form";
+import "./select.css";
 
 type SelectProps = {
   label?: string;
@@ -12,7 +13,11 @@ type SelectProps = {
     name: string;
     value: string;
   }[];
+  defaultValue: string;
+  handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  required?: boolean;
 };
+
 const Select: React.FC<SelectProps> = ({
   label,
   toolTipContent,
@@ -20,24 +25,29 @@ const Select: React.FC<SelectProps> = ({
   helpText,
   placeholder,
   options,
+  defaultValue,
+  handleChange,
+  required,
 }) => {
   const isMobile = useDevice();
   return (
-    <SlSelect placeholder={placeholder} size={isMobile ? "medium" : "large"}>
+    <SlSelect
+      placeholder={placeholder}
+      size={isMobile ? "medium" : "large"}
+      value={defaultValue}
+      //@ts-expect-error bad type definition
+      onSlChange={handleChange}
+    >
       {label && (
-        <p
-          slot="label"
-          className="flex text-base items-center gap-x-2 text-gray mb-1"
-        >
-          {label}
-          {labelWithTooltip && <ToolTip content={toolTipContent}></ToolTip>}
-        </p>
+        <FormLabel
+          label={label as string}
+          withTooltip={labelWithTooltip as boolean}
+          toolTipContent={toolTipContent as string}
+          required={required}
+        />
       )}
-      {helpText && (
-        <p className="mt-1 text-sm" slot="help-text">
-          {helpText}
-        </p>
-      )}
+
+      {helpText && <HelpText content={helpText} />}
       {options?.map((option, id) => (
         <SlOption key={`select-option-${id}`} value={option.value}>
           {option.name}

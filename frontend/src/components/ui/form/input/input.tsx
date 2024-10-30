@@ -3,23 +3,26 @@ import styles from "./input.module.css";
 import { CalenderIcon } from "@/components/ui/icons";
 import useBrowserType from "@/hooks/use-browser-type";
 import { useRef } from "react";
-import { ToolTip } from "@/components/ui/tooltip";
 import useDevice from "@/hooks/use-device";
+import { HelpText, FormLabel } from "@/components/ui/form";
 
 type InputProps = {
   handleInput: (arg: React.ChangeEvent<HTMLInputElement>) => void;
-  value: string;
+  value: string | number;
   className?: string;
   placeholder?: string;
   clearable?: boolean;
   disabled?: boolean;
-  type?: "date" | "text";
+  type?: "date" | "text" | "number";
   showBorder?: boolean;
   label?: string;
   size?: "small" | "medium" | "large";
   helpText?: string;
   labelWithTooltip?: boolean;
   toolTipContent?: string;
+  required?: boolean;
+  maxLength?: number;
+  minLength?: number;
 };
 
 const Input: React.FC<InputProps> = ({
@@ -36,6 +39,9 @@ const Input: React.FC<InputProps> = ({
   helpText,
   labelWithTooltip = false,
   toolTipContent,
+  required = false,
+  maxLength,
+  minLength,
 }) => {
   const { isChrome } = useBrowserType();
 
@@ -50,6 +56,7 @@ const Input: React.FC<InputProps> = ({
     <SlInput
       // @ts-expect-error bad type definition
       onSlInput={handleInput}
+      // @ts-expect-error bad type definition
       value={value}
       className={`${className} ${styles.customInput} ${showBorder && styles.showBorder}`}
       placeholder={placeholder}
@@ -60,21 +67,21 @@ const Input: React.FC<InputProps> = ({
       ref={dateInputRef}
       label={label}
       size={size ? size : isMobile ? "medium" : "large"}
+      minlength={minLength}
+      maxlength={maxLength}
     >
       {label && (
-        <p
-          slot="label"
-          className="flex text-base items-center gap-x-2 text-gray mb-1"
-        >
-          {label}
-          {labelWithTooltip && <ToolTip content={toolTipContent}></ToolTip>}
-        </p>
+        <FormLabel
+          label={label as string}
+          withTooltip={labelWithTooltip}
+          toolTipContent={toolTipContent as string}
+          required={required}
+          currentLength={String(value).length}
+          maxLength={maxLength}
+        />
       )}
-      {helpText && (
-        <p className="mt-1 text-sm" slot="help-text">
-          {helpText}
-        </p>
-      )}
+
+      {helpText && <HelpText content={helpText} />}
       {/* 
         We're using the native browser date picker. 
         In chrome it displays a calender icon which unfortunately could not be customized as at 08/10/2024.

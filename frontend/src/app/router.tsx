@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 import { ProtectedPage } from "@/app/routes/protected-route";
 import { MainErrorFallback } from "@/components/errors";
+import ModelCreationLayout from "@/components/layouts/model-creation-layout";
 
 const router = createBrowserRouter([
   {
@@ -70,19 +71,79 @@ const router = createBrowserRouter([
         },
       },
       {
-        path: APPLICATION_ROUTES.CREATE_NEW_MODEL,
-        lazy: async () => {
-          const { ModelCreationPage } = await import(
-            "@/app/routes/models/create-new"
-          );
-          return {
-            Component: () => (
-              <ProtectedPage>
-                <ModelCreationPage />
-              </ProtectedPage>
-            ),
-          };
-        },
+        element: (
+          <ProtectedPage>
+            <ModelCreationLayout />
+          </ProtectedPage>
+        ),
+        children: [
+          {
+            path: APPLICATION_ROUTES.CREATE_NEW_MODEL,
+            lazy: async () => {
+              const { CreateNewModelDetailsPage } = await import(
+                "@/app/routes/models/new/index"
+              );
+              return {
+                Component: () => <CreateNewModelDetailsPage />,
+              };
+            },
+          },
+          {
+            path: APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_DATASET,
+            lazy: async () => {
+              const { CreateNewModelTrainingDatasetPage } = await import(
+                "@/app/routes/models/new/training-dataset"
+              );
+              return {
+                Component: () => <CreateNewModelTrainingDatasetPage />,
+              };
+            },
+          },
+          {
+            path: APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_AREA,
+            lazy: async () => {
+              const { CreateNewModelTrainingAreaPage } = await import(
+                "@/app/routes/models/new/training-area"
+              );
+              return {
+                Component: () => <CreateNewModelTrainingAreaPage />,
+              };
+            },
+          },
+          {
+            path: APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_SETTINGS,
+            lazy: async () => {
+              const { CreateNewModelTrainingSettingsPage } = await import(
+                "@/app/routes/models/new/training-settings"
+              );
+              return {
+                Component: () => <CreateNewModelTrainingSettingsPage />,
+              };
+            },
+          },
+          {
+            path: APPLICATION_ROUTES.CREATE_NEW_MODEL_SUMMARY,
+            lazy: async () => {
+              const { CreateNewModelSummaryPage } = await import(
+                "@/app/routes/models/new/summary"
+              );
+              return {
+                Component: () => <CreateNewModelSummaryPage />,
+              };
+            },
+          },
+          {
+            path: APPLICATION_ROUTES.CREATE_NEW_MODEL_CONFIRMATION,
+            lazy: async () => {
+              const { CreateNewModelConfirmationPage } = await import(
+                "@/app/routes/models/new/confirmation"
+              );
+              return {
+                Component: () => <CreateNewModelConfirmationPage />,
+              };
+            },
+          },
+        ],
       },
       {
         path: APPLICATION_ROUTES.TRAINING_DATASETS,

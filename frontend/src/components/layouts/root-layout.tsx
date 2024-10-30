@@ -10,11 +10,12 @@ const RootLayout = () => {
     window.scrollTo(0, 0);
   }, [pathname]);
   return (
-    <main className="min-h-screen relative max-w-[1800px] mx-auto">
+    <main className="min-h-screen relative max-w-[1800px] mx-auto flex flex-col justify-between">
       <NavBar />
-      <div className="px-[1.25rem] lg:px-[5rem]">
+      <div className="px-[1.25rem] lg:px-[5rem] w-full">
         <Outlet />
       </div>
+
       <Footer />
     </main>
   );

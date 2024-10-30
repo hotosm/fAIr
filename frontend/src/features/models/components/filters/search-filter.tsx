@@ -30,6 +30,7 @@ const SearchFilter: React.FC<SearchFilterProps> = ({ updateQuery, query }) => {
           APP_CONTENT.models.modelsList.filtersSection.searchPlaceHolder
         }
         className="w-[80%]"
+        size="medium"
       />
     </div>
   );

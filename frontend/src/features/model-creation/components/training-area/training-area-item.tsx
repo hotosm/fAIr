@@ -93,7 +93,11 @@ const TrainingAreaItem: React.FC<TrainingAreaItemProps> = ({
           >
             <div className="flex gap-x-4 p-2 justify-between items-center bg-white">
               {dropdownMenuItems.map((item, id) => (
-                <ToolTip infoIcon={false} content={item.tooltip}>
+                <ToolTip
+                  infoIcon={false}
+                  content={item.tooltip}
+                  key={`menu-item-${id}`}
+                >
                   <button
                     className={` ${item.isDelete ? "text-primary bg-secondary" : "bg-off-white"}  w-8 h-8 p-1.5 items-center justify-center flex rounded-md`}
                     key={`dropdown-menu-item-${id}`}
