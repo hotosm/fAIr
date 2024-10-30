@@ -1,4 +1,4 @@
-import { ButtonVariant } from "@/types";
+import { ButtonSize, ButtonVariant } from "@/types";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/utils";
 
@@ -12,6 +12,7 @@ type ButtonWithIconProps = {
   className?: string;
   iconClassName?: string;
   disabled?: boolean;
+  size?:ButtonSize
 };
 const ButtonWithIcon: React.FC<ButtonWithIconProps> = ({
   onClick,
@@ -23,6 +24,7 @@ const ButtonWithIcon: React.FC<ButtonWithIconProps> = ({
   className,
   iconClassName,
   disabled,
+  size 
 }) => {
   return (
     <div role="button">
@@ -32,6 +34,7 @@ const ButtonWithIcon: React.FC<ButtonWithIconProps> = ({
         capitalizeText={capitalizeText}
         className={className}
         disabled={disabled}
+        size={size}
       >
         {PrefixIcon && <PrefixIcon className={cn(`icon ${iconClassName}`)} />}
         <p>{label}</p>

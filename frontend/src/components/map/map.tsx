@@ -52,9 +52,6 @@ const MapComponent: React.FC<MapComponentProps> = ({
   // Update basemap.
   useEffect(() => {
     if (!map) return;
-    {
-      /* @ts-expect-error bad type definition */
-    }
     map.setStyle(MAP_STYLES[selectedBasemap]);
   }, [selectedBasemap]);
 

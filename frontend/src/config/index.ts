@@ -1,10 +1,12 @@
 // MAP SETTINGS
 
+import { StyleSpecification } from "maplibre-gl";
+
 // References -
 // - https://medium.com/@go2garret/free-basemap-tiles-for-maplibre-18374fab60cb
 // - https://codepen.io/g2g/pen/rNRJBZg
 
-export const MAP_STYLES = {
+export const MAP_STYLES: Record<string, string | StyleSpecification> = {
   OSM: {
     version: 8,
     sources: {

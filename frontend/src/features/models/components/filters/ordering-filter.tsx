@@ -82,6 +82,7 @@ const OrderingFilter: React.FC<OrderingFilterProps> = ({
     <CheckboxGroup
       options={ORDERING_FIELDS}
       disabled={disabled}
+      // @ts-expect-error bad type definition
       onCheck={onSortSelect}
       defaultSelectedOption={
         ORDERING_FIELDS.find(
