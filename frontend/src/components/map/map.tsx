@@ -4,15 +4,23 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { MAP_STYLE } from "@/config";
 import ZoomControls from "./zoom-controls";
 import GeolocationControl from "./geolocation-control";
+import DrawControl from "./draw-control";
+import ZoomLevel from "./zoom-level";
 
 type MapComponentProps = {
-  onMapLoad: (map: Map) => void;
+  onMapLoad?: (map: Map) => void;
   geolocationControl?: boolean;
+  controlsLocation?: "top-right" | "top-left";
+  drawControl?: boolean;
+  showCurrentZoom?: boolean;
 };
 
 const MapComponent: React.FC<MapComponentProps> = ({
   onMapLoad,
   geolocationControl = false,
+  controlsLocation = "top-right",
+  drawControl = false,
+  showCurrentZoom = false,
 }) => {
   const mapRef = useRef(null);
   const [map, setMap] = useState<Map | null>(null);
@@ -29,17 +37,22 @@ const MapComponent: React.FC<MapComponentProps> = ({
       minZoom: 1,
       maxZoom: 18,
     });
-    onMapLoad(map);
+    onMapLoad?.(map);
     setMap(map);
     return () => map.remove();
   }, []);
 
   return (
     <div className="h-full w-full relative" ref={mapRef}>
-      <div className="absolute top-5 right-3 z-[10] flex flex-col gap-y-[1px]">
+      <div
+        className={`absolute top-5 left-3 ${controlsLocation === "top-right" ? "right-3" : "left-3"} z-[10] flex flex-col gap-y-[1px]`}
+      >
         <ZoomControls map={map} />
-
         {geolocationControl && <GeolocationControl map={map} />}
+        {drawControl && <DrawControl map={map} />}
+      </div>
+      <div className={`absolute top-5 right-10 z-[10]`}>
+        {showCurrentZoom && <ZoomLevel map={map} />}
       </div>
     </div>
   );

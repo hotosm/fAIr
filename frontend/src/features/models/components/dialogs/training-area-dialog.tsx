@@ -1,6 +1,6 @@
 import { Dialog } from "@/components/ui/dialog";
 import useDevice from "@/hooks/use-device";
-import { MapComponent } from "@/features/models/components/map";
+import { MapComponent } from "@/components/map";
 import { cn } from "@/utils";
 
 type TrainingAreaDialogProps = {

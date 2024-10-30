@@ -29,3 +29,8 @@ export { default as DatabaseIcon } from "./database-icon";
 export { default as SquareShadowIcon } from "./square-shadow-icon";
 export { default as CloudIcon } from "./cloud-icon";
 export { default as StarIcon } from "./star-icon";
+export { default as YouTubePlayIcon } from "./youtube-play-icon";
+export { default as FullScreenIcon } from "./fullscreen-icon";
+export { default as UploadArrowIcon } from "./upload-arrow-icon";
+export { default as DeleteIcon } from "./delete-icon";
+export { default as CloudDownloadIcon } from "./cloud-download-icon";

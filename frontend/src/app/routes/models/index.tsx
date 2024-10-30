@@ -18,9 +18,7 @@ import {
   OrderingFilter,
   SearchFilter,
 } from "@/features/models/components/filters";
-import Pagination, {
-  PAGE_LIMIT,
-} from "@/features/models/components/pagination";
+import Pagination, { PAGE_LIMIT } from "@/components/pagination";
 import { APP_CONTENT, buildDateFilterQueryString } from "@/utils";
 import { PageHeader } from "@/features/models/components/";
 import { dateFilters } from "@/features/models/components/filters/date-range-filter";

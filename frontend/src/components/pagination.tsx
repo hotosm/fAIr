@@ -13,7 +13,7 @@ type PaginationProps = {
   pageLimit: number;
   query?: TQueryParams;
   updateQuery?: (params: TQueryParams) => void;
-  isPlaceholderData: boolean;
+  isPlaceholderData?: boolean;
   offset?: number;
   setOffset?: (offset: number) => void;
 };
@@ -22,13 +22,13 @@ const Pagination: React.FC<PaginationProps> = ({
   hasNextPage,
   hasPrevPage,
   disableNextPage,
-  totalLength,
+  totalLength = 0,
   disablePrevPage,
   pageLimit,
   query,
   updateQuery,
   isPlaceholderData,
-  offset,
+  offset = 20,
   setOffset,
 }) => {
   const _offset = offset ?? (query?.[SEARCH_PARAMS.offset] as number);

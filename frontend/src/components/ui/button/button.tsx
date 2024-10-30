@@ -3,6 +3,7 @@ import "./button.css";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/utils";
 import { ButtonSize, ButtonVariant } from "@/types";
+import useDevice from "@/hooks/use-device";
 
 type ButtonProps = {
   children: React.ReactNode;
@@ -21,19 +22,18 @@ const Button: React.FC<ButtonProps> = ({
   className,
   onClick,
   spinner = false,
-  size = "large",
   disabled = false,
   capitalizeText = true,
   slot,
 }) => {
   const spinnerColor = variant === "primary" ? "white" : "red";
   const trackColor = variant === "primary" ? "red" : "white";
-
+  const isMobile = useDevice();
   return (
     <SlButton
       //@ts-expect-error bad type definition
       variant={variant}
-      size={size}
+      size={isMobile ? "medium" : "large"}
       className={cn(
         `button ${variant} ${className} ${capitalizeText && "capitalize"}`,
       )}

@@ -13,6 +13,8 @@ export default {
         "gray-disabled": "var(--hot-fair-color-gray-disabled)",
         "gray-border": "var(--hot-fair-color-gray-border)",
         "hover-accent": "var( --hot-fair-color-hover-accent)",
+        "green-secondary": "var(--hot-fair-color-green-secondary)",
+        "green-primary": "var(--hot-fair-color-green-primary)",
       },
       fontFamily: {
         archivo: "var(--sl-font-sans)",
@@ -26,6 +28,7 @@ export default {
         "body-2": "var(--hot-fair-font-size-body-text-2)",
         "body-2base": "var(--hot-fair-font-size-body-text-2base)",
         "body-3": "var(--hot-fair-font-size-body-text-3)",
+        "body-4": "var(--hot-fair-font-size-body-text-4)",
       },
       fontWeight: {
         regular: "var(--hot-fair-font-weight-regular)",

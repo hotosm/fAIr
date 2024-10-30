@@ -1,7 +1,7 @@
 import { Map } from "maplibre-gl";
 import { useCallback, useEffect, useState } from "react";
 import mapMarker from "@/assets/images/mapMarker.png";
-import MapComponent from "./map";
+import MapComponent from "../../../../components/map/map";
 import { FeatureCollection, TQueryParams } from "@/types";
 import { SEARCH_PARAMS } from "@/app/routes/models";
 

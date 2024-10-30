@@ -22,9 +22,7 @@ import { useDialog } from "@/hooks/use-dialog";
 import { TrainingDetailsDialog } from "@/features/models/components/dialogs";
 import { useUpdateTraining } from "@/features/models/api/update-trainings";
 import { useToast } from "@/app/providers/toast-provider";
-import Pagination, {
-  PAGE_LIMIT,
-} from "@/features/models/components/pagination";
+import Pagination, { PAGE_LIMIT } from "@/components/pagination";
 
 type TrainingHistoryTableProps = {
   modelId: string;

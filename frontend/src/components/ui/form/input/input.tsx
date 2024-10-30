@@ -3,6 +3,8 @@ import styles from "./input.module.css";
 import { CalenderIcon } from "@/components/ui/icons";
 import useBrowserType from "@/hooks/use-browser-type";
 import { useRef } from "react";
+import { ToolTip } from "@/components/ui/tooltip";
+import useDevice from "@/hooks/use-device";
 
 type InputProps = {
   handleInput: (arg: React.ChangeEvent<HTMLInputElement>) => void;
@@ -14,7 +16,10 @@ type InputProps = {
   type?: "date" | "text";
   showBorder?: boolean;
   label?: string;
-  size?: "small" | "medium";
+  size?: "small" | "medium" | "large";
+  helpText?: string;
+  labelWithTooltip?: boolean;
+  toolTipContent?: string;
 };
 
 const Input: React.FC<InputProps> = ({
@@ -27,7 +32,10 @@ const Input: React.FC<InputProps> = ({
   type = "text",
   showBorder = false,
   label,
-  size = "medium",
+  size,
+  helpText,
+  labelWithTooltip = false,
+  toolTipContent,
 }) => {
   const { isChrome } = useBrowserType();
 
@@ -37,7 +45,7 @@ const Input: React.FC<InputProps> = ({
   };
 
   const dateInputRef = useRef<HTMLInputElement | null>(null);
-
+  const isMobile = useDevice();
   return (
     <SlInput
       // @ts-expect-error bad type definition
@@ -51,8 +59,22 @@ const Input: React.FC<InputProps> = ({
       //@ts-expect-error bad type definition
       ref={dateInputRef}
       label={label}
-      size={size}
+      size={size ? size : isMobile ? "medium" : "large"}
     >
+      {label && (
+        <p
+          slot="label"
+          className="flex text-base items-center gap-x-2 text-gray mb-1"
+        >
+          {label}
+          {labelWithTooltip && <ToolTip content={toolTipContent}></ToolTip>}
+        </p>
+      )}
+      {helpText && (
+        <p className="mt-1 text-sm" slot="help-text">
+          {helpText}
+        </p>
+      )}
       {/* 
         We're using the native browser date picker. 
         In chrome it displays a calender icon which unfortunately could not be customized as at 08/10/2024.

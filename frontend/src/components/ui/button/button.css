@@ -2,6 +2,7 @@ sl-button.button::part(base) {
   border-radius: 0 !important;
   border: none;
   font-size: var(--hot-fair-font-size-body-text-3);
+  width: 100%;
   display: flex;
   align-items: center;
   gap: 3px;
