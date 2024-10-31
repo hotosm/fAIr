@@ -1,6 +1,5 @@
 import CheckIcon from "@/components/ui/icons/check-icon";
 import { APPLICATION_ROUTES, cn } from "@/utils";
-import { useNavigate } from "react-router-dom";
 
 type ProgressBarProps = {
   currentPath: string;
@@ -13,8 +12,6 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
   currentPageIndex,
   pages,
 }) => {
-  const navigate = useNavigate();
-
   return (
     <div className="flex items-center justify-between px-10">
       {pages.map((step) => {
@@ -26,7 +23,6 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
             disabled={
               step.path === APPLICATION_ROUTES.CREATE_NEW_MODEL_CONFIRMATION
             }
-            onClick={() => navigate(step.path)}
           >
             {step.id < currentPageIndex + 1 ? (
               <span className="rounded-full bg-primary flex items-center justify-center w-9 h-9">

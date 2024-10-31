@@ -8,6 +8,7 @@ import { ChevronDownIcon } from "@/components/ui/icons";
 import { APPLICATION_ROUTES } from "@/utils";
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { TrainingDatasetOption } from "./training-dataset";
 
 type ProgressButtonsProps = {
   currentPath: string;
@@ -22,7 +23,7 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
 }) => {
   const navigate = useNavigate();
 
-  const { formData } = useModelFormContext();
+  const { formData, handleChange } = useModelFormContext();
 
   const nextPage = () => {
     // Confirm the form is submitted successfully before showing confirmation page.
@@ -33,7 +34,26 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
 
   const prevPage = () => {
     if (currentPageIndex > 0) {
-      navigate(pages[currentPageIndex - 1].path);
+      // When going back, if it's the training dataset page and the user already selected an option previously
+      // reset the selection to none so they can see the options again.
+      if (
+        currentPageIndex === 1 &&
+        formData.trainingDatasetOption !== TrainingDatasetOption.NONE
+      ) {
+        handleChange(
+          MODEL_CREATION_FORM_NAME.TRAINING_DATASET_OPTION,
+          TrainingDatasetOption.NONE,
+        );
+        // When the user clicks the back button, all their changes will be lost. This is because if we don't clear it, the user can
+        // be able to select existing dataset and also create a new one which will lead to confusion.
+        // So it's safe to clear all changes to ensure that only one option will go through.
+
+        handleChange(MODEL_CREATION_FORM_NAME.SELECTED_TRAINING_DATASET_ID, "");
+        handleChange(MODEL_CREATION_FORM_NAME.DATASET_NAME, "");
+        handleChange(MODEL_CREATION_FORM_NAME.TMS_URL, "");
+      } else {
+        navigate(pages[currentPageIndex - 1].path);
+      }
     }
   };
 
@@ -49,9 +69,31 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
           FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.MODEL_DESCRIPTION]
             .minLength
       );
+    } else if (
+      currentPath === APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_DATASET
+    ) {
+      // if the user hasn't selected any of the options, then they can not proceed to next page.
+      if (formData.trainingDatasetOption === TrainingDatasetOption.NONE) {
+        return false;
+      } else if (
+        formData.trainingDatasetOption === TrainingDatasetOption.CREATE_NEW
+      ) {
+        // if creating a new one and the inputs are not valid, also disable button
+        return (
+          formData.tmsURLValidation.valid &&
+          formData.datasetName.length >=
+            FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.DATASET_NAME]
+              .minLength
+        );
+      } else if (
+        formData.trainingDatasetOption === TrainingDatasetOption.USE_EXISTING
+      ) {
+        // If selecting existing, ensure that a training dataset is selected
+        return formData.selectedTrainingDatasetId.length > 0;
+      }
     }
     return true;
-  }, [formData]);
+  }, [formData, currentPath]);
 
   return (
     <div className="col-start-4 col-span-6 w-full flex items-center justify-between">

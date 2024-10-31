@@ -5,6 +5,7 @@ import useBrowserType from "@/hooks/use-browser-type";
 import { useRef } from "react";
 import useDevice from "@/hooks/use-device";
 import { HelpText, FormLabel } from "@/components/ui/form";
+import CheckIcon from "@/components/ui/icons/check-icon";
 
 type InputProps = {
   handleInput: (arg: React.ChangeEvent<HTMLInputElement>) => void;
@@ -13,7 +14,7 @@ type InputProps = {
   placeholder?: string;
   clearable?: boolean;
   disabled?: boolean;
-  type?: "date" | "text" | "number";
+  type?: "date" | "text" | "number" | "url";
   showBorder?: boolean;
   label?: string;
   size?: "small" | "medium" | "large";
@@ -23,6 +24,11 @@ type InputProps = {
   required?: boolean;
   maxLength?: number;
   minLength?: number;
+  pattern?: RegExp | string;
+  validationStateUpdateCallback?: (validity: boolean) => void;
+  isValid?: boolean;
+  min?: number;
+  max?: number;
 };
 
 const Input: React.FC<InputProps> = ({
@@ -42,20 +48,36 @@ const Input: React.FC<InputProps> = ({
   required = false,
   maxLength,
   minLength,
+  pattern,
+  validationStateUpdateCallback,
+  isValid = false,
+  min,
+  max,
 }) => {
   const { isChrome } = useBrowserType();
 
   const openNativeDatePicker = () => {
-    dateInputRef.current?.focus();
-    dateInputRef.current?.showPicker();
+    inputRef.current?.focus();
+    inputRef.current?.showPicker();
   };
 
-  const dateInputRef = useRef<HTMLInputElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
   const isMobile = useDevice();
+
   return (
     <SlInput
-      // @ts-expect-error bad type definition
-      onSlInput={handleInput}
+      onSlInput={(e) => {
+        validationStateUpdateCallback &&
+          validationStateUpdateCallback?.(
+            // @ts-expect-error bad type definition
+            {
+              valid: inputRef.current?.validity?.valid,
+              message: inputRef.current?.validationMessage,
+            },
+          );
+        // @ts-expect-error bad type definition
+        handleInput(e);
+      }}
       // @ts-expect-error bad type definition
       value={value}
       className={`${className} ${styles.customInput} ${showBorder && styles.showBorder}`}
@@ -63,12 +85,16 @@ const Input: React.FC<InputProps> = ({
       clearable={clearable}
       disabled={disabled}
       type={type}
-      //@ts-expect-error bad type definition
-      ref={dateInputRef}
+      // @ts-expect-error bad type definition
+      ref={inputRef}
       label={label}
       size={size ? size : isMobile ? "medium" : "large"}
       minlength={minLength}
       maxlength={maxLength}
+      pattern={`${pattern}`}
+      min={min}
+      max={max}
+      step={1}
     >
       {label && (
         <FormLabel
@@ -96,6 +122,15 @@ const Input: React.FC<InputProps> = ({
           slot="suffix"
           onClick={openNativeDatePicker}
         />
+      )}
+
+      {isValid && (
+        <span
+          className="icon rounded-full p-1 bg-green-primary flex items-center justify-center"
+          slot="suffix"
+        >
+          <CheckIcon className=" text-white" />
+        </span>
       )}
     </SlInput>
   );

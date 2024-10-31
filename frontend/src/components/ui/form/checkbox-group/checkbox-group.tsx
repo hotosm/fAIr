@@ -9,7 +9,7 @@ type CheckboxGroupProps = {
     apiValue?: string;
   }[];
   disabled?: boolean;
-  defaultSelectedOption?: string | string[];
+  defaultSelectedOption?: string | string[] | number[];
   onCheck: (selectedOptions: string[]) => void;
   className?: string;
   multiple?: boolean;

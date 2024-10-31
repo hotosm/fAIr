@@ -4,14 +4,14 @@ import ChevronDownIcon from "@/components/ui/icons/chevron-down";
 import CreateNewTrainingDatasetForm from "./create-new";
 import SelectExistingTrainingDatasetForm from "./select-existing";
 import { TrainingDatasetOption } from "./enums";
+import {
+  MODEL_CREATION_FORM_NAME,
+  useModelFormContext,
+} from "@/app/providers/model-creation-provider";
 
-const TrainingDatasetForm = ({
-  setSelectedTrainingDatasetOption,
-  selectedTrainingDatasetOption,
-}: {
-  selectedTrainingDatasetOption: TrainingDatasetOption;
-  setSelectedTrainingDatasetOption: (option: TrainingDatasetOption) => void;
-}) => {
+const TrainingDatasetForm = () => {
+  const { handleChange, formData } = useModelFormContext();
+
   return (
     <div className="flex flex-col gap-y-20 w-full">
       <StepHeading
@@ -21,7 +21,7 @@ const TrainingDatasetForm = ({
         sequi incidunt quasi delectus laudantium accusamus modi omnis maiores.
         Incidunt!"
       />
-      {selectedTrainingDatasetOption === TrainingDatasetOption.NONE ? (
+      {formData.trainingDatasetOption === TrainingDatasetOption.NONE ? (
         <div className="flex flex-col gap-y-10 w-full">
           <ButtonWithIcon
             label="Create a New Training Dataset"
@@ -30,7 +30,10 @@ const TrainingDatasetForm = ({
             variant={"dark"}
             capitalizeText={false}
             onClick={() =>
-              setSelectedTrainingDatasetOption(TrainingDatasetOption.CREATE_NEW)
+              handleChange(
+                MODEL_CREATION_FORM_NAME.TRAINING_DATASET_OPTION,
+                TrainingDatasetOption.CREATE_NEW,
+              )
             }
           ></ButtonWithIcon>
           <ButtonWithIcon
@@ -39,7 +42,8 @@ const TrainingDatasetForm = ({
             iconClassName="-rotate-90"
             capitalizeText={false}
             onClick={() =>
-              setSelectedTrainingDatasetOption(
+              handleChange(
+                MODEL_CREATION_FORM_NAME.TRAINING_DATASET_OPTION,
                 TrainingDatasetOption.USE_EXISTING,
               )
             }
@@ -49,11 +53,11 @@ const TrainingDatasetForm = ({
       ) : null}
 
       {/* Forms */}
-      {selectedTrainingDatasetOption === TrainingDatasetOption.CREATE_NEW ? (
+      {formData.trainingDatasetOption === TrainingDatasetOption.CREATE_NEW ? (
         <CreateNewTrainingDatasetForm />
       ) : null}
 
-      {selectedTrainingDatasetOption === TrainingDatasetOption.USE_EXISTING ? (
+      {formData.trainingDatasetOption === TrainingDatasetOption.USE_EXISTING ? (
         <SelectExistingTrainingDatasetForm />
       ) : null}
     </div>

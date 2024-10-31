@@ -43,7 +43,6 @@ const ModelDetailsForm = () => {
           showBorder
           helpText="Model name should be at least 10 characters and at most 40 characters."
           required
-          className="text-sm"
           maxLength={
             FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.MODEL_NAME]
               .maxLength
@@ -68,11 +67,11 @@ const ModelDetailsForm = () => {
           value={formData.modelDescription}
           required
           maxLength={
-            FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.MODEL_NAME]
+            FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.MODEL_DESCRIPTION]
               .maxLength
           }
           minLength={
-            FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.MODEL_NAME]
+            FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.MODEL_DESCRIPTION]
               .minLength
           }
         />

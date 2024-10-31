@@ -1,6 +1,6 @@
 import { Map } from "maplibre-gl";
 
- // @ts-expect-error bad type definition
+// @ts-expect-error bad type definition
 const DrawControl = ({ map }: { map: Map | null }) => {
   const handleDraw = () => {};
 

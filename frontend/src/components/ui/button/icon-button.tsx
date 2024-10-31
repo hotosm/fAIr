@@ -12,7 +12,7 @@ type ButtonWithIconProps = {
   className?: string;
   iconClassName?: string;
   disabled?: boolean;
-  size?:ButtonSize
+  size?: ButtonSize;
 };
 const ButtonWithIcon: React.FC<ButtonWithIconProps> = ({
   onClick,
@@ -24,7 +24,7 @@ const ButtonWithIcon: React.FC<ButtonWithIconProps> = ({
   className,
   iconClassName,
   disabled,
-  size 
+  size,
 }) => {
   return (
     <div role="button">
