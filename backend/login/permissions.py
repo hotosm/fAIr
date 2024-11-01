@@ -27,17 +27,18 @@ class IsOsmAuthenticated(permissions.BasePermission):
         if request.user.is_staff or request.user.is_superuser:
             return True
         ## if the object it is trying to access has user info
+        if request.user and request.user.is_authenticated:
+            authenticated_user_allowed_methods = getattr(
+                view, "authenticated_user_allowed_methods", []
+            )
+            if request.method in authenticated_user_allowed_methods:
+                return True
+
         if hasattr(obj, "user"):
             # in order to change it it needs to be in his/her name
             if obj.user == request.user:
                 return True
-        else:
-            if request.user and request.user.is_authenticated:
-                authenticated_user_allowed_methods = getattr(
-                    view, "authenticated_user_allowed_methods", []
-                )
-                if request.method in authenticated_user_allowed_methods:
-                    return True
+
         return False
 
 
