@@ -84,8 +84,9 @@ def train_model(
     import hot_fair_utilities
     import ramp.utils
     import tensorflow as tf
-    from hot_fair_utilities import preprocess, train
+    from hot_fair_utilities import preprocess
     from hot_fair_utilities.training import run_feedback
+    from hot_fair_utilities.training.ramp import train
     from predictor import download_imagery, get_start_end_download_coords
 
     training_instance = get_object_or_404(Training, id=training_id)

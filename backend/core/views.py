@@ -89,7 +89,22 @@ class DatasetViewSet(
     permission_classes = [IsOsmAuthenticated]
     public_methods = ["GET"]
     queryset = Dataset.objects.all()
+    filter_backends = (
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
+    )
     serializer_class = DatasetSerializer  # connecting serializer
+    filterset_fields = {
+        "status": ["exact"],
+        "created_at": ["exact", "gt", "gte", "lt", "lte"],
+        "last_modified": ["exact", "gt", "gte", "lt", "lte"],
+        "user": ["exact"],
+        "id": ["exact"],
+        "source_imagery": ["exact"],
+    }
+    ordering_fields = ["created_at", "last_modified", "id", "status"]
+    search_fields = ["name", "id"]
 
 
 class TrainingSerializer(
