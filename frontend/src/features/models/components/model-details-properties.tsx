@@ -109,13 +109,14 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
 
   const {
     accuracy: trainingAccuracy,
-    chips_length,
+
     zoom_level,
     epochs,
     batch_size,
     input_contact_spacing,
     input_boundary_width,
     source_imagery,
+    chips_length
   } = data || {};
 
   const trainingResultsGraph = `${ENVS.BASE_API_URL}workspace/download/dataset_${datasetId}/output/training_${data?.id}/graphs/training_validation_sparse_categorical_accuracy.png`;
@@ -194,6 +195,7 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
               APP_CONTENT.models.modelsDetailsCard.properties.currentDatasetSize
                 .title
             }
+            value={`${chips_length} Images`}
             tooltip={
               APP_CONTENT.models.modelsDetailsCard.properties.currentDatasetSize
                 .tooltip
