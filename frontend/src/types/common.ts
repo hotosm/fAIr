@@ -1,3 +1,5 @@
+import { LngLatBoundsLike } from "maplibre-gl";
+
 /* eslint-disable @typescript-eslint/no-empty-object-type */
 export interface IconProps extends React.SVGProps<SVGSVGElement> {}
 
@@ -23,3 +25,18 @@ export type ButtonVariant =
   | "dark";
 
 export type ButtonSize = "large" | "medium" | "small";
+
+export type TileJSON = {
+  bounds: LngLatBoundsLike;
+  center: [number, number, number];
+  maxzoom: number;
+  name: string;
+  minzoom: number;
+  tilejson: string;
+  tiles: string[];
+};
+
+export type DialogProps = {
+  isOpened: boolean;
+  closeDialog: () => void;
+};

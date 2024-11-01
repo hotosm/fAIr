@@ -3,7 +3,7 @@ import {
   getModelsQueryOptions,
   getModelDetailsQueryOptions,
   getModelsMapDataQueryOptions,
-} from "./factory";
+} from "../api/factory";
 
 type UseModelsOptions = {
   limit: number;

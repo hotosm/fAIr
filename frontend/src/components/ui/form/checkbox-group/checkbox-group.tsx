@@ -10,7 +10,7 @@ type CheckboxGroupProps = {
   }[];
   disabled?: boolean;
   defaultSelectedOption?: string | string[] | number[];
-  onCheck: (selectedOptions: string[]) => void;
+  onCheck: (selectedOptions: (string | number)[]) => void;
   className?: string;
   multiple?: boolean;
   variant?: "primary" | "dark";
@@ -27,9 +27,9 @@ const CheckboxGroup: React.FC<CheckboxGroupProps> = ({
 }) => {
   const [selectedOptions, setSelectedOptions] = useState<string[]>(
     Array.isArray(defaultSelectedOption)
-      ? defaultSelectedOption
+      ? defaultSelectedOption.map(String)
       : defaultSelectedOption
-        ? [defaultSelectedOption]
+        ? [String(defaultSelectedOption)]
         : [],
   );
 
@@ -37,8 +37,8 @@ const CheckboxGroup: React.FC<CheckboxGroupProps> = ({
     if (defaultSelectedOption) {
       setSelectedOptions(
         Array.isArray(defaultSelectedOption)
-          ? defaultSelectedOption
-          : [defaultSelectedOption],
+          ? defaultSelectedOption.map(String)
+          : [String(defaultSelectedOption)],
       );
     }
   }, [defaultSelectedOption]);
@@ -57,7 +57,9 @@ const CheckboxGroup: React.FC<CheckboxGroupProps> = ({
     }
 
     setSelectedOptions(updatedOptions);
-    onCheck(updatedOptions);
+    onCheck(
+      updatedOptions.map((opt) => (isNaN(Number(opt)) ? opt : Number(opt))),
+    );
   };
 
   return (
@@ -67,18 +69,21 @@ const CheckboxGroup: React.FC<CheckboxGroupProps> = ({
           <SlCheckbox
             disabled={disabled}
             size="small"
-            value={option.value}
-            checked={selectedOptions.includes(option.value)}
+            value={option.apiValue ?? option.value}
+            checked={selectedOptions.includes(
+              String(option.apiValue ?? option.value),
+            )}
             className={variant}
             onSlChange={(e) => {
               e.preventDefault();
               e.stopPropagation();
               //@ts-expect-error bad type definition
-              const selectedValue = e.target.value;
+              const selectedValue = String(e.target.value);
               handleCheckboxChange(selectedValue);
             }}
-          ></SlCheckbox>
-          <span>{option.value}</span>
+          >
+            <span className="cursor-pointer">{option.value}</span>
+          </SlCheckbox>
         </li>
       ))}
     </ul>

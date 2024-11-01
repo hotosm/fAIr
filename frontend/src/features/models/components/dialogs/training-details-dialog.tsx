@@ -1,10 +1,9 @@
 import { Dialog } from "@/components/ui/dialog";
 import useDevice from "@/hooks/use-device";
 import ModelProperties from "@/features/models/components/model-details-properties";
+import { DialogProps } from "@/types";
 
-type TrainingDetailsDialogProps = {
-  isOpened: boolean;
-  closeDialog: () => void;
+type TrainingDetailsDialogProps = DialogProps & {
   trainingId: number;
   datasetId: number;
 };

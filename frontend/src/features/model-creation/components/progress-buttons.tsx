@@ -23,12 +23,24 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
 }) => {
   const navigate = useNavigate();
 
-  const { formData, handleChange } = useModelFormContext();
+  const { formData, handleChange, createNewTrainingDatasetMutation } =
+    useModelFormContext();
 
   const nextPage = () => {
-    // Confirm the form is submitted successfully before showing confirmation page.
-    if (currentPageIndex < pages.length - 1) {
-      navigate(pages[currentPageIndex + 1].path);
+    // If on training dataset creation page, then submit the form before proceeding
+    if (
+      currentPath == APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_DATASET &&
+      formData.trainingDatasetOption === TrainingDatasetOption.CREATE_NEW
+    ) {
+      createNewTrainingDatasetMutation.mutate({
+        source_imagery: formData.tmsURL,
+        name: formData.datasetName,
+      });
+      // Navigation will happen in the context if successful.
+    } else {
+      if (currentPageIndex < pages.length - 1) {
+        navigate(pages[currentPageIndex + 1].path);
+      }
     }
   };
 
@@ -51,6 +63,10 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
         handleChange(MODEL_CREATION_FORM_NAME.SELECTED_TRAINING_DATASET_ID, "");
         handleChange(MODEL_CREATION_FORM_NAME.DATASET_NAME, "");
         handleChange(MODEL_CREATION_FORM_NAME.TMS_URL, "");
+        handleChange(MODEL_CREATION_FORM_NAME.TMS_URL_VALIDITY, {
+          valid: false,
+          message: "",
+        });
       } else {
         navigate(pages[currentPageIndex - 1].path);
       }
@@ -60,39 +76,50 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
   const canProceedToNextPage = useMemo(() => {
     // For the first page, the user must type at least some texts in the form data,
     // and they must be valid as well before the can be able to proceed to the next page.
-    if (currentPath === APPLICATION_ROUTES.CREATE_NEW_MODEL) {
-      return (
-        formData.modelName.length >=
-          FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.MODEL_NAME]
-            .minLength &&
-        formData.modelDescription.length >=
-          FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.MODEL_DESCRIPTION]
-            .minLength
-      );
-    } else if (
-      currentPath === APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_DATASET
-    ) {
-      // if the user hasn't selected any of the options, then they can not proceed to next page.
-      if (formData.trainingDatasetOption === TrainingDatasetOption.NONE) {
-        return false;
-      } else if (
-        formData.trainingDatasetOption === TrainingDatasetOption.CREATE_NEW
-      ) {
-        // if creating a new one and the inputs are not valid, also disable button
+    switch (currentPath) {
+      case APPLICATION_ROUTES.CREATE_NEW_MODEL:
         return (
-          formData.tmsURLValidation.valid &&
-          formData.datasetName.length >=
-            FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.DATASET_NAME]
+          formData.modelName.length >=
+            FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.MODEL_NAME]
+              .minLength &&
+          formData.modelDescription.length >=
+            FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.MODEL_DESCRIPTION]
               .minLength
         );
-      } else if (
-        formData.trainingDatasetOption === TrainingDatasetOption.USE_EXISTING
-      ) {
-        // If selecting existing, ensure that a training dataset is selected
-        return formData.selectedTrainingDatasetId.length > 0;
-      }
+      case APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_DATASET:
+        // if the user hasn't selected any of the options, then they can not proceed to next page.
+        if (formData.trainingDatasetOption === TrainingDatasetOption.NONE) {
+          return false;
+        } else if (
+          formData.trainingDatasetOption === TrainingDatasetOption.CREATE_NEW
+        ) {
+          // If the form submission is in progress or if any error disable the continue button.
+          if (
+            createNewTrainingDatasetMutation.isPending ||
+            createNewTrainingDatasetMutation.isError
+          ) {
+            return true;
+          }
+          return (
+            formData.tmsURLValidation.valid &&
+            formData.datasetName.length >=
+              FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.DATASET_NAME]
+                .minLength
+          );
+        } else if (
+          formData.trainingDatasetOption === TrainingDatasetOption.USE_EXISTING
+        ) {
+          // If selecting existing, ensure that a training dataset is selected
+          return formData.selectedTrainingDatasetId.length > 0;
+        } else {
+          return true;
+        }
+      case APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_SETTINGS:
+        // confirm that the user has selected at least an option
+        return formData.zoomLevels.length > 0;
+      default:
+        return true;
     }
-    return true;
   }, [formData, currentPath]);
 
   return (
@@ -109,9 +136,11 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
         variant="primary"
         suffixIcon={ChevronDownIcon}
         label={
-          currentPath === APPLICATION_ROUTES.CREATE_NEW_MODEL_SUMMARY
-            ? "Submit"
-            : "Continue"
+          createNewTrainingDatasetMutation.isPending
+            ? "Loading..."
+            : currentPath === APPLICATION_ROUTES.CREATE_NEW_MODEL_SUMMARY
+              ? "Submit"
+              : "Continue"
         }
         iconClassName="-rotate-90"
         disabled={!canProceedToNextPage}

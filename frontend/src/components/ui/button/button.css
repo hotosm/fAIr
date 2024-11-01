@@ -8,10 +8,6 @@ sl-button.button::part(base) {
   gap: 3px;
 }
 
-sl-button.capitalize::part(base) {
-  text-transform: uppercase;
-}
-
 sl-button.secondary::part(base) {
   background-color: var(--hot-fair-color-white);
   color: var(--hot-fair-color-dark);
@@ -25,14 +21,12 @@ sl-button.dark::part(base) {
 sl-button.tertiary::part(base) {
   background-color: var(--hot-fair-color-dark);
   color: var(--hot-fair-color-white);
-  text-transform: none;
   opacity: 0.7;
 }
 
 sl-button.default::part(base) {
   background-color: var(--hot-fair-color-white);
   color: var(--hot-fair-color-dark);
-  text-transform: none;
   border: 1px solid var(--hot-fair-color-gray-border);
 }
 

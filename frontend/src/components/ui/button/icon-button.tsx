@@ -13,6 +13,7 @@ type ButtonWithIconProps = {
   iconClassName?: string;
   disabled?: boolean;
   size?: ButtonSize;
+  uppercase?: boolean;
 };
 const ButtonWithIcon: React.FC<ButtonWithIconProps> = ({
   onClick,
@@ -20,21 +21,21 @@ const ButtonWithIcon: React.FC<ButtonWithIconProps> = ({
   suffixIcon: SuffixIcon,
   label,
   variant = "default",
-  capitalizeText = true,
   className,
   iconClassName,
   disabled,
   size,
+  uppercase,
 }) => {
   return (
     <div role="button">
       <Button
         variant={variant}
         onClick={onClick}
-        capitalizeText={capitalizeText}
         className={className}
         disabled={disabled}
         size={size}
+        uppercase={uppercase}
       >
         {PrefixIcon && <PrefixIcon className={cn(`icon ${iconClassName}`)} />}
         <p>{label}</p>

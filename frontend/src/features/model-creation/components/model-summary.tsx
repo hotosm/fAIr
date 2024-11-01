@@ -1,7 +1,8 @@
+import { useModelFormContext } from "@/app/providers/model-creation-provider";
 import {
   DatabaseIcon,
-  MapIcon,
-  RAMIcon,
+  // MapIcon,
+  // RAMIcon,
   SaveIcon,
   SettingsIcon,
   TagsIcon,
@@ -40,32 +41,45 @@ const SummaryItem = ({
 );
 
 const ModelSummaryStep = () => {
+  const { formData } = useModelFormContext();
   const summaryData = [
-    { icon: TagsIcon, label: "Model Name", content: "San Jose Test Model" },
+    { icon: TagsIcon, label: "Model Name", content: formData.modelName },
     {
       icon: TextIcon,
       label: "Model Description",
-      content:
-        "Description Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",
+      content: formData.modelDescription,
     },
-    { icon: DatabaseIcon, label: "Base Model", content: "RAMP" },
-    { icon: TagsIcon, label: "Dataset Name", content: "San Jose Buildings" },
-    { icon: SaveIcon, label: "Dataset ID", content: "237" },
-    { icon: RAMIcon, label: "Dataset Size", content: "250 Images" },
     {
-      icon: MapIcon,
-      label: "Open Aerial Imagery",
-      content: "San Jose Mission 10C Flight 1",
+      icon: DatabaseIcon,
+      label: "Base Model",
+      content: formData.baseModel.toUpperCase(),
     },
-    { icon: ZoomInIcon, label: "Zoom Levels", content: ["Zoom 21", "Zoom 22"] },
+    { icon: TagsIcon, label: "Dataset Name", content: formData.datasetName },
+    {
+      icon: SaveIcon,
+      label: "Dataset ID",
+      content: formData.selectedTrainingDatasetId,
+    },
+    // These will be retrieved from API.
+    // { icon: RAMIcon, label: "Dataset Size", content: "250 Images" },
+    // {
+    //   icon: MapIcon,
+    //   label: "Open Aerial Imagery",
+    //   content: "San Jose Mission 10C Flight 1",
+    // },
+    {
+      icon: ZoomInIcon,
+      label: "Zoom Levels",
+      content: formData.zoomLevels.map((level) => `Zoom ${level}`),
+    },
     {
       icon: SettingsIcon,
       label: "Training Settings",
       content: [
-        "Epoch: 21",
-        "Batch Size: 23",
-        "Contact Spacing: 23",
-        "Boundary Width: 23",
+        `Epoch: ${formData.epoch}`,
+        `Batch Size: ${formData.batchSize}`,
+        `Contact Spacing: ${formData.contactSpacing}`,
+        `Boundary Width:  ${formData.boundaryWidth}`,
       ],
     },
   ];

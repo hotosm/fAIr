@@ -1,11 +1,10 @@
 import { Dialog } from "@/components/ui/dialog";
 import DirectoryTree from "@/features/models/components/directory-tree";
 import useDevice from "@/hooks/use-device";
+import { DialogProps } from "@/types";
 import { APP_CONTENT } from "@/utils";
 
-type TrainingAreaDialogProps = {
-  isOpened: boolean;
-  closeDialog: () => void;
+type TrainingAreaDialogProps = DialogProps & {
   trainingId: number;
   datasetId: number;
 };

@@ -5,7 +5,7 @@ import {
   getTrainingHistoryQueryOptions,
   getTrainingStatusQueryOptions,
   getTrainingWorkspaceQueryOptions,
-} from "./factory";
+} from "../api/factory";
 
 export const useTrainingDetails = (id: number) => {
   return useQuery({

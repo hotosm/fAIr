@@ -2,11 +2,9 @@ import { Dialog } from "@/components/ui/dialog";
 import useDevice from "@/hooks/use-device";
 import { MapComponent } from "@/components/map";
 import { cn } from "@/utils";
+import { DialogProps } from "@/types";
 
-type TrainingAreaDialogProps = {
-  isOpened: boolean;
-  closeDialog: () => void;
-};
+type TrainingAreaDialogProps = DialogProps;
 
 const TrainingAreaDialog: React.FC<TrainingAreaDialogProps> = ({
   isOpened,

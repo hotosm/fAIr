@@ -13,8 +13,8 @@ type ButtonProps = {
   spinner?: boolean;
   size?: ButtonSize;
   disabled?: boolean;
-  capitalizeText?: boolean;
   slot?: string;
+  uppercase?: boolean;
 };
 const Button: React.FC<ButtonProps> = ({
   children,
@@ -23,7 +23,7 @@ const Button: React.FC<ButtonProps> = ({
   onClick,
   spinner = false,
   disabled = false,
-  capitalizeText = true,
+  uppercase = true,
   slot,
 }) => {
   const spinnerColor = variant === "primary" ? "white" : "red";
@@ -34,16 +34,14 @@ const Button: React.FC<ButtonProps> = ({
       //@ts-expect-error bad type definition
       variant={variant}
       size={isMobile ? "medium" : "large"}
-      className={cn(
-        `button ${variant} ${capitalizeText && "capitalize"} ${className} `,
-      )}
+      className={cn(`button ${variant} ${className} `)}
       style={{ width: "100%" }}
       //@ts-expect-error bad type definition
       onClick={onClick}
       disabled={disabled}
       slot={slot}
     >
-      <div className="flex items-center gap-x-2">
+      <div className={`flex items-center gap-x-2  ${uppercase && "uppercase"}`}>
         {children}
         {spinner && (
           <Spinner

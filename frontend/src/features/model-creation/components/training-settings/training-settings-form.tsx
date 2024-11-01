@@ -108,7 +108,12 @@ const TrainingSettingsForm = () => {
             { value: "Zoom 21", apiValue: "21" },
           ]}
           defaultSelectedOption={formData.zoomLevels}
-          onCheck={() =>null }
+          onCheck={(selection) =>
+            handleChange(
+              MODEL_CREATION_FORM_NAME.ZOOM_LEVELS,
+              selection.map(Number),
+            )
+          }
         />
       </div>
 

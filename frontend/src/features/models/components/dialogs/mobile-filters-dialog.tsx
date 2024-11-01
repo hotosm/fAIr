@@ -5,12 +5,10 @@ import {
   DateRangeFilter,
   OrderingFilter,
 } from "@/features/models/components/filters";
-import { TQueryParams } from "@/types";
+import { DialogProps, TQueryParams } from "@/types";
 import { Button } from "@/components/ui/button";
 
-type TrainingAreaDialogProps = {
-  isOpened: boolean;
-  closeDialog: () => void;
+type TrainingAreaDialogProps = DialogProps & {
   updateQuery: (updatedParams: TQueryParams) => void;
   query: TQueryParams;
   disabled: boolean;

@@ -4,7 +4,7 @@ import {
   useModelFormContext,
 } from "@/app/providers/model-creation-provider";
 import { Input } from "@/components/ui/form";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 
 const CreateNewTrainingDatasetForm = () => {
   const { formData, handleChange } = useModelFormContext();
@@ -17,6 +17,17 @@ const CreateNewTrainingDatasetForm = () => {
       : helpText;
   }, [formData.tmsURLValidation.message]);
 
+  useEffect(() => {
+    // Shoelace will handle the validation when it's more than 0 characters.
+    if (formData.tmsURL.length > 0) return;
+    // if the length is 0, then validation is false
+    if (formData.tmsURL.length === 0) {
+      handleChange(MODEL_CREATION_FORM_NAME.TMS_URL_VALIDITY, {
+        valid: false,
+        message: "",
+      });
+    }
+  }, [formData.tmsURL]);
   return (
     <div className="flex flex-col gap-y-10">
       <p className="font-semibold text-body-1 mb-2">

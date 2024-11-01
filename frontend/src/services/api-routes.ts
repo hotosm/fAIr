@@ -18,6 +18,16 @@ export const API_ENDPOINTS = {
 
   //Trainings
   GET_TRAINING_DETAILS: (id: number) => `training/${id}`,
+  GET_TRAINING_DATASETS: "dataset/",
+  CREATE_TRAINING_DATASETS: "dataset/",
+
+  CREATE_TRAINING_AREA: "aoi/",
+
+  DELETE_TRAINING_AREA: (id: number) => `aoi/${id}/`,
+
+  GET_TRAINING_AREAS: (datasetId: number, offset: number, limit: number) =>
+    `aoi/?dataset=${datasetId}&offset=${offset}&limit=${limit}`,
+
   GET_TRAINING_STATUS: (taskId: string) => `training/status/${taskId}`,
   UPDATE_TRAINING: (id: number) => `training/publish/${id}/`,
   GET_MODEL_TRAINING_HISTORY: (id: string) => `training/?model=${id}`,

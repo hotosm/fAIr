@@ -67,6 +67,42 @@ export type TModelDetails = TModel & {
   description: string;
 };
 
+export type TTrainingAreaFeature = {
+  id: number;
+  geometry: Geometry;
+  properties: {
+    created_at: string;
+    label_fetched: string;
+    label_status: number;
+    last_modified: string;
+    dataset: number;
+  };
+};
+
+export type TTrainingArea = {
+  type: "FeatureCollection";
+  features: TTrainingAreaFeature[];
+};
+
+export type PaginatedTrainingArea = {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: TTrainingArea;
+  hasNext: boolean;
+  hasPrev: boolean;
+};
+
+export type TTrainingDataset = {
+  id: number;
+  created_at: string;
+  last_modified: string;
+  name: string;
+  status: number;
+  user: number;
+  source_imagery: string;
+};
+
 // Training API response types
 
 export type TTrainingDetails = {

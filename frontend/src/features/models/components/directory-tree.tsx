@@ -7,7 +7,7 @@ import {
   SlTree,
   SlTreeItem,
 } from "@shoelace-style/shoelace/dist/react/index.js";
-import { getTrainingWorkspaceQueryOptions } from "@/features/models/hooks/factory";
+import { getTrainingWorkspaceQueryOptions } from "@/features/models/api/factory";
 import { useToast } from "@/app/providers/toast-provider";
 import { API_ENDPOINTS, apiClient } from "@/services";
 import { Spinner } from "@/components/ui/spinner";
