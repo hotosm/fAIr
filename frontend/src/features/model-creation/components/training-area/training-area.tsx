@@ -45,9 +45,10 @@ const TrainingAreaForm = () => {
   useEffect(() => {
     if (!trainingAreasData) return;
     // update the form data when the data changes
-    // @ts-expect-error bad type definition
+
     handleChange(
       MODEL_CREATION_FORM_NAME.TRAINING_AREAS,
+
       trainingAreasData?.results,
     );
   }, [trainingAreasData]);

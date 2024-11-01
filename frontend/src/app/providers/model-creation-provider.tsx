@@ -119,8 +119,8 @@ const ModelCreationFormContext = createContext<{
   >;
 }>({
   formData: initialFormState,
-  setFormData: () => {},
-  handleChange: () => {},
+  setFormData: () => { },
+  handleChange: () => { },
   createNewTrainingDatasetMutation: {} as UseMutationResult<
     TTrainingDataset,
     Error,
@@ -158,15 +158,18 @@ export const ModelCreationFormProvider: React.FC<{
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
-  const trainingRequestMutation = useCreateModelTrainingRequest({mutationConfig:{
-    onSuccess:()=>{
-      notify("Training request submitted successfully", "success");
-    },
-    onError: (error) => {
-      const errorText = error?.response?.data[0] ?? "An error ocurred while submitting training request"
-      notify(errorText, "danger");
-    },
-  }});
+  const trainingRequestMutation = useCreateModelTrainingRequest({
+    mutationConfig: {
+      onSuccess: () => {
+        notify("Training request submitted successfully", "success");
+      },
+      onError: (error) => {
+        // @ts-expect-error bad type definition
+        const errorText = error?.response?.data[0] ?? "An error ocurred while submitting training request"
+        notify(errorText, "danger");
+      },
+    }
+  });
 
   const createNewTrainingDatasetMutation = useCreateTrainingDataset({
     mutationConfig: {
@@ -182,7 +185,7 @@ export const ModelCreationFormProvider: React.FC<{
         navigate(APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_AREA);
       },
       onError: () => {
-       
+
         notify("An error occurred while creating dataset", "danger");
       },
     },
@@ -194,20 +197,20 @@ export const ModelCreationFormProvider: React.FC<{
         notify("Model created successfully", "success");
         // Submit the model for training request
         trainingRequestMutation.mutate({
-          model:data.id,
-          input_boundary_width:formData.boundaryWidth,
-          input_contact_spacing:formData.contactSpacing,
-          epochs:formData.epoch,
-          batch_size:formData.batchSize,
-          zoom_level:formData.zoomLevels
-          
+          model: data.id,
+          input_boundary_width: formData.boundaryWidth,
+          input_contact_spacing: formData.contactSpacing,
+          epochs: formData.epoch,
+          batch_size: formData.batchSize,
+          zoom_level: formData.zoomLevels
+
         })
 
         setFormData(initialFormState);
 
         navigate(
           `${APPLICATION_ROUTES.CREATE_NEW_MODEL_CONFIRMATION}?id=${data.id}`,
-          
+
         );
       },
       onError: () => {
