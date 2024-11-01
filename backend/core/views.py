@@ -319,6 +319,7 @@ class AOIViewSet(viewsets.ModelViewSet):
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsOsmAuthenticated]
     public_methods = ["GET"]
+    authenticated_user_allowed_methods = ["POST", "DELETE"]
     queryset = AOI.objects.all()
     serializer_class = AOISerializer  # connecting serializer
     filter_backends = [DjangoFilterBackend]

@@ -12,10 +12,8 @@ class IsOsmAuthenticated(permissions.BasePermission):
             return True
 
         if request.user and request.user.is_authenticated:
-            # Global access
-            if request.user.is_staff or request.user.is_superuser:
-                return True
-
+            # if request.user.is_staff or request.user.is_superuser:
+            #     return True
             return True
 
         return False
@@ -34,9 +32,12 @@ class IsOsmAuthenticated(permissions.BasePermission):
             if obj.user == request.user:
                 return True
         else:
-            if request.method == "POST":
-                # if object doesn't have user in it then he has permission to access the object , considered as common object
-                return True
+            if request.user and request.user.is_authenticated:
+                authenticated_user_allowed_methods = getattr(
+                    view, "authenticated_user_allowed_methods", []
+                )
+                if request.method in authenticated_user_allowed_methods:
+                    return True
         return False
 
 
