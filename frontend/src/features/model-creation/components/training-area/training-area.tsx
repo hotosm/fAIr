@@ -48,7 +48,7 @@ const TrainingAreaForm = () => {
 
     handleChange(
       MODEL_CREATION_FORM_NAME.TRAINING_AREAS,
-
+      // @ts-expect-error bad type definition 
       trainingAreasData?.results,
     );
   }, [trainingAreasData]);
