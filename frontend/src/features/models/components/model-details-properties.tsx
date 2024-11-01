@@ -145,6 +145,9 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
             label={
               APP_CONTENT.models.modelsDetailsCard.properties.accuracy.title
             }
+            tooltip={
+              APP_CONTENT.models.modelsDetailsCard.properties.accuracy.tooltip
+            }
             value={trainingAccuracy}
             isAccuracy
           />
@@ -191,7 +194,10 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
               APP_CONTENT.models.modelsDetailsCard.properties.currentDatasetSize
                 .title
             }
-            value={`${chips_length} Images`}
+            tooltip={
+              APP_CONTENT.models.modelsDetailsCard.properties.currentDatasetSize
+                .tooltip
+            }
           />
           {/* Animate the status when it's in progress. */}
           {isTrainingDetailsDialog && (
@@ -221,6 +227,10 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
           <PropertyDisplay
             label={
               APP_CONTENT.models.modelsDetailsCard.properties.sourceImage.title
+            }
+            tooltip={
+              APP_CONTENT.models.modelsDetailsCard.properties.sourceImage
+                .tooltip
             }
             value={source_imagery}
             isCopy
