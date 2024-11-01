@@ -14,7 +14,7 @@ class Dataset(models.Model):
         ACTIVE = 0
         DRAFT = -1
 
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=50, min_length=5)
     user = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
     last_modified = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -49,8 +49,9 @@ class Label(models.Model):
 
 class Model(models.Model):
     BASE_MODEL_CHOICES = (
-        ("RAMP", "RAMP"),
-        ("YOLO", "YOLO"),
+        ("RAMP", 0),
+        ("YOLO_V8_V1", 1),
+        ("YOLO_V8_V2", 2),
     )
 
     class ModelStatus(models.IntegerChoices):
@@ -59,16 +60,14 @@ class Model(models.Model):
         DRAFT = -1
 
     dataset = models.ForeignKey(Dataset, to_field="id", on_delete=models.DO_NOTHING)
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=50, min_length=5)
     created_at = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now=True)
     description = models.TextField(max_length=500, null=True, blank=True)
     user = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
     published_training = models.PositiveIntegerField(null=True, blank=True)
     status = models.IntegerField(default=-1, choices=ModelStatus.choices)
-    base_model = models.CharField(
-        choices=BASE_MODEL_CHOICES, default="RAMP", max_length=10
-    )
+    base_model = models.IntegerField(choices=BASE_MODEL_CHOICES, default=0)
 
 
 class Training(models.Model):
