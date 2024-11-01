@@ -14,7 +14,7 @@ class Dataset(models.Model):
         ACTIVE = 0
         DRAFT = -1
 
-    name = models.CharField(max_length=50, min_length=5)
+    name = models.CharField(max_length=50)
     user = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
     last_modified = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -60,7 +60,7 @@ class Model(models.Model):
         DRAFT = -1
 
     dataset = models.ForeignKey(Dataset, to_field="id", on_delete=models.DO_NOTHING)
-    name = models.CharField(max_length=50, min_length=5)
+    name = models.CharField(max_length=50)
     created_at = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now=True)
     description = models.TextField(max_length=500, null=True, blank=True)
