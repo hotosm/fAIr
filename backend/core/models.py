@@ -49,9 +49,9 @@ class Label(models.Model):
 
 class Model(models.Model):
     BASE_MODEL_CHOICES = (
-        ("RAMP", 0),
-        ("YOLO_V8_V1", 1),
-        ("YOLO_V8_V2", 2),
+        ("RAMP", "RAMP"),
+        ("YOLO_V8_V1", "YOLO_V8_V1"),
+        ("YOLO_V8_V2", "YOLO_V8_V2"),
     )
 
     class ModelStatus(models.IntegerChoices):
@@ -67,7 +67,9 @@ class Model(models.Model):
     user = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
     published_training = models.PositiveIntegerField(null=True, blank=True)
     status = models.IntegerField(default=-1, choices=ModelStatus.choices)
-    base_model = models.IntegerField(choices=BASE_MODEL_CHOICES, default=0)
+    base_model = models.CharField(
+        choices=BASE_MODEL_CHOICES, default="RAMP", max_length=50
+    )
 
 
 class Training(models.Model):
