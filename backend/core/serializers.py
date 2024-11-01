@@ -140,6 +140,7 @@ class AOISerializer(
             "last_modified",
             "label_fetched",
             "label_status",
+            "user",
         )
 
     def create(self, validated_data):
