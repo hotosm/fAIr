@@ -4,19 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Image } from "@/components/ui/image";
 import { Link } from "@/components/ui/link";
 import { APPLICATION_ROUTES } from "@/utils";
-import { useEffect } from "react";
 import ConfettiExplosion from "react-confetti-explosion";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 
 const ModelCreationSuccessConfirmation = () => {
-  const navigate = useNavigate();
+
   const [searchParams] = useSearchParams();
   // Model ID should be in the url params upon successful creation
   const modelId = searchParams.get("id");
-  useEffect(() => {
-    if (modelId) return
-    navigate(APPLICATION_ROUTES.MODELS);
-  }, [modelId]);
 
   return (
     <div className="flex items-center justify-center w-full h-full flex-col gap-y-10 text-center">

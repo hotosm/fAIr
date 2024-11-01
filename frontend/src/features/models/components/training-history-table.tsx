@@ -29,6 +29,7 @@ type TrainingHistoryTableProps = {
   trainingId: number;
   modelOwner: string;
   datasetId: number;
+  baseModel: string;
 };
 
 const columnDefinitions = (
@@ -65,6 +66,17 @@ const columnDefinitions = (
       },
     },
     {
+      header:
+        APP_CONTENT.models.modelsDetailsCard.trainingHistoryTableHeader.duration,
+      accessorFn: (row) =>
+        row.finished_at && row.started_at
+          ? formatDuration(new Date(row.started_at), new Date(row.finished_at))
+          : "-",
+      cell: (row) => (
+        <span title={row.getValue() as string}>{row.getValue() as string}</span>
+      ),
+    },
+    {
       accessorKey: "user.username",
       header:
         APP_CONTENT.models.modelsDetailsCard.trainingHistoryTableHeader
@@ -72,15 +84,6 @@ const columnDefinitions = (
       cell: ({ row }) => {
         return <span>{truncateString(row.original.user.username)}</span>;
       },
-    },
-    {
-      header:
-        APP_CONTENT.models.modelsDetailsCard.trainingHistoryTableHeader.duration,
-      accessorFn: (row) =>
-        formatDuration(new Date(row.started_at), new Date(row.finished_at)),
-      cell: (row) => (
-        <span title={row.getValue() as string}>{row.getValue() as string}</span>
-      ),
     },
     {
       accessorKey: "input_contact_spacing",
@@ -229,6 +232,7 @@ const TrainingHistoryTable: React.FC<TrainingHistoryTableProps> = ({
   modelId,
   modelOwner,
   datasetId,
+  baseModel,
 }) => {
   const [offset, setOffset] = useState(0);
   const { data, isPending, isPlaceholderData } = useTrainingHistory(
@@ -269,6 +273,7 @@ const TrainingHistoryTable: React.FC<TrainingHistoryTableProps> = ({
         closeDialog={closeDialog}
         trainingId={activeTrainingId}
         datasetId={datasetId}
+        baseModel={baseModel}
       />
       <div className="h-full">
         <div className="w-full items-center text-body-3 flex justify-between my-4">

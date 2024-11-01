@@ -6,6 +6,7 @@ import { DialogProps } from "@/types";
 type TrainingDetailsDialogProps = DialogProps & {
   trainingId: number;
   datasetId: number;
+  baseModel: string;
 };
 
 const TrainingDetailsDialog: React.FC<TrainingDetailsDialogProps> = ({
@@ -13,6 +14,7 @@ const TrainingDetailsDialog: React.FC<TrainingDetailsDialogProps> = ({
   closeDialog,
   trainingId,
   datasetId,
+  baseModel,
 }) => {
   const isMobile = useDevice();
 
@@ -27,6 +29,7 @@ const TrainingDetailsDialog: React.FC<TrainingDetailsDialogProps> = ({
         trainingId={trainingId}
         isTrainingDetailsDialog
         datasetId={datasetId}
+        baseModel={baseModel}
       />
     </Dialog>
   );

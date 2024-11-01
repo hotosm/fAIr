@@ -1,6 +1,6 @@
 import { ButtonWithIcon } from "@/components/ui/button";
 import { StepHeading } from "@/features/model-creation/components/";
-import ChevronDownIcon from "@/components/ui/icons/chevron-down";
+import { ChevronDownIcon } from "@/components/ui/icons";
 import CreateNewTrainingDatasetForm from "./create-new";
 import SelectExistingTrainingDatasetForm from "./select-existing";
 import { TrainingDatasetOption } from "./enums";

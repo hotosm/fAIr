@@ -222,8 +222,8 @@ export const APP_CONTENT = {
       trainingId: "Training ID:",
       propertiesSectionTitle: "Properties",
       trainingHistorySectionTitle: "Training History",
-      submitTrainingRequest: "Submit a training request",
-      feedbacks: " Feedbacks",
+      enhanceModel: "Enhance Model",
+      feedbacks: "View Feedbacks",
       startMapping: "Start Mapping",
       modelDescriptionNotAvailable: "Model description is not available.",
       viewTrainingArea: "View Training Area",
@@ -245,6 +245,14 @@ export const APP_CONTENT = {
         currentDatasetSize: {
           title: "Current Dataset Size",
           tooltip: "",
+        },
+        baseModel: {
+          title: "Base Model",
+          tooltip: "",
+          href: {
+            RAMP: "https://rampml.global/",
+            YOLOv8: "https://yolov8.com/ ",
+          },
         },
         sourceImage: {
           title: "Source Image (TMS)",

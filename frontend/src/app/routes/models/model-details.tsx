@@ -1,6 +1,6 @@
 import { Head } from "@/components/seo";
 import { ButtonWithIcon } from "@/components/ui/button";
-import { RequestIcon } from "@/components/ui/icons";
+import { StarStackIcon } from "@/components/ui/icons";
 import {
   ModelDetailsSection,
   ModelDetailsProperties,
@@ -80,15 +80,17 @@ export const ModelDetailsPage = () => {
             <ModelDetailsProperties
               trainingId={data?.published_training as number}
               datasetId={data?.dataset}
+              baseModel={data.base_model}
             />
           )}
+
         </ModelDetailsSection>
         <div className="flex md:hidden">
           <ButtonWithIcon
-            label={APP_CONTENT.models.modelsDetailsCard.submitTrainingRequest}
+            label={APP_CONTENT.models.modelsDetailsCard.enhanceModel}
             variant="dark"
             size="medium"
-            prefixIcon={RequestIcon}
+            prefixIcon={StarStackIcon}
           />
         </div>
         {/* mobile */}
@@ -99,10 +101,10 @@ export const ModelDetailsPage = () => {
         >
           <div className="md:flex self-end hidden">
             <ButtonWithIcon
-              label={APP_CONTENT.models.modelsDetailsCard.submitTrainingRequest}
+              label={APP_CONTENT.models.modelsDetailsCard.enhanceModel}
               variant="dark"
               size="medium"
-              prefixIcon={RequestIcon}
+              prefixIcon={StarStackIcon}
             />
           </div>
           <TrainingHistoryTable
@@ -110,6 +112,7 @@ export const ModelDetailsPage = () => {
             trainingId={data?.published_training as number}
             modelOwner={data?.user.username as string}
             datasetId={data?.dataset as number}
+            baseModel={data?.base_model as string}
           />
         </ModelDetailsSection>
       </div>

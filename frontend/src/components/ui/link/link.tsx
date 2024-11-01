@@ -10,6 +10,7 @@ type LinkProps = {
   className?: string;
   nativeAnchor?: boolean;
   disableLinkStyle?: boolean;
+  download?: boolean;
 };
 
 const Link: React.FC<LinkProps> = ({
@@ -20,6 +21,7 @@ const Link: React.FC<LinkProps> = ({
   className,
   nativeAnchor = true,
   disableLinkStyle = false,
+  download = false,
 }) => {
   return (
     <>
@@ -27,8 +29,10 @@ const Link: React.FC<LinkProps> = ({
         <a
           href={href}
           title={title}
+          rel="origin"
           target={blank ? "_blank" : "_self"}
-          className={`${styles.link} ${className}`}
+          className={cn(`${styles.link} ${className}`)}
+          download={download}
         >
           {children}
         </a>

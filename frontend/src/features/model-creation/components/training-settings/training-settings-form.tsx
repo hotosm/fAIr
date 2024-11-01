@@ -1,6 +1,6 @@
 import { CheckboxGroup, FormLabel, Input } from "@/components/ui/form";
 import { useEffect, useState } from "react";
-import ChevronDownIcon from "@/components/ui/icons/chevron-down";
+import { ChevronDownIcon } from "@/components/ui/icons";
 import { ButtonWithIcon } from "@/components/ui/button";
 import {
   AdvancedGuageIcon,

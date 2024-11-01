@@ -43,6 +43,7 @@ export type TModel = {
   accuracy: number;
   user: TOSMUser;
   thumbnail_url: string;
+  base_model: string;
 };
 
 export type PaginatedModels = {
