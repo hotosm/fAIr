@@ -27,7 +27,7 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
   const [acceptedFiles, setAcceptedFiles] = useState<AcceptedFile[]>([]);
   const { notify } = useToast();
   const createTrainingArea = useCreateTrainingArea({
-    datasetId,
+    datasetId:Number(datasetId),
   });
 
   const onDrop = useCallback((files: FileWithPath[]) => {
@@ -84,6 +84,7 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
             }
 
             for (const geometry of geometries) {
+              // @ts-expect-error bad type definition
               const wkt = geojsonToWKT(geometry);
               await createTrainingArea.mutateAsync({
                 dataset: datasetId,

@@ -149,7 +149,7 @@ const TrainingAreaForm = () => {
                 </button>
               </div>
             </div>
-            <TrainingAreaList datasetId={formData.selectedTrainingDatasetId} />
+            <TrainingAreaList datasetId={Number(formData.selectedTrainingDatasetId)} />
             <div
               className={` flex px-4    ${trainingAreas.length === 0 ? "flex-col gap-y-6 " : " items-center justify-between gap-x-6 "} w-full"`}
             >

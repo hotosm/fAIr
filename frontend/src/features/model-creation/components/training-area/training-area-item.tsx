@@ -69,6 +69,7 @@ const TrainingAreaItem: React.FC<
         notify("Training area deleted successfully", "success");
       },
       onError: (error) => {
+        // @ts-expect-error bad type definition
         notify(error?.response?.data?.detail, "danger");
       },
     },
