@@ -101,9 +101,11 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
 
   const fetchDirectoryData = async (path: string = "") => {
     try {
-      return await queryClient.fetchQuery({
-        ...getTrainingWorkspaceQueryOptions(datasetId, trainingId, path),
-      });
+      if (trainingId !== null) {
+        return await queryClient.fetchQuery({
+          ...getTrainingWorkspaceQueryOptions(datasetId, trainingId, path),
+        });
+      }
     } catch {
       setHasError(true);
       return null;

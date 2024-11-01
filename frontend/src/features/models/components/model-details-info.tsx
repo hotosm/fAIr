@@ -39,6 +39,7 @@ const ModelDetailsInfo = ({
             </div>
             <div className="max-w-fit">
               <ButtonWithIcon
+                disabled={data?.published_training === null}
                 label={APP_CONTENT.models.modelsDetailsCard.startMapping}
                 variant="primary"
                 size="medium"
@@ -49,13 +50,14 @@ const ModelDetailsInfo = ({
           </div>
         </div>
       </div>
-      <div
+      <button
+        disabled={data?.published_training === null}
         className="md:self-end flex items-center gap-x-2 cursor-pointer text-primary text-body-2 md:font-semibold"
         onClick={openTrainingAreaDialog}
       >
         <p>{APP_CONTENT.models.modelsDetailsCard.viewTrainingArea}</p>
         <ChevronDownIcon className="icon -rotate-90" />
-      </div>
+      </button>
     </ModelDetailsSection>
     <Divider />
     <ModelDetailsSection title="Details">
@@ -88,6 +90,7 @@ const ModelDetailsInfo = ({
             capitalizeText={false}
             onClick={openModelFilesDialog}
             prefixIcon={DirectoryIcon}
+            disabled={data?.published_training === null}
           />
         </div>
         <div className="col-span-1 flex flex-col md:items-end md:justify-between gap-y-4">

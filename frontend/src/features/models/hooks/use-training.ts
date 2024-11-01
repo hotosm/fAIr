@@ -14,6 +14,7 @@ export const useTrainingDetails = (id: number) => {
     throwOnError: (error) => error?.response?.status >= 500,
     refetchInterval: 10000, // 10 seconds
     refetchIntervalInBackground: true,
+    enabled: id !== null,
   });
 };
 
@@ -32,6 +33,7 @@ export const useTrainingFeedbacks = (id: number) => {
     ...getTrainingFeedbacksQueryOptions(id),
     //@ts-expect-error bad type definition
     throwOnError: (error) => error?.response?.status >= 500,
+    enabled: id !== null,
   });
 };
 export const useTrainingWorkspace = (
@@ -43,6 +45,7 @@ export const useTrainingWorkspace = (
     ...getTrainingWorkspaceQueryOptions(datasetId, trainingId, directory_name),
     //@ts-expect-error bad type definition
     throwOnError: (error) => error?.response?.status >= 500,
+    enabled: trainingId !== null,
   });
 };
 

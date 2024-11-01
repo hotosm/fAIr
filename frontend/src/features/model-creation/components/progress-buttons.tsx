@@ -9,6 +9,7 @@ import { APPLICATION_ROUTES } from "@/utils";
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { TrainingDatasetOption } from "./training-dataset";
+import { TTrainingArea } from "@/types";
 
 type ProgressButtonsProps = {
   currentPath: string;
@@ -23,24 +24,42 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
 }) => {
   const navigate = useNavigate();
 
-  const { formData, handleChange, createNewTrainingDatasetMutation } =
-    useModelFormContext();
+  const {
+    formData,
+    handleChange,
+    createNewTrainingDatasetMutation,
+    createNewModelMutation,
+  } = useModelFormContext();
 
   const nextPage = () => {
-    // If on training dataset creation page, then submit the form before proceeding
-    if (
-      currentPath == APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_DATASET &&
-      formData.trainingDatasetOption === TrainingDatasetOption.CREATE_NEW
-    ) {
-      createNewTrainingDatasetMutation.mutate({
-        source_imagery: formData.tmsURL,
-        name: formData.datasetName,
-      });
-      // Navigation will happen in the context if successful.
-    } else {
-      if (currentPageIndex < pages.length - 1) {
-        navigate(pages[currentPageIndex + 1].path);
-      }
+    switch (currentPath) {
+      case APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_DATASET:
+        if (
+          formData.trainingDatasetOption === TrainingDatasetOption.CREATE_NEW
+        ) {
+          createNewTrainingDatasetMutation.mutate({
+            source_imagery: formData.tmsURL,
+            name: formData.datasetName,
+          });
+        } else {
+          if (currentPageIndex < pages.length - 1) {
+            navigate(pages[currentPageIndex + 1].path);
+          }
+        }
+        break;
+      case APPLICATION_ROUTES.CREATE_NEW_MODEL_SUMMARY:
+        createNewModelMutation.mutate({
+          dataset: formData.selectedTrainingDatasetId,
+          name: formData.modelName,
+          description: formData.modelDescription,
+          base_model: formData.baseModel.toUpperCase(),
+        });
+        break;
+      default:
+        if (currentPageIndex < pages.length - 1) {
+          navigate(pages[currentPageIndex + 1].path);
+        }
+        break;
     }
   };
 
@@ -86,6 +105,7 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
             FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.MODEL_DESCRIPTION]
               .minLength
         );
+
       case APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_DATASET:
         // if the user hasn't selected any of the options, then they can not proceed to next page.
         if (formData.trainingDatasetOption === TrainingDatasetOption.NONE) {
@@ -117,10 +137,20 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
       case APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_SETTINGS:
         // confirm that the user has selected at least an option
         return formData.zoomLevels.length > 0;
+      case APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_AREA:
+        //@ts-expect-error bad type definition
+        const trainingAreas: TTrainingArea = formData.trainingAreas;
+        // Ensure that no geometry is null before they can proceed
+        return (
+          trainingAreas?.features?.filter((area) => area.geometry !== null)
+            .length > 0
+        );
       default:
         return true;
     }
   }, [formData, currentPath]);
+
+  // Handle model creation when on the last page
 
   return (
     <div className="col-span-12 md:col-start-4 md:col-span-6 w-full flex items-center justify-between">

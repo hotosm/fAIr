@@ -17,7 +17,8 @@ import { useDialog } from "@/hooks/use-dialog";
 import { APP_CONTENT, APPLICATION_ROUTES } from "@/utils";
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-
+import TrainingInProgressImage from "@/assets/images/training_in_prorgress.png";
+import { Image } from "@/components/ui/image";
 export const ModelDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
   const { isOpened, closeDialog, openDialog } = useDialog();
@@ -64,10 +65,23 @@ export const ModelDetailsPage = () => {
         <ModelDetailsSection
           title={APP_CONTENT.models.modelsDetailsCard.propertiesSectionTitle}
         >
-          <ModelDetailsProperties
-            trainingId={data?.published_training as number}
-            datasetId={data?.dataset}
-          />
+          {!data?.published_training ? (
+            <div className="rounded-xl w-full h-80 border border-gray-border text-center flex flex-col gap-y-6 items-center justify-center text-gray">
+              <Image
+                src={TrainingInProgressImage}
+                alt="Model training in progress"
+              />
+              <p className="max-w-lg">
+                Model training is not activated yet. Properties will be
+                available after a successful and activated training.
+              </p>
+            </div>
+          ) : (
+            <ModelDetailsProperties
+              trainingId={data?.published_training as number}
+              datasetId={data?.dataset}
+            />
+          )}
         </ModelDetailsSection>
         <div className="flex md:hidden">
           <ButtonWithIcon

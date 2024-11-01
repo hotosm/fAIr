@@ -13,6 +13,7 @@ export const API_ENDPOINTS = {
 
   //Models
   GET_MODELS: "model/",
+  CREATE_MODELS: "model/",
   GET_MODEL_DETAILS: (id: string) => `model/${id}`,
   GET_MODELS_CENTROIDS: "models/centroid",
 
@@ -23,6 +24,8 @@ export const API_ENDPOINTS = {
   CREATE_TRAINING_DATASETS: "dataset/",
 
   CREATE_TRAINING_AREA: "aoi/",
+
+  CREATE_TRAINING_REQUEST: "training/",
 
   DELETE_TRAINING_AREA: (id: number) => `aoi/${id}/`,
 

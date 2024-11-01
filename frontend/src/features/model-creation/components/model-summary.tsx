@@ -1,6 +1,7 @@
 import { useModelFormContext } from "@/app/providers/model-creation-provider";
 import {
   DatabaseIcon,
+  MapIcon,
   // MapIcon,
   // RAMIcon,
   SaveIcon,
@@ -11,6 +12,9 @@ import {
 } from "@/components/ui/icons";
 import { StepHeading } from "@/features/model-creation/components/";
 import { IconProps } from "@/types";
+import { APPLICATION_ROUTES } from "@/utils";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const SummaryItem = ({
   icon: Icon,
@@ -60,13 +64,13 @@ const ModelSummaryStep = () => {
       label: "Dataset ID",
       content: formData.selectedTrainingDatasetId,
     },
-    // These will be retrieved from API.
+
     // { icon: RAMIcon, label: "Dataset Size", content: "250 Images" },
-    // {
-    //   icon: MapIcon,
-    //   label: "Open Aerial Imagery",
-    //   content: "San Jose Mission 10C Flight 1",
-    // },
+    {
+      icon: MapIcon,
+      label: "Open Aerial Imagery",
+      content: "",
+    },
     {
       icon: ZoomInIcon,
       label: "Zoom Levels",
@@ -83,6 +87,12 @@ const ModelSummaryStep = () => {
       ],
     },
   ];
+  const navigate = useNavigate()
+  useEffect(() => {
+    if (!formData.modelName && !formData.modelDescription) {
+      navigate(APPLICATION_ROUTES.MODELS);
+    }
+  }, [formData]);
 
   return (
     <div className="flex flex-col gap-y-6">

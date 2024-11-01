@@ -6,11 +6,14 @@ import {
 import { StepHeading } from "@/features/model-creation/components/";
 import TrainingAreaMap from "./training-area-map";
 import { Button, ButtonWithIcon } from "@/components/ui/button";
-import { useModelFormContext } from "@/app/providers/model-creation-provider";
+import {
+  MODEL_CREATION_FORM_NAME,
+  useModelFormContext,
+} from "@/app/providers/model-creation-provider";
 import { useGetTMSTileJSON } from "../../hooks/use-tms-tilejson";
 import { useDialog } from "@/hooks/use-dialog";
 import FileUploadDialog from "../dialogs/file-upload-dialog";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import TrainingAreaList from "./training-area-list";
 import { useGetTrainingAreas } from "../../hooks/use-training-areas";
 import { useMap } from "@/app/providers/map-provider";
@@ -23,6 +26,7 @@ const TrainingAreaForm = () => {
   const { isPending, data, isError } = useGetTMSTileJSON(tileJSONURL);
 
   const { closeDialog, isOpened, toggle } = useDialog();
+  const { handleChange } = useModelFormContext();
 
   const { map } = useMap();
 
@@ -37,6 +41,16 @@ const TrainingAreaForm = () => {
     isPending: trainingAreaIsPending,
     isPlaceholderData,
   } = useGetTrainingAreas(Number(formData.selectedTrainingDatasetId), offset);
+
+  useEffect(() => {
+    if (!trainingAreasData) return;
+    // update the form data when the data changes
+    // @ts-expect-error bad type definition
+    handleChange(
+      MODEL_CREATION_FORM_NAME.TRAINING_AREAS,
+      trainingAreasData?.results,
+    );
+  }, [trainingAreasData]);
 
   return (
     <>

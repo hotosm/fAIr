@@ -11,8 +11,10 @@ import { UseMutationResult } from "@tanstack/react-query";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useToast } from "./toast-provider";
 import { useNavigate } from "react-router-dom";
-import { TTrainingDataset } from "@/types";
+import { TModel, TTrainingDataset } from "@/types";
 import { TCreateTrainingDatasetArgs } from "@/features/model-creation/api/create-trainings";
+import { useCreateModel, useCreateModelTrainingRequest } from "@/features/model-creation/hooks/use-models";
+import { TCreateModelArgs } from "@/features/model-creation/api/create-models";
 
 // The names here is the same with the initialFormState object keys as well as the form validation config
 export enum MODEL_CREATION_FORM_NAME {
@@ -30,6 +32,7 @@ export enum MODEL_CREATION_FORM_NAME {
   TMS_URL = "tmsURL",
   TMS_URL_VALIDITY = "tmsURLValidation",
   SELECTED_TRAINING_DATASET_ID = "selectedTrainingDatasetId",
+  TRAINING_AREAS = "trainingAreas",
 }
 
 export const FORM_VALIDATION_CONFIG = {
@@ -81,6 +84,7 @@ const initialFormState = {
   // training dataset selection
   selectedTrainingDatasetId: "",
   zoomLevels: [20, 21],
+  trainingAreas: [],
   // Defaults to basic configurations
   trainingType: TrainingType.BASIC,
   epoch: 2,
@@ -107,6 +111,12 @@ const ModelCreationFormContext = createContext<{
     TCreateTrainingDatasetArgs,
     unknown
   >;
+  createNewModelMutation: UseMutationResult<
+    TModel,
+    Error,
+    TCreateModelArgs,
+    unknown
+  >;
 }>({
   formData: initialFormState,
   setFormData: () => {},
@@ -115,6 +125,12 @@ const ModelCreationFormContext = createContext<{
     TTrainingDataset,
     Error,
     TCreateTrainingDatasetArgs,
+    unknown
+  >,
+  createNewModelMutation: {} as UseMutationResult<
+    TModel,
+    Error,
+    TCreateModelArgs,
     unknown
   >,
 });
@@ -142,6 +158,15 @@ export const ModelCreationFormProvider: React.FC<{
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
+  const trainingRequestMutation = useCreateModelTrainingRequest({mutationConfig:{
+    onSuccess:()=>{
+      notify("Training request submitted successfully", "success");
+    },
+    onError: (error) => {
+      const errorText = error?.response?.data[0] ?? "An error ocurred while submitting training request"
+      notify(errorText, "danger");
+    },
+  }});
 
   const createNewTrainingDatasetMutation = useCreateTrainingDataset({
     mutationConfig: {
@@ -157,7 +182,36 @@ export const ModelCreationFormProvider: React.FC<{
         navigate(APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_AREA);
       },
       onError: () => {
-        notify("Error creating dataset", "danger");
+       
+        notify("An error occurred while creating dataset", "danger");
+      },
+    },
+  });
+
+  const createNewModelMutation = useCreateModel({
+    mutationConfig: {
+      onSuccess: (data) => {
+        notify("Model created successfully", "success");
+        // Submit the model for training request
+        trainingRequestMutation.mutate({
+          model:data.id,
+          input_boundary_width:formData.boundaryWidth,
+          input_contact_spacing:formData.contactSpacing,
+          epochs:formData.epoch,
+          batch_size:formData.batchSize,
+          zoom_level:formData.zoomLevels
+          
+        })
+
+        setFormData(initialFormState);
+
+        navigate(
+          `${APPLICATION_ROUTES.CREATE_NEW_MODEL_CONFIRMATION}?id=${data.id}`,
+          
+        );
+      },
+      onError: () => {
+        notify("An error ocurred while creating model", "danger");
       },
     },
   });
@@ -176,6 +230,7 @@ export const ModelCreationFormProvider: React.FC<{
         setFormData,
         handleChange,
         createNewTrainingDatasetMutation,
+        createNewModelMutation,
       }}
     >
       {children}

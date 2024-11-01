@@ -13,7 +13,7 @@ const ModelFeedbacks = ({ trainingId }: { trainingId: number }) => {
   return (
     <>
       <p className="text-dark text-body-2">
-        {isError ? "N/A" : data?.count}
+        {isError ? "N/A" : (data?.count ?? 0)}
         <span className="text-gray">
           {APP_CONTENT.models.modelsDetailsCard.feedbacks}
         </span>
@@ -24,6 +24,7 @@ const ModelFeedbacks = ({ trainingId }: { trainingId: number }) => {
           variant="dark"
           size="medium"
           prefixIcon={ChatbubbleIcon}
+          disabled={trainingId === null}
         />
       </div>
     </>

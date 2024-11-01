@@ -23,8 +23,8 @@ const TrainingAreaMap = ({
     type: "line",
     source: trainingAreasSourced,
     paint: {
-      "line-color": "black",
-      "line-width": 2,
+      "line-color": "#d63f40", // hot-primary
+      "line-width": 3,
     },
     layout: {
       visibility: "visible",
@@ -78,8 +78,13 @@ const TrainingAreaMap = ({
       }
     };
 
-    updateTMSLayer();
-    updateGeoJSONLayer();
+    const onStyleData = () => {
+      updateTMSLayer();
+      updateGeoJSONLayer();
+    };
+    onStyleData();
+    // Attach the listener for style changes
+    map.on("styledata", onStyleData);
 
     return () => {
       if (map.getLayer(trainingAreasLayerId)) {
@@ -94,8 +99,10 @@ const TrainingAreaMap = ({
       if (map.getSource(TMSSourceId)) {
         map.removeSource(TMSSourceId);
       }
+
+      map.off("styledata", onStyleData);
     };
-  }, [map, mapData]);
+  }, [map, mapData, tileJSONURL]);
 
   return (
     <MapComponent
@@ -108,10 +115,15 @@ const TrainingAreaMap = ({
           value: "TMS Layer",
           mapLayerId: TMSLayerId,
         },
-        {
-          value: "Training Areas",
-          mapLayerId: trainingAreasLayerId,
-        },
+        // @ts-expect-error bad type definition
+        ...(mapData?.features?.length > 0
+          ? [
+              {
+                value: "Training Areas",
+                mapLayerId: trainingAreasLayerId,
+              },
+            ]
+          : []),
       ]}
     />
   );
