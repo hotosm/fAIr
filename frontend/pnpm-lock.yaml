@@ -22,6 +22,12 @@ importers:
       "@terraformer/wkt":
         specifier: ^2.2.1
         version: 2.2.1
+      "@turf/area":
+        specifier: ^7.1.0
+        version: 7.1.0
+      "@turf/bbox":
+        specifier: ^7.1.0
+        version: 7.1.0
       axios:
         specifier: ^1.7.7
         version: 1.7.7
@@ -967,6 +973,30 @@ packages:
     resolution:
       {
         integrity: sha512-XDUsW/lvbMzFi7GIuRD9+UqR4QyP+5C+TugeJLMDczKIRbaHoE9J3N8zLSdyOGmnJL9B6xTS3YMMlBnMU0Ar5A==,
+      }
+
+  "@turf/area@7.1.0":
+    resolution:
+      {
+        integrity: sha512-w91FEe02/mQfMPRX2pXua48scFuKJ2dSVMF2XmJ6+BJfFiCPxp95I3+Org8+ZsYv93CDNKbf0oLNEPnuQdgs2g==,
+      }
+
+  "@turf/bbox@7.1.0":
+    resolution:
+      {
+        integrity: sha512-PdWPz9tW86PD78vSZj2fiRaB8JhUHy6piSa/QXb83lucxPK+HTAdzlDQMTKj5okRCU8Ox/25IR2ep9T8NdopRA==,
+      }
+
+  "@turf/helpers@7.1.0":
+    resolution:
+      {
+        integrity: sha512-dTeILEUVeNbaEeoZUOhxH5auv7WWlOShbx7QSd4s0T4Z0/iz90z9yaVCtZOLbU89umKotwKaJQltBNO9CzVgaQ==,
+      }
+
+  "@turf/meta@7.1.0":
+    resolution:
+      {
+        integrity: sha512-ZgGpWWiKz797Fe8lfRj7HKCkGR+nSJ/5aKXMyofCvLSc2PuYJs/qyyifDPWjASQQCzseJ7AlF2Pc/XQ/3XkkuA==,
       }
 
   "@types/babel__core@7.20.5":
@@ -3795,6 +3825,30 @@ snapshots:
   "@tanstack/table-core@8.20.5": {}
 
   "@terraformer/wkt@2.2.1": {}
+
+  "@turf/area@7.1.0":
+    dependencies:
+      "@turf/helpers": 7.1.0
+      "@turf/meta": 7.1.0
+      "@types/geojson": 7946.0.14
+      tslib: 2.7.0
+
+  "@turf/bbox@7.1.0":
+    dependencies:
+      "@turf/helpers": 7.1.0
+      "@turf/meta": 7.1.0
+      "@types/geojson": 7946.0.14
+      tslib: 2.7.0
+
+  "@turf/helpers@7.1.0":
+    dependencies:
+      "@types/geojson": 7946.0.14
+      tslib: 2.7.0
+
+  "@turf/meta@7.1.0":
+    dependencies:
+      "@turf/helpers": 7.1.0
+      "@types/geojson": 7946.0.14
 
   "@types/babel__core@7.20.5":
     dependencies:

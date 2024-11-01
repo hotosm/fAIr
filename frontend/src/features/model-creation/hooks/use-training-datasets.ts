@@ -6,9 +6,9 @@ import {
   TCreateTrainingDatasetArgs,
 } from "../api/create-trainings";
 
-export const useGetTrainingDatasets = () => {
+export const useGetTrainingDatasets = (searchQuery: string) => {
   return useQuery({
-    ...getTrainingDatasetsQueryOptions(),
+    ...getTrainingDatasetsQueryOptions(searchQuery),
     //@ts-expect-error bad type definition
     throwOnError: (error) => error?.response?.status >= 500,
   });

@@ -11,83 +11,32 @@ import { useGetTMSTileJSON } from "../../hooks/use-tms-tilejson";
 import { useDialog } from "@/hooks/use-dialog";
 import FileUploadDialog from "../dialogs/file-upload-dialog";
 import { useState } from "react";
-import { Map } from "maplibre-gl";
 import TrainingAreaList from "./training-area-list";
-
-const trainingAreas = [
-  {
-    id: 3,
-    area: 2212,
-    lastFetched: new Date("2024-10-04"),
-  },
-  {
-    id: 3,
-    area: 2212,
-    lastFetched: new Date("2024-10-04"),
-  },
-  {
-    id: 3,
-    area: 2212,
-    lastFetched: new Date("2024-10-04"),
-  },
-  {
-    id: 3,
-    area: 2212,
-    lastFetched: new Date("2024-10-04"),
-  },
-  {
-    id: 3,
-    area: 2212,
-    lastFetched: new Date("2024-10-04"),
-  },
-  {
-    id: 3,
-    area: 2212,
-    lastFetched: new Date("2024-10-04"),
-  },
-  {
-    id: 3,
-    area: 2212,
-    lastFetched: new Date("2024-10-04"),
-  },
-  {
-    id: 3,
-    area: 2212,
-    lastFetched: new Date("2024-10-04"),
-  },
-  {
-    id: 3,
-    area: 2212,
-    lastFetched: new Date("2024-10-04"),
-  },
-  {
-    id: 3,
-    area: 2212,
-    lastFetched: new Date("2024-10-04"),
-  },
-];
+import { useGetTrainingAreas } from "../../hooks/use-training-areas";
+import { useMap } from "@/app/providers/map-provider";
 
 const TrainingAreaForm = () => {
   const { formData } = useModelFormContext();
 
   const tileJSONURL = formData.tmsURL.split("/{z}/{x}/{y}")[0];
-  const { isPending, data, isError } = useGetTMSTileJSON(tileJSONURL);
 
-  // training area will be coming from localstorage after the user uploads their data successfully
-  // it must be a geojson
-  // modal will be here
+  const { isPending, data, isError } = useGetTMSTileJSON(tileJSONURL);
 
   const { closeDialog, isOpened, toggle } = useDialog();
 
-  const sourceId = `oam-training-dataset-${formData.selectedTrainingDatasetId}`;
-  const layerId = "training-dataset-tms-layer";
-
-  const [map, setMap] = useState<Map | null>(null);
+  const { map } = useMap();
 
   const fitToTMSBounds = () => {
     // @ts-expect-error bad type definition
     map?.fitBounds(data?.bounds);
   };
+
+  const [offset, setOffset] = useState<number>(0);
+  const {
+    data: trainingAreasData,
+    isPending: trainingAreaIsPending,
+    isPlaceholderData,
+  } = useGetTrainingAreas(Number(formData.selectedTrainingDatasetId), offset);
 
   return (
     <>
@@ -96,7 +45,7 @@ const TrainingAreaForm = () => {
         closeDialog={closeDialog}
         datasetId={formData.selectedTrainingDatasetId}
       />
-      <div className="h-full w-full">
+      <div className="flex flex-col h-screen max-h-screen ">
         <div className="flex justify-between items-center mb-10">
           <div className="basis-1/2">
             <StepHeading
@@ -116,17 +65,16 @@ const TrainingAreaForm = () => {
             </p>
           </div>
         </div>
-        <div className="w-full grid grid-cols-5 grid-rows-1 border-8 border-off-white h-screen max-h-screen">
-          <div className="w-full h-full col-span-4">
+        <div className="flex-grow max-h-[80vh] w-full grid grid-cols-5 grid-rows-1 border-8 border-off-white">
+          <div className="h-full w-full col-span-4">
             <TrainingAreaMap
               tileJSONURL={tileJSONURL}
-              sourceId={sourceId}
-              layerId={layerId}
-              setMap={setMap}
+              data={trainingAreasData}
+              trainingDatasetId={Number(formData.selectedTrainingDatasetId)}
             />
           </div>
-          <div className="flex flex-col w-full h-full border-l-8 border-off-white gap-y-6">
-            <div className="flex  flex-col  gap-y-2 w-full border-b-8 border-off-white p-4 ">
+          <div className="flex  flex-col w-full h-full border-l-8 border-off-white gap-y-6 py-4">
+            <div className="flex  flex-col  gap-y-2 w-full border-b-8 border-off-white px-4 pb-4">
               <p className="text-body-1">Open Aerial Map</p>
               <div className="flex w-full items-center justify-between">
                 <div className="flex flex-col gap-y-2">
@@ -149,12 +97,19 @@ const TrainingAreaForm = () => {
                 </button>
               </div>
             </div>
-            <TrainingAreaList datasetId={Number(formData.selectedTrainingDatasetId)} />
+            <TrainingAreaList
+              offset={offset}
+              setOffset={setOffset}
+              isPlaceholderData={isPlaceholderData}
+              data={trainingAreasData}
+              isPending={trainingAreaIsPending}
+              datasetId={Number(formData.selectedTrainingDatasetId)}
+            />
             <div
-              className={` flex px-4    ${trainingAreas.length === 0 ? "flex-col gap-y-6 " : " items-center justify-between gap-x-6 "} w-full"`}
+              className={`flex mt-auto px-4  ${trainingAreasData?.count === 0 ? "flex-col gap-y-6 " : " items-center justify-between gap-x-2 "} w-full"`}
             >
               <Button variant="primary">
-                <div className="flex items-center gap-x-4">
+                <div className="flex items-center gap-x-2">
                   <p>Draw</p>
                   <div className="w-4 h-4 border-2 rounded-md border-white"></div>
                 </div>

@@ -13,7 +13,7 @@ const TrainingDatasetForm = () => {
   const { handleChange, formData } = useModelFormContext();
 
   return (
-    <div className="flex flex-col gap-y-20 w-full">
+    <div className="flex flex-col gap-y-6 w-full">
       <StepHeading
         heading="Training Dataset"
         description=" Lorem ipsum dolor sit amet, consectetur adipisicing elit. Id fugit

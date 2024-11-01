@@ -8,6 +8,7 @@ import {
 import { ProtectedPage } from "@/app/routes/protected-route";
 import { MainErrorFallback } from "@/components/errors";
 import ModelCreationLayout from "@/components/layouts/model-creation-layout";
+import ModelsLayout from "@/components/layouts/models-layout";
 
 const router = createBrowserRouter([
   {
@@ -51,25 +52,31 @@ const router = createBrowserRouter([
         },
       },
       {
-        path: APPLICATION_ROUTES.MODELS,
-        lazy: async () => {
-          const { ModelsPage } = await import("@/app/routes/models");
-          return {
-            Component: () => <ModelsPage />,
-          };
-        },
+        element: <ModelsLayout />,
+        children: [
+          {
+            path: APPLICATION_ROUTES.MODEL_DETAILS,
+            lazy: async () => {
+              const { ModelDetailsPage } = await import(
+                "@/app/routes/models/model-details"
+              );
+              return {
+                Component: () => <ModelDetailsPage />,
+              };
+            },
+          },
+          {
+            path: APPLICATION_ROUTES.MODELS,
+            lazy: async () => {
+              const { ModelsPage } = await import("@/app/routes/models");
+              return {
+                Component: () => <ModelsPage />,
+              };
+            },
+          },
+        ],
       },
-      {
-        path: APPLICATION_ROUTES.MODEL_DETAILS,
-        lazy: async () => {
-          const { ModelDetailsPage } = await import(
-            "@/app/routes/models/model-details"
-          );
-          return {
-            Component: () => <ModelDetailsPage />,
-          };
-        },
-      },
+
       {
         element: (
           <ProtectedPage>

@@ -22,7 +22,7 @@ const ModelDetailsForm = () => {
   const { formData, handleChange } = useModelFormContext();
 
   return (
-    <div className="flex flex-col gap-y-10">
+    <div className="flex flex-col gap-y-6">
       <StepHeading
         heading="Create New Local AI Model"
         description=" Lorem ipsum dolor sit amet, consectetur adipisicing elit. Id fugit

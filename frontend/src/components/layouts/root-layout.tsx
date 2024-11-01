@@ -15,7 +15,6 @@ const RootLayout = () => {
       <div className="px-[1.25rem] lg:px-[5rem] w-full">
         <Outlet />
       </div>
-
       <Footer />
     </main>
   );

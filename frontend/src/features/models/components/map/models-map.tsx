@@ -1,9 +1,10 @@
 import { Map } from "maplibre-gl";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import mapMarker from "@/assets/images/mapMarker.png";
 import MapComponent from "../../../../components/map/map";
 import { FeatureCollection, TQueryParams } from "@/types";
 import { SEARCH_PARAMS } from "@/app/routes/models";
+import { useMap } from "@/app/providers/map-provider";
 
 const mapSourceName = "models";
 const licensedFonts = ["Open Sans Semibold"];
@@ -112,7 +113,7 @@ type ModelsMapProps = {
 };
 
 const ModelsMap: React.FC<ModelsMapProps> = ({ mapResults, updateQuery }) => {
-  const [mapInstance, setMapInstance] = useState<Map | null>(null);
+  const { map } = useMap();
 
   const handleClickOnModelID = useCallback((clickedModel: string) => {
     updateQuery({
@@ -120,32 +121,28 @@ const ModelsMap: React.FC<ModelsMapProps> = ({ mapResults, updateQuery }) => {
     });
   }, []);
 
-  const handleMapLoad = useCallback((map: Map) => {
-    setMapInstance(map);
-  }, []);
-
   useEffect(() => {
-    if (!mapInstance || !mapResults) return;
+    if (!map || !mapResults) return;
 
     const someResultsReady =
       mapResults.features && mapResults.features.length > 0;
     const mapReadyModelsReady =
-      mapInstance.isStyleLoaded() &&
-      mapInstance.getSource(mapSourceName) === undefined &&
+      map.isStyleLoaded() &&
+      map.getSource(mapSourceName) === undefined &&
       someResultsReady;
 
     if (mapReadyModelsReady) {
-      maplibreLayerDefn(mapInstance, mapResults, handleClickOnModelID);
+      maplibreLayerDefn(map, mapResults, handleClickOnModelID);
     } else {
-      mapInstance.on("load", () =>
-        maplibreLayerDefn(mapInstance, mapResults, handleClickOnModelID),
+      map.on("load", () =>
+        maplibreLayerDefn(map, mapResults, handleClickOnModelID),
       );
     }
-  }, [mapInstance, mapResults, handleClickOnModelID]);
+  }, [map, mapResults, handleClickOnModelID]);
 
   return (
     <div className="h-full w-full">
-      <MapComponent onMapLoad={handleMapLoad} geolocationControl />
+      <MapComponent geolocationControl />
     </div>
   );
 };

@@ -47,7 +47,7 @@ const LayerControl = ({
 
     setLayerVisibility(updatedVisibility);
 
-    if (map) {
+    if (map?.isStyleLoaded) {
       layers.forEach(({ value, mapLayerId }) => {
         if (mapLayerId && map.getLayer(mapLayerId)) {
           map.setLayoutProperty(
@@ -61,17 +61,7 @@ const LayerControl = ({
   };
 
   useEffect(() => {
-    if (!map) return;
-
-    layers.forEach(({ value, mapLayerId }) => {
-      if (mapLayerId && map.getLayer(mapLayerId)) {
-        map.setLayoutProperty(
-          mapLayerId,
-          "visibility",
-          layerVisibility[value] ? "visible" : "none",
-        );
-      }
-    });
+    if (!map?.isStyleLoaded) return;
 
     const handleStyleData = () => {
       layers.forEach(({ value, mapLayerId }) => {

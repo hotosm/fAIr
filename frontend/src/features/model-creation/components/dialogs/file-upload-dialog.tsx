@@ -9,6 +9,7 @@ import { FileWithPath, useDropzone } from "react-dropzone";
 import { useCreateTrainingArea } from "../../hooks/use-training-areas";
 import { useToast } from "@/app/providers/toast-provider";
 import { geojsonToWKT } from "@terraformer/wkt";
+import useDevice from "@/hooks/use-device";
 
 type FileUploadDialogProps = DialogProps & {
   datasetId: string;
@@ -27,7 +28,7 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
   const [acceptedFiles, setAcceptedFiles] = useState<AcceptedFile[]>([]);
   const { notify } = useToast();
   const createTrainingArea = useCreateTrainingArea({
-    datasetId:Number(datasetId),
+    datasetId: Number(datasetId),
   });
 
   const onDrop = useCallback((files: FileWithPath[]) => {
@@ -134,13 +135,14 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
       </button>
     </li>
   ));
-
+  const isMobile = useDevice();
   return (
     <Dialog
       isOpened={isOpened}
       closeDialog={resetState}
       label="Upload Training Area(s)"
       preventClose={createTrainingArea.isPending}
+      size={isMobile ? "extra-large" : "medium"}
     >
       <div className="flex flex-col gap-y-4">
         <div

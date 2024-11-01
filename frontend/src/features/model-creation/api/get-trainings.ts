@@ -1,8 +1,12 @@
 import { API_ENDPOINTS, apiClient } from "@/services";
 import { PaginatedTrainingArea, TTrainingDataset } from "@/types";
 
-export const getTrainingDatasets = async (): Promise<TTrainingDataset[]> => {
-  const res = await apiClient.get(API_ENDPOINTS.GET_TRAINING_DATASETS);
+export const getTrainingDatasets = async (
+  searchQuery: string,
+): Promise<TTrainingDataset[]> => {
+  const res = await apiClient.get(
+    API_ENDPOINTS.GET_TRAINING_DATASETS(searchQuery),
+  );
   return res.data?.results;
 };
 

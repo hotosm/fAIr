@@ -68,6 +68,7 @@ export type TModelDetails = TModel & {
 };
 
 export type TTrainingAreaFeature = {
+  type: "Feature";
   id: number;
   geometry: Geometry;
   properties: {
@@ -164,9 +165,11 @@ export type Geometry = {
 export type Feature = {
   type: "Feature";
   geometry: Geometry;
-  properties: {
-    mid: string;
-  };
+  properties:
+    | {
+        mid: string;
+      }
+    | any;
 };
 
 export type FeatureCollection = {

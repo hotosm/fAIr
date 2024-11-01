@@ -347,7 +347,7 @@ export const ModelsPage = () => {
                   updateQuery={updateQuery}
                   query={query}
                   isMobile
-                  disabled={mapViewIsActive as boolean}
+                  disabled={Boolean(mapViewIsActive)}
                 />
               </div>
               <DateRangeFilter
@@ -364,7 +364,7 @@ export const ModelsPage = () => {
               <LayoutToggle
                 updateQuery={updateQuery}
                 query={query}
-                disabled={mapViewIsActive as boolean}
+                disabled={Boolean(mapViewIsActive)}
               />
             </div>
           </div>

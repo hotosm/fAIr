@@ -4,10 +4,10 @@ import { createTrainingDataset } from "./create-trainings";
 import { TTrainingDataset } from "@/types";
 import { getTMSTileJSON } from "./get-tms-tilejson";
 
-export const getTrainingDatasetsQueryOptions = () => {
+export const getTrainingDatasetsQueryOptions = (searchQuery: string) => {
   return queryOptions({
-    queryKey: ["training-datasets"],
-    queryFn: () => getTrainingDatasets(),
+    queryKey: ["training-datasets", searchQuery],
+    queryFn: () => getTrainingDatasets(searchQuery),
   });
 };
 

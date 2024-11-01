@@ -7,11 +7,14 @@ import { SearchIcon } from "@/components/ui/icons";
 import CheckIcon from "@/components/ui/icons/check-icon";
 import { useState } from "react";
 import { useGetTrainingDatasets } from "@/features/model-creation/hooks/use-training-datasets";
+import useDebounce from "@/hooks/use-debounce";
 
 const SelectExistingTrainingDatasetForm = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const { formData, handleChange } = useModelFormContext();
-  const { data, isPending, isError } = useGetTrainingDatasets();
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+  const { data, isPending, isError } =
+    useGetTrainingDatasets(debouncedSearchQuery);
 
   return (
     <div className="flex flex-col gap-y-10">
@@ -26,7 +29,7 @@ const SelectExistingTrainingDatasetForm = () => {
           }}
           value={searchQuery}
           placeholder="Search"
-          disabled={isPending || isError}
+          disabled={isError}
         />
       </div>
       <div

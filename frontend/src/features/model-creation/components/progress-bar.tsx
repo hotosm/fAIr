@@ -13,7 +13,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
   pages,
 }) => {
   return (
-    <div className="flex items-center justify-between px-10">
+    <div className="flex items-center justify-between w-full gap-x-4 overflow-x-scroll p-1">
       {pages.map((step) => {
         const activeStep = step.path === currentPath;
         return (
@@ -38,7 +38,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
               </span>
             )}
 
-            <span className="text-gray">{step.title}</span>
+            <span className="text-gray text-nowrap">{step.title}</span>
           </button>
         );
       })}

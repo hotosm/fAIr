@@ -15,6 +15,7 @@ import {
   TagsIcon,
 } from "@/components/ui/icons";
 import { ModelCreationFormProvider } from "@/app/providers/model-creation-provider";
+import ModelsLayout from "./models-layout";
 
 const pages: {
   id: number;
@@ -73,26 +74,28 @@ const ModelCreationLayout = () => {
   }, [pathname]);
 
   return (
-    <ModelCreationFormProvider>
-      <Head title="Create New Model" />
-      <div className="min-h-screen grid grid-cols-12 grid-rows-[auto_1fr_auto] gap-y-20 w-full justify-center my-20">
-        <div className="col-start-2 col-span-10 w-full">
-          <ProgressBar
-            currentPath={pathname}
-            currentPageIndex={currentPageIndex}
-            pages={pages}
-          />
+    <ModelsLayout>
+      <ModelCreationFormProvider>
+        <Head title="Create New Model" />
+        <div className="min-h-screen grid grid-cols-12 grid-rows-[auto_1fr_auto] gap-y-8 w-full justify-center my-8">
+          <div className="col-span-12 lg:col-start-2 lg:col-span-10 w-full ">
+            <ProgressBar
+              currentPath={pathname}
+              currentPageIndex={currentPageIndex}
+              pages={pages}
+            />
+          </div>
+          <Outlet />
+          {pathname !== APPLICATION_ROUTES.CREATE_NEW_MODEL_CONFIRMATION && (
+            <ProgressButtons
+              pages={pages}
+              currentPageIndex={currentPageIndex}
+              currentPath={pathname}
+            />
+          )}
         </div>
-        <Outlet />
-        {pathname !== APPLICATION_ROUTES.CREATE_NEW_MODEL_CONFIRMATION && (
-          <ProgressButtons
-            pages={pages}
-            currentPageIndex={currentPageIndex}
-            currentPath={pathname}
-          />
-        )}
-      </div>
-    </ModelCreationFormProvider>
+      </ModelCreationFormProvider>
+    </ModelsLayout>
   );
 };
 

@@ -1,22 +1,30 @@
 import TrainingAreaItem from "./training-area-item";
-import { useGetTrainingAreas } from "../../hooks/use-training-areas";
 import Pagination from "@/components/pagination";
-import { useState } from "react";
+import { PaginatedTrainingArea } from "@/types";
+import { Dispatch, SetStateAction } from "react";
 
-const TrainingAreaList = ({ datasetId }: { datasetId: number }) => {
-  const [offset, setOffset] = useState(0);
-  const { data, isPending, isPlaceholderData } = useGetTrainingAreas(
-    datasetId,
-    offset,
-  );
-
+const TrainingAreaList = ({
+  offset,
+  setOffset,
+  datasetId,
+  data,
+  isPending,
+  isPlaceholderData,
+}: {
+  datasetId: number;
+  data?: PaginatedTrainingArea;
+  isPending: boolean;
+  isPlaceholderData: boolean;
+  offset: number;
+  setOffset: Dispatch<SetStateAction<number>>;
+}) => {
   return (
-    <div className="flex flex-col gap-y-4 h-[70%] justify-between  p-4 ">
+    <div className="flex h-[60%] flex-col gap-y-4 justify-between  p-4 ">
       <div className="flex flex-col gap-y-4">
         <p className="text-body-1">
           Training Area{" "}
           <span className="text-white bg-primary text-body-1 rounded-xl px-3 py-1">
-            {data?.count}
+            {data?.count ?? 0}
           </span>
         </p>
         <div>
@@ -33,7 +41,6 @@ const TrainingAreaList = ({ datasetId }: { datasetId: number }) => {
           />
         </div>
       </div>
-
       <div className="flex items-center justify-center h-full">
         {data?.count === 0 ? (
           <div className="flex items-center justify-center flex-col gap-y-10 text-center">
@@ -76,13 +83,14 @@ const TrainingAreaList = ({ datasetId }: { datasetId: number }) => {
         ) : isPending ? (
           <div className="w-full h-full animate-pulse bg-light-gray"></div>
         ) : (
-          <div className="h-full max-h-[70%] overflow-y-auto flex flex-col gap-y-4 w-full">
+          <div className="h-full overflow-y-auto flex flex-col gap-y-4 w-full">
             {data?.results.features.map((ta, id) => (
               <TrainingAreaItem
                 {...ta}
                 key={`training-area-${id}`}
                 id={ta.id}
                 datasetId={datasetId}
+                geometry={ta.geometry}
               />
             ))}
           </div>

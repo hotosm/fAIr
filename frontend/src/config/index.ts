@@ -18,6 +18,9 @@ export const MAP_STYLES: Record<string, string | StyleSpecification> = {
         maxzoom: 19,
       },
     },
+    // Using glyphs from the satellite tilejson
+    glyphs:
+      "https://geoserveis.icgc.cat/vector-tiles/simbologia/glyphs/{fontstack}/{range}.pbf",
     layers: [
       {
         id: "osm",
