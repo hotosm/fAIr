@@ -21,7 +21,7 @@ const TrainingAreaDialog: React.FC<TrainingAreaDialogProps> = ({
     >
       <div className={cn(`${!isMobile ? "h-[600px]" : "h-[350px]"}`)}>
         <div className="h-full w-full">
-          <MapComponent onMapLoad={() => undefined} />
+          <MapComponent />
         </div>
       </div>
     </Dialog>
