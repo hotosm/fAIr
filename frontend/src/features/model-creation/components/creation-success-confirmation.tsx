@@ -13,11 +13,9 @@ const ModelCreationSuccessConfirmation = () => {
   const [searchParams] = useSearchParams();
   // Model ID should be in the url params upon successful creation
   const modelId = searchParams.get("id");
-
   useEffect(() => {
-    if (!modelId) {
-      navigate(APPLICATION_ROUTES.MODELS);
-    }
+    if (modelId) return
+    navigate(APPLICATION_ROUTES.MODELS);
   }, [modelId]);
 
   return (

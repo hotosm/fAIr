@@ -48,6 +48,7 @@ export const getModelDetailsQueryOptions = (id: string) => {
   return queryOptions({
     queryKey: ["model-details", id],
     queryFn: () => getModelDetails(id),
+    refetchInterval: 10000,
   });
 };
 
@@ -64,6 +65,7 @@ export const getTrainingDetailsQueryOptions = (id: number) => {
   return queryOptions({
     queryKey: ["training-details", id],
     queryFn: () => getTrainingDetails(id),
+    refetchInterval: 10000,
   });
 };
 
@@ -90,6 +92,7 @@ export const getTrainingWorkspaceQueryOptions = (
     queryKey: ["training-workspace", datasetId, trainingId, directory_name],
     queryFn: () => getTrainingWorkspace(datasetId, trainingId, directory_name),
     enabled: trainingId !== null,
+
   });
 };
 
@@ -102,5 +105,6 @@ export const getTrainingHistoryQueryOptions = (
     queryKey: ["training-history", modelId, offset, limit],
     queryFn: () => getModelTrainingHistory(modelId, offset, limit),
     placeholderData: keepPreviousData,
+    refetchInterval: 10000,
   });
 };

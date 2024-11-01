@@ -205,9 +205,7 @@ export const ModelCreationFormProvider: React.FC<{
           zoom_level: formData.zoomLevels
 
         })
-
         setFormData(initialFormState);
-
         navigate(
           `${APPLICATION_ROUTES.CREATE_NEW_MODEL_CONFIRMATION}?id=${data.id}`,
 
