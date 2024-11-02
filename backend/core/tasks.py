@@ -272,10 +272,17 @@ def yolo_model_training(
     epochs,
     batch_size,
     multimasks,
+    model="YOLO_V8_V1",
 ):
     from hot_fair_utilities import preprocess
-    from hot_fair_utilities.preprocessing.yolo_v8_v1.yolo_format import yolo_format
-    from hot_fair_utilities.training.yolo_v8_v1.train import train as train_yolo
+    from hot_fair_utilities.preprocessing.yolo_v8_v1.yolo_format import (
+        yolo_format as yolo_format_v1,
+    )
+    from hot_fair_utilities.preprocessing.yolo_v8_v2.yolo_format import (
+        yolo_format as yolo_format_v2,
+    )
+    from hot_fair_utilities.training.yolo_v8_v1.train import train as train_yolo_v1
+    from hot_fair_utilities.training.yolo_v8_v2.train import train as train_yolo_v2
 
     base_path = os.path.join(settings.YOLO_HOME, "yolo-data", str(dataset_id))
     if os.path.exists(base_path):
@@ -300,6 +307,7 @@ def yolo_model_training(
         rasterize_options=["binary"],
         georeference_images=True,
         multimasks=multimasks,
+        epsg=4326 if model == "YOLO_V8_V2" else 3857,
     )
     training_instance.chips_length = get_file_count(
         os.path.join(preprocess_output, "chips")
@@ -307,21 +315,41 @@ def yolo_model_training(
     training_instance.save()
 
     final_accuracy = 80  # TODO: Replace with actual training logic
-
+    yolo_data_dir = os.path.join(base_path, model)
     with print_time("yolo conversion"):
-        yolo_format(
-            preprocessed_dirs=preprocess_output,
-            yolo_dir=f"{base_path}/yolo",
-            multimask=True,
-            p_val=0.05,
+        if model == "YOLO_V8_V1":
+            yolo_format_v1(
+                preprocessed_dirs=preprocess_output,
+                yolo_dir=yolo_data_dir,
+                multimask=True,
+                p_val=0.05,
+            )
+        else:
+            yolo_format_v2(
+                input_path=preprocess_output,
+                output_path=yolo_data_dir,
+            )
+    if model == "YOLO_V8_V1":
+        output_model_path = train_yolo_v1(
+            data=f"{base_path}",
+            weights=os.path.join(settings.YOLO_HOME, "yolov8s_v1-seg-best.pt"),
+            epochs=epochs,
+            batch_size=batch_size,
+            pc=2.0,
+            output_path=yolo_data_dir,
+            dataset_yaml_path=os.path.join(yolo_data_dir, "yolo_dataset.yaml"),
         )
-    output_model_path = train_yolo(
-        data=f"{base_path}",
-        weights=f"{os.getcwd()}/yolov8s_v1-seg-best.pt",
-        epochs=epochs,
-        batch_size=batch_size,
-        pc=2.0,
-    )
+    else:
+        output_model_path = train_yolo_v2(
+            data=f"{base_path}",
+            weights=f"{os.getcwd()}/yolov8s_v2-seg.pt",
+            gpu="cpu",
+            epochs=2,
+            batch_size=16,
+            pc=2.0,
+            output_path=yolo_data_dir,
+            dataset_yaml_path=os.path.join(yolo_data_dir, "yolo_dataset.yaml"),
+        )
 
     output_path = os.path.join(
         training_input_image_source, "output", f"training_{training_instance.id}"
@@ -409,7 +437,7 @@ def train_model(
             training_instance, dataset_id, feedback, zoom_level, source_imagery
         )
 
-        if model_instance.base_model == "YOLO_V8_V1":
+        if model_instance.base_model in ("YOLO_V8_V1", "YOLO_V8_V2"):
             response = yolo_model_training(
                 training_instance,
                 dataset_id,
@@ -419,6 +447,7 @@ def train_model(
                 epochs,
                 batch_size,
                 multimasks,
+                model=model_instance.base_model,
             )
         else:
             response = ramp_model_training(
