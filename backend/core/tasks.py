@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import pathlib
 import shutil
 import subprocess
 import sys
@@ -358,7 +359,9 @@ def yolo_model_training(
     shutil.copyfile(output_model_path, os.path.join(output_path, "checkpoint.pt"))
     shutil.copytree(preprocess_output, os.path.join(output_path, "preprocessed"))
 
-    graph_output_path = os.path.join(os.path.dirname(output_model_path), "results.png")
+    graph_output_path = os.path.join(
+        pathlib.Path(os.path.dirname(output_model_path)).parent, "results.png"
+    )
     os.makedirs(os.path.join(output_path, "graphs"), exist_ok=True)
     shutil.copyfile(
         graph_output_path,
