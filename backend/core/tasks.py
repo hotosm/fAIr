@@ -358,8 +358,16 @@ def yolo_model_training(
     shutil.copyfile(output_model_path, os.path.join(output_path, "checkpoint.pt"))
     shutil.copytree(preprocess_output, os.path.join(output_path, "preprocessed"))
 
-    graph_output_path = f"{base_path}/train/graphs"
-    shutil.copytree(graph_output_path, os.path.join(output_path, "graphs"))
+    graph_output_path = os.path.join(os.path.dirname(output_model_path), "results.png")
+    os.makedirs(os.path.join(output_path, "graphs"), exist_ok=True)
+    shutil.copyfile(
+        graph_output_path,
+        os.path.join(
+            output_path,
+            "graphs",
+            "training_validation_sparse_categorical_accuracy.png",  ### TODO : replace this with actual graph that will be decided
+        ),
+    )
 
     with open(os.path.join(output_path, "labels.geojson"), "w", encoding="utf-8") as f:
         f.write(json.dumps(serialized_field.data))
