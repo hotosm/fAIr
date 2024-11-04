@@ -55,7 +55,8 @@ const TrainingAreaForm = () => {
 
   useEffect(() => {
     if (!data) return
-    fitToTMSBounds()
+    handleChange(MODEL_CREATION_FORM_NAME.DATASET_TIME_NAME, data.name);
+    fitToTMSBounds();
   }, [data])
 
   return (

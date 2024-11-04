@@ -45,6 +45,7 @@ export enum MODEL_CREATION_FORM_NAME {
   TMS_URL_VALIDITY = "tmsURLValidation",
   SELECTED_TRAINING_DATASET_ID = "selectedTrainingDatasetId",
   TRAINING_AREAS = "trainingAreas",
+  DATASET_TIME_NAME = "datasetTileName"
 }
 
 export const FORM_VALIDATION_CONFIG = {
@@ -86,7 +87,7 @@ const initialFormState = {
   modelDescription: "",
   baseModel: BASE_MODEL.RAMP.toLowerCase(),
   trainingDatasetOption: TrainingDatasetOption.NONE,
-  // create new form
+  // create new dataset form
   datasetName: "",
   tmsURL: "",
   tmsURLValidation: {
@@ -96,8 +97,10 @@ const initialFormState = {
   // training dataset selection
   selectedTrainingDatasetId: "",
   zoomLevels: [20, 21],
+  // the name from the image tilejson request
+  datasetTileName: "",
   trainingAreas: [],
-  // Defaults to basic configurations
+  // Training settings - defaults to basic configurations
   trainingType: TrainingType.BASIC,
   epoch: 2,
   contactSpacing: 4,
@@ -176,11 +179,11 @@ export const ModelCreationFormProvider: React.FC<{
         toast("Training request submitted successfully", "success");
       },
       onError: (error) => {
-        const errorText =
+        const errorMessage =
           // @ts-expect-error bad type definition
           error?.response?.data[0] ??
           "An error ocurred while submitting training request";
-        toast(errorText, "danger");
+        toast(errorMessage, "danger");
       },
     },
   });
