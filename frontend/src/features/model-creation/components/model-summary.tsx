@@ -87,7 +87,7 @@ const ModelSummaryStep = () => {
       ],
     },
   ];
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   useEffect(() => {
     if (!formData.modelName && !formData.modelDescription) {
       navigate(APPLICATION_ROUTES.MODELS);

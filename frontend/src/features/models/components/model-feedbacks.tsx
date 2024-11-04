@@ -10,7 +10,6 @@ const ModelFeedbacks = ({ trainingId }: { trainingId: number }) => {
   }
 
   return (
-
     <div className="max-w-fit">
       <div className="max-w-fit">
         <Button variant="dark" size="medium" disabled={trainingId === null}>
@@ -18,8 +17,6 @@ const ModelFeedbacks = ({ trainingId }: { trainingId: number }) => {
         </Button>
       </div>
     </div>
-
-
   );
 };
 

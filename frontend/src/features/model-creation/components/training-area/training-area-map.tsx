@@ -104,6 +104,10 @@ const TrainingAreaMap = ({
     };
   }, [map, mapData, tileJSONURL]);
 
+  // add the draw as a new source that continues to increment
+  // add an effect to check when a draw is completed then save it and reload the draw
+  // store the drawing in the state to confirm the user has drawn before moving to the next step.
+
   return (
     <MapComponent
       controlsLocation="top-left"
@@ -118,11 +122,11 @@ const TrainingAreaMap = ({
         // @ts-expect-error bad type definition
         ...(mapData?.features?.length > 0
           ? [
-              {
-                value: "Training Areas",
-                mapLayerId: trainingAreasLayerId,
-              },
-            ]
+            {
+              value: "Training Areas",
+              mapLayerId: trainingAreasLayerId,
+            },
+          ]
           : []),
       ]}
     />

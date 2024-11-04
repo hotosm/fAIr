@@ -232,15 +232,18 @@ export const APP_CONTENT = {
       properties: {
         zoomLevels: {
           title: "Zoom Levels",
-          tooltip: "Those are the zoom level tiles imagery that was used when training this model",
+          tooltip:
+            "Those are the zoom level tiles imagery that was used when training this model",
         },
         epochs: {
           title: "Epochs",
-          tooltip: "Refers to the total number of times that the whole training datasets has been learned by the model",
+          tooltip:
+            "Refers to the total number of times that the whole training datasets has been learned by the model",
         },
         contactSpacing: {
           title: "Contact Spacing",
-          tooltip: "The distance in pixels to extend the area around each building. This will be used to find points where buildings come into contact or are in close proximity to one another. For example, entering '8' will explore areas within 8 pixels outside the original building shapes to detect nearby buildings",
+          tooltip:
+            "The distance in pixels to extend the area around each building. This will be used to find points where buildings come into contact or are in close proximity to one another. For example, entering '8' will explore areas within 8 pixels outside the original building shapes to detect nearby buildings",
         },
         currentDatasetSize: {
           title: "Current Dataset Size",
@@ -256,19 +259,23 @@ export const APP_CONTENT = {
         },
         sourceImage: {
           title: "Source Image (TMS)",
-          tooltip: "The tile server link used to train this model, click on the copy icon to copy the TMS link",
+          tooltip:
+            "The tile server link used to train this model, click on the copy icon to copy the TMS link",
         },
         batchSize: {
           title: "Batch Size",
-          tooltip: "Refers to the total number of images that is fed into the model training in each batch until the whole training dataset is used to train the model",
+          tooltip:
+            "Refers to the total number of images that is fed into the model training in each batch until the whole training dataset is used to train the model",
         },
         accuracy: {
           title: "Accuracy",
-          tooltip: "Refers to the training sparse categorical accuracy of RAMP model or YOLO accuracy of the model",
+          tooltip:
+            "Refers to the training sparse categorical accuracy of RAMP model or YOLO accuracy of the model",
         },
         boundaryWidth: {
           title: "Boundary Width",
-          tooltip: "Specify the width in pixels to reduce the original building shape inwardly, creating a boundary or margin around each building. A smaller value creates a tighter boundary close to the building's edges, while a larger value creates a wider surrounding area. For example, entering '3' will create a boundary that 3 pixles inside from the original building edges.",
+          tooltip:
+            "Specify the width in pixels to reduce the original building shape inwardly, creating a boundary or margin around each building. A smaller value creates a tighter boundary close to the building's edges, while a larger value creates a wider surrounding area. For example, entering '3' will create a boundary that 3 pixles inside from the original building edges.",
         },
       },
       trainingHistoryTableHeader: {

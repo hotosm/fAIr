@@ -83,7 +83,6 @@ export const ModelDetailsPage = () => {
               baseModel={data.base_model}
             />
           )}
-
         </ModelDetailsSection>
         <div className="flex md:hidden">
           <ButtonWithIcon

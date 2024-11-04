@@ -73,6 +73,18 @@ const ModelCreationLayout = () => {
     }
   }, [pathname]);
 
+  // Validation logic
+  // useEffect(() => {
+
+  //   // When a user is in the training dataset page, they must have filled the model details page
+  //   // When a user is in the training area, they must have completed the training dataset form
+  //   // When a user is in the training settings, they must have completed the training area. i.e selected labels etc
+  //   // When a user is in the submit model, they must have some training settings.
+  //   // when a user is in the confirmation page, they must have a model id in the url
+  //   // disable next button, disable prev button - pass as props to progress buttons component.
+  //   // console.log(pathname, currentPageIndex, formData);
+  // }, [pathname, currentPageIndex]);
+
   return (
     <ModelsLayout>
       <ModelCreationFormProvider>

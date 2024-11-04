@@ -1,4 +1,3 @@
-
 import ModelCreationSuccess from "@/assets/images/model_creation_success.png";
 import { Button } from "@/components/ui/button";
 import { Image } from "@/components/ui/image";
@@ -8,7 +7,6 @@ import ConfettiExplosion from "react-confetti-explosion";
 import { useSearchParams } from "react-router-dom";
 
 const ModelCreationSuccessConfirmation = () => {
-
   const [searchParams] = useSearchParams();
   // Model ID should be in the url params upon successful creation
   const modelId = searchParams.get("id");

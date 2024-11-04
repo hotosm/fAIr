@@ -91,7 +91,8 @@ const Input: React.FC<InputProps> = ({
       size={size ? size : isMobile ? "medium" : "large"}
       minlength={minLength}
       maxlength={maxLength}
-      pattern={`${pattern}`}
+      // @ts-expect-error bad type definition
+      pattern={pattern}
       min={min}
       max={max}
       step={1}

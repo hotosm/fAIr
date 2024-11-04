@@ -1,4 +1,3 @@
-
 import { GeolocationIcon } from "@/components/ui/icons";
 import { useToastNotification } from "@/hooks/use-toast-notification";
 import { Map } from "maplibre-gl";

@@ -92,7 +92,6 @@ export const getTrainingWorkspaceQueryOptions = (
     queryKey: ["training-workspace", datasetId, trainingId, directory_name],
     queryFn: () => getTrainingWorkspace(datasetId, trainingId, directory_name),
     enabled: trainingId !== null,
-
   });
 };
 

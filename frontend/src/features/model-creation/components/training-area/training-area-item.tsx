@@ -129,40 +129,42 @@ const TrainingAreaItem: React.FC<
               <FullScreenIcon className="icon" />
             </button>
           </ToolTip>
-          <DropDown
-            disableCheveronIcon
-            dropdownIsOpened={dropdownIsOpened}
-            onDropdownHide={onDropdownHide}
-            onDropdownShow={onDropdownShow}
-            triggerComponent={
-              <button className="bg-off-white p-2 rounded-full items-center flex justify-center">
-                <ElipsisIcon className="icon" />
-              </button>
-            }
-            className="text-right"
-            distance={10}
-          >
-            <div className="flex gap-x-4 p-2 justify-between items-center bg-white">
-              {dropdownMenuItems.map((item, id_) => (
-                <ToolTip content={item.tooltip} key={`menu-item-${id_}`}>
-                  <button
-                    onClick={() =>
-                      item.onClick?.mutate({ trainingAreaId: trainingArea.id })
-                    }
-                    className={` ${item.isDelete ? "text-primary bg-secondary" : "bg-off-white"}  w-8 h-8 p-1.5 items-center justify-center flex rounded-md`}
-                    key={`dropdown-menu-item-${id_}`}
-                  >
-                    {item.isIcon ? (
-                      // @ts-expect-error bad type definition
-                      <item.Icon className="icon-lg" />
-                    ) : (
-                      <img src={item.imageSrc} className="icon-lg" />
-                    )}
-                  </button>
-                </ToolTip>
-              ))}
-            </div>
-          </DropDown>
+          <ToolTip content="Actions">
+            <DropDown
+              disableCheveronIcon
+              dropdownIsOpened={dropdownIsOpened}
+              onDropdownHide={onDropdownHide}
+              onDropdownShow={onDropdownShow}
+              triggerComponent={
+                <button className="bg-off-white p-2 rounded-full items-center flex justify-center">
+                  <ElipsisIcon className="icon" />
+                </button>
+              }
+              className="text-right"
+              distance={10}
+            >
+              <div className="flex gap-x-4 p-2 justify-between items-center bg-white">
+                {dropdownMenuItems.map((item, id_) => (
+                  <ToolTip content={item.tooltip} key={`menu-item-${id_}`}>
+                    <button
+                      onClick={() =>
+                        item.onClick?.mutate({ trainingAreaId: trainingArea.id })
+                      }
+                      className={` ${item.isDelete ? "text-primary bg-secondary" : "bg-off-white"}  w-8 h-8 p-1.5 items-center justify-center flex rounded-md`}
+                      key={`dropdown-menu-item-${id_}`}
+                    >
+                      {item.isIcon ? (
+                        // @ts-expect-error bad type definition
+                        <item.Icon className="icon-lg" />
+                      ) : (
+                        <img src={item.imageSrc} className="icon-lg" />
+                      )}
+                    </button>
+                  </ToolTip>
+                ))}
+              </div>
+            </DropDown>
+          </ToolTip>
         </div>
       </div>
     </>

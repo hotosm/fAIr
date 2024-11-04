@@ -17,6 +17,8 @@ import { useEffect, useState } from "react";
 import TrainingAreaList from "./training-area-list";
 import { useGetTrainingAreas } from "../../hooks/use-training-areas";
 import { useMap } from "@/app/providers/map-provider";
+import { ToolTip } from "@/components/ui/tooltip";
+
 
 const TrainingAreaForm = () => {
   const { formData } = useModelFormContext();
@@ -27,7 +29,6 @@ const TrainingAreaForm = () => {
 
   const { closeDialog, isOpened, toggle } = useDialog();
   const { handleChange } = useModelFormContext();
-
   const { map } = useMap();
 
   const fitToTMSBounds = () => {
@@ -45,13 +46,17 @@ const TrainingAreaForm = () => {
   useEffect(() => {
     if (!trainingAreasData) return;
     // update the form data when the data changes
-
     handleChange(
       MODEL_CREATION_FORM_NAME.TRAINING_AREAS,
-      // @ts-expect-error bad type definition 
+      // @ts-expect-error bad type definition
       trainingAreasData?.results,
     );
   }, [trainingAreasData]);
+
+  useEffect(() => {
+    if (!data) return
+    fitToTMSBounds()
+  }, [data])
 
   return (
     <>
@@ -103,13 +108,15 @@ const TrainingAreaForm = () => {
                     </p>
                   </div>
                 </div>
-                <button
-                  className="bg-off-white p-2 rounded-md"
-                  disabled={!map || isPending || isError}
-                  onClick={fitToTMSBounds}
-                >
-                  <FullScreenIcon className="icon-lg" />
-                </button>
+                <ToolTip content="Zoom to TMS">
+                  <button
+                    className="bg-off-white p-2 rounded-md"
+                    disabled={!map || isPending || isError}
+                    onClick={fitToTMSBounds}
+                  >
+                    <FullScreenIcon className="icon-lg" />
+                  </button>
+                </ToolTip>
               </div>
             </div>
             <TrainingAreaList

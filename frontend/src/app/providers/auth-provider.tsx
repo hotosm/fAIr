@@ -50,9 +50,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const toast = useToastNotification();
   // For use across the application.
 
-  const isAuthenticated = useMemo(() => {
-    return user !== null && token !== undefined;
-  }, [token, user]);
+  const isAuthenticated = user !== null && token !== undefined;
 
   //set token globally to eliminate the need to rewrite it
   apiClient.defaults.headers.common["access-token"] = token ? `${token}` : null;
@@ -137,11 +135,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.error("Authentication failed:", error);
     }
   };
-
+  const memoizedValues = useMemo(
+    () => ({ token, user, authenticateUser, logout, isAuthenticated }),
+    [token, user, authenticateUser, logout, isAuthenticated],
+  );
   return (
     <AuthContext.Provider
       // @ts-expect-error bad type definition
-      value={{ token, user, authenticateUser, logout, isAuthenticated }}
+      value={memoizedValues}
     >
       {children}
     </AuthContext.Provider>

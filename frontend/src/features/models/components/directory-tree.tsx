@@ -121,20 +121,20 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
     const { dir, file } = data;
     const subdirectories = dir
       ? await Promise.all(
-        Object.keys(dir).map(async (key: string) => {
-          const fullPath = currentDirectory
-            ? `${currentDirectory}/${key}`
-            : key;
-          const subDirData = await fetchDirectoryRecursive(fullPath);
-          return {
-            [key]: {
-              ...subDirData,
-              size: dir[key]?.size || 0,
-              length: dir[key]?.len || 0,
-            },
-          };
-        }),
-      )
+          Object.keys(dir).map(async (key: string) => {
+            const fullPath = currentDirectory
+              ? `${currentDirectory}/${key}`
+              : key;
+            const subDirData = await fetchDirectoryRecursive(fullPath);
+            return {
+              [key]: {
+                ...subDirData,
+                size: dir[key]?.size || 0,
+                length: dir[key]?.len || 0,
+              },
+            };
+          }),
+        )
       : [];
 
     return {

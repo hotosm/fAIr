@@ -5,18 +5,30 @@ import { useLocalStorage } from "@/hooks/use-storage";
 import {
   APPLICATION_ROUTES,
   HOT_FAIR_MODEL_CREATION_LOCAL_STORAGE_KEY,
-  URL_REGEX_PATTERN,
+  TMS_URL_REGEX_PATTERN,
 } from "@/utils";
 import { UseMutationResult } from "@tanstack/react-query";
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useToastNotification } from "@/hooks/use-toast-notification";
 import { useNavigate } from "react-router-dom";
 import { TModel, TTrainingDataset } from "@/types";
 import { TCreateTrainingDatasetArgs } from "@/features/model-creation/api/create-trainings";
-import { useCreateModel, useCreateModelTrainingRequest } from "@/features/model-creation/hooks/use-models";
+import {
+  useCreateModel,
+  useCreateModelTrainingRequest,
+} from "@/features/model-creation/hooks/use-models";
 import { TCreateModelArgs } from "@/features/model-creation/api/create-models";
 
-// The names here is the same with the initialFormState object keys as well as the form validation config
+/**
+ * The names here are the same with the `initialFormState` object keys.
+ * They are also the same with the form validation configuration object keys.
+ */
 export enum MODEL_CREATION_FORM_NAME {
   MODEL_NAME = "modelName",
   DATASET_NAME = "datasetName",
@@ -41,7 +53,7 @@ export const FORM_VALIDATION_CONFIG = {
     minLength: 10,
   },
   tmsURL: {
-    pattern: URL_REGEX_PATTERN,
+    pattern: TMS_URL_REGEX_PATTERN,
   },
   modelDescription: {
     maxLength: 500,
@@ -164,11 +176,13 @@ export const ModelCreationFormProvider: React.FC<{
         toast("Training request submitted successfully", "success");
       },
       onError: (error) => {
-        // @ts-expect-error bad type definition
-        const errorText = error?.response?.data[0] ?? "An error ocurred while submitting training request"
+        const errorText =
+          // @ts-expect-error bad type definition
+          error?.response?.data[0] ??
+          "An error ocurred while submitting training request";
         toast(errorText, "danger");
       },
-    }
+    },
   });
 
   const createNewTrainingDatasetMutation = useCreateTrainingDataset({
@@ -201,13 +215,11 @@ export const ModelCreationFormProvider: React.FC<{
           input_contact_spacing: formData.contactSpacing,
           epochs: formData.epoch,
           batch_size: formData.batchSize,
-          zoom_level: formData.zoomLevels
-
-        })
+          zoom_level: formData.zoomLevels,
+        });
         setFormData(initialFormState);
         navigate(
           `${APPLICATION_ROUTES.CREATE_NEW_MODEL_CONFIRMATION}?id=${data.id}`,
-
         );
       },
       onError: () => {
@@ -223,16 +235,25 @@ export const ModelCreationFormProvider: React.FC<{
     );
   }, [formData]);
 
+  const memoizedValues = useMemo(
+    () => ({
+      formData,
+      setFormData,
+      handleChange,
+      createNewTrainingDatasetMutation,
+      createNewModelMutation,
+    }),
+    [
+      formData,
+      setFormData,
+      handleChange,
+      createNewTrainingDatasetMutation,
+      createNewModelMutation,
+    ],
+  );
+
   return (
-    <ModelCreationFormContext.Provider
-      value={{
-        formData,
-        setFormData,
-        handleChange,
-        createNewTrainingDatasetMutation,
-        createNewModelMutation,
-      }}
-    >
+    <ModelCreationFormContext.Provider value={memoizedValues}>
       {children}
     </ModelCreationFormContext.Provider>
   );

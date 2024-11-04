@@ -1,4 +1,3 @@
-
 import { Image } from "@/components/ui/image";
 import ToolTip from "@/components/ui/tooltip/tooltip";
 import {
@@ -117,7 +116,7 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
     input_contact_spacing,
     input_boundary_width,
     source_imagery,
-    chips_length
+    chips_length,
   } = data || {};
 
   const trainingResultsGraph = `${ENVS.BASE_API_URL}workspace/download/dataset_${datasetId}/output/training_${data?.id}/graphs/training_validation_sparse_categorical_accuracy.png`;
@@ -221,7 +220,7 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
             href={
               // @ts-expect-error bad type definition
               APP_CONTENT.models.modelsDetailsCard.properties.baseModel.href[
-              baseModel
+                baseModel
               ]
             }
           />
