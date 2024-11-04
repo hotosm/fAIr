@@ -342,7 +342,6 @@ def yolo_model_training(
         output_model_path = train_yolo_v2(
             data=f"{base_path}",
             weights=os.path.join(settings.YOLO_HOME, "yolov8s_v2-seg.pt"),
-            gpu="cpu",
             epochs=2,
             batch_size=16,
             pc=2.0,
@@ -355,7 +354,7 @@ def yolo_model_training(
     )
     if os.path.exists(output_path):
         shutil.rmtree(output_path)
-    shutil.copytree(output_model_path, os.path.join(output_path, "checkpoint.pt"))
+    shutil.copyfile(output_model_path, os.path.join(output_path, "checkpoint.pt"))
     shutil.copytree(preprocess_output, os.path.join(output_path, "preprocessed"))
 
     graph_output_path = f"{base_path}/train/graphs"
