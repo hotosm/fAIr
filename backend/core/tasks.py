@@ -355,6 +355,7 @@ def yolo_model_training(
     )
     if os.path.exists(output_path):
         shutil.rmtree(output_path)
+    print(output_path)
     os.makedirs(output_path)
     shutil.copyfile(output_model_path, os.path.join(output_path, "checkpoint.pt"))
     shutil.copytree(preprocess_output, os.path.join(output_path, "preprocessed"))
