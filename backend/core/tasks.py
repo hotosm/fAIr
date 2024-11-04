@@ -163,8 +163,7 @@ def ramp_model_training(
     import ramp.utils
     import tensorflow as tf
     from hot_fair_utilities import preprocess
-    from hot_fair_utilities.training import run_feedback
-    from hot_fair_utilities.training.ramp import train
+    from hot_fair_utilities.training.ramp import run_feedback, train
 
     base_path = os.path.join(settings.RAMP_HOME, "ramp-data", str(dataset_id))
     if os.path.exists(base_path):
@@ -342,7 +341,7 @@ def yolo_model_training(
     else:
         output_model_path = train_yolo_v2(
             data=f"{base_path}",
-            weights=f"{os.getcwd()}/yolov8s_v2-seg.pt",
+            weights=os.path.join(settings.YOLO_HOME, "yolov8s_v2-seg.pt"),
             gpu="cpu",
             epochs=2,
             batch_size=16,
