@@ -8,9 +8,9 @@ import {
   SlTreeItem,
 } from "@shoelace-style/shoelace/dist/react/index.js";
 import { getTrainingWorkspaceQueryOptions } from "@/features/models/api/factory";
-import { useToast } from "@/app/providers/toast-provider";
 import { API_ENDPOINTS, apiClient } from "@/services";
 import { Spinner } from "@/components/ui/spinner";
+import { useToastNotification } from "@/hooks/use-toast-notification";
 
 type DirectoryTreeProps = {
   datasetId: number;
@@ -95,7 +95,7 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
   const [directoryTree, setDirectoryTree] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
-  const { notify } = useToast();
+  const toast = useToastNotification();
   const queryClient = useQueryClient();
   const [downLoadingFilePath, setDownLoadingFilePath] = useState<string>("");
 
@@ -121,20 +121,20 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
     const { dir, file } = data;
     const subdirectories = dir
       ? await Promise.all(
-          Object.keys(dir).map(async (key: string) => {
-            const fullPath = currentDirectory
-              ? `${currentDirectory}/${key}`
-              : key;
-            const subDirData = await fetchDirectoryRecursive(fullPath);
-            return {
-              [key]: {
-                ...subDirData,
-                size: dir[key]?.size || 0,
-                length: dir[key]?.len || 0,
-              },
-            };
-          }),
-        )
+        Object.keys(dir).map(async (key: string) => {
+          const fullPath = currentDirectory
+            ? `${currentDirectory}/${key}`
+            : key;
+          const subDirData = await fetchDirectoryRecursive(fullPath);
+          return {
+            [key]: {
+              ...subDirData,
+              size: dir[key]?.size || 0,
+              length: dir[key]?.len || 0,
+            },
+          };
+        }),
+      )
       : [];
 
     return {
@@ -165,7 +165,7 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
       );
 
       if (response.status !== 200) {
-        notify("Failed to download file.", "danger");
+        toast("Failed to download file.", "danger");
         return;
       }
 
@@ -179,12 +179,12 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
       a.click();
       a.remove();
       window.URL.revokeObjectURL(url);
-      notify("File downloaded successfully!", "success");
+      toast("File downloaded successfully!", "success");
     } catch (error) {
       const errorMessage =
         //@ts-expect-error bad type definition
         error.response?.statusText || "Failed to download file.";
-      notify(errorMessage, "danger");
+      toast(errorMessage, "danger");
     } finally {
       setDownLoadingFilePath("");
     }

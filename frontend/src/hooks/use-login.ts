@@ -3,7 +3,7 @@ import { useSessionStorage } from "@/hooks/use-storage";
 import { authService } from "@/services";
 import { APP_CONTENT, HOT_FAIR_SESSION_REDIRECT_KEY } from "@/utils";
 import { useState } from "react";
-import { useToast } from "@/app/providers/toast-provider";
+import { useToastNotification } from "./use-toast-notification";
 
 /**
  * Custom hook to handle the login button click event.
@@ -23,7 +23,7 @@ export const useLogin = () => {
   const currentPath = location.pathname;
   const { setValue } = useSessionStorage();
   const [loading, setLoading] = useState(false);
-  const { notify } = useToast();
+  const toast = useToastNotification();
 
   const handleLogin = async (): Promise<void> => {
     setLoading(true);
@@ -31,7 +31,7 @@ export const useLogin = () => {
     try {
       await authService.initializeOAuthFlow();
     } catch (error) {
-      notify(APP_CONTENT.toasts.authenticationFailed, "danger");
+      toast(APP_CONTENT.toasts.authenticationFailed, "danger");
       console.error("An error occured while authenticating", error);
     } finally {
       setLoading(false);

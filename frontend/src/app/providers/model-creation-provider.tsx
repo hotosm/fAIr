@@ -9,7 +9,7 @@ import {
 } from "@/utils";
 import { UseMutationResult } from "@tanstack/react-query";
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { useToast } from "./toast-provider";
+import { useToastNotification } from "@/hooks/use-toast-notification";
 import { useNavigate } from "react-router-dom";
 import { TModel, TTrainingDataset } from "@/types";
 import { TCreateTrainingDatasetArgs } from "@/features/model-creation/api/create-trainings";
@@ -139,7 +139,7 @@ export const ModelCreationFormProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
   const { setValue, getValue } = useLocalStorage();
-  const { notify } = useToast();
+  const toast = useToastNotification();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState<typeof initialFormState>(() => {
@@ -161,12 +161,12 @@ export const ModelCreationFormProvider: React.FC<{
   const trainingRequestMutation = useCreateModelTrainingRequest({
     mutationConfig: {
       onSuccess: () => {
-        notify("Training request submitted successfully", "success");
+        toast("Training request submitted successfully", "success");
       },
       onError: (error) => {
         // @ts-expect-error bad type definition
         const errorText = error?.response?.data[0] ?? "An error ocurred while submitting training request"
-        notify(errorText, "danger");
+        toast(errorText, "danger");
       },
     }
   });
@@ -174,7 +174,7 @@ export const ModelCreationFormProvider: React.FC<{
   const createNewTrainingDatasetMutation = useCreateTrainingDataset({
     mutationConfig: {
       onSuccess: (data) => {
-        notify("Dataset created successfully", "success");
+        toast("Dataset created successfully", "success");
         handleChange(MODEL_CREATION_FORM_NAME.DATASET_NAME, data.name);
         handleChange(MODEL_CREATION_FORM_NAME.TMS_URL, data.source_imagery);
         handleChange(
@@ -185,8 +185,7 @@ export const ModelCreationFormProvider: React.FC<{
         navigate(APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_AREA);
       },
       onError: () => {
-
-        notify("An error occurred while creating dataset", "danger");
+        toast("An error occurred while creating dataset", "danger");
       },
     },
   });
@@ -194,7 +193,7 @@ export const ModelCreationFormProvider: React.FC<{
   const createNewModelMutation = useCreateModel({
     mutationConfig: {
       onSuccess: (data) => {
-        notify("Model created successfully", "success");
+        toast("Model created successfully", "success");
         // Submit the model for training request
         trainingRequestMutation.mutate({
           model: data.id,
@@ -212,7 +211,7 @@ export const ModelCreationFormProvider: React.FC<{
         );
       },
       onError: () => {
-        notify("An error ocurred while creating model", "danger");
+        toast("An error ocurred while creating model", "danger");
       },
     },
   });

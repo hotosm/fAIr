@@ -21,8 +21,8 @@ import { ElipsisIcon, InfoIcon } from "@/components/ui/icons";
 import { useDialog } from "@/hooks/use-dialog";
 import { TrainingDetailsDialog } from "@/features/models/components/dialogs";
 import { useUpdateTraining } from "@/features/models/api/update-trainings";
-import { useToast } from "@/app/providers/toast-provider";
 import Pagination, { PAGE_LIMIT } from "@/components/pagination";
+import { useToastNotification } from "@/hooks/use-toast-notification";
 
 type TrainingHistoryTableProps = {
   modelId: string;
@@ -243,15 +243,15 @@ const TrainingHistoryTable: React.FC<TrainingHistoryTableProps> = ({
   const [sorting, setSorting] = useState<SortingState>([]);
   const { user, isAuthenticated } = useAuth();
   const { isOpened, openDialog, closeDialog } = useDialog();
-  const { notify } = useToast();
+  const toast = useToastNotification();
   const { mutate } = useUpdateTraining({
     mutationConfig: {
       onSuccess: (res) => {
-        notify(res.data, "success");
+        toast(res.data, "success");
       },
       onError: (err) => {
         //@ts-expect-error bad type definition
-        notify(err?.response?.data ?? err?.response?.data?.detail, "danger");
+        toast(err?.response?.data ?? err?.response?.data?.detail, "danger");
       },
     },
     modelId: Number(modelId),

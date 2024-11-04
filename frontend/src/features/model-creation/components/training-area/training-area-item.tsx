@@ -19,8 +19,8 @@ import OSMLogo from "@/assets/osm_logo.svg";
 import { ToolTip } from "@/components/ui/tooltip";
 import { TTrainingAreaFeature } from "@/types";
 import { useDeleteTrainingArea } from "../../hooks/use-training-areas";
-import { useToast } from "@/app/providers/toast-provider";
 import { useMap } from "@/app/providers/map-provider";
+import { useToastNotification } from "@/hooks/use-toast-notification";
 
 export type TrainingAreaItemProps = {
   id: number;
@@ -34,18 +34,18 @@ const TrainingAreaItem: React.FC<
   const { onDropdownHide, onDropdownShow, dropdownIsOpened } =
     useDropdownMenu();
 
-  const { notify } = useToast();
+  const toast = useToastNotification();
 
   const deleteTrainingAreaMutation = useDeleteTrainingArea({
     datasetId: datasetId,
     mutationConfig: {
       onSuccess: () => {
-        notify("Training area deleted successfully", "success");
+        toast("Training area deleted successfully", "success");
         onDropdownHide();
       },
       onError: (error) => {
         // @ts-expect-error bad type definition
-        notify(error?.response?.data?.detail, "danger");
+        toast(error?.response?.data?.detail, "danger");
       },
     },
   });
@@ -92,7 +92,7 @@ const TrainingAreaItem: React.FC<
       const bounds = getGeoJSONFeatureBounds(trainingArea);
       map?.fitBounds(bounds);
     } else {
-      notify("This training area does not have a geometry.", "warning");
+      toast("This training area does not have a geometry.", "warning");
     }
   };
   return (
@@ -109,9 +109,9 @@ const TrainingAreaItem: React.FC<
           <p className="text-body-4 text-dark">
             {trainingArea.properties.label_fetched !== null
               ? truncateString(
-                  `Fetched ${formatDuration(new Date(trainingArea.properties.label_fetched), new Date(), 1)} ago`,
-                  20,
-                )
+                `Fetched ${formatDuration(new Date(trainingArea.properties.label_fetched), new Date(), 1)} ago`,
+                20,
+              )
               : "No data yet"}
           </p>
         </div>

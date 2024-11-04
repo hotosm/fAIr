@@ -1,10 +1,11 @@
-import { useToast } from "@/app/providers/toast-provider";
+
 import { GeolocationIcon } from "@/components/ui/icons";
+import { useToastNotification } from "@/hooks/use-toast-notification";
 import { Map } from "maplibre-gl";
 import { useCallback } from "react";
 
 const GeolocationControl = ({ map }: { map: Map | null }) => {
-  const { notify } = useToast();
+  const toast = useToastNotification();
   const handleGeolocationClick = useCallback(() => {
     if (!map) return;
 
@@ -19,11 +20,11 @@ const GeolocationControl = ({ map }: { map: Map | null }) => {
           });
         },
         (error) => {
-          notify(`Error getting location: ${error.message}.`, "danger");
+          toast(`Error getting location: ${error.message}.`, "danger");
         },
       );
     } else {
-      notify("Geolocation is not supported by this browser.", "warning");
+      toast("Geolocation is not supported by this browser.", "warning");
     }
   }, [map]);
 

@@ -15,7 +15,7 @@ import React, {
   useEffect,
   useMemo,
 } from "react";
-import { useToast } from "./toast-provider";
+import { useToastNotification } from "@/hooks/use-toast-notification";
 
 type TAuthContext = {
   token: string;
@@ -47,7 +47,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   );
   const [user, setUser] = useState<TUser | null>(null);
 
-  const { notify } = useToast();
+  const toast = useToastNotification();
   // For use across the application.
 
   const isAuthenticated = useMemo(() => {
@@ -82,7 +82,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       HOT_FAIR_LOGIN_SUCCESSFUL_SESSION_KEY,
     );
     if (loginSuccessful == "success") {
-      notify(APP_CONTENT.toasts.loginSuccess, "success");
+      toast(APP_CONTENT.toasts.loginSuccess, "success");
       removeSessionValue(HOT_FAIR_LOGIN_SUCCESSFUL_SESSION_KEY);
     }
   }, []);
@@ -117,7 +117,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setToken(undefined);
     setUser(null);
     removeValue(HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY);
-    notify(APP_CONTENT.toasts.logoutSuccess, "success");
+    toast(APP_CONTENT.toasts.logoutSuccess, "success");
   };
 
   /**
@@ -133,7 +133,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       fetchUserProfile();
       handleRedirection();
     } catch (error) {
-      notify(APP_CONTENT.toasts.authenticationFailed, "danger");
+      toast(APP_CONTENT.toasts.authenticationFailed, "danger");
       console.error("Authentication failed:", error);
     }
   };

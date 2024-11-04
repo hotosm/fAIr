@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { TrainingDatasetOption } from "./training-dataset";
 import { TTrainingArea } from "@/types";
 
+
 type ProgressButtonsProps = {
   currentPath: string;
   currentPageIndex: number;
@@ -89,6 +90,8 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
       } else {
         navigate(pages[currentPageIndex - 1].path);
       }
+    } else {
+      navigate(-1)
     }
   };
 
@@ -99,11 +102,11 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
       case APPLICATION_ROUTES.CREATE_NEW_MODEL:
         return (
           formData.modelName.length >=
-            FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.MODEL_NAME]
-              .minLength &&
+          FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.MODEL_NAME]
+            .minLength &&
           formData.modelDescription.length >=
-            FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.MODEL_DESCRIPTION]
-              .minLength
+          FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.MODEL_DESCRIPTION]
+            .minLength
         );
 
       case APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_DATASET:
@@ -123,8 +126,8 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
           return (
             formData.tmsURLValidation.valid &&
             formData.datasetName.length >=
-              FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.DATASET_NAME]
-                .minLength
+            FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.DATASET_NAME]
+              .minLength
           );
         } else if (
           formData.trainingDatasetOption === TrainingDatasetOption.USE_EXISTING
@@ -159,7 +162,6 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
         prefixIcon={ChevronDownIcon}
         label="Back"
         iconClassName="rotate-90"
-        disabled={currentPath === APPLICATION_ROUTES.CREATE_NEW_MODEL}
         onClick={prevPage}
       />
       <ButtonWithIcon

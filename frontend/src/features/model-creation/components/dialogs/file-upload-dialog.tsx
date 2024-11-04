@@ -7,9 +7,9 @@ import { SlFormatBytes } from "@shoelace-style/shoelace/dist/react";
 import { useCallback, useState } from "react";
 import { FileWithPath, useDropzone } from "react-dropzone";
 import { useCreateTrainingArea } from "../../hooks/use-training-areas";
-import { useToast } from "@/app/providers/toast-provider";
 import { geojsonToWKT } from "@terraformer/wkt";
 import useDevice from "@/hooks/use-device";
+import { useToastNotification } from "@/hooks/use-toast-notification";
 
 type FileUploadDialogProps = DialogProps & {
   datasetId: string;
@@ -26,7 +26,7 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
   datasetId,
 }) => {
   const [acceptedFiles, setAcceptedFiles] = useState<AcceptedFile[]>([]);
-  const { notify } = useToast();
+  const toast = useToastNotification();
   const createTrainingArea = useCreateTrainingArea({
     datasetId: Number(datasetId),
   });
@@ -107,11 +107,11 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
 
     try {
       await Promise.all(promises);
-      notify("Training areas created successfully", "success");
+      toast("Training areas created successfully", "success");
       // reset the state and close the dialog
       resetState();
     } catch (error) {
-      notify("Error creating training areas", "danger");
+      toast("Error creating training areas", "danger");
     }
   };
 

@@ -1,4 +1,4 @@
-import { useToast } from "@/app/providers/toast-provider";
+
 import { Image } from "@/components/ui/image";
 import ToolTip from "@/components/ui/tooltip/tooltip";
 import {
@@ -15,6 +15,7 @@ import ChevronDownIcon from "@/components/ui/icons/chevron-down-icon";
 import { APP_CONTENT, cn } from "@/utils";
 import { ENVS } from "@/config/env";
 import useCopyToClipboard from "@/hooks/use-clipboard";
+import { useToastNotification } from "@/hooks/use-toast-notification";
 
 enum TrainingStatus {
   FAILED = "FAILED",
@@ -97,15 +98,15 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
 }) => {
   const { isPending, data, error, isError } = useTrainingDetails(trainingId);
 
-  const { notify } = useToast();
+  const toast = useToastNotification();
 
   useEffect(() => {
     //@ts-expect-error bad type definition
     if (isError && error?.response?.data?.detail) {
       //@ts-expect-error bad type definition
-      notify(error.response.data.detail, "danger");
+      toast(error.response.data.detail, "danger");
     }
-  }, [isError, error, notify]);
+  }, [isError, error, toast]);
 
   const {
     accuracy: trainingAccuracy,
