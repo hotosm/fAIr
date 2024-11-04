@@ -53,7 +53,7 @@ export const FORM_VALIDATION_CONFIG = {
     minLength: 10,
   },
   tmsURL: {
-    pattern: TMS_URL_REGEX_PATTERN,
+    pattern: TMS_URL_REGEX_PATTERN.source,
   },
   modelDescription: {
     maxLength: 500,
