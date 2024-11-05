@@ -89,6 +89,25 @@ def get_file_count(path):
         return 0
 
 
+def get_yolo_iou_metrics(model_path):
+    import ultralytics
+
+    model_val = ultralytics.YOLO(model_path)
+    model_val_metrics = (
+        model_val.val().results_dict
+    )  ### B and M denotes bounding box and mask respectively
+    # print(metrics)
+    print(model_val_metrics)
+
+    iou_accuracy = 1 / (
+        1 / model_val_metrics["metrics/precision(M)"]
+        + 1 / model_val_metrics["metrics/recall(M)"]
+        - 1
+    )  # ref here https://github.com/ultralytics/ultralytics/issues/9984#issuecomment-2422551315
+    final_accuracy = iou_accuracy * 100
+    return final_accuracy
+
+
 def prepare_data(training_instance, dataset_id, feedback, zoom_level, source_imagery):
     training_input_base_path = os.path.join(
         settings.TRAINING_WORKSPACE, f"dataset_{dataset_id}"
@@ -314,7 +333,6 @@ def yolo_model_training(
     )
     training_instance.save()
 
-    final_accuracy = 80  # TODO: Replace with actual training logic
     yolo_data_dir = os.path.join(base_path, model)
     with print_time("yolo conversion"):
         if model == "YOLO_V8_V1":
@@ -359,6 +377,8 @@ def yolo_model_training(
         shutil.rmtree(output_path)
     # print(output_path)
     os.makedirs(output_path)
+    final_accuracy = get_yolo_iou_metrics(output_model_path)
+
     shutil.copyfile(output_model_path, os.path.join(output_path, "checkpoint.pt"))
     shutil.copytree(preprocess_output, os.path.join(output_path, "preprocessed"))
 
