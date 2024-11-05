@@ -89,25 +89,6 @@ def get_file_count(path):
         return 0
 
 
-def get_yolo_iou_metrics(model_path):
-    import ultralytics
-
-    model_val = ultralytics.YOLO(model_path)
-    model_val_metrics = (
-        model_val.val().results_dict
-    )  ### B and M denotes bounding box and mask respectively
-    # print(metrics)
-    print(model_val_metrics)
-
-    iou_accuracy = 1 / (
-        1 / model_val_metrics["metrics/precision(M)"]
-        + 1 / model_val_metrics["metrics/recall(M)"]
-        - 1
-    )  # ref here https://github.com/ultralytics/ultralytics/issues/9984#issuecomment-2422551315
-    final_accuracy = iou_accuracy * 100
-    return final_accuracy
-
-
 def prepare_data(training_instance, dataset_id, feedback, zoom_level, source_imagery):
     training_input_base_path = os.path.join(
         settings.TRAINING_WORKSPACE, f"dataset_{dataset_id}"
@@ -348,7 +329,7 @@ def yolo_model_training(
                 output_path=yolo_data_dir,
             )
     if model == "YOLO_V8_V1":
-        output_model_path = train_yolo_v1(
+        output_model_path, final_accuracy = train_yolo_v1(
             data=f"{base_path}",
             weights=os.path.join(settings.YOLO_HOME, "yolov8s_v1-seg-best.pt"),
             epochs=epochs,
@@ -358,7 +339,7 @@ def yolo_model_training(
             dataset_yaml_path=os.path.join(yolo_data_dir, "yolo_dataset.yaml"),
         )
     else:
-        output_model_path = train_yolo_v2(
+        output_model_path, final_accuracy = train_yolo_v2(
             data=f"{base_path}",
             weights=os.path.join(settings.YOLO_HOME, "yolov8s_v2-seg.pt"),
             epochs=2,
@@ -377,13 +358,12 @@ def yolo_model_training(
         shutil.rmtree(output_path)
     # print(output_path)
     os.makedirs(output_path)
-    final_accuracy = get_yolo_iou_metrics(output_model_path)
 
     shutil.copyfile(output_model_path, os.path.join(output_path, "checkpoint.pt"))
     shutil.copytree(preprocess_output, os.path.join(output_path, "preprocessed"))
 
     graph_output_path = os.path.join(
-        pathlib.Path(os.path.dirname(output_model_path)).parent, "results.png"
+        pathlib.Path(os.path.dirname(output_model_path)).parent, "iou_chart.png"
     )
     os.makedirs(os.path.join(output_path, "graphs"), exist_ok=True)
     shutil.copyfile(
@@ -391,7 +371,7 @@ def yolo_model_training(
         os.path.join(
             output_path,
             "graphs",
-            "training_validation_sparse_categorical_accuracy.png",  ### TODO : replace this with actual graph that will be decided
+            "training_accuracy.png",  ### TODO : replace this with actual graph that will be decided
         ),
     )
 
