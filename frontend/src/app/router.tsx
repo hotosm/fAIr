@@ -174,26 +174,18 @@ const router = createBrowserRouter([
             "@/app/routes/account/settings"
           );
           return {
-            Component: () => (
-              <ProtectedPage>
-                <UserAccountSettingsPage />
-              </ProtectedPage>
-            ),
+            Component: () => <UserAccountSettingsPage />,
           };
         },
       },
       {
-        path: APPLICATION_ROUTES.ACCOUNT_PROJECTS,
+        path: APPLICATION_ROUTES.ACCOUNT_MODELS,
         lazy: async () => {
-          const { UserAccountProjectsPage } = await import(
-            "@/app/routes/account/projects"
+          const { UserAccountModelsPage } = await import(
+            "@/app/routes/account/models"
           );
           return {
-            Component: () => (
-              <ProtectedPage>
-                <UserAccountProjectsPage />
-              </ProtectedPage>
-            ),
+            Component: () => <UserAccountModelsPage />,
           };
         },
       },

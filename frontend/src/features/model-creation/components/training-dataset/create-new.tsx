@@ -72,7 +72,6 @@ const CreateNewTrainingDatasetForm = () => {
         }
         type="url"
         validationStateUpdateCallback={(validationState) =>
-
           handleChange(
             MODEL_CREATION_FORM_NAME.TMS_URL_VALIDITY,
             validationState,

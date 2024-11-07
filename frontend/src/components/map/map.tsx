@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { MAP_STYLES } from "@/config";
 import ZoomControls from "./zoom-controls";
@@ -8,6 +7,7 @@ import DrawControl from "./draw-control";
 import ZoomLevel from "./zoom-level";
 import LayerControl from "./layer-control";
 import { useMap } from "@/app/providers/map-provider";
+import { setupMaplibreMap } from "./setup-maplibre";
 
 type MapComponentProps = {
   geolocationControl?: boolean;
@@ -31,59 +31,41 @@ const MapComponent: React.FC<MapComponentProps> = ({
 }) => {
   const mapContainerRef = useRef(null);
   const [selectedBasemap, setSelectedBasemap] = useState<string>("OSM");
-  const { map, setMap } = useMap();
-  const [mapIsReady, setMapIsReady] = useState<boolean>(false);
+  const { map, setMap, terraDraw } = useMap();
 
   useEffect(() => {
-    if (!mapContainerRef.current) return;
-
-    const map = new maplibregl.Map({
-      container: mapContainerRef.current,
-      //@ts-ignore
-      style: MAP_STYLES[selectedBasemap],
-      center: [0, 0],
-      zoom: 0.5,
-      minZoom: 1,
-      maxZoom: 21,
+    const maplibreMap = setupMaplibreMap(
+      mapContainerRef,
+      MAP_STYLES[selectedBasemap],
+    );
+    maplibreMap.on("load", () => {
+      setMap(maplibreMap);
     });
-
-    const onStyleLoad = () => {
-      setMap(map);
-      setMapIsReady(true);
-    };
-
-    map.on("style.load", () => {
-      onStyleLoad();
-    });
-
-    return () => {
-      map.off("style.load", onStyleLoad);
-      map.remove();
-    };
   }, []);
 
+  // Update the map style whenever the selected basemap changes
   useEffect(() => {
-    if (!mapIsReady) return;
-    map?.setStyle(MAP_STYLES[selectedBasemap]);
-  }, [selectedBasemap]);
+    if (!map) return;
+    map.setStyle(MAP_STYLES[selectedBasemap]);
+  }, [selectedBasemap, map]);
 
   return (
     <div className="h-full w-full relative" ref={mapContainerRef}>
       <div
         className={`absolute top-5 ${controlsLocation === "top-right" ? "right-3" : "left-3"} z-[10] flex flex-col gap-y-[1px]`}
       >
-        {mapIsReady && (
+        {map && (
           <>
             <ZoomControls map={map} />
             {geolocationControl && <GeolocationControl map={map} />}
-            {drawControl && <DrawControl map={map} />}
+            {drawControl && terraDraw && <DrawControl terraDraw={terraDraw} />}
           </>
         )}
       </div>
       <div
         className={`absolute top-5 right-10 z-[10] items-center flex gap-x-4`}
       >
-        {mapIsReady && (
+        {map && (
           <>
             {showCurrentZoom && <ZoomLevel map={map} />}
             {layerControl && (

@@ -109,9 +109,9 @@ const TrainingAreaItem: React.FC<
           <p className="text-body-4 text-dark">
             {trainingArea.properties.label_fetched !== null
               ? truncateString(
-                `Fetched ${formatDuration(new Date(trainingArea.properties.label_fetched), new Date(), 1)} ago`,
-                20,
-              )
+                  `Fetched ${formatDuration(new Date(trainingArea.properties.label_fetched), new Date(), 1)} ago`,
+                  20,
+                )
               : "No data yet"}
           </p>
         </div>
@@ -148,7 +148,9 @@ const TrainingAreaItem: React.FC<
                   <ToolTip content={item.tooltip} key={`menu-item-${id_}`}>
                     <button
                       onClick={() =>
-                        item.onClick?.mutate({ trainingAreaId: trainingArea.id })
+                        item.onClick?.mutate({
+                          trainingAreaId: trainingArea.id,
+                        })
                       }
                       className={` ${item.isDelete ? "text-primary bg-secondary" : "bg-off-white"}  w-8 h-8 p-1.5 items-center justify-center flex rounded-md`}
                       key={`dropdown-menu-item-${id_}`}

@@ -21,7 +21,7 @@ export const APPLICATION_ROUTES = {
   ABOUT: "/about",
   RESOURCES: "/resources",
   ACCOUNT_SETTINGS: "/account/settings",
-  ACCOUNT_PROJECTS: "/account/projects",
+  ACCOUNT_MODELS: "/account/models",
 };
 
 export const HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY: string =

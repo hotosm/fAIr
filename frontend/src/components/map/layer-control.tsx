@@ -4,6 +4,8 @@ import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { Map } from "maplibre-gl";
 import { useEffect, useState } from "react";
 import { CheckboxGroup } from "../ui/form";
+import { ToolTip } from "../ui/tooltip";
+import { ToolTipPlacement } from "@/enums";
 
 type TLayer = { id?: string; mapLayerId?: string; value: string }[];
 
@@ -83,43 +85,45 @@ const LayerControl = ({
   }, [map, layers, layerVisibility]);
 
   return (
-    <DropDown
-      dropdownIsOpened={dropdownIsOpened}
-      onDropdownHide={onDropdownHide}
-      onDropdownShow={onDropdownShow}
-      disableCheveronIcon
-      triggerComponent={
-        <div className="bg-white p-2 relative">
-          <LayerStackIcon className="icon-lg" />
+    <ToolTip content="Layer Control" placement={ToolTipPlacement.BOTTOM}>
+      <DropDown
+        dropdownIsOpened={dropdownIsOpened}
+        onDropdownHide={onDropdownHide}
+        onDropdownShow={onDropdownShow}
+        disableCheveronIcon
+        triggerComponent={
+          <div className="bg-white p-2 relative">
+            <LayerStackIcon className="icon-lg" />
+          </div>
+        }
+        withCheckbox
+        distance={10}
+      >
+        <div className="bg-white px-4 py-2 text-nowrap rounded-md w-full flex flex-col gap-y-4">
+          <p className="text-sm">Basemap</p>
+          <CheckboxGroup
+            defaultSelectedOption={selectedBasemap}
+            options={[{ value: "OSM" }, { value: "Satellite" }]}
+            // @ts-expect-error bad type definition
+            onCheck={(basemap) => setSelectedBasemap(basemap)}
+          />
+          {layers.length > 0 && (
+            <>
+              <p className="text-sm">Layers</p>
+              <CheckboxGroup
+                defaultSelectedOption={Object.keys(layerVisibility).filter(
+                  (layer) => layerVisibility[layer],
+                )}
+                multiple
+                options={layers}
+                // @ts-expect-error bad type definition
+                onCheck={handleLayerSelection}
+              />
+            </>
+          )}
         </div>
-      }
-      withCheckbox
-      distance={10}
-    >
-      <div className="bg-white px-4 py-2 text-nowrap rounded-md w-full flex flex-col gap-y-4">
-        <p className="text-sm">Basemap</p>
-        <CheckboxGroup
-          defaultSelectedOption={selectedBasemap}
-          options={[{ value: "OSM" }, { value: "Satellite" }]}
-          // @ts-expect-error bad type definition
-          onCheck={(basemap) => setSelectedBasemap(basemap)}
-        />
-        {layers.length > 0 && (
-          <>
-            <p className="text-sm">Layers</p>
-            <CheckboxGroup
-              defaultSelectedOption={Object.keys(layerVisibility).filter(
-                (layer) => layerVisibility[layer],
-              )}
-              multiple
-              options={layers}
-              // @ts-expect-error bad type definition
-              onCheck={handleLayerSelection}
-            />
-          </>
-        )}
-      </div>
-    </DropDown>
+      </DropDown>
+    </ToolTip>
   );
 };
 

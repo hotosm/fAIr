@@ -23,8 +23,8 @@ const UserProfile: React.FC<UserProfileProps> = ({ logout, user }) => {
       dropdownIsOpened={dropdownIsOpened}
       menuItems={[
         {
-          value: APP_CONTENT.navbar.userProfile.projects,
-          onClick: () => navigate(APPLICATION_ROUTES.ACCOUNT_PROJECTS),
+          value: APP_CONTENT.navbar.userProfile.models,
+          onClick: () => navigate(APPLICATION_ROUTES.ACCOUNT_MODELS),
         },
         {
           value: APP_CONTENT.navbar.userProfile.settings,

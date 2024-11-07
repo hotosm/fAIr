@@ -1,10 +1,9 @@
 import { ButtonWithIcon } from "@/components/ui/button";
 import { AddIcon } from "@/components/ui/icons";
+import { Link } from "@/components/ui/link";
 import { APP_CONTENT, APPLICATION_ROUTES } from "@/utils";
-import { useNavigate } from "react-router-dom";
 
 const PageHeader = () => {
-  const navigate = useNavigate();
   return (
     <div className="flex flex-col gap-y-8 my-12">
       <div>
@@ -17,12 +16,17 @@ const PageHeader = () => {
           {APP_CONTENT.models.modelsList.description}
         </p>
         <div className="self-start">
-          <ButtonWithIcon
-            variant="primary"
-            prefixIcon={AddIcon}
-            label={APP_CONTENT.models.modelsList.ctaButton}
-            onClick={() => navigate(APPLICATION_ROUTES.CREATE_NEW_MODEL)}
-          />
+          <Link
+            href={APPLICATION_ROUTES.CREATE_NEW_MODEL}
+            nativeAnchor={false}
+            title={APP_CONTENT.models.modelsList.ctaButton}
+          >
+            <ButtonWithIcon
+              variant="primary"
+              prefixIcon={AddIcon}
+              label={APP_CONTENT.models.modelsList.ctaButton}
+            />
+          </Link>
         </div>
       </div>
     </div>

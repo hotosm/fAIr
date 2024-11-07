@@ -15,7 +15,7 @@ export const APP_CONTENT = {
       learn: "Learn",
     },
     userProfile: {
-      projects: "Projects",
+      models: "My Models",
       settings: "Settings",
       logout: "Log Out",
     },

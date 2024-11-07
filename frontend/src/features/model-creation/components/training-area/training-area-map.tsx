@@ -1,8 +1,11 @@
 import { useMap } from "@/app/providers/map-provider";
 import { MapComponent } from "@/components/map";
 import { PaginatedTrainingArea } from "@/types";
-import { LayerSpecification, SourceSpecification } from "maplibre-gl";
-import { useEffect } from "react";
+import { GeoJSONSourceSpecification, LayerSpecification } from "maplibre-gl";
+import { useCallback, useEffect } from "react";
+import { useCreateTrainingArea } from "../../hooks/use-training-areas";
+import { geojsonToWKT } from "@terraformer/wkt";
+import { useToastNotification } from "@/hooks/use-toast-notification";
 
 const TrainingAreaMap = ({
   tileJSONURL,
@@ -13,100 +16,144 @@ const TrainingAreaMap = ({
   data?: PaginatedTrainingArea;
   trainingDatasetId: number;
 }) => {
-  const TMSLayerId = "training-dataset-tms-layer";
+  const { map, terraDraw } = useMap();
+  const toast = useToastNotification();
+  const TMSLayerId = `training-dataset-tms-layer`;
   const TMSSourceId = `oam-training-dataset-${trainingDatasetId}`;
   const trainingAreasLayerId = `dataset-${trainingDatasetId}-training-area-layer`;
-  const trainingAreasSourced = `dataset-${trainingDatasetId}-training-area-source`;
+  const trainingAreasSourceId = `dataset-${trainingDatasetId}-training-area-source`;
+  const createTrainingArea = useCreateTrainingArea({
+    datasetId: Number(trainingDatasetId),
+  });
 
-  const trainingAreaLayer = {
-    id: trainingAreasLayerId,
-    type: "line",
-    source: trainingAreasSourced,
-    paint: {
-      "line-color": "#d63f40", // hot-primary
-      "line-width": 3,
+  const applyLayerChanges = useCallback(
+    (layerUpdateFn: () => void) => {
+      if (!map) return;
+      if (map.isStyleLoaded()) {
+        layerUpdateFn();
+      } else {
+        map.on("styledata", layerUpdateFn);
+      }
     },
-    layout: {
-      visibility: "visible",
-    },
-  } as LayerSpecification;
+    [map],
+  );
 
-  const trainingAreaSource = {
-    type: "geojson",
-    data: data?.results,
-  } as SourceSpecification;
+  const updateTMSLayer = useCallback(() => {
+    if (!map?.getSource(TMSSourceId)) {
+      map?.addSource(TMSSourceId, { type: "raster", url: tileJSONURL });
+    }
+    if (!map?.getLayer(TMSLayerId)) {
+      map?.addLayer({
+        id: TMSLayerId,
+        type: "raster",
+        source: TMSSourceId,
+        paint: { "raster-opacity": 1 },
+        layout: { visibility: "visible" },
+      });
+    }
+  }, [map, TMSSourceId, TMSLayerId, tileJSONURL]);
 
-  const { map } = useMap();
-  const mapData = data?.results;
+  const updateTrainingAreasLayer = useCallback(() => {
+    if (!data?.results) return;
+
+    if (map?.getSource(trainingAreasSourceId)) {
+      //@ts-expect-error bad type definition
+      map.getSource(trainingAreasSourceId)?.setData(data?.results);
+    } else {
+      map?.addSource(trainingAreasSourceId, {
+        type: "geojson",
+        data: data?.results,
+      } as GeoJSONSourceSpecification);
+
+      if (!map?.getLayer(trainingAreasLayerId)) {
+        map?.addLayer({
+          id: trainingAreasLayerId,
+          type: "line",
+          source: trainingAreasSourceId,
+          paint: { "line-color": "rgb(51, 136, 255)", "line-width": 4 },
+          layout: { visibility: "visible" },
+        } as LayerSpecification);
+      }
+    }
+  }, [map, data?.results, trainingAreasSourceId, trainingAreasLayerId]);
+
+  const bringTrainingAreaLayerToTop = useCallback(() => {
+    if (map?.getLayer(trainingAreasLayerId) && map?.getLayer(TMSLayerId)) {
+      map.moveLayer(TMSLayerId, trainingAreasLayerId);
+    }
+  }, [map, trainingAreasLayerId, TMSLayerId]);
 
   useEffect(() => {
-    if (!map || !map.isStyleLoaded()) return;
+    applyLayerChanges(updateTMSLayer);
+    return () => {
+      if (map?.getLayer(TMSLayerId)) map.removeLayer(TMSLayerId);
+      if (map?.getSource(TMSSourceId)) map.removeSource(TMSSourceId);
+    };
+  }, [map, applyLayerChanges, updateTMSLayer]);
 
-    const updateTMSLayer = () => {
-      if (!map.getSource(TMSSourceId)) {
-        map.addSource(TMSSourceId, {
-          type: "raster",
-          url: tileJSONURL,
-        });
-      }
+  useEffect(() => {
+    if (!data?.results) return;
+    applyLayerChanges(updateTrainingAreasLayer);
+    return () => {
+      if (map?.getLayer(trainingAreasLayerId))
+        map.removeLayer(trainingAreasLayerId);
+      if (map?.getSource(trainingAreasSourceId))
+        map.removeSource(trainingAreasSourceId);
+    };
+  }, [map, applyLayerChanges, updateTrainingAreasLayer, data?.results]);
 
-      if (!map.getLayer(TMSLayerId)) {
-        map.addLayer({
-          id: TMSLayerId,
-          type: "raster",
-          source: TMSSourceId,
-          paint: {
-            "raster-opacity": 1,
-          },
-          layout: {
-            visibility: "visible",
-          },
-        });
-      }
+  useEffect(() => {
+    const handleStyleData = () => {
+      applyLayerChanges(updateTrainingAreasLayer);
+      applyLayerChanges(updateTMSLayer);
+      bringTrainingAreaLayerToTop();
     };
 
-    const updateGeoJSONLayer = () => {
-      if (map.getSource(trainingAreasSourced)) {
-        //@ts-expect-error bad type definition
-        map.getSource(trainingAreasSourced).setData(mapData);
-      } else {
-        map.addSource(trainingAreasSourced, trainingAreaSource);
-
-        if (!map.getLayer(trainingAreasLayerId)) {
-          map.addLayer(trainingAreaLayer);
-        }
-      }
-    };
-
-    const onStyleData = () => {
-      updateTMSLayer();
-      updateGeoJSONLayer();
-    };
-    onStyleData();
-    // Attach the listener for style changes
-    map.on("styledata", onStyleData);
+    if (map) {
+      map.on("styledata", handleStyleData);
+    }
 
     return () => {
-      if (map.getLayer(trainingAreasLayerId)) {
-        map.removeLayer(trainingAreasLayerId);
+      if (map) {
+        map.off("styledata", handleStyleData);
       }
-      if (map.getSource(trainingAreasSourced)) {
-        map.removeSource(trainingAreasSourced);
-      }
-      if (map.getLayer(TMSLayerId)) {
-        map.removeLayer(TMSLayerId);
-      }
-      if (map.getSource(TMSSourceId)) {
-        map.removeSource(TMSSourceId);
-      }
-
-      map.off("styledata", onStyleData);
     };
-  }, [map, mapData, tileJSONURL]);
+  }, [
+    map,
+    applyLayerChanges,
+    updateTMSLayer,
+    updateTrainingAreasLayer,
+    bringTrainingAreaLayerToTop,
+  ]);
 
-  // add the draw as a new source that continues to increment
-  // add an effect to check when a draw is completed then save it and reload the draw
-  // store the drawing in the state to confirm the user has drawn before moving to the next step.
+  useEffect(() => {
+    if (!terraDraw) return;
+
+    const handleFinish = async () => {
+      const snapshot = terraDraw.getSnapshot();
+      // add snapping and validation
+      // save to api and mutate
+      // no need to update local state?
+      if (snapshot) {
+        const wkt = geojsonToWKT(snapshot[0].geometry);
+        await createTrainingArea.mutateAsync(
+          {
+            dataset: String(trainingDatasetId),
+            geom: `SRID=4326;${wkt}`,
+          },
+          {
+            onSuccess: () => {
+              toast("Training area created successfully", "success");
+            },
+          },
+        );
+        terraDraw.clear();
+      }
+    };
+
+    terraDraw.on("finish", handleFinish);
+    return () => terraDraw.off("finish", handleFinish);
+  }, [terraDraw]);
 
   return (
     <MapComponent
@@ -115,18 +162,9 @@ const TrainingAreaMap = ({
       showCurrentZoom
       layerControl
       layerControlLayers={[
-        {
-          value: "TMS Layer",
-          mapLayerId: TMSLayerId,
-        },
-        // @ts-expect-error bad type definition
-        ...(mapData?.features?.length > 0
-          ? [
-            {
-              value: "Training Areas",
-              mapLayerId: trainingAreasLayerId,
-            },
-          ]
+        { value: "TMS Layer", mapLayerId: TMSLayerId },
+        ...(data?.results?.features?.length
+          ? [{ value: "Training Areas", mapLayerId: trainingAreasLayerId }]
           : []),
       ]}
     />

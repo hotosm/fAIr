@@ -14,3 +14,16 @@ export enum TrainingDatasetOption {
   USE_EXISTING = "existing",
   NONE = "none",
 }
+
+export enum DrawingModes {
+  RECTANGLE = "rectangle",
+  POLYGON = "polygon",
+  SELECT = "select",
+  STATIC = "static",
+}
+
+export enum ToolTipPlacement {
+  RIGHT = "right",
+  BOTTOM = "bottom",
+  TOP = "top",
+}

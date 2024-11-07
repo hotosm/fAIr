@@ -45,7 +45,7 @@ export enum MODEL_CREATION_FORM_NAME {
   TMS_URL_VALIDITY = "tmsURLValidation",
   SELECTED_TRAINING_DATASET_ID = "selectedTrainingDatasetId",
   TRAINING_AREAS = "trainingAreas",
-  DATASET_TIME_NAME = "datasetTileName"
+  DATASET_TIME_NAME = "datasetTileName",
 }
 
 export const FORM_VALIDATION_CONFIG = {
@@ -134,8 +134,8 @@ const ModelCreationFormContext = createContext<{
   >;
 }>({
   formData: initialFormState,
-  setFormData: () => { },
-  handleChange: () => { },
+  setFormData: () => {},
+  handleChange: () => {},
   createNewTrainingDatasetMutation: {} as UseMutationResult<
     TTrainingDataset,
     Error,

@@ -18,7 +18,7 @@ import TrainingAreaList from "./training-area-list";
 import { useGetTrainingAreas } from "../../hooks/use-training-areas";
 import { useMap } from "@/app/providers/map-provider";
 import { ToolTip } from "@/components/ui/tooltip";
-
+import { truncateString } from "@/utils";
 
 const TrainingAreaForm = () => {
   const { formData } = useModelFormContext();
@@ -54,10 +54,10 @@ const TrainingAreaForm = () => {
   }, [trainingAreasData]);
 
   useEffect(() => {
-    if (!data) return
+    if (!data || !map) return;
     handleChange(MODEL_CREATION_FORM_NAME.DATASET_TIME_NAME, data.name);
     fitToTMSBounds();
-  }, [data])
+  }, [data, map]);
 
   return (
     <>
@@ -99,7 +99,9 @@ const TrainingAreaForm = () => {
               <p className="text-body-1">Open Aerial Map</p>
               <div className="flex w-full items-center justify-between">
                 <div className="flex flex-col gap-y-2">
-                  <p className="text-body-3">{formData.datasetName}</p>
+                  <p className="text-body-3" title={formData.datasetTileName}>
+                    {truncateString(formData.datasetTileName)}
+                  </p>
                   <div className="flex items-center justify-between w-full gap-x-4">
                     <p className="text-body-4">
                       Max zoom: {data?.maxzoom ?? 0}

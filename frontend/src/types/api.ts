@@ -175,5 +175,5 @@ export type Feature = {
 
 export type FeatureCollection = {
   type: "FeatureCollection";
-  features: Feature[];
+  features: [] | Feature[];
 };
