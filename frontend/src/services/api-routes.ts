@@ -16,6 +16,7 @@ export const API_ENDPOINTS = {
   //Models
   GET_MODELS: "model/",
   CREATE_MODELS: "model/",
+  UPDATE_MODEL: (modelId: string) => `model/${modelId}/`,
   GET_MODEL_DETAILS: (id: string) => `model/${id}`,
   GET_MODELS_CENTROIDS: "models/centroid",
 

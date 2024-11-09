@@ -12,7 +12,8 @@ const CreateNewTrainingDatasetForm = () => {
   const { formData, handleChange } = useModelFormContext();
 
   const tmsURLHelpText = useMemo(() => {
-    const helpText = MODEL_CREATION_CONTENT.trainingDataset.form.tmsURL.helpText;
+    const helpText =
+      MODEL_CREATION_CONTENT.trainingDataset.form.tmsURL.helpText;
     return formData.tmsURLValidation.message.length > 0
       ? formData.tmsURLValidation.message
       : helpText;
@@ -32,19 +33,28 @@ const CreateNewTrainingDatasetForm = () => {
   return (
     <div className="flex flex-col gap-y-10">
       <p className="font-semibold text-body-1 mb-2">
-        {MODEL_CREATION_CONTENT.trainingDataset.form.newTrainingDatasetSectionHeading}
+        {
+          MODEL_CREATION_CONTENT.trainingDataset.form
+            .newTrainingDatasetSectionHeading
+        }
       </p>
       <Input
         handleInput={(e) =>
           handleChange(MODEL_CREATION_FORM_NAME.DATASET_NAME, e.target.value)
         }
         value={formData.datasetName}
-        toolTipContent={MODEL_CREATION_CONTENT.trainingDataset.form.datasetName.toolTip}
+        toolTipContent={
+          MODEL_CREATION_CONTENT.trainingDataset.form.datasetName.toolTip
+        }
         label={MODEL_CREATION_CONTENT.trainingDataset.form.datasetName.label}
         labelWithTooltip
-        placeholder={MODEL_CREATION_CONTENT.trainingDataset.form.datasetName.placeholder}
+        placeholder={
+          MODEL_CREATION_CONTENT.trainingDataset.form.datasetName.placeholder
+        }
         showBorder
-        helpText={MODEL_CREATION_CONTENT.trainingDataset.form.datasetName.helpText}
+        helpText={
+          MODEL_CREATION_CONTENT.trainingDataset.form.datasetName.helpText
+        }
         required
         maxLength={
           FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.DATASET_NAME]
@@ -59,9 +69,13 @@ const CreateNewTrainingDatasetForm = () => {
       <Input
         value={formData.tmsURL}
         labelWithTooltip
-        toolTipContent={MODEL_CREATION_CONTENT.trainingDataset.form.tmsURL.toolTip}
+        toolTipContent={
+          MODEL_CREATION_CONTENT.trainingDataset.form.tmsURL.toolTip
+        }
         label={MODEL_CREATION_CONTENT.trainingDataset.form.tmsURL.label}
-        placeholder={MODEL_CREATION_CONTENT.trainingDataset.form.tmsURL.placeholder}
+        placeholder={
+          MODEL_CREATION_CONTENT.trainingDataset.form.tmsURL.placeholder
+        }
         showBorder
         helpText={tmsURLHelpText}
         required

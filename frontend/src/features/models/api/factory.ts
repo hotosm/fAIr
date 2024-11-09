@@ -11,6 +11,7 @@ import {
   getTrainingStatus,
   getTrainingWorkspace,
 } from "@/features/models/api/get-trainings";
+import { queryKeys } from "@/services";
 
 // Models
 
@@ -46,7 +47,7 @@ export const getModelsQueryOptions = ({
 
 export const getModelDetailsQueryOptions = (id: string) => {
   return queryOptions({
-    queryKey: ["model-details", id],
+    queryKey: [queryKeys.MODEL_DETAILS(id)],
     queryFn: () => getModelDetails(id),
     refetchInterval: 10000,
   });

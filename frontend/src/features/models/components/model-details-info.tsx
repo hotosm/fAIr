@@ -7,6 +7,9 @@ import ChevronDownIcon from "@/components/ui/icons/chevron-down-icon";
 import { Divider } from "@/components/ui/divider";
 import ModelFeedbacks from "@/features/models/components/model-feedbacks";
 import ModelFilesButton from "./model-files-button";
+import ModelDetailsUpdateDialog from "./dialogs/model-details-update-dialog";
+import { useDialog } from "@/hooks/use-dialog";
+import { useAuth } from "@/app/providers/auth-provider";
 
 const ModelDetailsInfo = ({
   data,
@@ -17,8 +20,16 @@ const ModelDetailsInfo = ({
   openModelFilesDialog: () => void;
   openTrainingAreaDialog: () => void;
 }) => {
+  const { isOpened, openDialog, closeDialog } = useDialog();
+  const { user, isAuthenticated } = useAuth();
+
   return (
     <>
+      <ModelDetailsUpdateDialog
+        isOpened={isOpened}
+        closeDialog={closeDialog}
+        data={data}
+      />
       <ModelDetailsSection title="">
         <div className="flex flex-col gap-y-8">
           <div className="inline-flex flex-col gap-y-4">
@@ -28,12 +39,12 @@ const ModelDetailsInfo = ({
             <div className="w-full flex flex-col md:flex-row md:items-center md:justify-between gap-y-8">
               <div className="flex flex-col gap-y-4">
                 <h1
-                  className="font-semibold text-dark text-title-2 md:text-large-title"
+                  className="font-semibold text-dark text-title-2 md:text-large-title text-wrap"
                   title={data?.name}
                 >
-                  {truncateString(data?.name, 20)}
+                  {truncateString(data?.name, 40)}
                 </h1>
-                <p className="text-body-3 text-gray md:text-body-2">
+                <p className="text-body-3 text-gray md:text-body-2 text-wrap max-w-lg md:max-w-xl xl:max-w-4xl">
                   {data?.description ??
                     APP_CONTENT.models.modelsDetailsCard
                       .modelDescriptionNotAvailable}
@@ -91,9 +102,16 @@ const ModelDetailsInfo = ({
             />
           </div>
           <div className="col-span-1 flex flex-col md:items-end md:justify-between gap-y-4">
-            <button className="flex items-center gap-x-4">
-              <PenIcon className="icon" /> <span>Edit Model Details</span>
-            </button>
+            <div>
+              {isAuthenticated && user.osm_id === data.user.osm_id && (
+                <button
+                  className="flex items-center gap-x-4"
+                  onClick={openDialog}
+                >
+                  <PenIcon className="icon" /> <span>Edit Model Details</span>
+                </button>
+              )}
+            </div>
             <ModelFeedbacks trainingId={data?.published_training as number} />
           </div>
         </div>

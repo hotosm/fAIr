@@ -44,6 +44,7 @@ export type TModel = {
   user: TOSMUser;
   thumbnail_url: string;
   base_model: string;
+  description: string;
 };
 
 export type PaginatedModels = {

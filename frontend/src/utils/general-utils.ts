@@ -1,11 +1,12 @@
 import { API_ENDPOINTS, BASE_API_URL } from "@/services";
 import { Feature, FeatureCollection } from "@/types";
 import { calculateGeoJSONArea } from "./geometry-utils";
-import { FAIR_VERSION, MAX_TRAINING_AREA_SIZE, MIN_TRAINING_AREA_SIZE } from "./constants";
+import {
+  FAIR_VERSION,
+  MAX_TRAINING_AREA_SIZE,
+  MIN_TRAINING_AREA_SIZE,
+} from "./constants";
 import { useToastNotification } from "@/hooks/use-toast-notification";
-
-
-
 
 /**
  * Open the AOI (Training Area) in ID Editor.
@@ -61,7 +62,6 @@ export const geoJSONDowloader = (
   return;
 };
 
-
 /**
  * Validates whether the area of a GeoJSON feature falls outside the acceptable range.
  *
@@ -78,7 +78,6 @@ export const validateGeoJSONArea = (geojsonFeature: Feature) => {
   const area = calculateGeoJSONArea(geojsonFeature);
   return area < MIN_TRAINING_AREA_SIZE || area > MAX_TRAINING_AREA_SIZE;
 };
-
 
 /**
  * Displays an error message as a toast notification.
@@ -117,7 +116,6 @@ export const showErrorToast = (
   toast(message, "danger");
 };
 
-
 /**
  * Displays a success message as a toast notification.
  *
@@ -127,7 +125,6 @@ export const showSuccessToast = (message: string = "") => {
   const toast = useToastNotification();
   toast(message, "success");
 };
-
 
 /**
  * Displays a warning message as a toast notification.

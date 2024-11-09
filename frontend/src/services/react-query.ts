@@ -23,3 +23,7 @@ export type MutationConfig<
   Error,
   Parameters<MutationFnType>[0]
 >;
+
+export const queryKeys = {
+  MODEL_DETAILS: (modelId: string) => `model-details-${modelId}`,
+};

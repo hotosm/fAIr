@@ -59,10 +59,12 @@ const TrainingAreaForm = () => {
           </div>
           <div className="flex flex-col items-end gap-y-4 ">
             <p className="flex items-center gap-x-2">
-              <YouTubePlayIcon className="icon-lg" />{MODEL_CREATION_CONTENT.trainingArea.tutorialText}
+              <YouTubePlayIcon className="icon-lg" />
+              {MODEL_CREATION_CONTENT.trainingArea.tutorialText}
             </p>
             <p className="text-dark">
-              {MODEL_CREATION_CONTENT.trainingArea.datasetID} {formData.selectedTrainingDatasetId}
+              {MODEL_CREATION_CONTENT.trainingArea.datasetID}{" "}
+              {formData.selectedTrainingDatasetId}
             </p>
           </div>
         </div>

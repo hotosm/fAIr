@@ -32,7 +32,9 @@ const OpenAerialMap = ({ tileJSONURL }: { tileJSONURL: string }) => {
 
   return (
     <div className="flex  flex-col  gap-y-2 w-full border-b-8 border-off-white px-4 pb-4">
-      <p className="text-body-1">{MODEL_CREATION_CONTENT.trainingArea.form.openAerialMap}</p>
+      <p className="text-body-1">
+        {MODEL_CREATION_CONTENT.trainingArea.form.openAerialMap}
+      </p>
       <div className="flex flex-col w-full items-center justify-between gap-y-4">
         {isError ? (
           <p>
@@ -61,8 +63,14 @@ const OpenAerialMap = ({ tileJSONURL }: { tileJSONURL: string }) => {
               </ToolTip>
             </div>
             <div className="flex items-center justify-between w-full gap-x-4">
-              <p className="text-body-4">{MODEL_CREATION_CONTENT.trainingArea.form.maxZoom} {data?.maxzoom ?? 0}</p>
-              <p className="text-body-4">{MODEL_CREATION_CONTENT.trainingArea.form.minZoom} {data?.minzoom ?? 0}</p>
+              <p className="text-body-4">
+                {MODEL_CREATION_CONTENT.trainingArea.form.maxZoom}{" "}
+                {data?.maxzoom ?? 0}
+              </p>
+              <p className="text-body-4">
+                {MODEL_CREATION_CONTENT.trainingArea.form.minZoom}{" "}
+                {data?.minzoom ?? 0}
+              </p>
             </div>
           </>
         )}

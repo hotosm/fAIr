@@ -4,7 +4,6 @@ import bboxPolygon from "@turf/bbox";
 import area from "@turf/area";
 import { LngLatBoundsLike, Map } from "maplibre-gl";
 
-
 /**
  * Calculates the area of a GeoJSON Feature or FeatureCollection.
  *
@@ -14,7 +13,7 @@ import { LngLatBoundsLike, Map } from "maplibre-gl";
  *
  * @param {Feature | FeatureCollection} geojsonFeature - The GeoJSON object
  * representing a single Feature or a collection of Features.
- * 
+ *
  * @returns {number} The calculated area of the GeoJSON feature in square meters.
  */
 export const calculateGeoJSONArea = (
@@ -22,7 +21,6 @@ export const calculateGeoJSONArea = (
 ): number => {
   return area(geojsonFeature);
 };
-
 
 /**
  * Computes the bounding box of a GeoJSON Feature.
@@ -32,8 +30,8 @@ export const calculateGeoJSONArea = (
  * of an array with four values representing [west, south, east, north] coordinates.
  *
  * @param {Feature} geojsonFeature - The GeoJSON feature for which to calculate the bounding box.
- * 
- * @returns {LngLatBoundsLike} The bounding box as an array of coordinates 
+ *
+ * @returns {LngLatBoundsLike} The bounding box as an array of coordinates
  * in the format [west, south, east, north].
  */
 
@@ -51,7 +49,7 @@ export const getGeoJSONFeatureBounds = (
  *
  * This function takes an angle in degrees and converts it to radians.
  * @param {number} degrees - The angle in degrees to be converted.
- * 
+ *
  * @returns {number} The angle in radians.
  */
 const degrees_to_radians = (degrees: number): number => {
@@ -66,7 +64,7 @@ const degrees_to_radians = (degrees: number): number => {
  * @param {number} lat_deg - The latitude in degrees.
  * @param {number} lon_deg - The longitude in degrees.
  * @param {number} zoom - The zoom level to determine the tile numbers.
- * 
+ *
  * @returns {Object} An object containing:
  *  - `xtile` {number}: The tile number on the x-axis.
  *  - `ytile` {number}: The tile number on the y-axis.
@@ -87,13 +85,12 @@ const deg2num = (
   return { xtile, ytile };
 };
 
-
 /**
  * Converts radians to degrees.
  *
  * This function takes an angle in radians and converts it to degress.
  * @param {number} radians - The angle in radians to be converted.
- * 
+ *
  * @returns {number} The angle in degress.
  */
 const radians_to_degrees = (radians: number): number => {
@@ -107,7 +104,7 @@ const radians_to_degrees = (radians: number): number => {
  * @param {number} xtile - The x-axis tile number.
  * @param {number} ytile - The y-axis tile number.
  * @param {number} zoom - The zoom level used for the tile coordinates.
- * 
+ *
  * @returns {Object} An object containing:
  *  - `lat_deg` {number}: The latitude in degrees.
  *  - `lon_deg` {number}: The longitude in degrees.
@@ -172,7 +169,6 @@ export const distance = (
   }
 };
 
-
 /**
  * Finds the geographic coordinates of the closest tile corner to a given latitude and longitude
  * at a specified zoom level.
@@ -207,14 +203,13 @@ const getClosestCorner = (
   return closestGeo;
 };
 
-
 /**
  * Approximates the given set of coordinates to the nearest corner tiles at a specified zoom level.
  *
  * @param {Array<[number, number]>} coordinates - An array of coordinate pairs [longitude, latitude] to approximate.
  * @param {number} [zoom=19] - The zoom level used to calculate the closest tile corners (default is 19).
  *
- * @returns {Array<[number, number]>} - An array of the approximated coordinates, where each point is replaced by 
+ * @returns {Array<[number, number]>} - An array of the approximated coordinates, where each point is replaced by
  * the closest tile corner at the specified zoom level.
  */
 export const approximateGeom = (
@@ -227,15 +222,14 @@ export const approximateGeom = (
   });
 };
 
-
 /**
- * Generates a GeoJSON FeatureCollection representing the boundaries of map tiles 
+ * Generates a GeoJSON FeatureCollection representing the boundaries of map tiles
  * within the current visible bounds at a specified zoom level.
  *
  * @param {Map} map - The Map instance representing the map where the tiles are located.
  * @param {number} zoom - The zoom level to calculate the tile boundaries.
  *
- * @returns {FeatureCollection} - A GeoJSON FeatureCollection containing polygons that define the boundaries 
+ * @returns {FeatureCollection} - A GeoJSON FeatureCollection containing polygons that define the boundaries
  * of each tile within the visible map bounds at the given zoom level.
  */
 export const getTileBoundariesGeoJSON = (
@@ -278,15 +272,14 @@ export const getTileBoundariesGeoJSON = (
   };
 };
 
-
 /**
- * Snaps the coordinates of a GeoJSON geometry to the closest map tile boundaries 
- * based on the current zoom level, by approximating each coordinate to the nearest 
+ * Snaps the coordinates of a GeoJSON geometry to the closest map tile boundaries
+ * based on the current zoom level, by approximating each coordinate to the nearest
  * corner of a map tile.
  *
  * @param {Geometry} geometry - The GeoJSON geometry whose coordinates need to be snapped.
- * 
- * @returns {Geometry} - The updated GeoJSON geometry with its coordinates snapped 
+ *
+ * @returns {Geometry} - The updated GeoJSON geometry with its coordinates snapped
  * to the closest tile boundaries.
  */
 export const snapGeoJSONGeometryToClosestTile = (geometry: Geometry) => {

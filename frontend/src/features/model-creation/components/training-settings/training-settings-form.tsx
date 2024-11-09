@@ -51,7 +51,8 @@ const advancedSettings = [
   {
     label: MODEL_CREATION_CONTENT.trainingSettings.form.contactSpacing.label,
     value: MODEL_CREATION_FORM_NAME.CONTACT_SPACING,
-    toolTip: MODEL_CREATION_CONTENT.trainingSettings.form.contactSpacing.toolTip,
+    toolTip:
+      MODEL_CREATION_CONTENT.trainingSettings.form.contactSpacing.toolTip,
   },
   {
     label: MODEL_CREATION_CONTENT.trainingSettings.form.batchSize.label,
@@ -96,7 +97,9 @@ const TrainingSettingsForm = () => {
         <FormLabel
           label={MODEL_CREATION_CONTENT.trainingSettings.form.zoomLevel.label}
           withTooltip
-          toolTipContent={MODEL_CREATION_CONTENT.trainingSettings.form.zoomLevel.toolTip}
+          toolTipContent={
+            MODEL_CREATION_CONTENT.trainingSettings.form.zoomLevel.toolTip
+          }
           required
         />
         <CheckboxGroup
@@ -120,9 +123,13 @@ const TrainingSettingsForm = () => {
 
       <div className="flex flex-col gap-y-6">
         <FormLabel
-          label={MODEL_CREATION_CONTENT.trainingSettings.form.trainingType.label}
+          label={
+            MODEL_CREATION_CONTENT.trainingSettings.form.trainingType.label
+          }
           withTooltip
-          toolTipContent={MODEL_CREATION_CONTENT.trainingSettings.form.trainingType.toolTip}
+          toolTipContent={
+            MODEL_CREATION_CONTENT.trainingSettings.form.trainingType.toolTip
+          }
           required
         />
         <div className="flex items-center gap-x-4 w-full justify-between">
@@ -147,9 +154,15 @@ const TrainingSettingsForm = () => {
       <div className="flex flex-col gap-y-6">
         <div className="flex items-center gap-x-4 w-full">
           <FormLabel
-            label={MODEL_CREATION_CONTENT.trainingSettings.form.advancedSettings.label}
+            label={
+              MODEL_CREATION_CONTENT.trainingSettings.form.advancedSettings
+                .label
+            }
             withTooltip
-            toolTipContent={MODEL_CREATION_CONTENT.trainingSettings.form.advancedSettings.toolTip}
+            toolTipContent={
+              MODEL_CREATION_CONTENT.trainingSettings.form.advancedSettings
+                .toolTip
+            }
           />
           <button
             onClick={() => setShowAdvancedSettings(!showAdvancedSettings)}

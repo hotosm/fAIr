@@ -20,7 +20,10 @@ const SelectExistingTrainingDatasetForm = () => {
   return (
     <div className="flex flex-col gap-y-10">
       <p className="font-semibold text-body-1 mb-2">
-        {MODEL_CREATION_CONTENT.trainingDataset.form.existingTrainingDatasetSectionHeading}
+        {
+          MODEL_CREATION_CONTENT.trainingDataset.form
+            .existingTrainingDatasetSectionHeading
+        }
       </p>
       <div className={`flex  items-center border border-gray-border`}>
         <SearchIcon className={`ml-2 icon-lg text-dark`} />
@@ -29,7 +32,9 @@ const SelectExistingTrainingDatasetForm = () => {
             setSearchQuery(e.target.value);
           }}
           value={searchQuery}
-          placeholder={MODEL_CREATION_CONTENT.trainingDataset.form.searchBar.placeholder}
+          placeholder={
+            MODEL_CREATION_CONTENT.trainingDataset.form.searchBar.placeholder
+          }
           disabled={isError}
         />
       </div>

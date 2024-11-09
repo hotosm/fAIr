@@ -10,6 +10,7 @@ export const TOAST_NOTIFICATIONS = {
   trainingRequestSubmittedSuccess: "Training request submitted successfully.",
   trainingDatasetCreationSuccess: "Dataset created successfully.",
   modelCreationSuccess: "Model created successfully.",
+  modelUpdateSuccess: "Model updated successfully.",
   aoiWithoutGeometryWarning: "This training area does not have a geometry.",
   aoiLabelsDownloadSuccess: "AOI labels downloaded successfully.",
   josmOpenSuccess: "Map view opened in JOSM successfully!",
@@ -23,7 +24,6 @@ export const TOAST_NOTIFICATIONS = {
   loginSuccess: "Login successful.",
   logoutSuccess: "Logout successful.",
 };
-
 
 export const MODEL_CREATION_CONTENT = {
   modelDetails: {
@@ -64,7 +64,7 @@ export const MODEL_CREATION_CONTENT = {
         helpText:
           "Dataset name should be at least 10 characters and at most 40 characters.",
         placeholder: "Enter the datatset name",
-        toolTip: "Dataset Name"
+        toolTip: "Dataset Name",
       },
       tmsURL: {
         label: "TMS URL",
@@ -88,7 +88,7 @@ export const MODEL_CREATION_CONTENT = {
     tutorialText: "Tutorial",
     layerControl: {
       tmsLayerName: "TMS Layer",
-      trainingAreaLayerName: 'Training Areas'
+      trainingAreaLayerName: "Training Areas",
     },
     form: {
       openAerialMap: "Open Aerial Map",
@@ -100,8 +100,9 @@ export const MODEL_CREATION_CONTENT = {
     },
     fileUploadDialog: {
       title: "Upload Training Area(s)",
-      mainInstruction: "Drag 'n' drop some files here, or click to select files",
-      subInstruction: "Supports only GeoJSON (.geojson) files. (5MB max.)"
+      mainInstruction:
+        "Drag 'n' drop some files here, or click to select files",
+      subInstruction: "Supports only GeoJSON (.geojson) files. (5MB max.)",
     },
     pageDescription:
       "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Id fugit ducimus harum debitis deserunt cum quod quam rerum aliquid. Quibusdam sequi incidunt quasi delectus laudantium accusamus modi omnis maiores. Incidunt!",
@@ -425,7 +426,8 @@ export const APP_CONTENT = {
           tooltip: "",
           href: {
             RAMP: "https://rampml.global/",
-            YOLOv8: "https://yolov8.com/ ",
+            YOLO_V8_V2: "https://yolov8.com/ ",
+            YOLO_V8_V1: "https://yolov8.com/ ",
           },
         },
         sourceImage: {

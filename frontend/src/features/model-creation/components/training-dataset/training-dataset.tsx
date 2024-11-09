@@ -35,7 +35,9 @@ const TrainingDatasetForm = () => {
             }
           ></ButtonWithIcon>
           <ButtonWithIcon
-            label={MODEL_CREATION_CONTENT.trainingDataset.buttons.selectExisting}
+            label={
+              MODEL_CREATION_CONTENT.trainingDataset.buttons.selectExisting
+            }
             suffixIcon={ChevronDownIcon}
             iconClassName="-rotate-90"
             capitalizeText={false}

@@ -190,8 +190,18 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
             <p>Drop the files here ...</p>
           ) : (
             <>
-              <p>{MODEL_CREATION_CONTENT.trainingArea.fileUploadDialog.mainInstruction}</p>
-              <small>{MODEL_CREATION_CONTENT.trainingArea.fileUploadDialog.subInstruction}</small>
+              <p>
+                {
+                  MODEL_CREATION_CONTENT.trainingArea.fileUploadDialog
+                    .mainInstruction
+                }
+              </p>
+              <small>
+                {
+                  MODEL_CREATION_CONTENT.trainingArea.fileUploadDialog
+                    .subInstruction
+                }
+              </small>
             </>
           )}
         </div>

@@ -30,10 +30,17 @@ const ModelCreationSuccessConfirmation = () => {
           title={MODEL_CREATION_CONTENT.confirmation.buttons.goToModel}
           nativeAnchor={false}
         >
-          <Button>{MODEL_CREATION_CONTENT.confirmation.buttons.goToModel}</Button>
+          <Button>
+            {MODEL_CREATION_CONTENT.confirmation.buttons.goToModel}
+          </Button>
         </Link>
-        <Link href={`${APPLICATION_ROUTES.MODELS}`} title={MODEL_CREATION_CONTENT.confirmation.buttons.exploreModels}>
-          <Button variant="dark">{MODEL_CREATION_CONTENT.confirmation.buttons.exploreModels}</Button>
+        <Link
+          href={`${APPLICATION_ROUTES.MODELS}`}
+          title={MODEL_CREATION_CONTENT.confirmation.buttons.exploreModels}
+        >
+          <Button variant="dark">
+            {MODEL_CREATION_CONTENT.confirmation.buttons.exploreModels}
+          </Button>
         </Link>
       </div>
     </div>
