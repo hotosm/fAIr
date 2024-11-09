@@ -6,3 +6,4 @@ export * from "./number-utils";
 export * from "./string-utils";
 export * from "./regex";
 export * from "./geometry-utils";
+export * from "./general-utils";

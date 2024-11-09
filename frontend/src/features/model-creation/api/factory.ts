@@ -1,8 +1,13 @@
 import { keepPreviousData, queryOptions } from "@tanstack/react-query";
-import { getTrainingAreas, getTrainingDatasets } from "./get-trainings";
-import { createTrainingDataset } from "./create-trainings";
+import {
+  getTrainingAreaLabels,
+  getTrainingAreas,
+  getTrainingDatasetLabels,
+  getTrainingDatasets,
+} from "@/features/model-creation/api/get-trainings";
+import { createTrainingDataset } from "@/features/model-creation/api/create-trainings";
 import { TTrainingDataset } from "@/types";
-import { getTMSTileJSON } from "./get-tms-tilejson";
+import { getTMSTileJSON } from "@/features/model-creation/api/get-tms-tilejson";
 
 export const getTrainingDatasetsQueryOptions = (searchQuery: string) => {
   return queryOptions({
@@ -36,5 +41,22 @@ export const createTrainingDatasetsQueryOptions = ({
   return queryOptions({
     queryKey: ["create-training-datasets", source_imagery, name],
     queryFn: () => createTrainingDataset({ name, source_imagery }),
+  });
+};
+
+export const getTrainingDatasetLabelsQueryOptions = (
+  aoiDatasetId: number,
+  bbox: string,
+) => {
+  return queryOptions({
+    queryKey: ["training-dataset-labels", aoiDatasetId, bbox],
+    queryFn: () => getTrainingDatasetLabels(aoiDatasetId, bbox),
+  });
+};
+
+export const getTrainingAreaLabelsQueryOptions = (aoiId: number) => {
+  return queryOptions({
+    queryKey: ["training-area-labels", aoiId],
+    queryFn: () => getTrainingAreaLabels(aoiId),
   });
 };

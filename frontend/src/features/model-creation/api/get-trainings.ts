@@ -1,5 +1,9 @@
 import { API_ENDPOINTS, apiClient } from "@/services";
-import { PaginatedTrainingArea, TTrainingDataset } from "@/types";
+import {
+  FeatureCollection,
+  PaginatedTrainingArea,
+  TTrainingDataset,
+} from "@/types";
 
 export const getTrainingDatasets = async (
   searchQuery: string,
@@ -23,4 +27,23 @@ export const getTrainingAreas = async (
     hasNext: res.data.next,
     hasPrev: res.data.previous,
   };
+};
+
+export const getTrainingDatasetLabels = async (
+  aoiDatasetId: number,
+  bbox: string,
+): Promise<FeatureCollection> => {
+  const res = await apiClient.get(
+    API_ENDPOINTS.GET_TRAINING_DATASET_LABELS(aoiDatasetId, bbox),
+  );
+  return res.data.results;
+};
+
+export const getTrainingAreaLabels = async (
+  aoiId: number,
+): Promise<FeatureCollection> => {
+  const res = await apiClient.get(
+    API_ENDPOINTS.GET_TRAINING_AREA_LABELS(aoiId),
+  );
+  return res.data.results;
 };

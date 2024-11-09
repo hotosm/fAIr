@@ -1,10 +1,13 @@
 import { useMutation } from "@tanstack/react-query";
-import { createModel, TCreateModelArgs } from "../api/create-models";
+import {
+  createModel,
+  TCreateModelArgs,
+} from "@/features/model-creation/api/create-models";
 import { MutationConfig } from "@/services";
 import {
   createTrainingRequest,
   TCreateTrainingRequestArgs,
-} from "../api/create-trainings";
+} from "@/features/model-creation/api/create-trainings";
 
 type useCreateModelOptions = {
   mutationConfig?: MutationConfig<typeof createModel>;

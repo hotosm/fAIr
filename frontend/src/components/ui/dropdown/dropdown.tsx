@@ -105,6 +105,7 @@ const DropDown: React.FC<DropDownProps> = ({
       className={className}
       disabled={disabled}
       distance={distance}
+      open={dropdownIsOpened}
       stayOpenOnSelect={withCheckbox} // when selecting a single item, we can close the dropdown after selection.
     >
       <div

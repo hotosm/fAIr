@@ -6,6 +6,7 @@ import {
   formatDate,
   formatDuration,
   roundNumber,
+  showErrorToast,
   truncateString,
 } from "@/utils";
 import { ColumnDef, SortingState } from "@tanstack/react-table";
@@ -240,7 +241,12 @@ const TrainingHistoryTable: React.FC<TrainingHistoryTableProps> = ({
     offset,
     PAGE_LIMIT,
   );
-  const [sorting, setSorting] = useState<SortingState>([]);
+  const [sorting, setSorting] = useState<SortingState>([
+    {
+      id: "started_at",
+      desc: true,
+    },
+  ]);
   const { user, isAuthenticated } = useAuth();
   const { isOpened, openDialog, closeDialog } = useDialog();
   const toast = useToastNotification();
@@ -250,8 +256,7 @@ const TrainingHistoryTable: React.FC<TrainingHistoryTableProps> = ({
         toast(res.data, "success");
       },
       onError: (err) => {
-        //@ts-expect-error bad type definition
-        toast(err?.response?.data ?? err?.response?.data?.detail, "danger");
+        showErrorToast(err);
       },
     },
     modelId: Number(modelId),

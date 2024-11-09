@@ -18,6 +18,6 @@ export function setupMaplibreMap(
     center: [0, 0],
     zoom: 0.5,
     minZoom: 1,
-    maxZoom: 21,
+    maxZoom: 25,
   });
 }

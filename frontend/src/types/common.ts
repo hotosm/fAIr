@@ -40,3 +40,5 @@ export type DialogProps = {
   isOpened: boolean;
   closeDialog: () => void;
 };
+
+export type BBOX = [number, number, number, number];

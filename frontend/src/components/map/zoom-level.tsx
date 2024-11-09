@@ -23,7 +23,7 @@ const ZoomLevel = ({ map }: { map: Map | null }) => {
 
   return (
     <div className="bg-white py-1 px-3 rounded-md">
-      <p>Zoom level: {currentZoom.toFixed(0)}</p>
+      <p>Zoom level: {currentZoom.toFixed(1)}</p>
     </div>
   );
 };

@@ -1,11 +1,17 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { getTrainingAreasQueryOptions } from "../api/factory";
+import {
+  getTrainingAreaLabelsQueryOptions,
+  getTrainingAreasQueryOptions,
+  getTrainingDatasetLabelsQueryOptions,
+} from "@/features/model-creation/api/factory";
 import { MutationConfig } from "@/services";
 import {
   createTrainingArea,
+  createTrainingAreaLabels,
   TCreateTrainingAreaArgs,
-} from "../api/create-trainings";
-import { deleteTrainingArea } from "../api/delete-trainings";
+  TCreateTrainingAreaLabelsArgs,
+} from "@/features/model-creation/api/create-trainings";
+import { deleteTrainingArea } from "@/features/model-creation/api/delete-trainings";
 
 export const useGetTrainingAreas = (datasetId: number, offset: number) => {
   return useQuery({
@@ -18,13 +24,18 @@ export const useGetTrainingAreas = (datasetId: number, offset: number) => {
 type useCreateTrainingAreaOptions = {
   mutationConfig?: MutationConfig<typeof createTrainingArea>;
   datasetId: number;
+  offset: number;
 };
 
 export const useCreateTrainingArea = ({
   mutationConfig,
   datasetId,
+  offset,
 }: useCreateTrainingAreaOptions) => {
-  const { refetch: refetchTrainingAreas } = useGetTrainingAreas(datasetId, 0);
+  const { refetch: refetchTrainingAreas } = useGetTrainingAreas(
+    datasetId,
+    offset,
+  );
 
   const { onSuccess, ...restConfig } = mutationConfig || {};
 
@@ -32,7 +43,6 @@ export const useCreateTrainingArea = ({
     mutationFn: (args: TCreateTrainingAreaArgs) => createTrainingArea(args),
     onSuccess: (...args) => {
       refetchTrainingAreas();
-
       onSuccess?.(...args);
     },
     ...restConfig,
@@ -42,13 +52,18 @@ export const useCreateTrainingArea = ({
 type useDeleteTrainingAreaOptions = {
   mutationConfig?: MutationConfig<typeof deleteTrainingArea>;
   datasetId: number;
+  offset: number;
 };
 
 export const useDeleteTrainingArea = ({
   mutationConfig,
   datasetId,
+  offset,
 }: useDeleteTrainingAreaOptions) => {
-  const { refetch: refetchTrainingAreas } = useGetTrainingAreas(datasetId, 0);
+  const { refetch: refetchTrainingAreas } = useGetTrainingAreas(
+    datasetId,
+    offset,
+  );
 
   const { onSuccess, ...restConfig } = mutationConfig || {};
 
@@ -59,5 +74,57 @@ export const useDeleteTrainingArea = ({
       onSuccess?.(...args);
     },
     ...restConfig,
+  });
+};
+
+type useCreateTrainingAreaLabelOptions = {
+  aoiId: number;
+  mutationConfig?: MutationConfig<typeof createTrainingAreaLabels>;
+  datasetId: number;
+  offset: number;
+};
+
+export const useCreateTrainingAreaLabels = ({
+  mutationConfig,
+  datasetId,
+  offset,
+}: useCreateTrainingAreaLabelOptions) => {
+  const { refetch: refetchTrainingAreas } = useGetTrainingAreas(
+    datasetId,
+    offset,
+  );
+  const { onSuccess, ...restConfig } = mutationConfig || {};
+
+  return useMutation({
+    mutationFn: (args: TCreateTrainingAreaLabelsArgs) =>
+      createTrainingAreaLabels(args),
+    onSuccess: (...args) => {
+      refetchTrainingAreas();
+      onSuccess?.(...args);
+    },
+    ...restConfig,
+  });
+};
+
+export const useGetTrainingDatasetLabels = (
+  datasetId: number,
+  bbox: string,
+  currentZoom: number,
+) => {
+  return useQuery({
+    ...getTrainingDatasetLabelsQueryOptions(datasetId, bbox),
+    //@ts-expect-error bad type definition
+    throwOnError: (error) => error?.response?.status >= 500,
+    // Don't fetch when the bbox is empty
+    enabled: bbox !== "" && currentZoom >= 19,
+  });
+};
+
+export const useGetTrainingAreaLabels = (aoiId: number, enabled: boolean) => {
+  return useQuery({
+    ...getTrainingAreaLabelsQueryOptions(aoiId),
+    //@ts-expect-error bad type definition
+    throwOnError: (error) => error?.response?.status >= 500,
+    enabled: enabled,
   });
 };

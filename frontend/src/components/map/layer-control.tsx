@@ -5,25 +5,26 @@ import { Map } from "maplibre-gl";
 import { useEffect, useState } from "react";
 import { CheckboxGroup } from "../ui/form";
 import { ToolTip } from "../ui/tooltip";
-import { ToolTipPlacement } from "@/enums";
+import { BASEMAPS, ToolTipPlacement } from "@/enums";
 
 type TLayer = { id?: string; mapLayerId?: string; value: string }[];
 
 const LayerControl = ({
   map,
   layers,
-  selectedBasemap,
-  setSelectedBasemap,
+  basemaps,
 }: {
-  selectedBasemap: string;
-  setSelectedBasemap: (basemap: string) => void;
   map: Map | null;
   layers: TLayer;
+  basemaps: TLayer;
 }) => {
   const { dropdownIsOpened, onDropdownHide, onDropdownShow } =
     useDropdownMenu();
 
   const [layerVisibility, setLayerVisibility] = useState<{
+    [key: string]: boolean;
+  }>({});
+  const [basemapVisibility, setBasemapVisibility] = useState<{
     [key: string]: boolean;
   }>({});
 
@@ -39,6 +40,21 @@ const LayerControl = ({
 
     setLayerVisibility(initialVisibility);
   }, [layers]);
+
+  useEffect(() => {
+    const initialVisibility = basemaps.reduce(
+      (acc, { value }) => {
+        acc[value] =
+          basemapVisibility[value] !== undefined
+            ? basemapVisibility[value]
+            : true;
+        return acc;
+      },
+      {} as { [key: string]: boolean },
+    );
+
+    setBasemapVisibility(initialVisibility);
+  }, [basemaps]);
 
   const handleLayerSelection = (newSelectedLayers: string[]) => {
     const updatedVisibility = { ...layerVisibility };
@@ -62,27 +78,27 @@ const LayerControl = ({
     }
   };
 
-  useEffect(() => {
-    if (!map?.isStyleLoaded) return;
+  const handleBasemapSelection = (newSelectedBasemap: string[]) => {
+    const updatedVisibility = { ...basemapVisibility };
 
-    const handleStyleData = () => {
-      layers.forEach(({ value, mapLayerId }) => {
+    basemaps.forEach(({ value }) => {
+      updatedVisibility[value] = newSelectedBasemap.includes(value);
+    });
+
+    setBasemapVisibility(updatedVisibility);
+
+    if (map?.isStyleLoaded) {
+      basemaps.forEach(({ value, mapLayerId }) => {
         if (mapLayerId && map.getLayer(mapLayerId)) {
           map.setLayoutProperty(
             mapLayerId,
             "visibility",
-            layerVisibility[value] ? "visible" : "none",
+            updatedVisibility[value] ? "visible" : "none",
           );
         }
       });
-    };
-
-    map.on("styledata", handleStyleData);
-
-    return () => {
-      map.off("styledata", handleStyleData);
-    };
-  }, [map, layers, layerVisibility]);
+    }
+  };
 
   return (
     <ToolTip content="Layer Control" placement={ToolTipPlacement.BOTTOM}>
@@ -101,12 +117,14 @@ const LayerControl = ({
       >
         <div className="bg-white px-4 py-2 text-nowrap rounded-md w-full flex flex-col gap-y-4">
           <p className="text-sm">Basemap</p>
-          <CheckboxGroup
-            defaultSelectedOption={selectedBasemap}
-            options={[{ value: "OSM" }, { value: "Satellite" }]}
-            // @ts-expect-error bad type definition
-            onCheck={(basemap) => setSelectedBasemap(basemap)}
-          />
+          {basemaps.length > 0 && (
+            <CheckboxGroup
+              defaultSelectedOption={BASEMAPS.OSM}
+              options={basemaps}
+              // @ts-expect-error bad type definition
+              onCheck={handleBasemapSelection}
+            />
+          )}
           {layers.length > 0 && (
             <>
               <p className="text-sm">Layers</p>

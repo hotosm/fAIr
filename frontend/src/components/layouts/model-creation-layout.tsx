@@ -1,4 +1,4 @@
-import { Outlet, useLocation } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   ProgressBar,
   ProgressButtons,
@@ -14,7 +14,10 @@ import {
   StarIcon,
   TagsIcon,
 } from "@/components/ui/icons";
-import { ModelCreationFormProvider } from "@/app/providers/model-creation-provider";
+import {
+  ModelCreationFormProvider,
+  useModelFormContext,
+} from "@/app/providers/model-creation-provider";
 import ModelsLayout from "./models-layout";
 
 const pages: {
@@ -63,7 +66,6 @@ const pages: {
 
 const ModelCreationLayout = () => {
   const { pathname } = useLocation();
-
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
 
   useEffect(() => {
@@ -73,21 +75,10 @@ const ModelCreationLayout = () => {
     }
   }, [pathname]);
 
-  // Validation logic
-  // useEffect(() => {
-
-  //   // When a user is in the training dataset page, they must have filled the model details page
-  //   // When a user is in the training area, they must have completed the training dataset form
-  //   // When a user is in the training settings, they must have completed the training area. i.e selected labels etc
-  //   // When a user is in the submit model, they must have some training settings.
-  //   // when a user is in the confirmation page, they must have a model id in the url
-  //   // disable next button, disable prev button - pass as props to progress buttons component.
-  //   // console.log(pathname, currentPageIndex, formData);
-  // }, [pathname, currentPageIndex]);
-
   return (
     <ModelsLayout>
       <ModelCreationFormProvider>
+        <ModelCreationRouteValidator pathname={pathname} />
         <Head title="Create New Model" />
         <div className="min-h-screen grid grid-cols-12 grid-rows-[auto_1fr_auto] gap-y-8 w-full justify-center my-8">
           <div className="col-span-12 lg:col-start-2 lg:col-span-10 w-full ">
@@ -112,3 +103,56 @@ const ModelCreationLayout = () => {
 };
 
 export default ModelCreationLayout;
+
+const ModelCreationRouteValidator = ({ pathname }: { pathname: string }) => {
+  const navigate = useNavigate();
+  const { formData } = useModelFormContext();
+
+  useEffect(() => {
+    if (!pathname || !formData) return;
+
+    if (
+      pathname.includes(APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_DATASET)
+    ) {
+      // When a user is in the training dataset page, they must have filled the model details page
+      if (!formData.modelName && !formData.modelDescription)
+        navigate(APPLICATION_ROUTES.CREATE_NEW_MODEL);
+    } else if (
+      pathname.includes(APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_AREA)
+    ) {
+      // When a user is in the training area, they must have completed the training dataset form
+      if (!formData.selectedTrainingDatasetId || !formData.tmsURL)
+        navigate(APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_DATASET);
+    } else if (
+      pathname.includes(APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_SETTINGS)
+    ) {
+      // When a user is in the training settings, they must have completed the training area, the tms bounds should be available too
+      //  !formData.trainingAreas.features.filter(aoi=>aoi.properties.label_fetched).length>0
+      const labeledTrainingAreas = formData.trainingAreas?.features?.filter(
+        (aoi) => aoi.properties.label_fetched,
+      ).length;
+      if (
+        !formData.oamTileName ||
+        !formData.oamBounds ||
+        labeledTrainingAreas === 0
+      )
+        navigate(APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_AREA);
+    } else if (pathname.includes(APPLICATION_ROUTES.CREATE_NEW_MODEL_SUMMARY)) {
+      // When a user is in the summary page, they must have zoom levels set from the settings
+      // oam tile info retrieved - so the tile name and bounds
+      // and training areas with their labels fetched
+      const labeledTrainingAreas = formData.trainingAreas?.features?.filter(
+        (aoi) => aoi.properties.label_fetched,
+      ).length;
+      if (
+        formData.zoomLevels.length === 0 ||
+        labeledTrainingAreas === 0 ||
+        !formData.oamTileName ||
+        !formData.oamBounds
+      )
+        navigate(APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_SETTINGS);
+    }
+  }, [pathname, formData]);
+
+  return null;
+};

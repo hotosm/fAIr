@@ -4,17 +4,22 @@ import {
   useModelFormContext,
 } from "@/app/providers/model-creation-provider";
 import { Input, Select, TextArea } from "@/components/ui/form";
-import { BASE_MODEL } from "@/enums";
+import { BASE_MODELS } from "@/enums";
 import { StepHeading } from "@/features/model-creation/components/";
+import { MODEL_CREATION_CONTENT } from "@/utils";
 
-const BASE_MODELS = [
+const baseModelOptions = [
   {
-    name: BASE_MODEL.RAMP,
-    value: "ramp",
+    name: BASE_MODELS.RAMP,
+    value: "RAMP",
   },
   {
-    name: BASE_MODEL.YOLOV8,
-    value: "yolov8",
+    name: BASE_MODELS.YOLOV8_V1,
+    value: "YOLO_V8_V1",
+  },
+  {
+    name: BASE_MODELS.YOLOV8_V2,
+    value: "YOLO_V8_V2",
   },
 ];
 
@@ -23,11 +28,8 @@ const ModelDetailsForm = () => {
   return (
     <div className="flex flex-col gap-y-6">
       <StepHeading
-        heading="Create New Local AI Model"
-        description=" Lorem ipsum dolor sit amet, consectetur adipisicing elit. Id fugit
-        ducimus harum debitis deserunt cum quod quam rerum aliquid. Quibusdam
-        sequi incidunt quasi delectus laudantium accusamus modi omnis maiores.
-        Incidunt!"
+        heading={MODEL_CREATION_CONTENT.modelDetails.pageTitle}
+        description={MODEL_CREATION_CONTENT.modelDetails.pageDescription}
       />
       <div className="flex flex-col gap-y-10">
         <Input
@@ -35,12 +37,16 @@ const ModelDetailsForm = () => {
             handleChange(MODEL_CREATION_FORM_NAME.MODEL_NAME, e.target.value)
           }
           value={formData.modelName}
-          toolTipContent="Hello"
-          label="Model Name"
+          toolTipContent={
+            MODEL_CREATION_CONTENT.modelDetails.form.modelName.toolTip
+          }
+          label={MODEL_CREATION_CONTENT.modelDetails.form.modelName.label}
           labelWithTooltip
-          placeholder="Enter the model name"
+          placeholder={
+            MODEL_CREATION_CONTENT.modelDetails.form.modelName.placeholder
+          }
           showBorder
-          helpText="Model name should be at least 10 characters and at most 40 characters."
+          helpText={MODEL_CREATION_CONTENT.modelDetails.form.modelName.helpText}
           required
           maxLength={
             FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.MODEL_NAME]
@@ -58,11 +64,20 @@ const ModelDetailsForm = () => {
               e.target.value,
             )
           }
-          label="Model Description"
-          helpText="Model description should be at least 10 characters and at most 500 characters."
+          label={
+            MODEL_CREATION_CONTENT.modelDetails.form.modelDescription.label
+          }
+          helpText={
+            MODEL_CREATION_CONTENT.modelDetails.form.modelDescription.helpText
+          }
           labelWithTooltip
-          toolTipContent="This form"
-          placeholder="Enter the model description..."
+          toolTipContent={
+            MODEL_CREATION_CONTENT.modelDetails.form.modelDescription.toolTip
+          }
+          placeholder={
+            MODEL_CREATION_CONTENT.modelDetails.form.modelDescription
+              .placeholder
+          }
           value={formData.modelDescription}
           required
           maxLength={
@@ -75,14 +90,16 @@ const ModelDetailsForm = () => {
           }
         />
         <Select
-          label="Base Model"
-          helpText="Select the base model to use for the training."
+          label={MODEL_CREATION_CONTENT.modelDetails.form.baseModel.label}
+          helpText={MODEL_CREATION_CONTENT.modelDetails.form.baseModel.helpText}
           labelWithTooltip
-          toolTipContent="Basemodels are ..."
+          toolTipContent={
+            MODEL_CREATION_CONTENT.modelDetails.form.baseModel.toolTip
+          }
           defaultValue={formData.baseModel}
-          options={BASE_MODELS}
+          options={baseModelOptions}
           handleChange={(e) =>
-            handleChange(MODEL_CREATION_FORM_NAME.BASE_MODEL, e.target.value)
+            handleChange(MODEL_CREATION_FORM_NAME.BASE_MODELS, e.target.value)
           }
           required
         />

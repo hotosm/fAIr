@@ -28,10 +28,14 @@ export const HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY: string =
   "___hot_fAIr_access_token";
 
 export const HOT_FAIR_MODEL_CREATION_LOCAL_STORAGE_KEY: string =
-  "___hot_fAIr_model_creation_progress";
+  "___hot_fAIr_model_creation";
 
 export const HOT_FAIR_SESSION_REDIRECT_KEY: string =
   "___hot_fAIr_redirect_after_login";
 
 export const HOT_FAIR_LOGIN_SUCCESSFUL_SESSION_KEY =
   "__hot_fair_login_successful";
+
+export const MAX_TRAINING_AREA_SIZE = 5000000;
+export const MIN_TRAINING_AREA_SIZE = 5797;
+export const MAX_TRAINING_AREA_UPLOAD_FILE_SIZE = 5 * 1024 * 1024; // 5 MB

@@ -1,42 +1,29 @@
-import {
-  FullScreenIcon,
-  UploadIcon,
-  YouTubePlayIcon,
-} from "@/components/ui/icons";
+import { UploadIcon, YouTubePlayIcon } from "@/components/ui/icons";
 import { StepHeading } from "@/features/model-creation/components/";
-import TrainingAreaMap from "./training-area-map";
+import TrainingAreaMap from "@/features/model-creation/components/training-area/training-area-map";
 import { Button, ButtonWithIcon } from "@/components/ui/button";
 import {
   MODEL_CREATION_FORM_NAME,
   useModelFormContext,
 } from "@/app/providers/model-creation-provider";
-import { useGetTMSTileJSON } from "../../hooks/use-tms-tilejson";
 import { useDialog } from "@/hooks/use-dialog";
-import FileUploadDialog from "../dialogs/file-upload-dialog";
+import FileUploadDialog from "@/features/model-creation/components/dialogs/file-upload-dialog";
 import { useEffect, useState } from "react";
-import TrainingAreaList from "./training-area-list";
-import { useGetTrainingAreas } from "../../hooks/use-training-areas";
+import TrainingAreaList from "@/features/model-creation/components/training-area/training-area-list";
+import { useGetTrainingAreas } from "@/features/model-creation/hooks/use-training-areas";
+import OpenAerialMap from "@/features/model-creation/components/training-area/open-area-map";
 import { useMap } from "@/app/providers/map-provider";
-import { ToolTip } from "@/components/ui/tooltip";
-import { truncateString } from "@/utils";
+import { useToastNotification } from "@/hooks/use-toast-notification";
 
 const TrainingAreaForm = () => {
   const { formData } = useModelFormContext();
-
+  const toast = useToastNotification();
   const tileJSONURL = formData.tmsURL.split("/{z}/{x}/{y}")[0];
-
-  const { isPending, data, isError } = useGetTMSTileJSON(tileJSONURL);
 
   const { closeDialog, isOpened, toggle } = useDialog();
   const { handleChange } = useModelFormContext();
-  const { map } = useMap();
-
-  const fitToTMSBounds = () => {
-    // @ts-expect-error bad type definition
-    map?.fitBounds(data?.bounds);
-  };
-
   const [offset, setOffset] = useState<number>(0);
+  const { terraDraw } = useMap();
   const {
     data: trainingAreasData,
     isPending: trainingAreaIsPending,
@@ -53,20 +40,15 @@ const TrainingAreaForm = () => {
     );
   }, [trainingAreasData]);
 
-  useEffect(() => {
-    if (!data || !map) return;
-    handleChange(MODEL_CREATION_FORM_NAME.DATASET_TIME_NAME, data.name);
-    fitToTMSBounds();
-  }, [data, map]);
-
   return (
     <>
       <FileUploadDialog
         isOpened={isOpened}
         closeDialog={closeDialog}
         datasetId={formData.selectedTrainingDatasetId}
+        offset={offset}
       />
-      <div className="flex flex-col h-screen max-h-screen ">
+      <div className="min-h-screen flex flex-col">
         <div className="flex justify-between items-center mb-10">
           <div className="basis-1/2">
             <StepHeading
@@ -86,42 +68,17 @@ const TrainingAreaForm = () => {
             </p>
           </div>
         </div>
-        <div className="flex-grow max-h-[80vh] w-full grid grid-cols-5 grid-rows-1 border-8 border-off-white">
-          <div className="h-full w-full col-span-4">
+        <div className="flex-grow h-[90vh] w-full grid grid-cols-5 grid-rows-1 border-8 border-off-white">
+          <div className="h-full  w-full col-span-4">
             <TrainingAreaMap
               tileJSONURL={tileJSONURL}
               data={trainingAreasData}
               trainingDatasetId={Number(formData.selectedTrainingDatasetId)}
+              offset={offset}
             />
           </div>
           <div className="flex  flex-col w-full h-full border-l-8 border-off-white gap-y-6 py-4">
-            <div className="flex  flex-col  gap-y-2 w-full border-b-8 border-off-white px-4 pb-4">
-              <p className="text-body-1">Open Aerial Map</p>
-              <div className="flex w-full items-center justify-between">
-                <div className="flex flex-col gap-y-2">
-                  <p className="text-body-3" title={formData.datasetTileName}>
-                    {truncateString(formData.datasetTileName)}
-                  </p>
-                  <div className="flex items-center justify-between w-full gap-x-4">
-                    <p className="text-body-4">
-                      Max zoom: {data?.maxzoom ?? 0}
-                    </p>
-                    <p className="text-body-4">
-                      Min zoom: {data?.minzoom ?? 0}
-                    </p>
-                  </div>
-                </div>
-                <ToolTip content="Zoom to TMS">
-                  <button
-                    className="bg-off-white p-2 rounded-md"
-                    disabled={!map || isPending || isError}
-                    onClick={fitToTMSBounds}
-                  >
-                    <FullScreenIcon className="icon-lg" />
-                  </button>
-                </ToolTip>
-              </div>
-            </div>
+            <OpenAerialMap tileJSONURL={tileJSONURL} />
             <TrainingAreaList
               offset={offset}
               setOffset={setOffset}
@@ -133,7 +90,16 @@ const TrainingAreaForm = () => {
             <div
               className={`flex mt-auto px-4  ${trainingAreasData?.count === 0 ? "flex-col gap-y-6 " : " items-center justify-between gap-x-2 "} w-full"`}
             >
-              <Button variant="primary">
+              <Button
+                variant="primary"
+                onClick={() => {
+                  terraDraw?.setMode("rectangle");
+                  toast(
+                    "Draw mode activated. Hover on the map to start drawing.",
+                    "success",
+                  );
+                }}
+              >
                 <div className="flex items-center gap-x-2">
                   <p>Draw</p>
                   <div className="w-4 h-4 border-2 rounded-md border-white"></div>

@@ -1,7 +1,13 @@
 import { DirectoryIcon, FileIcon } from "@/components/ui/icons";
 import SlFormatBytes from "@shoelace-style/shoelace/dist/react/format-bytes/index.js";
 import { useState, useEffect } from "react";
-import { APP_CONTENT, truncateString } from "@/utils";
+import {
+  APP_CONTENT,
+  showErrorToast,
+  showSuccessToast,
+  TOAST_NOTIFICATIONS,
+  truncateString,
+} from "@/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   SlTree,
@@ -10,7 +16,6 @@ import {
 import { getTrainingWorkspaceQueryOptions } from "@/features/models/api/factory";
 import { API_ENDPOINTS, apiClient } from "@/services";
 import { Spinner } from "@/components/ui/spinner";
-import { useToastNotification } from "@/hooks/use-toast-notification";
 
 type DirectoryTreeProps = {
   datasetId: number;
@@ -95,7 +100,6 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
   const [directoryTree, setDirectoryTree] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
-  const toast = useToastNotification();
   const queryClient = useQueryClient();
   const [downLoadingFilePath, setDownLoadingFilePath] = useState<string>("");
 
@@ -165,7 +169,7 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
       );
 
       if (response.status !== 200) {
-        toast("Failed to download file.", "danger");
+        showErrorToast(TOAST_NOTIFICATIONS.fileDownloadFailed);
         return;
       }
 
@@ -179,12 +183,9 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
       a.click();
       a.remove();
       window.URL.revokeObjectURL(url);
-      toast("File downloaded successfully!", "success");
+      showSuccessToast(TOAST_NOTIFICATIONS.fileDownloadSuccess);
     } catch (error) {
-      const errorMessage =
-        //@ts-expect-error bad type definition
-        error.response?.statusText || "Failed to download file.";
-      toast(errorMessage, "danger");
+      showErrorToast(error);
     } finally {
       setDownLoadingFilePath("");
     }

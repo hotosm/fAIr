@@ -1,6 +1,7 @@
-export enum BASE_MODEL {
+export enum BASE_MODELS {
   RAMP = "RAMP",
-  YOLOV8 = "YOLOv8",
+  YOLOV8_V1 = "YOLOv8V1",
+  YOLOV8_V2 = "YOLOv8V2",
 }
 
 export enum TrainingType {
@@ -26,4 +27,22 @@ export enum ToolTipPlacement {
   RIGHT = "right",
   BOTTOM = "bottom",
   TOP = "top",
+}
+
+export enum BASEMAPS {
+  OSM = "OSM",
+  GOOGLE_SATELLITE = "Google Satellite",
+}
+
+export enum INPUT_TYPES {
+  DATE = "date",
+  TEXT = "text",
+  NUMBER = "number",
+  URL = "url",
+}
+
+export enum SHOELACE_SIZES {
+  SMALL = "small",
+  MEDIUM = "medium",
+  LARGE = "large",
 }

@@ -7,7 +7,8 @@ import { SEARCH_PARAMS } from "@/app/routes/models";
 import { useMap } from "@/app/providers/map-provider";
 
 const mapSourceName = "models";
-const licensedFonts = ["Open Sans Semibold"];
+// Font from OpenFreeMap
+const licensedFonts = ["Noto Sans Regular"];
 
 let markerIcon = new Image(17, 20);
 markerIcon.src = mapMarker;

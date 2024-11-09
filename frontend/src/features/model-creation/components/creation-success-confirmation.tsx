@@ -2,13 +2,13 @@ import ModelCreationSuccess from "@/assets/images/model_creation_success.png";
 import { Button } from "@/components/ui/button";
 import { Image } from "@/components/ui/image";
 import { Link } from "@/components/ui/link";
-import { APPLICATION_ROUTES } from "@/utils";
+import { APPLICATION_ROUTES, MODEL_CREATION_CONTENT } from "@/utils";
 import ConfettiExplosion from "react-confetti-explosion";
 import { useSearchParams } from "react-router-dom";
 
 const ModelCreationSuccessConfirmation = () => {
   const [searchParams] = useSearchParams();
-  // Model ID should be in the url params upon successful creation
+
   const modelId = searchParams.get("id");
 
   return (
@@ -22,13 +22,13 @@ const ModelCreationSuccessConfirmation = () => {
       <Image src={ModelCreationSuccess} alt="Model Creation Success Icon" />
       <p className="text-title-2">Model {modelId} is Created!</p>
       <p className="text-gray">
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-        tempor incididunt ut labore.
+        {MODEL_CREATION_CONTENT.confirmation.description}
       </p>
       <div className="flex items-center justify-between gap-x-4">
         <Link
           href={`${APPLICATION_ROUTES.MODELS}/${modelId}`}
           title="go to model"
+          nativeAnchor={false}
         >
           <Button>go to model</Button>
         </Link>

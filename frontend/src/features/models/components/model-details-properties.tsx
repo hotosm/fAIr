@@ -11,14 +11,18 @@ import { CopyIcon, ExternalLinkIcon } from "@/components/ui/icons";
 import { ModelPropertiesSkeleton } from "./skeletons";
 import CodeBlock from "@/components/ui/codeblock/codeblock";
 import ChevronDownIcon from "@/components/ui/icons/chevron-down-icon";
-import { APP_CONTENT, cn } from "@/utils";
+import { APP_CONTENT, cn, showErrorToast } from "@/utils";
 import { ENVS } from "@/config/env";
 import useCopyToClipboard from "@/hooks/use-clipboard";
-import { useToastNotification } from "@/hooks/use-toast-notification";
+import ModelFilesButton from "./model-files-button";
+import { ModelFilesDialog } from "./dialogs";
+import { useDialog } from "@/hooks/use-dialog";
 
 enum TrainingStatus {
   FAILED = "FAILED",
   IN_PROGRESS = "IN PROGRESS",
+  RUNNING = "RUNNING",
+  SUCCESS = "SUCCESS",
 }
 
 type PropertyDisplayProps = {
@@ -97,19 +101,16 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
 }) => {
   const { isPending, data, error, isError } = useTrainingDetails(trainingId);
 
-  const toast = useToastNotification();
+  const { isOpened, closeDialog, openDialog } = useDialog();
 
   useEffect(() => {
-    //@ts-expect-error bad type definition
-    if (isError && error?.response?.data?.detail) {
-      //@ts-expect-error bad type definition
-      toast(error.response.data.detail, "danger");
+    if (isError) {
+      showErrorToast(error);
     }
-  }, [isError, error, toast]);
+  }, [isError, error]);
 
   const {
     accuracy: trainingAccuracy,
-
     zoom_level,
     epochs,
     batch_size,
@@ -127,129 +128,157 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
     }
 
     return (
-      <div
-        className={cn(
-          `grid ${isTrainingDetailsDialog ? "grid-cols-2" : "grid-cols-1 lg:grid-cols-5"} gap-14 items-center `,
-        )}
-      >
-        <div className="col-span-3 grid grid-cols-1 sm:grid-cols-2 grid-rows-4 gap-y-4 md:gap-y-10">
-          <PropertyDisplay
-            label={
-              APP_CONTENT.models.modelsDetailsCard.properties.zoomLevels.title
-            }
-            value={zoom_level?.join(" ") || "N/A"}
-            tooltip={
-              APP_CONTENT.models.modelsDetailsCard.properties.zoomLevels.tooltip
-            }
-          />
-          <PropertyDisplay
-            label={
-              APP_CONTENT.models.modelsDetailsCard.properties.accuracy.title
-            }
-            tooltip={
-              APP_CONTENT.models.modelsDetailsCard.properties.accuracy.tooltip
-            }
-            value={trainingAccuracy}
-            isAccuracy
-          />
-          <PropertyDisplay
-            label={APP_CONTENT.models.modelsDetailsCard.properties.epochs.title}
-            value={epochs}
-            tooltip={
-              APP_CONTENT.models.modelsDetailsCard.properties.epochs.tooltip
-            }
-          />
-          <PropertyDisplay
-            label={
-              APP_CONTENT.models.modelsDetailsCard.properties.batchSize.title
-            }
-            value={batch_size}
-            tooltip={
-              APP_CONTENT.models.modelsDetailsCard.properties.batchSize.tooltip
-            }
-          />
-          <PropertyDisplay
-            label={
-              APP_CONTENT.models.modelsDetailsCard.properties.contactSpacing
-                .title
-            }
-            value={input_contact_spacing}
-            tooltip={
-              APP_CONTENT.models.modelsDetailsCard.properties.contactSpacing
-                .tooltip
-            }
-          />
-          <PropertyDisplay
-            label={
-              APP_CONTENT.models.modelsDetailsCard.properties.boundaryWidth
-                .title
-            }
-            value={input_boundary_width}
-            tooltip={
-              APP_CONTENT.models.modelsDetailsCard.properties.boundaryWidth
-                .tooltip
-            }
-          />
-          <PropertyDisplay
-            label={
-              APP_CONTENT.models.modelsDetailsCard.properties.currentDatasetSize
-                .title
-            }
-            value={`${chips_length} Images`}
-            tooltip={
-              APP_CONTENT.models.modelsDetailsCard.properties.currentDatasetSize
-                .tooltip
-            }
-          />
-          {/* Animate the status when it's in progress. */}
-          {isTrainingDetailsDialog && (
-            <PropertyDisplay
-              label={
-                APP_CONTENT.models.modelsDetailsCard.trainingInfoDialog.status
-              }
-              value={data?.status}
-              animate={data?.status === TrainingStatus.IN_PROGRESS}
-            />
-          )}
-          <PropertyDisplay
-            label={
-              APP_CONTENT.models.modelsDetailsCard.properties.baseModel.title
-            }
-            value={baseModel}
-            isLink
-            href={
-              // @ts-expect-error bad type definition
-              APP_CONTENT.models.modelsDetailsCard.properties.baseModel.href[
-                baseModel
-              ]
-            }
-          />
-
-          {/* Copy icon */}
-          <PropertyDisplay
-            label={
-              APP_CONTENT.models.modelsDetailsCard.properties.sourceImage.title
-            }
-            tooltip={
-              APP_CONTENT.models.modelsDetailsCard.properties.sourceImage
-                .tooltip
-            }
-            value={source_imagery}
-            isCopy
-          />
-        </div>
+      <>
+        <ModelFilesDialog
+          closeDialog={closeDialog}
+          isOpened={isOpened}
+          trainingId={trainingId}
+          datasetId={datasetId as number}
+        />
 
         <div
-          className={`col-span-3 lg:col-span-2 ${isTrainingDetailsDialog && "lg:col-span-3"}`}
+          className={cn(
+            `grid ${isTrainingDetailsDialog ? "grid-cols-2" : "grid-cols-1 lg:grid-cols-5"} gap-14 items-center `,
+          )}
         >
-          <Image src={trainingResultsGraph} alt={""} />
+          <div className="col-span-3 grid grid-cols-1 sm:grid-cols-2 grid-rows-4 gap-y-4 md:gap-y-10">
+            <PropertyDisplay
+              label={
+                APP_CONTENT.models.modelsDetailsCard.properties.zoomLevels.title
+              }
+              value={zoom_level?.join(" ") || "N/A"}
+              tooltip={
+                APP_CONTENT.models.modelsDetailsCard.properties.zoomLevels
+                  .tooltip
+              }
+            />
+            <PropertyDisplay
+              label={
+                APP_CONTENT.models.modelsDetailsCard.properties.accuracy.title
+              }
+              tooltip={
+                APP_CONTENT.models.modelsDetailsCard.properties.accuracy.tooltip
+              }
+              value={trainingAccuracy}
+              isAccuracy
+            />
+            <PropertyDisplay
+              label={
+                APP_CONTENT.models.modelsDetailsCard.properties.epochs.title
+              }
+              value={epochs}
+              tooltip={
+                APP_CONTENT.models.modelsDetailsCard.properties.epochs.tooltip
+              }
+            />
+            <PropertyDisplay
+              label={
+                APP_CONTENT.models.modelsDetailsCard.properties.batchSize.title
+              }
+              value={batch_size}
+              tooltip={
+                APP_CONTENT.models.modelsDetailsCard.properties.batchSize
+                  .tooltip
+              }
+            />
+            <PropertyDisplay
+              label={
+                APP_CONTENT.models.modelsDetailsCard.properties.contactSpacing
+                  .title
+              }
+              value={input_contact_spacing}
+              tooltip={
+                APP_CONTENT.models.modelsDetailsCard.properties.contactSpacing
+                  .tooltip
+              }
+            />
+            <PropertyDisplay
+              label={
+                APP_CONTENT.models.modelsDetailsCard.properties.boundaryWidth
+                  .title
+              }
+              value={input_boundary_width}
+              tooltip={
+                APP_CONTENT.models.modelsDetailsCard.properties.boundaryWidth
+                  .tooltip
+              }
+            />
+            <PropertyDisplay
+              label={
+                APP_CONTENT.models.modelsDetailsCard.properties
+                  .currentDatasetSize.title
+              }
+              value={`${chips_length} Images`}
+              tooltip={
+                APP_CONTENT.models.modelsDetailsCard.properties
+                  .currentDatasetSize.tooltip
+              }
+            />
+            {/* Animate the status when it's in progress. */}
+            {isTrainingDetailsDialog && (
+              <PropertyDisplay
+                label={
+                  APP_CONTENT.models.modelsDetailsCard.trainingInfoDialog.status
+                }
+                value={data?.status}
+                animate={
+                  data?.status === TrainingStatus.IN_PROGRESS ||
+                  data?.status === TrainingStatus.RUNNING
+                }
+              />
+            )}
+            <PropertyDisplay
+              label={
+                APP_CONTENT.models.modelsDetailsCard.properties.baseModel.title
+              }
+              value={baseModel}
+              isLink
+              href={
+                // @ts-expect-error bad type definition
+                APP_CONTENT.models.modelsDetailsCard.properties.baseModel.href[
+                  baseModel
+                ]
+              }
+            />
+
+            <PropertyDisplay
+              label={
+                APP_CONTENT.models.modelsDetailsCard.properties.sourceImage
+                  .title
+              }
+              tooltip={
+                APP_CONTENT.models.modelsDetailsCard.properties.sourceImage
+                  .tooltip
+              }
+              value={source_imagery}
+              isCopy
+            />
+            {isTrainingDetailsDialog && (
+              <ModelFilesButton
+                disabled={
+                  data?.status === TrainingStatus.IN_PROGRESS ||
+                  data?.status === TrainingStatus.RUNNING
+                }
+                openModelFilesDialog={openDialog}
+              />
+            )}
+          </div>
+
+          {trainingResultsGraph && (
+            <div
+              className={`col-span-3 lg:col-span-2 ${isTrainingDetailsDialog && "lg:col-span-3"}`}
+            >
+              <Image src={trainingResultsGraph} alt={""} />
+            </div>
+          )}
+
+          {/* Show logs only in modal and when status failed */}
+          {isTrainingDetailsDialog &&
+            data?.status !== TrainingStatus.SUCCESS && (
+              <FailedTrainingTraceBack taskId={data?.task_id ?? ""} />
+            )}
         </div>
-        {/* Show logs only in modal and when status failed */}
-        {isTrainingDetailsDialog && data?.status === TrainingStatus.FAILED && (
-          //@ts-expect-error bad type definition
-          <FailedTrainingTraceBack taskId={data?.task_id} />
-        )}
-      </div>
+      </>
     );
   }, [
     isPending,
@@ -261,6 +290,7 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
     input_boundary_width,
     source_imagery,
     trainingResultsGraph,
+    isOpened,
   ]);
 
   return isError ? (

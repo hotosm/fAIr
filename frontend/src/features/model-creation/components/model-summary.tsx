@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/icons";
 import { StepHeading } from "@/features/model-creation/components/";
 import { IconProps } from "@/types";
+import { MODEL_CREATION_CONTENT } from "@/utils";
 
 const SummaryItem = ({
   icon: Icon,
@@ -45,38 +46,38 @@ const ModelSummaryStep = () => {
     { icon: TagsIcon, label: "Model Name", content: formData.modelName },
     {
       icon: TextIcon,
-      label: "Model Description",
+      label: MODEL_CREATION_CONTENT.modelSummary.form.modelDescription,
       content: formData.modelDescription,
     },
     {
       icon: DatabaseIcon,
-      label: "Base Model",
+      label: MODEL_CREATION_CONTENT.modelSummary.form.baseModel,
       content: formData.baseModel.toUpperCase(),
     },
     { icon: TagsIcon, label: "Dataset Name", content: formData.datasetName },
     {
       icon: SaveIcon,
-      label: "Dataset ID",
+      label: MODEL_CREATION_CONTENT.modelSummary.form.datasetId,
       content: formData.selectedTrainingDatasetId,
     },
     {
       icon: MapIcon,
-      label: "Open Aerial Imagery",
-      content: formData.datasetTileName,
+      label: MODEL_CREATION_CONTENT.modelSummary.form.openAerialImagery,
+      content: formData.oamTileName,
     },
     {
       icon: ZoomInIcon,
-      label: "Zoom Levels",
+      label: MODEL_CREATION_CONTENT.modelSummary.form.zoomLevels,
       content: formData.zoomLevels.map((level) => `Zoom ${level}`),
     },
     {
       icon: SettingsIcon,
-      label: "Training Settings",
+      label: MODEL_CREATION_CONTENT.modelSummary.form.trainingSettings,
       content: [
-        `Epoch: ${formData.epoch}`,
-        `Batch Size: ${formData.batchSize}`,
-        `Contact Spacing: ${formData.contactSpacing}`,
-        `Boundary Width:  ${formData.boundaryWidth}`,
+        `${MODEL_CREATION_CONTENT.trainingSettings.form.epoch.label}: ${formData.epoch}`,
+        `${MODEL_CREATION_CONTENT.trainingSettings.form.batchSize.label}: ${formData.batchSize}`,
+        `${MODEL_CREATION_CONTENT.trainingSettings.form.contactSpacing.label}: ${formData.contactSpacing}`,
+        `${MODEL_CREATION_CONTENT.trainingSettings.form.boundaryWidth.label}:  ${formData.boundaryWidth}`,
       ],
     },
   ];
@@ -84,8 +85,8 @@ const ModelSummaryStep = () => {
   return (
     <div className="flex flex-col gap-y-6">
       <StepHeading
-        heading="Model Summary"
-        description=" Lorem ipsum dolor sit amet, consectetur adipisicing elit. Id fugit ducimus harum debitis deserunt cum quod quam rerum aliquid. Quibusdam sequi incidunt quasi delectus laudantium accusamus modi omnis maiores. Incidunt!"
+        heading={MODEL_CREATION_CONTENT.trainingSettings.pageTitle}
+        description={MODEL_CREATION_CONTENT.trainingSettings.pageDescription}
       />
       {summaryData.map((item, index) => (
         <SummaryItem

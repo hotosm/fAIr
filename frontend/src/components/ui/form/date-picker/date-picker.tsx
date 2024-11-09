@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import Input from "@/components/ui/form/input/input";
+import { INPUT_TYPES, SHOELACE_SIZES } from "@/enums";
 import { cn } from "@/utils";
 
 type DateRangePickerProps = {
@@ -8,7 +9,7 @@ type DateRangePickerProps = {
   onStartDateChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onEndDateChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onClear: () => void;
-  onApply: (event: React.ChangeEvent<HTMLButtonElement>) => void;
+  onApply: () => void;
   isMobileFilterModal?: boolean;
 };
 
@@ -30,20 +31,22 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
         )}
       >
         <Input
-          type="date"
+          type={INPUT_TYPES.DATE}
           showBorder
           label="From:"
           handleInput={onStartDateChange}
           value={startDate}
           className="w-full"
+          size={SHOELACE_SIZES.MEDIUM}
         />
         <Input
-          type="date"
+          type={INPUT_TYPES.DATE}
           showBorder
           label="To:"
           handleInput={onEndDateChange}
           value={endDate}
           className="w-full"
+          size={SHOELACE_SIZES.MEDIUM}
         />
       </div>
 
@@ -54,11 +57,19 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
             `flex ${!isMobileFilterModal && "self-end"} items-center gap-x-3`,
           )}
         >
-          <Button variant="default" size="medium" onClick={onClear}>
+          <Button
+            variant="default"
+            size={SHOELACE_SIZES.MEDIUM}
+            onClick={onClear}
+          >
             Clear
           </Button>
-          {/* @ts-expect-error bad type definition */}
-          <Button variant="tertiary" size="medium" onClick={onApply}>
+
+          <Button
+            variant="tertiary"
+            size={SHOELACE_SIZES.MEDIUM}
+            onClick={onApply}
+          >
             Apply
           </Button>
         </div>

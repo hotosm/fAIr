@@ -2,17 +2,25 @@ import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { DeleteIcon, FileIcon, UploadIcon } from "@/components/ui/icons";
 import { DialogProps, Feature, FeatureCollection, Geometry } from "@/types";
-import { truncateString } from "@/utils";
+import {
+  MAX_TRAINING_AREA_UPLOAD_FILE_SIZE,
+  showErrorToast,
+  showSuccessToast,
+  snapGeoJSONGeometryToClosestTile,
+  TOAST_NOTIFICATIONS,
+  truncateString,
+  validateGeoJSONArea,
+} from "@/utils";
 import { SlFormatBytes } from "@shoelace-style/shoelace/dist/react";
 import { useCallback, useState } from "react";
 import { FileWithPath, useDropzone } from "react-dropzone";
-import { useCreateTrainingArea } from "../../hooks/use-training-areas";
+import { useCreateTrainingArea } from "@/features/model-creation/hooks/use-training-areas";
 import { geojsonToWKT } from "@terraformer/wkt";
 import useDevice from "@/hooks/use-device";
-import { useToastNotification } from "@/hooks/use-toast-notification";
 
 type FileUploadDialogProps = DialogProps & {
   datasetId: string;
+  offset: number;
 };
 
 interface AcceptedFile {
@@ -24,16 +32,32 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
   isOpened,
   closeDialog,
   datasetId,
+  offset,
 }) => {
   const [acceptedFiles, setAcceptedFiles] = useState<AcceptedFile[]>([]);
-  const toast = useToastNotification();
   const createTrainingArea = useCreateTrainingArea({
     datasetId: Number(datasetId),
+    offset: offset,
   });
 
   const onDrop = useCallback((files: FileWithPath[]) => {
-    const newFiles = files.map((file) => ({
-      file: file,
+    const validFiles = files.filter((file) => {
+      if (file.size > MAX_TRAINING_AREA_UPLOAD_FILE_SIZE) {
+        showErrorToast(undefined, `File ${file.name} is too large (max 5MB)`);
+        return false;
+      }
+      if (!file.name.endsWith(".geojson") && !file.name.endsWith(".json")) {
+        showErrorToast(
+          undefined,
+          `File ${file.name} is not a supported format`,
+        );
+        return false;
+      }
+      return true;
+    });
+
+    const newFiles = validFiles.map((file) => ({
+      file,
       id: generateUniqueId(),
     }));
     setAcceptedFiles((prev) => [...prev, ...newFiles]);
@@ -63,7 +87,6 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
     clearAcceptedFiles();
     closeDialog();
   };
-
   const handleUpload = async () => {
     const promises = acceptedFiles.map((file: AcceptedFile) => {
       return new Promise<void>((resolve, reject) => {
@@ -73,9 +96,15 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
             const geojson: FeatureCollection | Feature = JSON.parse(
               event.target?.result as string,
             );
-
+            if (validateGeoJSONArea(geojson)) {
+              showErrorToast(
+                undefined,
+                `Skipping upload for ${file.file.name} because the area is too large.`,
+              );
+              resolve();
+              return;
+            }
             let geometries: Geometry[] = [];
-
             if (geojson.type === "FeatureCollection") {
               geometries = geojson.features.map((feature) => feature.geometry);
             } else if (geojson.type === "Feature") {
@@ -83,35 +112,40 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
             } else {
               throw new Error("Invalid GeoJSON format");
             }
-
             for (const geometry of geometries) {
-              // @ts-expect-error bad type definition
+              snapGeoJSONGeometryToClosestTile(geometry);
               const wkt = geojsonToWKT(geometry);
               await createTrainingArea.mutateAsync({
                 dataset: datasetId,
                 geom: `SRID=4326;${wkt}`,
               });
             }
-
             resolve();
           } catch (error) {
+            showErrorToast(
+              undefined,
+              `Error processing file: ${file.file.name}`,
+            );
             reject(error);
           }
         };
+
         reader.onerror = (error) => {
+          showErrorToast(undefined, `File read error for ${file.file.name}`);
+
           reject(error);
         };
+
         reader.readAsText(file.file);
       });
     });
 
     try {
       await Promise.all(promises);
-      toast("Training areas created successfully", "success");
-      // reset the state and close the dialog
+      showSuccessToast(TOAST_NOTIFICATIONS.trainingAreasFileUploadSuccess);
       resetState();
     } catch (error) {
-      toast("Error creating training areas", "danger");
+      showErrorToast(error);
     }
   };
 
@@ -156,7 +190,7 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
           ) : (
             <>
               <p>Drag 'n' drop some files here, or click to select files</p>
-              <small>Supports only GeoJSON (.geojson) files</small>
+              <small>Supports only GeoJSON (.geojson) files. (5MB max.)</small>
             </>
           )}
         </div>

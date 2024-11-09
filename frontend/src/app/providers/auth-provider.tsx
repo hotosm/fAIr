@@ -3,10 +3,12 @@ import { authService } from "@/services";
 import { apiClient } from "@/services/api-client";
 import { TUser } from "@/types/api";
 import {
-  APP_CONTENT,
   HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY,
   HOT_FAIR_LOGIN_SUCCESSFUL_SESSION_KEY,
   HOT_FAIR_SESSION_REDIRECT_KEY,
+  showErrorToast,
+  showSuccessToast,
+  TOAST_NOTIFICATIONS,
 } from "@/utils";
 import React, {
   createContext,
@@ -15,7 +17,6 @@ import React, {
   useEffect,
   useMemo,
 } from "react";
-import { useToastNotification } from "@/hooks/use-toast-notification";
 
 type TAuthContext = {
   token: string;
@@ -47,9 +48,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   );
   const [user, setUser] = useState<TUser | null>(null);
 
-  const toast = useToastNotification();
   // For use across the application.
-
   const isAuthenticated = user !== null && token !== undefined;
 
   //set token globally to eliminate the need to rewrite it
@@ -80,7 +79,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       HOT_FAIR_LOGIN_SUCCESSFUL_SESSION_KEY,
     );
     if (loginSuccessful == "success") {
-      toast(APP_CONTENT.toasts.loginSuccess, "success");
+      showSuccessToast(TOAST_NOTIFICATIONS.loginSuccess);
       removeSessionValue(HOT_FAIR_LOGIN_SUCCESSFUL_SESSION_KEY);
     }
   }, []);
@@ -115,7 +114,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setToken(undefined);
     setUser(null);
     removeValue(HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY);
-    toast(APP_CONTENT.toasts.logoutSuccess, "success");
+    showSuccessToast(TOAST_NOTIFICATIONS.logoutSuccess);
   };
 
   /**
@@ -131,8 +130,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       fetchUserProfile();
       handleRedirection();
     } catch (error) {
-      toast(APP_CONTENT.toasts.authenticationFailed, "danger");
-      console.error("Authentication failed:", error);
+      showErrorToast(error, TOAST_NOTIFICATIONS.authenticationFailed);
     }
   };
   const memoizedValues = useMemo(

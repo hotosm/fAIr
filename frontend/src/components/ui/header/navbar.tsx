@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import styles from "./header.module.css";
-import HOTFairLogo from "@/assets/hot_fair_logo.svg";
-import HamburgerIcon from "@/assets/hamburger_icon.svg";
+import HOTFairLogo from "@/assets/svgs/hot_fair_logo.svg";
+import HamburgerIcon from "@/assets/svgs/hamburger_icon.svg";
 import { Drawer } from "@/components/ui/drawer";
 import { useState } from "react";
 import { Link } from "@/components/ui/link";

@@ -5,11 +5,10 @@ import {
 } from "@/app/providers/model-creation-provider";
 import { ButtonWithIcon } from "@/components/ui/button";
 import { ChevronDownIcon } from "@/components/ui/icons";
-import { APPLICATION_ROUTES } from "@/utils";
+import { APPLICATION_ROUTES, MODEL_CREATION_CONTENT } from "@/utils";
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { TrainingDatasetOption } from "./training-dataset";
-import { TTrainingArea } from "@/types";
+import { TrainingDatasetOption } from "@/enums";
 
 type ProgressButtonsProps = {
   currentPath: string;
@@ -52,7 +51,7 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
           dataset: formData.selectedTrainingDatasetId,
           name: formData.modelName,
           description: formData.modelDescription,
-          base_model: formData.baseModel.toUpperCase(),
+          base_model: formData.baseModel,
         });
         break;
       default:
@@ -132,7 +131,7 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
           formData.trainingDatasetOption === TrainingDatasetOption.USE_EXISTING
         ) {
           // If selecting existing, ensure that a training dataset is selected
-          return formData.selectedTrainingDatasetId.length > 0;
+          return formData.selectedTrainingDatasetId && formData.tmsURL;
         } else {
           return true;
         }
@@ -140,12 +139,18 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
         // confirm that the user has selected at least an option
         return formData.zoomLevels.length > 0;
       case APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_AREA:
-        //@ts-expect-error bad type definition
-        const trainingAreas: TTrainingArea = formData.trainingAreas;
+        const hasLabeledTrainingAreas =
+          formData.trainingAreas?.features?.filter(
+            (aoi) => aoi.properties.label_fetched,
+          ).length;
+        const hasAOIWithGeometry = formData.trainingAreas?.features?.filter(
+          (aoi) => aoi.geometry !== null,
+        ).length;
         // Ensure that no geometry is null before they can proceed
         return (
-          trainingAreas?.features?.filter((area) => area.geometry !== null)
-            .length > 0
+          hasLabeledTrainingAreas > 0 &&
+          hasAOIWithGeometry > 0 &&
+          formData.oamBounds
         );
       default:
         return true;
@@ -159,7 +164,7 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
       <ButtonWithIcon
         variant="default"
         prefixIcon={ChevronDownIcon}
-        label="Back"
+        label={MODEL_CREATION_CONTENT.progressButtons.back}
         iconClassName="rotate-90"
         onClick={prevPage}
       />
@@ -171,7 +176,7 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
             ? "Loading..."
             : currentPath === APPLICATION_ROUTES.CREATE_NEW_MODEL_SUMMARY
               ? "Submit"
-              : "Continue"
+              : MODEL_CREATION_CONTENT.progressButtons.continue
         }
         iconClassName="-rotate-90"
         disabled={!canProceedToNextPage}

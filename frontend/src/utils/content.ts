@@ -1,7 +1,173 @@
-// App wide text contents. Extracted outside of components
-// for easier internalization when necessary.
-
 import { APPLICATION_ROUTES } from "./constants";
+
+export const TOAST_NOTIFICATIONS = {
+  trainingAreasFileUploadSuccess: "Training areas created successfully.",
+  trainingLabelsFetchSuccess: "Traning labels fetched successfully.",
+  trainingLabelsFetchFailure:
+    "An error occurred while fetching traning labels.",
+  trainingAreaDeletionSuccess: "Training area deleted successfully.",
+  aoiDownloadSuccess: "AOI downloaded successfully.",
+  trainingRequestSubmittedSuccess: "Training request submitted successfully.",
+  trainingDatasetCreationSuccess: "Dataset created successfully.",
+  modelCreationSuccess: "Model created successfully.",
+  aoiWithoutGeometryWarning: "This training area does not have a geometry.",
+  aoiLabelsDownloadSuccess: "AOI labels downloaded successfully.",
+  josmOpenSuccess: "Map view opened in JOSM successfully!",
+  josmBBOXZoomFailed: "Failed to zoom to the bounding box in JOSM.",
+  josmImageryLoadFailed: "Failed to load imagery in JOSM.",
+  josmOpenFailed:
+    "An error occurred while opening in JOSM. Confirm you have JOSM opened on your computer and remote control enabled.",
+  fileDownloadFailed: "Failed to download file.",
+  fileDownloadSuccess: "File downloaded successfully!",
+  authenticationFailed: "Login failed.",
+  loginSuccess: "Login successful.",
+  logoutSuccess: "Logout successful.",
+};
+
+export const MODEL_CREATION_CONTENT = {
+  modelDetails: {
+    pageTitle: "Create New Local AI Model",
+    form: {
+      modelName: {
+        label: "Model Name",
+        helpText:
+          "Model name should be at least 10 characters and at most 40 characters.",
+        placeholder: "Enter the model name",
+        toolTip: "Model Name",
+      },
+      baseModel: {
+        label: "Base Model",
+        helpText: "Select the base model to use for the training.",
+        toolTip: "Base Model",
+      },
+      modelDescription: {
+        label: "Model Description",
+        toolTip: "Model Description",
+        helpText:
+          "Model description should be at least 10 characters and at most 500 characters.",
+        placeholder: "Enter the model name",
+      },
+    },
+    pageDescription:
+      "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Id fugit ducimus harum debitis deserunt cum quod quam rerum aliquid. Quibusdam sequi incidunt quasi delectus laudantium accusamus modi omnis maiores. Incidunt!",
+  },
+  trainingDataset: {
+    pageTitle: "Create New Training Dataset",
+    buttons: {
+      createNew: "Create a new training dataset",
+      selectExisting: "select from existing training dataset",
+    },
+    form: {
+      datasetName: {
+        label: "Dataset Name",
+        helpText:
+          "Dataset name should be at least 10 characters and at most 40 characters.",
+        placeholder: "Enter the datatset name",
+      },
+      tmsURL: {
+        label: "TMS URL ",
+        helpText:
+          "TMS imagery link should look like this https://tiles.openaerialmap.org/****/*/***/{z}/{x}/{y}",
+        placeholder: "https://tiles.openaerialmap.org/****/*/***/{z}/{x}/{y}",
+      },
+      existingTrainingDatasetPageTitle: "Existing Training Dataset",
+      searchBar: {
+        placeholder: "Search",
+      },
+    },
+    pageDescription:
+      "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Id fugit ducimus harum debitis deserunt cum quod quam rerum aliquid. Quibusdam sequi incidunt quasi delectus laudantium accusamus modi omnis maiores. Incidunt!",
+  },
+  trainingArea: {
+    pageTitle: "Create Training Area",
+    datasetID: "Dataset ID:",
+    tutorialText: "Tutorial",
+    form: {
+      openAerialMap: "Open Aerial Map",
+      maxZoom: "Max zoom:",
+      minZoom: "Min zoom:",
+      trainingArea: "Training Area",
+      draw: "Draw",
+      upload: "Upload",
+    },
+    pageDescription:
+      "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Id fugit ducimus harum debitis deserunt cum quod quam rerum aliquid. Quibusdam sequi incidunt quasi delectus laudantium accusamus modi omnis maiores. Incidunt!",
+  },
+  modelSummary: {
+    pageTitle: "Model Summary",
+    form: {
+      modelName: "Model Name",
+      modelDescription: "Model Description",
+      baseModel: "Base Model",
+      datasetName: "Dataset Name",
+      datasetId: "Dataset ID",
+      openAerialImagery: "Open Aerial Imagery",
+      zoomLevels: "Zoom Levels",
+      trainingSettings: "Training Settings",
+    },
+    pageDescription:
+      "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Id fugit ducimus harum debitis deserunt cum quod quam rerum aliquid. Quibusdam sequi incidunt quasi delectus laudantium accusamus modi omnis maiores. Incidunt!",
+  },
+  confirmation: {
+    description:
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",
+    buttons: {
+      goToModel: "go to model",
+      exploreModels: "explore models",
+    },
+  },
+  trainingSettings: {
+    form: {
+      zoomLevel: {
+        label: "Select Zoom Level",
+        toolTip: "Select Zoom Level",
+      },
+      trainingType: {
+        label: "Select Model Training Type",
+        toolTip: "Select Model Training Type",
+      },
+      advancedSettings: {
+        label: "Advanced Settings",
+        toolTip: "Advanced Settings",
+      },
+      basic: "basic",
+      interMediate: "intermediate",
+      advanced: "advanced",
+      epoch: {
+        label: "Epoch",
+        toolTip: "Epoch",
+      },
+      contactSpacing: {
+        label: "Contact Spacing",
+        toolTip: "Contact Spacing",
+      },
+      batchSize: {
+        label: "Batch Size",
+        toolTip: "Batch Size",
+      },
+      boundaryWidth: {
+        label: "Boundary Width",
+        toolTip: "Boundary Width",
+      },
+    },
+    pageTitle: "Model Training Settings",
+    pageDescription:
+      "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Id fugit ducimus harum debitis deserunt cum quod quam rerum aliquid. Quibusdam sequi incidunt quasi delectus laudantium accusamus modi omnis maiores. Incidunt!",
+  },
+  progressStepper: {
+    modelDetails: "Model Details",
+    trainingDataset: "Training Dataset",
+    trainingArea: "Training Area",
+    trainingSettings: "Training Settings",
+    submitModel: "submitModel",
+    confirmation: "Confirmation",
+  },
+  progressButtons: {
+    back: "back",
+    continue: "continue",
+  },
+};
+
 export const APP_CONTENT = {
   navbar: {
     logoAlt: "HOT fAIr Logo",
@@ -190,11 +356,6 @@ export const APP_CONTENT = {
     button: "Go home",
   },
   loginButtonLoading: "Logging in...",
-  toasts: {
-    authenticationFailed: "Login failed.",
-    loginSuccess: "Login successful.",
-    logoutSuccess: "Logout successful.",
-  },
   models: {
     modelsList: {
       pageTitle: "fAIr AI models",

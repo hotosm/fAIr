@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getTMSTileJSONQueryOptions } from "../api/factory";
+import { getTMSTileJSONQueryOptions } from "@/features/model-creation/api/factory";
 
 export const useGetTMSTileJSON = (url: string) => {
   return useQuery({

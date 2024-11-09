@@ -6,6 +6,7 @@ import { useRef } from "react";
 import useDevice from "@/hooks/use-device";
 import { HelpText, FormLabel } from "@/components/ui/form";
 import CheckIcon from "@/components/ui/icons/check-icon";
+import { INPUT_TYPES, SHOELACE_SIZES } from "@/enums";
 
 type InputProps = {
   handleInput: (arg: React.ChangeEvent<HTMLInputElement>) => void;
@@ -14,10 +15,10 @@ type InputProps = {
   placeholder?: string;
   clearable?: boolean;
   disabled?: boolean;
-  type?: "date" | "text" | "number" | "url";
+  type?: INPUT_TYPES;
   showBorder?: boolean;
   label?: string;
-  size?: "small" | "medium" | "large";
+  size?: SHOELACE_SIZES;
   helpText?: string;
   labelWithTooltip?: boolean;
   toolTipContent?: string;
@@ -38,7 +39,7 @@ const Input: React.FC<InputProps> = ({
   placeholder = "",
   clearable = false,
   disabled = false,
-  type = "text",
+  type = INPUT_TYPES.TEXT,
   showBorder = false,
   label,
   size,

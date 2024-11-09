@@ -9,15 +9,19 @@ type ToolTipProps = {
     | ToolTipPlacement.RIGHT
     | ToolTipPlacement.BOTTOM
     | ToolTipPlacement.TOP;
+  open?: boolean;
 };
 const ToolTip: React.FC<ToolTipProps> = ({
   content,
   children,
   placement = ToolTipPlacement.TOP,
+  open,
 }) => (
   <SlTooltip
-    onSlAfterHide={(e) => e.stopImmediatePropagation()}
+    onSlHide={(e) => e.stopPropagation()}
+    onSlShow={(e) => e.stopPropagation()}
     placement={placement}
+    {...(open !== undefined ? { open } : {})}
   >
     <span slot="content">{content}</span>
     {!children && <InfoIcon className="icon" />}

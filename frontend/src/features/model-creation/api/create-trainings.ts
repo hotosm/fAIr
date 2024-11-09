@@ -73,3 +73,15 @@ export const createTrainingRequest = async ({
     })
   ).data;
 };
+
+export type TCreateTrainingAreaLabelsArgs = {
+  aoiId: number;
+};
+
+export const createTrainingAreaLabels = async ({
+  aoiId,
+}: TCreateTrainingAreaLabelsArgs): Promise<String> => {
+  return await (
+    await apiClient.post(API_ENDPOINTS.CREATE_TRAINING_AREA_LABELS(aoiId))
+  ).data;
+};

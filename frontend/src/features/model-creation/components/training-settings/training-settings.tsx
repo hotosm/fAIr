@@ -1,6 +1,6 @@
 import { StepHeading } from "@/features/model-creation/components/";
 
-import TrainingSettingsForm from "./training-settings-form";
+import TrainingSettingsForm from "@/features/model-creation/components/training-settings/training-settings-form";
 
 const TrainingSettingsStep = () => {
   return (

@@ -1,11 +1,12 @@
 import { ButtonWithIcon } from "@/components/ui/button";
-import { DirectoryIcon, MapIcon, PenIcon } from "@/components/ui/icons";
+import { MapIcon, PenIcon } from "@/components/ui/icons";
 import { APP_CONTENT, formatDate, truncateString } from "@/utils";
 import ModelDetailItem from "@/features/models/components/model-detail-item";
 import ModelDetailsSection from "@/features/models/components/model-details-section";
 import ChevronDownIcon from "@/components/ui/icons/chevron-down-icon";
 import { Divider } from "@/components/ui/divider";
 import ModelFeedbacks from "@/features/models/components/model-feedbacks";
+import ModelFilesButton from "./model-files-button";
 
 const ModelDetailsInfo = ({
   data,
@@ -84,13 +85,8 @@ const ModelDetailsInfo = ({
               </span>
               Training_{data?.published_training}
             </p>
-            <ButtonWithIcon
-              label={APP_CONTENT.models.modelsDetailsCard.modelFiles}
-              className="border-black border"
-              variant="default"
-              capitalizeText={false}
-              onClick={openModelFilesDialog}
-              prefixIcon={DirectoryIcon}
+            <ModelFilesButton
+              openModelFilesDialog={openModelFilesDialog}
               disabled={data?.published_training === null}
             />
           </div>

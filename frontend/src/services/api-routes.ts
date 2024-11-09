@@ -1,3 +1,5 @@
+import { BBOX } from "@/types";
+
 /**
  * The backend API endpoints.
  */
@@ -22,8 +24,14 @@ export const API_ENDPOINTS = {
   GET_TRAINING_DATASETS: (searchQuery: string) =>
     `dataset/?search=${searchQuery}`,
   CREATE_TRAINING_DATASETS: "dataset/",
-
+  GET_TRAINING_AREA_GPX: (aoiId: number) => `aoi/gpx/${aoiId}`,
   CREATE_TRAINING_AREA: "aoi/",
+  CREATE_TRAINING_AREA_LABELS: (aoiId: number) => `label/osm/fetch/${aoiId}/`,
+
+  GET_TRAINING_AREA_LABELS: (aoiId: number) => `label/?aoi=${aoiId}`,
+
+  GET_TRAINING_DATASET_LABELS: (aoiDatasetId: number, bbox: string) =>
+    `label/?aoi__dataset=${aoiDatasetId}&in__bbox=${bbox}/`,
 
   CREATE_TRAINING_REQUEST: "training/",
 

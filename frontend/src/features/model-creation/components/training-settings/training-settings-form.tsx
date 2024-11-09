@@ -7,7 +7,7 @@ import {
   BasicGuageIcon,
   IntermediateGuageIcon,
 } from "@/components/ui/icons";
-import { TrainingType } from "@/enums";
+import { INPUT_TYPES, TrainingType } from "@/enums";
 import {
   FORM_VALIDATION_CONFIG,
   MODEL_CREATION_FORM_NAME,
@@ -166,7 +166,7 @@ const TrainingSettingsForm = () => {
                 <Input
                   label={setting.label}
                   labelWithTooltip
-                  type="number"
+                  type={INPUT_TYPES.NUMBER}
                   className="text-nowrap"
                   showBorder
                   // @ts-expect-error bad type definition

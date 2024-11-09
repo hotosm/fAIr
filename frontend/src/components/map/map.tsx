@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { MAP_STYLES } from "@/config";
 import ZoomControls from "./zoom-controls";
@@ -8,6 +8,7 @@ import ZoomLevel from "./zoom-level";
 import LayerControl from "./layer-control";
 import { useMap } from "@/app/providers/map-provider";
 import { setupMaplibreMap } from "./setup-maplibre";
+import { BASEMAPS } from "@/enums";
 
 type MapComponentProps = {
   geolocationControl?: boolean;
@@ -16,6 +17,10 @@ type MapComponentProps = {
   showCurrentZoom?: boolean;
   layerControl?: boolean;
   layerControlLayers?: {
+    value: string;
+    mapLayerId: string;
+  }[];
+  layerControlBasemaps?: {
     value: string;
     mapLayerId: string;
   }[];
@@ -28,26 +33,20 @@ const MapComponent: React.FC<MapComponentProps> = ({
   showCurrentZoom = false,
   layerControl = false,
   layerControlLayers = [],
+  layerControlBasemaps = [],
 }) => {
   const mapContainerRef = useRef(null);
-  const [selectedBasemap, setSelectedBasemap] = useState<string>("OSM");
   const { map, setMap, terraDraw } = useMap();
 
   useEffect(() => {
     const maplibreMap = setupMaplibreMap(
       mapContainerRef,
-      MAP_STYLES[selectedBasemap],
+      MAP_STYLES[BASEMAPS.OSM],
     );
     maplibreMap.on("load", () => {
       setMap(maplibreMap);
     });
   }, []);
-
-  // Update the map style whenever the selected basemap changes
-  useEffect(() => {
-    if (!map) return;
-    map.setStyle(MAP_STYLES[selectedBasemap]);
-  }, [selectedBasemap, map]);
 
   return (
     <div className="h-full w-full relative" ref={mapContainerRef}>
@@ -58,7 +57,9 @@ const MapComponent: React.FC<MapComponentProps> = ({
           <>
             <ZoomControls map={map} />
             {geolocationControl && <GeolocationControl map={map} />}
-            {drawControl && terraDraw && <DrawControl terraDraw={terraDraw} />}
+            {drawControl && terraDraw && (
+              <DrawControl terraDraw={terraDraw} map={map} />
+            )}
           </>
         )}
       </div>
@@ -70,10 +71,9 @@ const MapComponent: React.FC<MapComponentProps> = ({
             {showCurrentZoom && <ZoomLevel map={map} />}
             {layerControl && (
               <LayerControl
-                selectedBasemap={selectedBasemap}
-                setSelectedBasemap={setSelectedBasemap}
                 map={map}
                 layers={layerControlLayers}
+                basemaps={layerControlBasemaps}
               />
             )}
           </>

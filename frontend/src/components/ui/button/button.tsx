@@ -24,6 +24,7 @@ const Button: React.FC<ButtonProps> = ({
   spinner = false,
   disabled = false,
   uppercase = true,
+  size,
   slot,
 }) => {
   const spinnerColor = variant === "primary" ? "white" : "red";
@@ -33,7 +34,7 @@ const Button: React.FC<ButtonProps> = ({
     <SlButton
       //@ts-expect-error bad type definition
       variant={variant}
-      size={isMobile ? "medium" : "large"}
+      size={size ? size : isMobile ? "medium" : "large"}
       className={cn(`button ${variant} ${className} `)}
       style={{ width: "100%" }}
       //@ts-expect-error bad type definition

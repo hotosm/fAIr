@@ -7,7 +7,7 @@ import {
   QueryClientProvider,
 } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { useToastNotification } from "@/hooks/use-toast-notification";
+import { showErrorToast } from "@/utils";
 
 export const App = () => {
   const hotTrackingTagName = "hot-tracking";
@@ -28,15 +28,13 @@ export const App = () => {
     return;
   }, []);
 
-  const toast = useToastNotification();
-
   const queryClient = new QueryClient({
     queryCache: new QueryCache({
       onError: (error, query) => {
         // only show error toasts if we already have data in the cache
         // which indicates a failed background update
         if (query.state.data !== undefined) {
-          toast(`Something went wrong: ${error.message}`, "danger");
+          showErrorToast(error);
         }
       },
     }),

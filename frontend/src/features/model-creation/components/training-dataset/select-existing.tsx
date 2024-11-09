@@ -40,39 +40,51 @@ const SelectExistingTrainingDatasetForm = () => {
         ) : isPending ? (
           <div className="w-full h-full bg-light-gray animate-pulse"></div>
         ) : (
-          data
-            .filter((td) =>
-              td.name.toLowerCase().includes(searchQuery.toLowerCase()),
-            )
-            .map((td, id) => (
-              <div
-                key={`training-dataset-${id}`}
-                className={`cursor-pointer hover:bg-off-white p-2 flex items-center justify-between ${formData.selectedTrainingDatasetId === String(td.id) && "bg-off-white"}`}
-                onClick={() => {
-                  handleChange(
-                    MODEL_CREATION_FORM_NAME.SELECTED_TRAINING_DATASET_ID,
-                    String(td.id),
-                  );
-                  // Also update other parameters
-                  handleChange(
-                    MODEL_CREATION_FORM_NAME.TMS_URL,
-                    String(td.source_imagery),
-                  );
+          <ul className="flex gap-y-2 flex-col">
+            {data
+              .filter((td) =>
+                td.name.toLowerCase().includes(searchQuery.toLowerCase()),
+              )
+              .map((td, id) => (
+                <li
+                  key={`training-dataset-${id}`}
+                  className={`cursor-pointer hover:bg-off-white p-2 flex items-center justify-between ${formData.selectedTrainingDatasetId === String(td.id) && "bg-off-white"}`}
+                >
+                  <button
+                    disabled={!td.source_imagery}
+                    className="w-full text-start"
+                    onClick={() => {
+                      handleChange(
+                        MODEL_CREATION_FORM_NAME.SELECTED_TRAINING_DATASET_ID,
+                        String(td.id),
+                      );
+                      // Also update other parameters
+                      handleChange(
+                        MODEL_CREATION_FORM_NAME.TMS_URL,
+                        String(td.source_imagery),
+                      );
 
-                  handleChange(
-                    MODEL_CREATION_FORM_NAME.DATASET_NAME,
-                    String(td.name),
-                  );
-                }}
-              >
-                <p>{td.name}</p>
-                {formData.selectedTrainingDatasetId === String(td.id) && (
-                  <span className="icon rounded-full p-1 bg-green-primary flex items-center justify-center">
-                    <CheckIcon className=" text-white" />
-                  </span>
-                )}
-              </div>
-            ))
+                      handleChange(
+                        MODEL_CREATION_FORM_NAME.DATASET_NAME,
+                        String(td.name),
+                      );
+                    }}
+                  >
+                    <p>
+                      {td.name}{" "}
+                      {!td.source_imagery && (
+                        <small className="italic">(Invalid TMS URL)</small>
+                      )}
+                    </p>
+                  </button>
+                  {formData.selectedTrainingDatasetId === String(td.id) && (
+                    <span className="icon rounded-full p-1 bg-green-primary flex items-center justify-center">
+                      <CheckIcon className=" text-white" />
+                    </span>
+                  )}
+                </li>
+              ))}
+          </ul>
         )}
       </div>
     </div>

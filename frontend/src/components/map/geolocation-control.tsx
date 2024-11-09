@@ -2,6 +2,9 @@ import { GeolocationIcon } from "@/components/ui/icons";
 import { useToastNotification } from "@/hooks/use-toast-notification";
 import { Map } from "maplibre-gl";
 import { useCallback } from "react";
+import { ToolTip } from "../ui/tooltip";
+import { ToolTipPlacement } from "@/enums";
+import { showErrorToast } from "@/utils";
 
 const GeolocationControl = ({ map }: { map: Map | null }) => {
   const toast = useToastNotification();
@@ -19,7 +22,7 @@ const GeolocationControl = ({ map }: { map: Map | null }) => {
           });
         },
         (error) => {
-          toast(`Error getting location: ${error.message}.`, "danger");
+          showErrorToast(error, `Error getting location: ${error.message}.`);
         },
       );
     } else {
@@ -30,12 +33,14 @@ const GeolocationControl = ({ map }: { map: Map | null }) => {
   if (!map) return null;
 
   return (
-    <button
-      className="p-2 bg-white flex items-center justify-center"
-      onClick={handleGeolocationClick}
-    >
-      <GeolocationIcon className="w-3.5 h-3.5" />
-    </button>
+    <ToolTip content="Geolocate" placement={ToolTipPlacement.RIGHT}>
+      <button
+        className="p-2 bg-white flex items-center justify-center"
+        onClick={handleGeolocationClick}
+      >
+        <GeolocationIcon className="map-icon p-0" />
+      </button>
+    </ToolTip>
   );
 };
 

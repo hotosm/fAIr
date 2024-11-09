@@ -1,11 +1,11 @@
-import { Feature } from "@/types";
+import { Feature, FeatureCollection, Geometry } from "@/types";
 import bboxPolygon from "@turf/bbox";
 
 import area from "@turf/area";
-import { LngLatBoundsLike } from "maplibre-gl";
+import { LngLatBoundsLike, Map } from "maplibre-gl";
 
-export const calculateGeoJSONFeatureArea = (
-  geojsonFeature: Feature,
+export const calculateGeoJSONArea = (
+  geojsonFeature: Feature | FeatureCollection,
 ): number => {
   return area(geojsonFeature);
 };
@@ -32,10 +32,12 @@ const deg2num = (
   zoom: number,
 ): { xtile: number; ytile: number } => {
   const lat_rad = degrees_to_radians(lat_deg);
-  const n = Math.pow(2.0, zoom); // Calculate number of tiles at the given zoom level
-  const xtile = Math.floor(((lon_deg + 180.0) / 360.0) * n); // Calculate tile number in x direction (longitude)
+  const n = Math.pow(2.0, zoom);
+
+  const xtile = Math.floor(((lon_deg + 180.0) / 360.0) * n);
+
   const ytile = Math.floor(
-    ((1.0 - Math.asinh(Math.tan(lat_rad)) / Math.PI) / 2.0) * n, // Calculate tile number in y direction (latitude)
+    ((1.0 - Math.asinh(Math.tan(lat_rad)) / Math.PI) / 2.0) * n,
   );
   return { xtile, ytile };
 };
@@ -52,10 +54,10 @@ const num2deg = (
   ytile: number,
   zoom: number,
 ): { lat_deg: number; lon_deg: number } => {
-  const n = Math.pow(2.0, zoom); // Calculate number of tiles at the given zoom level
-  const lon_deg = (xtile / n) * 360.0 - 180.0; // Convert xtile to longitude
-  const lat_rad = Math.atan(Math.sinh(Math.PI * (1 - (2 * ytile) / n))); // Convert ytile to latitude (in radians)
-  const lat_deg = radians_to_degrees(lat_rad); // Convert latitude from radians to degrees
+  const n = Math.pow(2.0, zoom);
+  const lon_deg = (xtile / n) * 360.0 - 180.0;
+  const lat_rad = Math.atan(Math.sinh(Math.PI * (1 - (2 * ytile) / n)));
+  const lat_deg = radians_to_degrees(lat_rad);
   return { lat_deg, lon_deg };
 };
 
@@ -69,7 +71,7 @@ export const distance = (
   unit: "K" | "N" | "M",
 ): number => {
   if (lat1 === lat2 && lon1 === lon2) {
-    return 0; // If the points are the same, distance is 0
+    return 0;
   } else {
     const radlat1 = (Math.PI * lat1) / 180;
     const radlat2 = (Math.PI * lat2) / 180;
@@ -77,9 +79,9 @@ export const distance = (
     const radtheta = (Math.PI * theta) / 180;
     let dist =
       Math.sin(radlat1) * Math.sin(radlat2) +
-      Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta); // Haversine formula
+      Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
     if (dist > 1) {
-      dist = 1; // Correct any floating-point precision errors
+      dist = 1;
     }
     dist = Math.acos(dist);
     dist = (dist * 180) / Math.PI;
@@ -94,7 +96,6 @@ export const distance = (
   }
 };
 
-// Finds the closest corner to a given latitude and longitude at a specific zoom level
 const getClosestCorner = (
   lat: number,
   lon: number,
@@ -104,14 +105,13 @@ const getClosestCorner = (
   let shortest = Infinity;
   let closestGeo: { lat_deg: number; lon_deg: number } | null = null;
 
-  // Loop through the adjacent tiles to find the closest corner
   for (let indexX = tile.xtile; indexX <= tile.xtile + 1; indexX++) {
     for (let indexY = tile.ytile; indexY <= tile.ytile + 1; indexY++) {
       const geo = num2deg(indexX, indexY, zoom);
       const distanceInKM = distance(lat, lon, geo.lat_deg, geo.lon_deg, "K");
       if (distanceInKM < shortest) {
         shortest = distanceInKM;
-        closestGeo = geo; // Update the closest corner
+        closestGeo = geo;
       }
     }
   }
@@ -119,22 +119,59 @@ const getClosestCorner = (
   return closestGeo;
 };
 
-// Approximates the geometry of a set of points by snapping them to the nearest tile corner
-export const approximateGeom = (points: string): string => {
-  const list = points.split(",");
-  let newValues = "";
-  const zoom = 19;
-
-  // Loop through each point and snap it to the closest corner
-  list.forEach((element) => {
-    const lat = parseFloat(element.split(" ")[1]);
-    const lon = parseFloat(element.split(" ")[0]);
-
-    const geo = getClosestCorner(lat, lon, zoom);
-    if (geo) {
-      newValues += geo.lon_deg + " " + geo.lat_deg + ",";
-    }
+export const approximateGeom = (
+  coordinates: [number, number][],
+  zoom = 19,
+): [number, number][] => {
+  return coordinates.map(([lon, lat]) => {
+    const closest = getClosestCorner(lat, lon, zoom);
+    return closest ? [closest.lon_deg, closest.lat_deg] : [lon, lat];
   });
+};
 
-  return newValues.slice(0, -1);
+export const getTileBoundariesGeoJSON = (
+  map: Map,
+  zoom: number,
+): FeatureCollection => {
+  const bounds = map.getBounds();
+
+  const minTile = deg2num(bounds.getNorth(), bounds.getWest(), zoom);
+  const maxTile = deg2num(bounds.getSouth(), bounds.getEast(), zoom);
+
+  const features: Feature[] = [];
+
+  for (let x = minTile.xtile; x <= maxTile.xtile; x++) {
+    for (let y = minTile.ytile; y <= maxTile.ytile; y++) {
+      const { lat_deg: lat1, lon_deg: lon1 } = num2deg(x, y, zoom);
+      const { lat_deg: lat2, lon_deg: lon2 } = num2deg(x + 1, y + 1, zoom);
+
+      features.push({
+        type: "Feature",
+        geometry: {
+          type: "Polygon",
+          coordinates: [
+            [
+              [lon1, lat1],
+              [lon2, lat1],
+              [lon2, lat2],
+              [lon1, lat2],
+              [lon1, lat1],
+            ],
+          ],
+        },
+        properties: { xtile: x, ytile: y, zoom },
+      });
+    }
+  }
+  return {
+    type: "FeatureCollection",
+    features,
+  };
+};
+
+export const snapGeoJSONGeometryToClosestTile = (geometry: Geometry) => {
+  const originalCoordinates = geometry.coordinates[0];
+  const snappedCoordinates = approximateGeom(originalCoordinates);
+  geometry.coordinates[0] = snappedCoordinates;
+  return geometry;
 };
