@@ -8,6 +8,7 @@ import CheckIcon from "@/components/ui/icons/check-icon";
 import { useState } from "react";
 import { useGetTrainingDatasets } from "@/features/model-creation/hooks/use-training-datasets";
 import useDebounce from "@/hooks/use-debounce";
+import { MODEL_CREATION_CONTENT } from "@/utils";
 
 const SelectExistingTrainingDatasetForm = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -19,7 +20,7 @@ const SelectExistingTrainingDatasetForm = () => {
   return (
     <div className="flex flex-col gap-y-10">
       <p className="font-semibold text-body-1 mb-2">
-        Existing Training Dataset
+        {MODEL_CREATION_CONTENT.trainingDataset.form.existingTrainingDatasetSectionHeading}
       </p>
       <div className={`flex  items-center border border-gray-border`}>
         <SearchIcon className={`ml-2 icon-lg text-dark`} />
@@ -28,7 +29,7 @@ const SelectExistingTrainingDatasetForm = () => {
             setSearchQuery(e.target.value);
           }}
           value={searchQuery}
-          placeholder="Search"
+          placeholder={MODEL_CREATION_CONTENT.trainingDataset.form.searchBar.placeholder}
           disabled={isError}
         />
       </div>

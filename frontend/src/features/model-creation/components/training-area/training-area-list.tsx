@@ -2,6 +2,7 @@ import TrainingAreaItem from "@/features/model-creation/components/training-area
 import Pagination from "@/components/pagination";
 import { PaginatedTrainingArea } from "@/types";
 import { Dispatch, SetStateAction } from "react";
+import { MODEL_CREATION_CONTENT } from "@/utils";
 
 const TrainingAreaList = ({
   offset,
@@ -22,7 +23,7 @@ const TrainingAreaList = ({
     <div className="flex h-[60%] flex-col gap-y-4 justify-between  p-4 ">
       <div className="flex flex-col gap-y-4">
         <p className="text-body-1">
-          Training Area{`${data?.count > 1 ? "s" : ""}`}{" "}
+          {MODEL_CREATION_CONTENT.trainingArea.form.trainingArea}{`${data?.count > 1 ? "s" : ""}`}{" "}
           <span className="text-white bg-primary text-body-1 rounded-xl px-3 py-1">
             {data?.count ?? 0}
           </span>

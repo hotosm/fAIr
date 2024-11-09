@@ -13,7 +13,7 @@ const ProgressBar: React.FC<ProgressBarProps> = memo(
     return (
       <div className="flex items-center justify-between w-full gap-x-4 overflow-x-scroll p-1">
         {pages.map((step) => {
-          const activeStep = step.path === currentPath;
+          const activeStep = currentPath.includes(step.path);
           return (
             <button
               key={`current-form-progress-${step.id}`}

@@ -4,14 +4,15 @@ import {
   useModelFormContext,
 } from "@/app/providers/model-creation-provider";
 import { Input } from "@/components/ui/form";
+import { INPUT_TYPES } from "@/enums";
+import { MODEL_CREATION_CONTENT } from "@/utils";
 import { useEffect, useMemo } from "react";
 
 const CreateNewTrainingDatasetForm = () => {
   const { formData, handleChange } = useModelFormContext();
 
   const tmsURLHelpText = useMemo(() => {
-    const helpText =
-      "TMS imagery link should look like this https://tiles.openaerialmap.org/****/*/***/{z}/{x}/{y}";
+    const helpText = MODEL_CREATION_CONTENT.trainingDataset.form.tmsURL.helpText;
     return formData.tmsURLValidation.message.length > 0
       ? formData.tmsURLValidation.message
       : helpText;
@@ -31,19 +32,19 @@ const CreateNewTrainingDatasetForm = () => {
   return (
     <div className="flex flex-col gap-y-10">
       <p className="font-semibold text-body-1 mb-2">
-        Create New Training Dataset
+        {MODEL_CREATION_CONTENT.trainingDataset.form.newTrainingDatasetSectionHeading}
       </p>
       <Input
         handleInput={(e) =>
           handleChange(MODEL_CREATION_FORM_NAME.DATASET_NAME, e.target.value)
         }
         value={formData.datasetName}
-        toolTipContent="Hello"
-        label="Dataset Name"
+        toolTipContent={MODEL_CREATION_CONTENT.trainingDataset.form.datasetName.toolTip}
+        label={MODEL_CREATION_CONTENT.trainingDataset.form.datasetName.label}
         labelWithTooltip
-        placeholder="Enter the dataset name"
+        placeholder={MODEL_CREATION_CONTENT.trainingDataset.form.datasetName.placeholder}
         showBorder
-        helpText="Dataset name should be at least 10 characters and at most 40 characters."
+        helpText={MODEL_CREATION_CONTENT.trainingDataset.form.datasetName.helpText}
         required
         maxLength={
           FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.DATASET_NAME]
@@ -58,9 +59,9 @@ const CreateNewTrainingDatasetForm = () => {
       <Input
         value={formData.tmsURL}
         labelWithTooltip
-        toolTipContent="Hello"
-        label="TMS URL"
-        placeholder="https://tiles.openaerialmap.org/****/*/***/{z}/{x}/{y}"
+        toolTipContent={MODEL_CREATION_CONTENT.trainingDataset.form.tmsURL.toolTip}
+        label={MODEL_CREATION_CONTENT.trainingDataset.form.tmsURL.label}
+        placeholder={MODEL_CREATION_CONTENT.trainingDataset.form.tmsURL.placeholder}
         showBorder
         helpText={tmsURLHelpText}
         required
@@ -70,7 +71,7 @@ const CreateNewTrainingDatasetForm = () => {
         handleInput={(e) =>
           handleChange(MODEL_CREATION_FORM_NAME.TMS_URL, e.target.value)
         }
-        type="url"
+        type={INPUT_TYPES.URL}
         validationStateUpdateCallback={(validationState) =>
           handleChange(
             MODEL_CREATION_FORM_NAME.TMS_URL_VALIDITY,

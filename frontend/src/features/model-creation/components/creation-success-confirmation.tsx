@@ -27,13 +27,13 @@ const ModelCreationSuccessConfirmation = () => {
       <div className="flex items-center justify-between gap-x-4">
         <Link
           href={`${APPLICATION_ROUTES.MODELS}/${modelId}`}
-          title="go to model"
+          title={MODEL_CREATION_CONTENT.confirmation.buttons.goToModel}
           nativeAnchor={false}
         >
-          <Button>go to model</Button>
+          <Button>{MODEL_CREATION_CONTENT.confirmation.buttons.goToModel}</Button>
         </Link>
-        <Link href={`${APPLICATION_ROUTES.MODELS}`} title="go to model">
-          <Button variant="dark">Explore models</Button>
+        <Link href={`${APPLICATION_ROUTES.MODELS}`} title={MODEL_CREATION_CONTENT.confirmation.buttons.exploreModels}>
+          <Button variant="dark">{MODEL_CREATION_CONTENT.confirmation.buttons.exploreModels}</Button>
         </Link>
       </div>
     </div>

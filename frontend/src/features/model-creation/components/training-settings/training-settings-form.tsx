@@ -13,6 +13,7 @@ import {
   MODEL_CREATION_FORM_NAME,
   useModelFormContext,
 } from "@/app/providers/model-creation-provider";
+import { MODEL_CREATION_CONTENT } from "@/utils";
 
 const trainingTypes = [
   { label: TrainingType.BASIC, Icon: BasicGuageIcon },
@@ -43,24 +44,24 @@ const defaultTrainingSettings = {
 
 const advancedSettings = [
   {
-    label: "Epoch",
+    label: MODEL_CREATION_CONTENT.trainingSettings.form.epoch.label,
     value: MODEL_CREATION_FORM_NAME.EPOCH,
-    toolTip: "Epochs for training",
+    toolTip: MODEL_CREATION_CONTENT.trainingSettings.form.epoch.toolTip,
   },
   {
-    label: "Contact Spacing",
+    label: MODEL_CREATION_CONTENT.trainingSettings.form.contactSpacing.label,
     value: MODEL_CREATION_FORM_NAME.CONTACT_SPACING,
-    toolTip: "Number of items per batch",
+    toolTip: MODEL_CREATION_CONTENT.trainingSettings.form.contactSpacing.toolTip,
   },
   {
-    label: "Batch Size",
+    label: MODEL_CREATION_CONTENT.trainingSettings.form.batchSize.label,
     value: MODEL_CREATION_FORM_NAME.BATCH_SIZE,
-    toolTip: "Spacing between contacts",
+    toolTip: MODEL_CREATION_CONTENT.trainingSettings.form.batchSize.toolTip,
   },
   {
-    label: "Boundary Width",
+    label: MODEL_CREATION_CONTENT.trainingSettings.form.boundaryWidth.label,
     value: MODEL_CREATION_FORM_NAME.BOUNDARY_WIDTH,
-    toolTip: "Width of the boundaries",
+    toolTip: MODEL_CREATION_CONTENT.trainingSettings.form.boundaryWidth.toolTip,
   },
 ];
 
@@ -93,9 +94,9 @@ const TrainingSettingsForm = () => {
     <div className="flex flex-col gap-y-10 w-full">
       <div className="flex flex-col gap-y-6">
         <FormLabel
-          label="Select Zoom Level"
+          label={MODEL_CREATION_CONTENT.trainingSettings.form.zoomLevel.label}
           withTooltip
-          toolTipContent="Zoom levels are"
+          toolTipContent={MODEL_CREATION_CONTENT.trainingSettings.form.zoomLevel.toolTip}
           required
         />
         <CheckboxGroup
@@ -119,9 +120,9 @@ const TrainingSettingsForm = () => {
 
       <div className="flex flex-col gap-y-6">
         <FormLabel
-          label="Select Model Training Type"
+          label={MODEL_CREATION_CONTENT.trainingSettings.form.trainingType.label}
           withTooltip
-          toolTipContent="content"
+          toolTipContent={MODEL_CREATION_CONTENT.trainingSettings.form.trainingType.toolTip}
           required
         />
         <div className="flex items-center gap-x-4 w-full justify-between">
@@ -146,9 +147,9 @@ const TrainingSettingsForm = () => {
       <div className="flex flex-col gap-y-6">
         <div className="flex items-center gap-x-4 w-full">
           <FormLabel
-            label="Advanced settings"
+            label={MODEL_CREATION_CONTENT.trainingSettings.form.advancedSettings.label}
             withTooltip
-            toolTipContent="content"
+            toolTipContent={MODEL_CREATION_CONTENT.trainingSettings.form.advancedSettings.toolTip}
           />
           <button
             onClick={() => setShowAdvancedSettings(!showAdvancedSettings)}

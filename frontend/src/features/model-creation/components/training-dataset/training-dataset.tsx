@@ -8,6 +8,7 @@ import {
   MODEL_CREATION_FORM_NAME,
   useModelFormContext,
 } from "@/app/providers/model-creation-provider";
+import { MODEL_CREATION_CONTENT } from "@/utils";
 
 const TrainingDatasetForm = () => {
   const { handleChange, formData } = useModelFormContext();
@@ -15,16 +16,13 @@ const TrainingDatasetForm = () => {
   return (
     <div className="flex flex-col gap-y-6 w-full">
       <StepHeading
-        heading="Training Dataset"
-        description=" Lorem ipsum dolor sit amet, consectetur adipisicing elit. Id fugit
-        ducimus harum debitis deserunt cum quod quam rerum aliquid. Quibusdam
-        sequi incidunt quasi delectus laudantium accusamus modi omnis maiores.
-        Incidunt!"
+        heading={MODEL_CREATION_CONTENT.trainingDataset.pageTitle}
+        description={MODEL_CREATION_CONTENT.trainingDataset.pageDescription}
       />
       {formData.trainingDatasetOption === TrainingDatasetOption.NONE ? (
         <div className="flex flex-col gap-y-10 w-full">
           <ButtonWithIcon
-            label="Create a New Training Dataset"
+            label={MODEL_CREATION_CONTENT.trainingDataset.buttons.createNew}
             suffixIcon={ChevronDownIcon}
             iconClassName="-rotate-90"
             variant={"dark"}
@@ -37,7 +35,7 @@ const TrainingDatasetForm = () => {
             }
           ></ButtonWithIcon>
           <ButtonWithIcon
-            label="Select from Existing Training Dataset"
+            label={MODEL_CREATION_CONTENT.trainingDataset.buttons.selectExisting}
             suffixIcon={ChevronDownIcon}
             iconClassName="-rotate-90"
             capitalizeText={false}

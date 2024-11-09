@@ -14,6 +14,7 @@ import { useGetTrainingAreas } from "@/features/model-creation/hooks/use-trainin
 import OpenAerialMap from "@/features/model-creation/components/training-area/open-area-map";
 import { useMap } from "@/app/providers/map-provider";
 import { useToastNotification } from "@/hooks/use-toast-notification";
+import { MODEL_CREATION_CONTENT } from "@/utils";
 
 const TrainingAreaForm = () => {
   const { formData } = useModelFormContext();
@@ -52,19 +53,16 @@ const TrainingAreaForm = () => {
         <div className="flex justify-between items-center mb-10">
           <div className="basis-1/2">
             <StepHeading
-              heading="Create Training Area"
-              description=" Lorem ipsum dolor sit amet, consectetur adipisicing elit. Id fugit
-        ducimus harum debitis deserunt cum quod quam rerum aliquid. Quibusdam
-        sequi incidunt quasi delectus laudantium accusamus modi omnis maiores.
-        Incidunt!"
+              heading={MODEL_CREATION_CONTENT.trainingArea.pageTitle}
+              description={MODEL_CREATION_CONTENT.trainingArea.pageDescription}
             />
           </div>
           <div className="flex flex-col items-end gap-y-4 ">
             <p className="flex items-center gap-x-2">
-              <YouTubePlayIcon className="icon-lg" /> Tutorial
+              <YouTubePlayIcon className="icon-lg" />{MODEL_CREATION_CONTENT.trainingArea.tutorialText}
             </p>
             <p className="text-dark">
-              Dataset ID: {formData.selectedTrainingDatasetId}
+              {MODEL_CREATION_CONTENT.trainingArea.datasetID} {formData.selectedTrainingDatasetId}
             </p>
           </div>
         </div>
@@ -101,12 +99,12 @@ const TrainingAreaForm = () => {
                 }}
               >
                 <div className="flex items-center gap-x-2">
-                  <p>Draw</p>
+                  <p>{MODEL_CREATION_CONTENT.trainingArea.form.draw}</p>
                   <div className="w-4 h-4 border-2 rounded-md border-white"></div>
                 </div>
               </Button>
               <ButtonWithIcon
-                label="upload"
+                label={MODEL_CREATION_CONTENT.trainingArea.form.upload}
                 variant="dark"
                 suffixIcon={UploadIcon}
                 onClick={toggle}

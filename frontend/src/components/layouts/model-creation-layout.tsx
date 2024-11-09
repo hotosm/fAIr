@@ -4,7 +4,7 @@ import {
   ProgressButtons,
 } from "@/features/model-creation/components";
 import { Head } from "@/components/seo";
-import { APPLICATION_ROUTES } from "@/utils";
+import { APPLICATION_ROUTES, MODEL_CREATION_CONTENT } from "@/utils";
 import { useEffect, useState } from "react";
 import {
   CloudIcon,
@@ -26,43 +26,43 @@ const pages: {
   icon: React.ElementType;
   path: string;
 }[] = [
-  {
-    id: 1,
-    title: "Model Details",
-    icon: TagsIcon,
-    path: APPLICATION_ROUTES.CREATE_NEW_MODEL,
-  },
-  {
-    id: 2,
-    title: "Training Dataset",
-    icon: DatabaseIcon,
-    path: APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_DATASET,
-  },
-  {
-    id: 3,
-    title: "Training Area",
-    icon: SquareShadowIcon,
-    path: APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_AREA,
-  },
-  {
-    id: 4,
-    title: "Training Settings",
-    icon: SettingsIcon,
-    path: APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_SETTINGS,
-  },
-  {
-    id: 5,
-    title: "Submit Model",
-    icon: CloudIcon,
-    path: APPLICATION_ROUTES.CREATE_NEW_MODEL_SUMMARY,
-  },
-  {
-    id: 6,
-    title: "Confirmation",
-    icon: StarIcon,
-    path: APPLICATION_ROUTES.CREATE_NEW_MODEL_CONFIRMATION,
-  },
-];
+    {
+      id: 1,
+      title: MODEL_CREATION_CONTENT.progressStepper.modelDetails,
+      icon: TagsIcon,
+      path: APPLICATION_ROUTES.CREATE_NEW_MODEL,
+    },
+    {
+      id: 2,
+      title: MODEL_CREATION_CONTENT.progressStepper.trainingDataset,
+      icon: DatabaseIcon,
+      path: APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_DATASET,
+    },
+    {
+      id: 3,
+      title: MODEL_CREATION_CONTENT.progressStepper.trainingArea,
+      icon: SquareShadowIcon,
+      path: APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_AREA,
+    },
+    {
+      id: 4,
+      title: MODEL_CREATION_CONTENT.progressStepper.trainingSettings,
+      icon: SettingsIcon,
+      path: APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_SETTINGS,
+    },
+    {
+      id: 5,
+      title: MODEL_CREATION_CONTENT.progressStepper.submitModel,
+      icon: CloudIcon,
+      path: APPLICATION_ROUTES.CREATE_NEW_MODEL_SUMMARY,
+    },
+    {
+      id: 6,
+      title: MODEL_CREATION_CONTENT.progressStepper.confirmation,
+      icon: StarIcon,
+      path: APPLICATION_ROUTES.CREATE_NEW_MODEL_CONFIRMATION,
+    },
+  ];
 
 const ModelCreationLayout = () => {
   const { pathname } = useLocation();

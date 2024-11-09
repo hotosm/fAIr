@@ -4,6 +4,7 @@ import { DeleteIcon, FileIcon, UploadIcon } from "@/components/ui/icons";
 import { DialogProps, Feature, FeatureCollection, Geometry } from "@/types";
 import {
   MAX_TRAINING_AREA_UPLOAD_FILE_SIZE,
+  MODEL_CREATION_CONTENT,
   showErrorToast,
   showSuccessToast,
   snapGeoJSONGeometryToClosestTile,
@@ -189,8 +190,8 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
             <p>Drop the files here ...</p>
           ) : (
             <>
-              <p>Drag 'n' drop some files here, or click to select files</p>
-              <small>Supports only GeoJSON (.geojson) files. (5MB max.)</small>
+              <p>{MODEL_CREATION_CONTENT.trainingArea.fileUploadDialog.mainInstruction}</p>
+              <small>{MODEL_CREATION_CONTENT.trainingArea.fileUploadDialog.subInstruction}</small>
             </>
           )}
         </div>
@@ -205,7 +206,7 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
             }
             onClick={handleUpload}
           >
-            Upload
+            {MODEL_CREATION_CONTENT.trainingArea.form.upload}
           </Button>
         </div>
       </div>

@@ -2,9 +2,9 @@ import { APPLICATION_ROUTES } from "./constants";
 
 export const TOAST_NOTIFICATIONS = {
   trainingAreasFileUploadSuccess: "Training areas created successfully.",
-  trainingLabelsFetchSuccess: "Traning labels fetched successfully.",
+  trainingLabelsFetchSuccess: "Traniing labels fetched successfully.",
   trainingLabelsFetchFailure:
-    "An error occurred while fetching traning labels.",
+    "An error occurred while fetching training labels.",
   trainingAreaDeletionSuccess: "Training area deleted successfully.",
   aoiDownloadSuccess: "AOI downloaded successfully.",
   trainingRequestSubmittedSuccess: "Training request submitted successfully.",
@@ -23,6 +23,7 @@ export const TOAST_NOTIFICATIONS = {
   loginSuccess: "Login successful.",
   logoutSuccess: "Logout successful.",
 };
+
 
 export const MODEL_CREATION_CONTENT = {
   modelDetails: {
@@ -63,14 +64,17 @@ export const MODEL_CREATION_CONTENT = {
         helpText:
           "Dataset name should be at least 10 characters and at most 40 characters.",
         placeholder: "Enter the datatset name",
+        toolTip: "Dataset Name"
       },
       tmsURL: {
-        label: "TMS URL ",
+        label: "TMS URL",
+        toolTip: "TMS URL",
         helpText:
           "TMS imagery link should look like this https://tiles.openaerialmap.org/****/*/***/{z}/{x}/{y}",
         placeholder: "https://tiles.openaerialmap.org/****/*/***/{z}/{x}/{y}",
       },
-      existingTrainingDatasetPageTitle: "Existing Training Dataset",
+      existingTrainingDatasetSectionHeading: "Existing Training Dataset",
+      newTrainingDatasetSectionHeading: "Create New Training Dataset",
       searchBar: {
         placeholder: "Search",
       },
@@ -82,6 +86,10 @@ export const MODEL_CREATION_CONTENT = {
     pageTitle: "Create Training Area",
     datasetID: "Dataset ID:",
     tutorialText: "Tutorial",
+    layerControl: {
+      tmsLayerName: "TMS Layer",
+      trainingAreaLayerName: 'Training Areas'
+    },
     form: {
       openAerialMap: "Open Aerial Map",
       maxZoom: "Max zoom:",
@@ -89,6 +97,11 @@ export const MODEL_CREATION_CONTENT = {
       trainingArea: "Training Area",
       draw: "Draw",
       upload: "Upload",
+    },
+    fileUploadDialog: {
+      title: "Upload Training Area(s)",
+      mainInstruction: "Drag 'n' drop some files here, or click to select files",
+      subInstruction: "Supports only GeoJSON (.geojson) files. (5MB max.)"
     },
     pageDescription:
       "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Id fugit ducimus harum debitis deserunt cum quod quam rerum aliquid. Quibusdam sequi incidunt quasi delectus laudantium accusamus modi omnis maiores. Incidunt!",
@@ -130,9 +143,6 @@ export const MODEL_CREATION_CONTENT = {
         label: "Advanced Settings",
         toolTip: "Advanced Settings",
       },
-      basic: "basic",
-      interMediate: "intermediate",
-      advanced: "advanced",
       epoch: {
         label: "Epoch",
         toolTip: "Epoch",
@@ -159,7 +169,7 @@ export const MODEL_CREATION_CONTENT = {
     trainingDataset: "Training Dataset",
     trainingArea: "Training Area",
     trainingSettings: "Training Settings",
-    submitModel: "submitModel",
+    submitModel: "Submit Model",
     confirmation: "Confirmation",
   },
   progressButtons: {
