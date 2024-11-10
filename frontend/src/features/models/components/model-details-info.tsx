@@ -108,7 +108,14 @@ const ModelDetailsInfo = ({
                   className="flex items-center gap-x-4"
                   onClick={openDialog}
                 >
-                  <PenIcon className="icon" /> <span>Edit Model Details</span>
+                  <PenIcon className="icon" />{" "}
+                  <span>
+                    {" "}
+                    {
+                      APP_CONTENT.models.modelsDetailsCard.modelUpdate
+                        .editButtonText
+                    }
+                  </span>
                 </button>
               )}
             </div>

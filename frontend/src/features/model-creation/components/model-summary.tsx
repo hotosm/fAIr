@@ -1,4 +1,4 @@
-import { useModelFormContext } from "@/app/providers/model-creation-provider";
+import { useModelsContext } from "@/app/providers/models-provider";
 import {
   DatabaseIcon,
   MapIcon,
@@ -40,8 +40,8 @@ const SummaryItem = ({
   </div>
 );
 
-const ModelSummaryStep = () => {
-  const { formData } = useModelFormContext();
+const ModelSummaryForm = () => {
+  const { formData } = useModelsContext();
   const summaryData = [
     { icon: TagsIcon, label: "Model Name", content: formData.modelName },
     {
@@ -100,4 +100,4 @@ const ModelSummaryStep = () => {
   );
 };
 
-export default ModelSummaryStep;
+export default ModelSummaryForm;

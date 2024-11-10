@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { TerraDraw } from "terra-draw";
 import { ToolTip } from "@/components/ui/tooltip";
 import { PenIcon } from "@/components/ui/icons";
-import { Map } from "maplibre-gl";
+import { Map, MapMouseEvent } from "maplibre-gl";
 import {
   calculateGeoJSONArea,
   MAX_TRAINING_AREA_SIZE,
@@ -21,7 +21,7 @@ const DrawControl = ({
   const [tooltipVisible, setTooltipVisible] = useState(false);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   const [featureArea, setFeatureArea] = useState<number>(0);
-  const [mode, setMode] = useState<DrawingModes | string>(DrawingModes.STATIC);
+  const [mode, setMode] = useState<DrawingModes>(DrawingModes.STATIC);
 
   const changeMode = useCallback(
     (newMode: DrawingModes) => {
@@ -34,7 +34,7 @@ const DrawControl = ({
 
   useEffect(() => {
     const handleFeatureChange = () => {
-      setMode(terraDraw.getMode());
+      setMode(terraDraw.getMode() as DrawingModes);
       const snapshot = terraDraw.getSnapshot();
       setFeaturesExist(snapshot.length > 0);
       const area = calculateGeoJSONArea(snapshot[snapshot.length - 1]);
@@ -58,7 +58,7 @@ const DrawControl = ({
   useEffect(() => {
     if (!map) return;
 
-    const handleMouseMove = (event: MouseEvent) => {
+    const handleMouseMove = (event: MapMouseEvent) => {
       if (mode === DrawingModes.RECTANGLE) {
         setTooltipPosition({ x: event.point.x, y: event.point.y });
         setTooltipVisible(true);

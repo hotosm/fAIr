@@ -474,6 +474,23 @@ export const APP_CONTENT = {
         status: "Status",
         logs: "Logs",
       },
+      modelUpdate: {
+        dialogHeading: "Edit Model Details",
+        editButtonText: "Edit Model Details",
+        saveButtonText: "Save",
+      },
+      modelEnhancement: {
+        newSettings: {
+          title: "Enhance with New Settings",
+          description:
+            "Description Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut ",
+        },
+        trainingData: {
+          title: "Enhance with Training Data",
+          description:
+            "Description Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut ",
+        },
+      },
     },
   },
 };

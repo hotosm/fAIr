@@ -1,7 +1,7 @@
 import {
   MODEL_CREATION_FORM_NAME,
-  useModelFormContext,
-} from "@/app/providers/model-creation-provider";
+  useModelsContext,
+} from "@/app/providers/models-provider";
 import { Input } from "@/components/ui/form";
 import { SearchIcon } from "@/components/ui/icons";
 import CheckIcon from "@/components/ui/icons/check-icon";
@@ -12,7 +12,7 @@ import { MODEL_CREATION_CONTENT } from "@/utils";
 
 const SelectExistingTrainingDatasetForm = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const { formData, handleChange } = useModelFormContext();
+  const { formData, handleChange } = useModelsContext();
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
   const { data, isPending, isError } =
     useGetTrainingDatasets(debouncedSearchQuery);

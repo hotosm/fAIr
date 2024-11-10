@@ -6,12 +6,12 @@ import SelectExistingTrainingDatasetForm from "@/features/model-creation/compone
 import { TrainingDatasetOption } from "@/enums";
 import {
   MODEL_CREATION_FORM_NAME,
-  useModelFormContext,
-} from "@/app/providers/model-creation-provider";
+  useModelsContext,
+} from "@/app/providers/models-provider";
 import { MODEL_CREATION_CONTENT } from "@/utils";
 
 const TrainingDatasetForm = () => {
-  const { handleChange, formData } = useModelFormContext();
+  const { handleChange, formData } = useModelsContext();
 
   return (
     <div className="flex flex-col gap-y-6 w-full">

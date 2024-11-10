@@ -1,15 +1,15 @@
 import {
   FORM_VALIDATION_CONFIG,
   MODEL_CREATION_FORM_NAME,
-  useModelFormContext,
-} from "@/app/providers/model-creation-provider";
+  useModelsContext,
+} from "@/app/providers/models-provider";
 import { Input } from "@/components/ui/form";
 import { INPUT_TYPES } from "@/enums";
 import { MODEL_CREATION_CONTENT } from "@/utils";
 import { useEffect, useMemo } from "react";
 
 const CreateNewTrainingDatasetForm = () => {
-  const { formData, handleChange } = useModelFormContext();
+  const { formData, handleChange } = useModelsContext();
 
   const tmsURLHelpText = useMemo(() => {
     const helpText =

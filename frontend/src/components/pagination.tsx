@@ -1,5 +1,5 @@
 import ChevronDownIcon from "@/components/ui/icons/chevron-down-icon";
-import { SEARCH_PARAMS } from "@/app/routes/models";
+import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
 import { TQueryParams } from "@/types";
 
 export const PAGE_LIMIT = 20;

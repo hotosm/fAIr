@@ -1,6 +1,6 @@
 import { TrainingSettingsStep } from "@/features/model-creation/components";
 
-export const CreateNewModelTrainingSettingsPage = () => {
+export const ModelTrainingSettingsPage = () => {
   return (
     <div
       className={

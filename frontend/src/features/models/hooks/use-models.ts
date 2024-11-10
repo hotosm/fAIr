@@ -39,7 +39,7 @@ export const useModels = ({
   });
 };
 
-export const useModelDetails = (id: string) => {
+export const useModelDetails = (id: string, enabled: boolean = true) => {
   return useQuery({
     ...getModelDetailsQueryOptions(id),
     //@ts-expect-error bad type definition
@@ -49,6 +49,7 @@ export const useModelDetails = (id: string) => {
       //@ts-expect-error bad type definition
       return error.response?.status !== 404;
     },
+    enabled: enabled,
   });
 };
 

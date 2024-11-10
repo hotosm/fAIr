@@ -4,7 +4,12 @@ import ModelDescriptionFormInput from "@/features/model-creation/components/mode
 import ModelNameFormInput from "@/features/model-creation/components/model-details/model-name-input";
 import { useUpdateModel } from "@/features/model-creation/hooks/use-models";
 import { TModel } from "@/types";
-import { showErrorToast, showSuccessToast, TOAST_NOTIFICATIONS } from "@/utils";
+import {
+  APP_CONTENT,
+  showErrorToast,
+  showSuccessToast,
+  TOAST_NOTIFICATIONS,
+} from "@/utils";
 import { useState } from "react";
 
 type ModelDetailsUpdateDialogProps = {
@@ -21,7 +26,7 @@ const ModelDetailsUpdateDialog: React.FC<ModelDetailsUpdateDialogProps> = ({
   const [modelDescription, setModelDescription] = useState(
     data.description ?? "",
   );
-  const updateModelMutation = useUpdateModel({
+  const modelUpdateMutation = useUpdateModel({
     modelId: data.id,
     mutationConfig: {
       onSuccess: () => {
@@ -34,7 +39,7 @@ const ModelDetailsUpdateDialog: React.FC<ModelDetailsUpdateDialogProps> = ({
     },
   });
   const handleSubmit = async () => {
-    await updateModelMutation.mutateAsync({
+    await modelUpdateMutation.mutateAsync({
       modelId: data.id,
       name: modelName,
       description: modelDescription,
@@ -45,7 +50,7 @@ const ModelDetailsUpdateDialog: React.FC<ModelDetailsUpdateDialogProps> = ({
     <Dialog
       isOpened={isOpened}
       closeDialog={closeDialog}
-      label="Edit Model Details"
+      label={APP_CONTENT.models.modelsDetailsCard.modelUpdate.dialogHeading}
     >
       <div className="flex flex-col gap-y-4">
         <ModelNameFormInput
@@ -58,10 +63,13 @@ const ModelDetailsUpdateDialog: React.FC<ModelDetailsUpdateDialogProps> = ({
         />
         <div className="self-end">
           <Button
-            disabled={modelDescription.length === 0 && modelName.length === 0}
+            disabled={
+              (modelDescription.length === 0 && modelName.length === 0) ||
+              modelUpdateMutation.isPending
+            }
             onClick={handleSubmit}
           >
-            Save
+            {APP_CONTENT.models.modelsDetailsCard.modelUpdate.saveButtonText}
           </Button>
         </div>
       </div>

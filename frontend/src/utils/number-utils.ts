@@ -9,6 +9,6 @@
  * @param {number} [round=2] - The number of decimal places to round to (default is 2).
  * @returns {string} - The rounded number as a string.
  */
-export const roundNumber = (num: number, round: number = 2): Number => {
+export const roundNumber = (num: number, round: number = 2): number => {
   return Number(num.toFixed(round) ?? 0);
 };

@@ -1,7 +1,7 @@
 import {
   FORM_VALIDATION_CONFIG,
   MODEL_CREATION_FORM_NAME,
-} from "@/app/providers/model-creation-provider";
+} from "@/app/providers/models-provider";
 import { TextArea } from "@/components/ui/form";
 import { MODEL_CREATION_CONTENT } from "@/utils";
 

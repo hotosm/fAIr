@@ -15,9 +15,9 @@ import {
   TagsIcon,
 } from "@/components/ui/icons";
 import {
-  ModelCreationFormProvider,
-  useModelFormContext,
-} from "@/app/providers/model-creation-provider";
+  ModelsProvider,
+  useModelsContext,
+} from "@/app/providers/models-provider";
 import ModelsLayout from "./models-layout";
 
 const pages: {
@@ -26,43 +26,43 @@ const pages: {
   icon: React.ElementType;
   path: string;
 }[] = [
-  {
-    id: 1,
-    title: MODEL_CREATION_CONTENT.progressStepper.modelDetails,
-    icon: TagsIcon,
-    path: APPLICATION_ROUTES.CREATE_NEW_MODEL,
-  },
-  {
-    id: 2,
-    title: MODEL_CREATION_CONTENT.progressStepper.trainingDataset,
-    icon: DatabaseIcon,
-    path: APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_DATASET,
-  },
-  {
-    id: 3,
-    title: MODEL_CREATION_CONTENT.progressStepper.trainingArea,
-    icon: SquareShadowIcon,
-    path: APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_AREA,
-  },
-  {
-    id: 4,
-    title: MODEL_CREATION_CONTENT.progressStepper.trainingSettings,
-    icon: SettingsIcon,
-    path: APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_SETTINGS,
-  },
-  {
-    id: 5,
-    title: MODEL_CREATION_CONTENT.progressStepper.submitModel,
-    icon: CloudIcon,
-    path: APPLICATION_ROUTES.CREATE_NEW_MODEL_SUMMARY,
-  },
-  {
-    id: 6,
-    title: MODEL_CREATION_CONTENT.progressStepper.confirmation,
-    icon: StarIcon,
-    path: APPLICATION_ROUTES.CREATE_NEW_MODEL_CONFIRMATION,
-  },
-];
+    {
+      id: 1,
+      title: MODEL_CREATION_CONTENT.progressStepper.modelDetails,
+      icon: TagsIcon,
+      path: APPLICATION_ROUTES.CREATE_NEW_MODEL,
+    },
+    {
+      id: 2,
+      title: MODEL_CREATION_CONTENT.progressStepper.trainingDataset,
+      icon: DatabaseIcon,
+      path: APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_DATASET,
+    },
+    {
+      id: 3,
+      title: MODEL_CREATION_CONTENT.progressStepper.trainingArea,
+      icon: SquareShadowIcon,
+      path: APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_AREA,
+    },
+    {
+      id: 4,
+      title: MODEL_CREATION_CONTENT.progressStepper.trainingSettings,
+      icon: SettingsIcon,
+      path: APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_SETTINGS,
+    },
+    {
+      id: 5,
+      title: MODEL_CREATION_CONTENT.progressStepper.submitModel,
+      icon: CloudIcon,
+      path: APPLICATION_ROUTES.CREATE_NEW_MODEL_SUMMARY,
+    },
+    {
+      id: 6,
+      title: MODEL_CREATION_CONTENT.progressStepper.confirmation,
+      icon: StarIcon,
+      path: APPLICATION_ROUTES.CREATE_NEW_MODEL_CONFIRMATION,
+    },
+  ];
 
 const ModelCreationLayout = () => {
   const { pathname } = useLocation();
@@ -77,7 +77,7 @@ const ModelCreationLayout = () => {
 
   return (
     <ModelsLayout>
-      <ModelCreationFormProvider>
+      <ModelsProvider>
         <ModelCreationRouteValidator pathname={pathname} />
         <Head title="Create New Model" />
         <div className="min-h-screen grid grid-cols-12 grid-rows-[auto_1fr_auto] gap-y-8 w-full justify-center my-8">
@@ -97,7 +97,7 @@ const ModelCreationLayout = () => {
             />
           )}
         </div>
-      </ModelCreationFormProvider>
+      </ModelsProvider>
     </ModelsLayout>
   );
 };
@@ -106,7 +106,7 @@ export default ModelCreationLayout;
 
 const ModelCreationRouteValidator = ({ pathname }: { pathname: string }) => {
   const navigate = useNavigate();
-  const { formData } = useModelFormContext();
+  const { formData, hasLabeledTrainingAreas } = useModelsContext();
 
   useEffect(() => {
     if (!pathname || !formData) return;
@@ -128,25 +128,19 @@ const ModelCreationRouteValidator = ({ pathname }: { pathname: string }) => {
     ) {
       // When a user is in the training settings, they must have completed the training area, the tms bounds should be available too
       //  !formData.trainingAreas.features.filter(aoi=>aoi.properties.label_fetched).length>0
-      const labeledTrainingAreas = formData.trainingAreas?.features?.filter(
-        (aoi) => aoi.properties.label_fetched,
-      ).length;
       if (
         !formData.oamTileName ||
         !formData.oamBounds ||
-        labeledTrainingAreas === 0
+        !hasLabeledTrainingAreas
       )
         navigate(APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_AREA);
     } else if (pathname.includes(APPLICATION_ROUTES.CREATE_NEW_MODEL_SUMMARY)) {
       // When a user is in the summary page, they must have zoom levels set from the settings
       // oam tile info retrieved - so the tile name and bounds
       // and training areas with their labels fetched
-      const labeledTrainingAreas = formData.trainingAreas?.features?.filter(
-        (aoi) => aoi.properties.label_fetched,
-      ).length;
       if (
         formData.zoomLevels.length === 0 ||
-        labeledTrainingAreas === 0 ||
+        !hasLabeledTrainingAreas ||
         !formData.oamTileName ||
         !formData.oamBounds
       )

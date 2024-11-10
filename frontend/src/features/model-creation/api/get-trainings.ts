@@ -36,7 +36,7 @@ export const getTrainingDatasetLabels = async (
   const res = await apiClient.get(
     API_ENDPOINTS.GET_TRAINING_DATASET_LABELS(aoiDatasetId, bbox),
   );
-  return res.data.results;
+  return res.data;
 };
 
 export const getTrainingAreaLabels = async (

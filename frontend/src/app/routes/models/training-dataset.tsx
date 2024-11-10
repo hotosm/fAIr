@@ -1,6 +1,6 @@
 import { TrainingDatasetForm } from "@/features/model-creation/components";
 
-export const CreateNewModelTrainingDatasetPage = () => {
+export const ModelTrainingDatasetPage = () => {
   return (
     <div
       className={

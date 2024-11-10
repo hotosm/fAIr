@@ -4,8 +4,8 @@ import TrainingAreaMap from "@/features/model-creation/components/training-area/
 import { Button, ButtonWithIcon } from "@/components/ui/button";
 import {
   MODEL_CREATION_FORM_NAME,
-  useModelFormContext,
-} from "@/app/providers/model-creation-provider";
+  useModelsContext,
+} from "@/app/providers/models-provider";
 import { useDialog } from "@/hooks/use-dialog";
 import FileUploadDialog from "@/features/model-creation/components/dialogs/file-upload-dialog";
 import { useEffect, useState } from "react";
@@ -17,12 +17,12 @@ import { useToastNotification } from "@/hooks/use-toast-notification";
 import { MODEL_CREATION_CONTENT } from "@/utils";
 
 const TrainingAreaForm = () => {
-  const { formData } = useModelFormContext();
+  const { formData } = useModelsContext();
   const toast = useToastNotification();
   const tileJSONURL = formData.tmsURL.split("/{z}/{x}/{y}")[0];
 
   const { closeDialog, isOpened, toggle } = useDialog();
-  const { handleChange } = useModelFormContext();
+  const { handleChange } = useModelsContext();
   const [offset, setOffset] = useState<number>(0);
   const { terraDraw } = useMap();
   const {
@@ -37,7 +37,7 @@ const TrainingAreaForm = () => {
     handleChange(
       MODEL_CREATION_FORM_NAME.TRAINING_AREAS,
       // @ts-expect-error bad type definition
-      trainingAreasData?.results,
+      trainingAreasData?.results.features,
     );
   }, [trainingAreasData]);
 

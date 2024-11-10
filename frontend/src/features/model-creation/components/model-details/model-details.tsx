@@ -1,7 +1,7 @@
 import {
   MODEL_CREATION_FORM_NAME,
-  useModelFormContext,
-} from "@/app/providers/model-creation-provider";
+  useModelsContext,
+} from "@/app/providers/models-provider";
 import { Select } from "@/components/ui/form";
 import { BASE_MODELS } from "@/enums";
 import { StepHeading } from "@/features/model-creation/components/";
@@ -25,7 +25,7 @@ const baseModelOptions = [
 ];
 
 const ModelDetailsForm = () => {
-  const { formData, handleChange } = useModelFormContext();
+  const { formData, handleChange } = useModelsContext();
   return (
     <div className="flex flex-col gap-y-6">
       <StepHeading

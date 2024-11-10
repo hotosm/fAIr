@@ -1,6 +1,6 @@
 import { ModelDetailsForm } from "@/features/model-creation/components/";
 
-export const CreateNewModelDetailsPage = () => {
+export const ModelDetailsFormPage = () => {
   return (
     <div
       className={

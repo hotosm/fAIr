@@ -1,4 +1,4 @@
-import { BBOX } from "@/types";
+
 
 /**
  * The backend API endpoints.

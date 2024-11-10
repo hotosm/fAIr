@@ -24,7 +24,7 @@ const TrainingAreaList = ({
       <div className="flex flex-col gap-y-4">
         <p className="text-body-1">
           {MODEL_CREATION_CONTENT.trainingArea.form.trainingArea}
-          {`${data?.count > 1 ? "s" : ""}`}{" "}
+          {`${data && data.count > 1 ? "s" : ""}`}{" "}
           <span className="text-white bg-primary text-body-1 rounded-xl px-3 py-1">
             {data?.count ?? 0}
           </span>

@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { DeleteIcon, FileIcon, UploadIcon } from "@/components/ui/icons";
-import { DialogProps, Feature, FeatureCollection, Geometry } from "@/types";
+import { DialogProps, Feature, FeatureCollection, GeoJSONType, Geometry, } from "@/types";
 import {
   MAX_TRAINING_AREA_UPLOAD_FILE_SIZE,
   MODEL_CREATION_CONTENT,
@@ -97,7 +97,7 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
             const geojson: FeatureCollection | Feature = JSON.parse(
               event.target?.result as string,
             );
-            if (validateGeoJSONArea(geojson)) {
+            if (validateGeoJSONArea(geojson as Feature)) {
               showErrorToast(
                 undefined,
                 `Skipping upload for ${file.file.name} because the area is too large.`,
@@ -115,7 +115,7 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
             }
             for (const geometry of geometries) {
               snapGeoJSONGeometryToClosestTile(geometry);
-              const wkt = geojsonToWKT(geometry);
+              const wkt = geojsonToWKT(geometry as GeoJSONType);
               await createTrainingArea.mutateAsync({
                 dataset: datasetId,
                 geom: `SRID=4326;${wkt}`,

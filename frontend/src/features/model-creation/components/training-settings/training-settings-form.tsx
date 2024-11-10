@@ -11,8 +11,8 @@ import { INPUT_TYPES, TrainingType } from "@/enums";
 import {
   FORM_VALIDATION_CONFIG,
   MODEL_CREATION_FORM_NAME,
-  useModelFormContext,
-} from "@/app/providers/model-creation-provider";
+  useModelsContext,
+} from "@/app/providers/models-provider";
 import { MODEL_CREATION_CONTENT } from "@/utils";
 
 const trainingTypes = [
@@ -70,7 +70,7 @@ const TrainingSettingsForm = () => {
   const [showAdvancedSettings, setShowAdvancedSettings] =
     useState<boolean>(false);
 
-  const { formData, handleChange } = useModelFormContext();
+  const { formData, handleChange } = useModelsContext();
 
   useEffect(() => {
     handleChange(

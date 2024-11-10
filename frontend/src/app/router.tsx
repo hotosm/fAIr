@@ -7,7 +7,7 @@ import {
 } from "react-router-dom";
 import { ProtectedPage } from "@/app/routes/protected-route";
 import { MainErrorFallback } from "@/components/errors";
-import ModelCreationLayout from "@/components/layouts/model-creation-layout";
+import ModelFormsLayout from "@/components/layouts/model-forms-layout";
 import ModelsLayout from "@/components/layouts/models-layout";
 
 const router = createBrowserRouter([
@@ -68,7 +68,9 @@ const router = createBrowserRouter([
           {
             path: APPLICATION_ROUTES.MODELS,
             lazy: async () => {
-              const { ModelsPage } = await import("@/app/routes/models");
+              const { ModelsPage } = await import(
+                "@/app/routes/models/models-list"
+              );
               return {
                 Component: () => <ModelsPage />,
               };
@@ -76,77 +78,76 @@ const router = createBrowserRouter([
           },
         ],
       },
-
       {
         element: (
           <ProtectedPage>
-            <ModelCreationLayout />
+            <ModelFormsLayout />
           </ProtectedPage>
         ),
         children: [
           {
             path: APPLICATION_ROUTES.CREATE_NEW_MODEL,
             lazy: async () => {
-              const { CreateNewModelDetailsPage } = await import(
-                "@/app/routes/models/new/index"
+              const { ModelDetailsFormPage } = await import(
+                "@/app/routes/models/model-details-form"
               );
               return {
-                Component: () => <CreateNewModelDetailsPage />,
+                Component: () => <ModelDetailsFormPage />,
               };
             },
           },
           {
             path: APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_DATASET,
             lazy: async () => {
-              const { CreateNewModelTrainingDatasetPage } = await import(
-                "@/app/routes/models/new/training-dataset"
+              const { ModelTrainingDatasetPage } = await import(
+                "@/app/routes/models/training-dataset"
               );
               return {
-                Component: () => <CreateNewModelTrainingDatasetPage />,
+                Component: () => <ModelTrainingDatasetPage />,
               };
             },
           },
           {
             path: APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_AREA,
             lazy: async () => {
-              const { CreateNewModelTrainingAreaPage } = await import(
-                "@/app/routes/models/new/training-area"
+              const { ModelTrainingAreaPage } = await import(
+                "@/app/routes/models/training-area"
               );
               return {
-                Component: () => <CreateNewModelTrainingAreaPage />,
+                Component: () => <ModelTrainingAreaPage />,
               };
             },
           },
           {
             path: APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_SETTINGS,
             lazy: async () => {
-              const { CreateNewModelTrainingSettingsPage } = await import(
-                "@/app/routes/models/new/training-settings"
+              const { ModelTrainingSettingsPage } = await import(
+                "@/app/routes/models/training-settings"
               );
               return {
-                Component: () => <CreateNewModelTrainingSettingsPage />,
+                Component: () => <ModelTrainingSettingsPage />,
               };
             },
           },
           {
             path: APPLICATION_ROUTES.CREATE_NEW_MODEL_SUMMARY,
             lazy: async () => {
-              const { CreateNewModelSummaryPage } = await import(
-                "@/app/routes/models/new/summary"
+              const { ModelSummaryPage } = await import(
+                "@/app/routes/models/summary"
               );
               return {
-                Component: () => <CreateNewModelSummaryPage />,
+                Component: () => <ModelSummaryPage />,
               };
             },
           },
           {
             path: APPLICATION_ROUTES.CREATE_NEW_MODEL_CONFIRMATION,
             lazy: async () => {
-              const { CreateNewModelConfirmationPage } = await import(
-                "@/app/routes/models/new/confirmation"
+              const { ModelConfirmationPage } = await import(
+                "@/app/routes/models/confirmation"
               );
               return {
-                Component: () => <CreateNewModelConfirmationPage />,
+                Component: () => <ModelConfirmationPage />,
               };
             },
           },

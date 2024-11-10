@@ -30,15 +30,17 @@ import {
   useGetTrainingAreaLabels,
 } from "@/features/model-creation/hooks/use-training-areas";
 import { useMap } from "@/app/providers/map-provider";
-import { useModelFormContext } from "@/app/providers/model-creation-provider";
+import { useModelsContext } from "@/app/providers/models-provider";
 import { useCallback, useEffect, useState } from "react";
+
+
 
 const TrainingAreaItem: React.FC<
   TTrainingAreaFeature & { datasetId: number; offset: number }
 > = ({ datasetId, offset, ...trainingArea }) => {
   const { onDropdownHide, onDropdownShow, dropdownIsOpened } =
     useDropdownMenu();
-  const { formData } = useModelFormContext();
+  const { formData } = useModelsContext();
   const [timeSinceLabelFetch, setTimeSinceLabelFetch] = useState("");
   const getTrainingAreaLabels = useGetTrainingAreaLabels(
     trainingArea.id,

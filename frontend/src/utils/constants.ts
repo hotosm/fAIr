@@ -6,14 +6,16 @@ export const APPLICATION_ROUTES = {
   HOMEPAGE: "/",
   MODELS: "/models",
   MODEL_DETAILS: "/models/:id",
-  // Model creation routes start
+  // Model routes start
   CREATE_NEW_MODEL: "/models/new",
   CREATE_NEW_MODEL_TRAINING_DATASET: "/models/new/training-dataset",
   CREATE_NEW_MODEL_CONFIRMATION: "/models/new/confirmation",
   CREATE_NEW_MODEL_TRAINING_AREA: "/models/new/training-area",
   CREATE_NEW_MODEL_TRAINING_SETTINGS: "/models/new/training-settings",
   CREATE_NEW_MODEL_SUMMARY: "/models/new/model-summary",
-  // Model creation routes end
+
+
+  // Model routes end
   TRAINING_DATASETS: "/training-datasets",
   NOTFOUND: "/404",
   PRIVACY_POLICY: "/privacy",
@@ -34,7 +36,7 @@ export const HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY: string =
  * The key used to store the model creation state in local storage for the application.
  */
 export const HOT_FAIR_MODEL_CREATION_LOCAL_STORAGE_KEY: string =
-  "___hot_fAIr_model_creation";
+  "___hot_fAIr_model_form";
 
 /**
  * The key used to store the redirect URL after login in session storage for the application.

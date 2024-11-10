@@ -15,7 +15,6 @@ import React, {
   useContext,
   useState,
   useEffect,
-  useMemo,
 } from "react";
 
 type TAuthContext = {
@@ -133,14 +132,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       showErrorToast(error, TOAST_NOTIFICATIONS.authenticationFailed);
     }
   };
-  const memoizedValues = useMemo(
-    () => ({ token, user, authenticateUser, logout, isAuthenticated }),
-    [token, user, authenticateUser, logout, isAuthenticated],
-  );
+
   return (
     <AuthContext.Provider
       // @ts-expect-error bad type definition
-      value={memoizedValues}
+      value={{ token, user, authenticateUser, logout, isAuthenticated }}
     >
       {children}
     </AuthContext.Provider>

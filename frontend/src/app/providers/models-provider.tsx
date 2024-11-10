@@ -19,7 +19,7 @@ import React, {
   useState,
 } from "react";
 import { useNavigate } from "react-router-dom";
-import { TModel, TTrainingDataset } from "@/types";
+import { Feature, TModel, TTrainingDataset } from "@/types";
 import { TCreateTrainingDatasetArgs } from "@/features/model-creation/api/create-trainings";
 import {
   useCreateModel,
@@ -86,7 +86,30 @@ export const FORM_VALIDATION_CONFIG = {
   },
 };
 
-const initialFormState = {
+type FormData = {
+  modelName: string
+  modelDescription: string
+  baseModel: BASE_MODELS
+  trainingDatasetOption: TrainingDatasetOption
+  datasetName: string
+  tmsURL: string
+  tmsURLValidation: {
+    valid: boolean
+    message: string
+  }
+  selectedTrainingDatasetId: string
+  trainingAreas: Feature[];
+  oamTileName: string
+  oamBounds: number[]
+  trainingType: TrainingType
+  contactSpacing: number
+  epoch: number
+  batchSize: number
+  boundaryWidth: number
+  zoomLevels: number[]
+}
+
+const initialFormState: FormData = {
   modelName: "",
   modelDescription: "",
   baseModel: BASE_MODELS.RAMP,
@@ -113,7 +136,7 @@ const initialFormState = {
   zoomLevels: [20, 21],
 };
 
-const ModelCreationFormContext = createContext<{
+const ModelsContext = createContext<{
   formData: typeof initialFormState;
   setFormData: React.Dispatch<React.SetStateAction<typeof initialFormState>>;
   handleChange: (
@@ -138,10 +161,12 @@ const ModelCreationFormContext = createContext<{
     TCreateModelArgs,
     unknown
   >;
+  hasLabeledTrainingAreas: boolean;
+  hasAOIsWithGeometry: boolean
 }>({
   formData: initialFormState,
-  setFormData: () => {},
-  handleChange: () => {},
+  setFormData: () => { },
+  handleChange: () => { },
   createNewTrainingDatasetMutation: {} as UseMutationResult<
     TTrainingDataset,
     Error,
@@ -154,9 +179,11 @@ const ModelCreationFormContext = createContext<{
     TCreateModelArgs,
     unknown
   >,
+  hasLabeledTrainingAreas: false,
+  hasAOIsWithGeometry: false
 });
 
-export const ModelCreationFormProvider: React.FC<{
+export const ModelsProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
   const { setValue, getValue } = useLocalStorage();
@@ -241,6 +268,19 @@ export const ModelCreationFormProvider: React.FC<{
     );
   }, [formData]);
 
+  // Confirm that the training areas labels has been retrieved
+  const hasLabeledTrainingAreas = useMemo(() => {
+    return formData.trainingAreas.filter(
+      (aoi: Feature) => aoi.properties.label_fetched,
+    ).length > 0
+  }, [formData]);
+  // Confirm that at least one of the training areas has a geometry
+  const hasAOIsWithGeometry = useMemo(() => {
+    return formData.trainingAreas.filter(
+      (aoi: Feature) => aoi.geometry !== null,
+    ).length > 0
+  }, [formData]);
+
   const memoizedValues = useMemo(
     () => ({
       formData,
@@ -248,6 +288,7 @@ export const ModelCreationFormProvider: React.FC<{
       handleChange,
       createNewTrainingDatasetMutation,
       createNewModelMutation,
+      hasLabeledTrainingAreas, hasAOIsWithGeometry
     }),
     [
       formData,
@@ -255,14 +296,15 @@ export const ModelCreationFormProvider: React.FC<{
       handleChange,
       createNewTrainingDatasetMutation,
       createNewModelMutation,
+      hasLabeledTrainingAreas, hasAOIsWithGeometry
     ],
   );
 
   return (
-    <ModelCreationFormContext.Provider value={memoizedValues}>
+    <ModelsContext.Provider value={memoizedValues}>
       {children}
-    </ModelCreationFormContext.Provider>
+    </ModelsContext.Provider>
   );
 };
 
-export const useModelFormContext = () => useContext(ModelCreationFormContext);
+export const useModelsContext = () => useContext(ModelsContext);

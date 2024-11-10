@@ -1,6 +1,7 @@
-import { SEARCH_PARAMS } from "@/app/routes/models";
+import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
 import { Input } from "@/components/ui/form";
 import { SearchIcon } from "@/components/ui/icons";
+import { SHOELACE_SIZES } from "@/enums";
 import { APP_CONTENT } from "@/utils";
 import { useCallback } from "react";
 
@@ -30,7 +31,7 @@ const SearchFilter: React.FC<SearchFilterProps> = ({ updateQuery, query }) => {
           APP_CONTENT.models.modelsList.filtersSection.searchPlaceHolder
         }
         className="w-[80%]"
-        size="medium"
+        size={SHOELACE_SIZES.MEDIUM}
       />
     </div>
   );

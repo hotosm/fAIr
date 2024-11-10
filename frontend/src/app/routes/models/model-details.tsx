@@ -19,6 +19,7 @@ import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import TrainingInProgressImage from "@/assets/images/training_in_prorgress.png";
 import { Image } from "@/components/ui/image";
+import ModelEnhancementDialog from "@/features/models/components/dialogs/model-enhancement-dialog";
 export const ModelDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
   const { isOpened, closeDialog, openDialog } = useDialog();
@@ -42,12 +43,21 @@ export const ModelDetailsPage = () => {
     }
   }, [isError, error, navigate]);
 
+  const {
+    isOpened: isModelEnhancementDialogOpened,
+    closeDialog: closeModelEnhancementDialog,
+    openDialog: openModelEnhancementDialog,
+  } = useDialog();
   if (isPending) {
     return <ModelDetailsSkeleton />;
   }
 
   return (
     <>
+      <ModelEnhancementDialog
+        isOpened={isModelEnhancementDialogOpened}
+        closeDialog={closeModelEnhancementDialog}
+      />
       <Head title={`${data?.name} Model`} />
       <ModelFilesDialog
         closeDialog={closeModelFilesDialog}
@@ -90,6 +100,7 @@ export const ModelDetailsPage = () => {
             variant="dark"
             size="medium"
             prefixIcon={StarStackIcon}
+            onClick={openModelEnhancementDialog}
           />
         </div>
         {/* mobile */}
@@ -104,6 +115,7 @@ export const ModelDetailsPage = () => {
               variant="dark"
               size="medium"
               prefixIcon={StarStackIcon}
+              onClick={openModelEnhancementDialog}
             />
           </div>
           <TrainingHistoryTable

@@ -1,8 +1,8 @@
 import {
   FORM_VALIDATION_CONFIG,
   MODEL_CREATION_FORM_NAME,
-  useModelFormContext,
-} from "@/app/providers/model-creation-provider";
+  useModelsContext,
+} from "@/app/providers/models-provider";
 import { ButtonWithIcon } from "@/components/ui/button";
 import { ChevronDownIcon } from "@/components/ui/icons";
 import { APPLICATION_ROUTES, MODEL_CREATION_CONTENT } from "@/utils";
@@ -27,8 +27,8 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
     formData,
     handleChange,
     createNewTrainingDatasetMutation,
-    createNewModelMutation,
-  } = useModelFormContext();
+    createNewModelMutation, hasLabeledTrainingAreas, hasAOIsWithGeometry
+  } = useModelsContext();
 
   const nextPage = () => {
     switch (currentPath) {
@@ -100,11 +100,11 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
       case APPLICATION_ROUTES.CREATE_NEW_MODEL:
         return (
           formData.modelName.length >=
-            FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.MODEL_NAME]
-              .minLength &&
+          FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.MODEL_NAME]
+            .minLength &&
           formData.modelDescription.length >=
-            FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.MODEL_DESCRIPTION]
-              .minLength
+          FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.MODEL_DESCRIPTION]
+            .minLength
         );
 
       case APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_DATASET:
@@ -124,8 +124,8 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
           return (
             formData.tmsURLValidation.valid &&
             formData.datasetName.length >=
-              FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.DATASET_NAME]
-                .minLength
+            FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.DATASET_NAME]
+              .minLength
           );
         } else if (
           formData.trainingDatasetOption === TrainingDatasetOption.USE_EXISTING
@@ -139,17 +139,9 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
         // confirm that the user has selected at least an option
         return formData.zoomLevels.length > 0;
       case APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_AREA:
-        const hasLabeledTrainingAreas =
-          formData.trainingAreas?.features?.filter(
-            (aoi) => aoi.properties.label_fetched,
-          ).length;
-        const hasAOIWithGeometry = formData.trainingAreas?.features?.filter(
-          (aoi) => aoi.geometry !== null,
-        ).length;
-        // Ensure that no geometry is null before they can proceed
         return (
-          hasLabeledTrainingAreas > 0 &&
-          hasAOIWithGeometry > 0 &&
+          hasLabeledTrainingAreas &&
+          hasAOIsWithGeometry &&
           formData.oamBounds
         );
       default:

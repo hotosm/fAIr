@@ -4,6 +4,5 @@ export { default as ModelDetailsForm } from "./model-details/model-details";
 export { default as TrainingDatasetForm } from "./training-dataset/training-dataset";
 export { default as TrainingAreaForm } from "./training-area/training-area";
 export { default as TrainingSettingsStep } from "./training-settings/training-settings";
-export { default as ModelSummaryStep } from "./model-summary";
-export { default as ModelCreationSuccessConfirmation } from "./creation-success-confirmation";
+export { default as ModelSummaryForm } from "./model-summary";
 export { default as ProgressButtons } from "./progress-buttons";

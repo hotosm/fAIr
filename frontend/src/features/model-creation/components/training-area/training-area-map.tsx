@@ -1,7 +1,7 @@
 import { useMap } from "@/app/providers/map-provider";
 import { MapComponent } from "@/components/map";
-import { PaginatedTrainingArea } from "@/types";
-import { GeoJSONSourceSpecification } from "maplibre-gl";
+import { GeoJSONType, PaginatedTrainingArea } from "@/types";
+import { GeoJSONSource, GeoJSONSourceSpecification } from "maplibre-gl";
 import { useCallback, useEffect, useState } from "react";
 import {
   useCreateTrainingArea,
@@ -14,7 +14,6 @@ import {
   snapGeoJSONGeometryToClosestTile,
   validateGeoJSONArea,
 } from "@/utils";
-
 import useDebounce from "@/hooks/use-debounce";
 import { BASEMAPS } from "@/enums";
 
@@ -91,6 +90,7 @@ const TrainingAreaMap = ({
     if (data?.results && !map.getSource(trainingAreasSourceId)) {
       map.addSource(trainingAreasSourceId, {
         type: "geojson",
+
         data: data.results,
       } as GeoJSONSourceSpecification);
     }
@@ -112,7 +112,8 @@ const TrainingAreaMap = ({
       );
       map.addSource(tileBoundarySourceId, {
         type: "geojson",
-        data: tileBoundaries,
+        // @ts-expect-error bad type definition
+        data: tileBoundaries
       });
     }
 
@@ -208,7 +209,8 @@ const TrainingAreaMap = ({
   const updateTrainingLabels = useCallback(() => {
     if (map) {
       if (map.getSource(trainingDatasetLabelsSourceId) && labels) {
-        map.getSource(trainingDatasetLabelsSourceId)?.setData(labels);
+        const source = map.getSource(trainingDatasetLabelsSourceId) as GeoJSONSource
+        source?.setData(labels as GeoJSONType);
       }
     }
   }, [map, labels]);
@@ -216,7 +218,8 @@ const TrainingAreaMap = ({
   const updateTrainingArea = useCallback(() => {
     if (map) {
       if (map.getSource(trainingAreasSourceId) && data?.results) {
-        map.getSource(trainingAreasSourceId)?.setData(data.results);
+        const source = map.getSource(trainingAreasSourceId) as GeoJSONSource
+        source.setData(data.results as GeoJSONType);
       }
     }
   }, [map, data?.results]);
@@ -228,7 +231,8 @@ const TrainingAreaMap = ({
           map,
           Math.floor(map.getZoom()),
         );
-        map.getSource(tileBoundarySourceId)?.setData(tileBoundaries);
+        const source = map.getSource(tileBoundarySourceId) as GeoJSONSource
+        source.setData(tileBoundaries as GeoJSONType);
       }
     }
   }, [map]);
