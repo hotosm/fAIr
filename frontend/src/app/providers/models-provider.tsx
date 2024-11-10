@@ -16,6 +16,7 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { useNavigate } from "react-router-dom";
@@ -206,11 +207,26 @@ export const ModelsProvider: React.FC<{
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
+
+  const timeOutRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    // Cleanup the timeout on component unmount
+    return () => {
+      if (timeOutRef.current) {
+        clearTimeout(timeOutRef.current);
+      }
+    };
+  }, []);
+
   const trainingRequestMutation = useCreateModelTrainingRequest({
     mutationConfig: {
       onSuccess: () => {
         showSuccessToast(TOAST_NOTIFICATIONS.trainingRequestSubmittedSuccess);
-        setFormData(initialFormState);
+        // delay for a few seconds before resetting the state
+        timeOutRef.current = setTimeout(() => {
+          setFormData(initialFormState);
+        }, 3000);
       },
       onError: (error) => {
         showErrorToast(error);
@@ -241,6 +257,9 @@ export const ModelsProvider: React.FC<{
     mutationConfig: {
       onSuccess: (data) => {
         showSuccessToast(TOAST_NOTIFICATIONS.modelCreationSuccess);
+        navigate(
+          `${APPLICATION_ROUTES.CREATE_NEW_MODEL_CONFIRMATION}?id=${data.id}`,
+        );
         // Submit the model for training request
         trainingRequestMutation.mutate({
           model: data.id,
@@ -251,9 +270,6 @@ export const ModelsProvider: React.FC<{
           zoom_level: formData.zoomLevels,
         });
 
-        navigate(
-          `${APPLICATION_ROUTES.CREATE_NEW_MODEL_CONFIRMATION}?id=${data.id}`,
-        );
       },
       onError: (error) => {
         showErrorToast(error);
