@@ -1,7 +1,6 @@
 import { Dialog } from "@/components/ui/dialog";
 import { ChevronDownIcon } from "@/components/ui/icons";
-import { APP_CONTENT, } from "@/utils";
-
+import { APP_CONTENT } from "@/utils";
 
 type ModelEnhancementDialogProps = {
   isOpened: boolean;
@@ -18,7 +17,6 @@ const ModelEnhancementDialog: React.FC<ModelEnhancementDialogProps> = ({
       description:
         APP_CONTENT.models.modelsDetailsCard.modelEnhancement.newSettings
           .description,
-
     },
     {
       name: APP_CONTENT.models.modelsDetailsCard.modelEnhancement.trainingData
@@ -26,7 +24,6 @@ const ModelEnhancementDialog: React.FC<ModelEnhancementDialogProps> = ({
       description:
         APP_CONTENT.models.modelsDetailsCard.modelEnhancement.trainingData
           .description,
-
     },
   ];
   return (
@@ -37,10 +34,11 @@ const ModelEnhancementDialog: React.FC<ModelEnhancementDialogProps> = ({
     >
       <ul className="flex flex-col gap-y-4 w-full">
         {options.map((option, id) => (
-          <li key={`mode-enhancement-option-${id}`} className="border border-gray-border rounded-lg px-2 hover:border-primary flex items-center justify-between">
-            <button
-              className="text-start transition-colors p-4 "
-            >
+          <li
+            key={`mode-enhancement-option-${id}`}
+            className="border border-gray-border rounded-lg px-2 hover:border-primary flex items-center justify-between"
+          >
+            <button className="text-start transition-colors p-4 ">
               <span className="flex flex-col gap-y-2">
                 <p className="text-dark text-body-1">{option.name}</p>
                 <p className="text-gray text-body-3">{option.description}</p>

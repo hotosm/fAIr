@@ -33,8 +33,6 @@ import { useMap } from "@/app/providers/map-provider";
 import { useModelsContext } from "@/app/providers/models-provider";
 import { useCallback, useEffect, useState } from "react";
 
-
-
 const TrainingAreaItem: React.FC<
   TTrainingAreaFeature & { datasetId: number; offset: number }
 > = ({ datasetId, offset, ...trainingArea }) => {

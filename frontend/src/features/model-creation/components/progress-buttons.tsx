@@ -27,7 +27,9 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
     formData,
     handleChange,
     createNewTrainingDatasetMutation,
-    createNewModelMutation, hasLabeledTrainingAreas, hasAOIsWithGeometry
+    createNewModelMutation,
+    hasLabeledTrainingAreas,
+    hasAOIsWithGeometry,
   } = useModelsContext();
 
   const nextPage = () => {
@@ -100,11 +102,11 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
       case APPLICATION_ROUTES.CREATE_NEW_MODEL:
         return (
           formData.modelName.length >=
-          FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.MODEL_NAME]
-            .minLength &&
+            FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.MODEL_NAME]
+              .minLength &&
           formData.modelDescription.length >=
-          FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.MODEL_DESCRIPTION]
-            .minLength
+            FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.MODEL_DESCRIPTION]
+              .minLength
         );
 
       case APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_DATASET:
@@ -124,8 +126,8 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
           return (
             formData.tmsURLValidation.valid &&
             formData.datasetName.length >=
-            FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.DATASET_NAME]
-              .minLength
+              FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.DATASET_NAME]
+                .minLength
           );
         } else if (
           formData.trainingDatasetOption === TrainingDatasetOption.USE_EXISTING
@@ -140,9 +142,7 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
         return formData.zoomLevels.length > 0;
       case APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_AREA:
         return (
-          hasLabeledTrainingAreas &&
-          hasAOIsWithGeometry &&
-          formData.oamBounds
+          hasLabeledTrainingAreas && hasAOIsWithGeometry && formData.oamBounds
         );
       default:
         return true;

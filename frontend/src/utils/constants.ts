@@ -14,7 +14,6 @@ export const APPLICATION_ROUTES = {
   CREATE_NEW_MODEL_TRAINING_SETTINGS: "/models/new/training-settings",
   CREATE_NEW_MODEL_SUMMARY: "/models/new/model-summary",
 
-
   // Model routes end
   TRAINING_DATASETS: "/training-datasets",
   NOTFOUND: "/404",

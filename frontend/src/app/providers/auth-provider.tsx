@@ -10,12 +10,7 @@ import {
   showSuccessToast,
   TOAST_NOTIFICATIONS,
 } from "@/utils";
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-} from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 
 type TAuthContext = {
   token: string;

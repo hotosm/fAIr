@@ -113,7 +113,7 @@ const TrainingAreaMap = ({
       map.addSource(tileBoundarySourceId, {
         type: "geojson",
         // @ts-expect-error bad type definition
-        data: tileBoundaries
+        data: tileBoundaries,
       });
     }
 
@@ -209,7 +209,9 @@ const TrainingAreaMap = ({
   const updateTrainingLabels = useCallback(() => {
     if (map) {
       if (map.getSource(trainingDatasetLabelsSourceId) && labels) {
-        const source = map.getSource(trainingDatasetLabelsSourceId) as GeoJSONSource
+        const source = map.getSource(
+          trainingDatasetLabelsSourceId,
+        ) as GeoJSONSource;
         source?.setData(labels as GeoJSONType);
       }
     }
@@ -218,7 +220,7 @@ const TrainingAreaMap = ({
   const updateTrainingArea = useCallback(() => {
     if (map) {
       if (map.getSource(trainingAreasSourceId) && data?.results) {
-        const source = map.getSource(trainingAreasSourceId) as GeoJSONSource
+        const source = map.getSource(trainingAreasSourceId) as GeoJSONSource;
         source.setData(data.results as GeoJSONType);
       }
     }
@@ -231,7 +233,7 @@ const TrainingAreaMap = ({
           map,
           Math.floor(map.getZoom()),
         );
-        const source = map.getSource(tileBoundarySourceId) as GeoJSONSource
+        const source = map.getSource(tileBoundarySourceId) as GeoJSONSource;
         source.setData(tileBoundaries as GeoJSONType);
       }
     }

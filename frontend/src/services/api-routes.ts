@@ -1,5 +1,3 @@
-
-
 /**
  * The backend API endpoints.
  */

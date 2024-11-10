@@ -88,27 +88,27 @@ export const FORM_VALIDATION_CONFIG = {
 };
 
 type FormData = {
-  modelName: string
-  modelDescription: string
-  baseModel: BASE_MODELS
-  trainingDatasetOption: TrainingDatasetOption
-  datasetName: string
-  tmsURL: string
+  modelName: string;
+  modelDescription: string;
+  baseModel: BASE_MODELS;
+  trainingDatasetOption: TrainingDatasetOption;
+  datasetName: string;
+  tmsURL: string;
   tmsURLValidation: {
-    valid: boolean
-    message: string
-  }
-  selectedTrainingDatasetId: string
+    valid: boolean;
+    message: string;
+  };
+  selectedTrainingDatasetId: string;
   trainingAreas: Feature[];
-  oamTileName: string
-  oamBounds: number[]
-  trainingType: TrainingType
-  contactSpacing: number
-  epoch: number
-  batchSize: number
-  boundaryWidth: number
-  zoomLevels: number[]
-}
+  oamTileName: string;
+  oamBounds: number[];
+  trainingType: TrainingType;
+  contactSpacing: number;
+  epoch: number;
+  batchSize: number;
+  boundaryWidth: number;
+  zoomLevels: number[];
+};
 
 const initialFormState: FormData = {
   modelName: "",
@@ -163,11 +163,11 @@ const ModelsContext = createContext<{
     unknown
   >;
   hasLabeledTrainingAreas: boolean;
-  hasAOIsWithGeometry: boolean
+  hasAOIsWithGeometry: boolean;
 }>({
   formData: initialFormState,
-  setFormData: () => { },
-  handleChange: () => { },
+  setFormData: () => {},
+  handleChange: () => {},
   createNewTrainingDatasetMutation: {} as UseMutationResult<
     TTrainingDataset,
     Error,
@@ -181,7 +181,7 @@ const ModelsContext = createContext<{
     unknown
   >,
   hasLabeledTrainingAreas: false,
-  hasAOIsWithGeometry: false
+  hasAOIsWithGeometry: false,
 });
 
 export const ModelsProvider: React.FC<{
@@ -269,7 +269,6 @@ export const ModelsProvider: React.FC<{
           batch_size: formData.batchSize,
           zoom_level: formData.zoomLevels,
         });
-
       },
       onError: (error) => {
         showErrorToast(error);
@@ -286,15 +285,18 @@ export const ModelsProvider: React.FC<{
 
   // Confirm that the training areas labels has been retrieved
   const hasLabeledTrainingAreas = useMemo(() => {
-    return formData.trainingAreas.filter(
-      (aoi: Feature) => aoi.properties.label_fetched,
-    ).length > 0
+    return (
+      formData.trainingAreas.filter(
+        (aoi: Feature) => aoi.properties.label_fetched,
+      ).length > 0
+    );
   }, [formData]);
   // Confirm that at least one of the training areas has a geometry
   const hasAOIsWithGeometry = useMemo(() => {
-    return formData.trainingAreas.filter(
-      (aoi: Feature) => aoi.geometry !== null,
-    ).length > 0
+    return (
+      formData.trainingAreas.filter((aoi: Feature) => aoi.geometry !== null)
+        .length > 0
+    );
   }, [formData]);
 
   const memoizedValues = useMemo(
@@ -304,7 +306,8 @@ export const ModelsProvider: React.FC<{
       handleChange,
       createNewTrainingDatasetMutation,
       createNewModelMutation,
-      hasLabeledTrainingAreas, hasAOIsWithGeometry
+      hasLabeledTrainingAreas,
+      hasAOIsWithGeometry,
     }),
     [
       formData,
@@ -312,7 +315,8 @@ export const ModelsProvider: React.FC<{
       handleChange,
       createNewTrainingDatasetMutation,
       createNewModelMutation,
-      hasLabeledTrainingAreas, hasAOIsWithGeometry
+      hasLabeledTrainingAreas,
+      hasAOIsWithGeometry,
     ],
   );
 

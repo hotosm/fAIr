@@ -1,7 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { DeleteIcon, FileIcon, UploadIcon } from "@/components/ui/icons";
-import { DialogProps, Feature, FeatureCollection, GeoJSONType, Geometry, } from "@/types";
+import {
+  DialogProps,
+  Feature,
+  FeatureCollection,
+  GeoJSONType,
+  Geometry,
+} from "@/types";
 import {
   MAX_TRAINING_AREA_UPLOAD_FILE_SIZE,
   MODEL_CREATION_CONTENT,
