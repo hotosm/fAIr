@@ -45,5 +45,5 @@ export const getTrainingAreaLabels = async (
   const res = await apiClient.get(
     API_ENDPOINTS.GET_TRAINING_AREA_LABELS(aoiId),
   );
-  return res.data.results;
+  return res.data;
 };
