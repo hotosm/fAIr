@@ -120,7 +120,7 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
     chips_length,
   } = data || {};
 
-  const trainingResultsGraph = `${ENVS.BASE_API_URL}workspace/download/dataset_${datasetId}/output/training_${data?.id}/graphs/training_validation_sparse_categorical_accuracy.png`;
+  const trainingResultsGraph = `${ENVS.BASE_API_URL}workspace/download/dataset_${datasetId}/output/training_${data?.id}/graphs/training_accuracy.png`;
 
   const content = useMemo(() => {
     if (isPending) {
@@ -236,7 +236,7 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
               href={
                 // @ts-expect-error bad type definition
                 APP_CONTENT.models.modelsDetailsCard.properties.baseModel.href[
-                  baseModel
+                baseModel
                 ]
               }
             />
