@@ -36,6 +36,7 @@ const TrainingAreaMap = ({
   const TMSLayerId = `training-dataset-tms-layer`;
   const TMSSourceId = `oam-training-dataset-${trainingDatasetId}`;
   const trainingAreasLayerId = `dataset-${trainingDatasetId}-training-area-layer`;
+  const trainingAreasFillLayerId = `dataset-${trainingDatasetId}-training-area-fill-layer`;
   const trainingDatasetLabelsSourceId = `dataset-${trainingDatasetId}-training-labels-source`;
   const trainingAreasSourceId = `dataset-${trainingDatasetId}-training-area-source`;
   const trainingDatasetLabelsLayerId = `dataset-${trainingDatasetId}-training-labels-fill-layer`;
@@ -140,7 +141,19 @@ const TrainingAreaMap = ({
         layout: { visibility: "visible" },
       });
     }
-
+    if (data?.results && !map.getLayer(trainingAreasFillLayerId)) {
+      map.addLayer({
+        id: trainingAreasFillLayerId,
+        type: "fill",
+        source: trainingAreasSourceId,
+        paint: {
+          "fill-color": "rgb(51, 136, 255)",
+          "fill-opacity": 0.3,
+          "fill-outline-color": "#D73434",
+        },
+        layout: { visibility: "visible" },
+      });
+    }
     if (data?.results && !map.getLayer(trainingAreasLayerId)) {
       map.addLayer({
         id: trainingAreasLayerId,
@@ -328,16 +341,19 @@ const TrainingAreaMap = ({
       showCurrentZoom
       layerControl
       layerControlBasemaps={[
-        { value: BASEMAPS.OSM, mapLayerId: OSMBasemapLayerId },
+        { value: BASEMAPS.OSM, subLayer: OSMBasemapLayerId },
         {
           value: BASEMAPS.GOOGLE_SATELLITE,
-          mapLayerId: GoogleSatelliteLayerId,
+          subLayer: GoogleSatelliteLayerId,
         },
       ]}
       layerControlLayers={[
-        { value: "TMS Layer", mapLayerId: TMSLayerId },
+        { value: "TMS Layer", subLayers: [TMSLayerId] },
         ...(data?.results?.features?.length
-          ? [{ value: "Training Areas", mapLayerId: trainingAreasLayerId }]
+          ? [{ value: "Training Areas", subLayers: [trainingAreasLayerId, trainingAreasFillLayerId] }]
+          : []),
+        ...(labels && labels?.features.length > 0
+          ? [{ value: "Training Labels", subLayers: [trainingDatasetLabelsLayerId, trainingDatasetLabelsOutlineLayerId] }]
           : []),
       ]}
     />

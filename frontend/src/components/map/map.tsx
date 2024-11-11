@@ -18,11 +18,11 @@ type MapComponentProps = {
   layerControl?: boolean;
   layerControlLayers?: {
     value: string;
-    mapLayerId: string;
+    subLayers: string[];
   }[];
   layerControlBasemaps?: {
     value: string;
-    mapLayerId: string;
+    subLayer: string;
   }[];
 };
 

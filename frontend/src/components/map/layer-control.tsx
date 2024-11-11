@@ -7,7 +7,8 @@ import { CheckboxGroup } from "../ui/form";
 import { ToolTip } from "../ui/tooltip";
 import { BASEMAPS, ToolTipPlacement } from "@/enums";
 
-type TLayer = { id?: string; mapLayerId?: string; value: string }[];
+type TLayers = { id?: string; subLayers: string[]; value: string }[];
+type TBasemaps = { id?: string; subLayer: string; value: string }[];
 
 const LayerControl = ({
   map,
@@ -15,8 +16,8 @@ const LayerControl = ({
   basemaps,
 }: {
   map: Map | null;
-  layers: TLayer;
-  basemaps: TLayer;
+  layers: TLayers;
+  basemaps: TBasemaps
 }) => {
   const { dropdownIsOpened, onDropdownHide, onDropdownShow } =
     useDropdownMenu();
@@ -59,45 +60,43 @@ const LayerControl = ({
   const handleLayerSelection = (newSelectedLayers: string[]) => {
     const updatedVisibility = { ...layerVisibility };
 
-    layers.forEach(({ value }) => {
+    layers.forEach(({ value, subLayers }) => {
       updatedVisibility[value] = newSelectedLayers.includes(value);
+
+      if (map?.isStyleLoaded) {
+        // Loop through each map layer ID and update visibility
+        subLayers?.forEach((mapLayerId) => {
+          if (map.getLayer(mapLayerId)) {
+            map.setLayoutProperty(
+              mapLayerId,
+              "visibility",
+              updatedVisibility[value] ? "visible" : "none",
+            );
+          }
+        });
+      }
     });
 
     setLayerVisibility(updatedVisibility);
-
-    if (map?.isStyleLoaded) {
-      layers.forEach(({ value, mapLayerId }) => {
-        if (mapLayerId && map.getLayer(mapLayerId)) {
-          map.setLayoutProperty(
-            mapLayerId,
-            "visibility",
-            updatedVisibility[value] ? "visible" : "none",
-          );
-        }
-      });
-    }
   };
 
   const handleBasemapSelection = (newSelectedBasemap: string[]) => {
     const updatedVisibility = { ...basemapVisibility };
 
-    basemaps.forEach(({ value }) => {
+    basemaps.forEach(({ value, subLayer }) => {
       updatedVisibility[value] = newSelectedBasemap.includes(value);
-    });
-
-    setBasemapVisibility(updatedVisibility);
-
-    if (map?.isStyleLoaded) {
-      basemaps.forEach(({ value, mapLayerId }) => {
-        if (mapLayerId && map.getLayer(mapLayerId)) {
+      if (map?.isStyleLoaded) {
+        if (map.getLayer(subLayer)) {
           map.setLayoutProperty(
-            mapLayerId,
+            subLayer,
             "visibility",
             updatedVisibility[value] ? "visible" : "none",
           );
         }
-      });
-    }
+      }
+    });
+
+    setBasemapVisibility(updatedVisibility);
   };
 
   return (
