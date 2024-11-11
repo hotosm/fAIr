@@ -20,8 +20,8 @@ export const API_ENDPOINTS = {
 
   //Trainings
   GET_TRAINING_DETAILS: (id: number) => `training/${id}`,
-  GET_TRAINING_DATASETS: (searchQuery: string) =>
-    `dataset/?search=${searchQuery}`,
+  GET_TRAINING_DATASETS: (searchQuery: string, ordering: string) =>
+    `dataset/?search=${searchQuery}&ordering=${ordering}`,
   CREATE_TRAINING_DATASETS: "dataset/",
   GET_TRAINING_AREA_GPX: (aoiId: number) => `aoi/gpx/${aoiId}`,
   CREATE_TRAINING_AREA: "aoi/",

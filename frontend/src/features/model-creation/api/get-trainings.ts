@@ -7,9 +7,10 @@ import {
 
 export const getTrainingDatasets = async (
   searchQuery: string,
+  ordering: string = '-id'
 ): Promise<TTrainingDataset[]> => {
   const res = await apiClient.get(
-    API_ENDPOINTS.GET_TRAINING_DATASETS(searchQuery),
+    API_ENDPOINTS.GET_TRAINING_DATASETS(searchQuery, ordering),
   );
   return res.data?.results;
 };

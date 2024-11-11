@@ -76,11 +76,12 @@ const SelectExistingTrainingDatasetForm = () => {
                       );
                     }}
                   >
-                    <p>
+                    <p className="flex flex-col">
                       {td.name}{" "}
                       {!td.source_imagery && (
                         <small className="italic">(Invalid TMS URL)</small>
                       )}
+                      <small>ID: {td.id}</small>
                     </p>
                   </button>
                   {formData.selectedTrainingDatasetId === String(td.id) && (
