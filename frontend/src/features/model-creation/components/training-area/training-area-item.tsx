@@ -107,7 +107,7 @@ const TrainingAreaItem: React.FC<
     } catch (error) {
       showErrorToast(undefined, TOAST_NOTIFICATIONS.josmOpenFailed);
     }
-  }, []);
+  }, [formData.oamBounds]);
 
   const handleAOIDownload = useCallback(() => {
     geoJSONDowloader(trainingArea, `AOI_${trainingArea.id}`);
