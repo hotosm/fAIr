@@ -69,22 +69,64 @@ export const FORM_VALIDATION_CONFIG = {
     maxLength: 40,
     minLength: 10,
   },
-  epoch: {
-    max: 30,
-    min: 1,
+  [BASE_MODELS.RAMP]: {
+    epoch: {
+      max: 30,
+      min: 1,
+    },
+    contactSpacing: {
+      max: 8,
+      min: 1,
+    },
+    batchSize: {
+      max: 12,
+      min: 1,
+    },
+    boundaryWidth: {
+      max: 8,
+      min: 1,
+    },
   },
-  contactSpacing: {
-    max: 8,
-    min: 1,
+  [BASE_MODELS.YOLOV8_V1]: {
+    epoch: {
+      max: 150,
+      min: 20,
+    },
+    batchSize: {
+      max: 16,
+      min: 8,
+    },
+    // These are not used
+    contactSpacing: {
+      max: 8,
+      min: 1,
+    },
+    boundaryWidth: {
+      max: 8,
+      min: 1,
+    },
   },
-  batchSize: {
-    max: 12,
-    min: 1,
-  },
-  boundaryWidth: {
-    max: 8,
-    min: 1,
-  },
+  [BASE_MODELS.YOLOV8_V2]: {
+    epoch: {
+      max: 150,
+      min: 20,
+    },
+
+    batchSize: {
+      max: 16,
+      min: 8,
+    },
+    // These are not used
+    contactSpacing: {
+      max: 8,
+      min: 1,
+    },
+    boundaryWidth: {
+      max: 8,
+      min: 1,
+    },
+  }
+
 };
 
 type FormData = {
@@ -166,8 +208,8 @@ const ModelsContext = createContext<{
   hasAOIsWithGeometry: boolean;
 }>({
   formData: initialFormState,
-  setFormData: () => {},
-  handleChange: () => {},
+  setFormData: () => { },
+  handleChange: () => { },
   createNewTrainingDatasetMutation: {} as UseMutationResult<
     TTrainingDataset,
     Error,

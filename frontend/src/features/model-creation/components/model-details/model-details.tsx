@@ -12,15 +12,15 @@ import ModelDescriptionFormInput from "./model-description-input";
 const baseModelOptions = [
   {
     name: BASE_MODELS.RAMP,
-    value: "RAMP",
+    value: BASE_MODELS.RAMP,
   },
   {
     name: BASE_MODELS.YOLOV8_V1,
-    value: "YOLO_V8_V1",
+    value: BASE_MODELS.YOLOV8_V1,
   },
   {
     name: BASE_MODELS.YOLOV8_V2,
-    value: "YOLO_V8_V2",
+    value: BASE_MODELS.YOLOV8_V2,
   },
 ];
 

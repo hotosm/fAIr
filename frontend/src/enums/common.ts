@@ -1,7 +1,7 @@
 export enum BASE_MODELS {
   RAMP = "RAMP",
-  YOLOV8_V1 = "YOLOv8V1",
-  YOLOV8_V2 = "YOLOv8V2",
+  YOLOV8_V1 = "YOLO_V8_V1",
+  YOLOV8_V2 = "YOLO_V8_V2",
 }
 
 export enum TrainingType {

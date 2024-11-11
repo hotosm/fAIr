@@ -196,11 +196,11 @@ const TrainingSettingsForm = () => {
                   value={formData[setting.value]}
                   min={
                     // @ts-expect-error bad type definition
-                    FORM_VALIDATION_CONFIG[setting.value].min
+                    FORM_VALIDATION_CONFIG[formData.baseModel][setting.value].min
                   }
                   max={
                     // @ts-expect-error bad type definition
-                    FORM_VALIDATION_CONFIG[setting.value].max
+                    FORM_VALIDATION_CONFIG[formData.baseModel][setting.value].max
                   }
                   handleInput={(e) =>
                     handleChange(setting.value, Number(e.target.value))
