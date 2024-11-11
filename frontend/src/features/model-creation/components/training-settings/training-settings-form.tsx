@@ -115,7 +115,7 @@ const TrainingSettingsForm = () => {
           onCheck={(selection) =>
             handleChange(
               MODEL_CREATION_FORM_NAME.ZOOM_LEVELS,
-              selection.map(Number),
+              selection.sort().map(Number),
             )
           }
         />
