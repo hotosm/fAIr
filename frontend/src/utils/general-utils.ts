@@ -101,6 +101,8 @@ export const showErrorToast = (
   let message = "An unexpected error occurred";
   if (customMessage) {
     message = customMessage;
+  } else if (error?.response?.data) {
+    message = error?.response?.data;
   } else if (error?.response?.data[0]) {
     message = error?.response?.data[0];
   } else if (error?.response?.data?.message) {
