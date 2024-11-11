@@ -7,7 +7,7 @@ import {
   BasicGuageIcon,
   IntermediateGuageIcon,
 } from "@/components/ui/icons";
-import { INPUT_TYPES, TrainingType } from "@/enums";
+import { BASE_MODELS, INPUT_TYPES, TrainingType } from "@/enums";
 import {
   FORM_VALIDATION_CONFIG,
   MODEL_CREATION_FORM_NAME,
@@ -21,56 +21,65 @@ const trainingTypes = [
   { label: TrainingType.ADVANCED, Icon: AdvancedGuageIcon },
 ];
 
-const defaultTrainingSettings = {
-  [TrainingType.BASIC]: {
-    epoch: 2,
-    batchSize: 4,
-    contactSpacing: 8,
-    boundaryWidth: 3,
-  },
-  [TrainingType.INTERMEDIATE]: {
-    epoch: 20,
-    batchSize: 8,
-    contactSpacing: 8,
-    boundaryWidth: 3,
-  },
-  [TrainingType.ADVANCED]: {
-    epoch: 30,
-    batchSize: 12,
-    contactSpacing: 8,
-    boundaryWidth: 3,
-  },
-};
 
-const advancedSettings = [
-  {
-    label: MODEL_CREATION_CONTENT.trainingSettings.form.epoch.label,
-    value: MODEL_CREATION_FORM_NAME.EPOCH,
-    toolTip: MODEL_CREATION_CONTENT.trainingSettings.form.epoch.toolTip,
-  },
-  {
-    label: MODEL_CREATION_CONTENT.trainingSettings.form.contactSpacing.label,
-    value: MODEL_CREATION_FORM_NAME.CONTACT_SPACING,
-    toolTip:
-      MODEL_CREATION_CONTENT.trainingSettings.form.contactSpacing.toolTip,
-  },
-  {
-    label: MODEL_CREATION_CONTENT.trainingSettings.form.batchSize.label,
-    value: MODEL_CREATION_FORM_NAME.BATCH_SIZE,
-    toolTip: MODEL_CREATION_CONTENT.trainingSettings.form.batchSize.toolTip,
-  },
-  {
-    label: MODEL_CREATION_CONTENT.trainingSettings.form.boundaryWidth.label,
-    value: MODEL_CREATION_FORM_NAME.BOUNDARY_WIDTH,
-    toolTip: MODEL_CREATION_CONTENT.trainingSettings.form.boundaryWidth.toolTip,
-  },
-];
+
 
 const TrainingSettingsForm = () => {
   const [showAdvancedSettings, setShowAdvancedSettings] =
     useState<boolean>(false);
 
   const { formData, handleChange } = useModelsContext();
+
+  const advancedSettings = [
+    {
+      label: MODEL_CREATION_CONTENT.trainingSettings.form.epoch.label,
+      value: MODEL_CREATION_FORM_NAME.EPOCH,
+      toolTip: MODEL_CREATION_CONTENT.trainingSettings.form.epoch.toolTip,
+      enabled: true
+    },
+    {
+      label: MODEL_CREATION_CONTENT.trainingSettings.form.contactSpacing.label,
+      value: MODEL_CREATION_FORM_NAME.CONTACT_SPACING,
+      toolTip:
+        MODEL_CREATION_CONTENT.trainingSettings.form.contactSpacing.toolTip,
+      enabled: formData.baseModel === BASE_MODELS.RAMP,
+
+    },
+    {
+      label: MODEL_CREATION_CONTENT.trainingSettings.form.batchSize.label,
+      value: MODEL_CREATION_FORM_NAME.BATCH_SIZE,
+      toolTip: MODEL_CREATION_CONTENT.trainingSettings.form.batchSize.toolTip,
+      enabled: true
+    },
+    {
+      label: MODEL_CREATION_CONTENT.trainingSettings.form.boundaryWidth.label,
+      value: MODEL_CREATION_FORM_NAME.BOUNDARY_WIDTH,
+      toolTip: MODEL_CREATION_CONTENT.trainingSettings.form.boundaryWidth.toolTip,
+      enabled: formData.baseModel === BASE_MODELS.RAMP
+    },
+  ];
+
+  const defaultTrainingSettings = {
+    [TrainingType.BASIC]: {
+      epoch: formData.baseModel === BASE_MODELS.RAMP ? 2 : 20,
+      batchSize: formData.baseModel === BASE_MODELS.RAMP ? 4 : 8,
+      contactSpacing: 8,
+      boundaryWidth: 3,
+    },
+    [TrainingType.INTERMEDIATE]: {
+      epoch: formData.baseModel === BASE_MODELS.RAMP ? 20 : 50,
+      batchSize: formData.baseModel === BASE_MODELS.RAMP ? 8 : 12,
+      contactSpacing: 8,
+      boundaryWidth: 3,
+    },
+    [TrainingType.ADVANCED]: {
+      epoch: formData.baseModel === BASE_MODELS.RAMP ? 30 : 150,
+      batchSize: formData.baseModel === BASE_MODELS.RAMP ? 12 : 16,
+      contactSpacing: 8,
+      boundaryWidth: 3,
+    },
+  };
+
 
   useEffect(() => {
     handleChange(
@@ -175,7 +184,7 @@ const TrainingSettingsForm = () => {
         </div>
         {showAdvancedSettings && (
           <div className="flex items-center justify-between gap-x-4">
-            {advancedSettings.map((setting, id) => (
+            {advancedSettings.filter(setting => setting.enabled).map((setting, id) => (
               <div key={`training-settings-${id}`} className="w-full">
                 <Input
                   label={setting.label}
