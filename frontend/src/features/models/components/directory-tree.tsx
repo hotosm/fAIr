@@ -125,20 +125,20 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
     const { dir, file } = data;
     const subdirectories = dir
       ? await Promise.all(
-          Object.keys(dir).map(async (key: string) => {
-            const fullPath = currentDirectory
-              ? `${currentDirectory}/${key}`
-              : key;
-            const subDirData = await fetchDirectoryRecursive(fullPath);
-            return {
-              [key]: {
-                ...subDirData,
-                size: dir[key]?.size || 0,
-                length: dir[key]?.len || 0,
-              },
-            };
-          }),
-        )
+        Object.keys(dir).map(async (key: string) => {
+          const fullPath = currentDirectory
+            ? `${currentDirectory}/${key}`
+            : key;
+          const subDirData = await fetchDirectoryRecursive(fullPath);
+          return {
+            [key]: {
+              ...subDirData,
+              size: dir[key]?.size || 0,
+              length: dir[key]?.len || 0,
+            },
+          };
+        }),
+      )
       : [];
 
     return {
@@ -227,7 +227,7 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
   if (isLoading) return <DirectoryLoadingSkeleton />;
   if (hasError)
     return (
-      <div>{APP_CONTENT.models.modelsDetailsCard.modelFilesDialog.error}.</div>
+      <div>{APP_CONTENT.models.modelsDetailsCard.modelFilesDialog.error}</div>
     );
 
   return (

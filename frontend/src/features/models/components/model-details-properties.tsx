@@ -127,6 +127,7 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
       return <ModelPropertiesSkeleton isTrainingDetailsDialog />;
     }
 
+
     return (
       <>
         <ModelFilesDialog
@@ -272,9 +273,9 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
             </div>
           )}
 
-          {/* Show logs only in modal and when status failed */}
+          {/* Show logs only in modal and when status failed or running */}
           {isTrainingDetailsDialog &&
-            data?.status !== TrainingStatus.SUCCESS && (
+            (data?.status === TrainingStatus.FAILED || data?.status === TrainingStatus.RUNNING) && (
               <FailedTrainingTraceBack taskId={data?.task_id ?? ""} />
             )}
         </div>
@@ -304,23 +305,22 @@ export default ModelProperties;
 
 const FailedTrainingTraceBack = ({ taskId }: { taskId: string }) => {
   const { data, isPending } = useTrainingStatus(taskId);
-  const [showLogs, setShowLogs] = useState(false);
+  const [showLogs, setShowLogs] = useState<boolean>(false);
 
   if (isPending) {
     return (
-      <div className="h-40 col-span-5 w-full animate-pulse bg-light-gray"></div>
+      <div className="h-80 col-span-5 w-full animate-pulse bg-light-gray"></div>
     );
   }
   return (
-    <div className="col-span-5 flex flex-col gap-y-4">
-      <div
+    <div className="col-span-5 flex flex-col gap-y-4 w-full h-20">
+      <button
         onClick={() => setShowLogs(!showLogs)}
-        role="button"
         className="flex items-center gap-x-2"
       >
         <p>{APP_CONTENT.models.modelsDetailsCard.trainingInfoDialog.logs}</p>
         <ChevronDownIcon className={`icon ${showLogs && "rotate-180"}`} />
-      </div>
+      </button>
       {showLogs && <CodeBlock content={data?.traceback as string} />}
     </div>
   );

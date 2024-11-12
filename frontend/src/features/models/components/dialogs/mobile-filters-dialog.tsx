@@ -1,5 +1,5 @@
 import { Dialog } from "@/components/ui/dialog";
-import useDevice from "@/hooks/use-device";
+import useScreenSize from "@/hooks/use-screen-size";
 import {
   CategoryFilter,
   DateRangeFilter,
@@ -36,7 +36,7 @@ const MobileModelFiltersDialog: React.FC<TrainingAreaDialogProps> = ({
   updateQuery,
   disabled,
 }) => {
-  const isMobile = useDevice();
+  const { isMobile } = useScreenSize();;
   return (
     <Dialog
       isOpened={isOpened}

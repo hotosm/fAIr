@@ -3,6 +3,7 @@ import bboxPolygon from "@turf/bbox";
 
 import area from "@turf/area";
 import { LngLatBoundsLike, Map } from "maplibre-gl";
+import { roundNumber } from "./number-utils";
 
 /**
  * Calculates the area of a GeoJSON Feature or FeatureCollection.
@@ -22,6 +23,23 @@ export const calculateGeoJSONArea = (
   return area(geojsonFeature);
 };
 
+
+/**
+ * Format area into human readable string.
+ *
+ * This function formats an area in square meters into human readable string.
+ *
+ * @param {number} area - The area in square meters to transform.
+ *
+ * @returns {string} The result as 12,222,000 m² or 12,222 km²
+ */
+
+export const formatAreaInAppropriateUnit = (area: number): string => {
+  if (area > 1000000) {
+    return roundNumber(area / 1000000, 1).toLocaleString() + 'km²'
+  }
+  return roundNumber(area, 1).toLocaleString() + 'm²'
+}
 /**
  * Computes the bounding box of a GeoJSON Feature.
  *

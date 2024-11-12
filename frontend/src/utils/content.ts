@@ -1,5 +1,6 @@
 import { BASE_MODELS } from "@/enums";
-import { APPLICATION_ROUTES } from "./constants";
+import { APPLICATION_ROUTES, MAX_TRAINING_AREA_SIZE, MIN_TRAINING_AREA_SIZE } from "./constants";
+import { formatAreaInAppropriateUnit } from "./geometry-utils";
 
 export const TOAST_NOTIFICATIONS = {
   trainingAreasFileUploadSuccess: "Training areas created successfully.",
@@ -108,7 +109,8 @@ export const MODEL_CREATION_CONTENT = {
       title: "Upload Training Area(s)",
       mainInstruction:
         "Drag 'n' drop some files here, or click to select files",
-      subInstruction: "Supports only GeoJSON (.geojson) files. (5MB max.)",
+      fleSizeInstruction: "Supports only GeoJSON (.geojson) files. (5MB max.)",
+      aoiAreaInstruction: `Area should be > ${formatAreaInAppropriateUnit(MIN_TRAINING_AREA_SIZE)} and < ${formatAreaInAppropriateUnit(MAX_TRAINING_AREA_SIZE)}.`,
     },
     pageDescription:
       "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Id fugit ducimus harum debitis deserunt cum quod quam rerum aliquid. Quibusdam sequi incidunt quasi delectus laudantium accusamus modi omnis maiores. Incidunt!",

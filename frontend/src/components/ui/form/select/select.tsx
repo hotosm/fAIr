@@ -1,5 +1,5 @@
 import { SlOption, SlSelect } from "@shoelace-style/shoelace/dist/react";
-import useDevice from "@/hooks/use-device";
+import useScreenSize from "@/hooks/use-screen-size";
 import { HelpText, FormLabel } from "@/components/ui/form";
 import "./select.css";
 
@@ -30,7 +30,7 @@ const Select: React.FC<SelectProps> = ({
   handleChange,
   required,
 }) => {
-  const isMobile = useDevice();
+  const { isMobile } = useScreenSize();;
   return (
     <SlSelect
       placeholder={placeholder}

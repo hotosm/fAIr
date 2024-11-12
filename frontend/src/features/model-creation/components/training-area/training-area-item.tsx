@@ -9,6 +9,7 @@ import {
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import {
   calculateGeoJSONArea,
+  formatAreaInAppropriateUnit,
   formatDuration,
   geoJSONDowloader,
   getGeoJSONFeatureBounds,
@@ -31,7 +32,7 @@ import {
 } from "@/features/model-creation/hooks/use-training-areas";
 import { useMap } from "@/app/providers/map-provider";
 import { useModelsContext } from "@/app/providers/models-provider";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 const TrainingAreaItem: React.FC<
   TTrainingAreaFeature & { datasetId: number; offset: number }
@@ -200,10 +201,12 @@ const TrainingAreaItem: React.FC<
 
     return () => clearInterval(intervalId);
   }, [trainingArea?.properties?.label_fetched]);
-  const trainingAreaSize = roundNumber(
-    calculateGeoJSONArea(trainingArea),
-    2,
-  ).toLocaleString();
+
+
+  const trainingAreaSize = useMemo(() => {
+    return formatAreaInAppropriateUnit(calculateGeoJSONArea(trainingArea))
+  }, [trainingArea]);
+
   return (
     <>
       <div className="flex items-center justify-between w-full gap-x-4">
@@ -213,10 +216,9 @@ const TrainingAreaItem: React.FC<
           </p>
           <p
             className="text-body-4 text-dark"
-            title={`${trainingAreaSize} sqm`}
+            title={`${trainingAreaSize}`}
           >
             {trainingArea.geometry ? truncateString(trainingAreaSize, 15) : 0}
-            sqm
           </p>
           <p className="text-body-4 text-dark">
             {trainingAreaLabelsMutation.isPending

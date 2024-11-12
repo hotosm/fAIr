@@ -23,7 +23,7 @@ import { useCallback, useState } from "react";
 import { FileWithPath, useDropzone } from "react-dropzone";
 import { useCreateTrainingArea } from "@/features/model-creation/hooks/use-training-areas";
 import { geojsonToWKT } from "@terraformer/wkt";
-import useDevice from "@/hooks/use-device";
+import useScreenSize from "@/hooks/use-screen-size";
 
 type FileUploadDialogProps = DialogProps & {
   datasetId: string;
@@ -48,27 +48,43 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
   });
 
   const onDrop = useCallback((files: FileWithPath[]) => {
-    const validFiles = files.filter((file) => {
-      if (file.size > MAX_TRAINING_AREA_UPLOAD_FILE_SIZE) {
-        showErrorToast(undefined, `File ${file.name} is too large (max 5MB)`);
+
+    const initialValidFiles = files.filter((file) => {
+      if (!file.name.endsWith(".geojson") && !file.name.endsWith(".json")) {
+        showErrorToast(undefined, `File ${file.name} is not a supported format`);
         return false;
       }
-      if (!file.name.endsWith(".geojson") && !file.name.endsWith(".json")) {
-        showErrorToast(
-          undefined,
-          `File ${file.name} is not a supported format`,
-        );
+      if (file.size > MAX_TRAINING_AREA_UPLOAD_FILE_SIZE) {
+        showErrorToast(undefined, `File ${file.name} is too large (max 5MB)`);
         return false;
       }
       return true;
     });
 
-    const newFiles = validFiles.map((file) => ({
-      file,
-      id: generateUniqueId(),
-    }));
-    setAcceptedFiles((prev) => [...prev, ...newFiles]);
+
+    const validateFiles = async () => {
+      const validFiles: { file: FileWithPath; id: string }[] = [];
+
+      for (const file of initialValidFiles) {
+        const text = await file.text();
+        try {
+          const geojson: FeatureCollection | Feature = JSON.parse(text);
+          if (validateGeoJSONArea(geojson as Feature)) {
+            showErrorToast(undefined, `File area for ${file.name} exceeds area limit.`);
+          } else {
+            validFiles.push({ file, id: generateUniqueId() });
+          }
+        } catch (error) {
+          showErrorToast(error);
+        }
+      }
+
+      setAcceptedFiles((prev) => [...prev, ...validFiles]);
+    };
+
+    validateFiles();
   }, []);
+
 
   const clearAcceptedFiles = () => {
     setAcceptedFiles([]);
@@ -176,7 +192,7 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
       </button>
     </li>
   ));
-  const isMobile = useDevice();
+  const { isMobile } = useScreenSize();;
   return (
     <Dialog
       isOpened={isOpened}
@@ -205,7 +221,13 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
               <small>
                 {
                   MODEL_CREATION_CONTENT.trainingArea.fileUploadDialog
-                    .subInstruction
+                    .fleSizeInstruction
+                }
+              </small>
+              <small>
+                {
+                  MODEL_CREATION_CONTENT.trainingArea.fileUploadDialog
+                    .aoiAreaInstruction
                 }
               </small>
             </>

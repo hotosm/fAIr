@@ -6,6 +6,7 @@ import { PenIcon } from "@/components/ui/icons";
 import { Map, MapMouseEvent } from "maplibre-gl";
 import {
   calculateGeoJSONArea,
+  formatAreaInAppropriateUnit,
   MAX_TRAINING_AREA_SIZE,
   MIN_TRAINING_AREA_SIZE,
 } from "@/utils";
@@ -158,7 +159,7 @@ const DrawControl = ({
           <p>
             {mode === DrawingModes.RECTANGLE && featureArea === 0
               ? "Click and drag to draw a rectangle."
-              : `Current area: ${featureArea.toFixed(2)} m²`}
+              : `Current area: ${formatAreaInAppropriateUnit(featureArea)}`}
           </p>
           <p>{getFeedbackMessage()}</p>
         </div>

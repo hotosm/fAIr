@@ -3,7 +3,7 @@ import styles from "./input.module.css";
 import { CalenderIcon } from "@/components/ui/icons";
 import useBrowserType from "@/hooks/use-browser-type";
 import { useRef } from "react";
-import useDevice from "@/hooks/use-device";
+import useScreenSize from "@/hooks/use-screen-size";
 import { HelpText, FormLabel } from "@/components/ui/form";
 import CheckIcon from "@/components/ui/icons/check-icon";
 import { INPUT_TYPES, SHOELACE_SIZES } from "@/enums";
@@ -63,7 +63,7 @@ const Input: React.FC<InputProps> = ({
   };
 
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const isMobile = useDevice();
+  const { isMobile } = useScreenSize();;
 
   return (
     <SlInput
