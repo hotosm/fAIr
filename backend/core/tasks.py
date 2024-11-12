@@ -345,8 +345,8 @@ def yolo_model_training(
         output_model_path, final_accuracy = train_yolo_v2(
             data=f"{base_path}",
             weights=os.path.join(settings.YOLO_HOME, "yolov8s_v2-seg.pt"),
-            epochs=2,
-            batch_size=16,
+            epochs=epochs,
+            batch_size=batch_size,
             pc=2.0,
             output_path=yolo_data_dir,
             dataset_yaml_path=os.path.join(yolo_data_dir, "yolo_dataset.yaml"),
