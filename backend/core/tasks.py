@@ -365,9 +365,10 @@ def yolo_model_training(
     shutil.copyfile(output_model_path, os.path.join(output_path, "checkpoint.pt"))
     shutil.copytree(preprocess_output, os.path.join(output_path, "preprocessed"))
     os.makedirs(os.path.join(output_path,model),exist_ok=True)
-    shutil.copytree(preprocess_output, os.path.join(output_path,model, "images"))
-    shutil.copytree(preprocess_output, os.path.join(output_path,model, "labels"))
-    shutil.copytree(preprocess_output, os.path.join(output_path,model, "yolo_dataset.yaml"))
+
+    shutil.copytree(os.path.join(yolo_data_dir,'images'), os.path.join(output_path,model, "images"))
+    shutil.copytree(os.path.join(yolo_data_dir,'labels'), os.path.join(output_path,model, "labels"))
+    shutil.copyfile(os.path.join(yolo_data_dir,'yolo_dataset.yaml'), os.path.join(output_path,model, "yolo_dataset.yaml"))
 
     graph_output_path = os.path.join(
         pathlib.Path(os.path.dirname(output_model_path)).parent, "iou_chart.png"
