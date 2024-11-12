@@ -445,6 +445,14 @@ def train_model(
     training_instance.status = "RUNNING"
     training_instance.started_at = timezone.now()
     training_instance.save()
+    os.makedirs(settings.LOG_PATH, exist_ok=True)
+    if training_instance.task_id is None or training_instance.task_id.strip() == "":
+        training_instance.task_id = train_model.request.id
+        training_instance.save()
+    log_file = os.path.join(
+        settings.LOG_PATH, f"run_{train_model.request.id}_log.txt"
+    )
+
 
     if model_instance.base_model == "YOLO_V8_V1" and settings.YOLO_HOME is None:
         raise ValueError("YOLO Home is not configured")
@@ -452,39 +460,42 @@ def train_model(
         raise ValueError("Ramp Home is not configured")
 
     try:
-        training_input_image_source, aoi_serializer, serialized_field = prepare_data(
-            training_instance, dataset_id, feedback, zoom_level, source_imagery
-        )
-
-        if model_instance.base_model in ("YOLO_V8_V1", "YOLO_V8_V2"):
-            response = yolo_model_training(
-                training_instance,
-                dataset_id,
-                training_input_image_source,
-                serialized_field,
-                aoi_serializer,
-                epochs,
-                batch_size,
-                multimasks,
-                model=model_instance.base_model,
-            )
-        else:
-            response = ramp_model_training(
-                training_instance,
-                dataset_id,
-                training_input_image_source,
-                serialized_field,
-                aoi_serializer,
-                epochs,
-                batch_size,
-                freeze_layers,
-                multimasks,
-                input_contact_spacing,
-                input_boundary_width,
+        with open(log_file, "w") as f:
+        # redirect stdout to the log file
+            sys.stdout = f
+            training_input_image_source, aoi_serializer, serialized_field = prepare_data(
+                training_instance, dataset_id, feedback, zoom_level, source_imagery
             )
 
-        logger.info(f"Training task {training_id} completed successfully")
-        return response
+            if model_instance.base_model in ("YOLO_V8_V1", "YOLO_V8_V2"):
+                response = yolo_model_training(
+                    training_instance,
+                    dataset_id,
+                    training_input_image_source,
+                    serialized_field,
+                    aoi_serializer,
+                    epochs,
+                    batch_size,
+                    multimasks,
+                    model=model_instance.base_model,
+                )
+            else:
+                response = ramp_model_training(
+                    training_instance,
+                    dataset_id,
+                    training_input_image_source,
+                    serialized_field,
+                    aoi_serializer,
+                    epochs,
+                    batch_size,
+                    freeze_layers,
+                    multimasks,
+                    input_contact_spacing,
+                    input_boundary_width,
+                )
+
+            logger.info(f"Training task {training_id} completed successfully")
+            return response
 
     except Exception as ex:
         training_instance.status = "FAILED"
