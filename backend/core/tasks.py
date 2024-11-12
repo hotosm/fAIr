@@ -301,7 +301,8 @@ def yolo_model_training(
 
     model_input_image_path = f"{base_path}/input"
     preprocess_output = f"/{base_path}/preprocessed"
-
+    if model == "YOLO_V8_V1":
+        multimasks = True
     preprocess(
         input_path=model_input_image_path,
         output_path=preprocess_output,
