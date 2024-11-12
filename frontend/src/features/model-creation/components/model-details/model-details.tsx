@@ -13,14 +13,17 @@ const baseModelOptions = [
   {
     name: BASE_MODELS.RAMP,
     value: BASE_MODELS.RAMP,
+    suffix: MODEL_CREATION_CONTENT.modelDetails.form.baseModel.suffixes[BASE_MODELS.RAMP]
   },
   {
     name: BASE_MODELS.YOLOV8_V1,
     value: BASE_MODELS.YOLOV8_V1,
+    suffix: MODEL_CREATION_CONTENT.modelDetails.form.baseModel.suffixes[BASE_MODELS.YOLOV8_V1]
   },
   {
     name: BASE_MODELS.YOLOV8_V2,
     value: BASE_MODELS.YOLOV8_V2,
+    suffix: MODEL_CREATION_CONTENT.modelDetails.form.baseModel.suffixes[BASE_MODELS.YOLOV8_V2]
   },
 ];
 

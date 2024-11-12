@@ -1,3 +1,4 @@
+import { BASE_MODELS } from "@/enums";
 import { APPLICATION_ROUTES } from "./constants";
 
 export const TOAST_NOTIFICATIONS = {
@@ -40,6 +41,11 @@ export const MODEL_CREATION_CONTENT = {
         label: "Base Model",
         helpText: "Select the base model to use for the training.",
         toolTip: "Base Model",
+        suffixes: {
+          [BASE_MODELS.RAMP]: "Faster training time, with decent accuracy.",
+          [BASE_MODELS.YOLOV8_V1]: "Good for major areas and more accurate.",
+          [BASE_MODELS.YOLOV8_V2]: "Our best model yet. Good for every type of area."
+        }
       },
       modelDescription: {
         label: "Model Description",

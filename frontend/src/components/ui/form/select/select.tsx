@@ -12,6 +12,7 @@ type SelectProps = {
   options?: {
     name: string;
     value: string;
+    suffix?: string
   }[];
   defaultValue: string;
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -46,11 +47,11 @@ const Select: React.FC<SelectProps> = ({
           required={required}
         />
       )}
-
       {helpText && <HelpText content={helpText} />}
       {options?.map((option, id) => (
-        <SlOption key={`select-option-${id}`} value={option.value}>
-          {option.name}
+        <SlOption key={`select-option-${id}`} value={option.value} className="flex flex-col gap-y-1">
+          <span>{option.name}</span>
+          <small slot="suffix">{option.suffix}</small>
         </SlOption>
       ))}
     </SlSelect>
