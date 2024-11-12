@@ -744,15 +744,20 @@ if settings.ENABLE_PREDICTION_API:
 def publish_training(request, training_id: int):
     """Publishes training for model"""
     training_instance = get_object_or_404(Training, id=training_id)
+    model_instance = get_object_or_404(Model, id=training_instance.model.id)
 
     if training_instance.status != "FINISHED":
         return Response("Training is not FINISHED", status=409)
-    if training_instance.accuracy < 70:
-        return Response(
-            "Can't publish the training since its accuracy is below 70%", status=403
-        )
-
-    model_instance = get_object_or_404(Model, id=training_instance.model.id)
+    if model_instance.base_model == "RAMP":
+        if training_instance.accuracy < 70:
+            return Response(
+                "Can't publish the training since its accuracy is below 70%", status=403
+            )
+    else :  ## Training publish limit for other model than ramp , TODO : Change this limit after testing for yolo
+        if training_instance.accuracy < 5:
+            return Response(
+                "Can't publish the training since its accuracy is below 5%", status=403
+            )
 
     # Check if the current user is the owner of the model
     if model_instance.user != request.user:
