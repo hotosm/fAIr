@@ -1,3 +1,4 @@
+import { roundNumber } from "@/utils";
 import { Map } from "maplibre-gl";
 import { useEffect, useState } from "react";
 
@@ -23,7 +24,7 @@ const ZoomLevel = ({ map }: { map: Map | null }) => {
 
   return (
     <div className="bg-white py-1 px-3 rounded-md">
-      <p>Zoom level: {currentZoom.toFixed(1)}</p>
+      <p>Zoom level: {roundNumber(currentZoom, 0)}</p>
     </div>
   );
 };

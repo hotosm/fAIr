@@ -97,7 +97,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const user = await authService.getUser();
       setUser(user);
     } catch (error) {
-      console.error("Failed to fetch user profile:", error);
+      showErrorToast(error)
     }
   };
 

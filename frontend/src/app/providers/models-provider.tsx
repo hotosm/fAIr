@@ -325,6 +325,12 @@ export const ModelsProvider: React.FC<{
     );
   }, [formData]);
 
+  // On page reload reset the local storage.
+
+  useEffect(() => {
+    setValue(HOT_FAIR_MODEL_CREATION_LOCAL_STORAGE_KEY, JSON.stringify(initialFormState))
+  }, [])
+
   // Confirm that the training areas labels has been retrieved
   const hasLabeledTrainingAreas = useMemo(() => {
     return (
@@ -343,17 +349,17 @@ export const ModelsProvider: React.FC<{
 
   const memoizedValues = useMemo(
     () => ({
-      formData,
       setFormData,
       handleChange,
       createNewTrainingDatasetMutation,
       createNewModelMutation,
       hasLabeledTrainingAreas,
       hasAOIsWithGeometry,
+      formData
     }),
     [
-      formData,
       setFormData,
+      formData,
       handleChange,
       createNewTrainingDatasetMutation,
       createNewModelMutation,

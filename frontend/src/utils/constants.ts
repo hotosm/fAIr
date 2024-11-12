@@ -71,3 +71,14 @@ export const MAX_TRAINING_AREA_UPLOAD_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
  * Todo - We need to find a way to make it dynamic.
  */
 export const FAIR_VERSION = "v0.1";
+
+/**
+ * The maximum zoom level for the map.
+ */
+export const MAX_ZOOM_LEVEL = 22;
+
+
+/**
+ * The minimum zoom level to show the training area labels.
+ */
+export const TRAINING_LABELS_MIN_ZOOM_LEVEL = 18;

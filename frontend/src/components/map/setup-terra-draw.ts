@@ -45,6 +45,19 @@ export function setupTerraDraw(map: maplibregl.Map) {
           }
           return true;
         },
+        styles: {
+          // Fill colour (a string containing a 6 digit Hex color)
+          fillColor: "#d63f40",
+
+          // Fill opacity (0 - 1)
+          fillOpacity: 0.3,
+
+          // Outline colour (Hex color)
+          outlineColor: "#d63f40",
+
+          //Outline width (Integer)
+          outlineWidth: 4,
+        },
       }),
     ],
   });

@@ -1,3 +1,4 @@
+import { MAX_ZOOM_LEVEL } from "@/utils";
 import maplibregl, { Map, StyleSpecification } from "maplibre-gl";
 
 export function setupMaplibreMap(
@@ -18,6 +19,6 @@ export function setupMaplibreMap(
     center: [0, 0],
     zoom: 0.5,
     minZoom: 1,
-    maxZoom: 25,
+    maxZoom: MAX_ZOOM_LEVEL,
   });
 }

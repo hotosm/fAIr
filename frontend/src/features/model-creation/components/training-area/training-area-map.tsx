@@ -12,6 +12,7 @@ import { useToastNotification } from "@/hooks/use-toast-notification";
 import {
   getTileBoundariesGeoJSON,
   snapGeoJSONGeometryToClosestTile,
+  TRAINING_LABELS_MIN_ZOOM_LEVEL,
   validateGeoJSONArea,
 } from "@/utils";
 import useDebounce from "@/hooks/use-debounce";
@@ -147,9 +148,9 @@ const TrainingAreaMap = ({
         type: "fill",
         source: trainingAreasSourceId,
         paint: {
-          "fill-color": "rgb(51, 136, 255)",
+          "fill-color": "#d63f40", // hot primary
           "fill-opacity": 0.3,
-          "fill-outline-color": "#D73434",
+          "fill-outline-color": "#d63f40",
         },
         layout: { visibility: "visible" },
       });
@@ -159,7 +160,8 @@ const TrainingAreaMap = ({
         id: trainingAreasLayerId,
         type: "line",
         source: trainingAreasSourceId,
-        paint: { "line-color": "rgb(51, 136, 255)", "line-width": 4 },
+        // hot primary
+        paint: { "line-color": "#d63f40", "line-width": 4 },
         layout: { visibility: "visible" },
       });
     }
@@ -174,7 +176,7 @@ const TrainingAreaMap = ({
           "fill-opacity": 0.3,
           "fill-outline-color": "#D73434",
         },
-        minzoom: 19,
+        minzoom: TRAINING_LABELS_MIN_ZOOM_LEVEL,
         layout: { visibility: "visible" },
       });
     }
@@ -187,7 +189,7 @@ const TrainingAreaMap = ({
           "line-color": "#D73434",
           "line-width": 2,
         },
-        minzoom: 19,
+        minzoom: TRAINING_LABELS_MIN_ZOOM_LEVEL,
         layout: { visibility: "visible" },
       });
     }
