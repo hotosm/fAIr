@@ -210,7 +210,9 @@ def ramp_model_training(
     )
 
     output_path = os.path.join(
-        training_input_image_source, "output", f"training_{training_instance.id}"
+        pathlib.Path(training_input_image_source).parent,
+        "output",
+        f"training_{training_instance.id}",
     )
     if os.path.exists(output_path):
         shutil.rmtree(output_path)
@@ -361,6 +363,10 @@ def yolo_model_training(
 
     shutil.copyfile(output_model_path, os.path.join(output_path, "checkpoint.pt"))
     shutil.copytree(preprocess_output, os.path.join(output_path, "preprocessed"))
+    os.makedirs(os.path.join(output_path,model),exist_ok=True)
+    shutil.copytree(preprocess_output, os.path.join(output_path,model, "images"))
+    shutil.copytree(preprocess_output, os.path.join(output_path,model, "labels"))
+    shutil.copytree(preprocess_output, os.path.join(output_path,model, "yolo_dataset.yaml"))
 
     graph_output_path = os.path.join(
         pathlib.Path(os.path.dirname(output_model_path)).parent, "iou_chart.png"
