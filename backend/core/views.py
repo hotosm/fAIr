@@ -851,7 +851,7 @@ class TrainingWorkspaceDownloadView(APIView):
 
     def dispatch(self, request, *args, **kwargs):
         lookup_dir = kwargs.get("lookup_dir")
-        if lookup_dir.endswith("training_validation_sparse_categorical_accuracy.png"):
+        if lookup_dir.endswith("training_accuracy.png"):
             # bypass
             self.authentication_classes = []
             self.permission_classes = []
