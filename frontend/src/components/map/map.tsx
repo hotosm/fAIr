@@ -24,6 +24,7 @@ type MapComponentProps = {
     value: string;
     subLayer: string;
   }[];
+  children: React.ReactNode
 };
 
 const MapComponent: React.FC<MapComponentProps> = ({
@@ -34,6 +35,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
   layerControl = false,
   layerControlLayers = [],
   layerControlBasemaps = [],
+  children
 }) => {
   const mapContainerRef = useRef(null);
   const { map, setMap, terraDraw } = useMap();
@@ -59,7 +61,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
             <ZoomControls map={map} />
             {geolocationControl && <GeolocationControl map={map} />}
             {drawControl && terraDraw && (
-              <DrawControl terraDraw={terraDraw} map={map} />
+              <DrawControl />
             )}
           </>
         )}
@@ -80,6 +82,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
           </>
         )}
       </div>
+      {children}
     </div>
   );
 };

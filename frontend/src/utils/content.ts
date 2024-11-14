@@ -4,16 +4,14 @@ import { formatAreaInAppropriateUnit } from "./geometry-utils";
 
 export const TOAST_NOTIFICATIONS = {
   trainingAreasFileUploadSuccess: "Training areas created successfully.",
-  trainingLabelsFetchSuccess: "Traniing labels fetched successfully.",
-  trainingLabelsFetchFailure:
-    "An error occurred while fetching training labels.",
+  trainingLabelsFetchSuccess: "Training labels fetched successfully.",
   trainingAreaDeletionSuccess: "Training area deleted successfully.",
   aoiDownloadSuccess: "AOI downloaded successfully.",
   trainingRequestSubmittedSuccess: "Training request submitted successfully.",
   trainingDatasetCreationSuccess: "Dataset created successfully.",
   modelCreationSuccess: "Model created successfully.",
   modelUpdateSuccess: "Model updated successfully.",
-  aoiWithoutGeometryWarning: "This training area does not have a geometry.",
+  aoiWithoutGeometryWarning: "This training area does not have a geometry. Delete it and redraw a new training area.",
   aoiLabelsDownloadSuccess: "AOI labels downloaded successfully.",
   josmOpenSuccess: "Map view opened in JOSM successfully!",
   josmBBOXZoomFailed: "Failed to zoom to the bounding box in JOSM.",

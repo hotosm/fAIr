@@ -82,3 +82,12 @@ export const MAX_ZOOM_LEVEL = 22;
  * The minimum zoom level to show the training area labels.
  */
 export const TRAINING_LABELS_MIN_ZOOM_LEVEL = 18;
+
+
+/**
+ * Training area and labels colors in hex codes.
+ */
+export const TRAINING_AREAS_AOI_FILL_COLOR = "#92B48766";
+export const TRAINING_AREAS_AOI_OUTLINE_COLOR = "#92B48766";
+export const TRAINING_AREAS_AOI_LABELS_FILL_COLOR = "#D73434";
+export const TRAINING_AREAS_AOI_LABELS_OUTLINE_COLOR = "#D73434";

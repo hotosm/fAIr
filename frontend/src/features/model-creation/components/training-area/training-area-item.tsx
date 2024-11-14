@@ -54,10 +54,9 @@ const TrainingAreaItem: React.FC<
       onSuccess: () => {
         showSuccessToast(TOAST_NOTIFICATIONS.trainingLabelsFetchSuccess);
       },
-      onError: () => {
+      onError: (error) => {
         showErrorToast(
-          undefined,
-          TOAST_NOTIFICATIONS.trainingLabelsFetchFailure,
+          error
         );
       },
     },
@@ -219,7 +218,7 @@ const TrainingAreaItem: React.FC<
           >
             {truncateString(trainingAreaSize, 15)}
           </p>
-          <p className="text-body-4 text-dark">
+          <p className={`text-body-4 text-dark ${trainingArea.properties.label_fetched === null && 'text-primary'}`}>
             {trainingAreaLabelsMutation.isPending
               ? "Fetching labels..."
               : trainingArea.properties.label_fetched !== null

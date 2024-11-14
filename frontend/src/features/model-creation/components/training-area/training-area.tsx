@@ -15,6 +15,7 @@ import OpenAerialMap from "@/features/model-creation/components/training-area/op
 import { useMap } from "@/app/providers/map-provider";
 import { useToastNotification } from "@/hooks/use-toast-notification";
 import { MODEL_CREATION_CONTENT } from "@/utils";
+import { DrawingModes } from "@/enums";
 
 const TrainingAreaForm = () => {
   const { formData } = useModelsContext();
@@ -24,7 +25,7 @@ const TrainingAreaForm = () => {
   const { closeDialog, isOpened, toggle } = useDialog();
   const { handleChange } = useModelsContext();
   const [offset, setOffset] = useState<number>(0);
-  const { terraDraw } = useMap();
+  const { setDrawingMode } = useMap();
   const {
     data: trainingAreasData,
     isPending: trainingAreaIsPending,
@@ -93,7 +94,7 @@ const TrainingAreaForm = () => {
               <Button
                 variant="primary"
                 onClick={() => {
-                  terraDraw?.setMode("rectangle");
+                  setDrawingMode(DrawingModes.RECTANGLE);
                   toast(
                     "Draw mode activated. Hover on the map to start drawing.",
                     "success",

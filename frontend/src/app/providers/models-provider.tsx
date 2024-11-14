@@ -326,19 +326,19 @@ export const ModelsProvider: React.FC<{
   }, [formData]);
 
 
-  // Confirm that the training areas labels has been retrieved
+  // Confirm that all the training areas labels has been retrieved
   const hasLabeledTrainingAreas = useMemo(() => {
     return (
       formData.trainingAreas.filter(
-        (aoi: Feature) => aoi.properties.label_fetched,
-      ).length > 0
+        (aoi: Feature) => aoi.properties.label_fetched === null,
+      ).length === 0
     );
   }, [formData]);
-  // Confirm that at least one of the training areas has a geometry
+  // Confirm that all of the training areas has a geometry
   const hasAOIsWithGeometry = useMemo(() => {
     return (
-      formData.trainingAreas.filter((aoi: Feature) => aoi.geometry !== null)
-        .length > 0
+      formData.trainingAreas.filter((aoi: Feature) => aoi.geometry === null)
+        .length === 0
     );
   }, [formData]);
 

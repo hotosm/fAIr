@@ -1,5 +1,5 @@
 import { useMap } from "@/app/providers/map-provider";
-import { MapComponent } from "@/components/map";
+import { MapComponent, MapCursorToolTip } from "@/components/map";
 import { GeoJSONType, PaginatedTrainingArea } from "@/types";
 import { GeoJSONSource, GeoJSONSourceSpecification } from "maplibre-gl";
 import { useCallback, useEffect, useState } from "react";
@@ -10,13 +10,22 @@ import {
 import { geojsonToWKT } from "@terraformer/wkt";
 import { useToastNotification } from "@/hooks/use-toast-notification";
 import {
+  calculateGeoJSONArea,
+  formatAreaInAppropriateUnit,
   getTileBoundariesGeoJSON,
+  MAX_TRAINING_AREA_SIZE,
+  MIN_TRAINING_AREA_SIZE,
   snapGeoJSONGeometryToClosestTile,
+  TRAINING_AREAS_AOI_FILL_COLOR,
+  TRAINING_AREAS_AOI_LABELS_FILL_COLOR,
+  TRAINING_AREAS_AOI_LABELS_OUTLINE_COLOR,
+  TRAINING_AREAS_AOI_OUTLINE_COLOR,
   TRAINING_LABELS_MIN_ZOOM_LEVEL,
   validateGeoJSONArea,
 } from "@/utils";
 import useDebounce from "@/hooks/use-debounce";
-import { BASEMAPS } from "@/enums";
+import { BASEMAPS, DrawingModes } from "@/enums";
+import { useToolTipVisibility } from "@/hooks/use-tooltip-visibility";
 
 const TrainingAreaMap = ({
   tileJSONURL,
@@ -29,7 +38,7 @@ const TrainingAreaMap = ({
   trainingDatasetId: number;
   offset: number;
 }) => {
-  const { map, terraDraw } = useMap();
+  const { map, terraDraw, drawingMode, setDrawingMode } = useMap();
   const toast = useToastNotification();
   const OSMBasemapLayerId = "osm-layer";
   const GoogleSatelliteLayerId = "google-statellite-layer";
@@ -46,6 +55,10 @@ const TrainingAreaMap = ({
   const tileBoundarySourceId = "tile-boundaries";
   const [currentZoom, setCurrentZoom] = useState<number>(0);
   const [bbox, setBbox] = useState("");
+
+  const [featureArea, setFeatureArea] = useState<number>(0);
+
+  const { setTooltipVisible, tooltipPosition, } = useToolTipVisibility([drawingMode, currentZoom]);
 
   const debouncedBbox = useDebounce(bbox, 300);
   const debouncedZoom = useDebounce(currentZoom.toString(), 300);
@@ -150,9 +163,8 @@ const TrainingAreaMap = ({
         type: "fill",
         source: trainingAreasSourceId,
         paint: {
-          "fill-color": "#d63f40", // hot primary
-          "fill-opacity": 0.3,
-          "fill-outline-color": "#d63f40",
+          "fill-color": TRAINING_AREAS_AOI_FILL_COLOR,
+          "fill-opacity": 0.4,
         },
         layout: { visibility: "visible" },
       });
@@ -162,8 +174,7 @@ const TrainingAreaMap = ({
         id: trainingAreasLayerId,
         type: "line",
         source: trainingAreasSourceId,
-        // hot primary
-        paint: { "line-color": "#d63f40", "line-width": 4 },
+        paint: { "line-color": TRAINING_AREAS_AOI_OUTLINE_COLOR, "line-width": 4 },
         layout: { visibility: "visible" },
       });
     }
@@ -174,9 +185,8 @@ const TrainingAreaMap = ({
         type: "fill",
         source: trainingDatasetLabelsSourceId,
         paint: {
-          "fill-color": "#D73434",
+          "fill-color": TRAINING_AREAS_AOI_LABELS_FILL_COLOR,
           "fill-opacity": 0.3,
-          "fill-outline-color": "#D73434",
         },
         minzoom: TRAINING_LABELS_MIN_ZOOM_LEVEL,
         layout: { visibility: "visible" },
@@ -188,7 +198,7 @@ const TrainingAreaMap = ({
         type: "line",
         source: trainingDatasetLabelsSourceId,
         paint: {
-          "line-color": "#D73434",
+          "line-color": TRAINING_AREAS_AOI_LABELS_OUTLINE_COLOR,
           "line-width": 2,
         },
         minzoom: TRAINING_LABELS_MIN_ZOOM_LEVEL,
@@ -309,12 +319,21 @@ const TrainingAreaMap = ({
     updateTrainingLabels();
   }, [labels]);
 
-  // handle drawing events
+
+  // drawing events and tooltip
   useEffect(() => {
     if (!terraDraw || !map) return;
 
+    const handleFeatureChange = () => {
+      const snapshot = terraDraw.getSnapshot();
+      const area = calculateGeoJSONArea(snapshot[snapshot.length - 1]);
+      setFeatureArea(area);
+    };
     const handleFinish = async () => {
       const snapshot = terraDraw.getSnapshot();
+      setFeatureArea(0);
+      setDrawingMode(DrawingModes.STATIC)
+      setTooltipVisible(false);
       if (snapshot) {
         const drawnFeature = snapshot[snapshot.length - 1];
         // Don't accept the drawing if they don't meet the size criteria
@@ -335,11 +354,54 @@ const TrainingAreaMap = ({
       }
     };
 
+    terraDraw.on("change", handleFeatureChange);
     terraDraw.on("finish", handleFinish);
-    return () => terraDraw.off("finish", handleFinish);
-  }, [terraDraw]);
+    return () => {
+      terraDraw.off("change", handleFeatureChange);
+      terraDraw.off("finish", handleFinish);
+    };
+  }, [terraDraw, drawingMode, setDrawingMode]);
+
+
+  const showLabelsToolTip = currentZoom >= 14 && currentZoom < 18;
+
+  const showTooltip = Boolean(drawingMode === DrawingModes.RECTANGLE || showLabelsToolTip);
+
+
+  const getTooltipColor = () => {
+
+    if (featureArea !== 0) {
+      if (
+        featureArea < MIN_TRAINING_AREA_SIZE ||
+        featureArea > MAX_TRAINING_AREA_SIZE
+      )
+        return "bg-primary";
+    }
+    return "bg-black";
+  };
+
+  const getFeedbackMessage = () => {
+    if (featureArea !== 0) {
+      if (featureArea < MIN_TRAINING_AREA_SIZE)
+        return "Area too small. Expand to meet minimum size requirement.";
+      if (featureArea > MAX_TRAINING_AREA_SIZE)
+        return "Area too large. Reduce to meet maximum size requirement.";
+      if (
+        featureArea < MIN_TRAINING_AREA_SIZE * 1.2 ||
+        featureArea > MAX_TRAINING_AREA_SIZE * 0.8
+      ) {
+        return "Area is close to size limits. Adjust if needed before completing.";
+      }
+      return "Area within acceptable range. Release mouse to finish drawing.";
+    } else if (showLabelsToolTip) {
+      return "Zoom in up to zoom 18 to see the fetched labels.";
+    }
+    return;
+  };
+
 
   return (
+
     <MapComponent
       controlsLocation="top-left"
       drawControl
@@ -361,7 +423,19 @@ const TrainingAreaMap = ({
           ? [{ value: "Training Labels", subLayers: [trainingDatasetLabelsLayerId, trainingDatasetLabelsOutlineLayerId] }]
           : []),
       ]}
-    />
+    >
+      <MapCursorToolTip tooltipVisible={showTooltip} color={getTooltipColor()} map={map} tooltipPosition={tooltipPosition}>
+        {!showLabelsToolTip && <p>
+          {drawingMode === DrawingModes.RECTANGLE && featureArea === 0
+            ? "Click and drag to draw a rectangle."
+            : `Current area: ${formatAreaInAppropriateUnit(featureArea)}`}
+        </p>
+        }
+        <p>{getFeedbackMessage()}</p>
+      </MapCursorToolTip>
+    </MapComponent>
+
+
   );
 };
 
