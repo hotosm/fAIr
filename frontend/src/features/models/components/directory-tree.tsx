@@ -20,6 +20,7 @@ import { Spinner } from "@/components/ui/spinner";
 type DirectoryTreeProps = {
   datasetId: number;
   trainingId: number;
+  isOpened: boolean
 };
 
 const DirectoryLoadingSkeleton = () => (
@@ -96,10 +97,12 @@ const DirectoryItem = ({
 const DirectoryTree: React.FC<DirectoryTreeProps> = ({
   datasetId,
   trainingId,
+
 }) => {
   const [directoryTree, setDirectoryTree] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
+
   const queryClient = useQueryClient();
   const [downLoadingFilePath, setDownLoadingFilePath] = useState<string>("");
 
@@ -147,12 +150,17 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
     };
   };
 
+
   useEffect(() => {
+
     const fetchAllDirectories = async () => {
-      setIsLoading(true);
-      const rootData = await fetchDirectoryRecursive("");
-      setDirectoryTree(rootData);
-      setIsLoading(false);
+      try {
+        setIsLoading(true);
+        const rootData = await fetchDirectoryRecursive("");
+        setDirectoryTree(rootData);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     fetchAllDirectories();

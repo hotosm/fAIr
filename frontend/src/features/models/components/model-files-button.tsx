@@ -1,5 +1,6 @@
 import { ButtonWithIcon } from "@/components/ui/button";
 import { DirectoryIcon } from "@/components/ui/icons";
+import { SHOELACE_SIZES } from "@/enums";
 import { APP_CONTENT } from "@/utils";
 
 const ModelFilesButton = ({
@@ -18,6 +19,7 @@ const ModelFilesButton = ({
       onClick={openModelFilesDialog}
       prefixIcon={DirectoryIcon}
       disabled={disabled}
+      size={SHOELACE_SIZES.SMALL}
     />
   );
 };

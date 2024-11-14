@@ -392,6 +392,8 @@ export const APP_CONTENT = {
       },
     },
     modelsDetailsCard: {
+      datasetId: "Dataset ID:",
+      datasetName: "Dataset Name:",
       modelId: "Model ID:",
       detailsSectionTitle: "Details",
       createdBy: "Created By",
@@ -441,6 +443,12 @@ export const APP_CONTENT = {
           tooltip:
             "The tile server link used to train this model, click on the copy icon to copy the TMS link",
         },
+        trainingId: {
+          title: "Training Id",
+          tooltip:
+            "The training Id.",
+        },
+
         batchSize: {
           title: "Batch Size",
           tooltip:

@@ -254,6 +254,17 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
               value={source_imagery}
               isCopy
             />
+            <PropertyDisplay
+              label={
+                APP_CONTENT.models.modelsDetailsCard.properties.trainingId
+                  .title
+              }
+              tooltip={
+                APP_CONTENT.models.modelsDetailsCard.properties.trainingId.tooltip
+              }
+              value={data?.id ? data?.id : 'N/A'}
+            />
+
             {isTrainingDetailsDialog && (
               <ModelFilesButton
                 disabled={

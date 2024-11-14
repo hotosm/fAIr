@@ -92,15 +92,22 @@ const ModelDetailsInfo = ({
           <div className="col-span-1 items-start justify-between flex flex-col gap-y-4">
             <p className="text-dark text-body-2 ">
               <span className="text-gray">
-                {APP_CONTENT.models.modelsDetailsCard.trainingId}{" "}
+                {APP_CONTENT.models.modelsDetailsCard.datasetId}{" "}
               </span>
-              Training_{data?.published_training}
+              {data?.dataset}
+            </p>
+            <p className="text-dark text-body-2 ">
+              <span className="text-gray">
+                {APP_CONTENT.models.modelsDetailsCard.datasetName}{" "}
+              </span>
+              {data?.dataset}
             </p>
             <ModelFilesButton
               openModelFilesDialog={openModelFilesDialog}
               disabled={data?.published_training === null}
             />
           </div>
+
           <div className="col-span-1 flex flex-col md:items-end md:justify-between gap-y-4">
             <div>
               {isAuthenticated && user.osm_id === data.user.osm_id && (
