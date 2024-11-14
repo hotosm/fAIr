@@ -82,17 +82,17 @@ const TrainingAreaMap = ({
           "https://mt3.google.com/vt/lyrs=s&x={x}&y={y}&z={z}",
         ],
         attribution: "&copy; Google",
+        tileSize: 256
       });
     }
 
     if (!map.getSource(TMSSourceId)) {
-      map.addSource(TMSSourceId, { type: "raster", url: tileJSONURL });
+      map.addSource(TMSSourceId, { type: "raster", url: tileJSONURL, tileSize: 256 });
     }
 
     if (data?.results && !map.getSource(trainingAreasSourceId)) {
       map.addSource(trainingAreasSourceId, {
         type: "geojson",
-
         data: data.results,
       } as GeoJSONSourceSpecification);
     }
@@ -131,6 +131,7 @@ const TrainingAreaMap = ({
         layout: { visibility: "none" },
         minzoom: 0,
         maxzoom: 22,
+
       });
     }
 
@@ -140,6 +141,7 @@ const TrainingAreaMap = ({
         type: "raster",
         source: TMSSourceId,
         layout: { visibility: "visible" },
+
       });
     }
     if (data?.results && !map.getLayer(trainingAreasFillLayerId)) {
@@ -204,6 +206,7 @@ const TrainingAreaMap = ({
           "line-width": 1,
         },
         layout: { visibility: "visible" },
+
       });
     }
   }, [map, tileJSONURL, data?.results, labels]);

@@ -14,7 +14,6 @@ import {
   geoJSONDowloader,
   getGeoJSONFeatureBounds,
   openInIDEditor,
-  roundNumber,
   showErrorToast,
   showSuccessToast,
   showWarningToast,
@@ -204,7 +203,7 @@ const TrainingAreaItem: React.FC<
 
 
   const trainingAreaSize = useMemo(() => {
-    return formatAreaInAppropriateUnit(calculateGeoJSONArea(trainingArea))
+    return trainingArea.geometry ? formatAreaInAppropriateUnit(calculateGeoJSONArea(trainingArea)) : '0 m²'
   }, [trainingArea]);
 
   return (
@@ -218,7 +217,7 @@ const TrainingAreaItem: React.FC<
             className="text-body-4 text-dark"
             title={`${trainingAreaSize}`}
           >
-            {trainingArea.geometry ? truncateString(trainingAreaSize, 15) : 0}
+            {truncateString(trainingAreaSize, 15)}
           </p>
           <p className="text-body-4 text-dark">
             {trainingAreaLabelsMutation.isPending

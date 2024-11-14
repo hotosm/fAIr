@@ -46,6 +46,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
     maplibreMap.on("load", () => {
       setMap(maplibreMap);
     });
+
   }, []);
 
   return (
