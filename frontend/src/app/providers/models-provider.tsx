@@ -1,7 +1,7 @@
 import { BASE_MODELS, TrainingType, TrainingDatasetOption } from "@/enums";
 
 import { useCreateTrainingDataset } from "@/features/model-creation/hooks/use-training-datasets";
-import { useLocalStorage } from "@/hooks/use-storage";
+import { useSessionStorage } from "@/hooks/use-storage";
 import {
   APPLICATION_ROUTES,
   HOT_FAIR_MODEL_CREATION_LOCAL_STORAGE_KEY,
@@ -229,7 +229,7 @@ const ModelsContext = createContext<{
 export const ModelsProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
-  const { setValue, getValue } = useLocalStorage();
+  const { setValue, getValue } = useSessionStorage();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState<typeof initialFormState>(() => {
@@ -325,11 +325,6 @@ export const ModelsProvider: React.FC<{
     );
   }, [formData]);
 
-  // On page reload reset the local storage.
-
-  useEffect(() => {
-    setValue(HOT_FAIR_MODEL_CREATION_LOCAL_STORAGE_KEY, JSON.stringify(initialFormState))
-  }, [])
 
   // Confirm that the training areas labels has been retrieved
   const hasLabeledTrainingAreas = useMemo(() => {
