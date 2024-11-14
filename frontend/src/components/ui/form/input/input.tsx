@@ -89,7 +89,8 @@ const Input: React.FC<InputProps> = ({
       // @ts-expect-error bad type definition
       ref={inputRef}
       label={label}
-      size={size ? size : isMobile ? "medium" : "large"}
+      // @ts-expect-error bad type definition
+      size={size ? size : isMobile ? SHOELACE_SIZES.MEDIUM : SHOELACE_SIZES.LARGE}
       minlength={minLength}
       maxlength={maxLength}
       // @ts-expect-error bad type definition

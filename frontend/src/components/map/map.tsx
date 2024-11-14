@@ -24,7 +24,7 @@ type MapComponentProps = {
     value: string;
     subLayer: string;
   }[];
-  children: React.ReactNode
+  children?: React.ReactNode
 };
 
 const MapComponent: React.FC<MapComponentProps> = ({
