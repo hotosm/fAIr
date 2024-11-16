@@ -83,9 +83,13 @@ export const MAX_ZOOM_LEVEL = 22;
 export const TRAINING_LABELS_MIN_ZOOM_LEVEL = 18;
 
 /**
- * Training area and labels colors in hex codes.
+ * Training area and labels styles.
  */
 export const TRAINING_AREAS_AOI_FILL_COLOR = "#92B48766";
 export const TRAINING_AREAS_AOI_OUTLINE_COLOR = "#92B48766";
+export const TRAINING_AREAS_AOI_OUTLINE_WIDTH = 4;
+export const TRAINING_AREAS_AOI_FILL_OPACITY = 0.4;
+export const TRAINING_AREAS_AOI_LABELS_FILL_OPACITY = 0.3;
+export const TRAINING_AREAS_AOI_LABELS_OUTLINE_WIDTH = 2
 export const TRAINING_AREAS_AOI_LABELS_FILL_COLOR = "#D73434";
 export const TRAINING_AREAS_AOI_LABELS_OUTLINE_COLOR = "#D73434";

@@ -17,9 +17,13 @@ import {
   MIN_TRAINING_AREA_SIZE,
   snapGeoJSONGeometryToClosestTile,
   TRAINING_AREAS_AOI_FILL_COLOR,
+  TRAINING_AREAS_AOI_FILL_OPACITY,
   TRAINING_AREAS_AOI_LABELS_FILL_COLOR,
+  TRAINING_AREAS_AOI_LABELS_FILL_OPACITY,
   TRAINING_AREAS_AOI_LABELS_OUTLINE_COLOR,
+  TRAINING_AREAS_AOI_LABELS_OUTLINE_WIDTH,
   TRAINING_AREAS_AOI_OUTLINE_COLOR,
+  TRAINING_AREAS_AOI_OUTLINE_WIDTH,
   TRAINING_LABELS_MIN_ZOOM_LEVEL,
   validateGeoJSONArea,
 } from "@/utils";
@@ -169,7 +173,7 @@ const TrainingAreaMap = ({
         source: trainingAreasSourceId,
         paint: {
           "fill-color": TRAINING_AREAS_AOI_FILL_COLOR,
-          "fill-opacity": 0.4,
+          "fill-opacity": TRAINING_AREAS_AOI_FILL_OPACITY,
         },
         layout: { visibility: "visible" },
       });
@@ -181,7 +185,7 @@ const TrainingAreaMap = ({
         source: trainingAreasSourceId,
         paint: {
           "line-color": TRAINING_AREAS_AOI_OUTLINE_COLOR,
-          "line-width": 4,
+          "line-width": TRAINING_AREAS_AOI_OUTLINE_WIDTH,
         },
         layout: { visibility: "visible" },
       });
@@ -194,7 +198,7 @@ const TrainingAreaMap = ({
         source: trainingDatasetLabelsSourceId,
         paint: {
           "fill-color": TRAINING_AREAS_AOI_LABELS_FILL_COLOR,
-          "fill-opacity": 0.3,
+          "fill-opacity": TRAINING_AREAS_AOI_LABELS_FILL_OPACITY,
         },
         minzoom: TRAINING_LABELS_MIN_ZOOM_LEVEL,
         layout: { visibility: "visible" },
@@ -207,7 +211,7 @@ const TrainingAreaMap = ({
         source: trainingDatasetLabelsSourceId,
         paint: {
           "line-color": TRAINING_AREAS_AOI_LABELS_OUTLINE_COLOR,
-          "line-width": 2,
+          "line-width": TRAINING_AREAS_AOI_LABELS_OUTLINE_WIDTH,
         },
         minzoom: TRAINING_LABELS_MIN_ZOOM_LEVEL,
         layout: { visibility: "visible" },
@@ -421,22 +425,22 @@ const TrainingAreaMap = ({
         { value: "TMS Layer", subLayers: [TMSLayerId] },
         ...(data?.results?.features?.length
           ? [
-              {
-                value: "Training Areas",
-                subLayers: [trainingAreasLayerId, trainingAreasFillLayerId],
-              },
-            ]
+            {
+              value: "Training Areas",
+              subLayers: [trainingAreasLayerId, trainingAreasFillLayerId],
+            },
+          ]
           : []),
         ...(labels && labels?.features.length > 0
           ? [
-              {
-                value: "Training Labels",
-                subLayers: [
-                  trainingDatasetLabelsLayerId,
-                  trainingDatasetLabelsOutlineLayerId,
-                ],
-              },
-            ]
+            {
+              value: "Training Labels",
+              subLayers: [
+                trainingDatasetLabelsLayerId,
+                trainingDatasetLabelsOutlineLayerId,
+              ],
+            },
+          ]
           : []),
       ]}
     >

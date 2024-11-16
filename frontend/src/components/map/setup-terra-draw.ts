@@ -5,6 +5,7 @@ import {
   TerraDrawRectangleMode,
 } from "terra-draw";
 import maplibregl from "maplibre-gl";
+import { TRAINING_AREAS_AOI_FILL_COLOR, TRAINING_AREAS_AOI_FILL_OPACITY, TRAINING_AREAS_AOI_OUTLINE_COLOR, TRAINING_AREAS_AOI_OUTLINE_WIDTH } from "@/utils";
 
 export function setupTerraDraw(map: maplibregl.Map) {
   return new TerraDraw({
@@ -47,16 +48,16 @@ export function setupTerraDraw(map: maplibregl.Map) {
         },
         styles: {
           // Fill colour (a string containing a 6 digit Hex color)
-          fillColor: "#d63f40",
+          fillColor: TRAINING_AREAS_AOI_FILL_COLOR,
 
           // Fill opacity (0 - 1)
-          fillOpacity: 0.3,
+          fillOpacity: TRAINING_AREAS_AOI_FILL_OPACITY,
 
           // Outline colour (Hex color)
-          outlineColor: "#d63f40",
+          outlineColor: TRAINING_AREAS_AOI_OUTLINE_COLOR,
 
           //Outline width (Integer)
-          outlineWidth: 4,
+          outlineWidth: TRAINING_AREAS_AOI_OUTLINE_WIDTH,
         },
       }),
     ],
