@@ -22,6 +22,10 @@ export const API_ENDPOINTS = {
   GET_TRAINING_DETAILS: (id: number) => `training/${id}`,
   GET_TRAINING_DATASETS: (searchQuery: string, ordering: string) =>
     `dataset/?search=${searchQuery}&ordering=${ordering}`,
+
+  GET_TRAINING_DATASET: (id: number) =>
+    `dataset/${id}`,
+
   CREATE_TRAINING_DATASETS: "dataset/",
   GET_TRAINING_AREA_GPX: (aoiId: number) => `aoi/gpx/${aoiId}`,
   CREATE_TRAINING_AREA: "aoi/",

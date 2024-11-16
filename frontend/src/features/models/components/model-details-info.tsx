@@ -10,18 +10,21 @@ import ModelFilesButton from "./model-files-button";
 import ModelDetailsUpdateDialog from "./dialogs/model-details-update-dialog";
 import { useDialog } from "@/hooks/use-dialog";
 import { useAuth } from "@/app/providers/auth-provider";
+import { useGetTrainingDataset } from "../hooks/use-dataset";
+import { TModel } from "@/types";
 
 const ModelDetailsInfo = ({
   data,
   openModelFilesDialog,
   openTrainingAreaDialog,
 }: {
-  data: any;
+  data: TModel;
   openModelFilesDialog: () => void;
   openTrainingAreaDialog: () => void;
 }) => {
   const { isOpened, openDialog, closeDialog } = useDialog();
   const { user, isAuthenticated } = useAuth();
+  const { isPending, data: trainingDataset, isError } = useGetTrainingDataset(data.dataset);
 
   return (
     <>
@@ -82,25 +85,25 @@ const ModelDetailsInfo = ({
             />
             <ModelDetailItem
               label={APP_CONTENT.models.modelsDetailsCard.createdOn}
-              value={formatDate(data?.created_at as string)}
+              value={formatDate(data?.created_at)}
             />
             <ModelDetailItem
               label={APP_CONTENT.models.modelsDetailsCard.lastModified}
-              value={formatDate(data?.last_modified as string)}
+              value={formatDate(data?.last_modified)}
             />
           </div>
           <div className="col-span-1 items-start justify-between flex flex-col gap-y-4">
-            <p className="text-dark text-body-2 ">
+            <div className="text-dark text-body-2 flex w-full gap-x-1">
               <span className="text-gray">
-                {APP_CONTENT.models.modelsDetailsCard.datasetId}{" "}
+                {APP_CONTENT.models.modelsDetailsCard.datasetName}
               </span>
-              {data?.dataset}
-            </p>
-            <p className="text-dark text-body-2 ">
+              {isPending ? <p className="h-6 ml-2 w-20 animate-pulse bg-light-gray"></p> : isError ? <span>Error retrieving dataset info</span> : <p title={trainingDataset?.name}>{truncateString(trainingDataset?.name, 30)}</p>}
+            </div>
+            <p className="text-dark text-body-2 flex gap-x-1">
               <span className="text-gray">
-                {APP_CONTENT.models.modelsDetailsCard.datasetName}{" "}
+                {APP_CONTENT.models.modelsDetailsCard.datasetId}
               </span>
-              {data?.dataset}
+              <p>{data?.dataset}</p>
             </p>
             <ModelFilesButton
               openModelFilesDialog={openModelFilesDialog}
@@ -126,7 +129,7 @@ const ModelDetailsInfo = ({
                 </button>
               )}
             </div>
-            <ModelFeedbacks trainingId={data?.published_training as number} />
+            <ModelFeedbacks trainingId={data?.published_training} />
           </div>
         </div>
       </ModelDetailsSection>

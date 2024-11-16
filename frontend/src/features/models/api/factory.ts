@@ -6,6 +6,7 @@ import {
 } from "@/features/models/api/get-models";
 import {
   getModelTrainingHistory,
+  getTrainingDataset,
   getTrainingDetails,
   getTrainingFeedbacks,
   getTrainingStatus,
@@ -106,5 +107,13 @@ export const getTrainingHistoryQueryOptions = (
     queryFn: () => getModelTrainingHistory(modelId, offset, limit),
     placeholderData: keepPreviousData,
     refetchInterval: 10000,
+  });
+};
+
+
+export const getTrainingDatasetQueryOptions = (id: number) => {
+  return queryOptions({
+    queryKey: ["training-dataset", id],
+    queryFn: () => getTrainingDataset(id),
   });
 };

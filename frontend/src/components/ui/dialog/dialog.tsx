@@ -1,13 +1,15 @@
 import SlDialog from "@shoelace-style/shoelace/dist/react/dialog/index.js";
 import "./dialog.css";
+import { SHOELACE_SIZES } from "@/enums";
 
 type DialogProps = {
   label: string;
   isOpened: boolean;
   closeDialog: () => void;
   children: React.ReactNode;
-  size?: "small" | "medium" | "large" | "extra-large";
+  size?: SHOELACE_SIZES;
   preventClose?: boolean;
+  labelColor?: 'default' | "primary"
 };
 const Dialog: React.FC<DialogProps> = ({
   isOpened,
@@ -16,6 +18,7 @@ const Dialog: React.FC<DialogProps> = ({
   children,
   size = "medium",
   preventClose,
+  labelColor = "default"
 }) => {
   // Prevent the dialog from closing when the user clicks on the overlay
   function handleRequestClose(event: any) {
@@ -34,6 +37,7 @@ const Dialog: React.FC<DialogProps> = ({
         e.preventDefault();
         closeDialog();
       }}
+      className={labelColor}
       style={{
         //@ts-expect-error bad type definition
         "--width":

@@ -392,8 +392,8 @@ export const APP_CONTENT = {
       },
     },
     modelsDetailsCard: {
-      datasetId: "Dataset ID:",
-      datasetName: "Dataset Name:",
+      datasetId: "Dataset ID: ",
+      datasetName: "Dataset Name: ",
       modelId: "Model ID:",
       detailsSectionTitle: "Details",
       createdBy: "Created By",
@@ -492,6 +492,11 @@ export const APP_CONTENT = {
         dialogHeading: "Edit Model Details",
         editButtonText: "Edit Model Details",
         saveButtonText: "Save",
+      },
+      trainingSettings: {
+        dialogHeading: "Model Training Settings",
+        description: "Description Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut",
+        submitButtonText: "Submit",
       },
       modelEnhancement: {
         newSettings: {

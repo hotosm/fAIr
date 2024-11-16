@@ -2,6 +2,7 @@ import { API_ENDPOINTS, apiClient } from "@/services";
 import {
   PaginatedTrainings,
   TrainingWorkspace,
+  TTrainingDataset,
   TTrainingDetails,
   TTrainingFeedbacks,
   TTrainingStatus,
@@ -58,4 +59,14 @@ export const getTrainingWorkspace = async (
     API_ENDPOINTS.GET_TRAINING_WORKSPACE(datasetId, trainingId, directory_name),
   );
   return res.data;
+};
+
+
+export const getTrainingDataset = async (
+  id: number,
+): Promise<TTrainingDataset> => {
+  const res = await apiClient.get(
+    API_ENDPOINTS.GET_TRAINING_DATASET(id),
+  );
+  return res.data
 };
