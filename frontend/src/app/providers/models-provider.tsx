@@ -176,7 +176,7 @@ const initialFormState: FormData = {
   contactSpacing: 4,
   batchSize: 8,
   boundaryWidth: 3,
-  zoomLevels: [20, 21],
+  zoomLevels: [19, 20, 21],
 };
 
 const ModelsContext = createContext<{
