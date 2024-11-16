@@ -9,7 +9,7 @@ type DialogProps = {
   children: React.ReactNode;
   size?: SHOELACE_SIZES;
   preventClose?: boolean;
-  labelColor?: 'default' | "primary"
+  labelColor?: "default" | "primary";
 };
 const Dialog: React.FC<DialogProps> = ({
   isOpened,
@@ -18,7 +18,7 @@ const Dialog: React.FC<DialogProps> = ({
   children,
   size = "medium",
   preventClose,
-  labelColor = "default"
+  labelColor = "default",
 }) => {
   // Prevent the dialog from closing when the user clicks on the overlay
   function handleRequestClose(event: any) {

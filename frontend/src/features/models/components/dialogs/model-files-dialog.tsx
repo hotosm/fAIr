@@ -16,15 +16,27 @@ const ModelFilesDialog: React.FC<TrainingAreaDialogProps> = ({
   datasetId,
   trainingId,
 }) => {
-  const { isMobile, isLaptop, isTablet } = useScreenSize();;
+  const { isMobile, isLaptop, isTablet } = useScreenSize();
   return (
     <Dialog
       isOpened={isOpened}
       closeDialog={closeDialog}
       label={APP_CONTENT.models.modelsDetailsCard.modelFilesDialog.dialogTitle}
-      size={isMobile || isTablet ? SHOELACE_SIZES.EXTRA_LARGE : isLaptop ? SHOELACE_SIZES.LARGE : SHOELACE_SIZES.MEDIUM}
+      size={
+        isMobile || isTablet
+          ? SHOELACE_SIZES.EXTRA_LARGE
+          : isLaptop
+            ? SHOELACE_SIZES.LARGE
+            : SHOELACE_SIZES.MEDIUM
+      }
     >
-      {isOpened && <DirectoryTree trainingId={trainingId} datasetId={datasetId} isOpened={isOpened} />}
+      {isOpened && (
+        <DirectoryTree
+          trainingId={trainingId}
+          datasetId={datasetId}
+          isOpened={isOpened}
+        />
+      )}
     </Dialog>
   );
 };

@@ -17,14 +17,20 @@ const TrainingDetailsDialog: React.FC<TrainingDetailsDialogProps> = ({
   datasetId,
   baseModel,
 }) => {
-  const { isMobile, isTablet, isLaptop } = useScreenSize();;
+  const { isMobile, isTablet, isLaptop } = useScreenSize();
 
   return (
     <Dialog
       isOpened={isOpened}
       closeDialog={closeDialog}
       label={`Training ${trainingId}`}
-      size={isMobile || isTablet ? SHOELACE_SIZES.EXTRA_LARGE : isLaptop ? SHOELACE_SIZES.LARGE : SHOELACE_SIZES.MEDIUM}
+      size={
+        isMobile || isTablet
+          ? SHOELACE_SIZES.EXTRA_LARGE
+          : isLaptop
+            ? SHOELACE_SIZES.LARGE
+            : SHOELACE_SIZES.MEDIUM
+      }
     >
       <ModelProperties
         trainingId={trainingId}

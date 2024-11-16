@@ -45,5 +45,5 @@ export enum SHOELACE_SIZES {
   SMALL = "small",
   MEDIUM = "medium",
   LARGE = "large",
-  EXTRA_LARGE = 'extra-large'
+  EXTRA_LARGE = "extra-large",
 }

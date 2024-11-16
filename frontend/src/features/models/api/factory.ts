@@ -110,7 +110,6 @@ export const getTrainingHistoryQueryOptions = (
   });
 };
 
-
 export const getTrainingDatasetQueryOptions = (id: number) => {
   return queryOptions({
     queryKey: ["training-dataset", id],

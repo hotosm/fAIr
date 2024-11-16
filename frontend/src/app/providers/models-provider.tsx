@@ -5,7 +5,6 @@ import { useSessionStorage } from "@/hooks/use-storage";
 import {
   APPLICATION_ROUTES,
   HOT_FAIR_MODEL_CREATION_LOCAL_STORAGE_KEY,
-  MODEL_CREATION_CONTENT,
   showErrorToast,
   showSuccessToast,
   TMS_URL_REGEX_PATTERN,
@@ -52,9 +51,7 @@ export enum MODEL_CREATION_FORM_NAME {
   OAM_TIME_NAME = "oamTileName",
   OAM_BOUNDS = "oamBounds",
   TRAINING_AREAS = "trainingAreas",
-  TRAINING_REQUEST_SUCCESS = 'trainingRequestIsSuccessful',
-  TRAINING_REQUEST_MESSAGE = 'trainingRequestMessage',
-  TRAINING_SETTINGS_IS_VALID = 'trainingSettingsIsValid'
+  TRAINING_SETTINGS_IS_VALID = "trainingSettingsIsValid",
 }
 
 export const FORM_VALIDATION_CONFIG = {
@@ -129,8 +126,7 @@ export const FORM_VALIDATION_CONFIG = {
       max: 8,
       min: 1,
     },
-  }
-
+  },
 };
 
 type FormData = {
@@ -154,9 +150,9 @@ type FormData = {
   batchSize: number;
   boundaryWidth: number;
   zoomLevels: number[];
-  trainingRequestIsSuccessful: boolean
-  trainingRequestMessage: string
-  trainingSettingsIsValid: boolean
+  trainingRequestIsSuccessful: boolean;
+  trainingRequestMessage: string;
+  trainingSettingsIsValid: boolean;
 };
 
 const initialFormState: FormData = {
@@ -185,9 +181,6 @@ const initialFormState: FormData = {
   boundaryWidth: 3,
   zoomLevels: [19, 20, 21],
   trainingSettingsIsValid: true,
-  // Training requests response
-  trainingRequestIsSuccessful: true,
-  trainingRequestMessage: ""
 };
 
 const ModelsContext = createContext<{
@@ -217,11 +210,11 @@ const ModelsContext = createContext<{
   >;
   hasLabeledTrainingAreas: boolean;
   hasAOIsWithGeometry: boolean;
-  resetState: () => void
+  resetState: () => void;
 }>({
   formData: initialFormState,
-  setFormData: () => { },
-  handleChange: () => { },
+  setFormData: () => {},
+  handleChange: () => {},
   createNewTrainingDatasetMutation: {} as UseMutationResult<
     TTrainingDataset,
     Error,
@@ -236,7 +229,7 @@ const ModelsContext = createContext<{
   >,
   hasLabeledTrainingAreas: false,
   hasAOIsWithGeometry: false,
-  resetState: () => { }
+  resetState: () => {},
 });
 
 export const ModelsProvider: React.FC<{
@@ -278,47 +271,13 @@ export const ModelsProvider: React.FC<{
     mutationConfig: {
       onSuccess: () => {
         showSuccessToast(TOAST_NOTIFICATIONS.trainingRequestSubmittedSuccess);
-        handleChange(
-          MODEL_CREATION_FORM_NAME.TRAINING_REQUEST_SUCCESS,
-          true
-        );
-        handleChange(
-          MODEL_CREATION_FORM_NAME.TRAINING_REQUEST_MESSAGE,
-          MODEL_CREATION_CONTENT.confirmation.trainingRequestSuccess
-        );
-        // delay for a few seconds before resetting the state
         timeOutRef.current = setTimeout(() => {
-          setFormData((prevFormData) => ({
-            ...initialFormState,
-            // Preserve the training requests information because it's needed in the confirmation page.
-            trainingRequestMessage: prevFormData.trainingRequestMessage,
-            trainingRequestIsSuccessful: prevFormData.trainingRequestIsSuccessful,
-          }));
+          setFormData(initialFormState);
         }, 2000);
       },
 
       onError: (error) => {
         showErrorToast(error);
-        // delay for a few seconds before resetting the state, but keep the data that will be needed for submitting training
-        // request incase the user wants to do that.
-        timeOutRef.current = setTimeout(() => {
-          setFormData((prevFormData) => ({
-            ...initialFormState,
-            // Preserve the training requests information because it's needed in the confirmation page.
-            trainingRequestMessage: prevFormData.trainingRequestMessage,
-            trainingRequestIsSuccessful: prevFormData.trainingRequestIsSuccessful,
-          }));
-        }, 2000);
-
-        handleChange(
-          MODEL_CREATION_FORM_NAME.TRAINING_REQUEST_SUCCESS,
-          false
-        );
-        handleChange(
-          MODEL_CREATION_FORM_NAME.TRAINING_REQUEST_MESSAGE,
-          // @ts-expect-error bad type definition 
-          `Your created model could not be trained because ${String(error?.response?.data[0]).toLocaleLowerCase()}. Click on the enhance button below to retrain your model.`
-        );
       },
     },
   });
@@ -372,7 +331,6 @@ export const ModelsProvider: React.FC<{
     );
   }, [formData]);
 
-
   // Confirm that all the training areas labels has been retrieved
   const hasLabeledTrainingAreas = useMemo(() => {
     return (
@@ -389,8 +347,8 @@ export const ModelsProvider: React.FC<{
     );
   }, [formData]);
   const resetState = () => {
-    setFormData(initialFormState)
-  }
+    setFormData(initialFormState);
+  };
   const memoizedValues = useMemo(
     () => ({
       setFormData,
@@ -400,7 +358,7 @@ export const ModelsProvider: React.FC<{
       hasLabeledTrainingAreas,
       hasAOIsWithGeometry,
       formData,
-      resetState
+      resetState,
     }),
     [
       setFormData,
@@ -410,7 +368,7 @@ export const ModelsProvider: React.FC<{
       createNewModelMutation,
       hasLabeledTrainingAreas,
       hasAOIsWithGeometry,
-      resetState
+      resetState,
     ],
   );
 

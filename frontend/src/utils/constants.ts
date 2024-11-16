@@ -77,12 +77,10 @@ export const FAIR_VERSION = "v0.1";
  */
 export const MAX_ZOOM_LEVEL = 22;
 
-
 /**
  * The minimum zoom level to show the training area labels.
  */
 export const TRAINING_LABELS_MIN_ZOOM_LEVEL = 18;
-
 
 /**
  * Training area and labels colors in hex codes.

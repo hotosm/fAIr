@@ -7,11 +7,11 @@ import { useNavigate } from "react-router-dom";
 const PageHeader = () => {
   const { resetState } = useModelsContext();
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const handleClick = () => {
-    resetState()
-    navigate(APPLICATION_ROUTES.CREATE_NEW_MODEL)
-  }
+    resetState();
+    navigate(APPLICATION_ROUTES.CREATE_NEW_MODEL);
+  };
 
   return (
     <div className="flex flex-col gap-y-8 my-12">

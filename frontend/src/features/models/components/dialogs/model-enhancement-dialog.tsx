@@ -7,13 +7,18 @@ import ModelTrainingSettingsDialog from "./training-settings-dialog";
 type ModelEnhancementDialogProps = {
   isOpened: boolean;
   closeDialog: () => void;
-  modelId: string
+  modelId: string;
 };
 const ModelEnhancementDialog: React.FC<ModelEnhancementDialogProps> = ({
   isOpened,
-  closeDialog, modelId
+  closeDialog,
+  modelId,
 }) => {
-  const { isOpened: isTrainingSettingsDialogOpened, openDialog, closeDialog: closeTrainingSettingsDialog } = useDialog();
+  const {
+    isOpened: isTrainingSettingsDialogOpened,
+    openDialog,
+    closeDialog: closeTrainingSettingsDialog,
+  } = useDialog();
 
   const options = [
     {
@@ -22,7 +27,7 @@ const ModelEnhancementDialog: React.FC<ModelEnhancementDialogProps> = ({
       description:
         APP_CONTENT.models.modelsDetailsCard.modelEnhancement.newSettings
           .description,
-      onClick: openDialog
+      onClick: openDialog,
     },
     {
       name: APP_CONTENT.models.modelsDetailsCard.modelEnhancement.trainingData
@@ -34,9 +39,9 @@ const ModelEnhancementDialog: React.FC<ModelEnhancementDialogProps> = ({
   ];
 
   const handleClose = () => {
-    closeDialog()
-    closeTrainingSettingsDialog()
-  }
+    closeDialog();
+    closeTrainingSettingsDialog();
+  };
 
   return (
     <Dialog
@@ -44,14 +49,21 @@ const ModelEnhancementDialog: React.FC<ModelEnhancementDialogProps> = ({
       closeDialog={closeDialog}
       label={APP_CONTENT.models.modelsDetailsCard.modelUpdate.dialogHeading}
     >
-      <ModelTrainingSettingsDialog isOpened={isTrainingSettingsDialogOpened} closeDialog={handleClose} modelId={modelId} />
+      <ModelTrainingSettingsDialog
+        isOpened={isTrainingSettingsDialogOpened}
+        closeDialog={handleClose}
+        modelId={modelId}
+      />
       <ul className="flex flex-col gap-y-4 w-full">
         {options.map((option, id) => (
           <li
             key={`mode-enhancement-option-${id}`}
             className="border border-gray-border rounded-lg px-2 hover:border-primary flex items-center justify-between"
           >
-            <button className="text-start transition-colors p-6" onClick={option.onClick}>
+            <button
+              className="text-start transition-colors p-6"
+              onClick={option.onClick}
+            >
               <span className="flex flex-col gap-y-2">
                 <p className="text-dark text-body-1">{option.name}</p>
                 <p className="text-gray text-body-3">{option.description}</p>

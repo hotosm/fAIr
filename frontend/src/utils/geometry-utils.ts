@@ -23,7 +23,6 @@ export const calculateGeoJSONArea = (
   return area(geojsonFeature);
 };
 
-
 /**
  * Format area into human readable string.
  *
@@ -36,10 +35,10 @@ export const calculateGeoJSONArea = (
 
 export const formatAreaInAppropriateUnit = (area: number): string => {
   if (area > 1000000) {
-    return roundNumber(area / 1000000, 1).toLocaleString() + 'km²'
+    return roundNumber(area / 1000000, 1).toLocaleString() + "km²";
   }
-  return roundNumber(area, 1).toLocaleString() + 'm²'
-}
+  return roundNumber(area, 1).toLocaleString() + "m²";
+};
 /**
  * Computes the bounding box of a GeoJSON Feature.
  *

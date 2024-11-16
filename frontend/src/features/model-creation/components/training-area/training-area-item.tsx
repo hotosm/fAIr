@@ -55,9 +55,7 @@ const TrainingAreaItem: React.FC<
         showSuccessToast(TOAST_NOTIFICATIONS.trainingLabelsFetchSuccess);
       },
       onError: (error) => {
-        showErrorToast(
-          error
-        );
+        showErrorToast(error);
       },
     },
   });
@@ -200,9 +198,10 @@ const TrainingAreaItem: React.FC<
     return () => clearInterval(intervalId);
   }, [trainingArea?.properties?.label_fetched]);
 
-
   const trainingAreaSize = useMemo(() => {
-    return trainingArea.geometry ? formatAreaInAppropriateUnit(calculateGeoJSONArea(trainingArea)) : '0 m²'
+    return trainingArea.geometry
+      ? formatAreaInAppropriateUnit(calculateGeoJSONArea(trainingArea))
+      : "0 m²";
   }, [trainingArea]);
 
   return (
@@ -212,17 +211,19 @@ const TrainingAreaItem: React.FC<
           <p className="text-body-3 ">
             ID: <span className="font-semibold">{trainingArea.id}</span>
           </p>
-          <p
-            className="text-body-4 text-dark"
-            title={`${trainingAreaSize}`}
-          >
+          <p className="text-body-4 text-dark" title={`${trainingAreaSize}`}>
             {truncateString(trainingAreaSize, 15)}
           </p>
-          <p className={`text-body-4 text-dark ${trainingArea.properties.label_fetched === null && 'text-primary'}`}>
+          <p
+            className={`text-body-4 text-dark ${trainingArea.properties.label_fetched === null && "text-primary"}`}
+          >
             {trainingAreaLabelsMutation.isPending
               ? "Fetching labels..."
               : trainingArea.properties.label_fetched !== null
-                ? truncateString(`Fetched ${timeSinceLabelFetch === "0 sec" ? 'just now' : `${timeSinceLabelFetch} ago`}`, 20)
+                ? truncateString(
+                    `Fetched ${timeSinceLabelFetch === "0 sec" ? "just now" : `${timeSinceLabelFetch} ago`}`,
+                    20,
+                  )
                 : "No labels yet"}
           </p>
         </div>

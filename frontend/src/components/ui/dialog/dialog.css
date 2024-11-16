@@ -3,8 +3,6 @@ sl-dialog::part(title) {
   font-weight: var(--hot-fair-font-weight-semibold);
 }
 
-
-
 sl-dialog.primary::part(title) {
-  color:var(--hot-fair-color-primary) 
+  color: var(--hot-fair-color-primary);
 }

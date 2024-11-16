@@ -97,7 +97,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const user = await authService.getUser();
       setUser(user);
     } catch (error) {
-      showErrorToast(error)
+      showErrorToast(error);
     }
   };
 

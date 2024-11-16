@@ -8,9 +8,9 @@ type ToolTipProps = {
   content?: string;
   children?: React.ReactNode;
   placement?:
-  | ToolTipPlacement.RIGHT
-  | ToolTipPlacement.BOTTOM
-  | ToolTipPlacement.TOP;
+    | ToolTipPlacement.RIGHT
+    | ToolTipPlacement.BOTTOM
+    | ToolTipPlacement.TOP;
   open?: boolean;
 };
 const ToolTip: React.FC<ToolTipProps> = ({

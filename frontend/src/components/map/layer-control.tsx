@@ -17,7 +17,7 @@ const LayerControl = ({
 }: {
   map: Map | null;
   layers: TLayers;
-  basemaps: TBasemaps
+  basemaps: TBasemaps;
 }) => {
   const { dropdownIsOpened, onDropdownHide, onDropdownShow } =
     useDropdownMenu();

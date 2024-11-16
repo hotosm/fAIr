@@ -127,7 +127,6 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
       return <ModelPropertiesSkeleton isTrainingDetailsDialog />;
     }
 
-
     return (
       <>
         <ModelFilesDialog
@@ -237,7 +236,7 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
               href={
                 // @ts-expect-error bad type definition
                 APP_CONTENT.models.modelsDetailsCard.properties.baseModel.href[
-                baseModel
+                  baseModel
                 ]
               }
             />
@@ -256,13 +255,13 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
             />
             <PropertyDisplay
               label={
-                APP_CONTENT.models.modelsDetailsCard.properties.trainingId
-                  .title
+                APP_CONTENT.models.modelsDetailsCard.properties.trainingId.title
               }
               tooltip={
-                APP_CONTENT.models.modelsDetailsCard.properties.trainingId.tooltip
+                APP_CONTENT.models.modelsDetailsCard.properties.trainingId
+                  .tooltip
               }
-              value={data?.id ? data?.id : 'N/A'}
+              value={data?.id ? data?.id : "N/A"}
             />
 
             {isTrainingDetailsDialog && (
@@ -286,7 +285,8 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
 
           {/* Show logs only in modal and when status failed or running */}
           {isTrainingDetailsDialog &&
-            (data?.status === TrainingStatus.FAILED || data?.status === TrainingStatus.RUNNING) && (
+            (data?.status === TrainingStatus.FAILED ||
+              data?.status === TrainingStatus.RUNNING) && (
               <FailedTrainingTraceBack taskId={data?.task_id ?? ""} />
             )}
         </div>

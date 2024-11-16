@@ -1,4 +1,11 @@
-import { createContext, useContext, ReactNode, useState, useMemo, useEffect } from "react";
+import {
+  createContext,
+  useContext,
+  ReactNode,
+  useState,
+  useMemo,
+  useEffect,
+} from "react";
 import { Map } from "maplibre-gl";
 import { TerraDraw } from "terra-draw";
 import { setupTerraDraw } from "@/components/map/setup-terra-draw";
@@ -8,14 +15,14 @@ const MapContext = createContext<{
   map: Map | null;
   setMap: React.Dispatch<React.SetStateAction<Map | null>>;
   terraDraw: TerraDraw | undefined;
-  drawingMode: DrawingModes,
+  drawingMode: DrawingModes;
   setDrawingMode: React.Dispatch<React.SetStateAction<DrawingModes>>;
 }>({
   map: null,
-  setMap: () => { },
+  setMap: () => {},
   terraDraw: undefined,
   drawingMode: DrawingModes.STATIC,
-  setDrawingMode: () => DrawingModes
+  setDrawingMode: () => DrawingModes,
 });
 
 export const MapProvider = ({ children }: { children: ReactNode }) => {
@@ -29,14 +36,18 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [map]);
 
-  const [drawingMode, setDrawingMode] = useState<DrawingModes>(DrawingModes.STATIC);
+  const [drawingMode, setDrawingMode] = useState<DrawingModes>(
+    DrawingModes.STATIC,
+  );
 
   // sync the modes
   useEffect(() => {
     terraDraw?.setMode(drawingMode);
-  }, [terraDraw, drawingMode])
+  }, [terraDraw, drawingMode]);
   return (
-    <MapContext.Provider value={{ map, setMap, terraDraw, drawingMode, setDrawingMode }}>
+    <MapContext.Provider
+      value={{ map, setMap, terraDraw, drawingMode, setDrawingMode }}
+    >
       {children}
     </MapContext.Provider>
   );

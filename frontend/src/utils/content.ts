@@ -1,5 +1,9 @@
 import { BASE_MODELS } from "@/enums";
-import { APPLICATION_ROUTES, MAX_TRAINING_AREA_SIZE, MIN_TRAINING_AREA_SIZE } from "./constants";
+import {
+  APPLICATION_ROUTES,
+  MAX_TRAINING_AREA_SIZE,
+  MIN_TRAINING_AREA_SIZE,
+} from "./constants";
 import { formatAreaInAppropriateUnit } from "./geometry-utils";
 
 export const TOAST_NOTIFICATIONS = {
@@ -11,7 +15,8 @@ export const TOAST_NOTIFICATIONS = {
   trainingDatasetCreationSuccess: "Dataset created successfully.",
   modelCreationSuccess: "Model created successfully.",
   modelUpdateSuccess: "Model updated successfully.",
-  aoiWithoutGeometryWarning: "This training area does not have a geometry. Delete it and redraw a new training area.",
+  aoiWithoutGeometryWarning:
+    "This training area does not have a geometry. Delete it and redraw a new training area.",
   aoiLabelsDownloadSuccess: "AOI labels downloaded successfully.",
   josmOpenSuccess: "Map view opened in JOSM successfully!",
   josmBBOXZoomFailed: "Failed to zoom to the bounding box in JOSM.",
@@ -43,8 +48,9 @@ export const MODEL_CREATION_CONTENT = {
         suffixes: {
           [BASE_MODELS.RAMP]: "Faster training time, with decent accuracy.",
           [BASE_MODELS.YOLOV8_V1]: "Good for major areas and more accurate.",
-          [BASE_MODELS.YOLOV8_V2]: "Our best model yet. Good for every type of area."
-        }
+          [BASE_MODELS.YOLOV8_V2]:
+            "Our best model yet. Good for every type of area.",
+        },
       },
       modelDescription: {
         label: "Model Description",
@@ -134,7 +140,8 @@ export const MODEL_CREATION_CONTENT = {
       goToModel: "go to model",
       exploreModels: "explore models",
     },
-    trainingRequestSuccess: "Your created model was succesfull, and it is now undergoing a training."
+    description:
+      "Your created model was succesfull, and it is now undergoing a training.",
   },
   trainingSettings: {
     form: {
@@ -445,8 +452,7 @@ export const APP_CONTENT = {
         },
         trainingId: {
           title: "Training Id",
-          tooltip:
-            "The training Id.",
+          tooltip: "The training Id.",
         },
 
         batchSize: {
@@ -495,7 +501,8 @@ export const APP_CONTENT = {
       },
       trainingSettings: {
         dialogHeading: "Model Training Settings",
-        description: "Description Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut",
+        description:
+          "Description Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut",
         submitButtonText: "Submit",
       },
       modelEnhancement: {

@@ -48,10 +48,12 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
   });
 
   const onDrop = useCallback((files: FileWithPath[]) => {
-
     const initialValidFiles = files.filter((file) => {
       if (!file.name.endsWith(".geojson") && !file.name.endsWith(".json")) {
-        showErrorToast(undefined, `File ${file.name} is not a supported format`);
+        showErrorToast(
+          undefined,
+          `File ${file.name} is not a supported format`,
+        );
         return false;
       }
       if (file.size > MAX_TRAINING_AREA_UPLOAD_FILE_SIZE) {
@@ -61,7 +63,6 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
       return true;
     });
 
-
     const validateFiles = async () => {
       const validFiles: { file: FileWithPath; id: string }[] = [];
 
@@ -70,7 +71,10 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
         try {
           const geojson: FeatureCollection | Feature = JSON.parse(text);
           if (validateGeoJSONArea(geojson as Feature)) {
-            showErrorToast(undefined, `File area for ${file.name} exceeds area limit.`);
+            showErrorToast(
+              undefined,
+              `File area for ${file.name} exceeds area limit.`,
+            );
           } else {
             validFiles.push({ file, id: generateUniqueId() });
           }
@@ -84,7 +88,6 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
 
     validateFiles();
   }, []);
-
 
   const clearAcceptedFiles = () => {
     setAcceptedFiles([]);
@@ -192,7 +195,7 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
       </button>
     </li>
   ));
-  const { isMobile } = useScreenSize();;
+  const { isMobile } = useScreenSize();
   return (
     <Dialog
       isOpened={isOpened}

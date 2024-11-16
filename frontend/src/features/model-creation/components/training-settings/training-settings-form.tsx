@@ -21,13 +21,10 @@ const trainingTypes = [
   { label: TrainingType.ADVANCED, Icon: AdvancedGuageIcon },
 ];
 
-
-
-
 const TrainingSettingsForm = () => {
   const [showAdvancedSettings, setShowAdvancedSettings] =
     useState<boolean>(false);
-  const [validationMessage, setValidationMessage] = useState('Hellow')
+  const [validationMessage, setValidationMessage] = useState("Hellow");
   const { formData, handleChange } = useModelsContext();
 
   const advancedSettings = [
@@ -35,7 +32,7 @@ const TrainingSettingsForm = () => {
       label: MODEL_CREATION_CONTENT.trainingSettings.form.epoch.label,
       value: MODEL_CREATION_FORM_NAME.EPOCH,
       toolTip: MODEL_CREATION_CONTENT.trainingSettings.form.epoch.toolTip,
-      enabled: true
+      enabled: true,
     },
     {
       label: MODEL_CREATION_CONTENT.trainingSettings.form.contactSpacing.label,
@@ -43,19 +40,19 @@ const TrainingSettingsForm = () => {
       toolTip:
         MODEL_CREATION_CONTENT.trainingSettings.form.contactSpacing.toolTip,
       enabled: formData.baseModel === BASE_MODELS.RAMP,
-
     },
     {
       label: MODEL_CREATION_CONTENT.trainingSettings.form.batchSize.label,
       value: MODEL_CREATION_FORM_NAME.BATCH_SIZE,
       toolTip: MODEL_CREATION_CONTENT.trainingSettings.form.batchSize.toolTip,
-      enabled: true
+      enabled: true,
     },
     {
       label: MODEL_CREATION_CONTENT.trainingSettings.form.boundaryWidth.label,
       value: MODEL_CREATION_FORM_NAME.BOUNDARY_WIDTH,
-      toolTip: MODEL_CREATION_CONTENT.trainingSettings.form.boundaryWidth.toolTip,
-      enabled: formData.baseModel === BASE_MODELS.RAMP
+      toolTip:
+        MODEL_CREATION_CONTENT.trainingSettings.form.boundaryWidth.toolTip,
+      enabled: formData.baseModel === BASE_MODELS.RAMP,
     },
   ];
 
@@ -79,7 +76,6 @@ const TrainingSettingsForm = () => {
       boundaryWidth: 3,
     },
   };
-
 
   useEffect(() => {
     handleChange(
@@ -182,58 +178,74 @@ const TrainingSettingsForm = () => {
             />
           </button>
         </div>
-        {showAdvancedSettings && (<>
-          <div className="flex items-center justify-between gap-4 flex-wrap lg:flex-nowrap">
-            {advancedSettings.filter(setting => setting.enabled).map((setting, id) => (
-              <div key={`training-settings-${id}`} className="w-full">
-                <Input
-                  label={setting.label}
-                  labelWithTooltip
-                  type={INPUT_TYPES.NUMBER}
-                  className="text-nowrap"
-                  showBorder
-                  // @ts-expect-error bad type definition
-                  value={formData[setting.value]}
-                  min={
-                    // @ts-expect-error bad type definition
-                    FORM_VALIDATION_CONFIG[formData.baseModel][setting.value].min
-                  }
-                  max={
-                    // @ts-expect-error bad type definition
-                    FORM_VALIDATION_CONFIG[formData.baseModel][setting.value].max
-                  }
-                  handleInput={(e) => {
-                    const inputValue = Number(e.target.value);
+        {showAdvancedSettings && (
+          <>
+            <div className="flex items-center justify-between gap-4 flex-wrap lg:flex-nowrap">
+              {advancedSettings
+                .filter((setting) => setting.enabled)
+                .map((setting, id) => (
+                  <div key={`training-settings-${id}`} className="w-full">
+                    <Input
+                      label={setting.label}
+                      labelWithTooltip
+                      type={INPUT_TYPES.NUMBER}
+                      className="text-nowrap"
+                      showBorder
+                      // @ts-expect-error bad type definition
+                      value={formData[setting.value]}
+                      min={
+                        // @ts-expect-error bad type definition
+                        FORM_VALIDATION_CONFIG[formData.baseModel][
+                          setting.value
+                        ].min
+                      }
+                      max={
+                        // @ts-expect-error bad type definition
+                        FORM_VALIDATION_CONFIG[formData.baseModel][
+                          setting.value
+                        ].max
+                      }
+                      handleInput={(e) => {
+                        const inputValue = Number(e.target.value);
 
-                    const min =
-                      // @ts-expect-error bad type definition
-                      FORM_VALIDATION_CONFIG[formData.baseModel][setting.value].min;
-                    const max =
-                      // @ts-expect-error bad type definition
-                      FORM_VALIDATION_CONFIG[formData.baseModel][setting.value].max;
-                    handleChange(setting.value, inputValue);
-                    if (inputValue < min || inputValue > max) {
-                      // Set validation message for out-of-range values
-                      setValidationMessage(
-                        `${setting.label} must be between ${min} and ${max}.`
-                      );
-                      handleChange(MODEL_CREATION_FORM_NAME.TRAINING_SETTINGS_IS_VALID, false)
-                    } else {
-                      // Clear the validation message if the value is valid
-                      setValidationMessage("");
-                      handleChange(setting.value, inputValue);
-                      handleChange(MODEL_CREATION_FORM_NAME.TRAINING_SETTINGS_IS_VALID, true)
-                    }
-                  }}
-                  toolTipContent={setting.toolTip}
-                />
-              </div>
-            ))}
-          </div>
-          <p>{validationMessage}</p>
-        </>
+                        const min =
+                          // @ts-expect-error bad type definition
+                          FORM_VALIDATION_CONFIG[formData.baseModel][
+                            setting.value
+                          ].min;
+                        const max =
+                          // @ts-expect-error bad type definition
+                          FORM_VALIDATION_CONFIG[formData.baseModel][
+                            setting.value
+                          ].max;
+                        handleChange(setting.value, inputValue);
+                        if (inputValue < min || inputValue > max) {
+                          // Set validation message for out-of-range values
+                          setValidationMessage(
+                            `${setting.label} must be between ${min} and ${max}.`,
+                          );
+                          handleChange(
+                            MODEL_CREATION_FORM_NAME.TRAINING_SETTINGS_IS_VALID,
+                            false,
+                          );
+                        } else {
+                          // Clear the validation message if the value is valid
+                          setValidationMessage("");
+                          handleChange(setting.value, inputValue);
+                          handleChange(
+                            MODEL_CREATION_FORM_NAME.TRAINING_SETTINGS_IS_VALID,
+                            true,
+                          );
+                        }
+                      }}
+                      toolTipContent={setting.toolTip}
+                    />
+                  </div>
+                ))}
+            </div>
+            <p>{validationMessage}</p>
+          </>
         )}
-
       </div>
     </div>
   );

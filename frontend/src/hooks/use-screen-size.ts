@@ -11,20 +11,20 @@ import { useEffect, useState } from "react";
  */
 const useScreenSize = () => {
   const [screenSize, setScreenSize] = useState<{
-    isMobile: boolean,
-    isTablet: boolean,
-    isLaptop: boolean
+    isMobile: boolean;
+    isTablet: boolean;
+    isLaptop: boolean;
   }>({
     isMobile: false,
     isTablet: false,
-    isLaptop: false
+    isLaptop: false,
   });
 
   const handleResize = () => {
     setScreenSize({
       isMobile: window.innerWidth < 640,
       isTablet: window.innerWidth > 640 && window.innerWidth < 768,
-      isLaptop: window.innerWidth > 768 && window.innerWidth < 1024
+      isLaptop: window.innerWidth > 768 && window.innerWidth < 1024,
     });
   };
 

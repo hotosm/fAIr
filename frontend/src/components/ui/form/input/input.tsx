@@ -63,7 +63,7 @@ const Input: React.FC<InputProps> = ({
   };
 
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const { isMobile } = useScreenSize();;
+  const { isMobile } = useScreenSize();
 
   return (
     <SlInput
@@ -90,7 +90,9 @@ const Input: React.FC<InputProps> = ({
       ref={inputRef}
       label={label}
       // @ts-expect-error bad type definition
-      size={size ? size : isMobile ? SHOELACE_SIZES.MEDIUM : SHOELACE_SIZES.LARGE}
+      size={
+        size ? size : isMobile ? SHOELACE_SIZES.MEDIUM : SHOELACE_SIZES.LARGE
+      }
       minlength={minLength}
       maxlength={maxLength}
       // @ts-expect-error bad type definition

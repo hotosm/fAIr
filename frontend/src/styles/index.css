@@ -70,34 +70,33 @@ sl-alert::part(base) {
 }
 
 sl-alert.danger::part(base) {
-  color: #721C24;
+  color: #721c24;
   border-color: var(--hot-fair-color-primary);
-  background-color: #F8D7DA;
+  background-color: #f8d7da;
 }
 
 sl-alert.primary::part(base) {
   color: #004085;
-  border-color: #7CBCFF;
-  background-color: #CCE5FF;
+  border-color: #7cbcff;
+  background-color: #cce5ff;
 }
 
-
 sl-alert.neutral::part(base) {
-  color: #383D41;
-  border-color: #C4C6CA;
-  background-color: #E2E3E5;
+  color: #383d41;
+  border-color: #c4c6ca;
+  background-color: #e2e3e5;
 }
 
 sl-alert.warning::part(base) {
   color: #856404;
-  border-color: #FFDC6E;
-  background-color: #FFF3CD;
+  border-color: #ffdc6e;
+  background-color: #fff3cd;
 }
 
 sl-alert.success::part(base) {
   color: #155724;
-  border-color: #9EDAAC;
-  background-color:#D4EDDA;
+  border-color: #9edaac;
+  background-color: #d4edda;
 }
 
 /* Overriding the toast design styles ends*/

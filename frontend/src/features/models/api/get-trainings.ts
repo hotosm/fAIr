@@ -61,12 +61,9 @@ export const getTrainingWorkspace = async (
   return res.data;
 };
 
-
 export const getTrainingDataset = async (
   id: number,
 ): Promise<TTrainingDataset> => {
-  const res = await apiClient.get(
-    API_ENDPOINTS.GET_TRAINING_DATASET(id),
-  );
-  return res.data
+  const res = await apiClient.get(API_ENDPOINTS.GET_TRAINING_DATASET(id));
+  return res.data;
 };

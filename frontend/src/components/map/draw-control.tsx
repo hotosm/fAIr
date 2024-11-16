@@ -4,11 +4,8 @@ import { ToolTip } from "@/components/ui/tooltip";
 import { PenIcon } from "@/components/ui/icons";
 import { useMap } from "@/app/providers/map-provider";
 
-
 const DrawControl = () => {
-
-  const { drawingMode, terraDraw, setDrawingMode } = useMap()
-
+  const { drawingMode, terraDraw, setDrawingMode } = useMap();
 
   const changeMode = useCallback(
     (newMode: DrawingModes) => {
@@ -50,8 +47,6 @@ const DrawControl = () => {
     </ToolTip>
   );
 
-
-
   return (
     <>
       {renderButton(
@@ -61,7 +56,7 @@ const DrawControl = () => {
         drawingMode === DrawingModes.RECTANGLE,
       )}
     </>
-  )
+  );
 };
 
 export default DrawControl;

@@ -36,7 +36,7 @@ const MobileModelFiltersDialog: React.FC<TrainingAreaDialogProps> = ({
   updateQuery,
   disabled,
 }) => {
-  const { isMobile } = useScreenSize();;
+  const { isMobile } = useScreenSize();
   return (
     <Dialog
       isOpened={isOpened}

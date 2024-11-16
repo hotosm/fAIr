@@ -10,7 +10,7 @@ const TrainingAreaDialog: React.FC<TrainingAreaDialogProps> = ({
   isOpened,
   closeDialog,
 }) => {
-  const { isMobile } = useScreenSize();;
+  const { isMobile } = useScreenSize();
 
   return (
     <Dialog
