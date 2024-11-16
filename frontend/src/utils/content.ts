@@ -7,6 +7,7 @@ import {
 import { formatAreaInAppropriateUnit } from "./geometry-utils";
 
 export const TOAST_NOTIFICATIONS = {
+  drawingModeActivated: "Draw mode activated. Hover on the map to start drawing",
   trainingAreasFileUploadSuccess: "Training areas created successfully.",
   trainingLabelsFetchSuccess: "Training labels fetched successfully.",
   trainingAreaDeletionSuccess: "Training area deleted successfully.",

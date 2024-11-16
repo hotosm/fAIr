@@ -62,7 +62,7 @@ const TrainingAreaMap = ({
 
   const [featureArea, setFeatureArea] = useState<number>(0);
 
-  const { setTooltipVisible, tooltipPosition } = useToolTipVisibility([
+  const { setTooltipVisible, tooltipPosition, tooltipVisible } = useToolTipVisibility([
     drawingMode,
     currentZoom,
   ]);
@@ -376,7 +376,7 @@ const TrainingAreaMap = ({
 
   const showTooltip = Boolean(
     drawingMode === DrawingModes.RECTANGLE || showLabelsToolTip,
-  );
+  ) && tooltipVisible;
 
   const getTooltipColor = () => {
     if (featureArea !== 0) {

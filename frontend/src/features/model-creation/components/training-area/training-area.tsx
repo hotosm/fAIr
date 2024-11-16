@@ -13,13 +13,12 @@ import TrainingAreaList from "@/features/model-creation/components/training-area
 import { useGetTrainingAreas } from "@/features/model-creation/hooks/use-training-areas";
 import OpenAerialMap from "@/features/model-creation/components/training-area/open-area-map";
 import { useMap } from "@/app/providers/map-provider";
-import { useToastNotification } from "@/hooks/use-toast-notification";
-import { MODEL_CREATION_CONTENT } from "@/utils";
+import { MODEL_CREATION_CONTENT, showSuccessToast, TOAST_NOTIFICATIONS } from "@/utils";
 import { DrawingModes } from "@/enums";
 
 const TrainingAreaForm = () => {
   const { formData } = useModelsContext();
-  const toast = useToastNotification();
+
   const tileJSONURL = formData.tmsURL.split("/{z}/{x}/{y}")[0];
 
   const { closeDialog, isOpened, toggle } = useDialog();
@@ -69,8 +68,8 @@ const TrainingAreaForm = () => {
             </p>
           </div>
         </div>
-        <div className="flex-grow h-[90vh] w-full grid grid-cols-5 grid-rows-1 border-8 border-off-white">
-          <div className="h-full  w-full col-span-4">
+        <div className="flex-grow h-[90vh] w-full grid grid-cols-9  border-8 border-off-white">
+          <div className="h-full w-full col-span-6 2xl:col-span-7">
             <TrainingAreaMap
               tileJSONURL={tileJSONURL}
               data={trainingAreasData}
@@ -78,7 +77,7 @@ const TrainingAreaForm = () => {
               offset={offset}
             />
           </div>
-          <div className="flex  flex-col w-full h-full border-l-8 border-off-white gap-y-6 py-4">
+          <div className="flex col-span-3 2xl:col-span-2 flex-col w-full h-full border-l-8 border-off-white gap-y-6 py-4">
             <OpenAerialMap tileJSONURL={tileJSONURL} />
             <TrainingAreaList
               offset={offset}
@@ -89,23 +88,22 @@ const TrainingAreaForm = () => {
               datasetId={Number(formData.selectedTrainingDatasetId)}
             />
             <div
-              className={`flex mt-auto px-4  ${trainingAreasData?.count === 0 ? "flex-col gap-y-6 " : " items-center justify-between gap-x-2 "} w-full"`}
+              className={`flex mt-auto px-4  w-full ${trainingAreasData?.count === 0 ? "flex-col gap-y-6 " : "items-center justify-between gap-x-2 "}"`}
             >
-              <Button
-                variant="primary"
-                onClick={() => {
-                  setDrawingMode(DrawingModes.RECTANGLE);
-                  toast(
-                    "Draw mode activated. Hover on the map to start drawing.",
-                    "success",
-                  );
-                }}
-              >
-                <div className="flex items-center gap-x-2">
-                  <p>{MODEL_CREATION_CONTENT.trainingArea.form.draw}</p>
-                  <div className="w-4 h-4 border-2 rounded-md border-white"></div>
-                </div>
-              </Button>
+              <div>
+                <Button
+                  variant="primary"
+                  onClick={() => {
+                    setDrawingMode(DrawingModes.RECTANGLE);
+                    showSuccessToast(TOAST_NOTIFICATIONS.drawingModeActivated)
+                  }}
+                >
+                  <div className="flex items-center gap-x-2">
+                    <p>{MODEL_CREATION_CONTENT.trainingArea.form.draw}</p>
+                    <div className="w-4 h-4 border-2 rounded-md border-white"></div>
+                  </div>
+                </Button>
+              </div>
               <ButtonWithIcon
                 label={MODEL_CREATION_CONTENT.trainingArea.form.upload}
                 variant="dark"
