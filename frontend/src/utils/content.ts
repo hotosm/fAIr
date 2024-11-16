@@ -129,12 +129,12 @@ export const MODEL_CREATION_CONTENT = {
       "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Id fugit ducimus harum debitis deserunt cum quod quam rerum aliquid. Quibusdam sequi incidunt quasi delectus laudantium accusamus modi omnis maiores. Incidunt!",
   },
   confirmation: {
-    description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",
     buttons: {
+      enhanceModel: "enhance model",
       goToModel: "go to model",
       exploreModels: "explore models",
     },
+    trainingRequestSuccess: "Your created model was succesfull, and it is now undergoing a training."
   },
   trainingSettings: {
     form: {

@@ -7,10 +7,11 @@ import ModelTrainingSettingsDialog from "./training-settings-dialog";
 type ModelEnhancementDialogProps = {
   isOpened: boolean;
   closeDialog: () => void;
+  modelId: string
 };
 const ModelEnhancementDialog: React.FC<ModelEnhancementDialogProps> = ({
   isOpened,
-  closeDialog,
+  closeDialog, modelId
 }) => {
   const { isOpened: isTrainingSettingsDialogOpened, openDialog, closeDialog: closeTrainingSettingsDialog } = useDialog();
 
@@ -43,7 +44,7 @@ const ModelEnhancementDialog: React.FC<ModelEnhancementDialogProps> = ({
       closeDialog={closeDialog}
       label={APP_CONTENT.models.modelsDetailsCard.modelUpdate.dialogHeading}
     >
-      <ModelTrainingSettingsDialog isOpened={isTrainingSettingsDialogOpened} closeDialog={handleClose} />
+      <ModelTrainingSettingsDialog isOpened={isTrainingSettingsDialogOpened} closeDialog={handleClose} modelId={modelId} />
       <ul className="flex flex-col gap-y-4 w-full">
         {options.map((option, id) => (
           <li

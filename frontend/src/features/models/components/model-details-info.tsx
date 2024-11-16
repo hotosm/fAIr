@@ -99,12 +99,12 @@ const ModelDetailsInfo = ({
               </span>
               {isPending ? <p className="h-6 ml-2 w-20 animate-pulse bg-light-gray"></p> : isError ? <span>Error retrieving dataset info</span> : <p title={trainingDataset?.name}>{truncateString(trainingDataset?.name, 30)}</p>}
             </div>
-            <p className="text-dark text-body-2 flex gap-x-1">
+            <div className="text-dark text-body-2 flex gap-x-1">
               <span className="text-gray">
                 {APP_CONTENT.models.modelsDetailsCard.datasetId}
               </span>
               <p>{data?.dataset}</p>
-            </p>
+            </div>
             <ModelFilesButton
               openModelFilesDialog={openModelFilesDialog}
               disabled={data?.published_training === null}

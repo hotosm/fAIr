@@ -27,7 +27,7 @@ const trainingTypes = [
 const TrainingSettingsForm = () => {
   const [showAdvancedSettings, setShowAdvancedSettings] =
     useState<boolean>(false);
-
+  const [validationMessage, setValidationMessage] = useState('Hellow')
   const { formData, handleChange } = useModelsContext();
 
   const advancedSettings = [
@@ -182,7 +182,7 @@ const TrainingSettingsForm = () => {
             />
           </button>
         </div>
-        {showAdvancedSettings && (
+        {showAdvancedSettings && (<>
           <div className="flex items-center justify-between gap-4 flex-wrap lg:flex-nowrap">
             {advancedSettings.filter(setting => setting.enabled).map((setting, id) => (
               <div key={`training-settings-${id}`} className="w-full">
@@ -202,15 +202,38 @@ const TrainingSettingsForm = () => {
                     // @ts-expect-error bad type definition
                     FORM_VALIDATION_CONFIG[formData.baseModel][setting.value].max
                   }
-                  handleInput={(e) =>
-                    handleChange(setting.value, Number(e.target.value))
-                  }
+                  handleInput={(e) => {
+                    const inputValue = Number(e.target.value);
+
+                    const min =
+                      // @ts-expect-error bad type definition
+                      FORM_VALIDATION_CONFIG[formData.baseModel][setting.value].min;
+                    const max =
+                      // @ts-expect-error bad type definition
+                      FORM_VALIDATION_CONFIG[formData.baseModel][setting.value].max;
+                    handleChange(setting.value, inputValue);
+                    if (inputValue < min || inputValue > max) {
+                      // Set validation message for out-of-range values
+                      setValidationMessage(
+                        `${setting.label} must be between ${min} and ${max}.`
+                      );
+                      handleChange(MODEL_CREATION_FORM_NAME.TRAINING_SETTINGS_IS_VALID, false)
+                    } else {
+                      // Clear the validation message if the value is valid
+                      setValidationMessage("");
+                      handleChange(setting.value, inputValue);
+                      handleChange(MODEL_CREATION_FORM_NAME.TRAINING_SETTINGS_IS_VALID, true)
+                    }
+                  }}
                   toolTipContent={setting.toolTip}
                 />
               </div>
             ))}
           </div>
+          <p>{validationMessage}</p>
+        </>
         )}
+
       </div>
     </div>
   );

@@ -57,6 +57,7 @@ export const ModelDetailsPage = () => {
       <ModelEnhancementDialog
         isOpened={isModelEnhancementDialogOpened}
         closeDialog={closeModelEnhancementDialog}
+        modelId={data?.id as string}
       />
       <Head title={`${data?.name} Model`} />
       <ModelFilesDialog

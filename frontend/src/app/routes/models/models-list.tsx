@@ -29,6 +29,7 @@ import useDebounce from "@/hooks/use-debounce";
 import { useDialog } from "@/hooks/use-dialog";
 import { MobileModelFiltersDialog } from "@/features/models/components/dialogs";
 import { Head } from "@/components/seo";
+import { ModelsProvider } from "@/app/providers/models-provider";
 
 export enum LayoutView {
   LIST = "list",
@@ -58,9 +59,9 @@ const ClearFilters = ({
 }) => {
   const canClearAllFilters = Boolean(
     query[SEARCH_PARAMS.searchQuery] ||
-      query[SEARCH_PARAMS.startDate] ||
-      query[SEARCH_PARAMS.endDate] ||
-      query[SEARCH_PARAMS.id],
+    query[SEARCH_PARAMS.startDate] ||
+    query[SEARCH_PARAMS.endDate] ||
+    query[SEARCH_PARAMS.id],
   );
 
   return (
@@ -334,7 +335,12 @@ export const ModelsPage = () => {
         disabled={isPending}
       />
       <section className="my-10 min-h-screen">
-        <PageHeader />
+        {/* 
+        Providing access to the models context, so that the 'create model' button can reset the store before going to the model creation form.
+         */}
+        <ModelsProvider>
+          <PageHeader />
+        </ModelsProvider>
         <div className="flex flex-col gap-y-4">
           <div className=" flex items-center justify-between w-full ">
             <div className="flex items-center justify-between w-full md:gap-x-4 gap-y-2 md:gap-y-0  md:w-auto">
