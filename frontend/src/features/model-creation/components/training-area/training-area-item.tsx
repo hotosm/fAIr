@@ -195,7 +195,7 @@ const TrainingAreaItem: React.FC<
     };
 
     updateTimeSinceFetch();
-    const intervalId = setInterval(updateTimeSinceFetch, 60000);
+    const intervalId = setInterval(updateTimeSinceFetch, 10000);
 
     return () => clearInterval(intervalId);
   }, [trainingArea?.properties?.label_fetched]);
@@ -222,7 +222,7 @@ const TrainingAreaItem: React.FC<
             {trainingAreaLabelsMutation.isPending
               ? "Fetching labels..."
               : trainingArea.properties.label_fetched !== null
-                ? truncateString(`Fetched ${timeSinceLabelFetch} ago`, 20)
+                ? truncateString(`Fetched ${timeSinceLabelFetch === "0 sec" ? 'just now' : `${timeSinceLabelFetch} ago`}`, 20)
                 : "No labels yet"}
           </p>
         </div>
