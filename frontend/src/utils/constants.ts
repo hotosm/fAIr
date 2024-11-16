@@ -13,9 +13,10 @@ export const APPLICATION_ROUTES = {
   CREATE_NEW_MODEL_TRAINING_AREA: "/models/new/training-area",
   CREATE_NEW_MODEL_TRAINING_SETTINGS: "/models/new/training-settings",
   CREATE_NEW_MODEL_SUMMARY: "/models/new/model-summary",
-
   // Model routes end
   TRAINING_DATASETS: "/training-datasets",
+  START_MAPPING_BASE: "/start-mapping/",
+  START_MAPPING: "/start-mapping/:modelId",
   NOTFOUND: "/404",
   PRIVACY_POLICY: "/privacy",
   LEARN: "/learn",
@@ -90,6 +91,6 @@ export const TRAINING_AREAS_AOI_OUTLINE_COLOR = "#92B48766";
 export const TRAINING_AREAS_AOI_OUTLINE_WIDTH = 4;
 export const TRAINING_AREAS_AOI_FILL_OPACITY = 0.4;
 export const TRAINING_AREAS_AOI_LABELS_FILL_OPACITY = 0.3;
-export const TRAINING_AREAS_AOI_LABELS_OUTLINE_WIDTH = 2
+export const TRAINING_AREAS_AOI_LABELS_OUTLINE_WIDTH = 2;
 export const TRAINING_AREAS_AOI_LABELS_FILL_COLOR = "#D73434";
 export const TRAINING_AREAS_AOI_LABELS_OUTLINE_COLOR = "#D73434";

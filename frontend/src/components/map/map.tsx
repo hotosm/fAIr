@@ -68,7 +68,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
       >
         {map && (
           <>
-            {showCurrentZoom && <ZoomLevel map={map} />}
+            {showCurrentZoom && <ZoomLevel />}
             {layerControl && (
               <LayerControl
                 map={map}

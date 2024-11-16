@@ -1,12 +1,9 @@
-import { Map } from "maplibre-gl";
-
 const MapCursorToolTip = ({
-  color,
+  color = "bg-black",
   tooltipVisible,
   tooltipPosition,
   children,
 }: {
-  map: Map | null;
   color?: string;
   tooltipPosition: Record<string, number>;
   tooltipVisible: boolean;
@@ -16,7 +13,7 @@ const MapCursorToolTip = ({
 
   return (
     <div
-      className={`absolute w-50 text-white px-2 rounded-sm pointer-events-none text-nowrap flex flex-col ${color}`}
+      className={`absolute w-50 text-white px-2 pointer-events-none text-nowrap rounded-lg shadow-2xl flex flex-col ${color}`}
       style={{
         left: `${tooltipPosition.x}px`,
         top: `${tooltipPosition.y}px`,

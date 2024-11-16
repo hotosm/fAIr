@@ -46,3 +46,4 @@ export { default as ZoomInIcon } from "./zoom-in-icon";
 export { default as CopyIcon } from "./copy-icon";
 export { default as StarStackIcon } from "./star-stack-icon";
 export { default as PenIcon } from "./pen-icon";
+export { default as TagsInfoIcon } from "./tags-info-icon";

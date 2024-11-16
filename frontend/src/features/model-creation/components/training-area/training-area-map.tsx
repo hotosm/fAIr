@@ -42,7 +42,7 @@ const TrainingAreaMap = ({
   trainingDatasetId: number;
   offset: number;
 }) => {
-  const { map, terraDraw, drawingMode, setDrawingMode } = useMap();
+  const { map, terraDraw, drawingMode, setDrawingMode, currentZoom } = useMap();
   const toast = useToastNotification();
   const OSMBasemapLayerId = "osm-layer";
   const GoogleSatelliteLayerId = "google-statellite-layer";
@@ -57,15 +57,13 @@ const TrainingAreaMap = ({
   const trainingDatasetLabelsOutlineLayerId = `dataset-${trainingDatasetId}-training-labels-outline-layer`;
   const tileBoundarylayerId = "tile-boundary-layer";
   const tileBoundarySourceId = "tile-boundaries";
-  const [currentZoom, setCurrentZoom] = useState<number>(0);
+
   const [bbox, setBbox] = useState("");
 
   const [featureArea, setFeatureArea] = useState<number>(0);
 
-  const { setTooltipVisible, tooltipPosition, tooltipVisible } = useToolTipVisibility([
-    drawingMode,
-    currentZoom,
-  ]);
+  const { setTooltipVisible, tooltipPosition, tooltipVisible } =
+    useToolTipVisibility([drawingMode, currentZoom]);
 
   const debouncedBbox = useDebounce(bbox, 300);
   const debouncedZoom = useDebounce(currentZoom.toString(), 300);
@@ -278,9 +276,8 @@ const TrainingAreaMap = ({
     }
   }, [map]);
 
-  const updateZoomAndBbox = useCallback(() => {
+  const updateBbox = useCallback(() => {
     if (!map) return;
-    setCurrentZoom(map.getZoom());
     const bounds = map.getBounds();
     const newBbox = `${bounds.getWest()},${bounds.getSouth()},${bounds.getEast()},${bounds.getNorth()}`;
     setBbox(newBbox);
@@ -292,7 +289,7 @@ const TrainingAreaMap = ({
   useEffect(() => {
     if (!map) return;
     const moveUpdates = () => {
-      updateZoomAndBbox();
+      updateBbox();
       updateTileBoundary();
     };
     map.on("moveend", moveUpdates);
@@ -374,9 +371,9 @@ const TrainingAreaMap = ({
 
   const showLabelsToolTip = currentZoom >= 14 && currentZoom < 18;
 
-  const showTooltip = Boolean(
-    drawingMode === DrawingModes.RECTANGLE || showLabelsToolTip,
-  ) && tooltipVisible;
+  const showTooltip =
+    Boolean(drawingMode === DrawingModes.RECTANGLE || showLabelsToolTip) &&
+    tooltipVisible;
 
   const getTooltipColor = () => {
     if (featureArea !== 0) {
@@ -425,29 +422,28 @@ const TrainingAreaMap = ({
         { value: "TMS Layer", subLayers: [TMSLayerId] },
         ...(data?.results?.features?.length
           ? [
-            {
-              value: "Training Areas",
-              subLayers: [trainingAreasLayerId, trainingAreasFillLayerId],
-            },
-          ]
+              {
+                value: "Training Areas",
+                subLayers: [trainingAreasLayerId, trainingAreasFillLayerId],
+              },
+            ]
           : []),
         ...(labels && labels?.features.length > 0
           ? [
-            {
-              value: "Training Labels",
-              subLayers: [
-                trainingDatasetLabelsLayerId,
-                trainingDatasetLabelsOutlineLayerId,
-              ],
-            },
-          ]
+              {
+                value: "Training Labels",
+                subLayers: [
+                  trainingDatasetLabelsLayerId,
+                  trainingDatasetLabelsOutlineLayerId,
+                ],
+              },
+            ]
           : []),
       ]}
     >
       <MapCursorToolTip
         tooltipVisible={showTooltip}
         color={getTooltipColor()}
-        map={map}
         tooltipPosition={tooltipPosition}
       >
         {!showLabelsToolTip && (
