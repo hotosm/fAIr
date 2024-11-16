@@ -5,7 +5,7 @@ import { SHOELACE_SIZES } from "@/enums";
 import TrainingSettingsForm from "@/features/model-creation/components/training-settings/training-settings-form";
 import useScreenSize from "@/hooks/use-screen-size";
 import { APP_CONTENT } from "@/utils";
-import { useModelDetails } from "../../hooks/use-models";
+import { useModelDetails } from "@/features/models/hooks/use-models";
 
 type ModelEnhancementDialogProps = {
   isOpened: boolean;

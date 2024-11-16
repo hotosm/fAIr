@@ -9,11 +9,13 @@ import FAQs from "@/components/landing/faqs/faqs";
 import Kpi from "@/components/landing/kpi/kpi";
 import TaglineBanner from "@/components/landing/tagline/tagline";
 import { Head } from "@/components/seo";
+import { Banner } from "@/components/ui/banner";
 
 export const LandingPage = () => {
   return (
     <>
       <Head title="Home" />
+      <Banner />
       <NavBar />
       <Header />
       <Kpi />
