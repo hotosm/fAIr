@@ -20,6 +20,7 @@ const ModelTrainingSettingsDialog: React.FC<ModelEnhancementDialogProps> = ({
 }) => {
   const { isLaptop, isMobile, isTablet } = useScreenSize();
   // get model details with the id
+  // disable some settings if yolo is the base model
   const { data, isPending, isError } = useModelDetails(modelId);
 
   return (

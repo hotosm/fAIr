@@ -397,6 +397,7 @@ export const APP_CONTENT = {
       modelCard: {
         accuracy: "Accuracy:",
         lastModified: "Last Modified:",
+        baseModel: "Base Model:",
       },
     },
     modelsDetailsCard: {

@@ -42,12 +42,10 @@ const columnDefinitions: ColumnDef<TModel>[] = [
     },
   },
   {
-    accessorKey: "last_modified",
-    header: ({ column }) => (
-      <SortableHeader title={"Last Modified"} column={column} />
-    ),
+    accessorKey: "base_model",
+    header: "Base Model",
     cell: ({ row }) => {
-      return <span>{formatDate(row.getValue("last_modified"))}</span>;
+      return <span>{row.getValue("base_model")}</span>;
     },
   },
   {
