@@ -5,7 +5,12 @@ import {
   TerraDrawRectangleMode,
 } from "terra-draw";
 import maplibregl from "maplibre-gl";
-import { TRAINING_AREAS_AOI_FILL_COLOR, TRAINING_AREAS_AOI_FILL_OPACITY, TRAINING_AREAS_AOI_OUTLINE_COLOR, TRAINING_AREAS_AOI_OUTLINE_WIDTH } from "@/utils";
+import {
+  TRAINING_AREAS_AOI_FILL_COLOR,
+  TRAINING_AREAS_AOI_FILL_OPACITY,
+  TRAINING_AREAS_AOI_OUTLINE_COLOR,
+  TRAINING_AREAS_AOI_OUTLINE_WIDTH,
+} from "@/utils";
 
 export function setupTerraDraw(map: maplibregl.Map) {
   return new TerraDraw({

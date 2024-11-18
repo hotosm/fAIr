@@ -5,6 +5,7 @@ import {
   useState,
   useMemo,
   useEffect,
+  useCallback,
 } from "react";
 import { Map } from "maplibre-gl";
 import { TerraDraw } from "terra-draw";
@@ -17,17 +18,19 @@ const MapContext = createContext<{
   terraDraw: TerraDraw | undefined;
   drawingMode: DrawingModes;
   setDrawingMode: React.Dispatch<React.SetStateAction<DrawingModes>>;
+  currentZoom: number;
 }>({
   map: null,
   setMap: () => {},
   terraDraw: undefined,
   drawingMode: DrawingModes.STATIC,
   setDrawingMode: () => DrawingModes,
+  currentZoom: 0,
 });
 
 export const MapProvider = ({ children }: { children: ReactNode }) => {
   const [map, setMap] = useState<Map | null>(null);
-
+  const [currentZoom, setCurrentZoom] = useState<number>(0);
   const terraDraw = useMemo(() => {
     if (map) {
       const terraDraw = setupTerraDraw(map);
@@ -44,9 +47,33 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     terraDraw?.setMode(drawingMode);
   }, [terraDraw, drawingMode]);
+
+  const updateZoomAndBbox = useCallback(() => {
+    if (!map) return;
+    setCurrentZoom(map.getZoom());
+  }, [map]);
+
+  useEffect(() => {
+    if (!map) return;
+    const moveUpdates = () => {
+      updateZoomAndBbox();
+    };
+    map.on("moveend", moveUpdates);
+    return () => {
+      map.off("moveend", moveUpdates);
+    };
+  }, [map]);
+
   return (
     <MapContext.Provider
-      value={{ map, setMap, terraDraw, drawingMode, setDrawingMode }}
+      value={{
+        map,
+        setMap,
+        terraDraw,
+        drawingMode,
+        setDrawingMode,
+        currentZoom,
+      }}
     >
       {children}
     </MapContext.Provider>

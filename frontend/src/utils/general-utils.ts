@@ -97,11 +97,13 @@ export const showErrorToast = (
   customMessage: string | undefined = undefined,
 ) => {
   const toast = useToastNotification();
-
   let message = "An unexpected error occurred";
   if (customMessage) {
     message = customMessage;
-  } else if (error?.response?.data) {
+  } else if (
+    error?.response?.data &&
+    typeof error?.response?.data !== "object"
+  ) {
     message = error?.response?.data;
   } else if (error?.response?.data[0]) {
     message = error?.response?.data[0];

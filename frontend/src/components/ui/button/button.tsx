@@ -42,7 +42,11 @@ const Button: React.FC<ButtonProps> = ({
       disabled={disabled}
       slot={slot}
     >
-      <div className={`flex items-center gap-x-2  ${uppercase && "uppercase"}`}>
+      <div
+        className={cn(
+          `flex items-center gap-x-2  ${uppercase && "uppercase"} ${className}`,
+        )}
+      >
         {children}
         {spinner && (
           <Spinner

@@ -1,6 +1,11 @@
 import { ButtonWithIcon } from "@/components/ui/button";
 import { MapIcon, PenIcon } from "@/components/ui/icons";
-import { APP_CONTENT, formatDate, truncateString } from "@/utils";
+import {
+  APP_CONTENT,
+  APPLICATION_ROUTES,
+  formatDate,
+  truncateString,
+} from "@/utils";
 import ModelDetailItem from "@/features/models/components/model-detail-item";
 import ModelDetailsSection from "@/features/models/components/model-details-section";
 import ChevronDownIcon from "@/components/ui/icons/chevron-down-icon";
@@ -12,6 +17,7 @@ import { useDialog } from "@/hooks/use-dialog";
 import { useAuth } from "@/app/providers/auth-provider";
 import { useGetTrainingDataset } from "../hooks/use-dataset";
 import { TModel } from "@/types";
+import { useNavigate } from "react-router-dom";
 
 const ModelDetailsInfo = ({
   data,
@@ -29,6 +35,7 @@ const ModelDetailsInfo = ({
     data: trainingDataset,
     isError,
   } = useGetTrainingDataset(data.dataset);
+  const navigate = useNavigate();
 
   return (
     <>
@@ -65,6 +72,11 @@ const ModelDetailsInfo = ({
                   capitalizeText={false}
                   prefixIcon={MapIcon}
                   disabled={data?.published_training === null}
+                  onClick={() => {
+                    navigate(
+                      `${APPLICATION_ROUTES.START_MAPPING_BASE}${data.id}`,
+                    );
+                  }}
                 />
               </div>
             </div>

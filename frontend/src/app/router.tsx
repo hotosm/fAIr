@@ -9,6 +9,7 @@ import { ProtectedPage } from "@/app/routes/protected-route";
 import { MainErrorFallback } from "@/components/errors";
 import ModelFormsLayout from "@/components/layouts/model-forms-layout";
 import ModelsLayout from "@/components/layouts/models-layout";
+import { MapProvider } from "./providers/map-provider";
 
 
 const router = createBrowserRouter([
@@ -165,6 +166,24 @@ const router = createBrowserRouter([
               <ProtectedPage>
                 <TrainingDatasetsPage />
               </ProtectedPage>
+            ),
+          };
+        },
+      },
+      {
+        path: APPLICATION_ROUTES.START_MAPPING,
+        lazy: async () => {
+          const { StartMappingPage } = await import(
+            "@/app/routes/start-mapping/start-mapping"
+          );
+          return {
+            Component: () => (
+              // todo - return protection
+              // <ProtectedPage>
+              <MapProvider>
+                <StartMappingPage />
+              </MapProvider>
+              // </ProtectedPage>
             ),
           };
         },

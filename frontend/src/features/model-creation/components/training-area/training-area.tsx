@@ -13,7 +13,11 @@ import TrainingAreaList from "@/features/model-creation/components/training-area
 import { useGetTrainingAreas } from "@/features/model-creation/hooks/use-training-areas";
 import OpenAerialMap from "@/features/model-creation/components/training-area/open-area-map";
 import { useMap } from "@/app/providers/map-provider";
-import { MODEL_CREATION_CONTENT, showSuccessToast, TOAST_NOTIFICATIONS } from "@/utils";
+import {
+  MODEL_CREATION_CONTENT,
+  showSuccessToast,
+  TOAST_NOTIFICATIONS,
+} from "@/utils";
 import { DrawingModes } from "@/enums";
 
 const TrainingAreaForm = () => {
@@ -95,7 +99,7 @@ const TrainingAreaForm = () => {
                   variant="primary"
                   onClick={() => {
                     setDrawingMode(DrawingModes.RECTANGLE);
-                    showSuccessToast(TOAST_NOTIFICATIONS.drawingModeActivated)
+                    showSuccessToast(TOAST_NOTIFICATIONS.drawingModeActivated);
                   }}
                 >
                   <div className="flex items-center gap-x-2">

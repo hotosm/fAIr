@@ -7,6 +7,7 @@ type FormLabelProps = {
   toolTipContent: string;
   currentLength?: number;
   maxLength?: number;
+  position?: "top" | "left";
 };
 const FormLabel: React.FC<FormLabelProps> = ({
   label,
@@ -15,11 +16,12 @@ const FormLabel: React.FC<FormLabelProps> = ({
   toolTipContent,
   currentLength,
   maxLength,
+  position = "top",
 }) => {
   return (
     <p
       slot="label"
-      className="flex text-base items-center gap-x-2 text-dark mb-4"
+      className={`flex text-base items-center gap-x-2 text-dark ${position === "top" && "mb-4"}`}
     >
       <span>
         {label} {required && <small className="text-primary text-xl">*</small>}

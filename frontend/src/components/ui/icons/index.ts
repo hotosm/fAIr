@@ -47,3 +47,4 @@ export { default as CopyIcon } from "./copy-icon";
 export { default as StarStackIcon } from "./star-stack-icon";
 export { default as PenIcon } from "./pen-icon";
 export { default as ArrowBackIcon } from './arrow-back-icon'
+export { default as TagsInfoIcon } from "./tags-info-icon";
