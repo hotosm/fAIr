@@ -1,37 +1,58 @@
-import { useLocalStorage } from "@/hooks/use-storage";
-import { HOT_FAIR_BANNER_LOCAL_STORAGE_KEY } from "@/utils";
-import { useEffect, useState } from "react";
+
+import { API_ENDPOINTS, apiClient } from "@/services";
+import { useQuery } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
+import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+
+type TBannerResponse = {
+    start_date: string;
+    end_date: string;
+    message: string;
+    id: number;
+};
+
+const fetchBanner = async (): Promise<TBannerResponse[]> => {
+    const { data } = await apiClient.get(API_ENDPOINTS.GET_BANNER);
+    return data;
+};
 
 const Banner = () => {
 
-    const { getValue, setValue } = useLocalStorage();
     const [isBannerVisible, setIsBannerVisible] = useState(true);
-    //todo - fetch banner markdown when api is back up.
-
-    useEffect(() => {
-        const storedState = getValue(HOT_FAIR_BANNER_LOCAL_STORAGE_KEY);
-        if (storedState !== null) {
-            setIsBannerVisible(!storedState);
-        }
-    }, [getValue]);
+    const { data, isLoading, isError } = useQuery({
+        queryKey: ["banner"],
+        queryFn: fetchBanner,
+    });
 
     const handleCloseBanner = () => {
         setIsBannerVisible(false);
-        setValue(HOT_FAIR_BANNER_LOCAL_STORAGE_KEY, "true");
     };
 
-    if (!isBannerVisible) {
+    const banner = useMemo(
+        () => (
+            <div className="w-full p-4 bg-primary flex items-center justify-between px-4 text-white">
+                <Markdown
+                    remarkPlugins={[remarkGfm]}
+                    className={
+                        "flex flex-wrap gap-x-2 items-center justify-center w-full"
+                    }
+                >
+                    {data?.[0].message}
+                </Markdown>
+                <button onClick={handleCloseBanner} className="font-bold">
+                    ✕
+                </button>
+            </div>
+        ),
+        [data],
+    );
+
+    if (!isBannerVisible || isError || data?.length === 0 || isLoading) {
         return null;
     }
 
-    return (
-        <div className="w-full h-10 bg-primary flex items-center justify-between px-4">
-            <span>Markdown here</span>
-            <button onClick={handleCloseBanner} className="text-white font-bold">
-                ✕
-            </button>
-        </div>
-    );
+    return banner;
 };
 
 export default Banner;

@@ -90,9 +90,7 @@ export const TRAINING_AREAS_AOI_OUTLINE_COLOR = "#92B48766";
 export const TRAINING_AREAS_AOI_LABELS_FILL_COLOR = "#D73434";
 export const TRAINING_AREAS_AOI_LABELS_OUTLINE_COLOR = "#D73434";
 
-
 /**
  * The key used to store the banner state in local storage for the application.
  */
-export const HOT_FAIR_BANNER_LOCAL_STORAGE_KEY =
-  "__hot_fair_banner_closed";
+export const HOT_FAIR_BANNER_LOCAL_STORAGE_KEY = "__hot_fair_banner_closed";
