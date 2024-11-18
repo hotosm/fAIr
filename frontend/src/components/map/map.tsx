@@ -53,7 +53,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
   return (
     <div className="h-full w-full relative" ref={mapContainerRef}>
       <div
-        className={`absolute top-5 ${controlsLocation === "top-right" ? "right-3" : "left-3"} z-[10] flex flex-col gap-y-[1px]`}
+        className={`absolute top-5 ${controlsLocation === "top-right" ? "right-3" : "left-3"} z-[1] flex flex-col gap-y-[1px]`}
       >
         {map && (
           <>
@@ -64,7 +64,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
         )}
       </div>
       <div
-        className={`absolute top-5 right-10 z-[10] items-center flex gap-x-4`}
+        className={`absolute top-5 right-10 z-[1] items-center flex gap-x-4`}
       >
         {map && (
           <>

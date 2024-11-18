@@ -13,6 +13,10 @@ sl-button.secondary::part(base) {
   color: var(--hot-fair-color-dark);
 }
 
+sl-button.none::part(base) {
+  background-color: transparent;
+}
+
 sl-button.dark::part(base) {
   background-color: var(--hot-fair-color-dark);
   color: var(--hot-fair-color-white);

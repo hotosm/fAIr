@@ -1,6 +1,6 @@
 import { Head } from "@/components/seo";
 import { BackButton, ButtonWithIcon } from "@/components/ui/button";
-import { StarStackIcon, } from "@/components/ui/icons";
+import { StarStackIcon } from "@/components/ui/icons";
 import {
   ModelDetailsSection,
   ModelDetailsProperties,
@@ -20,8 +20,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import TrainingInProgressImage from "@/assets/images/training_in_prorgress.png";
 import { Image } from "@/components/ui/image";
 import ModelEnhancementDialog from "@/features/models/components/dialogs/model-enhancement-dialog";
-
-
 
 export const ModelDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -72,7 +70,6 @@ export const ModelDetailsPage = () => {
       <TrainingAreaDialog isOpened={isOpened} closeDialog={closeDialog} />
       <BackButton />
       <div className="my-12 flex flex-col gap-y-20">
-
         <ModelDetailsInfo
           data={data}
           openModelFilesDialog={openModelFilesDialog}

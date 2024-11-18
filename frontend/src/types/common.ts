@@ -24,7 +24,8 @@ export type ButtonVariant =
   | "secondary"
   | "tertiary"
   | "default"
-  | "dark";
+  | "dark"
+  | "none";
 
 export type ButtonSize = "large" | "medium" | "small";
 

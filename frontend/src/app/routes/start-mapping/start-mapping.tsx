@@ -1,17 +1,17 @@
 import { useMap } from "@/app/providers/map-provider";
 import { MapComponent, MapCursorToolTip } from "@/components/map";
-import { Button, ButtonWithIcon } from "@/components/ui/button";
+import { BackButton, Button, ButtonWithIcon } from "@/components/ui/button";
 import { Divider } from "@/components/ui/divider";
 import { DropDown } from "@/components/ui/dropdown";
 import { FormLabel, Input, Select, Switch } from "@/components/ui/form";
 import { ChevronDownIcon, TagsInfoIcon } from "@/components/ui/icons";
-import { Popup } from "@/components/ui/popup";
 import { SkeletonWrapper } from "@/components/ui/skeleton";
 import { INPUT_TYPES, SHOELACE_SIZES } from "@/enums";
+import { ModelDetailsPopUp } from "@/features/models/components";
 import { useModelDetails } from "@/features/models/hooks/use-models";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { useToolTipVisibility } from "@/hooks/use-tooltip-visibility";
-import { APPLICATION_ROUTES, showErrorToast, truncateString } from "@/utils";
+import { APPLICATION_ROUTES, truncateString } from "@/utils";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
@@ -69,12 +69,15 @@ export const StartMappingPage = () => {
 
   useEffect(() => {
     if (isError) {
-      showErrorToast(error);
-      if (error.status.code === 404) {
-        navigate(APPLICATION_ROUTES.NOTFOUND);
-      }
+      navigate(APPLICATION_ROUTES.NOTFOUND, {
+        state: {
+          from: window.location.pathname,
+          //@ts-expect-error bad type definition
+          error: error?.response?.data?.detail,
+        },
+      });
     }
-  }, [error, isError]);
+  }, [isError, error, navigate]);
 
   const updateQuery = useCallback(
     (newParams: TQueryParams) => {
@@ -129,8 +132,10 @@ export const StartMappingPage = () => {
   ];
 
   const popupAnchor = "model-details";
+
   return (
-    <SkeletonWrapper showSkeleton={!isPending}>
+    <SkeletonWrapper showSkeleton={isPending}>
+      <BackButton />
       <div className="h-[90vh] flex flex-col mt-4 mb-20">
         <div className="sticky top-0 z-[10] bg-white">
           <div className="flex items-center justify-between py-3 flex-wrap gap-y-2">
@@ -140,28 +145,15 @@ export const StartMappingPage = () => {
                 className="text-dark font-semibold text-title-3"
               >
                 {data?.name
-                  ? truncateString(data?.name, 20)
+                  ? truncateString(data?.name, 40)
                   : "Localidad Ama Chuma (Patacamaya)"}
               </p>
-              <Popup
-                active={showModelDetails}
+              <ModelDetailsPopUp
+                showPopup={showModelDetails}
+                closePopup={() => setShowModelDetails(false)}
                 anchor={popupAnchor}
-                placement="bottom-start"
-                distance={10}
-              >
-                <div className="h-80 border bg-white border-gray-border w-80 shadown-sm shadow-[#433D3D33]  p-5 flex flex-col">
-                  <button
-                    className="text-dark text-lg self-end"
-                    onClick={() => setShowModelDetails(false)}
-                    title="Close"
-                  >
-                    &#x2715;
-                  </button>
-                  <div>
-                    <p className="text-gray"> Model and dataset info here</p>
-                  </div>
-                </div>
-              </Popup>
+                model={data}
+              />
               <button
                 id={popupAnchor}
                 className="text-gray flex items-center gap-x-4 text-nowrap"

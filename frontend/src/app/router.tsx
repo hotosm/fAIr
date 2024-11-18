@@ -11,7 +11,6 @@ import ModelFormsLayout from "@/components/layouts/model-forms-layout";
 import ModelsLayout from "@/components/layouts/models-layout";
 import { MapProvider } from "./providers/map-provider";
 
-
 const router = createBrowserRouter([
   {
     path: APPLICATION_ROUTES.HOMEPAGE,
@@ -63,7 +62,7 @@ const router = createBrowserRouter([
                 "@/app/routes/models/model-details"
               );
               return {
-                Component: () => <ModelDetailsPage />
+                Component: () => <ModelDetailsPage />,
               };
             },
           },
@@ -178,12 +177,11 @@ const router = createBrowserRouter([
           );
           return {
             Component: () => (
-              // todo - return protection
-              // <ProtectedPage>
-              <MapProvider>
-                <StartMappingPage />
-              </MapProvider>
-              // </ProtectedPage>
+              <ProtectedPage>
+                <MapProvider>
+                  <StartMappingPage />
+                </MapProvider>
+              </ProtectedPage>
             ),
           };
         },

@@ -121,7 +121,7 @@ const DropDown: React.FC<DropDownProps> = ({
           />
         )}
       </div>
-      <div className="shadow-2xl">
+      <div className="shadow-2xl z-[10000]">
         {menuItems && menuItems.length > 0 ? (
           <SlMenu onSlSelect={handleSelect}>
             {menuItems?.map((menuItem, id) => (

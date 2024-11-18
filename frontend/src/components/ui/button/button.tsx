@@ -7,7 +7,7 @@ import useScreenSize from "@/hooks/use-screen-size";
 
 type ButtonProps = {
   children: React.ReactNode;
-  variant?: ButtonVariant;
+  variant: ButtonVariant;
   className?: string;
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   spinner?: boolean;
@@ -44,7 +44,7 @@ const Button: React.FC<ButtonProps> = ({
     >
       <div
         className={cn(
-          `flex items-center gap-x-2  ${uppercase && "uppercase"} ${className}`,
+          `flex items-center gap-x-2  ${uppercase && "uppercase"} `,
         )}
       >
         {children}
