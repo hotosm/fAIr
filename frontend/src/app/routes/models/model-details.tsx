@@ -1,6 +1,6 @@
 import { Head } from "@/components/seo";
-import { ButtonWithIcon } from "@/components/ui/button";
-import { StarStackIcon } from "@/components/ui/icons";
+import { BackButton, ButtonWithIcon } from "@/components/ui/button";
+import { StarStackIcon, } from "@/components/ui/icons";
 import {
   ModelDetailsSection,
   ModelDetailsProperties,
@@ -67,7 +67,9 @@ export const ModelDetailsPage = () => {
         datasetId={data?.dataset as number}
       />
       <TrainingAreaDialog isOpened={isOpened} closeDialog={closeDialog} />
+      <BackButton />
       <div className="my-12 flex flex-col gap-y-20">
+
         <ModelDetailsInfo
           data={data}
           openModelFilesDialog={openModelFilesDialog}
