@@ -24,7 +24,7 @@ const trainingTypes = [
 const TrainingSettingsForm = () => {
   const [showAdvancedSettings, setShowAdvancedSettings] =
     useState<boolean>(false);
-  const [validationMessage, setValidationMessage] = useState("Hellow");
+  const [validationMessage, setValidationMessage] = useState("");
   const { formData, handleChange } = useModelsContext();
 
   const advancedSettings = [
@@ -243,7 +243,7 @@ const TrainingSettingsForm = () => {
                   </div>
                 ))}
             </div>
-            <p>{validationMessage}</p>
+            <p className="text-sm text-primary">{validationMessage}</p>
           </>
         )}
       </div>

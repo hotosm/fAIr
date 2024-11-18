@@ -97,7 +97,7 @@ const ModelDetailsInfo = ({
             />
           </div>
           <div className="col-span-1 items-start justify-between flex flex-col gap-y-4">
-            <div className="text-dark text-body-2 flex w-full gap-x-1">
+            <div className="text-dark text-body-2 flex w-full gap-x-1 text-nowrap flex-wrap">
               <span className="text-gray">
                 {APP_CONTENT.models.modelsDetailsCard.datasetName}
               </span>
@@ -107,7 +107,7 @@ const ModelDetailsInfo = ({
                 <span>Error retrieving dataset info</span>
               ) : (
                 <p title={trainingDataset?.name}>
-                  {truncateString(trainingDataset?.name, 30)}
+                  {truncateString(trainingDataset?.name, 40)}
                 </p>
               )}
             </div>

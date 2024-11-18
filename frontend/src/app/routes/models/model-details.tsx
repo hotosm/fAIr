@@ -20,6 +20,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import TrainingInProgressImage from "@/assets/images/training_in_prorgress.png";
 import { Image } from "@/components/ui/image";
 import ModelEnhancementDialog from "@/features/models/components/dialogs/model-enhancement-dialog";
+
+
+
 export const ModelDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
   const { isOpened, closeDialog, openDialog } = useDialog();

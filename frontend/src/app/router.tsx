@@ -10,6 +10,7 @@ import { MainErrorFallback } from "@/components/errors";
 import ModelFormsLayout from "@/components/layouts/model-forms-layout";
 import ModelsLayout from "@/components/layouts/models-layout";
 
+
 const router = createBrowserRouter([
   {
     path: APPLICATION_ROUTES.HOMEPAGE,
@@ -61,7 +62,7 @@ const router = createBrowserRouter([
                 "@/app/routes/models/model-details"
               );
               return {
-                Component: () => <ModelDetailsPage />,
+                Component: () => <ModelDetailsPage />
               };
             },
           },
