@@ -123,7 +123,13 @@ sl-alert.success::part(base) {
 
 /* Toast stack placement style ends */
 
-/* Icon styles begins */
+/* Tailwind styles begins */
+
+.prose * {
+  color: var(--hot-fair-color-white) !important;
+  margin: 0px !important
+}
+
 @layer components {
   .icon {
     @apply inline-block h-4 w-4;
@@ -138,8 +144,8 @@ sl-alert.success::part(base) {
   }
 
   .banner-markdown{
-    @apply flex flex-wrap gap-x-2 items-center justify-center w-full prose 
+    @apply w-full text-nowrap prose 
   }
 }
 
-/* Icon styles ends */
+/* Tailwind styles ends */

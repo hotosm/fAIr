@@ -29,7 +29,7 @@ const Banner = () => {
 
   const banner = useMemo(
     () => (
-      <div className="w-full p-4 bg-primary flex items-center justify-between px-4 text-white">
+      <div className="w-full px-4 py-2 bg-primary flex items-center justify-between">
         <Markdown
           remarkPlugins={[remarkGfm]}
           className={
@@ -38,7 +38,7 @@ const Banner = () => {
         >
           {data?.[0]?.message}
         </Markdown>
-        <button onClick={handleCloseBanner} className="font-bold">
+        <button onClick={handleCloseBanner} className="font-bold  text-white">
           ✕
         </button>
       </div>
