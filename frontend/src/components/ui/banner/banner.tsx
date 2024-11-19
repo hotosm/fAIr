@@ -27,10 +27,6 @@ const Banner = () => {
     setIsBannerVisible(false);
   };
 
-  if (!isBannerVisible || isError || data?.length === 0 || isLoading) {
-    return null;
-  }
-
   const banner = useMemo(
     () => (
       <div className="w-full p-4 bg-primary flex items-center justify-between px-4 text-white">
@@ -40,7 +36,7 @@ const Banner = () => {
             "flex flex-wrap gap-x-2 items-center justify-center w-full"
           }
         >
-          {data?.[0].message}
+          {data?.[0]?.message}
         </Markdown>
         <button onClick={handleCloseBanner} className="font-bold">
           ✕
@@ -49,6 +45,10 @@ const Banner = () => {
     ),
     [data],
   );
+
+  if (!isBannerVisible || isError || data?.length === 0 || isLoading) {
+    return null;
+  }
 
   return banner;
 };
