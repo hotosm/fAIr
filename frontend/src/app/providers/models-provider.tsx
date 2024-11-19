@@ -3,6 +3,8 @@ import { BASE_MODELS, TrainingType, TrainingDatasetOption } from "@/enums";
 import { useCreateTrainingDataset } from "@/features/model-creation/hooks/use-training-datasets";
 import {
   APPLICATION_ROUTES,
+  MODELS_BASE,
+  MODELS_ROUTES,
   showErrorToast,
   showSuccessToast,
   TMS_URL_REGEX_PATTERN,
@@ -278,6 +280,7 @@ export const ModelsProvider: React.FC<{
     if (!isEditMode) return
     // check that the model exists
     // Otherwise, redirect to 404
+    // get the data and set it in state
 
   }, [isEditMode])
 
@@ -327,8 +330,9 @@ export const ModelsProvider: React.FC<{
     mutationConfig: {
       onSuccess: (data) => {
         showSuccessToast(TOAST_NOTIFICATIONS.modelCreationSuccess);
+        const confirmationRoute = `${isEditMode ? MODELS_BASE + '/' + modelId : MODELS_ROUTES.CREATE_MODEL_BASE}/${MODELS_ROUTES.CONFIRMATION}/`;
         navigate(
-          `${APPLICATION_ROUTES.CREATE_NEW_MODEL_CONFIRMATION}?id=${data.id}`,
+          `${confirmationRoute}?id=${data.id}`,
         );
         // Submit the model for training request
         createNewTrainingRequestMutation.mutate({

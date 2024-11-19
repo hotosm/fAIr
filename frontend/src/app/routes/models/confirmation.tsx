@@ -1,3 +1,4 @@
+import { useModelsContext } from "@/app/providers/models-provider";
 import ModelFormConfirmation from "@/assets/images/model_creation_success.png";
 import { Button } from "@/components/ui/button";
 import { Image } from "@/components/ui/image";
@@ -10,6 +11,9 @@ export const ModelConfirmationPage = () => {
   const [searchParams] = useSearchParams();
 
   const modelId = searchParams.get("id");
+  const { isEditMode } = useModelsContext();
+
+
   return (
     <div className={"col-start-3 col-span-8 flex flex-col gap-y-10"}>
       <div className="flex items-center justify-center w-full h-full flex-col gap-y-10 text-center">
@@ -20,7 +24,7 @@ export const ModelConfirmationPage = () => {
           height={10000}
         />
         <Image src={ModelFormConfirmation} alt="Model Creation Success Icon" />
-        <p className="text-title-2">Model {modelId} is Created!</p>
+        <p className="text-title-2">Model {modelId} is {isEditMode ? 'Updated' : 'Created'}!</p>
         <p className="text-gray">
           {MODEL_CREATION_CONTENT.confirmation.description}
         </p>

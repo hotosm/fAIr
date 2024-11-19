@@ -4,7 +4,7 @@ import {
   ProgressButtons,
 } from "@/features/model-creation/components";
 import { Head } from "@/components/seo";
-import { APPLICATION_ROUTES, MODEL_CREATION_CONTENT, MODELS_BASE, MODELS_ROUTES } from "@/utils";
+import { MODEL_CREATION_CONTENT, MODELS_BASE, MODELS_ROUTES } from "@/utils";
 import { useEffect, useState } from "react";
 import {
   CloudIcon,
@@ -89,7 +89,7 @@ const ModelCreationLayout = () => {
             />
           </div>
           <Outlet />
-          {pathname !== APPLICATION_ROUTES.CREATE_NEW_MODEL_CONFIRMATION && (
+          {!pathname.includes(MODELS_ROUTES.CONFIRMATION) && (
             <ProgressButtons
               pages={pages}
               currentPageIndex={currentPageIndex}
@@ -112,7 +112,7 @@ const ModelCreationRouteValidator = ({ pathname, currentPageIndex }: { pathname:
     if (!pathname || !formData || !currentPageIndex) return;
     const prevRoute = `${isEditMode ? MODELS_BASE + '/' + modelId : MODELS_ROUTES.CREATE_MODEL_BASE}/${pages[currentPageIndex - 1].path}`
     if (
-      pathname.includes(APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_DATASET)
+      pathname.includes(MODELS_ROUTES.TRAINING_DATASET)
     ) {
       // When a user is in the training dataset page, they must have filled the model details page
       if (!formData.modelName && !formData.modelDescription)
