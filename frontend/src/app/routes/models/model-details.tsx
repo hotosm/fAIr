@@ -20,6 +20,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import TrainingInProgressImage from "@/assets/images/training_in_prorgress.png";
 import { Image } from "@/components/ui/image";
 import ModelEnhancementDialog from "@/features/models/components/dialogs/model-enhancement-dialog";
+import { TModelDetails } from "@/types";
+import { useAuth } from "@/app/providers/auth-provider";
 
 export const ModelDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -31,7 +33,7 @@ export const ModelDetailsPage = () => {
   } = useDialog();
   const navigate = useNavigate();
   const { data, isPending, isError, error } = useModelDetails(id as string);
-
+  const { isAuthenticated, user } = useAuth()
   useEffect(() => {
     if (isError) {
       navigate(APPLICATION_ROUTES.NOTFOUND, {
@@ -52,7 +54,7 @@ export const ModelDetailsPage = () => {
   if (isPending) {
     return <ModelDetailsSkeleton />;
   }
-
+  const isOwner = isAuthenticated && user.osm_id === data?.user.osm_id;
   return (
     <>
       <ModelEnhancementDialog
@@ -71,7 +73,7 @@ export const ModelDetailsPage = () => {
       <BackButton />
       <div className="my-12 flex flex-col gap-y-20">
         <ModelDetailsInfo
-          data={data}
+          data={data as TModelDetails}
           openModelFilesDialog={openModelFilesDialog}
           openTrainingAreaDialog={openDialog}
         />
@@ -119,6 +121,7 @@ export const ModelDetailsPage = () => {
               size="medium"
               prefixIcon={StarStackIcon}
               onClick={openModelEnhancementDialog}
+              disabled={!isOwner}
             />
           </div>
           <TrainingHistoryTable

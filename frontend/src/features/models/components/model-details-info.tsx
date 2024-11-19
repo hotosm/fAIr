@@ -16,7 +16,7 @@ import ModelDetailsUpdateDialog from "./dialogs/model-details-update-dialog";
 import { useDialog } from "@/hooks/use-dialog";
 import { useAuth } from "@/app/providers/auth-provider";
 import { useGetTrainingDataset } from "../hooks/use-dataset";
-import { TModel } from "@/types";
+import { TModelDetails } from "@/types";
 import { useNavigate } from "react-router-dom";
 
 const ModelDetailsInfo = ({
@@ -24,7 +24,7 @@ const ModelDetailsInfo = ({
   openModelFilesDialog,
   openTrainingAreaDialog,
 }: {
-  data: TModel;
+  data: TModelDetails;
   openModelFilesDialog: () => void;
   openTrainingAreaDialog: () => void;
 }) => {
