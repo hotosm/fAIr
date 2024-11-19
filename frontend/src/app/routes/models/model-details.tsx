@@ -54,7 +54,8 @@ export const ModelDetailsPage = () => {
   if (isPending) {
     return <ModelDetailsSkeleton />;
   }
-  const isOwner = isAuthenticated && user.osm_id === data?.user.osm_id;
+  const isOwner = user?.osm_id === data?.user?.osm_id;
+
   return (
     <>
       <ModelEnhancementDialog
@@ -121,7 +122,7 @@ export const ModelDetailsPage = () => {
               size="medium"
               prefixIcon={StarStackIcon}
               onClick={openModelEnhancementDialog}
-              disabled={!isOwner}
+              disabled={!isAuthenticated || !isOwner}
             />
           </div>
           <TrainingHistoryTable
