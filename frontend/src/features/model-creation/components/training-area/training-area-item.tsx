@@ -5,6 +5,7 @@ import {
   ElipsisIcon,
   FullScreenIcon,
   MapIcon,
+  UploadIcon,
 } from "@/components/ui/icons";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import {
@@ -24,17 +25,21 @@ import {
 import JOSMLogo from "@/assets/svgs/josm_logo.svg";
 import OSMLogo from "@/assets/svgs/osm_logo.svg";
 import { ToolTip } from "@/components/ui/tooltip";
-import { TTrainingAreaFeature } from "@/types";
+import { GeoJSONType, Geometry, TTrainingAreaFeature } from "@/types";
 import {
   fetchOSMDatabaseLastUpdated,
-  useCreateTrainingAreaLabels,
+  useCreateTrainingLabelsForAOI,
   useDeleteTrainingArea,
   useGetTrainingAreaLabels,
+  useGetTrainingAreaLabelsFromOSM,
 } from "@/features/model-creation/hooks/use-training-areas";
 import { useMap } from "@/app/providers/map-provider";
 import { useModelsContext } from "@/app/providers/models-provider";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import FileUploadDialog from "../dialogs/file-upload-dialog";
+import { useDialog } from "@/hooks/use-dialog";
+import { geojsonToWKT } from "@terraformer/wkt";
 
 const TrainingAreaItem: React.FC<
   TTrainingAreaFeature & { datasetId: number; offset: number }
@@ -48,8 +53,9 @@ const TrainingAreaItem: React.FC<
     false,
   );
   const { map } = useMap();
+  const { isOpened, openDialog, closeDialog } = useDialog();
 
-  const trainingAreaLabelsMutation = useCreateTrainingAreaLabels({
+  const trainingAreaLabelsMutation = useGetTrainingAreaLabelsFromOSM({
     datasetId,
     offset,
     aoiId: trainingArea.id,
@@ -162,6 +168,12 @@ const TrainingAreaItem: React.FC<
       onClick: () => handleAOILabelsDownload(),
     },
     {
+      tooltip: MODEL_CREATION_CONTENT.trainingArea.toolTips.uploadLabels,
+      isIcon: true,
+      Icon: UploadIcon,
+      onClick: openDialog,
+    },
+    {
       tooltip: MODEL_CREATION_CONTENT.trainingArea.toolTips.deleteAOI,
       isIcon: true,
       Icon: DeleteIcon,
@@ -210,109 +222,127 @@ const TrainingAreaItem: React.FC<
   const { data, isPending, isError } = useQuery({
     queryKey: ["osm-database-last-updated"],
     queryFn: fetchOSMDatabaseLastUpdated,
-    refetchInterval: 3000,
+    refetchInterval: 5000,
   });
 
+  const createTrainingLabelsForAOI = useCreateTrainingLabelsForAOI({});
+
+  const fileUploadHandler = async (geometry: Geometry) => {
+    const wkt = geojsonToWKT(geometry as GeoJSONType);
+    createTrainingLabelsForAOI.mutate({ aoiId: trainingArea.id, geom: wkt });
+  };
+
   return (
-    <div className="flex items-center justify-between w-full gap-x-4">
-      <div className="flex flex-col gap-y-1">
-        <p className="text-body-3 ">
-          ID: <span className="font-semibold">{trainingArea.id}</span>
-        </p>
-        <p className="text-body-4 text-dark" title={`${trainingAreaSize}`}>
-          {truncateString(trainingAreaSize, 15)}
-        </p>
-        <p
-          className={`text-body-4 text-dark ${trainingArea.properties.label_fetched === null && "text-primary"}`}
-        >
-          {trainingAreaLabelsMutation.isPending
-            ? "Fetching labels..."
-            : trainingArea.properties.label_fetched !== null
-              ? truncateString(
+    <>
+      <FileUploadDialog
+        disabled={createTrainingLabelsForAOI.isPending}
+        isOpened={isOpened}
+        closeDialog={closeDialog}
+        label={"Upload AOI Labels"}
+        fileUploadHandler={fileUploadHandler}
+        successToast={TOAST_NOTIFICATIONS.aoiLabelsUploadSuccess}
+      />
+
+      <div className="flex items-center justify-between w-full gap-x-4">
+        <div className="flex flex-col gap-y-1">
+          <p className="text-body-3 ">
+            ID: <span className="font-semibold">{trainingArea.id}</span>
+          </p>
+          <p className="text-body-4 text-dark" title={`${trainingAreaSize}`}>
+            {truncateString(trainingAreaSize, 15)}
+          </p>
+          <p
+            className={`text-body-4 text-dark ${trainingArea.properties.label_fetched === null && "text-primary"}`}
+          >
+            {trainingAreaLabelsMutation.isPending
+              ? "Fetching labels..."
+              : trainingArea.properties.label_fetched !== null
+                ? truncateString(
                   `Fetched ${timeSinceLabelFetch === "0 sec" ? "just now" : `${timeSinceLabelFetch} ago`}`,
                   20,
                 )
-              : "No labels yet"}
-        </p>
-      </div>
-      <div className="flex items-center gap-x-3">
-        <ToolTip
-          content={
-            <span className="flex flex-col gap-y-1">
-              {MODEL_CREATION_CONTENT.trainingArea.toolTips.fetchOSMLabels}
-              {isPending || isError ? (
-                ""
-              ) : (
-                <small>
-                  {
-                    MODEL_CREATION_CONTENT.trainingArea.toolTips
-                      .lastUpdatedPrefix
-                  }{" "}
-                  {formatDuration(
-                    new Date(String(data?.lastUpdated)),
-                    new Date(),
-                    1,
-                  )}{" "}
-                  ago
-                </small>
-              )}
-            </span>
-          }
-        >
-          <button
-            disabled={trainingAreaLabelsMutation.isPending}
-            className="bg-green-secondary px-2 py-1 rounded-md"
-            onClick={() =>
-              trainingAreaLabelsMutation.mutate({ aoiId: trainingArea.id })
+                : "No labels yet"}
+          </p>
+        </div>
+        <div className="flex items-center gap-x-3">
+          <ToolTip
+            content={
+              <span className="flex flex-col gap-y-1">
+                {MODEL_CREATION_CONTENT.trainingArea.toolTips.fetchOSMLabels}
+                {isPending || isError ? (
+                  ""
+                ) : (
+                  <small>
+                    {
+                      MODEL_CREATION_CONTENT.trainingArea.toolTips
+                        .lastUpdatedPrefix
+                    }{" "}
+                    {formatDuration(
+                      new Date(String(data?.lastUpdated)),
+                      new Date(),
+                      1,
+                    )}{" "}
+                    ago
+                  </small>
+                )}
+              </span>
             }
           >
-            <MapIcon className="icon text-green-primary" />
-          </button>
-        </ToolTip>
-        <ToolTip
-          content={MODEL_CREATION_CONTENT.trainingArea.toolTips.zoomToAOI}
-        >
-          <button
-            className="bg-off-white px-2 py-1 rounded-md"
-            onClick={handleFitToBounds}
-          >
-            <FullScreenIcon className="icon" />
-          </button>
-        </ToolTip>
-        <DropDown
-          disableCheveronIcon
-          dropdownIsOpened={dropdownIsOpened}
-          onDropdownHide={onDropdownHide}
-          onDropdownShow={onDropdownShow}
-          triggerComponent={
-            <button className="bg-off-white p-2 rounded-full items-center flex justify-center">
-              <ElipsisIcon className="icon" />
+            <button
+              disabled={trainingAreaLabelsMutation.isPending}
+              className="bg-green-secondary px-2 py-1 rounded-md"
+              onClick={() =>
+                trainingAreaLabelsMutation.mutate({ aoiId: trainingArea.id })
+              }
+            >
+              <MapIcon className="icon text-green-primary" />
             </button>
-          }
-          className="text-right"
-          distance={10}
-        >
-          <div className="flex gap-x-4 p-2 justify-between items-center bg-white">
-            {dropdownMenuItems.map((item, id_) => (
-              <ToolTip content={item.tooltip} key={`menu-item-${id_}`}>
-                <button
-                  onClick={() => item.onClick()}
-                  className={` ${item.isDelete ? "text-primary bg-secondary" : "bg-off-white"}  w-8 h-8 p-1.5 items-center justify-center flex rounded-md`}
-                  key={`dropdown-menu-item-${id_}`}
-                >
-                  {item.isIcon ? (
-                    // @ts-expect-error bad type definition
-                    <item.Icon className="icon-lg" />
-                  ) : (
-                    <img src={item.imageSrc} className="icon-lg" />
-                  )}
-                </button>
-              </ToolTip>
-            ))}
-          </div>
-        </DropDown>
+          </ToolTip>
+          <ToolTip
+            content={MODEL_CREATION_CONTENT.trainingArea.toolTips.zoomToAOI}
+          >
+            <button
+              className="bg-off-white px-2 py-1 rounded-md"
+              onClick={handleFitToBounds}
+            >
+              <FullScreenIcon className="icon" />
+            </button>
+          </ToolTip>
+          <DropDown
+            disableCheveronIcon
+            dropdownIsOpened={dropdownIsOpened}
+            onDropdownHide={onDropdownHide}
+            onDropdownShow={onDropdownShow}
+            triggerComponent={
+              <button className="bg-off-white p-2 rounded-full items-center flex justify-center">
+                <ElipsisIcon className="icon" />
+              </button>
+            }
+            className="text-right"
+            distance={10}
+          >
+            <div className="flex gap-x-4 p-2 justify-between items-center bg-white">
+              {dropdownMenuItems.map((item, id_) => (
+                <ToolTip content={item.tooltip} key={`menu-item-${id_}`}>
+                  <button
+                    onClick={() => item.onClick()}
+                    className={` ${item.isDelete ? "text-primary bg-secondary" : "bg-off-white"}  w-8 h-8 p-1.5 items-center justify-center flex rounded-md`}
+                    key={`dropdown-menu-item-${id_}`}
+                  >
+                    {item.isIcon ? (
+                      // @ts-expect-error bad type definition
+                      <item.Icon className="icon-lg" />
+                    ) : (
+                      <img src={item.imageSrc} className="icon-lg" />
+                    )}
+                  </button>
+                </ToolTip>
+              ))}
+            </div>
+          </DropDown>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

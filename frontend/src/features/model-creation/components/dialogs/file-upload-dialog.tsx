@@ -1,33 +1,26 @@
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { DeleteIcon, FileIcon, UploadIcon } from "@/components/ui/icons";
-import {
-  DialogProps,
-  Feature,
-  FeatureCollection,
-  GeoJSONType,
-  Geometry,
-} from "@/types";
+import { DialogProps, Feature, FeatureCollection, Geometry } from "@/types";
 import {
   MAX_TRAINING_AREA_UPLOAD_FILE_SIZE,
   MODEL_CREATION_CONTENT,
   showErrorToast,
   showSuccessToast,
-  snapGeoJSONGeometryToClosestTile,
-  TOAST_NOTIFICATIONS,
   truncateString,
   validateGeoJSONArea,
 } from "@/utils";
 import { SlFormatBytes } from "@shoelace-style/shoelace/dist/react";
 import { useCallback, useState } from "react";
 import { FileWithPath, useDropzone } from "react-dropzone";
-import { useCreateTrainingArea } from "@/features/model-creation/hooks/use-training-areas";
-import { geojsonToWKT } from "@terraformer/wkt";
 import useScreenSize from "@/hooks/use-screen-size";
+import { SHOELACE_SIZES } from "@/enums";
 
 type FileUploadDialogProps = DialogProps & {
-  datasetId: string;
-  offset: number;
+  label: string;
+  fileUploadHandler: (geometry: Geometry) => void;
+  successToast: string;
+  disabled: boolean;
 };
 
 interface AcceptedFile {
@@ -38,14 +31,12 @@ interface AcceptedFile {
 const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
   isOpened,
   closeDialog,
-  datasetId,
-  offset,
+  label,
+  fileUploadHandler,
+  successToast,
+  disabled,
 }) => {
   const [acceptedFiles, setAcceptedFiles] = useState<AcceptedFile[]>([]);
-  const createTrainingArea = useCreateTrainingArea({
-    datasetId: Number(datasetId),
-    offset: offset,
-  });
 
   const onDrop = useCallback((files: FileWithPath[]) => {
     const initialValidFiles = files.filter((file) => {
@@ -102,7 +93,7 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
     accept: {
       "application/json": [".geojson", ".json"],
     },
-    disabled: createTrainingArea.isPending,
+    disabled: disabled,
   });
 
   const deleteFile = (fileId: string) => {
@@ -113,6 +104,7 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
     clearAcceptedFiles();
     closeDialog();
   };
+
   const handleUpload = async () => {
     const promises = acceptedFiles.map((file: AcceptedFile) => {
       return new Promise<void>((resolve, reject) => {
@@ -139,12 +131,7 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
               throw new Error("Invalid GeoJSON format");
             }
             for (const geometry of geometries) {
-              snapGeoJSONGeometryToClosestTile(geometry);
-              const wkt = geojsonToWKT(geometry as GeoJSONType);
-              await createTrainingArea.mutateAsync({
-                dataset: datasetId,
-                geom: `SRID=4326;${wkt}`,
-              });
+              fileUploadHandler(geometry);
             }
             resolve();
           } catch (error) {
@@ -168,7 +155,7 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
 
     try {
       await Promise.all(promises);
-      showSuccessToast(TOAST_NOTIFICATIONS.trainingAreasFileUploadSuccess);
+      showSuccessToast(successToast);
       resetState();
     } catch (error) {
       showErrorToast(error);
@@ -200,9 +187,9 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
     <Dialog
       isOpened={isOpened}
       closeDialog={resetState}
-      label="Upload Training Area(s)"
-      preventClose={createTrainingArea.isPending}
-      size={isMobile ? "extra-large" : "medium"}
+      label={label}
+      preventClose={disabled}
+      size={isMobile ? SHOELACE_SIZES.EXTRA_LARGE : SHOELACE_SIZES.MEDIUM}
     >
       <div className="flex flex-col gap-y-4">
         <div
@@ -242,9 +229,7 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
         </ul>
         <div className="self-end">
           <Button
-            disabled={
-              acceptedFiles.length === 0 || createTrainingArea.isPending
-            }
+            disabled={acceptedFiles.length === 0 || disabled}
             onClick={handleUpload}
           >
             {MODEL_CREATION_CONTENT.trainingArea.form.upload}

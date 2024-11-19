@@ -7,9 +7,11 @@ import {
 import { API_ENDPOINTS, MutationConfig } from "@/services";
 import {
   createTrainingArea,
-  createTrainingAreaLabels,
+  createTrainingLabelsForAOI,
+  getTrainingAreaLabelsFromOSM,
   TCreateTrainingAreaArgs,
-  TCreateTrainingAreaLabelsArgs,
+  TCreateTrainingLabelsForAOIArgs,
+  TGetTrainingAreaLabelsFromOSMArgs,
 } from "@/features/model-creation/api/create-trainings";
 import { deleteTrainingArea } from "@/features/model-creation/api/delete-trainings";
 import { TRAINING_LABELS_MIN_ZOOM_LEVEL } from "@/utils";
@@ -51,6 +53,27 @@ export const useCreateTrainingArea = ({
   });
 };
 
+type useCreateTrainingLabelsForAOIOptions = {
+  mutationConfig?: MutationConfig<typeof createTrainingLabelsForAOI>;
+};
+
+export const useCreateTrainingLabelsForAOI = ({
+  mutationConfig,
+}: useCreateTrainingLabelsForAOIOptions) => {
+  // fetch training labels for the aoi
+
+  const { onSuccess, ...restConfig } = mutationConfig || {};
+
+  return useMutation({
+    mutationFn: (args: TCreateTrainingLabelsForAOIArgs) =>
+      createTrainingLabelsForAOI(args),
+    onSuccess: (...args) => {
+      onSuccess?.(...args);
+    },
+    ...restConfig,
+  });
+};
+
 type useDeleteTrainingAreaOptions = {
   mutationConfig?: MutationConfig<typeof deleteTrainingArea>;
   datasetId: number;
@@ -79,18 +102,18 @@ export const useDeleteTrainingArea = ({
   });
 };
 
-type useCreateTrainingAreaLabelOptions = {
+type useGetTrainingAreaLabelsFromOSMOptions = {
   aoiId: number;
-  mutationConfig?: MutationConfig<typeof createTrainingAreaLabels>;
+  mutationConfig?: MutationConfig<typeof getTrainingAreaLabelsFromOSM>;
   datasetId: number;
   offset: number;
 };
 
-export const useCreateTrainingAreaLabels = ({
+export const useGetTrainingAreaLabelsFromOSM = ({
   mutationConfig,
   datasetId,
   offset,
-}: useCreateTrainingAreaLabelOptions) => {
+}: useGetTrainingAreaLabelsFromOSMOptions) => {
   const { refetch: refetchTrainingAreas } = useGetTrainingAreas(
     datasetId,
     offset,
@@ -98,8 +121,8 @@ export const useCreateTrainingAreaLabels = ({
   const { onSuccess, ...restConfig } = mutationConfig || {};
 
   return useMutation({
-    mutationFn: (args: TCreateTrainingAreaLabelsArgs) =>
-      createTrainingAreaLabels(args),
+    mutationFn: (args: TGetTrainingAreaLabelsFromOSMArgs) =>
+      getTrainingAreaLabelsFromOSM(args),
     onSuccess: (...args) => {
       refetchTrainingAreas();
       onSuccess?.(...args);

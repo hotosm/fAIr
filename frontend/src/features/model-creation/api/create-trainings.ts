@@ -74,14 +74,31 @@ export const createTrainingRequest = async ({
   ).data;
 };
 
-export type TCreateTrainingAreaLabelsArgs = {
+export type TGetTrainingAreaLabelsFromOSMArgs = {
   aoiId: number;
 };
 
-export const createTrainingAreaLabels = async ({
+export const getTrainingAreaLabelsFromOSM = async ({
   aoiId,
-}: TCreateTrainingAreaLabelsArgs): Promise<String> => {
+}: TGetTrainingAreaLabelsFromOSMArgs): Promise<String> => {
   return await (
-    await apiClient.post(API_ENDPOINTS.CREATE_TRAINING_AREA_LABELS(aoiId))
+    await apiClient.post(API_ENDPOINTS.GET_TRAINING_AREA_LABELS_FROM_OSM(aoiId))
+  ).data;
+};
+
+export type TCreateTrainingLabelsForAOIArgs = {
+  aoiId: number;
+  geom: string;
+};
+
+export const createTrainingLabelsForAOI = async ({
+  aoiId,
+  geom,
+}: TCreateTrainingLabelsForAOIArgs): Promise<String> => {
+  return await (
+    await apiClient.post(API_ENDPOINTS.CREATE_TRAINING_AREA_LABELS, {
+      aoi: aoiId,
+      geom: geom,
+    })
   ).data;
 };

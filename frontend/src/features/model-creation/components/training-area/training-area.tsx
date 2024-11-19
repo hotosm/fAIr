@@ -10,15 +10,21 @@ import { useDialog } from "@/hooks/use-dialog";
 import FileUploadDialog from "@/features/model-creation/components/dialogs/file-upload-dialog";
 import { useEffect, useState } from "react";
 import TrainingAreaList from "@/features/model-creation/components/training-area/training-area-list";
-import { useGetTrainingAreas } from "@/features/model-creation/hooks/use-training-areas";
+import {
+  useCreateTrainingArea,
+  useGetTrainingAreas,
+} from "@/features/model-creation/hooks/use-training-areas";
 import OpenAerialMap from "@/features/model-creation/components/training-area/open-area-map";
 import { useMap } from "@/app/providers/map-provider";
 import {
   MODEL_CREATION_CONTENT,
   showSuccessToast,
+  snapGeoJSONGeometryToClosestTile,
   TOAST_NOTIFICATIONS,
 } from "@/utils";
 import { DrawingModes } from "@/enums";
+import { GeoJSONType, Geometry } from "@/types";
+import { geojsonToWKT } from "@terraformer/wkt";
 
 const TrainingAreaForm = () => {
   const { formData } = useModelsContext();
@@ -45,13 +51,28 @@ const TrainingAreaForm = () => {
     );
   }, [trainingAreasData]);
 
+  const createTrainingArea = useCreateTrainingArea({
+    datasetId: Number(formData.selectedTrainingDatasetId),
+    offset: offset,
+  });
+
+  const fileUploadHandler = async (geometry: Geometry) => {
+    snapGeoJSONGeometryToClosestTile(geometry);
+    const wkt = geojsonToWKT(geometry as GeoJSONType);
+    await createTrainingArea.mutateAsync({
+      dataset: formData.selectedTrainingDatasetId,
+      geom: `SRID=4326;${wkt}`,
+    });
+  };
   return (
     <>
       <FileUploadDialog
         isOpened={isOpened}
         closeDialog={closeDialog}
-        datasetId={formData.selectedTrainingDatasetId}
-        offset={offset}
+        label={"Upload Training Area(s)"}
+        fileUploadHandler={fileUploadHandler}
+        successToast={TOAST_NOTIFICATIONS.trainingAreasFileUploadSuccess}
+        disabled={createTrainingArea.isPending}
       />
       <div className="min-h-screen flex flex-col">
         <div className="flex justify-between items-center mb-10">

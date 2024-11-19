@@ -37,7 +37,9 @@ export const API_ENDPOINTS = {
   CREATE_TRAINING_DATASETS: "dataset/",
   GET_TRAINING_AREA_GPX: (aoiId: number) => `aoi/gpx/${aoiId}`,
   CREATE_TRAINING_AREA: "aoi/",
-  CREATE_TRAINING_AREA_LABELS: (aoiId: number) => `label/osm/fetch/${aoiId}/`,
+  GET_TRAINING_AREA_LABELS_FROM_OSM: (aoiId: number) =>
+    `label/osm/fetch/${aoiId}/`,
+  CREATE_TRAINING_AREA_LABELS: `label/`,
 
   GET_TRAINING_AREA_LABELS: (aoiId: number) => `label/?aoi=${aoiId}`,
 
