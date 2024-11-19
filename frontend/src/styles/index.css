@@ -136,6 +136,10 @@ sl-alert.success::part(base) {
   .map-icon {
     @apply inline-block h-4 w-4  p-2;
   }
+
+  .banner-markdown{
+    @apply flex flex-wrap gap-x-2 items-center justify-center w-full prose 
+  }
 }
 
 /* Icon styles ends */

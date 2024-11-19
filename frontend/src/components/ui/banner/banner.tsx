@@ -33,7 +33,7 @@ const Banner = () => {
         <Markdown
           remarkPlugins={[remarkGfm]}
           className={
-            "flex flex-wrap gap-x-2 items-center justify-center w-full"
+            "banner-markdown"
           }
         >
           {data?.[0]?.message}
