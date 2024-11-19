@@ -27,6 +27,10 @@ const Banner = () => {
     setIsBannerVisible(false);
   };
 
+  if (!isBannerVisible || isError || data?.length === 0 || isLoading) {
+    return null;
+  }
+
   const banner = useMemo(
     () => (
       <div className="w-full p-4 bg-primary flex items-center justify-between px-4 text-white">
@@ -45,10 +49,6 @@ const Banner = () => {
     ),
     [data],
   );
-
-  if (!isBannerVisible || isError || data?.length === 0 || isLoading) {
-    return null;
-  }
 
   return banner;
 };
