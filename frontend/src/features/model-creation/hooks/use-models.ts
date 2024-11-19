@@ -30,7 +30,7 @@ export const useCreateModel = ({ mutationConfig }: useCreateModelOptions) => {
   });
 };
 
-type useCreateModelTrainingOptions = {
+export type useCreateModelTrainingOptions = {
   mutationConfig?: MutationConfig<typeof createTrainingRequest>;
 };
 

@@ -11,6 +11,8 @@ import {
   useModelsContext,
 } from "@/app/providers/models-provider";
 import { useEffect } from "react";
+import { PAGE_LIMIT } from "@/components/pagination";
+import { useTrainingHistory } from "../../hooks/use-training";
 
 type ModelEnhancementDialogProps = {
   isOpened: boolean;
@@ -35,7 +37,6 @@ const ModelTrainingSettingsDialog: React.FC<ModelEnhancementDialogProps> = ({
     Update the base model in the state since it's required for enabling/disabling some advanced settings. 
   */
   }
-
   useEffect(() => {
     if (!data) return;
     handleChange(
@@ -45,6 +46,11 @@ const ModelTrainingSettingsDialog: React.FC<ModelEnhancementDialogProps> = ({
   }, [data?.base_model]);
 
   const disableButton = formData.zoomLevels.length === 0;
+  const { refetch: refetchTrainingHistory } = useTrainingHistory(
+    modelId as string,
+    0,
+    PAGE_LIMIT,
+  );
 
   const handleClick = () => {
     createNewTrainingRequestMutation.mutate(
@@ -58,6 +64,7 @@ const ModelTrainingSettingsDialog: React.FC<ModelEnhancementDialogProps> = ({
       },
       {
         onSuccess: () => {
+          refetchTrainingHistory();
           closeDialog();
         },
         onError: () => {
