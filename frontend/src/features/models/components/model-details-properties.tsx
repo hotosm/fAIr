@@ -236,7 +236,7 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
               href={
                 // @ts-expect-error bad type definition
                 APP_CONTENT.models.modelsDetailsCard.properties.baseModel.href[
-                  baseModel
+                baseModel
                 ]
               }
             />
@@ -324,7 +324,7 @@ const FailedTrainingTraceBack = ({ taskId }: { taskId: string }) => {
     );
   }
   return (
-    <div className="col-span-5 flex flex-col gap-y-4 w-full h-20">
+    <div className="col-span-5 flex flex-col gap-y-4 w-full h-40">
       <button
         onClick={() => setShowLogs(!showLogs)}
         className="flex items-center gap-x-2"
