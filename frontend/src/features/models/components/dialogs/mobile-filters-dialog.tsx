@@ -7,6 +7,7 @@ import {
 } from "@/features/models/components/filters";
 import { DialogProps, TQueryParams } from "@/types";
 import { Button } from "@/components/ui/button";
+import { SHOELACE_SIZES } from "@/enums";
 
 type TrainingAreaDialogProps = DialogProps & {
   updateQuery: (updatedParams: TQueryParams) => void;
@@ -42,7 +43,7 @@ const MobileModelFiltersDialog: React.FC<TrainingAreaDialogProps> = ({
       isOpened={isOpened}
       closeDialog={closeDialog}
       label={"Filter"}
-      size={isMobile ? "extra-large" : "medium"}
+      size={isMobile ? SHOELACE_SIZES.EXTRA_LARGE : SHOELACE_SIZES.MEDIUM}
     >
       <div className="flex flex-col gap-y-4">
         <FilterItem title="Sort by">

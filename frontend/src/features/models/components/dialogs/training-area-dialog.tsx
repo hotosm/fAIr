@@ -3,6 +3,7 @@ import useScreenSize from "@/hooks/use-screen-size";
 import { MapComponent } from "@/components/map";
 import { cn } from "@/utils";
 import { DialogProps } from "@/types";
+import { SHOELACE_SIZES } from "@/enums";
 
 type TrainingAreaDialogProps = DialogProps;
 
@@ -17,7 +18,7 @@ const TrainingAreaDialog: React.FC<TrainingAreaDialogProps> = ({
       isOpened={isOpened}
       closeDialog={closeDialog}
       label={"Training Area"}
-      size={isMobile ? "extra-large" : "large"}
+      size={isMobile ? SHOELACE_SIZES.EXTRA_LARGE : SHOELACE_SIZES.LARGE}
     >
       <div className={cn(`${!isMobile ? "h-[600px]" : "h-[350px]"}`)}>
         <div className="h-full w-full">

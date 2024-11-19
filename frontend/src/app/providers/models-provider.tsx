@@ -151,8 +151,6 @@ type FormData = {
   batchSize: number;
   boundaryWidth: number;
   zoomLevels: number[];
-  trainingRequestIsSuccessful: boolean;
-  trainingRequestMessage: string;
   trainingSettingsIsValid: boolean;
 };
 
@@ -220,8 +218,8 @@ const ModelsContext = createContext<{
   >;
 }>({
   formData: initialFormState,
-  setFormData: () => {},
-  handleChange: () => {},
+  setFormData: () => { },
+  handleChange: () => { },
   createNewTrainingDatasetMutation: {} as UseMutationResult<
     TTrainingDataset,
     Error,
@@ -242,7 +240,7 @@ const ModelsContext = createContext<{
   >,
   hasLabeledTrainingAreas: false,
   hasAOIsWithGeometry: false,
-  resetState: () => {},
+  resetState: () => { },
 });
 
 export const ModelsProvider: React.FC<{

@@ -64,7 +64,7 @@ const Select: React.FC<SelectProps> = ({
       {options?.map((option, id) => (
         <SlOption
           key={`select-option-${id}`}
-          value={option.value}
+          value={option.value as string}
           className="flex flex-col gap-y-1"
         >
           <span>{option.name}</span>
