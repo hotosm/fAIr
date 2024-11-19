@@ -86,6 +86,7 @@ const router = createBrowserRouter([
           </ProtectedPage>
         ),
         children: [
+          // Creation
           {
             path: APPLICATION_ROUTES.CREATE_NEW_MODEL,
             lazy: async () => {
@@ -143,6 +144,73 @@ const router = createBrowserRouter([
           },
           {
             path: APPLICATION_ROUTES.CREATE_NEW_MODEL_CONFIRMATION,
+            lazy: async () => {
+              const { ModelConfirmationPage } = await import(
+                "@/app/routes/models/confirmation"
+              );
+              return {
+                Component: () => <ModelConfirmationPage />,
+              };
+            },
+          },
+          //Edit
+          {
+            path: APPLICATION_ROUTES.EDIT_MODEL_DETAILS,
+            lazy: async () => {
+              const { ModelDetailsFormPage } = await import(
+                "@/app/routes/models/model-details-form"
+              );
+              return {
+                Component: () => <ModelDetailsFormPage />,
+              };
+            },
+          },
+          {
+            path: APPLICATION_ROUTES.EDIT_MODEL_TRAINING_DATASET,
+            lazy: async () => {
+              const { ModelTrainingDatasetPage } = await import(
+                "@/app/routes/models/training-dataset"
+              );
+              return {
+                Component: () => <ModelTrainingDatasetPage />,
+              };
+            },
+          },
+          {
+            path: APPLICATION_ROUTES.EDIT_MODEL_TRAINING_AREA,
+            lazy: async () => {
+              const { ModelTrainingAreaPage } = await import(
+                "@/app/routes/models/training-area"
+              );
+              return {
+                Component: () => <ModelTrainingAreaPage />,
+              };
+            },
+          },
+          {
+            path: APPLICATION_ROUTES.EDIT_MODEL_TRAINING_SETTINGS,
+            lazy: async () => {
+              const { ModelTrainingSettingsPage } = await import(
+                "@/app/routes/models/training-settings"
+              );
+              return {
+                Component: () => <ModelTrainingSettingsPage />,
+              };
+            },
+          },
+          {
+            path: APPLICATION_ROUTES.EDIT_MODEL_SUMMARY,
+            lazy: async () => {
+              const { ModelSummaryPage } = await import(
+                "@/app/routes/models/summary"
+              );
+              return {
+                Component: () => <ModelSummaryPage />,
+              };
+            },
+          },
+          {
+            path: APPLICATION_ROUTES.EDIT_MODEL_CONFIRMATION,
             lazy: async () => {
               const { ModelConfirmationPage } = await import(
                 "@/app/routes/models/confirmation"

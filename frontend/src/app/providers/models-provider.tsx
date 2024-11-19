@@ -17,7 +17,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Feature, TModel, TTrainingDataset, TTrainingDetails } from "@/types";
 import {
   TCreateTrainingDatasetArgs,
@@ -265,6 +265,8 @@ export const ModelsProvider: React.FC<{
   };
 
   const timeOutRef = useRef<number | null>(null);
+  const { modelId } = useParams();
+  console.log(modelId);
 
   useEffect(() => {
     // Cleanup the timeout on component unmount

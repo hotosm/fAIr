@@ -13,6 +13,14 @@ export const APPLICATION_ROUTES = {
   CREATE_NEW_MODEL_TRAINING_AREA: "/models/new/training-area",
   CREATE_NEW_MODEL_TRAINING_SETTINGS: "/models/new/training-settings",
   CREATE_NEW_MODEL_SUMMARY: "/models/new/model-summary",
+
+  EDIT_MODEL_DETAILS: "/models/:modelId",
+  EDIT_MODEL_TRAINING_DATASET: "/models/:modelId/training-dataset",
+  EDIT_MODEL_CONFIRMATION: "/models/:modelId/confirmation",
+  EDIT_MODEL_TRAINING_AREA: "/models/:modelId/training-area",
+  EDIT_MODEL_TRAINING_SETTINGS: "/models/:modelId/training-settings",
+  EDIT_MODEL_SUMMARY: "/models/:modelId/model-summary",
+
   // Model routes end
   TRAINING_DATASETS: "/training-datasets",
   START_MAPPING_BASE: "/start-mapping/",
