@@ -241,6 +241,7 @@ const TrainingAreaItem: React.FC<
         label={"Upload AOI Labels"}
         fileUploadHandler={fileUploadHandler}
         successToast={TOAST_NOTIFICATIONS.aoiLabelsUploadSuccess}
+        disableFileSizeValidation
       />
 
       <div className="flex items-center justify-between w-full gap-x-4">
