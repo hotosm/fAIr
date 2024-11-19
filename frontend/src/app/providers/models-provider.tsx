@@ -1,10 +1,8 @@
 import { BASE_MODELS, TrainingType, TrainingDatasetOption } from "@/enums";
 
 import { useCreateTrainingDataset } from "@/features/model-creation/hooks/use-training-datasets";
-import { useSessionStorage } from "@/hooks/use-storage";
 import {
   APPLICATION_ROUTES,
-  HOT_FAIR_MODEL_CREATION_LOCAL_STORAGE_KEY,
   showErrorToast,
   showSuccessToast,
   TMS_URL_REGEX_PATTERN,
@@ -20,8 +18,11 @@ import React, {
   useState,
 } from "react";
 import { useNavigate } from "react-router-dom";
-import { Feature, TModel, TTrainingDataset } from "@/types";
-import { TCreateTrainingDatasetArgs } from "@/features/model-creation/api/create-trainings";
+import { Feature, TModel, TTrainingDataset, TTrainingDetails } from "@/types";
+import {
+  TCreateTrainingDatasetArgs,
+  TCreateTrainingRequestArgs,
+} from "@/features/model-creation/api/create-trainings";
 import {
   useCreateModel,
   useCreateModelTrainingRequest,
@@ -211,6 +212,12 @@ const ModelsContext = createContext<{
   hasLabeledTrainingAreas: boolean;
   hasAOIsWithGeometry: boolean;
   resetState: () => void;
+  createNewTrainingRequestMutation: UseMutationResult<
+    TTrainingDetails,
+    Error,
+    TCreateTrainingRequestArgs,
+    unknown
+  >;
 }>({
   formData: initialFormState,
   setFormData: () => {},
@@ -227,6 +234,12 @@ const ModelsContext = createContext<{
     TCreateModelArgs,
     unknown
   >,
+  createNewTrainingRequestMutation: {} as UseMutationResult<
+    TTrainingDetails,
+    Error,
+    TCreateTrainingRequestArgs,
+    unknown
+  >,
   hasLabeledTrainingAreas: false,
   hasAOIsWithGeometry: false,
   resetState: () => {},
@@ -235,13 +248,10 @@ const ModelsContext = createContext<{
 export const ModelsProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
-  const { setValue, getValue } = useSessionStorage();
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState<typeof initialFormState>(() => {
-    const savedData = getValue(HOT_FAIR_MODEL_CREATION_LOCAL_STORAGE_KEY);
-    return savedData ? JSON.parse(savedData) : initialFormState;
-  });
+  const [formData, setFormData] =
+    useState<typeof initialFormState>(initialFormState);
 
   const handleChange = (
     field: string,
@@ -267,7 +277,7 @@ export const ModelsProvider: React.FC<{
     };
   }, []);
 
-  const trainingRequestMutation = useCreateModelTrainingRequest({
+  const createNewTrainingRequestMutation = useCreateModelTrainingRequest({
     mutationConfig: {
       onSuccess: () => {
         showSuccessToast(TOAST_NOTIFICATIONS.trainingRequestSubmittedSuccess);
@@ -275,7 +285,6 @@ export const ModelsProvider: React.FC<{
           setFormData(initialFormState);
         }, 2000);
       },
-
       onError: (error) => {
         showErrorToast(error);
       },
@@ -309,7 +318,7 @@ export const ModelsProvider: React.FC<{
           `${APPLICATION_ROUTES.CREATE_NEW_MODEL_CONFIRMATION}?id=${data.id}`,
         );
         // Submit the model for training request
-        trainingRequestMutation.mutate({
+        createNewTrainingRequestMutation.mutate({
           model: data.id,
           input_boundary_width: formData.boundaryWidth,
           input_contact_spacing: formData.contactSpacing,
@@ -323,13 +332,6 @@ export const ModelsProvider: React.FC<{
       },
     },
   });
-
-  useEffect(() => {
-    setValue(
-      HOT_FAIR_MODEL_CREATION_LOCAL_STORAGE_KEY,
-      JSON.stringify(formData),
-    );
-  }, [formData]);
 
   // Confirm that all the training areas labels has been retrieved
   const hasLabeledTrainingAreas = useMemo(() => {
@@ -346,9 +348,11 @@ export const ModelsProvider: React.FC<{
         .length === 0
     );
   }, [formData]);
+
   const resetState = () => {
     setFormData(initialFormState);
   };
+
   const memoizedValues = useMemo(
     () => ({
       setFormData,
@@ -359,6 +363,7 @@ export const ModelsProvider: React.FC<{
       hasAOIsWithGeometry,
       formData,
       resetState,
+      createNewTrainingRequestMutation,
     }),
     [
       setFormData,
@@ -369,6 +374,7 @@ export const ModelsProvider: React.FC<{
       hasLabeledTrainingAreas,
       hasAOIsWithGeometry,
       resetState,
+      createNewTrainingRequestMutation,
     ],
   );
 

@@ -11,6 +11,10 @@ export const API_ENDPOINTS = {
 
   GET_KPI_STATS: "kpi/stats/ ",
 
+  //Banner
+
+  GET_BANNER: "banner",
+
   //Models
   GET_MODELS: "model/",
   CREATE_MODELS: "model/",

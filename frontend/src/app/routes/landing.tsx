@@ -1,5 +1,4 @@
-import { Footer } from "@/components/ui/footer";
-import { Header, NavBar } from "@/components/ui/header";
+import { Header } from "@/components/ui/header";
 import WhatIsFAIR from "@/components/landing/about-fair/about-fair";
 import CoreFeatures from "@/components/landing/core-features/core-features";
 import Corevalues from "@/components/landing/core-values/core-values";
@@ -14,7 +13,6 @@ export const LandingPage = () => {
   return (
     <>
       <Head title="Home" />
-      <NavBar />
       <Header />
       <Kpi />
       <WhatIsFAIR />
@@ -24,7 +22,6 @@ export const LandingPage = () => {
       <FAQs />
       <TaglineBanner />
       <CallToAction />
-      <Footer />
     </>
   );
 };

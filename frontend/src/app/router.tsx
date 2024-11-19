@@ -13,15 +13,15 @@ import { MapProvider } from "./providers/map-provider";
 
 const router = createBrowserRouter([
   {
-    path: APPLICATION_ROUTES.HOMEPAGE,
-    lazy: async () => {
-      const { LandingPage } = await import("@/app/routes/landing");
-      return { Component: LandingPage };
-    },
-  },
-  {
     element: <RootLayout />,
     children: [
+      {
+        path: APPLICATION_ROUTES.HOMEPAGE,
+        lazy: async () => {
+          const { LandingPage } = await import("@/app/routes/landing");
+          return { Component: LandingPage };
+        },
+      },
       {
         path: APPLICATION_ROUTES.LEARN,
         lazy: async () => {
