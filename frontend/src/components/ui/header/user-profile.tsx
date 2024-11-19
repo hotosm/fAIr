@@ -24,15 +24,24 @@ const UserProfile: React.FC<UserProfileProps> = ({ logout, user }) => {
       menuItems={[
         {
           value: APP_CONTENT.navbar.userProfile.models,
-          onClick: () => { navigate(APPLICATION_ROUTES.ACCOUNT_MODELS); onDropdownHide() },
+          onClick: () => {
+            navigate(APPLICATION_ROUTES.ACCOUNT_MODELS);
+            onDropdownHide();
+          },
         },
         {
           value: APP_CONTENT.navbar.userProfile.settings,
-          onClick: () => { navigate(APPLICATION_ROUTES.ACCOUNT_SETTINGS); onDropdownHide() },
+          onClick: () => {
+            navigate(APPLICATION_ROUTES.ACCOUNT_SETTINGS);
+            onDropdownHide();
+          },
         },
         {
           value: APP_CONTENT.navbar.userProfile.logout,
-          onClick: () => { logout(); onDropdownHide() },
+          onClick: () => {
+            logout();
+            onDropdownHide();
+          },
           className: "logoutButton",
         },
       ]}

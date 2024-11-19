@@ -23,8 +23,6 @@ const ModelTrainingSettingsDialog: React.FC<ModelEnhancementDialogProps> = ({
   closeDialog,
   modelId,
 }) => {
-
-
   const { data, isPending, isError } = useModelDetails(modelId);
 
   const { handleChange, formData, createNewTrainingRequestMutation } =

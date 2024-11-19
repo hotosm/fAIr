@@ -19,7 +19,7 @@ type FileUploadDialogProps = DialogProps & {
   fileUploadHandler: (geometry: Geometry) => void;
   successToast: string;
   disabled: boolean;
-  disableFileSizeValidation?: boolean
+  disableFileSizeValidation?: boolean;
 };
 
 interface AcceptedFile {
@@ -34,7 +34,7 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
   fileUploadHandler,
   successToast,
   disabled,
-  disableFileSizeValidation = false
+  disableFileSizeValidation = false,
 }) => {
   const [acceptedFiles, setAcceptedFiles] = useState<AcceptedFile[]>([]);
 
@@ -61,7 +61,10 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
         const text = await file.text();
         try {
           const geojson: FeatureCollection | Feature = JSON.parse(text);
-          if (!disableFileSizeValidation && validateGeoJSONArea(geojson as Feature)) {
+          if (
+            !disableFileSizeValidation &&
+            validateGeoJSONArea(geojson as Feature)
+          ) {
             showErrorToast(
               undefined,
               `File area for ${file.name} exceeds area limit.`,
@@ -114,7 +117,10 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
             const geojson: FeatureCollection | Feature = JSON.parse(
               event.target?.result as string,
             );
-            if (!disableFileSizeValidation && validateGeoJSONArea(geojson as Feature)) {
+            if (
+              !disableFileSizeValidation &&
+              validateGeoJSONArea(geojson as Feature)
+            ) {
               showErrorToast(
                 undefined,
                 `Skipping upload for ${file.file.name} because the area is too large.`,
@@ -189,7 +195,6 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
       closeDialog={resetState}
       label={label}
       preventClose={disabled}
-
     >
       <div className="flex flex-col gap-y-4">
         <div
@@ -214,13 +219,14 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
                     .fleSizeInstruction
                 }
               </small>
-              {!disableFileSizeValidation &&
+              {!disableFileSizeValidation && (
                 <small>
                   {
                     MODEL_CREATION_CONTENT.trainingArea.fileUploadDialog
                       .aoiAreaInstruction
                   }
-                </small>}
+                </small>
+              )}
             </>
           )}
         </div>

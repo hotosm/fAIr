@@ -30,12 +30,7 @@ const Banner = () => {
   const banner = useMemo(
     () => (
       <div className="w-full px-4 py-2 bg-primary flex items-center justify-between">
-        <Markdown
-          remarkPlugins={[remarkGfm]}
-          className={
-            "banner-markdown"
-          }
-        >
+        <Markdown remarkPlugins={[remarkGfm]} className={"banner-markdown"}>
           {data?.[0]?.message}
         </Markdown>
         <button onClick={handleCloseBanner} className="font-bold  text-white">

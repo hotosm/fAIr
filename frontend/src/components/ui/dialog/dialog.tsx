@@ -27,11 +27,12 @@ const Dialog: React.FC<DialogProps> = ({
   }
   const { isMobile, isTablet, isLaptop } = useScreenSize();
 
-  const size = isMobile || isTablet
-    ? SHOELACE_SIZES.EXTRA_LARGE
-    : isLaptop
-      ? SHOELACE_SIZES.LARGE
-      : SHOELACE_SIZES.MEDIUM
+  const size =
+    isMobile || isTablet
+      ? SHOELACE_SIZES.EXTRA_LARGE
+      : isLaptop
+        ? SHOELACE_SIZES.LARGE
+        : SHOELACE_SIZES.MEDIUM;
 
   return (
     <SlDialog

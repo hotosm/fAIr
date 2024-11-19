@@ -5,7 +5,12 @@ import {
 } from "@/app/providers/models-provider";
 import { ButtonWithIcon } from "@/components/ui/button";
 import { ChevronDownIcon } from "@/components/ui/icons";
-import { APPLICATION_ROUTES, MODEL_CREATION_CONTENT, MODELS_BASE, MODELS_ROUTES } from "@/utils";
+import {
+  APPLICATION_ROUTES,
+  MODEL_CREATION_CONTENT,
+  MODELS_BASE,
+  MODELS_ROUTES,
+} from "@/utils";
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { TrainingDatasetOption } from "@/enums";
@@ -29,16 +34,14 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
     createNewTrainingDatasetMutation,
     createNewModelMutation,
     hasLabeledTrainingAreas,
-    hasAOIsWithGeometry, isEditMode, modelId
+    hasAOIsWithGeometry,
+    getFullPath,
   } = useModelsContext();
 
-
   const nextPage = () => {
-    const nextRoute = `${isEditMode ? MODELS_BASE + '/' + modelId : MODELS_ROUTES.CREATE_MODEL_BASE}/${pages[currentPageIndex + 1].path}`
+    const nextRoute = getFullPath(pages[currentPageIndex + 1].path);
     if (currentPath.includes(MODELS_ROUTES.TRAINING_DATASET)) {
-      if (
-        formData.trainingDatasetOption === TrainingDatasetOption.CREATE_NEW
-      ) {
+      if (formData.trainingDatasetOption === TrainingDatasetOption.CREATE_NEW) {
         createNewTrainingDatasetMutation.mutate({
           source_imagery: formData.tmsURL,
           name: formData.datasetName,
@@ -63,10 +66,10 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
   };
 
   const prevPage = () => {
-    const prevRoute = `${isEditMode ? MODELS_BASE + '/' + modelId : MODELS_ROUTES.CREATE_MODEL_BASE}/${pages[currentPageIndex - 1].path}`
     if (currentPageIndex > 0) {
+      const prevRoute = getFullPath(pages[currentPageIndex - 1].path);
       // When going back, if it's the training dataset page and the user already selected an option previously
-      // reset the selection to none so they can see the options again.
+      // Reset the selection to none so they can see the options again.
       if (
         currentPageIndex === 1 &&
         formData.trainingDatasetOption !== TrainingDatasetOption.NONE
@@ -78,7 +81,6 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
         // When the user clicks the back button, all their changes will be lost. This is because if we don't clear it, the user can
         // be able to select existing dataset and also create a new one which will lead to confusion.
         // So it's safe to clear all changes to ensure that only one option will go through.
-
         handleChange(MODEL_CREATION_FORM_NAME.SELECTED_TRAINING_DATASET_ID, "");
         handleChange(MODEL_CREATION_FORM_NAME.DATASET_NAME, "");
         handleChange(MODEL_CREATION_FORM_NAME.TMS_URL, "");
@@ -89,6 +91,8 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
       } else {
         navigate(prevRoute);
       }
+    } else if (currentPath.includes(MODELS_ROUTES.DETAILS)) {
+      navigate(MODELS_BASE);
     } else {
       navigate(-1);
     }
@@ -137,16 +141,13 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
       }
     } else if (currentPath.includes(MODELS_ROUTES.TRAINING_SETTINGS)) {
       // confirm that the user has selected at least an option
-      return (
-        formData.zoomLevels.length > 0 && formData.trainingSettingsIsValid
-      );
+      return formData.zoomLevels.length > 0 && formData.trainingSettingsIsValid;
     } else if (currentPath.includes(MODELS_ROUTES.TRAINING_AREA)) {
       return (
         hasLabeledTrainingAreas && hasAOIsWithGeometry && formData.oamBounds
       );
-    }
-    else {
-      return true
+    } else {
+      return true;
     }
   }, [formData, currentPath]);
 

@@ -218,12 +218,13 @@ const ModelsContext = createContext<{
     TCreateTrainingRequestArgs,
     unknown
   >;
-  isEditMode: boolean
-  modelId?: string
+  isEditMode: boolean;
+  modelId?: string;
+  getFullPath: (path: string) => string;
 }>({
   formData: initialFormState,
-  setFormData: () => { },
-  handleChange: () => { },
+  setFormData: () => {},
+  handleChange: () => {},
   createNewTrainingDatasetMutation: {} as UseMutationResult<
     TTrainingDataset,
     Error,
@@ -244,9 +245,10 @@ const ModelsContext = createContext<{
   >,
   hasLabeledTrainingAreas: false,
   hasAOIsWithGeometry: false,
-  resetState: () => { },
+  resetState: () => {},
   isEditMode: false,
-  modelId: ''
+  modelId: "",
+  getFullPath: () => "",
 });
 
 export const ModelsProvider: React.FC<{
@@ -271,18 +273,20 @@ export const ModelsProvider: React.FC<{
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  const getFullPath = (path: string) =>
+    `${isEditMode ? MODELS_BASE + "/" + modelId : MODELS_ROUTES.CREATE_MODEL_BASE}/${path}/`;
+
   const timeOutRef = useRef<number | null>(null);
 
-  const isEditMode = Boolean(modelId && !pathname.includes('new'));
+  const isEditMode = Boolean(modelId && !pathname.includes("new"));
 
   // handle validation
   useEffect(() => {
-    if (!isEditMode) return
+    if (!isEditMode) return;
     // check that the model exists
     // Otherwise, redirect to 404
     // get the data and set it in state
-
-  }, [isEditMode])
+  }, [isEditMode]);
 
   useEffect(() => {
     // Cleanup the timeout on component unmount
@@ -330,10 +334,7 @@ export const ModelsProvider: React.FC<{
     mutationConfig: {
       onSuccess: (data) => {
         showSuccessToast(TOAST_NOTIFICATIONS.modelCreationSuccess);
-        const confirmationRoute = `${isEditMode ? MODELS_BASE + '/' + modelId : MODELS_ROUTES.CREATE_MODEL_BASE}/${MODELS_ROUTES.CONFIRMATION}/`;
-        navigate(
-          `${confirmationRoute}?id=${data.id}`,
-        );
+        navigate(`${getFullPath(MODELS_ROUTES.CONFIRMATION)}?id=${data.id}`);
         // Submit the model for training request
         createNewTrainingRequestMutation.mutate({
           model: data.id,
@@ -381,7 +382,9 @@ export const ModelsProvider: React.FC<{
       formData,
       resetState,
       createNewTrainingRequestMutation,
-      isEditMode, modelId
+      isEditMode,
+      modelId,
+      getFullPath,
     }),
     [
       setFormData,
@@ -393,7 +396,9 @@ export const ModelsProvider: React.FC<{
       hasAOIsWithGeometry,
       resetState,
       createNewTrainingRequestMutation,
-      isEditMode, modelId
+      isEditMode,
+      modelId,
+      getFullPath,
     ],
   );
 

@@ -2,21 +2,20 @@
  * The navigation routes for the application. This object controls the name of the path. i.e  /<pathname>
  */
 
-export const MODELS_BASE = '/models';
+export const MODELS_BASE = "/models";
 
 export const MODELS_ROUTES = {
   // Creation Routes
   CREATE_MODEL_BASE: `${MODELS_BASE}/new`,
   // Editing Routes
   EDIT_MODEL_BASE: `${MODELS_BASE}/:modelId`,
-  DETAILS: 'details',
-  TRAINING_DATASET: 'training-dataset',
-  TRAINING_AREA: 'training-area',
-  TRAINING_SETTINGS: 'training-settings',
-  CONFIRMATION: 'confirmation',
-  MODEL_SUMMARY: 'model-summary'
+  DETAILS: "details",
+  TRAINING_DATASET: "training-dataset",
+  TRAINING_AREA: "training-area",
+  TRAINING_SETTINGS: "training-settings",
+  CONFIRMATION: "confirmation",
+  MODEL_SUMMARY: "model-summary",
 };
-
 
 export const APPLICATION_ROUTES = {
   HOMEPAGE: "/",
@@ -51,8 +50,6 @@ export const APPLICATION_ROUTES = {
   ACCOUNT_SETTINGS: "/account/settings",
   ACCOUNT_MODELS: "/account/models",
 };
-
-
 
 /**
  * The key used to store the access token in local storage for the application.

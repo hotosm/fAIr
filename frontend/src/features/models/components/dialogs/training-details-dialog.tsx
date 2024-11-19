@@ -3,7 +3,6 @@ import { Dialog } from "@/components/ui/dialog";
 import ModelProperties from "@/features/models/components/model-details-properties";
 import { DialogProps } from "@/types";
 
-
 type TrainingDetailsDialogProps = DialogProps & {
   trainingId: number;
   datasetId: number;
@@ -17,8 +16,6 @@ const TrainingDetailsDialog: React.FC<TrainingDetailsDialogProps> = ({
   datasetId,
   baseModel,
 }) => {
-
-
   return (
     <Dialog
       isOpened={isOpened}

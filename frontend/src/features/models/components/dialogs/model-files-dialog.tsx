@@ -14,7 +14,6 @@ const ModelFilesDialog: React.FC<TrainingAreaDialogProps> = ({
   datasetId,
   trainingId,
 }) => {
-
   return (
     <Dialog
       isOpened={isOpened}

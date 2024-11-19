@@ -8,7 +8,6 @@ import {
 import { DialogProps, TQueryParams } from "@/types";
 import { Button } from "@/components/ui/button";
 
-
 type TrainingAreaDialogProps = DialogProps & {
   updateQuery: (updatedParams: TQueryParams) => void;
   query: TQueryParams;
@@ -37,14 +36,8 @@ const MobileModelFiltersDialog: React.FC<TrainingAreaDialogProps> = ({
   updateQuery,
   disabled,
 }) => {
-
   return (
-    <Dialog
-      isOpened={isOpened}
-      closeDialog={closeDialog}
-      label={"Filter"}
-
-    >
+    <Dialog isOpened={isOpened} closeDialog={closeDialog} label={"Filter"}>
       <div className="flex flex-col gap-y-4">
         <FilterItem title="Sort by">
           <OrderingFilter

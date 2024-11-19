@@ -4,7 +4,7 @@ import {
   ProgressButtons,
 } from "@/features/model-creation/components";
 import { Head } from "@/components/seo";
-import { MODEL_CREATION_CONTENT, MODELS_BASE, MODELS_ROUTES } from "@/utils";
+import { MODEL_CREATION_CONTENT, MODELS_ROUTES } from "@/utils";
 import { useEffect, useState } from "react";
 import {
   CloudIcon,
@@ -26,43 +26,43 @@ const pages: {
   icon: React.ElementType;
   path: string;
 }[] = [
-    {
-      id: 1,
-      title: MODEL_CREATION_CONTENT.progressStepper.modelDetails,
-      icon: TagsIcon,
-      path: MODELS_ROUTES.DETAILS,
-    },
-    {
-      id: 2,
-      title: MODEL_CREATION_CONTENT.progressStepper.trainingDataset,
-      icon: DatabaseIcon,
-      path: MODELS_ROUTES.TRAINING_DATASET,
-    },
-    {
-      id: 3,
-      title: MODEL_CREATION_CONTENT.progressStepper.trainingArea,
-      icon: SquareShadowIcon,
-      path: MODELS_ROUTES.TRAINING_AREA,
-    },
-    {
-      id: 4,
-      title: MODEL_CREATION_CONTENT.progressStepper.trainingSettings,
-      icon: SettingsIcon,
-      path: MODELS_ROUTES.TRAINING_SETTINGS,
-    },
-    {
-      id: 5,
-      title: MODEL_CREATION_CONTENT.progressStepper.submitModel,
-      icon: CloudIcon,
-      path: MODELS_ROUTES.MODEL_SUMMARY,
-    },
-    {
-      id: 6,
-      title: MODEL_CREATION_CONTENT.progressStepper.confirmation,
-      icon: StarIcon,
-      path: MODELS_ROUTES.CONFIRMATION,
-    },
-  ];
+  {
+    id: 1,
+    title: MODEL_CREATION_CONTENT.progressStepper.modelDetails,
+    icon: TagsIcon,
+    path: MODELS_ROUTES.DETAILS,
+  },
+  {
+    id: 2,
+    title: MODEL_CREATION_CONTENT.progressStepper.trainingDataset,
+    icon: DatabaseIcon,
+    path: MODELS_ROUTES.TRAINING_DATASET,
+  },
+  {
+    id: 3,
+    title: MODEL_CREATION_CONTENT.progressStepper.trainingArea,
+    icon: SquareShadowIcon,
+    path: MODELS_ROUTES.TRAINING_AREA,
+  },
+  {
+    id: 4,
+    title: MODEL_CREATION_CONTENT.progressStepper.trainingSettings,
+    icon: SettingsIcon,
+    path: MODELS_ROUTES.TRAINING_SETTINGS,
+  },
+  {
+    id: 5,
+    title: MODEL_CREATION_CONTENT.progressStepper.submitModel,
+    icon: CloudIcon,
+    path: MODELS_ROUTES.MODEL_SUMMARY,
+  },
+  {
+    id: 6,
+    title: MODEL_CREATION_CONTENT.progressStepper.confirmation,
+    icon: StarIcon,
+    path: MODELS_ROUTES.CONFIRMATION,
+  },
+];
 
 const ModelCreationLayout = () => {
   const { pathname } = useLocation();
@@ -78,7 +78,10 @@ const ModelCreationLayout = () => {
   return (
     <ModelsLayout>
       <ModelsProvider>
-        <ModelCreationRouteValidator pathname={pathname} currentPageIndex={currentPageIndex} />
+        <ModelCreationRouteValidator
+          pathname={pathname}
+          currentPageIndex={currentPageIndex}
+        />
         <Head title="Create New Model" />
         <div className="min-h-screen grid grid-cols-12 grid-rows-[auto_1fr_auto] gap-y-8 w-full justify-center my-8">
           <div className="col-span-12 lg:col-start-2 lg:col-span-10 w-full ">
@@ -104,28 +107,28 @@ const ModelCreationLayout = () => {
 
 export default ModelCreationLayout;
 
-const ModelCreationRouteValidator = ({ pathname, currentPageIndex }: { pathname: string; currentPageIndex: number }) => {
+const ModelCreationRouteValidator = ({
+  pathname,
+  currentPageIndex,
+}: {
+  pathname: string;
+  currentPageIndex: number;
+}) => {
   const navigate = useNavigate();
-  const { formData, hasLabeledTrainingAreas, isEditMode, modelId } = useModelsContext();
+  const { formData, hasLabeledTrainingAreas, getFullPath } = useModelsContext();
 
   useEffect(() => {
     if (!pathname || !formData || !currentPageIndex) return;
-    const prevRoute = `${isEditMode ? MODELS_BASE + '/' + modelId : MODELS_ROUTES.CREATE_MODEL_BASE}/${pages[currentPageIndex - 1].path}`
-    if (
-      pathname.includes(MODELS_ROUTES.TRAINING_DATASET)
-    ) {
+    const prevRoute = getFullPath(pages[currentPageIndex - 1].path);
+    if (pathname.includes(MODELS_ROUTES.TRAINING_DATASET)) {
       // When a user is in the training dataset page, they must have filled the model details page
       if (!formData.modelName && !formData.modelDescription)
         navigate(prevRoute);
-    } else if (
-      pathname.includes(MODELS_ROUTES.TRAINING_AREA)
-    ) {
+    } else if (pathname.includes(MODELS_ROUTES.TRAINING_AREA)) {
       // When a user is in the training area, they must have completed the training dataset form
       if (!formData.selectedTrainingDatasetId || !formData.tmsURL)
         navigate(prevRoute);
-    } else if (
-      pathname.includes(MODELS_ROUTES.TRAINING_SETTINGS)
-    ) {
+    } else if (pathname.includes(MODELS_ROUTES.TRAINING_SETTINGS)) {
       // When a user is in the training settings, they must have completed the training area, the tms bounds should be available too
       //  !formData.trainingAreas.features.filter(aoi=>aoi.properties.label_fetched).length>0
       if (

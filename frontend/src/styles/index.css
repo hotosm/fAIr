@@ -127,7 +127,7 @@ sl-alert.success::part(base) {
 
 .prose * {
   color: var(--hot-fair-color-white) !important;
-  margin: 0px !important
+  margin: 0px !important;
 }
 
 @layer components {
@@ -143,8 +143,8 @@ sl-alert.success::part(base) {
     @apply inline-block h-4 w-4  p-2;
   }
 
-  .banner-markdown{
-    @apply w-full md:text-nowrap prose 
+  .banner-markdown {
+    @apply w-full md:text-nowrap prose;
   }
 }
 

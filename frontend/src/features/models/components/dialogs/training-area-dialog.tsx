@@ -4,7 +4,6 @@ import { MapComponent } from "@/components/map";
 import { cn } from "@/utils";
 import { DialogProps } from "@/types";
 
-
 type TrainingAreaDialogProps = DialogProps;
 
 const TrainingAreaDialog: React.FC<TrainingAreaDialogProps> = ({
@@ -18,7 +17,6 @@ const TrainingAreaDialog: React.FC<TrainingAreaDialogProps> = ({
       isOpened={isOpened}
       closeDialog={closeDialog}
       label={"Training Area"}
-
     >
       <div className={cn(`${!isMobile ? "h-[600px]" : "h-[350px]"}`)}>
         <div className="h-full w-full">
