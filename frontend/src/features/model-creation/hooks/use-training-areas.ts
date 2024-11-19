@@ -4,7 +4,7 @@ import {
   getTrainingAreasQueryOptions,
   getTrainingDatasetLabelsQueryOptions,
 } from "@/features/model-creation/api/factory";
-import { MutationConfig } from "@/services";
+import { API_ENDPOINTS, MutationConfig } from "@/services";
 import {
   createTrainingArea,
   createTrainingAreaLabels,
@@ -13,6 +13,7 @@ import {
 } from "@/features/model-creation/api/create-trainings";
 import { deleteTrainingArea } from "@/features/model-creation/api/delete-trainings";
 import { TRAINING_LABELS_MIN_ZOOM_LEVEL } from "@/utils";
+import axios from "axios";
 
 export const useGetTrainingAreas = (datasetId: number, offset: number) => {
   return useQuery({
@@ -129,3 +130,15 @@ export const useGetTrainingAreaLabels = (aoiId: number, enabled: boolean) => {
     enabled: enabled,
   });
 };
+
+type TOSMDatabaseResponse = {
+  lastUpdated: string;
+};
+
+export const fetchOSMDatabaseLastUpdated =
+  async (): Promise<TOSMDatabaseResponse> => {
+    const { data } = await axios.get(
+      API_ENDPOINTS.GET_OSM_DATABASE_LAST_UPDATED,
+    );
+    return data;
+  };

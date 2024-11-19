@@ -33,7 +33,7 @@ export const ModelDetailsPage = () => {
   } = useDialog();
   const navigate = useNavigate();
   const { data, isPending, isError, error } = useModelDetails(id as string);
-  const { isAuthenticated, user } = useAuth()
+  const { isAuthenticated, user } = useAuth();
   useEffect(() => {
     if (isError) {
       navigate(APPLICATION_ROUTES.NOTFOUND, {

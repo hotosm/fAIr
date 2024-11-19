@@ -5,7 +5,7 @@ import { InfoIcon } from "@/components/ui/icons";
 import { ToolTipPlacement } from "@/enums";
 
 type ToolTipProps = {
-  content?: string;
+  content?: string | React.ReactElement;
   children?: React.ReactNode;
   placement?:
     | ToolTipPlacement.RIGHT
@@ -32,7 +32,9 @@ const ToolTip: React.FC<ToolTipProps> = ({
       placement={placement}
       {...(open !== undefined ? { open } : {})}
     >
-      <span slot="content">{content}</span>
+      <span slot="content">
+        {typeof content === "string" ? <span>{content}</span> : content}
+      </span>
       {!children && <InfoIcon className="icon" />}
       {children}
     </SlTooltip>

@@ -7,6 +7,11 @@ export const API_ENDPOINTS = {
   AUTH_CALLBACK: "auth/callback/",
   USER: "auth/me/",
 
+  // OSM Database
+
+  GET_OSM_DATABASE_LAST_UPDATED:
+    "https://api-prod.raw-data.hotosm.org/v1/status/",
+
   //KPIs
 
   GET_KPI_STATS: "kpi/stats/ ",

@@ -96,6 +96,16 @@ export const MODEL_CREATION_CONTENT = {
       "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Id fugit ducimus harum debitis deserunt cum quod quam rerum aliquid. Quibusdam sequi incidunt quasi delectus laudantium accusamus modi omnis maiores. Incidunt!",
   },
   trainingArea: {
+    toolTips: {
+      fetchOSMLabels: "Fetch OSM Labels",
+      lastUpdatedPrefix: "OSM Last Updated:",
+      zoomToAOI: "Zoom to AOI",
+      openINJOSM: "Open in JOSM",
+      openInIdEditor: "Open in ID Editor",
+      downloadAOI: "Download AOI",
+      downloadLabels: "Download AOI Labels",
+      deleteAOI: "Delete AOI",
+    },
     pageTitle: "Create Training Area",
     datasetID: "Dataset ID:",
     tutorialText: "Tutorial",
