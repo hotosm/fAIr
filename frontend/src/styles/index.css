@@ -144,7 +144,7 @@ sl-alert.success::part(base) {
   }
 
   .banner-markdown{
-    @apply w-full text-nowrap prose 
+    @apply w-full md:text-nowrap prose 
   }
 }
 
