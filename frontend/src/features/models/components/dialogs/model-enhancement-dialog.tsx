@@ -5,6 +5,7 @@ import { APP_CONTENT } from "@/utils";
 import ModelTrainingSettingsDialog from "./training-settings-dialog";
 import { ModelsProvider } from "@/app/providers/models-provider";
 
+
 type ModelEnhancementDialogProps = {
   isOpened: boolean;
   closeDialog: () => void;

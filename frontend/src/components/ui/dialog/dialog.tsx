@@ -1,13 +1,13 @@
 import SlDialog from "@shoelace-style/shoelace/dist/react/dialog/index.js";
 import "./dialog.css";
 import { SHOELACE_SIZES } from "@/enums";
+import useScreenSize from "@/hooks/use-screen-size";
 
 type DialogProps = {
   label: string;
   isOpened: boolean;
   closeDialog: () => void;
   children: React.ReactNode;
-  size?: SHOELACE_SIZES;
   preventClose?: boolean;
   labelColor?: "default" | "primary";
 };
@@ -16,7 +16,6 @@ const Dialog: React.FC<DialogProps> = ({
   closeDialog,
   label,
   children,
-  size = "medium",
   preventClose,
   labelColor = "default",
 }) => {
@@ -26,6 +25,13 @@ const Dialog: React.FC<DialogProps> = ({
       event.preventDefault();
     }
   }
+  const { isMobile, isTablet, isLaptop } = useScreenSize();
+
+  const size = isMobile || isTablet
+    ? SHOELACE_SIZES.EXTRA_LARGE
+    : isLaptop
+      ? SHOELACE_SIZES.LARGE
+      : SHOELACE_SIZES.MEDIUM
 
   return (
     <SlDialog
@@ -41,11 +47,12 @@ const Dialog: React.FC<DialogProps> = ({
       style={{
         //@ts-expect-error bad type definition
         "--width":
-          size === "small"
+          //@ts-expect-error bad type definition
+          size === SHOELACE_SIZES.SMALL
             ? "25vw"
-            : size === "medium"
+            : size === SHOELACE_SIZES.MEDIUM
               ? "50vw"
-              : size === "extra-large"
+              : size === SHOELACE_SIZES.EXTRA_LARGE
                 ? "100vw"
                 : "75vw",
       }}

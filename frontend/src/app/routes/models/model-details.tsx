@@ -34,6 +34,7 @@ export const ModelDetailsPage = () => {
   const navigate = useNavigate();
   const { data, isPending, isError, error } = useModelDetails(id as string);
   const { isAuthenticated, user } = useAuth();
+  console.log(isError, data)
   useEffect(() => {
     if (isError) {
       navigate(APPLICATION_ROUTES.NOTFOUND, {
@@ -51,7 +52,7 @@ export const ModelDetailsPage = () => {
     closeDialog: closeModelEnhancementDialog,
     openDialog: openModelEnhancementDialog,
   } = useDialog();
-  if (isPending) {
+  if (isPending || isError) {
     return <ModelDetailsSkeleton />;
   }
   const isOwner = user?.osm_id === data?.user?.osm_id;

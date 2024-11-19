@@ -1,5 +1,5 @@
 import CheckIcon from "@/components/ui/icons/check-icon";
-import { APPLICATION_ROUTES, cn } from "@/utils";
+import { cn } from "@/utils";
 import { memo } from "react";
 
 type ProgressBarProps = {
@@ -18,9 +18,6 @@ const ProgressBar: React.FC<ProgressBarProps> = memo(
             <button
               key={`current-form-progress-${step.id}`}
               className="flex items-center gap-x-3 cursor-pointer"
-              disabled={
-                step.path === APPLICATION_ROUTES.CREATE_NEW_MODEL_CONFIRMATION
-              }
             >
               {step.id < currentPageIndex + 1 ? (
                 <span className="rounded-full bg-primary flex items-center justify-center w-9 h-9">

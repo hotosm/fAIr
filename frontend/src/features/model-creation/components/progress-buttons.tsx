@@ -5,7 +5,7 @@ import {
 } from "@/app/providers/models-provider";
 import { ButtonWithIcon } from "@/components/ui/button";
 import { ChevronDownIcon } from "@/components/ui/icons";
-import { APPLICATION_ROUTES, MODEL_CREATION_CONTENT } from "@/utils";
+import { APPLICATION_ROUTES, MODEL_CREATION_CONTENT, MODELS_BASE, MODELS_ROUTES } from "@/utils";
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { TrainingDatasetOption } from "@/enums";
@@ -29,42 +29,41 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
     createNewTrainingDatasetMutation,
     createNewModelMutation,
     hasLabeledTrainingAreas,
-    hasAOIsWithGeometry,
+    hasAOIsWithGeometry, isEditMode, modelId
   } = useModelsContext();
 
+
   const nextPage = () => {
-    switch (currentPath) {
-      case APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_DATASET:
-        if (
-          formData.trainingDatasetOption === TrainingDatasetOption.CREATE_NEW
-        ) {
-          createNewTrainingDatasetMutation.mutate({
-            source_imagery: formData.tmsURL,
-            name: formData.datasetName,
-          });
-        } else {
-          if (currentPageIndex < pages.length - 1) {
-            navigate(pages[currentPageIndex + 1].path);
-          }
-        }
-        break;
-      case APPLICATION_ROUTES.CREATE_NEW_MODEL_SUMMARY:
-        createNewModelMutation.mutate({
-          dataset: formData.selectedTrainingDatasetId,
-          name: formData.modelName,
-          description: formData.modelDescription,
-          base_model: formData.baseModel,
+    const nextRoute = `${isEditMode ? MODELS_BASE + '/' + modelId : MODELS_ROUTES.CREATE_MODEL_BASE}/${pages[currentPageIndex + 1].path}`
+    if (currentPath.includes(MODELS_ROUTES.TRAINING_DATASET)) {
+      if (
+        formData.trainingDatasetOption === TrainingDatasetOption.CREATE_NEW
+      ) {
+        createNewTrainingDatasetMutation.mutate({
+          source_imagery: formData.tmsURL,
+          name: formData.datasetName,
         });
-        break;
-      default:
+      } else {
         if (currentPageIndex < pages.length - 1) {
-          navigate(pages[currentPageIndex + 1].path);
+          navigate(nextRoute);
         }
-        break;
+      }
+    } else if (currentPath.includes(MODELS_ROUTES.MODEL_SUMMARY)) {
+      createNewModelMutation.mutate({
+        dataset: formData.selectedTrainingDatasetId,
+        name: formData.modelName,
+        description: formData.modelDescription,
+        base_model: formData.baseModel,
+      });
+    } else {
+      if (currentPageIndex < pages.length - 1) {
+        navigate(nextRoute);
+      }
     }
   };
 
   const prevPage = () => {
+    const prevRoute = `${isEditMode ? MODELS_BASE + '/' + modelId : MODELS_ROUTES.CREATE_MODEL_BASE}/${pages[currentPageIndex - 1].path}`
     if (currentPageIndex > 0) {
       // When going back, if it's the training dataset page and the user already selected an option previously
       // reset the selection to none so they can see the options again.
@@ -88,7 +87,7 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
           message: "",
         });
       } else {
-        navigate(pages[currentPageIndex - 1].path);
+        navigate(prevRoute);
       }
     } else {
       navigate(-1);
@@ -98,56 +97,56 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
   const canProceedToNextPage = useMemo(() => {
     // For the first page, the user must type at least some texts in the form data,
     // and they must be valid as well before the can be able to proceed to the next page.
-    switch (currentPath) {
-      case APPLICATION_ROUTES.CREATE_NEW_MODEL:
-        return (
-          formData.modelName.length >=
-            FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.MODEL_NAME]
-              .minLength &&
-          formData.modelDescription.length >=
-            FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.MODEL_DESCRIPTION]
-              .minLength
-        );
 
-      case APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_DATASET:
-        // if the user hasn't selected any of the options, then they can not proceed to next page.
-        if (formData.trainingDatasetOption === TrainingDatasetOption.NONE) {
-          return false;
-        } else if (
-          formData.trainingDatasetOption === TrainingDatasetOption.CREATE_NEW
+    if (currentPath.includes(MODELS_ROUTES.DETAILS)) {
+      return (
+        formData.modelName.length >=
+        FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.MODEL_NAME]
+          .minLength &&
+        formData.modelDescription.length >=
+        FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.MODEL_DESCRIPTION]
+          .minLength
+      );
+    } else if (currentPath.includes(MODELS_ROUTES.TRAINING_DATASET)) {
+      // if the user hasn't selected any of the options, then they can not proceed to next page.
+      if (formData.trainingDatasetOption === TrainingDatasetOption.NONE) {
+        return false;
+      } else if (
+        formData.trainingDatasetOption === TrainingDatasetOption.CREATE_NEW
+      ) {
+        // If the form submission is in progress or if any error disable the continue button.
+        if (
+          createNewTrainingDatasetMutation.isPending ||
+          createNewTrainingDatasetMutation.isError
         ) {
-          // If the form submission is in progress or if any error disable the continue button.
-          if (
-            createNewTrainingDatasetMutation.isPending ||
-            createNewTrainingDatasetMutation.isError
-          ) {
-            return true;
-          }
-          return (
-            formData.tmsURLValidation.valid &&
-            formData.datasetName.length >=
-              FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.DATASET_NAME]
-                .minLength
-          );
-        } else if (
-          formData.trainingDatasetOption === TrainingDatasetOption.USE_EXISTING
-        ) {
-          // If selecting existing, ensure that a training dataset is selected
-          return formData.selectedTrainingDatasetId && formData.tmsURL;
-        } else {
           return true;
         }
-      case APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_SETTINGS:
-        // confirm that the user has selected at least an option
         return (
-          formData.zoomLevels.length > 0 && formData.trainingSettingsIsValid
+          formData.tmsURLValidation.valid &&
+          formData.datasetName.length >=
+          FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.DATASET_NAME]
+            .minLength
         );
-      case APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_AREA:
-        return (
-          hasLabeledTrainingAreas && hasAOIsWithGeometry && formData.oamBounds
-        );
-      default:
+      } else if (
+        formData.trainingDatasetOption === TrainingDatasetOption.USE_EXISTING
+      ) {
+        // If selecting existing, ensure that a training dataset is selected
+        return formData.selectedTrainingDatasetId && formData.tmsURL;
+      } else {
         return true;
+      }
+    } else if (currentPath.includes(MODELS_ROUTES.TRAINING_SETTINGS)) {
+      // confirm that the user has selected at least an option
+      return (
+        formData.zoomLevels.length > 0 && formData.trainingSettingsIsValid
+      );
+    } else if (currentPath.includes(MODELS_ROUTES.TRAINING_AREA)) {
+      return (
+        hasLabeledTrainingAreas && hasAOIsWithGeometry && formData.oamBounds
+      );
+    }
+    else {
+      return true
     }
   }, [formData, currentPath]);
 

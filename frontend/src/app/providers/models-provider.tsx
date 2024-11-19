@@ -17,7 +17,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Feature, TModel, TTrainingDataset, TTrainingDetails } from "@/types";
 import {
   TCreateTrainingDatasetArgs,
@@ -216,6 +216,8 @@ const ModelsContext = createContext<{
     TCreateTrainingRequestArgs,
     unknown
   >;
+  isEditMode: boolean
+  modelId?: string
 }>({
   formData: initialFormState,
   setFormData: () => { },
@@ -241,13 +243,16 @@ const ModelsContext = createContext<{
   hasLabeledTrainingAreas: false,
   hasAOIsWithGeometry: false,
   resetState: () => { },
+  isEditMode: false,
+  modelId: ''
 });
 
 export const ModelsProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
   const navigate = useNavigate();
-
+  const { pathname } = useLocation();
+  const { modelId } = useParams();
   const [formData, setFormData] =
     useState<typeof initialFormState>(initialFormState);
 
@@ -265,8 +270,16 @@ export const ModelsProvider: React.FC<{
   };
 
   const timeOutRef = useRef<number | null>(null);
-  const { modelId } = useParams();
-  console.log(modelId);
+
+  const isEditMode = Boolean(modelId && !pathname.includes('new'));
+
+  // handle validation
+  useEffect(() => {
+    if (!isEditMode) return
+    // check that the model exists
+    // Otherwise, redirect to 404
+
+  }, [isEditMode])
 
   useEffect(() => {
     // Cleanup the timeout on component unmount
@@ -364,6 +377,7 @@ export const ModelsProvider: React.FC<{
       formData,
       resetState,
       createNewTrainingRequestMutation,
+      isEditMode, modelId
     }),
     [
       setFormData,
@@ -375,6 +389,7 @@ export const ModelsProvider: React.FC<{
       hasAOIsWithGeometry,
       resetState,
       createNewTrainingRequestMutation,
+      isEditMode, modelId
     ],
   );
 

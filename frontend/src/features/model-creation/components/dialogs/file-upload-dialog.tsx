@@ -13,8 +13,6 @@ import {
 import { SlFormatBytes } from "@shoelace-style/shoelace/dist/react";
 import { useCallback, useState } from "react";
 import { FileWithPath, useDropzone } from "react-dropzone";
-import useScreenSize from "@/hooks/use-screen-size";
-import { SHOELACE_SIZES } from "@/enums";
 
 type FileUploadDialogProps = DialogProps & {
   label: string;
@@ -184,14 +182,14 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
       </button>
     </li>
   ));
-  const { isMobile } = useScreenSize();
+
   return (
     <Dialog
       isOpened={isOpened}
       closeDialog={resetState}
       label={label}
       preventClose={disabled}
-      size={isMobile ? SHOELACE_SIZES.EXTRA_LARGE : SHOELACE_SIZES.MEDIUM}
+
     >
       <div className="flex flex-col gap-y-4">
         <div

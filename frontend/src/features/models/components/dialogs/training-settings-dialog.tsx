@@ -1,9 +1,7 @@
 import { ButtonWithIcon } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { ChevronDownIcon } from "@/components/ui/icons";
-import { SHOELACE_SIZES } from "@/enums";
 import TrainingSettingsForm from "@/features/model-creation/components/training-settings/training-settings-form";
-import useScreenSize from "@/hooks/use-screen-size";
 import { APP_CONTENT } from "@/utils";
 import { useModelDetails } from "../../hooks/use-models";
 import {
@@ -25,7 +23,7 @@ const ModelTrainingSettingsDialog: React.FC<ModelEnhancementDialogProps> = ({
   closeDialog,
   modelId,
 }) => {
-  const { isLaptop, isMobile, isTablet } = useScreenSize();
+
 
   const { data, isPending, isError } = useModelDetails(modelId);
 
@@ -81,13 +79,6 @@ const ModelTrainingSettingsDialog: React.FC<ModelEnhancementDialogProps> = ({
       labelColor="primary"
       label={
         APP_CONTENT.models.modelsDetailsCard.trainingSettings.dialogHeading
-      }
-      size={
-        isMobile || isTablet
-          ? SHOELACE_SIZES.EXTRA_LARGE
-          : isLaptop
-            ? SHOELACE_SIZES.LARGE
-            : SHOELACE_SIZES.MEDIUM
       }
     >
       {isError ? (

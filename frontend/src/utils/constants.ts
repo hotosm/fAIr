@@ -2,24 +2,42 @@
  * The navigation routes for the application. This object controls the name of the path. i.e  /<pathname>
  */
 
+export const MODELS_BASE = '/models';
+
+export const MODELS_ROUTES = {
+  // Creation Routes
+  CREATE_MODEL_BASE: `${MODELS_BASE}/new`,
+  // Editing Routes
+  EDIT_MODEL_BASE: `${MODELS_BASE}/:modelId`,
+  DETAILS: 'details',
+  TRAINING_DATASET: 'training-dataset',
+  TRAINING_AREA: 'training-area',
+  TRAINING_SETTINGS: 'training-settings',
+  CONFIRMATION: 'confirmation',
+  MODEL_SUMMARY: 'model-summary'
+};
+
+
 export const APPLICATION_ROUTES = {
   HOMEPAGE: "/",
-  MODELS: "/models",
-  MODEL_DETAILS: "/models/:id",
-  // Model routes start
-  CREATE_NEW_MODEL: "/models/new",
-  CREATE_NEW_MODEL_TRAINING_DATASET: "/models/new/training-dataset",
-  CREATE_NEW_MODEL_CONFIRMATION: "/models/new/confirmation",
-  CREATE_NEW_MODEL_TRAINING_AREA: "/models/new/training-area",
-  CREATE_NEW_MODEL_TRAINING_SETTINGS: "/models/new/training-settings",
-  CREATE_NEW_MODEL_SUMMARY: "/models/new/model-summary",
+  MODELS: MODELS_BASE,
+  MODEL_DETAILS: `${MODELS_BASE}/:id`,
 
-  EDIT_MODEL_DETAILS: "/models/:modelId",
-  EDIT_MODEL_TRAINING_DATASET: "/models/:modelId/training-dataset",
-  EDIT_MODEL_CONFIRMATION: "/models/:modelId/confirmation",
-  EDIT_MODEL_TRAINING_AREA: "/models/:modelId/training-area",
-  EDIT_MODEL_TRAINING_SETTINGS: "/models/:modelId/training-settings",
-  EDIT_MODEL_SUMMARY: "/models/:modelId/model-summary",
+  // Model routes start
+
+  CREATE_NEW_MODEL: `${MODELS_ROUTES.CREATE_MODEL_BASE}/${MODELS_ROUTES.DETAILS}`,
+  CREATE_NEW_MODEL_TRAINING_DATASET: `${MODELS_ROUTES.CREATE_MODEL_BASE}/${MODELS_ROUTES.TRAINING_DATASET}`,
+  CREATE_NEW_MODEL_CONFIRMATION: `${MODELS_ROUTES.CREATE_MODEL_BASE}/${MODELS_ROUTES.CONFIRMATION}`,
+  CREATE_NEW_MODEL_TRAINING_AREA: `${MODELS_ROUTES.CREATE_MODEL_BASE}/${MODELS_ROUTES.TRAINING_AREA}`,
+  CREATE_NEW_MODEL_TRAINING_SETTINGS: `${MODELS_ROUTES.CREATE_MODEL_BASE}/${MODELS_ROUTES.TRAINING_SETTINGS}`,
+  CREATE_NEW_MODEL_SUMMARY: `${MODELS_ROUTES.CREATE_MODEL_BASE}/${MODELS_ROUTES.MODEL_SUMMARY}`,
+
+  EDIT_MODEL_DETAILS: `${MODELS_ROUTES.EDIT_MODEL_BASE}/${MODELS_ROUTES.DETAILS}`,
+  EDIT_MODEL_TRAINING_DATASET: `${MODELS_ROUTES.EDIT_MODEL_BASE}/${MODELS_ROUTES.TRAINING_DATASET}`,
+  EDIT_MODEL_CONFIRMATION: `${MODELS_ROUTES.EDIT_MODEL_BASE}/${MODELS_ROUTES.CONFIRMATION}`,
+  EDIT_MODEL_TRAINING_AREA: `${MODELS_ROUTES.EDIT_MODEL_BASE}/${MODELS_ROUTES.TRAINING_AREA}`,
+  EDIT_MODEL_TRAINING_SETTINGS: `${MODELS_ROUTES.EDIT_MODEL_BASE}/${MODELS_ROUTES.TRAINING_SETTINGS}`,
+  EDIT_MODEL_SUMMARY: `${MODELS_ROUTES.EDIT_MODEL_BASE}/${MODELS_ROUTES.MODEL_SUMMARY}`,
 
   // Model routes end
   TRAINING_DATASETS: "/training-datasets",
@@ -33,6 +51,8 @@ export const APPLICATION_ROUTES = {
   ACCOUNT_SETTINGS: "/account/settings",
   ACCOUNT_MODELS: "/account/models",
 };
+
+
 
 /**
  * The key used to store the access token in local storage for the application.
