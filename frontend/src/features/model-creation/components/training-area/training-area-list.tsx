@@ -20,7 +20,7 @@ const TrainingAreaList = ({
   setOffset: Dispatch<SetStateAction<number>>;
 }) => {
   return (
-    <div className="flex h-[60%] flex-col gap-y-4 justify-between  p-4 ">
+    <div className="flex max-h-[60%] flex-col gap-y-4 justify-between  p-4 ">
       <div className="flex flex-col gap-y-4">
         <p className="text-body-1">
           {MODEL_CREATION_CONTENT.trainingArea.form.trainingArea}
@@ -40,6 +40,7 @@ const TrainingAreaList = ({
             totalLength={data?.count}
             setOffset={setOffset}
             isPlaceholderData={isPlaceholderData}
+
           />
         </div>
       </div>

@@ -292,7 +292,7 @@ export const ModelsProvider: React.FC<{
   );
 
   // Will be used in the route validator component to delay the redirection for a while until the data are retrieved
-  const validateEditMode = useMemo(() => isEditMode && formData.selectedTrainingDatasetId !== "" && formData.tmsURL !== "", [formData, isEditMode])
+  const validateEditMode = useMemo(() => formData.selectedTrainingDatasetId !== "" && formData.tmsURL !== "", [formData])
 
   // Fetch and prefill model details
   useEffect(() => {

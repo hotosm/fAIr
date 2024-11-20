@@ -76,7 +76,7 @@ const TrainingAreaForm = () => {
         successToast={TOAST_NOTIFICATIONS.trainingAreasFileUploadSuccess}
         disabled={createTrainingArea.isPending}
       />
-      <div className="min-h-screen flex flex-col">
+      <div className="h-screen flex flex-col">
         <div className="flex justify-between items-center mb-10">
           <div className="basis-1/2">
             <StepHeading
@@ -95,8 +95,8 @@ const TrainingAreaForm = () => {
             </p>
           </div>
         </div>
-        <div className="flex-grow h-[90vh] w-full grid grid-cols-9  border-8 border-off-white">
-          <div className="h-full w-full col-span-6 2xl:col-span-7">
+        <div className="h-full w-full grid grid-cols-9  border-8 border-off-white">
+          <div className="w-full col-span-6 2xl:col-span-7">
             <TrainingAreaMap
               tileJSONURL={tileJSONURL}
               data={trainingAreasData}
@@ -104,7 +104,7 @@ const TrainingAreaForm = () => {
               offset={offset}
             />
           </div>
-          <div className="flex col-span-3 2xl:col-span-2 flex-col w-full h-full border-l-8 border-off-white gap-y-6 py-4">
+          <div className="max-h-[80vh] flex col-span-3 2xl:col-span-2 flex-col w-full border-l-8 border-off-white gap-y-6 py-4">
             <OpenAerialMap tileJSONURL={tileJSONURL} />
             <TrainingAreaList
               offset={offset}

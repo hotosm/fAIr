@@ -28,7 +28,7 @@ const Pagination: React.FC<PaginationProps> = ({
   query,
   updateQuery,
   isPlaceholderData,
-  offset = 20,
+  offset,
   setOffset,
 }) => {
   const _offset = offset ?? (query?.[SEARCH_PARAMS.offset] as number);

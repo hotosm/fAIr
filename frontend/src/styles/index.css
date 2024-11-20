@@ -53,6 +53,13 @@ body {
   /* Spacing */
   --hot-fair-spacing-5x-large: 5rem;
   /* 80px */
+
+  /* Scroll bar styles */
+  --scrollbar-width: 6px;
+  --scrollbar-track-bg: #f0f0f0;
+  --scrollbar-thumb-bg: #ccc;
+  --scrollbar-thumb-hover-bg: #bbb;
+  
 }
 
 /* Toast stack placement style begins */
@@ -147,3 +154,25 @@ sl-alert.success::part(base) {
 }
 
 /* Tailwind styles ends */
+
+/* General scrollbar styles */
+::-webkit-scrollbar {
+  width: var(--scrollbar-width);
+  height:5px;
+}
+
+/* Scrollbar track */
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track-bg);
+}
+
+/* Scrollbar thumb */
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb-bg);
+  border-radius: 5px;
+}
+
+/* Scrollbar thumb on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover-bg);
+}
