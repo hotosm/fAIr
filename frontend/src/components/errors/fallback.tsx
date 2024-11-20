@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { APP_CONTENT } from "@/utils";
-import { NavBar } from "../ui/header";
+import { NavBar } from "@/components/ui/navbar";
 
 const MainErrorFallback = () => {
   return (

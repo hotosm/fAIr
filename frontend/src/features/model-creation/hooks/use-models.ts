@@ -59,7 +59,7 @@ export const useUpdateModel = ({
   modelId,
 }: useUpdateModelOptions) => {
   const { refetch: refetchModelDetails } = useModelDetails(modelId);
-  const queryClient = useQueryClient(); // Get the query client instance
+  const queryClient = useQueryClient();
   const { onSuccess, ...restConfig } = mutationConfig || {};
 
   return useMutation({

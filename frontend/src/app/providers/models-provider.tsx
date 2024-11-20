@@ -19,7 +19,7 @@ import React, {
   useState,
 } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { Feature, TModel, TTrainingDataset, TTrainingDetails } from "@/types";
+import { Feature, TTrainingDataset, TTrainingDetails } from "@/types";
 import {
   TCreateTrainingDatasetArgs,
   TCreateTrainingRequestArgs,
@@ -27,12 +27,11 @@ import {
 import {
   useCreateModel,
   useCreateModelTrainingRequest,
+  useUpdateModel,
 } from "@/features/model-creation/hooks/use-models";
-import { TCreateModelArgs } from "@/features/model-creation/api/create-models";
 import { LngLatBoundsLike } from "maplibre-gl";
 import { useModelDetails } from "@/features/models/hooks/use-models";
 import { useGetTrainingDataset } from "@/features/models/hooks/use-dataset";
-
 
 /**
  * The names here are the same with the `initialFormState` object keys.
@@ -135,27 +134,27 @@ export const FORM_VALIDATION_CONFIG = {
 };
 
 type FormData = {
-  [MODEL_CREATION_FORM_NAME.MODEL_NAME]: string;
-  [MODEL_CREATION_FORM_NAME.MODEL_DESCRIPTION]: string;
-  [MODEL_CREATION_FORM_NAME.BASE_MODELS]: BASE_MODELS;
-  [MODEL_CREATION_FORM_NAME.TRAINING_DATASET_OPTION]: TrainingDatasetOption;
-  [MODEL_CREATION_FORM_NAME.DATASET_NAME]: string;
-  [MODEL_CREATION_FORM_NAME.TMS_URL]: string;
-  [MODEL_CREATION_FORM_NAME.TMS_URL_VALIDITY]: {
+  modelName: string;
+  modelDescription: string;
+  baseModel: BASE_MODELS;
+  trainingDatasetOption: TrainingDatasetOption;
+  datasetName: string;
+  tmsURL: string;
+  tmsURLValidation: {
     valid: boolean;
     message: string;
   };
-  [MODEL_CREATION_FORM_NAME.SELECTED_TRAINING_DATASET_ID]: string;
-  [MODEL_CREATION_FORM_NAME.TRAINING_AREAS]: Feature[];
-  [MODEL_CREATION_FORM_NAME.OAM_TILE_NAME]: string;
-  [MODEL_CREATION_FORM_NAME.OAM_BOUNDS]: number[];
-  [MODEL_CREATION_FORM_NAME.TRAINING_TYPE]: TrainingType;
-  [MODEL_CREATION_FORM_NAME.CONTACT_SPACING]: number;
-  [MODEL_CREATION_FORM_NAME.EPOCH]: number;
-  [MODEL_CREATION_FORM_NAME.BATCH_SIZE]: number;
-  [MODEL_CREATION_FORM_NAME.BOUNDARY_WIDTH]: number;
-  [MODEL_CREATION_FORM_NAME.ZOOM_LEVELS]: number[];
-  [MODEL_CREATION_FORM_NAME.TRAINING_SETTINGS_IS_VALID]: boolean;
+  selectedTrainingDatasetId: string;
+  trainingAreas: Feature[];
+  oamTileName: string;
+  oamBounds: number[];
+  trainingType: TrainingType;
+  contactSpacing: number;
+  epoch: number;
+  batchSize: number;
+  boundaryWidth: number;
+  zoomLevels: number[];
+  trainingSettingsIsValid: boolean;
 };
 
 const initialFormState: FormData = {
@@ -205,12 +204,6 @@ const ModelsContext = createContext<{
     TCreateTrainingDatasetArgs,
     unknown
   >;
-  createNewModelMutation: UseMutationResult<
-    TModel,
-    Error,
-    TCreateModelArgs,
-    unknown
-  >;
   hasLabeledTrainingAreas: boolean;
   hasAOIsWithGeometry: boolean;
   resetState: () => void;
@@ -223,6 +216,10 @@ const ModelsContext = createContext<{
   isEditMode: boolean;
   modelId?: string;
   getFullPath: (path: string) => string;
+  trainingDatasetCreationInProgress: boolean;
+  handleModelCreationAndUpdate: () => void;
+  handleTrainingDatasetCreation: () => void;
+  validateEditMode: boolean
 }>({
   formData: initialFormState,
   setFormData: () => { },
@@ -231,12 +228,6 @@ const ModelsContext = createContext<{
     TTrainingDataset,
     Error,
     TCreateTrainingDatasetArgs,
-    unknown
-  >,
-  createNewModelMutation: {} as UseMutationResult<
-    TModel,
-    Error,
-    TCreateModelArgs,
     unknown
   >,
   createNewTrainingRequestMutation: {} as UseMutationResult<
@@ -251,6 +242,10 @@ const ModelsContext = createContext<{
   isEditMode: false,
   modelId: "",
   getFullPath: () => "",
+  handleModelCreationAndUpdate: () => { },
+  trainingDatasetCreationInProgress: false,
+  handleTrainingDatasetCreation: () => { },
+  validateEditMode: false
 });
 
 export const ModelsProvider: React.FC<{
@@ -296,6 +291,9 @@ export const ModelsProvider: React.FC<{
     Boolean(isEditMode && data?.dataset),
   );
 
+  // Will be used in the route validator component to delay the redirection for a while until the data are retrieved
+  const validateEditMode = useMemo(() => isEditMode && formData.selectedTrainingDatasetId !== "" && formData.tmsURL !== "", [formData, isEditMode])
+
   // Fetch and prefill model details
   useEffect(() => {
     if (!isEditMode || isPending || !data) return;
@@ -316,27 +314,7 @@ export const ModelsProvider: React.FC<{
   // Fetch and prefill training dataset
   useEffect(() => {
     if (
-      (!isEditMode && !formData.selectedTrainingDatasetId) ||
-      trainingDatasetIsPending ||
-      trainingDatasetIsError
-    )
-      return;
-    handleChange(MODEL_CREATION_FORM_NAME.DATASET_NAME, trainingDataset.name);
-    handleChange(
-      MODEL_CREATION_FORM_NAME.TMS_URL,
-      trainingDataset.source_imagery,
-    );
-  }, [
-    isEditMode,
-    trainingDatasetIsPending,
-    trainingDataset,
-    trainingDatasetIsError,
-  ]);
-
-  // Fetch and prefill training settings
-  useEffect(() => {
-    if (
-      (!isEditMode && !formData.selectedTrainingDatasetId) ||
+      !isEditMode ||
       trainingDatasetIsPending ||
       trainingDatasetIsError
     )
@@ -395,20 +373,28 @@ export const ModelsProvider: React.FC<{
     },
   });
 
-  const createNewModelMutation = useCreateModel({
+  const handleModelCreationOrUpdateSuccess = (modelId: string) => {
+    showSuccessToast(
+      isEditMode
+        ? TOAST_NOTIFICATIONS.modelUpdateSuccess
+        : TOAST_NOTIFICATIONS.modelCreationSuccess,
+    );
+    navigate(`${getFullPath(MODELS_ROUTES.CONFIRMATION)}?id=${modelId}`);
+    // Submit the model for training request
+    createNewTrainingRequestMutation.mutate({
+      model: modelId,
+      input_boundary_width: formData.boundaryWidth,
+      input_contact_spacing: formData.contactSpacing,
+      epochs: formData.epoch,
+      batch_size: formData.batchSize,
+      zoom_level: formData.zoomLevels,
+    });
+  };
+
+  const modelCreateMutation = useCreateModel({
     mutationConfig: {
       onSuccess: (data) => {
-        showSuccessToast(TOAST_NOTIFICATIONS.modelCreationSuccess);
-        navigate(`${getFullPath(MODELS_ROUTES.CONFIRMATION)}?id=${data.id}`);
-        // Submit the model for training request
-        createNewTrainingRequestMutation.mutate({
-          model: data.id,
-          input_boundary_width: formData.boundaryWidth,
-          input_contact_spacing: formData.contactSpacing,
-          epochs: formData.epoch,
-          batch_size: formData.batchSize,
-          zoom_level: formData.zoomLevels,
-        });
+        handleModelCreationOrUpdateSuccess(data.id);
       },
       onError: (error) => {
         showErrorToast(error);
@@ -416,9 +402,22 @@ export const ModelsProvider: React.FC<{
     },
   });
 
+  const modelUpdateMutation = useUpdateModel({
+    mutationConfig: {
+      onSuccess: (data) => {
+        handleModelCreationOrUpdateSuccess(data.id);
+      },
+      onError: (error) => {
+        showErrorToast(error);
+      },
+    },
+    modelId: modelId as string,
+  });
+
   // Confirm that all the training areas labels has been retrieved
   const hasLabeledTrainingAreas = useMemo(() => {
     return (
+      formData.trainingAreas.length > 0 &&
       formData.trainingAreas.filter(
         (aoi: Feature) => aoi.properties.label_fetched === null,
       ).length === 0
@@ -427,6 +426,7 @@ export const ModelsProvider: React.FC<{
   // Confirm that all of the training areas has a geometry
   const hasAOIsWithGeometry = useMemo(() => {
     return (
+      formData.trainingAreas.length > 0 &&
       formData.trainingAreas.filter((aoi: Feature) => aoi.geometry === null)
         .length === 0
     );
@@ -436,12 +436,39 @@ export const ModelsProvider: React.FC<{
     setFormData(initialFormState);
   };
 
+  const handleTrainingDatasetCreation = () => {
+    createNewTrainingDatasetMutation.mutate({
+      source_imagery: formData.tmsURL,
+      name: formData.datasetName,
+    });
+  };
+  const trainingDatasetCreationInProgress =
+    createNewTrainingDatasetMutation.isPending;
+
+  const handleModelCreationAndUpdate = () => {
+    if (isEditMode) {
+      modelUpdateMutation.mutate({
+        dataset: formData.selectedTrainingDatasetId,
+        name: formData.modelName,
+        description: formData.modelDescription,
+        base_model: formData.baseModel as BASE_MODELS,
+        modelId: modelId as string,
+      });
+    } else {
+      modelCreateMutation.mutate({
+        dataset: formData.selectedTrainingDatasetId,
+        name: formData.modelName,
+        description: formData.modelDescription,
+        base_model: formData.baseModel,
+      });
+    }
+  };
+
   const memoizedValues = useMemo(
     () => ({
       setFormData,
       handleChange,
       createNewTrainingDatasetMutation,
-      createNewModelMutation,
       hasLabeledTrainingAreas,
       hasAOIsWithGeometry,
       formData,
@@ -450,13 +477,16 @@ export const ModelsProvider: React.FC<{
       isEditMode,
       modelId,
       getFullPath,
+      handleModelCreationAndUpdate,
+      handleTrainingDatasetCreation,
+      trainingDatasetCreationInProgress,
+      validateEditMode
     }),
     [
       setFormData,
       formData,
       handleChange,
       createNewTrainingDatasetMutation,
-      createNewModelMutation,
       hasLabeledTrainingAreas,
       hasAOIsWithGeometry,
       resetState,
@@ -464,6 +494,10 @@ export const ModelsProvider: React.FC<{
       isEditMode,
       modelId,
       getFullPath,
+      handleModelCreationAndUpdate,
+      handleTrainingDatasetCreation,
+      trainingDatasetCreationInProgress,
+      validateEditMode
     ],
   );
 

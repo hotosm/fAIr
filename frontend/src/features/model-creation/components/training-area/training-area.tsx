@@ -64,6 +64,8 @@ const TrainingAreaForm = () => {
       geom: `SRID=4326;${wkt}`,
     });
   };
+
+
   return (
     <>
       <FileUploadDialog

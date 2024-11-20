@@ -24,7 +24,7 @@ const GeolocationControl = ({ map }: { map: Map | null }) => {
         },
       );
     } else {
-      showWarningToast(TOAST_NOTIFICATIONS.geolocationNotSupported)
+      showWarningToast(TOAST_NOTIFICATIONS.geolocationNotSupported);
     }
   }, [map]);
 

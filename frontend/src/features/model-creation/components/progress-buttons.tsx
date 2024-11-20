@@ -31,33 +31,26 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
   const {
     formData,
     handleChange,
-    createNewTrainingDatasetMutation,
-    createNewModelMutation,
     hasLabeledTrainingAreas,
     hasAOIsWithGeometry,
     getFullPath,
+    handleModelCreationAndUpdate,
+    handleTrainingDatasetCreation,
+    trainingDatasetCreationInProgress,
   } = useModelsContext();
 
   const nextPage = () => {
     const nextRoute = getFullPath(pages[currentPageIndex + 1].path);
     if (currentPath.includes(MODELS_ROUTES.TRAINING_DATASET)) {
       if (formData.trainingDatasetOption === TrainingDatasetOption.CREATE_NEW) {
-        createNewTrainingDatasetMutation.mutate({
-          source_imagery: formData.tmsURL,
-          name: formData.datasetName,
-        });
+        handleTrainingDatasetCreation();
       } else {
         if (currentPageIndex < pages.length - 1) {
           navigate(nextRoute);
         }
       }
     } else if (currentPath.includes(MODELS_ROUTES.MODEL_SUMMARY)) {
-      createNewModelMutation.mutate({
-        dataset: formData.selectedTrainingDatasetId,
-        name: formData.modelName,
-        description: formData.modelDescription,
-        base_model: formData.baseModel,
-      });
+      handleModelCreationAndUpdate();
     } else {
       if (currentPageIndex < pages.length - 1) {
         navigate(nextRoute);
@@ -119,10 +112,7 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
         formData.trainingDatasetOption === TrainingDatasetOption.CREATE_NEW
       ) {
         // If the form submission is in progress or if any error disable the continue button.
-        if (
-          createNewTrainingDatasetMutation.isPending ||
-          createNewTrainingDatasetMutation.isError
-        ) {
+        if (trainingDatasetCreationInProgress) {
           return true;
         }
         return (
@@ -151,8 +141,6 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
     }
   }, [formData, currentPath]);
 
-  // Handle model creation when on the last page
-
   return (
     <div className="col-span-12 md:col-start-4 md:col-span-6 w-full flex items-center justify-between">
       <ButtonWithIcon
@@ -166,7 +154,7 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
         variant="primary"
         suffixIcon={ChevronDownIcon}
         label={
-          createNewTrainingDatasetMutation.isPending
+          trainingDatasetCreationInProgress
             ? "Loading..."
             : currentPath === APPLICATION_ROUTES.CREATE_NEW_MODEL_SUMMARY
               ? "Submit"

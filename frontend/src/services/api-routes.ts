@@ -50,7 +50,7 @@ export const API_ENDPOINTS = {
   GET_TRAINING_FEEDBACKS: (trainingId: number) =>
     `feedback/?training=${trainingId}`,
 
-  // Workspace 
+  // Workspace
 
   GET_TRAINING_WORKSPACE: (
     datasetId: number,

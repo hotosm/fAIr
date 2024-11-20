@@ -20,49 +20,50 @@ import {
 } from "@/app/providers/models-provider";
 import ModelsLayout from "./models-layout";
 
+
 const pages: {
   id: number;
   title: string;
   icon: React.ElementType;
   path: string;
 }[] = [
-  {
-    id: 1,
-    title: MODEL_CREATION_CONTENT.progressStepper.modelDetails,
-    icon: TagsIcon,
-    path: MODELS_ROUTES.DETAILS,
-  },
-  {
-    id: 2,
-    title: MODEL_CREATION_CONTENT.progressStepper.trainingDataset,
-    icon: DatabaseIcon,
-    path: MODELS_ROUTES.TRAINING_DATASET,
-  },
-  {
-    id: 3,
-    title: MODEL_CREATION_CONTENT.progressStepper.trainingArea,
-    icon: SquareShadowIcon,
-    path: MODELS_ROUTES.TRAINING_AREA,
-  },
-  {
-    id: 4,
-    title: MODEL_CREATION_CONTENT.progressStepper.trainingSettings,
-    icon: SettingsIcon,
-    path: MODELS_ROUTES.TRAINING_SETTINGS,
-  },
-  {
-    id: 5,
-    title: MODEL_CREATION_CONTENT.progressStepper.submitModel,
-    icon: CloudIcon,
-    path: MODELS_ROUTES.MODEL_SUMMARY,
-  },
-  {
-    id: 6,
-    title: MODEL_CREATION_CONTENT.progressStepper.confirmation,
-    icon: StarIcon,
-    path: MODELS_ROUTES.CONFIRMATION,
-  },
-];
+    {
+      id: 1,
+      title: MODEL_CREATION_CONTENT.progressStepper.modelDetails,
+      icon: TagsIcon,
+      path: MODELS_ROUTES.DETAILS,
+    },
+    {
+      id: 2,
+      title: MODEL_CREATION_CONTENT.progressStepper.trainingDataset,
+      icon: DatabaseIcon,
+      path: MODELS_ROUTES.TRAINING_DATASET,
+    },
+    {
+      id: 3,
+      title: MODEL_CREATION_CONTENT.progressStepper.trainingArea,
+      icon: SquareShadowIcon,
+      path: MODELS_ROUTES.TRAINING_AREA,
+    },
+    {
+      id: 4,
+      title: MODEL_CREATION_CONTENT.progressStepper.trainingSettings,
+      icon: SettingsIcon,
+      path: MODELS_ROUTES.TRAINING_SETTINGS,
+    },
+    {
+      id: 5,
+      title: MODEL_CREATION_CONTENT.progressStepper.submitModel,
+      icon: CloudIcon,
+      path: MODELS_ROUTES.MODEL_SUMMARY,
+    },
+    {
+      id: 6,
+      title: MODEL_CREATION_CONTENT.progressStepper.confirmation,
+      icon: StarIcon,
+      path: MODELS_ROUTES.CONFIRMATION,
+    },
+  ];
 
 const ModelCreationLayout = () => {
   const { pathname } = useLocation();
@@ -78,7 +79,7 @@ const ModelCreationLayout = () => {
   return (
     <ModelsLayout>
       <ModelsProvider>
-        <ModelCreationRouteValidator
+        <ModelFormRouteValidator
           pathname={pathname}
           currentPageIndex={currentPageIndex}
         />
@@ -107,7 +108,7 @@ const ModelCreationLayout = () => {
 
 export default ModelCreationLayout;
 
-const ModelCreationRouteValidator = ({
+const ModelFormRouteValidator = ({
   pathname,
   currentPageIndex,
 }: {
@@ -115,10 +116,10 @@ const ModelCreationRouteValidator = ({
   currentPageIndex: number;
 }) => {
   const navigate = useNavigate();
-  const { formData, hasLabeledTrainingAreas, getFullPath } = useModelsContext();
+  const { formData, hasLabeledTrainingAreas, getFullPath, validateEditMode, } = useModelsContext();
 
   useEffect(() => {
-    if (!pathname || !formData || !currentPageIndex) return;
+    if (!pathname || !formData || !currentPageIndex || !validateEditMode) return;
     const prevRoute = getFullPath(pages[currentPageIndex - 1].path);
     if (pathname.includes(MODELS_ROUTES.TRAINING_DATASET)) {
       // When a user is in the training dataset page, they must have filled the model details page
@@ -149,7 +150,7 @@ const ModelCreationRouteValidator = ({
       )
         navigate(prevRoute);
     }
-  }, [pathname, formData, currentPageIndex]);
+  }, [pathname, formData, currentPageIndex, validateEditMode]);
 
   return null;
 };

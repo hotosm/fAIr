@@ -1,6 +1,4 @@
-
 import { StyleSpecification } from "maplibre-gl";
-
 
 /**
  * The navigation routes for the application. This object controls the name of the path. i.e  /<pathname>
@@ -122,7 +120,6 @@ export const TRAINING_AREAS_AOI_LABELS_OUTLINE_COLOR = "#D73434";
  * The key used to store the banner state in local storage for the application.
  */
 export const HOT_FAIR_BANNER_LOCAL_STORAGE_KEY = "__hot_fair_banner_closed";
-
 
 // MAP SETTINGS
 

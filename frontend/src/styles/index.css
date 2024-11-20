@@ -55,7 +55,6 @@ body {
   /* 80px */
 }
 
-
 /* Toast stack placement style begins */
 
 .sl-toast-stack {
@@ -66,7 +65,6 @@ body {
 }
 
 /* Toast stack placement style ends */
-
 
 /* Overriding the toast design style begins */
 
@@ -124,7 +122,6 @@ sl-alert.success::part(base) {
 }
 
 /* Matomo placement style ends */
-
 
 /* Tailwind styles begins */
 
