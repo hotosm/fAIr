@@ -7,6 +7,7 @@ import {
 import { formatAreaInAppropriateUnit } from "./geometry-utils";
 
 export const TOAST_NOTIFICATIONS = {
+  geolocationNotSupported: "Geolocation is not supported by this browser.",
   drawingModeActivated:
     "Draw mode activated. Hover on the map to start drawing",
   trainingAreasFileUploadSuccess: "Training areas created successfully.",

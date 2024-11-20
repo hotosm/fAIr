@@ -21,7 +21,7 @@ const MapContext = createContext<{
   currentZoom: number;
 }>({
   map: null,
-  setMap: () => {},
+  setMap: () => { },
   terraDraw: undefined,
   drawingMode: DrawingModes.STATIC,
   setDrawingMode: () => DrawingModes,
@@ -48,19 +48,19 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
     terraDraw?.setMode(drawingMode);
   }, [terraDraw, drawingMode]);
 
-  const updateZoomAndBbox = useCallback(() => {
+  const updateZoom = useCallback(() => {
     if (!map) return;
     setCurrentZoom(map.getZoom());
   }, [map]);
 
   useEffect(() => {
     if (!map) return;
-    const moveUpdates = () => {
-      updateZoomAndBbox();
+    const handleMapMove = () => {
+      updateZoom();
     };
-    map.on("moveend", moveUpdates);
+    map.on("moveend", handleMapMove);
     return () => {
-      map.off("moveend", moveUpdates);
+      map.off("moveend", handleMapMove);
     };
   }, [map]);
 

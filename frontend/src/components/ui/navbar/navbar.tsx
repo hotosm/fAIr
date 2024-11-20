@@ -8,7 +8,7 @@ import { Link } from "@/components/ui/link";
 import { Image } from "@/components/ui/image";
 import { APP_CONTENT, APPLICATION_ROUTES } from "@/utils";
 import { useAuth } from "@/app/providers/auth-provider";
-import UserProfile from "@/components/ui/header/user-profile";
+import UserProfile from "@/components/ui/navbar/user-profile";
 import { useLogin } from "@/hooks/use-login";
 import { useLocation } from "react-router-dom";
 

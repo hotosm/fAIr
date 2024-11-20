@@ -15,7 +15,7 @@ export const createModel = async ({
   base_model,
 }: TCreateModelArgs): Promise<TModel> => {
   return await (
-    await apiClient.post(`${API_ENDPOINTS.CREATE_MODELS}`, {
+    await apiClient.post(`${API_ENDPOINTS.CREATE_MODEL}`, {
       dataset,
       name,
       description,

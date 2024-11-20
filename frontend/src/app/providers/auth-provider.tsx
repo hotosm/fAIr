@@ -45,7 +45,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // For use across the application.
   const isAuthenticated = user !== null && token !== undefined;
 
-  //set token globally to eliminate the need to rewrite it
+  // Set token globally to eliminate the need to rewrite it
   apiClient.defaults.headers.common["access-token"] = token ? `${token}` : null;
 
   useEffect(() => {
@@ -59,14 +59,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (redirectTo) {
       // remove it before redirecting.
       removeSessionValue(HOT_FAIR_SESSION_REDIRECT_KEY);
-      // this this is the last stage of the auth, we can assume that the login is successful, then store a reference
+      // This is the last stage of the auth, we can assume that the login is successful, then store a reference
       // in the session storage.
       setSessionValue(HOT_FAIR_LOGIN_SUCCESSFUL_SESSION_KEY, "success");
       window.location.replace(redirectTo);
     }
   };
 
-  //To show the login success after completing redirection if any.
+  // To show the login success after completing redirection if any.
 
   useEffect(() => {
     const loginSuccessful = getSessionValue(

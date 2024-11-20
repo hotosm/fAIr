@@ -6,7 +6,7 @@ import { API_ENDPOINTS } from "@/services/api-routes";
  * This class encapsulate the various authentication services.
  */
 class AuthService {
-  //inspired by https://github.com/hotosm/tasking-manager/blob/develop/frontend/src/utils/login.js
+  // Inspired by https://github.com/hotosm/tasking-manager/blob/develop/frontend/src/utils/login.js
   private async createPopUp(url: string): Promise<Window | null> {
     const width = 500;
     const height = 630;

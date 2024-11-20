@@ -55,6 +55,19 @@ body {
   /* 80px */
 }
 
+
+/* Toast stack placement style begins */
+
+.sl-toast-stack {
+  left: 0;
+  right: auto;
+  top: auto;
+  bottom: 0;
+}
+
+/* Toast stack placement style ends */
+
+
 /* Overriding the toast design style begins */
 
 sl-alert::part(close-button__base),
@@ -112,23 +125,15 @@ sl-alert.success::part(base) {
 
 /* Matomo placement style ends */
 
-/* Toast stack placement style begins */
-
-.sl-toast-stack {
-  left: 0;
-  right: auto;
-  top: auto;
-  bottom: 0;
-}
-
-/* Toast stack placement style ends */
 
 /* Tailwind styles begins */
 
+/* Banner content customization starts */
 .prose * {
   color: var(--hot-fair-color-white) !important;
   margin: 0px !important;
 }
+/* Banner content customization ends */
 
 @layer components {
   .icon {
@@ -141,10 +146,6 @@ sl-alert.success::part(base) {
 
   .map-icon {
     @apply inline-block h-4 w-4  p-2;
-  }
-
-  .banner-markdown {
-    @apply w-full md:text-nowrap prose;
   }
 }
 

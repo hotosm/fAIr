@@ -17,7 +17,7 @@ export const createTrainingDataset = async ({
   status = 0,
 }: TCreateTrainingDatasetArgs): Promise<TTrainingDataset> => {
   return await (
-    await apiClient.post(API_ENDPOINTS.CREATE_TRAINING_DATASETS, {
+    await apiClient.post(API_ENDPOINTS.CREATE_TRAINING_DATASET, {
       name,
       source_imagery,
       status,

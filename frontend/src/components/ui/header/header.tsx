@@ -3,7 +3,7 @@ import styles from "./header.module.css";
 import BackgroundImage from "@/assets/images/header_bg.png";
 import { APP_CONTENT } from "@/utils/content";
 import { Image } from "@/components/ui/image";
-import { Link } from "../link";
+import { Link } from "@/components/ui/link";
 import { APPLICATION_ROUTES } from "@/utils";
 
 const Header = () => {

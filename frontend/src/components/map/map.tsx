@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { MAP_STYLES } from "@/config";
+import { MAP_STYLES } from "@/utils";
 import ZoomControls from "./zoom-controls";
 import GeolocationControl from "./geolocation-control";
 import DrawControl from "./draw-control";
