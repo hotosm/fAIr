@@ -4,6 +4,7 @@ import ModelCard from "@/features/models/components/model-card";
 type ModelListProps = {
   models?: TModel[];
   isPending: boolean;
+  isError: boolean
 };
 
 const ModelListSkeleton = () => {
@@ -36,10 +37,11 @@ const ModelListSkeleton = () => {
 const ModelListGridLayout: React.FC<ModelListProps> = ({
   models,
   isPending,
+  isError
 }) => {
   return (
     <>
-      {isPending ? (
+      {isPending || isError ? (
         <ModelListSkeleton />
       ) : (
         models?.map((model, id) => (
