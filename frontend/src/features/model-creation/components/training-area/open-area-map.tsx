@@ -22,7 +22,7 @@ const OpenAerialMap = ({ tileJSONURL }: { tileJSONURL: string }) => {
   useEffect(() => {
     if (!data) return;
     handleChange(MODEL_CREATION_FORM_NAME.OAM_BOUNDS, data.bounds);
-    handleChange(MODEL_CREATION_FORM_NAME.OAM_TIME_NAME, data.name);
+    handleChange(MODEL_CREATION_FORM_NAME.OAM_TILE_NAME, data.name);
   }, [data]);
 
   useEffect(() => {

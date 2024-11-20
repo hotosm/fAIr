@@ -1,9 +1,10 @@
 import { Dialog } from "@/components/ui/dialog";
 import { ChevronDownIcon } from "@/components/ui/icons";
 import { useDialog } from "@/hooks/use-dialog";
-import { APP_CONTENT } from "@/utils";
-import ModelTrainingSettingsDialog from "./training-settings-dialog";
+import { APP_CONTENT, MODELS_BASE, MODELS_ROUTES } from "@/utils";
+import ModelTrainingSettingsDialog from "@/features/models/components/dialogs/training-settings-dialog";
 import { ModelsProvider } from "@/app/providers/models-provider";
+import { useNavigate } from "react-router-dom";
 
 type ModelEnhancementDialogProps = {
   isOpened: boolean;
@@ -20,6 +21,7 @@ const ModelEnhancementDialog: React.FC<ModelEnhancementDialogProps> = ({
     openDialog,
     closeDialog: closeTrainingSettingsDialog,
   } = useDialog();
+  const navigate = useNavigate();
 
   const options = [
     {
@@ -36,6 +38,10 @@ const ModelEnhancementDialog: React.FC<ModelEnhancementDialogProps> = ({
       description:
         APP_CONTENT.models.modelsDetailsCard.modelEnhancement.trainingData
           .description,
+      onClick: () =>
+        navigate(
+          MODELS_BASE + "/" + modelId + "/" + MODELS_ROUTES.TRAINING_AREA,
+        ),
     },
   ];
 

@@ -1,5 +1,4 @@
 import { BASE_MODELS, TrainingType, TrainingDatasetOption } from "@/enums";
-
 import { useCreateTrainingDataset } from "@/features/model-creation/hooks/use-training-datasets";
 import {
   APPLICATION_ROUTES,
@@ -31,6 +30,9 @@ import {
 } from "@/features/model-creation/hooks/use-models";
 import { TCreateModelArgs } from "@/features/model-creation/api/create-models";
 import { LngLatBoundsLike } from "maplibre-gl";
+import { useModelDetails } from "@/features/models/hooks/use-models";
+import { useGetTrainingDataset } from "@/features/models/hooks/use-dataset";
+
 
 /**
  * The names here are the same with the `initialFormState` object keys.
@@ -51,25 +53,25 @@ export enum MODEL_CREATION_FORM_NAME {
   TMS_URL = "tmsURL",
   TMS_URL_VALIDITY = "tmsURLValidation",
   SELECTED_TRAINING_DATASET_ID = "selectedTrainingDatasetId",
-  OAM_TIME_NAME = "oamTileName",
+  OAM_TILE_NAME = "oamTileName",
   OAM_BOUNDS = "oamBounds",
   TRAINING_AREAS = "trainingAreas",
   TRAINING_SETTINGS_IS_VALID = "trainingSettingsIsValid",
 }
 
 export const FORM_VALIDATION_CONFIG = {
-  modelName: {
+  [MODEL_CREATION_FORM_NAME.MODEL_NAME]: {
     maxLength: 40,
     minLength: 10,
   },
-  tmsURL: {
+  [MODEL_CREATION_FORM_NAME.TMS_URL]: {
     pattern: TMS_URL_REGEX_PATTERN.source,
   },
-  modelDescription: {
+  [MODEL_CREATION_FORM_NAME.MODEL_DESCRIPTION]: {
     maxLength: 500,
     minLength: 10,
   },
-  datasetName: {
+  [MODEL_CREATION_FORM_NAME.DATASET_NAME]: {
     maxLength: 40,
     minLength: 10,
   },
@@ -133,55 +135,55 @@ export const FORM_VALIDATION_CONFIG = {
 };
 
 type FormData = {
-  modelName: string;
-  modelDescription: string;
-  baseModel: BASE_MODELS;
-  trainingDatasetOption: TrainingDatasetOption;
-  datasetName: string;
-  tmsURL: string;
-  tmsURLValidation: {
+  [MODEL_CREATION_FORM_NAME.MODEL_NAME]: string;
+  [MODEL_CREATION_FORM_NAME.MODEL_DESCRIPTION]: string;
+  [MODEL_CREATION_FORM_NAME.BASE_MODELS]: BASE_MODELS;
+  [MODEL_CREATION_FORM_NAME.TRAINING_DATASET_OPTION]: TrainingDatasetOption;
+  [MODEL_CREATION_FORM_NAME.DATASET_NAME]: string;
+  [MODEL_CREATION_FORM_NAME.TMS_URL]: string;
+  [MODEL_CREATION_FORM_NAME.TMS_URL_VALIDITY]: {
     valid: boolean;
     message: string;
   };
-  selectedTrainingDatasetId: string;
-  trainingAreas: Feature[];
-  oamTileName: string;
-  oamBounds: number[];
-  trainingType: TrainingType;
-  contactSpacing: number;
-  epoch: number;
-  batchSize: number;
-  boundaryWidth: number;
-  zoomLevels: number[];
-  trainingSettingsIsValid: boolean;
+  [MODEL_CREATION_FORM_NAME.SELECTED_TRAINING_DATASET_ID]: string;
+  [MODEL_CREATION_FORM_NAME.TRAINING_AREAS]: Feature[];
+  [MODEL_CREATION_FORM_NAME.OAM_TILE_NAME]: string;
+  [MODEL_CREATION_FORM_NAME.OAM_BOUNDS]: number[];
+  [MODEL_CREATION_FORM_NAME.TRAINING_TYPE]: TrainingType;
+  [MODEL_CREATION_FORM_NAME.CONTACT_SPACING]: number;
+  [MODEL_CREATION_FORM_NAME.EPOCH]: number;
+  [MODEL_CREATION_FORM_NAME.BATCH_SIZE]: number;
+  [MODEL_CREATION_FORM_NAME.BOUNDARY_WIDTH]: number;
+  [MODEL_CREATION_FORM_NAME.ZOOM_LEVELS]: number[];
+  [MODEL_CREATION_FORM_NAME.TRAINING_SETTINGS_IS_VALID]: boolean;
 };
 
 const initialFormState: FormData = {
-  modelName: "",
-  modelDescription: "",
-  baseModel: BASE_MODELS.RAMP,
-  trainingDatasetOption: TrainingDatasetOption.NONE,
+  [MODEL_CREATION_FORM_NAME.MODEL_NAME]: "",
+  [MODEL_CREATION_FORM_NAME.MODEL_DESCRIPTION]: "",
+  [MODEL_CREATION_FORM_NAME.BASE_MODELS]: BASE_MODELS.RAMP,
+  [MODEL_CREATION_FORM_NAME.TRAINING_DATASET_OPTION]:
+    TrainingDatasetOption.NONE,
   // create new dataset form
-  datasetName: "",
-  tmsURL: "",
-  tmsURLValidation: {
+  [MODEL_CREATION_FORM_NAME.DATASET_NAME]: "",
+  [MODEL_CREATION_FORM_NAME.TMS_URL]: "",
+  [MODEL_CREATION_FORM_NAME.TMS_URL_VALIDITY]: {
     valid: false,
     message: "",
   },
-
-  selectedTrainingDatasetId: "",
-  trainingAreas: [],
+  [MODEL_CREATION_FORM_NAME.SELECTED_TRAINING_DATASET_ID]: "",
+  [MODEL_CREATION_FORM_NAME.TRAINING_AREAS]: [],
   // oam tms info
-  oamTileName: "",
-  oamBounds: [],
+  [MODEL_CREATION_FORM_NAME.OAM_TILE_NAME]: "",
+  [MODEL_CREATION_FORM_NAME.OAM_BOUNDS]: [],
   // Training settings - defaults to basic configurations
-  trainingType: TrainingType.BASIC,
-  epoch: 2,
-  contactSpacing: 4,
-  batchSize: 8,
-  boundaryWidth: 3,
-  zoomLevels: [19, 20, 21],
-  trainingSettingsIsValid: true,
+  [MODEL_CREATION_FORM_NAME.TRAINING_TYPE]: TrainingType.BASIC,
+  [MODEL_CREATION_FORM_NAME.EPOCH]: 2,
+  [MODEL_CREATION_FORM_NAME.CONTACT_SPACING]: 4,
+  [MODEL_CREATION_FORM_NAME.BATCH_SIZE]: 8,
+  [MODEL_CREATION_FORM_NAME.BOUNDARY_WIDTH]: 3,
+  [MODEL_CREATION_FORM_NAME.ZOOM_LEVELS]: [19, 20, 21],
+  [MODEL_CREATION_FORM_NAME.TRAINING_SETTINGS_IS_VALID]: true,
 };
 
 const ModelsContext = createContext<{
@@ -223,8 +225,8 @@ const ModelsContext = createContext<{
   getFullPath: (path: string) => string;
 }>({
   formData: initialFormState,
-  setFormData: () => {},
-  handleChange: () => {},
+  setFormData: () => { },
+  handleChange: () => { },
   createNewTrainingDatasetMutation: {} as UseMutationResult<
     TTrainingDataset,
     Error,
@@ -245,7 +247,7 @@ const ModelsContext = createContext<{
   >,
   hasLabeledTrainingAreas: false,
   hasAOIsWithGeometry: false,
-  resetState: () => {},
+  resetState: () => { },
   isEditMode: false,
   modelId: "",
   getFullPath: () => "",
@@ -280,13 +282,76 @@ export const ModelsProvider: React.FC<{
 
   const isEditMode = Boolean(modelId && !pathname.includes("new"));
 
-  // handle validation
+  const { data, isPending, isError } = useModelDetails(
+    modelId as string,
+    isEditMode,
+  );
+
+  const {
+    data: trainingDataset,
+    isPending: trainingDatasetIsPending,
+    isError: trainingDatasetIsError,
+  } = useGetTrainingDataset(
+    Number(data?.dataset),
+    Boolean(isEditMode && data?.dataset),
+  );
+
+  // Fetch and prefill model details
   useEffect(() => {
-    if (!isEditMode) return;
-    // check that the model exists
-    // Otherwise, redirect to 404
-    // get the data and set it in state
-  }, [isEditMode]);
+    if (!isEditMode || isPending || !data) return;
+
+    if (isError) {
+      navigate(APPLICATION_ROUTES.NOTFOUND);
+    }
+
+    handleChange(MODEL_CREATION_FORM_NAME.BASE_MODELS, data.base_model);
+    handleChange(MODEL_CREATION_FORM_NAME.MODEL_DESCRIPTION, data.description);
+    handleChange(MODEL_CREATION_FORM_NAME.MODEL_NAME, data.name);
+    handleChange(
+      MODEL_CREATION_FORM_NAME.SELECTED_TRAINING_DATASET_ID,
+      data.dataset,
+    );
+  }, [isEditMode, isError, isPending, data]);
+
+  // Fetch and prefill training dataset
+  useEffect(() => {
+    if (
+      (!isEditMode && !formData.selectedTrainingDatasetId) ||
+      trainingDatasetIsPending ||
+      trainingDatasetIsError
+    )
+      return;
+    handleChange(MODEL_CREATION_FORM_NAME.DATASET_NAME, trainingDataset.name);
+    handleChange(
+      MODEL_CREATION_FORM_NAME.TMS_URL,
+      trainingDataset.source_imagery,
+    );
+  }, [
+    isEditMode,
+    trainingDatasetIsPending,
+    trainingDataset,
+    trainingDatasetIsError,
+  ]);
+
+  // Fetch and prefill training settings
+  useEffect(() => {
+    if (
+      (!isEditMode && !formData.selectedTrainingDatasetId) ||
+      trainingDatasetIsPending ||
+      trainingDatasetIsError
+    )
+      return;
+    handleChange(MODEL_CREATION_FORM_NAME.DATASET_NAME, trainingDataset.name);
+    handleChange(
+      MODEL_CREATION_FORM_NAME.TMS_URL,
+      trainingDataset.source_imagery,
+    );
+  }, [
+    isEditMode,
+    trainingDatasetIsPending,
+    trainingDataset,
+    trainingDatasetIsError,
+  ]);
 
   useEffect(() => {
     // Cleanup the timeout on component unmount
