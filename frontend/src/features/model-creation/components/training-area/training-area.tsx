@@ -65,7 +65,6 @@ const TrainingAreaForm = () => {
     });
   };
 
-
   return (
     <>
       <FileUploadDialog

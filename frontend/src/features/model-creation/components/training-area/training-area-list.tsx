@@ -40,7 +40,6 @@ const TrainingAreaList = ({
             totalLength={data?.count}
             setOffset={setOffset}
             isPlaceholderData={isPlaceholderData}
-
           />
         </div>
       </div>

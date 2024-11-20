@@ -59,9 +59,9 @@ const ClearFilters = ({
 }) => {
   const canClearAllFilters = Boolean(
     query[SEARCH_PARAMS.searchQuery] ||
-    query[SEARCH_PARAMS.startDate] ||
-    query[SEARCH_PARAMS.endDate] ||
-    query[SEARCH_PARAMS.id],
+      query[SEARCH_PARAMS.startDate] ||
+      query[SEARCH_PARAMS.endDate] ||
+      query[SEARCH_PARAMS.id],
   );
 
   return (
@@ -252,8 +252,11 @@ export const ModelsPage = () => {
     setQuery(newQuery);
   }, []);
 
-  const { data: mapData, isPending: modelsMapDataIsPending, isError: modelsMapDataIsError } =
-    useModelsMapData();
+  const {
+    data: mapData,
+    isPending: modelsMapDataIsPending,
+    isError: modelsMapDataIsError,
+  } = useModelsMapData();
 
   // Since it's just a static filter, it's better to memoize it.
   const memoizedCategoryFilter = useMemo(
@@ -318,11 +321,21 @@ export const ModelsPage = () => {
     if (query[SEARCH_PARAMS.layout] === LayoutView.LIST) {
       return (
         <div className="col-span-5">
-          <ModelListTableLayout isPending={isPending} models={data?.results} isError={isError} />
+          <ModelListTableLayout
+            isPending={isPending}
+            models={data?.results}
+            isError={isError}
+          />
         </div>
       );
     }
-    return <ModelListGridLayout isPending={isPending} models={data?.results} isError={isError} />;
+    return (
+      <ModelListGridLayout
+        isPending={isPending}
+        models={data?.results}
+        isError={isError}
+      />
+    );
   };
 
   return (

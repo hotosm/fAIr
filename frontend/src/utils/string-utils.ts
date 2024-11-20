@@ -15,4 +15,3 @@ export const truncateString = (string?: string, maxLength: number = 30) => {
   }
   return string;
 };
-

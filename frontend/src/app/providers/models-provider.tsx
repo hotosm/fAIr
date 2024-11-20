@@ -219,11 +219,11 @@ const ModelsContext = createContext<{
   trainingDatasetCreationInProgress: boolean;
   handleModelCreationAndUpdate: () => void;
   handleTrainingDatasetCreation: () => void;
-  validateEditMode: boolean
+  validateEditMode: boolean;
 }>({
   formData: initialFormState,
-  setFormData: () => { },
-  handleChange: () => { },
+  setFormData: () => {},
+  handleChange: () => {},
   createNewTrainingDatasetMutation: {} as UseMutationResult<
     TTrainingDataset,
     Error,
@@ -238,14 +238,14 @@ const ModelsContext = createContext<{
   >,
   hasLabeledTrainingAreas: false,
   hasAOIsWithGeometry: false,
-  resetState: () => { },
+  resetState: () => {},
   isEditMode: false,
   modelId: "",
   getFullPath: () => "",
-  handleModelCreationAndUpdate: () => { },
+  handleModelCreationAndUpdate: () => {},
   trainingDatasetCreationInProgress: false,
-  handleTrainingDatasetCreation: () => { },
-  validateEditMode: false
+  handleTrainingDatasetCreation: () => {},
+  validateEditMode: false,
 });
 
 export const ModelsProvider: React.FC<{
@@ -292,7 +292,10 @@ export const ModelsProvider: React.FC<{
   );
 
   // Will be used in the route validator component to delay the redirection for a while until the data are retrieved
-  const validateEditMode = useMemo(() => formData.selectedTrainingDatasetId !== "" && formData.tmsURL !== "", [formData])
+  const validateEditMode = useMemo(
+    () => formData.selectedTrainingDatasetId !== "" && formData.tmsURL !== "",
+    [formData],
+  );
 
   // Fetch and prefill model details
   useEffect(() => {
@@ -313,11 +316,7 @@ export const ModelsProvider: React.FC<{
 
   // Fetch and prefill training dataset
   useEffect(() => {
-    if (
-      !isEditMode ||
-      trainingDatasetIsPending ||
-      trainingDatasetIsError
-    )
+    if (!isEditMode || trainingDatasetIsPending || trainingDatasetIsError)
       return;
     handleChange(MODEL_CREATION_FORM_NAME.DATASET_NAME, trainingDataset.name);
     handleChange(
@@ -480,7 +479,7 @@ export const ModelsProvider: React.FC<{
       handleModelCreationAndUpdate,
       handleTrainingDatasetCreation,
       trainingDatasetCreationInProgress,
-      validateEditMode
+      validateEditMode,
     }),
     [
       setFormData,
@@ -497,7 +496,7 @@ export const ModelsProvider: React.FC<{
       handleModelCreationAndUpdate,
       handleTrainingDatasetCreation,
       trainingDatasetCreationInProgress,
-      validateEditMode
+      validateEditMode,
     ],
   );
 
