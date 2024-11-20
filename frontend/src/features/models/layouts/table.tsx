@@ -12,6 +12,7 @@ import { TableSkeleton } from "@/features/models/components/skeletons";
 type ModelListProps = {
   models?: TModel[];
   isPending: boolean;
+  isError: boolean
 };
 
 const columnDefinitions: ColumnDef<TModel>[] = [
@@ -62,8 +63,9 @@ const columnDefinitions: ColumnDef<TModel>[] = [
 const ModelListTableLayout: React.FC<ModelListProps> = ({
   models,
   isPending,
+  isError
 }) => {
-  if (isPending) return <TableSkeleton />;
+  if (isPending || isError) return <TableSkeleton />;
   const [sorting, setSorting] = useState<SortingState>([]);
   const navigate = useNavigate();
 

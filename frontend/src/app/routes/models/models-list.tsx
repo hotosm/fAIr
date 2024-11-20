@@ -59,9 +59,9 @@ const ClearFilters = ({
 }) => {
   const canClearAllFilters = Boolean(
     query[SEARCH_PARAMS.searchQuery] ||
-      query[SEARCH_PARAMS.startDate] ||
-      query[SEARCH_PARAMS.endDate] ||
-      query[SEARCH_PARAMS.id],
+    query[SEARCH_PARAMS.startDate] ||
+    query[SEARCH_PARAMS.endDate] ||
+    query[SEARCH_PARAMS.id],
   );
 
   return (
@@ -190,7 +190,7 @@ export const ModelsPage = () => {
     300,
   );
 
-  const { data, isPending, isPlaceholderData } = useModels({
+  const { data, isPending, isPlaceholderData, isError } = useModels({
     searchQuery: debouncedSearchText,
     limit: PAGE_LIMIT,
     offset: query[SEARCH_PARAMS.offset] as number,
@@ -252,7 +252,7 @@ export const ModelsPage = () => {
     setQuery(newQuery);
   }, []);
 
-  const { data: mapData, isPending: modelsMapDataIsPending } =
+  const { data: mapData, isPending: modelsMapDataIsPending, isError: modelsMapDataIsError } =
     useModelsMapData();
 
   // Since it's just a static filter, it's better to memoize it.
@@ -297,11 +297,12 @@ export const ModelsPage = () => {
               <ModelListGridLayout
                 models={data?.results}
                 isPending={isPending}
+                isError={isError}
               />
             </div>
           </div>
           <div className="col-span-2 md:col-span-2 row-start-1 ">
-            {modelsMapDataIsPending ? (
+            {modelsMapDataIsPending || modelsMapDataIsError ? (
               <div className="w-full h-full animate-pulse bg-light-gray"></div>
             ) : (
               <ModelsMap
@@ -317,11 +318,11 @@ export const ModelsPage = () => {
     if (query[SEARCH_PARAMS.layout] === LayoutView.LIST) {
       return (
         <div className="col-span-5">
-          <ModelListTableLayout isPending={isPending} models={data?.results} />
+          <ModelListTableLayout isPending={isPending} models={data?.results} isError={isError} />
         </div>
       );
     }
-    return <ModelListGridLayout isPending={isPending} models={data?.results} />;
+    return <ModelListGridLayout isPending={isPending} models={data?.results} isError={isError} />;
   };
 
   return (
