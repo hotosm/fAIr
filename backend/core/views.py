@@ -557,9 +557,9 @@ def run_task_status(request, run_id: str):
         log_file = os.path.join(settings.LOG_PATH, f"run_{run_id}_log.txt")
         try:
             # read the last 10 lines of the log file
-            output = subprocess.check_output(["tail", "-n", "10", log_file]).decode(
-                "utf-8"
-            )
+            output = subprocess.check_output(
+                ["tail", "-n", settings.LOG_LINE_STREAM_TRUNCATE_VALUE, log_file]
+            ).decode("utf-8")
         except Exception as e:
             output = str(e)
         result = {
