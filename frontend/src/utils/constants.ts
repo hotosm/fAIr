@@ -5,7 +5,7 @@ import { StyleSpecification } from "maplibre-gl";
  * The navigation routes for the application. This object controls the name of the path. i.e  /<pathname>
  */
 
-export const MODELS_BASE = "/models";
+export const MODELS_BASE = "/ai-models";
 
 export const MODELS_ROUTES = {
   // Creation Routes
