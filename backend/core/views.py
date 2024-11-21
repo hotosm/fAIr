@@ -210,8 +210,15 @@ class TrainingViewSet(
     public_methods = ["GET"]
     queryset = Training.objects.all()
     http_method_names = ["get", "post", "delete"]
+    filter_backends = (
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
+    )
     serializer_class = TrainingSerializer  # connecting serializer
     filterset_fields = ["model", "status"]
+    ordering_fields = ["finished_at", "accuracy", "id", "model", "status"]
+    search_fields = ["description", "id"]
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -753,7 +760,7 @@ def publish_training(request, training_id: int):
             return Response(
                 "Can't publish the training since its accuracy is below 70%", status=403
             )
-    else :  ## Training publish limit for other model than ramp , TODO : Change this limit after testing for yolo
+    else:  ## Training publish limit for other model than ramp , TODO : Change this limit after testing for yolo
         if training_instance.accuracy < 5:
             return Response(
                 "Can't publish the training since its accuracy is below 5%", status=403
