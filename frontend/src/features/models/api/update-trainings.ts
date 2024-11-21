@@ -22,6 +22,7 @@ export const useUpdateTraining = ({
     String(modelId),
     0,
     PAGE_LIMIT,
+    "-id"
   );
 
   const { onSuccess, ...restConfig } = mutationConfig || {};
