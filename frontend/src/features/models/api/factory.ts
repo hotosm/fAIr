@@ -101,7 +101,7 @@ export const getTrainingHistoryQueryOptions = (
   modelId: string,
   offset: number,
   limit: number,
-  ordering: string
+  ordering: string,
 ) => {
   return queryOptions({
     queryKey: ["training-history", modelId, offset, limit, ordering],

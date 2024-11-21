@@ -1,3 +1,4 @@
+import { ENVS } from "@/config/env";
 import { StyleSpecification } from "maplibre-gl";
 
 /**
@@ -72,49 +73,64 @@ export const HOT_FAIR_LOGIN_SUCCESSFUL_SESSION_KEY =
   "__hot_fair_login_successful";
 
 /**
- * The maximum allowed area size (in square units) for training areas.
+ * The maximum allowed area size (in square meters) for training areas.
  */
-export const MAX_TRAINING_AREA_SIZE = 5000000;
+export const MAX_TRAINING_AREA_SIZE = ENVS.MAX_TRAINING_AREA_SIZE || 5000000;
 
 /**
- * The minimum allowed area size (in square units) for training areas.
+ * The minimum allowed area size (in square meters) for training areas.
  */
-export const MIN_TRAINING_AREA_SIZE = 5797;
+export const MIN_TRAINING_AREA_SIZE = ENVS.MIN_TRAINING_AREA_SIZE || 5797;
 
 /**
  * The maximum file size (in bytes) allowed for training area upload.
- * This is set to 5 MB.
+ * The default is set to 5 MB.
  */
-export const MAX_TRAINING_AREA_UPLOAD_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+export const MAX_TRAINING_AREA_UPLOAD_FILE_SIZE =
+  ENVS.MAX_TRAINING_AREA_UPLOAD_FILE_SIZE || 5 * 1024 * 1024;
 
 /**
  * The current version of the application.
- * This is used in the OSM redirect callback when a training area is opened in OSM. The idea is to add it to the hashtag for future tracking.
- * Todo - We need to find a way to make it dynamic.
+ * This is used in the OSM redirect callback when a training area is opened in OSM.
  */
-export const FAIR_VERSION = "v0.1";
+export const FAIR_VERSION = ENVS.FAIR_VERSION || "v0.1";
+
+/**
+ * The current version of the application.
+ * This is used in the OSM redirect callback when a training area is opened in OSM.
+ */
+export const OSM_HASHTAGS = ENVS.OSM_HASHTAGS || FAIR_VERSION;
 
 /**
  * The maximum zoom level for the map.
  */
-export const MAX_ZOOM_LEVEL = 22;
+export const MAX_ZOOM_LEVEL = ENVS.MAX_ZOOM_LEVEL || 22;
 
 /**
  * The minimum zoom level to show the training area labels.
  */
-export const TRAINING_LABELS_MIN_ZOOM_LEVEL = 18;
+export const TRAINING_LABELS_MIN_ZOOM_LEVEL =
+  ENVS.TRAINING_LABELS_MIN_ZOOM_LEVEL || 18;
 
 /**
  * Training area and labels styles.
  */
-export const TRAINING_AREAS_AOI_FILL_COLOR = "#92B48766";
-export const TRAINING_AREAS_AOI_OUTLINE_COLOR = "#92B487";
-export const TRAINING_AREAS_AOI_OUTLINE_WIDTH = 4;
-export const TRAINING_AREAS_AOI_FILL_OPACITY = 0.4;
-export const TRAINING_AREAS_AOI_LABELS_FILL_OPACITY = 0.3;
-export const TRAINING_AREAS_AOI_LABELS_OUTLINE_WIDTH = 2;
-export const TRAINING_AREAS_AOI_LABELS_FILL_COLOR = "#D73434";
-export const TRAINING_AREAS_AOI_LABELS_OUTLINE_COLOR = "#D73434";
+export const TRAINING_AREAS_AOI_FILL_COLOR =
+  ENVS.TRAINING_AREAS_AOI_FILL_COLOR || "#92B48766";
+export const TRAINING_AREAS_AOI_OUTLINE_COLOR =
+  ENVS.TRAINING_AREAS_AOI_OUTLINE_COLOR || "#92B487";
+export const TRAINING_AREAS_AOI_OUTLINE_WIDTH =
+  ENVS.TRAINING_AREAS_AOI_OUTLINE_WIDTH || 4;
+export const TRAINING_AREAS_AOI_FILL_OPACITY =
+  ENVS.TRAINING_AREAS_AOI_FILL_OPACITY || 0.4;
+export const TRAINING_AREAS_AOI_LABELS_FILL_OPACITY =
+  ENVS.TRAINING_AREAS_AOI_LABELS_FILL_OPACITY || 0.3;
+export const TRAINING_AREAS_AOI_LABELS_OUTLINE_WIDTH =
+  ENVS.TRAINING_AREAS_AOI_LABELS_OUTLINE_WIDTH || 2;
+export const TRAINING_AREAS_AOI_LABELS_FILL_COLOR =
+  ENVS.TRAINING_AREAS_AOI_LABELS_FILL_COLOR || "#D73434";
+export const TRAINING_AREAS_AOI_LABELS_OUTLINE_COLOR =
+  ENVS.TRAINING_AREAS_AOI_LABELS_OUTLINE_COLOR || "#D73434";
 
 /**
  * The key used to store the banner state in local storage for the application.

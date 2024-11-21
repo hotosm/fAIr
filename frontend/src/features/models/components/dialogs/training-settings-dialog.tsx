@@ -46,7 +46,7 @@ const ModelTrainingSettingsDialog: React.FC<ModelEnhancementDialogProps> = ({
     modelId as string,
     0,
     PAGE_LIMIT,
-    "-id"
+    "-id",
   );
 
   const handleClick = () => {

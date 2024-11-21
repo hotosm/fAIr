@@ -53,7 +53,7 @@ export const useTrainingHistory = (
   modelId: string,
   offset: number,
   limit: number,
-  ordering: string
+  ordering: string,
 ) => {
   return useQuery({
     ...getTrainingHistoryQueryOptions(modelId, offset, limit, ordering),

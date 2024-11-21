@@ -1,11 +1,12 @@
 import { API_ENDPOINTS, BASE_API_URL } from "@/services";
 import { Feature, FeatureCollection } from "@/types";
-import { calculateGeoJSONArea } from "./geometry-utils";
 import {
   FAIR_VERSION,
   MAX_TRAINING_AREA_SIZE,
   MIN_TRAINING_AREA_SIZE,
-} from "./constants";
+  OSM_HASHTAGS,
+  calculateGeoJSONArea,
+} from "@/utils";
 import { useToastNotification } from "@/hooks/use-toast-notification";
 
 /**
@@ -34,7 +35,7 @@ export const openInIDEditor = (
   const centerLat = (bottomLat + topLat) / 2;
   const centerLng = (leftLng + rightLng) / 2;
   const zoomLevel = 17;
-  let idEditorURL = `https://www.openstreetmap.org/edit?editor=id#disable_features=boundaries&gpx=${BASE_API_URL + API_ENDPOINTS.GET_TRAINING_AREA_GPX(aoiId)}&map=${zoomLevel}/${centerLat}/${centerLng}&background=custom:${encodeURIComponent(imageryURL)}&hashtags=%23HOT-fAIr-${FAIR_VERSION},%23dataset-${datasetId},%23aoi-${aoiId}`;
+  let idEditorURL = `https://www.openstreetmap.org/edit?editor=id#disable_features=boundaries&gpx=${BASE_API_URL + API_ENDPOINTS.GET_TRAINING_AREA_GPX(aoiId)}&map=${zoomLevel}/${centerLat}/${centerLng}&background=custom:${encodeURIComponent(imageryURL)}&hashtags=${OSM_HASHTAGS}%23HOT-fAIr-${FAIR_VERSION},%23dataset-${datasetId},%23aoi-${aoiId}`;
   window.open(idEditorURL, "_blank", "noreferrer");
 };
 
