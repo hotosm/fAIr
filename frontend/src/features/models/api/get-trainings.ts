@@ -26,6 +26,7 @@ export const getModelTrainingHistory = async (
   id: string,
   offset: number,
   limit: number,
+  ordering: string
 ): Promise<PaginatedTrainings> => {
   const res = await apiClient.get(
     API_ENDPOINTS.GET_MODEL_TRAINING_HISTORY(id),
@@ -33,6 +34,7 @@ export const getModelTrainingHistory = async (
       params: {
         limit,
         offset,
+        ordering
       },
     },
   );

@@ -33,7 +33,7 @@ export const ModelDetailsPage = () => {
   } = useDialog();
   const navigate = useNavigate();
   const { data, isPending, isError, error } = useModelDetails(id as string);
-  const { isAuthenticated, user } = useAuth();
+  const { user } = useAuth();
 
   useEffect(() => {
     if (isError) {
@@ -123,7 +123,7 @@ export const ModelDetailsPage = () => {
               size="medium"
               prefixIcon={StarStackIcon}
               onClick={openModelEnhancementDialog}
-              disabled={!isAuthenticated || !isOwner}
+              disabled={!isOwner}
             />
           </div>
           <TrainingHistoryTable

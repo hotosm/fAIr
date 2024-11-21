@@ -3,14 +3,14 @@ import { Dialog } from "@/components/ui/dialog";
 import { ChevronDownIcon } from "@/components/ui/icons";
 import TrainingSettingsForm from "@/features/model-creation/components/training-settings/training-settings-form";
 import { APP_CONTENT } from "@/utils";
-import { useModelDetails } from "../../hooks/use-models";
+import { useModelDetails } from "@/features/models/hooks/use-models";
 import {
   MODEL_CREATION_FORM_NAME,
   useModelsContext,
 } from "@/app/providers/models-provider";
 import { useEffect } from "react";
 import { PAGE_LIMIT } from "@/components/pagination";
-import { useTrainingHistory } from "../../hooks/use-training";
+import { useTrainingHistory } from "@/features/models/hooks/use-training";
 
 type ModelEnhancementDialogProps = {
   isOpened: boolean;
@@ -46,6 +46,7 @@ const ModelTrainingSettingsDialog: React.FC<ModelEnhancementDialogProps> = ({
     modelId as string,
     0,
     PAGE_LIMIT,
+    "-id"
   );
 
   const handleClick = () => {

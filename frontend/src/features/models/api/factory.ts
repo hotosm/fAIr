@@ -101,10 +101,11 @@ export const getTrainingHistoryQueryOptions = (
   modelId: string,
   offset: number,
   limit: number,
+  ordering: string
 ) => {
   return queryOptions({
-    queryKey: ["training-history", modelId, offset, limit],
-    queryFn: () => getModelTrainingHistory(modelId, offset, limit),
+    queryKey: ["training-history", modelId, offset, limit, ordering],
+    queryFn: () => getModelTrainingHistory(modelId, offset, limit, ordering),
     placeholderData: keepPreviousData,
     refetchInterval: 10000,
   });

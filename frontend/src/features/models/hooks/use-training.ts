@@ -53,9 +53,10 @@ export const useTrainingHistory = (
   modelId: string,
   offset: number,
   limit: number,
+  ordering: string
 ) => {
   return useQuery({
-    ...getTrainingHistoryQueryOptions(modelId, offset, limit),
+    ...getTrainingHistoryQueryOptions(modelId, offset, limit, ordering),
     //@ts-expect-error bad type definition
     throwOnError: (error) => error?.response?.status >= 500,
     refetchInterval: 10000, // 10 seconds
