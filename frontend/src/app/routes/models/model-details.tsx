@@ -108,6 +108,7 @@ export const ModelDetailsPage = () => {
             size="medium"
             prefixIcon={StarStackIcon}
             onClick={openModelEnhancementDialog}
+            disabled={!isOwner}
           />
         </div>
         {/* mobile */}
