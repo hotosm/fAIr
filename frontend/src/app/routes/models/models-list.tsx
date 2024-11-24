@@ -30,7 +30,6 @@ import { useDialog } from "@/hooks/use-dialog";
 import { MobileModelFiltersDialog } from "@/features/models/components/dialogs";
 import { Head } from "@/components/seo";
 
-
 export enum LayoutView {
   LIST = "list",
   GRID = "grid",
@@ -59,9 +58,9 @@ const ClearFilters = ({
 }) => {
   const canClearAllFilters = Boolean(
     query[SEARCH_PARAMS.searchQuery] ||
-    query[SEARCH_PARAMS.startDate] ||
-    query[SEARCH_PARAMS.endDate] ||
-    query[SEARCH_PARAMS.id],
+      query[SEARCH_PARAMS.startDate] ||
+      query[SEARCH_PARAMS.endDate] ||
+      query[SEARCH_PARAMS.id],
   );
 
   return (

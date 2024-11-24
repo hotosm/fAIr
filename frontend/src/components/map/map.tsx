@@ -1,6 +1,11 @@
 import { useEffect, useRef } from "react";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { MAP_STYLES } from "@/utils";
+import {
+  GOOGLE_SATELLITE_BASEMAP_LAYER_ID,
+  MAP_STYLES,
+  OSM_BASEMAP_LAYER_ID,
+  TMS_LAYER_ID,
+} from "@/utils";
 import ZoomControls from "./zoom-controls";
 import GeolocationControl from "./geolocation-control";
 import DrawControl from "./draw-control";
@@ -9,6 +14,10 @@ import LayerControl from "./layer-control";
 import { useMap } from "@/app/providers/map-provider";
 import { setupMaplibreMap } from "./setup-maplibre";
 import { BASEMAPS } from "@/enums";
+import Legend from "./legend";
+import TileBoundaries from "./tile-boundaries";
+import OpenAerialMap from "./open-aerial-map";
+import Basemaps from "./basemaps";
 
 type MapComponentProps = {
   geolocationControl?: boolean;
@@ -20,11 +29,12 @@ type MapComponentProps = {
     value: string;
     subLayers: string[];
   }[];
-  layerControlBasemaps?: {
-    value: string;
-    subLayer: string;
-  }[];
+  showTileBoundary?: boolean;
   children?: React.ReactNode;
+  showLegend?: boolean;
+  openAerialMap?: boolean;
+  oamTileJSONURL?: string;
+  basemaps?: boolean;
 };
 
 const MapComponent: React.FC<MapComponentProps> = ({
@@ -34,7 +44,11 @@ const MapComponent: React.FC<MapComponentProps> = ({
   showCurrentZoom = false,
   layerControl = false,
   layerControlLayers = [],
-  layerControlBasemaps = [],
+  showTileBoundary = false,
+  showLegend = false,
+  openAerialMap = false,
+  oamTileJSONURL,
+  basemaps = false,
   children,
 }) => {
   const mapContainerRef = useRef(null);
@@ -72,13 +86,38 @@ const MapComponent: React.FC<MapComponentProps> = ({
             {layerControl && (
               <LayerControl
                 map={map}
-                layers={layerControlLayers}
-                basemaps={layerControlBasemaps}
+                layers={[
+                  ...layerControlLayers,
+                  ...(openAerialMap
+                    ? [
+                        {
+                          value: "TMS Layer",
+                          subLayers: [TMS_LAYER_ID],
+                        },
+                      ]
+                    : []),
+                ]}
+                basemaps={
+                  basemaps
+                    ? [
+                        { value: BASEMAPS.OSM, subLayer: OSM_BASEMAP_LAYER_ID },
+                        {
+                          value: BASEMAPS.GOOGLE_SATELLITE,
+                          subLayer: GOOGLE_SATELLITE_BASEMAP_LAYER_ID,
+                        },
+                      ]
+                    : []
+                }
               />
             )}
           </>
         )}
       </div>
+      {map && showLegend && <Legend />}
+      {/* Order according to how they'll be rendered */}
+      {basemaps && <Basemaps />}
+      {openAerialMap && <OpenAerialMap tileJSONURL={oamTileJSONURL} />}
+      {showTileBoundary && <TileBoundaries />}
       {children}
     </div>
   );

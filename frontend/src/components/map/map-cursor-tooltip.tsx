@@ -1,12 +1,12 @@
 const MapCursorToolTip = ({
   color = "bg-black",
-  tooltipVisible,
+  tooltipVisible = true,
   tooltipPosition,
   children,
 }: {
   color?: string;
   tooltipPosition: Record<string, number>;
-  tooltipVisible: boolean;
+  tooltipVisible?: boolean;
   children: React.ReactNode;
 }) => {
   if (!tooltipVisible) return null;

@@ -1,12 +1,9 @@
-
 import { ButtonWithIcon } from "@/components/ui/button";
 import { AddIcon } from "@/components/ui/icons";
 import { APP_CONTENT, APPLICATION_ROUTES } from "@/utils";
 import { useNavigate } from "react-router-dom";
 
 const PageHeader = () => {
-
-
   const navigate = useNavigate();
   const handleClick = () => {
     navigate(APPLICATION_ROUTES.CREATE_NEW_MODEL);

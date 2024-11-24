@@ -17,6 +17,7 @@ import {
 import OpenAerialMap from "@/features/model-creation/components/training-area/open-area-map";
 import { useMap } from "@/app/providers/map-provider";
 import {
+  extractTileJSONURL,
   MODEL_CREATION_CONTENT,
   showSuccessToast,
   snapGeoJSONGeometryToClosestTile,
@@ -29,7 +30,7 @@ import { geojsonToWKT } from "@terraformer/wkt";
 const TrainingAreaForm = () => {
   const { formData } = useModelsContext();
 
-  const tileJSONURL = formData.tmsURL.split("/{z}/{x}/{y}")[0];
+  const tileJSONURL = extractTileJSONURL(formData.tmsURL);
 
   const { closeDialog, isOpened, toggle } = useDialog();
   const { handleChange } = useModelsContext();

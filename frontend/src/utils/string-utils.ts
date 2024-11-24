@@ -15,3 +15,7 @@ export const truncateString = (string?: string, maxLength: number = 30) => {
   }
   return string;
 };
+
+export const extractTileJSONURL = (openAerialMapTMSURL: string) => {
+  return openAerialMapTMSURL.split("/{z}/{x}/{y}")[0];
+};

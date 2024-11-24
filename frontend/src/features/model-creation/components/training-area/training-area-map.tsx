@@ -12,7 +12,7 @@ import { useToastNotification } from "@/hooks/use-toast-notification";
 import {
   calculateGeoJSONArea,
   formatAreaInAppropriateUnit,
-  getTileBoundariesGeoJSON,
+  MAP_STYLES_PREFIX,
   MAX_TRAINING_AREA_SIZE,
   MIN_TRAINING_AREA_SIZE,
   snapGeoJSONGeometryToClosestTile,
@@ -28,7 +28,7 @@ import {
   validateGeoJSONArea,
 } from "@/utils";
 import useDebounce from "@/hooks/use-debounce";
-import { BASEMAPS, DrawingModes } from "@/enums";
+import { DrawingModes } from "@/enums";
 import { useToolTipVisibility } from "@/hooks/use-tooltip-visibility";
 
 const TrainingAreaMap = ({
@@ -44,21 +44,14 @@ const TrainingAreaMap = ({
 }) => {
   const { map, terraDraw, drawingMode, setDrawingMode, currentZoom } = useMap();
   const toast = useToastNotification();
-  const OSMBasemapLayerId = "osm-layer";
-  const GoogleSatelliteLayerId = "google-statellite-layer";
-  const GoogleSatelliteSourceId = "google-satellite";
-  const TMSLayerId = `training-dataset-tms-layer`;
-  const TMSSourceId = `oam-training-dataset-${trainingDatasetId}`;
-  const trainingAreasLayerId = `dataset-${trainingDatasetId}-training-area-layer`;
-  const trainingAreasFillLayerId = `dataset-${trainingDatasetId}-training-area-fill-layer`;
-  const trainingDatasetLabelsSourceId = `dataset-${trainingDatasetId}-training-labels-source`;
-  const trainingAreasSourceId = `dataset-${trainingDatasetId}-training-area-source`;
-  const trainingDatasetLabelsLayerId = `dataset-${trainingDatasetId}-training-labels-fill-layer`;
-  const trainingDatasetLabelsOutlineLayerId = `dataset-${trainingDatasetId}-training-labels-outline-layer`;
-  const tileBoundarylayerId = "tile-boundary-layer";
-  const tileBoundarySourceId = "tile-boundaries";
+  const trainingAreasLayerId = `${MAP_STYLES_PREFIX}-dataset-${trainingDatasetId}-training-area-layer`;
+  const trainingAreasFillLayerId = `${MAP_STYLES_PREFIX}-dataset-${trainingDatasetId}-training-area-fill-layer`;
+  const trainingDatasetLabelsSourceId = `${MAP_STYLES_PREFIX}-dataset-${trainingDatasetId}-training-labels-source`;
+  const trainingAreasSourceId = `${MAP_STYLES_PREFIX}-dataset-${trainingDatasetId}-training-area-source`;
+  const trainingDatasetLabelsLayerId = `${MAP_STYLES_PREFIX}-dataset-${trainingDatasetId}-training-labels-fill-layer`;
+  const trainingDatasetLabelsOutlineLayerId = `${MAP_STYLES_PREFIX}-dataset-${trainingDatasetId}-training-labels-outline-layer`;
 
-  const [bbox, setBbox] = useState("");
+  const [bbox, setBbox] = useState<string>("");
 
   const [featureArea, setFeatureArea] = useState<number>(0);
 
@@ -89,28 +82,6 @@ const TrainingAreaMap = ({
     /**
      * Sources
      */
-    // Only Google Satellite is added because the basemap style defaults to OSM, so when the visibility of Google Satellite it none, OSM will show up.
-    if (!map.getSource(GoogleSatelliteSourceId)) {
-      map.addSource(GoogleSatelliteSourceId, {
-        type: "raster",
-        tiles: [
-          "https://mt0.google.com/vt/lyrs=s&x={x}&y={y}&z={z}",
-          "https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}",
-          "https://mt2.google.com/vt/lyrs=s&x={x}&y={y}&z={z}",
-          "https://mt3.google.com/vt/lyrs=s&x={x}&y={y}&z={z}",
-        ],
-        attribution: "&copy; Google",
-        tileSize: 256,
-      });
-    }
-
-    if (!map.getSource(TMSSourceId)) {
-      map.addSource(TMSSourceId, {
-        type: "raster",
-        url: tileJSONURL,
-        tileSize: 256,
-      });
-    }
 
     if (data?.results && !map.getSource(trainingAreasSourceId)) {
       map.addSource(trainingAreasSourceId, {
@@ -129,38 +100,33 @@ const TrainingAreaMap = ({
       } as GeoJSONSourceSpecification);
     }
 
-    if (!map.getSource(tileBoundarySourceId)) {
-      const tileBoundaries = getTileBoundariesGeoJSON(
-        map,
-        Math.floor(map.getZoom()),
-      );
-      map.addSource(tileBoundarySourceId, {
-        type: "geojson",
-        // @ts-expect-error bad type definition
-        data: tileBoundaries,
-      });
-    }
-
     /**
      * Layers
      */
 
-    if (!map.getLayer(GoogleSatelliteLayerId)) {
+    if (!map.getLayer(trainingDatasetLabelsLayerId)) {
       map.addLayer({
-        id: GoogleSatelliteLayerId,
-        type: "raster",
-        source: GoogleSatelliteSourceId,
-        layout: { visibility: "none" },
-        minzoom: 0,
-        maxzoom: 22,
+        id: trainingDatasetLabelsLayerId,
+        type: "fill",
+        source: trainingDatasetLabelsSourceId,
+        paint: {
+          "fill-color": TRAINING_AREAS_AOI_LABELS_FILL_COLOR,
+          "fill-opacity": TRAINING_AREAS_AOI_LABELS_FILL_OPACITY,
+        },
+        minzoom: TRAINING_LABELS_MIN_ZOOM_LEVEL,
+        layout: { visibility: "visible" },
       });
     }
-
-    if (!map.getLayer(TMSLayerId)) {
+    if (!map.getLayer(trainingDatasetLabelsOutlineLayerId)) {
       map.addLayer({
-        id: TMSLayerId,
-        type: "raster",
-        source: TMSSourceId,
+        id: trainingDatasetLabelsOutlineLayerId,
+        type: "line",
+        source: trainingDatasetLabelsSourceId,
+        paint: {
+          "line-color": TRAINING_AREAS_AOI_LABELS_OUTLINE_COLOR,
+          "line-width": TRAINING_AREAS_AOI_LABELS_OUTLINE_WIDTH,
+        },
+        minzoom: TRAINING_LABELS_MIN_ZOOM_LEVEL,
         layout: { visibility: "visible" },
       });
     }
@@ -189,59 +155,7 @@ const TrainingAreaMap = ({
       });
     }
 
-    if (!map.getLayer(trainingDatasetLabelsLayerId)) {
-      map.addLayer({
-        id: trainingDatasetLabelsLayerId,
-        type: "fill",
-        source: trainingDatasetLabelsSourceId,
-        paint: {
-          "fill-color": TRAINING_AREAS_AOI_LABELS_FILL_COLOR,
-          "fill-opacity": TRAINING_AREAS_AOI_LABELS_FILL_OPACITY,
-        },
-        minzoom: TRAINING_LABELS_MIN_ZOOM_LEVEL,
-        layout: { visibility: "visible" },
-      });
-    }
-    if (!map.getLayer(trainingDatasetLabelsOutlineLayerId)) {
-      map.addLayer({
-        id: trainingDatasetLabelsOutlineLayerId,
-        type: "line",
-        source: trainingDatasetLabelsSourceId,
-        paint: {
-          "line-color": TRAINING_AREAS_AOI_LABELS_OUTLINE_COLOR,
-          "line-width": TRAINING_AREAS_AOI_LABELS_OUTLINE_WIDTH,
-        },
-        minzoom: TRAINING_LABELS_MIN_ZOOM_LEVEL,
-        layout: { visibility: "visible" },
-      });
-    }
-
-    if (!map.getLayer(tileBoundarylayerId)) {
-      map.addLayer({
-        id: tileBoundarylayerId,
-        type: "line",
-        source: tileBoundarySourceId,
-        paint: {
-          "line-color": "#FFF",
-          "line-width": 1,
-        },
-        layout: { visibility: "visible" },
-      });
-    }
-  }, [map, tileJSONURL, data?.results, labels]);
-
-  const organizeLayers = useCallback(() => {
-    if (!map) return;
-    if (map.getLayer(TMSLayerId) && map.getLayer(trainingAreasLayerId)) {
-      map.moveLayer(trainingAreasLayerId);
-    }
-    if (
-      map.getLayer(trainingAreasLayerId) &&
-      map.getLayer(tileBoundarylayerId)
-    ) {
-      map.moveLayer(tileBoundarylayerId, trainingAreasLayerId);
-    }
-  }, [map, TMSLayerId, trainingAreasLayerId]);
+  }, [map, data?.results, labels]);
 
   const updateTrainingLabels = useCallback(() => {
     if (map) {
@@ -263,19 +177,6 @@ const TrainingAreaMap = ({
     }
   }, [map, data?.results]);
 
-  const updateTileBoundary = useCallback(() => {
-    if (map) {
-      if (map.getSource(tileBoundarySourceId)) {
-        const tileBoundaries = getTileBoundariesGeoJSON(
-          map,
-          Math.floor(map.getZoom()),
-        );
-        const source = map.getSource(tileBoundarySourceId) as GeoJSONSource;
-        source.setData(tileBoundaries as GeoJSONType);
-      }
-    }
-  }, [map]);
-
   const updateBbox = useCallback(() => {
     if (!map) return;
     const bounds = map.getBounds();
@@ -290,7 +191,6 @@ const TrainingAreaMap = ({
     if (!map) return;
     const moveUpdates = () => {
       updateBbox();
-      updateTileBoundary();
     };
     map.on("moveend", moveUpdates);
     return () => {
@@ -298,27 +198,24 @@ const TrainingAreaMap = ({
     };
   }, [map]);
 
+
+
   useEffect(() => {
     if (!map) return;
-
     const onStyleData = () => {
       initializeSourcesAndLayers();
-      organizeLayers();
     };
-
     if (!map.isStyleLoaded()) {
       map.once("styledata", onStyleData);
     } else {
       onStyleData();
     }
-
     return () => {
       map.off("styledata", onStyleData);
     };
-  }, [map, initializeSourcesAndLayers, organizeLayers]);
+  }, [map, initializeSourcesAndLayers,]);
 
   useEffect(() => {
-    if (!data?.results) return;
     updateTrainingArea();
   }, [data?.results]);
 
@@ -407,37 +304,33 @@ const TrainingAreaMap = ({
 
   return (
     <MapComponent
+      openAerialMap
+      oamTileJSONURL={tileJSONURL}
       controlsLocation="top-left"
       drawControl
       showCurrentZoom
       layerControl
-      layerControlBasemaps={[
-        { value: BASEMAPS.OSM, subLayer: OSMBasemapLayerId },
-        {
-          value: BASEMAPS.GOOGLE_SATELLITE,
-          subLayer: GoogleSatelliteLayerId,
-        },
-      ]}
+      showTileBoundary
+      basemaps
       layerControlLayers={[
-        { value: "TMS Layer", subLayers: [TMSLayerId] },
         ...(data?.results?.features?.length
           ? [
-              {
-                value: "Training Areas",
-                subLayers: [trainingAreasLayerId, trainingAreasFillLayerId],
-              },
-            ]
+            {
+              value: "Training Areas",
+              subLayers: [trainingAreasLayerId, trainingAreasFillLayerId],
+            },
+          ]
           : []),
         ...(labels && labels?.features.length > 0
           ? [
-              {
-                value: "Training Labels",
-                subLayers: [
-                  trainingDatasetLabelsLayerId,
-                  trainingDatasetLabelsOutlineLayerId,
-                ],
-              },
-            ]
+            {
+              value: "Training Labels",
+              subLayers: [
+                trainingDatasetLabelsLayerId,
+                trainingDatasetLabelsOutlineLayerId,
+              ],
+            },
+          ]
           : []),
       ]}
     >

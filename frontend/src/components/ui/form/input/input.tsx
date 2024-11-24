@@ -30,6 +30,7 @@ type InputProps = {
   isValid?: boolean;
   min?: number;
   max?: number;
+  step?: number;
 };
 
 const Input: React.FC<InputProps> = ({
@@ -54,6 +55,7 @@ const Input: React.FC<InputProps> = ({
   isValid = false,
   min,
   max,
+  step = 1,
 }) => {
   const { isChrome } = useBrowserType();
 
@@ -99,7 +101,7 @@ const Input: React.FC<InputProps> = ({
       pattern={pattern}
       min={min}
       max={max}
-      step={1}
+      step={step}
     >
       {label && (
         <FormLabel

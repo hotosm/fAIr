@@ -7,13 +7,13 @@ import {
   getTrainingWorkspaceQueryOptions,
 } from "../api/factory";
 
-export const useTrainingDetails = (id: number) => {
+export const useTrainingDetails = (id: number, refetchInterval: boolean | number = false) => {
   return useQuery({
     ...getTrainingDetailsQueryOptions(id),
     //@ts-expect-error bad type definition
     throwOnError: (error) => error?.response?.status >= 500,
-    refetchInterval: 10000, // 10 seconds
-    refetchIntervalInBackground: true,
+    //@ts-expect-error bad type definition
+    refetchInterval: refetchInterval,
     enabled: id !== null,
   });
 };
@@ -24,7 +24,6 @@ export const useTrainingStatus = (taskId: string) => {
     //@ts-expect-error bad type definition
     throwOnError: (error) => error?.response?.status >= 500,
     refetchInterval: 10000, // 10 seconds
-    refetchIntervalInBackground: true,
   });
 };
 
@@ -60,6 +59,5 @@ export const useTrainingHistory = (
     //@ts-expect-error bad type definition
     throwOnError: (error) => error?.response?.status >= 500,
     refetchInterval: 10000, // 10 seconds
-    refetchIntervalInBackground: true,
   });
 };

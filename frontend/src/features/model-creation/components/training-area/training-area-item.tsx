@@ -16,6 +16,7 @@ import {
   getGeoJSONFeatureBounds,
   MODEL_CREATION_CONTENT,
   openInIDEditor,
+  openInJOSM,
   showErrorToast,
   showSuccessToast,
   showWarningToast,
@@ -25,7 +26,7 @@ import {
 import JOSMLogo from "@/assets/svgs/josm_logo.svg";
 import OSMLogo from "@/assets/svgs/osm_logo.svg";
 import { ToolTip } from "@/components/ui/tooltip";
-import { GeoJSONType, Geometry, TTrainingAreaFeature } from "@/types";
+import { BBOX, GeoJSONType, Geometry, TTrainingAreaFeature } from "@/types";
 import {
   fetchOSMDatabaseLastUpdated,
   useCreateTrainingLabelsForAOI,
@@ -84,36 +85,8 @@ const TrainingAreaItem: React.FC<
   });
 
   const handleOpenInJOSM = useCallback(async () => {
-    try {
-      const imgURL = new URL("http://127.0.0.1:8111/imagery");
-      imgURL.searchParams.set("type", "tms");
-      imgURL.searchParams.set("title", formData.oamTileName);
-      imgURL.searchParams.set("url", formData.tmsURL);
-
-      const imgResponse = await fetch(imgURL);
-
-      if (!imgResponse.ok) {
-        showErrorToast(undefined, TOAST_NOTIFICATIONS.josmImageryLoadFailed);
-        return;
-      }
-
-      const loadurl = new URL("http://127.0.0.1:8111/load_and_zoom");
-      loadurl.searchParams.set("bottom", String(formData.oamBounds[1]));
-      loadurl.searchParams.set("top", String(formData.oamBounds[3]));
-      loadurl.searchParams.set("left", String(formData.oamBounds[0]));
-      loadurl.searchParams.set("right", String(formData.oamBounds[2]));
-
-      const zoomResponse = await fetch(loadurl);
-
-      if (zoomResponse.ok) {
-        showSuccessToast(TOAST_NOTIFICATIONS.josmOpenSuccess);
-      } else {
-        showErrorToast(undefined, TOAST_NOTIFICATIONS.josmBBOXZoomFailed);
-      }
-    } catch (error) {
-      showErrorToast(undefined, TOAST_NOTIFICATIONS.josmOpenFailed);
-    }
-  }, [formData.oamBounds]);
+    openInJOSM(formData.oamTileName, formData.tmsURL, formData.oamBounds as BBOX)
+  }, [formData.oamTileName, formData.tmsURL, formData.oamBounds]);
 
   const handleAOIDownload = useCallback(() => {
     geoJSONDowloader(trainingArea, `AOI_${trainingArea.id}`);
@@ -259,9 +232,9 @@ const TrainingAreaItem: React.FC<
               ? "Fetching labels..."
               : trainingArea.properties.label_fetched !== null
                 ? truncateString(
-                    `Fetched ${timeSinceLabelFetch === "0 sec" ? "just now" : `${timeSinceLabelFetch} ago`}`,
-                    20,
-                  )
+                  `Fetched ${timeSinceLabelFetch === "0 sec" ? "just now" : `${timeSinceLabelFetch} ago`}`,
+                  20,
+                )
                 : "No labels yet"}
           </p>
         </div>

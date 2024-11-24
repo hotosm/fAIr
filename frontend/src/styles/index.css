@@ -175,3 +175,9 @@ sl-alert.success::part(base) {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--scrollbar-thumb-hover-bg);
 }
+
+/* Popup customization starts */
+.maplibregl-popup-content {
+  @apply !rounded-[12px] !flex !flex-col !gap-y-4  !p-0;
+}
+/* Popup customization  ends */

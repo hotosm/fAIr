@@ -11,6 +11,14 @@ export const API_ENDPOINTS = {
   GET_OSM_DATABASE_LAST_UPDATED:
     "https://api-prod.raw-data.hotosm.org/v1/status/",
 
+  // Predict
+
+  GET_MODEL_PREDICTIONS: "https://predictor-dev.fair.hotosm.org/predict/",
+
+  // Feedbacks
+
+  CREATE_FEEDBACK: 'feedback/',
+  CREATE_APPROVED_PREDICTION: 'approved-prediction/',
   // KPIs
   GET_KPI_STATS: "kpi/stats/ ",
 

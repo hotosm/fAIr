@@ -107,10 +107,69 @@ export const OSM_HASHTAGS = ENVS.OSM_HASHTAGS || FAIR_VERSION;
 export const MAX_ZOOM_LEVEL = ENVS.MAX_ZOOM_LEVEL || 22;
 
 /**
+ * The minimum zoom level for the map before the prediction components can be activated.
+ */
+export const MIN_ZOOM_LEVEL_FOR_PREDICTION =
+  ENVS.MIN_ZOOM_LEVEL_FOR_PREDICTION || 19;
+
+/**
+ * The instruction to show the users when they haven't reach the minimum zoom level on the start mapping page.
+ */
+export const MINIMUM_ZOOM_LEVEL_INSTRUCTION_FOR_PREDICTION = `Zoom in to at least zoom ${MIN_ZOOM_LEVEL_FOR_PREDICTION} to start mapping.`;
+
+/**
+ * A unique ID to append to all custom map sources and layers ids. This is useful for the legend component to dynamically get the layers on the map excluding the basemaps styles.
+ */
+
+export const MAP_STYLES_PREFIX = "fAIr";
+/**
  * The minimum zoom level to show the training area labels.
  */
 export const TRAINING_LABELS_MIN_ZOOM_LEVEL =
   ENVS.TRAINING_LABELS_MIN_ZOOM_LEVEL || 18;
+
+// Layers, Sources and Name Mappings
+
+export const TILE_BOUNDARY_LAYER_ID = `${MAP_STYLES_PREFIX}-tile-boundary-layer`;
+export const TILE_BOUNDARY_SOURCE_ID = `${MAP_STYLES_PREFIX}-tile-boundaries`;
+export const TMS_LAYER_ID = `${MAP_STYLES_PREFIX}-training-dataset-tms-layer`;
+export const TMS_SOURCE_ID = `${MAP_STYLES_PREFIX}-oam-training-dataset`;
+export const OSM_BASEMAP_LAYER_ID = `${MAP_STYLES_PREFIX}-osm-layer`;
+export const GOOGLE_SATELLITE_BASEMAP_LAYER_ID = `${MAP_STYLES_PREFIX}-google-statellite-layer`;
+export const GOOGLE_SATELLITE_BASEMAP_SOURCE_ID = `${MAP_STYLES_PREFIX}-google-satellite`;
+
+// Model Predictions
+
+// accepted
+
+export const ACCEPTED_MODEL_PREDICTIONS_SOURCE_ID =
+  "accepted-predictions-source";
+export const ACCEPTED_MODEL_PREDICTIONS_FILL_LAYER_ID = `${MAP_STYLES_PREFIX}-accepted-predictions-fill-layer`;
+export const ACCEPTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID =
+  "accepted-predictions-outline-layer";
+
+// all
+
+export const ALL_MODEL_PREDICTIONS_SOURCE_ID = "all-predictions-source";
+export const ALL_MODEL_PREDICTIONS_FILL_LAYER_ID = `${MAP_STYLES_PREFIX}-all-predictions-fill-layer`;
+export const ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID =
+  "all-predictions-outline-layer";
+
+// rejected
+export const REJECTED_MODEL_PREDICTIONS_SOURCE_ID =
+  "rejected-predictions-source";
+export const REJECTED_MODEL_PREDICTIONS_FILL_LAYER_ID = `${MAP_STYLES_PREFIX}-rejected-predictions-fill-layer`;
+export const REJECTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID =
+  "rejected-predictions-outline-layer";
+
+// Legend is only used on the start mapping page
+// and only the fill layers are in the legend.
+
+export const LEGEND_NAME_MAPPING: Record<string, string> = {
+  [ALL_MODEL_PREDICTIONS_FILL_LAYER_ID]: "Map Result",
+  [REJECTED_MODEL_PREDICTIONS_FILL_LAYER_ID]: "Rejected",
+  [ACCEPTED_MODEL_PREDICTIONS_FILL_LAYER_ID]: "Accepted",
+};
 
 /**
  * Training area and labels styles.
@@ -136,6 +195,12 @@ export const TRAINING_AREAS_AOI_LABELS_OUTLINE_COLOR =
  * The key used to store the banner state in local storage for the application.
  */
 export const HOT_FAIR_BANNER_LOCAL_STORAGE_KEY = "__hot_fair_banner_closed";
+
+/**
+ * The key used to store the model predictions in the session storage for the application.
+ */
+export const HOT_FAIR_MODEL_PREDICTIONS_SESSION_STORAGE_KEY =
+  "__hot_fair_model_predictions";
 
 // MAP SETTINGS
 

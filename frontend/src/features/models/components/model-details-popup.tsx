@@ -2,9 +2,8 @@ import { Popup } from "@/components/ui/popup";
 import { useModelDetails } from "../hooks/use-models";
 import { SkeletonWrapper } from "@/components/ui/skeleton";
 import { extractDatePart, roundNumber, truncateString } from "@/utils";
-import { TModelDetails } from "@/types";
-import { useGetTrainingDataset } from "../hooks/use-dataset";
-import { useTrainingDetails } from "../hooks/use-training";
+import { TModelDetails, TTrainingDataset } from "@/types";
+import { useTrainingDetails } from "@/features/models/hooks/use-training";
 
 const ModelDetailsPopUp = ({
   showPopup,
@@ -12,23 +11,23 @@ const ModelDetailsPopUp = ({
   closePopup,
   modelId,
   model,
+  trainingDatasetIsError,
+  trainingDataset,
+  trainingDatasetIsPending,
 }: {
   showPopup: boolean;
   anchor: string;
   closePopup: () => void;
   modelId?: string;
   model?: TModelDetails;
+  trainingDataset?: TTrainingDataset;
+  trainingDatasetIsPending: boolean;
+  trainingDatasetIsError: boolean;
 }) => {
   const { data, isPending, isError } = useModelDetails(
     modelId as string,
-    modelId !== undefined,
+    modelId ? modelId !== undefined : false,
   );
-
-  const {
-    data: datasetInfo,
-    isPending: datasetInfoIsPending,
-    isError: datasetInfoIsError,
-  } = useGetTrainingDataset(model?.dataset ?? (data?.dataset as number));
 
   const {
     data: trainingDetails,
@@ -48,7 +47,7 @@ const ModelDetailsPopUp = ({
       {
         <SkeletonWrapper showSkeleton={Boolean(modelId && isPending)}>
           <div className="max-h-[500px] overflow-y-scroll border bg-white border-gray-border w-80 shadown-sm shadow-[#433D3D33]  p-5 flex flex-col">
-            {isError ? (
+            {!model && isError ? (
               <div>Error retrieving model information.</div>
             ) : (
               <div className="flex flex-col gap-y-4 text-dark">
@@ -97,16 +96,16 @@ const ModelDetailsPopUp = ({
                   <p className="text-gray flex items-center gap-x-1 text-nowrap flex-wrap">
                     Dataset Name:{" "}
                     <SkeletonWrapper
-                      showSkeleton={datasetInfoIsPending}
+                      showSkeleton={trainingDatasetIsPending}
                       skeletonClassName="w-20 h-4"
                     >
                       <span
                         className="text-dark text-wrap"
-                        title={datasetInfo?.name}
+                        title={trainingDataset?.name}
                       >
-                        {datasetInfoIsError
+                        {trainingDatasetIsError
                           ? "N/A"
-                          : truncateString(datasetInfo?.name, 40)}{" "}
+                          : truncateString(trainingDataset?.name, 40)}{" "}
                       </span>
                     </SkeletonWrapper>
                   </p>

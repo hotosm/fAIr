@@ -241,7 +241,7 @@ const router = createBrowserRouter([
         path: APPLICATION_ROUTES.START_MAPPING,
         lazy: async () => {
           const { StartMappingPage } = await import(
-            "@/app/routes/start-mapping/start-mapping"
+            "@/app/routes/start-mapping"
           );
           return {
             Component: () => (

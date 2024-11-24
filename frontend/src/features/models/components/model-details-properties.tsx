@@ -99,7 +99,7 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
   isTrainingDetailsDialog = false,
   baseModel,
 }) => {
-  const { isPending, data, error, isError } = useTrainingDetails(trainingId);
+  const { isPending, data, error, isError } = useTrainingDetails(trainingId, 10000);
 
   const { isOpened, closeDialog, openDialog } = useDialog();
 
@@ -236,7 +236,7 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
               href={
                 // @ts-expect-error bad type definition
                 APP_CONTENT.models.modelsDetailsCard.properties.baseModel.href[
-                  baseModel
+                baseModel
                 ]
               }
             />

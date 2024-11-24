@@ -17,6 +17,7 @@
     "@terraformer/wkt": "^2.2.1",
     "@turf/area": "^7.1.0",
     "@turf/bbox": "^7.1.0",
+    "@turf/boolean-intersects": "^7.1.0",
     "axios": "^1.7.7",
     "clsx": "^2.1.1",
     "framer-motion": "^11.5.4",
