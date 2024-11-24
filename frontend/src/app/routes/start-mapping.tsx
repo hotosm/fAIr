@@ -202,12 +202,12 @@ export const StartMappingPage = () => {
         ];
 
         // Filter out new features that intersect with any existing feature
-        const nonIntersectingFeatures = data.features
+        const nonIntersectingFeatures = data.features.length > 0
           ? data.features.filter((newFeature) => {
-              return !existingFeatures.some((existingFeature) => {
-                return booleanIntersects(newFeature, existingFeature);
-              });
-            })
+            return !existingFeatures.some((existingFeature) => {
+              return booleanIntersects(newFeature, existingFeature);
+            });
+          })
           : [];
         setModelPredictions((prev) => ({
           ...prev,
