@@ -154,7 +154,6 @@ const TrainingAreaMap = ({
         layout: { visibility: "visible" },
       });
     }
-
   }, [map, data?.results, labels]);
 
   const updateTrainingLabels = useCallback(() => {
@@ -198,8 +197,6 @@ const TrainingAreaMap = ({
     };
   }, [map]);
 
-
-
   useEffect(() => {
     if (!map) return;
     const onStyleData = () => {
@@ -213,7 +210,7 @@ const TrainingAreaMap = ({
     return () => {
       map.off("styledata", onStyleData);
     };
-  }, [map, initializeSourcesAndLayers,]);
+  }, [map, initializeSourcesAndLayers]);
 
   useEffect(() => {
     updateTrainingArea();
@@ -315,22 +312,22 @@ const TrainingAreaMap = ({
       layerControlLayers={[
         ...(data?.results?.features?.length
           ? [
-            {
-              value: "Training Areas",
-              subLayers: [trainingAreasLayerId, trainingAreasFillLayerId],
-            },
-          ]
+              {
+                value: "Training Areas",
+                subLayers: [trainingAreasLayerId, trainingAreasFillLayerId],
+              },
+            ]
           : []),
         ...(labels && labels?.features.length > 0
           ? [
-            {
-              value: "Training Labels",
-              subLayers: [
-                trainingDatasetLabelsLayerId,
-                trainingDatasetLabelsOutlineLayerId,
-              ],
-            },
-          ]
+              {
+                value: "Training Labels",
+                subLayers: [
+                  trainingDatasetLabelsLayerId,
+                  trainingDatasetLabelsOutlineLayerId,
+                ],
+              },
+            ]
           : []),
       ]}
     >

@@ -7,7 +7,10 @@ import {
   getTrainingWorkspaceQueryOptions,
 } from "../api/factory";
 
-export const useTrainingDetails = (id: number, refetchInterval: boolean | number = false) => {
+export const useTrainingDetails = (
+  id: number,
+  refetchInterval: boolean | number = false,
+) => {
   return useQuery({
     ...getTrainingDetailsQueryOptions(id),
     //@ts-expect-error bad type definition

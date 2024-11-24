@@ -155,9 +155,11 @@ export const uuid4 = function (): string {
   });
 };
 
-
-
-export const openInJOSM = async (oamTileName: string, tmsURL: string, oamBounds: BBOX) => {
+export const openInJOSM = async (
+  oamTileName: string,
+  tmsURL: string,
+  oamBounds: BBOX,
+) => {
   try {
     const imgURL = new URL("http://127.0.0.1:8111/imagery");
     imgURL.searchParams.set("type", "tms");
@@ -187,4 +189,4 @@ export const openInJOSM = async (oamTileName: string, tmsURL: string, oamBounds:
   } catch (error) {
     showErrorToast(undefined, TOAST_NOTIFICATIONS.josmOpenFailed);
   }
-}
+};

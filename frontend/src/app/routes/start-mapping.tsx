@@ -13,7 +13,7 @@ import { useModelDetails } from "@/features/models/hooks/use-models";
 import { StartMappingMapComponent } from "@/features/start-mapping/components";
 import { useGetModelPredictions } from "@/features/start-mapping/hooks/use-model-predictions";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
-import booleanIntersects from "@turf/boolean-intersects"
+import booleanIntersects from "@turf/boolean-intersects";
 import { BBOX, TileJSON, TModelPredictions } from "@/types";
 import {
   APPLICATION_ROUTES,
@@ -74,7 +74,11 @@ export const StartMappingPage = () => {
 
   const tileJSONURL = extractTileJSONURL(trainingDataset?.source_imagery ?? "");
 
-  const { data: oamTileJSON, isError: oamTileJSONIsError, error: oamTileJSONError } = useGetTMSTileJSON(tileJSONURL);
+  const {
+    data: oamTileJSON,
+    isError: oamTileJSONIsError,
+    error: oamTileJSONError,
+  } = useGetTMSTileJSON(tileJSONURL);
 
   const navigate = useNavigate();
   const { currentZoom, map } = useMap();
@@ -138,34 +142,51 @@ export const StartMappingPage = () => {
   });
 
   const handleAllFeaturesDownload = useCallback(async () => {
-    geoJSONDowloader({ type: 'FeatureCollection', features: [...modelPredictions.accepted, ...modelPredictions.rejected, ...modelPredictions.all] }, `all_predictions_${data.dataset}`);
-    showSuccessToast('Download successful.')
+    geoJSONDowloader(
+      {
+        type: "FeatureCollection",
+        features: [
+          ...modelPredictions.accepted,
+          ...modelPredictions.rejected,
+          ...modelPredictions.all,
+        ],
+      },
+      `all_predictions_${data.dataset}`,
+    );
+    showSuccessToast("Download successful.");
   }, [modelPredictions]);
 
   const handleAcceptedFeaturesDownload = useCallback(async () => {
-    geoJSONDowloader({ type: 'FeatureCollection', features: modelPredictions.accepted }, `accepted_predictions_${data.dataset}`);
-    showSuccessToast('Download successful.')
+    geoJSONDowloader(
+      { type: "FeatureCollection", features: modelPredictions.accepted },
+      `accepted_predictions_${data.dataset}`,
+    );
+    showSuccessToast("Download successful.");
   }, [modelPredictions]);
 
   const handleOpenInJOSM = useCallback(() => {
-    openInJOSM(oamTileJSON?.name as string, trainingDataset?.source_imagery as string, oamTileJSON?.bounds as BBOX)
-  }, [oamTileJSON, trainingDataset])
+    openInJOSM(
+      oamTileJSON?.name as string,
+      trainingDataset?.source_imagery as string,
+      oamTileJSON?.bounds as BBOX,
+    );
+  }, [oamTileJSON, trainingDataset]);
 
   const downloadButtonDropdownOptions = [
     {
       name: "All Features as GeoJSON",
       value: "All Features as GeoJSON",
-      onClick: handleAllFeaturesDownload
+      onClick: handleAllFeaturesDownload,
     },
     {
       name: "Accepted Features Only",
       value: "Accepted Features Only",
-      onClick: handleAcceptedFeaturesDownload
+      onClick: handleAcceptedFeaturesDownload,
     },
     {
       name: "Open in JSOM",
       value: "Open in JOSM",
-      onClick: handleOpenInJOSM
+      onClick: handleOpenInJOSM,
     },
   ];
 
@@ -181,11 +202,13 @@ export const StartMappingPage = () => {
         ];
 
         // Filter out new features that intersect with any existing feature
-        const nonIntersectingFeatures = data.features ? data.features.filter((newFeature) => {
-          return !existingFeatures.some((existingFeature) => {
-            return booleanIntersects(newFeature, existingFeature);
-          });
-        }) : []
+        const nonIntersectingFeatures = data.features
+          ? data.features.filter((newFeature) => {
+              return !existingFeatures.some((existingFeature) => {
+                return booleanIntersects(newFeature, existingFeature);
+              });
+            })
+          : [];
         setModelPredictions((prev) => ({
           ...prev,
           all: [
@@ -206,27 +229,25 @@ export const StartMappingPage = () => {
 
   const trainingConfig = useMemo(() => {
     const bounds = map?.getBounds();
-    return (
-      {
-        tolerance: query[SEARCH_PARAMS.tolerance] as number,
-        area_threshold: query[SEARCH_PARAMS.area] as number,
-        use_josm_q: query[SEARCH_PARAMS.useJOSMQ] as boolean,
-        confidence: query[SEARCH_PARAMS.confidenceLevel] as number,
-        checkpoint: `/mnt/efsmount/data/trainings/dataset_${data?.dataset}/output/training_${data?.published_training}/checkpoint.${data?.base_model === BASE_MODELS.RAMP ? "tflite" : "pt"}`,
-        max_angle_change: 15,
-        model_id: modelId as string,
-        skew_tolerance: 15,
-        source: trainingDataset?.source_imagery as string,
-        zoom_level: roundNumber(currentZoom, 0),
-        bbox: [
-          bounds?.getWest(),
-          bounds?.getSouth(),
-          bounds?.getEast(),
-          bounds?.getNorth(),
-        ] as BBOX,
-      }
-    )
-  }, [query, map, currentZoom, trainingDataset, modelId, data])
+    return {
+      tolerance: query[SEARCH_PARAMS.tolerance] as number,
+      area_threshold: query[SEARCH_PARAMS.area] as number,
+      use_josm_q: query[SEARCH_PARAMS.useJOSMQ] as boolean,
+      confidence: query[SEARCH_PARAMS.confidenceLevel] as number,
+      checkpoint: `/mnt/efsmount/data/trainings/dataset_${data?.dataset}/output/training_${data?.published_training}/checkpoint.${data?.base_model === BASE_MODELS.RAMP ? "tflite" : "pt"}`,
+      max_angle_change: 15,
+      model_id: modelId as string,
+      skew_tolerance: 15,
+      source: trainingDataset?.source_imagery as string,
+      zoom_level: roundNumber(currentZoom, 0),
+      bbox: [
+        bounds?.getWest(),
+        bounds?.getSouth(),
+        bounds?.getEast(),
+        bounds?.getNorth(),
+      ] as BBOX,
+    };
+  }, [query, map, currentZoom, trainingDataset, modelId, data]);
 
   const handlePrediction = useCallback(async () => {
     if (!map) return;

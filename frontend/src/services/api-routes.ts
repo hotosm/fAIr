@@ -17,8 +17,8 @@ export const API_ENDPOINTS = {
 
   // Feedbacks
 
-  CREATE_FEEDBACK: 'feedback/',
-  CREATE_APPROVED_PREDICTION: 'approved-prediction/',
+  CREATE_FEEDBACK: "feedback/",
+  CREATE_APPROVED_PREDICTION: "approved-prediction/",
   // KPIs
   GET_KPI_STATS: "kpi/stats/ ",
 

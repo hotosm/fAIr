@@ -14,8 +14,7 @@ export const useGetModelPredictions = ({
 }: useGetModelPredictionsOptions) => {
   const { onSuccess, ...restConfig } = mutationConfig || {};
   return useMutation({
-    mutationFn: (args: TModelPredictionsConfig) =>
-      getModelPredictions(args),
+    mutationFn: (args: TModelPredictionsConfig) => getModelPredictions(args),
     onSuccess: (...args) => {
       onSuccess?.(...args);
     },

@@ -85,7 +85,11 @@ const TrainingAreaItem: React.FC<
   });
 
   const handleOpenInJOSM = useCallback(async () => {
-    openInJOSM(formData.oamTileName, formData.tmsURL, formData.oamBounds as BBOX)
+    openInJOSM(
+      formData.oamTileName,
+      formData.tmsURL,
+      formData.oamBounds as BBOX,
+    );
   }, [formData.oamTileName, formData.tmsURL, formData.oamBounds]);
 
   const handleAOIDownload = useCallback(() => {
@@ -232,9 +236,9 @@ const TrainingAreaItem: React.FC<
               ? "Fetching labels..."
               : trainingArea.properties.label_fetched !== null
                 ? truncateString(
-                  `Fetched ${timeSinceLabelFetch === "0 sec" ? "just now" : `${timeSinceLabelFetch} ago`}`,
-                  20,
-                )
+                    `Fetched ${timeSinceLabelFetch === "0 sec" ? "just now" : `${timeSinceLabelFetch} ago`}`,
+                    20,
+                  )
                 : "No labels yet"}
           </p>
         </div>
