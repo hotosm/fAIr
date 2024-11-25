@@ -14,7 +14,7 @@ class Dataset(models.Model):
         ACTIVE = 0
         DRAFT = -1
 
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=50)
     user = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
     last_modified = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -36,6 +36,7 @@ class AOI(models.Model):
     label_fetched = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now=True)
+    user = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
 
 
 class Label(models.Model):
@@ -49,7 +50,8 @@ class Label(models.Model):
 class Model(models.Model):
     BASE_MODEL_CHOICES = (
         ("RAMP", "RAMP"),
-        ("YOLO", "YOLO"),
+        ("YOLO_V8_V1", "YOLO_V8_V1"),
+        ("YOLO_V8_V2", "YOLO_V8_V2"),
     )
 
     class ModelStatus(models.IntegerChoices):
@@ -57,8 +59,8 @@ class Model(models.Model):
         PUBLISHED = 0
         DRAFT = -1
 
-    dataset = models.ForeignKey(Dataset, to_field="id", on_delete=models.CASCADE)
-    name = models.CharField(max_length=255)
+    dataset = models.ForeignKey(Dataset, to_field="id", on_delete=models.DO_NOTHING)
+    name = models.CharField(max_length=50)
     created_at = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now=True)
     description = models.TextField(max_length=500, null=True, blank=True)
@@ -66,7 +68,7 @@ class Model(models.Model):
     published_training = models.PositiveIntegerField(null=True, blank=True)
     status = models.IntegerField(default=-1, choices=ModelStatus.choices)
     base_model = models.CharField(
-        choices=BASE_MODEL_CHOICES, default="RAMP", max_length=10
+        choices=BASE_MODEL_CHOICES, default="RAMP", max_length=50
     )
 
 

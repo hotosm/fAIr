@@ -215,6 +215,8 @@ SWAGGER_SETTINGS = {
 RAMP_HOME = env("RAMP_HOME", default=None)
 if RAMP_HOME:
     os.environ["RAMP_HOME"] = RAMP_HOME
+YOLO_HOME = env("YOLO_HOME")
+
 
 # training workspace
 TRAINING_WORKSPACE = env(
@@ -222,6 +224,9 @@ TRAINING_WORKSPACE = env(
 )
 
 ENABLE_PREDICTION_API = env("ENABLE_PREDICTION_API", default=False)
+
+
+LOG_LINE_STREAM_TRUNCATE_VALUE = env("LOG_LINE_STREAM_TRUNCATE_VALUE", default=10)
 
 
 TEST_RUNNER = "tests.test_runners.NoDestroyTestRunner"
