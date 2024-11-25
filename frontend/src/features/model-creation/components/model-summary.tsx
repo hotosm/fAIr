@@ -8,6 +8,7 @@ import {
   TextIcon,
   ZoomInIcon,
 } from "@/components/ui/icons";
+import { BASE_MODELS } from "@/enums";
 import { StepHeading } from "@/features/model-creation/components/";
 import { IconProps } from "@/types";
 import { MODEL_CREATION_CONTENT } from "@/utils";
@@ -76,8 +77,14 @@ const ModelSummaryForm = () => {
       content: [
         `${MODEL_CREATION_CONTENT.trainingSettings.form.epoch.label}: ${formData.epoch}`,
         `${MODEL_CREATION_CONTENT.trainingSettings.form.batchSize.label}: ${formData.batchSize}`,
-        `${MODEL_CREATION_CONTENT.trainingSettings.form.contactSpacing.label}: ${formData.contactSpacing}`,
-        `${MODEL_CREATION_CONTENT.trainingSettings.form.boundaryWidth.label}:  ${formData.boundaryWidth}`,
+        ...[
+          formData.baseModel === BASE_MODELS.RAMP
+            ? [
+                `${MODEL_CREATION_CONTENT.trainingSettings.form.contactSpacing.label}: ${formData.contactSpacing}`,
+                `${MODEL_CREATION_CONTENT.trainingSettings.form.boundaryWidth.label}:  ${formData.boundaryWidth}`,
+              ]
+            : [],
+        ],
       ],
     },
   ];

@@ -32,6 +32,7 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
     handleModelCreationAndUpdate,
     handleTrainingDatasetCreation,
     trainingDatasetCreationInProgress,
+    isEditMode,
   } = useModelsContext();
 
   const nextPage = () => {
@@ -56,9 +57,10 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
   const prevPage = () => {
     if (currentPageIndex > 0) {
       const prevRoute = getFullPath(pages[currentPageIndex - 1].path);
-      // When going back, if it's the training dataset page and the user already selected an option previously
+      // When going back, if it's the training dataset page and the user already selected an option previously, and not in edit mode,
       // Reset the selection to none so they can see the options again.
       if (
+        !isEditMode &&
         currentPageIndex === 1 &&
         formData.trainingDatasetOption !== TrainingDatasetOption.NONE
       ) {
@@ -101,7 +103,10 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
       );
     } else if (currentPath.includes(MODELS_ROUTES.TRAINING_DATASET)) {
       // if the user hasn't selected any of the options, then they can not proceed to next page.
-      if (formData.trainingDatasetOption === TrainingDatasetOption.NONE) {
+      if (
+        !isEditMode &&
+        formData.trainingDatasetOption === TrainingDatasetOption.NONE
+      ) {
         return false;
       } else if (
         formData.trainingDatasetOption === TrainingDatasetOption.CREATE_NEW

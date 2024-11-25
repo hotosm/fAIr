@@ -69,6 +69,7 @@ export const MODEL_CREATION_CONTENT = {
   },
   trainingDataset: {
     pageTitle: "Create New Training Dataset",
+    editModePageTitle: "Training Dataset",
     buttons: {
       createNew: "Create a new training dataset",
       selectExisting: "select from existing training dataset",
@@ -94,6 +95,7 @@ export const MODEL_CREATION_CONTENT = {
         placeholder: "Search",
       },
     },
+    editModePageDescription: "You cannot edit a model dataset when editing...",
     pageDescription:
       "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Id fugit ducimus harum debitis deserunt cum quod quam rerum aliquid. Quibusdam sequi incidunt quasi delectus laudantium accusamus modi omnis maiores. Incidunt!",
   },
