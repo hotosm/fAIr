@@ -32,7 +32,6 @@ from drf_yasg.utils import swagger_auto_schema
 from geojson2osm import geojson2osm
 from login.authentication import OsmAuthentication
 from login.permissions import IsAdminUser, IsOsmAuthenticated, IsStaffUser
-from orthogonalizer import othogonalize_poly
 from osmconflator import conflate_geojson
 from rest_framework import decorators, filters, serializers, status, viewsets
 from rest_framework.decorators import api_view
@@ -645,6 +644,7 @@ class FeedbackView(APIView):
 DEFAULT_TILE_SIZE = 256
 
 if settings.ENABLE_PREDICTION_API:
+from orthogonalizer import othogonalize_poly
 
     class PredictionView(APIView):
         authentication_classes = [OsmAuthentication]
