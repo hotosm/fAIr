@@ -9,7 +9,7 @@ RUN apt-get update && \
 ENV CPLUS_INCLUDE_PATH=/usr/include/gdal
 ENV C_INCLUDE_PATH=/usr/include/gdal
 
-RUN pip install --upgrade pip
+RUN /usr/bin/python3 -m pip install --upgrade pip
 
 RUN pip install numpy==1.23.5
 RUN pip install --global-option=build_ext --global-option="-I/usr/include/gdal" GDAL==$(gdal-config --version)
