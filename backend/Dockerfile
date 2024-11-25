@@ -9,7 +9,6 @@ RUN apt-get update && \
 ENV CPLUS_INCLUDE_PATH=/usr/include/gdal
 ENV C_INCLUDE_PATH=/usr/include/gdal
 
-RUN /usr/bin/python3 -m pip install --upgrade pip
 
 RUN pip install numpy==1.23.5
 RUN pip install --global-option=build_ext --global-option="-I/usr/include/gdal" GDAL==$(gdal-config --version)
@@ -28,7 +27,7 @@ RUN pip install setuptools==68.2.2
 RUN pip install wheel==0.41.3
 RUN pip install build==1.0.0
 
-RUN pip install  -r requirements.txt 
+RUN  pip install --upgrade pip && pip install  -r requirements.txt 
 
 # RUN pip install --use-deprecated=legacy-resolver -r requirements.txt 
 COPY docker/ramp/solaris /tmp/solaris
