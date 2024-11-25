@@ -506,6 +506,7 @@ export const APP_CONTENT = {
       modelFilesDialog: {
         rootDirectory: "Root Directory",
         dialogTitle: "Model Files",
+        dialogDescription: "Click to download each file...",
         error: "Error loading directories.",
       },
       trainingInfoDialog: {
