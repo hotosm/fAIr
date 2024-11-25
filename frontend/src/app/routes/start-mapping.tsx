@@ -195,7 +195,6 @@ export const StartMappingPage = () => {
         showSuccessToast("Model predictions retrieved successfully.");
 
         const existingFeatures = [
-          ...modelPredictions.all,
           ...modelPredictions.accepted,
           ...modelPredictions.rejected,
         ];
