@@ -77,14 +77,8 @@ const ModelSummaryForm = () => {
       content: [
         `${MODEL_CREATION_CONTENT.trainingSettings.form.epoch.label}: ${formData.epoch}`,
         `${MODEL_CREATION_CONTENT.trainingSettings.form.batchSize.label}: ${formData.batchSize}`,
-        ...[
-          formData.baseModel === BASE_MODELS.RAMP
-            ? [
-                `${MODEL_CREATION_CONTENT.trainingSettings.form.contactSpacing.label}: ${formData.contactSpacing}`,
-                `${MODEL_CREATION_CONTENT.trainingSettings.form.boundaryWidth.label}:  ${formData.boundaryWidth}`,
-              ]
-            : [],
-        ],
+        formData.baseModel === BASE_MODELS.RAMP ? `${MODEL_CREATION_CONTENT.trainingSettings.form.contactSpacing.label}: ${formData.contactSpacing}` : '',
+        formData.baseModel === BASE_MODELS.RAMP ? `${MODEL_CREATION_CONTENT.trainingSettings.form.boundaryWidth.label}:  ${formData.boundaryWidth}` : '',
       ],
     },
   ];
