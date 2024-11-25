@@ -215,7 +215,7 @@ SWAGGER_SETTINGS = {
 RAMP_HOME = env("RAMP_HOME", default=None)
 if RAMP_HOME:
     os.environ["RAMP_HOME"] = RAMP_HOME
-YOLO_HOME = env("YOLO_HOME")
+YOLO_HOME = env("YOLO_HOME", default=os.getcwd())
 
 
 # training workspace
