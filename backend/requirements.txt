@@ -2,3 +2,4 @@
 hot-fair-utilities==2.0.6
 tflite-runtime==2.14.0
 tippecanoe==2.45.0
+onnxruntime>=1.0.0
