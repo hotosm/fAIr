@@ -148,7 +148,6 @@ export const StartMappingPage = () => {
         features: [
           ...modelPredictions.accepted,
           ...modelPredictions.rejected,
-          ...modelPredictions.all,
         ],
       },
       `all_predictions_${data.dataset}`,
