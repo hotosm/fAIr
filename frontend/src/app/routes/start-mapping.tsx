@@ -298,7 +298,6 @@ export const StartMappingPage = () => {
                 menuItems={downloadButtonDropdownOptions}
                 triggerComponent={
                   <ButtonWithIcon
-                    disabled={disableButtons}
                     onClick={dropdownIsOpened ? onDropdownHide : onDropdownShow}
                     suffixIcon={ChevronDownIcon}
                     label="download"
