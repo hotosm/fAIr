@@ -39,9 +39,9 @@ export const useModels = ({
   });
 };
 
-export const useModelDetails = (id: string, enabled: boolean = true) => {
+export const useModelDetails = (id: string, enabled: boolean = true, refetchInterval: boolean | number = false) => {
   return useQuery({
-    ...getModelDetailsQueryOptions(id),
+    ...getModelDetailsQueryOptions(id, refetchInterval),
     //@ts-expect-error bad type definition
     throwOnError: (error) => error.response?.status >= 500,
     retry: (_, error) => {
