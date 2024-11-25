@@ -363,6 +363,9 @@ def yolo_model_training(
     os.makedirs(output_path)
 
     shutil.copyfile(output_model_path, os.path.join(output_path, "checkpoint.pt"))
+    shutil.copyfile(os.path.join(os.path.dirname(output_model_path),'best.onnx'), os.path.join(output_path, "checkpoint.onnx"))
+    # shutil.copyfile(os.path.dirname(output_model_path,'checkpoint.tflite'), os.path.join(output_path, "checkpoint.tflite"))
+    
     shutil.copytree(preprocess_output, os.path.join(output_path, "preprocessed"))
     os.makedirs(os.path.join(output_path,model),exist_ok=True)
 
