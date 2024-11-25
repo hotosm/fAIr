@@ -644,7 +644,7 @@ class FeedbackView(APIView):
 DEFAULT_TILE_SIZE = 256
 
 if settings.ENABLE_PREDICTION_API:
-from orthogonalizer import othogonalize_poly
+    from orthogonalizer import othogonalize_poly
 
     class PredictionView(APIView):
         authentication_classes = [OsmAuthentication]
