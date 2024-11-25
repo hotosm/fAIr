@@ -27,7 +27,7 @@ RUN pip install setuptools==68.2.2
 RUN pip install wheel==0.41.3
 RUN pip install build==1.0.0
 
-RUN  pip install --upgrade pip && pip install  -r requirements.txt 
+RUN  pip install  -r requirements.txt 
 
 # RUN pip install --use-deprecated=legacy-resolver -r requirements.txt 
 COPY docker/ramp/solaris /tmp/solaris
