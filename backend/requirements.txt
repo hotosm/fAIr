@@ -1,4 +1,4 @@
 -r api-requirements.txt
-hot-fair-utilities==2.0.4
+hot-fair-utilities==2.0.5
 tflite-runtime==2.14.0
 tippecanoe==2.45.0
