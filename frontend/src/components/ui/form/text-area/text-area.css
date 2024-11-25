@@ -1,0 +1,16 @@
+sl-textarea::part(base) {
+  color: var(--hot-fair-color-dark);
+  outline: none;
+  box-shadow: none;
+  border: 1px solid var(--hot-fair-color-gray-border);
+}
+
+sl-textarea::part(textarea)::placeholder {
+  color: var(--hot-fair-color-gray);
+  font-size: var(--hot-fair-font-size-body-text-3);
+}
+
+sl-textarea::part(textarea) {
+  color: var(--hot-fair-color-dark);
+  font-size: var(--hot-fair-font-size-body-text-2);
+}

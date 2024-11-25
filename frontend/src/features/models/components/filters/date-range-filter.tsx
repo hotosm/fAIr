@@ -1,4 +1,4 @@
-import { SEARCH_PARAMS } from "@/app/routes/models";
+import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
 import { DropDown } from "@/components/ui/dropdown";
 import { DateRangePicker } from "@/components/ui/form";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";

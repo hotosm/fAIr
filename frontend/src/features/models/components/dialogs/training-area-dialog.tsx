@@ -1,29 +1,26 @@
 import { Dialog } from "@/components/ui/dialog";
-import useDevice from "@/hooks/use-device";
-import { MapComponent } from "@/features/models/components/map";
+import useScreenSize from "@/hooks/use-screen-size";
+import { MapComponent } from "@/components/map";
 import { cn } from "@/utils";
+import { DialogProps } from "@/types";
 
-type TrainingAreaDialogProps = {
-  isOpened: boolean;
-  closeDialog: () => void;
-};
+type TrainingAreaDialogProps = DialogProps;
 
 const TrainingAreaDialog: React.FC<TrainingAreaDialogProps> = ({
   isOpened,
   closeDialog,
 }) => {
-  const isMobile = useDevice();
+  const { isMobile } = useScreenSize();
 
   return (
     <Dialog
       isOpened={isOpened}
       closeDialog={closeDialog}
       label={"Training Area"}
-      size={isMobile ? "extra-large" : "large"}
     >
       <div className={cn(`${!isMobile ? "h-[600px]" : "h-[350px]"}`)}>
         <div className="h-full w-full">
-          <MapComponent onMapLoad={() => undefined} />
+          <MapComponent />
         </div>
       </div>
     </Dialog>

@@ -1,4 +1,4 @@
-import { SEARCH_PARAMS } from "@/app/routes/models";
+import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
 import { DropDown } from "@/components/ui/dropdown";
 import { DropdownMenuItem } from "@/components/ui/dropdown/dropdown";
 import { CheckboxGroup } from "@/components/ui/form";
@@ -82,6 +82,7 @@ const OrderingFilter: React.FC<OrderingFilterProps> = ({
     <CheckboxGroup
       options={ORDERING_FIELDS}
       disabled={disabled}
+      // @ts-expect-error bad type definition
       onCheck={onSortSelect}
       defaultSelectedOption={
         ORDERING_FIELDS.find(

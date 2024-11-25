@@ -1,14 +1,43 @@
-import SlTooltip from "@shoelace-style/shoelace/dist/react/tooltip/index.js";
+import SlTooltip, {
+  SlHideEvent,
+} from "@shoelace-style/shoelace/dist/react/tooltip/index.js";
 import { InfoIcon } from "@/components/ui/icons";
+import { ToolTipPlacement } from "@/enums";
 
 type ToolTipProps = {
-  content: string;
+  content?: string | React.ReactElement;
+  children?: React.ReactNode;
+  placement?:
+    | ToolTipPlacement.RIGHT
+    | ToolTipPlacement.BOTTOM
+    | ToolTipPlacement.TOP;
+  open?: boolean;
 };
-const ToolTip: React.FC<ToolTipProps> = ({ content }) => (
-  <SlTooltip onSlAfterHide={(e) => e.stopImmediatePropagation()}>
-    <span slot="content">{content}</span>
-    <InfoIcon className="w-4 h-4" />
-  </SlTooltip>
-);
-
+const ToolTip: React.FC<ToolTipProps> = ({
+  content,
+  children,
+  placement = ToolTipPlacement.TOP,
+  open,
+}) => {
+  const stopPropagations = (e: SlHideEvent) => {
+    e.stopImmediatePropagation();
+    e.stopPropagation();
+  };
+  return (
+    <SlTooltip
+      onSlAfterHide={(e) => stopPropagations(e)}
+      onSlAfterShow={(e) => stopPropagations(e)}
+      onSlHide={(e) => stopPropagations(e)}
+      onSlShow={(e) => stopPropagations(e)}
+      placement={placement}
+      {...(open !== undefined ? { open } : {})}
+    >
+      <span slot="content">
+        {typeof content === "string" ? <span>{content}</span> : content}
+      </span>
+      {!children && <InfoIcon className="icon" />}
+      {children}
+    </SlTooltip>
+  );
+};
 export default ToolTip;

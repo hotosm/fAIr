@@ -4,12 +4,13 @@ import ModelCard from "@/features/models/components/model-card";
 type ModelListProps = {
   models?: TModel[];
   isPending: boolean;
+  isError: boolean;
 };
 
 const ModelListSkeleton = () => {
   return (
     <>
-      {new Array(12).fill(1).map((_, id) => (
+      {new Array(15).fill(1).map((_, id) => (
         <div
           className="col-span-1 max-w-[299px] min-h-[300px] flex flex-col gap-[30px]"
           key={`model-skeleton-grid-layout-${id}`}
@@ -36,10 +37,11 @@ const ModelListSkeleton = () => {
 const ModelListGridLayout: React.FC<ModelListProps> = ({
   models,
   isPending,
+  isError,
 }) => {
   return (
     <>
-      {isPending ? (
+      {isPending || isError ? (
         <ModelListSkeleton />
       ) : (
         models?.map((model, id) => (

@@ -2,11 +2,12 @@ import Axios, { InternalAxiosRequestConfig } from "axios";
 import { ENVS } from "@/config/env";
 import { HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY } from "@/utils";
 
+export const BASE_API_URL = ENVS.BASE_API_URL;
 /**
  * The global axios API client.
  */
 export const apiClient = Axios.create({
-  baseURL: ENVS.BASE_API_URL,
+  baseURL: BASE_API_URL,
 });
 
 function authRequestInterceptor(config: InternalAxiosRequestConfig) {

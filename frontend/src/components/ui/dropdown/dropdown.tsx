@@ -3,7 +3,7 @@ import SlMenu from "@shoelace-style/shoelace/dist/react/menu/index.js";
 import SlMenuItem from "@shoelace-style/shoelace/dist/react/menu-item/index.js";
 import SlCheckbox from "@shoelace-style/shoelace/dist/react/checkbox/index.js";
 import "./dropdown.css";
-import ChevronDownIcon from "../icons/chevron-down";
+import ChevronDownIcon from "../icons/chevron-down-icon";
 import { useEffect, useState } from "react";
 import { cn } from "@/utils";
 
@@ -105,6 +105,7 @@ const DropDown: React.FC<DropDownProps> = ({
       className={className}
       disabled={disabled}
       distance={distance}
+      open={dropdownIsOpened}
       stayOpenOnSelect={withCheckbox} // when selecting a single item, we can close the dropdown after selection.
     >
       <div
@@ -120,7 +121,7 @@ const DropDown: React.FC<DropDownProps> = ({
           />
         )}
       </div>
-      <div className="shadow-2xl">
+      <div className="shadow-2xl z-[10000]">
         {menuItems && menuItems.length > 0 ? (
           <SlMenu onSlSelect={handleSelect}>
             {menuItems?.map((menuItem, id) => (

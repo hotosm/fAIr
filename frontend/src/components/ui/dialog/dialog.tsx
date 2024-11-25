@@ -1,37 +1,59 @@
 import SlDialog from "@shoelace-style/shoelace/dist/react/dialog/index.js";
 import "./dialog.css";
+import { SHOELACE_SIZES } from "@/enums";
+import useScreenSize from "@/hooks/use-screen-size";
 
 type DialogProps = {
-  label?: string;
+  label: string;
   isOpened: boolean;
   closeDialog: () => void;
   children: React.ReactNode;
-  size?: "small" | "medium" | "large" | "extra-large";
+  preventClose?: boolean;
+  labelColor?: "default" | "primary";
 };
 const Dialog: React.FC<DialogProps> = ({
   isOpened,
   closeDialog,
   label,
   children,
-  size = "medium",
+  preventClose,
+  labelColor = "default",
 }) => {
+  // Prevent the dialog from closing when the user clicks on the overlay
+  function handleRequestClose(event: any) {
+    if (event.detail.source === "overlay") {
+      event.preventDefault();
+    }
+  }
+  const { isMobile, isTablet, isLaptop } = useScreenSize();
+
+  const size =
+    isMobile || isTablet
+      ? SHOELACE_SIZES.EXTRA_LARGE
+      : isLaptop
+        ? SHOELACE_SIZES.LARGE
+        : SHOELACE_SIZES.MEDIUM;
+
   return (
     <SlDialog
       label={label}
       open={isOpened}
+      onSlRequestClose={preventClose ? handleRequestClose : () => null}
       onSlAfterHide={(e) => {
         e.stopPropagation();
         e.preventDefault();
         closeDialog();
       }}
+      className={labelColor}
       style={{
         //@ts-expect-error bad type definition
         "--width":
-          size === "small"
+          //@ts-expect-error bad type definition
+          size === SHOELACE_SIZES.SMALL
             ? "25vw"
-            : size === "medium"
+            : size === SHOELACE_SIZES.MEDIUM
               ? "50vw"
-              : size === "extra-large"
+              : size === SHOELACE_SIZES.EXTRA_LARGE
                 ? "100vw"
                 : "75vw",
       }}

@@ -3,6 +3,7 @@ import "./button.css";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/utils";
 import { ButtonSize, ButtonVariant } from "@/types";
+import useScreenSize from "@/hooks/use-screen-size";
 
 type ButtonProps = {
   children: React.ReactNode;
@@ -12,8 +13,8 @@ type ButtonProps = {
   spinner?: boolean;
   size?: ButtonSize;
   disabled?: boolean;
-  capitalizeText?: boolean;
   slot?: string;
+  uppercase?: boolean;
 };
 const Button: React.FC<ButtonProps> = ({
   children,
@@ -21,29 +22,31 @@ const Button: React.FC<ButtonProps> = ({
   className,
   onClick,
   spinner = false,
-  size = "large",
   disabled = false,
-  capitalizeText = true,
+  uppercase = true,
+  size,
   slot,
 }) => {
   const spinnerColor = variant === "primary" ? "white" : "red";
   const trackColor = variant === "primary" ? "red" : "white";
-
+  const { isMobile } = useScreenSize();
   return (
     <SlButton
       //@ts-expect-error bad type definition
       variant={variant}
-      size={size}
-      className={cn(
-        `button ${variant} ${className} ${capitalizeText && "capitalize"}`,
-      )}
+      size={size ? size : isMobile ? "medium" : "large"}
+      className={cn(`button ${variant} ${className} `)}
       style={{ width: "100%" }}
       //@ts-expect-error bad type definition
       onClick={onClick}
       disabled={disabled}
       slot={slot}
     >
-      <div className="flex items-center gap-x-2">
+      <div
+        className={cn(
+          `flex items-center gap-x-2  ${uppercase && "uppercase"} `,
+        )}
+      >
         {children}
         {spinner && (
           <Spinner

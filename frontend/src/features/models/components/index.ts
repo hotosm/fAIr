@@ -8,3 +8,4 @@ export { default as ModelDetailsInfo } from "./model-details-info";
 export { default as ModelDetailItem } from "./model-detail-item";
 export { default as ModelDetailsProperties } from "./model-details-properties";
 export { default as TrainingHistoryTable } from "./training-history-table";
+export { default as ModelDetailsPopUp } from "./model-details-popup";

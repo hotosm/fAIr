@@ -6,6 +6,7 @@ import {
   formatDate,
   formatDuration,
   roundNumber,
+  showErrorToast,
   truncateString,
 } from "@/utils";
 import { ColumnDef, SortingState } from "@tanstack/react-table";
@@ -21,16 +22,15 @@ import { ElipsisIcon, InfoIcon } from "@/components/ui/icons";
 import { useDialog } from "@/hooks/use-dialog";
 import { TrainingDetailsDialog } from "@/features/models/components/dialogs";
 import { useUpdateTraining } from "@/features/models/api/update-trainings";
-import { useToast } from "@/app/providers/toast-provider";
-import Pagination, {
-  PAGE_LIMIT,
-} from "@/features/models/components/pagination";
+import Pagination, { PAGE_LIMIT } from "@/components/pagination";
+import { useToastNotification } from "@/hooks/use-toast-notification";
 
 type TrainingHistoryTableProps = {
   modelId: string;
   trainingId: number;
   modelOwner: string;
   datasetId: number;
+  baseModel: string;
 };
 
 const columnDefinitions = (
@@ -56,19 +56,12 @@ const columnDefinitions = (
   },
   {
     accessorKey: "started_at",
+    accessorFn: (row) =>
+      row.started_at !== null ? formatDate(row.started_at) : "-",
     header:
       APP_CONTENT.models.modelsDetailsCard.trainingHistoryTableHeader.startedAt,
-    cell: ({ row }) => {
-      return <span>{formatDate(row.getValue("started_at"))}</span>;
-    },
-  },
-  {
-    accessorKey: "user.username",
-    header:
-      APP_CONTENT.models.modelsDetailsCard.trainingHistoryTableHeader
-        .sumittedBy,
-    cell: ({ row }) => {
-      return <span>{truncateString(row.original.user.username)}</span>;
+    cell: (row) => {
+      return <span>{row.getValue() as string}</span>;
     },
   },
   {
@@ -83,11 +76,20 @@ const columnDefinitions = (
     ),
   },
   {
-    accessorKey: "input_contact_spacing",
+    accessorKey: "user.username",
+    header:
+      APP_CONTENT.models.modelsDetailsCard.trainingHistoryTableHeader
+        .sumittedBy,
+    cell: ({ row }) => {
+      return <span>{truncateString(row.original.user.username)}</span>;
+    },
+  },
+  {
+    accessorKey: "chips_length",
     header:
       APP_CONTENT.models.modelsDetailsCard.trainingHistoryTableHeader.dsSize,
     cell: ({ row }) => {
-      return <span>{row.getValue("input_contact_spacing") ?? 0}</span>;
+      return <span>{row.getValue("chips_length") ?? 0}</span>;
     },
   },
   {
@@ -206,7 +208,9 @@ const columnDefinitions = (
                       name: "Set as active training dataset",
                       value: "Set as active training dataset",
                       onClick: () => publishTraining(row.getValue("id")),
-                      disabled: row.getValue("status") === "FAILED",
+                      disabled:
+                        row.getValue("status") === "FAILED" ||
+                        row.getValue("status") === "SUBMITTED",
                     },
                     {
                       name: "View training details",
@@ -229,25 +233,26 @@ const TrainingHistoryTable: React.FC<TrainingHistoryTableProps> = ({
   modelId,
   modelOwner,
   datasetId,
+  baseModel,
 }) => {
   const [offset, setOffset] = useState(0);
   const { data, isPending, isPlaceholderData } = useTrainingHistory(
     modelId,
     offset,
     PAGE_LIMIT,
+    "-id",
   );
   const [sorting, setSorting] = useState<SortingState>([]);
   const { user, isAuthenticated } = useAuth();
   const { isOpened, openDialog, closeDialog } = useDialog();
-  const { notify } = useToast();
+  const toast = useToastNotification();
   const { mutate } = useUpdateTraining({
     mutationConfig: {
       onSuccess: (res) => {
-        notify(res.data, "success");
+        toast(res.data, "success");
       },
       onError: (err) => {
-        //@ts-expect-error bad type definition
-        notify(err?.response?.data ?? err?.response?.data?.detail, "danger");
+        showErrorToast(err);
       },
     },
     modelId: Number(modelId),
@@ -269,6 +274,7 @@ const TrainingHistoryTable: React.FC<TrainingHistoryTableProps> = ({
         closeDialog={closeDialog}
         trainingId={activeTrainingId}
         datasetId={datasetId}
+        baseModel={baseModel}
       />
       <div className="h-full">
         <div className="w-full items-center text-body-3 flex justify-between my-4">

@@ -111,7 +111,7 @@ nav {
   justify-content: center;
   color: var(--hot-fair-color-white);
   gap: var(--sl-spacing-large);
-  background-image: url("../../../assets/contour_background.svg");
+  background-image: url("../../../assets/svgs/contour_background.svg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

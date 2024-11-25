@@ -3,19 +3,14 @@ import { authService } from "@/services";
 import { apiClient } from "@/services/api-client";
 import { TUser } from "@/types/api";
 import {
-  APP_CONTENT,
   HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY,
   HOT_FAIR_LOGIN_SUCCESSFUL_SESSION_KEY,
   HOT_FAIR_SESSION_REDIRECT_KEY,
+  showErrorToast,
+  showSuccessToast,
+  TOAST_NOTIFICATIONS,
 } from "@/utils";
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  useMemo,
-} from "react";
-import { useToast } from "./toast-provider";
+import React, { createContext, useContext, useState, useEffect } from "react";
 
 type TAuthContext = {
   token: string;
@@ -47,14 +42,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   );
   const [user, setUser] = useState<TUser | null>(null);
 
-  const { notify } = useToast();
   // For use across the application.
+  const isAuthenticated = user !== null && token !== undefined;
 
-  const isAuthenticated = useMemo(() => {
-    return user !== null && token !== undefined;
-  }, [token, user]);
-
-  //set token globally to eliminate the need to rewrite it
+  // Set token globally to eliminate the need to rewrite it
   apiClient.defaults.headers.common["access-token"] = token ? `${token}` : null;
 
   useEffect(() => {
@@ -68,21 +59,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (redirectTo) {
       // remove it before redirecting.
       removeSessionValue(HOT_FAIR_SESSION_REDIRECT_KEY);
-      // this this is the last stage of the auth, we can assume that the login is successful, then store a reference
+      // This is the last stage of the auth, we can assume that the login is successful, then store a reference
       // in the session storage.
       setSessionValue(HOT_FAIR_LOGIN_SUCCESSFUL_SESSION_KEY, "success");
       window.location.replace(redirectTo);
     }
   };
 
-  //To show the login success after completing redirection if any.
+  // To show the login success after completing redirection if any.
 
   useEffect(() => {
     const loginSuccessful = getSessionValue(
       HOT_FAIR_LOGIN_SUCCESSFUL_SESSION_KEY,
     );
     if (loginSuccessful == "success") {
-      notify(APP_CONTENT.toasts.loginSuccess, "success");
+      showSuccessToast(TOAST_NOTIFICATIONS.loginSuccess);
       removeSessionValue(HOT_FAIR_LOGIN_SUCCESSFUL_SESSION_KEY);
     }
   }, []);
@@ -106,7 +97,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const user = await authService.getUser();
       setUser(user);
     } catch (error) {
-      console.error("Failed to fetch user profile:", error);
+      showErrorToast(error);
     }
   };
 
@@ -117,7 +108,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setToken(undefined);
     setUser(null);
     removeValue(HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY);
-    notify(APP_CONTENT.toasts.logoutSuccess, "success");
+    showSuccessToast(TOAST_NOTIFICATIONS.logoutSuccess);
   };
 
   /**
@@ -133,8 +124,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       fetchUserProfile();
       handleRedirection();
     } catch (error) {
-      notify(APP_CONTENT.toasts.authenticationFailed, "danger");
-      console.error("Authentication failed:", error);
+      showErrorToast(error, TOAST_NOTIFICATIONS.authenticationFailed);
     }
   };
 

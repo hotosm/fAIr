@@ -52,7 +52,7 @@ const ModelCard: React.FC<ModelCardProps> = ({ model }) => {
               {roundNumber(model.accuracy)} %
             </p>
           </div>
-          {/* Name and date */}
+          {/* Name, date and base model */}
           <div className="inline-flex flex-col gap-y-2">
             <p className="font-semibold text-body-2base text-dark">
               {model.user.username}
@@ -61,6 +61,12 @@ const ModelCard: React.FC<ModelCardProps> = ({ model }) => {
               {APP_CONTENT.models.modelsList.modelCard.lastModified}{" "}
               <span className="font-bold">
                 {extractDatePart(model.last_modified)}
+              </span>
+            </p>
+            <p className="text-gray text-body-3 flex gap-x-2">
+              {APP_CONTENT.models.modelsList.modelCard.baseModel}
+              <span className="font-bold text-dark">
+                {extractDatePart(model.base_model)}
               </span>
             </p>
           </div>

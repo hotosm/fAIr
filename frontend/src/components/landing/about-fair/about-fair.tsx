@@ -1,4 +1,4 @@
-import AIIcon from "@/assets/fair_ai_icon.svg";
+import AIIcon from "@/assets/svgs/fair_ai_icon.svg";
 import styles from "./about-fair.module.css";
 import { APP_CONTENT } from "@/utils/content";
 import { Image } from "@/components/ui/image";

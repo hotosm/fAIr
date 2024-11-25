@@ -3,7 +3,7 @@ import {
   getModelsQueryOptions,
   getModelDetailsQueryOptions,
   getModelsMapDataQueryOptions,
-} from "./factory";
+} from "../api/factory";
 
 type UseModelsOptions = {
   limit: number;
@@ -39,9 +39,9 @@ export const useModels = ({
   });
 };
 
-export const useModelDetails = (id: string) => {
+export const useModelDetails = (id: string, enabled: boolean = true, refetchInterval: boolean | number = false) => {
   return useQuery({
-    ...getModelDetailsQueryOptions(id),
+    ...getModelDetailsQueryOptions(id, refetchInterval),
     //@ts-expect-error bad type definition
     throwOnError: (error) => error.response?.status >= 500,
     retry: (_, error) => {
@@ -49,6 +49,7 @@ export const useModelDetails = (id: string) => {
       //@ts-expect-error bad type definition
       return error.response?.status !== 404;
     },
+    enabled: enabled,
   });
 };
 

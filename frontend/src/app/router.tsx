@@ -7,18 +7,21 @@ import {
 } from "react-router-dom";
 import { ProtectedPage } from "@/app/routes/protected-route";
 import { MainErrorFallback } from "@/components/errors";
+import ModelFormsLayout from "@/components/layouts/model-forms-layout";
+import ModelsLayout from "@/components/layouts/models-layout";
+import { MapProvider } from "./providers/map-provider";
 
 const router = createBrowserRouter([
   {
-    path: APPLICATION_ROUTES.HOMEPAGE,
-    lazy: async () => {
-      const { LandingPage } = await import("@/app/routes/landing");
-      return { Component: LandingPage };
-    },
-  },
-  {
     element: <RootLayout />,
     children: [
+      {
+        path: APPLICATION_ROUTES.HOMEPAGE,
+        lazy: async () => {
+          const { LandingPage } = await import("@/app/routes/landing");
+          return { Component: LandingPage };
+        },
+      },
       {
         path: APPLICATION_ROUTES.LEARN,
         lazy: async () => {
@@ -50,39 +53,174 @@ const router = createBrowserRouter([
         },
       },
       {
-        path: APPLICATION_ROUTES.MODELS,
-        lazy: async () => {
-          const { ModelsPage } = await import("@/app/routes/models");
-          return {
-            Component: () => <ModelsPage />,
-          };
-        },
+        element: <ModelsLayout />,
+        children: [
+          {
+            path: APPLICATION_ROUTES.MODEL_DETAILS,
+            lazy: async () => {
+              const { ModelDetailsPage } = await import(
+                "@/app/routes/models/model-details"
+              );
+              return {
+                Component: () => <ModelDetailsPage />,
+              };
+            },
+          },
+          {
+            path: APPLICATION_ROUTES.MODELS,
+            lazy: async () => {
+              const { ModelsPage } = await import(
+                "@/app/routes/models/models-list"
+              );
+              return {
+                Component: () => <ModelsPage />,
+              };
+            },
+          },
+        ],
       },
       {
-        path: APPLICATION_ROUTES.MODEL_DETAILS,
-        lazy: async () => {
-          const { ModelDetailsPage } = await import(
-            "@/app/routes/models/model-details"
-          );
-          return {
-            Component: () => <ModelDetailsPage />,
-          };
-        },
-      },
-      {
-        path: APPLICATION_ROUTES.CREATE_NEW_MODEL,
-        lazy: async () => {
-          const { ModelCreationPage } = await import(
-            "@/app/routes/models/create-new"
-          );
-          return {
-            Component: () => (
-              <ProtectedPage>
-                <ModelCreationPage />
-              </ProtectedPage>
-            ),
-          };
-        },
+        element: (
+          <ProtectedPage>
+            <ModelFormsLayout />
+          </ProtectedPage>
+        ),
+        children: [
+          // Creation
+          {
+            path: APPLICATION_ROUTES.CREATE_NEW_MODEL,
+            lazy: async () => {
+              const { ModelDetailsFormPage } = await import(
+                "@/app/routes/models/model-details-form"
+              );
+              return {
+                Component: () => <ModelDetailsFormPage />,
+              };
+            },
+          },
+          {
+            path: APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_DATASET,
+            lazy: async () => {
+              const { ModelTrainingDatasetPage } = await import(
+                "@/app/routes/models/training-dataset"
+              );
+              return {
+                Component: () => <ModelTrainingDatasetPage />,
+              };
+            },
+          },
+          {
+            path: APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_AREA,
+            lazy: async () => {
+              const { ModelTrainingAreaPage } = await import(
+                "@/app/routes/models/training-area"
+              );
+              return {
+                Component: () => <ModelTrainingAreaPage />,
+              };
+            },
+          },
+          {
+            path: APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_SETTINGS,
+            lazy: async () => {
+              const { ModelTrainingSettingsPage } = await import(
+                "@/app/routes/models/training-settings"
+              );
+              return {
+                Component: () => <ModelTrainingSettingsPage />,
+              };
+            },
+          },
+          {
+            path: APPLICATION_ROUTES.CREATE_NEW_MODEL_SUMMARY,
+            lazy: async () => {
+              const { ModelSummaryPage } = await import(
+                "@/app/routes/models/summary"
+              );
+              return {
+                Component: () => <ModelSummaryPage />,
+              };
+            },
+          },
+          {
+            path: APPLICATION_ROUTES.CREATE_NEW_MODEL_CONFIRMATION,
+            lazy: async () => {
+              const { ModelConfirmationPage } = await import(
+                "@/app/routes/models/confirmation"
+              );
+              return {
+                Component: () => <ModelConfirmationPage />,
+              };
+            },
+          },
+          //Edit
+          {
+            path: APPLICATION_ROUTES.EDIT_MODEL_DETAILS,
+            lazy: async () => {
+              const { ModelDetailsFormPage } = await import(
+                "@/app/routes/models/model-details-form"
+              );
+              return {
+                Component: () => <ModelDetailsFormPage />,
+              };
+            },
+          },
+          {
+            path: APPLICATION_ROUTES.EDIT_MODEL_TRAINING_DATASET,
+            lazy: async () => {
+              const { ModelTrainingDatasetPage } = await import(
+                "@/app/routes/models/training-dataset"
+              );
+              return {
+                Component: () => <ModelTrainingDatasetPage />,
+              };
+            },
+          },
+          {
+            path: APPLICATION_ROUTES.EDIT_MODEL_TRAINING_AREA,
+            lazy: async () => {
+              const { ModelTrainingAreaPage } = await import(
+                "@/app/routes/models/training-area"
+              );
+              return {
+                Component: () => <ModelTrainingAreaPage />,
+              };
+            },
+          },
+          {
+            path: APPLICATION_ROUTES.EDIT_MODEL_TRAINING_SETTINGS,
+            lazy: async () => {
+              const { ModelTrainingSettingsPage } = await import(
+                "@/app/routes/models/training-settings"
+              );
+              return {
+                Component: () => <ModelTrainingSettingsPage />,
+              };
+            },
+          },
+          {
+            path: APPLICATION_ROUTES.EDIT_MODEL_SUMMARY,
+            lazy: async () => {
+              const { ModelSummaryPage } = await import(
+                "@/app/routes/models/summary"
+              );
+              return {
+                Component: () => <ModelSummaryPage />,
+              };
+            },
+          },
+          {
+            path: APPLICATION_ROUTES.EDIT_MODEL_CONFIRMATION,
+            lazy: async () => {
+              const { ModelConfirmationPage } = await import(
+                "@/app/routes/models/confirmation"
+              );
+              return {
+                Component: () => <ModelConfirmationPage />,
+              };
+            },
+          },
+        ],
       },
       {
         path: APPLICATION_ROUTES.TRAINING_DATASETS,
@@ -100,32 +238,41 @@ const router = createBrowserRouter([
         },
       },
       {
-        path: APPLICATION_ROUTES.ACCOUNT_SETTINGS,
+        path: APPLICATION_ROUTES.START_MAPPING,
         lazy: async () => {
-          const { UserAccountSettingsPage } = await import(
-            "@/app/routes/account/settings"
+          const { StartMappingPage } = await import(
+            "@/app/routes/start-mapping/start-mapping"
           );
           return {
             Component: () => (
               <ProtectedPage>
-                <UserAccountSettingsPage />
+                <MapProvider>
+                  <StartMappingPage />
+                </MapProvider>
               </ProtectedPage>
             ),
           };
         },
       },
       {
-        path: APPLICATION_ROUTES.ACCOUNT_PROJECTS,
+        path: APPLICATION_ROUTES.ACCOUNT_SETTINGS,
         lazy: async () => {
-          const { UserAccountProjectsPage } = await import(
-            "@/app/routes/account/projects"
+          const { UserAccountSettingsPage } = await import(
+            "@/app/routes/account/settings"
           );
           return {
-            Component: () => (
-              <ProtectedPage>
-                <UserAccountProjectsPage />
-              </ProtectedPage>
-            ),
+            Component: () => <UserAccountSettingsPage />,
+          };
+        },
+      },
+      {
+        path: APPLICATION_ROUTES.ACCOUNT_MODELS,
+        lazy: async () => {
+          const { UserAccountModelsPage } = await import(
+            "@/app/routes/account/models"
+          );
+          return {
+            Component: () => <UserAccountModelsPage />,
           };
         },
       },

@@ -1,0 +1,29 @@
+sl-checkbox.primary::part(control) {
+  background-color: var(--hot-fair-color-white);
+  color: var(--hot-fair-color-white);
+  border: 1px solid var(--hot-fair-color-dark);
+  border-radius: 3px;
+}
+
+sl-checkbox.primary::part(checked-icon) {
+  background-color: var(--hot-fair-color-primary);
+  width: auto;
+  height: auto;
+}
+
+sl-checkbox.primary::part(control--checked) {
+  border: 1px solid var(--hot-fair-color-primary);
+}
+
+sl-checkbox.dark::part(control) {
+  background-color: white;
+  color: var(--hot-fair-color-dark);
+  border: 2px solid var(--hot-fair-color-dark);
+  border-radius: 3px;
+}
+
+sl-checkbox.dark::part(checked-icon) {
+  background-color: var(--hot-fair-color-dark);
+  width: 6px;
+  height: 6px;
+}

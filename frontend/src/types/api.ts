@@ -43,6 +43,8 @@ export type TModel = {
   accuracy: number;
   user: TOSMUser;
   thumbnail_url: string;
+  base_model: string;
+  description: string;
 };
 
 export type PaginatedModels = {
@@ -65,6 +67,43 @@ export type PaginatedTrainings = {
 
 export type TModelDetails = TModel & {
   description: string;
+};
+
+export type TTrainingAreaFeature = {
+  type: "Feature";
+  id: number;
+  geometry: Geometry;
+  properties: {
+    created_at: string;
+    label_fetched: string;
+    label_status: number;
+    last_modified: string;
+    dataset: number;
+  };
+};
+
+export type TTrainingArea = {
+  type: "FeatureCollection";
+  features: TTrainingAreaFeature[];
+};
+
+export type PaginatedTrainingArea = {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: TTrainingArea;
+  hasNext: boolean;
+  hasPrev: boolean;
+};
+
+export type TTrainingDataset = {
+  id: number;
+  created_at: string;
+  last_modified: string;
+  name: string;
+  status: number;
+  user: number;
+  source_imagery: string;
 };
 
 // Training API response types
@@ -128,12 +167,14 @@ export type Geometry = {
 export type Feature = {
   type: "Feature";
   geometry: Geometry;
-  properties: {
-    mid: string;
-  };
+  properties:
+    | {
+        mid: string;
+      }
+    | any;
 };
 
 export type FeatureCollection = {
   type: "FeatureCollection";
-  features: Feature[];
+  features: [] | Feature[];
 };

@@ -22,6 +22,8 @@ body {
   --hot-fair-color-gray-disabled: #a6a6a6;
   --hot-fair-color-gray-border: #e4e4e4;
   --hot-fair-color-hover-accent: #f5f5f5;
+  --hot-fair-color-green-secondary: #ecfce5;
+  --hot-fair-color-green-primary: #198155;
   /* Font sizes in rem */
   --hot-fair-font-size-large-title: 3rem;
   /* 48px */
@@ -39,6 +41,8 @@ body {
   /* 16px  */
   --hot-fair-font-size-body-text-3: 0.875rem;
   /* 14px */
+  --hot-fair-font-size-body-text-4: 0.75rem;
+  /* 12px */
 
   /* Font weights */
   --hot-fair-font-weight-regular: 400;
@@ -49,7 +53,24 @@ body {
   /* Spacing */
   --hot-fair-spacing-5x-large: 5rem;
   /* 80px */
+
+  /* Scroll bar styles */
+  --scrollbar-width: 6px;
+  --scrollbar-track-bg: #f0f0f0;
+  --scrollbar-thumb-bg: #ccc;
+  --scrollbar-thumb-hover-bg: #bbb;
 }
+
+/* Toast stack placement style begins */
+
+.sl-toast-stack {
+  left: 0;
+  right: auto;
+  top: auto;
+  bottom: 0;
+}
+
+/* Toast stack placement style ends */
 
 /* Overriding the toast design style begins */
 
@@ -66,31 +87,33 @@ sl-alert::part(base) {
 }
 
 sl-alert.danger::part(base) {
-  color: var(--hot-fair-color-primary);
+  color: #721c24;
   border-color: var(--hot-fair-color-primary);
+  background-color: #f8d7da;
 }
 
 sl-alert.primary::part(base) {
-  --hot-fair-toast-primary-color: #48a7f8;
-  color: var(--hot-fair-toast-primary-color);
-  border-color: var(--hot-fair-toast-primary-color);
+  color: #004085;
+  border-color: #7cbcff;
+  background-color: #cce5ff;
 }
 
 sl-alert.neutral::part(base) {
-  color: var(--hot-fair-color-gray);
-  border-color: var(--hot-fair-color-gray);
+  color: #383d41;
+  border-color: #c4c6ca;
+  background-color: #e2e3e5;
 }
 
 sl-alert.warning::part(base) {
-  --hot-fair-toast-warning-color: #ffbe0b;
-  color: var(--hot-fair-toast-warning-color);
-  border-color: var(--hot-fair-toast-warning-color);
+  color: #856404;
+  border-color: #ffdc6e;
+  background-color: #fff3cd;
 }
 
 sl-alert.success::part(base) {
-  --hot-fair-toast-success-color: #23c16b;
-  color: var(--hot-fair-toast-success-color);
-  border-color: var(--hot-fair-toast-success-color);
+  color: #155724;
+  border-color: #9edaac;
+  background-color: #d4edda;
 }
 
 /* Overriding the toast design styles ends*/
@@ -106,18 +129,15 @@ sl-alert.success::part(base) {
 
 /* Matomo placement style ends */
 
-/* Toast stack placement style begins */
+/* Tailwind styles begins */
 
-.sl-toast-stack {
-  left: 0;
-  right: auto;
-  top: auto;
-  bottom: 0;
+/* Banner content customization starts */
+.prose * {
+  color: var(--hot-fair-color-white) !important;
+  margin: 0px !important;
 }
+/* Banner content customization ends */
 
-/* Toast stack placement style ends */
-
-/* Icon styles begins */
 @layer components {
   .icon {
     @apply inline-block h-4 w-4;
@@ -126,6 +146,32 @@ sl-alert.success::part(base) {
   .icon-lg {
     @apply inline-block h-6 w-6;
   }
+
+  .map-icon {
+    @apply inline-block h-4 w-4  p-2;
+  }
 }
 
-/* Icon styles ends */
+/* Tailwind styles ends */
+
+/* General scrollbar styles */
+::-webkit-scrollbar {
+  width: var(--scrollbar-width);
+  height: 5px;
+}
+
+/* Scrollbar track */
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track-bg);
+}
+
+/* Scrollbar thumb */
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb-bg);
+  border-radius: 5px;
+}
+
+/* Scrollbar thumb on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover-bg);
+}

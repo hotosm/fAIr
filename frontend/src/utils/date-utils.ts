@@ -74,17 +74,24 @@ export const formatDate = (isoString: string): string => {
  * @param {Date} endDate - The ending date and time.
  * @returns {string} - The formatted duration string (e.g., "2hr 15 Mins 30 Secs").
  */
-export const formatDuration = (startDate: Date, endDate: Date): string => {
+export const formatDuration = (
+  startDate: Date,
+  endDate: Date,
+  maxUnits: number = 4,
+): string => {
   const diff = Math.abs(endDate.getTime() - startDate.getTime());
 
-  const hours = Math.floor(diff / (1000 * 60 * 60));
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
   const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-  let result = "";
-  if (hours > 0) result += `${hours}hr `;
-  if (minutes > 0) result += `${minutes} Mins `;
-  if (seconds > 0 || result === "") result += `${seconds} Secs`;
+  const timeParts: string[] = [];
+  if (days > 0) timeParts.push(`${days} day${days > 1 ? "s" : ""}`);
+  if (hours > 0) timeParts.push(`${hours} hr${hours > 1 ? "s" : ""}`);
+  if (minutes > 0) timeParts.push(`${minutes} min${minutes > 1 ? "s" : ""}`);
+  if (seconds > 0 || timeParts.length === 0)
+    timeParts.push(`${seconds} sec${seconds > 1 ? "s" : ""}`);
 
-  return result.trim();
+  return timeParts.slice(0, maxUnits).join(" ");
 };

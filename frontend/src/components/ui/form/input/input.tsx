@@ -3,18 +3,33 @@ import styles from "./input.module.css";
 import { CalenderIcon } from "@/components/ui/icons";
 import useBrowserType from "@/hooks/use-browser-type";
 import { useRef } from "react";
+import useScreenSize from "@/hooks/use-screen-size";
+import { HelpText, FormLabel } from "@/components/ui/form";
+import CheckIcon from "@/components/ui/icons/check-icon";
+import { INPUT_TYPES, SHOELACE_SIZES } from "@/enums";
 
 type InputProps = {
   handleInput: (arg: React.ChangeEvent<HTMLInputElement>) => void;
-  value: string;
+  value: string | number;
   className?: string;
   placeholder?: string;
   clearable?: boolean;
   disabled?: boolean;
-  type?: "date" | "text";
+  type?: INPUT_TYPES;
   showBorder?: boolean;
   label?: string;
-  size?: "small" | "medium";
+  size?: SHOELACE_SIZES | undefined;
+  helpText?: string;
+  labelWithTooltip?: boolean;
+  toolTipContent?: string;
+  required?: boolean;
+  maxLength?: number;
+  minLength?: number;
+  pattern?: RegExp | string;
+  validationStateUpdateCallback?: (validity: boolean) => void;
+  isValid?: boolean;
+  min?: number;
+  max?: number;
 };
 
 const Input: React.FC<InputProps> = ({
@@ -24,35 +39,80 @@ const Input: React.FC<InputProps> = ({
   placeholder = "",
   clearable = false,
   disabled = false,
-  type = "text",
+  type = INPUT_TYPES.TEXT,
   showBorder = false,
   label,
-  size = "medium",
+  size,
+  helpText,
+  labelWithTooltip = false,
+  toolTipContent,
+  required = false,
+  maxLength,
+  minLength,
+  pattern,
+  validationStateUpdateCallback,
+  isValid = false,
+  min,
+  max,
 }) => {
   const { isChrome } = useBrowserType();
 
   const openNativeDatePicker = () => {
-    dateInputRef.current?.focus();
-    dateInputRef.current?.showPicker();
+    inputRef.current?.focus();
+    inputRef.current?.showPicker();
   };
 
-  const dateInputRef = useRef<HTMLInputElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const { isMobile } = useScreenSize();
 
   return (
     <SlInput
+      onSlInput={(e) => {
+        validationStateUpdateCallback &&
+          validationStateUpdateCallback?.(
+            // @ts-expect-error bad type definition
+            {
+              valid: inputRef.current?.validity?.valid,
+              message: inputRef.current?.validationMessage,
+            },
+          );
+        // @ts-expect-error bad type definition
+        handleInput(e);
+      }}
       // @ts-expect-error bad type definition
-      onSlInput={handleInput}
       value={value}
       className={`${className} ${styles.customInput} ${showBorder && styles.showBorder}`}
       placeholder={placeholder}
       clearable={clearable}
       disabled={disabled}
       type={type}
-      //@ts-expect-error bad type definition
-      ref={dateInputRef}
+      // @ts-expect-error bad type definition
+      ref={inputRef}
       label={label}
-      size={size}
+      // @ts-expect-error bad type definition
+      size={
+        size ? size : isMobile ? SHOELACE_SIZES.MEDIUM : SHOELACE_SIZES.LARGE
+      }
+      minlength={minLength}
+      maxlength={maxLength}
+      // @ts-expect-error bad type definition
+      pattern={pattern}
+      min={min}
+      max={max}
+      step={1}
     >
+      {label && (
+        <FormLabel
+          label={label as string}
+          withTooltip={labelWithTooltip}
+          toolTipContent={toolTipContent as string}
+          required={required}
+          currentLength={String(value).length}
+          maxLength={maxLength}
+        />
+      )}
+
+      {helpText && <HelpText content={helpText} />}
       {/* 
         We're using the native browser date picker. 
         In chrome it displays a calender icon which unfortunately could not be customized as at 08/10/2024.
@@ -67,6 +127,15 @@ const Input: React.FC<InputProps> = ({
           slot="suffix"
           onClick={openNativeDatePicker}
         />
+      )}
+
+      {isValid && (
+        <span
+          className="icon rounded-full p-1 bg-green-primary flex items-center justify-center"
+          slot="suffix"
+        >
+          <CheckIcon className=" text-white" />
+        </span>
       )}
     </SlInput>
   );

@@ -1,6 +1,6 @@
 import { Head } from "@/components/seo";
-import { ButtonWithIcon } from "@/components/ui/button";
-import { RequestIcon } from "@/components/ui/icons";
+import { BackButton, ButtonWithIcon } from "@/components/ui/button";
+import { StarStackIcon } from "@/components/ui/icons";
 import {
   ModelDetailsSection,
   ModelDetailsProperties,
@@ -17,6 +17,11 @@ import { useDialog } from "@/hooks/use-dialog";
 import { APP_CONTENT, APPLICATION_ROUTES } from "@/utils";
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import TrainingInProgressImage from "@/assets/images/training_in_progress.png";
+import { Image } from "@/components/ui/image";
+import ModelEnhancementDialog from "@/features/models/components/dialogs/model-enhancement-dialog";
+import { TModelDetails } from "@/types";
+import { useAuth } from "@/app/providers/auth-provider";
 
 export const ModelDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -27,7 +32,8 @@ export const ModelDetailsPage = () => {
     openDialog: openModelFilesDialog,
   } = useDialog();
   const navigate = useNavigate();
-  const { data, isPending, isError, error } = useModelDetails(id as string);
+  const { data, isPending, isError, error } = useModelDetails(id as string, id !== undefined, 10000);
+  const { user } = useAuth();
 
   useEffect(() => {
     if (isError) {
@@ -41,12 +47,23 @@ export const ModelDetailsPage = () => {
     }
   }, [isError, error, navigate]);
 
-  if (isPending) {
+  const {
+    isOpened: isModelEnhancementDialogOpened,
+    closeDialog: closeModelEnhancementDialog,
+    openDialog: openModelEnhancementDialog,
+  } = useDialog();
+  if (isPending || isError) {
     return <ModelDetailsSkeleton />;
   }
+  const isOwner = user?.osm_id === data?.user?.osm_id;
 
   return (
     <>
+      <ModelEnhancementDialog
+        isOpened={isModelEnhancementDialogOpened}
+        closeDialog={closeModelEnhancementDialog}
+        modelId={data?.id as string}
+      />
       <Head title={`${data?.name} Model`} />
       <ModelFilesDialog
         closeDialog={closeModelFilesDialog}
@@ -55,26 +72,42 @@ export const ModelDetailsPage = () => {
         datasetId={data?.dataset as number}
       />
       <TrainingAreaDialog isOpened={isOpened} closeDialog={closeDialog} />
+      <BackButton />
       <div className="my-12 flex flex-col gap-y-20">
         <ModelDetailsInfo
-          data={data}
+          data={data as TModelDetails}
           openModelFilesDialog={openModelFilesDialog}
           openTrainingAreaDialog={openDialog}
         />
         <ModelDetailsSection
           title={APP_CONTENT.models.modelsDetailsCard.propertiesSectionTitle}
         >
-          <ModelDetailsProperties
-            trainingId={data?.published_training as number}
-            datasetId={data?.dataset}
-          />
+          {!data?.published_training ? (
+            <div className="rounded-xl w-full h-80 border border-gray-border text-center flex flex-col gap-y-6 items-center justify-center text-gray">
+              <Image
+                src={TrainingInProgressImage}
+                alt="Model training in progress"
+              />
+              <p className="max-w-lg">
+                Model training is not activated yet. Properties will be
+                available after a successful and activated training.
+              </p>
+            </div>
+          ) : (
+            <ModelDetailsProperties
+              trainingId={data?.published_training as number}
+              datasetId={data?.dataset}
+              baseModel={data.base_model}
+            />
+          )}
         </ModelDetailsSection>
         <div className="flex md:hidden">
           <ButtonWithIcon
-            label={APP_CONTENT.models.modelsDetailsCard.submitTrainingRequest}
+            label={APP_CONTENT.models.modelsDetailsCard.enhanceModel}
             variant="dark"
             size="medium"
-            prefixIcon={RequestIcon}
+            prefixIcon={StarStackIcon}
+            onClick={openModelEnhancementDialog}
           />
         </div>
         {/* mobile */}
@@ -85,10 +118,12 @@ export const ModelDetailsPage = () => {
         >
           <div className="md:flex self-end hidden">
             <ButtonWithIcon
-              label={APP_CONTENT.models.modelsDetailsCard.submitTrainingRequest}
+              label={APP_CONTENT.models.modelsDetailsCard.enhanceModel}
               variant="dark"
               size="medium"
-              prefixIcon={RequestIcon}
+              prefixIcon={StarStackIcon}
+              onClick={openModelEnhancementDialog}
+              disabled={!isOwner}
             />
           </div>
           <TrainingHistoryTable
@@ -96,6 +131,7 @@ export const ModelDetailsPage = () => {
             trainingId={data?.published_training as number}
             modelOwner={data?.user.username as string}
             datasetId={data?.dataset as number}
+            baseModel={data?.base_model as string}
           />
         </ModelDetailsSection>
       </div>

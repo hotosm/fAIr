@@ -1,16 +1,14 @@
 import { Dialog } from "@/components/ui/dialog";
-import useDevice from "@/hooks/use-device";
+
 import {
   CategoryFilter,
   DateRangeFilter,
   OrderingFilter,
 } from "@/features/models/components/filters";
-import { TQueryParams } from "@/types";
+import { DialogProps, TQueryParams } from "@/types";
 import { Button } from "@/components/ui/button";
 
-type TrainingAreaDialogProps = {
-  isOpened: boolean;
-  closeDialog: () => void;
+type TrainingAreaDialogProps = DialogProps & {
   updateQuery: (updatedParams: TQueryParams) => void;
   query: TQueryParams;
   disabled: boolean;
@@ -38,14 +36,8 @@ const MobileModelFiltersDialog: React.FC<TrainingAreaDialogProps> = ({
   updateQuery,
   disabled,
 }) => {
-  const isMobile = useDevice();
   return (
-    <Dialog
-      isOpened={isOpened}
-      closeDialog={closeDialog}
-      label={"Filter"}
-      size={isMobile ? "extra-large" : "medium"}
-    >
+    <Dialog isOpened={isOpened} closeDialog={closeDialog} label={"Filter"}>
       <div className="flex flex-col gap-y-4">
         <FilterItem title="Sort by">
           <OrderingFilter
