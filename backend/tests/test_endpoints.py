@@ -32,7 +32,7 @@ class TaskApiTest(APILiveServerTestCase):
         self.client = RequestsClient()
         self.user = OsmUserFactory(osm_id=123)
         self.dataset = DatasetFactory(user=self.user)
-        self.aoi = AoiFactory(dataset=self.dataset)
+        self.aoi = AoiFactory(dataset=self.dataset, user=self.user)
         self.model = ModelFactory(dataset=self.dataset, user=self.user)
         self.json_type_header = headersList.copy()
         self.json_type_header["content-type"] = "application/json"
