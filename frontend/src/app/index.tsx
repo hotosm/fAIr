@@ -9,10 +9,7 @@ import {
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { HOT_TRACKING_HTML_TAG_NAME, showErrorToast } from "@/utils";
 
-
-
 export const App = () => {
-
   const setupHotTracking = () => {
     const hotTracking = document.createElement(HOT_TRACKING_HTML_TAG_NAME);
     // adding a css class to style the component in the `styles/index.css` file.
@@ -24,7 +21,8 @@ export const App = () => {
     document.body.appendChild(hotTracking);
   };
   useEffect(() => {
-    if (document.getElementsByTagName(HOT_TRACKING_HTML_TAG_NAME).length > 0) return;
+    if (document.getElementsByTagName(HOT_TRACKING_HTML_TAG_NAME).length > 0)
+      return;
     setupHotTracking();
     return;
   }, []);

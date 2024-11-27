@@ -274,48 +274,50 @@ const StartMappingMapComponent = ({
       layerControlLayers={[
         ...(modelPredictions.accepted.length > 0
           ? [
-              {
-                value: "Accepted Predictions",
-                subLayers: [
-                  ACCEPTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
-                  ACCEPTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
-                ],
-              },
-            ]
+            {
+              value: "Accepted Predictions",
+              subLayers: [
+                ACCEPTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
+                ACCEPTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
+              ],
+            },
+          ]
           : []),
         ...(modelPredictions.rejected.length > 0
           ? [
-              {
-                value: "Rejected Predictions",
-                subLayers: [
-                  REJECTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
-                  REJECTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
-                ],
-              },
-            ]
+            {
+              value: "Rejected Predictions",
+              subLayers: [
+                REJECTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
+                REJECTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
+              ],
+            },
+          ]
           : []),
         ...(modelPredictions.all.length > 0
           ? [
-              {
-                value: "Prediction Results",
-                subLayers: [
-                  ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
-                  ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
-                ],
-              },
-            ]
+            {
+              value: "Prediction Results",
+              subLayers: [
+                ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
+                ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
+              ],
+            },
+          ]
           : []),
       ]}
     >
       {showPopup && renderPopup}
-      <ToolTip content={"Fit to TMS Bounds"}>
-        <button
-          className="absolute left-3 top-28 bg-white z-[1] p-1.5"
-          onClick={fitToTMSBounds}
-        >
-          <FullScreenIcon className="icon-lg" />
-        </button>
-      </ToolTip>
+      {map && (
+        <ToolTip content={"Fit to TMS Bounds"}>
+          <button
+            className="absolute left-3 top-28 bg-white z-[1] p-1.5"
+            onClick={fitToTMSBounds}
+          >
+            <FullScreenIcon className="icon-lg" />
+          </button>
+        </ToolTip>
+      )}
     </MapComponent>
   );
 };

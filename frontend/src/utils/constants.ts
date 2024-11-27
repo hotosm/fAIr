@@ -1,4 +1,5 @@
 import { ENVS } from "@/config/env";
+import { BASE_MODELS } from "@/enums";
 import { StyleSpecification } from "maplibre-gl";
 
 /**
@@ -209,6 +210,18 @@ export const MAP_STYLES: Record<string, string | StyleSpecification> = {
   OSM: "https://tiles.openfreemap.org/styles/bright",
 };
 
-
-
+/**
+ * The web component tag name used in `hotosm/ui` for the tracking component.
+ */
 export const HOT_TRACKING_HTML_TAG_NAME = "hot-tracking";
+
+
+/**
+ * The file extension for the prediction api.
+ */
+
+export const PREDICTION_API_FILE_EXTENSIONS = {
+  [BASE_MODELS.RAMP]: '.tflite',
+  [BASE_MODELS.YOLOV8_V1]: '.onnx',
+  [BASE_MODELS.YOLOV8_V2]: '.onnx'
+}

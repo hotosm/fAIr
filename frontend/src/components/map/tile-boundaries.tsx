@@ -38,7 +38,6 @@ const TileBoundaries = () => {
 
   const updateTileBoundary = useCallback(() => {
     if (map) {
-      console.log("here");
       if (map.getSource(TILE_BOUNDARY_SOURCE_ID)) {
         const tileBoundaries = getTileBoundariesGeoJSON(
           map,

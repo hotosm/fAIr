@@ -27,6 +27,7 @@ import {
   MIN_ZOOM_LEVEL_FOR_PREDICTION,
   MINIMUM_ZOOM_LEVEL_INSTRUCTION_FOR_PREDICTION,
   openInJOSM,
+  PREDICTION_API_FILE_EXTENSIONS,
   roundNumber,
   showErrorToast,
   showSuccessToast,
@@ -210,10 +211,10 @@ export const StartMappingPage = () => {
         const nonIntersectingFeatures =
           data.features.length > 0
             ? data.features.filter((newFeature) => {
-                return !existingFeatures.some((existingFeature) => {
-                  return booleanIntersects(newFeature, existingFeature);
-                });
-              })
+              return !existingFeatures.some((existingFeature) => {
+                return booleanIntersects(newFeature, existingFeature);
+              });
+            })
             : [];
         setModelPredictions((prev) => ({
           ...prev,
@@ -240,7 +241,7 @@ export const StartMappingPage = () => {
       area_threshold: query[SEARCH_PARAMS.area] as number,
       use_josm_q: query[SEARCH_PARAMS.useJOSMQ] as boolean,
       confidence: query[SEARCH_PARAMS.confidenceLevel] as number,
-      checkpoint: `/mnt/efsmount/data/trainings/dataset_${data?.dataset}/output/training_${data?.published_training}/checkpoint.${data?.base_model === BASE_MODELS.RAMP ? "tflite" : "pt"}`,
+      checkpoint: `/mnt/efsmount/data/trainings/dataset_${data?.dataset}/output/training_${data?.published_training}/checkpoint${PREDICTION_API_FILE_EXTENSIONS[data?.base_model as BASE_MODELS]}`,
       max_angle_change: 15,
       model_id: modelId as string,
       skew_tolerance: 15,

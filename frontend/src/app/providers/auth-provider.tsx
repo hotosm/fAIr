@@ -20,7 +20,6 @@ type TAuthContext = {
   isAuthenticated: boolean;
 };
 
-
 const AuthContext = createContext<TAuthContext | null>(null);
 
 export const useAuth = () => useContext(AuthContext);
