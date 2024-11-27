@@ -20,6 +20,7 @@ const ModelFilesDialog: React.FC<TrainingAreaDialogProps> = ({
       closeDialog={closeDialog}
       label={APP_CONTENT.models.modelsDetailsCard.modelFilesDialog.dialogTitle}
     >
+      <p className="text-dark text-body-2base px-2 mb-4">{APP_CONTENT.models.modelsDetailsCard.modelFilesDialog.dialogDescription}</p>
       {isOpened && (
         <DirectoryTree
           trainingId={trainingId}
