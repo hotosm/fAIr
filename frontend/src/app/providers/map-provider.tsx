@@ -21,7 +21,7 @@ const MapContext = createContext<{
   currentZoom: number;
 }>({
   map: null,
-  setMap: () => {},
+  setMap: () => { },
   terraDraw: undefined,
   drawingMode: DrawingModes.STATIC,
   setDrawingMode: () => DrawingModes,
@@ -43,7 +43,8 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
     DrawingModes.STATIC,
   );
 
-  // sync the modes
+  // Sync the drawing modes between terraDraw
+  // and the application state
   useEffect(() => {
     terraDraw?.setMode(drawingMode);
   }, [terraDraw, drawingMode]);

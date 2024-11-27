@@ -13,15 +13,15 @@ import {
 import React, { createContext, useContext, useState, useEffect } from "react";
 
 type TAuthContext = {
-  token: string;
-  user: TUser;
+  token?: string;
+  user: TUser | null;
   authenticateUser: (state: string, code: string) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
 };
 
-// @ts-expect-error bad type definition
-const AuthContext = createContext<TAuthContext>(null);
+
+const AuthContext = createContext<TAuthContext | null>(null);
 
 export const useAuth = () => useContext(AuthContext);
 
@@ -130,7 +130,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      // @ts-expect-error bad type definition
       value={{ token, user, authenticateUser, logout, isAuthenticated }}
     >
       {children}

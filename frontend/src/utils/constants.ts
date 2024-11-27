@@ -208,3 +208,7 @@ export const MAP_STYLES: Record<string, string | StyleSpecification> = {
   // ref - https://openfreemap.org/
   OSM: "https://tiles.openfreemap.org/styles/bright",
 };
+
+
+
+export const HOT_TRACKING_HTML_TAG_NAME = "hot-tracking";

@@ -7,23 +7,24 @@ import {
   QueryClientProvider,
 } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { showErrorToast } from "@/utils";
+import { HOT_TRACKING_HTML_TAG_NAME, showErrorToast } from "@/utils";
+
+
 
 export const App = () => {
-  const hotTrackingTagName = "hot-tracking";
 
   const setupHotTracking = () => {
-    const hotTracking = document.createElement(hotTrackingTagName);
-    //adding a class for easy configuration in the css
+    const hotTracking = document.createElement(HOT_TRACKING_HTML_TAG_NAME);
+    // adding a css class to style the component in the `styles/index.css` file.
     hotTracking.classList.add("hot-matomo");
-    // setting the other attributes
+    // setting the other attributes.
     hotTracking.setAttribute("site-id", ENVS.MATOMO_ID);
     hotTracking.setAttribute("domain", ENVS.MATOMO_APP_DOMAIN);
     hotTracking.setAttribute("force", "true");
     document.body.appendChild(hotTracking);
   };
   useEffect(() => {
-    if (document.getElementsByTagName(hotTrackingTagName).length > 0) return;
+    if (document.getElementsByTagName(HOT_TRACKING_HTML_TAG_NAME).length > 0) return;
     setupHotTracking();
     return;
   }, []);
