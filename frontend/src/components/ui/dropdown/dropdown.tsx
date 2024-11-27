@@ -1,7 +1,7 @@
-import SlDropdown from "@shoelace-style/shoelace/dist/react/dropdown/index.js";
-import SlMenu from "@shoelace-style/shoelace/dist/react/menu/index.js";
-import SlMenuItem from "@shoelace-style/shoelace/dist/react/menu-item/index.js";
-import SlCheckbox from "@shoelace-style/shoelace/dist/react/checkbox/index.js";
+import { SlDropdown } from "@shoelace-style/shoelace/dist/react";
+import { SlMenu } from "@shoelace-style/shoelace/dist/react";
+import { SlMenuItem } from "@shoelace-style/shoelace/dist/react";
+import { SlCheckbox } from "@shoelace-style/shoelace/dist/react";
 import "./dropdown.css";
 import ChevronDownIcon from "../icons/chevron-down-icon";
 import { useEffect, useState } from "react";

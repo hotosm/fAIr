@@ -1,11 +1,12 @@
 import { GeolocationIcon } from "@/components/ui/icons";
-import { Map } from "maplibre-gl";
 import { useCallback } from "react";
 import { ToolTip } from "@/components/ui/tooltip";
 import { ToolTipPlacement } from "@/enums";
 import { showErrorToast, showWarningToast, TOAST_NOTIFICATIONS } from "@/utils";
+import { useMap } from "@/app/providers/map-provider";
 
-const GeolocationControl = ({ map }: { map: Map | null }) => {
+const GeolocationControl = () => {
+  const { map } = useMap();
   const handleGeolocationClick = useCallback(() => {
     if (!map) return;
 

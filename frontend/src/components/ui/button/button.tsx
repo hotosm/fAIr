@@ -1,4 +1,4 @@
-import SlButton from "@shoelace-style/shoelace/dist/react/button/index.js";
+import { SlButton } from "@shoelace-style/shoelace/dist/react";
 import "./button.css";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/utils";

@@ -1,8 +1,8 @@
 import { cn } from "@/utils";
-import { Map } from "maplibre-gl";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback } from "react";
 import { ToolTip } from "../ui/tooltip";
 import { ToolTipPlacement } from "@/enums";
+import { useMap } from "@/app/providers/map-provider";
 
 const ZoomButton = ({
   onClick,
@@ -22,47 +22,34 @@ const ZoomButton = ({
   </button>
 );
 
-const ZoomControls = ({ map }: { map: Map | null }) => {
-  const [zoomLevel, setZoomLevel] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (!map) return;
-    setZoomLevel(map.getZoom());
-    const handleZoomChange = () => setZoomLevel(map.getZoom());
-    map.on("zoomend", handleZoomChange);
-    return () => {
-      map.off("zoomend", handleZoomChange);
-    };
-  }, [map]);
+const ZoomControls = () => {
+  const { currentZoom, map } = useMap();
 
   const handleZoomIn = useCallback(() => {
-    if (map && zoomLevel !== null && zoomLevel < map.getMaxZoom()) {
+    if (map && currentZoom < map.getMaxZoom()) {
       map.zoomIn();
     }
-  }, [map, zoomLevel]);
+  }, [map, currentZoom]);
 
   const handleZoomOut = useCallback(() => {
-    if (map && zoomLevel !== null && zoomLevel > map.getMinZoom()) {
+    if (map && currentZoom > map.getMinZoom()) {
       map.zoomOut();
     }
-  }, [map, zoomLevel]);
-
-  if (!map) return null;
+  }, [map, currentZoom]);
 
   return (
     <div className="flex flex-col gap-y-[1px]">
       <ToolTip placement={ToolTipPlacement.RIGHT} content="Zoom In">
         <ZoomButton
           onClick={handleZoomIn}
-          disabled={zoomLevel === map.getMaxZoom()}
+          disabled={currentZoom === map?.getMaxZoom()}
           icon="+"
         />
       </ToolTip>
       <ToolTip placement={ToolTipPlacement.RIGHT} content="Zoom Out">
-        {" "}
         <ZoomButton
           onClick={handleZoomOut}
-          disabled={zoomLevel === map.getMinZoom()}
+          disabled={currentZoom === map?.getMinZoom()}
           icon="-"
         />
       </ToolTip>

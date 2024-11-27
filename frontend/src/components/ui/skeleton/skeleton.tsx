@@ -43,11 +43,11 @@ import React from "react";
  */
 const SkeletonWrapper = ({
   children,
-  showSkeleton,
+  showSkeleton = true,
   skeletonClassName = "",
 }: {
-  children: React.ReactNode;
-  showSkeleton: boolean;
+  children?: React.ReactNode;
+  showSkeleton?: boolean;
   skeletonClassName?: string;
 }) => {
   if (!showSkeleton) return <>{children}</>;

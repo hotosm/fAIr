@@ -1,5 +1,9 @@
 import { DirectoryIcon, FileIcon } from "@/components/ui/icons";
-import SlFormatBytes from "@shoelace-style/shoelace/dist/react/format-bytes/index.js";
+import {
+  SlFormatBytes,
+  SlTree,
+  SlTreeItem,
+} from "@shoelace-style/shoelace/dist/react";
 import { useState, useEffect } from "react";
 import {
   APP_CONTENT,
@@ -9,10 +13,6 @@ import {
   truncateString,
 } from "@/utils";
 import { useQueryClient } from "@tanstack/react-query";
-import {
-  SlTree,
-  SlTreeItem,
-} from "@shoelace-style/shoelace/dist/react/index.js";
 import { getTrainingWorkspaceQueryOptions } from "@/features/models/api/factory";
 import { API_ENDPOINTS, apiClient } from "@/services";
 import { Spinner } from "@/components/ui/spinner";
@@ -121,10 +121,9 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
   const fetchDirectoryRecursive = async (
     currentDirectory: string = "",
     currentDepth: number = 0,
-    maxDepth: number = 2
+    maxDepth: number = 2,
   ): Promise<any> => {
     if (currentDepth >= maxDepth) {
-
       return {};
     }
 
@@ -143,7 +142,7 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
             const subDirData = await fetchDirectoryRecursive(
               fullPath,
               currentDepth + 1,
-              maxDepth
+              maxDepth,
             );
             return {
               [key]: {
@@ -152,7 +151,7 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
                 length: dir[key]?.len || 0,
               },
             };
-          })
+          }),
         )
         : [];
 
