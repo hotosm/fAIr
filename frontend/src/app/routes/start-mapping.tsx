@@ -1,20 +1,25 @@
-import { useMap } from "@/app/providers/map-provider";
+import { useCallback, useEffect, useMemo, useState } from "react";
+
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+
 import { Head } from "@/components/seo";
-import { BackButton, Button, ButtonWithIcon } from "@/components/ui/button";
 import { Divider } from "@/components/ui/divider";
 import { DropDown } from "@/components/ui/dropdown";
-import { FormLabel, Input, Select, Switch } from "@/components/ui/form";
-import { ChevronDownIcon, TagsInfoIcon } from "@/components/ui/icons";
-import { SkeletonWrapper } from "@/components/ui/skeleton";
-import { BASE_MODELS, INPUT_TYPES, SHOELACE_SIZES } from "@/enums";
-import { ModelDetailsPopUp } from "@/features/models/components";
-import { useGetTrainingDataset } from "@/features/models/hooks/use-dataset";
-import { useModelDetails } from "@/features/models/hooks/use-models";
-import { StartMappingMapComponent } from "@/features/start-mapping/components";
-import { useGetModelPredictions } from "@/features/start-mapping/hooks/use-model-predictions";
-import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
+import { useMap } from "@/app/providers/map-provider";
 import booleanIntersects from "@turf/boolean-intersects";
+import { SkeletonWrapper } from "@/components/ui/skeleton";
+import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { BBOX, TileJSON, TModelPredictions } from "@/types";
+import { ModelDetailsPopUp } from "@/features/models/components";
+import { BASE_MODELS, INPUT_TYPES, SHOELACE_SIZES } from "@/enums";
+import { useModelDetails } from "@/features/models/hooks/use-models";
+import { ChevronDownIcon, TagsInfoIcon } from "@/components/ui/icons";
+import { FormLabel, Input, Select, Switch } from "@/components/ui/form";
+import { BackButton, Button, ButtonWithIcon } from "@/components/ui/button";
+import { useGetTrainingDataset } from "@/features/models/hooks/use-dataset";
+import { StartMappingMapComponent } from "@/features/start-mapping/components";
+import { useGetTMSTileJSON } from "@/features/model-creation/hooks/use-tms-tilejson";
+import { useGetModelPredictions } from "@/features/start-mapping/hooks/use-model-predictions";
 import {
   APPLICATION_ROUTES,
   extractTileJSONURL,
@@ -28,9 +33,6 @@ import {
   truncateString,
   uuid4,
 } from "@/utils";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { useGetTMSTileJSON } from "@/features/model-creation/hooks/use-tms-tilejson";
 
 const SEARCH_PARAMS = {
   useJOSMQ: "useJOSMQ",
@@ -121,16 +123,13 @@ export const StartMappingPage = () => {
       }));
       const updatedParams = new URLSearchParams(searchParams);
       Object.entries(newParams).forEach(([key, value]) => {
-        if (value) {
-          updatedParams.set(key, String(value));
-        } else {
-          updatedParams.delete(key);
-        }
+        updatedParams.set(key, String(value));
       });
       setSearchParams(updatedParams);
     },
     [searchParams, setSearchParams],
   );
+
   const disableButtons = currentZoom < MIN_ZOOM_LEVEL_FOR_PREDICTION;
 
   const popupAnchorId = "model-details";
@@ -140,6 +139,13 @@ export const StartMappingPage = () => {
     accepted: [],
     rejected: [],
   });
+  const canDownload = useMemo(
+    () =>
+      modelPredictions.accepted.length > 0 ||
+      modelPredictions.rejected.length > 0 ||
+      modelPredictions.all.length > 0,
+    [modelPredictions],
+  );
 
   const handleAllFeaturesDownload = useCallback(async () => {
     geoJSONDowloader(
@@ -303,6 +309,7 @@ export const StartMappingPage = () => {
                     suffixIcon={ChevronDownIcon}
                     label="download"
                     variant="dark"
+                    disabled={!canDownload}
                     iconClassName={
                       dropdownIsOpened ? "rotate-180 transition-all" : ""
                     }

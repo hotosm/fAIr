@@ -1,7 +1,19 @@
-import { useMap } from "@/app/providers/map-provider";
-import { MapComponent } from "@/components/map";
-import { useMapLayers } from "@/hooks/use-map-layer";
+import {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
+import { GeoJSONSource } from "maplibre-gl";
+
+import { MapComponent } from "@/components/map";
+import { ToolTip } from "@/components/ui/tooltip";
+import { useMapLayers } from "@/hooks/use-map-layer";
+import { useMap } from "@/app/providers/map-provider";
+import { FullScreenIcon } from "@/components/ui/icons";
 import {
   Feature,
   GeoJSONType,
@@ -22,19 +34,8 @@ import {
   REJECTED_MODEL_PREDICTIONS_SOURCE_ID,
   showErrorToast,
 } from "@/utils";
-import { GeoJSONSource } from "maplibre-gl";
-import {
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-import PredictedFeatureActionPopup from "./popup";
-import { FullScreenIcon } from "@/components/ui/icons";
-import { ToolTip } from "@/components/ui/tooltip";
-import { TModelPredictionsConfig } from "../api/get-model-predictions";
+import PredictedFeatureActionPopup from "@/features/start-mapping/components/popup";
+import { TModelPredictionsConfig } from "@/features/start-mapping/api/get-model-predictions";
 
 const StartMappingMapComponent = ({
   trainingDataset,
@@ -269,6 +270,7 @@ const StartMappingMapComponent = ({
       openAerialMap
       oamTileJSONURL={tileJSONURL}
       basemaps
+      showTileBoundary
       layerControlLayers={[
         ...(modelPredictions.accepted.length > 0
           ? [

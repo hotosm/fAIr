@@ -1,6 +1,5 @@
 import { useMap } from "@/app/providers/map-provider";
 
-
 const ZoomLevel = () => {
   const { currentZoom } = useMap();
   return (

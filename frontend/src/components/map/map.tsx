@@ -12,14 +12,14 @@ import { setupMaplibreMap } from "@/components/map/setup-maplibre";
 import { BASEMAPS } from "@/enums";
 
 import ZoomControls from "@/components/map/zoom-controls";
-import GeolocationControl from "@/components/map/geolocation-control"
-import DrawControl from "@/components/map/draw-control"
-import ZoomLevel from "@/components/map/zoom-level"
-import LayerControl from "@/components/map/layer-control"
-import Legend from "@/components/map/legend"
-import TileBoundaries from "@/components/map/tile-boundaries"
-import OpenAerialMap from "@/components/map/open-aerial-map"
-import Basemaps from "@/components/map/basemaps"
+import GeolocationControl from "@/components/map/geolocation-control";
+import DrawControl from "@/components/map/draw-control";
+import ZoomLevel from "@/components/map/zoom-level";
+import LayerControl from "@/components/map/layer-control";
+import Legend from "@/components/map/legend";
+import TileBoundaries from "@/components/map/tile-boundaries";
+import OpenAerialMap from "@/components/map/open-aerial-map";
+import Basemaps from "@/components/map/basemaps";
 
 type MapComponentProps = {
   geolocationControl?: boolean;
@@ -77,12 +77,12 @@ const MapComponent: React.FC<MapComponentProps> = ({
     ];
     const baseLayers = basemaps
       ? [
-        { value: BASEMAPS.OSM, subLayer: OSM_BASEMAP_LAYER_ID },
-        {
-          value: BASEMAPS.GOOGLE_SATELLITE,
-          subLayer: GOOGLE_SATELLITE_BASEMAP_LAYER_ID,
-        },
-      ]
+          { value: BASEMAPS.OSM, subLayer: OSM_BASEMAP_LAYER_ID },
+          {
+            value: BASEMAPS.GOOGLE_SATELLITE,
+            subLayer: GOOGLE_SATELLITE_BASEMAP_LAYER_ID,
+          },
+        ]
       : [];
     return { layers, baseLayers };
   }, [layerControlLayers, openAerialMap, basemaps]);
@@ -92,8 +92,9 @@ const MapComponent: React.FC<MapComponentProps> = ({
     return (
       <>
         <div
-          className={`absolute top-5 ${controlsLocation === "top-right" ? "right-3" : "left-3"
-            } z-[1] flex flex-col gap-y-[1px]`}
+          className={`absolute top-5 ${
+            controlsLocation === "top-right" ? "right-3" : "left-3"
+          } z-[1] flex flex-col gap-y-[1px]`}
         >
           <ZoomControls />
           {geolocationControl && <GeolocationControl />}
@@ -124,23 +125,14 @@ const MapComponent: React.FC<MapComponentProps> = ({
     layerControlData,
   ]);
 
-
   return (
     <div className="h-full w-full relative" ref={mapContainerRef}>
       {Controls}
-      {map && showLegend && (
-        <Legend />
-      )}
+      {map && showLegend && <Legend />}
       {/* Order according to how they'll be rendered */}
-      {basemaps && (
-        <Basemaps />
-      )}
-      {openAerialMap && (
-        <OpenAerialMap tileJSONURL={oamTileJSONURL} />
-      )}
-      {showTileBoundary && (
-        <TileBoundaries />
-      )}
+      {basemaps && <Basemaps />}
+      {openAerialMap && <OpenAerialMap tileJSONURL={oamTileJSONURL} />}
+      {showTileBoundary && <TileBoundaries />}
       {children}
     </div>
   );
