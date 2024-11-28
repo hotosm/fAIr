@@ -54,15 +54,15 @@ const PredictedFeatureActionPopup = ({
   // if it's not in accepted or rejected, then it's in the all array
   const feature = alreadyAccepted
     ? modelPredictions.accepted.filter(
-      (feature) => feature.properties.id === featureId,
-    )[0]
-    : alreadyRejected
-      ? modelPredictions.rejected.filter(
         (feature) => feature.properties.id === featureId,
       )[0]
+    : alreadyRejected
+      ? modelPredictions.rejected.filter(
+          (feature) => feature.properties.id === featureId,
+        )[0]
       : modelPredictions.all.filter(
-        (feature) => feature.properties.id === featureId,
-      )[0];
+          (feature) => feature.properties.id === featureId,
+        )[0];
 
   const [showComment, setShowComment] = useState<boolean>(false);
   const [comment, setComment] = useState<string>("");
@@ -79,7 +79,7 @@ const PredictedFeatureActionPopup = ({
 
   useEffect(() => {
     if (!map || !popupRef.current) return;
-    setShowComment(false)
+    setShowComment(false);
     const _popup = new maplibregl.Popup({ closeButton: false })
       .setLngLat(event.lngLat)
       .setDOMContent(popupRef.current)
@@ -232,45 +232,45 @@ const PredictedFeatureActionPopup = ({
 
   const primaryButton = alreadyAccepted
     ? {
-      label: APPLICATION_CONTENTS.START_MAPPING.map.popup.reject,
-      action: handleRejection,
-      className: "bg-primary",
-      icon: RejectIcon,
-    }
+        label: APPLICATION_CONTENTS.START_MAPPING.map.popup.reject,
+        action: handleRejection,
+        className: "bg-primary",
+        icon: RejectIcon,
+      }
     : alreadyRejected
       ? {
+          label: APPLICATION_CONTENTS.START_MAPPING.map.popup.resolve,
+          action: handleResolve,
+          className: "bg-black",
+          icon: ResolveIcon,
+        }
+      : {
+          label: APPLICATION_CONTENTS.START_MAPPING.map.popup.accept,
+          action: handleAcceptance,
+          className: "bg-green-primary",
+          icon: AcceptIcon,
+        };
+
+  const secondaryButton = alreadyAccepted
+    ? {
         label: APPLICATION_CONTENTS.START_MAPPING.map.popup.resolve,
         action: handleResolve,
         className: "bg-black",
         icon: ResolveIcon,
       }
-      : {
-        label: APPLICATION_CONTENTS.START_MAPPING.map.popup.accept,
-        action: handleAcceptance,
-        className: "bg-green-primary",
-        icon: AcceptIcon,
-      };
-
-  const secondaryButton = alreadyAccepted
-    ? {
-      label: APPLICATION_CONTENTS.START_MAPPING.map.popup.resolve,
-      action: handleResolve,
-      className: "bg-black",
-      icon: ResolveIcon,
-    }
     : alreadyRejected
       ? {
-        label: APPLICATION_CONTENTS.START_MAPPING.map.popup.accept,
-        action: handleAcceptance,
-        className: "bg-green-primary",
-        icon: AcceptIcon,
-      }
+          label: APPLICATION_CONTENTS.START_MAPPING.map.popup.accept,
+          action: handleAcceptance,
+          className: "bg-green-primary",
+          icon: AcceptIcon,
+        }
       : {
-        label: APPLICATION_CONTENTS.START_MAPPING.map.popup.reject,
-        action: handleRejection,
-        className: "bg-primary",
-        icon: RejectIcon,
-      };
+          label: APPLICATION_CONTENTS.START_MAPPING.map.popup.reject,
+          action: handleRejection,
+          className: "bg-primary",
+          icon: RejectIcon,
+        };
   const { isMobile } = useScreenSize();
   return (
     <div
@@ -315,7 +315,7 @@ const PredictedFeatureActionPopup = ({
         >
           {createModelFeedbackMutation.isPending
             ? APPLICATION_CONTENTS.START_MAPPING.map.popup.comment
-              .submissionInProgress
+                .submissionInProgress
             : APPLICATION_CONTENTS.START_MAPPING.map.popup.comment.submit}
         </Button>
       )}

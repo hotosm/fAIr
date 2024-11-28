@@ -31,16 +31,13 @@ const OpenAerialMap = ({ tileJSONURL }: { tileJSONURL: string }) => {
   }, [map, fitToTMSBounds]);
 
   return (
-    <div className="flex  flex-col  gap-y-2 w-full border-b-8 border-off-white px-4 pb-4">
-      <p className="text-body-1">
+    <div className="flex w-full flex-col  gap-y-2 border-b-8 border-off-white px-4 pb-4">
+      <p className="text-body-2 md:text-body-1 font-medium">
         {MODEL_CREATION_CONTENT.trainingArea.form.openAerialMap}
       </p>
       <div className="flex flex-col w-full items-center justify-between gap-y-4">
         {isError ? (
-          <p>
-            Invalid TMS provided. Please go back to select another training
-            dataset.
-          </p>
+          <p>{MODEL_CREATION_CONTENT.trainingArea.openAerialMapErrorMessage}</p>
         ) : isPending ? (
           <div className="w-full h-20 bg-gray-border animate-pulse"></div>
         ) : (
@@ -52,7 +49,11 @@ const OpenAerialMap = ({ tileJSONURL }: { tileJSONURL: string }) => {
               >
                 {truncateString(data?.name, 80)}
               </p>
-              <ToolTip content="Zoom to Image">
+              <ToolTip
+                content={
+                  MODEL_CREATION_CONTENT.trainingArea.toolTips.fitToTMSBounds
+                }
+              >
                 <button
                   className="bg-off-white p-2 rounded-md h-fit w-fit"
                   disabled={!map || isPending || isError}

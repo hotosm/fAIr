@@ -21,7 +21,6 @@ import TileBoundaries from "@/components/map/tile-boundaries";
 import OpenAerialMap from "@/components/map/open-aerial-map";
 import Basemaps from "@/components/map/basemaps";
 
-
 type MapComponentProps = {
   geolocationControl?: boolean;
   controlsLocation?: "top-right" | "top-left";
@@ -78,12 +77,12 @@ const MapComponent: React.FC<MapComponentProps> = ({
     ];
     const baseLayers = basemaps
       ? [
-        { value: BASEMAPS.OSM, subLayer: OSM_BASEMAP_LAYER_ID },
-        {
-          value: BASEMAPS.GOOGLE_SATELLITE,
-          subLayer: GOOGLE_SATELLITE_BASEMAP_LAYER_ID,
-        },
-      ]
+          { value: BASEMAPS.OSM, subLayer: OSM_BASEMAP_LAYER_ID },
+          {
+            value: BASEMAPS.GOOGLE_SATELLITE,
+            subLayer: GOOGLE_SATELLITE_BASEMAP_LAYER_ID,
+          },
+        ]
       : [];
     return { layers, baseLayers };
   }, [layerControlLayers, openAerialMap, basemaps]);
@@ -93,8 +92,9 @@ const MapComponent: React.FC<MapComponentProps> = ({
     return (
       <>
         <div
-          className={`absolute top-5 ${controlsLocation === "top-right" ? "right-3" : "left-3"
-            } z-[1] flex flex-col gap-y-[1px]`}
+          className={`absolute top-5 ${
+            controlsLocation === "top-right" ? "right-3" : "left-3"
+          } z-[1] flex flex-col gap-y-[1px]`}
         >
           <ZoomControls />
           {geolocationControl && <GeolocationControl />}
@@ -126,7 +126,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
   ]);
 
   return (
-    <div className="h-full w-full relative" ref={mapContainerRef}>
+    <div className={`h-full relative w-full`} ref={mapContainerRef}>
       {Controls}
       {map && showLegend && <Legend />}
       {/* Order according to how they'll be rendered */}

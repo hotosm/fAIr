@@ -15,10 +15,15 @@ import {
   StartMappingMapComponent,
 } from "@/features/start-mapping/components";
 import { useGetTMSTileJSON } from "@/features/model-creation/hooks/use-tms-tilejson";
-import { APPLICATION_ROUTES, extractTileJSONURL, PREDICTION_API_FILE_EXTENSIONS } from "@/utils";
+import {
+  APPLICATION_ROUTES,
+  extractTileJSONURL,
+  PREDICTION_API_FILE_EXTENSIONS,
+} from "@/utils";
 import { APPLICATION_CONTENTS } from "@/contents";
 import { useMap } from "@/app/providers/map-provider";
 import { BASE_MODELS } from "@/enums";
+import { FullSreenWidthComponent } from "@/components/ui/full-screen";
 
 export const SEARCH_PARAMS = {
   useJOSMQ: "useJOSMQ",
@@ -31,7 +36,7 @@ export type TQueryParams = { [x: string]: string | number | boolean };
 
 export const StartMappingPage = () => {
   const { modelId } = useParams();
-  const { map, currentZoom } = useMap()
+  const { map, currentZoom } = useMap();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const defaultQueries = {
@@ -131,11 +136,11 @@ export const StartMappingPage = () => {
     };
   }, [query, map, currentZoom, trainingDataset, modelId, data]);
 
-
   return (
     <>
       <Head title={APPLICATION_CONTENTS.START_MAPPING.pageTitle(data?.name)} />
       <BackButton />
+
       <div className="min-h-screen md:h-[90vh] flex mt-8 flex-col mb-20">
         <div>
           <ModelHeader
@@ -159,7 +164,7 @@ export const StartMappingPage = () => {
             />
           </div>
         </div>
-        <div className="col-span-12 h-[70vh] md:h-full w-full border-8 border-off-white flex-grow">
+        <div className="hidden md:block col-span-12 h-[70vh] md:h-full w-full border-8 border-off-white flex-grow">
           <StartMappingMapComponent
             trainingDataset={trainingDataset}
             modelPredictions={modelPredictions}
@@ -171,6 +176,21 @@ export const StartMappingPage = () => {
             modelPredictionsExist={modelPredictionsExist}
           />
         </div>
+
+        <FullSreenWidthComponent>
+          <div className="md:hidden col-span-12 h-[70vh] md:h-full w-full border-8 border-off-white flex-grow">
+            <StartMappingMapComponent
+              trainingDataset={trainingDataset}
+              modelPredictions={modelPredictions}
+              setModelPredictions={setModelPredictions}
+              trainingConfig={trainingConfig}
+              oamTileJSONIsError={oamTileJSONIsError}
+              oamTileJSON={oamTileJSON as TileJSON}
+              oamTileJSONError={oamTileJSONError}
+              modelPredictionsExist={modelPredictionsExist}
+            />
+          </div>
+        </FullSreenWidthComponent>
       </div>
     </>
   );

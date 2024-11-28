@@ -223,11 +223,11 @@ const TrainingAreaItem: React.FC<
 
       <div className="flex items-center justify-between w-full gap-x-4">
         <div className="flex flex-col gap-y-1">
-          <p className="text-body-3 ">
+          <p className="text-body-4 md:text-body-3 ">
             ID: <span className="font-semibold">{trainingArea.id}</span>
           </p>
           <p className="text-body-4 text-dark" title={`${trainingAreaSize}`}>
-            {truncateString(trainingAreaSize, 15)}
+            Area: {truncateString(trainingAreaSize, 15)}
           </p>
           <p
             className={`text-body-4 text-dark ${trainingArea.properties.label_fetched === null && "text-primary"}`}
@@ -268,7 +268,7 @@ const TrainingAreaItem: React.FC<
           >
             <button
               disabled={trainingAreaLabelsMutation.isPending}
-              className="bg-green-secondary px-2 py-1 rounded-md"
+              className="bg-green-secondary px-2 py-1 rounded-md text-nowrap text-[9px] flex items-center gap-x-2 font-light"
               onClick={() =>
                 trainingAreaLabelsMutation.mutate({ aoiId: trainingArea.id })
               }
@@ -309,9 +309,9 @@ const TrainingAreaItem: React.FC<
                   >
                     {item.isIcon ? (
                       // @ts-expect-error bad type definition
-                      <item.Icon className="icon-lg" />
+                      <item.Icon className="icon md:icon-lg" />
                     ) : (
-                      <img src={item.imageSrc} className="icon-lg" />
+                      <img src={item.imageSrc} className="icon md:icon-lg" />
                     )}
                   </button>
                 </ToolTip>

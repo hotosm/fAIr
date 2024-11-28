@@ -50,7 +50,6 @@ const Image: React.FC<ImageProps> = ({
         className={cn(`${className} ${isLoading ? "hidden" : ""}`)}
         onLoad={handleLoad}
         onError={handleError}
-        loading="lazy"
       />
     </>
   );

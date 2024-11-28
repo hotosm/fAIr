@@ -19,6 +19,7 @@ import {
   useModelsContext,
 } from "@/app/providers/models-provider";
 import ModelsLayout from "./models-layout";
+import { BackButton } from "../ui/button";
 
 const pages: {
   id: number;
@@ -83,6 +84,7 @@ const ModelCreationLayout = () => {
           currentPageIndex={currentPageIndex}
         />
         <Head title="Create New Model" />
+        <BackButton />
         <div className="min-h-screen grid grid-cols-12 grid-rows-[auto_1fr_auto] gap-y-8 w-full justify-center my-8">
           <div className="col-span-12 lg:col-start-2 lg:col-span-10 w-full">
             <ProgressBar

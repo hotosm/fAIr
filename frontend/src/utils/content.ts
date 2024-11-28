@@ -40,11 +40,11 @@ export const MODEL_CREATION_CONTENT = {
       "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Id fugit ducimus harum debitis deserunt cum quod quam rerum aliquid. Quibusdam sequi incidunt quasi delectus laudantium accusamus modi omnis maiores. Incidunt!",
   },
   trainingDataset: {
-    pageTitle: "Create New Training Dataset",
-    editModePageTitle: "Training Dataset",
+    pageTitle: "Training Dataset",
+
     buttons: {
-      createNew: "Create a new training dataset",
-      selectExisting: "select from existing training dataset",
+      createNew: "Create a New Training Dataset",
+      selectExisting: "Select From Existing Training Dataset",
     },
     form: {
       datasetName: {
@@ -82,6 +82,7 @@ export const MODEL_CREATION_CONTENT = {
       downloadLabels: "Download AOI Labels",
       uploadLabels: "Upload AOI Labels",
       deleteAOI: "Delete AOI",
+      fitToTMSBounds: "Fit to Bounds",
     },
     pageTitle: "Create Training Area",
     datasetID: "Dataset ID:",
@@ -90,8 +91,10 @@ export const MODEL_CREATION_CONTENT = {
       tmsLayerName: "TMS Layer",
       trainingAreaLayerName: "Training Areas",
     },
+    openAerialMapErrorMessage:
+      "Invalid TMS provided. Please go back to select another training dataset.",
     form: {
-      openAerialMap: "Open Aerial Map",
+      openAerialMap: "Open Aerial Imagery",
       maxZoom: "Max zoom:",
       minZoom: "Min zoom:",
       trainingArea: "Training Area",

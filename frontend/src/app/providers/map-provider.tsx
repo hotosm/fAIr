@@ -21,7 +21,7 @@ const MapContext = createContext<{
   currentZoom: number;
 }>({
   map: null,
-  setMap: () => { },
+  setMap: () => {},
   terraDraw: undefined,
   drawingMode: DrawingModes.STATIC,
   setDrawingMode: () => DrawingModes,

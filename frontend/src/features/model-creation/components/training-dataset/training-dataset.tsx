@@ -16,16 +16,8 @@ const TrainingDatasetForm = () => {
   return (
     <div className="flex flex-col gap-y-6 w-full">
       <StepHeading
-        heading={
-          isEditMode
-            ? MODEL_CREATION_CONTENT.trainingDataset.editModePageTitle
-            : MODEL_CREATION_CONTENT.trainingDataset.pageTitle
-        }
-        description={
-          isEditMode
-            ? MODEL_CREATION_CONTENT.trainingDataset.editModePageDescription
-            : MODEL_CREATION_CONTENT.trainingDataset.pageDescription
-        }
+        heading={MODEL_CREATION_CONTENT.trainingDataset.pageTitle}
+        description={MODEL_CREATION_CONTENT.trainingDataset.pageDescription}
       />
       {formData.trainingDatasetOption === TrainingDatasetOption.NONE ? (
         <div className="flex flex-col gap-y-10 w-full">
@@ -34,7 +26,7 @@ const TrainingDatasetForm = () => {
             suffixIcon={ChevronDownIcon}
             iconClassName="-rotate-90"
             variant={"dark"}
-            capitalizeText={false}
+            uppercase={false}
             disabled={isEditMode}
             onClick={() =>
               handleChange(
@@ -49,7 +41,7 @@ const TrainingDatasetForm = () => {
             }
             suffixIcon={ChevronDownIcon}
             iconClassName="-rotate-90"
-            capitalizeText={false}
+            uppercase={false}
             disabled={isEditMode}
             onClick={() =>
               handleChange(

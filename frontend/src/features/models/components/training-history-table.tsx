@@ -297,6 +297,7 @@ const TrainingHistoryTable: React.FC<TrainingHistoryTableProps> = ({
               isPlaceholderData={isPlaceholderData}
               setOffset={setOffset}
               offset={offset}
+              centerOnMobile={false}
             />
           </div>
         </div>

@@ -20,16 +20,16 @@ const TrainingAreaList = ({
   setOffset: Dispatch<SetStateAction<number>>;
 }) => {
   return (
-    <div className="flex max-h-[60%] flex-col gap-y-4 justify-between  p-4 ">
-      <div className="flex flex-col gap-y-4">
-        <p className="text-body-1">
+    <div className="flex max-h-[60%] flex-col gap-y-4 justify-between p-2 lg:p-4">
+      <div className="flex items-start w-full flex-col gap-y-4">
+        <p className="text-body-2">
           {MODEL_CREATION_CONTENT.trainingArea.form.trainingArea}
           {`${data && data.count > 1 ? "s" : ""}`}{" "}
-          <span className="text-white bg-primary text-body-1 rounded-xl px-3 py-1">
+          <span className="text-white bg-primary text-body-3 font-medium rounded-xl px-3 py-1">
             {data?.count ?? 0}
           </span>
         </p>
-        <div>
+        <div className="w-full">
           <Pagination
             hasNextPage={data?.hasNext}
             hasPrevPage={data?.hasPrev}
@@ -40,6 +40,8 @@ const TrainingAreaList = ({
             totalLength={data?.count}
             setOffset={setOffset}
             isPlaceholderData={isPlaceholderData}
+            showCountOnMobile
+            centerOnMobile={false}
           />
         </div>
       </div>

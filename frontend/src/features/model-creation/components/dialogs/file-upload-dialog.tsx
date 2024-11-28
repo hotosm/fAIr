@@ -174,9 +174,9 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
       className="border-2 border-gray-border rounded-lg px-3.5 py-1 flex items-center text-gray justify-between w-full"
     >
       <div className="flex items-center gap-x-2">
-        <FileIcon className="icon" />
+        <span className="border-2 border-gray-border p-1 flex items-center"><FileIcon className="icon " /></span>
         <div>
-          <p className="text-dark">{truncateString(file.file.name)}</p>
+          <p className="text-dark text-body-3">{truncateString(file.file.name)}</p>
           <SlFormatBytes value={file.file.size} className="text-sm" />
         </div>
       </div>
@@ -204,23 +204,23 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
           <UploadIcon className="icon-lg w-10 h-10 " />
           <input {...getInputProps()} />
           {isDragActive ? (
-            <p>Drop the files here ...</p>
+            <p className="text-body-4 md:text-body-3 text-center">Drop the files here ...</p>
           ) : (
             <>
-              <p>
+              <p className="text-body-4 md:text-body-3 text-center">
                 {
                   MODEL_CREATION_CONTENT.trainingArea.fileUploadDialog
                     .mainInstruction
                 }
               </p>
-              <small>
+              <small className="text-body-4 md:text-body-3 text-center">
                 {
                   MODEL_CREATION_CONTENT.trainingArea.fileUploadDialog
                     .fleSizeInstruction
                 }
               </small>
               {!disableFileSizeValidation && (
-                <small>
+                <small className="text-body-4 md:text-body-3 text-center">
                   {
                     MODEL_CREATION_CONTENT.trainingArea.fileUploadDialog
                       .aoiAreaInstruction

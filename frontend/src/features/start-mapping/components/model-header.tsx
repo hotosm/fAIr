@@ -103,7 +103,10 @@ const ModelHeader = ({
     <SkeletonWrapper showSkeleton={trainingDatasetIsPending}>
       <div className="flex items-center justify-between flex-wrap py-3 gap-y-6 md:gap-y-2">
         <div className="flex flex-col md:flex-row md:items-center gap-y-3 md:gap-x-6 z-10">
-          <p title={data?.name} className="text-dark font-semibold text-title-3">
+          <p
+            title={data?.name}
+            className="text-dark font-semibold text-title-3"
+          >
             {data?.name ? truncateString(data?.name, 40) : "N/A"}
           </p>
           <ModelDetailsPopUp
@@ -146,7 +149,9 @@ const ModelHeader = ({
               <ButtonWithIcon
                 onClick={dropdownIsOpened ? onDropdownHide : onDropdownShow}
                 suffixIcon={ChevronDownIcon}
-                label={APPLICATION_CONTENTS.START_MAPPING.buttons.download.label}
+                label={
+                  APPLICATION_CONTENTS.START_MAPPING.buttons.download.label
+                }
                 variant="dark"
                 disabled={!modelPredictionsExist}
                 iconClassName={
