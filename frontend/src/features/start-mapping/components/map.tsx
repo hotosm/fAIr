@@ -9,7 +9,7 @@ import {
 
 import { GeoJSONSource } from "maplibre-gl";
 
-import { MapComponent } from "@/components/map";
+import { MapComponent, MapCursorToolTip } from "@/components/map";
 import { ToolTip } from "@/components/ui/tooltip";
 import { useMapLayers } from "@/hooks/use-map-layer";
 import { useMap } from "@/app/providers/map-provider";
@@ -29,6 +29,8 @@ import {
   ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
   ALL_MODEL_PREDICTIONS_SOURCE_ID,
   extractTileJSONURL,
+  MIN_ZOOM_LEVEL_FOR_PREDICTION,
+  MINIMUM_ZOOM_LEVEL_INSTRUCTION_FOR_PREDICTION,
   REJECTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
   REJECTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
   REJECTED_MODEL_PREDICTIONS_SOURCE_ID,
@@ -37,6 +39,7 @@ import {
 import PredictedFeatureActionPopup from "@/features/start-mapping/components/popup";
 import { TModelPredictionsConfig } from "@/features/start-mapping/api/get-model-predictions";
 import { APPLICATION_CONTENTS, TOAST_NOTIFICATIONS } from "@/contents";
+import { useToolTipVisibility } from "@/hooks/use-tooltip-visibility";
 
 const StartMappingMapComponent = ({
   trainingDataset,
@@ -60,7 +63,7 @@ const StartMappingMapComponent = ({
   modelPredictionsExist: boolean;
 }) => {
   const tileJSONURL = extractTileJSONURL(trainingDataset?.source_imagery ?? "");
-  const { map } = useMap();
+  const { map, currentZoom } = useMap();
   const [showPopup, setShowPopup] = useState<boolean>(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [selectedFeature, setSelectedFeature] = useState(null);
@@ -69,6 +72,9 @@ const StartMappingMapComponent = ({
     if (!map || !oamTileJSON?.bounds) return;
     map?.fitBounds(oamTileJSON?.bounds);
   }, [map, oamTileJSON?.bounds]);
+
+  const { tooltipPosition, tooltipVisible } =
+    useToolTipVisibility([currentZoom]);
 
   useEffect(() => {
     if (!oamTileJSONIsError) return;
@@ -263,7 +269,7 @@ const StartMappingMapComponent = ({
     ),
     [selectedEvent, trainingDataset],
   );
-
+  const showTooltip = currentZoom < MIN_ZOOM_LEVEL_FOR_PREDICTION && tooltipVisible;
   return (
     <MapComponent
       showCurrentZoom
@@ -277,42 +283,42 @@ const StartMappingMapComponent = ({
       layerControlLayers={[
         ...(modelPredictions.accepted.length > 0
           ? [
-              {
-                value:
-                  APPLICATION_CONTENTS.START_MAPPING.map.controls.legendControl
-                    .acceptedPredictions,
-                subLayers: [
-                  ACCEPTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
-                  ACCEPTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
-                ],
-              },
-            ]
+            {
+              value:
+                APPLICATION_CONTENTS.START_MAPPING.map.controls.legendControl
+                  .acceptedPredictions,
+              subLayers: [
+                ACCEPTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
+                ACCEPTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
+              ],
+            },
+          ]
           : []),
         ...(modelPredictions.rejected.length > 0
           ? [
-              {
-                value:
-                  APPLICATION_CONTENTS.START_MAPPING.map.controls.legendControl
-                    .rejectedPredictions,
-                subLayers: [
-                  REJECTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
-                  REJECTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
-                ],
-              },
-            ]
+            {
+              value:
+                APPLICATION_CONTENTS.START_MAPPING.map.controls.legendControl
+                  .rejectedPredictions,
+              subLayers: [
+                REJECTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
+                REJECTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
+              ],
+            },
+          ]
           : []),
         ...(modelPredictions.all.length > 0
           ? [
-              {
-                value:
-                  APPLICATION_CONTENTS.START_MAPPING.map.controls.legendControl
-                    .predictionResults,
-                subLayers: [
-                  ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
-                  ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
-                ],
-              },
-            ]
+            {
+              value:
+                APPLICATION_CONTENTS.START_MAPPING.map.controls.legendControl
+                  .predictionResults,
+              subLayers: [
+                ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
+                ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
+              ],
+            },
+          ]
           : []),
       ]}
     >
@@ -332,6 +338,13 @@ const StartMappingMapComponent = ({
           </button>
         </ToolTip>
       )}
+      <MapCursorToolTip
+        tooltipVisible={showTooltip}
+        color={'bg-primary'}
+        tooltipPosition={tooltipPosition}
+      >
+        {MINIMUM_ZOOM_LEVEL_INSTRUCTION_FOR_PREDICTION}
+      </MapCursorToolTip>
     </MapComponent>
   );
 };

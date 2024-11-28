@@ -1,7 +1,7 @@
 import { TModelPredictions } from "@/types";
 import {
   MIN_ZOOM_LEVEL_FOR_PREDICTION,
-  MINIMUM_ZOOM_LEVEL_INSTRUCTION_FOR_PREDICTION,
+
   showErrorToast,
   showSuccessToast,
   uuid4,
@@ -74,11 +74,6 @@ const ModelAction = ({
 
   return (
     <div className="flex gap-y-3 flex-col-reverse flex-wrap  md:items-center md:flex-row md:justify-between md:gap-x-2 md:flex-nowrap">
-      {disablePredictionButton && (
-        <p className="text-primary text-xs md:text-nowrap italic">
-          {MINIMUM_ZOOM_LEVEL_INSTRUCTION_FOR_PREDICTION}
-        </p>
-      )}
       <Button
         disabled={disablePredictionButton || modelPredictionMutation.isPending}
         onClick={handlePrediction}

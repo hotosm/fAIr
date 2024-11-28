@@ -2,7 +2,9 @@ import TrainingAreaItem from "@/features/model-creation/components/training-area
 import Pagination from "@/components/pagination";
 import { PaginatedTrainingArea } from "@/types";
 import { Dispatch, SetStateAction } from "react";
-import { MODEL_CREATION_CONTENT } from "@/utils";
+import { formatDuration, MODEL_CREATION_CONTENT } from "@/utils";
+import { useQuery } from "@tanstack/react-query";
+import { fetchOSMDatabaseLastUpdated } from "../../hooks/use-training-areas";
 
 const TrainingAreaList = ({
   offset,
@@ -19,6 +21,13 @@ const TrainingAreaList = ({
   offset: number;
   setOffset: Dispatch<SetStateAction<number>>;
 }) => {
+
+  const { data: osmData, isPending: isOSMPending, isError: isOSMError } = useQuery({
+    queryKey: ["osm-database-last-updated"],
+    queryFn: fetchOSMDatabaseLastUpdated,
+    refetchInterval: 5000,
+  });
+
   return (
     <div className="flex max-h-[60%] flex-col gap-y-4 justify-between p-2 lg:p-4">
       <div className="flex items-start w-full flex-col gap-y-4">
@@ -29,6 +38,24 @@ const TrainingAreaList = ({
             {data?.count ?? 0}
           </span>
         </p>
+        <span className="flex flex-col gap-y-1 text-gray italic">
+          {isOSMPending || isOSMError ? (
+            ""
+          ) : (
+            <small>
+              {
+                MODEL_CREATION_CONTENT.trainingArea.toolTips
+                  .lastUpdatedPrefix
+              }{" "}
+              {formatDuration(
+                new Date(String(osmData?.lastUpdated)),
+                new Date(),
+                1,
+              )}{" "}
+              ago
+            </small>
+          )}
+        </span>
         <div className="w-full">
           <Pagination
             hasNextPage={data?.hasNext}
