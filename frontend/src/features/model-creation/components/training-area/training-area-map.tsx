@@ -1,7 +1,7 @@
 import { useMap } from "@/app/providers/map-provider";
 import { MapComponent, MapCursorToolTip } from "@/components/map";
 import { GeoJSONType, PaginatedTrainingArea } from "@/types";
-import { GeoJSONSource, GeoJSONSourceSpecification } from "maplibre-gl";
+import { GeoJSONSource } from "maplibre-gl";
 import { useCallback, useEffect, useState } from "react";
 import {
   useCreateTrainingArea,
@@ -30,6 +30,7 @@ import {
 import useDebounce from "@/hooks/use-debounce";
 import { DrawingModes } from "@/enums";
 import { useToolTipVisibility } from "@/hooks/use-tooltip-visibility";
+import { useMapLayers } from "@/hooks/use-map-layer";
 
 const TrainingAreaMap = ({
   tileJSONURL,
@@ -76,36 +77,9 @@ const TrainingAreaMap = ({
    * Callbacks
    */
 
-  const initializeSourcesAndLayers = useCallback(() => {
-    if (!map || !map.isStyleLoaded()) return;
-
-    /**
-     * Sources
-     */
-
-    if (data?.results && !map.getSource(trainingAreasSourceId)) {
-      map.addSource(trainingAreasSourceId, {
-        type: "geojson",
-        data: data.results,
-      } as GeoJSONSourceSpecification);
-    }
-
-    if (!map.getSource(trainingDatasetLabelsSourceId)) {
-      map.addSource(trainingDatasetLabelsSourceId, {
-        type: "geojson",
-        data: labels ?? {
-          type: "FeatureCollection",
-          features: [],
-        },
-      } as GeoJSONSourceSpecification);
-    }
-
-    /**
-     * Layers
-     */
-
-    if (!map.getLayer(trainingDatasetLabelsLayerId)) {
-      map.addLayer({
+  useMapLayers(
+    [
+      {
         id: trainingDatasetLabelsLayerId,
         type: "fill",
         source: trainingDatasetLabelsSourceId,
@@ -115,10 +89,8 @@ const TrainingAreaMap = ({
         },
         minzoom: TRAINING_LABELS_MIN_ZOOM_LEVEL,
         layout: { visibility: "visible" },
-      });
-    }
-    if (!map.getLayer(trainingDatasetLabelsOutlineLayerId)) {
-      map.addLayer({
+      },
+      {
         id: trainingDatasetLabelsOutlineLayerId,
         type: "line",
         source: trainingDatasetLabelsSourceId,
@@ -128,10 +100,8 @@ const TrainingAreaMap = ({
         },
         minzoom: TRAINING_LABELS_MIN_ZOOM_LEVEL,
         layout: { visibility: "visible" },
-      });
-    }
-    if (data?.results && !map.getLayer(trainingAreasFillLayerId)) {
-      map.addLayer({
+      },
+      {
         id: trainingAreasFillLayerId,
         type: "fill",
         source: trainingAreasSourceId,
@@ -140,10 +110,8 @@ const TrainingAreaMap = ({
           "fill-opacity": TRAINING_AREAS_AOI_FILL_OPACITY,
         },
         layout: { visibility: "visible" },
-      });
-    }
-    if (data?.results && !map.getLayer(trainingAreasLayerId)) {
-      map.addLayer({
+      },
+      {
         id: trainingAreasLayerId,
         type: "line",
         source: trainingAreasSourceId,
@@ -152,9 +120,28 @@ const TrainingAreaMap = ({
           "line-width": TRAINING_AREAS_AOI_OUTLINE_WIDTH,
         },
         layout: { visibility: "visible" },
-      });
-    }
-  }, [map, data?.results, labels]);
+      },
+    ],
+    [
+      {
+        id: trainingAreasSourceId,
+        spec: {
+          type: "geojson",
+          data: data?.results as GeoJSONType,
+        },
+      },
+      {
+        id: trainingDatasetLabelsSourceId,
+        spec: {
+          type: "geojson",
+          data: (labels as GeoJSONType) ?? {
+            type: "FeatureCollection",
+            features: [],
+          },
+        },
+      },
+    ],
+  );
 
   const updateTrainingLabels = useCallback(() => {
     if (map) {
@@ -188,31 +175,14 @@ const TrainingAreaMap = ({
    */
   useEffect(() => {
     if (!map) return;
-    const moveUpdates = () => {
-      updateBbox();
-    };
-    map.on("moveend", moveUpdates);
+    map.on("moveend", updateBbox);
     return () => {
-      map.off("moveend", moveUpdates);
+      map.off("moveend", updateBbox);
     };
   }, [map]);
 
   useEffect(() => {
-    if (!map) return;
-    const onStyleData = () => {
-      initializeSourcesAndLayers();
-    };
-    if (!map.isStyleLoaded()) {
-      map.once("styledata", onStyleData);
-    } else {
-      onStyleData();
-    }
-    return () => {
-      map.off("styledata", onStyleData);
-    };
-  }, [map, initializeSourcesAndLayers]);
-
-  useEffect(() => {
+    if (!data?.results) return;
     updateTrainingArea();
   }, [data?.results]);
 

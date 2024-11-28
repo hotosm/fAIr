@@ -93,9 +93,18 @@ const ModelHeader = ({
     },
     {
       name: APPLICATION_CONTENTS.START_MAPPING.buttons.download.options
-        .openInJOSM,
+        .openAllFeaturesInJOSM,
       value:
-        APPLICATION_CONTENTS.START_MAPPING.buttons.download.options.openInJOSM,
+        APPLICATION_CONTENTS.START_MAPPING.buttons.download.options
+          .openAllFeaturesInJOSM,
+      onClick: handleOpenInJOSM,
+    },
+    {
+      name: APPLICATION_CONTENTS.START_MAPPING.buttons.download.options
+        .openAcceptedFeaturesInJOSM,
+      value:
+        APPLICATION_CONTENTS.START_MAPPING.buttons.download.options
+          .openAcceptedFeaturesInJOSM,
       onClick: handleOpenInJOSM,
     },
   ];

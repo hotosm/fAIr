@@ -194,8 +194,6 @@ const TrainingAreaItem: React.FC<
       : "0 m²";
   }, [trainingArea]);
 
-
-
   const createTrainingLabelsForAOI = useCreateTrainingLabelsForAOI({});
 
   const fileUploadHandler = async (geometry: Geometry) => {
@@ -230,15 +228,18 @@ const TrainingAreaItem: React.FC<
               ? "Fetching labels..."
               : trainingArea.properties.label_fetched !== null
                 ? truncateString(
-                  `Fetched ${timeSinceLabelFetch === "0 sec" ? "just now" : `${timeSinceLabelFetch} ago`}`,
-                  20,
-                )
+                    `Fetched ${timeSinceLabelFetch === "0 sec" ? "just now" : `${timeSinceLabelFetch} ago`}`,
+                    20,
+                  )
                 : "No labels yet"}
           </p>
         </div>
         <div className="flex items-center gap-x-3">
           <ToolTip
-            content={MODEL_CREATION_CONTENT.trainingArea.toolTips.fetchOSMLabels} >
+            content={
+              MODEL_CREATION_CONTENT.trainingArea.toolTips.fetchOSMLabels
+            }
+          >
             <button
               disabled={trainingAreaLabelsMutation.isPending}
               className="bg-green-secondary px-2 py-1 rounded-md text-nowrap text-[9px] flex items-center gap-x-2 font-light"

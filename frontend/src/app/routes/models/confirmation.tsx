@@ -14,7 +14,11 @@ export const ModelConfirmationPage = () => {
   const { isEditMode } = useModelsContext();
 
   return (
-    <div className={"col-span-12 md:col-start-3 md:col-span-8 flex flex-col gap-y-10"}>
+    <div
+      className={
+        "col-span-12 md:col-start-3 md:col-span-8 flex flex-col gap-y-10"
+      }
+    >
       <div className="flex items-center justify-center w-full h-full flex-col gap-y-10 text-center">
         <ConfettiExplosion
           force={0.2}

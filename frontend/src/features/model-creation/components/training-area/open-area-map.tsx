@@ -31,7 +31,7 @@ const OpenAerialMap = ({ tileJSONURL }: { tileJSONURL: string }) => {
   }, [map, fitToTMSBounds]);
 
   return (
-    <div className="flex w-full flex-col  gap-y-2 border-b-8 border-off-white px-4 pb-4">
+    <div className="flex w-full flex-col  gap-y-2 border-b-8 border-off-white py-2 px-4 pb-4">
       <p className="text-body-2 md:text-body-1 font-medium">
         {MODEL_CREATION_CONTENT.trainingArea.form.openAerialMap}
       </p>

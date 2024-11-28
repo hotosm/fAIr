@@ -40,7 +40,8 @@ export const START_MAPPING_CONTENT = {
       options: {
         allFeatures: "All Features as GeoJSON",
         acceptedFeatures: "Accepted Features Only",
-        openInJOSM: "Open in JOSM",
+        openAllFeaturesInJOSM: "Open All Features in JOSM",
+        openAcceptedFeaturesInJOSM: "Open All Features in JOSM",
       },
     },
     predictionInProgress: "running",

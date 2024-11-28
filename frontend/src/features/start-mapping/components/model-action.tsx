@@ -1,7 +1,6 @@
 import { TModelPredictions } from "@/types";
 import {
   MIN_ZOOM_LEVEL_FOR_PREDICTION,
-
   showErrorToast,
   showSuccessToast,
   uuid4,

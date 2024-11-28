@@ -73,8 +73,9 @@ const StartMappingMapComponent = ({
     map?.fitBounds(oamTileJSON?.bounds);
   }, [map, oamTileJSON?.bounds]);
 
-  const { tooltipPosition, tooltipVisible } =
-    useToolTipVisibility([currentZoom]);
+  const { tooltipPosition, tooltipVisible } = useToolTipVisibility([
+    currentZoom,
+  ]);
 
   useEffect(() => {
     if (!oamTileJSONIsError) return;
@@ -269,7 +270,8 @@ const StartMappingMapComponent = ({
     ),
     [selectedEvent, trainingDataset],
   );
-  const showTooltip = currentZoom < MIN_ZOOM_LEVEL_FOR_PREDICTION && tooltipVisible;
+  const showTooltip =
+    currentZoom < MIN_ZOOM_LEVEL_FOR_PREDICTION && tooltipVisible;
   return (
     <MapComponent
       showCurrentZoom
@@ -283,42 +285,42 @@ const StartMappingMapComponent = ({
       layerControlLayers={[
         ...(modelPredictions.accepted.length > 0
           ? [
-            {
-              value:
-                APPLICATION_CONTENTS.START_MAPPING.map.controls.legendControl
-                  .acceptedPredictions,
-              subLayers: [
-                ACCEPTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
-                ACCEPTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
-              ],
-            },
-          ]
+              {
+                value:
+                  APPLICATION_CONTENTS.START_MAPPING.map.controls.legendControl
+                    .acceptedPredictions,
+                subLayers: [
+                  ACCEPTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
+                  ACCEPTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
+                ],
+              },
+            ]
           : []),
         ...(modelPredictions.rejected.length > 0
           ? [
-            {
-              value:
-                APPLICATION_CONTENTS.START_MAPPING.map.controls.legendControl
-                  .rejectedPredictions,
-              subLayers: [
-                REJECTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
-                REJECTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
-              ],
-            },
-          ]
+              {
+                value:
+                  APPLICATION_CONTENTS.START_MAPPING.map.controls.legendControl
+                    .rejectedPredictions,
+                subLayers: [
+                  REJECTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
+                  REJECTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
+                ],
+              },
+            ]
           : []),
         ...(modelPredictions.all.length > 0
           ? [
-            {
-              value:
-                APPLICATION_CONTENTS.START_MAPPING.map.controls.legendControl
-                  .predictionResults,
-              subLayers: [
-                ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
-                ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
-              ],
-            },
-          ]
+              {
+                value:
+                  APPLICATION_CONTENTS.START_MAPPING.map.controls.legendControl
+                    .predictionResults,
+                subLayers: [
+                  ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
+                  ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
+                ],
+              },
+            ]
           : []),
       ]}
     >
@@ -340,7 +342,7 @@ const StartMappingMapComponent = ({
       )}
       <MapCursorToolTip
         tooltipVisible={showTooltip}
-        color={'bg-primary'}
+        color={"bg-primary"}
         tooltipPosition={tooltipPosition}
       >
         {MINIMUM_ZOOM_LEVEL_INSTRUCTION_FOR_PREDICTION}

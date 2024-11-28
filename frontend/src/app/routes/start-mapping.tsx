@@ -24,7 +24,6 @@ import { APPLICATION_CONTENTS } from "@/contents";
 import { useMap } from "@/app/providers/map-provider";
 import { BASE_MODELS } from "@/enums";
 
-
 export const SEARCH_PARAMS = {
   useJOSMQ: "useJOSMQ",
   confidenceLevel: "confidenceLevel",
@@ -164,7 +163,7 @@ export const StartMappingPage = () => {
             />
           </div>
         </div>
-        <div className="col-span-12 h-[70vh] md:h-full w-full border-8 border-off-white flex-grow">
+        <div className="col-span-12 h-[70vh] md:h-full border-8 border-off-white flex-grow fullscreen md:no-fullscreen">
           <StartMappingMapComponent
             trainingDataset={trainingDataset}
             modelPredictions={modelPredictions}

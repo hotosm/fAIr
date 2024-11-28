@@ -26,7 +26,7 @@ import { TOAST_NOTIFICATIONS } from "@/contents";
 import { DrawingModes, SHOELACE_SIZES } from "@/enums";
 import { GeoJSONType, Geometry } from "@/types";
 import { geojsonToWKT } from "@terraformer/wkt";
-import { FullSreenWidthComponent } from "@/components/ui/full-screen";
+
 import useScreenSize from "@/hooks/use-screen-size";
 
 const TrainingAreaForm = () => {
@@ -78,7 +78,7 @@ const TrainingAreaForm = () => {
         successToast={TOAST_NOTIFICATIONS.trainingAreasFileUploadSuccess}
         disabled={createTrainingArea.isPending}
       />
-      <div className="min-h-screen flex flex-col mb-10">
+      <div className="md:h-screen min-h-screen flex flex-col mb-40">
         <div className="flex md:justify-between md:items-center flex-col md:flex-row gap-y-4 mb-10">
           <div className="basis-2/3">
             <StepHeading
@@ -97,42 +97,39 @@ const TrainingAreaForm = () => {
             </p>
           </div>
         </div>
-        <FullSreenWidthComponent>
-          <div className="border-t-8 border-x-8 border-off-white mb-10 md:hidden">
-            <OpenAerialMap tileJSONURL={tileJSONURL} />
-          </div>
-        </FullSreenWidthComponent>
 
-        <FullSreenWidthComponent>
-          <div className="h-full w-full grid grid-cols-12 md:grid-cols-9  border-8 border-off-white">
-            <div className="w-full h-[70vh] md:h-full col-span-12 md:col-span-6 2xl:col-span-7">
-              <TrainingAreaMap
-                tileJSONURL={tileJSONURL}
-                data={trainingAreasData}
-                trainingDatasetId={Number(formData.selectedTrainingDatasetId)}
-                offset={offset}
-              />
-            </div>
-            <div className="hidden md:flex h-[90vh]  col-span-12 md:col-span-3 2xl:col-span-2 flex-col w-full border-l-8 border-off-white gap-y-6 py-4 ">
-              <OpenAerialMap tileJSONURL={tileJSONURL} />
-              <TrainingAreaList
-                offset={offset}
-                setOffset={setOffset}
-                isPlaceholderData={isPlaceholderData}
-                data={trainingAreasData}
-                isPending={trainingAreaIsPending}
-                datasetId={Number(formData.selectedTrainingDatasetId)}
-              />
-              <ActionButtons
-                toggle={toggle}
-                trainingAreasDataCount={trainingAreasData?.count}
-                setDrawingMode={setDrawingMode}
-              />
-            </div>
+        <div className="border-t-8 border-x-8 border-off-white mb-10 fullscreen md:no-fullscreen md:hidden">
+          <OpenAerialMap tileJSONURL={tileJSONURL} />
+        </div>
+        <div className="h-full grid grid-cols-12 md:grid-cols-9  border-8 border-off-white fullscreen md:no-fullscreen">
+          <div className="w-full h-[90vh] col-span-12 md:col-span-6 2xl:col-span-7">
+            <TrainingAreaMap
+              tileJSONURL={tileJSONURL}
+              data={trainingAreasData}
+              trainingDatasetId={Number(formData.selectedTrainingDatasetId)}
+              offset={offset}
+            />
           </div>
-        </FullSreenWidthComponent>
-        <FullSreenWidthComponent>
-          <div className="md:hidden h-[60vh] overflow-y-auto border-8 border-b-0 border-off-white mb-10 py-2">
+          <div className="hidden md:flex h-[90vh] max-h-screen col-span-12 md:col-span-3 2xl:col-span-2 flex-col w-full border-l-8 border-off-white gap-y-6 py-4 ">
+            <OpenAerialMap tileJSONURL={tileJSONURL} />
+            <TrainingAreaList
+              offset={offset}
+              setOffset={setOffset}
+              isPlaceholderData={isPlaceholderData}
+              data={trainingAreasData}
+              isPending={trainingAreaIsPending}
+              datasetId={Number(formData.selectedTrainingDatasetId)}
+            />
+            <ActionButtons
+              toggle={toggle}
+              trainingAreasDataCount={trainingAreasData?.count}
+              setDrawingMode={setDrawingMode}
+            />
+          </div>
+        </div>
+
+        <div className="md:hidden fullscreen md:no-fullscreen border-8 border-off-white py-2">
+          <div className="h-[60vh]  overflow-y-auto ">
             <TrainingAreaList
               offset={offset}
               setOffset={setOffset}
@@ -142,14 +139,14 @@ const TrainingAreaForm = () => {
               datasetId={Number(formData.selectedTrainingDatasetId)}
             />
           </div>
-          <div className="md:hidden">
+          <div className="py-2">
             <ActionButtons
               toggle={toggle}
               trainingAreasDataCount={trainingAreasData?.count}
               setDrawingMode={setDrawingMode}
             />
           </div>
-        </FullSreenWidthComponent>
+        </div>
       </div>
     </>
   );
@@ -166,15 +163,15 @@ const ActionButtons = ({
   setDrawingMode: (mode: DrawingModes) => void;
   toggle: () => void;
 }) => {
-  const { isMobile } = useScreenSize();
+  const { isTablet } = useScreenSize();
   return (
     <div
-      className={`flex  mt-auto px-4 md:px-1 lg:px-4  w-full ${trainingAreasDataCount === 0 ? "flex-col gap-y-6 " : "items-center justify-between md:justify-center lg:justify-between gap-x-1 md:gap-x-2 "}"`}
+      className={`flex gap-y-2 mt-auto px-4 md:px-1 lg:px-4  w-full ${trainingAreasDataCount === 0 ? "flex-col" : "items-center justify-between gap-x-1 md:gap-x-2 "}"`}
     >
-      <div>
+      <div className="w-full">
         <Button
           variant="primary"
-          size={isMobile ? SHOELACE_SIZES.SMALL : SHOELACE_SIZES.MEDIUM}
+          size={isTablet ? SHOELACE_SIZES.SMALL : SHOELACE_SIZES.MEDIUM}
           onClick={() => {
             setDrawingMode(DrawingModes.RECTANGLE);
             showSuccessToast(TOAST_NOTIFICATIONS.drawingModeActivated);
@@ -186,13 +183,15 @@ const ActionButtons = ({
           </div>
         </Button>
       </div>
-      <ButtonWithIcon
-        label={MODEL_CREATION_CONTENT.trainingArea.form.upload}
-        variant="dark"
-        suffixIcon={UploadIcon}
-        onClick={toggle}
-        size={isMobile ? SHOELACE_SIZES.SMALL : SHOELACE_SIZES.MEDIUM}
-      />
+      <div className="w-full">
+        <ButtonWithIcon
+          size={isTablet ? SHOELACE_SIZES.SMALL : SHOELACE_SIZES.MEDIUM}
+          label={MODEL_CREATION_CONTENT.trainingArea.form.upload}
+          variant="dark"
+          suffixIcon={UploadIcon}
+          onClick={toggle}
+        />
+      </div>
     </div>
   );
 };
