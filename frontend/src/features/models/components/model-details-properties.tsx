@@ -1,4 +1,4 @@
-import { Image } from "@/components/ui/image";
+import { Image, ZoomableImage } from "@/components/ui/image";
 import ToolTip from "@/components/ui/tooltip/tooltip";
 import {
   useTrainingDetails,
@@ -239,7 +239,7 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
               href={
                 // @ts-expect-error bad type definition
                 APP_CONTENT.models.modelsDetailsCard.properties.baseModel.href[
-                  baseModel
+                baseModel
                 ]
               }
             />
@@ -282,7 +282,9 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
             <div
               className={`col-span-3 lg:col-span-2 ${isTrainingDetailsDialog && "lg:col-span-3"}`}
             >
-              <Image src={trainingResultsGraph} alt={""} />
+              <ZoomableImage>
+                <Image src={trainingResultsGraph} alt={""} />
+              </ZoomableImage>
             </div>
           )}
 
