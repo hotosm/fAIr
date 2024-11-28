@@ -59,5 +59,11 @@
     "typescript-eslint": "^8.0.1",
     "vite": "^5.4.1",
     "vite-tsconfig-paths": "^5.0.1"
+  },
+  "pnpm": {
+    "overrides": {
+      "cross-spawn@>=7.0.0 <7.0.5": ">=7.0.5",
+      "@eslint/plugin-kit@<0.2.3": ">=0.2.3"
+    }
   }
 }
