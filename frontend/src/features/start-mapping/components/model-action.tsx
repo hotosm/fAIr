@@ -34,33 +34,33 @@ const ModelAction = ({
                     TOAST_NOTIFICATIONS.startMapping.modelPrediction.success,
                 );
 
-                const existingFeatures = [
-                    ...modelPredictions.accepted,
-                    ...modelPredictions.rejected,
-                ];
+                /**
+                 * When a prediction is retrived from the backend and it hasn't been interacted with (i.e in the `all` array),
+                 * override it. But if it has been interacted with (i.e in either `rejected` or `accepted` array, leave it.)
+                 */
 
-                // Filter out new features that intersect with any existing feature
-                const nonIntersectingFeatures =
-                    data.features.length > 0
-                        ? data.features.filter((newFeature) => {
-                            return !existingFeatures.some((existingFeature) => {
-                                return booleanIntersects(newFeature, existingFeature);
-                            });
-                        })
-                        : [];
+                const nonIntersectingFeatures = data.features.filter((newFeature) => {
+                    return !modelPredictions.accepted.some((acceptedFeature) =>
+                        booleanIntersects(acceptedFeature, newFeature,)
+                    ) && !modelPredictions.rejected.some((rejectedFeature) =>
+                        booleanIntersects(rejectedFeature, newFeature,)
+                    );
+                });
+
                 setModelPredictions((prev) => ({
                     ...prev,
                     all: [
-                        ...prev.all,
                         ...nonIntersectingFeatures.map((feature) => ({
                             ...feature,
                             properties: {
                                 ...feature.properties,
-                                id: uuid4(), // Add a unique ID to the properties for future use
+                                id: uuid4(), // Add unique ID for tracking
                             },
                         })),
                     ],
                 }));
+
+
             },
             onError: (error) => showErrorToast(error),
         },

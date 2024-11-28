@@ -98,9 +98,13 @@ export const StartMappingPage = () => {
       }));
       const updatedParams = new URLSearchParams(searchParams);
       Object.entries(newParams).forEach(([key, value]) => {
-        updatedParams.set(key, String(value));
+        if (value !== undefined && value !== null) {
+          updatedParams.set(key, String(value));
+        } else {
+          updatedParams.delete(key);
+        }
       });
-      setSearchParams(updatedParams);
+      setSearchParams(updatedParams, { replace: true });
     },
     [searchParams, setSearchParams],
   );
