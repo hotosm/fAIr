@@ -21,8 +21,8 @@ import {
   MODEL_CREATION_CONTENT,
   showSuccessToast,
   snapGeoJSONGeometryToClosestTile,
-  TOAST_NOTIFICATIONS,
 } from "@/utils";
+import { TOAST_NOTIFICATIONS } from "@/contents";
 import { DrawingModes } from "@/enums";
 import { GeoJSONType, Geometry } from "@/types";
 import { geojsonToWKT } from "@terraformer/wkt";

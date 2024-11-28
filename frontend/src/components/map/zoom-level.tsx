@@ -4,7 +4,7 @@ const ZoomLevel = () => {
   const { currentZoom } = useMap();
   return (
     <div className="bg-white py-1 px-3 rounded-md">
-      <p>Zoom level: {Math.floor(currentZoom)}</p>
+      <p>Zoom level: {currentZoom}</p>
     </div>
   );
 };

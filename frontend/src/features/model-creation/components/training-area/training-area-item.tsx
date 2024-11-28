@@ -20,9 +20,9 @@ import {
   showErrorToast,
   showSuccessToast,
   showWarningToast,
-  TOAST_NOTIFICATIONS,
   truncateString,
 } from "@/utils";
+import { TOAST_NOTIFICATIONS } from "@/contents";
 import JOSMLogo from "@/assets/svgs/josm_logo.svg";
 import OSMLogo from "@/assets/svgs/osm_logo.svg";
 import { ToolTip } from "@/components/ui/tooltip";

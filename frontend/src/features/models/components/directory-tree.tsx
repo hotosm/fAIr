@@ -9,9 +9,9 @@ import {
   APP_CONTENT,
   showErrorToast,
   showSuccessToast,
-  TOAST_NOTIFICATIONS,
   truncateString,
 } from "@/utils";
+import { TOAST_NOTIFICATIONS } from "@/contents";
 import { useQueryClient } from "@tanstack/react-query";
 import { getTrainingWorkspaceQueryOptions } from "@/features/models/api/factory";
 import { API_ENDPOINTS, apiClient } from "@/services";

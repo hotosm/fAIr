@@ -21,7 +21,7 @@ const MapContext = createContext<{
   currentZoom: number;
 }>({
   map: null,
-  setMap: () => {},
+  setMap: () => { },
   terraDraw: undefined,
   drawingMode: DrawingModes.STATIC,
   setDrawingMode: () => DrawingModes,
@@ -51,7 +51,7 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 
   const updateZoom = useCallback(() => {
     if (!map) return;
-    setCurrentZoom(map.getZoom());
+    setCurrentZoom(Math.floor(map.getZoom()));
   }, [map]);
 
   useEffect(() => {

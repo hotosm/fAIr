@@ -4,6 +4,7 @@ import { SkeletonWrapper } from "@/components/ui/skeleton";
 import { extractDatePart, roundNumber, truncateString } from "@/utils";
 import { TModelDetails, TTrainingDataset } from "@/types";
 import { useTrainingDetails } from "@/features/models/hooks/use-training";
+import { APPLICATION_CONTENTS } from "@/contents";
 
 const ModelDetailsPopUp = ({
   showPopup,
@@ -48,7 +49,7 @@ const ModelDetailsPopUp = ({
         <SkeletonWrapper showSkeleton={Boolean(modelId && isPending)}>
           <div className="max-h-[500px] overflow-y-scroll border bg-white border-gray-border w-80 shadown-sm shadow-[#433D3D33]  p-5 flex flex-col">
             {!model && isError ? (
-              <div>Error retrieving model information.</div>
+              <div>{APPLICATION_CONTENTS.START_MAPPING.modelDetails.error}</div>
             ) : (
               <div className="flex flex-col gap-y-4 text-dark">
                 <div className="flex justify-between flex-row-reverse items-center">
@@ -59,22 +60,33 @@ const ModelDetailsPopUp = ({
                   >
                     &#x2715;
                   </button>
-                  <p>Model Details</p>
+                  <p>{APPLICATION_CONTENTS.START_MAPPING.modelDetails.label}</p>
                 </div>
                 <div className="flex flex-col gap-y-2">
                   <p className="text-gray">
                     {" "}
-                    Model ID:{" "}
-                    <span className="text-dark">{model?.id ?? data?.id}</span>
+                    {
+                      APPLICATION_CONTENTS.START_MAPPING.modelDetails.popover
+                        .modelId
+                    }
+                    : <span className="text-dark">{model?.id ?? data?.id}</span>
                   </p>
                   <p className="text-gray">
-                    Description:{" "}
+                    {
+                      APPLICATION_CONTENTS.START_MAPPING.modelDetails.popover
+                        .description
+                    }
+                    :{" "}
                     <span className="text-dark">
                       {model?.description ?? data?.description}
                     </span>
                   </p>
                   <p className="text-gray">
-                    Last Modified:{" "}
+                    {
+                      APPLICATION_CONTENTS.START_MAPPING.modelDetails.popover
+                        .lastModified
+                    }
+                    :{" "}
                     <span className="text-dark">
                       {extractDatePart(
                         model?.last_modified ?? (data?.last_modified as string),
@@ -82,19 +94,31 @@ const ModelDetailsPopUp = ({
                     </span>
                   </p>
                   <p className="text-gray">
-                    Training ID:{" "}
+                    {
+                      APPLICATION_CONTENTS.START_MAPPING.modelDetails.popover
+                        .trainingId
+                    }
+                    :{" "}
                     <span className="text-dark">
                       {model?.published_training ?? data?.published_training}
                     </span>
                   </p>
                   <p className="text-gray">
-                    Dataset ID:{" "}
+                    {
+                      APPLICATION_CONTENTS.START_MAPPING.modelDetails.popover
+                        .datasetId
+                    }
+                    :{" "}
                     <span className="text-dark">
                       {model?.dataset ?? data?.dataset}
                     </span>
                   </p>
                   <p className="text-gray flex items-center gap-x-1 text-nowrap flex-wrap">
-                    Dataset Name:{" "}
+                    {
+                      APPLICATION_CONTENTS.START_MAPPING.modelDetails.popover
+                        .datasetName
+                    }
+                    :{" "}
                     <SkeletonWrapper
                       showSkeleton={trainingDatasetIsPending}
                       skeletonClassName="w-20 h-4"
@@ -111,7 +135,11 @@ const ModelDetailsPopUp = ({
                   </p>
 
                   <p className="text-gray flex items-center gap-x-1 text-nowrap flex-wrap">
-                    Zoom Levels:{" "}
+                    {
+                      APPLICATION_CONTENTS.START_MAPPING.modelDetails.popover
+                        .zoomLevel
+                    }
+                    :{" "}
                     <SkeletonWrapper
                       showSkeleton={trainingDetailsIsPending}
                       skeletonClassName="w-20 h-4"
@@ -125,7 +153,11 @@ const ModelDetailsPopUp = ({
                   </p>
 
                   <p className="text-gray">
-                    Accuracy:{" "}
+                    {
+                      APPLICATION_CONTENTS.START_MAPPING.modelDetails.popover
+                        .accuracy
+                    }
+                    :{" "}
                     <span className="text-dark">
                       {roundNumber(
                         model?.accuracy ?? (data?.accuracy as number),
@@ -135,7 +167,11 @@ const ModelDetailsPopUp = ({
                     </span>
                   </p>
                   <p className="text-gray">
-                    Base Model:{" "}
+                    {
+                      APPLICATION_CONTENTS.START_MAPPING.modelDetails.popover
+                        .baseModel
+                    }
+                    :{" "}
                     <span className="text-dark">
                       {model?.base_model ?? data?.base_model}
                     </span>

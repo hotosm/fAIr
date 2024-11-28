@@ -215,13 +215,12 @@ export const MAP_STYLES: Record<string, string | StyleSpecification> = {
  */
 export const HOT_TRACKING_HTML_TAG_NAME = "hot-tracking";
 
-
 /**
  * The file extension for the prediction api.
  */
 
 export const PREDICTION_API_FILE_EXTENSIONS = {
-  [BASE_MODELS.RAMP]: '.tflite',
-  [BASE_MODELS.YOLOV8_V1]: '.onnx',
-  [BASE_MODELS.YOLOV8_V2]: '.onnx'
-}
+  [BASE_MODELS.RAMP]: ".tflite",
+  [BASE_MODELS.YOLOV8_V1]: ".onnx",
+  [BASE_MODELS.YOLOV8_V2]: ".onnx",
+};

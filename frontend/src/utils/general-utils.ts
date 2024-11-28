@@ -5,10 +5,10 @@ import {
   MAX_TRAINING_AREA_SIZE,
   MIN_TRAINING_AREA_SIZE,
   OSM_HASHTAGS,
-  TOAST_NOTIFICATIONS,
   calculateGeoJSONArea,
 } from "@/utils";
 import { useToastNotification } from "@/hooks/use-toast-notification";
+import { TOAST_NOTIFICATIONS } from "@/contents";
 
 /**
  * Open the AOI (Training Area) in ID Editor.

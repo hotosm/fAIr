@@ -22,7 +22,7 @@ const FillLegendStyle = ({
 };
 
 const Legend = () => {
-  const [expandLegend, setExpandLegend] = useState<boolean>(false);
+  const [expandLegend, setExpandLegend] = useState<boolean>(true);
   const { map } = useMap();
 
   const activeLayers = map
@@ -35,12 +35,12 @@ const Legend = () => {
 
   return (
     <button
-      className="absolute bottom-5 left-3 z-[1] bg-white p-3 rounded-[4px] shadow-md border border-gray-border"
+      className="absolute bottom-3 left-3 z-[1] bg-white p-3 rounded-[4px] shadow-md border border-gray-border"
       onClick={() => {
         setExpandLegend(!expandLegend);
       }}
     >
-      <p className="w-full text-dark font-semibold text-body-2base flex items-center gap-x-14 justify-between mb-2">
+      <p className="w-full text-dark font-semibold text-body-2base flex items-center gap-x-8 md:gap-x-14 justify-between ">
         Legend <LegendBookIcon className="icon" />
       </p>
       {expandLegend ? (

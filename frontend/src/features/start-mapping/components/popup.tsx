@@ -8,11 +8,14 @@ import { SHOELACE_SIZES } from "@/enums";
 import {
   useCreateApprovedModelPrediction,
   useCreateModelFeedback,
-} from "../hooks/use-feedbacks";
+} from "@/features/start-mapping/hooks/use-feedbacks";
 import { showErrorToast, showSuccessToast } from "@/utils";
 import { geojsonToWKT } from "@terraformer/wkt";
 import { useAuth } from "@/app/providers/auth-provider";
-import { TModelPredictionsConfig } from "../api/get-model-predictions";
+import { TModelPredictionsConfig } from "@/features/start-mapping/api/get-model-predictions";
+import { APPLICATION_CONTENTS, TOAST_NOTIFICATIONS } from "@/contents";
+import { Button } from "@/components/ui/button";
+import useScreenSize from "@/hooks/use-screen-size";
 
 const PredictedFeatureActionPopup = ({
   event,
@@ -123,7 +126,9 @@ const PredictedFeatureActionPopup = ({
             }));
           }
           closePopup();
-          showSuccessToast("Saved successfully.");
+          showSuccessToast(
+            TOAST_NOTIFICATIONS.startMapping.approvedPrediction.success,
+          );
         },
         onError: (error) => {
           showErrorToast(error);
@@ -131,7 +136,7 @@ const PredictedFeatureActionPopup = ({
       },
     });
 
-  // Rejection is thesame as feedback
+  // Rejection is the same as feedback
   const createModelFeedbackMutation = useCreateModelFeedback({
     mutationConfig: {
       onSuccess: () => {
@@ -159,7 +164,7 @@ const PredictedFeatureActionPopup = ({
           }));
         }
         closePopup();
-        showSuccessToast("Feedback submitted successfully.");
+        showSuccessToast(TOAST_NOTIFICATIONS.startMapping.feedback.success);
       },
       onError: (error) => {
         showErrorToast(error);
@@ -226,20 +231,20 @@ const PredictedFeatureActionPopup = ({
 
   const primaryButton = alreadyAccepted
     ? {
-        label: "Reject Data",
+        label: APPLICATION_CONTENTS.START_MAPPING.map.popup.reject,
         action: handleRejection,
         className: "bg-primary",
         icon: RejectIcon,
       }
     : alreadyRejected
       ? {
-          label: "Resolve Selection",
+          label: APPLICATION_CONTENTS.START_MAPPING.map.popup.resolve,
           action: handleResolve,
           className: "bg-black",
           icon: ResolveIcon,
         }
       : {
-          label: "Accept Data",
+          label: APPLICATION_CONTENTS.START_MAPPING.map.popup.accept,
           action: handleAcceptance,
           className: "bg-green-primary",
           icon: AcceptIcon,
@@ -247,36 +252,38 @@ const PredictedFeatureActionPopup = ({
 
   const secondaryButton = alreadyAccepted
     ? {
-        label: "Resolve Selection",
+        label: APPLICATION_CONTENTS.START_MAPPING.map.popup.resolve,
         action: handleResolve,
         className: "bg-black",
         icon: ResolveIcon,
       }
     : alreadyRejected
       ? {
-          label: "Accept Data",
+          label: APPLICATION_CONTENTS.START_MAPPING.map.popup.accept,
           action: handleAcceptance,
           className: "bg-green-primary",
           icon: AcceptIcon,
         }
       : {
-          label: "Reject Data",
+          label: APPLICATION_CONTENTS.START_MAPPING.map.popup.reject,
           action: handleRejection,
           className: "bg-primary",
           icon: RejectIcon,
         };
-
+  const { isMobile } = useScreenSize();
   return (
     <div
-      className="bg-white p-4 rounded-xl flex flex-col gap-y-4 min-w-[300px] w-fit"
+      className="bg-white p-2 md:p-4 rounded-xl flex flex-col gap-y-4 w-fit md:w-[300px]"
       ref={popupRef}
     >
       <div className="flex items-center justify-between">
-        <p className="font-semibold text-body-2base">
-          {showComment ? "Comment" : "Action"}
+        <p className="font-semibold text-body-3 md:text-body-2base">
+          {showComment
+            ? APPLICATION_CONTENTS.START_MAPPING.map.popup.commentTitle
+            : APPLICATION_CONTENTS.START_MAPPING.map.popup.defaultTitle}
         </p>
         <button
-          className="text-dark text-lg self-end"
+          className="text-dark text-sm md:text-lg self-end"
           onClick={closePopup}
           title="Close"
         >
@@ -288,39 +295,45 @@ const PredictedFeatureActionPopup = ({
           handleInput={(e) => setComment(e.target.value)}
           value={comment}
           showBorder
-          label="Reason for Rejecting (Optional)"
-          placeholder="Incorrect prediction..."
+          label={
+            APPLICATION_CONTENTS.START_MAPPING.map.popup.comment.description
+          }
+          placeholder={
+            APPLICATION_CONTENTS.START_MAPPING.map.popup.comment.placeholder
+          }
           size={SHOELACE_SIZES.MEDIUM}
         />
       )}
       {showComment && (
-        <button
-          className={`bg-primary text-white rounded-lg px-3 py-2 text-body-3 text-nowrap w-fit`}
+        <Button
+          className={`!w-fit`}
           onClick={submitRejectionFeedback}
+          size={isMobile ? SHOELACE_SIZES.SMALL : SHOELACE_SIZES.MEDIUM}
+          uppercase={false}
           disabled={createModelFeedbackMutation.isPending}
         >
-          {createModelFeedbackMutation.isPending ? "Submitting..." : "Submit"}
-        </button>
+          {createModelFeedbackMutation.isPending
+            ? APPLICATION_CONTENTS.START_MAPPING.map.popup.comment
+                .submissionInProgress
+            : APPLICATION_CONTENTS.START_MAPPING.map.popup.comment.submit}
+        </Button>
       )}
       {!showComment && (
-        <p>
-          Lorem ipsum, dolor sit amet consectetur adipisicing elit. Quas aperiam
-          commodi dignissimos ipsa, tenetur recusandae, iusto quia
-          exercitationem facere eveniet incidunt mollitia alias officiis!
-          Eligendi quos excepturi maxime vero ipsa?
+        <p className="text-xs md:text-sm">
+          {APPLICATION_CONTENTS.START_MAPPING.map.popup.description}
         </p>
       )}
       {!showComment && (
         <div className="flex justify-between items-center gap-x-10">
           <button
-            className={`${primaryButton.className} text-white rounded-lg p-2 text-body-3 text-nowrap flex gap-x-2 items-center`}
+            className={`${primaryButton.className} text-white rounded-lg p-2 text-body-4 md:text-body-3 text-nowrap flex gap-x-2 items-center`}
             onClick={primaryButton.action}
           >
             {primaryButton.label}
             <primaryButton.icon />
           </button>
           <button
-            className={`${secondaryButton.className} text-white rounded-lg p-2 text-body-3 text-nowrap flex items-center gap-x-2`}
+            className={`${secondaryButton.className} text-white rounded-lg p-2 text-body-4 md:text-body-3 text-nowrap flex items-center gap-x-2`}
             onClick={secondaryButton.action}
           >
             {secondaryButton.label}

@@ -36,6 +36,7 @@ import {
 } from "@/utils";
 import PredictedFeatureActionPopup from "@/features/start-mapping/components/popup";
 import { TModelPredictionsConfig } from "@/features/start-mapping/api/get-model-predictions";
+import { APPLICATION_CONTENTS, TOAST_NOTIFICATIONS } from "@/contents";
 
 const StartMappingMapComponent = ({
   trainingDataset,
@@ -45,6 +46,7 @@ const StartMappingMapComponent = ({
   oamTileJSONIsError,
   oamTileJSON,
   oamTileJSONError,
+  modelPredictionsExist,
 }: {
   trainingDataset?: TTrainingDataset;
   modelPredictions: TModelPredictions;
@@ -55,6 +57,7 @@ const StartMappingMapComponent = ({
   oamTileJSONIsError: boolean;
   oamTileJSON: TileJSON;
   oamTileJSONError: any;
+  modelPredictionsExist: boolean;
 }) => {
   const tileJSONURL = extractTileJSONURL(trainingDataset?.source_imagery ?? "");
   const { map } = useMap();
@@ -69,7 +72,7 @@ const StartMappingMapComponent = ({
 
   useEffect(() => {
     if (!oamTileJSONIsError) return;
-    showErrorToast(undefined, "Error loading training dataset");
+    showErrorToast(undefined, TOAST_NOTIFICATIONS.trainingDataset.error);
   }, [oamTileJSONIsError, oamTileJSONError]);
 
   useEffect(() => {
@@ -266,7 +269,7 @@ const StartMappingMapComponent = ({
       showCurrentZoom
       layerControl
       controlsLocation="top-left"
-      showLegend
+      showLegend={modelPredictionsExist}
       openAerialMap
       oamTileJSONURL={tileJSONURL}
       basemaps
@@ -274,42 +277,53 @@ const StartMappingMapComponent = ({
       layerControlLayers={[
         ...(modelPredictions.accepted.length > 0
           ? [
-            {
-              value: "Accepted Predictions",
-              subLayers: [
-                ACCEPTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
-                ACCEPTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
-              ],
-            },
-          ]
+              {
+                value:
+                  APPLICATION_CONTENTS.START_MAPPING.map.controls.legendControl
+                    .acceptedPredictions,
+                subLayers: [
+                  ACCEPTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
+                  ACCEPTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
+                ],
+              },
+            ]
           : []),
         ...(modelPredictions.rejected.length > 0
           ? [
-            {
-              value: "Rejected Predictions",
-              subLayers: [
-                REJECTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
-                REJECTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
-              ],
-            },
-          ]
+              {
+                value:
+                  APPLICATION_CONTENTS.START_MAPPING.map.controls.legendControl
+                    .rejectedPredictions,
+                subLayers: [
+                  REJECTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
+                  REJECTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
+                ],
+              },
+            ]
           : []),
         ...(modelPredictions.all.length > 0
           ? [
-            {
-              value: "Prediction Results",
-              subLayers: [
-                ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
-                ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
-              ],
-            },
-          ]
+              {
+                value:
+                  APPLICATION_CONTENTS.START_MAPPING.map.controls.legendControl
+                    .predictionResults,
+                subLayers: [
+                  ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
+                  ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
+                ],
+              },
+            ]
           : []),
       ]}
     >
       {showPopup && renderPopup}
       {map && (
-        <ToolTip content={"Fit to TMS Bounds"}>
+        <ToolTip
+          content={
+            APPLICATION_CONTENTS.START_MAPPING.map.controls.fitToBoundsControl
+              .tooltip
+          }
+        >
           <button
             className="absolute left-3 top-28 bg-white z-[1] p-1.5"
             onClick={fitToTMSBounds}

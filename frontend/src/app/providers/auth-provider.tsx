@@ -8,21 +8,28 @@ import {
   HOT_FAIR_SESSION_REDIRECT_KEY,
   showErrorToast,
   showSuccessToast,
-  TOAST_NOTIFICATIONS,
 } from "@/utils";
+import { TOAST_NOTIFICATIONS } from "@/contents";
 import React, { createContext, useContext, useState, useEffect } from "react";
 
 type TAuthContext = {
-  token?: string;
-  user: TUser | null;
+  token: string;
+  user: TUser;
   authenticateUser: (state: string, code: string) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
 };
 
-const AuthContext = createContext<TAuthContext | null>(null);
+// @ts-expect-error bad type definition
+const AuthContext = createContext<TAuthContext>(null);
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
+};
 
 type AuthProviderProps = {
   children: React.ReactNode;
@@ -129,6 +136,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   return (
     <AuthContext.Provider
+      // @ts-expect-error bad type definition
       value={{ token, user, authenticateUser, logout, isAuthenticated }}
     >
       {children}

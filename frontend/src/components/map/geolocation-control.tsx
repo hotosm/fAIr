@@ -2,8 +2,9 @@ import { GeolocationIcon } from "@/components/ui/icons";
 import { useCallback } from "react";
 import { ToolTip } from "@/components/ui/tooltip";
 import { ToolTipPlacement } from "@/enums";
-import { showErrorToast, showWarningToast, TOAST_NOTIFICATIONS } from "@/utils";
+import { showErrorToast, showWarningToast } from "@/utils";
 import { useMap } from "@/app/providers/map-provider";
+import { TOAST_NOTIFICATIONS } from "@/contents";
 
 const GeolocationControl = () => {
   const { map } = useMap();

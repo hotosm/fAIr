@@ -6,34 +6,6 @@ import {
 } from "./constants";
 import { formatAreaInAppropriateUnit } from "./geometry-utils";
 
-export const TOAST_NOTIFICATIONS = {
-  geolocationNotSupported: "Geolocation is not supported by this browser.",
-  drawingModeActivated:
-    "Draw mode activated. Hover on the map to start drawing",
-  trainingAreasFileUploadSuccess: "Training areas created successfully.",
-  trainingLabelsFetchSuccess: "Training labels fetched successfully.",
-  trainingAreaDeletionSuccess: "Training area deleted successfully.",
-  aoiLabelsUploadSuccess: "AOI Labels uploaded successfully.",
-  aoiDownloadSuccess: "AOI downloaded successfully.",
-  trainingRequestSubmittedSuccess: "Training request submitted successfully.",
-  trainingDatasetCreationSuccess: "Dataset created successfully.",
-  modelCreationSuccess: "Model created successfully.",
-  modelUpdateSuccess: "Model updated successfully.",
-  aoiWithoutGeometryWarning:
-    "This training area does not have a geometry. Delete it and redraw a new training area.",
-  aoiLabelsDownloadSuccess: "AOI labels downloaded successfully.",
-  josmOpenSuccess: "Map view opened in JOSM successfully!",
-  josmBBOXZoomFailed: "Failed to zoom to the bounding box in JOSM.",
-  josmImageryLoadFailed: "Failed to load imagery in JOSM.",
-  josmOpenFailed:
-    "An error occurred while opening in JOSM. Confirm you have JOSM opened on your computer and remote control enabled.",
-  fileDownloadFailed: "Failed to download file.",
-  fileDownloadSuccess: "File downloaded successfully!",
-  authenticationFailed: "Login failed.",
-  loginSuccess: "Login successful.",
-  logoutSuccess: "Logout successful.",
-};
-
 export const MODEL_CREATION_CONTENT = {
   modelDetails: {
     pageTitle: "Create New Local AI Model",
