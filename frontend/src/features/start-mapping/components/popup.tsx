@@ -79,6 +79,7 @@ const PredictedFeatureActionPopup = ({
 
   useEffect(() => {
     if (!map || !popupRef.current) return;
+    // reset if in comment mode
     setShowComment(false);
     const _popup = new maplibregl.Popup({ closeButton: false })
       .setLngLat(event.lngLat)

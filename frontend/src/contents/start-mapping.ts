@@ -39,9 +39,9 @@ export const START_MAPPING_CONTENT = {
       label: "download",
       options: {
         allFeatures: "All Features as GeoJSON",
-        acceptedFeatures: "Accepted Features Only",
-        openAllFeaturesInJOSM: "Open All Features in JOSM",
-        openAcceptedFeaturesInJOSM: "Open All Features in JOSM",
+        acceptedFeatures: "Accepted Features as GeoJSON",
+        openAllFeaturesInJOSM: "All Features to JOSM",
+        openAcceptedFeaturesInJOSM: "Accepted Features to JOSM",
       },
     },
     predictionInProgress: "running",

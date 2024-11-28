@@ -22,6 +22,10 @@ export const API_ENDPOINTS = {
   // KPIs
   GET_KPI_STATS: "kpi/stats/ ",
 
+  // GeoJSON to OSM
+
+  GEOJSON_TO_OSM: "geojson2osm/",
+
   // Banner
 
   GET_BANNER: "banner",

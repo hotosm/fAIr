@@ -49,7 +49,8 @@ export const TOAST_NOTIFICATIONS = {
   modelUpdateSuccess: "Model updated successfully.",
 
   // JOSM
-
+  errorLoadingData: "An error occurred while loading data",
+  dataLoadingSuccess: "Data loaded successfully",
   josmOpenSuccess: "Map view opened in JOSM successfully!",
   josmBBOXZoomFailed: "Failed to zoom to the bounding box in JOSM.",
   josmImageryLoadFailed: "Failed to load imagery in JOSM.",

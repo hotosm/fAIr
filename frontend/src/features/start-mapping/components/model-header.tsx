@@ -1,3 +1,4 @@
+import { useMap } from "@/app/providers/map-provider";
 import { ButtonWithIcon } from "@/components/ui/button";
 import { Divider } from "@/components/ui/divider";
 import { DropDown } from "@/components/ui/dropdown";
@@ -7,7 +8,7 @@ import { APPLICATION_CONTENTS, TOAST_NOTIFICATIONS } from "@/contents";
 import { ModelDetailsPopUp } from "@/features/models/components";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import {
-  BBOX,
+  Feature,
   TileJSON,
   TModel,
   TModelPredictions,
@@ -40,6 +41,7 @@ const ModelHeader = ({
 }) => {
   const { onDropdownHide, onDropdownShow, dropdownIsOpened } =
     useDropdownMenu();
+  const { map } = useMap();
   const [showModelDetails, setShowModelDetails] = useState<boolean>(false);
 
   const popupAnchorId = "model-details";
@@ -67,13 +69,33 @@ const ModelHeader = ({
     showSuccessToast(TOAST_NOTIFICATIONS.startMapping.fileDownloadSuccess);
   }, [modelPredictions]);
 
-  const handleOpenInJOSM = useCallback(() => {
-    openInJOSM(
-      oamTileJSON?.name as string,
-      trainingDataset?.source_imagery as string,
-      oamTileJSON?.bounds as BBOX,
-    );
-  }, [oamTileJSON, trainingDataset]);
+  const handleFeaturesDownloadToJOSM = useCallback(
+    (features: Feature[]) => {
+      if (!map || !oamTileJSON?.name || !trainingDataset?.source_imagery)
+        return;
+
+      const bounds = [
+        ...map.getBounds().toArray()[0],
+        ...map.getBounds().toArray()[1],
+      ];
+      openInJOSM(
+        oamTileJSON.name,
+        trainingDataset.source_imagery,
+        //@ts-expect-error bad type definition
+        bounds,
+        features,
+      );
+    },
+    [map, oamTileJSON, trainingDataset],
+  );
+
+  const handleAllFeaturesDownloadToJOSM = useCallback(() => {
+    handleFeaturesDownloadToJOSM(modelPredictions.all);
+  }, [handleFeaturesDownloadToJOSM, modelPredictions.all]);
+
+  const handleAcceptedFeaturesDownloadToJOSM = useCallback(() => {
+    handleFeaturesDownloadToJOSM(modelPredictions.accepted);
+  }, [handleFeaturesDownloadToJOSM, modelPredictions.accepted]);
 
   const downloadButtonDropdownOptions = [
     {
@@ -97,7 +119,7 @@ const ModelHeader = ({
       value:
         APPLICATION_CONTENTS.START_MAPPING.buttons.download.options
           .openAllFeaturesInJOSM,
-      onClick: handleOpenInJOSM,
+      onClick: handleAllFeaturesDownloadToJOSM,
     },
     {
       name: APPLICATION_CONTENTS.START_MAPPING.buttons.download.options
@@ -105,7 +127,7 @@ const ModelHeader = ({
       value:
         APPLICATION_CONTENTS.START_MAPPING.buttons.download.options
           .openAcceptedFeaturesInJOSM,
-      onClick: handleOpenInJOSM,
+      onClick: handleAcceptedFeaturesDownloadToJOSM,
     },
   ];
   return (

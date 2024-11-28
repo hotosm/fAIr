@@ -1,4 +1,4 @@
-import { TModelPredictions } from "@/types";
+import { Feature, TModelPredictions } from "@/types";
 import {
   MIN_ZOOM_LEVEL_FOR_PREDICTION,
   showErrorToast,
@@ -34,32 +34,36 @@ const ModelAction = ({
         );
 
         /**
-         * When a prediction is retrived from the backend and it hasn't been interacted with (i.e in the `all` array),
+         * When a prediction is retrieved from the backend and it hasn't been interacted with (i.e in the `all` array),
          * override it. But if it has been interacted with (i.e in either `rejected` or `accepted` array, leave it.)
          */
-
         const nonIntersectingFeatures = data.features.filter((newFeature) => {
-          return (
-            !modelPredictions.accepted.some((acceptedFeature) =>
-              booleanIntersects(acceptedFeature, newFeature),
-            ) &&
-            !modelPredictions.rejected.some((rejectedFeature) =>
-              booleanIntersects(rejectedFeature, newFeature),
-            )
+          const doesNotIntersectAccepted = modelPredictions.accepted.every(
+            (acceptedFeature) => {
+              const intersects = booleanIntersects(newFeature, acceptedFeature);
+              return !intersects;
+            },
           );
+
+          const doesNotIntersectRejected = modelPredictions.rejected.every(
+            (rejectedFeature) => {
+              const intersects = booleanIntersects(newFeature, rejectedFeature);
+              return !intersects;
+            },
+          );
+
+          return doesNotIntersectAccepted && doesNotIntersectRejected;
         });
 
         setModelPredictions((prev) => ({
           ...prev,
-          all: [
-            ...nonIntersectingFeatures.map((feature) => ({
-              ...feature,
-              properties: {
-                ...feature.properties,
-                id: uuid4(), // Add unique ID for tracking
-              },
-            })),
-          ],
+          all: nonIntersectingFeatures.map((feature) => ({
+            ...feature,
+            properties: {
+              ...feature.properties,
+              id: uuid4(), // Add unique ID for tracking
+            },
+          })),
         }));
       },
       onError: (error) => showErrorToast(error),

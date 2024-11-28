@@ -135,6 +135,28 @@ export const StartMappingPage = () => {
     };
   }, [query, map, currentZoom, trainingDataset, modelId, data]);
 
+  const renderModelHeader = useMemo(() => {
+    return (
+      <ModelHeader
+        data={data}
+        trainingDatasetIsPending={trainingDatasetIsPending}
+        modelPredictionsExist={modelPredictionsExist}
+        trainingDatasetIsError={trainingDatasetIsError}
+        modelPredictions={modelPredictions}
+        trainingDataset={trainingDataset}
+        oamTileJSON={oamTileJSON}
+      />
+    );
+  }, [
+    data,
+    trainingDatasetIsPending,
+    modelPredictionsExist,
+    trainingDatasetIsError,
+    modelPredictions,
+    trainingDataset,
+    oamTileJSON,
+  ]);
+
   return (
     <>
       <Head title={APPLICATION_CONTENTS.START_MAPPING.pageTitle(data?.name)} />
@@ -142,15 +164,7 @@ export const StartMappingPage = () => {
 
       <div className="min-h-screen md:h-[90vh] flex mt-8 flex-col mb-20">
         <div>
-          <ModelHeader
-            data={data}
-            trainingDatasetIsPending={trainingDatasetIsPending}
-            modelPredictionsExist={modelPredictionsExist}
-            trainingDatasetIsError={trainingDatasetIsError}
-            modelPredictions={modelPredictions}
-            trainingDataset={trainingDataset}
-            oamTileJSON={oamTileJSON}
-          />
+          {renderModelHeader}
           <div className="hidden md:block w-full">
             <Divider />
           </div>
