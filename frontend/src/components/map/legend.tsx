@@ -22,7 +22,7 @@ const FillLegendStyle = ({
 };
 
 const Legend = () => {
-  const [expandLegend, setExpandLegend] = useState<boolean>(true);
+  const [expandLegend, setExpandLegend] = useState<boolean>(false);
   const { map } = useMap();
 
   const activeLayers = map

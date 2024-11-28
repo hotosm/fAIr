@@ -159,7 +159,7 @@ export const openInJOSM = async (
   oamTileName: string,
   tmsURL: string,
   bounds: BBOX,
-  data: Feature[],
+  data?: Feature[],
 ) => {
   try {
     const imgURL = new URL("http://127.0.0.1:8111/imagery");

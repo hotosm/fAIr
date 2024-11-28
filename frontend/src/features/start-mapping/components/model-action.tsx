@@ -1,4 +1,4 @@
-import { Feature, TModelPredictions } from "@/types";
+import { TModelPredictions } from "@/types";
 import {
   MIN_ZOOM_LEVEL_FOR_PREDICTION,
   showErrorToast,

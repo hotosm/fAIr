@@ -17,7 +17,7 @@ export const createFeedback = async ({
   source_imagery,
   zoom_level,
   training,
-}: TCreateFeedbackPayload): Promise<Feature> => {
+}: TCreateFeedbackPayload): Promise<Feature & { id: number }> => {
   return await (
     await apiClient.post(API_ENDPOINTS.CREATE_FEEDBACK, {
       comments,
@@ -42,7 +42,7 @@ export const createApprovedPrediction = async ({
   geom,
   training,
   user,
-}: TCreateApprovedPredictionPayload): Promise<Feature> => {
+}: TCreateApprovedPredictionPayload): Promise<Feature & { id: number }> => {
   return await (
     await apiClient.post(API_ENDPOINTS.CREATE_APPROVED_PREDICTION, {
       config,
@@ -50,5 +50,31 @@ export const createApprovedPrediction = async ({
       geom,
       user,
     })
+  ).data;
+};
+
+export type TDeleteModelPredictionFeedbackPayload = {
+  id: number;
+  approvePrediction?: boolean;
+};
+
+export const deleteModelPredictionFeedback = async ({
+  id,
+}: TDeleteModelPredictionFeedbackPayload) => {
+  return await (
+    await apiClient.delete(API_ENDPOINTS.DELETE_FEEDBACK(id))
+  ).data;
+};
+
+export type TDeleteApprovedModelPredictionPayload = {
+  id: number;
+  createFeedback?: boolean;
+};
+
+export const deleteApprovedModelPrediction = async ({
+  id,
+}: TDeleteApprovedModelPredictionPayload) => {
+  return await (
+    await apiClient.delete(API_ENDPOINTS.DELETE_APPROVED_PREDICTION(id))
   ).data;
 };

@@ -18,7 +18,10 @@ export const API_ENDPOINTS = {
   // Feedbacks
 
   CREATE_FEEDBACK: "feedback/",
+  DELETE_FEEDBACK: (id: number) => `feedback/${id}/`,
   CREATE_APPROVED_PREDICTION: "approved-prediction/",
+  DELETE_APPROVED_PREDICTION: (id: number) => `approved-prediction/${id}/`,
+
   // KPIs
   GET_KPI_STATS: "kpi/stats/ ",
 

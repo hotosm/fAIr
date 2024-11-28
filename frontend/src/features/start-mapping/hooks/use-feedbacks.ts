@@ -3,9 +3,13 @@ import { useMutation } from "@tanstack/react-query";
 import {
   createApprovedPrediction,
   createFeedback,
+  deleteApprovedModelPrediction,
+  deleteModelPredictionFeedback,
   TCreateApprovedPredictionPayload,
   TCreateFeedbackPayload,
-} from "../api/create-feedbacks";
+  TDeleteApprovedModelPredictionPayload,
+  TDeleteModelPredictionFeedbackPayload,
+} from "@/features/start-mapping/api/create-feedbacks";
 
 export type useCreateFeedbackOptions = {
   mutationConfig?: MutationConfig<typeof createFeedback>;
@@ -14,12 +18,9 @@ export type useCreateFeedbackOptions = {
 export const useCreateModelFeedback = ({
   mutationConfig,
 }: useCreateFeedbackOptions) => {
-  const { onSuccess, ...restConfig } = mutationConfig || {};
+  const { ...restConfig } = mutationConfig || {};
   return useMutation({
     mutationFn: (args: TCreateFeedbackPayload) => createFeedback(args),
-    onSuccess: (...args) => {
-      onSuccess?.(...args);
-    },
     ...restConfig,
   });
 };
@@ -31,13 +32,40 @@ export type useCreateApprovedPredictionsOptions = {
 export const useCreateApprovedModelPrediction = ({
   mutationConfig,
 }: useCreateApprovedPredictionsOptions) => {
-  const { onSuccess, ...restConfig } = mutationConfig || {};
+  const { ...restConfig } = mutationConfig || {};
   return useMutation({
     mutationFn: (args: TCreateApprovedPredictionPayload) =>
       createApprovedPrediction(args),
-    onSuccess: (...args) => {
-      onSuccess?.(...args);
-    },
+    ...restConfig,
+  });
+};
+
+export type useDeleteModelPredictionFeedbackOptions = {
+  mutationConfig?: MutationConfig<typeof deleteModelPredictionFeedback>;
+};
+
+export const useDeleteModelPredictionFeedback = ({
+  mutationConfig,
+}: useDeleteModelPredictionFeedbackOptions) => {
+  const { ...restConfig } = mutationConfig || {};
+  return useMutation({
+    mutationFn: (args: TDeleteModelPredictionFeedbackPayload) =>
+      deleteModelPredictionFeedback(args),
+    ...restConfig,
+  });
+};
+
+export type useDeleteApprovedModelPredictionOptions = {
+  mutationConfig?: MutationConfig<typeof deleteApprovedModelPrediction>;
+};
+
+export const useDeleteApprovedModelPrediction = ({
+  mutationConfig,
+}: useDeleteApprovedModelPredictionOptions) => {
+  const { ...restConfig } = mutationConfig || {};
+  return useMutation({
+    mutationFn: (args: TDeleteApprovedModelPredictionPayload) =>
+      deleteApprovedModelPrediction(args),
     ...restConfig,
   });
 };

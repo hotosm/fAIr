@@ -10,6 +10,9 @@ export const TOAST_NOTIFICATIONS = {
     approvedPrediction: {
       success: "Saved successfully.",
     },
+    resolved: {
+      success: "Action resolved successfully.",
+    },
     modelPrediction: {
       success: "Model predictions retrieved successfully.",
     },
