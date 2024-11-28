@@ -166,7 +166,7 @@ nav {
     justify-content: flex-start;
     align-items: center;
     padding: var(--sl-spacing-large);
-    background-image: url("../../../assets/images/header_bg.png");
+    background-image: url("../../../assets/images/header_bg.jpg");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
