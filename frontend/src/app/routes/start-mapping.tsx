@@ -112,9 +112,8 @@ export const StartMappingPage = () => {
     },
     [searchParams, setSearchParams],
   );
-
+  const bounds = map?.getBounds();
   const trainingConfig = useMemo(() => {
-    const bounds = map?.getBounds();
     return {
       tolerance: query[SEARCH_PARAMS.tolerance] as number,
       area_threshold: query[SEARCH_PARAMS.area] as number,
@@ -133,7 +132,7 @@ export const StartMappingPage = () => {
         bounds?.getNorth(),
       ] as BBOX,
     };
-  }, [query, map, currentZoom, trainingDataset, modelId, data]);
+  }, [query, map, currentZoom, trainingDataset, modelId, data,bounds]);
 
   const renderModelHeader = useMemo(() => {
     return (
