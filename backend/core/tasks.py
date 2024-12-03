@@ -35,7 +35,14 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from predictor import download_imagery, get_start_end_download_coords
 
+logging.basicConfig(
+    format="%(asctime)s - %(levelname)s - %(message)s", level=logging.INFO
+)
+
+
 logger = logging.getLogger(__name__)
+logger.propagate = False
+
 
 # from core.serializers import LabelFileSerializer
 
@@ -363,15 +370,27 @@ def yolo_model_training(
     os.makedirs(output_path)
 
     shutil.copyfile(output_model_path, os.path.join(output_path, "checkpoint.pt"))
-    shutil.copyfile(os.path.join(os.path.dirname(output_model_path),'best.onnx'), os.path.join(output_path, "checkpoint.onnx"))
+    shutil.copyfile(
+        os.path.join(os.path.dirname(output_model_path), "best.onnx"),
+        os.path.join(output_path, "checkpoint.onnx"),
+    )
     # shutil.copyfile(os.path.dirname(output_model_path,'checkpoint.tflite'), os.path.join(output_path, "checkpoint.tflite"))
-    
-    shutil.copytree(preprocess_output, os.path.join(output_path, "preprocessed"))
-    os.makedirs(os.path.join(output_path,model),exist_ok=True)
 
-    shutil.copytree(os.path.join(yolo_data_dir,'images'), os.path.join(output_path,model, "images"))
-    shutil.copytree(os.path.join(yolo_data_dir,'labels'), os.path.join(output_path,model, "labels"))
-    shutil.copyfile(os.path.join(yolo_data_dir,'yolo_dataset.yaml'), os.path.join(output_path,model, "yolo_dataset.yaml"))
+    shutil.copytree(preprocess_output, os.path.join(output_path, "preprocessed"))
+    os.makedirs(os.path.join(output_path, model), exist_ok=True)
+
+    shutil.copytree(
+        os.path.join(yolo_data_dir, "images"),
+        os.path.join(output_path, model, "images"),
+    )
+    shutil.copytree(
+        os.path.join(yolo_data_dir, "labels"),
+        os.path.join(output_path, model, "labels"),
+    )
+    shutil.copyfile(
+        os.path.join(yolo_data_dir, "yolo_dataset.yaml"),
+        os.path.join(output_path, model, "yolo_dataset.yaml"),
+    )
 
     graph_output_path = os.path.join(
         pathlib.Path(os.path.dirname(output_model_path)).parent, "iou_chart.png"
@@ -454,10 +473,7 @@ def train_model(
     if training_instance.task_id is None or training_instance.task_id.strip() == "":
         training_instance.task_id = train_model.request.id
         training_instance.save()
-    log_file = os.path.join(
-        settings.LOG_PATH, f"run_{train_model.request.id}_log.txt"
-    )
-
+    log_file = os.path.join(settings.LOG_PATH, f"run_{train_model.request.id}.log")
 
     if model_instance.base_model == "YOLO_V8_V1" and settings.YOLO_HOME is None:
         raise ValueError("YOLO Home is not configured")
@@ -465,11 +481,14 @@ def train_model(
         raise ValueError("Ramp Home is not configured")
 
     try:
-        with open(log_file, "w") as f:
-        # redirect stdout to the log file
+        with open(log_file, "a") as f:
+            # redirect stdout to the log file
             sys.stdout = f
-            training_input_image_source, aoi_serializer, serialized_field = prepare_data(
-                training_instance, dataset_id, feedback, zoom_level, source_imagery
+            logging.info("Training Started")
+            training_input_image_source, aoi_serializer, serialized_field = (
+                prepare_data(
+                    training_instance, dataset_id, feedback, zoom_level, source_imagery
+                )
             )
 
             if model_instance.base_model in ("YOLO_V8_V1", "YOLO_V8_V2"):
@@ -499,7 +518,7 @@ def train_model(
                     input_boundary_width,
                 )
 
-            logger.info(f"Training task {training_id} completed successfully")
+            logging.info(f"Training task {training_id} completed successfully")
             return response
 
     except Exception as ex:

@@ -150,16 +150,25 @@ class TrainingSerializer(
 
         epochs = validated_data["epochs"]
         batch_size = validated_data["batch_size"]
+        if model.base_model == "RAMP":
+            if epochs > settings.RAMP_EPOCHS_LIMIT:
+                raise ValidationError(
+                    f"Epochs can't be greater than {settings.RAMP_EPOCHS_LIMIT} on this server"
+                )
+            if batch_size > settings.RAMP_BATCH_SIZE_LIMIT:
+                raise ValidationError(
+                    f"Batch size can't be greater than {settings.RAMP_BATCH_SIZE_LIMIT} on this server"
+                )
+        if model.base_model in ["YOLO_V8_V1","YOLO_V8_V2"]:
 
-        if epochs > settings.EPOCHS_LIMIT:
-            raise ValidationError(
-                f"Epochs can't be greater than {settings.EPOCHS_LIMIT} on this server"
-            )
-        if batch_size > settings.BATCH_SIZE_LIMIT:
-            raise ValidationError(
-                f"Batch size can't be greater than {settings.BATCH_SIZE_LIMIT} on this server"
-            )
-
+            if epochs > settings.YOLO_EPOCHS_LIMIT:
+                raise ValidationError(
+                    f"Epochs can't be greater than {settings.YOLO_EPOCHS_LIMIT} on this server"
+                )
+            if batch_size > settings.YOLO_BATCH_SIZE_LIMIT:
+                raise ValidationError(
+                    f"Batch size can't be greater than {settings.YOLO_BATCH_SIZE_LIMIT} on this server"
+                )
         user = self.context["request"].user
         validated_data["user"] = user
         # create the model instance
@@ -553,11 +562,13 @@ def run_task_status(request, run_id: str):
             }
         )
     elif task_result.state == "PENDING" or task_result.state == "STARTED":
-        log_file = os.path.join(settings.LOG_PATH, f"run_{run_id}_log.txt")
+        log_file = os.path.join(settings.LOG_PATH, f"run_{run_id}.log")
         try:
             # read the last 10 lines of the log file
+            cmd = ["tail", "-n", str(settings.LOG_LINE_STREAM_TRUNCATE_VALUE), log_file]
+            # print(cmd)
             output = subprocess.check_output(
-                ["tail", "-n", settings.LOG_LINE_STREAM_TRUNCATE_VALUE, log_file]
+                cmd
             ).decode("utf-8")
         except Exception as e:
             output = str(e)
