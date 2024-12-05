@@ -131,7 +131,7 @@ export const StartMappingPage = () => {
       bounds?.getEast(),
       bounds?.getNorth(),
     ] as BBOX,
-  }
+  };
   const renderModelHeader = useMemo(() => {
     return (
       <ModelHeader

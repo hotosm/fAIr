@@ -30,7 +30,6 @@ export const useLogin = () => {
       await authService.initializeOAuthFlow();
     } catch (error) {
       showErrorToast(undefined, TOAST_NOTIFICATIONS.authenticationFailed);
-
     } finally {
       setLoading(false);
     }

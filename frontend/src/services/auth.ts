@@ -36,7 +36,7 @@ class AuthService {
       const oauthUrl: TLogin = await response.data;
       return oauthUrl;
     } catch (error) {
-      showErrorToast(undefined, "Failed to get OAuth URL")
+      showErrorToast(undefined, "Failed to get OAuth URL");
       throw new Error("Unable to retrieve login URL.");
     }
   }
@@ -53,7 +53,7 @@ class AuthService {
         throw new Error("Popup blocked or not created.");
       }
     } catch (error) {
-      showErrorToast(undefined, "OAuth flow initialization failed")
+      showErrorToast(undefined, "OAuth flow initialization failed");
       throw error;
     }
   }
@@ -67,7 +67,7 @@ class AuthService {
       const response = await apiClient.get(API_ENDPOINTS.USER);
       return response.data;
     } catch (error) {
-      showErrorToast(undefined, "Failed to fetch user data")
+      showErrorToast(undefined, "Failed to fetch user data");
       throw new Error("Unable to retrieve user data.");
     }
   }
@@ -84,7 +84,7 @@ class AuthService {
       );
       return response.data;
     } catch (error) {
-      showErrorToast(undefined, "Authentication failed")
+      showErrorToast(undefined, "Authentication failed");
       throw new Error("Failed to authenticate user.");
     }
   }

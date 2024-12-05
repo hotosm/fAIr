@@ -1,6 +1,9 @@
 import Axios, { InternalAxiosRequestConfig } from "axios";
 import { ENVS } from "@/config/env";
-import { HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY, showErrorToast } from "@/utils";
+import {
+  HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY,
+  showErrorToast,
+} from "@/utils";
 
 export const BASE_API_URL = ENVS.BASE_API_URL;
 /**
@@ -28,10 +31,10 @@ apiClient.interceptors.response.use(
   (error) => {
     // if unauthorized request, simply clear the local storage to log them out.
     if (!error.response) {
-      showErrorToast(undefined, "Network error")
+      showErrorToast(undefined, "Network error");
     }
     if (error.response?.status === 401) {
-      showErrorToast(undefined, "Unauthorized, logging out...")
+      showErrorToast(undefined, "Unauthorized, logging out...");
       localStorage.removeItem(HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY);
     }
     return Promise.reject(error);

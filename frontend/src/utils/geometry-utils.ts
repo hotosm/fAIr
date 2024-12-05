@@ -1,4 +1,9 @@
-import { Feature, FeatureCollection, Geometry, TModelPredictions } from "@/types";
+import {
+  Feature,
+  FeatureCollection,
+  Geometry,
+  TModelPredictions,
+} from "@/types";
 import bboxPolygon from "@turf/bbox";
 import { booleanIntersects } from "@turf/boolean-intersects";
 import area from "@turf/area";
@@ -307,8 +312,6 @@ export const snapGeoJSONGeometryToClosestTile = (geometry: Geometry) => {
   return geometry;
 };
 
-
-
 /*
   Logic.
 
@@ -329,25 +332,32 @@ export const snapGeoJSONGeometryToClosestTile = (geometry: Geometry) => {
   ------------------------------------------------------
 */
 
-export const handleConflation = (existingPredictions: TModelPredictions, newFeatures: Feature[]): TModelPredictions => {
-
+export const handleConflation = (
+  existingPredictions: TModelPredictions,
+  newFeatures: Feature[],
+): TModelPredictions => {
   const updatedAll = [...existingPredictions.all];
 
   newFeatures.forEach((newFeature) => {
-    const intersectsWithAccepted = existingPredictions.accepted.some((acceptedFeature) =>
-      booleanIntersects(newFeature, acceptedFeature)
+    const intersectsWithAccepted = existingPredictions.accepted.some(
+      (acceptedFeature) => booleanIntersects(newFeature, acceptedFeature),
     );
-    const intersectsWithRejected = existingPredictions.rejected.some((rejectedFeature) =>
-      booleanIntersects(newFeature, rejectedFeature)
+    const intersectsWithRejected = existingPredictions.rejected.some(
+      (rejectedFeature) => booleanIntersects(newFeature, rejectedFeature),
     );
     const intersectsWithAll = updatedAll.some((existingFeature) =>
-      booleanIntersects(newFeature, existingFeature)
+      booleanIntersects(newFeature, existingFeature),
     );
 
     // If it doesn't intersect with any of the accepted, rejected, or all features, add it to all
-    if (!intersectsWithAccepted && !intersectsWithRejected && !intersectsWithAll) {
+    if (
+      !intersectsWithAccepted &&
+      !intersectsWithRejected &&
+      !intersectsWithAll
+    ) {
       updatedAll.push({
-        ...newFeature, properties: {
+        ...newFeature,
+        properties: {
           ...newFeature.properties,
           id: uuid4(), // Add unique ID for tracking
         },
@@ -360,4 +370,4 @@ export const handleConflation = (existingPredictions: TModelPredictions, newFeat
     accepted: existingPredictions.accepted,
     rejected: existingPredictions.rejected,
   };
-}
+};

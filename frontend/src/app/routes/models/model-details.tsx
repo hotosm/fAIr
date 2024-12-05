@@ -61,7 +61,6 @@ export const ModelDetailsPage = () => {
     return <ModelDetailsSkeleton />;
   }
 
-
   return (
     <>
       <ModelEnhancementDialog

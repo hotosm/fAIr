@@ -37,12 +37,12 @@ export const START_MAPPING_CONTENT = {
   buttons: {
     runPrediction: "run predictions",
     download: {
-      label: "download",
+      label: "action",
       options: {
-        allFeatures: "All Features as GeoJSON",
-        acceptedFeatures: "Accepted Features as GeoJSON",
-        openAllFeaturesInJOSM: "All Features to JOSM",
-        openAcceptedFeaturesInJOSM: "Accepted Features to JOSM",
+        allFeatures: "Download all Features as GeoJSON",
+        acceptedFeatures: "Download accepted Features as GeoJSON",
+        openAllFeaturesInJOSM: "Open all Features to JOSM",
+        openAcceptedFeaturesInJOSM: "Open accepted Features to JOSM",
       },
     },
     predictionInProgress: "running",

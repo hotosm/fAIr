@@ -32,7 +32,10 @@ const ModelAction = ({
         showSuccessToast(
           TOAST_NOTIFICATIONS.startMapping.modelPrediction.success,
         );
-        const conflatedResults = handleConflation(modelPredictions, data.features)
+        const conflatedResults = handleConflation(
+          modelPredictions,
+          data.features,
+        );
         setModelPredictions(conflatedResults);
       },
       onError: (error) => showErrorToast(error),

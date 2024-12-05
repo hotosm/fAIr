@@ -1,4 +1,4 @@
-import { API_ENDPOINTS, apiClient, BASE_API_URL } from "@/services";
+import { API_ENDPOINTS, BASE_API_URL } from "@/services";
 import { BBOX, Feature, FeatureCollection } from "@/types";
 import {
   FAIR_VERSION,
@@ -9,6 +9,7 @@ import {
 } from "@/utils";
 import { useToastNotification } from "@/hooks/use-toast-notification";
 import { TOAST_NOTIFICATIONS } from "@/contents";
+import { geojson2osm } from "@/lib/geojson2xml";
 
 /**
  * Open the AOI (Training Area) in ID Editor.
@@ -159,7 +160,7 @@ export const openInJOSM = async (
   oamTileName: string,
   tmsURL: string,
   bounds: BBOX,
-  data?: Feature[],
+  features?: Feature[],
 ) => {
   try {
     const imgURL = new URL("http://127.0.0.1:8111/imagery");
@@ -182,29 +183,16 @@ export const openInJOSM = async (
 
     const zoomResponse = await fetch(loadurl);
     // XML Conversion
-    if (data) {
+    if (features) {
       try {
-        const res = await apiClient.post(API_ENDPOINTS.GEOJSON_TO_OSM, {
-          geojson: {
-            type: "FeatureCollection",
-            // Remove the id properties, otherwise it'll throw server error.
-            features: data.map((feature) => ({
-              ...feature,
-              properties: {
-                ...Object.fromEntries(
-                  Object.entries(feature.properties).filter(
-                    ([key]) => key !== "id",
-                  ),
-                ),
-              },
-            })),
-            name: "prediction",
-          },
+        const _data = geojson2osm({
+          type: "FeatureCollection",
+          features: features,
         });
-        const _data = await res.data;
+        console.log(typeof _data, _data);
         const loadData = new URL("http://127.0.0.1:8111/load_data");
         loadData.searchParams.set("new_layer", "true");
-        loadData.searchParams.set("data", _data);
+        loadData.searchParams.set("data", `${_data}`);
         const response = await fetch(loadData);
         // No need to show success toast since there'll be a success toast later on
         // This is to avoid multiple toasts showing up at once.

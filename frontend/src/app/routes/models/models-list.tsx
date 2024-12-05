@@ -58,9 +58,9 @@ const ClearFilters = ({
 }) => {
   const canClearAllFilters = Boolean(
     query[SEARCH_PARAMS.searchQuery] ||
-    query[SEARCH_PARAMS.startDate] ||
-    query[SEARCH_PARAMS.endDate] ||
-    query[SEARCH_PARAMS.id],
+      query[SEARCH_PARAMS.startDate] ||
+      query[SEARCH_PARAMS.endDate] ||
+      query[SEARCH_PARAMS.id],
   );
 
   return (
@@ -405,7 +405,11 @@ export const ModelsPage = () => {
                       .modelCountSuffix
                   }
                 </p>
-                <SetMapToggle query={query} updateQuery={updateQuery} isMobile />
+                <SetMapToggle
+                  query={query}
+                  updateQuery={updateQuery}
+                  isMobile
+                />
               </div>
               <div className="flex items-center gap-x-9">
                 <OrderingFilter

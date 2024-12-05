@@ -7,6 +7,7 @@ import { SkeletonWrapper } from "@/components/ui/skeleton";
 import { APPLICATION_CONTENTS, TOAST_NOTIFICATIONS } from "@/contents";
 import { ModelDetailsPopUp } from "@/features/models/components";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
+import { geojson2osm } from "@/lib/geojson2xml";
 import {
   Feature,
   TileJSON,
@@ -73,7 +74,6 @@ const ModelHeader = ({
     (features: Feature[]) => {
       if (!map || !oamTileJSON?.name || !trainingDataset?.source_imagery)
         return;
-
       const bounds = [
         ...map.getBounds().toArray()[0],
         ...map.getBounds().toArray()[1],

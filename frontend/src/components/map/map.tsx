@@ -57,7 +57,6 @@ const MapComponent: React.FC<MapComponentProps> = ({
   const { map, setMap, terraDraw } = useMap();
 
   useEffect(() => {
-
     const maplibreMap = setupMaplibreMap(
       mapContainerRef,
       MAP_STYLES[BASEMAPS.OSM],
@@ -65,7 +64,6 @@ const MapComponent: React.FC<MapComponentProps> = ({
     maplibreMap.on("load", () => {
       setMap(maplibreMap);
     });
-
   }, [setMap]);
 
   const layerControlData = useMemo(() => {
@@ -77,12 +75,12 @@ const MapComponent: React.FC<MapComponentProps> = ({
     ];
     const baseLayers = basemaps
       ? [
-        { value: BASEMAPS.OSM, subLayer: OSM_BASEMAP_LAYER_ID },
-        {
-          value: BASEMAPS.GOOGLE_SATELLITE,
-          subLayer: GOOGLE_SATELLITE_BASEMAP_LAYER_ID,
-        },
-      ]
+          { value: BASEMAPS.OSM, subLayer: OSM_BASEMAP_LAYER_ID },
+          {
+            value: BASEMAPS.GOOGLE_SATELLITE,
+            subLayer: GOOGLE_SATELLITE_BASEMAP_LAYER_ID,
+          },
+        ]
       : [];
     return { layers, baseLayers };
   }, [layerControlLayers, openAerialMap, basemaps]);
@@ -92,8 +90,9 @@ const MapComponent: React.FC<MapComponentProps> = ({
     return (
       <>
         <div
-          className={`absolute top-5 ${controlsLocation === "top-right" ? "right-3" : "left-3"
-            } z-[1] flex flex-col gap-y-[1px]`}
+          className={`absolute top-5 ${
+            controlsLocation === "top-right" ? "right-3" : "left-3"
+          } z-[1] flex flex-col gap-y-[1px]`}
         >
           <ZoomControls />
           {geolocationControl && <GeolocationControl />}
