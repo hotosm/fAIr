@@ -41,7 +41,7 @@ const TileBoundaries = () => {
       if (map.getSource(TILE_BOUNDARY_SOURCE_ID)) {
         const tileBoundaries = getTileBoundariesGeoJSON(
           map,
-          Math.floor(map.getZoom()),
+          map.getZoom(),
         );
         const source = map.getSource(TILE_BOUNDARY_SOURCE_ID) as GeoJSONSource;
         source.setData(tileBoundaries as GeoJSONType);
