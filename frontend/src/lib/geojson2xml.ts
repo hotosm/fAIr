@@ -5,21 +5,25 @@ class Node {
   lat: number;
   lon: number;
   tags: Record<string, string>;
+  id: number
 
   constructor(coordinates: [number, number]) {
     this.lat = coordinates[1];
     this.lon = coordinates[0];
     this.tags = {};
+    this.id = 0
   }
 }
 
 class Way {
   tags: Record<string, string>;
   nodes: Node[];
+  id: number
 
   constructor(properties: Record<string, string>) {
     this.tags = properties;
     this.nodes = [];
+    this.id = 0
   }
 }
 
