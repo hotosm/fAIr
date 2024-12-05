@@ -58,9 +58,9 @@ const ClearFilters = ({
 }) => {
   const canClearAllFilters = Boolean(
     query[SEARCH_PARAMS.searchQuery] ||
-      query[SEARCH_PARAMS.startDate] ||
-      query[SEARCH_PARAMS.endDate] ||
-      query[SEARCH_PARAMS.id],
+    query[SEARCH_PARAMS.startDate] ||
+    query[SEARCH_PARAMS.endDate] ||
+    query[SEARCH_PARAMS.id],
   );
 
   return (
@@ -293,9 +293,9 @@ export const ModelsPage = () => {
 
     if (mapViewIsActive) {
       return (
-        <div className="w-full grid md:grid-cols-4 md:border rounded-md p-2 md:border-gray-border gap-x-2 mt-10 grid-rows-2 md:grid-rows-1 gap-y-6 md:gap-y-0 h-screen">
-          <div className="overflow-scroll md:row-start-1 col-span-1 md:col-span-2">
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-10">
+        <div className="w-full grid md:grid-cols-4 md:border rounded-md md:p-2 md:border-gray-border gap-x-2 mt-10 grid-rows-2 md:grid-rows-1 gap-y-6 md:gap-y-0 h-screen">
+          <div className="w-full overflow-y-scroll md:row-start-1 col-span-1 md:col-span-2">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-4 gap-y-10">
               <ModelListGridLayout
                 models={data?.results}
                 isPending={isPending}
@@ -303,7 +303,7 @@ export const ModelsPage = () => {
               />
             </div>
           </div>
-          <div className="col-span-2 md:col-span-2 row-start-1 ">
+          <div className="col-span-1 md:col-span-2 row-start-1 ">
             {modelsMapDataIsPending || modelsMapDataIsError ? (
               <div className="w-full h-full animate-pulse bg-light-gray"></div>
             ) : (
@@ -349,88 +349,90 @@ export const ModelsPage = () => {
       />
       <section className="my-10 min-h-screen">
         <PageHeader />
-        <div className="flex flex-col gap-y-4">
-          <div className=" flex items-center justify-between w-full ">
-            <div className="flex items-center justify-between w-full md:gap-x-4 gap-y-2 md:gap-y-0  md:w-auto">
-              <SearchFilter updateQuery={updateQuery} query={query} />
-              {memoizedCategoryFilter}
-              {/* Mobile filters */}
-              <div className="flex md:hidden items-center gap-x-4">
-                <MobileFilter openMobileFilterModal={openDialog} />
+        {/* Filters */}
+        <div className="sticky top-0 bg-white z-10 py-2">
+          <div className="flex flex-col gap-y-4">
+            <div className=" flex items-center justify-between w-full ">
+              <div className="flex items-center justify-between w-full md:gap-x-4 gap-y-2 md:gap-y-0  md:w-auto">
+                <SearchFilter updateQuery={updateQuery} query={query} />
+                {memoizedCategoryFilter}
+                {/* Mobile filters */}
+                <div className="flex md:hidden items-center gap-x-4">
+                  <MobileFilter openMobileFilterModal={openDialog} />
+                  <LayoutToggle
+                    updateQuery={updateQuery}
+                    query={query}
+                    isMobile
+                    disabled={Boolean(mapViewIsActive)}
+                  />
+                </div>
+                <DateRangeFilter
+                  disabled={isPending}
+                  updateQuery={updateQuery}
+                  query={query}
+                />
+                {/* Desktop */}
+                <ClearFilters query={query} clearAllFilters={clearAllFilters} />
+              </div>
+              <div className="md:flex items-center gap-x-10 hidden">
+                {/* Desktop */}
+                <SetMapToggle updateQuery={updateQuery} query={query} />
                 <LayoutToggle
                   updateQuery={updateQuery}
                   query={query}
-                  isMobile
                   disabled={Boolean(mapViewIsActive)}
                 />
               </div>
-              <DateRangeFilter
-                disabled={isPending}
-                updateQuery={updateQuery}
-                query={query}
-              />
-              {/* Desktop */}
-              <ClearFilters query={query} clearAllFilters={clearAllFilters} />
             </div>
-            <div className="md:flex items-center gap-x-10 hidden">
-              {/* Desktop */}
-              <SetMapToggle updateQuery={updateQuery} query={query} />
-              <LayoutToggle
-                updateQuery={updateQuery}
+            {/* Mobile */}
+            <div className="self-start">
+              <ClearFilters
                 query={query}
-                disabled={Boolean(mapViewIsActive)}
+                clearAllFilters={clearAllFilters}
+                isMobile
               />
             </div>
           </div>
-          {/* Mobile */}
-          <div className="self-start">
-            <ClearFilters
-              query={query}
-              clearAllFilters={clearAllFilters}
-              isMobile
-            />
-          </div>
-        </div>
-
-        {isPending ? (
-          <div className="w-full h-10 mt-10 bg-light-gray animate-pulse text-dark"></div>
-        ) : (
-          <div className="flex items-center justify-between w-full my-10">
-            <div className="w-full flex items-center justify-between">
-              <p className="font-semibold text-body-3">
-                {data?.count}{" "}
-                {
-                  APP_CONTENT.models.modelsList.sortingAndPaginationSection
-                    .modelCountSuffix
-                }
-              </p>
-              <SetMapToggle query={query} updateQuery={updateQuery} isMobile />
-            </div>
-            <div className="flex items-center gap-x-9">
-              <OrderingFilter
-                disabled={isPending}
-                query={query}
-                updateQuery={updateQuery}
-              />
-              <div className="hidden md:flex">
-                <Pagination
-                  totalLength={data?.count}
-                  hasNextPage={data?.hasNext}
-                  hasPrevPage={data?.hasPrev}
-                  disableNextPage={!data?.hasNext || isPlaceholderData}
-                  disablePrevPage={!data?.hasPrev}
-                  pageLimit={PAGE_LIMIT}
+          {isPending ? (
+            <div className="w-full h-10 mt-10 bg-light-gray animate-pulse text-dark"></div>
+          ) : (
+            <div className="flex items-center justify-between w-full my-10 top-16">
+              <div className="w-full flex items-center justify-between">
+                <p className="font-semibold text-body-3">
+                  {data?.count}{" "}
+                  {
+                    APP_CONTENT.models.modelsList.sortingAndPaginationSection
+                      .modelCountSuffix
+                  }
+                </p>
+                <SetMapToggle query={query} updateQuery={updateQuery} isMobile />
+              </div>
+              <div className="flex items-center gap-x-9">
+                <OrderingFilter
+                  disabled={isPending}
                   query={query}
                   updateQuery={updateQuery}
-                  isPlaceholderData={isPlaceholderData}
                 />
+                <div className="hidden md:flex">
+                  <Pagination
+                    totalLength={data?.count}
+                    hasNextPage={data?.hasNext}
+                    hasPrevPage={data?.hasPrev}
+                    disableNextPage={!data?.hasNext || isPlaceholderData}
+                    disablePrevPage={!data?.hasPrev}
+                    pageLimit={PAGE_LIMIT}
+                    query={query}
+                    updateQuery={updateQuery}
+                    isPlaceholderData={isPlaceholderData}
+                  />
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         <div
-          className={`my-10 ${mapViewIsActive ? "" : "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-7 gap-y-14"}`}
+          className={`my-10 ${mapViewIsActive ? "" : "grid grid-cols-1 sm:grid-cols-2  md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-7 gap-y-14"}`}
         >
           {renderContent()}
         </div>

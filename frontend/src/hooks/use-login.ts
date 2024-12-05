@@ -30,7 +30,7 @@ export const useLogin = () => {
       await authService.initializeOAuthFlow();
     } catch (error) {
       showErrorToast(undefined, TOAST_NOTIFICATIONS.authenticationFailed);
-      console.error("An error occured while authenticating", error);
+
     } finally {
       setLoading(false);
     }

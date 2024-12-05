@@ -1,3 +1,5 @@
+import { showErrorToast } from "@/utils";
+
 /**
  * Custom hook to interact with the browser's localStorage.
  *
@@ -15,8 +17,8 @@ export const useLocalStorage = () => {
       const item = localStorage.getItem(key);
       return item ? item : undefined;
     } catch (error) {
-      console.error(error);
-      return undefined;
+      showErrorToast(error)
+
     }
   };
 
@@ -24,7 +26,8 @@ export const useLocalStorage = () => {
     try {
       localStorage.setItem(key, value);
     } catch (error) {
-      console.error(error);
+      showErrorToast(error)
+
     }
   };
 
@@ -32,7 +35,7 @@ export const useLocalStorage = () => {
     try {
       localStorage.removeItem(key);
     } catch (error) {
-      console.error(error);
+      showErrorToast(error)
     }
   };
 
@@ -56,8 +59,7 @@ export const useSessionStorage = () => {
       const item = sessionStorage.getItem(key);
       return item ? item : undefined;
     } catch (error) {
-      console.error(error);
-      return undefined;
+      showErrorToast(error)
     }
   };
 
@@ -65,7 +67,7 @@ export const useSessionStorage = () => {
     try {
       sessionStorage.setItem(key, value);
     } catch (error) {
-      console.error(error);
+      showErrorToast(error)
     }
   };
 
@@ -73,7 +75,7 @@ export const useSessionStorage = () => {
     try {
       sessionStorage.removeItem(key);
     } catch (error) {
-      console.error(error);
+      showErrorToast(error)
     }
   };
 

@@ -124,7 +124,7 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
   } = data || {};
 
   const trainingResultsGraph = `${ENVS.BASE_API_URL}workspace/download/dataset_${datasetId}/output/training_${data?.id}/graphs/training_accuracy.png`;
-  console.log(trainingResultsGraph)
+
   const content = useMemo(() => {
     if (isPending) {
       return <ModelPropertiesSkeleton isTrainingDetailsDialog />;
