@@ -51,17 +51,16 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 
   const updateZoom = useCallback(() => {
     if (!map) return;
-    setCurrentZoom(Math.round(map.getZoom()));
+    // There seems to be an error margin of 1 in the result of the map.getZoom() function
+    // Adding 1 to rectify it.
+    setCurrentZoom(Math.round(map.getZoom()) + 1);
   }, [map]);
 
   useEffect(() => {
     if (!map) return;
-    const handleMapMove = () => {
-      updateZoom();
-    };
-    map.on("moveend", handleMapMove);
+    map.on("zoomend", updateZoom);
     return () => {
-      map.off("moveend", handleMapMove);
+      map.off("zoomend", updateZoom);
     };
   }, [map]);
 

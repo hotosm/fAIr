@@ -132,7 +132,7 @@ export const StartMappingPage = () => {
         bounds?.getNorth(),
       ] as BBOX,
     };
-  }, [query, map, currentZoom, trainingDataset, modelId, data,bounds]);
+  }, [query, map, currentZoom, trainingDataset, modelId, data, bounds]);
 
   const renderModelHeader = useMemo(() => {
     return (

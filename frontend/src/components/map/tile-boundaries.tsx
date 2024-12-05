@@ -10,7 +10,7 @@ import { GeoJSONSource } from "maplibre-gl";
 import { useCallback, useEffect } from "react";
 
 const TileBoundaries = () => {
-  const { map } = useMap();
+  const { map, currentZoom } = useMap();
 
   useMapLayers(
     [
@@ -41,7 +41,7 @@ const TileBoundaries = () => {
       if (map.getSource(TILE_BOUNDARY_SOURCE_ID)) {
         const tileBoundaries = getTileBoundariesGeoJSON(
           map,
-          map.getZoom(),
+          currentZoom
         );
         const source = map.getSource(TILE_BOUNDARY_SOURCE_ID) as GeoJSONSource;
         source.setData(tileBoundaries as GeoJSONType);
@@ -51,9 +51,9 @@ const TileBoundaries = () => {
 
   useEffect(() => {
     if (!map) return;
-    map.on("moveend", updateTileBoundary);
+    map.on("zoomend", updateTileBoundary);
     return () => {
-      map.off("moveend", updateTileBoundary);
+      map.off("zoomend", updateTileBoundary);
     };
   }, [map, updateTileBoundary]);
 
