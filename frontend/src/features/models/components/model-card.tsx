@@ -49,7 +49,7 @@ const ModelCard: React.FC<ModelCardProps> = ({ model }) => {
               {APP_CONTENT.models.modelsList.modelCard.accuracy}
             </p>
             <p className="text-dark font-semibold text-body-2">
-              {roundNumber(model.accuracy)} %
+              {roundNumber(model.accuracy ?? 0)} %
             </p>
           </div>
           {/* Name, date and base model */}

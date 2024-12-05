@@ -9,5 +9,5 @@ export { default as ModelDetailItem } from "./model-detail-item";
 export { default as ModelDetailsProperties } from "./model-details-properties";
 export { default as TrainingHistoryTable } from "./training-history-table";
 export { default as ModelDetailsPopUp } from "./model-details-popup";
-export { default as LayoutToggle } from './layout-toggle'
-export { default as ModelMapToggle } from './map-toggle'
+export { default as LayoutToggle } from "./layout-toggle";
+export { default as ModelMapToggle } from "./map-toggle";

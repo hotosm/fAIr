@@ -4,39 +4,38 @@ import { LayoutView } from "@/enums/models";
 import { TQueryParams } from "@/types";
 
 const LayoutToggle = ({
-    query,
-    updateQuery,
-    isMobile,
-    disabled = false,
+  query,
+  updateQuery,
+  isMobile,
+  disabled = false,
 }: {
-    updateQuery: (params: TQueryParams) => void;
-    query: TQueryParams;
-    isMobile?: boolean;
-    disabled?: boolean;
+  updateQuery: (params: TQueryParams) => void;
+  query: TQueryParams;
+  isMobile?: boolean;
+  disabled?: boolean;
 }) => {
-    const activeLayout = query[SEARCH_PARAMS.layout];
-    return (
-        <button
-            title={`Switch to ${query[SEARCH_PARAMS.layout] === LayoutView.GRID ? LayoutView.LIST : (LayoutView.GRID as string)} layout`}
-            className={`${isMobile ? "flex md:hidden" : "hidden md:flex"} border border-gray-border p-2 items-center justify-center text-dark cursor-pointer`}
-            onClick={() =>
-                updateQuery({
-                    [SEARCH_PARAMS.layout]:
-                        activeLayout === LayoutView.GRID
-                            ? LayoutView.LIST
-                            : LayoutView.GRID,
-                })
-            }
-            disabled={disabled}
-        >
-            {activeLayout !== LayoutView.LIST ? (
-                <ListIcon className="icon-lg" />
-            ) : (
-                <CategoryIcon className="icon-lg" />
-            )}
-        </button>
-    );
+  const activeLayout = query[SEARCH_PARAMS.layout];
+  return (
+    <button
+      title={`Switch to ${query[SEARCH_PARAMS.layout] === LayoutView.GRID ? LayoutView.LIST : (LayoutView.GRID as string)} layout`}
+      className={`${isMobile ? "flex md:hidden" : "hidden md:flex"} border border-gray-border p-2 items-center justify-center text-dark cursor-pointer`}
+      onClick={() =>
+        updateQuery({
+          [SEARCH_PARAMS.layout]:
+            activeLayout === LayoutView.GRID
+              ? LayoutView.LIST
+              : LayoutView.GRID,
+        })
+      }
+      disabled={disabled}
+    >
+      {activeLayout !== LayoutView.LIST ? (
+        <ListIcon className="icon-lg" />
+      ) : (
+        <CategoryIcon className="icon-lg" />
+      )}
+    </button>
+  );
 };
 
-
-export default LayoutToggle
+export default LayoutToggle;

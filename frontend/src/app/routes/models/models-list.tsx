@@ -2,12 +2,16 @@ import {
   useModelsListFilters,
   useModelsMapData,
 } from "@/features/models/hooks/use-models";
-import { useMemo, } from "react";
+import { useMemo } from "react";
 import {
   ModelListGridLayout,
   ModelListTableLayout,
 } from "@/features/models/layouts";
-import { LayoutToggle, ModelMapToggle, ModelsMap } from "@/features/models/components";
+import {
+  LayoutToggle,
+  ModelMapToggle,
+  ModelsMap,
+} from "@/features/models/components";
 import {
   CategoryFilter,
   ClearFilters,
@@ -17,15 +21,14 @@ import {
   SearchFilter,
 } from "@/features/models/components/filters";
 import Pagination, { PAGE_LIMIT } from "@/components/pagination";
-import { APP_CONTENT, } from "@/utils";
+import { APP_CONTENT } from "@/utils";
 import { PageHeader } from "@/features/models/components/";
-import { FeatureCollection, } from "@/types";
+import { FeatureCollection } from "@/types";
 import ModelNotFound from "@/features/models/components/model-not-found";
 import { useDialog } from "@/hooks/use-dialog";
 import { MobileModelFiltersDialog } from "@/features/models/components/dialogs";
 import { Head } from "@/components/seo";
 import { LayoutView } from "@/enums/models";
-
 
 export const SEARCH_PARAMS = {
   startDate: "start_date",
@@ -37,16 +40,22 @@ export const SEARCH_PARAMS = {
   dateFilter: "dateFilter",
   layout: "layout",
   id: "id",
+  status: "status",
 };
 
-
-
-
 export const ModelsPage = () => {
-
   const { isOpened, openDialog, closeDialog } = useDialog();
 
-  const { clearAllFilters, data, isError, isPending, isPlaceholderData, query, updateQuery, mapViewIsActive } = useModelsListFilters()
+  const {
+    clearAllFilters,
+    data,
+    isError,
+    isPending,
+    isPlaceholderData,
+    query,
+    updateQuery,
+    mapViewIsActive,
+  } = useModelsListFilters();
 
   const {
     data: mapData,
@@ -59,8 +68,6 @@ export const ModelsPage = () => {
     () => <CategoryFilter disabled={isPending} />,
     [isPending],
   );
-
-
 
   const renderContent = () => {
     if (data?.count === 0) {

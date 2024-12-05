@@ -107,7 +107,7 @@ const columnDefinitions = (
       return (
         <span>
           {Number(row.getValue("accuracy")) > 0
-            ? roundNumber(row.getValue("accuracy"))
+            ? roundNumber(row.getValue("accuracy") ?? 0)
             : "-"}
         </span>
       );

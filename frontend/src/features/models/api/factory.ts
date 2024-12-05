@@ -24,7 +24,7 @@ type TModelQueryOptions = {
   dateFilters: Record<string, string>;
   status: number;
   id: number;
-  userId?: number
+  userId?: number;
 };
 
 export const getModelsQueryOptions = ({
@@ -35,7 +35,7 @@ export const getModelsQueryOptions = ({
   orderBy,
   dateFilters,
   id,
-  userId
+  userId,
 }: TModelQueryOptions) => {
   return queryOptions({
     queryKey: [
@@ -43,7 +43,16 @@ export const getModelsQueryOptions = ({
       { status, searchQuery, offset, orderBy, dateFilters, id, userId },
     ],
     queryFn: () =>
-      getModels(limit, offset, orderBy, status, searchQuery, dateFilters, id, userId),
+      getModels(
+        limit,
+        offset,
+        orderBy,
+        status,
+        searchQuery,
+        dateFilters,
+        id,
+        userId,
+      ),
     placeholderData: keepPreviousData,
   });
 };

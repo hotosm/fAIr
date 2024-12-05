@@ -23,7 +23,7 @@ type UseModelsOptions = {
   dateFilters: Record<string, string>;
   status?: number;
   id: number;
-  userId?: number
+  userId?: number;
 };
 
 export const useModels = ({
@@ -34,7 +34,7 @@ export const useModels = ({
   searchQuery,
   dateFilters,
   id,
-  userId
+  userId,
 }: UseModelsOptions) => {
   return useQuery({
     ...getModelsQueryOptions({
@@ -45,7 +45,7 @@ export const useModels = ({
       searchQuery,
       dateFilters,
       id,
-      userId
+      userId,
     }),
     //@ts-expect-error bad type definition
     throwOnError: (error) => error.response?.status >= 500,
@@ -78,8 +78,6 @@ export const useModelsMapData = () => {
   });
 };
 
-
-
 export const useModelsListFilters = (userId?: number) => {
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -99,9 +97,9 @@ export const useModelsListFilters = (userId?: number) => {
     [SEARCH_PARAMS.layout]:
       searchParams.get(SEARCH_PARAMS.layout) || LayoutView.GRID,
     [SEARCH_PARAMS.id]: searchParams.get(SEARCH_PARAMS.id) || "",
+    [SEARCH_PARAMS.status]: searchParams.get(SEARCH_PARAMS.status) || 0,
   };
   const [query, setQuery] = useState<TQueryParams>(defaultQueries);
-
 
   const debouncedSearchText = useDebounce(
     query[SEARCH_PARAMS.searchQuery] as string,
@@ -121,7 +119,8 @@ export const useModelsListFilters = (userId?: number) => {
       query[SEARCH_PARAMS.startDate] as string,
       query[SEARCH_PARAMS.endDate] as string,
     ),
-    userId: userId
+    userId: userId,
+    status: query[SEARCH_PARAMS.status] as number,
   });
 
   const updateQuery = useCallback(
@@ -156,8 +155,6 @@ export const useModelsListFilters = (userId?: number) => {
     }
   }, [query]);
 
-
-
   useEffect(() => {
     const newQuery = {
       [SEARCH_PARAMS.offset]: defaultQueries[SEARCH_PARAMS.offset],
@@ -169,6 +166,7 @@ export const useModelsListFilters = (userId?: number) => {
       [SEARCH_PARAMS.layout]: defaultQueries[SEARCH_PARAMS.layout],
       [SEARCH_PARAMS.searchQuery]: defaultQueries[SEARCH_PARAMS.searchQuery],
       [SEARCH_PARAMS.id]: defaultQueries[SEARCH_PARAMS.id],
+      [SEARCH_PARAMS.status]: defaultQueries[SEARCH_PARAMS.status],
     };
     setQuery(newQuery);
   }, []);
@@ -192,7 +190,14 @@ export const useModelsListFilters = (userId?: number) => {
     }));
   }, []);
 
-
-  return { query, data, isPending, isPlaceholderData, isError, updateQuery, mapViewIsActive, clearAllFilters }
-
-}
+  return {
+    query,
+    data,
+    isPending,
+    isPlaceholderData,
+    isError,
+    updateQuery,
+    mapViewIsActive,
+    clearAllFilters,
+  };
+};

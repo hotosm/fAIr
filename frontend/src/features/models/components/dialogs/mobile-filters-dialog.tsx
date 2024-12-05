@@ -4,9 +4,12 @@ import {
   CategoryFilter,
   DateRangeFilter,
   OrderingFilter,
+  StatusFilter,
 } from "@/features/models/components/filters";
 import { DialogProps, TQueryParams } from "@/types";
 import { Button } from "@/components/ui/button";
+import { useLocation } from "react-router-dom";
+import { APPLICATION_ROUTES } from "@/utils";
 
 type TrainingAreaDialogProps = DialogProps & {
   updateQuery: (updatedParams: TQueryParams) => void;
@@ -36,6 +39,11 @@ const MobileModelFiltersDialog: React.FC<TrainingAreaDialogProps> = ({
   updateQuery,
   disabled,
 }) => {
+  const currentRoute = useLocation();
+  const userIsInAccountModelsPage = currentRoute.pathname.includes(
+    APPLICATION_ROUTES.ACCOUNT_MODELS,
+  );
+
   return (
     <Dialog isOpened={isOpened} closeDialog={closeDialog} label={"Filter"}>
       <div className="flex flex-col gap-y-4">
@@ -49,6 +57,18 @@ const MobileModelFiltersDialog: React.FC<TrainingAreaDialogProps> = ({
         <FilterItem title="Filter by">
           <CategoryFilter disabled={true} isMobileFilterModal />
         </FilterItem>
+
+        {userIsInAccountModelsPage && (
+          <FilterItem title="Filter by">
+            <StatusFilter
+              disabled={false}
+              isMobileFilterModal
+              query={query}
+              updateQuery={updateQuery}
+            />
+          </FilterItem>
+        )}
+
         <FilterItem title="">
           <DateRangeFilter
             query={query}

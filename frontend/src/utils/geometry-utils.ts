@@ -322,7 +322,6 @@ export const handleConflation = (
   existingPredictions: TModelPredictions,
   newFeatures: Feature[],
 ): TModelPredictions => {
-
   let updatedAll = [...existingPredictions.all];
 
   newFeatures.forEach((newFeature) => {
@@ -333,13 +332,11 @@ export const handleConflation = (
       (rejectedFeature) => booleanIntersects(newFeature, rejectedFeature),
     );
 
-
     const intersectingIndex = updatedAll.findIndex((existingFeature) =>
       booleanIntersects(newFeature, existingFeature),
     );
 
     if (intersectingIndex !== -1) {
-
       updatedAll[intersectingIndex] = {
         ...newFeature,
         properties: {
@@ -347,11 +344,7 @@ export const handleConflation = (
           id: updatedAll[intersectingIndex].properties?.id || uuid4(),
         },
       };
-    } else if (
-      !intersectsWithAccepted &&
-      !intersectsWithRejected
-    ) {
-
+    } else if (!intersectsWithAccepted && !intersectsWithRejected) {
       updatedAll.push({
         ...newFeature,
         properties: {

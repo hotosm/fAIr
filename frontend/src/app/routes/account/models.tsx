@@ -4,9 +4,20 @@ import { APPLICATION_CONTENTS } from "@/contents";
 import { LayoutView } from "@/enums/models";
 import { LayoutToggle, PageHeader } from "@/features/models/components";
 import { MobileModelFiltersDialog } from "@/features/models/components/dialogs";
-import { CategoryFilter, ClearFilters, DateRangeFilter, MobileFilter, OrderingFilter, SearchFilter } from "@/features/models/components/filters";
+import {
+  CategoryFilter,
+  ClearFilters,
+  DateRangeFilter,
+  MobileFilter,
+  OrderingFilter,
+  SearchFilter,
+  StatusFilter,
+} from "@/features/models/components/filters";
 import { useModelsListFilters } from "@/features/models/hooks/use-models";
-import { ModelListGridLayout, ModelListTableLayout } from "@/features/models/layouts";
+import {
+  ModelListGridLayout,
+  ModelListTableLayout,
+} from "@/features/models/layouts";
 import { useDialog } from "@/hooks/use-dialog";
 import { APP_CONTENT } from "@/utils";
 import { useMemo } from "react";
@@ -14,20 +25,25 @@ import ModelNotFound from "@/features/models/components/model-not-found";
 import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
 import { useAuth } from "@/app/providers/auth-provider";
 
-
 export const UserModelsPage = () => {
-
   const { isOpened, openDialog, closeDialog } = useDialog();
   const { user } = useAuth();
 
-  const { clearAllFilters, data, isError, isPending, isPlaceholderData, query, updateQuery } = useModelsListFilters(user.osm_id)
+  const {
+    clearAllFilters,
+    data,
+    isError,
+    isPending,
+    isPlaceholderData,
+    query,
+    updateQuery,
+  } = useModelsListFilters(user?.osm_id);
 
   // Since it's just a static filter, it's better to memoize it.
   const memoizedCategoryFilter = useMemo(
     () => <CategoryFilter disabled={isPending} />,
     [isPending],
   );
-
 
   const renderContent = () => {
     if (data?.count === 0) {
@@ -69,7 +85,10 @@ export const UserModelsPage = () => {
       />
       <Head title={APPLICATION_CONTENTS.MY_MODELS_PAGE.pageTitle} />
       <section className="my-10 min-h-screen">
-        <PageHeader title={APPLICATION_CONTENTS.MY_MODELS_PAGE.pageHeader} description={APPLICATION_CONTENTS.MY_MODELS_PAGE.pageDescription} />
+        <PageHeader
+          title={APPLICATION_CONTENTS.MY_MODELS_PAGE.pageHeader}
+          description={APPLICATION_CONTENTS.MY_MODELS_PAGE.pageDescription}
+        />
         {/* Filters */}
         <div className="sticky top-0 bg-white z-10 py-2">
           <div className="flex flex-col gap-y-4">
@@ -77,6 +96,11 @@ export const UserModelsPage = () => {
               <div className="flex items-center justify-between w-full md:gap-x-4 gap-y-2 md:gap-y-0  md:w-auto">
                 <SearchFilter updateQuery={updateQuery} query={query} />
                 {memoizedCategoryFilter}
+                <StatusFilter
+                  disabled={isPending}
+                  updateQuery={updateQuery}
+                  query={query}
+                />
                 {/* Mobile filters */}
                 <div className="flex md:hidden items-center gap-x-4">
                   <MobileFilter openMobileFilterModal={openDialog} />
@@ -96,10 +120,7 @@ export const UserModelsPage = () => {
               </div>
               <div className="md:flex items-center gap-x-10 hidden">
                 {/* Desktop */}
-                <LayoutToggle
-                  updateQuery={updateQuery}
-                  query={query}
-                />
+                <LayoutToggle updateQuery={updateQuery} query={query} />
               </div>
             </div>
             {/* Mobile */}
@@ -149,7 +170,9 @@ export const UserModelsPage = () => {
         </div>
 
         <div
-          className={"my-10 grid grid-cols-1 sm:grid-cols-2  md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-7 gap-y-14"}
+          className={
+            "my-10 grid grid-cols-1 sm:grid-cols-2  md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-7 gap-y-14"
+          }
         >
           {renderContent()}
         </div>
@@ -169,5 +192,5 @@ export const UserModelsPage = () => {
         </div>
       </section>
     </>
-  )
+  );
 };

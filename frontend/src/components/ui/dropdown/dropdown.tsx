@@ -13,7 +13,7 @@ export type DropdownMenuItem = {
   className?: string;
   name?: string;
   disabled?: boolean;
-  apiValue?: string;
+  apiValue?: string | number;
 };
 
 type DropDownProps = {

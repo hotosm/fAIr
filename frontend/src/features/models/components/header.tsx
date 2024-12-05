@@ -3,7 +3,13 @@ import { AddIcon } from "@/components/ui/icons";
 import { APP_CONTENT, APPLICATION_ROUTES } from "@/utils";
 import { useNavigate } from "react-router-dom";
 
-const PageHeader = ({ title, description }: { title?: string, description?: string }) => {
+const PageHeader = ({
+  title,
+  description,
+}: {
+  title?: string;
+  description?: string;
+}) => {
   const navigate = useNavigate();
   const handleClick = () => {
     navigate(APPLICATION_ROUTES.CREATE_NEW_MODEL);

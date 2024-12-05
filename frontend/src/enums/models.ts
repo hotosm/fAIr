@@ -1,4 +1,4 @@
 export enum LayoutView {
-    LIST = "list",
-    GRID = "grid",
+  LIST = "list",
+  GRID = "grid",
 }
