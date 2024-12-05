@@ -1,9 +1,10 @@
-import { Feature, FeatureCollection, Geometry } from "@/types";
+import { Feature, FeatureCollection, Geometry, TModelPredictions } from "@/types";
 import bboxPolygon from "@turf/bbox";
-
+import { booleanIntersects } from "@turf/boolean-intersects";
 import area from "@turf/area";
 import { LngLatBoundsLike, Map } from "maplibre-gl";
 import { roundNumber } from "./number-utils";
+import { uuid4 } from "./general-utils";
 
 /**
  * Calculates the area of a GeoJSON Feature or FeatureCollection.
@@ -305,3 +306,58 @@ export const snapGeoJSONGeometryToClosestTile = (geometry: Geometry) => {
   geometry.coordinates[0] = snappedCoordinates;
   return geometry;
 };
+
+
+
+/*
+  Logic.
+
+  ------------------------------------------------------
+  | Same area         | New area                         |
+  ------------------------------------------------------
+  | 1 - Purple        | Will be replaced with new feature |
+  | 2 - Red           | No touch                         |
+  | 3 - Green         | No touch                         |
+  ------------------------------------------------------
+
+  Handling Purple i.e all features:
+  ------------------------------------------------------
+  | 1 - Purple       |                                      |
+  |                  | Check if they intersect with previous purple |
+  |                  | - Yes: Replace with new feature      |
+  |                  | - No: Keep the purple as it is       |
+  ------------------------------------------------------
+*/
+
+export const handleConflation = (existingPredictions: TModelPredictions, newFeatures: Feature[]): TModelPredictions => {
+
+  const updatedAll = [...existingPredictions.all];
+
+  newFeatures.forEach((newFeature) => {
+    const intersectsWithAccepted = existingPredictions.accepted.some((acceptedFeature) =>
+      booleanIntersects(newFeature, acceptedFeature)
+    );
+    const intersectsWithRejected = existingPredictions.rejected.some((rejectedFeature) =>
+      booleanIntersects(newFeature, rejectedFeature)
+    );
+    const intersectsWithAll = updatedAll.some((existingFeature) =>
+      booleanIntersects(newFeature, existingFeature)
+    );
+
+    // If it doesn't intersect with any of the accepted, rejected, or all features, add it to all
+    if (!intersectsWithAccepted && !intersectsWithRejected && !intersectsWithAll) {
+      updatedAll.push({
+        ...newFeature, properties: {
+          ...newFeature.properties,
+          id: uuid4(), // Add unique ID for tracking
+        },
+      });
+    }
+  });
+
+  return {
+    all: updatedAll,
+    accepted: existingPredictions.accepted,
+    rejected: existingPredictions.rejected,
+  };
+}

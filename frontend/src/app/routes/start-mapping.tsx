@@ -113,27 +113,25 @@ export const StartMappingPage = () => {
     [searchParams, setSearchParams],
   );
   const bounds = map?.getBounds();
-  const trainingConfig = useMemo(() => {
-    return {
-      tolerance: query[SEARCH_PARAMS.tolerance] as number,
-      area_threshold: query[SEARCH_PARAMS.area] as number,
-      use_josm_q: query[SEARCH_PARAMS.useJOSMQ] as boolean,
-      confidence: query[SEARCH_PARAMS.confidenceLevel] as number,
-      checkpoint: `/mnt/efsmount/data/trainings/dataset_${data?.dataset}/output/training_${data?.published_training}/checkpoint${PREDICTION_API_FILE_EXTENSIONS[data?.base_model as BASE_MODELS]}`,
-      max_angle_change: 15,
-      model_id: modelId as string,
-      skew_tolerance: 15,
-      source: trainingDataset?.source_imagery as string,
-      zoom_level: currentZoom,
-      bbox: [
-        bounds?.getWest(),
-        bounds?.getSouth(),
-        bounds?.getEast(),
-        bounds?.getNorth(),
-      ] as BBOX,
-    };
-  }, [query, map, currentZoom, trainingDataset, modelId, data, bounds]);
 
+  const trainingConfig = {
+    tolerance: query[SEARCH_PARAMS.tolerance] as number,
+    area_threshold: query[SEARCH_PARAMS.area] as number,
+    use_josm_q: query[SEARCH_PARAMS.useJOSMQ] as boolean,
+    confidence: query[SEARCH_PARAMS.confidenceLevel] as number,
+    checkpoint: `/mnt/efsmount/data/trainings/dataset_${data?.dataset}/output/training_${data?.published_training}/checkpoint${PREDICTION_API_FILE_EXTENSIONS[data?.base_model as BASE_MODELS]}`,
+    max_angle_change: 15,
+    model_id: modelId as string,
+    skew_tolerance: 15,
+    source: trainingDataset?.source_imagery as string,
+    zoom_level: currentZoom,
+    bbox: [
+      bounds?.getWest(),
+      bounds?.getSouth(),
+      bounds?.getEast(),
+      bounds?.getNorth(),
+    ] as BBOX,
+  }
   const renderModelHeader = useMemo(() => {
     return (
       <ModelHeader

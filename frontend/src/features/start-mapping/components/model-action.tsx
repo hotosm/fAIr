@@ -1,13 +1,13 @@
 import { TModelPredictions } from "@/types";
 import {
+  handleConflation,
   MIN_ZOOM_LEVEL_FOR_PREDICTION,
   showErrorToast,
   showSuccessToast,
-  uuid4,
 } from "@/utils";
 import { useGetModelPredictions } from "@/features/start-mapping/hooks/use-model-predictions";
 import { Button } from "@/components/ui/button";
-import { booleanIntersects } from "@turf/boolean-intersects";
+
 import { APPLICATION_CONTENTS, TOAST_NOTIFICATIONS } from "@/contents";
 import { useCallback } from "react";
 import { useMap } from "@/app/providers/map-provider";
@@ -32,39 +32,8 @@ const ModelAction = ({
         showSuccessToast(
           TOAST_NOTIFICATIONS.startMapping.modelPrediction.success,
         );
-
-        /**
-         * When a prediction is retrieved from the backend and it hasn't been interacted with (i.e in the `all` array),
-         * override it. But if it has been interacted with (i.e in either `rejected` or `accepted` array, leave it.)
-         */
-        const nonIntersectingFeatures = data.features.filter((newFeature) => {
-          const doesNotIntersectAccepted = modelPredictions.accepted.every(
-            (acceptedFeature) => {
-              const intersects = booleanIntersects(newFeature, acceptedFeature);
-              return !intersects;
-            },
-          );
-
-          const doesNotIntersectRejected = modelPredictions.rejected.every(
-            (rejectedFeature) => {
-              const intersects = booleanIntersects(newFeature, rejectedFeature);
-              return !intersects;
-            },
-          );
-
-          return doesNotIntersectAccepted && doesNotIntersectRejected;
-        });
-
-        setModelPredictions((prev) => ({
-          ...prev,
-          all: nonIntersectingFeatures.map((feature) => ({
-            ...feature,
-            properties: {
-              ...feature.properties,
-              id: uuid4(), // Add unique ID for tracking
-            },
-          })),
-        }));
+        const conflatedResults = handleConflation(modelPredictions, data.features)
+        setModelPredictions(conflatedResults);
       },
       onError: (error) => showErrorToast(error),
     },

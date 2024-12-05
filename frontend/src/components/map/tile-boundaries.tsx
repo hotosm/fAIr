@@ -41,6 +41,8 @@ const TileBoundaries = () => {
       if (map.getSource(TILE_BOUNDARY_SOURCE_ID)) {
         const tileBoundaries = getTileBoundariesGeoJSON(
           map,
+          // There is a mismatch of 1 in the mag.getZoom() results and the actual zoom level of the map.
+          // Adding 1 to the result resolves it.
           Math.round(map.getZoom() + 1)
         );
         const source = map.getSource(TILE_BOUNDARY_SOURCE_ID) as GeoJSONSource;
@@ -51,9 +53,9 @@ const TileBoundaries = () => {
 
   useEffect(() => {
     if (!map) return;
-    map.on("zoomend", updateTileBoundary);
+    map.on("moveend", updateTileBoundary);
     return () => {
-      map.off("zoomend", updateTileBoundary);
+      map.off("moveend", updateTileBoundary);
     };
   }, [map, updateTileBoundary]);
 

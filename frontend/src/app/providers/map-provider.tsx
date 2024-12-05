@@ -51,8 +51,8 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 
   const updateZoom = useCallback(() => {
     if (!map) return;
-    // There seems to be an error margin of 1 in the result of the map.getZoom() function
-    // Adding 1 to rectify it.
+    // There is a mismatch of 1 in the mag.getZoom() results and the actual zoom level of the map.
+    // Adding 1 to the result resolves it.
     setCurrentZoom(Math.round(map.getZoom()) + 1);
   }, [map]);
 
