@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import styles from "@/components/ui/header/header.module.css";
+import styles from "@/components/landing/header/header.module.css";
 import BackgroundImage from "@/assets/images/header_bg.jpg";
 import { APP_CONTENT } from "@/utils/content";
 import { Image } from "@/components/ui/image";

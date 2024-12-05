@@ -47,7 +47,11 @@ const steps: TSteps[] = [
   },
 ];
 
-const TheFAIRProcess = () => {
+const TheFAIRProcess = ({
+  disableStyle = false,
+}: {
+  disableStyle?: boolean;
+}) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<Array<React.RefObject<HTMLDivElement>>>(
     steps.map(() => React.createRef<HTMLDivElement>()),
@@ -94,7 +98,10 @@ const TheFAIRProcess = () => {
   }, [steps.length, activeIndex]);
 
   return (
-    <section className={styles.fairProcess} ref={containerRef}>
+    <section
+      className={disableStyle ? "relative" : styles.fairProcess}
+      ref={containerRef}
+    >
       <h2 className="text-title-2 lg:text-4xl font-semibold mb-[73px]">
         {APP_CONTENT.homepage.fairProcess.title}
       </h2>

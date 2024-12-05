@@ -104,7 +104,7 @@ nav {
 }
 
 .jumbotronContentContainer {
-  padding: var(--hot-fair-spacing-5x-large) var(--sl-spacing-large);
+  padding: var(--hot-fair-spacing-extra-large) var(--sl-spacing-large);
   background-color: var(--hot-fair-color-dark);
   display: flex;
   flex-direction: column;
@@ -206,7 +206,7 @@ nav {
     justify-content: space-between;
     align-items: center;
     height: 80px;
-    padding: 0 var(--hot-fair-spacing-5x-large);
+    padding: 0 var(--hot-fair-spacing-extra-large);
     gap: var(--sl-spacing-medium);
   }
 
@@ -240,7 +240,7 @@ nav {
   /* Jumbotron style begins */
 
   .jumbotronContainer {
-    padding: var(--hot-fair-spacing-5x-large);
+    padding: var(--hot-fair-spacing-extra-large);
   }
 
   .jumbotronContentContainer {

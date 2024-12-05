@@ -24,7 +24,10 @@ body {
   --hot-fair-color-hover-accent: #f5f5f5;
   --hot-fair-color-green-secondary: #ecfce5;
   --hot-fair-color-green-primary: #198155;
+
   /* Font sizes in rem */
+  --hot-fair-font-size-extra-large: 4.25rem;
+  /* 68px */
   --hot-fair-font-size-large-title: 3rem;
   /* 48px */
   --hot-fair-font-size-title-1: 2.375rem;
@@ -51,8 +54,10 @@ body {
   --hot-fair-font-weight-bold: 700;
 
   /* Spacing */
-  --hot-fair-spacing-5x-large: 5rem;
+  --hot-fair-spacing-extra-large: 5rem;
   /* 80px */
+  --hot-fair-spacing-large: 1.25rem;
+  /* 20px */
 
   /* Scroll bar styles */
   --scrollbar-width: 6px;
@@ -151,7 +156,7 @@ sl-alert.success::part(base) {
     @apply inline-block h-4 w-4  p-2;
   }
   .fullscreen {
-    @apply -mx-[1.25rem] lg:-mx-[5rem];
+    @apply -mx-large lg:-mx-extra-large;
   }
   .no-fullscreen {
     @apply -mx-0 lg:-mx-0;

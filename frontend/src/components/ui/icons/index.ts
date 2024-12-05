@@ -49,3 +49,6 @@ export { default as PenIcon } from "./pen-icon";
 export { default as ArrowBackIcon } from "./arrow-back-icon";
 export { default as TagsInfoIcon } from "./tags-info-icon";
 export { default as LegendBookIcon } from "./legend-book-icon";
+export { default as DesktopCursorIcon } from "./desktop-cursor-icon";
+export { default as BookTemplateIcon } from "./book-template-icon";
+export { default as YouTubePlayCircleIcon } from "./youtube-play-circle-icon";

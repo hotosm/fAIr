@@ -139,7 +139,7 @@
 /* md: */
 @media (min-width: 768px) {
   .coreValues {
-    padding: 0 var(--hot-fair-spacing-5x-large);
+    padding: 0 var(--hot-fair-spacing-extra-large);
     margin-bottom: 200px;
     /* Adding the height of the rectangle */
   }

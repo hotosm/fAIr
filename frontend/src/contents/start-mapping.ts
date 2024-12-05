@@ -1,4 +1,5 @@
 export const START_MAPPING_CONTENT = {
+  // The title to show near the browsers favicon or in social media open graph
   pageTitle: (modelName: string) => `Start Mapping with ${modelName}`,
   map: {
     controls: {
