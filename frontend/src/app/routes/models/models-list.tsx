@@ -1,39 +1,31 @@
 import {
-  useModels,
+  useModelsListFilters,
   useModelsMapData,
 } from "@/features/models/hooks/use-models";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { CategoryIcon, FilterIcon, ListIcon } from "@/components/ui/icons";
-import { Switch } from "@/components/ui/form";
+import { useMemo, } from "react";
 import {
   ModelListGridLayout,
   ModelListTableLayout,
 } from "@/features/models/layouts";
-import { ModelsMap } from "@/features/models/components";
+import { LayoutToggle, ModelMapToggle, ModelsMap } from "@/features/models/components";
 import {
   CategoryFilter,
+  ClearFilters,
   DateRangeFilter,
+  MobileFilter,
   OrderingFilter,
   SearchFilter,
 } from "@/features/models/components/filters";
 import Pagination, { PAGE_LIMIT } from "@/components/pagination";
-import { APP_CONTENT, buildDateFilterQueryString } from "@/utils";
+import { APP_CONTENT, } from "@/utils";
 import { PageHeader } from "@/features/models/components/";
-import { dateFilters } from "@/features/models/components/filters/date-range-filter";
-import { ORDERING_FIELDS } from "@/features/models/components/filters/ordering-filter";
-import { FeatureCollection, TQueryParams } from "@/types";
+import { FeatureCollection, } from "@/types";
 import ModelNotFound from "@/features/models/components/model-not-found";
-import useDebounce from "@/hooks/use-debounce";
 import { useDialog } from "@/hooks/use-dialog";
 import { MobileModelFiltersDialog } from "@/features/models/components/dialogs";
 import { Head } from "@/components/seo";
+import { LayoutView } from "@/enums/models";
 
-export enum LayoutView {
-  LIST = "list",
-  GRID = "grid",
-}
 
 export const SEARCH_PARAMS = {
   startDate: "start_date",
@@ -47,209 +39,14 @@ export const SEARCH_PARAMS = {
   id: "id",
 };
 
-const ClearFilters = ({
-  query,
-  clearAllFilters,
-  isMobile,
-}: {
-  clearAllFilters: (event: React.ChangeEvent<HTMLButtonElement>) => void;
-  query: TQueryParams;
-  isMobile?: boolean;
-}) => {
-  const canClearAllFilters = Boolean(
-    query[SEARCH_PARAMS.searchQuery] ||
-      query[SEARCH_PARAMS.startDate] ||
-      query[SEARCH_PARAMS.endDate] ||
-      query[SEARCH_PARAMS.id],
-  );
 
-  return (
-    <div className={`${isMobile ? "block md:hidden" : "hidden md:block"}`}>
-      {canClearAllFilters ? (
-        // @ts-expect-error bad type definition
-        <Button variant="tertiary" size="medium" onClick={clearAllFilters}>
-          Clear filters
-        </Button>
-      ) : null}
-    </div>
-  );
-};
 
-const SetMapToggle = ({
-  query,
-  updateQuery,
-  isMobile,
-}: {
-  updateQuery: (params: TQueryParams) => void;
-  query: TQueryParams;
-  isMobile?: boolean;
-}) => {
-  return (
-    <div
-      className={`${isMobile ? "inline-flex md:hidden" : "hidden md:inline-flex"} items-center gap-x-4`}
-      role="button"
-    >
-      <p className="text-body-2base text-nowrap">
-        {APP_CONTENT.models.modelsList.filtersSection.mapViewToggleText}
-      </p>
-      <Switch
-        checked={query[SEARCH_PARAMS.mapIsActive] as boolean}
-        disabled={query[SEARCH_PARAMS.layout] == LayoutView.LIST}
-        handleSwitchChange={() => {
-          updateQuery({
-            [SEARCH_PARAMS.mapIsActive]: !query[SEARCH_PARAMS.mapIsActive],
-          });
-        }}
-      />
-    </div>
-  );
-};
-
-const LayoutToggle = ({
-  query,
-  updateQuery,
-  isMobile,
-  disabled = false,
-}: {
-  updateQuery: (params: TQueryParams) => void;
-  query: TQueryParams;
-  isMobile?: boolean;
-  disabled?: boolean;
-}) => {
-  const activeLayout = query[SEARCH_PARAMS.layout];
-  return (
-    <button
-      title={`Switch to ${query[SEARCH_PARAMS.layout] === LayoutView.GRID ? LayoutView.LIST : (LayoutView.GRID as string)} layout`}
-      className={`${isMobile ? "flex md:hidden" : "hidden md:flex"} border border-gray-border p-2 items-center justify-center text-dark cursor-pointer`}
-      onClick={() =>
-        updateQuery({
-          [SEARCH_PARAMS.layout]:
-            activeLayout === LayoutView.GRID
-              ? LayoutView.LIST
-              : LayoutView.GRID,
-        })
-      }
-      disabled={disabled}
-    >
-      {activeLayout !== LayoutView.LIST ? (
-        <ListIcon className="icon-lg" />
-      ) : (
-        <CategoryIcon className="icon-lg" />
-      )}
-    </button>
-  );
-};
-
-const MobileFilter = ({
-  openMobileFilterModal,
-}: {
-  openMobileFilterModal: () => void;
-  isMobile?: boolean;
-}) => {
-  return (
-    <div
-      role="button"
-      className={
-        "flex md:hidden  border border-gray-border p-2 items-center justify-center text-dark cursor-pointer"
-      }
-      onClick={openMobileFilterModal}
-    >
-      {<FilterIcon className="icon-lg" />}
-    </div>
-  );
-};
 
 export const ModelsPage = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  const defaultQueries = {
-    [SEARCH_PARAMS.offset]: 0,
-    [SEARCH_PARAMS.searchQuery]:
-      searchParams.get(SEARCH_PARAMS.searchQuery) || "",
-    [SEARCH_PARAMS.ordering]:
-      searchParams.get(SEARCH_PARAMS.ordering) ||
-      (ORDERING_FIELDS[1].apiValue as string),
-    [SEARCH_PARAMS.mapIsActive]:
-      searchParams.get(SEARCH_PARAMS.mapIsActive) || false,
-    [SEARCH_PARAMS.startDate]: searchParams.get(SEARCH_PARAMS.startDate) || "",
-    [SEARCH_PARAMS.endDate]: searchParams.get(SEARCH_PARAMS.endDate) || "",
-    [SEARCH_PARAMS.dateFilter]:
-      searchParams.get(SEARCH_PARAMS.dateFilter) || dateFilters[0].searchParams,
-    [SEARCH_PARAMS.layout]:
-      searchParams.get(SEARCH_PARAMS.layout) || LayoutView.GRID,
-    [SEARCH_PARAMS.id]: searchParams.get(SEARCH_PARAMS.id) || "",
-  };
-
-  const [query, setQuery] = useState<TQueryParams>(defaultQueries);
 
   const { isOpened, openDialog, closeDialog } = useDialog();
 
-  const debouncedSearchText = useDebounce(
-    query[SEARCH_PARAMS.searchQuery] as string,
-    300,
-  );
-
-  const { data, isPending, isPlaceholderData, isError } = useModels({
-    searchQuery: debouncedSearchText,
-    limit: PAGE_LIMIT,
-    offset: query[SEARCH_PARAMS.offset] as number,
-    orderBy: query[SEARCH_PARAMS.ordering] as string,
-    id: query[SEARCH_PARAMS.id] as number,
-    dateFilters: buildDateFilterQueryString(
-      dateFilters.find(
-        (filter) => filter.searchParams === query[SEARCH_PARAMS.dateFilter],
-      ),
-      query[SEARCH_PARAMS.startDate] as string,
-      query[SEARCH_PARAMS.endDate] as string,
-    ),
-  });
-
-  const updateQuery = useCallback(
-    (newParams: TQueryParams) => {
-      setQuery((prevQuery) => ({
-        ...prevQuery,
-        ...newParams,
-      }));
-      const updatedParams = new URLSearchParams(searchParams);
-
-      Object.entries(newParams).forEach(([key, value]) => {
-        if (value) {
-          updatedParams.set(key, String(value));
-        } else {
-          updatedParams.delete(key);
-        }
-      });
-
-      setSearchParams(updatedParams, { replace: true });
-    },
-    [searchParams, setSearchParams],
-  );
-
-  //reset offset back to 0 when searching or when ID filtering is applied from the map.
-  useEffect(() => {
-    if (
-      (query[SEARCH_PARAMS.searchQuery] !== "" ||
-        query[SEARCH_PARAMS.id] !== "") &&
-      (query[SEARCH_PARAMS.offset] as number) > 0
-    ) {
-      updateQuery({ [SEARCH_PARAMS.offset]: 0 });
-    }
-  }, [query]);
-
-  useEffect(() => {
-    const newQuery = {
-      [SEARCH_PARAMS.offset]: defaultQueries[SEARCH_PARAMS.offset],
-      [SEARCH_PARAMS.ordering]: defaultQueries[SEARCH_PARAMS.ordering],
-      [SEARCH_PARAMS.mapIsActive]: defaultQueries[SEARCH_PARAMS.mapIsActive],
-      [SEARCH_PARAMS.startDate]: defaultQueries[SEARCH_PARAMS.startDate],
-      [SEARCH_PARAMS.endDate]: defaultQueries[SEARCH_PARAMS.endDate],
-      [SEARCH_PARAMS.dateFilter]: defaultQueries[SEARCH_PARAMS.dateFilter],
-      [SEARCH_PARAMS.layout]: defaultQueries[SEARCH_PARAMS.layout],
-      [SEARCH_PARAMS.searchQuery]: defaultQueries[SEARCH_PARAMS.searchQuery],
-      [SEARCH_PARAMS.id]: defaultQueries[SEARCH_PARAMS.id],
-    };
-    setQuery(newQuery);
-  }, []);
+  const { clearAllFilters, data, isError, isPending, isPlaceholderData, query, updateQuery, mapViewIsActive } = useModelsListFilters()
 
   const {
     data: mapData,
@@ -263,24 +60,7 @@ export const ModelsPage = () => {
     [isPending],
   );
 
-  const mapViewIsActive = useMemo(
-    () => query[SEARCH_PARAMS.mapIsActive],
-    [query],
-  );
 
-  const clearAllFilters = useCallback(() => {
-    const resetParams = new URLSearchParams();
-    setSearchParams(resetParams);
-    setQuery((prev) => ({
-      // Preserve existing query params
-      ...prev,
-      // Clear only the filter fields
-      [SEARCH_PARAMS.searchQuery]: "",
-      [SEARCH_PARAMS.startDate]: "",
-      [SEARCH_PARAMS.endDate]: "",
-      [SEARCH_PARAMS.id]: "",
-    }));
-  }, []);
 
   const renderContent = () => {
     if (data?.count === 0) {
@@ -376,7 +156,7 @@ export const ModelsPage = () => {
               </div>
               <div className="md:flex items-center gap-x-10 hidden">
                 {/* Desktop */}
-                <SetMapToggle updateQuery={updateQuery} query={query} />
+                <ModelMapToggle updateQuery={updateQuery} query={query} />
                 <LayoutToggle
                   updateQuery={updateQuery}
                   query={query}
@@ -405,7 +185,7 @@ export const ModelsPage = () => {
                       .modelCountSuffix
                   }
                 </p>
-                <SetMapToggle
+                <ModelMapToggle
                   query={query}
                   updateQuery={updateQuery}
                   isMobile

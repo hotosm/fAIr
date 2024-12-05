@@ -315,11 +315,11 @@ const router = createBrowserRouter([
       {
         path: APPLICATION_ROUTES.ACCOUNT_MODELS,
         lazy: async () => {
-          const { UserAccountModelsPage } = await import(
+          const { UserModelsPage } = await import(
             "@/app/routes/account/models"
           );
           return {
-            Component: () => <UserAccountModelsPage />,
+            Component: () => <UserModelsPage />,
           };
         },
       },
