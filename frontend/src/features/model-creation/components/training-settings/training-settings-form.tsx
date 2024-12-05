@@ -35,17 +35,17 @@ const TrainingSettingsForm = () => {
       enabled: true,
     },
     {
+      label: MODEL_CREATION_CONTENT.trainingSettings.form.batchSize.label,
+      value: MODEL_CREATION_FORM_NAME.BATCH_SIZE,
+      toolTip: MODEL_CREATION_CONTENT.trainingSettings.form.batchSize.toolTip,
+      enabled: true,
+    },
+    {
       label: MODEL_CREATION_CONTENT.trainingSettings.form.contactSpacing.label,
       value: MODEL_CREATION_FORM_NAME.CONTACT_SPACING,
       toolTip:
         MODEL_CREATION_CONTENT.trainingSettings.form.contactSpacing.toolTip,
       enabled: formData.baseModel === BASE_MODELS.RAMP,
-    },
-    {
-      label: MODEL_CREATION_CONTENT.trainingSettings.form.batchSize.label,
-      value: MODEL_CREATION_FORM_NAME.BATCH_SIZE,
-      toolTip: MODEL_CREATION_CONTENT.trainingSettings.form.batchSize.toolTip,
-      enabled: true,
     },
     {
       label: MODEL_CREATION_CONTENT.trainingSettings.form.boundaryWidth.label,
