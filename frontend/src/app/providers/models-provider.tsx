@@ -223,8 +223,8 @@ const ModelsContext = createContext<{
   validateEditMode: boolean;
 }>({
   formData: initialFormState,
-  setFormData: () => {},
-  handleChange: () => {},
+  setFormData: () => { },
+  handleChange: () => { },
   createNewTrainingDatasetMutation: {} as UseMutationResult<
     TTrainingDataset,
     Error,
@@ -239,13 +239,13 @@ const ModelsContext = createContext<{
   >,
   hasLabeledTrainingAreas: false,
   hasAOIsWithGeometry: false,
-  resetState: () => {},
+  resetState: () => { },
   isEditMode: false,
   modelId: "",
   getFullPath: () => "",
-  handleModelCreationAndUpdate: () => {},
+  handleModelCreationAndUpdate: () => { },
   trainingDatasetCreationInProgress: false,
-  handleTrainingDatasetCreation: () => {},
+  handleTrainingDatasetCreation: () => { },
   validateEditMode: false,
 });
 
@@ -257,7 +257,7 @@ export const ModelsProvider: React.FC<{
   const { modelId } = useParams();
   const [formData, setFormData] =
     useState<typeof initialFormState>(initialFormState);
-  const { user } = useAuth();
+
   const handleChange = (
     field: string,
     value:
@@ -302,7 +302,7 @@ export const ModelsProvider: React.FC<{
   useEffect(() => {
     if (!isEditMode || isPending || !data) return;
 
-    if (isError || data.user.osm_id !== user.osm_id) {
+    if (isError) {
       navigate(APPLICATION_ROUTES.NOTFOUND);
     }
 

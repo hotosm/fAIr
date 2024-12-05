@@ -21,7 +21,7 @@ import TrainingInProgressImage from "@/assets/images/training_in_progress.png";
 import { Image } from "@/components/ui/image";
 import ModelEnhancementDialog from "@/features/models/components/dialogs/model-enhancement-dialog";
 import { TModelDetails } from "@/types";
-
+import { useAuth } from "@/app/providers/auth-provider";
 
 export const ModelDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -37,6 +37,8 @@ export const ModelDetailsPage = () => {
     id !== undefined,
     10000,
   );
+
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
     if (isError) {
@@ -58,6 +60,7 @@ export const ModelDetailsPage = () => {
   if (isPending || isError) {
     return <ModelDetailsSkeleton />;
   }
+
 
   return (
     <>
@@ -110,6 +113,7 @@ export const ModelDetailsPage = () => {
             size="medium"
             prefixIcon={StarStackIcon}
             onClick={openModelEnhancementDialog}
+            disabled={!isAuthenticated}
           />
         </div>
         {/* mobile */}
@@ -125,6 +129,7 @@ export const ModelDetailsPage = () => {
               size="medium"
               prefixIcon={StarStackIcon}
               onClick={openModelEnhancementDialog}
+              disabled={!isAuthenticated}
             />
           </div>
           <TrainingHistoryTable
