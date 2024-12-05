@@ -314,29 +314,16 @@ export const snapGeoJSONGeometryToClosestTile = (geometry: Geometry) => {
 
 /*
   Logic.
-
-  ------------------------------------------------------
-  | Same area         | New area                         |
-  ------------------------------------------------------
-  | 1 - Purple        | Will be replaced with new feature |
-  | 2 - Red           | No touch                         |
-  | 3 - Green         | No touch                         |
-  ------------------------------------------------------
-
-  Handling Purple i.e all features:
-  ------------------------------------------------------
-  | 1 - Purple       |                                      |
-  |                  | Check if they intersect with previous purple |
-  |                  | - Yes: Replace with new feature      |
-  |                  | - No: Keep the purple as it is       |
-  ------------------------------------------------------
+  | 1 - Purple: Will be replaced with new feature if it intersects with new features, otherwise, it'll be appended.
+  | 2 - Red: No touch                        
+  | 3 - Green: No touch                         
 */
-
 export const handleConflation = (
   existingPredictions: TModelPredictions,
   newFeatures: Feature[],
 ): TModelPredictions => {
-  const updatedAll = [...existingPredictions.all];
+
+  let updatedAll = [...existingPredictions.all];
 
   newFeatures.forEach((newFeature) => {
     const intersectsWithAccepted = existingPredictions.accepted.some(
@@ -345,21 +332,31 @@ export const handleConflation = (
     const intersectsWithRejected = existingPredictions.rejected.some(
       (rejectedFeature) => booleanIntersects(newFeature, rejectedFeature),
     );
-    const intersectsWithAll = updatedAll.some((existingFeature) =>
+
+
+    const intersectingIndex = updatedAll.findIndex((existingFeature) =>
       booleanIntersects(newFeature, existingFeature),
     );
 
-    // If it doesn't intersect with any of the accepted, rejected, or all features, add it to all
-    if (
+    if (intersectingIndex !== -1) {
+
+      updatedAll[intersectingIndex] = {
+        ...newFeature,
+        properties: {
+          ...newFeature.properties,
+          id: updatedAll[intersectingIndex].properties?.id || uuid4(),
+        },
+      };
+    } else if (
       !intersectsWithAccepted &&
-      !intersectsWithRejected &&
-      !intersectsWithAll
+      !intersectsWithRejected
     ) {
+
       updatedAll.push({
         ...newFeature,
         properties: {
           ...newFeature.properties,
-          id: uuid4(), // Add unique ID for tracking
+          id: uuid4(),
         },
       });
     }

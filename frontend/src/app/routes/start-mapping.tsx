@@ -160,7 +160,7 @@ export const StartMappingPage = () => {
       <BackButton />
 
       <div className="min-h-screen md:h-[90vh] flex mt-8 flex-col mb-20">
-        <div>
+        <div className="sticky top-0 bg-white z-10">
           {renderModelHeader}
           <div className="hidden md:block w-full">
             <Divider />
