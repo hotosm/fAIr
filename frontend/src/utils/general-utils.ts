@@ -1,5 +1,5 @@
 import { API_ENDPOINTS, BASE_API_URL } from "@/services";
-import { Feature, FeatureCollection } from "@/types";
+import { BBOX, Feature, FeatureCollection } from "@/types";
 import {
   FAIR_VERSION,
   MAX_TRAINING_AREA_SIZE,
@@ -8,6 +8,8 @@ import {
   calculateGeoJSONArea,
 } from "@/utils";
 import { useToastNotification } from "@/hooks/use-toast-notification";
+import { TOAST_NOTIFICATIONS } from "@/contents";
+import { geojson2osm } from "@/lib/geojson2xml";
 
 /**
  * Open the AOI (Training Area) in ID Editor.
@@ -46,7 +48,7 @@ export const openInIDEditor = (
  * creates a downloadable file, and triggers a download for the user.
  *
  * @param {Feature|FeatureCollection} geojson - The GeoJSON Feature or FeatureCollection to download.
- * @param {string} filename - The name to save the downloaded file, without the extension.
+ * @param {string} filename  The name to save the downloaded file, without the extension.
  */
 export const geoJSONDowloader = (
   geojson: FeatureCollection | Feature,
@@ -71,7 +73,7 @@ export const geoJSONDowloader = (
  * than `MAX_TRAINING_AREA_SIZE`.
  *
  * @param {Feature} geojsonFeature - The GeoJSON feature to validate.
- * @returns {boolean} - Returns `true` if the area is out of the specified range,
+ * @returns {boolean} Returns `true` if the area is out of the specified range,
  *                      otherwise `false`.
  */
 
@@ -139,4 +141,75 @@ export const showSuccessToast = (message: string = "") => {
 export const showWarningToast = (message: string = "") => {
   const toast = useToastNotification();
   toast(message, "warning");
+};
+
+/**
+ * Generate a unique UUID4.
+ * // reference: https://github.com/JamesLMilner/terra-draw/blob/main/src/util/id.ts
+ * @returns {string} Returns the generate uuid4.
+ */
+export const uuid4 = function (): string {
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+    const r = (Math.random() * 16) | 0,
+      v = c == "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+};
+
+export const openInJOSM = async (
+  oamTileName: string,
+  tmsURL: string,
+  bounds: BBOX,
+  features?: Feature[],
+) => {
+  try {
+    const imgURL = new URL("http://127.0.0.1:8111/imagery");
+    imgURL.searchParams.set("type", "tms");
+    imgURL.searchParams.set("title", oamTileName);
+    imgURL.searchParams.set("url", tmsURL);
+
+    const imgResponse = await fetch(imgURL);
+
+    if (!imgResponse.ok) {
+      showErrorToast(undefined, TOAST_NOTIFICATIONS.josmImageryLoadFailed);
+      return;
+    }
+
+    const loadurl = new URL("http://127.0.0.1:8111/load_and_zoom");
+    loadurl.searchParams.set("bottom", String(bounds[1]));
+    loadurl.searchParams.set("top", String(bounds[3]));
+    loadurl.searchParams.set("left", String(bounds[0]));
+    loadurl.searchParams.set("right", String(bounds[2]));
+
+    const zoomResponse = await fetch(loadurl);
+    // XML Conversion
+    if (features) {
+      try {
+        const _data = geojson2osm({
+          type: "FeatureCollection",
+          features: features,
+        });
+        console.log(typeof _data, _data);
+        const loadData = new URL("http://127.0.0.1:8111/load_data");
+        loadData.searchParams.set("new_layer", "true");
+        loadData.searchParams.set("data", `${_data}`);
+        const response = await fetch(loadData);
+        // No need to show success toast since there'll be a success toast later on
+        // This is to avoid multiple toasts showing up at once.
+        if (!response.ok) {
+          showErrorToast(undefined, TOAST_NOTIFICATIONS.errorLoadingData);
+        }
+      } catch (error) {
+        showErrorToast(error);
+      }
+    }
+
+    if (zoomResponse.ok) {
+      showSuccessToast(TOAST_NOTIFICATIONS.josmOpenSuccess);
+    } else {
+      showErrorToast(undefined, TOAST_NOTIFICATIONS.josmBBOXZoomFailed);
+    }
+  } catch (error) {
+    showErrorToast(undefined, TOAST_NOTIFICATIONS.josmOpenFailed);
+  }
 };

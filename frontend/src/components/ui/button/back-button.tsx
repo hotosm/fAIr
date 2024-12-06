@@ -3,6 +3,7 @@ import { ArrowBackIcon } from "@/components/ui/icons";
 
 const BackButton = () => {
   const navigate = useNavigate();
+
   return (
     <button
       className="flex items-center gap-x-2 mt-10"

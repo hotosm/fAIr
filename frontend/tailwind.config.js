@@ -20,6 +20,7 @@ export default {
         archivo: "var(--sl-font-sans)",
       },
       fontSize: {
+        "extra-large": "var(--hot-fair-font-size-extra-large)",
         "large-title": "var(--hot-fair-font-size-large-title)",
         "title-1": "var(--hot-fair-font-size-title-1)",
         "title-2": "var(--hot-fair-font-size-title-2)",
@@ -38,6 +39,13 @@ export default {
       },
       screens: {
         mdx: "960px",
+      },
+      backgroundImage: {
+        contour: "url('./src/assets/svgs/header_bg_contour.svg')",
+      },
+      spacing: {
+        "extra-large": "var(--hot-fair-spacing-extra-large)",
+        large: "var(--hot-fair-spacing-large)",
       },
     },
   },

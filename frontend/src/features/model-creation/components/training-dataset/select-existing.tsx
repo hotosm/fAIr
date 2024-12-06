@@ -20,7 +20,7 @@ const SelectExistingTrainingDatasetForm = () => {
 
   return (
     <div className="flex flex-col gap-y-10">
-      <p className="font-semibold text-body-1 mb-2">
+      <p className="font-semibold text-body-2 md:text-body-1 mb-2">
         {
           MODEL_CREATION_CONTENT.trainingDataset.form
             .existingTrainingDatasetSectionHeading

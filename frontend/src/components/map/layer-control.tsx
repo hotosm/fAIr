@@ -115,14 +115,16 @@ const LayerControl = ({
         distance={10}
       >
         <div className="bg-white px-4 py-2 text-nowrap rounded-md w-full flex flex-col gap-y-4">
-          <p className="text-sm">Basemap</p>
           {basemaps.length > 0 && (
-            <CheckboxGroup
-              defaultSelectedOption={BASEMAPS.OSM}
-              options={basemaps}
-              // @ts-expect-error bad type definition
-              onCheck={handleBasemapSelection}
-            />
+            <>
+              <p className="text-sm">Basemap</p>
+              <CheckboxGroup
+                defaultSelectedOption={BASEMAPS.OSM}
+                options={basemaps}
+                // @ts-expect-error bad type definition
+                onCheck={handleBasemapSelection}
+              />
+            </>
           )}
           {layers.length > 0 && (
             <>

@@ -107,7 +107,7 @@ const columnDefinitions = (
       return (
         <span>
           {Number(row.getValue("accuracy")) > 0
-            ? roundNumber(row.getValue("accuracy"))
+            ? roundNumber(row.getValue("accuracy") ?? 0)
             : "-"}
         </span>
       );
@@ -297,6 +297,7 @@ const TrainingHistoryTable: React.FC<TrainingHistoryTableProps> = ({
               isPlaceholderData={isPlaceholderData}
               setOffset={setOffset}
               offset={offset}
+              centerOnMobile={false}
             />
           </div>
         </div>

@@ -1,4 +1,4 @@
-import SlDrawer from "@shoelace-style/shoelace/dist/react/drawer/index.js";
+import { SlDrawer } from "@shoelace-style/shoelace/dist/react";
 import "./drawer.css";
 
 type DrawerProps = {

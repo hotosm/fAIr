@@ -5,8 +5,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: space-around;
-  gap: var(--hot-fair-spacing-5x-large);
-  padding: var(--hot-fair-spacing-5x-large) 0;
+  gap: var(--hot-fair-spacing-extra-large);
+  padding: var(--hot-fair-spacing-extra-large) 0;
 }
 
 .coreFeatureItem {
@@ -52,6 +52,6 @@
   .coreFeatures {
     flex-direction: row;
     min-height: 200px;
-    padding: 0 var(--hot-fair-spacing-5x-large);
+    padding: 0 var(--hot-fair-spacing-extra-large);
   }
 }

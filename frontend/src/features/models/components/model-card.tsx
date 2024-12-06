@@ -18,7 +18,7 @@ const ModelCard: React.FC<ModelCardProps> = ({ model }) => {
         disableLinkStyle
         href={`${APPLICATION_ROUTES.MODELS}/${model.id}`}
         title={model.name}
-        className="w-[300px] mx-auto h-auto flex flex-col border border-gray-border hover:shadow-md overflow-hidden group"
+        className="w-full  md:max-w-[300px] mx-auto h-auto flex flex-col border border-gray-border hover:shadow-md overflow-hidden group"
       >
         <div className="h-[200px] w-full">
           <Image
@@ -49,7 +49,7 @@ const ModelCard: React.FC<ModelCardProps> = ({ model }) => {
               {APP_CONTENT.models.modelsList.modelCard.accuracy}
             </p>
             <p className="text-dark font-semibold text-body-2">
-              {roundNumber(model.accuracy)} %
+              {roundNumber(model.accuracy ?? 0)} %
             </p>
           </div>
           {/* Name, date and base model */}

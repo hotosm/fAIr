@@ -24,6 +24,7 @@ type TModelQueryOptions = {
   dateFilters: Record<string, string>;
   status: number;
   id: number;
+  userId?: number;
 };
 
 export const getModelsQueryOptions = ({
@@ -34,24 +35,37 @@ export const getModelsQueryOptions = ({
   orderBy,
   dateFilters,
   id,
+  userId,
 }: TModelQueryOptions) => {
   return queryOptions({
     queryKey: [
       "models",
-      { status, searchQuery, offset, orderBy, dateFilters, id },
+      { status, searchQuery, offset, orderBy, dateFilters, id, userId },
     ],
     queryFn: () =>
-      getModels(limit, offset, orderBy, status, searchQuery, dateFilters, id),
+      getModels(
+        limit,
+        offset,
+        orderBy,
+        status,
+        searchQuery,
+        dateFilters,
+        id,
+        userId,
+      ),
     placeholderData: keepPreviousData,
   });
 };
 
-export const getModelDetailsQueryOptions = (id: string, refetchInterval: boolean | number) => {
+export const getModelDetailsQueryOptions = (
+  id: string,
+  refetchInterval: number | boolean,
+) => {
   return queryOptions({
     queryKey: [queryKeys.MODEL_DETAILS(id)],
     queryFn: () => getModelDetails(id),
-    //@ts-expect-error bad type definition
-    refetchInterval: refetchInterval
+    // @ts-expect-error bad type definition
+    refetchInterval: refetchInterval,
   });
 };
 

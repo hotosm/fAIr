@@ -32,7 +32,7 @@
 /* md: */
 @media (min-width: 768px) {
   .FAQS {
-    padding: 0 var(--hot-fair-spacing-5x-large);
+    padding: 0 var(--hot-fair-spacing-extra-large);
   }
 
   .heading {

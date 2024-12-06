@@ -37,7 +37,11 @@ export const ENVS = {
    * The maximum zoom level for the map.
    */
   MAX_ZOOM_LEVEL: import.meta.env.MAX_ZOOM_LEVEL,
+  /**
+   * The minimum zoom level for the map before the prediction components can be activated.
+   */
 
+  MIN_ZOOM_LEVEL_FOR_PREDICTION: import.meta.env.MIN_ZOOM_LEVEL_FOR_PREDICTION,
   /**
    * The minimum zoom level to show the training area labels.
    */

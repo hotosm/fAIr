@@ -1,9 +1,9 @@
 import CreativeCommonsBadge from "@/assets/images/cc_by_badge.png";
-import FacebookLogo from "@/assets/socials/facebook_logo.svg";
-import GitHubLogo from "@/assets/socials/github_logo.svg";
-import XLogo from "@/assets/socials/x_logo.svg";
-import InstagramLogo from "@/assets/socials/instagram_logo.svg";
-import YoutTubeLogo from "@/assets/socials/youtube_logo.svg";
+import FacebookLogo from "@/assets/svgs/socials/facebook_logo.svg";
+import GitHubLogo from "@/assets/svgs/socials/github_logo.svg";
+import XLogo from "@/assets/svgs/socials/x_logo.svg";
+import InstagramLogo from "@/assets/svgs/socials/instagram_logo.svg";
+import YoutTubeLogo from "@/assets/svgs/socials/youtube_logo.svg";
 import { APP_CONTENT } from "@/utils/content";
 import { Image } from "@/components/ui/image";
 import { Link } from "@/components/ui/link";

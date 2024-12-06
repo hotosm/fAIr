@@ -1,4 +1,4 @@
-import { Image } from "@/components/ui/image";
+import { Image, ZoomableImage } from "@/components/ui/image";
 import ToolTip from "@/components/ui/tooltip/tooltip";
 import {
   useTrainingDetails,
@@ -99,7 +99,10 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
   isTrainingDetailsDialog = false,
   baseModel,
 }) => {
-  const { isPending, data, error, isError } = useTrainingDetails(trainingId);
+  const { isPending, data, error, isError } = useTrainingDetails(
+    trainingId,
+    10000,
+  );
 
   const { isOpened, closeDialog, openDialog } = useDialog();
 
@@ -141,7 +144,7 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
             `grid ${isTrainingDetailsDialog ? "grid-cols-2" : "grid-cols-1 lg:grid-cols-5"} gap-14 items-center `,
           )}
         >
-          <div className="col-span-3 grid grid-cols-1 sm:grid-cols-2 grid-rows-4 gap-y-4 md:gap-y-10">
+          <div className="col-span-3 grid grid-cols-1 sm:grid-cols-2 grid-rows-4 gap-y-4 md:gap-y-8">
             <PropertyDisplay
               label={
                 APP_CONTENT.models.modelsDetailsCard.properties.zoomLevels.title
@@ -265,21 +268,25 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
             />
 
             {isTrainingDetailsDialog && (
-              <ModelFilesButton
-                disabled={
-                  data?.status === TrainingStatus.IN_PROGRESS ||
-                  data?.status === TrainingStatus.RUNNING
-                }
-                openModelFilesDialog={openDialog}
-              />
+              <div className="w-fit">
+                <ModelFilesButton
+                  disabled={
+                    data?.status === TrainingStatus.IN_PROGRESS ||
+                    data?.status === TrainingStatus.RUNNING
+                  }
+                  openModelFilesDialog={openDialog}
+                />
+              </div>
             )}
           </div>
 
-          {trainingResultsGraph && (
+          {trainingResultsGraph && data?.status !== TrainingStatus.RUNNING && (
             <div
               className={`col-span-3 lg:col-span-2 ${isTrainingDetailsDialog && "lg:col-span-3"}`}
             >
-              <Image src={trainingResultsGraph} alt={""} />
+              <ZoomableImage>
+                <Image src={trainingResultsGraph} alt={data.description} />
+              </ZoomableImage>
             </div>
           )}
 
@@ -320,14 +327,14 @@ const FailedTrainingTraceBack = ({ taskId }: { taskId: string }) => {
 
   if (isPending) {
     return (
-      <div className="h-80 col-span-5 w-full animate-pulse bg-light-gray"></div>
+      <div className="h-40 col-span-5 w-full animate-pulse bg-light-gray"></div>
     );
   }
   return (
-    <div className="col-span-5 flex flex-col gap-y-4 w-full h-40">
+    <div className="col-span-3 flex flex-col gap-y-2 w-full">
       <button
         onClick={() => setShowLogs(!showLogs)}
-        className="flex items-center gap-x-2"
+        className="flex items-center gap-x-2 text-gray text-body-2"
       >
         <p>{APP_CONTENT.models.modelsDetailsCard.trainingInfoDialog.logs}</p>
         <ChevronDownIcon className={`icon ${showLogs && "rotate-180"}`} />

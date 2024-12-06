@@ -14,7 +14,11 @@ export const ModelConfirmationPage = () => {
   const { isEditMode } = useModelsContext();
 
   return (
-    <div className={"col-start-3 col-span-8 flex flex-col gap-y-10"}>
+    <div
+      className={
+        "col-span-12 md:col-start-3 md:col-span-8 flex flex-col gap-y-10"
+      }
+    >
       <div className="flex items-center justify-center w-full h-full flex-col gap-y-10 text-center">
         <ConfettiExplosion
           force={0.2}
@@ -29,7 +33,7 @@ export const ModelConfirmationPage = () => {
         <p className="text-gray">
           {MODEL_CREATION_CONTENT.confirmation.description}
         </p>
-        <div className="flex items-center justify-between gap-x-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <Link
             href={`${APPLICATION_ROUTES.MODELS}/${modelId}`}
             title={MODEL_CREATION_CONTENT.confirmation.buttons.goToModel}

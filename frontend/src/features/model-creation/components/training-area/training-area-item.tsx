@@ -16,18 +16,18 @@ import {
   getGeoJSONFeatureBounds,
   MODEL_CREATION_CONTENT,
   openInIDEditor,
+  openInJOSM,
   showErrorToast,
   showSuccessToast,
   showWarningToast,
-  TOAST_NOTIFICATIONS,
   truncateString,
 } from "@/utils";
+import { TOAST_NOTIFICATIONS } from "@/contents";
 import JOSMLogo from "@/assets/svgs/josm_logo.svg";
 import OSMLogo from "@/assets/svgs/osm_logo.svg";
 import { ToolTip } from "@/components/ui/tooltip";
-import { GeoJSONType, Geometry, TTrainingAreaFeature } from "@/types";
+import { BBOX, GeoJSONType, Geometry, TTrainingAreaFeature } from "@/types";
 import {
-  fetchOSMDatabaseLastUpdated,
   useCreateTrainingLabelsForAOI,
   useDeleteTrainingArea,
   useGetTrainingAreaLabels,
@@ -36,7 +36,6 @@ import {
 import { useMap } from "@/app/providers/map-provider";
 import { useModelsContext } from "@/app/providers/models-provider";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import FileUploadDialog from "../dialogs/file-upload-dialog";
 import { useDialog } from "@/hooks/use-dialog";
 import { geojsonToWKT } from "@terraformer/wkt";
@@ -84,36 +83,12 @@ const TrainingAreaItem: React.FC<
   });
 
   const handleOpenInJOSM = useCallback(async () => {
-    try {
-      const imgURL = new URL("http://127.0.0.1:8111/imagery");
-      imgURL.searchParams.set("type", "tms");
-      imgURL.searchParams.set("title", formData.oamTileName);
-      imgURL.searchParams.set("url", formData.tmsURL);
-
-      const imgResponse = await fetch(imgURL);
-
-      if (!imgResponse.ok) {
-        showErrorToast(undefined, TOAST_NOTIFICATIONS.josmImageryLoadFailed);
-        return;
-      }
-
-      const loadurl = new URL("http://127.0.0.1:8111/load_and_zoom");
-      loadurl.searchParams.set("bottom", String(formData.oamBounds[1]));
-      loadurl.searchParams.set("top", String(formData.oamBounds[3]));
-      loadurl.searchParams.set("left", String(formData.oamBounds[0]));
-      loadurl.searchParams.set("right", String(formData.oamBounds[2]));
-
-      const zoomResponse = await fetch(loadurl);
-
-      if (zoomResponse.ok) {
-        showSuccessToast(TOAST_NOTIFICATIONS.josmOpenSuccess);
-      } else {
-        showErrorToast(undefined, TOAST_NOTIFICATIONS.josmBBOXZoomFailed);
-      }
-    } catch (error) {
-      showErrorToast(undefined, TOAST_NOTIFICATIONS.josmOpenFailed);
-    }
-  }, [formData.oamBounds]);
+    openInJOSM(
+      formData.oamTileName,
+      formData.tmsURL,
+      formData.oamBounds as BBOX,
+    );
+  }, [formData.oamTileName, formData.tmsURL, formData.oamBounds]);
 
   const handleAOIDownload = useCallback(() => {
     geoJSONDowloader(trainingArea, `AOI_${trainingArea.id}`);
@@ -219,12 +194,6 @@ const TrainingAreaItem: React.FC<
       : "0 m²";
   }, [trainingArea]);
 
-  const { data, isPending, isError } = useQuery({
-    queryKey: ["osm-database-last-updated"],
-    queryFn: fetchOSMDatabaseLastUpdated,
-    refetchInterval: 5000,
-  });
-
   const createTrainingLabelsForAOI = useCreateTrainingLabelsForAOI({});
 
   const fileUploadHandler = async (geometry: Geometry) => {
@@ -246,11 +215,11 @@ const TrainingAreaItem: React.FC<
 
       <div className="flex items-center justify-between w-full gap-x-4">
         <div className="flex flex-col gap-y-1">
-          <p className="text-body-3 ">
+          <p className="text-body-4 md:text-body-3 ">
             ID: <span className="font-semibold">{trainingArea.id}</span>
           </p>
           <p className="text-body-4 text-dark" title={`${trainingAreaSize}`}>
-            {truncateString(trainingAreaSize, 15)}
+            Area: {truncateString(trainingAreaSize, 15)}
           </p>
           <p
             className={`text-body-4 text-dark ${trainingArea.properties.label_fetched === null && "text-primary"}`}
@@ -268,30 +237,12 @@ const TrainingAreaItem: React.FC<
         <div className="flex items-center gap-x-3">
           <ToolTip
             content={
-              <span className="flex flex-col gap-y-1">
-                {MODEL_CREATION_CONTENT.trainingArea.toolTips.fetchOSMLabels}
-                {isPending || isError ? (
-                  ""
-                ) : (
-                  <small>
-                    {
-                      MODEL_CREATION_CONTENT.trainingArea.toolTips
-                        .lastUpdatedPrefix
-                    }{" "}
-                    {formatDuration(
-                      new Date(String(data?.lastUpdated)),
-                      new Date(),
-                      1,
-                    )}{" "}
-                    ago
-                  </small>
-                )}
-              </span>
+              MODEL_CREATION_CONTENT.trainingArea.toolTips.fetchOSMLabels
             }
           >
             <button
               disabled={trainingAreaLabelsMutation.isPending}
-              className="bg-green-secondary px-2 py-1 rounded-md"
+              className="bg-green-secondary px-2 py-1 rounded-md text-nowrap text-[9px] flex items-center gap-x-2 font-light"
               onClick={() =>
                 trainingAreaLabelsMutation.mutate({ aoiId: trainingArea.id })
               }
@@ -332,9 +283,9 @@ const TrainingAreaItem: React.FC<
                   >
                     {item.isIcon ? (
                       // @ts-expect-error bad type definition
-                      <item.Icon className="icon-lg" />
+                      <item.Icon className="icon md:icon-lg" />
                     ) : (
-                      <img src={item.imageSrc} className="icon-lg" />
+                      <img src={item.imageSrc} className="icon md:icon-lg" />
                     )}
                   </button>
                 </ToolTip>

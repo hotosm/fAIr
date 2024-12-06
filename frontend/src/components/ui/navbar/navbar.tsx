@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import styles from "@/components/ui/header/header.module.css";
+import styles from "@/components/landing/header/header.module.css";
 import HOTFairLogo from "@/assets/svgs/hot_fair_logo.svg";
 import HamburgerIcon from "@/assets/svgs/hamburger_icon.svg";
 import { Drawer } from "@/components/ui/drawer";

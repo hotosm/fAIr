@@ -55,7 +55,7 @@ const columnDefinitions: ColumnDef<TModel>[] = [
       <SortableHeader title={"Accuracy (%)"} column={column} />
     ),
     cell: ({ row }) => {
-      return <span>{roundNumber(row.getValue("accuracy"))}</span>;
+      return <span>{roundNumber(row.getValue("accuracy") ?? 0)}</span>;
     },
   },
 ];

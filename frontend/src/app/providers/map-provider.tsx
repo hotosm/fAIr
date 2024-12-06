@@ -43,24 +43,24 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
     DrawingModes.STATIC,
   );
 
-  // sync the modes
+  // Sync the drawing modes between terraDraw
+  // and the application state
   useEffect(() => {
     terraDraw?.setMode(drawingMode);
   }, [terraDraw, drawingMode]);
 
   const updateZoom = useCallback(() => {
     if (!map) return;
-    setCurrentZoom(map.getZoom());
+    // There is a mismatch of 1 in the mag.getZoom() results and the actual zoom level of the map.
+    // Adding 1 to the result resolves it.
+    setCurrentZoom(Math.round(map.getZoom()) + 1);
   }, [map]);
 
   useEffect(() => {
     if (!map) return;
-    const handleMapMove = () => {
-      updateZoom();
-    };
-    map.on("moveend", handleMapMove);
+    map.on("zoomend", updateZoom);
     return () => {
-      map.off("moveend", handleMapMove);
+      map.off("zoomend", updateZoom);
     };
   }, [map]);
 
