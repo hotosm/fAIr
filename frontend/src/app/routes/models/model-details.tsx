@@ -32,7 +32,11 @@ export const ModelDetailsPage = () => {
     openDialog: openModelFilesDialog,
   } = useDialog();
   const navigate = useNavigate();
-  const { data, isPending, isError, error } = useModelDetails(id as string, id !== undefined, 10000);
+  const { data, isPending, isError, error } = useModelDetails(
+    id as string,
+    id !== undefined,
+    10000,
+  );
   const { isAuthenticated } = useAuth();
 
   useEffect(() => {
@@ -55,7 +59,6 @@ export const ModelDetailsPage = () => {
   if (isPending || isError) {
     return <ModelDetailsSkeleton />;
   }
-
 
   return (
     <>

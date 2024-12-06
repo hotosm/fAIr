@@ -56,7 +56,7 @@ export const StartMappingPage = () => {
   const { modelId } = useParams();
   const { isError, isPending, data, error } = useModelDetails(
     modelId as string,
-    modelId !== undefined
+    modelId !== undefined,
   );
   const navigate = useNavigate();
   const { currentZoom } = useMap();

@@ -46,12 +46,15 @@ export const getModelsQueryOptions = ({
   });
 };
 
-export const getModelDetailsQueryOptions = (id: string, refetchInterval: boolean | number) => {
+export const getModelDetailsQueryOptions = (
+  id: string,
+  refetchInterval: boolean | number,
+) => {
   return queryOptions({
     queryKey: [queryKeys.MODEL_DETAILS(id)],
     queryFn: () => getModelDetails(id),
     //@ts-expect-error bad type definition
-    refetchInterval: refetchInterval
+    refetchInterval: refetchInterval,
   });
 };
 
