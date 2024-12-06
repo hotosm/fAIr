@@ -57,6 +57,10 @@ OSM_SECRET_KEY = env("OSM_SECRET_KEY")
 
 # Limiter
 
+
+EPOCHS_LIMIT = env("EPOCHS_LIMIT", default=20)  ## TODO : Remove this global variable
+BATCH_SIZE_LIMIT = env("BATCH_SIZE_LIMIT", default=8)
+
 ## YOLO
 YOLO_EPOCHS_LIMIT = env("YOLO_EPOCHS_LIMIT", default=200)
 YOLO_BATCH_SIZE_LIMIT = env("YOLO_BATCH_SIZE_LIMIT", default=8)
