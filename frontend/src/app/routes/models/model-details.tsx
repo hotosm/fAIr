@@ -32,8 +32,12 @@ export const ModelDetailsPage = () => {
     openDialog: openModelFilesDialog,
   } = useDialog();
   const navigate = useNavigate();
-  const { data, isPending, isError, error } = useModelDetails(id as string, id !== undefined, 10000);
-  const { user } = useAuth();
+  const { data, isPending, isError, error } = useModelDetails(
+    id as string,
+    id !== undefined,
+    10000,
+  );
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
     if (isError) {
@@ -55,7 +59,6 @@ export const ModelDetailsPage = () => {
   if (isPending || isError) {
     return <ModelDetailsSkeleton />;
   }
-  const isOwner = user?.osm_id === data?.user?.osm_id;
 
   return (
     <>
@@ -108,6 +111,7 @@ export const ModelDetailsPage = () => {
             size="medium"
             prefixIcon={StarStackIcon}
             onClick={openModelEnhancementDialog}
+            disabled={!isAuthenticated}
           />
         </div>
         {/* mobile */}
@@ -123,7 +127,7 @@ export const ModelDetailsPage = () => {
               size="medium"
               prefixIcon={StarStackIcon}
               onClick={openModelEnhancementDialog}
-              disabled={!isOwner}
+              disabled={!isAuthenticated}
             />
           </div>
           <TrainingHistoryTable

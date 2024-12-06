@@ -222,8 +222,8 @@ const ModelsContext = createContext<{
   validateEditMode: boolean;
 }>({
   formData: initialFormState,
-  setFormData: () => { },
-  handleChange: () => { },
+  setFormData: () => {},
+  handleChange: () => {},
   createNewTrainingDatasetMutation: {} as UseMutationResult<
     TTrainingDataset,
     Error,
@@ -238,13 +238,13 @@ const ModelsContext = createContext<{
   >,
   hasLabeledTrainingAreas: false,
   hasAOIsWithGeometry: false,
-  resetState: () => { },
+  resetState: () => {},
   isEditMode: false,
   modelId: "",
   getFullPath: () => "",
-  handleModelCreationAndUpdate: () => { },
+  handleModelCreationAndUpdate: () => {},
   trainingDatasetCreationInProgress: false,
-  handleTrainingDatasetCreation: () => { },
+  handleTrainingDatasetCreation: () => {},
   validateEditMode: false,
 });
 
@@ -306,8 +306,11 @@ export const ModelsProvider: React.FC<{
     }
 
     handleChange(MODEL_CREATION_FORM_NAME.BASE_MODELS, data.base_model);
-    handleChange(MODEL_CREATION_FORM_NAME.MODEL_DESCRIPTION, data.description);
-    handleChange(MODEL_CREATION_FORM_NAME.MODEL_NAME, data.name);
+    handleChange(
+      MODEL_CREATION_FORM_NAME.MODEL_DESCRIPTION,
+      data.description ?? "",
+    );
+    handleChange(MODEL_CREATION_FORM_NAME.MODEL_NAME, data.name ?? "");
     handleChange(
       MODEL_CREATION_FORM_NAME.SELECTED_TRAINING_DATASET_ID,
       data.dataset,
@@ -318,10 +321,13 @@ export const ModelsProvider: React.FC<{
   useEffect(() => {
     if (!isEditMode || trainingDatasetIsPending || trainingDatasetIsError)
       return;
-    handleChange(MODEL_CREATION_FORM_NAME.DATASET_NAME, trainingDataset.name);
+    handleChange(
+      MODEL_CREATION_FORM_NAME.DATASET_NAME,
+      trainingDataset.name ?? "",
+    );
     handleChange(
       MODEL_CREATION_FORM_NAME.TMS_URL,
-      trainingDataset.source_imagery,
+      trainingDataset.source_imagery ?? "",
     );
   }, [
     isEditMode,
