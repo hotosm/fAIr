@@ -11,7 +11,9 @@ from uuid import uuid4
 from xml.dom import ValidationErr
 from zipfile import ZipFile
 
+import boto3
 import requests
+from botocore.exceptions import ClientError, NoCredentialsError
 from django.conf import settings
 from gpxpy.gpx import GPX, GPXTrack, GPXTrackSegment, GPXWaypoint
 from tqdm import tqdm
@@ -269,3 +271,69 @@ def process_geojson(geojson_file_path, aoi_id, feedback=False):
                 f.result()
 
     print("writing to database finished")
+
+
+class S3Uploader:
+    def __init__(
+        self,
+        bucket_name=None,
+        aws_access_key_id=None,
+        aws_secret_access_key=None,
+        parent="fair-dev",
+    ):
+        try:
+            if aws_access_key_id and aws_secret_access_key:
+                self.aws_session = boto3.Session(
+                    aws_access_key_id=aws_access_key_id,
+                    aws_secret_access_key=aws_secret_access_key,
+                )
+            else:
+                self.aws_session = boto3.Session()
+
+            self.s3_client = self.aws_session.client("s3")
+            self.bucket_name = bucket_name
+            self.parent = parent
+            logging.info("S3 connection initialized successfully")
+        except (NoCredentialsError, ClientError) as ex:
+            logging.error(f"S3 Connection Error: {ex}")
+            raise
+
+    def upload(self, path, bucket_name=None):
+        if not os.path.exists(path):
+            raise FileNotFoundError(f"Path not found: {path}")
+
+        bucket = bucket_name or self.bucket_name
+        if not bucket:
+            raise ValueError("Bucket name must be provided")
+
+        try:
+            if os.path.isfile(path):
+                return self._upload_file(path, bucket)
+            elif os.path.isdir(path):
+                return self._upload_directory(path, bucket)
+            else:
+                raise ValueError("Path must be a file or directory")
+        except Exception as ex:
+            logging.error(f"Upload failed: {ex}")
+            raise
+
+    def _upload_file(self, file_path, bucket_name):
+        s3_key = f"{self.parent}/{os.path.basename(file_path)}"
+        self.s3_client.upload_file(file_path, bucket_name, s3_key)
+        return f"s3://{bucket_name}/{s3_key}"
+
+    def _upload_directory(self, directory_path, bucket_name):
+        total_files = 0
+        for root, _, files in os.walk(directory_path):
+            for file in files:
+                local_path = os.path.join(root, file)
+                relative_path = os.path.relpath(local_path, directory_path)
+                relative_path = relative_path.replace("\\", "/")
+                s3_key = f"{self.parent}/{relative_path}"
+                self.s3_client.upload_file(local_path, bucket_name, s3_key)
+                total_files += 1
+        return {
+            "directory_name": os.path.basename(directory_path),
+            "total_files_uploaded": total_files,
+            "s3_path": f"s3://{bucket_name}/{self.parent}/",
+        }

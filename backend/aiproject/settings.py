@@ -55,9 +55,15 @@ OSM_LOGIN_REDIRECT_URI = env(
 OSM_SECRET_KEY = env("OSM_SECRET_KEY")
 
 
+# S3
+BUCKET_NAME = env("BUCKET_NAME")
+PARENT_BUCKET_FOLDER = env(
+    "PARENT_BUCKET_FOLDER", default="dev"
+)  # use prod for production
+AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID", default=None)
+AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY", default=None)
+
 # Limiter
-
-
 EPOCHS_LIMIT = env("EPOCHS_LIMIT", default=20)  ## TODO : Remove this global variable
 BATCH_SIZE_LIMIT = env("BATCH_SIZE_LIMIT", default=8)
 
