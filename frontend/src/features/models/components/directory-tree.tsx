@@ -121,9 +121,10 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
   const fetchDirectoryRecursive = async (
     currentDirectory: string = "",
     currentDepth: number = 0,
-    maxDepth: number = 2,
+    maxDepth: number = 2
   ): Promise<any> => {
     if (currentDepth >= maxDepth) {
+
       return {};
     }
 
@@ -135,24 +136,24 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
     const subdirectories =
       dir && currentDepth < maxDepth
         ? await Promise.all(
-            Object.keys(dir).map(async (key: string) => {
-              const fullPath = currentDirectory
-                ? `${currentDirectory}/${key}`
-                : key;
-              const subDirData = await fetchDirectoryRecursive(
-                fullPath,
-                currentDepth + 1,
-                maxDepth,
-              );
-              return {
-                [key]: {
-                  ...subDirData,
-                  size: dir[key]?.size || 0,
-                  length: dir[key]?.len || 0,
-                },
-              };
-            }),
-          )
+          Object.keys(dir).map(async (key: string) => {
+            const fullPath = currentDirectory
+              ? `${currentDirectory}/${key}`
+              : key;
+            const subDirData = await fetchDirectoryRecursive(
+              fullPath,
+              currentDepth + 1,
+              maxDepth
+            );
+            return {
+              [key]: {
+                ...subDirData,
+                size: dir[key]?.size || 0,
+                length: dir[key]?.len || 0,
+              },
+            };
+          })
+        )
         : [];
 
     return {
