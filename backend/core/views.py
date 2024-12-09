@@ -11,6 +11,7 @@ import time
 import zipfile
 from datetime import datetime
 from tempfile import NamedTemporaryFile
+from urllib.parse import quote
 
 # import tensorflow as tf
 from celery import current_app
@@ -20,6 +21,7 @@ from django.http import (
     FileResponse,
     HttpResponse,
     HttpResponseBadRequest,
+    HttpResponseRedirect,
     StreamingHttpResponse,
 )
 from django.shortcuts import get_object_or_404, redirect
@@ -71,7 +73,16 @@ from .serializers import (
     UserSerializer,
 )
 from .tasks import train_model
-from .utils import get_dir_size, gpx_generator, process_rawdata, request_rawdata
+from .utils import (
+    download_s3_file,
+    get_dir_size,
+    get_local_metadata,
+    get_s3_directory,
+    gpx_generator,
+    process_rawdata,
+    request_rawdata,
+    s3_object_exists,
+)
 
 if settings.ENABLE_PREDICTION_API:
     from predictor import predict
@@ -159,7 +170,7 @@ class TrainingSerializer(
                 raise ValidationError(
                     f"Batch size can't be greater than {settings.RAMP_BATCH_SIZE_LIMIT} on this server"
                 )
-        if model.base_model in ["YOLO_V8_V1","YOLO_V8_V2"]:
+        if model.base_model in ["YOLO_V8_V1", "YOLO_V8_V2"]:
 
             if epochs > settings.YOLO_EPOCHS_LIMIT:
                 raise ValidationError(
@@ -567,9 +578,7 @@ def run_task_status(request, run_id: str):
             # read the last 10 lines of the log file
             cmd = ["tail", "-n", str(settings.LOG_LINE_STREAM_TRUNCATE_VALUE), log_file]
             # print(cmd)
-            output = subprocess.check_output(
-                cmd
-            ).decode("utf-8")
+            output = subprocess.check_output(cmd).decode("utf-8")
         except Exception as e:
             output = str(e)
         result = {
@@ -820,100 +829,139 @@ class GenerateFeedbackAOIGpxView(APIView):
         return HttpResponse(gpx_xml, content_type="application/xml")
 
 
+# class TrainingWorkspaceView(APIView):
+#     @method_decorator(cache_page(60 * 15))
+#     # @method_decorator(vary_on_headers("access-token"))
+#     def get(self, request, lookup_dir):
+#         """
+#         List the status of the training workspace.
+
+#         ### Returns:
+#         - **Size**: The total size of the workspace in bytes.
+#         - **dir/file**: The current dir/file on the lookup_dir.
+
+#         ### Workspace Structure:
+#         By default, the training workspace is organized as follows:
+#         - Training files are stored in the directory: `dataset{dataset_id}/output/training_{training}`
+#         """
+
+#         # {workspace_dir:{file_name:{size:20,type:file},dir_name:{size:20,len:4,type:dir}}}
+#         base_dir = settings.TRAINING_WORKSPACE
+#         if lookup_dir:
+#             base_dir = os.path.join(base_dir, lookup_dir)
+#             if not os.path.exists(base_dir):
+#                 return Response({"Errr:File/Dir not Found"}, status=404)
+#         data = {"file": {}, "dir": {}}
+#         if os.path.isdir(base_dir):
+#             for entry in os.scandir(base_dir):
+#                 if entry.is_file():
+#                     data["file"][entry.name] = {
+#                         "size": entry.stat().st_size,
+#                     }
+#                 elif entry.is_dir():
+#                     subdir_size = get_dir_size(entry.path)
+#                     data["dir"][entry.name] = {
+#                         "len": sum(1 for _ in os.scandir(entry.path)),
+#                         "size": subdir_size,
+#                     }
+#         elif os.path.isfile(base_dir):
+#             data["file"][os.path.basename(base_dir)] = {
+#                 "size": os.path.getsize(base_dir)
+#             }
+
+#         return Response(data, status=status.HTTP_201_CREATED)
+
+
 class TrainingWorkspaceView(APIView):
     @method_decorator(cache_page(60 * 15))
-    # @method_decorator(vary_on_headers("access-token"))
+    #     # @method_decorator(vary_on_headers("access-token"))
     def get(self, request, lookup_dir):
-        """
-        List the status of the training workspace.
+        bucket_name = settings.BUCKET_NAME
+        encoded_file_path = quote(lookup_dir.strip("/"))
+        s3_prefix = f"{settings.PARENT_BUCKET_FOLDER}/{encoded_file_path}/"
+        try:
+            data = get_s3_directory(bucket_name, s3_prefix)
+        except Exception as e:
+            return Response({"Error": str(e)}, status=500)
 
-        ### Returns:
-        - **Size**: The total size of the workspace in bytes.
-        - **dir/file**: The current dir/file on the lookup_dir.
-
-        ### Workspace Structure:
-        By default, the training workspace is organized as follows:
-        - Training files are stored in the directory: `dataset{dataset_id}/output/training_{training}`
-        """
-
-        # {workspace_dir:{file_name:{size:20,type:file},dir_name:{size:20,len:4,type:dir}}}
-        base_dir = settings.TRAINING_WORKSPACE
-        if lookup_dir:
-            base_dir = os.path.join(base_dir, lookup_dir)
-            if not os.path.exists(base_dir):
-                return Response({"Errr:File/Dir not Found"}, status=404)
-        data = {"file": {}, "dir": {}}
-        if os.path.isdir(base_dir):
-            for entry in os.scandir(base_dir):
-                if entry.is_file():
-                    data["file"][entry.name] = {
-                        "size": entry.stat().st_size,
-                    }
-                elif entry.is_dir():
-                    subdir_size = get_dir_size(entry.path)
-                    data["dir"][entry.name] = {
-                        "len": sum(1 for _ in os.scandir(entry.path)),
-                        "size": subdir_size,
-                    }
-        elif os.path.isfile(base_dir):
-            data["file"][os.path.basename(base_dir)] = {
-                "size": os.path.getsize(base_dir)
-            }
-
-        return Response(data, status=status.HTTP_201_CREATED)
+        return Response(data, status=status.HTTP_200_OK)
 
 
 class TrainingWorkspaceDownloadView(APIView):
-    authentication_classes = [OsmAuthentication]
-    permission_classes = [IsOsmAuthenticated]
+    # authentication_classes = [OsmAuthentication]
+    # permission_classes = [IsOsmAuthenticated]
 
-    def dispatch(self, request, *args, **kwargs):
-        lookup_dir = kwargs.get("lookup_dir")
-        if lookup_dir.endswith("training_accuracy.png"):
-            # bypass
-            self.authentication_classes = []
-            self.permission_classes = []
+    # def dispatch(self, request, *args, **kwargs):
+    #     lookup_dir = kwargs.get("lookup_dir")
+    #     if lookup_dir.endswith("training_accuracy.png"):
+    #         # bypass
+    #         self.authentication_classes = []
+    #         self.permission_classes = []
 
-        return super().dispatch(request, *args, **kwargs)
+    #     return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, lookup_dir):
-        base_dir = os.path.join(settings.TRAINING_WORKSPACE, lookup_dir)
-        if not os.path.exists(base_dir):
-            return Response({"Errr: File/Dir not found"}, status=404)
-        size = (
-            get_dir_size(base_dir)
-            if os.path.isdir(base_dir)
-            else os.path.getsize(base_dir)
-        ) / (1024**2)
-        if (
-            size > settings.TRAINING_WORKSPACE_DOWNLOAD_LIMIT
-        ):  # if file is greater than 200 mb exit
-            return Response(
-                {
-                    f"Errr: File Size {size} MB Exceed More than {settings.TRAINING_WORKSPACE_DOWNLOAD_LIMIT} MB"
-                },
-                status=403,
-            )
+        s3_key = os.path.join(settings.PARENT_BUCKET_FOLDER, lookup_dir)
+        bucket_name = settings.BUCKET_NAME
 
-        if os.path.isfile(base_dir):
-            response = FileResponse(open(base_dir, "rb"))
-            response["Content-Disposition"] = 'attachment; filename="{}"'.format(
-                os.path.basename(base_dir)
-            )
-            return response
-        else:
-            # TODO : This will take time to zip also based on the reading/writing speed of the dir
-            temp = NamedTemporaryFile()
-            shutil.make_archive(temp.name, "zip", base_dir)
-            # rewind the file so it can be read from the beginning
-            temp.seek(0)
-            response = StreamingHttpResponse(
-                open(temp.name + ".zip", "rb").read(), content_type="application/zip"
-            )
-            response["Content-Disposition"] = 'attachment; filename="{}.zip"'.format(
-                os.path.basename(base_dir)
-            )
-            return response
+        if not s3_object_exists(bucket_name, s3_key):
+            return Response("File not found in S3", status=404)
+        presigned_url = download_s3_file(bucket_name, s3_key)
+
+        return HttpResponseRedirect(presigned_url)
+
+
+# class TrainingWorkspaceDownloadView(APIView):
+#     authentication_classes = [OsmAuthentication]
+#     permission_classes = [IsOsmAuthenticated]
+
+#     def dispatch(self, request, *args, **kwargs):
+#         lookup_dir = kwargs.get("lookup_dir")
+#         if lookup_dir.endswith("training_accuracy.png"):
+#             # bypass
+#             self.authentication_classes = []
+#             self.permission_classes = []
+
+#         return super().dispatch(request, *args, **kwargs)
+
+#     def get(self, request, lookup_dir):
+#         base_dir = os.path.join(settings.TRAINING_WORKSPACE, lookup_dir)
+#         if not os.path.exists(base_dir):
+#             return Response({"Errr: File/Dir not found"}, status=404)
+#         size = (
+#             get_dir_size(base_dir)
+#             if os.path.isdir(base_dir)
+#             else os.path.getsize(base_dir)
+#         ) / (1024**2)
+#         if (
+#             size > settings.TRAINING_WORKSPACE_DOWNLOAD_LIMIT
+#         ):  # if file is greater than 200 mb exit
+#             return Response(
+#                 {
+#                     f"Errr: File Size {size} MB Exceed More than {settings.TRAINING_WORKSPACE_DOWNLOAD_LIMIT} MB"
+#                 },
+#                 status=403,
+#             )
+
+#         if os.path.isfile(base_dir):
+#             response = FileResponse(open(base_dir, "rb"))
+#             response["Content-Disposition"] = 'attachment; filename="{}"'.format(
+#                 os.path.basename(base_dir)
+#             )
+#             return response
+#         else:
+#             # TODO : This will take time to zip also based on the reading/writing speed of the dir
+#             temp = NamedTemporaryFile()
+#             shutil.make_archive(temp.name, "zip", base_dir)
+#             # rewind the file so it can be read from the beginning
+#             temp.seek(0)
+#             response = StreamingHttpResponse(
+#                 open(temp.name + ".zip", "rb").read(), content_type="application/zip"
+#             )
+#             response["Content-Disposition"] = 'attachment; filename="{}.zip"'.format(
+#                 os.path.basename(base_dir)
+#             )
+#             return response
 
 
 class BannerViewSet(viewsets.ModelViewSet):

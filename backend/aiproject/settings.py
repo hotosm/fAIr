@@ -60,8 +60,11 @@ BUCKET_NAME = env("BUCKET_NAME")
 PARENT_BUCKET_FOLDER = env(
     "PARENT_BUCKET_FOLDER", default="dev"
 )  # use prod for production
+AWS_REGION = env("AWS_REGION", default="us-east-1")
 AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID", default=None)
 AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY", default=None)
+PRESIGNED_URL_EXPIRY = env("PRESIGNED_URL_EXPIRY", default=3600)
+
 
 # Limiter
 EPOCHS_LIMIT = env("EPOCHS_LIMIT", default=20)  ## TODO : Remove this global variable

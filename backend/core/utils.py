@@ -15,11 +15,124 @@ import boto3
 import requests
 from botocore.exceptions import ClientError, NoCredentialsError
 from django.conf import settings
+from django.http import HttpResponseRedirect
 from gpxpy.gpx import GPX, GPXTrack, GPXTrackSegment, GPXWaypoint
 from tqdm import tqdm
 
 from .models import AOI, FeedbackAOI, FeedbackLabel, Label
 from .serializers import FeedbackLabelSerializer, LabelSerializer
+
+
+def get_s3_client():
+    if settings.AWS_ACCESS_KEY_ID and settings.AWS_SECRET_ACCESS_KEY:
+        return boto3.client(
+            "s3",
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+            region_name=settings.AWS_REGION,
+        )
+    else:
+        return boto3.client("s3")
+
+
+s3_client = get_s3_client()
+
+
+def s3_object_exists(bucket_name, key):
+    """Check if an object exists in S3."""
+    try:
+        s3_client.head_object(Bucket=bucket_name, Key=key)
+        return True
+    except ClientError as e:
+        if e.response["Error"]["Code"] == "404":
+            return False
+        raise
+
+
+def download_s3_file(bucket_name, s3_key):
+    """Generate a presigned URL for downloading a file from S3."""
+    try:
+        presigned_url = s3_client.generate_presigned_url(
+            "get_object",
+            Params={"Bucket": bucket_name, "Key": s3_key},
+            ExpiresIn=settings.PRESIGNED_URL_EXPIRY,
+        )
+        return presigned_url
+    except ClientError as e:
+        return None
+
+
+def get_s3_metadata(bucket_name, key):
+    """Retrieve metadata for an S3 object."""
+    try:
+        response = s3_client.head_object(Bucket=bucket_name, Key=key)
+        return {"size": response.get("ContentLength")}
+    except Exception as e:
+        raise Exception(f"Error fetching metadata: {str(e)}")
+
+
+def get_s3_directory_size_and_length(bucket_name, prefix):
+    """
+    Get the total size and number of files for a directory in S3.
+
+    Args:
+        bucket_name (str): The S3 bucket name.
+        prefix (str): The prefix (path) to the directory.
+
+    Returns:
+        tuple: (size, length) - size in bytes, length as number of files.
+    """
+    total_size = 0
+    total_length = 0
+    paginator = s3_client.get_paginator("list_objects_v2")
+
+    for page in paginator.paginate(Bucket=bucket_name, Prefix=prefix):
+        total_length += len(page.get("Contents", []))
+
+        total_size += sum(item["Size"] for item in page.get("Contents", []))
+
+    return total_size, total_length
+
+
+def get_s3_directory(bucket_name, prefix):
+    """List objects in an S3 directory."""
+    data = {"file": {}, "dir": {}}
+    paginator = s3_client.get_paginator("list_objects_v2")
+    for page in paginator.paginate(Bucket=bucket_name, Prefix=prefix, Delimiter="/"):
+        for obj in page.get("Contents", []):
+            key = obj["Key"]
+            data["file"][os.path.basename(key)] = {"size": obj["Size"]}
+        for prefix_obj in page.get("CommonPrefixes", []):
+            sub_prefix = prefix_obj["Prefix"]
+            sub_dir_size, sub_dir_len = get_s3_directory_size_and_length(
+                bucket_name, sub_prefix
+            )
+
+            data["dir"][os.path.basename(sub_prefix.rstrip("/"))] = {
+                "size": sub_dir_size,
+                "len": sub_dir_len,
+            }
+    return data
+
+
+def get_local_metadata(base_dir):
+    """Retrieve metadata for local files or directories."""
+    data = {"file": {}, "dir": {}}
+    if os.path.isdir(base_dir):
+        for entry in os.scandir(base_dir):
+            if entry.is_file():
+                data["file"][entry.name] = {"size": entry.stat().st_size}
+            elif entry.is_dir():
+                subdir_size = get_dir_size(entry.path)
+                data["dir"][entry.name] = {
+                    "len": sum(1 for _ in os.scandir(entry.path)),
+                    "size": subdir_size,
+                }
+    elif os.path.isfile(base_dir):
+        data["file"][os.path.basename(base_dir)] = {
+            "size": os.path.getsize(base_dir),
+        }
+    return data
 
 
 def get_dir_size(directory):
