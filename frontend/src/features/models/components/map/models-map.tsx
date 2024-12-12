@@ -40,7 +40,7 @@ const maplibreLayerDefn = (
     source: mapSourceName,
     layout: {},
     paint: {
-      "circle-color": "rgba(104,112,127,0.5)",
+      "circle-color": "rgba(214, 63, 64,0.8)",
       "circle-radius": [
         "step",
         ["get", "point_count"],
