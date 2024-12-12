@@ -35,9 +35,9 @@ export const START_MAPPING_CONTENT = {
     },
   },
   buttons: {
-    runPrediction: "run predictions",
+    runPrediction: "Run prediction",
     download: {
-      label: "action",
+      label: "Actions",
       options: {
         allFeatures: "Download all Features as GeoJSON",
         acceptedFeatures: "Download accepted Features as GeoJSON",
@@ -45,7 +45,7 @@ export const START_MAPPING_CONTENT = {
         openAcceptedFeaturesInJOSM: "Open accepted Features to JOSM",
       },
     },
-    predictionInProgress: "running",
+    predictionInProgress: "Running prediction...",
   },
   settings: {
     useJOSMQ: {

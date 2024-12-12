@@ -22,8 +22,8 @@ const ModelDetailsPopUp = ({
   modelId?: string;
   model?: TModelDetails;
   trainingDataset?: TTrainingDataset;
-  trainingDatasetIsPending: boolean;
-  trainingDatasetIsError: boolean;
+  trainingDatasetIsPending?: boolean;
+  trainingDatasetIsError?: boolean;
 }) => {
   const { data, isPending, isError } = useModelDetails(
     modelId as string,
@@ -47,7 +47,7 @@ const ModelDetailsPopUp = ({
     >
       {
         <SkeletonWrapper showSkeleton={Boolean(modelId && isPending)}>
-          <div className="max-h-[500px] overflow-y-auto border bg-white border-gray-border w-80 shadown-sm shadow-[#433D3D33]  p-5 flex flex-col">
+          <div className="max-h-[500px] overflow-y-auto border bg-white border-gray-border w-80 shadown-sm shadow-[#433D3D33] rounded-md p-5 flex flex-col">
             {!model && isError ? (
               <div>{APPLICATION_CONTENTS.START_MAPPING.modelDetails.error}</div>
             ) : (

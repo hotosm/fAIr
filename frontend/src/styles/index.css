@@ -156,7 +156,7 @@ sl-alert.success::part(base) {
     @apply inline-block h-4 w-4  p-2;
   }
   .fullscreen {
-    @apply -mx-large lg:-mx-extra-large;
+    @apply -mx-large;
   }
   .small-padding {
     @apply px-large;

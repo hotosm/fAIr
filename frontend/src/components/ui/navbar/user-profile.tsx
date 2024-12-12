@@ -1,17 +1,16 @@
-import { TUser } from "@/types/api";
+
 import styles from "@/components/ui/navbar/navbar.module.css";
 import SlAvatar from "@shoelace-style/shoelace/dist/react/avatar/index.js";
 import { DropDown } from "@/components/ui/dropdown";
 import { useNavigate } from "react-router-dom";
 import { APP_CONTENT, APPLICATION_ROUTES } from "@/utils";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
+import { useAuth } from "@/app/providers/auth-provider";
 
-type UserProfileProps = {
-  logout: () => void;
-  user: TUser;
-};
 
-const UserProfile: React.FC<UserProfileProps> = ({ logout, user }) => {
+const UserProfile = ({ hideFullName }: { hideFullName?: boolean }) => {
+  const { user, logout } = useAuth();
+
   const { onDropdownHide, onDropdownShow, dropdownIsOpened } =
     useDropdownMenu();
   const navigate = useNavigate();
@@ -54,8 +53,9 @@ const UserProfile: React.FC<UserProfileProps> = ({ logout, user }) => {
             label={user.username}
             loading="lazy"
             initials={user.username.charAt(0)}
+
           />
-          <p className={styles.userProfileName}>{user.username}</p>
+          {!hideFullName && <p className={styles.userProfileName}>{user.username}</p>}
         </div>
       }
     ></DropDown>

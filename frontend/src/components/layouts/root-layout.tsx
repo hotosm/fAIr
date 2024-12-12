@@ -17,7 +17,8 @@ const RootLayout = () => {
   return (
     <main className="min-h-screen relative  mx-auto flex flex-col justify-between">
       <Banner />
-      <NavBar />
+      {!pathname.includes(APPLICATION_ROUTES.START_MAPPING_BASE) && <NavBar />}
+
       <div
         // Disable global padding on landing page.
         // All other pages use the small padding except content pages.

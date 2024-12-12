@@ -48,8 +48,13 @@ const Select: React.FC<SelectProps> = ({
             : SHOELACE_SIZES.LARGE
       }
       value={String(defaultValue)}
-      //@ts-expect-error bad type definition
-      onSlChange={handleChange}
+      onSlChange={(e) => {
+        e.preventDefault()
+        e.stopImmediatePropagation()
+        e.stopPropagation()
+        //@ts-expect-error bad type definition
+        handleChange(e)
+      }}
       className={className}
     >
       {label && (

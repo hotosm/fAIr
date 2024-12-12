@@ -12,6 +12,7 @@ import { APPLICATION_CONTENTS, TOAST_NOTIFICATIONS } from "@/contents";
 import { useCallback } from "react";
 import { useMap } from "@/app/providers/map-provider";
 import { TModelPredictionsConfig } from "../api/get-model-predictions";
+import { SHOELACE_SIZES } from "@/enums";
 
 const ModelAction = ({
   setModelPredictions,
@@ -53,6 +54,8 @@ const ModelAction = ({
         disabled={disablePredictionButton || modelPredictionMutation.isPending}
         onClick={handlePrediction}
         className="!w-fit"
+        size={SHOELACE_SIZES.MEDIUM}
+        uppercase={false}
       >
         {modelPredictionMutation.isPending
           ? APPLICATION_CONTENTS.START_MAPPING.buttons.predictionInProgress

@@ -1,7 +1,11 @@
 import { SEARCH_PARAMS, TQueryParams } from "@/app/routes/start-mapping";
+import { ButtonWithIcon } from "@/components/ui/button";
+import { DropDown } from "@/components/ui/dropdown";
 import { FormLabel, Input, Select, Switch } from "@/components/ui/form";
+import { ChevronDownIcon } from "@/components/ui/icons";
 import { APPLICATION_CONTENTS } from "@/contents";
 import { INPUT_TYPES, SHOELACE_SIZES } from "@/enums";
+import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 
 const confidenceLevels = [
   {
@@ -29,97 +33,122 @@ const ModelSettings = ({
   query: TQueryParams;
   updateQuery: (newParams: TQueryParams) => void;
 }) => {
+
+  const { onDropdownHide: onModelSettingsDropdownHide, onDropdownShow: onModelSettingsDropdownShow, dropdownIsOpened } =
+    useDropdownMenu();
+
+  const handleQueryUpdate = (key: string, val: number | boolean) => {
+    // Keep the dropdown opened when making changes
+    onModelSettingsDropdownShow()
+    updateQuery({
+      [key]: val
+    });
+  }
+
   return (
-    <div className="flex items-center gap-x-2 justify-between flex-wrap gap-y-4">
-      <div className="flex gap-x-2">
-        <FormLabel
-          label={APPLICATION_CONTENTS.START_MAPPING.settings.useJOSMQ.label}
-          withTooltip
-          toolTipContent={
-            APPLICATION_CONTENTS.START_MAPPING.settings.useJOSMQ.tooltip
+    <DropDown
+      placement="top-end"
+      disableCheveronIcon
+      dropdownIsOpened={dropdownIsOpened}
+      onDropdownHide={onModelSettingsDropdownHide}
+      onDropdownShow={onModelSettingsDropdownShow}
+      triggerComponent={
+        <ButtonWithIcon
+          onClick={dropdownIsOpened ? onModelSettingsDropdownShow : onModelSettingsDropdownHide}
+          suffixIcon={ChevronDownIcon}
+          label={
+            'Settings'
           }
-          position="left"
+          uppercase={false}
+          size={SHOELACE_SIZES.MEDIUM}
+          variant="secondary"
         />
-        <Switch
-          checked={query[SEARCH_PARAMS.useJOSMQ] as boolean}
-          handleSwitchChange={(event) => {
-            updateQuery({
-              [SEARCH_PARAMS.useJOSMQ]: event.target.checked,
-            });
-          }}
-        />
+      }
+    >
+      <div className="flex flex-col bg-white p-3 justify-between rounded-md flex-wrap gap-y-4 w-60">
+        <div className="flex gap-x-2 justify-between">
+          <FormLabel
+            label={APPLICATION_CONTENTS.START_MAPPING.settings.useJOSMQ.label}
+            withTooltip
+            toolTipContent={
+              APPLICATION_CONTENTS.START_MAPPING.settings.useJOSMQ.tooltip
+            }
+            position="left"
+          />
+          <Switch
+            checked={query[SEARCH_PARAMS.useJOSMQ] as boolean}
+            handleSwitchChange={(event) => {
+              handleQueryUpdate(SEARCH_PARAMS.useJOSMQ, event.target.checked,)
+            }}
+          />
+        </div>
+        <div className="flex justify-between items-center gap-x-2">
+          <FormLabel
+            label={APPLICATION_CONTENTS.START_MAPPING.settings.confidence.label}
+            withTooltip
+            toolTipContent={
+              APPLICATION_CONTENTS.START_MAPPING.settings.confidence.tooltip
+            }
+            position="left"
+          />
+          <Select
+            className="w-[90px]"
+            size={SHOELACE_SIZES.SMALL}
+            options={confidenceLevels}
+            defaultValue={query[SEARCH_PARAMS.confidenceLevel] as number}
+            handleChange={(event) => {
+              handleQueryUpdate(SEARCH_PARAMS.confidenceLevel, Number(event.target.value),)
+            }}
+          />
+        </div>
+        <div className="flex justify-between items-center gap-x-2">
+          <FormLabel
+            label={APPLICATION_CONTENTS.START_MAPPING.settings.tolerance.label}
+            withTooltip
+            toolTipContent={
+              APPLICATION_CONTENTS.START_MAPPING.settings.tolerance.tooltip
+            }
+            position="left"
+          />
+          <Input
+            className="w-16"
+            size={SHOELACE_SIZES.SMALL}
+            value={query[SEARCH_PARAMS.tolerance] as number}
+            labelWithTooltip
+            type={INPUT_TYPES.NUMBER}
+            showBorder
+            handleInput={(event) =>
+              handleQueryUpdate(SEARCH_PARAMS.tolerance, Number(event.target.value),)
+            }
+            min={0}
+            step={0.1}
+          />
+        </div>
+        <div className="flex justify-between  items-center gap-x-2">
+          <FormLabel
+            label={APPLICATION_CONTENTS.START_MAPPING.settings.area.label}
+            withTooltip
+            toolTipContent={
+              APPLICATION_CONTENTS.START_MAPPING.settings.area.tooltip
+            }
+            position="left"
+          />
+          <Input
+            className="w-16"
+            size={SHOELACE_SIZES.SMALL}
+            value={query[SEARCH_PARAMS.area] as number}
+            labelWithTooltip
+            type={INPUT_TYPES.NUMBER}
+            showBorder
+            handleInput={(event) =>
+              handleQueryUpdate(SEARCH_PARAMS.area, Number(event.target.value),)
+            }
+            min={0}
+          />
+        </div>
       </div>
-      <div className="flex justify-between items-center gap-x-2">
-        <FormLabel
-          label={APPLICATION_CONTENTS.START_MAPPING.settings.confidence.label}
-          withTooltip
-          toolTipContent={
-            APPLICATION_CONTENTS.START_MAPPING.settings.confidence.tooltip
-          }
-          position="left"
-        />
-        <Select
-          className="w-[90px]"
-          size={SHOELACE_SIZES.SMALL}
-          options={confidenceLevels}
-          defaultValue={query[SEARCH_PARAMS.confidenceLevel] as number}
-          handleChange={(event) => {
-            updateQuery({
-              [SEARCH_PARAMS.confidenceLevel]: Number(event.target.value),
-            });
-          }}
-        />
-      </div>
-      <div className="flex justify-between items-center gap-x-2">
-        <FormLabel
-          label={APPLICATION_CONTENTS.START_MAPPING.settings.tolerance.label}
-          withTooltip
-          toolTipContent={
-            APPLICATION_CONTENTS.START_MAPPING.settings.tolerance.tooltip
-          }
-          position="left"
-        />
-        <Input
-          className="w-16"
-          size={SHOELACE_SIZES.SMALL}
-          value={query[SEARCH_PARAMS.tolerance] as number}
-          labelWithTooltip
-          type={INPUT_TYPES.NUMBER}
-          showBorder
-          handleInput={(event) =>
-            updateQuery({
-              [SEARCH_PARAMS.tolerance]: Number(event.target.value),
-            })
-          }
-          min={0}
-          step={0.1}
-        />
-      </div>
-      <div className="flex justify-between  items-center gap-x-2">
-        <FormLabel
-          label={APPLICATION_CONTENTS.START_MAPPING.settings.area.label}
-          withTooltip
-          toolTipContent={
-            APPLICATION_CONTENTS.START_MAPPING.settings.area.tooltip
-          }
-          position="left"
-        />
-        <Input
-          className="w-16"
-          size={SHOELACE_SIZES.SMALL}
-          value={query[SEARCH_PARAMS.area] as number}
-          labelWithTooltip
-          type={INPUT_TYPES.NUMBER}
-          showBorder
-          handleInput={(event) =>
-            updateQuery({
-              [SEARCH_PARAMS.area]: Number(event.target.value),
-            })
-          }
-          min={0}
-        />
-      </div>
-    </div>
+    </DropDown>
+
   );
 };
 

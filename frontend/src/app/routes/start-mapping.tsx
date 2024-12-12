@@ -1,17 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-
 import { Head } from "@/components/seo";
-import { Divider } from "@/components/ui/divider";
 import { BBOX, TileJSON, TModelPredictions } from "@/types";
 import { useModelDetails } from "@/features/models/hooks/use-models";
-import { BackButton } from "@/components/ui/button";
 import { useGetTrainingDataset } from "@/features/models/hooks/use-dataset";
 import {
-  ModelAction,
-  ModelHeader,
-  ModelSettings,
+  StartMappingHeader,
   StartMappingMapComponent,
 } from "@/features/start-mapping/components";
 import { useGetTMSTileJSON } from "@/features/model-creation/hooks/use-tms-tilejson";
@@ -132,49 +126,27 @@ export const StartMappingPage = () => {
       bounds?.getNorth(),
     ] as BBOX,
   };
-  const renderModelHeader = useMemo(() => {
-    return (
-      <ModelHeader
-        data={data}
-        trainingDatasetIsPending={trainingDatasetIsPending}
-        modelPredictionsExist={modelPredictionsExist}
-        trainingDatasetIsError={trainingDatasetIsError}
-        modelPredictions={modelPredictions}
-        trainingDataset={trainingDataset}
-        oamTileJSON={oamTileJSON}
-      />
-    );
-  }, [
-    data,
-    trainingDatasetIsPending,
-    modelPredictionsExist,
-    trainingDatasetIsError,
-    modelPredictions,
-    trainingDataset,
-    oamTileJSON,
-  ]);
 
   return (
     <>
       <Head title={APPLICATION_CONTENTS.START_MAPPING.pageTitle(data?.name)} />
-      <BackButton />
-
-      <div className="min-h-screen md:h-[90vh] flex mt-8 flex-col mb-20">
-        <div className="sticky top-0 bg-white z-10">
-          {renderModelHeader}
-          <div className="hidden md:block w-full">
-            <Divider />
-          </div>
-          <div className="flex justify-between items-center py-3 flex-wrap gap-y-6 ">
-            <ModelSettings updateQuery={updateQuery} query={query} />
-            <ModelAction
-              modelPredictions={modelPredictions}
-              setModelPredictions={setModelPredictions}
-              trainingConfig={trainingConfig}
-            />
-          </div>
+      <div className="h-screen flex flex-col fullscreen">
+        <div className="sticky top-0 bg-white z-10 px-4 md:px-large py-2">
+          <StartMappingHeader
+            data={data}
+            trainingDatasetIsPending={trainingDatasetIsPending}
+            modelPredictionsExist={modelPredictionsExist}
+            trainingDatasetIsError={trainingDatasetIsError}
+            modelPredictions={modelPredictions}
+            trainingDataset={trainingDataset}
+            oamTileJSON={oamTileJSON}
+            query={query}
+            updateQuery={updateQuery}
+            trainingConfig={trainingConfig}
+            setModelPredictions={setModelPredictions}
+          />
         </div>
-        <div className="col-span-12 h-[70vh] md:h-full border-8 border-off-white flex-grow fullscreen md:no-fullscreen">
+        <div className="col-span-12 h-[70vh] md:h-full border-8 border-off-white flex-grow">
           <StartMappingMapComponent
             trainingDataset={trainingDataset}
             modelPredictions={modelPredictions}

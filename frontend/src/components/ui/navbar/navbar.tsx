@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import styles from "@/components/ui/navbar/navbar.module.css";
-import HOTFairLogo from "@/assets/svgs/hot_fair_logo.svg";
 import HamburgerIcon from "@/assets/svgs/hamburger_icon.svg";
 import { Drawer } from "@/components/ui/drawer";
 import { useState } from "react";
@@ -11,10 +10,12 @@ import { useAuth } from "@/app/providers/auth-provider";
 import UserProfile from "@/components/ui/navbar/user-profile";
 import { useLogin } from "@/hooks/use-login";
 import { useLocation } from "react-router-dom";
+import NavLogo from "./nav-logo";
+
 
 const NavBar = () => {
   const [open, setOpen] = useState(false);
-  const { user, logout, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
   const { handleLogin, loading } = useLogin();
 
   return (
@@ -22,14 +23,7 @@ const NavBar = () => {
       <Drawer open={open} setOpen={setOpen} placement="end">
         <div className={styles.drawerContentContainer}>
           <div className={styles.drawerHeaderContainer}>
-            <Link href="/" title={APP_CONTENT.navbar.logoAlt}>
-              <Image
-                src={HOTFairLogo}
-                alt={APP_CONTENT.navbar.logoAlt}
-                width="125px"
-                height="72px"
-              />
-            </Link>
+            <NavLogo />
             <button
               onClick={() => setOpen(false)}
               className={styles.closeButton}
@@ -42,7 +36,7 @@ const NavBar = () => {
           </div>
           <div className={styles.loginButtonContainer}>
             {isAuthenticated ? (
-              <UserProfile logout={logout} user={user} />
+              <UserProfile />
             ) : (
               <Button variant="primary" onClick={handleLogin} spinner={loading}>
                 {loading
@@ -54,27 +48,14 @@ const NavBar = () => {
         </div>
       </Drawer>
       <nav className={styles.nav}>
-        <div>
-          <Link
-            href="/"
-            title={APP_CONTENT.navbar.logoAlt}
-            nativeAnchor={false}
-          >
-            <Image
-              src={HOTFairLogo}
-              alt={APP_CONTENT.navbar.logoAlt}
-              width="125px"
-              height="72px"
-            />
-          </Link>
-        </div>
+        <NavLogo />
         <div>
           <NavBarLinks className={styles.webNavLinks} />
         </div>
         <div>
           {isAuthenticated ? (
             <div className={styles.profileContainer}>
-              <UserProfile logout={logout} user={user} />
+              <UserProfile />
             </div>
           ) : (
             <Button

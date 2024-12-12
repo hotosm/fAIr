@@ -1,4 +1,5 @@
 
+  
   /* NavBar styles start */
   nav {
     display: flex;
@@ -92,9 +93,12 @@
   
   /* Profile styles ends */
   
- 
+  
+  
   /* md: */
   @media (min-width: 768px) {
+   
+ 
   
     .userProfileName {
       text-wrap: wrap;
@@ -147,5 +151,4 @@
   
     
   }
-
   
