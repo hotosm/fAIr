@@ -156,12 +156,9 @@ sl-alert.success::part(base) {
     @apply inline-block h-4 w-4  p-2;
   }
   .fullscreen {
-    @apply -mx-large;
+    @apply -mx-large 2xl:-mx-extra-large;
   }
-  .small-padding {
-    @apply px-large;
-  }
-  .large-padding {
+  .app-padding {
     @apply px-large 2xl:px-extra-large;
   }
   .no-fullscreen {

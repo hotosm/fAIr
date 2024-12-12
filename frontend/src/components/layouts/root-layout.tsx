@@ -23,7 +23,7 @@ const RootLayout = () => {
       <div
         // Disable global padding on landing page.
         // All other pages use the small padding except content pages.
-        className={`${pathname === APPLICATION_ROUTES.HOMEPAGE ? '' : "small-padding"} w-full`}
+        className={`${pathname === APPLICATION_ROUTES.HOMEPAGE ? '' : "app-padding"} w-full`}
       >
         <Outlet />
       </div>

@@ -38,7 +38,7 @@ const socials = [
 const Footer = () => {
   return (
     <footer>
-      <div className="grid grid-cols-12 grid-rows-2 gap-y-[67px] small-padding bg-dark text-white py-[77px]">
+      <div className="grid grid-cols-12 grid-rows-2 gap-y-[67px] app-padding bg-dark text-white py-[77px]">
         <div className="col-span-12 grid grid-cols-8 lg:grid-cols-12  gap-x-[40px] gap-y-[40px]">
           <div className="col-span-8 lg:col-span-4">
             <p className="text-body-1">{APP_CONTENT.footer.title}</p>
