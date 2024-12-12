@@ -8,6 +8,7 @@ type ButtonWithIconProps = {
   variant: ButtonVariant;
   prefixIcon?: React.ElementType;
   suffixIcon?: React.ElementType;
+
   className?: string;
   iconClassName?: string;
   disabled?: boolean;
@@ -36,6 +37,7 @@ const ButtonWithIcon: React.FC<ButtonWithIconProps> = ({
         disabled={disabled}
         size={size}
         uppercase={uppercase}
+
 
       >
         {PrefixIcon && <PrefixIcon className={cn(`icon ${iconClassName}`)} />}

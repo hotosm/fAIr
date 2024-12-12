@@ -69,7 +69,7 @@ const ModelDetailsInfo = ({
                   label={APP_CONTENT.models.modelsDetailsCard.startMapping}
                   variant="primary"
                   size="medium"
-                  capitalizeText={false}
+
                   prefixIcon={MapIcon}
                   disabled={data?.published_training === null}
                   onClick={() => {
