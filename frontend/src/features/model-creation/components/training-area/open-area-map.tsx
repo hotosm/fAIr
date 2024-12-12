@@ -44,10 +44,10 @@ const OpenAerialMap = ({ tileJSONURL }: { tileJSONURL: string }) => {
           <>
             <div className="flex gap-x-3 justify-between w-full">
               <p
-                className="basis-4/5 text-start text-body-3 text-wrap"
+                className="basis-4/5 text-start text-body-3 text-wrap w-full"
                 title={data?.name}
               >
-                {truncateString(data?.name, 80)}
+                {truncateString(data?.name, 30)}
               </p>
               <ToolTip
                 content={

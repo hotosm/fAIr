@@ -14,6 +14,7 @@ const RootLayout = () => {
     scrollToTop()
   }, [pathname]);
 
+
   return (
     <main className="min-h-screen relative  mx-auto flex flex-col justify-between">
       <Banner />

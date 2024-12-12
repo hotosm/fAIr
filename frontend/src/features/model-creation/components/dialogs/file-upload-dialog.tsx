@@ -37,7 +37,7 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
   disableFileSizeValidation = false,
 }) => {
   const [acceptedFiles, setAcceptedFiles] = useState<AcceptedFile[]>([]);
-
+  const [uploadInProgress, setUploadInProgress] = useState<boolean>(false);
   const onDrop = useCallback((files: FileWithPath[]) => {
     const initialValidFiles = files.filter((file) => {
       if (!file.name.endsWith(".geojson") && !file.name.endsWith(".json")) {
@@ -97,6 +97,7 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
       "application/json": [".geojson", ".json"],
     },
     disabled: disabled,
+
   });
 
   const deleteFile = (fileId: string) => {
@@ -106,9 +107,11 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
   const resetState = () => {
     clearAcceptedFiles();
     closeDialog();
+    setUploadInProgress(false);
   };
 
   const handleUpload = async () => {
+    setUploadInProgress(true);
     const promises = acceptedFiles.map((file: AcceptedFile) => {
       return new Promise<void>((resolve, reject) => {
         const reader = new FileReader();
@@ -198,7 +201,7 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
       isOpened={isOpened}
       closeDialog={resetState}
       label={label}
-      preventClose={disabled}
+      preventClose={disabled || uploadInProgress}
     >
       <div className="flex flex-col gap-y-4">
         <div
