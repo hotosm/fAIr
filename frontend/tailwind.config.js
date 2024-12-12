@@ -40,9 +40,6 @@ export default {
       screens: {
         mdx: "960px",
       },
-      backgroundImage: {
-        contour: "url('./src/assets/svgs/header_bg_contour.svg')",
-      },
       spacing: {
         "extra-large": "var(--hot-fair-spacing-extra-large)",
         large: "var(--hot-fair-spacing-large)",

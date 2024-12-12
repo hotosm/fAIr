@@ -1,6 +1,9 @@
+
 const Header = ({ title }: { title: string }) => {
   return (
-    <header className="h-44 bg-dark bg-contour bg-cover bg-no-repeat flex flex-col md:flex-row fullscreen px-large lg:px-extra-large md:items-end  py-6 justify-between relative">
+    <header style={{
+      backgroundImage: `url("../../src/assets/svgs/header_bg_contour.svg")`
+    }} className="h-44 bg-dark bg-cover bg-no-repeat flex flex-col md:flex-row fullscreen px-large lg:px-extra-large md:items-end  py-6 justify-between relative">
       <div className="relative text-title-1 :text-extra-large text-white border-primary font-semibold w-fit">
         {title}
         <span className="absolute left-0 bottom-0 bg-primary h-2 w-full"></span>
