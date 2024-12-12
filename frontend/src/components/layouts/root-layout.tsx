@@ -13,11 +13,13 @@ const RootLayout = () => {
   }, [pathname]);
 
   return (
-    <main className="min-h-screen relative  mx-auto flex flex-col justify-between max-w-[1800px]">
+    <main className="min-h-screen relative  mx-auto flex flex-col justify-between">
       <Banner />
       <NavBar />
       <div
-        className={`${pathname !== APPLICATION_ROUTES.HOMEPAGE && "px-[1.25rem] lg:px-[5rem]"} w-full`}
+        // Disable the application padding on the landing page only.
+        // This is because the padding in the landing page is different across sections.
+        className={`${pathname !== APPLICATION_ROUTES.HOMEPAGE && "app-padding"} w-full`}
       >
         <Outlet />
       </div>

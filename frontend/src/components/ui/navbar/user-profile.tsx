@@ -1,5 +1,5 @@
 import { TUser } from "@/types/api";
-import styles from "@/components/landing/header/header.module.css";
+import styles from "@/components/ui/navbar/navbar.module.css";
 import SlAvatar from "@shoelace-style/shoelace/dist/react/avatar/index.js";
 import { DropDown } from "@/components/ui/dropdown";
 import { useNavigate } from "react-router-dom";

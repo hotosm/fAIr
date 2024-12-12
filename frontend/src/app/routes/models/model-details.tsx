@@ -37,7 +37,6 @@ export const ModelDetailsPage = () => {
     id !== undefined,
     10000,
   );
-
   const { isAuthenticated } = useAuth();
 
   useEffect(() => {

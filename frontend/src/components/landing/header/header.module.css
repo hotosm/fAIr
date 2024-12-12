@@ -2,98 +2,6 @@
   color: var(--hot-fair-color-dark);
 }
 
-/* NavBar styles start */
-nav {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 var(--sl-spacing-large);
-}
-
-.navLinkItem:hover,
-.activeLink {
-  border-bottom: 2px solid var(--hot-fair-color-primary);
-}
-
-.webNavLinks {
-  display: none;
-}
-
-.mobileNavLinks {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-transform: uppercase;
-  font-weight: var(--sl-spacing-medium);
-  font-size: var(--hot-fair-font-size-body-text-3);
-  gap: var(--sl-spacing-3x-large);
-}
-
-.loginButton {
-  display: none;
-}
-
-.hamburgerMenu {
-  display: block;
-}
-
-/* Mobile Nav */
-
-.drawerContentContainer {
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  row-gap: var(--sl-spacing-3x-large);
-}
-
-.drawerHeaderContainer {
-  grid-column: span 12;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.navLinksContainer {
-  grid-column: span 12;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--sl-spacing-3x-large);
-}
-
-.loginButtonContainer {
-  grid-column: 3 / 7;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.closeButton {
-  font-size: var(--hot-fair-font-size-title-3);
-}
-
-/* NavBar styles ends */
-
-/* Profile styles starts */
-
-.profileContainer {
-  display: none;
-}
-
-.userProfile {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  justify-content: center;
-  cursor: pointer;
-}
-
-.userProfileName {
-  font-size: var(--hot-fair-font-size-body-text-2);
-  color: var(--hot-fair-color-dark);
-  text-wrap: nowrap;
-}
-
-/* Profile styles ends */
 
 /* Jumbotron styles begins */
 
@@ -186,56 +94,10 @@ nav {
   .jumbotronImage {
     display: none;
   }
-
-  .userProfileName {
-    text-wrap: wrap;
-  }
-
-  .navLinkItem:hover,
-  .activeLink {
-    border-bottom: 2px solid var(--hot-fair-color-primary);
-  }
 }
 
 /* mdx: */
 @media (min-width: 960px) {
-  /* NavBar styles start */
-  nav {
-    display: flex;
-    width: 100%;
-    justify-content: space-between;
-    align-items: center;
-    height: 80px;
-    padding: 0 var(--hot-fair-spacing-extra-large);
-    gap: var(--sl-spacing-medium);
-  }
-
-  nav ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    align-items: center;
-  }
-
-  .webNavLinks {
-    display: flex;
-    gap: var(--sl-spacing-3x-large);
-  }
-
-  .loginButton {
-    display: flex;
-  }
-
-  .hamburgerMenu {
-    display: none;
-  }
-
-  .profileContainer {
-    display: block;
-  }
-
-  /* NavBar styles ends */
 
   /* Jumbotron style begins */
 

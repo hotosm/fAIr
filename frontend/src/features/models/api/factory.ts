@@ -59,12 +59,12 @@ export const getModelsQueryOptions = ({
 
 export const getModelDetailsQueryOptions = (
   id: string,
-  refetchInterval: number | boolean,
+  refetchInterval: boolean | number,
 ) => {
   return queryOptions({
     queryKey: [queryKeys.MODEL_DETAILS(id)],
     queryFn: () => getModelDetails(id),
-    // @ts-expect-error bad type definition
+    //@ts-expect-error bad type definition
     refetchInterval: refetchInterval,
   });
 };

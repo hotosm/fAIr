@@ -158,9 +158,14 @@ sl-alert.success::part(base) {
   .fullscreen {
     @apply -mx-large lg:-mx-extra-large;
   }
+  /*  3xl:px-extra-large */
+  .app-padding {
+    @apply px-large;
+  }
   .no-fullscreen {
     @apply -mx-0 lg:-mx-0;
   }
+
 }
 
 /* Tailwind styles ends */
