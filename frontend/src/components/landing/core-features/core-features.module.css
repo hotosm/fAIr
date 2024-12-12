@@ -52,6 +52,5 @@
   .coreFeatures {
     flex-direction: row;
     min-height: 200px;
-    padding: 0 var(--hot-fair-spacing-extra-large);
   }
 }

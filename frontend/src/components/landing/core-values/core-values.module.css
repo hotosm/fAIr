@@ -1,5 +1,5 @@
 .coreValues {
-  padding: 0 var(--sl-spacing-large);
+  padding: 0 var(--hot-fair-spacing-large);
   margin: 152px 0;
   margin-bottom: 80px;
 }
@@ -139,7 +139,7 @@
 /* md: */
 @media (min-width: 768px) {
   .coreValues {
-    padding: 0 var(--hot-fair-spacing-extra-large);
+    /* padding: 0 var(--hot-fair-spacing-extra-large); */
     margin-bottom: 200px;
     /* Adding the height of the rectangle */
   }

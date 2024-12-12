@@ -76,7 +76,6 @@
 /* lg: */
 @media (min-width: 1024px) {
   .aboutfAIrContainer {
-    padding: 100px var(--hot-fair-spacing-extra-large);
     flex-direction: row;
     justify-content: space-between;
   }

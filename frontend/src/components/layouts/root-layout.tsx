@@ -17,9 +17,9 @@ const RootLayout = () => {
       <Banner />
       <NavBar />
       <div
-        // Disable the application padding on the landing page only.
-        // This is because the padding in the landing page is different across sections.
-        className={`${pathname !== APPLICATION_ROUTES.HOMEPAGE && "app-padding"} w-full`}
+        // Disable global padding on landing page.
+        // All other pages use the small padding except content pages.
+        className={`${pathname === APPLICATION_ROUTES.HOMEPAGE ? '' : "small-padding"} w-full`}
       >
         <Outlet />
       </div>

@@ -98,13 +98,7 @@
 
 /* mdx: */
 @media (min-width: 960px) {
-
   /* Jumbotron style begins */
-
-  .jumbotronContainer {
-    padding: var(--hot-fair-spacing-extra-large);
-  }
-
   .jumbotronContentContainer {
     max-width: 60%;
     max-height: 100%;

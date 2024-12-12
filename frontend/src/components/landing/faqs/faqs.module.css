@@ -1,5 +1,5 @@
 .FAQS {
-  padding: 0 var(--sl-spacing-large);
+  padding: 0 var(--hot-fair-spacing-large);
 }
 
 .heading {
@@ -31,9 +31,6 @@
 
 /* md: */
 @media (min-width: 768px) {
-  .FAQS {
-    padding: 0 var(--hot-fair-spacing-extra-large);
-  }
 
   .heading {
     max-width: 218px;
