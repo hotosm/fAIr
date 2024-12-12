@@ -4,12 +4,14 @@ import { Footer } from "@/components/ui/footer";
 import { useEffect } from "react";
 import { Banner } from "@/components/ui/banner";
 import { APPLICATION_ROUTES } from "@/utils";
+import { useScrollToTop } from "@/hooks/use-scroll-to-element";
 
 const RootLayout = () => {
   const { pathname } = useLocation();
+  const { scrollToTop } = useScrollToTop()
   // Scroll to top on page switch.
   useEffect(() => {
-    window.scrollTo(0, 0);
+    scrollToTop()
   }, [pathname]);
 
   return (

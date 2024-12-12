@@ -2,7 +2,7 @@ import {
   useModelsListFilters,
   useModelsMapData,
 } from "@/features/models/hooks/use-models";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import {
   ModelListGridLayout,
   ModelListTableLayout,
@@ -20,7 +20,7 @@ import {
   OrderingFilter,
   SearchFilter,
 } from "@/features/models/components/filters";
-import Pagination, { PAGE_LIMIT } from "@/components/pagination";
+import Pagination, { PAGE_LIMIT } from "@/components/shared/pagination";
 import { APP_CONTENT } from "@/utils";
 import { PageHeader } from "@/features/models/components/";
 import { FeatureCollection } from "@/types";
@@ -29,6 +29,7 @@ import { useDialog } from "@/hooks/use-dialog";
 import { MobileModelFiltersDialog } from "@/features/models/components/dialogs";
 import { Head } from "@/components/seo";
 import { LayoutView } from "@/enums/models";
+import { useScrollToElement } from "@/hooks/use-scroll-to-element";
 
 export const SEARCH_PARAMS = {
   startDate: "start_date",
@@ -45,7 +46,8 @@ export const SEARCH_PARAMS = {
 
 export const ModelsPage = () => {
   const { isOpened, openDialog, closeDialog } = useDialog();
-
+  const mapViewElementId = 'map-view'
+  const { scrollToElement } = useScrollToElement(mapViewElementId)
   const {
     clearAllFilters,
     data,
@@ -55,7 +57,7 @@ export const ModelsPage = () => {
     query,
     updateQuery,
     mapViewIsActive,
-  } = useModelsListFilters();
+  } = useModelsListFilters(0);
 
   const {
     data: mapData,
@@ -69,28 +71,30 @@ export const ModelsPage = () => {
     [isPending],
   );
 
+  // When the mapview is toggled, scroll into it
+  useEffect(() => {
+    if (!mapViewIsActive) return
+    scrollToElement();
+  }, [mapViewIsActive])
+
   const renderContent = () => {
     if (data?.count === 0) {
       return (
-        <div className="h-[400px] flex w-full col-span-5 items-center justify-center">
-          <ModelNotFound />
-        </div>
+        <ModelNotFound />
       );
     }
 
     if (mapViewIsActive) {
       return (
-        <div className="w-full grid md:grid-cols-4 md:border rounded-md md:p-2 md:border-gray-border gap-x-2 mt-10 grid-rows-2 md:grid-rows-1 gap-y-6 md:gap-y-0 h-screen">
-          <div className="w-full overflow-y-scroll md:row-start-1 col-span-1 md:col-span-2">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-4 gap-y-10">
-              <ModelListGridLayout
-                models={data?.results}
-                isPending={isPending}
-                isError={isError}
-              />
-            </div>
+        <div id={mapViewElementId} className="w-full grid grid-cols-1 grid-rows-2 lg:grid-rows-1 lg:grid-cols-2 md:border rounded-md lg:p-2 md:border-gray-border gap-x-2 mt-10  gap-y-6 lg:gap-y-0 h-screen">
+          <div className="w-full overflow-y-scroll lg:row-start-1">
+            <ModelListGridLayout
+              models={data?.results}
+              isPending={isPending}
+              isError={isError}
+            />
           </div>
-          <div className="col-span-1 md:col-span-2 row-start-1 ">
+          <div className="row-start-1" >
             {modelsMapDataIsPending || modelsMapDataIsError ? (
               <div className="w-full h-full animate-pulse bg-light-gray"></div>
             ) : (
@@ -215,20 +219,16 @@ export const ModelsPage = () => {
                     query={query}
                     updateQuery={updateQuery}
                     isPlaceholderData={isPlaceholderData}
+                    centerOnMobile={false}
                   />
                 </div>
               </div>
             </div>
           )}
         </div>
-
-        <div
-          className={`my-10 ${mapViewIsActive ? "" : "grid grid-cols-1 sm:grid-cols-2  md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-7 gap-y-14"}`}
-        >
-          {renderContent()}
-        </div>
+        {renderContent()}
         {/* mobile pagination */}
-        <div className="w-full flex items-center justify-center md:hidden">
+        <div className="w-full flex items-center justify-center md:hidden mt-10">
           <Pagination
             totalLength={data?.count}
             hasNextPage={data?.hasNext}

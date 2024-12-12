@@ -16,7 +16,7 @@ import { APP_CONTENT } from "@/utils/content";
  * The delay in seconds before switching to the next step. This can be adjust accordingly.
  * The lower it is, the longer time it takes before the beam animates from the origin node to the destination node.
  */
-const AUTOSCROLL_DELAY: number = 3500;
+const AUTOSCROLL_DELAY: number = 2500;
 
 type TSteps = {
   title: string;
@@ -89,7 +89,7 @@ const TheFAIRProcess = ({
     return (
       <AnimatedBeam
         delay={3}
-        duration={3.5}
+        duration={2.5}
         containerRef={containerRef}
         fromRef={itemRefs.current[activeIndex]}
         toRef={itemRefs.current[(activeIndex + 1) % steps.length]}

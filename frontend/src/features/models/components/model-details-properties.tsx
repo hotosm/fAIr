@@ -49,7 +49,7 @@ const PropertyDisplay: React.FC<PropertyDisplayProps> = ({
   const { copyToClipboard } = useCopyToClipboard();
   return (
     <div className="row-span-1 col-span-1 flex flex-col gap-y-5">
-      <span className="text-gray text-body-2 flex items-center gap-x-4 text-nowrap ">
+      <span className="text-gray text-body-2base md:text-body-2 flex items-center gap-x-4 text-nowrap ">
         {label}
         {tooltip && <ToolTip content={tooltip} />}
       </span>
@@ -63,12 +63,12 @@ const PropertyDisplay: React.FC<PropertyDisplayProps> = ({
           className="flex items-center gap-x-3"
           title={label}
         >
-          <span className="text-dark font-semibold text-title-3">{value}</span>
+          <span className="text-dark font-semibold text-body-2 md:text-body-1">{value}</span>
           <ExternalLinkIcon className="icon" />
         </Link>
       ) : isCopy ? (
         <div className="flex items-center gap-x-3">
-          <span className="text-dark font-semibold text-title-3">URL</span>
+          <span className="text-dark font-semibold text-body-2 md:text-body-1">URL</span>
           <button onClick={() => copyToClipboard(value as string)}>
             <CopyIcon className="icon md:icon-lg" />
           </button>
@@ -76,7 +76,7 @@ const PropertyDisplay: React.FC<PropertyDisplayProps> = ({
       ) : (
         <span
           className={cn(
-            `${animate && "animate-pulse"} text-dark font-semibold text-title-3`,
+            `${animate && "animate-pulse"} text-dark font-semibold text-body-2 md:text-body-1`,
           )}
         >
           {value ?? "N/A"}
@@ -239,7 +239,7 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
               href={
                 // @ts-expect-error bad type definition
                 APP_CONTENT.models.modelsDetailsCard.properties.baseModel.href[
-                  baseModel
+                baseModel
                 ]
               }
             />
@@ -280,7 +280,7 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
             )}
           </div>
 
-          {trainingResultsGraph && data?.status !== TrainingStatus.RUNNING && (
+          {trainingResultsGraph && ![TrainingStatus.RUNNING, TrainingStatus.FAILED].includes(data?.status as TrainingStatus) && (
             <div
               className={`col-span-3 lg:col-span-2 ${isTrainingDetailsDialog && "lg:col-span-3"}`}
             >

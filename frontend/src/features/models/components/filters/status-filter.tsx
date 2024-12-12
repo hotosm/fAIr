@@ -3,13 +3,14 @@ import { DropDown } from "@/components/ui/dropdown";
 import { DropdownMenuItem } from "@/components/ui/dropdown/dropdown";
 import { CheckboxGroup } from "@/components/ui/form";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
+import { TQueryParams } from "@/types";
 import { useMemo } from "react";
 
 type StatusFilterProps = {
   disabled: boolean;
   isMobileFilterModal?: boolean;
   updateQuery: (param: any) => void;
-  query: Record<string, string | number | boolean>;
+  query: TQueryParams;
 };
 
 const StatusFilter: React.FC<StatusFilterProps> = ({
@@ -19,6 +20,15 @@ const StatusFilter: React.FC<StatusFilterProps> = ({
   query,
 }) => {
   const statusCategories: DropdownMenuItem[] = [
+    {
+      value: "All",
+      apiValue: undefined,
+      onClick() {
+        updateQuery({
+          [SEARCH_PARAMS.status]: undefined,
+        });
+      },
+    },
     {
       value: "Published",
       apiValue: 0,
@@ -85,8 +95,9 @@ const StatusFilter: React.FC<StatusFilterProps> = ({
       options={statusCategories}
       disabled={disabled}
       onCheck={(status) => {
+        console.log(status)
         updateQuery({
-          [SEARCH_PARAMS.status]: status[0],
+          [SEARCH_PARAMS.status]: status[0] !== 'All' ? status[0] : undefined,
         });
       }}
       defaultSelectedOption={categoryLabel[0]?.apiValue as string}

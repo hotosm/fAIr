@@ -39,8 +39,6 @@ export default {
       },
       screens: {
         mdx: "960px",
-        // Large screens (TVs)
-        "3xl": "1201px"
       },
       backgroundImage: {
         contour: "url('./src/assets/svgs/header_bg_contour.svg')",

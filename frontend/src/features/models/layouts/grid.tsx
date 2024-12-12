@@ -40,7 +40,7 @@ const ModelListGridLayout: React.FC<ModelListProps> = ({
   isError,
 }) => {
   return (
-    <>
+    <div className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-x-4 gap-y-10">
       {isPending || isError ? (
         <ModelListSkeleton />
       ) : (
@@ -48,7 +48,7 @@ const ModelListGridLayout: React.FC<ModelListProps> = ({
           <ModelCard key={`model-${id}`} model={model} />
         ))
       )}
-    </>
+    </div>
   );
 };
 

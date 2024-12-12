@@ -7,6 +7,7 @@ type DrawerProps = {
   placement: "top" | "bottom" | "end";
   children: React.ReactNode;
   label?: string;
+  noHeader?: boolean
 };
 const Drawer: React.FC<DrawerProps> = ({
   children,
@@ -14,6 +15,7 @@ const Drawer: React.FC<DrawerProps> = ({
   setOpen,
   placement,
   label = "",
+  noHeader = true
 }) => {
   return (
     <SlDrawer
@@ -21,7 +23,7 @@ const Drawer: React.FC<DrawerProps> = ({
       placement={placement}
       open={open}
       onSlAfterHide={() => setOpen(false)}
-      noHeader
+      noHeader={noHeader}
     >
       {children}
     </SlDrawer>

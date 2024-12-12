@@ -1,5 +1,5 @@
 import TrainingAreaItem from "@/features/model-creation/components/training-area/training-area-item";
-import Pagination from "@/components/pagination";
+import Pagination from "@/components/shared/pagination";
 import { PaginatedTrainingArea } from "@/types";
 import { Dispatch, SetStateAction, useMemo } from "react";
 import { formatDuration, MODEL_CREATION_CONTENT } from "@/utils";

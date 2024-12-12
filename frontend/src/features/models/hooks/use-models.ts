@@ -10,7 +10,7 @@ import { ORDERING_FIELDS } from "@/features/models/components/filters/ordering-f
 import { TQueryParams } from "@/types";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { buildDateFilterQueryString } from "@/utils";
-import { PAGE_LIMIT } from "@/components/pagination";
+import { PAGE_LIMIT } from "@/components/shared/pagination";
 import { dateFilters } from "@/features/models/components/filters/date-range-filter";
 import useDebounce from "@/hooks/use-debounce";
 import { LayoutView } from "@/enums/models";
@@ -21,7 +21,7 @@ type UseModelsOptions = {
   orderBy: string;
   searchQuery: string;
   dateFilters: Record<string, string>;
-  status?: number;
+  status: number;
   id: number;
   userId?: number;
 };
@@ -29,7 +29,7 @@ type UseModelsOptions = {
 export const useModels = ({
   limit,
   offset,
-  status = 0,
+  status,
   orderBy,
   searchQuery,
   dateFilters,
@@ -78,7 +78,7 @@ export const useModelsMapData = () => {
   });
 };
 
-export const useModelsListFilters = (userId?: number) => {
+export const useModelsListFilters = (status: number | undefined, userId?: number) => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const defaultQueries = {
@@ -97,7 +97,8 @@ export const useModelsListFilters = (userId?: number) => {
     [SEARCH_PARAMS.layout]:
       searchParams.get(SEARCH_PARAMS.layout) || LayoutView.GRID,
     [SEARCH_PARAMS.id]: searchParams.get(SEARCH_PARAMS.id) || "",
-    [SEARCH_PARAMS.status]: searchParams.get(SEARCH_PARAMS.status) || 0,
+    // Status will be undefined for 'all' status filter in users models, so exclude it from the api call.
+    ...(status !== undefined && { [SEARCH_PARAMS.status]: searchParams.get(SEARCH_PARAMS.status) || status })
   };
   const [query, setQuery] = useState<TQueryParams>(defaultQueries);
 

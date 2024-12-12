@@ -1,4 +1,4 @@
-import Pagination, { PAGE_LIMIT } from "@/components/pagination";
+import Pagination, { PAGE_LIMIT } from "@/components/shared/pagination";
 import { Head } from "@/components/seo";
 import { APPLICATION_CONTENTS } from "@/contents";
 import { LayoutView } from "@/enums/models";
@@ -37,7 +37,7 @@ export const UserModelsPage = () => {
     isPlaceholderData,
     query,
     updateQuery,
-  } = useModelsListFilters(user?.osm_id);
+  } = useModelsListFilters(undefined, user?.osm_id,);
 
   // Since it's just a static filter, it's better to memoize it.
   const memoizedCategoryFilter = useMemo(
@@ -48,9 +48,7 @@ export const UserModelsPage = () => {
   const renderContent = () => {
     if (data?.count === 0) {
       return (
-        <div className="h-[400px] flex w-full col-span-5 items-center justify-center">
-          <ModelNotFound />
-        </div>
+        <ModelNotFound />
       );
     }
 
@@ -162,6 +160,7 @@ export const UserModelsPage = () => {
                     query={query}
                     updateQuery={updateQuery}
                     isPlaceholderData={isPlaceholderData}
+                    centerOnMobile={false}
                   />
                 </div>
               </div>
@@ -169,13 +168,9 @@ export const UserModelsPage = () => {
           )}
         </div>
 
-        <div
-          className={
-            "my-10 grid grid-cols-1 sm:grid-cols-2  md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-7 gap-y-14"
-          }
-        >
-          {renderContent()}
-        </div>
+
+        {renderContent()}
+
         {/* mobile pagination */}
         <div className="w-full flex items-center justify-center md:hidden">
           <Pagination

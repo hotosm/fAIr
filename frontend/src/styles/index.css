@@ -168,6 +168,7 @@ sl-alert.success::part(base) {
     @apply -mx-0 lg:-mx-0;
   }
 
+
 }
 
 /* Tailwind styles ends */

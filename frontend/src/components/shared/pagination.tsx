@@ -1,6 +1,7 @@
 import ChevronDownIcon from "@/components/ui/icons/chevron-down-icon";
 import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
 import { TQueryParams } from "@/types";
+import { useScrollToTop } from "@/hooks/use-scroll-to-element";
 
 export const PAGE_LIMIT = 20;
 
@@ -36,7 +37,7 @@ const Pagination: React.FC<PaginationProps> = ({
   centerOnMobile = true,
 }) => {
   const _offset = offset ?? (query?.[SEARCH_PARAMS.offset] as number);
-
+  const { scrollToTop } = useScrollToTop()
   const onNextPage = () => {
     if (!isPlaceholderData && hasNextPage) {
       const nextOffset = _offset + pageLimit;
@@ -44,6 +45,8 @@ const Pagination: React.FC<PaginationProps> = ({
         [SEARCH_PARAMS.offset]: _offset + pageLimit,
       });
       setOffset?.(nextOffset);
+      // scroll to top
+      scrollToTop()
     }
   };
 
@@ -54,6 +57,8 @@ const Pagination: React.FC<PaginationProps> = ({
         [SEARCH_PARAMS.offset]: Math.max(prevOffset, 0),
       });
       setOffset?.(Math.max(prevOffset, 0));
+      // scroll to top
+      scrollToTop()
     }
   };
 
