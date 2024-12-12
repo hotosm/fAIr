@@ -15,7 +15,7 @@ const ProgressBar: React.FC<ProgressBarProps> = memo(
     const navigate = useNavigate();
     const { getFullPath, isEditMode } = useModelsContext();
     return (
-      <div className="flex items-center justify-between w-full gap-x-4 overflow-x-scroll p-1">
+      <div className="flex items-center justify-between w-full gap-x-4 overflow-x-auto p-1">
         {pages.map((step, index) => {
           const activeStep = currentPath.includes(step.path);
           const isLastPage = index === pages.length - 1;
