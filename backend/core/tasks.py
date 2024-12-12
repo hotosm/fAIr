@@ -35,6 +35,8 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from predictor import download_imagery, get_start_end_download_coords
 
+from .utils import S3Uploader
+
 logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s", level=logging.INFO
 )
@@ -48,6 +50,22 @@ logger.propagate = False
 
 
 DEFAULT_TILE_SIZE = 256
+
+
+def upload_to_s3(
+    path,
+    parent=settings.PARENT_BUCKET_FOLDER,
+    bucket_name=settings.BUCKET_NAME,
+    aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+    aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+):
+    uploader = S3Uploader(
+        bucket_name=bucket_name,
+        aws_access_key_id=aws_access_key_id,
+        aws_secret_access_key=aws_secret_access_key,
+        parent=parent,
+    )
+    return uploader.upload(path)
 
 
 class print_time:
@@ -262,6 +280,11 @@ def ramp_model_training(
         remove_original=True,
     )
     shutil.rmtree(base_path)
+    dir_result = upload_to_s3(
+        output_path,
+        parent=f"{settings.PARENT_BUCKET_FOLDER}/training_{training_instance.id}",
+    )
+    print(f"Uploaded to s3:{dir_result}")
     training_instance.accuracy = float(final_accuracy)
     training_instance.finished_at = timezone.now()
     training_instance.status = "FINISHED"
@@ -401,18 +424,6 @@ def yolo_model_training(
         os.path.join(yolo_data_dir, "yolo_dataset.yaml"),
         os.path.join(output_path, model, "yolo_dataset.yaml"),
     )
-    shutil.copytree(
-        os.path.join(yolo_data_dir, "images"),
-        os.path.join(output_path, model, "images"),
-    )
-    shutil.copytree(
-        os.path.join(yolo_data_dir, "labels"),
-        os.path.join(output_path, model, "labels"),
-    )
-    shutil.copyfile(
-        os.path.join(yolo_data_dir, "yolo_dataset.yaml"),
-        os.path.join(output_path, model, "yolo_dataset.yaml"),
-    )
 
     graph_output_path = os.path.join(
         pathlib.Path(os.path.dirname(output_model_path)).parent, "iou_chart.png"
@@ -457,6 +468,11 @@ def yolo_model_training(
         remove_original=True,
     )
     shutil.rmtree(base_path)
+    dir_result = upload_to_s3(
+        output_path,
+        parent=f"{settings.PARENT_BUCKET_FOLDER}/training_{training_instance.id}",
+    )
+    print(f"Uploaded to s3:{dir_result}")
     training_instance.accuracy = float(final_accuracy)
     training_instance.finished_at = timezone.now()
     training_instance.status = "FINISHED"
@@ -495,7 +511,7 @@ def train_model(
     if training_instance.task_id is None or training_instance.task_id.strip() == "":
         training_instance.task_id = train_model.request.id
         training_instance.save()
-    log_file = os.path.join(settings.LOG_PATH, f"run_{train_model.request.id}_log.txt")
+    log_file = os.path.join(settings.LOG_PATH, f"run_{train_model.request.id}.log")
 
     if model_instance.base_model == "YOLO_V8_V1" and settings.YOLO_HOME is None:
         raise ValueError("YOLO Home is not configured")
@@ -503,7 +519,7 @@ def train_model(
         raise ValueError("Ramp Home is not configured")
 
     try:
-        with open(log_file, "w") as f:
+        with open(log_file, "a") as f:
             # redirect stdout to the log file
             sys.stdout = f
             training_input_image_source, aoi_serializer, serialized_field = (
