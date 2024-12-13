@@ -242,6 +242,10 @@ def ramp_model_training(
     if os.path.exists(output_path):
         shutil.rmtree(output_path)
     shutil.copytree(final_model_path, os.path.join(output_path, "checkpoint.tf"))
+    shutil.copyfile(
+        os.path.join(os.path.dirname(final_model_path), "checkpoint.tflite"),
+        os.path.join(output_path, "checkpoint.tflite"),
+    )
     shutil.copytree(preprocess_output, os.path.join(output_path, "preprocessed"))
     shutil.copytree(
         model_input_image_path, os.path.join(output_path, "preprocessed", "input")
@@ -400,11 +404,6 @@ def yolo_model_training(
         os.path.join(os.path.dirname(output_model_path), "best.onnx"),
         os.path.join(output_path, "checkpoint.onnx"),
     )
-    shutil.copyfile(
-        os.path.join(os.path.dirname(output_model_path), "best.onnx"),
-        os.path.join(output_path, "checkpoint.onnx"),
-    )
-    # shutil.copyfile(os.path.dirname(output_model_path,'checkpoint.tflite'), os.path.join(output_path, "checkpoint.tflite"))
 
     shutil.copytree(preprocess_output, os.path.join(output_path, "preprocessed"))
     shutil.copytree(
