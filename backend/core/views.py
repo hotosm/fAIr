@@ -845,17 +845,17 @@ class TrainingWorkspaceView(APIView):
 
 
 class TrainingWorkspaceDownloadView(APIView):
-    authentication_classes = [OsmAuthentication]
-    permission_classes = [IsOsmAuthenticated]
+    # authentication_classes = [OsmAuthentication]
+    # permission_classes = [IsOsmAuthenticated]
 
-    def dispatch(self, request, *args, **kwargs):
-        lookup_dir = kwargs.get("lookup_dir")
-        if lookup_dir.endswith("training_accuracy.png"):
-            # bypass
-            self.authentication_classes = []
-            self.permission_classes = []
+    # def dispatch(self, request, *args, **kwargs):
+    #     lookup_dir = kwargs.get("lookup_dir")
+    #     if lookup_dir.endswith("training_accuracy.png"):
+    #         # bypass
+    #         self.authentication_classes = []
+    #         self.permission_classes = []
 
-        return super().dispatch(request, *args, **kwargs)
+    #     return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, lookup_dir):
         s3_key = os.path.join(settings.PARENT_BUCKET_FOLDER, lookup_dir)
@@ -864,8 +864,13 @@ class TrainingWorkspaceDownloadView(APIView):
         if not s3_object_exists(bucket_name, s3_key):
             return Response("File not found in S3", status=404)
         presigned_url = download_s3_file(bucket_name, s3_key)
+        # ?url_only=true
+        url_only = request.query_params.get("url_only", "false").lower() == "true"
 
-        return HttpResponseRedirect(presigned_url)
+        if url_only:
+            return Response({"result": presigned_url})
+        else:
+            return HttpResponseRedirect(presigned_url)
 
 
 class BannerViewSet(viewsets.ModelViewSet):
