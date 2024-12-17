@@ -15,7 +15,7 @@ import { showErrorToast, showSuccessToast } from "@/utils";
 import { geojsonToWKT } from "@terraformer/wkt";
 import { useAuth } from "@/app/providers/auth-provider";
 import { TModelPredictionsConfig } from "@/features/start-mapping/api/get-model-predictions";
-import { modelTexts, TOAST_NOTIFICATIONS } from "@/constants";
+import { startMappingPageContent, TOAST_NOTIFICATIONS } from "@/constants";
 import { Button } from "@/components/ui/button";
 import useScreenSize from "@/hooks/use-screen-size";
 
@@ -118,13 +118,13 @@ const PredictedFeatureActionPopup = ({
         onSuccess: (data) => {
           const { updatedSource, updatedTarget } = alreadyRejected
             ? moveFeature(rejected, accepted, featureId, {
-                _id: data.id,
-                ...data.properties,
-              })
+              _id: data.id,
+              ...data.properties,
+            })
             : moveFeature(all, accepted, featureId, {
-                _id: data.id,
-                ...data.properties,
-              });
+              _id: data.id,
+              ...data.properties,
+            });
 
           setModelPredictions((prev) => ({
             ...prev,
@@ -307,45 +307,45 @@ const PredictedFeatureActionPopup = ({
 
   const primaryButton = alreadyAccepted
     ? {
-        label: modelTexts.startMapping.map.popup.reject,
-        action: handleRejection,
-        className: "bg-primary",
-        icon: RejectIcon,
-      }
+      label: startMappingPageContent.map.popup.reject,
+      action: handleRejection,
+      className: "bg-primary",
+      icon: RejectIcon,
+    }
     : alreadyRejected
       ? {
-          label: modelTexts.startMapping.map.popup.resolve,
-          action: handleResolve,
-          className: "bg-black",
-          icon: ResolveIcon,
-        }
-      : {
-          label: modelTexts.startMapping.map.popup.accept,
-          action: handleAcceptance,
-          className: "bg-green-primary",
-          icon: AcceptIcon,
-        };
-
-  const secondaryButton = alreadyAccepted
-    ? {
-        label: modelTexts.startMapping.map.popup.resolve,
+        label: startMappingPageContent.map.popup.resolve,
         action: handleResolve,
         className: "bg-black",
         icon: ResolveIcon,
       }
+      : {
+        label: startMappingPageContent.map.popup.accept,
+        action: handleAcceptance,
+        className: "bg-green-primary",
+        icon: AcceptIcon,
+      };
+
+  const secondaryButton = alreadyAccepted
+    ? {
+      label: startMappingPageContent.map.popup.resolve,
+      action: handleResolve,
+      className: "bg-black",
+      icon: ResolveIcon,
+    }
     : alreadyRejected
       ? {
-          label: modelTexts.startMapping.map.popup.accept,
-          action: handleAcceptance,
-          className: "bg-green-primary",
-          icon: AcceptIcon,
-        }
+        label: startMappingPageContent.map.popup.accept,
+        action: handleAcceptance,
+        className: "bg-green-primary",
+        icon: AcceptIcon,
+      }
       : {
-          label: modelTexts.startMapping.map.popup.reject,
-          action: handleRejection,
-          className: "bg-primary",
-          icon: RejectIcon,
-        };
+        label: startMappingPageContent.map.popup.reject,
+        action: handleRejection,
+        className: "bg-primary",
+        icon: RejectIcon,
+      };
 
   return (
     <div
@@ -355,8 +355,8 @@ const PredictedFeatureActionPopup = ({
       <div className="flex items-center justify-between">
         <p className="font-semibold text-body-3 md:text-body-2base">
           {showComment
-            ? modelTexts.startMapping.map.popup.commentTitle
-            : modelTexts.startMapping.map.popup.defaultTitle}
+            ? startMappingPageContent.map.popup.commentTitle
+            : startMappingPageContent.map.popup.defaultTitle}
         </p>
         <button
           className="text-dark text-sm md:text-lg self-end"
@@ -371,8 +371,8 @@ const PredictedFeatureActionPopup = ({
           handleInput={(e) => setComment(e.target.value)}
           value={comment}
           showBorder
-          label={modelTexts.startMapping.map.popup.comment.description}
-          placeholder={modelTexts.startMapping.map.popup.comment.placeholder}
+          label={startMappingPageContent.map.popup.comment.description}
+          placeholder={startMappingPageContent.map.popup.comment.placeholder}
           size={SHOELACE_SIZES.MEDIUM}
         />
       )}
@@ -385,13 +385,13 @@ const PredictedFeatureActionPopup = ({
           disabled={createModelFeedbackMutation.isPending}
         >
           {createModelFeedbackMutation.isPending
-            ? modelTexts.startMapping.map.popup.comment.submissionInProgress
-            : modelTexts.startMapping.map.popup.comment.submit}
+            ? startMappingPageContent.map.popup.comment.submissionInProgress
+            : startMappingPageContent.map.popup.comment.submit}
         </Button>
       )}
       {!showComment && (
         <p className="text-xs md:text-sm">
-          {modelTexts.startMapping.map.popup.description}
+          {startMappingPageContent.map.popup.description}
         </p>
       )}
       {!showComment && (

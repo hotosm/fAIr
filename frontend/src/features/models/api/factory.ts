@@ -101,13 +101,12 @@ export const getTrainingFeedbacksQueryOptions = (id: number) => {
 };
 
 export const getTrainingWorkspaceQueryOptions = (
-  datasetId: number,
   trainingId: number,
   directory_name: string,
 ) => {
   return queryOptions({
-    queryKey: ["training-workspace", datasetId, trainingId, directory_name],
-    queryFn: () => getTrainingWorkspace(datasetId, trainingId, directory_name),
+    queryKey: ["training-workspace", trainingId, directory_name],
+    queryFn: () => getTrainingWorkspace(trainingId, directory_name),
     enabled: trainingId !== null,
   });
 };

@@ -10,10 +10,8 @@ import {
 import { GeoJSONSource } from "maplibre-gl";
 
 import { FitToBounds, MapComponent, MapCursorToolTip } from "@/components/map";
-import { ToolTip } from "@/components/ui/tooltip";
 import { useMapLayers } from "@/hooks/use-map-layer";
 import { useMap } from "@/app/providers/map-provider";
-import { FullScreenIcon } from "@/components/ui/icons";
 import {
   Feature,
   GeoJSONType,
@@ -40,6 +38,7 @@ import PredictedFeatureActionPopup from "@/features/start-mapping/components/pop
 import { TModelPredictionsConfig } from "@/features/start-mapping/api/get-model-predictions";
 import { startMappingPageContent, TOAST_NOTIFICATIONS } from "@/constants";
 import { useToolTipVisibility } from "@/hooks/use-tooltip-visibility";
+import { ControlsPosition } from "@/enums";
 
 const StartMappingMapComponent = ({
   trainingDataset,
@@ -276,7 +275,7 @@ const StartMappingMapComponent = ({
     <MapComponent
       showCurrentZoom
       layerControl
-      controlsPosition="top-left"
+      controlsPosition={ControlsPosition.TOP_LEFT}
       showLegend={modelPredictionsExist}
       openAerialMap
       oamTileJSONURL={tileJSONURL}
@@ -285,42 +284,42 @@ const StartMappingMapComponent = ({
       layerControlLayers={[
         ...(modelPredictions.accepted.length > 0
           ? [
-              {
-                value:
-                  startMappingPageContent.map.controls.legendControl
-                    .acceptedPredictions,
-                subLayers: [
-                  ACCEPTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
-                  ACCEPTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
-                ],
-              },
-            ]
+            {
+              value:
+                startMappingPageContent.map.controls.legendControl
+                  .acceptedPredictions,
+              subLayers: [
+                ACCEPTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
+                ACCEPTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
+              ],
+            },
+          ]
           : []),
         ...(modelPredictions.rejected.length > 0
           ? [
-              {
-                value:
-                  startMappingPageContent.map.controls.legendControl
-                    .rejectedPredictions,
-                subLayers: [
-                  REJECTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
-                  REJECTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
-                ],
-              },
-            ]
+            {
+              value:
+                startMappingPageContent.map.controls.legendControl
+                  .rejectedPredictions,
+              subLayers: [
+                REJECTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
+                REJECTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
+              ],
+            },
+          ]
           : []),
         ...(modelPredictions.all.length > 0
           ? [
-              {
-                value:
-                  startMappingPageContent.map.controls.legendControl
-                    .predictionResults,
-                subLayers: [
-                  ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
-                  ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
-                ],
-              },
-            ]
+            {
+              value:
+                startMappingPageContent.map.controls.legendControl
+                  .predictionResults,
+              subLayers: [
+                ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
+                ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
+              ],
+            },
+          ]
           : []),
       ]}
     >

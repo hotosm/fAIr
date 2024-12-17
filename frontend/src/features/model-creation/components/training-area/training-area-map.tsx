@@ -28,7 +28,7 @@ import {
   validateGeoJSONArea,
 } from "@/utils";
 import useDebounce from "@/hooks/use-debounce";
-import { DrawingModes } from "@/enums";
+import { ControlsPosition, DrawingModes } from "@/enums";
 import { useToolTipVisibility } from "@/hooks/use-tooltip-visibility";
 import { useMapLayers } from "@/hooks/use-map-layer";
 
@@ -273,7 +273,7 @@ const TrainingAreaMap = ({
     <MapComponent
       openAerialMap
       oamTileJSONURL={tileJSONURL}
-      controlsPosition="top-left"
+      controlsPosition={ControlsPosition.TOP_LEFT}
       drawControl
       showCurrentZoom
       layerControl
@@ -282,22 +282,22 @@ const TrainingAreaMap = ({
       layerControlLayers={[
         ...(data?.results?.features?.length
           ? [
-              {
-                value: "Training Areas",
-                subLayers: [trainingAreasLayerId, trainingAreasFillLayerId],
-              },
-            ]
+            {
+              value: "Training Areas",
+              subLayers: [trainingAreasLayerId, trainingAreasFillLayerId],
+            },
+          ]
           : []),
         ...(labels && labels?.features.length > 0
           ? [
-              {
-                value: "Training Labels",
-                subLayers: [
-                  trainingDatasetLabelsLayerId,
-                  trainingDatasetLabelsOutlineLayerId,
-                ],
-              },
-            ]
+            {
+              value: "Training Labels",
+              subLayers: [
+                trainingDatasetLabelsLayerId,
+                trainingDatasetLabelsOutlineLayerId,
+              ],
+            },
+          ]
           : []),
       ]}
     >

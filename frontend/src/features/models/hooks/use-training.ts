@@ -39,12 +39,11 @@ export const useTrainingFeedbacks = (id: number) => {
   });
 };
 export const useTrainingWorkspace = (
-  datasetId: number,
   trainingId: number,
   directory_name = "",
 ) => {
   return useQuery({
-    ...getTrainingWorkspaceQueryOptions(datasetId, trainingId, directory_name),
+    ...getTrainingWorkspaceQueryOptions(trainingId, directory_name),
     //@ts-expect-error bad type definition
     throwOnError: (error) => error?.response?.status >= 500,
     enabled: trainingId !== null,

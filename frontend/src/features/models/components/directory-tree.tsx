@@ -109,7 +109,7 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
     try {
       if (trainingId !== null) {
         return await queryClient.fetchQuery({
-          ...getTrainingWorkspaceQueryOptions(datasetId, trainingId, path),
+          ...getTrainingWorkspaceQueryOptions(trainingId, path),
         });
       }
     } catch {
@@ -135,24 +135,24 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
     const subdirectories =
       dir && currentDepth < maxDepth
         ? await Promise.all(
-            Object.keys(dir).map(async (key: string) => {
-              const fullPath = currentDirectory
-                ? `${currentDirectory}/${key}`
-                : key;
-              const subDirData = await fetchDirectoryRecursive(
-                fullPath,
-                currentDepth + 1,
-                maxDepth,
-              );
-              return {
-                [key]: {
-                  ...subDirData,
-                  size: dir[key]?.size || 0,
-                  length: dir[key]?.len || 0,
-                },
-              };
-            }),
-          )
+          Object.keys(dir).map(async (key: string) => {
+            const fullPath = currentDirectory
+              ? `${currentDirectory}/${key}/`
+              : key;
+            const subDirData = await fetchDirectoryRecursive(
+              fullPath,
+              currentDepth + 1,
+              maxDepth,
+            );
+            return {
+              [key]: {
+                ...subDirData,
+                size: dir[key]?.size || 0,
+                length: dir[key]?.len || 0,
+              },
+            };
+          }),
+        )
         : [];
 
     return {
@@ -179,7 +179,7 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
     try {
       setDownLoadingFilePath(validPath);
       const response = await apiClient.get(
-        API_ENDPOINTS.DOWNLOAD_TRAINING_FILE(datasetId, trainingId, validPath),
+        API_ENDPOINTS.DOWNLOAD_TRAINING_FILE(trainingId, validPath),
         {
           responseType: "blob",
         },

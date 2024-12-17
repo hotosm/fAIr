@@ -11,6 +11,7 @@ import UserProfile from "@/components/ui/navbar/user-profile";
 import { useLogin } from "@/hooks/use-login";
 import { useLocation } from "react-router-dom";
 import NavLogo from "./nav-logo";
+import { DrawerPlacements } from "@/enums";
 
 const NavBar = () => {
   const [open, setOpen] = useState(false);
@@ -19,7 +20,7 @@ const NavBar = () => {
 
   return (
     <>
-      <Drawer open={open} setOpen={setOpen} placement="end">
+      <Drawer open={open} setOpen={setOpen} placement={DrawerPlacements.END}>
         <div className={styles.drawerContentContainer}>
           <div className={styles.drawerHeaderContainer}>
             <NavLogo />

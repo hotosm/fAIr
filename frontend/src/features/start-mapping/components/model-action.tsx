@@ -8,7 +8,7 @@ import {
 import { useGetModelPredictions } from "@/features/start-mapping/hooks/use-model-predictions";
 import { Button } from "@/components/ui/button";
 
-import { APPLICATION_CONTENTS, TOAST_NOTIFICATIONS } from "@/contents";
+import { startMappingPageContent, TOAST_NOTIFICATIONS } from "@/constants";
 import { useCallback } from "react";
 import { useMap } from "@/app/providers/map-provider";
 import { TModelPredictionsConfig } from "../api/get-model-predictions";
@@ -59,8 +59,8 @@ const ModelAction = ({
         uppercase={false}
       >
         {modelPredictionMutation.isPending
-          ? APPLICATION_CONTENTS.START_MAPPING.buttons.predictionInProgress
-          : APPLICATION_CONTENTS.START_MAPPING.buttons.runPrediction}
+          ? startMappingPageContent.buttons.predictionInProgress
+          : startMappingPageContent.buttons.runPrediction}
       </Button>
     </div>
   );

@@ -65,20 +65,21 @@ export const API_ENDPOINTS = {
   GET_TRAINING_FEEDBACKS: (trainingId: number) =>
     `feedback/?training=${trainingId}`,
 
-  GET_PMTILES_URL: (trainingAreaId: number) =>
-    `/workspace/download/training_${trainingAreaId}/meta.pmtiles/?url_only=true`,
+
   // Workspace
 
+  GET_PMTILES_URL: (trainingAreaId: number) =>
+    `/workspace/download/training_${trainingAreaId}/meta.pmtiles/?url_only=true`,
+
+
   GET_TRAINING_WORKSPACE: (
-    datasetId: number,
     trainingId: number,
     directory_name: string,
   ) =>
-    `workspace/dataset_${datasetId}/output/training_${trainingId}/${directory_name}`,
+    `workspace/training_${trainingId}/${directory_name}`,
   DOWNLOAD_TRAINING_FILE: (
-    datasetId: number,
     trainingId: number,
     directory_name: string,
   ) =>
-    `workspace/download/dataset_${datasetId}/output/training_${trainingId}/${directory_name}`,
+    `workspace/download/training_${trainingId}/${directory_name}/`,
 };

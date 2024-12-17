@@ -3,7 +3,7 @@ import { ButtonWithIcon } from "@/components/ui/button";
 import { DropDown } from "@/components/ui/dropdown";
 import { FormLabel, Input, Select, Switch } from "@/components/ui/form";
 import { ChevronDownIcon } from "@/components/ui/icons";
-import { APPLICATION_CONTENTS } from "@/contents";
+import { startMappingPageContent } from "@/constants";
 import { INPUT_TYPES, SHOELACE_SIZES } from "@/enums";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 
@@ -72,10 +72,10 @@ const ModelSettings = ({
       <div className="flex flex-col bg-white p-3 justify-between rounded-md flex-wrap gap-y-4 w-60">
         <div className="flex gap-x-2 justify-between">
           <FormLabel
-            label={APPLICATION_CONTENTS.START_MAPPING.settings.useJOSMQ.label}
+            label={startMappingPageContent.settings.useJOSMQ.label}
             withTooltip
             toolTipContent={
-              APPLICATION_CONTENTS.START_MAPPING.settings.useJOSMQ.tooltip
+              startMappingPageContent.settings.useJOSMQ.tooltip
             }
             position="left"
           />
@@ -88,10 +88,10 @@ const ModelSettings = ({
         </div>
         <div className="flex justify-between items-center gap-x-2">
           <FormLabel
-            label={APPLICATION_CONTENTS.START_MAPPING.settings.confidence.label}
+            label={startMappingPageContent.settings.confidence.label}
             withTooltip
             toolTipContent={
-              APPLICATION_CONTENTS.START_MAPPING.settings.confidence.tooltip
+              startMappingPageContent.settings.confidence.tooltip
             }
             position="left"
           />
@@ -110,10 +110,10 @@ const ModelSettings = ({
         </div>
         <div className="flex justify-between items-center gap-x-2">
           <FormLabel
-            label={APPLICATION_CONTENTS.START_MAPPING.settings.tolerance.label}
+            label={startMappingPageContent.settings.tolerance.label}
             withTooltip
             toolTipContent={
-              APPLICATION_CONTENTS.START_MAPPING.settings.tolerance.tooltip
+              startMappingPageContent.settings.tolerance.tooltip
             }
             position="left"
           />
@@ -136,10 +136,10 @@ const ModelSettings = ({
         </div>
         <div className="flex justify-between  items-center gap-x-2">
           <FormLabel
-            label={APPLICATION_CONTENTS.START_MAPPING.settings.area.label}
+            label={startMappingPageContent.settings.area.label}
             withTooltip
             toolTipContent={
-              APPLICATION_CONTENTS.START_MAPPING.settings.area.tooltip
+              startMappingPageContent.settings.area.tooltip
             }
             position="left"
           />
