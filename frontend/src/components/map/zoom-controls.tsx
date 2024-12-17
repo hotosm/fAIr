@@ -42,14 +42,14 @@ const ZoomControls = () => {
       <ToolTip placement={ToolTipPlacement.RIGHT} content="Zoom In">
         <ZoomButton
           onClick={handleZoomIn}
-          disabled={currentZoom === map?.getMaxZoom()}
+          disabled={currentZoom >= Number(map?.getMaxZoom())}
           icon="+"
         />
       </ToolTip>
       <ToolTip placement={ToolTipPlacement.RIGHT} content="Zoom Out">
         <ZoomButton
           onClick={handleZoomOut}
-          disabled={currentZoom === map?.getMinZoom()}
+          disabled={currentZoom <= Number(map?.getMinZoom())}
           icon="-"
         />
       </ToolTip>

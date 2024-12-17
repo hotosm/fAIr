@@ -1,6 +1,5 @@
 import Pagination, { PAGE_LIMIT } from "@/components/shared/pagination";
 import { Head } from "@/components/seo";
-import { APPLICATION_CONTENTS } from "@/contents";
 import { LayoutView } from "@/enums/models";
 import { LayoutToggle, PageHeader } from "@/features/models/components";
 import { MobileModelFiltersDialog } from "@/features/models/components/dialogs";
@@ -24,6 +23,8 @@ import { useMemo } from "react";
 import ModelNotFound from "@/features/models/components/model-not-found";
 import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
 import { useAuth } from "@/app/providers/auth-provider";
+import { modelPagesContent } from "@/constants";
+
 
 export const UserModelsPage = () => {
   const { isOpened, openDialog, closeDialog } = useDialog();
@@ -81,11 +82,11 @@ export const UserModelsPage = () => {
         updateQuery={updateQuery}
         disabled={isPending}
       />
-      <Head title={APPLICATION_CONTENTS.MY_MODELS_PAGE.pageTitle} />
+      <Head title={modelPagesContent.myModels.pageTitle} />
       <section className="my-10 min-h-screen">
         <PageHeader
-          title={APPLICATION_CONTENTS.MY_MODELS_PAGE.pageHeader}
-          description={APPLICATION_CONTENTS.MY_MODELS_PAGE.pageDescription}
+          title={modelPagesContent.myModels.pageHeader}
+          description={modelPagesContent.myModels.pageDescription}
         />
         {/* Filters */}
         <div className="sticky top-0 bg-white z-10 py-2">

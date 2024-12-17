@@ -4,7 +4,7 @@ import { Divider } from "@/components/ui/divider";
 import { DropDown } from "@/components/ui/dropdown";
 import { ChevronDownIcon, TagsInfoIcon } from "@/components/ui/icons";
 import { SkeletonWrapper } from "@/components/ui/skeleton";
-import { APPLICATION_CONTENTS, TOAST_NOTIFICATIONS } from "@/contents";
+import { TOAST_NOTIFICATIONS } from "@/constants";
 import { ModelDetailsPopUp } from "@/features/models/components";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import {
@@ -29,6 +29,7 @@ import { TModelPredictionsConfig } from "../api/get-model-predictions";
 import { SHOELACE_SIZES } from "@/enums";
 import { NavLogo, UserProfile } from "@/components/ui/navbar";
 import { useNavigate } from "react-router-dom";
+import { startMappingPageContent } from "@/constants";
 
 
 const StartMappingHeader = ({
@@ -118,33 +119,33 @@ const StartMappingHeader = ({
 
   const downloadButtonDropdownOptions = [
     {
-      name: APPLICATION_CONTENTS.START_MAPPING.buttons.download.options
+      name: startMappingPageContent.buttons.download.options
         .allFeatures,
       value:
-        APPLICATION_CONTENTS.START_MAPPING.buttons.download.options.allFeatures,
+        startMappingPageContent.buttons.download.options.allFeatures,
       onClick: handleAllFeaturesDownload,
     },
     {
-      name: APPLICATION_CONTENTS.START_MAPPING.buttons.download.options
+      name: startMappingPageContent.buttons.download.options
         .acceptedFeatures,
       value:
-        APPLICATION_CONTENTS.START_MAPPING.buttons.download.options
+        startMappingPageContent.buttons.download.options
           .acceptedFeatures,
       onClick: handleAcceptedFeaturesDownload,
     },
     {
-      name: APPLICATION_CONTENTS.START_MAPPING.buttons.download.options
+      name: startMappingPageContent.buttons.download.options
         .openAllFeaturesInJOSM,
       value:
-        APPLICATION_CONTENTS.START_MAPPING.buttons.download.options
+        startMappingPageContent.buttons.download.options
           .openAllFeaturesInJOSM,
       onClick: handleAllFeaturesDownloadToJOSM,
     },
     {
-      name: APPLICATION_CONTENTS.START_MAPPING.buttons.download.options
+      name: startMappingPageContent.buttons.download.options
         .openAcceptedFeaturesInJOSM,
       value:
-        APPLICATION_CONTENTS.START_MAPPING.buttons.download.options
+        startMappingPageContent.buttons.download.options
           .openAcceptedFeaturesInJOSM,
       onClick: handleAcceptedFeaturesDownloadToJOSM,
     },
@@ -203,10 +204,10 @@ const StartMappingHeader = ({
           />
           <div className="flex flex-row items-center gap-y-3">
             <p className="text-dark text-body-3">
-              {APPLICATION_CONTENTS.START_MAPPING.mapData.title} -{" "}
-              {APPLICATION_CONTENTS.START_MAPPING.mapData.accepted}:{" "}
+              {startMappingPageContent.mapData.title} -{" "}
+              {startMappingPageContent.mapData.accepted}:{" "}
               {modelPredictions.accepted.length}{" "}
-              {APPLICATION_CONTENTS.START_MAPPING.mapData.rejected}:{" "}
+              {startMappingPageContent.mapData.rejected}:{" "}
               {modelPredictions.rejected.length}{" "}
             </p>
             <DropDown
@@ -222,7 +223,7 @@ const StartMappingHeader = ({
                   onClick={dropdownIsOpened ? onDropdownHide : onDropdownShow}
                   suffixIcon={ChevronDownIcon}
                   label={
-                    APPLICATION_CONTENTS.START_MAPPING.buttons.download.label
+                    startMappingPageContent.buttons.download.label
                   }
                   size={SHOELACE_SIZES.MEDIUM}
                   variant="secondary"

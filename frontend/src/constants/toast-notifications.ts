@@ -2,7 +2,6 @@
 
 export const TOAST_NOTIFICATIONS = {
   // start mapping
-
   startMapping: {
     feedback: {
       success: "Feedback submitted successfully.",

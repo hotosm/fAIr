@@ -7,52 +7,37 @@ import { Button } from "@/components/ui/button";
 import { Link } from "@/components/ui/link";
 import { SHOELACE_SIZES } from "@/enums";
 import { Head } from "@/components/seo";
-import { IconProps } from "@/types";
 import { useState } from "react";
 import VideoPlaceholderImage from "@/assets/images/header_bg.jpg";
-import { APPLICATION_CONTENTS } from "@/contents";
+import { learnPageContent } from "@/constants";
+import { TGuide, TVideo } from "@/types";
 
-type TGuide = {
-  title: string;
-  description: string;
-  icon: React.FC<IconProps>;
-  isLink?: boolean;
-  href?: string;
-  isVideo?: boolean;
-  onClick?: () => void;
-  buttonText: string;
-};
 
-type TVideo = {
-  title: string;
-  description: string;
-  link: string;
-};
 
 export const LearnPage = () => {
   return (
     <main className="flex flex-col gap-y-20 md:gap-y-40 mb-48">
-      <Head title={APPLICATION_CONTENTS.LEARN_PAGE.pageTitle} />
-      <Header title={APPLICATION_CONTENTS.LEARN_PAGE.pageHeader} />
+      <Head title={learnPageContent.pageTitle} />
+      <Header title={learnPageContent.pageHeader} />
       <section className="flex flex-col md:flex-row gap-y-20 justify-between items-center">
         <div className="flex flex-col gap-y-8 basis-1/2">
           <h1 className="font-semibold text-title-2 xl:text-title-1">
-            {APPLICATION_CONTENTS.LEARN_PAGE.heroHeading.firstSegment}{" "}
+            {learnPageContent.heroHeading.firstSegment}{" "}
             <span className="text-primary">
-              {APPLICATION_CONTENTS.LEARN_PAGE.heroHeading.secondSegment}
+              {learnPageContent.heroHeading.secondSegment}
             </span>{" "}
-            {APPLICATION_CONTENTS.LEARN_PAGE.heroHeading.thirdSegment}{" "}
+            {learnPageContent.heroHeading.thirdSegment}{" "}
             <span className="text-primary">
-              {APPLICATION_CONTENTS.LEARN_PAGE.heroHeading.fourthSegment}
+              {learnPageContent.heroHeading.fourthSegment}
             </span>{" "}
-            {APPLICATION_CONTENTS.LEARN_PAGE.heroHeading.fifthSegment}{" "}
+            {learnPageContent.heroHeading.fifthSegment}{" "}
             <span className="text-primary">
-              {APPLICATION_CONTENTS.LEARN_PAGE.heroHeading.sixthSegment}
+              {learnPageContent.heroHeading.sixthSegment}
             </span>{" "}
-            {APPLICATION_CONTENTS.LEARN_PAGE.heroHeading.seventhSegment}
+            {learnPageContent.heroHeading.seventhSegment}
           </h1>
           <p className="text-body-2base md:text-body-2">
-            {APPLICATION_CONTENTS.LEARN_PAGE.heroDescription}
+            {learnPageContent.heroDescription}
           </p>
         </div>
         <div className="w-[284px] h-[203px] md:w-[401px] md:h-[286px]">
@@ -67,10 +52,10 @@ export const LearnPage = () => {
       <TheFAIRProcess disableStyle />
       <section>
         <SectionHeader
-          title={APPLICATION_CONTENTS.LEARN_PAGE.sectionHeaders.guides}
+          title={learnPageContent.sectionHeaders.guides}
         />
         <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-10 lg:gap-16 relative mb-10">
-          {APPLICATION_CONTENTS.LEARN_PAGE.guides.map((guide, id) => (
+          {learnPageContent.guides.map((guide, id) => (
             <GuideCard guide={guide} key={id} />
           ))}
           <div className="absolute inset-0 bg-light-gray h-full w-full top-12 left-4 md:left-8"></div>
@@ -78,10 +63,10 @@ export const LearnPage = () => {
       </section>
       <section>
         <SectionHeader
-          title={APPLICATION_CONTENTS.LEARN_PAGE.sectionHeaders.videos}
+          title={learnPageContent.sectionHeaders.videos}
         />
         <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-y-20 md:gap-x-6">
-          {APPLICATION_CONTENTS.LEARN_PAGE.videos.map((video, id) => (
+          {learnPageContent.videos.map((video, id) => (
             <VideoCard video={video} key={id} />
           ))}
         </div>

@@ -8,7 +8,7 @@ import {
   calculateGeoJSONArea,
 } from "@/utils";
 import { useToastNotification } from "@/hooks/use-toast-notification";
-import { TOAST_NOTIFICATIONS } from "@/contents";
+import { TOAST_NOTIFICATIONS } from "@/constants";
 import { geojson2osm } from "@/lib/geojson2xml";
 
 /**

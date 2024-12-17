@@ -22,7 +22,7 @@ import {
   showWarningToast,
   truncateString,
 } from "@/utils";
-import { TOAST_NOTIFICATIONS } from "@/contents";
+import { TOAST_NOTIFICATIONS } from "@/constants";
 import JOSMLogo from "@/assets/svgs/josm_logo.svg";
 import OSMLogo from "@/assets/svgs/osm_logo.svg";
 import { ToolTip } from "@/components/ui/tooltip";
@@ -228,9 +228,9 @@ const TrainingAreaItem: React.FC<
               ? "Fetching labels..."
               : trainingArea.properties.label_fetched !== null
                 ? truncateString(
-                    `Fetched ${timeSinceLabelFetch === "0 sec" ? "just now" : `${timeSinceLabelFetch} ago`}`,
-                    20,
-                  )
+                  `Fetched ${timeSinceLabelFetch === "0 sec" ? "just now" : `${timeSinceLabelFetch} ago`}`,
+                  20,
+                )
                 : "No labels yet"}
           </p>
         </div>

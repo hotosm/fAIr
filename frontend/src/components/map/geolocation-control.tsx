@@ -4,7 +4,7 @@ import { ToolTip } from "@/components/ui/tooltip";
 import { ToolTipPlacement } from "@/enums";
 import { showErrorToast, showWarningToast } from "@/utils";
 import { useMap } from "@/app/providers/map-provider";
-import { TOAST_NOTIFICATIONS } from "@/contents";
+import { TOAST_NOTIFICATIONS } from "@/constants";
 
 const GeolocationControl = () => {
   const { map } = useMap();

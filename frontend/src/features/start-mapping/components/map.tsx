@@ -38,7 +38,7 @@ import {
 } from "@/utils";
 import PredictedFeatureActionPopup from "@/features/start-mapping/components/popup";
 import { TModelPredictionsConfig } from "@/features/start-mapping/api/get-model-predictions";
-import { APPLICATION_CONTENTS, TOAST_NOTIFICATIONS } from "@/contents";
+import { startMappingPageContent, TOAST_NOTIFICATIONS } from "@/constants";
 import { useToolTipVisibility } from "@/hooks/use-tooltip-visibility";
 
 const StartMappingMapComponent = ({
@@ -276,7 +276,7 @@ const StartMappingMapComponent = ({
     <MapComponent
       showCurrentZoom
       layerControl
-      controlsLocation="top-left"
+      controlsPosition="top-left"
       showLegend={modelPredictionsExist}
       openAerialMap
       oamTileJSONURL={tileJSONURL}
@@ -287,7 +287,7 @@ const StartMappingMapComponent = ({
           ? [
             {
               value:
-                APPLICATION_CONTENTS.START_MAPPING.map.controls.legendControl
+                startMappingPageContent.map.controls.legendControl
                   .acceptedPredictions,
               subLayers: [
                 ACCEPTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
@@ -300,7 +300,7 @@ const StartMappingMapComponent = ({
           ? [
             {
               value:
-                APPLICATION_CONTENTS.START_MAPPING.map.controls.legendControl
+                startMappingPageContent.map.controls.legendControl
                   .rejectedPredictions,
               subLayers: [
                 REJECTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
@@ -313,7 +313,7 @@ const StartMappingMapComponent = ({
           ? [
             {
               value:
-                APPLICATION_CONTENTS.START_MAPPING.map.controls.legendControl
+                startMappingPageContent.map.controls.legendControl
                   .predictionResults,
               subLayers: [
                 ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
@@ -328,7 +328,7 @@ const StartMappingMapComponent = ({
       {map && (
         <ToolTip
           content={
-            APPLICATION_CONTENTS.START_MAPPING.map.controls.fitToBoundsControl
+            startMappingPageContent.map.controls.fitToBoundsControl
               .tooltip
           }
         >

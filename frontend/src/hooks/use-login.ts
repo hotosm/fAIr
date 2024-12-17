@@ -3,7 +3,7 @@ import { useSessionStorage } from "@/hooks/use-storage";
 import { authService } from "@/services";
 import { HOT_FAIR_SESSION_REDIRECT_KEY, showErrorToast } from "@/utils";
 import { useState } from "react";
-import { TOAST_NOTIFICATIONS } from "@/contents";
+import { TOAST_NOTIFICATIONS } from "@/constants";
 /**
  * Custom hook to handle the login button click event.
  *

@@ -74,7 +74,7 @@ export const ModelDetailsPage = () => {
         trainingId={data?.published_training as number}
         datasetId={data?.dataset as number}
       />
-      <TrainingAreaDialog isOpened={isOpened} closeDialog={closeDialog} />
+      <TrainingAreaDialog isOpened={isOpened} closeDialog={closeDialog} trainingAreaId={data?.published_training as number} />
       <BackButton className='mt-6' />
       <div className="my-12 flex flex-col gap-y-20">
         <ModelDetailsInfo

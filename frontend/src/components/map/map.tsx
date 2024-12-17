@@ -20,10 +20,12 @@ import Legend from "@/components/map/legend";
 import TileBoundaries from "@/components/map/tile-boundaries";
 import OpenAerialMap from "@/components/map/open-aerial-map";
 import Basemaps from "@/components/map/basemaps";
+import { ControlsPosition } from "@/enums";
+
 
 type MapComponentProps = {
   geolocationControl?: boolean;
-  controlsLocation?: "top-right" | "top-left";
+  controlsPosition?: ControlsPosition;
   drawControl?: boolean;
   showCurrentZoom?: boolean;
   layerControl?: boolean;
@@ -41,7 +43,7 @@ type MapComponentProps = {
 
 const MapComponent: React.FC<MapComponentProps> = ({
   geolocationControl = false,
-  controlsLocation = "top-right",
+  controlsPosition = ControlsPosition.TOP_RIGHT,
   drawControl = false,
   showCurrentZoom = false,
   layerControl = false,
@@ -75,12 +77,12 @@ const MapComponent: React.FC<MapComponentProps> = ({
     ];
     const baseLayers = basemaps
       ? [
-          { value: BASEMAPS.OSM, subLayer: OSM_BASEMAP_LAYER_ID },
-          {
-            value: BASEMAPS.GOOGLE_SATELLITE,
-            subLayer: GOOGLE_SATELLITE_BASEMAP_LAYER_ID,
-          },
-        ]
+        { value: BASEMAPS.OSM, subLayer: OSM_BASEMAP_LAYER_ID },
+        {
+          value: BASEMAPS.GOOGLE_SATELLITE,
+          subLayer: GOOGLE_SATELLITE_BASEMAP_LAYER_ID,
+        },
+      ]
       : [];
     return { layers, baseLayers };
   }, [layerControlLayers, openAerialMap, basemaps]);
@@ -90,9 +92,8 @@ const MapComponent: React.FC<MapComponentProps> = ({
     return (
       <>
         <div
-          className={`absolute top-5 ${
-            controlsLocation === "top-right" ? "right-3" : "left-3"
-          } z-[1] flex flex-col gap-y-[1px]`}
+          className={`absolute top-5 ${controlsPosition === ControlsPosition.TOP_RIGHT ? "right-3" : "left-3"
+            } z-[1] flex flex-col gap-y-[1px]`}
         >
           <ZoomControls />
           {geolocationControl && <GeolocationControl />}
@@ -117,7 +118,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
     geolocationControl,
     drawControl,
     terraDraw,
-    controlsLocation,
+    controlsPosition,
     layerControl,
     showCurrentZoom,
     layerControlData,

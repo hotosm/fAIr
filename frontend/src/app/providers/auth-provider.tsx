@@ -7,9 +7,9 @@ import {
   HOT_FAIR_LOGIN_SUCCESSFUL_SESSION_KEY,
   HOT_FAIR_SESSION_REDIRECT_KEY,
   showErrorToast,
-  showSuccessToast,
+  showSuccessToast
 } from "@/utils";
-import { TOAST_NOTIFICATIONS } from "@/contents";
+import { TOAST_NOTIFICATIONS } from "@/constants";
 import React, { createContext, useContext, useState, useEffect } from "react";
 
 type TAuthContext = {

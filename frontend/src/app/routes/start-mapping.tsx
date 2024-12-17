@@ -14,9 +14,9 @@ import {
   extractTileJSONURL,
   PREDICTION_API_FILE_EXTENSIONS,
 } from "@/utils";
-import { APPLICATION_CONTENTS } from "@/contents";
 import { useMap } from "@/app/providers/map-provider";
 import { BASE_MODELS } from "@/enums";
+import { startMappingPageContent } from "@/constants";
 
 export const SEARCH_PARAMS = {
   useJOSMQ: "useJOSMQ",
@@ -129,7 +129,7 @@ export const StartMappingPage = () => {
 
   return (
     <>
-      <Head title={APPLICATION_CONTENTS.START_MAPPING.pageTitle(data?.name)} />
+      <Head title={startMappingPageContent.pageTitle(data?.name)} />
       <div className="h-screen flex flex-col fullscreen">
         <div className="sticky top-0 bg-white z-10 px-4 md:px-large py-2">
           <StartMappingHeader

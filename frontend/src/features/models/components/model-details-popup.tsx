@@ -4,7 +4,8 @@ import { SkeletonWrapper } from "@/components/ui/skeleton";
 import { extractDatePart, roundNumber, truncateString } from "@/utils";
 import { TModelDetails, TTrainingDataset } from "@/types";
 import { useTrainingDetails } from "@/features/models/hooks/use-training";
-import { APPLICATION_CONTENTS } from "@/contents";
+import { modelPagesContent } from "@/constants";
+
 
 const ModelDetailsPopUp = ({
   showPopup,
@@ -49,7 +50,7 @@ const ModelDetailsPopUp = ({
         <SkeletonWrapper showSkeleton={Boolean(modelId && isPending)}>
           <div className="max-h-[500px] overflow-y-auto border bg-white border-gray-border w-80 shadown-sm shadow-[#433D3D33] rounded-md p-5 flex flex-col">
             {!model && isError ? (
-              <div>{APPLICATION_CONTENTS.START_MAPPING.modelDetails.error}</div>
+              <div>{modelPagesContent.startMapping.modelDetails.error}</div>
             ) : (
               <div className="flex flex-col gap-y-4 text-dark">
                 <div className="flex justify-between flex-row-reverse items-center">
@@ -60,20 +61,20 @@ const ModelDetailsPopUp = ({
                   >
                     &#x2715;
                   </button>
-                  <p>{APPLICATION_CONTENTS.START_MAPPING.modelDetails.label}</p>
+                  <p>{modelPagesContent.startMapping.modelDetails.label}</p>
                 </div>
                 <div className="flex flex-col gap-y-2">
                   <p className="text-gray">
                     {" "}
                     {
-                      APPLICATION_CONTENTS.START_MAPPING.modelDetails.popover
+                      modelPagesContent.startMapping.modelDetails.popover
                         .modelId
                     }
                     : <span className="text-dark">{model?.id ?? data?.id}</span>
                   </p>
                   <p className="text-gray">
                     {
-                      APPLICATION_CONTENTS.START_MAPPING.modelDetails.popover
+                      modelPagesContent.startMapping.modelDetails.popover
                         .description
                     }
                     :{" "}
@@ -83,7 +84,7 @@ const ModelDetailsPopUp = ({
                   </p>
                   <p className="text-gray">
                     {
-                      APPLICATION_CONTENTS.START_MAPPING.modelDetails.popover
+                      modelPagesContent.startMapping.modelDetails.popover
                         .lastModified
                     }
                     :{" "}
@@ -95,7 +96,7 @@ const ModelDetailsPopUp = ({
                   </p>
                   <p className="text-gray">
                     {
-                      APPLICATION_CONTENTS.START_MAPPING.modelDetails.popover
+                      modelPagesContent.startMapping.modelDetails.popover
                         .trainingId
                     }
                     :{" "}
@@ -105,7 +106,7 @@ const ModelDetailsPopUp = ({
                   </p>
                   <p className="text-gray">
                     {
-                      APPLICATION_CONTENTS.START_MAPPING.modelDetails.popover
+                      modelPagesContent.startMapping.modelDetails.popover
                         .datasetId
                     }
                     :{" "}
@@ -115,7 +116,7 @@ const ModelDetailsPopUp = ({
                   </p>
                   <p className="text-gray flex items-center gap-x-1 text-nowrap flex-wrap">
                     {
-                      APPLICATION_CONTENTS.START_MAPPING.modelDetails.popover
+                      modelPagesContent.startMapping.modelDetails.popover
                         .datasetName
                     }
                     :{" "}
@@ -136,7 +137,7 @@ const ModelDetailsPopUp = ({
 
                   <p className="text-gray flex items-center gap-x-1 text-nowrap flex-wrap">
                     {
-                      APPLICATION_CONTENTS.START_MAPPING.modelDetails.popover
+                      modelPagesContent.startMapping.modelDetails.popover
                         .zoomLevel
                     }
                     :{" "}
@@ -154,7 +155,7 @@ const ModelDetailsPopUp = ({
 
                   <p className="text-gray">
                     {
-                      APPLICATION_CONTENTS.START_MAPPING.modelDetails.popover
+                      modelPagesContent.startMapping.modelDetails.popover
                         .accuracy
                     }
                     :{" "}
@@ -168,7 +169,7 @@ const ModelDetailsPopUp = ({
                   </p>
                   <p className="text-gray">
                     {
-                      APPLICATION_CONTENTS.START_MAPPING.modelDetails.popover
+                      modelPagesContent.startMapping.modelDetails.popover
                         .baseModel
                     }
                     :{" "}

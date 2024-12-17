@@ -22,7 +22,7 @@ import {
   showSuccessToast,
   snapGeoJSONGeometryToClosestTile,
 } from "@/utils";
-import { TOAST_NOTIFICATIONS } from "@/contents";
+import { TOAST_NOTIFICATIONS } from "@/constants";
 import { DrawingModes, SHOELACE_SIZES } from "@/enums";
 import { GeoJSONType, Geometry } from "@/types";
 import { geojsonToWKT } from "@terraformer/wkt";

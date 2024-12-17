@@ -6,7 +6,7 @@ import { useUpdateModel } from "@/features/model-creation/hooks/use-models";
 import { TModel } from "@/types";
 import { APP_CONTENT, showErrorToast, showSuccessToast } from "@/utils";
 import { useState } from "react";
-import { TOAST_NOTIFICATIONS } from "@/contents";
+import { TOAST_NOTIFICATIONS } from "@/constants";
 
 type ModelDetailsUpdateDialogProps = {
   isOpened: boolean;

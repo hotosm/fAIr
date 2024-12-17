@@ -273,7 +273,7 @@ const TrainingAreaMap = ({
     <MapComponent
       openAerialMap
       oamTileJSONURL={tileJSONURL}
-      controlsLocation="top-left"
+      controlsPosition="top-left"
       drawControl
       showCurrentZoom
       layerControl
