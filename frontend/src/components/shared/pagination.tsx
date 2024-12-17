@@ -1,4 +1,4 @@
-import ChevronDownIcon from "@/components/ui/icons/chevron-down-icon";
+import { ChevronDownIcon } from "@/components/ui/icons";
 import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
 import { TQueryParams } from "@/types";
 import { useScrollToTop } from "@/hooks/use-scroll-to-element";

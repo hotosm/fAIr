@@ -1,7 +1,7 @@
 import { IconProps } from "@/types";
 import React from "react";
 
-const CategoryIcon: React.FC<IconProps> = (props) => (
+export const CategoryIcon: React.FC<IconProps> = (props) => (
   <svg
     viewBox="0 0 18 19"
     fill="none"
@@ -15,4 +15,3 @@ const CategoryIcon: React.FC<IconProps> = (props) => (
   </svg>
 );
 
-export default CategoryIcon;

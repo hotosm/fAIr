@@ -1,7 +1,7 @@
 import { IconProps } from "@/types";
 import React from "react";
 
-const ZoomInIcon: React.FC<IconProps> = (props) => (
+export const ZoomInIcon: React.FC<IconProps> = (props) => (
   <svg
     {...props}
     viewBox="0 0 19 19"
@@ -15,4 +15,3 @@ const ZoomInIcon: React.FC<IconProps> = (props) => (
   </svg>
 );
 
-export default ZoomInIcon;

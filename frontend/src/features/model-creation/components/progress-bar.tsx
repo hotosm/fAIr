@@ -1,5 +1,5 @@
 import { useModelsContext } from "@/app/providers/models-provider";
-import CheckIcon from "@/components/ui/icons/check-icon";
+import { CheckIcon } from "@/components/ui/icons";
 import { cn } from "@/utils";
 import { memo } from "react";
 import { useNavigate } from "react-router-dom";

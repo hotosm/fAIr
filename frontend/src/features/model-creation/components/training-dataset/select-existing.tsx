@@ -4,7 +4,7 @@ import {
 } from "@/app/providers/models-provider";
 import { Input } from "@/components/ui/form";
 import { SearchIcon } from "@/components/ui/icons";
-import CheckIcon from "@/components/ui/icons/check-icon";
+import { CheckIcon } from "@/components/ui/icons";
 import { useState } from "react";
 import { useGetTrainingDatasets } from "@/features/model-creation/hooks/use-training-datasets";
 import useDebounce from "@/hooks/use-debounce";

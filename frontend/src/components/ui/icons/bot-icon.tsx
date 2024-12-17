@@ -1,7 +1,7 @@
 import { IconProps } from "@/types";
 import React from "react";
 
-const BotIcon: React.FC<IconProps> = (props) => (
+export const BotIcon: React.FC<IconProps> = (props) => (
   <svg
     viewBox="0 0 36 36"
     fill="none"
@@ -15,4 +15,4 @@ const BotIcon: React.FC<IconProps> = (props) => (
   </svg>
 );
 
-export default BotIcon;
+

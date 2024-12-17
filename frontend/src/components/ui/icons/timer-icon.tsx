@@ -1,7 +1,7 @@
 import { IconProps } from "@/types";
 import React from "react";
 
-const TimerIcon: React.FC<IconProps> = (props) => (
+export const TimerIcon: React.FC<IconProps> = (props) => (
   <svg
     width="34"
     height="35"
@@ -17,4 +17,3 @@ const TimerIcon: React.FC<IconProps> = (props) => (
   </svg>
 );
 
-export default TimerIcon;

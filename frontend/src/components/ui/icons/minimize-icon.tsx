@@ -1,7 +1,7 @@
 import { IconProps } from "@/types";
 import React from "react";
 
-const MinimizeIcon: React.FC<IconProps> = (props) => (
+export const MinimizeIcon: React.FC<IconProps> = (props) => (
   <svg
     {...props}
     viewBox="0 0 21 21"
@@ -15,4 +15,3 @@ const MinimizeIcon: React.FC<IconProps> = (props) => (
   </svg>
 );
 
-export default MinimizeIcon;

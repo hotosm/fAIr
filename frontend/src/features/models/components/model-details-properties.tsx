@@ -10,7 +10,7 @@ import { Link } from "@/components/ui/link";
 import { CopyIcon, ExternalLinkIcon } from "@/components/ui/icons";
 import { ModelPropertiesSkeleton } from "./skeletons";
 import CodeBlock from "@/components/ui/codeblock/codeblock";
-import ChevronDownIcon from "@/components/ui/icons/chevron-down-icon";
+import { ChevronDownIcon } from "@/components/ui/icons";
 import { APP_CONTENT, cn, showErrorToast } from "@/utils";
 import { ENVS } from "@/config/env";
 import useCopyToClipboard from "@/hooks/use-clipboard";

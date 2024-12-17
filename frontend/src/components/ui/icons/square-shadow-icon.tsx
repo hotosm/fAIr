@@ -1,7 +1,7 @@
 import { IconProps } from "@/types";
 import React from "react";
 
-const SquareShadowIcon: React.FC<IconProps> = (props) => (
+export const SquareShadowIcon: React.FC<IconProps> = (props) => (
   <svg
     {...props}
     viewBox="0 0 20 21"
@@ -15,4 +15,3 @@ const SquareShadowIcon: React.FC<IconProps> = (props) => (
   </svg>
 );
 
-export default SquareShadowIcon;

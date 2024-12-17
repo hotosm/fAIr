@@ -1,7 +1,7 @@
 import { IconProps } from "@/types";
 import React from "react";
 
-const ListIcon: React.FC<IconProps> = (props) => (
+export const ListIcon: React.FC<IconProps> = (props) => (
   <svg
     width="20"
     height="15"
@@ -17,4 +17,3 @@ const ListIcon: React.FC<IconProps> = (props) => (
   </svg>
 );
 
-export default ListIcon;

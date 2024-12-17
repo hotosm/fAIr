@@ -1,7 +1,7 @@
 import { IconProps } from "@/types";
 import React from "react";
 
-const DesktopCursorIcon: React.FC<IconProps> = (props) => (
+export const DesktopCursorIcon: React.FC<IconProps> = (props) => (
   <svg
     {...props}
     viewBox="0 0 33 32"
@@ -15,4 +15,3 @@ const DesktopCursorIcon: React.FC<IconProps> = (props) => (
   </svg>
 );
 
-export default DesktopCursorIcon;

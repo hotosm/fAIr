@@ -1,7 +1,7 @@
 import { IconProps } from "@/types";
 import React from "react";
 
-const GeolocationIcon: React.FC<IconProps> = (props) => (
+export const GeolocationIcon: React.FC<IconProps> = (props) => (
   <svg
     {...props}
     viewBox="0 0 21 21"
@@ -15,4 +15,3 @@ const GeolocationIcon: React.FC<IconProps> = (props) => (
   </svg>
 );
 
-export default GeolocationIcon;

@@ -2,7 +2,7 @@ import { useMap } from "@/app/providers/map-provider";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import maplibregl, { Popup } from "maplibre-gl";
 import { Feature, GeoJSONType, TModelPredictions } from "@/types";
-import CheckIcon from "@/components/ui/icons/check-icon";
+import { CheckIcon } from "@/components/ui/icons";
 import { Input } from "@/components/ui/form";
 import { SHOELACE_SIZES } from "@/enums";
 import {
@@ -118,13 +118,13 @@ const PredictedFeatureActionPopup = ({
         onSuccess: (data) => {
           const { updatedSource, updatedTarget } = alreadyRejected
             ? moveFeature(rejected, accepted, featureId, {
-                _id: data.id,
-                ...data.properties,
-              })
+              _id: data.id,
+              ...data.properties,
+            })
             : moveFeature(all, accepted, featureId, {
-                _id: data.id,
-                ...data.properties,
-              });
+              _id: data.id,
+              ...data.properties,
+            });
 
           setModelPredictions((prev) => ({
             ...prev,
@@ -307,45 +307,45 @@ const PredictedFeatureActionPopup = ({
 
   const primaryButton = alreadyAccepted
     ? {
-        label: APPLICATION_CONTENTS.START_MAPPING.map.popup.reject,
-        action: handleRejection,
-        className: "bg-primary",
-        icon: RejectIcon,
-      }
+      label: APPLICATION_CONTENTS.START_MAPPING.map.popup.reject,
+      action: handleRejection,
+      className: "bg-primary",
+      icon: RejectIcon,
+    }
     : alreadyRejected
       ? {
-          label: APPLICATION_CONTENTS.START_MAPPING.map.popup.resolve,
-          action: handleResolve,
-          className: "bg-black",
-          icon: ResolveIcon,
-        }
-      : {
-          label: APPLICATION_CONTENTS.START_MAPPING.map.popup.accept,
-          action: handleAcceptance,
-          className: "bg-green-primary",
-          icon: AcceptIcon,
-        };
-
-  const secondaryButton = alreadyAccepted
-    ? {
         label: APPLICATION_CONTENTS.START_MAPPING.map.popup.resolve,
         action: handleResolve,
         className: "bg-black",
         icon: ResolveIcon,
       }
+      : {
+        label: APPLICATION_CONTENTS.START_MAPPING.map.popup.accept,
+        action: handleAcceptance,
+        className: "bg-green-primary",
+        icon: AcceptIcon,
+      };
+
+  const secondaryButton = alreadyAccepted
+    ? {
+      label: APPLICATION_CONTENTS.START_MAPPING.map.popup.resolve,
+      action: handleResolve,
+      className: "bg-black",
+      icon: ResolveIcon,
+    }
     : alreadyRejected
       ? {
-          label: APPLICATION_CONTENTS.START_MAPPING.map.popup.accept,
-          action: handleAcceptance,
-          className: "bg-green-primary",
-          icon: AcceptIcon,
-        }
+        label: APPLICATION_CONTENTS.START_MAPPING.map.popup.accept,
+        action: handleAcceptance,
+        className: "bg-green-primary",
+        icon: AcceptIcon,
+      }
       : {
-          label: APPLICATION_CONTENTS.START_MAPPING.map.popup.reject,
-          action: handleRejection,
-          className: "bg-primary",
-          icon: RejectIcon,
-        };
+        label: APPLICATION_CONTENTS.START_MAPPING.map.popup.reject,
+        action: handleRejection,
+        className: "bg-primary",
+        icon: RejectIcon,
+      };
 
   return (
     <div
@@ -390,7 +390,7 @@ const PredictedFeatureActionPopup = ({
         >
           {createModelFeedbackMutation.isPending
             ? APPLICATION_CONTENTS.START_MAPPING.map.popup.comment
-                .submissionInProgress
+              .submissionInProgress
             : APPLICATION_CONTENTS.START_MAPPING.map.popup.comment.submit}
         </Button>
       )}

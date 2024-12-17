@@ -8,7 +8,7 @@ import {
 } from "@/utils";
 import ModelDetailItem from "@/features/models/components/model-detail-item";
 import ModelDetailsSection from "@/features/models/components/model-details-section";
-import ChevronDownIcon from "@/components/ui/icons/chevron-down-icon";
+import { ChevronDownIcon } from "@/components/ui/icons";
 import { Divider } from "@/components/ui/divider";
 import ModelFeedbacks from "@/features/models/components/model-feedbacks";
 import ModelFilesButton from "./model-files-button";

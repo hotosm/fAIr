@@ -1,7 +1,7 @@
 import { IconProps } from "@/types";
 import React from "react";
 
-const LegendBookIcon: React.FC<IconProps> = (props) => (
+export const LegendBookIcon: React.FC<IconProps> = (props) => (
   <svg
     {...props}
     viewBox="0 0 15 16"
@@ -15,4 +15,3 @@ const LegendBookIcon: React.FC<IconProps> = (props) => (
   </svg>
 );
 
-export default LegendBookIcon;

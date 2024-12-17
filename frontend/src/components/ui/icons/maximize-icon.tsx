@@ -1,7 +1,7 @@
 import { IconProps } from "@/types";
 import React from "react";
 
-const MaximizeIcon: React.FC<IconProps> = (props) => (
+export const MaximizeIcon: React.FC<IconProps> = (props) => (
   <svg
     {...props}
     viewBox="0 0 19 19"
@@ -15,4 +15,3 @@ const MaximizeIcon: React.FC<IconProps> = (props) => (
   </svg>
 );
 
-export default MaximizeIcon;

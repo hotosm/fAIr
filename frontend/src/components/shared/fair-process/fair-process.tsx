@@ -9,7 +9,7 @@ import styles from "./fair-process.module.css";
 import { AnimatedBeam } from "@/components/ui/animated-beam";
 import { BotIcon, FeedbackIcon, PredictionsIcon } from "@/components/ui/icons";
 import { IconProps } from "@/types";
-import DesktopFlowIcon from "@/components/ui/icons/desktop-flow-icon";
+import { DesktopFlowIcon } from "@/components/ui/icons";
 import { APP_CONTENT } from "@/utils/content";
 
 /**

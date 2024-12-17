@@ -1,7 +1,7 @@
 import { IconProps } from "@/types";
 import React from "react";
 
-const ExternalLinkIcon: React.FC<IconProps> = (props) => (
+export const ExternalLinkIcon: React.FC<IconProps> = (props) => (
   <svg
     {...props}
     viewBox="0 0 18 19"
@@ -15,4 +15,3 @@ const ExternalLinkIcon: React.FC<IconProps> = (props) => (
   </svg>
 );
 
-export default ExternalLinkIcon;

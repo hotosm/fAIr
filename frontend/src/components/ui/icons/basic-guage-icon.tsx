@@ -1,7 +1,7 @@
 import { IconProps } from "@/types";
 import React from "react";
 
-const BasicGuageIcon: React.FC<IconProps> = (props) => (
+export const BasicGuageIcon: React.FC<IconProps> = (props) => (
   <svg
     {...props}
     viewBox="0 0 30 18"
@@ -51,4 +51,4 @@ const BasicGuageIcon: React.FC<IconProps> = (props) => (
   </svg>
 );
 
-export default BasicGuageIcon;
+

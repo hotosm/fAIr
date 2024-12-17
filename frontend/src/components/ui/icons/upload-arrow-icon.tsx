@@ -1,7 +1,7 @@
 import { IconProps } from "@/types";
 import React from "react";
 
-const UploadArrowIcon: React.FC<IconProps> = (props) => (
+export const UploadArrowIcon: React.FC<IconProps> = (props) => (
   <svg
     {...props}
     viewBox="0 0 10 14"
@@ -15,4 +15,3 @@ const UploadArrowIcon: React.FC<IconProps> = (props) => (
   </svg>
 );
 
-export default UploadArrowIcon;

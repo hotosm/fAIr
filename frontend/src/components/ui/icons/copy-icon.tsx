@@ -1,7 +1,7 @@
 import { IconProps } from "@/types";
 import React from "react";
 
-const CopyIcon: React.FC<IconProps> = (props) => (
+export const CopyIcon: React.FC<IconProps> = (props) => (
   <svg
     {...props}
     viewBox="0 0 16 21"
@@ -15,4 +15,3 @@ const CopyIcon: React.FC<IconProps> = (props) => (
   </svg>
 );
 
-export default CopyIcon;

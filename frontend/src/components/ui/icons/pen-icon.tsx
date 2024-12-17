@@ -1,7 +1,7 @@
 import { IconProps } from "@/types";
 import React from "react";
 
-const PenIcon: React.FC<IconProps> = (props) => (
+export const PenIcon: React.FC<IconProps> = (props) => (
   <svg
     {...props}
     viewBox="0 0 20 20"
@@ -15,4 +15,3 @@ const PenIcon: React.FC<IconProps> = (props) => (
   </svg>
 );
 
-export default PenIcon;

@@ -1,7 +1,7 @@
 import { IconProps } from "@/types";
 import React from "react";
 
-const SortIcon: React.FC<IconProps> = (props) => (
+export const SortIcon: React.FC<IconProps> = (props) => (
   <svg
     {...props}
     viewBox="0 0 14 12"
@@ -15,4 +15,3 @@ const SortIcon: React.FC<IconProps> = (props) => (
   </svg>
 );
 
-export default SortIcon;

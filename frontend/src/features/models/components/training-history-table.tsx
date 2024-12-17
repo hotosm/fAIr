@@ -17,7 +17,7 @@ import { DropDown } from "@/components/ui/dropdown";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { useAuth } from "@/app/providers/auth-provider";
 import { Badge } from "@/components/ui/badge";
-import CheckIcon from "@/components/ui/icons/check-icon";
+import { CheckIcon } from "@/components/ui/icons";
 import { ElipsisIcon, InfoIcon } from "@/components/ui/icons";
 import { useDialog } from "@/hooks/use-dialog";
 import { TrainingDetailsDialog } from "@/features/models/components/dialogs";

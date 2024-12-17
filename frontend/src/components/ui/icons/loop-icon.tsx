@@ -1,7 +1,7 @@
 import { IconProps } from "@/types";
 import React from "react";
 
-const LoopIcon: React.FC<IconProps> = (props) => (
+export const LoopIcon: React.FC<IconProps> = (props) => (
   <svg
     width="35"
     height="33"
@@ -17,4 +17,3 @@ const LoopIcon: React.FC<IconProps> = (props) => (
   </svg>
 );
 
-export default LoopIcon;

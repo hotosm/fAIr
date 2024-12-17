@@ -1,7 +1,7 @@
 import { IconProps } from "@/types";
 import React from "react";
 
-const ElipsisIcon: React.FC<IconProps> = (props) => (
+export const ElipsisIcon: React.FC<IconProps> = (props) => (
   <svg
     {...props}
     viewBox="0 0 10 3"
@@ -15,4 +15,3 @@ const ElipsisIcon: React.FC<IconProps> = (props) => (
   </svg>
 );
 
-export default ElipsisIcon;

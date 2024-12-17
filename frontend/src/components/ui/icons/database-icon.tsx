@@ -1,7 +1,7 @@
 import { IconProps } from "@/types";
 import React from "react";
 
-const DatabaseIcon: React.FC<IconProps> = (props) => (
+export const DatabaseIcon: React.FC<IconProps> = (props) => (
   <svg
     {...props}
     viewBox="0 0 20 23"
@@ -15,4 +15,3 @@ const DatabaseIcon: React.FC<IconProps> = (props) => (
   </svg>
 );
 
-export default DatabaseIcon;
