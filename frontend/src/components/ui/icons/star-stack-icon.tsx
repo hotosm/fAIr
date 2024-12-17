@@ -14,5 +14,3 @@ export const StarStackIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-
-

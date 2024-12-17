@@ -14,4 +14,3 @@ export const CheckIcon: React.FC<ShoelaceSlotProps & IconProps> = (props) => (
     />
   </svg>
 );
-

@@ -33,17 +33,19 @@ const ModelSettings = ({
   query: TQueryParams;
   updateQuery: (newParams: TQueryParams) => void;
 }) => {
-
-  const { onDropdownHide: onModelSettingsDropdownHide, onDropdownShow: onModelSettingsDropdownShow, dropdownIsOpened } =
-    useDropdownMenu();
+  const {
+    onDropdownHide: onModelSettingsDropdownHide,
+    onDropdownShow: onModelSettingsDropdownShow,
+    dropdownIsOpened,
+  } = useDropdownMenu();
 
   const handleQueryUpdate = (key: string, val: number | boolean) => {
     // Keep the dropdown opened when making changes
-    onModelSettingsDropdownShow()
+    onModelSettingsDropdownShow();
     updateQuery({
-      [key]: val
+      [key]: val,
     });
-  }
+  };
 
   return (
     <DropDown
@@ -54,11 +56,13 @@ const ModelSettings = ({
       onDropdownShow={onModelSettingsDropdownShow}
       triggerComponent={
         <ButtonWithIcon
-          onClick={dropdownIsOpened ? onModelSettingsDropdownShow : onModelSettingsDropdownHide}
-          suffixIcon={ChevronDownIcon}
-          label={
-            'Settings'
+          onClick={
+            dropdownIsOpened
+              ? onModelSettingsDropdownShow
+              : onModelSettingsDropdownHide
           }
+          suffixIcon={ChevronDownIcon}
+          label={"Settings"}
           uppercase={false}
           size={SHOELACE_SIZES.MEDIUM}
           variant="secondary"
@@ -78,7 +82,7 @@ const ModelSettings = ({
           <Switch
             checked={query[SEARCH_PARAMS.useJOSMQ] as boolean}
             handleSwitchChange={(event) => {
-              handleQueryUpdate(SEARCH_PARAMS.useJOSMQ, event.target.checked,)
+              handleQueryUpdate(SEARCH_PARAMS.useJOSMQ, event.target.checked);
             }}
           />
         </div>
@@ -97,7 +101,10 @@ const ModelSettings = ({
             options={confidenceLevels}
             defaultValue={query[SEARCH_PARAMS.confidenceLevel] as number}
             handleChange={(event) => {
-              handleQueryUpdate(SEARCH_PARAMS.confidenceLevel, Number(event.target.value),)
+              handleQueryUpdate(
+                SEARCH_PARAMS.confidenceLevel,
+                Number(event.target.value),
+              );
             }}
           />
         </div>
@@ -118,7 +125,10 @@ const ModelSettings = ({
             type={INPUT_TYPES.NUMBER}
             showBorder
             handleInput={(event) =>
-              handleQueryUpdate(SEARCH_PARAMS.tolerance, Number(event.target.value),)
+              handleQueryUpdate(
+                SEARCH_PARAMS.tolerance,
+                Number(event.target.value),
+              )
             }
             min={0}
             step={0.1}
@@ -141,14 +151,13 @@ const ModelSettings = ({
             type={INPUT_TYPES.NUMBER}
             showBorder
             handleInput={(event) =>
-              handleQueryUpdate(SEARCH_PARAMS.area, Number(event.target.value),)
+              handleQueryUpdate(SEARCH_PARAMS.area, Number(event.target.value))
             }
             min={0}
           />
         </div>
       </div>
     </DropDown>
-
   );
 };
 

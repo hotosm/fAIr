@@ -16,4 +16,3 @@ export const TimerIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-

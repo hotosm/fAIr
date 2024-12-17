@@ -3,12 +3,12 @@ import DirectoryTree from "@/features/models/components/directory-tree";
 import { DialogProps } from "@/types";
 import { APP_CONTENT } from "@/utils";
 
-type TrainingAreaDialogProps = DialogProps & {
+type TrainingAreaDrawerProps = DialogProps & {
   trainingId: number;
   datasetId: number;
 };
 
-const ModelFilesDialog: React.FC<TrainingAreaDialogProps> = ({
+const ModelFilesDialog: React.FC<TrainingAreaDrawerProps> = ({
   isOpened,
   closeDialog,
   datasetId,

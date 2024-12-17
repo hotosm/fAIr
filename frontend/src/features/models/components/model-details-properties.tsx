@@ -63,12 +63,16 @@ const PropertyDisplay: React.FC<PropertyDisplayProps> = ({
           className="flex items-center gap-x-3"
           title={label}
         >
-          <span className="text-dark font-semibold text-body-2 md:text-body-1">{value}</span>
+          <span className="text-dark font-semibold text-body-2 md:text-body-1">
+            {value}
+          </span>
           <ExternalLinkIcon className="icon" />
         </Link>
       ) : isCopy ? (
         <div className="flex items-center gap-x-3">
-          <span className="text-dark font-semibold text-body-2 md:text-body-1">URL</span>
+          <span className="text-dark font-semibold text-body-2 md:text-body-1">
+            URL
+          </span>
           <button onClick={() => copyToClipboard(value as string)}>
             <CopyIcon className="icon md:icon-lg" />
           </button>
@@ -239,7 +243,7 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
               href={
                 // @ts-expect-error bad type definition
                 APP_CONTENT.models.modelsDetailsCard.properties.baseModel.href[
-                baseModel
+                  baseModel
                 ]
               }
             />
@@ -280,15 +284,18 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
             )}
           </div>
 
-          {trainingResultsGraph && ![TrainingStatus.RUNNING, TrainingStatus.FAILED].includes(data?.status as TrainingStatus) && (
-            <div
-              className={`col-span-3 lg:col-span-2 ${isTrainingDetailsDialog && "lg:col-span-3"}`}
-            >
-              <ZoomableImage>
-                <Image src={trainingResultsGraph} alt={data.description} />
-              </ZoomableImage>
-            </div>
-          )}
+          {trainingResultsGraph &&
+            ![TrainingStatus.RUNNING, TrainingStatus.FAILED].includes(
+              data?.status as TrainingStatus,
+            ) && (
+              <div
+                className={`col-span-3 lg:col-span-2 ${isTrainingDetailsDialog && "lg:col-span-3"}`}
+              >
+                <ZoomableImage>
+                  <Image src={trainingResultsGraph} alt={data.description} />
+                </ZoomableImage>
+              </div>
+            )}
 
           {/* Show logs only in modal and when status failed or running */}
           {isTrainingDetailsDialog &&

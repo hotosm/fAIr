@@ -164,8 +164,6 @@ sl-alert.success::part(base) {
   .no-fullscreen {
     @apply -mx-0 lg:-mx-0;
   }
-
-
 }
 
 /* Tailwind styles ends */

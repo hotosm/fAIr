@@ -14,4 +14,3 @@ export const DirectoryIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-

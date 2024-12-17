@@ -14,4 +14,3 @@ export const DesktopCursorIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-

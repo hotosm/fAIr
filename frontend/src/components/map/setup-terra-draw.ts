@@ -12,7 +12,7 @@ import {
   TRAINING_AREAS_AOI_OUTLINE_WIDTH,
 } from "@/utils";
 
-export function setupTerraDraw(map: maplibregl.Map) {
+export const setupTerraDraw = (map: maplibregl.Map) => {
   return new TerraDraw({
     tracked: true,
     adapter: new TerraDrawMapLibreGLAdapter({
@@ -67,4 +67,4 @@ export function setupTerraDraw(map: maplibregl.Map) {
       }),
     ],
   });
-}
+};

@@ -8,12 +8,11 @@ import { useScrollToTop } from "@/hooks/use-scroll-to-element";
 
 const RootLayout = () => {
   const { pathname } = useLocation();
-  const { scrollToTop } = useScrollToTop()
+  const { scrollToTop } = useScrollToTop();
   // Scroll to top on page switch.
   useEffect(() => {
-    scrollToTop()
+    scrollToTop();
   }, [pathname]);
-
 
   return (
     <main className="min-h-screen relative  mx-auto flex flex-col justify-between">
@@ -23,7 +22,7 @@ const RootLayout = () => {
       <div
         // Disable global padding on landing page.
         // All other pages use the small padding except content pages.
-        className={`${pathname === APPLICATION_ROUTES.HOMEPAGE ? '' : "app-padding"} w-full`}
+        className={`${pathname === APPLICATION_ROUTES.HOMEPAGE ? "" : "app-padding"} w-full`}
       >
         <Outlet />
       </div>

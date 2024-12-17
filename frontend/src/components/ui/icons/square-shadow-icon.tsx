@@ -14,4 +14,3 @@ export const SquareShadowIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-

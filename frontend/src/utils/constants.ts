@@ -73,8 +73,6 @@ export const HOT_FAIR_SESSION_REDIRECT_KEY: string =
 export const HOT_FAIR_LOGIN_SUCCESSFUL_SESSION_KEY =
   "__hot_fair_login_successful";
 
-
-
 /**
  * Configuration for KPI Statistics Refetching Interval.
  */
@@ -88,10 +86,13 @@ const REFRESH_BUFFER_MS = 1000;
 /**
  * The cache time to poll the backend for updated KPI statistics, in milliseconds.
  * It includes an additional buffer to ensure fresh data retrieval.
- * 
+ *
  * @type {number}
  */
-export const KPI_STATS_CACHE_TIME_MS = (Number(ENVS.KPI_STATS_CACHE_TIME) || DEFAULT_KPI_STATS_CACHE_TIME_SECONDS) * 1000 + REFRESH_BUFFER_MS;
+export const KPI_STATS_CACHE_TIME_MS =
+  (Number(ENVS.KPI_STATS_CACHE_TIME) || DEFAULT_KPI_STATS_CACHE_TIME_SECONDS) *
+    1000 +
+  REFRESH_BUFFER_MS;
 
 /**
  * The maximum allowed area size (in square meters) for training areas.

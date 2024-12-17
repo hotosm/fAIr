@@ -16,4 +16,3 @@ export const ListIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-

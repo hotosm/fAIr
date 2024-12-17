@@ -65,7 +65,8 @@ export const API_ENDPOINTS = {
   GET_TRAINING_FEEDBACKS: (trainingId: number) =>
     `feedback/?training=${trainingId}`,
 
-  GET_PMTILES_URL: (trainingAreaId: number) => `/workspace/download/training_${trainingAreaId}/meta.pmtiles/?url_only=true`,
+  GET_PMTILES_URL: (trainingAreaId: number) =>
+    `/workspace/download/training_${trainingAreaId}/meta.pmtiles/?url_only=true`,
   // Workspace
 
   GET_TRAINING_WORKSPACE: (

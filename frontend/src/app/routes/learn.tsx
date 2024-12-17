@@ -12,8 +12,6 @@ import VideoPlaceholderImage from "@/assets/images/header_bg.jpg";
 import { learnPageContent } from "@/constants";
 import { TGuide, TVideo } from "@/types";
 
-
-
 export const LearnPage = () => {
   return (
     <main className="flex flex-col gap-y-20 md:gap-y-40 mb-48">
@@ -51,9 +49,7 @@ export const LearnPage = () => {
       </section>
       <TheFAIRProcess disableStyle />
       <section>
-        <SectionHeader
-          title={learnPageContent.sectionHeaders.guides}
-        />
+        <SectionHeader title={learnPageContent.sectionHeaders.guides} />
         <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-10 lg:gap-16 relative mb-10">
           {learnPageContent.guides.map((guide, id) => (
             <GuideCard guide={guide} key={id} />
@@ -62,9 +58,7 @@ export const LearnPage = () => {
         </div>
       </section>
       <section>
-        <SectionHeader
-          title={learnPageContent.sectionHeaders.videos}
-        />
+        <SectionHeader title={learnPageContent.sectionHeaders.videos} />
         <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-y-20 md:gap-x-6">
           {learnPageContent.videos.map((video, id) => (
             <VideoCard video={video} key={id} />

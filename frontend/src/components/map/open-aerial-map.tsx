@@ -1,7 +1,7 @@
 import { useMapLayers } from "@/hooks/use-map-layer";
 import { TMS_LAYER_ID, TMS_SOURCE_ID } from "@/utils";
 
-const OpenAerialMap = ({ tileJSONURL }: { tileJSONURL?: string }) => {
+export const OpenAerialMap = ({ tileJSONURL }: { tileJSONURL?: string }) => {
   useMapLayers(
     [
       {
@@ -24,5 +24,3 @@ const OpenAerialMap = ({ tileJSONURL }: { tileJSONURL?: string }) => {
   );
   return null;
 };
-
-export default OpenAerialMap;

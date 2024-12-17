@@ -14,5 +14,3 @@ export const BotIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-
-

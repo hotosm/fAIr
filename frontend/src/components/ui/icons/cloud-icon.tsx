@@ -14,4 +14,3 @@ export const CloudIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-

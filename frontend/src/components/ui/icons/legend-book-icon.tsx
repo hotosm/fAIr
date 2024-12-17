@@ -14,4 +14,3 @@ export const LegendBookIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-

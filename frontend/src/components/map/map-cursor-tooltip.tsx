@@ -1,4 +1,4 @@
-const MapCursorToolTip = ({
+export const MapCursorToolTip = ({
   color = "bg-black",
   tooltipVisible = true,
   tooltipPosition,
@@ -23,5 +23,3 @@ const MapCursorToolTip = ({
     </div>
   );
 };
-
-export default MapCursorToolTip;

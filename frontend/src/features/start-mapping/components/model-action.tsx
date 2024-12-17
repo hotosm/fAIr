@@ -25,7 +25,8 @@ const ModelAction = ({
 }) => {
   const { map, currentZoom } = useMap();
 
-  const disablePredictionButton = currentZoom < MIN_ZOOM_LEVEL_FOR_START_MAPPING_PREDICTION;
+  const disablePredictionButton =
+    currentZoom < MIN_ZOOM_LEVEL_FOR_START_MAPPING_PREDICTION;
 
   const modelPredictionMutation = useGetModelPredictions({
     mutationConfig: {

@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { useLocation } from "react-router-dom";
 import { APPLICATION_ROUTES } from "@/utils";
 
-type TrainingAreaDialogProps = DialogProps & {
+type TrainingAreaDrawerProps = DialogProps & {
   updateQuery: (updatedParams: TQueryParams) => void;
   query: TQueryParams;
   disabled: boolean;
@@ -32,7 +32,7 @@ const FilterItem = ({
   );
 };
 
-const MobileModelFiltersDialog: React.FC<TrainingAreaDialogProps> = ({
+const MobileModelFiltersDialog: React.FC<TrainingAreaDrawerProps> = ({
   isOpened,
   closeDialog,
   query,

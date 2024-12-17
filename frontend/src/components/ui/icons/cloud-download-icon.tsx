@@ -14,4 +14,3 @@ export const CloudDownloadIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-

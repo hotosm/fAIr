@@ -12,7 +12,6 @@ import { useLogin } from "@/hooks/use-login";
 import { useLocation } from "react-router-dom";
 import NavLogo from "./nav-logo";
 
-
 const NavBar = () => {
   const [open, setOpen] = useState(false);
   const { isAuthenticated } = useAuth();

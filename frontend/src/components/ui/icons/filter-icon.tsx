@@ -14,4 +14,3 @@ export const FilterIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-

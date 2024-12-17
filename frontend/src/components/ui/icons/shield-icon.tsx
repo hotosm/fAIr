@@ -14,4 +14,3 @@ export const ShieldIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-

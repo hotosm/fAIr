@@ -31,7 +31,6 @@ import { NavLogo, UserProfile } from "@/components/ui/navbar";
 import { useNavigate } from "react-router-dom";
 import { startMappingPageContent } from "@/constants";
 
-
 const StartMappingHeader = ({
   data,
   modelPredictions,
@@ -41,7 +40,9 @@ const StartMappingHeader = ({
   modelPredictionsExist,
   trainingDatasetIsPending,
   query,
-  updateQuery, trainingConfig, setModelPredictions
+  updateQuery,
+  trainingConfig,
+  setModelPredictions,
 }: {
   modelPredictionsExist: boolean;
   trainingDatasetIsPending: boolean;
@@ -54,13 +55,15 @@ const StartMappingHeader = ({
   updateQuery: (newParams: TQueryParams) => void;
   trainingConfig: TModelPredictionsConfig;
   setModelPredictions: React.Dispatch<React.SetStateAction<TModelPredictions>>;
-
 }) => {
   const { onDropdownHide, onDropdownShow, dropdownIsOpened } =
     useDropdownMenu();
 
-  const { onDropdownHide: onFAIRLogoDropdownHide, onDropdownShow: onFAIRLogoDropdownShow, dropdownIsOpened: FAIRLogoDropdownIsOpened } =
-    useDropdownMenu();
+  const {
+    onDropdownHide: onFAIRLogoDropdownHide,
+    onDropdownShow: onFAIRLogoDropdownShow,
+    dropdownIsOpened: FAIRLogoDropdownIsOpened,
+  } = useDropdownMenu();
 
   const { map } = useMap();
   const [showModelDetails, setShowModelDetails] = useState<boolean>(false);
@@ -119,26 +122,20 @@ const StartMappingHeader = ({
 
   const downloadButtonDropdownOptions = [
     {
-      name: startMappingPageContent.buttons.download.options
-        .allFeatures,
-      value:
-        startMappingPageContent.buttons.download.options.allFeatures,
+      name: startMappingPageContent.buttons.download.options.allFeatures,
+      value: startMappingPageContent.buttons.download.options.allFeatures,
       onClick: handleAllFeaturesDownload,
     },
     {
-      name: startMappingPageContent.buttons.download.options
-        .acceptedFeatures,
-      value:
-        startMappingPageContent.buttons.download.options
-          .acceptedFeatures,
+      name: startMappingPageContent.buttons.download.options.acceptedFeatures,
+      value: startMappingPageContent.buttons.download.options.acceptedFeatures,
       onClick: handleAcceptedFeaturesDownload,
     },
     {
       name: startMappingPageContent.buttons.download.options
         .openAllFeaturesInJOSM,
       value:
-        startMappingPageContent.buttons.download.options
-          .openAllFeaturesInJOSM,
+        startMappingPageContent.buttons.download.options.openAllFeaturesInJOSM,
       onClick: handleAllFeaturesDownloadToJOSM,
     },
     {
@@ -168,15 +165,22 @@ const StartMappingHeader = ({
             <div className="bg-white flex flex-col gap-4 w-40 p-4 rounded-md">
               <BackButton className="text-body-3" />
               <Divider />
-              <button onClick={() => navigate(APPLICATION_ROUTES.MODELS)} className="text-left text-body-3 hover:bg-secondary p-2">Explore Models</button>
-              <button onClick={() => navigate(APPLICATION_ROUTES.HOMEPAGE)} className="text-left  text-body-3  hover:bg-secondary p-2">Home</button>
+              <button
+                onClick={() => navigate(APPLICATION_ROUTES.MODELS)}
+                className="text-left text-body-3 hover:bg-secondary p-2"
+              >
+                Explore Models
+              </button>
+              <button
+                onClick={() => navigate(APPLICATION_ROUTES.HOMEPAGE)}
+                className="text-left  text-body-3  hover:bg-secondary p-2"
+              >
+                Home
+              </button>
             </div>
           </DropDown>
           <div className="flex flex-col md:flex-row md:items-center gap-x-2 z-10">
-            <p
-              title={data?.name}
-              className="text-dark text-title-2base"
-            >
+            <p title={data?.name} className="text-dark text-title-2base">
               {data?.name ? truncateString(data?.name, 35) : "N/A"}
             </p>
             <ModelDetailsPopUp
@@ -198,10 +202,7 @@ const StartMappingHeader = ({
           </div>
         </div>
         <div className="flex flex-row items-center gap-x-2">
-          <ModelSettings
-            updateQuery={updateQuery}
-            query={query}
-          />
+          <ModelSettings updateQuery={updateQuery} query={query} />
           <div className="flex flex-row items-center gap-y-3">
             <p className="text-dark text-body-3">
               {startMappingPageContent.mapData.title} -{" "}
@@ -222,9 +223,7 @@ const StartMappingHeader = ({
                   uppercase={false}
                   onClick={dropdownIsOpened ? onDropdownHide : onDropdownShow}
                   suffixIcon={ChevronDownIcon}
-                  label={
-                    startMappingPageContent.buttons.download.label
-                  }
+                  label={startMappingPageContent.buttons.download.label}
                   size={SHOELACE_SIZES.MEDIUM}
                   variant="secondary"
                   disabled={!modelPredictionsExist}
@@ -242,7 +241,6 @@ const StartMappingHeader = ({
           />
 
           <UserProfile hideFullName />
-
         </div>
       </div>
     </SkeletonWrapper>

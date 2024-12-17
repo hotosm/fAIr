@@ -14,4 +14,3 @@ export const PenIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-

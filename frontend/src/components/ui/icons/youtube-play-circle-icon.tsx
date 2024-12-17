@@ -14,4 +14,3 @@ export const YouTubePlayCircleIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-

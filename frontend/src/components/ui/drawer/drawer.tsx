@@ -1,13 +1,14 @@
 import { SlDrawer } from "@shoelace-style/shoelace/dist/react";
 import "./drawer.css";
+import { DrawerPlacements } from "@/enums";
 
 type DrawerProps = {
   open: boolean;
   setOpen: (open: boolean) => void;
-  placement: "top" | "bottom" | "end";
+  placement: DrawerPlacements;
   children: React.ReactNode;
   label?: string;
-  noHeader?: boolean
+  noHeader?: boolean;
 };
 const Drawer: React.FC<DrawerProps> = ({
   children,
@@ -15,7 +16,7 @@ const Drawer: React.FC<DrawerProps> = ({
   setOpen,
   placement,
   label = "",
-  noHeader = true
+  noHeader = true,
 }) => {
   return (
     <SlDrawer

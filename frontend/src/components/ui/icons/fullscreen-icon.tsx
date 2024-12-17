@@ -14,4 +14,3 @@ export const FullScreenIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-

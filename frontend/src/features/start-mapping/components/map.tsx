@@ -9,7 +9,7 @@ import {
 
 import { GeoJSONSource } from "maplibre-gl";
 
-import { MapComponent, MapCursorToolTip } from "@/components/map";
+import { FitToBounds, MapComponent, MapCursorToolTip } from "@/components/map";
 import { ToolTip } from "@/components/ui/tooltip";
 import { useMapLayers } from "@/hooks/use-map-layer";
 import { useMap } from "@/app/providers/map-provider";
@@ -285,61 +285,47 @@ const StartMappingMapComponent = ({
       layerControlLayers={[
         ...(modelPredictions.accepted.length > 0
           ? [
-            {
-              value:
-                startMappingPageContent.map.controls.legendControl
-                  .acceptedPredictions,
-              subLayers: [
-                ACCEPTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
-                ACCEPTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
-              ],
-            },
-          ]
+              {
+                value:
+                  startMappingPageContent.map.controls.legendControl
+                    .acceptedPredictions,
+                subLayers: [
+                  ACCEPTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
+                  ACCEPTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
+                ],
+              },
+            ]
           : []),
         ...(modelPredictions.rejected.length > 0
           ? [
-            {
-              value:
-                startMappingPageContent.map.controls.legendControl
-                  .rejectedPredictions,
-              subLayers: [
-                REJECTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
-                REJECTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
-              ],
-            },
-          ]
+              {
+                value:
+                  startMappingPageContent.map.controls.legendControl
+                    .rejectedPredictions,
+                subLayers: [
+                  REJECTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
+                  REJECTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
+                ],
+              },
+            ]
           : []),
         ...(modelPredictions.all.length > 0
           ? [
-            {
-              value:
-                startMappingPageContent.map.controls.legendControl
-                  .predictionResults,
-              subLayers: [
-                ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
-                ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
-              ],
-            },
-          ]
+              {
+                value:
+                  startMappingPageContent.map.controls.legendControl
+                    .predictionResults,
+                subLayers: [
+                  ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
+                  ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
+                ],
+              },
+            ]
           : []),
       ]}
     >
       {showPopup && renderPopup}
-      {map && (
-        <ToolTip
-          content={
-            startMappingPageContent.map.controls.fitToBoundsControl
-              .tooltip
-          }
-        >
-          <button
-            className="absolute left-3 top-28 bg-white z-[1] p-1.5"
-            onClick={fitToTMSBounds}
-          >
-            <FullScreenIcon className="icon-lg" />
-          </button>
-        </ToolTip>
-      )}
+      {map && <FitToBounds onClick={fitToTMSBounds} />}
       <MapCursorToolTip
         tooltipVisible={showTooltip}
         color={"bg-primary"}

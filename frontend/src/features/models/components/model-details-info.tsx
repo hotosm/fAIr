@@ -22,11 +22,11 @@ import { useNavigate } from "react-router-dom";
 const ModelDetailsInfo = ({
   data,
   openModelFilesDialog,
-  openTrainingAreaDialog,
+  openTrainingAreaDrawer,
 }: {
   data: TModelDetails;
   openModelFilesDialog: () => void;
-  openTrainingAreaDialog: () => void;
+  openTrainingAreaDrawer: () => void;
 }) => {
   const { isOpened, openDialog, closeDialog } = useDialog();
   const { user, isAuthenticated } = useAuth();
@@ -69,7 +69,6 @@ const ModelDetailsInfo = ({
                   label={APP_CONTENT.models.modelsDetailsCard.startMapping}
                   variant="primary"
                   size="medium"
-
                   prefixIcon={MapIcon}
                   disabled={data?.published_training === null}
                   onClick={() => {
@@ -85,7 +84,7 @@ const ModelDetailsInfo = ({
         <button
           disabled={data?.published_training === null}
           className="md:self-end flex items-center gap-x-2 cursor-pointer text-primary text-body-2 md:font-semibold"
-          onClick={openTrainingAreaDialog}
+          onClick={openTrainingAreaDrawer}
         >
           <p>{APP_CONTENT.models.modelsDetailsCard.viewTrainingArea}</p>
           <ChevronDownIcon className="icon -rotate-90" />

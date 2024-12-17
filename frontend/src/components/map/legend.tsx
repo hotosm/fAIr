@@ -21,7 +21,7 @@ const FillLegendStyle = ({
   );
 };
 
-const Legend = () => {
+export const Legend = () => {
   const [expandLegend, setExpandLegend] = useState<boolean>(false);
   const { map } = useMap();
 
@@ -64,5 +64,3 @@ const Legend = () => {
     </button>
   );
 };
-
-export default Legend;

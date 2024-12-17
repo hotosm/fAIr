@@ -14,4 +14,3 @@ export const ExternalLinkIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-

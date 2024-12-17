@@ -14,4 +14,3 @@ export const TagsIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-

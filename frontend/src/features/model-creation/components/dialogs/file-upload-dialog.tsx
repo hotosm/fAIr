@@ -97,7 +97,6 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
       "application/json": [".geojson", ".json"],
     },
     disabled: disabled,
-
   });
 
   const deleteFile = (fileId: string) => {

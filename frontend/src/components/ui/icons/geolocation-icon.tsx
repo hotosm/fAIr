@@ -14,4 +14,3 @@ export const GeolocationIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-

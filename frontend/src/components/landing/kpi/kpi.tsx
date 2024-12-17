@@ -21,11 +21,10 @@ const fetchKPIStats = async (): Promise<TKPIResponse> => {
 };
 
 const Kpi = () => {
-
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["kpis"],
     queryFn: fetchKPIStats,
-    refetchInterval: KPI_STATS_CACHE_TIME_MS
+    refetchInterval: KPI_STATS_CACHE_TIME_MS,
   });
 
   if (isError) {

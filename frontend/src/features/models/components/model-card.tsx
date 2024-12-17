@@ -13,20 +13,19 @@ type ModelCardProps = {
 };
 
 const ModelCard: React.FC<ModelCardProps> = ({ model }) => {
-
   // on my-models page, add a badge to the model card
-  const { pathname } = useLocation()
+  const { pathname } = useLocation();
   const canAddStatusBadge = pathname === APPLICATION_ROUTES.ACCOUNT_MODELS;
   const statusToBadgeVariant: Record<string, TBadgeVariants> = {
-    "-1": "blue", //draft 
+    "-1": "blue", //draft
     "0": "green", //published
     "1": "red", // archived
-  }
+  };
   const statusMapping: Record<string, string> = {
-    "-1": "Draft", //draft 
+    "-1": "Draft", //draft
     "0": "Published", //published
     "1": "Archived", // archived
-  }
+  };
 
   return (
     <div className="flex items-center  w-full">
@@ -50,18 +49,13 @@ const ModelCard: React.FC<ModelCardProps> = ({ model }) => {
             placeHolder={FairModelPlaceholderImage}
             className="w-full h-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-105"
           />
-          {
-            canAddStatusBadge &&
+          {canAddStatusBadge && (
             <div className="absolute top-2 right-2">
-              <Badge
-                variant={
-                  statusToBadgeVariant[String(model.status)]
-                }
-              >
+              <Badge variant={statusToBadgeVariant[String(model.status)]}>
                 {statusMapping[String(model.status)]}
               </Badge>
             </div>
-          }
+          )}
         </div>
         <div className="p-5 flex flex-col gap-y-6">
           <div className="inline-flex flex-col gap-y-2">
@@ -82,7 +76,6 @@ const ModelCard: React.FC<ModelCardProps> = ({ model }) => {
             </p>
           </div>
           {/* Status badge */}
-
 
           {/* Name, date and base model */}
           <div className="inline-flex flex-col gap-y-2">

@@ -5,7 +5,6 @@ import { Head } from "@/components/seo";
 import AIIcon from "@/assets/svgs/fair_ai_icon.svg";
 import { aboutPageContent } from "@/constants";
 
-
 export const AboutPage = () => {
   return (
     <main className="flex flex-col gap-y-20 md:gap-y-40 mb-48">
@@ -23,12 +22,19 @@ export const AboutPage = () => {
         </div>
       </section>
       <section>
-        <Image alt={aboutPageContent.imageAlt} src={HOTTeamLandscape} width="100%" height="100%" />
+        <Image
+          alt={aboutPageContent.imageAlt}
+          src={HOTTeamLandscape}
+          width="100%"
+          height="100%"
+        />
       </section>
 
       <section className="flex flex-col-reverse md:flex-row items-center md:justify-between w-full">
         <div className="basis-2/4 flex gap-y-4 flex-col">
-          <p className="text-body-2base md:text-body-2 text-dark">{aboutPageContent.bodyContent.firstParagraph}</p>
+          <p className="text-body-2base md:text-body-2 text-dark">
+            {aboutPageContent.bodyContent.firstParagraph}
+          </p>
           <p>{aboutPageContent.bodyContent.secondParagraph}</p>
         </div>
         <Image src={AIIcon} alt="AI Icon" width="300px" height="300px" />
@@ -36,5 +42,3 @@ export const AboutPage = () => {
     </main>
   );
 };
-
-

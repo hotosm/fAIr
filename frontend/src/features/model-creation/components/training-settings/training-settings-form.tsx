@@ -148,7 +148,6 @@ const TrainingSettingsForm = () => {
               variant={
                 formData.trainingType === type.label ? "dark" : "default"
               }
-
               prefixIcon={type.Icon}
               iconClassName="md:icon-lg"
             />

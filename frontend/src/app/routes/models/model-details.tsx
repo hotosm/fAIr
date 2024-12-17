@@ -8,7 +8,7 @@ import {
   TrainingHistoryTable,
 } from "@/features/models/components";
 import {
-  TrainingAreaDialog,
+  TrainingAreaDrawer,
   ModelFilesDialog,
 } from "@/features/models/components/dialogs";
 import { ModelDetailsSkeleton } from "@/features/models/components/skeletons";
@@ -74,13 +74,18 @@ export const ModelDetailsPage = () => {
         trainingId={data?.published_training as number}
         datasetId={data?.dataset as number}
       />
-      <TrainingAreaDialog isOpened={isOpened} closeDialog={closeDialog} trainingAreaId={data?.published_training as number} />
-      <BackButton className='mt-6' />
+      <TrainingAreaDrawer
+        isOpened={isOpened}
+        closeDialog={closeDialog}
+        trainingAreaId={data?.published_training as number}
+      />
+
+      <BackButton className="mt-6" />
       <div className="my-12 flex flex-col gap-y-20">
         <ModelDetailsInfo
           data={data as TModelDetails}
           openModelFilesDialog={openModelFilesDialog}
-          openTrainingAreaDialog={openDialog}
+          openTrainingAreaDrawer={openDialog}
         />
         <ModelDetailsSection
           title={APP_CONTENT.models.modelsDetailsCard.propertiesSectionTitle}

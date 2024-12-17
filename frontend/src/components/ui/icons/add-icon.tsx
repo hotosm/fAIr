@@ -16,4 +16,3 @@ export const AddIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-

@@ -50,4 +50,3 @@ export const AdvancedGuageIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-

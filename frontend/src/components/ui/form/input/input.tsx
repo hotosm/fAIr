@@ -5,7 +5,7 @@ import useBrowserType from "@/hooks/use-browser-type";
 import { useRef } from "react";
 import useScreenSize from "@/hooks/use-screen-size";
 import { HelpText, FormLabel } from "@/components/ui/form";
-import { CheckIcon } from "@/components/ui/icons"
+import { CheckIcon } from "@/components/ui/icons";
 import { INPUT_TYPES, SHOELACE_SIZES } from "@/enums";
 
 type InputProps = {

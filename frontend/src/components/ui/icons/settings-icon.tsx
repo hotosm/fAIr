@@ -14,4 +14,3 @@ export const SettingsIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-

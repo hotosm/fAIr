@@ -78,7 +78,10 @@ export const useModelsMapData = () => {
   });
 };
 
-export const useModelsListFilters = (status: number | undefined, userId?: number) => {
+export const useModelsListFilters = (
+  status: number | undefined,
+  userId?: number,
+) => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const defaultQueries = {
@@ -98,7 +101,9 @@ export const useModelsListFilters = (status: number | undefined, userId?: number
       searchParams.get(SEARCH_PARAMS.layout) || LayoutView.GRID,
     [SEARCH_PARAMS.id]: searchParams.get(SEARCH_PARAMS.id) || "",
     // Status will be undefined for 'all' status filter in users models, so exclude it from the api call.
-    ...(status !== undefined && { [SEARCH_PARAMS.status]: searchParams.get(SEARCH_PARAMS.status) || status })
+    ...(status !== undefined && {
+      [SEARCH_PARAMS.status]: searchParams.get(SEARCH_PARAMS.status) || status,
+    }),
   };
   const [query, setQuery] = useState<TQueryParams>(defaultQueries);
 

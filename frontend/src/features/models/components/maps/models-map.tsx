@@ -1,7 +1,7 @@
 import { Map } from "maplibre-gl";
 import { useCallback, useEffect } from "react";
 import mapMarker from "@/assets/images/map_marker.png";
-import MapComponent from "@/components/map/map";
+import { MapComponent } from "@/components/map";
 import { FeatureCollection, TQueryParams } from "@/types";
 import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
 import { useMap } from "@/app/providers/map-provider";
@@ -113,7 +113,10 @@ type ModelsMapProps = {
   updateQuery: (newParams: TQueryParams) => void;
 };
 
-const ModelsMap: React.FC<ModelsMapProps> = ({ mapResults, updateQuery }) => {
+export const ModelsMap: React.FC<ModelsMapProps> = ({
+  mapResults,
+  updateQuery,
+}) => {
   const { map } = useMap();
 
   const handleClickOnModelID = useCallback((clickedModel: string) => {
@@ -147,5 +150,3 @@ const ModelsMap: React.FC<ModelsMapProps> = ({ mapResults, updateQuery }) => {
     </div>
   );
 };
-
-export default ModelsMap;

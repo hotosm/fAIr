@@ -14,4 +14,3 @@ export const UploadIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-

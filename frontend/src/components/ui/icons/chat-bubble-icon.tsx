@@ -14,4 +14,3 @@ export const ChatbubbleIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-

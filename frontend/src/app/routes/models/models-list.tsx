@@ -46,8 +46,8 @@ export const SEARCH_PARAMS = {
 
 export const ModelsPage = () => {
   const { isOpened, openDialog, closeDialog } = useDialog();
-  const mapViewElementId = 'map-view'
-  const { scrollToElement } = useScrollToElement(mapViewElementId)
+  const mapViewElementId = "map-view";
+  const { scrollToElement } = useScrollToElement(mapViewElementId);
   const {
     clearAllFilters,
     data,
@@ -73,20 +73,21 @@ export const ModelsPage = () => {
 
   // When the mapview is toggled, scroll into it
   useEffect(() => {
-    if (!mapViewIsActive) return
+    if (!mapViewIsActive) return;
     scrollToElement();
-  }, [mapViewIsActive])
+  }, [mapViewIsActive]);
 
   const renderContent = () => {
     if (data?.count === 0) {
-      return (
-        <ModelNotFound />
-      );
+      return <ModelNotFound />;
     }
 
     if (mapViewIsActive) {
       return (
-        <div id={mapViewElementId} className="w-full grid grid-cols-1 grid-rows-2 lg:grid-rows-1 lg:grid-cols-2 md:border rounded-md lg:p-2 md:border-gray-border gap-x-2 mt-10  gap-y-6 lg:gap-y-0 h-screen">
+        <div
+          id={mapViewElementId}
+          className="w-full grid grid-cols-1 grid-rows-2 lg:grid-rows-1 lg:grid-cols-2 md:border rounded-md lg:p-2 md:border-gray-border gap-x-2 mt-10  gap-y-6 lg:gap-y-0 h-screen"
+        >
           <div className="w-full overflow-y-auto lg:row-start-1">
             <ModelListGridLayout
               models={data?.results}
@@ -94,7 +95,7 @@ export const ModelsPage = () => {
               isError={isError}
             />
           </div>
-          <div className="row-start-1" >
+          <div className="row-start-1">
             {modelsMapDataIsPending || modelsMapDataIsError ? (
               <div className="w-full h-full animate-pulse bg-light-gray"></div>
             ) : (

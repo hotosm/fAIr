@@ -14,4 +14,3 @@ export const MinimizeIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-

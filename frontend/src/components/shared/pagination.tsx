@@ -37,7 +37,7 @@ const Pagination: React.FC<PaginationProps> = ({
   centerOnMobile = true,
 }) => {
   const _offset = offset ?? (query?.[SEARCH_PARAMS.offset] as number);
-  const { scrollToTop } = useScrollToTop()
+  const { scrollToTop } = useScrollToTop();
   const onNextPage = () => {
     if (!isPlaceholderData && hasNextPage) {
       const nextOffset = _offset + pageLimit;
@@ -46,7 +46,7 @@ const Pagination: React.FC<PaginationProps> = ({
       });
       setOffset?.(nextOffset);
       // scroll to top
-      scrollToTop()
+      scrollToTop();
     }
   };
 
@@ -58,7 +58,7 @@ const Pagination: React.FC<PaginationProps> = ({
       });
       setOffset?.(Math.max(prevOffset, 0));
       // scroll to top
-      scrollToTop()
+      scrollToTop();
     }
   };
 

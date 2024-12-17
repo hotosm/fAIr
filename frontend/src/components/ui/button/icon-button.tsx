@@ -26,7 +26,6 @@ const ButtonWithIcon: React.FC<ButtonWithIconProps> = ({
   disabled,
   size,
   uppercase,
-
 }) => {
   return (
     <div role="button">
@@ -37,8 +36,6 @@ const ButtonWithIcon: React.FC<ButtonWithIconProps> = ({
         disabled={disabled}
         size={size}
         uppercase={uppercase}
-
-
       >
         {PrefixIcon && <PrefixIcon className={cn(`icon ${iconClassName}`)} />}
         <p>{label}</p>

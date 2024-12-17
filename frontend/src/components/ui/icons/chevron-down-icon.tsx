@@ -1,7 +1,9 @@
 import { IconProps, ShoelaceSlotProps } from "@/types";
 import React from "react";
 
-export const ChevronDownIcon: React.FC<ShoelaceSlotProps & IconProps> = (props) => (
+export const ChevronDownIcon: React.FC<ShoelaceSlotProps & IconProps> = (
+  props,
+) => (
   <svg
     viewBox="0 0 16 8"
     fill="none"
@@ -14,4 +16,3 @@ export const ChevronDownIcon: React.FC<ShoelaceSlotProps & IconProps> = (props) 
     />
   </svg>
 );
-

@@ -1,6 +1,6 @@
 import { useMap } from "@/app/providers/map-provider";
 
-const ZoomLevel = () => {
+export const ZoomLevel = () => {
   const { currentZoom } = useMap();
   return (
     <div className="bg-white py-1 px-3 rounded-md">
@@ -8,5 +8,3 @@ const ZoomLevel = () => {
     </div>
   );
 };
-
-export default ZoomLevel;

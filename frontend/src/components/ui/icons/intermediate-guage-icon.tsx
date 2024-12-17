@@ -42,4 +42,3 @@ export const IntermediateGuageIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-

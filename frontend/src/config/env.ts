@@ -7,8 +7,8 @@ export const ENVS = {
   MATOMO_APP_DOMAIN: import.meta.env.VITE_MATOMO_APP_DOMAIN,
 
   /**
- * The cache duration for polling the backend for updated statistics, in seconds.
- */
+   * The cache duration for polling the backend for updated statistics, in seconds.
+   */
 
   KPI_STATS_CACHE_TIME: import.meta.env.KPI_STATS_CACHE_TIME,
   /**
@@ -47,7 +47,8 @@ export const ENVS = {
    * The minimum zoom level for the map before the prediction components can be activated.
    */
 
-  MIN_ZOOM_LEVEL_FOR_START_MAPPING_PREDICTION: import.meta.env.MIN_ZOOM_LEVEL_FOR_START_MAPPING_PREDICTION,
+  MIN_ZOOM_LEVEL_FOR_START_MAPPING_PREDICTION: import.meta.env
+    .MIN_ZOOM_LEVEL_FOR_START_MAPPING_PREDICTION,
   /**
    * The minimum zoom level to show the training area labels.
    */

@@ -4,7 +4,7 @@ import {
   GOOGLE_SATELLITE_BASEMAP_SOURCE_ID,
 } from "@/utils";
 
-const Basemaps = () => {
+export const Basemaps = () => {
   useMapLayers(
     [
       {
@@ -36,5 +36,3 @@ const Basemaps = () => {
 
   return null;
 };
-
-export default Basemaps;

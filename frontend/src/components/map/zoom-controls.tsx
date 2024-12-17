@@ -22,7 +22,7 @@ const ZoomButton = ({
   </button>
 );
 
-const ZoomControls = () => {
+export const ZoomControls = () => {
   const { currentZoom, map } = useMap();
 
   const handleZoomIn = useCallback(() => {
@@ -56,5 +56,3 @@ const ZoomControls = () => {
     </div>
   );
 };
-
-export default ZoomControls;

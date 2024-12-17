@@ -14,4 +14,3 @@ export const PredictionsIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-

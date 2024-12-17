@@ -4,7 +4,7 @@ import { ToolTip } from "@/components/ui/tooltip";
 import { PenIcon } from "@/components/ui/icons";
 import { useMap } from "@/app/providers/map-provider";
 
-const DrawControl = () => {
+export const DrawControl = () => {
   const { drawingMode, terraDraw, setDrawingMode } = useMap();
 
   const changeMode = useCallback(
@@ -58,5 +58,3 @@ const DrawControl = () => {
     </>
   );
 };
-
-export default DrawControl;

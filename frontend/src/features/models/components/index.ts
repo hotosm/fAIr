@@ -1,4 +1,4 @@
-export { default as ModelsMap } from "./map/models-map";
+export { ModelsMap, TrainingAreaMap } from "./maps";
 export { default as ModelList } from "../layouts/grid";
 export { default as PageHeader } from "./header";
 export { default as ModelProperties } from "./model-details-properties";

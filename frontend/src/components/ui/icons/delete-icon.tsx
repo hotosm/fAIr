@@ -14,4 +14,3 @@ export const DeleteIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-

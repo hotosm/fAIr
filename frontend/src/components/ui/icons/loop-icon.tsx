@@ -16,4 +16,3 @@ export const LoopIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-

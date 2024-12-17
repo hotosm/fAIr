@@ -14,4 +14,3 @@ export const CopyIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-

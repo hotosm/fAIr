@@ -118,13 +118,13 @@ const PredictedFeatureActionPopup = ({
         onSuccess: (data) => {
           const { updatedSource, updatedTarget } = alreadyRejected
             ? moveFeature(rejected, accepted, featureId, {
-              _id: data.id,
-              ...data.properties,
-            })
+                _id: data.id,
+                ...data.properties,
+              })
             : moveFeature(all, accepted, featureId, {
-              _id: data.id,
-              ...data.properties,
-            });
+                _id: data.id,
+                ...data.properties,
+              });
 
           setModelPredictions((prev) => ({
             ...prev,
@@ -307,45 +307,45 @@ const PredictedFeatureActionPopup = ({
 
   const primaryButton = alreadyAccepted
     ? {
-      label: modelTexts.startMapping.map.popup.reject,
-      action: handleRejection,
-      className: "bg-primary",
-      icon: RejectIcon,
-    }
+        label: modelTexts.startMapping.map.popup.reject,
+        action: handleRejection,
+        className: "bg-primary",
+        icon: RejectIcon,
+      }
     : alreadyRejected
       ? {
+          label: modelTexts.startMapping.map.popup.resolve,
+          action: handleResolve,
+          className: "bg-black",
+          icon: ResolveIcon,
+        }
+      : {
+          label: modelTexts.startMapping.map.popup.accept,
+          action: handleAcceptance,
+          className: "bg-green-primary",
+          icon: AcceptIcon,
+        };
+
+  const secondaryButton = alreadyAccepted
+    ? {
         label: modelTexts.startMapping.map.popup.resolve,
         action: handleResolve,
         className: "bg-black",
         icon: ResolveIcon,
       }
-      : {
-        label: modelTexts.startMapping.map.popup.accept,
-        action: handleAcceptance,
-        className: "bg-green-primary",
-        icon: AcceptIcon,
-      };
-
-  const secondaryButton = alreadyAccepted
-    ? {
-      label: modelTexts.startMapping.map.popup.resolve,
-      action: handleResolve,
-      className: "bg-black",
-      icon: ResolveIcon,
-    }
     : alreadyRejected
       ? {
-        label: modelTexts.startMapping.map.popup.accept,
-        action: handleAcceptance,
-        className: "bg-green-primary",
-        icon: AcceptIcon,
-      }
+          label: modelTexts.startMapping.map.popup.accept,
+          action: handleAcceptance,
+          className: "bg-green-primary",
+          icon: AcceptIcon,
+        }
       : {
-        label: modelTexts.startMapping.map.popup.reject,
-        action: handleRejection,
-        className: "bg-primary",
-        icon: RejectIcon,
-      };
+          label: modelTexts.startMapping.map.popup.reject,
+          action: handleRejection,
+          className: "bg-primary",
+          icon: RejectIcon,
+        };
 
   return (
     <div
@@ -371,12 +371,8 @@ const PredictedFeatureActionPopup = ({
           handleInput={(e) => setComment(e.target.value)}
           value={comment}
           showBorder
-          label={
-            modelTexts.startMapping.map.popup.comment.description
-          }
-          placeholder={
-            modelTexts.startMapping.map.popup.comment.placeholder
-          }
+          label={modelTexts.startMapping.map.popup.comment.description}
+          placeholder={modelTexts.startMapping.map.popup.comment.placeholder}
           size={SHOELACE_SIZES.MEDIUM}
         />
       )}
@@ -389,8 +385,7 @@ const PredictedFeatureActionPopup = ({
           disabled={createModelFeedbackMutation.isPending}
         >
           {createModelFeedbackMutation.isPending
-            ? modelTexts.startMapping.map.popup.comment
-              .submissionInProgress
+            ? modelTexts.startMapping.map.popup.comment.submissionInProgress
             : modelTexts.startMapping.map.popup.comment.submit}
         </Button>
       )}

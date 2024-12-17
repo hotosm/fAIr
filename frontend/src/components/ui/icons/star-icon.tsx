@@ -14,4 +14,3 @@ export const StarIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-

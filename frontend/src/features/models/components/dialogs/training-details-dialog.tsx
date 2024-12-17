@@ -1,9 +1,9 @@
 import { Dialog } from "@/components/ui/dialog";
 import { Drawer } from "@/components/ui/drawer";
+import { DrawerPlacements } from "@/enums";
 import ModelProperties from "@/features/models/components/model-details-properties";
 import useScreenSize from "@/hooks/use-screen-size";
 import { DialogProps } from "@/types";
-
 
 type TrainingDetailsDialogProps = DialogProps & {
   trainingId: number;
@@ -22,7 +22,12 @@ const TrainingDetailsDialog: React.FC<TrainingDetailsDialogProps> = ({
 
   if (isMobile) {
     return (
-      <Drawer open={isOpened} setOpen={closeDialog} placement="bottom" noHeader={false}>
+      <Drawer
+        open={isOpened}
+        setOpen={closeDialog}
+        placement={DrawerPlacements.BOTTOM}
+        noHeader={false}
+      >
         <ModelProperties
           trainingId={trainingId}
           isTrainingDetailsDialog
@@ -30,7 +35,7 @@ const TrainingDetailsDialog: React.FC<TrainingDetailsDialogProps> = ({
           baseModel={baseModel}
         />
       </Drawer>
-    )
+    );
   }
 
   return (

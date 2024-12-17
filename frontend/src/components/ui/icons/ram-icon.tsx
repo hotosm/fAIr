@@ -14,4 +14,3 @@ export const RAMIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-

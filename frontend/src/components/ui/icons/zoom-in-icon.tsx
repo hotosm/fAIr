@@ -14,4 +14,3 @@ export const ZoomInIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-

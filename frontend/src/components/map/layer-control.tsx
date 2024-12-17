@@ -10,7 +10,7 @@ import { BASEMAPS, ToolTipPlacement } from "@/enums";
 type TLayers = { id?: string; subLayers: string[]; value: string }[];
 type TBasemaps = { id?: string; subLayer: string; value: string }[];
 
-const LayerControl = ({
+export const LayerControl = ({
   map,
   layers,
   basemaps,
@@ -145,5 +145,3 @@ const LayerControl = ({
     </ToolTip>
   );
 };
-
-export default LayerControl;

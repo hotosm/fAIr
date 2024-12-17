@@ -20,4 +20,3 @@ export const FeedbackIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-

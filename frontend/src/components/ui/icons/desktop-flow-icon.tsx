@@ -14,4 +14,3 @@ export const DesktopFlowIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-

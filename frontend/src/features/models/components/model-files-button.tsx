@@ -14,7 +14,6 @@ const ModelFilesButton = ({
     <ButtonWithIcon
       label={APP_CONTENT.models.modelsDetailsCard.modelFiles}
       className="border-dark border"
-
       variant={"none"}
       onClick={openModelFilesDialog}
       prefixIcon={DirectoryIcon}

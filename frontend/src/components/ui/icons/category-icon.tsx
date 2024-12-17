@@ -14,4 +14,3 @@ export const CategoryIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-

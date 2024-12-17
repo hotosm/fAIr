@@ -6,7 +6,7 @@ import { showErrorToast, showWarningToast } from "@/utils";
 import { useMap } from "@/app/providers/map-provider";
 import { TOAST_NOTIFICATIONS } from "@/constants";
 
-const GeolocationControl = () => {
+export const GeolocationControl = () => {
   const { map } = useMap();
   const handleGeolocationClick = useCallback(() => {
     if (!map) return;
@@ -43,5 +43,3 @@ const GeolocationControl = () => {
     </ToolTip>
   );
 };
-
-export default GeolocationControl;

@@ -14,4 +14,3 @@ export const MaximizeIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-

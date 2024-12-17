@@ -141,7 +141,8 @@ export const useGetTrainingDatasetLabels = (
     //@ts-expect-error bad type definition
     throwOnError: (error) => error?.response?.status >= 500,
     // Don't fetch when the bbox is empty
-    enabled: bbox !== "" && currentZoom >= MIN_ZOOM_LEVEL_FOR_TRAINING_AREA_LABELS,
+    enabled:
+      bbox !== "" && currentZoom >= MIN_ZOOM_LEVEL_FOR_TRAINING_AREA_LABELS,
   });
 };
 

@@ -14,4 +14,3 @@ export const TextIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-

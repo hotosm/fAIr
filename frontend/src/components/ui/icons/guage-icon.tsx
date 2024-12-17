@@ -16,4 +16,3 @@ export const GuageIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-

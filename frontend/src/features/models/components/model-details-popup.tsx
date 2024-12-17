@@ -6,7 +6,6 @@ import { TModelDetails, TTrainingDataset } from "@/types";
 import { useTrainingDetails } from "@/features/models/hooks/use-training";
 import { modelPagesContent } from "@/constants";
 
-
 const ModelDetailsPopUp = ({
   showPopup,
   anchor,

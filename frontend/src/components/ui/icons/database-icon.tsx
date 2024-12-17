@@ -14,4 +14,3 @@ export const DatabaseIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-

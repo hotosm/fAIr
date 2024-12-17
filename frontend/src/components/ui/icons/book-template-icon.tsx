@@ -14,5 +14,3 @@ export const BookTemplateIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-
-

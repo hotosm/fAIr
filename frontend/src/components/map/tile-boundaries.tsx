@@ -9,7 +9,7 @@ import {
 import { GeoJSONSource } from "maplibre-gl";
 import { useCallback, useEffect } from "react";
 
-const TileBoundaries = () => {
+export const TileBoundaries = () => {
   const { map } = useMap();
 
   useMapLayers(
@@ -61,5 +61,3 @@ const TileBoundaries = () => {
 
   return null;
 };
-
-export default TileBoundaries;

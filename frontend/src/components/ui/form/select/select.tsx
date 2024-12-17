@@ -49,11 +49,11 @@ const Select: React.FC<SelectProps> = ({
       }
       value={String(defaultValue)}
       onSlChange={(e) => {
-        e.preventDefault()
-        e.stopImmediatePropagation()
-        e.stopPropagation()
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        e.stopPropagation();
         //@ts-expect-error bad type definition
-        handleChange(e)
+        handleChange(e);
       }}
       className={className}
     >
