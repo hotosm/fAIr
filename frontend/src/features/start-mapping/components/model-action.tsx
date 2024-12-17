@@ -1,7 +1,7 @@
 import { TModelPredictions } from "@/types";
 import {
   handleConflation,
-  MIN_ZOOM_LEVEL_FOR_PREDICTION,
+  MIN_ZOOM_LEVEL_FOR_START_MAPPING_PREDICTION,
   showErrorToast,
   showSuccessToast,
 } from "@/utils";
@@ -25,7 +25,7 @@ const ModelAction = ({
 }) => {
   const { map, currentZoom } = useMap();
 
-  const disablePredictionButton = currentZoom < MIN_ZOOM_LEVEL_FOR_PREDICTION;
+  const disablePredictionButton = currentZoom < MIN_ZOOM_LEVEL_FOR_START_MAPPING_PREDICTION;
 
   const modelPredictionMutation = useGetModelPredictions({
     mutationConfig: {

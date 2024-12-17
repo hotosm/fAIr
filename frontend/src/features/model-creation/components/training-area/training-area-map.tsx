@@ -24,7 +24,7 @@ import {
   TRAINING_AREAS_AOI_LABELS_OUTLINE_WIDTH,
   TRAINING_AREAS_AOI_OUTLINE_COLOR,
   TRAINING_AREAS_AOI_OUTLINE_WIDTH,
-  TRAINING_LABELS_MIN_ZOOM_LEVEL,
+  MIN_ZOOM_LEVEL_FOR_TRAINING_AREA_LABELS,
   validateGeoJSONArea,
 } from "@/utils";
 import useDebounce from "@/hooks/use-debounce";
@@ -87,7 +87,7 @@ const TrainingAreaMap = ({
           "fill-color": TRAINING_AREAS_AOI_LABELS_FILL_COLOR,
           "fill-opacity": TRAINING_AREAS_AOI_LABELS_FILL_OPACITY,
         },
-        minzoom: TRAINING_LABELS_MIN_ZOOM_LEVEL,
+        minzoom: MIN_ZOOM_LEVEL_FOR_TRAINING_AREA_LABELS,
         layout: { visibility: "visible" },
       },
       {
@@ -98,7 +98,7 @@ const TrainingAreaMap = ({
           "line-color": TRAINING_AREAS_AOI_LABELS_OUTLINE_COLOR,
           "line-width": TRAINING_AREAS_AOI_LABELS_OUTLINE_WIDTH,
         },
-        minzoom: TRAINING_LABELS_MIN_ZOOM_LEVEL,
+        minzoom: MIN_ZOOM_LEVEL_FOR_TRAINING_AREA_LABELS,
         layout: { visibility: "visible" },
       },
       {

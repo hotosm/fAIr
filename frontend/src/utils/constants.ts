@@ -73,6 +73,26 @@ export const HOT_FAIR_SESSION_REDIRECT_KEY: string =
 export const HOT_FAIR_LOGIN_SUCCESSFUL_SESSION_KEY =
   "__hot_fair_login_successful";
 
+
+
+/**
+ * Configuration for KPI Statistics Refetching Interval.
+ */
+
+// Default cache time in seconds (15 minutes)
+const DEFAULT_KPI_STATS_CACHE_TIME_SECONDS = 900;
+
+// Buffer time in milliseconds (1 second)
+const REFRESH_BUFFER_MS = 1000;
+
+/**
+ * The cache time to poll the backend for updated KPI statistics, in milliseconds.
+ * It includes an additional buffer to ensure fresh data retrieval.
+ * 
+ * @type {number}
+ */
+export const KPI_STATS_CACHE_TIME_MS = (Number(ENVS.KPI_STATS_CACHE_TIME) || DEFAULT_KPI_STATS_CACHE_TIME_SECONDS) * 1000 + REFRESH_BUFFER_MS;
+
 /**
  * The maximum allowed area size (in square meters) for training areas.
  */
@@ -110,13 +130,13 @@ export const MAX_ZOOM_LEVEL = ENVS.MAX_ZOOM_LEVEL || 22;
 /**
  * The minimum zoom level for the map before the prediction components can be activated.
  */
-export const MIN_ZOOM_LEVEL_FOR_PREDICTION =
-  ENVS.MIN_ZOOM_LEVEL_FOR_PREDICTION || 19;
+export const MIN_ZOOM_LEVEL_FOR_START_MAPPING_PREDICTION =
+  ENVS.MIN_ZOOM_LEVEL_FOR_START_MAPPING_PREDICTION || 19;
 
 /**
  * The instruction to show the users when they haven't reach the minimum zoom level on the start mapping page.
  */
-export const MINIMUM_ZOOM_LEVEL_INSTRUCTION_FOR_PREDICTION = `Zoom in to at least zoom ${MIN_ZOOM_LEVEL_FOR_PREDICTION} to start mapping.`;
+export const MINIMUM_ZOOM_LEVEL_INSTRUCTION_FOR_PREDICTION = `Zoom in to at least zoom ${MIN_ZOOM_LEVEL_FOR_START_MAPPING_PREDICTION} to start mapping.`;
 
 /**
  * A unique ID to append to all custom map sources and layers ids. This is useful for the legend component to dynamically get the layers on the map excluding the basemaps styles.
@@ -126,8 +146,8 @@ export const MAP_STYLES_PREFIX = "fAIr";
 /**
  * The minimum zoom level to show the training area labels.
  */
-export const TRAINING_LABELS_MIN_ZOOM_LEVEL =
-  ENVS.TRAINING_LABELS_MIN_ZOOM_LEVEL || 18;
+export const MIN_ZOOM_LEVEL_FOR_TRAINING_AREA_LABELS =
+  ENVS.MIN_ZOOM_LEVEL_FOR_TRAINING_AREA_LABELS || 18;
 
 // Layers, Sources and Name Mappings
 

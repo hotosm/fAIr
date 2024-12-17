@@ -5,6 +5,12 @@ export const ENVS = {
   BASE_API_URL: import.meta.env.VITE_BASE_API_URL,
   MATOMO_ID: import.meta.env.VITE_MATOMO_ID,
   MATOMO_APP_DOMAIN: import.meta.env.VITE_MATOMO_APP_DOMAIN,
+
+  /**
+ * The cache duration for polling the backend for updated statistics, in seconds.
+ */
+
+  KPI_STATS_CACHE_TIME: import.meta.env.KPI_STATS_CACHE_TIME,
   /**
    * The maximum allowed area size (in square meters) for training areas.
    */
@@ -41,12 +47,12 @@ export const ENVS = {
    * The minimum zoom level for the map before the prediction components can be activated.
    */
 
-  MIN_ZOOM_LEVEL_FOR_PREDICTION: import.meta.env.MIN_ZOOM_LEVEL_FOR_PREDICTION,
+  MIN_ZOOM_LEVEL_FOR_START_MAPPING_PREDICTION: import.meta.env.MIN_ZOOM_LEVEL_FOR_START_MAPPING_PREDICTION,
   /**
    * The minimum zoom level to show the training area labels.
    */
-  TRAINING_LABELS_MIN_ZOOM_LEVEL: import.meta.env
-    .TRAINING_LABELS_MIN_ZOOM_LEVEL,
+  MIN_ZOOM_LEVEL_FOR_TRAINING_AREA_LABELS: import.meta.env
+    .MIN_ZOOM_LEVEL_FOR_TRAINING_AREA_LABELS,
 
   /**
    * Training area and labels styles.

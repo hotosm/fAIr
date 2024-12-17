@@ -14,7 +14,7 @@ import {
   TGetTrainingAreaLabelsFromOSMArgs,
 } from "@/features/model-creation/api/create-trainings";
 import { deleteTrainingArea } from "@/features/model-creation/api/delete-trainings";
-import { TRAINING_LABELS_MIN_ZOOM_LEVEL } from "@/utils";
+import { MIN_ZOOM_LEVEL_FOR_TRAINING_AREA_LABELS } from "@/utils";
 import axios from "axios";
 
 export const useGetTrainingAreas = (datasetId: number, offset: number) => {
@@ -141,7 +141,7 @@ export const useGetTrainingDatasetLabels = (
     //@ts-expect-error bad type definition
     throwOnError: (error) => error?.response?.status >= 500,
     // Don't fetch when the bbox is empty
-    enabled: bbox !== "" && currentZoom >= TRAINING_LABELS_MIN_ZOOM_LEVEL,
+    enabled: bbox !== "" && currentZoom >= MIN_ZOOM_LEVEL_FOR_TRAINING_AREA_LABELS,
   });
 };
 
