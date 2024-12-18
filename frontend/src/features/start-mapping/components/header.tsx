@@ -1,4 +1,3 @@
-import { useMap } from "@/app/providers/map-provider";
 import { BackButton, ButtonWithIcon } from "@/components/ui/button";
 import { Divider } from "@/components/ui/divider";
 import { DropDown } from "@/components/ui/dropdown";
@@ -30,6 +29,7 @@ import { SHOELACE_SIZES } from "@/enums";
 import { NavLogo, UserProfile } from "@/components/ui/navbar";
 import { useNavigate } from "react-router-dom";
 import { startMappingPageContent } from "@/constants";
+import { Map } from "maplibre-gl";
 
 const StartMappingHeader = ({
   data,
@@ -43,6 +43,8 @@ const StartMappingHeader = ({
   updateQuery,
   trainingConfig,
   setModelPredictions,
+  currentZoom,
+  map
 }: {
   modelPredictionsExist: boolean;
   trainingDatasetIsPending: boolean;
@@ -55,6 +57,8 @@ const StartMappingHeader = ({
   updateQuery: (newParams: TQueryParams) => void;
   trainingConfig: TModelPredictionsConfig;
   setModelPredictions: React.Dispatch<React.SetStateAction<TModelPredictions>>;
+  currentZoom: number
+  map: Map | null
 }) => {
   const { onDropdownHide, onDropdownShow, dropdownIsOpened } =
     useDropdownMenu();
@@ -65,7 +69,6 @@ const StartMappingHeader = ({
     dropdownIsOpened: FAIRLogoDropdownIsOpened,
   } = useDropdownMenu();
 
-  const { map } = useMap();
   const [showModelDetails, setShowModelDetails] = useState<boolean>(false);
 
   const popupAnchorId = "model-details";
@@ -238,6 +241,8 @@ const StartMappingHeader = ({
             modelPredictions={modelPredictions}
             setModelPredictions={setModelPredictions}
             trainingConfig={trainingConfig}
+            map={map}
+            currentZoom={currentZoom}
           />
 
           <UserProfile hideFullName />

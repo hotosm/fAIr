@@ -9,6 +9,7 @@ type TrainingDetailsDialogProps = DialogProps & {
   trainingId: number;
   datasetId: number;
   baseModel: string;
+  tmsUrl: string;
 };
 
 const TrainingDetailsDialog: React.FC<TrainingDetailsDialogProps> = ({
@@ -17,6 +18,7 @@ const TrainingDetailsDialog: React.FC<TrainingDetailsDialogProps> = ({
   trainingId,
   datasetId,
   baseModel,
+  tmsUrl,
 }) => {
   const { isMobile } = useScreenSize();
 
@@ -33,24 +35,28 @@ const TrainingDetailsDialog: React.FC<TrainingDetailsDialogProps> = ({
           isTrainingDetailsDialog
           datasetId={datasetId}
           baseModel={baseModel}
+          tmsUrl={tmsUrl}
         />
       </Drawer>
     );
   }
 
   return (
-    <Dialog
-      isOpened={isOpened}
-      closeDialog={closeDialog}
-      label={`Training ${trainingId}`}
-    >
-      <ModelProperties
-        trainingId={trainingId}
-        isTrainingDetailsDialog
-        datasetId={datasetId}
-        baseModel={baseModel}
-      />
-    </Dialog>
+    <>
+      <Dialog
+        isOpened={isOpened}
+        closeDialog={closeDialog}
+        label={`Training ${trainingId}`}
+      >
+        <ModelProperties
+          trainingId={trainingId}
+          isTrainingDetailsDialog
+          datasetId={datasetId}
+          baseModel={baseModel}
+          tmsUrl={tmsUrl}
+        />
+      </Dialog>
+    </>
   );
 };
 

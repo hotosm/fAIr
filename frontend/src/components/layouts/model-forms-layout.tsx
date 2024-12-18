@@ -18,7 +18,6 @@ import {
   ModelsProvider,
   useModelsContext,
 } from "@/app/providers/models-provider";
-import ModelsLayout from "./models-layout";
 import { BackButton } from "../ui/button";
 
 const pages: {
@@ -27,43 +26,43 @@ const pages: {
   icon: React.ElementType;
   path: string;
 }[] = [
-  {
-    id: 1,
-    title: MODEL_CREATION_CONTENT.progressStepper.modelDetails,
-    icon: TagsIcon,
-    path: MODELS_ROUTES.DETAILS,
-  },
-  {
-    id: 2,
-    title: MODEL_CREATION_CONTENT.progressStepper.trainingDataset,
-    icon: DatabaseIcon,
-    path: MODELS_ROUTES.TRAINING_DATASET,
-  },
-  {
-    id: 3,
-    title: MODEL_CREATION_CONTENT.progressStepper.trainingArea,
-    icon: SquareShadowIcon,
-    path: MODELS_ROUTES.TRAINING_AREA,
-  },
-  {
-    id: 4,
-    title: MODEL_CREATION_CONTENT.progressStepper.trainingSettings,
-    icon: SettingsIcon,
-    path: MODELS_ROUTES.TRAINING_SETTINGS,
-  },
-  {
-    id: 5,
-    title: MODEL_CREATION_CONTENT.progressStepper.submitModel,
-    icon: CloudIcon,
-    path: MODELS_ROUTES.MODEL_SUMMARY,
-  },
-  {
-    id: 6,
-    title: MODEL_CREATION_CONTENT.progressStepper.confirmation,
-    icon: StarIcon,
-    path: MODELS_ROUTES.CONFIRMATION,
-  },
-];
+    {
+      id: 1,
+      title: MODEL_CREATION_CONTENT.progressStepper.modelDetails,
+      icon: TagsIcon,
+      path: MODELS_ROUTES.DETAILS,
+    },
+    {
+      id: 2,
+      title: MODEL_CREATION_CONTENT.progressStepper.trainingDataset,
+      icon: DatabaseIcon,
+      path: MODELS_ROUTES.TRAINING_DATASET,
+    },
+    {
+      id: 3,
+      title: MODEL_CREATION_CONTENT.progressStepper.trainingArea,
+      icon: SquareShadowIcon,
+      path: MODELS_ROUTES.TRAINING_AREA,
+    },
+    {
+      id: 4,
+      title: MODEL_CREATION_CONTENT.progressStepper.trainingSettings,
+      icon: SettingsIcon,
+      path: MODELS_ROUTES.TRAINING_SETTINGS,
+    },
+    {
+      id: 5,
+      title: MODEL_CREATION_CONTENT.progressStepper.submitModel,
+      icon: CloudIcon,
+      path: MODELS_ROUTES.MODEL_SUMMARY,
+    },
+    {
+      id: 6,
+      title: MODEL_CREATION_CONTENT.progressStepper.confirmation,
+      icon: StarIcon,
+      path: MODELS_ROUTES.CONFIRMATION,
+    },
+  ];
 
 const ModelCreationLayout = () => {
   const { pathname } = useLocation();
@@ -77,33 +76,31 @@ const ModelCreationLayout = () => {
   }, [pathname]);
 
   return (
-    <ModelsLayout>
-      <ModelsProvider>
-        <ModelFormRouteValidator
-          pathname={pathname}
-          currentPageIndex={currentPageIndex}
-        />
-        <Head title="Create New Model" />
-        <BackButton />
-        <div className="min-h-screen grid grid-cols-12 grid-rows-[auto_1fr_auto] gap-y-8 w-full justify-center my-8">
-          <div className="col-span-12 lg:col-start-2 lg:col-span-10 w-full">
-            <ProgressBar
-              currentPath={pathname}
-              currentPageIndex={currentPageIndex}
-              pages={pages}
-            />
-          </div>
-          <Outlet />
-          {!pathname.includes(MODELS_ROUTES.CONFIRMATION) && (
-            <ProgressButtons
-              pages={pages}
-              currentPageIndex={currentPageIndex}
-              currentPath={pathname}
-            />
-          )}
+    <ModelsProvider>
+      <ModelFormRouteValidator
+        pathname={pathname}
+        currentPageIndex={currentPageIndex}
+      />
+      <Head title="Create New Model" />
+      <BackButton />
+      <div className="min-h-screen grid grid-cols-12 grid-rows-[auto_1fr_auto] gap-y-8 w-full justify-center my-8">
+        <div className="col-span-12 lg:col-start-2 lg:col-span-10 w-full">
+          <ProgressBar
+            currentPath={pathname}
+            currentPageIndex={currentPageIndex}
+            pages={pages}
+          />
         </div>
-      </ModelsProvider>
-    </ModelsLayout>
+        <Outlet />
+        {!pathname.includes(MODELS_ROUTES.CONFIRMATION) && (
+          <ProgressButtons
+            pages={pages}
+            currentPageIndex={currentPageIndex}
+            currentPath={pathname}
+          />
+        )}
+      </div>
+    </ModelsProvider>
   );
 };
 

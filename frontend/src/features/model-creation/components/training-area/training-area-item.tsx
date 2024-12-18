@@ -33,16 +33,16 @@ import {
   useGetTrainingAreaLabels,
   useGetTrainingAreaLabelsFromOSM,
 } from "@/features/model-creation/hooks/use-training-areas";
-import { useMap } from "@/app/providers/map-provider";
 import { useModelsContext } from "@/app/providers/models-provider";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import FileUploadDialog from "../dialogs/file-upload-dialog";
 import { useDialog } from "@/hooks/use-dialog";
 import { geojsonToWKT } from "@terraformer/wkt";
+import { Map } from "maplibre-gl";
 
 const TrainingAreaItem: React.FC<
-  TTrainingAreaFeature & { datasetId: number; offset: number }
-> = ({ datasetId, offset, ...trainingArea }) => {
+  TTrainingAreaFeature & { datasetId: number; offset: number, map: Map | null }
+> = ({ datasetId, offset, map, ...trainingArea }) => {
   const { onDropdownHide, onDropdownShow, dropdownIsOpened } =
     useDropdownMenu();
   const { formData } = useModelsContext();
@@ -51,7 +51,6 @@ const TrainingAreaItem: React.FC<
     trainingArea.id,
     false,
   );
-  const { map } = useMap();
   const { isOpened, openDialog, closeDialog } = useDialog();
 
   const trainingAreaLabelsMutation = useGetTrainingAreaLabelsFromOSM({
@@ -228,9 +227,9 @@ const TrainingAreaItem: React.FC<
               ? "Fetching labels..."
               : trainingArea.properties.label_fetched !== null
                 ? truncateString(
-                    `Fetched ${timeSinceLabelFetch === "0 sec" ? "just now" : `${timeSinceLabelFetch} ago`}`,
-                    20,
-                  )
+                  `Fetched ${timeSinceLabelFetch === "0 sec" ? "just now" : `${timeSinceLabelFetch} ago`}`,
+                  20,
+                )
                 : "No labels yet"}
           </p>
         </div>

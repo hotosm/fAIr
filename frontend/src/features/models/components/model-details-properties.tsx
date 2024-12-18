@@ -4,7 +4,7 @@ import {
   useTrainingDetails,
   useTrainingStatus,
 } from "@/features/models/hooks/use-training";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import AccuracyDisplay from "./accuracy-display";
 import { Link } from "@/components/ui/link";
 import { CopyIcon, ExternalLinkIcon } from "@/components/ui/icons";
@@ -17,6 +17,8 @@ import useCopyToClipboard from "@/hooks/use-clipboard";
 import ModelFilesButton from "./model-files-button";
 import { ModelFilesDialog } from "./dialogs";
 import { useDialog } from "@/hooks/use-dialog";
+import { TrainingAreaButton } from "./training-area-button";
+import { TrainingAreaDrawer } from "./training-area-drawer";
 
 enum TrainingStatus {
   FAILED = "FAILED",
@@ -95,6 +97,7 @@ type ModelPropertiesProps = {
   datasetId?: number;
   isTrainingDetailsDialog?: boolean;
   baseModel: string;
+  tmsUrl?: string;
 };
 
 const ModelProperties: React.FC<ModelPropertiesProps> = ({
@@ -102,6 +105,7 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
   datasetId,
   isTrainingDetailsDialog = false,
   baseModel,
+  tmsUrl,
 }) => {
   const { isPending, data, error, isError } = useTrainingDetails(
     trainingId,
@@ -109,6 +113,12 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
   );
 
   const { isOpened, closeDialog, openDialog } = useDialog();
+
+  const {
+    isOpened: isTrainingAreaDrawerOpened,
+    closeDialog: closeTrainingAreaDrawer,
+    openDialog: openTrainingAreaDrawer,
+  } = useDialog();
 
   useEffect(() => {
     if (isError) {
@@ -129,20 +139,24 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
 
   const trainingResultsGraph = `${ENVS.BASE_API_URL}workspace/download/training_${data?.id}/graphs/training_accuracy.png`;
 
-  const content = useMemo(() => {
-    if (isPending) {
-      return <ModelPropertiesSkeleton isTrainingDetailsDialog />;
-    }
+  return isError || isPending ? (
+    <ModelPropertiesSkeleton isTrainingDetailsDialog />
+  ) : (
+    <>
+      <TrainingAreaDrawer
+        isOpened={isTrainingAreaDrawerOpened}
+        closeDialog={closeTrainingAreaDrawer}
+        trainingAreaId={trainingId}
+        tmsURL={tmsUrl as string}
+      />
 
-    return (
+      <ModelFilesDialog
+        closeDialog={closeDialog}
+        isOpened={isOpened}
+        trainingId={trainingId}
+        datasetId={datasetId as number}
+      />
       <>
-        <ModelFilesDialog
-          closeDialog={closeDialog}
-          isOpened={isOpened}
-          trainingId={trainingId}
-          datasetId={datasetId as number}
-        />
-
         <div
           className={cn(
             `grid ${isTrainingDetailsDialog ? "grid-cols-2" : "grid-cols-1 lg:grid-cols-5"} gap-14 items-center `,
@@ -282,6 +296,15 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
                 />
               </div>
             )}
+
+            {isTrainingDetailsDialog && (
+              <TrainingAreaButton
+                onClick={openTrainingAreaDrawer}
+                disabled={
+                  data?.status !== TrainingStatus.SUCCESS
+                }
+              />
+            )}
           </div>
 
           {trainingResultsGraph &&
@@ -305,24 +328,7 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
             )}
         </div>
       </>
-    );
-  }, [
-    isPending,
-    trainingAccuracy,
-    epochs,
-    zoom_level,
-    batch_size,
-    input_contact_spacing,
-    input_boundary_width,
-    source_imagery,
-    trainingResultsGraph,
-    isOpened,
-  ]);
-
-  return isError ? (
-    <ModelPropertiesSkeleton isTrainingDetailsDialog />
-  ) : (
-    content
+    </>
   );
 };
 

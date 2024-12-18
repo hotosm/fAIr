@@ -14,9 +14,9 @@ import {
   extractTileJSONURL,
   PREDICTION_API_FILE_EXTENSIONS,
 } from "@/utils";
-import { useMap } from "@/app/providers/map-provider";
 import { BASE_MODELS } from "@/enums";
 import { startMappingPageContent } from "@/constants";
+import { useMapInstance } from "@/hooks/use-map-instance";
 
 export const SEARCH_PARAMS = {
   useJOSMQ: "useJOSMQ",
@@ -29,9 +29,8 @@ export type TQueryParams = { [x: string]: string | number | boolean };
 
 export const StartMappingPage = () => {
   const { modelId } = useParams();
-  const { map, currentZoom } = useMap();
   const [searchParams, setSearchParams] = useSearchParams();
-
+  const { map, mapContainerRef, currentZoom } = useMapInstance()
   const defaultQueries = {
     [SEARCH_PARAMS.useJOSMQ]: searchParams.get(SEARCH_PARAMS.useJOSMQ) || false,
     [SEARCH_PARAMS.confidenceLevel]:
@@ -144,6 +143,8 @@ export const StartMappingPage = () => {
             updateQuery={updateQuery}
             trainingConfig={trainingConfig}
             setModelPredictions={setModelPredictions}
+            map={map}
+            currentZoom={currentZoom}
           />
         </div>
         <div className="col-span-12 h-[70vh] md:h-full border-8 border-off-white flex-grow">
@@ -156,6 +157,9 @@ export const StartMappingPage = () => {
             oamTileJSON={oamTileJSON as TileJSON}
             oamTileJSONError={oamTileJSONError}
             modelPredictionsExist={modelPredictionsExist}
+            mapContainerRef={mapContainerRef}
+            map={map}
+            currentZoom={currentZoom}
           />
         </div>
       </div>

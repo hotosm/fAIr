@@ -1,27 +1,25 @@
 import {
   GOOGLE_SATELLITE_BASEMAP_LAYER_ID,
-  MAP_STYLES,
   OSM_BASEMAP_LAYER_ID,
   TMS_LAYER_ID,
 } from "@/utils";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { useEffect, useMemo, useRef } from "react";
-import maplibregl from "maplibre-gl";
-import { Protocol } from "pmtiles";
-import { useMap } from "@/app/providers/map-provider";
-import { setupMaplibreMap } from "@/components/map/setup-maplibre";
-import { BASEMAPS } from "@/enums";
+import { RefObject, useMemo, } from "react";
+import { BASEMAPS, DrawingModes } from "@/enums";
 
-import { ZoomControls } from "@/components/map/zoom-controls";
-import { GeolocationControl } from "@/components/map/geolocation-control";
-import { DrawControl } from "@/components/map/draw-control";
-import { ZoomLevel } from "@/components/map/zoom-level";
-import { LayerControl } from "@/components/map/layer-control";
-import { Legend } from "@/components/map/legend";
-import { TileBoundaries } from "@/components/map/tile-boundaries";
-import { OpenAerialMap } from "@/components/map/open-aerial-map";
-import { Basemaps } from "@/components/map/basemaps";
+import { ZoomControls } from "@/components/map/controls/zoom-control";
+import { GeolocationControl } from "@/components/map/controls/geolocation-control";
+import { DrawControl } from "@/components/map/controls/draw-control";
+import { ZoomLevel } from "@/components/map/controls/current-zoom-control";
+import { LayerControl } from "@/components/map/controls/layer-control";
+import { Legend } from "@/components/map/controls/legend-control";
+import { TileBoundaries } from "@/components/map/layers/tile-boundaries";
+import { OpenAerialMap } from "@/components/map/layers/open-aerial-map";
+import { Basemaps } from "@/components/map/layers/basemaps";
 import { ControlsPosition } from "@/enums";
+import { LngLatBoundsLike, Map, } from "maplibre-gl";
+import { FitToBounds } from "./controls";
+import { TerraDraw } from "terra-draw";
 
 type MapComponentProps = {
   geolocationControl?: boolean;
@@ -39,7 +37,17 @@ type MapComponentProps = {
   openAerialMap?: boolean;
   oamTileJSONURL?: string;
   basemaps?: boolean;
-  pmtiles?: boolean;
+  fitToBounds?: boolean;
+  bounds?: LngLatBoundsLike
+  // layers?: LayerSpecification[]
+  // sources?: { id: string; spec: SourceSpecification }[],
+  onMapLoad?: (map: Map) => void
+  mapContainerRef?: RefObject<HTMLDivElement> | null
+  map: Map | null
+  terraDraw?: TerraDraw | undefined;
+  currentZoom?: number
+  drawingMode?: DrawingModes
+  setDrawingMode?: (newMode: DrawingModes) => void
 };
 
 export const MapComponent: React.FC<MapComponentProps> = ({
@@ -54,32 +62,17 @@ export const MapComponent: React.FC<MapComponentProps> = ({
   openAerialMap = false,
   oamTileJSONURL,
   basemaps = false,
-  pmtiles = false,
   children,
+  fitToBounds,
+  bounds,
+  mapContainerRef,
+  map,
+  terraDraw,
+  currentZoom,
+  drawingMode,
+  setDrawingMode
 }) => {
-  const mapContainerRef = useRef(null);
-  const { map, setMap, terraDraw } = useMap();
 
-  useEffect(() => {
-    const maplibreMap = setupMaplibreMap(
-      mapContainerRef,
-      MAP_STYLES[BASEMAPS.OSM],
-    );
-    maplibreMap.on("load", () => {
-      setMap(maplibreMap);
-    });
-  }, [setMap]);
-
-  // Load pmtiles protocol.
-  // Reference - https://docs.protomaps.com/pmtiles/maplibre
-  useEffect(() => {
-    if (!pmtiles) return;
-    let protocol = new Protocol();
-    maplibregl.addProtocol("pmtiles", protocol.tile);
-    return () => {
-      maplibregl.removeProtocol("pmtiles");
-    };
-  }, []);
 
   const layerControlData = useMemo(() => {
     const layers = [
@@ -90,35 +83,35 @@ export const MapComponent: React.FC<MapComponentProps> = ({
     ];
     const baseLayers = basemaps
       ? [
-          { value: BASEMAPS.OSM, subLayer: OSM_BASEMAP_LAYER_ID },
-          {
-            value: BASEMAPS.GOOGLE_SATELLITE,
-            subLayer: GOOGLE_SATELLITE_BASEMAP_LAYER_ID,
-          },
-        ]
+        { value: BASEMAPS.OSM, subLayer: OSM_BASEMAP_LAYER_ID },
+        {
+          value: BASEMAPS.GOOGLE_SATELLITE,
+          subLayer: GOOGLE_SATELLITE_BASEMAP_LAYER_ID,
+        },
+      ]
       : [];
     return { layers, baseLayers };
   }, [layerControlLayers, openAerialMap, basemaps]);
+
 
   const Controls = useMemo(() => {
     if (!map) return;
     return (
       <>
         <div
-          className={`absolute top-5 ${
-            controlsPosition === ControlsPosition.TOP_RIGHT
-              ? "right-3"
-              : "left-3"
-          } z-[1] flex flex-col gap-y-[1px]`}
+          className={`absolute top-5 ${controlsPosition === ControlsPosition.TOP_RIGHT
+            ? "right-3"
+            : "left-3"
+            } z-[1] flex flex-col gap-y-[1px]`}
         >
-          <ZoomControls />
-          {geolocationControl && <GeolocationControl />}
-          {drawControl && terraDraw && <DrawControl />}
+          {currentZoom ? <ZoomControls map={map} currentZoom={currentZoom} /> : null}
+          {geolocationControl && <GeolocationControl map={map} />}
+          {drawControl && terraDraw && drawingMode && setDrawingMode && <DrawControl terraDraw={terraDraw} drawingMode={drawingMode} setDrawingMode={setDrawingMode} />}
         </div>
         <div
           className={`absolute top-5 right-3 z-[1] items-center flex gap-x-4`}
         >
-          {showCurrentZoom && <ZoomLevel />}
+          {showCurrentZoom && currentZoom ? <ZoomLevel currentZoom={currentZoom} /> : null}
           {layerControl && (
             <LayerControl
               basemaps={layerControlData?.baseLayers}
@@ -138,16 +131,21 @@ export const MapComponent: React.FC<MapComponentProps> = ({
     layerControl,
     showCurrentZoom,
     layerControlData,
+    currentZoom,
+    drawingMode && setDrawingMode
   ]);
+
 
   return (
     <div className={`h-full relative w-full`} ref={mapContainerRef}>
       {Controls}
-      {map && showLegend && <Legend />}
+      {map && showLegend && <Legend map={map} />}
       {/* Order according to how they'll be rendered */}
-      {basemaps && <Basemaps />}
-      {openAerialMap && <OpenAerialMap tileJSONURL={oamTileJSONURL} />}
-      {showTileBoundary && <TileBoundaries />}
+      {basemaps && <Basemaps map={map} />}
+      {openAerialMap && oamTileJSONURL && <OpenAerialMap tileJSONURL={oamTileJSONURL} map={map} />}
+      {showTileBoundary && <TileBoundaries map={map} />}
+      {fitToBounds && map &&
+        <FitToBounds onClick={() => map?.fitBounds(bounds as LngLatBoundsLike, { padding: 10 })} />}
       {children}
     </div>
   );

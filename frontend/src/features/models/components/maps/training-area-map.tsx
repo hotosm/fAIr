@@ -1,12 +1,19 @@
-import { useMap } from "@/app/providers/map-provider";
-import { FitToBounds, MapComponent } from "@/components/map";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
+import {
+    MapComponent,
+} from "@/components/map";
 import { ControlsPosition } from "@/enums";
 import { PMTiles } from "pmtiles";
-import { LayerSpecification, MapGeoJSONFeature, MapLayerMouseEvent, Popup } from "maplibre-gl";
-import { useEffect, useState } from "react";
-import ReactDOMServer from 'react-dom/server';
+import {
+    LayerSpecification,
+    MapLayerMouseEvent,
+    Popup,
+    SourceSpecification,
+} from "maplibre-gl";
 
 import {
+    extractTileJSONURL,
+    showErrorToast,
     TRAINING_AREAS_AOI_FILL_COLOR,
     TRAINING_AREAS_AOI_FILL_OPACITY,
     TRAINING_AREAS_AOI_LABELS_FILL_COLOR,
@@ -17,6 +24,11 @@ import {
     TRAINING_AREAS_AOI_OUTLINE_WIDTH,
 } from "@/utils";
 
+import { errorMessages } from "@/constants";
+import { addLayers, addSources, } from "@/utils/map-utils";
+import { useMapInstance } from "@/hooks/use-map-instance";
+
+
 type Metadata = {
     name?: string;
     type?: string;
@@ -24,201 +36,245 @@ type Metadata = {
     vector_layers: LayerSpecification[];
 };
 
-const getFillConfig = (layerType: string): Record<string, string> => {
-    if (layerType === "aois") {
-        return {
-            "fill-color": TRAINING_AREAS_AOI_FILL_COLOR,
-            "fill-opacity": TRAINING_AREAS_AOI_FILL_OPACITY,
-        };
-    } else {
-        return {
-            "fill-color": TRAINING_AREAS_AOI_LABELS_FILL_COLOR,
-            "fill-opacity": TRAINING_AREAS_AOI_LABELS_FILL_OPACITY,
-        };
-    }
+const getLayerConfigs = (layerType: string) => {
+    const isAoi = layerType === "aois";
+    return {
+        fill: {
+            "fill-color": isAoi
+                ? TRAINING_AREAS_AOI_FILL_COLOR
+                : TRAINING_AREAS_AOI_LABELS_FILL_COLOR,
+            "fill-opacity": isAoi
+                ? TRAINING_AREAS_AOI_FILL_OPACITY
+                : TRAINING_AREAS_AOI_LABELS_FILL_OPACITY,
+
+
+        },
+        outline: {
+            "line-color": isAoi
+                ? TRAINING_AREAS_AOI_OUTLINE_COLOR
+                : TRAINING_AREAS_AOI_LABELS_OUTLINE_COLOR,
+            "line-width": isAoi
+                ? TRAINING_AREAS_AOI_OUTLINE_WIDTH
+                : TRAINING_AREAS_AOI_LABELS_OUTLINE_WIDTH,
+        },
+    };
 };
 
-const getOutlineConfig = (layerType: string): Record<string, string> => {
-    if (layerType === "aois") {
-        return {
-            "line-color": TRAINING_AREAS_AOI_OUTLINE_COLOR,
-            "line-width": TRAINING_AREAS_AOI_OUTLINE_WIDTH,
-        };
-    } else {
-        return {
-            "line-color": TRAINING_AREAS_AOI_LABELS_OUTLINE_COLOR,
-            "line-width": TRAINING_AREAS_AOI_LABELS_OUTLINE_WIDTH
-        };
-    }
-};
-
-
-const FeatureProperties = ({ feature }: { feature: MapGeoJSONFeature }) => {
-    return (
-        <div className="p-4 w-full overflow-auto">
-            <span>
-                <strong>{(feature.layer as any)["source-layer"]}</strong>
-            </span>
-            <table>
-                {Object.entries(feature.properties).map(([key, value], i) => (
-                    <tr key={i} >
-                        <td className="text-gray">{key}</td>
-                        <td className="font-semibold text-dark">
-                            {typeof value === "boolean" ? JSON.stringify(value) : value}
-                        </td>
-                    </tr>
-                ))}
-            </table>
-        </div>
-    );
-};
-
-
+type TBounds = [[number, number], [number, number]]
 
 export const TrainingAreaMap = ({
     file,
     trainingAreaId,
+    tmsURL,
+    visible
 }: {
     file: string;
     trainingAreaId: number;
+    tmsURL: string;
+    visible: boolean
 }) => {
+    const { mapContainerRef, map, currentZoom } = useMapInstance();
 
-    const { map } = useMap();
+    const [vectorLayers, setVectorLayers] = useState<LayerSpecification[]>([]);
 
-    const [bounds, setBounds] = useState<[[number, number], [number, number]]>([
+
+    const popupRef = useRef<Popup | null>(null);
+
+    const boundsRef = useRef<TBounds>([
         [0, 0],
         [0, 0],
     ]);
-    const [vectorLayers, setVectorLayers] = useState<LayerSpecification[]>([]);
 
-    const trainingAreasSourceId = `training-areas-for-${trainingAreaId}`;
 
-    useEffect(() => {
-        if (!map) return
-        map.on("load", map.resize);
-        map.getCanvas().style.cursor = 'pointer';
+    const tileJSONURL = extractTileJSONURL(tmsURL)
 
-        if (!map.getSource(trainingAreasSourceId)) {
-            map.addSource(trainingAreasSourceId, {
+
+    const trainingAreasSourceId = useMemo(
+        () => `training-areas-for-${trainingAreaId}`,
+        [trainingAreaId]
+    );
+
+    const mapLayers: LayerSpecification[] = useMemo(() => {
+        return vectorLayers.flatMap((layer) => {
+            const { fill, outline } = getLayerConfigs(layer.id);
+            return [
+                {
+                    id: `${layer.id}_fill`,
+                    type: "fill",
+                    source: trainingAreasSourceId,
+                    paint: fill,
+                    "source-layer": layer.id,
+                    layout: { visibility: "visible" },
+
+                },
+                {
+                    id: `${layer.id}_outline`,
+                    type: "line",
+                    source: trainingAreasSourceId,
+                    paint: outline,
+                    "source-layer": layer.id,
+                    layout: { visibility: "visible" },
+                }
+            ];
+        });
+    }, [vectorLayers, trainingAreasSourceId]);
+
+
+    const sources = useMemo(() => [
+        {
+            id: trainingAreasSourceId,
+            spec: {
                 type: "vector",
                 url: `pmtiles://${file}`,
-            });
+            } as SourceSpecification
         }
+    ], [file, trainingAreasSourceId]);
 
-        const loadPMTiles = async () => {
 
-            const pmtilesFile = new PMTiles(file);
-            const header = await pmtilesFile.getHeader();
+    const layerControlLayers = useMemo(
+        () => (vectorLayers.map((layer) => ({
+            value: `Training ${layer.id}`,
+            subLayers: [`${layer.id}_fill`, `${layer.id}_outline`],
+        }))),
+        [vectorLayers]
+    );
 
-            // Update bounds in state
-            setBounds([
-                [header.minLon, header.minLat],
-                [header.maxLon, header.maxLat],
-            ]);
-
-            // Resize the map before fitting to bounds
-
-            map.fitBounds([
-                [header.minLon, header.minLat],
-                [header.maxLon, header.maxLat],
-            ]);
-
-            // load the layers
-            const metadata = (await pmtilesFile.getMetadata()) as Metadata;
-            const vectorLayers = metadata.vector_layers;
-
-            setVectorLayers(vectorLayers);
-
-            if (vectorLayers) {
-                for (const layer of vectorLayers) {
-                    if (
-                        !map.getLayer(`${layer.id}_fill`) &&
-                        !map.getLayer(`${layer.id}_outline`)
-                    ) {
-                        map.addLayer({
-                            id: `${layer.id}_fill`,
-                            type: "fill",
-                            source: trainingAreasSourceId,
-                            paint: {
-                                ...getFillConfig(layer.id),
-                            },
-                            "source-layer": layer.id,
-                            maxzoom: layer.maxzoom,
-                            minzoom: layer.minzoom,
-                        });
-                        map.addLayer({
-                            id: `${layer.id}_outline`,
-                            type: "line",
-                            source: trainingAreasSourceId,
-                            paint: {
-                                ...getOutlineConfig(layer.id),
-                            },
-                            "source-layer": layer.id,
-                            maxzoom: layer.maxzoom,
-                            minzoom: layer.minzoom,
-                        });
-                    }
-                }
-            }
-        };
-        loadPMTiles();
+    const fitToBounds = useCallback(() => {
+        if (map && boundsRef.current[0][0] !== boundsRef.current[1][0] && boundsRef.current[0][1] !== boundsRef.current[1][1]) {
+            map.fitBounds(boundsRef.current, { padding: 10 });
+        }
     }, [map]);
 
+    const handleMouseClick = useCallback(
+        (e: MapLayerMouseEvent) => {
+            if (!map) return;
 
-    useEffect(() => {
-        if (!map) return
-        const handleMouseClick = (e: MapLayerMouseEvent) => {
-            const { lngLat } = e;
-            const { x, y } = e.point;
+            const { lngLat, point } = e;
+            const [x, y] = [point.x, point.y];
+            const radius = 2;
 
-            const r = 2; // radius around the point
+            const queriedFeatures = map.queryRenderedFeatures(
+                [
+                    [x - radius, y - radius],
+                    [x + radius, y + radius],
+                ],
+                { layers: vectorLayers.flatMap(layer => [`${layer.id}_fill`, `${layer.id}_outline`]) }
+            );
 
-            const features = map.queryRenderedFeatures([
-                [x - r, y - r],
-                [x + r, y + r],
-            ]);
-
-            if (!features || !features.length) return;
-
-            const clickedFeatures = features.filter(
+            const clickedFeatures = queriedFeatures.filter(
                 (feature) => feature.source === trainingAreasSourceId
             );
 
-            const popup = new Popup({ closeButton: false })
-                .setLngLat(lngLat)
+
+            if (popupRef.current) {
+                popupRef.current.remove();
+                popupRef.current = null;
+            }
 
             if (clickedFeatures.length) {
                 const feature = clickedFeatures[0];
-                const html = ReactDOMServer.renderToString(<FeatureProperties feature={feature} />);
-                popup.setHTML(html)
+                // @ts-expect-error bad type definition
+                const sourceLayer = feature.layer["source-layer"]
+                const html = `
+                    <div class="p-4 w-full overflow-auto">
+                        <span><strong>${sourceLayer}</strong></span>
+                        <table>
+                            <tbody>
+                                ${Object.entries(feature.properties).map(([key, value]) => `
+                                    <tr>
+                                        <td class="text-gray">${key}</td>
+                                        <td class="font-semibold text-dark">${typeof value === "boolean" ? JSON.stringify(value) : value}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+
+                const popup = new Popup({ closeButton: false, closeOnClick: true })
+                    .setLngLat(lngLat)
+                    .setHTML(html)
                     .addTo(map);
-
-            } else {
-                popup.remove()
+                popupRef.current = popup;
             }
+        },
+        [map, trainingAreasSourceId, vectorLayers]
+    );
 
+    useEffect(() => {
+        if (map && visible) {
+            map.resize();
+            fitToBounds();
         }
-        map.on('click', handleMouseClick)
-    }, [map]);
+    }, [map, visible, fitToBounds]);
+
+    useEffect(() => {
+        if (!map || !visible) return;
+
+        map.getCanvas().style.cursor = "pointer";
+
+        const loadPMTilesLayers = async () => {
+            try {
+                const pmtilesFile = new PMTiles(file);
+                const header = await pmtilesFile.getHeader();
+                const bounds = [
+                    [header.minLon, header.minLat],
+                    [header.maxLon, header.maxLat],
+                ];
+                boundsRef.current = bounds as TBounds;
+
+                fitToBounds();
+
+                const metadata = (await pmtilesFile.getMetadata()) as Metadata;
+                const layers = metadata.vector_layers;
+                setVectorLayers(layers);
+            } catch (error) {
+                console.error("Error loading PMTiles:", error);
+                showErrorToast(errorMessages.MAP_LOAD_FAILURE);
+            }
+        };
+        loadPMTilesLayers();
+
+    }, [map, file, trainingAreasSourceId, visible, fitToBounds]);
 
 
-    const fitToBounds = () => {
-        map?.fitBounds(bounds);
-    };
+    useEffect(() => {
+        if (!map) return;
+        map.on("click", handleMouseClick);
+        return () => {
+            map.off("click", handleMouseClick);
+        };
+    }, [map, handleMouseClick]);
 
+    useEffect(() => {
+        if (!map) return;
+        addSources(map, sources);
+        addLayers(map, mapLayers);
+    }, [map, mapLayers]);
+
+
+    useEffect(() => {
+        return () => {
+            if (popupRef.current) {
+                popupRef.current.remove();
+                popupRef.current = null;
+            }
+        };
+    }, []);
 
     return (
         <MapComponent
-            pmtiles
             layerControl
+            openAerialMap
+            oamTileJSONURL={tileJSONURL}
             controlsPosition={ControlsPosition.TOP_LEFT}
             basemaps
-            layerControlLayers={vectorLayers.map((layer) => ({
-                value: `Training ${layer.id}`,
-                subLayers: [`${layer.id}_fill`, `${layer.id}_outline`],
-            }))}
-        >
-            <FitToBounds onClick={fitToBounds} />
-        </MapComponent>
+            layerControlLayers={layerControlLayers}
+            fitToBounds
+            bounds={boundsRef.current}
+            mapContainerRef={mapContainerRef}
+            map={map}
+            currentZoom={currentZoom}
+        />
     );
 };

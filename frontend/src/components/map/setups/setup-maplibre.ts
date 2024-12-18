@@ -1,5 +1,6 @@
 import { MAX_ZOOM_LEVEL } from "@/utils";
 import maplibregl, { Map, StyleSpecification } from "maplibre-gl";
+import { Protocol } from "pmtiles";
 
 export const setupMaplibreMap = (
   containerRef: React.RefObject<HTMLElement>,
@@ -12,6 +13,9 @@ export const setupMaplibreMap = (
       true,
     );
   }
+
+  let protocol = new Protocol();
+  maplibregl.addProtocol("pmtiles", protocol.tile);
 
   return new maplibregl.Map({
     container: containerRef.current!,

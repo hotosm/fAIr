@@ -1,5 +1,5 @@
-import { create } from "xmlbuilder2";
 import { FeatureCollection } from "@/types";
+import { create } from "xmlbuilder2";
 
 class Node {
   lat: number;
@@ -20,7 +20,7 @@ class Way {
   nodes: Node[];
   id: number;
 
-  constructor(properties: Record<string, string>) {
+  constructor(properties: Record<string, string> = {}) {
     this.tags = properties;
     this.nodes = [];
     this.id = 0;
@@ -30,14 +30,17 @@ class Way {
 class Relation {
   tags: Record<string, string>;
   members: { elem: Way; type: "way"; role: "outer" | "inner" }[];
+  id: number;
 
-  constructor(properties: Record<string, string>) {
+  constructor(properties: Record<string, string> = {}) {
     this.tags = properties;
     this.members = [];
+    this.id = 0;
   }
 }
 
-function geojson2osm(geojson: FeatureCollection): string {
+// Main Conversion Function
+function geojsonToOsmPolygons(geojson: FeatureCollection): string {
   if (!geojson || geojson.type !== "FeatureCollection") {
     throw new Error("Invalid GeoJSON FeatureCollection");
   }
@@ -47,29 +50,37 @@ function geojson2osm(geojson: FeatureCollection): string {
   const ways: Way[] = [];
   const relations: Relation[] = [];
 
+  // Iterate over each feature
   geojson.features.forEach((feature) => {
-    if (feature.geometry.type === "Polygon") {
-      const properties = feature.properties || {};
-      processPolygon(
-        feature.geometry.coordinates as [[[number, number]]],
-        properties,
-        relations,
-        ways,
-        nodes,
-        nodesIndex,
-      );
+    const { geometry, properties } = feature;
+
+    if (geometry.type !== "Polygon") {
+      console.warn(`Skipping unsupported geometry type: ${geometry.type}`);
+      return;
     }
+
+    processPolygon(
+      geometry.coordinates,
+      properties || {},
+      relations,
+      ways,
+      nodes,
+      nodesIndex,
+    );
   });
 
-  const doc = create({ declaration: false }).ele("osm", {
+  // Create XML document
+  const doc = create({ version: "1.0", encoding: "UTF-8" }).ele("osm", {
     version: "0.6",
-    generator: "geojson2osm",
+    generator: "geojson2osm-polygons",
   });
 
+  // Assign unique negative IDs for new OSM elements
   let lastNodeId = -1;
   nodes.forEach((node) => {
+    node.id = lastNodeId--;
     const nodeEl = doc.ele("node", {
-      id: lastNodeId--,
+      id: node.id,
       lat: node.lat,
       lon: node.lon,
     });
@@ -80,7 +91,8 @@ function geojson2osm(geojson: FeatureCollection): string {
 
   let lastWayId = -1;
   ways.forEach((way) => {
-    const wayEl = doc.ele("way", { id: lastWayId-- });
+    way.id = lastWayId--;
+    const wayEl = doc.ele("way", { id: way.id });
     way.nodes.forEach((node) => wayEl.ele("nd", { ref: node.id }));
     Object.entries(way.tags).forEach(([k, v]) => {
       wayEl.ele("tag", { k, v });
@@ -89,7 +101,8 @@ function geojson2osm(geojson: FeatureCollection): string {
 
   let lastRelationId = -1;
   relations.forEach((relation) => {
-    const relationEl = doc.ele("relation", { id: lastRelationId-- });
+    relation.id = lastRelationId--;
+    const relationEl = doc.ele("relation", { id: relation.id });
     relation.members.forEach((member) => {
       relationEl.ele("member", {
         type: member.type,
@@ -105,9 +118,10 @@ function geojson2osm(geojson: FeatureCollection): string {
   return doc.end({ prettyPrint: true });
 }
 
+// Helper Function to Process Polygons
 function processPolygon(
-  coordinates: [[[number, number]]],
-  properties: Record<string, string>,
+  coordinates: [number, number][][], // Array of Linear Rings
+  properties: Record<string, any>,
   relations: Relation[],
   ways: Way[],
   nodes: Node[],
@@ -115,36 +129,44 @@ function processPolygon(
 ): void {
   const relation = new Relation(properties);
   relation.tags.type = "multipolygon";
+  // Optionally, add more tags based on properties
   relations.push(relation);
 
-  coordinates.forEach((polygon, index) => {
-    const way = new Way({});
+  coordinates.forEach((ring, index) => {
+    const role = index === 0 ? "outer" : "inner";
+    const way = new Way();
     ways.push(way);
     relation.members.push({
       elem: way,
       type: "way",
-      role: index === 0 ? "outer" : "inner",
+      role,
     });
 
-    polygon.forEach((point) => {
+    ring.forEach((point) => {
       const nodeHash = JSON.stringify(point);
       if (!nodesIndex[nodeHash]) {
         const node = new Node(point);
+        // Optionally, add tags to nodes based on properties
+        // For example, node.tags = { source: "geojson" };
         nodes.push(node);
         nodesIndex[nodeHash] = node;
       }
       way.nodes.push(nodesIndex[nodeHash]);
     });
 
-    // Ensure closed polygon.
-    if (
-      polygon.length > 0 &&
-      polygon[0][0] === polygon[polygon.length - 1][0] &&
-      polygon[0][1] === polygon[polygon.length - 1][1]
-    ) {
-      way.nodes.push(way.nodes[0]);
+    // Ensure the ring is closed
+    const firstPoint = ring[0];
+    const lastPoint = ring[ring.length - 1];
+    if (firstPoint[0] !== lastPoint[0] || firstPoint[1] !== lastPoint[1]) {
+      const nodeHash = JSON.stringify(firstPoint);
+      if (!nodesIndex[nodeHash]) {
+        const node = new Node(firstPoint);
+        nodes.push(node);
+        nodesIndex[nodeHash] = node;
+      }
+      way.nodes.push(nodesIndex[nodeHash]);
     }
   });
 }
 
-export { geojson2osm };
+export { geojsonToOsmPolygons };

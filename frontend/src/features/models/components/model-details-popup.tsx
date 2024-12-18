@@ -65,28 +65,17 @@ const ModelDetailsPopUp = ({
                 <div className="flex flex-col gap-y-2">
                   <p className="text-gray">
                     {" "}
-                    {
-                      startMappingPageContent.modelDetails.popover
-                        .modelId
-                    }
-                    : <span className="text-dark">{model?.id ?? data?.id}</span>
+                    {startMappingPageContent.modelDetails.popover.modelId}:{" "}
+                    <span className="text-dark">{model?.id ?? data?.id}</span>
                   </p>
                   <p className="text-gray">
-                    {
-                      startMappingPageContent.modelDetails.popover
-                        .description
-                    }
-                    :{" "}
+                    {startMappingPageContent.modelDetails.popover.description}:{" "}
                     <span className="text-dark">
                       {model?.description ?? data?.description}
                     </span>
                   </p>
                   <p className="text-gray">
-                    {
-                      startMappingPageContent.modelDetails.popover
-                        .lastModified
-                    }
-                    :{" "}
+                    {startMappingPageContent.modelDetails.popover.lastModified}:{" "}
                     <span className="text-dark">
                       {extractDatePart(
                         model?.last_modified ?? (data?.last_modified as string),
@@ -94,31 +83,19 @@ const ModelDetailsPopUp = ({
                     </span>
                   </p>
                   <p className="text-gray">
-                    {
-                      startMappingPageContent.modelDetails.popover
-                        .trainingId
-                    }
-                    :{" "}
+                    {startMappingPageContent.modelDetails.popover.trainingId}:{" "}
                     <span className="text-dark">
                       {model?.published_training ?? data?.published_training}
                     </span>
                   </p>
                   <p className="text-gray">
-                    {
-                      startMappingPageContent.modelDetails.popover
-                        .datasetId
-                    }
-                    :{" "}
+                    {startMappingPageContent.modelDetails.popover.datasetId}:{" "}
                     <span className="text-dark">
                       {model?.dataset ?? data?.dataset}
                     </span>
                   </p>
                   <p className="text-gray flex items-center gap-x-1 text-nowrap flex-wrap">
-                    {
-                      startMappingPageContent.modelDetails.popover
-                        .datasetName
-                    }
-                    :{" "}
+                    {startMappingPageContent.modelDetails.popover.datasetName}:{" "}
                     <SkeletonWrapper
                       showSkeleton={trainingDatasetIsPending}
                       skeletonClassName="w-20 h-4"
@@ -135,11 +112,7 @@ const ModelDetailsPopUp = ({
                   </p>
 
                   <p className="text-gray flex items-center gap-x-1 text-nowrap flex-wrap">
-                    {
-                      startMappingPageContent.modelDetails.popover
-                        .zoomLevel
-                    }
-                    :{" "}
+                    {startMappingPageContent.modelDetails.popover.zoomLevel}:{" "}
                     <SkeletonWrapper
                       showSkeleton={trainingDetailsIsPending}
                       skeletonClassName="w-20 h-4"
@@ -153,11 +126,7 @@ const ModelDetailsPopUp = ({
                   </p>
 
                   <p className="text-gray">
-                    {
-                      startMappingPageContent.modelDetails.popover
-                        .accuracy
-                    }
-                    :{" "}
+                    {startMappingPageContent.modelDetails.popover.accuracy}:{" "}
                     <span className="text-dark">
                       {roundNumber(
                         model?.accuracy ?? (data?.accuracy as number),
@@ -167,11 +136,7 @@ const ModelDetailsPopUp = ({
                     </span>
                   </p>
                   <p className="text-gray">
-                    {
-                      startMappingPageContent.modelDetails.popover
-                        .baseModel
-                    }
-                    :{" "}
+                    {startMappingPageContent.modelDetails.popover.baseModel}:{" "}
                     <span className="text-dark">
                       {model?.base_model ?? data?.base_model}
                     </span>

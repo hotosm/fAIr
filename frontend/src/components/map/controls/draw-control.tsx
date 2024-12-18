@@ -2,10 +2,9 @@ import { DrawingModes, ToolTipPlacement } from "@/enums";
 import { useCallback } from "react";
 import { ToolTip } from "@/components/ui/tooltip";
 import { PenIcon } from "@/components/ui/icons";
-import { useMap } from "@/app/providers/map-provider";
+import { TerraDraw } from "terra-draw";
 
-export const DrawControl = () => {
-  const { drawingMode, terraDraw, setDrawingMode } = useMap();
+export const DrawControl = ({ drawingMode, terraDraw, setDrawingMode }: { drawingMode: DrawingModes, terraDraw?: TerraDraw, setDrawingMode: (newMode: DrawingModes) => void }) => {
 
   const changeMode = useCallback(
     (newMode: DrawingModes) => {

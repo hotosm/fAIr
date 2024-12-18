@@ -1,6 +1,6 @@
-import { useMap } from "@/app/providers/map-provider";
+
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
-import maplibregl, { Popup } from "maplibre-gl";
+import maplibregl, { Map, Popup } from "maplibre-gl";
 import { Feature, GeoJSONType, TModelPredictions } from "@/types";
 import { CheckIcon } from "@/components/ui/icons";
 import { Input } from "@/components/ui/form";
@@ -27,6 +27,7 @@ const PredictedFeatureActionPopup = ({
   trainingId,
   source_imagery,
   trainingConfig,
+  map
 }: {
   event: any;
   selectedFeature: any;
@@ -37,9 +38,9 @@ const PredictedFeatureActionPopup = ({
   source_imagery: string;
   trainingId: number;
   trainingConfig: TModelPredictionsConfig;
+  map: Map | null
 }) => {
   const featureId = selectedFeature.properties.id;
-  const { map } = useMap();
   const { user } = useAuth();
 
   const popupRef = useRef(null);

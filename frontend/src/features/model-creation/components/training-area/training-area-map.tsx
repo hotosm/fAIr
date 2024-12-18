@@ -1,8 +1,7 @@
-import { useMap } from "@/app/providers/map-provider";
 import { MapComponent, MapCursorToolTip } from "@/components/map";
 import { GeoJSONType, PaginatedTrainingArea } from "@/types";
-import { GeoJSONSource } from "maplibre-gl";
-import { useCallback, useEffect, useState } from "react";
+import { GeoJSONSource, Map } from "maplibre-gl";
+import { RefObject, useCallback, useEffect, useState } from "react";
 import {
   useCreateTrainingArea,
   useGetTrainingDatasetLabels,
@@ -31,19 +30,31 @@ import useDebounce from "@/hooks/use-debounce";
 import { ControlsPosition, DrawingModes } from "@/enums";
 import { useToolTipVisibility } from "@/hooks/use-tooltip-visibility";
 import { useMapLayers } from "@/hooks/use-map-layer";
+import { TerraDraw } from "terra-draw";
 
 const TrainingAreaMap = ({
   tileJSONURL,
   data,
   trainingDatasetId,
   offset,
+  map,
+  drawingMode,
+  setDrawingMode,
+  currentZoom,
+  terraDraw,
+  mapContainerRef
 }: {
   tileJSONURL: string;
   data?: PaginatedTrainingArea;
   trainingDatasetId: number;
   offset: number;
+  map: Map | null
+  drawingMode: DrawingModes
+  setDrawingMode: (newMode: DrawingModes) => void
+  currentZoom: number
+  terraDraw?: TerraDraw,
+  mapContainerRef: RefObject<HTMLDivElement> | null
 }) => {
-  const { map, terraDraw, drawingMode, setDrawingMode, currentZoom } = useMap();
   const toast = useToastNotification();
   const trainingAreasLayerId = `${MAP_STYLES_PREFIX}-dataset-${trainingDatasetId}-training-area-layer`;
   const trainingAreasFillLayerId = `${MAP_STYLES_PREFIX}-dataset-${trainingDatasetId}-training-area-fill-layer`;
@@ -57,7 +68,7 @@ const TrainingAreaMap = ({
   const [featureArea, setFeatureArea] = useState<number>(0);
 
   const { setTooltipVisible, tooltipPosition, tooltipVisible } =
-    useToolTipVisibility([drawingMode, currentZoom]);
+    useToolTipVisibility(map, [drawingMode, currentZoom]);
 
   const debouncedBbox = useDebounce(bbox, 300);
   const debouncedZoom = useDebounce(currentZoom.toString(), 300);
@@ -141,6 +152,7 @@ const TrainingAreaMap = ({
         },
       },
     ],
+    map
   );
 
   const updateTrainingLabels = useCallback(() => {
@@ -279,6 +291,12 @@ const TrainingAreaMap = ({
       layerControl
       showTileBoundary
       basemaps
+      map={map}
+      terraDraw={terraDraw}
+      drawingMode={drawingMode}
+      setDrawingMode={setDrawingMode}
+      mapContainerRef={mapContainerRef}
+      currentZoom={currentZoom}
       layerControlLayers={[
         ...(data?.results?.features?.length
           ? [

@@ -1,5 +1,6 @@
 import {
   Dispatch,
+  RefObject,
   SetStateAction,
   useCallback,
   useEffect,
@@ -7,11 +8,10 @@ import {
   useState,
 } from "react";
 
-import { GeoJSONSource } from "maplibre-gl";
+import { GeoJSONSource, Map } from "maplibre-gl";
 
-import { FitToBounds, MapComponent, MapCursorToolTip } from "@/components/map";
+import { MapComponent, MapCursorToolTip } from "@/components/map";
 import { useMapLayers } from "@/hooks/use-map-layer";
-import { useMap } from "@/app/providers/map-provider";
 import {
   Feature,
   GeoJSONType,
@@ -49,6 +49,9 @@ const StartMappingMapComponent = ({
   oamTileJSON,
   oamTileJSONError,
   modelPredictionsExist,
+  map,
+  mapContainerRef,
+  currentZoom
 }: {
   trainingDataset?: TTrainingDataset;
   modelPredictions: TModelPredictions;
@@ -60,9 +63,11 @@ const StartMappingMapComponent = ({
   oamTileJSON: TileJSON;
   oamTileJSONError: any;
   modelPredictionsExist: boolean;
+  map: Map | null
+  currentZoom: number
+  mapContainerRef: RefObject<HTMLDivElement>
 }) => {
   const tileJSONURL = extractTileJSONURL(trainingDataset?.source_imagery ?? "");
-  const { map, currentZoom } = useMap();
   const [showPopup, setShowPopup] = useState<boolean>(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [selectedFeature, setSelectedFeature] = useState(null);
@@ -72,7 +77,7 @@ const StartMappingMapComponent = ({
     map?.fitBounds(oamTileJSON?.bounds);
   }, [map, oamTileJSON?.bounds]);
 
-  const { tooltipPosition, tooltipVisible } = useToolTipVisibility([
+  const { tooltipPosition, tooltipVisible } = useToolTipVisibility(map, [
     currentZoom,
   ]);
 
@@ -177,6 +182,7 @@ const StartMappingMapComponent = ({
         },
       },
     ],
+    map
   );
 
   const updateLayers = useCallback(() => {
@@ -265,6 +271,7 @@ const StartMappingMapComponent = ({
         source_imagery={trainingDataset?.source_imagery as string}
         trainingId={trainingDataset?.id as number}
         trainingConfig={trainingConfig}
+        map={map}
       />
     ),
     [selectedEvent, trainingDataset],
@@ -281,6 +288,8 @@ const StartMappingMapComponent = ({
       oamTileJSONURL={tileJSONURL}
       basemaps
       showTileBoundary
+      fitToBounds
+      bounds={oamTileJSON?.bounds}
       layerControlLayers={[
         ...(modelPredictions.accepted.length > 0
           ? [
@@ -322,9 +331,11 @@ const StartMappingMapComponent = ({
           ]
           : []),
       ]}
+      mapContainerRef={mapContainerRef}
+      currentZoom={currentZoom}
+      map={map}
     >
       {showPopup && renderPopup}
-      {map && <FitToBounds onClick={fitToTMSBounds} />}
       <MapCursorToolTip
         tooltipVisible={showTooltip}
         color={"bg-primary"}

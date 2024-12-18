@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { LegendBookIcon } from "../ui/icons";
-import { useMap } from "@/app/providers/map-provider";
+import { LegendBookIcon } from "../../ui/icons";
 import { LEGEND_NAME_MAPPING, MAP_STYLES_PREFIX } from "@/utils";
+import { Map } from "maplibre-gl";
 
 const FillLegendStyle = ({
   fillColor,
@@ -21,9 +21,10 @@ const FillLegendStyle = ({
   );
 };
 
-export const Legend = () => {
+export const Legend = ({ map }: { map: Map | null }) => {
+
   const [expandLegend, setExpandLegend] = useState<boolean>(false);
-  const { map } = useMap();
+
 
   const activeLayers = map
     ?.getStyle()

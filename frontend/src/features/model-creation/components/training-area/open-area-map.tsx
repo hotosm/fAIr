@@ -6,12 +6,12 @@ import { useGetTMSTileJSON } from "@/features/model-creation/hooks/use-tms-tilej
 import { ToolTip } from "@/components/ui/tooltip";
 import { FullScreenIcon } from "@/components/ui/icons";
 import { useCallback, useEffect } from "react";
-import { useMap } from "@/app/providers/map-provider";
 import { MODEL_CREATION_CONTENT, truncateString } from "@/utils";
+import { Map } from "maplibre-gl";
 
-const OpenAerialMap = ({ tileJSONURL }: { tileJSONURL: string }) => {
+const OpenAerialMap = ({ tileJSONURL, map }: { tileJSONURL: string, map: Map | null }) => {
   const { handleChange } = useModelsContext();
-  const { map } = useMap();
+
   const { isPending, data, isError } = useGetTMSTileJSON(tileJSONURL);
 
   const fitToTMSBounds = useCallback(() => {

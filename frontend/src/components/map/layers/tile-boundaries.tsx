@@ -1,4 +1,3 @@
-import { useMap } from "@/app/providers/map-provider";
 import { useMapLayers } from "@/hooks/use-map-layer";
 import { GeoJSONType } from "@/types";
 import {
@@ -6,11 +5,10 @@ import {
   TILE_BOUNDARY_LAYER_ID,
   TILE_BOUNDARY_SOURCE_ID,
 } from "@/utils";
-import { GeoJSONSource } from "maplibre-gl";
+import { GeoJSONSource, Map } from "maplibre-gl";
 import { useCallback, useEffect } from "react";
 
-export const TileBoundaries = () => {
-  const { map } = useMap();
+export const TileBoundaries = ({ map }: { map: Map | null }) => {
 
   useMapLayers(
     [
@@ -33,7 +31,7 @@ export const TileBoundaries = () => {
           data: { type: "FeatureCollection", features: [] },
         },
       },
-    ],
+    ], map
   );
 
   const updateTileBoundary = useCallback(() => {

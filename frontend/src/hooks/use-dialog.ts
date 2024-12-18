@@ -18,10 +18,10 @@ export const useDialog = () => {
 
   const closeDialog = useCallback(() => {
     setIsOpened(false);
-  }, []);
+  }, [isOpened]);
   const openDialog = useCallback(() => {
     setIsOpened(true);
-  }, []);
+  }, [isOpened]);
 
   return { isOpened, toggle, closeDialog, openDialog };
 };

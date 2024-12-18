@@ -8,8 +8,7 @@ import {
 import { ProtectedPage } from "@/app/routes/protected-route";
 import { MainErrorFallback } from "@/components/errors";
 import ModelFormsLayout from "@/components/layouts/model-forms-layout";
-import ModelsLayout from "@/components/layouts/models-layout";
-import { MapProvider } from "./providers/map-provider";
+
 
 const router = createBrowserRouter([
   {
@@ -68,31 +67,26 @@ const router = createBrowserRouter([
        * Models details & list route starts
        */
       {
-        element: <ModelsLayout />,
-        children: [
-          {
-            path: APPLICATION_ROUTES.MODEL_DETAILS,
-            lazy: async () => {
-              const { ModelDetailsPage } = await import(
-                "@/app/routes/models/model-details"
-              );
-              return {
-                Component: () => <ModelDetailsPage />,
-              };
-            },
-          },
-          {
-            path: APPLICATION_ROUTES.MODELS,
-            lazy: async () => {
-              const { ModelsPage } = await import(
-                "@/app/routes/models/models-list"
-              );
-              return {
-                Component: () => <ModelsPage />,
-              };
-            },
-          },
-        ],
+        path: APPLICATION_ROUTES.MODEL_DETAILS,
+        lazy: async () => {
+          const { ModelDetailsPage } = await import(
+            "@/app/routes/models/model-details"
+          );
+          return {
+            Component: () => <ModelDetailsPage />,
+          };
+        },
+      },
+      {
+        path: APPLICATION_ROUTES.MODELS,
+        lazy: async () => {
+          const { ModelsPage } = await import(
+            "@/app/routes/models/models-list"
+          );
+          return {
+            Component: () => <ModelsPage />,
+          };
+        },
       },
       /**
        * Models details & list route ends
@@ -286,9 +280,7 @@ const router = createBrowserRouter([
           return {
             Component: () => (
               <ProtectedPage>
-                <MapProvider>
-                  <StartMappingPage />
-                </MapProvider>
+                <StartMappingPage />
               </ProtectedPage>
             ),
           };

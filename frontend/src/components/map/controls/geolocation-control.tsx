@@ -3,11 +3,11 @@ import { useCallback } from "react";
 import { ToolTip } from "@/components/ui/tooltip";
 import { ToolTipPlacement } from "@/enums";
 import { showErrorToast, showWarningToast } from "@/utils";
-import { useMap } from "@/app/providers/map-provider";
 import { TOAST_NOTIFICATIONS } from "@/constants";
+import { Map } from "maplibre-gl";
 
-export const GeolocationControl = () => {
-  const { map } = useMap();
+export const GeolocationControl = ({ map }: { map: Map | null }) => {
+
   const handleGeolocationClick = useCallback(() => {
     if (!map) return;
 

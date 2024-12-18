@@ -10,20 +10,23 @@ import { Button } from "@/components/ui/button";
 
 import { startMappingPageContent, TOAST_NOTIFICATIONS } from "@/constants";
 import { useCallback } from "react";
-import { useMap } from "@/app/providers/map-provider";
 import { TModelPredictionsConfig } from "../api/get-model-predictions";
 import { SHOELACE_SIZES } from "@/enums";
+import { Map } from "maplibre-gl";
 
 const ModelAction = ({
   setModelPredictions,
   modelPredictions,
   trainingConfig,
+  map, currentZoom
 }: {
   trainingConfig: TModelPredictionsConfig;
   modelPredictions: TModelPredictions;
   setModelPredictions: React.Dispatch<React.SetStateAction<TModelPredictions>>;
+  map: Map | null
+  currentZoom: number
 }) => {
-  const { map, currentZoom } = useMap();
+
 
   const disablePredictionButton =
     currentZoom < MIN_ZOOM_LEVEL_FOR_START_MAPPING_PREDICTION;

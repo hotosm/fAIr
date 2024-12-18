@@ -3,8 +3,10 @@ import {
   GOOGLE_SATELLITE_BASEMAP_LAYER_ID,
   GOOGLE_SATELLITE_BASEMAP_SOURCE_ID,
 } from "@/utils";
+import { Map } from "maplibre-gl";
 
-export const Basemaps = () => {
+
+export const Basemaps = ({ map }: { map: Map | null }) => {
   useMapLayers(
     [
       {
@@ -32,6 +34,7 @@ export const Basemaps = () => {
         },
       },
     ],
+    map
   );
 
   return null;

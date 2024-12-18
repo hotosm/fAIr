@@ -14,7 +14,7 @@ type TAPIResponse = {
   result: string;
 };
 
-const getTrainingAreaPmtilesUrl = async (
+const getTrainingAreaPMTilesUrl = async (
   trainingAreaId: number,
 ): Promise<TAPIResponse> => {
   const { data } = await apiClient.get(
@@ -27,29 +27,33 @@ const getTrainingAreaPmtilesUrl = async (
   return data;
 };
 
-type TrainingAreaDrawerProps = DialogProps & { trainingAreaId: number };
+type TrainingAreaDrawerProps = DialogProps & {
+  trainingAreaId: number;
+  tmsURL: string;
+};
 
 export const TrainingAreaDrawer: React.FC<TrainingAreaDrawerProps> = ({
   isOpened,
   closeDialog,
   trainingAreaId,
+  tmsURL,
 }) => {
 
   const { data, isLoading, isError, refetch } = useQuery<TAPIResponse, Error>({
     queryKey: ["training-area-pmtiles-url", trainingAreaId],
-    queryFn: () => getTrainingAreaPmtilesUrl(trainingAreaId),
+    queryFn: () => getTrainingAreaPMTilesUrl(trainingAreaId),
     enabled: isOpened
   });
 
   return (
     <Drawer
-      placement={DrawerPlacements.BOTTOM}
       open={isOpened}
       setOpen={closeDialog}
+      placement={DrawerPlacements.BOTTOM}
       label={modelPagesContent.trainingArea.modalTitle}
       noHeader={false}
     >
-      <div className="h-full w-full flex items-center justify-center">
+      <div className="w-full flex items-center justify-center h-full" >
         {isLoading && (
           <div className="flex flex-col items-center justify-center">
             <Spinner />
@@ -67,9 +71,17 @@ export const TrainingAreaDrawer: React.FC<TrainingAreaDrawerProps> = ({
             </Button>
           </div>
         )}
-        {!isLoading && !isError && data?.result ? (
-          <TrainingAreaMap file={data.result} trainingAreaId={trainingAreaId} />
-        ) : null}
+
+        {data?.result && tmsURL && (
+          <div className="w-full h-full relative">
+            <TrainingAreaMap
+              file={data.result}
+              trainingAreaId={trainingAreaId}
+              tmsURL={tmsURL}
+              visible={isOpened}
+            />
+          </div>
+        )}
       </div>
     </Drawer>
   );

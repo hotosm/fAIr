@@ -4,7 +4,8 @@ import mapMarker from "@/assets/images/map_marker.png";
 import { MapComponent } from "@/components/map";
 import { FeatureCollection, TQueryParams } from "@/types";
 import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
-import { useMap } from "@/app/providers/map-provider";
+import { useMapInstance } from "@/hooks/use-map-instance";
+
 
 const mapSourceName = "models";
 // Font from OpenFreeMap
@@ -117,7 +118,9 @@ export const ModelsMap: React.FC<ModelsMapProps> = ({
   mapResults,
   updateQuery,
 }) => {
-  const { map } = useMap();
+
+  const { map, currentZoom, mapContainerRef } = useMapInstance()
+
 
   const handleClickOnModelID = useCallback((clickedModel: string) => {
     updateQuery({
@@ -146,7 +149,7 @@ export const ModelsMap: React.FC<ModelsMapProps> = ({
 
   return (
     <div className="h-full w-full">
-      <MapComponent geolocationControl />
+      <MapComponent geolocationControl map={map} currentZoom={currentZoom} mapContainerRef={mapContainerRef} />
     </div>
   );
 };

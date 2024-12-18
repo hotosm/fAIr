@@ -74,9 +74,7 @@ const ModelSettings = ({
           <FormLabel
             label={startMappingPageContent.settings.useJOSMQ.label}
             withTooltip
-            toolTipContent={
-              startMappingPageContent.settings.useJOSMQ.tooltip
-            }
+            toolTipContent={startMappingPageContent.settings.useJOSMQ.tooltip}
             position="left"
           />
           <Switch
@@ -90,9 +88,7 @@ const ModelSettings = ({
           <FormLabel
             label={startMappingPageContent.settings.confidence.label}
             withTooltip
-            toolTipContent={
-              startMappingPageContent.settings.confidence.tooltip
-            }
+            toolTipContent={startMappingPageContent.settings.confidence.tooltip}
             position="left"
           />
           <Select
@@ -112,9 +108,7 @@ const ModelSettings = ({
           <FormLabel
             label={startMappingPageContent.settings.tolerance.label}
             withTooltip
-            toolTipContent={
-              startMappingPageContent.settings.tolerance.tooltip
-            }
+            toolTipContent={startMappingPageContent.settings.tolerance.tooltip}
             position="left"
           />
           <Input
@@ -138,9 +132,7 @@ const ModelSettings = ({
           <FormLabel
             label={startMappingPageContent.settings.area.label}
             withTooltip
-            toolTipContent={
-              startMappingPageContent.settings.area.tooltip
-            }
+            toolTipContent={startMappingPageContent.settings.area.tooltip}
             position="left"
           />
           <Input

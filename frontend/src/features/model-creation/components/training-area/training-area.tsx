@@ -15,7 +15,6 @@ import {
   useGetTrainingAreas,
 } from "@/features/model-creation/hooks/use-training-areas";
 import OpenAerialMap from "@/features/model-creation/components/training-area/open-area-map";
-import { useMap } from "@/app/providers/map-provider";
 import {
   extractTileJSONURL,
   MODEL_CREATION_CONTENT,
@@ -28,16 +27,16 @@ import { GeoJSONType, Geometry } from "@/types";
 import { geojsonToWKT } from "@terraformer/wkt";
 
 import useScreenSize from "@/hooks/use-screen-size";
+import { useMapInstance } from "@/hooks/use-map-instance";
 
 const TrainingAreaForm = () => {
   const { formData } = useModelsContext();
-
+  const { map, mapContainerRef, drawingMode, setDrawingMode, terraDraw, currentZoom } = useMapInstance()
   const tileJSONURL = extractTileJSONURL(formData.tmsURL);
 
   const { closeDialog, isOpened, toggle } = useDialog();
   const { handleChange } = useModelsContext();
   const [offset, setOffset] = useState<number>(0);
-  const { setDrawingMode } = useMap();
   const {
     data: trainingAreasData,
     isPending: trainingAreaIsPending,
@@ -99,7 +98,7 @@ const TrainingAreaForm = () => {
         </div>
 
         <div className="border-t-8 border-x-8 border-off-white mb-10 fullscreen md:no-fullscreen md:hidden">
-          <OpenAerialMap tileJSONURL={tileJSONURL} />
+          <OpenAerialMap tileJSONURL={tileJSONURL} map={map} />
         </div>
         <div className="h-full grid grid-cols-12 md:grid-cols-9  border-8 border-off-white fullscreen md:no-fullscreen">
           <div className="w-full h-[90vh] col-span-12 md:col-span-6 2xl:col-span-7">
@@ -108,10 +107,16 @@ const TrainingAreaForm = () => {
               data={trainingAreasData}
               trainingDatasetId={Number(formData.selectedTrainingDatasetId)}
               offset={offset}
+              map={map}
+              mapContainerRef={mapContainerRef}
+              terraDraw={terraDraw}
+              setDrawingMode={setDrawingMode}
+              drawingMode={drawingMode}
+              currentZoom={currentZoom}
             />
           </div>
           <div className="hidden md:flex h-[90vh] max-h-screen col-span-12 md:col-span-3 2xl:col-span-2 flex-col w-full border-l-8 border-off-white gap-y-6 py-4 ">
-            <OpenAerialMap tileJSONURL={tileJSONURL} />
+            <OpenAerialMap tileJSONURL={tileJSONURL} map={map} />
             <TrainingAreaList
               offset={offset}
               setOffset={setOffset}
@@ -119,6 +124,7 @@ const TrainingAreaForm = () => {
               data={trainingAreasData}
               isPending={trainingAreaIsPending}
               datasetId={Number(formData.selectedTrainingDatasetId)}
+              map={map}
             />
             <ActionButtons
               toggle={toggle}
@@ -137,6 +143,7 @@ const TrainingAreaForm = () => {
               data={trainingAreasData}
               isPending={trainingAreaIsPending}
               datasetId={Number(formData.selectedTrainingDatasetId)}
+              map={map}
             />
           </div>
           <div className="py-2">

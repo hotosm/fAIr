@@ -1,8 +1,8 @@
 import { cn } from "@/utils";
 import { useCallback } from "react";
-import { ToolTip } from "../ui/tooltip";
+import { ToolTip } from "../../ui/tooltip";
 import { ToolTipPlacement } from "@/enums";
-import { useMap } from "@/app/providers/map-provider";
+import { Map } from "maplibre-gl";
 
 const ZoomButton = ({
   onClick,
@@ -22,8 +22,7 @@ const ZoomButton = ({
   </button>
 );
 
-export const ZoomControls = () => {
-  const { currentZoom, map } = useMap();
+export const ZoomControls = ({ map, currentZoom }: { map: Map | null, currentZoom: number }) => {
 
   const handleZoomIn = useCallback(() => {
     if (map && currentZoom < map.getMaxZoom()) {

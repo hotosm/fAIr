@@ -5,6 +5,7 @@ import { Dispatch, SetStateAction, useMemo } from "react";
 import { formatDuration, MODEL_CREATION_CONTENT } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
 import { fetchOSMDatabaseLastUpdated } from "@/features/model-creation/hooks/use-training-areas";
+import { Map } from "maplibre-gl";
 
 const TrainingAreaList = ({
   offset,
@@ -12,7 +13,7 @@ const TrainingAreaList = ({
   datasetId,
   data,
   isPending,
-  isPlaceholderData,
+  isPlaceholderData, map
 }: {
   datasetId: number;
   data?: PaginatedTrainingArea;
@@ -20,6 +21,7 @@ const TrainingAreaList = ({
   isPlaceholderData: boolean;
   offset: number;
   setOffset: Dispatch<SetStateAction<number>>;
+  map: Map | null
 }) => {
   const {
     data: osmData,
@@ -129,6 +131,7 @@ const TrainingAreaList = ({
                 datasetId={datasetId}
                 geometry={ta.geometry}
                 offset={offset}
+                map={map}
               />
             ))}
           </div>

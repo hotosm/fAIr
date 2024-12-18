@@ -9,7 +9,7 @@ import {
 } from "@/utils";
 import { useToastNotification } from "@/hooks/use-toast-notification";
 import { TOAST_NOTIFICATIONS } from "@/constants";
-import { geojson2osm } from "@/lib/geojson2xml";
+import { geojsonToOsmPolygons } from "@/lib/geojsonToOsmPolygons";
 
 /**
  * Open the AOI (Training Area) in ID Editor.
@@ -162,8 +162,10 @@ export const openInJOSM = async (
   bounds: BBOX,
   features?: Feature[],
 ) => {
+  const JOSM_PORT = "http://127.0.0.1:8111/";
+
   try {
-    const imgURL = new URL("http://127.0.0.1:8111/imagery");
+    const imgURL = new URL(`${JOSM_PORT}imagery`);
     imgURL.searchParams.set("type", "tms");
     imgURL.searchParams.set("title", oamTileName);
     imgURL.searchParams.set("url", tmsURL);
@@ -175,22 +177,22 @@ export const openInJOSM = async (
       return;
     }
 
-    const loadurl = new URL("http://127.0.0.1:8111/load_and_zoom");
+    const loadurl = new URL(`${JOSM_PORT}load_and_zoom`);
     loadurl.searchParams.set("bottom", String(bounds[1]));
     loadurl.searchParams.set("top", String(bounds[3]));
     loadurl.searchParams.set("left", String(bounds[0]));
     loadurl.searchParams.set("right", String(bounds[2]));
 
     const zoomResponse = await fetch(loadurl);
+
     // XML Conversion
     if (features) {
       try {
-        const _data = geojson2osm({
+        const _data = geojsonToOsmPolygons({
           type: "FeatureCollection",
           features: features,
         });
-        console.log(typeof _data, _data);
-        const loadData = new URL("http://127.0.0.1:8111/load_data");
+        const loadData = new URL(`${JOSM_PORT}load_data`);
         loadData.searchParams.set("new_layer", "true");
         loadData.searchParams.set("data", `${_data}`);
         const response = await fetch(loadData);

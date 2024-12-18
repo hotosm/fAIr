@@ -3,8 +3,8 @@ import { DropDown } from "@/components/ui/dropdown";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { Map } from "maplibre-gl";
 import { useEffect, useState } from "react";
-import { CheckboxGroup } from "../ui/form";
-import { ToolTip } from "../ui/tooltip";
+import { CheckboxGroup } from "../../ui/form";
+import { ToolTip } from "../../ui/tooltip";
 import { BASEMAPS, ToolTipPlacement } from "@/enums";
 
 type TLayers = { id?: string; subLayers: string[]; value: string }[];
@@ -19,6 +19,8 @@ export const LayerControl = ({
   layers: TLayers;
   basemaps: TBasemaps;
 }) => {
+
+
   const { dropdownIsOpened, onDropdownHide, onDropdownShow } =
     useDropdownMenu();
 
@@ -64,6 +66,7 @@ export const LayerControl = ({
       updatedVisibility[value] = newSelectedLayers.includes(value);
 
       if (map?.isStyleLoaded) {
+
         // Loop through each map layer ID and update visibility
         subLayers?.forEach((mapLayerId) => {
           if (map.getLayer(mapLayerId)) {
