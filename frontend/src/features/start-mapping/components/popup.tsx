@@ -16,7 +16,7 @@ import { geojsonToWKT } from "@terraformer/wkt";
 import { useAuth } from "@/app/providers/auth-provider";
 import { TModelPredictionsConfig } from "@/features/start-mapping/api/get-model-predictions";
 import { startMappingPageContent, TOAST_NOTIFICATIONS } from "@/constants";
-import { Button } from "@/components/ui/button";
+
 import useScreenSize from "@/hooks/use-screen-size";
 
 const PredictedFeatureActionPopup = ({
@@ -378,17 +378,15 @@ const PredictedFeatureActionPopup = ({
         />
       )}
       {showComment && (
-        <Button
-          className={`!w-fit`}
+        <button
+          className={`w-fit bg-primary text-white rounded-lg px-6 py-2 text-body-4 md:text-body-3 text-nowrap`}
           onClick={submitRejectionFeedback}
-          size={isMobile ? SHOELACE_SIZES.SMALL : SHOELACE_SIZES.MEDIUM}
-          uppercase={false}
           disabled={createModelFeedbackMutation.isPending}
         >
           {createModelFeedbackMutation.isPending
             ? startMappingPageContent.map.popup.comment.submissionInProgress
             : startMappingPageContent.map.popup.comment.submit}
-        </Button>
+        </button>
       )}
       {!showComment && (
         <p className="text-xs md:text-sm">
@@ -396,16 +394,16 @@ const PredictedFeatureActionPopup = ({
         </p>
       )}
       {!showComment && (
-        <div className="flex justify-between items-center gap-x-10">
+        <div className="flex justify-between items-center gap-x-6">
           <button
-            className={`${primaryButton.className} text-white rounded-lg p-2 text-body-4 md:text-body-3 text-nowrap flex gap-x-3 items-center`}
+            className={`w-full ${primaryButton.className} text-white rounded-lg p-2 text-body-4 md:text-body-3 text-nowrap flex gap-x-3 justify-between items-center`}
             onClick={primaryButton.action}
           >
             {primaryButton.label}
             <primaryButton.icon />
           </button>
           <button
-            className={`${secondaryButton.className} text-white rounded-lg p-2 text-body-4 md:text-body-3 text-nowrap flex items-center gap-x-3`}
+            className={`w-full ${secondaryButton.className} text-white rounded-lg p-2 text-body-4 md:text-body-3 text-nowrap flex justify-between items-center gap-x-3`}
             onClick={secondaryButton.action}
           >
             {secondaryButton.label}

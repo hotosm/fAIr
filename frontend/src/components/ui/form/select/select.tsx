@@ -41,7 +41,7 @@ const Select: React.FC<SelectProps> = ({
       placeholder={placeholder}
       //@ts-expect-error bad type definition
       size={
-        size !== undefined
+        !!size
           ? size
           : isMobile
             ? SHOELACE_SIZES.MEDIUM
