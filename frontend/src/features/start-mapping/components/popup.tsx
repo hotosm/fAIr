@@ -17,7 +17,6 @@ import { useAuth } from "@/app/providers/auth-provider";
 import { TModelPredictionsConfig } from "@/features/start-mapping/api/get-model-predictions";
 import { startMappingPageContent, TOAST_NOTIFICATIONS } from "@/constants";
 
-import useScreenSize from "@/hooks/use-screen-size";
 
 const PredictedFeatureActionPopup = ({
   event,
@@ -46,7 +45,7 @@ const PredictedFeatureActionPopup = ({
   const popupRef = useRef(null);
   const [popup, setPopup] = useState<Popup | null>(null);
   const { accepted, rejected, all } = modelPredictions;
-  const { isMobile } = useScreenSize();
+
   const alreadyAccepted = accepted.some(
     (feature) => feature.properties.id === featureId,
   );
