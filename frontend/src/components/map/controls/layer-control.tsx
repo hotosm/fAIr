@@ -19,8 +19,6 @@ export const LayerControl = ({
   layers: TLayers;
   basemaps: TBasemaps;
 }) => {
-
-
   const { dropdownIsOpened, onDropdownHide, onDropdownShow } =
     useDropdownMenu();
 
@@ -66,7 +64,6 @@ export const LayerControl = ({
       updatedVisibility[value] = newSelectedLayers.includes(value);
 
       if (map?.isStyleLoaded) {
-
         // Loop through each map layer ID and update visibility
         subLayers?.forEach((mapLayerId) => {
           if (map.getLayer(mapLayerId)) {

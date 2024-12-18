@@ -69,7 +69,6 @@ export const LearnPage = () => {
   );
 };
 
-
 const GuideCard = ({ guide }: { guide: TGuide }) => {
   return (
     <div className="border border-gray-border bg-white p-10 flex flex-col z-10 col-span-1 gap-y-2">

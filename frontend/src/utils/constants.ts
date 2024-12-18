@@ -91,7 +91,7 @@ const REFRESH_BUFFER_MS = 1000;
  */
 export const KPI_STATS_CACHE_TIME_MS =
   (Number(ENVS.KPI_STATS_CACHE_TIME) || DEFAULT_KPI_STATS_CACHE_TIME_SECONDS) *
-    1000 +
+  1000 +
   REFRESH_BUFFER_MS;
 
 /**
@@ -245,3 +245,8 @@ export const PREDICTION_API_FILE_EXTENSIONS = {
   [BASE_MODELS.YOLOV8_V1]: ".onnx",
   [BASE_MODELS.YOLOV8_V2]: ".onnx",
 };
+
+/**
+ * The remote url to JOSM.
+ */
+export const JOSM_REMOTE_URL = ENVS.JOSM_REMOTE_URL || "http://127.0.0.1:8111/";

@@ -61,9 +61,7 @@ export const useCreateTrainingLabelsForAOI = ({
   mutationConfig,
 }: useCreateTrainingLabelsForAOIOptions) => {
   // fetch training labels for the aoi
-
   const { onSuccess, ...restConfig } = mutationConfig || {};
-
   return useMutation({
     mutationFn: (args: TCreateTrainingLabelsForAOIArgs) =>
       createTrainingLabelsForAOI(args),

@@ -42,18 +42,18 @@ const TrainingAreaMap = ({
   setDrawingMode,
   currentZoom,
   terraDraw,
-  mapContainerRef
+  mapContainerRef,
 }: {
   tileJSONURL: string;
   data?: PaginatedTrainingArea;
   trainingDatasetId: number;
   offset: number;
-  map: Map | null
-  drawingMode: DrawingModes
-  setDrawingMode: (newMode: DrawingModes) => void
-  currentZoom: number
-  terraDraw?: TerraDraw,
-  mapContainerRef: RefObject<HTMLDivElement> | null
+  map: Map | null;
+  drawingMode: DrawingModes;
+  setDrawingMode: (newMode: DrawingModes) => void;
+  currentZoom: number;
+  terraDraw?: TerraDraw;
+  mapContainerRef: RefObject<HTMLDivElement> | null;
 }) => {
   const toast = useToastNotification();
   const trainingAreasLayerId = `${MAP_STYLES_PREFIX}-dataset-${trainingDatasetId}-training-area-layer`;
@@ -152,7 +152,7 @@ const TrainingAreaMap = ({
         },
       },
     ],
-    map
+    map,
   );
 
   const updateTrainingLabels = useCallback(() => {
@@ -300,22 +300,22 @@ const TrainingAreaMap = ({
       layerControlLayers={[
         ...(data?.results?.features?.length
           ? [
-            {
-              value: "Training Areas",
-              subLayers: [trainingAreasLayerId, trainingAreasFillLayerId],
-            },
-          ]
+              {
+                value: "Training Areas",
+                subLayers: [trainingAreasLayerId, trainingAreasFillLayerId],
+              },
+            ]
           : []),
         ...(labels && labels?.features.length > 0
           ? [
-            {
-              value: "Training Labels",
-              subLayers: [
-                trainingDatasetLabelsLayerId,
-                trainingDatasetLabelsOutlineLayerId,
-              ],
-            },
-          ]
+              {
+                value: "Training Labels",
+                subLayers: [
+                  trainingDatasetLabelsLayerId,
+                  trainingDatasetLabelsOutlineLayerId,
+                ],
+              },
+            ]
           : []),
       ]}
     >

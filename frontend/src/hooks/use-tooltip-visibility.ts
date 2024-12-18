@@ -1,7 +1,10 @@
 import { Map, MapMouseEvent } from "maplibre-gl";
 import { useEffect, useState } from "react";
 
-export const useToolTipVisibility = (map: Map | null, dependencies: any[] = []) => {
+export const useToolTipVisibility = (
+  map: Map | null,
+  dependencies: any[] = [],
+) => {
   const [tooltipVisible, setTooltipVisible] = useState<boolean>(false);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   const TOOLTIP_OFFSET = 10;

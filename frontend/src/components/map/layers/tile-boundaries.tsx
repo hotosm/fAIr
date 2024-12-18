@@ -9,7 +9,6 @@ import { GeoJSONSource, Map } from "maplibre-gl";
 import { useCallback, useEffect } from "react";
 
 export const TileBoundaries = ({ map }: { map: Map | null }) => {
-
   useMapLayers(
     [
       {
@@ -31,7 +30,8 @@ export const TileBoundaries = ({ map }: { map: Map | null }) => {
           data: { type: "FeatureCollection", features: [] },
         },
       },
-    ], map
+    ],
+    map,
   );
 
   const updateTileBoundary = useCallback(() => {

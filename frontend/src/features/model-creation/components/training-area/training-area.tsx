@@ -31,7 +31,14 @@ import { useMapInstance } from "@/hooks/use-map-instance";
 
 const TrainingAreaForm = () => {
   const { formData } = useModelsContext();
-  const { map, mapContainerRef, drawingMode, setDrawingMode, terraDraw, currentZoom } = useMapInstance()
+  const {
+    map,
+    mapContainerRef,
+    drawingMode,
+    setDrawingMode,
+    terraDraw,
+    currentZoom,
+  } = useMapInstance();
   const tileJSONURL = extractTileJSONURL(formData.tmsURL);
 
   const { closeDialog, isOpened, toggle } = useDialog();

@@ -41,11 +41,7 @@ const Select: React.FC<SelectProps> = ({
       placeholder={placeholder}
       //@ts-expect-error bad type definition
       size={
-        !!size
-          ? size
-          : isMobile
-            ? SHOELACE_SIZES.MEDIUM
-            : SHOELACE_SIZES.LARGE
+        !!size ? size : isMobile ? SHOELACE_SIZES.MEDIUM : SHOELACE_SIZES.LARGE
       }
       value={String(defaultValue)}
       onSlChange={(e) => {

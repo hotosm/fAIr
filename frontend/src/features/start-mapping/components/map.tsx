@@ -51,7 +51,7 @@ const StartMappingMapComponent = ({
   modelPredictionsExist,
   map,
   mapContainerRef,
-  currentZoom
+  currentZoom,
 }: {
   trainingDataset?: TTrainingDataset;
   modelPredictions: TModelPredictions;
@@ -63,9 +63,9 @@ const StartMappingMapComponent = ({
   oamTileJSON: TileJSON;
   oamTileJSONError: any;
   modelPredictionsExist: boolean;
-  map: Map | null
-  currentZoom: number
-  mapContainerRef: RefObject<HTMLDivElement>
+  map: Map | null;
+  currentZoom: number;
+  mapContainerRef: RefObject<HTMLDivElement>;
 }) => {
   const tileJSONURL = extractTileJSONURL(trainingDataset?.source_imagery ?? "");
   const [showPopup, setShowPopup] = useState<boolean>(false);
@@ -182,7 +182,7 @@ const StartMappingMapComponent = ({
         },
       },
     ],
-    map
+    map,
   );
 
   const updateLayers = useCallback(() => {
@@ -293,42 +293,42 @@ const StartMappingMapComponent = ({
       layerControlLayers={[
         ...(modelPredictions.accepted.length > 0
           ? [
-            {
-              value:
-                startMappingPageContent.map.controls.legendControl
-                  .acceptedPredictions,
-              subLayers: [
-                ACCEPTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
-                ACCEPTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
-              ],
-            },
-          ]
+              {
+                value:
+                  startMappingPageContent.map.controls.legendControl
+                    .acceptedPredictions,
+                subLayers: [
+                  ACCEPTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
+                  ACCEPTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
+                ],
+              },
+            ]
           : []),
         ...(modelPredictions.rejected.length > 0
           ? [
-            {
-              value:
-                startMappingPageContent.map.controls.legendControl
-                  .rejectedPredictions,
-              subLayers: [
-                REJECTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
-                REJECTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
-              ],
-            },
-          ]
+              {
+                value:
+                  startMappingPageContent.map.controls.legendControl
+                    .rejectedPredictions,
+                subLayers: [
+                  REJECTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
+                  REJECTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
+                ],
+              },
+            ]
           : []),
         ...(modelPredictions.all.length > 0
           ? [
-            {
-              value:
-                startMappingPageContent.map.controls.legendControl
-                  .predictionResults,
-              subLayers: [
-                ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
-                ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
-              ],
-            },
-          ]
+              {
+                value:
+                  startMappingPageContent.map.controls.legendControl
+                    .predictionResults,
+                subLayers: [
+                  ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
+                  ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
+                ],
+              },
+            ]
           : []),
       ]}
       mapContainerRef={mapContainerRef}

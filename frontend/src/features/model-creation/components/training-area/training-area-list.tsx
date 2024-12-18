@@ -13,7 +13,8 @@ const TrainingAreaList = ({
   datasetId,
   data,
   isPending,
-  isPlaceholderData, map
+  isPlaceholderData,
+  map,
 }: {
   datasetId: number;
   data?: PaginatedTrainingArea;
@@ -21,7 +22,7 @@ const TrainingAreaList = ({
   isPlaceholderData: boolean;
   offset: number;
   setOffset: Dispatch<SetStateAction<number>>;
-  map: Map | null
+  map: Map | null;
 }) => {
   const {
     data: osmData,

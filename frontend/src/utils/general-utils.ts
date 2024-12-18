@@ -1,7 +1,8 @@
 import { API_ENDPOINTS, BASE_API_URL } from "@/services";
-import { BBOX, Feature, FeatureCollection } from "@/types";
+import { Feature, FeatureCollection } from "@/types";
 import {
   FAIR_VERSION,
+  JOSM_REMOTE_URL,
   MAX_TRAINING_AREA_SIZE,
   MIN_TRAINING_AREA_SIZE,
   OSM_HASHTAGS,
@@ -10,6 +11,7 @@ import {
 import { useToastNotification } from "@/hooks/use-toast-notification";
 import { TOAST_NOTIFICATIONS } from "@/constants";
 import { geojsonToOsmPolygons } from "@/lib/geojsonToOsmPolygons";
+import bbox from "@turf/bbox";
 
 /**
  * Open the AOI (Training Area) in ID Editor.
@@ -159,14 +161,11 @@ export const uuid4 = function (): string {
 export const openInJOSM = async (
   oamTileName: string,
   tmsURL: string,
-  bounds: BBOX,
   features?: Feature[],
+  toXML = false,
 ) => {
-  // move to env variable
-  const JOSM_PORT = "http://127.0.0.1:8111/";
-
   try {
-    const imgURL = new URL(`${JOSM_PORT}imagery`);
+    const imgURL = new URL(`${JOSM_REMOTE_URL}imagery`);
     imgURL.searchParams.set("type", "tms");
     imgURL.searchParams.set("title", oamTileName);
     imgURL.searchParams.set("url", tmsURL);
@@ -178,20 +177,29 @@ export const openInJOSM = async (
       return;
     }
 
-    const loadurl = new URL(`${JOSM_PORT}load_and_zoom`);
-    loadurl.searchParams.set("bottom", String(bounds[1]));
-    loadurl.searchParams.set("top", String(bounds[3]));
-    loadurl.searchParams.set("left", String(bounds[0]));
-    loadurl.searchParams.set("right", String(bounds[2]));
-
-    const zoomResponse = await fetch(loadurl);
+    try {
+      const bounds = bbox({
+        type: "FeatureCollection",
+        // @ts-expect-error bad type definition
+        features: features,
+      });
+      const loadurl = new URL(`${JOSM_PORT}load_and_zoom`);
+      loadurl.searchParams.set("bottom", String(bounds[1]));
+      loadurl.searchParams.set("top", String(bounds[3]));
+      loadurl.searchParams.set("left", String(bounds[0]));
+      loadurl.searchParams.set("right", String(bounds[2]));
+      await fetch(loadurl);
+      showSuccessToast(TOAST_NOTIFICATIONS.josmOpenSuccess);
+    } catch (error) {
+      showErrorToast(undefined, TOAST_NOTIFICATIONS.josmBBOXZoomFailed);
+    }
 
     // XML Conversion
-    if (features) {
+    if (toXML) {
       try {
         const _data = geojsonToOsmPolygons({
           type: "FeatureCollection",
-          features: features,
+          features: features as Feature[],
         });
         const loadData = new URL(`${JOSM_PORT}load_data`);
         loadData.searchParams.set("new_layer", "true");
@@ -205,12 +213,6 @@ export const openInJOSM = async (
       } catch (error) {
         showErrorToast(error);
       }
-    }
-
-    if (zoomResponse.ok) {
-      showSuccessToast(TOAST_NOTIFICATIONS.josmOpenSuccess);
-    } else {
-      showErrorToast(undefined, TOAST_NOTIFICATIONS.josmBBOXZoomFailed);
     }
   } catch (error) {
     showErrorToast(undefined, TOAST_NOTIFICATIONS.josmOpenFailed);

@@ -2,7 +2,13 @@ import { useMapLayers } from "@/hooks/use-map-layer";
 import { TMS_LAYER_ID, TMS_SOURCE_ID } from "@/utils";
 import { Map } from "maplibre-gl";
 
-export const OpenAerialMap = ({ tileJSONURL, map }: { tileJSONURL?: string, map: Map | null }) => {
+export const OpenAerialMap = ({
+  tileJSONURL,
+  map,
+}: {
+  tileJSONURL?: string;
+  map: Map | null;
+}) => {
   useMapLayers(
     [
       {
@@ -21,7 +27,8 @@ export const OpenAerialMap = ({ tileJSONURL, map }: { tileJSONURL?: string, map:
           tileSize: 256,
         },
       },
-    ], map
+    ],
+    map,
   );
   return null;
 };

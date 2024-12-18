@@ -26,43 +26,43 @@ const pages: {
   icon: React.ElementType;
   path: string;
 }[] = [
-    {
-      id: 1,
-      title: MODEL_CREATION_CONTENT.progressStepper.modelDetails,
-      icon: TagsIcon,
-      path: MODELS_ROUTES.DETAILS,
-    },
-    {
-      id: 2,
-      title: MODEL_CREATION_CONTENT.progressStepper.trainingDataset,
-      icon: DatabaseIcon,
-      path: MODELS_ROUTES.TRAINING_DATASET,
-    },
-    {
-      id: 3,
-      title: MODEL_CREATION_CONTENT.progressStepper.trainingArea,
-      icon: SquareShadowIcon,
-      path: MODELS_ROUTES.TRAINING_AREA,
-    },
-    {
-      id: 4,
-      title: MODEL_CREATION_CONTENT.progressStepper.trainingSettings,
-      icon: SettingsIcon,
-      path: MODELS_ROUTES.TRAINING_SETTINGS,
-    },
-    {
-      id: 5,
-      title: MODEL_CREATION_CONTENT.progressStepper.submitModel,
-      icon: CloudIcon,
-      path: MODELS_ROUTES.MODEL_SUMMARY,
-    },
-    {
-      id: 6,
-      title: MODEL_CREATION_CONTENT.progressStepper.confirmation,
-      icon: StarIcon,
-      path: MODELS_ROUTES.CONFIRMATION,
-    },
-  ];
+  {
+    id: 1,
+    title: MODEL_CREATION_CONTENT.progressStepper.modelDetails,
+    icon: TagsIcon,
+    path: MODELS_ROUTES.DETAILS,
+  },
+  {
+    id: 2,
+    title: MODEL_CREATION_CONTENT.progressStepper.trainingDataset,
+    icon: DatabaseIcon,
+    path: MODELS_ROUTES.TRAINING_DATASET,
+  },
+  {
+    id: 3,
+    title: MODEL_CREATION_CONTENT.progressStepper.trainingArea,
+    icon: SquareShadowIcon,
+    path: MODELS_ROUTES.TRAINING_AREA,
+  },
+  {
+    id: 4,
+    title: MODEL_CREATION_CONTENT.progressStepper.trainingSettings,
+    icon: SettingsIcon,
+    path: MODELS_ROUTES.TRAINING_SETTINGS,
+  },
+  {
+    id: 5,
+    title: MODEL_CREATION_CONTENT.progressStepper.submitModel,
+    icon: CloudIcon,
+    path: MODELS_ROUTES.MODEL_SUMMARY,
+  },
+  {
+    id: 6,
+    title: MODEL_CREATION_CONTENT.progressStepper.confirmation,
+    icon: StarIcon,
+    path: MODELS_ROUTES.CONFIRMATION,
+  },
+];
 
 const ModelCreationLayout = () => {
   const { pathname } = useLocation();

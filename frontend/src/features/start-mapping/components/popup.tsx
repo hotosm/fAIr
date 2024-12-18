@@ -1,4 +1,3 @@
-
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import maplibregl, { Map, Popup } from "maplibre-gl";
 import { Feature, GeoJSONType, TModelPredictions } from "@/types";
@@ -17,7 +16,6 @@ import { useAuth } from "@/app/providers/auth-provider";
 import { TModelPredictionsConfig } from "@/features/start-mapping/api/get-model-predictions";
 import { startMappingPageContent, TOAST_NOTIFICATIONS } from "@/constants";
 
-
 const PredictedFeatureActionPopup = ({
   event,
   selectedFeature,
@@ -26,7 +24,7 @@ const PredictedFeatureActionPopup = ({
   trainingId,
   source_imagery,
   trainingConfig,
-  map
+  map,
 }: {
   event: any;
   selectedFeature: any;
@@ -37,7 +35,7 @@ const PredictedFeatureActionPopup = ({
   source_imagery: string;
   trainingId: number;
   trainingConfig: TModelPredictionsConfig;
-  map: Map | null
+  map: Map | null;
 }) => {
   const featureId = selectedFeature.properties.id;
   const { user } = useAuth();
@@ -118,13 +116,13 @@ const PredictedFeatureActionPopup = ({
         onSuccess: (data) => {
           const { updatedSource, updatedTarget } = alreadyRejected
             ? moveFeature(rejected, accepted, featureId, {
-              _id: data.id,
-              ...data.properties,
-            })
+                _id: data.id,
+                ...data.properties,
+              })
             : moveFeature(all, accepted, featureId, {
-              _id: data.id,
-              ...data.properties,
-            });
+                _id: data.id,
+                ...data.properties,
+              });
 
           setModelPredictions((prev) => ({
             ...prev,
@@ -307,45 +305,45 @@ const PredictedFeatureActionPopup = ({
 
   const primaryButton = alreadyAccepted
     ? {
-      label: startMappingPageContent.map.popup.reject,
-      action: handleRejection,
-      className: "bg-primary",
-      icon: RejectIcon,
-    }
+        label: startMappingPageContent.map.popup.reject,
+        action: handleRejection,
+        className: "bg-primary",
+        icon: RejectIcon,
+      }
     : alreadyRejected
       ? {
+          label: startMappingPageContent.map.popup.resolve,
+          action: handleResolve,
+          className: "bg-black",
+          icon: ResolveIcon,
+        }
+      : {
+          label: startMappingPageContent.map.popup.accept,
+          action: handleAcceptance,
+          className: "bg-green-primary",
+          icon: AcceptIcon,
+        };
+
+  const secondaryButton = alreadyAccepted
+    ? {
         label: startMappingPageContent.map.popup.resolve,
         action: handleResolve,
         className: "bg-black",
         icon: ResolveIcon,
       }
-      : {
-        label: startMappingPageContent.map.popup.accept,
-        action: handleAcceptance,
-        className: "bg-green-primary",
-        icon: AcceptIcon,
-      };
-
-  const secondaryButton = alreadyAccepted
-    ? {
-      label: startMappingPageContent.map.popup.resolve,
-      action: handleResolve,
-      className: "bg-black",
-      icon: ResolveIcon,
-    }
     : alreadyRejected
       ? {
-        label: startMappingPageContent.map.popup.accept,
-        action: handleAcceptance,
-        className: "bg-green-primary",
-        icon: AcceptIcon,
-      }
+          label: startMappingPageContent.map.popup.accept,
+          action: handleAcceptance,
+          className: "bg-green-primary",
+          icon: AcceptIcon,
+        }
       : {
-        label: startMappingPageContent.map.popup.reject,
-        action: handleRejection,
-        className: "bg-primary",
-        icon: RejectIcon,
-      };
+          label: startMappingPageContent.map.popup.reject,
+          action: handleRejection,
+          className: "bg-primary",
+          icon: RejectIcon,
+        };
 
   return (
     <div

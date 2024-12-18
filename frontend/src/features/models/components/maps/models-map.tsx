@@ -6,7 +6,6 @@ import { FeatureCollection, TQueryParams } from "@/types";
 import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
 import { useMapInstance } from "@/hooks/use-map-instance";
 
-
 const mapSourceName = "models";
 // Font from OpenFreeMap
 const licensedFonts = ["Noto Sans Regular"];
@@ -118,9 +117,7 @@ export const ModelsMap: React.FC<ModelsMapProps> = ({
   mapResults,
   updateQuery,
 }) => {
-
-  const { map, currentZoom, mapContainerRef } = useMapInstance()
-
+  const { map, currentZoom, mapContainerRef } = useMapInstance();
 
   const handleClickOnModelID = useCallback((clickedModel: string) => {
     updateQuery({
@@ -149,7 +146,12 @@ export const ModelsMap: React.FC<ModelsMapProps> = ({
 
   return (
     <div className="h-full w-full">
-      <MapComponent geolocationControl map={map} currentZoom={currentZoom} mapContainerRef={mapContainerRef} />
+      <MapComponent
+        geolocationControl
+        map={map}
+        currentZoom={currentZoom}
+        mapContainerRef={mapContainerRef}
+      />
     </div>
   );
 };

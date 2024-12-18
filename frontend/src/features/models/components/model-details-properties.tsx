@@ -257,7 +257,7 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
               href={
                 // @ts-expect-error bad type definition
                 APP_CONTENT.models.modelsDetailsCard.properties.baseModel.href[
-                baseModel
+                  baseModel
                 ]
               }
             />
@@ -300,9 +300,7 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
             {isTrainingDetailsDialog && (
               <TrainingAreaButton
                 onClick={openTrainingAreaDrawer}
-                disabled={
-                  data?.status !== TrainingStatus.SUCCESS
-                }
+                disabled={data?.status !== TrainingStatus.SUCCESS}
               />
             )}
           </div>

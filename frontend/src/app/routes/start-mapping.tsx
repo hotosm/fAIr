@@ -30,7 +30,7 @@ export type TQueryParams = { [x: string]: string | number | boolean };
 export const StartMappingPage = () => {
   const { modelId } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { map, mapContainerRef, currentZoom } = useMapInstance()
+  const { map, mapContainerRef, currentZoom } = useMapInstance();
   const defaultQueries = {
     [SEARCH_PARAMS.useJOSMQ]: searchParams.get(SEARCH_PARAMS.useJOSMQ) || false,
     [SEARCH_PARAMS.confidenceLevel]:

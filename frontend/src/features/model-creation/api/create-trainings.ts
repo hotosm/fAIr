@@ -4,6 +4,7 @@ import {
   TTrainingDataset,
   TTrainingDetails,
 } from "@/types";
+import { AxiosProgressEvent } from "axios";
 
 export type TCreateTrainingDatasetArgs = {
   name: string;
@@ -89,16 +90,24 @@ export const getTrainingAreaLabelsFromOSM = async ({
 export type TCreateTrainingLabelsForAOIArgs = {
   aoiId: number;
   geom: string;
+  onUploadProgress?: (e: AxiosProgressEvent) => void;
 };
 
 export const createTrainingLabelsForAOI = async ({
   aoiId,
   geom,
+  onUploadProgress,
 }: TCreateTrainingLabelsForAOIArgs): Promise<String> => {
   return await (
-    await apiClient.post(API_ENDPOINTS.CREATE_TRAINING_AREA_LABELS, {
-      aoi: aoiId,
-      geom: geom,
-    })
+    await apiClient.post(
+      API_ENDPOINTS.CREATE_TRAINING_AREA_LABELS,
+      {
+        aoi: aoiId,
+        geom: geom,
+      },
+      {
+        onUploadProgress,
+      },
+    )
   ).data;
 };

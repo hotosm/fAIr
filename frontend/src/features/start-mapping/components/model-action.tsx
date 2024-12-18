@@ -18,16 +18,15 @@ const ModelAction = ({
   setModelPredictions,
   modelPredictions,
   trainingConfig,
-  map, currentZoom
+  map,
+  currentZoom,
 }: {
   trainingConfig: TModelPredictionsConfig;
   modelPredictions: TModelPredictions;
   setModelPredictions: React.Dispatch<React.SetStateAction<TModelPredictions>>;
-  map: Map | null
-  currentZoom: number
+  map: Map | null;
+  currentZoom: number;
 }) => {
-
-
   const disablePredictionButton =
     currentZoom < MIN_ZOOM_LEVEL_FOR_START_MAPPING_PREDICTION;
 

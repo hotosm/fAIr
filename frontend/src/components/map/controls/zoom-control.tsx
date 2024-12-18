@@ -22,8 +22,13 @@ const ZoomButton = ({
   </button>
 );
 
-export const ZoomControls = ({ map, currentZoom }: { map: Map | null, currentZoom: number }) => {
-
+export const ZoomControls = ({
+  map,
+  currentZoom,
+}: {
+  map: Map | null;
+  currentZoom: number;
+}) => {
   const handleZoomIn = useCallback(() => {
     if (map && currentZoom < map.getMaxZoom()) {
       map.zoomIn();

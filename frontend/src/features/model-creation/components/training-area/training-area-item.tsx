@@ -39,9 +39,10 @@ import FileUploadDialog from "../dialogs/file-upload-dialog";
 import { useDialog } from "@/hooks/use-dialog";
 import { geojsonToWKT } from "@terraformer/wkt";
 import { Map } from "maplibre-gl";
+import bbox from "@turf/bbox";
 
 const TrainingAreaItem: React.FC<
-  TTrainingAreaFeature & { datasetId: number; offset: number, map: Map | null }
+  TTrainingAreaFeature & { datasetId: number; offset: number; map: Map | null }
 > = ({ datasetId, offset, map, ...trainingArea }) => {
   const { onDropdownHide, onDropdownShow, dropdownIsOpened } =
     useDropdownMenu();
@@ -82,11 +83,7 @@ const TrainingAreaItem: React.FC<
   });
 
   const handleOpenInJOSM = useCallback(async () => {
-    openInJOSM(
-      formData.oamTileName,
-      formData.tmsURL,
-      formData.oamBounds as BBOX,
-    );
+    openInJOSM(formData.oamTileName, formData.tmsURL, [trainingArea]);
   }, [formData.oamTileName, formData.tmsURL, formData.oamBounds]);
 
   const handleAOIDownload = useCallback(() => {
@@ -197,7 +194,10 @@ const TrainingAreaItem: React.FC<
 
   const fileUploadHandler = async (geometry: Geometry) => {
     const wkt = geojsonToWKT(geometry as GeoJSONType);
-    createTrainingLabelsForAOI.mutate({ aoiId: trainingArea.id, geom: wkt });
+    createTrainingLabelsForAOI.mutateAsync({
+      aoiId: trainingArea.id,
+      geom: wkt,
+    });
   };
 
   return (
@@ -206,7 +206,7 @@ const TrainingAreaItem: React.FC<
         disabled={createTrainingLabelsForAOI.isPending}
         isOpened={isOpened}
         closeDialog={closeDialog}
-        label={"Upload AOI Labels"}
+        label={"Upload AOI Label(s)"}
         fileUploadHandler={fileUploadHandler}
         successToast={TOAST_NOTIFICATIONS.aoiLabelsUploadSuccess}
         disableFileSizeValidation
@@ -227,9 +227,9 @@ const TrainingAreaItem: React.FC<
               ? "Fetching labels..."
               : trainingArea.properties.label_fetched !== null
                 ? truncateString(
-                  `Fetched ${timeSinceLabelFetch === "0 sec" ? "just now" : `${timeSinceLabelFetch} ago`}`,
-                  20,
-                )
+                    `Fetched ${timeSinceLabelFetch === "0 sec" ? "just now" : `${timeSinceLabelFetch} ago`}`,
+                    20,
+                  )
                 : "No labels yet"}
           </p>
         </div>

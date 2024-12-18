@@ -44,7 +44,7 @@ const StartMappingHeader = ({
   trainingConfig,
   setModelPredictions,
   currentZoom,
-  map
+  map,
 }: {
   modelPredictionsExist: boolean;
   trainingDatasetIsPending: boolean;
@@ -57,8 +57,8 @@ const StartMappingHeader = ({
   updateQuery: (newParams: TQueryParams) => void;
   trainingConfig: TModelPredictionsConfig;
   setModelPredictions: React.Dispatch<React.SetStateAction<TModelPredictions>>;
-  currentZoom: number
-  map: Map | null
+  currentZoom: number;
+  map: Map | null;
 }) => {
   const { onDropdownHide, onDropdownShow, dropdownIsOpened } =
     useDropdownMenu();
@@ -100,16 +100,11 @@ const StartMappingHeader = ({
     (features: Feature[]) => {
       if (!map || !oamTileJSON?.name || !trainingDataset?.source_imagery)
         return;
-      const bounds = [
-        ...map.getBounds().toArray()[0],
-        ...map.getBounds().toArray()[1],
-      ];
       openInJOSM(
         oamTileJSON.name,
         trainingDataset.source_imagery,
-        //@ts-expect-error bad type definition
-        bounds,
         features,
+        true,
       );
     },
     [map, oamTileJSON, trainingDataset],

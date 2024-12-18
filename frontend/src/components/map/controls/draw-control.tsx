@@ -4,8 +4,15 @@ import { ToolTip } from "@/components/ui/tooltip";
 import { PenIcon } from "@/components/ui/icons";
 import { TerraDraw } from "terra-draw";
 
-export const DrawControl = ({ drawingMode, terraDraw, setDrawingMode }: { drawingMode: DrawingModes, terraDraw?: TerraDraw, setDrawingMode: (newMode: DrawingModes) => void }) => {
-
+export const DrawControl = ({
+  drawingMode,
+  terraDraw,
+  setDrawingMode,
+}: {
+  drawingMode: DrawingModes;
+  terraDraw?: TerraDraw;
+  setDrawingMode: (newMode: DrawingModes) => void;
+}) => {
   const changeMode = useCallback(
     (newMode: DrawingModes) => {
       terraDraw?.setMode(newMode);

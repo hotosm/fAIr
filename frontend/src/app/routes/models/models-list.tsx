@@ -29,7 +29,10 @@ import { useDialog } from "@/hooks/use-dialog";
 import { MobileModelFiltersDialog } from "@/features/models/components/dialogs";
 import { Head } from "@/components/seo";
 import { LayoutView } from "@/enums/models";
-import { useScrollToElement, useScrollToTop } from "@/hooks/use-scroll-to-element";
+import {
+  useScrollToElement,
+  useScrollToTop,
+} from "@/hooks/use-scroll-to-element";
 
 export const SEARCH_PARAMS = {
   startDate: "start_date",
@@ -48,7 +51,7 @@ export const ModelsPage = () => {
   const { isOpened, openDialog, closeDialog } = useDialog();
   const mapViewElementId = "map-view";
   const { scrollToElement } = useScrollToElement(mapViewElementId);
-  const { scrollToTop } = useScrollToTop()
+  const { scrollToTop } = useScrollToTop();
   const {
     clearAllFilters,
     data,
@@ -77,7 +80,7 @@ export const ModelsPage = () => {
     if (mapViewIsActive) {
       scrollToElement();
     } else {
-      scrollToTop()
+      scrollToTop();
     }
   }, [mapViewIsActive]);
 

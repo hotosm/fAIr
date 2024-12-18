@@ -9,7 +9,6 @@ import { ProtectedPage } from "@/app/routes/protected-route";
 import { MainErrorFallback } from "@/components/errors";
 import ModelFormsLayout from "@/components/layouts/model-forms-layout";
 
-
 const router = createBrowserRouter([
   {
     element: <RootLayout />,

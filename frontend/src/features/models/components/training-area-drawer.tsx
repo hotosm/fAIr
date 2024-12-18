@@ -38,11 +38,10 @@ export const TrainingAreaDrawer: React.FC<TrainingAreaDrawerProps> = ({
   trainingAreaId,
   tmsURL,
 }) => {
-
   const { data, isLoading, isError, refetch } = useQuery<TAPIResponse, Error>({
     queryKey: ["training-area-pmtiles-url", trainingAreaId],
     queryFn: () => getTrainingAreaPMTilesUrl(trainingAreaId),
-    enabled: isOpened
+    enabled: isOpened,
   });
 
   return (
@@ -53,7 +52,7 @@ export const TrainingAreaDrawer: React.FC<TrainingAreaDrawerProps> = ({
       label={modelPagesContent.trainingArea.modalTitle}
       noHeader={false}
     >
-      <div className="w-full flex items-center justify-center h-full" >
+      <div className="w-full flex items-center justify-center h-full">
         {isLoading && (
           <div className="flex flex-col items-center justify-center">
             <Spinner />

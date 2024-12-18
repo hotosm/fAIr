@@ -243,7 +243,7 @@ export const APP_CONTENT = {
         {
           title: "privacy policy",
           route: "https://www.hotosm.org/privacy",
-          isExternalLink: true
+          isExternalLink: true,
         },
       ],
     },

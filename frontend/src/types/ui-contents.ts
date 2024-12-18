@@ -182,31 +182,30 @@ export type TLearnPageContent = {
 
 // Resources page content types starts.
 
-
 export type TArticle = {
-  image: string,
-  title: string
-  snippet: string
-  link: string
-}
+  image: string;
+  title: string;
+  snippet: string;
+  link: string;
+};
 export type TResourcesPageContent = {
   pageTitle: string;
   pageHeader: string;
   hero: {
-    firstSegment: string
-    secondSegment: string
-    thirdSegment: string
-  }
+    firstSegment: string;
+    secondSegment: string;
+    thirdSegment: string;
+  };
   faqs: {
-    title: string,
+    title: string;
     faqs: {
       question: string;
-      answer: string
-    }[]
-  }
+      answer: string;
+    }[];
+  };
   articles: {
-    title: string
-    articles: TArticle[]
-  }
-}
+    title: string;
+    articles: TArticle[];
+  };
+};
 // Resources page content types ends.

@@ -25,7 +25,6 @@ import { useGetTrainingDataset } from "@/features/models/hooks/use-dataset";
 export const ModelDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
 
-
   const {
     isOpened: isModelFilesDialogOpened,
     closeDialog: closeModelFilesDialog,
@@ -96,7 +95,6 @@ export const ModelDetailsPage = () => {
         trainingId={data?.published_training as number}
         datasetId={data?.dataset as number}
       />
-
 
       <BackButton className="mt-6" />
       <div className="my-12 flex flex-col gap-y-20">

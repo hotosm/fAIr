@@ -4,7 +4,7 @@ import {
   TMS_LAYER_ID,
 } from "@/utils";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { RefObject, useMemo, } from "react";
+import { RefObject, useMemo } from "react";
 import { BASEMAPS, DrawingModes } from "@/enums";
 
 import { ZoomControls } from "@/components/map/controls/zoom-control";
@@ -17,7 +17,7 @@ import { TileBoundaries } from "@/components/map/layers/tile-boundaries";
 import { OpenAerialMap } from "@/components/map/layers/open-aerial-map";
 import { Basemaps } from "@/components/map/layers/basemaps";
 import { ControlsPosition } from "@/enums";
-import { LngLatBoundsLike, Map, } from "maplibre-gl";
+import { LngLatBoundsLike, Map } from "maplibre-gl";
 import { FitToBounds } from "./controls";
 import { TerraDraw } from "terra-draw";
 
@@ -38,16 +38,16 @@ type MapComponentProps = {
   oamTileJSONURL?: string;
   basemaps?: boolean;
   fitToBounds?: boolean;
-  bounds?: LngLatBoundsLike
+  bounds?: LngLatBoundsLike;
   // layers?: LayerSpecification[]
   // sources?: { id: string; spec: SourceSpecification }[],
-  onMapLoad?: (map: Map) => void
-  mapContainerRef?: RefObject<HTMLDivElement> | null
-  map: Map | null
+  onMapLoad?: (map: Map) => void;
+  mapContainerRef?: RefObject<HTMLDivElement> | null;
+  map: Map | null;
   terraDraw?: TerraDraw | undefined;
-  currentZoom?: number
-  drawingMode?: DrawingModes
-  setDrawingMode?: (newMode: DrawingModes) => void
+  currentZoom?: number;
+  drawingMode?: DrawingModes;
+  setDrawingMode?: (newMode: DrawingModes) => void;
 };
 
 export const MapComponent: React.FC<MapComponentProps> = ({
@@ -70,10 +70,8 @@ export const MapComponent: React.FC<MapComponentProps> = ({
   terraDraw,
   currentZoom,
   drawingMode,
-  setDrawingMode
+  setDrawingMode,
 }) => {
-
-
   const layerControlData = useMemo(() => {
     const layers = [
       ...layerControlLayers,
@@ -83,35 +81,45 @@ export const MapComponent: React.FC<MapComponentProps> = ({
     ];
     const baseLayers = basemaps
       ? [
-        { value: BASEMAPS.OSM, subLayer: OSM_BASEMAP_LAYER_ID },
-        {
-          value: BASEMAPS.GOOGLE_SATELLITE,
-          subLayer: GOOGLE_SATELLITE_BASEMAP_LAYER_ID,
-        },
-      ]
+          { value: BASEMAPS.OSM, subLayer: OSM_BASEMAP_LAYER_ID },
+          {
+            value: BASEMAPS.GOOGLE_SATELLITE,
+            subLayer: GOOGLE_SATELLITE_BASEMAP_LAYER_ID,
+          },
+        ]
       : [];
     return { layers, baseLayers };
   }, [layerControlLayers, openAerialMap, basemaps]);
-
 
   const Controls = useMemo(() => {
     if (!map) return;
     return (
       <>
         <div
-          className={`absolute top-5 ${controlsPosition === ControlsPosition.TOP_RIGHT
-            ? "right-3"
-            : "left-3"
-            } z-[1] flex flex-col gap-y-[1px]`}
+          className={`absolute top-5 ${
+            controlsPosition === ControlsPosition.TOP_RIGHT
+              ? "right-3"
+              : "left-3"
+          } z-[1] flex flex-col gap-y-[1px]`}
         >
-          {currentZoom ? <ZoomControls map={map} currentZoom={currentZoom} /> : null}
+          {currentZoom ? (
+            <ZoomControls map={map} currentZoom={currentZoom} />
+          ) : null}
           {geolocationControl && <GeolocationControl map={map} />}
-          {drawControl && terraDraw && drawingMode && setDrawingMode && <DrawControl terraDraw={terraDraw} drawingMode={drawingMode} setDrawingMode={setDrawingMode} />}
+          {drawControl && terraDraw && drawingMode && setDrawingMode && (
+            <DrawControl
+              terraDraw={terraDraw}
+              drawingMode={drawingMode}
+              setDrawingMode={setDrawingMode}
+            />
+          )}
         </div>
         <div
           className={`absolute top-5 right-3 z-[1] items-center flex gap-x-4`}
         >
-          {showCurrentZoom && currentZoom ? <ZoomLevel currentZoom={currentZoom} /> : null}
+          {showCurrentZoom && currentZoom ? (
+            <ZoomLevel currentZoom={currentZoom} />
+          ) : null}
           {layerControl && (
             <LayerControl
               basemaps={layerControlData?.baseLayers}
@@ -132,9 +140,8 @@ export const MapComponent: React.FC<MapComponentProps> = ({
     showCurrentZoom,
     layerControlData,
     currentZoom,
-    drawingMode && setDrawingMode
+    drawingMode && setDrawingMode,
   ]);
-
 
   return (
     <div className={`h-full relative w-full`} ref={mapContainerRef}>
@@ -142,10 +149,17 @@ export const MapComponent: React.FC<MapComponentProps> = ({
       {map && showLegend && <Legend map={map} />}
       {/* Order according to how they'll be rendered */}
       {basemaps && <Basemaps map={map} />}
-      {openAerialMap && oamTileJSONURL && <OpenAerialMap tileJSONURL={oamTileJSONURL} map={map} />}
+      {openAerialMap && oamTileJSONURL && (
+        <OpenAerialMap tileJSONURL={oamTileJSONURL} map={map} />
+      )}
       {showTileBoundary && <TileBoundaries map={map} />}
-      {fitToBounds && map &&
-        <FitToBounds onClick={() => map?.fitBounds(bounds as LngLatBoundsLike, { padding: 10 })} />}
+      {fitToBounds && map && (
+        <FitToBounds
+          onClick={() =>
+            map?.fitBounds(bounds as LngLatBoundsLike, { padding: 10 })
+          }
+        />
+      )}
       {children}
     </div>
   );

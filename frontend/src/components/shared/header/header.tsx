@@ -1,5 +1,5 @@
 import React from "react";
-import styles from './header.module.css'
+import styles from "./header.module.css";
 
 export const Header = React.memo(({ title }: { title: string }) => {
   return (
@@ -15,8 +15,7 @@ export const Header = React.memo(({ title }: { title: string }) => {
       </div>
     </header>
   );
-})
-
+});
 
 const Rectangles = React.memo(() => {
   return (
@@ -27,4 +26,4 @@ const Rectangles = React.memo(() => {
       <div className="absolute -bottom-2 w-24 h-10 -left-24 bg-secondary"></div>
     </div>
   );
-})
+});

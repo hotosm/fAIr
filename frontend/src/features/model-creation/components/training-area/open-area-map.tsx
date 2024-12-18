@@ -9,7 +9,13 @@ import { useCallback, useEffect } from "react";
 import { MODEL_CREATION_CONTENT, truncateString } from "@/utils";
 import { Map } from "maplibre-gl";
 
-const OpenAerialMap = ({ tileJSONURL, map }: { tileJSONURL: string, map: Map | null }) => {
+const OpenAerialMap = ({
+  tileJSONURL,
+  map,
+}: {
+  tileJSONURL: string;
+  map: Map | null;
+}) => {
   const { handleChange } = useModelsContext();
 
   const { isPending, data, isError } = useGetTMSTileJSON(tileJSONURL);

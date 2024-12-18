@@ -7,7 +7,6 @@ import { TOAST_NOTIFICATIONS } from "@/constants";
 import { Map } from "maplibre-gl";
 
 export const GeolocationControl = ({ map }: { map: Map | null }) => {
-
   const handleGeolocationClick = useCallback(() => {
     if (!map) return;
 

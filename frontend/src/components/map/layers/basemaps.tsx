@@ -5,7 +5,6 @@ import {
 } from "@/utils";
 import { Map } from "maplibre-gl";
 
-
 export const Basemaps = ({ map }: { map: Map | null }) => {
   useMapLayers(
     [
@@ -34,7 +33,7 @@ export const Basemaps = ({ map }: { map: Map | null }) => {
         },
       },
     ],
-    map
+    map,
   );
 
   return null;

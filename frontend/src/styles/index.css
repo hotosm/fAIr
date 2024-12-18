@@ -165,8 +165,8 @@ sl-alert.success::part(base) {
     @apply -mx-0 lg:-mx-0;
   }
 
-  .static-page-layout{
-    @apply flex flex-col gap-y-20 md:gap-y-40 mb-48
+  .static-page-layout {
+    @apply flex flex-col gap-y-20 md:gap-y-40 mb-48;
   }
 }
 
