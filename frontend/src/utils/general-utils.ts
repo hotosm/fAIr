@@ -162,6 +162,7 @@ export const openInJOSM = async (
   bounds: BBOX,
   features?: Feature[],
 ) => {
+  // move to env variable
   const JOSM_PORT = "http://127.0.0.1:8111/";
 
   try {

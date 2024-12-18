@@ -7,7 +7,7 @@ import { aboutPageContent } from "@/constants";
 
 export const AboutPage = () => {
   return (
-    <main className="flex flex-col gap-y-20 md:gap-y-40 mb-48">
+    <main className="static-page-layout">
       <Head title={aboutPageContent.pageTitle} />
       <Header title={aboutPageContent.pageHeader} />
       <section className="flex flex-col md:flex-row gap-y-20 justify-between items-center">
@@ -29,7 +29,6 @@ export const AboutPage = () => {
           height="100%"
         />
       </section>
-
       <section className="flex flex-col-reverse md:flex-row items-center md:justify-between w-full">
         <div className="basis-2/4 flex gap-y-4 flex-col">
           <p className="text-body-2base md:text-body-2 text-dark">

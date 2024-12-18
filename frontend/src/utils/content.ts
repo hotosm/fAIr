@@ -242,7 +242,8 @@ export const APP_CONTENT = {
         },
         {
           title: "privacy policy",
-          route: "#",
+          route: "https://www.hotosm.org/privacy",
+          isExternalLink: true
         },
       ],
     },

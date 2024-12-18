@@ -135,7 +135,7 @@ export const ModelsPage = () => {
 
   return (
     <>
-      <Head title="Explore fAIr Models" />
+      <Head title="Explore Models" />
       <MobileModelFiltersDialog
         isOpened={isOpened}
         closeDialog={closeDialog}

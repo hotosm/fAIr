@@ -179,3 +179,34 @@ export type TLearnPageContent = {
   videos: TVideo[];
 };
 // Learn page content types ends.
+
+// Resources page content types starts.
+
+
+export type TArticle = {
+  image: string,
+  title: string
+  snippet: string
+  link: string
+}
+export type TResourcesPageContent = {
+  pageTitle: string;
+  pageHeader: string;
+  hero: {
+    firstSegment: string
+    secondSegment: string
+    thirdSegment: string
+  }
+  faqs: {
+    title: string,
+    faqs: {
+      question: string;
+      answer: string
+    }[]
+  }
+  articles: {
+    title: string
+    articles: TArticle[]
+  }
+}
+// Resources page content types ends.

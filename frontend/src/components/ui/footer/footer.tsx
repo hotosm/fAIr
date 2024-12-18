@@ -66,7 +66,8 @@ const Footer = () => {
                     href={route.route}
                     title={route.title}
                     className="!text-white"
-                    nativeAnchor={false}
+                    nativeAnchor={route.isExternalLink}
+                    blank={route.isExternalLink}
                   >
                     {route.title}
                   </Link>

@@ -4,7 +4,7 @@ import CoreFeatures from "@/components/landing/core-features/core-features";
 import Corevalues from "@/components/landing/core-values/core-values";
 import CallToAction from "@/components/landing/cta/cta";
 import TheFAIRProcess from "@/components/shared/fair-process/fair-process";
-import FAQs from "@/components/landing/faqs/faqs";
+import { FAQs } from "@/components/shared";
 import Kpi from "@/components/landing/kpi/kpi";
 import TaglineBanner from "@/components/landing/tagline/tagline";
 import { Head } from "@/components/seo";
@@ -19,7 +19,9 @@ export const LandingPage = () => {
       <TheFAIRProcess />
       <CoreFeatures />
       <Corevalues />
-      <FAQs />
+      <section className="px-large md:px-extra-large">
+        <FAQs />
+      </section>
       <TaglineBanner />
       <CallToAction />
     </>

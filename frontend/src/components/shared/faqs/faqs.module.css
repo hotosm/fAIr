@@ -1,6 +1,4 @@
-.FAQS {
-  padding: 0 var(--hot-fair-spacing-large);
-}
+
 
 .heading {
   width: auto;
@@ -11,7 +9,7 @@
   background-color: var(--hot-fair-color-primary);
   color: var(--hot-fair-color-white);
   display: inline-block;
-  padding: var(--sl-spacing-x-small) var(--sl-spacing-medium);
+  padding: var(--sl-spacing-x-small) var(--sl-spacing-2x-large);
 }
 
 .seeMore {

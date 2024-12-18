@@ -1,5 +1,5 @@
 import { TheFAIRProcess } from "@/components/landing";
-import { Header } from "@/components/shared";
+import { Header, SectionHeader } from "@/components/shared";
 import { Image } from "@/components/ui/image";
 import fAIrValues from "@/assets/svgs/fair_values.svg";
 import { ExternalLinkIcon, YouTubePlayCircleIcon } from "@/components/ui/icons";
@@ -14,7 +14,7 @@ import { TGuide, TVideo } from "@/types";
 
 export const LearnPage = () => {
   return (
-    <main className="flex flex-col gap-y-20 md:gap-y-40 mb-48">
+    <main className="static-page-layout">
       <Head title={learnPageContent.pageTitle} />
       <Header title={learnPageContent.pageHeader} />
       <section className="flex flex-col md:flex-row gap-y-20 justify-between items-center">
@@ -69,13 +69,6 @@ export const LearnPage = () => {
   );
 };
 
-const SectionHeader = ({ title }: { title: string }) => {
-  return (
-    <h2 className="text-title-2 lg:text-title-1 font-semibold mb-12">
-      {title}
-    </h2>
-  );
-};
 
 const GuideCard = ({ guide }: { guide: TGuide }) => {
   return (
