@@ -183,7 +183,7 @@ export const openInJOSM = async (
         // @ts-expect-error bad type definition
         features: features,
       });
-      const loadurl = new URL(`${JOSM_PORT}load_and_zoom`);
+      const loadurl = new URL(`${JOSM_REMOTE_URL}load_and_zoom`);
       loadurl.searchParams.set("bottom", String(bounds[1]));
       loadurl.searchParams.set("top", String(bounds[3]));
       loadurl.searchParams.set("left", String(bounds[0]));
@@ -201,7 +201,7 @@ export const openInJOSM = async (
           type: "FeatureCollection",
           features: features as Feature[],
         });
-        const loadData = new URL(`${JOSM_PORT}load_data`);
+        const loadData = new URL(`${JOSM_REMOTE_URL}load_data`);
         loadData.searchParams.set("new_layer", "true");
         loadData.searchParams.set("data", `${_data}`);
         const response = await fetch(loadData);

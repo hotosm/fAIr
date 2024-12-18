@@ -26,7 +26,7 @@ import { TOAST_NOTIFICATIONS } from "@/constants";
 import JOSMLogo from "@/assets/svgs/josm_logo.svg";
 import OSMLogo from "@/assets/svgs/osm_logo.svg";
 import { ToolTip } from "@/components/ui/tooltip";
-import { BBOX, GeoJSONType, Geometry, TTrainingAreaFeature } from "@/types";
+import { GeoJSONType, Geometry, TTrainingAreaFeature } from "@/types";
 import {
   useCreateTrainingLabelsForAOI,
   useDeleteTrainingArea,
@@ -39,7 +39,7 @@ import FileUploadDialog from "../dialogs/file-upload-dialog";
 import { useDialog } from "@/hooks/use-dialog";
 import { geojsonToWKT } from "@terraformer/wkt";
 import { Map } from "maplibre-gl";
-import bbox from "@turf/bbox";
+
 
 const TrainingAreaItem: React.FC<
   TTrainingAreaFeature & { datasetId: number; offset: number; map: Map | null }
@@ -227,9 +227,9 @@ const TrainingAreaItem: React.FC<
               ? "Fetching labels..."
               : trainingArea.properties.label_fetched !== null
                 ? truncateString(
-                    `Fetched ${timeSinceLabelFetch === "0 sec" ? "just now" : `${timeSinceLabelFetch} ago`}`,
-                    20,
-                  )
+                  `Fetched ${timeSinceLabelFetch === "0 sec" ? "just now" : `${timeSinceLabelFetch} ago`}`,
+                  20,
+                )
                 : "No labels yet"}
           </p>
         </div>
