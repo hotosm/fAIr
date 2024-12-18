@@ -19,9 +19,7 @@ export const LandingPage = () => {
       <TheFAIRProcess />
       <CoreFeatures />
       <Corevalues />
-      <section className="px-large md:px-extra-large">
-        <FAQs />
-      </section>
+      <FAQs />
       <TaglineBanner />
       <CallToAction />
     </>

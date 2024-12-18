@@ -72,7 +72,7 @@
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
-    padding: var(--sl-spacing-large);
+    padding: var(--sl-spacing-4x-large);
     background-image: url("../../../assets/images/header_bg.jpg");
     background-size: cover;
     background-position: center;

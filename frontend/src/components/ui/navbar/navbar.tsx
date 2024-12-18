@@ -47,7 +47,7 @@ const NavBar = () => {
           </div>
         </div>
       </Drawer>
-      <nav className={styles.nav}>
+      <nav className={`${styles.nav} app-padding`}>
         <NavLogo />
         <div>
           <NavBarLinks className={styles.webNavLinks} />

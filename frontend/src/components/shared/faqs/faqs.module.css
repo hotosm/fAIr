@@ -1,7 +1,11 @@
+.FAQS {
+  padding: 0 var(--sl-spacing-large);
+}
+
 .heading {
   width: auto;
   text-align: center;
-  font-size: var(--hot-fair-font-size-title-2);
+  font-size: var(--hot-fair-font-size-title-4);
   font-weight: var(--hot-fair-font-weight-bold);
   text-transform: uppercase;
   background-color: var(--hot-fair-color-primary);
@@ -27,9 +31,13 @@
 
 /* md: */
 @media (min-width: 768px) {
+  .FAQS {
+    padding: 0 var(--hot-fair-spacing-extra-large);
+  }
+
   .heading {
     max-width: 218px;
-    font-size: var(--hot-fair-font-size-title-1);
+    font-size: var(--hot-fair-font-size-title-2);
     font-weight: var(--hot-fair-font-weight-semibold);
   }
 

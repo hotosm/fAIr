@@ -9,8 +9,8 @@ import { APPLICATION_ROUTES } from "@/utils";
 const Header = () => {
   return (
     <header className={styles.headerContainer}>
-      <main className={styles.jumbotronContainer}>
-        <div className={styles.jumbotronContentContainer}>
+      <main className={`${styles.jumbotronContainer}`}>
+        <div className={`${styles.jumbotronContentContainer}`}>
           <div className={styles.jumbotronText}>
             <h1>{APP_CONTENT.homepage.jumbotronTitle}</h1>
             <p>{APP_CONTENT.homepage.jumbotronHeadline}</p>

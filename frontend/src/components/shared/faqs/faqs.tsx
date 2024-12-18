@@ -5,6 +5,7 @@ import { Link } from "@/components/ui/link";
 import { APPLICATION_ROUTES } from "@/utils";
 import { TFAQs } from "@/types";
 import React from "react";
+import { ChevronDownIcon } from "@/components/ui/icons";
 
 export const FAQs = React.memo(
   ({
@@ -36,9 +37,9 @@ export const FAQs = React.memo(
               className="!capitalize"
               nativeAnchor={false}
             >
-              <h3 className={styles.seeMore}>
+              <h3 className={`${styles.seeMore} flex items-center gap-x-2`}>
                 {APP_CONTENT.homepage.faqs.cta}
-                <span></span>&gt;
+                <ChevronDownIcon className="w-3 -rotate-90" />
               </h3>
             </Link>
           )}
