@@ -242,10 +242,7 @@ def ramp_model_training(
     if os.path.exists(output_path):
         shutil.rmtree(output_path)
     shutil.copytree(final_model_path, os.path.join(output_path, "checkpoint.tf"))
-    shutil.copyfile(
-        os.path.join(os.path.dirname(final_model_path), "checkpoint.tflite"),
-        os.path.join(output_path, "checkpoint.tflite"),
-    )
+
     shutil.copytree(preprocess_output, os.path.join(output_path, "preprocessed"))
     shutil.copytree(
         model_input_image_path, os.path.join(output_path, "preprocessed", "input")
@@ -253,6 +250,19 @@ def ramp_model_training(
 
     graph_output_path = f"{base_path}/train/graphs"
     shutil.copytree(graph_output_path, os.path.join(output_path, "graphs"))
+
+    model = tf.keras.models.load_model(os.path.join(output_path, "checkpoint.tf"))
+
+    model.save(os.path.join(output_path, "checkpoint.h5"))
+
+    logger.info(model.inputs)
+    logger.info(model.outputs)
+
+    converter = tf.lite.TFLiteConverter.from_keras_model(model)
+    tflite_model = converter.convert()
+
+    with open(os.path.join(output_path, "checkpoint.tflite"), "wb") as f:
+        f.write(tflite_model)
 
     with open(os.path.join(output_path, "labels.geojson"), "w", encoding="utf-8") as f:
         f.write(json.dumps(serialized_field.data))
