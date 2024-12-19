@@ -546,20 +546,24 @@ class RawdataApiAOIView(APIView):
             status: Success/Failed
         """
         obj = get_object_or_404(AOI, id=aoi_id)
-        try:
-            obj.label_status = 0
-            obj.save()
-            file_download_url = request_rawdata(obj.geom.geojson)
-            process_rawdata(file_download_url, aoi_id)
-            obj.label_status = 1
-            obj.label_fetched = datetime.utcnow()
-            obj.save()
-            return Response("Success", status=status.HTTP_201_CREATED)
-        except Exception as ex:
-            obj.label_status = -1
-            obj.save()
-            # raise ex
-            return Response("OSM Fetch Failed", status=500)
+        async_task("core.views.process_rawdata_task", obj.geom.geojson, aoi_id)
+        return Response("Processing started", status=status.HTTP_202_ACCEPTED)
+
+
+def process_rawdata_task(geom_geojson, aoi_id):
+    obj = get_object_or_404(AOI, id=aoi_id)
+    try:
+        obj.label_status = AOI.DownloadStatus.RUNNING
+        obj.save()
+        file_download_url = request_rawdata(geom_geojson)
+        process_rawdata(file_download_url, aoi_id)
+        obj.label_status = AOI.DownloadStatus.DOWNLOADED
+        obj.label_fetched = datetime.utcnow()
+        obj.save()
+    except Exception as ex:
+        obj.label_status = AOI.DownloadStatus.NOT_DOWNLOADED
+        obj.save()
+        raise ex
 
 
 @api_view(["GET"])
