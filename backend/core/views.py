@@ -372,26 +372,7 @@ class LabelViewSet(viewsets.ModelViewSet):
     )
     filterset_fields = ["aoi", "aoi__dataset"]
 
-    parser_classes = (MultiPartParser, FormParser)
-
     def create(self, request, *args, **kwargs):
-        geojson_file = request.FILES.get("geojson_file")
-        if geojson_file:
-            try:
-                geojson_data = json.load(geojson_file)
-                self.validate_geojson(geojson_data)
-                async_task(
-                    "core.views.process_labels_geojson",
-                    geojson_data,
-                    request.data.get("aoi"),
-                )
-                return Response(
-                    {"status": "GeoJSON file is being processed"},
-                    status=status.HTTP_202_ACCEPTED,
-                )
-            except (json.JSONDecodeError, ValidationError) as e:
-                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
         aoi_id = request.data.get("aoi")
         geom = request.data.get("geom")
 
@@ -406,6 +387,33 @@ class LabelViewSet(viewsets.ModelViewSet):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class LabelUploadView(APIView):
+    authentication_classes = [OsmAuthentication]
+    permission_classes = [IsOsmAuthenticated]
+    parser_classes = (MultiPartParser, FormParser)
+
+    def post(self, request, aoi_id, *args, **kwargs):
+        geojson_file = request.FILES.get("geojson_file")
+        if geojson_file:
+            try:
+                geojson_data = json.load(geojson_file)
+                self.validate_geojson(geojson_data)
+                async_task(
+                    "core.views.process_labels_geojson",
+                    geojson_data,
+                    aoi_id,
+                )
+                return Response(
+                    {"status": "GeoJSON file is being processed"},
+                    status=status.HTTP_202_ACCEPTED,
+                )
+            except (json.JSONDecodeError, ValidationError) as e:
+                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": "No GeoJSON file provided"}, status=status.HTTP_400_BAD_REQUEST
+        )
 
     def validate_geojson(self, geojson_data):
         if geojson_data.get("type") != "FeatureCollection":
@@ -427,9 +435,8 @@ class LabelViewSet(viewsets.ModelViewSet):
             )
 
         # Validate the first feature with the serializer
-        aoi_id = self.request.data.get("aoi")
         label_data = {
-            "aoi": aoi_id,
+            "aoi": self.kwargs.get("aoi_id"),
             "geom": first_feature["geometry"],
             **first_feature["properties"],
         }
@@ -447,7 +454,12 @@ def process_labels_geojson(geojson_data, aoi_id):
             geom = feature["geometry"]
             properties = feature["properties"]
             label_data = {"aoi": aoi_id, "geom": geom, **properties}
-            serializer = LabelSerializer(data=label_data)
+
+            existing_label = Label.objects.filter(aoi=aoi_id, geom=geom).first()
+            if existing_label:
+                serializer = LabelSerializer(existing_label, data=label_data)
+            else:
+                serializer = LabelSerializer(data=label_data)
             if serializer.is_valid():
                 serializer.save()
 
