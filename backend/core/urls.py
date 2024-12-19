@@ -53,7 +53,7 @@ router.register(r"banner", BannerViewSet)
 urlpatterns = [
     path("", include(router.urls)),
     path("label/osm/fetch/<int:aoi_id>/", RawdataApiAOIView.as_view()),
-    path("labels/upload/<int:aoi_id>/", LabelUploadView.as_view(), name="label-upload"),
+    path("label/upload/<int:aoi_id>/", LabelUploadView.as_view(), name="label-upload"),
     path(
         "label/feedback/osm/fetch/<int:feedbackaoi_id>/",
         RawdataApiFeedbackView.as_view(),
