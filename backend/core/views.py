@@ -381,7 +381,7 @@ class LabelViewSet(viewsets.ModelViewSet):
                 geojson_data = json.load(geojson_file)
                 self.validate_geojson(geojson_data)
                 async_task(
-                    "core.views.process_aoi_geojson",
+                    "core.views.process_labels_geojson",
                     geojson_data,
                     request.data.get("aoi"),
                 )
@@ -438,14 +438,27 @@ class LabelViewSet(viewsets.ModelViewSet):
             raise ValidationError(serializer.errors)
 
 
-def process_aoi_geojson(geojson_data, aoi_id):
-    for feature in geojson_data["features"]:
-        geom = feature["geometry"]
-        properties = feature["properties"]
-        label_data = {"aoi": aoi_id, "geom": geom, **properties}
-        serializer = LabelSerializer(data=label_data)
-        if serializer.is_valid():
-            serializer.save()
+def process_labels_geojson(geojson_data, aoi_id):
+    obj = get_object_or_404(AOI, id=aoi_id)
+    try:
+        obj.label_status = AOI.DownloadStatus.RUNNING
+        obj.save()
+        for feature in geojson_data["features"]:
+            geom = feature["geometry"]
+            properties = feature["properties"]
+            label_data = {"aoi": aoi_id, "geom": geom, **properties}
+            serializer = LabelSerializer(data=label_data)
+            if serializer.is_valid():
+                serializer.save()
+
+        obj.label_status = AOI.DownloadStatus.DOWNLOADED
+        obj.label_fetched = datetime.utcnow()
+        obj.save()
+        return Response("Success", status=status.HTTP_201_CREATED)
+    except Exception as ex:
+        obj.label_status = AOI.DownloadStatus.NOT_DOWNLOADED
+        obj.save()
+        logging.error(ex)
 
 
 class ApprovedPredictionsViewSet(viewsets.ModelViewSet):
