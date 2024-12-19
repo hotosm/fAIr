@@ -103,6 +103,7 @@ INSTALLED_APPS = [
     "drf_yasg",
     "celery",
     "django_celery_results",
+    "django_q",
 ]
 
 MIDDLEWARE = [
@@ -227,8 +228,11 @@ CELERY_RESULT_BACKEND = env(
 Q_CLUSTER = {
     "name": "DjangORM",
     "workers": 4,
-    "recycle": 500,
-    "timeout": 60 * 10,  # number of seconds
+    "retry": 60 * 6,
+    "max_retires": 1,
+    "recycle": 50,
+    "queue_limit": 50,
+    "timeout": 60 * 5,  # number of seconds
     "label": "Django Q",
     "redis": CELERY_BROKER_URL,
 }
