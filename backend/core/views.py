@@ -437,6 +437,7 @@ class LabelUploadView(APIView):
         # Validate the first feature with the serializer
         first_feature["properties"]["aoi"] = self.kwargs.get("aoi_id")
         serializer = LabelSerializer(data=first_feature)
+
         if not serializer.is_valid():
             raise ValidationError(serializer.errors)
 
@@ -447,16 +448,8 @@ def process_labels_geojson(geojson_data, aoi_id):
         obj.label_status = AOI.DownloadStatus.RUNNING
         obj.save()
         for feature in geojson_data["features"]:
-            geom = feature["geometry"]
-            # properties = feature["properties"]
             feature["properties"]["aoi"] = aoi_id
-            # label_data = {"aoi": aoi_id, "geom": geom, **properties}
-
-            existing_label = Label.objects.filter(aoi=aoi_id, geom=geom).first()
-            if existing_label:
-                serializer = LabelSerializer(existing_label, data=feature)
-            else:
-                serializer = LabelSerializer(data=feature)
+            serializer = LabelSerializer(data=feature)
             if serializer.is_valid():
                 serializer.save()
 
