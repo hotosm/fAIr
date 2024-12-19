@@ -224,6 +224,16 @@ CELERY_RESULT_BACKEND = env(
 )  # if you don't want to use redis pass 'django-db' to use app db itself
 
 
+Q_CLUSTER = {
+    "name": "DjangORM",
+    "workers": 4,
+    "recycle": 500,
+    "timeout": 60 * 10,  # number of seconds
+    "label": "Django Q",
+    "redis": CELERY_BROKER_URL,
+}
+
+
 AUTH_USER_MODEL = "login.OsmUser"
 
 SWAGGER_SETTINGS = {

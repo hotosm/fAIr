@@ -30,6 +30,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_cookie, vary_on_headers
 from django_filters.rest_framework import DjangoFilterBackend
+from django_q.tasks import async_task
 from drf_yasg.utils import swagger_auto_schema
 from geojson2osm import geojson2osm
 from login.authentication import OsmAuthentication
@@ -39,6 +40,7 @@ from rest_framework import decorators, filters, serializers, status, viewsets
 from rest_framework.decorators import api_view
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListAPIView
+from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_gis.filters import InBBoxFilter, TMSTileFilter
@@ -370,26 +372,80 @@ class LabelViewSet(viewsets.ModelViewSet):
     )
     filterset_fields = ["aoi", "aoi__dataset"]
 
+    parser_classes = (MultiPartParser, FormParser)
+
     def create(self, request, *args, **kwargs):
+        geojson_file = request.FILES.get("geojson_file")
+        if geojson_file:
+            try:
+                geojson_data = json.load(geojson_file)
+                self.validate_geojson(geojson_data)
+                async_task(
+                    "core.views.process_aoi_geojson",
+                    geojson_data,
+                    request.data.get("aoi"),
+                )
+                return Response(
+                    {"status": "GeoJSON file is being processed"},
+                    status=status.HTTP_202_ACCEPTED,
+                )
+            except (json.JSONDecodeError, ValidationError) as e:
+                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
         aoi_id = request.data.get("aoi")
         geom = request.data.get("geom")
 
-        # Check if a label with the same AOI and geometry exists
         existing_label = Label.objects.filter(aoi=aoi_id, geom=geom).first()
 
         if existing_label:
-            # If it exists, update the existing label
             serializer = LabelSerializer(existing_label, data=request.data)
         else:
-            # If it doesn't exist, create a new label
             serializer = LabelSerializer(data=request.data)
 
         if serializer.is_valid():
             serializer.save()
-            return Response(
-                serializer.data, status=status.HTTP_200_OK
-            )  # 200 for update, 201 for create
+            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def validate_geojson(self, geojson_data):
+        if geojson_data.get("type") != "FeatureCollection":
+            raise ValidationError("Invalid GeoJSON type. Expected 'FeatureCollection'.")
+        if "features" not in geojson_data or not isinstance(
+            geojson_data["features"], list
+        ):
+            raise ValidationError("Invalid GeoJSON format. 'features' must be a list.")
+        if not geojson_data["features"]:
+            raise ValidationError("GeoJSON 'features' list is empty.")
+
+        # Validate the first feature
+        first_feature = geojson_data["features"][0]
+        if first_feature.get("type") != "Feature":
+            raise ValidationError("Invalid GeoJSON feature type. Expected 'Feature'.")
+        if "geometry" not in first_feature or "properties" not in first_feature:
+            raise ValidationError(
+                "Invalid GeoJSON feature format. 'geometry' and 'properties' are required."
+            )
+
+        # Validate the first feature with the serializer
+        aoi_id = self.request.data.get("aoi")
+        label_data = {
+            "aoi": aoi_id,
+            "geom": first_feature["geometry"],
+            **first_feature["properties"],
+        }
+        serializer = LabelSerializer(data=label_data)
+        if not serializer.is_valid():
+            raise ValidationError(serializer.errors)
+
+
+def process_aoi_geojson(geojson_data, aoi_id):
+    for feature in geojson_data["features"]:
+        geom = feature["geometry"]
+        properties = feature["properties"]
+        label_data = {"aoi": aoi_id, "geom": geom, **properties}
+        serializer = LabelSerializer(data=label_data)
+        if serializer.is_valid():
+            serializer.save()
 
 
 class ApprovedPredictionsViewSet(viewsets.ModelViewSet):
