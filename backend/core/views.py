@@ -435,12 +435,8 @@ class LabelUploadView(APIView):
             )
 
         # Validate the first feature with the serializer
-        label_data = {
-            "aoi": self.kwargs.get("aoi_id"),
-            "geom": first_feature["geometry"],
-            **first_feature["properties"],
-        }
-        serializer = LabelSerializer(data=label_data)
+        first_feature["properties"]["aoi"] = self.kwargs.get("aoi_id")
+        serializer = LabelSerializer(data=first_feature)
         if not serializer.is_valid():
             raise ValidationError(serializer.errors)
 
@@ -452,21 +448,21 @@ def process_labels_geojson(geojson_data, aoi_id):
         obj.save()
         for feature in geojson_data["features"]:
             geom = feature["geometry"]
-            properties = feature["properties"]
-            label_data = {"aoi": aoi_id, "geom": geom, **properties}
+            # properties = feature["properties"]
+            feature["properties"]["aoi"] = aoi_id
+            # label_data = {"aoi": aoi_id, "geom": geom, **properties}
 
             existing_label = Label.objects.filter(aoi=aoi_id, geom=geom).first()
             if existing_label:
-                serializer = LabelSerializer(existing_label, data=label_data)
+                serializer = LabelSerializer(existing_label, data=feature)
             else:
-                serializer = LabelSerializer(data=label_data)
+                serializer = LabelSerializer(data=feature)
             if serializer.is_valid():
                 serializer.save()
 
         obj.label_status = AOI.DownloadStatus.DOWNLOADED
         obj.label_fetched = datetime.utcnow()
         obj.save()
-        return Response("Success", status=status.HTTP_201_CREATED)
     except Exception as ex:
         obj.label_status = AOI.DownloadStatus.NOT_DOWNLOADED
         obj.save()
