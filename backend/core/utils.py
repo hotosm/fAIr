@@ -11,13 +11,128 @@ from uuid import uuid4
 from xml.dom import ValidationErr
 from zipfile import ZipFile
 
+import boto3
 import requests
+from botocore.exceptions import ClientError, NoCredentialsError
 from django.conf import settings
+from django.http import HttpResponseRedirect
 from gpxpy.gpx import GPX, GPXTrack, GPXTrackSegment, GPXWaypoint
 from tqdm import tqdm
 
 from .models import AOI, FeedbackAOI, FeedbackLabel, Label
 from .serializers import FeedbackLabelSerializer, LabelSerializer
+
+
+def get_s3_client():
+    if settings.AWS_ACCESS_KEY_ID and settings.AWS_SECRET_ACCESS_KEY:
+        return boto3.client(
+            "s3",
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+            region_name=settings.AWS_REGION,
+        )
+    else:
+        return boto3.client("s3")
+
+
+s3_client = get_s3_client()
+
+
+def s3_object_exists(bucket_name, key):
+    """Check if an object exists in S3."""
+    try:
+        s3_client.head_object(Bucket=bucket_name, Key=key)
+        return True
+    except ClientError as e:
+        if e.response["Error"]["Code"] == "404":
+            return False
+        raise
+
+
+def download_s3_file(bucket_name, s3_key):
+    """Generate a presigned URL for downloading a file from S3."""
+    try:
+        presigned_url = s3_client.generate_presigned_url(
+            "get_object",
+            Params={"Bucket": bucket_name, "Key": s3_key},
+            ExpiresIn=settings.PRESIGNED_URL_EXPIRY,
+        )
+        return presigned_url
+    except ClientError as e:
+        return None
+
+
+def get_s3_metadata(bucket_name, key):
+    """Retrieve metadata for an S3 object."""
+    try:
+        response = s3_client.head_object(Bucket=bucket_name, Key=key)
+        return {"size": response.get("ContentLength")}
+    except Exception as e:
+        raise Exception(f"Error fetching metadata: {str(e)}")
+
+
+def get_s3_directory_size_and_length(bucket_name, prefix):
+    """
+    Get the total size and number of files for a directory in S3.
+
+    Args:
+        bucket_name (str): The S3 bucket name.
+        prefix (str): The prefix (path) to the directory.
+
+    Returns:
+        tuple: (size, length) - size in bytes, length as number of files.
+    """
+    total_size = 0
+    total_length = 0
+    paginator = s3_client.get_paginator("list_objects_v2")
+
+    for page in paginator.paginate(Bucket=bucket_name, Prefix=prefix):
+        total_length += len(page.get("Contents", []))
+
+        total_size += sum(item["Size"] for item in page.get("Contents", []))
+
+    return total_size, total_length
+
+
+def get_s3_directory(bucket_name, prefix):
+    """List objects in an S3 directory."""
+    data = {"file": {}, "dir": {}}
+    paginator = s3_client.get_paginator("list_objects_v2")
+    for page in paginator.paginate(Bucket=bucket_name, Prefix=prefix, Delimiter="/"):
+        for obj in page.get("Contents", []):
+            key = obj["Key"]
+            data["file"][os.path.basename(key)] = {"size": obj["Size"]}
+        for prefix_obj in page.get("CommonPrefixes", []):
+            sub_prefix = prefix_obj["Prefix"]
+            sub_dir_size, sub_dir_len = get_s3_directory_size_and_length(
+                bucket_name, sub_prefix
+            )
+
+            data["dir"][os.path.basename(sub_prefix.rstrip("/"))] = {
+                "size": sub_dir_size,
+                "len": sub_dir_len,
+            }
+    return data
+
+
+def get_local_metadata(base_dir):
+    """Retrieve metadata for local files or directories."""
+    data = {"file": {}, "dir": {}}
+    if os.path.isdir(base_dir):
+        for entry in os.scandir(base_dir):
+            if entry.is_file():
+                data["file"][entry.name] = {"size": entry.stat().st_size}
+            elif entry.is_dir():
+                subdir_size = get_dir_size(entry.path)
+                data["dir"][entry.name] = {
+                    "len": sum(1 for _ in os.scandir(entry.path)),
+                    "size": subdir_size,
+                }
+    elif os.path.isfile(base_dir):
+        data["file"][os.path.basename(base_dir)] = {
+            "size": os.path.getsize(base_dir),
+        }
+    return data
 
 
 def get_dir_size(directory):
@@ -269,3 +384,69 @@ def process_geojson(geojson_file_path, aoi_id, feedback=False):
                 f.result()
 
     print("writing to database finished")
+
+
+class S3Uploader:
+    def __init__(
+        self,
+        bucket_name=None,
+        aws_access_key_id=None,
+        aws_secret_access_key=None,
+        parent="fair-dev",
+    ):
+        try:
+            if aws_access_key_id and aws_secret_access_key:
+                self.aws_session = boto3.Session(
+                    aws_access_key_id=aws_access_key_id,
+                    aws_secret_access_key=aws_secret_access_key,
+                )
+            else:
+                self.aws_session = boto3.Session()
+
+            self.s3_client = self.aws_session.client("s3")
+            self.bucket_name = bucket_name
+            self.parent = parent
+            logging.info("S3 connection initialized successfully")
+        except (NoCredentialsError, ClientError) as ex:
+            logging.error(f"S3 Connection Error: {ex}")
+            raise
+
+    def upload(self, path, bucket_name=None):
+        if not os.path.exists(path):
+            raise FileNotFoundError(f"Path not found: {path}")
+
+        bucket = bucket_name or self.bucket_name
+        if not bucket:
+            raise ValueError("Bucket name must be provided")
+
+        try:
+            if os.path.isfile(path):
+                return self._upload_file(path, bucket)
+            elif os.path.isdir(path):
+                return self._upload_directory(path, bucket)
+            else:
+                raise ValueError("Path must be a file or directory")
+        except Exception as ex:
+            logging.error(f"Upload failed: {ex}")
+            raise
+
+    def _upload_file(self, file_path, bucket_name):
+        s3_key = f"{self.parent}/{os.path.basename(file_path)}"
+        self.s3_client.upload_file(file_path, bucket_name, s3_key)
+        return f"s3://{bucket_name}/{s3_key}"
+
+    def _upload_directory(self, directory_path, bucket_name):
+        total_files = 0
+        for root, _, files in os.walk(directory_path):
+            for file in files:
+                local_path = os.path.join(root, file)
+                relative_path = os.path.relpath(local_path, directory_path)
+                relative_path = relative_path.replace("\\", "/")
+                s3_key = f"{self.parent}/{relative_path}"
+                self.s3_client.upload_file(local_path, bucket_name, s3_key)
+                total_files += 1
+        return {
+            "directory_name": os.path.basename(directory_path),
+            "total_files_uploaded": total_files,
+            "s3_path": f"s3://{bucket_name}/{self.parent}/",
+        }

@@ -11,6 +11,7 @@ import time
 import zipfile
 from datetime import datetime
 from tempfile import NamedTemporaryFile
+from urllib.parse import quote
 
 # import tensorflow as tf
 from celery import current_app
@@ -20,6 +21,7 @@ from django.http import (
     FileResponse,
     HttpResponse,
     HttpResponseBadRequest,
+    HttpResponseRedirect,
     StreamingHttpResponse,
 )
 from django.shortcuts import get_object_or_404, redirect
@@ -28,6 +30,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_cookie, vary_on_headers
 from django_filters.rest_framework import DjangoFilterBackend
+from django_q.tasks import async_task
 from drf_yasg.utils import swagger_auto_schema
 from geojson2osm import geojson2osm
 from login.authentication import OsmAuthentication
@@ -37,6 +40,7 @@ from rest_framework import decorators, filters, serializers, status, viewsets
 from rest_framework.decorators import api_view
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListAPIView
+from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_gis.filters import InBBoxFilter, TMSTileFilter
@@ -71,7 +75,16 @@ from .serializers import (
     UserSerializer,
 )
 from .tasks import train_model
-from .utils import get_dir_size, gpx_generator, process_rawdata, request_rawdata
+from .utils import (
+    download_s3_file,
+    get_dir_size,
+    get_local_metadata,
+    get_s3_directory,
+    gpx_generator,
+    process_rawdata,
+    request_rawdata,
+    s3_object_exists,
+)
 
 if settings.ENABLE_PREDICTION_API:
     from predictor import predict
@@ -159,7 +172,7 @@ class TrainingSerializer(
                 raise ValidationError(
                     f"Batch size can't be greater than {settings.RAMP_BATCH_SIZE_LIMIT} on this server"
                 )
-        if model.base_model in ["YOLO_V8_V1","YOLO_V8_V2"]:
+        if model.base_model in ["YOLO_V8_V1", "YOLO_V8_V2"]:
 
             if epochs > settings.YOLO_EPOCHS_LIMIT:
                 raise ValidationError(
@@ -363,22 +376,90 @@ class LabelViewSet(viewsets.ModelViewSet):
         aoi_id = request.data.get("aoi")
         geom = request.data.get("geom")
 
-        # Check if a label with the same AOI and geometry exists
         existing_label = Label.objects.filter(aoi=aoi_id, geom=geom).first()
 
         if existing_label:
-            # If it exists, update the existing label
             serializer = LabelSerializer(existing_label, data=request.data)
         else:
-            # If it doesn't exist, create a new label
             serializer = LabelSerializer(data=request.data)
 
         if serializer.is_valid():
             serializer.save()
-            return Response(
-                serializer.data, status=status.HTTP_200_OK
-            )  # 200 for update, 201 for create
+            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class LabelUploadView(APIView):
+    authentication_classes = [OsmAuthentication]
+    permission_classes = [IsOsmAuthenticated]
+    parser_classes = (MultiPartParser, FormParser)
+
+    def post(self, request, aoi_id, *args, **kwargs):
+        geojson_file = request.FILES.get("geojson_file")
+        if geojson_file:
+            try:
+                geojson_data = json.load(geojson_file)
+                self.validate_geojson(geojson_data)
+                async_task(
+                    "core.views.process_labels_geojson",
+                    geojson_data,
+                    aoi_id,
+                )
+                return Response(
+                    {"status": "GeoJSON file is being processed"},
+                    status=status.HTTP_202_ACCEPTED,
+                )
+            except (json.JSONDecodeError, ValidationError) as e:
+                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": "No GeoJSON file provided"}, status=status.HTTP_400_BAD_REQUEST
+        )
+
+    def validate_geojson(self, geojson_data):
+        if geojson_data.get("type") != "FeatureCollection":
+            raise ValidationError("Invalid GeoJSON type. Expected 'FeatureCollection'.")
+        if "features" not in geojson_data or not isinstance(
+            geojson_data["features"], list
+        ):
+            raise ValidationError("Invalid GeoJSON format. 'features' must be a list.")
+        if not geojson_data["features"]:
+            raise ValidationError("GeoJSON 'features' list is empty.")
+
+        # Validate the first feature
+        first_feature = geojson_data["features"][0]
+        if first_feature.get("type") != "Feature":
+            raise ValidationError("Invalid GeoJSON feature type. Expected 'Feature'.")
+        if "geometry" not in first_feature or "properties" not in first_feature:
+            raise ValidationError(
+                "Invalid GeoJSON feature format. 'geometry' and 'properties' are required."
+            )
+
+        # Validate the first feature with the serializer
+        first_feature["properties"]["aoi"] = self.kwargs.get("aoi_id")
+        serializer = LabelSerializer(data=first_feature)
+
+        if not serializer.is_valid():
+            raise ValidationError(serializer.errors)
+
+
+def process_labels_geojson(geojson_data, aoi_id):
+    obj = get_object_or_404(AOI, id=aoi_id)
+    try:
+        obj.label_status = AOI.DownloadStatus.RUNNING
+        obj.save()
+        for feature in geojson_data["features"]:
+            feature["properties"]["aoi"] = aoi_id
+            serializer = LabelSerializer(data=feature)
+            if serializer.is_valid():
+                serializer.save()
+
+        obj.label_status = AOI.DownloadStatus.DOWNLOADED
+        obj.label_fetched = datetime.utcnow()
+        obj.save()
+    except Exception as ex:
+        obj.label_status = AOI.DownloadStatus.NOT_DOWNLOADED
+        obj.save()
+        logging.error(ex)
 
 
 class ApprovedPredictionsViewSet(viewsets.ModelViewSet):
@@ -466,20 +547,24 @@ class RawdataApiAOIView(APIView):
             status: Success/Failed
         """
         obj = get_object_or_404(AOI, id=aoi_id)
-        try:
-            obj.label_status = 0
-            obj.save()
-            file_download_url = request_rawdata(obj.geom.geojson)
-            process_rawdata(file_download_url, aoi_id)
-            obj.label_status = 1
-            obj.label_fetched = datetime.utcnow()
-            obj.save()
-            return Response("Success", status=status.HTTP_201_CREATED)
-        except Exception as ex:
-            obj.label_status = -1
-            obj.save()
-            # raise ex
-            return Response("OSM Fetch Failed", status=500)
+        async_task("core.views.process_rawdata_task", obj.geom.geojson, aoi_id)
+        return Response("Processing started", status=status.HTTP_202_ACCEPTED)
+
+
+def process_rawdata_task(geom_geojson, aoi_id):
+    obj = get_object_or_404(AOI, id=aoi_id)
+    try:
+        obj.label_status = AOI.DownloadStatus.RUNNING
+        obj.save()
+        file_download_url = request_rawdata(geom_geojson)
+        process_rawdata(file_download_url, aoi_id)
+        obj.label_status = AOI.DownloadStatus.DOWNLOADED
+        obj.label_fetched = datetime.utcnow()
+        obj.save()
+    except Exception as ex:
+        obj.label_status = AOI.DownloadStatus.NOT_DOWNLOADED
+        obj.save()
+        raise ex
 
 
 @api_view(["GET"])
@@ -567,9 +652,7 @@ def run_task_status(request, run_id: str):
             # read the last 10 lines of the log file
             cmd = ["tail", "-n", str(settings.LOG_LINE_STREAM_TRUNCATE_VALUE), log_file]
             # print(cmd)
-            output = subprocess.check_output(
-                cmd
-            ).decode("utf-8")
+            output = subprocess.check_output(cmd).decode("utf-8")
         except Exception as e:
             output = str(e)
         result = {
@@ -822,98 +905,46 @@ class GenerateFeedbackAOIGpxView(APIView):
 
 class TrainingWorkspaceView(APIView):
     @method_decorator(cache_page(60 * 15))
-    # @method_decorator(vary_on_headers("access-token"))
+    @method_decorator(vary_on_headers("access-token"))
     def get(self, request, lookup_dir):
-        """
-        List the status of the training workspace.
+        bucket_name = settings.BUCKET_NAME
+        encoded_file_path = quote(lookup_dir.strip("/"))
+        s3_prefix = f"{settings.PARENT_BUCKET_FOLDER}/{encoded_file_path}/"
+        try:
+            data = get_s3_directory(bucket_name, s3_prefix)
+        except Exception as e:
+            return Response({"Error": str(e)}, status=500)
 
-        ### Returns:
-        - **Size**: The total size of the workspace in bytes.
-        - **dir/file**: The current dir/file on the lookup_dir.
-
-        ### Workspace Structure:
-        By default, the training workspace is organized as follows:
-        - Training files are stored in the directory: `dataset{dataset_id}/output/training_{training}`
-        """
-
-        # {workspace_dir:{file_name:{size:20,type:file},dir_name:{size:20,len:4,type:dir}}}
-        base_dir = settings.TRAINING_WORKSPACE
-        if lookup_dir:
-            base_dir = os.path.join(base_dir, lookup_dir)
-            if not os.path.exists(base_dir):
-                return Response({"Errr:File/Dir not Found"}, status=404)
-        data = {"file": {}, "dir": {}}
-        if os.path.isdir(base_dir):
-            for entry in os.scandir(base_dir):
-                if entry.is_file():
-                    data["file"][entry.name] = {
-                        "size": entry.stat().st_size,
-                    }
-                elif entry.is_dir():
-                    subdir_size = get_dir_size(entry.path)
-                    data["dir"][entry.name] = {
-                        "len": sum(1 for _ in os.scandir(entry.path)),
-                        "size": subdir_size,
-                    }
-        elif os.path.isfile(base_dir):
-            data["file"][os.path.basename(base_dir)] = {
-                "size": os.path.getsize(base_dir)
-            }
-
-        return Response(data, status=status.HTTP_201_CREATED)
+        return Response(data, status=status.HTTP_200_OK)
 
 
 class TrainingWorkspaceDownloadView(APIView):
-    authentication_classes = [OsmAuthentication]
-    permission_classes = [IsOsmAuthenticated]
+    # authentication_classes = [OsmAuthentication]
+    # permission_classes = [IsOsmAuthenticated]
 
-    def dispatch(self, request, *args, **kwargs):
-        lookup_dir = kwargs.get("lookup_dir")
-        if lookup_dir.endswith("training_accuracy.png"):
-            # bypass
-            self.authentication_classes = []
-            self.permission_classes = []
+    # def dispatch(self, request, *args, **kwargs):
+    #     lookup_dir = kwargs.get("lookup_dir")
+    #     if lookup_dir.endswith("training_accuracy.png"):
+    #         # bypass
+    #         self.authentication_classes = []
+    #         self.permission_classes = []
 
-        return super().dispatch(request, *args, **kwargs)
+    #     return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, lookup_dir):
-        base_dir = os.path.join(settings.TRAINING_WORKSPACE, lookup_dir)
-        if not os.path.exists(base_dir):
-            return Response({"Errr: File/Dir not found"}, status=404)
-        size = (
-            get_dir_size(base_dir)
-            if os.path.isdir(base_dir)
-            else os.path.getsize(base_dir)
-        ) / (1024**2)
-        if (
-            size > settings.TRAINING_WORKSPACE_DOWNLOAD_LIMIT
-        ):  # if file is greater than 200 mb exit
-            return Response(
-                {
-                    f"Errr: File Size {size} MB Exceed More than {settings.TRAINING_WORKSPACE_DOWNLOAD_LIMIT} MB"
-                },
-                status=403,
-            )
+        s3_key = os.path.join(settings.PARENT_BUCKET_FOLDER, lookup_dir)
+        bucket_name = settings.BUCKET_NAME
 
-        if os.path.isfile(base_dir):
-            response = FileResponse(open(base_dir, "rb"))
-            response["Content-Disposition"] = 'attachment; filename="{}"'.format(
-                os.path.basename(base_dir)
-            )
-            return response
+        if not s3_object_exists(bucket_name, s3_key):
+            return Response("File not found in S3", status=404)
+        presigned_url = download_s3_file(bucket_name, s3_key)
+        # ?url_only=true
+        url_only = request.query_params.get("url_only", "false").lower() == "true"
+
+        if url_only:
+            return Response({"result": presigned_url})
         else:
-            # TODO : This will take time to zip also based on the reading/writing speed of the dir
-            temp = NamedTemporaryFile()
-            shutil.make_archive(temp.name, "zip", base_dir)
-            # rewind the file so it can be read from the beginning
-            temp.seek(0)
-            response = StreamingHttpResponse(
-                open(temp.name + ".zip", "rb").read(), content_type="application/zip"
-            )
-            response["Content-Disposition"] = 'attachment; filename="{}.zip"'.format(
-                os.path.basename(base_dir)
-            )
-            return response
+            return HttpResponseRedirect(presigned_url)
 
 
 class BannerViewSet(viewsets.ModelViewSet):

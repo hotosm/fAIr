@@ -63,7 +63,7 @@ class Model(models.Model):
     name = models.CharField(max_length=50)
     created_at = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now=True)
-    description = models.TextField(max_length=500, null=True, blank=True)
+    description = models.TextField(max_length=4000, null=True, blank=True)
     user = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
     published_training = models.PositiveIntegerField(null=True, blank=True)
     status = models.IntegerField(default=-1, choices=ModelStatus.choices)
@@ -161,7 +161,7 @@ class ApprovedPredictions(models.Model):
 
 
 class Banner(models.Model):
-    message = models.TextField()
+    message = models.TextField(max_length=500)
     start_date = models.DateTimeField(default=timezone.now)
     end_date = models.DateTimeField(null=True, blank=True)
 
