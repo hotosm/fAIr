@@ -21,7 +21,7 @@ const FormLabel: React.FC<FormLabelProps> = ({
   return (
     <p
       slot="label"
-      className={`flex text-base items-center gap-x-2 text-dark ${position === "top" && "mb-4"}`}
+      className={`flex text-body-3 items-center gap-x-2 text-dark ${position === "top" && "mb-4"}`}
     >
       <span>
         {label} {required && <small className="text-primary text-xl">*</small>}

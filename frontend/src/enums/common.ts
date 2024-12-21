@@ -47,3 +47,9 @@ export enum SHOELACE_SIZES {
   LARGE = "large",
   EXTRA_LARGE = "extra-large",
 }
+
+export enum DrawerPlacements {
+  BOTTOM = "bottom",
+  TOP = "top",
+  END = "end",
+}

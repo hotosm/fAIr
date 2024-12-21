@@ -1,4 +1,5 @@
 import SlPopup from "@shoelace-style/shoelace/dist/react/popup/index.js";
+import React from "react";
 
 type PopupProps = {
   placement?: "top" | "bottom" | "bottom-start";
@@ -7,9 +8,10 @@ type PopupProps = {
   arrow?: boolean;
   skidding?: number;
   children: React.ReactNode;
-  anchor?: string;
+  anchor?: string | { getBoundingClientRect: () => Record<string, number> };
   flip?: boolean;
 };
+
 const Popup: React.FC<PopupProps> = ({
   arrow = false,
   active,
@@ -27,6 +29,7 @@ const Popup: React.FC<PopupProps> = ({
       distance={distance}
       skidding={skidding}
       arrow={arrow}
+      // @ts-expect-error bad type definition
       anchor={anchor}
       flip={flip}
     >

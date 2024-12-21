@@ -1,6 +1,6 @@
 const CodeBlock = ({ content }: { content: string }) => {
   return (
-    <div className="overflow-x-auto w-full bg-dark p-2">
+    <div className="overflow-x-auto w-full bg-dark p-2 h-60">
       <pre className="text-light-gray text-xs">
         <code>{content}</code>
       </pre>

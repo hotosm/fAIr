@@ -53,12 +53,11 @@ export const getTrainingFeedbacks = async (
 };
 
 export const getTrainingWorkspace = async (
-  datasetId: number,
   trainingId: number,
   directory_name: string,
 ): Promise<TrainingWorkspace> => {
   const res = await apiClient.get(
-    API_ENDPOINTS.GET_TRAINING_WORKSPACE(datasetId, trainingId, directory_name),
+    API_ENDPOINTS.GET_TRAINING_WORKSPACE(trainingId, directory_name),
   );
   return res.data;
 };

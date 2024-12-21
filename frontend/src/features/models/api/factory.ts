@@ -24,6 +24,7 @@ type TModelQueryOptions = {
   dateFilters: Record<string, string>;
   status: number;
   id: number;
+  userId?: number;
 };
 
 export const getModelsQueryOptions = ({
@@ -34,14 +35,24 @@ export const getModelsQueryOptions = ({
   orderBy,
   dateFilters,
   id,
+  userId,
 }: TModelQueryOptions) => {
   return queryOptions({
     queryKey: [
       "models",
-      { status, searchQuery, offset, orderBy, dateFilters, id },
+      { status, searchQuery, offset, orderBy, dateFilters, id, userId },
     ],
     queryFn: () =>
-      getModels(limit, offset, orderBy, status, searchQuery, dateFilters, id),
+      getModels(
+        limit,
+        offset,
+        orderBy,
+        status,
+        searchQuery,
+        dateFilters,
+        id,
+        userId,
+      ),
     placeholderData: keepPreviousData,
   });
 };
@@ -87,13 +98,12 @@ export const getTrainingFeedbacksQueryOptions = (id: number) => {
 };
 
 export const getTrainingWorkspaceQueryOptions = (
-  datasetId: number,
   trainingId: number,
   directory_name: string,
 ) => {
   return queryOptions({
-    queryKey: ["training-workspace", datasetId, trainingId, directory_name],
-    queryFn: () => getTrainingWorkspace(datasetId, trainingId, directory_name),
+    queryKey: ["training-workspace", trainingId, directory_name],
+    queryFn: () => getTrainingWorkspace(trainingId, directory_name),
     enabled: trainingId !== null,
   });
 };

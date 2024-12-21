@@ -1,7 +1,7 @@
 import { IconProps } from "@/types";
 import React from "react";
 
-const FilterIcon: React.FC<IconProps> = (props) => (
+export const FilterIcon: React.FC<IconProps> = (props) => (
   <svg
     {...props}
     viewBox="0 0 20 16"
@@ -14,5 +14,3 @@ const FilterIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-
-export default FilterIcon;

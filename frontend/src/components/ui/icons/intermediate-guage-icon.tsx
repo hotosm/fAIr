@@ -1,7 +1,7 @@
 import { IconProps } from "@/types";
 import React from "react";
 
-const IntermediateGuageIcon: React.FC<IconProps> = (props) => (
+export const IntermediateGuageIcon: React.FC<IconProps> = (props) => (
   <svg
     {...props}
     viewBox="0 0 29 18"
@@ -42,5 +42,3 @@ const IntermediateGuageIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-
-export default IntermediateGuageIcon;

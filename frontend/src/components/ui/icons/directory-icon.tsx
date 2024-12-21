@@ -1,7 +1,7 @@
 import { IconProps } from "@/types";
 import React from "react";
 
-const DirectoryIcon: React.FC<IconProps> = (props) => (
+export const DirectoryIcon: React.FC<IconProps> = (props) => (
   <svg
     {...props}
     viewBox="0 0 31 26"
@@ -14,5 +14,3 @@ const DirectoryIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-
-export default DirectoryIcon;

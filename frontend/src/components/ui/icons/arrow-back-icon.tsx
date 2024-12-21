@@ -1,7 +1,7 @@
 import { IconProps } from "@/types";
 import React from "react";
 
-const ArrowBackIcon: React.FC<IconProps> = (props) => (
+export const ArrowBackIcon: React.FC<IconProps> = (props) => (
   <svg
     {...props}
     viewBox="0 0 28 27"
@@ -16,5 +16,3 @@ const ArrowBackIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-
-export default ArrowBackIcon;

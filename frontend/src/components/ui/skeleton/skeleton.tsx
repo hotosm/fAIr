@@ -43,11 +43,11 @@ import React from "react";
  */
 const SkeletonWrapper = ({
   children,
-  showSkeleton,
+  showSkeleton = true,
   skeletonClassName = "",
 }: {
-  children: React.ReactNode;
-  showSkeleton: boolean;
+  children?: React.ReactNode;
+  showSkeleton?: boolean;
   skeletonClassName?: string;
 }) => {
   if (!showSkeleton) return <>{children}</>;
@@ -63,17 +63,17 @@ const SkeletonWrapper = ({
     };
 
     return (
-      <div
-        className={`animate-pulse bg-light-gray ${skeletonClassName} ${child.props.className || ""}`}
+      <span
+        className={`block animate-pulse bg-light-gray ${skeletonClassName} ${child.props.className || ""}`}
         style={style}
       />
     );
   };
 
   return (
-    <div>
+    <span className="block">
       {React.Children.map(children, (child) => skeletonfyChildren(child))}
-    </div>
+    </span>
   );
 };
 

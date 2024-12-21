@@ -1,7 +1,7 @@
 import { IconProps } from "@/types";
 import React from "react";
 
-const CloudIcon: React.FC<IconProps> = (props) => (
+export const CloudIcon: React.FC<IconProps> = (props) => (
   <svg
     {...props}
     viewBox="0 0 20 21"
@@ -14,5 +14,3 @@ const CloudIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-
-export default CloudIcon;
