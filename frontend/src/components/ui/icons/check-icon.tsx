@@ -1,7 +1,7 @@
 import { IconProps, ShoelaceSlotProps } from "@/types";
 import React from "react";
 
-const CheckIcon: React.FC<ShoelaceSlotProps & IconProps> = (props) => (
+export const CheckIcon: React.FC<ShoelaceSlotProps & IconProps> = (props) => (
   <svg
     {...props}
     viewBox="0 0 14 10"
@@ -14,5 +14,3 @@ const CheckIcon: React.FC<ShoelaceSlotProps & IconProps> = (props) => (
     />
   </svg>
 );
-
-export default CheckIcon;

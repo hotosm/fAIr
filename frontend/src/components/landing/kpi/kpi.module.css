@@ -26,6 +26,7 @@
   color: var(--hot-fair-color-dark);
   font-size: var(--hot-fair-font-size-body-text-2base);
   font-weight: var(--hot-fair-font-weight-semibold);
+  text-align: center;
 }
 
 /* md: */

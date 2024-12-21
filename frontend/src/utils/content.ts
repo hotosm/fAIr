@@ -6,34 +6,6 @@ import {
 } from "./constants";
 import { formatAreaInAppropriateUnit } from "./geometry-utils";
 
-export const TOAST_NOTIFICATIONS = {
-  geolocationNotSupported: "Geolocation is not supported by this browser.",
-  drawingModeActivated:
-    "Draw mode activated. Hover on the map to start drawing",
-  trainingAreasFileUploadSuccess: "Training areas created successfully.",
-  trainingLabelsFetchSuccess: "Training labels fetched successfully.",
-  trainingAreaDeletionSuccess: "Training area deleted successfully.",
-  aoiLabelsUploadSuccess: "AOI Labels uploaded successfully.",
-  aoiDownloadSuccess: "AOI downloaded successfully.",
-  trainingRequestSubmittedSuccess: "Training request submitted successfully.",
-  trainingDatasetCreationSuccess: "Dataset created successfully.",
-  modelCreationSuccess: "Model created successfully.",
-  modelUpdateSuccess: "Model updated successfully.",
-  aoiWithoutGeometryWarning:
-    "This training area does not have a geometry. Delete it and redraw a new training area.",
-  aoiLabelsDownloadSuccess: "AOI labels downloaded successfully.",
-  josmOpenSuccess: "Map view opened in JOSM successfully!",
-  josmBBOXZoomFailed: "Failed to zoom to the bounding box in JOSM.",
-  josmImageryLoadFailed: "Failed to load imagery in JOSM.",
-  josmOpenFailed:
-    "An error occurred while opening in JOSM. Confirm you have JOSM opened on your computer and remote control enabled.",
-  fileDownloadFailed: "Failed to download file.",
-  fileDownloadSuccess: "File downloaded successfully!",
-  authenticationFailed: "Login failed.",
-  loginSuccess: "Login successful.",
-  logoutSuccess: "Logout successful.",
-};
-
 export const MODEL_CREATION_CONTENT = {
   modelDetails: {
     pageTitle: "Create New Local AI Model",
@@ -68,11 +40,11 @@ export const MODEL_CREATION_CONTENT = {
       "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Id fugit ducimus harum debitis deserunt cum quod quam rerum aliquid. Quibusdam sequi incidunt quasi delectus laudantium accusamus modi omnis maiores. Incidunt!",
   },
   trainingDataset: {
-    pageTitle: "Create New Training Dataset",
-    editModePageTitle: "Training Dataset",
+    pageTitle: "Training Dataset",
+
     buttons: {
-      createNew: "Create a new training dataset",
-      selectExisting: "select from existing training dataset",
+      createNew: "Create a New Training Dataset",
+      selectExisting: "Select From Existing Training Dataset",
     },
     form: {
       datasetName: {
@@ -110,6 +82,7 @@ export const MODEL_CREATION_CONTENT = {
       downloadLabels: "Download AOI Labels",
       uploadLabels: "Upload AOI Labels",
       deleteAOI: "Delete AOI",
+      fitToTMSBounds: "Fit to Bounds",
     },
     pageTitle: "Create Training Area",
     datasetID: "Dataset ID:",
@@ -118,8 +91,10 @@ export const MODEL_CREATION_CONTENT = {
       tmsLayerName: "TMS Layer",
       trainingAreaLayerName: "Training Areas",
     },
+    openAerialMapErrorMessage:
+      "Invalid TMS provided. Please go back to select another training dataset.",
     form: {
-      openAerialMap: "Open Aerial Map",
+      openAerialMap: "Open Aerial Imagery",
       maxZoom: "Max zoom:",
       minZoom: "Min zoom:",
       trainingArea: "Training Area",
@@ -267,7 +242,8 @@ export const APP_CONTENT = {
         },
         {
           title: "privacy policy",
-          route: "#",
+          route: "https://www.hotosm.org/privacy",
+          isExternalLink: true,
         },
       ],
     },

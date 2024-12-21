@@ -5,7 +5,7 @@ import useBrowserType from "@/hooks/use-browser-type";
 import { useRef } from "react";
 import useScreenSize from "@/hooks/use-screen-size";
 import { HelpText, FormLabel } from "@/components/ui/form";
-import CheckIcon from "@/components/ui/icons/check-icon";
+import { CheckIcon } from "@/components/ui/icons";
 import { INPUT_TYPES, SHOELACE_SIZES } from "@/enums";
 
 type InputProps = {
@@ -30,6 +30,7 @@ type InputProps = {
   isValid?: boolean;
   min?: number;
   max?: number;
+  step?: number;
 };
 
 const Input: React.FC<InputProps> = ({
@@ -54,6 +55,7 @@ const Input: React.FC<InputProps> = ({
   isValid = false,
   min,
   max,
+  step = 1,
 }) => {
   const { isChrome } = useBrowserType();
 
@@ -99,7 +101,7 @@ const Input: React.FC<InputProps> = ({
       pattern={pattern}
       min={min}
       max={max}
-      step={1}
+      step={step}
     >
       {label && (
         <FormLabel

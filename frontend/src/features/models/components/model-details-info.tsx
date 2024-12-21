@@ -8,33 +8,34 @@ import {
 } from "@/utils";
 import ModelDetailItem from "@/features/models/components/model-detail-item";
 import ModelDetailsSection from "@/features/models/components/model-details-section";
-import ChevronDownIcon from "@/components/ui/icons/chevron-down-icon";
 import { Divider } from "@/components/ui/divider";
 import ModelFeedbacks from "@/features/models/components/model-feedbacks";
 import ModelFilesButton from "./model-files-button";
 import ModelDetailsUpdateDialog from "./dialogs/model-details-update-dialog";
 import { useDialog } from "@/hooks/use-dialog";
 import { useAuth } from "@/app/providers/auth-provider";
-import { useGetTrainingDataset } from "../hooks/use-dataset";
-import { TModelDetails } from "@/types";
+import { TModelDetails, TTrainingDataset } from "@/types";
 import { useNavigate } from "react-router-dom";
+import { TrainingAreaButton } from "./training-area-button";
 
 const ModelDetailsInfo = ({
   data,
   openModelFilesDialog,
-  openTrainingAreaDialog,
+  openTrainingAreaDrawer,
+  trainingDataset,
+  isError,
+  isPending,
 }: {
   data: TModelDetails;
   openModelFilesDialog: () => void;
-  openTrainingAreaDialog: () => void;
+  openTrainingAreaDrawer: () => void;
+  trainingDataset: TTrainingDataset;
+  isError: boolean;
+  isPending: boolean;
 }) => {
   const { isOpened, openDialog, closeDialog } = useDialog();
   const { user, isAuthenticated } = useAuth();
-  const {
-    isPending,
-    data: trainingDataset,
-    isError,
-  } = useGetTrainingDataset(data.dataset);
+
   const navigate = useNavigate();
 
   return (
@@ -69,7 +70,6 @@ const ModelDetailsInfo = ({
                   label={APP_CONTENT.models.modelsDetailsCard.startMapping}
                   variant="primary"
                   size="medium"
-                  capitalizeText={false}
                   prefixIcon={MapIcon}
                   disabled={data?.published_training === null}
                   onClick={() => {
@@ -82,14 +82,10 @@ const ModelDetailsInfo = ({
             </div>
           </div>
         </div>
-        <button
-          disabled={data?.published_training === null}
-          className="md:self-end flex items-center gap-x-2 cursor-pointer text-primary text-body-2 md:font-semibold"
-          onClick={openTrainingAreaDialog}
-        >
-          <p>{APP_CONTENT.models.modelsDetailsCard.viewTrainingArea}</p>
-          <ChevronDownIcon className="icon -rotate-90" />
-        </button>
+        <TrainingAreaButton
+          onClick={openTrainingAreaDrawer}
+          disabled={trainingDataset.source_imagery === null}
+        />
       </ModelDetailsSection>
       <Divider />
       <ModelDetailsSection title="Details">

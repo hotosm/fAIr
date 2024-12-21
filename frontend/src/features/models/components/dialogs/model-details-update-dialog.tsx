@@ -4,13 +4,9 @@ import ModelDescriptionFormInput from "@/features/model-creation/components/mode
 import ModelNameFormInput from "@/features/model-creation/components/model-details/model-name-input";
 import { useUpdateModel } from "@/features/model-creation/hooks/use-models";
 import { TModel } from "@/types";
-import {
-  APP_CONTENT,
-  showErrorToast,
-  showSuccessToast,
-  TOAST_NOTIFICATIONS,
-} from "@/utils";
+import { APP_CONTENT, showErrorToast, showSuccessToast } from "@/utils";
 import { useState } from "react";
+import { TOAST_NOTIFICATIONS } from "@/constants";
 
 type ModelDetailsUpdateDialogProps = {
   isOpened: boolean;

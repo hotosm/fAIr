@@ -1,4 +1,4 @@
-import SlDialog from "@shoelace-style/shoelace/dist/react/dialog/index.js";
+import { SlDialog } from "@shoelace-style/shoelace/dist/react";
 import "./dialog.css";
 import { SHOELACE_SIZES } from "@/enums";
 import useScreenSize from "@/hooks/use-screen-size";

@@ -35,17 +35,17 @@ const TrainingSettingsForm = () => {
       enabled: true,
     },
     {
+      label: MODEL_CREATION_CONTENT.trainingSettings.form.batchSize.label,
+      value: MODEL_CREATION_FORM_NAME.BATCH_SIZE,
+      toolTip: MODEL_CREATION_CONTENT.trainingSettings.form.batchSize.toolTip,
+      enabled: true,
+    },
+    {
       label: MODEL_CREATION_CONTENT.trainingSettings.form.contactSpacing.label,
       value: MODEL_CREATION_FORM_NAME.CONTACT_SPACING,
       toolTip:
         MODEL_CREATION_CONTENT.trainingSettings.form.contactSpacing.toolTip,
       enabled: formData.baseModel === BASE_MODELS.RAMP,
-    },
-    {
-      label: MODEL_CREATION_CONTENT.trainingSettings.form.batchSize.label,
-      value: MODEL_CREATION_FORM_NAME.BATCH_SIZE,
-      toolTip: MODEL_CREATION_CONTENT.trainingSettings.form.batchSize.toolTip,
-      enabled: true,
     },
     {
       label: MODEL_CREATION_CONTENT.trainingSettings.form.boundaryWidth.label,
@@ -110,7 +110,7 @@ const TrainingSettingsForm = () => {
         <CheckboxGroup
           variant="primary"
           multiple
-          className="flex-row gap-x-10 items-center flex-wrap"
+          className="flex-col md:flex-row gap-x-10 md:items-center flex-wrap"
           options={[
             { value: "Zoom 19", apiValue: "19" },
             { value: "Zoom 20", apiValue: "20" },
@@ -137,7 +137,7 @@ const TrainingSettingsForm = () => {
           }
           required
         />
-        <div className="flex items-center gap-x-4 w-full justify-between overflow-x-auto">
+        <div className="flex flex-col md:flex-row md:items-center gap-4 w-full justify-between overflow-x-auto">
           {trainingTypes.map((type, id) => (
             <ButtonWithIcon
               key={`training-type-${id}`}
@@ -148,7 +148,6 @@ const TrainingSettingsForm = () => {
               variant={
                 formData.trainingType === type.label ? "dark" : "default"
               }
-              capitalizeText={false}
               prefixIcon={type.Icon}
               iconClassName="md:icon-lg"
             />

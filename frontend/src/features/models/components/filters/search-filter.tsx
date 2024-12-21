@@ -2,11 +2,12 @@ import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
 import { Input } from "@/components/ui/form";
 import { SearchIcon } from "@/components/ui/icons";
 import { SHOELACE_SIZES } from "@/enums";
+import { TQueryParams } from "@/types";
 import { APP_CONTENT } from "@/utils";
 import { useCallback } from "react";
 
 type SearchFilterProps = {
-  query: Record<string, string | number | boolean>;
+  query: TQueryParams;
   updateQuery: (param: any) => void;
 };
 

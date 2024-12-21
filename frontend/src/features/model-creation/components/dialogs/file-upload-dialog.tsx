@@ -1,8 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { DeleteIcon, FileIcon, UploadIcon } from "@/components/ui/icons";
+import { Spinner } from "@/components/ui/spinner"; // Ensure Spinner is correctly imported
 import { DialogProps, Feature, FeatureCollection, Geometry } from "@/types";
 import {
+  formatAreaInAppropriateUnit,
   MAX_TRAINING_AREA_UPLOAD_FILE_SIZE,
   MODEL_CREATION_CONTENT,
   showErrorToast,
@@ -11,12 +13,12 @@ import {
   validateGeoJSONArea,
 } from "@/utils";
 import { SlFormatBytes } from "@shoelace-style/shoelace/dist/react";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { FileWithPath, useDropzone } from "react-dropzone";
 
 type FileUploadDialogProps = DialogProps & {
   label: string;
-  fileUploadHandler: (geometry: Geometry) => void;
+  fileUploadHandler: (geometry: Geometry) => Promise<void>;
   successToast: string;
   disabled: boolean;
   disableFileSizeValidation?: boolean;
@@ -37,55 +39,58 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
   disableFileSizeValidation = false,
 }) => {
   const [acceptedFiles, setAcceptedFiles] = useState<AcceptedFile[]>([]);
+  const [uploadInProgress, setUploadInProgress] = useState<boolean>(false);
 
-  const onDrop = useCallback((files: FileWithPath[]) => {
-    const initialValidFiles = files.filter((file) => {
-      if (!file.name.endsWith(".geojson") && !file.name.endsWith(".json")) {
-        showErrorToast(
-          undefined,
-          `File ${file.name} is not a supported format`,
-        );
-        return false;
-      }
-      if (file.size > MAX_TRAINING_AREA_UPLOAD_FILE_SIZE) {
-        showErrorToast(undefined, `File ${file.name} is too large (max 5MB)`);
-        return false;
-      }
-      return true;
-    });
-
-    const validateFiles = async () => {
-      const validFiles: { file: FileWithPath; id: string }[] = [];
-
-      for (const file of initialValidFiles) {
-        const text = await file.text();
-        try {
-          const geojson: FeatureCollection | Feature = JSON.parse(text);
-          if (
-            !disableFileSizeValidation &&
-            validateGeoJSONArea(geojson as Feature)
-          ) {
-            showErrorToast(
-              undefined,
-              `File area for ${file.name} exceeds area limit.`,
-            );
-          } else {
-            validFiles.push({ file, id: generateUniqueId() });
-          }
-        } catch (error) {
-          showErrorToast(error);
+  const onDrop = useCallback(
+    (files: FileWithPath[]) => {
+      const initialValidFiles = files.filter((file) => {
+        if (!file.name.endsWith(".geojson") && !file.name.endsWith(".json")) {
+          showErrorToast(
+            undefined,
+            `File ${file.name} is not a supported format`,
+          );
+          return false;
         }
-      }
+        if (file.size > MAX_TRAINING_AREA_UPLOAD_FILE_SIZE) {
+          showErrorToast(
+            undefined,
+            `File ${file.name} is too large (max ${formatAreaInAppropriateUnit(MAX_TRAINING_AREA_UPLOAD_FILE_SIZE)})`,
+          );
+          return false;
+        }
+        return true;
+      });
 
-      setAcceptedFiles((prev) => [...prev, ...validFiles]);
-    };
+      const validateFiles = async () => {
+        const validFiles: AcceptedFile[] = [];
 
-    validateFiles();
-  }, []);
+        for (const file of initialValidFiles) {
+          try {
+            const text = await file.text();
+            const geojson: FeatureCollection | Feature = JSON.parse(text);
+            if (
+              !disableFileSizeValidation &&
+              validateGeoJSONArea(geojson as Feature)
+            ) {
+              showErrorToast(
+                undefined,
+                `File area for ${file.name} exceeds area limit.`,
+              );
+            } else {
+              validFiles.push({ file, id: generateUniqueId() });
+            }
+          } catch (error) {
+            showErrorToast(undefined, `Invalid JSON format in ${file.name}.`);
+          }
+        }
 
-  const clearAcceptedFiles = () => {
-    setAcceptedFiles([]);
-  };
+        setAcceptedFiles((prev) => [...prev, ...validFiles]);
+      };
+
+      validateFiles();
+    },
+    [disableFileSizeValidation],
+  );
 
   const generateUniqueId = () => {
     return `file_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -96,7 +101,7 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
     accept: {
       "application/json": [".geojson", ".json"],
     },
-    disabled: disabled,
+    disabled: disabled || uploadInProgress,
   });
 
   const deleteFile = (fileId: string) => {
@@ -104,97 +109,119 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
   };
 
   const resetState = () => {
-    clearAcceptedFiles();
+    setAcceptedFiles([]);
+    setUploadInProgress(false);
     closeDialog();
   };
 
   const handleUpload = async () => {
-    const promises = acceptedFiles.map((file: AcceptedFile) => {
-      return new Promise<void>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = async (event) => {
-          try {
-            const geojson: FeatureCollection | Feature = JSON.parse(
-              event.target?.result as string,
-            );
-            if (
-              !disableFileSizeValidation &&
-              validateGeoJSONArea(geojson as Feature)
-            ) {
-              showErrorToast(
-                undefined,
-                `Skipping upload for ${file.file.name} because the area is too large.`,
-              );
-              resolve();
-              return;
-            }
-            let geometries: Geometry[] = [];
-            if (geojson.type === "FeatureCollection") {
-              geometries = geojson.features.map((feature) => feature.geometry);
-            } else if (geojson.type === "Feature") {
-              geometries = [geojson.geometry];
-            } else {
-              throw new Error("Invalid GeoJSON format");
-            }
-            for (const geometry of geometries) {
-              fileUploadHandler(geometry);
-            }
-            resolve();
-          } catch (error) {
-            showErrorToast(
-              undefined,
-              `Error processing file: ${file.file.name}`,
-            );
-            reject(error);
-          }
-        };
-
-        reader.onerror = (error) => {
-          showErrorToast(undefined, `File read error for ${file.file.name}`);
-
-          reject(error);
-        };
-
-        reader.readAsText(file.file);
-      });
-    });
+    setUploadInProgress(true);
 
     try {
-      await Promise.all(promises);
+      // Collect all geometries from all accepted files
+      const allGeometries: Geometry[] = [];
+
+      for (const file of acceptedFiles) {
+        try {
+          const text = await file.file.text();
+          const geojson: FeatureCollection | Feature = JSON.parse(text);
+
+          // Validate GeoJSON area if required
+          if (
+            !disableFileSizeValidation &&
+            validateGeoJSONArea(geojson as Feature)
+          ) {
+            showErrorToast(
+              undefined,
+              `File area for ${file.file.name} exceeds area limit.`,
+            );
+            continue; // Skip this file
+          }
+
+          // Extract geometries based on GeoJSON type
+          if (geojson.type === "FeatureCollection") {
+            allGeometries.push(
+              ...geojson.features.map((feature) => feature.geometry),
+            );
+          } else if (geojson.type === "Feature") {
+            allGeometries.push(geojson.geometry);
+          } else {
+            throw new Error("Invalid GeoJSON format");
+          }
+        } catch (error: any) {
+          showErrorToast(undefined, `Error processing file: ${file.file.name}`);
+          // Optionally, you can choose to continue or reject the entire upload
+          // Here, we'll continue to process other files
+        }
+      }
+
+      if (allGeometries.length === 0) {
+        showErrorToast(undefined, "No valid geometries found to upload.");
+        setUploadInProgress(false);
+        return;
+      }
+
+      // Create an array of upload promises for all geometries
+      const uploadPromises = allGeometries.map((geometry) =>
+        fileUploadHandler(geometry),
+      );
+
+      // Await all upload promises
+      await Promise.all(uploadPromises);
+
+      // If all uploads succeed
       showSuccessToast(successToast);
       resetState();
-    } catch (error) {
-      showErrorToast(error);
+    } catch (error: any) {
+      // If any upload fails
+      const errorMessage = error.message || "An error occurred during upload.";
+      showErrorToast(undefined, errorMessage);
+    } finally {
+      setUploadInProgress(false);
     }
   };
 
-  const files = acceptedFiles.map((file) => (
-    <li
-      key={file.id}
-      className="border-2 border-gray-border rounded-lg px-3.5 py-1 flex items-center text-gray justify-between w-full"
-    >
-      <div className="flex items-center gap-x-2">
-        <FileIcon className="icon" />
-        <div>
-          <p className="text-dark">{truncateString(file.file.name)}</p>
-          <SlFormatBytes value={file.file.size} className="text-sm" />
-        </div>
-      </div>
-      <button
-        className="bg-secondary p-2 w-8 h-8 flex items-center justify-center rounded-lg"
-        onClick={() => deleteFile(file.id)}
-      >
-        <DeleteIcon className="icon text-primary" />
-      </button>
-    </li>
-  ));
+  const files = useMemo(() => {
+    return acceptedFiles.map((file) => {
+      return (
+        <li
+          key={file.id}
+          className="border-2 border-gray-border rounded-lg px-3.5 py-1 text-gray w-full"
+        >
+          <div className="flex flex-col">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-x-2">
+                <span className="border-2 border-gray-border p-1 flex items-center">
+                  <FileIcon className="icon " />
+                </span>
+                <div>
+                  <p className="text-dark text-body-3">
+                    {truncateString(file.file.name)}
+                  </p>
+                  <SlFormatBytes value={file.file.size} className="text-sm" />
+                </div>
+              </div>
+              <button
+                className="bg-secondary p-2 w-8 h-8 flex items-center justify-center rounded-lg"
+                onClick={() => deleteFile(file.id)}
+                disabled={disabled || uploadInProgress}
+              >
+                <DeleteIcon className="icon text-primary" />
+              </button>
+            </div>
+            {/* Removed ProgressBar */}
+          </div>
+        </li>
+      );
+    });
+  }, [acceptedFiles, disabled, uploadInProgress]);
 
   return (
     <Dialog
       isOpened={isOpened}
       closeDialog={resetState}
       label={label}
-      preventClose={disabled}
+      preventClose={disabled || uploadInProgress}
     >
       <div className="flex flex-col gap-y-4">
         <div
@@ -204,23 +231,25 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
           <UploadIcon className="icon-lg w-10 h-10 " />
           <input {...getInputProps()} />
           {isDragActive ? (
-            <p>Drop the files here ...</p>
+            <p className="text-body-4 md:text-body-3 text-center">
+              Drop the files here ...
+            </p>
           ) : (
             <>
-              <p>
+              <p className="text-body-4 md:text-body-3 text-center">
                 {
                   MODEL_CREATION_CONTENT.trainingArea.fileUploadDialog
                     .mainInstruction
                 }
               </p>
-              <small>
+              <small className="text-body-4 md:text-body-3 text-center">
                 {
                   MODEL_CREATION_CONTENT.trainingArea.fileUploadDialog
                     .fleSizeInstruction
                 }
               </small>
               {!disableFileSizeValidation && (
-                <small>
+                <small className="text-body-4 md:text-body-3 text-center">
                   {
                     MODEL_CREATION_CONTENT.trainingArea.fileUploadDialog
                       .aoiAreaInstruction
@@ -230,16 +259,26 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
             </>
           )}
         </div>
-        <small>{acceptedFiles.length} files selected</small>
+        <small>{acceptedFiles.length} file(s) selected</small>
         <ul className="flex flex-col gap-y-2 overflow-y-auto max-h-40">
           {files}
         </ul>
         <div className="self-end">
           <Button
-            disabled={acceptedFiles.length === 0 || disabled}
+            disabled={
+              acceptedFiles.length === 0 || disabled || uploadInProgress
+            }
             onClick={handleUpload}
+            className="flex items-center gap-x-2"
           >
-            {MODEL_CREATION_CONTENT.trainingArea.form.upload}
+            {uploadInProgress ? (
+              <>
+                Uploading
+                <Spinner />
+              </>
+            ) : (
+              MODEL_CREATION_CONTENT.trainingArea.form.upload
+            )}
           </Button>
         </div>
       </div>

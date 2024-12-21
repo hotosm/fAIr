@@ -32,7 +32,7 @@ const CreateNewTrainingDatasetForm = () => {
   }, [formData.tmsURL]);
   return (
     <div className="flex flex-col gap-y-10">
-      <p className="font-semibold text-body-1 mb-2">
+      <p className="font-semibold text-body-2 md:text-body-1 mb-2">
         {
           MODEL_CREATION_CONTENT.trainingDataset.form
             .newTrainingDatasetSectionHeading
@@ -55,7 +55,6 @@ const CreateNewTrainingDatasetForm = () => {
         helpText={
           MODEL_CREATION_CONTENT.trainingDataset.form.datasetName.helpText
         }
-        required
         maxLength={
           FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.DATASET_NAME]
             .maxLength
@@ -78,7 +77,6 @@ const CreateNewTrainingDatasetForm = () => {
         }
         showBorder
         helpText={tmsURLHelpText}
-        required
         pattern={
           FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.TMS_URL].pattern
         }

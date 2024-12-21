@@ -11,8 +11,23 @@ export const API_ENDPOINTS = {
   GET_OSM_DATABASE_LAST_UPDATED:
     "https://api-prod.raw-data.hotosm.org/v1/status/",
 
+  // Predict
+
+  GET_MODEL_PREDICTIONS: "https://predictor-dev.fair.hotosm.org/predict/",
+
+  // Feedbacks
+
+  CREATE_FEEDBACK: "feedback/",
+  DELETE_FEEDBACK: (id: number) => `feedback/${id}/`,
+  CREATE_APPROVED_PREDICTION: "approved-prediction/",
+  DELETE_APPROVED_PREDICTION: (id: number) => `approved-prediction/${id}/`,
+
   // KPIs
   GET_KPI_STATS: "kpi/stats/ ",
+
+  // GeoJSON to OSM
+
+  GEOJSON_TO_OSM: "geojson2osm/",
 
   // Banner
 
@@ -52,16 +67,11 @@ export const API_ENDPOINTS = {
 
   // Workspace
 
-  GET_TRAINING_WORKSPACE: (
-    datasetId: number,
-    trainingId: number,
-    directory_name: string,
-  ) =>
-    `workspace/dataset_${datasetId}/output/training_${trainingId}/${directory_name}`,
-  DOWNLOAD_TRAINING_FILE: (
-    datasetId: number,
-    trainingId: number,
-    directory_name: string,
-  ) =>
-    `workspace/download/dataset_${datasetId}/output/training_${trainingId}/${directory_name}`,
+  GET_PMTILES_URL: (trainingAreaId: number) =>
+    `/workspace/download/training_${trainingAreaId}/meta.pmtiles/?url_only=true`,
+
+  GET_TRAINING_WORKSPACE: (trainingId: number, directory_name: string) =>
+    `workspace/training_${trainingId}/${directory_name}`,
+  DOWNLOAD_TRAINING_FILE: (trainingId: number, directory_name: string) =>
+    `workspace/download/training_${trainingId}/${directory_name}/`,
 };

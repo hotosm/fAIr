@@ -7,7 +7,7 @@ import { Link } from "@/components/ui/link";
 
 const CallToAction = () => {
   return (
-    <section className={styles.container}>
+    <section className={`${styles.container}`}>
       <div className={styles.cta}>
         <div className={styles.ctaContent}>
           <h1> {APP_CONTENT.homepage.callToAction.title}</h1>

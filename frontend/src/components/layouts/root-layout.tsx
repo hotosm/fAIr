@@ -4,20 +4,24 @@ import { Footer } from "@/components/ui/footer";
 import { useEffect } from "react";
 import { Banner } from "@/components/ui/banner";
 import { APPLICATION_ROUTES } from "@/utils";
+import { useScrollToTop } from "@/hooks/use-scroll-to-element";
 
 const RootLayout = () => {
   const { pathname } = useLocation();
-  // Scroll to top on page switch.
+  const { scrollToTop } = useScrollToTop();
+  // Scroll to top on pages switch.
   useEffect(() => {
-    window.scrollTo(0, 0);
+    scrollToTop();
   }, [pathname]);
 
   return (
-    <main className="min-h-screen relative  mx-auto flex flex-col justify-between max-w-[1800px]">
+    <main className="min-h-screen relative  mx-auto flex flex-col justify-between">
       <Banner />
-      <NavBar />
+      {!pathname.includes(APPLICATION_ROUTES.START_MAPPING_BASE) && <NavBar />}
+
       <div
-        className={`${pathname !== APPLICATION_ROUTES.HOMEPAGE && "px-[1.25rem] lg:px-[5rem]"} w-full`}
+        // Disable global padding on landing page.
+        className={`${pathname === APPLICATION_ROUTES.HOMEPAGE ? "" : "app-padding"} w-full`}
       >
         <Outlet />
       </div>

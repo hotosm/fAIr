@@ -41,15 +41,16 @@ const Select: React.FC<SelectProps> = ({
       placeholder={placeholder}
       //@ts-expect-error bad type definition
       size={
-        size !== undefined
-          ? size
-          : isMobile
-            ? SHOELACE_SIZES.MEDIUM
-            : SHOELACE_SIZES.LARGE
+        !!size ? size : isMobile ? SHOELACE_SIZES.MEDIUM : SHOELACE_SIZES.LARGE
       }
       value={String(defaultValue)}
-      //@ts-expect-error bad type definition
-      onSlChange={handleChange}
+      onSlChange={(e) => {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        e.stopPropagation();
+        //@ts-expect-error bad type definition
+        handleChange(e);
+      }}
       className={className}
     >
       {label && (

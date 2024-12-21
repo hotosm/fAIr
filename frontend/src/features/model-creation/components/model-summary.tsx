@@ -27,15 +27,15 @@ const SummaryItem = ({
     <div>
       <p className="text-gray">{label}</p>
       {Array.isArray(content) ? (
-        <div className="flex items-center gap-x-4">
+        <div className="flex flex-col md:flex-row md:items-center gap-x-4">
           {content.map((item, index) => (
-            <p key={index} className="text-dark">
+            <p key={index} className="text-dark text-body-3">
               {item}
             </p>
           ))}
         </div>
       ) : (
-        <p className="text-dark">{content}</p>
+        <p className="text-dark text-body-3">{content}</p>
       )}
     </div>
   </div>

@@ -1,7 +1,7 @@
 import { IconProps } from "@/types";
 import React from "react";
 
-const SaveIcon: React.FC<IconProps> = (props) => (
+export const SaveIcon: React.FC<IconProps> = (props) => (
   <svg
     {...props}
     viewBox="0 0 18 20"
@@ -14,5 +14,3 @@ const SaveIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-
-export default SaveIcon;

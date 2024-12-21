@@ -1,4 +1,4 @@
-import { APP_CONTENT } from "@/utils";
+import { APP_CONTENT, KPI_STATS_CACHE_TIME_MS } from "@/utils";
 import styles from "./kpi.module.css";
 import { API_ENDPOINTS, apiClient } from "@/services";
 import { useQuery } from "@tanstack/react-query";
@@ -24,6 +24,7 @@ const Kpi = () => {
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["kpis"],
     queryFn: fetchKPIStats,
+    refetchInterval: KPI_STATS_CACHE_TIME_MS,
   });
 
   if (isError) {

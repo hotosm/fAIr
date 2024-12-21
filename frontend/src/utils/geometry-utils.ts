@@ -1,9 +1,15 @@
-import { Feature, FeatureCollection, Geometry } from "@/types";
+import {
+  Feature,
+  FeatureCollection,
+  Geometry,
+  TModelPredictions,
+} from "@/types";
 import bboxPolygon from "@turf/bbox";
-
+import { booleanIntersects } from "@turf/boolean-intersects";
 import area from "@turf/area";
 import { LngLatBoundsLike, Map } from "maplibre-gl";
 import { roundNumber } from "./number-utils";
+import { uuid4 } from "./general-utils";
 
 /**
  * Calculates the area of a GeoJSON Feature or FeatureCollection.
@@ -304,4 +310,54 @@ export const snapGeoJSONGeometryToClosestTile = (geometry: Geometry) => {
   const snappedCoordinates = approximateGeom(originalCoordinates);
   geometry.coordinates[0] = snappedCoordinates;
   return geometry;
+};
+
+/*
+  Logic.
+  | 1 - Purple: Will be replaced with new feature if it intersects with new features, otherwise, it'll be appended.
+  | 2 - Red: No touch                        
+  | 3 - Green: No touch                         
+*/
+export const handleConflation = (
+  existingPredictions: TModelPredictions,
+  newFeatures: Feature[],
+): TModelPredictions => {
+  let updatedAll = [...existingPredictions.all];
+
+  newFeatures.forEach((newFeature) => {
+    const intersectsWithAccepted = existingPredictions.accepted.some(
+      (acceptedFeature) => booleanIntersects(newFeature, acceptedFeature),
+    );
+    const intersectsWithRejected = existingPredictions.rejected.some(
+      (rejectedFeature) => booleanIntersects(newFeature, rejectedFeature),
+    );
+
+    const intersectingIndex = updatedAll.findIndex((existingFeature) =>
+      booleanIntersects(newFeature, existingFeature),
+    );
+
+    if (intersectingIndex !== -1) {
+      updatedAll[intersectingIndex] = {
+        ...newFeature,
+        properties: {
+          ...newFeature.properties,
+          id: updatedAll[intersectingIndex].properties?.id || uuid4(),
+        },
+      };
+    } else if (!intersectsWithAccepted && !intersectsWithRejected) {
+      updatedAll.push({
+        ...newFeature,
+        properties: {
+          ...newFeature.properties,
+          id: uuid4(),
+        },
+      });
+    }
+  });
+
+  return {
+    all: updatedAll,
+    accepted: existingPredictions.accepted,
+    rejected: existingPredictions.rejected,
+  };
 };

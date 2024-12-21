@@ -1,7 +1,7 @@
 import { IconProps } from "@/types";
 import React from "react";
 
-const StarIcon: React.FC<IconProps> = (props) => (
+export const StarIcon: React.FC<IconProps> = (props) => (
   <svg
     {...props}
     viewBox="0 0 22 20"
@@ -14,5 +14,3 @@ const StarIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-
-export default StarIcon;

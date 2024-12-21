@@ -1,7 +1,7 @@
 import { IconProps } from "@/types";
 import React from "react";
 
-const AdvancedGuageIcon: React.FC<IconProps> = (props) => (
+export const AdvancedGuageIcon: React.FC<IconProps> = (props) => (
   <svg
     {...props}
     viewBox="0 0 25 18"
@@ -50,5 +50,3 @@ const AdvancedGuageIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-
-export default AdvancedGuageIcon;

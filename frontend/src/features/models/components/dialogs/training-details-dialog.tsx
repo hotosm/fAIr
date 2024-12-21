@@ -1,12 +1,15 @@
 import { Dialog } from "@/components/ui/dialog";
-
+import { Drawer } from "@/components/ui/drawer";
+import { DrawerPlacements } from "@/enums";
 import ModelProperties from "@/features/models/components/model-details-properties";
+import useScreenSize from "@/hooks/use-screen-size";
 import { DialogProps } from "@/types";
 
 type TrainingDetailsDialogProps = DialogProps & {
   trainingId: number;
   datasetId: number;
   baseModel: string;
+  tmsUrl: string;
 };
 
 const TrainingDetailsDialog: React.FC<TrainingDetailsDialogProps> = ({
@@ -15,20 +18,45 @@ const TrainingDetailsDialog: React.FC<TrainingDetailsDialogProps> = ({
   trainingId,
   datasetId,
   baseModel,
+  tmsUrl,
 }) => {
+  const { isMobile } = useScreenSize();
+
+  if (isMobile) {
+    return (
+      <Drawer
+        open={isOpened}
+        setOpen={closeDialog}
+        placement={DrawerPlacements.BOTTOM}
+        noHeader={false}
+      >
+        <ModelProperties
+          trainingId={trainingId}
+          isTrainingDetailsDialog
+          datasetId={datasetId}
+          baseModel={baseModel}
+          tmsUrl={tmsUrl}
+        />
+      </Drawer>
+    );
+  }
+
   return (
-    <Dialog
-      isOpened={isOpened}
-      closeDialog={closeDialog}
-      label={`Training ${trainingId}`}
-    >
-      <ModelProperties
-        trainingId={trainingId}
-        isTrainingDetailsDialog
-        datasetId={datasetId}
-        baseModel={baseModel}
-      />
-    </Dialog>
+    <>
+      <Dialog
+        isOpened={isOpened}
+        closeDialog={closeDialog}
+        label={`Training ${trainingId}`}
+      >
+        <ModelProperties
+          trainingId={trainingId}
+          isTrainingDetailsDialog
+          datasetId={datasetId}
+          baseModel={baseModel}
+          tmsUrl={tmsUrl}
+        />
+      </Dialog>
+    </>
   );
 };
 

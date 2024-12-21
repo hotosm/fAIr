@@ -10,5 +10,5 @@
  * @returns {string} - The rounded number as a string.
  */
 export const roundNumber = (num: number, round: number = 2): number => {
-  return Number(num.toFixed(round) ?? 0);
+  return Number(num.toFixed(round));
 };

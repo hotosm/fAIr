@@ -1,7 +1,7 @@
 import { IconProps } from "@/types";
 import React from "react";
 
-const ShieldIcon: React.FC<IconProps> = (props) => (
+export const ShieldIcon: React.FC<IconProps> = (props) => (
   <svg
     {...props}
     viewBox="0 0 47 53"
@@ -14,5 +14,3 @@ const ShieldIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-
-export default ShieldIcon;

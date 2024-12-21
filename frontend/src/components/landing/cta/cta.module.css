@@ -79,12 +79,12 @@
 /* md: */
 @media (min-width: 768px) {
   .container {
-    padding: 0 var(--hot-fair-spacing-5x-large);
+    padding: 0 var(--hot-fair-spacing-extra-large);
     min-height: 452px;
     align-items: center;
     justify-content: space-between;
     flex-direction: row;
-    gap: var(--hot-fair-spacing-5x-large);
+    gap: var(--hot-fair-spacing-extra-large);
   }
 
   .ctaContent {
