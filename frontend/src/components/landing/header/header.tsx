@@ -26,9 +26,15 @@ const Header = () => {
                 {APP_CONTENT.homepage.ctaPrimaryButton}
               </Button>
             </Link>
-            <Button variant="secondary">
-              {APP_CONTENT.homepage.ctaSecondaryButton}
-            </Button>
+            <Link
+              href={APPLICATION_ROUTES.MODELS}
+              title={APP_CONTENT.homepage.ctaPrimaryButton}
+              nativeAnchor={false}
+            >
+              <Button variant="secondary">
+                {APP_CONTENT.homepage.ctaSecondaryButton}
+              </Button>
+            </Link>
           </div>
         </div>
         <div className={styles.jumbotronImage}>
