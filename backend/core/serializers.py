@@ -140,7 +140,20 @@ class AOISerializer(
             "last_modified",
             "label_fetched",
             "label_status",
+            "user",
         )
+
+    def create(self, validated_data):
+        request = self.context.get("request")
+        if request and hasattr(request, "user"):
+            validated_data["user"] = request.user
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        request = self.context.get("request")
+        if request and hasattr(request, "user"):
+            validated_data["user"] = request.user
+        return super().update(instance, validated_data)
 
 
 class FeedbackAOISerializer(GeoFeatureModelSerializer):

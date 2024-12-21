@@ -32,7 +32,6 @@ from drf_yasg.utils import swagger_auto_schema
 from geojson2osm import geojson2osm
 from login.authentication import OsmAuthentication
 from login.permissions import IsAdminUser, IsOsmAuthenticated, IsStaffUser
-from orthogonalizer import othogonalize_poly
 from osmconflator import conflate_geojson
 from rest_framework import decorators, filters, serializers, status, viewsets
 from rest_framework.decorators import api_view
@@ -89,7 +88,22 @@ class DatasetViewSet(
     permission_classes = [IsOsmAuthenticated]
     public_methods = ["GET"]
     queryset = Dataset.objects.all()
+    filter_backends = (
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
+    )
     serializer_class = DatasetSerializer  # connecting serializer
+    filterset_fields = {
+        "status": ["exact"],
+        "created_at": ["exact", "gt", "gte", "lt", "lte"],
+        "last_modified": ["exact", "gt", "gte", "lt", "lte"],
+        "user": ["exact"],
+        "id": ["exact"],
+        "source_imagery": ["exact"],
+    }
+    ordering_fields = ["created_at", "last_modified", "id", "status"]
+    search_fields = ["name", "id"]
 
 
 class TrainingSerializer(
@@ -136,16 +150,25 @@ class TrainingSerializer(
 
         epochs = validated_data["epochs"]
         batch_size = validated_data["batch_size"]
+        if model.base_model == "RAMP":
+            if epochs > settings.RAMP_EPOCHS_LIMIT:
+                raise ValidationError(
+                    f"Epochs can't be greater than {settings.RAMP_EPOCHS_LIMIT} on this server"
+                )
+            if batch_size > settings.RAMP_BATCH_SIZE_LIMIT:
+                raise ValidationError(
+                    f"Batch size can't be greater than {settings.RAMP_BATCH_SIZE_LIMIT} on this server"
+                )
+        if model.base_model in ["YOLO_V8_V1","YOLO_V8_V2"]:
 
-        if epochs > settings.EPOCHS_LIMIT:
-            raise ValidationError(
-                f"Epochs can't be greater than {settings.EPOCHS_LIMIT} on this server"
-            )
-        if batch_size > settings.BATCH_SIZE_LIMIT:
-            raise ValidationError(
-                f"Batch size can't be greater than {settings.BATCH_SIZE_LIMIT} on this server"
-            )
-
+            if epochs > settings.YOLO_EPOCHS_LIMIT:
+                raise ValidationError(
+                    f"Epochs can't be greater than {settings.YOLO_EPOCHS_LIMIT} on this server"
+                )
+            if batch_size > settings.YOLO_BATCH_SIZE_LIMIT:
+                raise ValidationError(
+                    f"Batch size can't be greater than {settings.YOLO_BATCH_SIZE_LIMIT} on this server"
+                )
         user = self.context["request"].user
         validated_data["user"] = user
         # create the model instance
@@ -195,8 +218,15 @@ class TrainingViewSet(
     public_methods = ["GET"]
     queryset = Training.objects.all()
     http_method_names = ["get", "post", "delete"]
+    filter_backends = (
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
+    )
     serializer_class = TrainingSerializer  # connecting serializer
     filterset_fields = ["model", "status"]
+    ordering_fields = ["finished_at", "accuracy", "id", "model", "status"]
+    search_fields = ["description", "id"]
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -304,6 +334,7 @@ class AOIViewSet(viewsets.ModelViewSet):
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsOsmAuthenticated]
     public_methods = ["GET"]
+    authenticated_user_allowed_methods = ["POST", "DELETE"]
     queryset = AOI.objects.all()
     serializer_class = AOISerializer  # connecting serializer
     filter_backends = [DjangoFilterBackend]
@@ -317,9 +348,10 @@ class LabelViewSet(viewsets.ModelViewSet):
     queryset = Label.objects.all()
     serializer_class = LabelSerializer  # connecting serializer
     bbox_filter_field = "geom"
+    pagination_class = None
     filter_backends = (
         InBBoxFilter,  # it will take bbox like this api/v1/label/?in_bbox=-90,29,-89,35 ,
-        # TMSTileFilter,  # will serve as tms tiles https://wiki.openstreetmap.org/wiki/TMS ,  use like this ?tile=8/100/200 z/x/y which is equivalent to filtering on the bbox (-39.37500,-71.07406,-37.96875,-70.61261) # Note that the tile address start in the upper left, not the lower left origin used by some implementations.
+        TMSTileFilter,  # will serve as tms tiles https://wiki.openstreetmap.org/wiki/TMS ,  use like this ?tile=8/100/200 z/x/y which is equivalent to filtering on the bbox (-39.37500,-71.07406,-37.96875,-70.61261) # Note that the tile address start in the upper left, not the lower left origin used by some implementations.
         DjangoFilterBackend,
     )
     bbox_filter_include_overlapping = (
@@ -530,12 +562,14 @@ def run_task_status(request, run_id: str):
             }
         )
     elif task_result.state == "PENDING" or task_result.state == "STARTED":
-        log_file = os.path.join(settings.LOG_PATH, f"run_{run_id}_log.txt")
+        log_file = os.path.join(settings.LOG_PATH, f"run_{run_id}.log")
         try:
             # read the last 10 lines of the log file
-            output = subprocess.check_output(["tail", "-n", "10", log_file]).decode(
-                "utf-8"
-            )
+            cmd = ["tail", "-n", str(settings.LOG_LINE_STREAM_TRUNCATE_VALUE), log_file]
+            # print(cmd)
+            output = subprocess.check_output(
+                cmd
+            ).decode("utf-8")
         except Exception as e:
             output = str(e)
         result = {
@@ -621,6 +655,7 @@ class FeedbackView(APIView):
 DEFAULT_TILE_SIZE = 256
 
 if settings.ENABLE_PREDICTION_API:
+    from orthogonalizer import othogonalize_poly
 
     class PredictionView(APIView):
         authentication_classes = [OsmAuthentication]
@@ -727,15 +762,20 @@ if settings.ENABLE_PREDICTION_API:
 def publish_training(request, training_id: int):
     """Publishes training for model"""
     training_instance = get_object_or_404(Training, id=training_id)
+    model_instance = get_object_or_404(Model, id=training_instance.model.id)
 
     if training_instance.status != "FINISHED":
         return Response("Training is not FINISHED", status=409)
-    if training_instance.accuracy < 70:
-        return Response(
-            "Can't publish the training since its accuracy is below 70%", status=403
-        )
-
-    model_instance = get_object_or_404(Model, id=training_instance.model.id)
+    if model_instance.base_model == "RAMP":
+        if training_instance.accuracy < 70:
+            return Response(
+                "Can't publish the training since its accuracy is below 70%", status=403
+            )
+    else:  ## Training publish limit for other model than ramp , TODO : Change this limit after testing for yolo
+        if training_instance.accuracy < 5:
+            return Response(
+                "Can't publish the training since its accuracy is below 5%", status=403
+            )
 
     # Check if the current user is the owner of the model
     if model_instance.user != request.user:
@@ -829,7 +869,7 @@ class TrainingWorkspaceDownloadView(APIView):
 
     def dispatch(self, request, *args, **kwargs):
         lookup_dir = kwargs.get("lookup_dir")
-        if lookup_dir.endswith("training_validation_sparse_categorical_accuracy.png"):
+        if lookup_dir.endswith("training_accuracy.png"):
             # bypass
             self.authentication_classes = []
             self.permission_classes = []

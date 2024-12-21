@@ -56,8 +56,19 @@ OSM_SECRET_KEY = env("OSM_SECRET_KEY")
 
 
 # Limiter
-EPOCHS_LIMIT = env("EPOCHS_LIMIT", default=30)
+
+
+EPOCHS_LIMIT = env("EPOCHS_LIMIT", default=20)  ## TODO : Remove this global variable
 BATCH_SIZE_LIMIT = env("BATCH_SIZE_LIMIT", default=8)
+
+## YOLO
+YOLO_EPOCHS_LIMIT = env("YOLO_EPOCHS_LIMIT", default=200)
+YOLO_BATCH_SIZE_LIMIT = env("YOLO_BATCH_SIZE_LIMIT", default=8)
+
+## RAMP
+RAMP_EPOCHS_LIMIT = env("RAMP_EPOCHS_LIMIT", default=40)
+RAMP_BATCH_SIZE_LIMIT = env("RAMP_BATCH_SIZE_LIMIT", default=8)
+
 TRAINING_WORKSPACE_DOWNLOAD_LIMIT = env(
     "TRAINING_WORKSPACE_DOWNLOAD_LIMIT", default=200
 )
@@ -215,6 +226,8 @@ SWAGGER_SETTINGS = {
 RAMP_HOME = env("RAMP_HOME", default=None)
 if RAMP_HOME:
     os.environ["RAMP_HOME"] = RAMP_HOME
+YOLO_HOME = env("YOLO_HOME", default=os.getcwd())
+
 
 # training workspace
 TRAINING_WORKSPACE = env(
@@ -222,6 +235,9 @@ TRAINING_WORKSPACE = env(
 )
 
 ENABLE_PREDICTION_API = env("ENABLE_PREDICTION_API", default=False)
+
+
+LOG_LINE_STREAM_TRUNCATE_VALUE = env("LOG_LINE_STREAM_TRUNCATE_VALUE", default=10)
 
 
 TEST_RUNNER = "tests.test_runners.NoDestroyTestRunner"

@@ -52,11 +52,7 @@ export const useModels = ({
   });
 };
 
-export const useModelDetails = (
-  id: string,
-  enabled: boolean = true,
-  refetchInterval: boolean | number = false,
-) => {
+export const useModelDetails = (id: string, enabled: boolean = true, refetchInterval: boolean | number = false) => {
   return useQuery({
     ...getModelDetailsQueryOptions(id, refetchInterval),
     //@ts-expect-error bad type definition

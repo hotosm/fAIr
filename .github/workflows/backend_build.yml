@@ -124,14 +124,15 @@ jobs:
           python manage.py migrate login
           python manage.py migrate core
 
-      - name : Run tests
-        env :
+      - name: Run tests
+        env:
           TESTING_TOKEN: ${{ secrets.TESTING_TOKEN }}
           OSM_CLIENT_ID: ${{ secrets.OSM_CLIENT_ID }}
           OSM_CLIENT_SECRET: ${{ secrets.OSM_CLIENT_SECRET }}
           OSM_SECRET_KEY: ${{ secrets.OSM_SECRET_KEY }}
 
-        run : |
+        run: |
           cd backend/
           coverage run manage.py test tests
-          coverage report
+
+# enable coverage report with this :           coverage report
