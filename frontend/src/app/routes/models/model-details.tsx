@@ -74,7 +74,6 @@ export const ModelDetailsPage = () => {
   ) {
     return <ModelDetailsSkeleton />;
   }
-  const isOwner = user?.osm_id === data?.user?.osm_id;
 
   return (
     <>
@@ -136,6 +135,7 @@ export const ModelDetailsPage = () => {
             size="medium"
             prefixIcon={StarStackIcon}
             onClick={openModelEnhancementDialog}
+            disabled={!isAuthenticated}
           />
         </div>
         {/* mobile */}
@@ -151,7 +151,7 @@ export const ModelDetailsPage = () => {
               size="medium"
               prefixIcon={StarStackIcon}
               onClick={openModelEnhancementDialog}
-              disabled={!isOwner}
+              disabled={!isAuthenticated}
             />
           </div>
           <TrainingHistoryTable
