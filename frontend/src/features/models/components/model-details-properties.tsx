@@ -1,22 +1,24 @@
-import { Image } from "@/components/ui/image";
+import { Image, ZoomableImage } from "@/components/ui/image";
 import ToolTip from "@/components/ui/tooltip/tooltip";
 import {
   useTrainingDetails,
   useTrainingStatus,
 } from "@/features/models/hooks/use-training";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import AccuracyDisplay from "./accuracy-display";
 import { Link } from "@/components/ui/link";
 import { CopyIcon, ExternalLinkIcon } from "@/components/ui/icons";
 import { ModelPropertiesSkeleton } from "./skeletons";
 import CodeBlock from "@/components/ui/codeblock/codeblock";
-import ChevronDownIcon from "@/components/ui/icons/chevron-down-icon";
+import { ChevronDownIcon } from "@/components/ui/icons";
 import { APP_CONTENT, cn, showErrorToast } from "@/utils";
 import { ENVS } from "@/config/env";
 import useCopyToClipboard from "@/hooks/use-clipboard";
 import ModelFilesButton from "./model-files-button";
 import { ModelFilesDialog } from "./dialogs";
 import { useDialog } from "@/hooks/use-dialog";
+import { TrainingAreaButton } from "./training-area-button";
+import { TrainingAreaDrawer } from "./training-area-drawer";
 
 enum TrainingStatus {
   FAILED = "FAILED",
@@ -49,7 +51,7 @@ const PropertyDisplay: React.FC<PropertyDisplayProps> = ({
   const { copyToClipboard } = useCopyToClipboard();
   return (
     <div className="row-span-1 col-span-1 flex flex-col gap-y-5">
-      <span className="text-gray text-body-2 flex items-center gap-x-4 text-nowrap ">
+      <span className="text-gray text-body-2base md:text-body-2 flex items-center gap-x-4 text-nowrap ">
         {label}
         {tooltip && <ToolTip content={tooltip} />}
       </span>
@@ -63,12 +65,16 @@ const PropertyDisplay: React.FC<PropertyDisplayProps> = ({
           className="flex items-center gap-x-3"
           title={label}
         >
-          <span className="text-dark font-semibold text-title-3">{value}</span>
+          <span className="text-dark font-semibold text-body-2 md:text-body-1">
+            {value}
+          </span>
           <ExternalLinkIcon className="icon" />
         </Link>
       ) : isCopy ? (
         <div className="flex items-center gap-x-3">
-          <span className="text-dark font-semibold text-title-3">URL</span>
+          <span className="text-dark font-semibold text-body-2 md:text-body-1">
+            URL
+          </span>
           <button onClick={() => copyToClipboard(value as string)}>
             <CopyIcon className="icon md:icon-lg" />
           </button>
@@ -76,7 +82,7 @@ const PropertyDisplay: React.FC<PropertyDisplayProps> = ({
       ) : (
         <span
           className={cn(
-            `${animate && "animate-pulse"} text-dark font-semibold text-title-3`,
+            `${animate && "animate-pulse"} text-dark font-semibold text-body-2 md:text-body-1`,
           )}
         >
           {value ?? "N/A"}
@@ -91,6 +97,7 @@ type ModelPropertiesProps = {
   datasetId?: number;
   isTrainingDetailsDialog?: boolean;
   baseModel: string;
+  tmsUrl?: string;
 };
 
 const ModelProperties: React.FC<ModelPropertiesProps> = ({
@@ -98,10 +105,20 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
   datasetId,
   isTrainingDetailsDialog = false,
   baseModel,
+  tmsUrl,
 }) => {
-  const { isPending, data, error, isError } = useTrainingDetails(trainingId);
+  const { isPending, data, error, isError } = useTrainingDetails(
+    trainingId,
+    10000,
+  );
 
   const { isOpened, closeDialog, openDialog } = useDialog();
+
+  const {
+    isOpened: isTrainingAreaDrawerOpened,
+    closeDialog: closeTrainingAreaDrawer,
+    openDialog: openTrainingAreaDrawer,
+  } = useDialog();
 
   useEffect(() => {
     if (isError) {
@@ -120,28 +137,32 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
     chips_length,
   } = data || {};
 
-  const trainingResultsGraph = `${ENVS.BASE_API_URL}workspace/download/dataset_${datasetId}/output/training_${data?.id}/graphs/training_accuracy.png`;
+  const trainingResultsGraph = `${ENVS.BASE_API_URL}workspace/download/training_${data?.id}/graphs/training_accuracy.png`;
 
-  const content = useMemo(() => {
-    if (isPending) {
-      return <ModelPropertiesSkeleton isTrainingDetailsDialog />;
-    }
+  return isError || isPending ? (
+    <ModelPropertiesSkeleton isTrainingDetailsDialog />
+  ) : (
+    <>
+      <TrainingAreaDrawer
+        isOpened={isTrainingAreaDrawerOpened}
+        closeDialog={closeTrainingAreaDrawer}
+        trainingAreaId={trainingId}
+        tmsURL={tmsUrl as string}
+      />
 
-    return (
+      <ModelFilesDialog
+        closeDialog={closeDialog}
+        isOpened={isOpened}
+        trainingId={trainingId}
+        datasetId={datasetId as number}
+      />
       <>
-        <ModelFilesDialog
-          closeDialog={closeDialog}
-          isOpened={isOpened}
-          trainingId={trainingId}
-          datasetId={datasetId as number}
-        />
-
         <div
           className={cn(
             `grid ${isTrainingDetailsDialog ? "grid-cols-2" : "grid-cols-1 lg:grid-cols-5"} gap-14 items-center `,
           )}
         >
-          <div className="col-span-3 grid grid-cols-1 sm:grid-cols-2 grid-rows-4 gap-y-4 md:gap-y-10">
+          <div className="col-span-3 grid grid-cols-1 sm:grid-cols-2 grid-rows-4 gap-y-4 md:gap-y-8">
             <PropertyDisplay
               label={
                 APP_CONTENT.models.modelsDetailsCard.properties.zoomLevels.title
@@ -265,23 +286,37 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
             />
 
             {isTrainingDetailsDialog && (
-              <ModelFilesButton
-                disabled={
-                  data?.status === TrainingStatus.IN_PROGRESS ||
-                  data?.status === TrainingStatus.RUNNING
-                }
-                openModelFilesDialog={openDialog}
+              <div className="w-fit">
+                <ModelFilesButton
+                  disabled={
+                    data?.status === TrainingStatus.IN_PROGRESS ||
+                    data?.status === TrainingStatus.RUNNING
+                  }
+                  openModelFilesDialog={openDialog}
+                />
+              </div>
+            )}
+
+            {isTrainingDetailsDialog && (
+              <TrainingAreaButton
+                onClick={openTrainingAreaDrawer}
+                disabled={data?.status !== TrainingStatus.SUCCESS}
               />
             )}
           </div>
 
-          {trainingResultsGraph && (
-            <div
-              className={`col-span-3 lg:col-span-2 ${isTrainingDetailsDialog && "lg:col-span-3"}`}
-            >
-              <Image src={trainingResultsGraph} alt={""} />
-            </div>
-          )}
+          {trainingResultsGraph &&
+            ![TrainingStatus.RUNNING, TrainingStatus.FAILED].includes(
+              data?.status as TrainingStatus,
+            ) && (
+              <div
+                className={`col-span-3 lg:col-span-2 ${isTrainingDetailsDialog && "lg:col-span-3"}`}
+              >
+                <ZoomableImage>
+                  <Image src={trainingResultsGraph} alt={data.description} />
+                </ZoomableImage>
+              </div>
+            )}
 
           {/* Show logs only in modal and when status failed or running */}
           {isTrainingDetailsDialog &&
@@ -291,24 +326,7 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
             )}
         </div>
       </>
-    );
-  }, [
-    isPending,
-    trainingAccuracy,
-    epochs,
-    zoom_level,
-    batch_size,
-    input_contact_spacing,
-    input_boundary_width,
-    source_imagery,
-    trainingResultsGraph,
-    isOpened,
-  ]);
-
-  return isError ? (
-    <ModelPropertiesSkeleton isTrainingDetailsDialog />
-  ) : (
-    content
+    </>
   );
 };
 
@@ -320,14 +338,14 @@ const FailedTrainingTraceBack = ({ taskId }: { taskId: string }) => {
 
   if (isPending) {
     return (
-      <div className="h-80 col-span-5 w-full animate-pulse bg-light-gray"></div>
+      <div className="h-40 col-span-5 w-full animate-pulse bg-light-gray"></div>
     );
   }
   return (
-    <div className="col-span-5 flex flex-col gap-y-4 w-full h-40">
+    <div className="col-span-3 flex flex-col gap-y-2 w-full">
       <button
         onClick={() => setShowLogs(!showLogs)}
-        className="flex items-center gap-x-2"
+        className="flex items-center gap-x-2 text-gray text-body-2"
       >
         <p>{APP_CONTENT.models.modelsDetailsCard.trainingInfoDialog.logs}</p>
         <ChevronDownIcon className={`icon ${showLogs && "rotate-180"}`} />

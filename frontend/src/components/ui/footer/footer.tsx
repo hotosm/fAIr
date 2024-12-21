@@ -1,9 +1,9 @@
 import CreativeCommonsBadge from "@/assets/images/cc_by_badge.png";
-import FacebookLogo from "@/assets/socials/facebook_logo.svg";
-import GitHubLogo from "@/assets/socials/github_logo.svg";
-import XLogo from "@/assets/socials/x_logo.svg";
-import InstagramLogo from "@/assets/socials/instagram_logo.svg";
-import YoutTubeLogo from "@/assets/socials/youtube_logo.svg";
+import FacebookLogo from "@/assets/svgs/socials/facebook_logo.svg";
+import GitHubLogo from "@/assets/svgs/socials/github_logo.svg";
+import XLogo from "@/assets/svgs/socials/x_logo.svg";
+import InstagramLogo from "@/assets/svgs/socials/instagram_logo.svg";
+import YoutTubeLogo from "@/assets/svgs/socials/youtube_logo.svg";
 import { APP_CONTENT } from "@/utils/content";
 import { Image } from "@/components/ui/image";
 import { Link } from "@/components/ui/link";
@@ -38,7 +38,7 @@ const socials = [
 const Footer = () => {
   return (
     <footer>
-      <div className="grid grid-cols-12 grid-rows-2 gap-y-[67px] px-[20px] lg:px-[80px] bg-dark text-white py-[77px]">
+      <div className="grid grid-cols-12 grid-rows-2 gap-y-[67px] app-padding bg-dark text-white py-[77px]">
         <div className="col-span-12 grid grid-cols-8 lg:grid-cols-12  gap-x-[40px] gap-y-[40px]">
           <div className="col-span-8 lg:col-span-4">
             <p className="text-body-1">{APP_CONTENT.footer.title}</p>
@@ -66,7 +66,8 @@ const Footer = () => {
                     href={route.route}
                     title={route.title}
                     className="!text-white"
-                    nativeAnchor={false}
+                    nativeAnchor={route.isExternalLink}
+                    blank={route.isExternalLink}
                   >
                     {route.title}
                   </Link>

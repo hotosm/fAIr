@@ -4,7 +4,7 @@ import {
 } from "@/app/providers/models-provider";
 import { Input } from "@/components/ui/form";
 import { SearchIcon } from "@/components/ui/icons";
-import CheckIcon from "@/components/ui/icons/check-icon";
+import { CheckIcon } from "@/components/ui/icons";
 import { useState } from "react";
 import { useGetTrainingDatasets } from "@/features/model-creation/hooks/use-training-datasets";
 import useDebounce from "@/hooks/use-debounce";
@@ -20,7 +20,7 @@ const SelectExistingTrainingDatasetForm = () => {
 
   return (
     <div className="flex flex-col gap-y-10">
-      <p className="font-semibold text-body-1 mb-2">
+      <p className="font-semibold text-body-2 md:text-body-1 mb-2">
         {
           MODEL_CREATION_CONTENT.trainingDataset.form
             .existingTrainingDatasetSectionHeading

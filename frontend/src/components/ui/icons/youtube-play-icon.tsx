@@ -1,7 +1,7 @@
 import { IconProps } from "@/types";
 import React from "react";
 
-const YouTubePlayIcon: React.FC<IconProps> = (props) => (
+export const YouTubePlayIcon: React.FC<IconProps> = (props) => (
   <svg
     {...props}
     viewBox="0 0 29 28"
@@ -15,5 +15,3 @@ const YouTubePlayIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-
-export default YouTubePlayIcon;

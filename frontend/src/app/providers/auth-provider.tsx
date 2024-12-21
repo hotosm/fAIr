@@ -8,8 +8,8 @@ import {
   HOT_FAIR_SESSION_REDIRECT_KEY,
   showErrorToast,
   showSuccessToast,
-  TOAST_NOTIFICATIONS,
 } from "@/utils";
+import { TOAST_NOTIFICATIONS } from "@/constants";
 import React, { createContext, useContext, useState, useEffect } from "react";
 
 type TAuthContext = {
@@ -23,7 +23,13 @@ type TAuthContext = {
 // @ts-expect-error bad type definition
 const AuthContext = createContext<TAuthContext>(null);
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
+};
 
 type AuthProviderProps = {
   children: React.ReactNode;

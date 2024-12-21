@@ -3,7 +3,7 @@ import { DropDown } from "@/components/ui/dropdown";
 import { DateRangePicker } from "@/components/ui/form";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { DateFilter, TQueryParams } from "@/types";
-import { SlCheckbox } from "@shoelace-style/shoelace/dist/react/index.js";
+import { SlCheckbox } from "@shoelace-style/shoelace/dist/react";
 import { useEffect, useState } from "react";
 
 export const dateFilters: DateFilter[] = [

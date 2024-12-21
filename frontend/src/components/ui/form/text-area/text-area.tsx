@@ -1,4 +1,4 @@
-import SlTextarea from "@shoelace-style/shoelace/dist/react/textarea/index.js";
+import { SlTextarea } from "@shoelace-style/shoelace/dist/react";
 import "./text-area.css";
 import { HelpText, FormLabel } from "@/components/ui/form";
 

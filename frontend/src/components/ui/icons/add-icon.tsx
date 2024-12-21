@@ -1,7 +1,7 @@
 import { IconProps } from "@/types";
 import React from "react";
 
-const AddIcon: React.FC<IconProps> = (props) => (
+export const AddIcon: React.FC<IconProps> = (props) => (
   <svg
     width="24"
     height="25"
@@ -16,5 +16,3 @@ const AddIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-
-export default AddIcon;

@@ -7,10 +7,7 @@ import {
   ModelDetailsInfo,
   TrainingHistoryTable,
 } from "@/features/models/components";
-import {
-  TrainingAreaDialog,
-  ModelFilesDialog,
-} from "@/features/models/components/dialogs";
+import { ModelFilesDialog } from "@/features/models/components/dialogs";
 import { ModelDetailsSkeleton } from "@/features/models/components/skeletons";
 import { useModelDetails } from "@/features/models/hooks/use-models";
 import { useDialog } from "@/hooks/use-dialog";
@@ -20,20 +17,28 @@ import { useNavigate, useParams } from "react-router-dom";
 import TrainingInProgressImage from "@/assets/images/training_in_progress.png";
 import { Image } from "@/components/ui/image";
 import ModelEnhancementDialog from "@/features/models/components/dialogs/model-enhancement-dialog";
-import { TModelDetails } from "@/types";
+import { TModelDetails, TTrainingDataset } from "@/types";
 import { useAuth } from "@/app/providers/auth-provider";
+import { TrainingAreaDrawer } from "@/features/models/components/training-area-drawer";
+import { useGetTrainingDataset } from "@/features/models/hooks/use-dataset";
 
 export const ModelDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
-  const { isOpened, closeDialog, openDialog } = useDialog();
+
   const {
     isOpened: isModelFilesDialogOpened,
     closeDialog: closeModelFilesDialog,
     openDialog: openModelFilesDialog,
   } = useDialog();
+
   const navigate = useNavigate();
-  const { data, isPending, isError, error } = useModelDetails(id as string, id !== undefined, 10000);
-  const { user } = useAuth();
+
+  const { data, isPending, isError, error } = useModelDetails(
+    id as string,
+    !!id,
+    10000,
+  );
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
     if (isError) {
@@ -52,10 +57,23 @@ export const ModelDetailsPage = () => {
     closeDialog: closeModelEnhancementDialog,
     openDialog: openModelEnhancementDialog,
   } = useDialog();
-  if (isPending || isError) {
+
+  const {
+    isPending: isTrainingDatasetPending,
+    data: trainingDataset,
+    isError: isTrainingDatasetError,
+  } = useGetTrainingDataset(data?.dataset, !!data);
+
+  const { isOpened, closeDialog, openDialog } = useDialog();
+
+  if (
+    isPending ||
+    isError ||
+    isTrainingDatasetPending ||
+    isTrainingDatasetError
+  ) {
     return <ModelDetailsSkeleton />;
   }
-  const isOwner = user?.osm_id === data?.user?.osm_id;
 
   return (
     <>
@@ -64,6 +82,12 @@ export const ModelDetailsPage = () => {
         closeDialog={closeModelEnhancementDialog}
         modelId={data?.id as string}
       />
+      <TrainingAreaDrawer
+        isOpened={isOpened}
+        closeDialog={closeDialog}
+        trainingAreaId={data?.published_training as number}
+        tmsURL={trainingDataset?.source_imagery as string}
+      />
       <Head title={`${data?.name} Model`} />
       <ModelFilesDialog
         closeDialog={closeModelFilesDialog}
@@ -71,13 +95,16 @@ export const ModelDetailsPage = () => {
         trainingId={data?.published_training as number}
         datasetId={data?.dataset as number}
       />
-      <TrainingAreaDialog isOpened={isOpened} closeDialog={closeDialog} />
-      <BackButton />
+
+      <BackButton className="mt-6" />
       <div className="my-12 flex flex-col gap-y-20">
         <ModelDetailsInfo
           data={data as TModelDetails}
           openModelFilesDialog={openModelFilesDialog}
-          openTrainingAreaDialog={openDialog}
+          openTrainingAreaDrawer={openDialog}
+          isError={isTrainingDatasetError}
+          isPending={isTrainingDatasetPending}
+          trainingDataset={trainingDataset as TTrainingDataset}
         />
         <ModelDetailsSection
           title={APP_CONTENT.models.modelsDetailsCard.propertiesSectionTitle}
@@ -108,6 +135,7 @@ export const ModelDetailsPage = () => {
             size="medium"
             prefixIcon={StarStackIcon}
             onClick={openModelEnhancementDialog}
+            disabled={!isAuthenticated}
           />
         </div>
         {/* mobile */}
@@ -123,7 +151,7 @@ export const ModelDetailsPage = () => {
               size="medium"
               prefixIcon={StarStackIcon}
               onClick={openModelEnhancementDialog}
-              disabled={!isOwner}
+              disabled={!isAuthenticated}
             />
           </div>
           <TrainingHistoryTable
@@ -132,6 +160,7 @@ export const ModelDetailsPage = () => {
             modelOwner={data?.user.username as string}
             datasetId={data?.dataset as number}
             baseModel={data?.base_model as string}
+            tmsUrl={trainingDataset.source_imagery}
           />
         </ModelDetailsSection>
       </div>

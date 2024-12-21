@@ -2,11 +2,12 @@ import { cn } from "@/utils";
 import { SlCheckbox } from "@shoelace-style/shoelace/dist/react/index.js";
 import { useEffect, useState } from "react";
 import "./checkbox-group.css";
+import { SHOELACE_SIZES } from "@/enums";
 
 type CheckboxGroupProps = {
   options: {
     value: string;
-    apiValue?: string;
+    apiValue?: string | number;
   }[];
   disabled?: boolean;
   defaultSelectedOption?: string | string[] | number[];
@@ -68,7 +69,8 @@ const CheckboxGroup: React.FC<CheckboxGroupProps> = ({
         <li key={`checkbox-option-${id}`} className="flex items-center gap-x-2">
           <SlCheckbox
             disabled={disabled}
-            size="small"
+            size={SHOELACE_SIZES.SMALL}
+            //@ts-expect-error bad type definition
             value={option.apiValue ?? option.value}
             checked={selectedOptions.includes(
               String(option.apiValue ?? option.value),

@@ -1,7 +1,7 @@
 import { IconProps } from "@/types";
 import React from "react";
 
-const MapIcon: React.FC<IconProps> = (props) => (
+export const MapIcon: React.FC<IconProps> = (props) => (
   <svg
     {...props}
     viewBox="0 0 18 17"
@@ -14,5 +14,3 @@ const MapIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-
-export default MapIcon;

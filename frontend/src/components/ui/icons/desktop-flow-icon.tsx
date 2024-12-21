@@ -1,7 +1,7 @@
 import { IconProps } from "@/types";
 import React from "react";
 
-const DesktopFlowIcon: React.FC<IconProps> = (props) => (
+export const DesktopFlowIcon: React.FC<IconProps> = (props) => (
   <svg
     {...props}
     viewBox="0 0 29 27"
@@ -14,5 +14,3 @@ const DesktopFlowIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-
-export default DesktopFlowIcon;

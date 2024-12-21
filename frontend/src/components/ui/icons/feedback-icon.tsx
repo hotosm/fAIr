@@ -1,7 +1,7 @@
 import { IconProps } from "@/types";
 import React from "react";
 
-const FeedbackIcon: React.FC<IconProps> = (props) => (
+export const FeedbackIcon: React.FC<IconProps> = (props) => (
   <svg
     width="29"
     height="29"
@@ -20,5 +20,3 @@ const FeedbackIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-
-export default FeedbackIcon;

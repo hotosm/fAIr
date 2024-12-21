@@ -17,12 +17,12 @@ import { DropDown } from "@/components/ui/dropdown";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { useAuth } from "@/app/providers/auth-provider";
 import { Badge } from "@/components/ui/badge";
-import CheckIcon from "@/components/ui/icons/check-icon";
+import { CheckIcon } from "@/components/ui/icons";
 import { ElipsisIcon, InfoIcon } from "@/components/ui/icons";
 import { useDialog } from "@/hooks/use-dialog";
 import { TrainingDetailsDialog } from "@/features/models/components/dialogs";
 import { useUpdateTraining } from "@/features/models/api/update-trainings";
-import Pagination, { PAGE_LIMIT } from "@/components/pagination";
+import Pagination, { PAGE_LIMIT } from "@/components/shared/pagination";
 import { useToastNotification } from "@/hooks/use-toast-notification";
 
 type TrainingHistoryTableProps = {
@@ -31,6 +31,7 @@ type TrainingHistoryTableProps = {
   modelOwner: string;
   datasetId: number;
   baseModel: string;
+  tmsUrl: string;
 };
 
 const columnDefinitions = (
@@ -107,7 +108,7 @@ const columnDefinitions = (
       return (
         <span>
           {Number(row.getValue("accuracy")) > 0
-            ? roundNumber(row.getValue("accuracy"))
+            ? roundNumber(row.getValue("accuracy") ?? 0)
             : "-"}
         </span>
       );
@@ -234,6 +235,7 @@ const TrainingHistoryTable: React.FC<TrainingHistoryTableProps> = ({
   modelOwner,
   datasetId,
   baseModel,
+  tmsUrl,
 }) => {
   const [offset, setOffset] = useState(0);
   const { data, isPending, isPlaceholderData } = useTrainingHistory(
@@ -275,6 +277,7 @@ const TrainingHistoryTable: React.FC<TrainingHistoryTableProps> = ({
         trainingId={activeTrainingId}
         datasetId={datasetId}
         baseModel={baseModel}
+        tmsUrl={tmsUrl}
       />
       <div className="h-full">
         <div className="w-full items-center text-body-3 flex justify-between my-4">
@@ -297,6 +300,7 @@ const TrainingHistoryTable: React.FC<TrainingHistoryTableProps> = ({
               isPlaceholderData={isPlaceholderData}
               setOffset={setOffset}
               offset={offset}
+              centerOnMobile={false}
             />
           </div>
         </div>

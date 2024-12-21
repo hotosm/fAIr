@@ -1,16 +1,32 @@
-import { TModel } from "@/types";
+import { TBadgeVariants, TModel } from "@/types";
 import FairModelPlaceholderImage from "@/assets/images/model_placeholder_image.png";
 import { Image } from "@/components/ui/image";
 import { APP_CONTENT, APPLICATION_ROUTES, extractDatePart } from "@/utils";
 import { Link } from "@/components/ui/link";
 import { truncateString } from "@/utils";
 import { roundNumber } from "@/utils/number-utils";
+import { useLocation } from "react-router-dom";
+import { Badge } from "@/components/ui/badge";
 
 type ModelCardProps = {
   model: TModel;
 };
 
 const ModelCard: React.FC<ModelCardProps> = ({ model }) => {
+  // on my-models page, add a badge to the model card
+  const { pathname } = useLocation();
+  const canAddStatusBadge = pathname === APPLICATION_ROUTES.ACCOUNT_MODELS;
+  const statusToBadgeVariant: Record<string, TBadgeVariants> = {
+    "-1": "blue", //draft
+    "0": "green", //published
+    "1": "red", // archived
+  };
+  const statusMapping: Record<string, string> = {
+    "-1": "Draft", //draft
+    "0": "Published", //published
+    "1": "Archived", // archived
+  };
+
   return (
     <div className="flex items-center  w-full">
       <Link
@@ -18,9 +34,9 @@ const ModelCard: React.FC<ModelCardProps> = ({ model }) => {
         disableLinkStyle
         href={`${APPLICATION_ROUTES.MODELS}/${model.id}`}
         title={model.name}
-        className="w-[300px] mx-auto h-auto flex flex-col border border-gray-border hover:shadow-md overflow-hidden group"
+        className="w-full  md:max-w-[300px] mx-auto h-auto flex flex-col border border-gray-border hover:shadow-md overflow-hidden group"
       >
-        <div className="h-[200px] w-full">
+        <div className="h-[200px] w-full relative">
           <Image
             height="256px"
             width="256px"
@@ -33,6 +49,13 @@ const ModelCard: React.FC<ModelCardProps> = ({ model }) => {
             placeHolder={FairModelPlaceholderImage}
             className="w-full h-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-105"
           />
+          {canAddStatusBadge && (
+            <div className="absolute top-2 right-2">
+              <Badge variant={statusToBadgeVariant[String(model.status)]}>
+                {statusMapping[String(model.status)]}
+              </Badge>
+            </div>
+          )}
         </div>
         <div className="p-5 flex flex-col gap-y-6">
           <div className="inline-flex flex-col gap-y-2">
@@ -49,9 +72,11 @@ const ModelCard: React.FC<ModelCardProps> = ({ model }) => {
               {APP_CONTENT.models.modelsList.modelCard.accuracy}
             </p>
             <p className="text-dark font-semibold text-body-2">
-              {roundNumber(model.accuracy)} %
+              {roundNumber(model.accuracy ?? 0)} %
             </p>
           </div>
+          {/* Status badge */}
+
           {/* Name, date and base model */}
           <div className="inline-flex flex-col gap-y-2">
             <p className="font-semibold text-body-2base text-dark">

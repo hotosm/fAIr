@@ -7,7 +7,6 @@ import {
   showErrorToast,
   showSuccessToast,
   TMS_URL_REGEX_PATTERN,
-  TOAST_NOTIFICATIONS,
 } from "@/utils";
 import { UseMutationResult } from "@tanstack/react-query";
 import React, {
@@ -32,6 +31,8 @@ import {
 import { LngLatBoundsLike } from "maplibre-gl";
 import { useModelDetails } from "@/features/models/hooks/use-models";
 import { useGetTrainingDataset } from "@/features/models/hooks/use-dataset";
+
+import { TOAST_NOTIFICATIONS } from "@/constants";
 
 /**
  * The names here are the same with the `initialFormState` object keys.

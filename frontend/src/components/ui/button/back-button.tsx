@@ -1,16 +1,16 @@
 import { useNavigate } from "react-router-dom";
 import { ArrowBackIcon } from "@/components/ui/icons";
 
-const BackButton = () => {
+const BackButton = ({ className }: { className?: string }) => {
   const navigate = useNavigate();
   return (
     <button
-      className="flex items-center gap-x-2 mt-10"
+      className={`flex items-center gap-x-2 ${className}`}
       onClick={() => navigate(-1)}
       title="Go back"
     >
-      <ArrowBackIcon className="icon w-6 h-6" />
-      <span className="text-dark text-body-2">Back</span>
+      <ArrowBackIcon className="icon md:icon-lg" />
+      <span className={`text-dark text-body-3`}>Back</span>
     </button>
   );
 };

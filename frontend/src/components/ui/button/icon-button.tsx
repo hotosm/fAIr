@@ -8,7 +8,7 @@ type ButtonWithIconProps = {
   variant: ButtonVariant;
   prefixIcon?: React.ElementType;
   suffixIcon?: React.ElementType;
-  capitalizeText?: boolean;
+
   className?: string;
   iconClassName?: string;
   disabled?: boolean;
