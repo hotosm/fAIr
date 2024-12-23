@@ -2,7 +2,11 @@ import TrainingAreaItem from "@/features/model-creation/components/training-area
 import { Pagination } from "@/components/shared";
 import { PaginatedTrainingArea } from "@/types";
 import { Dispatch, SetStateAction, useMemo } from "react";
-import { formatDuration, MODEL_CREATION_CONTENT, OSM_LAST_UPDATED_POOLING_INTERVAL_MS } from "@/utils";
+import {
+  formatDuration,
+  MODEL_CREATION_CONTENT,
+  OSM_LAST_UPDATED_POOLING_INTERVAL_MS,
+} from "@/utils";
 import { useQuery } from "@tanstack/react-query";
 import { fetchOSMDatabaseLastUpdated } from "@/features/model-creation/hooks/use-training-areas";
 import { Map } from "maplibre-gl";
@@ -95,17 +99,19 @@ const TrainingAreaList = ({
           <div className="w-full h-full animate-pulse bg-light-gray"></div>
         ) : (
           <div className="h-full overflow-y-auto flex flex-col gap-y-4 w-full">
-            {data?.results.features.sort((a, b) => b.id - a.id).map((ta) => (
-              <TrainingAreaItem
-                {...ta}
-                key={`training-area-${ta.id}`}
-                id={ta.id}
-                datasetId={datasetId}
-                geometry={ta.geometry}
-                offset={offset}
-                map={map}
-              />
-            ))}
+            {data?.results.features
+              .sort((a, b) => b.id - a.id)
+              .map((ta) => (
+                <TrainingAreaItem
+                  {...ta}
+                  key={`training-area-${ta.id}`}
+                  id={ta.id}
+                  datasetId={datasetId}
+                  geometry={ta.geometry}
+                  offset={offset}
+                  map={map}
+                />
+              ))}
           </div>
         )}
       </div>

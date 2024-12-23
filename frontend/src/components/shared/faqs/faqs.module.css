@@ -27,7 +27,6 @@
 
 /* md: */
 @media (min-width: 768px) {
-
   .heading {
     max-width: 218px;
     font-size: var(--hot-fair-font-size-title-2);

@@ -5,7 +5,7 @@ import { InfoIcon } from "@/components/ui/icons";
 import { ToolTipPlacement } from "@/enums";
 
 type ToolTipProps = {
-  content?: string | React.ReactElement;
+  content?: string | React.ReactElement | null;
   children?: React.ReactNode;
   placement?:
     | ToolTipPlacement.RIGHT
@@ -23,6 +23,7 @@ const ToolTip: React.FC<ToolTipProps> = ({
     e.stopImmediatePropagation();
     e.stopPropagation();
   };
+  if (!content) return children;
   return (
     <SlTooltip
       onSlAfterHide={(e) => stopPropagations(e)}

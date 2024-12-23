@@ -156,5 +156,3 @@ export const TheFAIRProcess = ({
     </section>
   );
 };
-
-

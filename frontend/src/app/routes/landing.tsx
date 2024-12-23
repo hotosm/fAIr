@@ -1,5 +1,14 @@
 import { FAQs } from "@/components/shared";
-import { Header, Kpi, TaglineBanner, TheFAIRProcess, CallToAction, Corevalues, CoreFeatures, WhatIsFAIR } from "@/components/landing";
+import {
+  Header,
+  Kpi,
+  TaglineBanner,
+  TheFAIRProcess,
+  CallToAction,
+  Corevalues,
+  CoreFeatures,
+  WhatIsFAIR,
+} from "@/components/landing";
 
 import { Head } from "@/components/seo";
 

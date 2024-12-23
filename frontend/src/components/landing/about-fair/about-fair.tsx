@@ -1,4 +1,3 @@
-
 import styles from "./about-fair.module.css";
 import { APP_CONTENT } from "@/utils/content";
 import { Image } from "@/components/ui/image";
@@ -18,5 +17,3 @@ export const WhatIsFAIR = () => {
     </section>
   );
 };
-
-

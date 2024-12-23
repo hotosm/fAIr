@@ -11,6 +11,7 @@ import { DateFilter } from "@/types";
  * @returns {string} - The extracted date part in "YYYY-MM-DD" format.
  */
 export const extractDatePart = (isoString: string) => {
+  if (!isoString) return "N/A";  // Return fallback if undefined
   return isoString.split("T")[0];
 };
 

@@ -1,4 +1,4 @@
-import { Pagination, } from "@/components/shared";
+import { Pagination } from "@/components/shared";
 import { Head } from "@/components/seo";
 import { LayoutView } from "@/enums";
 import { LayoutToggle, PageHeader } from "@/features/models/components";

@@ -45,9 +45,9 @@ const Select: React.FC<SelectProps> = ({
       }
       value={String(defaultValue)}
       onSlChange={(e) => {
-        e.preventDefault();
-        e.stopImmediatePropagation();
         e.stopPropagation();
+        e.stopImmediatePropagation();
+        e.preventDefault();
         //@ts-expect-error bad type definition
         handleChange(e);
       }}
@@ -68,7 +68,7 @@ const Select: React.FC<SelectProps> = ({
           value={option.value as string}
           className="flex flex-col gap-y-1"
         >
-          <span>{option.name}</span>
+          <span className=" text-body-3">{option.name}</span>
           <small slot="suffix">{option.suffix}</small>
         </SlOption>
       ))}

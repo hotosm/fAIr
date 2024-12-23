@@ -84,8 +84,6 @@ export const NavBar = () => {
   );
 };
 
-
-
 type TNavBarLinks = {
   title: string;
   href: string;

@@ -62,7 +62,6 @@ export const getTrainingAreaLabelsQueryOptions = (aoiId: number) => {
   });
 };
 
-
 export const getTrainingAreaQueryOptions = (aoiId: number) => {
   return queryOptions({
     queryKey: ["training-area", aoiId],

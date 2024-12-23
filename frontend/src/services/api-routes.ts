@@ -70,7 +70,6 @@ export const API_ENDPOINTS = {
   UPDATE_TRAINING: (id: number) => `training/publish/${id}/`,
   DELETE_TRAINING_AREA: (id: number) => `aoi/${id}/`,
 
-
   // Workspace
 
   GET_PMTILES_URL: (trainingAreaId: number) =>

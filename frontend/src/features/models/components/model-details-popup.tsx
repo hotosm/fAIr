@@ -43,11 +43,12 @@ const ModelDetailsPopUp = ({
       active={showPopup}
       anchor={anchor}
       placement="bottom-start"
-      distance={10}
+      // Distance is based on the navbar height.
+      distance={40}
     >
       {
         <SkeletonWrapper showSkeleton={Boolean(modelId && isPending)}>
-          <div className="max-h-[500px] scrollable overflow-y-auto border bg-white border-gray-border w-80 shadown-sm shadow-[#433D3D33] rounded-md p-5 flex flex-col">
+          <div className="max-h-[400px] scrollable overflow-y-auto border bg-white border-gray-border w-[350px] shadown-sm shadow-[#433D3D33] rounded-xl p-7 flex flex-col">
             {!model && isError ? (
               <div>{startMappingPageContent.modelDetails.error}</div>
             ) : (
@@ -60,48 +61,50 @@ const ModelDetailsPopUp = ({
                   >
                     &#x2715;
                   </button>
-                  <p>{startMappingPageContent.modelDetails.label}</p>
+                  <p className="font-semibold">
+                    {startMappingPageContent.modelDetails.label}
+                  </p>
                 </div>
-                <div className="flex flex-col gap-y-2">
-                  <p className="text-gray">
+                <div className="flex flex-col gap-y-3 text-dark font-normal">
+                  <p>
                     {" "}
                     {startMappingPageContent.modelDetails.popover.modelId}:{" "}
-                    <span className="text-dark">{model?.id ?? data?.id}</span>
+                    <span className="font-medium">{model?.id ?? data?.id}</span>
                   </p>
-                  <p className="text-gray">
+                  <p>
                     {startMappingPageContent.modelDetails.popover.description}:{" "}
-                    <span className="text-dark">
+                    <span className="font-medium">
                       {model?.description ?? data?.description}
                     </span>
                   </p>
-                  <p className="text-gray">
+                  <p>
                     {startMappingPageContent.modelDetails.popover.lastModified}:{" "}
-                    <span className="text-dark">
+                    <span className="font-medium">
                       {extractDatePart(
                         model?.last_modified ?? (data?.last_modified as string),
                       )}
                     </span>
                   </p>
-                  <p className="text-gray">
+                  <p>
                     {startMappingPageContent.modelDetails.popover.trainingId}:{" "}
-                    <span className="text-dark">
+                    <span className="font-medium">
                       {model?.published_training ?? data?.published_training}
                     </span>
                   </p>
-                  <p className="text-gray">
+                  <p>
                     {startMappingPageContent.modelDetails.popover.datasetId}:{" "}
-                    <span className="text-dark">
+                    <span className="font-medium">
                       {model?.dataset ?? data?.dataset}
                     </span>
                   </p>
-                  <p className="text-gray flex items-center gap-x-1 text-nowrap flex-wrap">
+                  <p className="flex items-center gap-x-1 text-nowrap flex-wrap">
                     {startMappingPageContent.modelDetails.popover.datasetName}:{" "}
                     <SkeletonWrapper
                       showSkeleton={trainingDatasetIsPending}
                       skeletonClassName="w-20 h-4"
                     >
                       <span
-                        className="text-dark text-wrap"
+                        className="text-dark font-medium text-wrap"
                         title={trainingDataset?.name}
                       >
                         {trainingDatasetIsError
@@ -111,7 +114,7 @@ const ModelDetailsPopUp = ({
                     </SkeletonWrapper>
                   </p>
 
-                  <p className="text-gray flex items-center gap-x-1 text-nowrap flex-wrap">
+                  <p className="flex items-center gap-x-1 text-nowrap flex-wrap">
                     {startMappingPageContent.modelDetails.popover.zoomLevel}:{" "}
                     <SkeletonWrapper
                       showSkeleton={trainingDetailsIsPending}
@@ -125,9 +128,9 @@ const ModelDetailsPopUp = ({
                     </SkeletonWrapper>
                   </p>
 
-                  <p className="text-gray">
+                  <p>
                     {startMappingPageContent.modelDetails.popover.accuracy}:{" "}
-                    <span className="text-dark">
+                    <span className="font-medium">
                       {roundNumber(
                         model?.accuracy ?? (data?.accuracy as number),
                         2,
@@ -135,9 +138,9 @@ const ModelDetailsPopUp = ({
                       %
                     </span>
                   </p>
-                  <p className="text-gray">
+                  <p>
                     {startMappingPageContent.modelDetails.popover.baseModel}:{" "}
-                    <span className="text-dark">
+                    <span className="font-medium">
                       {model?.base_model ?? data?.base_model}
                     </span>
                   </p>

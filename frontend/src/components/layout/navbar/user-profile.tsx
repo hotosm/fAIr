@@ -6,13 +6,19 @@ import { APP_CONTENT, APPLICATION_ROUTES } from "@/utils";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { useAuth } from "@/app/providers/auth-provider";
 
-export const UserProfile = ({ hideFullName }: { hideFullName?: boolean }) => {
+export const UserProfile = ({
+  hideFullName,
+  smallerSize,
+}: {
+  hideFullName?: boolean;
+  smallerSize?: boolean;
+}) => {
   const { user, logout } = useAuth();
 
   const { onDropdownHide, onDropdownShow, dropdownIsOpened } =
     useDropdownMenu();
   const navigate = useNavigate();
-
+  const size = smallerSize ? "35px" : "40px";
   return (
     <DropDown
       onDropdownShow={onDropdownShow}
@@ -51,6 +57,8 @@ export const UserProfile = ({ hideFullName }: { hideFullName?: boolean }) => {
             label={user.username}
             loading="lazy"
             initials={user.username.charAt(0)}
+            // @ts-expect-error bad type definition
+            style={{ "--size": size }}
           />
           {!hideFullName && (
             <p className={styles.userProfileName}>{user.username}</p>
@@ -60,5 +68,3 @@ export const UserProfile = ({ hideFullName }: { hideFullName?: boolean }) => {
     ></DropDown>
   );
 };
-
-

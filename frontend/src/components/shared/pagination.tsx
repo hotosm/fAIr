@@ -64,7 +64,7 @@ export const Pagination: React.FC<PaginationProps> = ({
 
   return (
     <div
-      className={`flex md:min-w-60 items-center w-full ${centerOnMobile ? "justify-center" : "justify-between"}`}
+      className={`flex md:min-w-40 items-center w-full ${centerOnMobile ? "justify-center" : "justify-between"}`}
     >
       <div>
         <p
@@ -109,5 +109,3 @@ export const Pagination: React.FC<PaginationProps> = ({
     </div>
   );
 };
-
-

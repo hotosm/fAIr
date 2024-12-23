@@ -2,7 +2,6 @@
  * The environment variables. Ideally these values should be set in the .env file.
  */
 export const ENVS = {
-
   /**
   # The backend api endpoint url.
   # Data type: String (e.g., http://localhost:8000/api/v1/).
@@ -199,7 +198,8 @@ export const ENVS = {
    # Data type: Positive Integer (e.g., 900).
    # Default value: 5000 milliseconds (5 seconds).
    */
-  TRAINING_AREA_LABELS_FETCH_POOLING_INTERVAL_MS: import.meta.env.VITE_TRAINING_AREA_LABELS_FETCH_POOLING_INTERVAL_MS,
+  TRAINING_AREA_LABELS_FETCH_POOLING_INTERVAL_MS: import.meta.env
+    .VITE_TRAINING_AREA_LABELS_FETCH_POOLING_INTERVAL_MS,
 
   /**
    # The time to poll the backend for the status of the OSM last updated time, in milliseconds (ms).
@@ -207,7 +207,6 @@ export const ENVS = {
    # Default value: 10000 milliseconds (10 seconds).
   */
 
-  OSM_LAST_UPDATED_POOLING_INTERVAL_MS: import.meta.env.VITE_OSM_LAST_UPDATED_POOLING_INTERVAL_MS
+  OSM_LAST_UPDATED_POOLING_INTERVAL_MS: import.meta.env
+    .VITE_OSM_LAST_UPDATED_POOLING_INTERVAL_MS,
 };
-
-

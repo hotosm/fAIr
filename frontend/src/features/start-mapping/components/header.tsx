@@ -18,10 +18,9 @@ import {
   geoJSONDowloader,
   openInJOSM,
   showSuccessToast,
-  truncateString,
 } from "@/utils";
-import { useCallback, useState } from "react";
-import ModelSettings from "./model-settings";
+import { useCallback, useMemo, useState } from "react";
+import { ModelSettings } from "./model-settings";
 import { TQueryParams } from "@/app/routes/start-mapping";
 import ModelAction from "./model-action";
 import { TModelPredictionsConfig } from "../api/get-model-predictions";
@@ -30,21 +29,25 @@ import { NavLogo, UserProfile } from "@/components/layout";
 import { useNavigate } from "react-router-dom";
 import { startMappingPageContent } from "@/constants";
 import { Map } from "maplibre-gl";
+import { ToolTip } from "@/components/ui/tooltip";
+import { ModelDetailsButton } from "./model-details-button";
 
 const StartMappingHeader = ({
   data,
   modelPredictions,
   oamTileJSON,
   trainingDataset,
-  trainingDatasetIsError,
   modelPredictionsExist,
   trainingDatasetIsPending,
   query,
   updateQuery,
   trainingConfig,
   setModelPredictions,
-  currentZoom,
+  disablePrediction,
   map,
+  popupAnchorId,
+  setShowModelDetails,
+  showModelDetails
 }: {
   modelPredictionsExist: boolean;
   trainingDatasetIsPending: boolean;
@@ -57,9 +60,14 @@ const StartMappingHeader = ({
   updateQuery: (newParams: TQueryParams) => void;
   trainingConfig: TModelPredictionsConfig;
   setModelPredictions: React.Dispatch<React.SetStateAction<TModelPredictions>>;
-  currentZoom: number;
   map: Map | null;
+  disablePrediction: boolean;
+  popupAnchorId: string
+  setShowModelDetails: (x: boolean) => void
+  showModelDetails: boolean
 }) => {
+  const navigate = useNavigate();
+
   const { onDropdownHide, onDropdownShow, dropdownIsOpened } =
     useDropdownMenu();
 
@@ -68,10 +76,6 @@ const StartMappingHeader = ({
     onDropdownShow: onFAIRLogoDropdownShow,
     dropdownIsOpened: FAIRLogoDropdownIsOpened,
   } = useDropdownMenu();
-
-  const [showModelDetails, setShowModelDetails] = useState<boolean>(false);
-
-  const popupAnchorId = "model-details";
 
   const handleAllFeaturesDownload = useCallback(async () => {
     geoJSONDowloader(
@@ -118,47 +122,55 @@ const StartMappingHeader = ({
     handleFeaturesDownloadToJOSM(modelPredictions.accepted);
   }, [handleFeaturesDownloadToJOSM, modelPredictions.accepted]);
 
-  const downloadButtonDropdownOptions = [
-    {
-      name: startMappingPageContent.buttons.download.options.allFeatures,
-      value: startMappingPageContent.buttons.download.options.allFeatures,
-      onClick: handleAllFeaturesDownload,
-    },
-    {
-      name: startMappingPageContent.buttons.download.options.acceptedFeatures,
-      value: startMappingPageContent.buttons.download.options.acceptedFeatures,
-      onClick: handleAcceptedFeaturesDownload,
-    },
-    {
-      name: startMappingPageContent.buttons.download.options
-        .openAllFeaturesInJOSM,
-      value:
-        startMappingPageContent.buttons.download.options.openAllFeaturesInJOSM,
-      onClick: handleAllFeaturesDownloadToJOSM,
-    },
-    {
-      name: startMappingPageContent.buttons.download.options
-        .openAcceptedFeaturesInJOSM,
-      value:
-        startMappingPageContent.buttons.download.options
+  const downloadButtonDropdownOptions = useMemo(
+    () => [
+      {
+        name: startMappingPageContent.buttons.download.options.allFeatures,
+        value: startMappingPageContent.buttons.download.options.allFeatures,
+        onClick: handleAllFeaturesDownload,
+      },
+      {
+        name: startMappingPageContent.buttons.download.options.acceptedFeatures,
+        value:
+          startMappingPageContent.buttons.download.options.acceptedFeatures,
+        onClick: handleAcceptedFeaturesDownload,
+      },
+      {
+        name: startMappingPageContent.buttons.download.options
+          .openAllFeaturesInJOSM,
+        value:
+          startMappingPageContent.buttons.download.options
+            .openAllFeaturesInJOSM,
+        onClick: handleAllFeaturesDownloadToJOSM,
+      },
+      {
+        name: startMappingPageContent.buttons.download.options
           .openAcceptedFeaturesInJOSM,
-      onClick: handleAcceptedFeaturesDownloadToJOSM,
-    },
-  ];
-  const navigate = useNavigate();
+        value:
+          startMappingPageContent.buttons.download.options
+            .openAcceptedFeaturesInJOSM,
+        onClick: handleAcceptedFeaturesDownloadToJOSM,
+      },
+    ],
+    [
+      startMappingPageContent,
+      handleAcceptedFeaturesDownloadToJOSM,
+      handleAllFeaturesDownloadToJOSM,
+      handleAcceptedFeaturesDownload,
+      handleAllFeaturesDownload,
+    ],
+  );
 
   return (
     <SkeletonWrapper showSkeleton={trainingDatasetIsPending}>
-      <div className="flex items-center justify-between flex-wrap gap-x-2 gap-y-2 ">
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-x-4">
           <DropDown
             placement="top-end"
             dropdownIsOpened={FAIRLogoDropdownIsOpened}
             onDropdownHide={onFAIRLogoDropdownHide}
             onDropdownShow={onFAIRLogoDropdownShow}
-            triggerComponent={
-              <NavLogo onClick={() => null} width={"70px"} height={"50px"} />
-            }
+            triggerComponent={<NavLogo onClick={() => null} width="45px" />}
           >
             <div className="bg-white flex flex-col gap-4 w-40 p-4 rounded-md">
               <BackButton className="text-body-3" />
@@ -177,33 +189,20 @@ const StartMappingHeader = ({
               </button>
             </div>
           </DropDown>
-          <div className="flex flex-col md:flex-row md:items-center gap-x-2 z-10">
-            <p title={data?.name} className="text-dark text-title-2base">
-              {data?.name ? truncateString(data?.name, 35) : "N/A"}
-            </p>
-            <ModelDetailsPopUp
-              showPopup={showModelDetails}
-              closePopup={() => setShowModelDetails(false)}
-              anchor={popupAnchorId}
-              model={data}
-              trainingDataset={trainingDataset}
-              trainingDatasetIsPending={trainingDatasetIsPending}
-              trainingDatasetIsError={trainingDatasetIsError}
-            />
-            <button
-              id={popupAnchorId}
-              className="text-gray text-body-2 flex items-center"
-              onClick={() => setShowModelDetails(!showModelDetails)}
+          <div className="flex flex-col md:flex-row md:items-center gap-x-4 z-10">
+            <p
+              title={data?.name}
+              className="text-dark text-body-2base text-nowrap truncate md:max-w-[90px] lg:max-w-[250px] xl:max-w-[400px]"
             >
-              <TagsInfoIcon className="icon" />
-            </button>
+              {data?.name ?? "N/A"}
+            </p>
+            <ModelDetailsButton onClick={() => setShowModelDetails(!showModelDetails)} showModelDetails={showModelDetails} popupAnchorId={popupAnchorId} />
           </div>
         </div>
-        <div className="flex flex-row items-center gap-x-2">
+        <div className="flex flex-row items-center gap-x-4">
           <ModelSettings updateQuery={updateQuery} query={query} />
           <div className="flex flex-row items-center gap-y-3">
-            <p className="text-dark text-body-3">
-              {startMappingPageContent.mapData.title} -{" "}
+            <p className="text-dark text-body-3 text-nowrap">
               {startMappingPageContent.mapData.accepted}:{" "}
               {modelPredictions.accepted.length}{" "}
               {startMappingPageContent.mapData.rejected}:{" "}
@@ -217,18 +216,26 @@ const StartMappingHeader = ({
               onDropdownShow={onDropdownShow}
               menuItems={downloadButtonDropdownOptions}
               triggerComponent={
-                <ButtonWithIcon
-                  uppercase={false}
-                  onClick={dropdownIsOpened ? onDropdownHide : onDropdownShow}
-                  suffixIcon={ChevronDownIcon}
-                  label={startMappingPageContent.buttons.download.label}
-                  size={SHOELACE_SIZES.MEDIUM}
-                  variant="secondary"
-                  disabled={!modelPredictionsExist}
-                  iconClassName={
-                    dropdownIsOpened ? "rotate-180 transition-all" : ""
+                <ToolTip
+                  content={
+                    !modelPredictionsExist
+                      ? startMappingPageContent.actions.disabledModeTooltip
+                      : null
                   }
-                />
+                >
+                  <ButtonWithIcon
+                    uppercase={false}
+                    onClick={dropdownIsOpened ? onDropdownHide : onDropdownShow}
+                    suffixIcon={ChevronDownIcon}
+                    label={startMappingPageContent.buttons.download.label}
+                    size={SHOELACE_SIZES.SMALL}
+                    variant="secondary"
+                    disabled={!modelPredictionsExist}
+                    iconClassName={
+                      dropdownIsOpened ? "rotate-180 transition-all" : ""
+                    }
+                  />
+                </ToolTip>
               }
             />
           </div>
@@ -237,10 +244,9 @@ const StartMappingHeader = ({
             setModelPredictions={setModelPredictions}
             trainingConfig={trainingConfig}
             map={map}
-            currentZoom={currentZoom}
+            disablePrediction={disablePrediction}
           />
-
-          <UserProfile hideFullName />
+          <UserProfile hideFullName smallerSize />
         </div>
       </div>
     </SkeletonWrapper>

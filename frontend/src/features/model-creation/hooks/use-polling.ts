@@ -8,12 +8,12 @@ type PollingHookReturn = {
   startPolling: () => void;
   stopPolling: () => void;
   error: boolean;
-}
+};
 
 export const usePolling = (
   taskId: number,
   fetchTaskStatus: (id: number) => Promise<TTrainingAreaFeature>,
-  interval: number = 5000
+  interval: number = 5000,
 ): PollingHookReturn => {
   const [status, setStatus] = useState<LabelStatus>(LabelStatus.NOT_DOWNLOADED);
   const [isPolling, setIsPolling] = useState(false);

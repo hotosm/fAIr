@@ -2,7 +2,6 @@ import { API_ENDPOINTS, apiClient } from "@/services";
 import {
   FeatureCollection,
   PaginatedTrainingArea,
-
   TTrainingAreaFeature,
   TTrainingDataset,
 } from "@/types";
@@ -51,13 +50,9 @@ export const getTrainingAreaLabels = async (
   return res.data;
 };
 
-
-
 export const getTrainingArea = async (
   aoiId: number,
 ): Promise<TTrainingAreaFeature> => {
-  const res = await apiClient.get(
-    API_ENDPOINTS.GET_TRAINING_AREA(aoiId),
-  );
+  const res = await apiClient.get(API_ENDPOINTS.GET_TRAINING_AREA(aoiId));
   return res.data;
 };

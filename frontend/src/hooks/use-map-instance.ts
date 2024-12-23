@@ -5,10 +5,9 @@ import { MAP_STYLES } from "@/utils";
 import { Map } from "maplibre-gl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-
 /**
  * useMapInstance - Initializes and manages a MapLibre map instance with TerraDraw integration.
- * 
+ *
  * @param {boolean} pmtiles - Optional flag to enable PMTiles support.
  * @returns {Object} - Contains map instance, zoom level, drawing mode, and container ref.
  */
@@ -21,7 +20,11 @@ export const useMapInstance = (pmtiles: boolean = false) => {
   );
 
   useEffect(() => {
-    const map = setupMaplibreMap(mapContainerRef, MAP_STYLES[BASEMAPS.OSM], pmtiles);
+    const map = setupMaplibreMap(
+      mapContainerRef,
+      MAP_STYLES[BASEMAPS.OSM],
+      pmtiles,
+    );
 
     map.on("load", () => {
       setMap(map);

@@ -22,16 +22,22 @@ const ProgressBar: React.FC<ProgressBarProps> = memo(
         const container = containerRef.current;
         const activeStep = activeStepRef.current;
 
-        const offset = activeStep.offsetLeft - (container.offsetWidth / 2) + (activeStep.offsetWidth / 2);
+        const offset =
+          activeStep.offsetLeft -
+          container.offsetWidth / 2 +
+          activeStep.offsetWidth / 2;
         container.scrollTo({
           left: offset,
-          behavior: 'smooth',
+          behavior: "smooth",
         });
       }
     }, [currentPath]);
 
     return (
-      <div ref={containerRef} className="flex items-center justify-between w-full gap-x-4 overflow-x-auto p-1">
+      <div
+        ref={containerRef}
+        className="flex items-center justify-between w-full gap-x-4 overflow-x-auto p-1"
+      >
         {pages.map((step, index) => {
           const activeStep = currentPath.includes(step.path);
           const isLastPage = index === pages.length - 1;
@@ -52,9 +58,10 @@ const ProgressBar: React.FC<ProgressBarProps> = memo(
               ) : (
                 <span
                   className={cn(
-                    `rounded-full flex items-center justify-center w-9 h-9 ${activeStep
-                      ? "outline-dashed outline-2 outline-offset-2 outline-primary bg-primary"
-                      : "bg-gray"
+                    `rounded-full flex items-center justify-center w-9 h-9 ${
+                      activeStep
+                        ? "outline-dashed outline-2 outline-offset-2 outline-primary bg-primary"
+                        : "bg-gray"
                     }`,
                   )}
                 >

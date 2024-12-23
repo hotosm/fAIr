@@ -105,6 +105,13 @@ export const MapComponent: React.FC<MapComponentProps> = ({
           {currentZoom ? (
             <ZoomControls map={map} currentZoom={currentZoom} />
           ) : null}
+          {fitToBounds ? (
+            <FitToBounds
+              onClick={() =>
+                map?.fitBounds(bounds as LngLatBoundsLike, { padding: 10 })
+              }
+            />
+          ) : null}
           {geolocationControl && <GeolocationControl map={map} />}
           {drawControl && terraDraw && drawingMode && setDrawingMode && (
             <DrawControl
@@ -141,6 +148,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
     layerControlData,
     currentZoom,
     drawingMode && setDrawingMode,
+    fitToBounds,
   ]);
 
   return (
@@ -153,13 +161,6 @@ export const MapComponent: React.FC<MapComponentProps> = ({
         <OpenAerialMap tileJSONURL={oamTileJSONURL} map={map} />
       )}
       {showTileBoundary && <TileBoundaries map={map} />}
-      {fitToBounds && map && (
-        <FitToBounds
-          onClick={() =>
-            map?.fitBounds(bounds as LngLatBoundsLike, { padding: 10 })
-          }
-        />
-      )}
       {children}
     </div>
   );

@@ -57,10 +57,10 @@ const ModelCard: React.FC<ModelCardProps> = ({ model }) => {
             </div>
           )}
         </div>
-        <div className="p-5 flex flex-col gap-y-6">
-          <div className="inline-flex flex-col gap-y-2">
-            <p className="font-medium text-body-1 text-black">
-              {truncateString(model.name, 20)}
+        <div className="p-5 flex flex-col gap-y-6 h-[320px]">
+          <div className="inline-flex flex-col gap-y-2 flex-grow">
+            <p className="font-medium text-body-1 text-black line-clamp-2">
+              {truncateString(model.name, 50)}
             </p>
             <p className="text-gray text-body-2">
               ID: <span>{model.id}</span>
@@ -78,7 +78,7 @@ const ModelCard: React.FC<ModelCardProps> = ({ model }) => {
           {/* Status badge */}
 
           {/* Name, date and base model */}
-          <div className="inline-flex flex-col gap-y-2">
+          <div className="inline-flex flex-col gap-y-2 flex-grow">
             <p className="font-semibold text-body-2base text-dark">
               {model.user.username}
             </p>

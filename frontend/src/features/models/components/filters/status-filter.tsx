@@ -95,7 +95,6 @@ const StatusFilter: React.FC<StatusFilterProps> = ({
       options={statusCategories}
       disabled={disabled}
       onCheck={(status) => {
-        console.log(status);
         updateQuery({
           [SEARCH_PARAMS.status]: status[0] !== "All" ? status[0] : undefined,
         });

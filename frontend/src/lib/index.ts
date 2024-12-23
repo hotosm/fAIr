@@ -1,1 +1,1 @@
-export * from './geojson-to-osm'
+export * from "./geojson-to-osm";

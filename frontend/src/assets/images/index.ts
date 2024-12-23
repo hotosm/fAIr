@@ -8,3 +8,4 @@ export { default as MapathonOngoing } from "@/assets/images/mapathon_ongoing.jpg
 export { default as ModelFormConfirmation } from "@/assets/images/model_creation_success.png";
 export { default as FairModelPlaceholderImage } from "@/assets/images/model_placeholder_image.png";
 export { default as TrainingInProgressImage } from "@/assets/images/training_in_progress.png";
+export { default as fAIrLogo } from "@/assets/images/fAIr_logo.png";

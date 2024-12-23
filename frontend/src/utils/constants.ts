@@ -92,7 +92,7 @@ const REFRESH_BUFFER_MS = 1000;
  */
 export const KPI_STATS_CACHE_TIME_MS =
   (Number(ENVS.KPI_STATS_CACHE_TIME) || DEFAULT_KPI_STATS_CACHE_TIME_SECONDS) *
-  1000 +
+    1000 +
   REFRESH_BUFFER_MS;
 
 /**
@@ -256,11 +256,13 @@ export const JOSM_REMOTE_URL = ENVS.JOSM_REMOTE_URL || "http://127.0.0.1:8111/";
  * The time to poll the backend for the status of the AOI training labels fetching, in milliseconds (ms).
  * Defaults to 5000 ms (5 seconds).
  */
-export const TRAINING_AREA_LABELS_FETCH_POOLING_TIME_MS = ENVS.TRAINING_AREA_LABELS_FETCH_POOLING_INTERVAL_MS || 5000
+export const TRAINING_AREA_LABELS_FETCH_POOLING_TIME_MS =
+  ENVS.TRAINING_AREA_LABELS_FETCH_POOLING_INTERVAL_MS || 5000;
 
 /**
-* The time to poll the backend for the status of the OSM last updated time, in milliseconds (ms).
-* Data type: Positive Integer (e.g., 900).
-* Default value: 10000 milliseconds (10 seconds).
-*/
-export const OSM_LAST_UPDATED_POOLING_INTERVAL_MS = ENVS.OSM_LAST_UPDATED_POOLING_INTERVAL_MS || 10000
+ * The time to poll the backend for the status of the OSM last updated time, in milliseconds (ms).
+ * Data type: Positive Integer (e.g., 900).
+ * Default value: 10000 milliseconds (10 seconds).
+ */
+export const OSM_LAST_UPDATED_POOLING_INTERVAL_MS =
+  ENVS.OSM_LAST_UPDATED_POOLING_INTERVAL_MS || 10000;

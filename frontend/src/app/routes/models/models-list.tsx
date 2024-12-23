@@ -91,10 +91,7 @@ export const ModelsPage = () => {
 
     if (mapViewIsActive) {
       return (
-        <div
-
-          className="w-full grid grid-cols-1 grid-rows-2 lg:grid-rows-1 lg:grid-cols-2 md:border rounded-md lg:p-2 md:border-gray-border gap-x-2 mt-10  gap-y-6 lg:gap-y-0 h-screen"
-        >
+        <div className="w-full grid grid-cols-1 grid-rows-2 lg:grid-rows-1 lg:grid-cols-2 md:border rounded-md lg:p-2 md:border-gray-border gap-x-2 mt-10  gap-y-6 lg:gap-y-0 h-screen">
           <div className="w-full overflow-y-auto lg:row-start-1">
             <ModelListGridLayout
               models={data?.results}

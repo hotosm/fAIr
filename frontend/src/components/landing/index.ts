@@ -5,4 +5,4 @@ export { CoreFeatures } from "./core-features/core-features";
 export { Corevalues } from "./core-values/core-values";
 export { TaglineBanner } from "./tagline/tagline";
 export { CallToAction } from "./cta/cta";
-export * from './header'
+export * from "./header";
