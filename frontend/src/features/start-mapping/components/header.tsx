@@ -46,7 +46,7 @@ const StartMappingHeader = ({
   map,
   popupAnchorId,
   setShowModelDetails,
-  showModelDetails
+  showModelDetails,
 }: {
   modelPredictionsExist: boolean;
   trainingDatasetIsPending: boolean;
@@ -61,9 +61,9 @@ const StartMappingHeader = ({
   setModelPredictions: React.Dispatch<React.SetStateAction<TModelPredictions>>;
   map: Map | null;
   disablePrediction: boolean;
-  popupAnchorId: string
-  setShowModelDetails: (x: boolean) => void
-  showModelDetails: boolean
+  popupAnchorId: string;
+  setShowModelDetails: (x: boolean) => void;
+  showModelDetails: boolean;
 }) => {
   const navigate = useNavigate();
 
@@ -195,7 +195,11 @@ const StartMappingHeader = ({
             >
               {data?.name ?? "N/A"}
             </p>
-            <ModelDetailsButton onClick={() => setShowModelDetails(!showModelDetails)} showModelDetails={showModelDetails} popupAnchorId={popupAnchorId} />
+            <ModelDetailsButton
+              onClick={() => setShowModelDetails(!showModelDetails)}
+              showModelDetails={showModelDetails}
+              popupAnchorId={popupAnchorId}
+            />
           </div>
         </div>
         <div className="flex flex-row items-center gap-x-4">

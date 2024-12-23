@@ -36,7 +36,6 @@ export const MobileDrawer = ({
               "overflow-hidden": snap !== 1,
             })}
           >
-
             {children}
           </div>
         </Drawer.Content>
