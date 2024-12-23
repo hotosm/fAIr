@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/button/";
-import HOTTeam from "@/assets/images/hot_team_2.jpg";
 import styles from "./cta.module.css";
 import { APP_CONTENT } from "@/utils";
 import { Image } from "@/components/ui/image";
 import { Link } from "@/components/ui/link";
+import { HOTTeamTwo } from "@/assets/images";
 
-const CallToAction = () => {
+export const CallToAction = () => {
   return (
     <section className={`${styles.container}`}>
       <div className={styles.cta}>
@@ -28,7 +28,7 @@ const CallToAction = () => {
       </div>
       <div className={styles.imageBlock}>
         <Image
-          src={HOTTeam}
+          src={HOTTeamTwo}
           alt={APP_CONTENT.homepage.callToAction.ctaButton}
           className={styles.image}
         />
@@ -40,4 +40,3 @@ const CallToAction = () => {
   );
 };
 
-export default CallToAction;

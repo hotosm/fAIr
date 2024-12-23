@@ -1,4 +1,4 @@
-import CreativeCommonsBadge from "@/assets/images/cc_by_badge.png";
+import { CreativeCommonsBadge } from "@/assets/images";
 import FacebookLogo from "@/assets/svgs/socials/facebook_logo.svg";
 import GitHubLogo from "@/assets/svgs/socials/github_logo.svg";
 import XLogo from "@/assets/svgs/socials/x_logo.svg";
@@ -35,7 +35,7 @@ const socials = [
     logo: InstagramLogo,
   },
 ];
-const Footer = () => {
+export const Footer = () => {
   return (
     <footer>
       <div className="grid grid-cols-12 grid-rows-2 gap-y-[67px] app-padding bg-dark text-white py-[77px]">
@@ -124,4 +124,3 @@ const Footer = () => {
   );
 };
 
-export default Footer;

@@ -26,7 +26,7 @@ import { TQueryParams } from "@/app/routes/start-mapping";
 import ModelAction from "./model-action";
 import { TModelPredictionsConfig } from "../api/get-model-predictions";
 import { SHOELACE_SIZES } from "@/enums";
-import { NavLogo, UserProfile } from "@/components/ui/navbar";
+import { NavLogo, UserProfile } from "@/components/layout";
 import { useNavigate } from "react-router-dom";
 import { startMappingPageContent } from "@/constants";
 import { Map } from "maplibre-gl";

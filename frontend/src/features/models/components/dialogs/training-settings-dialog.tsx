@@ -9,7 +9,7 @@ import {
   useModelsContext,
 } from "@/app/providers/models-provider";
 import { useEffect } from "react";
-import { PAGE_LIMIT } from "@/components/shared/pagination";
+import { PAGE_LIMIT } from "@/components/shared";
 import { useTrainingHistory } from "@/features/models/hooks/use-training";
 
 type ModelEnhancementDialogProps = {

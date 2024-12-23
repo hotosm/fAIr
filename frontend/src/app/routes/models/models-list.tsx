@@ -20,7 +20,7 @@ import {
   OrderingFilter,
   SearchFilter,
 } from "@/features/models/components/filters";
-import Pagination, { PAGE_LIMIT } from "@/components/shared/pagination";
+import { Pagination, PAGE_LIMIT } from "@/components/shared";
 import { APP_CONTENT } from "@/utils";
 import { PageHeader } from "@/features/models/components/";
 import { FeatureCollection } from "@/types";
@@ -28,7 +28,7 @@ import ModelNotFound from "@/features/models/components/model-not-found";
 import { useDialog } from "@/hooks/use-dialog";
 import { MobileModelFiltersDialog } from "@/features/models/components/dialogs";
 import { Head } from "@/components/seo";
-import { LayoutView } from "@/enums/models";
+import { LayoutView } from "@/enums";
 import {
   useScrollToElement,
   useScrollToTop,
@@ -92,7 +92,7 @@ export const ModelsPage = () => {
     if (mapViewIsActive) {
       return (
         <div
-          id={mapViewElementId}
+
           className="w-full grid grid-cols-1 grid-rows-2 lg:grid-rows-1 lg:grid-cols-2 md:border rounded-md lg:p-2 md:border-gray-border gap-x-2 mt-10  gap-y-6 lg:gap-y-0 h-screen"
         >
           <div className="w-full overflow-y-auto lg:row-start-1">
@@ -102,7 +102,7 @@ export const ModelsPage = () => {
               isError={isError}
             />
           </div>
-          <div className="row-start-1">
+          <div className="row-start-1" id={mapViewElementId}>
             {modelsMapDataIsPending || modelsMapDataIsError ? (
               <div className="w-full h-full animate-pulse bg-light-gray"></div>
             ) : (
@@ -149,8 +149,8 @@ export const ModelsPage = () => {
       <section className="my-10 min-h-screen">
         <PageHeader />
         {/* Filters */}
-        <div className="sticky top-0 bg-white z-10 py-2">
-          <div className="flex flex-col gap-y-4">
+        <div className="sticky top-0 bg-white z-10 py-1">
+          <div className="flex flex-col gap-y-1">
             <div className=" flex items-center justify-between w-full ">
               <div className="flex items-center justify-between w-full md:gap-x-4 gap-y-2 md:gap-y-0  md:w-auto">
                 <SearchFilter updateQuery={updateQuery} query={query} />
@@ -195,7 +195,7 @@ export const ModelsPage = () => {
           {isPending ? (
             <div className="w-full h-10 mt-10 bg-light-gray animate-pulse text-dark"></div>
           ) : (
-            <div className="flex items-center justify-between w-full my-10 top-16">
+            <div className="flex items-center justify-between w-full my-4 top-16">
               <div className="w-full flex items-center justify-between">
                 <p className="font-semibold text-body-3">
                   {data?.count}{" "}

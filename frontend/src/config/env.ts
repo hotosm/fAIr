@@ -193,4 +193,21 @@ export const ENVS = {
   */
 
   JOSM_REMOTE_URL: import.meta.env.VITE_JOSM_REMOTE_URL,
+
+  /**
+   # The time to poll the backend for the status of the AOI training labels fetching, in milliseconds (ms).
+   # Data type: Positive Integer (e.g., 900).
+   # Default value: 5000 milliseconds (5 seconds).
+   */
+  TRAINING_AREA_LABELS_FETCH_POOLING_INTERVAL_MS: import.meta.env.VITE_TRAINING_AREA_LABELS_FETCH_POOLING_INTERVAL_MS,
+
+  /**
+   # The time to poll the backend for the status of the OSM last updated time, in milliseconds (ms).
+   # Data type: Positive Integer (e.g., 900).
+   # Default value: 10000 milliseconds (10 seconds).
+  */
+
+  OSM_LAST_UPDATED_POOLING_INTERVAL_MS: import.meta.env.VITE_OSM_LAST_UPDATED_POOLING_INTERVAL_MS
 };
+
+

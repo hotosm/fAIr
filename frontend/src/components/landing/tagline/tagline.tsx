@@ -1,7 +1,7 @@
 import { APP_CONTENT } from "@/utils/content";
 import styles from "./tagline.module.css";
 
-const TaglineBanner = () => {
+export const TaglineBanner = () => {
   return (
     <section className={styles.taglineBanner}>
       <p>
@@ -17,4 +17,3 @@ const TaglineBanner = () => {
   );
 };
 
-export default TaglineBanner;

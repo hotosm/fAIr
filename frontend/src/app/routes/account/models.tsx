@@ -1,6 +1,6 @@
-import Pagination, { PAGE_LIMIT } from "@/components/shared/pagination";
+import { Pagination, } from "@/components/shared";
 import { Head } from "@/components/seo";
-import { LayoutView } from "@/enums/models";
+import { LayoutView } from "@/enums";
 import { LayoutToggle, PageHeader } from "@/features/models/components";
 import { MobileModelFiltersDialog } from "@/features/models/components/dialogs";
 import {
@@ -24,6 +24,7 @@ import ModelNotFound from "@/features/models/components/model-not-found";
 import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
 import { useAuth } from "@/app/providers/auth-provider";
 import { modelPagesContent } from "@/constants";
+import { PAGE_LIMIT } from "@/components/shared";
 
 export const UserModelsPage = () => {
   const { isOpened, openDialog, closeDialog } = useDialog();

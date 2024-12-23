@@ -1,11 +1,10 @@
 import styles from "./core-values.module.css";
-import HOTTeam from "@/assets/images/hot_team.jpg";
-import MapathonOngoing from "@/assets/images/mapathon_ongoing.jpg";
 import { APP_CONTENT } from "@/utils/content";
-import DashedLineConnector from "@/assets/svgs/dashed_line.svg";
 import { Image } from "@/components/ui/image";
+import { HOTTeam, MapathonOngoing } from "@/assets/images";
+import { DashedLineConnector } from "@/assets/svgs";
 
-const Corevalues = () => {
+export const Corevalues = () => {
   return (
     <section className={styles.coreValues}>
       <div className={styles.sectionTitle}>
@@ -110,4 +109,3 @@ const Corevalues = () => {
   );
 };
 
-export default Corevalues;

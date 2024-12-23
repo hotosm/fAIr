@@ -1,5 +1,6 @@
 import { keepPreviousData, queryOptions } from "@tanstack/react-query";
 import {
+  getTrainingArea,
   getTrainingAreaLabels,
   getTrainingAreas,
   getTrainingDatasetLabels,
@@ -58,5 +59,14 @@ export const getTrainingAreaLabelsQueryOptions = (aoiId: number) => {
   return queryOptions({
     queryKey: ["training-area-labels", aoiId],
     queryFn: () => getTrainingAreaLabels(aoiId),
+  });
+};
+
+
+export const getTrainingAreaQueryOptions = (aoiId: number) => {
+  return queryOptions({
+    queryKey: ["training-area", aoiId],
+    queryFn: () => getTrainingArea(aoiId),
+    staleTime: 0,
   });
 };

@@ -21,7 +21,7 @@ type PaginationProps = {
   centerOnMobile?: boolean;
 };
 
-const Pagination: React.FC<PaginationProps> = ({
+export const Pagination: React.FC<PaginationProps> = ({
   hasNextPage,
   hasPrevPage,
   disableNextPage,
@@ -110,4 +110,4 @@ const Pagination: React.FC<PaginationProps> = ({
   );
 };
 
-export default Pagination;
+

@@ -4,7 +4,7 @@ import styles from "./header.module.css";
 export const Header = React.memo(({ title }: { title: string }) => {
   return (
     <header
-      className={`${styles.headerBackground} h-44 bg-dark bg-cover bg-no-repeat flex flex-col md:flex-row fullscreen px-large lg:px-extra-large md:items-end  py-6 justify-between relative`}
+      className={`${styles.headerBackground} h-44 bg-dark flex flex-col md:flex-row fullscreen px-large lg:px-extra-large md:items-end  py-6 justify-between relative`}
     >
       <div className="relative text-title-2 md:text-title-1 text-white border-primary font-semibold w-fit">
         {title}

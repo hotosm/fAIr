@@ -1,7 +1,3 @@
-.FAQS {
-  padding: 0 var(--sl-spacing-large);
-}
-
 .heading {
   width: auto;
   text-align: center;
@@ -31,9 +27,6 @@
 
 /* md: */
 @media (min-width: 768px) {
-  .FAQS {
-    padding: 0 var(--hot-fair-spacing-extra-large);
-  }
 
   .heading {
     max-width: 218px;

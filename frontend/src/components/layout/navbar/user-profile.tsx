@@ -1,4 +1,4 @@
-import styles from "@/components/ui/navbar/navbar.module.css";
+import styles from "@/components/layout/navbar/navbar.module.css";
 import SlAvatar from "@shoelace-style/shoelace/dist/react/avatar/index.js";
 import { DropDown } from "@/components/ui/dropdown";
 import { useNavigate } from "react-router-dom";
@@ -6,7 +6,7 @@ import { APP_CONTENT, APPLICATION_ROUTES } from "@/utils";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { useAuth } from "@/app/providers/auth-provider";
 
-const UserProfile = ({ hideFullName }: { hideFullName?: boolean }) => {
+export const UserProfile = ({ hideFullName }: { hideFullName?: boolean }) => {
   const { user, logout } = useAuth();
 
   const { onDropdownHide, onDropdownShow, dropdownIsOpened } =
@@ -61,4 +61,4 @@ const UserProfile = ({ hideFullName }: { hideFullName?: boolean }) => {
   );
 };
 
-export default UserProfile;
+

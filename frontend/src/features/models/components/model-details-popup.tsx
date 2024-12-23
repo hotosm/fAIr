@@ -47,7 +47,7 @@ const ModelDetailsPopUp = ({
     >
       {
         <SkeletonWrapper showSkeleton={Boolean(modelId && isPending)}>
-          <div className="max-h-[500px] overflow-y-auto border bg-white border-gray-border w-80 shadown-sm shadow-[#433D3D33] rounded-md p-5 flex flex-col">
+          <div className="max-h-[500px] scrollable overflow-y-auto border bg-white border-gray-border w-80 shadown-sm shadow-[#433D3D33] rounded-md p-5 flex flex-col">
             {!model && isError ? (
               <div>{startMappingPageContent.modelDetails.error}</div>
             ) : (

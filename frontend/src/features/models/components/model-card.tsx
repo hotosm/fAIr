@@ -1,5 +1,4 @@
 import { TBadgeVariants, TModel } from "@/types";
-import FairModelPlaceholderImage from "@/assets/images/model_placeholder_image.png";
 import { Image } from "@/components/ui/image";
 import { APP_CONTENT, APPLICATION_ROUTES, extractDatePart } from "@/utils";
 import { Link } from "@/components/ui/link";
@@ -7,6 +6,7 @@ import { truncateString } from "@/utils";
 import { roundNumber } from "@/utils/number-utils";
 import { useLocation } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
+import { FairModelPlaceholderImage } from "@/assets/images";
 
 type ModelCardProps = {
   model: TModel;

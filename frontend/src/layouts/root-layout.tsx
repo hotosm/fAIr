@@ -1,12 +1,12 @@
-import { NavBar } from "@/components/ui/navbar";
+import { NavBar } from "@/components/layout";
 import { Outlet, useLocation } from "react-router-dom";
-import { Footer } from "@/components/ui/footer";
+import { Footer } from "@/components/layout";
 import { useEffect } from "react";
 import { Banner } from "@/components/ui/banner";
 import { APPLICATION_ROUTES } from "@/utils";
 import { useScrollToTop } from "@/hooks/use-scroll-to-element";
 
-const RootLayout = () => {
+export const RootLayout = () => {
   const { pathname } = useLocation();
   const { scrollToTop } = useScrollToTop();
   // Scroll to top on pages switch.
@@ -25,9 +25,9 @@ const RootLayout = () => {
       >
         <Outlet />
       </div>
-      <Footer />
+      {!pathname.includes(APPLICATION_ROUTES.START_MAPPING_BASE) && <Footer />}
     </main>
   );
 };
 
-export default RootLayout;
+

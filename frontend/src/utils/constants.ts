@@ -43,6 +43,7 @@ export const APPLICATION_ROUTES = {
   EDIT_MODEL_SUMMARY: `${MODELS_ROUTES.EDIT_MODEL_BASE}/${MODELS_ROUTES.MODEL_SUMMARY}`,
 
   // Model routes end
+
   TRAINING_DATASETS: "/training-datasets",
   START_MAPPING_BASE: "/start-mapping/",
   START_MAPPING: "/start-mapping/:modelId",
@@ -250,3 +251,16 @@ export const PREDICTION_API_FILE_EXTENSIONS = {
  * The remote url to JOSM.
  */
 export const JOSM_REMOTE_URL = ENVS.JOSM_REMOTE_URL || "http://127.0.0.1:8111/";
+
+/**
+ * The time to poll the backend for the status of the AOI training labels fetching, in milliseconds (ms).
+ * Defaults to 5000 ms (5 seconds).
+ */
+export const TRAINING_AREA_LABELS_FETCH_POOLING_TIME_MS = ENVS.TRAINING_AREA_LABELS_FETCH_POOLING_INTERVAL_MS || 5000
+
+/**
+* The time to poll the backend for the status of the OSM last updated time, in milliseconds (ms).
+* Data type: Positive Integer (e.g., 900).
+* Default value: 10000 milliseconds (10 seconds).
+*/
+export const OSM_LAST_UPDATED_POOLING_INTERVAL_MS = ENVS.OSM_LAST_UPDATED_POOLING_INTERVAL_MS || 10000

@@ -10,7 +10,7 @@ import {
 } from "@/utils";
 import { useToastNotification } from "@/hooks/use-toast-notification";
 import { TOAST_NOTIFICATIONS } from "@/constants";
-import { geojsonToOsmPolygons } from "@/lib/geojsonToOsmPolygons";
+import { geojsonToOsmPolygons } from "@/lib";
 import bbox from "@turf/bbox";
 
 /**

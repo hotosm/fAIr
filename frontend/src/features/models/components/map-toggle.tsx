@@ -1,6 +1,6 @@
 import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
 import { Switch } from "@/components/ui/form";
-import { LayoutView } from "@/enums/models";
+import { LayoutView } from "@/enums";
 import { TQueryParams } from "@/types";
 import { APP_CONTENT } from "@/utils";
 

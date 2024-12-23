@@ -10,10 +10,10 @@ import { ORDERING_FIELDS } from "@/features/models/components/filters/ordering-f
 import { TQueryParams } from "@/types";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { buildDateFilterQueryString } from "@/utils";
-import { PAGE_LIMIT } from "@/components/shared/pagination";
+import { PAGE_LIMIT } from "@/components/shared";
 import { dateFilters } from "@/features/models/components/filters/date-range-filter";
 import useDebounce from "@/hooks/use-debounce";
-import { LayoutView } from "@/enums/models";
+import { LayoutView } from "@/enums";
 
 type UseModelsOptions = {
   limit: number;

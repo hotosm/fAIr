@@ -1,9 +1,9 @@
 import { APP_CONTENT, APPLICATION_ROUTES } from "@/utils";
 import { Image } from "@/components/ui/image";
-import HOTFairLogo from "@/assets/svgs/hot_fair_logo.svg";
 import { useNavigate } from "react-router-dom";
+import { HOTFairLogo } from "@/assets/svgs";
 
-const NavLogo = ({
+export const NavLogo = ({
   onClick,
   width = "125px",
   height = "72px",
@@ -28,4 +28,4 @@ const NavLogo = ({
   );
 };
 
-export default NavLogo;
+

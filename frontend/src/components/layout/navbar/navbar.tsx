@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import styles from "@/components/layouts/navbar/navbar.module.css";
+import styles from "@/components/layout/navbar/navbar.module.css";
 import { Drawer } from "@/components/ui/drawer";
 import { useState } from "react";
 import { Link } from "@/components/ui/link";

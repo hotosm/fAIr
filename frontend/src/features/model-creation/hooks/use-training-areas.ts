@@ -1,6 +1,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   getTrainingAreaLabelsQueryOptions,
+  getTrainingAreaQueryOptions,
   getTrainingAreasQueryOptions,
   getTrainingDatasetLabelsQueryOptions,
 } from "@/features/model-creation/api/factory";
@@ -21,7 +22,7 @@ export const useGetTrainingAreas = (datasetId: number, offset: number) => {
   return useQuery({
     ...getTrainingAreasQueryOptions(datasetId, offset),
     //@ts-expect-error bad type definition
-    throwOnError: (error) => error?.response?.status >= 500,
+    throwOnError: (error) => error?.response?.status >= 500
   });
 };
 
@@ -150,6 +151,17 @@ export const useGetTrainingAreaLabels = (aoiId: number, enabled: boolean) => {
     //@ts-expect-error bad type definition
     throwOnError: (error) => error?.response?.status >= 500,
     enabled: enabled,
+  });
+};
+
+
+export const useGetTrainingArea = (aoiId: number, enabled: boolean, refetchInterval: number) => {
+  return useQuery({
+    ...getTrainingAreaQueryOptions(aoiId),
+    //@ts-expect-error bad type definition
+    throwOnError: (error) => error?.response?.status >= 500,
+    enabled: enabled,
+    refetchInterval: refetchInterval,
   });
 };
 
