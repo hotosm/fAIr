@@ -1,12 +1,12 @@
 import { APP_CONTENT, APPLICATION_ROUTES } from "@/utils";
 import { Image } from "@/components/ui/image";
-import HOTFairLogo from "@/assets/svgs/hot_fair_logo.svg";
 import { useNavigate } from "react-router-dom";
+import { fAIrLogo } from "@/assets/images";
 
-const NavLogo = ({
+export const NavLogo = ({
   onClick,
-  width = "125px",
-  height = "72px",
+  width = "60px",
+  height = "22px",
 }: {
   onClick?: () => void;
   width?: string;
@@ -17,15 +17,18 @@ const NavLogo = ({
     onClick ? onClick() : navigate(APPLICATION_ROUTES.HOMEPAGE);
   };
   return (
-    <button onClick={handleClick} title={APP_CONTENT.navbar.logoAlt}>
+    <button
+      onClick={handleClick}
+      title={APP_CONTENT.navbar.logoAlt}
+      className="flex items-center gap-x-1"
+    >
       <Image
-        src={HOTFairLogo}
+        src={fAIrLogo}
         alt={APP_CONTENT.navbar.logoAlt}
         width={width}
         height={height}
       />
+      <p className="font-semibold">fAIr</p>
     </button>
   );
 };
-
-export default NavLogo;

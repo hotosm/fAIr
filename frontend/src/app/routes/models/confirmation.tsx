@@ -1,5 +1,5 @@
 import { useModelsContext } from "@/app/providers/models-provider";
-import ModelFormConfirmation from "@/assets/images/model_creation_success.png";
+import { ModelFormConfirmation } from "@/assets/images";
 import { Button } from "@/components/ui/button";
 import { Image } from "@/components/ui/image";
 import { Link } from "@/components/ui/link";

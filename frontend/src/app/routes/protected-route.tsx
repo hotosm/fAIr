@@ -9,7 +9,7 @@ type ProtectedRouteProps = {
   children: React.ReactNode;
 };
 
-export const ProtectedPage: React.FC<ProtectedRouteProps> = ({ children }) => {
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { isAuthenticated } = useAuth();
   const { handleLogin, loading } = useLogin();
 

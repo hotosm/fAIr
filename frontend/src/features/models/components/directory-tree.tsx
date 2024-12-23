@@ -121,10 +121,9 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
   const fetchDirectoryRecursive = async (
     currentDirectory: string = "",
     currentDepth: number = 0,
-    maxDepth: number = 2
+    maxDepth: number = 2,
   ): Promise<any> => {
     if (currentDepth >= maxDepth) {
-
       return {};
     }
 

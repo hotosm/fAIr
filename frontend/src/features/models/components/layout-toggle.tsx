@@ -1,6 +1,6 @@
 import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
 import { CategoryIcon, ListIcon } from "@/components/ui/icons";
-import { LayoutView } from "@/enums/models";
+import { LayoutView } from "@/enums";
 import { TQueryParams } from "@/types";
 
 const LayoutToggle = ({

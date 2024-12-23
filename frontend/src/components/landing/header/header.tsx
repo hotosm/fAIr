@@ -6,7 +6,7 @@ import { Image } from "@/components/ui/image";
 import { Link } from "@/components/ui/link";
 import { APPLICATION_ROUTES } from "@/utils";
 
-const Header = () => {
+export const Header = () => {
   return (
     <header className={styles.headerContainer}>
       <main className={`${styles.jumbotronContainer}`}>
@@ -22,13 +22,18 @@ const Header = () => {
               nativeAnchor={false}
             >
               <Button variant="primary">
-                {" "}
                 {APP_CONTENT.homepage.ctaPrimaryButton}
               </Button>
             </Link>
-            <Button variant="secondary">
-              {APP_CONTENT.homepage.ctaSecondaryButton}
-            </Button>
+            <Link
+              href={APPLICATION_ROUTES.MODELS}
+              title={APP_CONTENT.homepage.ctaPrimaryButton}
+              nativeAnchor={false}
+            >
+              <Button variant="secondary">
+                {APP_CONTENT.homepage.ctaSecondaryButton}
+              </Button>
+            </Link>
           </div>
         </div>
         <div className={styles.jumbotronImage}>
@@ -43,5 +48,3 @@ const Header = () => {
     </header>
   );
 };
-
-export default Header;

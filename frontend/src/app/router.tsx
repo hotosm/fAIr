@@ -1,13 +1,12 @@
-import { RootLayout } from "@/components/layouts";
 import { APPLICATION_ROUTES } from "@/utils";
 import {
   Navigate,
   RouterProvider,
   createBrowserRouter,
 } from "react-router-dom";
-import { ProtectedPage } from "@/app/routes/protected-route";
+import { ProtectedRoute } from "@/app/routes/protected-route";
 import { MainErrorFallback } from "@/components/errors";
-import ModelFormsLayout from "@/components/layouts/model-forms-layout";
+import { ModelFormsLayout, RootLayout } from "@/layouts";
 
 const router = createBrowserRouter([
   {
@@ -92,9 +91,9 @@ const router = createBrowserRouter([
        */
       {
         element: (
-          <ProtectedPage>
+          <ProtectedRoute>
             <ModelFormsLayout />
-          </ProtectedPage>
+          </ProtectedRoute>
         ),
         children: [
           /**
@@ -255,9 +254,9 @@ const router = createBrowserRouter([
           );
           return {
             Component: () => (
-              <ProtectedPage>
+              <ProtectedRoute>
                 <TrainingDatasetsPage />
-              </ProtectedPage>
+              </ProtectedRoute>
             ),
           };
         },
@@ -278,9 +277,9 @@ const router = createBrowserRouter([
           );
           return {
             Component: () => (
-              <ProtectedPage>
+              <ProtectedRoute>
                 <StartMappingPage />
-              </ProtectedPage>
+              </ProtectedRoute>
             ),
           };
         },

@@ -22,7 +22,7 @@ import { ElipsisIcon, InfoIcon } from "@/components/ui/icons";
 import { useDialog } from "@/hooks/use-dialog";
 import { TrainingDetailsDialog } from "@/features/models/components/dialogs";
 import { useUpdateTraining } from "@/features/models/api/update-trainings";
-import Pagination, { PAGE_LIMIT } from "@/components/shared/pagination";
+import { Pagination, PAGE_LIMIT } from "@/components/shared";
 import { useToastNotification } from "@/hooks/use-toast-notification";
 
 type TrainingHistoryTableProps = {

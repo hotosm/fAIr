@@ -1,4 +1,4 @@
-import styles from "@/components/ui/navbar/navbar.module.css";
+import styles from "@/components/layout/navbar/navbar.module.css";
 import SlAvatar from "@shoelace-style/shoelace/dist/react/avatar/index.js";
 import { DropDown } from "@/components/ui/dropdown";
 import { useNavigate } from "react-router-dom";
@@ -6,13 +6,19 @@ import { APP_CONTENT, APPLICATION_ROUTES } from "@/utils";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { useAuth } from "@/app/providers/auth-provider";
 
-const UserProfile = ({ hideFullName }: { hideFullName?: boolean }) => {
+export const UserProfile = ({
+  hideFullName,
+  smallerSize,
+}: {
+  hideFullName?: boolean;
+  smallerSize?: boolean;
+}) => {
   const { user, logout } = useAuth();
 
   const { onDropdownHide, onDropdownShow, dropdownIsOpened } =
     useDropdownMenu();
   const navigate = useNavigate();
-
+  const size = smallerSize ? "35px" : "40px";
   return (
     <DropDown
       onDropdownShow={onDropdownShow}
@@ -51,6 +57,8 @@ const UserProfile = ({ hideFullName }: { hideFullName?: boolean }) => {
             label={user.username}
             loading="lazy"
             initials={user.username.charAt(0)}
+            // @ts-expect-error bad type definition
+            style={{ "--size": size }}
           />
           {!hideFullName && (
             <p className={styles.userProfileName}>{user.username}</p>
@@ -60,5 +68,3 @@ const UserProfile = ({ hideFullName }: { hideFullName?: boolean }) => {
     ></DropDown>
   );
 };
-
-export default UserProfile;

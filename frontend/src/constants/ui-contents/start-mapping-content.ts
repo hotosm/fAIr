@@ -37,6 +37,7 @@ export const startMappingPageContent: TStartMappingPageContent = {
   },
   buttons: {
     runPrediction: "Run prediction",
+    tooltip: "Zoom in to run predictions",
     download: {
       label: "Actions",
       options: {
@@ -46,7 +47,7 @@ export const startMappingPageContent: TStartMappingPageContent = {
         openAcceptedFeaturesInJOSM: "Open accepted Features to JOSM",
       },
     },
-    predictionInProgress: "Running prediction...",
+    predictionInProgress: "Running...",
   },
   settings: {
     useJOSMQ: {
@@ -65,15 +66,20 @@ export const startMappingPageContent: TStartMappingPageContent = {
       label: "Area",
       tooltip: "area",
     },
+    tooltip: "Settings",
   },
   mapData: {
-    title: "Map Data",
+    title: "Predictions",
     accepted: "Accepted",
     rejected: "Rejected",
+  },
+  actions: {
+    disabledModeTooltip: "Run prediction to see actions",
   },
   modelDetails: {
     error: "Error retrieving model information.",
     label: "Model Details",
+    tooltip: "Model Details",
     popover: {
       title: "Model Details",
       modelId: "Model ID",

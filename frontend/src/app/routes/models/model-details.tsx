@@ -14,13 +14,13 @@ import { useDialog } from "@/hooks/use-dialog";
 import { APP_CONTENT, APPLICATION_ROUTES } from "@/utils";
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import TrainingInProgressImage from "@/assets/images/training_in_progress.png";
 import { Image } from "@/components/ui/image";
 import ModelEnhancementDialog from "@/features/models/components/dialogs/model-enhancement-dialog";
 import { TModelDetails, TTrainingDataset } from "@/types";
 import { useAuth } from "@/app/providers/auth-provider";
 import { TrainingAreaDrawer } from "@/features/models/components/training-area-drawer";
 import { useGetTrainingDataset } from "@/features/models/hooks/use-dataset";
+import { TrainingInProgressImage } from "@/assets/images";
 
 export const ModelDetailsPage = () => {
   const { id } = useParams<{ id: string }>();

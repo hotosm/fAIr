@@ -1,9 +1,9 @@
 import { Header } from "@/components/shared";
 import { Image } from "@/components/ui/image";
-import HOTTeamLandscape from "@/assets/images/hot_team_landscape.png";
 import { Head } from "@/components/seo";
-import AIIcon from "@/assets/svgs/fair_ai_icon.svg";
 import { aboutPageContent } from "@/constants";
+import { HOTTeamLandscape } from "@/assets/images";
+import { AIIcon } from "@/assets/svgs";
 
 export const AboutPage = () => {
   return (

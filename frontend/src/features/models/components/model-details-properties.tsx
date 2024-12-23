@@ -25,6 +25,7 @@ enum TrainingStatus {
   IN_PROGRESS = "IN PROGRESS",
   RUNNING = "RUNNING",
   SUCCESS = "SUCCESS",
+  FINISHED = "FINISHED",
 }
 
 type PropertyDisplayProps = {
@@ -288,10 +289,7 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
             {isTrainingDetailsDialog && (
               <div className="w-fit">
                 <ModelFilesButton
-                  disabled={
-                    data?.status === TrainingStatus.IN_PROGRESS ||
-                    data?.status === TrainingStatus.RUNNING
-                  }
+                  disabled={data?.status !== TrainingStatus.FINISHED}
                   openModelFilesDialog={openDialog}
                 />
               </div>
@@ -300,7 +298,7 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
             {isTrainingDetailsDialog && (
               <TrainingAreaButton
                 onClick={openTrainingAreaDrawer}
-                disabled={data?.status !== TrainingStatus.SUCCESS}
+                disabled={data?.status !== TrainingStatus.FINISHED}
               />
             )}
           </div>

@@ -22,7 +22,7 @@ const coreFeatures: TCoreFeatures[] = [
   },
 ];
 
-const CoreFeatures = () => {
+export const CoreFeatures = () => {
   return (
     <section className={styles.coreFeatures}>
       {coreFeatures.map((feature, id) => (
@@ -36,5 +36,3 @@ const CoreFeatures = () => {
     </section>
   );
 };
-
-export default CoreFeatures;

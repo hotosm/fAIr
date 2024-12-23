@@ -18,7 +18,7 @@ import {
   ModelsProvider,
   useModelsContext,
 } from "@/app/providers/models-provider";
-import { BackButton } from "../ui/button";
+import { BackButton } from "../components/ui/button";
 
 const pages: {
   id: number;
@@ -64,7 +64,7 @@ const pages: {
   },
 ];
 
-const ModelCreationLayout = () => {
+export const ModelFormsLayout = () => {
   const { pathname } = useLocation();
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
 
@@ -103,8 +103,6 @@ const ModelCreationLayout = () => {
     </ModelsProvider>
   );
 };
-
-export default ModelCreationLayout;
 
 const ModelFormRouteValidator = ({
   pathname,

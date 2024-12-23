@@ -1,9 +1,9 @@
-import AIIcon from "@/assets/svgs/fair_ai_icon.svg";
 import styles from "./about-fair.module.css";
 import { APP_CONTENT } from "@/utils/content";
 import { Image } from "@/components/ui/image";
+import { AIIcon } from "@/assets/svgs";
 
-const WhatIsFAIR = () => {
+export const WhatIsFAIR = () => {
   return (
     <section className={styles.aboutfAIrContainer}>
       <div className={styles.featureContent}>
@@ -17,5 +17,3 @@ const WhatIsFAIR = () => {
     </section>
   );
 };
-
-export default WhatIsFAIR;

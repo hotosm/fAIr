@@ -47,7 +47,7 @@ const steps: TSteps[] = [
   },
 ];
 
-const TheFAIRProcess = ({
+export const TheFAIRProcess = ({
   disableStyle = false,
 }: {
   disableStyle?: boolean;
@@ -156,5 +156,3 @@ const TheFAIRProcess = ({
     </section>
   );
 };
-
-export default TheFAIRProcess;

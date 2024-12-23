@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { APP_CONTENT } from "@/utils";
 
-const PageUnderConstruction = () => {
+export const PageUnderConstruction = () => {
   return (
     <section className="min-h-[80vh] flex flex-col mt-20 items-center justify-around">
       <div>
@@ -20,5 +20,3 @@ const PageUnderConstruction = () => {
     </section>
   );
 };
-
-export default PageUnderConstruction;

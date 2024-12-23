@@ -21,6 +21,15 @@ export const useDropdownMenu = () => {
   const onDropdownHide = useCallback(() => {
     setIsOpened(false);
   }, []);
+
+  const toggleDropDown = useCallback(() => {
+    if (isOpened) {
+      setIsOpened(false);
+    } else {
+      setIsOpened(true);
+    }
+  }, [isOpened]);
+
   const dropdownIsOpened = useMemo(() => isOpened, [isOpened]);
-  return { onDropdownHide, onDropdownShow, dropdownIsOpened };
+  return { onDropdownHide, onDropdownShow, dropdownIsOpened, toggleDropDown };
 };

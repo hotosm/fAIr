@@ -1,2 +1,2 @@
-export { default as MainErrorFallback } from "./fallback";
-export { default as PageUnderConstruction } from "./under-construction";
+export { MainErrorFallback } from "./fallback";
+export { PageUnderConstruction } from "./under-construction";

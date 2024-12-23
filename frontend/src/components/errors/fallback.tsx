@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { APP_CONTENT } from "@/utils";
 
-const MainErrorFallback = () => {
+export const MainErrorFallback = () => {
   return (
     <>
       <section className="min-h-[80vh] flex flex-col mt-20 items-center justify-around">
@@ -22,5 +22,3 @@ const MainErrorFallback = () => {
     </>
   );
 };
-
-export default MainErrorFallback;

@@ -1,0 +1,11 @@
+export { default as JumbotronBackgroundImage } from "@/assets/images/header_bg.jpg";
+export { default as CreativeCommonsBadge } from "@/assets/images/cc_by_badge.png";
+export { default as HOTTeamTwo } from "@/assets/images/hot_team_2.jpg";
+export { default as HOTTeamLandscape } from "@/assets/images/hot_team_landscape.png";
+export { default as HOTTeam } from "@/assets/images/hot_team.jpg";
+export { default as MapMarkerIcon } from "@/assets/images/map_marker.png";
+export { default as MapathonOngoing } from "@/assets/images/mapathon_ongoing.jpg";
+export { default as ModelFormConfirmation } from "@/assets/images/model_creation_success.png";
+export { default as FairModelPlaceholderImage } from "@/assets/images/model_placeholder_image.png";
+export { default as TrainingInProgressImage } from "@/assets/images/training_in_progress.png";
+export { default as fAIrLogo } from "@/assets/images/fAIr_logo.png";

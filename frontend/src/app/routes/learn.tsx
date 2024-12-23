@@ -1,16 +1,17 @@
 import { TheFAIRProcess } from "@/components/landing";
 import { Header, SectionHeader } from "@/components/shared";
 import { Image } from "@/components/ui/image";
-import fAIrValues from "@/assets/svgs/fair_values.svg";
+
 import { ExternalLinkIcon, YouTubePlayCircleIcon } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import { Link } from "@/components/ui/link";
 import { SHOELACE_SIZES } from "@/enums";
 import { Head } from "@/components/seo";
 import { useState } from "react";
-import VideoPlaceholderImage from "@/assets/images/header_bg.jpg";
 import { learnPageContent } from "@/constants";
 import { TGuide, TVideo } from "@/types";
+import { JumbotronBackgroundImage } from "@/assets/images";
+import { fAIrValues } from "@/assets/svgs";
 
 export const LearnPage = () => {
   return (
@@ -118,7 +119,7 @@ const VideoCard = ({ video }: { video: TVideo }) => {
       <div className="relative">
         <div className="w-full h-full">
           <Image
-            src={VideoPlaceholderImage}
+            src={JumbotronBackgroundImage}
             width="100%"
             height="100%"
             alt={video.title}

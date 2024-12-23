@@ -7,16 +7,20 @@ import { useGetTrainingDataset } from "@/features/models/hooks/use-dataset";
 import {
   StartMappingHeader,
   StartMappingMapComponent,
+  StartMappingMobileDrawer,
 } from "@/features/start-mapping/components";
 import { useGetTMSTileJSON } from "@/features/model-creation/hooks/use-tms-tilejson";
 import {
   APPLICATION_ROUTES,
   extractTileJSONURL,
+  MIN_ZOOM_LEVEL_FOR_START_MAPPING_PREDICTION,
   PREDICTION_API_FILE_EXTENSIONS,
 } from "@/utils";
 import { BASE_MODELS } from "@/enums";
 import { startMappingPageContent } from "@/constants";
 import { useMapInstance } from "@/hooks/use-map-instance";
+import useScreenSize from "@/hooks/use-screen-size";
+import { ModelDetailsPopUp } from "@/features/models/components";
 
 export const SEARCH_PARAMS = {
   useJOSMQ: "useJOSMQ",
@@ -126,11 +130,39 @@ export const StartMappingPage = () => {
     ] as BBOX,
   };
 
+  const { isMobile } = useScreenSize();
+
+  const disablePrediction =
+    currentZoom < MIN_ZOOM_LEVEL_FOR_START_MAPPING_PREDICTION;
+
+  const popupAnchorId = "model-details";
+
+  const [showModelDetails, setShowModelDetails] = useState<boolean>(false);
+
   return (
     <>
       <Head title={startMappingPageContent.pageTitle(data?.name)} />
+      <ModelDetailsPopUp
+        showPopup={showModelDetails}
+        closePopup={() => setShowModelDetails(false)}
+        anchor={popupAnchorId}
+        model={data}
+        trainingDataset={trainingDataset}
+        trainingDatasetIsPending={trainingDatasetIsPending}
+        trainingDatasetIsError={trainingDatasetIsError}
+      />
       <div className="h-screen flex flex-col fullscreen">
-        <div className="sticky top-0 bg-white z-10 px-4 md:px-large py-2">
+        <StartMappingMobileDrawer
+          isOpen={isMobile}
+          disablePrediction={disablePrediction}
+          trainingConfig={trainingConfig}
+          setModelPredictions={setModelPredictions}
+          modelPredictions={modelPredictions}
+          map={map}
+          showModelDetails={showModelDetails}
+          setShowModelDetails={setShowModelDetails}
+        />
+        <div className="sticky top-0 bg-white z-10 px-4 xl:px-large py-1 hidden md:block">
           <StartMappingHeader
             data={data}
             trainingDatasetIsPending={trainingDatasetIsPending}
@@ -144,7 +176,10 @@ export const StartMappingPage = () => {
             trainingConfig={trainingConfig}
             setModelPredictions={setModelPredictions}
             map={map}
-            currentZoom={currentZoom}
+            disablePrediction={disablePrediction}
+            popupAnchorId={popupAnchorId}
+            showModelDetails={showModelDetails}
+            setShowModelDetails={setShowModelDetails}
           />
         </div>
         <div className="col-span-12 h-[70vh] md:h-full border-8 border-off-white flex-grow">

@@ -68,7 +68,7 @@ export const TrainingAreaMap = ({
   tmsURL: string;
   visible: boolean;
 }) => {
-  const { mapContainerRef, map, currentZoom } = useMapInstance();
+  const { mapContainerRef, map, currentZoom } = useMapInstance(true);
 
   const [vectorLayers, setVectorLayers] = useState<LayerSpecification[]>([]);
 

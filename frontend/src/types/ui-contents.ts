@@ -57,6 +57,7 @@ export type TStartMappingPageContent = {
   };
   buttons: {
     runPrediction: string;
+    tooltip: string;
     download: {
       label: string;
       options: {
@@ -85,15 +86,20 @@ export type TStartMappingPageContent = {
       label: string;
       tooltip: string;
     };
+    tooltip: string;
   };
   mapData: {
     title: string;
     accepted: string;
     rejected: string;
   };
+  actions: {
+    disabledModeTooltip: string;
+  };
   modelDetails: {
     error: string;
     label: string;
+    tooltip: string;
     popover: {
       title: string;
       modelId: string;

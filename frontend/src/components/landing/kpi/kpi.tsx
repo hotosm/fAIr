@@ -20,7 +20,7 @@ const fetchKPIStats = async (): Promise<TKPIResponse> => {
   return data;
 };
 
-const Kpi = () => {
+export const Kpi = () => {
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["kpis"],
     queryFn: fetchKPIStats,
@@ -70,5 +70,3 @@ const Kpi = () => {
     </section>
   );
 };
-
-export default Kpi;
