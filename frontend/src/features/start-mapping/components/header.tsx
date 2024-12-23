@@ -1,10 +1,9 @@
 import { BackButton, ButtonWithIcon } from "@/components/ui/button";
 import { Divider } from "@/components/ui/divider";
 import { DropDown } from "@/components/ui/dropdown";
-import { ChevronDownIcon, TagsInfoIcon } from "@/components/ui/icons";
+import { ChevronDownIcon } from "@/components/ui/icons";
 import { SkeletonWrapper } from "@/components/ui/skeleton";
 import { TOAST_NOTIFICATIONS } from "@/constants";
-import { ModelDetailsPopUp } from "@/features/models/components";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import {
   Feature,
@@ -19,7 +18,7 @@ import {
   openInJOSM,
   showSuccessToast,
 } from "@/utils";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { ModelSettings } from "./model-settings";
 import { TQueryParams } from "@/app/routes/start-mapping";
 import ModelAction from "./model-action";
