@@ -47,7 +47,7 @@ const router = createBrowserRouter([
         },
       },
       /**
-       * Training dataset route starts
+       * Training dataset route 
        */
       {
         path: APPLICATION_ROUTES.TRAINING_DATASETS,
@@ -277,9 +277,9 @@ const router = createBrowserRouter([
           );
           return {
             Component: () => (
-              <ProtectedRoute>
-                <StartMappingPage />
-              </ProtectedRoute>
+              // <ProtectedRoute>
+              <StartMappingPage />
+              // </ProtectedRoute>
             ),
           };
         },
