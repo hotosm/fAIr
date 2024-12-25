@@ -5,17 +5,17 @@ import { startMappingPageContent } from "@/constants";
 export const ModelDetailsButton = ({
   popupAnchorId,
   onClick,
-  showModelDetails = false,
+  modelDetailsPopupIsActive = false,
 }: {
   popupAnchorId?: string;
   onClick: () => void;
-  showModelDetails?: boolean;
+  modelDetailsPopupIsActive?: boolean;
 }) => {
   return (
     <ToolTip content={startMappingPageContent.modelDetails.tooltip}>
       <button
         id={popupAnchorId}
-        className={`text-gray text-body-2 flex items-center p-1.5 hover:icon-interaction ${showModelDetails && "icon-interaction"}`}
+        className={`text-gray text-body-2 flex items-center p-1.5 hover:icon-interaction ${modelDetailsPopupIsActive && "icon-interaction"}`}
         onClick={onClick}
       >
         <TagsInfoIcon className="icon" />

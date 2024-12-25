@@ -30,6 +30,7 @@ export type TStartMappingPageContent = {
       };
       legendControl: {
         title: string;
+        tooltip: string;
         acceptedPredictions: string;
         rejectedPredictions: string;
         predictionResults: string;
@@ -94,7 +95,7 @@ export type TStartMappingPageContent = {
     rejected: string;
   };
   actions: {
-    disabledModeTooltip: string;
+    disabledModeTooltip: (p: string) => string;
   };
   modelDetails: {
     error: string;

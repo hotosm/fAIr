@@ -1,8 +1,14 @@
 sl-dialog::part(title) {
-  font-size: var(--hot-fair-font-size-title-3);
+  font-size: var(--hot-fair-font-size-title-4);
   font-weight: var(--hot-fair-font-weight-semibold);
 }
 
 sl-dialog.primary::part(title) {
   color: var(--hot-fair-color-primary);
+}
+
+@media (min-width: 768px) {
+  sl-dialog::part(title) {
+    font-size: var(--hot-fair-font-size-title-3);
+  }
 }

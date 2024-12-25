@@ -25,6 +25,7 @@ const Dialog: React.FC<DialogProps> = ({
       event.preventDefault();
     }
   }
+
   const { isMobile, isTablet, isLaptop } = useScreenSize();
 
   const size =

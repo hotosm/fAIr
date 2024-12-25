@@ -58,6 +58,8 @@ body {
   /* 80px */
   --hot-fair-spacing-large: 2rem;
   /* 32px */
+  --hot-fair-spacing-small: 1rem;
+  /* 16px */
 
   /* Scroll bar styles */
   --scrollbar-width: 6px;
@@ -68,11 +70,22 @@ body {
 
 /* Toast stack placement style begins */
 
+/* On Mobile show at the top. */
 .sl-toast-stack {
   left: 0;
   right: auto;
-  top: auto;
-  bottom: 0;
+  top: 0;
+  bottom: auto;
+}
+
+/* On Web, show at the bottom. */
+@media (min-width: 768px) {
+  .sl-toast-stack {
+    left: 0;
+    right: auto;
+    top: auto;
+    bottom: 0;
+  }
 }
 
 /* Toast stack placement style ends */
@@ -156,10 +169,10 @@ sl-alert.success::part(base) {
     @apply inline-block h-4 w-4  p-2;
   }
   .fullscreen {
-    @apply -mx-large 2xl:-mx-extra-large;
+    @apply -mx-small md:-mx-large 2xl:-mx-extra-large;
   }
   .app-padding {
-    @apply px-large 2xl:px-extra-large;
+    @apply px-small md:px-large  2xl:px-extra-large;
   }
   .no-fullscreen {
     @apply -mx-0 lg:-mx-0;
@@ -169,7 +182,13 @@ sl-alert.success::part(base) {
     @apply flex flex-col gap-y-20 md:gap-y-40 mb-48;
   }
   .icon-interaction {
-    @apply bg-light-gray rounded-lg;
+    @apply bg-off-white rounded-lg;
+  }
+  .map-elements-z-index {
+    @apply z-[1];
+  }
+  .map-elements-padding {
+    @apply px-3;
   }
 }
 

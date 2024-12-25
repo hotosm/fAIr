@@ -2,9 +2,10 @@ import styles from "@/components/layout/navbar/navbar.module.css";
 import SlAvatar from "@shoelace-style/shoelace/dist/react/avatar/index.js";
 import { DropDown } from "@/components/ui/dropdown";
 import { useNavigate } from "react-router-dom";
-import { APP_CONTENT, APPLICATION_ROUTES } from "@/utils";
+import { APP_CONTENT, APPLICATION_ROUTES, truncateString } from "@/utils";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { useAuth } from "@/app/providers/auth-provider";
+import useScreenSize from "@/hooks/use-screen-size";
 
 export const UserProfile = ({
   hideFullName,
@@ -18,7 +19,8 @@ export const UserProfile = ({
   const { onDropdownHide, onDropdownShow, dropdownIsOpened } =
     useDropdownMenu();
   const navigate = useNavigate();
-  const size = smallerSize ? "35px" : "40px";
+  const { isMobile, isTablet } = useScreenSize();
+  const size = smallerSize ? "35px" : isTablet || isMobile ? "28px" : "40px";
   return (
     <DropDown
       onDropdownShow={onDropdownShow}
@@ -48,20 +50,22 @@ export const UserProfile = ({
           className: "logoutButton",
         },
       ]}
-      distance={0}
+      distance={10}
       placement="bottom-end"
       triggerComponent={
         <div className={styles.userProfile}>
           <SlAvatar
-            image={user.img_url}
-            label={user.username}
+            image={user?.img_url}
+            label={user?.username}
             loading="lazy"
-            initials={user.username.charAt(0)}
+            initials={user?.username.charAt(0)}
             // @ts-expect-error bad type definition
             style={{ "--size": size }}
           />
           {!hideFullName && (
-            <p className={styles.userProfileName}>{user.username}</p>
+            <p className={styles.userProfileName}>
+              {truncateString(user?.username, 20)}
+            </p>
           )}
         </div>
       }

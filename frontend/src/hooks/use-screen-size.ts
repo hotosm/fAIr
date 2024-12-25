@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 /**
  * Custom hook to detect whether the current device is mobile, tablet based on the window width.
@@ -37,7 +37,12 @@ const useScreenSize = () => {
     };
   }, []);
 
-  return screenSize;
+  const isSmallViewport = useMemo(
+    () => screenSize.isMobile || screenSize.isTablet,
+    [screenSize],
+  );
+
+  return { ...screenSize, isSmallViewport };
 };
 
 export default useScreenSize;

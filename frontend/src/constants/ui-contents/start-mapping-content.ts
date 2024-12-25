@@ -9,6 +9,7 @@ export const startMappingPageContent: TStartMappingPageContent = {
       },
       legendControl: {
         title: "Legend",
+        tooltip: "Legend",
         acceptedPredictions: "Accepted Predictions",
         rejectedPredictions: "Rejected Predictions",
         predictionResults: "Prediction Results",
@@ -41,8 +42,8 @@ export const startMappingPageContent: TStartMappingPageContent = {
     download: {
       label: "Actions",
       options: {
-        allFeatures: "Download all Features as GeoJSON",
-        acceptedFeatures: "Download accepted Features as GeoJSON",
+        allFeatures: "All features as GeoJSON",
+        acceptedFeatures: "Accepted features as GeoJSON",
         openAllFeaturesInJOSM: "Open all Features to JOSM",
         openAcceptedFeaturesInJOSM: "Open accepted Features to JOSM",
       },
@@ -74,7 +75,7 @@ export const startMappingPageContent: TStartMappingPageContent = {
     rejected: "Rejected",
   },
   actions: {
-    disabledModeTooltip: "Run prediction to see actions",
+    disabledModeTooltip: (param: string) => `Run prediction to ${param}`,
   },
   modelDetails: {
     error: "Error retrieving model information.",

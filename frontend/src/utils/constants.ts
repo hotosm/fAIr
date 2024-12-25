@@ -155,7 +155,7 @@ export const MIN_ZOOM_LEVEL_FOR_TRAINING_AREA_LABELS =
 
 export const TILE_BOUNDARY_LAYER_ID = `${MAP_STYLES_PREFIX}-tile-boundary-layer`;
 export const TILE_BOUNDARY_SOURCE_ID = `${MAP_STYLES_PREFIX}-tile-boundaries`;
-export const TMS_LAYER_ID = `${MAP_STYLES_PREFIX}-training-dataset-tms-layer`;
+export const TMS_LAYER_ID = `${MAP_STYLES_PREFIX}-oam-tms-layer`;
 export const TMS_SOURCE_ID = `${MAP_STYLES_PREFIX}-oam-training-dataset`;
 export const OSM_BASEMAP_LAYER_ID = `${MAP_STYLES_PREFIX}-osm-layer`;
 export const GOOGLE_SATELLITE_BASEMAP_LAYER_ID = `${MAP_STYLES_PREFIX}-google-statellite-layer`;

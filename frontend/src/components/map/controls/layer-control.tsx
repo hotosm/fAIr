@@ -2,10 +2,16 @@ import { LayerStackIcon } from "@/components/ui/icons";
 import { DropDown } from "@/components/ui/dropdown";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { Map } from "maplibre-gl";
-import { useEffect, useState } from "react";
-import { CheckboxGroup } from "../../ui/form";
-import { ToolTip } from "../../ui/tooltip";
+import { useEffect, useMemo, useState } from "react";
+import { CheckboxGroup } from "@/components/ui/form";
+import { ToolTip } from "@/components/ui/tooltip";
 import { BASEMAPS, ToolTipPlacement } from "@/enums";
+import {
+  GOOGLE_SATELLITE_BASEMAP_LAYER_ID,
+  OSM_BASEMAP_LAYER_ID,
+  TMS_LAYER_ID,
+} from "@/utils";
+import useScreenSize from "@/hooks/use-screen-size";
 
 type TLayers = { id?: string; subLayers: string[]; value: string }[];
 type TBasemaps = { id?: string; subLayer: string; value: string }[];
@@ -13,14 +19,36 @@ type TBasemaps = { id?: string; subLayer: string; value: string }[];
 export const LayerControl = ({
   map,
   layers,
-  basemaps,
+  basemaps = true,
+  openAerialMap = false,
 }: {
   map: Map | null;
   layers: TLayers;
-  basemaps: TBasemaps;
+  basemaps?: boolean;
+  openAerialMap?: boolean;
 }) => {
   const { dropdownIsOpened, onDropdownHide, onDropdownShow } =
     useDropdownMenu();
+  const { isTablet, isMobile } = useScreenSize();
+
+  const layerControlData = useMemo(() => {
+    const layers_ = [
+      ...layers,
+      ...(openAerialMap
+        ? [{ value: "TMS Layer", subLayers: [TMS_LAYER_ID] }]
+        : []),
+    ];
+    const baseLayers: TBasemaps = basemaps
+      ? [
+          { value: BASEMAPS.OSM, subLayer: OSM_BASEMAP_LAYER_ID },
+          {
+            value: BASEMAPS.GOOGLE_SATELLITE,
+            subLayer: GOOGLE_SATELLITE_BASEMAP_LAYER_ID,
+          },
+        ]
+      : [];
+    return { layers_, baseLayers };
+  }, [layers, openAerialMap, basemaps]);
 
   const [layerVisibility, setLayerVisibility] = useState<{
     [key: string]: boolean;
@@ -30,7 +58,7 @@ export const LayerControl = ({
   }>({});
 
   useEffect(() => {
-    const initialVisibility = layers.reduce(
+    const initialVisibility = layerControlData.layers_.reduce(
       (acc, { value }) => {
         acc[value] =
           layerVisibility[value] !== undefined ? layerVisibility[value] : true;
@@ -40,10 +68,10 @@ export const LayerControl = ({
     );
 
     setLayerVisibility(initialVisibility);
-  }, [layers]);
+  }, [layerControlData.layers_]);
 
   useEffect(() => {
-    const initialVisibility = basemaps.reduce(
+    const initialVisibility = layerControlData.baseLayers.reduce(
       (acc, { value }) => {
         acc[value] =
           basemapVisibility[value] !== undefined
@@ -55,12 +83,12 @@ export const LayerControl = ({
     );
 
     setBasemapVisibility(initialVisibility);
-  }, [basemaps]);
+  }, [layerControlData.baseLayers]);
 
   const handleLayerSelection = (newSelectedLayers: string[]) => {
     const updatedVisibility = { ...layerVisibility };
 
-    layers.forEach(({ value, subLayers }) => {
+    layerControlData.layers_.forEach(({ value, subLayers }) => {
       updatedVisibility[value] = newSelectedLayers.includes(value);
 
       if (map?.isStyleLoaded) {
@@ -83,7 +111,7 @@ export const LayerControl = ({
   const handleBasemapSelection = (newSelectedBasemap: string[]) => {
     const updatedVisibility = { ...basemapVisibility };
 
-    basemaps.forEach(({ value, subLayer }) => {
+    layerControlData.baseLayers.forEach(({ value, subLayer }) => {
       updatedVisibility[value] = newSelectedBasemap.includes(value);
       if (map?.isStyleLoaded) {
         if (map.getLayer(subLayer)) {
@@ -107,26 +135,30 @@ export const LayerControl = ({
         onDropdownShow={onDropdownShow}
         disableCheveronIcon
         triggerComponent={
-          <div className="bg-white p-2 relative">
+          <div
+            className={`bg-white p-2 border border-gray-border md:border-0 relative ${isTablet || isMobile ? "rounded-xl" : ""}`}
+          >
             <LayerStackIcon className="icon-lg" />
           </div>
         }
         withCheckbox
         distance={10}
       >
-        <div className="bg-white px-4 py-2 text-nowrap rounded-md w-full flex flex-col gap-y-4">
-          {basemaps.length > 0 && (
+        <div
+          className={`bg-white px-4 py-2 text-nowrap rounded-md w-full flex flex-col gap-y-4`}
+        >
+          {layerControlData.baseLayers.length > 0 ? (
             <>
               <p className="text-sm">Basemap</p>
               <CheckboxGroup
                 defaultSelectedOption={BASEMAPS.OSM}
-                options={basemaps}
+                options={layerControlData.baseLayers}
                 // @ts-expect-error bad type definition
                 onCheck={handleBasemapSelection}
               />
             </>
-          )}
-          {layers.length > 0 && (
+          ) : null}
+          {layerControlData.layers_.length > 0 ? (
             <>
               <p className="text-sm">Layers</p>
               <CheckboxGroup
@@ -134,12 +166,12 @@ export const LayerControl = ({
                   (layer) => layerVisibility[layer],
                 )}
                 multiple
-                options={layers}
+                options={layerControlData.layers_}
                 // @ts-expect-error bad type definition
                 onCheck={handleLayerSelection}
               />
             </>
-          )}
+          ) : null}
         </div>
       </DropDown>
     </ToolTip>

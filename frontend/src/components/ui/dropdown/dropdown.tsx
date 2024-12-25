@@ -29,7 +29,7 @@ type DropDownProps = {
   withCheckbox?: boolean;
   defaultSelectedItems?: string[];
   defaultSelectedItem?: string;
-  menuItemTextSize?: "default" | "small";
+
   multiSelect?: boolean;
   triggerComponent: React.ReactNode;
   distance?: number;
@@ -50,7 +50,7 @@ const DropDown: React.FC<DropDownProps> = ({
   defaultSelectedItems = [],
   defaultSelectedItem = "",
   multiSelect = false,
-  menuItemTextSize = "default",
+
   triggerComponent,
   distance = 20,
   disableCheveronIcon = false,
@@ -121,14 +121,18 @@ const DropDown: React.FC<DropDownProps> = ({
           />
         )}
       </div>
-      <div className={cn(`shadow-2xl z-[10000] ${className}`)}>
+      <div
+        className={cn(
+          `shadow-2xl z-[1000000000] map-elements-z-index ${className}`,
+        )}
+      >
         {menuItems && menuItems.length > 0 ? (
           <SlMenu onSlSelect={handleSelect}>
             {menuItems?.map((menuItem, id) => (
               <SlMenuItem
                 key={`dropdown-menu-item-${id}`}
                 value={menuItem.value}
-                className={cn(`${menuItem.className} ${menuItemTextSize}`)}
+                className={cn(`${menuItem.className}`)}
                 onClick={menuItem.onClick}
                 disabled={menuItem.disabled ?? false}
               >

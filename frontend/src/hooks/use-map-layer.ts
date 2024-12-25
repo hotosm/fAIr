@@ -14,7 +14,7 @@ export const useMapLayers = (
   }, [map, sourcesSpec, layersSpec]);
 
   useEffect(() => {
-    if (!map) return;
+    if (!map || !map.isStyleLoaded()) return;
     if (!map.isStyleLoaded()) {
       map.once("styledata", addSourcesAndLayers);
     } else {

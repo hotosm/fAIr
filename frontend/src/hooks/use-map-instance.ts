@@ -20,11 +20,7 @@ export const useMapInstance = (pmtiles: boolean = false) => {
   );
 
   useEffect(() => {
-    const map = setupMaplibreMap(
-      mapContainerRef,
-      MAP_STYLES[BASEMAPS.OSM],
-      pmtiles,
-    );
+    const map = setupMaplibreMap(mapContainerRef, pmtiles);
 
     map.on("load", () => {
       setMap(map);

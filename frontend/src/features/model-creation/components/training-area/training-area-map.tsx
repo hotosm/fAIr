@@ -289,7 +289,7 @@ const TrainingAreaMap = ({
       drawControl
       showCurrentZoom
       layerControl
-      showTileBoundary
+      showTileBoundaries
       basemaps
       map={map}
       terraDraw={terraDraw}

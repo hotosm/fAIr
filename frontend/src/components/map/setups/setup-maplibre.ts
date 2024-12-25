@@ -1,10 +1,10 @@
-import { MAX_ZOOM_LEVEL } from "@/utils";
-import maplibregl, { Map, StyleSpecification } from "maplibre-gl";
+import { BASEMAPS } from "@/enums";
+import { MAP_STYLES, MAX_ZOOM_LEVEL } from "@/utils";
+import maplibregl, { Map } from "maplibre-gl";
 import { Protocol } from "pmtiles";
 
 export const setupMaplibreMap = (
   containerRef: React.RefObject<HTMLElement>,
-  style: StyleSpecification | string,
   pmtiles: boolean,
 ): Map => {
   // Check if RTL plugin is needed and set it
@@ -22,7 +22,7 @@ export const setupMaplibreMap = (
 
   const map = new maplibregl.Map({
     container: containerRef.current!,
-    style: style,
+    style: MAP_STYLES[BASEMAPS.OSM],
     center: [0, 0],
     zoom: 0.5,
     minZoom: 1,

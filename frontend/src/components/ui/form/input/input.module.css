@@ -21,7 +21,7 @@ sl-input.customInput::part(form-control-input):focus {
 
 sl-input.customInput::part(input)::placeholder {
   color: var(--hot-fair-color-gray);
-  font-size: var(--hot-fair-font-size-body-text-2base);
+  font-size: var(--hot-fair-font-size-body-text-3);
 }
 
 sl-input::part(input) {

@@ -8,7 +8,7 @@ import {
   useState,
 } from "react";
 
-import { GeoJSONSource, Map } from "maplibre-gl";
+import { GeoJSONSource, LngLatBoundsLike, Map } from "maplibre-gl";
 
 import { MapComponent, MapCursorToolTip } from "@/components/map";
 import { useMapLayers } from "@/hooks/use-map-layer";
@@ -36,11 +36,13 @@ import {
 } from "@/utils";
 import PredictedFeatureActionPopup from "@/features/start-mapping/components/popup";
 import { TModelPredictionsConfig } from "@/features/start-mapping/api/get-model-predictions";
-import { startMappingPageContent, TOAST_NOTIFICATIONS } from "@/constants";
+import { TOAST_NOTIFICATIONS } from "@/constants";
 import { useToolTipVisibility } from "@/hooks/use-tooltip-visibility";
 import { ControlsPosition } from "@/enums";
+import useScreenSize from "@/hooks/use-screen-size";
+import { Legend } from "@/features/start-mapping/components";
 
-const StartMappingMapComponent = ({
+export const StartMappingMapComponent = ({
   trainingDataset,
   modelPredictions,
   setModelPredictions,
@@ -52,6 +54,8 @@ const StartMappingMapComponent = ({
   map,
   mapContainerRef,
   currentZoom,
+  layers,
+  tmsBounds,
 }: {
   trainingDataset?: TTrainingDataset;
   modelPredictions: TModelPredictions;
@@ -66,16 +70,17 @@ const StartMappingMapComponent = ({
   map: Map | null;
   currentZoom: number;
   mapContainerRef: RefObject<HTMLDivElement>;
+  layers: {
+    value: string;
+    subLayers: string[];
+  }[];
+  tmsBounds: LngLatBoundsLike;
 }) => {
   const tileJSONURL = extractTileJSONURL(trainingDataset?.source_imagery ?? "");
   const [showPopup, setShowPopup] = useState<boolean>(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [selectedFeature, setSelectedFeature] = useState(null);
-
-  const fitToTMSBounds = useCallback(() => {
-    if (!map || !oamTileJSON?.bounds) return;
-    map?.fitBounds(oamTileJSON?.bounds);
-  }, [map, oamTileJSON?.bounds]);
+  const { isSmallViewport } = useScreenSize();
 
   const { tooltipPosition, tooltipVisible } = useToolTipVisibility(map, [
     currentZoom,
@@ -87,10 +92,11 @@ const StartMappingMapComponent = ({
   }, [oamTileJSONIsError, oamTileJSONError]);
 
   useEffect(() => {
-    if (!map || !oamTileJSON?.bounds || oamTileJSONIsError) return;
-    fitToTMSBounds();
-  }, [map, fitToTMSBounds, oamTileJSONIsError, oamTileJSON]);
+    if (!map || !tmsBounds || oamTileJSONIsError) return;
+    map.fitBounds(tmsBounds);
+  }, [map, tmsBounds, oamTileJSONIsError, oamTileJSON]);
 
+  // Add the map layers
   useMapLayers(
     // layers
     [
@@ -274,77 +280,46 @@ const StartMappingMapComponent = ({
         map={map}
       />
     ),
-    [selectedEvent, trainingDataset],
+    [
+      showPopup,
+      selectedEvent,
+      selectedFeature,
+      setModelPredictions,
+      modelPredictions,
+      trainingDataset?.source_imagery,
+      trainingDataset?.id,
+      trainingConfig,
+      map,
+    ],
   );
   const showTooltip =
     currentZoom < MIN_ZOOM_LEVEL_FOR_START_MAPPING_PREDICTION && tooltipVisible;
   return (
     <MapComponent
-      showCurrentZoom
-      layerControl
       controlsPosition={ControlsPosition.TOP_LEFT}
-      showLegend={modelPredictionsExist}
-      openAerialMap
       oamTileJSONURL={tileJSONURL}
-      basemaps
-      showTileBoundary
-      fitToBounds
-      bounds={oamTileJSON?.bounds}
-      layerControlLayers={[
-        ...(modelPredictions.accepted.length > 0
-          ? [
-              {
-                value:
-                  startMappingPageContent.map.controls.legendControl
-                    .acceptedPredictions,
-                subLayers: [
-                  ACCEPTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
-                  ACCEPTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
-                ],
-              },
-            ]
-          : []),
-        ...(modelPredictions.rejected.length > 0
-          ? [
-              {
-                value:
-                  startMappingPageContent.map.controls.legendControl
-                    .rejectedPredictions,
-                subLayers: [
-                  REJECTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
-                  REJECTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
-                ],
-              },
-            ]
-          : []),
-        ...(modelPredictions.all.length > 0
-          ? [
-              {
-                value:
-                  startMappingPageContent.map.controls.legendControl
-                    .predictionResults,
-                subLayers: [
-                  ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
-                  ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
-                ],
-              },
-            ]
-          : []),
-      ]}
+      showTileBoundaries
+      fitToBounds={!isSmallViewport}
+      bounds={tmsBounds}
       mapContainerRef={mapContainerRef}
       currentZoom={currentZoom}
       map={map}
+      zoomControls={!isSmallViewport}
+      layerControl={!isSmallViewport}
+      layerControlLayers={layers}
+      openAerialMap
+      basemaps
+      showCurrentZoom={!isSmallViewport}
     >
       {showPopup && renderPopup}
       <MapCursorToolTip
-        tooltipVisible={showTooltip}
+        tooltipVisible={showTooltip && !isSmallViewport}
         color={"bg-primary"}
         tooltipPosition={tooltipPosition}
       >
         {MINIMUM_ZOOM_LEVEL_INSTRUCTION_FOR_PREDICTION}
       </MapCursorToolTip>
+      {map && modelPredictionsExist && !isSmallViewport && <Legend map={map} />}
     </MapComponent>
   );
 };
-
-export default StartMappingMapComponent;

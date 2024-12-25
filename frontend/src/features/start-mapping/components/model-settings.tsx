@@ -6,7 +6,7 @@ import { ToolTip } from "@/components/ui/tooltip";
 import { startMappingPageContent } from "@/constants";
 import { INPUT_TYPES, SHOELACE_SIZES } from "@/enums";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
-import { memo } from "react";
+import { memo, useMemo } from "react";
 
 const confidenceLevels = [
   {
@@ -31,9 +31,11 @@ export const ModelSettings = memo(
   ({
     query,
     updateQuery,
+    isMobile = false,
   }: {
     query: TQueryParams;
     updateQuery: (newParams: TQueryParams) => void;
+    isMobile?: boolean;
   }) => {
     const {
       onDropdownHide: onModelSettingsDropdownHide,
@@ -50,27 +52,8 @@ export const ModelSettings = memo(
       });
     };
 
-    return (
-      <DropDown
-        placement="top-end"
-        // Use height of the navbar to determine
-        distance={40}
-        disableCheveronIcon
-        dropdownIsOpened={dropdownIsOpened}
-        onDropdownHide={onModelSettingsDropdownHide}
-        onDropdownShow={onModelSettingsDropdownShow}
-        triggerComponent={
-          <ToolTip content={startMappingPageContent.settings.tooltip}>
-            <button
-              className={`p-1.5 flex items-center hover:icon-interaction ${dropdownIsOpened && "icon-interaction"}`}
-              onClick={toggleDropDown}
-            >
-              <SettingsIcon className="icon" />
-            </button>
-          </ToolTip>
-        }
-        className="rounded-xl"
-      >
+    const modelSettings = useMemo(() => {
+      return (
         <div className="flex flex-col bg-white p-3 justify-between rounded-xl flex-wrap gap-y-4">
           <div className="flex gap-x-2 justify-between">
             <FormLabel
@@ -158,7 +141,34 @@ export const ModelSettings = memo(
             />
           </div>
         </div>
-      </DropDown>
-    );
+      );
+    }, [query, handleQueryUpdate, SEARCH_PARAMS]);
+
+    if (!isMobile) {
+      return (
+        <DropDown
+          placement="top-end"
+          distance={40}
+          disableCheveronIcon
+          dropdownIsOpened={dropdownIsOpened}
+          onDropdownHide={onModelSettingsDropdownHide}
+          onDropdownShow={onModelSettingsDropdownShow}
+          triggerComponent={
+            <ToolTip content={startMappingPageContent.settings.tooltip}>
+              <button
+                className={`p-1.5 flex items-center hover:icon-interaction ${dropdownIsOpened && "icon-interaction"}`}
+                onClick={toggleDropDown}
+              >
+                <SettingsIcon className="icon" />
+              </button>
+            </ToolTip>
+          }
+          className="rounded-xl"
+        >
+          {modelSettings}
+        </DropDown>
+      );
+    }
+    return modelSettings;
   },
 );

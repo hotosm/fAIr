@@ -10,11 +10,11 @@ import {
   useDeleteApprovedModelPrediction,
   useDeleteModelPredictionFeedback,
 } from "@/features/start-mapping/hooks/use-feedbacks";
-import { showErrorToast, showSuccessToast } from "@/utils";
+import { showErrorToast } from "@/utils";
 import { geojsonToWKT } from "@terraformer/wkt";
 import { useAuth } from "@/app/providers/auth-provider";
 import { TModelPredictionsConfig } from "@/features/start-mapping/api/get-model-predictions";
-import { startMappingPageContent, TOAST_NOTIFICATIONS } from "@/constants";
+import { startMappingPageContent } from "@/constants";
 
 const PredictedFeatureActionPopup = ({
   event,
@@ -131,9 +131,6 @@ const PredictedFeatureActionPopup = ({
             accepted: updatedTarget,
           }));
           closePopup();
-          showSuccessToast(
-            TOAST_NOTIFICATIONS.startMapping.approvedPrediction.success,
-          );
         },
         onError: (error) => {
           showErrorToast(error);
@@ -161,7 +158,6 @@ const PredictedFeatureActionPopup = ({
             rejected: updatedRejected,
           }));
         }
-        showSuccessToast(TOAST_NOTIFICATIONS.startMapping.resolved.success);
       },
       onError: (error) => {
         showErrorToast(error);
@@ -196,7 +192,6 @@ const PredictedFeatureActionPopup = ({
             accepted: updatedAccepted,
           }));
         }
-        showSuccessToast(TOAST_NOTIFICATIONS.startMapping.resolved.success);
       },
       onError: (error) => {
         showErrorToast(error);
@@ -253,7 +248,6 @@ const PredictedFeatureActionPopup = ({
           }));
         }
         closePopup();
-        showSuccessToast(TOAST_NOTIFICATIONS.startMapping.feedback.success);
       },
       onError: (error) => {
         showErrorToast(error);
@@ -347,7 +341,7 @@ const PredictedFeatureActionPopup = ({
 
   return (
     <div
-      className="bg-white p-2 md:p-4 rounded-xl flex flex-col gap-y-4 w-fit md:w-[300px]"
+      className="bg-white p-4 rounded-xl flex flex-col gap-y-4 w-fit md:w-[300px]"
       ref={popupRef}
     >
       <div className="flex items-center justify-between">

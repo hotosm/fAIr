@@ -47,7 +47,7 @@ const router = createBrowserRouter([
         },
       },
       /**
-       * Training dataset route 
+       * Training dataset route
        */
       {
         path: APPLICATION_ROUTES.TRAINING_DATASETS,
