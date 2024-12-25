@@ -17,7 +17,7 @@ import { ToolTip } from "@/components/ui/tooltip";
 import { ModelDetailsButton } from "@/features/start-mapping/components/model-details-button";
 import { BrandLogoWithDropDown } from "./logo-with-dropdown";
 import { ModelPredictionsTracker } from "@/features/start-mapping/components/model-predictions-tracker";
-import { MobileDrawer } from "@/components/ui/drawer";
+
 
 const StartMappingHeader = ({
   data,
@@ -100,8 +100,8 @@ const StartMappingHeader = ({
                   content={
                     !modelPredictionsExist
                       ? startMappingPageContent.actions.disabledModeTooltip(
-                          "see actions",
-                        )
+                        "see actions",
+                      )
                       : null
                   }
                 >

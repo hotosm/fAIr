@@ -1,7 +1,6 @@
 import { setupMaplibreMap } from "@/components/map/setups/setup-maplibre";
 import { setupTerraDraw } from "@/components/map/setups/setup-terra-draw";
-import { BASEMAPS, DrawingModes } from "@/enums";
-import { MAP_STYLES } from "@/utils";
+import { DrawingModes } from "@/enums";
 import { Map } from "maplibre-gl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 

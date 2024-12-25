@@ -80,7 +80,6 @@ const StatusFilter: React.FC<StatusFilterProps> = ({
           disabled={disabled}
           defaultSelectedItem={categoryLabel[0]?.value}
           withCheckbox
-          menuItemTextSize="small"
           triggerComponent={
             <p className="text-sm text-dark text-nowrap">
               {categoryLabel[0]?.value}
