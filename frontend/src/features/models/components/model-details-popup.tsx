@@ -49,7 +49,6 @@ const ModelDetailsPopUp = ({
       <SkeletonWrapper showSkeleton={Boolean(modelId && isPending)}>
         <div className="flex flex-col gap-y-3 text-dark font-normal text-body-3">
           <p>
-            {" "}
             {startMappingPageContent.modelDetails.popover.modelId}:{" "}
             <span className="font-medium">{model?.id ?? data?.id}</span>
           </p>
