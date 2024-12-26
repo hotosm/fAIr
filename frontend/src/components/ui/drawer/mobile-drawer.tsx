@@ -34,7 +34,7 @@ export const MobileDrawer = ({
       <Drawer.Portal>
         <Drawer.Content
           data-testid="content"
-          className="fixed z-[100000] border border-gray-border flex flex-col bg-white border-b-none py-2 rounded-t-[10px] bottom-0 left-0 right-0 h-full max-h-[97%] mx-[-1px]"
+          className="fixed z-[100000] border border-gray-border flex flex-col bg-white border-b-none py-2 rounded-t-[10px] bottom-0 left-0 right-0 h-full max-h-[97%] mx-[-1px] lg:h-[320px] outline-none"
         >
           {canClose ? (
             <Drawer.Close
@@ -55,7 +55,7 @@ export const MobileDrawer = ({
           />
           <div
             className={cn(
-              `flex flex-col max-w-md mx-auto w-full h-full max-h-[70vh] pb-8`,
+              `flex flex-col max-w-md mx-auto w-full h-full flex-1`,
               {
                 "overflow-y-auto": snap === lastSnapPoint,
                 "overflow-hidden": snap !== lastSnapPoint,
