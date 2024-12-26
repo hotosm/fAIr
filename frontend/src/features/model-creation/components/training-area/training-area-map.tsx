@@ -31,7 +31,6 @@ import { ControlsPosition, DrawingModes } from "@/enums";
 import { useToolTipVisibility } from "@/hooks/use-tooltip-visibility";
 import { useMapLayers } from "@/hooks/use-map-layer";
 import { TerraDraw } from "terra-draw";
-import { useLayerReorder } from "@/hooks/use-layer-order";
 
 
 // Debounce delay in milliseconds.
@@ -214,8 +213,8 @@ const TrainingAreaMap = ({
   }, [labels]);
 
   /**
-  * Drawing events and tooltip
-  */
+   * Drawing events and tooltip
+   */
   useEffect(() => {
     if (!terraDraw || !map) return;
 

@@ -12,9 +12,13 @@ export const ModelDetailsButton = ({
   onClick: () => void;
   modelDetailsPopupIsActive?: boolean;
 }) => {
-  const { isSmallViewport } = useScreenSize()
+  const { isSmallViewport } = useScreenSize();
   return (
-    <ToolTip content={!isSmallViewport ? startMappingPageContent.modelDetails.tooltip : null}>
+    <ToolTip
+      content={
+        !isSmallViewport ? startMappingPageContent.modelDetails.tooltip : null
+      }
+    >
       <button
         id={popupAnchorId}
         className={`text-gray text-body-2 flex items-center p-1.5 hover:icon-interaction ${modelDetailsPopupIsActive && "icon-interaction"}`}

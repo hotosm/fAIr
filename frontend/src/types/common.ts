@@ -62,3 +62,8 @@ export type TFAQs = {
   question: string;
   answer: string;
 }[];
+
+export type TNavBarLinks = {
+  title: string;
+  href: string;
+}[];

@@ -6,6 +6,7 @@ import "./dropdown.css";
 import { ChevronDownIcon } from "@/components/ui/icons";
 import { useEffect, useState } from "react";
 import { cn } from "@/utils";
+import { DropdownPlacement } from "@/enums";
 
 export type DropdownMenuItem = {
   value: string;
@@ -17,7 +18,7 @@ export type DropdownMenuItem = {
 };
 
 type DropDownProps = {
-  placement?: "bottom-end" | "top-end" | "bottom-start";
+  placement?: DropdownPlacement
   children?: React.ReactNode;
   onDropdownShow?: (event: React.MouseEvent<HTMLDivElement>) => void;
   onDropdownHide?: (event: React.MouseEvent<HTMLDivElement>) => void;
@@ -39,7 +40,7 @@ type DropDownProps = {
 const DropDown: React.FC<DropDownProps> = ({
   children,
   menuItems,
-  placement = "bottom-start",
+  placement = DropdownPlacement.BOTTOM_START,
   onDropdownHide,
   onDropdownShow,
   dropdownIsOpened,

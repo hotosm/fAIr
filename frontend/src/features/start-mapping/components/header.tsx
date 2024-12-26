@@ -9,7 +9,7 @@ import { ModelSettings } from "@/features/start-mapping/components/model-setting
 import { TDownloadOptions, TQueryParams } from "@/app/routes/start-mapping";
 import ModelAction from "@/features/start-mapping/components/model-action";
 import { TModelPredictionsConfig } from "@/features/start-mapping/api/get-model-predictions";
-import { SHOELACE_SIZES } from "@/enums";
+import { DropdownPlacement, SHOELACE_SIZES } from "@/enums";
 import { UserProfile } from "@/components/layout";
 import { startMappingPageContent } from "@/constants";
 import { Map } from "maplibre-gl";
@@ -17,7 +17,6 @@ import { ToolTip } from "@/components/ui/tooltip";
 import { ModelDetailsButton } from "@/features/start-mapping/components/model-details-button";
 import { BrandLogoWithDropDown } from "./logo-with-dropdown";
 import { ModelPredictionsTracker } from "@/features/start-mapping/components/model-predictions-tracker";
-
 
 const StartMappingHeader = ({
   data,
@@ -34,7 +33,7 @@ const StartMappingHeader = ({
   handleModelDetailsPopup,
   modelDetailsPopupIsActive,
   downloadOptions,
-  clearPredictions
+  clearPredictions,
 }: {
   modelPredictionsExist: boolean;
   trainingDatasetIsPending: boolean;
@@ -51,7 +50,7 @@ const StartMappingHeader = ({
   handleModelDetailsPopup: () => void;
   modelDetailsPopupIsActive: boolean;
   downloadOptions: TDownloadOptions;
-  clearPredictions: () => void
+  clearPredictions: () => void;
 }) => {
   const { onDropdownHide, onDropdownShow, dropdownIsOpened } =
     useDropdownMenu();
@@ -88,9 +87,12 @@ const StartMappingHeader = ({
         <div className="flex flex-row items-center gap-x-4">
           <ModelSettings updateQuery={updateQuery} query={query} />
           <div className="flex flex-row items-center gap-y-3">
-            <ModelPredictionsTracker modelPredictions={modelPredictions} clearPredictions={clearPredictions} />
+            <ModelPredictionsTracker
+              modelPredictions={modelPredictions}
+              clearPredictions={clearPredictions}
+            />
             <DropDown
-              placement="top-end"
+              placement={DropdownPlacement.TOP_END}
               disableCheveronIcon
               dropdownIsOpened={dropdownIsOpened}
               onDropdownHide={onDropdownHide}

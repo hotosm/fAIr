@@ -4,7 +4,7 @@ import { FormLabel, Input, Select, Switch } from "@/components/ui/form";
 import { SettingsIcon } from "@/components/ui/icons";
 import { ToolTip } from "@/components/ui/tooltip";
 import { startMappingPageContent } from "@/constants";
-import { INPUT_TYPES, SHOELACE_SIZES } from "@/enums";
+import { DropdownPlacement, INPUT_TYPES, SHOELACE_SIZES } from "@/enums";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { memo, useMemo } from "react";
 
@@ -147,7 +147,7 @@ export const ModelSettings = memo(
     if (!isMobile) {
       return (
         <DropDown
-          placement="top-end"
+          placement={DropdownPlacement.TOP_END}
           distance={40}
           disableCheveronIcon
           dropdownIsOpened={dropdownIsOpened}
@@ -159,7 +159,7 @@ export const ModelSettings = memo(
                 className={`p-1.5 flex items-center hover:icon-interaction ${dropdownIsOpened && "icon-interaction"}`}
                 onClick={toggleDropDown}
               >
-                <SettingsIcon className="icon" />
+                <SettingsIcon className="icon text-gray" />
               </button>
             </ToolTip>
           }

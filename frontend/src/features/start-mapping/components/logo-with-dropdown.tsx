@@ -1,45 +1,69 @@
-import { NavLogo } from "@/components/layout";
-import { BackButton } from "@/components/ui/button";
-import { Divider } from "@/components/ui/divider";
+import { memo, useMemo } from "react";
 import { DropDown } from "@/components/ui/dropdown";
-import { APPLICATION_ROUTES } from "@/utils";
+import { NavLogo } from "@/components/layout";
+import { Divider } from "@/components/ui/divider";
+import { Link } from "@/components/ui/link";
+import { navLinks } from "@/constants/common";
+import { DropdownPlacement } from "@/enums";
 import { useNavigate } from "react-router-dom";
 
-export const BrandLogoWithDropDown = ({
-  isOpened,
-  onClose,
-  onShow,
-}: {
+type BrandLogoWithDropDownProps = {
   isOpened: boolean;
   onClose: () => void;
   onShow: () => void;
-}) => {
-  const navigate = useNavigate();
+}
+
+
+export const BrandLogoWithDropDown = memo(function BrandLogoWithDropDown({
+  isOpened,
+  onClose,
+  onShow,
+}: BrandLogoWithDropDownProps) {
+
+  const navItems = useMemo(
+    () =>
+      navLinks.map((link, id) => (
+        <li
+          key={`${link.title}-${id}`}
+        >
+          <Link
+            disableLinkStyle
+            title={link.title}
+            href={link.href}
+            className="text-dark text-body-3 block py-1"
+            nativeAnchor={false}
+          >
+            {link.title}
+          </Link>
+        </li>
+      )),
+    [],
+  );
+  const navigate = useNavigate()
   return (
     <DropDown
-      placement="top-end"
+      placement={DropdownPlacement.BOTTOM_START}
       dropdownIsOpened={isOpened}
       onDropdownHide={onClose}
       onDropdownShow={onShow}
       triggerComponent={<NavLogo onClick={() => null} smallerSize />}
       distance={1}
+      className="rounded-2xl"
     >
-      <div className="bg-white flex flex-col gap-4 w-40 p-4 rounded-md">
-        <BackButton className="text-body-3" />
+      <div className="bg-white flex flex-col gap-4 p-4 rounded-2xl">
+        <ul className="flex flex-col gap-y-2">{navItems}</ul>
         <Divider />
         <button
-          onClick={() => navigate(APPLICATION_ROUTES.MODELS)}
-          className="text-left text-body-3 hover:bg-secondary p-2"
+          className="
+            text-body-3
+            text-start
+            text-primary  
+          "
+          onClick={() => navigate(-1)}
         >
-          Explore Models
-        </button>
-        <button
-          onClick={() => navigate(APPLICATION_ROUTES.HOMEPAGE)}
-          className="text-left  text-body-3  hover:bg-secondary p-2"
-        >
-          Home
+          Exit
         </button>
       </div>
     </DropDown>
   );
-};
+});

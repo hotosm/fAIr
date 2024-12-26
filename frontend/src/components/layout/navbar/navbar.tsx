@@ -4,7 +4,7 @@ import { Drawer } from "@/components/ui/drawer";
 import { useState } from "react";
 import { Link } from "@/components/ui/link";
 import { Image } from "@/components/ui/image";
-import { APP_CONTENT, APPLICATION_ROUTES } from "@/utils";
+import { APP_CONTENT } from "@/utils";
 import { useAuth } from "@/app/providers/auth-provider";
 import { UserProfile } from "@/components/layout";
 import { useLogin } from "@/hooks/use-login";
@@ -12,6 +12,7 @@ import { useLocation } from "react-router-dom";
 import { DrawerPlacements } from "@/enums";
 import { NavLogo } from "@/components/layout";
 import { HamburgerIcon } from "@/assets/svgs";
+import { navLinks } from "@/constants/common";
 
 export const NavBar = () => {
   const [open, setOpen] = useState(false);
@@ -83,30 +84,6 @@ export const NavBar = () => {
     </>
   );
 };
-
-type TNavBarLinks = {
-  title: string;
-  href: string;
-}[];
-
-const navLinks: TNavBarLinks = [
-  {
-    title: APP_CONTENT.navbar.routes.exploreModels,
-    href: APPLICATION_ROUTES.MODELS,
-  },
-  {
-    title: APP_CONTENT.navbar.routes.learn,
-    href: APPLICATION_ROUTES.LEARN,
-  },
-  {
-    title: APP_CONTENT.navbar.routes.about,
-    href: APPLICATION_ROUTES.ABOUT,
-  },
-  {
-    title: APP_CONTENT.navbar.routes.resources,
-    href: APPLICATION_ROUTES.RESOURCES,
-  },
-];
 
 type NavBarLinksProps = {
   className: string;

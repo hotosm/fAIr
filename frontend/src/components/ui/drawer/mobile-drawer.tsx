@@ -8,7 +8,7 @@ export const MobileDrawer = ({
   dialogTitle,
   canClose = false,
   closeDrawer,
-  snapPoints = [0.2, 0.4, 0.8]
+  snapPoints = [0.2, 0.4, 0.8],
 }: {
   open: boolean;
   children: React.ReactNode;
@@ -16,12 +16,10 @@ export const MobileDrawer = ({
   closeDrawer?: () => void;
   canClose?: boolean;
   startingSnapPoint?: number | string;
-  snapPoints?: number[]
+  snapPoints?: number[];
 }) => {
-
   const [snap, setSnap] = useState<number | string | null>(snapPoints[0]);
   const lastSnapPoint = snapPoints[snapPoints.length - 1];
-
 
   return (
     <Drawer.Root
@@ -43,14 +41,13 @@ export const MobileDrawer = ({
               className="w-full flex justify-end app-padding"
               onClick={closeDrawer}
             >
-              <span className="text-body-2 text-gray icon-interaction w-fit py-1 px-2.5 rounded-full"> &#x2715;</span>
+              <span className="text-body-2 text-gray icon-interaction w-fit py-1 px-2.5 rounded-full">
+                {" "}
+                &#x2715;
+              </span>
             </Drawer.Close>
           ) : null}
-          <Drawer.Title
-            hidden
-          >
-            {dialogTitle}
-          </Drawer.Title>
+          <Drawer.Title hidden>{dialogTitle}</Drawer.Title>
           <Drawer.Description hidden>{dialogTitle}</Drawer.Description>
           <div
             aria-hidden

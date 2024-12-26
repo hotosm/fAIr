@@ -27,14 +27,16 @@ const FillLegendStyle = ({
 export const Legend = ({ map }: { map: Map | null }) => {
   const [expandLegend, setExpandLegend] = useState<boolean>(true);
 
-  const activeFillLayers = map?.getStyle()
-    .layers?.filter(
-      (layer) =>
-        layer.id.includes(MAP_STYLES_PREFIX) &&
-        layer.layout?.visibility === "visible" &&
-        layer.type === "fill",
-    )
-    .reverse() || []
+  const activeFillLayers =
+    map
+      ?.getStyle()
+      .layers?.filter(
+        (layer) =>
+          layer.id.includes(MAP_STYLES_PREFIX) &&
+          layer.layout?.visibility === "visible" &&
+          layer.type === "fill",
+      )
+      .reverse() || [];
 
   const handleToggleExpand = useCallback(() => {
     setExpandLegend((prev) => !prev);
@@ -81,6 +83,5 @@ export const Legend = ({ map }: { map: Map | null }) => {
         <LegendBookIcon className="icon-lg" />
       ) : null}
     </button>
-
   );
 };

@@ -6,6 +6,7 @@ import { APP_CONTENT, APPLICATION_ROUTES, truncateString } from "@/utils";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { useAuth } from "@/app/providers/auth-provider";
 import useScreenSize from "@/hooks/use-screen-size";
+import { DropdownPlacement } from "@/enums";
 
 export const UserProfile = ({
   hideFullName,
@@ -51,7 +52,7 @@ export const UserProfile = ({
         },
       ]}
       distance={10}
-      placement="bottom-end"
+      placement={DropdownPlacement.BOTTOM_END}
       triggerComponent={
         <div className={styles.userProfile}>
           <SlAvatar
