@@ -25,6 +25,7 @@ export const StartMappingMobileDrawer = ({
   query,
   updateQuery,
   modelDetailsPopupIsActive,
+  clearPredictions
 }: {
   isOpen: boolean;
   disablePrediction: boolean;
@@ -37,6 +38,7 @@ export const StartMappingMobileDrawer = ({
   downloadOptions: TDownloadOptions;
   query: TQueryParams;
   updateQuery: (newParams: TQueryParams) => void;
+  clearPredictions: () => void
 }) => {
   const [showDownloadOptions, setShowDownloadOptions] =
     useState<boolean>(false);
@@ -48,7 +50,7 @@ export const StartMappingMobileDrawer = ({
           {MINIMUM_ZOOM_LEVEL_INSTRUCTION_FOR_PREDICTION}
         </p>
       )}
-      <div className="app-padding flex flex-col gap-y-6">
+      <div className="app-padding flex flex-col gap-y-6 ">
         <div className="flex items-center justify-between my-4 gap-x-2">
           <div className="w-full basis-5/6">
             <ModelAction
@@ -68,7 +70,7 @@ export const StartMappingMobileDrawer = ({
         </div>
         <div className="text-body-3 font-normal flex items-center gap-x-2">
           {startMappingPageContent.mapData.title} -{" "}
-          <ModelPredictionsTracker modelPredictions={modelPredictions} />
+          <ModelPredictionsTracker modelPredictions={modelPredictions} clearPredictions={clearPredictions} />
         </div>
         <div className="flex flex-col gap-y-4">
           <p className="text-body-3 font-semibold">Settings</p>
@@ -81,14 +83,14 @@ export const StartMappingMobileDrawer = ({
             content={
               disablePrediction
                 ? startMappingPageContent.actions.disabledModeTooltip(
-                    "see download options",
-                  )
+                  "see download options",
+                )
                 : null
             }
           >
             <button
               className="flex w-fit items-center gap-x-4"
-              disabled={!disablePrediction}
+              disabled={disablePrediction}
               onClick={() => setShowDownloadOptions(!showDownloadOptions)}
             >
               <p className="text-body-3 font-semibold">Download</p>

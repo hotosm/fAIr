@@ -34,6 +34,7 @@ const StartMappingHeader = ({
   handleModelDetailsPopup,
   modelDetailsPopupIsActive,
   downloadOptions,
+  clearPredictions
 }: {
   modelPredictionsExist: boolean;
   trainingDatasetIsPending: boolean;
@@ -50,6 +51,7 @@ const StartMappingHeader = ({
   handleModelDetailsPopup: () => void;
   modelDetailsPopupIsActive: boolean;
   downloadOptions: TDownloadOptions;
+  clearPredictions: () => void
 }) => {
   const { onDropdownHide, onDropdownShow, dropdownIsOpened } =
     useDropdownMenu();
@@ -72,11 +74,10 @@ const StartMappingHeader = ({
           <div className="flex flex-col md:flex-row md:items-center gap-x-4 z-10">
             <p
               title={data?.name}
-              className="text-dark text-body-2base text-nowrap truncate md:max-w-[90px] lg:max-w-[250px] xl:max-w-[400px]"
+              className="text-dark text-body-2base text-nowrap truncate md:max-w-[20px] lg:max-w-[300px] xl:max-w-[400px]"
             >
               {data?.name ?? "N/A"}
             </p>
-
             <ModelDetailsButton
               onClick={handleModelDetailsPopup}
               modelDetailsPopupIsActive={modelDetailsPopupIsActive}
@@ -87,7 +88,7 @@ const StartMappingHeader = ({
         <div className="flex flex-row items-center gap-x-4">
           <ModelSettings updateQuery={updateQuery} query={query} />
           <div className="flex flex-row items-center gap-y-3">
-            <ModelPredictionsTracker modelPredictions={modelPredictions} />
+            <ModelPredictionsTracker modelPredictions={modelPredictions} clearPredictions={clearPredictions} />
             <DropDown
               placement="top-end"
               disableCheveronIcon

@@ -8,7 +8,7 @@ export const MobileDrawer = ({
   dialogTitle,
   canClose = false,
   closeDrawer,
-  startingSnapPoint = "150px",
+  snapPoints = [0.2, 0.4, 0.8]
 }: {
   open: boolean;
   children: React.ReactNode;
@@ -16,10 +16,12 @@ export const MobileDrawer = ({
   closeDrawer?: () => void;
   canClose?: boolean;
   startingSnapPoint?: number | string;
+  snapPoints?: number[]
 }) => {
-  const snapPoints = [startingSnapPoint, "355px", 0.8];
 
   const [snap, setSnap] = useState<number | string | null>(snapPoints[0]);
+  const lastSnapPoint = snapPoints[snapPoints.length - 1];
+
 
   return (
     <Drawer.Root
@@ -28,6 +30,7 @@ export const MobileDrawer = ({
       setActiveSnapPoint={setSnap}
       open={open}
       onClose={closeDrawer}
+      repositionInputs={false}
     >
       <Drawer.Overlay className="fixed inset-0 bg-black/40" />
       <Drawer.Portal>
@@ -37,15 +40,14 @@ export const MobileDrawer = ({
         >
           {canClose ? (
             <Drawer.Close
-              className="flex w-full justify-end text-body-2 app-padding"
+              className="w-full flex justify-end app-padding"
               onClick={closeDrawer}
             >
-              &#x2715;
+              <span className="text-body-2 text-gray icon-interaction w-fit py-1 px-2.5 rounded-full"> &#x2715;</span>
             </Drawer.Close>
           ) : null}
           <Drawer.Title
             hidden
-            className="text-center py-2 text-body-3 font-semibold"
           >
             {dialogTitle}
           </Drawer.Title>
@@ -56,10 +58,10 @@ export const MobileDrawer = ({
           />
           <div
             className={cn(
-              "flex flex-col max-w-md mx-auto w-full max-h-[70vh] my-4",
+              `flex flex-col max-w-md mx-auto w-full h-full max-h-[70vh] pb-8`,
               {
-                "overflow-y-auto": snap === 0.8,
-                "overflow-hidden": snap !== 0.8,
+                "overflow-y-auto": snap === lastSnapPoint,
+                "overflow-hidden": snap !== lastSnapPoint,
               },
             )}
           >

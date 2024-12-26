@@ -303,6 +303,14 @@ export const StartMappingPage = () => {
     setShowModelDetailsPopup((prev) => !prev);
   }, [setShowModelDetailsPopup]);
 
+  const clearPredictions = useCallback(() => {
+    setModelPredictions(({
+      accepted: [],
+      rejected: [],
+      all: []
+    }))
+  }, [setModelPredictions]);
+
   return (
     <>
       <Head title={startMappingPageContent.pageTitle(data?.name)} />
@@ -320,6 +328,7 @@ export const StartMappingPage = () => {
           query={query}
           updateQuery={updateQuery}
           modelDetailsPopupIsActive={showModelDetailsPopup}
+          clearPredictions={clearPredictions}
         />
         <div className="sticky top-0 bg-white z-10 px-4 xl:px-large py-1 hidden md:block">
           {/* Model Details Popup */}
@@ -352,10 +361,11 @@ export const StartMappingPage = () => {
             modelDetailsPopupIsActive={showModelDetailsPopup}
             handleModelDetailsPopup={handleModelDetailsPopup}
             downloadOptions={downloadOptions}
+            clearPredictions={clearPredictions}
           />
         </div>
         <div className="col-span-12 h-[70vh] md:h-full md:border-8 md:border-off-white flex-grow relative map-elements-z-index">
-          {/* Mobile Header and Controls */}
+          {/* Mobile Header and Map Controls */}
           <div className="md:hidden">
             <div className="absolute top-4 right-4  z-[10]">
               <UserProfile hideFullName />
@@ -367,19 +377,22 @@ export const StartMappingPage = () => {
                 isOpened={dropdownIsOpened}
               />
             </div>
-            <div className="absolute top-16 right-4 z-[1] flex flex-col gap-y-2 items-end">
+            <div className="absolute top-[10vh] right-4 z-[2] flex flex-col gap-y-4 items-end">
               <ZoomLevel currentZoom={currentZoom} />
               <LayerControl
                 layers={mapLayers}
                 map={map}
-                openAerialMap={true}
+                openAerialMap
                 basemaps
               />
             </div>
-            <div className="absolute bottom-48 right-4 z-[1]">
+            <div className="absolute bottom-[30vh] flex flex-col gap-y-4 right-4 z-[1] items-end">
               <FitToBounds bounds={oamTileJSON?.bounds} map={map} />
+              <div>
+                {map && modelPredictionsExist && <Legend map={map} />}
+              </div>
             </div>
-            {map && modelPredictionsExist && <Legend map={map} />}
+
           </div>
           {/* Map Component */}
           <StartMappingMapComponent

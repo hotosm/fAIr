@@ -40,12 +40,12 @@ export const LayerControl = ({
     ];
     const baseLayers: TBasemaps = basemaps
       ? [
-          { value: BASEMAPS.OSM, subLayer: OSM_BASEMAP_LAYER_ID },
-          {
-            value: BASEMAPS.GOOGLE_SATELLITE,
-            subLayer: GOOGLE_SATELLITE_BASEMAP_LAYER_ID,
-          },
-        ]
+        { value: BASEMAPS.OSM, subLayer: OSM_BASEMAP_LAYER_ID },
+        {
+          value: BASEMAPS.GOOGLE_SATELLITE,
+          subLayer: GOOGLE_SATELLITE_BASEMAP_LAYER_ID,
+        },
+      ]
       : [];
     return { layers_, baseLayers };
   }, [layers, openAerialMap, basemaps]);
@@ -136,7 +136,7 @@ export const LayerControl = ({
         disableCheveronIcon
         triggerComponent={
           <div
-            className={`bg-white p-2 border border-gray-border md:border-0 relative ${isTablet || isMobile ? "rounded-xl" : ""}`}
+            className={`bg-white p-2.5 border border-gray-border md:border-0 relative ${isTablet || isMobile ? "rounded-xl" : ""}`}
           >
             <LayerStackIcon className="icon-lg" />
           </div>

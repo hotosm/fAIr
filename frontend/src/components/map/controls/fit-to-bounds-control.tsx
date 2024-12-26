@@ -22,7 +22,7 @@ export const FitToBounds = ({
   return (
     <ToolTip content={mapContents.controls.fitToBounds.tooltip}>
       <button
-        className={`bg-white  ${isSmallViewport ? "rounded-xl p-2 border border-gray-border md:border-0" : "p-1.5"}`}
+        className={`bg-white  ${isSmallViewport ? "rounded-xl p-2.5 border border-gray-border md:border-0" : "p-1.5"}`}
         onClick={fitToBounds}
       >
         <ArrowMoveIcon className="icon-lg" />

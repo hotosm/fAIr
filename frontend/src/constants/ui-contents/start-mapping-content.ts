@@ -9,7 +9,6 @@ export const startMappingPageContent: TStartMappingPageContent = {
       },
       legendControl: {
         title: "Legend",
-        tooltip: "Legend",
         acceptedPredictions: "Accepted Predictions",
         rejectedPredictions: "Rejected Predictions",
         predictionResults: "Prediction Results",

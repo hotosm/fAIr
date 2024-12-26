@@ -30,7 +30,6 @@ export type TStartMappingPageContent = {
       };
       legendControl: {
         title: string;
-        tooltip: string;
         acceptedPredictions: string;
         rejectedPredictions: string;
         predictionResults: string;

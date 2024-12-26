@@ -133,14 +133,17 @@ const ModelDetailsPopUp = ({
         open={showPopup}
         dialogTitle="Model Details"
         closeDrawer={closeMobileDrawer}
-        startingSnapPoint={0.7}
+        snapPoints={[0.5, 0.8]}
         canClose
       >
-        <div className={`p-2 overflow-y-auto flex flex-col`}>
+        <div className={`app-padding flex flex-col`}>
           {!model && isError ? (
             <div>{startMappingPageContent.modelDetails.error}</div>
           ) : (
             <div className="flex flex-col gap-y-4 text-dark">
+              <p className="font-semibold">
+                {startMappingPageContent.modelDetails.label}
+              </p>
               {popupContent}
             </div>
           )}
@@ -157,7 +160,7 @@ const ModelDetailsPopUp = ({
       distance={40}
     >
       <div
-        className={`border bg-white border-gray-border shadown-sm rounded-xl w-[350px] scrollable p-7 max-h-[400px] overflow-y-auto flex flex-col`}
+        className={`border bg-white border-gray-border shadown-sm rounded-xl w-[350px] scrollable p-5 max-h-[400px] overflow-y-auto flex flex-col`}
       >
         {!model && isError ? (
           <div>{startMappingPageContent.modelDetails.error}</div>

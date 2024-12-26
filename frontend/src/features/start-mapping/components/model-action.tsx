@@ -52,7 +52,7 @@ const ModelAction = ({
         <button
           disabled={disablePrediction || modelPredictionMutation.isPending}
           onClick={handlePrediction}
-          className={`w-full text-nowrap bg-primary px-3 py-2 rounded-md text-white ${disablePrediction || modelPredictionMutation.isPending ? "opacity-50" : ""}`}
+          className={`w-full text-nowrap bg-primary px-3 py-3 md:py-1.5 rounded-md text-white ${disablePrediction || modelPredictionMutation.isPending ? "opacity-50" : ""}`}
         >
           <span className="capitalize text-sm">
             {" "}

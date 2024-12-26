@@ -17,7 +17,7 @@ export const TileBoundaries = ({ map }: { map: Map | null }) => {
         source: TILE_BOUNDARY_SOURCE_ID,
         paint: {
           "line-color": "#FFF",
-          "line-width": 1,
+          "line-width": 0.5,
         },
         layout: { visibility: "visible" },
       },
