@@ -53,7 +53,7 @@ const OpenAerialMap = ({
                 className="basis-4/5 text-start text-body-3 text-wrap w-full"
                 title={data?.name}
               >
-                {truncateString(data?.name, 30)}
+                {truncateString(data?.name, 40)}
               </p>
               <ToolTip
                 content={

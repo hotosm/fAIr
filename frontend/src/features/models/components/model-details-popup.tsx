@@ -101,7 +101,7 @@ const ModelDetailsPopUp = ({
               showSkeleton={trainingDetailsIsPending}
               skeletonClassName="w-20 h-4"
             >
-              <span className="text-dark">
+              <span className="text-dark font-medium">
                 {trainingDetailsError
                   ? "N/A"
                   : trainingDetails?.zoom_level?.join(", ")}{" "}

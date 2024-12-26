@@ -309,7 +309,7 @@ const router = createBrowserRouter([
             "@/app/routes/account/models"
           );
           return {
-            Component: () => <UserModelsPage />,
+            Component: () => <ProtectedRoute><UserModelsPage /></ProtectedRoute>
           };
         },
       },

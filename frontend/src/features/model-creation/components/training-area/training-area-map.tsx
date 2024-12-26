@@ -31,6 +31,11 @@ import { ControlsPosition, DrawingModes } from "@/enums";
 import { useToolTipVisibility } from "@/hooks/use-tooltip-visibility";
 import { useMapLayers } from "@/hooks/use-map-layer";
 import { TerraDraw } from "terra-draw";
+import { useLayerReorder } from "@/hooks/use-layer-order";
+
+
+// Debounce delay in milliseconds.
+const DEBOUNCE_DELAY: number = 300;
 
 const TrainingAreaMap = ({
   tileJSONURL,
@@ -70,8 +75,9 @@ const TrainingAreaMap = ({
   const { setTooltipVisible, tooltipPosition, tooltipVisible } =
     useToolTipVisibility(map, [drawingMode, currentZoom]);
 
-  const debouncedBbox = useDebounce(bbox, 300);
-  const debouncedZoom = useDebounce(currentZoom.toString(), 300);
+  const debouncedBbox = useDebounce(bbox, DEBOUNCE_DELAY);
+
+  const debouncedZoom = useDebounce(currentZoom.toString(), DEBOUNCE_DELAY);
 
   const { data: labels } = useGetTrainingDatasetLabels(
     trainingDatasetId,
@@ -155,6 +161,10 @@ const TrainingAreaMap = ({
     map,
   );
 
+  // useLayerReorder(map, {
+  //   featureLayerIds: [trainingDatasetLabelsOutlineLayerId, trainingDatasetLabelsLayerId, trainingAreasLayerId, trainingAreasFillLayerId,]
+  // });
+
   const updateTrainingLabels = useCallback(() => {
     if (map) {
       if (map.getSource(trainingDatasetLabelsSourceId) && labels) {
@@ -203,7 +213,9 @@ const TrainingAreaMap = ({
     updateTrainingLabels();
   }, [labels]);
 
-  // drawing events and tooltip
+  /**
+  * Drawing events and tooltip
+  */
   useEffect(() => {
     if (!terraDraw || !map) return;
 
@@ -300,22 +312,22 @@ const TrainingAreaMap = ({
       layerControlLayers={[
         ...(data?.results?.features?.length
           ? [
-              {
-                value: "Training Areas",
-                subLayers: [trainingAreasLayerId, trainingAreasFillLayerId],
-              },
-            ]
+            {
+              value: "Training Areas",
+              subLayers: [trainingAreasLayerId, trainingAreasFillLayerId],
+            },
+          ]
           : []),
         ...(labels && labels?.features.length > 0
           ? [
-              {
-                value: "Training Labels",
-                subLayers: [
-                  trainingDatasetLabelsLayerId,
-                  trainingDatasetLabelsOutlineLayerId,
-                ],
-              },
-            ]
+            {
+              value: "Training Labels",
+              subLayers: [
+                trainingDatasetLabelsLayerId,
+                trainingDatasetLabelsOutlineLayerId,
+              ],
+            },
+          ]
           : []),
       ]}
     >
