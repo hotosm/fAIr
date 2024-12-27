@@ -4,7 +4,6 @@ import { DropdownMenuItem } from "@/components/ui/dropdown/dropdown";
 import { CheckboxGroup } from "@/components/ui/form";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { TQueryParams } from "@/types";
-import { useMemo } from "react";
 
 type StatusFilterProps = {
   disabled: boolean;
@@ -57,13 +56,9 @@ const StatusFilter: React.FC<StatusFilterProps> = ({
       },
     },
   ];
-  const categoryLabel = useMemo(
-    () =>
-      statusCategories.filter(
-        (status) => status.apiValue === query[SEARCH_PARAMS.status],
-      ),
-    [query],
-  );
+  const categoryLabel = statusCategories.filter(
+    (status) => status.apiValue === query[SEARCH_PARAMS.status],
+  )
 
   const { dropdownIsOpened, onDropdownHide, onDropdownShow } =
     useDropdownMenu();

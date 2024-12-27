@@ -1,5 +1,5 @@
 import "maplibre-gl/dist/maplibre-gl.css";
-import { RefObject, useMemo } from "react";
+import { RefObject } from "react";
 import { DrawingModes } from "@/enums";
 import {
   GeolocationControl,
@@ -67,67 +67,51 @@ export const MapComponent: React.FC<MapComponentProps> = ({
   zoomControls = true,
   setDrawingMode,
 }) => {
-  const Controls = useMemo(() => {
-    if (!map) return;
-    return (
-      <>
-        <div
-          className={`absolute top-5 ${
-            controlsPosition === ControlsPosition.TOP_RIGHT
-              ? "right-3"
-              : "left-3"
-          } map-elements-z-index flex flex-col gap-y-[1px]`}
-        >
-          {currentZoom && zoomControls ? (
-            <ZoomControls map={map} currentZoom={currentZoom} />
-          ) : null}
-          {geolocationControl && <GeolocationControl map={map} />}
-          {drawControl && terraDraw && drawingMode && setDrawingMode && (
-            <DrawControl
-              terraDraw={terraDraw}
-              drawingMode={drawingMode}
-              setDrawingMode={setDrawingMode}
-            />
-          )}
-        </div>
-        {map && fitToBounds && (
-          <div className="absolute left-3 z-[1] top-28">
-            <FitToBounds bounds={bounds} map={map} />
-          </div>
-        )}
-        <div
-          className={`absolute top-5 right-3 map-elements-z-index items-center flex gap-x-4`}
-        >
-          {showCurrentZoom && currentZoom ? (
-            <ZoomLevel currentZoom={currentZoom} />
-          ) : null}
-          {layerControl && (
-            <LayerControl
-              basemaps={basemaps}
-              layers={layerControlLayers}
-              map={map}
-              openAerialMap={openAerialMap}
-            />
-          )}
-        </div>
-      </>
-    );
-  }, [
-    map,
-    geolocationControl,
-    drawControl,
-    terraDraw,
-    controlsPosition,
-    layerControl,
-    showCurrentZoom,
-    currentZoom,
-    drawingMode && setDrawingMode,
-    fitToBounds,
-  ]);
-
   return (
     <div className={`h-full relative w-full`} ref={mapContainerRef}>
-      {Controls}
+      {map ?
+        <>
+          <div
+            className={`absolute top-5 ${controlsPosition === ControlsPosition.TOP_RIGHT
+              ? "right-3"
+              : "left-3"
+              } map-elements-z-index flex flex-col gap-y-[1px]`}
+          >
+            {currentZoom && zoomControls ? (
+              <ZoomControls map={map} currentZoom={currentZoom} />
+            ) : null}
+            {geolocationControl && <GeolocationControl map={map} />}
+            {drawControl && terraDraw && drawingMode && setDrawingMode && (
+              <DrawControl
+                terraDraw={terraDraw}
+                drawingMode={drawingMode}
+                setDrawingMode={setDrawingMode}
+              />
+            )}
+          </div>
+          {fitToBounds && (
+            <div className="absolute left-3 z-[1] top-28">
+              <FitToBounds bounds={bounds} map={map} />
+            </div>
+          )}
+          <div
+            className={`absolute top-5 right-3 map-elements-z-index items-center flex gap-x-4`}
+          >
+            {showCurrentZoom && currentZoom ? (
+              <ZoomLevel currentZoom={currentZoom} />
+            ) : null}
+            {layerControl && (
+              <LayerControl
+                basemaps={basemaps}
+                layers={layerControlLayers}
+                map={map}
+                openAerialMap={openAerialMap}
+              />
+            )}
+          </div>
+        </>
+        : null
+      }
       {/* Order according to how they'll be rendered */}
       {basemaps && <Basemaps map={map} />}
       {openAerialMap && oamTileJSONURL && (

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Head } from "@/components/seo";
 import { BBOX, Feature, TileJSON, TModelPredictions } from "@/types";
@@ -114,13 +114,11 @@ export const StartMappingPage = () => {
     rejected: [],
   });
 
-  const modelPredictionsExist = useMemo(() => {
-    return (
-      modelPredictions.accepted.length > 0 ||
-      modelPredictions.rejected.length > 0 ||
-      modelPredictions.all.length > 0
-    );
-  }, [modelPredictions]);
+  const modelPredictionsExist = modelPredictions.accepted.length > 0 ||
+    modelPredictions.rejected.length > 0 ||
+    modelPredictions.all.length > 0
+
+
 
   const updateQuery = useCallback(
     (newParams: TQueryParams) => {
@@ -165,50 +163,48 @@ export const StartMappingPage = () => {
 
   const popupAnchorId = "model-details";
 
-  const mapLayers = useMemo(
-    () => [
-      ...(modelPredictions.accepted.length > 0
-        ? [
-            {
-              value:
-                startMappingPageContent.map.controls.legendControl
-                  .acceptedPredictions,
-              subLayers: [
-                ACCEPTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
-                ACCEPTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
-              ],
-            },
-          ]
-        : []),
-      ...(modelPredictions.rejected.length > 0
-        ? [
-            {
-              value:
-                startMappingPageContent.map.controls.legendControl
-                  .rejectedPredictions,
-              subLayers: [
-                REJECTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
-                REJECTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
-              ],
-            },
-          ]
-        : []),
-      ...(modelPredictions.all.length > 0
-        ? [
-            {
-              value:
-                startMappingPageContent.map.controls.legendControl
-                  .predictionResults,
-              subLayers: [
-                ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
-                ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
-              ],
-            },
-          ]
-        : []),
-    ],
-    [modelPredictions, startMappingPageContent],
-  );
+  const mapLayers = [
+    ...(modelPredictions.accepted.length > 0
+      ? [
+        {
+          value:
+            startMappingPageContent.map.controls.legendControl
+              .acceptedPredictions,
+          subLayers: [
+            ACCEPTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
+            ACCEPTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
+          ],
+        },
+      ]
+      : []),
+    ...(modelPredictions.rejected.length > 0
+      ? [
+        {
+          value:
+            startMappingPageContent.map.controls.legendControl
+              .rejectedPredictions,
+          subLayers: [
+            REJECTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
+            REJECTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
+          ],
+        },
+      ]
+      : []),
+    ...(modelPredictions.all.length > 0
+      ? [
+        {
+          value:
+            startMappingPageContent.map.controls.legendControl
+              .predictionResults,
+          subLayers: [
+            ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
+            ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
+          ],
+        },
+      ]
+      : []),
+  ]
+
 
   const handleAllFeaturesDownload = useCallback(async () => {
     geoJSONDowloader(
@@ -255,48 +251,39 @@ export const StartMappingPage = () => {
     handleFeaturesDownloadToJOSM(modelPredictions.accepted);
   }, [handleFeaturesDownloadToJOSM, modelPredictions.accepted]);
 
-  const downloadOptions: TDownloadOptions = useMemo(
-    () => [
-      {
-        name: startMappingPageContent.buttons.download.options.allFeatures,
-        value: startMappingPageContent.buttons.download.options.allFeatures,
-        onClick: handleAllFeaturesDownload,
-        showOnMobile: true,
-      },
-      {
-        name: startMappingPageContent.buttons.download.options.acceptedFeatures,
-        value:
-          startMappingPageContent.buttons.download.options.acceptedFeatures,
-        onClick: handleAcceptedFeaturesDownload,
-        showOnMobile: true,
-      },
-      {
-        name: startMappingPageContent.buttons.download.options
+  const downloadOptions: TDownloadOptions = [
+    {
+      name: startMappingPageContent.buttons.download.options.allFeatures,
+      value: startMappingPageContent.buttons.download.options.allFeatures,
+      onClick: handleAllFeaturesDownload,
+      showOnMobile: true,
+    },
+    {
+      name: startMappingPageContent.buttons.download.options.acceptedFeatures,
+      value:
+        startMappingPageContent.buttons.download.options.acceptedFeatures,
+      onClick: handleAcceptedFeaturesDownload,
+      showOnMobile: true,
+    },
+    {
+      name: startMappingPageContent.buttons.download.options
+        .openAllFeaturesInJOSM,
+      value:
+        startMappingPageContent.buttons.download.options
           .openAllFeaturesInJOSM,
-        value:
-          startMappingPageContent.buttons.download.options
-            .openAllFeaturesInJOSM,
-        onClick: handleAllFeaturesDownloadToJOSM,
-        showOnMobile: false,
-      },
-      {
-        name: startMappingPageContent.buttons.download.options
+      onClick: handleAllFeaturesDownloadToJOSM,
+      showOnMobile: false,
+    },
+    {
+      name: startMappingPageContent.buttons.download.options
+        .openAcceptedFeaturesInJOSM,
+      value:
+        startMappingPageContent.buttons.download.options
           .openAcceptedFeaturesInJOSM,
-        value:
-          startMappingPageContent.buttons.download.options
-            .openAcceptedFeaturesInJOSM,
-        onClick: handleAcceptedFeaturesDownloadToJOSM,
-        showOnMobile: false,
-      },
-    ],
-    [
-      startMappingPageContent,
-      handleAcceptedFeaturesDownloadToJOSM,
-      handleAllFeaturesDownloadToJOSM,
-      handleAcceptedFeaturesDownload,
-      handleAllFeaturesDownload,
-    ],
-  );
+      onClick: handleAcceptedFeaturesDownloadToJOSM,
+      showOnMobile: false,
+    },
+  ]
 
   const handleModelDetailsPopup = useCallback(() => {
     setShowModelDetailsPopup((prev) => !prev);

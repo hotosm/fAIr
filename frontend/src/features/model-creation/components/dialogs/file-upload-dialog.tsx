@@ -13,7 +13,7 @@ import {
   validateGeoJSONArea,
 } from "@/utils";
 import { SlFormatBytes } from "@shoelace-style/shoelace/dist/react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import { FileWithPath, useDropzone } from "react-dropzone";
 
 type FileUploadDialogProps = DialogProps & {
@@ -181,40 +181,38 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
     }
   };
 
-  const files = useMemo(() => {
-    return acceptedFiles.map((file) => {
-      return (
-        <li
-          key={file.id}
-          className="border-2 border-gray-border rounded-lg px-3.5 py-1 text-gray w-full"
-        >
-          <div className="flex flex-col">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-x-2">
-                <span className="border-2 border-gray-border p-1 flex items-center">
-                  <FileIcon className="icon " />
-                </span>
-                <div>
-                  <p className="text-dark text-body-3">
-                    {truncateString(file.file.name)}
-                  </p>
-                  <SlFormatBytes value={file.file.size} className="text-sm" />
-                </div>
+  const files = acceptedFiles.map((file) => {
+    return (
+      <li
+        key={file.id}
+        className="border-2 border-gray-border rounded-lg px-3.5 py-1 text-gray w-full"
+      >
+        <div className="flex flex-col">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-x-2">
+              <span className="border-2 border-gray-border p-1 flex items-center">
+                <FileIcon className="icon " />
+              </span>
+              <div>
+                <p className="text-dark text-body-3">
+                  {truncateString(file.file.name)}
+                </p>
+                <SlFormatBytes value={file.file.size} className="text-sm" />
               </div>
-              <button
-                className="bg-secondary p-2 w-8 h-8 flex items-center justify-center rounded-lg"
-                onClick={() => deleteFile(file.id)}
-                disabled={disabled || uploadInProgress}
-              >
-                <DeleteIcon className="icon text-primary" />
-              </button>
             </div>
-            {/* Removed ProgressBar */}
+            <button
+              className="bg-secondary p-2 w-8 h-8 flex items-center justify-center rounded-lg"
+              onClick={() => deleteFile(file.id)}
+              disabled={disabled || uploadInProgress}
+            >
+              <DeleteIcon className="icon text-primary" />
+            </button>
           </div>
-        </li>
-      );
-    });
-  }, [acceptedFiles, disabled, uploadInProgress]);
+          {/* Removed ProgressBar */}
+        </div>
+      </li>
+    );
+  });
 
   return (
     <Dialog

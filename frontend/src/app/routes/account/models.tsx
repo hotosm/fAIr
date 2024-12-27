@@ -19,7 +19,6 @@ import {
 } from "@/features/models/layouts";
 import { useDialog } from "@/hooks/use-dialog";
 import { APP_CONTENT } from "@/utils";
-import { useMemo } from "react";
 import ModelNotFound from "@/features/models/components/model-not-found";
 import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
 import { useAuth } from "@/app/providers/auth-provider";
@@ -40,11 +39,6 @@ export const UserModelsPage = () => {
     updateQuery,
   } = useModelsListFilters(undefined, user?.osm_id);
 
-  // Since it's just a static filter, it's better to memoize it.
-  const memoizedCategoryFilter = useMemo(
-    () => <CategoryFilter disabled={isPending} />,
-    [isPending],
-  );
 
   const renderContent = () => {
     if (data?.count === 0) {
@@ -92,7 +86,7 @@ export const UserModelsPage = () => {
             <div className=" flex items-center justify-between w-full ">
               <div className="flex items-center justify-between w-full md:gap-x-4 gap-y-2 md:gap-y-0  md:w-auto">
                 <SearchFilter updateQuery={updateQuery} query={query} />
-                {memoizedCategoryFilter}
+                <CategoryFilter disabled={isPending} />
                 <StatusFilter
                   disabled={isPending}
                   updateQuery={updateQuery}

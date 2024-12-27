@@ -37,10 +37,7 @@ const useScreenSize = () => {
     };
   }, []);
 
-  const isSmallViewport = useMemo(
-    () => screenSize.isMobile || screenSize.isTablet,
-    [screenSize],
-  );
+  const isSmallViewport = screenSize.isMobile || screenSize.isTablet
 
   return { ...screenSize, isSmallViewport };
 };

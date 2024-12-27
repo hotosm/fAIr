@@ -4,7 +4,6 @@ import {
   SetStateAction,
   useCallback,
   useEffect,
-  useMemo,
   useState,
 } from "react";
 
@@ -267,31 +266,6 @@ export const StartMappingMapComponent = ({
     };
   }, [map]);
 
-  const renderPopup = useMemo(
-    () => (
-      <PredictedFeatureActionPopup
-        event={selectedEvent}
-        selectedFeature={selectedFeature}
-        setModelPredictions={setModelPredictions}
-        modelPredictions={modelPredictions}
-        source_imagery={trainingDataset?.source_imagery as string}
-        trainingId={trainingDataset?.id as number}
-        trainingConfig={trainingConfig}
-        map={map}
-      />
-    ),
-    [
-      showPopup,
-      selectedEvent,
-      selectedFeature,
-      setModelPredictions,
-      modelPredictions,
-      trainingDataset?.source_imagery,
-      trainingDataset?.id,
-      trainingConfig,
-      map,
-    ],
-  );
   const showTooltip =
     currentZoom < MIN_ZOOM_LEVEL_FOR_START_MAPPING_PREDICTION && tooltipVisible;
   return (
@@ -311,7 +285,16 @@ export const StartMappingMapComponent = ({
       basemaps
       showCurrentZoom={!isSmallViewport}
     >
-      {showPopup && renderPopup}
+      {showPopup && <PredictedFeatureActionPopup
+        event={selectedEvent}
+        selectedFeature={selectedFeature}
+        setModelPredictions={setModelPredictions}
+        modelPredictions={modelPredictions}
+        source_imagery={trainingDataset?.source_imagery as string}
+        trainingId={trainingDataset?.id as number}
+        trainingConfig={trainingConfig}
+        map={map}
+      />}
       <MapCursorToolTip
         tooltipVisible={showTooltip && !isSmallViewport}
         color={"bg-primary"}

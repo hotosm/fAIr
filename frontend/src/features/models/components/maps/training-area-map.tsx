@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useMemo, useRef } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { MapComponent } from "@/components/map";
 import { ControlsPosition } from "@/enums";
 import { PMTiles } from "pmtiles";
@@ -81,56 +81,46 @@ export const TrainingAreaMap = ({
 
   const tileJSONURL = extractTileJSONURL(tmsURL);
 
-  const trainingAreasSourceId = useMemo(
-    () => `training-areas-for-${trainingAreaId}`,
-    [trainingAreaId],
-  );
+  const trainingAreasSourceId = `training-areas-for-${trainingAreaId}`
 
-  const mapLayers: LayerSpecification[] = useMemo(() => {
-    return vectorLayers.flatMap((layer) => {
-      const { fill, outline } = getLayerConfigs(layer.id);
-      return [
-        {
-          id: `${layer.id}_fill`,
-          type: "fill",
-          source: trainingAreasSourceId,
-          paint: fill,
-          "source-layer": layer.id,
-          layout: { visibility: "visible" },
-        },
-        {
-          id: `${layer.id}_outline`,
-          type: "line",
-          source: trainingAreasSourceId,
-          paint: outline,
-          "source-layer": layer.id,
-          layout: { visibility: "visible" },
-        },
-      ];
-    });
-  }, [vectorLayers, trainingAreasSourceId]);
-
-  const sources = useMemo(
-    () => [
+  const mapLayers: LayerSpecification[] = vectorLayers.flatMap((layer) => {
+    const { fill, outline } = getLayerConfigs(layer.id);
+    return [
       {
-        id: trainingAreasSourceId,
-        spec: {
-          type: "vector",
-          url: `pmtiles://${file}`,
-        } as SourceSpecification,
+        id: `${layer.id}_fill`,
+        type: "fill",
+        source: trainingAreasSourceId,
+        paint: fill,
+        "source-layer": layer.id,
+        layout: { visibility: "visible" },
       },
-    ],
-    [file, trainingAreasSourceId],
-  );
+      {
+        id: `${layer.id}_outline`,
+        type: "line",
+        source: trainingAreasSourceId,
+        paint: outline,
+        "source-layer": layer.id,
+        layout: { visibility: "visible" },
+      },
+    ];
+  });
 
-  const layerControlLayers = useMemo(
-    () =>
-      vectorLayers.map((layer) => ({
-        value: `Training ${layer.id}`,
-        subLayers: [`${layer.id}_fill`, `${layer.id}_outline`],
-      })),
-    [vectorLayers],
-  );
+
+  const sources = [
+    {
+      id: trainingAreasSourceId,
+      spec: {
+        type: "vector",
+        url: `pmtiles://${file}`,
+      } as SourceSpecification,
+    },
+  ]
+
+  const layerControlLayers = vectorLayers.map((layer) => ({
+    value: `Training ${layer.id}`,
+    subLayers: [`${layer.id}_fill`, `${layer.id}_outline`],
+  }))
+
 
   const fitToBounds = useCallback(() => {
     if (
@@ -182,15 +172,15 @@ export const TrainingAreaMap = ({
                         <table>
                             <tbody>
                                 ${Object.entries(feature.properties)
-                                  .map(
-                                    ([key, value]) => `
+            .map(
+              ([key, value]) => `
                                     <tr>
                                         <td class="text-gray">${key}</td>
                                         <td class="font-semibold text-dark">${typeof value === "boolean" ? JSON.stringify(value) : value}</td>
                                     </tr>
                                 `,
-                                  )
-                                  .join("")}
+            )
+            .join("")}
                             </tbody>
                         </table>
                     </div>

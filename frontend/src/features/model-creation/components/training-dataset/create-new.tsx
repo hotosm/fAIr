@@ -6,18 +6,15 @@ import {
 import { Input } from "@/components/ui/form";
 import { INPUT_TYPES } from "@/enums";
 import { MODEL_CREATION_CONTENT } from "@/utils";
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 
 const CreateNewTrainingDatasetForm = () => {
   const { formData, handleChange } = useModelsContext();
 
-  const tmsURLHelpText = useMemo(() => {
-    const helpText =
-      MODEL_CREATION_CONTENT.trainingDataset.form.tmsURL.helpText;
-    return formData.tmsURLValidation.message.length > 0
-      ? formData.tmsURLValidation.message
-      : helpText;
-  }, [formData.tmsURLValidation.message]);
+  const tmsURLHelpText = formData.tmsURLValidation.message.length > 0
+    ? formData.tmsURLValidation.message
+    : MODEL_CREATION_CONTENT.trainingDataset.form.tmsURL.helpText;
+
 
   useEffect(() => {
     // Shoelace will handle the validation when it's more than 0 characters.

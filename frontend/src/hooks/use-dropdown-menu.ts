@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 
 /**
  * Custom hook to manage the visibility state of a dropdown menu.
@@ -30,6 +30,6 @@ export const useDropdownMenu = () => {
     }
   }, [isOpened]);
 
-  const dropdownIsOpened = useMemo(() => isOpened, [isOpened]);
+  const dropdownIsOpened = isOpened
   return { onDropdownHide, onDropdownShow, dropdownIsOpened, toggleDropDown };
 };

@@ -2,7 +2,7 @@ import { LayerStackIcon } from "@/components/ui/icons";
 import { DropDown } from "@/components/ui/dropdown";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { Map } from "maplibre-gl";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { CheckboxGroup } from "@/components/ui/form";
 import { ToolTip } from "@/components/ui/tooltip";
 import { BASEMAPS, ToolTipPlacement } from "@/enums";
@@ -14,7 +14,6 @@ import {
 import useScreenSize from "@/hooks/use-screen-size";
 
 type TLayers = { id?: string; subLayers: string[]; value: string }[];
-type TBasemaps = { id?: string; subLayer: string; value: string }[];
 
 export const LayerControl = ({
   map,
@@ -31,25 +30,23 @@ export const LayerControl = ({
     useDropdownMenu();
   const { isTablet, isMobile } = useScreenSize();
 
-  const layerControlData = useMemo(() => {
-    const layers_ = [
+  const layerControlData = {
+    layers_: [
       ...layers,
       ...(openAerialMap
         ? [{ value: "TMS Layer", subLayers: [TMS_LAYER_ID] }]
         : []),
-    ];
-    const baseLayers: TBasemaps = basemaps
+    ],
+    baseLayers: basemaps
       ? [
-          { value: BASEMAPS.OSM, subLayer: OSM_BASEMAP_LAYER_ID },
-          {
-            value: BASEMAPS.GOOGLE_SATELLITE,
-            subLayer: GOOGLE_SATELLITE_BASEMAP_LAYER_ID,
-          },
-        ]
-      : [];
-    return { layers_, baseLayers };
-  }, [layers, openAerialMap, basemaps]);
-
+        { value: BASEMAPS.OSM, subLayer: OSM_BASEMAP_LAYER_ID },
+        {
+          value: BASEMAPS.GOOGLE_SATELLITE,
+          subLayer: GOOGLE_SATELLITE_BASEMAP_LAYER_ID,
+        },
+      ]
+      : []
+  }
   const [layerVisibility, setLayerVisibility] = useState<{
     [key: string]: boolean;
   }>({});

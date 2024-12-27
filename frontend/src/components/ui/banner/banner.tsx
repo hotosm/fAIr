@@ -1,6 +1,6 @@
 import { API_ENDPOINTS, apiClient } from "@/services";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -27,28 +27,21 @@ const Banner = () => {
     setIsBannerVisible(false);
   };
 
-  const banner = useMemo(
-    () => (
-      <div className="w-full px-4 py-2 bg-primary flex items-center justify-between">
-        <Markdown
-          remarkPlugins={[remarkGfm]}
-          className="w-full md:text-nowrap prose"
-        >
-          {data?.[0]?.message}
-        </Markdown>
-        <button onClick={handleCloseBanner} className="font-bold  text-white">
-          ✕
-        </button>
-      </div>
-    ),
-    [data],
-  );
-
   if (!isBannerVisible || isError || data?.length === 0 || isLoading) {
     return null;
   }
 
-  return banner;
+  return <div className="w-full px-4 py-2 bg-primary flex items-center justify-between">
+    <Markdown
+      remarkPlugins={[remarkGfm]}
+      className="w-full md:text-nowrap prose"
+    >
+      {data?.[0]?.message}
+    </Markdown>
+    <button onClick={handleCloseBanner} className="font-bold  text-white">
+      ✕
+    </button>
+  </div>
 };
 
 export default Banner;

@@ -1,7 +1,7 @@
 import TrainingAreaItem from "@/features/model-creation/components/training-area/training-area-item";
 import { Pagination } from "@/components/shared";
 import { PaginatedTrainingArea } from "@/types";
-import { Dispatch, SetStateAction, useMemo } from "react";
+import { Dispatch, SetStateAction } from "react";
 import {
   formatDuration,
   MODEL_CREATION_CONTENT,
@@ -39,25 +39,6 @@ const TrainingAreaList = ({
     refetchInterval: OSM_LAST_UPDATED_POOLING_INTERVAL_MS,
   });
 
-  const OSMLastUpdated = useMemo(() => {
-    return (
-      <span className="flex flex-col gap-y-1 text-gray italic">
-        {isOSMPending || isOSMError ? (
-          ""
-        ) : (
-          <small>
-            {MODEL_CREATION_CONTENT.trainingArea.toolTips.lastUpdatedPrefix}{" "}
-            {formatDuration(
-              new Date(String(osmData?.lastUpdated)),
-              new Date(),
-              1,
-            )}{" "}
-            ago
-          </small>
-        )}
-      </span>
-    );
-  }, [isOSMPending, isOSMError, osmData]);
 
   return (
     <div className="flex max-h-[60%] flex-col gap-y-4 justify-between p-2 lg:p-4">
@@ -69,7 +50,21 @@ const TrainingAreaList = ({
             {data?.count ?? 0}
           </span>
         </p>
-        {OSMLastUpdated}
+        <span className="flex flex-col gap-y-1 text-gray italic">
+          {isOSMPending || isOSMError ? (
+            ""
+          ) : (
+            <small>
+              {MODEL_CREATION_CONTENT.trainingArea.toolTips.lastUpdatedPrefix}{" "}
+              {formatDuration(
+                new Date(String(osmData?.lastUpdated)),
+                new Date(),
+                1,
+              )}{" "}
+              ago
+            </small>
+          )}
+        </span>
         <div className="w-full">
           <Pagination
             hasNextPage={data?.hasNext}

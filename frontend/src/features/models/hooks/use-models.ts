@@ -8,7 +8,7 @@ import { useSearchParams } from "react-router-dom";
 import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
 import { ORDERING_FIELDS } from "@/features/models/components/filters/ordering-filter";
 import { TQueryParams } from "@/types";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { buildDateFilterQueryString } from "@/utils";
 import { PAGE_LIMIT } from "@/components/shared";
 import { dateFilters } from "@/features/models/components/filters/date-range-filter";
@@ -177,10 +177,7 @@ export const useModelsListFilters = (
     setQuery(newQuery);
   }, []);
 
-  const mapViewIsActive = useMemo(
-    () => query[SEARCH_PARAMS.mapIsActive],
-    [query],
-  );
+  const mapViewIsActive = query[SEARCH_PARAMS.mapIsActive]
 
   const clearAllFilters = useCallback(() => {
     const resetParams = new URLSearchParams();

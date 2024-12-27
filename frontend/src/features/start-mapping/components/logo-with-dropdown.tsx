@@ -1,4 +1,4 @@
-import { memo, useMemo } from "react";
+import { memo } from "react";
 import { DropDown } from "@/components/ui/dropdown";
 import { NavLogo } from "@/components/layout";
 import { Divider } from "@/components/ui/divider";
@@ -20,25 +20,22 @@ export const BrandLogoWithDropDown = memo(function BrandLogoWithDropDown({
   onShow,
 }: BrandLogoWithDropDownProps) {
 
-  const navItems = useMemo(
-    () =>
-      navLinks.map((link, id) => (
-        <li
-          key={`${link.title}-${id}`}
-        >
-          <Link
-            disableLinkStyle
-            title={link.title}
-            href={link.href}
-            className="text-dark text-body-3 block py-1"
-            nativeAnchor={false}
-          >
-            {link.title}
-          </Link>
-        </li>
-      )),
-    [],
-  );
+  const navItems = navLinks.map((link, id) => (
+    <li
+      key={`${link.title}-${id}`}
+    >
+      <Link
+        disableLinkStyle
+        title={link.title}
+        href={link.href}
+        className="text-dark text-body-3 block py-1"
+        nativeAnchor={false}
+      >
+        {link.title}
+      </Link>
+    </li>
+  ))
+
   const navigate = useNavigate()
   return (
     <DropDown

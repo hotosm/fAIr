@@ -34,7 +34,7 @@ import {
   useGetTrainingAreaLabelsFromOSM,
 } from "@/features/model-creation/hooks/use-training-areas";
 import { useModelsContext } from "@/app/providers/models-provider";
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import FileUploadDialog from "@/features/model-creation/components/dialogs/file-upload-dialog";
 import { useDialog } from "@/hooks/use-dialog";
 import { geojsonToWKT } from "@terraformer/wkt";
@@ -136,7 +136,7 @@ const TrainingAreaItem: React.FC<
       if (
         getTrainingArea.isError ||
         getTrainingArea.data?.properties.label_status ===
-          LabelStatus.NOT_DOWNLOADED
+        LabelStatus.NOT_DOWNLOADED
       ) {
         handleLabelError();
       } else if (
@@ -272,83 +272,77 @@ const TrainingAreaItem: React.FC<
     });
   };
 
-  const dropdownMenuItems = useMemo(
-    () => [
-      {
-        tooltip: MODEL_CREATION_CONTENT.trainingArea.toolTips.openINJOSM,
-        isIcon: false,
-        imageSrc: JOSMLogo,
-        onClick: () =>
-          openInJOSM(formData.oamTileName, formData.tmsURL, [trainingArea]),
+  const dropdownMenuItems = [
+    {
+      tooltip: MODEL_CREATION_CONTENT.trainingArea.toolTips.openINJOSM,
+      isIcon: false,
+      imageSrc: JOSMLogo,
+      onClick: () =>
+        openInJOSM(formData.oamTileName, formData.tmsURL, [trainingArea]),
+    },
+    {
+      tooltip: MODEL_CREATION_CONTENT.trainingArea.toolTips.openInIdEditor,
+      isIcon: false,
+      imageSrc: OSMLogo,
+      onClick: () =>
+        openInIDEditor(
+          formData.oamBounds[1],
+          formData.oamBounds[3],
+          formData.oamBounds[0],
+          formData.oamBounds[2],
+          formData.tmsURL,
+          formData.selectedTrainingDatasetId,
+          trainingArea.id,
+        ),
+    },
+    {
+      tooltip: MODEL_CREATION_CONTENT.trainingArea.toolTips.downloadAOI,
+      isIcon: true,
+      Icon: CloudDownloadIcon,
+      onClick: () => {
+        geoJSONDowloader(trainingArea, `AOI_${trainingArea.id}`);
+        showSuccessToast(TOAST_NOTIFICATIONS.aoiDownloadSuccess);
+        onDropdownHide();
       },
-      {
-        tooltip: MODEL_CREATION_CONTENT.trainingArea.toolTips.openInIdEditor,
-        isIcon: false,
-        imageSrc: OSMLogo,
-        onClick: () =>
-          openInIDEditor(
-            formData.oamBounds[1],
-            formData.oamBounds[3],
-            formData.oamBounds[0],
-            formData.oamBounds[2],
-            formData.tmsURL,
-            formData.selectedTrainingDatasetId,
-            trainingArea.id,
-          ),
-      },
-      {
-        tooltip: MODEL_CREATION_CONTENT.trainingArea.toolTips.downloadAOI,
-        isIcon: true,
-        Icon: CloudDownloadIcon,
-        onClick: () => {
-          geoJSONDowloader(trainingArea, `AOI_${trainingArea.id}`);
-          showSuccessToast(TOAST_NOTIFICATIONS.aoiDownloadSuccess);
+    },
+    {
+      tooltip: MODEL_CREATION_CONTENT.trainingArea.toolTips.downloadLabels,
+      isIcon: true,
+      Icon: CloudDownloadIcon,
+      onClick: async () => {
+        const res = await getTrainingAreaLabels.refetch();
+        if (res.isSuccess) {
+          geoJSONDowloader(res.data, `AOI_${trainingArea.id}_Labels`);
           onDropdownHide();
-        },
+          showSuccessToast(TOAST_NOTIFICATIONS.aoiLabelsDownloadSuccess);
+        }
+        if (res.isError) showErrorToast(res.error);
       },
-      {
-        tooltip: MODEL_CREATION_CONTENT.trainingArea.toolTips.downloadLabels,
-        isIcon: true,
-        Icon: CloudDownloadIcon,
-        onClick: async () => {
-          const res = await getTrainingAreaLabels.refetch();
-          if (res.isSuccess) {
-            geoJSONDowloader(res.data, `AOI_${trainingArea.id}_Labels`);
-            onDropdownHide();
-            showSuccessToast(TOAST_NOTIFICATIONS.aoiLabelsDownloadSuccess);
-          }
-          if (res.isError) showErrorToast(res.error);
-        },
-      },
-      {
-        tooltip: MODEL_CREATION_CONTENT.trainingArea.toolTips.uploadLabels,
-        isIcon: true,
-        Icon: UploadIcon,
-        onClick: openDialog,
-      },
-      {
-        tooltip: MODEL_CREATION_CONTENT.trainingArea.toolTips.deleteAOI,
-        isIcon: true,
-        Icon: DeleteIcon,
-        isDelete: true,
-        onClick: () =>
-          deleteTrainingAreaMutation.mutate({
-            trainingAreaId: trainingArea.id,
-          }),
-      },
-    ],
-    [formData, trainingArea, onDropdownHide, getTrainingAreaLabels],
-  );
+    },
+    {
+      tooltip: MODEL_CREATION_CONTENT.trainingArea.toolTips.uploadLabels,
+      isIcon: true,
+      Icon: UploadIcon,
+      onClick: openDialog,
+    },
+    {
+      tooltip: MODEL_CREATION_CONTENT.trainingArea.toolTips.deleteAOI,
+      isIcon: true,
+      Icon: DeleteIcon,
+      isDelete: true,
+      onClick: () =>
+        deleteTrainingAreaMutation.mutate({
+          trainingAreaId: trainingArea.id,
+        }),
+    },
+  ]
 
-  const trainingAreaSize = useMemo(
-    () =>
-      trainingArea.geometry
-        ? formatAreaInAppropriateUnit(calculateGeoJSONArea(trainingArea))
-        : "0 m²",
-    [trainingArea],
-  );
 
-  const fetchStatusInfo = useMemo(() => {
+  const trainingAreaSize = trainingArea.geometry
+    ? formatAreaInAppropriateUnit(calculateGeoJSONArea(trainingArea))
+    : "0 m²"
+
+  const fetchStatusInfo = () => {
     if (labelState.isFetching || trainingAreaLabelsMutation.isPending) {
       return "Fetching labels...";
     }
@@ -361,7 +355,7 @@ const TrainingAreaItem: React.FC<
         : "Fetched recently";
     }
     return "No labels yet";
-  }, [labelState, trainingAreaLabelsMutation.isPending]);
+  }
 
   return (
     <>

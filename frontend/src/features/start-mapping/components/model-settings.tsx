@@ -6,7 +6,7 @@ import { ToolTip } from "@/components/ui/tooltip";
 import { startMappingPageContent } from "@/constants";
 import { DropdownPlacement, INPUT_TYPES, SHOELACE_SIZES } from "@/enums";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
-import { memo, useMemo } from "react";
+import { memo } from "react";
 
 const confidenceLevels = [
   {
@@ -52,97 +52,93 @@ export const ModelSettings = memo(
       });
     };
 
-    const modelSettings = useMemo(() => {
-      return (
-        <div className="flex flex-col bg-white p-3 justify-between rounded-xl flex-wrap gap-y-4">
-          <div className="flex gap-x-2 justify-between">
-            <FormLabel
-              label={startMappingPageContent.settings.useJOSMQ.label}
-              withTooltip
-              toolTipContent={startMappingPageContent.settings.useJOSMQ.tooltip}
-              position="left"
-            />
-            <Switch
-              checked={query[SEARCH_PARAMS.useJOSMQ] as boolean}
-              handleSwitchChange={(event) => {
-                handleQueryUpdate(SEARCH_PARAMS.useJOSMQ, event.target.checked);
-              }}
-            />
-          </div>
-          <div className="flex justify-between items-center gap-x-4">
-            <FormLabel
-              label={startMappingPageContent.settings.confidence.label}
-              withTooltip
-              toolTipContent={
-                startMappingPageContent.settings.confidence.tooltip
-              }
-              position="left"
-            />
-            <Select
-              className="w-[80px]"
-              size={SHOELACE_SIZES.SMALL}
-              options={confidenceLevels}
-              defaultValue={query[SEARCH_PARAMS.confidenceLevel] as number}
-              handleChange={(event) => {
-                handleQueryUpdate(
-                  SEARCH_PARAMS.confidenceLevel,
-                  Number(event.target.value),
-                );
-              }}
-            />
-          </div>
-          <div className="flex justify-between items-center gap-x-2">
-            <FormLabel
-              label={startMappingPageContent.settings.tolerance.label}
-              withTooltip
-              toolTipContent={
-                startMappingPageContent.settings.tolerance.tooltip
-              }
-              position="left"
-            />
-            <Input
-              className="w-16"
-              size={SHOELACE_SIZES.SMALL}
-              value={query[SEARCH_PARAMS.tolerance] as number}
-              labelWithTooltip
-              type={INPUT_TYPES.NUMBER}
-              showBorder
-              handleInput={(event) =>
-                handleQueryUpdate(
-                  SEARCH_PARAMS.tolerance,
-                  Number(event.target.value),
-                )
-              }
-              min={0}
-              step={0.1}
-            />
-          </div>
-          <div className="flex justify-between  items-center gap-x-2">
-            <FormLabel
-              label={startMappingPageContent.settings.area.label}
-              withTooltip
-              toolTipContent={startMappingPageContent.settings.area.tooltip}
-              position="left"
-            />
-            <Input
-              className="w-16"
-              size={SHOELACE_SIZES.SMALL}
-              value={query[SEARCH_PARAMS.area] as number}
-              labelWithTooltip
-              type={INPUT_TYPES.NUMBER}
-              showBorder
-              handleInput={(event) =>
-                handleQueryUpdate(
-                  SEARCH_PARAMS.area,
-                  Number(event.target.value),
-                )
-              }
-              min={0}
-            />
-          </div>
-        </div>
-      );
-    }, [query, handleQueryUpdate, SEARCH_PARAMS]);
+    const modelSettings = <div className="flex flex-col bg-white p-3 justify-between rounded-xl flex-wrap gap-y-4">
+      <div className="flex gap-x-2 justify-between">
+        <FormLabel
+          label={startMappingPageContent.settings.useJOSMQ.label}
+          withTooltip
+          toolTipContent={startMappingPageContent.settings.useJOSMQ.tooltip}
+          position="left"
+        />
+        <Switch
+          checked={query[SEARCH_PARAMS.useJOSMQ] as boolean}
+          handleSwitchChange={(event) => {
+            handleQueryUpdate(SEARCH_PARAMS.useJOSMQ, event.target.checked);
+          }}
+        />
+      </div>
+      <div className="flex justify-between items-center gap-x-4">
+        <FormLabel
+          label={startMappingPageContent.settings.confidence.label}
+          withTooltip
+          toolTipContent={
+            startMappingPageContent.settings.confidence.tooltip
+          }
+          position="left"
+        />
+        <Select
+          className="w-[80px]"
+          size={SHOELACE_SIZES.SMALL}
+          options={confidenceLevels}
+          defaultValue={query[SEARCH_PARAMS.confidenceLevel] as number}
+          handleChange={(event) => {
+            handleQueryUpdate(
+              SEARCH_PARAMS.confidenceLevel,
+              Number(event.target.value),
+            );
+          }}
+        />
+      </div>
+      <div className="flex justify-between items-center gap-x-2">
+        <FormLabel
+          label={startMappingPageContent.settings.tolerance.label}
+          withTooltip
+          toolTipContent={
+            startMappingPageContent.settings.tolerance.tooltip
+          }
+          position="left"
+        />
+        <Input
+          className="w-16"
+          size={SHOELACE_SIZES.SMALL}
+          value={query[SEARCH_PARAMS.tolerance] as number}
+          labelWithTooltip
+          type={INPUT_TYPES.NUMBER}
+          showBorder
+          handleInput={(event) =>
+            handleQueryUpdate(
+              SEARCH_PARAMS.tolerance,
+              Number(event.target.value),
+            )
+          }
+          min={0}
+          step={0.1}
+        />
+      </div>
+      <div className="flex justify-between  items-center gap-x-2">
+        <FormLabel
+          label={startMappingPageContent.settings.area.label}
+          withTooltip
+          toolTipContent={startMappingPageContent.settings.area.tooltip}
+          position="left"
+        />
+        <Input
+          className="w-16"
+          size={SHOELACE_SIZES.SMALL}
+          value={query[SEARCH_PARAMS.area] as number}
+          labelWithTooltip
+          type={INPUT_TYPES.NUMBER}
+          showBorder
+          handleInput={(event) =>
+            handleQueryUpdate(
+              SEARCH_PARAMS.area,
+              Number(event.target.value),
+            )
+          }
+          min={0}
+        />
+      </div>
+    </div>
 
     if (!isMobile) {
       return (

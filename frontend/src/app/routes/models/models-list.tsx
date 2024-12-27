@@ -2,7 +2,7 @@ import {
   useModelsListFilters,
   useModelsMapData,
 } from "@/features/models/hooks/use-models";
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import {
   ModelListGridLayout,
   ModelListTableLayout,
@@ -69,11 +69,6 @@ export const ModelsPage = () => {
     isError: modelsMapDataIsError,
   } = useModelsMapData();
 
-  // Since it's just a static filter, it's better to memoize it.
-  const memoizedCategoryFilter = useMemo(
-    () => <CategoryFilter disabled={isPending} />,
-    [isPending],
-  );
 
   // Mapview toggling interaction
   useEffect(() => {
@@ -151,7 +146,7 @@ export const ModelsPage = () => {
             <div className=" flex items-center justify-between w-full ">
               <div className="flex items-center justify-between w-full md:gap-x-4 gap-y-2 md:gap-y-0  md:w-auto">
                 <SearchFilter updateQuery={updateQuery} query={query} />
-                {memoizedCategoryFilter}
+                <CategoryFilter disabled={isPending} />
                 {/* Mobile filters */}
                 <div className="flex md:hidden items-center gap-x-4">
                   <MobileFilter openMobileFilterModal={openDialog} />

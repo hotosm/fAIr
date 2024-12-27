@@ -6,7 +6,6 @@ import { TModelDetails, TTrainingDataset } from "@/types";
 import { useTrainingDetails } from "@/features/models/hooks/use-training";
 import { startMappingPageContent } from "@/constants";
 import useScreenSize from "@/hooks/use-screen-size";
-import { useMemo } from "react";
 import { MobileDrawer } from "@/components/ui/drawer";
 
 const ModelDetailsPopUp = ({
@@ -44,87 +43,83 @@ const ModelDetailsPopUp = ({
   );
   const { isSmallViewport } = useScreenSize();
 
-  const popupContent = useMemo(() => {
-    return (
-      <SkeletonWrapper showSkeleton={Boolean(modelId && isPending)}>
-        <div className="flex flex-col gap-y-3 text-dark font-normal text-body-3">
-          <p>
-            {startMappingPageContent.modelDetails.popover.modelId}:{" "}
-            <span className="font-medium">{model?.id ?? data?.id}</span>
-          </p>
-          <p>
-            {startMappingPageContent.modelDetails.popover.description}:{" "}
-            <span className="font-medium">
-              {model?.description ?? data?.description}
-            </span>
-          </p>
-          <p>
-            {startMappingPageContent.modelDetails.popover.lastModified}:{" "}
-            <span className="font-medium">
-              {extractDatePart(
-                model?.last_modified ?? (data?.last_modified as string),
-              )}
-            </span>
-          </p>
-          <p>
-            {startMappingPageContent.modelDetails.popover.trainingId}:{" "}
-            <span className="font-medium">
-              {model?.published_training ?? data?.published_training}
-            </span>
-          </p>
-          <p>
-            {startMappingPageContent.modelDetails.popover.datasetId}:{" "}
-            <span className="font-medium">
-              {model?.dataset ?? data?.dataset}
-            </span>
-          </p>
-          <p className="flex items-center gap-x-1 text-nowrap flex-wrap">
-            {startMappingPageContent.modelDetails.popover.datasetName}:{" "}
-            <SkeletonWrapper
-              showSkeleton={trainingDatasetIsPending}
-              skeletonClassName="w-20 h-4"
-            >
-              <span
-                className="text-dark font-medium text-wrap"
-                title={trainingDataset?.name}
-              >
-                {trainingDatasetIsError
-                  ? "N/A"
-                  : truncateString(trainingDataset?.name, 40)}{" "}
-              </span>
-            </SkeletonWrapper>
-          </p>
+  const popupContent = <SkeletonWrapper showSkeleton={Boolean(modelId && isPending)}>
+    <div className="flex flex-col gap-y-3 text-dark font-normal text-body-3">
+      <p>
+        {startMappingPageContent.modelDetails.popover.modelId}:{" "}
+        <span className="font-medium">{model?.id ?? data?.id}</span>
+      </p>
+      <p>
+        {startMappingPageContent.modelDetails.popover.description}:{" "}
+        <span className="font-medium">
+          {model?.description ?? data?.description}
+        </span>
+      </p>
+      <p>
+        {startMappingPageContent.modelDetails.popover.lastModified}:{" "}
+        <span className="font-medium">
+          {extractDatePart(
+            model?.last_modified ?? (data?.last_modified as string),
+          )}
+        </span>
+      </p>
+      <p>
+        {startMappingPageContent.modelDetails.popover.trainingId}:{" "}
+        <span className="font-medium">
+          {model?.published_training ?? data?.published_training}
+        </span>
+      </p>
+      <p>
+        {startMappingPageContent.modelDetails.popover.datasetId}:{" "}
+        <span className="font-medium">
+          {model?.dataset ?? data?.dataset}
+        </span>
+      </p>
+      <p className="flex items-center gap-x-1 text-nowrap flex-wrap">
+        {startMappingPageContent.modelDetails.popover.datasetName}:{" "}
+        <SkeletonWrapper
+          showSkeleton={trainingDatasetIsPending}
+          skeletonClassName="w-20 h-4"
+        >
+          <span
+            className="text-dark font-medium text-wrap"
+            title={trainingDataset?.name}
+          >
+            {trainingDatasetIsError
+              ? "N/A"
+              : truncateString(trainingDataset?.name, 40)}{" "}
+          </span>
+        </SkeletonWrapper>
+      </p>
 
-          <p className="flex items-center gap-x-1 text-nowrap flex-wrap">
-            {startMappingPageContent.modelDetails.popover.zoomLevel}:{" "}
-            <SkeletonWrapper
-              showSkeleton={trainingDetailsIsPending}
-              skeletonClassName="w-20 h-4"
-            >
-              <span className="text-dark font-medium">
-                {trainingDetailsError
-                  ? "N/A"
-                  : trainingDetails?.zoom_level?.join(", ")}{" "}
-              </span>
-            </SkeletonWrapper>
-          </p>
+      <p className="flex items-center gap-x-1 text-nowrap flex-wrap">
+        {startMappingPageContent.modelDetails.popover.zoomLevel}:{" "}
+        <SkeletonWrapper
+          showSkeleton={trainingDetailsIsPending}
+          skeletonClassName="w-20 h-4"
+        >
+          <span className="text-dark font-medium">
+            {trainingDetailsError
+              ? "N/A"
+              : trainingDetails?.zoom_level?.join(", ")}{" "}
+          </span>
+        </SkeletonWrapper>
+      </p>
 
-          <p>
-            {startMappingPageContent.modelDetails.popover.accuracy}:{" "}
-            <span className="font-medium">
-              {roundNumber(model?.accuracy ?? (data?.accuracy as number), 2)}%
-            </span>
-          </p>
-          <p>
-            {startMappingPageContent.modelDetails.popover.baseModel}:{" "}
-            <span className="font-medium">
-              {model?.base_model ?? data?.base_model}
-            </span>
-          </p>
-        </div>
-      </SkeletonWrapper>
-    );
-  }, [modelId, isPending, model, data, isError]);
+      <p>
+        {startMappingPageContent.modelDetails.popover.accuracy}:{" "}
+        <span className="font-medium">
+          {roundNumber(model?.accuracy ?? (data?.accuracy as number), 2)}%
+        </span>
+      </p>
+      <p>
+        {startMappingPageContent.modelDetails.popover.baseModel}:{" "}
+        <span className="font-medium">
+          {model?.base_model ?? data?.base_model}
+        </span>
+      </p>
+    </div>
+  </SkeletonWrapper>
 
   if (isSmallViewport) {
     return (
