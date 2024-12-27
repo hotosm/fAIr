@@ -7,6 +7,7 @@ import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { useAuth } from "@/app/providers/auth-provider";
 import useScreenSize from "@/hooks/use-screen-size";
 import { DropdownPlacement } from "@/enums";
+import { TCSSWithVars } from "@/types";
 
 export const UserProfile = ({
   hideFullName,
@@ -60,8 +61,7 @@ export const UserProfile = ({
             label={user?.username}
             loading="lazy"
             initials={user?.username.charAt(0)}
-            // @ts-expect-error bad type definition
-            style={{ "--size": size }}
+            style={{ "--size": size } as TCSSWithVars}
           />
           {!hideFullName && (
             <p className={styles.userProfileName}>

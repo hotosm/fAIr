@@ -1,7 +1,7 @@
 import { MapComponent, MapCursorToolTip } from "@/components/map";
 import { GeoJSONType, PaginatedTrainingArea } from "@/types";
 import { GeoJSONSource, Map } from "maplibre-gl";
-import { RefObject, useCallback, useEffect, useState } from "react";
+import { RefObject, useCallback, useEffect, useMemo, useState } from "react";
 import {
   useCreateTrainingArea,
   useGetTrainingDatasetLabels,
@@ -273,7 +273,7 @@ const TrainingAreaMap = ({
     return "bg-black";
   };
 
-  const getFeedbackMessage = () => {
+  const getFeedbackMessage = useMemo(() => {
     if (featureArea !== 0) {
       if (featureArea < MIN_TRAINING_AREA_SIZE)
         return "Area too small. Expand to meet minimum size requirement.";
@@ -290,7 +290,7 @@ const TrainingAreaMap = ({
       return "Zoom in up to zoom 18 to see the fetched labels.";
     }
     return;
-  };
+  }, [featureArea, MIN_TRAINING_AREA_SIZE, MAX_TRAINING_AREA_SIZE, showLabelsToolTip])
 
   return (
     <MapComponent
@@ -342,7 +342,7 @@ const TrainingAreaMap = ({
               : `Current area: ${formatAreaInAppropriateUnit(featureArea)}`}
           </p>
         )}
-        <p>{getFeedbackMessage()}</p>
+        <p>{getFeedbackMessage}</p>
       </MapCursorToolTip>
     </MapComponent>
   );

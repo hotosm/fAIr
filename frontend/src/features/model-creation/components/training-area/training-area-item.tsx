@@ -379,7 +379,7 @@ const TrainingAreaItem: React.FC<
           <p
             className={`text-body-4 text-dark ${labelState.status !== LabelStatus.DOWNLOADED && "text-primary"}`}
           >
-            {fetchStatusInfo}
+            {fetchStatusInfo()}
           </p>
         </div>
         <div className="flex items-center gap-x-3">

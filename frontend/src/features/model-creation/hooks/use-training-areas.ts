@@ -21,8 +21,6 @@ import axios from "axios";
 export const useGetTrainingAreas = (datasetId: number, offset: number) => {
   return useQuery({
     ...getTrainingAreasQueryOptions(datasetId, offset),
-    //@ts-expect-error bad type definition
-    throwOnError: (error) => error?.response?.status >= 500,
   });
 };
 
@@ -137,8 +135,6 @@ export const useGetTrainingDatasetLabels = (
 ) => {
   return useQuery({
     ...getTrainingDatasetLabelsQueryOptions(datasetId, bbox),
-    //@ts-expect-error bad type definition
-    throwOnError: (error) => error?.response?.status >= 500,
     // Don't fetch when the bbox is empty
     enabled:
       bbox !== "" && currentZoom >= MIN_ZOOM_LEVEL_FOR_TRAINING_AREA_LABELS,
@@ -148,8 +144,6 @@ export const useGetTrainingDatasetLabels = (
 export const useGetTrainingAreaLabels = (aoiId: number, enabled: boolean) => {
   return useQuery({
     ...getTrainingAreaLabelsQueryOptions(aoiId),
-    //@ts-expect-error bad type definition
-    throwOnError: (error) => error?.response?.status >= 500,
     enabled: enabled,
   });
 };
@@ -161,8 +155,6 @@ export const useGetTrainingArea = (
 ) => {
   return useQuery({
     ...getTrainingAreaQueryOptions(aoiId),
-    //@ts-expect-error bad type definition
-    throwOnError: (error) => error?.response?.status >= 500,
     enabled: enabled,
     refetchInterval: refetchInterval,
   });

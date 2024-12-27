@@ -4,7 +4,7 @@ import { GeoJSON } from "geojson";
 import { Feature } from "./api";
 
 /* eslint-disable @typescript-eslint/no-empty-object-type */
-export interface IconProps extends React.SVGProps<SVGSVGElement> {}
+export interface IconProps extends React.SVGProps<SVGSVGElement> { }
 
 export type ShoelaceSlotProps = {
   slot?: string;
@@ -67,3 +67,10 @@ export type TNavBarLinks = {
   title: string;
   href: string;
 }[];
+
+
+// Extending with shoelace properties.
+export type TCSSWithVars = React.CSSProperties & {
+  '--size'?: string;
+  '--indent-guide-width'?: string
+}

@@ -7,3 +7,4 @@ export * from "./string-utils";
 export * from "./regex-utils";
 export * from "./geometry-utils";
 export * from "./general-utils";
+export * from './error-handler';

@@ -11,7 +11,7 @@ import { ModelFilesDialog } from "@/features/models/components/dialogs";
 import { ModelDetailsSkeleton } from "@/features/models/components/skeletons";
 import { useModelDetails } from "@/features/models/hooks/use-models";
 import { useDialog } from "@/hooks/use-dialog";
-import { APP_CONTENT, APPLICATION_ROUTES } from "@/utils";
+import { APP_CONTENT, } from "@/utils";
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Image } from "@/components/ui/image";
@@ -21,6 +21,8 @@ import { useAuth } from "@/app/providers/auth-provider";
 import { TrainingAreaDrawer } from "@/features/models/components/training-area-drawer";
 import { useGetTrainingDataset } from "@/features/models/hooks/use-dataset";
 import { TrainingInProgressImage } from "@/assets/images";
+
+import { handleErrorNavigation } from "@/utils";
 
 export const ModelDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -41,14 +43,8 @@ export const ModelDetailsPage = () => {
   const { isAuthenticated } = useAuth();
 
   useEffect(() => {
-    if (isError) {
-      navigate(APPLICATION_ROUTES.NOTFOUND, {
-        state: {
-          from: window.location.pathname,
-          //@ts-expect-error bad type definition
-          error: error?.response?.data?.detail,
-        },
-      });
+    if (isError && error) {
+      handleErrorNavigation(error, navigate);
     }
   }, [isError, error, navigate]);
 

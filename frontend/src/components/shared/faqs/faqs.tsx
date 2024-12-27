@@ -45,5 +45,5 @@ export const FAQs =
         </div>
       </section>
     );
-  },
+  }
 

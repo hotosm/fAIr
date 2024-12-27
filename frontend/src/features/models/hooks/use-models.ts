@@ -47,8 +47,6 @@ export const useModels = ({
       id,
       userId,
     }),
-    //@ts-expect-error bad type definition
-    throwOnError: (error) => error.response?.status >= 500,
   });
 };
 
@@ -59,8 +57,6 @@ export const useModelDetails = (
 ) => {
   return useQuery({
     ...getModelDetailsQueryOptions(id, refetchInterval),
-    //@ts-expect-error bad type definition
-    throwOnError: (error) => error.response?.status >= 500,
     retry: (_, error) => {
       // When a model is not found, don't retry.
       //@ts-expect-error bad type definition
@@ -73,8 +69,6 @@ export const useModelDetails = (
 export const useModelsMapData = () => {
   return useQuery({
     ...getModelsMapDataQueryOptions(),
-    //@ts-expect-error bad type definition
-    throwOnError: (error) => error.response?.status >= 500,
   });
 };
 
