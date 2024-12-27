@@ -20,7 +20,6 @@ const Image: React.FC<ImageProps> = ({
   className,
   placeHolder,
 }) => {
-
   const [isLoading, setIsLoading] = useState(true);
   const [imageSrc, setImageSrc] = useState(src);
 

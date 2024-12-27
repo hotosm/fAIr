@@ -223,8 +223,8 @@ const ModelsContext = createContext<{
   validateEditMode: boolean;
 }>({
   formData: initialFormState,
-  setFormData: () => { },
-  handleChange: () => { },
+  setFormData: () => {},
+  handleChange: () => {},
   createNewTrainingDatasetMutation: {} as UseMutationResult<
     TTrainingDataset,
     Error,
@@ -239,13 +239,13 @@ const ModelsContext = createContext<{
   >,
   hasLabeledTrainingAreas: false,
   hasAOIsWithGeometry: false,
-  resetState: () => { },
+  resetState: () => {},
   isEditMode: false,
   modelId: "",
   getFullPath: () => "",
-  handleModelCreationAndUpdate: () => { },
+  handleModelCreationAndUpdate: () => {},
   trainingDatasetCreationInProgress: false,
-  handleTrainingDatasetCreation: () => { },
+  handleTrainingDatasetCreation: () => {},
   validateEditMode: false,
 });
 
@@ -293,7 +293,8 @@ export const ModelsProvider: React.FC<{
   );
 
   // Will be used in the route validator component to delay the redirection for a while until the data are retrieved
-  const validateEditMode = formData.selectedTrainingDatasetId !== "" && formData.tmsURL !== ""
+  const validateEditMode =
+    formData.selectedTrainingDatasetId !== "" && formData.tmsURL !== "";
 
   // Fetch and prefill model details
   useEffect(() => {
@@ -418,17 +419,17 @@ export const ModelsProvider: React.FC<{
   });
 
   // Confirm that all the training areas labels has been retrieved
-  const hasLabeledTrainingAreas = formData.trainingAreas.length > 0 &&
+  const hasLabeledTrainingAreas =
+    formData.trainingAreas.length > 0 &&
     formData.trainingAreas.filter(
       (aoi: Feature) => aoi.properties.label_fetched === null,
-    ).length === 0
+    ).length === 0;
 
   // Confirm that all of the training areas has a geometry
-  const hasAOIsWithGeometry = formData.trainingAreas.length > 0 &&
+  const hasAOIsWithGeometry =
+    formData.trainingAreas.length > 0 &&
     formData.trainingAreas.filter((aoi: Feature) => aoi.geometry === null)
-      .length === 0
-
-
+      .length === 0;
 
   const resetState = () => {
     setFormData(initialFormState);

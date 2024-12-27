@@ -4,7 +4,7 @@
 
 body {
   font-family: var(--sl-font-sans);
-  pointer-events:all !important;
+  pointer-events: all !important;
 }
 
 :root,

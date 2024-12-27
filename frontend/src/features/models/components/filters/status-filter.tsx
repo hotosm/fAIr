@@ -58,7 +58,7 @@ const StatusFilter: React.FC<StatusFilterProps> = ({
   ];
   const categoryLabel = statusCategories.filter(
     (status) => status.apiValue === query[SEARCH_PARAMS.status],
-  )
+  );
 
   const { dropdownIsOpened, onDropdownHide, onDropdownShow } =
     useDropdownMenu();

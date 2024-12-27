@@ -95,11 +95,11 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
     if (currentPath.includes(MODELS_ROUTES.DETAILS)) {
       return (
         formData.modelName.length >=
-        FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.MODEL_NAME]
-          .minLength &&
+          FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.MODEL_NAME]
+            .minLength &&
         formData.modelDescription.length >=
-        FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.MODEL_DESCRIPTION]
-          .minLength
+          FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.MODEL_DESCRIPTION]
+            .minLength
       );
     } else if (currentPath.includes(MODELS_ROUTES.TRAINING_DATASET)) {
       // if the user hasn't selected any of the options, then they can not proceed to next page.
@@ -118,8 +118,8 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
         return (
           formData.tmsURLValidation.valid &&
           formData.datasetName.length >=
-          FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.DATASET_NAME]
-            .minLength
+            FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.DATASET_NAME]
+              .minLength
         );
       } else if (
         formData.trainingDatasetOption === TrainingDatasetOption.USE_EXISTING

@@ -1,4 +1,3 @@
-
 import styles from "./header.module.css";
 
 export const Header = ({ title }: { title: string }) => {

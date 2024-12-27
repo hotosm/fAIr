@@ -136,7 +136,7 @@ const TrainingAreaItem: React.FC<
       if (
         getTrainingArea.isError ||
         getTrainingArea.data?.properties.label_status ===
-        LabelStatus.NOT_DOWNLOADED
+          LabelStatus.NOT_DOWNLOADED
       ) {
         handleLabelError();
       } else if (
@@ -335,12 +335,11 @@ const TrainingAreaItem: React.FC<
           trainingAreaId: trainingArea.id,
         }),
     },
-  ]
-
+  ];
 
   const trainingAreaSize = trainingArea.geometry
     ? formatAreaInAppropriateUnit(calculateGeoJSONArea(trainingArea))
-    : "0 m²"
+    : "0 m²";
 
   const fetchStatusInfo = () => {
     if (labelState.isFetching || trainingAreaLabelsMutation.isPending) {
@@ -355,7 +354,7 @@ const TrainingAreaItem: React.FC<
         : "Fetched recently";
     }
     return "No labels yet";
-  }
+  };
 
   return (
     <>

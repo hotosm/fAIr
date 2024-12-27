@@ -31,17 +31,19 @@ const Banner = () => {
     return null;
   }
 
-  return <div className="w-full px-4 py-2 bg-primary flex items-center justify-between">
-    <Markdown
-      remarkPlugins={[remarkGfm]}
-      className="w-full md:text-nowrap prose"
-    >
-      {data?.[0]?.message}
-    </Markdown>
-    <button onClick={handleCloseBanner} className="font-bold  text-white">
-      ✕
-    </button>
-  </div>
+  return (
+    <div className="w-full px-4 py-2 bg-primary flex items-center justify-between">
+      <Markdown
+        remarkPlugins={[remarkGfm]}
+        className="w-full md:text-nowrap prose"
+      >
+        {data?.[0]?.message}
+      </Markdown>
+      <button onClick={handleCloseBanner} className="font-bold  text-white">
+        ✕
+      </button>
+    </div>
+  );
 };
 
 export default Banner;

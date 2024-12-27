@@ -32,7 +32,6 @@ import { useToolTipVisibility } from "@/hooks/use-tooltip-visibility";
 import { useMapLayers } from "@/hooks/use-map-layer";
 import { TerraDraw } from "terra-draw";
 
-
 // Debounce delay in milliseconds.
 const DEBOUNCE_DELAY: number = 300;
 
@@ -290,7 +289,12 @@ const TrainingAreaMap = ({
       return "Zoom in up to zoom 18 to see the fetched labels.";
     }
     return;
-  }, [featureArea, MIN_TRAINING_AREA_SIZE, MAX_TRAINING_AREA_SIZE, showLabelsToolTip])
+  }, [
+    featureArea,
+    MIN_TRAINING_AREA_SIZE,
+    MAX_TRAINING_AREA_SIZE,
+    showLabelsToolTip,
+  ]);
 
   return (
     <MapComponent
@@ -311,22 +315,22 @@ const TrainingAreaMap = ({
       layerControlLayers={[
         ...(data?.results?.features?.length
           ? [
-            {
-              value: "Training Areas",
-              subLayers: [trainingAreasLayerId, trainingAreasFillLayerId],
-            },
-          ]
+              {
+                value: "Training Areas",
+                subLayers: [trainingAreasLayerId, trainingAreasFillLayerId],
+              },
+            ]
           : []),
         ...(labels && labels?.features.length > 0
           ? [
-            {
-              value: "Training Labels",
-              subLayers: [
-                trainingDatasetLabelsLayerId,
-                trainingDatasetLabelsOutlineLayerId,
-              ],
-            },
-          ]
+              {
+                value: "Training Labels",
+                subLayers: [
+                  trainingDatasetLabelsLayerId,
+                  trainingDatasetLabelsOutlineLayerId,
+                ],
+              },
+            ]
           : []),
       ]}
     >

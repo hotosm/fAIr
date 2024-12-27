@@ -39,7 +39,6 @@ export const UserModelsPage = () => {
     updateQuery,
   } = useModelsListFilters(undefined, user?.osm_id);
 
-
   const renderContent = () => {
     if (data?.count === 0) {
       return <ModelNotFound />;

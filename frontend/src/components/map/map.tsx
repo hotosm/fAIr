@@ -69,13 +69,14 @@ export const MapComponent: React.FC<MapComponentProps> = ({
 }) => {
   return (
     <div className={`h-full relative w-full`} ref={mapContainerRef}>
-      {map ?
+      {map ? (
         <>
           <div
-            className={`absolute top-5 ${controlsPosition === ControlsPosition.TOP_RIGHT
-              ? "right-3"
-              : "left-3"
-              } map-elements-z-index flex flex-col gap-y-[1px]`}
+            className={`absolute top-5 ${
+              controlsPosition === ControlsPosition.TOP_RIGHT
+                ? "right-3"
+                : "left-3"
+            } map-elements-z-index flex flex-col gap-y-[1px]`}
           >
             {currentZoom && zoomControls ? (
               <ZoomControls map={map} currentZoom={currentZoom} />
@@ -110,8 +111,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
             )}
           </div>
         </>
-        : null
-      }
+      ) : null}
       {/* Order according to how they'll be rendered */}
       {basemaps && <Basemaps map={map} />}
       {openAerialMap && oamTileJSONURL && (

@@ -7,7 +7,6 @@ import { startMappingPageContent } from "@/constants";
 import { DropdownPlacement, INPUT_TYPES, SHOELACE_SIZES } from "@/enums";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 
-
 const confidenceLevels = [
   {
     name: "25%",
@@ -27,32 +26,32 @@ const confidenceLevels = [
   },
 ];
 
-export const ModelSettings =
-  ({
-    query,
-    updateQuery,
-    isMobile = false,
-  }: {
-    query: TQueryParams;
-    updateQuery: (newParams: TQueryParams) => void;
-    isMobile?: boolean;
-  }) => {
-    const {
-      onDropdownHide: onModelSettingsDropdownHide,
-      onDropdownShow: onModelSettingsDropdownShow,
-      dropdownIsOpened,
-      toggleDropDown,
-    } = useDropdownMenu();
+export const ModelSettings = ({
+  query,
+  updateQuery,
+  isMobile = false,
+}: {
+  query: TQueryParams;
+  updateQuery: (newParams: TQueryParams) => void;
+  isMobile?: boolean;
+}) => {
+  const {
+    onDropdownHide: onModelSettingsDropdownHide,
+    onDropdownShow: onModelSettingsDropdownShow,
+    dropdownIsOpened,
+    toggleDropDown,
+  } = useDropdownMenu();
 
-    const handleQueryUpdate = (key: string, val: number | boolean) => {
-      // Keep the dropdown opened when making changes
-      onModelSettingsDropdownShow();
-      updateQuery({
-        [key]: val,
-      });
-    };
+  const handleQueryUpdate = (key: string, val: number | boolean) => {
+    // Keep the dropdown opened when making changes
+    onModelSettingsDropdownShow();
+    updateQuery({
+      [key]: val,
+    });
+  };
 
-    const modelSettings = <div className="flex flex-col bg-white p-3 justify-between rounded-xl flex-wrap gap-y-4">
+  const modelSettings = (
+    <div className="flex flex-col bg-white p-3 justify-between rounded-xl flex-wrap gap-y-4">
       <div className="flex gap-x-2 justify-between">
         <FormLabel
           label={startMappingPageContent.settings.useJOSMQ.label}
@@ -71,9 +70,7 @@ export const ModelSettings =
         <FormLabel
           label={startMappingPageContent.settings.confidence.label}
           withTooltip
-          toolTipContent={
-            startMappingPageContent.settings.confidence.tooltip
-          }
+          toolTipContent={startMappingPageContent.settings.confidence.tooltip}
           position="left"
         />
         <Select
@@ -93,9 +90,7 @@ export const ModelSettings =
         <FormLabel
           label={startMappingPageContent.settings.tolerance.label}
           withTooltip
-          toolTipContent={
-            startMappingPageContent.settings.tolerance.tooltip
-          }
+          toolTipContent={startMappingPageContent.settings.tolerance.tooltip}
           position="left"
         />
         <Input
@@ -130,41 +125,38 @@ export const ModelSettings =
           type={INPUT_TYPES.NUMBER}
           showBorder
           handleInput={(event) =>
-            handleQueryUpdate(
-              SEARCH_PARAMS.area,
-              Number(event.target.value),
-            )
+            handleQueryUpdate(SEARCH_PARAMS.area, Number(event.target.value))
           }
           min={0}
         />
       </div>
     </div>
+  );
 
-    if (!isMobile) {
-      return (
-        <DropDown
-          placement={DropdownPlacement.TOP_END}
-          distance={40}
-          disableCheveronIcon
-          dropdownIsOpened={dropdownIsOpened}
-          onDropdownHide={onModelSettingsDropdownHide}
-          onDropdownShow={onModelSettingsDropdownShow}
-          triggerComponent={
-            <ToolTip content={startMappingPageContent.settings.tooltip}>
-              <button
-                className={`p-1.5 flex items-center hover:icon-interaction ${dropdownIsOpened && "icon-interaction"}`}
-                onClick={toggleDropDown}
-              >
-                <SettingsIcon className="icon text-gray" />
-              </button>
-            </ToolTip>
-          }
-          className="rounded-xl"
-        >
-          {modelSettings}
-        </DropDown>
-      );
-    }
-    return modelSettings;
+  if (!isMobile) {
+    return (
+      <DropDown
+        placement={DropdownPlacement.TOP_END}
+        distance={40}
+        disableCheveronIcon
+        dropdownIsOpened={dropdownIsOpened}
+        onDropdownHide={onModelSettingsDropdownHide}
+        onDropdownShow={onModelSettingsDropdownShow}
+        triggerComponent={
+          <ToolTip content={startMappingPageContent.settings.tooltip}>
+            <button
+              className={`p-1.5 flex items-center hover:icon-interaction ${dropdownIsOpened && "icon-interaction"}`}
+              onClick={toggleDropDown}
+            >
+              <SettingsIcon className="icon text-gray" />
+            </button>
+          </ToolTip>
+        }
+        className="rounded-xl"
+      >
+        {modelSettings}
+      </DropDown>
+    );
   }
-  ;
+  return modelSettings;
+};

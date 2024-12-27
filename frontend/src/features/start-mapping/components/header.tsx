@@ -103,8 +103,8 @@ const StartMappingHeader = ({
                   content={
                     !modelPredictionsExist
                       ? startMappingPageContent.actions.disabledModeTooltip(
-                        "see actions",
-                      )
+                          "see actions",
+                        )
                       : null
                   }
                 >

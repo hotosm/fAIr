@@ -30,6 +30,6 @@ export const useDropdownMenu = () => {
     }
   }, [isOpened]);
 
-  const dropdownIsOpened = isOpened
+  const dropdownIsOpened = isOpened;
   return { onDropdownHide, onDropdownShow, dropdownIsOpened, toggleDropDown };
 };

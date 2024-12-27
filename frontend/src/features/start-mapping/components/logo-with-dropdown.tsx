@@ -10,19 +10,15 @@ type BrandLogoWithDropDownProps = {
   isOpened: boolean;
   onClose: () => void;
   onShow: () => void;
-}
-
+};
 
 export const BrandLogoWithDropDown = function BrandLogoWithDropDown({
   isOpened,
   onClose,
   onShow,
 }: BrandLogoWithDropDownProps) {
-
   const navItems = navLinks.map((link, id) => (
-    <li
-      key={`${link.title}-${id}`}
-    >
+    <li key={`${link.title}-${id}`}>
       <Link
         disableLinkStyle
         title={link.title}
@@ -33,9 +29,9 @@ export const BrandLogoWithDropDown = function BrandLogoWithDropDown({
         {link.title}
       </Link>
     </li>
-  ))
+  ));
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   return (
     <DropDown
       placement={DropdownPlacement.BOTTOM_START}

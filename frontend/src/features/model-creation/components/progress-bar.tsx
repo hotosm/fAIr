@@ -10,7 +10,11 @@ type ProgressBarProps = {
   pages: { id: number; title: string; icon: React.ElementType; path: string }[];
 };
 
-const ProgressBar: React.FC<ProgressBarProps> = ({ currentPath, currentPageIndex, pages }) => {
+const ProgressBar: React.FC<ProgressBarProps> = ({
+  currentPath,
+  currentPageIndex,
+  pages,
+}) => {
   const navigate = useNavigate();
   const { getFullPath, isEditMode } = useModelsContext();
   const activeStepRef = useRef<HTMLButtonElement | null>(null);
@@ -57,9 +61,10 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ currentPath, currentPageIndex
             ) : (
               <span
                 className={cn(
-                  `rounded-full flex items-center justify-center w-9 h-9 ${activeStep
-                    ? "outline-dashed outline-2 outline-offset-2 outline-primary bg-primary"
-                    : "bg-gray"
+                  `rounded-full flex items-center justify-center w-9 h-9 ${
+                    activeStep
+                      ? "outline-dashed outline-2 outline-offset-2 outline-primary bg-primary"
+                      : "bg-gray"
                   }`,
                 )}
               >

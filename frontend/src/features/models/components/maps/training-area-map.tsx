@@ -81,7 +81,7 @@ export const TrainingAreaMap = ({
 
   const tileJSONURL = extractTileJSONURL(tmsURL);
 
-  const trainingAreasSourceId = `training-areas-for-${trainingAreaId}`
+  const trainingAreasSourceId = `training-areas-for-${trainingAreaId}`;
 
   const mapLayers: LayerSpecification[] = vectorLayers.flatMap((layer) => {
     const { fill, outline } = getLayerConfigs(layer.id);
@@ -105,7 +105,6 @@ export const TrainingAreaMap = ({
     ];
   });
 
-
   const sources = [
     {
       id: trainingAreasSourceId,
@@ -114,13 +113,12 @@ export const TrainingAreaMap = ({
         url: `pmtiles://${file}`,
       } as SourceSpecification,
     },
-  ]
+  ];
 
   const layerControlLayers = vectorLayers.map((layer) => ({
     value: `Training ${layer.id}`,
     subLayers: [`${layer.id}_fill`, `${layer.id}_outline`],
-  }))
-
+  }));
 
   const fitToBounds = useCallback(() => {
     if (
@@ -172,15 +170,15 @@ export const TrainingAreaMap = ({
                         <table>
                             <tbody>
                                 ${Object.entries(feature.properties)
-            .map(
-              ([key, value]) => `
+                                  .map(
+                                    ([key, value]) => `
                                     <tr>
                                         <td class="text-gray">${key}</td>
                                         <td class="font-semibold text-dark">${typeof value === "boolean" ? JSON.stringify(value) : value}</td>
                                     </tr>
                                 `,
-            )
-            .join("")}
+                                  )
+                                  .join("")}
                             </tbody>
                         </table>
                     </div>

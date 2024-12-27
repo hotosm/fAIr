@@ -56,6 +56,6 @@ export enum DrawerPlacements {
 
 export enum DropdownPlacement {
   BOTTOM_START = "bottom-start",
-  BOTTOM_END = 'bottom-end',
-  TOP_END = 'top-end'
+  BOTTOM_END = "bottom-end",
+  TOP_END = "top-end",
 }

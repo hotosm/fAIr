@@ -171,7 +171,7 @@ export const useModelsListFilters = (
     setQuery(newQuery);
   }, []);
 
-  const mapViewIsActive = query[SEARCH_PARAMS.mapIsActive]
+  const mapViewIsActive = query[SEARCH_PARAMS.mapIsActive];
 
   const clearAllFilters = useCallback(() => {
     const resetParams = new URLSearchParams();

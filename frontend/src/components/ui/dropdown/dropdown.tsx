@@ -18,7 +18,7 @@ export type DropdownMenuItem = {
 };
 
 type DropDownProps = {
-  placement?: DropdownPlacement
+  placement?: DropdownPlacement;
   children?: React.ReactNode;
   onDropdownShow?: (event: React.MouseEvent<HTMLDivElement>) => void;
   onDropdownHide?: (event: React.MouseEvent<HTMLDivElement>) => void;

@@ -39,7 +39,6 @@ const TrainingAreaList = ({
     refetchInterval: OSM_LAST_UPDATED_POOLING_INTERVAL_MS,
   });
 
-
   return (
     <div className="flex max-h-[60%] flex-col gap-y-4 justify-between p-2 lg:p-4">
       <div className="flex items-start w-full flex-col gap-y-4">

@@ -285,16 +285,18 @@ export const StartMappingMapComponent = ({
       basemaps
       showCurrentZoom={!isSmallViewport}
     >
-      {showPopup && <PredictedFeatureActionPopup
-        event={selectedEvent}
-        selectedFeature={selectedFeature}
-        setModelPredictions={setModelPredictions}
-        modelPredictions={modelPredictions}
-        source_imagery={trainingDataset?.source_imagery as string}
-        trainingId={trainingDataset?.id as number}
-        trainingConfig={trainingConfig}
-        map={map}
-      />}
+      {showPopup && (
+        <PredictedFeatureActionPopup
+          event={selectedEvent}
+          selectedFeature={selectedFeature}
+          setModelPredictions={setModelPredictions}
+          modelPredictions={modelPredictions}
+          source_imagery={trainingDataset?.source_imagery as string}
+          trainingId={trainingDataset?.id as number}
+          trainingConfig={trainingConfig}
+          map={map}
+        />
+      )}
       <MapCursorToolTip
         tooltipVisible={showTooltip && !isSmallViewport}
         color={"bg-primary"}

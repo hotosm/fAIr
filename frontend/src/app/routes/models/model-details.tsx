@@ -11,7 +11,7 @@ import { ModelFilesDialog } from "@/features/models/components/dialogs";
 import { ModelDetailsSkeleton } from "@/features/models/components/skeletons";
 import { useModelDetails } from "@/features/models/hooks/use-models";
 import { useDialog } from "@/hooks/use-dialog";
-import { APP_CONTENT, } from "@/utils";
+import { APP_CONTENT } from "@/utils";
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Image } from "@/components/ui/image";

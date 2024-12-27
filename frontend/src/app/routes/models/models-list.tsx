@@ -69,7 +69,6 @@ export const ModelsPage = () => {
     isError: modelsMapDataIsError,
   } = useModelsMapData();
 
-
   // Mapview toggling interaction
   useEffect(() => {
     if (mapViewIsActive) {
