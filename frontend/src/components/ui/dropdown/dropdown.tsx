@@ -51,7 +51,6 @@ const DropDown: React.FC<DropDownProps> = ({
   defaultSelectedItems = [],
   defaultSelectedItem = "",
   multiSelect = false,
-
   triggerComponent,
   distance = 20,
   disableCheveronIcon = false,

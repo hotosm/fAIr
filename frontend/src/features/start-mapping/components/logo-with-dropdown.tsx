@@ -1,4 +1,3 @@
-import { memo } from "react";
 import { DropDown } from "@/components/ui/dropdown";
 import { NavLogo } from "@/components/layout";
 import { Divider } from "@/components/ui/divider";
@@ -14,7 +13,7 @@ type BrandLogoWithDropDownProps = {
 }
 
 
-export const BrandLogoWithDropDown = memo(function BrandLogoWithDropDown({
+export const BrandLogoWithDropDown = function BrandLogoWithDropDown({
   isOpened,
   onClose,
   onShow,
@@ -63,4 +62,4 @@ export const BrandLogoWithDropDown = memo(function BrandLogoWithDropDown({
       </div>
     </DropDown>
   );
-});
+};

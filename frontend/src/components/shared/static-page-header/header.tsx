@@ -1,7 +1,7 @@
-import React from "react";
+
 import styles from "./header.module.css";
 
-export const Header = React.memo(({ title }: { title: string }) => {
+export const Header = ({ title }: { title: string }) => {
   return (
     <header
       className={`${styles.headerBackground} h-44 bg-dark flex flex-col md:flex-row fullscreen px-large lg:px-extra-large md:items-end  py-6 justify-between relative`}
@@ -15,9 +15,9 @@ export const Header = React.memo(({ title }: { title: string }) => {
       </div>
     </header>
   );
-});
+};
 
-const Rectangles = React.memo(() => {
+const Rectangles = () => {
   return (
     <div className="relative w-36 md:w-40 h-16 md:h-20  self-end">
       <div className="absolute w-36 md:w-40 h-2 top-0 bg-primary"></div>
@@ -26,4 +26,4 @@ const Rectangles = React.memo(() => {
       <div className="absolute -bottom-2 w-24 h-10 -left-24 bg-secondary"></div>
     </div>
   );
-});
+};

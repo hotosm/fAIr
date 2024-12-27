@@ -34,7 +34,7 @@ import {
   useGetTrainingAreaLabelsFromOSM,
 } from "@/features/model-creation/hooks/use-training-areas";
 import { useModelsContext } from "@/app/providers/models-provider";
-import { memo, useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import FileUploadDialog from "@/features/model-creation/components/dialogs/file-upload-dialog";
 import { useDialog } from "@/hooks/use-dialog";
 import { geojsonToWKT } from "@terraformer/wkt";
@@ -72,7 +72,7 @@ const TrainingAreaItem: React.FC<
     offset: number;
     map: Map | null;
   }
-> = memo(({ datasetId, offset, map, ...trainingArea }) => {
+> = ({ datasetId, offset, map, ...trainingArea }) => {
   const initialLabelState: LabelState = {
     isFetching: false,
     error: false,
@@ -447,6 +447,6 @@ const TrainingAreaItem: React.FC<
       </div>
     </>
   );
-});
+};
 
 export default TrainingAreaItem;

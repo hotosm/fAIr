@@ -4,10 +4,9 @@ import { Accordion } from "@/components/ui/accordion";
 import { Link } from "@/components/ui/link";
 import { APPLICATION_ROUTES } from "@/utils";
 import { TFAQs } from "@/types";
-import React from "react";
 import { ChevronDownIcon } from "@/components/ui/icons";
 
-export const FAQs = React.memo(
+export const FAQs =
   ({
     faqs = APP_CONTENT.homepage.faqs.content,
     disableSeeMoreButton,
@@ -47,4 +46,4 @@ export const FAQs = React.memo(
       </section>
     );
   },
-);
+

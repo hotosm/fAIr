@@ -6,7 +6,7 @@ import { ToolTip } from "@/components/ui/tooltip";
 import { startMappingPageContent } from "@/constants";
 import { DropdownPlacement, INPUT_TYPES, SHOELACE_SIZES } from "@/enums";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
-import { memo } from "react";
+
 
 const confidenceLevels = [
   {
@@ -27,7 +27,7 @@ const confidenceLevels = [
   },
 ];
 
-export const ModelSettings = memo(
+export const ModelSettings =
   ({
     query,
     updateQuery,
@@ -166,5 +166,5 @@ export const ModelSettings = memo(
       );
     }
     return modelSettings;
-  },
-);
+  }
+  ;
