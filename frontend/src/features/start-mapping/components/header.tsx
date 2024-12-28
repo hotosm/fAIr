@@ -110,8 +110,8 @@ const StartMappingHeader = ({
                   content={
                     !modelPredictionsExist
                       ? START_MAPPING_PAGE_CONTENT.actions.disabledModeTooltip(
-                          "see actions",
-                        )
+                        "see actions",
+                      )
                       : null
                   }
                 >
@@ -121,7 +121,7 @@ const StartMappingHeader = ({
                     suffixIcon={ChevronDownIcon}
                     label={START_MAPPING_PAGE_CONTENT.buttons.download.label}
                     size={SHOELACE_SIZES.SMALL}
-                    className="text-body-3"
+                    textClassName="text-body-3"
                     variant="secondary"
                     disabled={!modelPredictionsExist}
                     iconClassName={
