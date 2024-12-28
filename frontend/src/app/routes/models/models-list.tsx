@@ -21,7 +21,7 @@ import {
   SearchFilter,
 } from "@/features/models/components/filters";
 import { Pagination, PAGE_LIMIT } from "@/components/shared";
-import { APP_CONTENT } from "@/utils";
+
 import { PageHeader } from "@/features/models/components/";
 import { FeatureCollection } from "@/types";
 import ModelNotFound from "@/features/models/components/model-not-found";
@@ -33,6 +33,7 @@ import {
   useScrollToElement,
   useScrollToTop,
 } from "@/hooks/use-scroll-to-element";
+import { MODELS_CONTENT } from "@/constants";
 
 export const SEARCH_PARAMS = {
   startDate: "start_date",
@@ -191,7 +192,7 @@ export const ModelsPage = () => {
                 <p className="font-semibold text-body-3">
                   {data?.count}{" "}
                   {
-                    APP_CONTENT.models.modelsList.sortingAndPaginationSection
+                    MODELS_CONTENT.models.modelsList.sortingAndPaginationSection
                       .modelCountSuffix
                   }
                 </p>

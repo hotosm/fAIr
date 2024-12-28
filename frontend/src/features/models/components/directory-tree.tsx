@@ -5,13 +5,8 @@ import {
   SlTreeItem,
 } from "@shoelace-style/shoelace/dist/react";
 import { useState, useEffect } from "react";
-import {
-  APP_CONTENT,
-  showErrorToast,
-  showSuccessToast,
-  truncateString,
-} from "@/utils";
-import { TOAST_NOTIFICATIONS } from "@/constants";
+import { showErrorToast, showSuccessToast, truncateString } from "@/utils";
+import { MODELS_CONTENT, TOAST_NOTIFICATIONS } from "@/constants";
 import { useQueryClient } from "@tanstack/react-query";
 import { getTrainingWorkspaceQueryOptions } from "@/features/models/api/factory";
 import { API_ENDPOINTS, apiClient } from "@/services";
@@ -245,7 +240,9 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
   if (isLoading) return <DirectoryLoadingSkeleton />;
   if (hasError)
     return (
-      <div>{APP_CONTENT.models.modelsDetailsCard.modelFilesDialog.error}</div>
+      <div>
+        {MODELS_CONTENT.models.modelsDetailsCard.modelFilesDialog.error}
+      </div>
     );
 
   return (
@@ -253,7 +250,10 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
       <SlTreeItem key="root">
         <DirectoryIcon className="w-4 h-4 mr-2" />
         <span>
-          {APP_CONTENT.models.modelsDetailsCard.modelFilesDialog.rootDirectory}
+          {
+            MODELS_CONTENT.models.modelsDetailsCard.modelFilesDialog
+              .rootDirectory
+          }
         </span>
         {directoryTree && renderTreeItems(directoryTree)}
       </SlTreeItem>

@@ -10,7 +10,7 @@ import {
   TRAINING_AREAS_AOI_FILL_OPACITY,
   TRAINING_AREAS_AOI_OUTLINE_COLOR,
   TRAINING_AREAS_AOI_OUTLINE_WIDTH,
-} from "@/utils";
+} from "@/constants";
 
 export const setupTerraDraw = (map: maplibregl.Map) => {
   return new TerraDraw({

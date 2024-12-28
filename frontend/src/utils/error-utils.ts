@@ -1,7 +1,7 @@
 // errorHandlers.ts
 import axios from "axios";
 import { NavigateFunction } from "react-router-dom";
-import { APPLICATION_ROUTES } from "@/utils";
+import { APPLICATION_ROUTES } from "@/constants";
 
 export const handleErrorNavigation = (
   error: unknown,

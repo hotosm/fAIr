@@ -1,4 +1,4 @@
-import { APPLICATION_ROUTES } from "@/utils";
+import { APPLICATION_ROUTES } from "@/constants";
 import {
   Navigate,
   RouterProvider,

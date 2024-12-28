@@ -1,14 +1,15 @@
 import styles from "./core-values.module.css";
-import { APP_CONTENT } from "@/utils/content";
+
 import { Image } from "@/components/ui/image";
 import { HOTTeam, MapathonOngoing } from "@/assets/images";
 import { DashedLineConnector } from "@/assets/svgs";
+import { SHARED_CONTENT } from "@/constants";
 
 export const Corevalues = () => {
   return (
     <section className={styles.coreValues}>
       <div className={styles.sectionTitle}>
-        <h1>{APP_CONTENT.homepage.coreValues.sectionTitle.firstSegment}</h1>
+        <h1>{SHARED_CONTENT.homepage.coreValues.sectionTitle.firstSegment}</h1>
 
         <span className={styles.svgContainer}>
           <svg
@@ -35,21 +36,21 @@ export const Corevalues = () => {
             />
           </svg>
           <h1 className={styles.svgText}>
-            {APP_CONTENT.homepage.coreValues.sectionTitle.secondSegment}
+            {SHARED_CONTENT.homepage.coreValues.sectionTitle.secondSegment}
           </h1>
         </span>
 
         <h1>
           <strong>
-            {APP_CONTENT.homepage.coreValues.sectionTitle.thirdSegment}
+            {SHARED_CONTENT.homepage.coreValues.sectionTitle.thirdSegment}
           </strong>
         </h1>
         <h1 className={`${styles.stretch}`}>
-          {APP_CONTENT.homepage.coreValues.sectionTitle.fourthSegment}
+          {SHARED_CONTENT.homepage.coreValues.sectionTitle.fourthSegment}
         </h1>
         <h1>
           <strong>
-            {APP_CONTENT.homepage.coreValues.sectionTitle.fifthSegment}
+            {SHARED_CONTENT.homepage.coreValues.sectionTitle.fifthSegment}
           </strong>
         </h1>
       </div>
@@ -57,13 +58,13 @@ export const Corevalues = () => {
         {/* Community Driven */}
         <div className={`${styles.section} ${styles.community}`}>
           <div className={styles.textBlock}>
-            <h2>{APP_CONTENT.homepage.coreValues.community.title}</h2>
-            <p>{APP_CONTENT.homepage.coreValues.community.description}</p>
+            <h2>{SHARED_CONTENT.homepage.coreValues.community.title}</h2>
+            <p>{SHARED_CONTENT.homepage.coreValues.community.description}</p>
           </div>
           <div className={styles.imageBlock}>
             <Image
               src={HOTTeam}
-              alt={APP_CONTENT.homepage.coreValues.community.title}
+              alt={SHARED_CONTENT.homepage.coreValues.community.title}
               className={styles.image}
             />
             {/* The rectangles */}
@@ -84,15 +85,17 @@ export const Corevalues = () => {
         {/* Humans not replaced */}
         <div className={`${styles.section} ${styles.humans}`}>
           <div className={styles.textBlock}>
-            <h2>{APP_CONTENT.homepage.coreValues.humansNotReplaced.title}</h2>
+            <h2>
+              {SHARED_CONTENT.homepage.coreValues.humansNotReplaced.title}
+            </h2>
             <p>
-              {APP_CONTENT.homepage.coreValues.humansNotReplaced.description}
+              {SHARED_CONTENT.homepage.coreValues.humansNotReplaced.description}
             </p>
           </div>
           <div className={styles.imageBlock}>
             <Image
               src={MapathonOngoing}
-              alt={APP_CONTENT.homepage.coreValues.humansNotReplaced.title}
+              alt={SHARED_CONTENT.homepage.coreValues.humansNotReplaced.title}
               className={styles.image}
             />
             {/* The rectangles */}

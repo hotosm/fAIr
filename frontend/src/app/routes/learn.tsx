@@ -8,7 +8,7 @@ import { Link } from "@/components/ui/link";
 import { SHOELACE_SIZES } from "@/enums";
 import { Head } from "@/components/seo";
 import { useState } from "react";
-import { learnPageContent } from "@/constants";
+import { LEARN_PAGE_CONTENT } from "@/constants";
 import { TGuide, TVideo } from "@/types";
 import { JumbotronBackgroundImage } from "@/assets/images";
 import { fAIrValues } from "@/assets/svgs";
@@ -16,27 +16,27 @@ import { fAIrValues } from "@/assets/svgs";
 export const LearnPage = () => {
   return (
     <main className="static-page-layout">
-      <Head title={learnPageContent.pageTitle} />
-      <Header title={learnPageContent.pageHeader} />
+      <Head title={LEARN_PAGE_CONTENT.pageTitle} />
+      <Header title={LEARN_PAGE_CONTENT.pageHeader} />
       <section className="flex flex-col md:flex-row gap-y-20 justify-between items-center">
         <div className="flex flex-col gap-y-8 basis-1/2">
           <h1 className="font-semibold text-title-2 xl:text-title-1">
-            {learnPageContent.heroHeading.firstSegment}{" "}
+            {LEARN_PAGE_CONTENT.heroHeading.firstSegment}{" "}
             <span className="text-primary">
-              {learnPageContent.heroHeading.secondSegment}
+              {LEARN_PAGE_CONTENT.heroHeading.secondSegment}
             </span>{" "}
-            {learnPageContent.heroHeading.thirdSegment}{" "}
+            {LEARN_PAGE_CONTENT.heroHeading.thirdSegment}{" "}
             <span className="text-primary">
-              {learnPageContent.heroHeading.fourthSegment}
+              {LEARN_PAGE_CONTENT.heroHeading.fourthSegment}
             </span>{" "}
-            {learnPageContent.heroHeading.fifthSegment}{" "}
+            {LEARN_PAGE_CONTENT.heroHeading.fifthSegment}{" "}
             <span className="text-primary">
-              {learnPageContent.heroHeading.sixthSegment}
+              {LEARN_PAGE_CONTENT.heroHeading.sixthSegment}
             </span>{" "}
-            {learnPageContent.heroHeading.seventhSegment}
+            {LEARN_PAGE_CONTENT.heroHeading.seventhSegment}
           </h1>
           <p className="text-body-2base md:text-body-2">
-            {learnPageContent.heroDescription}
+            {LEARN_PAGE_CONTENT.heroDescription}
           </p>
         </div>
         <div className="w-[284px] h-[203px] md:w-[401px] md:h-[286px]">
@@ -50,18 +50,18 @@ export const LearnPage = () => {
       </section>
       <TheFAIRProcess disableStyle />
       <section>
-        <SectionHeader title={learnPageContent.sectionHeaders.guides} />
+        <SectionHeader title={LEARN_PAGE_CONTENT.sectionHeaders.guides} />
         <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-10 lg:gap-16 relative mb-10">
-          {learnPageContent.guides.map((guide, id) => (
+          {LEARN_PAGE_CONTENT.guides.map((guide, id) => (
             <GuideCard guide={guide} key={id} />
           ))}
           <div className="absolute inset-0 bg-light-gray h-full w-full top-12 left-4 md:left-8"></div>
         </div>
       </section>
       <section>
-        <SectionHeader title={learnPageContent.sectionHeaders.videos} />
+        <SectionHeader title={LEARN_PAGE_CONTENT.sectionHeaders.videos} />
         <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-y-20 md:gap-x-6">
-          {learnPageContent.videos.map((video, id) => (
+          {LEARN_PAGE_CONTENT.videos.map((video, id) => (
             <VideoCard video={video} key={id} />
           ))}
         </div>

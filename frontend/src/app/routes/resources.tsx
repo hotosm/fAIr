@@ -1,7 +1,7 @@
 import { FAQs, SectionHeader } from "@/components/shared";
 import { Head } from "@/components/seo";
 import { Header } from "@/components/shared";
-import { resourcesPageContent } from "@/constants";
+import { RESOURCES_PAGE_CONTENT } from "@/constants";
 import { TArticle } from "@/types";
 import { Image } from "@/components/ui/image";
 import { ChevronDownIcon } from "@/components/ui/icons";
@@ -11,26 +11,26 @@ import { truncateString } from "@/utils";
 export const ResourcesPage = () => {
   return (
     <main className="static-page-layout">
-      <Head title={resourcesPageContent.pageTitle} />
-      <Header title={resourcesPageContent.pageHeader} />
+      <Head title={RESOURCES_PAGE_CONTENT.pageTitle} />
+      <Header title={RESOURCES_PAGE_CONTENT.pageHeader} />
       <section className="flex flex-col md:flex-row gap-y-20 justify-between items-center">
         <div className="flex flex-col gap-y-8 basis-1/2">
           <h1 className="font-semibold text-title-2 xl:text-title-1">
-            {resourcesPageContent.hero.firstSegment}{" "}
+            {RESOURCES_PAGE_CONTENT.hero.firstSegment}{" "}
             <span className="text-primary">
-              {resourcesPageContent.hero.secondSegment}
+              {RESOURCES_PAGE_CONTENT.hero.secondSegment}
             </span>{" "}
-            {resourcesPageContent.hero.thirdSegment}{" "}
+            {RESOURCES_PAGE_CONTENT.hero.thirdSegment}{" "}
           </h1>
         </div>
       </section>
       <section>
-        <FAQs faqs={resourcesPageContent.faqs.faqs} disableSeeMoreButton />
+        <FAQs faqs={RESOURCES_PAGE_CONTENT.faqs.faqs} disableSeeMoreButton />
       </section>
       <section>
-        <SectionHeader title={resourcesPageContent.articles.title} />
+        <SectionHeader title={RESOURCES_PAGE_CONTENT.articles.title} />
         <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-x-7 gap-y-10">
-          {resourcesPageContent.articles.articles.map((article, id) => (
+          {RESOURCES_PAGE_CONTENT.articles.articles.map((article, id) => (
             <ArticleCard article={article} key={id} />
           ))}
         </div>

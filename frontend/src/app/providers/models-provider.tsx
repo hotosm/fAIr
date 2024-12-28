@@ -1,9 +1,7 @@
 import { BASE_MODELS, TrainingType, TrainingDatasetOption } from "@/enums";
 import { useCreateTrainingDataset } from "@/features/model-creation/hooks/use-training-datasets";
+import { APPLICATION_ROUTES, MODELS_BASE, MODELS_ROUTES } from "@/constants";
 import {
-  APPLICATION_ROUTES,
-  MODELS_BASE,
-  MODELS_ROUTES,
   showErrorToast,
   showSuccessToast,
   TMS_URL_REGEX_PATTERN,

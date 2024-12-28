@@ -14,16 +14,18 @@ import {
   formatDuration,
   geoJSONDowloader,
   getGeoJSONFeatureBounds,
-  MODEL_CREATION_CONTENT,
   openInIDEditor,
   openInJOSM,
   showErrorToast,
   showSuccessToast,
   showWarningToast,
-  TRAINING_AREA_LABELS_FETCH_POOLING_TIME_MS,
   truncateString,
 } from "@/utils";
-import { TOAST_NOTIFICATIONS } from "@/constants";
+import {
+  MODELS_CONTENT,
+  TOAST_NOTIFICATIONS,
+  TRAINING_AREA_LABELS_FETCH_POOLING_TIME_MS,
+} from "@/constants";
 import { ToolTip } from "@/components/ui/tooltip";
 import { GeoJSONType, Geometry, TTrainingAreaFeature } from "@/types";
 import {
@@ -274,14 +276,15 @@ const TrainingAreaItem: React.FC<
 
   const dropdownMenuItems = [
     {
-      tooltip: MODEL_CREATION_CONTENT.trainingArea.toolTips.openINJOSM,
+      tooltip: MODELS_CONTENT.modelCreation.trainingArea.toolTips.openINJOSM,
       isIcon: false,
       imageSrc: JOSMLogo,
       onClick: () =>
         openInJOSM(formData.oamTileName, formData.tmsURL, [trainingArea]),
     },
     {
-      tooltip: MODEL_CREATION_CONTENT.trainingArea.toolTips.openInIdEditor,
+      tooltip:
+        MODELS_CONTENT.modelCreation.trainingArea.toolTips.openInIdEditor,
       isIcon: false,
       imageSrc: OSMLogo,
       onClick: () =>
@@ -296,7 +299,7 @@ const TrainingAreaItem: React.FC<
         ),
     },
     {
-      tooltip: MODEL_CREATION_CONTENT.trainingArea.toolTips.downloadAOI,
+      tooltip: MODELS_CONTENT.modelCreation.trainingArea.toolTips.downloadAOI,
       isIcon: true,
       Icon: CloudDownloadIcon,
       onClick: () => {
@@ -306,7 +309,8 @@ const TrainingAreaItem: React.FC<
       },
     },
     {
-      tooltip: MODEL_CREATION_CONTENT.trainingArea.toolTips.downloadLabels,
+      tooltip:
+        MODELS_CONTENT.modelCreation.trainingArea.toolTips.downloadLabels,
       isIcon: true,
       Icon: CloudDownloadIcon,
       onClick: async () => {
@@ -320,13 +324,13 @@ const TrainingAreaItem: React.FC<
       },
     },
     {
-      tooltip: MODEL_CREATION_CONTENT.trainingArea.toolTips.uploadLabels,
+      tooltip: MODELS_CONTENT.modelCreation.trainingArea.toolTips.uploadLabels,
       isIcon: true,
       Icon: UploadIcon,
       onClick: openDialog,
     },
     {
-      tooltip: MODEL_CREATION_CONTENT.trainingArea.toolTips.deleteAOI,
+      tooltip: MODELS_CONTENT.modelCreation.trainingArea.toolTips.deleteAOI,
       isIcon: true,
       Icon: DeleteIcon,
       isDelete: true,
@@ -384,7 +388,7 @@ const TrainingAreaItem: React.FC<
         <div className="flex items-center gap-x-3">
           <ToolTip
             content={
-              MODEL_CREATION_CONTENT.trainingArea.toolTips.fetchOSMLabels
+              MODELS_CONTENT.modelCreation.trainingArea.toolTips.fetchOSMLabels
             }
           >
             <button
@@ -398,7 +402,9 @@ const TrainingAreaItem: React.FC<
             </button>
           </ToolTip>
           <ToolTip
-            content={MODEL_CREATION_CONTENT.trainingArea.toolTips.zoomToAOI}
+            content={
+              MODELS_CONTENT.modelCreation.trainingArea.toolTips.zoomToAOI
+            }
           >
             <button
               className="bg-off-white px-2 py-1 rounded-md"

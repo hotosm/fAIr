@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Map } from "maplibre-gl";
-import { TILE_BOUNDARY_LAYER_ID, TMS_LAYER_ID } from "@/utils";
+import { TILE_BOUNDARY_LAYER_ID, TMS_LAYER_ID } from "@/constants";
 
 type UseLayerReorderProps = {
   /** IDs of all feature layers. (We want them above TMS.) */

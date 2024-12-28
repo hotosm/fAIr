@@ -2,7 +2,7 @@ import { DropDown } from "@/components/ui/dropdown";
 import { NavLogo } from "@/components/layout";
 import { Divider } from "@/components/ui/divider";
 import { Link } from "@/components/ui/link";
-import { navLinks } from "@/constants/common";
+import { navLinks } from "@/constants/general";
 import { DropdownPlacement } from "@/enums";
 import { useNavigate } from "react-router-dom";
 

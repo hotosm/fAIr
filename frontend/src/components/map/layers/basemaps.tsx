@@ -2,7 +2,7 @@ import { useMapLayers } from "@/hooks/use-map-layer";
 import {
   GOOGLE_SATELLITE_BASEMAP_LAYER_ID,
   GOOGLE_SATELLITE_BASEMAP_SOURCE_ID,
-} from "@/utils";
+} from "@/constants";
 import { Map } from "maplibre-gl";
 
 export const Basemaps = ({ map }: { map: Map | null }) => {

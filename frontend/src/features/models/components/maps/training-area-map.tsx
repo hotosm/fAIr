@@ -12,6 +12,10 @@ import {
 import {
   extractTileJSONURL,
   showErrorToast,
+  addLayers,
+  addSources,
+} from "@/utils";
+import {
   TRAINING_AREAS_AOI_FILL_COLOR,
   TRAINING_AREAS_AOI_FILL_OPACITY,
   TRAINING_AREAS_AOI_LABELS_FILL_COLOR,
@@ -20,10 +24,8 @@ import {
   TRAINING_AREAS_AOI_LABELS_OUTLINE_WIDTH,
   TRAINING_AREAS_AOI_OUTLINE_COLOR,
   TRAINING_AREAS_AOI_OUTLINE_WIDTH,
-} from "@/utils";
-
-import { errorMessages } from "@/constants";
-import { addLayers, addSources } from "@/utils/map-utils";
+  errorMessages,
+} from "@/constants";
 import { useMapInstance } from "@/hooks/use-map-instance";
 
 type Metadata = {

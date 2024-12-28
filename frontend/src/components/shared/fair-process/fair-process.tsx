@@ -10,7 +10,7 @@ import { AnimatedBeam } from "@/components/ui/animated-beam";
 import { BotIcon, FeedbackIcon, PredictionsIcon } from "@/components/ui/icons";
 import { IconProps } from "@/types";
 import { DesktopFlowIcon } from "@/components/ui/icons";
-import { APP_CONTENT } from "@/utils/content";
+import { SHARED_CONTENT } from "@/constants";
 
 /**
  * The delay in seconds before switching to the next step. This can be adjust accordingly.
@@ -26,23 +26,23 @@ type TSteps = {
 
 const steps: TSteps[] = [
   {
-    title: APP_CONTENT.homepage.fairProcess.stepOne.title,
-    paragraph: APP_CONTENT.homepage.fairProcess.stepOne.description,
+    title: SHARED_CONTENT.homepage.fairProcess.stepOne.title,
+    paragraph: SHARED_CONTENT.homepage.fairProcess.stepOne.description,
     icon: BotIcon,
   },
   {
-    title: APP_CONTENT.homepage.fairProcess.stepTwo.title,
-    paragraph: APP_CONTENT.homepage.fairProcess.stepTwo.description,
+    title: SHARED_CONTENT.homepage.fairProcess.stepTwo.title,
+    paragraph: SHARED_CONTENT.homepage.fairProcess.stepTwo.description,
     icon: PredictionsIcon,
   },
   {
-    title: APP_CONTENT.homepage.fairProcess.stepThree.title,
-    paragraph: APP_CONTENT.homepage.fairProcess.stepThree.description,
+    title: SHARED_CONTENT.homepage.fairProcess.stepThree.title,
+    paragraph: SHARED_CONTENT.homepage.fairProcess.stepThree.description,
     icon: FeedbackIcon,
   },
   {
-    title: APP_CONTENT.homepage.fairProcess.stepFour.title,
-    paragraph: APP_CONTENT.homepage.fairProcess.stepFour.description,
+    title: SHARED_CONTENT.homepage.fairProcess.stepFour.title,
+    paragraph: SHARED_CONTENT.homepage.fairProcess.stepFour.description,
     icon: DesktopFlowIcon,
   },
 ];
@@ -103,7 +103,7 @@ export const TheFAIRProcess = ({
       ref={containerRef}
     >
       <h2 className="text-title-2 lg:text-4xl font-semibold mb-[73px]">
-        {APP_CONTENT.homepage.fairProcess.title}
+        {SHARED_CONTENT.homepage.fairProcess.title}
       </h2>
       <ol className="flex flex-col md:flex-row justify-between items-start  w-full">
         {steps.map((step, id) => (

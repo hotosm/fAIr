@@ -1,8 +1,7 @@
-import { APP_CONTENT, KPI_STATS_CACHE_TIME_MS } from "@/utils";
 import styles from "./kpi.module.css";
 import { API_ENDPOINTS, apiClient } from "@/services";
 import { useQuery } from "@tanstack/react-query";
-
+import { KPI_STATS_CACHE_TIME_MS, SHARED_CONTENT } from "@/constants";
 type TKPIS = {
   figure?: number;
   label: string;
@@ -41,19 +40,19 @@ export const Kpi = () => {
   const KPIs: TKPIS = [
     {
       figure: data?.total_models_published ?? 0,
-      label: APP_CONTENT.homepage.kpi.publishedAIModels,
+      label: SHARED_CONTENT.homepage.kpi.publishedAIModels,
     },
     {
       figure: data?.total_registered_users ?? 0,
-      label: APP_CONTENT.homepage.kpi.totalUsers,
+      label: SHARED_CONTENT.homepage.kpi.totalUsers,
     },
     {
       figure: data?.total_feedback_labels ?? 0,
-      label: APP_CONTENT.homepage.kpi.humanFeedback,
+      label: SHARED_CONTENT.homepage.kpi.humanFeedback,
     },
     {
       figure: data?.total_accepted_predictions ?? 0,
-      label: APP_CONTENT.homepage.kpi.acceptedPrediction,
+      label: SHARED_CONTENT.homepage.kpi.acceptedPrediction,
     },
   ];
 

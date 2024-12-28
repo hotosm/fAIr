@@ -3,7 +3,7 @@ import { ModelFormConfirmation } from "@/assets/images";
 import { Button } from "@/components/ui/button";
 import { Image } from "@/components/ui/image";
 import { Link } from "@/components/ui/link";
-import { APPLICATION_ROUTES, MODEL_CREATION_CONTENT } from "@/utils";
+import { APPLICATION_ROUTES, MODELS_CONTENT } from "@/constants";
 import ConfettiExplosion from "react-confetti-explosion";
 import { useSearchParams } from "react-router-dom";
 
@@ -31,24 +31,26 @@ export const ModelConfirmationPage = () => {
           Model {modelId} is {isEditMode ? "Updated" : "Created"}!
         </p>
         <p className="text-gray">
-          {MODEL_CREATION_CONTENT.confirmation.description}
+          {MODELS_CONTENT.modelCreation.confirmation.description}
         </p>
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <Link
             href={`${APPLICATION_ROUTES.MODELS}/${modelId}`}
-            title={MODEL_CREATION_CONTENT.confirmation.buttons.goToModel}
+            title={MODELS_CONTENT.modelCreation.confirmation.buttons.goToModel}
             nativeAnchor={false}
           >
             <Button>
-              {MODEL_CREATION_CONTENT.confirmation.buttons.goToModel}
+              {MODELS_CONTENT.modelCreation.confirmation.buttons.goToModel}
             </Button>
           </Link>
           <Link
             href={`${APPLICATION_ROUTES.MODELS}`}
-            title={MODEL_CREATION_CONTENT.confirmation.buttons.exploreModels}
+            title={
+              MODELS_CONTENT.modelCreation.confirmation.buttons.exploreModels
+            }
           >
             <Button variant="dark">
-              {MODEL_CREATION_CONTENT.confirmation.buttons.exploreModels}
+              {MODELS_CONTENT.modelCreation.confirmation.buttons.exploreModels}
             </Button>
           </Link>
         </div>

@@ -18,24 +18,23 @@ import {
   TModelPredictions,
   TTrainingDataset,
 } from "@/types";
+import { extractTileJSONURL, showErrorToast } from "@/utils";
+import PredictedFeatureActionPopup from "@/features/start-mapping/components/popup";
+import { TModelPredictionsConfig } from "@/features/start-mapping/api/get-model-predictions";
 import {
+  TOAST_NOTIFICATIONS,
   ACCEPTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
   ACCEPTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
   ACCEPTED_MODEL_PREDICTIONS_SOURCE_ID,
   ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
   ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
   ALL_MODEL_PREDICTIONS_SOURCE_ID,
-  extractTileJSONURL,
   MIN_ZOOM_LEVEL_FOR_START_MAPPING_PREDICTION,
   MINIMUM_ZOOM_LEVEL_INSTRUCTION_FOR_PREDICTION,
   REJECTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
   REJECTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
   REJECTED_MODEL_PREDICTIONS_SOURCE_ID,
-  showErrorToast,
-} from "@/utils";
-import PredictedFeatureActionPopup from "@/features/start-mapping/components/popup";
-import { TModelPredictionsConfig } from "@/features/start-mapping/api/get-model-predictions";
-import { TOAST_NOTIFICATIONS } from "@/constants";
+} from "@/constants";
 import { useToolTipVisibility } from "@/hooks/use-tooltip-visibility";
 import { ControlsPosition } from "@/enums";
 import useScreenSize from "@/hooks/use-screen-size";

@@ -2,7 +2,7 @@ import { TModelPredictions } from "@/types";
 import { handleConflation, showErrorToast, showSuccessToast } from "@/utils";
 import { useGetModelPredictions } from "@/features/start-mapping/hooks/use-model-predictions";
 
-import { startMappingPageContent, TOAST_NOTIFICATIONS } from "@/constants";
+import { START_MAPPING_PAGE_CONTENT, TOAST_NOTIFICATIONS } from "@/constants";
 import { useCallback } from "react";
 import { TModelPredictionsConfig } from "../api/get-model-predictions";
 import { Map } from "maplibre-gl";
@@ -46,7 +46,7 @@ const ModelAction = ({
     <div className="flex gap-y-3 flex-col-reverse flex-wrap  md:items-center md:flex-row md:justify-between md:gap-x-2 md:flex-nowrap">
       <ToolTip
         content={
-          disablePrediction ? startMappingPageContent.buttons.tooltip : null
+          disablePrediction ? START_MAPPING_PAGE_CONTENT.buttons.tooltip : null
         }
       >
         <button
@@ -57,8 +57,8 @@ const ModelAction = ({
           <span className="capitalize text-sm">
             {" "}
             {modelPredictionMutation.isPending
-              ? startMappingPageContent.buttons.predictionInProgress
-              : startMappingPageContent.buttons.runPrediction}
+              ? START_MAPPING_PAGE_CONTENT.buttons.predictionInProgress
+              : START_MAPPING_PAGE_CONTENT.buttons.runPrediction}
           </span>
         </button>
       </ToolTip>

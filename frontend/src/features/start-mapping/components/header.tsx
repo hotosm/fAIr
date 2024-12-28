@@ -11,7 +11,7 @@ import ModelAction from "@/features/start-mapping/components/model-action";
 import { TModelPredictionsConfig } from "@/features/start-mapping/api/get-model-predictions";
 import { DropdownPlacement, SHOELACE_SIZES } from "@/enums";
 import { UserProfile } from "@/components/layout";
-import { startMappingPageContent } from "@/constants";
+import { START_MAPPING_PAGE_CONTENT } from "@/constants";
 import { Map } from "maplibre-gl";
 import { ToolTip } from "@/components/ui/tooltip";
 import { ModelDetailsButton } from "@/features/start-mapping/components/model-details-button";
@@ -102,7 +102,7 @@ const StartMappingHeader = ({
                 <ToolTip
                   content={
                     !modelPredictionsExist
-                      ? startMappingPageContent.actions.disabledModeTooltip(
+                      ? START_MAPPING_PAGE_CONTENT.actions.disabledModeTooltip(
                           "see actions",
                         )
                       : null
@@ -112,7 +112,7 @@ const StartMappingHeader = ({
                     uppercase={false}
                     onClick={dropdownIsOpened ? onDropdownHide : onDropdownShow}
                     suffixIcon={ChevronDownIcon}
-                    label={startMappingPageContent.buttons.download.label}
+                    label={START_MAPPING_PAGE_CONTENT.buttons.download.label}
                     size={SHOELACE_SIZES.SMALL}
                     variant="secondary"
                     disabled={!modelPredictionsExist}

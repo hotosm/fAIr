@@ -11,7 +11,7 @@ import {
 import { BASE_MODELS } from "@/enums";
 import { StepHeading } from "@/features/model-creation/components/";
 import { IconProps } from "@/types";
-import { MODEL_CREATION_CONTENT } from "@/utils";
+import { MODELS_CONTENT } from "@/constants";
 
 const SummaryItem = ({
   icon: Icon,
@@ -47,41 +47,41 @@ const ModelSummaryForm = () => {
     { icon: TagsIcon, label: "Model Name", content: formData.modelName },
     {
       icon: TextIcon,
-      label: MODEL_CREATION_CONTENT.modelSummary.form.modelDescription,
+      label: MODELS_CONTENT.modelCreation.modelSummary.form.modelDescription,
       content: formData.modelDescription,
     },
     {
       icon: DatabaseIcon,
-      label: MODEL_CREATION_CONTENT.modelSummary.form.baseModel,
+      label: MODELS_CONTENT.modelCreation.modelSummary.form.baseModel,
       content: formData.baseModel.toUpperCase(),
     },
     { icon: TagsIcon, label: "Dataset Name", content: formData.datasetName },
     {
       icon: SaveIcon,
-      label: MODEL_CREATION_CONTENT.modelSummary.form.datasetId,
+      label: MODELS_CONTENT.modelCreation.modelSummary.form.datasetId,
       content: formData.selectedTrainingDatasetId,
     },
     {
       icon: MapIcon,
-      label: MODEL_CREATION_CONTENT.modelSummary.form.openAerialImagery,
+      label: MODELS_CONTENT.modelCreation.modelSummary.form.openAerialImagery,
       content: formData.oamTileName,
     },
     {
       icon: ZoomInIcon,
-      label: MODEL_CREATION_CONTENT.modelSummary.form.zoomLevels,
+      label: MODELS_CONTENT.modelCreation.modelSummary.form.zoomLevels,
       content: formData.zoomLevels.map((level) => `Zoom ${level}`),
     },
     {
       icon: SettingsIcon,
-      label: MODEL_CREATION_CONTENT.modelSummary.form.trainingSettings,
+      label: MODELS_CONTENT.modelCreation.modelSummary.form.trainingSettings,
       content: [
-        `${MODEL_CREATION_CONTENT.trainingSettings.form.epoch.label}: ${formData.epoch}`,
-        `${MODEL_CREATION_CONTENT.trainingSettings.form.batchSize.label}: ${formData.batchSize}`,
+        `${MODELS_CONTENT.modelCreation.trainingSettings.form.epoch.label}: ${formData.epoch}`,
+        `${MODELS_CONTENT.modelCreation.trainingSettings.form.batchSize.label}: ${formData.batchSize}`,
         formData.baseModel === BASE_MODELS.RAMP
-          ? `${MODEL_CREATION_CONTENT.trainingSettings.form.contactSpacing.label}: ${formData.contactSpacing}`
+          ? `${MODELS_CONTENT.modelCreation.trainingSettings.form.contactSpacing.label}: ${formData.contactSpacing}`
           : "",
         formData.baseModel === BASE_MODELS.RAMP
-          ? `${MODEL_CREATION_CONTENT.trainingSettings.form.boundaryWidth.label}:  ${formData.boundaryWidth}`
+          ? `${MODELS_CONTENT.modelCreation.trainingSettings.form.boundaryWidth.label}:  ${formData.boundaryWidth}`
           : "",
       ],
     },
@@ -90,8 +90,10 @@ const ModelSummaryForm = () => {
   return (
     <div className="flex flex-col gap-y-6">
       <StepHeading
-        heading={MODEL_CREATION_CONTENT.trainingSettings.pageTitle}
-        description={MODEL_CREATION_CONTENT.trainingSettings.pageDescription}
+        heading={MODELS_CONTENT.modelCreation.trainingSettings.pageTitle}
+        description={
+          MODELS_CONTENT.modelCreation.trainingSettings.pageDescription
+        }
       />
       {summaryData.map((item, index) => (
         <SummaryItem

@@ -5,3 +5,8 @@ export { default as HamburgerIcon } from "@/assets/svgs/hamburger_icon.svg";
 export { default as JOSMLogo } from "@/assets/svgs/josm_logo.svg";
 export { default as OSMLogo } from "@/assets/svgs/osm_logo.svg";
 export { default as BrandLogo } from "./fair_logo.svg";
+export { default as FacebookIcon } from "./socials/facebook_logo.svg";
+export { default as YouTubeIcon } from "./socials/youtube_logo.svg";
+export { default as InstagramIcon } from "./socials/instagram_logo.svg";
+export { default as XIcon } from "./socials/x_logo.svg";
+export { default as GitHubIcon } from "./socials/github_logo.svg";

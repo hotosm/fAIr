@@ -1,38 +1,40 @@
 import { CreativeCommonsBadge } from "@/assets/images";
-import FacebookLogo from "@/assets/svgs/socials/facebook_logo.svg";
-import GitHubLogo from "@/assets/svgs/socials/github_logo.svg";
-import XLogo from "@/assets/svgs/socials/x_logo.svg";
-import InstagramLogo from "@/assets/svgs/socials/instagram_logo.svg";
-import YoutTubeLogo from "@/assets/svgs/socials/youtube_logo.svg";
-import { APP_CONTENT } from "@/utils/content";
 import { Image } from "@/components/ui/image";
 import { Link } from "@/components/ui/link";
+import {
+  FacebookIcon,
+  GitHubIcon,
+  InstagramIcon,
+  XIcon,
+  YouTubeIcon,
+} from "@/assets/svgs";
+import { SHARED_CONTENT } from "@/constants";
 
 const socials = [
   {
     name: "Facebook",
-    url: "#",
-    logo: FacebookLogo,
+    url: "https://www.facebook.com/hotosm",
+    logo: FacebookIcon,
   },
   {
     name: "X",
-    url: "#",
-    logo: XLogo,
+    url: "https://twitter.com/hotosm/",
+    logo: XIcon,
   },
   {
     name: "GitHub",
-    url: "#",
-    logo: GitHubLogo,
+    url: "https://github.com/hotosm/fair",
+    logo: GitHubIcon,
   },
   {
     name: "YouTube",
-    url: "#",
-    logo: YoutTubeLogo,
+    url: "https://www.youtube.com/user/hotosm",
+    logo: YouTubeIcon,
   },
   {
     name: "Instagram",
-    url: "#",
-    logo: InstagramLogo,
+    url: "https://www.instagram.com/hot.osm/",
+    logo: InstagramIcon,
   },
 ];
 export const Footer = () => {
@@ -41,11 +43,11 @@ export const Footer = () => {
       <div className="grid grid-cols-12 grid-rows-2 gap-y-[67px] app-padding bg-dark text-white py-[77px]">
         <div className="col-span-12 grid grid-cols-8 lg:grid-cols-12  gap-x-[40px] gap-y-[40px]">
           <div className="col-span-8 lg:col-span-4">
-            <p className="text-body-1">{APP_CONTENT.footer.title}</p>
+            <p className="text-body-1">{SHARED_CONTENT.footer.title}</p>
           </div>
           <div className="col-span-8 uppercase text-body-2 flex  lg:col-start-7 lg:col-span-4  w-full justify-between">
             <ul className="space-y-4">
-              {APP_CONTENT.footer.siteMap.groupOne.map((route, id) => (
+              {SHARED_CONTENT.footer.siteMap.groupOne.map((route, id) => (
                 <li key={`footer-link-${id}`}>
                   <Link
                     href={route.route}
@@ -60,7 +62,7 @@ export const Footer = () => {
             </ul>
 
             <ul className="space-y-4">
-              {APP_CONTENT.footer.siteMap.groupTwo.map((route, id) => (
+              {SHARED_CONTENT.footer.siteMap.groupTwo.map((route, id) => (
                 <li key={`footer-links2-${id}`}>
                   <Link
                     href={route.route}
@@ -86,8 +88,8 @@ export const Footer = () => {
               />
             </div>
             <div className="space-y-5 text-body-3">
-              <p>{APP_CONTENT.footer.copyright.firstSegment}</p>
-              <p>{APP_CONTENT.footer.copyright.secondSegment}</p>
+              <p>{SHARED_CONTENT.footer.copyright.firstSegment}</p>
+              <p>{SHARED_CONTENT.footer.copyright.secondSegment}</p>
             </div>
           </div>
           <div className="col-span-8 flex flex-col lg:col-start-10 lg:col-span-4 w-full justify-start items-start lg:justify-end lg:items-end space-y-4">
@@ -107,17 +109,38 @@ export const Footer = () => {
                 </li>
               ))}
             </ul>
-            <p className="text-body-3">{APP_CONTENT.footer.socials.ctaText}</p>
+            <Link
+              href={"https://osm.org/about"}
+              title={SHARED_CONTENT.footer.socials.ctaText}
+              blank
+              className="!normal-case text-body-3 !text-white"
+            >
+              <p>{SHARED_CONTENT.footer.socials.ctaText}</p>
+            </Link>
           </div>
         </div>
       </div>
 
       <div className="flex items-center justify-center bg-white w-full h-[56px]">
         <p className="text-body-3 text-center space-x-1">
-          <span>{APP_CONTENT.footer.madeWithLove.firstSegment}</span>
-          <strong>{APP_CONTENT.footer.madeWithLove.secondSegment}</strong>
-          <span>{APP_CONTENT.footer.madeWithLove.thirdSegment}</span>
-          <strong>{APP_CONTENT.footer.madeWithLove.fourthSegment}</strong>
+          <span>{SHARED_CONTENT.footer.madeWithLove.firstSegment}</span>
+          <Link
+            href={"https://github.com/hotosm/fAIr/graphs/contributors"}
+            title={SHARED_CONTENT.footer.madeWithLove.fourthSegment}
+            blank
+            className="!text-body-3"
+          >
+            <strong>{SHARED_CONTENT.footer.madeWithLove.secondSegment}</strong>
+          </Link>
+          <span>{SHARED_CONTENT.footer.madeWithLove.thirdSegment}</span>
+          <Link
+            href={"https://www.hotosm.org/"}
+            title={SHARED_CONTENT.footer.madeWithLove.fourthSegment}
+            blank
+            className="!lowercase !text-body-3"
+          >
+            <strong>{SHARED_CONTENT.footer.madeWithLove.fourthSegment}</strong>
+          </Link>
         </p>
       </div>
     </footer>

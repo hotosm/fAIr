@@ -11,7 +11,6 @@ import { ModelFilesDialog } from "@/features/models/components/dialogs";
 import { ModelDetailsSkeleton } from "@/features/models/components/skeletons";
 import { useModelDetails } from "@/features/models/hooks/use-models";
 import { useDialog } from "@/hooks/use-dialog";
-import { APP_CONTENT } from "@/utils";
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Image } from "@/components/ui/image";
@@ -21,8 +20,8 @@ import { useAuth } from "@/app/providers/auth-provider";
 import { TrainingAreaDrawer } from "@/features/models/components/training-area-drawer";
 import { useGetTrainingDataset } from "@/features/models/hooks/use-dataset";
 import { TrainingInProgressImage } from "@/assets/images";
-
 import { handleErrorNavigation } from "@/utils";
+import { MODELS_CONTENT } from "@/constants";
 
 export const ModelDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -103,7 +102,7 @@ export const ModelDetailsPage = () => {
           trainingDataset={trainingDataset as TTrainingDataset}
         />
         <ModelDetailsSection
-          title={APP_CONTENT.models.modelsDetailsCard.propertiesSectionTitle}
+          title={MODELS_CONTENT.models.modelsDetailsCard.propertiesSectionTitle}
         >
           {!data?.published_training ? (
             <div className="rounded-xl w-full h-80 border border-gray-border text-center flex flex-col gap-y-6 items-center justify-center text-gray">
@@ -126,7 +125,7 @@ export const ModelDetailsPage = () => {
         </ModelDetailsSection>
         <div className="flex md:hidden">
           <ButtonWithIcon
-            label={APP_CONTENT.models.modelsDetailsCard.enhanceModel}
+            label={MODELS_CONTENT.models.modelsDetailsCard.enhanceModel}
             variant="dark"
             size="medium"
             prefixIcon={StarStackIcon}
@@ -137,12 +136,12 @@ export const ModelDetailsPage = () => {
         {/* mobile */}
         <ModelDetailsSection
           title={
-            APP_CONTENT.models.modelsDetailsCard.trainingHistorySectionTitle
+            MODELS_CONTENT.models.modelsDetailsCard.trainingHistorySectionTitle
           }
         >
           <div className="md:flex self-end hidden">
             <ButtonWithIcon
-              label={APP_CONTENT.models.modelsDetailsCard.enhanceModel}
+              label={MODELS_CONTENT.models.modelsDetailsCard.enhanceModel}
               variant="dark"
               size="medium"
               prefixIcon={StarStackIcon}

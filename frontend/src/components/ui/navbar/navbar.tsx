@@ -4,7 +4,8 @@ import { Drawer } from "@/components/ui/drawer";
 import { useState } from "react";
 import { Link } from "@/components/ui/link";
 import { Image } from "@/components/ui/image";
-import { APP_CONTENT, APPLICATION_ROUTES } from "@/utils";
+import { APPLICATION_ROUTES, SHARED_CONTENT } from "@/constants";
+
 import { useAuth } from "@/app/providers/auth-provider";
 import { UserProfile } from "@/components/layout";
 import { useLogin } from "@/hooks/use-login";
@@ -40,8 +41,8 @@ export const NavBar = () => {
             ) : (
               <Button variant="primary" onClick={handleLogin} spinner={loading}>
                 {loading
-                  ? APP_CONTENT.loginButtonLoading
-                  : APP_CONTENT.navbar.loginButton}
+                  ? SHARED_CONTENT.loginButtonLoading
+                  : SHARED_CONTENT.navbar.loginButton}
               </Button>
             )}
           </div>
@@ -65,16 +66,16 @@ export const NavBar = () => {
               spinner={loading}
             >
               {loading
-                ? APP_CONTENT.loginButtonLoading
-                : APP_CONTENT.navbar.loginButton}
+                ? SHARED_CONTENT.loginButtonLoading
+                : SHARED_CONTENT.navbar.loginButton}
             </Button>
           )}
         </div>
         <button className={styles.hamburgerMenu} onClick={() => setOpen(true)}>
           <Image
             src={HamburgerIcon}
-            alt={APP_CONTENT.navbar.hamburgerMenuAlt}
-            title={APP_CONTENT.navbar.hamburgerMenuTitle}
+            alt={SHARED_CONTENT.navbar.hamburgerMenuAlt}
+            title={SHARED_CONTENT.navbar.hamburgerMenuTitle}
             width="20px"
             height="20px"
           />
@@ -91,19 +92,19 @@ type TNavBarLinks = {
 
 const navLinks: TNavBarLinks = [
   {
-    title: APP_CONTENT.navbar.routes.exploreModels,
+    title: SHARED_CONTENT.navbar.routes.exploreModels,
     href: APPLICATION_ROUTES.MODELS,
   },
   {
-    title: APP_CONTENT.navbar.routes.learn,
+    title: SHARED_CONTENT.navbar.routes.learn,
     href: APPLICATION_ROUTES.LEARN,
   },
   {
-    title: APP_CONTENT.navbar.routes.about,
+    title: SHARED_CONTENT.navbar.routes.about,
     href: APPLICATION_ROUTES.ABOUT,
   },
   {
-    title: APP_CONTENT.navbar.routes.resources,
+    title: SHARED_CONTENT.navbar.routes.resources,
     href: APPLICATION_ROUTES.RESOURCES,
   },
 ];

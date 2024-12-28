@@ -9,7 +9,7 @@ import {
 import { DialogProps, TQueryParams } from "@/types";
 import { Button } from "@/components/ui/button";
 import { useLocation } from "react-router-dom";
-import { APPLICATION_ROUTES } from "@/utils";
+import { APPLICATION_ROUTES } from "@/constants";
 
 type TrainingAreaDrawerProps = DialogProps & {
   updateQuery: (updatedParams: TQueryParams) => void;

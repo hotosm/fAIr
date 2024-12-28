@@ -1,4 +1,4 @@
-import { startMappingPageContent } from "@/constants";
+import { START_MAPPING_PAGE_CONTENT } from "@/constants";
 import { TModelPredictions } from "@/types";
 
 export const ModelPredictionsTracker = ({
@@ -11,9 +11,9 @@ export const ModelPredictionsTracker = ({
   return (
     <div className="flex items-center gap-x-2">
       <p className="text-dark text-body-3 font-medium text-nowrap">
-        {startMappingPageContent.mapData.accepted}:{" "}
+        {START_MAPPING_PAGE_CONTENT.mapData.accepted}:{" "}
         {modelPredictions.accepted.length}{" "}
-        {startMappingPageContent.mapData.rejected}:{" "}
+        {START_MAPPING_PAGE_CONTENT.mapData.rejected}:{" "}
         {modelPredictions.rejected.length}{" "}
       </p>
       {modelPredictions.accepted.length > 0 ||

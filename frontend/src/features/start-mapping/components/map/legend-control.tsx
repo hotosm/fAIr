@@ -1,10 +1,12 @@
 import { useCallback, useState } from "react";
 import { LegendBookIcon } from "@/components/ui/icons";
-import { LEGEND_NAME_MAPPING, MAP_STYLES_PREFIX } from "@/utils";
 import { Map } from "maplibre-gl";
 import useScreenSize from "@/hooks/use-screen-size";
-
-import { startMappingPageContent } from "@/constants";
+import {
+  START_MAPPING_PAGE_CONTENT,
+  LEGEND_NAME_MAPPING,
+  MAP_STYLES_PREFIX,
+} from "@/constants";
 
 const FillLegendStyle = ({
   fillColor,
@@ -55,7 +57,7 @@ export const Legend = ({ map }: { map: Map | null }) => {
       )}
       {!isSmallViewport && (
         <p className="w-full text-dark font-semibold text-body-2base flex items-center gap-x-10 justify-between">
-          {startMappingPageContent.map.controls.legendControl.title}
+          {START_MAPPING_PAGE_CONTENT.map.controls.legendControl.title}
           <LegendBookIcon className="icon" />
         </p>
       )}

@@ -1,6 +1,6 @@
 import { TAboutPageContent } from "@/types";
 
-export const aboutPageContent: TAboutPageContent = {
+export const ABOUT_PAGE_CONTENT: TAboutPageContent = {
   pageTitle: "About",
   pageHeader: "About",
   heroHeading: {

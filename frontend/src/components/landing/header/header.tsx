@@ -1,10 +1,10 @@
 import { Button } from "@/components/ui/button";
 import styles from "@/components/landing/header/header.module.css";
 import BackgroundImage from "@/assets/images/header_bg.jpg";
-import { APP_CONTENT } from "@/utils/content";
+
 import { Image } from "@/components/ui/image";
 import { Link } from "@/components/ui/link";
-import { APPLICATION_ROUTES } from "@/utils";
+import { APPLICATION_ROUTES, SHARED_CONTENT } from "@/constants";
 
 export const Header = () => {
   return (
@@ -12,26 +12,26 @@ export const Header = () => {
       <main className={`${styles.jumbotronContainer}`}>
         <div className={`${styles.jumbotronContentContainer}`}>
           <div className={styles.jumbotronText}>
-            <h1>{APP_CONTENT.homepage.jumbotronTitle}</h1>
-            <p>{APP_CONTENT.homepage.jumbotronHeadline}</p>
+            <h1>{SHARED_CONTENT.homepage.jumbotronTitle}</h1>
+            <p>{SHARED_CONTENT.homepage.jumbotronHeadline}</p>
           </div>
           <div className={styles.ctaButtons}>
             <Link
               href={APPLICATION_ROUTES.CREATE_NEW_MODEL}
-              title={APP_CONTENT.homepage.ctaPrimaryButton}
+              title={SHARED_CONTENT.homepage.ctaPrimaryButton}
               nativeAnchor={false}
             >
               <Button variant="primary">
-                {APP_CONTENT.homepage.ctaPrimaryButton}
+                {SHARED_CONTENT.homepage.ctaPrimaryButton}
               </Button>
             </Link>
             <Link
               href={APPLICATION_ROUTES.MODELS}
-              title={APP_CONTENT.homepage.ctaPrimaryButton}
+              title={SHARED_CONTENT.homepage.ctaPrimaryButton}
               nativeAnchor={false}
             >
               <Button variant="secondary">
-                {APP_CONTENT.homepage.ctaSecondaryButton}
+                {SHARED_CONTENT.homepage.ctaSecondaryButton}
               </Button>
             </Link>
           </div>
@@ -39,7 +39,7 @@ export const Header = () => {
         <div className={styles.jumbotronImage}>
           <Image
             src={BackgroundImage}
-            alt={APP_CONTENT.homepage.jumbotronImageAlt}
+            alt={SHARED_CONTENT.homepage.jumbotronImageAlt}
             width="100%"
             height="100%"
           />

@@ -4,9 +4,9 @@ import ModelDescriptionFormInput from "@/features/model-creation/components/mode
 import ModelNameFormInput from "@/features/model-creation/components/model-details/model-name-input";
 import { useUpdateModel } from "@/features/model-creation/hooks/use-models";
 import { TModel } from "@/types";
-import { APP_CONTENT, showErrorToast, showSuccessToast } from "@/utils";
+import { showErrorToast, showSuccessToast } from "@/utils";
 import { useState } from "react";
-import { TOAST_NOTIFICATIONS } from "@/constants";
+import { MODELS_CONTENT, TOAST_NOTIFICATIONS } from "@/constants";
 
 type ModelDetailsUpdateDialogProps = {
   isOpened: boolean;
@@ -46,7 +46,7 @@ const ModelDetailsUpdateDialog: React.FC<ModelDetailsUpdateDialogProps> = ({
     <Dialog
       isOpened={isOpened}
       closeDialog={closeDialog}
-      label={APP_CONTENT.models.modelsDetailsCard.modelUpdate.dialogHeading}
+      label={MODELS_CONTENT.models.modelsDetailsCard.modelUpdate.dialogHeading}
     >
       <div className="flex flex-col gap-y-4">
         <ModelNameFormInput
@@ -65,7 +65,7 @@ const ModelDetailsUpdateDialog: React.FC<ModelDetailsUpdateDialogProps> = ({
             }
             onClick={handleSubmit}
           >
-            {APP_CONTENT.models.modelsDetailsCard.modelUpdate.saveButtonText}
+            {MODELS_CONTENT.models.modelsDetailsCard.modelUpdate.saveButtonText}
           </Button>
         </div>
       </div>

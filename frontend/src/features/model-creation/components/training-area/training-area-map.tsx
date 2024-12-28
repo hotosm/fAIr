@@ -9,12 +9,9 @@ import {
 import { geojsonToWKT } from "@terraformer/wkt";
 import { useToastNotification } from "@/hooks/use-toast-notification";
 import {
-  calculateGeoJSONArea,
-  formatAreaInAppropriateUnit,
   MAP_STYLES_PREFIX,
   MAX_TRAINING_AREA_SIZE,
   MIN_TRAINING_AREA_SIZE,
-  snapGeoJSONGeometryToClosestTile,
   TRAINING_AREAS_AOI_FILL_COLOR,
   TRAINING_AREAS_AOI_FILL_OPACITY,
   TRAINING_AREAS_AOI_LABELS_FILL_COLOR,
@@ -24,6 +21,11 @@ import {
   TRAINING_AREAS_AOI_OUTLINE_COLOR,
   TRAINING_AREAS_AOI_OUTLINE_WIDTH,
   MIN_ZOOM_LEVEL_FOR_TRAINING_AREA_LABELS,
+} from "@/constants";
+import {
+  calculateGeoJSONArea,
+  formatAreaInAppropriateUnit,
+  snapGeoJSONGeometryToClosestTile,
   validateGeoJSONArea,
 } from "@/utils";
 import useDebounce from "@/hooks/use-debounce";

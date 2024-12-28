@@ -1,4 +1,4 @@
-import { APP_CONTENT, APPLICATION_ROUTES } from "@/utils";
+import { APPLICATION_ROUTES, SHARED_CONTENT } from "@/constants";
 import { Image } from "@/components/ui/image";
 import { useNavigate } from "react-router-dom";
 import { BrandLogo } from "@/assets/svgs";
@@ -21,12 +21,12 @@ export const NavLogo = ({
   return (
     <button
       onClick={handleClick}
-      title={APP_CONTENT.navbar.logoAlt}
+      title={SHARED_CONTENT.navbar.logoAlt}
       className="flex items-center gap-x-1"
     >
       <Image
         src={BrandLogo}
-        alt={APP_CONTENT.navbar.logoAlt}
+        alt={SHARED_CONTENT.navbar.logoAlt}
         width={width}
         height={height}
       />

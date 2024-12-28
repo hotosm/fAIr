@@ -1,6 +1,7 @@
 import { DataTable } from "@/components/ui/data-table";
 import { TModel } from "@/types";
-import { APPLICATION_ROUTES, formatDate, roundNumber } from "@/utils";
+import { APPLICATION_ROUTES } from "@/constants";
+import { formatDate, roundNumber } from "@/utils";
 import { truncateString } from "@/utils";
 import { ColumnDef, SortingState } from "@tanstack/react-table";
 import { useState } from "react";

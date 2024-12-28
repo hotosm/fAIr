@@ -1,5 +1,5 @@
 import { useMapLayers } from "@/hooks/use-map-layer";
-import { TMS_LAYER_ID, TMS_SOURCE_ID } from "@/utils";
+import { TMS_LAYER_ID, TMS_SOURCE_ID } from "@/constants";
 import { Map } from "maplibre-gl";
 
 export const OpenAerialMap = ({

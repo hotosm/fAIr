@@ -8,7 +8,7 @@ import {
   MODEL_CREATION_FORM_NAME,
   useModelsContext,
 } from "@/app/providers/models-provider";
-import { MODEL_CREATION_CONTENT } from "@/utils";
+import { MODELS_CONTENT } from "@/constants";
 
 const TrainingDatasetForm = () => {
   const { handleChange, formData, isEditMode } = useModelsContext();
@@ -16,13 +16,17 @@ const TrainingDatasetForm = () => {
   return (
     <div className="flex flex-col gap-y-6 w-full">
       <StepHeading
-        heading={MODEL_CREATION_CONTENT.trainingDataset.pageTitle}
-        description={MODEL_CREATION_CONTENT.trainingDataset.pageDescription}
+        heading={MODELS_CONTENT.modelCreation.trainingDataset.pageTitle}
+        description={
+          MODELS_CONTENT.modelCreation.trainingDataset.pageDescription
+        }
       />
       {formData.trainingDatasetOption === TrainingDatasetOption.NONE ? (
         <div className="flex flex-col gap-y-10 w-full">
           <ButtonWithIcon
-            label={MODEL_CREATION_CONTENT.trainingDataset.buttons.createNew}
+            label={
+              MODELS_CONTENT.modelCreation.trainingDataset.buttons.createNew
+            }
             suffixIcon={ChevronDownIcon}
             iconClassName="-rotate-90"
             variant={"dark"}
@@ -37,7 +41,8 @@ const TrainingDatasetForm = () => {
           ></ButtonWithIcon>
           <ButtonWithIcon
             label={
-              MODEL_CREATION_CONTENT.trainingDataset.buttons.selectExisting
+              MODELS_CONTENT.modelCreation.trainingDataset.buttons
+                .selectExisting
             }
             suffixIcon={ChevronDownIcon}
             iconClassName="-rotate-90"

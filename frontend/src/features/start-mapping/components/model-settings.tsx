@@ -3,7 +3,7 @@ import { DropDown } from "@/components/ui/dropdown";
 import { FormLabel, Input, Select, Switch } from "@/components/ui/form";
 import { SettingsIcon } from "@/components/ui/icons";
 import { ToolTip } from "@/components/ui/tooltip";
-import { startMappingPageContent } from "@/constants";
+import { START_MAPPING_PAGE_CONTENT } from "@/constants";
 import { DropdownPlacement, INPUT_TYPES, SHOELACE_SIZES } from "@/enums";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 
@@ -54,9 +54,9 @@ export const ModelSettings = ({
     <div className="flex flex-col bg-white p-3 justify-between rounded-xl flex-wrap gap-y-4">
       <div className="flex gap-x-2 justify-between">
         <FormLabel
-          label={startMappingPageContent.settings.useJOSMQ.label}
+          label={START_MAPPING_PAGE_CONTENT.settings.useJOSMQ.label}
           withTooltip
-          toolTipContent={startMappingPageContent.settings.useJOSMQ.tooltip}
+          toolTipContent={START_MAPPING_PAGE_CONTENT.settings.useJOSMQ.tooltip}
           position="left"
         />
         <Switch
@@ -68,9 +68,11 @@ export const ModelSettings = ({
       </div>
       <div className="flex justify-between items-center gap-x-4">
         <FormLabel
-          label={startMappingPageContent.settings.confidence.label}
+          label={START_MAPPING_PAGE_CONTENT.settings.confidence.label}
           withTooltip
-          toolTipContent={startMappingPageContent.settings.confidence.tooltip}
+          toolTipContent={
+            START_MAPPING_PAGE_CONTENT.settings.confidence.tooltip
+          }
           position="left"
         />
         <Select
@@ -88,9 +90,9 @@ export const ModelSettings = ({
       </div>
       <div className="flex justify-between items-center gap-x-2">
         <FormLabel
-          label={startMappingPageContent.settings.tolerance.label}
+          label={START_MAPPING_PAGE_CONTENT.settings.tolerance.label}
           withTooltip
-          toolTipContent={startMappingPageContent.settings.tolerance.tooltip}
+          toolTipContent={START_MAPPING_PAGE_CONTENT.settings.tolerance.tooltip}
           position="left"
         />
         <Input
@@ -112,9 +114,9 @@ export const ModelSettings = ({
       </div>
       <div className="flex justify-between  items-center gap-x-2">
         <FormLabel
-          label={startMappingPageContent.settings.area.label}
+          label={START_MAPPING_PAGE_CONTENT.settings.area.label}
           withTooltip
-          toolTipContent={startMappingPageContent.settings.area.tooltip}
+          toolTipContent={START_MAPPING_PAGE_CONTENT.settings.area.tooltip}
           position="left"
         />
         <Input
@@ -143,7 +145,7 @@ export const ModelSettings = ({
         onDropdownHide={onModelSettingsDropdownHide}
         onDropdownShow={onModelSettingsDropdownShow}
         triggerComponent={
-          <ToolTip content={startMappingPageContent.settings.tooltip}>
+          <ToolTip content={START_MAPPING_PAGE_CONTENT.settings.tooltip}>
             <button
               className={`p-1.5 flex items-center hover:icon-interaction ${dropdownIsOpened && "icon-interaction"}`}
               onClick={toggleDropDown}

@@ -2,7 +2,8 @@ import styles from "@/components/layout/navbar/navbar.module.css";
 import SlAvatar from "@shoelace-style/shoelace/dist/react/avatar/index.js";
 import { DropDown } from "@/components/ui/dropdown";
 import { useNavigate } from "react-router-dom";
-import { APP_CONTENT, APPLICATION_ROUTES, truncateString } from "@/utils";
+import { APPLICATION_ROUTES, SHARED_CONTENT } from "@/constants";
+import { truncateString } from "@/utils";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { useAuth } from "@/app/providers/auth-provider";
 import useScreenSize from "@/hooks/use-screen-size";
@@ -30,21 +31,21 @@ export const UserProfile = ({
       dropdownIsOpened={dropdownIsOpened}
       menuItems={[
         {
-          value: APP_CONTENT.navbar.userProfile.models,
+          value: SHARED_CONTENT.navbar.userProfile.models,
           onClick: () => {
             navigate(APPLICATION_ROUTES.ACCOUNT_MODELS);
             onDropdownHide();
           },
         },
         {
-          value: APP_CONTENT.navbar.userProfile.settings,
+          value: SHARED_CONTENT.navbar.userProfile.settings,
           onClick: () => {
             navigate(APPLICATION_ROUTES.ACCOUNT_SETTINGS);
             onDropdownHide();
           },
         },
         {
-          value: APP_CONTENT.navbar.userProfile.logout,
+          value: SHARED_CONTENT.navbar.userProfile.logout,
           onClick: () => {
             logout();
             onDropdownHide();

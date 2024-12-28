@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
+import { MODELS_CONTENT } from "@/constants";
 import { useTrainingFeedbacks } from "@/features/models/hooks/use-training";
-import { APP_CONTENT } from "@/utils";
 
 const ModelFeedbacks = ({ trainingId }: { trainingId: number }) => {
   const { data, isLoading } = useTrainingFeedbacks(trainingId);
@@ -13,7 +13,7 @@ const ModelFeedbacks = ({ trainingId }: { trainingId: number }) => {
     <div className="max-w-fit">
       <div className="max-w-fit">
         <Button variant="dark" size="medium" disabled={trainingId === null}>
-          {`${APP_CONTENT.models.modelsDetailsCard.feedbacks} (${data?.count ?? 0})`}
+          {`${MODELS_CONTENT.models.modelsDetailsCard.feedbacks} (${data?.count ?? 0})`}
         </Button>
       </div>
     </div>

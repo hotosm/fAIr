@@ -4,9 +4,11 @@ import { DeleteIcon, FileIcon, UploadIcon } from "@/components/ui/icons";
 import { Spinner } from "@/components/ui/spinner"; // Ensure Spinner is correctly imported
 import { DialogProps, Feature, FeatureCollection, Geometry } from "@/types";
 import {
-  formatAreaInAppropriateUnit,
   MAX_TRAINING_AREA_UPLOAD_FILE_SIZE,
-  MODEL_CREATION_CONTENT,
+  MODELS_CONTENT,
+} from "@/constants";
+import {
+  formatAreaInAppropriateUnit,
   showErrorToast,
   showSuccessToast,
   truncateString,
@@ -236,20 +238,20 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
             <>
               <p className="text-body-4 md:text-body-3 text-center">
                 {
-                  MODEL_CREATION_CONTENT.trainingArea.fileUploadDialog
+                  MODELS_CONTENT.modelCreation.trainingArea.fileUploadDialog
                     .mainInstruction
                 }
               </p>
               <small className="text-body-4 md:text-body-3 text-center">
                 {
-                  MODEL_CREATION_CONTENT.trainingArea.fileUploadDialog
+                  MODELS_CONTENT.modelCreation.trainingArea.fileUploadDialog
                     .fleSizeInstruction
                 }
               </small>
               {!disableFileSizeValidation && (
                 <small className="text-body-4 md:text-body-3 text-center">
                   {
-                    MODEL_CREATION_CONTENT.trainingArea.fileUploadDialog
+                    MODELS_CONTENT.modelCreation.trainingArea.fileUploadDialog
                       .aoiAreaInstruction
                   }
                 </small>
@@ -275,7 +277,7 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
                 <Spinner />
               </>
             ) : (
-              MODEL_CREATION_CONTENT.trainingArea.form.upload
+              MODELS_CONTENT.modelCreation.trainingArea.form.upload
             )}
           </Button>
         </div>

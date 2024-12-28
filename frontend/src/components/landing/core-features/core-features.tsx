@@ -1,7 +1,7 @@
 import { GuageIcon, LoopIcon, TimerIcon } from "@/components/ui/icons";
 import styles from "./core-features.module.css";
 import { IconProps } from "@/types";
-import { APP_CONTENT } from "@/utils/content";
+import { SHARED_CONTENT } from "@/constants";
 
 type TCoreFeatures = {
   title: string;
@@ -9,15 +9,15 @@ type TCoreFeatures = {
 };
 const coreFeatures: TCoreFeatures[] = [
   {
-    title: APP_CONTENT.homepage.coreFeatures.featureOne,
+    title: SHARED_CONTENT.homepage.coreFeatures.featureOne,
     icon: TimerIcon,
   },
   {
-    title: APP_CONTENT.homepage.coreFeatures.featureTwo,
+    title: SHARED_CONTENT.homepage.coreFeatures.featureTwo,
     icon: GuageIcon,
   },
   {
-    title: APP_CONTENT.homepage.coreFeatures.featureThree,
+    title: SHARED_CONTENT.homepage.coreFeatures.featureThree,
     icon: LoopIcon,
   },
 ];

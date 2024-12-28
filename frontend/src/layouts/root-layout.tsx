@@ -3,7 +3,7 @@ import { Outlet, useLocation } from "react-router-dom";
 import { Footer } from "@/components/layout";
 import { useEffect } from "react";
 import { Banner } from "@/components/ui/banner";
-import { APPLICATION_ROUTES } from "@/utils";
+import { APPLICATION_ROUTES } from "@/constants";
 import { useScrollToTop } from "@/hooks/use-scroll-to-element";
 import { HotTracking } from "@/components/shared";
 

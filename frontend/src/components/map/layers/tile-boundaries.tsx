@@ -1,10 +1,7 @@
 import { useMapLayers } from "@/hooks/use-map-layer";
 import { GeoJSONType } from "@/types";
-import {
-  getTileBoundariesGeoJSON,
-  TILE_BOUNDARY_LAYER_ID,
-  TILE_BOUNDARY_SOURCE_ID,
-} from "@/utils";
+import { getTileBoundariesGeoJSON } from "@/utils";
+import { TILE_BOUNDARY_LAYER_ID, TILE_BOUNDARY_SOURCE_ID } from "@/constants";
 import { GeoJSONSource, Map } from "maplibre-gl";
 import { useCallback, useEffect } from "react";
 

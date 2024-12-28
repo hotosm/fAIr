@@ -1,27 +1,28 @@
 import { Button } from "@/components/ui/button/";
 import styles from "./cta.module.css";
-import { APP_CONTENT } from "@/utils";
+
 import { Image } from "@/components/ui/image";
 import { Link } from "@/components/ui/link";
 import { HOTTeamTwo } from "@/assets/images";
+import { SHARED_CONTENT } from "@/constants";
 
 export const CallToAction = () => {
   return (
     <section className={`${styles.container}`}>
       <div className={styles.cta}>
         <div className={styles.ctaContent}>
-          <h1> {APP_CONTENT.homepage.callToAction.title}</h1>
-          <p>{APP_CONTENT.homepage.callToAction.paragraph}</p>
+          <h1> {SHARED_CONTENT.homepage.callToAction.title}</h1>
+          <p>{SHARED_CONTENT.homepage.callToAction.paragraph}</p>
         </div>
         <div className={styles.ctaButtonContainer}>
           <Link
-            href={APP_CONTENT.homepage.callToAction.ctaLink}
-            title={APP_CONTENT.homepage.callToAction.ctaButton}
+            href={SHARED_CONTENT.homepage.callToAction.ctaLink}
+            title={SHARED_CONTENT.homepage.callToAction.ctaButton}
             nativeAnchor
             blank
           >
             <Button variant="primary">
-              {APP_CONTENT.homepage.callToAction.ctaButton}
+              {SHARED_CONTENT.homepage.callToAction.ctaButton}
             </Button>
           </Link>
         </div>
@@ -29,7 +30,7 @@ export const CallToAction = () => {
       <div className={styles.imageBlock}>
         <Image
           src={HOTTeamTwo}
-          alt={APP_CONTENT.homepage.callToAction.ctaButton}
+          alt={SHARED_CONTENT.homepage.callToAction.ctaButton}
           className={styles.image}
         />
         {/* The rectangles */}

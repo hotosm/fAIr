@@ -4,7 +4,7 @@ import {
   ProgressButtons,
 } from "@/features/model-creation/components";
 import { Head } from "@/components/seo";
-import { MODEL_CREATION_CONTENT, MODELS_ROUTES } from "@/utils";
+import { MODELS_ROUTES, MODELS_CONTENT } from "@/constants";
 import { useEffect, useState } from "react";
 import {
   CloudIcon,
@@ -18,7 +18,7 @@ import {
   ModelsProvider,
   useModelsContext,
 } from "@/app/providers/models-provider";
-import { BackButton } from "../components/ui/button";
+import { BackButton } from "@/components/ui/button";
 
 const pages: {
   id: number;
@@ -28,37 +28,37 @@ const pages: {
 }[] = [
   {
     id: 1,
-    title: MODEL_CREATION_CONTENT.progressStepper.modelDetails,
+    title: MODELS_CONTENT.modelCreation.progressStepper.modelDetails,
     icon: TagsIcon,
     path: MODELS_ROUTES.DETAILS,
   },
   {
     id: 2,
-    title: MODEL_CREATION_CONTENT.progressStepper.trainingDataset,
+    title: MODELS_CONTENT.modelCreation.progressStepper.trainingDataset,
     icon: DatabaseIcon,
     path: MODELS_ROUTES.TRAINING_DATASET,
   },
   {
     id: 3,
-    title: MODEL_CREATION_CONTENT.progressStepper.trainingArea,
+    title: MODELS_CONTENT.modelCreation.progressStepper.trainingArea,
     icon: SquareShadowIcon,
     path: MODELS_ROUTES.TRAINING_AREA,
   },
   {
     id: 4,
-    title: MODEL_CREATION_CONTENT.progressStepper.trainingSettings,
+    title: MODELS_CONTENT.modelCreation.progressStepper.trainingSettings,
     icon: SettingsIcon,
     path: MODELS_ROUTES.TRAINING_SETTINGS,
   },
   {
     id: 5,
-    title: MODEL_CREATION_CONTENT.progressStepper.submitModel,
+    title: MODELS_CONTENT.modelCreation.progressStepper.submitModel,
     icon: CloudIcon,
     path: MODELS_ROUTES.MODEL_SUMMARY,
   },
   {
     id: 6,
-    title: MODEL_CREATION_CONTENT.progressStepper.confirmation,
+    title: MODELS_CONTENT.modelCreation.progressStepper.confirmation,
     icon: StarIcon,
     path: MODELS_ROUTES.CONFIRMATION,
   },

@@ -1,12 +1,14 @@
 import { MobileDrawer } from "@/components/ui/drawer";
-import { MINIMUM_ZOOM_LEVEL_INSTRUCTION_FOR_PREDICTION } from "@/utils";
 import ModelAction from "@/features/start-mapping/components/model-action";
 import { TModelPredictionsConfig } from "@/features/start-mapping/api/get-model-predictions";
 import { TModelPredictions } from "@/types";
 import { Map } from "maplibre-gl";
 import { ModelDetailsButton } from "@/features/start-mapping/components/model-details-button";
 import { ModelPredictionsTracker } from "@/features/start-mapping/components/model-predictions-tracker";
-import { startMappingPageContent } from "@/constants";
+import {
+  START_MAPPING_PAGE_CONTENT,
+  MINIMUM_ZOOM_LEVEL_INSTRUCTION_FOR_PREDICTION,
+} from "@/constants";
 import { useState } from "react";
 import { ChevronDownIcon, CloudDownloadIcon } from "@/components/ui/icons";
 import { TDownloadOptions, TQueryParams } from "@/app/routes/start-mapping";
@@ -69,7 +71,7 @@ export const StartMappingMobileDrawer = ({
           </div>
         </div>
         <div className="text-body-3 font-normal flex items-center gap-x-2">
-          {startMappingPageContent.mapData.title} -{" "}
+          {START_MAPPING_PAGE_CONTENT.mapData.title} -{" "}
           <ModelPredictionsTracker
             modelPredictions={modelPredictions}
             clearPredictions={clearPredictions}
@@ -85,7 +87,7 @@ export const StartMappingMobileDrawer = ({
           <ToolTip
             content={
               disablePrediction
-                ? startMappingPageContent.actions.disabledModeTooltip(
+                ? START_MAPPING_PAGE_CONTENT.actions.disabledModeTooltip(
                     "see download options",
                   )
                 : null

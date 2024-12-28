@@ -15,7 +15,7 @@ import {
   TGetTrainingAreaLabelsFromOSMArgs,
 } from "@/features/model-creation/api/create-trainings";
 import { deleteTrainingArea } from "@/features/model-creation/api/delete-trainings";
-import { MIN_ZOOM_LEVEL_FOR_TRAINING_AREA_LABELS } from "@/utils";
+import { MIN_ZOOM_LEVEL_FOR_TRAINING_AREA_LABELS } from "@/constants";
 import axios from "axios";
 
 export const useGetTrainingAreas = (datasetId: number, offset: number) => {

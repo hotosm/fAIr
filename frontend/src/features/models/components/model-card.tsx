@@ -1,6 +1,7 @@
 import { TBadgeVariants, TModel } from "@/types";
 import { Image } from "@/components/ui/image";
-import { APP_CONTENT, APPLICATION_ROUTES, extractDatePart } from "@/utils";
+import { APPLICATION_ROUTES, MODELS_CONTENT } from "@/constants";
+import { extractDatePart } from "@/utils";
 import { Link } from "@/components/ui/link";
 import { truncateString } from "@/utils";
 import { roundNumber } from "@/utils/number-utils";
@@ -69,7 +70,7 @@ const ModelCard: React.FC<ModelCardProps> = ({ model }) => {
           {/* accuracy */}
           <div>
             <p className="text-gray text-body-3">
-              {APP_CONTENT.models.modelsList.modelCard.accuracy}
+              {MODELS_CONTENT.models.modelsList.modelCard.accuracy}
             </p>
             <p className="text-dark font-semibold text-body-2">
               {roundNumber(model.accuracy ?? 0)} %
@@ -83,13 +84,13 @@ const ModelCard: React.FC<ModelCardProps> = ({ model }) => {
               {model.user.username}
             </p>
             <p className="text-gray text-body-3">
-              {APP_CONTENT.models.modelsList.modelCard.lastModified}{" "}
+              {MODELS_CONTENT.models.modelsList.modelCard.lastModified}{" "}
               <span className="font-bold">
                 {extractDatePart(model.last_modified)}
               </span>
             </p>
             <p className="text-gray text-body-3 flex gap-x-2">
-              {APP_CONTENT.models.modelsList.modelCard.baseModel}
+              {MODELS_CONTENT.models.modelsList.modelCard.baseModel}
               <span className="font-bold text-dark">
                 {extractDatePart(model.base_model)}
               </span>

@@ -12,23 +12,26 @@ import {
   StartMappingMobileDrawer,
 } from "@/features/start-mapping/components";
 import { useGetTMSTileJSON } from "@/features/model-creation/hooks/use-tms-tilejson";
+import { APPLICATION_ROUTES } from "@/constants";
 import {
+  extractTileJSONURL,
+  geoJSONDowloader,
+  openInJOSM,
+  showSuccessToast,
+} from "@/utils";
+import { BASE_MODELS } from "@/enums";
+import {
+  START_MAPPING_PAGE_CONTENT,
+  TOAST_NOTIFICATIONS,
+  PREDICTION_API_FILE_EXTENSIONS,
+  REJECTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
+  REJECTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
+  MIN_ZOOM_LEVEL_FOR_START_MAPPING_PREDICTION,
   ACCEPTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
   ACCEPTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
   ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
   ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
-  APPLICATION_ROUTES,
-  extractTileJSONURL,
-  geoJSONDowloader,
-  MIN_ZOOM_LEVEL_FOR_START_MAPPING_PREDICTION,
-  openInJOSM,
-  PREDICTION_API_FILE_EXTENSIONS,
-  REJECTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
-  REJECTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
-  showSuccessToast,
-} from "@/utils";
-import { BASE_MODELS } from "@/enums";
-import { startMappingPageContent, TOAST_NOTIFICATIONS } from "@/constants";
+} from "@/constants";
 import { useMapInstance } from "@/hooks/use-map-instance";
 import useScreenSize from "@/hooks/use-screen-size";
 import { ModelDetailsPopUp } from "@/features/models/components";
@@ -167,7 +170,7 @@ export const StartMappingPage = () => {
       ? [
           {
             value:
-              startMappingPageContent.map.controls.legendControl
+              START_MAPPING_PAGE_CONTENT.map.controls.legendControl
                 .acceptedPredictions,
             subLayers: [
               ACCEPTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
@@ -180,7 +183,7 @@ export const StartMappingPage = () => {
       ? [
           {
             value:
-              startMappingPageContent.map.controls.legendControl
+              START_MAPPING_PAGE_CONTENT.map.controls.legendControl
                 .rejectedPredictions,
             subLayers: [
               REJECTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
@@ -193,7 +196,7 @@ export const StartMappingPage = () => {
       ? [
           {
             value:
-              startMappingPageContent.map.controls.legendControl
+              START_MAPPING_PAGE_CONTENT.map.controls.legendControl
                 .predictionResults,
             subLayers: [
               ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
@@ -251,30 +254,33 @@ export const StartMappingPage = () => {
 
   const downloadOptions: TDownloadOptions = [
     {
-      name: startMappingPageContent.buttons.download.options.allFeatures,
-      value: startMappingPageContent.buttons.download.options.allFeatures,
+      name: START_MAPPING_PAGE_CONTENT.buttons.download.options.allFeatures,
+      value: START_MAPPING_PAGE_CONTENT.buttons.download.options.allFeatures,
       onClick: handleAllFeaturesDownload,
       showOnMobile: true,
     },
     {
-      name: startMappingPageContent.buttons.download.options.acceptedFeatures,
-      value: startMappingPageContent.buttons.download.options.acceptedFeatures,
+      name: START_MAPPING_PAGE_CONTENT.buttons.download.options
+        .acceptedFeatures,
+      value:
+        START_MAPPING_PAGE_CONTENT.buttons.download.options.acceptedFeatures,
       onClick: handleAcceptedFeaturesDownload,
       showOnMobile: true,
     },
     {
-      name: startMappingPageContent.buttons.download.options
+      name: START_MAPPING_PAGE_CONTENT.buttons.download.options
         .openAllFeaturesInJOSM,
       value:
-        startMappingPageContent.buttons.download.options.openAllFeaturesInJOSM,
+        START_MAPPING_PAGE_CONTENT.buttons.download.options
+          .openAllFeaturesInJOSM,
       onClick: handleAllFeaturesDownloadToJOSM,
       showOnMobile: false,
     },
     {
-      name: startMappingPageContent.buttons.download.options
+      name: START_MAPPING_PAGE_CONTENT.buttons.download.options
         .openAcceptedFeaturesInJOSM,
       value:
-        startMappingPageContent.buttons.download.options
+        START_MAPPING_PAGE_CONTENT.buttons.download.options
           .openAcceptedFeaturesInJOSM,
       onClick: handleAcceptedFeaturesDownloadToJOSM,
       showOnMobile: false,
@@ -295,7 +301,7 @@ export const StartMappingPage = () => {
 
   return (
     <>
-      <Head title={startMappingPageContent.pageTitle(data?.name)} />
+      <Head title={START_MAPPING_PAGE_CONTENT.pageTitle(data?.name)} />
       {/* Mobile dialog */}
       <div className="h-screen flex flex-col fullscreen">
         <StartMappingMobileDrawer

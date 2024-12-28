@@ -18,11 +18,11 @@ import {
   ModelListTableLayout,
 } from "@/features/models/layouts";
 import { useDialog } from "@/hooks/use-dialog";
-import { APP_CONTENT } from "@/utils";
+
 import ModelNotFound from "@/features/models/components/model-not-found";
 import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
 import { useAuth } from "@/app/providers/auth-provider";
-import { modelPagesContent } from "@/constants";
+import { MODELS_CONTENT } from "@/constants";
 import { PAGE_LIMIT } from "@/components/shared";
 
 export const UserModelsPage = () => {
@@ -73,11 +73,11 @@ export const UserModelsPage = () => {
         updateQuery={updateQuery}
         disabled={isPending}
       />
-      <Head title={modelPagesContent.myModels.pageTitle} />
+      <Head title={MODELS_CONTENT.myModels.pageTitle} />
       <section className="my-10 min-h-screen">
         <PageHeader
-          title={modelPagesContent.myModels.pageHeader}
-          description={modelPagesContent.myModels.pageDescription}
+          title={MODELS_CONTENT.myModels.pageHeader}
+          description={MODELS_CONTENT.myModels.pageDescription}
         />
         {/* Filters */}
         <div className="sticky top-0 bg-white z-10 py-2">
@@ -130,7 +130,7 @@ export const UserModelsPage = () => {
                 <p className="font-semibold text-body-3">
                   {data?.count}{" "}
                   {
-                    APP_CONTENT.models.modelsList.sortingAndPaginationSection
+                    MODELS_CONTENT.models.modelsList.sortingAndPaginationSection
                       .modelCountSuffix
                   }
                 </p>

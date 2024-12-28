@@ -8,7 +8,7 @@ import { CheckIcon } from "@/components/ui/icons";
 import { useState } from "react";
 import { useGetTrainingDatasets } from "@/features/model-creation/hooks/use-training-datasets";
 import useDebounce from "@/hooks/use-debounce";
-import { MODEL_CREATION_CONTENT } from "@/utils";
+import { MODELS_CONTENT } from "@/constants";
 import { SkeletonWrapper } from "@/components/ui/skeleton";
 
 const SelectExistingTrainingDatasetForm = () => {
@@ -22,7 +22,7 @@ const SelectExistingTrainingDatasetForm = () => {
     <div className="flex flex-col gap-y-10">
       <p className="font-semibold text-body-2 md:text-body-1 mb-2">
         {
-          MODEL_CREATION_CONTENT.trainingDataset.form
+          MODELS_CONTENT.modelCreation.trainingDataset.form
             .existingTrainingDatasetSectionHeading
         }
       </p>
@@ -34,7 +34,8 @@ const SelectExistingTrainingDatasetForm = () => {
           }}
           value={searchQuery}
           placeholder={
-            MODEL_CREATION_CONTENT.trainingDataset.form.searchBar.placeholder
+            MODELS_CONTENT.modelCreation.trainingDataset.form.searchBar
+              .placeholder
           }
           disabled={isError}
         />

@@ -10,7 +10,7 @@ import {
   GOOGLE_SATELLITE_BASEMAP_LAYER_ID,
   OSM_BASEMAP_LAYER_ID,
   TMS_LAYER_ID,
-} from "@/utils";
+} from "@/constants";
 import useScreenSize from "@/hooks/use-screen-size";
 
 type TLayers = { id?: string; subLayers: string[]; value: string }[];

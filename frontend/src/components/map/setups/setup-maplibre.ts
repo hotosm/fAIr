@@ -1,5 +1,5 @@
 import { BASEMAPS } from "@/enums";
-import { MAP_STYLES, MAX_ZOOM_LEVEL } from "@/utils";
+import { MAP_STYLES, MAX_ZOOM_LEVEL } from "@/constants";
 import maplibregl, { Map } from "maplibre-gl";
 import { Protocol } from "pmtiles";
 

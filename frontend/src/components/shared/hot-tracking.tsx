@@ -1,5 +1,6 @@
 import { ENVS } from "@/config/env";
-import { APPLICATION_ROUTES, HOT_TRACKING_HTML_TAG_NAME } from "@/utils";
+import { APPLICATION_ROUTES } from "@/constants";
+import { HOT_TRACKING_HTML_TAG_NAME } from "@/constants";
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 

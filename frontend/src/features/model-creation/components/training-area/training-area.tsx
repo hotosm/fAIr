@@ -17,11 +17,10 @@ import {
 import OpenAerialMap from "@/features/model-creation/components/training-area/open-area-map";
 import {
   extractTileJSONURL,
-  MODEL_CREATION_CONTENT,
   showSuccessToast,
   snapGeoJSONGeometryToClosestTile,
 } from "@/utils";
-import { TOAST_NOTIFICATIONS } from "@/constants";
+import { TOAST_NOTIFICATIONS, MODELS_CONTENT } from "@/constants";
 import { DrawingModes, SHOELACE_SIZES } from "@/enums";
 import { GeoJSONType, Geometry } from "@/types";
 import { geojsonToWKT } from "@terraformer/wkt";
@@ -88,17 +87,19 @@ const TrainingAreaForm = () => {
         <div className="flex md:justify-between md:items-center flex-col md:flex-row gap-y-4 mb-10">
           <div className="basis-2/3">
             <StepHeading
-              heading={MODEL_CREATION_CONTENT.trainingArea.pageTitle}
-              description={MODEL_CREATION_CONTENT.trainingArea.pageDescription}
+              heading={MODELS_CONTENT.modelCreation.trainingArea.pageTitle}
+              description={
+                MODELS_CONTENT.modelCreation.trainingArea.pageDescription
+              }
             />
           </div>
           <div className="flex flex-col md:items-end gap-y-4 ">
             <p className="flex items-center gap-x-2">
               <YouTubePlayIcon className="icon-lg" />
-              {MODEL_CREATION_CONTENT.trainingArea.tutorialText}
+              {MODELS_CONTENT.modelCreation.trainingArea.tutorialText}
             </p>
             <p className="text-dark">
-              {MODEL_CREATION_CONTENT.trainingArea.datasetID}{" "}
+              {MODELS_CONTENT.modelCreation.trainingArea.datasetID}{" "}
               {formData.selectedTrainingDatasetId}
             </p>
           </div>
@@ -192,7 +193,7 @@ const ActionButtons = ({
           }}
         >
           <div className="flex items-center gap-x-1 md:gap-x-2">
-            <p>{MODEL_CREATION_CONTENT.trainingArea.form.draw}</p>
+            <p>{MODELS_CONTENT.modelCreation.trainingArea.form.draw}</p>
             <div className="w-4 h-4 border-2 rounded-md border-white"></div>
           </div>
         </Button>
@@ -200,7 +201,7 @@ const ActionButtons = ({
       <div className="w-full">
         <ButtonWithIcon
           size={isTablet ? SHOELACE_SIZES.SMALL : SHOELACE_SIZES.MEDIUM}
-          label={MODEL_CREATION_CONTENT.trainingArea.form.upload}
+          label={MODELS_CONTENT.modelCreation.trainingArea.form.upload}
           variant="dark"
           suffixIcon={UploadIcon}
           onClick={toggle}
