@@ -212,3 +212,8 @@ export const TRAINING_AREA_LABELS_FETCH_POOLING_TIME_MS =
  */
 export const OSM_LAST_UPDATED_POOLING_INTERVAL_MS =
   ENVS.OSM_LAST_UPDATED_POOLING_INTERVAL_MS || 10000;
+
+/**
+ * Distance of the elements from the navbar in px for dropdowns and popups on the start mapping page.
+ */
+export const ELEMENT_DISTANCE_FROM_NAVBAR = 10;

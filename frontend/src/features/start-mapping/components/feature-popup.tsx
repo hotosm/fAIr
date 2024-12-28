@@ -13,7 +13,6 @@ import {
 import { showErrorToast } from "@/utils";
 import { geojsonToWKT } from "@terraformer/wkt";
 import { useAuth } from "@/app/providers/auth-provider";
-import { TModelPredictionsConfig } from "@/features/start-mapping/api/get-model-predictions";
 import { START_MAPPING_PAGE_CONTENT } from "@/constants";
 
 const PredictedFeatureActionPopup = ({
@@ -23,7 +22,6 @@ const PredictedFeatureActionPopup = ({
   modelPredictions,
   trainingId,
   source_imagery,
-  trainingConfig,
   map,
 }: {
   event: any;
@@ -34,7 +32,6 @@ const PredictedFeatureActionPopup = ({
   >;
   source_imagery: string;
   trainingId: number;
-  trainingConfig: TModelPredictionsConfig;
   map: Map | null;
 }) => {
   const featureId = selectedFeature.properties.id;
@@ -170,7 +167,7 @@ const PredictedFeatureActionPopup = ({
       onSuccess: async (_, variables) => {
         if (variables.createFeedback) {
           await createModelFeedbackMutation.mutateAsync({
-            zoom_level: trainingConfig.zoom_level,
+            zoom_level: feature?.properties.config.zoom_level,
             comments: comment,
             geom: geojsonToWKT(feature?.geometry as GeoJSONType),
             feedback_type: "TN",
@@ -204,13 +201,14 @@ const PredictedFeatureActionPopup = ({
       geom: geojsonToWKT(feature?.geometry as GeoJSONType),
       training: trainingId,
       config: {
-        areathreshold: Number(trainingConfig.area_threshold),
-        confidence: trainingConfig.confidence,
-        josmq: trainingConfig.use_josm_q,
-        maxanglechange: trainingConfig.max_angle_change,
-        skewtolerance: trainingConfig.skew_tolerance,
-        tolerance: trainingConfig.tolerance,
-        zoomlevel: trainingConfig.zoom_level,
+        // Use the configuration when the prediction was made.
+        areathreshold: feature?.properties.config.area_threshold,
+        confidence: feature?.properties.config.confidence,
+        josmq: feature?.properties.config.use_josmq,
+        maxanglechange: feature?.properties.config.max_angle_change,
+        skewtolerance: feature?.properties.config.skew_tolerance,
+        tolerance: feature?.properties.config.tolerance,
+        zoomlevel: feature?.properties.config.zoom_level,
       },
       user: user.osm_id,
     });
@@ -263,7 +261,7 @@ const PredictedFeatureActionPopup = ({
       });
     } else {
       await createModelFeedbackMutation.mutateAsync({
-        zoom_level: trainingConfig.zoom_level,
+        zoom_level: feature?.properties.config.zoom_level,
         comments: comment,
         geom: geojsonToWKT(feature?.geometry as GeoJSONType),
         feedback_type: "TN",

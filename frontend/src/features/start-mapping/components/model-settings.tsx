@@ -3,7 +3,10 @@ import { DropDown } from "@/components/ui/dropdown";
 import { FormLabel, Input, Select, Switch } from "@/components/ui/form";
 import { SettingsIcon } from "@/components/ui/icons";
 import { ToolTip } from "@/components/ui/tooltip";
-import { START_MAPPING_PAGE_CONTENT } from "@/constants";
+import {
+  ELEMENT_DISTANCE_FROM_NAVBAR,
+  START_MAPPING_PAGE_CONTENT,
+} from "@/constants";
 import { DropdownPlacement, INPUT_TYPES, SHOELACE_SIZES } from "@/enums";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 
@@ -139,7 +142,7 @@ export const ModelSettings = ({
     return (
       <DropDown
         placement={DropdownPlacement.TOP_END}
-        distance={40}
+        distance={ELEMENT_DISTANCE_FROM_NAVBAR}
         disableCheveronIcon
         dropdownIsOpened={dropdownIsOpened}
         onDropdownHide={onModelSettingsDropdownHide}

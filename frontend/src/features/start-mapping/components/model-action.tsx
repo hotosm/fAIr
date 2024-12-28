@@ -4,7 +4,7 @@ import { useGetModelPredictions } from "@/features/start-mapping/hooks/use-model
 
 import { START_MAPPING_PAGE_CONTENT, TOAST_NOTIFICATIONS } from "@/constants";
 import { useCallback } from "react";
-import { TModelPredictionsConfig } from "../api/get-model-predictions";
+import { TModelPredictionsConfig } from "@/features/start-mapping/api/get-model-predictions";
 import { Map } from "maplibre-gl";
 import { ToolTip } from "@/components/ui/tooltip";
 
@@ -30,6 +30,7 @@ const ModelAction = ({
         const conflatedResults = handleConflation(
           modelPredictions,
           data.features,
+          trainingConfig,
         );
         setModelPredictions(conflatedResults);
       },

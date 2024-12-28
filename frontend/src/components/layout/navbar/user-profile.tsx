@@ -2,7 +2,11 @@ import styles from "@/components/layout/navbar/navbar.module.css";
 import SlAvatar from "@shoelace-style/shoelace/dist/react/avatar/index.js";
 import { DropDown } from "@/components/ui/dropdown";
 import { useNavigate } from "react-router-dom";
-import { APPLICATION_ROUTES, SHARED_CONTENT } from "@/constants";
+import {
+  APPLICATION_ROUTES,
+  ELEMENT_DISTANCE_FROM_NAVBAR,
+  SHARED_CONTENT,
+} from "@/constants";
 import { truncateString } from "@/utils";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { useAuth } from "@/app/providers/auth-provider";
@@ -53,7 +57,7 @@ export const UserProfile = ({
           className: "logoutButton",
         },
       ]}
-      distance={10}
+      distance={ELEMENT_DISTANCE_FROM_NAVBAR}
       placement={DropdownPlacement.BOTTOM_END}
       triggerComponent={
         <div className={styles.userProfile}>

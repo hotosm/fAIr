@@ -34,11 +34,12 @@ import {
 } from "@/constants";
 import { useMapInstance } from "@/hooks/use-map-instance";
 import useScreenSize from "@/hooks/use-screen-size";
-import { ModelDetailsPopUp } from "@/features/models/components";
+import { ModelDetailsPopUp } from "@/features/start-mapping/components";
 import { UserProfile } from "@/components/layout";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { FitToBounds, LayerControl, ZoomLevel } from "@/components/map";
 import { LngLatBoundsLike } from "maplibre-gl";
+import { TModelPredictionsConfig } from "@/features/start-mapping/api/get-model-predictions";
 
 export type TDownloadOptions = {
   name: string;
@@ -141,7 +142,7 @@ export const StartMappingPage = () => {
     [searchParams, setSearchParams],
   );
 
-  const trainingConfig = {
+  const trainingConfig: TModelPredictionsConfig = {
     tolerance: query[SEARCH_PARAMS.tolerance] as number,
     area_threshold: query[SEARCH_PARAMS.area] as number,
     use_josm_q: query[SEARCH_PARAMS.useJOSMQ] as boolean,
@@ -254,16 +255,23 @@ export const StartMappingPage = () => {
 
   const downloadOptions: TDownloadOptions = [
     {
-      name: START_MAPPING_PAGE_CONTENT.buttons.download.options.allFeatures,
-      value: START_MAPPING_PAGE_CONTENT.buttons.download.options.allFeatures,
+      name: START_MAPPING_PAGE_CONTENT.buttons.download.options.allFeatures(
+        isSmallViewport ? "All" : "Download all",
+      ),
+      value: START_MAPPING_PAGE_CONTENT.buttons.download.options.allFeatures(
+        isSmallViewport ? "All" : "Download all",
+      ),
       onClick: handleAllFeaturesDownload,
       showOnMobile: true,
     },
     {
-      name: START_MAPPING_PAGE_CONTENT.buttons.download.options
-        .acceptedFeatures,
+      name: START_MAPPING_PAGE_CONTENT.buttons.download.options.acceptedFeatures(
+        isSmallViewport ? "Accepted" : "Download accepted",
+      ),
       value:
-        START_MAPPING_PAGE_CONTENT.buttons.download.options.acceptedFeatures,
+        START_MAPPING_PAGE_CONTENT.buttons.download.options.acceptedFeatures(
+          isSmallViewport ? "Accepted" : "Download accepted",
+        ),
       onClick: handleAcceptedFeaturesDownload,
       showOnMobile: true,
     },
@@ -384,7 +392,6 @@ export const StartMappingPage = () => {
             trainingDataset={trainingDataset}
             modelPredictions={modelPredictions}
             setModelPredictions={setModelPredictions}
-            trainingConfig={trainingConfig}
             oamTileJSONIsError={oamTileJSONIsError}
             oamTileJSON={oamTileJSON as TileJSON}
             oamTileJSONError={oamTileJSONError}

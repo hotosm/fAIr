@@ -4,7 +4,10 @@ import { SkeletonWrapper } from "@/components/ui/skeleton";
 import { extractDatePart, roundNumber, truncateString } from "@/utils";
 import { TModelDetails, TTrainingDataset } from "@/types";
 import { useTrainingDetails } from "@/features/models/hooks/use-training";
-import { START_MAPPING_PAGE_CONTENT } from "@/constants";
+import {
+  ELEMENT_DISTANCE_FROM_NAVBAR,
+  START_MAPPING_PAGE_CONTENT,
+} from "@/constants";
 import useScreenSize from "@/hooks/use-screen-size";
 import { MobileDrawer } from "@/components/ui/drawer";
 
@@ -44,7 +47,10 @@ const ModelDetailsPopUp = ({
   const { isSmallViewport } = useScreenSize();
 
   const popupContent = (
-    <SkeletonWrapper showSkeleton={Boolean(modelId && isPending)}>
+    <SkeletonWrapper
+      showSkeleton={Boolean(modelId && isPending)}
+      skeletonClassName="h-40"
+    >
       <div className="flex flex-col gap-y-3 text-dark font-normal text-body-3">
         <p>
           {START_MAPPING_PAGE_CONTENT.modelDetails.popover.modelId}:{" "}
@@ -127,7 +133,7 @@ const ModelDetailsPopUp = ({
         open={showPopup}
         dialogTitle="Model Details"
         closeDrawer={closeMobileDrawer}
-        snapPoints={[0.5, 0.8]}
+        snapPoints={[0.5, 1]}
         canClose
       >
         <div className={`app-padding flex flex-col`}>
@@ -151,7 +157,7 @@ const ModelDetailsPopUp = ({
       active={showPopup}
       anchor={anchor}
       placement="bottom-start"
-      distance={40}
+      distance={ELEMENT_DISTANCE_FROM_NAVBAR}
     >
       <div
         className={`border bg-white border-gray-border shadown-sm rounded-xl w-[350px] scrollable p-5 max-h-[400px] overflow-y-auto flex flex-col`}

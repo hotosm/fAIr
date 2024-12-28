@@ -19,8 +19,7 @@ import {
   TTrainingDataset,
 } from "@/types";
 import { extractTileJSONURL, showErrorToast } from "@/utils";
-import PredictedFeatureActionPopup from "@/features/start-mapping/components/popup";
-import { TModelPredictionsConfig } from "@/features/start-mapping/api/get-model-predictions";
+import PredictedFeatureActionPopup from "@/features/start-mapping/components/feature-popup";
 import {
   TOAST_NOTIFICATIONS,
   ACCEPTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
@@ -44,7 +43,6 @@ export const StartMappingMapComponent = ({
   trainingDataset,
   modelPredictions,
   setModelPredictions,
-  trainingConfig,
   oamTileJSONIsError,
   oamTileJSON,
   oamTileJSONError,
@@ -60,7 +58,7 @@ export const StartMappingMapComponent = ({
   setModelPredictions: Dispatch<
     SetStateAction<{ all: Feature[]; accepted: Feature[]; rejected: Feature[] }>
   >;
-  trainingConfig: TModelPredictionsConfig;
+
   oamTileJSONIsError: boolean;
   oamTileJSON: TileJSON;
   oamTileJSONError: any;
@@ -292,7 +290,6 @@ export const StartMappingMapComponent = ({
           modelPredictions={modelPredictions}
           source_imagery={trainingDataset?.source_imagery as string}
           trainingId={trainingDataset?.id as number}
-          trainingConfig={trainingConfig}
           map={map}
         />
       )}

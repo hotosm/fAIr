@@ -8,7 +8,7 @@ export const MobileDrawer = ({
   dialogTitle,
   canClose = false,
   closeDrawer,
-  snapPoints = [0.2, 0.4, 0.8],
+  snapPoints = [0.2, 0.5, 0.8],
 }: {
   open: boolean;
   children: React.ReactNode;

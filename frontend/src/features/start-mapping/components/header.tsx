@@ -2,7 +2,6 @@ import { ButtonWithIcon } from "@/components/ui/button";
 import { DropDown } from "@/components/ui/dropdown";
 import { ChevronDownIcon } from "@/components/ui/icons";
 import { SkeletonWrapper } from "@/components/ui/skeleton";
-
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { TModel, TModelPredictions } from "@/types";
 import { ModelSettings } from "@/features/start-mapping/components/model-settings";
@@ -11,7 +10,10 @@ import ModelAction from "@/features/start-mapping/components/model-action";
 import { TModelPredictionsConfig } from "@/features/start-mapping/api/get-model-predictions";
 import { DropdownPlacement, SHOELACE_SIZES } from "@/enums";
 import { UserProfile } from "@/components/layout";
-import { START_MAPPING_PAGE_CONTENT } from "@/constants";
+import {
+  ELEMENT_DISTANCE_FROM_NAVBAR,
+  START_MAPPING_PAGE_CONTENT,
+} from "@/constants";
 import { Map } from "maplibre-gl";
 import { ToolTip } from "@/components/ui/tooltip";
 import { ModelDetailsButton } from "@/features/start-mapping/components/model-details-button";
@@ -23,6 +25,7 @@ const StartMappingHeader = ({
   modelPredictions,
   modelPredictionsExist,
   trainingDatasetIsPending,
+  trainingDatasetIsError,
   query,
   updateQuery,
   trainingConfig,
@@ -62,7 +65,10 @@ const StartMappingHeader = ({
   } = useDropdownMenu();
 
   return (
-    <SkeletonWrapper showSkeleton={trainingDatasetIsPending}>
+    <SkeletonWrapper
+      showSkeleton={trainingDatasetIsPending || trainingDatasetIsError}
+      skeletonClassName="h-10"
+    >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-x-4">
           <BrandLogoWithDropDown
@@ -86,7 +92,7 @@ const StartMappingHeader = ({
         </div>
         <div className="flex flex-row items-center gap-x-4">
           <ModelSettings updateQuery={updateQuery} query={query} />
-          <div className="flex flex-row items-center gap-y-3">
+          <div className="flex flex-row items-center gap-y-3 gap-x-2">
             <ModelPredictionsTracker
               modelPredictions={modelPredictions}
               clearPredictions={clearPredictions}
@@ -98,6 +104,7 @@ const StartMappingHeader = ({
               onDropdownHide={onDropdownHide}
               onDropdownShow={onDropdownShow}
               menuItems={downloadOptions}
+              distance={ELEMENT_DISTANCE_FROM_NAVBAR}
               triggerComponent={
                 <ToolTip
                   content={
@@ -114,6 +121,7 @@ const StartMappingHeader = ({
                     suffixIcon={ChevronDownIcon}
                     label={START_MAPPING_PAGE_CONTENT.buttons.download.label}
                     size={SHOELACE_SIZES.SMALL}
+                    className="text-body-3"
                     variant="secondary"
                     disabled={!modelPredictionsExist}
                     iconClassName={

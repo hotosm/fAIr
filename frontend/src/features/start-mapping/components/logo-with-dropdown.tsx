@@ -5,6 +5,7 @@ import { Link } from "@/components/ui/link";
 import { navLinks } from "@/constants/general";
 import { DropdownPlacement } from "@/enums";
 import { useNavigate } from "react-router-dom";
+import { ELEMENT_DISTANCE_FROM_NAVBAR } from "@/constants";
 
 type BrandLogoWithDropDownProps = {
   isOpened: boolean;
@@ -23,7 +24,7 @@ export const BrandLogoWithDropDown = function BrandLogoWithDropDown({
         disableLinkStyle
         title={link.title}
         href={link.href}
-        className="text-dark text-body-3 block py-1"
+        className={`text-dark text-nowrap text-body-3 block hover:bg-off-white py-2 px-4  ${id === 0 ? "hover:rounded-t-xl" : ""}`}
         nativeAnchor={false}
       >
         {link.title}
@@ -39,18 +40,14 @@ export const BrandLogoWithDropDown = function BrandLogoWithDropDown({
       onDropdownHide={onClose}
       onDropdownShow={onShow}
       triggerComponent={<NavLogo onClick={() => null} smallerSize />}
-      distance={1}
-      className="rounded-2xl"
+      distance={ELEMENT_DISTANCE_FROM_NAVBAR}
+      className="rounded-xl"
     >
-      <div className="bg-white flex flex-col gap-4 p-4 rounded-2xl">
-        <ul className="flex flex-col gap-y-2">{navItems}</ul>
+      <div className="bg-white flex flex-col rounded-xl w-full">
+        <ul className="flex flex-col">{navItems}</ul>
         <Divider />
         <button
-          className="
-            text-body-3
-            text-start
-            text-primary  
-          "
+          className="text-body-3  block w-full px-4 py-2 text-start hover:bg-off-white hover:rounded-b-xl text-primary"
           onClick={() => navigate(-1)}
         >
           Exit

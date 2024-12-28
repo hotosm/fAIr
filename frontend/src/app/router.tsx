@@ -277,9 +277,9 @@ const router = createBrowserRouter([
           );
           return {
             Component: () => (
-              // <ProtectedRoute>
-              <StartMappingPage />
-              // </ProtectedRoute>
+              <ProtectedRoute>
+                <StartMappingPage />
+              </ProtectedRoute>
             ),
           };
         },

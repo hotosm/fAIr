@@ -38,7 +38,7 @@ const ButtonWithIcon: React.FC<ButtonWithIconProps> = ({
         uppercase={uppercase}
       >
         {PrefixIcon && <PrefixIcon className={cn(`icon ${iconClassName}`)} />}
-        <p>{label}</p>
+        <p className={className}>{label}</p>
         {SuffixIcon && <SuffixIcon className={cn(`icon ${iconClassName}`)} />}
       </Button>
     </div>

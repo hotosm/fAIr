@@ -49,7 +49,7 @@ export const Legend = ({ map }: { map: Map | null }) => {
   return (
     <button
       disabled={!activeFillLayers}
-      className={`flex items-center gap-x-4 bg-white p-2.5 ${isSmallViewport ? "rounded-xl border border-gray-border" : "absolute flex-col gap-y-4 left-3 bottom-3 rounded-[4px] border border-gray-border"}`}
+      className={`flex items-center gap-x-4 bg-white p-2.5 rounded-xl  ${isSmallViewport ? "border border-gray-border" : "absolute flex-col gap-y-4 left-3 bottom-3 rounded-[4px] border border-gray-border"}`}
       onClick={handleToggleExpand}
     >
       {!expandLegend && isSmallViewport && (

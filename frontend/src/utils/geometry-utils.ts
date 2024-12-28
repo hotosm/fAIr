@@ -10,6 +10,7 @@ import area from "@turf/area";
 import { LngLatBoundsLike, Map } from "maplibre-gl";
 import { roundNumber } from "./number-utils";
 import { uuid4 } from "./general-utils";
+import { TModelPredictionsConfig } from "@/features/start-mapping/api/get-model-predictions";
 
 /**
  * Calculates the area of a GeoJSON Feature or FeatureCollection.
@@ -321,6 +322,7 @@ export const snapGeoJSONGeometryToClosestTile = (geometry: Geometry) => {
 export const handleConflation = (
   existingPredictions: TModelPredictions,
   newFeatures: Feature[],
+  predictionConfig: TModelPredictionsConfig,
 ): TModelPredictions => {
   let updatedAll = [...existingPredictions.all];
 
@@ -342,6 +344,7 @@ export const handleConflation = (
         properties: {
           ...newFeature.properties,
           id: updatedAll[intersectingIndex].properties?.id || uuid4(),
+          config: predictionConfig,
         },
       };
     } else if (!intersectsWithAccepted && !intersectsWithRejected) {
@@ -350,6 +353,7 @@ export const handleConflation = (
         properties: {
           ...newFeature.properties,
           id: uuid4(),
+          config: predictionConfig,
         },
       });
     }

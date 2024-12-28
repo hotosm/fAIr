@@ -534,8 +534,8 @@ export type TStartMappingPageContent = {
     download: {
       label: string;
       options: {
-        allFeatures: string;
-        acceptedFeatures: string;
+        allFeatures: (prefix: string) => string;
+        acceptedFeatures: (prefix: string) => string;
         openAllFeaturesInJOSM: string;
         openAcceptedFeaturesInJOSM: string;
       };
