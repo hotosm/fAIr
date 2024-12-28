@@ -19,6 +19,7 @@ type PaginationProps = {
   setOffset?: (offset: number) => void;
   showCountOnMobile?: boolean;
   centerOnMobile?: boolean;
+  scrollToTopOnPageSwitch?: boolean
 };
 
 export const Pagination: React.FC<PaginationProps> = ({
@@ -35,6 +36,7 @@ export const Pagination: React.FC<PaginationProps> = ({
   setOffset,
   showCountOnMobile = false,
   centerOnMobile = true,
+  scrollToTopOnPageSwitch = false
 }) => {
   const _offset = offset ?? (query?.[SEARCH_PARAMS.offset] as number);
   const { scrollToTop } = useScrollToTop();
@@ -57,8 +59,11 @@ export const Pagination: React.FC<PaginationProps> = ({
         [SEARCH_PARAMS.offset]: Math.max(prevOffset, 0),
       });
       setOffset?.(Math.max(prevOffset, 0));
-      // scroll to top
-      scrollToTop();
+      // scroll to top only on models page
+      if (scrollToTopOnPageSwitch) {
+        scrollToTop();
+      }
+
     }
   };
 

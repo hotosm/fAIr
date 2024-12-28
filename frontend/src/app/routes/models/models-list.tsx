@@ -220,6 +220,7 @@ export const ModelsPage = () => {
                     updateQuery={updateQuery}
                     isPlaceholderData={isPlaceholderData}
                     centerOnMobile={false}
+                    scrollToTopOnPageSwitch
                   />
                 </div>
               </div>
@@ -239,6 +240,7 @@ export const ModelsPage = () => {
             query={query}
             updateQuery={updateQuery}
             isPlaceholderData={isPlaceholderData}
+            scrollToTopOnPageSwitch
           />
         </div>
       </section>
