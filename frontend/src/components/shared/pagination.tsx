@@ -47,8 +47,10 @@ export const Pagination: React.FC<PaginationProps> = ({
         [SEARCH_PARAMS.offset]: _offset + pageLimit,
       });
       setOffset?.(nextOffset);
-      // scroll to top
-      scrollToTop();
+      // scroll to top only on models page
+      if (scrollToTopOnPageSwitch) {
+        scrollToTop();
+      }
     }
   };
 
