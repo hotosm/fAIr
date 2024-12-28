@@ -11,7 +11,6 @@ import {
   OSM_BASEMAP_LAYER_ID,
   TMS_LAYER_ID,
 } from "@/constants";
-import useScreenSize from "@/hooks/use-screen-size";
 
 type TLayers = { id?: string; subLayers: string[]; value: string }[];
 type TBasemaps = { id?: string; subLayer: string; value: string }[];
@@ -29,7 +28,6 @@ export const LayerControl = ({
 }) => {
   const { dropdownIsOpened, onDropdownHide, onDropdownShow } =
     useDropdownMenu();
-  const { isTablet, isMobile } = useScreenSize();
 
   const layerControlData = useMemo(() => {
     const layers_ = [
@@ -40,12 +38,12 @@ export const LayerControl = ({
     ];
     const baseLayers: TBasemaps = basemaps
       ? [
-          { value: BASEMAPS.OSM, subLayer: OSM_BASEMAP_LAYER_ID },
-          {
-            value: BASEMAPS.GOOGLE_SATELLITE,
-            subLayer: GOOGLE_SATELLITE_BASEMAP_LAYER_ID,
-          },
-        ]
+        { value: BASEMAPS.OSM, subLayer: OSM_BASEMAP_LAYER_ID },
+        {
+          value: BASEMAPS.GOOGLE_SATELLITE,
+          subLayer: GOOGLE_SATELLITE_BASEMAP_LAYER_ID,
+        },
+      ]
       : [];
     return { layers_, baseLayers };
   }, [layers, openAerialMap, basemaps]);
