@@ -26,7 +26,7 @@ const ButtonWithIcon: React.FC<ButtonWithIconProps> = ({
   disabled,
   size,
   uppercase,
-  textClassName
+  textClassName,
 }) => {
   return (
     <div role="button">

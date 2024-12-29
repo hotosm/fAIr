@@ -38,12 +38,12 @@ export const LayerControl = ({
     ];
     const baseLayers: TBasemaps = basemaps
       ? [
-        { value: BASEMAPS.OSM, subLayer: OSM_BASEMAP_LAYER_ID },
-        {
-          value: BASEMAPS.GOOGLE_SATELLITE,
-          subLayer: GOOGLE_SATELLITE_BASEMAP_LAYER_ID,
-        },
-      ]
+          { value: BASEMAPS.OSM, subLayer: OSM_BASEMAP_LAYER_ID },
+          {
+            value: BASEMAPS.GOOGLE_SATELLITE,
+            subLayer: GOOGLE_SATELLITE_BASEMAP_LAYER_ID,
+          },
+        ]
       : [];
     return { layers_, baseLayers };
   }, [layers, openAerialMap, basemaps]);

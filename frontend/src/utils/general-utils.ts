@@ -1,6 +1,6 @@
 import { API_ENDPOINTS, BASE_API_URL } from "@/services";
 import { Feature, FeatureCollection } from "@/types";
-import { calculateGeoJSONArea } from "@/utils";
+import { calculateGeoJSONArea, geojsonToOsmPolygons } from "@/utils";
 import { useToastNotification } from "@/hooks/use-toast-notification";
 import {
   TOAST_NOTIFICATIONS,
@@ -10,7 +10,6 @@ import {
   MIN_TRAINING_AREA_SIZE,
   OSM_HASHTAGS,
 } from "@/constants";
-import { geojsonToOsmPolygons } from "@/lib";
 import bbox from "@turf/bbox";
 
 /**

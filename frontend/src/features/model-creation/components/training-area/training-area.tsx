@@ -181,7 +181,7 @@ const ActionButtons = ({
   const { isTablet } = useScreenSize();
   return (
     <div
-      className={`flex gap-y-2 mt-auto px-4 md:px-1 lg:px-4  w-full ${trainingAreasDataCount === 0 ? "flex-col" : "items-center justify-between gap-x-1 md:gap-x-2 "}"`}
+      className={`flex gap-y-2 mt-auto px-4 md:px-1 lg:px-4  w-full ${trainingAreasDataCount === 0 ? "flex-col w-full" : "items-center justify-between gap-x-1 md:gap-x-2 "}"`}
     >
       <div className="w-full">
         <Button

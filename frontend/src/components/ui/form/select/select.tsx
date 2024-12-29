@@ -5,7 +5,6 @@ import "./select.css";
 import { SHOELACE_SELECT_SIZES } from "@/enums";
 import { TShoelaceSize } from "@/types";
 
-
 type SelectProps = {
   label?: string;
   labelWithTooltip?: boolean;
@@ -24,7 +23,6 @@ type SelectProps = {
   className?: string;
 };
 
-
 const Select: React.FC<SelectProps> = ({
   label,
   toolTipContent,
@@ -42,7 +40,9 @@ const Select: React.FC<SelectProps> = ({
 
   const getSize = (): TShoelaceSize => {
     if (size) return size;
-    return isMobile ? SHOELACE_SELECT_SIZES.MEDIUM : SHOELACE_SELECT_SIZES.LARGE;
+    return isMobile
+      ? SHOELACE_SELECT_SIZES.MEDIUM
+      : SHOELACE_SELECT_SIZES.LARGE;
   };
 
   return (
@@ -71,12 +71,11 @@ const Select: React.FC<SelectProps> = ({
       )}
       {helpText && <HelpText content={helpText} />}
       {options?.map((option, id) => (
-        <SlOption
-          key={`select-option-${id}`}
-          value={option.value as string}
-        >
+        <SlOption key={`select-option-${id}`} value={option.value as string}>
           <span className="text-body-3">{option.name}</span>
-          <span slot="suffix" className="text-body-4 md:text-body-3">{option.suffix}</span>
+          <span slot="suffix" className="text-body-4 md:text-body-3">
+            {option.suffix}
+          </span>
         </SlOption>
       ))}
     </SlSelect>

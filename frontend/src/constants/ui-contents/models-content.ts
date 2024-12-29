@@ -45,7 +45,7 @@ export const MODELS_CONTENT: TModelsContent = {
           toolTip: "Model Description",
           helpText:
             "Model description should be at least 10 characters and at most 500 characters.",
-          placeholder: "Enter the model name",
+          placeholder: "Enter the model description",
         },
       },
       pageDescription:

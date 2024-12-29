@@ -1,13 +1,12 @@
 import { MapComponent, MapCursorToolTip } from "@/components/map";
 import { GeoJSONType, PaginatedTrainingArea } from "@/types";
 import { GeoJSONSource, Map } from "maplibre-gl";
-import { RefObject, useCallback, useEffect, useMemo, useState } from "react";
+import { RefObject, useCallback, useEffect, useState } from "react";
 import {
   useCreateTrainingArea,
   useGetTrainingDatasetLabels,
 } from "@/features/model-creation/hooks/use-training-areas";
 import { geojsonToWKT } from "@terraformer/wkt";
-import { useToastNotification } from "@/hooks/use-toast-notification";
 import {
   MAP_STYLES_PREFIX,
   MAX_TRAINING_AREA_SIZE,
@@ -25,6 +24,7 @@ import {
 import {
   calculateGeoJSONArea,
   formatAreaInAppropriateUnit,
+  showSuccessToast,
   snapGeoJSONGeometryToClosestTile,
   validateGeoJSONArea,
 } from "@/utils";
@@ -60,7 +60,6 @@ const TrainingAreaMap = ({
   terraDraw?: TerraDraw;
   mapContainerRef: RefObject<HTMLDivElement> | null;
 }) => {
-  const toast = useToastNotification();
   const trainingAreasLayerId = `${MAP_STYLES_PREFIX}-dataset-${trainingDatasetId}-training-area-layer`;
   const trainingAreasFillLayerId = `${MAP_STYLES_PREFIX}-dataset-${trainingDatasetId}-training-area-fill-layer`;
   const trainingDatasetLabelsSourceId = `${MAP_STYLES_PREFIX}-dataset-${trainingDatasetId}-training-labels-source`;
@@ -242,7 +241,7 @@ const TrainingAreaMap = ({
           { dataset: String(trainingDatasetId), geom: `SRID=4326;${wkt}` },
           {
             onSuccess: () =>
-              toast("Training area created successfully", "success"),
+              showSuccessToast("Training area created successfully"),
           },
         );
         terraDraw.clear();
@@ -274,7 +273,7 @@ const TrainingAreaMap = ({
     return "bg-black";
   };
 
-  const getFeedbackMessage = useMemo(() => {
+  const getFeedbackMessage = () => {
     if (featureArea !== 0) {
       if (featureArea < MIN_TRAINING_AREA_SIZE)
         return "Area too small. Expand to meet minimum size requirement.";
@@ -287,16 +286,11 @@ const TrainingAreaMap = ({
         return "Area is close to size limits. Adjust if needed before completing.";
       }
       return "Area within acceptable range. Release mouse to finish drawing.";
-    } else if (showLabelsToolTip) {
+    } else if (showLabelsToolTip && drawingMode !== DrawingModes.RECTANGLE) {
       return "Zoom in up to zoom 18 to see the fetched labels.";
     }
     return;
-  }, [
-    featureArea,
-    MIN_TRAINING_AREA_SIZE,
-    MAX_TRAINING_AREA_SIZE,
-    showLabelsToolTip,
-  ]);
+  };
 
   return (
     <MapComponent
@@ -341,14 +335,14 @@ const TrainingAreaMap = ({
         color={getTooltipColor()}
         tooltipPosition={tooltipPosition}
       >
-        {!showLabelsToolTip && (
+        {drawingMode === DrawingModes.RECTANGLE && (
           <p>
             {drawingMode === DrawingModes.RECTANGLE && featureArea === 0
               ? "Click and drag to draw a rectangle."
               : `Current area: ${formatAreaInAppropriateUnit(featureArea)}`}
           </p>
         )}
-        <p>{getFeedbackMessage}</p>
+        <p>{getFeedbackMessage()}</p>
       </MapCursorToolTip>
     </MapComponent>
   );

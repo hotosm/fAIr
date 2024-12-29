@@ -3,7 +3,6 @@ export * from "./date-utils";
 export * from "./number-utils";
 export * from "./string-utils";
 export * from "./regex-utils";
-export * from "./geometry-utils";
+export * from "./geo";
 export * from "./general-utils";
 export * from "./error-utils";
-export * from "./map-utils";

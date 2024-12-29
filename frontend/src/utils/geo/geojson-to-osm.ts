@@ -40,7 +40,7 @@ class Relation {
 }
 
 // Main Conversion Function
-function geojsonToOsmPolygons(geojson: FeatureCollection): string {
+export const geojsonToOsmPolygons = (geojson: FeatureCollection): string => {
   if (!geojson || geojson.type !== "FeatureCollection") {
     throw new Error("Invalid GeoJSON FeatureCollection");
   }
@@ -116,17 +116,17 @@ function geojsonToOsmPolygons(geojson: FeatureCollection): string {
   });
 
   return doc.end({ prettyPrint: true });
-}
+};
 
 // Helper Function to Process Polygons
-function processPolygon(
+const processPolygon = (
   coordinates: [number, number][][], // Array of Linear Rings
   properties: Record<string, any>,
   relations: Relation[],
   ways: Way[],
   nodes: Node[],
   nodesIndex: Record<string, Node>,
-): void {
+): void => {
   const relation = new Relation(properties);
   relation.tags.type = "multipolygon";
   // Optionally, add more tags based on properties
@@ -167,6 +167,4 @@ function processPolygon(
       way.nodes.push(nodesIndex[nodeHash]);
     }
   });
-}
-
-export { geojsonToOsmPolygons };
+};

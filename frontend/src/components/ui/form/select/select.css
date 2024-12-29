@@ -11,7 +11,7 @@ sl-select::part(display-input) {
 
 sl-select::part(listbox) {
   color: var(--hot-fair-color-dark);
-  font-size: var(--hot-fair-font-size-body-text-3); 
+  font-size: var(--hot-fair-font-size-body-text-3);
 }
 
 sl-option::part(base) {

@@ -8,4 +8,5 @@ export default {
   trailingComma: "all",
   printWidth: 80,
   useTabs: false,
+  endOfLine: "auto"
 };

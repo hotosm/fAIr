@@ -7,7 +7,12 @@ import {
   ELEMENT_DISTANCE_FROM_NAVBAR,
   START_MAPPING_PAGE_CONTENT,
 } from "@/constants";
-import { DropdownPlacement, INPUT_TYPES, SHOELACE_SELECT_SIZES, SHOELACE_SIZES } from "@/enums";
+import {
+  DropdownPlacement,
+  INPUT_TYPES,
+  SHOELACE_SELECT_SIZES,
+  SHOELACE_SIZES,
+} from "@/enums";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 
 const confidenceLevels = [
@@ -84,10 +89,7 @@ export const ModelSettings = ({
           options={confidenceLevels}
           defaultValue={query[SEARCH_PARAMS.confidenceLevel] as number}
           handleChange={(value) => {
-            handleQueryUpdate(
-              SEARCH_PARAMS.confidenceLevel,
-              Number(value),
-            );
+            handleQueryUpdate(SEARCH_PARAMS.confidenceLevel, Number(value));
           }}
         />
       </div>

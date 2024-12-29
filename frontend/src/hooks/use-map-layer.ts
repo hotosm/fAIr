@@ -1,4 +1,4 @@
-import { addLayers, addSources } from "@/utils/map-utils";
+import { addLayers, addSources } from "@/utils/geo/map-utils";
 import { LayerSpecification, Map, SourceSpecification } from "maplibre-gl";
 import { useCallback, useEffect } from "react";
 
