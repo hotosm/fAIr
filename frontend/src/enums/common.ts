@@ -41,6 +41,12 @@ export enum INPUT_TYPES {
   URL = "url",
 }
 
+export enum SHOELACE_SELECT_SIZES {
+  SMALL = "small",
+  MEDIUM = "medium",
+  LARGE = "large",
+}
+
 export enum SHOELACE_SIZES {
   SMALL = "small",
   MEDIUM = "medium",

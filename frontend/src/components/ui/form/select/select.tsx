@@ -2,7 +2,9 @@ import { SlOption, SlSelect } from "@shoelace-style/shoelace/dist/react";
 import useScreenSize from "@/hooks/use-screen-size";
 import { HelpText, FormLabel } from "@/components/ui/form";
 import "./select.css";
-import { SHOELACE_SIZES } from "@/enums";
+import { SHOELACE_SELECT_SIZES } from "@/enums";
+import { TShoelaceSize } from "@/types";
+
 
 type SelectProps = {
   label?: string;
@@ -16,11 +18,12 @@ type SelectProps = {
     suffix?: string;
   }[];
   defaultValue: string | number;
-  handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleChange: (value: number | string) => void;
   required?: boolean;
-  size?: SHOELACE_SIZES | undefined;
+  size?: TShoelaceSize | undefined;
   className?: string;
 };
+
 
 const Select: React.FC<SelectProps> = ({
   label,
@@ -36,20 +39,25 @@ const Select: React.FC<SelectProps> = ({
   className = "",
 }) => {
   const { isMobile } = useScreenSize();
+
+  const getSize = (): TShoelaceSize => {
+    if (size) return size;
+    return isMobile ? SHOELACE_SELECT_SIZES.MEDIUM : SHOELACE_SELECT_SIZES.LARGE;
+  };
+
   return (
     <SlSelect
       placeholder={placeholder}
-      //@ts-expect-error bad type definition
-      size={
-        !!size ? size : isMobile ? SHOELACE_SIZES.MEDIUM : SHOELACE_SIZES.LARGE
-      }
+      size={getSize()}
       value={String(defaultValue)}
       onSlChange={(e) => {
         e.stopPropagation();
         e.stopImmediatePropagation();
         e.preventDefault();
-        //@ts-expect-error bad type definition
-        handleChange(e);
+        const target = e.target as HTMLSelectElement | null;
+        if (target) {
+          handleChange(target.value);
+        }
       }}
       className={className}
     >
@@ -66,10 +74,9 @@ const Select: React.FC<SelectProps> = ({
         <SlOption
           key={`select-option-${id}`}
           value={option.value as string}
-          className="flex flex-col gap-y-1"
         >
-          <span className=" text-body-3">{option.name}</span>
-          <small slot="suffix">{option.suffix}</small>
+          <span className="text-body-3">{option.name}</span>
+          <span slot="suffix" className="text-body-4 md:text-body-3">{option.suffix}</span>
         </SlOption>
       ))}
     </SlSelect>

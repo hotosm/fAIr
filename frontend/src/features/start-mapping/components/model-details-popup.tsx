@@ -106,7 +106,7 @@ const ModelDetailsPopUp = ({
             <span className="text-dark font-medium">
               {trainingDetailsError
                 ? "N/A"
-                : trainingDetails?.zoom_level?.join(", ")}{" "}
+                : trainingDetails?.zoom_level?.reverse().join(", ")}{" "}
             </span>
           </SkeletonWrapper>
         </p>
