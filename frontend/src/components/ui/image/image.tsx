@@ -1,5 +1,5 @@
-import { cn } from "@/utils";
-import { useEffect, useState } from "react";
+import { cn } from '@/utils';
+import { useEffect, useState } from 'react';
 
 type ImageProps = {
   src: string;

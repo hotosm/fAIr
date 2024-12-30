@@ -1,16 +1,16 @@
+import area from '@turf/area';
+import bboxPolygon from '@turf/bbox';
+import { booleanIntersects } from '@turf/boolean-intersects';
+import { LngLatBoundsLike, Map } from 'maplibre-gl';
+import { roundNumber } from '../number-utils';
+import { TModelPredictionsConfig } from '@/features/start-mapping/api/get-model-predictions';
+import { uuid4 } from '../general-utils';
 import {
   Feature,
   FeatureCollection,
   Geometry,
   TModelPredictions,
 } from "@/types";
-import bboxPolygon from "@turf/bbox";
-import { booleanIntersects } from "@turf/boolean-intersects";
-import area from "@turf/area";
-import { LngLatBoundsLike, Map } from "maplibre-gl";
-import { roundNumber } from "../number-utils";
-import { uuid4 } from "../general-utils";
-import { TModelPredictionsConfig } from "@/features/start-mapping/api/get-model-predictions";
 
 /**
  * Calculates the area of a GeoJSON Feature or FeatureCollection.

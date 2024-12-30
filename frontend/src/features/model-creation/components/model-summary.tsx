@@ -1,4 +1,8 @@
-import { useModelsContext } from "@/app/providers/models-provider";
+import { BASE_MODELS } from '@/enums';
+import { IconProps } from '@/types';
+import { MODELS_CONTENT } from '@/constants';
+import { StepHeading } from '@/features/model-creation/components/';
+import { useModelsContext } from '@/app/providers/models-provider';
 import {
   DatabaseIcon,
   MapIcon,
@@ -8,10 +12,6 @@ import {
   TextIcon,
   ZoomInIcon,
 } from "@/components/ui/icons";
-import { BASE_MODELS } from "@/enums";
-import { StepHeading } from "@/features/model-creation/components/";
-import { IconProps } from "@/types";
-import { MODELS_CONTENT } from "@/constants";
 
 const SummaryItem = ({
   icon: Icon,

@@ -1,32 +1,32 @@
-import { UploadIcon, YouTubePlayIcon } from "@/components/ui/icons";
-import { StepHeading } from "@/features/model-creation/components/";
-import TrainingAreaMap from "@/features/model-creation/components/training-area/training-area-map";
-import { Button, ButtonWithIcon } from "@/components/ui/button";
+import FileUploadDialog from '@/features/model-creation/components/dialogs/file-upload-dialog';
+import OpenAerialMap from '@/features/model-creation/components/training-area/open-area-map';
+import TrainingAreaList from '@/features/model-creation/components/training-area/training-area-list';
+import TrainingAreaMap from '@/features/model-creation/components/training-area/training-area-map';
+import useScreenSize from '@/hooks/use-screen-size';
+import { Button, ButtonWithIcon } from '@/components/ui/button';
+import { DrawingModes, SHOELACE_SIZES } from '@/enums';
+import { geojsonToWKT } from '@terraformer/wkt';
+import { GeoJSONType, Geometry } from '@/types';
+import { MODELS_CONTENT, TOAST_NOTIFICATIONS } from '@/constants';
+import { StepHeading } from '@/features/model-creation/components/';
+import { UploadIcon, YouTubePlayIcon } from '@/components/ui/icons';
+import { useDialog } from '@/hooks/use-dialog';
+import { useEffect, useState } from 'react';
+import { useMapInstance } from '@/hooks/use-map-instance';
 import {
   MODEL_CREATION_FORM_NAME,
   useModelsContext,
 } from "@/app/providers/models-provider";
-import { useDialog } from "@/hooks/use-dialog";
-import FileUploadDialog from "@/features/model-creation/components/dialogs/file-upload-dialog";
-import { useEffect, useState } from "react";
-import TrainingAreaList from "@/features/model-creation/components/training-area/training-area-list";
 import {
   useCreateTrainingArea,
   useGetTrainingAreas,
 } from "@/features/model-creation/hooks/use-training-areas";
-import OpenAerialMap from "@/features/model-creation/components/training-area/open-area-map";
 import {
   extractTileJSONURL,
   showSuccessToast,
   snapGeoJSONGeometryToClosestTile,
 } from "@/utils";
-import { TOAST_NOTIFICATIONS, MODELS_CONTENT } from "@/constants";
-import { DrawingModes, SHOELACE_SIZES } from "@/enums";
-import { GeoJSONType, Geometry } from "@/types";
-import { geojsonToWKT } from "@terraformer/wkt";
 
-import useScreenSize from "@/hooks/use-screen-size";
-import { useMapInstance } from "@/hooks/use-map-instance";
 
 const TrainingAreaForm = () => {
   const { formData } = useModelsContext();

@@ -1,4 +1,7 @@
-import { keepPreviousData, queryOptions } from "@tanstack/react-query";
+import { createTrainingDataset } from '@/features/model-creation/api/create-trainings';
+import { getTMSTileJSON } from '@/features/model-creation/api/get-tms-tilejson';
+import { keepPreviousData, queryOptions } from '@tanstack/react-query';
+import { TTrainingDataset } from '@/types';
 import {
   getTrainingArea,
   getTrainingAreaLabels,
@@ -6,9 +9,6 @@ import {
   getTrainingDatasetLabels,
   getTrainingDatasets,
 } from "@/features/model-creation/api/get-trainings";
-import { createTrainingDataset } from "@/features/model-creation/api/create-trainings";
-import { TTrainingDataset } from "@/types";
-import { getTMSTileJSON } from "@/features/model-creation/api/get-tms-tilejson";
 
 export const getTrainingDatasetsQueryOptions = (searchQuery: string) => {
   return queryOptions({

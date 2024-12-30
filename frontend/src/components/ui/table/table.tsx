@@ -1,9 +1,9 @@
+import * as React from 'react';
+import { cn } from '@/utils';
 /**
  * Inspired by https://ui.shadcn.com/docs/components/table
  */
 
-import * as React from "react";
-import { cn } from "@/utils";
 
 const Table = React.forwardRef<
   HTMLTableElement,

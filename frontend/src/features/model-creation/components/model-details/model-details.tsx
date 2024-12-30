@@ -1,13 +1,13 @@
+import ModelDescriptionFormInput from './model-description-input';
+import ModelNameFormInput from '@/features/model-creation/components/model-details/model-name-input';
+import { BASE_MODELS } from '@/enums';
+import { MODELS_CONTENT } from '@/constants';
+import { Select } from '@/components/ui/form';
+import { StepHeading } from '@/features/model-creation/components/';
 import {
   MODEL_CREATION_FORM_NAME,
   useModelsContext,
 } from "@/app/providers/models-provider";
-import { Select } from "@/components/ui/form";
-import { BASE_MODELS } from "@/enums";
-import { StepHeading } from "@/features/model-creation/components/";
-import { MODELS_CONTENT } from "@/constants";
-import ModelNameFormInput from "@/features/model-creation/components/model-details/model-name-input";
-import ModelDescriptionFormInput from "./model-description-input";
 
 const baseModelOptions = [
   {
@@ -15,7 +15,7 @@ const baseModelOptions = [
     value: BASE_MODELS.RAMP,
     suffix:
       MODELS_CONTENT.modelCreation.modelDetails.form.baseModel.suffixes[
-        BASE_MODELS.RAMP
+      BASE_MODELS.RAMP
       ],
   },
   {
@@ -23,7 +23,7 @@ const baseModelOptions = [
     value: BASE_MODELS.YOLOV8_V1,
     suffix:
       MODELS_CONTENT.modelCreation.modelDetails.form.baseModel.suffixes[
-        BASE_MODELS.YOLOV8_V1
+      BASE_MODELS.YOLOV8_V1
       ],
   },
   {
@@ -31,7 +31,7 @@ const baseModelOptions = [
     value: BASE_MODELS.YOLOV8_V2,
     suffix:
       MODELS_CONTENT.modelCreation.modelDetails.form.baseModel.suffixes[
-        BASE_MODELS.YOLOV8_V2
+      BASE_MODELS.YOLOV8_V2
       ],
   },
 ];

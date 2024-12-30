@@ -1,10 +1,10 @@
-import { API_ENDPOINTS, apiClient } from "@/services";
+import { API_ENDPOINTS, apiClient } from '@/services';
+import { AxiosProgressEvent } from 'axios';
 import {
   TTrainingAreaFeature,
   TTrainingDataset,
   TTrainingDetails,
 } from "@/types";
-import { AxiosProgressEvent } from "axios";
 
 export type TCreateTrainingDatasetArgs = {
   name: string;
@@ -39,6 +39,22 @@ export const createTrainingArea = async ({
     await apiClient.post(API_ENDPOINTS.CREATE_TRAINING_AREA, {
       dataset,
       geom,
+    })
+  ).data;
+};
+
+export type TUplaodTrainingAreaLabelsArgs = {
+  aoiId: number;
+  geojsonFile: File;
+};
+
+export const uploadTrainingAreaLabels = async ({
+  aoiId,
+  geojsonFile,
+}: TUplaodTrainingAreaLabelsArgs): Promise<TTrainingAreaFeature> => {
+  return await (
+    await apiClient.post(API_ENDPOINTS.UPLOAD_TRAINING_AREA_LABELS(aoiId), {
+      "geojson-file": geojsonFile,
     })
   ).data;
 };
@@ -89,25 +105,17 @@ export const getTrainingAreaLabelsFromOSM = async ({
 
 export type TCreateTrainingLabelsForAOIArgs = {
   aoiId: number;
-  geom: string;
-  onUploadProgress?: (e: AxiosProgressEvent) => void;
+  formData: FormData;
 };
 
 export const createTrainingLabelsForAOI = async ({
   aoiId,
-  geom,
-  onUploadProgress,
+  formData,
 }: TCreateTrainingLabelsForAOIArgs): Promise<String> => {
   return await (
     await apiClient.post(
-      API_ENDPOINTS.CREATE_TRAINING_AREA_LABELS,
-      {
-        aoi: aoiId,
-        geom: geom,
-      },
-      {
-        onUploadProgress,
-      },
+      API_ENDPOINTS.UPLOAD_TRAINING_AREA_LABELS(aoiId),
+      formData,
     )
-  ).data;
+  ).data.status;
 };

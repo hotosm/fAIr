@@ -1,7 +1,7 @@
-import Axios, { InternalAxiosRequestConfig } from "axios";
-import { ENVS } from "@/config/env";
-import { showErrorToast } from "@/utils";
-import { HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY } from "@/constants";
+import Axios, { InternalAxiosRequestConfig } from 'axios';
+import { ENVS } from '@/config/env';
+import { HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY } from '@/constants';
+import { showErrorToast } from '@/utils';
 export const BASE_API_URL = ENVS.BASE_API_URL;
 /**
  * The global axios API client.

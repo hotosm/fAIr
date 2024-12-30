@@ -1,8 +1,14 @@
-import { setupMaplibreMap } from "@/components/map/setups/setup-maplibre";
-import { setupTerraDraw } from "@/components/map/setups/setup-terra-draw";
-import { DrawingModes } from "@/enums";
-import { Map } from "maplibre-gl";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { DrawingModes } from '@/enums';
+import { Map } from 'maplibre-gl';
+import { setupMaplibreMap } from '@/components/map/setups/setup-maplibre';
+import { setupTerraDraw } from '@/components/map/setups/setup-terra-draw';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+  } from 'react';
 
 /**
  * useMapInstance - Initializes and manages a MapLibre map instance with TerraDraw integration.

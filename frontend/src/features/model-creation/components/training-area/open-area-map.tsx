@@ -1,14 +1,14 @@
+import { FullScreenIcon } from '@/components/ui/icons';
+import { Map } from 'maplibre-gl';
+import { MODELS_CONTENT } from '@/constants';
+import { ToolTip } from '@/components/ui/tooltip';
+import { truncateString } from '@/utils';
+import { useCallback, useEffect } from 'react';
+import { useGetTMSTileJSON } from '@/features/model-creation/hooks/use-tms-tilejson';
 import {
   MODEL_CREATION_FORM_NAME,
   useModelsContext,
 } from "@/app/providers/models-provider";
-import { useGetTMSTileJSON } from "@/features/model-creation/hooks/use-tms-tilejson";
-import { ToolTip } from "@/components/ui/tooltip";
-import { FullScreenIcon } from "@/components/ui/icons";
-import { useCallback, useEffect } from "react";
-import { MODELS_CONTENT } from "@/constants";
-import { truncateString } from "@/utils";
-import { Map } from "maplibre-gl";
 
 const OpenAerialMap = ({
   tileJSONURL,

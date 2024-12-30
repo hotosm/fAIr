@@ -1,17 +1,17 @@
-import { DirectoryIcon, FileIcon } from "@/components/ui/icons";
+import { API_ENDPOINTS, apiClient } from '@/services';
+import { DirectoryIcon, FileIcon } from '@/components/ui/icons';
+import { getTrainingWorkspaceQueryOptions } from '@/features/models/api/factory';
+import { MODELS_CONTENT, TOAST_NOTIFICATIONS } from '@/constants';
+import { showErrorToast, showSuccessToast, truncateString } from '@/utils';
+import { Spinner } from '@/components/ui/spinner';
+import { TCSSWithVars } from '@/types';
+import { useEffect, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   SlFormatBytes,
   SlTree,
   SlTreeItem,
 } from "@shoelace-style/shoelace/dist/react";
-import { useState, useEffect } from "react";
-import { showErrorToast, showSuccessToast, truncateString } from "@/utils";
-import { MODELS_CONTENT, TOAST_NOTIFICATIONS } from "@/constants";
-import { useQueryClient } from "@tanstack/react-query";
-import { getTrainingWorkspaceQueryOptions } from "@/features/models/api/factory";
-import { API_ENDPOINTS, apiClient } from "@/services";
-import { Spinner } from "@/components/ui/spinner";
-import { TCSSWithVars } from "@/types";
 
 type DirectoryTreeProps = {
   datasetId: number;
@@ -131,24 +131,24 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
     const subdirectories =
       dir && currentDepth < maxDepth
         ? await Promise.all(
-            Object.keys(dir).map(async (key: string) => {
-              const fullPath = currentDirectory
-                ? `${currentDirectory}/${key}/`
-                : key;
-              const subDirData = await fetchDirectoryRecursive(
-                fullPath,
-                currentDepth + 1,
-                maxDepth,
-              );
-              return {
-                [key]: {
-                  ...subDirData,
-                  size: dir[key]?.size || 0,
-                  length: dir[key]?.len || 0,
-                },
-              };
-            }),
-          )
+          Object.keys(dir).map(async (key: string) => {
+            const fullPath = currentDirectory
+              ? `${currentDirectory}/${key}/`
+              : key;
+            const subDirData = await fetchDirectoryRecursive(
+              fullPath,
+              currentDepth + 1,
+              maxDepth,
+            );
+            return {
+              [key]: {
+                ...subDirData,
+                size: dir[key]?.size || 0,
+                length: dir[key]?.len || 0,
+              },
+            };
+          }),
+        )
         : [];
 
     return {

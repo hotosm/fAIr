@@ -1,3 +1,9 @@
+import styles from './fair-process.module.css';
+import { AnimatedBeam } from '@/components/ui/animated-beam';
+import { BotIcon, FeedbackIcon, PredictionsIcon } from '@/components/ui/icons';
+import { DesktopFlowIcon } from '@/components/ui/icons';
+import { IconProps } from '@/types';
+import { SHARED_CONTENT } from '@/constants';
 import React, {
   useCallback,
   useEffect,
@@ -5,12 +11,6 @@ import React, {
   useState,
   useRef,
 } from "react";
-import styles from "./fair-process.module.css";
-import { AnimatedBeam } from "@/components/ui/animated-beam";
-import { BotIcon, FeedbackIcon, PredictionsIcon } from "@/components/ui/icons";
-import { IconProps } from "@/types";
-import { DesktopFlowIcon } from "@/components/ui/icons";
-import { SHARED_CONTENT } from "@/constants";
 
 /**
  * The delay in seconds before switching to the next step. This can be adjust accordingly.

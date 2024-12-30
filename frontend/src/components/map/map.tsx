@@ -1,6 +1,12 @@
-import "maplibre-gl/dist/maplibre-gl.css";
-import { RefObject } from "react";
-import { DrawingModes } from "@/enums";
+import { Basemaps } from '@/components/map/layers/basemaps';
+import { ControlsPosition } from '@/enums';
+import { DrawingModes } from '@/enums';
+import { LngLatBoundsLike, Map } from 'maplibre-gl';
+import { OpenAerialMap } from '@/components/map/layers/open-aerial-map';
+import { RefObject } from 'react';
+import { TerraDraw } from 'terra-draw';
+import { TileBoundaries } from '@/components/map/layers/tile-boundaries';
+import 'maplibre-gl/dist/maplibre-gl.css';
 import {
   GeolocationControl,
   FitToBounds,
@@ -9,12 +15,6 @@ import {
   LayerControl,
   ZoomControls,
 } from "@/components/map/controls";
-import { TileBoundaries } from "@/components/map/layers/tile-boundaries";
-import { OpenAerialMap } from "@/components/map/layers/open-aerial-map";
-import { Basemaps } from "@/components/map/layers/basemaps";
-import { ControlsPosition } from "@/enums";
-import { LngLatBoundsLike, Map } from "maplibre-gl";
-import { TerraDraw } from "terra-draw";
 
 type MapComponentProps = {
   geolocationControl?: boolean;
@@ -72,11 +72,10 @@ export const MapComponent: React.FC<MapComponentProps> = ({
       {map ? (
         <>
           <div
-            className={`absolute top-5 ${
-              controlsPosition === ControlsPosition.TOP_RIGHT
+            className={`absolute top-5 ${controlsPosition === ControlsPosition.TOP_RIGHT
                 ? "right-3"
                 : "left-3"
-            } map-elements-z-index flex flex-col gap-y-[1px]`}
+              } map-elements-z-index flex flex-col gap-y-[1px]`}
           >
             {currentZoom && zoomControls ? (
               <ZoomControls map={map} currentZoom={currentZoom} />

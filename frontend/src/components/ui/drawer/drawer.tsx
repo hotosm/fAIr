@@ -1,6 +1,6 @@
-import { SlDrawer } from "@shoelace-style/shoelace/dist/react";
-import "./drawer.css";
-import { DrawerPlacements } from "@/enums";
+import { DrawerPlacements } from '@/enums';
+import { SlDrawer } from '@shoelace-style/shoelace/dist/react';
+import './drawer.css';
 
 type DrawerProps = {
   open: boolean;

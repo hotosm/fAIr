@@ -1,9 +1,9 @@
-import { ToolTip } from "@/components/ui/tooltip";
-import { ArrowMoveIcon } from "@/components/ui/icons";
-import { MAP_CONTENT } from "@/constants";
-import useScreenSize from "@/hooks/use-screen-size";
-import { useCallback } from "react";
-import { Map } from "maplibre-gl";
+import useScreenSize from '@/hooks/use-screen-size';
+import { ArrowMoveIcon } from '@/components/ui/icons';
+import { Map } from 'maplibre-gl';
+import { MAP_CONTENT } from '@/constants';
+import { ToolTip } from '@/components/ui/tooltip';
+import { useCallback } from 'react';
 
 export const FitToBounds = ({
   map,

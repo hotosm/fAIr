@@ -1,12 +1,12 @@
-import { FAQs, SectionHeader } from "@/components/shared";
-import { Head } from "@/components/seo";
-import { Header } from "@/components/shared";
-import { RESOURCES_PAGE_CONTENT } from "@/constants";
-import { TArticle } from "@/types";
-import { Image } from "@/components/ui/image";
-import { ChevronDownIcon } from "@/components/ui/icons";
-import { Link } from "@/components/ui/link";
-import { truncateString } from "@/utils";
+import { ChevronDownIcon } from '@/components/ui/icons';
+import { FAQs, SectionHeader } from '@/components/shared';
+import { Head } from '@/components/seo';
+import { Header } from '@/components/shared';
+import { Image } from '@/components/ui/image';
+import { Link } from '@/components/ui/link';
+import { RESOURCES_PAGE_CONTENT } from '@/constants';
+import { TArticle } from '@/types';
+import { truncateString } from '@/utils';
 
 export const ResourcesPage = () => {
   return (

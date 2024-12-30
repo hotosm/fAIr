@@ -1,14 +1,14 @@
-import React from "react";
-import { showErrorToast } from "@/utils";
-import { DialogProps } from "@/types";
-import { API_ENDPOINTS, apiClient } from "@/services";
-import { useQuery } from "@tanstack/react-query";
-import { errorMessages, MODELS_CONTENT } from "@/constants";
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
-import { DrawerPlacements, SHOELACE_SIZES } from "@/enums";
-import { Drawer } from "@/components/ui/drawer";
-import { TrainingAreaMap } from "@/features/models/components";
+import React from 'react';
+import { API_ENDPOINTS, apiClient } from '@/services';
+import { Button } from '@/components/ui/button';
+import { DialogProps } from '@/types';
+import { Drawer } from '@/components/ui/drawer';
+import { DrawerPlacements, SHOELACE_SIZES } from '@/enums';
+import { errorMessages, MODELS_CONTENT } from '@/constants';
+import { showErrorToast } from '@/utils';
+import { Spinner } from '@/components/ui/spinner';
+import { TrainingAreaMap } from '@/features/models/components';
+import { useQuery } from '@tanstack/react-query';
 
 type TAPIResponse = {
   result: string;

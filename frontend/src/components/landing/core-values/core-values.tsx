@@ -1,9 +1,9 @@
-import styles from "./core-values.module.css";
+import styles from './core-values.module.css';
+import { DashedLineConnector } from '@/assets/svgs';
+import { HOTTeam, MapathonOngoing } from '@/assets/images';
+import { Image } from '@/components/ui/image';
+import { SHARED_CONTENT } from '@/constants';
 
-import { Image } from "@/components/ui/image";
-import { HOTTeam, MapathonOngoing } from "@/assets/images";
-import { DashedLineConnector } from "@/assets/svgs";
-import { SHARED_CONTENT } from "@/constants";
 
 export const Corevalues = () => {
   return (

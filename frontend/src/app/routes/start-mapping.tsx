@@ -1,9 +1,25 @@
-import { useCallback, useEffect, useState } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { Head } from "@/components/seo";
-import { BBOX, Feature, TileJSON, TModelPredictions } from "@/types";
-import { useModelDetails } from "@/features/models/hooks/use-models";
-import { useGetTrainingDataset } from "@/features/models/hooks/use-dataset";
+import useScreenSize from '@/hooks/use-screen-size';
+import { APPLICATION_ROUTES } from '@/constants';
+import { BASE_MODELS } from '@/enums';
+import {
+  BBOX,
+  Feature,
+  TileJSON,
+  TModelPredictions
+  } from '@/types';
+import { FitToBounds, LayerControl, ZoomLevel } from '@/components/map';
+import { Head } from '@/components/seo';
+import { LngLatBoundsLike } from 'maplibre-gl';
+import { ModelDetailsPopUp } from '@/features/start-mapping/components';
+import { TModelPredictionsConfig } from '@/features/start-mapping/api/get-model-predictions';
+import { useCallback, useEffect, useState } from 'react';
+import { useDropdownMenu } from '@/hooks/use-dropdown-menu';
+import { useGetTMSTileJSON } from '@/features/model-creation/hooks/use-tms-tilejson';
+import { useGetTrainingDataset } from '@/features/models/hooks/use-dataset';
+import { useMapInstance } from '@/hooks/use-map-instance';
+import { useModelDetails } from '@/features/models/hooks/use-models';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { UserProfile } from '@/components/layout';
 import {
   BrandLogoWithDropDown,
   Legend,
@@ -11,15 +27,12 @@ import {
   StartMappingMapComponent,
   StartMappingMobileDrawer,
 } from "@/features/start-mapping/components";
-import { useGetTMSTileJSON } from "@/features/model-creation/hooks/use-tms-tilejson";
-import { APPLICATION_ROUTES } from "@/constants";
 import {
   extractTileJSONURL,
   geoJSONDowloader,
   openInJOSM,
   showSuccessToast,
 } from "@/utils";
-import { BASE_MODELS } from "@/enums";
 import {
   START_MAPPING_PAGE_CONTENT,
   TOAST_NOTIFICATIONS,
@@ -32,14 +45,6 @@ import {
   ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
   ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
 } from "@/constants";
-import { useMapInstance } from "@/hooks/use-map-instance";
-import useScreenSize from "@/hooks/use-screen-size";
-import { ModelDetailsPopUp } from "@/features/start-mapping/components";
-import { UserProfile } from "@/components/layout";
-import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
-import { FitToBounds, LayerControl, ZoomLevel } from "@/components/map";
-import { LngLatBoundsLike } from "maplibre-gl";
-import { TModelPredictionsConfig } from "@/features/start-mapping/api/get-model-predictions";
 
 export type TDownloadOptions = {
   name: string;
@@ -169,42 +174,42 @@ export const StartMappingPage = () => {
   const mapLayers = [
     ...(modelPredictions.accepted.length > 0
       ? [
-          {
-            value:
-              START_MAPPING_PAGE_CONTENT.map.controls.legendControl
-                .acceptedPredictions,
-            subLayers: [
-              ACCEPTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
-              ACCEPTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
-            ],
-          },
-        ]
+        {
+          value:
+            START_MAPPING_PAGE_CONTENT.map.controls.legendControl
+              .acceptedPredictions,
+          subLayers: [
+            ACCEPTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
+            ACCEPTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
+          ],
+        },
+      ]
       : []),
     ...(modelPredictions.rejected.length > 0
       ? [
-          {
-            value:
-              START_MAPPING_PAGE_CONTENT.map.controls.legendControl
-                .rejectedPredictions,
-            subLayers: [
-              REJECTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
-              REJECTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
-            ],
-          },
-        ]
+        {
+          value:
+            START_MAPPING_PAGE_CONTENT.map.controls.legendControl
+              .rejectedPredictions,
+          subLayers: [
+            REJECTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
+            REJECTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
+          ],
+        },
+      ]
       : []),
     ...(modelPredictions.all.length > 0
       ? [
-          {
-            value:
-              START_MAPPING_PAGE_CONTENT.map.controls.legendControl
-                .predictionResults,
-            subLayers: [
-              ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
-              ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
-            ],
-          },
-        ]
+        {
+          value:
+            START_MAPPING_PAGE_CONTENT.map.controls.legendControl
+              .predictionResults,
+          subLayers: [
+            ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
+            ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
+          ],
+        },
+      ]
       : []),
   ];
 

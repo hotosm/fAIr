@@ -1,8 +1,8 @@
-import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
-import { CategoryIcon, ListIcon } from "@/components/ui/icons";
-import { LayoutView } from "@/enums";
-import { useScrollToTop } from "@/hooks/use-scroll-to-element";
-import { TQueryParams } from "@/types";
+import { CategoryIcon, ListIcon } from '@/components/ui/icons';
+import { LayoutView } from '@/enums';
+import { SEARCH_PARAMS } from '@/app/routes/models/models-list';
+import { TQueryParams } from '@/types';
+import { useScrollToTop } from '@/hooks/use-scroll-to-element';
 
 const LayoutToggle = ({
   query,

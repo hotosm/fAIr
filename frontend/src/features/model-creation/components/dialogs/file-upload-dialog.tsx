@@ -1,9 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { DeleteIcon, FileIcon, UploadIcon } from "@/components/ui/icons";
-import { Spinner } from "@/components/ui/spinner"; // Ensure Spinner is correctly imported
+import { Spinner } from "@/components/ui/spinner";
 import { DialogProps, Feature, FeatureCollection, Geometry } from "@/types";
 import {
+  MAX_ACCEPTABLE_POLYGON_IN_TRAINING_AREA_GEOJSON_FILE,
+  MAX_GEOJSON_FILE_UPLOAD_FOR_TRAINING_AREA_LABELS,
+  MAX_GEOJSON_FILE_UPLOAD_FOR_TRAINING_AREAS,
   MAX_TRAINING_AREA_UPLOAD_FILE_SIZE,
   MODELS_CONTENT,
 } from "@/constants";
@@ -20,10 +23,12 @@ import { FileWithPath, useDropzone } from "react-dropzone";
 
 type FileUploadDialogProps = DialogProps & {
   label: string;
-  fileUploadHandler: (geometry: Geometry) => Promise<void>;
-  successToast: string;
+  fileUploadHandler?: (fileGeometry: Geometry) => Promise<void>;
+  successToast?: string;
   disabled: boolean;
   disableFileSizeValidation?: boolean;
+  isAOILabelsUpload?: boolean;
+  rawFileUploadHandler?: (formData: FormData) => Promise<void>;
 };
 
 interface AcceptedFile {
@@ -39,6 +44,9 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
   successToast,
   disabled,
   disableFileSizeValidation = false,
+  // AOI labels are uploaded as raw GeoJSON file
+  isAOILabelsUpload = false,
+  rawFileUploadHandler,
 }) => {
   const [acceptedFiles, setAcceptedFiles] = useState<AcceptedFile[]>([]);
   const [uploadInProgress, setUploadInProgress] = useState<boolean>(false);
@@ -70,7 +78,22 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
           try {
             const text = await file.text();
             const geojson: FeatureCollection | Feature = JSON.parse(text);
-            if (
+            if (geojson.type === "FeatureCollection") {
+              if (!isAOILabelsUpload) {
+                // Validate the number of features in the collection.
+                if (
+                  geojson.features.length >
+                  MAX_ACCEPTABLE_POLYGON_IN_TRAINING_AREA_GEOJSON_FILE
+                ) {
+                  showErrorToast(
+                    undefined,
+                    `File ${file.name} exceeds limit of ${MAX_ACCEPTABLE_POLYGON_IN_TRAINING_AREA_GEOJSON_FILE} polygon features.`,
+                  );
+                  continue;
+                }
+              }
+              validFiles.push({ file, id: generateUniqueId() });
+            } else if (
               !disableFileSizeValidation &&
               validateGeoJSONArea(geojson as Feature)
             ) {
@@ -103,7 +126,15 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
     accept: {
       "application/json": [".geojson", ".json"],
     },
-    disabled: disabled || uploadInProgress,
+    maxFiles: isAOILabelsUpload
+      ? MAX_GEOJSON_FILE_UPLOAD_FOR_TRAINING_AREA_LABELS
+      : MAX_GEOJSON_FILE_UPLOAD_FOR_TRAINING_AREAS,
+    disabled:
+      disabled ||
+      uploadInProgress ||
+      acceptedFiles.length ===
+        MAX_GEOJSON_FILE_UPLOAD_FOR_TRAINING_AREA_LABELS ||
+      acceptedFiles.length === MAX_GEOJSON_FILE_UPLOAD_FOR_TRAINING_AREAS,
   });
 
   const deleteFile = (fileId: string) => {
@@ -120,67 +151,70 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
     setUploadInProgress(true);
 
     try {
-      // Collect all geometries from all accepted files
+      const rawFiles: File[] = [];
       const allGeometries: Geometry[] = [];
 
-      for (const file of acceptedFiles) {
+      for (const fileObj of acceptedFiles) {
+        const { file } = fileObj;
         try {
-          const text = await file.file.text();
+          const text = await file.text();
           const geojson: FeatureCollection | Feature = JSON.parse(text);
 
-          // Validate GeoJSON area if required
-          if (
-            !disableFileSizeValidation &&
-            validateGeoJSONArea(geojson as Feature)
-          ) {
-            showErrorToast(
-              undefined,
-              `File area for ${file.file.name} exceeds area limit.`,
-            );
-            continue; // Skip this file
-          }
-
-          // Extract geometries based on GeoJSON type
-          if (geojson.type === "FeatureCollection") {
-            allGeometries.push(
-              ...geojson.features.map((feature) => feature.geometry),
-            );
-          } else if (geojson.type === "Feature") {
-            allGeometries.push(geojson.geometry);
+          if (isAOILabelsUpload) {
+            rawFiles.push(file);
           } else {
-            throw new Error("Invalid GeoJSON format");
+            if (
+              !disableFileSizeValidation &&
+              validateGeoJSONArea(geojson as Feature)
+            ) {
+              showErrorToast(
+                undefined,
+                `File area for ${file.name} exceeds area limit.`,
+              );
+              continue;
+            }
+            if (geojson.type === "FeatureCollection") {
+              allGeometries.push(
+                ...geojson.features.map((feature) => feature.geometry),
+              );
+            } else if (geojson.type === "Feature") {
+              allGeometries.push(geojson.geometry);
+            } else {
+              throw new Error("Invalid GeoJSON format");
+            }
           }
         } catch (error: any) {
-          showErrorToast(undefined, `Error processing file: ${file.file.name}`);
-          // Optionally, you can choose to continue or reject the entire upload
-          // Here, we'll continue to process other files
+          showErrorToast(undefined, `Error processing file: ${file.name}`);
         }
       }
 
-      if (allGeometries.length === 0) {
+      if (!isAOILabelsUpload && allGeometries.length === 0) {
         showErrorToast(undefined, "No valid geometries found to upload.");
         setUploadInProgress(false);
         return;
       }
 
-      // Create an array of upload promises for all geometries
-      const uploadPromises = allGeometries.map((geometry) =>
-        fileUploadHandler(geometry),
+      const rawUploadPromises = rawFiles.map((file) => uploadRawFile(file));
+      const geometryUploadPromises = allGeometries.map((geometry) =>
+        fileUploadHandler?.(geometry),
       );
 
-      // Await all upload promises
-      await Promise.all(uploadPromises);
+      await Promise.all([...rawUploadPromises, ...geometryUploadPromises]);
 
-      // If all uploads succeed
-      showSuccessToast(successToast);
+      successToast && showSuccessToast(successToast);
       resetState();
     } catch (error: any) {
-      // If any upload fails
       const errorMessage = error.message || "An error occurred during upload.";
       showErrorToast(undefined, errorMessage);
     } finally {
       setUploadInProgress(false);
     }
+  };
+
+  const uploadRawFile = async (file: File): Promise<void> => {
+    const formData = new FormData();
+    formData.append("geojson_file", file);
+    rawFileUploadHandler?.(formData);
   };
 
   const files = acceptedFiles.map((file) => {

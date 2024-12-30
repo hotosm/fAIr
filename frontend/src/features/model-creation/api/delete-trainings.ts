@@ -1,4 +1,4 @@
-import { API_ENDPOINTS, apiClient } from "@/services";
+import { API_ENDPOINTS, apiClient } from '@/services';
 
 export type TDeleteTrainingAreaArgs = {
   trainingAreaId: number;

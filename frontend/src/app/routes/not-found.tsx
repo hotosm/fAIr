@@ -1,8 +1,8 @@
-import { Button } from "@/components/ui/button";
-import { APPLICATION_ROUTES, SHARED_CONTENT } from "@/constants";
+import { APPLICATION_ROUTES, SHARED_CONTENT } from '@/constants';
+import { Button } from '@/components/ui/button';
+import { Head } from '@/components/seo';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-import { useLocation, useNavigate } from "react-router-dom";
-import { Head } from "@/components/seo";
 
 export const PageNotFound = () => {
   const location = useLocation();
@@ -82,7 +82,7 @@ export const PageNotFound = () => {
             ? SHARED_CONTENT.pageNotFound.actionButtons.modelNotFound
             : trainingDatasetNotFound
               ? SHARED_CONTENT.pageNotFound.actionButtons
-                  .trainingDatasetNotFound
+                .trainingDatasetNotFound
               : SHARED_CONTENT.pageNotFound.actionButtons.pageNotFound}
         </Button>
       </section>

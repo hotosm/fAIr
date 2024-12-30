@@ -1,8 +1,14 @@
-import { SEARCH_PARAMS, TQueryParams } from "@/app/routes/start-mapping";
-import { DropDown } from "@/components/ui/dropdown";
-import { FormLabel, Input, Select, Switch } from "@/components/ui/form";
-import { SettingsIcon } from "@/components/ui/icons";
-import { ToolTip } from "@/components/ui/tooltip";
+import { DropDown } from '@/components/ui/dropdown';
+import {
+  FormLabel,
+  Input,
+  Select,
+  Switch
+  } from '@/components/ui/form';
+import { SEARCH_PARAMS, TQueryParams } from '@/app/routes/start-mapping';
+import { SettingsIcon } from '@/components/ui/icons';
+import { ToolTip } from '@/components/ui/tooltip';
+import { useDropdownMenu } from '@/hooks/use-dropdown-menu';
 import {
   ELEMENT_DISTANCE_FROM_NAVBAR,
   START_MAPPING_PAGE_CONTENT,
@@ -13,7 +19,6 @@ import {
   SHOELACE_SELECT_SIZES,
   SHOELACE_SIZES,
 } from "@/enums";
-import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 
 const confidenceLevels = [
   {

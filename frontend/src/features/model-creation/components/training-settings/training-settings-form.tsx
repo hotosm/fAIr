@@ -1,19 +1,19 @@
-import { CheckboxGroup, FormLabel, Input } from "@/components/ui/form";
-import { useEffect, useState } from "react";
-import { ChevronDownIcon } from "@/components/ui/icons";
-import { ButtonWithIcon } from "@/components/ui/button";
+import { BASE_MODELS, INPUT_TYPES, TrainingType } from '@/enums';
+import { ButtonWithIcon } from '@/components/ui/button';
+import { CheckboxGroup, FormLabel, Input } from '@/components/ui/form';
+import { ChevronDownIcon } from '@/components/ui/icons';
+import { MODELS_CONTENT } from '@/constants';
+import { useEffect, useState } from 'react';
 import {
   AdvancedGuageIcon,
   BasicGuageIcon,
   IntermediateGuageIcon,
 } from "@/components/ui/icons";
-import { BASE_MODELS, INPUT_TYPES, TrainingType } from "@/enums";
 import {
   FORM_VALIDATION_CONFIG,
   MODEL_CREATION_FORM_NAME,
   useModelsContext,
 } from "@/app/providers/models-provider";
-import { MODELS_CONTENT } from "@/constants";
 
 const trainingTypes = [
   { label: TrainingType.BASIC, Icon: BasicGuageIcon },

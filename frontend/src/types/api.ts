@@ -154,13 +154,13 @@ export type TTrainingFeedbacks = {
 
 export type Geometry = {
   type:
-    | "Point"
-    | "LineString"
-    | "Polygon"
-    | "MultiPoint"
-    | "MultiLineString"
-    | "MultiPolygon"
-    | "GeometryCollection";
+  | "Point"
+  | "LineString"
+  | "Polygon"
+  | "MultiPoint"
+  | "MultiLineString"
+  | "MultiPolygon"
+  | "GeometryCollection";
   coordinates: any;
 };
 
@@ -168,10 +168,10 @@ export type Feature = {
   type: "Feature";
   geometry: Geometry;
   properties:
-    | {
-        mid: string;
-      }
-    | any;
+  | {
+    mid: string;
+  }
+  | any;
 };
 
 export type FeatureCollection = {

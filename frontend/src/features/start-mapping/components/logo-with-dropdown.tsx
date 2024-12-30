@@ -1,11 +1,11 @@
-import { DropDown } from "@/components/ui/dropdown";
-import { NavLogo } from "@/components/layout";
-import { Divider } from "@/components/ui/divider";
-import { Link } from "@/components/ui/link";
-import { navLinks } from "@/constants/general";
-import { DropdownPlacement } from "@/enums";
-import { useNavigate } from "react-router-dom";
-import { ELEMENT_DISTANCE_FROM_NAVBAR } from "@/constants";
+import { Divider } from '@/components/ui/divider';
+import { DropDown } from '@/components/ui/dropdown';
+import { DropdownPlacement } from '@/enums';
+import { ELEMENT_DISTANCE_FROM_NAVBAR } from '@/constants';
+import { Link } from '@/components/ui/link';
+import { navLinks } from '@/constants/general';
+import { NavLogo } from '@/components/layout';
+import { useNavigate } from 'react-router-dom';
 
 type BrandLogoWithDropDownProps = {
   isOpened: boolean;

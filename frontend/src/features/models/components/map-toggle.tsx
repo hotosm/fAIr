@@ -1,8 +1,8 @@
-import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
-import { Switch } from "@/components/ui/form";
-import { MODELS_CONTENT } from "@/constants";
-import { LayoutView } from "@/enums";
-import { TQueryParams } from "@/types";
+import { LayoutView } from '@/enums';
+import { MODELS_CONTENT } from '@/constants';
+import { SEARCH_PARAMS } from '@/app/routes/models/models-list';
+import { Switch } from '@/components/ui/form';
+import { TQueryParams } from '@/types';
 
 const ModelMapToggle = ({
   query,

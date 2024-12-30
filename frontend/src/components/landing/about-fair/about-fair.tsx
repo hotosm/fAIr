@@ -1,8 +1,8 @@
-import styles from "./about-fair.module.css";
+import styles from './about-fair.module.css';
+import { AIIcon } from '@/assets/svgs';
+import { Image } from '@/components/ui/image';
+import { SHARED_CONTENT } from '@/constants';
 
-import { Image } from "@/components/ui/image";
-import { AIIcon } from "@/assets/svgs";
-import { SHARED_CONTENT } from "@/constants";
 
 export const WhatIsFAIR = () => {
   return (

@@ -1,12 +1,12 @@
-import { TModelPredictions } from "@/types";
-import { handleConflation, showErrorToast, showSuccessToast } from "@/utils";
-import { useGetModelPredictions } from "@/features/start-mapping/hooks/use-model-predictions";
+import { handleConflation, showErrorToast, showSuccessToast } from '@/utils';
+import { Map } from 'maplibre-gl';
+import { START_MAPPING_PAGE_CONTENT, TOAST_NOTIFICATIONS } from '@/constants';
+import { TModelPredictions } from '@/types';
+import { TModelPredictionsConfig } from '@/features/start-mapping/api/get-model-predictions';
+import { ToolTip } from '@/components/ui/tooltip';
+import { useCallback } from 'react';
+import { useGetModelPredictions } from '@/features/start-mapping/hooks/use-model-predictions';
 
-import { START_MAPPING_PAGE_CONTENT, TOAST_NOTIFICATIONS } from "@/constants";
-import { useCallback } from "react";
-import { TModelPredictionsConfig } from "@/features/start-mapping/api/get-model-predictions";
-import { Map } from "maplibre-gl";
-import { ToolTip } from "@/components/ui/tooltip";
 
 const ModelAction = ({
   setModelPredictions,

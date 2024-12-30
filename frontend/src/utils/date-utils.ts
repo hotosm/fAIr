@@ -1,4 +1,4 @@
-import { DateFilter } from "@/types";
+import { DateFilter } from '@/types';
 
 /**
  * Extracts the date part from an ISO 8601 date-time string.

@@ -1,7 +1,7 @@
-import { StepHeading } from "@/features/model-creation/components/";
+import TrainingSettingsForm from '@/features/model-creation/components/training-settings/training-settings-form';
+import { MODELS_CONTENT } from '@/constants';
+import { StepHeading } from '@/features/model-creation/components/';
 
-import TrainingSettingsForm from "@/features/model-creation/components/training-settings/training-settings-form";
-import { MODELS_CONTENT } from "@/constants";
 
 const TrainingSettingsStep = () => {
   return (

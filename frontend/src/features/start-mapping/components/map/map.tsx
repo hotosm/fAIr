@@ -1,3 +1,12 @@
+import PredictedFeatureActionPopup from '@/features/start-mapping/components/feature-popup';
+import useScreenSize from '@/hooks/use-screen-size';
+import { ControlsPosition } from '@/enums';
+import { extractTileJSONURL, showErrorToast } from '@/utils';
+import { GeoJSONSource, LngLatBoundsLike, Map } from 'maplibre-gl';
+import { Legend } from '@/features/start-mapping/components';
+import { MapComponent, MapCursorToolTip } from '@/components/map';
+import { useMapLayers } from '@/hooks/use-map-layer';
+import { useToolTipVisibility } from '@/hooks/use-tooltip-visibility';
 import {
   Dispatch,
   RefObject,
@@ -7,10 +16,7 @@ import {
   useState,
 } from "react";
 
-import { GeoJSONSource, LngLatBoundsLike, Map } from "maplibre-gl";
 
-import { MapComponent, MapCursorToolTip } from "@/components/map";
-import { useMapLayers } from "@/hooks/use-map-layer";
 import {
   Feature,
   GeoJSONType,
@@ -18,8 +24,6 @@ import {
   TModelPredictions,
   TTrainingDataset,
 } from "@/types";
-import { extractTileJSONURL, showErrorToast } from "@/utils";
-import PredictedFeatureActionPopup from "@/features/start-mapping/components/feature-popup";
 import {
   TOAST_NOTIFICATIONS,
   ACCEPTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
@@ -34,10 +38,6 @@ import {
   REJECTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
   REJECTED_MODEL_PREDICTIONS_SOURCE_ID,
 } from "@/constants";
-import { useToolTipVisibility } from "@/hooks/use-tooltip-visibility";
-import { ControlsPosition } from "@/enums";
-import useScreenSize from "@/hooks/use-screen-size";
-import { Legend } from "@/features/start-mapping/components";
 
 export const StartMappingMapComponent = ({
   trainingDataset,

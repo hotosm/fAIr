@@ -1,8 +1,8 @@
-import { API_ENDPOINTS, apiClient, MutationConfig } from "@/services";
-import { useTrainingHistory } from "@/features/models/hooks/use-training";
-import { useModelDetails } from "@/features/models/hooks/use-models";
-import { useMutation } from "@tanstack/react-query";
-import { PAGE_LIMIT } from "@/components/shared";
+import { API_ENDPOINTS, apiClient, MutationConfig } from '@/services';
+import { PAGE_LIMIT } from '@/components/shared';
+import { useModelDetails } from '@/features/models/hooks/use-models';
+import { useMutation } from '@tanstack/react-query';
+import { useTrainingHistory } from '@/features/models/hooks/use-training';
 
 export const updateTraining = (trainingId: number) => {
   return apiClient.post(`${API_ENDPOINTS.UPDATE_TRAINING(trainingId)}`);

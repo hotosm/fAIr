@@ -1,4 +1,4 @@
-import ModelPropertiesSkeleton from "./model-properties-skeleton";
+import ModelPropertiesSkeleton from './model-properties-skeleton';
 
 export const SectionTitleSkeleton = () => {
   return <div className="h-10 max-w-sm bg-light-gray animate-pulse"></div>;

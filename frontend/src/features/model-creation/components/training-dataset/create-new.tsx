@@ -1,12 +1,12 @@
+import { Input } from '@/components/ui/form';
+import { INPUT_TYPES } from '@/enums';
+import { MODELS_CONTENT } from '@/constants';
+import { useEffect } from 'react';
 import {
   FORM_VALIDATION_CONFIG,
   MODEL_CREATION_FORM_NAME,
   useModelsContext,
 } from "@/app/providers/models-provider";
-import { Input } from "@/components/ui/form";
-import { INPUT_TYPES } from "@/enums";
-import { MODELS_CONTENT } from "@/constants";
-import { useEffect } from "react";
 
 const CreateNewTrainingDatasetForm = () => {
   const { formData, handleChange } = useModelsContext();

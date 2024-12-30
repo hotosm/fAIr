@@ -1,12 +1,12 @@
-import { SlDropdown } from "@shoelace-style/shoelace/dist/react";
-import { SlMenu } from "@shoelace-style/shoelace/dist/react";
-import { SlMenuItem } from "@shoelace-style/shoelace/dist/react";
-import { SlCheckbox } from "@shoelace-style/shoelace/dist/react";
-import "./dropdown.css";
-import { ChevronDownIcon } from "@/components/ui/icons";
-import { useEffect, useState } from "react";
-import { cn } from "@/utils";
-import { DropdownPlacement } from "@/enums";
+import { ChevronDownIcon } from '@/components/ui/icons';
+import { cn } from '@/utils';
+import { DropdownPlacement } from '@/enums';
+import { SlCheckbox } from '@shoelace-style/shoelace/dist/react';
+import { SlDropdown } from '@shoelace-style/shoelace/dist/react';
+import { SlMenu } from '@shoelace-style/shoelace/dist/react';
+import { SlMenuItem } from '@shoelace-style/shoelace/dist/react';
+import { useEffect, useState } from 'react';
+import './dropdown.css';
 
 export type DropdownMenuItem = {
   value: string;

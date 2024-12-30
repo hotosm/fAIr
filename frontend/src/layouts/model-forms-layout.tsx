@@ -1,11 +1,12 @@
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { BackButton } from '@/components/ui/button';
+import { Head } from '@/components/seo';
+import { MODELS_CONTENT, MODELS_ROUTES } from '@/constants';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import {
   ProgressBar,
   ProgressButtons,
 } from "@/features/model-creation/components";
-import { Head } from "@/components/seo";
-import { MODELS_ROUTES, MODELS_CONTENT } from "@/constants";
-import { useEffect, useState } from "react";
 import {
   CloudIcon,
   DatabaseIcon,
@@ -18,7 +19,6 @@ import {
   ModelsProvider,
   useModelsContext,
 } from "@/app/providers/models-provider";
-import { BackButton } from "@/components/ui/button";
 
 const pages: {
   id: number;
@@ -26,43 +26,43 @@ const pages: {
   icon: React.ElementType;
   path: string;
 }[] = [
-  {
-    id: 1,
-    title: MODELS_CONTENT.modelCreation.progressStepper.modelDetails,
-    icon: TagsIcon,
-    path: MODELS_ROUTES.DETAILS,
-  },
-  {
-    id: 2,
-    title: MODELS_CONTENT.modelCreation.progressStepper.trainingDataset,
-    icon: DatabaseIcon,
-    path: MODELS_ROUTES.TRAINING_DATASET,
-  },
-  {
-    id: 3,
-    title: MODELS_CONTENT.modelCreation.progressStepper.trainingArea,
-    icon: SquareShadowIcon,
-    path: MODELS_ROUTES.TRAINING_AREA,
-  },
-  {
-    id: 4,
-    title: MODELS_CONTENT.modelCreation.progressStepper.trainingSettings,
-    icon: SettingsIcon,
-    path: MODELS_ROUTES.TRAINING_SETTINGS,
-  },
-  {
-    id: 5,
-    title: MODELS_CONTENT.modelCreation.progressStepper.submitModel,
-    icon: CloudIcon,
-    path: MODELS_ROUTES.MODEL_SUMMARY,
-  },
-  {
-    id: 6,
-    title: MODELS_CONTENT.modelCreation.progressStepper.confirmation,
-    icon: StarIcon,
-    path: MODELS_ROUTES.CONFIRMATION,
-  },
-];
+    {
+      id: 1,
+      title: MODELS_CONTENT.modelCreation.progressStepper.modelDetails,
+      icon: TagsIcon,
+      path: MODELS_ROUTES.DETAILS,
+    },
+    {
+      id: 2,
+      title: MODELS_CONTENT.modelCreation.progressStepper.trainingDataset,
+      icon: DatabaseIcon,
+      path: MODELS_ROUTES.TRAINING_DATASET,
+    },
+    {
+      id: 3,
+      title: MODELS_CONTENT.modelCreation.progressStepper.trainingArea,
+      icon: SquareShadowIcon,
+      path: MODELS_ROUTES.TRAINING_AREA,
+    },
+    {
+      id: 4,
+      title: MODELS_CONTENT.modelCreation.progressStepper.trainingSettings,
+      icon: SettingsIcon,
+      path: MODELS_ROUTES.TRAINING_SETTINGS,
+    },
+    {
+      id: 5,
+      title: MODELS_CONTENT.modelCreation.progressStepper.submitModel,
+      icon: CloudIcon,
+      path: MODELS_ROUTES.MODEL_SUMMARY,
+    },
+    {
+      id: 6,
+      title: MODELS_CONTENT.modelCreation.progressStepper.confirmation,
+      icon: StarIcon,
+      path: MODELS_ROUTES.CONFIRMATION,
+    },
+  ];
 
 export const ModelFormsLayout = () => {
   const { pathname } = useLocation();

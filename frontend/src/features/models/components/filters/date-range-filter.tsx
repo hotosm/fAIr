@@ -1,10 +1,10 @@
-import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
-import { DropDown } from "@/components/ui/dropdown";
-import { DateRangePicker } from "@/components/ui/form";
-import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
-import { DateFilter, TQueryParams } from "@/types";
-import { SlCheckbox } from "@shoelace-style/shoelace/dist/react";
-import { useEffect, useState } from "react";
+import { DateFilter, TQueryParams } from '@/types';
+import { DateRangePicker } from '@/components/ui/form';
+import { DropDown } from '@/components/ui/dropdown';
+import { SEARCH_PARAMS } from '@/app/routes/models/models-list';
+import { SlCheckbox } from '@shoelace-style/shoelace/dist/react';
+import { useDropdownMenu } from '@/hooks/use-dropdown-menu';
+import { useEffect, useState } from 'react';
 
 export const dateFilters: DateFilter[] = [
   {

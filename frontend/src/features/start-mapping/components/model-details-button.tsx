@@ -1,7 +1,7 @@
-import { TagsInfoIcon } from "@/components/ui/icons";
-import { ToolTip } from "@/components/ui/tooltip";
-import { START_MAPPING_PAGE_CONTENT } from "@/constants";
-import useScreenSize from "@/hooks/use-screen-size";
+import useScreenSize from '@/hooks/use-screen-size';
+import { START_MAPPING_PAGE_CONTENT } from '@/constants';
+import { TagsInfoIcon } from '@/components/ui/icons';
+import { ToolTip } from '@/components/ui/tooltip';
 
 export const ModelDetailsButton = ({
   popupAnchorId,

@@ -1,9 +1,9 @@
-import { SlButton } from "@shoelace-style/shoelace/dist/react";
-import "./button.css";
-import { Spinner } from "@/components/ui/spinner";
-import { cn } from "@/utils";
-import { ButtonSize, ButtonVariant } from "@/types";
-import useScreenSize from "@/hooks/use-screen-size";
+import useScreenSize from '@/hooks/use-screen-size';
+import { ButtonSize, ButtonVariant } from '@/types';
+import { cn } from '@/utils';
+import { SlButton } from '@shoelace-style/shoelace/dist/react';
+import { Spinner } from '@/components/ui/spinner';
+import './button.css';
 
 type ButtonProps = {
   children: React.ReactNode;

@@ -1,5 +1,5 @@
-import { MutationConfig } from "@/services";
-import { useMutation } from "@tanstack/react-query";
+import { MutationConfig } from '@/services';
+import { useMutation } from '@tanstack/react-query';
 import {
   getModelPredictions,
   TModelPredictionsConfig,

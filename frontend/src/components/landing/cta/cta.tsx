@@ -1,10 +1,10 @@
-import { Button } from "@/components/ui/button/";
-import styles from "./cta.module.css";
+import styles from './cta.module.css';
+import { Button } from '@/components/ui/button/';
+import { HOTTeamTwo } from '@/assets/images';
+import { Image } from '@/components/ui/image';
+import { Link } from '@/components/ui/link';
+import { SHARED_CONTENT } from '@/constants';
 
-import { Image } from "@/components/ui/image";
-import { Link } from "@/components/ui/link";
-import { HOTTeamTwo } from "@/assets/images";
-import { SHARED_CONTENT } from "@/constants";
 
 export const CallToAction = () => {
   return (

@@ -1,6 +1,6 @@
-import { cn } from "@/utils";
-import styles from "./link.module.css";
-import { Link as ReactRouterLink } from "react-router-dom";
+import styles from './link.module.css';
+import { cn } from '@/utils';
+import { Link as ReactRouterLink } from 'react-router-dom';
 
 type LinkProps = {
   href: string;

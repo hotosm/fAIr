@@ -1,10 +1,10 @@
-import { Button } from "@/components/ui/button";
-import styles from "@/components/landing/header/header.module.css";
-import BackgroundImage from "@/assets/images/header_bg.jpg";
+import BackgroundImage from '@/assets/images/header_bg.jpg';
+import styles from '@/components/landing/header/header.module.css';
+import { APPLICATION_ROUTES, SHARED_CONTENT } from '@/constants';
+import { Button } from '@/components/ui/button';
+import { Image } from '@/components/ui/image';
+import { Link } from '@/components/ui/link';
 
-import { Image } from "@/components/ui/image";
-import { Link } from "@/components/ui/link";
-import { APPLICATION_ROUTES, SHARED_CONTENT } from "@/constants";
 
 export const Header = () => {
   return (

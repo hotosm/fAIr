@@ -1,19 +1,19 @@
-import { MobileDrawer } from "@/components/ui/drawer";
-import ModelAction from "@/features/start-mapping/components/model-action";
-import { TModelPredictionsConfig } from "@/features/start-mapping/api/get-model-predictions";
-import { TModelPredictions } from "@/types";
-import { Map } from "maplibre-gl";
-import { ModelDetailsButton } from "@/features/start-mapping/components/model-details-button";
-import { ModelPredictionsTracker } from "@/features/start-mapping/components/model-predictions-tracker";
+import ModelAction from '@/features/start-mapping/components/model-action';
+import { ChevronDownIcon, CloudDownloadIcon } from '@/components/ui/icons';
+import { Map } from 'maplibre-gl';
+import { MobileDrawer } from '@/components/ui/drawer';
+import { ModelDetailsButton } from '@/features/start-mapping/components/model-details-button';
+import { ModelPredictionsTracker } from '@/features/start-mapping/components/model-predictions-tracker';
+import { ModelSettings } from '@/features/start-mapping/components/model-settings';
+import { TDownloadOptions, TQueryParams } from '@/app/routes/start-mapping';
+import { TModelPredictions } from '@/types';
+import { TModelPredictionsConfig } from '@/features/start-mapping/api/get-model-predictions';
+import { ToolTip } from '@/components/ui/tooltip';
+import { useState } from 'react';
 import {
   START_MAPPING_PAGE_CONTENT,
   MINIMUM_ZOOM_LEVEL_INSTRUCTION_FOR_PREDICTION,
 } from "@/constants";
-import { useState } from "react";
-import { ChevronDownIcon, CloudDownloadIcon } from "@/components/ui/icons";
-import { TDownloadOptions, TQueryParams } from "@/app/routes/start-mapping";
-import { ToolTip } from "@/components/ui/tooltip";
-import { ModelSettings } from "@/features/start-mapping/components/model-settings";
 
 export const StartMappingMobileDrawer = ({
   isOpen,
@@ -88,8 +88,8 @@ export const StartMappingMobileDrawer = ({
             content={
               disablePrediction
                 ? START_MAPPING_PAGE_CONTENT.actions.disabledModeTooltip(
-                    "see download options",
-                  )
+                  "see download options",
+                )
                 : null
             }
           >

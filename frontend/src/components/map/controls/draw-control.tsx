@@ -1,8 +1,8 @@
-import { DrawingModes, ToolTipPlacement } from "@/enums";
-import { useCallback } from "react";
-import { ToolTip } from "@/components/ui/tooltip";
-import { PenIcon } from "@/components/ui/icons";
-import { TerraDraw } from "terra-draw";
+import { DrawingModes, ToolTipPlacement } from '@/enums';
+import { PenIcon } from '@/components/ui/icons';
+import { TerraDraw } from 'terra-draw';
+import { ToolTip } from '@/components/ui/tooltip';
+import { useCallback } from 'react';
 
 export const DrawControl = ({
   drawingMode,

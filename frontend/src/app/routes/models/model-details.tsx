@@ -1,27 +1,27 @@
-import { Head } from "@/components/seo";
-import { BackButton, ButtonWithIcon } from "@/components/ui/button";
-import { StarStackIcon } from "@/components/ui/icons";
+import ModelEnhancementDialog from '@/features/models/components/dialogs/model-enhancement-dialog';
+import { BackButton, ButtonWithIcon } from '@/components/ui/button';
+import { handleErrorNavigation } from '@/utils';
+import { Head } from '@/components/seo';
+import { Image } from '@/components/ui/image';
+import { ModelDetailsSkeleton } from '@/features/models/components/skeletons';
+import { ModelFilesDialog } from '@/features/models/components/dialogs';
+import { MODELS_CONTENT } from '@/constants';
+import { StarStackIcon } from '@/components/ui/icons';
+import { TModelDetails, TTrainingDataset } from '@/types';
+import { TrainingAreaDrawer } from '@/features/models/components/training-area-drawer';
+import { TrainingInProgressImage } from '@/assets/images';
+import { useAuth } from '@/app/providers/auth-provider';
+import { useDialog } from '@/hooks/use-dialog';
+import { useEffect } from 'react';
+import { useGetTrainingDataset } from '@/features/models/hooks/use-dataset';
+import { useModelDetails } from '@/features/models/hooks/use-models';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   ModelDetailsSection,
   ModelDetailsProperties,
   ModelDetailsInfo,
   TrainingHistoryTable,
 } from "@/features/models/components";
-import { ModelFilesDialog } from "@/features/models/components/dialogs";
-import { ModelDetailsSkeleton } from "@/features/models/components/skeletons";
-import { useModelDetails } from "@/features/models/hooks/use-models";
-import { useDialog } from "@/hooks/use-dialog";
-import { useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { Image } from "@/components/ui/image";
-import ModelEnhancementDialog from "@/features/models/components/dialogs/model-enhancement-dialog";
-import { TModelDetails, TTrainingDataset } from "@/types";
-import { useAuth } from "@/app/providers/auth-provider";
-import { TrainingAreaDrawer } from "@/features/models/components/training-area-drawer";
-import { useGetTrainingDataset } from "@/features/models/hooks/use-dataset";
-import { TrainingInProgressImage } from "@/assets/images";
-import { handleErrorNavigation } from "@/utils";
-import { MODELS_CONTENT } from "@/constants";
 
 export const ModelDetailsPage = () => {
   const { id } = useParams<{ id: string }>();

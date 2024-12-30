@@ -1,18 +1,18 @@
-import { ButtonWithIcon } from "@/components/ui/button";
-import { MapIcon, PenIcon } from "@/components/ui/icons";
-import { APPLICATION_ROUTES, MODELS_CONTENT } from "@/constants";
-import { formatDate, truncateString } from "@/utils";
-import ModelDetailItem from "@/features/models/components/model-detail-item";
-import ModelDetailsSection from "@/features/models/components/model-details-section";
-import { Divider } from "@/components/ui/divider";
-import ModelFeedbacks from "@/features/models/components/model-feedbacks";
-import ModelFilesButton from "./model-files-button";
-import ModelDetailsUpdateDialog from "./dialogs/model-details-update-dialog";
-import { useDialog } from "@/hooks/use-dialog";
-import { useAuth } from "@/app/providers/auth-provider";
-import { TModelDetails, TTrainingDataset } from "@/types";
-import { useNavigate } from "react-router-dom";
-import { TrainingAreaButton } from "./training-area-button";
+import ModelDetailItem from '@/features/models/components/model-detail-item';
+import ModelDetailsSection from '@/features/models/components/model-details-section';
+import ModelDetailsUpdateDialog from './dialogs/model-details-update-dialog';
+import ModelFeedbacks from '@/features/models/components/model-feedbacks';
+import ModelFilesButton from './model-files-button';
+import { APPLICATION_ROUTES, MODELS_CONTENT } from '@/constants';
+import { ButtonWithIcon } from '@/components/ui/button';
+import { Divider } from '@/components/ui/divider';
+import { formatDate, truncateString } from '@/utils';
+import { MapIcon, PenIcon } from '@/components/ui/icons';
+import { TModelDetails, TTrainingDataset } from '@/types';
+import { TrainingAreaButton } from './training-area-button';
+import { useAuth } from '@/app/providers/auth-provider';
+import { useDialog } from '@/hooks/use-dialog';
+import { useNavigate } from 'react-router-dom';
 
 const ModelDetailsInfo = ({
   data,

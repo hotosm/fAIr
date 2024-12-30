@@ -1,6 +1,6 @@
-import { ENVS } from "@/config/env";
-import { BASE_MODELS } from "@/enums";
-import { StyleSpecification } from "maplibre-gl";
+import { BASE_MODELS } from '@/enums';
+import { ENVS } from '@/config/env';
+import { StyleSpecification } from 'maplibre-gl';
 
 /**
  * The key used to store the access token in local storage for the application.
@@ -38,7 +38,7 @@ const REFRESH_BUFFER_MS = 1000;
  */
 export const KPI_STATS_CACHE_TIME_MS =
   (Number(ENVS.KPI_STATS_CACHE_TIME) || DEFAULT_KPI_STATS_CACHE_TIME_SECONDS) *
-    1000 +
+  1000 +
   REFRESH_BUFFER_MS;
 
 /**
@@ -144,9 +144,9 @@ export const LEGEND_NAME_MAPPING: Record<string, string> = {
  * Training area and labels styles.
  */
 export const TRAINING_AREAS_AOI_FILL_COLOR =
-  ENVS.TRAINING_AREAS_AOI_FILL_COLOR || "#247DCACC";
+  ENVS.TRAINING_AREAS_AOI_FILL_COLOR || "247DCACC";
 export const TRAINING_AREAS_AOI_OUTLINE_COLOR =
-  ENVS.TRAINING_AREAS_AOI_OUTLINE_COLOR || "#247DCACC";
+  ENVS.TRAINING_AREAS_AOI_OUTLINE_COLOR || "247DCACC";
 export const TRAINING_AREAS_AOI_OUTLINE_WIDTH =
   ENVS.TRAINING_AREAS_AOI_OUTLINE_WIDTH || 4;
 export const TRAINING_AREAS_AOI_FILL_OPACITY =
@@ -156,9 +156,9 @@ export const TRAINING_AREAS_AOI_LABELS_FILL_OPACITY =
 export const TRAINING_AREAS_AOI_LABELS_OUTLINE_WIDTH =
   ENVS.TRAINING_AREAS_AOI_LABELS_OUTLINE_WIDTH || 2;
 export const TRAINING_AREAS_AOI_LABELS_FILL_COLOR =
-  ENVS.TRAINING_AREAS_AOI_LABELS_FILL_COLOR || "#D73434";
+  ENVS.TRAINING_AREAS_AOI_LABELS_FILL_COLOR || "D73434";
 export const TRAINING_AREAS_AOI_LABELS_OUTLINE_COLOR =
-  ENVS.TRAINING_AREAS_AOI_LABELS_OUTLINE_COLOR || "#D73434";
+  ENVS.TRAINING_AREAS_AOI_LABELS_OUTLINE_COLOR || "D73434";
 
 /**
  * The key used to store the banner state in local storage for the application.
@@ -217,3 +217,27 @@ export const OSM_LAST_UPDATED_POOLING_INTERVAL_MS =
  * Distance of the elements from the navbar in px for dropdowns and popups on the start mapping page.
  */
 export const ELEMENT_DISTANCE_FROM_NAVBAR = 10;
+
+/**
+   The maximum GeoJSON file(s) containing the training labels, a user can upload for an AOI/Training Area.
+   Data type: Positive Integer (e.g., 1).
+   Default value: 1 (1 GeoJSON file).
+*/
+export const MAX_GEOJSON_FILE_UPLOAD_FOR_TRAINING_AREA_LABELS =
+  ENVS.MAX_GEOJSON_FILE_UPLOAD_FOR_TRAINING_AREA_LABELS || 1;
+
+/**
+   The maximum GeoJSON file(s) containing the training areas/AOI polygon geometry that a user can upload.
+   Data type: Positive Integer (e.g., 1).
+   Default value: 10 (10 GeoJSON files, assumming each file has a single AOI).
+*/
+export const MAX_GEOJSON_FILE_UPLOAD_FOR_TRAINING_AREAS =
+  ENVS.MAX_GEOJSON_FILE_UPLOAD_FOR_TRAINING_AREAS || 10;
+
+/**
+  The maximum polygon geometry a single training area GeoJSON file can contain.
+  Data type: Positive Integer (e.g., 1).
+  Default value: 10 (10 polygon geometries).
+*/
+export const MAX_ACCEPTABLE_POLYGON_IN_TRAINING_AREA_GEOJSON_FILE =
+  ENVS.MAX_ACCEPTABLE_POLYGON_IN_TRAINING_AREA_GEOJSON_FILE || 10;

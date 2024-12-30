@@ -1,12 +1,22 @@
-import { MapComponent, MapCursorToolTip } from "@/components/map";
-import { GeoJSONType, PaginatedTrainingArea } from "@/types";
-import { GeoJSONSource, Map } from "maplibre-gl";
-import { RefObject, useCallback, useEffect, useState } from "react";
+import useDebounce from '@/hooks/use-debounce';
+import { ControlsPosition, DrawingModes } from '@/enums';
+import { GeoJSONSource, Map } from 'maplibre-gl';
+import { geojsonToWKT } from '@terraformer/wkt';
+import { GeoJSONType, PaginatedTrainingArea } from '@/types';
+import { MapComponent, MapCursorToolTip } from '@/components/map';
+import {
+  RefObject,
+  useCallback,
+  useEffect,
+  useState
+  } from 'react';
+import { TerraDraw } from 'terra-draw';
+import { useMapLayers } from '@/hooks/use-map-layer';
+import { useToolTipVisibility } from '@/hooks/use-tooltip-visibility';
 import {
   useCreateTrainingArea,
   useGetTrainingDatasetLabels,
 } from "@/features/model-creation/hooks/use-training-areas";
-import { geojsonToWKT } from "@terraformer/wkt";
 import {
   MAP_STYLES_PREFIX,
   MAX_TRAINING_AREA_SIZE,
@@ -28,11 +38,6 @@ import {
   snapGeoJSONGeometryToClosestTile,
   validateGeoJSONArea,
 } from "@/utils";
-import useDebounce from "@/hooks/use-debounce";
-import { ControlsPosition, DrawingModes } from "@/enums";
-import { useToolTipVisibility } from "@/hooks/use-tooltip-visibility";
-import { useMapLayers } from "@/hooks/use-map-layer";
-import { TerraDraw } from "terra-draw";
 
 // Debounce delay in milliseconds.
 const DEBOUNCE_DELAY: number = 300;
@@ -311,22 +316,22 @@ const TrainingAreaMap = ({
       layerControlLayers={[
         ...(data?.results?.features?.length
           ? [
-              {
-                value: "Training Areas",
-                subLayers: [trainingAreasLayerId, trainingAreasFillLayerId],
-              },
-            ]
+            {
+              value: "Training Areas",
+              subLayers: [trainingAreasLayerId, trainingAreasFillLayerId],
+            },
+          ]
           : []),
         ...(labels && labels?.features.length > 0
           ? [
-              {
-                value: "Training Labels",
-                subLayers: [
-                  trainingDatasetLabelsLayerId,
-                  trainingDatasetLabelsOutlineLayerId,
-                ],
-              },
-            ]
+            {
+              value: "Training Labels",
+              subLayers: [
+                trainingDatasetLabelsLayerId,
+                trainingDatasetLabelsOutlineLayerId,
+              ],
+            },
+          ]
           : []),
       ]}
     >

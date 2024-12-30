@@ -1,4 +1,4 @@
-import { FilterIcon } from "@/components/ui/icons";
+import { FilterIcon } from '@/components/ui/icons';
 
 const MobileFilter = ({
   openMobileFilterModal,

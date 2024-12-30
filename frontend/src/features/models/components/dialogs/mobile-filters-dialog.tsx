@@ -1,4 +1,8 @@
-import { Dialog } from "@/components/ui/dialog";
+import { APPLICATION_ROUTES } from '@/constants';
+import { Button } from '@/components/ui/button';
+import { Dialog } from '@/components/ui/dialog';
+import { DialogProps, TQueryParams } from '@/types';
+import { useLocation } from 'react-router-dom';
 
 import {
   CategoryFilter,
@@ -6,10 +10,6 @@ import {
   OrderingFilter,
   StatusFilter,
 } from "@/features/models/components/filters";
-import { DialogProps, TQueryParams } from "@/types";
-import { Button } from "@/components/ui/button";
-import { useLocation } from "react-router-dom";
-import { APPLICATION_ROUTES } from "@/constants";
 
 type TrainingAreaDrawerProps = DialogProps & {
   updateQuery: (updatedParams: TQueryParams) => void;

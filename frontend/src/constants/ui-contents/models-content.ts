@@ -1,7 +1,7 @@
-import { TModelsContent } from "@/types";
-import { formatAreaInAppropriateUnit } from "@/utils";
-import { MAX_TRAINING_AREA_SIZE, MIN_TRAINING_AREA_SIZE } from "../config";
-import { BASE_MODELS } from "@/enums";
+import { BASE_MODELS } from '@/enums';
+import { formatAreaInAppropriateUnit } from '@/utils';
+import { MAX_TRAINING_AREA_SIZE, MIN_TRAINING_AREA_SIZE } from '../config';
+import { TModelsContent } from '@/types';
 
 export const MODELS_CONTENT: TModelsContent = {
   trainingArea: {

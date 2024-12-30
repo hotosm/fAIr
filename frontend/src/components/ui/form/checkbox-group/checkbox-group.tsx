@@ -1,8 +1,8 @@
-import { cn } from "@/utils";
-import { SlCheckbox } from "@shoelace-style/shoelace/dist/react/index.js";
-import { useEffect, useState } from "react";
-import "./checkbox-group.css";
-import { SHOELACE_SIZES } from "@/enums";
+import { cn } from '@/utils';
+import { SHOELACE_SIZES } from '@/enums';
+import { SlCheckbox } from '@shoelace-style/shoelace/dist/react/index.js';
+import { useEffect, useState } from 'react';
+import './checkbox-group.css';
 
 type CheckboxGroupProps = {
   options: {

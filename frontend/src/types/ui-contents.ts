@@ -1,6 +1,6 @@
+import { IconProps } from './common';
 // Models related pages content types starts.
 
-import { IconProps } from "./common";
 
 export type TModelsContent = {
   trainingArea: {

@@ -1,8 +1,15 @@
-import { Pagination } from "@/components/shared";
-import { Head } from "@/components/seo";
-import { LayoutView } from "@/enums";
-import { LayoutToggle, PageHeader } from "@/features/models/components";
-import { MobileModelFiltersDialog } from "@/features/models/components/dialogs";
+import ModelNotFound from '@/features/models/components/model-not-found';
+import { Head } from '@/components/seo';
+import { LayoutToggle, PageHeader } from '@/features/models/components';
+import { LayoutView } from '@/enums';
+import { MobileModelFiltersDialog } from '@/features/models/components/dialogs';
+import { MODELS_CONTENT } from '@/constants';
+import { PAGE_LIMIT } from '@/components/shared';
+import { Pagination } from '@/components/shared';
+import { SEARCH_PARAMS } from '@/app/routes/models/models-list';
+import { useAuth } from '@/app/providers/auth-provider';
+import { useDialog } from '@/hooks/use-dialog';
+import { useModelsListFilters } from '@/features/models/hooks/use-models';
 import {
   CategoryFilter,
   ClearFilters,
@@ -12,18 +19,11 @@ import {
   SearchFilter,
   StatusFilter,
 } from "@/features/models/components/filters";
-import { useModelsListFilters } from "@/features/models/hooks/use-models";
 import {
   ModelListGridLayout,
   ModelListTableLayout,
 } from "@/features/models/layouts";
-import { useDialog } from "@/hooks/use-dialog";
 
-import ModelNotFound from "@/features/models/components/model-not-found";
-import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
-import { useAuth } from "@/app/providers/auth-provider";
-import { MODELS_CONTENT } from "@/constants";
-import { PAGE_LIMIT } from "@/components/shared";
 
 export const UserModelsPage = () => {
   const { isOpened, openDialog, closeDialog } = useDialog();

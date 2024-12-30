@@ -1,9 +1,9 @@
-import { Header } from "@/components/shared";
-import { Image } from "@/components/ui/image";
-import { Head } from "@/components/seo";
-import { ABOUT_PAGE_CONTENT } from "@/constants";
-import { HOTTeamLandscape } from "@/assets/images";
-import { AIIcon } from "@/assets/svgs";
+import { ABOUT_PAGE_CONTENT } from '@/constants';
+import { AIIcon } from '@/assets/svgs';
+import { Head } from '@/components/seo';
+import { Header } from '@/components/shared';
+import { HOTTeamLandscape } from '@/assets/images';
+import { Image } from '@/components/ui/image';
 
 export const AboutPage = () => {
   return (

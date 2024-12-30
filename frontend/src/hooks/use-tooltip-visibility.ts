@@ -1,5 +1,5 @@
-import { Map, MapMouseEvent } from "maplibre-gl";
-import { useEffect, useState } from "react";
+import { Map, MapMouseEvent } from 'maplibre-gl';
+import { useEffect, useState } from 'react';
 
 export const useToolTipVisibility = (
   map: Map | null,

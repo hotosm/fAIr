@@ -1,25 +1,25 @@
-import { Image, ZoomableImage } from "@/components/ui/image";
-import ToolTip from "@/components/ui/tooltip/tooltip";
+import AccuracyDisplay from './accuracy-display';
+import CodeBlock from '@/components/ui/codeblock/codeblock';
+import ModelFilesButton from './model-files-button';
+import ToolTip from '@/components/ui/tooltip/tooltip';
+import useCopyToClipboard from '@/hooks/use-clipboard';
+import { ChevronDownIcon } from '@/components/ui/icons';
+import { cn, showErrorToast } from '@/utils';
+import { CopyIcon, ExternalLinkIcon } from '@/components/ui/icons';
+import { ENVS } from '@/config/env';
+import { Image, ZoomableImage } from '@/components/ui/image';
+import { Link } from '@/components/ui/link';
+import { ModelFilesDialog } from './dialogs';
+import { ModelPropertiesSkeleton } from './skeletons';
+import { MODELS_CONTENT } from '@/constants';
+import { TrainingAreaButton } from './training-area-button';
+import { TrainingAreaDrawer } from './training-area-drawer';
+import { useDialog } from '@/hooks/use-dialog';
+import { useEffect, useState } from 'react';
 import {
   useTrainingDetails,
   useTrainingStatus,
 } from "@/features/models/hooks/use-training";
-import { useEffect, useState } from "react";
-import AccuracyDisplay from "./accuracy-display";
-import { Link } from "@/components/ui/link";
-import { CopyIcon, ExternalLinkIcon } from "@/components/ui/icons";
-import { ModelPropertiesSkeleton } from "./skeletons";
-import CodeBlock from "@/components/ui/codeblock/codeblock";
-import { ChevronDownIcon } from "@/components/ui/icons";
-import { cn, showErrorToast } from "@/utils";
-import { ENVS } from "@/config/env";
-import useCopyToClipboard from "@/hooks/use-clipboard";
-import ModelFilesButton from "./model-files-button";
-import { ModelFilesDialog } from "./dialogs";
-import { useDialog } from "@/hooks/use-dialog";
-import { TrainingAreaButton } from "./training-area-button";
-import { TrainingAreaDrawer } from "./training-area-drawer";
-import { MODELS_CONTENT } from "@/constants";
 
 enum TrainingStatus {
   FAILED = "FAILED",

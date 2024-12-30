@@ -63,12 +63,12 @@ export const API_ENDPOINTS = {
   GET_MODEL_TRAINING_HISTORY: (id: string) => `training/?model=${id}`,
   GET_TRAINING_FEEDBACKS: (trainingId: number) =>
     `feedback/?training=${trainingId}`,
-  CREATE_TRAINING_AREA_LABELS: `label/`,
   CREATE_TRAINING_DATASET: "dataset/",
   CREATE_TRAINING_AREA: "aoi/",
   CREATE_TRAINING_REQUEST: "training/",
   UPDATE_TRAINING: (id: number) => `training/publish/${id}/`,
   DELETE_TRAINING_AREA: (id: number) => `aoi/${id}/`,
+  UPLOAD_TRAINING_AREA_LABELS: (aioId: number) => `label/upload/${aioId}/`,
 
   // Workspace
 
