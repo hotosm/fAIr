@@ -1,7 +1,7 @@
-import { APPLICATION_ROUTES } from "@/constants";
-import { MainErrorFallback } from "@/components/errors";
-import { ModelFormsLayout, RootLayout } from "@/layouts";
-import { ProtectedRoute } from "@/app/routes/protected-route";
+import { APPLICATION_ROUTES } from '@/constants';
+import { MainErrorFallback } from '@/components/errors';
+import { ModelFormsLayout, RootLayout } from '@/layouts';
+import { ProtectedRoute } from '@/app/routes/protected-route';
 import {
   Navigate,
   RouterProvider,
@@ -277,9 +277,9 @@ const router = createBrowserRouter([
           );
           return {
             Component: () => (
-              // <ProtectedRoute>
-              <StartMappingPage />
-              // </ProtectedRoute>
+              <ProtectedRoute>
+                <StartMappingPage />
+              </ProtectedRoute>
             ),
           };
         },
