@@ -1,5 +1,5 @@
-import { keepPreviousData, queryOptions } from '@tanstack/react-query';
-import { queryKeys } from '@/services';
+import { keepPreviousData, queryOptions } from "@tanstack/react-query";
+import { queryKeys } from "@/services";
 import {
   getModels,
   getModelDetails,

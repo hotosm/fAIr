@@ -1,8 +1,8 @@
-import { APPLICATION_ROUTES } from '@/constants';
-import { Button } from '@/components/ui/button';
-import { Dialog } from '@/components/ui/dialog';
-import { DialogProps, TQueryParams } from '@/types';
-import { useLocation } from 'react-router-dom';
+import { APPLICATION_ROUTES } from "@/constants";
+import { Button } from "@/components/ui/button";
+import { Dialog } from "@/components/ui/dialog";
+import { DialogProps, TQueryParams } from "@/types";
+import { useLocation } from "react-router-dom";
 
 import {
   CategoryFilter,

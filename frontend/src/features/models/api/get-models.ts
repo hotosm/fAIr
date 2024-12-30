@@ -1,5 +1,5 @@
-import { API_ENDPOINTS, apiClient } from '@/services';
-import { FeatureCollection, PaginatedModels, TModelDetails } from '@/types/api';
+import { API_ENDPOINTS, apiClient } from "@/services";
+import { FeatureCollection, PaginatedModels, TModelDetails } from "@/types/api";
 
 export const getModels = async (
   limit: number,

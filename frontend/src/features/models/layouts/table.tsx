@@ -1,14 +1,14 @@
-import React from 'react';
-import { APPLICATION_ROUTES } from '@/constants';
-import { ColumnDef, SortingState } from '@tanstack/react-table';
-import { DataTable } from '@/components/ui/data-table';
-import { formatDate, roundNumber } from '@/utils';
-import { SortableHeader } from '@/features/models/components/table-header';
-import { TableSkeleton } from '@/features/models/components/skeletons';
-import { TModel } from '@/types';
-import { truncateString } from '@/utils';
-import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import React from "react";
+import { APPLICATION_ROUTES } from "@/constants";
+import { ColumnDef, SortingState } from "@tanstack/react-table";
+import { DataTable } from "@/components/ui/data-table";
+import { formatDate, roundNumber } from "@/utils";
+import { SortableHeader } from "@/features/models/components/table-header";
+import { TableSkeleton } from "@/features/models/components/skeletons";
+import { TModel } from "@/types";
+import { truncateString } from "@/utils";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 type ModelListProps = {
   models?: TModel[];

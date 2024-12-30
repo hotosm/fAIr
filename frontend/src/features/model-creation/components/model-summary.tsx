@@ -1,8 +1,8 @@
-import { BASE_MODELS } from '@/enums';
-import { IconProps } from '@/types';
-import { MODELS_CONTENT } from '@/constants';
-import { StepHeading } from '@/features/model-creation/components/';
-import { useModelsContext } from '@/app/providers/models-provider';
+import { BASE_MODELS } from "@/enums";
+import { IconProps } from "@/types";
+import { MODELS_CONTENT } from "@/constants";
+import { StepHeading } from "@/features/model-creation/components/";
+import { useModelsContext } from "@/app/providers/models-provider";
 import {
   DatabaseIcon,
   MapIcon,

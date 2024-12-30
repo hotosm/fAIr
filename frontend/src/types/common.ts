@@ -1,11 +1,10 @@
-import { Feature } from './api';
-import { GeoJSON } from 'geojson';
-import { LngLatBoundsLike } from 'maplibre-gl';
-import { SHOELACE_SELECT_SIZES } from '@/enums';
-
+import { Feature } from "./api";
+import { GeoJSON } from "geojson";
+import { LngLatBoundsLike } from "maplibre-gl";
+import { SHOELACE_SELECT_SIZES } from "@/enums";
 
 /* eslint-disable @typescript-eslint/no-empty-object-type */
-export interface IconProps extends React.SVGProps<SVGSVGElement> { }
+export interface IconProps extends React.SVGProps<SVGSVGElement> {}
 
 export type ShoelaceSlotProps = {
   slot?: string;

@@ -1,4 +1,4 @@
-import maplibregl from 'maplibre-gl';
+import maplibregl from "maplibre-gl";
 import {
   TerraDraw,
   TerraDrawMapLibreGLAdapter,

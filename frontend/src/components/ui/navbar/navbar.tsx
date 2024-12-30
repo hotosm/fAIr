@@ -1,18 +1,17 @@
-import styles from '@/components/layouts/navbar/navbar.module.css';
-import { APPLICATION_ROUTES, SHARED_CONTENT } from '@/constants';
-import { Button } from '@/components/ui/button';
-import { Drawer } from '@/components/ui/drawer';
-import { DrawerPlacements } from '@/enums';
-import { HamburgerIcon } from '@/assets/svgs';
-import { Image } from '@/components/ui/image';
-import { Link } from '@/components/ui/link';
-import { NavLogo } from '@/components/layout';
-import { useAuth } from '@/app/providers/auth-provider';
-import { useLocation } from 'react-router-dom';
-import { useLogin } from '@/hooks/use-login';
-import { UserProfile } from '@/components/layout';
-import { useState } from 'react';
-
+import styles from "@/components/layouts/navbar/navbar.module.css";
+import { APPLICATION_ROUTES, SHARED_CONTENT } from "@/constants";
+import { Button } from "@/components/ui/button";
+import { Drawer } from "@/components/ui/drawer";
+import { DrawerPlacements } from "@/enums";
+import { HamburgerIcon } from "@/assets/svgs";
+import { Image } from "@/components/ui/image";
+import { Link } from "@/components/ui/link";
+import { NavLogo } from "@/components/layout";
+import { useAuth } from "@/app/providers/auth-provider";
+import { useLocation } from "react-router-dom";
+import { useLogin } from "@/hooks/use-login";
+import { UserProfile } from "@/components/layout";
+import { useState } from "react";
 
 export const NavBar = () => {
   const [open, setOpen] = useState(false);

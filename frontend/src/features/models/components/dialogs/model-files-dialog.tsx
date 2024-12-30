@@ -1,7 +1,7 @@
-import DirectoryTree from '@/features/models/components/directory-tree';
-import { Dialog } from '@/components/ui/dialog';
-import { DialogProps } from '@/types';
-import { MODELS_CONTENT } from '@/constants';
+import DirectoryTree from "@/features/models/components/directory-tree";
+import { Dialog } from "@/components/ui/dialog";
+import { DialogProps } from "@/types";
+import { MODELS_CONTENT } from "@/constants";
 
 type TrainingAreaDrawerProps = DialogProps & {
   trainingId: number;

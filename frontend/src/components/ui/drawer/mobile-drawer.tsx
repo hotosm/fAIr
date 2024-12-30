@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { cn } from '@/utils';
-import { Drawer } from 'vaul';
+import React, { useState } from "react";
+import { cn } from "@/utils";
+import { Drawer } from "vaul";
 
 export const MobileDrawer = ({
   open,

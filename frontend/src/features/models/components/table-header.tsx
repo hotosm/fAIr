@@ -1,5 +1,5 @@
-import { Column } from '@tanstack/react-table';
-import { SortIcon } from '@/components/ui/icons';
+import { Column } from "@tanstack/react-table";
+import { SortIcon } from "@/components/ui/icons";
 
 type DataTableColumnHeaderProps<TData, TValue> = {
   column: Column<TData, TValue>;

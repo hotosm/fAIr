@@ -1,5 +1,5 @@
-import { API_ENDPOINTS, apiClient } from '@/services';
-import { AxiosProgressEvent } from 'axios';
+import { API_ENDPOINTS, apiClient } from "@/services";
+import { AxiosProgressEvent } from "axios";
 import {
   TTrainingAreaFeature,
   TTrainingDataset,

@@ -1,10 +1,9 @@
-import { Button } from '@/components/ui/button';
-import { Head } from '@/components/seo';
-import { SHARED_CONTENT } from '@/constants';
-import { ShieldIcon } from '@/components/ui/icons';
-import { useAuth } from '@/app/providers/auth-provider';
-import { useLogin } from '@/hooks/use-login';
-
+import { Button } from "@/components/ui/button";
+import { Head } from "@/components/seo";
+import { SHARED_CONTENT } from "@/constants";
+import { ShieldIcon } from "@/components/ui/icons";
+import { useAuth } from "@/app/providers/auth-provider";
+import { useLogin } from "@/hooks/use-login";
 
 type ProtectedRouteProps = {
   children: React.ReactNode;

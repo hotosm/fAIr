@@ -1,6 +1,6 @@
-import axios from 'axios';
-import { APPLICATION_ROUTES } from '@/constants';
-import { NavigateFunction } from 'react-router-dom';
+import axios from "axios";
+import { APPLICATION_ROUTES } from "@/constants";
+import { NavigateFunction } from "react-router-dom";
 // errorHandlers.ts
 
 export const handleErrorNavigation = (

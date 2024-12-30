@@ -1,10 +1,10 @@
-import { FullScreenIcon } from '@/components/ui/icons';
-import { Map } from 'maplibre-gl';
-import { MODELS_CONTENT } from '@/constants';
-import { ToolTip } from '@/components/ui/tooltip';
-import { truncateString } from '@/utils';
-import { useCallback, useEffect } from 'react';
-import { useGetTMSTileJSON } from '@/features/model-creation/hooks/use-tms-tilejson';
+import { FullScreenIcon } from "@/components/ui/icons";
+import { Map } from "maplibre-gl";
+import { MODELS_CONTENT } from "@/constants";
+import { ToolTip } from "@/components/ui/tooltip";
+import { truncateString } from "@/utils";
+import { useCallback, useEffect } from "react";
+import { useGetTMSTileJSON } from "@/features/model-creation/hooks/use-tms-tilejson";
 import {
   MODEL_CREATION_FORM_NAME,
   useModelsContext,

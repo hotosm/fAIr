@@ -1,14 +1,9 @@
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useState
-  } from 'react';
-import { apiClient } from '@/services/api-client';
-import { authService } from '@/services';
-import { showErrorToast, showSuccessToast } from '@/utils';
-import { TUser } from '@/types/api';
-import { useLocalStorage, useSessionStorage } from '@/hooks/use-storage';
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { apiClient } from "@/services/api-client";
+import { authService } from "@/services";
+import { showErrorToast, showSuccessToast } from "@/utils";
+import { TUser } from "@/types/api";
+import { useLocalStorage, useSessionStorage } from "@/hooks/use-storage";
 import {
   TOAST_NOTIFICATIONS,
   HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY,

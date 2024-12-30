@@ -1,11 +1,11 @@
-import { APPLICATION_ROUTES } from '@/constants';
-import { Banner } from '@/components/ui/banner';
-import { Footer } from '@/components/layout';
-import { HotTracking } from '@/components/shared';
-import { NavBar } from '@/components/layout';
-import { Outlet, useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
-import { useScrollToTop } from '@/hooks/use-scroll-to-element';
+import { APPLICATION_ROUTES } from "@/constants";
+import { Banner } from "@/components/ui/banner";
+import { Footer } from "@/components/layout";
+import { HotTracking } from "@/components/shared";
+import { NavBar } from "@/components/layout";
+import { Outlet, useLocation } from "react-router-dom";
+import { useEffect } from "react";
+import { useScrollToTop } from "@/hooks/use-scroll-to-element";
 
 export const RootLayout = () => {
   const { pathname } = useLocation();

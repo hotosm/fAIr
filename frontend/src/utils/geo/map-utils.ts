@@ -1,4 +1,4 @@
-import { LayerSpecification, Map, SourceSpecification } from 'maplibre-gl';
+import { LayerSpecification, Map, SourceSpecification } from "maplibre-gl";
 
 export const addSources = (
   map: Map,

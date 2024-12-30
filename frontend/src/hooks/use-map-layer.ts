@@ -1,6 +1,6 @@
-import { addLayers, addSources } from '@/utils/geo/map-utils';
-import { LayerSpecification, Map, SourceSpecification } from 'maplibre-gl';
-import { useCallback, useEffect } from 'react';
+import { addLayers, addSources } from "@/utils/geo/map-utils";
+import { LayerSpecification, Map, SourceSpecification } from "maplibre-gl";
+import { useCallback, useEffect } from "react";
 
 export const useMapLayers = (
   layersSpec: LayerSpecification[],

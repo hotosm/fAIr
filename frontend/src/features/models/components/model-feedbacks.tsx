@@ -1,6 +1,6 @@
-import { Button } from '@/components/ui/button';
-import { MODELS_CONTENT } from '@/constants';
-import { useTrainingFeedbacks } from '@/features/models/hooks/use-training';
+import { Button } from "@/components/ui/button";
+import { MODELS_CONTENT } from "@/constants";
+import { useTrainingFeedbacks } from "@/features/models/hooks/use-training";
 
 const ModelFeedbacks = ({ trainingId }: { trainingId: number }) => {
   const { data, isLoading } = useTrainingFeedbacks(trainingId);

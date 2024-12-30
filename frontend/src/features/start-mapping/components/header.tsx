@@ -1,20 +1,20 @@
-import ModelAction from '@/features/start-mapping/components/model-action';
-import { BrandLogoWithDropDown } from './logo-with-dropdown';
-import { ButtonWithIcon } from '@/components/ui/button';
-import { ChevronDownIcon } from '@/components/ui/icons';
-import { DropDown } from '@/components/ui/dropdown';
-import { DropdownPlacement, SHOELACE_SIZES } from '@/enums';
-import { Map } from 'maplibre-gl';
-import { ModelDetailsButton } from '@/features/start-mapping/components/model-details-button';
-import { ModelPredictionsTracker } from '@/features/start-mapping/components/model-predictions-tracker';
-import { ModelSettings } from '@/features/start-mapping/components/model-settings';
-import { SkeletonWrapper } from '@/components/ui/skeleton';
-import { TDownloadOptions, TQueryParams } from '@/app/routes/start-mapping';
-import { TModel, TModelPredictions } from '@/types';
-import { TModelPredictionsConfig } from '@/features/start-mapping/api/get-model-predictions';
-import { ToolTip } from '@/components/ui/tooltip';
-import { useDropdownMenu } from '@/hooks/use-dropdown-menu';
-import { UserProfile } from '@/components/layout';
+import ModelAction from "@/features/start-mapping/components/model-action";
+import { BrandLogoWithDropDown } from "./logo-with-dropdown";
+import { ButtonWithIcon } from "@/components/ui/button";
+import { ChevronDownIcon } from "@/components/ui/icons";
+import { DropDown } from "@/components/ui/dropdown";
+import { DropdownPlacement, SHOELACE_SIZES } from "@/enums";
+import { Map } from "maplibre-gl";
+import { ModelDetailsButton } from "@/features/start-mapping/components/model-details-button";
+import { ModelPredictionsTracker } from "@/features/start-mapping/components/model-predictions-tracker";
+import { ModelSettings } from "@/features/start-mapping/components/model-settings";
+import { SkeletonWrapper } from "@/components/ui/skeleton";
+import { TDownloadOptions, TQueryParams } from "@/app/routes/start-mapping";
+import { TModel, TModelPredictions } from "@/types";
+import { TModelPredictionsConfig } from "@/features/start-mapping/api/get-model-predictions";
+import { ToolTip } from "@/components/ui/tooltip";
+import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
+import { UserProfile } from "@/components/layout";
 import {
   ELEMENT_DISTANCE_FROM_NAVBAR,
   START_MAPPING_PAGE_CONTENT,
@@ -110,8 +110,8 @@ const StartMappingHeader = ({
                   content={
                     !modelPredictionsExist
                       ? START_MAPPING_PAGE_CONTENT.actions.disabledModeTooltip(
-                        "see actions",
-                      )
+                          "see actions",
+                        )
                       : null
                   }
                 >

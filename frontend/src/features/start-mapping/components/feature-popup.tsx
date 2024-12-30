@@ -1,19 +1,13 @@
-import maplibregl, { Map, Popup } from 'maplibre-gl';
-import { CheckIcon } from '@/components/ui/icons';
-import {
-  Dispatch,
-  SetStateAction,
-  useEffect,
-  useRef,
-  useState
-  } from 'react';
-import { Feature, GeoJSONType, TModelPredictions } from '@/types';
-import { geojsonToWKT } from '@terraformer/wkt';
-import { Input } from '@/components/ui/form';
-import { SHOELACE_SIZES } from '@/enums';
-import { showErrorToast } from '@/utils';
-import { START_MAPPING_PAGE_CONTENT } from '@/constants';
-import { useAuth } from '@/app/providers/auth-provider';
+import maplibregl, { Map, Popup } from "maplibre-gl";
+import { CheckIcon } from "@/components/ui/icons";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import { Feature, GeoJSONType, TModelPredictions } from "@/types";
+import { geojsonToWKT } from "@terraformer/wkt";
+import { Input } from "@/components/ui/form";
+import { SHOELACE_SIZES } from "@/enums";
+import { showErrorToast } from "@/utils";
+import { START_MAPPING_PAGE_CONTENT } from "@/constants";
+import { useAuth } from "@/app/providers/auth-provider";
 import {
   useCreateApprovedModelPrediction,
   useCreateModelFeedback,
@@ -119,13 +113,13 @@ const PredictedFeatureActionPopup = ({
         onSuccess: (data) => {
           const { updatedSource, updatedTarget } = alreadyRejected
             ? moveFeature(rejected, accepted, featureId, {
-              _id: data.id,
-              ...data.properties,
-            })
+                _id: data.id,
+                ...data.properties,
+              })
             : moveFeature(all, accepted, featureId, {
-              _id: data.id,
-              ...data.properties,
-            });
+                _id: data.id,
+                ...data.properties,
+              });
 
           setModelPredictions((prev) => ({
             ...prev,
@@ -303,45 +297,45 @@ const PredictedFeatureActionPopup = ({
 
   const primaryButton = alreadyAccepted
     ? {
-      label: START_MAPPING_PAGE_CONTENT.map.popup.reject,
-      action: handleRejection,
-      className: "bg-primary",
-      icon: RejectIcon,
-    }
+        label: START_MAPPING_PAGE_CONTENT.map.popup.reject,
+        action: handleRejection,
+        className: "bg-primary",
+        icon: RejectIcon,
+      }
     : alreadyRejected
       ? {
+          label: START_MAPPING_PAGE_CONTENT.map.popup.resolve,
+          action: handleResolve,
+          className: "bg-black",
+          icon: ResolveIcon,
+        }
+      : {
+          label: START_MAPPING_PAGE_CONTENT.map.popup.accept,
+          action: handleAcceptance,
+          className: "bg-green-primary",
+          icon: AcceptIcon,
+        };
+
+  const secondaryButton = alreadyAccepted
+    ? {
         label: START_MAPPING_PAGE_CONTENT.map.popup.resolve,
         action: handleResolve,
         className: "bg-black",
         icon: ResolveIcon,
       }
-      : {
-        label: START_MAPPING_PAGE_CONTENT.map.popup.accept,
-        action: handleAcceptance,
-        className: "bg-green-primary",
-        icon: AcceptIcon,
-      };
-
-  const secondaryButton = alreadyAccepted
-    ? {
-      label: START_MAPPING_PAGE_CONTENT.map.popup.resolve,
-      action: handleResolve,
-      className: "bg-black",
-      icon: ResolveIcon,
-    }
     : alreadyRejected
       ? {
-        label: START_MAPPING_PAGE_CONTENT.map.popup.accept,
-        action: handleAcceptance,
-        className: "bg-green-primary",
-        icon: AcceptIcon,
-      }
+          label: START_MAPPING_PAGE_CONTENT.map.popup.accept,
+          action: handleAcceptance,
+          className: "bg-green-primary",
+          icon: AcceptIcon,
+        }
       : {
-        label: START_MAPPING_PAGE_CONTENT.map.popup.reject,
-        action: handleRejection,
-        className: "bg-primary",
-        icon: RejectIcon,
-      };
+          label: START_MAPPING_PAGE_CONTENT.map.popup.reject,
+          action: handleRejection,
+          className: "bg-primary",
+          icon: RejectIcon,
+        };
 
   return (
     <div

@@ -1,9 +1,9 @@
-import { GeoJSONSource, Map } from 'maplibre-gl';
-import { GeoJSONType } from '@/types';
-import { getTileBoundariesGeoJSON } from '@/utils';
-import { TILE_BOUNDARY_LAYER_ID, TILE_BOUNDARY_SOURCE_ID } from '@/constants';
-import { useCallback, useEffect } from 'react';
-import { useMapLayers } from '@/hooks/use-map-layer';
+import { GeoJSONSource, Map } from "maplibre-gl";
+import { GeoJSONType } from "@/types";
+import { getTileBoundariesGeoJSON } from "@/utils";
+import { TILE_BOUNDARY_LAYER_ID, TILE_BOUNDARY_SOURCE_ID } from "@/constants";
+import { useCallback, useEffect } from "react";
+import { useMapLayers } from "@/hooks/use-map-layer";
 
 export const TileBoundaries = ({ map }: { map: Map | null }) => {
   useMapLayers(

@@ -1,7 +1,7 @@
-import { ChevronDownIcon } from '@/components/ui/icons';
-import { SEARCH_PARAMS } from '@/app/routes/models/models-list';
-import { TQueryParams } from '@/types';
-import { useScrollToTop } from '@/hooks/use-scroll-to-element';
+import { ChevronDownIcon } from "@/components/ui/icons";
+import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
+import { TQueryParams } from "@/types";
+import { useScrollToTop } from "@/hooks/use-scroll-to-element";
 
 export const PAGE_LIMIT = 20;
 

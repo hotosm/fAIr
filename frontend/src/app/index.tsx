@@ -1,6 +1,6 @@
-import { AppRouter } from '@/app/router';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { showErrorToast } from '@/utils';
+import { AppRouter } from "@/app/router";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { showErrorToast } from "@/utils";
 import {
   QueryCache,
   QueryClient,

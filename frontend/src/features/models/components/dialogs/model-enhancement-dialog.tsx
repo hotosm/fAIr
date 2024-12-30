@@ -1,11 +1,10 @@
-import ModelTrainingSettingsDialog from '@/features/models/components/dialogs/training-settings-dialog';
-import { ChevronDownIcon } from '@/components/ui/icons';
-import { Dialog } from '@/components/ui/dialog';
-import { MODELS_BASE, MODELS_CONTENT, MODELS_ROUTES } from '@/constants';
-import { ModelsProvider } from '@/app/providers/models-provider';
-import { useDialog } from '@/hooks/use-dialog';
-import { useNavigate } from 'react-router-dom';
-
+import ModelTrainingSettingsDialog from "@/features/models/components/dialogs/training-settings-dialog";
+import { ChevronDownIcon } from "@/components/ui/icons";
+import { Dialog } from "@/components/ui/dialog";
+import { MODELS_BASE, MODELS_CONTENT, MODELS_ROUTES } from "@/constants";
+import { ModelsProvider } from "@/app/providers/models-provider";
+import { useDialog } from "@/hooks/use-dialog";
+import { useNavigate } from "react-router-dom";
 
 type ModelEnhancementDialogProps = {
   isOpened: boolean;

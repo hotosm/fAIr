@@ -1,12 +1,12 @@
-import TrainingSettingsForm from '@/features/model-creation/components/training-settings/training-settings-form';
-import { ButtonWithIcon } from '@/components/ui/button';
-import { ChevronDownIcon } from '@/components/ui/icons';
-import { Dialog } from '@/components/ui/dialog';
-import { MODELS_CONTENT } from '@/constants';
-import { PAGE_LIMIT } from '@/components/shared';
-import { useEffect } from 'react';
-import { useModelDetails } from '@/features/models/hooks/use-models';
-import { useTrainingHistory } from '@/features/models/hooks/use-training';
+import TrainingSettingsForm from "@/features/model-creation/components/training-settings/training-settings-form";
+import { ButtonWithIcon } from "@/components/ui/button";
+import { ChevronDownIcon } from "@/components/ui/icons";
+import { Dialog } from "@/components/ui/dialog";
+import { MODELS_CONTENT } from "@/constants";
+import { PAGE_LIMIT } from "@/components/shared";
+import { useEffect } from "react";
+import { useModelDetails } from "@/features/models/hooks/use-models";
+import { useTrainingHistory } from "@/features/models/hooks/use-training";
 
 import {
   MODEL_CREATION_FORM_NAME,

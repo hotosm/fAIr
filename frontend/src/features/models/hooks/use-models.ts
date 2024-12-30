@@ -1,14 +1,14 @@
-import useDebounce from '@/hooks/use-debounce';
-import { buildDateFilterQueryString } from '@/utils';
-import { dateFilters } from '@/features/models/components/filters/date-range-filter';
-import { LayoutView } from '@/enums';
-import { ORDERING_FIELDS } from '@/features/models/components/filters/ordering-filter';
-import { PAGE_LIMIT } from '@/components/shared';
-import { SEARCH_PARAMS } from '@/app/routes/models/models-list';
-import { TQueryParams } from '@/types';
-import { useCallback, useEffect, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { useSearchParams } from 'react-router-dom';
+import useDebounce from "@/hooks/use-debounce";
+import { buildDateFilterQueryString } from "@/utils";
+import { dateFilters } from "@/features/models/components/filters/date-range-filter";
+import { LayoutView } from "@/enums";
+import { ORDERING_FIELDS } from "@/features/models/components/filters/ordering-filter";
+import { PAGE_LIMIT } from "@/components/shared";
+import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
+import { TQueryParams } from "@/types";
+import { useCallback, useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useSearchParams } from "react-router-dom";
 import {
   getModelsQueryOptions,
   getModelDetailsQueryOptions,

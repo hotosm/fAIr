@@ -1,12 +1,12 @@
-import PredictedFeatureActionPopup from '@/features/start-mapping/components/feature-popup';
-import useScreenSize from '@/hooks/use-screen-size';
-import { ControlsPosition } from '@/enums';
-import { extractTileJSONURL, showErrorToast } from '@/utils';
-import { GeoJSONSource, LngLatBoundsLike, Map } from 'maplibre-gl';
-import { Legend } from '@/features/start-mapping/components';
-import { MapComponent, MapCursorToolTip } from '@/components/map';
-import { useMapLayers } from '@/hooks/use-map-layer';
-import { useToolTipVisibility } from '@/hooks/use-tooltip-visibility';
+import PredictedFeatureActionPopup from "@/features/start-mapping/components/feature-popup";
+import useScreenSize from "@/hooks/use-screen-size";
+import { ControlsPosition } from "@/enums";
+import { extractTileJSONURL, showErrorToast } from "@/utils";
+import { GeoJSONSource, LngLatBoundsLike, Map } from "maplibre-gl";
+import { Legend } from "@/features/start-mapping/components";
+import { MapComponent, MapCursorToolTip } from "@/components/map";
+import { useMapLayers } from "@/hooks/use-map-layer";
+import { useToolTipVisibility } from "@/hooks/use-tooltip-visibility";
 import {
   Dispatch,
   RefObject,
@@ -15,7 +15,6 @@ import {
   useEffect,
   useState,
 } from "react";
-
 
 import {
   Feature,

@@ -1,9 +1,9 @@
-import { BASE_MODELS, INPUT_TYPES, TrainingType } from '@/enums';
-import { ButtonWithIcon } from '@/components/ui/button';
-import { CheckboxGroup, FormLabel, Input } from '@/components/ui/form';
-import { ChevronDownIcon } from '@/components/ui/icons';
-import { MODELS_CONTENT } from '@/constants';
-import { useEffect, useState } from 'react';
+import { BASE_MODELS, INPUT_TYPES, TrainingType } from "@/enums";
+import { ButtonWithIcon } from "@/components/ui/button";
+import { CheckboxGroup, FormLabel, Input } from "@/components/ui/form";
+import { ChevronDownIcon } from "@/components/ui/icons";
+import { MODELS_CONTENT } from "@/constants";
+import { useEffect, useState } from "react";
 import {
   AdvancedGuageIcon,
   BasicGuageIcon,

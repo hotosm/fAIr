@@ -1,8 +1,8 @@
-import Markdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import { API_ENDPOINTS, apiClient } from '@/services';
-import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { API_ENDPOINTS, apiClient } from "@/services";
+import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 
 type TBannerResponse = {
   start_date: string;

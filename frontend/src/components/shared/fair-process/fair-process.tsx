@@ -1,9 +1,9 @@
-import styles from './fair-process.module.css';
-import { AnimatedBeam } from '@/components/ui/animated-beam';
-import { BotIcon, FeedbackIcon, PredictionsIcon } from '@/components/ui/icons';
-import { DesktopFlowIcon } from '@/components/ui/icons';
-import { IconProps } from '@/types';
-import { SHARED_CONTENT } from '@/constants';
+import styles from "./fair-process.module.css";
+import { AnimatedBeam } from "@/components/ui/animated-beam";
+import { BotIcon, FeedbackIcon, PredictionsIcon } from "@/components/ui/icons";
+import { DesktopFlowIcon } from "@/components/ui/icons";
+import { IconProps } from "@/types";
+import { SHARED_CONTENT } from "@/constants";
 import React, {
   useCallback,
   useEffect,

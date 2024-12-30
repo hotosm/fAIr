@@ -1,7 +1,7 @@
-import maplibregl, { Map } from 'maplibre-gl';
-import { BASEMAPS } from '@/enums';
-import { MAP_STYLES, MAX_ZOOM_LEVEL } from '@/constants';
-import { Protocol } from 'pmtiles';
+import maplibregl, { Map } from "maplibre-gl";
+import { BASEMAPS } from "@/enums";
+import { MAP_STYLES, MAX_ZOOM_LEVEL } from "@/constants";
+import { Protocol } from "pmtiles";
 
 export const setupMaplibreMap = (
   containerRef: React.RefObject<HTMLElement>,

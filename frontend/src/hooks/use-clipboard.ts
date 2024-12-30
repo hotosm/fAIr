@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useToastNotification } from './use-toast-notification';
+import { useState } from "react";
+import { useToastNotification } from "./use-toast-notification";
 
 /**
  * Custom hook to copy text to the clipboard and display a toast notification.

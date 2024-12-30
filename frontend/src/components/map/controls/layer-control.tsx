@@ -1,11 +1,11 @@
-import { BASEMAPS, ToolTipPlacement } from '@/enums';
-import { CheckboxGroup } from '@/components/ui/form';
-import { DropDown } from '@/components/ui/dropdown';
-import { LayerStackIcon } from '@/components/ui/icons';
-import { Map } from 'maplibre-gl';
-import { ToolTip } from '@/components/ui/tooltip';
-import { useDropdownMenu } from '@/hooks/use-dropdown-menu';
-import { useEffect, useMemo, useState } from 'react';
+import { BASEMAPS, ToolTipPlacement } from "@/enums";
+import { CheckboxGroup } from "@/components/ui/form";
+import { DropDown } from "@/components/ui/dropdown";
+import { LayerStackIcon } from "@/components/ui/icons";
+import { Map } from "maplibre-gl";
+import { ToolTip } from "@/components/ui/tooltip";
+import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
+import { useEffect, useMemo, useState } from "react";
 import {
   GOOGLE_SATELLITE_BASEMAP_LAYER_ID,
   OSM_BASEMAP_LAYER_ID,
@@ -38,12 +38,12 @@ export const LayerControl = ({
     ];
     const baseLayers: TBasemaps = basemaps
       ? [
-        { value: BASEMAPS.OSM, subLayer: OSM_BASEMAP_LAYER_ID },
-        {
-          value: BASEMAPS.GOOGLE_SATELLITE,
-          subLayer: GOOGLE_SATELLITE_BASEMAP_LAYER_ID,
-        },
-      ]
+          { value: BASEMAPS.OSM, subLayer: OSM_BASEMAP_LAYER_ID },
+          {
+            value: BASEMAPS.GOOGLE_SATELLITE,
+            subLayer: GOOGLE_SATELLITE_BASEMAP_LAYER_ID,
+          },
+        ]
       : [];
     return { layers_, baseLayers };
   }, [layers, openAerialMap, basemaps]);

@@ -1,14 +1,9 @@
-import { DropDown } from '@/components/ui/dropdown';
-import {
-  FormLabel,
-  Input,
-  Select,
-  Switch
-  } from '@/components/ui/form';
-import { SEARCH_PARAMS, TQueryParams } from '@/app/routes/start-mapping';
-import { SettingsIcon } from '@/components/ui/icons';
-import { ToolTip } from '@/components/ui/tooltip';
-import { useDropdownMenu } from '@/hooks/use-dropdown-menu';
+import { DropDown } from "@/components/ui/dropdown";
+import { FormLabel, Input, Select, Switch } from "@/components/ui/form";
+import { SEARCH_PARAMS, TQueryParams } from "@/app/routes/start-mapping";
+import { SettingsIcon } from "@/components/ui/icons";
+import { ToolTip } from "@/components/ui/tooltip";
+import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import {
   ELEMENT_DISTANCE_FROM_NAVBAR,
   START_MAPPING_PAGE_CONTENT,

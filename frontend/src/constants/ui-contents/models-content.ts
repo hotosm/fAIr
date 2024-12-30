@@ -1,7 +1,7 @@
-import { BASE_MODELS } from '@/enums';
-import { formatAreaInAppropriateUnit } from '@/utils';
-import { MAX_TRAINING_AREA_SIZE, MIN_TRAINING_AREA_SIZE } from '../config';
-import { TModelsContent } from '@/types';
+import { BASE_MODELS } from "@/enums";
+import { formatAreaInAppropriateUnit } from "@/utils";
+import { MAX_TRAINING_AREA_SIZE, MIN_TRAINING_AREA_SIZE } from "../config";
+import { TModelsContent } from "@/types";
 
 export const MODELS_CONTENT: TModelsContent = {
   trainingArea: {
@@ -85,6 +85,7 @@ export const MODELS_CONTENT: TModelsContent = {
     },
     trainingArea: {
       toolTips: {
+        labelsFetchInProgress: "Processing labels...",
         fetchOSMLabels: "Fetch OSM Labels",
         lastUpdatedPrefix: "OSM Last Updated:",
         zoomToAOI: "Zoom to AOI",

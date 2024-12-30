@@ -1,7 +1,7 @@
-import styles from './core-features.module.css';
-import { GuageIcon, LoopIcon, TimerIcon } from '@/components/ui/icons';
-import { IconProps } from '@/types';
-import { SHARED_CONTENT } from '@/constants';
+import styles from "./core-features.module.css";
+import { GuageIcon, LoopIcon, TimerIcon } from "@/components/ui/icons";
+import { IconProps } from "@/types";
+import { SHARED_CONTENT } from "@/constants";
 
 type TCoreFeatures = {
   title: string;

@@ -1,7 +1,7 @@
-import { CreativeCommonsBadge } from '@/assets/images';
-import { Image } from '@/components/ui/image';
-import { Link } from '@/components/ui/link';
-import { SHARED_CONTENT } from '@/constants';
+import { CreativeCommonsBadge } from "@/assets/images";
+import { Image } from "@/components/ui/image";
+import { Link } from "@/components/ui/link";
+import { SHARED_CONTENT } from "@/constants";
 import {
   FacebookIcon,
   GitHubIcon,

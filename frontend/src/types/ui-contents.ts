@@ -1,6 +1,5 @@
-import { IconProps } from './common';
+import { IconProps } from "./common";
 // Models related pages content types starts.
-
 
 export type TModelsContent = {
   trainingArea: {
@@ -70,6 +69,7 @@ export type TModelsContent = {
     };
     trainingArea: {
       toolTips: {
+        labelsFetchInProgress: string;
         fetchOSMLabels: string;
         lastUpdatedPrefix: string;
         zoomToAOI: string;

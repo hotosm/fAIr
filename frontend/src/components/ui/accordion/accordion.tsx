@@ -1,6 +1,6 @@
-import { ChevronDownIcon } from '@/components/ui/icons';
-import { SlDetails } from '@shoelace-style/shoelace/dist/react';
-import './accordion.css';
+import { ChevronDownIcon } from "@/components/ui/icons";
+import { SlDetails } from "@shoelace-style/shoelace/dist/react";
+import "./accordion.css";
 
 type AccordionProps = {
   summary: React.ReactNode | string;

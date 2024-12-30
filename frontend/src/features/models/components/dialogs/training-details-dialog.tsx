@@ -1,9 +1,9 @@
-import ModelProperties from '@/features/models/components/model-details-properties';
-import useScreenSize from '@/hooks/use-screen-size';
-import { Dialog } from '@/components/ui/dialog';
-import { DialogProps } from '@/types';
-import { Drawer } from '@/components/ui/drawer';
-import { DrawerPlacements } from '@/enums';
+import ModelProperties from "@/features/models/components/model-details-properties";
+import useScreenSize from "@/hooks/use-screen-size";
+import { Dialog } from "@/components/ui/dialog";
+import { DialogProps } from "@/types";
+import { Drawer } from "@/components/ui/drawer";
+import { DrawerPlacements } from "@/enums";
 
 type TrainingDetailsDialogProps = DialogProps & {
   trainingId: number;

@@ -1,7 +1,7 @@
-import { createTrainingDataset } from '@/features/model-creation/api/create-trainings';
-import { getTMSTileJSON } from '@/features/model-creation/api/get-tms-tilejson';
-import { keepPreviousData, queryOptions } from '@tanstack/react-query';
-import { TTrainingDataset } from '@/types';
+import { createTrainingDataset } from "@/features/model-creation/api/create-trainings";
+import { getTMSTileJSON } from "@/features/model-creation/api/get-tms-tilejson";
+import { keepPreviousData, queryOptions } from "@tanstack/react-query";
+import { TTrainingDataset } from "@/types";
 import {
   getTrainingArea,
   getTrainingAreaLabels,

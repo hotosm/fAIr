@@ -1,7 +1,7 @@
-import useScreenSize from '@/hooks/use-screen-size';
-import { LegendBookIcon } from '@/components/ui/icons';
-import { Map } from 'maplibre-gl';
-import { useCallback, useState } from 'react';
+import useScreenSize from "@/hooks/use-screen-size";
+import { LegendBookIcon } from "@/components/ui/icons";
+import { Map } from "maplibre-gl";
+import { useCallback, useState } from "react";
 import {
   START_MAPPING_PAGE_CONTENT,
   LEGEND_NAME_MAPPING,

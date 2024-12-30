@@ -1,4 +1,4 @@
-import { twMerge } from 'tailwind-merge';
+import { twMerge } from "tailwind-merge";
 import { type ClassValue, clsx } from "clsx";
 
 /**

@@ -1,11 +1,10 @@
-import { Input } from '@/components/ui/form';
-import { MODELS_CONTENT } from '@/constants';
-import { SEARCH_PARAMS } from '@/app/routes/models/models-list';
-import { SearchIcon } from '@/components/ui/icons';
-import { SHOELACE_SIZES } from '@/enums';
-import { TQueryParams } from '@/types';
-import { useCallback } from 'react';
-
+import { Input } from "@/components/ui/form";
+import { MODELS_CONTENT } from "@/constants";
+import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
+import { SearchIcon } from "@/components/ui/icons";
+import { SHOELACE_SIZES } from "@/enums";
+import { TQueryParams } from "@/types";
+import { useCallback } from "react";
 
 type SearchFilterProps = {
   query: TQueryParams;

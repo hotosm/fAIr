@@ -1,6 +1,6 @@
-import { Button } from '@/components/ui/button';
-import { ButtonSize, ButtonVariant } from '@/types';
-import { cn } from '@/utils';
+import { Button } from "@/components/ui/button";
+import { ButtonSize, ButtonVariant } from "@/types";
+import { cn } from "@/utils";
 
 type ButtonWithIconProps = {
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;

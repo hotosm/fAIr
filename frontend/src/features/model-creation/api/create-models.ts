@@ -1,5 +1,5 @@
-import { API_ENDPOINTS, apiClient } from '@/services';
-import { TModel } from '@/types';
+import { API_ENDPOINTS, apiClient } from "@/services";
+import { TModel } from "@/types";
 
 export type TCreateModelArgs = {
   dataset: string;

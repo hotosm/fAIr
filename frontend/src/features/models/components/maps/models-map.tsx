@@ -1,10 +1,10 @@
-import { FeatureCollection, TQueryParams } from '@/types';
-import { Map } from 'maplibre-gl';
-import { MapComponent } from '@/components/map';
-import { MapMarkerIcon } from '@/assets/images';
-import { SEARCH_PARAMS } from '@/app/routes/models/models-list';
-import { useCallback, useEffect } from 'react';
-import { useMapInstance } from '@/hooks/use-map-instance';
+import { FeatureCollection, TQueryParams } from "@/types";
+import { Map } from "maplibre-gl";
+import { MapComponent } from "@/components/map";
+import { MapMarkerIcon } from "@/assets/images";
+import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
+import { useCallback, useEffect } from "react";
+import { useMapInstance } from "@/hooks/use-map-instance";
 
 const mapSourceName = "models";
 // Font from OpenFreeMap

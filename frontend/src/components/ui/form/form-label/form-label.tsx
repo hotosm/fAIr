@@ -1,4 +1,4 @@
-import { ToolTip } from '@/components/ui/tooltip';
+import { ToolTip } from "@/components/ui/tooltip";
 
 type FormLabelProps = {
   label: string;

@@ -1,6 +1,6 @@
-import { APPLICATION_ROUTES } from './routes';
-import { SHARED_CONTENT } from '@/constants';
-import { TNavBarLinks } from '@/types';
+import { APPLICATION_ROUTES } from "./routes";
+import { SHARED_CONTENT } from "@/constants";
+import { TNavBarLinks } from "@/types";
 
 export const navLinks: TNavBarLinks = [
   {

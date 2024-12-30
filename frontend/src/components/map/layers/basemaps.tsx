@@ -1,5 +1,5 @@
-import { Map } from 'maplibre-gl';
-import { useMapLayers } from '@/hooks/use-map-layer';
+import { Map } from "maplibre-gl";
+import { useMapLayers } from "@/hooks/use-map-layer";
 import {
   GOOGLE_SATELLITE_BASEMAP_LAYER_ID,
   GOOGLE_SATELLITE_BASEMAP_SOURCE_ID,

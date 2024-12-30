@@ -1,5 +1,5 @@
-import { FAQs } from '@/components/shared';
-import { Head } from '@/components/seo';
+import { FAQs } from "@/components/shared";
+import { Head } from "@/components/seo";
 import {
   Header,
   Kpi,
@@ -10,7 +10,6 @@ import {
   CoreFeatures,
   WhatIsFAIR,
 } from "@/components/landing";
-
 
 export const LandingPage = () => {
   return (

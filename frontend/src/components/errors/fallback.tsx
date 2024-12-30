@@ -1,5 +1,5 @@
-import { Button } from '@/components/ui/button';
-import { SHARED_CONTENT } from '@/constants';
+import { Button } from "@/components/ui/button";
+import { SHARED_CONTENT } from "@/constants";
 
 export const MainErrorFallback = () => {
   return (

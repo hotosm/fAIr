@@ -1,5 +1,5 @@
-import { ChevronDownIcon } from '@/components/ui/icons';
-import { MODELS_CONTENT } from '@/constants';
+import { ChevronDownIcon } from "@/components/ui/icons";
+import { MODELS_CONTENT } from "@/constants";
 
 export const TrainingAreaButton = ({
   disabled,

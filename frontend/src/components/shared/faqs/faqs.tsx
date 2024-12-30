@@ -1,10 +1,9 @@
-import styles from './faqs.module.css';
-import { Accordion } from '@/components/ui/accordion';
-import { APPLICATION_ROUTES, SHARED_CONTENT } from '@/constants';
-import { ChevronDownIcon } from '@/components/ui/icons';
-import { Link } from '@/components/ui/link';
-import { TFAQs } from '@/types';
-
+import styles from "./faqs.module.css";
+import { Accordion } from "@/components/ui/accordion";
+import { APPLICATION_ROUTES, SHARED_CONTENT } from "@/constants";
+import { ChevronDownIcon } from "@/components/ui/icons";
+import { Link } from "@/components/ui/link";
+import { TFAQs } from "@/types";
 
 export const FAQs = ({
   faqs = SHARED_CONTENT.homepage.faqs.content,

@@ -1,7 +1,7 @@
-import { APPLICATION_ROUTES, SHARED_CONTENT } from '@/constants';
-import { BrandLogo } from '@/assets/svgs';
-import { Image } from '@/components/ui/image';
-import { useNavigate } from 'react-router-dom';
+import { APPLICATION_ROUTES, SHARED_CONTENT } from "@/constants";
+import { BrandLogo } from "@/assets/svgs";
+import { Image } from "@/components/ui/image";
+import { useNavigate } from "react-router-dom";
 
 export const NavLogo = ({
   onClick,

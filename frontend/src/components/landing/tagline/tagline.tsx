@@ -1,5 +1,5 @@
-import styles from './tagline.module.css';
-import { SHARED_CONTENT } from '@/constants';
+import styles from "./tagline.module.css";
+import { SHARED_CONTENT } from "@/constants";
 
 export const TaglineBanner = () => {
   return (

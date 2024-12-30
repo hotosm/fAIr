@@ -1,4 +1,4 @@
-import { showErrorToast } from '@/utils';
+import { showErrorToast } from "@/utils";
 
 /**
  * Custom hook to interact with the browser's localStorage.

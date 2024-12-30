@@ -1,6 +1,6 @@
-import { BASE_MODELS } from '@/enums';
-import { ENVS } from '@/config/env';
-import { StyleSpecification } from 'maplibre-gl';
+import { BASE_MODELS } from "@/enums";
+import { ENVS } from "@/config/env";
+import { StyleSpecification } from "maplibre-gl";
 
 /**
  * The key used to store the access token in local storage for the application.
@@ -38,7 +38,7 @@ const REFRESH_BUFFER_MS = 1000;
  */
 export const KPI_STATS_CACHE_TIME_MS =
   (Number(ENVS.KPI_STATS_CACHE_TIME) || DEFAULT_KPI_STATS_CACHE_TIME_SECONDS) *
-  1000 +
+    1000 +
   REFRESH_BUFFER_MS;
 
 /**
@@ -144,9 +144,9 @@ export const LEGEND_NAME_MAPPING: Record<string, string> = {
  * Training area and labels styles.
  */
 export const TRAINING_AREAS_AOI_FILL_COLOR =
-  ENVS.TRAINING_AREAS_AOI_FILL_COLOR || "247DCACC";
+  ENVS.TRAINING_AREAS_AOI_FILL_COLOR || "#247DCACC";
 export const TRAINING_AREAS_AOI_OUTLINE_COLOR =
-  ENVS.TRAINING_AREAS_AOI_OUTLINE_COLOR || "247DCACC";
+  ENVS.TRAINING_AREAS_AOI_OUTLINE_COLOR || "#247DCACC";
 export const TRAINING_AREAS_AOI_OUTLINE_WIDTH =
   ENVS.TRAINING_AREAS_AOI_OUTLINE_WIDTH || 4;
 export const TRAINING_AREAS_AOI_FILL_OPACITY =
@@ -156,9 +156,9 @@ export const TRAINING_AREAS_AOI_LABELS_FILL_OPACITY =
 export const TRAINING_AREAS_AOI_LABELS_OUTLINE_WIDTH =
   ENVS.TRAINING_AREAS_AOI_LABELS_OUTLINE_WIDTH || 2;
 export const TRAINING_AREAS_AOI_LABELS_FILL_COLOR =
-  ENVS.TRAINING_AREAS_AOI_LABELS_FILL_COLOR || "D73434";
+  ENVS.TRAINING_AREAS_AOI_LABELS_FILL_COLOR || "#D73434";
 export const TRAINING_AREAS_AOI_LABELS_OUTLINE_COLOR =
-  ENVS.TRAINING_AREAS_AOI_LABELS_OUTLINE_COLOR || "D73434";
+  ENVS.TRAINING_AREAS_AOI_LABELS_OUTLINE_COLOR || "#D73434";
 
 /**
  * The key used to store the banner state in local storage for the application.

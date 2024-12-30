@@ -1,4 +1,4 @@
-import { PageUnderConstruction } from '@/components/errors';
+import { PageUnderConstruction } from "@/components/errors";
 
 export const TrainingDatasetsPage = () => {
   return <PageUnderConstruction />;

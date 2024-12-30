@@ -1,8 +1,8 @@
-import { CheckIcon } from '@/components/ui/icons';
-import { cn } from '@/utils';
-import { useEffect, useRef } from 'react';
-import { useModelsContext } from '@/app/providers/models-provider';
-import { useNavigate } from 'react-router-dom';
+import { CheckIcon } from "@/components/ui/icons";
+import { cn } from "@/utils";
+import { useEffect, useRef } from "react";
+import { useModelsContext } from "@/app/providers/models-provider";
+import { useNavigate } from "react-router-dom";
 
 type ProgressBarProps = {
   currentPath: string;
@@ -61,9 +61,10 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
             ) : (
               <span
                 className={cn(
-                  `rounded-full flex items-center justify-center w-9 h-9 ${activeStep
-                    ? "outline-dashed outline-2 outline-offset-2 outline-primary bg-primary"
-                    : "bg-gray"
+                  `rounded-full flex items-center justify-center w-9 h-9 ${
+                    activeStep
+                      ? "outline-dashed outline-2 outline-offset-2 outline-primary bg-primary"
+                      : "bg-gray"
                   }`,
                 )}
               >

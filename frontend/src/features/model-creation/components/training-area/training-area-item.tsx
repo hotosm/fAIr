@@ -1,19 +1,14 @@
-import FileUploadDialog from '@/features/model-creation/components/dialogs/file-upload-dialog';
-import { DropDown } from '@/components/ui/dropdown';
-import { IconProps, TTrainingAreaFeature } from '@/types';
-import { JOSMLogo, OSMLogo } from '@/assets/svgs';
-import { LabelStatus } from '@/enums/training-area';
-import { Map } from 'maplibre-gl';
-import { ToolTip } from '@/components/ui/tooltip';
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState
-} from 'react';
-import { useDialog } from '@/hooks/use-dialog';
-import { useDropdownMenu } from '@/hooks/use-dropdown-menu';
-import { useModelsContext } from '@/app/providers/models-provider';
+import FileUploadDialog from "@/features/model-creation/components/dialogs/file-upload-dialog";
+import { DropDown } from "@/components/ui/dropdown";
+import { IconProps, TTrainingAreaFeature } from "@/types";
+import { JOSMLogo, OSMLogo } from "@/assets/svgs";
+import { LabelStatus } from "@/enums/training-area";
+import { Map } from "maplibre-gl";
+import { ToolTip } from "@/components/ui/tooltip";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useDialog } from "@/hooks/use-dialog";
+import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
+import { useModelsContext } from "@/app/providers/models-provider";
 import {
   CloudDownloadIcon,
   DeleteIcon,
@@ -71,16 +66,22 @@ export function useInterval(callback: () => void, delay: number | null) {
   }, [delay]);
 }
 
-
-
-
-const LabelFetchStatus = ({ fetchedDate, isFetching, isError, status }: { fetchedDate: string, isFetching: boolean, isError: boolean, status: LabelStatus }) => {
-
-  const [timeSince, setTimeSince] = useState<string>('');
+const LabelFetchStatus = ({
+  fetchedDate,
+  isFetching,
+  isError,
+  status,
+}: {
+  fetchedDate: string;
+  isFetching: boolean;
+  isError: boolean;
+  status: LabelStatus;
+}) => {
+  const [timeSince, setTimeSince] = useState<string>("");
 
   useEffect(() => {
     const updateTimeSince = () => {
-      setTimeSince(formatDuration(new Date(fetchedDate), new Date(), 1),)
+      setTimeSince(formatDuration(new Date(fetchedDate), new Date(), 1));
     };
 
     updateTimeSince();
@@ -91,29 +92,82 @@ const LabelFetchStatus = ({ fetchedDate, isFetching, isError, status }: { fetche
     return () => clearInterval(intervalId);
   }, [fetchedDate]);
 
-  const fetchStatusInfo = () => {
-    const labelsStatus = isFetching
-      ? "Processing labels..."
-      : isError
-        ? "Error occurred. Please retry."
-        : status === LabelStatus.DOWNLOADED
-          ? timeSince
-            ? `Fetched ${timeSince} ago`
-            : "Fetched recently"
-          : "No labels yet";
-
-    return labelsStatus;
+  const getFetchStatus = () => {
+    if (isFetching) return "Processing labels...";
+    if (isError) return "Error occurred. Please retry.";
+    if (status === LabelStatus.DOWNLOADED) {
+      return timeSince ? `Fetched ${timeSince} ago` : "Fetched recently";
+    }
+    return "No labels yet";
   };
 
   return (
     <p
       className={`text-body-4 text-dark ${status !== LabelStatus.DOWNLOADED && "text-primary"}`}
     >
-      {fetchStatusInfo()}
+      {getFetchStatus()}
     </p>
-  )
-}
+  );
+};
+type TDropdownMenuItems = {
+  tooltip: string;
+  isIcon?: boolean;
+  imageSrc?: string;
+  disabled: boolean;
+  onClick: () => void;
+  Icon?: React.FC<IconProps>;
+  isDelete?: boolean;
+}[];
 
+const DropdownMenu = ({
+  dropdownMenuItems,
+  dropdownIsOpened,
+  onDropdownHide,
+  onDropdownShow,
+}: {
+  dropdownMenuItems: TDropdownMenuItems;
+  dropdownIsOpened: boolean;
+  onDropdownHide: () => void;
+  onDropdownShow: () => void;
+}) => {
+  return (
+    <DropDown
+      disableCheveronIcon
+      dropdownIsOpened={dropdownIsOpened}
+      onDropdownHide={onDropdownHide}
+      onDropdownShow={onDropdownShow}
+      triggerComponent={
+        <button className="bg-off-white p-2 rounded-full items-center flex justify-center">
+          <ElipsisIcon className="icon" />
+        </button>
+      }
+      className="text-right"
+      distance={10}
+    >
+      <div className="flex gap-x-4 p-2 justify-between items-center bg-white">
+        {dropdownMenuItems.map((Item, idx) => (
+          <ToolTip content={Item.tooltip} key={`menu-item-${idx}`}>
+            <button
+              onClick={Item.onClick}
+              disabled={Item.disabled}
+              className={`${Item.isDelete ? "text-primary bg-secondary" : "bg-off-white"} w-8 h-8 p-1.5 items-center justify-center flex rounded-md`}
+            >
+              {Item.isIcon ? (
+                Item.Icon && <Item.Icon className="icon md:icon-lg" />
+              ) : (
+                <img
+                  src={Item.imageSrc}
+                  className="icon md:icon-lg"
+                  alt={Item.tooltip}
+                />
+              )}
+            </button>
+          </ToolTip>
+        ))}
+      </div>
+    </DropDown>
+  );
+};
 
 export const TrainingAreaItem: React.FC<
   TTrainingAreaFeature & {
@@ -122,7 +176,6 @@ export const TrainingAreaItem: React.FC<
     map: Map | null;
   }
 > = ({ datasetId, offset, map, ...trainingArea }) => {
-
   const initialLabelState: LabelState = {
     isFetching: false,
     error: false,
@@ -138,7 +191,6 @@ export const TrainingAreaItem: React.FC<
     useDropdownMenu();
   const { isOpened, openDialog, closeDialog } = useDialog();
   const { formData } = useModelsContext();
-  const pollingTimeoutRef = useRef<number>(0);
 
   const getTrainingAreaLabels = useGetTrainingAreaLabels(
     trainingArea.id,
@@ -151,9 +203,7 @@ export const TrainingAreaItem: React.FC<
     TRAINING_AREA_LABELS_FETCH_POOLING_TIME_MS,
   );
 
-
-  const handleLabelError = () => {
-    clearTimeout(pollingTimeoutRef.current);
+  const handleLabelError = useCallback(() => {
     setLabelState((prev) => ({
       ...prev,
       isFetching: false,
@@ -169,8 +219,7 @@ export const TrainingAreaItem: React.FC<
       );
       setLabelState((prev) => ({ ...prev, errorToastShown: true }));
     }
-  };
-
+  }, [labelState.errorToastShown, trainingArea.id]);
 
   const createTrainingLabelsForAOI = useCreateTrainingLabelsForAOI({
     mutationConfig: {
@@ -178,51 +227,18 @@ export const TrainingAreaItem: React.FC<
         showSuccessToast(`${status}`);
         setLabelState((prev) => ({ ...prev, shouldPoll: true }));
       },
-      onError: (error) => {
-        showErrorToast(undefined, `Labels Upload failed: ${error.message}`);
+      onMutate: () => {
         setLabelState((prev) => ({
           ...prev,
-          isFetching: false,
-          error: true,
+          isFetching: true,
+          error: false,
+          status: LabelStatus.DOWNLOADING,
+          errorToastShown: false,
         }));
       },
+      onError: handleLabelError,
     },
   });
-
-  // Polling mechanism to refetch training area data
-  useInterval(
-    () => {
-      if (labelState.shouldPoll) {
-        getTrainingArea.refetch();
-      }
-    },
-    labelState.shouldPoll ? TRAINING_AREA_LABELS_FETCH_POOLING_TIME_MS : null,
-  );
-
-
-  // Handle label status updates based on fetched data
-  useEffect(() => {
-    if (!labelState.isFetching) return;
-
-    const updateLabelStatus = () => {
-      if (
-        getTrainingArea.isError ||
-        getTrainingArea.data?.properties.label_status ===
-        LabelStatus.NOT_DOWNLOADED
-      ) {
-        handleLabelError();
-      } else if (
-        getTrainingArea.data?.properties.label_status === LabelStatus.DOWNLOADED
-      ) {
-        handleLabelSuccess(getTrainingArea.data.properties.label_fetched);
-      } else {
-        setLabelState((prev) => ({ ...prev, status: LabelStatus.DOWNLOADING }));
-      }
-    };
-
-    updateLabelStatus();
-  }, [labelState.isFetching, getTrainingArea]);
-
 
   const trainingAreaLabelsMutation = useGetTrainingAreaLabelsFromOSM({
     datasetId,
@@ -249,62 +265,50 @@ export const TrainingAreaItem: React.FC<
     },
   });
 
-  // Handler to initiate label fetching/uploading
   const handleFetchLabels = useCallback(() => {
     setLabelState((prev) => ({
       ...prev,
       isFetching: true,
     }));
-    trainingAreaLabelsMutation.mutate(
-      { aoiId: trainingArea.id },
-      {
-        onError: handleLabelError,
-        onSuccess: () => {
-          setLabelState((prev) => ({
-            ...prev,
-            shouldPoll: true,
-          }));
-        }
-      },
-    );
+    trainingAreaLabelsMutation.mutate({ aoiId: trainingArea.id });
   }, [trainingAreaLabelsMutation]);
 
-
-  const handleLabelSuccess = (fetchedDate: string) => {
-    setLabelState((prev) => ({
-      ...prev,
-      fetchedDate,
-      status: LabelStatus.DOWNLOADED,
-      isFetching: false,
-      shouldPoll: false,
-      errorToastShown: false,
-      timeSince: fetchedDate
-        ? formatDuration(new Date(fetchedDate), new Date(), 1)
-        : "",
-    }));
-  };
-
-  useEffect(() => {
-    if (!labelState.isFetching) return;
-
-    if (
-      getTrainingArea.data?.properties.label_status === LabelStatus.DOWNLOADED
-    ) {
-      handleLabelSuccess(getTrainingArea.data.properties.label_fetched);
-    }
-  }, [getTrainingArea.data, labelState.isFetching]);
+  const handleLabelSuccess = useCallback(
+    (fetchedDate: string) => {
+      setLabelState((prev) => ({
+        ...prev,
+        fetchedDate,
+        status: LabelStatus.DOWNLOADED,
+        isFetching: false,
+        shouldPoll: false,
+        errorToastShown: false,
+      }));
+    },
+    [setLabelState],
+  );
 
   useEffect(() => {
     if (labelState.shouldPoll) {
-      const pollInterval = setInterval(() => {
-        getTrainingArea.refetch();
+      const pollInterval = setInterval(async () => {
+        const res = await getTrainingArea.refetch();
+        if (res.isSuccess) {
+          const fetchedDate = res.data.properties.label_fetched;
+          if (res.data?.properties.label_status === LabelStatus.DOWNLOADED) {
+            handleLabelSuccess(fetchedDate);
+          } else {
+            setLabelState((prev) => ({
+              ...prev,
+              status: LabelStatus.DOWNLOADING,
+            }));
+          }
+        } else {
+          handleLabelError();
+        }
       }, TRAINING_AREA_LABELS_FETCH_POOLING_TIME_MS);
 
       return () => clearInterval(pollInterval);
     }
-  }, [labelState.shouldPoll, getTrainingArea]);
-
-
+  }, [labelState.shouldPoll, handleLabelSuccess]);
 
   const deleteTrainingAreaMutation = useDeleteTrainingArea({
     datasetId,
@@ -327,98 +331,101 @@ export const TrainingAreaItem: React.FC<
     }
   }, [map, trainingArea]);
 
-  const handleAOILabelsFileUpload = async (formData: FormData) => {
-    await createTrainingLabelsForAOI.mutateAsync({
-      aoiId: trainingArea.id,
-      formData: formData,
-    });
-  };
+  const handleAOILabelsFileUpload = useCallback(
+    async (formData: FormData) => {
+      setLabelState((prev) => ({
+        ...prev,
+        isFetching: true,
+      }));
+      await createTrainingLabelsForAOI.mutateAsync({
+        aoiId: trainingArea.id,
+        formData: formData,
+      });
+    },
+    [createTrainingLabelsForAOI, trainingArea.id],
+  );
 
   const disableLabelsFetchOrUpload =
     trainingAreaLabelsMutation.isPending ||
     labelState.isFetching ||
-    createTrainingLabelsForAOI.isPending;
+    createTrainingLabelsForAOI.isPending ||
+    labelState.shouldPoll;
 
-  const dropdownMenuItems: {
-    tooltip: string;
-    isIcon?: boolean;
-    imageSrc?: string;
-    disabled: boolean;
-    onClick: () => void;
-    Icon?: React.FC<IconProps>;
-    isDelete?: boolean;
-  }[] = [
-      {
-        tooltip: MODELS_CONTENT.modelCreation.trainingArea.toolTips.openINJOSM,
-        isIcon: false,
-        imageSrc: JOSMLogo,
-        disabled: false,
-        onClick: () =>
-          openInJOSM(formData.oamTileName, formData.tmsURL, [trainingArea]),
+  const dropdownMenuItems: TDropdownMenuItems = [
+    {
+      tooltip: MODELS_CONTENT.modelCreation.trainingArea.toolTips.openINJOSM,
+      isIcon: false,
+      imageSrc: JOSMLogo,
+      disabled: false,
+      onClick: () =>
+        openInJOSM(formData.oamTileName, formData.tmsURL, [trainingArea]),
+    },
+    {
+      tooltip:
+        MODELS_CONTENT.modelCreation.trainingArea.toolTips.openInIdEditor,
+      isIcon: false,
+      imageSrc: OSMLogo,
+      disabled: false,
+      onClick: () =>
+        openInIDEditor(
+          formData.oamBounds[1],
+          formData.oamBounds[3],
+          formData.oamBounds[0],
+          formData.oamBounds[2],
+          formData.tmsURL,
+          formData.selectedTrainingDatasetId,
+          trainingArea.id,
+        ),
+    },
+    {
+      tooltip: MODELS_CONTENT.modelCreation.trainingArea.toolTips.downloadAOI,
+      isIcon: true,
+      Icon: CloudDownloadIcon,
+      disabled: false,
+      onClick: () => {
+        geoJSONDowloader(trainingArea, `AOI_${trainingArea.id}`);
+        showSuccessToast(TOAST_NOTIFICATIONS.aoiDownloadSuccess);
+        onDropdownHide();
       },
-      {
-        tooltip:
-          MODELS_CONTENT.modelCreation.trainingArea.toolTips.openInIdEditor,
-        isIcon: false,
-        imageSrc: OSMLogo,
-        disabled: false,
-        onClick: () =>
-          openInIDEditor(
-            formData.oamBounds[1],
-            formData.oamBounds[3],
-            formData.oamBounds[0],
-            formData.oamBounds[2],
-            formData.tmsURL,
-            formData.selectedTrainingDatasetId,
-            trainingArea.id,
-          ),
-      },
-      {
-        tooltip: MODELS_CONTENT.modelCreation.trainingArea.toolTips.downloadAOI,
-        isIcon: true,
-        Icon: CloudDownloadIcon,
-        disabled: false,
-        onClick: () => {
-          geoJSONDowloader(trainingArea, `AOI_${trainingArea.id}`);
-          showSuccessToast(TOAST_NOTIFICATIONS.aoiDownloadSuccess);
+    },
+    {
+      tooltip:
+        MODELS_CONTENT.modelCreation.trainingArea.toolTips.downloadLabels,
+      isIcon: true,
+      disabled: false,
+      Icon: CloudDownloadIcon,
+      onClick: async () => {
+        const res = await getTrainingAreaLabels.refetch();
+        if (res.isSuccess) {
+          geoJSONDowloader(res.data, `AOI_${trainingArea.id}_Labels`);
           onDropdownHide();
-        },
+          showSuccessToast(TOAST_NOTIFICATIONS.aoiLabelsDownloadSuccess);
+        }
+        if (res.isError) showErrorToast(res.error);
       },
-      {
-        tooltip:
-          MODELS_CONTENT.modelCreation.trainingArea.toolTips.downloadLabels,
-        isIcon: true,
-        disabled: false,
-        Icon: CloudDownloadIcon,
-        onClick: async () => {
-          const res = await getTrainingAreaLabels.refetch();
-          if (res.isSuccess) {
-            geoJSONDowloader(res.data, `AOI_${trainingArea.id}_Labels`);
-            onDropdownHide();
-            showSuccessToast(TOAST_NOTIFICATIONS.aoiLabelsDownloadSuccess);
-          }
-          if (res.isError) showErrorToast(res.error);
-        },
-      },
-      {
-        tooltip: MODELS_CONTENT.modelCreation.trainingArea.toolTips.uploadLabels,
-        isIcon: true,
-        Icon: UploadIcon,
-        onClick: openDialog,
-        disabled: disableLabelsFetchOrUpload,
-      },
-      {
-        tooltip: MODELS_CONTENT.modelCreation.trainingArea.toolTips.deleteAOI,
-        isIcon: true,
-        Icon: DeleteIcon,
-        isDelete: true,
-        disabled: false,
-        onClick: () =>
-          deleteTrainingAreaMutation.mutate({
-            trainingAreaId: trainingArea.id,
-          }),
-      },
-    ];
+    },
+    {
+      tooltip: disableLabelsFetchOrUpload
+        ? MODELS_CONTENT.modelCreation.trainingArea.toolTips
+            .labelsFetchInProgress
+        : MODELS_CONTENT.modelCreation.trainingArea.toolTips.uploadLabels,
+      isIcon: true,
+      Icon: UploadIcon,
+      onClick: openDialog,
+      disabled: disableLabelsFetchOrUpload,
+    },
+    {
+      tooltip: MODELS_CONTENT.modelCreation.trainingArea.toolTips.deleteAOI,
+      isIcon: true,
+      Icon: DeleteIcon,
+      isDelete: true,
+      disabled: false,
+      onClick: () =>
+        deleteTrainingAreaMutation.mutate({
+          trainingAreaId: trainingArea.id,
+        }),
+    },
+  ];
 
   const trainingAreaSize = trainingArea.geometry
     ? formatAreaInAppropriateUnit(calculateGeoJSONArea(trainingArea))
@@ -443,12 +450,21 @@ export const TrainingAreaItem: React.FC<
           <p className="text-body-4 text-dark" title={trainingAreaSize}>
             Area: {truncateString(trainingAreaSize, 15)}
           </p>
-          <LabelFetchStatus fetchedDate={labelState.fetchedDate} isError={labelState.error} status={labelState.status} isFetching={labelState.isFetching} />
+          <LabelFetchStatus
+            fetchedDate={labelState.fetchedDate}
+            isError={labelState.error}
+            status={labelState.status}
+            isFetching={labelState.isFetching}
+          />
         </div>
         <div className="flex items-center gap-x-3">
           <ToolTip
             content={
-              MODELS_CONTENT.modelCreation.trainingArea.toolTips.fetchOSMLabels
+              disableLabelsFetchOrUpload
+                ? MODELS_CONTENT.modelCreation.trainingArea.toolTips
+                    .labelsFetchInProgress
+                : MODELS_CONTENT.modelCreation.trainingArea.toolTips
+                    .fetchOSMLabels
             }
           >
             <button
@@ -471,40 +487,12 @@ export const TrainingAreaItem: React.FC<
               <FullScreenIcon className="icon" />
             </button>
           </ToolTip>
-          <DropDown
-            disableCheveronIcon
+          <DropdownMenu
+            dropdownMenuItems={dropdownMenuItems}
             dropdownIsOpened={dropdownIsOpened}
             onDropdownHide={onDropdownHide}
             onDropdownShow={onDropdownShow}
-            triggerComponent={
-              <button className="bg-off-white p-2 rounded-full items-center flex justify-center">
-                <ElipsisIcon className="icon" />
-              </button>
-            }
-            className="text-right"
-            distance={10}
-          >
-            <div className="flex gap-x-4 p-2 justify-between items-center bg-white">
-              {dropdownMenuItems.map((Item, idx) => (
-                <ToolTip content={Item.tooltip} key={`menu-item-${idx}`}>
-                  <button
-                    onClick={Item.onClick}
-                    className={`${Item.isDelete ? "text-primary bg-secondary" : "bg-off-white"} w-8 h-8 p-1.5 items-center justify-center flex rounded-md`}
-                  >
-                    {Item.isIcon ? (
-                      Item.Icon && <Item.Icon className="icon md:icon-lg" />
-                    ) : (
-                      <img
-                        src={Item.imageSrc}
-                        className="icon md:icon-lg"
-                        alt={Item.tooltip}
-                      />
-                    )}
-                  </button>
-                </ToolTip>
-              ))}
-            </div>
-          </DropDown>
+          />
         </div>
       </div>
     </>

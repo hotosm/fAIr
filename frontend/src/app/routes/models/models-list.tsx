@@ -1,13 +1,13 @@
-import ModelNotFound from '@/features/models/components/model-not-found';
-import { FeatureCollection } from '@/types';
-import { Head } from '@/components/seo';
-import { LayoutView } from '@/enums';
-import { MobileModelFiltersDialog } from '@/features/models/components/dialogs';
-import { MODELS_CONTENT } from '@/constants';
-import { PAGE_LIMIT, Pagination } from '@/components/shared';
-import { PageHeader } from '@/features/models/components/';
-import { useDialog } from '@/hooks/use-dialog';
-import { useEffect } from 'react';
+import ModelNotFound from "@/features/models/components/model-not-found";
+import { FeatureCollection } from "@/types";
+import { Head } from "@/components/seo";
+import { LayoutView } from "@/enums";
+import { MobileModelFiltersDialog } from "@/features/models/components/dialogs";
+import { MODELS_CONTENT } from "@/constants";
+import { PAGE_LIMIT, Pagination } from "@/components/shared";
+import { PageHeader } from "@/features/models/components/";
+import { useDialog } from "@/hooks/use-dialog";
+import { useEffect } from "react";
 import {
   useModelsListFilters,
   useModelsMapData,

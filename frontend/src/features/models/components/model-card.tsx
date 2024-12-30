@@ -1,13 +1,13 @@
-import { APPLICATION_ROUTES, MODELS_CONTENT } from '@/constants';
-import { Badge } from '@/components/ui/badge';
-import { extractDatePart } from '@/utils';
-import { FairModelPlaceholderImage } from '@/assets/images';
-import { Image } from '@/components/ui/image';
-import { Link } from '@/components/ui/link';
-import { roundNumber } from '@/utils/number-utils';
-import { TBadgeVariants, TModel } from '@/types';
-import { truncateString } from '@/utils';
-import { useLocation } from 'react-router-dom';
+import { APPLICATION_ROUTES, MODELS_CONTENT } from "@/constants";
+import { Badge } from "@/components/ui/badge";
+import { extractDatePart } from "@/utils";
+import { FairModelPlaceholderImage } from "@/assets/images";
+import { Image } from "@/components/ui/image";
+import { Link } from "@/components/ui/link";
+import { roundNumber } from "@/utils/number-utils";
+import { TBadgeVariants, TModel } from "@/types";
+import { truncateString } from "@/utils";
+import { useLocation } from "react-router-dom";
 
 type ModelCardProps = {
   model: TModel;

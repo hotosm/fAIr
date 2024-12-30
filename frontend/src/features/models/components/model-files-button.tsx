@@ -1,7 +1,7 @@
-import { ButtonWithIcon } from '@/components/ui/button';
-import { DirectoryIcon } from '@/components/ui/icons';
-import { MODELS_CONTENT } from '@/constants';
-import { SHOELACE_SIZES } from '@/enums';
+import { ButtonWithIcon } from "@/components/ui/button";
+import { DirectoryIcon } from "@/components/ui/icons";
+import { MODELS_CONTENT } from "@/constants";
+import { SHOELACE_SIZES } from "@/enums";
 
 const ModelFilesButton = ({
   openModelFilesDialog,

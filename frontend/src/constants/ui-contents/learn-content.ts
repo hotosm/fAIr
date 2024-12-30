@@ -1,5 +1,5 @@
-import { BookTemplateIcon, DesktopCursorIcon } from '@/components/ui/icons';
-import { TLearnPageContent } from '@/types';
+import { BookTemplateIcon, DesktopCursorIcon } from "@/components/ui/icons";
+import { TLearnPageContent } from "@/types";
 
 export const LEARN_PAGE_CONTENT: TLearnPageContent = {
   // The title to show near the browsers favicon or in social media open graph

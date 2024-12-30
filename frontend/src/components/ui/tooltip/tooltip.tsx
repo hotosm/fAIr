@@ -1,5 +1,5 @@
-import { InfoIcon } from '@/components/ui/icons';
-import { ToolTipPlacement } from '@/enums';
+import { InfoIcon } from "@/components/ui/icons";
+import { ToolTipPlacement } from "@/enums";
 import SlTooltip, {
   SlHideEvent,
 } from "@shoelace-style/shoelace/dist/react/tooltip/index.js";
@@ -8,9 +8,9 @@ type ToolTipProps = {
   content?: string | React.ReactElement | null;
   children?: React.ReactNode;
   placement?:
-  | ToolTipPlacement.RIGHT
-  | ToolTipPlacement.BOTTOM
-  | ToolTipPlacement.TOP;
+    | ToolTipPlacement.RIGHT
+    | ToolTipPlacement.BOTTOM
+    | ToolTipPlacement.TOP;
   open?: boolean;
 };
 const ToolTip: React.FC<ToolTipProps> = ({

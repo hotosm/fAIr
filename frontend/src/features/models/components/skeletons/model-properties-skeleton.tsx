@@ -1,4 +1,4 @@
-import { SectionTitleSkeleton } from './models-details-skeleton';
+import { SectionTitleSkeleton } from "./models-details-skeleton";
 
 const ModelPropertiesSkeleton = ({
   isTrainingDetailsDialog,

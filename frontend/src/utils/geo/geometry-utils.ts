@@ -1,10 +1,10 @@
-import area from '@turf/area';
-import bboxPolygon from '@turf/bbox';
-import { booleanIntersects } from '@turf/boolean-intersects';
-import { LngLatBoundsLike, Map } from 'maplibre-gl';
-import { roundNumber } from '../number-utils';
-import { TModelPredictionsConfig } from '@/features/start-mapping/api/get-model-predictions';
-import { uuid4 } from '../general-utils';
+import area from "@turf/area";
+import bboxPolygon from "@turf/bbox";
+import { booleanIntersects } from "@turf/boolean-intersects";
+import { LngLatBoundsLike, Map } from "maplibre-gl";
+import { roundNumber } from "../number-utils";
+import { TModelPredictionsConfig } from "@/features/start-mapping/api/get-model-predictions";
+import { uuid4 } from "../general-utils";
 import {
   Feature,
   FeatureCollection,

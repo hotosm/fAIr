@@ -1,7 +1,7 @@
-import useScreenSize from '@/hooks/use-screen-size';
-import { SHOELACE_SIZES } from '@/enums';
-import { SlDialog } from '@shoelace-style/shoelace/dist/react';
-import './dialog.css';
+import useScreenSize from "@/hooks/use-screen-size";
+import { SHOELACE_SIZES } from "@/enums";
+import { SlDialog } from "@shoelace-style/shoelace/dist/react";
+import "./dialog.css";
 
 type DialogProps = {
   label: string;

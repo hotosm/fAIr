@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 /**
  * `SkeletonWrapper` is a React component that conditionally renders either

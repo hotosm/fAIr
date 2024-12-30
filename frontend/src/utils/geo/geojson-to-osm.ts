@@ -1,5 +1,5 @@
-import { create } from 'xmlbuilder2';
-import { FeatureCollection } from '@/types';
+import { create } from "xmlbuilder2";
+import { FeatureCollection } from "@/types";
 
 class Node {
   lat: number;

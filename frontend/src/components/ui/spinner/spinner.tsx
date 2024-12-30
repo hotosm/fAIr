@@ -1,4 +1,4 @@
-import { SlSpinner } from '@shoelace-style/shoelace/dist/react';
+import { SlSpinner } from "@shoelace-style/shoelace/dist/react";
 
 type SpinnerProps = {
   style?: Record<string, string>;

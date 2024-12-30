@@ -1,17 +1,16 @@
-import { Button } from '@/components/ui/button';
-import { ExternalLinkIcon, YouTubePlayCircleIcon } from '@/components/ui/icons';
-import { fAIrValues } from '@/assets/svgs';
-import { Head } from '@/components/seo';
-import { Header, SectionHeader } from '@/components/shared';
-import { Image } from '@/components/ui/image';
-import { JumbotronBackgroundImage } from '@/assets/images';
-import { LEARN_PAGE_CONTENT } from '@/constants';
-import { Link } from '@/components/ui/link';
-import { SHOELACE_SIZES } from '@/enums';
-import { TGuide, TVideo } from '@/types';
-import { TheFAIRProcess } from '@/components/landing';
-import { useState } from 'react';
-
+import { Button } from "@/components/ui/button";
+import { ExternalLinkIcon, YouTubePlayCircleIcon } from "@/components/ui/icons";
+import { fAIrValues } from "@/assets/svgs";
+import { Head } from "@/components/seo";
+import { Header, SectionHeader } from "@/components/shared";
+import { Image } from "@/components/ui/image";
+import { JumbotronBackgroundImage } from "@/assets/images";
+import { LEARN_PAGE_CONTENT } from "@/constants";
+import { Link } from "@/components/ui/link";
+import { SHOELACE_SIZES } from "@/enums";
+import { TGuide, TVideo } from "@/types";
+import { TheFAIRProcess } from "@/components/landing";
+import { useState } from "react";
 
 export const LearnPage = () => {
   return (

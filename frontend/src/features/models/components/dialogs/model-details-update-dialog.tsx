@@ -1,12 +1,12 @@
-import ModelDescriptionFormInput from '@/features/model-creation/components/model-details/model-description-input';
-import ModelNameFormInput from '@/features/model-creation/components/model-details/model-name-input';
-import { Button } from '@/components/ui/button';
-import { Dialog } from '@/components/ui/dialog';
-import { MODELS_CONTENT, TOAST_NOTIFICATIONS } from '@/constants';
-import { showErrorToast, showSuccessToast } from '@/utils';
-import { TModel } from '@/types';
-import { useState } from 'react';
-import { useUpdateModel } from '@/features/model-creation/hooks/use-models';
+import ModelDescriptionFormInput from "@/features/model-creation/components/model-details/model-description-input";
+import ModelNameFormInput from "@/features/model-creation/components/model-details/model-name-input";
+import { Button } from "@/components/ui/button";
+import { Dialog } from "@/components/ui/dialog";
+import { MODELS_CONTENT, TOAST_NOTIFICATIONS } from "@/constants";
+import { showErrorToast, showSuccessToast } from "@/utils";
+import { TModel } from "@/types";
+import { useState } from "react";
+import { useUpdateModel } from "@/features/model-creation/hooks/use-models";
 
 type ModelDetailsUpdateDialogProps = {
   isOpened: boolean;

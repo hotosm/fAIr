@@ -1,4 +1,4 @@
-import { ModelSummaryForm } from '@/features/model-creation/components';
+import { ModelSummaryForm } from "@/features/model-creation/components";
 
 export const ModelSummaryPage = () => {
   return (

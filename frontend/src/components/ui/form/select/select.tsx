@@ -1,9 +1,9 @@
-import useScreenSize from '@/hooks/use-screen-size';
-import { FormLabel, HelpText } from '@/components/ui/form';
-import { SHOELACE_SELECT_SIZES } from '@/enums';
-import { SlOption, SlSelect } from '@shoelace-style/shoelace/dist/react';
-import { TShoelaceSize } from '@/types';
-import './select.css';
+import useScreenSize from "@/hooks/use-screen-size";
+import { FormLabel, HelpText } from "@/components/ui/form";
+import { SHOELACE_SELECT_SIZES } from "@/enums";
+import { SlOption, SlSelect } from "@shoelace-style/shoelace/dist/react";
+import { TShoelaceSize } from "@/types";
+import "./select.css";
 
 type SelectProps = {
   label?: string;

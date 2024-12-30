@@ -1,6 +1,6 @@
-import axios from 'axios';
-import { API_ENDPOINTS } from '@/services';
-import { BBOX, FeatureCollection } from '@/types';
+import axios from "axios";
+import { API_ENDPOINTS } from "@/services";
+import { BBOX, FeatureCollection } from "@/types";
 
 export type TModelPredictionsConfig = {
   area_threshold: number;

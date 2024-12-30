@@ -1,5 +1,5 @@
-import { MODELS_CONTENT } from '@/constants';
-import { TextArea } from '@/components/ui/form';
+import { MODELS_CONTENT } from "@/constants";
+import { TextArea } from "@/components/ui/form";
 import {
   FORM_VALIDATION_CONFIG,
   MODEL_CREATION_FORM_NAME,

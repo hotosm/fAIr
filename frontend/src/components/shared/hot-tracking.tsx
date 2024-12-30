@@ -1,8 +1,8 @@
-import { APPLICATION_ROUTES } from '@/constants';
-import { ENVS } from '@/config/env';
-import { HOT_TRACKING_HTML_TAG_NAME } from '@/constants';
-import { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { APPLICATION_ROUTES } from "@/constants";
+import { ENVS } from "@/config/env";
+import { HOT_TRACKING_HTML_TAG_NAME } from "@/constants";
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 export const HotTracking = ({ homepagePath = APPLICATION_ROUTES.HOMEPAGE }) => {
   const { pathname } = useLocation();

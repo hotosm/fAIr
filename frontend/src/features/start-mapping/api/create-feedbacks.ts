@@ -1,5 +1,5 @@
-import { API_ENDPOINTS, apiClient } from '@/services';
-import { Feature } from '@/types';
+import { API_ENDPOINTS, apiClient } from "@/services";
+import { Feature } from "@/types";
 
 export type TCreateFeedbackPayload = {
   comments: string;
