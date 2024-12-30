@@ -1,7 +1,7 @@
-import { LngLatBoundsLike } from "maplibre-gl";
-
 import { GeoJSON } from "geojson";
-import { Feature } from "./api";
+import { LngLatBoundsLike } from "maplibre-gl";
+import { SHOELACE_SELECT_SIZES } from "@/enums";
+import { TModelPredictionFeature } from "./api";
 
 /* eslint-disable @typescript-eslint/no-empty-object-type */
 export interface IconProps extends React.SVGProps<SVGSVGElement> {}
@@ -53,12 +53,25 @@ export type BBOX = [number, number, number, number];
 export type GeoJSONType = GeoJSON;
 
 export type TModelPredictions = {
-  all: Feature[];
-  accepted: Feature[];
-  rejected: Feature[];
+  all: TModelPredictionFeature[];
+  accepted: TModelPredictionFeature[];
+  rejected: TModelPredictionFeature[];
 };
 
 export type TFAQs = {
   question: string;
   answer: string;
 }[];
+
+export type TNavBarLinks = {
+  title: string;
+  href: string;
+}[];
+
+// Extending with shoelace properties.
+export type TCSSWithVars = React.CSSProperties & {
+  "--size"?: string;
+  "--indent-guide-width"?: string;
+};
+
+export type TShoelaceSize = `${SHOELACE_SELECT_SIZES}`;

@@ -1,5 +1,5 @@
-import { TModel } from "@/types";
 import ModelCard from "@/features/models/components/model-card";
+import { TModel } from "@/types";
 
 type ModelListProps = {
   models?: TModel[];

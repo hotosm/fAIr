@@ -1,9 +1,9 @@
-import { Dialog } from "@/components/ui/dialog";
-import { ChevronDownIcon } from "@/components/ui/icons";
-import { useDialog } from "@/hooks/use-dialog";
-import { APP_CONTENT, MODELS_BASE, MODELS_ROUTES } from "@/utils";
 import ModelTrainingSettingsDialog from "@/features/models/components/dialogs/training-settings-dialog";
+import { ChevronDownIcon } from "@/components/ui/icons";
+import { Dialog } from "@/components/ui/dialog";
+import { MODELS_BASE, MODELS_CONTENT, MODELS_ROUTES } from "@/constants";
 import { ModelsProvider } from "@/app/providers/models-provider";
+import { useDialog } from "@/hooks/use-dialog";
 import { useNavigate } from "react-router-dom";
 
 type ModelEnhancementDialogProps = {
@@ -25,18 +25,18 @@ const ModelEnhancementDialog: React.FC<ModelEnhancementDialogProps> = ({
 
   const options = [
     {
-      name: APP_CONTENT.models.modelsDetailsCard.modelEnhancement.newSettings
+      name: MODELS_CONTENT.models.modelsDetailsCard.modelEnhancement.newSettings
         .title,
       description:
-        APP_CONTENT.models.modelsDetailsCard.modelEnhancement.newSettings
+        MODELS_CONTENT.models.modelsDetailsCard.modelEnhancement.newSettings
           .description,
       onClick: openDialog,
     },
     {
-      name: APP_CONTENT.models.modelsDetailsCard.modelEnhancement.trainingData
-        .title,
+      name: MODELS_CONTENT.models.modelsDetailsCard.modelEnhancement
+        .trainingData.title,
       description:
-        APP_CONTENT.models.modelsDetailsCard.modelEnhancement.trainingData
+        MODELS_CONTENT.models.modelsDetailsCard.modelEnhancement.trainingData
           .description,
       onClick: () =>
         navigate(
@@ -55,7 +55,9 @@ const ModelEnhancementDialog: React.FC<ModelEnhancementDialogProps> = ({
       <Dialog
         isOpened={isOpened}
         closeDialog={closeDialog}
-        label={APP_CONTENT.models.modelsDetailsCard.modelUpdate.dialogHeading}
+        label={
+          MODELS_CONTENT.models.modelsDetailsCard.modelUpdate.dialogHeading
+        }
       >
         <ModelTrainingSettingsDialog
           isOpened={isTrainingSettingsDialogOpened}

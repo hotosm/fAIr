@@ -1,10 +1,9 @@
-import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
+import { CheckboxGroup } from "@/components/ui/form";
 import { DropDown } from "@/components/ui/dropdown";
 import { DropdownMenuItem } from "@/components/ui/dropdown/dropdown";
-import { CheckboxGroup } from "@/components/ui/form";
-import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
+import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
 import { TQueryParams } from "@/types";
-import { useMemo } from "react";
+import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 
 type StatusFilterProps = {
   disabled: boolean;
@@ -57,12 +56,8 @@ const StatusFilter: React.FC<StatusFilterProps> = ({
       },
     },
   ];
-  const categoryLabel = useMemo(
-    () =>
-      statusCategories.filter(
-        (status) => status.apiValue === query[SEARCH_PARAMS.status],
-      ),
-    [query],
+  const categoryLabel = statusCategories.filter(
+    (status) => status.apiValue === query[SEARCH_PARAMS.status],
   );
 
   const { dropdownIsOpened, onDropdownHide, onDropdownShow } =
@@ -80,7 +75,6 @@ const StatusFilter: React.FC<StatusFilterProps> = ({
           disabled={disabled}
           defaultSelectedItem={categoryLabel[0]?.value}
           withCheckbox
-          menuItemTextSize="small"
           triggerComponent={
             <p className="text-sm text-dark text-nowrap">
               {categoryLabel[0]?.value}
@@ -95,7 +89,6 @@ const StatusFilter: React.FC<StatusFilterProps> = ({
       options={statusCategories}
       disabled={disabled}
       onCheck={(status) => {
-        console.log(status);
         updateQuery({
           [SEARCH_PARAMS.status]: status[0] !== "All" ? status[0] : undefined,
         });

@@ -1,6 +1,6 @@
 import { TResourcesPageContent } from "@/types";
 
-export const resourcesPageContent: TResourcesPageContent = {
+export const RESOURCES_PAGE_CONTENT: TResourcesPageContent = {
   pageTitle: "Resources",
   pageHeader: "Resources",
   hero: {

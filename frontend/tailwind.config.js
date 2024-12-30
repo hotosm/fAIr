@@ -43,6 +43,7 @@ export default {
       spacing: {
         "extra-large": "var(--hot-fair-spacing-extra-large)",
         large: "var(--hot-fair-spacing-large)",
+        small: "var(--hot-fair-spacing-small)",
       },
     },
   },

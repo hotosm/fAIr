@@ -1,9 +1,9 @@
-import { Map } from "maplibre-gl";
-import { useCallback, useEffect } from "react";
-import mapMarker from "@/assets/images/map_marker.png";
-import { MapComponent } from "@/components/map";
 import { FeatureCollection, TQueryParams } from "@/types";
+import { Map } from "maplibre-gl";
+import { MapComponent } from "@/components/map";
+import { MapMarkerIcon } from "@/assets/images";
 import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
+import { useCallback, useEffect } from "react";
 import { useMapInstance } from "@/hooks/use-map-instance";
 
 const mapSourceName = "models";
@@ -11,7 +11,7 @@ const mapSourceName = "models";
 const licensedFonts = ["Noto Sans Regular"];
 
 let markerIcon = new Image(17, 20);
-markerIcon.src = mapMarker;
+markerIcon.src = MapMarkerIcon;
 
 const maplibreLayerDefn = (
   map: Map,

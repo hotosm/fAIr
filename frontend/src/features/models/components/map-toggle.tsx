@@ -1,8 +1,8 @@
+import { LayoutView } from "@/enums";
+import { MODELS_CONTENT } from "@/constants";
 import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
 import { Switch } from "@/components/ui/form";
-import { LayoutView } from "@/enums/models";
 import { TQueryParams } from "@/types";
-import { APP_CONTENT } from "@/utils";
 
 const ModelMapToggle = ({
   query,
@@ -19,7 +19,7 @@ const ModelMapToggle = ({
       role="button"
     >
       <p className="text-body-2base text-nowrap">
-        {APP_CONTENT.models.modelsList.filtersSection.mapViewToggleText}
+        {MODELS_CONTENT.models.modelsList.filtersSection.mapViewToggleText}
       </p>
       <Switch
         checked={query[SEARCH_PARAMS.mapIsActive] as boolean}

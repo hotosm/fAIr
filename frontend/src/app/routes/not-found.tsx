@@ -1,8 +1,7 @@
+import { APPLICATION_ROUTES, SHARED_CONTENT } from "@/constants";
 import { Button } from "@/components/ui/button";
-import { APPLICATION_ROUTES } from "@/utils/constants";
-import { APP_CONTENT } from "@/utils";
-import { useLocation, useNavigate } from "react-router-dom";
 import { Head } from "@/components/seo";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export const PageNotFound = () => {
   const location = useLocation();
@@ -23,14 +22,14 @@ export const PageNotFound = () => {
       <section className="min-h-[80vh] flex flex-col mt-20 items-center justify-around lg:justify-center">
         <div>
           <p className="text-body-1 lg:text-title1 font-semibold text-dark text-center">
-            {APP_CONTENT.pageNotFound.messages.constant}{" "}
+            {SHARED_CONTENT.pageNotFound.messages.constant}{" "}
             {location.state?.error
               ? location.state?.error
               : modelNotFound
-                ? APP_CONTENT.pageNotFound.messages.modelNotFound
+                ? SHARED_CONTENT.pageNotFound.messages.modelNotFound
                 : trainingDatasetNotFound
-                  ? APP_CONTENT.pageNotFound.messages.trainingDatasetNotFound
-                  : APP_CONTENT.pageNotFound.messages.pageNotFound}
+                  ? SHARED_CONTENT.pageNotFound.messages.trainingDatasetNotFound
+                  : SHARED_CONTENT.pageNotFound.messages.pageNotFound}
           </p>
         </div>
         <h1 className="w-72 text-[200px] lg:w-[450px] lg:text-[450px] flex items-center justify-center font-semibold text-light-gray relative">
@@ -79,10 +78,11 @@ export const PageNotFound = () => {
           className="max-w-[300px]"
         >
           {modelNotFound
-            ? APP_CONTENT.pageNotFound.actionButtons.modelNotFound
+            ? SHARED_CONTENT.pageNotFound.actionButtons.modelNotFound
             : trainingDatasetNotFound
-              ? APP_CONTENT.pageNotFound.actionButtons.trainingDatasetNotFound
-              : APP_CONTENT.pageNotFound.actionButtons.pageNotFound}
+              ? SHARED_CONTENT.pageNotFound.actionButtons
+                  .trainingDatasetNotFound
+              : SHARED_CONTENT.pageNotFound.actionButtons.pageNotFound}
         </Button>
       </section>
     </>

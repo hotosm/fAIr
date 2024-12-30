@@ -1,15 +1,15 @@
+import { Button } from "@/components/ui/button";
+import { Head } from "@/components/seo";
+import { SHARED_CONTENT } from "@/constants";
 import { ShieldIcon } from "@/components/ui/icons";
 import { useAuth } from "@/app/providers/auth-provider";
-import { APP_CONTENT } from "@/utils";
-import { Button } from "@/components/ui/button";
 import { useLogin } from "@/hooks/use-login";
-import { Head } from "@/components/seo";
 
 type ProtectedRouteProps = {
   children: React.ReactNode;
 };
 
-export const ProtectedPage: React.FC<ProtectedRouteProps> = ({ children }) => {
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { isAuthenticated } = useAuth();
   const { handleLogin, loading } = useLogin();
 
@@ -24,10 +24,10 @@ export const ProtectedPage: React.FC<ProtectedRouteProps> = ({ children }) => {
             </div>
             <div className="flex flex-col gap-y-10">
               <h1 className="text-body-1 lg:text-title-1 font-semibold text-dark text-center">
-                {APP_CONTENT.protectedPage.messageTitle}
+                {SHARED_CONTENT.protectedPage.messageTitle}
               </h1>
               <p className="text-body-2base lg:text-body2 text-dark text-center">
-                {APP_CONTENT.protectedPage.messageParagraph}
+                {SHARED_CONTENT.protectedPage.messageParagraph}
               </p>
             </div>
           </div>
@@ -38,8 +38,8 @@ export const ProtectedPage: React.FC<ProtectedRouteProps> = ({ children }) => {
             spinner={loading}
           >
             {loading
-              ? APP_CONTENT.loginButtonLoading
-              : APP_CONTENT.protectedPage.ctaButton}
+              ? SHARED_CONTENT.loginButtonLoading
+              : SHARED_CONTENT.protectedPage.ctaButton}
           </Button>
         </section>
       </>

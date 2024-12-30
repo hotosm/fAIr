@@ -1,6 +1,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   getTrainingAreaLabelsQueryOptions,
+  getTrainingAreaQueryOptions,
   getTrainingAreasQueryOptions,
   getTrainingDatasetLabelsQueryOptions,
 } from "@/features/model-creation/api/factory";
@@ -14,14 +15,12 @@ import {
   TGetTrainingAreaLabelsFromOSMArgs,
 } from "@/features/model-creation/api/create-trainings";
 import { deleteTrainingArea } from "@/features/model-creation/api/delete-trainings";
-import { MIN_ZOOM_LEVEL_FOR_TRAINING_AREA_LABELS } from "@/utils";
+import { MIN_ZOOM_LEVEL_FOR_TRAINING_AREA_LABELS } from "@/constants";
 import axios from "axios";
 
 export const useGetTrainingAreas = (datasetId: number, offset: number) => {
   return useQuery({
     ...getTrainingAreasQueryOptions(datasetId, offset),
-    //@ts-expect-error bad type definition
-    throwOnError: (error) => error?.response?.status >= 500,
   });
 };
 
@@ -60,7 +59,6 @@ type useCreateTrainingLabelsForAOIOptions = {
 export const useCreateTrainingLabelsForAOI = ({
   mutationConfig,
 }: useCreateTrainingLabelsForAOIOptions) => {
-  // fetch training labels for the aoi
   const { onSuccess, ...restConfig } = mutationConfig || {};
   return useMutation({
     mutationFn: (args: TCreateTrainingLabelsForAOIArgs) =>
@@ -136,8 +134,6 @@ export const useGetTrainingDatasetLabels = (
 ) => {
   return useQuery({
     ...getTrainingDatasetLabelsQueryOptions(datasetId, bbox),
-    //@ts-expect-error bad type definition
-    throwOnError: (error) => error?.response?.status >= 500,
     // Don't fetch when the bbox is empty
     enabled:
       bbox !== "" && currentZoom >= MIN_ZOOM_LEVEL_FOR_TRAINING_AREA_LABELS,
@@ -147,9 +143,19 @@ export const useGetTrainingDatasetLabels = (
 export const useGetTrainingAreaLabels = (aoiId: number, enabled: boolean) => {
   return useQuery({
     ...getTrainingAreaLabelsQueryOptions(aoiId),
-    //@ts-expect-error bad type definition
-    throwOnError: (error) => error?.response?.status >= 500,
     enabled: enabled,
+  });
+};
+
+export const useGetTrainingArea = (
+  aoiId: number,
+  enabled: boolean,
+  refetchInterval: number,
+) => {
+  return useQuery({
+    ...getTrainingAreaQueryOptions(aoiId),
+    enabled: enabled,
+    refetchInterval: refetchInterval,
   });
 };
 

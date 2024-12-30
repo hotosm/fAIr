@@ -1,7 +1,7 @@
-import { TAuthenticate, TLogin, TUser } from "@/types/api";
-import { apiClient } from "@/services/api-client";
 import { API_ENDPOINTS } from "@/services/api-routes";
+import { apiClient } from "@/services/api-client";
 import { showErrorToast } from "@/utils";
+import { TAuthenticate, TLogin, TUser } from "@/types/api";
 
 /**
  * This class encapsulate the various authentication services.

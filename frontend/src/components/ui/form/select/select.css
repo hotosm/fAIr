@@ -8,3 +8,17 @@ sl-select::part(display-input) {
   color: var(--hot-fair-color-dark);
   font-size: var(--hot-fair-font-size-body-text-3);
 }
+
+sl-select::part(listbox) {
+  color: var(--hot-fair-color-dark);
+  font-size: var(--hot-fair-font-size-body-text-3);
+}
+
+sl-option::part(base) {
+  flex-wrap: wrap;
+}
+
+sl-option::part(suffix) {
+  padding: 0 12px;
+  width: 100%;
+}

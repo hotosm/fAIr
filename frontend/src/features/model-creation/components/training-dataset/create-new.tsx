@@ -1,23 +1,20 @@
+import { Input } from "@/components/ui/form";
+import { INPUT_TYPES } from "@/enums";
+import { MODELS_CONTENT } from "@/constants";
+import { useEffect } from "react";
 import {
   FORM_VALIDATION_CONFIG,
   MODEL_CREATION_FORM_NAME,
   useModelsContext,
 } from "@/app/providers/models-provider";
-import { Input } from "@/components/ui/form";
-import { INPUT_TYPES } from "@/enums";
-import { MODEL_CREATION_CONTENT } from "@/utils";
-import { useEffect, useMemo } from "react";
 
 const CreateNewTrainingDatasetForm = () => {
   const { formData, handleChange } = useModelsContext();
 
-  const tmsURLHelpText = useMemo(() => {
-    const helpText =
-      MODEL_CREATION_CONTENT.trainingDataset.form.tmsURL.helpText;
-    return formData.tmsURLValidation.message.length > 0
+  const tmsURLHelpText =
+    formData.tmsURLValidation.message.length > 0
       ? formData.tmsURLValidation.message
-      : helpText;
-  }, [formData.tmsURLValidation.message]);
+      : MODELS_CONTENT.modelCreation.trainingDataset.form.tmsURL.helpText;
 
   useEffect(() => {
     // Shoelace will handle the validation when it's more than 0 characters.
@@ -34,7 +31,7 @@ const CreateNewTrainingDatasetForm = () => {
     <div className="flex flex-col gap-y-10">
       <p className="font-semibold text-body-2 md:text-body-1 mb-2">
         {
-          MODEL_CREATION_CONTENT.trainingDataset.form
+          MODELS_CONTENT.modelCreation.trainingDataset.form
             .newTrainingDatasetSectionHeading
         }
       </p>
@@ -44,16 +41,19 @@ const CreateNewTrainingDatasetForm = () => {
         }
         value={formData.datasetName}
         toolTipContent={
-          MODEL_CREATION_CONTENT.trainingDataset.form.datasetName.toolTip
+          MODELS_CONTENT.modelCreation.trainingDataset.form.datasetName.toolTip
         }
-        label={MODEL_CREATION_CONTENT.trainingDataset.form.datasetName.label}
+        label={
+          MODELS_CONTENT.modelCreation.trainingDataset.form.datasetName.label
+        }
         labelWithTooltip
         placeholder={
-          MODEL_CREATION_CONTENT.trainingDataset.form.datasetName.placeholder
+          MODELS_CONTENT.modelCreation.trainingDataset.form.datasetName
+            .placeholder
         }
         showBorder
         helpText={
-          MODEL_CREATION_CONTENT.trainingDataset.form.datasetName.helpText
+          MODELS_CONTENT.modelCreation.trainingDataset.form.datasetName.helpText
         }
         maxLength={
           FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.DATASET_NAME]
@@ -69,11 +69,11 @@ const CreateNewTrainingDatasetForm = () => {
         value={formData.tmsURL}
         labelWithTooltip
         toolTipContent={
-          MODEL_CREATION_CONTENT.trainingDataset.form.tmsURL.toolTip
+          MODELS_CONTENT.modelCreation.trainingDataset.form.tmsURL.toolTip
         }
-        label={MODEL_CREATION_CONTENT.trainingDataset.form.tmsURL.label}
+        label={MODELS_CONTENT.modelCreation.trainingDataset.form.tmsURL.label}
         placeholder={
-          MODEL_CREATION_CONTENT.trainingDataset.form.tmsURL.placeholder
+          MODELS_CONTENT.modelCreation.trainingDataset.form.tmsURL.placeholder
         }
         showBorder
         helpText={tmsURLHelpText}

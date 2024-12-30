@@ -54,3 +54,5 @@ export { BookTemplateIcon } from "./book-template-icon";
 export { YouTubePlayCircleIcon } from "./youtube-play-circle-icon";
 export { CheckIcon } from "./check-icon";
 export { DesktopFlowIcon } from "./desktop-flow-icon";
+export { NoTrainingAreaIcon } from "./no-training-area-icon";
+export { ArrowMoveIcon } from "./arrow-move-icon";

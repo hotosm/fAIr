@@ -4,6 +4,7 @@
 
 body {
   font-family: var(--sl-font-sans);
+  pointer-events: all !important;
 }
 
 :root,
@@ -58,6 +59,8 @@ body {
   /* 80px */
   --hot-fair-spacing-large: 2rem;
   /* 32px */
+  --hot-fair-spacing-small: 1rem;
+  /* 16px */
 
   /* Scroll bar styles */
   --scrollbar-width: 6px;
@@ -68,11 +71,22 @@ body {
 
 /* Toast stack placement style begins */
 
+/* On Mobile show at the top. */
 .sl-toast-stack {
   left: 0;
   right: auto;
-  top: auto;
-  bottom: 0;
+  top: 0;
+  bottom: auto;
+}
+
+/* On Web, show at the bottom. */
+@media (min-width: 768px) {
+  .sl-toast-stack {
+    left: 0;
+    right: auto;
+    top: auto;
+    bottom: 0;
+  }
 }
 
 /* Toast stack placement style ends */
@@ -82,7 +96,7 @@ body {
 sl-alert::part(close-button__base),
 sl-alert::part(close-button__base):hover {
   color: var(--hot-fair-color-dark);
-  font-size: var(--hot-fair-font-size-title-3);
+  font-size: var(--hot-fair-font-size-title-4);
 }
 
 sl-alert::part(base) {
@@ -127,7 +141,7 @@ sl-alert.success::part(base) {
 
 .hot-matomo {
   position: fixed;
-  z-index: 10000;
+  z-index: 1000000000000;
   bottom: 0;
   width: 100vw;
 }
@@ -156,10 +170,10 @@ sl-alert.success::part(base) {
     @apply inline-block h-4 w-4  p-2;
   }
   .fullscreen {
-    @apply -mx-large 2xl:-mx-extra-large;
+    @apply -mx-small md:-mx-large 2xl:-mx-extra-large;
   }
   .app-padding {
-    @apply px-large 2xl:px-extra-large;
+    @apply px-small md:px-large  2xl:px-extra-large;
   }
   .no-fullscreen {
     @apply -mx-0 lg:-mx-0;
@@ -168,31 +182,59 @@ sl-alert.success::part(base) {
   .static-page-layout {
     @apply flex flex-col gap-y-20 md:gap-y-40 mb-48;
   }
+  .icon-interaction {
+    @apply bg-off-white rounded-lg;
+  }
+  .map-elements-z-index {
+    @apply z-[1];
+  }
+  .map-elements-padding {
+    @apply px-3;
+  }
 }
 
 /* Tailwind styles ends */
 
 /* General scrollbar styles */
+
 ::-webkit-scrollbar {
   width: var(--scrollbar-width);
   height: 5px;
+  opacity: 0;
+}
+
+::-webkit-scrollbar:hover {
+  opacity: 1;
 }
 
 /* Scrollbar track */
 ::-webkit-scrollbar-track {
-  background: var(--scrollbar-track-bg);
+  background: var(--scrollbar-track-bg, #f1f1f1);
 }
 
 /* Scrollbar thumb */
 ::-webkit-scrollbar-thumb {
-  background: var(--scrollbar-thumb-bg);
+  background: var(--scrollbar-thumb-bg, #888);
   border-radius: 5px;
+  overflow: hidden;
 }
 
 /* Scrollbar thumb on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--scrollbar-thumb-hover-bg);
+  background: var(--scrollbar-thumb-hover-bg, #555);
 }
+
+.scrollable::-webkit-scrollbar-track,
+.scrollable::-webkit-scrollbar-thumb {
+  visibility: hidden;
+}
+
+.scrollable:hover::-webkit-scrollbar-track,
+.scrollable:hover::-webkit-scrollbar-thumb {
+  visibility: visible;
+}
+
+/* General scrollbar ends */
 
 /* Popup customization starts */
 .maplibregl-popup-content {

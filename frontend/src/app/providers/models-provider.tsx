@@ -1,14 +1,22 @@
-import { BASE_MODELS, TrainingType, TrainingDatasetOption } from "@/enums";
-import { useCreateTrainingDataset } from "@/features/model-creation/hooks/use-training-datasets";
+import { APPLICATION_ROUTES, MODELS_BASE, MODELS_ROUTES } from "@/constants";
+import { BASE_MODELS, TrainingDatasetOption, TrainingType } from "@/enums";
+import { LngLatBoundsLike } from "maplibre-gl";
+import { TOAST_NOTIFICATIONS } from "@/constants";
 import {
-  APPLICATION_ROUTES,
-  MODELS_BASE,
-  MODELS_ROUTES,
+  TTrainingAreaFeature,
+  TTrainingDataset,
+  TTrainingDetails,
+} from "@/types";
+import { useCreateTrainingDataset } from "@/features/model-creation/hooks/use-training-datasets";
+import { useGetTrainingDataset } from "@/features/models/hooks/use-dataset";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useModelDetails } from "@/features/models/hooks/use-models";
+import { UseMutationResult } from "@tanstack/react-query";
+import {
   showErrorToast,
   showSuccessToast,
   TMS_URL_REGEX_PATTERN,
 } from "@/utils";
-import { UseMutationResult } from "@tanstack/react-query";
 import React, {
   createContext,
   useContext,
@@ -17,8 +25,6 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { Feature, TTrainingDataset, TTrainingDetails } from "@/types";
 import {
   TCreateTrainingDatasetArgs,
   TCreateTrainingRequestArgs,
@@ -28,11 +34,6 @@ import {
   useCreateModelTrainingRequest,
   useUpdateModel,
 } from "@/features/model-creation/hooks/use-models";
-import { LngLatBoundsLike } from "maplibre-gl";
-import { useModelDetails } from "@/features/models/hooks/use-models";
-import { useGetTrainingDataset } from "@/features/models/hooks/use-dataset";
-
-import { TOAST_NOTIFICATIONS } from "@/constants";
 
 /**
  * The names here are the same with the `initialFormState` object keys.
@@ -146,7 +147,7 @@ type FormData = {
     message: string;
   };
   selectedTrainingDatasetId: string;
-  trainingAreas: Feature[];
+  trainingAreas: TTrainingAreaFeature[];
   oamTileName: string;
   oamBounds: number[];
   trainingType: TrainingType;
@@ -293,10 +294,8 @@ export const ModelsProvider: React.FC<{
   );
 
   // Will be used in the route validator component to delay the redirection for a while until the data are retrieved
-  const validateEditMode = useMemo(
-    () => formData.selectedTrainingDatasetId !== "" && formData.tmsURL !== "",
-    [formData],
-  );
+  const validateEditMode =
+    formData.selectedTrainingDatasetId !== "" && formData.tmsURL !== "";
 
   // Fetch and prefill model details
   useEffect(() => {
@@ -421,22 +420,18 @@ export const ModelsProvider: React.FC<{
   });
 
   // Confirm that all the training areas labels has been retrieved
-  const hasLabeledTrainingAreas = useMemo(() => {
-    return (
-      formData.trainingAreas.length > 0 &&
-      formData.trainingAreas.filter(
-        (aoi: Feature) => aoi.properties.label_fetched === null,
-      ).length === 0
-    );
-  }, [formData]);
+  const hasLabeledTrainingAreas =
+    formData.trainingAreas.length > 0 &&
+    formData.trainingAreas.filter(
+      (aoi: TTrainingAreaFeature) => aoi.properties.label_fetched === null,
+    ).length === 0;
+
   // Confirm that all of the training areas has a geometry
-  const hasAOIsWithGeometry = useMemo(() => {
-    return (
-      formData.trainingAreas.length > 0 &&
-      formData.trainingAreas.filter((aoi: Feature) => aoi.geometry === null)
-        .length === 0
-    );
-  }, [formData]);
+  const hasAOIsWithGeometry =
+    formData.trainingAreas.length > 0 &&
+    formData.trainingAreas.filter(
+      (aoi: TTrainingAreaFeature) => aoi.geometry === null,
+    ).length === 0;
 
   const resetState = () => {
     setFormData(initialFormState);

@@ -1,20 +1,7 @@
-import { API_ENDPOINTS } from "@/services";
-import { BBOX, FeatureCollection } from "@/types";
 import axios from "axios";
-
-export type TModelPredictionsConfig = {
-  area_threshold: number;
-  bbox: BBOX;
-  checkpoint: string;
-  confidence: number;
-  max_angle_change: number;
-  model_id: string;
-  skew_tolerance: number;
-  source: string;
-  tolerance: number;
-  use_josm_q: boolean;
-  zoom_level: number;
-};
+import { API_ENDPOINTS } from "@/services";
+import { FeatureCollection } from "geojson";
+import { TModelPredictionsConfig } from "@/types";
 
 export const getModelPredictions = async ({
   area_threshold,

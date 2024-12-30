@@ -1,19 +1,19 @@
+import styles from "@/components/layouts/navbar/navbar.module.css";
+import { APPLICATION_ROUTES, SHARED_CONTENT } from "@/constants";
 import { Button } from "@/components/ui/button";
-import styles from "@/components/ui/navbar/navbar.module.css";
-import HamburgerIcon from "@/assets/svgs/hamburger_icon.svg";
 import { Drawer } from "@/components/ui/drawer";
-import { useState } from "react";
-import { Link } from "@/components/ui/link";
-import { Image } from "@/components/ui/image";
-import { APP_CONTENT, APPLICATION_ROUTES } from "@/utils";
-import { useAuth } from "@/app/providers/auth-provider";
-import UserProfile from "@/components/ui/navbar/user-profile";
-import { useLogin } from "@/hooks/use-login";
-import { useLocation } from "react-router-dom";
-import NavLogo from "./nav-logo";
 import { DrawerPlacements } from "@/enums";
+import { HamburgerIcon } from "@/assets/svgs";
+import { Image } from "@/components/ui/image";
+import { Link } from "@/components/ui/link";
+import { NavLogo } from "@/components/layout";
+import { useAuth } from "@/app/providers/auth-provider";
+import { useLocation } from "react-router-dom";
+import { useLogin } from "@/hooks/use-login";
+import { UserProfile } from "@/components/layout";
+import { useState } from "react";
 
-const NavBar = () => {
+export const NavBar = () => {
   const [open, setOpen] = useState(false);
   const { isAuthenticated } = useAuth();
   const { handleLogin, loading } = useLogin();
@@ -40,8 +40,8 @@ const NavBar = () => {
             ) : (
               <Button variant="primary" onClick={handleLogin} spinner={loading}>
                 {loading
-                  ? APP_CONTENT.loginButtonLoading
-                  : APP_CONTENT.navbar.loginButton}
+                  ? SHARED_CONTENT.loginButtonLoading
+                  : SHARED_CONTENT.navbar.loginButton}
               </Button>
             )}
           </div>
@@ -65,16 +65,16 @@ const NavBar = () => {
               spinner={loading}
             >
               {loading
-                ? APP_CONTENT.loginButtonLoading
-                : APP_CONTENT.navbar.loginButton}
+                ? SHARED_CONTENT.loginButtonLoading
+                : SHARED_CONTENT.navbar.loginButton}
             </Button>
           )}
         </div>
         <button className={styles.hamburgerMenu} onClick={() => setOpen(true)}>
           <Image
             src={HamburgerIcon}
-            alt={APP_CONTENT.navbar.hamburgerMenuAlt}
-            title={APP_CONTENT.navbar.hamburgerMenuTitle}
+            alt={SHARED_CONTENT.navbar.hamburgerMenuAlt}
+            title={SHARED_CONTENT.navbar.hamburgerMenuTitle}
             width="20px"
             height="20px"
           />
@@ -84,8 +84,6 @@ const NavBar = () => {
   );
 };
 
-export default NavBar;
-
 type TNavBarLinks = {
   title: string;
   href: string;
@@ -93,19 +91,19 @@ type TNavBarLinks = {
 
 const navLinks: TNavBarLinks = [
   {
-    title: APP_CONTENT.navbar.routes.exploreModels,
+    title: SHARED_CONTENT.navbar.routes.exploreModels,
     href: APPLICATION_ROUTES.MODELS,
   },
   {
-    title: APP_CONTENT.navbar.routes.learn,
+    title: SHARED_CONTENT.navbar.routes.learn,
     href: APPLICATION_ROUTES.LEARN,
   },
   {
-    title: APP_CONTENT.navbar.routes.about,
+    title: SHARED_CONTENT.navbar.routes.about,
     href: APPLICATION_ROUTES.ABOUT,
   },
   {
-    title: APP_CONTENT.navbar.routes.resources,
+    title: SHARED_CONTENT.navbar.routes.resources,
     href: APPLICATION_ROUTES.RESOURCES,
   },
 ];

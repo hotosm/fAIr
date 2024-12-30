@@ -6,6 +6,7 @@
 sl-menu-item::part(base) {
   color: var(--hot-fair-color-dark);
   background-color: var(--hot-fair-color-white);
+  font-size: var(--hot-fair-font-size-body-text-3);
 }
 
 sl-menu-item::part(base):hover {
@@ -14,10 +15,6 @@ sl-menu-item::part(base):hover {
 
 sl-menu-item.logoutButton::part(base) {
   color: var(--hot-fair-color-primary);
-}
-
-sl-menu-item.small::part(base) {
-  font-size: var(--hot-fair-font-size-body-text-3);
 }
 
 /* Checkbox customization */

@@ -37,7 +37,9 @@ const useScreenSize = () => {
     };
   }, []);
 
-  return screenSize;
+  const isSmallViewport = screenSize.isMobile || screenSize.isTablet;
+
+  return { ...screenSize, isSmallViewport };
 };
 
 export default useScreenSize;

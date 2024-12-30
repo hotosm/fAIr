@@ -1,8 +1,15 @@
-import Pagination, { PAGE_LIMIT } from "@/components/shared/pagination";
+import ModelNotFound from "@/features/models/components/model-not-found";
 import { Head } from "@/components/seo";
-import { LayoutView } from "@/enums/models";
 import { LayoutToggle, PageHeader } from "@/features/models/components";
+import { LayoutView } from "@/enums";
 import { MobileModelFiltersDialog } from "@/features/models/components/dialogs";
+import { MODELS_CONTENT } from "@/constants";
+import { PAGE_LIMIT } from "@/components/shared";
+import { Pagination } from "@/components/shared";
+import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
+import { useAuth } from "@/app/providers/auth-provider";
+import { useDialog } from "@/hooks/use-dialog";
+import { useModelsListFilters } from "@/features/models/hooks/use-models";
 import {
   CategoryFilter,
   ClearFilters,
@@ -12,18 +19,10 @@ import {
   SearchFilter,
   StatusFilter,
 } from "@/features/models/components/filters";
-import { useModelsListFilters } from "@/features/models/hooks/use-models";
 import {
   ModelListGridLayout,
   ModelListTableLayout,
 } from "@/features/models/layouts";
-import { useDialog } from "@/hooks/use-dialog";
-import { APP_CONTENT } from "@/utils";
-import { useMemo } from "react";
-import ModelNotFound from "@/features/models/components/model-not-found";
-import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
-import { useAuth } from "@/app/providers/auth-provider";
-import { modelPagesContent } from "@/constants";
 
 export const UserModelsPage = () => {
   const { isOpened, openDialog, closeDialog } = useDialog();
@@ -38,12 +37,6 @@ export const UserModelsPage = () => {
     query,
     updateQuery,
   } = useModelsListFilters(undefined, user?.osm_id);
-
-  // Since it's just a static filter, it's better to memoize it.
-  const memoizedCategoryFilter = useMemo(
-    () => <CategoryFilter disabled={isPending} />,
-    [isPending],
-  );
 
   const renderContent = () => {
     if (data?.count === 0) {
@@ -79,11 +72,11 @@ export const UserModelsPage = () => {
         updateQuery={updateQuery}
         disabled={isPending}
       />
-      <Head title={modelPagesContent.myModels.pageTitle} />
+      <Head title={MODELS_CONTENT.myModels.pageTitle} />
       <section className="my-10 min-h-screen">
         <PageHeader
-          title={modelPagesContent.myModels.pageHeader}
-          description={modelPagesContent.myModels.pageDescription}
+          title={MODELS_CONTENT.myModels.pageHeader}
+          description={MODELS_CONTENT.myModels.pageDescription}
         />
         {/* Filters */}
         <div className="sticky top-0 bg-white z-10 py-2">
@@ -91,7 +84,7 @@ export const UserModelsPage = () => {
             <div className=" flex items-center justify-between w-full ">
               <div className="flex items-center justify-between w-full md:gap-x-4 gap-y-2 md:gap-y-0  md:w-auto">
                 <SearchFilter updateQuery={updateQuery} query={query} />
-                {memoizedCategoryFilter}
+                <CategoryFilter disabled={isPending} />
                 <StatusFilter
                   disabled={isPending}
                   updateQuery={updateQuery}
@@ -136,7 +129,7 @@ export const UserModelsPage = () => {
                 <p className="font-semibold text-body-3">
                   {data?.count}{" "}
                   {
-                    APP_CONTENT.models.modelsList.sortingAndPaginationSection
+                    MODELS_CONTENT.models.modelsList.sortingAndPaginationSection
                       .modelCountSuffix
                   }
                 </p>

@@ -10,7 +10,7 @@ export const Head = ({ title = "", description = "" }: HeadProps = {}) => {
     <Helmet>
       <title>
         {title
-          ? `${title} | fAIr | Humanitarian OpenStreetMap Team (HOT)`
+          ? `${title} | fAIr - Humanitarian OpenStreetMap Team (HOT)`
           : undefined}
       </title>
       <meta name="description" content={description} />

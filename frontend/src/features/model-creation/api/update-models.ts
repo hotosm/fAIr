@@ -1,5 +1,5 @@
-import { BASE_MODELS } from "@/enums";
 import { API_ENDPOINTS, apiClient } from "@/services";
+import { BASE_MODELS } from "@/enums";
 import { TModel } from "@/types";
 
 export type TUpdateModelArgs = {

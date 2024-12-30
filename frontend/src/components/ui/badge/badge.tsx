@@ -1,5 +1,5 @@
-import { TBadgeVariants } from "@/types";
 import { cn } from "@/utils";
+import { TBadgeVariants } from "@/types";
 
 type BadgeProps = {
   variant: TBadgeVariants;

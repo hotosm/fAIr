@@ -1,30 +1,32 @@
-import { Image, ZoomableImage } from "@/components/ui/image";
+import AccuracyDisplay from "./accuracy-display";
+import CodeBlock from "@/components/ui/codeblock/codeblock";
+import ModelFilesButton from "./model-files-button";
 import ToolTip from "@/components/ui/tooltip/tooltip";
+import useCopyToClipboard from "@/hooks/use-clipboard";
+import { ChevronDownIcon } from "@/components/ui/icons";
+import { cn, showErrorToast } from "@/utils";
+import { CopyIcon, ExternalLinkIcon } from "@/components/ui/icons";
+import { ENVS } from "@/config/env";
+import { Image, ZoomableImage } from "@/components/ui/image";
+import { Link } from "@/components/ui/link";
+import { ModelFilesDialog } from "./dialogs";
+import { ModelPropertiesSkeleton } from "./skeletons";
+import { MODELS_CONTENT } from "@/constants";
+import { TrainingAreaButton } from "./training-area-button";
+import { TrainingAreaDrawer } from "./training-area-drawer";
+import { useDialog } from "@/hooks/use-dialog";
+import { useEffect, useState } from "react";
 import {
   useTrainingDetails,
   useTrainingStatus,
 } from "@/features/models/hooks/use-training";
-import { useEffect, useState } from "react";
-import AccuracyDisplay from "./accuracy-display";
-import { Link } from "@/components/ui/link";
-import { CopyIcon, ExternalLinkIcon } from "@/components/ui/icons";
-import { ModelPropertiesSkeleton } from "./skeletons";
-import CodeBlock from "@/components/ui/codeblock/codeblock";
-import { ChevronDownIcon } from "@/components/ui/icons";
-import { APP_CONTENT, cn, showErrorToast } from "@/utils";
-import { ENVS } from "@/config/env";
-import useCopyToClipboard from "@/hooks/use-clipboard";
-import ModelFilesButton from "./model-files-button";
-import { ModelFilesDialog } from "./dialogs";
-import { useDialog } from "@/hooks/use-dialog";
-import { TrainingAreaButton } from "./training-area-button";
-import { TrainingAreaDrawer } from "./training-area-drawer";
 
 enum TrainingStatus {
   FAILED = "FAILED",
   IN_PROGRESS = "IN PROGRESS",
   RUNNING = "RUNNING",
   SUCCESS = "SUCCESS",
+  FINISHED = "FINISHED",
 }
 
 type PropertyDisplayProps = {
@@ -165,73 +167,78 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
           <div className="col-span-3 grid grid-cols-1 sm:grid-cols-2 grid-rows-4 gap-y-4 md:gap-y-8">
             <PropertyDisplay
               label={
-                APP_CONTENT.models.modelsDetailsCard.properties.zoomLevels.title
+                MODELS_CONTENT.models.modelsDetailsCard.properties.zoomLevels
+                  .title
               }
               value={zoom_level?.join(" ") || "N/A"}
               tooltip={
-                APP_CONTENT.models.modelsDetailsCard.properties.zoomLevels
+                MODELS_CONTENT.models.modelsDetailsCard.properties.zoomLevels
                   .tooltip
               }
             />
             <PropertyDisplay
               label={
-                APP_CONTENT.models.modelsDetailsCard.properties.accuracy.title
+                MODELS_CONTENT.models.modelsDetailsCard.properties.accuracy
+                  .title
               }
               tooltip={
-                APP_CONTENT.models.modelsDetailsCard.properties.accuracy.tooltip
+                MODELS_CONTENT.models.modelsDetailsCard.properties.accuracy
+                  .tooltip
               }
               value={trainingAccuracy}
               isAccuracy
             />
             <PropertyDisplay
               label={
-                APP_CONTENT.models.modelsDetailsCard.properties.epochs.title
+                MODELS_CONTENT.models.modelsDetailsCard.properties.epochs.title
               }
               value={epochs}
               tooltip={
-                APP_CONTENT.models.modelsDetailsCard.properties.epochs.tooltip
+                MODELS_CONTENT.models.modelsDetailsCard.properties.epochs
+                  .tooltip
               }
             />
             <PropertyDisplay
               label={
-                APP_CONTENT.models.modelsDetailsCard.properties.batchSize.title
+                MODELS_CONTENT.models.modelsDetailsCard.properties.batchSize
+                  .title
               }
               value={batch_size}
               tooltip={
-                APP_CONTENT.models.modelsDetailsCard.properties.batchSize
+                MODELS_CONTENT.models.modelsDetailsCard.properties.batchSize
                   .tooltip
               }
             />
             <PropertyDisplay
               label={
-                APP_CONTENT.models.modelsDetailsCard.properties.contactSpacing
-                  .title
+                MODELS_CONTENT.models.modelsDetailsCard.properties
+                  .contactSpacing.title
               }
               value={input_contact_spacing}
               tooltip={
-                APP_CONTENT.models.modelsDetailsCard.properties.contactSpacing
-                  .tooltip
+                MODELS_CONTENT.models.modelsDetailsCard.properties
+                  .contactSpacing.tooltip
               }
             />
             <PropertyDisplay
               label={
-                APP_CONTENT.models.modelsDetailsCard.properties.boundaryWidth
+                MODELS_CONTENT.models.modelsDetailsCard.properties.boundaryWidth
                   .title
               }
               value={input_boundary_width}
               tooltip={
-                APP_CONTENT.models.modelsDetailsCard.properties.boundaryWidth
+                MODELS_CONTENT.models.modelsDetailsCard.properties.boundaryWidth
                   .tooltip
               }
             />
             <PropertyDisplay
               label={
-                APP_CONTENT.models.modelsDetailsCard.properties
+                MODELS_CONTENT.models.modelsDetailsCard.properties
                   .currentDatasetSize.title
               }
               value={`${chips_length} Images`}
               tooltip={
-                APP_CONTENT.models.modelsDetailsCard.properties
+                MODELS_CONTENT.models.modelsDetailsCard.properties
                   .currentDatasetSize.tooltip
               }
             />
@@ -239,7 +246,8 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
             {isTrainingDetailsDialog && (
               <PropertyDisplay
                 label={
-                  APP_CONTENT.models.modelsDetailsCard.trainingInfoDialog.status
+                  MODELS_CONTENT.models.modelsDetailsCard.trainingInfoDialog
+                    .status
                 }
                 value={data?.status}
                 animate={
@@ -250,25 +258,25 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
             )}
             <PropertyDisplay
               label={
-                APP_CONTENT.models.modelsDetailsCard.properties.baseModel.title
+                MODELS_CONTENT.models.modelsDetailsCard.properties.baseModel
+                  .title
               }
               value={baseModel}
               isLink
               href={
                 // @ts-expect-error bad type definition
-                APP_CONTENT.models.modelsDetailsCard.properties.baseModel.href[
-                  baseModel
-                ]
+                MODELS_CONTENT.models.modelsDetailsCard.properties.baseModel
+                  .href[baseModel]
               }
             />
 
             <PropertyDisplay
               label={
-                APP_CONTENT.models.modelsDetailsCard.properties.sourceImage
+                MODELS_CONTENT.models.modelsDetailsCard.properties.sourceImage
                   .title
               }
               tooltip={
-                APP_CONTENT.models.modelsDetailsCard.properties.sourceImage
+                MODELS_CONTENT.models.modelsDetailsCard.properties.sourceImage
                   .tooltip
               }
               value={source_imagery}
@@ -276,10 +284,11 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
             />
             <PropertyDisplay
               label={
-                APP_CONTENT.models.modelsDetailsCard.properties.trainingId.title
+                MODELS_CONTENT.models.modelsDetailsCard.properties.trainingId
+                  .title
               }
               tooltip={
-                APP_CONTENT.models.modelsDetailsCard.properties.trainingId
+                MODELS_CONTENT.models.modelsDetailsCard.properties.trainingId
                   .tooltip
               }
               value={data?.id ? data?.id : "N/A"}
@@ -288,10 +297,7 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
             {isTrainingDetailsDialog && (
               <div className="w-fit">
                 <ModelFilesButton
-                  disabled={
-                    data?.status === TrainingStatus.IN_PROGRESS ||
-                    data?.status === TrainingStatus.RUNNING
-                  }
+                  disabled={data?.status !== TrainingStatus.FINISHED}
                   openModelFilesDialog={openDialog}
                 />
               </div>
@@ -300,7 +306,7 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
             {isTrainingDetailsDialog && (
               <TrainingAreaButton
                 onClick={openTrainingAreaDrawer}
-                disabled={data?.status !== TrainingStatus.SUCCESS}
+                disabled={data?.status !== TrainingStatus.FINISHED}
               />
             )}
           </div>
@@ -347,7 +353,7 @@ const FailedTrainingTraceBack = ({ taskId }: { taskId: string }) => {
         onClick={() => setShowLogs(!showLogs)}
         className="flex items-center gap-x-2 text-gray text-body-2"
       >
-        <p>{APP_CONTENT.models.modelsDetailsCard.trainingInfoDialog.logs}</p>
+        <p>{MODELS_CONTENT.models.modelsDetailsCard.trainingInfoDialog.logs}</p>
         <ChevronDownIcon className={`icon ${showLogs && "rotate-180"}`} />
       </button>
       {showLogs && <CodeBlock content={data?.traceback as string} />}

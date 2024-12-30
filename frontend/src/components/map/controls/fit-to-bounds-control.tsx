@@ -1,15 +1,31 @@
+import useScreenSize from "@/hooks/use-screen-size";
+import { ArrowMoveIcon } from "@/components/ui/icons";
+import { Map } from "maplibre-gl";
+import { MAP_CONTENT } from "@/constants";
 import { ToolTip } from "@/components/ui/tooltip";
-import { FullScreenIcon } from "@/components/ui/icons";
-import { mapContents } from "@/constants";
+import { useCallback } from "react";
 
-export const FitToBounds = ({ onClick }: { onClick: () => void }) => {
+export const FitToBounds = ({
+  map,
+  bounds,
+}: {
+  map: Map | null;
+  bounds: any;
+}) => {
+  const { isSmallViewport } = useScreenSize();
+
+  const fitToBounds = useCallback(() => {
+    if (!map || !bounds) return;
+    map?.fitBounds(bounds);
+  }, [map, bounds]);
+
   return (
-    <ToolTip content={mapContents.controls.fitToBounds.tooltip}>
+    <ToolTip content={MAP_CONTENT.controls.fitToBounds.tooltip}>
       <button
-        className="absolute left-3 top-28 bg-white z-[1] p-1.5"
-        onClick={onClick}
+        className={`bg-white  ${isSmallViewport ? "rounded-xl p-2.5 border border-gray-border md:border-0" : "p-1.5"}`}
+        onClick={fitToBounds}
       >
-        <FullScreenIcon className="icon-lg" />
+        <ArrowMoveIcon className="icon-lg" />
       </button>
     </ToolTip>
   );

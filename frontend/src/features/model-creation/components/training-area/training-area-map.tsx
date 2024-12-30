@@ -1,20 +1,22 @@
-import { MapComponent, MapCursorToolTip } from "@/components/map";
-import { GeoJSONType, PaginatedTrainingArea } from "@/types";
+import useDebounce from "@/hooks/use-debounce";
+import { ControlsPosition, DrawingModes } from "@/enums";
 import { GeoJSONSource, Map } from "maplibre-gl";
+import { geojsonToWKT } from "@terraformer/wkt";
+import { GeoJSONType, PaginatedTrainingArea } from "@/types";
+import { MapComponent, MapCursorToolTip } from "@/components/map";
+import { Polygon } from "geojson";
 import { RefObject, useCallback, useEffect, useState } from "react";
+import { TerraDraw } from "terra-draw";
+import { useMapLayers } from "@/hooks/use-map-layer";
+import { useToolTipVisibility } from "@/hooks/use-tooltip-visibility";
 import {
   useCreateTrainingArea,
   useGetTrainingDatasetLabels,
 } from "@/features/model-creation/hooks/use-training-areas";
-import { geojsonToWKT } from "@terraformer/wkt";
-import { useToastNotification } from "@/hooks/use-toast-notification";
 import {
-  calculateGeoJSONArea,
-  formatAreaInAppropriateUnit,
   MAP_STYLES_PREFIX,
   MAX_TRAINING_AREA_SIZE,
   MIN_TRAINING_AREA_SIZE,
-  snapGeoJSONGeometryToClosestTile,
   TRAINING_AREAS_AOI_FILL_COLOR,
   TRAINING_AREAS_AOI_FILL_OPACITY,
   TRAINING_AREAS_AOI_LABELS_FILL_COLOR,
@@ -24,13 +26,17 @@ import {
   TRAINING_AREAS_AOI_OUTLINE_COLOR,
   TRAINING_AREAS_AOI_OUTLINE_WIDTH,
   MIN_ZOOM_LEVEL_FOR_TRAINING_AREA_LABELS,
+} from "@/constants";
+import {
+  calculateGeoJSONArea,
+  formatAreaInAppropriateUnit,
+  showSuccessToast,
+  snapGeoJSONPolygonToClosestTile,
   validateGeoJSONArea,
 } from "@/utils";
-import useDebounce from "@/hooks/use-debounce";
-import { ControlsPosition, DrawingModes } from "@/enums";
-import { useToolTipVisibility } from "@/hooks/use-tooltip-visibility";
-import { useMapLayers } from "@/hooks/use-map-layer";
-import { TerraDraw } from "terra-draw";
+
+// Debounce delay in milliseconds.
+const DEBOUNCE_DELAY: number = 300;
 
 const TrainingAreaMap = ({
   tileJSONURL,
@@ -55,7 +61,6 @@ const TrainingAreaMap = ({
   terraDraw?: TerraDraw;
   mapContainerRef: RefObject<HTMLDivElement> | null;
 }) => {
-  const toast = useToastNotification();
   const trainingAreasLayerId = `${MAP_STYLES_PREFIX}-dataset-${trainingDatasetId}-training-area-layer`;
   const trainingAreasFillLayerId = `${MAP_STYLES_PREFIX}-dataset-${trainingDatasetId}-training-area-fill-layer`;
   const trainingDatasetLabelsSourceId = `${MAP_STYLES_PREFIX}-dataset-${trainingDatasetId}-training-labels-source`;
@@ -70,8 +75,9 @@ const TrainingAreaMap = ({
   const { setTooltipVisible, tooltipPosition, tooltipVisible } =
     useToolTipVisibility(map, [drawingMode, currentZoom]);
 
-  const debouncedBbox = useDebounce(bbox, 300);
-  const debouncedZoom = useDebounce(currentZoom.toString(), 300);
+  const debouncedBbox = useDebounce(bbox, DEBOUNCE_DELAY);
+
+  const debouncedZoom = useDebounce(currentZoom.toString(), DEBOUNCE_DELAY);
 
   const { data: labels } = useGetTrainingDatasetLabels(
     trainingDatasetId,
@@ -155,6 +161,10 @@ const TrainingAreaMap = ({
     map,
   );
 
+  // useLayerReorder(map, {
+  //   featureLayerIds: [trainingDatasetLabelsOutlineLayerId, trainingDatasetLabelsLayerId, trainingAreasLayerId, trainingAreasFillLayerId,]
+  // });
+
   const updateTrainingLabels = useCallback(() => {
     if (map) {
       if (map.getSource(trainingDatasetLabelsSourceId) && labels) {
@@ -203,7 +213,9 @@ const TrainingAreaMap = ({
     updateTrainingLabels();
   }, [labels]);
 
-  // drawing events and tooltip
+  /**
+   * Drawing events and tooltip
+   */
   useEffect(() => {
     if (!terraDraw || !map) return;
 
@@ -224,13 +236,13 @@ const TrainingAreaMap = ({
           terraDraw.clear();
           return;
         }
-        snapGeoJSONGeometryToClosestTile(drawnFeature.geometry);
+        snapGeoJSONPolygonToClosestTile(drawnFeature.geometry as Polygon);
         const wkt = geojsonToWKT(drawnFeature.geometry);
         await createTrainingArea.mutateAsync(
           { dataset: String(trainingDatasetId), geom: `SRID=4326;${wkt}` },
           {
             onSuccess: () =>
-              toast("Training area created successfully", "success"),
+              showSuccessToast("Training area created successfully"),
           },
         );
         terraDraw.clear();
@@ -275,7 +287,7 @@ const TrainingAreaMap = ({
         return "Area is close to size limits. Adjust if needed before completing.";
       }
       return "Area within acceptable range. Release mouse to finish drawing.";
-    } else if (showLabelsToolTip) {
+    } else if (showLabelsToolTip && drawingMode !== DrawingModes.RECTANGLE) {
       return "Zoom in up to zoom 18 to see the fetched labels.";
     }
     return;
@@ -289,7 +301,7 @@ const TrainingAreaMap = ({
       drawControl
       showCurrentZoom
       layerControl
-      showTileBoundary
+      showTileBoundaries
       basemaps
       map={map}
       terraDraw={terraDraw}
@@ -324,7 +336,7 @@ const TrainingAreaMap = ({
         color={getTooltipColor()}
         tooltipPosition={tooltipPosition}
       >
-        {!showLabelsToolTip && (
+        {drawingMode === DrawingModes.RECTANGLE && (
           <p>
             {drawingMode === DrawingModes.RECTANGLE && featureArea === 0
               ? "Click and drag to draw a rectangle."

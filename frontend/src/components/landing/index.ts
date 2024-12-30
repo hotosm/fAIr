@@ -1,7 +1,8 @@
-export { default as Kpi } from "./kpi/kpi";
-export { default as WhatIsFAIR } from "./about-fair/about-fair";
-export { default as TheFAIRProcess } from "../shared/fair-process/fair-process";
-export { default as CoreFeatures } from "./core-features/core-features";
-export { default as Corevalues } from "./core-values/core-values";
-export { default as TaglineBanner } from "./tagline/tagline";
-export { default as CallToAction } from "./cta/cta";
+export { Kpi } from "./kpi/kpi";
+export { WhatIsFAIR } from "./about-fair/about-fair";
+export { TheFAIRProcess } from "../shared/fair-process/fair-process";
+export { CoreFeatures } from "./core-features/core-features";
+export { Corevalues } from "./core-values/core-values";
+export { TaglineBanner } from "./tagline/tagline";
+export { CallToAction } from "./cta/cta";
+export * from "./header";

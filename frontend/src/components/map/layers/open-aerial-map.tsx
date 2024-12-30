@@ -1,6 +1,6 @@
-import { useMapLayers } from "@/hooks/use-map-layer";
-import { TMS_LAYER_ID, TMS_SOURCE_ID } from "@/utils";
 import { Map } from "maplibre-gl";
+import { TMS_LAYER_ID, TMS_SOURCE_ID } from "@/constants";
+import { useMapLayers } from "@/hooks/use-map-layer";
 
 export const OpenAerialMap = ({
   tileJSONURL,

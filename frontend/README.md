@@ -55,22 +55,25 @@ This will create an optimized build of your app in the dist/ folder, which can b
 Here's an overview of the folder structure:
 
 ```markdown
-├── public/ # Static assets like favicon, robots.txt and manifests.
-├── src/ # main application codes are here.
-│ ├── app/ # Contains the application routes and providers.
-│ ├── assets/ # Static assets specific to the app (images, icons, etc.).
-│ ├── components/ # Reusable components and layouts.
-| |── features/ # Contains the main features of the application.
-│ ├── hook/ # Reusable hooks.
-│ ├── styles/ # Global styles.
-│ ├── utils/ # Utility functions, application content and constants.
-│ ├── config/ # Environment variable configuration object.
-│ ├── services/ # Axios API clients and services.
-│ ├── types/ # Reusable types.
-│ └── main.tsx # Entry point of the React app.
-├── docs/ # ARD documentation for some of the decisions made for the app.
-└── vercel.json # To prevent the custom 404 page from Vercel when a route is visited. (This is just for the demo site deployed on Vercel.)
-└── ... # Other configuration files like tsconfig.json, vite.config.mts etc.
+├── public/ - Static assets like favicon, robots.txt and manifests.
+├── src/ - Main application codes are here.
+│ ├── app/ - Contains the application routes and providers.
+│ ├── assets/ - Static assets specific to the app (images, icons, etc.).
+│ ├── components/ - Reusable components and layouts.
+│ ├── config/ - Environment variables configuration.
+│ ├── constants/ - App UI contents and constants.
+│ ├── enums/ - Reusable enums.
+| |── features/ - Contains the main features of the application.
+│ ├── hook/ - Reusable hooks.
+│ ├── layouts/ - Core layouts of the application.
+│ ├── services/ - Axios API clients and services.
+│ ├── styles/ - Global styles.
+│ ├── types/ - Reusable types.
+│ ├── utils/ - Utility functions, application content and constants.
+│ └── main.tsx - Entry point of the React app.
+├── docs/ - ARD documentation for some of the decisions made for the app.
+└── vercel.json  - To prevent the custom 404 page from Vercel when a route is visited. (This is just for the demo site deployed on Vercel.)
+└── ... Other configuration files like tsconfig.json, vite.config.mts etc.
 ```
 
 ## Codebase Standards
@@ -83,7 +86,13 @@ ESLint is used to maintain code quality and adhering to coding standards.
 
 #### Prettier
 
-Prettier is a used to maintain consistent code formatting in the project.
+Prettier is a used to maintain consistent code formatting in the project. To format run the code below in the terminal.
+
+```bash
+1. pnpm/npm/yarn format
+
+2. pnpm/npm/yarn format:check
+```
 
 #### TypeScript
 
@@ -107,8 +116,30 @@ Please refer to the [CONTRIBUTING](../CONTRIBUTING.md) guide for more informatio
 
 ## License
 
-See [LICENSE](../LICENSE).
+See [LICENSE](../LICENSE) for fAIr license.
 
-## Notes
+fAIr also bundles portions of the following open source software.
 
-The **@hotosm/ui** installation directory behavior is not consisitent and failed while deploying. However using the CDN and injecting it in the `index.html` works for now.
+- [Shoelace (MIT)](https://github.com/shoelace-style/shoelace).
+- [TanStack Query (MIT)](https://github.com/TanStack/query).
+- [TanStack Table (MIT)](https://github.com/TanStack/table).
+- [Terraformer WKT (MIT)](https://github.com/terraformer-js/terraformer).
+- [Turf JS (MIT)](https://github.com/Turfjs/turf).
+- [Axios (MIT)](https://github.com/axios/axios).
+- [Clsx (MIT)](https://github.com/lukeed/clsx).
+- [Framer Motion (MIT)](https://github.com/motiondivision/motion).
+- [React (MIT)](https://github.com/facebook/react).
+- [React Dropzone (MIT)](https://github.com/react-dropzone/react-dropzone).
+- [React Error Boundary (MIT)](https://github.com/bvaughn/react-error-boundary).
+- [React Confetti Explosion (MIT)](https://github.com/herrethan/react-confetti-explosion).
+- [React Markdown (MIT)](https://github.com/remarkjs/react-markdown).
+- [Remark Gfm (MIT)](https://github.com/remarkjs/remark-gfm).
+- [Tailwind Merge (MIT)](https://github.com/dcastil/tailwind-merge).
+- [React Router (MIT)](https://github.com/remix-run/react-router).
+- [Terra Draw (MIT)](https://github.com/JamesLMilner/terra-draw).
+- [Vaul (MIT)](https://github.com/emilkowalski/vaul).
+- [XMLBuilder2 (MIT)](https://github.com/oozcitak/xmlbuilder2).
+- [React Helmet Async (Apache-2.0)](https://github.com/staylor/react-helmet-async).
+- [Maplibre GL JS (BSD-3-Clause)](https://github.com/maplibre/maplibre-gl-js).
+- [PMTiles (BSD-3-Clause)](https://github.com/protomaps/PMTiles).
+- [React Medium Image Zoom (BSD-3-Clause)](https://github.com/rpearce/react-medium-image-zoom).

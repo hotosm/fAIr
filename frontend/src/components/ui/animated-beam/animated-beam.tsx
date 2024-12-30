@@ -1,9 +1,8 @@
+import { cn } from "@/utils";
+import { motion } from "framer-motion";
+import { RefObject, useEffect, useId, useState } from "react";
 // Reference - https://magicui.design/docs/components/animated-beam
 // Accessed on 19/09/2024.
-
-import { RefObject, useEffect, useId, useState } from "react";
-import { motion } from "framer-motion";
-import { cn } from "@/utils";
 
 type AnimatedBeamProps = {
   className?: string;

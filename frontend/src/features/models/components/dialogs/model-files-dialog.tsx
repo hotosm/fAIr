@@ -1,7 +1,7 @@
-import { Dialog } from "@/components/ui/dialog";
 import DirectoryTree from "@/features/models/components/directory-tree";
+import { Dialog } from "@/components/ui/dialog";
 import { DialogProps } from "@/types";
-import { APP_CONTENT } from "@/utils";
+import { MODELS_CONTENT } from "@/constants";
 
 type TrainingAreaDrawerProps = DialogProps & {
   trainingId: number;
@@ -18,9 +18,16 @@ const ModelFilesDialog: React.FC<TrainingAreaDrawerProps> = ({
     <Dialog
       isOpened={isOpened}
       closeDialog={closeDialog}
-      label={APP_CONTENT.models.modelsDetailsCard.modelFilesDialog.dialogTitle}
+      label={
+        MODELS_CONTENT.models.modelsDetailsCard.modelFilesDialog.dialogTitle
+      }
     >
-      <p className="text-dark text-body-2base px-2 mb-4">{APP_CONTENT.models.modelsDetailsCard.modelFilesDialog.dialogDescription}</p>
+      <p className="text-dark text-body-2base px-2 mb-4">
+        {
+          MODELS_CONTENT.models.modelsDetailsCard.modelFilesDialog
+            .dialogDescription
+        }
+      </p>
       {isOpened && (
         <DirectoryTree
           trainingId={trainingId}

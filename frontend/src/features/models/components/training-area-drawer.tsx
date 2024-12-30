@@ -1,14 +1,14 @@
 import React from "react";
-import { showErrorToast } from "@/utils";
-import { DialogProps } from "@/types";
 import { API_ENDPOINTS, apiClient } from "@/services";
-import { useQuery } from "@tanstack/react-query";
-import { errorMessages, modelPagesContent } from "@/constants";
 import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
-import { DrawerPlacements, SHOELACE_SIZES } from "@/enums";
+import { DialogProps } from "@/types";
 import { Drawer } from "@/components/ui/drawer";
+import { DrawerPlacements, SHOELACE_SIZES } from "@/enums";
+import { errorMessages, MODELS_CONTENT } from "@/constants";
+import { showErrorToast } from "@/utils";
+import { Spinner } from "@/components/ui/spinner";
 import { TrainingAreaMap } from "@/features/models/components";
+import { useQuery } from "@tanstack/react-query";
 
 type TAPIResponse = {
   result: string;
@@ -49,7 +49,7 @@ export const TrainingAreaDrawer: React.FC<TrainingAreaDrawerProps> = ({
       open={isOpened}
       setOpen={closeDialog}
       placement={DrawerPlacements.BOTTOM}
-      label={modelPagesContent.trainingArea.modalTitle}
+      label={MODELS_CONTENT.trainingArea.modalTitle}
       noHeader={false}
     >
       <div className="w-full flex items-center justify-center h-full">
@@ -57,7 +57,7 @@ export const TrainingAreaDrawer: React.FC<TrainingAreaDrawerProps> = ({
           <div className="flex flex-col items-center justify-center">
             <Spinner />
             <span className="text-gray">
-              {modelPagesContent.trainingArea.map.loadingText}
+              {MODELS_CONTENT.trainingArea.map.loadingText}
             </span>
           </div>
         )}
@@ -66,7 +66,7 @@ export const TrainingAreaDrawer: React.FC<TrainingAreaDrawerProps> = ({
           <div className="text-center space-y-4">
             <p className="text-red-500">{errorMessages.MAP_LOAD_FAILURE}</p>
             <Button onClick={() => refetch()} size={SHOELACE_SIZES.MEDIUM}>
-              {modelPagesContent.trainingArea.retryButton}
+              {MODELS_CONTENT.trainingArea.retryButton}
             </Button>
           </div>
         )}

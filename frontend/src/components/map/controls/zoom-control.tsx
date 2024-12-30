@@ -1,8 +1,8 @@
 import { cn } from "@/utils";
-import { useCallback } from "react";
+import { Map } from "maplibre-gl";
 import { ToolTip } from "../../ui/tooltip";
 import { ToolTipPlacement } from "@/enums";
-import { Map } from "maplibre-gl";
+import { useCallback } from "react";
 
 const ZoomButton = ({
   onClick,

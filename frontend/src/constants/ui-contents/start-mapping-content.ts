@@ -1,6 +1,6 @@
 import { TStartMappingPageContent } from "@/types";
 
-export const startMappingPageContent: TStartMappingPageContent = {
+export const START_MAPPING_PAGE_CONTENT: TStartMappingPageContent = {
   pageTitle: (modelName: string) => `Start Mapping with ${modelName}`,
   map: {
     controls: {
@@ -37,16 +37,17 @@ export const startMappingPageContent: TStartMappingPageContent = {
   },
   buttons: {
     runPrediction: "Run prediction",
+    tooltip: "Zoom in to run predictions",
     download: {
       label: "Actions",
       options: {
-        allFeatures: "Download all Features as GeoJSON",
-        acceptedFeatures: "Download accepted Features as GeoJSON",
-        openAllFeaturesInJOSM: "Open all Features to JOSM",
-        openAcceptedFeaturesInJOSM: "Open accepted Features to JOSM",
+        allFeatures: (prefix: string) => `${prefix} features as GeoJSON`,
+        acceptedFeatures: (prefix: string) => `${prefix} features as GeoJSON`,
+        openAllFeaturesInJOSM: "Open all features in JOSM",
+        openAcceptedFeaturesInJOSM: "Open accepted features in JOSM",
       },
     },
-    predictionInProgress: "Running prediction...",
+    predictionInProgress: "Running...",
   },
   settings: {
     useJOSMQ: {
@@ -65,15 +66,20 @@ export const startMappingPageContent: TStartMappingPageContent = {
       label: "Area",
       tooltip: "area",
     },
+    tooltip: "Settings",
   },
   mapData: {
-    title: "Map Data",
+    title: "Predictions",
     accepted: "Accepted",
     rejected: "Rejected",
+  },
+  actions: {
+    disabledModeTooltip: (param: string) => `Run prediction to ${param}`,
   },
   modelDetails: {
     error: "Error retrieving model information.",
     label: "Model Details",
+    tooltip: "Model Details",
     popover: {
       title: "Model Details",
       modelId: "Model ID",

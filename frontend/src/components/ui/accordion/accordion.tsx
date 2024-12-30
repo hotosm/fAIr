@@ -1,5 +1,5 @@
-import { SlDetails } from "@shoelace-style/shoelace/dist/react";
 import { ChevronDownIcon } from "@/components/ui/icons";
+import { SlDetails } from "@shoelace-style/shoelace/dist/react";
 import "./accordion.css";
 
 type AccordionProps = {

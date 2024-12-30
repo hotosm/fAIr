@@ -1,33 +1,31 @@
-import { UploadIcon, YouTubePlayIcon } from "@/components/ui/icons";
-import { StepHeading } from "@/features/model-creation/components/";
+import FileUploadDialog from "@/features/model-creation/components/dialogs/file-upload-dialog";
+import OpenAerialMap from "@/features/model-creation/components/training-area/open-area-map";
+import TrainingAreaList from "@/features/model-creation/components/training-area/training-area-list";
 import TrainingAreaMap from "@/features/model-creation/components/training-area/training-area-map";
+import useScreenSize from "@/hooks/use-screen-size";
 import { Button, ButtonWithIcon } from "@/components/ui/button";
+import { DrawingModes, SHOELACE_SIZES } from "@/enums";
+import { geojsonToWKT } from "@terraformer/wkt";
+import { MODELS_CONTENT, TOAST_NOTIFICATIONS } from "@/constants";
+import { Polygon } from "geojson";
+import { StepHeading } from "@/features/model-creation/components/";
+import { UploadIcon, YouTubePlayIcon } from "@/components/ui/icons";
+import { useDialog } from "@/hooks/use-dialog";
+import { useEffect, useState } from "react";
+import { useMapInstance } from "@/hooks/use-map-instance";
 import {
   MODEL_CREATION_FORM_NAME,
   useModelsContext,
 } from "@/app/providers/models-provider";
-import { useDialog } from "@/hooks/use-dialog";
-import FileUploadDialog from "@/features/model-creation/components/dialogs/file-upload-dialog";
-import { useEffect, useState } from "react";
-import TrainingAreaList from "@/features/model-creation/components/training-area/training-area-list";
 import {
   useCreateTrainingArea,
   useGetTrainingAreas,
 } from "@/features/model-creation/hooks/use-training-areas";
-import OpenAerialMap from "@/features/model-creation/components/training-area/open-area-map";
 import {
   extractTileJSONURL,
-  MODEL_CREATION_CONTENT,
   showSuccessToast,
-  snapGeoJSONGeometryToClosestTile,
+  snapGeoJSONPolygonToClosestTile,
 } from "@/utils";
-import { TOAST_NOTIFICATIONS } from "@/constants";
-import { DrawingModes, SHOELACE_SIZES } from "@/enums";
-import { GeoJSONType, Geometry } from "@/types";
-import { geojsonToWKT } from "@terraformer/wkt";
-
-import useScreenSize from "@/hooks/use-screen-size";
-import { useMapInstance } from "@/hooks/use-map-instance";
 
 const TrainingAreaForm = () => {
   const { formData } = useModelsContext();
@@ -65,9 +63,9 @@ const TrainingAreaForm = () => {
     offset: offset,
   });
 
-  const fileUploadHandler = async (geometry: Geometry) => {
-    snapGeoJSONGeometryToClosestTile(geometry);
-    const wkt = geojsonToWKT(geometry as GeoJSONType);
+  const fileUploadHandler = async (polygonGeometry: Polygon) => {
+    snapGeoJSONPolygonToClosestTile(polygonGeometry);
+    const wkt = geojsonToWKT(polygonGeometry);
     await createTrainingArea.mutateAsync({
       dataset: formData.selectedTrainingDatasetId,
       geom: `SRID=4326;${wkt}`,
@@ -88,17 +86,19 @@ const TrainingAreaForm = () => {
         <div className="flex md:justify-between md:items-center flex-col md:flex-row gap-y-4 mb-10">
           <div className="basis-2/3">
             <StepHeading
-              heading={MODEL_CREATION_CONTENT.trainingArea.pageTitle}
-              description={MODEL_CREATION_CONTENT.trainingArea.pageDescription}
+              heading={MODELS_CONTENT.modelCreation.trainingArea.pageTitle}
+              description={
+                MODELS_CONTENT.modelCreation.trainingArea.pageDescription
+              }
             />
           </div>
           <div className="flex flex-col md:items-end gap-y-4 ">
             <p className="flex items-center gap-x-2">
               <YouTubePlayIcon className="icon-lg" />
-              {MODEL_CREATION_CONTENT.trainingArea.tutorialText}
+              {MODELS_CONTENT.modelCreation.trainingArea.tutorialText}
             </p>
             <p className="text-dark">
-              {MODEL_CREATION_CONTENT.trainingArea.datasetID}{" "}
+              {MODELS_CONTENT.modelCreation.trainingArea.datasetID}{" "}
               {formData.selectedTrainingDatasetId}
             </p>
           </div>
@@ -180,7 +180,7 @@ const ActionButtons = ({
   const { isTablet } = useScreenSize();
   return (
     <div
-      className={`flex gap-y-2 mt-auto px-4 md:px-1 lg:px-4  w-full ${trainingAreasDataCount === 0 ? "flex-col" : "items-center justify-between gap-x-1 md:gap-x-2 "}"`}
+      className={`flex gap-y-2 mt-auto px-4 md:px-1 lg:px-4  w-full ${trainingAreasDataCount === 0 ? "flex-col w-full" : "items-center justify-between gap-x-1 md:gap-x-2 "}"`}
     >
       <div className="w-full">
         <Button
@@ -192,7 +192,7 @@ const ActionButtons = ({
           }}
         >
           <div className="flex items-center gap-x-1 md:gap-x-2">
-            <p>{MODEL_CREATION_CONTENT.trainingArea.form.draw}</p>
+            <p>{MODELS_CONTENT.modelCreation.trainingArea.form.draw}</p>
             <div className="w-4 h-4 border-2 rounded-md border-white"></div>
           </div>
         </Button>
@@ -200,7 +200,7 @@ const ActionButtons = ({
       <div className="w-full">
         <ButtonWithIcon
           size={isTablet ? SHOELACE_SIZES.SMALL : SHOELACE_SIZES.MEDIUM}
-          label={MODEL_CREATION_CONTENT.trainingArea.form.upload}
+          label={MODELS_CONTENT.modelCreation.trainingArea.form.upload}
           variant="dark"
           suffixIcon={UploadIcon}
           onClick={toggle}

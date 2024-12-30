@@ -1,0 +1,6 @@
+.headerBackground {
+  background-image: url("../../../assets/svgs/header_bg_contour.svg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}

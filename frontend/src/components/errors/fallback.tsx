@@ -1,13 +1,13 @@
 import { Button } from "@/components/ui/button";
-import { APP_CONTENT } from "@/utils";
+import { SHARED_CONTENT } from "@/constants";
 
-const MainErrorFallback = () => {
+export const MainErrorFallback = () => {
   return (
     <>
       <section className="min-h-[80vh] flex flex-col mt-20 items-center justify-around">
         <div>
           <p className="text-body-1 lg:text-title-1 font-semibold text-dark text-center">
-            {APP_CONTENT.errorBoundary.title}
+            {SHARED_CONTENT.errorBoundary.title}
           </p>
         </div>
 
@@ -16,11 +16,9 @@ const MainErrorFallback = () => {
           onClick={() => window.location.reload()}
           className="max-w-80"
         >
-          {APP_CONTENT.errorBoundary.button}
+          {SHARED_CONTENT.errorBoundary.button}
         </Button>
       </section>
     </>
   );
 };
-
-export default MainErrorFallback;

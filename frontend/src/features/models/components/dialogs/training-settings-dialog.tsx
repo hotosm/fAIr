@@ -1,16 +1,17 @@
-import { ButtonWithIcon } from "@/components/ui/button";
-import { Dialog } from "@/components/ui/dialog";
-import { ChevronDownIcon } from "@/components/ui/icons";
 import TrainingSettingsForm from "@/features/model-creation/components/training-settings/training-settings-form";
-import { APP_CONTENT } from "@/utils";
+import { ButtonWithIcon } from "@/components/ui/button";
+import { ChevronDownIcon } from "@/components/ui/icons";
+import { Dialog } from "@/components/ui/dialog";
+import { MODELS_CONTENT } from "@/constants";
+import { PAGE_LIMIT } from "@/components/shared";
+import { useEffect } from "react";
 import { useModelDetails } from "@/features/models/hooks/use-models";
+import { useTrainingHistory } from "@/features/models/hooks/use-training";
+
 import {
   MODEL_CREATION_FORM_NAME,
   useModelsContext,
 } from "@/app/providers/models-provider";
-import { useEffect } from "react";
-import { PAGE_LIMIT } from "@/components/shared/pagination";
-import { useTrainingHistory } from "@/features/models/hooks/use-training";
 
 type ModelEnhancementDialogProps = {
   isOpened: boolean;
@@ -77,7 +78,7 @@ const ModelTrainingSettingsDialog: React.FC<ModelEnhancementDialogProps> = ({
       closeDialog={closeDialog}
       labelColor="primary"
       label={
-        APP_CONTENT.models.modelsDetailsCard.trainingSettings.dialogHeading
+        MODELS_CONTENT.models.modelsDetailsCard.trainingSettings.dialogHeading
       }
     >
       {isError ? (
@@ -87,7 +88,10 @@ const ModelTrainingSettingsDialog: React.FC<ModelEnhancementDialogProps> = ({
       ) : (
         <div className="flex flex-col gap-y-6 w-full">
           <p className="text-gray">
-            {APP_CONTENT.models.modelsDetailsCard.trainingSettings.description}
+            {
+              MODELS_CONTENT.models.modelsDetailsCard.trainingSettings
+                .description
+            }
           </p>
           <h1 className="text-title-3 lg:text-title-1 font-semibold">
             {data.name}
@@ -100,7 +104,7 @@ const ModelTrainingSettingsDialog: React.FC<ModelEnhancementDialogProps> = ({
               suffixIcon={ChevronDownIcon}
               onClick={handleClick}
               label={
-                APP_CONTENT.models.modelsDetailsCard.trainingSettings
+                MODELS_CONTENT.models.modelsDetailsCard.trainingSettings
                   .submitButtonText
               }
               iconClassName="-rotate-90"

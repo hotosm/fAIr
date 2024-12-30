@@ -35,7 +35,7 @@ export const TOAST_NOTIFICATIONS = {
   trainingAreasFileUploadSuccess: "Training areas created successfully.",
   trainingLabelsFetchSuccess: "Training labels fetched successfully.",
   trainingAreaDeletionSuccess: "Training area deleted successfully.",
-  aoiLabelsUploadSuccess: "AOI Labels uploaded successfully.",
+
   aoiDownloadSuccess: "AOI downloaded successfully.",
   trainingRequestSubmittedSuccess: "Training request submitted successfully.",
   trainingDatasetCreationSuccess: "Dataset created successfully.",

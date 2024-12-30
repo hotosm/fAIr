@@ -1,26 +1,27 @@
-import { Head } from "@/components/seo";
+import axios from "axios";
+import ModelEnhancementDialog from "@/features/models/components/dialogs/model-enhancement-dialog";
+import { APPLICATION_ROUTES, MODELS_CONTENT } from "@/constants";
 import { BackButton, ButtonWithIcon } from "@/components/ui/button";
+import { Head } from "@/components/seo";
+import { Image } from "@/components/ui/image";
+import { ModelDetailsSkeleton } from "@/features/models/components/skeletons";
+import { ModelFilesDialog } from "@/features/models/components/dialogs";
 import { StarStackIcon } from "@/components/ui/icons";
+import { TModelDetails, TTrainingDataset } from "@/types";
+import { TrainingAreaDrawer } from "@/features/models/components/training-area-drawer";
+import { TrainingInProgressImage } from "@/assets/images";
+import { useAuth } from "@/app/providers/auth-provider";
+import { useDialog } from "@/hooks/use-dialog";
+import { useEffect } from "react";
+import { useGetTrainingDataset } from "@/features/models/hooks/use-dataset";
+import { useModelDetails } from "@/features/models/hooks/use-models";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   ModelDetailsSection,
   ModelDetailsProperties,
   ModelDetailsInfo,
   TrainingHistoryTable,
 } from "@/features/models/components";
-import { ModelFilesDialog } from "@/features/models/components/dialogs";
-import { ModelDetailsSkeleton } from "@/features/models/components/skeletons";
-import { useModelDetails } from "@/features/models/hooks/use-models";
-import { useDialog } from "@/hooks/use-dialog";
-import { APP_CONTENT, APPLICATION_ROUTES } from "@/utils";
-import { useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import TrainingInProgressImage from "@/assets/images/training_in_progress.png";
-import { Image } from "@/components/ui/image";
-import ModelEnhancementDialog from "@/features/models/components/dialogs/model-enhancement-dialog";
-import { TModelDetails, TTrainingDataset } from "@/types";
-import { useAuth } from "@/app/providers/auth-provider";
-import { TrainingAreaDrawer } from "@/features/models/components/training-area-drawer";
-import { useGetTrainingDataset } from "@/features/models/hooks/use-dataset";
 
 export const ModelDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -41,14 +42,24 @@ export const ModelDetailsPage = () => {
   const { isAuthenticated } = useAuth();
 
   useEffect(() => {
-    if (isError) {
-      navigate(APPLICATION_ROUTES.NOTFOUND, {
-        state: {
-          from: window.location.pathname,
-          //@ts-expect-error bad type definition
-          error: error?.response?.data?.detail,
-        },
-      });
+    if (isError && error) {
+      const currentPath = window.location.pathname;
+      if (axios.isAxiosError(error)) {
+        navigate(APPLICATION_ROUTES.NOTFOUND, {
+          state: {
+            from: currentPath,
+            error: error.response?.data?.detail,
+          },
+        });
+      } else {
+        const err = error as Error;
+        navigate(APPLICATION_ROUTES.NOTFOUND, {
+          state: {
+            from: currentPath,
+            error: err.message,
+          },
+        });
+      }
     }
   }, [isError, error, navigate]);
 
@@ -107,7 +118,7 @@ export const ModelDetailsPage = () => {
           trainingDataset={trainingDataset as TTrainingDataset}
         />
         <ModelDetailsSection
-          title={APP_CONTENT.models.modelsDetailsCard.propertiesSectionTitle}
+          title={MODELS_CONTENT.models.modelsDetailsCard.propertiesSectionTitle}
         >
           {!data?.published_training ? (
             <div className="rounded-xl w-full h-80 border border-gray-border text-center flex flex-col gap-y-6 items-center justify-center text-gray">
@@ -130,7 +141,7 @@ export const ModelDetailsPage = () => {
         </ModelDetailsSection>
         <div className="flex md:hidden">
           <ButtonWithIcon
-            label={APP_CONTENT.models.modelsDetailsCard.enhanceModel}
+            label={MODELS_CONTENT.models.modelsDetailsCard.enhanceModel}
             variant="dark"
             size="medium"
             prefixIcon={StarStackIcon}
@@ -141,12 +152,12 @@ export const ModelDetailsPage = () => {
         {/* mobile */}
         <ModelDetailsSection
           title={
-            APP_CONTENT.models.modelsDetailsCard.trainingHistorySectionTitle
+            MODELS_CONTENT.models.modelsDetailsCard.trainingHistorySectionTitle
           }
         >
           <div className="md:flex self-end hidden">
             <ButtonWithIcon
-              label={APP_CONTENT.models.modelsDetailsCard.enhanceModel}
+              label={MODELS_CONTENT.models.modelsDetailsCard.enhanceModel}
               variant="dark"
               size="medium"
               prefixIcon={StarStackIcon}

@@ -1,13 +1,12 @@
-import { RootLayout } from "@/components/layouts";
-import { APPLICATION_ROUTES } from "@/utils";
+import { APPLICATION_ROUTES } from '@/constants';
+import { MainErrorFallback } from '@/components/errors';
+import { ModelFormsLayout, RootLayout } from '@/layouts';
+import { ProtectedRoute } from '@/app/routes/protected-route';
 import {
   Navigate,
   RouterProvider,
   createBrowserRouter,
 } from "react-router-dom";
-import { ProtectedPage } from "@/app/routes/protected-route";
-import { MainErrorFallback } from "@/components/errors";
-import ModelFormsLayout from "@/components/layouts/model-forms-layout";
 
 const router = createBrowserRouter([
   {
@@ -48,7 +47,7 @@ const router = createBrowserRouter([
         },
       },
       /**
-       * Training dataset route starts
+       * Training dataset route
        */
       {
         path: APPLICATION_ROUTES.TRAINING_DATASETS,
@@ -92,9 +91,9 @@ const router = createBrowserRouter([
        */
       {
         element: (
-          <ProtectedPage>
+          <ProtectedRoute>
             <ModelFormsLayout />
-          </ProtectedPage>
+          </ProtectedRoute>
         ),
         children: [
           /**
@@ -255,9 +254,9 @@ const router = createBrowserRouter([
           );
           return {
             Component: () => (
-              <ProtectedPage>
+              <ProtectedRoute>
                 <TrainingDatasetsPage />
-              </ProtectedPage>
+              </ProtectedRoute>
             ),
           };
         },
@@ -278,9 +277,9 @@ const router = createBrowserRouter([
           );
           return {
             Component: () => (
-              <ProtectedPage>
+              <ProtectedRoute>
                 <StartMappingPage />
-              </ProtectedPage>
+              </ProtectedRoute>
             ),
           };
         },
@@ -310,7 +309,11 @@ const router = createBrowserRouter([
             "@/app/routes/account/models"
           );
           return {
-            Component: () => <UserModelsPage />,
+            Component: () => (
+              <ProtectedRoute>
+                <UserModelsPage />
+              </ProtectedRoute>
+            ),
           };
         },
       },

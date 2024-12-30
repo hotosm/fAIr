@@ -1,21 +1,17 @@
+import { API_ENDPOINTS, apiClient } from "@/services";
 import { DirectoryIcon, FileIcon } from "@/components/ui/icons";
+import { getTrainingWorkspaceQueryOptions } from "@/features/models/api/factory";
+import { MODELS_CONTENT, TOAST_NOTIFICATIONS } from "@/constants";
+import { showErrorToast, showSuccessToast, truncateString } from "@/utils";
+import { Spinner } from "@/components/ui/spinner";
+import { TCSSWithVars } from "@/types";
+import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   SlFormatBytes,
   SlTree,
   SlTreeItem,
 } from "@shoelace-style/shoelace/dist/react";
-import { useState, useEffect } from "react";
-import {
-  APP_CONTENT,
-  showErrorToast,
-  showSuccessToast,
-  truncateString,
-} from "@/utils";
-import { TOAST_NOTIFICATIONS } from "@/constants";
-import { useQueryClient } from "@tanstack/react-query";
-import { getTrainingWorkspaceQueryOptions } from "@/features/models/api/factory";
-import { API_ENDPOINTS, apiClient } from "@/services";
-import { Spinner } from "@/components/ui/spinner";
 
 type DirectoryTreeProps = {
   datasetId: number;
@@ -121,10 +117,9 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
   const fetchDirectoryRecursive = async (
     currentDirectory: string = "",
     currentDepth: number = 0,
-    maxDepth: number = 2
+    maxDepth: number = 2,
   ): Promise<any> => {
     if (currentDepth >= maxDepth) {
-
       return {};
     }
 
@@ -216,9 +211,9 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
     };
 
     return Object.entries(combinedItems).map(([key, value]: [string, any]) => {
-      const isDirectory = value.hasOwnProperty("dir");
+      const isDirectory =
+        value.hasOwnProperty("dir") || value.hasOwnProperty("length");
       const currentPath = parentKey ? `${parentKey}/${key}` : key;
-
       return (
         <SlTreeItem key={currentPath}>
           {isDirectory ? (
@@ -245,16 +240,20 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
   if (isLoading) return <DirectoryLoadingSkeleton />;
   if (hasError)
     return (
-      <div>{APP_CONTENT.models.modelsDetailsCard.modelFilesDialog.error}</div>
+      <div>
+        {MODELS_CONTENT.models.modelsDetailsCard.modelFilesDialog.error}
+      </div>
     );
 
   return (
-    //@ts-expect-error bad type definition
-    <SlTree style={{ "--indent-guide-width": "1px" }}>
+    <SlTree style={{ "--indent-guide-width": "1px" } as TCSSWithVars}>
       <SlTreeItem key="root">
         <DirectoryIcon className="w-4 h-4 mr-2" />
         <span>
-          {APP_CONTENT.models.modelsDetailsCard.modelFilesDialog.rootDirectory}
+          {
+            MODELS_CONTENT.models.modelsDetailsCard.modelFilesDialog
+              .rootDirectory
+          }
         </span>
         {directoryTree && renderTreeItems(directoryTree)}
       </SlTreeItem>

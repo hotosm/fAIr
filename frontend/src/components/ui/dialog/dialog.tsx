@@ -1,7 +1,7 @@
+import useScreenSize from "@/hooks/use-screen-size";
+import { SHOELACE_SIZES } from "@/enums";
 import { SlDialog } from "@shoelace-style/shoelace/dist/react";
 import "./dialog.css";
-import { SHOELACE_SIZES } from "@/enums";
-import useScreenSize from "@/hooks/use-screen-size";
 
 type DialogProps = {
   label: string;
@@ -25,6 +25,7 @@ const Dialog: React.FC<DialogProps> = ({
       event.preventDefault();
     }
   }
+
   const { isMobile, isTablet, isLaptop } = useScreenSize();
 
   const size =

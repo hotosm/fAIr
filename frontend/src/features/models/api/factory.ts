@@ -1,4 +1,5 @@
-import { queryOptions, keepPreviousData } from "@tanstack/react-query";
+import { keepPreviousData, queryOptions } from "@tanstack/react-query";
+import { queryKeys } from "@/services";
 import {
   getModels,
   getModelDetails,
@@ -12,7 +13,6 @@ import {
   getTrainingStatus,
   getTrainingWorkspace,
 } from "@/features/models/api/get-trainings";
-import { queryKeys } from "@/services";
 
 // Models
 
@@ -57,12 +57,15 @@ export const getModelsQueryOptions = ({
   });
 };
 
-export const getModelDetailsQueryOptions = (id: string, refetchInterval: boolean | number) => {
+export const getModelDetailsQueryOptions = (
+  id: string,
+  refetchInterval: boolean | number,
+) => {
   return queryOptions({
     queryKey: [queryKeys.MODEL_DETAILS(id)],
     queryFn: () => getModelDetails(id),
     //@ts-expect-error bad type definition
-    refetchInterval: refetchInterval
+    refetchInterval: refetchInterval,
   });
 };
 

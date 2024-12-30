@@ -1,4 +1,4 @@
-import { addLayers, addSources } from "@/utils/map-utils";
+import { addLayers, addSources } from "@/utils/geo/map-utils";
 import { LayerSpecification, Map, SourceSpecification } from "maplibre-gl";
 import { useCallback, useEffect } from "react";
 
@@ -14,7 +14,7 @@ export const useMapLayers = (
   }, [map, sourcesSpec, layersSpec]);
 
   useEffect(() => {
-    if (!map) return;
+    if (!map || !map.isStyleLoaded()) return;
     if (!map.isStyleLoaded()) {
       map.once("styledata", addSourcesAndLayers);
     } else {

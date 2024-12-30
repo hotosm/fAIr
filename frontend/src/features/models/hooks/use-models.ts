@@ -1,19 +1,19 @@
+import useDebounce from "@/hooks/use-debounce";
+import { buildDateFilterQueryString } from "@/utils";
+import { dateFilters } from "@/features/models/components/filters/date-range-filter";
+import { LayoutView } from "@/enums";
+import { ORDERING_FIELDS } from "@/features/models/components/filters/ordering-filter";
+import { PAGE_LIMIT } from "@/components/shared";
+import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
+import { TQueryParams } from "@/types";
+import { useCallback, useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useSearchParams } from "react-router-dom";
 import {
   getModelsQueryOptions,
   getModelDetailsQueryOptions,
   getModelsMapDataQueryOptions,
 } from "@/features/models/api/factory";
-import { useSearchParams } from "react-router-dom";
-import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
-import { ORDERING_FIELDS } from "@/features/models/components/filters/ordering-filter";
-import { TQueryParams } from "@/types";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { buildDateFilterQueryString } from "@/utils";
-import { PAGE_LIMIT } from "@/components/shared/pagination";
-import { dateFilters } from "@/features/models/components/filters/date-range-filter";
-import useDebounce from "@/hooks/use-debounce";
-import { LayoutView } from "@/enums/models";
 
 type UseModelsOptions = {
   limit: number;
@@ -47,16 +47,16 @@ export const useModels = ({
       id,
       userId,
     }),
-    //@ts-expect-error bad type definition
-    throwOnError: (error) => error.response?.status >= 500,
   });
 };
 
-export const useModelDetails = (id: string, enabled: boolean = true, refetchInterval: boolean | number = false) => {
+export const useModelDetails = (
+  id: string,
+  enabled: boolean = true,
+  refetchInterval: boolean | number = false,
+) => {
   return useQuery({
     ...getModelDetailsQueryOptions(id, refetchInterval),
-    //@ts-expect-error bad type definition
-    throwOnError: (error) => error.response?.status >= 500,
     retry: (_, error) => {
       // When a model is not found, don't retry.
       //@ts-expect-error bad type definition
@@ -69,8 +69,6 @@ export const useModelDetails = (id: string, enabled: boolean = true, refetchInte
 export const useModelsMapData = () => {
   return useQuery({
     ...getModelsMapDataQueryOptions(),
-    //@ts-expect-error bad type definition
-    throwOnError: (error) => error.response?.status >= 500,
   });
 };
 
@@ -173,10 +171,7 @@ export const useModelsListFilters = (
     setQuery(newQuery);
   }, []);
 
-  const mapViewIsActive = useMemo(
-    () => query[SEARCH_PARAMS.mapIsActive],
-    [query],
-  );
+  const mapViewIsActive = query[SEARCH_PARAMS.mapIsActive];
 
   const clearAllFilters = useCallback(() => {
     const resetParams = new URLSearchParams();

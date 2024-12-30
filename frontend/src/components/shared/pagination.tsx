@@ -19,9 +19,10 @@ type PaginationProps = {
   setOffset?: (offset: number) => void;
   showCountOnMobile?: boolean;
   centerOnMobile?: boolean;
+  scrollToTopOnPageSwitch?: boolean;
 };
 
-const Pagination: React.FC<PaginationProps> = ({
+export const Pagination: React.FC<PaginationProps> = ({
   hasNextPage,
   hasPrevPage,
   disableNextPage,
@@ -35,6 +36,7 @@ const Pagination: React.FC<PaginationProps> = ({
   setOffset,
   showCountOnMobile = false,
   centerOnMobile = true,
+  scrollToTopOnPageSwitch = false,
 }) => {
   const _offset = offset ?? (query?.[SEARCH_PARAMS.offset] as number);
   const { scrollToTop } = useScrollToTop();
@@ -45,8 +47,10 @@ const Pagination: React.FC<PaginationProps> = ({
         [SEARCH_PARAMS.offset]: _offset + pageLimit,
       });
       setOffset?.(nextOffset);
-      // scroll to top
-      scrollToTop();
+      // scroll to top only on models page
+      if (scrollToTopOnPageSwitch) {
+        scrollToTop();
+      }
     }
   };
 
@@ -57,14 +61,16 @@ const Pagination: React.FC<PaginationProps> = ({
         [SEARCH_PARAMS.offset]: Math.max(prevOffset, 0),
       });
       setOffset?.(Math.max(prevOffset, 0));
-      // scroll to top
-      scrollToTop();
+      // scroll to top only on models page
+      if (scrollToTopOnPageSwitch) {
+        scrollToTop();
+      }
     }
   };
 
   return (
     <div
-      className={`flex md:min-w-60 items-center w-full ${centerOnMobile ? "justify-center" : "justify-between"}`}
+      className={`flex md:min-w-40 items-center w-full ${centerOnMobile ? "justify-center" : "justify-between"}`}
     >
       <div>
         <p
@@ -109,5 +115,3 @@ const Pagination: React.FC<PaginationProps> = ({
     </div>
   );
 };
-
-export default Pagination;
