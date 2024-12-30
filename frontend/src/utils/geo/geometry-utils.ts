@@ -1,16 +1,12 @@
 import area from "@turf/area";
 import bboxPolygon from "@turf/bbox";
 import { booleanIntersects } from "@turf/boolean-intersects";
+import { createFeatureCollection } from "./geo-utils";
+import { Feature, FeatureCollection, Polygon, Position } from "geojson";
 import { LngLatBoundsLike, Map } from "maplibre-gl";
 import { roundNumber } from "../number-utils";
-import { TModelPredictionsConfig } from "@/features/start-mapping/api/get-model-predictions";
+import { TModelPredictions, TModelPredictionsConfig } from "@/types";
 import { uuid4 } from "../general-utils";
-import {
-  Feature,
-  FeatureCollection,
-  Geometry,
-  TModelPredictions,
-} from "@/types";
 
 /**
  * Calculates the area of a GeoJSON Feature or FeatureCollection.
@@ -62,7 +58,6 @@ export const formatAreaInAppropriateUnit = (area: number): string => {
 export const getGeoJSONFeatureBounds = (
   geojsonFeature: Feature,
 ): LngLatBoundsLike => {
-  // @ts-expect-error bad type definition
   return bboxPolygon(geojsonFeature) as [number, number, number, number];
 };
 
@@ -237,7 +232,7 @@ const getClosestCorner = (
  * the closest tile corner at the specified zoom level.
  */
 export const approximateGeom = (
-  coordinates: [number, number][],
+  coordinates: Position[],
   zoom = 19,
 ): [number, number][] => {
   return coordinates.map(([lon, lat]) => {
@@ -290,10 +285,7 @@ export const getTileBoundariesGeoJSON = (
       });
     }
   }
-  return {
-    type: "FeatureCollection",
-    features,
-  };
+  return createFeatureCollection(features);
 };
 
 /**
@@ -306,7 +298,7 @@ export const getTileBoundariesGeoJSON = (
  * @returns {Geometry} - The updated GeoJSON geometry with its coordinates snapped
  * to the closest tile boundaries.
  */
-export const snapGeoJSONGeometryToClosestTile = (geometry: Geometry) => {
+export const snapGeoJSONPolygonToClosestTile = (geometry: Polygon) => {
   const originalCoordinates = geometry.coordinates[0];
   const snappedCoordinates = approximateGeom(originalCoordinates);
   geometry.coordinates[0] = snappedCoordinates;

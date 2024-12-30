@@ -1,11 +1,11 @@
+import axios from "axios";
 import ModelEnhancementDialog from "@/features/models/components/dialogs/model-enhancement-dialog";
+import { APPLICATION_ROUTES, MODELS_CONTENT } from "@/constants";
 import { BackButton, ButtonWithIcon } from "@/components/ui/button";
-import { handleErrorNavigation } from "@/utils";
 import { Head } from "@/components/seo";
 import { Image } from "@/components/ui/image";
 import { ModelDetailsSkeleton } from "@/features/models/components/skeletons";
 import { ModelFilesDialog } from "@/features/models/components/dialogs";
-import { MODELS_CONTENT } from "@/constants";
 import { StarStackIcon } from "@/components/ui/icons";
 import { TModelDetails, TTrainingDataset } from "@/types";
 import { TrainingAreaDrawer } from "@/features/models/components/training-area-drawer";
@@ -43,7 +43,23 @@ export const ModelDetailsPage = () => {
 
   useEffect(() => {
     if (isError && error) {
-      handleErrorNavigation(error, navigate);
+      const currentPath = window.location.pathname;
+      if (axios.isAxiosError(error)) {
+        navigate(APPLICATION_ROUTES.NOTFOUND, {
+          state: {
+            from: currentPath,
+            error: error.response?.data?.detail,
+          },
+        });
+      } else {
+        const err = error as Error;
+        navigate(APPLICATION_ROUTES.NOTFOUND, {
+          state: {
+            from: currentPath,
+            error: err.message,
+          },
+        });
+      }
     }
   }, [isError, error, navigate]);
 

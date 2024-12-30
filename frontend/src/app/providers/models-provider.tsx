@@ -1,8 +1,12 @@
 import { APPLICATION_ROUTES, MODELS_BASE, MODELS_ROUTES } from "@/constants";
 import { BASE_MODELS, TrainingDatasetOption, TrainingType } from "@/enums";
-import { Feature, TTrainingDataset, TTrainingDetails } from "@/types";
 import { LngLatBoundsLike } from "maplibre-gl";
 import { TOAST_NOTIFICATIONS } from "@/constants";
+import {
+  TTrainingAreaFeature,
+  TTrainingDataset,
+  TTrainingDetails,
+} from "@/types";
 import { useCreateTrainingDataset } from "@/features/model-creation/hooks/use-training-datasets";
 import { useGetTrainingDataset } from "@/features/models/hooks/use-dataset";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
@@ -143,7 +147,7 @@ type FormData = {
     message: string;
   };
   selectedTrainingDatasetId: string;
-  trainingAreas: Feature[];
+  trainingAreas: TTrainingAreaFeature[];
   oamTileName: string;
   oamBounds: number[];
   trainingType: TrainingType;
@@ -419,14 +423,15 @@ export const ModelsProvider: React.FC<{
   const hasLabeledTrainingAreas =
     formData.trainingAreas.length > 0 &&
     formData.trainingAreas.filter(
-      (aoi: Feature) => aoi.properties.label_fetched === null,
+      (aoi: TTrainingAreaFeature) => aoi.properties.label_fetched === null,
     ).length === 0;
 
   // Confirm that all of the training areas has a geometry
   const hasAOIsWithGeometry =
     formData.trainingAreas.length > 0 &&
-    formData.trainingAreas.filter((aoi: Feature) => aoi.geometry === null)
-      .length === 0;
+    formData.trainingAreas.filter(
+      (aoi: TTrainingAreaFeature) => aoi.geometry === null,
+    ).length === 0;
 
   const resetState = () => {
     setFormData(initialFormState);

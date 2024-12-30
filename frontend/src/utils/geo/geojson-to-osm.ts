@@ -1,5 +1,5 @@
 import { create } from "xmlbuilder2";
-import { FeatureCollection } from "@/types";
+import { FeatureCollection, Position } from "geojson";
 
 class Node {
   lat: number;
@@ -7,7 +7,7 @@ class Node {
   tags: Record<string, string>;
   id: number;
 
-  constructor(coordinates: [number, number]) {
+  constructor(coordinates: Position) {
     this.lat = coordinates[1];
     this.lon = coordinates[0];
     this.tags = {};
@@ -120,7 +120,7 @@ export const geojsonToOsmPolygons = (geojson: FeatureCollection): string => {
 
 // Helper Function to Process Polygons
 const processPolygon = (
-  coordinates: [number, number][][], // Array of Linear Rings
+  coordinates: Position[][],
   properties: Record<string, any>,
   relations: Relation[],
   ways: Way[],

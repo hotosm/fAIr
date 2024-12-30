@@ -1,5 +1,5 @@
 import { API_ENDPOINTS, apiClient } from "@/services";
-import { Feature } from "@/types";
+import { Feature, TModelPredictionFeature } from "@/types";
 
 export type TCreateFeedbackPayload = {
   comments: string;
@@ -31,7 +31,15 @@ export const createFeedback = async ({
 };
 
 export type TCreateApprovedPredictionPayload = {
-  config: Record<string, number | boolean>;
+  config: {
+    areathreshold: number;
+    josmq: boolean;
+    maxanglechange: number;
+    skewtolerance: number;
+    zoomlevel: number;
+    confidence: number;
+    tolerance: number;
+  };
   geom: string;
   training: number;
   user: number;
@@ -42,7 +50,7 @@ export const createApprovedPrediction = async ({
   geom,
   training,
   user,
-}: TCreateApprovedPredictionPayload): Promise<Feature & { id: number }> => {
+}: TCreateApprovedPredictionPayload): Promise<TModelPredictionFeature> => {
   return await (
     await apiClient.post(API_ENDPOINTS.CREATE_APPROVED_PREDICTION, {
       config,
@@ -60,7 +68,7 @@ export type TDeleteModelPredictionFeedbackPayload = {
 
 export const deleteModelPredictionFeedback = async ({
   id,
-}: TDeleteModelPredictionFeedbackPayload) => {
+}: TDeleteModelPredictionFeedbackPayload): Promise<TModelPredictionFeature> => {
   return await (
     await apiClient.delete(API_ENDPOINTS.DELETE_FEEDBACK(id))
   ).data;
@@ -73,7 +81,7 @@ export type TDeleteApprovedModelPredictionPayload = {
 
 export const deleteApprovedModelPrediction = async ({
   id,
-}: TDeleteApprovedModelPredictionPayload) => {
+}: TDeleteApprovedModelPredictionPayload): Promise<TModelPredictionFeature> => {
   return await (
     await apiClient.delete(API_ENDPOINTS.DELETE_APPROVED_PREDICTION(id))
   ).data;

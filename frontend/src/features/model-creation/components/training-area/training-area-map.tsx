@@ -4,6 +4,7 @@ import { GeoJSONSource, Map } from "maplibre-gl";
 import { geojsonToWKT } from "@terraformer/wkt";
 import { GeoJSONType, PaginatedTrainingArea } from "@/types";
 import { MapComponent, MapCursorToolTip } from "@/components/map";
+import { Polygon } from "geojson";
 import { RefObject, useCallback, useEffect, useState } from "react";
 import { TerraDraw } from "terra-draw";
 import { useMapLayers } from "@/hooks/use-map-layer";
@@ -30,7 +31,7 @@ import {
   calculateGeoJSONArea,
   formatAreaInAppropriateUnit,
   showSuccessToast,
-  snapGeoJSONGeometryToClosestTile,
+  snapGeoJSONPolygonToClosestTile,
   validateGeoJSONArea,
 } from "@/utils";
 
@@ -235,7 +236,7 @@ const TrainingAreaMap = ({
           terraDraw.clear();
           return;
         }
-        snapGeoJSONGeometryToClosestTile(drawnFeature.geometry);
+        snapGeoJSONPolygonToClosestTile(drawnFeature.geometry as Polygon);
         const wkt = geojsonToWKT(drawnFeature.geometry);
         await createTrainingArea.mutateAsync(
           { dataset: String(trainingDatasetId), geom: `SRID=4326;${wkt}` },

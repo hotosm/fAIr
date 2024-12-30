@@ -17,9 +17,9 @@ import {
 } from "react";
 
 import {
-  Feature,
   GeoJSONType,
   TileJSON,
+  TModelPredictionFeature,
   TModelPredictions,
   TTrainingDataset,
 } from "@/types";
@@ -55,7 +55,11 @@ export const StartMappingMapComponent = ({
   trainingDataset?: TTrainingDataset;
   modelPredictions: TModelPredictions;
   setModelPredictions: Dispatch<
-    SetStateAction<{ all: Feature[]; accepted: Feature[]; rejected: Feature[] }>
+    SetStateAction<{
+      all: TModelPredictionFeature[];
+      accepted: TModelPredictionFeature[];
+      rejected: TModelPredictionFeature[];
+    }>
   >;
 
   oamTileJSONIsError: boolean;

@@ -10,8 +10,7 @@ import { ModelPredictionsTracker } from "@/features/start-mapping/components/mod
 import { ModelSettings } from "@/features/start-mapping/components/model-settings";
 import { SkeletonWrapper } from "@/components/ui/skeleton";
 import { TDownloadOptions, TQueryParams } from "@/app/routes/start-mapping";
-import { TModel, TModelPredictions } from "@/types";
-import { TModelPredictionsConfig } from "@/features/start-mapping/api/get-model-predictions";
+import { TModel, TModelPredictions, TModelPredictionsConfig } from "@/types";
 import { ToolTip } from "@/components/ui/tooltip";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { UserProfile } from "@/components/layout";

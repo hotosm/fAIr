@@ -1,12 +1,17 @@
 import useScreenSize from "@/hooks/use-screen-size";
 import { APPLICATION_ROUTES } from "@/constants";
 import { BASE_MODELS } from "@/enums";
-import { BBOX, Feature, TileJSON, TModelPredictions } from "@/types";
+import {
+  BBOX,
+  Feature,
+  TileJSON,
+  TModelPredictions,
+  TModelPredictionsConfig,
+} from "@/types";
 import { FitToBounds, LayerControl, ZoomLevel } from "@/components/map";
 import { Head } from "@/components/seo";
 import { LngLatBoundsLike } from "maplibre-gl";
 import { ModelDetailsPopUp } from "@/features/start-mapping/components";
-import { TModelPredictionsConfig } from "@/features/start-mapping/api/get-model-predictions";
 import { useCallback, useEffect, useState } from "react";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { useGetTMSTileJSON } from "@/features/model-creation/hooks/use-tms-tilejson";

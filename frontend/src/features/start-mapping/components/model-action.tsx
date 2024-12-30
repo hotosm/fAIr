@@ -1,8 +1,7 @@
 import { handleConflation, showErrorToast, showSuccessToast } from "@/utils";
 import { Map } from "maplibre-gl";
 import { START_MAPPING_PAGE_CONTENT, TOAST_NOTIFICATIONS } from "@/constants";
-import { TModelPredictions } from "@/types";
-import { TModelPredictionsConfig } from "@/features/start-mapping/api/get-model-predictions";
+import { TModelPredictions, TModelPredictionsConfig } from "@/types";
 import { ToolTip } from "@/components/ui/tooltip";
 import { useCallback } from "react";
 import { useGetModelPredictions } from "@/features/start-mapping/hooks/use-model-predictions";

@@ -6,8 +6,7 @@ import { ModelDetailsButton } from "@/features/start-mapping/components/model-de
 import { ModelPredictionsTracker } from "@/features/start-mapping/components/model-predictions-tracker";
 import { ModelSettings } from "@/features/start-mapping/components/model-settings";
 import { TDownloadOptions, TQueryParams } from "@/app/routes/start-mapping";
-import { TModelPredictions } from "@/types";
-import { TModelPredictionsConfig } from "@/features/start-mapping/api/get-model-predictions";
+import { TModelPredictions, TModelPredictionsConfig } from "@/types";
 import { ToolTip } from "@/components/ui/tooltip";
 import { useState } from "react";
 import {

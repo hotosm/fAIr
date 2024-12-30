@@ -5,4 +5,3 @@ export * from "./string-utils";
 export * from "./regex-utils";
 export * from "./geo";
 export * from "./general-utils";
-export * from "./error-utils";

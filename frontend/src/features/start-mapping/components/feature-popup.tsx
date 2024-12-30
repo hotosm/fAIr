@@ -1,13 +1,18 @@
 import maplibregl, { Map, Popup } from "maplibre-gl";
 import { CheckIcon } from "@/components/ui/icons";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
-import { Feature, GeoJSONType, TModelPredictions } from "@/types";
 import { geojsonToWKT } from "@terraformer/wkt";
+import {
+  GeoJSONType,
+  TModelPredictionFeature,
+  TModelPredictions,
+} from "@/types";
 import { Input } from "@/components/ui/form";
 import { SHOELACE_SIZES } from "@/enums";
 import { showErrorToast } from "@/utils";
 import { START_MAPPING_PAGE_CONTENT } from "@/constants";
 import { useAuth } from "@/app/providers/auth-provider";
+
 import {
   useCreateApprovedModelPrediction,
   useCreateModelFeedback,
@@ -28,7 +33,11 @@ const PredictedFeatureActionPopup = ({
   selectedFeature: any;
   modelPredictions: TModelPredictions;
   setModelPredictions: Dispatch<
-    SetStateAction<{ all: Feature[]; accepted: Feature[]; rejected: Feature[] }>
+    SetStateAction<{
+      all: TModelPredictionFeature[];
+      accepted: TModelPredictionFeature[];
+      rejected: TModelPredictionFeature[];
+    }>
   >;
   source_imagery: string;
   trainingId: number;
@@ -60,10 +69,10 @@ const PredictedFeatureActionPopup = ({
   const [comment, setComment] = useState<string>("");
 
   const moveFeature = (
-    source: Feature[],
-    target: Feature[],
-    id: string,
-    additionalProperties: Partial<Feature["properties"]> = {},
+    source: TModelPredictionFeature[],
+    target: TModelPredictionFeature[],
+    id: number,
+    additionalProperties: Partial<TModelPredictionFeature["properties"]> = {},
   ) => {
     const movedFeatures = source
       .filter((feature) => feature.properties.id === id)
@@ -167,7 +176,7 @@ const PredictedFeatureActionPopup = ({
       onSuccess: async (_, variables) => {
         if (variables.createFeedback) {
           await createModelFeedbackMutation.mutateAsync({
-            zoom_level: feature?.properties.config.zoom_level,
+            zoom_level: feature?.properties.config.zoom_level as number,
             comments: comment,
             geom: geojsonToWKT(feature?.geometry as GeoJSONType),
             feedback_type: "TN",
@@ -202,13 +211,13 @@ const PredictedFeatureActionPopup = ({
       training: trainingId,
       config: {
         // Use the configuration when the prediction was made.
-        areathreshold: feature?.properties.config.area_threshold,
-        confidence: feature?.properties.config.confidence,
-        josmq: feature?.properties.config.use_josmq,
-        maxanglechange: feature?.properties.config.max_angle_change,
-        skewtolerance: feature?.properties.config.skew_tolerance,
-        tolerance: feature?.properties.config.tolerance,
-        zoomlevel: feature?.properties.config.zoom_level,
+        areathreshold: feature?.properties.config.area_threshold as number,
+        confidence: feature?.properties.config.confidence as number,
+        josmq: feature?.properties.config.use_josm_q as boolean,
+        maxanglechange: feature?.properties.config.max_angle_change as number,
+        skewtolerance: feature?.properties.config.skew_tolerance as number,
+        tolerance: feature?.properties.config.tolerance as number,
+        zoomlevel: feature?.properties.config.zoom_level as number,
       },
       user: user.osm_id,
     });
@@ -256,12 +265,12 @@ const PredictedFeatureActionPopup = ({
   const submitRejectionFeedback = async () => {
     if (alreadyAccepted) {
       await deleteApprovedModelPrediction.mutateAsync({
-        id: feature?.properties._id,
+        id: feature?.properties._id as number,
         createFeedback: true,
       });
     } else {
       await createModelFeedbackMutation.mutateAsync({
-        zoom_level: feature?.properties.config.zoom_level,
+        zoom_level: feature?.properties.config.zoom_level as number,
         comments: comment,
         geom: geojsonToWKT(feature?.geometry as GeoJSONType),
         feedback_type: "TN",
@@ -274,11 +283,11 @@ const PredictedFeatureActionPopup = ({
   const handleResolve = async () => {
     if (alreadyRejected) {
       await deleteModelFeedbackMutation.mutateAsync({
-        id: feature?.properties._id,
+        id: feature?.properties._id as number,
       });
     } else if (alreadyAccepted) {
       await deleteApprovedModelPrediction.mutateAsync({
-        id: feature?.properties._id,
+        id: feature?.properties._id as number,
       });
     }
     closePopup();
@@ -287,7 +296,7 @@ const PredictedFeatureActionPopup = ({
   const handleAcceptance = async () => {
     if (alreadyRejected) {
       await deleteModelFeedbackMutation.mutateAsync({
-        id: feature?.properties._id,
+        id: feature?.properties._id as number,
         approvePrediction: true,
       });
     } else {

@@ -6,8 +6,8 @@ import useScreenSize from "@/hooks/use-screen-size";
 import { Button, ButtonWithIcon } from "@/components/ui/button";
 import { DrawingModes, SHOELACE_SIZES } from "@/enums";
 import { geojsonToWKT } from "@terraformer/wkt";
-import { GeoJSONType, Geometry } from "@/types";
 import { MODELS_CONTENT, TOAST_NOTIFICATIONS } from "@/constants";
+import { Polygon } from "geojson";
 import { StepHeading } from "@/features/model-creation/components/";
 import { UploadIcon, YouTubePlayIcon } from "@/components/ui/icons";
 import { useDialog } from "@/hooks/use-dialog";
@@ -24,7 +24,7 @@ import {
 import {
   extractTileJSONURL,
   showSuccessToast,
-  snapGeoJSONGeometryToClosestTile,
+  snapGeoJSONPolygonToClosestTile,
 } from "@/utils";
 
 const TrainingAreaForm = () => {
@@ -63,9 +63,9 @@ const TrainingAreaForm = () => {
     offset: offset,
   });
 
-  const fileUploadHandler = async (geometry: Geometry) => {
-    snapGeoJSONGeometryToClosestTile(geometry);
-    const wkt = geojsonToWKT(geometry as GeoJSONType);
+  const fileUploadHandler = async (polygonGeometry: Polygon) => {
+    snapGeoJSONPolygonToClosestTile(polygonGeometry);
+    const wkt = geojsonToWKT(polygonGeometry);
     await createTrainingArea.mutateAsync({
       dataset: formData.selectedTrainingDatasetId,
       geom: `SRID=4326;${wkt}`,

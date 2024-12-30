@@ -1,8 +1,12 @@
 import { Button } from "@/components/ui/button";
-import { Dialog } from "@/components/ui/dialog";
 import { DeleteIcon, FileIcon, UploadIcon } from "@/components/ui/icons";
+import { Dialog } from "@/components/ui/dialog";
+import { FileWithPath, useDropzone } from "react-dropzone";
+import { Geometry, MultiPolygon, Polygon } from "geojson";
+import { SlFormatBytes } from "@shoelace-style/shoelace/dist/react";
 import { Spinner } from "@/components/ui/spinner";
-import { DialogProps, Feature, FeatureCollection, Geometry } from "@/types";
+import { useCallback, useState } from "react";
+import { DialogProps, Feature, FeatureCollection } from "@/types";
 import {
   MAX_ACCEPTABLE_POLYGON_IN_TRAINING_AREA_GEOJSON_FILE,
   MAX_GEOJSON_FILE_UPLOAD_FOR_TRAINING_AREA_LABELS,
@@ -17,13 +21,10 @@ import {
   truncateString,
   validateGeoJSONArea,
 } from "@/utils";
-import { SlFormatBytes } from "@shoelace-style/shoelace/dist/react";
-import { useCallback, useState } from "react";
-import { FileWithPath, useDropzone } from "react-dropzone";
 
 type FileUploadDialogProps = DialogProps & {
   label: string;
-  fileUploadHandler?: (fileGeometry: Geometry) => Promise<void>;
+  fileUploadHandler?: (fileGeometry: Polygon) => Promise<void>;
   successToast?: string;
   disabled: boolean;
   disableFileSizeValidation?: boolean;
@@ -31,10 +32,16 @@ type FileUploadDialogProps = DialogProps & {
   rawFileUploadHandler?: (formData: FormData) => Promise<void>;
 };
 
-interface AcceptedFile {
+const isPolygonGeometry = (
+  geometry: Geometry,
+): geometry is Polygon | MultiPolygon => {
+  return geometry.type === "Polygon" || geometry.type === "MultiPolygon";
+};
+
+type AcceptedFile = {
   file: FileWithPath;
   id: string;
-}
+};
 
 const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
   isOpened,
@@ -152,7 +159,7 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
 
     try {
       const rawFiles: File[] = [];
-      const allGeometries: Geometry[] = [];
+      const allGeometries: (Polygon | MultiPolygon)[] = [];
 
       for (const fileObj of acceptedFiles) {
         const { file } = fileObj;
@@ -174,11 +181,27 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
               continue;
             }
             if (geojson.type === "FeatureCollection") {
-              allGeometries.push(
-                ...geojson.features.map((feature) => feature.geometry),
-              );
+              const polygons = geojson.features
+                .map((feature) => feature.geometry)
+                .filter(isPolygonGeometry);
+              if (polygons.length === 0) {
+                showErrorToast(
+                  undefined,
+                  `No valid Polygon features found in ${file.name}.`,
+                );
+                continue;
+              }
+              allGeometries.push(...polygons);
             } else if (geojson.type === "Feature") {
-              allGeometries.push(geojson.geometry);
+              if (isPolygonGeometry(geojson.geometry)) {
+                allGeometries.push(geojson.geometry);
+              } else {
+                showErrorToast(
+                  undefined,
+                  `Feature geometry in ${file.name} is not a Polygon.`,
+                );
+                continue;
+              }
             } else {
               throw new Error("Invalid GeoJSON format");
             }
@@ -196,7 +219,7 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
 
       const rawUploadPromises = rawFiles.map((file) => uploadRawFile(file));
       const geometryUploadPromises = allGeometries.map((geometry) =>
-        fileUploadHandler?.(geometry),
+        fileUploadHandler?.(geometry as Polygon),
       );
 
       await Promise.all([...rawUploadPromises, ...geometryUploadPromises]);
@@ -244,7 +267,6 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
               <DeleteIcon className="icon text-primary" />
             </button>
           </div>
-          {/* Removed ProgressBar */}
         </div>
       </li>
     );
