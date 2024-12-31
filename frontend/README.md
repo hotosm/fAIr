@@ -2,7 +2,7 @@
 
 This project is a frontend web application built using **React 18**, **TypeScript**, and **Vite**. The app leverages modern libraries such as **@hotosm/ui**, and **Shoelace** for UI components, and **React Router** for client-side routing.
 
-For detailed information on how to use and contribute to this project, please visit our [Documentation](./docs/).
+For detailed information on how to use and contribute to this project, please visit our [Documentation](https://f-a-ir-docs.vercel.app/).
 
 ## Table of Contents
 
