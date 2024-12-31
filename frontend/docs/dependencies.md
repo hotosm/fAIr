@@ -21,7 +21,7 @@ This document lists the major dependencies used in this application along with t
 | terra-draw               | MIT           | A drawing library for interactive maps | [Terra Draw](https://github.com/JamesLMilner/terra-draw) |
 | vaul                     | MIT           | A simple, secure, and efficient vault for managing secrets | [Vaul](https://github.com/emilkowalski/vaul) |
 | xmlbuilder2              | MIT           | A modern, fast, and powerful XML builder for Node.js | [Xmlbuilder2](https://github.com/oozcitak/xmlbuilder2) |
-| maplibre-gl              | BSD-2-Clause  | A mapping library for rendering maps with WebGL | [MapLibre GL](https://github.com/maplibre/maplibre-gl-js) |
-| pmtiles                  | BSD-2-Clause           | A compact, efficient format for storing and serving vector tiles | [PMTiles](https://github.com/protomaps/PMTiles) |
-| react-medium-image-zoom  | BSD-2-Clause           | Medium.com style image zoom for React | [React Medium Image Zoom](https://github.com/rpearce/react-medium-image-zoom) |
+| maplibre-gl              | BSD-3-Clause  | A mapping library for rendering maps with WebGL | [MapLibre GL](https://github.com/maplibre/maplibre-gl-js) |
+| pmtiles                  | BSD-3-Clause           | A compact, efficient format for storing and serving vector tiles | [PMTiles](https://github.com/protomaps/PMTiles) |
+| react-medium-image-zoom  | BSD-3-Clause           | Medium.com style image zoom for React | [React Medium Image Zoom](https://github.com/rpearce/react-medium-image-zoom) |
 | react-helmet-async       | Apache-2.0           | Thread-safe Helmet for React 16+ and friends | [React Helmet Async](https://github.com/staylor/react-helmet-async) |
