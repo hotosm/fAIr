@@ -6,7 +6,6 @@ export default defineConfig({
   description: "AI-powered assistant that amplify your mapping efforts intelligently and quickly, helping you map smarter and faster.",
   ignoreDeadLinks: true,
   cleanUrls: true,
-  base: '/docs/',
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
