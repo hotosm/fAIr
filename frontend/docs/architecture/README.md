@@ -1,4 +1,4 @@
-## Architectural Decisions
+# Architectural Decisions
 
 The `architecture` folder comprises of subfolders and markdowns that documents the architectural decisions made when deciding on the tools used in developing this project. The template used is based on the simple and popular template -- [Documenting architecture decisions - Michael Nygard](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions), however slightly modified to include the **Date** of the decision. The folder is updated continually when decision making need arises until the end of the project.
 
@@ -14,15 +14,14 @@ In the `architecture` folder there are subfolders for each decision making. In e
 
 ## Quick Links
 
-1. [Framework Decision](./architecture/adr-choose-web-framework/adr1.md)
-2. [Styling Library Decision](./architecture/adr-choose-styling-library/adr1.md)
-3. [Web mapping Library Decision](./architecture/adr-choose-webmap-library/adr1.md)
-4. [Drawing Library Decision](./architecture/adr-choose-drawing-library/adr1.md)
-5. [Package Manager Decision](./architecture/adr-choose-package-manager/adr1.md)
-6. [Programming Language Decision](./architecture/adr-choose-language/adr1.md)
-7. [Bundler Decision](./architecture/adr-choose-bundler/adr1.md)
-
-8. [Testing Library Decision](./architecture/adr-choose-testing-library/adr1.md)
+1. [Framework Decision](./adr-choose-web-framework/adr1.md)
+2. [Styling Library Decision](./adr-choose-styling-library/adr1.md)
+3. [Web mapping Library Decision](./adr-choose-webmap-library/adr1.md)
+4. [Drawing Library Decision](./adr-choose-drawing-library/adr1.md)
+5. [Package Manager Decision](./adr-choose-package-manager/adr1.md)
+6. [Programming Language Decision](./adr-choose-language/adr1.md)
+7. [Bundler Decision](./adr-choose-bundler/adr1.md)
+8. [Testing Library Decision](./adr-choose-testing-library/adr1.md)
 
 ## References
 
