@@ -6,12 +6,11 @@ import { DrawerPlacements } from "@/enums";
 import { HamburgerIcon } from "@/assets/svgs";
 import { Image } from "@/components/ui/image";
 import { Link } from "@/components/ui/link";
-import { NavLogo } from "@/components/layout";
 import { useAuth } from "@/app/providers/auth-provider";
 import { useLocation } from "react-router-dom";
 import { useLogin } from "@/hooks/use-login";
-import { UserProfile } from "@/components/layout";
 import { useState } from "react";
+import { NavLogo, UserProfile } from "@/components/layouts";
 
 export const NavBar = () => {
   const [open, setOpen] = useState(false);

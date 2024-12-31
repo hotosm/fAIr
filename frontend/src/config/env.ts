@@ -62,6 +62,14 @@ export const ENVS = {
     .VITE_MAX_TRAINING_AREA_UPLOAD_FILE_SIZE,
 
   /**
+    The name of the application.
+    This is used in the geojson-to-osm utility function to include the app name in the XML root element.
+    Data type: String (e.g., fAIr).
+    Default value: "fAIr".
+    */
+
+  APP_NAME: import.meta.env.VITE_APP_NAME,
+  /**
    The current version of the application.
    This is used in the OSM redirect callback when a training area is opened in OSM.
    Data type: String (e.g., v1.1).

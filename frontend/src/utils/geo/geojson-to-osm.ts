@@ -1,3 +1,4 @@
+import { APP_NAME, FAIR_VERSION } from "@/constants";
 import { create } from "xmlbuilder2";
 import { FeatureCollection, Position } from "geojson";
 
@@ -72,7 +73,7 @@ export const geojsonToOsmPolygons = (geojson: FeatureCollection): string => {
   // Create XML document
   const doc = create({ version: "1.0", encoding: "UTF-8" }).ele("osm", {
     version: "0.6",
-    generator: "geojson2osm-polygons",
+    generator: `${APP_NAME}(${FAIR_VERSION})`,
   });
 
   // Assign unique negative IDs for new OSM elements

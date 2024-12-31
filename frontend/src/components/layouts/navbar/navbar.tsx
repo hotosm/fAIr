@@ -6,12 +6,12 @@ import { HamburgerIcon } from "@/assets/svgs";
 import { Image } from "@/components/ui/image";
 import { Link } from "@/components/ui/link";
 import { navLinks } from "@/constants/general";
-import { NavLogo } from "@/components/layout";
+import { NavLogo } from "@/components/layouts";
 import { SHARED_CONTENT } from "@/constants";
 import { useAuth } from "@/app/providers/auth-provider";
 import { useLocation } from "react-router-dom";
 import { useLogin } from "@/hooks/use-login";
-import { UserProfile } from "@/components/layout";
+import { UserProfile } from "@/components/layouts";
 import { useState } from "react";
 
 export const NavBar = () => {

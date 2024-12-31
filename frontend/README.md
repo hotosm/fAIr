@@ -65,7 +65,6 @@ Here's an overview of the folder structure:
 │ ├── enums/ - Reusable enums.
 | |── features/ - Contains the main features of the application.
 │ ├── hook/ - Reusable hooks.
-│ ├── layouts/ - Core layouts of the application.
 │ ├── services/ - Axios API clients and services.
 │ ├── styles/ - Global styles.
 │ ├── types/ - Reusable types.
@@ -78,7 +77,7 @@ Here's an overview of the folder structure:
 
 ## Codebase Standards
 
-The project standards are crucial for maintaining code quality, consistency, and scalability in a React application. By establishing and adhering to a set of best practices, developers can ensure that the codebase remains clean, organized, and easy to maintain.
+The project utilized the following codebase standards:
 
 #### ESLint
 
@@ -110,6 +109,10 @@ We use the `kebab-case` to name all files. This helps to keep your codebase cons
 
 See [the documentation](./docs/) for more information on the architectural decisions.
 
+#### File Organization
+
+The file organization is inspired by [Bulletproof React](https://github.com/alan2207/bulletproof-react) with a few modifications.
+
 ## Contributing
 
 Please refer to the [CONTRIBUTING](../CONTRIBUTING.md) guide for more information.
@@ -138,6 +141,7 @@ fAIr also bundles portions of the following open source software.
 - [React Router (MIT)](https://github.com/remix-run/react-router).
 - [Terra Draw (MIT)](https://github.com/JamesLMilner/terra-draw).
 - [Vaul (MIT)](https://github.com/emilkowalski/vaul).
+- [Vitest (MIT)](https://github.com/vitest-dev/vitest).
 - [XMLBuilder2 (MIT)](https://github.com/oozcitak/xmlbuilder2).
 - [React Helmet Async (Apache-2.0)](https://github.com/staylor/react-helmet-async).
 - [Maplibre GL JS (BSD-3-Clause)](https://github.com/maplibre/maplibre-gl-js).

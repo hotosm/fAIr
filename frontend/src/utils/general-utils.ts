@@ -1,4 +1,33 @@
-import { useToastNotification } from "@/hooks/use-toast-notification";
+import "@shoelace-style/shoelace/dist/components/alert/alert.js";
+
+/**
+ * Custom function for displaying toast notifications.
+ * @param {string} message - The message to display in the notification.
+ * @param {"primary" | "success" | "neutral" | "warning" | "danger"} [variant="primary"] - Type of notification style. It defaults to primary.
+ * @param {number} [duration=3000] - Duration in milliseconds for how long the notification stays visible.
+ *
+ * @example
+ * createToastNotification("Data saved successfully", "success", 2000);
+ */
+
+export const createToastNotification = (
+  message: string,
+  variant: "primary" | "success" | "neutral" | "warning" | "danger" = "primary",
+  duration: number = 3000,
+) => {
+  const alert = Object.assign(document.createElement("sl-alert"), {
+    variant,
+    closable: true,
+    duration,
+    innerHTML: `
+            ${message}
+          `,
+  });
+  // make the variant the classname
+  alert.classList.add(variant);
+  document.body.append(alert);
+  alert.toast();
+};
 
 /**
  * Displays an error message as a toast notification.
@@ -17,7 +46,6 @@ export const showErrorToast = (
   error: any | undefined = undefined,
   customMessage: string | undefined = undefined,
 ) => {
-  const toast = useToastNotification();
   let message = "An unexpected error occurred";
   if (customMessage) {
     message = customMessage;
@@ -38,7 +66,7 @@ export const showErrorToast = (
     message = error.response?.statusText;
   }
 
-  toast(message, "danger");
+  createToastNotification(message, "danger");
 };
 
 /**
@@ -47,8 +75,7 @@ export const showErrorToast = (
  * @param {string} message - Optional. The message that will be displayed as the toast notification.
  */
 export const showSuccessToast = (message: string = "") => {
-  const toast = useToastNotification();
-  toast(message, "success");
+  createToastNotification(message, "success");
 };
 
 /**
@@ -57,8 +84,7 @@ export const showSuccessToast = (message: string = "") => {
  * @param {string} message - Optional. The message that will be displayed as the toast notification.
  */
 export const showWarningToast = (message: string = "") => {
-  const toast = useToastNotification();
-  toast(message, "warning");
+  createToastNotification(message, "warning");
 };
 
 /**

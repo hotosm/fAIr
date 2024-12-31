@@ -11,9 +11,9 @@ export type ShoelaceSlotProps = {
 };
 
 export type DateFilter = {
-  label: string;
+  label?: string;
   apiValue: string;
-  searchParams: string;
+  searchParams?: string;
 };
 
 export type TQueryParams = Record<

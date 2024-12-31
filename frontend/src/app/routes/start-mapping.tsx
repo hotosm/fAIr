@@ -1,13 +1,6 @@
 import useScreenSize from "@/hooks/use-screen-size";
 import { APPLICATION_ROUTES } from "@/constants";
 import { BASE_MODELS } from "@/enums";
-import {
-  BBOX,
-  Feature,
-  TileJSON,
-  TModelPredictions,
-  TModelPredictionsConfig,
-} from "@/types";
 import { FitToBounds, LayerControl, ZoomLevel } from "@/components/map";
 import { Head } from "@/components/seo";
 import { LngLatBoundsLike } from "maplibre-gl";
@@ -19,7 +12,14 @@ import { useGetTrainingDataset } from "@/features/models/hooks/use-dataset";
 import { useMapInstance } from "@/hooks/use-map-instance";
 import { useModelDetails } from "@/features/models/hooks/use-models";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { UserProfile } from "@/components/layout";
+import { UserProfile } from "@/components/layouts";
+import {
+  BBOX,
+  Feature,
+  TileJSON,
+  TModelPredictions,
+  TModelPredictionsConfig,
+} from "@/types";
 import {
   BrandLogoWithDropDown,
   Legend,

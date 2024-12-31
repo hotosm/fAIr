@@ -13,7 +13,7 @@ import { TDownloadOptions, TQueryParams } from "@/app/routes/start-mapping";
 import { TModel, TModelPredictions, TModelPredictionsConfig } from "@/types";
 import { ToolTip } from "@/components/ui/tooltip";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
-import { UserProfile } from "@/components/layout";
+import { UserProfile } from "@/components/layouts";
 import {
   ELEMENT_DISTANCE_FROM_NAVBAR,
   START_MAPPING_PAGE_CONTENT,

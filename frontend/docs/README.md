@@ -22,6 +22,8 @@ In the `architecture` folder there are subfolders for each decision making. In e
 6. [Programming Language Decision](./architecture/adr-choose-language/adr1.md)
 7. [Bundler Decision](./architecture/adr-choose-bundler/adr1.md)
 
+8. [Testing Library Decision](./architecture/adr-choose-testing-library/adr1.md)
+
 ## References
 
 - [Architecture Decision Record](https://github.com/joelparkerhenderson/architecture-decision-record?tab=readme-ov-file)

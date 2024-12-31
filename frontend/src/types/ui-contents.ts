@@ -101,7 +101,6 @@ export type TModelsContent = {
         title: string;
         mainInstruction: string;
         fleSizeInstruction: string;
-        aoiAreaInstruction: string;
       };
       pageDescription: string;
     };

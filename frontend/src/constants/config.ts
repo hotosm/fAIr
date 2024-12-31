@@ -59,6 +59,12 @@ export const MAX_TRAINING_AREA_UPLOAD_FILE_SIZE =
   ENVS.MAX_TRAINING_AREA_UPLOAD_FILE_SIZE || 5 * 1024 * 1024;
 
 /**
+ * The name of the application.
+ * This is used in the geojson-to-osm utility function to include the app name in the XML root element.
+ */
+
+export const APP_NAME = ENVS.APP_NAME || "fAIr";
+/**
  * The current version of the application.
  * This is used in the OSM redirect callback when a training area is opened in OSM.
  */

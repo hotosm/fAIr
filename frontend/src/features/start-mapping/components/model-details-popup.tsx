@@ -114,7 +114,7 @@ const ModelDetailsPopUp = ({
         <p>
           {START_MAPPING_PAGE_CONTENT.modelDetails.popover.accuracy}:{" "}
           <span className="font-medium">
-            {roundNumber(model?.accuracy ?? (data?.accuracy as number), 2)}%
+            {roundNumber(model?.accuracy ?? (data?.accuracy as number))}%
           </span>
         </p>
         <p>
