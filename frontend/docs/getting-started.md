@@ -81,6 +81,21 @@ Prettier is a used to maintain consistent code formatting in the project. To for
 
 2. pnpm/npm/yarn format:check
 ```
+#### Tests
+
+Vitest is a used to write the tests in the codebase. To run the tests, run the command below:
+
+```bash
+pnpm/npm/yarn test
+```
+
+#### Documentation
+
+Vitepress is a used to power this documentation site. To update the docs check the `docs` folder and run the command below to preview your changes:
+
+```bash
+pnpm/npm/yarn docs:dev
+```
 
 #### TypeScript
 
