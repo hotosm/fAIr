@@ -6,7 +6,8 @@ on:
     paths:
       - "frontend/**"
       - ".github/workflows/frontend_build_push.yml"
-
+  workflow_dispatch:
+  
 permissions:
   id-token: write
   contents: read
@@ -20,7 +21,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [16.14.2]
+        node-version: [20]
 
     steps:
       - uses: actions/checkout@v4
@@ -29,7 +30,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: Install dependencies
-        run: cd frontend/ && npm install --legacy-peer-deps
+        run: cd frontend/ && npm install
 
       - name: Build frontend
         run: cd frontend/ && npm run build
@@ -46,4 +47,4 @@ jobs:
           role-session-name: fAIrGithub
 
       - name: Upload to S3
-        run: cd frontend/build && aws s3 sync . s3://${{ vars.FRONTEND_BUCKET }}/
+        run: cd frontend/dist && aws s3 sync . s3://${{ vars.FRONTEND_BUCKET }}/
