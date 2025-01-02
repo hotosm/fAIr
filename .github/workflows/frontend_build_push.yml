@@ -35,10 +35,11 @@ jobs:
       - name: Build frontend
         run: cd frontend/ && npm run build
         env:
-          REACT_APP_API_BASE: ${{ vars.REACT_APP_API_BASE }}
-          REACT_APP_PREDICTOR_API_BASE: ${{ vars.REACT_APP_PREDICTOR_API_BASE }}
-          REACT_APP_ENV: Dev
-
+          VITE_BASE_API_URL: ${{ vars.VITE_BASE_API_URL }}
+          VITE_PREDICTOR_BASE_API_URL: ${{ vars.VITE_PREDICTOR_BASE_API_URL }}
+          VITE_MATOMO_ID: ${{ vars.VITE_MATOMO_ID }}
+          VITE_MATOMO_APP_DOMAIN: ${{ vars.VITE_MATOMO_APP_DOMAIN }}
+          
       - name: Authenticate to AWS
         uses: aws-actions/configure-aws-credentials@v4
         with:
