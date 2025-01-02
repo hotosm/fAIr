@@ -19,7 +19,7 @@ This document lists the major dependencies used in this application along with t
 | remark-gfm               | MIT           | Plugin to support GitHub Flavored Markdown (GFM) | [Remark GFM](https://github.com/remarkjs/remark-gfm) |
 | tailwind-merge           | MIT           | Utility to merge Tailwind CSS classes | [Tailwind Merge](https://github.com/dcastil/tailwind-merge) |
 | terra-draw               | MIT           | A drawing library for interactive maps | [Terra Draw](https://github.com/JamesLMilner/terra-draw) |
-| vaul                     | MIT           | A simple, secure, and efficient vault for managing secrets | [Vaul](https://github.com/emilkowalski/vaul) |
+| vaul                     | MIT           | A drawer component for React | [Vaul](https://github.com/emilkowalski/vaul) |
 | xmlbuilder2              | MIT           | A modern, fast, and powerful XML builder for Node.js | [Xmlbuilder2](https://github.com/oozcitak/xmlbuilder2) |
 | maplibre-gl              | BSD-3-Clause  | A mapping library for rendering maps with WebGL | [MapLibre GL](https://github.com/maplibre/maplibre-gl-js) |
 | pmtiles                  | BSD-3-Clause           | A compact, efficient format for storing and serving vector tiles | [PMTiles](https://github.com/protomaps/PMTiles) |
