@@ -7,7 +7,7 @@ on:
       - "frontend/**"
       - ".github/workflows/frontend_build_push.yml"
   workflow_dispatch:
-  
+
 permissions:
   id-token: write
   contents: read
@@ -36,10 +36,11 @@ jobs:
         run: cd frontend/ && npm run build
         env:
           VITE_BASE_API_URL: ${{ vars.VITE_BASE_API_URL }}
-          VITE_PREDICTOR_BASE_API_URL: ${{ vars.VITE_PREDICTOR_BASE_API_URL }}
           VITE_MATOMO_ID: ${{ vars.VITE_MATOMO_ID }}
           VITE_MATOMO_APP_DOMAIN: ${{ vars.VITE_MATOMO_APP_DOMAIN }}
-          
+          VITE_OSM_HASHTAGS: ${{ vars.VITE_OSM_HASHTAGS }}
+          VITE_FAIR_PREDICTOR_API_URL: ${{ vars.VITE_FAIR_PREDICTOR_API_URL }}
+
       - name: Authenticate to AWS
         uses: aws-actions/configure-aws-credentials@v4
         with:
