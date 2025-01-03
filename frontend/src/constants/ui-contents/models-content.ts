@@ -1,6 +1,4 @@
 import { BASE_MODELS } from "@/enums";
-import { formatAreaInAppropriateUnit } from "@/utils";
-import { MAX_TRAINING_AREA_SIZE, MIN_TRAINING_AREA_SIZE } from "../config";
 import { TModelsContent } from "@/types";
 
 export const MODELS_CONTENT: TModelsContent = {
@@ -120,7 +118,6 @@ export const MODELS_CONTENT: TModelsContent = {
           "Drag 'n' drop some files here, or click to select files",
         fleSizeInstruction:
           "Supports only GeoJSON (.geojson) files. (5MB max.)",
-        aoiAreaInstruction: `Area should be > ${formatAreaInAppropriateUnit(MIN_TRAINING_AREA_SIZE)} and < ${formatAreaInAppropriateUnit(MAX_TRAINING_AREA_SIZE)}.`,
       },
       pageDescription:
         "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Id fugit ducimus harum debitis deserunt cum quod quam rerum aliquid. Quibusdam sequi incidunt quasi delectus laudantium accusamus modi omnis maiores. Incidunt!",

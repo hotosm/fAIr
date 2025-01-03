@@ -91,9 +91,7 @@ const ModelCard: React.FC<ModelCardProps> = ({ model }) => {
             </p>
             <p className="text-gray text-body-3 flex gap-x-2">
               {MODELS_CONTENT.models.modelsList.modelCard.baseModel}
-              <span className="font-bold text-dark">
-                {extractDatePart(model.base_model)}
-              </span>
+              <span className="font-bold text-dark">{model.base_model}</span>
             </p>
           </div>
         </div>

@@ -4,7 +4,7 @@ import { DropdownPlacement } from "@/enums";
 import { ELEMENT_DISTANCE_FROM_NAVBAR } from "@/constants";
 import { Link } from "@/components/ui/link";
 import { navLinks } from "@/constants/general";
-import { NavLogo } from "@/components/layout";
+import { NavLogo } from "@/components/layouts";
 import { useNavigate } from "react-router-dom";
 
 type BrandLogoWithDropDownProps = {

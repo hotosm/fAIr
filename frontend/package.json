@@ -9,7 +9,12 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "format": "prettier --write 'src/**/*.{js,jsx,ts,tsx,json,css,scss,md}'",
-    "format:check": "prettier --check 'src/**/*.{js,jsx,ts,tsx,json,css,scss,md}'"
+    "format:check": "prettier --check 'src/**/*.{js,jsx,ts,tsx,json,css,scss,md}'",
+    "test": "vitest",
+    "coverage": "vitest run --coverage",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
   },
   "dependencies": {
     "@shoelace-style/shoelace": "^2.16.0",
@@ -52,6 +57,7 @@
     "@typescript-eslint/eslint-plugin": "^8.18.2",
     "@typescript-eslint/parser": "^8.18.2",
     "@vitejs/plugin-react": "^4.3.1",
+    "@vitest/coverage-v8": "2.1.8",
     "autoprefixer": "^10.4.20",
     "eslint": "^9.11.1",
     "eslint-config-prettier": "^9.1.0",
@@ -62,13 +68,16 @@
     "eslint-plugin-react-refresh": "^0.4.9",
     "eslint-plugin-tailwindcss": "^3.17.5",
     "globals": "^15.9.0",
+    "jsdom": "^25.0.1",
     "postcss": "^8.4.47",
     "prettier": "3.3.3",
     "tailwindcss": "^3.4.12",
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.0.1",
     "vite": "^5.4.1",
-    "vite-tsconfig-paths": "^5.0.1"
+    "vite-tsconfig-paths": "^5.0.1",
+    "vitepress": "^1.5.0",
+    "vitest": "^2.1.8"
   },
   "pnpm": {
     "overrides": {

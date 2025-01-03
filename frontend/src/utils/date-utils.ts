@@ -11,8 +11,11 @@ import { DateFilter } from "@/types";
  * @returns {string} - The extracted date part in "YYYY-MM-DD" format.
  */
 export const extractDatePart = (isoString: string) => {
-  if (!isoString) return "N/A"; // Return fallback if undefined
-  return isoString.split("T")[0];
+  const [datePart] = isoString.split("T");
+  if (!datePart) {
+    return "N/A";
+  }
+  return datePart;
 };
 
 /**
@@ -43,6 +46,7 @@ export const buildDateFilterQueryString = (
   endDate?: string,
 ): Record<string, string> => {
   const params: Record<string, string> = {};
+  if (!selectedFilter) return {};
   if (startDate) {
     params[`${selectedFilter?.apiValue}__gte`] = startDate;
   }
@@ -53,6 +57,17 @@ export const buildDateFilterQueryString = (
   return Object.assign({}, params);
 };
 
+/**
+ * Formats an ISO 8601 date-time string into a human-readable date-time string.
+ *
+ * This function takes an ISO date-time string (e.g., "2024-01-01T12:00:00Z")
+ * and converts it into a human-readable format with the date and time separated
+ * by a comma. The date part is formatted as "DD/MM/YYYY", and the time part is
+ * formatted as "HH:MM:SS".
+ *
+ * @param {string} isoString - The ISO date-time string to format.
+ * @returns {string} - The formatted date-time string (e.g., "01/01/2024, 12:00:00").
+ */
 export const formatDate = (isoString: string): string => {
   const date = new Date(isoString);
 

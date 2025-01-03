@@ -14,7 +14,6 @@ import { useAuth } from "@/app/providers/auth-provider";
 import { useDialog } from "@/hooks/use-dialog";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { useState } from "react";
-import { useToastNotification } from "@/hooks/use-toast-notification";
 import { useTrainingHistory } from "@/features/models/hooks/use-training";
 import { useUpdateTraining } from "@/features/models/api/update-trainings";
 import {
@@ -22,6 +21,7 @@ import {
   formatDuration,
   roundNumber,
   showErrorToast,
+  showSuccessToast,
   truncateString,
 } from "@/utils";
 
@@ -249,11 +249,11 @@ const TrainingHistoryTable: React.FC<TrainingHistoryTableProps> = ({
   const [sorting, setSorting] = useState<SortingState>([]);
   const { user, isAuthenticated } = useAuth();
   const { isOpened, openDialog, closeDialog } = useDialog();
-  const toast = useToastNotification();
+
   const { mutate } = useUpdateTraining({
     mutationConfig: {
       onSuccess: (res) => {
-        toast(res.data, "success");
+        showSuccessToast(res.data);
       },
       onError: (err) => {
         showErrorToast(err);

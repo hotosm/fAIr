@@ -25,3 +25,4 @@ dist-ssr
 
 tsconfig.app.tsbuildinfo
 tsconfig.node.tsbuildinfo
+docs/.vitepress/cache 

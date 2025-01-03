@@ -1,6 +1,9 @@
 import bbox from "@turf/bbox";
 import { API_ENDPOINTS, BASE_API_URL } from "@/services";
 import { calculateGeoJSONArea } from "./geometry-utils";
+import { Feature, FeatureCollection } from "geojson";
+import { geojsonToOsmPolygons } from "./geojson-to-osm";
+import { showErrorToast, showSuccessToast } from "../general-utils";
 import {
   FAIR_VERSION,
   JOSM_REMOTE_URL,
@@ -9,9 +12,6 @@ import {
   OSM_HASHTAGS,
   TOAST_NOTIFICATIONS,
 } from "@/constants";
-import { Feature, FeatureCollection } from "geojson";
-import { geojsonToOsmPolygons } from "./geojson-to-osm";
-import { showErrorToast, showSuccessToast } from "../general-utils";
 
 /**
  * Creates a GeoJSON FeatureCollection
