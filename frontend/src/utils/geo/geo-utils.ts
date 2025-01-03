@@ -1,17 +1,16 @@
-import bbox from "@turf/bbox";
-import { API_ENDPOINTS, BASE_API_URL } from "@/services";
-import { calculateGeoJSONArea } from "./geometry-utils";
+import bbox from '@turf/bbox';
+import { API_ENDPOINTS, BASE_API_URL } from '@/services';
+import { calculateGeoJSONArea } from './geometry-utils';
+import { Feature, FeatureCollection } from 'geojson';
+import { geojsonToOsmPolygons } from './geojson-to-osm';
+import { showErrorToast, showSuccessToast } from '../general-utils';
 import {
-  FAIR_VERSION,
   JOSM_REMOTE_URL,
   MAX_TRAINING_AREA_SIZE,
   MIN_TRAINING_AREA_SIZE,
   OSM_HASHTAGS,
   TOAST_NOTIFICATIONS,
 } from "@/constants";
-import { Feature, FeatureCollection } from "geojson";
-import { geojsonToOsmPolygons } from "./geojson-to-osm";
-import { showErrorToast, showSuccessToast } from "../general-utils";
 
 /**
  * Creates a GeoJSON FeatureCollection
@@ -55,7 +54,7 @@ export const openInIDEditor = (
   const centerLat = (bottomLat + topLat) / 2;
   const centerLng = (leftLng + rightLng) / 2;
   const zoomLevel = 17;
-  let idEditorURL = `https://www.openstreetmap.org/edit?editor=id#disable_features=boundaries&gpx=${BASE_API_URL + API_ENDPOINTS.GET_TRAINING_AREA_GPX(aoiId)}&map=${zoomLevel}/${centerLat}/${centerLng}&background=custom:${encodeURIComponent(imageryURL)}&hashtags=${OSM_HASHTAGS}%23HOT-fAIr-${FAIR_VERSION},%23dataset-${datasetId},%23aoi-${aoiId}`;
+  let idEditorURL = `https://www.openstreetmap.org/edit?editor=id#disable_features=boundaries&gpx=${BASE_API_URL + API_ENDPOINTS.GET_TRAINING_AREA_GPX(aoiId)}&map=${zoomLevel}/${centerLat}/${centerLng}&background=custom:${encodeURIComponent(imageryURL)}&hashtags=${encodeURIComponent(OSM_HASHTAGS)},#dataset-${datasetId},#aoi-${aoiId}`;
   window.open(idEditorURL, "_blank", "noreferrer");
 };
 
@@ -126,6 +125,7 @@ export const openInJOSM = async (
       loadurl.searchParams.set("top", String(bounds[3]));
       loadurl.searchParams.set("left", String(bounds[0]));
       loadurl.searchParams.set("right", String(bounds[2]));
+      loadurl.searchParams.set("changeset_tags", `comment=${OSM_HASHTAGS}|source=${oamTileName}`);
       await fetch(loadurl);
       showSuccessToast(TOAST_NOTIFICATIONS.josmOpenSuccess);
     } catch (error) {
