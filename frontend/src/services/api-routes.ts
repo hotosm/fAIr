@@ -1,3 +1,5 @@
+import { ENVS } from '@/config/env';
+
 /**
  * The backend API endpoints.
  */
@@ -10,12 +12,11 @@ export const API_ENDPOINTS = {
 
   // OSM Database
 
-  GET_OSM_DATABASE_LAST_UPDATED:
-    "https://api-prod.raw-data.hotosm.org/v1/status/",
+  GET_OSM_DATABASE_LAST_UPDATED: ENVS.OSM_DATABASE_STATUS_API_URL || "https://api-prod.raw-data.hotosm.org/v1/status/",
 
   // Predict
 
-  GET_MODEL_PREDICTIONS: "https://predictor-dev.fair.hotosm.org/predict/",
+  GET_MODEL_PREDICTIONS: ENVS.FAIR_PREDICTOR_API_URL || "https://predictor-dev.fair.hotosm.org/predict/",
 
   // Feedbacks
 

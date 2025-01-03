@@ -233,4 +233,17 @@ export const ENVS = {
   */
   MAX_ACCEPTABLE_POLYGON_IN_TRAINING_AREA_GEOJSON_FILE: import.meta.env
     .VITE_MAX_ACCEPTABLE_POLYGON_IN_TRAINING_AREA_GEOJSON_FILE,
+
+  /**
+    The predictor API URL.
+    Data type: String (e.g., https://predictor-dev.fair.hotosm.org/predict/).
+    Default value: https://predictor-dev.fair.hotosm.org/predict/.
+   */
+  FAIR_PREDICTOR_API_URL: import.meta.env.VITE_FAIR_PREDICTOR_API_URL,
+  /**
+    The OSM Database status API.
+    Data type: String (e.g., https://api-prod.raw-data.hotosm.org/v1/status/).
+    Default value: https://api-prod.raw-data.hotosm.org/v1/status/.
+   */
+  OSM_DATABASE_STATUS_API_URL: import.meta.env.VITE_OSM_DATABASE_STATUS_API_URL,
 };
