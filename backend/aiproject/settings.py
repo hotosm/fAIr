@@ -224,7 +224,6 @@ CELERY_RESULT_BACKEND = env(
     "CELERY_RESULT_BACKEND", default="redis://127.0.0.1:6379/0"
 )  # if you don't want to use redis pass 'django-db' to use app db itself
 
-
 Q_CLUSTER = {
     "name": "DjangORM",
     "workers": 4,
@@ -234,7 +233,7 @@ Q_CLUSTER = {
     "queue_limit": 50,
     "timeout": 60 * 5,  # number of seconds
     "label": "Django Q",
-    "redis": CELERY_BROKER_URL,
+    "orm": "default",
 }
 
 
