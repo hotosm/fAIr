@@ -56,7 +56,7 @@ OSM_SECRET_KEY = env("OSM_SECRET_KEY")
 
 
 # S3
-BUCKET_NAME = env("BUCKET_NAME")
+BUCKET_NAME = env("BUCKET_NAME", default="fair-dev")
 PARENT_BUCKET_FOLDER = env(
     "PARENT_BUCKET_FOLDER", default="dev"
 )  # use prod for production
@@ -233,7 +233,7 @@ Q_CLUSTER = {
     "queue_limit": 50,
     "timeout": 60 * 5,  # number of seconds
     "label": "Django Q",
-    "orm": "default",
+    "BUCKET_NAMEorm": "default",
 }
 
 
