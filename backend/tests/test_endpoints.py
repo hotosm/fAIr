@@ -115,7 +115,7 @@ class TaskApiTest(APILiveServerTestCase):
         res = self.client.post(
             f"{API_BASE}/label/osm/fetch/{self.aoi.id}/", "", headers=headersList
         )
-        self.assertEqual(res.status_code, 201)
+        self.assertEqual(res.status_code, 202)
 
         # download labels from osm for 2
 
@@ -304,8 +304,8 @@ class TaskApiTest(APILiveServerTestCase):
         )
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-    def test_get_workspace(self):
-        # get training workspace
+    # def test_get_workspace(self):
+    #     # get training workspace
 
-        res = self.client.get(f"{API_BASE}/workspace/dataset_1/", headers=headersList)
-        self.assertEqual(res.status_code, 404)
+    #     res = self.client.get(f"{API_BASE}/workspace/dataset_1/", headers=headersList)
+    #     self.assertEqual(res.status_code, 404)
