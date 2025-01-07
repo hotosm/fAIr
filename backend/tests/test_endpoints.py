@@ -122,7 +122,7 @@ class TaskApiTest(APILiveServerTestCase):
         res = self.client.post(
             f"{API_BASE}/label/osm/fetch/{self.aoi.id}/", "", headers=headersList
         )
-        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(res.status_code, 202)
 
         # create training with epochs greater than the limit
 
