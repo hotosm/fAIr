@@ -45,7 +45,7 @@ jobs:
       - name: Install Node.js dependencies
         if: steps.npm-cache.outputs.cache-hit != 'true'
         working-directory: ./frontend
-        run: npm ci
+        run: npm install
 
       - name: Build
         working-directory: ./frontend
