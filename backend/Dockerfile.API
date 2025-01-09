@@ -24,7 +24,7 @@ RUN python3 -m venv /app/venv
 
 RUN /app/venv/bin/pip install --no-cache-dir --upgrade pip setuptools wheel
 
-COPY api-requirements.txt api-requirements.txt ./
+COPY api-requirements.txt ./
 
 RUN /app/venv/bin/pip install --no-cache-dir -r api-requirements.txt
 
