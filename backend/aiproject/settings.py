@@ -233,7 +233,7 @@ Q_CLUSTER = {
     "queue_limit": 50,
     "timeout": 60 * 5,  # number of seconds
     "label": "Django Q",
-    "BUCKET_NAMEorm": "default",
+    "orm": "default",
 }
 
 

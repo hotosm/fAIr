@@ -59,4 +59,4 @@ EXPOSE 8000
 
 #ENTRYPOINT ["/app/api-entrypoint-lock.sh"]
 
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["python", "manage.py", "runserver_with_q", "0.0.0.0:8000"]
