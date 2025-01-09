@@ -33,7 +33,6 @@ from django.contrib.gis.db.models.aggregates import Extent
 from django.contrib.gis.geos import GEOSGeometry
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
-from predictor import download_imagery, get_start_end_download_coords
 
 from .utils import S3Uploader
 
@@ -115,6 +114,8 @@ def get_file_count(path):
 
 
 def prepare_data(training_instance, dataset_id, feedback, zoom_level, source_imagery):
+    from predictor import download_imagery, get_start_end_download_coords
+
     training_input_base_path = os.path.join(
         settings.TRAINING_WORKSPACE, f"dataset_{dataset_id}"
     )
