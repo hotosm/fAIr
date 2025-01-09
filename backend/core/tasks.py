@@ -114,7 +114,10 @@ def get_file_count(path):
 
 
 def prepare_data(training_instance, dataset_id, feedback, zoom_level, source_imagery):
-    from predictor import download_imagery, get_start_end_download_coords
+    from predictor import (  # # TODO: migrate this back to hotfaiutilities
+        download_imagery,
+        get_start_end_download_coords,
+    )
 
     training_input_base_path = os.path.join(
         settings.TRAINING_WORKSPACE, f"dataset_{dataset_id}"
