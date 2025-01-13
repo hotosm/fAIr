@@ -349,7 +349,7 @@ export const ModelsProvider: React.FC<{
     mutationConfig: {
       onSuccess: () => {
         showSuccessToast(TOAST_NOTIFICATIONS.trainingRequestSubmittedSuccess);
-        //@ts-expect-error bad type definition
+
         timeOutRef.current = setTimeout(() => {
           setFormData(initialFormState);
         }, 2000);
