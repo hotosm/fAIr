@@ -1,4 +1,5 @@
 import { cn } from "@/utils";
+import { SHOELACE_SIZES } from "@/enums";
 import { SlCheckbox } from "@shoelace-style/shoelace/dist/react/index.js";
 import { useEffect, useState } from "react";
 import "./checkbox-group.css";
@@ -6,7 +7,7 @@ import "./checkbox-group.css";
 type CheckboxGroupProps = {
   options: {
     value: string;
-    apiValue?: string;
+    apiValue?: string | number;
   }[];
   disabled?: boolean;
   defaultSelectedOption?: string | string[] | number[];
@@ -68,7 +69,8 @@ const CheckboxGroup: React.FC<CheckboxGroupProps> = ({
         <li key={`checkbox-option-${id}`} className="flex items-center gap-x-2">
           <SlCheckbox
             disabled={disabled}
-            size="small"
+            size={SHOELACE_SIZES.SMALL}
+            //@ts-expect-error bad type definition
             value={option.apiValue ?? option.value}
             checked={selectedOptions.includes(
               String(option.apiValue ?? option.value),
@@ -77,9 +79,8 @@ const CheckboxGroup: React.FC<CheckboxGroupProps> = ({
             onSlChange={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              //@ts-expect-error bad type definition
-              const selectedValue = String(e.target.value);
-              handleCheckboxChange(selectedValue);
+              const target = e.target as HTMLInputElement;
+              handleCheckboxChange(target.value);
             }}
           >
             <span className="cursor-pointer">{option.value}</span>

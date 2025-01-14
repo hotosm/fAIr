@@ -1,0 +1,40 @@
+.heading {
+  width: auto;
+  text-align: center;
+  font-size: var(--hot-fair-font-size-title-4);
+  font-weight: var(--hot-fair-font-weight-bold);
+  text-transform: uppercase;
+  background-color: var(--hot-fair-color-primary);
+  color: var(--hot-fair-color-white);
+  display: inline-block;
+  padding: var(--sl-spacing-x-small) var(--sl-spacing-2x-large);
+}
+
+.seeMore {
+  font-size: var(--hot-fair-font-size-body-text-3);
+  font-weight: var(--hot-fair-font-weight-semibold);
+}
+
+.seeMore span {
+  margin: 0 10px;
+}
+
+.FAQContentContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sl-spacing-2x-large);
+}
+
+/* md: */
+@media (min-width: 768px) {
+  .heading {
+    max-width: 218px;
+    font-size: var(--hot-fair-font-size-title-2);
+    font-weight: var(--hot-fair-font-weight-semibold);
+  }
+
+  .FAQContentContainer {
+    margin: 0 auto;
+    max-width: 844px;
+  }
+}

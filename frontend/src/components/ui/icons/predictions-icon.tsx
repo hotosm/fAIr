@@ -1,7 +1,7 @@
 import { IconProps } from "@/types";
 import React from "react";
 
-const PredictionsIcon: React.FC<IconProps> = (props) => (
+export const PredictionsIcon: React.FC<IconProps> = (props) => (
   <svg
     viewBox="0 0 23 29"
     fill="none"
@@ -14,5 +14,3 @@ const PredictionsIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-
-export default PredictionsIcon;

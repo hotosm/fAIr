@@ -12,5 +12,5 @@ sl-textarea::part(textarea)::placeholder {
 
 sl-textarea::part(textarea) {
   color: var(--hot-fair-color-dark);
-  font-size: var(--hot-fair-font-size-body-text-2);
+  font-size: var(--hot-fair-font-size-body-text-3);
 }

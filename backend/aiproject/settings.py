@@ -55,9 +55,29 @@ OSM_LOGIN_REDIRECT_URI = env(
 OSM_SECRET_KEY = env("OSM_SECRET_KEY")
 
 
+# S3
+BUCKET_NAME = env("BUCKET_NAME", default="fair-dev")
+PARENT_BUCKET_FOLDER = env(
+    "PARENT_BUCKET_FOLDER", default="dev"
+)  # use prod for production
+AWS_REGION = env("AWS_REGION", default="us-east-1")
+AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID", default=None)
+AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY", default=None)
+PRESIGNED_URL_EXPIRY = env("PRESIGNED_URL_EXPIRY", default=3600)
+
+
 # Limiter
-EPOCHS_LIMIT = env("EPOCHS_LIMIT", default=30)
+EPOCHS_LIMIT = env("EPOCHS_LIMIT", default=20)  ## TODO : Remove this global variable
 BATCH_SIZE_LIMIT = env("BATCH_SIZE_LIMIT", default=8)
+
+## YOLO
+YOLO_EPOCHS_LIMIT = env("YOLO_EPOCHS_LIMIT", default=200)
+YOLO_BATCH_SIZE_LIMIT = env("YOLO_BATCH_SIZE_LIMIT", default=8)
+
+## RAMP
+RAMP_EPOCHS_LIMIT = env("RAMP_EPOCHS_LIMIT", default=40)
+RAMP_BATCH_SIZE_LIMIT = env("RAMP_BATCH_SIZE_LIMIT", default=8)
+
 TRAINING_WORKSPACE_DOWNLOAD_LIMIT = env(
     "TRAINING_WORKSPACE_DOWNLOAD_LIMIT", default=200
 )
@@ -83,6 +103,7 @@ INSTALLED_APPS = [
     "drf_yasg",
     "celery",
     "django_celery_results",
+    "django_q",
 ]
 
 MIDDLEWARE = [
@@ -202,6 +223,18 @@ CELERY_BROKER_URL = env("CELERY_BROKER_URL", default="redis://127.0.0.1:6379/0")
 CELERY_RESULT_BACKEND = env(
     "CELERY_RESULT_BACKEND", default="redis://127.0.0.1:6379/0"
 )  # if you don't want to use redis pass 'django-db' to use app db itself
+
+Q_CLUSTER = {
+    "name": "DjangORM",
+    "workers": 4,
+    "retry": 60 * 6,
+    "max_retires": 1,
+    "recycle": 50,
+    "queue_limit": 50,
+    "timeout": 60 * 5,  # number of seconds
+    "label": "Django Q",
+    "orm": "default",
+}
 
 
 AUTH_USER_MODEL = "login.OsmUser"

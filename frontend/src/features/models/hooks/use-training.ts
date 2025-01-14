@@ -7,13 +7,14 @@ import {
   getTrainingWorkspaceQueryOptions,
 } from "../api/factory";
 
-export const useTrainingDetails = (id: number) => {
+export const useTrainingDetails = (
+  id: number,
+  refetchInterval: boolean | number = false,
+) => {
   return useQuery({
     ...getTrainingDetailsQueryOptions(id),
     //@ts-expect-error bad type definition
-    throwOnError: (error) => error?.response?.status >= 500,
-    refetchInterval: 10000, // 10 seconds
-    refetchIntervalInBackground: true,
+    refetchInterval: refetchInterval,
     enabled: id !== null,
   });
 };
@@ -21,30 +22,22 @@ export const useTrainingDetails = (id: number) => {
 export const useTrainingStatus = (taskId: string) => {
   return useQuery({
     ...getTrainingStatusQueryOptions(taskId),
-    //@ts-expect-error bad type definition
-    throwOnError: (error) => error?.response?.status >= 500,
     refetchInterval: 10000, // 10 seconds
-    refetchIntervalInBackground: true,
   });
 };
 
 export const useTrainingFeedbacks = (id: number) => {
   return useQuery({
     ...getTrainingFeedbacksQueryOptions(id),
-    //@ts-expect-error bad type definition
-    throwOnError: (error) => error?.response?.status >= 500,
     enabled: id !== null,
   });
 };
 export const useTrainingWorkspace = (
-  datasetId: number,
   trainingId: number,
   directory_name = "",
 ) => {
   return useQuery({
-    ...getTrainingWorkspaceQueryOptions(datasetId, trainingId, directory_name),
-    //@ts-expect-error bad type definition
-    throwOnError: (error) => error?.response?.status >= 500,
+    ...getTrainingWorkspaceQueryOptions(trainingId, directory_name),
     enabled: trainingId !== null,
   });
 };
@@ -57,9 +50,6 @@ export const useTrainingHistory = (
 ) => {
   return useQuery({
     ...getTrainingHistoryQueryOptions(modelId, offset, limit, ordering),
-    //@ts-expect-error bad type definition
-    throwOnError: (error) => error?.response?.status >= 500,
     refetchInterval: 10000, // 10 seconds
-    refetchIntervalInBackground: true,
   });
 };

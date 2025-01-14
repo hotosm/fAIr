@@ -24,7 +24,7 @@ RUN python3 -m venv /app/venv
 
 RUN /app/venv/bin/pip install --no-cache-dir --upgrade pip setuptools wheel
 
-COPY api-requirements.txt api-requirements.txt ./
+COPY api-requirements.txt ./
 
 RUN /app/venv/bin/pip install --no-cache-dir -r api-requirements.txt
 
@@ -57,6 +57,6 @@ WORKDIR /app/code
 
 EXPOSE 8000
 
-ENTRYPOINT ["/app/api-entrypoint-lock.sh"]
+#ENTRYPOINT ["/app/api-entrypoint-lock.sh"]
 
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["python", "manage.py", "runserver_with_q", "0.0.0.0:8000"]

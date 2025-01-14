@@ -6,6 +6,7 @@ on:
     paths:
       - "frontend/**"
       - ".github/workflows/frontend_build_push.yml"
+  workflow_dispatch:
 
 permissions:
   id-token: write
@@ -20,7 +21,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [16.14.2]
+        node-version: [20]
 
     steps:
       - uses: actions/checkout@v4
@@ -29,14 +30,16 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: Install dependencies
-        run: cd frontend/ && npm install --legacy-peer-deps
+        run: cd frontend/ && npm install
 
       - name: Build frontend
         run: cd frontend/ && npm run build
         env:
-          REACT_APP_API_BASE: ${{ vars.REACT_APP_API_BASE }}
-          REACT_APP_PREDICTOR_API_BASE: ${{ vars.REACT_APP_PREDICTOR_API_BASE }}
-          REACT_APP_ENV: Dev
+          VITE_BASE_API_URL: ${{ vars.VITE_BASE_API_URL }}
+          VITE_MATOMO_ID: ${{ vars.VITE_MATOMO_ID }}
+          VITE_MATOMO_APP_DOMAIN: ${{ vars.VITE_MATOMO_APP_DOMAIN }}
+          VITE_OSM_HASHTAGS: ${{ vars.VITE_OSM_HASHTAGS }}
+          VITE_FAIR_PREDICTOR_API_URL: ${{ vars.VITE_FAIR_PREDICTOR_API_URL }}
 
       - name: Authenticate to AWS
         uses: aws-actions/configure-aws-credentials@v4
@@ -46,4 +49,4 @@ jobs:
           role-session-name: fAIrGithub
 
       - name: Upload to S3
-        run: cd frontend/build && aws s3 sync . s3://${{ vars.FRONTEND_BUCKET }}/
+        run: cd frontend/dist && aws s3 sync . s3://${{ vars.FRONTEND_BUCKET }}/

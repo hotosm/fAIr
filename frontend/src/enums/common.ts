@@ -41,9 +41,27 @@ export enum INPUT_TYPES {
   URL = "url",
 }
 
+export enum SHOELACE_SELECT_SIZES {
+  SMALL = "small",
+  MEDIUM = "medium",
+  LARGE = "large",
+}
+
 export enum SHOELACE_SIZES {
   SMALL = "small",
   MEDIUM = "medium",
   LARGE = "large",
   EXTRA_LARGE = "extra-large",
+}
+
+export enum DrawerPlacements {
+  BOTTOM = "bottom",
+  TOP = "top",
+  END = "end",
+}
+
+export enum DropdownPlacement {
+  BOTTOM_START = "bottom-start",
+  BOTTOM_END = "bottom-end",
+  TOP_END = "top-end",
 }

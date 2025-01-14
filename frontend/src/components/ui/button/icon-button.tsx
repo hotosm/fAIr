@@ -1,5 +1,5 @@
-import { ButtonSize, ButtonVariant } from "@/types";
 import { Button } from "@/components/ui/button";
+import { ButtonSize, ButtonVariant } from "@/types";
 import { cn } from "@/utils";
 
 type ButtonWithIconProps = {
@@ -8,7 +8,7 @@ type ButtonWithIconProps = {
   variant: ButtonVariant;
   prefixIcon?: React.ElementType;
   suffixIcon?: React.ElementType;
-  capitalizeText?: boolean;
+  textClassName?: string;
   className?: string;
   iconClassName?: string;
   disabled?: boolean;
@@ -26,6 +26,7 @@ const ButtonWithIcon: React.FC<ButtonWithIconProps> = ({
   disabled,
   size,
   uppercase,
+  textClassName,
 }) => {
   return (
     <div role="button">
@@ -38,7 +39,7 @@ const ButtonWithIcon: React.FC<ButtonWithIconProps> = ({
         uppercase={uppercase}
       >
         {PrefixIcon && <PrefixIcon className={cn(`icon ${iconClassName}`)} />}
-        <p>{label}</p>
+        <p className={textClassName}>{label}</p>
         {SuffixIcon && <SuffixIcon className={cn(`icon ${iconClassName}`)} />}
       </Button>
     </div>

@@ -1,7 +1,7 @@
 import { IconProps } from "@/types";
 import React from "react";
 
-const TagsInfoIcon: React.FC<IconProps> = (props) => (
+export const TagsInfoIcon: React.FC<IconProps> = (props) => (
   <svg
     {...props}
     viewBox="0 0 18 18"
@@ -14,5 +14,3 @@ const TagsInfoIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-
-export default TagsInfoIcon;

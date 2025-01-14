@@ -1,6 +1,7 @@
-import { TAuthenticate, TLogin, TUser } from "@/types/api";
-import { apiClient } from "@/services/api-client";
 import { API_ENDPOINTS } from "@/services/api-routes";
+import { apiClient } from "@/services/api-client";
+import { showErrorToast } from "@/utils";
+import { TAuthenticate, TLogin, TUser } from "@/types/api";
 
 /**
  * This class encapsulate the various authentication services.
@@ -35,7 +36,7 @@ class AuthService {
       const oauthUrl: TLogin = await response.data;
       return oauthUrl;
     } catch (error) {
-      console.error("Failed to get OAuth URL", error);
+      showErrorToast(undefined, "Failed to get OAuth URL");
       throw new Error("Unable to retrieve login URL.");
     }
   }
@@ -52,7 +53,7 @@ class AuthService {
         throw new Error("Popup blocked or not created.");
       }
     } catch (error) {
-      console.error("OAuth flow initialization failed", error);
+      showErrorToast(undefined, "OAuth flow initialization failed");
       throw error;
     }
   }
@@ -66,7 +67,7 @@ class AuthService {
       const response = await apiClient.get(API_ENDPOINTS.USER);
       return response.data;
     } catch (error) {
-      console.error("Failed to fetch user data", error);
+      showErrorToast(undefined, "Failed to fetch user data");
       throw new Error("Unable to retrieve user data.");
     }
   }
@@ -83,7 +84,7 @@ class AuthService {
       );
       return response.data;
     } catch (error) {
-      console.error("Authentication failed", error);
+      showErrorToast(undefined, "Authentication failed");
       throw new Error("Failed to authenticate user.");
     }
   }

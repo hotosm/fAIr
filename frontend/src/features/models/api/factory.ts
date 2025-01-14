@@ -1,4 +1,5 @@
-import { queryOptions, keepPreviousData } from "@tanstack/react-query";
+import { keepPreviousData, queryOptions } from "@tanstack/react-query";
+import { queryKeys } from "@/services";
 import {
   getModels,
   getModelDetails,
@@ -12,7 +13,6 @@ import {
   getTrainingStatus,
   getTrainingWorkspace,
 } from "@/features/models/api/get-trainings";
-import { queryKeys } from "@/services";
 
 // Models
 
@@ -24,6 +24,7 @@ type TModelQueryOptions = {
   dateFilters: Record<string, string>;
   status: number;
   id: number;
+  userId?: number;
 };
 
 export const getModelsQueryOptions = ({
@@ -34,24 +35,37 @@ export const getModelsQueryOptions = ({
   orderBy,
   dateFilters,
   id,
+  userId,
 }: TModelQueryOptions) => {
   return queryOptions({
     queryKey: [
       "models",
-      { status, searchQuery, offset, orderBy, dateFilters, id },
+      { status, searchQuery, offset, orderBy, dateFilters, id, userId },
     ],
     queryFn: () =>
-      getModels(limit, offset, orderBy, status, searchQuery, dateFilters, id),
+      getModels(
+        limit,
+        offset,
+        orderBy,
+        status,
+        searchQuery,
+        dateFilters,
+        id,
+        userId,
+      ),
     placeholderData: keepPreviousData,
   });
 };
 
-export const getModelDetailsQueryOptions = (id: string, refetchInterval: boolean | number) => {
+export const getModelDetailsQueryOptions = (
+  id: string,
+  refetchInterval: boolean | number,
+) => {
   return queryOptions({
     queryKey: [queryKeys.MODEL_DETAILS(id)],
     queryFn: () => getModelDetails(id),
     //@ts-expect-error bad type definition
-    refetchInterval: refetchInterval
+    refetchInterval: refetchInterval,
   });
 };
 
@@ -87,13 +101,12 @@ export const getTrainingFeedbacksQueryOptions = (id: number) => {
 };
 
 export const getTrainingWorkspaceQueryOptions = (
-  datasetId: number,
   trainingId: number,
   directory_name: string,
 ) => {
   return queryOptions({
-    queryKey: ["training-workspace", datasetId, trainingId, directory_name],
-    queryFn: () => getTrainingWorkspace(datasetId, trainingId, directory_name),
+    queryKey: ["training-workspace", trainingId, directory_name],
+    queryFn: () => getTrainingWorkspace(trainingId, directory_name),
     enabled: trainingId !== null,
   });
 };

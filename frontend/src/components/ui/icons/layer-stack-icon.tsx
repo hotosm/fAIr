@@ -1,7 +1,7 @@
 import { IconProps } from "@/types";
 import React from "react";
 
-const LayerStackIcon: React.FC<IconProps> = (props) => (
+export const LayerStackIcon: React.FC<IconProps> = (props) => (
   <svg
     {...props}
     viewBox="0 0 20 22"
@@ -14,5 +14,3 @@ const LayerStackIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-
-export default LayerStackIcon;

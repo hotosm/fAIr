@@ -1,7 +1,7 @@
 import { IconProps } from "@/types";
 import React from "react";
 
-const FileIcon: React.FC<IconProps> = (props) => (
+export const FileIcon: React.FC<IconProps> = (props) => (
   <svg
     {...props}
     viewBox="0 0 17 20"
@@ -14,5 +14,3 @@ const FileIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-
-export default FileIcon;

@@ -7,8 +7,10 @@ const StepHeading = ({
 }) => {
   return (
     <>
-      <h1 className="text-large-title text-primary">{heading}</h1>
-      <p className="text-gray text-body-2">{description}</p>
+      <h1 className="text-title-1 md:text-large-title text-primary">
+        {heading}
+      </h1>
+      <p className="text-gray text-body-3 md:text-body-2">{description}</p>
     </>
   );
 };

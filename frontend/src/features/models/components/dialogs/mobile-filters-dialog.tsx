@@ -1,14 +1,17 @@
+import { APPLICATION_ROUTES } from "@/constants";
+import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
+import { DialogProps, TQueryParams } from "@/types";
+import { useLocation } from "react-router-dom";
 
 import {
   CategoryFilter,
   DateRangeFilter,
   OrderingFilter,
+  StatusFilter,
 } from "@/features/models/components/filters";
-import { DialogProps, TQueryParams } from "@/types";
-import { Button } from "@/components/ui/button";
 
-type TrainingAreaDialogProps = DialogProps & {
+type TrainingAreaDrawerProps = DialogProps & {
   updateQuery: (updatedParams: TQueryParams) => void;
   query: TQueryParams;
   disabled: boolean;
@@ -29,13 +32,18 @@ const FilterItem = ({
   );
 };
 
-const MobileModelFiltersDialog: React.FC<TrainingAreaDialogProps> = ({
+const MobileModelFiltersDialog: React.FC<TrainingAreaDrawerProps> = ({
   isOpened,
   closeDialog,
   query,
   updateQuery,
   disabled,
 }) => {
+  const currentRoute = useLocation();
+  const userIsInAccountModelsPage = currentRoute.pathname.includes(
+    APPLICATION_ROUTES.ACCOUNT_MODELS,
+  );
+
   return (
     <Dialog isOpened={isOpened} closeDialog={closeDialog} label={"Filter"}>
       <div className="flex flex-col gap-y-4">
@@ -49,6 +57,18 @@ const MobileModelFiltersDialog: React.FC<TrainingAreaDialogProps> = ({
         <FilterItem title="Filter by">
           <CategoryFilter disabled={true} isMobileFilterModal />
         </FilterItem>
+
+        {userIsInAccountModelsPage && (
+          <FilterItem title="Filter by">
+            <StatusFilter
+              disabled={false}
+              isMobileFilterModal
+              query={query}
+              updateQuery={updateQuery}
+            />
+          </FilterItem>
+        )}
+
         <FilterItem title="">
           <DateRangeFilter
             query={query}

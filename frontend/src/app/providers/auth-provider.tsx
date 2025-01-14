@@ -1,16 +1,15 @@
-import { useLocalStorage, useSessionStorage } from "@/hooks/use-storage";
-import { authService } from "@/services";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { apiClient } from "@/services/api-client";
+import { authService } from "@/services";
+import { showErrorToast, showSuccessToast } from "@/utils";
 import { TUser } from "@/types/api";
+import { useLocalStorage, useSessionStorage } from "@/hooks/use-storage";
 import {
+  TOAST_NOTIFICATIONS,
   HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY,
   HOT_FAIR_LOGIN_SUCCESSFUL_SESSION_KEY,
   HOT_FAIR_SESSION_REDIRECT_KEY,
-  showErrorToast,
-  showSuccessToast,
-  TOAST_NOTIFICATIONS,
-} from "@/utils";
-import React, { createContext, useContext, useState, useEffect } from "react";
+} from "@/constants";
 
 type TAuthContext = {
   token: string;
@@ -23,7 +22,13 @@ type TAuthContext = {
 // @ts-expect-error bad type definition
 const AuthContext = createContext<TAuthContext>(null);
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
+};
 
 type AuthProviderProps = {
   children: React.ReactNode;

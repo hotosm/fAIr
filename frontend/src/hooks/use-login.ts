@@ -1,13 +1,12 @@
+import { authService } from "@/services";
+import { showErrorToast } from "@/utils";
 import { useLocation } from "react-router-dom";
 import { useSessionStorage } from "@/hooks/use-storage";
-import { authService } from "@/services";
-import {
-  HOT_FAIR_SESSION_REDIRECT_KEY,
-  showErrorToast,
-  TOAST_NOTIFICATIONS,
-} from "@/utils";
 import { useState } from "react";
-
+import {
+  TOAST_NOTIFICATIONS,
+  HOT_FAIR_SESSION_REDIRECT_KEY,
+} from "@/constants";
 /**
  * Custom hook to handle the login button click event.
  *
@@ -34,7 +33,6 @@ export const useLogin = () => {
       await authService.initializeOAuthFlow();
     } catch (error) {
       showErrorToast(undefined, TOAST_NOTIFICATIONS.authenticationFailed);
-      console.error("An error occured while authenticating", error);
     } finally {
       setLoading(false);
     }

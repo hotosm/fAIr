@@ -1,3 +1,6 @@
+import { BBOX } from "./common";
+import { GeoJsonProperties, Geometry } from "geojson";
+
 /**
  * This file contains the different types/schema for the API responses from the backend.
  */
@@ -152,18 +155,6 @@ export type TTrainingFeedbacks = {
 
 // Centroid API response types
 
-export type Geometry = {
-  type:
-    | "Point"
-    | "LineString"
-    | "Polygon"
-    | "MultiPoint"
-    | "MultiLineString"
-    | "MultiPolygon"
-    | "GeometryCollection";
-  coordinates: any;
-};
-
 export type Feature = {
   type: "Feature";
   geometry: Geometry;
@@ -171,10 +162,35 @@ export type Feature = {
     | {
         mid: string;
       }
-    | any;
+    | GeoJsonProperties;
 };
 
 export type FeatureCollection = {
   type: "FeatureCollection";
   features: [] | Feature[];
+};
+
+export type TModelPredictionsConfig = {
+  area_threshold: number;
+  bbox: BBOX;
+  checkpoint: string;
+  confidence: number;
+  max_angle_change: number;
+  model_id: string;
+  skew_tolerance: number;
+  source: string;
+  tolerance: number;
+  use_josm_q: boolean;
+  zoom_level: number;
+};
+
+export type TModelPredictionFeature = {
+  type: "Feature";
+  geometry: Geometry;
+  properties: {
+    id?: number | string;
+    _id?: number | string;
+    config: TModelPredictionsConfig;
+  };
+  id?: string | number;
 };

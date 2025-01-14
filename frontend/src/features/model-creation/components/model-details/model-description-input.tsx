@@ -1,9 +1,9 @@
+import { MODELS_CONTENT } from "@/constants";
+import { TextArea } from "@/components/ui/form";
 import {
   FORM_VALIDATION_CONFIG,
   MODEL_CREATION_FORM_NAME,
 } from "@/app/providers/models-provider";
-import { TextArea } from "@/components/ui/form";
-import { MODEL_CREATION_CONTENT } from "@/utils";
 
 const ModelDescriptionFormInput = ({
   handleChange,
@@ -15,16 +15,19 @@ const ModelDescriptionFormInput = ({
   return (
     <TextArea
       handleChange={(e) => handleChange(e.target.value)}
-      label={MODEL_CREATION_CONTENT.modelDetails.form.modelDescription.label}
+      label={
+        MODELS_CONTENT.modelCreation.modelDetails.form.modelDescription.label
+      }
       helpText={
-        MODEL_CREATION_CONTENT.modelDetails.form.modelDescription.helpText
+        MODELS_CONTENT.modelCreation.modelDetails.form.modelDescription.helpText
       }
       labelWithTooltip
       toolTipContent={
-        MODEL_CREATION_CONTENT.modelDetails.form.modelDescription.toolTip
+        MODELS_CONTENT.modelCreation.modelDetails.form.modelDescription.toolTip
       }
       placeholder={
-        MODEL_CREATION_CONTENT.modelDetails.form.modelDescription.placeholder
+        MODELS_CONTENT.modelCreation.modelDetails.form.modelDescription
+          .placeholder
       }
       value={value}
       required

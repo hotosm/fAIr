@@ -1,4 +1,4 @@
-export { default as ModelsMap } from "./map/models-map";
+export { ModelsMap, TrainingAreaMap } from "./maps";
 export { default as ModelList } from "../layouts/grid";
 export { default as PageHeader } from "./header";
 export { default as ModelProperties } from "./model-details-properties";
@@ -8,4 +8,6 @@ export { default as ModelDetailsInfo } from "./model-details-info";
 export { default as ModelDetailItem } from "./model-detail-item";
 export { default as ModelDetailsProperties } from "./model-details-properties";
 export { default as TrainingHistoryTable } from "./training-history-table";
-export { default as ModelDetailsPopUp } from "./model-details-popup";
+export { default as LayoutToggle } from "./layout-toggle";
+export { default as ModelMapToggle } from "./map-toggle";
+export { TrainingAreaButton } from "./training-area-button";

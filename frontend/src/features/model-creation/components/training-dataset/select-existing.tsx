@@ -1,15 +1,15 @@
+import useDebounce from "@/hooks/use-debounce";
+import { CheckIcon } from "@/components/ui/icons";
+import { Input } from "@/components/ui/form";
+import { MODELS_CONTENT } from "@/constants";
+import { SearchIcon } from "@/components/ui/icons";
+import { SkeletonWrapper } from "@/components/ui/skeleton";
+import { useGetTrainingDatasets } from "@/features/model-creation/hooks/use-training-datasets";
+import { useState } from "react";
 import {
   MODEL_CREATION_FORM_NAME,
   useModelsContext,
 } from "@/app/providers/models-provider";
-import { Input } from "@/components/ui/form";
-import { SearchIcon } from "@/components/ui/icons";
-import CheckIcon from "@/components/ui/icons/check-icon";
-import { useState } from "react";
-import { useGetTrainingDatasets } from "@/features/model-creation/hooks/use-training-datasets";
-import useDebounce from "@/hooks/use-debounce";
-import { MODEL_CREATION_CONTENT } from "@/utils";
-import { SkeletonWrapper } from "@/components/ui/skeleton";
 
 const SelectExistingTrainingDatasetForm = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -20,9 +20,9 @@ const SelectExistingTrainingDatasetForm = () => {
 
   return (
     <div className="flex flex-col gap-y-10">
-      <p className="font-semibold text-body-1 mb-2">
+      <p className="font-semibold text-body-2 md:text-body-1 mb-2">
         {
-          MODEL_CREATION_CONTENT.trainingDataset.form
+          MODELS_CONTENT.modelCreation.trainingDataset.form
             .existingTrainingDatasetSectionHeading
         }
       </p>
@@ -34,7 +34,8 @@ const SelectExistingTrainingDatasetForm = () => {
           }}
           value={searchQuery}
           placeholder={
-            MODEL_CREATION_CONTENT.trainingDataset.form.searchBar.placeholder
+            MODELS_CONTENT.modelCreation.trainingDataset.form.searchBar
+              .placeholder
           }
           disabled={isError}
         />

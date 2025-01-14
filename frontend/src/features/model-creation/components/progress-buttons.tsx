@@ -1,14 +1,15 @@
+import { ButtonWithIcon } from "@/components/ui/button";
+import { ChevronDownIcon } from "@/components/ui/icons";
+import { MODELS_BASE, MODELS_ROUTES } from "@/constants";
+import { MODELS_CONTENT } from "@/constants";
+import { TrainingDatasetOption } from "@/enums";
+import { useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   FORM_VALIDATION_CONFIG,
   MODEL_CREATION_FORM_NAME,
   useModelsContext,
 } from "@/app/providers/models-provider";
-import { ButtonWithIcon } from "@/components/ui/button";
-import { ChevronDownIcon } from "@/components/ui/icons";
-import { MODEL_CREATION_CONTENT, MODELS_BASE, MODELS_ROUTES } from "@/utils";
-import { useMemo } from "react";
-import { useNavigate } from "react-router-dom";
-import { TrainingDatasetOption } from "@/enums";
 
 type ProgressButtonsProps = {
   currentPath: string;
@@ -146,7 +147,7 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
       <ButtonWithIcon
         variant="default"
         prefixIcon={ChevronDownIcon}
-        label={MODEL_CREATION_CONTENT.progressButtons.back}
+        label={MODELS_CONTENT.modelCreation.progressButtons.back}
         iconClassName="rotate-90"
         onClick={prevPage}
       />
@@ -158,7 +159,7 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
             ? "Loading..."
             : currentPath.includes(MODELS_ROUTES.MODEL_SUMMARY)
               ? "Submit"
-              : MODEL_CREATION_CONTENT.progressButtons.continue
+              : MODELS_CONTENT.modelCreation.progressButtons.continue
         }
         iconClassName="-rotate-90"
         disabled={!canProceedToNextPage}

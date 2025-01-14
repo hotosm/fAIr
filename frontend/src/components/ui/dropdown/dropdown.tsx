@@ -1,11 +1,12 @@
-import SlDropdown from "@shoelace-style/shoelace/dist/react/dropdown/index.js";
-import SlMenu from "@shoelace-style/shoelace/dist/react/menu/index.js";
-import SlMenuItem from "@shoelace-style/shoelace/dist/react/menu-item/index.js";
-import SlCheckbox from "@shoelace-style/shoelace/dist/react/checkbox/index.js";
-import "./dropdown.css";
-import ChevronDownIcon from "../icons/chevron-down-icon";
-import { useEffect, useState } from "react";
+import { ChevronDownIcon } from "@/components/ui/icons";
 import { cn } from "@/utils";
+import { DropdownPlacement } from "@/enums";
+import { SlCheckbox } from "@shoelace-style/shoelace/dist/react";
+import { SlDropdown } from "@shoelace-style/shoelace/dist/react";
+import { SlMenu } from "@shoelace-style/shoelace/dist/react";
+import { SlMenuItem } from "@shoelace-style/shoelace/dist/react";
+import { useEffect, useState } from "react";
+import "./dropdown.css";
 
 export type DropdownMenuItem = {
   value: string;
@@ -13,11 +14,11 @@ export type DropdownMenuItem = {
   className?: string;
   name?: string;
   disabled?: boolean;
-  apiValue?: string;
+  apiValue?: string | number;
 };
 
 type DropDownProps = {
-  placement?: "bottom-end" | "top-end" | "bottom-start";
+  placement?: DropdownPlacement;
   children?: React.ReactNode;
   onDropdownShow?: (event: React.MouseEvent<HTMLDivElement>) => void;
   onDropdownHide?: (event: React.MouseEvent<HTMLDivElement>) => void;
@@ -29,7 +30,7 @@ type DropDownProps = {
   withCheckbox?: boolean;
   defaultSelectedItems?: string[];
   defaultSelectedItem?: string;
-  menuItemTextSize?: "default" | "small";
+
   multiSelect?: boolean;
   triggerComponent: React.ReactNode;
   distance?: number;
@@ -39,7 +40,7 @@ type DropDownProps = {
 const DropDown: React.FC<DropDownProps> = ({
   children,
   menuItems,
-  placement = "bottom-start",
+  placement = DropdownPlacement.BOTTOM_START,
   onDropdownHide,
   onDropdownShow,
   dropdownIsOpened,
@@ -50,7 +51,7 @@ const DropDown: React.FC<DropDownProps> = ({
   defaultSelectedItems = [],
   defaultSelectedItem = "",
   multiSelect = false,
-  menuItemTextSize = "default",
+
   triggerComponent,
   distance = 20,
   disableCheveronIcon = false,
@@ -121,14 +122,18 @@ const DropDown: React.FC<DropDownProps> = ({
           />
         )}
       </div>
-      <div className="shadow-2xl z-[10000]">
+      <div
+        className={cn(
+          `shadow-2xl z-[1000000000] map-elements-z-index ${className}`,
+        )}
+      >
         {menuItems && menuItems.length > 0 ? (
           <SlMenu onSlSelect={handleSelect}>
             {menuItems?.map((menuItem, id) => (
               <SlMenuItem
                 key={`dropdown-menu-item-${id}`}
                 value={menuItem.value}
-                className={cn(`${menuItem.className} ${menuItemTextSize}`)}
+                className={cn(`${menuItem.className}`)}
                 onClick={menuItem.onClick}
                 disabled={menuItem.disabled ?? false}
               >

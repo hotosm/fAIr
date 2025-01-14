@@ -1,20 +1,20 @@
+import ModelDescriptionFormInput from "./model-description-input";
+import ModelNameFormInput from "@/features/model-creation/components/model-details/model-name-input";
+import { BASE_MODELS } from "@/enums";
+import { MODELS_CONTENT } from "@/constants";
+import { Select } from "@/components/ui/form";
+import { StepHeading } from "@/features/model-creation/components/";
 import {
   MODEL_CREATION_FORM_NAME,
   useModelsContext,
 } from "@/app/providers/models-provider";
-import { Select } from "@/components/ui/form";
-import { BASE_MODELS } from "@/enums";
-import { StepHeading } from "@/features/model-creation/components/";
-import { MODEL_CREATION_CONTENT } from "@/utils";
-import ModelNameFormInput from "@/features/model-creation/components/model-details/model-name-input";
-import ModelDescriptionFormInput from "./model-description-input";
 
 const baseModelOptions = [
   {
     name: BASE_MODELS.RAMP,
     value: BASE_MODELS.RAMP,
     suffix:
-      MODEL_CREATION_CONTENT.modelDetails.form.baseModel.suffixes[
+      MODELS_CONTENT.modelCreation.modelDetails.form.baseModel.suffixes[
         BASE_MODELS.RAMP
       ],
   },
@@ -22,7 +22,7 @@ const baseModelOptions = [
     name: BASE_MODELS.YOLOV8_V1,
     value: BASE_MODELS.YOLOV8_V1,
     suffix:
-      MODEL_CREATION_CONTENT.modelDetails.form.baseModel.suffixes[
+      MODELS_CONTENT.modelCreation.modelDetails.form.baseModel.suffixes[
         BASE_MODELS.YOLOV8_V1
       ],
   },
@@ -30,7 +30,7 @@ const baseModelOptions = [
     name: BASE_MODELS.YOLOV8_V2,
     value: BASE_MODELS.YOLOV8_V2,
     suffix:
-      MODEL_CREATION_CONTENT.modelDetails.form.baseModel.suffixes[
+      MODELS_CONTENT.modelCreation.modelDetails.form.baseModel.suffixes[
         BASE_MODELS.YOLOV8_V2
       ],
   },
@@ -41,8 +41,8 @@ const ModelDetailsForm = () => {
   return (
     <div className="flex flex-col gap-y-6">
       <StepHeading
-        heading={MODEL_CREATION_CONTENT.modelDetails.pageTitle}
-        description={MODEL_CREATION_CONTENT.modelDetails.pageDescription}
+        heading={MODELS_CONTENT.modelCreation.modelDetails.pageTitle}
+        description={MODELS_CONTENT.modelCreation.modelDetails.pageDescription}
       />
       <div className="flex flex-col gap-y-10">
         <ModelNameFormInput
@@ -58,16 +58,18 @@ const ModelDetailsForm = () => {
           }
         />
         <Select
-          label={MODEL_CREATION_CONTENT.modelDetails.form.baseModel.label}
-          helpText={MODEL_CREATION_CONTENT.modelDetails.form.baseModel.helpText}
+          label={MODELS_CONTENT.modelCreation.modelDetails.form.baseModel.label}
+          helpText={
+            MODELS_CONTENT.modelCreation.modelDetails.form.baseModel.helpText
+          }
           labelWithTooltip
           toolTipContent={
-            MODEL_CREATION_CONTENT.modelDetails.form.baseModel.toolTip
+            MODELS_CONTENT.modelCreation.modelDetails.form.baseModel.toolTip
           }
           defaultValue={formData.baseModel}
           options={baseModelOptions}
-          handleChange={(e) =>
-            handleChange(MODEL_CREATION_FORM_NAME.BASE_MODELS, e.target.value)
+          handleChange={(value) =>
+            handleChange(MODEL_CREATION_FORM_NAME.BASE_MODELS, value)
           }
           required
         />

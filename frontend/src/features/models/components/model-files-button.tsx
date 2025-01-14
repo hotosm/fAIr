@@ -1,7 +1,7 @@
 import { ButtonWithIcon } from "@/components/ui/button";
 import { DirectoryIcon } from "@/components/ui/icons";
+import { MODELS_CONTENT } from "@/constants";
 import { SHOELACE_SIZES } from "@/enums";
-import { APP_CONTENT } from "@/utils";
 
 const ModelFilesButton = ({
   openModelFilesDialog,
@@ -12,9 +12,8 @@ const ModelFilesButton = ({
 }) => {
   return (
     <ButtonWithIcon
-      label={APP_CONTENT.models.modelsDetailsCard.modelFiles}
+      label={MODELS_CONTENT.models.modelsDetailsCard.modelFiles}
       className="border-dark border"
-      capitalizeText={false}
       variant={"none"}
       onClick={openModelFilesDialog}
       prefixIcon={DirectoryIcon}

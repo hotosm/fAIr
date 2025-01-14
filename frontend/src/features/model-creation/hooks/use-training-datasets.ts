@@ -9,8 +9,6 @@ import {
 export const useGetTrainingDatasets = (searchQuery: string) => {
   return useQuery({
     ...getTrainingDatasetsQueryOptions(searchQuery),
-    //@ts-expect-error bad type definition
-    throwOnError: (error) => error?.response?.status >= 500,
   });
 };
 

@@ -1,4 +1,14 @@
+import FileUploadDialog from "@/features/model-creation/components/dialogs/file-upload-dialog";
 import { DropDown } from "@/components/ui/dropdown";
+import { IconProps, TTrainingAreaFeature } from "@/types";
+import { JOSMLogo, OSMLogo } from "@/assets/svgs";
+import { LabelStatus } from "@/enums/training-area";
+import { Map } from "maplibre-gl";
+import { ToolTip } from "@/components/ui/tooltip";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useDialog } from "@/hooks/use-dialog";
+import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
+import { useModelsContext } from "@/app/providers/models-provider";
 import {
   CloudDownloadIcon,
   DeleteIcon,
@@ -7,67 +17,298 @@ import {
   MapIcon,
   UploadIcon,
 } from "@/components/ui/icons";
-import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import {
   calculateGeoJSONArea,
   formatAreaInAppropriateUnit,
   formatDuration,
   geoJSONDowloader,
   getGeoJSONFeatureBounds,
-  MODEL_CREATION_CONTENT,
   openInIDEditor,
+  openInJOSM,
   showErrorToast,
   showSuccessToast,
   showWarningToast,
-  TOAST_NOTIFICATIONS,
   truncateString,
 } from "@/utils";
-import JOSMLogo from "@/assets/svgs/josm_logo.svg";
-import OSMLogo from "@/assets/svgs/osm_logo.svg";
-import { ToolTip } from "@/components/ui/tooltip";
-import { GeoJSONType, Geometry, TTrainingAreaFeature } from "@/types";
 import {
-  fetchOSMDatabaseLastUpdated,
+  MODELS_CONTENT,
+  TOAST_NOTIFICATIONS,
+  TRAINING_AREA_LABELS_FETCH_POOLING_TIME_MS,
+} from "@/constants";
+import {
   useCreateTrainingLabelsForAOI,
   useDeleteTrainingArea,
+  useGetTrainingArea,
   useGetTrainingAreaLabels,
   useGetTrainingAreaLabelsFromOSM,
 } from "@/features/model-creation/hooks/use-training-areas";
-import { useMap } from "@/app/providers/map-provider";
-import { useModelsContext } from "@/app/providers/models-provider";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import FileUploadDialog from "../dialogs/file-upload-dialog";
-import { useDialog } from "@/hooks/use-dialog";
-import { geojsonToWKT } from "@terraformer/wkt";
 
-const TrainingAreaItem: React.FC<
-  TTrainingAreaFeature & { datasetId: number; offset: number }
-> = ({ datasetId, offset, ...trainingArea }) => {
+type LabelState = {
+  isFetching: boolean;
+  error: boolean;
+  fetchedDate: string;
+  status: LabelStatus;
+  errorToastShown: boolean;
+  shouldPoll: boolean;
+};
+
+export function useInterval(callback: () => void, delay: number | null) {
+  const savedCallback = useRef(callback);
+
+  useEffect(() => {
+    savedCallback.current = callback;
+  }, [callback]);
+
+  useEffect(() => {
+    if (delay === null) return;
+    const id = setInterval(() => savedCallback.current(), delay);
+    return () => clearInterval(id);
+  }, [delay]);
+}
+
+const LabelFetchStatus = ({
+  fetchedDate,
+  isFetching,
+  isError,
+  status,
+}: {
+  fetchedDate: string;
+  isFetching: boolean;
+  isError: boolean;
+  status: LabelStatus;
+}) => {
+  const [timeSince, setTimeSince] = useState<string>("");
+
+  useEffect(() => {
+    const updateTimeSince = () => {
+      setTimeSince(formatDuration(new Date(fetchedDate), new Date(), 1));
+    };
+
+    updateTimeSince();
+    const intervalId = setInterval(
+      updateTimeSince,
+      TRAINING_AREA_LABELS_FETCH_POOLING_TIME_MS,
+    );
+    return () => clearInterval(intervalId);
+  }, [fetchedDate]);
+
+  const getFetchStatus = () => {
+    if (isFetching) return "Processing labels...";
+    if (isError) return "Error occurred. Please retry.";
+    if (status === LabelStatus.DOWNLOADED) {
+      return timeSince ? `Fetched ${timeSince} ago` : "Fetched recently";
+    }
+    return "No labels yet";
+  };
+
+  return (
+    <p
+      className={`text-body-4 text-dark ${status !== LabelStatus.DOWNLOADED && "text-primary"}`}
+    >
+      {getFetchStatus()}
+    </p>
+  );
+};
+type TDropdownMenuItems = {
+  tooltip: string;
+  isIcon?: boolean;
+  imageSrc?: string;
+  disabled: boolean;
+  onClick: () => void;
+  Icon?: React.FC<IconProps>;
+  isDelete?: boolean;
+}[];
+
+const DropdownMenu = ({
+  dropdownMenuItems,
+  dropdownIsOpened,
+  onDropdownHide,
+  onDropdownShow,
+}: {
+  dropdownMenuItems: TDropdownMenuItems;
+  dropdownIsOpened: boolean;
+  onDropdownHide: () => void;
+  onDropdownShow: () => void;
+}) => {
+  return (
+    <DropDown
+      disableCheveronIcon
+      dropdownIsOpened={dropdownIsOpened}
+      onDropdownHide={onDropdownHide}
+      onDropdownShow={onDropdownShow}
+      triggerComponent={
+        <button className="bg-off-white p-2 rounded-full items-center flex justify-center">
+          <ElipsisIcon className="icon" />
+        </button>
+      }
+      className="text-right"
+      distance={10}
+    >
+      <div className="flex gap-x-4 p-2 justify-between items-center bg-white">
+        {dropdownMenuItems.map((Item, idx) => (
+          <ToolTip content={Item.tooltip} key={`menu-item-${idx}`}>
+            <button
+              onClick={Item.onClick}
+              disabled={Item.disabled}
+              className={`${Item.isDelete ? "text-primary bg-secondary" : "bg-off-white"} w-8 h-8 p-1.5 items-center justify-center flex rounded-md`}
+            >
+              {Item.isIcon ? (
+                Item.Icon && <Item.Icon className="icon md:icon-lg" />
+              ) : (
+                <img
+                  src={Item.imageSrc}
+                  className="icon md:icon-lg"
+                  alt={Item.tooltip}
+                />
+              )}
+            </button>
+          </ToolTip>
+        ))}
+      </div>
+    </DropDown>
+  );
+};
+
+export const TrainingAreaItem: React.FC<
+  TTrainingAreaFeature & {
+    datasetId: number;
+    offset: number;
+    map: Map | null;
+  }
+> = ({ datasetId, offset, map, ...trainingArea }) => {
+  const initialLabelState: LabelState = {
+    isFetching: false,
+    error: false,
+    fetchedDate: trainingArea?.properties?.label_fetched || "",
+    status:
+      trainingArea?.properties?.label_status || LabelStatus.NOT_DOWNLOADED,
+    errorToastShown: false,
+    shouldPoll: false,
+  };
+
+  const [labelState, setLabelState] = useState<LabelState>(initialLabelState);
   const { onDropdownHide, onDropdownShow, dropdownIsOpened } =
     useDropdownMenu();
+  const { isOpened, openDialog, closeDialog } = useDialog();
   const { formData } = useModelsContext();
-  const [timeSinceLabelFetch, setTimeSinceLabelFetch] = useState("");
+
   const getTrainingAreaLabels = useGetTrainingAreaLabels(
     trainingArea.id,
     false,
   );
-  const { map } = useMap();
-  const { isOpened, openDialog, closeDialog } = useDialog();
+
+  const getTrainingArea = useGetTrainingArea(
+    trainingArea.id,
+    labelState.shouldPoll,
+    TRAINING_AREA_LABELS_FETCH_POOLING_TIME_MS,
+  );
+
+  const handleLabelError = useCallback(() => {
+    setLabelState((prev) => ({
+      ...prev,
+      isFetching: false,
+      error: true,
+      status: LabelStatus.NOT_DOWNLOADED,
+      shouldPoll: false,
+    }));
+
+    if (!labelState.errorToastShown) {
+      showErrorToast(
+        undefined,
+        `Could not fetch labels for AOI ${trainingArea.id}. Please retry.`,
+      );
+      setLabelState((prev) => ({ ...prev, errorToastShown: true }));
+    }
+  }, [labelState.errorToastShown, trainingArea.id]);
+
+  const createTrainingLabelsForAOI = useCreateTrainingLabelsForAOI({
+    mutationConfig: {
+      onSuccess: (status) => {
+        showSuccessToast(`${status}`);
+        setLabelState((prev) => ({ ...prev, shouldPoll: true }));
+      },
+      onMutate: () => {
+        setLabelState((prev) => ({
+          ...prev,
+          isFetching: true,
+          error: false,
+          status: LabelStatus.DOWNLOADING,
+          errorToastShown: false,
+        }));
+      },
+      onError: handleLabelError,
+    },
+  });
 
   const trainingAreaLabelsMutation = useGetTrainingAreaLabelsFromOSM({
     datasetId,
     offset,
     aoiId: trainingArea.id,
     mutationConfig: {
-      onSuccess: () => {
-        showSuccessToast(TOAST_NOTIFICATIONS.trainingLabelsFetchSuccess);
+      onMutate: () => {
+        setLabelState((prev) => ({
+          ...prev,
+          isFetching: true,
+          error: false,
+          status: LabelStatus.DOWNLOADING,
+          errorToastShown: false,
+        }));
       },
-      onError: (error) => {
-        showErrorToast(error);
+      onSuccess: (data) => {
+        showSuccessToast(`${data}`);
+        setLabelState((prev) => ({
+          ...prev,
+          shouldPoll: true,
+        }));
       },
+      onError: handleLabelError,
     },
   });
+
+  const handleFetchLabels = useCallback(() => {
+    setLabelState((prev) => ({
+      ...prev,
+      isFetching: true,
+    }));
+    trainingAreaLabelsMutation.mutate({ aoiId: trainingArea.id });
+  }, [trainingAreaLabelsMutation]);
+
+  const handleLabelSuccess = useCallback(
+    (fetchedDate: string) => {
+      setLabelState((prev) => ({
+        ...prev,
+        fetchedDate,
+        status: LabelStatus.DOWNLOADED,
+        isFetching: false,
+        shouldPoll: false,
+        errorToastShown: false,
+      }));
+    },
+    [setLabelState],
+  );
+
+  useEffect(() => {
+    if (labelState.shouldPoll) {
+      const pollInterval = setInterval(async () => {
+        const res = await getTrainingArea.refetch();
+        if (res.isSuccess) {
+          const fetchedDate = res.data.properties.label_fetched;
+          if (res.data?.properties.label_status === LabelStatus.DOWNLOADED) {
+            handleLabelSuccess(fetchedDate);
+          } else {
+            setLabelState((prev) => ({
+              ...prev,
+              status: LabelStatus.DOWNLOADING,
+            }));
+          }
+        } else {
+          handleLabelError();
+        }
+      }, TRAINING_AREA_LABELS_FETCH_POOLING_TIME_MS);
+
+      return () => clearInterval(pollInterval);
+    }
+  }, [labelState.shouldPoll, handleLabelSuccess]);
 
   const deleteTrainingAreaMutation = useDeleteTrainingArea({
     datasetId,
@@ -77,73 +318,54 @@ const TrainingAreaItem: React.FC<
         showSuccessToast(TOAST_NOTIFICATIONS.trainingAreaDeletionSuccess);
         onDropdownHide();
       },
-      onError: (error) => {
-        showErrorToast(error);
-      },
+      onError: (error) => showErrorToast(error),
     },
   });
 
-  const handleOpenInJOSM = useCallback(async () => {
-    try {
-      const imgURL = new URL("http://127.0.0.1:8111/imagery");
-      imgURL.searchParams.set("type", "tms");
-      imgURL.searchParams.set("title", formData.oamTileName);
-      imgURL.searchParams.set("url", formData.tmsURL);
-
-      const imgResponse = await fetch(imgURL);
-
-      if (!imgResponse.ok) {
-        showErrorToast(undefined, TOAST_NOTIFICATIONS.josmImageryLoadFailed);
-        return;
-      }
-
-      const loadurl = new URL("http://127.0.0.1:8111/load_and_zoom");
-      loadurl.searchParams.set("bottom", String(formData.oamBounds[1]));
-      loadurl.searchParams.set("top", String(formData.oamBounds[3]));
-      loadurl.searchParams.set("left", String(formData.oamBounds[0]));
-      loadurl.searchParams.set("right", String(formData.oamBounds[2]));
-
-      const zoomResponse = await fetch(loadurl);
-
-      if (zoomResponse.ok) {
-        showSuccessToast(TOAST_NOTIFICATIONS.josmOpenSuccess);
-      } else {
-        showErrorToast(undefined, TOAST_NOTIFICATIONS.josmBBOXZoomFailed);
-      }
-    } catch (error) {
-      showErrorToast(undefined, TOAST_NOTIFICATIONS.josmOpenFailed);
+  const handleFitToBounds = useCallback(() => {
+    if (trainingArea.geometry) {
+      const bounds = getGeoJSONFeatureBounds(trainingArea);
+      map?.fitBounds(bounds, { padding: 20 });
+    } else {
+      showWarningToast(TOAST_NOTIFICATIONS.aoiWithoutGeometryWarning);
     }
-  }, [formData.oamBounds]);
+  }, [map, trainingArea]);
 
-  const handleAOIDownload = useCallback(() => {
-    geoJSONDowloader(trainingArea, `AOI_${trainingArea.id}`);
-    showSuccessToast(TOAST_NOTIFICATIONS.aoiDownloadSuccess);
-    onDropdownHide();
-  }, [onDropdownHide, trainingArea]);
+  const handleAOILabelsFileUpload = useCallback(
+    async (formData: FormData) => {
+      setLabelState((prev) => ({
+        ...prev,
+        isFetching: true,
+      }));
+      await createTrainingLabelsForAOI.mutateAsync({
+        aoiId: trainingArea.id,
+        formData: formData,
+      });
+    },
+    [createTrainingLabelsForAOI, trainingArea.id],
+  );
 
-  const handleAOILabelsDownload = useCallback(async () => {
-    const res = await getTrainingAreaLabels.refetch();
-    if (res.isSuccess) {
-      geoJSONDowloader(res.data, `AOI_${trainingArea.id}_Labels`);
-      onDropdownHide();
-      showSuccessToast(TOAST_NOTIFICATIONS.aoiLabelsDownloadSuccess);
-    }
-    if (res.isError) {
-      showErrorToast(res.error);
-    }
-  }, [trainingArea]);
+  const disableLabelsFetchOrUpload =
+    trainingAreaLabelsMutation.isPending ||
+    labelState.isFetching ||
+    createTrainingLabelsForAOI.isPending ||
+    labelState.shouldPoll;
 
-  const dropdownMenuItems = [
+  const dropdownMenuItems: TDropdownMenuItems = [
     {
-      tooltip: MODEL_CREATION_CONTENT.trainingArea.toolTips.openINJOSM,
+      tooltip: MODELS_CONTENT.modelCreation.trainingArea.toolTips.openINJOSM,
       isIcon: false,
       imageSrc: JOSMLogo,
-      onClick: handleOpenInJOSM,
+      disabled: false,
+      onClick: () =>
+        openInJOSM(formData.oamTileName, formData.tmsURL, [trainingArea]),
     },
     {
-      tooltip: MODEL_CREATION_CONTENT.trainingArea.toolTips.openInIdEditor,
+      tooltip:
+        MODELS_CONTENT.modelCreation.trainingArea.toolTips.openInIdEditor,
       isIcon: false,
       imageSrc: OSMLogo,
+      disabled: false,
       onClick: () =>
         openInIDEditor(
           formData.oamBounds[1],
@@ -156,81 +378,58 @@ const TrainingAreaItem: React.FC<
         ),
     },
     {
-      tooltip: MODEL_CREATION_CONTENT.trainingArea.toolTips.downloadAOI,
+      tooltip: MODELS_CONTENT.modelCreation.trainingArea.toolTips.downloadAOI,
       isIcon: true,
       Icon: CloudDownloadIcon,
-      onClick: handleAOIDownload,
+      disabled: false,
+      onClick: () => {
+        geoJSONDowloader(trainingArea, `AOI_${trainingArea.id}`);
+        showSuccessToast(TOAST_NOTIFICATIONS.aoiDownloadSuccess);
+        onDropdownHide();
+      },
     },
     {
-      tooltip: MODEL_CREATION_CONTENT.trainingArea.toolTips.downloadLabels,
+      tooltip:
+        MODELS_CONTENT.modelCreation.trainingArea.toolTips.downloadLabels,
       isIcon: true,
+      disabled: false,
       Icon: CloudDownloadIcon,
-      onClick: () => handleAOILabelsDownload(),
+      onClick: async () => {
+        const res = await getTrainingAreaLabels.refetch();
+        if (res.isSuccess) {
+          geoJSONDowloader(res.data, `AOI_${trainingArea.id}_Labels`);
+          onDropdownHide();
+          showSuccessToast(TOAST_NOTIFICATIONS.aoiLabelsDownloadSuccess);
+        }
+        if (res.isError) showErrorToast(res.error);
+      },
     },
     {
-      tooltip: MODEL_CREATION_CONTENT.trainingArea.toolTips.uploadLabels,
+      tooltip: disableLabelsFetchOrUpload
+        ? MODELS_CONTENT.modelCreation.trainingArea.toolTips
+            .labelsFetchInProgress
+        : MODELS_CONTENT.modelCreation.trainingArea.toolTips.uploadLabels,
       isIcon: true,
       Icon: UploadIcon,
       onClick: openDialog,
+      disabled: disableLabelsFetchOrUpload,
     },
     {
-      tooltip: MODEL_CREATION_CONTENT.trainingArea.toolTips.deleteAOI,
+      tooltip: MODELS_CONTENT.modelCreation.trainingArea.toolTips.deleteAOI,
       isIcon: true,
       Icon: DeleteIcon,
       isDelete: true,
+      disabled: false,
       onClick: () =>
-        deleteTrainingAreaMutation.mutate({ trainingAreaId: trainingArea.id }),
+        deleteTrainingAreaMutation.mutate({
+          trainingAreaId: trainingArea.id,
+        }),
     },
   ];
 
-  const handleFitToBounds = useCallback(() => {
-    if (trainingArea.geometry) {
-      const bounds = getGeoJSONFeatureBounds(trainingArea);
-      map?.fitBounds(bounds, {
-        padding: 20,
-      });
-    } else {
-      showWarningToast(TOAST_NOTIFICATIONS.aoiWithoutGeometryWarning);
-    }
-  }, [map, trainingArea]);
-
-  useEffect(() => {
-    const updateTimeSinceFetch = () => {
-      if (trainingArea?.properties?.label_fetched) {
-        setTimeSinceLabelFetch(
-          formatDuration(
-            new Date(trainingArea.properties.label_fetched),
-            new Date(),
-            1,
-          ),
-        );
-      }
-    };
-
-    updateTimeSinceFetch();
-    const intervalId = setInterval(updateTimeSinceFetch, 10000);
-
-    return () => clearInterval(intervalId);
-  }, [trainingArea?.properties?.label_fetched]);
-
-  const trainingAreaSize = useMemo(() => {
-    return trainingArea.geometry
-      ? formatAreaInAppropriateUnit(calculateGeoJSONArea(trainingArea))
-      : "0 m²";
-  }, [trainingArea]);
-
-  const { data, isPending, isError } = useQuery({
-    queryKey: ["osm-database-last-updated"],
-    queryFn: fetchOSMDatabaseLastUpdated,
-    refetchInterval: 5000,
-  });
-
-  const createTrainingLabelsForAOI = useCreateTrainingLabelsForAOI({});
-
-  const fileUploadHandler = async (geometry: Geometry) => {
-    const wkt = geojsonToWKT(geometry as GeoJSONType);
-    createTrainingLabelsForAOI.mutate({ aoiId: trainingArea.id, geom: wkt });
-  };
+  const trainingAreaSize = trainingArea.geometry
+    ? formatAreaInAppropriateUnit(calculateGeoJSONArea(trainingArea))
+    : "0 m²";
 
   return (
     <>
@@ -238,69 +437,48 @@ const TrainingAreaItem: React.FC<
         disabled={createTrainingLabelsForAOI.isPending}
         isOpened={isOpened}
         closeDialog={closeDialog}
-        label={"Upload AOI Labels"}
-        fileUploadHandler={fileUploadHandler}
-        successToast={TOAST_NOTIFICATIONS.aoiLabelsUploadSuccess}
+        label="Upload AOI Label(s)"
+        rawFileUploadHandler={handleAOILabelsFileUpload}
         disableFileSizeValidation
+        isAOILabelsUpload
       />
-
       <div className="flex items-center justify-between w-full gap-x-4">
         <div className="flex flex-col gap-y-1">
-          <p className="text-body-3 ">
+          <p className="text-body-4 md:text-body-3">
             ID: <span className="font-semibold">{trainingArea.id}</span>
           </p>
-          <p className="text-body-4 text-dark" title={`${trainingAreaSize}`}>
-            {truncateString(trainingAreaSize, 15)}
+          <p className="text-body-4 text-dark" title={trainingAreaSize}>
+            Area: {truncateString(trainingAreaSize, 15)}
           </p>
-          <p
-            className={`text-body-4 text-dark ${trainingArea.properties.label_fetched === null && "text-primary"}`}
-          >
-            {trainingAreaLabelsMutation.isPending
-              ? "Fetching labels..."
-              : trainingArea.properties.label_fetched !== null
-                ? truncateString(
-                    `Fetched ${timeSinceLabelFetch === "0 sec" ? "just now" : `${timeSinceLabelFetch} ago`}`,
-                    20,
-                  )
-                : "No labels yet"}
-          </p>
+          <LabelFetchStatus
+            fetchedDate={labelState.fetchedDate}
+            isError={labelState.error}
+            status={labelState.status}
+            isFetching={labelState.isFetching}
+          />
         </div>
         <div className="flex items-center gap-x-3">
           <ToolTip
             content={
-              <span className="flex flex-col gap-y-1">
-                {MODEL_CREATION_CONTENT.trainingArea.toolTips.fetchOSMLabels}
-                {isPending || isError ? (
-                  ""
-                ) : (
-                  <small>
-                    {
-                      MODEL_CREATION_CONTENT.trainingArea.toolTips
-                        .lastUpdatedPrefix
-                    }{" "}
-                    {formatDuration(
-                      new Date(String(data?.lastUpdated)),
-                      new Date(),
-                      1,
-                    )}{" "}
-                    ago
-                  </small>
-                )}
-              </span>
+              disableLabelsFetchOrUpload
+                ? MODELS_CONTENT.modelCreation.trainingArea.toolTips
+                    .labelsFetchInProgress
+                : MODELS_CONTENT.modelCreation.trainingArea.toolTips
+                    .fetchOSMLabels
             }
           >
             <button
-              disabled={trainingAreaLabelsMutation.isPending}
-              className="bg-green-secondary px-2 py-1 rounded-md"
-              onClick={() =>
-                trainingAreaLabelsMutation.mutate({ aoiId: trainingArea.id })
-              }
+              disabled={disableLabelsFetchOrUpload}
+              className="bg-green-secondary px-2 py-1 rounded-md text-nowrap text-[9px] flex items-center gap-x-2 font-light"
+              onClick={handleFetchLabels}
             >
               <MapIcon className="icon text-green-primary" />
             </button>
           </ToolTip>
           <ToolTip
-            content={MODEL_CREATION_CONTENT.trainingArea.toolTips.zoomToAOI}
+            content={
+              MODELS_CONTENT.modelCreation.trainingArea.toolTips.zoomToAOI
+            }
           >
             <button
               className="bg-off-white px-2 py-1 rounded-md"
@@ -309,42 +487,14 @@ const TrainingAreaItem: React.FC<
               <FullScreenIcon className="icon" />
             </button>
           </ToolTip>
-          <DropDown
-            disableCheveronIcon
+          <DropdownMenu
+            dropdownMenuItems={dropdownMenuItems}
             dropdownIsOpened={dropdownIsOpened}
             onDropdownHide={onDropdownHide}
             onDropdownShow={onDropdownShow}
-            triggerComponent={
-              <button className="bg-off-white p-2 rounded-full items-center flex justify-center">
-                <ElipsisIcon className="icon" />
-              </button>
-            }
-            className="text-right"
-            distance={10}
-          >
-            <div className="flex gap-x-4 p-2 justify-between items-center bg-white">
-              {dropdownMenuItems.map((item, id_) => (
-                <ToolTip content={item.tooltip} key={`menu-item-${id_}`}>
-                  <button
-                    onClick={() => item.onClick()}
-                    className={` ${item.isDelete ? "text-primary bg-secondary" : "bg-off-white"}  w-8 h-8 p-1.5 items-center justify-center flex rounded-md`}
-                    key={`dropdown-menu-item-${id_}`}
-                  >
-                    {item.isIcon ? (
-                      // @ts-expect-error bad type definition
-                      <item.Icon className="icon-lg" />
-                    ) : (
-                      <img src={item.imageSrc} className="icon-lg" />
-                    )}
-                  </button>
-                </ToolTip>
-              ))}
-            </div>
-          </DropDown>
+          />
         </div>
       </div>
     </>
   );
 };
-
-export default TrainingAreaItem;

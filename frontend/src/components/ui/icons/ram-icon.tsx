@@ -1,7 +1,7 @@
 import { IconProps } from "@/types";
 import React from "react";
 
-const RAMIcon: React.FC<IconProps> = (props) => (
+export const RAMIcon: React.FC<IconProps> = (props) => (
   <svg
     {...props}
     viewBox="0 0 20 15"
@@ -14,5 +14,3 @@ const RAMIcon: React.FC<IconProps> = (props) => (
     />
   </svg>
 );
-
-export default RAMIcon;

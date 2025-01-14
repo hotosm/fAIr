@@ -1,19 +1,19 @@
-import { CheckboxGroup, FormLabel, Input } from "@/components/ui/form";
-import { useEffect, useState } from "react";
-import { ChevronDownIcon } from "@/components/ui/icons";
+import { BASE_MODELS, INPUT_TYPES, TrainingType } from "@/enums";
 import { ButtonWithIcon } from "@/components/ui/button";
+import { CheckboxGroup, FormLabel, Input } from "@/components/ui/form";
+import { ChevronDownIcon } from "@/components/ui/icons";
+import { MODELS_CONTENT } from "@/constants";
+import { useEffect, useState } from "react";
 import {
   AdvancedGuageIcon,
   BasicGuageIcon,
   IntermediateGuageIcon,
 } from "@/components/ui/icons";
-import { BASE_MODELS, INPUT_TYPES, TrainingType } from "@/enums";
 import {
   FORM_VALIDATION_CONFIG,
   MODEL_CREATION_FORM_NAME,
   useModelsContext,
 } from "@/app/providers/models-provider";
-import { MODEL_CREATION_CONTENT } from "@/utils";
 
 const trainingTypes = [
   { label: TrainingType.BASIC, Icon: BasicGuageIcon },
@@ -29,29 +29,34 @@ const TrainingSettingsForm = () => {
 
   const advancedSettings = [
     {
-      label: MODEL_CREATION_CONTENT.trainingSettings.form.epoch.label,
+      label: MODELS_CONTENT.modelCreation.trainingSettings.form.epoch.label,
       value: MODEL_CREATION_FORM_NAME.EPOCH,
-      toolTip: MODEL_CREATION_CONTENT.trainingSettings.form.epoch.toolTip,
+      toolTip: MODELS_CONTENT.modelCreation.trainingSettings.form.epoch.toolTip,
       enabled: true,
     },
     {
-      label: MODEL_CREATION_CONTENT.trainingSettings.form.contactSpacing.label,
+      label: MODELS_CONTENT.modelCreation.trainingSettings.form.batchSize.label,
+      value: MODEL_CREATION_FORM_NAME.BATCH_SIZE,
+      toolTip:
+        MODELS_CONTENT.modelCreation.trainingSettings.form.batchSize.toolTip,
+      enabled: true,
+    },
+    {
+      label:
+        MODELS_CONTENT.modelCreation.trainingSettings.form.contactSpacing.label,
       value: MODEL_CREATION_FORM_NAME.CONTACT_SPACING,
       toolTip:
-        MODEL_CREATION_CONTENT.trainingSettings.form.contactSpacing.toolTip,
+        MODELS_CONTENT.modelCreation.trainingSettings.form.contactSpacing
+          .toolTip,
       enabled: formData.baseModel === BASE_MODELS.RAMP,
     },
     {
-      label: MODEL_CREATION_CONTENT.trainingSettings.form.batchSize.label,
-      value: MODEL_CREATION_FORM_NAME.BATCH_SIZE,
-      toolTip: MODEL_CREATION_CONTENT.trainingSettings.form.batchSize.toolTip,
-      enabled: true,
-    },
-    {
-      label: MODEL_CREATION_CONTENT.trainingSettings.form.boundaryWidth.label,
+      label:
+        MODELS_CONTENT.modelCreation.trainingSettings.form.boundaryWidth.label,
       value: MODEL_CREATION_FORM_NAME.BOUNDARY_WIDTH,
       toolTip:
-        MODEL_CREATION_CONTENT.trainingSettings.form.boundaryWidth.toolTip,
+        MODELS_CONTENT.modelCreation.trainingSettings.form.boundaryWidth
+          .toolTip,
       enabled: formData.baseModel === BASE_MODELS.RAMP,
     },
   ];
@@ -100,17 +105,19 @@ const TrainingSettingsForm = () => {
     <div className="flex flex-col gap-y-20 w-full">
       <div className="flex flex-col gap-y-6">
         <FormLabel
-          label={MODEL_CREATION_CONTENT.trainingSettings.form.zoomLevel.label}
+          label={
+            MODELS_CONTENT.modelCreation.trainingSettings.form.zoomLevel.label
+          }
           withTooltip
           toolTipContent={
-            MODEL_CREATION_CONTENT.trainingSettings.form.zoomLevel.toolTip
+            MODELS_CONTENT.modelCreation.trainingSettings.form.zoomLevel.toolTip
           }
           required
         />
         <CheckboxGroup
           variant="primary"
           multiple
-          className="flex-row gap-x-10 items-center flex-wrap"
+          className="flex-col md:flex-row gap-x-10 md:items-center flex-wrap"
           options={[
             { value: "Zoom 19", apiValue: "19" },
             { value: "Zoom 20", apiValue: "20" },
@@ -129,15 +136,17 @@ const TrainingSettingsForm = () => {
       <div className="flex flex-col gap-y-6">
         <FormLabel
           label={
-            MODEL_CREATION_CONTENT.trainingSettings.form.trainingType.label
+            MODELS_CONTENT.modelCreation.trainingSettings.form.trainingType
+              .label
           }
           withTooltip
           toolTipContent={
-            MODEL_CREATION_CONTENT.trainingSettings.form.trainingType.toolTip
+            MODELS_CONTENT.modelCreation.trainingSettings.form.trainingType
+              .toolTip
           }
           required
         />
-        <div className="flex items-center gap-x-4 w-full justify-between overflow-x-auto">
+        <div className="flex flex-col md:flex-row md:items-center gap-4 w-full justify-between overflow-x-auto">
           {trainingTypes.map((type, id) => (
             <ButtonWithIcon
               key={`training-type-${id}`}
@@ -148,7 +157,6 @@ const TrainingSettingsForm = () => {
               variant={
                 formData.trainingType === type.label ? "dark" : "default"
               }
-              capitalizeText={false}
               prefixIcon={type.Icon}
               iconClassName="md:icon-lg"
             />
@@ -160,13 +168,13 @@ const TrainingSettingsForm = () => {
         <div className="flex items-center gap-x-4 w-full">
           <FormLabel
             label={
-              MODEL_CREATION_CONTENT.trainingSettings.form.advancedSettings
-                .label
+              MODELS_CONTENT.modelCreation.trainingSettings.form
+                .advancedSettings.label
             }
             withTooltip
             toolTipContent={
-              MODEL_CREATION_CONTENT.trainingSettings.form.advancedSettings
-                .toolTip
+              MODELS_CONTENT.modelCreation.trainingSettings.form
+                .advancedSettings.toolTip
             }
           />
           <button

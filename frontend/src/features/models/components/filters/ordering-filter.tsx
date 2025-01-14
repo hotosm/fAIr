@@ -1,10 +1,10 @@
-import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
+import { CheckboxGroup } from "@/components/ui/form";
 import { DropDown } from "@/components/ui/dropdown";
 import { DropdownMenuItem } from "@/components/ui/dropdown/dropdown";
-import { CheckboxGroup } from "@/components/ui/form";
-import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
+import { MODELS_CONTENT } from "@/constants";
+import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
 import { TQueryParams } from "@/types";
-import { APP_CONTENT } from "@/utils";
+import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 
 export const ORDERING_FIELDS: DropdownMenuItem[] = [
   {
@@ -68,7 +68,7 @@ const OrderingFilter: React.FC<OrderingFilterProps> = ({
           triggerComponent={
             <p className="text-sm text-dark text-nowrap">
               {
-                APP_CONTENT.models.modelsList.sortingAndPaginationSection
+                MODELS_CONTENT.models.modelsList.sortingAndPaginationSection
                   .sortingTitle
               }
             </p>

@@ -33,14 +33,38 @@ from django.contrib.gis.db.models.aggregates import Extent
 from django.contrib.gis.geos import GEOSGeometry
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
-from predictor import download_imagery, get_start_end_download_coords
+
+from .utils import S3Uploader
+
+logging.basicConfig(
+    format="%(asctime)s - %(levelname)s - %(message)s", level=logging.INFO
+)
+
 
 logger = logging.getLogger(__name__)
+logger.propagate = False
+
 
 # from core.serializers import LabelFileSerializer
 
 
 DEFAULT_TILE_SIZE = 256
+
+
+def upload_to_s3(
+    path,
+    parent=settings.PARENT_BUCKET_FOLDER,
+    bucket_name=settings.BUCKET_NAME,
+    aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+    aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+):
+    uploader = S3Uploader(
+        bucket_name=bucket_name,
+        aws_access_key_id=aws_access_key_id,
+        aws_secret_access_key=aws_secret_access_key,
+        parent=parent,
+    )
+    return uploader.upload(path)
 
 
 class print_time:
@@ -90,6 +114,11 @@ def get_file_count(path):
 
 
 def prepare_data(training_instance, dataset_id, feedback, zoom_level, source_imagery):
+    from predictor import (  # # TODO: migrate this back to hotfaiutilities
+        download_imagery,
+        get_start_end_download_coords,
+    )
+
     training_input_base_path = os.path.join(
         settings.TRAINING_WORKSPACE, f"dataset_{dataset_id}"
     )
@@ -217,10 +246,27 @@ def ramp_model_training(
     if os.path.exists(output_path):
         shutil.rmtree(output_path)
     shutil.copytree(final_model_path, os.path.join(output_path, "checkpoint.tf"))
+
     shutil.copytree(preprocess_output, os.path.join(output_path, "preprocessed"))
+    shutil.copytree(
+        model_input_image_path, os.path.join(output_path, "preprocessed", "input")
+    )
 
     graph_output_path = f"{base_path}/train/graphs"
     shutil.copytree(graph_output_path, os.path.join(output_path, "graphs"))
+
+    model = tf.keras.models.load_model(os.path.join(output_path, "checkpoint.tf"))
+
+    model.save(os.path.join(output_path, "checkpoint.h5"))
+
+    logger.info(model.inputs)
+    logger.info(model.outputs)
+
+    converter = tf.lite.TFLiteConverter.from_keras_model(model)
+    tflite_model = converter.convert()
+
+    with open(os.path.join(output_path, "checkpoint.tflite"), "wb") as f:
+        f.write(tflite_model)
 
     with open(os.path.join(output_path, "labels.geojson"), "w", encoding="utf-8") as f:
         f.write(json.dumps(serialized_field.data))
@@ -252,6 +298,11 @@ def ramp_model_training(
         remove_original=True,
     )
     shutil.rmtree(base_path)
+    dir_result = upload_to_s3(
+        output_path,
+        parent=f"{settings.PARENT_BUCKET_FOLDER}/training_{training_instance.id}",
+    )
+    print(f"Uploaded to s3:{dir_result}")
     training_instance.accuracy = float(final_accuracy)
     training_instance.finished_at = timezone.now()
     training_instance.status = "FINISHED"
@@ -363,15 +414,29 @@ def yolo_model_training(
     os.makedirs(output_path)
 
     shutil.copyfile(output_model_path, os.path.join(output_path, "checkpoint.pt"))
-    shutil.copyfile(os.path.join(os.path.dirname(output_model_path),'best.onnx'), os.path.join(output_path, "checkpoint.onnx"))
-    # shutil.copyfile(os.path.dirname(output_model_path,'checkpoint.tflite'), os.path.join(output_path, "checkpoint.tflite"))
-    
-    shutil.copytree(preprocess_output, os.path.join(output_path, "preprocessed"))
-    os.makedirs(os.path.join(output_path,model),exist_ok=True)
+    shutil.copyfile(
+        os.path.join(os.path.dirname(output_model_path), "best.onnx"),
+        os.path.join(output_path, "checkpoint.onnx"),
+    )
 
-    shutil.copytree(os.path.join(yolo_data_dir,'images'), os.path.join(output_path,model, "images"))
-    shutil.copytree(os.path.join(yolo_data_dir,'labels'), os.path.join(output_path,model, "labels"))
-    shutil.copyfile(os.path.join(yolo_data_dir,'yolo_dataset.yaml'), os.path.join(output_path,model, "yolo_dataset.yaml"))
+    shutil.copytree(preprocess_output, os.path.join(output_path, "preprocessed"))
+    shutil.copytree(
+        model_input_image_path, os.path.join(output_path, "preprocessed", "input")
+    )
+    os.makedirs(os.path.join(output_path, model), exist_ok=True)
+
+    shutil.copytree(
+        os.path.join(yolo_data_dir, "images"),
+        os.path.join(output_path, model, "images"),
+    )
+    shutil.copytree(
+        os.path.join(yolo_data_dir, "labels"),
+        os.path.join(output_path, model, "labels"),
+    )
+    shutil.copyfile(
+        os.path.join(yolo_data_dir, "yolo_dataset.yaml"),
+        os.path.join(output_path, model, "yolo_dataset.yaml"),
+    )
 
     graph_output_path = os.path.join(
         pathlib.Path(os.path.dirname(output_model_path)).parent, "iou_chart.png"
@@ -416,6 +481,11 @@ def yolo_model_training(
         remove_original=True,
     )
     shutil.rmtree(base_path)
+    dir_result = upload_to_s3(
+        output_path,
+        parent=f"{settings.PARENT_BUCKET_FOLDER}/training_{training_instance.id}",
+    )
+    print(f"Uploaded to s3:{dir_result}")
     training_instance.accuracy = float(final_accuracy)
     training_instance.finished_at = timezone.now()
     training_instance.status = "FINISHED"
@@ -454,10 +524,7 @@ def train_model(
     if training_instance.task_id is None or training_instance.task_id.strip() == "":
         training_instance.task_id = train_model.request.id
         training_instance.save()
-    log_file = os.path.join(
-        settings.LOG_PATH, f"run_{train_model.request.id}_log.txt"
-    )
-
+    log_file = os.path.join(settings.LOG_PATH, f"run_{train_model.request.id}.log")
 
     if model_instance.base_model == "YOLO_V8_V1" and settings.YOLO_HOME is None:
         raise ValueError("YOLO Home is not configured")
@@ -465,11 +532,13 @@ def train_model(
         raise ValueError("Ramp Home is not configured")
 
     try:
-        with open(log_file, "w") as f:
-        # redirect stdout to the log file
+        with open(log_file, "a") as f:
+            # redirect stdout to the log file
             sys.stdout = f
-            training_input_image_source, aoi_serializer, serialized_field = prepare_data(
-                training_instance, dataset_id, feedback, zoom_level, source_imagery
+            training_input_image_source, aoi_serializer, serialized_field = (
+                prepare_data(
+                    training_instance, dataset_id, feedback, zoom_level, source_imagery
+                )
             )
 
             if model_instance.base_model in ("YOLO_V8_V1", "YOLO_V8_V2"):
@@ -499,7 +568,7 @@ def train_model(
                     input_boundary_width,
                 )
 
-            logger.info(f"Training task {training_id} completed successfully")
+            logging.info(f"Training task {training_id} completed successfully")
             return response
 
     except Exception as ex:

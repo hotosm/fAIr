@@ -1,5 +1,5 @@
-import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { type ClassValue, clsx } from "clsx";
 
 /**
  * Tailwind utility function for managing classnames.

@@ -1,4 +1,5 @@
 import { API_ENDPOINTS, apiClient } from "@/services";
+
 import {
   TTrainingAreaFeature,
   TTrainingDataset,
@@ -38,6 +39,22 @@ export const createTrainingArea = async ({
     await apiClient.post(API_ENDPOINTS.CREATE_TRAINING_AREA, {
       dataset,
       geom,
+    })
+  ).data;
+};
+
+export type TUplaodTrainingAreaLabelsArgs = {
+  aoiId: number;
+  geojsonFile: File;
+};
+
+export const uploadTrainingAreaLabels = async ({
+  aoiId,
+  geojsonFile,
+}: TUplaodTrainingAreaLabelsArgs): Promise<TTrainingAreaFeature> => {
+  return await (
+    await apiClient.post(API_ENDPOINTS.UPLOAD_TRAINING_AREA_LABELS(aoiId), {
+      "geojson-file": geojsonFile,
     })
   ).data;
 };
@@ -88,17 +105,17 @@ export const getTrainingAreaLabelsFromOSM = async ({
 
 export type TCreateTrainingLabelsForAOIArgs = {
   aoiId: number;
-  geom: string;
+  formData: FormData;
 };
 
 export const createTrainingLabelsForAOI = async ({
   aoiId,
-  geom,
+  formData,
 }: TCreateTrainingLabelsForAOIArgs): Promise<String> => {
   return await (
-    await apiClient.post(API_ENDPOINTS.CREATE_TRAINING_AREA_LABELS, {
-      aoi: aoiId,
-      geom: geom,
-    })
-  ).data;
+    await apiClient.post(
+      API_ENDPOINTS.UPLOAD_TRAINING_AREA_LABELS(aoiId),
+      formData,
+    )
+  ).data.status;
 };

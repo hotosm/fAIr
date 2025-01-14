@@ -1,5 +1,5 @@
-import { cn } from "@/utils";
 import styles from "./link.module.css";
+import { cn } from "@/utils";
 import { Link as ReactRouterLink } from "react-router-dom";
 
 type LinkProps = {

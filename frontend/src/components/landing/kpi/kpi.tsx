@@ -1,8 +1,7 @@
-import { APP_CONTENT } from "@/utils";
 import styles from "./kpi.module.css";
 import { API_ENDPOINTS, apiClient } from "@/services";
+import { KPI_STATS_CACHE_TIME_MS, SHARED_CONTENT } from "@/constants";
 import { useQuery } from "@tanstack/react-query";
-
 type TKPIS = {
   figure?: number;
   label: string;
@@ -20,10 +19,11 @@ const fetchKPIStats = async (): Promise<TKPIResponse> => {
   return data;
 };
 
-const Kpi = () => {
+export const Kpi = () => {
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["kpis"],
     queryFn: fetchKPIStats,
+    refetchInterval: KPI_STATS_CACHE_TIME_MS,
   });
 
   if (isError) {
@@ -40,19 +40,19 @@ const Kpi = () => {
   const KPIs: TKPIS = [
     {
       figure: data?.total_models_published ?? 0,
-      label: APP_CONTENT.homepage.kpi.publishedAIModels,
+      label: SHARED_CONTENT.homepage.kpi.publishedAIModels,
     },
     {
       figure: data?.total_registered_users ?? 0,
-      label: APP_CONTENT.homepage.kpi.totalUsers,
+      label: SHARED_CONTENT.homepage.kpi.totalUsers,
     },
     {
       figure: data?.total_feedback_labels ?? 0,
-      label: APP_CONTENT.homepage.kpi.humanFeedback,
+      label: SHARED_CONTENT.homepage.kpi.humanFeedback,
     },
     {
       figure: data?.total_accepted_predictions ?? 0,
-      label: APP_CONTENT.homepage.kpi.acceptedPrediction,
+      label: SHARED_CONTENT.homepage.kpi.acceptedPrediction,
     },
   ];
 
@@ -69,5 +69,3 @@ const Kpi = () => {
     </section>
   );
 };
-
-export default Kpi;
