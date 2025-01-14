@@ -96,11 +96,9 @@ const processPolygon = (
   nodes: Node[],
   nodesIndex: Record<string, Node>,
 ): void => {
-  coordinates.forEach((ring, index) => {
-    const role = index === 0 ? "outer" : "inner";
+  coordinates.forEach((ring, _) => {
     const way = new Way({
-      role, // Add role as a tag to differentiate
-      ...mapPropertiesToTags(properties, role),
+      ...mapPropertiesToTags(properties),
     });
     ways.push(way);
 
@@ -132,13 +130,11 @@ const processPolygon = (
 
 
 const mapPropertiesToTags = (
-  properties: Record<string, any>,
-  role: "outer" | "inner",
+  properties: Record<string, any>
 ): Record<string, string> => {
   const tags: Record<string, string> = {};
 
   const { source, building } = properties;
-
 
   if (source !== undefined) {
     tags["source"] = String(source);
@@ -147,8 +143,6 @@ const mapPropertiesToTags = (
   if (building !== undefined) {
     tags["building"] = String(building);
   }
-
-  tags["role"] = role;
 
   return tags;
 };
