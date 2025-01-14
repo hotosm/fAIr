@@ -137,8 +137,15 @@ const mapPropertiesToTags = (
 ): Record<string, string> => {
   const tags: Record<string, string> = {};
 
-  for (const [key, value] of Object.entries(properties)) {
-    tags[key] = String(value);
+  const { source, building } = properties;
+
+
+  if (source !== undefined) {
+    tags["source"] = String(source);
+  }
+
+  if (building !== undefined) {
+    tags["building"] = String(building);
   }
 
   tags["role"] = role;
