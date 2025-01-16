@@ -1,17 +1,17 @@
-import { APPLICATION_ROUTES, MODELS_BASE, MODELS_ROUTES } from "@/constants";
-import { BASE_MODELS, TrainingDatasetOption, TrainingType } from "@/enums";
-import { LngLatBoundsLike } from "maplibre-gl";
-import { TOAST_NOTIFICATIONS } from "@/constants";
+import { APPLICATION_ROUTES, MODELS_BASE, MODELS_ROUTES } from '@/constants';
+import { BASE_MODELS, TrainingDatasetOption, TrainingType } from '@/enums';
+import { LngLatBoundsLike } from 'maplibre-gl';
+import { TOAST_NOTIFICATIONS } from '@/constants';
+import { useCreateTrainingDataset } from '@/features/model-creation/hooks/use-training-datasets';
+import { useGetTrainingDataset } from '@/features/models/hooks/use-dataset';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useModelDetails } from '@/features/models/hooks/use-models';
+import { UseMutationResult } from '@tanstack/react-query';
 import {
   TTrainingAreaFeature,
   TTrainingDataset,
   TTrainingDetails,
 } from "@/types";
-import { useCreateTrainingDataset } from "@/features/model-creation/hooks/use-training-datasets";
-import { useGetTrainingDataset } from "@/features/models/hooks/use-dataset";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { useModelDetails } from "@/features/models/hooks/use-models";
-import { UseMutationResult } from "@tanstack/react-query";
 import {
   showErrorToast,
   showSuccessToast,
@@ -224,8 +224,8 @@ const ModelsContext = createContext<{
   validateEditMode: boolean;
 }>({
   formData: initialFormState,
-  setFormData: () => {},
-  handleChange: () => {},
+  setFormData: () => { },
+  handleChange: () => { },
   createNewTrainingDatasetMutation: {} as UseMutationResult<
     TTrainingDataset,
     Error,
@@ -240,13 +240,13 @@ const ModelsContext = createContext<{
   >,
   hasLabeledTrainingAreas: false,
   hasAOIsWithGeometry: false,
-  resetState: () => {},
+  resetState: () => { },
   isEditMode: false,
   modelId: "",
   getFullPath: () => "",
-  handleModelCreationAndUpdate: () => {},
+  handleModelCreationAndUpdate: () => { },
   trainingDatasetCreationInProgress: false,
-  handleTrainingDatasetCreation: () => {},
+  handleTrainingDatasetCreation: () => { },
   validateEditMode: false,
 });
 
@@ -349,6 +349,7 @@ export const ModelsProvider: React.FC<{
     mutationConfig: {
       onSuccess: () => {
         showSuccessToast(TOAST_NOTIFICATIONS.trainingRequestSubmittedSuccess);
+
         timeOutRef.current = setTimeout(() => {
           setFormData(initialFormState);
         }, 2000);
