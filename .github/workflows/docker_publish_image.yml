@@ -46,7 +46,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: backend/
-          file: backend/Dockerfile_CPU
+          file: backend/Dockerfile.API
           push: true
           tags: ${{ steps.meta_api.outputs.tags }}
           labels: ${{ steps.meta_api.outputs.labels }}

@@ -1,7 +1,7 @@
-import axios from "axios";
-import { API_ENDPOINTS } from "@/services";
-import { FeatureCollection } from "geojson";
-import { TModelPredictionsConfig } from "@/types";
+import axios from 'axios';
+import { API_ENDPOINTS } from '@/services';
+import { FeatureCollection } from 'geojson';
+import { TModelPredictionsConfig } from '@/types';
 
 export const getModelPredictions = async ({
   area_threshold,

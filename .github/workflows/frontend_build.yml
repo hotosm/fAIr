@@ -3,10 +3,12 @@ name: Frontend Build
 on:
   push:
     branches: [master, develop]
+    branches: [master, develop]
     paths:
       - "frontend/**"
       - ".github/workflows/frontend_build.yml"
   pull_request:
+    branches: [master, develop]
     branches: [master, develop]
     paths:
       - "frontend/**"
@@ -20,7 +22,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [16, 18, 20]
+        node-version: [18, 20, 22]
 
     steps:
       - name: Checkout repository

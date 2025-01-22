@@ -27,29 +27,29 @@ export const MODELS_CONTENT: TModelsContent = {
           helpText:
             "Model name should be at least 10 characters and at most 40 characters.",
           placeholder: "Enter the model name",
-          toolTip: "Model Name",
+          toolTip: "Model name will be searchable in the explore model page",
         },
         baseModel: {
           label: "Base Model",
           helpText: "Select the base model to use for the training.",
-          toolTip: "Base Model",
+          toolTip: "Base Model refers to the original model that will be used to fine tune your AI model",
           suffixes: {
             [BASE_MODELS.RAMP]: "Faster training time, with decent accuracy.",
-            [BASE_MODELS.YOLOV8_V1]: "Good for major areas and more accurate.",
+            [BASE_MODELS.YOLOV8_V1]: "Good for major areas and more accurate. Trained by community members",
             [BASE_MODELS.YOLOV8_V2]:
-              "Our best model yet. Good for every type of area.",
+              "Our best model yet. Good for every type of area. Trained in collaboration with Omdena AI",
           },
         },
         modelDescription: {
           label: "Model Description",
-          toolTip: "Model Description",
+          toolTip: "",
           helpText:
             "Model description should be at least 10 characters and at most 500 characters.",
           placeholder: "Enter the model description",
         },
       },
       pageDescription:
-        "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Id fugit ducimus harum debitis deserunt cum quod quam rerum aliquid. Quibusdam sequi incidunt quasi delectus laudantium accusamus modi omnis maiores. Incidunt!",
+        "Model creation has steps as shown above. Please enter your model meta data below.",
     },
     trainingDataset: {
       pageTitle: "Training Dataset",
@@ -123,7 +123,7 @@ export const MODELS_CONTENT: TModelsContent = {
         aoiAreaInstruction: `Area should be > ${formatAreaInAppropriateUnit(MIN_TRAINING_AREA_SIZE)} and < ${formatAreaInAppropriateUnit(MAX_TRAINING_AREA_SIZE)}.`,
       },
       pageDescription:
-        "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Id fugit ducimus harum debitis deserunt cum quod quam rerum aliquid. Quibusdam sequi incidunt quasi delectus laudantium accusamus modi omnis maiores. Incidunt!",
+        "Make sure you create at least one training area and data is accurate for each training area",
     },
     modelSummary: {
       pageTitle: "Model Summary",
@@ -138,7 +138,7 @@ export const MODELS_CONTENT: TModelsContent = {
         trainingSettings: "Training Settings",
       },
       pageDescription:
-        "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Id fugit ducimus harum debitis deserunt cum quod quam rerum aliquid. Quibusdam sequi incidunt quasi delectus laudantium accusamus modi omnis maiores. Incidunt!",
+        "Please check all the model details before you proceed!",
     },
     confirmation: {
       buttons: {
@@ -147,7 +147,7 @@ export const MODELS_CONTENT: TModelsContent = {
         exploreModels: "explore models",
       },
       description:
-        "Your created model was succesfull, and it is now undergoing a training.",
+        "Your created model was successful, and it is now undergoing a training.",
     },
     trainingSettings: {
       form: {
@@ -182,7 +182,7 @@ export const MODELS_CONTENT: TModelsContent = {
       },
       pageTitle: "Model Training Settings",
       pageDescription:
-        "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Id fugit ducimus harum debitis deserunt cum quod quam rerum aliquid. Quibusdam sequi incidunt quasi delectus laudantium accusamus modi omnis maiores. Incidunt!",
+        "Select training settings based on the following options",
     },
     progressStepper: {
       modelDetails: "Model Details",
@@ -321,19 +321,19 @@ export const MODELS_CONTENT: TModelsContent = {
       trainingSettings: {
         dialogHeading: "Model Training Settings",
         description:
-          "Description Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut",
+          "Please make sure the following settings are accurate!",
         submitButtonText: "Submit",
       },
       modelEnhancement: {
         newSettings: {
           title: "Enhance with New Settings",
           description:
-            "Description Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut ",
+            "Enhance the model by using the same training dataset but fine tuning again using different training setting!",
         },
         trainingData: {
           title: "Enhance with Training Data",
           description:
-            "Description Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut ",
+            "Enhance the model and its training dataset, you will be redirected to model creation progress and have the ability to modify the training dataset and then submit a new training with your preferred training settings",
         },
       },
     },

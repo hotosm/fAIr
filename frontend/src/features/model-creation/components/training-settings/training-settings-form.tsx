@@ -64,19 +64,19 @@ const TrainingSettingsForm = () => {
   const defaultTrainingSettings = {
     [TrainingType.BASIC]: {
       epoch: formData.baseModel === BASE_MODELS.RAMP ? 2 : 20,
-      batchSize: formData.baseModel === BASE_MODELS.RAMP ? 4 : 8,
+      batchSize: formData.baseModel === BASE_MODELS.RAMP ? 4 : 4,
       contactSpacing: 8,
       boundaryWidth: 3,
     },
     [TrainingType.INTERMEDIATE]: {
       epoch: formData.baseModel === BASE_MODELS.RAMP ? 20 : 50,
-      batchSize: formData.baseModel === BASE_MODELS.RAMP ? 8 : 12,
+      batchSize: formData.baseModel === BASE_MODELS.RAMP ? 8 : 8,
       contactSpacing: 8,
       boundaryWidth: 3,
     },
     [TrainingType.ADVANCED]: {
       epoch: formData.baseModel === BASE_MODELS.RAMP ? 30 : 150,
-      batchSize: formData.baseModel === BASE_MODELS.RAMP ? 12 : 16,
+      batchSize: formData.baseModel === BASE_MODELS.RAMP ? 8 : 8,
       contactSpacing: 8,
       boundaryWidth: 3,
     },

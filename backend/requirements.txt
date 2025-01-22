@@ -1,5 +1,7 @@
 -r api-requirements.txt
-hot-fair-utilities==2.0.6
+hot-fair-utilities==2.0.10
 tflite-runtime==2.14.0
 tippecanoe==2.45.0
+fairpredictor==0.0.37
+opencv-python-headless==4.10.0.84
 onnxruntime>=1.0.0

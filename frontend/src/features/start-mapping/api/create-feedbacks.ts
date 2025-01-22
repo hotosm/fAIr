@@ -1,5 +1,5 @@
-import { API_ENDPOINTS, apiClient } from "@/services";
-import { Feature, TModelPredictionFeature } from "@/types";
+import { API_ENDPOINTS, apiClient } from '@/services';
+import { Feature, TModelPredictionFeature } from '@/types';
 
 export type TCreateFeedbackPayload = {
   comments: string;
@@ -32,11 +32,11 @@ export const createFeedback = async ({
 
 export type TCreateApprovedPredictionPayload = {
   config: {
-    areathreshold: number;
-    josmq: boolean;
-    maxanglechange: number;
-    skewtolerance: number;
-    zoomlevel: number;
+    area_threshold: number;
+    use_josm_q: boolean;
+    max_angle_change: number;
+    skew_tolerance: number;
+    zoom_level: number;
     confidence: number;
     tolerance: number;
   };
