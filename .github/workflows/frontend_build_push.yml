@@ -3,9 +3,6 @@ name: Frontend Build and upload to S3
 on:
   release:
     types: [released]
-    paths:
-      - "frontend/**"
-      - ".github/workflows/frontend_build_push.yml"
   workflow_dispatch:
 
 permissions:
@@ -16,6 +13,7 @@ jobs:
   build_and_upload:
     runs-on: ubuntu-latest
     environment: Production
+
     env:
       CI: false
 
@@ -24,16 +22,33 @@ jobs:
         node-version: [20]
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Check out Git repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: Install dependencies
-        run: cd frontend/ && npm install
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        id: npm-cache
+        with:
+          path: |
+            frontend/node_modules
+            ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('frontend/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
+
+      - name: Install Node.js dependencies
+        if: steps.npm-cache.outputs.cache-hit != 'true'
+        working-directory: ./frontend
+        run: npm ci
 
       - name: Build frontend
-        run: cd frontend/ && npm run build
+        working-directory: ./frontend
+        run: npm run build
         env:
           VITE_BASE_API_URL: ${{ vars.VITE_BASE_API_URL }}
           VITE_MATOMO_ID: ${{ vars.VITE_MATOMO_ID }}
@@ -49,4 +64,5 @@ jobs:
           role-session-name: fAIrGithub
 
       - name: Upload to S3
-        run: cd frontend/dist && aws s3 sync . s3://${{ vars.FRONTEND_BUCKET }}/
+        working-directory: ./frontend/dist
+        run: aws s3 sync . s3://${{ vars.FRONTEND_BUCKET }}/

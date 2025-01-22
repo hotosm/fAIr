@@ -30,11 +30,14 @@ jobs:
         # needed because the postgres container does not provide a healthcheck
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 2
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out code
+        uses: actions/checkout@v4
+
       - name: Set up Python 3.8
         uses: actions/setup-python@v5
         with:
           python-version: 3.8
+          cache: "pip"
 
       - name: Clone Ramp
         run: git clone https://github.com/kshitijrajsharma/ramp-code-fAIr.git ramp-code
@@ -76,27 +79,26 @@ jobs:
           redis-cli ping
 
       - name: Install Dependencies
+        working-directory: ./backend
         run: |
-          cd backend/
           pip install -r requirements.txt
           pip install coverage
           pip install factory-boy
 
       - name: Create env
+        working-directory: ./backend
         run: |
-          cd backend/
           export DATABASE_URL=postgis://admin:password@localhost:5432/ai
           export RAMP_HOME="/home/runner/work/fAIr/fAIr"
           export TRAINING_WORKSPACE="/home/runner/work/fAIr/fAIr/backend/training"
 
       - name: Run celery worker
-        run: |
-          cd backend/
-          celery -A aiproject worker --loglevel=debug &
+        working-directory: ./backend
+        run: celery -A aiproject worker --loglevel=debug &
+
       - name: Run flower dashboard
-        run: |
-          cd backend/
-          celery -A aiproject --broker=redis://localhost:6379/ flower  &
+        working-directory: ./backend
+        run: celery -A aiproject --broker=redis://localhost:6379/ flower  &
 
       - name: Fix gdal array
         run: |
@@ -115,8 +117,8 @@ jobs:
           OSM_CLIENT_ID: ${{ secrets.OSM_CLIENT_ID }}
           OSM_CLIENT_SECRET: ${{ secrets.OSM_CLIENT_SECRET }}
           OSM_SECRET_KEY: ${{ secrets.OSM_SECRET_KEY }}
+        working-directory: ./backend
         run: |
-          cd backend/
           python manage.py makemigrations
           python manage.py makemigrations core
           python manage.py makemigrations login
@@ -130,9 +132,6 @@ jobs:
           OSM_CLIENT_ID: ${{ secrets.OSM_CLIENT_ID }}
           OSM_CLIENT_SECRET: ${{ secrets.OSM_CLIENT_SECRET }}
           OSM_SECRET_KEY: ${{ secrets.OSM_SECRET_KEY }}
-
-        run: |
-          cd backend/
-          coverage run manage.py test tests
-
+        working-directory: ./backend
+        run: coverage run manage.py test tests
 # enable coverage report with this :           coverage report
