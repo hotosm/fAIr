@@ -21,8 +21,6 @@ postgres-data/*
 frontend/build
 
 # misc
-.DS_Store
-frontend/.DS_Store
 frontend/.env.local
 frontend/.env.development.local
 frontend/.env.test.local
@@ -52,4 +50,5 @@ trainings/*
 backend/.env
 backend/config.txt
 backend/postgres-data
-backend/.DS_Store
+
+**/.DS_Store
