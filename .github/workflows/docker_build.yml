@@ -92,6 +92,6 @@ jobs:
           push: false
           tags: ${{ steps.meta_worker.outputs.tags }}
           labels: ${{ steps.meta_worker.outputs.labels }}
-          cache-from: type=gha,scope=worker,timeout=20m
-          cache-to: type=gha,mode=max,scope=worker,timeout=20m,ignore-error=true
+          cache-from: type=gha,scope=docker-worker,timeout=20m
+          cache-to: type=gha,mode=min,scope=docker-worker,timeout=20m,ignore-error=true
           github-token: ${{ secrets.GITHUB_TOKEN }}
