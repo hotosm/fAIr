@@ -16,6 +16,8 @@ export const truncateString = (string?: string, maxLength: number = 30) => {
   return string;
 };
 
+
 export const extractTileJSONURL = (openAerialMapTMSURL: string) => {
-  return openAerialMapTMSURL.split("/{z}/{x}/{y}")[0];
+  const tmsId = openAerialMapTMSURL.replace('https://tiles.openaerialmap.org/', '').replace('/{z}/{x}/{y}', '');
+  return `https://titiler.hotosm.org/cog/WebMercatorQuad/tilejson.json?url=https://oin-hotosm-temp.s3.us-east-1.amazonaws.com/${tmsId}.tif`;
 };

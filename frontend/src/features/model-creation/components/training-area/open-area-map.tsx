@@ -1,10 +1,11 @@
-import { FullScreenIcon } from "@/components/ui/icons";
-import { Map } from "maplibre-gl";
-import { MODELS_CONTENT } from "@/constants";
-import { ToolTip } from "@/components/ui/tooltip";
-import { truncateString } from "@/utils";
-import { useCallback, useEffect } from "react";
-import { useGetTMSTileJSON } from "@/features/model-creation/hooks/use-tms-tilejson";
+import { FullScreenIcon } from '@/components/ui/icons';
+import { Map } from 'maplibre-gl';
+import { MODELS_CONTENT } from '@/constants';
+import { showErrorToast, truncateString } from '@/utils';
+import { ToolTip } from '@/components/ui/tooltip';
+import { useCallback, useEffect } from 'react';
+import { useGetTMSTileJSON } from '@/features/model-creation/hooks/use-tms-tilejson';
+import { useGetTrainingDataset } from '@/features/models/hooks/use-dataset';
 import {
   MODEL_CREATION_FORM_NAME,
   useModelsContext,
@@ -13,13 +14,24 @@ import {
 const OpenAerialMap = ({
   tileJSONURL,
   map,
+  trainingDatasetId,
 }: {
   tileJSONURL: string;
   map: Map | null;
+  trainingDatasetId: number;
 }) => {
   const { handleChange } = useModelsContext();
 
   const { isPending, data, isError } = useGetTMSTileJSON(tileJSONURL);
+
+  const { data: trainingDataset, isError: trainingDatasetFetchError } =
+    useGetTrainingDataset(trainingDatasetId);
+
+  useEffect(() => {
+    if (trainingDatasetFetchError) {
+      showErrorToast(undefined, 'Failed to fetch training dataset');
+    }
+  }, [trainingDatasetFetchError]);
 
   const fitToTMSBounds = useCallback(() => {
     if (!map || !data?.bounds) return;
@@ -59,7 +71,7 @@ const OpenAerialMap = ({
                 className="basis-4/5 text-start text-body-3 text-wrap w-full"
                 title={data?.name}
               >
-                {truncateString(data?.name, 40)}
+                {truncateString(trainingDataset?.name, 40)}
               </p>
               <ToolTip
                 content={
