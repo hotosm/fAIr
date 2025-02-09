@@ -1,18 +1,18 @@
-import FileUploadDialog from "@/features/model-creation/components/dialogs/file-upload-dialog";
-import OpenAerialMap from "@/features/model-creation/components/training-area/open-area-map";
-import TrainingAreaList from "@/features/model-creation/components/training-area/training-area-list";
-import TrainingAreaMap from "@/features/model-creation/components/training-area/training-area-map";
-import useScreenSize from "@/hooks/use-screen-size";
-import { Button, ButtonWithIcon } from "@/components/ui/button";
-import { DrawingModes, SHOELACE_SIZES } from "@/enums";
-import { geojsonToWKT } from "@terraformer/wkt";
-import { MODELS_CONTENT, TOAST_NOTIFICATIONS } from "@/constants";
-import { Polygon } from "geojson";
-import { StepHeading } from "@/features/model-creation/components/";
-import { UploadIcon, YouTubePlayIcon } from "@/components/ui/icons";
-import { useDialog } from "@/hooks/use-dialog";
-import { useEffect, useState } from "react";
-import { useMapInstance } from "@/hooks/use-map-instance";
+import FileUploadDialog from '@/features/model-creation/components/dialogs/file-upload-dialog';
+import OpenAerialMap from '@/features/model-creation/components/training-area/open-area-map';
+import TrainingAreaList from '@/features/model-creation/components/training-area/training-area-list';
+import TrainingAreaMap from '@/features/model-creation/components/training-area/training-area-map';
+import useScreenSize from '@/hooks/use-screen-size';
+import { Button, ButtonWithIcon } from '@/components/ui/button';
+import { DrawingModes, SHOELACE_SIZES } from '@/enums';
+import { geojsonToWKT } from '@terraformer/wkt';
+import { MODELS_CONTENT, TOAST_NOTIFICATIONS } from '@/constants';
+import { Polygon } from 'geojson';
+import { StepHeading } from '@/features/model-creation/components/';
+import { UploadIcon, YouTubePlayIcon } from '@/components/ui/icons';
+import { useDialog } from '@/hooks/use-dialog';
+import { useEffect, useState } from 'react';
+import { useMapInstance } from '@/hooks/use-map-instance';
 import {
   MODEL_CREATION_FORM_NAME,
   useModelsContext,
@@ -105,7 +105,7 @@ const TrainingAreaForm = () => {
         </div>
 
         <div className="border-t-8 border-x-8 border-off-white mb-10 fullscreen md:no-fullscreen md:hidden">
-          <OpenAerialMap tileJSONURL={tileJSONURL} map={map} />
+          <OpenAerialMap tileJSONURL={tileJSONURL} map={map} trainingDatasetId={Number(formData.selectedTrainingDatasetId)} />
         </div>
         <div className="h-full grid grid-cols-12 md:grid-cols-9  border-8 border-off-white fullscreen md:no-fullscreen">
           <div className="w-full h-[90vh] col-span-12 md:col-span-6 2xl:col-span-7">
@@ -123,7 +123,7 @@ const TrainingAreaForm = () => {
             />
           </div>
           <div className="hidden md:flex h-[90vh] max-h-screen col-span-12 md:col-span-3 2xl:col-span-2 flex-col w-full border-l-8 border-off-white gap-y-6 py-4 ">
-            <OpenAerialMap tileJSONURL={tileJSONURL} map={map} />
+            <OpenAerialMap tileJSONURL={tileJSONURL} map={map} trainingDatasetId={Number(formData.selectedTrainingDatasetId)} />
             <TrainingAreaList
               offset={offset}
               setOffset={setOffset}

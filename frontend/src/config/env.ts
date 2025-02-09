@@ -246,4 +246,20 @@ export const ENVS = {
     Default value: https://api-prod.raw-data.hotosm.org/v1/status/.
    */
   OSM_DATABASE_STATUS_API_URL: import.meta.env.VITE_OSM_DATABASE_STATUS_API_URL,
+
+  /**
+    The Base URL for OAM's Titiler.
+    Data type: String (e.g.,https://titiler.hotosm.org/).
+    Default value: https://titiler.hotosm.org/.
+  */
+  OAM_TITILER_ENDPOINT: import.meta.env.VITE_OAM_TITILER_ENDPOINT,
+
+  /**
+    The new S3 bucket for OAM aerial imageries.
+    Data type: String (e.g.,https://oin-hotosm-temp.s3.us-east-1.amazonaws.com/).
+    Default value: https://oin-hotosm-temp.s3.us-east-1.amazonaws.com/.
+  */
+
+  OAM_S3_BUCKET_URL: import.meta.env.VITE_OAM_S3_BUCKET_URL,
+
 };

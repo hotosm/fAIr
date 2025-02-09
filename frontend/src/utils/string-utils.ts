@@ -1,3 +1,5 @@
+import { OAM_S3_BUCKET_URL, OAM_TITILER_ENDPOINT } from '@/constants';
+
 /**
  * Truncates a string to a specified maximum length, appending ellipsis if truncated.
  *
@@ -16,6 +18,16 @@ export const truncateString = (string?: string, maxLength: number = 30) => {
   return string;
 };
 
-export const extractTileJSONURL = (openAerialMapTMSURL: string) => {
-  return openAerialMapTMSURL.split("/{z}/{x}/{y}")[0];
+
+export const extractTileJSONURL = (OAMTMSURL: string) => {
+
+  // Before, when we hit this url https://tiles.openaerialmap.org/63b457ba3fb8c100063c55f0/0/63b457ba3fb8c100063c55f1/{z}/{x}/{y} (without the /{z}/{x}/{y}), 
+  // we get the TileJSON which is passed to Maplibre GL JS to render the aerial imagery, but with the recent OAM updates
+  // we have to grab the unique id of the aerial imagery, construct the new S3 bucket location and give it to titiler to get the new TileJSON. 
+  const uniqueImageryId = OAMTMSURL
+    .replace('https://tiles.openaerialmap.org/', '')
+    .replace('/{z}/{x}/{y}', '');
+
+  // Construct the URL to fetch the TileJSON from titiler.
+  return `${OAM_TITILER_ENDPOINT}cog/WebMercatorQuad/tilejson.json?url=${OAM_S3_BUCKET_URL}${uniqueImageryId}.tif`;
 };

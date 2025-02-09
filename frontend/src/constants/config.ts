@@ -1,6 +1,6 @@
-import { BASE_MODELS } from "@/enums";
-import { ENVS } from "@/config/env";
-import { StyleSpecification } from "maplibre-gl";
+import { BASE_MODELS } from '@/enums';
+import { ENVS } from '@/config/env';
+import { StyleSpecification } from 'maplibre-gl';
 
 /**
  * The key used to store the access token in local storage for the application.
@@ -38,7 +38,7 @@ const REFRESH_BUFFER_MS = 1000;
  */
 export const KPI_STATS_CACHE_TIME_MS =
   (Number(ENVS.KPI_STATS_CACHE_TIME) || DEFAULT_KPI_STATS_CACHE_TIME_SECONDS) *
-    1000 +
+  1000 +
   REFRESH_BUFFER_MS;
 
 /**
@@ -241,3 +241,20 @@ export const MAX_GEOJSON_FILE_UPLOAD_FOR_TRAINING_AREAS =
 */
 export const MAX_ACCEPTABLE_POLYGON_IN_TRAINING_AREA_GEOJSON_FILE =
   ENVS.MAX_ACCEPTABLE_POLYGON_IN_TRAINING_AREA_GEOJSON_FILE || 10;
+
+
+/**
+  The Base URL for OAM's Titiler.
+  Data type: String (e.g.,https://titiler.hotosm.org/).
+  Default value: https://titiler.hotosm.org/.
+*/
+export const OAM_TITILER_ENDPOINT = ENVS.OAM_TITILER_ENDPOINT || "https://titiler.hotosm.org/";
+
+
+
+/**
+  The new S3 bucket for OAM aerial imageries.
+  Data type: String (e.g.,https://oin-hotosm-temp.s3.us-east-1.amazonaws.com/).
+  Default value: https://oin-hotosm-temp.s3.us-east-1.amazonaws.com/.
+*/
+export const OAM_S3_BUCKET_URL = ENVS.OAM_S3_BUCKET_URL || "https://oin-hotosm-temp.s3.us-east-1.amazonaws.com/";
