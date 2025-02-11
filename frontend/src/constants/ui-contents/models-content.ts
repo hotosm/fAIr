@@ -154,36 +154,35 @@ export const MODELS_CONTENT: TModelsContent = {
       form: {
         zoomLevel: {
           label: "Select Zoom Level",
-          toolTip: "Select Zoom Level",
+          toolTip: "Choose the zoom level for training. A higher zoom level provides finer details but may increase training time.",
         },
         trainingType: {
           label: "Select Model Training Type",
-          toolTip: "Select Model Training Type",
+          toolTip: "Choose the type of model training to apply.",
         },
         advancedSettings: {
           label: "Advanced Settings",
-          toolTip: "Advanced Settings",
+          toolTip: "Modify additional parameters for fine-tuning your model training.",
         },
         epoch: {
           label: "Epoch",
-          toolTip: "Epoch",
+          toolTip: "Specify the number of training iterations. A higher number improves learning.",
         },
         contactSpacing: {
           label: "Contact Spacing",
-          toolTip: "Contact Spacing",
+          toolTip: "Defines the minimum spacing between detected objects during training.",
         },
         batchSize: {
           label: "Batch Size",
-          toolTip: "Batch Size",
+          toolTip: "The number of training samples processed in one step. A larger batch size may speed up training.",
         },
         boundaryWidth: {
           label: "Boundary Width",
-          toolTip: "Boundary Width",
+          toolTip: "Determines the width of the boundary around detected objects, affecting how edges are handled.",
         },
       },
       pageTitle: "Model Training Settings",
-      pageDescription:
-        "Select training settings based on the following options",
+      pageDescription: "Customize your model training preferences by selecting the appropriate options below.",
     },
     progressStepper: {
       modelDetails: "Model Details",

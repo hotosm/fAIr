@@ -1,4 +1,4 @@
-import { cn } from '@/utils';
+
 
 type HelptextProps = {
   content?: string;
@@ -9,7 +9,7 @@ type HelptextProps = {
 const HelpText: React.FC<HelptextProps> = ({ content, isValid, currentLength }) => {
 
   return (
-    <p className={cn(`mt-1 font-medium text-body-3 text-gray ${isValid !== undefined && (currentLength && currentLength > 0 && !isValid && 'text-primary')}`)} slot="help-text">
+    <p className={`mt-1 font-medium text-body-3 text-gray ${isValid !== undefined && (currentLength && currentLength > 0 && !isValid && 'text-primary')}`} slot="help-text">
       {content}
     </p>
   );

@@ -1,8 +1,8 @@
-import { BackButton } from "@/components/ui/button";
-import { Head } from "@/components/seo";
-import { MODELS_CONTENT, MODELS_ROUTES } from "@/constants";
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { BackButton } from '@/components/ui/button';
+import { Head } from '@/components/seo';
+import { MODELS_CONTENT, MODELS_ROUTES } from '@/constants';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import {
   ProgressBar,
   ProgressButtons,
@@ -26,43 +26,43 @@ const pages: {
   icon: React.ElementType;
   path: string;
 }[] = [
-  {
-    id: 1,
-    title: MODELS_CONTENT.modelCreation.progressStepper.modelDetails,
-    icon: TagsIcon,
-    path: MODELS_ROUTES.DETAILS,
-  },
-  {
-    id: 2,
-    title: MODELS_CONTENT.modelCreation.progressStepper.trainingDataset,
-    icon: DatabaseIcon,
-    path: MODELS_ROUTES.TRAINING_DATASET,
-  },
-  {
-    id: 3,
-    title: MODELS_CONTENT.modelCreation.progressStepper.trainingArea,
-    icon: SquareShadowIcon,
-    path: MODELS_ROUTES.TRAINING_AREA,
-  },
-  {
-    id: 4,
-    title: MODELS_CONTENT.modelCreation.progressStepper.trainingSettings,
-    icon: SettingsIcon,
-    path: MODELS_ROUTES.TRAINING_SETTINGS,
-  },
-  {
-    id: 5,
-    title: MODELS_CONTENT.modelCreation.progressStepper.submitModel,
-    icon: CloudIcon,
-    path: MODELS_ROUTES.MODEL_SUMMARY,
-  },
-  {
-    id: 6,
-    title: MODELS_CONTENT.modelCreation.progressStepper.confirmation,
-    icon: StarIcon,
-    path: MODELS_ROUTES.CONFIRMATION,
-  },
-];
+    {
+      id: 1,
+      title: MODELS_CONTENT.modelCreation.progressStepper.modelDetails,
+      icon: TagsIcon,
+      path: MODELS_ROUTES.DETAILS,
+    },
+    {
+      id: 2,
+      title: MODELS_CONTENT.modelCreation.progressStepper.trainingDataset,
+      icon: DatabaseIcon,
+      path: MODELS_ROUTES.TRAINING_DATASET,
+    },
+    {
+      id: 3,
+      title: MODELS_CONTENT.modelCreation.progressStepper.trainingArea,
+      icon: SquareShadowIcon,
+      path: MODELS_ROUTES.TRAINING_AREA,
+    },
+    {
+      id: 4,
+      title: MODELS_CONTENT.modelCreation.progressStepper.trainingSettings,
+      icon: SettingsIcon,
+      path: MODELS_ROUTES.TRAINING_SETTINGS,
+    },
+    {
+      id: 5,
+      title: MODELS_CONTENT.modelCreation.progressStepper.submitModel,
+      icon: CloudIcon,
+      path: MODELS_ROUTES.MODEL_SUMMARY,
+    },
+    {
+      id: 6,
+      title: MODELS_CONTENT.modelCreation.progressStepper.confirmation,
+      icon: StarIcon,
+      path: MODELS_ROUTES.CONFIRMATION,
+    },
+  ];
 
 export const ModelFormsLayout = () => {
   const { pathname } = useLocation();
@@ -134,9 +134,9 @@ const ModelFormRouteValidator = ({
         navigate(prevRoute);
     } else if (pathname.includes(MODELS_ROUTES.TRAINING_SETTINGS)) {
       // When a user is in the training settings, they must have completed the training area, the tms bounds should be available too
-      //  !formData.trainingAreas.features.filter(aoi=>aoi.properties.label_fetched).length>0
+
       if (
-        !formData.oamTileName ||
+        !formData.datasetName ||
         !formData.oamBounds ||
         !hasLabeledTrainingAreas
       )
@@ -148,7 +148,7 @@ const ModelFormRouteValidator = ({
       if (
         formData.zoomLevels.length === 0 ||
         !hasLabeledTrainingAreas ||
-        !formData.oamTileName ||
+        !formData.datasetName ||
         !formData.oamBounds
       )
         navigate(prevRoute);

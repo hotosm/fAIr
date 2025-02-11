@@ -46,6 +46,7 @@ import {
   useGetTrainingArea,
   useGetTrainingAreaLabels,
   useGetTrainingAreaLabelsFromOSM,
+  useGetTrainingAreas,
 } from "@/features/model-creation/hooks/use-training-areas";
 
 type LabelState = {
@@ -270,6 +271,11 @@ export const TrainingAreaItem: React.FC<
     },
   });
 
+  const { refetch: refetchTrainingAreas } = useGetTrainingAreas(
+    datasetId,
+    offset,
+  );
+
   const handleFetchLabels = useCallback(() => {
     setLabelState((prev) => ({
       ...prev,
@@ -288,6 +294,7 @@ export const TrainingAreaItem: React.FC<
         shouldPoll: false,
         errorToastShown: false,
       }));
+      refetchTrainingAreas()
       showSuccessToast(
         `Training labels for Training Area ${trainingArea.id} have been successfully fetched.`,
       );
@@ -366,7 +373,7 @@ export const TrainingAreaItem: React.FC<
       imageSrc: JOSMLogo,
       disabled: false,
       onClick: () =>
-        openInJOSM(formData.oamTileName, formData.tmsURL, [trainingArea]),
+        openInJOSM(formData.datasetName, formData.tmsURL, [trainingArea]),
     },
     {
       tooltip:

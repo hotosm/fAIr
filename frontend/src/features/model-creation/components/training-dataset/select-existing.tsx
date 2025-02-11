@@ -69,6 +69,7 @@ const SelectExistingTrainingDatasetForm = () => {
                         disabled={!td.source_imagery}
                         className="w-full text-start"
                         onClick={() => {
+
                           handleChange(
                             MODEL_CREATION_FORM_NAME.SELECTED_TRAINING_DATASET_ID,
                             String(td.id),

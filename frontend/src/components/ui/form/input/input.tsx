@@ -8,6 +8,7 @@ import { INPUT_TYPES, SHOELACE_SIZES } from '@/enums';
 import { SlInput } from '@shoelace-style/shoelace/dist/react';
 import { useRef } from 'react';
 
+
 type InputProps = {
   handleInput: (arg: React.ChangeEvent<HTMLInputElement>) => void;
   value: string | number;
@@ -78,6 +79,8 @@ const Input: React.FC<InputProps> = ({
               message: inputRef.current?.validationMessage,
             },
           );
+
+
         // @ts-expect-error bad type definition
         handleInput(e);
       }}
