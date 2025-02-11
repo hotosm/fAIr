@@ -94,6 +94,7 @@ export const ModelSettings = ({
           options={confidenceLevels}
           defaultValue={query[SEARCH_PARAMS.confidenceLevel] as number}
           handleChange={(value) => {
+
             handleQueryUpdate(SEARCH_PARAMS.confidenceLevel, Number(value));
           }}
         />
