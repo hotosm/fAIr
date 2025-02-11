@@ -1,7 +1,7 @@
 import { FullScreenIcon } from '@/components/ui/icons';
 import { Map } from 'maplibre-gl';
 import { MODELS_CONTENT } from '@/constants';
-import { showErrorToast, truncateString } from '@/utils';
+import { showErrorToast } from '@/utils';
 import { ToolTip } from '@/components/ui/tooltip';
 import { useCallback, useEffect } from 'react';
 import { useGetTMSTileJSON } from '@/features/model-creation/hooks/use-tms-tilejson';
