@@ -134,7 +134,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const data = await authService.authenticate(state, code);
       setValue(HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY, data.access_token);
       setToken(data.access_token);
-      await fetchUserProfile();
     } catch (error) {
       showErrorToast(error, TOAST_NOTIFICATIONS.authenticationFailed);
     }
