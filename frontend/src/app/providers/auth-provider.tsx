@@ -3,7 +3,7 @@ import React, {
   useContext,
   useEffect,
   useState
-} from 'react';
+  } from 'react';
 import { apiClient } from '@/services/api-client';
 import { authService } from '@/services';
 import { showErrorToast, showSuccessToast } from '@/utils';
@@ -106,6 +106,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const user = await authService.getUser();
       setUser(user);
+      handleRedirection();
     } catch (error) {
       showErrorToast(error);
     }
@@ -131,8 +132,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const data = await authService.authenticate(state, code);
       setValue(HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY, data.access_token);
       setToken(data.access_token);
-      fetchUserProfile();
-      handleRedirection();
+      await fetchUserProfile();
     } catch (error) {
       showErrorToast(error, TOAST_NOTIFICATIONS.authenticationFailed);
     }
