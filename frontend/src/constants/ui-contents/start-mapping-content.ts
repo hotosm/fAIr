@@ -1,11 +1,11 @@
-import { TStartMappingPageContent } from "@/types";
+import { TStartMappingPageContent } from '@/types';
 
 export const START_MAPPING_PAGE_CONTENT: TStartMappingPageContent = {
   pageTitle: (modelName: string) => `Start Mapping with ${modelName}`,
   map: {
     controls: {
       fitToBoundsControl: {
-        tooltip: "Fit to TMS Bounds",
+        tooltip: "Click to adjust the map view to fit the imagery bounds.",
       },
       legendControl: {
         title: "Legend",
@@ -20,24 +20,24 @@ export const START_MAPPING_PAGE_CONTENT: TStartMappingPageContent = {
       },
     },
     popup: {
-      defaultTitle: "Action",
+      defaultTitle: "Confirm Building Selection",
       commentTitle: "Comment",
       accept: "Accept",
       reject: "Reject",
       resolve: "Resolve",
       comment: {
         description: "Reason for rejecting (Optional)",
-        placeholder: "Incorrect prediction...",
+        placeholder: "E.g Incorrect prediction...",
         submit: "Submit",
         submissionInProgress: "Submitting...",
       },
       description:
-        "loremLorem ipsum, dolor sit amet consectetur adipisicing elit. Quas aperia...",
+        "This building has been detected. You can either accept it as a valid prediction or reject it if it's incorrect.",
     },
   },
   buttons: {
-    runPrediction: "Run prediction",
-    tooltip: "Zoom in to run predictions",
+    runPrediction: "Generate Predictions",
+    tooltip: "Zoom in to generate predictions",
     download: {
       label: "Actions",
       options: {
@@ -47,7 +47,7 @@ export const START_MAPPING_PAGE_CONTENT: TStartMappingPageContent = {
         openAcceptedFeaturesInJOSM: "Open accepted features in JOSM",
       },
     },
-    predictionInProgress: "Running...",
+    predictionInProgress: "Generating...",
   },
   settings: {
     useJOSMQ: {
@@ -74,7 +74,7 @@ export const START_MAPPING_PAGE_CONTENT: TStartMappingPageContent = {
     rejected: "Rejected",
   },
   actions: {
-    disabledModeTooltip: (param: string) => `Run prediction to ${param}`,
+    disabledModeTooltip: (param: string) => `Run predictions to ${param}`,
   },
   modelDetails: {
     error: "Error retrieving model information.",

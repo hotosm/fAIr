@@ -229,7 +229,7 @@ export const MODELS_CONTENT: TModelsContent = {
       trainingHistorySectionTitle: "Training History",
       enhanceModel: "Enhance Model",
       feedbacks: "View Feedbacks",
-      startMapping: "Start Mapping",
+      startMapping: "Map with AI Model",
       modelDescriptionNotAvailable: "Model description is not available.",
       viewTrainingArea: "View Training Area",
       viewFeedbacks: "View Feedbacks",

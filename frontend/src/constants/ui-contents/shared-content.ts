@@ -1,5 +1,5 @@
-import { APPLICATION_ROUTES } from "../routes";
-import { TSharedContent } from "@/types";
+import { APPLICATION_ROUTES } from '../routes';
+import { TSharedContent } from '@/types';
 
 export const SHARED_CONTENT: TSharedContent = {
   navbar: {
@@ -70,8 +70,8 @@ export const SHARED_CONTENT: TSharedContent = {
     jumbotronTitle: "Your AI Mapping Partner",
     jumbotronHeadline:
       "AI-powered assistant that amplify your mapping efforts intelligently and quickly, helping you map smarter and faster.",
-    ctaPrimaryButton: "Create Model",
-    ctaSecondaryButton: "Start Mapping",
+    ctaPrimaryButton: "Create AI Model",
+    ctaSecondaryButton: "EXPLORE AI MODELS",
     jumbotronImageAlt: "A user engaging in a mapping activity",
     kpi: {
       publishedAIModels: "Published AI Models",

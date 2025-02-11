@@ -1,11 +1,11 @@
-import { Divider } from "@/components/ui/divider";
-import { DropDown } from "@/components/ui/dropdown";
-import { DropdownPlacement } from "@/enums";
-import { ELEMENT_DISTANCE_FROM_NAVBAR } from "@/constants";
-import { Link } from "@/components/ui/link";
-import { navLinks } from "@/constants/general";
-import { NavLogo } from "@/components/layout";
-import { useNavigate } from "react-router-dom";
+import { Divider } from '@/components/ui/divider';
+import { DropDown } from '@/components/ui/dropdown';
+import { DropdownPlacement } from '@/enums';
+import { ELEMENT_DISTANCE_FROM_NAVBAR } from '@/constants';
+import { Link } from '@/components/ui/link';
+import { navLinks } from '@/constants/general';
+import { NavLogo } from '@/components/layout';
+import { useNavigate } from 'react-router-dom';
 
 type BrandLogoWithDropDownProps = {
   isOpened: boolean;
@@ -50,7 +50,7 @@ export const BrandLogoWithDropDown = function BrandLogoWithDropDown({
           className="text-body-3  block w-full px-4 py-2 text-start hover:bg-off-white hover:rounded-b-xl text-primary"
           onClick={() => navigate(-1)}
         >
-          Exit
+          Stop Mapping
         </button>
       </div>
     </DropDown>

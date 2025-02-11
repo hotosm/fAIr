@@ -108,11 +108,11 @@ export const StartMappingPage = () => {
   const [query, setQuery] = useState<TQueryParams>(() => {
     return {
       [SEARCH_PARAMS.useJOSMQ]:
-        searchParams.get(SEARCH_PARAMS.useJOSMQ) || false,
+        searchParams.get(SEARCH_PARAMS.useJOSMQ) || true,
       [SEARCH_PARAMS.confidenceLevel]:
         searchParams.get(SEARCH_PARAMS.confidenceLevel) || 90,
       [SEARCH_PARAMS.tolerance]:
-        searchParams.get(SEARCH_PARAMS.tolerance) || 0.3,
+        searchParams.get(SEARCH_PARAMS.tolerance) || 1.0,
       [SEARCH_PARAMS.area]: searchParams.get(SEARCH_PARAMS.area) || 4,
     };
   });
@@ -238,10 +238,10 @@ export const StartMappingPage = () => {
 
   const handleFeaturesDownloadToJOSM = useCallback(
     (features: Feature[]) => {
-      if (!map || !oamTileJSON?.name || !trainingDataset?.source_imagery)
+      if (!map || !trainingDataset?.name || !trainingDataset?.source_imagery)
         return;
       openInJOSM(
-        oamTileJSON.name,
+        trainingDataset.name,
         trainingDataset.source_imagery,
         features,
         true,
