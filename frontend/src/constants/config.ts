@@ -160,6 +160,15 @@ export const TRAINING_AREAS_AOI_LABELS_FILL_COLOR =
 export const TRAINING_AREAS_AOI_LABELS_OUTLINE_COLOR =
   ENVS.TRAINING_AREAS_AOI_LABELS_OUTLINE_COLOR || "#D73434";
 
+
+/**
+ * The key used to store the model form data in session storage to preserve the state incase the user
+ * visits ID Editor or JOSM to map a training area.
+ * Session storage is used to allow users to be able to open fAIr on a new tab and start on a clean slate.
+ */
+export const HOT_FAIR_MODEL_CREATION_SESSION_STORAGE_KEY = "__hot_fair_model_creation_formdata";
+
+
 /**
  * The key used to store the banner state in local storage for the application.
  */

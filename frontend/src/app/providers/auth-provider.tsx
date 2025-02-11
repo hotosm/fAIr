@@ -1,9 +1,14 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
-import { apiClient } from "@/services/api-client";
-import { authService } from "@/services";
-import { showErrorToast, showSuccessToast } from "@/utils";
-import { TUser } from "@/types/api";
-import { useLocalStorage, useSessionStorage } from "@/hooks/use-storage";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState
+} from 'react';
+import { apiClient } from '@/services/api-client';
+import { authService } from '@/services';
+import { showErrorToast, showSuccessToast } from '@/utils';
+import { TUser } from '@/types/api';
+import { useLocalStorage, useSessionStorage } from '@/hooks/use-storage';
 import {
   TOAST_NOTIFICATIONS,
   HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY,
@@ -37,9 +42,9 @@ type AuthProviderProps = {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const { getValue, setValue, removeValue } = useLocalStorage();
   const {
-    getValue: getSessionValue,
-    removeValue: removeSessionValue,
-    setValue: setSessionValue,
+    getSessionValue,
+    removeSessionValue,
+    setSessionValue,
   } = useSessionStorage();
 
   const [token, setToken] = useState<string | undefined>(

@@ -1,4 +1,9 @@
-import { APPLICATION_ROUTES, MODELS_BASE, MODELS_ROUTES } from '@/constants';
+import {
+  APPLICATION_ROUTES,
+  HOT_FAIR_MODEL_CREATION_SESSION_STORAGE_KEY,
+  MODELS_BASE,
+  MODELS_ROUTES
+} from '@/constants';
 import { BASE_MODELS, TrainingDatasetOption, TrainingType } from '@/enums';
 import { LngLatBoundsLike } from 'maplibre-gl';
 import { TOAST_NOTIFICATIONS } from '@/constants';
@@ -7,6 +12,7 @@ import { useGetTrainingDataset } from '@/features/models/hooks/use-dataset';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useModelDetails } from '@/features/models/hooks/use-models';
 import { UseMutationResult } from '@tanstack/react-query';
+import { useSessionStorage } from '@/hooks/use-storage';
 import {
   TTrainingAreaFeature,
   TTrainingDataset,
@@ -256,8 +262,13 @@ export const ModelsProvider: React.FC<{
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const { modelId } = useParams();
-  const [formData, setFormData] =
-    useState<typeof initialFormState>(initialFormState);
+  const { getSessionValue, setSessionValue, removeSessionValue } = useSessionStorage();
+
+  const storedFormData = getSessionValue(HOT_FAIR_MODEL_CREATION_SESSION_STORAGE_KEY);
+  const [formData, setFormData] = useState<typeof initialFormState>(
+    storedFormData ? JSON.parse(storedFormData) : initialFormState
+  );
+
 
   const handleChange = (
     field: string,
@@ -269,7 +280,11 @@ export const ModelsProvider: React.FC<{
       | Record<string, string | number | boolean>
       | LngLatBoundsLike,
   ) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData((prev) => {
+      const updatedData = { ...prev, [field]: value };
+      setSessionValue(HOT_FAIR_MODEL_CREATION_SESSION_STORAGE_KEY, JSON.stringify(updatedData));
+      return updatedData;
+    });
   };
 
   const getFullPath = (path: string) =>
@@ -339,23 +354,29 @@ export const ModelsProvider: React.FC<{
   useEffect(() => {
     // Cleanup the timeout on component unmount
     return () => {
+      removeSessionValue(HOT_FAIR_MODEL_CREATION_SESSION_STORAGE_KEY);
       if (timeOutRef.current) {
         clearTimeout(timeOutRef.current);
       }
     };
   }, []);
 
+
+  const resetState = () => {
+    removeSessionValue(HOT_FAIR_MODEL_CREATION_SESSION_STORAGE_KEY);
+    setFormData(initialFormState);
+  };
+
   const createNewTrainingRequestMutation = useCreateModelTrainingRequest({
     mutationConfig: {
       onSuccess: () => {
         showSuccessToast(TOAST_NOTIFICATIONS.trainingRequestSubmittedSuccess);
-
-        timeOutRef.current = setTimeout(() => {
-          setFormData(initialFormState);
-        }, 2000);
+        // Reset the state after 2 second on the model success page.
+        resetState();
       },
       onError: (error) => {
         showErrorToast(error);
+        resetState();
       },
     },
   });
@@ -434,9 +455,6 @@ export const ModelsProvider: React.FC<{
       (aoi: TTrainingAreaFeature) => aoi.geometry === null,
     ).length === 0;
 
-  const resetState = () => {
-    setFormData(initialFormState);
-  };
 
   const handleTrainingDatasetCreation = () => {
     createNewTrainingDatasetMutation.mutate({

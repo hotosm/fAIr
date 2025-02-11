@@ -71,7 +71,7 @@ const ModelDetailsForm = () => {
           handleChange={(value) =>
             handleChange(MODEL_CREATION_FORM_NAME.BASE_MODELS, value)
           }
-          required
+
         />
       </div>
     </div>

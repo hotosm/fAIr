@@ -1,7 +1,7 @@
-import styles from "./kpi.module.css";
-import { API_ENDPOINTS, apiClient } from "@/services";
-import { KPI_STATS_CACHE_TIME_MS, SHARED_CONTENT } from "@/constants";
-import { useQuery } from "@tanstack/react-query";
+import styles from './kpi.module.css';
+import { API_ENDPOINTS, apiClient } from '@/services';
+import { KPI_STATS_CACHE_TIME_MS, SHARED_CONTENT } from '@/constants';
+import { useQuery } from '@tanstack/react-query';
 type TKPIS = {
   figure?: number;
   label: string;
@@ -20,22 +20,13 @@ const fetchKPIStats = async (): Promise<TKPIResponse> => {
 };
 
 export const Kpi = () => {
-  const { data, isLoading, isError, error } = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryKey: ["kpis"],
     queryFn: fetchKPIStats,
     refetchInterval: KPI_STATS_CACHE_TIME_MS,
   });
 
-  if (isError) {
-    return (
-      <section className={styles.kpiContainer}>
-        <div>
-          <h2>Error fetching KPI Stats</h2>
-          <p>{(error as Error)?.message || "An unknown error occurred."}</p>
-        </div>
-      </section>
-    );
-  }
+
 
   const KPIs: TKPIS = [
     {
@@ -60,7 +51,7 @@ export const Kpi = () => {
     <section className={styles.kpiContainer}>
       {KPIs.map((kpi, id) => (
         <div key={`kpi-${id}`} className={styles.kpiItem}>
-          <h1 className={`${isLoading ? "animate-pulse" : ""}`}>
+          <h1 className={`${isLoading || isError ? "animate-pulse" : ""}`}>
             {kpi.figure?.toLocaleString()}
           </h1>
           <h3>{kpi.label}</h3>
