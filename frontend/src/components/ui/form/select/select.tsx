@@ -1,9 +1,9 @@
-import useScreenSize from "@/hooks/use-screen-size";
-import { FormLabel, HelpText } from "@/components/ui/form";
-import { SHOELACE_SELECT_SIZES } from "@/enums";
-import { SlOption, SlSelect } from "@shoelace-style/shoelace/dist/react";
-import { TShoelaceSize } from "@/types";
-import "./select.css";
+import useScreenSize from '@/hooks/use-screen-size';
+import { FormLabel, HelpText } from '@/components/ui/form';
+import { SHOELACE_SELECT_SIZES } from '@/enums';
+import { SlOption, SlSelect } from '@shoelace-style/shoelace/dist/react';
+import { TShoelaceSize } from '@/types';
+import './select.css';
 
 type SelectProps = {
   label?: string;
@@ -72,7 +72,7 @@ const Select: React.FC<SelectProps> = ({
       {helpText && <HelpText content={helpText} />}
       {options?.map((option, id) => (
         <SlOption key={`select-option-${id}`} value={option.value as string}>
-          <span className="text-body-3">{option.name}</span>
+          <span className="text-body-3 font-semibold">{option.name}</span>
           <span slot="suffix" className="text-body-4 md:text-body-3">
             {option.suffix}
           </span>

@@ -1,7 +1,7 @@
-import { BASE_MODELS } from "@/enums";
-import { formatAreaInAppropriateUnit } from "@/utils";
-import { MAX_TRAINING_AREA_SIZE, MIN_TRAINING_AREA_SIZE } from "../config";
-import { TModelsContent } from "@/types";
+import { BASE_MODELS } from '@/enums';
+import { formatAreaInAppropriateUnit } from '@/utils';
+import { MAX_TRAINING_AREA_SIZE, MIN_TRAINING_AREA_SIZE } from '../config';
+import { TModelsContent } from '@/types';
 
 export const MODELS_CONTENT: TModelsContent = {
   trainingArea: {
@@ -31,13 +31,13 @@ export const MODELS_CONTENT: TModelsContent = {
         },
         baseModel: {
           label: "Base Model",
-          helpText: "Select the base model to use for the training.",
-          toolTip: "Base Model refers to the original model that will be used to fine tune your AI model",
+          helpText: "Choose a base model to use for training. All base models currently support building detection.",
+          toolTip: "A base model is the pre-trained model that serves as the foundation for fine-tuning your local AI model.",
           suffixes: {
-            [BASE_MODELS.RAMP]: "Faster training time, with decent accuracy.",
-            [BASE_MODELS.YOLOV8_V1]: "Good for major areas and more accurate. Trained by community members",
+            [BASE_MODELS.RAMP]: "Optimized for faster training with decent accuracy. Best suited for building detection tasks.",
+            [BASE_MODELS.YOLOV8_V1]: "A well-balanced model offering good accuracy for detecting structures in major areas. Trained by the community.",
             [BASE_MODELS.YOLOV8_V2]:
-              "Our best model yet. Good for every type of area. Trained in collaboration with Omdena AI",
+              "Our most advanced model. Designed for detecting various features across different areas. Developed in collaboration with Omdena AI.",
           },
         },
         modelDescription: {
@@ -49,7 +49,7 @@ export const MODELS_CONTENT: TModelsContent = {
         },
       },
       pageDescription:
-        "Model creation has steps as shown above. Please enter your model meta data below.",
+        "Model creation has steps as shown above. Please enter your model metadata below.",
     },
     trainingDataset: {
       pageTitle: "Training Dataset",
