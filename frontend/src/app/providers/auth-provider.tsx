@@ -58,11 +58,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Set token globally to eliminate the need to rewrite it
   apiClient.defaults.headers.common["access-token"] = token ? `${token}` : null;
 
-  useEffect(() => {
-    if (token) {
-      fetchUserProfile();
-    }
-  }, [token]);
 
   const handleRedirection = () => {
     const redirectTo = getSessionValue(HOT_FAIR_SESSION_REDIRECT_KEY);
@@ -111,6 +106,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       showErrorToast(error);
     }
   };
+
+  useEffect(() => {
+    if (token) {
+      fetchUserProfile();
+    }
+  }, [token]);
+
 
   /**
    * Clean up and logout.
