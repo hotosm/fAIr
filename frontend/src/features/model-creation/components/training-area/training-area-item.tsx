@@ -1,14 +1,19 @@
-import FileUploadDialog from "@/features/model-creation/components/dialogs/file-upload-dialog";
-import { DropDown } from "@/components/ui/dropdown";
-import { IconProps, TTrainingAreaFeature } from "@/types";
-import { JOSMLogo, OSMLogo } from "@/assets/svgs";
-import { LabelStatus } from "@/enums/training-area";
-import { Map } from "maplibre-gl";
-import { ToolTip } from "@/components/ui/tooltip";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { useDialog } from "@/hooks/use-dialog";
-import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
-import { useModelsContext } from "@/app/providers/models-provider";
+import FileUploadDialog from '@/features/model-creation/components/dialogs/file-upload-dialog';
+import { DropDown } from '@/components/ui/dropdown';
+import { IconProps, TTrainingAreaFeature } from '@/types';
+import { JOSMLogo, OSMLogo } from '@/assets/svgs';
+import { LabelStatus } from '@/enums/training-area';
+import { Map } from 'maplibre-gl';
+import { ToolTip } from '@/components/ui/tooltip';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState
+} from 'react';
+import { useDialog } from '@/hooks/use-dialog';
+import { useDropdownMenu } from '@/hooks/use-dropdown-menu';
+import { useModelsContext } from '@/app/providers/models-provider';
 import {
   CloudDownloadIcon,
   DeleteIcon,
@@ -93,17 +98,17 @@ const LabelFetchStatus = ({
   }, [fetchedDate]);
 
   const getFetchStatus = () => {
-    if (isFetching) return "Processing labels...";
+    if (isFetching) return "Fetching labels...";
     if (isError) return "Error occurred. Please retry.";
     if (status === LabelStatus.DOWNLOADED) {
-      return timeSince ? `Fetched ${timeSince} ago` : "Fetched recently";
+      return timeSince ? `Labels fetched ${timeSince} ago` : "Labels fetched recently";
     }
     return "No labels yet";
   };
 
   return (
     <p
-      className={`text-body-4 text-dark ${status !== LabelStatus.DOWNLOADED && "text-primary"}`}
+      className={`text-body-4 italic text-dark ${status !== LabelStatus.DOWNLOADED && "text-primary"}`}
     >
       {getFetchStatus()}
     </p>
@@ -283,6 +288,9 @@ export const TrainingAreaItem: React.FC<
         shouldPoll: false,
         errorToastShown: false,
       }));
+      showSuccessToast(
+        `Training labels for Training Area ${trainingArea.id} have been successfully fetched.`,
+      );
     },
     [setLabelState],
   );
@@ -407,7 +415,7 @@ export const TrainingAreaItem: React.FC<
     {
       tooltip: disableLabelsFetchOrUpload
         ? MODELS_CONTENT.modelCreation.trainingArea.toolTips
-            .labelsFetchInProgress
+          .labelsFetchInProgress
         : MODELS_CONTENT.modelCreation.trainingArea.toolTips.uploadLabels,
       isIcon: true,
       Icon: UploadIcon,
@@ -462,9 +470,9 @@ export const TrainingAreaItem: React.FC<
             content={
               disableLabelsFetchOrUpload
                 ? MODELS_CONTENT.modelCreation.trainingArea.toolTips
-                    .labelsFetchInProgress
+                  .labelsFetchInProgress
                 : MODELS_CONTENT.modelCreation.trainingArea.toolTips
-                    .fetchOSMLabels
+                  .fetchOSMLabels
             }
           >
             <button
@@ -472,7 +480,7 @@ export const TrainingAreaItem: React.FC<
               className="bg-green-secondary px-2 py-1 rounded-md text-nowrap text-[9px] flex items-center gap-x-2 font-light"
               onClick={handleFetchLabels}
             >
-              <MapIcon className="icon text-green-primary" />
+              <MapIcon className="icon md:icon-lg text-green-primary" />
             </button>
           </ToolTip>
           <ToolTip
