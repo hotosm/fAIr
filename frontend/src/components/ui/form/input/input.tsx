@@ -52,7 +52,7 @@ const Input: React.FC<InputProps> = ({
   minLength,
   pattern,
   validationStateUpdateCallback,
-  isValid = false,
+  isValid,
   min,
   max,
   step = 1,
@@ -66,7 +66,7 @@ const Input: React.FC<InputProps> = ({
 
   const inputRef = useRef<HTMLInputElement | null>(null);
   const { isMobile } = useScreenSize();
-
+  const currentLength = String(value).length
   return (
     <SlInput
       onSlInput={(e) => {
@@ -109,13 +109,13 @@ const Input: React.FC<InputProps> = ({
           withTooltip={labelWithTooltip}
           toolTipContent={toolTipContent as string}
           required={required}
-          currentLength={String(value).length}
+          currentLength={currentLength}
           maxLength={maxLength}
           minLength={minLength}
         />
       )}
 
-      {helpText && <HelpText content={helpText} />}
+      {helpText && <HelpText content={helpText} isValid={isValid} currentLength={currentLength} />}
       {/* 
         We're using the native browser date picker. 
         In chrome it displays a calender icon which unfortunately could not be customized as at 08/10/2024.

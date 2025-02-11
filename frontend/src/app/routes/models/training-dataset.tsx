@@ -1,4 +1,4 @@
-import { TrainingDatasetForm } from "@/features/model-creation/components";
+import { TrainingDatasetForm } from '@/features/model-creation/components';
 
 export const ModelTrainingDatasetPage = () => {
   return (

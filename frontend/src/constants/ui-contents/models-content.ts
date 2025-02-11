@@ -25,8 +25,8 @@ export const MODELS_CONTENT: TModelsContent = {
         modelName: {
           label: "Model Name",
           helpText:
-            "Model name should be at least 10 characters and at most 40 characters.",
-          placeholder: "Enter the model name",
+            "Model name should be short, clear and be at least 10 characters and at most 40 characters.",
+          placeholder: "E.g Damaged building detection model",
           toolTip: "Model name will be searchable in the explore model page",
         },
         baseModel: {
@@ -44,8 +44,8 @@ export const MODELS_CONTENT: TModelsContent = {
           label: "Model Description",
           toolTip: "",
           helpText:
-            "Model description should be at least 10 characters and at most 500 characters.",
-          placeholder: "Enter the model description",
+            "Model description should descriptive, be at least 10 characters and at most 500 characters.",
+          placeholder: "This model is used to detect damaged buildings in ...",
         },
       },
       pageDescription:
@@ -62,26 +62,27 @@ export const MODELS_CONTENT: TModelsContent = {
           label: "Dataset Name",
           helpText:
             "Dataset name should be at least 10 characters and at most 40 characters.",
-          placeholder: "Enter the datatset name",
+          placeholder: "E.g Kakuma OpenAerial Imagery",
           toolTip: "Dataset Name",
         },
         tmsURL: {
           label: "TMS URL",
-          toolTip: "TMS URL",
+          toolTip: "Enter the Tile Map Service (TMS) URL. You can input the TMS from OpenAerialMap (OAM), or provide a custom one.",
           helpText:
             "TMS imagery link should look like this https://tiles.openaerialmap.org/****/*/***/{z}/{x}/{y}",
           placeholder: "https://tiles.openaerialmap.org/****/*/***/{z}/{x}/{y}",
         },
         existingTrainingDatasetSectionHeading: "Existing Training Dataset",
+        existingTrainingDatasetSectionDescription: 'Browse or search for a dataset name. Select a dataset to proceed.',
         newTrainingDatasetSectionHeading: "Create New Training Dataset",
         searchBar: {
-          placeholder: "Search",
+          placeholder: "Enter a dataset name to search",
         },
       },
       editModePageDescription:
         "You cannot edit a model dataset when editing...",
       pageDescription:
-        "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Id fugit ducimus harum debitis deserunt cum quod quam rerum aliquid. Quibusdam sequi incidunt quasi delectus laudantium accusamus modi omnis maiores. Incidunt!",
+        "A training dataset consists of high-resolution aerial imagery used as the base layer for fine-tuning your AI model. You can either create a new dataset or select existing imagery that covers your area of interest.",
     },
     trainingArea: {
       toolTips: {
