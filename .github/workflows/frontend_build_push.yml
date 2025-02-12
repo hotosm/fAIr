@@ -55,6 +55,7 @@ jobs:
           VITE_MATOMO_APP_DOMAIN: ${{ vars.VITE_MATOMO_APP_DOMAIN }}
           VITE_OSM_HASHTAGS: ${{ vars.VITE_OSM_HASHTAGS }}
           VITE_FAIR_PREDICTOR_API_URL: ${{ vars.VITE_FAIR_PREDICTOR_API_URL }}
+          VITE_MIN_TRAINING_AREA_SIZE: ${{ vars.VITE_MIN_TRAINING_AREA_SIZE }}
 
       - name: Authenticate to AWS
         uses: aws-actions/configure-aws-credentials@v4
