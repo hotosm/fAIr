@@ -108,11 +108,11 @@ export const StartMappingPage = () => {
   const [query, setQuery] = useState<TQueryParams>(() => {
     return {
       [SEARCH_PARAMS.useJOSMQ]:
-        searchParams.get(SEARCH_PARAMS.useJOSMQ) || true,
+        searchParams.get(SEARCH_PARAMS.useJOSMQ) || false,
       [SEARCH_PARAMS.confidenceLevel]:
         searchParams.get(SEARCH_PARAMS.confidenceLevel) || 90,
       [SEARCH_PARAMS.tolerance]:
-        searchParams.get(SEARCH_PARAMS.tolerance) || 1.0,
+        searchParams.get(SEARCH_PARAMS.tolerance) || 0.5,
       [SEARCH_PARAMS.area]: searchParams.get(SEARCH_PARAMS.area) || 4,
     };
   });
