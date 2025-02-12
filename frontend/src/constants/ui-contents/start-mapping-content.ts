@@ -52,19 +52,19 @@ export const START_MAPPING_PAGE_CONTENT: TStartMappingPageContent = {
   settings: {
     useJOSMQ: {
       label: "Use JOSM Q",
-      tooltip: "use JOSM Q",
+      tooltip: "Returns predictions in regular shape",
     },
     confidence: {
       label: "Confidence",
-      tooltip: "confidence",
+      tooltip: "Filters predictions lower than specified confidence of model",
     },
     tolerance: {
       label: "Tolerance",
-      tooltip: "tolerance",
+      tooltip: "Higher values give a smoother, simpler shape",
     },
     area: {
       label: "Area",
-      tooltip: "area",
+      tooltip: "Filters prediction geometries below than specified area",
     },
     tooltip: "Settings",
   },
