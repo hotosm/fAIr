@@ -1,9 +1,14 @@
-import { DropDown } from "@/components/ui/dropdown";
-import { FormLabel, Input, Select, Switch } from "@/components/ui/form";
-import { SEARCH_PARAMS, TQueryParams } from "@/app/routes/start-mapping";
-import { SettingsIcon } from "@/components/ui/icons";
-import { ToolTip } from "@/components/ui/tooltip";
-import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
+import { DropDown } from '@/components/ui/dropdown';
+import {
+  FormLabel,
+  Input,
+  Select,
+  Switch
+} from '@/components/ui/form';
+import { SEARCH_PARAMS, TQueryParams } from '@/app/routes/start-mapping';
+import { SettingsIcon } from '@/components/ui/icons';
+import { ToolTip } from '@/components/ui/tooltip';
+import { useDropdownMenu } from '@/hooks/use-dropdown-menu';
 import {
   ELEMENT_DISTANCE_FROM_NAVBAR,
   START_MAPPING_PAGE_CONTENT,
@@ -89,6 +94,7 @@ export const ModelSettings = ({
           options={confidenceLevels}
           defaultValue={query[SEARCH_PARAMS.confidenceLevel] as number}
           handleChange={(value) => {
+
             handleQueryUpdate(SEARCH_PARAMS.confidenceLevel, Number(value));
           }}
         />
@@ -155,7 +161,7 @@ export const ModelSettings = ({
               className={`p-1.5 flex items-center hover:icon-interaction ${dropdownIsOpened && "icon-interaction"}`}
               onClick={toggleDropDown}
             >
-              <SettingsIcon className="icon text-gray" />
+              <SettingsIcon className="icon md:icon-lg text-dark" />
             </button>
           </ToolTip>
         }

@@ -1,5 +1,5 @@
-import { Input } from "@/components/ui/form";
-import { MODELS_CONTENT } from "@/constants";
+import { Input } from '@/components/ui/form';
+import { MODELS_CONTENT } from '@/constants';
 import {
   FORM_VALIDATION_CONFIG,
   MODEL_CREATION_FORM_NAME,
@@ -28,7 +28,6 @@ const ModelNameFormInput = ({
       helpText={
         MODELS_CONTENT.modelCreation.modelDetails.form.modelName.helpText
       }
-      required
       maxLength={
         FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.MODEL_NAME].maxLength
       }

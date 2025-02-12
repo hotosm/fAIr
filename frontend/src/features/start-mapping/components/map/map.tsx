@@ -194,7 +194,7 @@ export const StartMappingMapComponent = ({
 
   const updateLayers = useCallback(() => {
     if (map) {
-      if (map.getSource(ACCEPTED_MODEL_PREDICTIONS_SOURCE_ID)) {
+      if (map?.getSource(ACCEPTED_MODEL_PREDICTIONS_SOURCE_ID)) {
         const source = map.getSource(
           ACCEPTED_MODEL_PREDICTIONS_SOURCE_ID,
         ) as GeoJSONSource;
@@ -204,7 +204,7 @@ export const StartMappingMapComponent = ({
         } as GeoJSONType);
       }
 
-      if (map.getSource(REJECTED_MODEL_PREDICTIONS_SOURCE_ID)) {
+      if (map?.getSource(REJECTED_MODEL_PREDICTIONS_SOURCE_ID)) {
         const source = map.getSource(
           REJECTED_MODEL_PREDICTIONS_SOURCE_ID,
         ) as GeoJSONSource;
@@ -214,7 +214,7 @@ export const StartMappingMapComponent = ({
         } as GeoJSONType);
       }
 
-      if (map.getSource(ALL_MODEL_PREDICTIONS_SOURCE_ID)) {
+      if (map?.getSource(ALL_MODEL_PREDICTIONS_SOURCE_ID)) {
         const source = map.getSource(
           ALL_MODEL_PREDICTIONS_SOURCE_ID,
         ) as GeoJSONSource;

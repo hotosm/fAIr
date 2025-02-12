@@ -68,7 +68,7 @@ const router = createBrowserRouter([
         path: APPLICATION_ROUTES.MODEL_DETAILS,
         lazy: async () => {
           const { ModelDetailsPage } = await import(
-            "@/app/routes/models/model-details"
+            "@/app/routes/models/model-details-card"
           );
           return {
             Component: () => <ModelDetailsPage />,

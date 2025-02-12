@@ -1,4 +1,4 @@
-import { showErrorToast } from "@/utils";
+import { showErrorToast } from '@/utils';
 
 /**
  * Custom hook to interact with the browser's localStorage.
@@ -52,7 +52,7 @@ export const useLocalStorage = () => {
  * - `removeValue: (key: string) => void`: Removes the value associated with the provided key from sessionStorage
  */
 export const useSessionStorage = () => {
-  const getValue = (key: string): string | undefined => {
+  const getSessionValue = (key: string): string | undefined => {
     try {
       const item = sessionStorage.getItem(key);
       return item ? item : undefined;
@@ -61,7 +61,7 @@ export const useSessionStorage = () => {
     }
   };
 
-  const setValue = (key: string, value: string): void => {
+  const setSessionValue = (key: string, value: string): void => {
     try {
       sessionStorage.setItem(key, value);
     } catch (error) {
@@ -69,13 +69,13 @@ export const useSessionStorage = () => {
     }
   };
 
-  const removeValue = (key: string): void => {
+  const removeSessionValue = (key: string): void => {
     try {
       sessionStorage.removeItem(key);
     } catch (error) {
       showErrorToast(error);
     }
   };
+  return { getSessionValue, setSessionValue, removeSessionValue };
 
-  return { getValue, setValue, removeValue };
 };

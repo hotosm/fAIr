@@ -1,8 +1,8 @@
-import { BASE_MODELS } from "@/enums";
-import { IconProps } from "@/types";
-import { MODELS_CONTENT } from "@/constants";
-import { StepHeading } from "@/features/model-creation/components/";
-import { useModelsContext } from "@/app/providers/models-provider";
+import { BASE_MODELS } from '@/enums';
+import { IconProps } from '@/types';
+import { MODELS_CONTENT } from '@/constants';
+import { StepHeading } from '@/features/model-creation/components/';
+import { useModelsContext } from '@/app/providers/models-provider';
 import {
   DatabaseIcon,
   MapIcon,
@@ -64,7 +64,7 @@ const ModelSummaryForm = () => {
     {
       icon: MapIcon,
       label: MODELS_CONTENT.modelCreation.modelSummary.form.openAerialImagery,
-      content: formData.oamTileName,
+      content: formData.datasetName,
     },
     {
       icon: ZoomInIcon,
@@ -90,9 +90,9 @@ const ModelSummaryForm = () => {
   return (
     <div className="flex flex-col gap-y-6">
       <StepHeading
-        heading={MODELS_CONTENT.modelCreation.trainingSettings.pageTitle}
+        heading={MODELS_CONTENT.modelCreation.modelSummary.pageTitle}
         description={
-          MODELS_CONTENT.modelCreation.trainingSettings.pageDescription
+          MODELS_CONTENT.modelCreation.modelSummary.pageDescription
         }
       />
       {summaryData.map((item, index) => (

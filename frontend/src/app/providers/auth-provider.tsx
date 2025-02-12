@@ -1,9 +1,14 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
-import { apiClient } from "@/services/api-client";
-import { authService } from "@/services";
-import { showErrorToast, showSuccessToast } from "@/utils";
-import { TUser } from "@/types/api";
-import { useLocalStorage, useSessionStorage } from "@/hooks/use-storage";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState
+  } from 'react';
+import { apiClient } from '@/services/api-client';
+import { authService } from '@/services';
+import { showErrorToast, showSuccessToast } from '@/utils';
+import { TUser } from '@/types/api';
+import { useLocalStorage, useSessionStorage } from '@/hooks/use-storage';
 import {
   TOAST_NOTIFICATIONS,
   HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY,
@@ -37,9 +42,9 @@ type AuthProviderProps = {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const { getValue, setValue, removeValue } = useLocalStorage();
   const {
-    getValue: getSessionValue,
-    removeValue: removeSessionValue,
-    setValue: setSessionValue,
+    getSessionValue,
+    removeSessionValue,
+    setSessionValue,
   } = useSessionStorage();
 
   const [token, setToken] = useState<string | undefined>(
@@ -53,11 +58,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Set token globally to eliminate the need to rewrite it
   apiClient.defaults.headers.common["access-token"] = token ? `${token}` : null;
 
-  useEffect(() => {
-    if (token) {
-      fetchUserProfile();
-    }
-  }, [token]);
 
   const handleRedirection = () => {
     const redirectTo = getSessionValue(HOT_FAIR_SESSION_REDIRECT_KEY);
@@ -101,10 +101,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const user = await authService.getUser();
       setUser(user);
+      handleRedirection();
     } catch (error) {
       showErrorToast(error);
     }
   };
+
+  useEffect(() => {
+    if (token) {
+      fetchUserProfile();
+    }
+  }, [token]);
+
 
   /**
    * Clean up and logout.
@@ -126,8 +134,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const data = await authService.authenticate(state, code);
       setValue(HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY, data.access_token);
       setToken(data.access_token);
-      fetchUserProfile();
-      handleRedirection();
     } catch (error) {
       showErrorToast(error, TOAST_NOTIFICATIONS.authenticationFailed);
     }

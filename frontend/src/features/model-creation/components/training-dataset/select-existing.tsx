@@ -1,11 +1,11 @@
-import useDebounce from "@/hooks/use-debounce";
-import { CheckIcon } from "@/components/ui/icons";
-import { Input } from "@/components/ui/form";
-import { MODELS_CONTENT } from "@/constants";
-import { SearchIcon } from "@/components/ui/icons";
-import { SkeletonWrapper } from "@/components/ui/skeleton";
-import { useGetTrainingDatasets } from "@/features/model-creation/hooks/use-training-datasets";
-import { useState } from "react";
+import useDebounce from '@/hooks/use-debounce';
+import { CheckIcon } from '@/components/ui/icons';
+import { HelpText, Input } from '@/components/ui/form';
+import { MODELS_CONTENT } from '@/constants';
+import { SearchIcon } from '@/components/ui/icons';
+import { SkeletonWrapper } from '@/components/ui/skeleton';
+import { useGetTrainingDatasets } from '@/features/model-creation/hooks/use-training-datasets';
+import { useState } from 'react';
 import {
   MODEL_CREATION_FORM_NAME,
   useModelsContext,
@@ -20,12 +20,16 @@ const SelectExistingTrainingDatasetForm = () => {
 
   return (
     <div className="flex flex-col gap-y-10">
-      <p className="font-semibold text-body-2 md:text-body-1 mb-2">
-        {
-          MODELS_CONTENT.modelCreation.trainingDataset.form
-            .existingTrainingDatasetSectionHeading
-        }
-      </p>
+      <div>
+        <p className="font-semibold text-body-2 md:text-body-1 mb-2">
+          {
+            MODELS_CONTENT.modelCreation.trainingDataset.form
+              .existingTrainingDatasetSectionHeading
+          }
+        </p>
+        <HelpText content={MODELS_CONTENT.modelCreation.trainingDataset.form
+          .existingTrainingDatasetSectionDescription} />
+      </div>
       <div className={`flex  items-center border border-gray-border`}>
         <SearchIcon className={`ml-2 icon-lg text-dark`} />
         <Input
@@ -38,8 +42,11 @@ const SelectExistingTrainingDatasetForm = () => {
               .placeholder
           }
           disabled={isError}
+          className="w-full"
+
         />
       </div>
+
       <div
         className={`border border-light-gray rounded-sm h-80 p-2  flex flex-col gap-y-4 overflow-scroll ${isError && "items-center justify-center"}`}
       >
@@ -62,6 +69,7 @@ const SelectExistingTrainingDatasetForm = () => {
                         disabled={!td.source_imagery}
                         className="w-full text-start"
                         onClick={() => {
+
                           handleChange(
                             MODEL_CREATION_FORM_NAME.SELECTED_TRAINING_DATASET_ID,
                             String(td.id),

@@ -1,6 +1,6 @@
-import { FormLabel, HelpText } from "@/components/ui/form";
-import { SlTextarea } from "@shoelace-style/shoelace/dist/react";
-import "./text-area.css";
+import { FormLabel, HelpText } from '@/components/ui/form';
+import { SlTextarea } from '@shoelace-style/shoelace/dist/react';
+import './text-area.css';
 
 type TextAreaProps = {
   toolTipContent?: string;
@@ -51,6 +51,7 @@ const TextArea: React.FC<TextAreaProps> = ({
           required={required}
           currentLength={String(value).length}
           maxLength={maxLength}
+          minLength={minLength}
         />
       )}
 

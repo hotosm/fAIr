@@ -1,7 +1,7 @@
-import { BASE_MODELS } from "@/enums";
-import { formatAreaInAppropriateUnit } from "@/utils";
-import { MAX_TRAINING_AREA_SIZE, MIN_TRAINING_AREA_SIZE } from "../config";
-import { TModelsContent } from "@/types";
+import { BASE_MODELS } from '@/enums';
+import { formatAreaInAppropriateUnit } from '@/utils';
+import { MAX_TRAINING_AREA_SIZE, MIN_TRAINING_AREA_SIZE } from '../config';
+import { TModelsContent } from '@/types';
 
 export const MODELS_CONTENT: TModelsContent = {
   trainingArea: {
@@ -25,31 +25,31 @@ export const MODELS_CONTENT: TModelsContent = {
         modelName: {
           label: "Model Name",
           helpText:
-            "Model name should be at least 10 characters and at most 40 characters.",
-          placeholder: "Enter the model name",
+            "Model name should be short, clear and be at least 10 characters and at most 40 characters.",
+          placeholder: "E.g Damaged building detection model",
           toolTip: "Model name will be searchable in the explore model page",
         },
         baseModel: {
           label: "Base Model",
-          helpText: "Select the base model to use for the training.",
-          toolTip: "Base Model refers to the original model that will be used to fine tune your AI model",
+          helpText: "Choose a base model to use for training. All base models currently support building detection.",
+          toolTip: "A base model is the pre-trained model that serves as the foundation for fine-tuning your local AI model.",
           suffixes: {
-            [BASE_MODELS.RAMP]: "Faster training time, with decent accuracy.",
-            [BASE_MODELS.YOLOV8_V1]: "Good for major areas and more accurate. Trained by community members",
+            [BASE_MODELS.RAMP]: "Optimized for faster training with decent accuracy. Best suited for building detection tasks.",
+            [BASE_MODELS.YOLOV8_V1]: "A well-balanced model offering good accuracy for detecting structures in major areas. Trained by the community.",
             [BASE_MODELS.YOLOV8_V2]:
-              "Our best model yet. Good for every type of area. Trained in collaboration with Omdena AI",
+              "Our most advanced model. Designed for detecting various features across different areas. Developed in collaboration with Omdena AI.",
           },
         },
         modelDescription: {
           label: "Model Description",
           toolTip: "",
           helpText:
-            "Model description should be at least 10 characters and at most 500 characters.",
-          placeholder: "Enter the model description",
+            "Model description should descriptive, be at least 10 characters and at most 500 characters.",
+          placeholder: "This model is used to detect damaged buildings in ...",
         },
       },
       pageDescription:
-        "Model creation has steps as shown above. Please enter your model meta data below.",
+        "Model creation has steps as shown above. Please enter your model metadata below.",
     },
     trainingDataset: {
       pageTitle: "Training Dataset",
@@ -62,40 +62,41 @@ export const MODELS_CONTENT: TModelsContent = {
           label: "Dataset Name",
           helpText:
             "Dataset name should be at least 10 characters and at most 40 characters.",
-          placeholder: "Enter the datatset name",
+          placeholder: "E.g Kakuma OpenAerial Imagery",
           toolTip: "Dataset Name",
         },
         tmsURL: {
           label: "TMS URL",
-          toolTip: "TMS URL",
+          toolTip: "Enter the Tile Map Service (TMS) URL. You can input the TMS from OpenAerialMap (OAM), or provide a custom one.",
           helpText:
             "TMS imagery link should look like this https://tiles.openaerialmap.org/****/*/***/{z}/{x}/{y}",
           placeholder: "https://tiles.openaerialmap.org/****/*/***/{z}/{x}/{y}",
         },
         existingTrainingDatasetSectionHeading: "Existing Training Dataset",
+        existingTrainingDatasetSectionDescription: 'Browse or search for a dataset name. Select a dataset to proceed.',
         newTrainingDatasetSectionHeading: "Create New Training Dataset",
         searchBar: {
-          placeholder: "Search",
+          placeholder: "Enter a dataset name to search",
         },
       },
       editModePageDescription:
         "You cannot edit a model dataset when editing...",
       pageDescription:
-        "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Id fugit ducimus harum debitis deserunt cum quod quam rerum aliquid. Quibusdam sequi incidunt quasi delectus laudantium accusamus modi omnis maiores. Incidunt!",
+        "A training dataset consists of high-resolution aerial imagery used as the base layer for fine-tuning your AI model. You can either create a new dataset or select existing imagery that covers your area of interest.",
     },
     trainingArea: {
       toolTips: {
         labelsFetchInProgress: "Processing labels...",
-        fetchOSMLabels: "Fetch OSM Labels",
-        lastUpdatedPrefix: "OSM Last Updated:",
-        zoomToAOI: "Zoom to AOI",
-        openINJOSM: "Open in JOSM",
-        openInIdEditor: "Open in ID Editor",
-        downloadAOI: "Download AOI",
-        downloadLabels: "Download AOI Labels",
-        uploadLabels: "Upload AOI Labels",
-        deleteAOI: "Delete AOI",
-        fitToTMSBounds: "Fit to Bounds",
+        fetchOSMLabels: "Click to retrieve mapped buildings from OpenStreetMap (OSM) for this area. These buildings will be used as training labels to help the model learn.",
+        lastUpdatedPrefix: "OSM last synced:",
+        zoomToAOI: "Click to zoom to this training area.",
+        openINJOSM: "Click to open this training area in JOSM.",
+        openInIdEditor: "Click to open this training area in ID Editor.",
+        downloadAOI: "Click to download this training area as GeoJSON.",
+        downloadLabels: "Click to download the labels in this training area as GeoJSON.",
+        uploadLabels: "Click to upload training labels for this training area.",
+        deleteAOI: "Click to delete this training area.",
+        fitToTMSBounds: "Click to adjust the map view to fit the imagery bounds.",
       },
       pageTitle: "Create Training Area",
       datasetID: "Dataset ID:",
@@ -153,36 +154,35 @@ export const MODELS_CONTENT: TModelsContent = {
       form: {
         zoomLevel: {
           label: "Select Zoom Level",
-          toolTip: "Select Zoom Level",
+          toolTip: "Choose the zoom level for training. A higher zoom level provides finer details but may increase training time.",
         },
         trainingType: {
           label: "Select Model Training Type",
-          toolTip: "Select Model Training Type",
+          toolTip: "Choose the type of model training to apply.",
         },
         advancedSettings: {
           label: "Advanced Settings",
-          toolTip: "Advanced Settings",
+          toolTip: "Modify additional parameters for fine-tuning your model training.",
         },
         epoch: {
           label: "Epoch",
-          toolTip: "Epoch",
+          toolTip: "Specify the number of training iterations. A higher number improves learning.",
         },
         contactSpacing: {
           label: "Contact Spacing",
-          toolTip: "Contact Spacing",
+          toolTip: "Defines the minimum spacing between detected objects during training.",
         },
         batchSize: {
           label: "Batch Size",
-          toolTip: "Batch Size",
+          toolTip: "The number of training samples processed in one step. A larger batch size may speed up training.",
         },
         boundaryWidth: {
           label: "Boundary Width",
-          toolTip: "Boundary Width",
+          toolTip: "Determines the width of the boundary around detected objects, affecting how edges are handled.",
         },
       },
       pageTitle: "Model Training Settings",
-      pageDescription:
-        "Select training settings based on the following options",
+      pageDescription: "Customize your model training preferences by selecting the appropriate options below.",
     },
     progressStepper: {
       modelDetails: "Model Details",
@@ -229,7 +229,7 @@ export const MODELS_CONTENT: TModelsContent = {
       trainingHistorySectionTitle: "Training History",
       enhanceModel: "Enhance Model",
       feedbacks: "View Feedbacks",
-      startMapping: "Start Mapping",
+      startMapping: "Map with AI Model",
       modelDescriptionNotAvailable: "Model description is not available.",
       viewTrainingArea: "View Training Area",
       viewFeedbacks: "View Feedbacks",

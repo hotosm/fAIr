@@ -1,7 +1,7 @@
 import { FullScreenIcon } from '@/components/ui/icons';
 import { Map } from 'maplibre-gl';
 import { MODELS_CONTENT } from '@/constants';
-import { showErrorToast, truncateString } from '@/utils';
+import { showErrorToast } from '@/utils';
 import { ToolTip } from '@/components/ui/tooltip';
 import { useCallback, useEffect } from 'react';
 import { useGetTMSTileJSON } from '@/features/model-creation/hooks/use-tms-tilejson';
@@ -68,10 +68,10 @@ const OpenAerialMap = ({
           <>
             <div className="flex gap-x-3 justify-between w-full">
               <p
-                className="basis-4/5 text-start text-body-3 text-wrap w-full"
+                className="basis-4/5 text-start text-body-3 overflow-hidden text-ellipsis text-wrap w-full"
                 title={data?.name}
               >
-                {truncateString(trainingDataset?.name, 40)}
+                {trainingDataset?.name}
               </p>
               <ToolTip
                 content={
@@ -80,7 +80,7 @@ const OpenAerialMap = ({
                 }
               >
                 <button
-                  className="bg-off-white p-2 rounded-md h-fit w-fit"
+                  className="bg-off-white p-2 rounded-md h-fit w-fit "
                   disabled={!map || isPending || isError}
                   onClick={fitToTMSBounds}
                 >

@@ -1,12 +1,13 @@
-import styles from "./input.module.css";
-import useBrowserType from "@/hooks/use-browser-type";
-import useScreenSize from "@/hooks/use-screen-size";
-import { CalenderIcon } from "@/components/ui/icons";
-import { CheckIcon } from "@/components/ui/icons";
-import { FormLabel, HelpText } from "@/components/ui/form";
-import { INPUT_TYPES, SHOELACE_SIZES } from "@/enums";
-import { SlInput } from "@shoelace-style/shoelace/dist/react";
-import { useRef } from "react";
+import styles from './input.module.css';
+import useBrowserType from '@/hooks/use-browser-type';
+import useScreenSize from '@/hooks/use-screen-size';
+import { CalenderIcon } from '@/components/ui/icons';
+import { CheckIcon } from '@/components/ui/icons';
+import { FormLabel, HelpText } from '@/components/ui/form';
+import { INPUT_TYPES, SHOELACE_SIZES } from '@/enums';
+import { SlInput } from '@shoelace-style/shoelace/dist/react';
+import { useRef } from 'react';
+
 
 type InputProps = {
   handleInput: (arg: React.ChangeEvent<HTMLInputElement>) => void;
@@ -52,7 +53,7 @@ const Input: React.FC<InputProps> = ({
   minLength,
   pattern,
   validationStateUpdateCallback,
-  isValid = false,
+  isValid,
   min,
   max,
   step = 1,
@@ -66,7 +67,7 @@ const Input: React.FC<InputProps> = ({
 
   const inputRef = useRef<HTMLInputElement | null>(null);
   const { isMobile } = useScreenSize();
-
+  const currentLength = String(value).length
   return (
     <SlInput
       onSlInput={(e) => {
@@ -78,6 +79,8 @@ const Input: React.FC<InputProps> = ({
               message: inputRef.current?.validationMessage,
             },
           );
+
+
         // @ts-expect-error bad type definition
         handleInput(e);
       }}
@@ -109,12 +112,13 @@ const Input: React.FC<InputProps> = ({
           withTooltip={labelWithTooltip}
           toolTipContent={toolTipContent as string}
           required={required}
-          currentLength={String(value).length}
+          currentLength={currentLength}
           maxLength={maxLength}
+          minLength={minLength}
         />
       )}
 
-      {helpText && <HelpText content={helpText} />}
+      {helpText && <HelpText content={helpText} isValid={isValid} currentLength={currentLength} />}
       {/* 
         We're using the native browser date picker. 
         In chrome it displays a calender icon which unfortunately could not be customized as at 08/10/2024.
