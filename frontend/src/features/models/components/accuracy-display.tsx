@@ -1,3 +1,5 @@
+import { roundNumber } from '@/utils';
+
 const AccuracyDisplay = ({ accuracy }: { accuracy: number }) => {
   const colors = [
     "bg-[#F33A0C]",
@@ -18,7 +20,7 @@ const AccuracyDisplay = ({ accuracy }: { accuracy: number }) => {
   return (
     <div className="flex items-center gap-x-4">
       <span className="text-dark font-semibold text-title-3">
-        {accuracy.toFixed(2)}
+        {roundNumber(accuracy)}
       </span>
       <div className="relative w-20 h-4">
         <div className="flex h-full">

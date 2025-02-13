@@ -10,7 +10,7 @@
  * @returns {string} - The rounded number as a string.
  */
 export const roundNumber = (num: number, round: number = 2): number => {
-  if (isNaN(num)) {
+  if (typeof num !== "number" || isNaN(num)) {
     return 0;
   }
   return Number(num.toFixed(round));
