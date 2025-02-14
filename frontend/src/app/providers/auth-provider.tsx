@@ -3,7 +3,7 @@ import React, {
   useContext,
   useEffect,
   useState
-  } from 'react';
+} from 'react';
 import { apiClient } from '@/services/api-client';
 import { authService } from '@/services';
 import { showErrorToast, showSuccessToast } from '@/utils';
