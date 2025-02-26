@@ -304,11 +304,6 @@ export const LEGEND_NAME_MAPPING: Record<string, string> = {
 // ==============================================================================================================================
 
 /**
- * The web component tag name used in `hotosm/ui` for the tracking component.
- */
-export const HOT_TRACKING_HTML_TAG_NAME: string = "hot-tracking";
-
-/**
  * The matomo application ID.
  * Default value: "0".
  * Matomo will be used as an attribute in the hot-tracking component, so we need to pass it as string to the component.
