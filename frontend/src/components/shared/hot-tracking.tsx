@@ -70,12 +70,17 @@ export const HotTracking = () => {
   };
 
   const handleAgree = () => {
+    const _paq = (window._paq = window._paq || []);
+    if (_paq.length === 0) return;
     injectMatomoScript();
     setValue(storageKey, "true");
     setShowConsent(false);
   };
 
   const handleDisagree = () => {
+    const _paq = (window._paq = window._paq || []);
+    if (_paq.length === 0) return;
+    _paq.push(["forgetConsentGiven"]);
     injectMatomoScript();
     setValue(storageKey, "false");
     setShowConsent(false);
