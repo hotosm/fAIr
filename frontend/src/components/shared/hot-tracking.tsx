@@ -1,22 +1,23 @@
-import { APPLICATION_ROUTES } from "@/constants";
 import { MATOMO_APP_DOMAIN, MATOMO_ID } from "@/config";
-
 declare global {
   interface Window {
     _paq: any[];
   }
 }
 
-import { useLocation } from "react-router-dom";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 import { useLocalStorage } from "@/hooks/use-storage";
 import { useState } from "react";
+import { Link } from "@/components/ui/link";
+import { SHOELACE_SIZES } from "@/enums";
 
-// Adapted from - https://github.com/hotosm/ui/blob/main/src/components/tracking/tracking.component.ts
-// Last accessed - 2025/26/02
+/**
+ * Adapted from - https://github.com/hotosm/ui/blob/main/src/components/tracking/tracking.component.ts
+ * Last accessed - 2025/26/02
+ * @returns
+ */
 
-export const HotTracking = ({ homepagePath = APPLICATION_ROUTES.HOMEPAGE }) => {
-  const { pathname } = useLocation();
+export const HotTracking = () => {
   const { setValue, getValue } = useLocalStorage();
   const storageKey = `${MATOMO_ID}-consent-agree`;
   const [showConsent, setShowConsent] = useState(
@@ -41,7 +42,6 @@ export const HotTracking = ({ homepagePath = APPLICATION_ROUTES.HOMEPAGE }) => {
       `Setting Matomo tracking for site=${MATOMO_ID} domain=${MATOMO_APP_DOMAIN}`,
     );
 
-    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     const _paq = (window._paq = window._paq || []);
 
     // tracker methods like "setCustomDimension" should be called before "trackPageView"
@@ -70,27 +70,24 @@ export const HotTracking = ({ homepagePath = APPLICATION_ROUTES.HOMEPAGE }) => {
   };
 
   const handleAgree = () => {
-    if (pathname !== homepagePath) return;
     injectMatomoScript();
     setValue(storageKey, "true");
     setShowConsent(false);
   };
 
   const handleDisagree = () => {
-    if (pathname !== homepagePath) return;
     injectMatomoScript();
     setValue(storageKey, "false");
     setShowConsent(false);
   };
 
-  if (typeof window === "undefined") {
+  if (!showConsent) {
     return null;
   }
 
-  if (!showConsent) return null;
   return (
     <div className="fixed bottom-0 w-screen z-[100000000000]">
-      <div className="bg-[#2C3038] p-4 md:p-6 text-white text-center flex flex-col gap-y-6 items-center">
+      <div className="bg-[#2C3038] p-4 md:p-6 text-white text-center flex flex-col gap-y-3 items-center border-t border-gray-border">
         <h1 className=" font-semibold text-title-4 md:text-title-3">
           About the information we collect
         </h1>
@@ -98,12 +95,35 @@ export const HotTracking = ({ homepagePath = APPLICATION_ROUTES.HOMEPAGE }) => {
           We use cookies and similar technologies to recognize and analyze your
           visits, and measure traffic usage and activity. You can learn about
           how we use the data about your visit or information you provide
-          reading our privacy policy. By clicking "I Agree", you consent to the
-          use of cookies.
+          reading our{" "}
+          <span>
+            <Link
+              href="https://www.hotosm.org/privacy"
+              title="privacy policy"
+              className="text-primary lowercase underline"
+              nativeAnchor
+              blank
+            >
+              privacy policy
+            </Link>
+          </span>
+          . By clicking "I Agree", you consent to the use of cookies.
         </p>
         <div className="flex flex-col md:flex-row items-center gap-6 w-fit">
-          <Button onClick={handleAgree}>I Agree</Button>
-          <Button onClick={handleDisagree}>I Do Not Agree</Button>
+          <Button
+            onClick={handleAgree}
+            uppercase={false}
+            size={SHOELACE_SIZES.MEDIUM}
+          >
+            I Agree
+          </Button>
+          <Button
+            onClick={handleDisagree}
+            uppercase={false}
+            size={SHOELACE_SIZES.MEDIUM}
+          >
+            I Do Not Agree
+          </Button>
         </div>
       </div>
     </div>
