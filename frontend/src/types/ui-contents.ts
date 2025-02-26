@@ -348,10 +348,10 @@ export type TSharedContent = {
     };
     siteMap: {
       groupOne: [
-        {
-          title: string;
-          route: string;
-        },
+        // {
+        //   title: string;
+        //   route: string;
+        // },
         {
           title: string;
           route: string;
@@ -362,11 +362,11 @@ export type TSharedContent = {
         },
       ];
       groupTwo: [
-        {
-          title: string;
-          route: string;
-          isExternalLink: boolean;
-        },
+        // {
+        //   title: string;
+        //   route: string;
+        //   isExternalLink: boolean;
+        // },
         {
           title: string;
           route: string;
