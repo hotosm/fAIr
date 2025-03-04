@@ -19,8 +19,6 @@ import {
 } from "@/features/models/components";
 import { useModelsContext } from "@/app/providers/models-provider";
 
-
-
 export const ModelDetailsPage = () => {
   const {
     isOpened: isModelFilesDialogOpened,

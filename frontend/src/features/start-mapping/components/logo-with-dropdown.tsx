@@ -11,7 +11,6 @@ type BrandLogoWithDropDownProps = {
   isOpened: boolean;
   onClose: () => void;
   onShow: () => void;
-
 };
 
 export const BrandLogoWithDropDown = ({
@@ -19,8 +18,7 @@ export const BrandLogoWithDropDown = ({
   onClose,
   onShow,
 }: BrandLogoWithDropDownProps) => {
-
-  const { goBack } = useHistory()
+  const { goBack } = useHistory();
   const navItems = navLinks.map((link, id) => (
     <li key={`${link.title}-${id}`}>
       <Link

@@ -13,6 +13,7 @@ export const ModelDetailsButton = ({
   modelDetailsPopupIsActive?: boolean;
 }) => {
   const { isSmallViewport } = useScreenSize();
+
   return (
     <ToolTip
       content={

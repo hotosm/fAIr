@@ -173,42 +173,42 @@ export const StartMappingPage = () => {
     () => [
       ...(modelPredictions.accepted.length > 0
         ? [
-          {
-            value:
-              START_MAPPING_PAGE_CONTENT.map.controls.legendControl
-                .acceptedPredictions,
-            subLayers: [
-              ACCEPTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
-              ACCEPTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
-            ],
-          },
-        ]
+            {
+              value:
+                START_MAPPING_PAGE_CONTENT.map.controls.legendControl
+                  .acceptedPredictions,
+              subLayers: [
+                ACCEPTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
+                ACCEPTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
+              ],
+            },
+          ]
         : []),
       ...(modelPredictions.rejected.length > 0
         ? [
-          {
-            value:
-              START_MAPPING_PAGE_CONTENT.map.controls.legendControl
-                .rejectedPredictions,
-            subLayers: [
-              REJECTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
-              REJECTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
-            ],
-          },
-        ]
+            {
+              value:
+                START_MAPPING_PAGE_CONTENT.map.controls.legendControl
+                  .rejectedPredictions,
+              subLayers: [
+                REJECTED_MODEL_PREDICTIONS_FILL_LAYER_ID,
+                REJECTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
+              ],
+            },
+          ]
         : []),
       ...(modelPredictions.all.length > 0
         ? [
-          {
-            value:
-              START_MAPPING_PAGE_CONTENT.map.controls.legendControl
-                .predictionResults,
-            subLayers: [
-              ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
-              ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
-            ],
-          },
-        ]
+            {
+              value:
+                START_MAPPING_PAGE_CONTENT.map.controls.legendControl
+                  .predictionResults,
+              subLayers: [
+                ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
+                ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
+              ],
+            },
+          ]
         : []),
     ],
     [modelPredictions],
@@ -330,15 +330,17 @@ export const StartMappingPage = () => {
         />
         <div className="sticky top-0 bg-white z-10 px-4 xl:px-large py-1 hidden md:block">
           {/* Model Details Popup */}
-          <ModelDetailsPopUp
-            showPopup={showModelDetailsPopup}
-            handlePopup={handleModelDetailsPopup}
-            closeMobileDrawer={() => setShowModelDetailsPopup(false)}
-            anchor={popupAnchorId}
-            modelInfo={modelInfo}
-            modelInfoRequestIsPending={modelInfoRequestIspending}
-            modelInfoRequestIsError={isError}
-          />
+          {showModelDetailsPopup && (
+            <ModelDetailsPopUp
+              showPopup={showModelDetailsPopup}
+              handlePopup={handleModelDetailsPopup}
+              closeMobileDrawer={() => setShowModelDetailsPopup(false)}
+              anchor={popupAnchorId}
+              modelInfo={modelInfo}
+              modelInfoRequestIsPending={modelInfoRequestIspending}
+              modelInfoRequestIsError={isError}
+            />
+          )}
           {/* Web Header */}
           <StartMappingHeader
             modelInfo={modelInfo}
@@ -370,7 +372,6 @@ export const StartMappingPage = () => {
                 onClose={onDropdownHide}
                 onShow={onDropdownShow}
                 isOpened={dropdownIsOpened}
-
               />
             </div>
             <div className="absolute top-[10vh] right-4 z-[2] flex flex-col gap-y-4 items-end">
