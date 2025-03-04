@@ -2,11 +2,11 @@ import useScreenSize from "@/hooks/use-screen-size";
 import { ELEMENT_DISTANCE_FROM_NAVBAR } from "@/config";
 import { extractDatePart, roundNumber, truncateString } from "@/utils";
 import { MobileDrawer } from "@/components/ui/drawer";
-import { Popup } from "@/components/ui/popup";
 import { SkeletonWrapper } from "@/components/ui/skeleton";
 import { TModelDetails } from "@/types";
 import { useTrainingDetails } from "@/features/models/hooks/use-training";
 import { START_MAPPING_PAGE_CONTENT } from "@/constants";
+import { SlPopup } from "@shoelace-style/shoelace/dist/react";
 
 const ModelDetailsPopUp = ({
   showPopup,
@@ -30,6 +30,7 @@ const ModelDetailsPopUp = ({
     isPending: trainingDetailsIsPending,
     isError: trainingDetailsError,
   } = useTrainingDetails(modelInfo?.published_training as number);
+
   const { isSmallViewport } = useScreenSize();
 
   const popupContent = (
@@ -131,14 +132,22 @@ const ModelDetailsPopUp = ({
   }
 
   return (
-    <Popup
+    <SlPopup
+      arrow={false}
+      flip
+      shift
       active={showPopup}
       anchor={anchor}
       placement="bottom-start"
       distance={ELEMENT_DISTANCE_FROM_NAVBAR}
+      strategy="fixed"
+      autoSize="both"
+      id="model-details-popup"
     >
       <div
-        className={`border bg-white border-gray-border shadown-sm rounded-xl w-[350px] scrollable p-5 max-h-[400px] overflow-y-auto flex flex-col`}
+        className={
+          "border bg-white border-gray-border shadown-sm rounded-xl w-[350px] scrollable p-5 max-h-[400px] overflow-y-auto flex flex-col"
+        }
       >
         {!modelInfo && modelInfoRequestIsError ? (
           <div>{START_MAPPING_PAGE_CONTENT.modelDetails.error}</div>
@@ -162,7 +171,7 @@ const ModelDetailsPopUp = ({
           </div>
         )}
       </div>
-    </Popup>
+    </SlPopup>
   );
 };
 

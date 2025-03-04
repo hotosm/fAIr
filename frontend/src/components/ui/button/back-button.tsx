@@ -1,14 +1,8 @@
 import { ArrowBackIcon } from "@/components/ui/icons";
 import { useHistory } from "@/hooks/use-history";
 
-
-const BackButton = ({
-  className,
-}: {
-  className?: string;
-}) => {
-
-  const { goBack } = useHistory()
+const BackButton = ({ className }: { className?: string }) => {
+  const { goBack } = useHistory();
   return (
     <button
       className={`flex items-center gap-x-2 ${className}`}

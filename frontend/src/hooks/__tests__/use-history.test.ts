@@ -1,46 +1,46 @@
 // @ts-nocheck
 
-import { renderHook } from '@testing-library/react';
-import { useHistory } from '../use-history';
-import { useNavigate } from 'react-router-dom';
-import { vi, describe, it, expect } from 'vitest';
+import { renderHook } from "@testing-library/react";
+import { useHistory } from "../use-history";
+import { useNavigate } from "react-router-dom";
+import { vi, describe, it, expect } from "vitest";
 
-vi.mock('react-router-dom', () => ({
-    useNavigate: vi.fn(),
+vi.mock("react-router-dom", () => ({
+  useNavigate: vi.fn(),
 }));
 
-describe('useHistory', () => {
-    it('should navigate back if history length is greater than 2', () => {
-        const navigate = vi.fn();
-        (useNavigate as vi.Mock).mockReturnValue(navigate);
+describe("useHistory", () => {
+  it("should navigate back if history length is greater than 2", () => {
+    const navigate = vi.fn();
+    (useNavigate as vi.Mock).mockReturnValue(navigate);
 
-        Object.defineProperty(window, 'history', {
-            value: {
-                length: 3,
-            },
-            writable: true,
-        });
-
-        const { result } = renderHook(() => useHistory());
-
-        result.current.goBack();
-        expect(navigate).toHaveBeenCalledWith(-1);
+    Object.defineProperty(window, "history", {
+      value: {
+        length: 3,
+      },
+      writable: true,
     });
 
-    it('should navigate to root if history length is not greater than 2', () => {
-        const navigate = vi.fn();
-        (useNavigate as vi.Mock).mockReturnValue(navigate);
+    const { result } = renderHook(() => useHistory());
 
-        Object.defineProperty(window, 'history', {
-            value: {
-                length: 2,
-            },
-            writable: true,
-        });
+    result.current.goBack();
+    expect(navigate).toHaveBeenCalledWith(-1);
+  });
 
-        const { result } = renderHook(() => useHistory());
+  it("should navigate to root if history length is not greater than 2", () => {
+    const navigate = vi.fn();
+    (useNavigate as vi.Mock).mockReturnValue(navigate);
 
-        result.current.goBack();
-        expect(navigate).toHaveBeenCalledWith('/', { replace: true });
+    Object.defineProperty(window, "history", {
+      value: {
+        length: 2,
+      },
+      writable: true,
     });
+
+    const { result } = renderHook(() => useHistory());
+
+    result.current.goBack();
+    expect(navigate).toHaveBeenCalledWith("/", { replace: true });
+  });
 });
