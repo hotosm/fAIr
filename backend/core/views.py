@@ -26,8 +26,6 @@ from django_q.tasks import async_task
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from geojson2osm import geojson2osm
-from login.authentication import OsmAuthentication
-from login.permissions import IsAdminUser, IsOsmAuthenticated, IsStaffUser
 from osmconflator import conflate_geojson
 from rest_framework import decorators, filters, serializers, status, viewsets
 from rest_framework.decorators import api_view
@@ -38,6 +36,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ReadOnlyModelViewSet
 from rest_framework_gis.filters import InBBoxFilter, TMSTileFilter
+
+from login.authentication import OsmAuthentication
+from login.permissions import IsAdminUser, IsOsmAuthenticated, IsStaffUser
 
 from .models import (
     AOI,
@@ -175,7 +176,6 @@ class TrainingSerializer(
                     f"Batch size can't be greater than {settings.RAMP_BATCH_SIZE_LIMIT} on this server"
                 )
         if model.base_model in ["YOLO_V8_V1", "YOLO_V8_V2"]:
-
             if epochs > settings.YOLO_EPOCHS_LIMIT:
                 raise ValidationError(
                     f"Epochs can't be greater than {settings.YOLO_EPOCHS_LIMIT} on this server"
@@ -369,7 +369,7 @@ class DatasetCentroidView(ListAPIView):
         filters.SearchFilter,
     )
     filterset_fields = ["id"]
-    search_fields = ["name","id"]
+    search_fields = ["name", "id"]
     pagination_class = None
 
 
@@ -534,7 +534,6 @@ class ApprovedPredictionsViewSet(viewsets.ModelViewSet):
                 existing_approved_feature, data=request.data
             )
         else:
-
             serializer = ApprovedPredictionsSerializer(data=request.data)
 
         if serializer.is_valid():
@@ -695,7 +694,7 @@ def run_task_status(request, run_id: str):
             # read the last 10 lines of the log file
             cmd = ["tail", "-n", str(settings.LOG_LINE_STREAM_TRUNCATE_VALUE), log_file]
             # print(cmd)
-            output = subprocess.check_output(cmd,universal_newlines=True)
+            output = subprocess.check_output(cmd, universal_newlines=True)
         except Exception as e:
             output = str(e)
         result = {
@@ -849,7 +848,7 @@ if settings.ENABLE_PREDICTION_API:
                         ),
                     )
                     print(
-                        f"It took {round(time.time()-start_time)}sec for generating predictions"
+                        f"It took {round(time.time() - start_time)}sec for generating predictions"
                     )
                     for feature in geojson_data["features"]:
                         feature["properties"]["building"] = "yes"
@@ -870,7 +869,7 @@ if settings.ENABLE_PREDICTION_API:
                             )
 
                     print(
-                        f"Prediction API took ({round(time.time()-start_time)} sec) in total"
+                        f"Prediction API took ({round(time.time() - start_time)} sec) in total"
                     )
 
                     ## TODO : can send osm xml format from here as well using geojson2osm
@@ -948,7 +947,6 @@ class TrainingWorkspaceView(APIView):
 
 
 class TrainingWorkspaceDownloadView(APIView):
-
     def get(self, request, lookup_dir):
         s3_key = os.path.join(settings.PARENT_BUCKET_FOLDER, lookup_dir)
         bucket_name = settings.BUCKET_NAME
@@ -1000,7 +998,6 @@ def get_kpi_stats(request):
 
 
 class UserNotificationViewSet(ReadOnlyModelViewSet):
-
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsOsmAuthenticated]
     serializer_class = UserNotificationSerializer
