@@ -21,7 +21,7 @@ services:
       - "6379:6379"
 
   backend-api:
-    image: ghcr.io/hotosm/fair/backend:debug
+    image: ghcr.io/hotosm/fair_api:develop
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -38,7 +38,7 @@ services:
       - postgres
 
   backend-worker:
-    image: ghcr.io/hotosm/fAIr/backend:debug
+    image: ghcr.io/hotosm/fair_api:develop
     build:
       context: ./backend
       dockerfile: Dockerfile
