@@ -21,12 +21,12 @@ services:
       - "6379:6379"
 
   backend-api:
+    image: ghcr.io/hotosm/fair/backend:debug
     build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: api
     command: python manage.py runserver 0.0.0.0:8000
-
     ports:
       - 8000:8000
     volumes:
@@ -38,6 +38,7 @@ services:
       - postgres
 
   backend-worker:
+    image: ghcr.io/hotosm/fAIr/backend:debug
     build:
       context: ./backend
       dockerfile: Dockerfile
