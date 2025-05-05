@@ -27,7 +27,7 @@ RUN pip install /tmp/solaris --use-feature=in-tree-build && \
 
 
 FROM base AS run
-COPY --from=build /usr/local/lib/python3.*/dist-packages /usr/local/lib/python3.*/dist-packages
+COPY --from=build /usr/local/lib/python3.8/dist-packages /usr/local/lib/python3.8/dist-packages
 COPY . /app
 
 
