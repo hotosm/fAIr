@@ -23,17 +23,22 @@ RUN pip install -r /tmp/docker-requirements.txt
 
 FROM base AS worker-deps
 COPY requirements.txt requirements.txt
+# FIXME api-requirements should be removed from this stage
+# (removed from requirements.txt) 
+COPY api-requirements.txt api-requirements.txt
 RUN pip install -r requirements.txt
 
 FROM base AS api-deps
 COPY api-requirements.txt api-requirements.txt
+# RUN pip install --use-deprecated=legacy-resolver -r api-requirements.txt 
 RUN pip install -r api-requirements.txt
 
 FROM base AS solaris-deps
 COPY docker/ramp/solaris /tmp/solaris
-RUN pip install /tmp/solaris --use-feature=in-tree-build && \
+# pip upgrade required to use in-tree-build
+RUN pip install --upgrade pip && \
+    pip install /tmp/solaris --use-feature=in-tree-build && \
     pip install scikit-fmm --use-feature=in-tree-build
-
 
 
 FROM base AS run
