@@ -17,10 +17,6 @@ FROM base AS gdal-deps
 RUN pip install numpy==1.23.5
 RUN pip install --global-option=build_ext --global-option="-I/usr/include/gdal" GDAL==$(gdal-config --version)
 
-FROM base AS docker-deps
-COPY docker/ramp/docker-requirements.txt /tmp/docker-requirements.txt
-RUN pip install -r /tmp/docker-requirements.txt
-
 FROM base AS worker-deps
 COPY requirements.txt requirements.txt
 # FIXME api-requirements should be removed from this stage
@@ -33,18 +29,20 @@ COPY api-requirements.txt api-requirements.txt
 # RUN pip install --use-deprecated=legacy-resolver -r api-requirements.txt 
 RUN pip install -r api-requirements.txt
 
-FROM base AS solaris-deps
+FROM base AS docker-plus-solaris-deps
+COPY docker/ramp/docker-requirements.txt /tmp/docker-requirements.txt
 COPY docker/ramp/solaris /tmp/solaris
-RUN pip install /tmp/solaris && \
-    pip install scikit-fmm
+RUN pip install /tmp/solaris
+# docker-requirements are required to install packaging==21.3 for scikit-fmm to succeed
+RUN pip install -r /tmp/docker-requirements.txt
+RUN pip install scikit-fmm==2024.5.29
 
 
 FROM base AS run
 COPY --from=gdal-deps /usr/local/lib/python3.8/dist-packages /usr/local/lib/python3.8/dist-packages
-COPY --from=docker-deps /usr/local/lib/python3.8/dist-packages /usr/local/lib/python3.8/dist-packages
 COPY --from=worker-deps /usr/local/lib/python3.8/dist-packages /usr/local/lib/python3.8/dist-packages
 COPY --from=api-deps /usr/local/lib/python3.8/dist-packages /usr/local/lib/python3.8/dist-packages
-COPY --from=solaris-deps /usr/local/lib/python3.8/dist-packages /usr/local/lib/python3.8/dist-packages
+COPY --from=docker-plus-solaris-deps /usr/local/lib/python3.8/dist-packages /usr/local/lib/python3.8/dist-packages
 COPY . /app
 
 
