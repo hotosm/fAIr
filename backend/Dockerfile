@@ -35,10 +35,8 @@ RUN pip install -r api-requirements.txt
 
 FROM base AS solaris-deps
 COPY docker/ramp/solaris /tmp/solaris
-# pip upgrade required to use in-tree-build
-RUN pip install --upgrade pip && \
-    pip install /tmp/solaris --use-feature=in-tree-build && \
-    pip install scikit-fmm --use-feature=in-tree-build
+RUN pip install /tmp/solaris && \
+    pip install scikit-fmm
 
 
 FROM base AS run
