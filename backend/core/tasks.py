@@ -1,20 +1,15 @@
+import asyncio
 import json
 import logging
 import os
 import pathlib
-import shutil
 import subprocess
 import sys
-import tarfile
 import time
 from contextlib import contextmanager
 from datetime import datetime
 
 from celery import shared_task
-from django.conf import settings
-from django.shortcuts import get_object_or_404
-from django.utils import timezone
-
 from core.models import AOI, FeedbackAOI, FeedbackLabel, Label, Model, Training
 from core.serializers import (
     AOISerializer,
@@ -23,6 +18,9 @@ from core.serializers import (
     LabelFileSerializer,
 )
 from core.utils import bbox, is_dir_empty
+from django.conf import settings
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
 
 from .utils import (
     S3Uploader,
@@ -300,7 +298,7 @@ def upload_to_s3(path, parent=None):
 
 
 def prepare_data(inst, dataset_id, feedback, zoom_level, imagery, input_path):
-    from predictor import download_imagery, get_start_end_download_coords
+    from geomltoolkits.downloader import tms as TMSDownloader
 
     safe_rmtree(input_path)
     os.makedirs(input_path)
@@ -323,10 +321,16 @@ def prepare_data(inst, dataset_id, feedback, zoom_level, imagery, input_path):
 
     for obj in aois:
         for z in zoom_level:
-            start, end = get_start_end_download_coords(
-                bbox(obj.geom.coords[0]), z, DEFAULT_TILE_SIZE
+            asyncio.run(
+                TMSDownloader.download_tiles(
+                    bbox=bbox(obj.geom.coords[0]),
+                    zoom=z,
+                    tms=imagery,
+                    out=input_path,
+                    georeference=True,
+                    crs="3857",
+                )
             )
-            download_imagery(start, end, z, base_path=input_path, source=imagery)
 
     if is_dir_empty(input_path):
         raise ValueError("No images found in the area")
@@ -465,3 +469,8 @@ def train_model(
     finally:
         logger.removeHandler(file_handler)
         file_handler.close()
+
+
+@shared_task
+def predict_area():
+    pass

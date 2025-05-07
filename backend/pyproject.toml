@@ -25,6 +25,7 @@ dependencies = [
     "drf-yasg>=1.21.10",
     "flower>=2.0.1",
     "geojson2osm>=0.0.1",
+    "geomltoolkits>=0.1.6",
     "geopandas>=1.0.1",
     "gpxpy>=1.6.2",
     "mercantile>=1.2.1",
@@ -39,6 +40,9 @@ dependencies = [
 ]
 
 [dependency-groups]
+dev = [
+    "commitizen>=4.6.3",
+]
 workers = [
     "fairpredictor>=0.1.10",
     "hot-fair-utilities>=1.0.40",
