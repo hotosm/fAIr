@@ -10,7 +10,15 @@ from contextlib import contextmanager
 from datetime import datetime
 
 from celery import shared_task
-from core.models import AOI, FeedbackAOI, FeedbackLabel, Label, Model, Training
+from core.models import (
+    AOI,
+    FeedbackAOI,
+    FeedbackLabel,
+    Label,
+    Model,
+    Prediction,
+    Training,
+)
 from core.serializers import (
     AOISerializer,
     FeedbackAOISerializer,
@@ -472,5 +480,55 @@ def train_model(
 
 
 @shared_task
-def predict_area():
-    pass
+def predict_area(prediction_request_id):
+    from predictor import predict
+    from predictor.models import PredictionRequest
+
+    inst = get_object_or_404(Prediction, id=prediction_request_id)
+    log_file = os.path.join(settings.LOG_PATH, f"run_{inst.task_id}.log")
+    os.makedirs(settings.LOG_PATH, exist_ok=True)
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.INFO)
+
+    file_handler = logging.FileHandler(log_file, encoding="utf-8")
+    file_handler.setFormatter(
+        logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+    )
+    logger.addHandler(file_handler)
+    try:
+        logger.info("Starting model training task")
+        with capture_output_to_file(log_file):
+            inst.status, inst.started_at, inst.task_id = (
+                "RUNNING",
+                timezone.now(),
+                predict_area.request.id,
+            )
+            inst.save()
+            inst.config["geojson"] = inst.geom
+            params = PredictionRequest(**inst.config)
+
+            predictions = asyncio.run(predict(**params))
+            out = os.path.join(settings.PREDICTION_WORKSPACE, inst.id)
+            write_json(
+                os.path.join(out, "aois.geojson"),
+                inst.geom,
+            )
+            write_json(
+                os.path.join(out, "labels.geojson"),
+                predictions,
+            )
+            run_tippecanoe(out)
+            upload_to_s3(
+                out, parent=f"{settings.PARENT_BUCKET_FOLDER}/prediction_{inst.id}"
+            )
+            inst.status, inst.finished_at = "FINISHED", timezone.now()
+            inst.save()
+    except Exception as ex:
+        logger.exception("Training failed")
+        inst.status, inst.finished_at = "FAILED", timezone.now()
+        inst.save()
+        # send_notification(inst, "Failed")
+        raise ex
+    finally:
+        logger.removeHandler(file_handler)
+        file_handler.close()

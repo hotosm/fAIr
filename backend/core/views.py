@@ -26,6 +26,8 @@ from django_q.tasks import async_task
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from geojson2osm import geojson2osm
+from login.authentication import OsmAuthentication
+from login.permissions import IsAdminUser, IsOsmAuthenticated, IsStaffUser
 from osmconflator import conflate_geojson
 from rest_framework import decorators, filters, serializers, status, viewsets
 from rest_framework.decorators import api_view
@@ -36,9 +38,6 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ReadOnlyModelViewSet
 from rest_framework_gis.filters import InBBoxFilter, TMSTileFilter
-
-from login.authentication import OsmAuthentication
-from login.permissions import IsAdminUser, IsOsmAuthenticated, IsStaffUser
 
 from .models import (
     AOI,
@@ -51,6 +50,7 @@ from .models import (
     Label,
     Model,
     OsmUser,
+    Prediction,
     Training,
     UserNotification,
 )
@@ -72,7 +72,7 @@ from .serializers import (
     UserSerializer,
     UserStatsSerializer,
 )
-from .tasks import train_model
+from .tasks import predict_area, train_model
 from .utils import (
     download_s3_file,
     get_s3_directory,
@@ -264,10 +264,10 @@ class TrainingViewSet(
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         feedback_count = Feedback.objects.filter(
-            training=instance.id
+            training=instance.id, action="REJECT"
         ).count()  # cal feedback count
-        approved_predictions_count = ApprovedPredictions.objects.filter(
-            training=instance.id
+        approved_predictions_count = Feedback.objects.filter(
+            training=instance.id, action="ACCEPT"
         ).count()
         data = serializer.data
         data["feedback_count"] = feedback_count
@@ -984,8 +984,8 @@ class BannerViewSet(viewsets.ModelViewSet):
 def get_kpi_stats(request):
     total_models_with_status_published = Model.objects.filter(status=0).count()
     total_registered_users = OsmUser.objects.count()
-    total_approved_predictions = ApprovedPredictions.objects.count()
-    total_feedback_labels = Feedback.objects.count()
+    total_feedback_labels = Feedback.objects.filter(action="ACCEPT").count()
+    total_approved_predictions = Feedback.objects.filter(action="REJECT").count()
 
     data = {
         "total_models_published": total_models_with_status_published,
@@ -1120,3 +1120,49 @@ class TerminateTrainingView(APIView):
                 {"detail": "Training not found or do not belong to you"},
                 status=status.HTTP_404_NOT_FOUND,
             )
+
+
+class PredictionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Prediction
+        fields = "__all__"
+        read_only_fields = (
+            "created_at",
+            "status",
+            "user",
+            "started_at",
+            "finished_at",
+            "task_id",
+        )
+
+    def create(self, validated_data):
+        instance = Prediction.objects.create(**validated_data)
+        task = predict_area.apply_async(
+            kwargs={
+                "prediction_request_id": instance.id,
+            },
+            queue=("predictions"),
+        )
+        logging.info("Record saved in queue")
+
+        instance.task_id = task.id
+        instance.save()
+        print(f"Saved Prediction request to queue with id {task.id}")
+        return instance
+
+
+class PredictionViewSet(viewsets.ModelViewSet):
+    authentication_classes = [OsmAuthentication]
+    permission_classes = [IsOsmAuthenticated]
+    public_methods = ["GET"]
+    queryset = Training.objects.all()
+    http_method_names = ["get", "post", "delete"]
+    filter_backends = (
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
+    )
+    serializer_class = TrainingSerializer
+    filterset_fields = ["status", "user", "id"]
+
+    ordering_fields = ["created_at", "id", "status"]

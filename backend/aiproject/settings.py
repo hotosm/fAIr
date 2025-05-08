@@ -250,6 +250,9 @@ YOLO_HOME = env("YOLO_HOME", default=os.getcwd())
 TRAINING_WORKSPACE = env(
     "TRAINING_WORKSPACE", default=os.path.join(os.getcwd(), "training")
 )
+PREDICTION_WORKSPACE = env(
+    "PREDICTION_WORKSPACE", default=os.path.join(os.getcwd(), "prediction")
+)
 
 ENABLE_PREDICTION_API = env("ENABLE_PREDICTION_API", default=False)
 

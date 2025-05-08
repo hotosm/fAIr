@@ -509,10 +509,10 @@ class UserStatsSerializer(serializers.ModelSerializer):
         return Dataset.objects.filter(user=obj).count()
 
     def get_feedbacks_count(self, obj):
-        return Feedback.objects.filter(user=obj).count()
+        return Feedback.objects.filter(user=obj, action="REJECT").count()
 
     def get_approved_predictions_count(self, obj):
-        return ApprovedPredictions.objects.filter(user=obj).count()
+        return Feedback.objects.filter(user=obj, action="ACCEPT").count()
 
     def get_profile_completion_percentage(self, obj):
         profile_percentage = 25
