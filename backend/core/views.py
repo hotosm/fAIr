@@ -27,7 +27,12 @@ from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from geojson2osm import geojson2osm
 from login.authentication import OsmAuthentication
-from login.permissions import IsAdminUser, IsOsmAuthenticated, IsStaffUser
+from login.permissions import (
+    IsAdminUser,
+    IsOsmAuthenticated,
+    IsOwnerOrReadOnly,
+    IsStaffUser,
+)
 from osmconflator import conflate_geojson
 from rest_framework import decorators, filters, serializers, status, viewsets
 from rest_framework.decorators import api_view
@@ -83,12 +88,27 @@ from .utils import (
     send_notification,
 )
 
-if settings.ENABLE_PREDICTION_API:
-    from predictor import predict
-
 
 def home(request):
     return redirect("schema-swagger-ui")
+
+
+class UserAssignmentMixin:
+    """
+    Mixin to automatically assign the current user to created objects.
+    """
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    def get_queryset(self):
+        """
+        If 'owned_only' parameter is provided, filter queryset to show only user's objects.
+        """
+        queryset = super().get_queryset()
+        if self.request.query_params.get("owned_only") == "true":
+            queryset = queryset.filter(user=self.request.user)
+        return queryset
 
 
 class DatasetViewSet(
@@ -289,7 +309,7 @@ class FeedbackViewset(viewsets.ModelViewSet):
         DjangoFilterBackend,
     )
     bbox_filter_include_overlapping = True
-    filterset_fields = ["training", "user", "feedback_type"]
+    filterset_fields = ["training", "user", "action"]
 
 
 class FeedbackAOIViewset(viewsets.ModelViewSet):
@@ -503,43 +523,6 @@ def process_labels_geojson(geojson_data, aoi_id):
         obj.label_status = AOI.DownloadStatus.NOT_DOWNLOADED
         obj.save()
         logging.error(ex)
-
-
-class ApprovedPredictionsViewSet(viewsets.ModelViewSet):
-    authentication_classes = [OsmAuthentication]
-    permission_classes = [IsOsmAuthenticated]
-    public_methods = ["GET"]
-    queryset = ApprovedPredictions.objects.all()
-    serializer_class = ApprovedPredictionsSerializer
-    bbox_filter_field = "geom"
-    filter_backends = (
-        InBBoxFilter,
-        # TMSTileFilter,
-        DjangoFilterBackend,
-    )
-    bbox_filter_include_overlapping = True
-    filterset_fields = ["training"]
-
-    def create(self, request, *args, **kwargs):
-        training_id = request.data.get("training")
-        geom = request.data.get("geom")
-        request.data["approved_by"] = self.request.user.osm_id
-
-        existing_approved_feature = ApprovedPredictions.objects.filter(
-            training=training_id, geom=geom
-        ).first()
-
-        if existing_approved_feature:
-            serializer = ApprovedPredictionsSerializer(
-                existing_approved_feature, data=request.data
-            )
-        else:
-            serializer = ApprovedPredictionsSerializer(data=request.data)
-
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class RawdataApiFeedbackView(APIView):
@@ -778,107 +761,6 @@ class FeedbackView(APIView):
 
 
 DEFAULT_TILE_SIZE = 256
-
-if settings.ENABLE_PREDICTION_API:
-    from orthogonalizer import othogonalize_poly
-
-    class PredictionView(APIView):
-        authentication_classes = [OsmAuthentication]
-        permission_classes = [IsOsmAuthenticated]
-
-        @swagger_auto_schema(
-            request_body=PredictionParamSerializer, responses={status.HTTP_200_OK: "ok"}
-        )
-        def post(self, request, *args, **kwargs):
-            """Predicts on bbox by published model"""
-            res_serializer = PredictionParamSerializer(data=request.data)
-            if res_serializer.is_valid(raise_exception=True):
-                deserialized_data = res_serializer.data
-                bbox = deserialized_data["bbox"]
-                use_josm_q = deserialized_data["use_josm_q"]
-                model_instance = get_object_or_404(
-                    Model, id=deserialized_data["model_id"]
-                )
-                if not model_instance.published_training:
-                    return Response("Model is not published yet", status=404)
-                training_instance = get_object_or_404(
-                    Training, id=model_instance.published_training
-                )
-
-                source_img_in_dataset = model_instance.dataset.source_imagery
-                source = (
-                    deserialized_data["source"]
-                    if deserialized_data["source"]
-                    else source_img_in_dataset
-                )
-                zoom_level = deserialized_data["zoom_level"]
-                try:
-                    start_time = time.time()
-                    model_path = os.path.join(
-                        settings.TRAINING_WORKSPACE,
-                        f"dataset_{model_instance.dataset.id}",
-                        "output",
-                        f"training_{training_instance.id}",
-                        "checkpoint.tflite",
-                    )
-                    # give high priority to tflite model format if not avilable fall back to .h5 if not use default .tf
-                    if not os.path.exists(model_path):
-                        model_path = os.path.join(
-                            settings.TRAINING_WORKSPACE,
-                            f"dataset_{model_instance.dataset.id}",
-                            "output",
-                            f"training_{training_instance.id}",
-                            "checkpoint.tf",
-                        )
-                    geojson_data = predict(
-                        bbox=bbox,
-                        model_path=model_path,
-                        zoom_level=zoom_level,
-                        tms_url=source,
-                        tile_size=DEFAULT_TILE_SIZE,
-                        confidence=(
-                            deserialized_data["confidence"] / 100
-                            if "confidence" in deserialized_data
-                            else 0.5
-                        ),
-                        tile_overlap_distance=(
-                            deserialized_data["tile_overlap_distance"]
-                            if "tile_overlap_distance" in deserialized_data
-                            else 0.15
-                        ),
-                    )
-                    print(
-                        f"It took {round(time.time() - start_time)}sec for generating predictions"
-                    )
-                    for feature in geojson_data["features"]:
-                        feature["properties"]["building"] = "yes"
-                        feature["properties"]["source"] = "fAIr"
-                        if use_josm_q is True:
-                            feature["geometry"] = othogonalize_poly(
-                                feature["geometry"],
-                                maxAngleChange=(
-                                    deserialized_data["max_angle_change"]
-                                    if "max_angle_change" in deserialized_data
-                                    else 15
-                                ),
-                                skewTolerance=(
-                                    deserialized_data["skew_tolerance"]
-                                    if "skew_tolerance" in deserialized_data
-                                    else 15
-                                ),
-                            )
-
-                    print(
-                        f"Prediction API took ({round(time.time() - start_time)} sec) in total"
-                    )
-
-                    ## TODO : can send osm xml format from here as well using geojson2osm
-                    return Response(geojson_data, status=status.HTTP_201_CREATED)
-                except ValueError as e:
-                    if str(e) == "No Features Found":
-                        return Response("No features found", status=204)
-                    else:
-                        return Response(str(e), status=500)
 
 
 @api_view(["POST"])
@@ -1151,18 +1033,34 @@ class PredictionSerializer(serializers.ModelSerializer):
         return instance
 
 
-class PredictionViewSet(viewsets.ModelViewSet):
+class PredictionViewSet(UserAssignmentMixin, viewsets.ModelViewSet):
     authentication_classes = [OsmAuthentication]
-    permission_classes = [IsOsmAuthenticated]
+    permission_classes = [IsOsmAuthenticated, IsOwnerOrReadOnly]
     public_methods = ["GET"]
-    queryset = Training.objects.all()
-    http_method_names = ["get", "post", "delete"]
+    queryset = Prediction.objects.all()
+    http_method_names = ["get", "post", "patch"]
     filter_backends = (
         DjangoFilterBackend,
         filters.SearchFilter,
         filters.OrderingFilter,
     )
-    serializer_class = TrainingSerializer
+    serializer_class = PredictionSerializer
     filterset_fields = ["status", "user", "id"]
 
     ordering_fields = ["created_at", "id", "status"]
+
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+
+        allowed_fields = ["mapswipe_id"]
+
+        for field in request.data:
+            if field not in allowed_fields:
+                return Response(
+                    {
+                        "detail": f"Field '{field}' cannot be updated. Only {', '.join(allowed_fields)} can be updated."
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+        return super().partial_update(request, *args, **kwargs)

@@ -46,7 +46,7 @@ class FeedbackAOIAdmin(geoadmin.GISModelAdmin):
 
 @admin.register(Feedback)
 class FeedbackAdmin(geoadmin.GISModelAdmin):
-    list_display = ["feedback_type", "training", "user", "created_at"]
+    list_display = ["training", "user", "created_at"]
 
 
 @admin.register(Banner)

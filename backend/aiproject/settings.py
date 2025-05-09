@@ -254,9 +254,6 @@ PREDICTION_WORKSPACE = env(
     "PREDICTION_WORKSPACE", default=os.path.join(os.getcwd(), "prediction")
 )
 
-ENABLE_PREDICTION_API = env("ENABLE_PREDICTION_API", default=False)
-
-
 LOG_LINE_STREAM_TRUNCATE_VALUE = env("LOG_LINE_STREAM_TRUNCATE_VALUE", default=10)
 
 
