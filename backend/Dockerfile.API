@@ -31,7 +31,9 @@ COPY pyproject.toml uv.lock manage.py /app/
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-install-project --no-dev
 
-COPY aiproject core login /app/
+COPY aiproject /app/aiproject
+COPY core /app/core
+COPY login /app/login
 
 
 FROM python:3.12-slim-bookworm

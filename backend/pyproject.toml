@@ -24,7 +24,6 @@ dependencies = [
     "djangorestframework-gis>=1.0",
     "drf-yasg>=1.21.10",
     "flower>=2.0.1",
-    "geojson2osm>=0.0.1",
     "geomltoolkits>=0.3.0",
     "geopandas>=0.13.2",
     "gpxpy>=1.6.2",

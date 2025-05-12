@@ -17,7 +17,9 @@ COPY pyproject.toml uv.lock manage.py /app/
 RUN uv pip compile pyproject.toml -o requirements.txt \
     && pip install -r requirements.txt
 
-COPY aiproject core login /app/
+COPY aiproject /app/aiproject
+COPY core /app/core
+COPY login /app/login
 
 
 EXPOSE 8080
