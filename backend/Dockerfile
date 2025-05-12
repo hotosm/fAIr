@@ -11,7 +11,7 @@ ENV UV_COMPILE_BYTECODE=1 \
 
 WORKDIR /app
 
-COPY pyproject.toml uv.lock /app/
+COPY pyproject.toml uv.lock manage.py /app/
 
 # Resolve deps and install globally
 RUN uv pip compile pyproject.toml -o requirements.txt \
