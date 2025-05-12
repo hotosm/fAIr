@@ -1,4 +1,4 @@
-ARG BUILD_TYPE=gpu
+ARG BUILD_TYPE=cpu
 
 FROM ghcr.io/kshitijrajsharma/ramp-code-fair:latest-${BUILD_TYPE}  AS builder
 
