@@ -1,5 +1,7 @@
+ARG BASE_IMAGE=ghcr.io/kshitijrajsharma/ramp-code-fair/tensorflow-gpu:latest
+
 # Stage 1: Builder
-FROM ghcr.io/kshitijrajsharma/ramp-code-fair/tensorflow-gpu:latest AS builder
+FROM ${BASE_IMAGE}  AS builder
 
 RUN pip install --no-cache-dir uv
 
