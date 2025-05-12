@@ -3,48 +3,49 @@ name = "fAIr"
 version = "1.0.1"
 description = "AI Assisted Mapping"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.8"
 license = {text = "AGPL-3.0 license"}
 authors = [
     {name = "HOTOSM", email = "sysadmin@hotosm.org"},
 ]
 
 dependencies = [
-    "boto3>=1.38.1",
-    "celery>=5.5.1",
+    "boto3>=1.37.38",
+    "celery>=5.5.2",
     "dj-database-url>=2.3.0",
-    "django>=5.2",
+    "django>=4.2.21",
     "django-celery-results>=2.6.0",
-    "django-cors-headers>=4.7.0",
-    "django-environ>=0.12.0",
-    "django-filter>=25.1",
+    "django-cors-headers>=4.4.0",
+    "django-environ>=0.11.2",
+    "django-filter>=24.3",
     "django-leaflet>=0.31.0",
     "django-q2>=1.7.6",
-    "djangorestframework>=3.16.0",
+    "djangorestframework>=3.15.2",
     "djangorestframework-gis>=1.0",
     "drf-yasg>=1.21.10",
     "flower>=2.0.1",
     "geojson2osm>=0.0.1",
-    "geomltoolkits>=0.1.6",
-    "geopandas>=1.0.1",
+    "geomltoolkits>=0.3.0",
+    "geopandas>=0.13.2",
     "gpxpy>=1.6.2",
     "mercantile>=1.2.1",
-    "numpy>=2.2.5",
-    "osm-login-python>=2.0.0",
+    "numpy>=1.24.4",
+    "osm-login-python>=1.0.0",
     "osmconflator>=0.0.11",
     "psycopg2>=2.9.10",
-    "rasterio>=1.4.3",
-    "redis>=3.5.3",
+    "rasterio>=1.3.11",
+    "redis>=6.0.0",
     "tqdm>=4.67.1",
     "validators>=0.34.0",
 ]
 
 [dependency-groups]
 dev = [
-    "commitizen>=4.6.3",
+    "commitizen>=3.31.0",
 ]
+
 workers = [
-    "fairpredictor>=0.1.10",
+    "fairpredictor>=0.3.0",
     "hot-fair-utilities>=1.0.40",
     "tippecanoe>=2.72.0",
 ]

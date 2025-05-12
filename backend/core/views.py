@@ -25,7 +25,8 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django_q.tasks import async_task
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
-from geojson2osm import geojson2osm
+
+# from geojson2osm import geojson2osm
 from login.authentication import OsmAuthentication
 from login.permissions import (
     IsAdminUser,
@@ -627,16 +628,16 @@ def download_training_data(request, dataset_id: int):
         return HttpResponse(status=204)
 
 
-@api_view(["POST"])
-def geojson2osmconverter(request):
-    try:
-        geojson_data = json.loads(request.body)["geojson"]
-    except json.JSONDecodeError:
-        return HttpResponseBadRequest("Invalid input")
+# @api_view(["POST"])
+# def geojson2osmconverter(request):
+#     try:
+#         geojson_data = json.loads(request.body)["geojson"]
+#     except json.JSONDecodeError:
+#         return HttpResponseBadRequest("Invalid input")
 
-    osm_xml = geojson2osm(geojson_data)
+#     osm_xml = geojson2osm(geojson_data)
 
-    return HttpResponse(osm_xml, content_type="application/xml")
+#     return HttpResponse(osm_xml, content_type="application/xml")
 
 
 @api_view(["POST"])

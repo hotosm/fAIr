@@ -3,7 +3,7 @@ from django.conf.urls import include
 from django.urls import path
 from rest_framework import routers
 
-from .views import (  # ApprovedPredictionsViewSet,
+from .views import (  # ApprovedPredictionsViewSet,; geojson2osmconverter,
     AOIViewSet,
     BannerViewSet,
     ConflateGeojson,
@@ -30,7 +30,6 @@ from .views import (  # ApprovedPredictionsViewSet,
     TrainingWorkspaceView,
     UserNotificationViewSet,
     UsersView,
-    geojson2osmconverter,
     get_kpi_stats,
     publish_training,
     run_task_status,
@@ -73,7 +72,7 @@ urlpatterns = [
     ),
     path("feedback/training/submit/", FeedbackView.as_view()),
     # path("status/", APIStatus.as_view()),
-    path("geojson2osm/", geojson2osmconverter, name="geojson2osmconverter"),
+    # path("geojson2osm/", geojson2osmconverter, name="geojson2osmconverter"),
     path("conflate/", ConflateGeojson, name="Conflate Geojson"),
     path("aoi/gpx/<int:aoi_id>/", GenerateGpxView.as_view()),
     path(
