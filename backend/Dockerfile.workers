@@ -14,7 +14,7 @@ WORKDIR /app
 COPY pyproject.toml uv.lock manage.py /app/
 
 # Resolve deps and install globally
-RUN uv pip compile pyproject.toml -o requirements.txt \
+RUN uv pip compile pyproject.toml -o requirements.txt --group workers \
     && pip install -r requirements.txt
 
 COPY aiproject /app/aiproject
