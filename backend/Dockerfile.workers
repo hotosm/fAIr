@@ -1,7 +1,6 @@
-ARG BASE_IMAGE=ghcr.io/kshitijrajsharma/ramp-code-fair/tensorflow-gpu:latest
+ARG BUILD_TYPE=gpu
 
-# Stage 1: Builder
-FROM ${BASE_IMAGE}  AS builder
+FROM ghcr.io/kshitijrajsharma/ramp-code-fair:latest-${BUILD_TYPE}  AS builder
 
 RUN pip install --no-cache-dir uv
 
@@ -14,7 +13,7 @@ WORKDIR /app
 COPY pyproject.toml uv.lock manage.py /app/
 
 # Resolve deps and install globally
-RUN uv pip compile pyproject.toml -o requirements.txt --group workers \
+RUN uv pip compile pyproject.toml -o requirements.txt --group workers --python-version=3.10 \
     && pip install -r requirements.txt
 
 COPY aiproject /app/aiproject
