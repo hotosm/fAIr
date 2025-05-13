@@ -23,7 +23,7 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build-and-push-api-image:
+  build-api-image:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -64,8 +64,8 @@ jobs:
           cache-to: type=gha,mode=max,scope=api,timeout=20m,ignore-error=true
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-  build-and-push-worker-image:
-    needs: build-and-push-api-image
+  build-worker-image:
+    needs: build-api-image
     runs-on: ubuntu-latest
     strategy:
       matrix:
