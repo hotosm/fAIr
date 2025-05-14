@@ -75,8 +75,9 @@ export const useModelsMapData = () => {
 };
 
 export const useModelsListFilters = (
-  status: number | undefined,
+  status?: number,
   userId?: number,
+  trainingDatasetId?: number,
 ) => {
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -123,6 +124,7 @@ export const useModelsListFilters = (
     ),
     userId: userId,
     status: query[SEARCH_PARAMS.status] as number,
+    dataset: trainingDatasetId,
   });
 
   const updateQuery = useCallback(

@@ -87,3 +87,12 @@ export const PROFILE_NAVIGATION_TABS: TProfileNavigationTabs = [
     active: true,
   },
 ];
+
+/**
+ * The URL parameters used for the dataset detail page.
+ */
+export const DatasetURLParams = {
+  DATASET_ID: "datasetId",
+  DATASET_NAME: "datasetName",
+  DATASET_SOURCE_IMAGERY: "datasetSourceImagery",
+};

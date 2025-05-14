@@ -50,7 +50,7 @@ export const useMapInstance = (pmtiles: boolean = false) => {
   useEffect(() => {
     if (!map) return;
     const updateZoom = () => {
-      const zoom = Math.round(map.getZoom()) + 1;
+      const zoom = Math.round(map.getZoom());
       setZoom(zoom);
     };
 

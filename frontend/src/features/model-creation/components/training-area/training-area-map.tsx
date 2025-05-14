@@ -98,6 +98,7 @@ const TrainingAreaMap = ({
   const updateBbox = useCallback(() => {
     if (!map) return;
     const bounds = map.getBounds();
+
     setMapBounds(bounds);
     const newBbox = `${bounds.getWest()},${bounds.getSouth()},${bounds.getEast()},${bounds.getNorth()}`;
     setBbox(newBbox);

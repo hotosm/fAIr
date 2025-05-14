@@ -37,6 +37,10 @@ const OpenAerialMap = ({
 
   const fitToTMSBounds = useCallback(() => {
     if (!map || !OAMData?.bounds) return;
+    /**
+     * * This is a workaround to fix the map resize issue when the map is loaded especially from the Dataset Edit Drawer.
+     */
+    map?.resize();
     map?.fitBounds(OAMData?.bounds);
   }, [map, OAMData?.bounds]);
 

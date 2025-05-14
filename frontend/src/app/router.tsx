@@ -260,7 +260,7 @@ const router = createBrowserRouter([
         path: APPLICATION_ROUTES.DATASET_DETAILS,
         lazy: async () => {
           const { TrainingDatasetsDetailPage } = await import(
-            "@/app/routes/datasets/dataset-details"
+            "@/app/routes/datasets/dataset-detail"
           );
           return {
             Component: () => <TrainingDatasetsDetailPage />,
@@ -269,7 +269,22 @@ const router = createBrowserRouter([
       },
 
       /**
-       * Datasets details route ends.
+       *  Datasets explorer route starts.
+       */
+      {
+        path: APPLICATION_ROUTES.DATASETS,
+        lazy: async () => {
+          const { DatasetExplorerPage } = await import(
+            "@/app/routes/datasets/dataset-list"
+          );
+          return {
+            Component: () => <DatasetExplorerPage />,
+          };
+        },
+      },
+
+      /**
+       * Datasets explorer route ends.
        */
 
       /**

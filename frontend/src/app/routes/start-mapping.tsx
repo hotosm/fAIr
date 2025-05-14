@@ -29,6 +29,7 @@ import {
 import {
   PredictedFeatureStatus,
   PredictionImagerySource,
+  PredictionModel,
 } from "@/enums/start-mapping";
 import { Dialog } from "@/components/ui/dialog";
 import { ImagerySourceSelector } from "@/features/start-mapping/components/replicable-models/imagery-source-selector";
@@ -54,6 +55,8 @@ export const SEARCH_PARAMS = {
   confidenceLevel: "confidenceLevel",
   tolerance: "tolerance",
   area: "area",
+  model: "model",
+  imagery: "imagery",
 };
 
 export type TQueryParams = { [x: string]: string | number | boolean };
@@ -88,7 +91,9 @@ export const StartMappingPage = () => {
   ] = useState<string>("");
 
   const [predictionImagerySource, setPredictionImagerySource] =
-    useState<PredictionImagerySource>(PredictionImagerySource.ModelDefault);
+    useState<PredictionImagerySource>(() => {
+      return searchParams.get(SEARCH_PARAMS.imagery) as PredictionImagerySource || PredictionImagerySource.ModelDefault;
+    });
 
   const { openDialog, isOpened, closeDialog } = useDialog();
   const {
@@ -110,7 +115,48 @@ export const StartMappingPage = () => {
   const [predictionModelCheckpoint, setPredictionModelCheckpoint] =
     useState<string>("");
 
-  const [predictionModel, setPredictionModel] = useState<string>("Default");
+  const [predictionModel, setPredictionModel] = useState<string>(() => {
+    return searchParams.get(SEARCH_PARAMS.model) || "Default";
+  });
+
+  const updateQuery = useCallback(
+    (newParams: TQueryParams) => {
+
+      setQuery((prev) => ({ ...prev, ...newParams }));
+
+      const updatedParams = new URLSearchParams(searchParams);
+
+      for (const [key, value] of Object.entries(newParams)) {
+        if (value !== undefined && value !== null) {
+          updatedParams.set(key, String(value));
+        } else {
+          updatedParams.delete(key);
+        }
+      }
+
+      const currentHash = window.location.hash;
+
+      setSearchParams(updatedParams, { replace: true });
+
+      if (currentHash) {
+        window.location.hash = currentHash;
+      }
+    },
+    [searchParams, setSearchParams],
+  );
+
+  /**
+   * Update the query params when the prediction model or custom checkpoint path changes.
+   */
+  useEffect(() => {
+    if (predictionImagerySource !== PredictionImagerySource.CustomImagery && predictionModel !== PredictionModel.CUSTOM) {
+      updateQuery({
+        [SEARCH_PARAMS.model]: predictionModel,
+        [SEARCH_PARAMS.imagery]: predictionImagerySource,
+      });
+    }
+  }, [predictionModel, customPredictionModelCheckpointPath, predictionImagerySource]);
+
 
   const {
     tileServiceType,
@@ -178,39 +224,22 @@ export const StartMappingPage = () => {
     return modelPredictions.length > 0;
   }, [modelPredictions]);
 
-  const updateQuery = useCallback(
-    (newParams: TQueryParams) => {
-      // Merge the new query values
-      setQuery((prev) => ({ ...prev, ...newParams }));
 
-      // Update the URLSearchParams
-      const updatedParams = new URLSearchParams(searchParams);
-      for (const [key, value] of Object.entries(newParams)) {
-        if (value !== undefined && value !== null) {
-          updatedParams.set(key, String(value));
-        } else {
-          updatedParams.delete(key);
-        }
-      }
-      setSearchParams(updatedParams, { replace: true });
-    },
-    [searchParams, setSearchParams],
-  );
 
   const mapLayers = useMemo(
     () => [
       ...(modelPredictions.length > 0
         ? [
-            {
-              value:
-                START_MAPPING_PAGE_CONTENT.map.controls.legendControl
-                  .predictionResults,
-              subLayers: [
-                ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
-                ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
-              ],
-            },
-          ]
+          {
+            value:
+              START_MAPPING_PAGE_CONTENT.map.controls.legendControl
+                .predictionResults,
+            subLayers: [
+              ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
+              ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
+            ],
+          },
+        ]
         : []),
     ],
     [modelPredictions],

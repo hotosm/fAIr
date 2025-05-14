@@ -1,8 +1,5 @@
-import { Input } from "@/components/ui/form";
-import { MODELS_CONTENT } from "@/constants";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
-  FORM_VALIDATION_CONFIG,
   MODEL_CREATION_FORM_NAME,
   useModelsContext,
 } from "@/app/providers/models-provider";
@@ -10,31 +7,16 @@ import { MapIcon } from "@/components/ui/icons";
 import { useMapInstance } from "@/hooks/use-map-instance";
 import { MapComponent } from "@/components/map";
 import { Spinner } from "@/components/ui/spinner";
-import { XYZTileServerInput } from "@/components/shared/form/xyz-tile-server-input";
-import { Button } from "@/components/ui/button";
-import { ButtonVariant, TileServiceType } from "@/enums";
+
+import { TileServiceType } from "@/enums";
 import { useTileservice } from "@/hooks/use-tileservice";
+import { NewTrainingDatasetForm } from "./training-dataset-form";
 
 const PREVIEW_TMS_SOURCE_ID = "preview-tms-source";
 const PREVIEW_TMS_LAYER_ID = "preview-tms-layer";
 
-const validateDatasetName = (name: string) => {
-  const min =
-    FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.DATASET_NAME].minLength;
-  const max =
-    FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.DATASET_NAME].maxLength;
-
-  if (name.length < min)
-    return { valid: false, message: `Must be at least ${min} characters.` };
-  if (name.length > max)
-    return { valid: false, message: `Must not exceed ${max} characters.` };
-
-  return { valid: true, message: "" };
-};
-
 const CreateNewTrainingDatasetForm = () => {
-  const { formData, createNewTrainingDatasetMutation, handleChange } =
-    useModelsContext();
+  const { formData, handleChange } = useModelsContext();
   const { mapContainerRef, map } = useMapInstance();
 
   const [error, setError] = useState<string>("");
@@ -51,14 +33,6 @@ const CreateNewTrainingDatasetForm = () => {
     loading,
     setLoading,
   } = useTileservice(formData.tileserviceType, formData.tmsURL);
-
-  const [trainingdatasetName, setTrainingDatasetName] = useState<string>(
-    formData.datasetName,
-  );
-  const [datasetNameValidity, setDatasetNameValidity] = useState({
-    valid: false,
-    message: "",
-  });
 
   useEffect(() => {
     if (!tileServiceTypeValidity.valid || !map || !sourceURL) return;
@@ -121,98 +95,36 @@ const CreateNewTrainingDatasetForm = () => {
     map.fitBounds(tileJSONMetadata.bounds);
   }, [tileJSONMetadata]);
 
-  const handleDatasetNameValidity = (e: { valid: any; message: any }) => {
-    setDatasetNameValidity({
-      valid: e.valid,
-      message: e.message,
-    });
-  };
-
-  /**
-   * Set the validity of the dataset name on component mount.
-   */
-  useEffect(() => {
-    setDatasetNameValidity(validateDatasetName(trainingdatasetName));
-  }, [trainingdatasetName]);
-
-  const handleTrainingDatasetCreation = useCallback(() => {
-    handleChange(MODEL_CREATION_FORM_NAME.TILESERVICE_TYPE, tileServiceType);
-    createNewTrainingDatasetMutation.mutate({
-      source_imagery: tileserverURL,
-      name: trainingdatasetName,
-    });
-  }, [createNewTrainingDatasetMutation, tileserverURL, trainingdatasetName]);
-
-  const trainingDatasetCreationInProgress =
-    createNewTrainingDatasetMutation.isPending;
-
   return (
     <div className="flex flex-col md:flex-row justify-between gap-12">
       <div className="flex flex-col gap-y-10 max-w-3xl w-full md:w-1/2">
-        <Input
-          handleInput={(e) => setTrainingDatasetName(e.target.value)}
-          value={trainingdatasetName}
-          toolTipContent={
-            MODELS_CONTENT.modelCreation.trainingDataset.form.datasetName
-              .toolTip
+        <NewTrainingDatasetForm
+          datasetName={formData.datasetName}
+          tileServiceType={tileServiceType}
+          onClick={() =>
+            handleChange(
+              MODEL_CREATION_FORM_NAME.TILESERVICE_TYPE,
+              tileServiceType,
+            )
           }
-          label={
-            MODELS_CONTENT.modelCreation.trainingDataset.form.datasetName.label
-          }
-          labelWithTooltip
-          placeholder={
-            MODELS_CONTENT.modelCreation.trainingDataset.form.datasetName
-              .placeholder
-          }
-          isValid={datasetNameValidity.valid}
-          validationStateUpdateCallback={handleDatasetNameValidity}
-          showBorder
-          helpText={datasetNameValidity.message}
-          maxLength={
-            FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.DATASET_NAME]
-              .maxLength
-          }
-          minLength={
-            FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.DATASET_NAME]
-              .minLength
-          }
+          setTileServiceType={setTileServiceType}
+          isCreateNewDataset
+          setTileServiceTypeValidity={setTileServiceTypeValidity}
+          tileServiceTypeValidity={tileServiceTypeValidity}
+          setTileserverURL={setTileserverURL}
+          tileserverURL={tileserverURL}
+          loading={loading}
+          tileJSONMetadata={tileJSONMetadata}
+          onSuccess={(data) => {
+            handleChange(MODEL_CREATION_FORM_NAME.DATASET_NAME, data.name);
+            handleChange(MODEL_CREATION_FORM_NAME.TMS_URL, data.source_imagery);
+            handleChange(
+              MODEL_CREATION_FORM_NAME.SELECTED_TRAINING_DATASET_ID,
+              data.id,
+            );
+            handleChange(MODEL_CREATION_FORM_NAME.DATASET_OFFSET, data.offset);
+          }}
         />
-        <div>
-          <XYZTileServerInput
-            isValid={tileServiceTypeValidity}
-            setTileServerURL={(e) => setTileserverURL(e)}
-            tileServerURL={tileserverURL}
-            validationStateUpdateCallback={(validationState) =>
-              setTileServiceTypeValidity(validationState)
-            }
-            tileServiceType={tileServiceType}
-            setTileServiceType={setTileServiceType}
-          />
-        </div>
-        {tileJSONMetadata !== null && tileserverURL.length > 0 && (
-          <div className="text-body-4 text-grey border border-gray-border p-2 rounded-lg max-h-60 overflow-y-auto">
-            <p className="font-semibold text-dark">TileJSON Metadata</p>
-            {Object.entries(tileJSONMetadata).map(([key, value]) => (
-              <p key={key}>
-                <strong>{key.charAt(0).toUpperCase() + key.slice(1)}:</strong>{" "}
-                {Array.isArray(value) ? value.join(", ") : value?.toString()}
-              </p>
-            ))}
-          </div>
-        )}
-        <Button
-          variant={ButtonVariant.DARK}
-          className="w-full md:w-1/2"
-          onClick={handleTrainingDatasetCreation}
-          disabled={
-            trainingDatasetCreationInProgress ||
-            !tileServiceTypeValidity.valid ||
-            !datasetNameValidity.valid ||
-            loading
-          }
-        >
-          {trainingDatasetCreationInProgress ? <Spinner /> : "Create Dataset"}
-        </Button>
       </div>
       <div className="w-full md:w-1/2 ">
         <div className="border border-gray-border relative h-80 rounded-lg overflow-clip">

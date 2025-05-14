@@ -11,7 +11,7 @@ import { Polygon } from "geojson";
 import { StepHeading } from "@/features/model-creation/components/";
 import { UploadIcon, YouTubePlayIcon } from "@/components/ui/icons";
 import { useDialog } from "@/hooks/use-dialog";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useMapInstance } from "@/hooks/use-map-instance";
 import {
   MODEL_CREATION_FORM_NAME,
@@ -27,20 +27,28 @@ import {
   snapGeoJSONPolygonToClosestTile,
 } from "@/utils";
 import { useGetTMSTileJSON } from "@/features/model-creation/hooks/use-tms-tilejson";
-import { TileJSON } from "@/types";
+import { TileJSON, TTrainingDataset } from "@/types";
 import { APP_TOUR_IDS } from "@/constants/site-tour";
 import { useAppTour } from "@/app/providers/tour-provider";
 import { TrainingLabelsOffset } from "@/features/model-creation/components/training-area/training-labels-offset";
 
-const TrainingAreaForm = () => {
+const TrainingAreaForm = ({
+  isDatasetEditMode = false,
+  trainingDataset,
+}: {
+  isDatasetEditMode?: boolean;
+  trainingDataset?: TTrainingDataset;
+}) => {
   const { formData, handleChange } = useModelsContext();
   const { map, mapContainerRef, drawingMode, setDrawingMode, terraDraw } =
     useMapInstance();
 
-  const tileJSONURL = extractTileJSONURL(formData.tmsURL);
+  const tileJSONURL = extractTileJSONURL(
+    trainingDataset?.source_imagery ?? formData.tmsURL,
+  );
   const initialOffset = {
-    x: formData.datasetOffset?.[0] || 0,
-    y: formData.datasetOffset?.[1] || 0,
+    x: trainingDataset?.offset?.[0] ?? formData.datasetOffset?.[0] ?? 0,
+    y: trainingDataset?.offset?.[1] ?? formData.datasetOffset?.[1] ?? 0,
   };
   const [trainingDatasetOffset, setTrainingDatasetOffset] =
     useState(initialOffset);
@@ -49,15 +57,19 @@ const TrainingAreaForm = () => {
 
   const [offset, setOffset] = useState<number>(0);
   const { startTrainingAreaTour } = useAppTour();
+  const datasetId = useMemo(
+    () => Number(trainingDataset?.id ?? formData.selectedTrainingDatasetId),
+    [trainingDataset?.id, formData.selectedTrainingDatasetId],
+  );
   const {
     data: trainingAreasData,
     isPending: trainingAreaIsPending,
     isPlaceholderData,
-  } = useGetTrainingAreas(Number(formData.selectedTrainingDatasetId), offset);
+  } = useGetTrainingAreas(datasetId, offset);
 
   const { isPending, data, isError } = useGetTMSTileJSON(
     tileJSONURL,
-    !!formData.selectedTrainingDatasetId,
+    !!datasetId,
   );
 
   useEffect(() => {
@@ -71,7 +83,7 @@ const TrainingAreaForm = () => {
   }, [trainingAreasData]);
 
   const createTrainingArea = useCreateTrainingArea({
-    datasetId: Number(formData.selectedTrainingDatasetId),
+    datasetId: datasetId,
     offset: offset,
   });
 
@@ -79,7 +91,7 @@ const TrainingAreaForm = () => {
     snapGeoJSONPolygonToClosestTile(polygonGeometry);
     const wkt = geojsonToWKT(polygonGeometry);
     await createTrainingArea.mutateAsync({
-      dataset: formData.selectedTrainingDatasetId,
+      dataset: String(datasetId),
       geom: `SRID=4326;${wkt}`,
     });
   };
@@ -107,28 +119,30 @@ const TrainingAreaForm = () => {
       />
       <div className="lg:h-screen min-h-screen flex flex-col mb-40">
         <div className="flex md:justify-between md:items-center flex-col md:flex-row gap-y-4 mb-10">
-          <div className="basis-2/3">
-            <StepHeading
-              heading={MODELS_CONTENT.modelCreation.trainingArea.pageTitle}
-              description={
-                MODELS_CONTENT.modelCreation.trainingArea.pageDescription
-              }
-            />
-          </div>
-          <div className="flex flex-col md:items-end gap-y-4 ">
-            <button
-              className="flex items-center gap-x-2"
-              onClick={startTrainingAreaTour}
-              id={APP_TOUR_IDS.TUTORIAL_BUTTON}
-            >
-              <YouTubePlayIcon className="icon-lg" />
-              {MODELS_CONTENT.modelCreation.trainingArea.tutorialText}
-            </button>
+          {!isDatasetEditMode && (
+            <div className="basis-2/3">
+              <StepHeading
+                heading={MODELS_CONTENT.modelCreation.trainingArea.pageTitle}
+                description={
+                  MODELS_CONTENT.modelCreation.trainingArea.pageDescription
+                }
+              />
+            </div>
+          )}
+          <div className="flex flex-col md:items-end gap-y-4 self-end">
+            {!isDatasetEditMode && (
+              <button
+                className="flex items-center gap-x-2"
+                onClick={startTrainingAreaTour}
+                id={APP_TOUR_IDS.TUTORIAL_BUTTON}
+              >
+                <YouTubePlayIcon className="icon-lg" />
+                {MODELS_CONTENT.modelCreation.trainingArea.tutorialText}
+              </button>
+            )}
             <p className="text-dark">
               {MODELS_CONTENT.modelCreation.trainingArea.datasetID}{" "}
-              <span className="font-semibold">
-                {formData.selectedTrainingDatasetId}
-              </span>
+              <span className="font-semibold">{datasetId}</span>
             </p>
           </div>
         </div>
@@ -137,7 +151,7 @@ const TrainingAreaForm = () => {
           <div className="border-t border-gray-border">
             <OpenAerialMap
               map={map}
-              trainingDatasetId={Number(formData.selectedTrainingDatasetId)}
+              trainingDatasetId={datasetId}
               OAMIsPending={isPending}
               OAMIsError={isError}
               OAMData={data as TileJSON}
@@ -150,6 +164,7 @@ const TrainingAreaForm = () => {
               setTrainingDatasetOffset={setTrainingDatasetOffset}
               handleOffsetReset={handleOffsetReset}
               initialOffset={initialOffset}
+              datasetId={datasetId}
             />
           </div>
         </div>
@@ -162,7 +177,7 @@ const TrainingAreaForm = () => {
             <TrainingAreaMap
               tileJSONURL={tileJSONURL}
               data={trainingAreasData}
-              trainingDatasetId={Number(formData.selectedTrainingDatasetId)}
+              trainingDatasetId={datasetId}
               offset={offset}
               map={map}
               mapContainerRef={mapContainerRef}
@@ -178,7 +193,7 @@ const TrainingAreaForm = () => {
           <div className="hidden lg:flex h-[90vh] max-h-screen col-span-12 lg:col-span-3 2xl:col-span-2 flex-col w-full px-2 gap-y-2">
             <OpenAerialMap
               map={map}
-              trainingDatasetId={Number(formData.selectedTrainingDatasetId)}
+              trainingDatasetId={datasetId}
               OAMIsPending={isPending}
               OAMIsError={isError}
               OAMData={data as TileJSON}
@@ -188,6 +203,7 @@ const TrainingAreaForm = () => {
               setTrainingDatasetOffset={setTrainingDatasetOffset}
               handleOffsetReset={handleOffsetReset}
               initialOffset={initialOffset}
+              datasetId={datasetId}
             />
             <div className="bg-white flex-1 flex flex-col p-2 rounded-lg min-h-0">
               <TrainingAreaList
@@ -196,7 +212,7 @@ const TrainingAreaForm = () => {
                 isPlaceholderData={isPlaceholderData}
                 data={trainingAreasData}
                 isPending={trainingAreaIsPending}
-                datasetId={Number(formData.selectedTrainingDatasetId)}
+                datasetId={datasetId}
                 map={map}
               />
               <ActionButtons
@@ -215,7 +231,7 @@ const TrainingAreaForm = () => {
             isPlaceholderData={isPlaceholderData}
             data={trainingAreasData}
             isPending={trainingAreaIsPending}
-            datasetId={Number(formData.selectedTrainingDatasetId)}
+            datasetId={datasetId}
             map={map}
           />
 

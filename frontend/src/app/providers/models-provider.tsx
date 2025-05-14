@@ -1,5 +1,6 @@
 import {
   APPLICATION_ROUTES,
+  DatasetURLParams,
   MODELS_BASE,
   MODELS_ROUTES,
   TOAST_NOTIFICATIONS,
@@ -12,8 +13,13 @@ import {
 } from "@/enums";
 import { HOT_FAIR_MODEL_CREATION_LOCAL_STORAGE_KEY } from "@/config";
 import { LngLatBoundsLike } from "maplibre-gl";
-import { useCreateTrainingDataset } from "@/features/model-creation/hooks/use-training-datasets";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+
+import {
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 import { useModelDetails } from "@/features/models/hooks/use-models";
 import { UseMutationResult } from "@tanstack/react-query";
 import { useLocalStorage } from "@/hooks/use-storage";
@@ -21,7 +27,6 @@ import { useLocalStorage } from "@/hooks/use-storage";
 import {
   TModelDetails,
   TTrainingAreaFeature,
-  TTrainingDataset,
   TTrainingDetails,
 } from "@/types";
 import {
@@ -39,7 +44,6 @@ import React, {
   useState,
 } from "react";
 import {
-  TCreateTrainingDatasetArgs,
   TCreateTrainingRequestArgs,
 } from "@/features/model-creation/api/create-trainings";
 import {
@@ -213,12 +217,7 @@ const ModelsContext = createContext<{
       | Record<string, string | number | boolean>
       | LngLatBoundsLike,
   ) => void;
-  createNewTrainingDatasetMutation: UseMutationResult<
-    TTrainingDataset,
-    Error,
-    TCreateTrainingDatasetArgs,
-    unknown
-  >;
+
   hasLabeledTrainingAreas: boolean;
   hasAOIsWithGeometry: boolean;
   resetState: () => void;
@@ -240,14 +239,9 @@ const ModelsContext = createContext<{
   modelCreationOrUpdateInProgress: boolean;
 }>({
   formData: initialFormState,
-  setFormData: () => {},
-  handleChange: () => {},
-  createNewTrainingDatasetMutation: {} as UseMutationResult<
-    TTrainingDataset,
-    Error,
-    TCreateTrainingDatasetArgs,
-    unknown
-  >,
+  setFormData: () => { },
+  handleChange: () => { },
+
   createNewTrainingRequestMutation: {} as UseMutationResult<
     TTrainingDetails,
     Error,
@@ -256,11 +250,11 @@ const ModelsContext = createContext<{
   >,
   hasLabeledTrainingAreas: false,
   hasAOIsWithGeometry: false,
-  resetState: () => {},
+  resetState: () => { },
   isEditMode: false,
   modelId: "",
   getFullPath: () => "",
-  handleModelCreationAndUpdate: () => {},
+  handleModelCreationAndUpdate: () => { },
   validateEditMode: false,
   isPending: false,
   isError: false,
@@ -275,7 +269,15 @@ export const ModelsProvider: React.FC<{
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const { modelId, id } = useParams();
-
+  const [searchParams] = useSearchParams();
+  /**
+   *  Dataset Info. Prefilled from the Dataset detail page.
+   */
+  const datasetId = searchParams.get(DatasetURLParams.DATASET_ID);
+  const datasetName = searchParams.get(DatasetURLParams.DATASET_NAME);
+  const datasetSourceImagery = searchParams.get(
+    DatasetURLParams.DATASET_SOURCE_IMAGERY,
+  );
   const { setValue, removeValue, getValue } = useLocalStorage();
   const storedFormData = getValue(HOT_FAIR_MODEL_CREATION_LOCAL_STORAGE_KEY);
   const [formData, setFormData] = useState<typeof initialFormState>(
@@ -343,7 +345,17 @@ export const ModelsProvider: React.FC<{
       }
     }
   }, [isError, error, navigate]);
-
+  // Prefill dataset id if available in the URL.
+  useEffect(() => {
+    if (datasetId && datasetName && datasetSourceImagery) {
+      handleChange(
+        MODEL_CREATION_FORM_NAME.SELECTED_TRAINING_DATASET_ID,
+        datasetId,
+      );
+      handleChange(MODEL_CREATION_FORM_NAME.DATASET_NAME, datasetName);
+      handleChange(MODEL_CREATION_FORM_NAME.TMS_URL, datasetSourceImagery);
+    }
+  }, [datasetId, datasetName, datasetSourceImagery]);
   // Prefill formData with model details in edit mode.
   useEffect(() => {
     if (!isEditMode || isPending || !data || isError) return;
@@ -404,24 +416,6 @@ export const ModelsProvider: React.FC<{
       onError: (error) => {
         showErrorToast(error);
         resetState();
-      },
-    },
-  });
-
-  const createNewTrainingDatasetMutation = useCreateTrainingDataset({
-    mutationConfig: {
-      onSuccess: (data) => {
-        showSuccessToast(TOAST_NOTIFICATIONS.trainingDatasetCreationSuccess);
-        handleChange(MODEL_CREATION_FORM_NAME.DATASET_NAME, data.name);
-        handleChange(MODEL_CREATION_FORM_NAME.TMS_URL, data.source_imagery);
-        handleChange(
-          MODEL_CREATION_FORM_NAME.SELECTED_TRAINING_DATASET_ID,
-          data.id,
-        );
-        handleChange(MODEL_CREATION_FORM_NAME.DATASET_OFFSET, data.offset);
-      },
-      onError: (error) => {
-        showErrorToast(error);
       },
     },
   });
@@ -529,7 +523,7 @@ export const ModelsProvider: React.FC<{
     () => ({
       setFormData,
       handleChange,
-      createNewTrainingDatasetMutation,
+
       hasLabeledTrainingAreas,
       hasAOIsWithGeometry,
       formData,
@@ -550,7 +544,7 @@ export const ModelsProvider: React.FC<{
       setFormData,
       formData,
       handleChange,
-      createNewTrainingDatasetMutation,
+
       hasLabeledTrainingAreas,
       hasAOIsWithGeometry,
       createNewTrainingRequestMutation,

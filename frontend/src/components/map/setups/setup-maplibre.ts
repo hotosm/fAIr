@@ -28,6 +28,7 @@ export const setupMaplibreMap = (
     minZoom: 1,
     maxZoom: MAX_ZOOM_LEVEL,
     pitchWithRotate: false,
+    hash: true,
   });
 
   // Prevent the map from rotating
