@@ -21,17 +21,18 @@ services:
       - "6379:6379"
 
   backend-api:
-    image: ghcr.io/hotosm/fair_api:latest
+    # image: ghcr.io/hotosm/fair_api:latest
     build:
       context: ./backend
       dockerfile: Dockerfile.API
     container_name: api
     command: python manage.py runserver 0.0.0.0:8000
-
+    env_file:
+      - ./backend/.env
     ports:
       - 8000:8000
     volumes:
-      - ./backend:/app
+      # - ./backend:/app
       - ${RAMP_HOME}:/RAMP_HOME
       - ${TRAINING_WORKSPACE}:/TRAINING_WORKSPACE
     depends_on:
@@ -39,12 +40,14 @@ services:
       - postgres
 
   backend-worker:
-    image: ghcr.io/hotosm/fair_worker:latest_gpu
+    # image: ghcr.io/hotosm/fair_worker:latest_gpu
     build:
       context: ./backend
       dockerfile: Dockerfile.workers
     container_name: worker
     command: celery -A aiproject worker --loglevel=INFO --concurrency=1 -Q ramp_training,yolo_training
+    env_file:
+      - ./backend/.env
     deploy:
       resources:
         reservations:
@@ -52,7 +55,7 @@ services:
             - driver: nvidia
               capabilities: [gpu]
     volumes:
-      - ./backend:/app
+      # - ./backend:/app
       - ${RAMP_HOME}:/RAMP_HOME
       - ${TRAINING_WORKSPACE}:/TRAINING_WORKSPACE
     depends_on:
@@ -60,23 +63,12 @@ services:
       - redis
       - postgres
 
-  worker-dashboard:
-    image: mher/flower
-    container_name: flower
-    command: celery --broker=redis://redis:6379// flower --address=0.0.0.0 --port=5000
-    ports:
-      - 5500:5000
-    depends_on:
-      - backend-api
-      - redis
-      - backend-worker
-
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile.frontend
+      dockerfile: Dockerfile.dev
     container_name: frontend
-    command: npm run dev  -- --host 0.0.0.0 --port 3000
+    command: pnpm run dev --host 0.0.0.0 --port 3000
     ports:
       - 3000:3000
     depends_on:

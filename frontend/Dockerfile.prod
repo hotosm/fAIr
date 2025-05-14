@@ -1,4 +1,4 @@
-## docker build -t fair-frontend:latest -f Dockerfile.frontend . && container_id=$(docker create fair-frontend:latest) && docker cp $container_id:/app/dist ./dist && docker rm $container_id
+## docker build -t fair-frontend:latest -f Dockerfile.prod . && container_id=$(docker create fair-frontend:latest) && docker cp $container_id:/app/dist ./dist && docker rm $container_id
 
 
 # Build stage
