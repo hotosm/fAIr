@@ -28,7 +28,6 @@ import {
 } from "@/utils";
 import { useInitialHashFit } from "@/hooks/use-map-hash-sync";
 
-
 export const StartMappingMapComponent = ({
   map,
   mapContainerRef,
@@ -75,7 +74,7 @@ export const StartMappingMapComponent = ({
     [modelPredictions],
   );
 
-  const { hadHashOnLoad } = useInitialHashFit(map)
+  const { hadHashOnLoad } = useInitialHashFit(map);
 
   useEffect(() => {
     if (
@@ -92,8 +91,7 @@ export const StartMappingMapComponent = ({
     /**
      * Sync the map hash with the current map state.
      */
-    if (hadHashOnLoad) return
-
+    if (hadHashOnLoad) return;
 
     // if there are predictions that the user hasn't interacted with, zoom to them.
     if (untouchedPredictedFeatures.length > 0) {
@@ -111,7 +109,8 @@ export const StartMappingMapComponent = ({
     map,
     tileJSONMetadata?.bounds,
     modelInfoRequestIsPending,
-    predictionImagerySource, hadHashOnLoad
+    predictionImagerySource,
+    hadHashOnLoad,
   ]);
 
   /**
@@ -165,11 +164,11 @@ export const StartMappingMapComponent = ({
         ...layers,
         ...(predictionImagerySource !== PredictionImagerySource.ModelDefault
           ? [
-            {
-              value: "Prediction Imagery",
-              subLayers: [predictionImageryLayerId],
-            },
-          ]
+              {
+                value: "Prediction Imagery",
+                subLayers: [predictionImageryLayerId],
+              },
+            ]
           : []),
       ]}
       basemaps

@@ -46,9 +46,7 @@ export const ImagerySourceSelector = ({
   setTileServiceTypeValidity,
   setTileServiceType,
 }: {
-  setPredictionImagerySource: React.Dispatch<
-    React.SetStateAction<PredictionImagerySource>
-  >;
+  setPredictionImagerySource: (value: PredictionImagerySource) => void;
   predictionImagerySource: PredictionImagerySource;
   modelDefaultImageryURL: string | undefined;
   isMobile?: boolean;

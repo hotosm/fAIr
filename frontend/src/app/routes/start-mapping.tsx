@@ -90,10 +90,13 @@ export const StartMappingPage = () => {
     setCustomPredictionModelCheckpointPath,
   ] = useState<string>("");
 
-  const [predictionImagerySource, setPredictionImagerySource] =
-    useState<PredictionImagerySource>(() => {
-      return searchParams.get(SEARCH_PARAMS.imagery) as PredictionImagerySource || PredictionImagerySource.ModelDefault;
-    });
+  const predictionImagerySource =
+    (searchParams.get(SEARCH_PARAMS.imagery) as PredictionImagerySource) ??
+    PredictionImagerySource.ModelDefault;
+
+  const setPredictionImagerySource = (newValue: PredictionImagerySource) => {
+    updateQuery({ [SEARCH_PARAMS.imagery]: newValue });
+  };
 
   const { openDialog, isOpened, closeDialog } = useDialog();
   const {
@@ -115,13 +118,15 @@ export const StartMappingPage = () => {
   const [predictionModelCheckpoint, setPredictionModelCheckpoint] =
     useState<string>("");
 
-  const [predictionModel, setPredictionModel] = useState<string>(() => {
-    return searchParams.get(SEARCH_PARAMS.model) || "Default";
-  });
+  const predictionModel =
+    searchParams.get(SEARCH_PARAMS.model) ?? PredictionModel.DEFAULT;
+
+  const setPredictionModel = (newValue: string) => {
+    updateQuery({ [SEARCH_PARAMS.model]: newValue });
+  };
 
   const updateQuery = useCallback(
     (newParams: TQueryParams) => {
-
       setQuery((prev) => ({ ...prev, ...newParams }));
 
       const updatedParams = new URLSearchParams(searchParams);
@@ -149,14 +154,15 @@ export const StartMappingPage = () => {
    * Update the query params when the prediction model or custom checkpoint path changes.
    */
   useEffect(() => {
-    if (predictionImagerySource !== PredictionImagerySource.CustomImagery && predictionModel !== PredictionModel.CUSTOM) {
-      updateQuery({
-        [SEARCH_PARAMS.model]: predictionModel,
-        [SEARCH_PARAMS.imagery]: predictionImagerySource,
-      });
+    const imagery = searchParams.get(SEARCH_PARAMS.imagery);
+    if (imagery) {
+      setPredictionImagerySource(imagery as PredictionImagerySource);
     }
-  }, [predictionModel, customPredictionModelCheckpointPath, predictionImagerySource]);
-
+    const model = searchParams.get(SEARCH_PARAMS.model);
+    if (model) {
+      setPredictionModel(model);
+    }
+  }, [searchParams]);
 
   const {
     tileServiceType,
@@ -223,8 +229,6 @@ export const StartMappingPage = () => {
     if (!modelPredictions) return false;
     return modelPredictions.length > 0;
   }, [modelPredictions]);
-
-
 
   const mapLayers = useMemo(
     () => [

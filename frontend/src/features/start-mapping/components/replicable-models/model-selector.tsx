@@ -25,7 +25,7 @@ export const ModelSelector = ({
   modelInfo,
 }: {
   predictionModel: string;
-  setPredictionModel: React.Dispatch<React.SetStateAction<string>>;
+  setPredictionModel: (value: string) => void;
   predictionModelCheckpoint: string;
   setPredictionModelCheckpoint: React.Dispatch<React.SetStateAction<string>>;
   isMobile?: boolean;

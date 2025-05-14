@@ -64,13 +64,11 @@ export const StartMappingMobileDrawer = ({
   modelInfoRequestIsError: boolean;
 
   predictionImagerySource: PredictionImagerySource;
-  setPredictionImagerySource: React.Dispatch<
-    React.SetStateAction<PredictionImagerySource>
-  >;
+  setPredictionImagerySource: (value: PredictionImagerySource) => void;
   modelDefaultImageryURL: string;
   openMobileDialog: () => void;
   predictionModel: string;
-  setPredictionModel: React.Dispatch<React.SetStateAction<string>>;
+  setPredictionModel: (value: string) => void;
   predictionModelCheckpoint: string;
   setPredictionModelCheckpoint: React.Dispatch<React.SetStateAction<string>>;
   customPredictionModelCheckpointPath: string;

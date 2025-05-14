@@ -10,9 +10,7 @@ import { useMemo } from "react";
 
 type ImagerySourceSelectorTriggerButtonProps = {
   predictionImagerySource: PredictionImagerySource;
-  setPredictionImagerySource: React.Dispatch<
-    React.SetStateAction<PredictionImagerySource>
-  >;
+  setPredictionImagerySource: (value: PredictionImagerySource) => void;
   modelDefaultImageryURL: string;
   openMobileDialog?: () => void;
   tileServerURL: string;

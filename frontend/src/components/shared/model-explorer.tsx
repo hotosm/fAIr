@@ -43,7 +43,6 @@ export const ModelExplorer = ({
 }) => {
   const { isOpened, openDialog, closeDialog } = useDialog();
 
-
   const {
     clearAllFilters,
     data,

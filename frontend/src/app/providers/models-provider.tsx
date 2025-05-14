@@ -24,11 +24,7 @@ import { useModelDetails } from "@/features/models/hooks/use-models";
 import { UseMutationResult } from "@tanstack/react-query";
 import { useLocalStorage } from "@/hooks/use-storage";
 
-import {
-  TModelDetails,
-  TTrainingAreaFeature,
-  TTrainingDetails,
-} from "@/types";
+import { TModelDetails, TTrainingAreaFeature, TTrainingDetails } from "@/types";
 import {
   showErrorToast,
   showSuccessToast,
@@ -43,9 +39,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import {
-  TCreateTrainingRequestArgs,
-} from "@/features/model-creation/api/create-trainings";
+import { TCreateTrainingRequestArgs } from "@/features/model-creation/api/create-trainings";
 import {
   useCreateModel,
   useCreateModelTrainingRequest,
@@ -239,8 +233,8 @@ const ModelsContext = createContext<{
   modelCreationOrUpdateInProgress: boolean;
 }>({
   formData: initialFormState,
-  setFormData: () => { },
-  handleChange: () => { },
+  setFormData: () => {},
+  handleChange: () => {},
 
   createNewTrainingRequestMutation: {} as UseMutationResult<
     TTrainingDetails,
@@ -250,11 +244,11 @@ const ModelsContext = createContext<{
   >,
   hasLabeledTrainingAreas: false,
   hasAOIsWithGeometry: false,
-  resetState: () => { },
+  resetState: () => {},
   isEditMode: false,
   modelId: "",
   getFullPath: () => "",
-  handleModelCreationAndUpdate: () => { },
+  handleModelCreationAndUpdate: () => {},
   validateEditMode: false,
   isPending: false,
   isError: false,

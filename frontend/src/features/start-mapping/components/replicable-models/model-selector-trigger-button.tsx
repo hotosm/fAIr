@@ -11,7 +11,7 @@ import { useMemo } from "react";
 type ModelSelectorTriggerButtonProps = {
   modelInfo: TModelDetails;
   predictionModel: string;
-  setPredictionModel: React.Dispatch<React.SetStateAction<string>>;
+  setPredictionModel: (value: string) => void;
   predictionModelCheckpoint: string;
   setPredictionModelCheckpoint: React.Dispatch<React.SetStateAction<string>>;
   customPredictionModelCheckpointPath: string;
@@ -107,11 +107,10 @@ const DropdownButton = ({
   <div className="px-2 bg-off-white hover:bg-opacity-50 flex items-center p-2 gap-x-2 rounded-[6px]">
     <button
       onClick={onClick}
-      className={`${
-        isSmallViewport
+      className={`${isSmallViewport
           ? "w-fit max-w-[100px]"
           : "max-w-[50px] lg:max-w-[200px]"
-      } text-body-4 overflow-hidden text-ellipsis whitespace-nowrap`}
+        } text-body-4 overflow-hidden text-ellipsis whitespace-nowrap`}
     >
       {label}
     </button>
