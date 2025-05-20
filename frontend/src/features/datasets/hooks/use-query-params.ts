@@ -1,6 +1,6 @@
 import useDebounce from "@/hooks/use-debounce";
 import { TQueryParams } from "@/types";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useGetTrainingDatasetsV2 } from "./use-datasets";
 import { ORDERING_FIELDS } from "@/components/shared/filters/ordering-filter";
