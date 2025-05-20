@@ -1,7 +1,6 @@
 import { APPLICATION_ROUTES, MODELS_ROUTES } from "@/constants";
 import { Banner } from "@/components/ui/banner";
 import { Footer } from "@/components/layouts";
-import { HotTracking } from "@/components/shared";
 import { NavBar } from "@/components/layouts";
 import { Outlet, useLocation, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -49,7 +48,6 @@ export const RootLayout = () => {
 
   return (
     <>
-      <HotTracking />
 
       {/* Show the auth modal when a `backgroundLocation` is set and when the user is not authenticated. */}
       <AuthenticationModal
