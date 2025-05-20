@@ -37,7 +37,7 @@ export const UserProfileDatasetsPage = () => {
         </div>
         <div className="flex flex-col gap-y-6 md:gap-y-0 w-full justify-between">
           <p className="text-body-3 font-semibold">{data?.count} datasets</p>
-          <div className="flex w-full justify-between md:justify-end items-center md:gap-x-1">
+          <div className="flex w-full justify-between md:justify-end items-center md:gap-x-4">
             <OrderingFilter
               query={query}
               updateQuery={updateQuery}

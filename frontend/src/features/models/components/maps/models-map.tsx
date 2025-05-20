@@ -2,7 +2,7 @@ import { FeatureCollection, TQueryParams } from "@/types";
 import { Map } from "maplibre-gl";
 import { MapComponent } from "@/components/map";
 import { MapMarkerIcon } from "@/assets/images";
-import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
+import { SEARCH_PARAMS } from "@/utils/search-params";
 import { useCallback, useEffect } from "react";
 import { useMapInstance } from "@/hooks/use-map-instance";
 
@@ -117,7 +117,7 @@ export const ModelsMap: React.FC<ModelsMapProps> = ({
   mapResults,
   updateQuery,
 }) => {
-  const { map, mapContainerRef } = useMapInstance();
+  const { map, mapContainerRef } = useMapInstance(false, false);
 
   const handleClickOnModelID = useCallback(
     (clickedModel: string) => {
@@ -154,6 +154,7 @@ export const ModelsMap: React.FC<ModelsMapProps> = ({
         map={map}
         mapContainerRef={mapContainerRef}
         zoomControls
+        hash={false}
       />
     </div>
   );

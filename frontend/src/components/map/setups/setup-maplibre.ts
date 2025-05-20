@@ -6,6 +6,7 @@ import { Protocol } from "pmtiles";
 export const setupMaplibreMap = (
   containerRef: React.RefObject<HTMLElement>,
   pmtiles: boolean,
+  hash: boolean = false,
 ): Map => {
   // Check if RTL plugin is needed and set it
   if (maplibregl.getRTLTextPluginStatus() === "unavailable") {
@@ -28,7 +29,7 @@ export const setupMaplibreMap = (
     minZoom: 1,
     maxZoom: MAX_ZOOM_LEVEL,
     pitchWithRotate: false,
-    hash: true,
+    hash: hash,
   });
 
   // Prevent the map from rotating

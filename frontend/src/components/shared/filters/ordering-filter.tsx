@@ -2,8 +2,8 @@ import { CheckboxGroup } from "@/components/ui/form";
 import { DropDown } from "@/components/ui/dropdown";
 import { DropdownMenuItem } from "@/components/ui/dropdown/dropdown";
 import { MODELS_CONTENT } from "@/constants";
-import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
 import { TQueryParams } from "@/types";
+import { SEARCH_PARAMS } from "@/utils/search-params";
 
 export const ORDERING_FIELDS: DropdownMenuItem[] = [
   {

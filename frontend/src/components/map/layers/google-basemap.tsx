@@ -5,7 +5,6 @@ import {
 } from "@/config";
 import { useMapLayers } from "@/hooks/use-map-layer";
 
-
 export const GoogleBasemapLayer = ({ map }: { map: Map | null }) => {
   useMapLayers(
     [

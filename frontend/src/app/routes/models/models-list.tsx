@@ -16,11 +16,7 @@ import {
   ModelListGridLayout,
   ModelListTableLayout,
 } from "@/features/models/layouts";
-import {
-  LayoutToggle,
-  ModelMapToggle,
-  ModelsMap,
-} from "@/features/models/components";
+import { LayoutToggle, ModelsMap } from "@/features/models/components";
 import {
   CategoryFilter,
   ClearFilters,
@@ -33,19 +29,8 @@ import {
   useScrollToTop,
 } from "@/hooks/use-scroll-to-element";
 import { Spinner } from "@/components/ui/spinner";
-
-export const SEARCH_PARAMS = {
-  startDate: "start_date",
-  endDate: "end_date",
-  mapIsActive: "map",
-  ordering: "orderBy",
-  searchQuery: "q",
-  offset: "offset",
-  dateFilter: "dateFilter",
-  layout: "layout",
-  id: "id",
-  status: "status",
-};
+import ShowMapToggle from "@/components/shared/show-map-toggle";
+import { SEARCH_PARAMS } from "@/utils/search-params";
 
 export const ModelsPage = () => {
   const { isOpened, openDialog, closeDialog } = useDialog();
@@ -177,7 +162,7 @@ export const ModelsPage = () => {
               </div>
               <div className="md:flex items-center gap-x-10 hidden">
                 {/* Desktop */}
-                <ModelMapToggle updateQuery={updateQuery} query={query} />
+                <ShowMapToggle updateQuery={updateQuery} query={query} />
                 <LayoutToggle
                   updateQuery={updateQuery}
                   query={query}
@@ -206,7 +191,7 @@ export const ModelsPage = () => {
                       .modelCountSuffix
                   }
                 </p>
-                <ModelMapToggle
+                <ShowMapToggle
                   query={query}
                   updateQuery={updateQuery}
                   isMobile

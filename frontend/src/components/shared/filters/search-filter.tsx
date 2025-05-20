@@ -1,9 +1,8 @@
 import { Input } from "@/components/ui/form";
-
-import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
 import { SearchIcon } from "@/components/ui/icons";
 import { SHOELACE_SIZES } from "@/enums";
 import { TQueryParams } from "@/types";
+import { SEARCH_PARAMS } from "@/utils/search-params";
 import { useCallback } from "react";
 
 type SearchFilterProps = {

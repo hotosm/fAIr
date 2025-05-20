@@ -6,7 +6,6 @@ import { MobileModelFiltersDialog } from "@/features/models/components/dialogs";
 import { MODELS_CONTENT } from "@/constants";
 import { OrderingFilter, PAGE_LIMIT, SearchFilter } from "@/components/shared";
 import { Pagination } from "@/components/shared";
-import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
 import { useDialog } from "@/hooks/use-dialog";
 import { useModelsListFilters } from "@/features/models/hooks/use-models";
 import {
@@ -16,7 +15,6 @@ import {
   MobileFilter,
   StatusFilter,
 } from "@/features/models/components/filters";
-
 import {
   ModelListGridLayout,
   ModelListTableLayout,
@@ -26,6 +24,7 @@ import { AddIcon } from "@/components/ui/icons";
 import { ButtonWithIcon } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { ButtonVariant } from "@/enums";
+import { SEARCH_PARAMS } from "@/utils/search-params";
 
 export const ModelExplorer = ({
   title,

@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
+import { SEARCH_PARAMS } from "@/utils/search-params";
 import { TQueryParams } from "@/types";
 
 const ClearFilters = ({

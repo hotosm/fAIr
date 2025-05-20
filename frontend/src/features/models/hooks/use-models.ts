@@ -3,7 +3,7 @@ import { buildDateFilterQueryString } from "@/utils";
 import { dateFilters } from "@/features/models/components/filters/date-range-filter";
 import { LayoutView } from "@/enums";
 import { PAGE_LIMIT } from "@/components/shared";
-import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
+import { SEARCH_PARAMS } from "@/utils/search-params";
 import { TQueryParams } from "@/types";
 import { useCallback, useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
