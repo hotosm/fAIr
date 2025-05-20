@@ -11,28 +11,50 @@ import { DatasetAreaButton } from "@/features/datasets/components/dataset-area-b
 import { DatasetDetailSkeleton } from "@/features/datasets/components/dataset-detail-skeleton";
 import { DatasetEditDialog } from "@/features/datasets/components/dialogs/dataset-details-edit-dialog";
 import { DatasetAOIEditDrawer } from "@/features/datasets/components/drawers/dataset-aoi-edit-drawer";
+import { DatasetAreaDrawer } from "@/features/datasets/components/drawers/dataset-area-drawer";
 import { useGetTrainingDataset } from "@/features/datasets/hooks/use-datasets";
 import { useDialog } from "@/hooks/use-dialog";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { formatDate, truncateString } from "@/utils";
+import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 export const TrainingDatasetsDetailPage = () => {
   const { id } = useParams();
   const datasetId = id ? parseInt(id, 10) : undefined;
-  const { data, isPending, isError, refetch } = useGetTrainingDataset(
+  const { data, isPending, isError, refetch, error } = useGetTrainingDataset(
     datasetId as number,
     !!datasetId,
   );
+
   const { isAuthenticated, user } = useAuth();
   const { dropdownRef, onDropdownHide } = useDropdownMenu();
   const { isOpened, openDialog, closeDialog } = useDialog();
+  const {
+    isOpened: isDatasetAreaDrawerOpened,
+    openDialog: openDatasetAreaDrawer,
+    closeDialog: closeDatasetAreaDrawer,
+  } = useDialog();
   const {
     isOpened: AOIEditDrawerIsOpened,
     openDialog: openAOIEditDrawer,
     closeDialog: closeAOIEditDrawer,
   } = useDialog();
   const navigate = useNavigate();
+  /**
+   * Redirect to 404 page if dataset is not found.
+   */
+  useEffect(() => {
+    if (isError) {
+      const status = (error as { status?: number })?.status;
+      if (status === 404) {
+        navigate(APPLICATION_ROUTES.NOTFOUND, {
+          state: { from: APPLICATION_ROUTES.DATASETS },
+        });
+      }
+    }
+  }, [isError, error]);
+
   if (isPending || !data) {
     return <DatasetDetailSkeleton />;
   }
@@ -62,6 +84,12 @@ export const TrainingDatasetsDetailPage = () => {
         closeDialog={closeAOIEditDrawer}
         trainingDataset={data}
       />
+      <DatasetAreaDrawer
+        isOpened={isDatasetAreaDrawerOpened}
+        closeDialog={closeDatasetAreaDrawer}
+        trainingDataset={data}
+      />
+
       <BackButton className="my-6" />
       <p className="text-grey text-body-2base">Dataset ID: {data.id}</p>
       <div className="flex flex-col gap-y-8">
@@ -105,7 +133,7 @@ export const TrainingDatasetsDetailPage = () => {
               }}
               className="!w-fit"
             />
-            <DatasetAreaButton onClick={() => null} disabled={false} />
+            <DatasetAreaButton onClick={openDatasetAreaDrawer} disabled={false} />
             {/* Edit Dropdown  */}
             <div className="flex justify-start lg:justify-end items-start">
               {isAuthenticated && user?.osm_id === data.user.osm_id && (

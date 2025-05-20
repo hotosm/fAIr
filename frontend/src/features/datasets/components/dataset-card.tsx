@@ -8,17 +8,19 @@ export const DatasetCard = ({
   showUsername = false,
   selectedDatasetId,
   onDatasetSelect,
+  navigateOnClick = false,
 }: {
   dataset: TTrainingDataset;
   showUsername?: boolean;
   selectedDatasetId?: number;
   onDatasetSelect?: (dataset: TTrainingDataset) => void;
+  navigateOnClick?: boolean;
 }) => {
-  const handleClick: React.MouseEventHandler = (e) => {
-    if (onDatasetSelect && selectedDatasetId) {
-      e.preventDefault();
-      onDatasetSelect(dataset);
+  const handleClick: React.MouseEventHandler = () => {
+    if (navigateOnClick) {
+      return;
     }
+    onDatasetSelect && onDatasetSelect(dataset);
   };
 
   const handleKeyDown: React.KeyboardEventHandler = (e) => {
@@ -33,8 +35,10 @@ export const DatasetCard = ({
       disableLinkStyle
       nativeAnchor={false}
       title={dataset.name}
-      href={`${APPLICATION_ROUTES.DATASETS}/${dataset.id}`}
-      onClick={handleClick}
+      href={
+        navigateOnClick ? `${APPLICATION_ROUTES.DATASETS}/${dataset.id}` : "#"
+      }
+      onClick={!navigateOnClick ? handleClick : undefined}
       onKeyDown={handleKeyDown}
     >
       <div

@@ -6,7 +6,7 @@ import { SEARCH_PARAMS } from "@/utils/search-params";
 import { useCallback, useEffect } from "react";
 import { useMapInstance } from "@/hooks/use-map-instance";
 
-const mapSourceName = "models";
+const mapSourceName = "datasets";
 // Font from OpenFreeMap
 const licensedFonts = ["Open Sans Semibold"];
 
@@ -79,7 +79,7 @@ const maplibreLayerDefn = (
     filter: ["!", ["has", "point_count"]],
     layout: {
       "icon-image": "mapMarker",
-      "text-field": "#{mid}",
+      "text-field": "#{did}",
       "text-font": licensedFonts,
       "text-offset": [0, 0.6],
       "text-anchor": "top",
@@ -103,7 +103,7 @@ const maplibreLayerDefn = (
 
   map.on("click", "models-unclustered-points", (e: any) => {
     const value =
-      e.features && e.features[0].properties && e.features[0].properties.mid;
+      e.features && e.features[0].properties && e.features[0].properties.did;
     handleClickOnModelID(value);
   });
 };
@@ -113,7 +113,7 @@ type ModelsMapProps = {
   updateQuery: (newParams: TQueryParams) => void;
 };
 
-export const ModelsMap: React.FC<ModelsMapProps> = ({
+export const DatasetsMap: React.FC<ModelsMapProps> = ({
   mapResults,
   updateQuery,
 }) => {

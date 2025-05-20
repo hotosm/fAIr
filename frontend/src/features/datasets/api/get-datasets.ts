@@ -1,6 +1,6 @@
 import { PAGE_LIMIT } from "@/components/shared";
 import { API_ENDPOINTS, apiClient } from "@/services";
-import { TTrainingDataset } from "@/types";
+import { FeatureCollection, TTrainingDataset } from "@/types";
 
 export const getTrainingDataset = async (
   id: number,
@@ -16,6 +16,7 @@ export const getTrainingDatasetsV2 = async (
   // page: number,
   userId?: number,
   offset?: number,
+  id?: number,
 ): Promise<{
   count: number;
   next: string | null;
@@ -31,6 +32,7 @@ export const getTrainingDatasetsV2 = async (
       user: userId,
       offset,
       limit: PAGE_LIMIT,
+      id,
     },
   });
   return {
@@ -38,4 +40,11 @@ export const getTrainingDatasetsV2 = async (
     hasNext: res.data.next !== null,
     hasPrev: res.data.previous !== null,
   };
+};
+
+export const getDatasetsMapData = async (): Promise<FeatureCollection> => {
+  const res = await apiClient.get(
+    API_ENDPOINTS.GET_TRAINING_DATASETS_CENTROIDS,
+  );
+  return res.data;
 };

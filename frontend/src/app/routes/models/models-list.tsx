@@ -4,7 +4,12 @@ import { Head } from "@/components/seo";
 import { LayoutView } from "@/enums";
 import { MobileModelFiltersDialog } from "@/features/models/components/dialogs";
 import { MODELS_CONTENT } from "@/constants";
-import { OrderingFilter, Pagination, SearchFilter } from "@/components/shared";
+import {
+  ClearFilters,
+  OrderingFilter,
+  Pagination,
+  SearchFilter,
+} from "@/components/shared";
 import { PageHeader } from "@/features/models/components/";
 import { useDialog } from "@/hooks/use-dialog";
 import { useEffect } from "react";
@@ -19,7 +24,6 @@ import {
 import { LayoutToggle, ModelsMap } from "@/features/models/components";
 import {
   CategoryFilter,
-  ClearFilters,
   DateRangeFilter,
   MobileFilter,
 } from "@/features/models/components/filters";
@@ -54,7 +58,9 @@ export const ModelsPage = () => {
     isError: modelsMapDataIsError,
   } = useModelsMapData();
 
-  // Mapview toggling interaction
+  /**
+   *  Mapview toggling interaction.
+   */
   useEffect(() => {
     if (mapViewIsActive) {
       scrollToElement();

@@ -1,24 +1,33 @@
 import { DatasetList } from "@/features/datasets/components";
 import { useDatasetsQueryParams } from "@/features/datasets/hooks/use-query-params";
-import { OrderingFilter, Pagination, SearchFilter } from "@/components/shared";
+import {
+  ClearFilters,
+  OrderingFilter,
+  Pagination,
+  SearchFilter,
+} from "@/components/shared";
 import { FeatureCollection, TTrainingDataset } from "@/types";
 import { MODELS_CONTENT } from "@/constants";
 import { HelpText } from "@/components/ui/form";
 import ShowMapToggle from "@/components/shared/show-map-toggle";
-import { useModelsMapData } from "@/features/models/hooks/use-models";
 import { Spinner } from "@/components/ui/spinner";
-import { ModelsMap } from "@/features/models/components";
+import { useEffect } from "react";
+import { useScrollToElement } from "@/hooks/use-scroll-to-element";
+import { DatasetsMap } from "@/features/datasets/components/datasets-map";
+import { useDatasetsMapData } from "@/features/datasets/hooks/use-datasets";
 
 export const DatasetExplorer = ({
   disableSelectedDatasetText,
   selectedTrainingDatasetId,
   onDatasetSelect,
   disableInstruction,
+  navigateOnClick,
 }: {
   disableSelectedDatasetText?: boolean;
   selectedTrainingDatasetId?: number;
   onDatasetSelect?: (dataset: TTrainingDataset) => void;
   disableInstruction?: boolean;
+  navigateOnClick?: boolean;
 }) => {
   const {
     data,
@@ -29,15 +38,28 @@ export const DatasetExplorer = ({
     query,
     updateQuery,
     mapViewIsActive,
+    clearAllFilters,
   } = useDatasetsQueryParams();
+
   const {
     data: mapData,
-    isPending: modelsMapDataIsPending,
-    isError: modelsMapDataIsError,
-  } = useModelsMapData();
+    isPending: mapDataIsPending,
+    isError: mapDataIsError,
+  } = useDatasetsMapData();
+
+  const mapViewElementId = "dataset-map-view";
+  const { scrollToElement } = useScrollToElement(mapViewElementId);
+  /**
+   *  Mapview toggling interaction.
+   */
+  useEffect(() => {
+    if (mapViewIsActive) {
+      scrollToElement();
+    }
+  }, [mapViewIsActive]);
 
   return (
-    <div className="flex flex-col gap-y-10">
+    <div className="flex flex-col gap-y-4 h-full w-full min-h-screen">
       {!disableInstruction && (
         <HelpText
           content={
@@ -46,13 +68,16 @@ export const DatasetExplorer = ({
           }
         />
       )}
-      <div className="flex flex-col md:flex-row gap-y-4 md:gap-y-0 w-full justify-between md:items-center">
-        <SearchFilter
-          query={query}
-          updateQuery={updateQuery}
-          placeholder="Search datasets..."
-          className="w-full max-w-xl"
-        />
+      <div className="flex flex-col md:flex-row gap-4 md:gap-y-0 w-full justify-between md:items-center">
+        <div className="flex flex-col md:flex-row gap-x-4 gap-y-4 md:gap-y-0 w-full">
+          <SearchFilter
+            query={query}
+            updateQuery={updateQuery}
+            placeholder="Search datasets by name or id..."
+            className="w-full max-w-xl"
+          />
+          <ClearFilters query={query} clearAllFilters={clearAllFilters} />
+        </div>
         <ShowMapToggle query={query} updateQuery={updateQuery} />
       </div>
 
@@ -89,8 +114,12 @@ export const DatasetExplorer = ({
         )}
       </div>
 
-      <div className="w-full grid grid-cols-1 grid-rows-2 lg:grid-rows-1 lg:grid-cols-2 rounded-md lg:p-2 gap-x-2 mt-10 gap-y-6 lg:gap-y-0 h-screen">
-        <div className={`w-full overflow-y-auto scrollable lg:row-start-1 ${mapViewIsActive ? "" : "lg:col-span-2"}`}>
+      <div
+        className={`w-full grid grid-cols-1 ${mapViewIsActive ? "grid-rows-2 h-screen" : ""} lg:grid-rows-1 lg:grid-cols-2 rounded-md gap-x-2 gap-y-6 lg:gap-y-0  min-h-screen`}
+      >
+        <div
+          className={`w-full overflow-y-auto h-full scrollable  lg:row-start-1 ${mapViewIsActive ? "p-2 overflow-y-auto" : "lg:col-span-2"}`}
+        >
           <DatasetList
             isError={isError}
             datasets={data?.results as TTrainingDataset[]}
@@ -105,18 +134,22 @@ export const DatasetExplorer = ({
             onDatasetSelect={(dataset) => {
               onDatasetSelect?.(dataset);
             }}
+            navigateOnClick={navigateOnClick}
           />
         </div>
         {mapViewIsActive && (
-          <div className="row-start-1 p-2 md:border md:border-gray-border rounded-md ">
-            {modelsMapDataIsPending ||
-              modelsMapDataIsError ||
-              mapData.features.length === 0 ? (
+          <div
+            className="row-start-1 md:border md:border-gray-border overflow-hidden rounded-md"
+            id={mapViewElementId}
+          >
+            {mapDataIsPending ||
+            mapDataIsError ||
+            mapData.features.length === 0 ? (
               <div className="w-full h-full animate-pulse bg-light-gray flex items-center justify-center">
                 <Spinner />
               </div>
             ) : (
-              <ModelsMap
+              <DatasetsMap
                 mapResults={mapData as FeatureCollection}
                 updateQuery={updateQuery}
               />

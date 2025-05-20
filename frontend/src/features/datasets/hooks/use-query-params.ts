@@ -16,9 +16,9 @@ export const useDatasetsQueryParams = (userId?: number) => {
     [SEARCH_PARAMS.ordering]:
       searchParams.get(SEARCH_PARAMS.ordering) ||
       (ORDERING_FIELDS[1].apiValue as string),
+    [SEARCH_PARAMS.id]: searchParams.get(SEARCH_PARAMS.id) || "",
     [SEARCH_PARAMS.mapIsActive]:
-      Boolean(searchParams.get(SEARCH_PARAMS.mapIsActive)) ||
-      false,
+      Boolean(searchParams.get(SEARCH_PARAMS.mapIsActive)) || false,
   };
 
   const [query, setQuery] = useState<TQueryParams>(defaultQueries);
@@ -36,6 +36,7 @@ export const useDatasetsQueryParams = (userId?: number) => {
       query[SEARCH_PARAMS.offset] !== undefined
         ? (query[SEARCH_PARAMS.offset] as number)
         : undefined,
+      query[SEARCH_PARAMS.id] as number,
     );
 
   const updateQuery = useCallback(
@@ -62,8 +63,9 @@ export const useDatasetsQueryParams = (userId?: number) => {
   //reset offset back to 0 when searching or when ID filtering is applied from the map.
   useEffect(() => {
     if (
-      query[SEARCH_PARAMS.searchQuery] !== "" &&
-      (query[SEARCH_PARAMS.offset] as number) > 0
+      query[SEARCH_PARAMS.searchQuery] !== "" ||
+      (query[SEARCH_PARAMS.id] !== "" &&
+        (query[SEARCH_PARAMS.offset] as number) > 0)
     ) {
       updateQuery({ [SEARCH_PARAMS.offset]: 0 });
     }
@@ -75,14 +77,24 @@ export const useDatasetsQueryParams = (userId?: number) => {
       [SEARCH_PARAMS.ordering]: defaultQueries[SEARCH_PARAMS.ordering],
       [SEARCH_PARAMS.searchQuery]: defaultQueries[SEARCH_PARAMS.searchQuery],
       [SEARCH_PARAMS.mapIsActive]: defaultQueries[SEARCH_PARAMS.mapIsActive],
+      [SEARCH_PARAMS.id]: defaultQueries[SEARCH_PARAMS.id],
     };
     setQuery(newQuery);
   }, []);
 
-  const mapViewIsActive = useMemo(
-    () => Boolean(query[SEARCH_PARAMS.mapIsActive]),
-    [searchParams],
-  );
+  const clearAllFilters = useCallback(() => {
+    const resetParams = new URLSearchParams();
+    setSearchParams(resetParams);
+    setQuery((prev) => ({
+      // Preserve existing query params
+      ...prev,
+      // Clear only the filter fields
+      [SEARCH_PARAMS.searchQuery]: "",
+      [SEARCH_PARAMS.id]: "",
+    }));
+  }, []);
+
+  const mapViewIsActive = Boolean(query[SEARCH_PARAMS.mapIsActive]);
 
   return {
     query,
@@ -93,5 +105,6 @@ export const useDatasetsQueryParams = (userId?: number) => {
     updateQuery,
     refetch,
     mapViewIsActive,
+    clearAllFilters,
   };
 };

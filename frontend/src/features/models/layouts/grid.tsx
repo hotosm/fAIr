@@ -1,6 +1,6 @@
 import ModelCard from "@/features/models/components/model-card";
 import { TModel } from "@/types";
-import { ModelListSkeleton } from "../components/skeletons/model-list-skeleton";
+import { ModelListSkeleton } from "@/features/models/components/skeletons/model-list-skeleton";
 
 type ModelListProps = {
   models?: TModel[];

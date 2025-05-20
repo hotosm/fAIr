@@ -4,13 +4,17 @@ import { LayoutToggle } from "@/features/models/components";
 import { LayoutView } from "@/enums";
 import { MobileModelFiltersDialog } from "@/features/models/components/dialogs";
 import { MODELS_CONTENT } from "@/constants";
-import { OrderingFilter, PAGE_LIMIT, SearchFilter } from "@/components/shared";
+import {
+  ClearFilters,
+  OrderingFilter,
+  PAGE_LIMIT,
+  SearchFilter,
+} from "@/components/shared";
 import { Pagination } from "@/components/shared";
 import { useDialog } from "@/hooks/use-dialog";
 import { useModelsListFilters } from "@/features/models/hooks/use-models";
 import {
   CategoryFilter,
-  ClearFilters,
   DateRangeFilter,
   MobileFilter,
   StatusFilter,

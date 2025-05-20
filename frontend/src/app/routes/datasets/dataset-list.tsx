@@ -15,7 +15,11 @@ export const DatasetExplorerPage = () => {
           disableCreateButton
           isTrainingDataset
         />
-        <DatasetExplorer disableSelectedDatasetText disableInstruction />
+        <DatasetExplorer
+          disableSelectedDatasetText
+          disableInstruction
+          navigateOnClick
+        />
       </section>
     </>
   );

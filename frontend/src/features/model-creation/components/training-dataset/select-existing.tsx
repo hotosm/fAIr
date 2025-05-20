@@ -20,6 +20,8 @@ const SelectExistingTrainingDatasetForm = () => {
       />
       <DatasetExplorer
         selectedTrainingDatasetId={Number(formData.selectedTrainingDatasetId)}
+        disableInstruction
+        navigateOnClick={false}
         onDatasetSelect={(dataset: TTrainingDataset) => {
           handleChange(
             MODEL_CREATION_FORM_NAME.SELECTED_TRAINING_DATASET_ID,
