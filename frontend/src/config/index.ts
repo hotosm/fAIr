@@ -369,14 +369,7 @@ export const MATOMO_TRACKING_URL: string = parseStringEnv(
   "https://matomo.hotosm.org",
 );
 
-/**
- * The timeout duration in milliseconds to show the tracking component.
- * Default value: 1000 ms (1 seconds).
- */
-export const MATOMO_TRACKING_TIMEOUT_DURATION: number = parseIntEnv(
-  ENVS.MATOMO_TRACKING_TIMEOUT_DURATION,
-  1000,
-);
+
 
 export const BANNER_TIMEOUT_DURATION: number = parseIntEnv(
   ENVS.BANNER_TIMEOUT_DURATION,
@@ -447,7 +440,7 @@ const REFRESH_BUFFER_MS: number = 1000;
  */
 export const KPI_STATS_CACHE_TIME_MS: number =
   parseIntEnv(ENVS.KPI_STATS_CACHE_TIME, DEFAULT_KPI_STATS_CACHE_TIME_SECONDS) *
-    1000 +
+  1000 +
   REFRESH_BUFFER_MS;
 
 /**

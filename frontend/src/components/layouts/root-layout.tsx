@@ -1,7 +1,6 @@
 import { APPLICATION_ROUTES, MODELS_ROUTES } from "@/constants";
 import { Banner } from "@/components/ui/banner";
 import { Footer } from "@/components/layouts";
-import { HotTracking } from "@/components/shared";
 import { NavBar } from "@/components/layouts";
 import { Outlet, useLocation, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -10,7 +9,6 @@ import { useAuth } from "@/app/providers/auth-provider";
 import { AuthenticationModal } from "@/components/auth";
 import {
   BANNER_TIMEOUT_DURATION,
-  MATOMO_TRACKING_TIMEOUT_DURATION,
 } from "@/config";
 
 export const RootLayout = () => {
@@ -25,7 +23,7 @@ export const RootLayout = () => {
   }, [pathname]);
 
   const { isAuthenticated } = useAuth();
-  const [showTracking, setShowTracking] = useState<boolean>(false);
+
   const [showBanner, setShowBanner] = useState<boolean>(false);
 
   /**
@@ -46,35 +44,10 @@ export const RootLayout = () => {
    */
   const { modelId } = useParams();
 
-  /**
-   * Show the tracking 3 seconds after the page renders.
-   */
-  useEffect(() => {
-    /**
-     * Tracking component can show only on these public pages.
-     * It can only show up on these pages, and when it shows up, it won't close until the user choose an action,
-     * even if they navigate to other routes.
-     * However, if the user navigates to a route not listed here, it won't show up.
-     */
-    const canShowTracker = [
-      APPLICATION_ROUTES.LEARN,
-      APPLICATION_ROUTES.MODELS,
-      APPLICATION_ROUTES.RESOURCES,
-      APPLICATION_ROUTES.HOMEPAGE,
-    ];
 
-    const timer = setTimeout(() => {
-      if (canShowTracker.some((route) => pathname === route)) {
-        setShowTracking(true);
-      }
-    }, MATOMO_TRACKING_TIMEOUT_DURATION);
-
-    return () => clearTimeout(timer);
-  });
 
   return (
     <>
-      <HotTracking showTracking={showTracking} />
 
       {/* Show the auth modal when a `backgroundLocation` is set and when the user is not authenticated. */}
       <AuthenticationModal
