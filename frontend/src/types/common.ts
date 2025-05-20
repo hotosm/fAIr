@@ -1,5 +1,5 @@
 import { GeoJSON } from "geojson";
-import { LngLatBoundsLike } from "maplibre-gl";
+import { LngLatBoundsLike, Map } from "maplibre-gl";
 import { SHOELACE_SELECT_SIZES } from "@/enums";
 import { SlDropdown as SlDropdownType } from "@shoelace-style/shoelace";
 
@@ -74,3 +74,7 @@ export type TProfileNavigationTabs = {
   href: string;
   active: boolean;
 }[];
+
+export type MapInstance = Map | null;
+
+export type { Source as AnySourceImplementation } from "maplibre-gl";

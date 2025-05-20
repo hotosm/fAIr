@@ -1,4 +1,4 @@
-import { Basemaps } from "@/components/map/layers/basemaps";
+import { GoogleBasemapLayer } from "@/components/map/layers/google-basemap";
 import { ControlsPosition } from "@/enums";
 import { DrawingModes } from "@/enums";
 import { LngLatBoundsLike, Map } from "maplibre-gl";
@@ -70,11 +70,10 @@ export const MapComponent: React.FC<MapComponentProps> = ({
       {map ? (
         <>
           <div
-            className={`absolute top-5 ${
-              controlsPosition === ControlsPosition.TOP_RIGHT
-                ? "right-3"
-                : "left-3"
-            } map-elements-z-index flex flex-col gap-y-[1px]`}
+            className={`absolute top-5 ${controlsPosition === ControlsPosition.TOP_RIGHT
+              ? "right-3"
+              : "left-3"
+              } map-elements-z-index flex flex-col gap-y-[1px]`}
           >
             {zoomControls ? <ZoomControls map={map} /> : null}
             {geolocationControl && <GeolocationControl map={map} />}
@@ -107,7 +106,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
         </>
       ) : null}
       {/* Order according to how they'll be rendered */}
-      {basemaps && <Basemaps map={map} />}
+      {basemaps && <GoogleBasemapLayer map={map} />}
       {openAerialMap && oamTileJSONURL && (
         <OpenAerialMap tileJSONURL={oamTileJSONURL} map={map} />
       )}

@@ -28,12 +28,12 @@ type TFooterGroupLinks = {
 export const footerLinks: TFooterGroupLinks = {
   groupOne: [
     {
-      title: "ai models",
+      title: "explore models",
       route: APPLICATION_ROUTES.MODELS,
       active: true,
     },
     {
-      title: "training datasets",
+      title: "datasets",
       route: APPLICATION_ROUTES.DATASETS,
       active: true,
     },
