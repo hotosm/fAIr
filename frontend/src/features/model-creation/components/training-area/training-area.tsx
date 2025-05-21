@@ -21,16 +21,12 @@ import {
   useCreateTrainingArea,
   useGetTrainingAreas,
 } from "@/features/model-creation/hooks/use-training-areas";
-import {
-  extractTileJSONURL,
-  showSuccessToast,
-  snapGeoJSONPolygonToClosestTile,
-} from "@/utils";
-import { useGetTMSTileJSON } from "@/features/model-creation/hooks/use-tms-tilejson";
-import { TileJSON, TTrainingDataset } from "@/types";
+import { showSuccessToast, snapGeoJSONPolygonToClosestTile } from "@/utils";
+import { TTrainingDataset } from "@/types";
 import { APP_TOUR_IDS } from "@/constants/site-tour";
 import { useAppTour } from "@/app/providers/tour-provider";
 import { TrainingLabelsOffset } from "@/features/model-creation/components/training-area/training-labels-offset";
+import { useTileServiceLayer } from "@/hooks/use-tileservice";
 
 const TrainingAreaForm = ({
   isDatasetEditMode = false,
@@ -43,9 +39,6 @@ const TrainingAreaForm = ({
   const { map, mapContainerRef, drawingMode, setDrawingMode, terraDraw } =
     useMapInstance();
 
-  const tileJSONURL = extractTileJSONURL(
-    trainingDataset?.source_imagery ?? formData.tmsURL,
-  );
   const initialOffset = {
     x: trainingDataset?.offset?.[0] ?? formData.datasetOffset?.[0] ?? 0,
     y: trainingDataset?.offset?.[1] ?? formData.datasetOffset?.[1] ?? 0,
@@ -66,11 +59,6 @@ const TrainingAreaForm = ({
     isPending: trainingAreaIsPending,
     isPlaceholderData,
   } = useGetTrainingAreas(datasetId, offset);
-
-  const { isPending, data, isError } = useGetTMSTileJSON(
-    tileJSONURL,
-    !!datasetId,
-  );
 
   useEffect(() => {
     if (!trainingAreasData) return;
@@ -106,6 +94,14 @@ const TrainingAreaForm = ({
   const handleOffsetReset = () => {
     setTrainingDatasetOffset(initialOffset);
   };
+  /**
+   * * Tile Service Layer.
+   */
+  const { hasBounds, fitToBounds, loading, tileJSONMetadata, error } =
+    useTileServiceLayer({
+      map,
+      tileServiceURL: trainingDataset?.source_imagery ?? formData.tmsURL,
+    });
 
   return (
     <>
@@ -152,9 +148,11 @@ const TrainingAreaForm = ({
             <OpenAerialMap
               map={map}
               trainingDatasetId={datasetId}
-              OAMIsPending={isPending}
-              OAMIsError={isError}
-              OAMData={data as TileJSON}
+              hasBounds={hasBounds}
+              fitToBounds={fitToBounds}
+              loading={loading}
+              tileJSONMetadata={tileJSONMetadata}
+              error={error}
             />
           </div>
 
@@ -175,7 +173,9 @@ const TrainingAreaForm = ({
         >
           <div className="w-full h-[90vh] col-span-12 lg:col-span-6 2xl:col-span-7 pr-2 lg:pr-0">
             <TrainingAreaMap
-              tileJSONURL={tileJSONURL}
+              tileServiceURL={
+                trainingDataset?.source_imagery ?? formData.tmsURL
+              }
               data={trainingAreasData}
               trainingDatasetId={datasetId}
               offset={offset}
@@ -185,7 +185,7 @@ const TrainingAreaForm = ({
               setDrawingMode={setDrawingMode}
               drawingMode={drawingMode}
               trainingAreaIsPending={trainingAreaIsPending}
-              OAMData={data as TileJSON}
+              tileServiceBounds={tileJSONMetadata?.bounds}
               trainingDatasetOffset={trainingDatasetOffset}
             />
           </div>
@@ -194,9 +194,11 @@ const TrainingAreaForm = ({
             <OpenAerialMap
               map={map}
               trainingDatasetId={datasetId}
-              OAMIsPending={isPending}
-              OAMIsError={isError}
-              OAMData={data as TileJSON}
+              hasBounds={hasBounds}
+              fitToBounds={fitToBounds}
+              loading={loading}
+              tileJSONMetadata={tileJSONMetadata}
+              error={error}
             />
             <TrainingLabelsOffset
               trainingDatasetOffset={trainingDatasetOffset}

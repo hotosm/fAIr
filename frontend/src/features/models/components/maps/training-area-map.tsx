@@ -12,7 +12,6 @@ import {
 } from "maplibre-gl";
 
 import {
-  extractTileJSONURL,
   showErrorToast,
   addLayers,
   addSources,
@@ -80,8 +79,6 @@ export const TrainingAreaMap = ({
     [0, 0],
     [0, 0],
   ]);
-
-  const tileJSONURL = extractTileJSONURL(tmsURL);
 
   const trainingAreasSourceId = `training-areas-for-${trainingAreaId}`;
 
@@ -172,15 +169,15 @@ export const TrainingAreaMap = ({
                         <table>
                             <tbody>
                                 ${Object.entries(feature.properties)
-                                  .map(
-                                    ([key, value]) => `
+            .map(
+              ([key, value]) => `
                                     <tr>
                                         <td class="text-grey">${key}</td>
                                         <td class="font-semibold text-dark">${typeof value === "boolean" ? JSON.stringify(value) : value}</td>
                                     </tr>
                                 `,
-                                  )
-                                  .join("")}
+            )
+            .join("")}
                             </tbody>
                         </table>
                     </div>
@@ -257,8 +254,7 @@ export const TrainingAreaMap = ({
   return (
     <MapComponent
       layerControl
-      openAerialMap
-      oamTileJSONURL={tileJSONURL}
+      tileServiceURL={tmsURL}
       controlsPosition={ControlsPosition.TOP_LEFT}
       basemaps
       layerControlLayers={layerControlLayers}

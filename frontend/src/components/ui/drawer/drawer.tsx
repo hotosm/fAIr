@@ -23,9 +23,10 @@ const Drawer: React.FC<DrawerProps> = ({
       label={label}
       placement={placement}
       open={open}
-      onSlAfterHide={(e) => {
-        setOpen(false);
-        e.stopPropagation();
+      onSlAfterHide={(event: CustomEvent) => {
+        if (event.target === event.currentTarget) {
+          setOpen(false);
+        }
       }}
       noHeader={noHeader}
     >

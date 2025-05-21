@@ -89,7 +89,6 @@ export const TrainingDatasetsDetailPage = () => {
         closeDialog={closeDatasetAreaDrawer}
         trainingDataset={data}
       />
-
       <BackButton className="my-6" />
       <p className="text-grey text-body-2base">Dataset ID: {data.id}</p>
       <div className="flex flex-col gap-y-8">
@@ -133,7 +132,10 @@ export const TrainingDatasetsDetailPage = () => {
               }}
               className="!w-fit"
             />
-            <DatasetAreaButton onClick={openDatasetAreaDrawer} disabled={false} />
+            <DatasetAreaButton
+              onClick={openDatasetAreaDrawer}
+              disabled={false}
+            />
             {/* Edit Dropdown  */}
             <div className="flex justify-start lg:justify-end items-start">
               {isAuthenticated && user?.osm_id === data.user.osm_id && (

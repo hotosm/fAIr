@@ -117,11 +117,9 @@ const LabelFetchStatus = ({
 
 const DropdownMenu = ({
   dropdownMenuItems,
-
   dropdownRef,
 }: {
   dropdownMenuItems: TDropdownMenuItems;
-
   dropdownRef: React.RefObject<SlDropdownType>;
 }) => {
   return (
@@ -375,10 +373,7 @@ export const TrainingAreaItem: React.FC<
       disabled: false,
       onClick: () =>
         openInIDEditor(
-          formData.oamBounds[1],
-          formData.oamBounds[3],
-          formData.oamBounds[0],
-          formData.oamBounds[2],
+          [trainingArea],
           formData.tmsURL,
           formData.selectedTrainingDatasetId,
           trainingArea.id,

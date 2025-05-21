@@ -27,7 +27,7 @@ const PredictionImagerySources: Array<{
   {
     value: PredictionImagerySource.Kontour,
     label: "OpenAerialMap Mosaic",
-    url: "https://apps.kontur.io/raster-tiler/oam/mosaic/{z}/{x}/{y}",
+    url: "https://apps.kontur.io/raster-tiler/oam/mosaic/{z}/{x}/{y}.png",
     tooltip: "All OpenAerialMap images in one mosaic layer, by Kontur.io.",
   },
 ];

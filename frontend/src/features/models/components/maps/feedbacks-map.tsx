@@ -18,14 +18,14 @@ import {
 
 type ModelsMapProps = {
   mapData?: FeatureCollection;
-  openAerialMapTileJSONURL: string;
+  tileServiceURL: string;
 };
 
 type TBounds = [[number, number], [number, number]];
 
 export const FeedbacksMap: React.FC<ModelsMapProps> = ({
   mapData,
-  openAerialMapTileJSONURL,
+  tileServiceURL,
 }) => {
   const { map, mapContainerRef } = useMapInstance();
 
@@ -62,9 +62,8 @@ export const FeedbacksMap: React.FC<ModelsMapProps> = ({
         map={map}
         mapContainerRef={mapContainerRef}
         zoomControls
-        openAerialMap
         controlsPosition={ControlsPosition.TOP_LEFT}
-        oamTileJSONURL={openAerialMapTileJSONURL}
+        tileServiceURL={tileServiceURL}
       >
         <div className="absolute left-3 z-[1] top-28">
           <FitToBounds
@@ -93,7 +92,6 @@ export const FeedbacksMap: React.FC<ModelsMapProps> = ({
                 : []),
             ]}
             map={map}
-            openAerialMap
           />
         </div>
         {map && <FeedbacksLayer map={map} features={mapData?.features} />}

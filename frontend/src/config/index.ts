@@ -266,8 +266,8 @@ export const MAP_STYLES: Record<string, string | StyleSpecification> = {
 // Shared (Basemaps, Tile Boundaries)
 export const TILE_BOUNDARY_LAYER_ID: string = `${MAP_STYLES_PREFIX}-tile-boundary-layer`;
 export const TILE_BOUNDARY_SOURCE_ID: string = `${MAP_STYLES_PREFIX}-tile-boundaries`;
-export const TMS_LAYER_ID: string = `${MAP_STYLES_PREFIX}-oam-tms-layer`;
-export const TMS_SOURCE_ID: string = `${MAP_STYLES_PREFIX}-oam-training-dataset`;
+export const TMS_LAYER_ID: string = `${MAP_STYLES_PREFIX}-tileservice-layer`;
+export const TMS_SOURCE_ID: string = `${MAP_STYLES_PREFIX}-tileservice-source`;
 export const OSM_BASEMAP_LAYER_ID: string = `${MAP_STYLES_PREFIX}-osm-layer`;
 export const GOOGLE_SATELLITE_BASEMAP_LAYER_ID: string = `${MAP_STYLES_PREFIX}-google-statellite-layer`;
 export const GOOGLE_SATELLITE_BASEMAP_SOURCE_ID: string = `${MAP_STYLES_PREFIX}-google-satellite`;

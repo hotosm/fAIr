@@ -1,9 +1,11 @@
+import { TMS_LAYER_ID, TMS_SOURCE_ID } from "@/config";
 import { TileServiceType } from "@/enums";
 import { getTMSTileJSON } from "@/features/model-creation/api/get-tms-tilejson";
-import { TileJSON } from "@/types";
+import { MapInstance, TileJSON } from "@/types";
 import {
   extractTileJSONURL,
   getTileServerRegex,
+  getTileServerTypeFromURL,
   OPENAERIALMAP_TILESERVER_URL_REGEX_PATTERN,
   showErrorToast,
 } from "@/utils";
@@ -110,5 +112,120 @@ export const useTileservice = (
     isOpenAerialMap,
     loading,
     setLoading,
+  };
+};
+
+export const useTileServiceLayer = ({
+  map,
+  tileServiceURL,
+  addLayerToMap = false,
+}: {
+  map: MapInstance;
+  tileServiceURL: string;
+  addLayerToMap?: boolean;
+}) => {
+  const [error, setError] = useState<string>("");
+
+  const {
+    tileServiceType,
+    tileJSONMetadata,
+    tileServiceTypeValidity,
+    isOpenAerialMap,
+    sourceURL,
+    loading,
+    setLoading,
+  } = useTileservice(getTileServerTypeFromURL(tileServiceURL), tileServiceURL);
+
+  useEffect(() => {
+    if (!tileServiceTypeValidity.valid || !map || !sourceURL || !addLayerToMap)
+      return;
+
+    const source = map.getSource(TMS_SOURCE_ID);
+    if (source) {
+      map.removeLayer(TMS_LAYER_ID);
+      map.removeSource(TMS_SOURCE_ID);
+    }
+
+    setError("");
+    setLoading(true);
+
+    try {
+      if (isOpenAerialMap || tileServiceType === TileServiceType.TILEJSON) {
+        map.addSource(TMS_SOURCE_ID, {
+          type: "raster",
+          url: sourceURL,
+          tileSize: 256,
+        });
+      } else {
+        map.addSource(TMS_SOURCE_ID, {
+          type: "raster",
+          tiles: [sourceURL],
+          tileSize: 256,
+        });
+      }
+
+      map.addLayer(
+        {
+          id: TMS_LAYER_ID,
+          type: "raster",
+          source: TMS_SOURCE_ID,
+          layout: { visibility: "visible" },
+        },
+        undefined,
+      );
+    } catch (e) {
+      setError(
+        "Unable to load the tile server. Please verify the URL and try again.",
+      );
+    } finally {
+      setLoading(false);
+    }
+
+    return () => {
+      if (!map || !map?.getStyle()) return;
+      if (map.getLayer(TMS_LAYER_ID)) map.removeLayer(TMS_LAYER_ID);
+      if (map.getSource(TMS_SOURCE_ID)) map.removeSource(TMS_SOURCE_ID);
+    };
+  }, [
+    map,
+    sourceURL,
+    tileServiceType,
+    tileServiceTypeValidity.valid,
+    isOpenAerialMap,
+  ]);
+
+  useEffect(() => {
+    if (error) {
+      showErrorToast(undefined, error);
+    }
+  }, [error]);
+
+  const fitToBounds = () => {
+    if (!map || !tileJSONMetadata?.bounds) return;
+    map?.resize();
+    map.fitBounds(tileJSONMetadata.bounds);
+  };
+
+  useEffect(() => {
+    fitToBounds();
+  }, [tileJSONMetadata]);
+
+  const hasBounds = useMemo(() => {
+    if (!tileJSONMetadata?.bounds) return false;
+    const bounds = tileJSONMetadata.bounds;
+
+    if (Array.isArray(bounds) && bounds.length === 4) {
+      return true;
+    }
+    return false;
+  }, [tileJSONMetadata]);
+
+  return {
+    loading,
+    isOpenAerialMap,
+    tileJSONMetadata,
+    hasBounds,
+    fitToBounds,
+    error,
   };
 };

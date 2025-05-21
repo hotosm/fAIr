@@ -3,7 +3,6 @@ import { Head } from "@/components/seo";
 import { useModelsContext } from "@/app/providers/models-provider";
 import { useTrainingFeedbacks } from "@/features/models/hooks/use-training";
 import { FeedbacksMap } from "@/features/models/components/maps/feedbacks-map";
-import { extractTileJSONURL } from "@/utils";
 import { ModelDetailsInfoButton } from "@/features/start-mapping/components/header/model-details-info-button";
 
 export const ModelFeedbacksPage = () => {
@@ -62,24 +61,13 @@ export const ModelFeedbacksPage = () => {
               <p className="text-body-4 font-semibold text-nowrap">
                 Total Feedbacks: {feedbacksData?.count}
               </p>
-              {/* <ButtonWithIcon
-                label={MODELS_CONTENT.models.modelsDetailsCard.enhanceModel}
-                variant={ButtonVariant.DARK}
-                size="medium"
-                prefixIcon={StarStackIcon}
-                // Navigate to training area page for the model ?
-                // onClick={openModelEnhancementDialog}
-                disabled={!isAuthenticated}
-              /> */}
             </div>
           </div>
         </div>
         <div className="w-full h-[400px] md:h-[500px] lg:h-[600px] xl:h-[700px]  border-8 border-off-white">
           <FeedbacksMap
             mapData={feedbacksData?.results}
-            openAerialMapTileJSONURL={extractTileJSONURL(
-              data?.dataset?.source_imagery,
-            )}
+            tileServiceURL={data?.dataset?.source_imagery}
           />
         </div>
       </div>

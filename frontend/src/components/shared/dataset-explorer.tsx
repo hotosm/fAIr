@@ -118,7 +118,7 @@ export const DatasetExplorer = ({
         className={`w-full grid grid-cols-1 ${mapViewIsActive ? "grid-rows-2 h-screen" : ""} lg:grid-rows-1 lg:grid-cols-2 rounded-md gap-x-2 gap-y-6 lg:gap-y-0  min-h-screen`}
       >
         <div
-          className={`w-full overflow-y-auto h-full scrollable  lg:row-start-1 ${mapViewIsActive ? "p-2 overflow-y-auto" : "lg:col-span-2"}`}
+          className={`w-full overflow-y-auto h-full scrollable p-2 lg:row-start-1 ${mapViewIsActive ? "overflow-y-auto" : "lg:col-span-2"}`}
         >
           <DatasetList
             isError={isError}

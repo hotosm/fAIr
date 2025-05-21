@@ -26,6 +26,7 @@ import { useLocalStorage } from "@/hooks/use-storage";
 
 import { TModelDetails, TTrainingAreaFeature, TTrainingDetails } from "@/types";
 import {
+  getTileServerTypeFromURL,
   showErrorToast,
   showSuccessToast,
   XYZ_TILESERVER_URL_REGEX_PATTERN,
@@ -159,8 +160,6 @@ type FormData = {
   tmsURL: string;
   selectedTrainingDatasetId: string;
   trainingAreas: TTrainingAreaFeature[];
-  oamTileName: string;
-  oamBounds: number[];
   trainingType: TrainingType;
   contactSpacing: number;
   epoch: number;
@@ -183,9 +182,6 @@ const initialFormState: FormData = {
   [MODEL_CREATION_FORM_NAME.TMS_URL]: "",
   [MODEL_CREATION_FORM_NAME.SELECTED_TRAINING_DATASET_ID]: "",
   [MODEL_CREATION_FORM_NAME.TRAINING_AREAS]: [],
-  // oam tms info
-  [MODEL_CREATION_FORM_NAME.OAM_TILE_NAME]: "",
-  [MODEL_CREATION_FORM_NAME.OAM_BOUNDS]: [],
   // Training settings - defaults to basic configurations
   [MODEL_CREATION_FORM_NAME.TRAINING_TYPE]: TrainingType.BASIC,
   [MODEL_CREATION_FORM_NAME.EPOCH]: 2,
@@ -371,6 +367,10 @@ export const ModelsProvider: React.FC<{
     handleChange(
       MODEL_CREATION_FORM_NAME.TMS_URL,
       data.dataset.source_imagery ?? "",
+    );
+    handleChange(
+      MODEL_CREATION_FORM_NAME.TILESERVICE_TYPE,
+      getTileServerTypeFromURL(data.dataset.source_imagery ?? ""),
     );
     handleChange(MODEL_CREATION_FORM_NAME.DATASET_OFFSET, data.dataset.offset);
   }, [isEditMode, isError, isPending, data]);

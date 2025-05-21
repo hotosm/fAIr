@@ -1,5 +1,6 @@
 import {
   MIN_ZOOM_LEVEL_FOR_TRAINING_AREA_LABELS,
+  TMS_LAYER_ID,
   TRAINING_AREAS_AOI_LABELS_FILL_COLOR,
   TRAINING_AREAS_AOI_LABELS_FILL_OPACITY,
   TRAINING_AREAS_AOI_LABELS_OUTLINE_COLOR,
@@ -91,6 +92,7 @@ export const TrainingAreasLabelsLayers = ({
         },
         layout: { visibility: "visible" },
       });
+      map.moveLayer(trainingAreasLabelsFillLayerId, TMS_LAYER_ID);
     }
 
     if (!map.getLayer(trainingAreasLabelsOutlineLayerId)) {
@@ -105,6 +107,7 @@ export const TrainingAreasLabelsLayers = ({
         },
         layout: { visibility: "visible" },
       });
+      map.moveLayer(trainingAreasLabelsOutlineLayerId, TMS_LAYER_ID);
     }
   }, [map]);
 

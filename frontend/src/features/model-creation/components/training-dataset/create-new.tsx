@@ -11,6 +11,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { TileServiceType } from "@/enums";
 import { useTileservice } from "@/hooks/use-tileservice";
 import { NewTrainingDatasetForm } from "./training-dataset-form";
+import { getTileServerTypeFromURL } from "@/utils";
 
 const PREVIEW_TMS_SOURCE_ID = "preview-tms-source";
 const PREVIEW_TMS_LAYER_ID = "preview-tms-layer";
@@ -118,6 +119,10 @@ const CreateNewTrainingDatasetForm = () => {
           onSuccess={(data) => {
             handleChange(MODEL_CREATION_FORM_NAME.DATASET_NAME, data.name);
             handleChange(MODEL_CREATION_FORM_NAME.TMS_URL, data.source_imagery);
+            handleChange(
+              MODEL_CREATION_FORM_NAME.TILESERVICE_TYPE,
+              getTileServerTypeFromURL(data.source_imagery),
+            );
             handleChange(
               MODEL_CREATION_FORM_NAME.SELECTED_TRAINING_DATASET_ID,
               data.id,

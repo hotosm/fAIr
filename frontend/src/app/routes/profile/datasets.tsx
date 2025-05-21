@@ -65,6 +65,7 @@ export const UserProfileDatasetsPage = () => {
           datasets={data?.results as TTrainingDataset[]}
           isPending={isPending}
           refetch={refetch}
+          navigateOnClick
         />
       </div>
     </>

@@ -2,7 +2,6 @@ import { GoogleBasemapLayer } from "@/components/map/layers/google-basemap";
 import { ControlsPosition } from "@/enums";
 import { DrawingModes } from "@/enums";
 import { LngLatBoundsLike, Map } from "maplibre-gl";
-import { OpenAerialMap } from "@/components/map/layers/open-aerial-map";
 import { RefObject } from "react";
 import { TerraDraw } from "terra-draw";
 import { TileBoundaries } from "@/components/map/layers/tile-boundaries";
@@ -15,6 +14,7 @@ import {
   LayerControl,
   ZoomControls,
 } from "@/components/map/controls";
+import { TileServiceLayer } from "@/hooks/tile-service-layer";
 
 type MapComponentProps = {
   geolocationControl?: boolean;
@@ -28,13 +28,9 @@ type MapComponentProps = {
   }[];
   showTileBoundaries?: boolean;
   children?: React.ReactNode;
-  openAerialMap?: boolean;
-  oamTileJSONURL?: string;
   basemaps?: boolean;
   fitToBounds?: boolean;
   bounds?: LngLatBoundsLike;
-  // layers?: LayerSpecification[]
-  // sources?: { id: string; spec: SourceSpecification }[],
   onMapLoad?: (map: Map) => void;
   mapContainerRef?: RefObject<HTMLDivElement> | null;
   map: Map | null;
@@ -42,6 +38,8 @@ type MapComponentProps = {
   drawingMode?: DrawingModes;
   setDrawingMode?: (newMode: DrawingModes) => void;
   zoomControls?: boolean;
+  tileServiceURL?: string;
+  hasTileServiceLayer?: boolean;
 };
 
 export const MapComponent: React.FC<MapComponentProps> = ({
@@ -52,8 +50,6 @@ export const MapComponent: React.FC<MapComponentProps> = ({
   layerControl = false,
   layerControlLayers = [],
   showTileBoundaries = false,
-  openAerialMap = false,
-  oamTileJSONURL,
   basemaps = false,
   children,
   fitToBounds,
@@ -64,6 +60,8 @@ export const MapComponent: React.FC<MapComponentProps> = ({
   drawingMode,
   zoomControls = true,
   setDrawingMode,
+  tileServiceURL,
+  hasTileServiceLayer = false,
 }) => {
   return (
     <div className={`h-full relative w-full`} ref={mapContainerRef}>
@@ -100,7 +98,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
                 basemaps={basemaps}
                 layers={layerControlLayers}
                 map={map}
-                openAerialMap={openAerialMap}
+                hasTileServiceLayer={hasTileServiceLayer}
               />
             )}
           </div>
@@ -108,8 +106,8 @@ export const MapComponent: React.FC<MapComponentProps> = ({
       ) : null}
       {/* Order according to how they'll be rendered */}
       {basemaps && <GoogleBasemapLayer map={map} />}
-      {openAerialMap && oamTileJSONURL && (
-        <OpenAerialMap tileJSONURL={oamTileJSONURL} map={map} />
+      {tileServiceURL && (
+        <TileServiceLayer tileServiceURL={tileServiceURL} map={map} />
       )}
       {children}
       {showTileBoundaries && <TileBoundaries map={map} />}
