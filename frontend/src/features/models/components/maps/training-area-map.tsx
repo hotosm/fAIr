@@ -11,11 +11,7 @@ import {
   SourceSpecification,
 } from "maplibre-gl";
 
-import {
-  showErrorToast,
-  addLayers,
-  addSources,
-} from "@/utils";
+import { showErrorToast, addLayers, addSources } from "@/utils";
 import {
   TRAINING_AREAS_AOI_FILL_COLOR,
   TRAINING_AREAS_AOI_FILL_OPACITY,
@@ -169,15 +165,15 @@ export const TrainingAreaMap = ({
                         <table>
                             <tbody>
                                 ${Object.entries(feature.properties)
-            .map(
-              ([key, value]) => `
+                                  .map(
+                                    ([key, value]) => `
                                     <tr>
                                         <td class="text-grey">${key}</td>
                                         <td class="font-semibold text-dark">${typeof value === "boolean" ? JSON.stringify(value) : value}</td>
                                     </tr>
                                 `,
-            )
-            .join("")}
+                                  )
+                                  .join("")}
                             </tbody>
                         </table>
                     </div>

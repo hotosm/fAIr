@@ -81,15 +81,15 @@ export const FeedbacksMap: React.FC<ModelsMapProps> = ({
             layers={[
               ...(mapData && mapData?.features?.length > 0
                 ? [
-                  {
-                    value: "Feedbacks",
-                    subLayers: [
-                      MODEL_FEEDBACKS_FILL_LAYER_ID,
-                      MODEL_FEEDBACKS_OUTLINE_LAYER_ID,
-                      MODEL_FEEDBACKS_SYMBOL_LAYER_ID,
-                    ],
-                  },
-                ]
+                    {
+                      value: "Feedbacks",
+                      subLayers: [
+                        MODEL_FEEDBACKS_FILL_LAYER_ID,
+                        MODEL_FEEDBACKS_OUTLINE_LAYER_ID,
+                        MODEL_FEEDBACKS_SYMBOL_LAYER_ID,
+                      ],
+                    },
+                  ]
                 : []),
             ]}
             map={map}

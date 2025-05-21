@@ -201,14 +201,15 @@ export const useTileServiceLayer = ({
   }, [error]);
 
   const fitToBounds = () => {
-    if (!map || !tileJSONMetadata?.bounds) return;
+    if (!map) return;
     map?.resize();
+    if (!tileJSONMetadata?.bounds) return;
     map.fitBounds(tileJSONMetadata.bounds);
   };
 
   useEffect(() => {
     fitToBounds();
-  }, [tileJSONMetadata]);
+  }, [map, tileJSONMetadata]);
 
   const hasBounds = useMemo(() => {
     if (!tileJSONMetadata?.bounds) return false;

@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { extractTileJSONURL } from "@/utils";
 import { useGetTMSTileJSON } from "@/features/model-creation/hooks/use-tms-tilejson";
 
-
 type TrainingAreaDrawerProps = DialogProps & {
   trainingDataset: TTrainingDataset;
 };

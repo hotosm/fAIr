@@ -91,7 +91,6 @@ export const TrainingAreasLabelsLayers = ({
         },
         layout: { visibility: "visible" },
       });
-
     }
 
     if (!map.getLayer(trainingAreasLabelsOutlineLayerId)) {
@@ -106,7 +105,6 @@ export const TrainingAreasLabelsLayers = ({
         },
         layout: { visibility: "visible" },
       });
-
     }
   }, [map]);
 
