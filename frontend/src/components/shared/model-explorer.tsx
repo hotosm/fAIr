@@ -22,7 +22,6 @@ import {
   ModelListGridLayout,
   ModelListTableLayout,
 } from "@/features/models/layouts";
-import { USER_PROFILE_PAGE_CONTENT } from "@/constants/ui-contents/user-profile-content";
 import { AddIcon } from "@/components/ui/icons";
 import { ButtonWithIcon } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
