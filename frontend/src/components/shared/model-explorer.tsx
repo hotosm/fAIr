@@ -1,5 +1,4 @@
 import ModelNotFound from "@/features/models/components/model-not-found";
-import { Head } from "@/components/seo";
 import { LayoutToggle } from "@/features/models/components";
 import { LayoutView } from "@/enums";
 import { MobileModelFiltersDialog } from "@/features/models/components/dialogs";
@@ -95,7 +94,6 @@ export const ModelExplorer = ({
         updateQuery={updateQuery}
         disabled={isPending}
       />
-      <Head title={USER_PROFILE_PAGE_CONTENT.models.pageTitle} />
       <section className="min-h-screen gap-y-2 flex flex-col">
         <div className="flex justify-between items-center">
           <h1 className="font-bold text-title-3 md:text-title-2 self-start">
