@@ -253,6 +253,7 @@ export const TrainingAreaMap = ({
 
   return (
     <MapComponent
+      hasTileServiceLayer
       layerControl
       tileServiceURL={tmsURL}
       controlsPosition={ControlsPosition.TOP_LEFT}

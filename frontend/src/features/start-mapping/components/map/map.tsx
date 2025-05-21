@@ -162,14 +162,11 @@ export const StartMappingMapComponent = ({
       layerControl={!isSmallViewport}
       layerControlLayers={[
         ...layers,
-        ...(predictionImagerySource !== PredictionImagerySource.ModelDefault
-          ? [
-              {
-                value: "Prediction Imagery",
-                subLayers: [predictionImageryLayerId],
-              },
-            ]
-          : []),
+        {
+          value: "Prediction Imagery",
+          subLayers: [predictionImageryLayerId],
+        },
+
       ]}
       basemaps
       showCurrentZoom={!isSmallViewport}
