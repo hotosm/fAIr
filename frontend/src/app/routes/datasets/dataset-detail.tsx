@@ -1,4 +1,5 @@
 import { useAuth } from "@/app/providers/auth-provider";
+import { Head } from "@/components/seo";
 import { ModelExplorer } from "@/components/shared/model-explorer";
 import { BackButton, Button, ButtonWithIcon } from "@/components/ui/button";
 import { CopyButton } from "@/components/ui/copy-button";
@@ -74,6 +75,7 @@ export const TrainingDatasetsDetailPage = () => {
 
   return (
     <>
+      <Head title={`${data.name} Dataset`} />
       <DatasetEditDialog
         data={data}
         isOpened={isOpened}
