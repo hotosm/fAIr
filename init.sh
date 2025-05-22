@@ -6,7 +6,7 @@ set -e
 # ----------------------------------------
 
 # Use provided or fallback to sensible defaults
-RAMP_HOME=${RAMP_HOME:-$(pwd)/../ramp}
+RAMP_HOME=${RAMP_HOME:-$(pwd)/ramp}
 TRAINING_WORKSPACE=${TRAINING_WORKSPACE:-$(pwd)/trainings}
 RAMP_CODE_DIR="${RAMP_HOME}/ramp-code"
 CHECKPOINT_DIR="${RAMP_CODE_DIR}/ramp"

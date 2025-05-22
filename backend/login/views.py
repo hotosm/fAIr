@@ -43,7 +43,7 @@ class login(APIView):
             json: login_url
         """
         login_url = osm_auth.login()
-        return JsonResponse(json.loads(login_url))
+        return JsonResponse(login_url)
 
 
 class callback(APIView):
@@ -59,7 +59,7 @@ class callback(APIView):
         # Generating token through osm_auth library method
         uri = request.build_absolute_uri()
         token = osm_auth.callback(uri)
-        return JsonResponse(json.loads(token))
+        return JsonResponse(token)
 
 
 class GetMyData(APIView):

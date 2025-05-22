@@ -5,7 +5,7 @@
 ## docker run --env-file .env --rm -p 8000:8000 -v $(pwd):/app/code --name fair-api-container fair-api
 
 ## in order to access localhost port to your system from docker env you might wanna use : host.docker.internal or ip 
-FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS builder
+FROM ghcr.io/astral-sh/uv:python3.11-bookworm-slim AS builder
 
 # Configure uv settings
 ENV UV_COMPILE_BYTECODE=1
@@ -36,7 +36,7 @@ COPY core /app/core
 COPY login /app/login
 
 
-FROM python:3.12-slim-bookworm
+FROM python:3.11-slim-bookworm
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gdal-bin \

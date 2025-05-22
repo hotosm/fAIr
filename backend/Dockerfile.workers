@@ -1,6 +1,12 @@
 ARG BUILD_TYPE=cpu
 
-FROM ghcr.io/kshitijrajsharma/ramp-code-fair:latest-${BUILD_TYPE}  AS builder
+FROM ghcr.io/hotosm/ramp-code-fair:latest-${BUILD_TYPE}  AS builder
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libspatialindex-dev \
+    python3-rtree \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*  
 
 RUN pip install --no-cache-dir uv
 
@@ -13,9 +19,10 @@ WORKDIR /app
 COPY pyproject.toml uv.lock manage.py /app/
 
 # Resolve deps and install globally
-RUN uv pip compile pyproject.toml -o requirements.txt --group workers --python-version=3.10 \
+RUN uv pip compile --python-version=3.10  pyproject.toml -o requirements.txt --group api --group base-workers --group ramp-workers  \
     && pip install -r requirements.txt
 
+# COPY requirements.txt /app/
 COPY aiproject /app/aiproject
 COPY core /app/core
 COPY login /app/login

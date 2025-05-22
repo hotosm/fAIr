@@ -34,7 +34,8 @@ from login.permissions import (
     IsOwnerOrReadOnly,
     IsStaffUser,
 )
-from osmconflator import conflate_geojson
+
+# from osmconflator import conflate_geojson
 from rest_framework import decorators, filters, serializers, status, viewsets
 from rest_framework.decorators import api_view
 from rest_framework.exceptions import ValidationError

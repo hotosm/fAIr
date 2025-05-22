@@ -26,13 +26,15 @@ services:
       context: ./backend
       dockerfile: Dockerfile.API
     container_name: api
-    command: python manage.py runserver 0.0.0.0:8000
+    command: python manage.py runserver_with_q 0.0.0.0:8000
     env_file:
       - ./backend/.env
     ports:
       - 8000:8000
     volumes:
-      # - ./backend:/app
+      - ./backend/core:/app/core
+      - ./backend/login:/app/login
+      - ./backend/aiproject:/app/aiproject
       - ${RAMP_HOME}:/RAMP_HOME
       - ${TRAINING_WORKSPACE}:/TRAINING_WORKSPACE
     depends_on:
@@ -44,6 +46,9 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile.workers
+      args:
+        - NVIDIA_VISIBLE_DEVICES=all
+        - BUILD_TYPE=gpu
     container_name: worker
     command: celery -A aiproject worker --loglevel=INFO --concurrency=1 -Q ramp_training,yolo_training
     env_file:
@@ -55,7 +60,9 @@ services:
             - driver: nvidia
               capabilities: [gpu]
     volumes:
-      # - ./backend:/app
+      - ./backend/core:/app/core
+      - ./backend/login:/app/login
+
       - ${RAMP_HOME}:/RAMP_HOME
       - ${TRAINING_WORKSPACE}:/TRAINING_WORKSPACE
     depends_on:
