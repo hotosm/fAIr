@@ -10,6 +10,10 @@ from contextlib import contextmanager
 from datetime import datetime
 
 from celery import shared_task
+from django.conf import settings
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
+
 from core.models import (
     AOI,
     FeedbackAOI,
@@ -26,9 +30,6 @@ from core.serializers import (
     LabelFileSerializer,
 )
 from core.utils import bbox, is_dir_empty
-from django.conf import settings
-from django.shortcuts import get_object_or_404
-from django.utils import timezone
 
 from .utils import (
     S3Uploader,
@@ -37,6 +38,7 @@ from .utils import (
     safe_copytree,
     safe_rmtree,
     send_notification,
+    setup_ramp,
     shift_labels_by_offset,
     write_json,
     xz_folder,
@@ -225,6 +227,7 @@ class Trainer:
         from hot_fair_utilities import preprocess
         from hot_fair_utilities.training.ramp import train
 
+        setup_ramp()
         (
             inst,
             dataset_id,
