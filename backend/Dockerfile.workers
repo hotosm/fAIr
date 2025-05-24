@@ -19,11 +19,11 @@ COPY aiproject /app/aiproject
 COPY core /app/core
 COPY login /app/login
 
-FROM ghcr.io/hotosm/ramp-code-fair:latest-${BUILD_TYPE} AS final
+# FROM ghcr.io/hotosm/ramp-code-fair:latest-${BUILD_TYPE} AS final
 
-COPY --from=builder /usr/local/bin/ /usr/local/bin/
-COPY --from=builder /usr/local/lib/python3.10/dist-packages /usr/local/lib/python3.10/dist-packages
-COPY --from=builder /app /app
+# COPY --from=builder /usr/local/bin/ /usr/local/bin/
+# COPY --from=builder /usr/local/lib/python3.10/dist-packages /usr/local/lib/python3.10/dist-packages
+# COPY --from=builder /app /app
 
 EXPOSE 8080
 
