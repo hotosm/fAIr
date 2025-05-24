@@ -2,11 +2,6 @@ ARG BUILD_TYPE=cpu
 
 FROM ghcr.io/hotosm/ramp-code-fair:latest-${BUILD_TYPE}  AS builder
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libspatialindex-dev \
-    python3-rtree \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*  
 
 RUN pip install --no-cache-dir uv
 

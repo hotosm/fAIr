@@ -227,7 +227,7 @@ class Trainer:
         import tensorflow as tf
         from hot_fair_utilities import preprocess
         from hot_fair_utilities.training.ramp import train
-
+        tf.config.optimizer.set_jit(False)  # Disable XLA for RAMP training , bug in tensorflow 2.9.2
         setup_ramp()
         (
             inst,
