@@ -224,10 +224,14 @@ class Trainer:
         }
 
     def _train_ramp(self, output_path):
+        os.environ['TF_XLA_FLAGS'] = '--tf_xla_auto_jit=-1'
         import tensorflow as tf
         from hot_fair_utilities import preprocess
         from hot_fair_utilities.training.ramp import train
-        tf.config.optimizer.set_jit(False)  # Disable XLA for RAMP training , bug in tensorflow 2.9.2
+        tf.config.optimizer.set_jit(False)  # Disable XLA for RAMP training , bug in tensorflow 2.9.*
+        
+        # os.environ["TF_XLA_FLAGS"] = "--tf_xla_auto_jit=-1"
+        
         setup_ramp()
         (
             inst,

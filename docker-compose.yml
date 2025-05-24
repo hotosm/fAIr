@@ -75,7 +75,7 @@ services:
         - BUILD_TYPE=gpu
     platform: linux/amd64
     container_name: worker-gpu
-    command: celery -A aiproject worker --loglevel=INFO --concurrency=1 -Q ramp_training,yolo_training
+    command: celery -A aiproject worker --loglevel=INFO --concurrency=1 -Q ramp_training,yolo_training --pool=solo
     env_file:
       - ./backend/.env
     deploy:
