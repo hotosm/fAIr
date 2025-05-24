@@ -57,6 +57,7 @@ OSM_SECRET_KEY = env("OSM_SECRET_KEY")
 
 
 # S3
+USE_S3_TO_UPLOAD_MODELS = env("USE_S3_TO_UPLOAD_MODELS", default=False)
 BUCKET_NAME = env("BUCKET_NAME", default="fair-dev")
 PARENT_BUCKET_FOLDER = env(
     "PARENT_BUCKET_FOLDER", default="dev"

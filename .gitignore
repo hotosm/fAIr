@@ -51,4 +51,7 @@ backend/.env
 backend/config.txt
 backend/postgres-data
 
+ramp
+trainings
+fAIr-utilities
 **/.DS_Store

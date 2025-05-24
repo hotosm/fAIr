@@ -396,7 +396,8 @@ def finalize(inst, out, prep, acc):
     for f in ["aois.geojson", "labels.geojson"]:
         copyfile(os.path.join(out, f), os.path.join(prep, f))
     xz_folder(prep, os.path.join(out, "preprocessed.tar.xz"), remove_original=True)
-    upload_to_s3(out, parent=f"{settings.PARENT_BUCKET_FOLDER}/training_{inst.id}")
+    if settings.USE_S3_TO_UPLOAD_MODELS:
+        upload_to_s3(out, parent=f"{settings.PARENT_BUCKET_FOLDER}/training_{inst.id}")
     inst.accuracy = float(acc)
     inst.finished_at = timezone.now()
     inst.status = "FINISHED"
@@ -532,9 +533,10 @@ def predict_area(prediction_request_id):
                 predictions,
             )
             run_tippecanoe(out)
-            upload_to_s3(
-                out, parent=f"{settings.PARENT_BUCKET_FOLDER}/prediction_{inst.id}"
-            )
+            if settings.USE_S3_TO_UPLOAD_MODELS:
+                upload_to_s3(
+                    out, parent=f"{settings.PARENT_BUCKET_FOLDER}/prediction_{inst.id}"
+                )
             inst.status, inst.finished_at = "FINISHED", timezone.now()
             inst.save()
     except Exception as ex:
