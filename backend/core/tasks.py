@@ -526,6 +526,13 @@ def predict_area(prediction_request_id):
                 predict_area.request.id,
             )
             inst.save()
+            if not inst.config.get("bbox"):
+                inst.config["bbox"] = [
+                    0,
+                    0,
+                    0,
+                    0,
+                ]  # add default bbox to pass through validation , TODO : Fix this , improve the pydantic model at fairpredictor side
             params = PredictionRequest(**inst.config)
             predictions = asyncio.run(
                 predict(
