@@ -12,16 +12,18 @@ ENV UV_COMPILE_BYTECODE=1 \
 WORKDIR /app
 
 COPY pyproject.toml uv.lock manage.py /app/
+RUN uv pip compile --python-version=3.10  pyproject.toml -o requirements.txt --group api --group base-workers --group ramp-workers \
+    && pip install --no-cache-dir -r requirements.txt
 
-# Resolve deps and install globally
-RUN uv pip compile --python-version=3.10  pyproject.toml -o requirements.txt --group api --group base-workers --group ramp-workers  \
-    && pip install -r requirements.txt
-
-# COPY requirements.txt /app/
 COPY aiproject /app/aiproject
 COPY core /app/core
 COPY login /app/login
 
+FROM ghcr.io/hotosm/ramp-code-fair:latest-${BUILD_TYPE} AS final
+
+COPY --from=builder /usr/local/bin/ /usr/local/bin/
+COPY --from=builder /usr/local/lib/python3.10/dist-packages /usr/local/lib/python3.10/dist-packages
+COPY --from=builder /app /app
 
 EXPOSE 8080
 
