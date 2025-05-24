@@ -544,7 +544,7 @@ def predict_area(prediction_request_id):
             inst.status, inst.finished_at = "FINISHED", timezone.now()
             inst.save()
     except Exception as ex:
-        logger.exception("Training failed")
+        logger.exception("Prediction failed")
         inst.status, inst.finished_at = "FAILED", timezone.now()
         inst.save()
         # send_notification(inst, "Failed")
