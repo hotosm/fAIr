@@ -5,8 +5,15 @@ import { SlCheckbox } from "@shoelace-style/shoelace/dist/react";
 import { SlDropdown } from "@shoelace-style/shoelace/dist/react";
 import { SlMenu } from "@shoelace-style/shoelace/dist/react";
 import { SlMenuItem } from "@shoelace-style/shoelace/dist/react";
-import { useEffect, useState } from "react";
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
 import "./dropdown.css";
+import { SlDropdownType } from "@/types";
 
 export type DropdownMenuItem = {
   value: string;
@@ -23,38 +30,37 @@ type DropDownProps = {
   onDropdownShow?: (event: React.MouseEvent<HTMLDivElement>) => void;
   onDropdownHide?: (event: React.MouseEvent<HTMLDivElement>) => void;
   menuItems?: DropdownMenuItem[];
-  dropdownIsOpened: boolean;
   className?: string;
   handleMenuSelection?: (selectedItems?: string[] | any) => void;
   disabled?: boolean;
   withCheckbox?: boolean;
   defaultSelectedItems?: string[];
   defaultSelectedItem?: string;
-
   multiSelect?: boolean;
   triggerComponent: React.ReactNode;
   distance?: number;
   disableCheveronIcon?: boolean;
 };
 
-const DropDown: React.FC<DropDownProps> = ({
-  children,
-  menuItems,
-  placement = DropdownPlacement.BOTTOM_START,
-  onDropdownHide,
-  onDropdownShow,
-  dropdownIsOpened,
-  className,
-  handleMenuSelection,
-  disabled = false,
-  withCheckbox = false,
-  defaultSelectedItems = [],
-  defaultSelectedItem = "",
-  multiSelect = false,
-  triggerComponent,
-  distance = 20,
-  disableCheveronIcon = false,
-}) => {
+const DropDown = forwardRef<SlDropdownType, DropDownProps>((props, ref) => {
+  const {
+    children,
+    menuItems,
+    placement = DropdownPlacement.BOTTOM_START,
+    onDropdownHide,
+    onDropdownShow,
+    className,
+    handleMenuSelection,
+    disabled = false,
+    withCheckbox = false,
+    defaultSelectedItems = [],
+    defaultSelectedItem = "",
+    multiSelect = false,
+    triggerComponent,
+    distance = 20,
+    disableCheveronIcon = false,
+  } = props;
+
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [selectedItem, setSelectedItem] = useState<string>("");
 
@@ -95,21 +101,29 @@ const DropDown: React.FC<DropDownProps> = ({
     }
   };
 
+  const dropdownRef = useRef<SlDropdownType>(null);
+
+  useImperativeHandle(ref, () => dropdownRef.current as SlDropdownType);
+
   return (
     <SlDropdown
+      ref={dropdownRef}
       placement={placement}
-      onSlAfterShow={() => {
-        // @ts-expect-error bad type definition
-        if (!disabled) onDropdownShow?.();
+      onSlAfterShow={(event: CustomEvent) => {
+        if (!disabled && event.target === event.currentTarget) {
+          // @ts-expect-error bad type definition
+          onDropdownShow?.();
+        }
       }}
-      onSlAfterHide={() => {
-        // @ts-expect-error bad type definition
-        if (!disabled) onDropdownHide?.();
+      onSlAfterHide={(event: CustomEvent) => {
+        if (!disabled && event.target === event.currentTarget) {
+          // @ts-expect-error bad type definition
+          onDropdownHide?.();
+        }
       }}
       className={className}
       disabled={disabled}
       distance={distance}
-      open={dropdownIsOpened}
       stayOpenOnSelect={withCheckbox} // when selecting a single item, we can close the dropdown after selection.
     >
       <div
@@ -119,9 +133,7 @@ const DropDown: React.FC<DropDownProps> = ({
         {triggerComponent}
         {!disableCheveronIcon && (
           <ChevronDownIcon
-            className={cn(
-              `w-3 h-3 text-dark  ml-2 transition-all ${dropdownIsOpened && "rotate-180"}`,
-            )}
+            className={cn("w-3 h-3 text-dark  ml-2 transition-all")}
           />
         )}
       </div>
@@ -161,6 +173,7 @@ const DropDown: React.FC<DropDownProps> = ({
       </div>
     </SlDropdown>
   );
-};
+});
 
+DropDown.displayName = "DropDown";
 export default DropDown;

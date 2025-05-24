@@ -4,7 +4,6 @@ import { DropDown } from "@/components/ui/dropdown";
 import { LayerStackIcon } from "@/components/ui/icons";
 import { Map } from "maplibre-gl";
 import { ToolTip } from "@/components/ui/tooltip";
-import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { useEffect, useMemo, useState } from "react";
 import {
   GOOGLE_SATELLITE_BASEMAP_LAYER_ID,
@@ -20,20 +19,19 @@ export const LayerControl = ({
   layers,
   basemaps = true,
   openAerialMap = false,
+  rounded = false,
 }: {
   map: Map | null;
   layers: TLayers;
   basemaps?: boolean;
   openAerialMap?: boolean;
+  rounded?: boolean;
 }) => {
-  const { dropdownIsOpened, onDropdownHide, onDropdownShow } =
-    useDropdownMenu();
-
   const layerControlData = useMemo(() => {
     const layers_ = [
       ...layers,
       ...(openAerialMap
-        ? [{ value: "TMS Layer", subLayers: [TMS_LAYER_ID] }]
+        ? [{ value: "Source Imagery", subLayers: [TMS_LAYER_ID] }]
         : []),
     ];
     const baseLayers: TBasemaps = basemaps
@@ -128,13 +126,10 @@ export const LayerControl = ({
   return (
     <ToolTip content="Layer Control" placement={ToolTipPlacement.BOTTOM}>
       <DropDown
-        dropdownIsOpened={dropdownIsOpened}
-        onDropdownHide={onDropdownHide}
-        onDropdownShow={onDropdownShow}
         disableCheveronIcon
         triggerComponent={
           <div
-            className={`bg-white p-2.5 border border-gray-border md:border-0 relative rounded-xl`}
+            className={`bg-white p-1.5 border border-gray-border md:border-0 relative ${rounded && "rounded-lg"}`}
           >
             <LayerStackIcon className="icon-lg" />
           </div>

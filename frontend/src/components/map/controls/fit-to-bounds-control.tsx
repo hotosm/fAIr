@@ -8,9 +8,13 @@ import { useCallback } from "react";
 export const FitToBounds = ({
   map,
   bounds,
+  mobileClassName = "p-2.5 border border-gray-border md:border-0",
+  rounded = true,
 }: {
   map: Map | null;
   bounds: any;
+  mobileClassName?: string;
+  rounded?: boolean;
 }) => {
   const { isSmallViewport } = useScreenSize();
 
@@ -22,7 +26,11 @@ export const FitToBounds = ({
   return (
     <ToolTip content={MAP_CONTENT.controls.fitToBounds.tooltip}>
       <button
-        className={`bg-white  ${isSmallViewport ? "rounded-xl p-2.5 border border-gray-border md:border-0" : "p-1.5"}`}
+        className={`bg-white ${
+          isSmallViewport
+            ? `${mobileClassName} ${rounded ? "rounded-xl" : ""}`
+            : "p-1.5"
+        }`}
         onClick={fitToBounds}
       >
         <ArrowMoveIcon className="icon-lg" />

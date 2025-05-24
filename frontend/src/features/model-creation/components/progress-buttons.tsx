@@ -1,6 +1,6 @@
 import { ButtonWithIcon } from "@/components/ui/button";
 import { ChevronDownIcon } from "@/components/ui/icons";
-import { MODELS_BASE, MODELS_ROUTES } from "@/constants";
+import { MODELS_ROUTES } from "@/constants";
 import { MODELS_CONTENT } from "@/constants";
 import { ButtonVariant, TrainingDatasetOption } from "@/enums";
 import { useMemo } from "react";
@@ -30,8 +30,7 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
     hasAOIsWithGeometry,
     getFullPath,
     handleModelCreationAndUpdate,
-    handleTrainingDatasetCreation,
-    trainingDatasetCreationInProgress,
+    modelCreationOrUpdateInProgress,
     isEditMode,
     isModelOwner,
   } = useModelsContext();
@@ -39,12 +38,8 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
   const nextPage = () => {
     const nextRoute = getFullPath(pages[currentPageIndex + 1].path);
     if (currentPath.includes(MODELS_ROUTES.TRAINING_DATASET)) {
-      if (formData.trainingDatasetOption === TrainingDatasetOption.CREATE_NEW) {
-        handleTrainingDatasetCreation();
-      } else {
-        if (currentPageIndex < pages.length - 1) {
-          navigate(nextRoute);
-        }
+      if (currentPageIndex < pages.length - 1) {
+        navigate(nextRoute);
       }
     } else if (currentPath.includes(MODELS_ROUTES.MODEL_SUMMARY)) {
       handleModelCreationAndUpdate();
@@ -56,13 +51,7 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
   };
 
   const prevPage = () => {
-    if (currentPageIndex > 0) {
-      if (currentPath.includes(MODELS_ROUTES.DETAILS)) {
-        navigate(MODELS_BASE);
-      } else {
-        navigate(-1);
-      }
-    }
+    navigate(-1);
   };
 
   const canProceedToNextPage = useMemo(() => {
@@ -80,15 +69,12 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
       );
     } else if (currentPath.includes(MODELS_ROUTES.TRAINING_DATASET)) {
       if (formData.trainingDatasetOption === TrainingDatasetOption.CREATE_NEW) {
-        // If the form submission is in progress or if any error disable the continue button.
-        if (trainingDatasetCreationInProgress) {
-          return true;
-        }
         return (
-          formData.tmsURLValidation.valid &&
-          formData.datasetName.length >=
+          formData.datasetName.length > 0 &&
+          formData.tmsURL.length >=
             FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.DATASET_NAME]
-              .minLength
+              .minLength &&
+          formData.selectedTrainingDatasetId
         );
       } else if (
         formData.trainingDatasetOption === TrainingDatasetOption.USE_EXISTING
@@ -132,14 +118,14 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
         variant={ButtonVariant.PRIMARY}
         suffixIcon={ChevronDownIcon}
         label={
-          trainingDatasetCreationInProgress
+          modelCreationOrUpdateInProgress
             ? "Loading..."
             : currentPath.includes(MODELS_ROUTES.MODEL_SUMMARY)
               ? "Submit"
               : MODELS_CONTENT.modelCreation.progressButtons.continue
         }
         iconClassName="-rotate-90"
-        disabled={!canProceedToNextPage}
+        disabled={!canProceedToNextPage || modelCreationOrUpdateInProgress}
         onClick={nextPage}
       />
     </div>

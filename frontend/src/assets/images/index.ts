@@ -10,3 +10,4 @@ export { default as FairModelPlaceholderImage } from "@/assets/images/model_plac
 export { default as TrainingInProgressImage } from "@/assets/images/training_in_progress.png";
 export { default as fAIrLogo } from "@/assets/images/fAIr_logo.png";
 export { default as OSMLogo } from "@/assets/images/osm_logo.png";
+export { default as CommentIcon } from "@/assets/images/comment_icon.png";

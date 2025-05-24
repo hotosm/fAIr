@@ -16,7 +16,7 @@ const ZoomButton = ({
 }) => (
   <button className={cn(`p-2 bg-white `)} onClick={onClick} disabled={disabled}>
     <span
-      className={`map-icon border-[2px] ${disabled ? "border-gray-border text-grey-border  cursor-not-allowed" : "text-dark border-dark"} text-lg inline-flex items-center justify-center rounded-[4px]`}
+      className={`map-icon border-[2px] ${disabled ? "border-gray-border text-gray-border  cursor-not-allowed" : "text-dark border-dark"} text-lg inline-flex items-center justify-center rounded-[4px]`}
     >
       {icon}
     </span>

@@ -52,7 +52,7 @@ const router = createBrowserRouter([
         },
       },
       /**
-       * Models details & list route starts.
+       * Models details, list and feedbacks route starts.
        */
       {
         path: APPLICATION_ROUTES.MODEL_DETAILS,
@@ -63,8 +63,23 @@ const router = createBrowserRouter([
           return {
             Component: () => (
               <ModelsProvider>
-                {" "}
                 <ModelDetailsPage />
+              </ModelsProvider>
+            ),
+          };
+        },
+      },
+
+      {
+        path: APPLICATION_ROUTES.MODEL_FEEDBACKS,
+        lazy: async () => {
+          const { ModelFeedbacksPage } = await import(
+            "@/app/routes/models/feedbacks"
+          );
+          return {
+            Component: () => (
+              <ModelsProvider>
+                <ModelFeedbacksPage />
               </ModelsProvider>
             ),
           };
@@ -82,7 +97,7 @@ const router = createBrowserRouter([
         },
       },
       /**
-       * Models details & list route ends.
+       *  Models details, list and feedbacks route ends.
        */
       {
         element: (

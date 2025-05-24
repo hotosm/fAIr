@@ -102,7 +102,7 @@ export const ModelFormsLayout = () => {
             </div>
 
             <div
-              className={`col-span-12 mb-24  bg-white rounded-xl shadow-sm p-6 border border-gray-border ${pathname.includes(MODELS_ROUTES.TRAINING_AREA) || pathname.includes(MODELS_ROUTES.TRAINING_DATASET) ? "" : " xl:col-start-2 xl:col-span-10 2xl:col-start-4 2xl:col-span-6"}`}
+              className={`col-span-12 mb-48  bg-white rounded-xl shadow-sm p-6 border border-gray-border ${pathname.includes(MODELS_ROUTES.TRAINING_AREA) || pathname.includes(MODELS_ROUTES.TRAINING_DATASET) ? "" : " xl:col-start-2 xl:col-span-10 2xl:col-start-4 2xl:col-span-6"}`}
             >
               <Outlet />
             </div>

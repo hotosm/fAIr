@@ -1,7 +1,7 @@
 import { Feature } from "geojson";
 import { describe, expect, it } from "vitest";
 
-import { TModelPredictions, TModelPredictionsConfig } from "@/types";
+import { TModelPredictionFeature, TModelPredictionsConfig } from "@/types";
 
 import {
   calculateGeoJSONArea,
@@ -11,6 +11,7 @@ import {
   handleConflation,
 } from "@/utils";
 import { LngLatBoundsLike } from "maplibre-gl";
+import { PredictedFeatureStatus } from "@/enums/start-mapping";
 
 const predictionConfig: TModelPredictionsConfig = {
   area_threshold: 6,
@@ -74,13 +75,11 @@ describe("geometry-utils", () => {
     const result = getGeoJSONFeatureBounds(feature);
     expect(result).toEqual([-10, -10, 10, 10]);
   });
+});
 
-  it("should handle conflation of new features with existing predictions", () => {
-    const existingPredictions = {
-      all: [],
-      accepted: [],
-      rejected: [],
-    };
+describe("handleConflation", () => {
+  it("should add a new untouched feature", () => {
+    const existingFeatures: TModelPredictionFeature[] = [];
     const newFeatures: Feature[] = [
       {
         type: "Feature",
@@ -100,35 +99,37 @@ describe("geometry-utils", () => {
     ];
 
     const result = handleConflation(
-      existingPredictions,
+      existingFeatures,
       newFeatures,
       predictionConfig,
     );
-    expect(result.all.length).toBe(1);
+    expect(result.length).toBe(1);
+    expect(result[0].properties.status).toBe("untouched");
   });
 
-  it("should replace existing feature if it intersects with new feature", () => {
-    const existingPredictions = {
-      all: [
-        {
-          type: "Feature",
-          geometry: {
-            type: "Polygon",
-            coordinates: [
-              [
-                [15, 15],
-                [25, 25],
-                [35, 35],
-                [15, 15],
-              ],
+  it("should replace an intersecting untouched feature", () => {
+    const existingFeatures: TModelPredictionFeature[] = [
+      {
+        type: "Feature",
+        geometry: {
+          type: "Polygon",
+          coordinates: [
+            [
+              [15, 15],
+              [25, 25],
+              [35, 35],
+              [15, 15],
             ],
-          },
-          properties: { config: predictionConfig, _id: "existing" },
+          ],
         },
-      ],
-      accepted: [],
-      rejected: [],
-    } as TModelPredictions;
+        properties: {
+          config: predictionConfig,
+          status: PredictedFeatureStatus.UNTOUCHED,
+          id: "old-id",
+        },
+      },
+    ];
+
     const newFeatures: Feature[] = [
       {
         type: "Feature",
@@ -148,154 +149,87 @@ describe("geometry-utils", () => {
     ];
 
     const result = handleConflation(
-      existingPredictions,
+      existingFeatures,
       newFeatures,
       predictionConfig,
     );
-    expect(result.all.length).toBe(1);
-    expect(result.all[0].properties?._id).not.toBe("existing");
+    expect(result.length).toBe(1);
+    expect(result[0].properties.status).toBe("untouched");
+    expect(result[0].properties.id).toBe("old-id"); // replaced by id
   });
 
-  it("should replace the correct feature if multiple features intersect", () => {
-    const existingPredictions = {
-      all: [
-        {
-          type: "Feature",
-          geometry: {
-            type: "Polygon",
-            coordinates: [
-              [
-                [5, 5],
-                [15, 5],
-                [15, 15],
-                [5, 15],
-                [5, 5],
-              ],
-            ],
-          },
-          properties: { _id: "existing1", config: predictionConfig },
-        },
-        {
-          type: "Feature",
-          geometry: {
-            type: "Polygon",
-            coordinates: [
-              [
-                [20, 20],
-                [30, 20],
-                [30, 30],
-                [20, 30],
-                [20, 20],
-              ],
-            ],
-          },
-          properties: { _id: "existing2", config: predictionConfig },
-        },
-      ],
-      accepted: [],
-      rejected: [],
-    } as TModelPredictions;
-    const newFeatures: Feature[] = [
+  it("should discard a feature intersecting accepted", () => {
+    const existingFeatures: TModelPredictionFeature[] = [
       {
         type: "Feature",
         geometry: {
           type: "Polygon",
           coordinates: [
             [
+              [10, 10],
               [20, 20],
-              [30, 20],
               [30, 30],
-              [20, 30],
+              [10, 10],
+            ],
+          ],
+        },
+        properties: {
+          config: predictionConfig,
+          status: PredictedFeatureStatus.ACCEPTED,
+          id: "accepted-id",
+        },
+      },
+    ];
+
+    const newFeatures: Feature[] = [
+      {
+        type: "Feature",
+        geometry: {
+          type: "Polygon",
+          coordinates: [
+            [
+              [15, 15],
+              [25, 25],
+              [35, 35],
+              [15, 15],
+            ],
+          ],
+        },
+        properties: {},
+      },
+    ];
+
+    const result = handleConflation(
+      existingFeatures,
+      newFeatures,
+      predictionConfig,
+    );
+    expect(result.length).toBe(1); // only the accepted one remains
+    expect(result[0].properties.id).toBe("accepted-id");
+  });
+
+  it("should discard a feature intersecting rejected", () => {
+    const existingFeatures: TModelPredictionFeature[] = [
+      {
+        type: "Feature",
+        geometry: {
+          type: "Polygon",
+          coordinates: [
+            [
+              [10, 10],
               [20, 20],
+              [30, 30],
+              [10, 10],
             ],
           ],
         },
-        properties: {},
+        properties: {
+          config: predictionConfig,
+          status: PredictedFeatureStatus.REJECTED,
+          id: "rejected-id",
+        },
       },
     ];
-
-    const result = handleConflation(
-      existingPredictions,
-      newFeatures,
-      predictionConfig,
-    );
-    expect(result.all.length).toBe(2);
-    expect(result.all[1].properties?._id).not.toBe("existing2");
-    expect(result.all[0].properties?._id).toBe("existing1");
-  });
-
-  it("should not add new feature if it intersects with accepted feature", () => {
-    const existingPredictions = {
-      all: [],
-      accepted: [
-        {
-          type: "Feature",
-          geometry: {
-            type: "Polygon",
-            coordinates: [
-              [
-                [10, 10],
-                [20, 20],
-                [30, 30],
-                [10, 10],
-              ],
-            ],
-          },
-          properties: { config: predictionConfig },
-        },
-      ],
-      rejected: [],
-    } as TModelPredictions;
-    const newFeatures: Feature[] = [
-      {
-        type: "Feature",
-        geometry: {
-          type: "Polygon",
-          coordinates: [
-            [
-              [15, 15],
-              [25, 25],
-              [35, 35],
-              [15, 15],
-            ],
-          ],
-        },
-        properties: {},
-      },
-    ];
-
-    const result = handleConflation(
-      existingPredictions,
-      newFeatures,
-      predictionConfig,
-    );
-    expect(result.all.length).toBe(0);
-    expect(result.accepted.length).toBe(1);
-    expect(result.rejected.length).toBe(0);
-  });
-
-  it("should not add new feature if it intersects with rejected feature", () => {
-    const existingPredictions = {
-      all: [],
-      accepted: [],
-      rejected: [
-        {
-          type: "Feature",
-          geometry: {
-            type: "Polygon",
-            coordinates: [
-              [
-                [10, 10],
-                [20, 20],
-                [30, 30],
-                [10, 10],
-              ],
-            ],
-          },
-          properties: { config: predictionConfig },
-        },
-      ],
-    } as TModelPredictions;
 
     const newFeatures: Feature[] = [
       {
@@ -316,13 +250,57 @@ describe("geometry-utils", () => {
     ];
 
     const result = handleConflation(
-      existingPredictions,
+      existingFeatures,
       newFeatures,
       predictionConfig,
     );
-    expect(result.all.length).toBe(0);
-    expect(result.rejected.length).toBe(1);
-    expect(result.accepted.length).toBe(0);
+    expect(result.length).toBe(1); // only the rejected one remains
+    expect(result[0].properties.id).toBe("rejected-id");
+  });
+
+  it("should allow overlapping new features", () => {
+    const existingFeatures: TModelPredictionFeature[] = [];
+
+    const newFeatures: Feature[] = [
+      {
+        type: "Feature",
+        geometry: {
+          type: "Polygon",
+          coordinates: [
+            [
+              [10, 10],
+              [20, 20],
+              [30, 30],
+              [10, 10],
+            ],
+          ],
+        },
+        properties: {},
+      },
+      {
+        type: "Feature",
+        geometry: {
+          type: "Polygon",
+          coordinates: [
+            [
+              [15, 15],
+              [25, 25],
+              [35, 35],
+              [15, 15],
+            ],
+          ],
+        },
+        properties: {},
+      },
+    ];
+
+    const result = handleConflation(
+      existingFeatures,
+      newFeatures,
+      predictionConfig,
+    );
+    expect(result.length).toBe(2);
+    expect(result.every((f) => f.properties.status === "untouched")).toBe(true);
   });
 });
 

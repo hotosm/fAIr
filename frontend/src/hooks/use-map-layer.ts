@@ -29,15 +29,6 @@ export const useMapLayers = (
 };
 /**
  * Custom hook to manage dynamic map layers.
- * @param map
- * @param sourceId
- * @param layerId
- * @param sourceSpec
- * @param layerSpec
- * @param dependencies
- * @param enabled
- * @param belowLayerIds
- * @returns
  */
 export const useDynamicMapLayer = (
   map: Map | null,
@@ -50,34 +41,29 @@ export const useDynamicMapLayer = (
   belowLayerIds: string[] = [],
 ) => {
   useEffect(() => {
-    if (!map || !sourceSpec || !layerSpec || !enabled) return;
+    if (!map || !sourceSpec || !layerSpec || !enabled || !map.getStyle())
+      return;
 
-    const addOrUpdateLayer = async () => {
-      const existingSource = map.getSource(sourceId);
-      if (!existingSource) {
-        map.addSource(sourceId, sourceSpec);
-      }
+    if (map.getLayer(layerId)) {
+      map.removeLayer(layerId);
+    }
+    if (map.getSource(sourceId)) {
+      map.removeSource(sourceId);
+    }
 
-      if (!map.getLayer(layerId)) {
-        belowLayerIds.forEach((id) => {
-          if (map.getLayer(id)) {
-            map.moveLayer(id);
-          }
-        });
-        const insertBeforeLayerId = belowLayerIds.find((id) =>
-          map.getLayer(id),
-        );
-        map.addLayer(layerSpec, insertBeforeLayerId || undefined);
-      } else {
-        map.setLayoutProperty(layerId, "visibility", "visible");
-      }
-    };
+    map.addSource(sourceId, sourceSpec);
 
-    addOrUpdateLayer();
+    const insertBeforeLayerId = belowLayerIds.find((id) => map.getLayer(id));
+
+    map.addLayer(layerSpec, insertBeforeLayerId || undefined);
+
     return () => {
       if (!map || !map.getStyle()) return;
       if (map.getLayer(layerId)) {
-        map.setLayoutProperty(layerId, "visibility", "none");
+        map.removeLayer(layerId);
+      }
+      if (map.getSource(sourceId)) {
+        map.removeSource(sourceId);
       }
     };
   }, [
@@ -86,7 +72,8 @@ export const useDynamicMapLayer = (
     layerId,
     sourceSpec,
     layerSpec,
+    enabled,
     ...dependencies,
-    belowLayerIds,
+    ...belowLayerIds,
   ]);
 };

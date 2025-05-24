@@ -111,8 +111,8 @@ export const MapComponent: React.FC<MapComponentProps> = ({
       {openAerialMap && oamTileJSONURL && (
         <OpenAerialMap tileJSONURL={oamTileJSONURL} map={map} />
       )}
-      {showTileBoundaries && <TileBoundaries map={map} />}
       {children}
+      {showTileBoundaries && <TileBoundaries map={map} />}
     </div>
   );
 };

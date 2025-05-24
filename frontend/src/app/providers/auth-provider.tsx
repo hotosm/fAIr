@@ -20,8 +20,14 @@ type TAuthContext = {
   setUser: (user: TUser) => void;
 };
 
-// @ts-expect-error bad type definition
-const AuthContext = createContext<TAuthContext>(null);
+const AuthContext = createContext<TAuthContext>({
+  token: "",
+  user: {} as TUser,
+  authenticateUser: async () => Promise.resolve(),
+  logout: () => {},
+  isAuthenticated: false,
+  setUser: () => {},
+});
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -43,10 +49,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [token, setToken] = useState<string | undefined>(
     getValue(HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY),
   );
-  const [user, setUser] = useState<TUser | null>(null);
+  const [user, setUser] = useState<TUser | undefined>(undefined);
 
   // For use across the application.
-  const isAuthenticated = user !== null && token !== undefined;
+  const isAuthenticated = user !== undefined && token !== undefined;
 
   /**
    * Set token globally to eliminate the need to rewrite it.
@@ -127,7 +133,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
    */
   const logout = () => {
     setToken(undefined);
-    setUser(null);
+    setUser(undefined);
     removeValue(HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY);
     showSuccessToast(TOAST_NOTIFICATIONS.logoutSuccess);
   };
@@ -181,7 +187,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   /**
-   * Poll the backend for the user profile information every 10 seconds.
+   * Poll the backend for the user profile information every 15 seconds.
    * This is majorly to keep the user profile information up to date, especially when the user is logged in.
    */
   useEffect(() => {
@@ -189,7 +195,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (token) {
         authService.getUser().then(setUser).catch(showErrorToast);
       }
-    }, 10000);
+    }, 15000);
 
     return () => clearInterval(intervalId);
   }, [token]);
@@ -197,10 +203,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   return (
     <AuthContext.Provider
       value={{
-        // @ts-expect-error bad type definition
-        token,
-        // @ts-expect-error bad type definition
-        user,
+        token: token || "",
+        user: user as TUser,
         authenticateUser,
         logout,
         isAuthenticated,

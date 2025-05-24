@@ -4,7 +4,6 @@ import { DropdownPlacement } from "@/enums";
 import useScreenSize from "@/hooks/use-screen-size";
 import { ModelDetailsInfo } from "@/features/start-mapping/components/header/model-details-info";
 import { ELEMENT_DISTANCE_FROM_NAVBAR } from "@/config";
-import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { START_MAPPING_PAGE_CONTENT } from "@/constants";
 import { ToolTip } from "@/components/ui/tooltip";
 import { TModelDetails } from "@/types";
@@ -23,34 +22,16 @@ export const ModelDetailsInfoButton = ({
 }) => {
   const { isSmallViewport } = useScreenSize();
   const [showDrawer, setShowDrawer] = useState<boolean>(false);
-  const {
-    dropdownIsOpened: modelDetailsDropDownIsOpened,
-    onDropdownHide: onModelDetailsDropdownHide,
-    onDropdownShow: onModelDetailsDropdownShow,
-  } = useDropdownMenu();
 
   const handleClick = useCallback(() => {
     if (isSmallViewport) {
       setShowDrawer(true);
-    } else {
-      modelDetailsDropDownIsOpened
-        ? onModelDetailsDropdownHide()
-        : onModelDetailsDropdownShow();
     }
-  }, [
-    isSmallViewport,
-    modelDetailsDropDownIsOpened,
-    onModelDetailsDropdownHide,
-    onModelDetailsDropdownShow,
-  ]);
-
+  }, [isSmallViewport]);
   return (
     <DropDown
       placement={DropdownPlacement.BOTTOM_START}
       disableCheveronIcon
-      dropdownIsOpened={modelDetailsDropDownIsOpened}
-      onDropdownHide={onModelDetailsDropdownHide}
-      onDropdownShow={onModelDetailsDropdownShow}
       distance={ELEMENT_DISTANCE_FROM_NAVBAR}
       triggerComponent={
         <ToolTip
@@ -61,7 +42,9 @@ export const ModelDetailsInfoButton = ({
           }
         >
           <button
-            className={`p-1 flex items-center justify-center hover:icon-interaction ${modelDetailsDropDownIsOpened && "icon-interaction"}`}
+            className={
+              "p-1 flex items-center justify-center hover:icon-interaction"
+            }
             onClick={handleClick}
           >
             <TagsInfoIcon className="icon-lg md:size-5 text-grey" />

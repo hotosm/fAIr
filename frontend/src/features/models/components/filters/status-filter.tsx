@@ -3,7 +3,6 @@ import { DropDown } from "@/components/ui/dropdown";
 import { DropdownMenuItem } from "@/components/ui/dropdown/dropdown";
 import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
 import { TQueryParams } from "@/types";
-import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 
 type StatusFilterProps = {
   disabled: boolean;
@@ -60,17 +59,11 @@ const StatusFilter: React.FC<StatusFilterProps> = ({
     (status) => status.apiValue === query[SEARCH_PARAMS.status],
   );
 
-  const { dropdownIsOpened, onDropdownHide, onDropdownShow } =
-    useDropdownMenu();
-
   if (!isMobileFilterModal) {
     return (
       <div className="hidden md:block border border-gray-border py-2 px-4">
         <DropDown
           menuItems={statusCategories}
-          dropdownIsOpened={dropdownIsOpened}
-          onDropdownHide={onDropdownHide}
-          onDropdownShow={onDropdownShow}
           handleMenuSelection={() => null}
           disabled={disabled}
           defaultSelectedItem={categoryLabel[0]?.value}

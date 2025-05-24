@@ -3,6 +3,8 @@ import { MutationConfig } from "@/services";
 import {
   createTrainingDataset,
   TCreateTrainingDatasetArgs,
+  TUpdateTrainingDatasetArgs,
+  updateTrainingDataset,
 } from "@/features/model-creation/api/create-trainings";
 
 type useCreateTrainingDatasetOptions = {
@@ -17,6 +19,25 @@ export const useCreateTrainingDataset = ({
   return useMutation({
     mutationFn: (args: TCreateTrainingDatasetArgs) =>
       createTrainingDataset(args),
+    onSuccess: (...args) => {
+      onSuccess?.(...args);
+    },
+    ...restConfig,
+  });
+};
+
+type useUpdateTrainingDatasetOptions = {
+  mutationConfig?: MutationConfig<typeof updateTrainingDataset>;
+};
+
+export const useUpdateTrainingDataset = ({
+  mutationConfig,
+}: useUpdateTrainingDatasetOptions) => {
+  const { onSuccess, ...restConfig } = mutationConfig || {};
+
+  return useMutation({
+    mutationFn: (args: TUpdateTrainingDatasetArgs) =>
+      updateTrainingDataset(args),
     onSuccess: (...args) => {
       onSuccess?.(...args);
     },

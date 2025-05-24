@@ -2,7 +2,9 @@ import {
   ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
   ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
   ALL_MODEL_PREDICTIONS_SOURCE_ID,
+  PREDICTED_LAYER_STATUS_COLORS,
 } from "@/config";
+import { PredictedFeatureStatus } from "@/enums/start-mapping";
 import { Feature, GeoJSONType } from "@/types";
 import { GeoJSONSource, Map } from "maplibre-gl";
 import { useEffect, useMemo } from "react";
@@ -39,7 +41,17 @@ export const AllPredictionsLayer = ({
         type: "fill",
         source: ALL_MODEL_PREDICTIONS_SOURCE_ID,
         paint: {
-          "fill-color": "#A243DC",
+          "fill-color": [
+            "match",
+            ["get", "status"],
+            "accepted",
+            PREDICTED_LAYER_STATUS_COLORS[PredictedFeatureStatus.ACCEPTED],
+            "rejected",
+            PREDICTED_LAYER_STATUS_COLORS[PredictedFeatureStatus.REJECTED],
+            "untouched",
+            PREDICTED_LAYER_STATUS_COLORS[PredictedFeatureStatus.UNTOUCHED],
+            PREDICTED_LAYER_STATUS_COLORS[PredictedFeatureStatus.UNTOUCHED],
+          ],
           "fill-opacity": 0.2,
         },
         layout: { visibility: "visible" },
@@ -52,7 +64,17 @@ export const AllPredictionsLayer = ({
         type: "line",
         source: ALL_MODEL_PREDICTIONS_SOURCE_ID,
         paint: {
-          "line-color": "#A243DC",
+          "line-color": [
+            "match",
+            ["get", "status"],
+            "accepted",
+            PREDICTED_LAYER_STATUS_COLORS[PredictedFeatureStatus.ACCEPTED],
+            "rejected",
+            PREDICTED_LAYER_STATUS_COLORS[PredictedFeatureStatus.REJECTED],
+            "untouched",
+            PREDICTED_LAYER_STATUS_COLORS[PredictedFeatureStatus.UNTOUCHED],
+            PREDICTED_LAYER_STATUS_COLORS[PredictedFeatureStatus.UNTOUCHED],
+          ],
           "line-width": 2,
         },
         layout: { visibility: "visible" },

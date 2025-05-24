@@ -39,7 +39,7 @@ export const ModelDetailsPage = () => {
 
   const { isOpened, closeDialog, openDialog } = useDialog();
 
-  if (isPending || isError) {
+  if (isPending || isError || !data) {
     return <ModelDetailsSkeleton />;
   }
 

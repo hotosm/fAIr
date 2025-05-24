@@ -1,4 +1,5 @@
-import { useCallback, useState } from "react";
+import { SlDropdownType } from "@/types";
+import { useCallback, useMemo, useRef } from "react";
 
 /**
  * Custom hook to manage the visibility state of a dropdown menu.
@@ -13,23 +14,21 @@ import { useCallback, useState } from "react";
  * - `dropdownIsOpened: boolean`: A memoized boolean that represents whether the dropdown is currently opened.
  */
 export const useDropdownMenu = () => {
-  const [isOpened, setIsOpened] = useState<boolean>(false);
+  const dropdownRef = useRef<SlDropdownType | null>(null);
   const onDropdownShow = useCallback(() => {
-    setIsOpened(true);
+    dropdownRef.current?.show();
   }, []);
 
   const onDropdownHide = useCallback(() => {
-    setIsOpened(false);
+    dropdownRef.current?.hide();
   }, []);
 
-  const toggleDropDown = useCallback(() => {
-    if (isOpened) {
-      setIsOpened(false);
-    } else {
-      setIsOpened(true);
-    }
-  }, [isOpened]);
-
-  const dropdownIsOpened = isOpened;
-  return { onDropdownHide, onDropdownShow, dropdownIsOpened, toggleDropDown };
+  return useMemo(
+    () => ({
+      onDropdownShow,
+      onDropdownHide,
+      dropdownRef,
+    }),
+    [onDropdownShow, onDropdownHide, dropdownRef],
+  );
 };

@@ -1,6 +1,6 @@
 import FileUploadDialog from "@/features/model-creation/components/dialogs/file-upload-dialog";
 import { DropDown } from "@/components/ui/dropdown";
-import { IconProps, TTrainingAreaFeature } from "@/types";
+import { IconProps, SlDropdownType, TTrainingAreaFeature } from "@/types";
 import { JOSMLogo, OSMLogo } from "@/assets/svgs";
 import { LabelStatus } from "@/enums/training-area";
 import { Map } from "maplibre-gl";
@@ -117,21 +117,17 @@ const LabelFetchStatus = ({
 
 const DropdownMenu = ({
   dropdownMenuItems,
-  dropdownIsOpened,
-  onDropdownHide,
-  onDropdownShow,
+
+  dropdownRef,
 }: {
   dropdownMenuItems: TDropdownMenuItems;
-  dropdownIsOpened: boolean;
-  onDropdownHide: () => void;
-  onDropdownShow: () => void;
+
+  dropdownRef: React.RefObject<SlDropdownType>;
 }) => {
   return (
     <DropDown
+      ref={dropdownRef}
       disableCheveronIcon
-      dropdownIsOpened={dropdownIsOpened}
-      onDropdownHide={onDropdownHide}
-      onDropdownShow={onDropdownShow}
       triggerComponent={
         <button className="bg-off-white p-2 rounded-full items-center flex justify-center">
           <ElipsisIcon className="icon" />
@@ -183,10 +179,8 @@ export const TrainingAreaItem: React.FC<
     errorToastShown: false,
     shouldPoll: false,
   };
-
   const [labelState, setLabelState] = useState<LabelState>(initialLabelState);
-  const { onDropdownHide, onDropdownShow, dropdownIsOpened } =
-    useDropdownMenu();
+  const { onDropdownHide, dropdownRef } = useDropdownMenu();
   const { isOpened, openDialog, closeDialog } = useDialog();
   const {
     isOpened: isDeleteModalOpened,
@@ -521,9 +515,7 @@ export const TrainingAreaItem: React.FC<
           <div id={APP_TOUR_IDS.MORE_INFORMATION}>
             <DropdownMenu
               dropdownMenuItems={dropdownMenuItems}
-              dropdownIsOpened={dropdownIsOpened}
-              onDropdownHide={onDropdownHide}
-              onDropdownShow={onDropdownShow}
+              dropdownRef={dropdownRef}
             />
           </div>
         </div>

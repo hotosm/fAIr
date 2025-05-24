@@ -2,11 +2,10 @@ import AccuracyDisplay from "./accuracy-display";
 import CodeBlock from "@/components/ui/codeblock/codeblock";
 import ModelFilesButton from "./model-files-button";
 import ToolTip from "@/components/ui/tooltip/tooltip";
-import useCopyToClipboard from "@/hooks/use-clipboard";
 import { BASE_API_URL } from "@/config";
 import { ChevronDownIcon } from "@/components/ui/icons";
 import { cn, showErrorToast } from "@/utils";
-import { CopyIcon, ExternalLinkIcon } from "@/components/ui/icons";
+import { ExternalLinkIcon } from "@/components/ui/icons";
 import { Image, ZoomableImage } from "@/components/ui/image";
 import { Link } from "@/components/ui/link";
 import { ModelFilesDialog } from "./dialogs";
@@ -20,6 +19,7 @@ import {
   useTrainingDetails,
   useTrainingStatus,
 } from "@/features/models/hooks/use-training";
+import { CopyButton } from "@/components/ui/copy-button";
 
 enum TrainingStatus {
   FAILED = "FAILED",
@@ -50,7 +50,6 @@ const PropertyDisplay: React.FC<PropertyDisplayProps> = ({
   href,
   isCopy,
 }) => {
-  const { copyToClipboard } = useCopyToClipboard();
   return (
     <div className="row-span-1 col-span-1 flex flex-col gap-y-5">
       <span className="text-grey text-body-2base md:text-body-2 flex items-center gap-x-4 text-nowrap ">
@@ -77,9 +76,7 @@ const PropertyDisplay: React.FC<PropertyDisplayProps> = ({
           <span className="text-dark font-semibold text-body-2 md:text-body-1">
             URL
           </span>
-          <button onClick={() => copyToClipboard(value as string)}>
-            <CopyIcon className="icon md:icon-lg" />
-          </button>
+          <CopyButton text={value as string} />
         </div>
       ) : (
         <span

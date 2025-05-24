@@ -18,7 +18,7 @@ type InputProps = {
   type?: INPUT_TYPES;
   showBorder?: boolean;
   label?: string;
-  size?: SHOELACE_SIZES | undefined;
+  size?: SHOELACE_SIZES;
   helpText?: string;
   labelWithTooltip?: boolean;
   toolTipContent?: string;
@@ -85,7 +85,7 @@ const Input: React.FC<InputProps> = ({
       }}
       // @ts-expect-error bad type definition
       value={value}
-      className={`${className} ${styles.customInput} ${showBorder && styles.showBorder} `}
+      className={`${className} ${styles.customInput} ${showBorder && styles.showBorder} ${isValid === false ? styles.invalidInput : ""}`}
       placeholder={placeholder}
       clearable={clearable}
       disabled={disabled}

@@ -7,10 +7,7 @@ import SlTooltip, {
 type ToolTipProps = {
   content?: string | React.ReactElement | null;
   children?: React.ReactNode;
-  placement?:
-    | ToolTipPlacement.RIGHT
-    | ToolTipPlacement.BOTTOM
-    | ToolTipPlacement.TOP;
+  placement?: ToolTipPlacement;
   open?: boolean;
 };
 const ToolTip: React.FC<ToolTipProps> = ({

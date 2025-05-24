@@ -38,6 +38,7 @@ const baseModelOptions = [
 
 const ModelDetailsForm = () => {
   const { formData, handleChange } = useModelsContext();
+
   return (
     <div className="flex flex-col gap-y-2 md:gap-y-4">
       <StepHeading

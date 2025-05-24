@@ -119,3 +119,18 @@ export const createTrainingLabelsForAOI = async ({
     )
   ).data.status;
 };
+
+export type TUpdateTrainingDatasetArgs = {
+  id: number;
+  offset: [number, number];
+};
+export const updateTrainingDataset = async ({
+  id,
+  offset,
+}: TUpdateTrainingDatasetArgs): Promise<TTrainingDataset> => {
+  return await (
+    await apiClient.patch(API_ENDPOINTS.UPDATE_TRAINING_DATASET(id), {
+      offset,
+    })
+  ).data;
+};

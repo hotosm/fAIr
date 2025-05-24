@@ -1,6 +1,11 @@
-import { Map } from "maplibre-gl";
+import {
+  Map,
+  RasterLayerSpecification,
+  RasterSourceSpecification,
+} from "maplibre-gl";
 import { TILE_BOUNDARY_LAYER_ID, TMS_LAYER_ID, TMS_SOURCE_ID } from "@/config";
 import { useDynamicMapLayer } from "@/hooks/use-map-layer";
+import { useMemo } from "react";
 
 export const OpenAerialMap = ({
   tileJSONURL,
@@ -9,22 +14,32 @@ export const OpenAerialMap = ({
   tileJSONURL?: string;
   map: Map | null;
 }) => {
-  useDynamicMapLayer(
-    map,
-    TMS_SOURCE_ID,
-    TMS_LAYER_ID,
-    {
+  const sourceSpec: RasterSourceSpecification = useMemo(
+    () => ({
       type: "raster",
       url: tileJSONURL,
       tileSize: 256,
-    },
-    {
+    }),
+    [tileJSONURL],
+  );
+
+  const layerSpec: RasterLayerSpecification = useMemo(
+    () => ({
       id: TMS_LAYER_ID,
       type: "raster",
       source: TMS_SOURCE_ID,
       layout: { visibility: "visible" },
-    },
-    [tileJSONURL],
+    }),
+    [TMS_LAYER_ID, TMS_SOURCE_ID],
+  );
+
+  useDynamicMapLayer(
+    map,
+    TMS_SOURCE_ID,
+    TMS_LAYER_ID,
+    sourceSpec,
+    layerSpec,
+    [],
     tileJSONURL !== undefined && tileJSONURL?.length > 0,
     /**
      * Place the aerial imagery below the tile boundary layer.

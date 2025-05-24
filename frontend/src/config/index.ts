@@ -1,6 +1,7 @@
 import { BASE_MODELS } from "@/enums";
 import { ENVS } from "@/config/env";
 import { StyleSpecification } from "maplibre-gl";
+import { PredictedFeatureStatus } from "@/enums/start-mapping";
 
 // ==============================================================================================================================
 // Helper functions
@@ -207,7 +208,7 @@ export const MAX_ZOOM_LEVEL: number = parseIntEnv(ENVS.MAX_ZOOM_LEVEL, 21);
  */
 export const MIN_ZOOM_LEVEL_FOR_START_MAPPING_PREDICTION: number = parseIntEnv(
   ENVS.MIN_ZOOM_LEVEL_FOR_START_MAPPING_PREDICTION,
-  19,
+  18,
 );
 
 /**
@@ -272,20 +273,17 @@ export const GOOGLE_SATELLITE_BASEMAP_LAYER_ID: string = `${MAP_STYLES_PREFIX}-g
 export const GOOGLE_SATELLITE_BASEMAP_SOURCE_ID: string = `${MAP_STYLES_PREFIX}-google-satellite`;
 
 // Start Mapping
-export const ACCEPTED_MODEL_PREDICTIONS_SOURCE_ID: string =
-  "accepted-predictions-source";
-export const ACCEPTED_MODEL_PREDICTIONS_FILL_LAYER_ID: string = `${MAP_STYLES_PREFIX}-accepted-predictions-fill-layer`;
-export const ACCEPTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID: string =
-  "accepted-predictions-outline-layer";
 export const ALL_MODEL_PREDICTIONS_SOURCE_ID: string = "all-predictions-source";
 export const ALL_MODEL_PREDICTIONS_FILL_LAYER_ID: string = `${MAP_STYLES_PREFIX}-all-predictions-fill-layer`;
 export const ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID: string =
   "all-predictions-outline-layer";
-export const REJECTED_MODEL_PREDICTIONS_SOURCE_ID: string =
-  "rejected-predictions-source";
-export const REJECTED_MODEL_PREDICTIONS_FILL_LAYER_ID: string = `${MAP_STYLES_PREFIX}-rejected-predictions-fill-layer`;
-export const REJECTED_MODEL_PREDICTIONS_OUTLINE_LAYER_ID: string =
-  "rejected-predictions-outline-layer";
+
+// Layer status and corresponding colors
+export const PREDICTED_LAYER_STATUS_COLORS: Record<string, string> = {
+  [PredictedFeatureStatus.ACCEPTED]: "#23C16B",
+  [PredictedFeatureStatus.REJECTED]: "#D63F40",
+  [PredictedFeatureStatus.UNTOUCHED]: "#A243DC",
+};
 export const PREDICTION_IMAGERY_SOURCE: string = `${MAP_STYLES_PREFIX}-prediction-imagery-source`;
 export const PREDICTION_IMAGERY_LAYER_ID: string = `${MAP_STYLES_PREFIX}-prediction-imagery-layer`;
 // Training Areas
@@ -330,9 +328,19 @@ export const TRAINING_AREAS_MASK_FILL_COLOR: string = parseStringEnv(
 // Start Mapping Legend - only the fill layers are in the legend.
 export const LEGEND_NAME_MAPPING: Record<string, string> = {
   [ALL_MODEL_PREDICTIONS_FILL_LAYER_ID]: "Default",
-  [REJECTED_MODEL_PREDICTIONS_FILL_LAYER_ID]: "Rejected",
-  [ACCEPTED_MODEL_PREDICTIONS_FILL_LAYER_ID]: "Accepted",
+  // [REJECTED_MODEL_PREDICTIONS_FILL_LAYER_ID]: "Rejected",
+  // [ACCEPTED_MODEL_PREDICTIONS_FILL_LAYER_ID]: "Accepted",
 };
+
+// Model Feedbacks
+export const MODEL_FEEDBACKS_OUTLINE_LAYER_ID: string = `${MAP_STYLES_PREFIX}-feedbacks-outline-layer`;
+export const MODEL_FEEDBACKS_SOURCE_ID: string = `${MAP_STYLES_PREFIX}-feedbacks-source`;
+export const MODEL_FEEDBACKS_FILL_LAYER_ID: string = `${MAP_STYLES_PREFIX}-feedbacks-fill-layer`;
+export const MODEL_FEEDBACKS_SYMBOL_LAYER_ID: string = `${MAP_STYLES_PREFIX}-feedbacks-symbol-layer`;
+export const MODEL_FEEDBACKS_FILL_COLOR: string = "#D73434";
+export const MODEL_FEEDBACKS_OUTLINE_COLOR: string = "#D73434";
+export const MODEL_FEEDBACKS_OUTLINE_WIDTH: number = 4;
+export const MODEL_FEEDBACKS_FILL_OPACITY: number = 0.4;
 
 // ==============================================================================================================================
 // Others
@@ -362,13 +370,10 @@ export const MATOMO_TRACKING_URL: string = parseStringEnv(
 );
 
 /**
- * The timeout duration in milliseconds to show the tracking component.
- * Default value: 1000 ms (1 seconds).
+ * The web component tag name used in `hotosm/ui` for the tracking component.
  */
-export const MATOMO_TRACKING_TIMEOUT_DURATION: number = parseIntEnv(
-  ENVS.MATOMO_TRACKING_TIMEOUT_DURATION,
-  1000,
-);
+export const HOT_TRACKING_HTML_TAG_NAME: string = "hot-tracking";
+
 
 export const BANNER_TIMEOUT_DURATION: number = parseIntEnv(
   ENVS.BANNER_TIMEOUT_DURATION,
@@ -439,7 +444,7 @@ const REFRESH_BUFFER_MS: number = 1000;
  */
 export const KPI_STATS_CACHE_TIME_MS: number =
   parseIntEnv(ENVS.KPI_STATS_CACHE_TIME, DEFAULT_KPI_STATS_CACHE_TIME_SECONDS) *
-    1000 +
+  1000 +
   REFRESH_BUFFER_MS;
 
 /**
@@ -471,6 +476,11 @@ export const FAIR_BASE_MODELS_PATH: Record<BASE_MODELS, string> = {
   [BASE_MODELS.YOLOV8_V1]: `${FAIR_MODELS_BASE_PATH}/basemodels/yolo/yolov8s_v1-seg.onnx`,
   [BASE_MODELS.YOLOV8_V2]: `${FAIR_MODELS_BASE_PATH}/basemodels/yolo/yolov8s_v2-seg.onnx`,
 };
+
+/**
+ *  The default offset step for the training labels offset controller.
+ */
+export const OFFSET_STEP: number = parseIntEnv(ENVS.OFFSET_STEP, 0.5);
 // ==============================================================================================================================
 // UI Settings
 // ==============================================================================================================================

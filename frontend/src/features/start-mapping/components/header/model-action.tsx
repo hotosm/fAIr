@@ -4,6 +4,7 @@ import { START_MAPPING_PAGE_CONTENT, TOAST_NOTIFICATIONS } from "@/constants";
 import {
   BBOX,
   TModelDetails,
+  TModelPredictionFeature,
   TModelPredictionsConfig,
   TQueryParams,
 } from "@/types";
@@ -14,31 +15,29 @@ import { SEARCH_PARAMS } from "@/app/routes/start-mapping";
 import { MIN_ZOOM_LEVEL_FOR_START_MAPPING_PREDICTION } from "@/config";
 import { useParams } from "react-router-dom";
 import { useMapStore } from "@/store/map-store";
-import { useModelPredictionStore } from "@/store/model-prediction-store";
 
 const ModelAction = ({
   map,
   query,
   modelInfo,
-  predictionImageryURL,
+  tileServerURL,
   predictionModelCheckpoint,
+  modelPredictions,
+  setModelPredictions,
 }: {
   map: Map | null;
   query: TQueryParams;
   modelInfo: TModelDetails;
-  predictionImageryURL: string | undefined;
+  tileServerURL: string | undefined;
   predictionModelCheckpoint: string;
+  modelPredictions: TModelPredictionFeature[];
+  setModelPredictions: (features: TModelPredictionFeature[]) => void;
 }) => {
   const { modelId } = useParams();
-  const { modelPredictions, setModelPredictions } = useModelPredictionStore();
-
   const [predictionZoomLevel, setPredictionZoomLevel] = useState<number | null>(
     null,
   );
   const currentZoom = useMapStore((state) => state.zoom);
-
-  const disablePrediction =
-    currentZoom < MIN_ZOOM_LEVEL_FOR_START_MAPPING_PREDICTION;
 
   const getTrainingConfig = useCallback((): TModelPredictionsConfig => {
     return {
@@ -50,8 +49,7 @@ const ModelAction = ({
       max_angle_change: 15,
       model_id: modelId as string,
       skew_tolerance: 15,
-      source:
-        predictionImageryURL ?? (modelInfo?.dataset?.source_imagery as string),
+      source: tileServerURL ?? (modelInfo?.dataset?.source_imagery as string),
       zoom_level: predictionZoomLevel ?? currentZoom,
       bbox: [
         map?.getBounds().getWest(),
@@ -67,6 +65,7 @@ const ModelAction = ({
     modelInfo,
     predictionZoomLevel,
     predictionModelCheckpoint,
+    tileServerURL,
   ]);
 
   const modelPredictionMutation = useGetModelPredictions({
@@ -95,20 +94,25 @@ const ModelAction = ({
     await modelPredictionMutation.mutateAsync(getTrainingConfig());
   }, [getTrainingConfig, modelPredictionMutation, map, currentZoom]);
 
+  const disablePredictionButton =
+    currentZoom < MIN_ZOOM_LEVEL_FOR_START_MAPPING_PREDICTION ||
+    modelPredictionMutation.isPending ||
+    tileServerURL?.length === 0;
   return (
     <div className="flex gap-y-3 flex-col-reverse flex-wrap  md:items-center md:flex-row md:justify-between md:gap-x-2 md:flex-nowrap">
       <ToolTip
         content={
-          disablePrediction ? START_MAPPING_PAGE_CONTENT.buttons.tooltip : null
+          disablePredictionButton
+            ? START_MAPPING_PAGE_CONTENT.buttons.tooltip
+            : null
         }
       >
         <button
-          disabled={disablePrediction || modelPredictionMutation.isPending}
+          disabled={disablePredictionButton}
           onClick={handlePrediction}
-          className={`w-full text-nowrap bg-primary px-3 py-3 md:py-1.5 rounded-md text-white ${disablePrediction || modelPredictionMutation.isPending ? "opacity-50" : ""}`}
+          className={`w-full text-nowrap bg-primary px-3 py-3 md:py-1.5 rounded-md text-white ${disablePredictionButton ? "opacity-50" : ""}`}
         >
           <span className="capitalize text-body-4">
-            {" "}
             {modelPredictionMutation.isPending
               ? START_MAPPING_PAGE_CONTENT.buttons.predictionInProgress
               : START_MAPPING_PAGE_CONTENT.buttons.runPrediction}

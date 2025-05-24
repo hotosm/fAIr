@@ -45,10 +45,10 @@ const Dialog: React.FC<DialogProps> = ({
       label={label}
       open={isOpened}
       onSlRequestClose={preventClose ? handleRequestClose : () => null}
-      onSlAfterHide={(e) => {
-        e.stopPropagation();
-        e.preventDefault();
-        closeDialog();
+      onSlAfterHide={(event: CustomEvent) => {
+        if (event.target === event.currentTarget) {
+          closeDialog();
+        }
       }}
       className={`${labelColor} ${borderRadius}`}
       style={{

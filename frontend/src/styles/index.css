@@ -238,3 +238,15 @@ sl-alert.success::part(base) {
   @apply !rounded-[12px] !flex !flex-col !gap-y-4  !p-0;
 }
 /* Popup customization  ends */
+
+
+/* Matomo placement style begins */
+
+.hot-matomo {
+  position: fixed;
+  z-index: 1000000000000;
+  bottom: 0;
+  width: 100vw;
+}
+
+/* Matomo placement style ends */

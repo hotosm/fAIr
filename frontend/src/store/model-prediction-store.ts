@@ -1,58 +1,31 @@
 import { create } from "zustand";
-import { TModelPredictionFeature, TModelPredictions } from "@/types";
+import { TModelPredictionFeature } from "@/types";
+import { PredictedFeatureStatus } from "@/enums/start-mapping";
 
 type ModelPredictionState = {
-  modelPredictions: TModelPredictions;
-  setModelPredictions: (newPredictions: TModelPredictions) => void;
-  resetModelPredictions: () => void;
-  moveFeatureBetweenBuckets: (
-    from: keyof TModelPredictions,
-    to: keyof TModelPredictions,
+  features: TModelPredictionFeature[];
+  setFeatures: (features: TModelPredictionFeature[]) => void;
+  updateFeatureStatus: (
     id: number,
-    updatedProperties?: Partial<TModelPredictionFeature["properties"]>,
+    status: PredictedFeatureStatus,
+    updatedProperties: Partial<TModelPredictionFeature["properties"]>,
   ) => void;
-};
-
-const emptyPredictionState: TModelPredictions = {
-  accepted: [],
-  rejected: [],
-  all: [],
 };
 
 export const useModelPredictionStore = create<ModelPredictionState>(
   (set, get) => ({
-    modelPredictions: emptyPredictionState,
-
-    setModelPredictions: (newPredictions) => {
-      set({ modelPredictions: newPredictions });
-    },
-
-    resetModelPredictions: () => {
-      set({ modelPredictions: emptyPredictionState });
-    },
-
-    moveFeatureBetweenBuckets: (from, to, id, updatedProps = {}) => {
-      const state = get().modelPredictions;
-
-      const source = state[from].filter((f) => f.properties.id !== id);
-      const moved = state[from]
-        .filter((f) => f.properties.id === id)
-        .map((f) => ({
-          ...f,
-          properties: {
-            ...f.properties,
-            ...updatedProps,
-          },
-        }));
-      const target = [...state[to], ...moved];
-
-      set({
-        modelPredictions: {
-          ...state,
-          [from]: source,
-          [to]: target,
-        },
-      });
+    features: [],
+    setFeatures: (features) => set({ features }),
+    updateFeatureStatus: (id, status, updatedProperties = {}) => {
+      const updated = get().features.map((f) =>
+        f.properties.id === id
+          ? {
+              ...f,
+              properties: { ...f.properties, status, ...updatedProperties },
+            }
+          : f,
+      );
+      set({ features: updated });
     },
   }),
 );

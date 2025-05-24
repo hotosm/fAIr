@@ -38,7 +38,7 @@ const TrainingAreaList = ({
   });
 
   return (
-    <div className="flex flex-col overflow-y-auto flex-1 h-full gap-y-2 justify-between p-2 lg:p-4">
+    <div className="flex flex-col overflow-y-auto flex-1 h-full gap-y-2 justify-between p-2">
       <div className="flex items-start w-full flex-col gap-y-2">
         <p className="text-body-2">
           {MODELS_CONTENT.modelCreation.trainingArea.form.trainingArea}

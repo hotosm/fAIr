@@ -38,14 +38,13 @@ export const showErrorToast = (
     message = error.response.data.message;
   } else if (error?.response?.data?.detail) {
     message = error?.response?.data?.detail;
-  } else if (error.response?.statusText) {
-    message = error.response?.statusText;
   } else if (error?.response?.data[0]) {
     message = error?.response?.data[0];
+  } else if (error.response?.statusText) {
+    message = error.response?.statusText;
   } else if (error.message) {
     message = error.message;
   }
-
   toast(message, "danger");
 };
 

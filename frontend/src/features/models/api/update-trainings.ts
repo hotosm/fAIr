@@ -37,7 +37,7 @@ export const useUpdateTraining = ({
   const { onSuccess, ...restConfig } = mutationConfig || {};
 
   return useMutation({
-    onSuccess: (...args) => {
+    onSuccess: async (...args) => {
       refetchModelDetails();
       refetchTrainingHistory();
       onSuccess?.(...args);
@@ -61,9 +61,8 @@ export const useTerminateTraining = ({
   );
 
   const { onSuccess, ...restConfig } = mutationConfig || {};
-
   return useMutation({
-    onSuccess: (...args) => {
+    onSuccess: async (...args) => {
       refetchTrainingHistory();
       onSuccess?.(...args);
     },

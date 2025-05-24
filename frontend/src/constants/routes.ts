@@ -22,7 +22,9 @@ export const MODELS_ROUTES = {
 export const APPLICATION_ROUTES = {
   HOMEPAGE: "/",
   MODELS: MODELS_BASE,
+  MODEL_FEEDBACKS_BASE_ROUTE: "feedbacks",
   MODEL_DETAILS: `${MODELS_BASE}/:id`,
+  MODEL_FEEDBACKS: `${MODELS_BASE}/:id/feedbacks`,
 
   // Model routes start
 

@@ -14,11 +14,10 @@ export const useUpdateUserProfile = ({
   mutationConfig,
 }: useUpdateProfileOptions) => {
   const { onSuccess, ...restConfig } = mutationConfig || {};
-
   return useMutation({
     mutationFn: (args: TUpdateUserProfileArgs) => updateUserProfile(args),
-    onSuccess: (...args) => {
-      onSuccess?.(...args);
+    onSuccess: async (...args) => {
+      await onSuccess?.(...args);
     },
     ...restConfig,
   });
@@ -32,7 +31,6 @@ export const useEmailVerification = ({
   mutationConfig,
 }: useEmailVerificationOptions) => {
   const { onSuccess, ...restConfig } = mutationConfig || {};
-
   return useMutation({
     mutationFn: requestEmailVerification,
     onSuccess: (...args) => {

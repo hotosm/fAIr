@@ -9,7 +9,7 @@ import { MobileDrawer } from "@/components/ui/drawer";
 import { ModelPredictionsTracker } from "@/features/start-mapping/components/header/model-predictions-tracker";
 import { ModelSettings } from "@/features/start-mapping/components/model-settings";
 import { TDownloadOptions, TQueryParams } from "@/app/routes/start-mapping";
-import { TModelDetails } from "@/types";
+import { TModelDetails, TModelPredictionFeature } from "@/types";
 import { ToolTip } from "@/components/ui/tooltip";
 import { useState } from "react";
 import { START_MAPPING_PAGE_CONTENT } from "@/constants";
@@ -18,6 +18,7 @@ import { PredictionImagerySource } from "@/enums/start-mapping";
 import { useMapStore } from "@/store/map-store";
 import { ModelSelectorTriggerButton } from "@/features/start-mapping/components/replicable-models/model-selector-trigger-button";
 import { ModelDetailsInfoButton } from "@/features/start-mapping/components/header/model-details-info-button";
+import { TileServiceType } from "@/enums";
 
 export const StartMappingMobileDrawer = ({
   isOpen,
@@ -26,15 +27,11 @@ export const StartMappingMobileDrawer = ({
   query,
   updateQuery,
   modelInfo,
-  predictionImageryURL,
   modelInfoRequestIsPending,
   modelInfoRequestIsError,
-  setPredictionImageryURL,
   predictionImagerySource,
   setPredictionImagerySource,
   modelDefaultImageryURL,
-  customTileServerURL,
-  setCustomTileServerURL,
   openMobileDialog,
   predictionModel,
   setPredictionModel,
@@ -43,6 +40,16 @@ export const StartMappingMobileDrawer = ({
   customPredictionModelCheckpointPath,
   setCustomPredictionModelCheckpointPath,
   openModelSelectionDialog,
+  tileServerURL,
+  tileServiceType,
+  tileServiceTypeValidity,
+  setTileServiceTypeValidity,
+  loading,
+  setTileServiceType,
+  setTileserverURL,
+  modelPredictions,
+  setModelPredictions,
+  isSmallViewport,
 }: {
   isOpen: boolean;
 
@@ -52,19 +59,15 @@ export const StartMappingMobileDrawer = ({
   updateQuery: (newParams: TQueryParams) => void;
 
   modelInfo: TModelDetails;
-  predictionImageryURL: string | undefined;
+
   modelInfoRequestIsPending: boolean;
   modelInfoRequestIsError: boolean;
-  setPredictionImageryURL: React.Dispatch<
-    React.SetStateAction<string | undefined>
-  >;
+
   predictionImagerySource: PredictionImagerySource;
   setPredictionImagerySource: React.Dispatch<
     React.SetStateAction<PredictionImagerySource>
   >;
   modelDefaultImageryURL: string;
-  customTileServerURL: string;
-  setCustomTileServerURL: React.Dispatch<React.SetStateAction<string>>;
   openMobileDialog: () => void;
   predictionModel: string;
   setPredictionModel: React.Dispatch<React.SetStateAction<string>>;
@@ -75,6 +78,24 @@ export const StartMappingMobileDrawer = ({
     React.SetStateAction<string>
   >;
   openModelSelectionDialog: () => void;
+  tileServerURL: string;
+  tileServiceType: TileServiceType;
+  tileServiceTypeValidity: {
+    valid: boolean;
+    message: string;
+  };
+  setTileServiceTypeValidity: React.Dispatch<
+    React.SetStateAction<{
+      valid: boolean;
+      message: string;
+    }>
+  >;
+  setTileserverURL: React.Dispatch<React.SetStateAction<string>>;
+  loading: boolean;
+  setTileServiceType: React.Dispatch<React.SetStateAction<TileServiceType>>;
+  setModelPredictions: (features: TModelPredictionFeature[]) => void;
+  modelPredictions: TModelPredictionFeature[];
+  isSmallViewport: boolean;
 }) => {
   const [showDownloadOptions, setShowDownloadOptions] =
     useState<boolean>(false);
@@ -102,8 +123,10 @@ export const StartMappingMobileDrawer = ({
                 query={query}
                 map={map}
                 modelInfo={modelInfo}
-                predictionImageryURL={predictionImageryURL}
+                tileServerURL={tileServerURL}
                 predictionModelCheckpoint={predictionModelCheckpoint}
+                modelPredictions={modelPredictions}
+                setModelPredictions={setModelPredictions}
               />
             </div>
             <div className="bg-off-white rounded-md p-1">
@@ -117,36 +140,47 @@ export const StartMappingMobileDrawer = ({
           </div>
           <div className="flex items-center gap-x-2 w-full justify-between">
             <p className="text-body-3 text-nowrap">Model:</p>
-            <ModelSelectorTriggerButton
-              modelInfo={modelInfo}
-              setPredictionModel={setPredictionModel}
-              setPredictionModelCheckpoint={setPredictionModelCheckpoint}
-              predictionModel={predictionModel}
-              predictionModelCheckpoint={predictionModelCheckpoint}
-              customPredictionModelCheckpointPath={
-                customPredictionModelCheckpointPath
-              }
-              setCustomPredictionModelCheckpointPath={
-                setCustomPredictionModelCheckpointPath
-              }
-              openMobileDialog={openModelSelectionDialog}
-            />
+            {modelInfo && (
+              <ModelSelectorTriggerButton
+                modelInfo={modelInfo}
+                setPredictionModel={setPredictionModel}
+                setPredictionModelCheckpoint={setPredictionModelCheckpoint}
+                predictionModel={predictionModel}
+                predictionModelCheckpoint={predictionModelCheckpoint}
+                customPredictionModelCheckpointPath={
+                  customPredictionModelCheckpointPath
+                }
+                setCustomPredictionModelCheckpointPath={
+                  setCustomPredictionModelCheckpointPath
+                }
+                openMobileDialog={openModelSelectionDialog}
+                isSmallViewport={isSmallViewport}
+              />
+            )}
           </div>
           <div className="flex items-center gap-x-2 w-full justify-between">
             <p className="text-body-3 text-nowrap">Prediction imagery:</p>
             <ImagerySourceSelectorTriggerButton
-              setPredictionImageryURL={setPredictionImageryURL}
               predictionImagerySource={predictionImagerySource}
               setPredictionImagerySource={setPredictionImagerySource}
               modelDefaultImageryURL={modelDefaultImageryURL}
-              customTileServerURL={customTileServerURL}
-              setCustomTileServerURL={setCustomTileServerURL}
               openMobileDialog={openMobileDialog}
+              setTileServiceType={setTileServiceType}
+              tileServerURL={tileServerURL}
+              tileServiceType={tileServiceType}
+              tileServiceTypeValidity={tileServiceTypeValidity}
+              setTileServiceTypeValidity={setTileServiceTypeValidity}
+              loading={loading}
+              setTileserverURL={setTileserverURL}
+              isSmallViewport={isSmallViewport}
             />
           </div>
           <div className="text-body-3 font-normal flex items-center gap-x-2">
             {START_MAPPING_PAGE_CONTENT.mapData.title} -{" "}
-            <ModelPredictionsTracker />
+            <ModelPredictionsTracker
+              features={modelPredictions}
+              resetModelPredictions={setModelPredictions}
+            />
           </div>
           <div className="flex flex-col gap-y-4">
             <p className="text-body-3 font-semibold">Settings</p>

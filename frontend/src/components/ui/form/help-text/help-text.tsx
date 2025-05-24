@@ -3,6 +3,7 @@ type HelptextProps = {
   isValid?: boolean;
   currentLength?: number;
   children?: React.ReactNode;
+  helpTextClassName?: string;
 };
 
 const HelpText: React.FC<HelptextProps> = ({

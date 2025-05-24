@@ -32,8 +32,7 @@ const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
   updateQuery,
   isMobileFilterModal = false,
 }) => {
-  const { dropdownIsOpened, onDropdownHide, onDropdownShow } =
-    useDropdownMenu();
+  const { onDropdownHide, dropdownRef } = useDropdownMenu();
 
   const [startDate, setStartDate] = useState<string>(
     query[SEARCH_PARAMS.startDate] as string,
@@ -83,9 +82,7 @@ const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
     return (
       <div className="border border-gray-border py-2 px-4 hidden md:block">
         <DropDown
-          dropdownIsOpened={dropdownIsOpened}
-          onDropdownHide={onDropdownHide}
-          onDropdownShow={onDropdownShow}
+          ref={dropdownRef}
           disabled={disabled}
           triggerComponent={
             <p className="text-sm text-dark text-nowrap">{triggerText}</p>

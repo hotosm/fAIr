@@ -48,6 +48,7 @@ const TrainingAreaMap = ({
   mapContainerRef,
   trainingAreaIsPending,
   OAMData,
+  trainingDatasetOffset,
 }: {
   tileJSONURL: string;
   data?: PaginatedTrainingArea;
@@ -60,6 +61,7 @@ const TrainingAreaMap = ({
   mapContainerRef: RefObject<HTMLDivElement> | null;
   trainingAreaIsPending: boolean;
   OAMData: TileJSON;
+  trainingDatasetOffset: { x: number; y: number };
 }) => {
   // Training Areas
   const trainingAreasOutlineLayerId = `${MAP_STYLES_PREFIX}-dataset-${trainingDatasetId}-training-area-layer`;
@@ -260,6 +262,7 @@ const TrainingAreaMap = ({
           trainingAreasLabelsFillLayerId={trainingAreasLabelsFillLayerId}
           trainingAreasLabelsOutlineLayerId={trainingAreasLabelsOutlineLayerId}
           trainingAreasLabelsSourceId={trainingAreasLabelsSourceId}
+          trainingDatasetOffset={trainingDatasetOffset}
         />
       ) : null}
       {OAMData?.bounds && mapBounds && (

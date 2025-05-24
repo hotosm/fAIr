@@ -8,7 +8,6 @@ import { FormLabel, Input, Select, Switch } from "@/components/ui/form";
 import { SEARCH_PARAMS, TQueryParams } from "@/app/routes/start-mapping";
 import { SettingsIcon } from "@/components/ui/icons";
 import { ToolTip } from "@/components/ui/tooltip";
-import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { START_MAPPING_PAGE_CONTENT } from "@/constants";
 
 import {
@@ -47,16 +46,7 @@ export const ModelSettings = ({
   updateQuery: (newParams: TQueryParams) => void;
   isMobile?: boolean;
 }) => {
-  const {
-    onDropdownHide: onModelSettingsDropdownHide,
-    onDropdownShow: onModelSettingsDropdownShow,
-    dropdownIsOpened,
-    toggleDropDown,
-  } = useDropdownMenu();
-
   const handleQueryUpdate = (key: string, val: number | boolean) => {
-    // Keep the dropdown opened when making changes
-    onModelSettingsDropdownShow();
     updateQuery({
       [key]: val,
     });
@@ -174,15 +164,9 @@ export const ModelSettings = ({
         placement={DropdownPlacement.TOP_END}
         distance={ELEMENT_DISTANCE_FROM_NAVBAR}
         disableCheveronIcon
-        dropdownIsOpened={dropdownIsOpened}
-        onDropdownHide={onModelSettingsDropdownHide}
-        onDropdownShow={onModelSettingsDropdownShow}
         triggerComponent={
           <ToolTip content={START_MAPPING_PAGE_CONTENT.settings.tooltip}>
-            <button
-              className={`p-1 flex items-center hover:icon-interaction ${dropdownIsOpened && "icon-interaction"}`}
-              onClick={toggleDropDown}
-            >
+            <button className={"p-1 flex items-center hover:icon-interaction"}>
               <SettingsIcon className="w-5 h-5 text-dark" />
             </button>
           </ToolTip>

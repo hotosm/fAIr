@@ -52,7 +52,7 @@ const OpenAerialMap = ({
   }, [map, fitToTMSBounds]);
 
   return (
-    <div className="flex w-full  flex-col  gap-y-2 border-b-8 border-off-white py-2 px-4 pb-2">
+    <div className="flex w-full  flex-col gap-y-2 bg-white py-2 px-4 rounded-lg">
       <p className="text-body-2 md:text-body-1 font-medium">
         {MODELS_CONTENT.modelCreation.trainingArea.form.openAerialMap}
       </p>

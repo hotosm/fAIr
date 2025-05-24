@@ -32,7 +32,7 @@ describe("useLogin", () => {
   const pathname = "/test-path";
 
   beforeEach(() => {
-    (useLocation as vi.Mock).mockReturnValue({ pathname });
+    (useLocation as vi.Mock).mockReturnValue({ pathname, search: "" });
 
     (useSessionStorage as vi.Mock).mockReturnValue({
       setSessionValue: setValueMock,

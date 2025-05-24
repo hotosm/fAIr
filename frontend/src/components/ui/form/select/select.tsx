@@ -19,7 +19,7 @@ type SelectProps = {
   defaultValue: string | number;
   handleChange: (value: number | string) => void;
   required?: boolean;
-  size?: TShoelaceSize | undefined;
+  size?: SHOELACE_SELECT_SIZES;
   className?: string;
 };
 
@@ -33,12 +33,12 @@ const Select: React.FC<SelectProps> = ({
   defaultValue,
   handleChange,
   required,
-  size = undefined,
+  size,
   className = "",
 }) => {
   const { isMobile } = useScreenSize();
 
-  const getSize = (): TShoelaceSize => {
+  const getSize = (): TShoelaceSize | string => {
     if (size) return size;
     return isMobile
       ? SHOELACE_SELECT_SIZES.MEDIUM
@@ -48,11 +48,10 @@ const Select: React.FC<SelectProps> = ({
   return (
     <SlSelect
       placeholder={placeholder}
+      // @ts-expect-error bad type definition.
       size={getSize()}
       value={String(defaultValue)}
       onSlChange={(e) => {
-        e.stopPropagation();
-        e.stopImmediatePropagation();
         e.preventDefault();
         const target = e.target as HTMLSelectElement | null;
         if (target) {
@@ -72,8 +71,8 @@ const Select: React.FC<SelectProps> = ({
       {helpText && <HelpText content={helpText} />}
       {options?.map((option, id) => (
         <SlOption key={`select-option-${id}`} value={option.value as string}>
-          <span className="text-body-3 font-semibold">{option.name}</span>
-          <span slot="suffix" className="text-body-4 md:text-body-3">
+          <span className="text-body-4 font-semibold">{option.name}</span>
+          <span slot="suffix" className="text-body-4">
             {option.suffix}
           </span>
         </SlOption>

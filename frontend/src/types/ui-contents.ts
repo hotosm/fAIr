@@ -20,7 +20,7 @@ export type TModelsContent = {
       form: {
         modelName: {
           label: string;
-          helpText: string;
+
           placeholder: string;
           toolTip: string;
         };
@@ -33,7 +33,7 @@ export type TModelsContent = {
         modelDescription: {
           label: string;
           toolTip: string;
-          helpText: string;
+
           placeholder: string;
         };
       };
@@ -482,8 +482,6 @@ export type TStartMappingPageContent = {
         predictionResults: string;
       };
       layerControl: {
-        acceptedPredictions: string;
-        rejectedPredictions: string;
         results: string;
       };
     };
@@ -563,6 +561,7 @@ export type TStartMappingPageContent = {
   replicableModel: {
     apply: string;
     info: string;
+    loading: string;
   };
 };
 

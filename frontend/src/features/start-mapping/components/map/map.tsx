@@ -1,111 +1,112 @@
 import useScreenSize from "@/hooks/use-screen-size";
-import { ControlsPosition } from "@/enums";
-import { extractTileJSONURL, showErrorToast } from "@/utils";
+import { ControlsPosition, TileServiceType } from "@/enums";
 import { LngLatBoundsLike, Map } from "maplibre-gl";
 import {
   Legend,
   PredictedFeatureActionPopup,
 } from "@/features/start-mapping/components";
 import { MapComponent, MapCursorToolTip } from "@/components/map";
-import { TOAST_NOTIFICATIONS } from "@/constants";
-import { memo, RefObject, useEffect, useMemo } from "react";
+import { RefObject, useEffect, useMemo } from "react";
 
-import { TileJSON, TTrainingDataset } from "@/types";
+import { TileJSON, TModelPredictionFeature } from "@/types";
 import {
   MIN_ZOOM_LEVEL_FOR_START_MAPPING_PREDICTION,
   MINIMUM_ZOOM_LEVEL_INSTRUCTION_FOR_PREDICTION,
+  PREDICTION_IMAGERY_LAYER_ID,
 } from "@/config";
 import bbox from "@turf/bbox";
+import { AllPredictionsLayer } from "@/features/start-mapping/components/map/layers";
 import {
-  AcceptedPredictionsLayer,
-  RejectedPredictionsLayer,
-  AllPredictionsLayer,
-  PredictionImageryLayer,
-} from "@/features/start-mapping/components/map/layers";
-import { PredictionImagerySource } from "@/enums/start-mapping";
+  PredictedFeatureStatus,
+  PredictionImagerySource,
+} from "@/enums/start-mapping";
 import { useMapStore } from "@/store/map-store";
-import { useModelPredictionStore } from "@/store/model-prediction-store";
+import { PredictionRasterLayer } from "./layers/prediction-raster-layer";
+import {
+  extractTileJSONURL,
+  OPENAERIALMAP_TILESERVER_URL_REGEX_PATTERN,
+} from "@/utils";
 
 export const StartMappingMapComponent = ({
-  trainingDataset,
-  oamTileJSONIsError,
-  oamTileJSON,
   map,
   mapContainerRef,
-  layers,
-  tmsBounds,
   trainingId,
   modelInfoRequestIsPending,
   predictionImagerySource,
-  predictionImageryURL,
+  predictionImageryType,
+  tileJSONMetadata,
+  modelPredictionsExist,
+  modelPredictions,
+  updateFeatureStatus,
+  tileServerURL,
+  layers,
 }: {
   trainingId: number;
-  trainingDataset?: TTrainingDataset;
-  oamTileJSONIsError: boolean;
-  oamTileJSON: TileJSON;
   map: Map | null;
   mapContainerRef: RefObject<HTMLDivElement>;
   layers: {
     value: string;
     subLayers: string[];
   }[];
-  tmsBounds: LngLatBoundsLike;
   modelInfoRequestIsPending: boolean;
   predictionImagerySource: PredictionImagerySource;
-  predictionImageryURL: string | undefined;
+  predictionImageryType: TileServiceType;
+  tileJSONMetadata: TileJSON | null;
+  modelPredictionsExist: boolean;
+  modelPredictions: TModelPredictionFeature[];
+  updateFeatureStatus: (
+    id: number,
+    status: PredictedFeatureStatus,
+    updatedProperties: Partial<TModelPredictionFeature["properties"]>,
+  ) => void;
+  tileServerURL: string;
 }) => {
-  const tileJSONURL = extractTileJSONURL(trainingDataset?.source_imagery ?? "");
   const { isSmallViewport } = useScreenSize();
   const currentZoom = useMapStore.getState().zoom;
-  useEffect(() => {
-    if (!oamTileJSONIsError) return;
-    showErrorToast(undefined, TOAST_NOTIFICATIONS.trainingDataset.error);
-  }, [oamTileJSONIsError]);
 
-  const { modelPredictions } = useModelPredictionStore();
-
-  const modelPredictionsExist = useMemo(() => {
-    return (
-      modelPredictions.accepted.length > 0 ||
-      modelPredictions.rejected.length > 0 ||
-      modelPredictions.all.length > 0
-    );
-  }, [modelPredictions]);
+  const untouchedPredictedFeatures = useMemo(
+    () =>
+      modelPredictions.filter(
+        (feature) =>
+          feature.properties.status === PredictedFeatureStatus.UNTOUCHED,
+      ),
+    [modelPredictions],
+  );
 
   useEffect(() => {
     if (
       !map ||
-      !tmsBounds ||
-      oamTileJSONIsError ||
+      !tileJSONMetadata?.bounds ||
       modelInfoRequestIsPending ||
       /**
        * Zoom to the bounds of the tileJSON if the user has not selected the default model imagery.
        */
-      predictionImagerySource !== PredictionImagerySource.ModelDefault
+      predictionImagerySource === PredictionImagerySource.Kontour
     )
       return;
 
     // if there are predictions that the user hasn't interacted with, zoom to them.
-    if (modelPredictions.all.length > 0) {
+    if (untouchedPredictedFeatures.length > 0) {
       // get the bbox of the features with turf.
       map.fitBounds(
         bbox({
           type: "FeatureCollection",
-          features: modelPredictions.all,
+          features: untouchedPredictedFeatures,
         }) as LngLatBoundsLike,
       );
     } else {
-      map.fitBounds(tmsBounds);
+      map.fitBounds(tileJSONMetadata.bounds);
     }
   }, [
     map,
-    tmsBounds,
-    oamTileJSONIsError,
-    oamTileJSON,
+    tileJSONMetadata?.bounds,
     modelInfoRequestIsPending,
     predictionImagerySource,
   ]);
 
+  /**
+   * It is used to show a tooltip when the user is zoomed out too far to start mapping.
+   */
   const shouldShowTooltip =
     currentZoom < MIN_ZOOM_LEVEL_FOR_START_MAPPING_PREDICTION;
 
@@ -124,52 +125,70 @@ export const StartMappingMapComponent = ({
     );
   }, [map, currentZoom]);
 
+  const predictionImageryLayerId = useMemo(() => {
+    return `${PREDICTION_IMAGERY_LAYER_ID}-${predictionImagerySource}`;
+  }, [predictionImagerySource]);
+
+  /**
+   * Check if the tile server URL is an OpenAerialMap tile server URL.
+   */
+  const { sourceURL, isOpenAerialMap } = useMemo(() => {
+    const openAerial =
+      OPENAERIALMAP_TILESERVER_URL_REGEX_PATTERN.test(tileServerURL);
+    return {
+      isOpenAerialMap: openAerial,
+      sourceURL: openAerial ? extractTileJSONURL(tileServerURL) : tileServerURL,
+    };
+  }, [tileServerURL]);
+
   return (
     <MapComponent
       controlsPosition={ControlsPosition.TOP_LEFT}
       showTileBoundaries
-      fitToBounds={!isSmallViewport}
-      bounds={tmsBounds}
+      fitToBounds={!isSmallViewport && !!tileJSONMetadata?.bounds}
+      bounds={tileJSONMetadata?.bounds}
       mapContainerRef={mapContainerRef}
       map={map}
       zoomControls={!isSmallViewport}
       layerControl={!isSmallViewport}
-      layerControlLayers={layers}
+      layerControlLayers={[
+        ...layers,
+        ...(predictionImagerySource !== PredictionImagerySource.ModelDefault
+          ? [
+              {
+                value: "Prediction Imagery",
+                subLayers: [predictionImageryLayerId],
+              },
+            ]
+          : []),
+      ]}
       basemaps
       showCurrentZoom={!isSmallViewport}
-      openAerialMap={!modelInfoRequestIsPending}
-      oamTileJSONURL={tileJSONURL}
     >
-      {map && predictionImageryURL && (
-        <PredictionImageryLayer
+      {map && (
+        <PredictedFeatureActionPopup
+          trainingId={trainingId}
           map={map}
-          predictionImagerySource={predictionImagerySource}
-          predictionImageryURL={predictionImageryURL}
+          features={modelPredictions}
+          updateFeatureStatus={updateFeatureStatus}
         />
       )}
-      {map && <PredictedFeatureActionPopup trainingId={trainingId} map={map} />}
 
-      {!modelInfoRequestIsPending && map && <PredictionLayers map={map} />}
+      {!modelInfoRequestIsPending && map && (
+        <AllPredictionsLayer map={map} features={modelPredictions} />
+      )}
+      {map && sourceURL.length > 0 && (
+        <PredictionRasterLayer
+          map={map}
+          predictionImagerySource={predictionImagerySource}
+          tileServiceType={predictionImageryType}
+          layerId={predictionImageryLayerId}
+          sourceURL={sourceURL}
+          isOpenAerialMap={isOpenAerialMap}
+        />
+      )}
       {memoizedToolTip}
-      {map && modelPredictionsExist && !isSmallViewport && <Legend map={map} />}
+      {modelPredictionsExist && !isSmallViewport && <Legend />}
     </MapComponent>
   );
 };
-
-const PredictionLayers = memo(({ map }: { map: Map | null }) => {
-  const { modelPredictions } = useModelPredictionStore();
-
-  return (
-    <>
-      <AcceptedPredictionsLayer
-        map={map}
-        features={modelPredictions.accepted}
-      />
-      <RejectedPredictionsLayer
-        map={map}
-        features={modelPredictions.rejected}
-      />
-      <AllPredictionsLayer map={map} features={modelPredictions.all} />
-    </>
-  );
-});

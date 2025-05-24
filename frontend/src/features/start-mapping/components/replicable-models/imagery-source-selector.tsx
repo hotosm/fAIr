@@ -1,10 +1,9 @@
 import { PredictionImagerySource } from "@/enums/start-mapping";
 import { useMemo, useState } from "react";
-import { SHOELACE_SIZES } from "@/enums";
+import { SHOELACE_SIZES, TileServiceType } from "@/enums";
 import { Button } from "@/components/ui/button";
 import { RadioGroup } from "@/components/ui/form/radio-group/radio-group";
 import { XYZTileServerInput } from "@/components/shared/form/xyz-tile-server-input";
-import { showSuccessToast } from "@/utils";
 import { START_MAPPING_PAGE_CONTENT } from "@/constants";
 import { FormLabel } from "@/components/ui/form";
 
@@ -34,35 +33,79 @@ const PredictionImagerySources: Array<{
 ];
 
 export const ImagerySourceSelector = ({
-  setPredictionImageryURL,
   setPredictionImagerySource,
   predictionImagerySource,
   modelDefaultImageryURL,
-  customTileServerURL,
-  setCustomTileServerURL,
   isMobile,
+  onDropdownHide,
+  tileServerURL,
+  tileServiceType,
+  tileServiceTypeValidity,
+  setTileserverURL,
+  loading,
+  setTileServiceTypeValidity,
+  setTileServiceType,
 }: {
-  setPredictionImageryURL: React.Dispatch<
-    React.SetStateAction<string | undefined>
-  >;
   setPredictionImagerySource: React.Dispatch<
     React.SetStateAction<PredictionImagerySource>
   >;
   predictionImagerySource: PredictionImagerySource;
   modelDefaultImageryURL: string | undefined;
-  customTileServerURL: string;
-  setCustomTileServerURL: React.Dispatch<React.SetStateAction<string>>;
   isMobile?: boolean;
+  onDropdownHide: () => void;
+  tileServerURL: string;
+  tileServiceType: TileServiceType;
+  tileServiceTypeValidity: {
+    valid: boolean;
+    message: string;
+  };
+  setTileServiceTypeValidity: React.Dispatch<
+    React.SetStateAction<{
+      valid: boolean;
+      message: string;
+    }>
+  >;
+  setTileserverURL: React.Dispatch<React.SetStateAction<string>>;
+  loading: boolean;
+  setTileServiceType: React.Dispatch<React.SetStateAction<TileServiceType>>;
 }) => {
-  const PredictionImagerySourceURLS = useMemo(
+  const [localPredictionImagerySource, setLocalPredictionImagerySource] =
+    useState<PredictionImagerySource>(predictionImagerySource);
+  const [localTileServiceType, setLocalTileServiceType] =
+    useState<TileServiceType>(tileServiceType);
+
+  const [localTileServerURL, setLocalTileServerURL] =
+    useState<string>(tileServerURL);
+
+  const [localTileServiceTypeValidity, setLocalTileServiceTypeValidity] =
+    useState<{
+      valid: boolean;
+      message: string;
+    }>(tileServiceTypeValidity);
+  const PredictionImagerySourceURLs = useMemo(
     () => ({
-      [PredictionImagerySource.CustomImagery]: customTileServerURL,
+      [PredictionImagerySource.CustomImagery]: localTileServerURL,
       [PredictionImagerySource.ModelDefault]: modelDefaultImageryURL,
       [PredictionImagerySource.Kontour]:
         "https://apps.kontur.io/raster-tiler/oam/mosaic/{z}/{x}/{y}.png",
     }),
-    [customTileServerURL, modelDefaultImageryURL],
+    [localTileServerURL, modelDefaultImageryURL],
   );
+
+  const handleApply = () => {
+    setPredictionImagerySource(localPredictionImagerySource);
+    setTileServiceType(localTileServiceType);
+    setTileserverURL(
+      (
+        PredictionImagerySourceURLs as Record<
+          PredictionImagerySource,
+          string | undefined
+        >
+      )[localPredictionImagerySource] || "",
+    );
+    setTileServiceTypeValidity(localTileServiceTypeValidity);
+    if (!loading) onDropdownHide();
+  };
 
   return (
     <div
@@ -78,73 +121,43 @@ export const ImagerySourceSelector = ({
       <RadioGroup
         options={PredictionImagerySources}
         onChange={(e) => {
-          setPredictionImagerySource(e as PredictionImagerySource);
-          setPredictionImageryURL(
-            (
-              PredictionImagerySourceURLS as Record<
-                PredictionImagerySource,
-                string | undefined
-              >
-            )[e as PredictionImagerySource],
-          );
+          setLocalPredictionImagerySource(e as PredictionImagerySource);
         }}
-        value={predictionImagerySource}
+        value={localPredictionImagerySource}
         withTooltip
       />
-      {predictionImagerySource === PredictionImagerySource.CustomImagery && (
-        <CustomImageryInput
-          setPredictionImageryURL={setPredictionImageryURL}
-          customTileServerURL={customTileServerURL}
-          setCustomTileServerURL={setCustomTileServerURL}
-        />
+      {localPredictionImagerySource ===
+        PredictionImagerySource.CustomImagery && (
+        <div className="flex flex-col gap-y-2 mt-2">
+          <XYZTileServerInput
+            tileServiceType={localTileServiceType}
+            isValid={localTileServiceTypeValidity}
+            setTileServerURL={(e) => setLocalTileServerURL(e)}
+            tileServerURL={localTileServerURL}
+            validationStateUpdateCallback={setLocalTileServiceTypeValidity}
+            setTileServiceType={setLocalTileServiceType}
+            size={SHOELACE_SIZES.SMALL}
+          />
+        </div>
       )}
-      {predictionImagerySource !== PredictionImagerySource.ModelDefault && (
+      {localPredictionImagerySource !==
+        PredictionImagerySource.ModelDefault && (
         <small>{START_MAPPING_PAGE_CONTENT.replicableModel.info}</small>
       )}
-    </div>
-  );
-};
-
-const CustomImageryInput = ({
-  setPredictionImageryURL,
-  customTileServerURL,
-  setCustomTileServerURL,
-}: {
-  setPredictionImageryURL: React.Dispatch<
-    React.SetStateAction<string | undefined>
-  >;
-  customTileServerURL: string;
-  setCustomTileServerURL: React.Dispatch<React.SetStateAction<string>>;
-}) => {
-  const [isValid, setIsValid] = useState({
-    valid: false,
-    message: "",
-  });
-
-  return (
-    <div className="flex flex-col gap-y-2 mt-2">
-      <XYZTileServerInput
-        isValid={isValid}
-        setTileServerURL={setCustomTileServerURL}
-        tileServerURL={customTileServerURL}
-        validationStateUpdateCallback={(validationState) =>
-          setIsValid(validationState)
-        }
-        size={SHOELACE_SIZES.SMALL}
-      />
       <Button
-        className="!w-fit"
         size={SHOELACE_SIZES.SMALL}
         uppercase={false}
-        disabled={customTileServerURL.length === 0 || !isValid.valid}
-        onClick={() => {
-          setPredictionImageryURL(customTileServerURL);
-          showSuccessToast(
-            "Custom imagery URL applied successfully. Please zoom to the area to view the imagery.",
-          );
-        }}
+        disabled={
+          (localPredictionImagerySource ===
+            PredictionImagerySource.CustomImagery &&
+            !localTileServiceTypeValidity.valid) ||
+          loading
+        }
+        onClick={handleApply}
       >
-        {START_MAPPING_PAGE_CONTENT.replicableModel.apply}
+        {loading
+          ? START_MAPPING_PAGE_CONTENT.replicableModel.loading
+          : START_MAPPING_PAGE_CONTENT.replicableModel.apply}
       </Button>
     </div>
   );

@@ -23,8 +23,7 @@ export const MODELS_CONTENT: TModelsContent = {
       form: {
         modelName: {
           label: "Model Name",
-          helpText:
-            "Model name should be short, clear and be at least 10 characters and at most 40 characters.",
+
           placeholder: "E.g Damaged building detection model",
           toolTip: "Model name will be searchable in the explore model page",
         },
@@ -46,8 +45,7 @@ export const MODELS_CONTENT: TModelsContent = {
         modelDescription: {
           label: "Model Description",
           toolTip: "",
-          helpText:
-            "Model description should be descriptive, be at least 10 characters and at most 500 characters.",
+
           placeholder: "This model is used to detect damaged buildings in ...",
         },
       },
@@ -65,7 +63,8 @@ export const MODELS_CONTENT: TModelsContent = {
           helpText:
             "Dataset name should be at least 10 characters and at most 40 characters.",
           placeholder: "E.g Kakuma OpenAerial Imagery",
-          toolTip: "Dataset Name",
+          toolTip:
+            "Dataset name should be at least 10 characters and at most 40 characters.",
         },
         existingTrainingDatasetSectionDescription:
           "Browse or search for a dataset name. Select a dataset to proceed.",

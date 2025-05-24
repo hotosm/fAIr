@@ -1,22 +1,20 @@
 sl-input.customInput::part(base) {
-  border: none;
   color: var(--hot-fair-color-dark);
-  outline: none;
-  box-shadow: none;
+  border: none;
   padding-inline: 0;
   padding-block: 0;
   width: 100%;
+  box-shadow: none;
+}
+
+sl-input.customInput:focus-within::part(base) {
+  box-shadow: 0 0 0 2px var(--hot-fair-color-gray);
+  outline: none;
 }
 
 sl-input.showBorder::part(form-control-input) {
   border: 1px solid var(--hot-fair-color-gray-border);
-  border-radius: 0px;
-}
-
-sl-input.customInput::part(form-control-input):focus {
-  outline: none;
-  border: none;
-  box-shadow: none;
+  border-radius: 5px;
 }
 
 sl-input.customInput::part(input)::placeholder {
@@ -27,4 +25,15 @@ sl-input.customInput::part(input)::placeholder {
 sl-input::part(input) {
   color: var(--hot-fair-color-dark);
   font-size: var(--hot-fair-font-size-body-text-3);
+}
+
+/*
+  * This is the style for the input when it is invalid.
+  * It will show a red border and a red background.
+  * The red color is defined in the theme.
+*/
+
+sl-input.invalidInput:focus-within::part(base) {
+  box-shadow: 0 0 0 2px var(--hot-fair-color-primary);
+  outline: none;
 }

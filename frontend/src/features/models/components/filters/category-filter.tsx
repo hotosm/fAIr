@@ -1,7 +1,6 @@
 import { CheckboxGroup } from "@/components/ui/form";
 import { DropDown } from "@/components/ui/dropdown";
 import { DropdownMenuItem } from "@/components/ui/dropdown/dropdown";
-import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 
 type CategoryFilterProps = {
   disabled: boolean;
@@ -34,17 +33,11 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({
     },
   ];
 
-  const { dropdownIsOpened, onDropdownHide, onDropdownShow } =
-    useDropdownMenu();
-
   if (!isMobileFilterModal) {
     return (
       <div className="hidden md:block border border-gray-border py-2 px-4">
         <DropDown
           menuItems={categories}
-          dropdownIsOpened={dropdownIsOpened}
-          onDropdownHide={onDropdownHide}
-          onDropdownShow={onDropdownShow}
           handleMenuSelection={() => null}
           disabled={disabled}
           withCheckbox

@@ -12,7 +12,6 @@ import { TBadgeVariants, TTrainingDetails } from "@/types";
 import { TrainingDetailsDialog } from "@/features/models/components/dialogs";
 import { useAuth } from "@/app/providers/auth-provider";
 import { useDialog } from "@/hooks/use-dialog";
-import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { useState } from "react";
 import { useTrainingHistory } from "@/features/models/hooks/use-training";
 import {
@@ -234,14 +233,9 @@ const columnDefinitions = (
               .action,
 
           cell: ({ row }: { row: any }) => {
-            const { dropdownIsOpened, onDropdownHide, onDropdownShow } =
-              useDropdownMenu();
             return (
               <DropDown
                 disableCheveronIcon
-                dropdownIsOpened={dropdownIsOpened}
-                onDropdownHide={onDropdownHide}
-                onDropdownShow={onDropdownShow}
                 triggerComponent={
                   <Badge
                     variant="default"

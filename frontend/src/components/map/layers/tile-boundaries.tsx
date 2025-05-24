@@ -25,6 +25,8 @@ export const TileBoundaries = ({ map }: { map: Map | null }) => {
         },
         layout: { visibility: "visible" },
       });
+      // It should be moved to the top of the layer stack.
+      map.moveLayer(TILE_BOUNDARY_LAYER_ID);
     }
   }, [map]);
 

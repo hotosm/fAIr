@@ -7,7 +7,6 @@ import { APPLICATION_ROUTES } from "@/constants";
 import { useCallback } from "react";
 import { DropDown } from "@/components/ui/dropdown";
 import { ElipsisIcon } from "@/components/ui/icons";
-import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { DropdownPlacement } from "@/enums";
 
 export const NotificationItem = ({
@@ -19,8 +18,6 @@ export const NotificationItem = ({
 }) => {
   const { isPending, mutate } = useUpdateNotification({});
   const navigate = useNavigate();
-  const { dropdownIsOpened, onDropdownHide, onDropdownShow } =
-    useDropdownMenu();
 
   const handleClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
@@ -81,9 +78,6 @@ export const NotificationItem = ({
           ]}
           triggerComponent={<ElipsisIcon className="icon" />}
           placement={DropdownPlacement.BOTTOM_END}
-          dropdownIsOpened={dropdownIsOpened}
-          onDropdownHide={onDropdownHide}
-          onDropdownShow={onDropdownShow}
           disableCheveronIcon
           className={`invisible transition-all duration-100 ${!notification.is_read && "group-hover:visible"}`}
         />

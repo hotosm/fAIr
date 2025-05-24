@@ -1,7 +1,7 @@
 import { IconProps } from "@/types";
 import React from "react";
 
-export const CopyIcon: React.FC<IconProps> = (props) => (
+export const ClipboardIcon: React.FC<IconProps> = (props) => (
   <svg
     {...props}
     viewBox="0 0 16 21"

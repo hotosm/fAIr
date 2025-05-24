@@ -1,7 +1,6 @@
 import { API_ENDPOINTS, apiClient } from "@/services";
 import {
   CloudDownloadIcon,
-  CopyIcon,
   DirectoryIcon,
   FileIcon,
 } from "@/components/ui/icons";
@@ -18,8 +17,8 @@ import {
   SlTreeItem,
 } from "@shoelace-style/shoelace/dist/react";
 import { ToolTip } from "@/components/ui/tooltip";
-import useCopyToClipboard from "@/hooks/use-clipboard";
 import { BASE_API_URL } from "@/config";
+import { CopyButton } from "@/components/ui/copy-button";
 
 type DirectoryTreeProps = {
   datasetId: number;
@@ -56,8 +55,6 @@ const FileItem = ({
   trainingId: number;
   validPath: string;
 }) => {
-  const { copyToClipboard } = useCopyToClipboard();
-
   return (
     <div className="flex items-center gap-x-2 cursor-pointer group pr-20">
       <FileIcon className="w-4 h-4" />
@@ -78,23 +75,14 @@ const FileItem = ({
                 </span>
               </button>
             </ToolTip>
-            <ToolTip content="Click to copy file download link. You can open this link in a new tab to download the file.">
-              <button
-                onClick={() =>
-                  copyToClipboard(
-                    BASE_API_URL +
-                      API_ENDPOINTS.DOWNLOAD_TRAINING_FILE(
-                        trainingId,
-                        validPath,
-                      ),
-                  )
-                }
-              >
-                <span className="roup-hover:inline">
-                  <CopyIcon className="icon" />
-                </span>
-              </button>
-            </ToolTip>
+            <CopyButton
+              text={
+                BASE_API_URL +
+                API_ENDPOINTS.DOWNLOAD_TRAINING_FILE(trainingId, validPath)
+              }
+              size="small"
+              tooltipContent="Click to copy file download link. You can open this link in a new tab to download the file."
+            />
           </div>
         )}
       </div>

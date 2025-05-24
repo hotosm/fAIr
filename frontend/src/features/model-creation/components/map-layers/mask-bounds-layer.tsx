@@ -69,7 +69,7 @@ export const MaskBoundsLayers = ({
   }, [OAMBounds, mapBounds]);
 
   useEffect(() => {
-    if (!map) return;
+    if (!map || !map.getStyle()) return;
     if (!map.getSource(maskBoundsSourceId)) {
       map.addSource(maskBoundsSourceId, {
         type: "geojson",
@@ -109,7 +109,7 @@ export const MaskBoundsLayers = ({
   }, [map]);
 
   useEffect(() => {
-    if (!map || !maskBoundsFeature) return;
+    if (!map || !maskBoundsFeature || !map.getStyle()) return;
     const source = map.getSource(maskBoundsSourceId) as GeoJSONSource;
     if (source) {
       source.setData(maskBoundsFeature as GeoJSONType);

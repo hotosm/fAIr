@@ -35,6 +35,7 @@ export enum ToolTipPlacement {
   RIGHT = "right",
   BOTTOM = "bottom",
   TOP = "top",
+  LEFT = "left",
 }
 
 export enum BASEMAPS {
@@ -80,4 +81,11 @@ export enum ModelTrainingStatus {
   IN_PROGRESS = "IN_PROGRESS",
   FINISHED = "FINISHED",
   FAILED = "FAILED",
+}
+
+export enum TileServiceType {
+  XYZ = "XYZ",
+  TMS = "TMS",
+  TILEJSON = "TileJSON",
+  ESRI = "ESRI",
 }

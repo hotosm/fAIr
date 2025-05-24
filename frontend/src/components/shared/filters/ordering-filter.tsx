@@ -4,7 +4,6 @@ import { DropdownMenuItem } from "@/components/ui/dropdown/dropdown";
 import { MODELS_CONTENT } from "@/constants";
 import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
 import { TQueryParams } from "@/types";
-import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 
 export const ORDERING_FIELDS: DropdownMenuItem[] = [
   {
@@ -48,17 +47,11 @@ export const OrderingFilter: React.FC<OrderingFilterProps> = ({
     });
   };
 
-  const { dropdownIsOpened, onDropdownHide, onDropdownShow } =
-    useDropdownMenu();
-
   if (!isMobileFilterModal) {
     return (
       <div className={className}>
         <DropDown
           menuItems={ORDERING_FIELDS}
-          dropdownIsOpened={dropdownIsOpened}
-          onDropdownHide={onDropdownHide}
-          onDropdownShow={onDropdownShow}
           handleMenuSelection={onSortSelect}
           disabled={disabled}
           withCheckbox

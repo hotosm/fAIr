@@ -5,7 +5,6 @@ import { DropdownPlacement } from "@/enums";
 import { ELEMENT_DISTANCE_FROM_NAVBAR } from "@/config";
 import { truncateString } from "@/utils";
 import { useAuth } from "@/app/providers/auth-provider";
-import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { useNavigate } from "react-router-dom";
 import { APPLICATION_ROUTES, SHARED_CONTENT } from "@/constants";
 import { Avatar } from "@/components/ui/avatar/avatar";
@@ -19,8 +18,6 @@ export const UserProfile = ({
 }) => {
   const { user, logout } = useAuth();
 
-  const { onDropdownHide, onDropdownShow, dropdownIsOpened } =
-    useDropdownMenu();
   const navigate = useNavigate();
   const { isMobile, isTablet } = useScreenSize();
 
@@ -28,43 +25,35 @@ export const UserProfile = ({
 
   return (
     <DropDown
-      onDropdownShow={onDropdownShow}
-      onDropdownHide={onDropdownHide}
-      dropdownIsOpened={dropdownIsOpened}
       menuItems={[
         {
           value: SHARED_CONTENT.navbar.userProfile.profile,
           onClick: () => {
             navigate(APPLICATION_ROUTES.PROFILE_BASE);
-            onDropdownHide();
           },
         },
         {
           value: SHARED_CONTENT.navbar.userProfile.datasets,
           onClick: () => {
             navigate(APPLICATION_ROUTES.PROFILE_DATASETS);
-            onDropdownHide();
           },
         },
         {
           value: SHARED_CONTENT.navbar.userProfile.models,
           onClick: () => {
             navigate(APPLICATION_ROUTES.PROFILE_MODELS);
-            onDropdownHide();
           },
         },
         {
           value: SHARED_CONTENT.navbar.userProfile.settings,
           onClick: () => {
             navigate(APPLICATION_ROUTES.PROFILE_SETTINGS);
-            onDropdownHide();
           },
         },
         {
           value: SHARED_CONTENT.navbar.userProfile.logout,
           onClick: () => {
             logout();
-            onDropdownHide();
           },
           className: "logoutButton",
         },

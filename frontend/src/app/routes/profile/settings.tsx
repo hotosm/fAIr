@@ -38,7 +38,7 @@ export const UserProfileSettingsPage = () => {
     emailTrainingNotification: boolean;
     webTrainingNotification: boolean;
   }>({
-    monthlyNewsletter: user?.newsletter_subscription,
+    monthlyNewsletter: user.newsletter_subscription,
     emailTrainingNotification: user.notifications_delivery_methods.includes(
       NotificationDeliveryMethod.MAIL,
     ),
@@ -55,6 +55,7 @@ export const UserProfileSettingsPage = () => {
       onSuccess: (data) => {
         showSuccessToast("Email update successful.");
         setShowForm(false);
+        // Update the user object in the context.
         setUser(data);
         setIsEmailPending(false);
       },

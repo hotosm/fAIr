@@ -1,6 +1,34 @@
-import { HelpText, Input } from "@/components/ui/form";
-import { INPUT_TYPES, SHOELACE_SIZES } from "@/enums";
-import { XYZ_TILESERVER_URL_REGEX_PATTERN } from "@/utils";
+import { Alert } from "@/components/ui/alert";
+import { HelpText, Input, Select } from "@/components/ui/form";
+import {
+  INPUT_TYPES,
+  SHOELACE_SELECT_SIZES,
+  SHOELACE_SIZES,
+  TileServiceType,
+} from "@/enums";
+import { getTileServerRegex } from "@/utils";
+
+const TILE_SERVICE_TYPES: {
+  name: string;
+  suffix: string;
+  value: TileServiceType;
+}[] = [
+  {
+    name: "XYZ Tile Server",
+    suffix: "Standard web mapping tiles.",
+    value: TileServiceType.XYZ,
+  },
+  {
+    name: "TMS Tile Server",
+    suffix: "TileMapService, inverted Y axis.",
+    value: TileServiceType.TMS,
+  },
+  {
+    name: "TileJSON",
+    suffix: "Provides metadata including bounds and zoom levels.",
+    value: TileServiceType.TILEJSON,
+  },
+];
 
 export const XYZTileServerInput = ({
   tileServerURL,
@@ -10,7 +38,8 @@ export const XYZTileServerInput = ({
   labelWithTooltip = true,
   showBorder = true,
   size,
-  pattern = XYZ_TILESERVER_URL_REGEX_PATTERN.source,
+  tileServiceType,
+  setTileServiceType,
 }: {
   tileServerURL: string;
   setTileServerURL: (url: string) => void;
@@ -23,44 +52,63 @@ export const XYZTileServerInput = ({
     message: string;
   }) => void;
   pattern?: string;
+  tileServiceType: TileServiceType;
+  setTileServiceType: (tileServiceType: TileServiceType) => void;
 }) => {
   return (
-    <>
+    <div className="flex flex-col gap-2">
+      <Select
+        label="Tile Service Type"
+        options={TILE_SERVICE_TYPES}
+        handleChange={(e) => {
+          const newTileServiceType = e as TileServiceType;
+          setTileServiceType(newTileServiceType);
+        }}
+        defaultValue={tileServiceType}
+        size={size as unknown as SHOELACE_SELECT_SIZES}
+      />
       <Input
-        label={"XYZ/TMS Tile Server URL"}
+        label={`${tileServiceType} ${tileServiceType !== TileServiceType.TILEJSON ? "Tile Server" : ""} URL`}
         labelWithTooltip={labelWithTooltip}
         value={tileServerURL}
         toolTipContent={
-          "Provide the URL template for your XYZ tile server. For example, use the TMS link from OpenAerialMap (OAM) or a custom URL."
+          tileServiceType === TileServiceType.TILEJSON
+            ? "Provide the URL to the TileJSON metadata file. For example, use a TileJSON link from a supported service."
+            : "Provide the URL template for your XYZ or TMS tile server. For example, use the TMS link from OpenAerialMap (OAM) or a custom URL."
         }
-        placeholder={"e.g. https://tiles.example.com/{z}/{x}/{y}"}
+        placeholder={
+          tileServiceType === TileServiceType.TILEJSON
+            ? "e.g. https://example.com/tiles.json"
+            : tileServiceType === TileServiceType.XYZ
+              ? "e.g. https://tiles.example.com/{z}/{x}/{y}.png"
+              : "e.g. https://tiles.example.com/{z}/{x}/{-y}.png"
+        }
         showBorder={showBorder}
-        pattern={pattern}
+        pattern={getTileServerRegex(tileServiceType).source}
         handleInput={(e) => setTileServerURL(e.target.value)}
         type={INPUT_TYPES.URL}
         validationStateUpdateCallback={validationStateUpdateCallback}
         isValid={tileServerURL.length > 0 && isValid.valid}
         size={size}
       />
-      <HelpText>
-        {isValid.message.length > 0 ? (
-          isValid.message
-        ) : (
-          <span className="text-wrap text-xs">
-            The XYZ/TMS imagery link should follow the TMS/XYZ standard format:{" "}
-            {`https://tiles.example.com/{z}/{x/y}/{y/x}`} Ensure your imagery
-            URL has CORS enabled and adheres to the{" "}
-            <a
-              href="https://github.com/hotosm/fair?tab=readme-ov-file#imagery-license"
-              target="_blank"
-              className="text-primary underline"
-            >
-              license requirements
-            </a>
-            .
-          </span>
-        )}
-      </HelpText>
-    </>
+      {tileServerURL.length > 0 && !isValid.valid && (
+        <HelpText>
+          <span className="text-primary">{isValid.message}</span>
+        </HelpText>
+      )}
+      <Alert>
+        <span className="text-wrap text-xs">
+          Ensure your imagery URL has CORS enabled and adheres to the{" "}
+          <a
+            href="https://github.com/hotosm/fair?tab=readme-ov-file#imagery-license"
+            target="_blank"
+            className="text-primary underline"
+          >
+            license requirements
+          </a>
+          .
+        </span>
+      </Alert>
+    </div>
   );
 };

@@ -6,19 +6,11 @@ import { Link } from "@/components/ui/link";
 import { navLinks } from "@/constants/general";
 import { NavLogo } from "@/components/layouts";
 import { useHistory } from "@/hooks/use-history";
+import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 
-type BrandLogoWithDropDownProps = {
-  isOpened: boolean;
-  onClose: () => void;
-  onShow: () => void;
-};
-
-export const BrandLogoWithDropDown = ({
-  isOpened,
-  onClose,
-  onShow,
-}: BrandLogoWithDropDownProps) => {
+export const BrandLogoWithDropDown = () => {
   const { goBack } = useHistory();
+  const { dropdownRef } = useDropdownMenu();
   const navItems = navLinks.map((link, id) => (
     <li key={`${link.title}-${id}`}>
       <Link
@@ -34,10 +26,8 @@ export const BrandLogoWithDropDown = ({
   ));
   return (
     <DropDown
+      ref={dropdownRef}
       placement={DropdownPlacement.BOTTOM_START}
-      dropdownIsOpened={isOpened}
-      onDropdownHide={onClose}
-      onDropdownShow={onShow}
       triggerComponent={<NavLogo onClick={() => null} smallerSize />}
       distance={ELEMENT_DISTANCE_FROM_NAVBAR}
       className="rounded-xl md:w-24 lg:w-fit max-w-fit"

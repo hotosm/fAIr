@@ -1,0 +1,9 @@
+sl-alert.info::part(base) {
+  border: 1px solid var(--hot-fair-color-primary);
+  padding: 0px;
+  margin: 0px;
+}
+
+sl-alert.info::part(message) {
+  padding: 10px;
+}

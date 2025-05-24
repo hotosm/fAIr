@@ -4,7 +4,12 @@ import {
   MODELS_ROUTES,
   TOAST_NOTIFICATIONS,
 } from "@/constants";
-import { BASE_MODELS, TrainingDatasetOption, TrainingType } from "@/enums";
+import {
+  BASE_MODELS,
+  TileServiceType,
+  TrainingDatasetOption,
+  TrainingType,
+} from "@/enums";
 import { HOT_FAIR_MODEL_CREATION_LOCAL_STORAGE_KEY } from "@/config";
 import { LngLatBoundsLike } from "maplibre-gl";
 import { useCreateTrainingDataset } from "@/features/model-creation/hooks/use-training-datasets";
@@ -52,6 +57,7 @@ import { useAuth } from "./auth-provider";
 export enum MODEL_CREATION_FORM_NAME {
   MODEL_NAME = "modelName",
   DATASET_NAME = "datasetName",
+  DATASET_OFFSET = "datasetOffset",
   MODEL_DESCRIPTION = "modelDescription",
   BASE_MODELS = "baseModel",
   TRAINING_DATASET_OPTION = "trainingDatasetOption",
@@ -68,6 +74,7 @@ export enum MODEL_CREATION_FORM_NAME {
   OAM_BOUNDS = "oamBounds",
   TRAINING_AREAS = "trainingAreas",
   TRAINING_SETTINGS_IS_VALID = "trainingSettingsIsValid",
+  TILESERVICE_TYPE = "tileserviceType",
 }
 
 export const FORM_VALIDATION_CONFIG = {
@@ -152,10 +159,6 @@ type FormData = {
   trainingDatasetOption: TrainingDatasetOption;
   datasetName: string;
   tmsURL: string;
-  tmsURLValidation: {
-    valid: boolean;
-    message: string;
-  };
   selectedTrainingDatasetId: string;
   trainingAreas: TTrainingAreaFeature[];
   oamTileName: string;
@@ -167,6 +170,8 @@ type FormData = {
   boundaryWidth: number;
   zoomLevels: number[];
   trainingSettingsIsValid: boolean;
+  tileserviceType: TileServiceType;
+  datasetOffset: number[];
 };
 
 const initialFormState: FormData = {
@@ -178,10 +183,6 @@ const initialFormState: FormData = {
   // create new dataset form
   [MODEL_CREATION_FORM_NAME.DATASET_NAME]: "",
   [MODEL_CREATION_FORM_NAME.TMS_URL]: "",
-  [MODEL_CREATION_FORM_NAME.TMS_URL_VALIDITY]: {
-    valid: false,
-    message: "",
-  },
   [MODEL_CREATION_FORM_NAME.SELECTED_TRAINING_DATASET_ID]: "",
   [MODEL_CREATION_FORM_NAME.TRAINING_AREAS]: [],
   // oam tms info
@@ -195,6 +196,8 @@ const initialFormState: FormData = {
   [MODEL_CREATION_FORM_NAME.BOUNDARY_WIDTH]: 3,
   [MODEL_CREATION_FORM_NAME.ZOOM_LEVELS]: [19, 20, 21],
   [MODEL_CREATION_FORM_NAME.TRAINING_SETTINGS_IS_VALID]: true,
+  [MODEL_CREATION_FORM_NAME.TILESERVICE_TYPE]: TileServiceType.XYZ,
+  [MODEL_CREATION_FORM_NAME.DATASET_OFFSET]: [0, 0],
 };
 
 const ModelsContext = createContext<{
@@ -228,14 +231,13 @@ const ModelsContext = createContext<{
   isEditMode: boolean;
   modelId?: string;
   getFullPath: (path: string) => string;
-  trainingDatasetCreationInProgress: boolean;
   handleModelCreationAndUpdate: () => void;
-  handleTrainingDatasetCreation: () => void;
   validateEditMode: boolean;
   isError: boolean;
   isPending: boolean;
   data: TModelDetails;
   isModelOwner: boolean;
+  modelCreationOrUpdateInProgress: boolean;
 }>({
   formData: initialFormState,
   setFormData: () => {},
@@ -259,13 +261,12 @@ const ModelsContext = createContext<{
   modelId: "",
   getFullPath: () => "",
   handleModelCreationAndUpdate: () => {},
-  trainingDatasetCreationInProgress: false,
-  handleTrainingDatasetCreation: () => {},
   validateEditMode: false,
   isPending: false,
   isError: false,
   data: {} as TModelDetails,
   isModelOwner: false,
+  modelCreationOrUpdateInProgress: false,
 });
 
 export const ModelsProvider: React.FC<{
@@ -274,6 +275,7 @@ export const ModelsProvider: React.FC<{
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const { modelId, id } = useParams();
+
   const { setValue, removeValue, getValue } = useLocalStorage();
   const storedFormData = getValue(HOT_FAIR_MODEL_CREATION_LOCAL_STORAGE_KEY);
   const [formData, setFormData] = useState<typeof initialFormState>(
@@ -364,6 +366,7 @@ export const ModelsProvider: React.FC<{
       MODEL_CREATION_FORM_NAME.TMS_URL,
       data.dataset.source_imagery ?? "",
     );
+    handleChange(MODEL_CREATION_FORM_NAME.DATASET_OFFSET, data.dataset.offset);
   }, [isEditMode, isError, isPending, data]);
 
   const resetState = () => {
@@ -415,8 +418,7 @@ export const ModelsProvider: React.FC<{
           MODEL_CREATION_FORM_NAME.SELECTED_TRAINING_DATASET_ID,
           data.id,
         );
-        // Navigate to the next step
-        navigate(APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_AREA);
+        handleChange(MODEL_CREATION_FORM_NAME.DATASET_OFFSET, data.offset);
       },
       onError: (error) => {
         showErrorToast(error);
@@ -493,15 +495,6 @@ export const ModelsProvider: React.FC<{
     [formData],
   );
 
-  const handleTrainingDatasetCreation = () => {
-    createNewTrainingDatasetMutation.mutate({
-      source_imagery: formData.tmsURL,
-      name: formData.datasetName,
-    });
-  };
-  const trainingDatasetCreationInProgress =
-    createNewTrainingDatasetMutation.isPending;
-
   const handleModelCreationAndUpdate = () => {
     // The user is trying to edit their model.
     // In this case, send a PATCH request and submit a training request.
@@ -527,6 +520,11 @@ export const ModelsProvider: React.FC<{
     }
   };
 
+  const modelCreationOrUpdateInProgress = useMemo(
+    () => modelCreateMutation.isPending || modelUpdateMutation.isPending,
+    [modelCreateMutation.isPending, modelUpdateMutation.isPending],
+  );
+
   const memoizedValues = useMemo(
     () => ({
       setFormData,
@@ -540,14 +538,13 @@ export const ModelsProvider: React.FC<{
       modelId,
       getFullPath,
       handleModelCreationAndUpdate,
-      handleTrainingDatasetCreation,
-      trainingDatasetCreationInProgress,
       validateEditMode,
       resetState,
       data,
       isPending,
       isError,
       isModelOwner,
+      modelCreationOrUpdateInProgress,
     }),
     [
       setFormData,
@@ -562,13 +559,12 @@ export const ModelsProvider: React.FC<{
       resetState,
       getFullPath,
       handleModelCreationAndUpdate,
-      handleTrainingDatasetCreation,
-      trainingDatasetCreationInProgress,
       validateEditMode,
       data,
       isPending,
       isError,
       isModelOwner,
+      modelCreationOrUpdateInProgress,
     ],
   );
 

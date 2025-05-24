@@ -1,7 +1,7 @@
-import { IconProps } from "@/types";
+import { IconProps, ShoelaceSlotProps } from "@/types";
 import React from "react";
 
-export const InfoIcon: React.FC<IconProps> = (props) => (
+export const InfoIcon: React.FC<IconProps & ShoelaceSlotProps> = (props) => (
   <svg
     {...props}
     viewBox="0 0 16 17"

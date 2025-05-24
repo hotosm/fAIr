@@ -1,7 +1,9 @@
 import { GeoJSON } from "geojson";
 import { LngLatBoundsLike } from "maplibre-gl";
 import { SHOELACE_SELECT_SIZES } from "@/enums";
-import { TModelPredictionFeature } from "./api";
+import { SlDropdown as SlDropdownType } from "@shoelace-style/shoelace";
+
+export type { SlDropdownType };
 
 /* eslint-disable @typescript-eslint/no-empty-object-type */
 export interface IconProps extends React.SVGProps<SVGSVGElement> {}
@@ -43,12 +45,6 @@ export type DialogProps = {
 export type BBOX = [number, number, number, number];
 
 export type GeoJSONType = GeoJSON;
-
-export type TModelPredictions = {
-  all: TModelPredictionFeature[];
-  accepted: TModelPredictionFeature[];
-  rejected: TModelPredictionFeature[];
-};
 
 export type TFAQs = {
   question: string;

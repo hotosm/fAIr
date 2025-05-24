@@ -12,3 +12,9 @@ export const PredictionModel = {
   CUSTOM: "Custom",
   ...BASE_MODELS,
 };
+
+export enum PredictedFeatureStatus {
+  ACCEPTED = "accepted",
+  REJECTED = "rejected",
+  UNTOUCHED = "untouched",
+}

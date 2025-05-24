@@ -1,6 +1,7 @@
 import { FormLabel, HelpText } from "@/components/ui/form";
 import { SlTextarea } from "@shoelace-style/shoelace/dist/react";
-import "./text-area.css";
+import styles from "./text-area.module.css";
+import { useRef } from "react";
 
 type TextAreaProps = {
   toolTipContent?: string;
@@ -15,6 +16,11 @@ type TextAreaProps = {
   required?: boolean;
   maxLength?: number;
   minLength?: number;
+  validationStateUpdateCallback?: (validity: {
+    valid: boolean;
+    message: string;
+  }) => void;
+  isValid?: boolean;
 };
 
 const TextArea: React.FC<TextAreaProps> = ({
@@ -30,18 +36,33 @@ const TextArea: React.FC<TextAreaProps> = ({
   required = false,
   maxLength,
   minLength,
+  validationStateUpdateCallback,
+  isValid = false,
 }) => {
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
   return (
     <SlTextarea
+      className={`${styles.default} ${isValid === false ? styles.invalidInput : ""}`}
       placeholder={placeholder}
       resize="none"
       disabled={disabled}
-      // @ts-expect-error bad type definition
-      onSlInput={handleChange}
+      onSlInput={(e) => {
+        validationStateUpdateCallback &&
+          validationStateUpdateCallback?.({
+            valid: inputRef.current?.validity?.valid as boolean,
+            message: inputRef.current?.validationMessage as string,
+          });
+
+        // @ts-expect-error bad type definition
+        handleChange(e);
+      }}
       value={value}
       rows={10}
       minlength={minLength}
       maxlength={maxLength}
+      // @ts-expect-error bad type definition
+      ref={inputRef}
     >
       {label && (
         <FormLabel
@@ -55,7 +76,13 @@ const TextArea: React.FC<TextAreaProps> = ({
         />
       )}
 
-      {helpText && <HelpText content={helpText} />}
+      {helpText && (
+        <HelpText
+          content={helpText}
+          isValid={isValid}
+          currentLength={String(value).length}
+        />
+      )}
       {children}
     </SlTextarea>
   );
