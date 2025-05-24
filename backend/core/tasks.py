@@ -515,7 +515,7 @@ def predict_area(prediction_request_id):
     )
     logger.addHandler(file_handler)
     try:
-        logger.info("Starting model training task")
+        logger.info("Starting model prediction task")
         with capture_output_to_file(log_file):
             inst.status, inst.started_at, inst.task_id = (
                 "RUNNING",

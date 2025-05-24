@@ -96,6 +96,29 @@ services:
       - redis
       - postgres
 
+  prediction-worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.API
+      args:
+        - BUILD_TARGET=predictor
+    platform: linux/amd64
+    container_name: prediction-worker
+    command: celery -A aiproject worker --loglevel=INFO --concurrency=1 -Q predictions --pool=solo
+    env_file:
+      - ./backend/.env
+    volumes:
+      - ./backend/log:/app/log
+      - ./backend/core:/app/core
+      - ./backend/login:/app/login
+      - ./backend/aiproject:/app/aiproject
+      - ${RAMP_HOME:-./ramp}:/RAMP_HOME
+      - ${TRAINING_WORKSPACE:-./trainings}:/TRAINING_WORKSPACE
+    depends_on:
+      - backend-api
+      - redis
+      - postgres
+
   frontend:
     build:
       context: ./frontend
