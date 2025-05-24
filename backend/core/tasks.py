@@ -224,14 +224,17 @@ class Trainer:
         }
 
     def _train_ramp(self, output_path):
-        os.environ['TF_XLA_FLAGS'] = '--tf_xla_auto_jit=-1'
+        os.environ["TF_XLA_FLAGS"] = "--tf_xla_auto_jit=-1"
         import tensorflow as tf
         from hot_fair_utilities import preprocess
         from hot_fair_utilities.training.ramp import train
-        tf.config.optimizer.set_jit(False)  # Disable XLA for RAMP training , bug in tensorflow 2.9.*
-        
+
+        tf.config.optimizer.set_jit(
+            False
+        )  # Disable XLA for RAMP training , bug in tensorflow 2.9.*
+
         # os.environ["TF_XLA_FLAGS"] = "--tf_xla_auto_jit=-1"
-        
+
         setup_ramp()
         (
             inst,
@@ -523,14 +526,26 @@ def predict_area(prediction_request_id):
                 predict_area.request.id,
             )
             inst.save()
-            inst.config["geojson"] = inst.geom
             params = PredictionRequest(**inst.config)
+            predictions = asyncio.run(
+                predict(
+                    geojson=inst.geom.geojson,
+                    model_path=params.checkpoint,
+                    zoom_level=params.zoom_level,
+                    tms_url=params.source,
+                    confidence=params.confidence / 100,
+                    tolerance=params.tolerance,
+                    area_threshold=params.area_threshold,
+                    orthogonalize=params.use_josm_q,
+                    vectorization_algorithm=params.vectorization_algorithm,
+                )
+            )
 
-            predictions = asyncio.run(predict(**params))
-            out = os.path.join(settings.PREDICTION_WORKSPACE, inst.id)
+            out = os.path.join(settings.PREDICTION_WORKSPACE, str(inst.id))
+            os.makedirs(out, exist_ok=True)
             write_json(
                 os.path.join(out, "aois.geojson"),
-                inst.geom,
+                inst.geom.geojson,
             )
             write_json(
                 os.path.join(out, "labels.geojson"),

@@ -55,4 +55,5 @@ yolo-workers = [
 ]
 prediction-workers = [
     "fairpredictor>=0.3.4",
+    "tippecanoe>=2.72.0",
 ]
