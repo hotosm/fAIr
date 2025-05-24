@@ -43,15 +43,14 @@ jobs:
       - name: Clone Ramp
         run: git clone https://github.com/kshitijrajsharma/ramp-code-fAIr.git ramp-code
 
-      - name: Install gdown
-        run: pip install gdown
+      - name: Install uv
+        run: pip install uv
 
       - name: Download Basemodel
-        run: gdown --fuzzy https://drive.google.com/file/d/1YQsY61S_rGfJ_f6kLQq4ouYE2l3iRe1k/view?usp=sharing
+        run: wget https://api-prod.fair.hotosm.org/api/v1/workspace/download/ramp/baseline.zip
 
       - name: Unzip and Move Basemodel
-        run: unzip checkpoint.tf.zip -d ramp-code/ramp
-
+        run: unzip baseline.zip -d ramp-code/ramp
       - name: Install gdal
         run: |
           sudo apt-get update && sudo apt-get -y install gdal-bin libgdal-dev python3-gdal && sudo apt-get -y autoremove && sudo apt-get clean
@@ -82,7 +81,8 @@ jobs:
       - name: Install Dependencies
         working-directory: ./backend
         run: |
-          pip install -r requirements.txt
+          uv pip compile --python-version=3.8  pyproject.toml -o requirements.txt --group api --group base-workers --group ramp-workers
+          pip install --no-cache-dir -r requirements.txt
           pip install coverage
           pip install factory-boy
 
