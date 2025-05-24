@@ -3,6 +3,7 @@ import json
 import logging
 import os
 import pathlib
+import shutil
 import subprocess
 import sys
 import time
@@ -338,11 +339,21 @@ def prepare_data(inst, dataset_id, feedback, zoom_level, imagery, input_path):
                     zoom=z,
                     tms=imagery,
                     out=input_path,
-                    georeference=True,
+                    georeference=False,
                     crs="3857",
+                    extension="png",
                 )
             )
-
+    input_path = pathlib.Path(input_path)
+    chips_folder = input_path / "chips"
+    if chips_folder.exists() and chips_folder.is_dir():
+        for file in chips_folder.iterdir():
+            if file.is_file():
+                destination = input_path / file.name
+                shutil.move(str(file), destination)
+        chips_folder.rmdir()
+    else:
+        print("[✗] 'chips' folder does not exist at:", chips_folder)
     if is_dir_empty(input_path):
         raise ValueError("No images found in the area")
 
