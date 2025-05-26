@@ -71,7 +71,8 @@ jobs:
           echo "DATABASE_URL=postgis://admin:password@localhost:5432/ai" >> $GITHUB_ENV
           echo "RAMP_HOME=${{ github.workspace }}" >> $GITHUB_ENV
           echo "TRAINING_WORKSPACE=${{ github.workspace }}/backend/training" >> $GITHUB_ENV
-
+          echo "CELERY_BROKER_URL=redis://redis:6379/0" >> $GITHUB_ENV
+          echo "CELERY_RESULT_BACKEND=redis://redis:6379/0" >> $GITHUB_ENV
       - name: Run migrations
         env:
           TESTING_TOKEN: ${{ secrets.TESTING_TOKEN }}
