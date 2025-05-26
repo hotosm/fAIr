@@ -28,6 +28,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      actions: write
     steps:
       - name: Remove unnecessary files
         run: |
@@ -73,6 +74,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      actions: write
     steps:
       - name: Remove unnecessary files
         run: |
@@ -120,6 +122,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      actions: write
     steps:
       - name: Remove unnecessary files
         run: |
