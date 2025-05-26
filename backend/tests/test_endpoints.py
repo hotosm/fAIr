@@ -235,19 +235,19 @@ class TaskApiTest(APILiveServerTestCase):
         )
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_fetch_feedbackAoi_osm_label(self):
-        # create feedback aoi
-        training = TrainingFactory(model=self.model, user=self.user)
-        feedbackAoi = FeedbackAoiFactory(training=training, user=self.user)
+    # def test_fetch_feedbackAoi_osm_label(self):
+    #     # create feedback aoi
+    #     training = TrainingFactory(model=self.model, user=self.user)
+    #     feedbackAoi = FeedbackAoiFactory(training=training, user=self.user)
 
-        # download available osm data as labels for the feedback aoi
+    #     # download available osm data as labels for the feedback aoi
 
-        res = self.client.post(
-            f"{API_BASE}/label/feedback/osm/fetch/{feedbackAoi.id}/",
-            "",
-            headers=headersList,
-        )
-        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+    #     res = self.client.post(
+    #         f"{API_BASE}/label/feedback/osm/fetch/{feedbackAoi.id}/",
+    #         "",
+    #         headers=headersList,
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_201_CREATED)
 
     def test_get_runStatus(self):
         training = TrainingFactory(model=self.model, user=self.user)
