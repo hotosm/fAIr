@@ -46,46 +46,6 @@ jobs:
       - name: Install uv
         run: pip install uv
 
-      - name: Download Basemodel
-        run: wget https://api-prod.fair.hotosm.org/api/v1/workspace/download/ramp/baseline.zip
-
-      - name: Unzip and Move Basemodel
-        run: unzip baseline.zip -d ramp-code/ramp
-      - name: Install gdal
-        run: |
-          sudo apt-get update && sudo apt-get -y install gdal-bin libgdal-dev python3-gdal && sudo apt-get -y autoremove && sudo apt-get clean
-          pip install GDAL==$(gdal-config --version)
-      - name: Install ramp dependecies
-        run: |
-          cd ramp-code && cd colab && make install
-
-      - name: Install tensorflow
-        run: pip install tensorflow==2.9.2
-
-      - name: Install fair utilities
-        run: pip install hot-fair-utilities
-
-      - name: Install Psycopg2
-        run: |
-          sudo apt-get install python3-psycopg2
-
-      - name: Install redis
-        run: |
-          sudo apt install lsb-release
-          curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
-          echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
-          sudo apt-get update
-          sudo apt-get install redis
-          redis-cli ping
-
-      - name: Install Dependencies
-        working-directory: ./backend
-        run: |
-          uv pip compile --python-version=3.8  pyproject.toml -o requirements.txt --group api --group base-workers --group ramp-workers
-          pip install --no-cache-dir -r requirements.txt
-          pip install coverage
-          pip install factory-boy
-
       - name: Create env
         working-directory: ./backend
         run: |
@@ -100,18 +60,6 @@ jobs:
       - name: Run flower dashboard
         working-directory: ./backend
         run: celery -A aiproject --broker=redis://localhost:6379/ flower  &
-
-      - name: Fix gdal array
-        run: |
-          pip uninstall -y gdal
-          pip install numpy
-          pip install GDAL==$(gdal-config --version) --global-option=build_ext --global-option="-I/usr/include/gdal"
-
-      - name: Check Opencv version
-        run: |
-          pip freeze | grep opencv
-          pip install opencv-python-headless==4.7.0.68
-
       - name: Run migrations
         env:
           TESTING_TOKEN: ${{ secrets.TESTING_TOKEN }}
