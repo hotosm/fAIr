@@ -148,7 +148,7 @@ Docker Compose is created with redis , worker , postgis database ,  api and fron
     backend-api:
         build:
         context: ./backend
-        dockerfile: Dockerfile_CPU
+        dockerfile: Dockerfile.API
         container_name: api
         command: python manage.py runserver 0.0.0.0:8000
 
@@ -166,7 +166,7 @@ Docker Compose is created with redis , worker , postgis database ,  api and fron
     backend-worker:
         build:
         context: ./backend
-        dockerfile: Dockerfile_CPU
+        dockerfile: Dockerfile.workers
         container_name: worker
         command: celery -A aiproject worker --loglevel=INFO --concurrency=1 -Q ramp_training,yolo_training
 

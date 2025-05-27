@@ -1,10 +1,8 @@
 from django.contrib.gis.db import models as geomodels
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
-from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
-
 from login.models import OsmUser
 
 
@@ -116,22 +114,19 @@ class Training(models.Model):
 
 
 class Feedback(models.Model):
-    FEEDBACK_TYPE = (
-        ("TP", "True Positive"),
-        ("TN", "True Negative"),
-        ("FP", "False Positive"),
-        ("FN", "False Negative"),
+    ACTION_CHOICES = (
+        ("ACCEPT", "ACCEPT"),
+        ("REJECT", "REJECT"),
     )
     geom = geomodels.GeometryField(srid=4326)
-    training = models.ForeignKey(Training, to_field="id", on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
-    zoom_level = models.PositiveIntegerField(
-        validators=[MinValueValidator(18), MaxValueValidator(23)]
+    training = models.ForeignKey(
+        Training, to_field="id", on_delete=models.CASCADE, blank=True, null=True
     )
-    feedback_type = models.CharField(choices=FEEDBACK_TYPE, max_length=10)
+    action = models.CharField(choices=ACTION_CHOICES, default="ACCEPT", max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+    config = models.JSONField(null=True, blank=True)
     comments = models.TextField(max_length=100, null=True, blank=True)
     user = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
-    source_imagery = models.URLField()
 
 
 class FeedbackAOI(models.Model):
@@ -161,6 +156,7 @@ class FeedbackLabel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 
+# TODO : Remote this table after migration is done to feedback
 class ApprovedPredictions(models.Model):
     training = models.ForeignKey(Training, to_field="id", on_delete=models.DO_NOTHING)
     config = models.JSONField(
@@ -189,7 +185,6 @@ class Banner(models.Model):
 
 
 class UserNotification(models.Model):
-
     user = models.ForeignKey(
         OsmUser,
         to_field="osm_id",
@@ -210,3 +205,35 @@ class UserNotification(models.Model):
 
     def __str__(self):
         return f"Notification for {self.user.username}: {self.message[:50]}..."
+
+
+class Prediction(models.Model):
+    STATUS_CHOICES = (
+        ("SUBMITTED", "SUBMITTED"),
+        ("RUNNING", "RUNNING"),
+        ("FINISHED", "FINISHED"),
+        ("FAILED", "FAILED"),
+    )
+    created_at = models.DateTimeField(default=timezone.now)
+    started_at = models.DateTimeField(null=True, blank=True)
+    finished_at = models.DateTimeField(null=True, blank=True)
+    status = models.CharField(
+        choices=STATUS_CHOICES, default="SUBMITTED", max_length=10
+    )
+    task_id = models.CharField(null=True, blank=True, max_length=100)
+    mapswipe_id = models.CharField(null=True, blank=True, max_length=100)
+    config = models.JSONField(null=True, blank=True)
+    geom = geomodels.PolygonField(srid=4326)
+    user = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
+
+    def clean(self):
+        if self.config:
+            required_fields = ["checkpoint", "zoom_level", "source"]
+            missing_fields = [
+                field for field in required_fields if field not in self.config
+            ]
+
+            if missing_fields:
+                raise ValidationError(
+                    {"config": f"Missing required fields: {', '.join(missing_fields)}"}
+                )

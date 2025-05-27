@@ -57,6 +57,7 @@ OSM_SECRET_KEY = env("OSM_SECRET_KEY")
 
 
 # S3
+USE_S3_TO_UPLOAD_MODELS = env("USE_S3_TO_UPLOAD_MODELS", default=False)
 BUCKET_NAME = env("BUCKET_NAME", default="fair-dev")
 PARENT_BUCKET_FOLDER = env(
     "PARENT_BUCKET_FOLDER", default="dev"
@@ -250,9 +251,9 @@ YOLO_HOME = env("YOLO_HOME", default=os.getcwd())
 TRAINING_WORKSPACE = env(
     "TRAINING_WORKSPACE", default=os.path.join(os.getcwd(), "training")
 )
-
-ENABLE_PREDICTION_API = env("ENABLE_PREDICTION_API", default=False)
-
+PREDICTION_WORKSPACE = env(
+    "PREDICTION_WORKSPACE", default=os.path.join(os.getcwd(), "prediction")
+)
 
 LOG_LINE_STREAM_TRUNCATE_VALUE = env("LOG_LINE_STREAM_TRUNCATE_VALUE", default=10)
 

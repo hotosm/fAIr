@@ -1,0 +1,99 @@
+# .github/workflows/test_backend_build.yml
+name: Backend Tests with UV and Python Matrix
+
+on:
+  push:
+    branches:
+      - master
+      - develop
+    paths:
+      - "backend/**"
+      - ".github/workflows/test_backend_build.yml"
+  pull_request:
+    branches:
+      - master
+      - develop
+    paths:
+      - "backend/**"
+      - ".github/workflows/test_backend_build.yml"
+
+jobs:
+  test_with_uv_matrix:
+    runs-on: ubuntu-latest
+    services:
+      redis:
+        image: redis
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+        ports:
+          - 6379:6379
+      postgres:
+        image: postgis/postgis:14-3.2
+        env:
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: ai
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 2
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11"]
+    permissions:
+      id-token: write
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }} and uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
+      - name: Install gdal
+        run: |
+          sudo apt-get update && sudo apt-get -y install gdal-bin libgdal-dev python3-gdal && sudo apt-get -y autoremove && sudo apt-get clean
+
+      - name: Install Dependencies
+        working-directory: ./backend
+        run: |
+          uv add coverage factory-boy
+
+      - name: Clone Ramp
+        run: git clone https://github.com/kshitijrajsharma/ramp-code-fAIr.git ramp-code
+
+      - name: Set up environment variables
+        run: |
+          echo "DATABASE_URL=postgis://admin:password@localhost:5432/ai" >> $GITHUB_ENV
+          echo "RAMP_HOME=${{ github.workspace }}" >> $GITHUB_ENV
+          echo "TRAINING_WORKSPACE=${{ github.workspace }}/backend/training" >> $GITHUB_ENV
+      - name: Run migrations
+        env:
+          TESTING_TOKEN: ${{ secrets.TESTING_TOKEN }}
+          OSM_CLIENT_ID: ${{ secrets.OSM_CLIENT_ID }}
+          OSM_CLIENT_SECRET: ${{ secrets.OSM_CLIENT_SECRET }}
+          OSM_SECRET_KEY: ${{ secrets.OSM_SECRET_KEY }}
+          # DATABASE_URL, RAMP_HOME, TRAINING_WORKSPACE are available from the previous step via $GITHUB_ENV
+        working-directory: ./backend
+        run: |
+          uv run python manage.py makemigrations
+          uv run python manage.py makemigrations core
+          uv run python manage.py makemigrations login
+          uv run python manage.py migrate
+          uv run python manage.py migrate login
+          uv run python manage.py migrate core
+
+      - name: Run tests
+        env:
+          TESTING_TOKEN: ${{ secrets.TESTING_TOKEN }}
+          OSM_CLIENT_ID: ${{ secrets.OSM_CLIENT_ID }}
+          OSM_CLIENT_SECRET: ${{ secrets.OSM_CLIENT_SECRET }}
+          OSM_SECRET_KEY: ${{ secrets.OSM_SECRET_KEY }}
+          # DATABASE_URL, RAMP_HOME, TRAINING_WORKSPACE are available from $GITHUB_ENV
+        working-directory: ./backend
+        run: uv run coverage run manage.py test tests

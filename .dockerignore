@@ -1,0 +1,99 @@
+# Ignore Python cache and virtualenv files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.pyo
+.Python
+env/
+venv/
+ENV/
+VENV/
+*.env
+*.venv
+
+backend/env/
+backend/venv/
+backend/ENV/
+backend/VENV/
+backend/*.env
+backend/*.venv
+
+
+# Ignore pip and poetry files/directories
+pip-log.txt
+pip-delete-this-directory.txt
+poetry.lock
+
+# Ignore Django static/media output (customize as needed)
+static/
+media/
+
+# Ignore test and coverage artifacts
+.coverage
+.tox/
+.nox/
+.pytest_cache/
+htmlcov/
+.coverage.*
+.cache
+.mypy_cache/
+.dmypy.json
+.pyre/
+.pytype/
+
+# Ignore log files
+*.log
+
+# Ignore IDE/editor files
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+*.swp
+*.swo
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore frontend build and dependency directories
+frontend/node_modules/
+frontend/build/
+frontend/dist/
+frontend/.env
+frontend/.next/
+frontend/.cache/
+frontend/.turbo/
+
+# Ignore backend specific (if any)
+backend/node_modules/
+backend/staticfiles/
+backend/.env
+backend/.venv
+backend/.pytest_cache/
+backend/migrations/
+backend/db.sqlite3
+
+# Ignore git
+.git/
+.gitignore
+
+# Ignore Docker files themselves (don't copy into image)
+Dockerfile
+backend/Dockerfile.*
+frontend/Dockerfile.*
+.dockerignore
+
+# Ignore miscellaneous
+*.sqlite3
+*.db
+*.bak
+*.orig
+*.tmp
+tmp/
+*.pem
+*.crt
+*.key
+*.lock

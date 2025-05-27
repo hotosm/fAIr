@@ -235,19 +235,19 @@ class TaskApiTest(APILiveServerTestCase):
         )
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_fetch_feedbackAoi_osm_label(self):
-        # create feedback aoi
-        training = TrainingFactory(model=self.model, user=self.user)
-        feedbackAoi = FeedbackAoiFactory(training=training, user=self.user)
+    # def test_fetch_feedbackAoi_osm_label(self):
+    #     # create feedback aoi
+    #     training = TrainingFactory(model=self.model, user=self.user)
+    #     feedbackAoi = FeedbackAoiFactory(training=training, user=self.user)
 
-        # download available osm data as labels for the feedback aoi
+    #     # download available osm data as labels for the feedback aoi
 
-        res = self.client.post(
-            f"{API_BASE}/label/feedback/osm/fetch/{feedbackAoi.id}/",
-            "",
-            headers=headersList,
-        )
-        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+    #     res = self.client.post(
+    #         f"{API_BASE}/label/feedback/osm/fetch/{feedbackAoi.id}/",
+    #         "",
+    #         headers=headersList,
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_201_CREATED)
 
     def test_get_runStatus(self):
         training = TrainingFactory(model=self.model, user=self.user)
@@ -266,12 +266,16 @@ class TaskApiTest(APILiveServerTestCase):
 
         training_feedback_payload = {
             "training_id": training.id,
-            "epochs": 20,
-            "batch_size": 8,
-            "zoom_level": [19, 20],
+            "config": {
+                "epochs": 20,
+                "batch_size": 8,
+                "zoom_level": [19, 20],
+            },
+            "comments": "This is not a good feedback",
+            "action": "REJECT",
         }
         res = self.client.post(
-            f"{API_BASE}/feedback/training/submit/",
+            f"{API_BASE}/feedback/",
             json.dumps(training_feedback_payload),
             headers=self.json_type_header,
         )
@@ -288,21 +292,21 @@ class TaskApiTest(APILiveServerTestCase):
         )
         self.assertEqual(res.status_code, 409)
 
-    def test_get_GpxView(self):
-        training = TrainingFactory(model=self.model, user=self.user)
-        feedbackAoi = FeedbackAoiFactory(training=training, user=self.user)
+    # def test_get_GpxView(self):
+    #     training = TrainingFactory(model=self.model, user=self.user)
+    #     feedbackAoi = FeedbackAoiFactory(training=training, user=self.user)
 
-        # generate aoi GPX view - aoi_id
+    #     # generate aoi GPX view - aoi_id
 
-        res = self.client.get(f"{API_BASE}/aoi/gpx/{self.aoi.id}/", headers=headersList)
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     res = self.client.get(f"{API_BASE}/aoi/gpx/{self.aoi.id}/", headers=headersList)
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        # generate feedback aoi GPX view - feedback aoi_id
+    #     # generate feedback aoi GPX view - feedback aoi_id
 
-        res = self.client.get(
-            f"{API_BASE}/feedback-aoi/gpx/{feedbackAoi.id}/", headers=headersList
-        )
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     res = self.client.get(
+    #         f"{API_BASE}/feedback-aoi/gpx/{feedbackAoi.id}/", headers=headersList
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
 
     # def test_get_workspace(self):
     #     # get training workspace

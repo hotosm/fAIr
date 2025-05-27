@@ -1,3 +1,4 @@
+import asyncio
 import json
 import logging
 import os
@@ -5,7 +6,6 @@ import pathlib
 import shutil
 import subprocess
 import sys
-import tarfile
 import time
 from contextlib import contextmanager
 from datetime import datetime
@@ -15,7 +15,15 @@ from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
-from core.models import AOI, FeedbackAOI, FeedbackLabel, Label, Model, Training
+from core.models import (
+    AOI,
+    FeedbackAOI,
+    FeedbackLabel,
+    Label,
+    Model,
+    Prediction,
+    Training,
+)
 from core.serializers import (
     AOISerializer,
     FeedbackAOISerializer,
@@ -31,6 +39,7 @@ from .utils import (
     safe_copytree,
     safe_rmtree,
     send_notification,
+    setup_ramp,
     shift_labels_by_offset,
     write_json,
     xz_folder,
@@ -215,10 +224,18 @@ class Trainer:
         }
 
     def _train_ramp(self, output_path):
+        os.environ["TF_XLA_FLAGS"] = "--tf_xla_auto_jit=-1"
         import tensorflow as tf
         from hot_fair_utilities import preprocess
         from hot_fair_utilities.training.ramp import train
 
+        tf.config.optimizer.set_jit(
+            False
+        )  # Disable XLA for RAMP training , bug in tensorflow 2.9.*
+
+        # os.environ["TF_XLA_FLAGS"] = "--tf_xla_auto_jit=-1"
+
+        setup_ramp()
         (
             inst,
             dataset_id,
@@ -300,7 +317,7 @@ def upload_to_s3(path, parent=None):
 
 
 def prepare_data(inst, dataset_id, feedback, zoom_level, imagery, input_path):
-    from predictor import download_imagery, get_start_end_download_coords
+    from geomltoolkits.downloader import tms as TMSDownloader
 
     safe_rmtree(input_path)
     os.makedirs(input_path)
@@ -323,11 +340,27 @@ def prepare_data(inst, dataset_id, feedback, zoom_level, imagery, input_path):
 
     for obj in aois:
         for z in zoom_level:
-            start, end = get_start_end_download_coords(
-                bbox(obj.geom.coords[0]), z, DEFAULT_TILE_SIZE
+            asyncio.run(
+                TMSDownloader.download_tiles(
+                    bbox=bbox(obj.geom.coords[0]),
+                    zoom=z,
+                    tms=imagery,
+                    out=input_path,
+                    georeference=False,
+                    crs="3857",
+                    extension="png",
+                )
             )
-            download_imagery(start, end, z, base_path=input_path, source=imagery)
-
+    input_path = pathlib.Path(input_path)
+    chips_folder = input_path / "chips"
+    if chips_folder.exists() and chips_folder.is_dir():
+        for file in chips_folder.iterdir():
+            if file.is_file():
+                destination = input_path / file.name
+                shutil.move(str(file), destination)
+        chips_folder.rmdir()
+    else:
+        print("[✗] 'chips' folder does not exist at:", chips_folder)
     if is_dir_empty(input_path):
         raise ValueError("No images found in the area")
 
@@ -370,7 +403,8 @@ def finalize(inst, out, prep, acc):
     for f in ["aois.geojson", "labels.geojson"]:
         copyfile(os.path.join(out, f), os.path.join(prep, f))
     xz_folder(prep, os.path.join(out, "preprocessed.tar.xz"), remove_original=True)
-    upload_to_s3(out, parent=f"{settings.PARENT_BUCKET_FOLDER}/training_{inst.id}")
+    if settings.USE_S3_TO_UPLOAD_MODELS:
+        upload_to_s3(out, parent=f"{settings.PARENT_BUCKET_FOLDER}/training_{inst.id}")
     inst.accuracy = float(acc)
     inst.finished_at = timezone.now()
     inst.status = "FINISHED"
@@ -461,6 +495,81 @@ def train_model(
         inst.status, inst.finished_at = "FAILED", timezone.now()
         inst.save()
         send_notification(inst, "Failed")
+        raise ex
+    finally:
+        logger.removeHandler(file_handler)
+        file_handler.close()
+
+
+@shared_task
+def predict_area(prediction_request_id):
+    from predictor import predict
+    from predictor.models import PredictionRequest
+
+    inst = get_object_or_404(Prediction, id=prediction_request_id)
+    log_file = os.path.join(settings.LOG_PATH, f"run_{inst.task_id}.log")
+    os.makedirs(settings.LOG_PATH, exist_ok=True)
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.INFO)
+
+    file_handler = logging.FileHandler(log_file, encoding="utf-8")
+    file_handler.setFormatter(
+        logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+    )
+    logger.addHandler(file_handler)
+    try:
+        logger.info("Starting model prediction task")
+        with capture_output_to_file(log_file):
+            inst.status, inst.started_at, inst.task_id = (
+                "RUNNING",
+                timezone.now(),
+                predict_area.request.id,
+            )
+            inst.save()
+            if not inst.config.get("bbox"):
+                inst.config["bbox"] = [
+                    0,
+                    0,
+                    0,
+                    0,
+                ]  # add default bbox to pass through validation , TODO : Fix this , improve the pydantic model at fairpredictor side
+            params = PredictionRequest(**inst.config)
+            predictions = asyncio.run(
+                predict(
+                    geojson=inst.geom.geojson,
+                    model_path=params.checkpoint,
+                    zoom_level=params.zoom_level,
+                    tms_url=params.source,
+                    confidence=params.confidence / 100,
+                    tolerance=params.tolerance,
+                    area_threshold=params.area_threshold,
+                    orthogonalize=params.use_josm_q,
+                    vectorization_algorithm=params.vectorization_algorithm,
+                )
+            )
+
+            out = os.path.join(settings.PREDICTION_WORKSPACE, str(inst.id))
+            os.makedirs(out, exist_ok=True)
+            write_json(
+                os.path.join(out, "aois.geojson"),
+                inst.geom.geojson,
+            )
+            write_json(
+                os.path.join(out, "labels.geojson"),
+                predictions,
+            )
+            run_tippecanoe(out)
+            if settings.USE_S3_TO_UPLOAD_MODELS:
+                upload_to_s3(
+                    out, parent=f"{settings.PARENT_BUCKET_FOLDER}/prediction_{inst.id}"
+                )
+            inst.status, inst.finished_at = "FINISHED", timezone.now()
+            inst.save()
+    except Exception as ex:
+        logger.exception("Prediction failed")
+        inst.status, inst.finished_at = "FAILED", timezone.now()
+        inst.save()
+        # send_notification(inst, "Failed")
         raise ex
     finally:
         logger.removeHandler(file_handler)

@@ -25,10 +25,7 @@ class OsmAuthentication(authentication.BaseAuthentication):
                     login_redirect_uri=settings.OSM_LOGIN_REDIRECT_URI,
                     scope=settings.OSM_SCOPE,
                 )
-                user_data = osm_auth.deserialize_access_token(
-                    access_token
-                )  # get the user
-                # print(user_data)
+                user_data = osm_auth.deserialize_data(access_token)  # get the user
                 try:
                     user = OsmUser.objects.get(osm_id=user_data["id"])
 

@@ -7,8 +7,12 @@ import os
 import shutil
 import subprocess
 import tarfile
+import tempfile
 import time
+import urllib.request
+import zipfile
 from datetime import datetime
+from pathlib import Path
 from uuid import uuid4
 from xml.dom import ValidationErr
 from zipfile import ZipFile
@@ -583,3 +587,73 @@ def xz_folder(folder_path, output_filename, remove_original=False):
         tar.add(folder_path, arcname=os.path.basename(folder_path))
     if remove_original:
         shutil.rmtree(folder_path)
+
+
+def setup_ramp():
+    env_ramp_home = settings.RAMP_HOME
+    ramp_home = Path(env_ramp_home) if env_ramp_home else Path.cwd() / "ramp"
+    if not env_ramp_home:
+        print("[!] RAMP_HOME not set. Using default: ./ramp")
+    elif not ramp_home.exists():
+        print(
+            f"[!] RAMP_HOME is set to '{ramp_home}', but folder does not exist. Will set it up."
+        )
+    ramp_home = ramp_home.resolve()
+
+    env_training_ws = settings.TRAINING_WORKSPACE
+    training_workspace = (
+        Path(env_training_ws) if env_training_ws else Path.cwd() / "trainings"
+    )
+    if not env_training_ws:
+        print("[!] TRAINING_WORKSPACE not set. Using default: ./trainings")
+    elif not training_workspace.exists():
+        print(
+            f"[!] TRAINING_WORKSPACE is set to '{training_workspace}', but folder does not exist. Will set it up."
+        )
+    training_workspace = training_workspace.resolve()
+
+    ramp_code_dir = ramp_home / "ramp-code"
+    checkpoint_dir = ramp_code_dir / "ramp"
+
+    print(f"[+] RAMP_HOME: {ramp_home}")
+    print(f"[+] TRAINING_WORKSPACE: {training_workspace}")
+
+    ramp_home.mkdir(parents=True, exist_ok=True)
+    training_workspace.mkdir(parents=True, exist_ok=True)
+
+    if not ramp_code_dir.exists():
+        print("[+] Downloading ramp-code-fAIr repo ZIP...")
+        zip_url = (
+            "https://github.com/hotosm/ramp-code-fair/archive/refs/heads/master.zip"
+        )
+        with tempfile.NamedTemporaryFile(suffix=".zip") as tmp_zip:
+            urllib.request.urlretrieve(zip_url, tmp_zip.name)
+            with zipfile.ZipFile(tmp_zip.name, "r") as zip_ref:
+                zip_ref.extractall(ramp_home)
+
+            extracted_root = next(ramp_home.glob("ramp-code-fair-*"), None)
+            if extracted_root and extracted_root.is_dir():
+                ramp_code_dir.mkdir(parents=True, exist_ok=True)
+                for item in extracted_root.iterdir():
+                    item.rename(ramp_code_dir / item.name)
+                extracted_root.rmdir()
+        print("[✓] ramp-code-fAIr setup complete.")
+    else:
+        print("[✓] ramp-code-fAIr already present.")
+
+    checkpoint_dir.mkdir(parents=True, exist_ok=True)
+
+    checkpoint_index = checkpoint_dir / "checkpoint.tf"
+    if not checkpoint_index.exists():
+        print("[+] Downloading base model...")
+        base_url = "https://api-prod.fair.hotosm.org/api/v1/workspace/download/ramp/baseline.zip"
+        with tempfile.NamedTemporaryFile(suffix=".zip") as tmp_zip:
+            urllib.request.urlretrieve(base_url, tmp_zip.name)
+            with zipfile.ZipFile(tmp_zip.name, "r") as zip_ref:
+                zip_ref.extractall(checkpoint_dir)
+        print("[✓] Base model setup complete.")
+    else:
+        print("[✓] Base model already present.")
+
+    os.environ["RAMP_HOME"] = str(ramp_home)
+    os.environ["TRAINING_WORKSPACE"] = str(training_workspace)
