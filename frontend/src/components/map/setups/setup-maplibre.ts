@@ -29,7 +29,7 @@ export const setupMaplibreMap = (
     minZoom: 1,
     maxZoom: MAX_ZOOM_LEVEL,
     pitchWithRotate: false,
-    hash: hash,
+    hash: false,
   });
 
   // Prevent the map from rotating
@@ -43,6 +43,15 @@ export const setupMaplibreMap = (
 
   map.on("rotateend", () => {
     map.setBearing(0);
+  });
+
+  map.on("moveend", () => {
+    const center = map.getCenter();
+    const zoom = map.getZoom().toFixed(2);
+    const lat = center.lat.toFixed(4);
+    const lng = center.lng.toFixed(4);
+    const newHash = `#${zoom}/${lat}/${lng}`;
+    history.replaceState(null, "", newHash);
   });
 
   return map;

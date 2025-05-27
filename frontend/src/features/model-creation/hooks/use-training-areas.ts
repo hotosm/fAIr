@@ -21,6 +21,7 @@ import {
 export const useGetTrainingAreas = (datasetId: number, offset: number) => {
   return useQuery({
     ...getTrainingAreasQueryOptions(datasetId, offset),
+    refetchInterval: 10000, // Refetch every 10 seconds
   });
 };
 

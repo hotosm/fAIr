@@ -94,7 +94,8 @@ const LabelFetchStatus = ({
     if (isFetching)
       return (
         <span className="inline-flex items-center gap-x-1">
-          {status === LabelStatus.DOWNLOADED ? 'Fetching...' : 'Queued'} <Spinner />
+          {status === LabelStatus.DOWNLOADING ? "Fetching..." : "Queued"}{" "}
+          <Spinner />
         </span>
       );
     if (isError) return "Error occurred. Please retry.";
@@ -298,13 +299,14 @@ export const TrainingAreaItem: React.FC<
           const fetchedDate = res.data.properties.label_fetched;
           if (res.data?.properties.label_status === LabelStatus.DOWNLOADED) {
             handleLabelSuccess(fetchedDate);
-          } else if (res.data?.properties.label_status === LabelStatus.NOT_DOWNLOADED) {
+          } else if (
+            res.data?.properties.label_status === LabelStatus.NOT_DOWNLOADED
+          ) {
             setLabelState((prev) => ({
               ...prev,
               status: LabelStatus.NOT_DOWNLOADED,
             }));
-          }
-          else {
+          } else {
             setLabelState((prev) => ({
               ...prev,
               status: LabelStatus.DOWNLOADING,
@@ -415,7 +417,7 @@ export const TrainingAreaItem: React.FC<
     {
       tooltip: disableLabelsFetchOrUpload
         ? MODELS_CONTENT.modelCreation.trainingArea.toolTips
-          .labelsFetchInProgress
+            .labelsFetchInProgress
         : MODELS_CONTENT.modelCreation.trainingArea.toolTips.uploadLabels,
       isIcon: true,
       Icon: UploadIcon,
@@ -487,9 +489,9 @@ export const TrainingAreaItem: React.FC<
             content={
               disableLabelsFetchOrUpload
                 ? MODELS_CONTENT.modelCreation.trainingArea.toolTips
-                  .labelsFetchInProgress
+                    .labelsFetchInProgress
                 : MODELS_CONTENT.modelCreation.trainingArea.toolTips
-                  .fetchOSMLabels
+                    .fetchOSMLabels
             }
           >
             <button
