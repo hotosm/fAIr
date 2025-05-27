@@ -21,6 +21,7 @@ services:
       - "6379:6379"
 
   backend-api:
+    image: ghcr.io/hotosm/fair_api:develop
     build:
       context: ./backend
       dockerfile: Dockerfile.API
@@ -44,6 +45,7 @@ services:
 
   backend-worker-cpu:
     profiles: ["cpu"]
+    image: ghcr.io/hotosm/fair_worker:develop-cpu
     build:
       context: ./backend
       dockerfile: Dockerfile.workers
@@ -68,6 +70,7 @@ services:
 
   backend-worker-gpu:
     profiles: ["gpu"]
+    image: ghcr.io/hotosm/fair_worker:develop-gpu
     build:
       context: ./backend
       dockerfile: Dockerfile.workers
@@ -97,6 +100,7 @@ services:
       - postgres
 
   prediction-worker:
+    image: ghcr.io/hotosm/fair_offline_predictor:develop
     build:
       context: ./backend
       dockerfile: Dockerfile.API
