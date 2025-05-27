@@ -1,5 +1,4 @@
 name: Build Docker Images
-
 on:
   push:
     branches:
@@ -17,18 +16,16 @@ on:
     paths:
       - "backend/**"
       - ".github/workflows/docker_build.yml"
-
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build-api-image:
-    runs-on: ubuntu-latest
+  build-and-push-api-image:
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       packages: write
-      actions: write
     steps:
       - name: Remove unnecessary files
         run: |
@@ -48,10 +45,15 @@ jobs:
         id: meta_api
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}_api
+          images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/fair-api
+          tags: |
+            type=ref,event=branch
+            type=ref,event=tag
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v2
 
       - name: Build and push API Docker image
         uses: docker/build-push-action@v6
@@ -65,16 +67,15 @@ jobs:
           cache-to: type=gha,mode=max,scope=api,timeout=20m,ignore-error=true
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-  build-worker-image:
-    needs: build-api-image
-    runs-on: ubuntu-latest
+  build-and-push-worker-image:
+    needs: build-and-push-api-image
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         build_type: [cpu, gpu]
     permissions:
       contents: read
       packages: write
-      actions: write
     steps:
       - name: Remove unnecessary files
         run: |
@@ -94,13 +95,15 @@ jobs:
         id: meta_worker
         uses: docker/metadata-action@v5
         with:
-          images: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}_worker
+          images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/fair-worker
           tags: |
-            type=raw,value=latest-${{ matrix.build_type }}
+            type=ref,event=branch,suffix=-${{ matrix.build_type }}
+            type=ref,event=tag,suffix=-${{ matrix.build_type }}
+            type=semver,pattern={{version}},suffix=-${{ matrix.build_type }}
+            type=semver,pattern={{major}}.{{minor}},suffix=-${{ matrix.build_type }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v2
 
       - name: Build and push Worker Docker image (${{ matrix.build_type }})
         uses: docker/build-push-action@v6
@@ -116,13 +119,12 @@ jobs:
           cache-to: type=gha,mode=min,scope=docker-worker-${{ matrix.build_type }},timeout=20m,ignore-error=true
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-  build-offline-predictor-image:
+  build-and-push-offline-predictor-image:
     runs-on: ubuntu-24.04
-    needs: build-api-image
+    needs: build-and-push-api-image
     permissions:
       contents: read
       packages: write
-      actions: write
     steps:
       - name: Remove unnecessary files
         run: |
@@ -142,7 +144,12 @@ jobs:
         id: meta_offline_predictor
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}_offline_predictor
+          images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/fair-offline-predictor
+          tags: |
+            type=ref,event=branch
+            type=ref,event=tag
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
