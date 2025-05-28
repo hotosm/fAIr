@@ -40,13 +40,11 @@ services:
       retries: 5
 
   backend-api:
-    image: ghcr.io/hotosm/fair_api:${TAG:-latest}
+    image: ghcr.io/hotosm/fair-api:${TAG:-latest}
     platform: linux/amd64
     container_name: api
     restart: always
-    command: gunicorn aiproject.wsgi:application --bind 0.0.0.0:8000 --workers=4 --timeout=120
-    env_file:
-      - ./.env.prod
+    command: python manage.py runserver_with_q 0.0.0.0:8000
     ports:
       - "8000:8000"
     volumes:
@@ -73,13 +71,11 @@ services:
 
   backend-worker-cpu:
     profiles: ["cpu"]
-    image: ghcr.io/hotosm/fair_worker:${TAG:-latest}-cpu
+    image: ghcr.io/hotosm/fair-worker:${TAG:-latest}-cpu
     platform: linux/amd64
     container_name: worker-cpu
     restart: always
-    command: celery -A aiproject worker --loglevel=INFO --concurrency=2 -Q ramp_training,yolo_training
-    env_file:
-      - ./.env.prod
+    command: celery -A aiproject worker --loglevel=INFO --concurrency=1 -Q ramp_training,yolo_training
     volumes:
       - ${APP_LOGS:-/opt/fair-app/data/log}:/app/log
       - ${RAMP_HOME:-/opt/fair-app/data/ramp}:/RAMP_HOME
@@ -101,7 +97,7 @@ services:
 
   backend-worker-gpu:
     profiles: ["gpu"]
-    image: ghcr.io/hotosm/fair_worker:${TAG:-latest}-gpu
+    image: ghcr.io/hotosm/fair-worker:${TAG:-latest}-gpu
     platform: linux/amd64
     container_name: worker-gpu
     restart: always
@@ -132,13 +128,11 @@ services:
       - backend-network
 
   prediction-worker:
-    image: ghcr.io/hotosm/fair_offline_predictor:${TAG:-latest}
+    image: ghcr.io/hotosm/fair-offline-predictor:${TAG:-latest}
     platform: linux/amd64
     container_name: prediction-worker
     restart: always
-    command: celery -A aiproject worker --loglevel=INFO --concurrency=2 -Q predictions --pool=solo
-    env_file:
-      - ./.env.prod
+    command: celery -A aiproject worker --loglevel=INFO --concurrency=1 -Q predictions --pool=solo
     volumes:
       - ${APP_LOGS:-/opt/fair-app/data/log}:/app/log
       - ${RAMP_HOME:-/opt/fair-app/data/ramp}:/RAMP_HOME
