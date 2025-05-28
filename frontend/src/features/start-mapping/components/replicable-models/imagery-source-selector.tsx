@@ -1,11 +1,13 @@
 import { PredictionImagerySource } from "@/enums/start-mapping";
 import { useMemo, useState } from "react";
-import { SHOELACE_SIZES, TileServiceType } from "@/enums";
-import { Button } from "@/components/ui/button";
+import { ButtonVariant, SHOELACE_SIZES, TileServiceType } from "@/enums";
+import { Button, ButtonWithIcon } from "@/components/ui/button";
 import { RadioGroup } from "@/components/ui/form/radio-group/radio-group";
 import { XYZTileServerInput } from "@/components/shared/form/xyz-tile-server-input";
 import { START_MAPPING_PAGE_CONTENT } from "@/constants";
 import { FormLabel } from "@/components/ui/form";
+import { Divider } from "@/components/ui/divider";
+import { CloseIcon } from "@/components/ui/icons";
 
 const PredictionImagerySources: Array<{
   value: PredictionImagerySource;
@@ -110,11 +112,17 @@ export const ImagerySourceSelector = ({
       className={`bg-white ${isMobile ? "w-full" : "w-[350px] shadow-lg rounded-xl border border-gray-border "} p-4 max-h-[400px] gap-y-4 overflow-y-auto flex flex-col scrollable`}
     >
       {!isMobile && (
-        <FormLabel
-          withTooltip
-          label="Prediction Imagery"
-          toolTipContent="Select the imagery source to be used for predictions."
-        />
+        <div>
+          <FormLabel
+            withTooltip
+            label="Prediction Imagery"
+            toolTipContent="Select the imagery source to be used for predictions."
+          />
+          <small className="text-xs text-grey">
+            Changes will be applied to the map when you click Apply.
+          </small>
+          <Divider />
+        </div>
       )}
       <RadioGroup
         options={PredictionImagerySources}
@@ -140,23 +148,38 @@ export const ImagerySourceSelector = ({
       )}
       {localPredictionImagerySource !==
         PredictionImagerySource.ModelDefault && (
-        <small>{START_MAPPING_PAGE_CONTENT.replicableModel.info}</small>
+        <small className="text-xs text-grey">
+          {START_MAPPING_PAGE_CONTENT.replicableModel.info}
+        </small>
       )}
-      <Button
-        size={SHOELACE_SIZES.SMALL}
-        uppercase={false}
-        disabled={
-          (localPredictionImagerySource ===
-            PredictionImagerySource.CustomImagery &&
-            !localTileServiceTypeValidity.valid) ||
-          loading
-        }
-        onClick={handleApply}
-      >
-        {loading
-          ? START_MAPPING_PAGE_CONTENT.replicableModel.loading
-          : START_MAPPING_PAGE_CONTENT.replicableModel.apply}
-      </Button>
+      <Divider />
+      <div className="flex justify-between items-center gap-x-2">
+        <Button
+          size={SHOELACE_SIZES.SMALL}
+          uppercase={false}
+          disabled={
+            (localPredictionImagerySource ===
+              PredictionImagerySource.CustomImagery &&
+              !localTileServiceTypeValidity.valid) ||
+            loading
+          }
+          onClick={handleApply}
+        >
+          {loading
+            ? START_MAPPING_PAGE_CONTENT.replicableModel.loading
+            : START_MAPPING_PAGE_CONTENT.replicableModel.apply}
+        </Button>
+        <Button
+          size={SHOELACE_SIZES.SMALL}
+          uppercase={false}
+          disabled={loading}
+          onClick={onDropdownHide}
+          variant={ButtonVariant.DEFAULT}
+          className="max-w-fit"
+        >
+          <CloseIcon className="icon" />
+        </Button>
+      </div>
     </div>
   );
 };

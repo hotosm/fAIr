@@ -16,7 +16,6 @@ export const useHistory = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { modelId } = useParams();
-  console.log(location, window.history?.length);
 
   const goBack = () => {
     const from = location.state?.from;

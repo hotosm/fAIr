@@ -98,13 +98,8 @@ type ButtonProps = {
   onClick?: () => void;
 };
 
-const DropdownButton = ({
-  label,
-
-  isSmallViewport,
-  onClick,
-}: ButtonProps) => (
-  <div className="px-2 bg-off-white hover:bg-opacity-50 flex items-center p-2 gap-x-2 rounded-[6px]">
+const DropdownButton = ({ label, isSmallViewport, onClick }: ButtonProps) => (
+  <div className="px-2 border border-off-white hover:bg-off-white flex items-center p-2 gap-x-2 rounded-[6px]">
     <button
       onClick={onClick}
       className={`${

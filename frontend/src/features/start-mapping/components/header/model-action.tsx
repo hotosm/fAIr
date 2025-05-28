@@ -38,7 +38,8 @@ const ModelAction = ({
     null,
   );
   const currentZoom = useMapStore((state) => state.zoom);
-
+  console.log(tileServerURL,
+    predictionModelCheckpoint,)
   const getTrainingConfig = useCallback((): TModelPredictionsConfig => {
     return {
       tolerance: query[SEARCH_PARAMS.tolerance] as number,
@@ -97,7 +98,7 @@ const ModelAction = ({
   const disablePredictionButton =
     currentZoom < MIN_ZOOM_LEVEL_FOR_START_MAPPING_PREDICTION ||
     modelPredictionMutation.isPending ||
-    tileServerURL?.length === 0;
+    tileServerURL?.length === 0 || predictionModelCheckpoint?.length === 0;
   return (
     <div className="flex gap-y-3 flex-col-reverse flex-wrap  md:items-center md:flex-row md:justify-between md:gap-x-2 md:flex-nowrap">
       <ToolTip

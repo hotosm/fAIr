@@ -12,6 +12,7 @@ import {
 } from "@/utils";
 import { TModelDetails } from "@/types";
 import { FAIR_BASE_MODELS_PATH } from "@/config";
+import { Divider } from "@/components/ui/divider";
 
 export const ModelSelector = ({
   predictionModel,
@@ -101,11 +102,14 @@ export const ModelSelector = ({
       className={` bg-white ${isMobile ? "w-full" : "w-[350px]  shadow-lg rounded-xl border border-gray-border "} p-4 max-h-[400px] gap-y-4 overflow-y-auto flex flex-col scrollable`}
     >
       {!isMobile && (
-        <FormLabel
-          withTooltip
-          label="Model"
-          toolTipContent="Choose a base model for generating predictions."
-        />
+        <div>
+          <FormLabel
+            withTooltip
+            label="Model"
+            toolTipContent="Choose a base model for generating predictions."
+          />
+          <Divider />
+        </div>
       )}
       <RadioGroup
         options={PredictionModels}
