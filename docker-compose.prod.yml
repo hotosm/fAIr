@@ -102,8 +102,6 @@ services:
     container_name: worker-gpu
     restart: always
     command: celery -A aiproject worker --loglevel=INFO --concurrency=1 -Q ramp_training,yolo_training --pool=solo
-    env_file:
-      - ./.env.prod
     deploy:
       resources:
         reservations:
