@@ -20,14 +20,14 @@ import { useMapStore } from "@/store/map-store";
 const DEBOUNCE_DELAY: number = 300;
 
 export const DatasetAreaMap = ({
-  tileJSONURL,
+  tileServiceURL,
   data,
   trainingDatasetId,
   map,
   mapContainerRef,
   trainingAreaIsPending,
 }: {
-  tileJSONURL: string;
+  tileServiceURL: string;
   data?: PaginatedTrainingArea;
   trainingDatasetId: number;
   map: Map | null;
@@ -74,7 +74,7 @@ export const DatasetAreaMap = ({
 
   return (
     <MapComponent
-      tileServiceURL={tileJSONURL}
+      tileServiceURL={tileServiceURL}
       controlsPosition={ControlsPosition.TOP_LEFT}
       drawControl
       showCurrentZoom

@@ -8,7 +8,9 @@ import { useMapInstance } from "@/hooks/use-map-instance";
 
 const mapSourceName = "models";
 // Font from OpenFreeMap
-const licensedFonts = ["Open Sans Semibold"];
+const licensedFonts = ["Noto Sans Regular"];
+// Font from Open Map Tiles
+// const licensedFonts = ["Open Sans Semibold"];
 
 let markerIcon = new Image(17, 20);
 markerIcon.src = MapMarkerIcon;
