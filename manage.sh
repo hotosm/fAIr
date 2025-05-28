@@ -355,7 +355,7 @@ createsuperuser() {
     echo -e "${RED}ERROR: API container is not running. Please start the application first:${NC}"
     echo -e "${YELLOW}$0 start${NC}"
     return 1
-  }
+  fi
   
   # Interactive superuser creation
   docker exec -it api bash -c "python manage.py createsuperuser"
