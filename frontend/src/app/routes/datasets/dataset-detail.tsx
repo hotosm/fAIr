@@ -72,20 +72,24 @@ export const TrainingDatasetsDetailPage = () => {
       </div>
     );
   }
-
+  const showEditOptions = isAuthenticated && user?.osm_id === data.user.osm_id;
   return (
     <>
       <Head title={`${data.name} Dataset`} />
-      <DatasetEditDialog
-        data={data}
-        isOpened={isOpened}
-        closeDialog={closeDialog}
-      />
-      <DatasetAOIEditDrawer
-        isOpened={AOIEditDrawerIsOpened}
-        closeDialog={closeAOIEditDrawer}
-        trainingDataset={data}
-      />
+      {showEditOptions && (
+        <>
+          <DatasetEditDialog
+            data={data}
+            isOpened={isOpened}
+            closeDialog={closeDialog}
+          />
+          <DatasetAOIEditDrawer
+            isOpened={AOIEditDrawerIsOpened}
+            closeDialog={closeAOIEditDrawer}
+            trainingDataset={data}
+          />
+        </>
+      )}
       <DatasetAreaDrawer
         isOpened={isDatasetAreaDrawerOpened}
         closeDialog={closeDatasetAreaDrawer}
@@ -140,7 +144,7 @@ export const TrainingDatasetsDetailPage = () => {
             />
             {/* Edit Dropdown  */}
             <div className="flex justify-start lg:justify-end items-start">
-              {isAuthenticated && user?.osm_id === data.user.osm_id && (
+              {showEditOptions && (
                 <DropDown
                   ref={dropdownRef}
                   className="bg-white"

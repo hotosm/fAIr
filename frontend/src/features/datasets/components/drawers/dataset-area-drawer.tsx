@@ -8,6 +8,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
 import { extractTileJSONURL } from "@/utils";
 import { useGetTMSTileJSON } from "@/features/model-creation/hooks/use-tms-tilejson";
+import { DatasetAreaMap } from "../dataset-area-map";
 
 type TrainingAreaDrawerProps = DialogProps & {
   trainingDataset: TTrainingDataset;
@@ -18,9 +19,10 @@ export const DatasetAreaDrawer: React.FC<TrainingAreaDrawerProps> = ({
   closeDialog,
   trainingDataset,
 }) => {
-  const { map } = useMapInstance();
+  const { map, mapContainerRef } = useMapInstance();
+
   const {
-    // data: trainingAreasData,
+    data: trainingAreasData,
     isPending: trainingAreaIsPending,
     isError,
     refetch,
@@ -66,7 +68,7 @@ export const DatasetAreaDrawer: React.FC<TrainingAreaDrawerProps> = ({
             </Button>
           </div>
         )}
-        {/* {!trainingAreaIsPending && (
+        {!trainingAreaIsPending && (
           <DatasetAreaMap
             trainingDatasetId={trainingDataset.id}
             map={map}
@@ -76,7 +78,7 @@ export const DatasetAreaDrawer: React.FC<TrainingAreaDrawerProps> = ({
             // OAMData={data as TileJSON}
             tileJSONURL={tileJSONURL}
           />
-        )} */}
+        )}
       </div>
     </Drawer>
   );

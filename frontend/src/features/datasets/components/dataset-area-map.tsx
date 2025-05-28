@@ -1,10 +1,9 @@
 import useDebounce from "@/hooks/use-debounce";
-import { ControlsPosition, DrawingModes } from "@/enums";
+import { ControlsPosition } from "@/enums";
 import { Map } from "maplibre-gl";
 import { PaginatedTrainingArea } from "@/types";
 import { MapComponent } from "@/components/map";
 import { RefObject, useCallback, useEffect, useState } from "react";
-import { TerraDraw } from "terra-draw";
 import { useGetTrainingDatasetLabels } from "@/features/model-creation/hooks/use-training-areas";
 import {
   MAP_STYLES_PREFIX,
@@ -25,23 +24,15 @@ export const DatasetAreaMap = ({
   data,
   trainingDatasetId,
   map,
-  drawingMode,
-  setDrawingMode,
-  terraDraw,
   mapContainerRef,
   trainingAreaIsPending,
-  trainingDatasetOffset,
 }: {
   tileJSONURL: string;
   data?: PaginatedTrainingArea;
   trainingDatasetId: number;
   map: Map | null;
-  drawingMode: DrawingModes;
-  setDrawingMode: (newMode: DrawingModes) => void;
-  terraDraw?: TerraDraw;
   mapContainerRef: RefObject<HTMLDivElement> | null;
   trainingAreaIsPending: boolean;
-  trainingDatasetOffset: { x: number; y: number };
 }) => {
   // Training Areas
   const trainingAreasOutlineLayerId = `${MAP_STYLES_PREFIX}-dataset-area-${trainingDatasetId}-training-area-layer`;
@@ -91,9 +82,6 @@ export const DatasetAreaMap = ({
       showTileBoundaries
       basemaps
       map={map}
-      terraDraw={terraDraw}
-      drawingMode={drawingMode}
-      setDrawingMode={setDrawingMode}
       mapContainerRef={mapContainerRef}
       layerControlLayers={[
         ...(labels && labels?.features.length > 0
@@ -138,7 +126,6 @@ export const DatasetAreaMap = ({
           trainingAreasLabelsFillLayerId={trainingAreasLabelsFillLayerId}
           trainingAreasLabelsOutlineLayerId={trainingAreasLabelsOutlineLayerId}
           trainingAreasLabelsSourceId={trainingAreasLabelsSourceId}
-          trainingDatasetOffset={trainingDatasetOffset}
         />
       ) : null}
     </MapComponent>

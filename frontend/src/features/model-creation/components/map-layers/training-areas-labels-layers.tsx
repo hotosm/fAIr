@@ -20,10 +20,10 @@ import { useEffect, useMemo } from "react";
  */
 const offsetGeoJSON = (
   features: Feature[],
-  offset: { x: number; y: number },
+  offset?: { x: number; y: number },
   lat: number,
 ): Feature[] => {
-  if (!offset.x && !offset.y) return features;
+  if (!offset?.x && !offset?.y) return features;
 
   const [deltaLng, deltaLat] = metersToLngLat(offset.x, offset.y, lat);
 
@@ -57,7 +57,7 @@ export const TrainingAreasLabelsLayers = ({
   trainingAreasLabelsOutlineLayerId: string;
   trainingAreasLabelsSourceId: string;
   trainingAreasLabelsFillLayerId: string;
-  trainingDatasetOffset: { x: number; y: number };
+  trainingDatasetOffset?: { x: number; y: number };
 }) => {
   const geoJsonData = useMemo(() => {
     if (!map || !features) return { type: "FeatureCollection", features: [] };

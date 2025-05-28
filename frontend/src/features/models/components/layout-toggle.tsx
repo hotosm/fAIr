@@ -3,6 +3,7 @@ import { LayoutView } from "@/enums";
 import { SEARCH_PARAMS } from "@/utils/search-params";
 import { TQueryParams } from "@/types";
 import { useScrollToTop } from "@/hooks/use-scroll-to-element";
+import { ToolTip } from "@/components/ui/tooltip";
 
 const LayoutToggle = ({
   query,
@@ -18,26 +19,29 @@ const LayoutToggle = ({
   const activeLayout = query[SEARCH_PARAMS.layout];
   const { scrollToTop } = useScrollToTop();
   return (
-    <button
-      title={`Switch to ${query[SEARCH_PARAMS.layout] === LayoutView.GRID ? LayoutView.LIST : (LayoutView.GRID as string)} layout`}
-      className={`${isMobile ? "flex md:hidden" : "hidden md:flex"} border border-gray-border p-2 items-center justify-center text-dark cursor-pointer`}
-      onClick={() => {
-        updateQuery({
-          [SEARCH_PARAMS.layout]:
-            activeLayout === LayoutView.GRID
-              ? LayoutView.LIST
-              : LayoutView.GRID,
-        });
-        scrollToTop();
-      }}
-      disabled={disabled}
+    <ToolTip
+      content={`${disabled ? "Toggle off mapview to show as" : "Show as"} ${query[SEARCH_PARAMS.layout] === LayoutView.GRID ? LayoutView.LIST : (LayoutView.GRID as string)}`}
     >
-      {activeLayout !== LayoutView.LIST ? (
-        <ListIcon className="icon-lg" />
-      ) : (
-        <CategoryIcon className="icon-lg" />
-      )}
-    </button>
+      <button
+        className={`${isMobile ? "flex md:hidden" : "hidden md:flex"} ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"} border border-gray-border p-2 items-center justify-center text-dark`}
+        onClick={() => {
+          updateQuery({
+            [SEARCH_PARAMS.layout]:
+              activeLayout === LayoutView.GRID
+                ? LayoutView.LIST
+                : LayoutView.GRID,
+          });
+          scrollToTop();
+        }}
+        disabled={disabled}
+      >
+        {activeLayout !== LayoutView.LIST ? (
+          <ListIcon className="icon-lg" />
+        ) : (
+          <CategoryIcon className="icon-lg" />
+        )}
+      </button>
+    </ToolTip>
   );
 };
 

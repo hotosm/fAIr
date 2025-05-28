@@ -3,6 +3,7 @@ import { MODELS_CONTENT } from "@/constants";
 import { Switch } from "@/components/ui/form";
 import { TQueryParams } from "@/types";
 import { SEARCH_PARAMS } from "@/utils/search-params";
+import { ToolTip } from "../ui/tooltip";
 
 /**
  * ShowMapToggle component is used to toggle between map and list view.
@@ -20,6 +21,12 @@ const ShowMapToggle = ({
   query: TQueryParams;
   isMobile?: boolean;
 }) => {
+  /**
+   * The switch is disabled when the layout is set to LIST view.
+   * This will only be active on any parent component that has the layout view set to LIST.
+   * E.g ModelsList page.
+   */
+  const disabled = query[SEARCH_PARAMS.layout] == LayoutView.LIST;
   return (
     <div
       className={[
@@ -34,20 +41,19 @@ const ShowMapToggle = ({
       <p className="text-body-2base text-nowrap">
         {MODELS_CONTENT.models.modelsList.filtersSection.mapViewToggleText}
       </p>
-      <Switch
-        checked={query[SEARCH_PARAMS.mapIsActive] as boolean}
-        /**
-         * The switch is disabled when the layout is set to LIST view.
-         * This will only be active on any parent component that has the layout view set to LIST.
-         * E.g ModelsList page.
-         */
-        disabled={query[SEARCH_PARAMS.layout] == LayoutView.LIST}
-        handleSwitchChange={() => {
-          updateQuery({
-            [SEARCH_PARAMS.mapIsActive]: !query[SEARCH_PARAMS.mapIsActive],
-          });
-        }}
-      />
+      <ToolTip
+        content={`${disabled ? "Toggle off listview to show map" : "Show map"}`}
+      >
+        <Switch
+          checked={query[SEARCH_PARAMS.mapIsActive] as boolean}
+          disabled={disabled}
+          handleSwitchChange={() => {
+            updateQuery({
+              [SEARCH_PARAMS.mapIsActive]: !query[SEARCH_PARAMS.mapIsActive],
+            });
+          }}
+        />
+      </ToolTip>
     </div>
   );
 };
