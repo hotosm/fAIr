@@ -20,8 +20,8 @@ import { useEffect, useMemo } from "react";
  */
 const offsetGeoJSON = (
   features: Feature[],
-  offset?: { x: number; y: number },
   lat: number,
+  offset?: { x: number; y: number },
 ): Feature[] => {
   if (!offset?.x && !offset?.y) return features;
 
@@ -62,7 +62,7 @@ export const TrainingAreasLabelsLayers = ({
   const geoJsonData = useMemo(() => {
     if (!map || !features) return { type: "FeatureCollection", features: [] };
     const lat = map.getCenter().lat;
-    const adjusted = offsetGeoJSON(features, trainingDatasetOffset, lat);
+    const adjusted = offsetGeoJSON(features, lat, trainingDatasetOffset);
     return {
       type: "FeatureCollection",
       features: adjusted,
