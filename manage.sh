@@ -124,7 +124,7 @@ EOF
   cat > /etc/systemd/system/$SERVICE_NAME <<EOF
 [Unit]
 Description=fAIr Application Stack
-Documentation=https://github.com/hotosm/fAIr-ai
+Documentation=https://github.com/hotosm/fAIr
 After=docker.service
 Requires=docker.service
  
