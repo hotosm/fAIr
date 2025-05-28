@@ -19,7 +19,7 @@ import {
   StartMappingMapComponent,
   StartMappingMobileDrawer,
 } from "@/features/start-mapping/components";
-import { geoJSONDowloader, openInJOSM, showSuccessToast } from "@/utils";
+import { constructModelCheckpointPath, geoJSONDowloader, openInJOSM, showSuccessToast } from "@/utils";
 
 import {
   PredictedFeatureStatus,
@@ -31,11 +31,12 @@ import { ImagerySourceSelector } from "@/features/start-mapping/components/repli
 import { useDialog } from "@/hooks/use-dialog";
 import { useModelPredictionStore } from "@/store/model-prediction-store";
 import { ModelSelector } from "@/features/start-mapping/components/replicable-models/model-selector";
-import { TileServiceType } from "@/enums";
+import { BASE_MODELS, TileServiceType } from "@/enums";
 import { useTileservice } from "@/hooks/use-tileservice";
 import {
   ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
   ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
+  FAIR_BASE_MODELS_PATH,
 } from "@/config";
 
 export type TDownloadOptions = {
@@ -140,9 +141,7 @@ export const StartMappingPage = () => {
     error,
   } = useModelDetails(modelId as string, !!modelId);
 
-  /**
-   * State to manage the prediction model ID.
-   */
+
 
   const updateQuery = useCallback(
     (newParams: TQueryParams) => {
@@ -185,11 +184,27 @@ export const StartMappingPage = () => {
    */
   useEffect(() => {
     const urlCp = searchParams.get(SEARCH_PARAMS.predictionModelCheckpoint);
-    if (urlCp) {
+    if (urlCp && urlCp.length > 0 && urlCp !== "undefined" && predictionModel === PredictionModel.CUSTOM) {
       setCustomPredictionModelCheckpointPath(urlCp);
       setPredictionModelCheckpoint(urlCp);
     }
-  }, []);
+  }, [predictionModel]);
+
+
+  console.log(predictionModel, predictionModelCheckpoint);
+  useEffect(() => {
+    /**
+     * Only update the checkpoint if the modelInfo is available and
+     * the predictionModel is not set or is set to the default model.
+     */
+    if (modelInfo && (!predictionModel || predictionModel === PredictionModel.DEFAULT)) {
+      setPredictionModelCheckpoint(constructModelCheckpointPath(modelInfo))
+    } else if (predictionModel && predictionModel !== PredictionModel.CUSTOM) {
+      setPredictionModelCheckpoint(
+        FAIR_BASE_MODELS_PATH[predictionModel as BASE_MODELS]
+      );
+    }
+  }, [predictionModel, modelInfo]);
 
   useEffect(() => {
     const current = searchParams.get(SEARCH_PARAMS.tileserver) || undefined;
@@ -252,16 +267,16 @@ export const StartMappingPage = () => {
     () => [
       ...(modelPredictions.length > 0
         ? [
-            {
-              value:
-                START_MAPPING_PAGE_CONTENT.map.controls.legendControl
-                  .predictionResults,
-              subLayers: [
-                ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
-                ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
-              ],
-            },
-          ]
+          {
+            value:
+              START_MAPPING_PAGE_CONTENT.map.controls.legendControl
+                .predictionResults,
+            subLayers: [
+              ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
+              ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
+            ],
+          },
+        ]
         : []),
     ],
     [modelPredictions],

@@ -38,7 +38,7 @@ const ModelAction = ({
     null,
   );
   const currentZoom = useMapStore((state) => state.zoom);
-  console.log(tileServerURL, predictionModelCheckpoint);
+
   const getTrainingConfig = useCallback((): TModelPredictionsConfig => {
     return {
       tolerance: query[SEARCH_PARAMS.tolerance] as number,

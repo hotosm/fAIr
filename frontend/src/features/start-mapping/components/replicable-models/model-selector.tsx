@@ -50,7 +50,7 @@ export const ModelSelector = ({
         label: "RAMP",
         tooltip:
           MODELS_CONTENT.modelCreation.modelDetails.form.baseModel.suffixes[
-            PredictionModel.RAMP
+          PredictionModel.RAMP
           ],
       },
       {
@@ -58,7 +58,7 @@ export const ModelSelector = ({
         label: "YOLO v8 v1",
         tooltip:
           MODELS_CONTENT.modelCreation.modelDetails.form.baseModel.suffixes[
-            PredictionModel.YOLOV8_V1
+          PredictionModel.YOLOV8_V1
           ],
       },
       {
@@ -66,7 +66,7 @@ export const ModelSelector = ({
         label: "YOLO v8 v2",
         tooltip:
           MODELS_CONTENT.modelCreation.modelDetails.form.baseModel.suffixes[
-            PredictionModel.YOLOV8_V2
+          PredictionModel.YOLOV8_V2
           ],
       },
       {
@@ -75,8 +75,10 @@ export const ModelSelector = ({
         tooltip: "Custom model for generating predictions.",
       },
     ],
-    [defaultPredictionModel],
+    [defaultPredictionModel, predictionModel],
   );
+
+
 
   const PredictionModelsCheckpoints = useMemo(
     () => ({
@@ -94,7 +96,7 @@ export const ModelSelector = ({
         FAIR_BASE_MODELS_PATH[PredictionModel.YOLOV8_V2],
       [PredictionModel.CUSTOM]: predictionModelCheckpoint,
     }),
-    [predictionModelCheckpoint, modelInfo],
+    [predictionModelCheckpoint, modelInfo, predictionModel],
   );
 
   return (
@@ -118,6 +120,14 @@ export const ModelSelector = ({
           if (e !== PredictionModel.CUSTOM) {
             setPredictionModelCheckpoint(
               PredictionModelsCheckpoints[e as keyof typeof PredictionModel],
+            );
+          } else {
+            /**
+             * Reset the model checkpoint to an empty string if the custom option is selected.
+             * That way, it won't preserve the previous option checkpoint.
+             */
+            setPredictionModelCheckpoint(
+              ''
             );
           }
         }}
