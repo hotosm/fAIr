@@ -1,0 +1,180 @@
+# fAIr Application Production Stack
+services:
+  postgres:
+    image: postgis/postgis:latest
+    platform: linux/amd64
+    container_name: pgsql
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-ai}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ${POSTGRES_DATA:-/opt/fair-app/data/postgres}:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432"
+    networks:
+      - backend-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    platform: linux/amd64
+    container_name: redis
+    restart: always
+    command: redis-server --requirepass ${REDIS_PASSWORD} --appendonly yes
+    volumes:
+      - ${REDIS_DATA:-/opt/fair-app/data/redis}:/data
+    ports:
+      - "127.0.0.1:6379:6379"
+    networks:
+      - backend-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend-api:
+    image: ghcr.io/hotosm/fair_api:${TAG:-latest}
+    platform: linux/amd64
+    container_name: api
+    restart: always
+    command: gunicorn aiproject.wsgi:application --bind 0.0.0.0:8000 --workers=4 --timeout=120
+    env_file:
+      - ./.env.prod
+    ports:
+      - "8000:8000"
+    volumes:
+      - ${APP_LOGS:-/opt/fair-app/data/log}:/app/log
+      - ${RAMP_HOME:-/opt/fair-app/data/ramp}:/RAMP_HOME
+      - ${TRAINING_WORKSPACE:-/opt/fair-app/data/trainings}:/TRAINING_WORKSPACE
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    networks:
+      - backend-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 2G
+
+  backend-worker-cpu:
+    profiles: ["cpu"]
+    image: ghcr.io/hotosm/fair_worker:${TAG:-latest}-cpu
+    platform: linux/amd64
+    container_name: worker-cpu
+    restart: always
+    command: celery -A aiproject worker --loglevel=INFO --concurrency=2 -Q ramp_training,yolo_training
+    env_file:
+      - ./.env.prod
+    volumes:
+      - ${APP_LOGS:-/opt/fair-app/data/log}:/app/log
+      - ${RAMP_HOME:-/opt/fair-app/data/ramp}:/RAMP_HOME
+      - ${TRAINING_WORKSPACE:-/opt/fair-app/data/trainings}:/TRAINING_WORKSPACE
+    depends_on:
+      backend-api:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    networks:
+      - backend-network
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 4G
+
+  backend-worker-gpu:
+    profiles: ["gpu"]
+    image: ghcr.io/hotosm/fair_worker:${TAG:-latest}-gpu
+    platform: linux/amd64
+    container_name: worker-gpu
+    restart: always
+    command: celery -A aiproject worker --loglevel=INFO --concurrency=1 -Q ramp_training,yolo_training --pool=solo
+    env_file:
+      - ./.env.prod
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+        limits:
+          memory: 8G
+    volumes:
+      - ${APP_LOGS:-/opt/fair-app/data/log}:/app/log
+      - ${RAMP_HOME:-/opt/fair-app/data/ramp}:/RAMP_HOME
+      - ${TRAINING_WORKSPACE:-/opt/fair-app/data/trainings}:/TRAINING_WORKSPACE
+    depends_on:
+      backend-api:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    networks:
+      - backend-network
+
+  prediction-worker:
+    image: ghcr.io/hotosm/fair_offline_predictor:${TAG:-latest}
+    platform: linux/amd64
+    container_name: prediction-worker
+    restart: always
+    command: celery -A aiproject worker --loglevel=INFO --concurrency=2 -Q predictions --pool=solo
+    env_file:
+      - ./.env.prod
+    volumes:
+      - ${APP_LOGS:-/opt/fair-app/data/log}:/app/log
+      - ${RAMP_HOME:-/opt/fair-app/data/ramp}:/RAMP_HOME
+      - ${TRAINING_WORKSPACE:-/opt/fair-app/data/trainings}:/TRAINING_WORKSPACE
+    depends_on:
+      backend-api:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    networks:
+      - backend-network
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 4G
+
+  flower:
+    image: mher/flower:1.2
+    platform: linux/amd64
+    container_name: flower
+    restart: always
+    command: celery --broker=redis://${REDIS_USER:-redis}:${REDIS_PASSWORD}@redis:6379/0 flower --address=0.0.0.0 --port=5000 --basic_auth=${FLOWER_USER:-admin}:${FLOWER_PASSWORD:-admin}
+    ports:
+      - "127.0.0.1:5500:5000"
+    networks:
+      - backend-network
+    depends_on:
+      redis:
+        condition: service_healthy
+    profiles:
+      - cpu
+      - gpu
+
+networks:
+  backend-network:
+    driver: bridge

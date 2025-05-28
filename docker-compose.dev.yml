@@ -1,0 +1,204 @@
+# fAIr Application Development Stack
+services:
+  postgres:
+    image: postgis/postgis
+    platform: linux/amd64
+    container_name: pgsql
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-ai}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin}
+    volumes:
+      - ${POSTGRES_DATA:-./fair-app/data/postgres}:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
+    networks:
+      - backend-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    platform: linux/amd64
+    container_name: redis
+    restart: unless-stopped
+    command: redis-server
+    volumes:
+      - ${REDIS_DATA:-./fair-app/data/redis}:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - backend-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend-api:
+    image: ghcr.io/hotosm/fair_api:develop
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.API
+    platform: linux/amd64
+    container_name: api
+    restart: unless-stopped
+    command: python manage.py runserver_with_q 0.0.0.0:8000
+    env_file:
+      - ./backend/.env
+    ports:
+      - "8000:8000"
+    volumes:
+      - ${APP_LOGS:-./fair-app/data/log}:/app/log
+      - ./backend/core:/app/core
+      - ./backend/login:/app/login
+      - ./backend/aiproject:/app/aiproject
+      - ${RAMP_HOME:-./fair-app/data/ramp}:/RAMP_HOME
+      - ${TRAINING_WORKSPACE:-./fair-app/data/trainings}:/TRAINING_WORKSPACE
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    networks:
+      - backend-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  backend-worker-cpu:
+    profiles: ["cpu"]
+    image: ghcr.io/hotosm/fair_worker:develop-cpu
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.workers
+      args:
+        - BUILD_TYPE=cpu
+    platform: linux/amd64
+    container_name: worker-cpu
+    restart: unless-stopped
+    command: celery -A aiproject worker --loglevel=INFO --concurrency=1 -Q ramp_training,yolo_training
+    env_file:
+      - ./backend/.env
+    volumes:
+      - ${APP_LOGS:-./fair-app/data/log}:/app/log
+      - ./backend/core:/app/core
+      - ./backend/login:/app/login
+      - ./backend/aiproject:/app/aiproject
+      - ${RAMP_HOME:-./fair-app/data/ramp}:/RAMP_HOME
+      - ${TRAINING_WORKSPACE:-./fair-app/data/trainings}:/TRAINING_WORKSPACE
+    depends_on:
+      backend-api:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    networks:
+      - backend-network
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 2G
+
+  backend-worker-gpu:
+    profiles: ["gpu"]
+    image: ghcr.io/hotosm/fair_worker:develop-gpu
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.workers
+      args:
+        - BUILD_TYPE=gpu
+    platform: linux/amd64
+    container_name: worker-gpu
+    restart: unless-stopped
+    command: celery -A aiproject worker --loglevel=INFO --concurrency=1 -Q ramp_training,yolo_training --pool=solo
+    env_file:
+      - ./backend/.env
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              capabilities: [gpu]
+        limits:
+          memory: 4G
+    volumes:
+      - ${APP_LOGS:-./fair-app/data/log}:/app/log
+      - ./backend/core:/app/core
+      - ./backend/login:/app/login
+      - ./backend/aiproject:/app/aiproject
+      - ${RAMP_HOME:-./fair-app/data/ramp}:/RAMP_HOME
+      - ${TRAINING_WORKSPACE:-./fair-app/data/trainings}:/TRAINING_WORKSPACE
+    depends_on:
+      backend-api:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    networks:
+      - backend-network
+
+  prediction-worker:
+    image: ghcr.io/hotosm/fair_offline_predictor:develop
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.API
+      args:
+        - BUILD_TARGET=predictor
+    platform: linux/amd64
+    container_name: prediction-worker
+    restart: unless-stopped
+    command: celery -A aiproject worker --loglevel=INFO --concurrency=1 -Q predictions --pool=solo
+    env_file:
+      - ./backend/.env
+    volumes:
+      - ${APP_LOGS:-./fair-app/data/log}:/app/log
+      - ./backend/core:/app/core
+      - ./backend/login:/app/login
+      - ./backend/aiproject:/app/aiproject
+      - ${RAMP_HOME:-./fair-app/data/ramp}:/RAMP_HOME
+      - ${TRAINING_WORKSPACE:-./fair-app/data/trainings}:/TRAINING_WORKSPACE
+    depends_on:
+      backend-api:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    networks:
+      - backend-network
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 2G
+
+  flower:
+    image: mher/flower:1.2
+    platform: linux/amd64
+    container_name: flower
+    restart: unless-stopped
+    command: celery --broker=redis://${REDIS_USER:-redis}:${REDIS_PASSWORD:-}@redis:6379/0 flower --address=0.0.0.0 --port=5000
+    ports:
+      - "5500:5000"
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - backend-network
+    profiles:
+      - cpu
+      - gpu
+
+networks:
+  backend-network:
+    driver: bridge
