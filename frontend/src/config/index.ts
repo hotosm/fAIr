@@ -448,7 +448,7 @@ const REFRESH_BUFFER_MS: number = 1000;
  */
 export const KPI_STATS_CACHE_TIME_MS: number =
   parseIntEnv(ENVS.KPI_STATS_CACHE_TIME, DEFAULT_KPI_STATS_CACHE_TIME_SECONDS) *
-    1000 +
+  1000 +
   REFRESH_BUFFER_MS;
 
 /**
@@ -481,6 +481,7 @@ export const FAIR_BASE_MODELS_PATH: Record<BASE_MODELS, string> = {
   [BASE_MODELS.YOLOV8_V2]: `${FAIR_MODELS_BASE_PATH}/basemodels/yolo/yolov8s_v2-seg.onnx`,
 };
 
+export const OPENAERIALMAP_MOSAIC_TILES_URL = "https://apps.kontur.io/raster-tiler/oam/mosaic/{z}/{x}/{y}.png"
 /**
  *  The default offset step for the training labels offset controller.
  */

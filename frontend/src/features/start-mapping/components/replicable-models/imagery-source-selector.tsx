@@ -1,13 +1,14 @@
 import { PredictionImagerySource } from "@/enums/start-mapping";
 import { useMemo, useState } from "react";
 import { ButtonVariant, SHOELACE_SIZES, TileServiceType } from "@/enums";
-import { Button, ButtonWithIcon } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { RadioGroup } from "@/components/ui/form/radio-group/radio-group";
 import { XYZTileServerInput } from "@/components/shared/form/xyz-tile-server-input";
 import { START_MAPPING_PAGE_CONTENT } from "@/constants";
 import { FormLabel } from "@/components/ui/form";
 import { Divider } from "@/components/ui/divider";
 import { CloseIcon } from "@/components/ui/icons";
+import { OPENAERIALMAP_MOSAIC_TILES_URL } from "@/config";
 
 const PredictionImagerySources: Array<{
   value: PredictionImagerySource;
@@ -15,24 +16,24 @@ const PredictionImagerySources: Array<{
   url?: string;
   tooltip: string;
 }> = [
-  {
-    value: PredictionImagerySource.ModelDefault,
-    label: "Model Default",
-    url: "",
-    tooltip: "Default imagery for the model.",
-  },
-  {
-    value: PredictionImagerySource.CustomImagery,
-    label: "Custom Imagery",
-    tooltip: "Use a custom XYZ/TMS tile server URL.",
-  },
-  {
-    value: PredictionImagerySource.Kontour,
-    label: "OpenAerialMap Mosaic",
-    url: "https://apps.kontur.io/raster-tiler/oam/mosaic/{z}/{x}/{y}.png",
-    tooltip: "All OpenAerialMap images in one mosaic layer, by Kontur.io.",
-  },
-];
+    {
+      value: PredictionImagerySource.ModelDefault,
+      label: "Model Default",
+      url: "",
+      tooltip: "Default imagery for the model.",
+    },
+    {
+      value: PredictionImagerySource.CustomImagery,
+      label: "Custom Imagery",
+      tooltip: "Use a custom XYZ/TMS tile server URL.",
+    },
+    {
+      value: PredictionImagerySource.Kontour,
+      label: "OpenAerialMap Mosaic",
+      url: OPENAERIALMAP_MOSAIC_TILES_URL,
+      tooltip: "All OpenAerialMap images in one mosaic layer, by Kontur.io.",
+    },
+  ];
 
 export const ImagerySourceSelector = ({
   setPredictionImagerySource,
@@ -86,8 +87,7 @@ export const ImagerySourceSelector = ({
     () => ({
       [PredictionImagerySource.CustomImagery]: localTileServerURL,
       [PredictionImagerySource.ModelDefault]: modelDefaultImageryURL,
-      [PredictionImagerySource.Kontour]:
-        "https://apps.kontur.io/raster-tiler/oam/mosaic/{z}/{x}/{y}.png",
+      [PredictionImagerySource.Kontour]: OPENAERIALMAP_MOSAIC_TILES_URL,
     }),
     [localTileServerURL, modelDefaultImageryURL],
   );
@@ -128,30 +128,37 @@ export const ImagerySourceSelector = ({
         options={PredictionImagerySources}
         onChange={(e) => {
           setLocalPredictionImagerySource(e as PredictionImagerySource);
+          /**
+           *  Reset the local tile server URL when the imagery source changes,
+           *  except when switching to Custom Imagery, where the URL is set by the user.
+           */
+          if (e !== PredictionImagerySource.CustomImagery) {
+            setLocalTileServerURL("");
+          }
         }}
         value={localPredictionImagerySource}
         withTooltip
       />
       {localPredictionImagerySource ===
         PredictionImagerySource.CustomImagery && (
-        <div className="flex flex-col gap-y-2 mt-2">
-          <XYZTileServerInput
-            tileServiceType={localTileServiceType}
-            isValid={localTileServiceTypeValidity}
-            setTileServerURL={(e) => setLocalTileServerURL(e)}
-            tileServerURL={localTileServerURL}
-            validationStateUpdateCallback={setLocalTileServiceTypeValidity}
-            setTileServiceType={setLocalTileServiceType}
-            size={SHOELACE_SIZES.SMALL}
-          />
-        </div>
-      )}
+          <div className="flex flex-col gap-y-2 mt-2">
+            <XYZTileServerInput
+              tileServiceType={localTileServiceType}
+              isValid={localTileServiceTypeValidity}
+              setTileServerURL={(e) => setLocalTileServerURL(e)}
+              tileServerURL={localTileServerURL}
+              validationStateUpdateCallback={setLocalTileServiceTypeValidity}
+              setTileServiceType={setLocalTileServiceType}
+              size={SHOELACE_SIZES.SMALL}
+            />
+          </div>
+        )}
       {localPredictionImagerySource !==
         PredictionImagerySource.ModelDefault && (
-        <small className="text-xs text-grey">
-          {START_MAPPING_PAGE_CONTENT.replicableModel.info}
-        </small>
-      )}
+          <small className="text-xs text-grey">
+            {START_MAPPING_PAGE_CONTENT.replicableModel.info}
+          </small>
+        )}
       <Divider />
       <div className="flex justify-between items-center gap-x-2">
         <Button

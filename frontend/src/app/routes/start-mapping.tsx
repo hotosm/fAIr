@@ -37,6 +37,7 @@ import {
   ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
   ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
   FAIR_BASE_MODELS_PATH,
+  OPENAERIALMAP_MOSAIC_TILES_URL,
 } from "@/config";
 
 export type TDownloadOptions = {
@@ -191,7 +192,7 @@ export const StartMappingPage = () => {
   }, [predictionModel]);
 
 
-  console.log(predictionModel, predictionModelCheckpoint);
+
   useEffect(() => {
     /**
      * Only update the checkpoint if the modelInfo is available and
@@ -206,6 +207,20 @@ export const StartMappingPage = () => {
     }
   }, [predictionModel, modelInfo]);
 
+  /**
+   *  When the user selects the Kontour prediction imagery source or pass it directly in the url.
+   */
+  useEffect(() => {
+    if (predictionImagerySource === PredictionImagerySource.Kontour) {
+      setTileserverURL(OPENAERIALMAP_MOSAIC_TILES_URL);
+    }
+  }, [predictionImagerySource])
+
+  /**
+   * When the user changes the prediction imagery source, sync it to the URL.
+   * If the source is custom imagery, update the tileserver URL in the query params.
+   * If the source is not custom imagery, remove the tileserver URL from the query params.
+   */
   useEffect(() => {
     const current = searchParams.get(SEARCH_PARAMS.tileserver) || undefined;
     if (predictionImagerySource === PredictionImagerySource.CustomImagery) {
@@ -233,6 +248,9 @@ export const StartMappingPage = () => {
     }
   }, [customPredictionModelCheckpointPath]);
 
+  /**
+   * When the user changes the prediction model, sync it to the URL.
+   */
   useEffect(() => {
     if (
       modelInfo?.dataset?.source_imagery &&

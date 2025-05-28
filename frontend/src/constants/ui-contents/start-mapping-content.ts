@@ -13,9 +13,9 @@ export const START_MAPPING_PAGE_CONTENT: TStartMappingPageContent = {
           hide: "Hide Legend",
         },
         title: "Predictions",
-        acceptedPredictions: "Accepted Predictions",
-        rejectedPredictions: "Rejected Predictions",
-        predictionResults: "Prediction Results",
+        acceptedPredictions: "Accepted",
+        rejectedPredictions: "Rejected",
+        predictionResults: "Default",
       },
       layerControl: {
         results: "Model predictions",
