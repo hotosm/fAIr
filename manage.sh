@@ -421,7 +421,7 @@ update() {
   echo
   if [[ $REPLY =~ ^[Yy]$ ]]; then
     migrations
-  }
+  fi
 }
 
 # Show help
