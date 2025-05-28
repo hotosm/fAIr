@@ -112,11 +112,11 @@ TAG=latest
 
 # Application paths
 DATA_DIR=/opt/fAIr-app/data
-RAMP_HOME=\${DATA_DIR}/ramp
-TRAINING_WORKSPACE=\${DATA_DIR}/trainings
-APP_LOGS=\${DATA_DIR}/logs
-POSTGRES_DATA=\${DATA_DIR}/postgres
-REDIS_DATA=\${DATA_DIR}/redis
+RAMP_HOME=/opt/fAIr-app/data/ramp
+TRAINING_WORKSPACE=/opt/fAIr-app/data/trainings
+APP_LOGS=/opt/fAIr-app/data/logs
+POSTGRES_DATA=/opt/fAIr-app/data/postgres
+REDIS_DATA=/opt/fAIr-app/data/redis
 EOF
   fi
   
