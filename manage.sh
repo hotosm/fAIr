@@ -106,7 +106,7 @@ ENV_FILE=$ENV_FILE
 POSTGRES_DB=ai
 POSTGRES_HOST=postgres
 POSTGRES_PORT=5432
-POSTGRES_USER=postgres_admin
+POSTGRES_USER=postgres
 POSTGRES_PASSWORD=$POSTGRES_PASSWORD
 
 # Redis configuration
@@ -134,7 +134,7 @@ REDIS_DATA=$REDIS_DATA_DIR
 SECRET_KEY=$(openssl rand -base64 32 | tr -dc 'A-Za-z0-9!#$%^&*()_+\-=' | head -c16)
 
 
-DATABASE_URL=postgis://postgres_admin:$POSTGRES_PASSWORD@postgres:5432/ai
+DATABASE_URL=postgis://postgres:$POSTGRES_PASSWORD@postgres:5432/ai
 
 CELERY_BROKER_URL="redis://redis:6379/0"
 CELERY_RESULT_BACKEND="redis://redis:6379/0"
