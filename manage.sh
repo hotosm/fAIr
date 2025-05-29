@@ -10,12 +10,12 @@ NC='\033[0m' # No Color
 
 # Configuration
 APP_DIR="${APP_DIR:-/opt/fAIr-app}"
-DATA_DIR="${DATA_DIR:-$APP_DIR/data}"
-RAMP_DIR="${RAMP_HOME:-$DATA_DIR/ramp}"
-TRAINING_DIR="${TRAINING_WORKSPACE:-$DATA_DIR/trainings}"
-POSTGRES_DATA_DIR="${POSTGRES_DATA:-$DATA_DIR/postgres}"
-REDIS_DATA_DIR="${REDIS_DATA:-$DATA_DIR/redis}"
-APP_LOGS_DIR="${APP_LOGS:-$DATA_DIR/logs}"
+DATA_DIR="${DATA_DIR:-/opt/fAIr-app/data}"
+RAMP_DIR="${RAMP_HOME:-/opt/fAIr-app/data/ramp}"
+TRAINING_DIR="${TRAINING_WORKSPACE:-/opt/fAIr-app/data/trainings}"
+POSTGRES_DATA_DIR="${POSTGRES_DATA:-/opt/fAIr-app/data/postgres}"
+REDIS_DATA_DIR="${REDIS_DATA:-/opt/fAIr-app/data/redis}"
+APP_LOGS_DIR="${APP_LOGS:-/opt/fAIr-app/data/logs}"
 ENV_FILE="$APP_DIR/.env.production"
 COMPOSE_FILE="$APP_DIR/docker-compose.prod.yml"
 SERVICE_NAME="fAIr-app.service"
@@ -93,13 +93,21 @@ setup() {
   # Create env file if it doesn't exist
   if [ ! -f "$ENV_FILE" ]; then
     echo -e "${YELLOW}Creating environment file...${NC}"
-    cat > $ENV_FILE <<EOF
+  cat > "$ENV_FILE" <<EOF
+# Auto-generated .env from manage.sh configuration
+
+ENV_FILE=$ENV_FILE
+
 # Database configuration
 POSTGRES_DB=ai
+POSTGRES_HOST=postgres
+POSTGRES_PORT=5434
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=$(openssl rand -base64 16)
 
 # Redis configuration
+REDIS_HOST=redis
+REDIS_PORT=6378
 REDIS_PASSWORD=$(openssl rand -base64 16)
 REDIS_USER=redis
 
@@ -108,15 +116,15 @@ FLOWER_USER=admin
 FLOWER_PASSWORD=$(openssl rand -base64 12)
 
 # Application version
-TAG=latest
+TAG=develop
 
-# Application paths
-DATA_DIR=/opt/fAIr-app/data
-RAMP_HOME=/opt/fAIr-app/data/ramp
-TRAINING_WORKSPACE=/opt/fAIr-app/data/trainings
-APP_LOGS=/opt/fAIr-app/data/logs
-POSTGRES_DATA=/opt/fAIr-app/data/postgres
-REDIS_DATA=/opt/fAIr-app/data/redis
+# Mount points
+DATA_DIR=$DATA_DIR
+RAMP_HOME=$RAMP_DIR
+TRAINING_WORKSPACE=$TRAINING_DIR
+APP_LOGS=$APP_LOGS_DIR
+POSTGRES_DATA=$POSTGRES_DATA_DIR
+REDIS_DATA=$REDIS_DATA_DIR
 EOF
   fi
   
@@ -124,29 +132,20 @@ EOF
   cat > /etc/systemd/system/$SERVICE_NAME <<EOF
 [Unit]
 Description=fAIr Application Stack
-Documentation=https://github.com/hotosm/fAIr
 After=docker.service
 Requires=docker.service
- 
+
 [Service]
 Type=oneshot
 RemainAfterExit=yes
 WorkingDirectory=$APP_DIR
 EnvironmentFile=$ENV_FILE
-
-# User and Group that will run the service
 User=$USER_NAME
 Group=$GROUP_NAME
-
-# Ensure directories exist
 ExecStartPre=/bin/mkdir -p \${RAMP_HOME} \${TRAINING_WORKSPACE} \${APP_LOGS} \${POSTGRES_DATA} \${REDIS_DATA}
 ExecStartPre=/bin/chown -R $USER_NAME:$GROUP_NAME \${RAMP_HOME} \${TRAINING_WORKSPACE} \${APP_LOGS} \${POSTGRES_DATA} \${REDIS_DATA}
-
-# Start using GPU or CPU profile as needed
-ExecStart=/usr/bin/docker compose -f $COMPOSE_FILE --profile $PROFILE up -d
+ExecStart=/usr/bin/docker compose -f $COMPOSE_FILE --env-file $ENV_FILE --profile $PROFILE up -d
 ExecStop=/usr/bin/docker compose -f $COMPOSE_FILE down
-
-# Restart policy
 Restart=on-failure
 RestartSec=30
 

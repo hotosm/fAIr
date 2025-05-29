@@ -1,6 +1,10 @@
-# fAIr Application Production Stack
+x-common-env: &common-env
+  env_file:
+    - ${ENV_FILE:-.env.production}
+
 services:
   postgres:
+    <<: *common-env
     image: postgis/postgis:latest
     platform: linux/amd64
     container_name: pgsql
@@ -12,7 +16,7 @@ services:
     volumes:
       - ${POSTGRES_DATA:-/opt/fair-app/data/postgres}:/var/lib/postgresql/data
     ports:
-      - "127.0.0.1:5432:5432"
+      - "127.0.0.1:5434:5432"
     networks:
       - backend-network
     healthcheck:
@@ -22,7 +26,8 @@ services:
       retries: 5
 
   redis:
-    image: redis:7-alpine
+    <<: *common-env
+    image: redis:8-alpine
     platform: linux/amd64
     container_name: redis
     restart: always
@@ -30,16 +35,17 @@ services:
     volumes:
       - ${REDIS_DATA:-/opt/fair-app/data/redis}:/data
     ports:
-      - "127.0.0.1:6379:6379"
+      - "127.0.0.1:6378:6379"
     networks:
       - backend-network
     healthcheck:
-      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
 
   backend-api:
+    <<: *common-env
     image: ghcr.io/hotosm/fair-api:${TAG:-latest}
     platform: linux/amd64
     container_name: api
@@ -59,7 +65,7 @@ services:
     networks:
       - backend-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/"]
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8000/api/v1/"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -70,6 +76,7 @@ services:
           memory: 2G
 
   backend-worker-cpu:
+    <<: *common-env
     profiles: ["cpu"]
     image: ghcr.io/hotosm/fair-worker:${TAG:-latest}-cpu
     platform: linux/amd64
@@ -96,21 +103,13 @@ services:
           memory: 4G
 
   backend-worker-gpu:
+    <<: *common-env
     profiles: ["gpu"]
     image: ghcr.io/hotosm/fair-worker:${TAG:-latest}-gpu
     platform: linux/amd64
     container_name: worker-gpu
     restart: always
     command: celery -A aiproject worker --loglevel=INFO --concurrency=1 -Q ramp_training,yolo_training --pool=solo
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
-        limits:
-          memory: 8G
     volumes:
       - ${APP_LOGS:-/opt/fair-app/data/log}:/app/log
       - ${RAMP_HOME:-/opt/fair-app/data/ramp}:/RAMP_HOME
@@ -124,8 +123,18 @@ services:
         condition: service_healthy
     networks:
       - backend-network
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+        limits:
+          memory: 8G
 
   prediction-worker:
+    <<: *common-env
     image: ghcr.io/hotosm/fair-offline-predictor:${TAG:-latest}
     platform: linux/amd64
     container_name: prediction-worker
@@ -151,17 +160,18 @@ services:
           memory: 4G
 
   flower:
+    <<: *common-env
     image: mher/flower:1.2
     platform: linux/amd64
     container_name: flower
     restart: always
-    command: celery --broker=redis://${REDIS_USER:-redis}:${REDIS_PASSWORD}@redis:6379/0 flower --address=0.0.0.0 --port=5000 --basic_auth=${FLOWER_USER:-admin}:${FLOWER_PASSWORD:-admin}
+    command: celery --broker=redis://${REDIS_USER:-redis}:${REDIS_PASSWORD}@${REDIS_USER:-redis}:${REDIS_USER:-6379}/0 flower --address=0.0.0.0 --port=5000 --basic_auth=${FLOWER_USER:-admin}:${FLOWER_PASSWORD:-admin}
     ports:
       - "127.0.0.1:5500:5000"
     networks:
       - backend-network
     depends_on:
-      redis:
+      backend-api:
         condition: service_healthy
     profiles:
       - cpu
