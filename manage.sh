@@ -24,8 +24,8 @@ USER_NAME="${SUDO_USER:-$USER}"
 GROUP_NAME="${SUDO_USER:-$USER}"
 
 
-POSTGRES_PASSWORD="${POSTGRES_PASSWORD:-$(openssl rand -base64 12)}"
-REDIS_PASSWORD="${REDIS_PASSWORD:-$(openssl rand -base64 12)}"
+POSTGRES_PASSWORD="${POSTGRES_PASSWORD:-$(openssl rand -base64 32 | tr -dc 'A-Za-z0-9!#$%^&*()_+\-=' | head -c16)}"
+REDIS_PASSWORD="${REDIS_PASSWORD:-$(openssl rand -base64 32 | tr -dc 'A-Za-z0-9!#$%^&*()_+\-=' | head -c16)}"
 
 # Function to display the header
 show_header() {
@@ -105,19 +105,17 @@ ENV_FILE=$ENV_FILE
 # Database configuration
 POSTGRES_DB=ai
 POSTGRES_HOST=postgres
-POSTGRES_PORT=5434
-POSTGRES_USER=postgres
+POSTGRES_PORT=5432
+POSTGRES_USER=postgres_admin
 POSTGRES_PASSWORD=$POSTGRES_PASSWORD
 
 # Redis configuration
 REDIS_HOST=redis
-REDIS_PORT=6378
-REDIS_PASSWORD=$REDIS_PASSWORD
-REDIS_USER=redis
+REDIS_PORT=6379
 
 # Flower configuration
 FLOWER_USER=admin
-FLOWER_PASSWORD=$(openssl rand -base64 12)
+FLOWER_PASSWORD=$(openssl rand -base64 32 | tr -dc 'A-Za-z0-9!#$%^&*()_+\-=' | head -c16)
 
 # Application version
 TAG=develop
@@ -133,13 +131,13 @@ REDIS_DATA=$REDIS_DATA_DIR
 
 ## Application configuration
 
-SECRET_KEY=$(openssl rand -base64 12)
+SECRET_KEY=$(openssl rand -base64 32 | tr -dc 'A-Za-z0-9!#$%^&*()_+\-=' | head -c16)
 
 
-DATABASE_URL=postgis://postgres:$POSTGRES_PASSWORD@postgres:5432/ai
+DATABASE_URL=postgis://postgres_admin:$POSTGRES_PASSWORD@postgres:5432/ai
 
-CELERY_BROKER_URL="redis://redis:$REDIS_PASSWORD@redis:6379/0"
-CELERY_RESULT_BACKEND="redis://redis:$REDIS_PASSWORD@redis:6379/0"
+CELERY_BROKER_URL="redis://redis:6379/0"
+CELERY_RESULT_BACKEND="redis://redis:6379/0"
 
 
 OSM_CLIENT_ID=replace_with_your_osm_client_id
@@ -147,7 +145,7 @@ OSM_CLIENT_SECRET=replace_with_your_osm_client_secret
 OSM_URL=https://www.openstreetmap.org
 OSM_SCOPE=read_prefs
 OSM_LOGIN_REDIRECT_URI=https://fair-dev.hotosm.org/authenticate/
-OSM_SECRET_KEY=$(openssl rand -base64 12)
+OSM_SECRET_KEY=$(openssl rand -base64 32 | tr -dc 'A-Za-z0-9!#$%^&*()_+\-=' | head -c16)
 
 ALLOWED_ORIGINS="https://fair-dev.hotosm.org/,fair-dev.hotosm.org"
 FRONTEND_URL=https://fair-dev.hotosm.org

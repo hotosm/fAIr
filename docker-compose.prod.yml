@@ -31,7 +31,7 @@ services:
     platform: linux/amd64
     container_name: redis
     restart: always
-    command: redis-server --requirepass ${REDIS_PASSWORD} --appendonly yes
+    command: redis-server --appendonly yes
     volumes:
       - ${REDIS_DATA:-/opt/fair-app/data/redis}:/data
     ports:
@@ -39,7 +39,7 @@ services:
     networks:
       - backend-network
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      test: ["CMD", "redis-cli", "-a", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -169,7 +169,7 @@ services:
     platform: linux/amd64
     container_name: flower
     restart: always
-    command: celery --broker=redis://${REDIS_USER:-redis}:${REDIS_PASSWORD}@${REDIS_USER:-redis}:${REDIS_PORT:-6379}/0 flower --address=0.0.0.0 --port=5000 --basic_auth=${FLOWER_USER:-admin}:${FLOWER_PASSWORD:-admin}
+    command: celery --broker=redis://${REDIS_HOST:-redis}:${REDIS_PORT:-6379}/0 flower --address=0.0.0.0 --port=5000 --basic_auth=${FLOWER_USER:-admin}:${FLOWER_PASSWORD:-admin}
     ports:
       - "127.0.0.1:5500:5000"
     networks:
