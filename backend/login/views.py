@@ -43,6 +43,7 @@ class login(APIView):
             json: login_url
         """
         login_url = osm_auth.login()
+        login_url["access_token"] = login_url.pop("user_data")
         return JsonResponse(login_url)
 
 
