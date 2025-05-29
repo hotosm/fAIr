@@ -334,12 +334,6 @@ migrations() {
   # Run migrations
   run_migrations
   
-  # Restart the web server to apply any changes
-  echo -e "${YELLOW}Restarting web server to apply changes...${NC}"
-  docker exec api bash -c "pkill -f 'gunicorn' || true"
-  sleep 2
-  docker exec -d api bash -c "gunicorn aiproject.wsgi:application --bind 0.0.0.0:8000 --workers=4 --timeout=120"
-  
   echo -e "${GREEN}Migrations completed successfully!${NC}"
 }
 
