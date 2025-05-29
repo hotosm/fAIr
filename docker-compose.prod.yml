@@ -65,12 +65,14 @@ services:
     networks:
       - backend-network
     healthcheck:
-      test: >
-        CMD-SHELL
-        python -c "import sys, requests; r = requests.get('http://127.0.0.1:8000/api/'); print(r); sys.exit(0 if r.status_code==200 else 1)"
+      test:
+        [
+          "CMD-SHELL",
+          'python -c "import sys, requests; r = requests.get(''http://127.0.0.1:8000/api/''); print(r); sys.exit(0 if r.status_code==200 else 1)"',
+        ]
       interval: 30s
       timeout: 10s
-      retries: 3
+      retries: 2
     deploy:
       resources:
         limits:
@@ -167,7 +169,7 @@ services:
     platform: linux/amd64
     container_name: flower
     restart: always
-    command: celery --broker=redis://${REDIS_USER:-redis}:${REDIS_PASSWORD}@${REDIS_USER:-redis}:${REDIS_USER:-6379}/0 flower --address=0.0.0.0 --port=5000 --basic_auth=${FLOWER_USER:-admin}:${FLOWER_PASSWORD:-admin}
+    command: celery --broker=redis://${REDIS_USER:-redis}:${REDIS_PASSWORD}@${REDIS_USER:-redis}:${REDIS_PORT:-6379}/0 flower --address=0.0.0.0 --port=5000 --basic_auth=${FLOWER_USER:-admin}:${FLOWER_PASSWORD:-admin}
     ports:
       - "127.0.0.1:5500:5000"
     networks:
