@@ -55,3 +55,6 @@ ramp
 trainings
 fAIr-utilities
 **/.DS_Store
+
+
+.env*

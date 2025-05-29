@@ -50,7 +50,7 @@ services:
     platform: linux/amd64
     container_name: api
     restart: always
-    command: python manage.py runserver_with_q 0.0.0.0:8000
+    command: python manage.py runserver_with_q
     ports:
       - "8000:8000"
     volumes:
@@ -65,7 +65,9 @@ services:
     networks:
       - backend-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://127.0.0.1:8000/api/v1/"]
+      test: >
+        CMD-SHELL
+        python -c "import sys, requests; r = requests.get('http://127.0.0.1:8000/api/'); print(r); sys.exit(0 if r.status_code==200 else 1)"
       interval: 30s
       timeout: 10s
       retries: 3

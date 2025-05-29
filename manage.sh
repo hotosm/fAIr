@@ -19,9 +19,13 @@ APP_LOGS_DIR="${APP_LOGS:-/opt/fAIr-app/data/logs}"
 ENV_FILE="$APP_DIR/.env.production"
 COMPOSE_FILE="$APP_DIR/docker-compose.prod.yml"
 SERVICE_NAME="fAIr-app.service"
-PROFILE="gpu"  # Default profile (can be 'gpu' or 'cpu')
+PROFILE="${PROFILE:-gpu}"  # Default profile (can be 'gpu' or 'cpu')
 USER_NAME="${SUDO_USER:-$USER}"
 GROUP_NAME="${SUDO_USER:-$USER}"
+
+
+POSTGRES_PASSWORD="${POSTGRES_PASSWORD:-$(openssl rand -base64 12)}"
+REDIS_PASSWORD="${REDIS_PASSWORD:-$(openssl rand -base64 12)}"
 
 # Function to display the header
 show_header() {
@@ -103,12 +107,12 @@ POSTGRES_DB=ai
 POSTGRES_HOST=postgres
 POSTGRES_PORT=5434
 POSTGRES_USER=postgres
-POSTGRES_PASSWORD=$(openssl rand -base64 16)
+POSTGRES_PASSWORD=$POSTGRES_PASSWORD
 
 # Redis configuration
 REDIS_HOST=redis
 REDIS_PORT=6378
-REDIS_PASSWORD=$(openssl rand -base64 16)
+REDIS_PASSWORD=$REDIS_PASSWORD
 REDIS_USER=redis
 
 # Flower configuration
@@ -125,6 +129,38 @@ TRAINING_WORKSPACE=$TRAINING_DIR
 APP_LOGS=$APP_LOGS_DIR
 POSTGRES_DATA=$POSTGRES_DATA_DIR
 REDIS_DATA=$REDIS_DATA_DIR
+
+
+## Application configuration
+
+SECRET_KEY=$(openssl rand -base64 12)
+
+
+DATABASE_URL=postgis://postgres:$POSTGRES_PASSWORD@postgres:5432/ai
+
+CELERY_BROKER_URL="redis://redis:$REDIS_PASSWORD@redis:6379/0"
+CELERY_RESULT_BACKEND="redis://redis:$REDIS_PASSWORD@redis:6379/0"
+
+
+OSM_CLIENT_ID=replace_with_your_osm_client_id
+OSM_CLIENT_SECRET=replace_with_your_osm_client_secret
+OSM_URL=https://www.openstreetmap.org
+OSM_SCOPE=read_prefs
+OSM_LOGIN_REDIRECT_URI=https://fair-dev.hotosm.org/authenticate/
+OSM_SECRET_KEY=$(openssl rand -base64 12)
+
+ALLOWED_ORIGINS="https://fair-dev.hotosm.org/,fair-dev.hotosm.org"
+FRONTEND_URL=https://fair-dev.hotosm.org
+
+
+EMAIL_HOST=your.smtp.server
+EMAIL_PORT=587
+EMAIL_HOST_USER=your_smptp_user
+EMAIL_HOST_PASSWORD=your_smtp_password
+DEFAULT_FROM_EMAIL=noreply@youremail.com
+EMAIL_USE_TLS=True
+EMAIL_USE_SSL=False
+
 EOF
   fi
   
@@ -237,13 +273,6 @@ stop() {
   show_header
   echo -e "${YELLOW}Stopping fAIr application...${NC}"
   
-  # Kill any running server processes in the API container before stopping
-  if docker ps | grep -q "api"; then
-    echo -e "${YELLOW}Stopping web server process...${NC}"
-    docker exec api bash -c "pkill -f 'gunicorn' || true"
-    sleep 2
-  fi
-  
   systemctl stop $SERVICE_NAME
 }
 
@@ -333,7 +362,7 @@ migrations() {
   
   # Run migrations
   run_migrations
-  
+
   echo -e "${GREEN}Migrations completed successfully!${NC}"
 }
 
