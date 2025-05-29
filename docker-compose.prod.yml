@@ -50,9 +50,9 @@ services:
     platform: linux/amd64
     container_name: api
     restart: always
-    command: python manage.py runserver_with_q
+    command: python manage.py runserver_with_q 0.0.0.0:8000
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
     volumes:
       - ${APP_LOGS:-/opt/fair-app/data/log}:/app/log
       - ${RAMP_HOME:-/opt/fair-app/data/ramp}:/RAMP_HOME
