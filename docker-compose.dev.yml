@@ -1,7 +1,13 @@
 # fAIr Application Development Stack
+
+x-common-env: &common-env
+  env_file:
+    - ${ENV_FILE:-.env.dev}
+
 services:
   postgres:
-    image: postgis/postgis
+    <<: *common-env
+    image: postgis/postgis:17-3.5-alpine
     platform: linux/amd64
     container_name: pgsql
     restart: unless-stopped
@@ -22,7 +28,8 @@ services:
       retries: 5
 
   redis:
-    image: redis:7-alpine
+    <<: *common-env
+    image: redis:8-alpine
     platform: linux/amd64
     container_name: redis
     restart: unless-stopped
@@ -40,6 +47,7 @@ services:
       retries: 5
 
   backend-api:
+    <<: *common-env
     image: ghcr.io/hotosm/fair-api:develop
     build:
       context: ./backend
@@ -48,17 +56,15 @@ services:
     container_name: api
     restart: unless-stopped
     command: python manage.py runserver_with_q 0.0.0.0:8000
-    env_file:
-      - ./backend/.env
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
     volumes:
       - ${APP_LOGS:-./fair-app/data/log}:/app/log
-      - ./backend/core:/app/core
-      - ./backend/login:/app/login
-      - ./backend/aiproject:/app/aiproject
       - ${RAMP_HOME:-./fair-app/data/ramp}:/RAMP_HOME
       - ${TRAINING_WORKSPACE:-./fair-app/data/trainings}:/TRAINING_WORKSPACE
+      - ${APP_HOME:-./}backend/core:/app/core
+      - ${APP_HOME:-./}backend/login:/app/login
+      - ${APP_HOME:-./}backend/aiproject:/app/aiproject
     depends_on:
       redis:
         condition: service_healthy
@@ -67,12 +73,22 @@ services:
     networks:
       - backend-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/"]
+      test:
+        [
+          "CMD-SHELL",
+          'python -c "import sys, requests; r = requests.get(''http://127.0.0.1:8000/api/''); print(r); sys.exit(0 if r.status_code==200 else 1)"',
+        ]
       interval: 30s
       timeout: 10s
-      retries: 3
+      retries: 2
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1G
 
   backend-worker-cpu:
+    <<: *common-env
     profiles: ["cpu"]
     image: ghcr.io/hotosm/fair-worker:develop-cpu
     build:
@@ -88,11 +104,11 @@ services:
       - ./backend/.env
     volumes:
       - ${APP_LOGS:-./fair-app/data/log}:/app/log
-      - ./backend/core:/app/core
-      - ./backend/login:/app/login
-      - ./backend/aiproject:/app/aiproject
       - ${RAMP_HOME:-./fair-app/data/ramp}:/RAMP_HOME
       - ${TRAINING_WORKSPACE:-./fair-app/data/trainings}:/TRAINING_WORKSPACE
+      - ${APP_HOME:-./}backend/core:/app/core
+      - ${APP_HOME:-./}backend/login:/app/login
+      - ${APP_HOME:-./}backend/aiproject:/app/aiproject
     depends_on:
       backend-api:
         condition: service_healthy
@@ -109,6 +125,7 @@ services:
           memory: 2G
 
   backend-worker-gpu:
+    <<: *common-env
     profiles: ["gpu"]
     image: ghcr.io/hotosm/fair-worker:develop-gpu
     build:
@@ -120,23 +137,13 @@ services:
     container_name: worker-gpu
     restart: unless-stopped
     command: celery -A aiproject worker --loglevel=INFO --concurrency=1 -Q ramp_training,yolo_training --pool=solo
-    env_file:
-      - ./backend/.env
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              capabilities: [gpu]
-        limits:
-          memory: 4G
     volumes:
       - ${APP_LOGS:-./fair-app/data/log}:/app/log
-      - ./backend/core:/app/core
-      - ./backend/login:/app/login
-      - ./backend/aiproject:/app/aiproject
       - ${RAMP_HOME:-./fair-app/data/ramp}:/RAMP_HOME
       - ${TRAINING_WORKSPACE:-./fair-app/data/trainings}:/TRAINING_WORKSPACE
+      - ${APP_HOME:-./}backend/core:/app/core
+      - ${APP_HOME:-./}backend/login:/app/login
+      - ${APP_HOME:-./}backend/aiproject:/app/aiproject
     depends_on:
       backend-api:
         condition: service_healthy
@@ -146,8 +153,17 @@ services:
         condition: service_healthy
     networks:
       - backend-network
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              capabilities: [gpu]
+        limits:
+          memory: 4G
 
   prediction-worker:
+    <<: *common-env
     image: ghcr.io/hotosm/fair-offline-predictor:develop
     build:
       context: ./backend
@@ -158,15 +174,13 @@ services:
     container_name: prediction-worker
     restart: unless-stopped
     command: celery -A aiproject worker --loglevel=INFO --concurrency=1 -Q predictions --pool=solo
-    env_file:
-      - ./backend/.env
     volumes:
       - ${APP_LOGS:-./fair-app/data/log}:/app/log
-      - ./backend/core:/app/core
-      - ./backend/login:/app/login
-      - ./backend/aiproject:/app/aiproject
       - ${RAMP_HOME:-./fair-app/data/ramp}:/RAMP_HOME
       - ${TRAINING_WORKSPACE:-./fair-app/data/trainings}:/TRAINING_WORKSPACE
+      - ${APP_HOME:-./}backend/core:/app/core
+      - ${APP_HOME:-./}backend/login:/app/login
+      - ${APP_HOME:-./}backend/aiproject:/app/aiproject
     depends_on:
       backend-api:
         condition: service_healthy
@@ -183,7 +197,8 @@ services:
           memory: 2G
 
   flower:
-    image: mher/flower:1.2
+    <<: *common-env
+    image: mher/flower:2.0.1
     platform: linux/amd64
     container_name: flower
     restart: unless-stopped

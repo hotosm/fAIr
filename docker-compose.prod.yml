@@ -5,7 +5,7 @@ x-common-env: &common-env
 services:
   postgres:
     <<: *common-env
-    image: postgis/postgis:latest
+    image: postgis/postgis:17-3.5
     platform: linux/amd64
     container_name: pgsql
     restart: always
@@ -165,7 +165,7 @@ services:
 
   flower:
     <<: *common-env
-    image: mher/flower:1.2
+    image: mher/flower:2.0.1
     platform: linux/amd64
     container_name: flower
     restart: always
