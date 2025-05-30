@@ -59,6 +59,7 @@ class callback(APIView):
         # Generating token through osm_auth library method
         uri = request.build_absolute_uri()
         token = osm_auth.callback(uri)
+        token["access_token"] = token.pop("user_data")
         return JsonResponse(token)
 
 
