@@ -12,7 +12,7 @@ This manual is a step by step guide for the community project managers on how to
 
 ## Prerequisites
 - Stable Internet connection
-- Knowledge on mapping . If you are new to mapping we suggest you to read [this](https://tasks.hotosm.org/learn/map) .
+- Knowledge on mapping. If you are new to mapping we suggest you to read [this](https://tasks.hotosm.org/learn/map) .
 - Very basic knowledge on training AI Datasets and Models.
 - Account on [fAIr](https://fair-dev.hotosm.org/) .
 
@@ -102,7 +102,7 @@ https://github.com/hotosm/fAIr/assets/97789856/f4eae99f-e9a2-4424-806f-fdfce80e6
 3. Click on the button Create New.After clicking on 'Start Creating Dataset', click on the 'Create New' button to create a new dataset.
 <img width="1419" alt="3" src="https://github.com/hotosm/fAIr/assets/97789856/f1db017c-b360-42aa-bd1f-5c94049fc042">
 
-> A dataset would be a list of area of interests (AIOs) and its labels. OpenStreetMap data can be downlaoded automatically and used as initial
+> A dataset would be a list of area of interests (AIOs) and its labels. OpenStreetMap data can be downloaded automatically and used as initial
 > labels. It is our responsibility as model creators to make sure labels align with the feature before proceeding to training phase.
 
 4. Click on the input field , Give your Dataset Name.To name your dataset, click on the input field and type in your desired name & click on the 'Create Training Dataset'.

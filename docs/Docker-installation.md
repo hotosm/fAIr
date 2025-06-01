@@ -1,4 +1,4 @@
-Docker Compose is created with redis , worker , postgis database ,  api and frontend all in one making it easy for development . For production it is not recommended
+Docker Compose is created with redis, worker, postgis database,  api and frontend all in one making it easy for development. For production it is not recommended
 
 ## [DEV] Installation With Docker 
 
@@ -10,14 +10,14 @@ Docker Compose is created with redis , worker , postgis database ,  api and fron
 
 2. Get Docker Compose Installed 
 
-    If docker is not installed , Install it from [here](https://docs.docker.com/engine/install/) 
+    If docker is not installed, Install it from [here](https://docs.docker.com/engine/install/) 
     ```
     docker compose version
     ```
 
 3. Check your Graphics 
 
-    fAIr works best with graphics card. It is highly recommended to use graphics card . It might not work with CPU only (You can setup and test from bottom of this document). Nvidia Graphics cards are tested 
+    fAIr works best with graphics card. It is highly recommended to use graphics card. It might not work with CPU only (You can setup and test from bottom of this document). Nvidia Graphics cards are tested 
 
     You need to make sure you can see your graphics card details and can be accessed through docker by installing necessary drivers
 
@@ -28,7 +28,7 @@ Docker Compose is created with redis , worker , postgis database ,  api and fron
 
 4. Clone Base Model and Create RAMP_HOME
 
-    - Create a new folder called RAMP , outside fAIr
+    - Create a new folder called RAMP, outside fAIr
 
         ```
         mkdir ramp
@@ -65,12 +65,12 @@ Docker Compose is created with redis , worker , postgis database ,  api and fron
 
 5. Register your Local setup to OSM 
 
-    - Go to [OpenStreetMap](https://www.openstreetmap.org/) , Login/Create Account
+    - Go to [OpenStreetMap](https://www.openstreetmap.org/), Login/Create Account
     - Click on your Profile and Hit ```My Settings```
     - Navigate to ```Oauth2 Applications```
     - Register new application 
-    - Check permissions for ```Read user preferences``` and Redirect URI to be ```http://127.0.0.1:3000/authenticate/``` , Give it name as ```fAIr Dev Local```
-    - You will get ```OSM_CLIENT_ID``` , ```OSM_CLIENT_SECRET``` Copy them 
+    - Check permissions for ```Read user preferences``` and Redirect URI to be ```http://127.0.0.1:3000/authenticate/```, Give it name as ```fAIr Dev Local```
+    - You will get ```OSM_CLIENT_ID```, ```OSM_CLIENT_SECRET``` Copy them 
 
 6. Create Env variables
    Backend
@@ -131,13 +131,13 @@ Docker Compose is created with redis , worker , postgis database ,  api and fron
     docker compose restart
     ```
 
-    Frontend will be available on 5000 port , Backend will be on 8000 , Flower will be on 5500 
+    Frontend will be available on 5000 port, Backend will be on 8000, Flower will be on 5500 
 
     Please open the frontend using URL `127.0.0.1:3000` instead of `localhost:3000` to ensure login functionality.
 
 10. Want to run your local tiles ? 
 
-    You can use [titler](https://github.com/developmentseed/titiler) , [gdals2tiles](https://gdal.org/programs/gdal2tiles.html) or nginx to run your own TMS server and add following to docker compose in order to access your localhost through docker containers . Add those to API and Worker . Make sure you update the .env variable accordingly 
+    You can use [titler](https://github.com/developmentseed/titiler), [gdals2tiles](https://gdal.org/programs/gdal2tiles.html) or nginx to run your own TMS server and add following to docker compose in order to access your localhost through docker containers . Add those to API and Worker . Make sure you update the .env variable accordingly 
 
     ```
     network_mode: "host"
