@@ -44,7 +44,7 @@
 
 - **order**: ordering on modelset
 - **id**: adds id filter in model
-- **gtlt**: greather than and leess than filter on timestamps
+- **gtlt**: greater than and less than filter on timestamps
 
 ## v1.1.3 (2024-10-04)
 
