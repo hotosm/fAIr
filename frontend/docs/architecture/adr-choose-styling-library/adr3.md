@@ -38,7 +38,7 @@ We are building the fAIr website that requires a responsive and customizable use
 
 # Decision
 
-We've chosen to use Tailwind CSS, CSS3 and Shoelace to support the development of the platform because of the strict timeline and for future flexibility. Shoelace components (and sometimes HOT UI component (e.g Tracking/Cookie banner)) will be used extensively because it aligns with the future requirements of [HOT UI](https://github.com/hotosm/ui). Tailwind will be used occassionally in layout design and CSS3 via CSS modules will be used to support the designs when necessary.
+We've chosen to use Tailwind CSS, CSS3 and Shoelace to support the development of the platform because of the strict timeline and for future flexibility. Shoelace components (and sometimes HOT UI component (e.g Tracking/Cookie banner)) will be used extensively because it aligns with the future requirements of [HOT UI](https://github.com/hotosm/ui). Tailwind will be used occasionally in layout design and CSS3 via CSS modules will be used to support the designs when necessary.
 
 These three offer flexibility, speed of development, and also in tune with future requirements.
 
