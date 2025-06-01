@@ -16,7 +16,7 @@ The RAMP model was trained with a particular focus on informal settlements and p
 
 The platform that fAIr provides is a further fine-tuning of the base-line model which enhance the model efficiacy to the desired area.
 
-> The backend codebase and the containersed docker enviornment is currently optimised for deployment on an Debian AWS instance with 4GB. Nvidia GPU and 16 GB. RAM.
+> The backend codebase and the containersed docker environment is currently optimised for deployment on an Debian AWS instance with 4GB. Nvidia GPU and 16 GB. RAM.
 
 > It is recommended to use the provided docker images and cloud instance to deploy the RAMP model. As the Docker images with model, model weights, and peripherial requirements will take up at least 10 Gb. of storage space.
 
@@ -72,7 +72,7 @@ You will need more env variables (Such as Ramp home, Training Home) that can be 
 
 Now change your username, password and db name in settings.py accordingly to your database
 
-> The application is boostrapped by calling `manage.py` to bootstrap the geodjango application.
+> The application is bootstrapped by calling `manage.py` to bootstrap the geodjango application.
 
 ``` bash
 python manage.py makemigrations login
