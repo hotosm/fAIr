@@ -58,7 +58,7 @@ export C_INCLUDE_PATH=/usr/include/gdal
 pip install --global-option=build_ext --global-option="-I/usr/include/gdal" GDAL==`gdal-config --version`
 ```
 
-- Install Ramp - Dependecies
+- Install Ramp - Dependencies
 ```
 cd ramp-code && cd colab && make install
 ```
