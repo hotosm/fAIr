@@ -32,7 +32,7 @@ export const setupTerraDraw = (map: maplibregl.Map) => {
     modes: [
       // new TerraDrawSelectMode({
       //   flags: {
-      //     arbitary: {
+      //     arbitrary: {
       //       feature: {},
       //     },
       //     rectangle: {
