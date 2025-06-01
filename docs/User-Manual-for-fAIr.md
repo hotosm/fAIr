@@ -102,7 +102,7 @@ https://github.com/hotosm/fAIr/assets/97789856/f4eae99f-e9a2-4424-806f-fdfce80e6
 3. Click on the button Create New.After clicking on 'Start Creating Dataset', click on the 'Create New' button to create a new dataset.
 <img width="1419" alt="3" src="https://github.com/hotosm/fAIr/assets/97789856/f1db017c-b360-42aa-bd1f-5c94049fc042">
 
-> A dataset would be a list of area of interests (AIOs) and its labels. OpenStreetMap data can be downlaoded automatically and used as initial
+> A dataset would be a list of area of interests (AIOs) and its labels. OpenStreetMap data can be downloaded automatically and used as initial
 > labels. It is our responsibility as model creators to make sure labels align with the feature before proceeding to training phase.
 
 4. Click on the input field , Give your Dataset Name.To name your dataset, click on the input field and type in your desired name & click on the 'Create Training Dataset'.
@@ -126,7 +126,7 @@ https://github.com/hotosm/fAIr/assets/97789856/f4eae99f-e9a2-4424-806f-fdfce80e6
 
 <img width="1413" alt="9" src="https://github.com/hotosm/fAIr/assets/97789856/ff61462e-02b3-4b23-8e8c-1c80c1582dd1">
 
-10. Fetch Exisiting OSM Buildings in your Area of Interest.Click on Fetch OSM Data button next to OSM Logo Inside List of Area of Interest on Right side.
+10. Fetch Existing OSM Buildings in your Area of Interest.Click on Fetch OSM Data button next to OSM Logo Inside List of Area of Interest on Right side.
 <img width="378" alt="10" src="https://github.com/hotosm/fAIr/assets/97789856/d318aca6-cdb1-43c4-b31a-1f19259201f7">
 
 11. Visualize each Buildings to check their accuracy.Zoom to Level 20 in Map to see OSM Buildings that you have just fetched.
@@ -173,7 +173,7 @@ https://github.com/hotosm/fAIr/assets/97789856/f4eae99f-e9a2-4424-806f-fdfce80e6
 <img width="890" alt="20" src="https://github.com/hotosm/fAIr/assets/97789856/5b860ce3-5c33-49f4-ad1f-33b47d4369b5">
 
 
-21.  Publish Your Training.Once you are statisfied accuracy and want to visualize its prediction you need to publish the training. You can run multiple trainings for same model to find best performing checkpoint, Each training will result different checkpoint. You can always publish another training. Click on PUblish Training button to Publish Model.
+21.  Publish Your Training.Once you are satisfied accuracy and want to visualize its prediction you need to publish the training. You can run multiple trainings for same model to find best performing checkpoint, Each training will result different checkpoint. You can always publish another training. Click on PUblish Training button to Publish Model.
 <img width="861" alt="21" src="https://github.com/hotosm/fAIr/assets/97789856/b9963566-c377-489d-8a3d-da0b7e835261">
 
 
