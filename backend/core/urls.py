@@ -63,7 +63,7 @@ urlpatterns = [
     path("models/centroid/", ModelCentroidView.as_view(), name="models-centroid"),
     path("datasets/centroid/", DatasetCentroidView.as_view(), name="datasets-centroid"),
     # path("download/<int:dataset_id>/", download_training_data),
-    path("training/status/<str:run_id>/", run_task_status),
+    path("task/status/<str:run_id>/", run_task_status),
     path("training/publish/<int:training_id>/", publish_training),
     path(
         "training/terminate/<int:training_id>/",
