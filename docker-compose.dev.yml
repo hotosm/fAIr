@@ -100,8 +100,6 @@ services:
     container_name: worker-cpu
     restart: unless-stopped
     command: celery -A aiproject worker --loglevel=INFO --concurrency=1 -Q ramp_training,yolo_training
-    env_file:
-      - ./backend/.env
     volumes:
       - ${APP_LOGS:-./fair-app/data/log}:/app/log
       - ${RAMP_HOME:-./fair-app/data/ramp}:/RAMP_HOME

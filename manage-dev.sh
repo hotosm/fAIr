@@ -84,6 +84,8 @@ setup() {
 
 ENV_FILE=$ENV_FILE
 
+DEBUG=True
+
 # Database configuration
 POSTGRES_DB=ai
 POSTGRES_HOST=postgres
