@@ -1,3 +1,5 @@
+import re
+
 from django.contrib.gis.db import models as geomodels
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
@@ -111,6 +113,36 @@ class Training(models.Model):
     batch_size = models.PositiveIntegerField()
     freeze_layers = models.BooleanField(default=False)
     centroid = geomodels.PointField(srid=4326, null=True, blank=True)
+
+    def get_source_imagery_type(self):
+        """
+        Returns: 'TILEJSON', 'XYZ', 'TMS', or 'UNKNOWN'
+        """
+        ## source ref here : https://github.com/hotosm/fAIr/blob/develop/frontend/src/utils/regex-utils.ts
+        if not self.source_imagery:
+            return "UNKNOWN"
+        xyz_pattern = re.compile(
+            r"^https?:\/\/[^\/]+(?:\/[^\/]+)*\/\{z\}\/\{x\}\/\{y\}(?:@[0-9a-z]+)?(?:\.(jpg|png|jpeg|webp))?(?:\?.*)?$",
+            re.IGNORECASE,
+        )
+        tms_pattern = re.compile(
+            r"^https?:\/\/[^\/]+(?:\/[^\/]+)*\/\{z\}\/\{x\}\/\{-y\}(?:@[0-9a-z]+)?(?:\.(jpg|png|jpeg|webp))?(?:\?.*)?$",
+            re.IGNORECASE,
+        )
+        tilejson_pattern = re.compile(
+            r"^https?:\/\/[^\/]+(?:\/[^\/?#]+)*\/[^\/?#]+\.json(?:\?.*)?$",
+            re.IGNORECASE,
+        )
+
+        url = self.source_imagery
+        if tilejson_pattern.match(url):
+            return "TILEJSON"
+        elif xyz_pattern.match(url):
+            return "XYZ"
+        elif tms_pattern.match(url):
+            return "TMS"
+        else:
+            return "UNKNOWN"
 
 
 class Feedback(models.Model):

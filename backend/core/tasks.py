@@ -316,7 +316,9 @@ def upload_to_s3(path, parent=None):
     ).upload(path)
 
 
-def prepare_data(inst, dataset_id, feedback, zoom_level, imagery, input_path):
+def prepare_data(
+    inst, dataset_id, feedback, zoom_level, imagery, input_path, imagery_type
+):
     from geomltoolkits.downloader import tms as TMSDownloader
 
     safe_rmtree(input_path)
@@ -349,6 +351,7 @@ def prepare_data(inst, dataset_id, feedback, zoom_level, imagery, input_path):
                     georeference=False,
                     crs="3857",
                     extension="png",
+                    is_tilejson=("TILEJSON" == imagery_type),
                 )
             )
     input_path = pathlib.Path(input_path)
@@ -457,7 +460,13 @@ def train_model(
             )
 
             input_path, aoi_ser, labels = prepare_data(
-                inst, dataset_id, feedback, zoom_level, source_imagery, input_path
+                inst,
+                dataset_id,
+                feedback,
+                zoom_level,
+                source_imagery,
+                input_path,
+                inst.get_source_imagery_type,
             )
             output_path = os.path.join(
                 settings.TRAINING_WORKSPACE,
