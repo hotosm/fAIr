@@ -4,10 +4,10 @@
 
 ## docker run --env-file .env --rm -p 8000:8000 -v $(pwd):/app/code --name fair-api-container fair-api
 
-ARG BUILD_TARGET=api
-
 ## in order to access localhost port to your system from docker env you might wanna use : host.docker.internal or ip 
 FROM ghcr.io/astral-sh/uv:python3.11-bookworm-slim AS builder
+
+ARG BUILD_TARGET=api
 
 # Configure uv settings
 ENV UV_COMPILE_BYTECODE=1
@@ -31,10 +31,18 @@ WORKDIR /app
 COPY pyproject.toml uv.lock manage.py /app/
 
 RUN --mount=type=cache,target=/root/.cache/uv \
+    echo "Supplied BUILD_TARGET: $BUILD_TARGET" && \
     if [ "$BUILD_TARGET" = "predictor" ]; then \
-    uv sync --frozen --no-install-project --no-dev --group prediction-workers; \
+    uv sync \
+    --frozen \
+    --no-install-project \
+    --no-dev \
+    --group prediction-workers; \
     else \
-    uv sync --frozen --no-install-project --no-dev; \
+    uv sync \
+    --frozen \
+    --no-install-project \
+    --no-dev; \
     fi
 
 COPY aiproject /app/aiproject
