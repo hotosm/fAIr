@@ -10,12 +10,12 @@ NC='\033[0m' # No Color
 
 # Configuration
 APP_DIR="$(pwd)"
-DATA_DIR="${DATA_DIR:-$(pwd)/data}"
-RAMP_DIR="${RAMP_HOME:-$(pwd)/data/ramp}"
-TRAINING_DIR="${TRAINING_WORKSPACE:-$(pwd)/data/trainings}"
-POSTGRES_DATA_DIR="${POSTGRES_DATA:-$(pwd)/data/postgres}"
-REDIS_DATA_DIR="${REDIS_DATA:-$(pwd)/data/redis}"
-APP_LOGS_DIR="${APP_LOGS:-$(pwd)/data/logs}"
+DATA_DIR="${DATA_DIR:-$(pwd)/fair-app-data}"
+RAMP_DIR="${RAMP_HOME:-$(pwd)/fair-app-data/ramp}"
+TRAINING_DIR="${TRAINING_WORKSPACE:-$(pwd)/fair-app-data/trainings}"
+POSTGRES_DATA_DIR="${POSTGRES_DATA:-$(pwd)/fair-app-data/postgres}"
+REDIS_DATA_DIR="${REDIS_DATA:-$(pwd)/fair-app-data/redis}"
+APP_LOGS_DIR="${APP_LOGS:-$(pwd)/fair-app-data/logs}"
 ENV_FILE="$(pwd)/.env.dev"
 COMPOSE_FILE="$(pwd)/docker-compose.dev.yml"
 PROFILE="${PROFILE:-cpu}"  # Default profile (can be 'gpu' or 'cpu')
@@ -300,7 +300,7 @@ while [[ "$#" -gt 0 ]]; do
       ;;
     -d|--dir)
       APP_DIR="$2"
-      DATA_DIR="$APP_DIR/data"
+      DATA_DIR="$APP_DIR/fair-app-data"
       ENV_FILE="$APP_DIR/.env.dev"
       COMPOSE_FILE="$APP_DIR/docker-compose.dev.yml"
       shift 2

@@ -16,7 +16,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin}
     volumes:
-      - ${POSTGRES_DATA:-./fair-app/data/postgres}:/var/lib/postgresql/data
+      - ${POSTGRES_DATA:-./fair-app-data/postgres}:/var/lib/postgresql/data
     ports:
       - "5434:5432"
     networks:
@@ -35,7 +35,7 @@ services:
     restart: unless-stopped
     command: redis-server
     volumes:
-      - ${REDIS_DATA:-./fair-app/data/redis}:/data
+      - ${REDIS_DATA:-./fair-app-data/redis}:/data
     ports:
       - "6379:6379"
     networks:
@@ -59,9 +59,9 @@ services:
     ports:
       - "127.0.0.1:8000:8000"
     volumes:
-      - ${APP_LOGS:-./fair-app/data/log}:/app/log
-      - ${RAMP_HOME:-./fair-app/data/ramp}:/RAMP_HOME
-      - ${TRAINING_WORKSPACE:-./fair-app/data/trainings}:/TRAINING_WORKSPACE
+      - ${APP_LOGS:-./fair-app-data/log}:/app/log
+      - ${RAMP_HOME:-./fair-app-data/ramp}:/RAMP_HOME
+      - ${TRAINING_WORKSPACE:-./fair-app-data/trainings}:/TRAINING_WORKSPACE
       - ${APP_HOME:-./}backend/core:/app/core
       - ${APP_HOME:-./}backend/login:/app/login
       - ${APP_HOME:-./}backend/aiproject:/app/aiproject
@@ -101,9 +101,9 @@ services:
     restart: unless-stopped
     command: celery -A aiproject worker --loglevel=INFO --concurrency=1 -Q ramp_training,yolo_training
     volumes:
-      - ${APP_LOGS:-./fair-app/data/log}:/app/log
-      - ${RAMP_HOME:-./fair-app/data/ramp}:/RAMP_HOME
-      - ${TRAINING_WORKSPACE:-./fair-app/data/trainings}:/TRAINING_WORKSPACE
+      - ${APP_LOGS:-./fair-app-data/log}:/app/log
+      - ${RAMP_HOME:-./fair-app-data/ramp}:/RAMP_HOME
+      - ${TRAINING_WORKSPACE:-./fair-app-data/trainings}:/TRAINING_WORKSPACE
       - ${APP_HOME:-./}backend/core:/app/core
       - ${APP_HOME:-./}backend/login:/app/login
       - ${APP_HOME:-./}backend/aiproject:/app/aiproject
@@ -136,9 +136,9 @@ services:
     restart: unless-stopped
     command: celery -A aiproject worker --loglevel=INFO --concurrency=1 -Q ramp_training,yolo_training --pool=solo
     volumes:
-      - ${APP_LOGS:-./fair-app/data/log}:/app/log
-      - ${RAMP_HOME:-./fair-app/data/ramp}:/RAMP_HOME
-      - ${TRAINING_WORKSPACE:-./fair-app/data/trainings}:/TRAINING_WORKSPACE
+      - ${APP_LOGS:-./fair-app-data/log}:/app/log
+      - ${RAMP_HOME:-./fair-app-data/ramp}:/RAMP_HOME
+      - ${TRAINING_WORKSPACE:-./fair-app-data/trainings}:/TRAINING_WORKSPACE
       - ${APP_HOME:-./}backend/core:/app/core
       - ${APP_HOME:-./}backend/login:/app/login
       - ${APP_HOME:-./}backend/aiproject:/app/aiproject
@@ -173,9 +173,9 @@ services:
     restart: unless-stopped
     command: celery -A aiproject worker --loglevel=INFO --concurrency=1 -Q predictions --pool=solo
     volumes:
-      - ${APP_LOGS:-./fair-app/data/log}:/app/log
-      - ${RAMP_HOME:-./fair-app/data/ramp}:/RAMP_HOME
-      - ${TRAINING_WORKSPACE:-./fair-app/data/trainings}:/TRAINING_WORKSPACE
+      - ${APP_LOGS:-./fair-app-data/log}:/app/log
+      - ${RAMP_HOME:-./fair-app-data/ramp}:/RAMP_HOME
+      - ${TRAINING_WORKSPACE:-./fair-app-data/trainings}:/TRAINING_WORKSPACE
       - ${APP_HOME:-./}backend/core:/app/core
       - ${APP_HOME:-./}backend/login:/app/login
       - ${APP_HOME:-./}backend/aiproject:/app/aiproject
@@ -211,6 +211,26 @@ services:
     profiles:
       - cpu
       - gpu
+  # docker-compose.yml (add under services:)
+  frontend:
+    <<: *common-env
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: frontend
+    restart: unless-stopped
+    command: pnpm run dev --port 3000 --host 0.0.0.0
+    environment:
+      - NODE_ENV=development
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - backend-network
+    depends_on:
+      - backend-api
 
 networks:
   backend-network:

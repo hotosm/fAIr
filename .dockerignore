@@ -68,7 +68,7 @@ frontend/.cache/
 frontend/.turbo/
 
 # Ignore backend specific (if any)
-backend/node_modules/
+
 backend/staticfiles/
 backend/.env
 backend/.venv
@@ -97,3 +97,8 @@ tmp/
 *.crt
 *.key
 *.lock
+
+data
+docs 
+infra 
+.github
