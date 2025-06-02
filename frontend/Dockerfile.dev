@@ -12,4 +12,4 @@ COPY . .
 
 EXPOSE 3000
 
-CMD ["pnpm", "run", "dev"]
+CMD ["pnpm", "run", "dev", "--port", "3000", "--host","0.0.0.0"]
