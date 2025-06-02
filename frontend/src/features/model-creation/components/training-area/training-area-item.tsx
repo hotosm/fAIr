@@ -94,7 +94,8 @@ const LabelFetchStatus = ({
     if (isFetching)
       return (
         <span className="inline-flex items-center gap-x-1">
-          Fetching... <Spinner />
+          {status === LabelStatus.DOWNLOADING ? "Fetching..." : "Queued"}{" "}
+          <Spinner />
         </span>
       );
     if (isError) return "Error occurred. Please retry.";
@@ -117,11 +118,9 @@ const LabelFetchStatus = ({
 
 const DropdownMenu = ({
   dropdownMenuItems,
-
   dropdownRef,
 }: {
   dropdownMenuItems: TDropdownMenuItems;
-
   dropdownRef: React.RefObject<SlDropdownType>;
 }) => {
   return (
@@ -300,6 +299,13 @@ export const TrainingAreaItem: React.FC<
           const fetchedDate = res.data.properties.label_fetched;
           if (res.data?.properties.label_status === LabelStatus.DOWNLOADED) {
             handleLabelSuccess(fetchedDate);
+          } else if (
+            res.data?.properties.label_status === LabelStatus.NOT_DOWNLOADED
+          ) {
+            setLabelState((prev) => ({
+              ...prev,
+              status: LabelStatus.NOT_DOWNLOADED,
+            }));
           } else {
             setLabelState((prev) => ({
               ...prev,
@@ -375,10 +381,7 @@ export const TrainingAreaItem: React.FC<
       disabled: false,
       onClick: () =>
         openInIDEditor(
-          formData.oamBounds[1],
-          formData.oamBounds[3],
-          formData.oamBounds[0],
-          formData.oamBounds[2],
+          [trainingArea],
           formData.tmsURL,
           formData.selectedTrainingDatasetId,
           trainingArea.id,

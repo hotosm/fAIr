@@ -11,12 +11,7 @@ import {
   SourceSpecification,
 } from "maplibre-gl";
 
-import {
-  extractTileJSONURL,
-  showErrorToast,
-  addLayers,
-  addSources,
-} from "@/utils";
+import { showErrorToast, addLayers, addSources } from "@/utils";
 import {
   TRAINING_AREAS_AOI_FILL_COLOR,
   TRAINING_AREAS_AOI_FILL_OPACITY,
@@ -80,8 +75,6 @@ export const TrainingAreaMap = ({
     [0, 0],
     [0, 0],
   ]);
-
-  const tileJSONURL = extractTileJSONURL(tmsURL);
 
   const trainingAreasSourceId = `training-areas-for-${trainingAreaId}`;
 
@@ -256,9 +249,9 @@ export const TrainingAreaMap = ({
 
   return (
     <MapComponent
+      hasTileServiceLayer
       layerControl
-      openAerialMap
-      oamTileJSONURL={tileJSONURL}
+      tileServiceURL={tmsURL}
       controlsPosition={ControlsPosition.TOP_LEFT}
       basemaps
       layerControlLayers={layerControlLayers}

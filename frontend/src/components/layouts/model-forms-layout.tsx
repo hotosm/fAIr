@@ -155,23 +155,18 @@ const ModelFormRouteValidator = ({
       if (!formData.selectedTrainingDatasetId || !formData.tmsURL)
         navigate(prevRoute);
     } else if (pathname.includes(MODELS_ROUTES.TRAINING_SETTINGS)) {
-      // When a user is in the training settings, they must have completed the training area, the tms bounds should be available too
+      // When a user is in the training settings, they must have completed the training area
 
-      if (
-        !formData.datasetName ||
-        !formData.oamBounds ||
-        !hasLabeledTrainingAreas
-      )
+      if (!formData.datasetName || !hasLabeledTrainingAreas)
         navigate(prevRoute);
     } else if (pathname.includes(MODELS_ROUTES.MODEL_SUMMARY)) {
       // When a user is in the summary page, they must have zoom levels set from the settings
-      // oam tile info retrieved - so the tile name and bounds
+      // and datastet name set from the training dataset
       // and training areas with their labels fetched
       if (
         formData.zoomLevels.length === 0 ||
         !hasLabeledTrainingAreas ||
-        !formData.datasetName ||
-        !formData.oamBounds
+        !formData.datasetName
       )
         navigate(prevRoute);
     }

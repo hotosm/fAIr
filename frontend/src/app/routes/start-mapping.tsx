@@ -19,27 +19,25 @@ import {
   StartMappingMapComponent,
   StartMappingMobileDrawer,
 } from "@/features/start-mapping/components";
-import {
-  constructModelCheckpointPath,
-  geoJSONDowloader,
-  openInJOSM,
-  showSuccessToast,
-} from "@/utils";
+import { constructModelCheckpointPath, geoJSONDowloader, openInJOSM, showSuccessToast } from "@/utils";
 
 import {
   PredictedFeatureStatus,
   PredictionImagerySource,
+  PredictionModel,
 } from "@/enums/start-mapping";
 import { Dialog } from "@/components/ui/dialog";
 import { ImagerySourceSelector } from "@/features/start-mapping/components/replicable-models/imagery-source-selector";
 import { useDialog } from "@/hooks/use-dialog";
 import { useModelPredictionStore } from "@/store/model-prediction-store";
 import { ModelSelector } from "@/features/start-mapping/components/replicable-models/model-selector";
-import { TileServiceType } from "@/enums";
+import { BASE_MODELS, TileServiceType } from "@/enums";
 import { useTileservice } from "@/hooks/use-tileservice";
 import {
   ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
   ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
+  FAIR_BASE_MODELS_PATH,
+  OPENAERIALMAP_MOSAIC_TILES_URL,
 } from "@/config";
 
 export type TDownloadOptions = {
@@ -54,14 +52,20 @@ export const SEARCH_PARAMS = {
   confidenceLevel: "confidenceLevel",
   tolerance: "tolerance",
   area: "area",
+  model: "model",
+  imagery: "imagery",
+  predictionModelCheckpoint: "checkpoint",
+  tileserver: "tileserver",
 };
 
-export type TQueryParams = { [x: string]: string | number | boolean };
+export type TQueryParams = {
+  [x: string]: string | number | boolean | undefined;
+};
 
 export const StartMappingPage = () => {
   const { modelId } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { map, mapContainerRef } = useMapInstance();
+  const { map, mapContainerRef } = useMapInstance(false, true);
   const { isSmallViewport } = useScreenSize();
 
   const {
@@ -70,8 +74,12 @@ export const StartMappingPage = () => {
     updateFeatureStatus,
   } = useModelPredictionStore();
 
-  const acceptedFeatures = modelPredictions.filter(
-    (f) => f.properties.status === PredictedFeatureStatus.ACCEPTED,
+  const acceptedFeatures = useMemo(
+    () =>
+      modelPredictions.filter(
+        (f) => f.properties.status === PredictedFeatureStatus.ACCEPTED,
+      ),
+    [modelPredictions],
   );
 
   const navigate = useNavigate();
@@ -87,9 +95,39 @@ export const StartMappingPage = () => {
     setCustomPredictionModelCheckpointPath,
   ] = useState<string>("");
 
-  const [predictionImagerySource, setPredictionImagerySource] =
-    useState<PredictionImagerySource>(PredictionImagerySource.ModelDefault);
+  const customTileServerURL = searchParams.get(SEARCH_PARAMS.tileserver) || "";
 
+  const predictionImagerySource = searchParams.get(SEARCH_PARAMS.imagery)
+    ? (searchParams.get(SEARCH_PARAMS.imagery) as PredictionImagerySource)
+    : (customTileServerURL as PredictionImagerySource)
+      ? PredictionImagerySource.CustomImagery
+      : (PredictionImagerySource.ModelDefault as PredictionImagerySource);
+
+  const setPredictionImagerySource = (newValue: string) => {
+    updateQuery({ [SEARCH_PARAMS.imagery]: newValue });
+  };
+
+  const [predictionModelCheckpoint, setPredictionModelCheckpoint] =
+    useState<string>("");
+
+  const predictionModel =
+    searchParams.get(SEARCH_PARAMS.model) ?? PredictionModel.DEFAULT;
+
+  const setPredictionModel = (newValue: string) => {
+    updateQuery({ [SEARCH_PARAMS.model]: newValue });
+  };
+
+  const [query, setQuery] = useState<TQueryParams>(() => {
+    return {
+      [SEARCH_PARAMS.useJOSMQ]:
+        searchParams.get(SEARCH_PARAMS.useJOSMQ) || true,
+      [SEARCH_PARAMS.confidenceLevel]:
+        searchParams.get(SEARCH_PARAMS.confidenceLevel) || 50,
+      [SEARCH_PARAMS.tolerance]:
+        searchParams.get(SEARCH_PARAMS.tolerance) || 0.3,
+      [SEARCH_PARAMS.area]: searchParams.get(SEARCH_PARAMS.area) || 3,
+    };
+  });
   const { openDialog, isOpened, closeDialog } = useDialog();
   const {
     openDialog: openModelSelectionDialog,
@@ -104,13 +142,32 @@ export const StartMappingPage = () => {
     error,
   } = useModelDetails(modelId as string, !!modelId);
 
-  /**
-   * State to manage the prediction model ID.
-   */
-  const [predictionModelCheckpoint, setPredictionModelCheckpoint] =
-    useState<string>("");
 
-  const [predictionModel, setPredictionModel] = useState<string>("Default");
+
+  const updateQuery = useCallback(
+    (newParams: TQueryParams) => {
+      setQuery((prev) => ({ ...prev, ...newParams }));
+
+      const updatedParams = new URLSearchParams(searchParams);
+
+      for (const [key, value] of Object.entries(newParams)) {
+        if (value !== undefined && value !== null) {
+          updatedParams.set(key, String(value));
+        } else {
+          updatedParams.delete(key);
+        }
+      }
+
+      const currentHash = window.location.hash;
+
+      setSearchParams(updatedParams, { replace: true });
+
+      if (currentHash) {
+        window.location.hash = currentHash;
+      }
+    },
+    [searchParams, setSearchParams],
+  );
 
   const {
     tileServiceType,
@@ -121,29 +178,87 @@ export const StartMappingPage = () => {
     setTileServiceTypeValidity,
     loading,
     tileJSONMetadata,
-  } = useTileservice(TileServiceType.XYZ, "");
+  } = useTileservice(TileServiceType.XYZ, customTileServerURL);
 
   /**
-   * Set the prediction imagery to the model info's source imagery
-   * when the model info is available and the prediction imagery is not set.
-   * This is to ensure that the map is displayed with the correct imagery.
+   *  On first load, if someone came in with ?checkpoint=..., prefill our custom state
    */
   useEffect(() => {
-    if (modelInfo) {
-      setPredictionModelCheckpoint(constructModelCheckpointPath(modelInfo));
+    const urlCp = searchParams.get(SEARCH_PARAMS.predictionModelCheckpoint);
+    if (urlCp && urlCp.length > 0 && urlCp !== "undefined" && predictionModel === PredictionModel.CUSTOM) {
+      setCustomPredictionModelCheckpointPath(urlCp);
+      setPredictionModelCheckpoint(urlCp);
     }
-  }, [modelInfo]);
+  }, [predictionModel]);
+
+
+
+  useEffect(() => {
+    /**
+     * Only update the checkpoint if the modelInfo is available and
+     * the predictionModel is not set or is set to the default model.
+     */
+    if (modelInfo && (!predictionModel || predictionModel === PredictionModel.DEFAULT)) {
+      setPredictionModelCheckpoint(constructModelCheckpointPath(modelInfo))
+    } else if (predictionModel && predictionModel !== PredictionModel.CUSTOM) {
+      setPredictionModelCheckpoint(
+        FAIR_BASE_MODELS_PATH[predictionModel as BASE_MODELS]
+      );
+    }
+  }, [predictionModel, modelInfo]);
 
   /**
-   * Set the prediction imagery to the model info's source imagery
-   * when the model info is available and the prediction imagery is not set.
-   * This is to ensure that the map is displayed with the correct imagery.
+   *  When the user selects the Kontour prediction imagery source or pass it directly in the url.
    */
   useEffect(() => {
-    if (modelInfo?.dataset?.source_imagery) {
+    if (predictionImagerySource === PredictionImagerySource.Kontour) {
+      setTileserverURL(OPENAERIALMAP_MOSAIC_TILES_URL);
+    }
+  }, [predictionImagerySource])
+
+  /**
+   * When the user changes the prediction imagery source, sync it to the URL.
+   * If the source is custom imagery, update the tileserver URL in the query params.
+   * If the source is not custom imagery, remove the tileserver URL from the query params.
+   */
+  useEffect(() => {
+    const current = searchParams.get(SEARCH_PARAMS.tileserver) || undefined;
+    if (predictionImagerySource === PredictionImagerySource.CustomImagery) {
+      if (tileserverURL && current !== tileserverURL) {
+        updateQuery({ [SEARCH_PARAMS.tileserver]: tileserverURL });
+      }
+    } else {
+      if (current !== undefined) {
+        updateQuery({ [SEARCH_PARAMS.tileserver]: undefined });
+      }
+    }
+  }, [predictionImagerySource, tileserverURL, searchParams, updateQuery]);
+
+  /**
+   * When the user actually sets/clears a custom checkpoint, sync it to the URL.
+   */
+  useEffect(() => {
+    if (customPredictionModelCheckpointPath) {
+      updateQuery({
+        [SEARCH_PARAMS.predictionModelCheckpoint]:
+          customPredictionModelCheckpointPath,
+      });
+    } else {
+      updateQuery({ [SEARCH_PARAMS.predictionModelCheckpoint]: undefined });
+    }
+  }, [customPredictionModelCheckpointPath]);
+
+  /**
+   * When the user changes the prediction model, sync it to the URL.
+   */
+  useEffect(() => {
+    if (
+      modelInfo?.dataset?.source_imagery &&
+      predictionImagerySource === PredictionImagerySource.ModelDefault
+    ) {
       setTileserverURL(modelInfo.dataset.source_imagery);
     }
-  }, [modelInfo?.dataset?.source_imagery]);
+  }, [modelInfo?.dataset?.source_imagery, predictionImagerySource]);
 
   /**
    * Navigate to the not found page if there is an error
@@ -161,56 +276,25 @@ export const StartMappingPage = () => {
     }
   }, [isError, error, navigate]);
 
-  const [query, setQuery] = useState<TQueryParams>(() => {
-    return {
-      [SEARCH_PARAMS.useJOSMQ]:
-        searchParams.get(SEARCH_PARAMS.useJOSMQ) || true,
-      [SEARCH_PARAMS.confidenceLevel]:
-        searchParams.get(SEARCH_PARAMS.confidenceLevel) || 50,
-      [SEARCH_PARAMS.tolerance]:
-        searchParams.get(SEARCH_PARAMS.tolerance) || 0.3,
-      [SEARCH_PARAMS.area]: searchParams.get(SEARCH_PARAMS.area) || 3,
-    };
-  });
-
   const modelPredictionsExist = useMemo(() => {
     if (!modelPredictions) return false;
     return modelPredictions.length > 0;
   }, [modelPredictions]);
 
-  const updateQuery = useCallback(
-    (newParams: TQueryParams) => {
-      // Merge the new query values
-      setQuery((prev) => ({ ...prev, ...newParams }));
-
-      // Update the URLSearchParams
-      const updatedParams = new URLSearchParams(searchParams);
-      for (const [key, value] of Object.entries(newParams)) {
-        if (value !== undefined && value !== null) {
-          updatedParams.set(key, String(value));
-        } else {
-          updatedParams.delete(key);
-        }
-      }
-      setSearchParams(updatedParams, { replace: true });
-    },
-    [searchParams, setSearchParams],
-  );
-
   const mapLayers = useMemo(
     () => [
       ...(modelPredictions.length > 0
         ? [
-            {
-              value:
-                START_MAPPING_PAGE_CONTENT.map.controls.legendControl
-                  .predictionResults,
-              subLayers: [
-                ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
-                ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
-              ],
-            },
-          ]
+          {
+            value:
+              START_MAPPING_PAGE_CONTENT.map.controls.legendControl
+                .predictionResults,
+            subLayers: [
+              ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
+              ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
+            ],
+          },
+        ]
         : []),
     ],
     [modelPredictions],
@@ -462,7 +546,7 @@ export const StartMappingPage = () => {
               <LayerControl
                 layers={mapLayers}
                 map={map}
-                openAerialMap
+                hasTileServiceLayer
                 basemaps
                 rounded
               />

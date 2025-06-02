@@ -10,9 +10,7 @@ import { useMemo } from "react";
 
 type ImagerySourceSelectorTriggerButtonProps = {
   predictionImagerySource: PredictionImagerySource;
-  setPredictionImagerySource: React.Dispatch<
-    React.SetStateAction<PredictionImagerySource>
-  >;
+  setPredictionImagerySource: (value: PredictionImagerySource) => void;
   modelDefaultImageryURL: string;
   openMobileDialog?: () => void;
   tileServerURL: string;
@@ -108,7 +106,7 @@ type ButtonProps = {
 };
 
 const DropdownButton = ({ label, isSmallViewport, onClick }: ButtonProps) => (
-  <div className="px-2 bg-off-white hover:bg-opacity-50 flex items-center p-2 gap-x-2 rounded-[6px]">
+  <div className="px-2 border border-off-white hover:bg-off-white flex items-center p-2 gap-x-2 rounded-[6px]">
     <button
       onClick={onClick}
       className={`${isSmallViewport ? "w-fit max-w-[100px]" : "max-w-[50px] lg:max-w-[100px]"} text-body-4 overflow-hidden text-ellipsis whitespace-nowrap`}

@@ -9,6 +9,11 @@ export const navLinks: TNavBarLinks = [
     active: true,
   },
   {
+    title: SHARED_CONTENT.navbar.routes.exploreDatasets,
+    href: APPLICATION_ROUTES.DATASETS,
+    active: true,
+  },
+  {
     title: SHARED_CONTENT.navbar.routes.about,
     href: APPLICATION_ROUTES.ABOUT,
     active: true,
@@ -25,6 +30,11 @@ export const footerLinks: TFooterGroupLinks = {
     {
       title: "explore models",
       route: APPLICATION_ROUTES.MODELS,
+      active: true,
+    },
+    {
+      title: "datasets",
+      route: APPLICATION_ROUTES.DATASETS,
       active: true,
     },
     {

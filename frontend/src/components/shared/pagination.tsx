@@ -1,7 +1,7 @@
 import { ChevronDownIcon } from "@/components/ui/icons";
-import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
 import { TQueryParams } from "@/types";
 import { useScrollToTop } from "@/hooks/use-scroll-to-element";
+import { SEARCH_PARAMS } from "@/utils/search-params";
 
 export const PAGE_LIMIT = 20;
 
@@ -70,7 +70,7 @@ export const Pagination: React.FC<PaginationProps> = ({
 
   return (
     <div
-      className={`flex md:min-w-40 items-center w-full ${centerOnMobile ? "justify-center" : "justify-between"}`}
+      className={`flex gap-x-2 items-center w-full ${centerOnMobile ? "justify-center" : "justify-between"}`}
     >
       <div>
         <p
@@ -89,7 +89,7 @@ export const Pagination: React.FC<PaginationProps> = ({
         </p>
       </div>
       <div>
-        <div className="flex items-center gap-x-10  justify-center w-full md:w-fit md:gap-x-4 ">
+        <div className="flex items-center gap-x-4 justify-between w-full md:w-fit ">
           <button
             className="w-4 cursor-pointer"
             title="Prev"

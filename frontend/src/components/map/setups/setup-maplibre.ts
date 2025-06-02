@@ -6,6 +6,7 @@ import { Protocol } from "pmtiles";
 export const setupMaplibreMap = (
   containerRef: React.RefObject<HTMLElement>,
   pmtiles: boolean,
+  hash: boolean = false,
 ): Map => {
   // Check if RTL plugin is needed and set it
   if (maplibregl.getRTLTextPluginStatus() === "unavailable") {
@@ -42,6 +43,16 @@ export const setupMaplibreMap = (
   map.on("rotateend", () => {
     map.setBearing(0);
   });
+  if (hash) {
+    map.on("moveend", () => {
+      const center = map.getCenter();
+      const zoom = map.getZoom().toFixed(2);
+      const lat = center.lat.toFixed(4);
+      const lng = center.lng.toFixed(4);
+      const newHash = `#${zoom}/${lat}/${lng}`;
+      history.replaceState(null, "", newHash);
+    });
+  }
 
   return map;
 };

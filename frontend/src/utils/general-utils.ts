@@ -36,7 +36,10 @@ export const showErrorToast = (
     message = error.response.data.error;
   } else if (error?.response?.data?.message) {
     message = error.response.data.message;
-  } else if (error?.response?.data?.detail) {
+  } else if (
+    error?.response?.data?.detail &&
+    typeof error?.response?.data?.detail !== "object"
+  ) {
     message = error?.response?.data?.detail;
   } else if (error?.response?.data[0]) {
     message = error?.response?.data[0];

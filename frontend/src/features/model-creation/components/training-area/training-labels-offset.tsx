@@ -55,13 +55,16 @@ export const TrainingLabelsOffset = ({
   setTrainingDatasetOffset,
   handleOffsetReset,
   initialOffset,
+  datasetId,
 }: {
   trainingDatasetOffset: { x: number; y: number };
   setTrainingDatasetOffset: (offset: { x: number; y: number }) => void;
   handleOffsetReset: () => void;
   initialOffset: { x: number; y: number };
+  datasetId: number;
 }) => {
-  const { handleChange, formData } = useModelsContext();
+  const { handleChange } = useModelsContext();
+
   /**
    * State to control the visibility of the offset controller.
    */
@@ -123,6 +126,7 @@ export const TrainingLabelsOffset = ({
         showErrorToast(error);
       },
     },
+    datasetId: datasetId,
   });
 
   /**
@@ -133,7 +137,7 @@ export const TrainingLabelsOffset = ({
     const x = Number(parseFloat(xRaw).toFixed(2));
     const y = Number(parseFloat(yRaw).toFixed(2));
     mutate({
-      id: Number(formData.selectedTrainingDatasetId),
+      id: datasetId,
       offset: [x, y],
     });
   };
@@ -143,7 +147,7 @@ export const TrainingLabelsOffset = ({
       (trainingDatasetOffset.x === initialOffset.x &&
         trainingDatasetOffset.y === initialOffset.y &&
         localInput ===
-        `${initialOffset.x.toFixed(2)}, ${initialOffset.y.toFixed(2)}`) ||
+          `${initialOffset.x.toFixed(2)}, ${initialOffset.y.toFixed(2)}`) ||
       isPending,
     [trainingDatasetOffset, initialOffset, localInput, isPending],
   );

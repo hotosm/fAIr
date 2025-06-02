@@ -233,7 +233,8 @@ export const MIN_ZOOM_LEVEL_FOR_TRAINING_AREA_LABELS: number = parseIntEnv(
  * OSM Basemap style.
  */
 export const MAP_STYLES: Record<string, string | StyleSpecification> = {
-  OSM: {
+  OSM:
+  {
     version: 8,
     // "glyphs": "mapbox://fonts/mapbox/{fontstack}/{range}.pbf",
     //https://fonts.openmaptiles.org/{fontstack}/{range}.pbf
@@ -241,7 +242,7 @@ export const MAP_STYLES: Record<string, string | StyleSpecification> = {
     sources: {
       "raster-tiles": {
         type: "raster",
-        tiles: ["https://a.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"],
+        tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
         tileSize: 128,
         attribution:
           '© <a href="https://www.openstreetmap.org/copyright/">OpenStreetMap</a> contributors',
@@ -266,8 +267,8 @@ export const MAP_STYLES: Record<string, string | StyleSpecification> = {
 // Shared (Basemaps, Tile Boundaries)
 export const TILE_BOUNDARY_LAYER_ID: string = `${MAP_STYLES_PREFIX}-tile-boundary-layer`;
 export const TILE_BOUNDARY_SOURCE_ID: string = `${MAP_STYLES_PREFIX}-tile-boundaries`;
-export const TMS_LAYER_ID: string = `${MAP_STYLES_PREFIX}-oam-tms-layer`;
-export const TMS_SOURCE_ID: string = `${MAP_STYLES_PREFIX}-oam-training-dataset`;
+export const TMS_LAYER_ID: string = `${MAP_STYLES_PREFIX}-tileservice-layer`;
+export const TMS_SOURCE_ID: string = `${MAP_STYLES_PREFIX}-tileservice-source`;
 export const OSM_BASEMAP_LAYER_ID: string = `${MAP_STYLES_PREFIX}-osm-layer`;
 export const GOOGLE_SATELLITE_BASEMAP_LAYER_ID: string = `${MAP_STYLES_PREFIX}-google-statellite-layer`;
 export const GOOGLE_SATELLITE_BASEMAP_SOURCE_ID: string = `${MAP_STYLES_PREFIX}-google-satellite`;
@@ -477,6 +478,7 @@ export const FAIR_BASE_MODELS_PATH: Record<BASE_MODELS, string> = {
   [BASE_MODELS.YOLOV8_V2]: `${FAIR_MODELS_BASE_PATH}/basemodels/yolo/yolov8s_v2-seg.onnx`,
 };
 
+export const OPENAERIALMAP_MOSAIC_TILES_URL = "https://apps.kontur.io/raster-tiler/oam/mosaic/{z}/{x}/{y}.png"
 /**
  *  The default offset step for the training labels offset controller.
  */

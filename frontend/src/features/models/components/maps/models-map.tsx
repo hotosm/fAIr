@@ -2,13 +2,15 @@ import { FeatureCollection, TQueryParams } from "@/types";
 import { Map } from "maplibre-gl";
 import { MapComponent } from "@/components/map";
 import { MapMarkerIcon } from "@/assets/images";
-import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
+import { SEARCH_PARAMS } from "@/utils/search-params";
 import { useCallback, useEffect } from "react";
 import { useMapInstance } from "@/hooks/use-map-instance";
 
 const mapSourceName = "models";
 // Font from OpenFreeMap
-const licensedFonts = ["Open Sans Semibold"];
+const licensedFonts = ["Noto Sans Regular"];
+// Font from Open Map Tiles
+// const licensedFonts = ["Open Sans Semibold"];
 
 let markerIcon = new Image(17, 20);
 markerIcon.src = MapMarkerIcon;
@@ -117,7 +119,7 @@ export const ModelsMap: React.FC<ModelsMapProps> = ({
   mapResults,
   updateQuery,
 }) => {
-  const { map, mapContainerRef } = useMapInstance();
+  const { map, mapContainerRef } = useMapInstance(false, false);
 
   const handleClickOnModelID = useCallback(
     (clickedModel: string) => {

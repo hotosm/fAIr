@@ -8,6 +8,7 @@ export const SHARED_CONTENT: TSharedContent = {
     hamburgerMenuTitle: "Toggle Menu",
     routes: {
       exploreModels: "Explore Models",
+      exploreDatasets: "Datasets",
       about: "About",
       resources: "Resources",
       learn: "Learn",

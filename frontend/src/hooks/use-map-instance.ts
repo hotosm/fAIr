@@ -11,7 +11,10 @@ import { useMapStore } from "@/store/map-store";
  * @param {boolean} pmtiles - Optional flag to enable PMTiles support.
  * @returns {Object} - Contains map instance, zoom level, drawing mode, and container ref.
  */
-export const useMapInstance = (pmtiles: boolean = false) => {
+export const useMapInstance = (
+  pmtiles: boolean = false,
+  hash: boolean = false,
+) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<Map | null>(null);
   const [drawingMode, setDrawingMode] = useState<DrawingModes>(
@@ -23,7 +26,7 @@ export const useMapInstance = (pmtiles: boolean = false) => {
   useEffect(() => {
     if (!mapContainerRef.current) return;
 
-    const map = setupMaplibreMap(mapContainerRef, pmtiles);
+    const map = setupMaplibreMap(mapContainerRef, pmtiles, hash);
 
     map.on("load", () => {
       setMap(map);
@@ -50,7 +53,7 @@ export const useMapInstance = (pmtiles: boolean = false) => {
   useEffect(() => {
     if (!map) return;
     const updateZoom = () => {
-      const zoom = Math.round(map.getZoom()) + 1;
+      const zoom = Math.round(map.getZoom());
       setZoom(zoom);
     };
 

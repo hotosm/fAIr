@@ -33,25 +33,20 @@ export const createFeatureCollection = (
  * Open the AOI (Training Area) in ID Editor.
  *
  * This function redirects the user to the OpenStreetMap ID Editor and preload the selected training area.
- *
- * @param {number} bottomLat - The bottom latitude coordinate of the training area bounding box.
- * @param {number} topLat - The op latitude coordinat eof the training area bounding box.
- * @param {number} leftLng - The left longitude coordinate of the training area bounding box.
- * @param {number} rightLng - The right longitude coordinate of the training area bounding box.
+ * @param {Feature[]} features - The GeoJSON features. If it's not provided, it creates an empty FeatureCollection.
  * @param {string} imageryURL - The openaerialmap TMS url for the training area.
  * @param {string} datasetId - The unique ID of the dataset. The purpose is to add it to the hashtags for tracking.
  * @param {number} aoiId - The unique ID of the AOI. The purpose of this is to add it to the hashtags for tracking.
  */
 
 export const openInIDEditor = (
-  bottomLat: number,
-  topLat: number,
-  leftLng: number,
-  rightLng: number,
+  features: Feature[],
   imageryURL: string,
   datasetId: string,
   aoiId: number,
 ) => {
+  const bounds = bbox(createFeatureCollection(features));
+  const [leftLng, bottomLat, rightLng, topLat] = bounds;
   const centerLat = (bottomLat + topLat) / 2;
   const centerLng = (leftLng + rightLng) / 2;
   const zoomLevel = 17;

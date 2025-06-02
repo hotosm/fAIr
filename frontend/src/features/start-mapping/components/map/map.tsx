@@ -26,6 +26,7 @@ import {
   extractTileJSONURL,
   OPENAERIALMAP_TILESERVER_URL_REGEX_PATTERN,
 } from "@/utils";
+import { useInitialHashFit } from "@/hooks/use-map-hash-sync";
 
 export const StartMappingMapComponent = ({
   map,
@@ -73,6 +74,8 @@ export const StartMappingMapComponent = ({
     [modelPredictions],
   );
 
+  const { hadHashOnLoad } = useInitialHashFit(map);
+
   useEffect(() => {
     if (
       !map ||
@@ -84,6 +87,11 @@ export const StartMappingMapComponent = ({
       predictionImagerySource === PredictionImagerySource.Kontour
     )
       return;
+
+    /**
+     * Sync the map hash with the current map state.
+     */
+    if (hadHashOnLoad) return;
 
     // if there are predictions that the user hasn't interacted with, zoom to them.
     if (untouchedPredictedFeatures.length > 0) {
@@ -102,6 +110,7 @@ export const StartMappingMapComponent = ({
     tileJSONMetadata?.bounds,
     modelInfoRequestIsPending,
     predictionImagerySource,
+    hadHashOnLoad,
   ]);
 
   /**
@@ -153,14 +162,10 @@ export const StartMappingMapComponent = ({
       layerControl={!isSmallViewport}
       layerControlLayers={[
         ...layers,
-        ...(predictionImagerySource !== PredictionImagerySource.ModelDefault
-          ? [
-              {
-                value: "Prediction Imagery",
-                subLayers: [predictionImageryLayerId],
-              },
-            ]
-          : []),
+        {
+          value: "Prediction Imagery",
+          subLayers: [predictionImageryLayerId],
+        },
       ]}
       basemaps
       showCurrentZoom={!isSmallViewport}

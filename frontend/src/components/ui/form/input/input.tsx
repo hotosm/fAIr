@@ -34,6 +34,7 @@ type InputProps = {
   min?: number;
   max?: number;
   step?: number;
+  disableOutline?: boolean;
 };
 
 const Input: React.FC<InputProps> = ({
@@ -59,6 +60,7 @@ const Input: React.FC<InputProps> = ({
   min,
   max,
   step = 1,
+  disableOutline,
 }) => {
   const { isChrome } = useBrowserType();
 
@@ -85,7 +87,7 @@ const Input: React.FC<InputProps> = ({
       }}
       // @ts-expect-error bad type definition
       value={value}
-      className={`${className} ${styles.customInput} ${showBorder && styles.showBorder} ${isValid === false ? styles.invalidInput : ""}`}
+      className={`${className} ${styles.customInput} ${disableOutline && styles.disableOutline} ${showBorder && styles.showBorder} ${isValid === false ? styles.invalidInput : ""}`}
       placeholder={placeholder}
       clearable={clearable}
       disabled={disabled}

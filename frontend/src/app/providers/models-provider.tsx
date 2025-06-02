@@ -1,5 +1,6 @@
 import {
   APPLICATION_ROUTES,
+  DatasetURLParams,
   MODELS_BASE,
   MODELS_ROUTES,
   TOAST_NOTIFICATIONS,
@@ -12,19 +13,20 @@ import {
 } from "@/enums";
 import { HOT_FAIR_MODEL_CREATION_LOCAL_STORAGE_KEY } from "@/config";
 import { LngLatBoundsLike } from "maplibre-gl";
-import { useCreateTrainingDataset } from "@/features/model-creation/hooks/use-training-datasets";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+
+import {
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 import { useModelDetails } from "@/features/models/hooks/use-models";
 import { UseMutationResult } from "@tanstack/react-query";
 import { useLocalStorage } from "@/hooks/use-storage";
 
+import { TModelDetails, TTrainingAreaFeature, TTrainingDetails } from "@/types";
 import {
-  TModelDetails,
-  TTrainingAreaFeature,
-  TTrainingDataset,
-  TTrainingDetails,
-} from "@/types";
-import {
+  getTileServerTypeFromURL,
   showErrorToast,
   showSuccessToast,
   XYZ_TILESERVER_URL_REGEX_PATTERN,
@@ -38,10 +40,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import {
-  TCreateTrainingDatasetArgs,
-  TCreateTrainingRequestArgs,
-} from "@/features/model-creation/api/create-trainings";
+import { TCreateTrainingRequestArgs } from "@/features/model-creation/api/create-trainings";
 import {
   useCreateModel,
   useCreateModelTrainingRequest,
@@ -161,8 +160,6 @@ type FormData = {
   tmsURL: string;
   selectedTrainingDatasetId: string;
   trainingAreas: TTrainingAreaFeature[];
-  oamTileName: string;
-  oamBounds: number[];
   trainingType: TrainingType;
   contactSpacing: number;
   epoch: number;
@@ -185,9 +182,6 @@ const initialFormState: FormData = {
   [MODEL_CREATION_FORM_NAME.TMS_URL]: "",
   [MODEL_CREATION_FORM_NAME.SELECTED_TRAINING_DATASET_ID]: "",
   [MODEL_CREATION_FORM_NAME.TRAINING_AREAS]: [],
-  // oam tms info
-  [MODEL_CREATION_FORM_NAME.OAM_TILE_NAME]: "",
-  [MODEL_CREATION_FORM_NAME.OAM_BOUNDS]: [],
   // Training settings - defaults to basic configurations
   [MODEL_CREATION_FORM_NAME.TRAINING_TYPE]: TrainingType.BASIC,
   [MODEL_CREATION_FORM_NAME.EPOCH]: 2,
@@ -213,12 +207,7 @@ const ModelsContext = createContext<{
       | Record<string, string | number | boolean>
       | LngLatBoundsLike,
   ) => void;
-  createNewTrainingDatasetMutation: UseMutationResult<
-    TTrainingDataset,
-    Error,
-    TCreateTrainingDatasetArgs,
-    unknown
-  >;
+
   hasLabeledTrainingAreas: boolean;
   hasAOIsWithGeometry: boolean;
   resetState: () => void;
@@ -242,12 +231,7 @@ const ModelsContext = createContext<{
   formData: initialFormState,
   setFormData: () => {},
   handleChange: () => {},
-  createNewTrainingDatasetMutation: {} as UseMutationResult<
-    TTrainingDataset,
-    Error,
-    TCreateTrainingDatasetArgs,
-    unknown
-  >,
+
   createNewTrainingRequestMutation: {} as UseMutationResult<
     TTrainingDetails,
     Error,
@@ -275,7 +259,15 @@ export const ModelsProvider: React.FC<{
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const { modelId, id } = useParams();
-
+  const [searchParams] = useSearchParams();
+  /**
+   *  Dataset Info. Prefilled from the Dataset detail page.
+   */
+  const datasetId = searchParams.get(DatasetURLParams.DATASET_ID);
+  const datasetName = searchParams.get(DatasetURLParams.DATASET_NAME);
+  const datasetSourceImagery = searchParams.get(
+    DatasetURLParams.DATASET_SOURCE_IMAGERY,
+  );
   const { setValue, removeValue, getValue } = useLocalStorage();
   const storedFormData = getValue(HOT_FAIR_MODEL_CREATION_LOCAL_STORAGE_KEY);
   const [formData, setFormData] = useState<typeof initialFormState>(
@@ -343,7 +335,17 @@ export const ModelsProvider: React.FC<{
       }
     }
   }, [isError, error, navigate]);
-
+  // Prefill dataset id if available in the URL.
+  useEffect(() => {
+    if (datasetId && datasetName && datasetSourceImagery) {
+      handleChange(
+        MODEL_CREATION_FORM_NAME.SELECTED_TRAINING_DATASET_ID,
+        datasetId,
+      );
+      handleChange(MODEL_CREATION_FORM_NAME.DATASET_NAME, datasetName);
+      handleChange(MODEL_CREATION_FORM_NAME.TMS_URL, datasetSourceImagery);
+    }
+  }, [datasetId, datasetName, datasetSourceImagery]);
   // Prefill formData with model details in edit mode.
   useEffect(() => {
     if (!isEditMode || isPending || !data || isError) return;
@@ -365,6 +367,10 @@ export const ModelsProvider: React.FC<{
     handleChange(
       MODEL_CREATION_FORM_NAME.TMS_URL,
       data.dataset.source_imagery ?? "",
+    );
+    handleChange(
+      MODEL_CREATION_FORM_NAME.TILESERVICE_TYPE,
+      getTileServerTypeFromURL(data.dataset.source_imagery ?? ""),
     );
     handleChange(MODEL_CREATION_FORM_NAME.DATASET_OFFSET, data.dataset.offset);
   }, [isEditMode, isError, isPending, data]);
@@ -404,24 +410,6 @@ export const ModelsProvider: React.FC<{
       onError: (error) => {
         showErrorToast(error);
         resetState();
-      },
-    },
-  });
-
-  const createNewTrainingDatasetMutation = useCreateTrainingDataset({
-    mutationConfig: {
-      onSuccess: (data) => {
-        showSuccessToast(TOAST_NOTIFICATIONS.trainingDatasetCreationSuccess);
-        handleChange(MODEL_CREATION_FORM_NAME.DATASET_NAME, data.name);
-        handleChange(MODEL_CREATION_FORM_NAME.TMS_URL, data.source_imagery);
-        handleChange(
-          MODEL_CREATION_FORM_NAME.SELECTED_TRAINING_DATASET_ID,
-          data.id,
-        );
-        handleChange(MODEL_CREATION_FORM_NAME.DATASET_OFFSET, data.offset);
-      },
-      onError: (error) => {
-        showErrorToast(error);
       },
     },
   });
@@ -529,7 +517,7 @@ export const ModelsProvider: React.FC<{
     () => ({
       setFormData,
       handleChange,
-      createNewTrainingDatasetMutation,
+
       hasLabeledTrainingAreas,
       hasAOIsWithGeometry,
       formData,
@@ -550,7 +538,7 @@ export const ModelsProvider: React.FC<{
       setFormData,
       formData,
       handleChange,
-      createNewTrainingDatasetMutation,
+
       hasLabeledTrainingAreas,
       hasAOIsWithGeometry,
       createNewTrainingRequestMutation,

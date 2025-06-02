@@ -14,7 +14,8 @@ import { useAuth } from "@/app/providers/auth-provider";
 import { useDialog } from "@/hooks/use-dialog";
 import { useNavigate } from "react-router-dom";
 import { ButtonVariant } from "@/enums";
-import ModelDetailUser from "./model-detail-user";
+import ModelDetailUser from "@/features/models/components/model-detail-user";
+import { Link } from "@/components/ui/link";
 
 const ModelDetailsInfo = ({
   data,
@@ -107,12 +108,20 @@ const ModelDetailsInfo = ({
                 {truncateString(trainingDataset?.name, 40)}
               </p>
             </div>
-            <div className="text-dark text-body-2 flex gap-x-1">
+
+            <Link
+              className="text-dark text-body-2 flex gap-x-1"
+              href={`${APPLICATION_ROUTES.DATASETS}/${data?.dataset?.id}`}
+              title={`Dataset ${data?.dataset?.id}`}
+              disableLinkStyle
+              nativeAnchor={false}
+            >
               <span className="text-grey">
                 {MODELS_CONTENT.models.modelsDetailsCard.datasetId}
               </span>
-              <p>{data?.dataset?.id}</p>
-            </div>
+              <p className="underline">{data?.dataset?.id}</p>
+            </Link>
+
             <ModelFilesButton
               openModelFilesDialog={openModelFilesDialog}
               disabled={data?.published_training === null}

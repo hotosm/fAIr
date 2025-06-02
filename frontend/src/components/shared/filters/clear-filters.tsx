@@ -1,13 +1,14 @@
 import { Button } from "@/components/ui/button";
-import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
+import { SEARCH_PARAMS } from "@/utils/search-params";
 import { TQueryParams } from "@/types";
+import { ButtonVariant } from "@/enums";
 
-const ClearFilters = ({
+export const ClearFilters = ({
   query,
   clearAllFilters,
   isMobile,
 }: {
-  clearAllFilters: (event: React.ChangeEvent<HTMLButtonElement>) => void;
+  clearAllFilters: (event: React.MouseEvent<HTMLButtonElement>) => void;
   query: TQueryParams;
   isMobile?: boolean;
 }) => {
@@ -19,15 +20,18 @@ const ClearFilters = ({
   );
 
   return (
-    <div className={`${isMobile ? "block md:hidden" : "hidden md:block"}`}>
+    <div
+      className={`w-fit ${isMobile === true ? "block md:hidden" : isMobile === false ? "hidden md:block" : "block"}`}
+    >
       {canClearAllFilters ? (
-        // @ts-expect-error bad type definition
-        <Button variant="tertiary" size="medium" onClick={clearAllFilters}>
+        <Button
+          variant={ButtonVariant.TERTIARY}
+          size="medium"
+          onClick={clearAllFilters}
+        >
           Clear filters
         </Button>
       ) : null}
     </div>
   );
 };
-
-export default ClearFilters;

@@ -37,3 +37,15 @@ sl-input.invalidInput:focus-within::part(base) {
   box-shadow: 0 0 0 2px var(--hot-fair-color-primary);
   outline: none;
 }
+
+sl-input.disableOutline::part(base) {
+  box-shadow: none;
+}
+sl-input.disableOutline:focus-within::part(base) {
+  box-shadow: none;
+  outline: none;
+}
+sl-input.disableOutline::part(input) {
+  box-shadow: none;
+  outline: none;
+}

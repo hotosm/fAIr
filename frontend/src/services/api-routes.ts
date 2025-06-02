@@ -78,6 +78,8 @@ export const API_ENDPOINTS = {
   DELETE_TRAINING_AREA: (id: number) => `aoi/${id}/`,
   UPLOAD_TRAINING_AREA_LABELS: (aioId: number) => `label/upload/${aioId}/`,
   UPDATE_TRAINING_DATASET: (id: number) => `dataset/${id}/`,
+  GET_TRAINING_DATASETS_CENTROIDS: "datasets/centroid/",
+
   // Workspace
 
   GET_PMTILES_URL: (trainingAreaId: number) =>

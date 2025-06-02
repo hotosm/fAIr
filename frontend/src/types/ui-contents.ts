@@ -319,6 +319,7 @@ export type TSharedContent = {
       about: string;
       resources: string;
       learn: string;
+      exploreDatasets: string;
     };
     userProfile: {
       profile: string;

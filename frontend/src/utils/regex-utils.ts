@@ -41,3 +41,24 @@ export const getTileServerRegex = (serviceType: TileServiceType) => {
       return XYZ_TILESERVER_URL_REGEX_PATTERN;
   }
 };
+
+/**
+ * Function to get the tile server type from a given URL.
+ * This function checks the URL against known patterns for different tile service types.
+ * @param tileServiceURL - The URL of the tile service.
+ * @returns The type of tile service if matched, otherwise null.
+ */
+export const getTileServerTypeFromURL = (
+  tileServiceURL: string,
+): TileServiceType => {
+  if (TILEJSON_TILESERVER_URL_REGEX_PATTERN.test(tileServiceURL)) {
+    return TileServiceType.TILEJSON;
+  }
+  if (XYZ_TILESERVER_URL_REGEX_PATTERN.test(tileServiceURL)) {
+    return TileServiceType.XYZ;
+  }
+  if (TMS_TILESERVER_URL_REGEX_PATTERN.test(tileServiceURL)) {
+    return TileServiceType.TMS;
+  }
+  return TileServiceType.XYZ;
+};

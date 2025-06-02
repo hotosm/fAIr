@@ -88,9 +88,7 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
       // confirm that the user has selected at least an option
       return formData.zoomLevels.length > 0 && formData.trainingSettingsIsValid;
     } else if (currentPath.includes(MODELS_ROUTES.TRAINING_AREA)) {
-      return (
-        hasLabeledTrainingAreas && hasAOIsWithGeometry && formData.oamBounds
-      );
+      return hasLabeledTrainingAreas && hasAOIsWithGeometry;
     } else {
       return true;
     }

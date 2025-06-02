@@ -2,7 +2,7 @@ import { TUserProfilePageContent } from "@/types";
 
 export const USER_PROFILE_PAGE_CONTENT: TUserProfilePageContent = {
   overview: {
-    pageTitle: "My Profile 🎉",
+    pageTitle: "My Profile",
     dateJoinedPrefix: "Joined",
     profileCompletionSuffix: "Complete",
     profileCompletionCTA: "Complete your profile",

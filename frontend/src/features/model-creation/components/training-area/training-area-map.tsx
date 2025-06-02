@@ -1,8 +1,8 @@
 import useDebounce from "@/hooks/use-debounce";
 import { ControlsPosition, DrawingModes } from "@/enums";
-import { LngLatBounds, Map } from "maplibre-gl";
+import { LngLatBounds, LngLatBoundsLike, Map } from "maplibre-gl";
 import { geojsonToWKT } from "@terraformer/wkt";
-import { PaginatedTrainingArea, TileJSON } from "@/types";
+import { PaginatedTrainingArea } from "@/types";
 import { MapComponent, MapCursorToolTip } from "@/components/map";
 import { Polygon } from "geojson";
 import { RefObject, useCallback, useEffect, useState } from "react";
@@ -37,7 +37,7 @@ import { useMapStore } from "@/store/map-store";
 const DEBOUNCE_DELAY: number = 300;
 
 const TrainingAreaMap = ({
-  tileJSONURL,
+  tileServiceURL,
   data,
   trainingDatasetId,
   offset,
@@ -47,10 +47,10 @@ const TrainingAreaMap = ({
   terraDraw,
   mapContainerRef,
   trainingAreaIsPending,
-  OAMData,
+  tileServiceBounds,
   trainingDatasetOffset,
 }: {
-  tileJSONURL: string;
+  tileServiceURL: string;
   data?: PaginatedTrainingArea;
   trainingDatasetId: number;
   offset: number;
@@ -60,8 +60,8 @@ const TrainingAreaMap = ({
   terraDraw?: TerraDraw;
   mapContainerRef: RefObject<HTMLDivElement> | null;
   trainingAreaIsPending: boolean;
-  OAMData: TileJSON;
   trainingDatasetOffset: { x: number; y: number };
+  tileServiceBounds?: LngLatBoundsLike;
 }) => {
   // Training Areas
   const trainingAreasOutlineLayerId = `${MAP_STYLES_PREFIX}-dataset-${trainingDatasetId}-training-area-layer`;
@@ -98,6 +98,7 @@ const TrainingAreaMap = ({
   const updateBbox = useCallback(() => {
     if (!map) return;
     const bounds = map.getBounds();
+
     setMapBounds(bounds);
     const newBbox = `${bounds.getWest()},${bounds.getSouth()},${bounds.getEast()},${bounds.getNorth()}`;
     setBbox(newBbox);
@@ -140,9 +141,9 @@ const TrainingAreaMap = ({
           terraDraw.clear();
           return;
         }
-        // Don't accept the drawing if it's outside the bbox of the OAM imagery
-        if (OAMData?.bounds) {
-          if (!featureIsWithinBounds(OAMData.bounds, drawnFeature)) {
+        // Don't accept the drawing if it's outside the bbox of the OAM imagery if it exists.
+        if (tileServiceBounds) {
+          if (!featureIsWithinBounds(tileServiceBounds, drawnFeature)) {
             showWarningToast(
               "The drawn polygon extends beyond the OAM bounds. Please ensure the training area is within the specified bounds.",
             );
@@ -170,7 +171,7 @@ const TrainingAreaMap = ({
       terraDraw.off("change", handleFeatureChange);
       terraDraw.off("finish", handleFinish);
     };
-  }, [terraDraw, drawingMode, setDrawingMode, OAMData]);
+  }, [terraDraw, drawingMode, setDrawingMode, tileServiceBounds]);
 
   const showLabelsToolTip = currentZoom >= 14 && currentZoom < 18;
 
@@ -206,11 +207,10 @@ const TrainingAreaMap = ({
 
   return (
     <MapComponent
-      openAerialMap={!trainingAreaIsPending}
-      oamTileJSONURL={tileJSONURL}
       controlsPosition={ControlsPosition.TOP_LEFT}
       drawControl
       showCurrentZoom
+      hasTileServiceLayer
       layerControl
       showTileBoundaries
       basemaps
@@ -219,6 +219,7 @@ const TrainingAreaMap = ({
       drawingMode={drawingMode}
       setDrawingMode={setDrawingMode}
       mapContainerRef={mapContainerRef}
+      tileServiceURL={tileServiceURL}
       layerControlLayers={[
         ...(labels && labels?.features.length > 0
           ? [
@@ -265,14 +266,13 @@ const TrainingAreaMap = ({
           trainingDatasetOffset={trainingDatasetOffset}
         />
       ) : null}
-      {OAMData?.bounds && mapBounds && (
+      {tileServiceBounds && mapBounds && (
         <MaskBoundsLayers
           map={map}
           mapBounds={mapBounds}
-          OAMBounds={OAMData.bounds}
+          OAMBounds={tileServiceBounds}
         />
       )}
-
       {map && (
         <MapCursorToolTip
           color={getTooltipColor()}

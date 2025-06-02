@@ -1,7 +1,7 @@
 import { App } from "@/app";
 import { createRoot } from "react-dom/client";
 import { ErrorBoundary } from "react-error-boundary";
-import { MainErrorFallback } from "./components/errors";
+import { MainErrorFallback } from "@/components/errors";
 import { StrictMode } from "react";
 import "@/styles/hot-font-face.css";
 import "@/styles/hot-sl.css";

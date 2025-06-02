@@ -4,40 +4,39 @@ import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useGetTrainingDatasetsV2 } from "./use-datasets";
 import { ORDERING_FIELDS } from "@/components/shared/filters/ordering-filter";
-
-export const QUERY_PARAMS = {
-  ordering: "orderBy",
-  searchQuery: "q",
-  offset: "offset",
-};
+import { SEARCH_PARAMS } from "@/utils/search-params";
 
 export const useDatasetsQueryParams = (userId?: number) => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const defaultQueries = {
-    [QUERY_PARAMS.offset]: 0,
-    [QUERY_PARAMS.searchQuery]:
-      searchParams.get(QUERY_PARAMS.searchQuery) || "",
-    [QUERY_PARAMS.ordering]:
-      searchParams.get(QUERY_PARAMS.ordering) ||
+    [SEARCH_PARAMS.offset]: 0,
+    [SEARCH_PARAMS.searchQuery]:
+      searchParams.get(SEARCH_PARAMS.searchQuery) || "",
+    [SEARCH_PARAMS.ordering]:
+      searchParams.get(SEARCH_PARAMS.ordering) ||
       (ORDERING_FIELDS[1].apiValue as string),
+    [SEARCH_PARAMS.id]: searchParams.get(SEARCH_PARAMS.id) || "",
+    [SEARCH_PARAMS.mapIsActive]:
+      Boolean(searchParams.get(SEARCH_PARAMS.mapIsActive)) || false,
   };
 
   const [query, setQuery] = useState<TQueryParams>(defaultQueries);
 
   const debouncedSearchText = useDebounce(
-    query[QUERY_PARAMS.searchQuery] as string,
+    query[SEARCH_PARAMS.searchQuery] as string,
     300,
   );
 
   const { isPending, isError, data, refetch, isPlaceholderData } =
     useGetTrainingDatasetsV2(
       debouncedSearchText.length > 0 ? debouncedSearchText : undefined,
-      query[QUERY_PARAMS.ordering] as string,
+      query[SEARCH_PARAMS.ordering] as string,
       userId !== undefined ? userId : undefined,
-      query[QUERY_PARAMS.offset] !== undefined
-        ? (query[QUERY_PARAMS.offset] as number)
+      query[SEARCH_PARAMS.offset] !== undefined
+        ? (query[SEARCH_PARAMS.offset] as number)
         : undefined,
+      query[SEARCH_PARAMS.id] as number,
     );
 
   const updateQuery = useCallback(
@@ -64,21 +63,38 @@ export const useDatasetsQueryParams = (userId?: number) => {
   //reset offset back to 0 when searching or when ID filtering is applied from the map.
   useEffect(() => {
     if (
-      query[QUERY_PARAMS.searchQuery] !== "" &&
-      (query[QUERY_PARAMS.offset] as number) > 0
+      query[SEARCH_PARAMS.searchQuery] !== "" ||
+      (query[SEARCH_PARAMS.id] !== "" &&
+        (query[SEARCH_PARAMS.offset] as number) > 0)
     ) {
-      updateQuery({ [QUERY_PARAMS.offset]: 0 });
+      updateQuery({ [SEARCH_PARAMS.offset]: 0 });
     }
   }, [query]);
 
   useEffect(() => {
     const newQuery = {
-      [QUERY_PARAMS.offset]: defaultQueries[QUERY_PARAMS.offset],
-      [QUERY_PARAMS.ordering]: defaultQueries[QUERY_PARAMS.ordering],
-      [QUERY_PARAMS.searchQuery]: defaultQueries[QUERY_PARAMS.searchQuery],
+      [SEARCH_PARAMS.offset]: defaultQueries[SEARCH_PARAMS.offset],
+      [SEARCH_PARAMS.ordering]: defaultQueries[SEARCH_PARAMS.ordering],
+      [SEARCH_PARAMS.searchQuery]: defaultQueries[SEARCH_PARAMS.searchQuery],
+      [SEARCH_PARAMS.mapIsActive]: defaultQueries[SEARCH_PARAMS.mapIsActive],
+      [SEARCH_PARAMS.id]: defaultQueries[SEARCH_PARAMS.id],
     };
     setQuery(newQuery);
   }, []);
+
+  const clearAllFilters = useCallback(() => {
+    const resetParams = new URLSearchParams();
+    setSearchParams(resetParams);
+    setQuery((prev) => ({
+      // Preserve existing query params
+      ...prev,
+      // Clear only the filter fields
+      [SEARCH_PARAMS.searchQuery]: "",
+      [SEARCH_PARAMS.id]: "",
+    }));
+  }, []);
+
+  const mapViewIsActive = Boolean(query[SEARCH_PARAMS.mapIsActive]);
 
   return {
     query,
@@ -88,5 +104,7 @@ export const useDatasetsQueryParams = (userId?: number) => {
     isError,
     updateQuery,
     refetch,
+    mapViewIsActive,
+    clearAllFilters,
   };
 };

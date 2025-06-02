@@ -64,12 +64,10 @@ const StartMappingHeader = memo(
     map: Map | null;
     downloadOptions: TDownloadOptions;
     predictionImagerySource: PredictionImagerySource;
-    setPredictionImagerySource: React.Dispatch<
-      React.SetStateAction<PredictionImagerySource>
-    >;
+    setPredictionImagerySource: (value: PredictionImagerySource) => void;
     modelDefaultImageryURL: string;
     predictionModel: string;
-    setPredictionModel: React.Dispatch<React.SetStateAction<string>>;
+    setPredictionModel: (value: string) => void;
     predictionModelCheckpoint: string;
     setPredictionModelCheckpoint: React.Dispatch<React.SetStateAction<string>>;
     customPredictionModelCheckpointPath: string;

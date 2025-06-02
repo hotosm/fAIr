@@ -11,6 +11,8 @@ type LinkProps = {
   nativeAnchor?: boolean;
   disableLinkStyle?: boolean;
   download?: boolean;
+  onClick?: React.MouseEventHandler<HTMLAnchorElement | HTMLSpanElement>;
+  onKeyDown?: React.KeyboardEventHandler<HTMLAnchorElement | HTMLSpanElement>;
 };
 
 const Link: React.FC<LinkProps> = ({
@@ -22,26 +24,29 @@ const Link: React.FC<LinkProps> = ({
   nativeAnchor = true,
   disableLinkStyle = false,
   download = false,
+  onClick,
+  onKeyDown,
 }) => {
+  const commonProps = {
+    title,
+    className: cn(`${!disableLinkStyle && styles.link} ${className}`),
+    onClick,
+    onKeyDown,
+  };
   return (
     <>
       {nativeAnchor ? (
         <a
           href={href}
-          title={title}
           rel="origin"
           target={blank ? "_blank" : "_self"}
-          className={cn(`${styles.link} ${className}`)}
           download={download}
+          {...commonProps}
         >
           {children}
         </a>
       ) : (
-        <ReactRouterLink
-          to={href}
-          className={cn(`${!disableLinkStyle && styles.link} ${className}`)}
-          title={title}
-        >
+        <ReactRouterLink to={href} {...commonProps}>
           {children}
         </ReactRouterLink>
       )}

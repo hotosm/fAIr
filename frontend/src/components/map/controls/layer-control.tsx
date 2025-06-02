@@ -18,20 +18,20 @@ export const LayerControl = ({
   map,
   layers,
   basemaps = true,
-  openAerialMap = false,
+  hasTileServiceLayer = false,
   rounded = false,
 }: {
   map: Map | null;
   layers: TLayers;
   basemaps?: boolean;
-  openAerialMap?: boolean;
+  hasTileServiceLayer?: boolean;
   rounded?: boolean;
 }) => {
   const layerControlData = useMemo(() => {
     const layers_ = [
       ...layers,
-      ...(openAerialMap
-        ? [{ value: "Source Imagery", subLayers: [TMS_LAYER_ID] }]
+      ...(hasTileServiceLayer
+        ? [{ value: "Tile Service Imagery", subLayers: [TMS_LAYER_ID] }]
         : []),
     ];
     const baseLayers: TBasemaps = basemaps
@@ -44,7 +44,7 @@ export const LayerControl = ({
         ]
       : [];
     return { layers_, baseLayers };
-  }, [layers, openAerialMap, basemaps]);
+  }, [layers, hasTileServiceLayer, basemaps]);
 
   const [layerVisibility, setLayerVisibility] = useState<{
     [key: string]: boolean;

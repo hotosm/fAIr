@@ -4,7 +4,12 @@ import { Head } from "@/components/seo";
 import { LayoutView } from "@/enums";
 import { MobileModelFiltersDialog } from "@/features/models/components/dialogs";
 import { MODELS_CONTENT } from "@/constants";
-import { OrderingFilter, Pagination, SearchFilter } from "@/components/shared";
+import {
+  ClearFilters,
+  OrderingFilter,
+  Pagination,
+  SearchFilter,
+} from "@/components/shared";
 import { PageHeader } from "@/features/models/components/";
 import { useDialog } from "@/hooks/use-dialog";
 import { useEffect } from "react";
@@ -16,14 +21,9 @@ import {
   ModelListGridLayout,
   ModelListTableLayout,
 } from "@/features/models/layouts";
-import {
-  LayoutToggle,
-  ModelMapToggle,
-  ModelsMap,
-} from "@/features/models/components";
+import { LayoutToggle, ModelsMap } from "@/features/models/components";
 import {
   CategoryFilter,
-  ClearFilters,
   DateRangeFilter,
   MobileFilter,
 } from "@/features/models/components/filters";
@@ -33,19 +33,8 @@ import {
   useScrollToTop,
 } from "@/hooks/use-scroll-to-element";
 import { Spinner } from "@/components/ui/spinner";
-
-export const SEARCH_PARAMS = {
-  startDate: "start_date",
-  endDate: "end_date",
-  mapIsActive: "map",
-  ordering: "orderBy",
-  searchQuery: "q",
-  offset: "offset",
-  dateFilter: "dateFilter",
-  layout: "layout",
-  id: "id",
-  status: "status",
-};
+import ShowMapToggle from "@/components/shared/show-map-toggle";
+import { SEARCH_PARAMS } from "@/utils/search-params";
 
 export const ModelsPage = () => {
   const { isOpened, openDialog, closeDialog } = useDialog();
@@ -69,7 +58,9 @@ export const ModelsPage = () => {
     isError: modelsMapDataIsError,
   } = useModelsMapData();
 
-  // Mapview toggling interaction
+  /**
+   *  Mapview toggling interaction.
+   */
   useEffect(() => {
     if (mapViewIsActive) {
       scrollToElement();
@@ -177,7 +168,7 @@ export const ModelsPage = () => {
               </div>
               <div className="md:flex items-center gap-x-10 hidden">
                 {/* Desktop */}
-                <ModelMapToggle updateQuery={updateQuery} query={query} />
+                <ShowMapToggle updateQuery={updateQuery} query={query} />
                 <LayoutToggle
                   updateQuery={updateQuery}
                   query={query}
@@ -206,7 +197,7 @@ export const ModelsPage = () => {
                       .modelCountSuffix
                   }
                 </p>
-                <ModelMapToggle
+                <ShowMapToggle
                   query={query}
                   updateQuery={updateQuery}
                   isMobile

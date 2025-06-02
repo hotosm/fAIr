@@ -12,6 +12,7 @@ import {
 } from "@/utils";
 import { TModelDetails } from "@/types";
 import { FAIR_BASE_MODELS_PATH } from "@/config";
+import { Divider } from "@/components/ui/divider";
 
 export const ModelSelector = ({
   predictionModel,
@@ -25,7 +26,7 @@ export const ModelSelector = ({
   modelInfo,
 }: {
   predictionModel: string;
-  setPredictionModel: React.Dispatch<React.SetStateAction<string>>;
+  setPredictionModel: (value: string) => void;
   predictionModelCheckpoint: string;
   setPredictionModelCheckpoint: React.Dispatch<React.SetStateAction<string>>;
   isMobile?: boolean;
@@ -49,7 +50,7 @@ export const ModelSelector = ({
         label: "RAMP",
         tooltip:
           MODELS_CONTENT.modelCreation.modelDetails.form.baseModel.suffixes[
-            PredictionModel.RAMP
+          PredictionModel.RAMP
           ],
       },
       {
@@ -57,7 +58,7 @@ export const ModelSelector = ({
         label: "YOLO v8 v1",
         tooltip:
           MODELS_CONTENT.modelCreation.modelDetails.form.baseModel.suffixes[
-            PredictionModel.YOLOV8_V1
+          PredictionModel.YOLOV8_V1
           ],
       },
       {
@@ -65,7 +66,7 @@ export const ModelSelector = ({
         label: "YOLO v8 v2",
         tooltip:
           MODELS_CONTENT.modelCreation.modelDetails.form.baseModel.suffixes[
-            PredictionModel.YOLOV8_V2
+          PredictionModel.YOLOV8_V2
           ],
       },
       {
@@ -74,8 +75,10 @@ export const ModelSelector = ({
         tooltip: "Custom model for generating predictions.",
       },
     ],
-    [defaultPredictionModel],
+    [defaultPredictionModel, predictionModel],
   );
+
+
 
   const PredictionModelsCheckpoints = useMemo(
     () => ({
@@ -93,7 +96,7 @@ export const ModelSelector = ({
         FAIR_BASE_MODELS_PATH[PredictionModel.YOLOV8_V2],
       [PredictionModel.CUSTOM]: predictionModelCheckpoint,
     }),
-    [predictionModelCheckpoint, modelInfo],
+    [predictionModelCheckpoint, modelInfo, predictionModel],
   );
 
   return (
@@ -101,11 +104,14 @@ export const ModelSelector = ({
       className={` bg-white ${isMobile ? "w-full" : "w-[350px]  shadow-lg rounded-xl border border-gray-border "} p-4 max-h-[400px] gap-y-4 overflow-y-auto flex flex-col scrollable`}
     >
       {!isMobile && (
-        <FormLabel
-          withTooltip
-          label="Model"
-          toolTipContent="Choose a base model for generating predictions."
-        />
+        <div>
+          <FormLabel
+            withTooltip
+            label="Model"
+            toolTipContent="Choose a base model for generating predictions."
+          />
+          <Divider />
+        </div>
       )}
       <RadioGroup
         options={PredictionModels}
@@ -114,6 +120,14 @@ export const ModelSelector = ({
           if (e !== PredictionModel.CUSTOM) {
             setPredictionModelCheckpoint(
               PredictionModelsCheckpoints[e as keyof typeof PredictionModel],
+            );
+          } else {
+            /**
+             * Reset the model checkpoint to an empty string if the custom option is selected.
+             * That way, it won't preserve the previous option checkpoint.
+             */
+            setPredictionModelCheckpoint(
+              ''
             );
           }
         }}

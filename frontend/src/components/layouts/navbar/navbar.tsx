@@ -130,7 +130,7 @@ const NavBarLinks: React.FC<NavBarLinksProps> = ({ className, setOpen }) => {
               //close the drawer after navigating to a new page on mobile
               setOpen && setOpen(false);
             }}
-            className={`${styles.navLinkItem} ${location.pathname.includes(link.href) && styles.activeLink}`}
+            className={`${styles.navLinkItem} ${location.pathname === link.href && styles.activeLink}`}
           >
             <Link href={link.href} title={link.title} nativeAnchor={false}>
               {link.title}
