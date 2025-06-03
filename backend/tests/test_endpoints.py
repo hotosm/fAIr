@@ -255,7 +255,7 @@ class TaskApiTest(APILiveServerTestCase):
         # get running training status
 
         res = self.client.get(
-            f"{API_BASE}/training/status/{training.id}/", headers=headersList
+            f"{API_BASE}/task/status/{training.id}/", headers=headersList
         )
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
