@@ -8,6 +8,9 @@ license = {text = "AGPL-3.0 license"}
 authors = [
     {name = "HOTOSM", email = "sysadmin@hotosm.org"},
 ]
+dependencies = [
+    "gunicorn>=23.0.0",
+]
 
 [tool.uv]
 default-groups = ["api"]
