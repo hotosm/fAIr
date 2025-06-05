@@ -181,6 +181,19 @@ services:
       - cpu
       - gpu
 
+  docs:
+    image: squidfunk/mkdocs-material
+    container_name: mkdocs
+    restart: unless-stopped
+    volumes:
+      - ./docs:/docs
+      - ./mkdocs.yml:/mkdocs.yml
+    ports:
+      - "8001:8000"
+    command: serve -a 0.0.0.0:8000
+    networks:
+      - backend-network
+
 networks:
   backend-network:
     driver: bridge
