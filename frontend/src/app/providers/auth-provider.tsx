@@ -24,9 +24,9 @@ const AuthContext = createContext<TAuthContext>({
   token: "",
   user: {} as TUser,
   authenticateUser: async () => Promise.resolve(),
-  logout: () => {},
+  logout: () => { },
   isAuthenticated: false,
-  setUser: () => {},
+  setUser: () => { },
 });
 
 export const useAuth = () => {
@@ -91,7 +91,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const params = new URLSearchParams(window.location.search);
     const code = params.get("code");
     const state = params.get("state");
-    if (code && state && user === null) {
+    if (code && state && user === undefined) {
       authenticateUser(state, code);
     }
   }, [user]);
