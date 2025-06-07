@@ -22,7 +22,7 @@ Fork this repository, Maintain your local changes on a separate branch and Creat
 
 ## Documentation contributions 
 
-Create pull requests (PRs) for changes that you think are needed to the documentation of fAIr. As of now you can find the documentation work at the [docs](./docs) directory.
+Create pull requests (PRs) for changes that you think are needed to the documentation of fAIr. As of now you can find the documentation work at the docs directory.
 
 ## :handshake: Thank you
 

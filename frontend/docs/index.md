@@ -1,80 +1,25 @@
-# Welcome to fAIr
+# :hugs: Welcome To The fAIr Wiki :hugs:
 
-**fAIr** is an open-source, AI-assisted mapping platform by the Humanitarian OpenStreetMap Team (HOT). It empowers humanitarian mappers and local communities with accessible, fair, and transparent AI tools for mapping from satellite and UAV imagery.
+## _**What are the challenges that mappers experience while utilizing AI data on OpenStreetMap?**_
 
----
+- ### Overview
+  fAIr does mapping in the same way as human mappers using HOTs Tasking Manager. It looks at UAV imagery and produces map data that can be added to the OSM. Tests show a 100% speedup compared to manual mapping. It uses Artificial Intelligence (AI) to accomplish this.
 
-## Quick Start
+  fAIr is developed by the Humanitarian OpenStreetMap Team and all the software is free and open source.
 
-1. **Clone the repository**
-    ```sh
-    git clone https://github.com/hotosm/fAIr.git
-    cd fAIr
-    ```
+  Before fAIr is used it needs to be fine-tuned by training on high quality map data for a small representative part of the geographical region where it is to be used
+  
+- ### Quality of AI Data
+  One of the primary challenges faced by mappers when using AI data on OpenStreetMap is the quality of the data. The accuracy and completeness of AI data depends on the quality of the training data used to train the AI model. If the training data is biased or incomplete, the AI model will produce inaccurate results and this has happened in some cases especially with roads. Mappers must therefore carefully assess the quality of the AI data before adding it to OSM.
+- ### Data integration process.
+  Another challenge faced by mappers is the integration process. Foexample, when using using Mapwithai, one has to always pick potions of data from the AI layer if they are buildings, one picks a maximum of less that 100 buildings and pastes them in the OSM data layer and does the same for all the buildings in that particular area or tile or layer.
+- ### Technical Expertise
+  The use of AI technology in mapping requires technical expertise, which can be a significant challenge for mappers who may not have the necessary skills. For instance, beginer Mappers can not be recommended or trained to use these AI tools as they may mess the entire area. Therefore frequent trainings are needed for mappers to be equipped with adquet skills of handling such tasks.
+- ### Imagery offsets
+  The AI technologies for example AI data from Microsoft was and is generated using Bing Imagery which in several cases is older compared to the recent Imageries like Maxar Premium. The imposes a big challenge in aligning the AI data with the latest imageries.
+<br>
+<br>
 
-2. **Copy and edit environment variables**
-    ```sh
-    cp .env.example .env
-    # Edit .env as needed for your setup
-    ```
-
-3. **Start all services**
-    ```sh
-    docker compose -f docker-compose.prod.yml up --build
-    ```
-
-4. **Access the services:**
-    - **API:** http://localhost:8000
-    - **Developer Docs:** http://localhost:8001
-    - **Flower (Task Queue Monitor):** http://localhost:5500
-
----
-
-##  Documentation Index
-
-- [About fAIr](About.md) — Project background and vision
-- [Docker Installation (Linux/Mac)](Docker-installation.md)
-- [Docker Installation (Windows)](Docker-install-windows.md)
-- [User Manual](User-Manual-for-fAIr.md)
-- [FAQ](FAQ.md)
-- [Release Process](Release.md)
-- [Code of Conduct](Code-of-Conduct.md)
-- [Contributing Guide](contributing.md)
-- [Project Architecture](architecture.md)
-
----
-
-## 🛠 Troubleshooting
-
-- Make sure Docker is running.
-- If you get port conflicts, update the ports in `docker-compose.prod.yml`.
-- For database or Redis issues, check the logs:
-    ```sh
-    docker compose logs postgres
-    docker compose logs redis
-    ```
-
----
-
-## 💡 Useful Commands
-
-- **Stop all services:**  
-    ```sh
-    docker compose down
-    ```
-- **Rebuild after code changes:**  
-    ```sh
-    docker compose build
-    ```
-
----
-
-## 🙋 Need Help?
-
-- Check the [FAQ](FAQ.md)
-- Join our [Slack community](https://slack.hotosm.org)
-- Open an issue on [GitHub](https://github.com/hotosm/fAIr/issues)
-
----
-
-Happy mapping!
+### Here the HOT’s open AI-assisted mapping service: fAIr comes to rescue .
+The fAIr tool is also an open-source mapping tool with AI assistance, and the AI models it uses are developed and trained by people who reside in and work in nearby towns. To know more about fAIr check the **About** page. 
+  

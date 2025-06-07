@@ -1,72 +1,74 @@
-# Frequently Asked Questions (FAQ)
+# Frequently Asked Questions (FAQs)
 
----
+## Users
+**Q : What is fAIr?**
 
-## For Users
+A : fAIr is an open-source toolkit developed by the Humanitarian OpenStreetMap Team (HOT) that enables the integration of artificial intelligence (AI) into humanitarian mapping workflows. It provides AI models and tools to automate mapping tasks, improving efficiency and accuracy.
 
-**What is fAIr?**  
-fAIr is an open-source toolkit by the Humanitarian OpenStreetMap Team (HOT) that brings artificial intelligence (AI) into humanitarian mapping. It provides AI models and tools to automate mapping tasks, making mapping faster and more accurate.
+<hr>
 
----
+**Q : How can I use fAIr in my mapping projects?**
 
-**How do I use fAIr in my mapping projects?**  
-Follow the [installation guide](installation.md) to set up fAIr. Once running, you can use pre-trained AI models for tasks like road extraction, building detection, or land use classification. The documentation includes examples to help you get started.
+A : Building for now but to use fAIr, you can follow the installation instructions provided in the documentation. Once installed, you can utilize the pre-trained AI models for tasks such as road network extraction, building footprint detection, or land use classification. The documentation offers examples and guidelines to help you get started.
 
----
+<hr>
 
-**What data can I use with fAIr?**  
-fAIr works with satellite and aerial imagery from open sources. Check the documentation for supported formats and recommended imagery providers.
+**Q : What types of data can I use with fAIr?**
 
----
+A : fAIr primarily works with satellite imagery and aerial photographs. You can use various types of imagery sources which compiles with opensource imagery license to perform mapping tasks using the AI models provided. The documentation provides information on the compatible data formats and recommended data sources.
 
-**Can I customize the AI models?**  
-Yes! You can train or fine-tune models with your own datasets to improve results for your region or mapping needs. See the [model customization guide](model-customization.md) for details.
+<hr>
 
----
+**Q : Can I customize the AI models in fAIr for my specific needs?**
 
-**Are there any limitations?**  
-AI accuracy depends on input imagery quality and task complexity. Some results may need manual review or editing. Always validate outputs before using them in production or uploading to OSM.
+A : Yes, fAIr is designed to be customizable. The toolkit provides instructions and guidelines on how to train and fine-tune models with your own datasets. This allows you to adapt the models to suit your specific mapping requirements and improve their performance on your target areas or features of interest.
 
----
+<hr>
 
-**How do I give feedback or report issues?**  
-Open an issue or feature request on [GitHub](https://github.com/hotosm/fAIr/issues). Your feedback helps us improve!
+**Q : Are there any limitations to using fAIr?**
 
----
+A : While fAIr offers powerful AI models, it's important to note that the accuracy of the results may vary depending on the quality and resolution of the input imagery and the complexity of the mapping task. Some tasks may require additional manual editing or validation. It's recommended to review the documentation and understand the limitations of each model before use.
 
-**Can I integrate fAIr with other mapping tools?**  
-Yes. fAIr is modular and exposes APIs and Python packages that can be used in other tools (e.g., QGIS, JOSM) or scripts. See the [integration guide](integration.md).
+<hr>
 
----
+**Q : How can I contribute feedback or report issues with fAIr?**
 
-## For Developers
+A : You can contribute to the improvement of fAIr by providing feedback, reporting issues, or suggesting new features through the project's GitHub repository. By creating an issue, you can share your observations or difficulties faced while using fAIr, allowing the developers to address them and enhance the toolkit.
 
-**How can I contribute?**  
-Read the [contributing guide](contributing.md) for details on submitting code, reporting bugs, or improving documentation. Pull requests are welcome!
+<hr>
 
----
+**Q : Can I integrate fAIr with other mapping tools or platforms?**
 
-**What tech stack does fAIr use?**  
-- **Frontend:** React (JavaScript/TypeScript)
-- **Backend:** Django (Python)
-- **AI/ML:** TensorFlow, PyTorch
-- **Other:** Docker, PostgreSQL/PostGIS, Celery
+A : Yes, fAIr is designed to be modular and can be integrated into existing mapping workflows and platforms. It provides modular pip packages/ API endpoints that can be used in other scripts and can be integrated as plugins on different platforms such as Qgis, Josm etc. You can leverage the AI models from fAIr within these tools or use the outputs of fAIr in combination with other mapping datasets and tools.
 
----
+<hr>
 
-**Are there coding standards?**  
-Yes. Please follow our code style and contribution guidelines in the [contributing guide](contributing.md). We use tools like Black and pre-commit for formatting.
+## Developers
 
----
+**Q : How can I contribute to the development of fAIr?**
 
-**Can I propose new AI models or improvements?**  
-Absolutely! Propose new models or enhancements via pull requests or issues. For major changes, discuss with maintainers and the community first.
+A : You can contribute to fAIr's development by following the guidelines provided in the project's GitHub repository. You can contribute code, suggest new features, or help improve documentation. By submitting pull requests, you can propose changes and collaborate with the project maintainers and the community.
 
----
+<hr>
 
-**What support is available for contributors?**  
-Project maintainers and the HOT community are here to help. Join our [Slack](https://slack.hotosm.org) or open a GitHub discussion for questions.
+**Q : What programming languages and frameworks are used in fAIr?**
 
----
+A : fAIr frontend is made with React and backend with Django.fAIr is primarily developed using Python, which is widely used in machine learning and AI. It leverages popular framework TensorFlow for model development and training. Familiarity with Python and these frameworks will be beneficial if you plan to work on fAIr's development.
 
-If your question isn’t answered here, check the rest of the docs or [open an issue](https://github.com/hotosm/fAIr/issues).
+<hr>
+
+**Q : Are there any specific coding standards or guidelines for contributing to fAIr?**
+
+A : Yes, fAIr follows coding standards and guidelines outlined in the project's repository. These guidelines cover aspects such as code formatting, documentation, and testing. Adhering to these standards helps maintain code consistency and facilitates collaboration among contributors.
+
+<hr>
+
+**Q : Can I propose new AI models or enhancements to existing models?**
+
+A : Absolutely! The fAIr project welcomes contributions related to new AI models or enhancements to existing models. If you have developed a new model that aligns with the project's goals or if you have ideas to improve the current models, you can propose them through the GitHub repository at [fAIr-utilities](https://github.com/hotosm/fAIr-utilities) and engage in discussions with the community . Once approved community will be able go use it .
+
+<hr>
+
+**Q : What kind of support can I expect as a developer contributing to fAIr?**
+
+A : As a developer contributing to fAIr, you can receive support and guidance from the project maintainers and the community. The maintainers can help address technical questions, review your contributions, and provide feedback. The community also offers a collaborative environment where you can interact with other contributors and share knowledge.

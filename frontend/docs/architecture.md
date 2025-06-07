@@ -31,7 +31,7 @@ fAIr is a modular, containerized platform designed for AI-assisted mapping. It c
   Provides a web UI for monitoring Celery tasks and workers.
 
 - **Developer Documentation**  
-  Served via MkDocs Material, accessible at http://localhost:8001.
+  Served via VitePress. Run `npm run docs:dev` and visit the port shown in your terminal.
 
 ---
 
