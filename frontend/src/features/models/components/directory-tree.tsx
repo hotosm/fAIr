@@ -13,10 +13,10 @@ import { TCSSWithVars } from "@/types";
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
-  SlFormatBytes,
-  SlTree,
-  SlTreeItem,
-} from "@shoelace-style/shoelace/dist/react";
+  FormatBytes as SlFormatBytes,
+  Tree as SlTree,
+  TreeItem as SlTreeItem,
+} from "@hotosm/ui/components/react/index";
 import { ToolTip } from "@/components/ui/tooltip";
 import useCopyToClipboard from "@/hooks/use-clipboard";
 import { BASE_API_URL } from "@/config";

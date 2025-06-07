@@ -1,7 +1,7 @@
 import {
-  SlRadioGroup,
-  SlRadio,
-} from "@shoelace-style/shoelace/dist/react/index.js";
+  RadioGroup as SlRadioGroup,
+  Radio as SlRadio,
+} from "@hotosm/ui/components/react/index";
 import "./radio-group.css";
 import { ToolTip } from "@/components/ui/tooltip";
 

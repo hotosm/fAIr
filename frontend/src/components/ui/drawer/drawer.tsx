@@ -1,5 +1,5 @@
 import { DrawerPlacements } from "@/enums";
-import { SlDrawer } from "@shoelace-style/shoelace/dist/react";
+import { Drawer as SlDrawer } from "@hotosm/ui/components/react/index";
 import "./drawer.css";
 
 type DrawerProps = {

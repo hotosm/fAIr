@@ -1,5 +1,5 @@
 import { TCSSWithVars } from "@/types";
-import { SlAvatar } from "@shoelace-style/shoelace/dist/react";
+import { Avatar as SlAvatar } from "@hotosm/ui/components/react/index";
 
 export const Avatar = ({
   imageUrl,
