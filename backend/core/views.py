@@ -117,6 +117,41 @@ class UserAssignmentMixin:
 class DatasetViewSet(
     viewsets.ModelViewSet
 ):  # This is datasetviewset , will be tightly coupled with the models
+    """
+    API endpoint for managing Datasets.
+
+    retrieve:
+    Return the details of a specific dataset by ID.
+
+    list:
+    Return a list of all datasets. Supports filtering, searching, and ordering.
+
+    create:
+    Create a new dataset. Requires authentication.
+
+    update:
+    Update an existing dataset. Requires authentication and ownership.
+
+    partial_update:
+    Partially update an existing dataset. Requires authentication and ownership.
+
+    destroy:
+    Delete a dataset. Requires authentication and ownership.
+
+    Filtering:
+    - status, created_at, last_modified, user, id, source_imagery (exact matches)
+    - created_at, last_modified (range: gt, gte, lt, lte)
+
+    Searching:
+    - name, id
+
+    Ordering:
+    - created_at, last_modified, id, status
+
+    Permissions:
+    - Only authenticated users can create, update, or delete datasets.
+    - Read-only access for unauthenticated users (GET methods).
+    """
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsOsmAuthenticated]
     public_methods = ["GET"]
