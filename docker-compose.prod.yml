@@ -50,7 +50,7 @@ services:
     platform: linux/amd64
     container_name: api
     restart: always
-    command: python manage.py runserver_with_q 0.0.0.0:8000
+    command: gunicorn --bind 0.0.0.0:8000 --workers 3 aiproject.wsgi:application
     ports:
       - "8000:8000"
     volumes:
@@ -73,6 +73,32 @@ services:
       interval: 30s
       timeout: 10s
       retries: 2
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 2G
+
+  backend-api-django-q:
+    <<: *common-env
+    image: ghcr.io/hotosm/fair-api:${TAG:-latest}
+    platform: linux/amd64
+    container_name: api-django-q
+    restart: always
+    command: python manage.py qcluster
+    volumes:
+      - ${APP_LOGS:-/opt/fair-app/data/log}:/app/log
+      - ${RAMP_HOME:-/opt/fair-app/data/ramp}:/RAMP_HOME
+      - ${TRAINING_WORKSPACE:-/opt/fair-app/data/trainings}:/TRAINING_WORKSPACE
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      backend-api:
+        condition: service_healthy
+    networks:
+      - backend-network
     deploy:
       resources:
         limits:
