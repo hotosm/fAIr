@@ -73,11 +73,6 @@ services:
       interval: 30s
       timeout: 10s
       retries: 2
-    deploy:
-      resources:
-        limits:
-          cpus: "2"
-          memory: 2G
 
   backend-api-django-q:
     <<: *common-env
