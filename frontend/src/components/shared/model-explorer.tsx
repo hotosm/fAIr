@@ -33,7 +33,7 @@ export const ModelExplorer = ({
   createRoute,
   createButtonAlt,
   userId,
-  datasetId,
+  datasetId, disableStatusFilter
 }: {
   disableCreateNewButton?: boolean;
   title?: string;
@@ -41,6 +41,7 @@ export const ModelExplorer = ({
   createButtonAlt?: string;
   userId?: number;
   datasetId?: number;
+  disableStatusFilter?: boolean;
 }) => {
   const { isOpened, openDialog, closeDialog } = useDialog();
 
@@ -121,11 +122,14 @@ export const ModelExplorer = ({
                   }
                 />
                 <CategoryFilter disabled={isPending} />
-                <StatusFilter
-                  disabled={isPending}
-                  updateQuery={updateQuery}
-                  query={query}
-                />
+                {
+                  disableStatusFilter ? null :
+                    <StatusFilter
+                      disabled={isPending}
+                      updateQuery={updateQuery}
+                      query={query}
+                    />
+                }
                 {/* Mobile filters */}
                 <div className="flex md:hidden items-center gap-x-4">
                   <MobileFilter openMobileFilterModal={openDialog} />
