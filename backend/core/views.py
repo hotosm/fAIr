@@ -302,6 +302,34 @@ class TrainingSerializer(
 class TrainingViewSet(
     viewsets.ModelViewSet
 ):  # This is TrainingViewSet , will be tightly coupled with the models
+    """
+    API endpoint for managing Training jobs.
+
+    retrieve:
+    Return the details of a specific training job by ID, including feedback and approved predictions count.
+
+    list:
+    Return a list of all training jobs. Supports filtering, searching, and ordering.
+
+    create:
+    Create a new training job. Requires authentication. Only one active training per model is allowed.
+
+    delete:
+    Delete a training job. Requires authentication and ownership.
+
+    Filtering:
+    - model, status, user, id (exact matches)
+
+    Searching:
+    - description, id, model__name
+
+    Ordering:
+    - created_at, accuracy, id, model, status
+
+    Permissions:
+    - Only authenticated users can create or delete training jobs.
+    - Read-only access for unauthenticated users (GET methods).
+    """
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsOsmAuthenticated]
     public_methods = ["GET"]
@@ -334,6 +362,34 @@ class TrainingViewSet(
 
 
 class FeedbackViewset(viewsets.ModelViewSet):
+    """
+    API endpoint for managing Feedback on training jobs.
+
+    retrieve:
+    Return the details of a specific feedback entry by ID.
+
+    list:
+    Return a list of all feedback entries. Supports filtering.
+
+    create:
+    Create a new feedback entry. Requires authentication.
+
+    update:
+    Update an existing feedback entry. Requires authentication and ownership.
+
+    partial_update:
+    Partially update an existing feedback entry. Requires authentication and ownership.
+
+    delete:
+    Delete a feedback entry. Requires authentication and ownership.
+
+    Filtering:
+    - training, user, action (exact matches)
+
+    Permissions:
+    - Only authenticated users can create, update, or delete feedback entries.
+    - Read-only access for unauthenticated users (GET methods).
+    """
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsOsmAuthenticated]
     public_methods = ["GET"]
@@ -351,6 +407,34 @@ class FeedbackViewset(viewsets.ModelViewSet):
 
 
 class FeedbackAOIViewset(viewsets.ModelViewSet):
+    """
+    API endpoint for managing Feedback AOIs (Areas of Interest) related to training jobs.
+
+    retrieve:
+    Return the details of a specific Feedback AOI by ID.
+
+    list:
+    Return a list of all Feedback AOIs. Supports filtering.
+
+    create:
+    Create a new Feedback AOI. Requires authentication.
+
+    update:
+    Update an existing Feedback AOI. Requires authentication and ownership.
+
+    partial_update:
+    Partially update an existing Feedback AOI. Requires authentication and ownership.
+
+    delete:
+    Delete a Feedback AOI. Requires authentication and ownership.
+
+    Filtering:
+    - training, user (exact matches)
+
+    Permissions:
+    - Only authenticated users can create, update, or delete Feedback AOIs.
+    - Read-only access for unauthenticated users (GET methods).
+    """
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsOsmAuthenticated]
     public_methods = ["GET"]
@@ -364,6 +448,34 @@ class FeedbackAOIViewset(viewsets.ModelViewSet):
 
 
 class FeedbackLabelViewset(viewsets.ModelViewSet):
+    """
+    API endpoint for managing Feedback Labels associated with Feedback AOIs.
+
+    retrieve:
+    Return the details of a specific Feedback Label by ID.
+
+    list:
+    Return a list of all Feedback Labels. Supports filtering.
+
+    create:
+    Create a new Feedback Label. Requires authentication.
+
+    update:
+    Update an existing Feedback Label. Requires authentication and ownership.
+
+    partial_update:
+    Partially update an existing Feedback Label. Requires authentication and ownership.
+
+    delete:
+    Delete a Feedback Label. Requires authentication and ownership.
+
+    Filtering:
+    - feedback_aoi, feedback_aoi__training (exact matches)
+
+    Permissions:
+    - Only authenticated users can create, update, or delete Feedback Labels.
+    - Read-only access for unauthenticated users (GET methods).
+    """
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsOsmAuthenticated]
     public_methods = ["GET"]
@@ -382,6 +494,41 @@ class FeedbackLabelViewset(viewsets.ModelViewSet):
 class ModelViewSet(
     viewsets.ModelViewSet
 ):  # This is ModelViewSet , will be tightly coupled with the models
+    """
+    API endpoint for managing AI Models.
+
+    retrieve:
+    Return the details of a specific model by ID.
+
+    list:
+    Return a list of all models. Supports filtering, searching, and ordering.
+
+    create:
+    Create a new model. Requires authentication.
+
+    update:
+    Update an existing model. Requires authentication and ownership.
+
+    partial_update:
+    Partially update an existing model. Requires authentication and ownership.
+
+    delete:
+    Delete a model. Requires authentication and ownership.
+
+    Filtering:
+    - status, created_at, last_modified, user, dataset, id (exact matches)
+    - created_at, last_modified (range: gt, gte, lt, lte)
+
+    Searching:
+    - name, id
+
+    Ordering:
+    - created_at, last_modified, id, status
+
+    Permissions:
+    - Only authenticated users can create, update, or delete models.
+    - Read-only access for unauthenticated users (GET methods).
+    """
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsOsmAuthenticated]
     public_methods = ["GET"]
@@ -445,6 +592,34 @@ class UsersView(ListAPIView):
 
 
 class AOIViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint for managing Areas of Interest (AOIs).
+
+    retrieve:
+    Return the details of a specific AOI by ID.
+
+    list:
+    Return a list of all AOIs. Supports filtering.
+
+    create:
+    Create a new AOI. Requires authentication.
+
+    update:
+    Update an existing AOI. Requires authentication and ownership.
+
+    partial_update:
+    Partially update an existing AOI. Requires authentication and ownership.
+
+    delete:
+    Delete an AOI. Requires authentication and ownership.
+
+    Filtering:
+    - dataset (exact match)
+
+    Permissions:
+    - Only authenticated users can create, update, or delete AOIs.
+    - Read-only access for unauthenticated users (GET methods).
+    """
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsOsmAuthenticated]
     public_methods = ["GET"]
@@ -456,6 +631,34 @@ class AOIViewSet(viewsets.ModelViewSet):
 
 
 class LabelViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint for managing Labels associated with AOIs.
+
+    retrieve:
+    Return the details of a specific Label by ID.
+
+    list:
+    Return a list of all Labels. Supports filtering.
+
+    create:
+    Create a new Label. Requires authentication.
+
+    update:
+    Update an existing Label. Requires authentication and ownership.
+
+    partial_update:
+    Partially update an existing Label. Requires authentication and ownership.
+
+    delete:
+    Delete a Label. Requires authentication and ownership.
+
+    Filtering:
+    - aoi, aoi__dataset (exact matches)
+
+    Permissions:
+    - Only authenticated users can create, update, or delete Labels.
+    - Read-only access for unauthenticated users (GET methods).
+    """
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsOsmAuthenticated]
     public_methods = ["GET"]
@@ -884,6 +1087,31 @@ class TrainingWorkspaceDownloadView(APIView):
 
 
 class BannerViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint for managing Banners displayed in the application.
+
+    retrieve:
+    Return the details of a specific Banner by ID.
+
+    list:
+    Return a list of all Banners.
+
+    create:
+    Create a new Banner. Requires admin or staff authentication.
+
+    update:
+    Update an existing Banner. Requires admin or staff authentication.
+
+    partial_update:
+    Partially update an existing Banner. Requires admin or staff authentication.
+
+    delete:
+    Delete a Banner. Requires admin or staff authentication.
+
+    Permissions:
+    - Only admin or staff users can create, update, or delete Banners.
+    - Read-only access for unauthenticated users (GET methods).
+    """
     queryset = Banner.objects.all()
     serializer_class = BannerSerializer
     authentication_classes = [OsmAuthentication]
@@ -918,6 +1146,21 @@ def get_kpi_stats(request):
 
 
 class UserNotificationViewSet(ReadOnlyModelViewSet):
+    """
+    API endpoint for retrieving user notifications.
+
+    list:
+    Return a list of notifications for the authenticated user. Supports filtering and ordering.
+
+    Filtering:
+    - is_read (exact match)
+
+    Ordering:
+    - created_at, read_at, is_read
+
+    Permissions:
+    - Only authenticated users can access their notifications.
+    """
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsOsmAuthenticated]
     serializer_class = UserNotificationSerializer
@@ -1074,6 +1317,34 @@ class PredictionSerializer(serializers.ModelSerializer):
 
 
 class PredictionViewSet(UserAssignmentMixin, viewsets.ModelViewSet):
+    """
+    API endpoint for managing Predictions.
+
+    retrieve:
+    Return the details of a specific Prediction by ID.
+
+    list:
+    Return a list of all Predictions. Supports filtering, searching, and ordering.
+
+    create:
+    Create a new Prediction. Requires authentication.
+
+    partial_update:
+    Partially update an existing Prediction (only certain fields). Requires authentication and ownership.
+
+    Filtering:
+    - status, user, id (exact matches)
+
+    Searching:
+    - id
+
+    Ordering:
+    - created_at, id, status
+
+    Permissions:
+    - Only authenticated users can create or update Predictions.
+    - Read-only access for unauthenticated users (GET methods).
+    """
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsOsmAuthenticated, IsOwnerOrReadOnly]
     public_methods = ["GET"]
