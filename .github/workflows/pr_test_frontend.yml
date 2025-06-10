@@ -7,7 +7,7 @@ on:
       - master
     # Workflow is triggered only if src/frontend changes
     paths:
-      - src/frontend/**
+      - frontend/**
   # Allow manual trigger (workflow_dispatch)
   workflow_dispatch:
 
@@ -15,4 +15,4 @@ jobs:
   unit-tests:
     uses: hotosm/gh-workflows/.github/workflows/test_pnpm.yml@3.2.0
     with:
-      working_dir: src/frontend
+      working_dir: frontend

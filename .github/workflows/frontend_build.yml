@@ -16,7 +16,7 @@ jobs:
   frontend-unit-test:
     uses: hotosm/gh-workflows/.github/workflows/test_pnpm.yml@3.2.0
     with:
-      working_dir: src/frontend
+      working_dir: frontend
   Build_On_Ubuntu:
     runs-on: ubuntu-latest
     needs: [frontend-unit-test]
