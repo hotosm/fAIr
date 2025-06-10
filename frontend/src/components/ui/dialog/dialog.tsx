@@ -1,6 +1,6 @@
 import useScreenSize from "@/hooks/use-screen-size";
 import { SHOELACE_SIZES } from "@/enums";
-import { SlDialog } from "@shoelace-style/shoelace/dist/react";
+import { Dialog as SlDialog } from "@hotosm/ui/components/react/index";
 import "./dialog.css";
 
 type DialogProps = {

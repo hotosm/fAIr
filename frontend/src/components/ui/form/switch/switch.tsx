@@ -1,6 +1,6 @@
 import styles from "./switch.module.css";
 import { cn } from "@/utils";
-import { SlSwitch } from "@shoelace-style/shoelace/dist/react";
+import { Switch as SlSwitch } from "@hotosm/ui/components/react/index";
 
 type SwitchProps = {
   disabled?: boolean;

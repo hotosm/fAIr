@@ -5,7 +5,7 @@ import { CalenderIcon } from "@/components/ui/icons";
 import { CheckIcon } from "@/components/ui/icons";
 import { FormLabel, HelpText } from "@/components/ui/form";
 import { INPUT_TYPES, SHOELACE_SIZES } from "@/enums";
-import { SlInput } from "@shoelace-style/shoelace/dist/react";
+import { Input as SlInput } from "@hotosm/ui/components/react/index";
 import { useRef } from "react";
 
 type InputProps = {
