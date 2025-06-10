@@ -10,8 +10,14 @@ permissions:
   contents: read
 
 jobs:
+  frontend-unit-test:
+    uses: hotosm/gh-workflows/.github/workflows/test_pnpm.yml@3.2.0
+    
+    with:
+      working_dir: src/frontend
   build_and_upload:
     runs-on: ubuntu-latest
+    needs: [frontend-unit-test]
     environment: Production
 
     env:
