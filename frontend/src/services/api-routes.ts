@@ -27,8 +27,6 @@ export const API_ENDPOINTS = {
 
   CREATE_FEEDBACK: "feedback/",
   DELETE_FEEDBACK: (id: number) => `feedback/${id}/`,
-  CREATE_APPROVED_PREDICTION: "approved-prediction/",
-  DELETE_APPROVED_PREDICTION: (id: number) => `approved-prediction/${id}/`,
 
   // KPIs
 
@@ -66,7 +64,7 @@ export const API_ENDPOINTS = {
   GET_TRAINING_AREAS: (datasetId: number, offset: number, limit: number) =>
     `aoi/?dataset=${datasetId}&offset=${offset}&limit=${limit}`,
   GET_TRAINING_AREA: (aoiId: number) => `aoi/${aoiId}/`,
-  GET_TRAINING_STATUS: (taskId: string) => `training/status/${taskId}`,
+  GET_TRAINING_STATUS: (taskId: string) => `task/status/${taskId}`,
   GET_TRAINING_HISTORY: "training/",
   GET_TRAINING_FEEDBACKS: (trainingId: number) =>
     `feedback/?training=${trainingId}`,
