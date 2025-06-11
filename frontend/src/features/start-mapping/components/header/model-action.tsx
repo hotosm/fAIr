@@ -24,6 +24,9 @@ const ModelAction = ({
   predictionModelCheckpoint,
   modelPredictions,
   setModelPredictions,
+  isOfflineMode = false,
+  hasDrawnAOI = false,
+  openOfflinePredictionRequestDialog,
 }: {
   map: Map | null;
   query: TQueryParams;
@@ -32,6 +35,9 @@ const ModelAction = ({
   predictionModelCheckpoint: string;
   modelPredictions: TModelPredictionFeature[];
   setModelPredictions: (features: TModelPredictionFeature[]) => void;
+  isOfflineMode?: boolean;
+  hasDrawnAOI?: boolean;
+  openOfflinePredictionRequestDialog?: () => void;
 }) => {
   const { modelId } = useParams();
   const [predictionZoomLevel, setPredictionZoomLevel] = useState<number | null>(
@@ -95,10 +101,12 @@ const ModelAction = ({
   }, [getTrainingConfig, modelPredictionMutation, map, currentZoom]);
 
   const disablePredictionButton =
-    currentZoom < MIN_ZOOM_LEVEL_FOR_START_MAPPING_PREDICTION ||
-    modelPredictionMutation.isPending ||
-    tileServerURL?.length === 0 ||
-    predictionModelCheckpoint?.length === 0;
+    (currentZoom < MIN_ZOOM_LEVEL_FOR_START_MAPPING_PREDICTION ||
+      modelPredictionMutation.isPending ||
+      tileServerURL?.length === 0 ||
+      predictionModelCheckpoint?.length === 0 ||
+      isOfflineMode) &&
+    !hasDrawnAOI;
   return (
     <div className="flex gap-y-3 flex-col-reverse flex-wrap  md:items-center md:flex-row md:justify-between md:gap-x-2 md:flex-nowrap">
       <ToolTip
@@ -110,13 +118,17 @@ const ModelAction = ({
       >
         <button
           disabled={disablePredictionButton}
-          onClick={handlePrediction}
+          onClick={
+            hasDrawnAOI ? openOfflinePredictionRequestDialog : handlePrediction
+          }
           className={`w-full text-nowrap bg-primary px-3 py-3 md:py-1.5 rounded-md text-white ${disablePredictionButton ? "opacity-50" : ""}`}
         >
           <span className="capitalize text-body-4">
             {modelPredictionMutation.isPending
               ? START_MAPPING_PAGE_CONTENT.buttons.predictionInProgress
-              : START_MAPPING_PAGE_CONTENT.buttons.runPrediction}
+              : isOfflineMode
+                ? "Request offline prediction"
+                : START_MAPPING_PAGE_CONTENT.buttons.runPrediction}
           </span>
         </button>
       </ToolTip>

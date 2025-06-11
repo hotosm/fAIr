@@ -3,7 +3,7 @@ import { ControlsPosition, DrawingModes } from "@/enums";
 import { LngLatBounds, LngLatBoundsLike, Map } from "maplibre-gl";
 import { geojsonToWKT } from "@terraformer/wkt";
 import { PaginatedTrainingArea } from "@/types";
-import { MapComponent, MapCursorToolTip } from "@/components/map";
+import { DrawControl, MapComponent, MapCursorToolTip } from "@/components/map";
 import { Polygon } from "geojson";
 import { RefObject, useCallback, useEffect, useState } from "react";
 import { TerraDraw } from "terra-draw";
@@ -208,40 +208,37 @@ const TrainingAreaMap = ({
   return (
     <MapComponent
       controlsPosition={ControlsPosition.TOP_LEFT}
-      drawControl
+
       showCurrentZoom
       hasTileServiceLayer
       layerControl
       showTileBoundaries
       basemaps
       map={map}
-      terraDraw={terraDraw}
-      drawingMode={drawingMode}
-      setDrawingMode={setDrawingMode}
       mapContainerRef={mapContainerRef}
       tileServiceURL={tileServiceURL}
       layerControlLayers={[
         ...(labels && labels?.features.length > 0
           ? [
-              {
-                value: "Training Labels",
-                subLayers: [
-                  trainingAreasLabelsFillLayerId,
-                  trainingAreasLabelsOutlineLayerId,
-                ],
-              },
-            ]
+            {
+              value: "Training Labels",
+              subLayers: [
+                trainingAreasLabelsFillLayerId,
+                trainingAreasLabelsOutlineLayerId,
+              ],
+            },
+          ]
           : []),
         ...(data?.results?.features?.length
           ? [
-              {
-                value: "Training Areas",
-                subLayers: [
-                  trainingAreasOutlineLayerId,
-                  trainingAreasFillLayerId,
-                ],
-              },
-            ]
+            {
+              value: "Training Areas",
+              subLayers: [
+                trainingAreasOutlineLayerId,
+                trainingAreasFillLayerId,
+              ],
+            },
+          ]
           : []),
       ]}
     >
@@ -256,7 +253,7 @@ const TrainingAreaMap = ({
       )}
 
       {!trainingAreasLabelsIsPending &&
-      currentZoom >= MIN_ZOOM_LEVEL_FOR_TRAINING_AREA_LABELS ? (
+        currentZoom >= MIN_ZOOM_LEVEL_FOR_TRAINING_AREA_LABELS ? (
         <TrainingAreasLabelsLayers
           map={map}
           features={labels?.features}
@@ -293,6 +290,16 @@ const TrainingAreaMap = ({
           <p>{getFeedbackMessage()}</p>
         </MapCursorToolTip>
       )}
+      <div className={"absolute top-28 left-3 map-elements-z-index"}>
+        {terraDraw && (
+          <DrawControl
+            terraDraw={terraDraw}
+            drawingMode={DrawingModes.RECTANGLE}
+            setDrawingMode={setDrawingMode}
+            drawingIsActive={drawingMode === DrawingModes.RECTANGLE}
+          />
+        )}
+      </div>
     </MapComponent>
   );
 };

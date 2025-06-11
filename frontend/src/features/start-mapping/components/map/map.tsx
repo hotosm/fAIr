@@ -1,11 +1,11 @@
 import useScreenSize from "@/hooks/use-screen-size";
-import { ControlsPosition, TileServiceType } from "@/enums";
+import { ControlsPosition, DrawingModes, TileServiceType } from "@/enums";
 import { LngLatBoundsLike, Map } from "maplibre-gl";
 import {
   Legend,
   PredictedFeatureActionPopup,
 } from "@/features/start-mapping/components";
-import { MapComponent, MapCursorToolTip } from "@/components/map";
+import { DrawControl, MapComponent, MapCursorToolTip } from "@/components/map";
 import { RefObject, useEffect, useMemo } from "react";
 
 import { TileJSON, TModelPredictionFeature } from "@/types";
@@ -27,6 +27,7 @@ import {
   OPENAERIALMAP_TILESERVER_URL_REGEX_PATTERN,
 } from "@/utils";
 import { useInitialHashFit } from "@/hooks/use-map-hash-sync";
+import { TerraDraw } from "terra-draw";
 
 export const StartMappingMapComponent = ({
   map,
@@ -41,6 +42,12 @@ export const StartMappingMapComponent = ({
   updateFeatureStatus,
   tileServerURL,
   layers,
+  handleDrawingStateChange,
+  setDrawingMode,
+  terraDraw,
+  isOfflineMode,
+  hasDrawnAOI,
+  handleAOIDelete,
 }: {
   trainingId: number;
   map: Map | null;
@@ -61,6 +68,12 @@ export const StartMappingMapComponent = ({
     updatedProperties: Partial<TModelPredictionFeature["properties"]>,
   ) => void;
   tileServerURL: string;
+  handleDrawingStateChange: (isDrawing: boolean) => void;
+  setDrawingMode: (mode: DrawingModes) => void;
+  terraDraw?: TerraDraw;
+  isOfflineMode: boolean;
+  hasDrawnAOI?: boolean;
+  handleAOIDelete?: () => void;
 }) => {
   const { isSmallViewport } = useScreenSize();
   const currentZoom = useMapStore.getState().zoom;
@@ -193,6 +206,19 @@ export const StartMappingMapComponent = ({
         />
       )}
       {memoizedToolTip}
+      <div className={"absolute top-40 left-3 map-elements-z-index "}>
+        {terraDraw && (
+          <DrawControl
+            terraDraw={terraDraw}
+            drawingMode={DrawingModes.POLYGON}
+            setDrawingMode={setDrawingMode}
+            onDrawingStateChange={handleDrawingStateChange}
+            drawingIsActive={isOfflineMode}
+            showDeleteButton={hasDrawnAOI}
+            onDelete={handleAOIDelete}
+          />
+        )}
+      </div>
       {modelPredictionsExist && !isSmallViewport && <Legend />}
     </MapComponent>
   );

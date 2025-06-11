@@ -76,7 +76,6 @@ export const DatasetAreaMap = ({
     <MapComponent
       tileServiceURL={tileServiceURL}
       controlsPosition={ControlsPosition.TOP_LEFT}
-      drawControl
       showCurrentZoom
       layerControl
       showTileBoundaries

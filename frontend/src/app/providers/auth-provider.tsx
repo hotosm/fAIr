@@ -24,9 +24,9 @@ const AuthContext = createContext<TAuthContext>({
   token: "",
   user: {} as TUser,
   authenticateUser: async () => Promise.resolve(),
-  logout: () => { },
+  logout: () => {},
   isAuthenticated: false,
-  setUser: () => { },
+  setUser: () => {},
 });
 
 export const useAuth = () => {

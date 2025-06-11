@@ -363,6 +363,17 @@ const router = createBrowserRouter([
               };
             },
           },
+          {
+            path: APPLICATION_ROUTES.PROFILE_OFFLINE_PREDICTIONS,
+            lazy: async () => {
+              const { UserProfileOfflinePredictionsPage } = await import(
+                "@/app/routes/profile/offline-predictions"
+              );
+              return {
+                Component: () => <UserProfileOfflinePredictionsPage />,
+              };
+            },
+          },
         ],
       },
       /**

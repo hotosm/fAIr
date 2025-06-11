@@ -27,7 +27,7 @@ export const createFeedback = async ({
       source_imagery,
       zoom_level,
       training,
-      action: FeedbackType.REJECT
+      action: FeedbackType.REJECT,
     })
   ).data;
 };
@@ -60,7 +60,7 @@ export const createApprovedPrediction = async ({
       training,
       geom,
       user,
-      action: FeedbackType.ACCEPT
+      action: FeedbackType.ACCEPT,
     })
   ).data;
 };

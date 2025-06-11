@@ -16,6 +16,7 @@ type RadioGroupProps = {
   onChange: (value: string) => void;
   withTooltip?: boolean;
   labelClassName?: string;
+  className?: string;
 };
 
 export const RadioGroup = ({
@@ -25,6 +26,7 @@ export const RadioGroup = ({
   onChange,
   withTooltip = false,
   labelClassName = "text-body-4",
+  className = "",
 }: RadioGroupProps) => {
   return (
     <SlRadioGroup
@@ -33,7 +35,7 @@ export const RadioGroup = ({
       // @ts-expect-error bad type definition
       onSlChange={(e) => onChange(e.target.value)}
     >
-      <div className="flex flex-col space-y-4">
+      <div className={`flex flex-col gap-4 ${className}`}>
         {options.map((option) => (
           <SlRadio key={option.value} value={option.value}>
             <span className={labelClassName}>{option.label}</span>

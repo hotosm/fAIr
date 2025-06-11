@@ -59,6 +59,7 @@ export const APPLICATION_ROUTES = {
   PROFILE_SETTINGS: "/profile/settings",
   PROFILE_MODELS: "/profile/models",
   PROFILE_DATASETS: "/profile/datasets",
+  PROFILE_OFFLINE_PREDICTIONS: "/profile/offline-predictions",
 };
 
 export const HOT_PRIVACY_POLICY_URL: string = "https://www.hotosm.org/privacy";
@@ -79,6 +80,11 @@ export const PROFILE_NAVIGATION_TABS: TProfileNavigationTabs = [
   {
     title: "My Datasets",
     href: APPLICATION_ROUTES.PROFILE_DATASETS,
+    active: true,
+  },
+  {
+    title: "Offline Predictions",
+    href: APPLICATION_ROUTES.PROFILE_OFFLINE_PREDICTIONS,
     active: true,
   },
   {

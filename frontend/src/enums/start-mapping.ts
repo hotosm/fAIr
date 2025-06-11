@@ -19,8 +19,13 @@ export enum PredictedFeatureStatus {
   UNTOUCHED = "untouched",
 }
 
-
 export enum FeedbackType {
   ACCEPT = "ACCEPT",
-  REJECT = "REJECT"
+  REJECT = "REJECT",
+}
+
+export enum MapMode {
+  ONLINE = "online",
+  // This is enabled when the user is trying to draw an AOI for offline predictions.
+  OFFLINE = "offline",
 }

@@ -19,9 +19,19 @@ import {
   StartMappingMapComponent,
   StartMappingMobileDrawer,
 } from "@/features/start-mapping/components";
-import { constructModelCheckpointPath, geoJSONDowloader, openInJOSM, showSuccessToast } from "@/utils";
+import {
+
+  constructModelCheckpointPath,
+  featureIsWithinBounds,
+  geoJSONDowloader,
+  openInJOSM,
+  showSuccessToast,
+  showWarningToast,
+
+} from "@/utils";
 
 import {
+  MapMode,
   PredictedFeatureStatus,
   PredictionImagerySource,
   PredictionModel,
@@ -31,7 +41,7 @@ import { ImagerySourceSelector } from "@/features/start-mapping/components/repli
 import { useDialog } from "@/hooks/use-dialog";
 import { useModelPredictionStore } from "@/store/model-prediction-store";
 import { ModelSelector } from "@/features/start-mapping/components/replicable-models/model-selector";
-import { BASE_MODELS, TileServiceType } from "@/enums";
+import { BASE_MODELS, DrawingModes, TileServiceType } from "@/enums";
 import { useTileservice } from "@/hooks/use-tileservice";
 import {
   ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
@@ -39,6 +49,7 @@ import {
   FAIR_BASE_MODELS_PATH,
   OPENAERIALMAP_MOSAIC_TILES_URL,
 } from "@/config";
+import { OfflinePredictionRequestDialog } from "@/features/start-mapping/components/dialogs/offline-prediction-request-dialog";
 
 export type TDownloadOptions = {
   name: string;
@@ -56,6 +67,7 @@ export const SEARCH_PARAMS = {
   imagery: "imagery",
   predictionModelCheckpoint: "checkpoint",
   tileserver: "tileserver",
+  mode: "mode",
 };
 
 export type TQueryParams = {
@@ -65,7 +77,10 @@ export type TQueryParams = {
 export const StartMappingPage = () => {
   const { modelId } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { map, mapContainerRef } = useMapInstance(false, true);
+  const { map, mapContainerRef, setDrawingMode, terraDraw } = useMapInstance(
+    false,
+    true,
+  );
   const { isSmallViewport } = useScreenSize();
 
   const {
@@ -73,6 +88,9 @@ export const StartMappingPage = () => {
     setFeatures: setModelPredictions,
     updateFeatureStatus,
   } = useModelPredictionStore();
+
+  const [offlinePredictionAOI, setOfflinePredictionAOI] =
+    useState<Feature | null>(null);
 
   const acceptedFeatures = useMemo(
     () =>
@@ -94,6 +112,10 @@ export const StartMappingPage = () => {
     customPredictionModelCheckpointPath,
     setCustomPredictionModelCheckpointPath,
   ] = useState<string>("");
+  const currentMode = searchParams.get(SEARCH_PARAMS.mode) ?? MapMode.ONLINE;
+  const setCurrentMode = (newMode: MapMode) => {
+    updateQuery({ [SEARCH_PARAMS.mode]: newMode });
+  };
 
   const customTileServerURL = searchParams.get(SEARCH_PARAMS.tileserver) || "";
 
@@ -136,13 +158,17 @@ export const StartMappingPage = () => {
   } = useDialog();
 
   const {
+    openDialog: openOfflinePredictionRequestDialog,
+    isOpened: isOfflinePredictionRequestDialogOpened,
+    closeDialog: closeOfflinePredictionDialog,
+  } = useDialog();
+
+  const {
     isError,
     isPending: modelInfoRequestIspending,
     data: modelInfo,
     error,
   } = useModelDetails(modelId as string, !!modelId);
-
-
 
   const updateQuery = useCallback(
     (newParams: TQueryParams) => {
@@ -185,24 +211,30 @@ export const StartMappingPage = () => {
    */
   useEffect(() => {
     const urlCp = searchParams.get(SEARCH_PARAMS.predictionModelCheckpoint);
-    if (urlCp && urlCp.length > 0 && urlCp !== "undefined" && predictionModel === PredictionModel.CUSTOM) {
+    if (
+      urlCp &&
+      urlCp.length > 0 &&
+      urlCp !== "undefined" &&
+      predictionModel === PredictionModel.CUSTOM
+    ) {
       setCustomPredictionModelCheckpointPath(urlCp);
       setPredictionModelCheckpoint(urlCp);
     }
   }, [predictionModel]);
-
-
 
   useEffect(() => {
     /**
      * Only update the checkpoint if the modelInfo is available and
      * the predictionModel is not set or is set to the default model.
      */
-    if (modelInfo && (!predictionModel || predictionModel === PredictionModel.DEFAULT)) {
-      setPredictionModelCheckpoint(constructModelCheckpointPath(modelInfo))
+    if (
+      modelInfo &&
+      (!predictionModel || predictionModel === PredictionModel.DEFAULT)
+    ) {
+      setPredictionModelCheckpoint(constructModelCheckpointPath(modelInfo));
     } else if (predictionModel && predictionModel !== PredictionModel.CUSTOM) {
       setPredictionModelCheckpoint(
-        FAIR_BASE_MODELS_PATH[predictionModel as BASE_MODELS]
+        FAIR_BASE_MODELS_PATH[predictionModel as BASE_MODELS],
       );
     }
   }, [predictionModel, modelInfo]);
@@ -214,7 +246,7 @@ export const StartMappingPage = () => {
     if (predictionImagerySource === PredictionImagerySource.Kontour) {
       setTileserverURL(OPENAERIALMAP_MOSAIC_TILES_URL);
     }
-  }, [predictionImagerySource])
+  }, [predictionImagerySource]);
 
   /**
    * When the user changes the prediction imagery source, sync it to the URL.
@@ -276,6 +308,105 @@ export const StartMappingPage = () => {
     }
   }, [isError, error, navigate]);
 
+  /**
+   * Set the drawing mode based on the current mode.
+   * If the current mode is OFFLINE, set the drawing mode to POLYGON.
+   * If the current mode is ONLINE, set the drawing mode to STATIC.
+   */
+  useEffect(() => {
+    if (currentMode === MapMode.OFFLINE) {
+      setDrawingMode(DrawingModes.POLYGON); // or whatever mode you want
+    } else {
+      setDrawingMode(DrawingModes.STATIC);
+    }
+  }, [currentMode, setDrawingMode]);
+
+  /**
+   * Effect to handle the completion of drawing in TerraDraw.
+   * It listens for changes in the TerraDraw instance and updates the drawn feature state.
+   * If a feature is drawn, it clears previous features except the last one.
+   */
+  useEffect(() => {
+    if (!terraDraw) return;
+
+    const handleDrawFinish = () => {
+      const features = terraDraw.getSnapshot();
+      if (!features || features.length === 0) return;
+
+      // Check if the feature is within the bounds of the OAM imagery if it exists
+      if (tileJSONMetadata?.bounds) {
+        if (!featureIsWithinBounds(tileJSONMetadata.bounds, features[0])) {
+          showWarningToast(
+            "The drawn polygon extends beyond the imagery bounds. Please ensure the AOI is within the imagery bounds.",
+          );
+          terraDraw.removeFeatures(
+            features
+              .slice(0)
+              .map((f) => f.id)
+              .filter((id): id is string | number => id !== undefined),
+          );
+          return;
+        }
+      }
+      if (features.length > 1) {
+        showWarningToast(
+          "Only one feature can be drawn at a time. Please delete the existing feature before drawing a new one.",
+        );
+        // Remove the last drawn feature, keeping only the first one
+        terraDraw.removeFeatures(
+          features
+            .slice(1)
+            .map((f) => f.id)
+            .filter((id): id is string | number => id !== undefined),
+        );
+        return;
+      }
+      setOfflinePredictionAOI(features[0]);
+      showSuccessToast("AOI drawn successfully.");
+    };
+
+    terraDraw.on("finish", handleDrawFinish);
+
+    return () => {
+      terraDraw.off("finish", handleDrawFinish);
+    };
+  }, [terraDraw, tileJSONMetadata]);
+
+  /**
+   * Handle the drawing state change.
+   * If the user starts drawing, set the current mode to OFFLINE.
+   * If the user stops drawing, set the current mode to ONLINE and reset the drawing mode to STATIC.
+   */
+  const handleDrawingStateChange = useCallback(
+    (isDrawing: boolean) => {
+      if (isDrawing) {
+        setCurrentMode(MapMode.OFFLINE);
+      } else {
+        setCurrentMode(MapMode.ONLINE);
+        setDrawingMode(DrawingModes.STATIC);
+      }
+    },
+    [setCurrentMode],
+  );
+
+  /**
+   * Check if the user has drawn an AOI in offline mode.
+   */
+  const hasDrawnAOI = useMemo(() => {
+    return currentMode === MapMode.OFFLINE && offlinePredictionAOI !== null;
+  }, [currentMode, offlinePredictionAOI]);
+
+  /**
+   * Check if the offline prediction AOI is valid.
+   */
+  const isOfflineMode = useMemo(
+    () => currentMode === MapMode.OFFLINE,
+    [currentMode],
+  );
+
+  /**
+   * Check if the model predictions exist.
+   */
   const modelPredictionsExist = useMemo(() => {
     if (!modelPredictions) return false;
     return modelPredictions.length > 0;
@@ -311,6 +442,18 @@ export const StartMappingPage = () => {
     showSuccessToast(TOAST_NOTIFICATIONS.startMapping.fileDownloadSuccess);
   }, [modelPredictions, modelInfo]);
 
+  const handleAOIDelete = useCallback(() => {
+    if (!terraDraw) return;
+    terraDraw.clear();
+    setOfflinePredictionAOI(null);
+    showSuccessToast("AOI cleared successfully.");
+  }, [terraDraw]);
+  const resetOfflinePredictionModeState = useCallback(() => {
+    setDrawingMode(DrawingModes.STATIC);
+    setOfflinePredictionAOI(null);
+    terraDraw?.clear();
+    setCurrentMode(MapMode.ONLINE);
+  }, [setDrawingMode, setCurrentMode, terraDraw]);
   const handleAcceptedFeaturesDownload = useCallback(async () => {
     geoJSONDowloader(
       { type: "FeatureCollection", features: acceptedFeatures },
@@ -411,6 +554,17 @@ export const StartMappingPage = () => {
   return (
     <>
       <Head title={START_MAPPING_PAGE_CONTENT.pageTitle(modelInfo?.name)} />
+      <OfflinePredictionRequestDialog
+        onClose={closeOfflinePredictionDialog}
+        isOpen={isOfflinePredictionRequestDialogOpened}
+        query={query}
+        updateQuery={updateQuery}
+        drawnAOI={offlinePredictionAOI}
+        modelInfo={modelInfo}
+        predictionModelCheckpoint={predictionModelCheckpoint}
+        tileServerURL={tileserverURL}
+        resetOfflinePredictionModeState={resetOfflinePredictionModeState}
+      />
       <div className="h-screen flex flex-col fullscreen">
         {/* Base model dialog */}
         <Dialog
@@ -530,6 +684,11 @@ export const StartMappingPage = () => {
             modelPredictions={modelPredictions}
             setModelPredictions={setModelPredictions}
             isSmallViewport={isSmallViewport}
+            isOfflineMode={isOfflineMode}
+            hasDrawnAOI={hasDrawnAOI}
+            openOfflinePredictionRequestDialog={
+              openOfflinePredictionRequestDialog
+            }
           />
         </div>
         <div className="col-span-12 h-[70vh] md:h-full md:border-8 md:border-off-white flex-grow relative map-elements-z-index">
@@ -570,6 +729,12 @@ export const StartMappingPage = () => {
             modelPredictions={modelPredictions}
             updateFeatureStatus={updateFeatureStatus}
             tileServerURL={tileserverURL as string}
+            handleDrawingStateChange={handleDrawingStateChange}
+            setDrawingMode={setDrawingMode}
+            terraDraw={terraDraw}
+            isOfflineMode={isOfflineMode}
+            hasDrawnAOI={hasDrawnAOI}
+            handleAOIDelete={handleAOIDelete}
           />
         </div>
       </div>

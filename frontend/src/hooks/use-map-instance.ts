@@ -47,6 +47,7 @@ export const useMapInstance = (
   // Sync the drawing modes between terraDraw
   // and the application state
   useEffect(() => {
+    if (!terraDraw) return;
     terraDraw?.setMode(drawingMode);
   }, [terraDraw, drawingMode]);
 
