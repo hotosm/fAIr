@@ -258,7 +258,7 @@ describe("handleConflation", () => {
     expect(result[0].properties.id).toBe("rejected-id");
   });
 
-  it("should allow overlapping new features", () => {
+  it("should not allow overlapping new features", () => {
     const existingFeatures: TModelPredictionFeature[] = [];
 
     const newFeatures: Feature[] = [
@@ -299,7 +299,7 @@ describe("handleConflation", () => {
       newFeatures,
       predictionConfig,
     );
-    expect(result.length).toBe(2);
+    expect(result.length).toBe(1);
     expect(result.every((f) => f.properties.status === "untouched")).toBe(true);
   });
 });

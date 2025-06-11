@@ -30,7 +30,7 @@ export const FeedbacksLayer = ({
       properties: {
         ...feature.properties,
         comment_length:
-          feature?.properties && "comments" in feature.properties
+          feature?.properties && "comments" in feature.properties && feature.properties.comments
             ? feature.properties.comments.length
             : 0,
       },

@@ -1,3 +1,4 @@
+import { FeedbackType } from "@/enums/start-mapping";
 import { API_ENDPOINTS, apiClient } from "@/services";
 import { Feature, TModelPredictionFeature } from "@/types";
 
@@ -26,6 +27,7 @@ export const createFeedback = async ({
       source_imagery,
       zoom_level,
       training,
+      action: FeedbackType.REJECT
     })
   ).data;
 };
@@ -53,11 +55,12 @@ export const createApprovedPrediction = async ({
   user,
 }: TCreateApprovedPredictionPayload): Promise<TModelPredictionFeature> => {
   return await (
-    await apiClient.post(API_ENDPOINTS.CREATE_APPROVED_PREDICTION, {
+    await apiClient.post(API_ENDPOINTS.CREATE_FEEDBACK, {
       config,
       training,
       geom,
       user,
+      action: FeedbackType.ACCEPT
     })
   ).data;
 };
@@ -84,6 +87,6 @@ export const deleteApprovedModelPrediction = async ({
   id,
 }: TDeleteApprovedModelPredictionPayload): Promise<TModelPredictionFeature> => {
   return await (
-    await apiClient.delete(API_ENDPOINTS.DELETE_APPROVED_PREDICTION(id))
+    await apiClient.delete(API_ENDPOINTS.DELETE_FEEDBACK(id))
   ).data;
 };

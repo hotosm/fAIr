@@ -7,6 +7,18 @@ import { vi, describe, it, expect } from "vitest";
 
 vi.mock("react-router-dom", () => ({
   useNavigate: vi.fn(),
+  useLocation: vi.fn(
+    () => ({
+      pathname: "/test",
+      search: "",
+      hash: "",
+      state: null,
+      key: "testKey",
+    }
+    ),),
+  useParams: vi.fn(
+    () => ({ id: "123" }) // Mocking useParams to return a sample id
+  ),
 }));
 
 describe("useHistory", () => {
