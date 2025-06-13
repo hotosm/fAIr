@@ -1,5 +1,3 @@
-import "@shoelace-style/shoelace/dist/components/alert/alert.js";
-
 /**
  * Custom hook for displaying toast notifications.
  *
