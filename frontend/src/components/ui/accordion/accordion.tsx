@@ -1,5 +1,5 @@
 import { ChevronDownIcon } from "@/components/ui/icons";
-import { Details as SlDetails } from "@hotosm/ui/components/react/index";
+import { Details as SlDetails } from "@hotosm/ui/components/react";
 import "./accordion.css";
 
 type AccordionProps = {

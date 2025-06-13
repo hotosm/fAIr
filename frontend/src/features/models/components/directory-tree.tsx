@@ -16,7 +16,7 @@ import {
   FormatBytes as SlFormatBytes,
   Tree as SlTree,
   TreeItem as SlTreeItem,
-} from "@hotosm/ui/components/react/index";
+} from "@hotosm/ui/components/react";
 import { ToolTip } from "@/components/ui/tooltip";
 import useCopyToClipboard from "@/hooks/use-clipboard";
 import { BASE_API_URL } from "@/config";
