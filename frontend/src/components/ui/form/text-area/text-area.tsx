@@ -1,5 +1,5 @@
 import { FormLabel, HelpText } from "@/components/ui/form";
-import { Textarea as SlTextarea } from "@hotosm/ui/components/react/index";
+import { Textarea as SlTextarea } from "@hotosm/ui/components/react";
 import "./text-area.css";
 
 type TextAreaProps = {

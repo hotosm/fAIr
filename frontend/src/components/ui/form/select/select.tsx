@@ -4,7 +4,7 @@ import { SHOELACE_SELECT_SIZES } from "@/enums";
 import {
   Option as SlOption,
   Select as SlSelect,
-} from "@hotosm/ui/components/react/index";
+} from "@hotosm/ui/components/react";
 import { TShoelaceSize } from "@/types";
 import "./select.css";
 

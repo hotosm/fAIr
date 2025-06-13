@@ -5,7 +5,7 @@ import { DialogProps, Feature, FeatureCollection } from "@/types";
 import { FileWithPath, useDropzone } from "react-dropzone";
 import { Geometry, MultiPolygon, Polygon } from "geojson";
 import { MODELS_CONTENT } from "@/constants";
-import { FormatBytes as SlFormatBytes } from "@hotosm/ui/components/react/index";
+import { FormatBytes as SlFormatBytes } from "@hotosm/ui/components/react";
 import { Spinner } from "@/components/ui/spinner";
 import { useCallback, useState } from "react";
 import {

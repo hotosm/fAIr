@@ -2,7 +2,7 @@ import { DateFilter, TQueryParams } from "@/types";
 import { DateRangePicker } from "@/components/ui/form";
 import { DropDown } from "@/components/ui/dropdown";
 import { SEARCH_PARAMS } from "@/app/routes/models/models-list";
-import { Checkbox as SlCheckbox } from "@hotosm/ui/components/react/index";
+import { Checkbox as SlCheckbox } from "@hotosm/ui/components/react";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { useEffect, useState } from "react";
 

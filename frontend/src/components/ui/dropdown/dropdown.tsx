@@ -1,10 +1,10 @@
 import { ChevronDownIcon } from "@/components/ui/icons";
 import { cn } from "@/utils";
 import { DropdownPlacement } from "@/enums";
-import { Checkbox as SlCheckbox } from "@hotosm/ui/components/react/index";
-import { Dropdown as SlDropdown } from "@hotosm/ui/components/react/index";
-import { Menu as SlMenu } from "@hotosm/ui/components/react/index";
-import { MenuItem as SlMenuItem } from "@hotosm/ui/components/react/index";
+import { Checkbox as SlCheckbox } from "@hotosm/ui/components/react";
+import { Dropdown as SlDropdown } from "@hotosm/ui/components/react";
+import { Menu as SlMenu } from "@hotosm/ui/components/react";
+import { MenuItem as SlMenuItem } from "@hotosm/ui/components/react";
 import { useEffect, useState } from "react";
 import "./dropdown.css";
 

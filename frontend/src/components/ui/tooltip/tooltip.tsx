@@ -2,7 +2,7 @@ import { InfoIcon } from "@/components/ui/icons";
 import { ToolTipPlacement } from "@/enums";
 import  {
   Tooltip as SlTooltip,
-} from "@hotosm/ui/components/react/index";
+} from "@hotosm/ui/components/react";
 
 type ToolTipProps = {
   content?: string | React.ReactElement | null;

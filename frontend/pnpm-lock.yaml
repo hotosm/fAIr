@@ -13,14 +13,11 @@ importers:
   .:
     dependencies:
       '@hotosm/ui':
-        specifier: 0.2.0-b4
-        version: 0.2.0-b4
+        specifier: ^0.2.0-b6
+        version: 0.2.0-b6(@types/react@18.3.10)
       '@reactour/tour':
         specifier: ^3.7.0
         version: 3.7.0(react@19.1.0)
-      '@shoelace-style/shoelace':
-        specifier: ^2.16.0
-        version: 2.17.1(@types/react@18.3.10)
       '@tanstack/react-query':
         specifier: ^5.59.0
         version: 5.59.0(react@19.1.0)
@@ -538,8 +535,8 @@ packages:
   '@floating-ui/utils@0.2.8':
     resolution: {integrity: sha512-kym7SodPp8/wloecOpcmSnWJsK7M0E5Wg8UcFA+uO4B9s5d0ywXOEro/8HM9x0rW+TljRzul/14UYz3TleT3ig==}
 
-  '@hotosm/ui@0.2.0-b4':
-    resolution: {integrity: sha512-dSZSg8I7YgCx01LJKDy7xEt7Frdju0P16hZiXMnhC9YxBZbCq0BFEs075gl1HioemMpdPrZ/cU7RNqs4RzR/kQ==}
+  '@hotosm/ui@0.2.0-b6':
+    resolution: {integrity: sha512-ac7Hr2YD/3mNvxL9WFVAe0ELcqk9NV1QHF/jZJQwfxg/1H1czF9E1ghM8TgDI2cjHjqA6/5+hHXbW3lCstIBDg==}
     engines: {node: '>=14.17'}
 
   '@humanwhocodes/module-importer@1.0.1':
@@ -1488,6 +1485,9 @@ packages:
   chokidar@3.6.0:
     resolution: {integrity: sha512-7VT13fmjotKpGipCW9JEQAusEPE+Ei8nl6/g4FBAmIm0GOOLMua9NDDo/DWp0ZAxCr3cPq5ZpBqmPAQgDda2Pw==}
     engines: {node: '>= 8.10.0'}
+
+  class-variance-authority@0.7.1:
+    resolution: {integrity: sha512-Ka+9Trutv7G8M6WT6SeiRWz792K5qEqIGEGzXKhAE6xOWAY6pPH8U+9IY3oCMv6kqTmLsv7Xh/2w2RigkePMsg==}
 
   clsx@2.1.1:
     resolution: {integrity: sha512-eYm0QWBtUrBWZWG0d386OGAw16Z995PiOVo2B7bjWSbHedGl5e0ZWaq65kOGgUSNesEIDkB9ISbTg/JK9dhCZA==}
@@ -3892,7 +3892,13 @@ snapshots:
 
   '@floating-ui/utils@0.2.8': {}
 
-  '@hotosm/ui@0.2.0-b4': {}
+  '@hotosm/ui@0.2.0-b6(@types/react@18.3.10)':
+    dependencies:
+      '@shoelace-style/shoelace': 2.17.1(@types/react@18.3.10)
+      class-variance-authority: 0.7.1
+      lit: 3.2.0
+    transitivePeerDependencies:
+      - '@types/react'
 
   '@humanwhocodes/module-importer@1.0.1': {}
 
@@ -4963,6 +4969,10 @@ snapshots:
       readdirp: 3.6.0
     optionalDependencies:
       fsevents: 2.3.3
+
+  class-variance-authority@0.7.1:
+    dependencies:
+      clsx: 2.1.1
 
   clsx@2.1.1: {}
 
