@@ -246,6 +246,7 @@ class Prediction(models.Model):
         ("FINISHED", "FINISHED"),
         ("FAILED", "FAILED"),
     )
+    description = models.TextField(max_length=500, null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
     started_at = models.DateTimeField(null=True, blank=True)
     finished_at = models.DateTimeField(null=True, blank=True)
