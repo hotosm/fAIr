@@ -183,6 +183,7 @@ export const TrainingDatasetsDetailPage = () => {
             title="Models Using this Dataset"
             datasetId={data.id}
             disableStatusFilter
+            status={0}
           />
         </div>
       </div>

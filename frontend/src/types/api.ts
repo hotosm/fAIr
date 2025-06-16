@@ -231,7 +231,7 @@ export type TModelPredictionsConfig = TPredictionsConfig & {
 };
 
 export type TOfflinePredictionsConfig = {
-  name: string;
+  description: string;
   config: TPredictionsConfig;
   geom: Geometry;
 };

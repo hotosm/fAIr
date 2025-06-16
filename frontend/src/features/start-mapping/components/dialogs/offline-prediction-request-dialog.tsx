@@ -146,7 +146,7 @@ export const OfflinePredictionRequestDialog = ({
                             }
                             onClick={() => {
                                 modelPredictionMutation.mutateAsync({
-                                    name: predictionRequestName,
+                                    description: predictionRequestName,
                                     geom: drawnAOI?.geometry as Geometry,
                                     config: {
                                         tolerance: query[SEARCH_PARAMS.tolerance] as number,

@@ -34,7 +34,7 @@ export const ModelExplorer = ({
   createButtonAlt,
   userId,
   datasetId,
-  disableStatusFilter,
+  disableStatusFilter, status
 }: {
   disableCreateNewButton?: boolean;
   title?: string;
@@ -43,6 +43,7 @@ export const ModelExplorer = ({
   userId?: number;
   datasetId?: number;
   disableStatusFilter?: boolean;
+  status?: number;
 }) => {
   const { isOpened, openDialog, closeDialog } = useDialog();
 
@@ -54,7 +55,7 @@ export const ModelExplorer = ({
     isPlaceholderData,
     query,
     updateQuery,
-  } = useModelsListFilters(undefined, userId, datasetId);
+  } = useModelsListFilters(status, userId, datasetId);
   const navigate = useNavigate();
 
   const handleClick = () => {

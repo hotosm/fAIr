@@ -3,14 +3,14 @@ import { TOfflinePredictionsConfig } from "@/types";
 
 export const submitOfflinePredictionRequest = async ({
   geom,
-  name,
+  description,
   config,
 }: TOfflinePredictionsConfig): Promise<string> => {
   return await (
     await apiClient.post(API_ENDPOINTS.CREATE_OFFLINE_PREDICTION, {
       geom,
       config,
-      name,
+      description,
     })
   ).data;
 };
