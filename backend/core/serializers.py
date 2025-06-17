@@ -58,7 +58,9 @@ class DatasetSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
     def get_models_count(self, obj):
-        return Model.objects.filter(dataset=obj).count()
+        return Model.objects.filter(
+            dataset=obj, status=Model.ModelStatus.PUBLISHED
+        ).count()
 
     def to_representation(self, instance):
         # get default
