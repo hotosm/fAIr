@@ -1,0 +1,15 @@
+site_name: fAIr Documentation
+theme:
+  name: material
+nav:
+  - Home: Home.md
+  - About: About.md
+  - Installation:
+      - Docker (Linux/Mac): Docker-installation.md
+      - Docker (Windows): Docker-install-windows.md
+  - User Manual: User-Manual-for-fAIr.md
+  - FAQ: FAQ.md
+  - Release Process: Release.md
+  - Contributing: contributing.md
+  - Project Architecture: architecture.md
+  - Code of Conduct: Code-of-Conduct.md
