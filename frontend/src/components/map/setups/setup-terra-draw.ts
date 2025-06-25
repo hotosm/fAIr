@@ -20,7 +20,7 @@ export const setupTerraDraw = (map: maplibregl.Map) => {
     tracked: true,
     adapter: new TerraDrawMapLibreGLAdapter({
       map,
-      coordinatePrecision: 16,
+      coordinatePrecision: 20,
     }),
     // idStrategy: {
     //   isValidId: () => true,

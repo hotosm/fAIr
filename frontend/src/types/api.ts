@@ -3,7 +3,6 @@ import { BBOX } from "./common";
 import { GeoJsonProperties, Geometry } from "geojson";
 import { PredictedFeatureStatus } from "@/enums/start-mapping";
 
-
 /**
  * This file contains the different types/schema for the API responses from the backend.
  */
@@ -200,11 +199,12 @@ export type TTrainingFeedbacks = {
 export type Feature = {
   type: "Feature";
   geometry: Geometry;
+  id?: string | number;
   properties:
-  | {
-    mid: string;
-  }
-  | GeoJsonProperties;
+    | {
+        mid: string;
+      }
+    | GeoJsonProperties;
 };
 
 export type FeatureCollection = {

@@ -34,7 +34,8 @@ export const ModelExplorer = ({
   createButtonAlt,
   userId,
   datasetId,
-  disableStatusFilter, status
+  disableStatusFilter,
+  status,
 }: {
   disableCreateNewButton?: boolean;
   title?: string;

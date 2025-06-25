@@ -62,3 +62,4 @@ export { PeopleIcon } from "./people-icon";
 export { ResetIcon } from "./reset-icon";
 export { DirectionIcon } from "./direction-icon";
 export { CloseIcon } from "./close-icon";
+export { FileUploadIcon } from "./file-upload-icon";

@@ -162,11 +162,11 @@ export const MIN_TRAINING_AREA_SIZE: number = parseIntEnv(
 
 /**
  * The maximum file size (in bytes) allowed for training area upload.
- * The default is set to 5 MB.
+ * The default is set to 1 MB.
  */
 export const MAX_TRAINING_AREA_UPLOAD_FILE_SIZE: number = parseIntEnv(
   ENVS.MAX_TRAINING_AREA_UPLOAD_FILE_SIZE,
-  5 * 1024 * 1024,
+  1 * 1024 * 1024,
 );
 
 /**

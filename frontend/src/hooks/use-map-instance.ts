@@ -38,9 +38,9 @@ export const useMapInstance = (
 
   const terraDraw = useMemo(() => {
     if (map) {
-      const terraDraw = setupTerraDraw(map);
-      terraDraw.start();
-      return terraDraw;
+      const draw = setupTerraDraw(map);
+      draw.start();
+      return draw;
     }
   }, [map]);
 

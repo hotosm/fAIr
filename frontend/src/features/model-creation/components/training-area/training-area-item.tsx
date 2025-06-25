@@ -1,4 +1,4 @@
-import FileUploadDialog from "@/features/model-creation/components/dialogs/file-upload-dialog";
+import FileUploadDialog from "@/components/shared/modals/file-upload-dialog";
 import { DropDown } from "@/components/ui/dropdown";
 import { IconProps, SlDropdownType, TTrainingAreaFeature } from "@/types";
 import { JOSMLogo, OSMLogo } from "@/assets/svgs";

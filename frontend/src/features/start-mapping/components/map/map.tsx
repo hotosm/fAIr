@@ -1,5 +1,10 @@
 import useScreenSize from "@/hooks/use-screen-size";
-import { ControlsPosition, DrawingModes, TileServiceType } from "@/enums";
+import {
+  ControlsPosition,
+  DrawingModes,
+  TileServiceType,
+  ToolTipPlacement,
+} from "@/enums";
 import { LngLatBoundsLike, Map } from "maplibre-gl";
 import {
   Legend,
@@ -28,6 +33,8 @@ import {
 } from "@/utils";
 import { useInitialHashFit } from "@/hooks/use-map-hash-sync";
 import { TerraDraw } from "terra-draw";
+import { ToolTip } from "@/components/ui/tooltip";
+import { FileUploadIcon } from "@/components/ui/icons";
 
 export const StartMappingMapComponent = ({
   map,
@@ -48,6 +55,7 @@ export const StartMappingMapComponent = ({
   isOfflineMode,
   hasDrawnAOI,
   handleAOIDelete,
+  openFileUploadDialog,
 }: {
   trainingId: number;
   map: Map | null;
@@ -74,6 +82,7 @@ export const StartMappingMapComponent = ({
   isOfflineMode: boolean;
   hasDrawnAOI?: boolean;
   handleAOIDelete?: () => void;
+  openFileUploadDialog?: () => void;
 }) => {
   const { isSmallViewport } = useScreenSize();
   const currentZoom = useMapStore.getState().zoom;
@@ -206,8 +215,8 @@ export const StartMappingMapComponent = ({
         />
       )}
       {memoizedToolTip}
-      <div className={"absolute top-40 left-3 map-elements-z-index "}>
-        {terraDraw && (
+      <div className={"absolute top-40 left-3 map-elements-z-index"}>
+        {terraDraw && map && (
           <DrawControl
             terraDraw={terraDraw}
             drawingMode={DrawingModes.POLYGON}
@@ -219,6 +228,30 @@ export const StartMappingMapComponent = ({
           />
         )}
       </div>
+      {terraDraw && map && (
+        <div
+          className={`absolute ${hasDrawnAOI ? "top-64" : "top-52"} left-3 map-elements-z-index`}
+        >
+          <ToolTip
+            content={
+              !hasDrawnAOI
+                ? "Upload AOI"
+                : "AOI already uploaded, delete to upload a new one"
+            }
+            placement={ToolTipPlacement.RIGHT}
+          >
+            <button
+              className={`p-1.5 flex items-center justify-center transition-colors duration-200 bg-white`}
+              onClick={openFileUploadDialog}
+              disabled={hasDrawnAOI}
+            >
+              <FileUploadIcon
+                className={`icon-lg transition-colors duration-200`}
+              />
+            </button>
+          </ToolTip>
+        </div>
+      )}
       {modelPredictionsExist && !isSmallViewport && <Legend />}
     </MapComponent>
   );

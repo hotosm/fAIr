@@ -117,7 +117,7 @@ export const MODELS_CONTENT: TModelsContent = {
         mainInstruction:
           "Drag 'n' drop some files here, or click to select files",
         fleSizeInstruction:
-          "Supports only GeoJSON (.geojson) files. (5MB max.)",
+          "Supports only GeoJSON (.geojson) files. (1MB max.)",
       },
       pageDescription:
         "Make sure you create at least one training area and data is accurate for each training area",

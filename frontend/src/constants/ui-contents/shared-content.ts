@@ -19,6 +19,7 @@ export const SHARED_CONTENT: TSharedContent = {
       models: "My Models",
       settings: "Settings",
       logout: "Log Out",
+      offlinePredictions: "Offline Predictions",
     },
   },
   footer: {
