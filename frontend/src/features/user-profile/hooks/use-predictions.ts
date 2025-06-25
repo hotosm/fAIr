@@ -2,11 +2,23 @@ import useDebounce from "@/hooks/use-debounce";
 import { TQueryParams } from "@/types";
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { useGetTrainingDatasetsV2 } from "./use-datasets";
 import { ORDERING_FIELDS } from "@/components/shared/filters/ordering-filter";
 import { SEARCH_PARAMS } from "@/utils/search-params";
+import { useQuery } from "@tanstack/react-query";
+import { getPredictionsQueryOptions } from "../api/factory";
 
-export const useDatasetsQueryParams = (userId?: number) => {
+export const useGetPredictions = (
+  searchQuery?: string,
+  ordering?: string,
+  userId?: number,
+  offset?: number,
+) => {
+  return useQuery({
+    ...getPredictionsQueryOptions(searchQuery, ordering, userId, offset),
+  });
+};
+
+export const useOfflinePredictionsQueryParams = (userId?: number) => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const defaultQueries = {
@@ -16,9 +28,6 @@ export const useDatasetsQueryParams = (userId?: number) => {
     [SEARCH_PARAMS.ordering]:
       searchParams.get(SEARCH_PARAMS.ordering) ||
       (ORDERING_FIELDS[1].apiValue as string),
-    [SEARCH_PARAMS.id]: searchParams.get(SEARCH_PARAMS.id) || "",
-    [SEARCH_PARAMS.mapIsActive]:
-      Boolean(searchParams.get(SEARCH_PARAMS.mapIsActive)) || false,
   };
 
   const [query, setQuery] = useState<TQueryParams>(defaultQueries);
@@ -29,14 +38,13 @@ export const useDatasetsQueryParams = (userId?: number) => {
   );
 
   const { isPending, isError, data, refetch, isPlaceholderData } =
-    useGetTrainingDatasetsV2(
+    useGetPredictions(
       debouncedSearchText.length > 0 ? debouncedSearchText : undefined,
       query[SEARCH_PARAMS.ordering] as string,
       userId !== undefined ? userId : undefined,
       query[SEARCH_PARAMS.offset] !== undefined
         ? (query[SEARCH_PARAMS.offset] as number)
         : undefined,
-      query[SEARCH_PARAMS.id] as number,
     );
 
   const updateQuery = useCallback(
@@ -60,30 +68,21 @@ export const useDatasetsQueryParams = (userId?: number) => {
     [searchParams, setSearchParams],
   );
 
-  //reset offset back to 0 when searching or when ID filtering is applied from the map.
+  //reset offset back to 0 when searching.
   useEffect(() => {
     if (
-      (query[SEARCH_PARAMS.searchQuery] !== "" ||
-        query[SEARCH_PARAMS.id] !== "") &&
+      query[SEARCH_PARAMS.searchQuery] !== "" &&
       (query[SEARCH_PARAMS.offset] as number) > 0
     ) {
       updateQuery({ [SEARCH_PARAMS.offset]: 0 });
     }
-  }, [
-    [
-      query[SEARCH_PARAMS.searchQuery],
-      query[SEARCH_PARAMS.offset],
-      query[SEARCH_PARAMS.id],
-    ],
-  ]);
+  }, [[query[SEARCH_PARAMS.searchQuery], query[SEARCH_PARAMS.offset]]]);
 
   useEffect(() => {
     const newQuery = {
       [SEARCH_PARAMS.offset]: defaultQueries[SEARCH_PARAMS.offset],
       [SEARCH_PARAMS.ordering]: defaultQueries[SEARCH_PARAMS.ordering],
       [SEARCH_PARAMS.searchQuery]: defaultQueries[SEARCH_PARAMS.searchQuery],
-      [SEARCH_PARAMS.mapIsActive]: defaultQueries[SEARCH_PARAMS.mapIsActive],
-      [SEARCH_PARAMS.id]: defaultQueries[SEARCH_PARAMS.id],
     };
     setQuery(newQuery);
   }, []);
@@ -96,11 +95,8 @@ export const useDatasetsQueryParams = (userId?: number) => {
       ...prev,
       // Clear only the filter fields
       [SEARCH_PARAMS.searchQuery]: "",
-      [SEARCH_PARAMS.id]: "",
     }));
   }, []);
-
-  const mapViewIsActive = Boolean(query[SEARCH_PARAMS.mapIsActive]);
 
   return {
     query,
@@ -110,7 +106,6 @@ export const useDatasetsQueryParams = (userId?: number) => {
     isError,
     updateQuery,
     refetch,
-    mapViewIsActive,
     clearAllFilters,
   };
 };

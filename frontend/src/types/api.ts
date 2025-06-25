@@ -1,4 +1,4 @@
-import { BASE_MODELS } from "@/enums";
+import { BASE_MODELS, ModelTrainingStatus } from "@/enums";
 import { BBOX } from "./common";
 import { GeoJsonProperties, Geometry } from "geojson";
 import { PredictedFeatureStatus } from "@/enums/start-mapping";
@@ -246,4 +246,18 @@ export type TModelPredictionFeature = {
     status: PredictedFeatureStatus;
   };
   id?: string | number;
+};
+
+export type TOfflinePrediction = {
+  id: number;
+  geom: Geometry;
+  description: string | null;
+  created_at: string;
+  started_at: string | null;
+  finished_at: string | null;
+  status: ModelTrainingStatus;
+  task_id: string;
+  mapswipe_id: string | null;
+  user: number;
+  config: TModelPredictionsConfig;
 };

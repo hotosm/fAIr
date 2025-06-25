@@ -24,7 +24,9 @@ export const API_ENDPOINTS = {
   GET_MODEL_PREDICTIONS: FAIR_PREDICTOR_API_ENDPOINT,
 
   CREATE_OFFLINE_PREDICTION: "prediction/",
+  GET_OFFLINE_PREDICTIONS: "prediction/",
 
+  GET_PREDICTIONS_TASK_STATUS: (taskId: string) => `task/status/${taskId}`,
   // Feedbacks
 
   CREATE_FEEDBACK: "feedback/",

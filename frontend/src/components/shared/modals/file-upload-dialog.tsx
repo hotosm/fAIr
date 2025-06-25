@@ -9,7 +9,7 @@ import { SlFormatBytes } from "@shoelace-style/shoelace/dist/react";
 import { Spinner } from "@/components/ui/spinner";
 import { useCallback, useState } from "react";
 import {
-  MAX_ACCEPTABLE_POLYGON_IN_TRAINING_AREA_GEOJSON_FILE,
+
   MAX_GEOJSON_FILE_UPLOAD_FOR_TRAINING_AREA_LABELS,
   MAX_GEOJSON_FILE_UPLOAD_FOR_TRAINING_AREAS,
   MAX_TRAINING_AREA_SIZE,
@@ -147,7 +147,7 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
       disabled ||
       uploadInProgress ||
       acceptedFiles.length ===
-        MAX_GEOJSON_FILE_UPLOAD_FOR_TRAINING_AREA_LABELS ||
+      MAX_GEOJSON_FILE_UPLOAD_FOR_TRAINING_AREA_LABELS ||
       acceptedFiles.length === MAX_GEOJSON_FILE_UPLOAD_FOR_TRAINING_AREAS,
   });
 
