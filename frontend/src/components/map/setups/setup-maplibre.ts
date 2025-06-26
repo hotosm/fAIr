@@ -4,7 +4,7 @@ import { MAP_STYLES, MAX_ZOOM_LEVEL } from "@/config";
 import { Protocol } from "pmtiles";
 
 export const setupMaplibreMap = (
-  containerRef: React.RefObject<HTMLElement>,
+  containerRef: React.RefObject<HTMLElement | null>,
   pmtiles: boolean,
   hash: boolean = false,
 ): Map => {

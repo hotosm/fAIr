@@ -31,7 +31,7 @@ type MapComponentProps = {
   fitToBounds?: boolean;
   bounds?: LngLatBoundsLike;
   onMapLoad?: (map: Map) => void;
-  mapContainerRef?: RefObject<HTMLDivElement> | null;
+  mapContainerRef?: RefObject<HTMLDivElement | null> | null ;
   map: Map | null;
   terraDraw?: TerraDraw | undefined;
   drawingMode?: DrawingModes;

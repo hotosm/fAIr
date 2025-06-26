@@ -45,26 +45,32 @@ const SkeletonWrapper = ({
   children,
   showSkeleton = true,
   skeletonClassName = "",
+  width,
+  height,
+  className,
 }: {
   children?: React.ReactNode;
+  className?: string;
   showSkeleton?: boolean;
   skeletonClassName?: string;
+  width?: number;
+  height?: number;
 }) => {
   if (!showSkeleton) return <>{children}</>;
 
-  const skeletonfyChildren = (child: React.ReactNode) => {
+  const skeletonOnlyChildren = (child: React.ReactNode) => {
     if (!React.isValidElement(child)) {
       // For unsupported elements
       return <div className={`${skeletonClassName} h-4 w-full`} />;
     }
     const style = {
-      width: child.props.style?.width,
-      height: child.props.style?.height,
+      width: width,
+      height: height,
     };
 
     return (
       <span
-        className={`block animate-pulse bg-light-gray ${skeletonClassName} ${child.props.className || ""}`}
+        className={`block animate-pulse bg-light-gray ${skeletonClassName} ${className || ""}`}
         style={style}
       />
     );
@@ -72,7 +78,7 @@ const SkeletonWrapper = ({
 
   return (
     <span className="block">
-      {React.Children.map(children, (child) => skeletonfyChildren(child))}
+      {React.Children.map(children, (child) => skeletonOnlyChildren(child))}
     </span>
   );
 };

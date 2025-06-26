@@ -6,9 +6,9 @@ import { RefObject, useEffect, useId, useState } from "react";
 
 type AnimatedBeamProps = {
   className?: string;
-  containerRef: RefObject<HTMLElement>;
-  fromRef: RefObject<HTMLElement>;
-  toRef: RefObject<HTMLElement>;
+  containerRef: RefObject<HTMLElement | null>;
+  fromRef: RefObject<HTMLElement | null>;
+  toRef: RefObject<HTMLElement | null>;
   curvature?: number;
   reverse?: boolean;
   pathColor?: string;
