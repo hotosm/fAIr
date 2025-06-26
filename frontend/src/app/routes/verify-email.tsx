@@ -1,4 +1,4 @@
-import { AuthenticationModal } from "@/components/auth";
+import { AuthenticationModal } from "@/components/auth/auth-modal";
 import { Head } from "@/components/seo";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";

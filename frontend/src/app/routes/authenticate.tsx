@@ -1,4 +1,4 @@
-import { AuthenticationModal } from "@/components/auth";
+import { AuthenticationModal } from "@/components/auth/auth-modal";
 import { Head } from "@/components/seo";
 import { AUTH_PAGE_AND_MODAL_CONTENT } from "@/constants/ui-contents/auth-content";
 import { useEffect } from "react";
