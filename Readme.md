@@ -1,7 +1,7 @@
 <!-- markdownlint-disable -->
 <p align="center">
     <!-- github-banner-start -->
-    <img src="https://raw.githubusercontent.com/hotosm/fmtm/main/docs/images/hot_logo.png" alt="HOTOSM Logo" width="25%" height="auto" />
+    <img src="https://raw.githubusercontent.com/hotosm/fair/develop/docs/assets/hot_logo.png" alt="HOTOSM Logo" width="25%" height="auto" />
     <!-- github-banner-end -->
 </p>
 
