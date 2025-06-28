@@ -1051,7 +1051,7 @@ class PredictionViewSet(UserAssignmentMixin, viewsets.ModelViewSet):
     )
     serializer_class = PredictionSerializer
     filterset_fields = ["status", "user", "id"]
-
+    search_fields = ["description", "id"]
     ordering_fields = ["created_at", "id", "status"]
 
     def partial_update(self, request, *args, **kwargs):
