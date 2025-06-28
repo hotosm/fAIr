@@ -59,11 +59,13 @@ export const TrainingAreaMap = ({
   trainingAreaId,
   tmsURL,
   visible,
+  isPredictionResult = false,
 }: {
   file: string;
   trainingAreaId: number;
   tmsURL: string;
   visible: boolean;
+  isPredictionResult?: boolean;
 }) => {
   const { mapContainerRef, map } = useMapInstance(true);
 
@@ -76,7 +78,9 @@ export const TrainingAreaMap = ({
     [0, 0],
   ]);
 
-  const trainingAreasSourceId = `training-areas-for-${trainingAreaId}`;
+  const trainingAreasSourceId = isPredictionResult
+    ? `prediction-results-for-${trainingAreaId}`
+    : `training-areas-for-${trainingAreaId}`;
 
   const mapLayers: LayerSpecification[] = vectorLayers.flatMap((layer) => {
     const { fill, outline } = getLayerConfigs(layer.id);
@@ -111,11 +115,13 @@ export const TrainingAreaMap = ({
   ];
 
   const layerControlLayers = vectorLayers.map((layer) => ({
-    value: `Training ${layer.id}`,
+    value: isPredictionResult ? "Prediction Results" : `Training ${layer.id}`,
     subLayers: [`${layer.id}_fill`, `${layer.id}_outline`],
   }));
 
   const fitToBounds = useCallback(() => {
+    if (!map) return;
+
     if (
       map &&
       boundsRef.current[0][0] !== boundsRef.current[1][0] &&
@@ -215,6 +221,7 @@ export const TrainingAreaMap = ({
 
         const metadata = (await pmtilesFile.getMetadata()) as Metadata;
         const layers = metadata.vector_layers;
+
         setVectorLayers(layers);
       } catch (error) {
         console.error("Error loading PMTiles:", error);
@@ -226,16 +233,29 @@ export const TrainingAreaMap = ({
 
   useEffect(() => {
     if (!map) return;
+
     map.on("click", handleMouseClick);
     return () => {
+      if (!map) return;
       map.off("click", handleMouseClick);
     };
   }, [map, handleMouseClick]);
 
   useEffect(() => {
     if (!map) return;
+    if (!map.getStyle()) return;
     addSources(map, sources);
     addLayers(map, mapLayers);
+    return () => {
+      if (!map) return;
+      if (!map.getStyle()) return;
+      mapLayers.forEach((layer) => {
+        if (map.getLayer(layer.id)) {
+          map.removeLayer(layer.id);
+        }
+      });
+      map.removeSource(trainingAreasSourceId);
+    };
   }, [map, mapLayers]);
 
   useEffect(() => {

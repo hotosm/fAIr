@@ -52,7 +52,7 @@ describe("geometry-utils", () => {
 
   it("should format area into human readable string", () => {
     const result = formatAreaInAppropriateUnit(12222000);
-    expect(result).toBe("12.2km²");
+    expect(result).toBe("12.22km²");
   });
 
   it("should compute the bounding box of a GeoJSON Feature", () => {

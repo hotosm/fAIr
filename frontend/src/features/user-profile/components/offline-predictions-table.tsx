@@ -15,10 +15,13 @@ import {
 } from "@/utils";
 import { DropDown } from "@/components/ui/dropdown";
 import { ElipsisIcon, InfoIcon } from "@/components/ui/icons";
-import { ModelTrainingStatus } from "@/enums";
+import { DropdownPlacement, ModelTrainingStatus } from "@/enums";
 import useCopyToClipboard from "@/hooks/use-clipboard";
 import { API_ENDPOINTS } from "@/services";
 import { BASE_API_URL } from "@/config";
+import { TrainingLogsDialog } from "./training-logs-dialog";
+import { useDialog } from "@/hooks/use-dialog";
+import { PredictionResultDrawer } from "./predictions-results-drawer";
 
 type OfflinePredictionsTableProps = {
   data: TOfflinePrediction[];
@@ -26,7 +29,10 @@ type OfflinePredictionsTableProps = {
   isPending: boolean;
 };
 
-const columnDefinitions = (): ColumnDef<TOfflinePrediction>[] => [
+const columnDefinitions = (
+  handleTrainingLogsModal: (taskId: string) => void,
+  handlePredictionResultModal: (prediction: TOfflinePrediction) => void,
+): ColumnDef<TOfflinePrediction>[] => [
   {
     accessorKey: "id",
     header: ({ column }) => <SortableHeader title={"ID"} column={column} />,
@@ -95,11 +101,11 @@ const columnDefinitions = (): ColumnDef<TOfflinePrediction>[] => [
       return (
         <DropDown
           disableCheveronIcon
+          placement={DropdownPlacement.BOTTOM_END}
           triggerComponent={
             <Badge
               variant="default"
               onClick={(e) => {
-                // Prevent the row click event from firing
                 e.stopPropagation();
               }}
               className="rounded-lg px-2 items-center flex"
@@ -168,9 +174,16 @@ const columnDefinitions = (): ColumnDef<TOfflinePrediction>[] => [
               name: "Download results",
               value: "Download results",
               onClick: (e) => {
-                // Prevent the row click event from firing
                 e.stopPropagation();
-                // publishTraining(row.getValue("id"));
+                const downloadUrl =
+                  BASE_API_URL +
+                  API_ENDPOINTS.DOWNLOAD_PREDICTION_LABELS_FILE(
+                    row.original.id,
+                  );
+                // It's possible that the download file is large, so we open it in a new tab
+                // to avoid blocking the UI.
+                // This will allow the user to download the file without interrupting their workflow.
+                window.open(downloadUrl, "_blank");
               },
               disabled: row.getValue("status") !== ModelTrainingStatus.FINISHED,
             },
@@ -178,9 +191,8 @@ const columnDefinitions = (): ColumnDef<TOfflinePrediction>[] => [
               name: "View results",
               value: "View results",
               onClick: (e) => {
-                // Prevent the row click event from firing
                 e.stopPropagation();
-                // terminationMutation(row.getValue("id"));
+                handlePredictionResultModal(row.original);
               },
               disabled: row.getValue("status") !== ModelTrainingStatus.FINISHED,
             },
@@ -188,39 +200,45 @@ const columnDefinitions = (): ColumnDef<TOfflinePrediction>[] => [
               name: "Copy results link",
               value: "Copy results link",
               onClick: async (e) => {
-                // Prevent the row click event from firing
                 e.stopPropagation();
                 await copyToClipboard(
                   BASE_API_URL +
-                    API_ENDPOINTS.GET_PREDICTIONS_TASK_STATUS(
-                      row.original.task_id,
+                    API_ENDPOINTS.DOWNLOAD_PREDICTION_LABELS_FILE(
+                      row.original.id,
                     ),
                 );
-                showSuccessToast("Copied results link to clipboard");
+                showSuccessToast("Copied results link to clipboard!");
               },
               disabled: row.getValue("status") !== ModelTrainingStatus.FINISHED,
             },
             {
-              name: "Create MapSwipe project",
-              value: "Create MapSwipe project",
+              name: !row.original.mapswipe_id
+                ? "Create MapSwipe project"
+                : "View MapSwipe project",
+              value: !row.original.mapswipe_id
+                ? "Create MapSwipe project"
+                : "View MapSwipe project",
               onClick: (e) => {
+                // can be used to create or view a MapSwipe project
                 // Prevent the row click event from firing
                 e.stopPropagation();
-                // terminationMutation(row.getValue("id"));
+                showWarningToast(
+                  "This feature is not yet implemented. Please check back later.",
+                );
               },
               disabled: row.getValue("status") !== ModelTrainingStatus.FINISHED,
             },
             {
               name: "View logs",
               value: "View logs",
-              disabled: row.getValue("status") !== ModelTrainingStatus.FAILED,
+              disabled: ![
+                ModelTrainingStatus.FAILED,
+                ModelTrainingStatus.IN_PROGRESS,
+              ].includes(row.getValue("status")),
               onClick: (e) => {
                 // Prevent the row click event from firing
                 e.stopPropagation();
-                // handleTrainingModal(row.getValue("id") as number);
-                showWarningToast(
-                  `Can't view logs for this prediction at this time.`,
-                );
+                handleTrainingLogsModal(row.original.task_id as string);
               },
             },
             {
@@ -245,15 +263,50 @@ const OfflinePredictionsTable: React.FC<OfflinePredictionsTableProps> = ({
   isError,
 }) => {
   const [sorting, setSorting] = useState<SortingState>([]);
+  const { isOpened, openDialog, closeDialog } = useDialog();
+  const {
+    isOpened: isPredictionResultOpened,
+    openDialog: openPredictionResultDialog,
+    closeDialog: closePredictionResultDialog,
+  } = useDialog();
+  const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
+  const [activePrediction, setActivePrediction] =
+    useState<TOfflinePrediction | null>(null);
+  const handleTrainingLogsModal = (taskId: string) => {
+    setActiveTaskId(taskId);
+    openDialog();
+  };
+  const handlePredictionResultModal = (prediction: TOfflinePrediction) => {
+    setActivePrediction(prediction);
+    openPredictionResultDialog();
+  };
   if (isPending || isError) return <TableSkeleton />;
 
   return (
     <>
-      <div className="max-w-full overflow-auto">
+      {activePrediction && (
+        <PredictionResultDrawer
+          tileServiceUrl={activePrediction.config.source}
+          predictionId={activePrediction.id}
+          isOpened={isPredictionResultOpened}
+          closeDialog={closePredictionResultDialog}
+        />
+      )}
+      {activeTaskId && (
+        <TrainingLogsDialog
+          taskId={activeTaskId}
+          isOpened={isOpened}
+          closeDialog={closeDialog}
+        />
+      )}
+      <div className="max-w-full overflow-auto min-h-screen">
         <DataTable
           // @ts-ignore
           data={data as TOfflinePrediction[]}
-          columns={columnDefinitions()}
+          columns={columnDefinitions(
+            handleTrainingLogsModal,
+            handlePredictionResultModal,
+          )}
           sorting={sorting}
           setSorting={setSorting}
         />
