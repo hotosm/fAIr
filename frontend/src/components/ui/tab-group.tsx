@@ -48,7 +48,9 @@ export const TabGroup = ({
       {tabs.map((tab, index) => (
         <button
           key={tab}
-          ref={(el) => (tabRefs.current[index] = el)}
+          ref={(el) => {
+            tabRefs.current[index] = el;
+          }}
           className={`md:px-4 px-2 py-1  text-nowrap text-body-3 md:text-base transition-colors duration-150 rounded-[4px] ${
             activeTab === tab ? "bg-white shadow-sm text-black" : "text-grey"
           }`}

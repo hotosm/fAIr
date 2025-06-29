@@ -9,7 +9,7 @@ import {
 import { TourProvider } from "@reactour/tour";
 import { APP_TOUR_STEPS } from "@/constants/site-tour";
 import { AuthProvider } from "./providers/auth-provider";
-import { HelmetProvider } from "react-helmet-async";
+
 
 export const App = () => {
   const queryClient = new QueryClient({
@@ -26,7 +26,6 @@ export const App = () => {
 
   const radius = 8;
   return (
-    <HelmetProvider>
       <AuthProvider>
         <QueryClientProvider client={queryClient}>
           <ReactQueryDevtools initialIsOpen={false} />
@@ -53,6 +52,5 @@ export const App = () => {
           </TourProvider>
         </QueryClientProvider>
       </AuthProvider>
-    </HelmetProvider>
   );
 };

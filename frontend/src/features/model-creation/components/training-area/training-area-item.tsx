@@ -121,7 +121,7 @@ const DropdownMenu = ({
   dropdownRef,
 }: {
   dropdownMenuItems: TDropdownMenuItems;
-  dropdownRef: React.RefObject<SlDropdownType>;
+  dropdownRef: React.RefObject<SlDropdownType | null>;
 }) => {
   return (
     <DropDown

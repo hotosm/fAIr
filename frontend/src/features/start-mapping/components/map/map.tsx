@@ -44,7 +44,7 @@ export const StartMappingMapComponent = ({
 }: {
   trainingId: number;
   map: Map | null;
-  mapContainerRef: RefObject<HTMLDivElement>;
+  mapContainerRef: RefObject<HTMLDivElement | null>;
   layers: {
     value: string;
     subLayers: string[];

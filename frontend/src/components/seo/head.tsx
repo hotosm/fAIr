@@ -1,21 +1,33 @@
-import { Helmet } from "react-helmet-async";
+import { useEffect, useRef } from "react";
 
 type HeadProps = {
   title?: string;
   description?: string;
 };
 
-export const Head = ({ title = "", description = "" }: HeadProps = {}) => {
-  return (
-    <Helmet>
-      <title>
-        {title
-          ? `${title} | fAIr - Humanitarian OpenStreetMap Team (HOT)`
-          : undefined}
-      </title>
-      <meta name="description" content={description} />
-    </Helmet>
-  );
+const Head = ({ title, description }: HeadProps = {}) => {
+  const defaultTitle = useRef<string>(document.title);
+
+  useEffect(() => {
+    const fullTitle = title
+      ? `${title} | fAIr - Humanitarian OpenStreetMap Team (HOT)`
+      : defaultTitle.current;
+    document.title = fullTitle;
+
+    if (description) {
+      let meta = document.querySelector<HTMLMetaElement>('meta[name="description"]');
+
+      if (!meta) {
+        meta = document.createElement("meta");
+        meta.name = "description";
+        document.head.appendChild(meta);
+      }
+
+      meta.content = description;
+    }
+  }, [title, description]);
+
+  return null;
 };
 
 export default Head;
