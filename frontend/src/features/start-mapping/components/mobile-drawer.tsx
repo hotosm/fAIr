@@ -50,6 +50,9 @@ export const StartMappingMobileDrawer = ({
   modelPredictions,
   setModelPredictions,
   isSmallViewport,
+  isOfflineMode,
+  hasDrawnAOI,
+  openOfflinePredictionRequestDialog,
 }: {
   isOpen: boolean;
 
@@ -94,6 +97,9 @@ export const StartMappingMobileDrawer = ({
   setModelPredictions: (features: TModelPredictionFeature[]) => void;
   modelPredictions: TModelPredictionFeature[];
   isSmallViewport: boolean;
+  isOfflineMode: boolean;
+  hasDrawnAOI: boolean;
+  openOfflinePredictionRequestDialog: () => void;
 }) => {
   const [showDownloadOptions, setShowDownloadOptions] =
     useState<boolean>(false);
@@ -125,6 +131,11 @@ export const StartMappingMobileDrawer = ({
                 predictionModelCheckpoint={predictionModelCheckpoint}
                 modelPredictions={modelPredictions}
                 setModelPredictions={setModelPredictions}
+                isOfflineMode={isOfflineMode}
+                hasDrawnAOI={hasDrawnAOI}
+                openOfflinePredictionRequestDialog={
+                  openOfflinePredictionRequestDialog
+                }
               />
             </div>
             <div className="bg-off-white rounded-md p-1">

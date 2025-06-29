@@ -55,9 +55,9 @@ export const OfflinePredictionCard = ({
               Duration:{" "}
               {predictionResult.started_at && predictionResult.finished_at
                 ? formatDuration(
-                  new Date(predictionResult.started_at),
-                  new Date(predictionResult.finished_at),
-                )
+                    new Date(predictionResult.started_at),
+                    new Date(predictionResult.finished_at),
+                  )
                 : "-"}
             </p>
           </Button>

@@ -4,7 +4,12 @@ import {
   START_MAPPING_PAGE_CONTENT,
   TOAST_NOTIFICATIONS,
 } from "@/constants";
-import { FitToBounds, LayerControl, ZoomLevel } from "@/components/map";
+import {
+  DrawControl,
+  FitToBounds,
+  LayerControl,
+  ZoomLevel,
+} from "@/components/map";
 import { Head } from "@/components/seo";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useMapInstance } from "@/hooks/use-map-instance";
@@ -41,7 +46,12 @@ import { ImagerySourceSelector } from "@/features/start-mapping/components/repli
 import { useDialog } from "@/hooks/use-dialog";
 import { useModelPredictionStore } from "@/store/model-prediction-store";
 import { ModelSelector } from "@/features/start-mapping/components/replicable-models/model-selector";
-import { BASE_MODELS, DrawingModes, TileServiceType } from "@/enums";
+import {
+  BASE_MODELS,
+  DrawingModes,
+  TileServiceType,
+  ToolTipPlacement,
+} from "@/enums";
 import { useTileservice } from "@/hooks/use-tileservice";
 import {
   ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
@@ -51,6 +61,8 @@ import {
 } from "@/config";
 import { OfflinePredictionRequestDialog } from "@/features/start-mapping/components/dialogs/offline-prediction-request-dialog";
 import { GeoJSONStoreFeatures } from "terra-draw";
+import { FileUploadIcon } from "@/components/ui/icons";
+import { ToolTip } from "@/components/ui/tooltip";
 
 export type TDownloadOptions = {
   name: string;
@@ -763,6 +775,11 @@ export const StartMappingPage = () => {
             modelPredictions={modelPredictions}
             setModelPredictions={setModelPredictions}
             isSmallViewport={isSmallViewport}
+            isOfflineMode={isOfflineMode}
+            hasDrawnAOI={hasDrawnAOI}
+            openOfflinePredictionRequestDialog={
+              openOfflinePredictionRequestDialog
+            }
           />
         )}
         {/* Mobile bottom sheet */}
@@ -817,6 +834,43 @@ export const StartMappingPage = () => {
             <div className="absolute top-4 left-4  z-[10]">
               <BrandLogoWithDropDown />
             </div>
+            <div className={"absolute top-[10vh] left-3 map-elements-z-index"}>
+              {terraDraw && map && (
+                <DrawControl
+                  terraDraw={terraDraw}
+                  drawingMode={DrawingModes.POLYGON}
+                  setDrawingMode={setDrawingMode}
+                  onDrawingStateChange={handleDrawingStateChange}
+                  drawingIsActive={isOfflineMode}
+                  showDeleteButton={hasDrawnAOI}
+                  onDelete={handleAOIDelete}
+                />
+              )}
+            </div>
+            {terraDraw && map && (
+              <div
+                className={`absolute ${hasDrawnAOI ? "top-[20vh]" : "top-[16vh]"} left-3 map-elements-z-index`}
+              >
+                <ToolTip
+                  content={
+                    !hasDrawnAOI
+                      ? "Upload AOI"
+                      : "AOI already uploaded, delete to upload a new one"
+                  }
+                  placement={ToolTipPlacement.RIGHT}
+                >
+                  <button
+                    className={`p-1.5 flex items-center justify-center transition-colors duration-200 bg-white`}
+                    onClick={openFileUploadDialog}
+                    disabled={hasDrawnAOI}
+                  >
+                    <FileUploadIcon
+                      className={`icon-lg transition-colors duration-200`}
+                    />
+                  </button>
+                </ToolTip>
+              </div>
+            )}
             <div className="absolute top-[10vh] right-4 z-[2] flex flex-col gap-y-4 items-end">
               <ZoomLevel />
               <LayerControl

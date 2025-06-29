@@ -11,141 +11,141 @@ import { OfflinePredictionsSettingsInfo } from "./offline-predictions-settings-i
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 
 export const OfflinePredictionActions = ({
-    handlePredictionResultModal,
-    handleTrainingLogsModal,
-    predictionResult,
-    showSettingsInfo = false,
-    placement,
+  handlePredictionResultModal,
+  handleTrainingLogsModal,
+  predictionResult,
+  showSettingsInfo = false,
+  placement,
 }: {
-    handlePredictionResultModal: (prediction: any) => void;
-    handleTrainingLogsModal: (taskId: string) => void;
-    predictionResult: TOfflinePrediction;
-    showSettingsInfo?: boolean;
-    placement?: DropdownPlacement;
+  handlePredictionResultModal: (prediction: any) => void;
+  handleTrainingLogsModal: (taskId: string) => void;
+  predictionResult: TOfflinePrediction;
+  showSettingsInfo?: boolean;
+  placement?: DropdownPlacement;
 }) => {
-    const { copyToClipboard } = useCopyToClipboard();
-    const { dropdownRef } = useDropdownMenu();
+  const { copyToClipboard } = useCopyToClipboard();
+  const { dropdownRef } = useDropdownMenu();
 
-    const handleSettingsInfo = () => {
-        if (dropdownRef?.current) {
-            dropdownRef.current.show();
+  const handleSettingsInfo = () => {
+    if (dropdownRef?.current) {
+      dropdownRef.current.show();
+    }
+  };
+
+  return (
+    <>
+      <OfflinePredictionsSettingsInfo
+        disableSettingsInfoIcon
+        predictionConfig={predictionResult.config}
+        dropdownRef={dropdownRef}
+        placement={placement}
+      />
+
+      <DropDown
+        disableCheveronIcon
+        triggerComponent={
+          <Badge
+            variant="default"
+            onClick={(e) => {
+              // Prevent the row click event from firing
+              e.stopPropagation();
+            }}
+            className="rounded-lg px-2 items-center flex"
+          >
+            <ElipsisIcon className="icon rotate-90" />
+          </Badge>
         }
-    };
-
-    return (
-        <>
-            <OfflinePredictionsSettingsInfo
-                disableSettingsInfoIcon
-                predictionConfig={predictionResult.config}
-                dropdownRef={dropdownRef}
-                placement={placement}
-            />
-
-            <DropDown
-                disableCheveronIcon
-                triggerComponent={
-                    <Badge
-                        variant="default"
-                        onClick={(e) => {
-                            // Prevent the row click event from firing
-                            e.stopPropagation();
-                        }}
-                        className="rounded-lg px-2 items-center flex"
-                    >
-                        <ElipsisIcon className="icon rotate-90" />
-                    </Badge>
-                }
-                className="text-right"
-                distance={10}
-                menuItems={[
-                    {
-                        name: "Download results",
-                        value: "Download results",
-                        onClick: (e) => {
-                            e.stopPropagation();
-                            const downloadUrl =
-                                BASE_API_URL +
-                                API_ENDPOINTS.DOWNLOAD_PREDICTION_LABELS_FILE(
-                                    predictionResult.id,
-                                );
-                            window.open(downloadUrl, "_blank");
-                        },
-                        disabled: predictionResult.status !== ModelTrainingStatus.FINISHED,
-                    },
-                    {
-                        name: "View results",
-                        value: "View results",
-                        onClick: (e) => {
-                            e.stopPropagation();
-                            handlePredictionResultModal(predictionResult);
-                        },
-                        disabled: predictionResult.status !== ModelTrainingStatus.FINISHED,
-                    },
-                    {
-                        name: "Copy results link",
-                        value: "Copy results link",
-                        onClick: async (e) => {
-                            e.stopPropagation();
-                            await copyToClipboard(
-                                BASE_API_URL +
-                                API_ENDPOINTS.DOWNLOAD_PREDICTION_LABELS_FILE(
-                                    predictionResult.id,
-                                ),
-                            );
-                            showSuccessToast("Copied results link to clipboard!");
-                        },
-                        disabled: predictionResult.status !== ModelTrainingStatus.FINISHED,
-                    },
-                    ...(showSettingsInfo
-                        ? [
-                            {
-                                name: "View settings info",
-                                value: "View settings info",
-                                onClick: (e: { stopPropagation: () => void }) => {
-                                    e.stopPropagation();
-                                    handleSettingsInfo();
-                                },
-                            },
-                        ]
-                        : []),
-                    {
-                        name: !predictionResult.mapswipe_id
-                            ? "Create MapSwipe project"
-                            : "View MapSwipe project",
-                        value: !predictionResult.mapswipe_id
-                            ? "Create MapSwipe project"
-                            : "View MapSwipe project",
-                        onClick: (e) => {
-                            e.stopPropagation();
-                            showWarningToast(
-                                "This feature is not yet implemented. Please check back later.",
-                            );
-                        },
-                        disabled: predictionResult.status !== ModelTrainingStatus.FINISHED,
-                    },
-                    {
-                        name: "View logs",
-                        value: "View logs",
-                        disabled: ![
-                            ModelTrainingStatus.FAILED,
-                            ModelTrainingStatus.IN_PROGRESS,
-                        ].includes(predictionResult.status),
-                        onClick: (e) => {
-                            e.stopPropagation();
-                            handleTrainingLogsModal(predictionResult.task_id as string);
-                        },
-                    },
-                    {
-                        name: "Copy imagery link",
-                        value: "Copy imagery link",
-                        onClick: async (e) => {
-                            e.stopPropagation();
-                            await copyToClipboard(predictionResult.config.source);
-                            showSuccessToast("Copied imagery link to clipboard");
-                        },
-                    },
-                ]}
-            />
-        </>
-    );
+        className="text-right"
+        distance={10}
+        menuItems={[
+          {
+            name: "Download results",
+            value: "Download results",
+            onClick: (e) => {
+              e.stopPropagation();
+              const downloadUrl =
+                BASE_API_URL +
+                API_ENDPOINTS.DOWNLOAD_PREDICTION_LABELS_FILE(
+                  predictionResult.id,
+                );
+              window.open(downloadUrl, "_blank");
+            },
+            disabled: predictionResult.status !== ModelTrainingStatus.FINISHED,
+          },
+          {
+            name: "View results",
+            value: "View results",
+            onClick: (e) => {
+              e.stopPropagation();
+              handlePredictionResultModal(predictionResult);
+            },
+            disabled: predictionResult.status !== ModelTrainingStatus.FINISHED,
+          },
+          {
+            name: "Copy results link",
+            value: "Copy results link",
+            onClick: async (e) => {
+              e.stopPropagation();
+              await copyToClipboard(
+                BASE_API_URL +
+                  API_ENDPOINTS.DOWNLOAD_PREDICTION_LABELS_FILE(
+                    predictionResult.id,
+                  ),
+              );
+              showSuccessToast("Copied results link to clipboard!");
+            },
+            disabled: predictionResult.status !== ModelTrainingStatus.FINISHED,
+          },
+          ...(showSettingsInfo
+            ? [
+                {
+                  name: "View settings info",
+                  value: "View settings info",
+                  onClick: (e: { stopPropagation: () => void }) => {
+                    e.stopPropagation();
+                    handleSettingsInfo();
+                  },
+                },
+              ]
+            : []),
+          {
+            name: !predictionResult.mapswipe_id
+              ? "Create MapSwipe project"
+              : "View MapSwipe project",
+            value: !predictionResult.mapswipe_id
+              ? "Create MapSwipe project"
+              : "View MapSwipe project",
+            onClick: (e) => {
+              e.stopPropagation();
+              showWarningToast(
+                "This feature is not yet implemented. Please check back later.",
+              );
+            },
+            disabled: predictionResult.status !== ModelTrainingStatus.FINISHED,
+          },
+          {
+            name: "View logs",
+            value: "View logs",
+            disabled: ![
+              ModelTrainingStatus.FAILED,
+              ModelTrainingStatus.IN_PROGRESS,
+            ].includes(predictionResult.status),
+            onClick: (e) => {
+              e.stopPropagation();
+              handleTrainingLogsModal(predictionResult.task_id as string);
+            },
+          },
+          {
+            name: "Copy imagery link",
+            value: "Copy imagery link",
+            onClick: async (e) => {
+              e.stopPropagation();
+              await copyToClipboard(predictionResult.config.source);
+              showSuccessToast("Copied imagery link to clipboard");
+            },
+          },
+        ]}
+      />
+    </>
+  );
 };

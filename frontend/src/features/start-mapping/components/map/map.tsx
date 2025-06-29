@@ -215,7 +215,11 @@ export const StartMappingMapComponent = ({
         />
       )}
       {memoizedToolTip}
-      <div className={"absolute top-40 left-3 map-elements-z-index"}>
+      <div
+        className={
+          "absolute top-40 left-3 map-elements-z-index hidden md:block"
+        }
+      >
         {terraDraw && map && (
           <DrawControl
             terraDraw={terraDraw}
@@ -230,7 +234,7 @@ export const StartMappingMapComponent = ({
       </div>
       {terraDraw && map && (
         <div
-          className={`absolute ${hasDrawnAOI ? "top-64" : "top-52"} left-3 map-elements-z-index`}
+          className={`absolute ${hasDrawnAOI ? "top-64" : "top-52"} left-3 map-elements-z-index hidden md:block`}
         >
           <ToolTip
             content={

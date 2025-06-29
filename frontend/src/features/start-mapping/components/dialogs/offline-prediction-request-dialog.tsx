@@ -72,7 +72,7 @@ export const OfflinePredictionRequestDialog = ({
         preventClose={modelPredictionMutation.isPending}
       >
         <Alert>
-          <small className="">
+          <small className="text-xs md:text-body-3">
             Set the parameters for your prediction request. Selected model and
             imagery will be used to generate predictions for the selected zoom
             level. You can also set advanced settings for your prediction
@@ -110,7 +110,7 @@ export const OfflinePredictionRequestDialog = ({
                 { label: "Zoom 20", value: "20" },
                 { label: "Zoom 21", value: "21" },
               ]}
-              className="!flex-row items-center gap-x-8"
+              className="md:items-center gap-x-8 flex-col md:flex-row"
               value={zoomLevel}
               onChange={(selection) => setZoomLevel(selection)}
             />
@@ -127,7 +127,7 @@ export const OfflinePredictionRequestDialog = ({
               <ModelSettings query={query} updateQuery={updateQuery} isMobile />
             </div>
           </div>
-          <div className="flex justify-between gap-x-8">
+          <div className="flex flex-col md:flex-row justify-between gap-8">
             <Button
               variant={ButtonVariant.DARK}
               onClick={onClose}
