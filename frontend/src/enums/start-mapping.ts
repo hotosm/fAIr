@@ -19,8 +19,7 @@ export enum PredictedFeatureStatus {
   UNTOUCHED = "untouched",
 }
 
-
 export enum FeedbackType {
   ACCEPT = "ACCEPT",
-  REJECT = "REJECT"
+  REJECT = "REJECT",
 }

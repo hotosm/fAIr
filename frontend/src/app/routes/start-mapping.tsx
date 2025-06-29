@@ -19,7 +19,12 @@ import {
   StartMappingMapComponent,
   StartMappingMobileDrawer,
 } from "@/features/start-mapping/components";
-import { constructModelCheckpointPath, geoJSONDowloader, openInJOSM, showSuccessToast } from "@/utils";
+import {
+  constructModelCheckpointPath,
+  geoJSONDowloader,
+  openInJOSM,
+  showSuccessToast,
+} from "@/utils";
 
 import {
   PredictedFeatureStatus,
@@ -142,8 +147,6 @@ export const StartMappingPage = () => {
     error,
   } = useModelDetails(modelId as string, !!modelId);
 
-
-
   const updateQuery = useCallback(
     (newParams: TQueryParams) => {
       setQuery((prev) => ({ ...prev, ...newParams }));
@@ -185,24 +188,30 @@ export const StartMappingPage = () => {
    */
   useEffect(() => {
     const urlCp = searchParams.get(SEARCH_PARAMS.predictionModelCheckpoint);
-    if (urlCp && urlCp.length > 0 && urlCp !== "undefined" && predictionModel === PredictionModel.CUSTOM) {
+    if (
+      urlCp &&
+      urlCp.length > 0 &&
+      urlCp !== "undefined" &&
+      predictionModel === PredictionModel.CUSTOM
+    ) {
       setCustomPredictionModelCheckpointPath(urlCp);
       setPredictionModelCheckpoint(urlCp);
     }
   }, [predictionModel]);
-
-
 
   useEffect(() => {
     /**
      * Only update the checkpoint if the modelInfo is available and
      * the predictionModel is not set or is set to the default model.
      */
-    if (modelInfo && (!predictionModel || predictionModel === PredictionModel.DEFAULT)) {
-      setPredictionModelCheckpoint(constructModelCheckpointPath(modelInfo))
+    if (
+      modelInfo &&
+      (!predictionModel || predictionModel === PredictionModel.DEFAULT)
+    ) {
+      setPredictionModelCheckpoint(constructModelCheckpointPath(modelInfo));
     } else if (predictionModel && predictionModel !== PredictionModel.CUSTOM) {
       setPredictionModelCheckpoint(
-        FAIR_BASE_MODELS_PATH[predictionModel as BASE_MODELS]
+        FAIR_BASE_MODELS_PATH[predictionModel as BASE_MODELS],
       );
     }
   }, [predictionModel, modelInfo]);
@@ -214,7 +223,7 @@ export const StartMappingPage = () => {
     if (predictionImagerySource === PredictionImagerySource.Kontour) {
       setTileserverURL(OPENAERIALMAP_MOSAIC_TILES_URL);
     }
-  }, [predictionImagerySource])
+  }, [predictionImagerySource]);
 
   /**
    * When the user changes the prediction imagery source, sync it to the URL.
@@ -285,16 +294,16 @@ export const StartMappingPage = () => {
     () => [
       ...(modelPredictions.length > 0
         ? [
-          {
-            value:
-              START_MAPPING_PAGE_CONTENT.map.controls.legendControl
-                .predictionResults,
-            subLayers: [
-              ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
-              ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
-            ],
-          },
-        ]
+            {
+              value:
+                START_MAPPING_PAGE_CONTENT.map.controls.legendControl
+                  .predictionResults,
+              subLayers: [
+                ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
+                ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
+              ],
+            },
+          ]
         : []),
     ],
     [modelPredictions],

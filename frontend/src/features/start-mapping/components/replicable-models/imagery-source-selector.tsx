@@ -16,24 +16,24 @@ const PredictionImagerySources: Array<{
   url?: string;
   tooltip: string;
 }> = [
-    {
-      value: PredictionImagerySource.ModelDefault,
-      label: "Model Default",
-      url: "",
-      tooltip: "Default imagery for the model.",
-    },
-    {
-      value: PredictionImagerySource.CustomImagery,
-      label: "Custom Imagery",
-      tooltip: "Use a custom XYZ/TMS tile server URL.",
-    },
-    {
-      value: PredictionImagerySource.Kontour,
-      label: "OpenAerialMap Mosaic",
-      url: OPENAERIALMAP_MOSAIC_TILES_URL,
-      tooltip: "All OpenAerialMap images in one mosaic layer, by Kontur.io.",
-    },
-  ];
+  {
+    value: PredictionImagerySource.ModelDefault,
+    label: "Model Default",
+    url: "",
+    tooltip: "Default imagery for the model.",
+  },
+  {
+    value: PredictionImagerySource.CustomImagery,
+    label: "Custom Imagery",
+    tooltip: "Use a custom XYZ/TMS tile server URL.",
+  },
+  {
+    value: PredictionImagerySource.Kontour,
+    label: "OpenAerialMap Mosaic",
+    url: OPENAERIALMAP_MOSAIC_TILES_URL,
+    tooltip: "All OpenAerialMap images in one mosaic layer, by Kontur.io.",
+  },
+];
 
 export const ImagerySourceSelector = ({
   setPredictionImagerySource,
@@ -141,24 +141,24 @@ export const ImagerySourceSelector = ({
       />
       {localPredictionImagerySource ===
         PredictionImagerySource.CustomImagery && (
-          <div className="flex flex-col gap-y-2 mt-2">
-            <XYZTileServerInput
-              tileServiceType={localTileServiceType}
-              isValid={localTileServiceTypeValidity}
-              setTileServerURL={(e) => setLocalTileServerURL(e)}
-              tileServerURL={localTileServerURL}
-              validationStateUpdateCallback={setLocalTileServiceTypeValidity}
-              setTileServiceType={setLocalTileServiceType}
-              size={SHOELACE_SIZES.SMALL}
-            />
-          </div>
-        )}
+        <div className="flex flex-col gap-y-2 mt-2">
+          <XYZTileServerInput
+            tileServiceType={localTileServiceType}
+            isValid={localTileServiceTypeValidity}
+            setTileServerURL={(e) => setLocalTileServerURL(e)}
+            tileServerURL={localTileServerURL}
+            validationStateUpdateCallback={setLocalTileServiceTypeValidity}
+            setTileServiceType={setLocalTileServiceType}
+            size={SHOELACE_SIZES.SMALL}
+          />
+        </div>
+      )}
       {localPredictionImagerySource !==
         PredictionImagerySource.ModelDefault && (
-          <small className="text-xs text-grey">
-            {START_MAPPING_PAGE_CONTENT.replicableModel.info}
-          </small>
-        )}
+        <small className="text-xs text-grey">
+          {START_MAPPING_PAGE_CONTENT.replicableModel.info}
+        </small>
+      )}
       <Divider />
       <div className="flex justify-between items-center gap-x-2">
         <Button
