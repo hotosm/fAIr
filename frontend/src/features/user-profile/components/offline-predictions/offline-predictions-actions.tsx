@@ -129,6 +129,7 @@ export const OfflinePredictionActions = ({
             disabled: ![
               ModelTrainingStatus.FAILED,
               ModelTrainingStatus.IN_PROGRESS,
+              ModelTrainingStatus.RUNNING,
             ].includes(predictionResult.status),
             onClick: (e) => {
               e.stopPropagation();
