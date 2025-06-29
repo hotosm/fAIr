@@ -37,6 +37,16 @@ export const OfflinePredictionCard = ({
         <TrainingStatusBadge status={predictionResult.status} />
         <div className="flex gap-x-4 mt-2">
           <Button
+            variant={ButtonVariant.TERTIARY}
+            className="!w-fit"
+            size={SHOELACE_SIZES.SMALL}
+            uppercase={false}
+          >
+            <p>
+              ID:  {predictionResult.id}
+            </p>
+          </Button>
+          <Button
             variant={ButtonVariant.DARK}
             className="!w-fit"
             size={SHOELACE_SIZES.SMALL}
@@ -44,29 +54,20 @@ export const OfflinePredictionCard = ({
           >
             <p>Zoom: {predictionResult.config.zoom_level}</p>
           </Button>
-
-          <Button
-            variant={ButtonVariant.TERTIARY}
-            className="!w-fit"
-            size={SHOELACE_SIZES.SMALL}
-            uppercase={false}
-          >
-            <p>
-              Duration:{" "}
-              {predictionResult.started_at && predictionResult.finished_at
-                ? formatDuration(
-                    new Date(predictionResult.started_at),
-                    new Date(predictionResult.finished_at),
-                  )
-                : "-"}
-            </p>
-          </Button>
         </div>
         <p className="text-dark text-body-3">
           Date Submitted:{" "}
           <span className="font-semibold">
             {predictionResult.created_at
               ? formatDate(predictionResult.created_at)
+              : "-"}
+          </span>
+        </p>
+        <p className="text-dark text-body-3">
+          Duration:{" "}
+          <span className="font-semibold">
+            {predictionResult.created_at && predictionResult.finished_at
+              ? formatDuration(new Date(predictionResult.finished_at), new Date(predictionResult.created_at))
               : "-"}
           </span>
         </p>
