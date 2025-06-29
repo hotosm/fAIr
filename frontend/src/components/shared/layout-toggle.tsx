@@ -5,16 +5,18 @@ import { TQueryParams } from "@/types";
 import { useScrollToTop } from "@/hooks/use-scroll-to-element";
 import { ToolTip } from "@/components/ui/tooltip";
 
-const LayoutToggle = ({
+export const LayoutToggle = ({
   query,
   updateQuery,
   isMobile,
   disabled = false,
+  iconSize = "icon-lg",
 }: {
   updateQuery: (params: TQueryParams) => void;
   query: TQueryParams;
   isMobile?: boolean;
   disabled?: boolean;
+  iconSize?: string;
 }) => {
   const activeLayout = query[SEARCH_PARAMS.layout];
   const { scrollToTop } = useScrollToTop();
@@ -36,13 +38,11 @@ const LayoutToggle = ({
         disabled={disabled}
       >
         {activeLayout !== LayoutView.LIST ? (
-          <ListIcon className="icon-lg" />
+          <ListIcon className={iconSize} />
         ) : (
-          <CategoryIcon className="icon-lg" />
+          <CategoryIcon className={iconSize} />
         )}
       </button>
     </ToolTip>
   );
 };
-
-export default LayoutToggle;

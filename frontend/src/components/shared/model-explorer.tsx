@@ -1,5 +1,5 @@
 import ModelNotFound from "@/features/models/components/model-not-found";
-import { LayoutToggle } from "@/features/models/components";
+import { LayoutToggle } from "@/components/shared/layout-toggle";
 import { LayoutView } from "@/enums";
 import { MobileModelFiltersDialog } from "@/features/models/components/dialogs";
 import { MODELS_CONTENT } from "@/constants";
