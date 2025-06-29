@@ -111,7 +111,7 @@ export const UserProfileOfflinePredictionsPage = () => {
             />
           </div>
         </div>
-        {query[SEARCH_PARAMS.layout] === LayoutView.GRID ? (
+        {query[SEARCH_PARAMS.layout] === LayoutView.LIST ? (
           <OfflinePredictionsTable
             data={data?.results ?? []}
             isError={isError}

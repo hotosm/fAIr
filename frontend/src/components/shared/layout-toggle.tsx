@@ -20,9 +20,10 @@ export const LayoutToggle = ({
 }) => {
   const activeLayout = query[SEARCH_PARAMS.layout];
   const { scrollToTop } = useScrollToTop();
+
   return (
     <ToolTip
-      content={`${disabled ? "Toggle off mapview to show as" : "Show as"} ${query[SEARCH_PARAMS.layout] === LayoutView.GRID ? LayoutView.LIST : (LayoutView.GRID as string)}`}
+      content={`${disabled ? "Toggle off mapview to show as" : "Show as"} ${activeLayout === LayoutView.GRID ? LayoutView.LIST : (LayoutView.GRID as string)}`}
     >
       <button
         className={`${isMobile ? "flex md:hidden" : "hidden md:flex"} ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"} border border-gray-border p-2 items-center justify-center text-dark`}
