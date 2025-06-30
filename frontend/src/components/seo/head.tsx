@@ -14,18 +14,19 @@ const Head = ({ title, description }: HeadProps = {}) => {
       : defaultTitle.current;
     document.title = fullTitle;
 
-    if (description) {
-      let meta = document.querySelector<HTMLMetaElement>(
-        'meta[name="description"]',
-      );
+    let meta = document.querySelector<HTMLMetaElement>(
+      'meta[name="description"]',
+    );
 
+    if (description) {
       if (!meta) {
         meta = document.createElement("meta");
         meta.name = "description";
         document.head.appendChild(meta);
       }
-
       meta.content = description;
+    } else if (meta) {
+      document.head.removeChild(meta);
     }
   }, [title, description]);
 
