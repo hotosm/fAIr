@@ -22,58 +22,8 @@
 
 @font-face {
   font-family: "Barlow";
-  src: url("../assets/fonts/Barlow/Barlow-Regular.ttf");
-  font-display: swap;
-  font-weight: 300;
-}
-
-@font-face {
-  font-family: "Barlow";
-  src: url("../assets/fonts/Barlow/Barlow-Medium.ttf");
-  font-display: swap;
-  font-weight: 400;
-}
-
-@font-face {
-  font-family: "Barlow";
-  src: url("../assets/fonts/Barlow/Barlow-SemiBold.ttf");
-  font-display: swap;
-  font-weight: 500;
-}
-
-@font-face {
-  font-family: "Barlow";
   src: url("../assets/fonts/Barlow/Barlow-Bold.ttf");
   font-display: swap;
   font-weight: 700;
 }
 
-/* variant-condensed */
-
-@font-face {
-  font-family: "BarlowCondensed";
-  src: url("../assets/fonts/Barlow Condensed/BarlowCondensed-Regular.ttf");
-  font-display: swap;
-  font-weight: 300;
-}
-
-@font-face {
-  font-family: "BarlowCondensed";
-  src: url("../assets/fonts/Barlow Condensed/BarlowCondensed-Medium.ttf");
-  font-display: swap;
-  font-weight: 400;
-}
-
-@font-face {
-  font-family: "BarlowCondensed";
-  src: url("../assets/fonts/Barlow Condensed/BarlowCondensed-SemiBold.ttf");
-  font-display: swap;
-  font-weight: 500;
-}
-
-@font-face {
-  font-family: "BarlowCondensed";
-  src: url("../assets/fonts/Barlow Condensed/BarlowCondensed-Bold.ttf");
-  font-display: swap;
-  font-weight: 700;
-}
