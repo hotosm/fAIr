@@ -102,4 +102,7 @@ export const API_ENDPOINTS = {
   UPDATE_NOTIFICATION: (id: number) => `notifications/mark-as-read/${id}/`,
 
   UPDATE_NOTIFICATIONS: "notifications/mark-all-as-read/",
+
+  // MapSwipe
+  CREATE_MAPSWIPE_DRAFT_PROJECTS: "v2/projects/",
 };

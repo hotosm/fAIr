@@ -7,8 +7,8 @@ import { useState } from "react";
 import { formatDate, formatDuration, truncateString } from "@/utils";
 
 import { TrainingStatusBadge } from "@/components/shared/training-status-badge";
-import { OfflinePredictionsSettingsInfo } from "./offline-predictions-settings-info";
-import { OfflinePredictionActions } from "./offline-predictions-actions";
+import { OfflinePredictionsSettingsInfo } from "@/features/offline-predictions/components/offline-predictions-settings-info";
+import { OfflinePredictionActions } from "@/features/offline-predictions/components/offline-predictions-actions";
 
 type OfflinePredictionsTableProps = {
   data: TOfflinePrediction[];
@@ -16,11 +16,13 @@ type OfflinePredictionsTableProps = {
   isPending: boolean;
   handleTrainingLogsModal: (taskId: string) => void;
   handlePredictionResultModal: (prediction: TOfflinePrediction) => void;
+  handleCreateOrViewMapSwipeProject: (prediction: TOfflinePrediction) => void;
 };
 
 const columnDefinitions = (
   handleTrainingLogsModal: (taskId: string) => void,
   handlePredictionResultModal: (prediction: TOfflinePrediction) => void,
+  handleCreateOrViewMapSwipeProject: (prediction: TOfflinePrediction) => void,
 ): ColumnDef<TOfflinePrediction>[] => [
   {
     accessorKey: "id",
@@ -78,6 +80,7 @@ const columnDefinitions = (
         handlePredictionResultModal={handlePredictionResultModal}
         handleTrainingLogsModal={handleTrainingLogsModal}
         predictionResult={row.original}
+        handleCreateOrViewMapSwipeProject={handleCreateOrViewMapSwipeProject}
       />
     ),
   },
@@ -89,6 +92,7 @@ const OfflinePredictionsTable: React.FC<OfflinePredictionsTableProps> = ({
   isError,
   handleTrainingLogsModal,
   handlePredictionResultModal,
+  handleCreateOrViewMapSwipeProject,
 }) => {
   const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -102,6 +106,7 @@ const OfflinePredictionsTable: React.FC<OfflinePredictionsTableProps> = ({
         columns={columnDefinitions(
           handleTrainingLogsModal,
           handlePredictionResultModal,
+          handleCreateOrViewMapSwipeProject,
         )}
         sorting={sorting}
         setSorting={setSorting}

@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { getPredictions } from "./get-predictions";
+import { getPredictions } from "@/features/offline-predictions/api/get-predictions";
 
 export const getPredictionsQueryOptions = (
   searchQuery?: string,

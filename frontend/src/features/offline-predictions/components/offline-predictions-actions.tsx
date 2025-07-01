@@ -6,8 +6,8 @@ import { DropdownPlacement, ModelTrainingStatus } from "@/enums";
 import useCopyToClipboard from "@/hooks/use-clipboard";
 import { API_ENDPOINTS } from "@/services";
 import { TOfflinePrediction } from "@/types";
-import { showSuccessToast, showWarningToast } from "@/utils";
-import { OfflinePredictionsSettingsInfo } from "./offline-predictions-settings-info";
+import { showSuccessToast } from "@/utils";
+import { OfflinePredictionsSettingsInfo } from "@/features/offline-predictions/components/offline-predictions-settings-info";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 
 export const OfflinePredictionActions = ({
@@ -16,12 +16,14 @@ export const OfflinePredictionActions = ({
   predictionResult,
   showSettingsInfo = false,
   placement,
+  handleCreateOrViewMapSwipeProject,
 }: {
   handlePredictionResultModal: (prediction: any) => void;
   handleTrainingLogsModal: (taskId: string) => void;
   predictionResult: TOfflinePrediction;
   showSettingsInfo?: boolean;
   placement?: DropdownPlacement;
+  handleCreateOrViewMapSwipeProject: (prediction: TOfflinePrediction) => void;
 }) => {
   const { copyToClipboard } = useCopyToClipboard();
   const { dropdownRef } = useDropdownMenu();
@@ -117,9 +119,7 @@ export const OfflinePredictionActions = ({
               : "View MapSwipe project",
             onClick: (e) => {
               e.stopPropagation();
-              showWarningToast(
-                "This feature is not yet implemented. Please check back later.",
-              );
+              handleCreateOrViewMapSwipeProject(predictionResult);
             },
             disabled: predictionResult.status !== ModelTrainingStatus.FINISHED,
           },

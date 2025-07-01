@@ -490,3 +490,17 @@ export const OFFSET_STEP: number = parseIntEnv(ENVS.OFFSET_STEP, 0.5);
  * Distance of the elements from the navbar in px for dropdowns and popups on the start mapping page.
  */
 export const ELEMENT_DISTANCE_FROM_NAVBAR: number = 10;
+
+/**
+ * The configuration for Firebase.
+ * This is used to initialize Firebase in the application.
+ */
+export const firebaseConfig = {
+  apiKey: ENVS.MAPSWIPE_FIREBASE_API_KEY,
+  authDomain: ENVS.MAPSWIPE_FIREBASE_AUTH_DOMAIN,
+  databaseURL: ENVS.MAPSWIPE_FIREBASE_DATABASE_URL,
+  projectId: ENVS.MAPSWIPE_FIREBASE_PROJECT_ID,
+  storageBucket: ENVS.MAPSWIPE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: ENVS.MAPSWIPE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: ENVS.MAPSWIPE_FIREBASE_APP_ID,
+};

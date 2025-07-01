@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { NoTrainingAreaIcon } from "@/components/ui/icons";
 import { TOfflinePrediction } from "@/types";
-import { OfflinePredictionsListSkeleton } from "./offline-prediction-list-skeleton";
-import { OfflinePredictionCard } from "./offline-prediction-card";
+import { OfflinePredictionsListSkeleton } from "@/features/offline-predictions/components/offline-prediction-list-skeleton";
+import { OfflinePredictionCard } from "@/features/offline-predictions/components/offline-prediction-card";
 
 export const OfflinePredictionsList = ({
   data,
@@ -11,6 +11,7 @@ export const OfflinePredictionsList = ({
   refetch,
   handleTrainingLogsModal,
   handlePredictionResultModal,
+  handleCreateOrViewMapSwipeProject,
 }: {
   data: TOfflinePrediction[];
   isPending: boolean;
@@ -18,6 +19,7 @@ export const OfflinePredictionsList = ({
   refetch: () => void;
   handleTrainingLogsModal: (taskId: string) => void;
   handlePredictionResultModal: (prediction: TOfflinePrediction) => void;
+  handleCreateOrViewMapSwipeProject: (prediction: TOfflinePrediction) => void;
 }) => {
   /**
    * Pending state.
@@ -64,6 +66,7 @@ export const OfflinePredictionsList = ({
           key={data.id}
           handleTrainingLogsModal={handleTrainingLogsModal}
           handlePredictionResultModal={handlePredictionResultModal}
+          handleCreateOrViewMapSwipeProject={handleCreateOrViewMapSwipeProject}
         />
       ))}
     </div>
