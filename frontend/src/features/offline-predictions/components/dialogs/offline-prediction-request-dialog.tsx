@@ -13,8 +13,9 @@ import { useSubmitOfflinePredictionsRequest } from "@/features/start-mapping/hoo
 import { SEARCH_PARAMS } from "@/app/routes/start-mapping";
 import { useParams } from "react-router-dom";
 import { Geometry } from "geojson";
-import { OfflinePredictionRequestSuccess } from "@/features/start-mapping/components/dialogs/offline-prediction-request-success-dialog";
+
 import { useDialog } from "@/hooks/use-dialog";
+import { OfflinePredictionRequestSuccess } from "./offline-prediction-request-success-dialog";
 
 const MINIMUM_PREDICTION_NAME_LENGTH = 2;
 const MAXIMUM_PREDICTION_NAME_LENGTH = 50;
@@ -141,7 +142,7 @@ export const OfflinePredictionRequestDialog = ({
               variant={ButtonVariant.PRIMARY}
               disabled={
                 predictionRequestName.trim().length <
-                  MINIMUM_PREDICTION_NAME_LENGTH ||
+                MINIMUM_PREDICTION_NAME_LENGTH ||
                 modelPredictionMutation.isPending
               }
               onClick={() => {
