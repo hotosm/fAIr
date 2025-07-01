@@ -188,8 +188,4 @@
   --sl-font-sans: Archivo, -apple-system, Roboto, Helvetica, Arial, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   --sl-font-sans-variant: "Barlow";
-  --sl-font-sans-variant-condensed: "Barlow Condensed";
-  --sl-font-sefif: Georgia, "Times New Roman", serif;
-  --sl-font-mono: Menlo, Monaco, Consolas, "Courier New", monospace, Consolas,
-    "Liberation Mono", Menlo, monospace;
 }
