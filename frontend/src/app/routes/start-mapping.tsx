@@ -33,6 +33,7 @@ import {
   showSuccessToast,
   showWarningToast,
   uuid4,
+
 } from "@/utils";
 
 import {
@@ -477,16 +478,16 @@ export const StartMappingPage = () => {
     () => [
       ...(modelPredictions.length > 0
         ? [
-            {
-              value:
-                START_MAPPING_PAGE_CONTENT.map.controls.legendControl
-                  .predictionResults,
-              subLayers: [
-                ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
-                ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
-              ],
-            },
-          ]
+          {
+            value:
+              START_MAPPING_PAGE_CONTENT.map.controls.legendControl
+                .predictionResults,
+            subLayers: [
+              ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
+              ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
+            ],
+          },
+        ]
         : []),
     ],
     [modelPredictions],
