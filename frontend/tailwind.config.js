@@ -19,6 +19,7 @@ export default {
       },
       fontFamily: {
         archivo: "var(--sl-font-sans)",
+        barlow: "var(--sl-font-sans-variant)",
       },
       fontSize: {
         "extra-large": "var(--hot-fair-font-size-extra-large)",
