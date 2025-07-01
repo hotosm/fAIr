@@ -9,7 +9,6 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import {
   GeolocationControl,
   FitToBounds,
-  DrawControl,
   ZoomLevel,
   LayerControl,
   ZoomControls,
@@ -19,7 +18,7 @@ import { TileServiceLayer } from "@/hooks/tile-service-layer";
 type MapComponentProps = {
   geolocationControl?: boolean;
   controlsPosition?: ControlsPosition;
-  drawControl?: boolean;
+
   showCurrentZoom?: boolean;
   layerControl?: boolean;
   layerControlLayers?: {
@@ -45,7 +44,7 @@ type MapComponentProps = {
 export const MapComponent: React.FC<MapComponentProps> = ({
   geolocationControl = false,
   controlsPosition = ControlsPosition.TOP_RIGHT,
-  drawControl = false,
+
   showCurrentZoom = false,
   layerControl = false,
   layerControlLayers = [],
@@ -56,10 +55,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
   bounds,
   mapContainerRef,
   map,
-  terraDraw,
-  drawingMode,
   zoomControls = true,
-  setDrawingMode,
   tileServiceURL,
   hasTileServiceLayer = false,
 }) => {
@@ -76,13 +72,6 @@ export const MapComponent: React.FC<MapComponentProps> = ({
           >
             {zoomControls ? <ZoomControls map={map} /> : null}
             {geolocationControl && <GeolocationControl map={map} />}
-            {drawControl && terraDraw && drawingMode && setDrawingMode && (
-              <DrawControl
-                terraDraw={terraDraw}
-                drawingMode={drawingMode}
-                setDrawingMode={setDrawingMode}
-              />
-            )}
           </div>
           {fitToBounds && (
             <div className="absolute left-3 z-[1] top-28">

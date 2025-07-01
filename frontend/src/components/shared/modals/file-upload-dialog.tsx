@@ -9,7 +9,6 @@ import { SlFormatBytes } from "@shoelace-style/shoelace/dist/react";
 import { Spinner } from "@/components/ui/spinner";
 import { useCallback, useState } from "react";
 import {
-  MAX_ACCEPTABLE_POLYGON_IN_TRAINING_AREA_GEOJSON_FILE,
   MAX_GEOJSON_FILE_UPLOAD_FOR_TRAINING_AREA_LABELS,
   MAX_GEOJSON_FILE_UPLOAD_FOR_TRAINING_AREAS,
   MAX_TRAINING_AREA_SIZE,
@@ -33,6 +32,9 @@ type FileUploadDialogProps = DialogProps & {
   disableFileSizeValidation?: boolean;
   isAOILabelsUpload?: boolean;
   rawFileUploadHandler?: (formData: FormData) => Promise<void>;
+  maxFiles?: number;
+  buttonText?: string;
+  additionalInstruction?: string;
 };
 
 const isPolygonGeometry = (
@@ -57,6 +59,9 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
   // AOI labels are uploaded as raw GeoJSON file
   isAOILabelsUpload = false,
   rawFileUploadHandler,
+  maxFiles = MAX_TRAINING_AREA_UPLOAD_FILE_SIZE,
+  buttonText = MODELS_CONTENT.modelCreation.trainingArea.form.upload,
+  additionalInstruction,
 }) => {
   const [acceptedFiles, setAcceptedFiles] = useState<AcceptedFile[]>([]);
   const [uploadInProgress, setUploadInProgress] = useState<boolean>(false);
@@ -74,7 +79,7 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
         if (file.size > MAX_TRAINING_AREA_UPLOAD_FILE_SIZE) {
           showErrorToast(
             undefined,
-            `File ${file.name} is too large (max ${formatAreaInAppropriateUnit(MAX_TRAINING_AREA_UPLOAD_FILE_SIZE)})`,
+            `File ${file.name} is too large (max ${MAX_TRAINING_AREA_UPLOAD_FILE_SIZE / 1024 / 1024} MB)`,
           );
           return false;
         }
@@ -91,13 +96,10 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
             if (geojson.type === "FeatureCollection") {
               if (!isAOILabelsUpload) {
                 // Validate the number of features in the collection.
-                if (
-                  geojson.features.length >
-                  MAX_ACCEPTABLE_POLYGON_IN_TRAINING_AREA_GEOJSON_FILE
-                ) {
+                if (geojson.features.length > maxFiles) {
                   showErrorToast(
                     undefined,
-                    `File ${file.name} exceeds limit of ${MAX_ACCEPTABLE_POLYGON_IN_TRAINING_AREA_GEOJSON_FILE} polygon features.`,
+                    `File ${file.name} exceeds limit of ${maxFiles} polygon features.`,
                   );
                   continue;
                 }
@@ -136,6 +138,7 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
     accept: {
       "application/json": [".geojson", ".json"],
     },
+
     maxFiles: isAOILabelsUpload
       ? MAX_GEOJSON_FILE_UPLOAD_FOR_TRAINING_AREA_LABELS
       : MAX_GEOJSON_FILE_UPLOAD_FOR_TRAINING_AREAS,
@@ -179,7 +182,7 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
             ) {
               showErrorToast(
                 undefined,
-                `File area for ${file.name} exceeds area limit.`,
+                `File area for ${file.name} does not satisfy size limit.`,
               );
               continue;
             }
@@ -307,9 +310,23 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
                     .fleSizeInstruction
                 }
               </small>
+
+              {!disableFileSizeValidation && (
+                <small className="text-body-4 md:text-body-3 text-center">
+                  {`Max file size: ${formatAreaInAppropriateUnit(
+                    MAX_TRAINING_AREA_UPLOAD_FILE_SIZE,
+                  )}.`}
+                </small>
+              )}
+
               {!disableFileSizeValidation && (
                 <small className="text-body-4 md:text-body-3 text-center">
                   {`Area should be > ${formatAreaInAppropriateUnit(MIN_TRAINING_AREA_SIZE)} and < ${formatAreaInAppropriateUnit(MAX_TRAINING_AREA_SIZE)}.`}
+                </small>
+              )}
+              {additionalInstruction && (
+                <small className="text-body-4 md:text-body-3 text-center italic text-primary">
+                  {additionalInstruction}
                 </small>
               )}
             </>
@@ -333,7 +350,7 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
                 <Spinner />
               </>
             ) : (
-              MODELS_CONTENT.modelCreation.trainingArea.form.upload
+              buttonText
             )}
           </Button>
         </div>

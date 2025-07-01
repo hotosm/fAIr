@@ -4,7 +4,12 @@ import {
   START_MAPPING_PAGE_CONTENT,
   TOAST_NOTIFICATIONS,
 } from "@/constants";
-import { FitToBounds, LayerControl, ZoomLevel } from "@/components/map";
+import {
+  DrawControl,
+  FitToBounds,
+  LayerControl,
+  ZoomLevel,
+} from "@/components/map";
 import { Head } from "@/components/seo";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useMapInstance } from "@/hooks/use-map-instance";
@@ -19,9 +24,19 @@ import {
   StartMappingMapComponent,
   StartMappingMobileDrawer,
 } from "@/features/start-mapping/components";
-import { constructModelCheckpointPath, geoJSONDowloader, openInJOSM, showSuccessToast } from "@/utils";
+import FileUploadDialog from "@/components/shared/modals/file-upload-dialog";
+import {
+  constructModelCheckpointPath,
+  featureIsWithinBounds,
+  geoJSONDowloader,
+  openInJOSM,
+  showSuccessToast,
+  showWarningToast,
+  uuid4,
+} from "@/utils";
 
 import {
+  MapMode,
   PredictedFeatureStatus,
   PredictionImagerySource,
   PredictionModel,
@@ -31,7 +46,12 @@ import { ImagerySourceSelector } from "@/features/start-mapping/components/repli
 import { useDialog } from "@/hooks/use-dialog";
 import { useModelPredictionStore } from "@/store/model-prediction-store";
 import { ModelSelector } from "@/features/start-mapping/components/replicable-models/model-selector";
-import { BASE_MODELS, TileServiceType } from "@/enums";
+import {
+  BASE_MODELS,
+  DrawingModes,
+  TileServiceType,
+  ToolTipPlacement,
+} from "@/enums";
 import { useTileservice } from "@/hooks/use-tileservice";
 import {
   ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
@@ -39,6 +59,10 @@ import {
   FAIR_BASE_MODELS_PATH,
   OPENAERIALMAP_MOSAIC_TILES_URL,
 } from "@/config";
+import { OfflinePredictionRequestDialog } from "@/features/start-mapping/components/dialogs/offline-prediction-request-dialog";
+import { GeoJSONStoreFeatures } from "terra-draw";
+import { FileUploadIcon } from "@/components/ui/icons";
+import { ToolTip } from "@/components/ui/tooltip";
 
 export type TDownloadOptions = {
   name: string;
@@ -56,6 +80,7 @@ export const SEARCH_PARAMS = {
   imagery: "imagery",
   predictionModelCheckpoint: "checkpoint",
   tileserver: "tileserver",
+  mode: "mode",
 };
 
 export type TQueryParams = {
@@ -65,7 +90,11 @@ export type TQueryParams = {
 export const StartMappingPage = () => {
   const { modelId } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { map, mapContainerRef } = useMapInstance(false, true);
+  const { map, mapContainerRef, setDrawingMode, terraDraw } = useMapInstance(
+    false,
+    true,
+  );
+
   const { isSmallViewport } = useScreenSize();
 
   const {
@@ -73,6 +102,9 @@ export const StartMappingPage = () => {
     setFeatures: setModelPredictions,
     updateFeatureStatus,
   } = useModelPredictionStore();
+
+  const [offlinePredictionAOI, setOfflinePredictionAOI] =
+    useState<Feature | null>(null);
 
   const acceptedFeatures = useMemo(
     () =>
@@ -83,6 +115,7 @@ export const StartMappingPage = () => {
   );
 
   const navigate = useNavigate();
+
   const [openMobileDrawer, setOpenMobileDrawer] =
     useState<boolean>(isSmallViewport);
 
@@ -94,6 +127,10 @@ export const StartMappingPage = () => {
     customPredictionModelCheckpointPath,
     setCustomPredictionModelCheckpointPath,
   ] = useState<string>("");
+  const currentMode = searchParams.get(SEARCH_PARAMS.mode) ?? MapMode.ONLINE;
+  const setCurrentMode = (newMode: MapMode) => {
+    updateQuery({ [SEARCH_PARAMS.mode]: newMode });
+  };
 
   const customTileServerURL = searchParams.get(SEARCH_PARAMS.tileserver) || "";
 
@@ -136,13 +173,22 @@ export const StartMappingPage = () => {
   } = useDialog();
 
   const {
+    openDialog: openOfflinePredictionRequestDialog,
+    isOpened: isOfflinePredictionRequestDialogOpened,
+    closeDialog: closeOfflinePredictionDialog,
+  } = useDialog();
+
+  const {
+    openDialog: openFileUploadDialog,
+    isOpened: isFileUploadDialogOpened,
+    closeDialog: closeFileUploadDialog,
+  } = useDialog();
+  const {
     isError,
     isPending: modelInfoRequestIspending,
     data: modelInfo,
     error,
   } = useModelDetails(modelId as string, !!modelId);
-
-
 
   const updateQuery = useCallback(
     (newParams: TQueryParams) => {
@@ -185,24 +231,30 @@ export const StartMappingPage = () => {
    */
   useEffect(() => {
     const urlCp = searchParams.get(SEARCH_PARAMS.predictionModelCheckpoint);
-    if (urlCp && urlCp.length > 0 && urlCp !== "undefined" && predictionModel === PredictionModel.CUSTOM) {
+    if (
+      urlCp &&
+      urlCp.length > 0 &&
+      urlCp !== "undefined" &&
+      predictionModel === PredictionModel.CUSTOM
+    ) {
       setCustomPredictionModelCheckpointPath(urlCp);
       setPredictionModelCheckpoint(urlCp);
     }
   }, [predictionModel]);
-
-
 
   useEffect(() => {
     /**
      * Only update the checkpoint if the modelInfo is available and
      * the predictionModel is not set or is set to the default model.
      */
-    if (modelInfo && (!predictionModel || predictionModel === PredictionModel.DEFAULT)) {
-      setPredictionModelCheckpoint(constructModelCheckpointPath(modelInfo))
+    if (
+      modelInfo &&
+      (!predictionModel || predictionModel === PredictionModel.DEFAULT)
+    ) {
+      setPredictionModelCheckpoint(constructModelCheckpointPath(modelInfo));
     } else if (predictionModel && predictionModel !== PredictionModel.CUSTOM) {
       setPredictionModelCheckpoint(
-        FAIR_BASE_MODELS_PATH[predictionModel as BASE_MODELS]
+        FAIR_BASE_MODELS_PATH[predictionModel as BASE_MODELS],
       );
     }
   }, [predictionModel, modelInfo]);
@@ -214,7 +266,7 @@ export const StartMappingPage = () => {
     if (predictionImagerySource === PredictionImagerySource.Kontour) {
       setTileserverURL(OPENAERIALMAP_MOSAIC_TILES_URL);
     }
-  }, [predictionImagerySource])
+  }, [predictionImagerySource]);
 
   /**
    * When the user changes the prediction imagery source, sync it to the URL.
@@ -276,6 +328,146 @@ export const StartMappingPage = () => {
     }
   }, [isError, error, navigate]);
 
+  /**
+   * Set the drawing mode based on the current mode.
+   * If the current mode is OFFLINE, set the drawing mode to POLYGON.
+   * If the current mode is ONLINE, set the drawing mode to STATIC.
+   */
+  useEffect(() => {
+    if (currentMode === MapMode.OFFLINE) {
+      setDrawingMode(DrawingModes.POLYGON);
+    } else {
+      setDrawingMode(DrawingModes.STATIC);
+    }
+  }, [currentMode, setDrawingMode]);
+
+  /**
+   * Check if the user has drawn an AOI in offline mode.
+   */
+  const hasDrawnAOI = useMemo(() => {
+    return offlinePredictionAOI !== null;
+  }, [currentMode, offlinePredictionAOI]);
+
+  /**
+   * Check if the offline prediction AOI is valid.
+   */
+  const isOfflineMode = useMemo(
+    () => currentMode === MapMode.OFFLINE,
+    [currentMode],
+  );
+
+  /**
+   * Handle the finish event of the TerraDraw instance.
+   * It checks if the drawn feature is within the bounds of the OAM imagery if it exists.
+   * If the feature is valid, it sets the offline prediction AOI state.
+   * If there are multiple features drawn, it removes all but the first one.
+   */
+  const handleDrawFinish = useCallback(
+    (feature?: Feature) => {
+      if (!terraDraw) return;
+
+      let features: Feature[] = [];
+
+      if (feature) {
+        // If a geometry is provided, wrap it as a Feature
+        features = [feature];
+      } else {
+        // Otherwise, get features from terraDraw
+        features = terraDraw.getSnapshot();
+      }
+
+      if (!features || features.length === 0) return;
+
+      // Check if the feature is within the bounds of the OAM imagery if it exists
+      if (tileJSONMetadata?.bounds) {
+        if (!featureIsWithinBounds(tileJSONMetadata.bounds, features[0])) {
+          showWarningToast(
+            "The drawn polygon extends beyond the imagery bounds. Please ensure the polygon AOI is within the imagery bounds.",
+          );
+          if (!feature && terraDraw) {
+            terraDraw.removeFeatures(
+              features
+                .slice(0)
+                .map((f) => f.id)
+                .filter((id): id is string | number => id !== undefined),
+            );
+          }
+          return;
+        }
+      }
+      if (features.length > 1) {
+        showWarningToast(
+          "Only one polygon can be drawn at a time. Please delete the existing polygon before drawing a new one.",
+        );
+        // Remove the last drawn feature, keeping only the first one
+        if (!feature && terraDraw) {
+          terraDraw.removeFeatures(
+            features
+              .slice(1)
+              .map((f) => f.id)
+              .filter((id): id is string | number => id !== undefined),
+          );
+        }
+        return;
+      }
+      // If a feature is provided, add it to the TerraDraw instance
+      if (feature) {
+        terraDraw.addFeatures([features[0]] as GeoJSONStoreFeatures[]);
+      }
+      setOfflinePredictionAOI(features[0]);
+      showSuccessToast("AOI drawn successfully.");
+    },
+    [terraDraw, tileJSONMetadata],
+  );
+
+  /**
+   * Effect to handle the completion of drawing in TerraDraw.
+   * It listens for changes in the TerraDraw instance and updates the drawn feature state.
+   * If a feature is drawn, it clears previous features except the last one.
+   */
+  useEffect(() => {
+    if (!terraDraw) return;
+
+    const onFinish = () => {
+      handleDrawFinish();
+    };
+
+    terraDraw.on("finish", onFinish);
+
+    return () => {
+      terraDraw.off("finish", onFinish);
+    };
+  }, [terraDraw, handleDrawFinish]);
+
+  /**
+   * Effect to set the current mode to OFFLINE if an AOI has been drawn.
+   * This is to ensure that the user can start offline predictions after drawing an AOI.
+   */
+  useEffect(() => {
+    if (hasDrawnAOI && currentMode !== MapMode.OFFLINE) {
+      setCurrentMode(MapMode.OFFLINE);
+    }
+  }, [hasDrawnAOI, currentMode, setCurrentMode]);
+  /**
+   * Handle the drawing state change.
+   * If the user starts drawing, set the current mode to OFFLINE.
+   * If the user stops drawing, set the current mode to ONLINE and reset the drawing mode to STATIC.
+   */
+  const handleDrawingStateChange = useCallback(
+    (isDrawing: boolean) => {
+      if (isDrawing) {
+        setCurrentMode(MapMode.OFFLINE);
+      } else {
+        setCurrentMode(MapMode.ONLINE);
+        setDrawingMode(DrawingModes.STATIC);
+      }
+    },
+    [setCurrentMode],
+  );
+
+  /**
+   * Check if the model predictions exist.
+   */
   const modelPredictionsExist = useMemo(() => {
     if (!modelPredictions) return false;
     return modelPredictions.length > 0;
@@ -285,16 +477,16 @@ export const StartMappingPage = () => {
     () => [
       ...(modelPredictions.length > 0
         ? [
-          {
-            value:
-              START_MAPPING_PAGE_CONTENT.map.controls.legendControl
-                .predictionResults,
-            subLayers: [
-              ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
-              ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
-            ],
-          },
-        ]
+            {
+              value:
+                START_MAPPING_PAGE_CONTENT.map.controls.legendControl
+                  .predictionResults,
+              subLayers: [
+                ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
+                ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
+              ],
+            },
+          ]
         : []),
     ],
     [modelPredictions],
@@ -311,6 +503,35 @@ export const StartMappingPage = () => {
     showSuccessToast(TOAST_NOTIFICATIONS.startMapping.fileDownloadSuccess);
   }, [modelPredictions, modelInfo]);
 
+  /**
+   * Handle the deletion of the AOI.
+   * It clears the TerraDraw instance and sets the offline prediction AOI state to null.
+   * It also shows a success toast message.
+   */
+  const handleAOIDelete = useCallback(() => {
+    if (!terraDraw) return;
+    terraDraw.clear();
+    setOfflinePredictionAOI(null);
+    showSuccessToast("AOI cleared successfully.");
+  }, [terraDraw]);
+
+  /**
+   * Reset the offline prediction mode state.
+   * It sets the drawing mode to STATIC, clears the TerraDraw instance,
+   * and sets the current mode to ONLINE.
+   */
+  const resetOfflinePredictionModeState = useCallback(() => {
+    setDrawingMode(DrawingModes.STATIC);
+    setOfflinePredictionAOI(null);
+    terraDraw?.clear();
+    setCurrentMode(MapMode.ONLINE);
+  }, [setDrawingMode, setCurrentMode, terraDraw]);
+
+  /**
+   * Handle the download of accepted features.
+   * It creates a GeoJSON file with the accepted features and triggers a download.
+   * It also shows a success toast message.
+   */
   const handleAcceptedFeaturesDownload = useCallback(async () => {
     geoJSONDowloader(
       { type: "FeatureCollection", features: acceptedFeatures },
@@ -319,6 +540,10 @@ export const StartMappingPage = () => {
     showSuccessToast(TOAST_NOTIFICATIONS.startMapping.fileDownloadSuccess);
   }, [acceptedFeatures, modelInfo]);
 
+  /**
+   * Handle the download of features to JOSM.
+   * It opens the features in JOSM with the provided dataset name and source imagery.
+   */
   const handleFeaturesDownloadToJOSM = useCallback(
     (features: Feature[]) => {
       if (!map || !modelInfo?.dataset) return;
@@ -332,10 +557,18 @@ export const StartMappingPage = () => {
     [map, modelInfo],
   );
 
+  /**
+   * Handle the download of all features to JOSM.
+   * It calls the handleFeaturesDownloadToJOSM function with the model predictions.
+   */
   const handleAllFeaturesDownloadToJOSM = useCallback(() => {
     handleFeaturesDownloadToJOSM(modelPredictions);
   }, [handleFeaturesDownloadToJOSM, modelPredictions]);
 
+  /**
+   * Handle the download of accepted features to JOSM.
+   * It calls the handleFeaturesDownloadToJOSM function with the accepted features.
+   */
   const handleAcceptedFeaturesDownloadToJOSM = useCallback(() => {
     handleFeaturesDownloadToJOSM(acceptedFeatures);
   }, [handleFeaturesDownloadToJOSM, acceptedFeatures]);
@@ -382,6 +615,10 @@ export const StartMappingPage = () => {
     },
   ];
 
+  /**
+   * Handle the opening of the prediction imagery dialog.
+   * It closes the mobile drawer to prevent focus trapping issues with vaul.
+   */
   const handlePredictionImageryDialogOpen = useCallback(() => {
     /**
      * Close the mobile drawer when the prediction imagery dialog is opened to prevent focus trapping issues with vaul.
@@ -390,11 +627,19 @@ export const StartMappingPage = () => {
     openDialog();
   }, [openDialog, setOpenMobileDrawer]);
 
+  /**
+   * Handle the closing of the prediction imagery dialog.
+   * It reopens the mobile drawer to allow the user to interact with it again.
+   */
   const handlePredictionImageryDialogClose = useCallback(() => {
     setOpenMobileDrawer(true);
     closeDialog();
   }, [closeDialog, setOpenMobileDrawer]);
 
+  /**
+   * Handle the opening of the prediction model dialog.
+   * It closes the mobile drawer to prevent focus trapping issues with vaul.
+   */
   const handlePredictionModelDialogOpen = useCallback(() => {
     /**
      * Close the mobile drawer when the model selection dialog is opened to prevent focus trapping issues with vaul.
@@ -403,6 +648,10 @@ export const StartMappingPage = () => {
     openModelSelectionDialog();
   }, [openModelSelectionDialog, setOpenMobileDrawer]);
 
+  /**
+   * Handle the closing of the prediction model dialog.
+   * It reopens the mobile drawer to allow the user to interact with it again.
+   */
   const handlePredictionModelDialogClose = useCallback(() => {
     setOpenMobileDrawer(true);
     closeModelSelectionDialog();
@@ -411,6 +660,40 @@ export const StartMappingPage = () => {
   return (
     <>
       <Head title={START_MAPPING_PAGE_CONTENT.pageTitle(modelInfo?.name)} />
+      <FileUploadDialog
+        isOpened={isFileUploadDialogOpened}
+        closeDialog={closeFileUploadDialog}
+        label="Upload Polygon AOI"
+        additionalInstruction={
+          "Ensure the GeoJSON file contains only a single polygon to define your area of interest (AOI)."
+        }
+        fileUploadHandler={async (polygon) => {
+          handleDrawFinish({
+            type: "Feature",
+            geometry: polygon,
+            id: uuid4(),
+            properties: {
+              mode: DrawingModes.POLYGON,
+            },
+          });
+          await new Promise((resolve) => setTimeout(resolve, 200)); // Simulate a delay
+          closeFileUploadDialog();
+        }}
+        disabled={false}
+        maxFiles={1}
+        buttonText="Add to Map"
+      />
+      <OfflinePredictionRequestDialog
+        onClose={closeOfflinePredictionDialog}
+        isOpen={isOfflinePredictionRequestDialogOpened}
+        query={query}
+        updateQuery={updateQuery}
+        drawnAOI={offlinePredictionAOI}
+        modelInfo={modelInfo}
+        predictionModelCheckpoint={predictionModelCheckpoint}
+        tileServerURL={tileserverURL}
+        resetOfflinePredictionModeState={resetOfflinePredictionModeState}
+      />
       <div className="h-screen flex flex-col fullscreen">
         {/* Base model dialog */}
         <Dialog
@@ -492,6 +775,11 @@ export const StartMappingPage = () => {
             modelPredictions={modelPredictions}
             setModelPredictions={setModelPredictions}
             isSmallViewport={isSmallViewport}
+            isOfflineMode={isOfflineMode}
+            hasDrawnAOI={hasDrawnAOI}
+            openOfflinePredictionRequestDialog={
+              openOfflinePredictionRequestDialog
+            }
           />
         )}
         {/* Mobile bottom sheet */}
@@ -530,6 +818,11 @@ export const StartMappingPage = () => {
             modelPredictions={modelPredictions}
             setModelPredictions={setModelPredictions}
             isSmallViewport={isSmallViewport}
+            isOfflineMode={isOfflineMode}
+            hasDrawnAOI={hasDrawnAOI}
+            openOfflinePredictionRequestDialog={
+              openOfflinePredictionRequestDialog
+            }
           />
         </div>
         <div className="col-span-12 h-[70vh] md:h-full md:border-8 md:border-off-white flex-grow relative map-elements-z-index">
@@ -541,6 +834,43 @@ export const StartMappingPage = () => {
             <div className="absolute top-4 left-4  z-[10]">
               <BrandLogoWithDropDown />
             </div>
+            <div className={"absolute top-[10vh] left-3 map-elements-z-index"}>
+              {terraDraw && map && (
+                <DrawControl
+                  terraDraw={terraDraw}
+                  drawingMode={DrawingModes.POLYGON}
+                  setDrawingMode={setDrawingMode}
+                  onDrawingStateChange={handleDrawingStateChange}
+                  drawingIsActive={isOfflineMode}
+                  showDeleteButton={hasDrawnAOI}
+                  onDelete={handleAOIDelete}
+                />
+              )}
+            </div>
+            {terraDraw && map && (
+              <div
+                className={`absolute ${hasDrawnAOI ? "top-[20vh]" : "top-[16vh]"} left-3 map-elements-z-index`}
+              >
+                <ToolTip
+                  content={
+                    !hasDrawnAOI
+                      ? "Upload AOI"
+                      : "AOI already uploaded, delete to upload a new one"
+                  }
+                  placement={ToolTipPlacement.RIGHT}
+                >
+                  <button
+                    className={`p-1.5 flex items-center justify-center transition-colors duration-200 bg-white`}
+                    onClick={openFileUploadDialog}
+                    disabled={hasDrawnAOI}
+                  >
+                    <FileUploadIcon
+                      className={`icon-lg transition-colors duration-200`}
+                    />
+                  </button>
+                </ToolTip>
+              </div>
+            )}
             <div className="absolute top-[10vh] right-4 z-[2] flex flex-col gap-y-4 items-end">
               <ZoomLevel />
               <LayerControl
@@ -570,6 +900,13 @@ export const StartMappingPage = () => {
             modelPredictions={modelPredictions}
             updateFeatureStatus={updateFeatureStatus}
             tileServerURL={tileserverURL as string}
+            handleDrawingStateChange={handleDrawingStateChange}
+            setDrawingMode={setDrawingMode}
+            terraDraw={terraDraw}
+            isOfflineMode={isOfflineMode}
+            hasDrawnAOI={hasDrawnAOI}
+            handleAOIDelete={handleAOIDelete}
+            openFileUploadDialog={openFileUploadDialog}
           />
         </div>
       </div>

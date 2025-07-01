@@ -19,9 +19,12 @@ export const API_ENDPOINTS = {
 
   GET_OSM_DATABASE_LAST_UPDATED: OSM_DATABASE_STATUS_API_ENDPOINT,
 
-  // Predict
+  // Predictions
 
   GET_MODEL_PREDICTIONS: FAIR_PREDICTOR_API_ENDPOINT,
+
+  CREATE_OFFLINE_PREDICTION: "prediction/",
+  GET_OFFLINE_PREDICTIONS: "prediction/",
 
   // Feedbacks
 
@@ -78,7 +81,12 @@ export const API_ENDPOINTS = {
   UPDATE_TRAINING_DATASET: (id: number) => `dataset/${id}/`,
   GET_TRAINING_DATASETS_CENTROIDS: "datasets/centroid/",
 
-  // Workspace
+  // Workspaces
+  GET_PREDICTIONS_PMTILES_URL: (predictionID: number) =>
+    `/workspace/download/prediction_${predictionID}/meta.pmtiles/?url_only=true`,
+
+  DOWNLOAD_PREDICTION_LABELS_FILE: (predictionID: number) =>
+    `workspace/download/prediction_${predictionID}/labels.geojson`,
 
   GET_PMTILES_URL: (trainingAreaId: number) =>
     `/workspace/download/training_${trainingAreaId}/meta.pmtiles/?url_only=true`,

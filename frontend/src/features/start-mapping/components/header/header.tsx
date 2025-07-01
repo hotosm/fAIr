@@ -53,6 +53,9 @@ const StartMappingHeader = memo(
     modelPredictions,
     setModelPredictions,
     isSmallViewport,
+    isOfflineMode,
+    hasDrawnAOI,
+    openOfflinePredictionRequestDialog,
   }: {
     modelPredictionsExist: boolean;
     modelInfoRequestIsPending: boolean;
@@ -92,6 +95,9 @@ const StartMappingHeader = memo(
     modelPredictions: TModelPredictionFeature[];
     setModelPredictions: (features: TModelPredictionFeature[]) => void;
     isSmallViewport: boolean;
+    isOfflineMode: boolean;
+    hasDrawnAOI: boolean;
+    openOfflinePredictionRequestDialog: () => void;
   }) => {
     return (
       <div className="h-10">
@@ -189,6 +195,11 @@ const StartMappingHeader = memo(
                 predictionModelCheckpoint={predictionModelCheckpoint}
                 setModelPredictions={setModelPredictions}
                 modelPredictions={modelPredictions}
+                isOfflineMode={isOfflineMode}
+                hasDrawnAOI={hasDrawnAOI}
+                openOfflinePredictionRequestDialog={
+                  openOfflinePredictionRequestDialog
+                }
               />
               <UserProfile hideFullName smallerSize />
             </div>

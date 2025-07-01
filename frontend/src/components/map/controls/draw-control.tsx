@@ -1,66 +1,75 @@
+import { useCallback } from "react";
 import { DrawingModes, ToolTipPlacement } from "@/enums";
-import { PenIcon } from "@/components/ui/icons";
+import { DeleteIcon } from "@/components/ui/icons";
 import { TerraDraw } from "terra-draw";
 import { ToolTip } from "@/components/ui/tooltip";
-import { useCallback } from "react";
+import { DrawIcon } from "@/components/ui/icons/draw-icon";
+
+type DrawControlProps = {
+  drawingMode: DrawingModes;
+  terraDraw?: TerraDraw;
+  setDrawingMode: (newMode: DrawingModes) => void;
+  showDeleteButton?: boolean;
+  onDelete?: () => void;
+  onDrawingStateChange?: (isDrawing: boolean) => void;
+  drawingIsActive?: boolean;
+};
 
 export const DrawControl = ({
   drawingMode,
   terraDraw,
   setDrawingMode,
-}: {
-  drawingMode: DrawingModes;
-  terraDraw?: TerraDraw;
-  setDrawingMode: (newMode: DrawingModes) => void;
-}) => {
-  const changeMode = useCallback(
-    (newMode: DrawingModes) => {
-      terraDraw?.setMode(newMode);
-      setDrawingMode(newMode);
-    },
-    [terraDraw],
-  );
-
-  const renderButton = (
-    currentMode: DrawingModes,
-    activeMode: DrawingModes,
-    label: string,
-    isActive: boolean,
-  ) => (
-    <ToolTip
-      content={label}
-      placement={ToolTipPlacement.RIGHT}
-      open={drawingMode === DrawingModes.RECTANGLE}
-    >
-      <button
-        className={`p-2 ${currentMode === activeMode ? "bg-primary" : "bg-white"} flex items-center justify-center`}
-        onClick={() =>
-          changeMode(
-            currentMode === activeMode ? DrawingModes.STATIC : activeMode,
-          )
-        }
-      >
-        {activeMode === DrawingModes.SELECT ? (
-          <PenIcon
-            className={`icon ${isActive ? "text-white " : "text-dark"}`}
-          />
-        ) : (
-          <div
-            className={`border-[2px] ${isActive ? "border-white" : "border-dark"} rounded-[4px] map-icon`}
-          ></div>
-        )}
-      </button>
-    </ToolTip>
-  );
+  showDeleteButton = false,
+  onDelete,
+  onDrawingStateChange,
+  drawingIsActive = false,
+}: DrawControlProps) => {
+  const handleClick = useCallback(() => {
+    if (drawingIsActive) {
+      setDrawingMode(DrawingModes.STATIC);
+      terraDraw?.setMode(DrawingModes.STATIC);
+      onDrawingStateChange?.(false);
+    } else {
+      setDrawingMode(drawingMode);
+      terraDraw?.setMode(drawingMode);
+      onDrawingStateChange?.(true);
+    }
+  }, [drawingIsActive, drawingMode, setDrawingMode, terraDraw]);
 
   return (
-    <>
-      {renderButton(
-        drawingMode,
-        DrawingModes.RECTANGLE,
-        drawingMode === DrawingModes.STATIC ? "Draw AOI" : "Cancel",
-        drawingMode === DrawingModes.RECTANGLE,
+    <div className="relative inline-flex flex-col gap-y-2">
+      <div>
+        <ToolTip
+          content={drawingIsActive ? "Cancel" : "Draw AOI"}
+          placement={ToolTipPlacement.RIGHT}
+          open={drawingIsActive}
+        >
+          <button
+            className={`p-1.5 flex items-center justify-center transition-colors duration-200 ${drawingIsActive ? "bg-primary" : "bg-white"}`}
+            onClick={handleClick}
+            aria-pressed={drawingIsActive}
+            type="button"
+          >
+            <DrawIcon
+              className={`icon-lg transition-colors duration-200 ${drawingIsActive ? "text-white" : "text-dark"}`}
+            />
+          </button>
+        </ToolTip>
+      </div>
+
+      {showDeleteButton && (
+        <ToolTip content="Delete AOI" placement={ToolTipPlacement.RIGHT}>
+          <button
+            className="p-1.5 flex items-center justify-center bg-white cursor-pointer text-primary "
+            type="button"
+            onClick={() => {
+              onDelete?.();
+            }}
+          >
+            <DeleteIcon className="icon-lg" />
+          </button>
+        </ToolTip>
       )}
-    </>
+    </div>
   );
 };

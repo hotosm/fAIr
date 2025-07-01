@@ -38,15 +38,14 @@ export const calculateGeoJSONArea = (
  */
 
 export function formatAreaInAppropriateUnit(area: number) {
-  const SQUARE_METERS_IN_SQUARE_KILOMETER = 1000000;
-  if (area > SQUARE_METERS_IN_SQUARE_KILOMETER) {
-    return (
-      roundNumber(
-        area / SQUARE_METERS_IN_SQUARE_KILOMETER,
-        1,
-      ).toLocaleString() + "km²"
-    );
+  const KM2_THRESHOLD = 100_000; // 0.1 km²
+  const SQUARE_METERS_IN_SQUARE_KILOMETER = 1_000_000;
+
+  if (area >= KM2_THRESHOLD) {
+    const areaInKm2 = area / SQUARE_METERS_IN_SQUARE_KILOMETER;
+    return roundNumber(areaInKm2, 2).toLocaleString() + "km²";
   }
+
   return roundNumber(area, 1).toLocaleString() + "m²";
 }
 

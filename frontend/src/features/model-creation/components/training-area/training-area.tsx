@@ -1,4 +1,4 @@
-import FileUploadDialog from "@/features/model-creation/components/dialogs/file-upload-dialog";
+import FileUploadDialog from "@/components/shared/modals/file-upload-dialog";
 import OpenAerialMap from "@/features/model-creation/components/training-area/open-area-map";
 import TrainingAreaList from "@/features/model-creation/components/training-area/training-area-list";
 import TrainingAreaMap from "@/features/model-creation/components/training-area/training-area-map";

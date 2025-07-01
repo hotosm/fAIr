@@ -38,15 +38,16 @@ export const useMapInstance = (
 
   const terraDraw = useMemo(() => {
     if (map) {
-      const terraDraw = setupTerraDraw(map);
-      terraDraw.start();
-      return terraDraw;
+      const draw = setupTerraDraw(map);
+      draw.start();
+      return draw;
     }
   }, [map]);
 
   // Sync the drawing modes between terraDraw
   // and the application state
   useEffect(() => {
+    if (!terraDraw) return;
     terraDraw?.setMode(drawingMode);
   }, [terraDraw, drawingMode]);
 

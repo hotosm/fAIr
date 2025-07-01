@@ -5,22 +5,25 @@ import { TQueryParams } from "@/types";
 import { useScrollToTop } from "@/hooks/use-scroll-to-element";
 import { ToolTip } from "@/components/ui/tooltip";
 
-const LayoutToggle = ({
+export const LayoutToggle = ({
   query,
   updateQuery,
   isMobile,
   disabled = false,
+  iconSize = "icon-lg",
 }: {
   updateQuery: (params: TQueryParams) => void;
   query: TQueryParams;
   isMobile?: boolean;
   disabled?: boolean;
+  iconSize?: string;
 }) => {
   const activeLayout = query[SEARCH_PARAMS.layout];
   const { scrollToTop } = useScrollToTop();
+
   return (
     <ToolTip
-      content={`${disabled ? "Toggle off mapview to show as" : "Show as"} ${query[SEARCH_PARAMS.layout] === LayoutView.GRID ? LayoutView.LIST : (LayoutView.GRID as string)}`}
+      content={`${disabled ? "Toggle off mapview to show as" : "Show as"} ${activeLayout === LayoutView.GRID ? LayoutView.LIST : (LayoutView.GRID as string)}`}
     >
       <button
         className={`${isMobile ? "flex md:hidden" : "hidden md:flex"} ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"} border border-gray-border p-2 items-center justify-center text-dark`}
@@ -36,13 +39,11 @@ const LayoutToggle = ({
         disabled={disabled}
       >
         {activeLayout !== LayoutView.LIST ? (
-          <ListIcon className="icon-lg" />
+          <ListIcon className={iconSize} />
         ) : (
-          <CategoryIcon className="icon-lg" />
+          <CategoryIcon className={iconSize} />
         )}
       </button>
     </ToolTip>
   );
 };
-
-export default LayoutToggle;

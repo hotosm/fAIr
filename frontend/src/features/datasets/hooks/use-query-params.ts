@@ -63,13 +63,19 @@ export const useDatasetsQueryParams = (userId?: number) => {
   //reset offset back to 0 when searching or when ID filtering is applied from the map.
   useEffect(() => {
     if (
-      query[SEARCH_PARAMS.searchQuery] !== "" ||
-      (query[SEARCH_PARAMS.id] !== "" &&
-        (query[SEARCH_PARAMS.offset] as number) > 0)
+      (query[SEARCH_PARAMS.searchQuery] !== "" ||
+        query[SEARCH_PARAMS.id] !== "") &&
+      (query[SEARCH_PARAMS.offset] as number) > 0
     ) {
       updateQuery({ [SEARCH_PARAMS.offset]: 0 });
     }
-  }, [query]);
+  }, [
+    [
+      query[SEARCH_PARAMS.searchQuery],
+      query[SEARCH_PARAMS.offset],
+      query[SEARCH_PARAMS.id],
+    ],
+  ]);
 
   useEffect(() => {
     const newQuery = {

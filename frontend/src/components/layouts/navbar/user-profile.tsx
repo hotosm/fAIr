@@ -45,6 +45,12 @@ export const UserProfile = ({
           },
         },
         {
+          value: SHARED_CONTENT.navbar.userProfile.offlinePredictions,
+          onClick: () => {
+            navigate(APPLICATION_ROUTES.PROFILE_OFFLINE_PREDICTIONS);
+          },
+        },
+        {
           value: SHARED_CONTENT.navbar.userProfile.settings,
           onClick: () => {
             navigate(APPLICATION_ROUTES.PROFILE_SETTINGS);

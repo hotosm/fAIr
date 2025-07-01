@@ -68,6 +68,10 @@ export const openInIDEditor = (
 
 export const validateGeoJSONArea = (geojsonFeature: Feature) => {
   const area = calculateGeoJSONArea(geojsonFeature);
+
+  if (!area || isNaN(area) || area === Infinity || area === 0) {
+    return false;
+  }
   return area < MIN_TRAINING_AREA_SIZE || area > MAX_TRAINING_AREA_SIZE;
 };
 

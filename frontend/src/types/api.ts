@@ -1,4 +1,4 @@
-import { BASE_MODELS } from "@/enums";
+import { BASE_MODELS, ModelTrainingStatus } from "@/enums";
 import { BBOX } from "./common";
 import { GeoJsonProperties, Geometry } from "geojson";
 import { PredictedFeatureStatus } from "@/enums/start-mapping";
@@ -199,6 +199,7 @@ export type TTrainingFeedbacks = {
 export type Feature = {
   type: "Feature";
   geometry: Geometry;
+  id?: string | number;
   properties:
     | {
         mid: string;
@@ -211,9 +212,8 @@ export type FeatureCollection = {
   features: [] | Feature[];
 };
 
-export type TModelPredictionsConfig = {
+export type TPredictionsConfig = {
   area_threshold: number;
-  bbox: BBOX;
   checkpoint: string;
   confidence: number;
   max_angle_change: number;
@@ -226,6 +226,16 @@ export type TModelPredictionsConfig = {
   source_imagery?: string;
 };
 
+export type TModelPredictionsConfig = TPredictionsConfig & {
+  bbox: BBOX;
+};
+
+export type TOfflinePredictionsConfig = {
+  description: string;
+  config: TPredictionsConfig;
+  geom: Geometry;
+};
+
 export type TModelPredictionFeature = {
   type: "Feature";
   geometry: Geometry;
@@ -236,4 +246,18 @@ export type TModelPredictionFeature = {
     status: PredictedFeatureStatus;
   };
   id?: string | number;
+};
+
+export type TOfflinePrediction = {
+  id: number;
+  geom: Geometry;
+  description: string | null;
+  created_at: string;
+  started_at: string | null;
+  finished_at: string | null;
+  status: ModelTrainingStatus;
+  task_id: string;
+  mapswipe_id: string | null;
+  user: number;
+  config: TModelPredictionsConfig;
 };

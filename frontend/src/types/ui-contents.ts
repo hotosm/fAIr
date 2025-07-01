@@ -327,6 +327,7 @@ export type TSharedContent = {
       models: string;
       settings: string;
       logout: string;
+      offlinePredictions: string;
     };
   };
   footer: {

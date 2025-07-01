@@ -21,7 +21,8 @@ import {
   ModelListGridLayout,
   ModelListTableLayout,
 } from "@/features/models/layouts";
-import { LayoutToggle, ModelsMap } from "@/features/models/components";
+import { LayoutToggle } from "@/components/shared/layout-toggle";
+import { ModelsMap } from "@/features/models/components";
 import {
   CategoryFilter,
   DateRangeFilter,

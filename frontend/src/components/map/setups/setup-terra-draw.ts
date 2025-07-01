@@ -4,6 +4,8 @@ import {
   ValidateNotSelfIntersecting,
   TerraDrawRectangleMode,
   TerraDrawExtend,
+  TerraDrawSelectMode,
+  TerraDrawPolygonMode,
 } from "terra-draw";
 import { TerraDrawMapLibreGLAdapter } from "terra-draw-maplibre-gl-adapter";
 import {
@@ -18,7 +20,7 @@ export const setupTerraDraw = (map: maplibregl.Map) => {
     tracked: true,
     adapter: new TerraDrawMapLibreGLAdapter({
       map,
-      coordinatePrecision: 16,
+      coordinatePrecision: 20,
     }),
     // idStrategy: {
     //   isValidId: () => true,
@@ -30,21 +32,39 @@ export const setupTerraDraw = (map: maplibregl.Map) => {
     //   })(),
     // },
     modes: [
-      // new TerraDrawSelectMode({
-      //   flags: {
-      //     arbitary: {
-      //       feature: {},
-      //     },
-      //     rectangle: {
-      //       feature: {
-      //         draggable: true,
-      //         coordinates: {
-      //           resizable: "opposite",
-      //         },
-      //       },
-      //     },
-      //   },
-      // }),
+      new TerraDrawSelectMode({
+        flags: {
+          arbitary: {
+            feature: {},
+          },
+          rectangle: {
+            feature: {
+              draggable: true,
+              coordinates: {
+                resizable: "opposite",
+              },
+            },
+          },
+          polygon: {
+            feature: {
+              draggable: true,
+              coordinates: {
+                midpoints: true,
+                draggable: true,
+                deletable: true,
+              },
+            },
+          },
+        },
+      }),
+      new TerraDrawPolygonMode({
+        validation: (feature, { updateType }) => {
+          if (updateType === "finish" || updateType === "commit") {
+            return ValidateNotSelfIntersecting(feature);
+          }
+          return { valid: true };
+        },
+      }),
       new TerraDrawRectangleMode({
         validation: (feature, { updateType }) => {
           if (updateType === "finish" || updateType === "commit") {

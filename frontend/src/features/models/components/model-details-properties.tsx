@@ -1,9 +1,7 @@
 import AccuracyDisplay from "./accuracy-display";
-import CodeBlock from "@/components/ui/codeblock/codeblock";
 import ModelFilesButton from "./model-files-button";
 import ToolTip from "@/components/ui/tooltip/tooltip";
 import { BASE_API_URL } from "@/config";
-import { ChevronDownIcon } from "@/components/ui/icons";
 import { cn, showErrorToast } from "@/utils";
 import { ExternalLinkIcon } from "@/components/ui/icons";
 import { Image, ZoomableImage } from "@/components/ui/image";
@@ -14,12 +12,10 @@ import { MODELS_CONTENT } from "@/constants";
 import { TrainingAreaButton } from "./training-area-button";
 import { TrainingAreaDrawer } from "./training-area-drawer";
 import { useDialog } from "@/hooks/use-dialog";
-import { useEffect, useState } from "react";
-import {
-  useTrainingDetails,
-  useTrainingStatus,
-} from "@/features/models/hooks/use-training";
+import { useEffect } from "react";
+import { useTrainingDetails } from "@/features/models/hooks/use-training";
 import { CopyButton } from "@/components/ui/copy-button";
+import { TrainingLogs } from "@/components/shared/training-logs";
 
 enum TrainingStatus {
   FAILED = "FAILED",
@@ -319,7 +315,7 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
           {isTrainingDetailsDialog &&
             (data?.status === TrainingStatus.FAILED ||
               data?.status === TrainingStatus.RUNNING) && (
-              <FailedTrainingTraceBack taskId={data?.task_id ?? ""} />
+              <TrainingLogs taskId={data?.task_id ?? ""} />
             )}
         </div>
       </>
@@ -328,26 +324,3 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
 };
 
 export default ModelProperties;
-
-const FailedTrainingTraceBack = ({ taskId }: { taskId: string }) => {
-  const { data, isPending } = useTrainingStatus(taskId);
-  const [showLogs, setShowLogs] = useState<boolean>(false);
-
-  if (isPending) {
-    return (
-      <div className="h-40 col-span-5 w-full animate-pulse bg-light-gray"></div>
-    );
-  }
-  return (
-    <div className="col-span-3 flex flex-col gap-y-2 w-full">
-      <button
-        onClick={() => setShowLogs(!showLogs)}
-        className="flex items-center gap-x-2 text-grey text-body-2"
-      >
-        <p>{MODELS_CONTENT.models.modelsDetailsCard.trainingInfoDialog.logs}</p>
-        <ChevronDownIcon className={`icon ${showLogs && "rotate-180"}`} />
-      </button>
-      {showLogs && <CodeBlock content={data?.traceback as string} />}
-    </div>
-  );
-};

@@ -1,5 +1,5 @@
 import ModelNotFound from "@/features/models/components/model-not-found";
-import { LayoutToggle } from "@/features/models/components";
+import { LayoutToggle } from "@/components/shared/layout-toggle";
 import { LayoutView } from "@/enums";
 import { MobileModelFiltersDialog } from "@/features/models/components/dialogs";
 import { MODELS_CONTENT } from "@/constants";
@@ -33,7 +33,9 @@ export const ModelExplorer = ({
   createRoute,
   createButtonAlt,
   userId,
-  datasetId, disableStatusFilter
+  datasetId,
+  disableStatusFilter,
+  status,
 }: {
   disableCreateNewButton?: boolean;
   title?: string;
@@ -42,6 +44,7 @@ export const ModelExplorer = ({
   userId?: number;
   datasetId?: number;
   disableStatusFilter?: boolean;
+  status?: number;
 }) => {
   const { isOpened, openDialog, closeDialog } = useDialog();
 
@@ -53,7 +56,7 @@ export const ModelExplorer = ({
     isPlaceholderData,
     query,
     updateQuery,
-  } = useModelsListFilters(undefined, userId, datasetId);
+  } = useModelsListFilters(status, userId, datasetId);
   const navigate = useNavigate();
 
   const handleClick = () => {
@@ -122,14 +125,13 @@ export const ModelExplorer = ({
                   }
                 />
                 <CategoryFilter disabled={isPending} />
-                {
-                  disableStatusFilter ? null :
-                    <StatusFilter
-                      disabled={isPending}
-                      updateQuery={updateQuery}
-                      query={query}
-                    />
-                }
+                {disableStatusFilter ? null : (
+                  <StatusFilter
+                    disabled={isPending}
+                    updateQuery={updateQuery}
+                    query={query}
+                  />
+                )}
                 {/* Mobile filters */}
                 <div className="flex md:hidden items-center gap-x-4">
                   <MobileFilter openMobileFilterModal={openDialog} />

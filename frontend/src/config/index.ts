@@ -162,11 +162,11 @@ export const MIN_TRAINING_AREA_SIZE: number = parseIntEnv(
 
 /**
  * The maximum file size (in bytes) allowed for training area upload.
- * The default is set to 5 MB.
+ * The default is set to 1 MB.
  */
 export const MAX_TRAINING_AREA_UPLOAD_FILE_SIZE: number = parseIntEnv(
   ENVS.MAX_TRAINING_AREA_UPLOAD_FILE_SIZE,
-  5 * 1024 * 1024,
+  1 * 1024 * 1024,
 );
 
 /**
@@ -233,8 +233,7 @@ export const MIN_ZOOM_LEVEL_FOR_TRAINING_AREA_LABELS: number = parseIntEnv(
  * OSM Basemap style.
  */
 export const MAP_STYLES: Record<string, string | StyleSpecification> = {
-  OSM:
-  {
+  OSM: {
     version: 8,
     // "glyphs": "mapbox://fonts/mapbox/{fontstack}/{range}.pbf",
     //https://fonts.openmaptiles.org/{fontstack}/{range}.pbf
@@ -375,7 +374,6 @@ export const MATOMO_TRACKING_URL: string = parseStringEnv(
  */
 export const HOT_TRACKING_HTML_TAG_NAME: string = "hot-tracking";
 
-
 export const BANNER_TIMEOUT_DURATION: number = parseIntEnv(
   ENVS.BANNER_TIMEOUT_DURATION,
   3000,
@@ -445,7 +443,7 @@ const REFRESH_BUFFER_MS: number = 1000;
  */
 export const KPI_STATS_CACHE_TIME_MS: number =
   parseIntEnv(ENVS.KPI_STATS_CACHE_TIME, DEFAULT_KPI_STATS_CACHE_TIME_SECONDS) *
-  1000 +
+    1000 +
   REFRESH_BUFFER_MS;
 
 /**
@@ -478,7 +476,8 @@ export const FAIR_BASE_MODELS_PATH: Record<BASE_MODELS, string> = {
   [BASE_MODELS.YOLOV8_V2]: `${FAIR_MODELS_BASE_PATH}/basemodels/yolo/yolov8s_v2-seg.onnx`,
 };
 
-export const OPENAERIALMAP_MOSAIC_TILES_URL = "https://apps.kontur.io/raster-tiler/oam/mosaic/{z}/{x}/{y}.png"
+export const OPENAERIALMAP_MOSAIC_TILES_URL =
+  "https://apps.kontur.io/raster-tiler/oam/mosaic/{z}/{x}/{y}.png";
 /**
  *  The default offset step for the training labels offset controller.
  */
