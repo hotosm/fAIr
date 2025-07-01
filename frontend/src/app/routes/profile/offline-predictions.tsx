@@ -4,18 +4,20 @@ import { OrderingFilter, Pagination, SearchFilter } from "@/components/shared";
 import { LayoutToggle } from "@/components/shared/layout-toggle";
 import { LayoutView } from "@/enums";
 import { ProfileSectionHeader } from "@/features/user-profile/components";
-import OfflinePredictionsTable from "@/features/user-profile/components/offline-predictions/offline-predictions-table";
-import { OfflinePredictionsList } from "@/features/user-profile/components/offline-predictions/offline-predictions-list";
-import { useOfflinePredictionsQueryParams } from "@/features/user-profile/hooks/use-predictions";
+import OfflinePredictionsTable from "@/features/offline-predictions/components/offline-predictions-table";
+import { OfflinePredictionsList } from "@/features/offline-predictions/components/offline-predictions-list";
+import { useOfflinePredictionsQueryParams } from "@/features/offline-predictions/hooks/use-predictions";
 import { SEARCH_PARAMS } from "@/utils/search-params";
 import { useDialog } from "@/hooks/use-dialog";
 import { useState } from "react";
 import { TOfflinePrediction } from "@/types";
-import { PredictionResultDrawer } from "@/features/user-profile/components/predictions-results-drawer";
-import { TrainingLogsDialog } from "@/features/user-profile/components/training-logs-dialog";
+import { PredictionResultDrawer } from "@/features/offline-predictions/components/predictions-results-drawer";
+import { TrainingLogsDialog } from "@/features/offline-predictions/components/dialogs/training-logs-dialog";
+import { CreateMapswipeProjectDialog } from "@/features/mapswipe/components/mapswipe-project-creation-dialog";
 
 export const UserProfileOfflinePredictionsPage = () => {
   const { user } = useAuth();
+
   const {
     data,
     isError,
@@ -31,6 +33,11 @@ export const UserProfileOfflinePredictionsPage = () => {
     openDialog: openPredictionResultDialog,
     closeDialog: closePredictionResultDialog,
   } = useDialog();
+  const {
+    isOpened: isMapSwipeProjectCreationDialogOpened,
+    openDialog: openMapSwipeProjectCreationDialog,
+    closeDialog: closeMapSwipeProjectCreationDialog,
+  } = useDialog();
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
   const [activePrediction, setActivePrediction] =
     useState<TOfflinePrediction | null>(null);
@@ -42,8 +49,25 @@ export const UserProfileOfflinePredictionsPage = () => {
     setActivePrediction(prediction);
     openPredictionResultDialog();
   };
+
+  const handleCreateOrViewMapSwipeProject = (
+    prediction: TOfflinePrediction,
+  ) => {
+    const mapSwipeProjectExists = prediction.mapswipe_id;
+    if (!mapSwipeProjectExists) {
+      openMapSwipeProjectCreationDialog();
+    }
+    setActivePrediction(prediction);
+  };
   return (
     <>
+      {activePrediction && (
+        <CreateMapswipeProjectDialog
+          isOpened={isMapSwipeProjectCreationDialogOpened}
+          closeDialog={closeMapSwipeProjectCreationDialog}
+          predictionResult={activePrediction}
+        />
+      )}
       {activePrediction && (
         <PredictionResultDrawer
           tileServiceUrl={activePrediction.config.source}
@@ -118,6 +142,9 @@ export const UserProfileOfflinePredictionsPage = () => {
             isPending={isPending}
             handleTrainingLogsModal={handleTrainingLogsModal}
             handlePredictionResultModal={handlePredictionResultModal}
+            handleCreateOrViewMapSwipeProject={
+              handleCreateOrViewMapSwipeProject
+            }
           />
         ) : (
           <OfflinePredictionsList
@@ -127,6 +154,9 @@ export const UserProfileOfflinePredictionsPage = () => {
             refetch={refetch}
             handleTrainingLogsModal={handleTrainingLogsModal}
             handlePredictionResultModal={handlePredictionResultModal}
+            handleCreateOrViewMapSwipeProject={
+              handleCreateOrViewMapSwipeProject
+            }
           />
         )}
       </div>

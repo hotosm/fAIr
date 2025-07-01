@@ -10,6 +10,11 @@ import { TourProvider } from "@reactour/tour";
 import { APP_TOUR_STEPS } from "@/constants/site-tour";
 import { AuthProvider } from "./providers/auth-provider";
 import { HelmetProvider } from "react-helmet-async";
+import { initializeApp } from "firebase/app";
+import { firebaseConfig } from "@/config";
+
+// Initialize Firebase
+initializeApp(firebaseConfig);
 
 export const App = () => {
   const queryClient = new QueryClient({

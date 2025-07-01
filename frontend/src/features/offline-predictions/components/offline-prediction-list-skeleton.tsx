@@ -4,7 +4,7 @@ export const OfflinePredictionsListSkeleton = () => {
       {Array.from({ length: 12 }).map((_, index) => (
         <div
           key={index}
-          className="w-full h-48 bg-light-gray rounded-lg animate-pulse"
+          className="w-full h-52 bg-light-gray rounded-lg animate-pulse"
         ></div>
       ))}
     </div>
