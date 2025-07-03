@@ -22,8 +22,7 @@ PROFILE="${PROFILE:-cpu}"  # Default profile (can be 'gpu' or 'cpu')
 USER_NAME="${USER}"
 
 POSTGRES_PASSWORD="${POSTGRES_PASSWORD:-dev_pg_pass}"
-REDIS_PASSWORD="${REDIS_PASSWORD:-dev_redis_pass}"
-FLOWER_PASSWORD="${FLOWER_PASSWORD:-dev_flower_pass}"
+
 
 # Header
 show_header() {
@@ -96,11 +95,6 @@ POSTGRES_PASSWORD=$POSTGRES_PASSWORD
 # Redis configuration
 REDIS_HOST=redis
 REDIS_PORT=6379
-REDIS_PASSWORD=$REDIS_PASSWORD
-
-# Flower configuration
-FLOWER_USER=admin
-FLOWER_PASSWORD=$FLOWER_PASSWORD
 
 TAG=develop
 

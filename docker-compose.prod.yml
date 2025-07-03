@@ -4,7 +4,7 @@ x-common-env: &common-env
 
 x-common-volumes: &common-volumes
   volumes:
-    - ${APP_LOGS:-/opt/fair-app/data/log}:${APP_LOGS:-/opt/fair-app/data/log}
+    - ${LOG_PATH:-/opt/fair-app/data/log}:${LOG_PATH:-/opt/fair-app/data/log}
     - ${RAMP_HOME:-/opt/fair-app/data/ramp}:${RAMP_HOME:-/opt/fair-app/data/ramp}
     - ${TRAINING_WORKSPACE:-/opt/fair-app/data/trainings}:${TRAINING_WORKSPACE:-/opt/fair-app/data/trainings}
 
