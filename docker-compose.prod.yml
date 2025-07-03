@@ -2,6 +2,12 @@ x-common-env: &common-env
   env_file:
     - ${ENV_FILE:-.env.production}
 
+x-common-volumes: &common-volumes
+  volumes:
+    - ${APP_LOGS:-/opt/fair-app/data/log}:${APP_LOGS:-/opt/fair-app/data/log}
+    - ${RAMP_HOME:-/opt/fair-app/data/ramp}:${RAMP_HOME:-/opt/fair-app/data/ramp}
+    - ${TRAINING_WORKSPACE:-/opt/fair-app/data/trainings}:${TRAINING_WORKSPACE:-/opt/fair-app/data/trainings}
+
 services:
   postgres:
     <<: *common-env
@@ -45,7 +51,7 @@ services:
       retries: 5
 
   backend-api:
-    <<: *common-env
+    <<: [*common-env, *common-volumes]
     image: ghcr.io/hotosm/fair-api:${TAG:-latest}
     platform: linux/amd64
     container_name: api
@@ -53,10 +59,6 @@ services:
     command: gunicorn --bind 0.0.0.0:8000 --workers 3 aiproject.wsgi:application
     ports:
       - "8000:8000"
-    volumes:
-      - ${APP_LOGS:-/opt/fair-app/data/log}:/app/log
-      - ${RAMP_HOME:-/opt/fair-app/data/ramp}:/RAMP_HOME
-      - ${TRAINING_WORKSPACE:-/opt/fair-app/data/trainings}:/TRAINING_WORKSPACE
     depends_on:
       redis:
         condition: service_healthy
@@ -75,16 +77,12 @@ services:
       retries: 2
 
   backend-api-django-q:
-    <<: *common-env
+    <<: [*common-env, *common-volumes]
     image: ghcr.io/hotosm/fair-api:${TAG:-latest}
     platform: linux/amd64
     container_name: api-django-q
     restart: always
     command: python manage.py qcluster
-    volumes:
-      - ${APP_LOGS:-/opt/fair-app/data/log}:/app/log
-      - ${RAMP_HOME:-/opt/fair-app/data/ramp}:/RAMP_HOME
-      - ${TRAINING_WORKSPACE:-/opt/fair-app/data/trainings}:/TRAINING_WORKSPACE
     depends_on:
       redis:
         condition: service_healthy
@@ -101,17 +99,13 @@ services:
           memory: 2G
 
   backend-worker-cpu:
-    <<: *common-env
+    <<: [*common-env, *common-volumes]
     profiles: ["cpu"]
     image: ghcr.io/hotosm/fair-worker:${TAG:-latest}-cpu
     platform: linux/amd64
     container_name: worker-cpu
     restart: always
     command: celery -A aiproject worker --loglevel=INFO --concurrency=1 -Q ramp_training,yolo_training
-    volumes:
-      - ${APP_LOGS:-/opt/fair-app/data/log}:/app/log
-      - ${RAMP_HOME:-/opt/fair-app/data/ramp}:/RAMP_HOME
-      - ${TRAINING_WORKSPACE:-/opt/fair-app/data/trainings}:/TRAINING_WORKSPACE
     depends_on:
       backend-api:
         condition: service_healthy
@@ -128,17 +122,13 @@ services:
           memory: 4G
 
   backend-worker-gpu:
-    <<: *common-env
+    <<: [*common-env, *common-volumes]
     profiles: ["gpu"]
     image: ghcr.io/hotosm/fair-worker:${TAG:-latest}-gpu
     platform: linux/amd64
     container_name: worker-gpu
     restart: always
     command: celery -A aiproject worker --loglevel=INFO --concurrency=1 -Q ramp_training,yolo_training --pool=solo
-    volumes:
-      - ${APP_LOGS:-/opt/fair-app/data/log}:/app/log
-      - ${RAMP_HOME:-/opt/fair-app/data/ramp}:/RAMP_HOME
-      - ${TRAINING_WORKSPACE:-/opt/fair-app/data/trainings}:/TRAINING_WORKSPACE
     depends_on:
       backend-api:
         condition: service_healthy
@@ -159,16 +149,12 @@ services:
           memory: 8G
 
   prediction-worker:
-    <<: *common-env
+    <<: [*common-env, *common-volumes]
     image: ghcr.io/hotosm/fair-offline-predictor:${TAG:-latest}
     platform: linux/amd64
     container_name: prediction-worker
     restart: always
     command: celery -A aiproject worker --loglevel=INFO --concurrency=1 -Q predictions --pool=solo
-    volumes:
-      - ${APP_LOGS:-/opt/fair-app/data/log}:/app/log
-      - ${RAMP_HOME:-/opt/fair-app/data/ramp}:/RAMP_HOME
-      - ${TRAINING_WORKSPACE:-/opt/fair-app/data/trainings}:/TRAINING_WORKSPACE
     depends_on:
       backend-api:
         condition: service_healthy
