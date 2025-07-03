@@ -405,6 +405,9 @@ def run_tippecanoe(out):
 def finalize(inst, out, prep, acc):
     for f in ["aois.geojson", "labels.geojson"]:
         copyfile(os.path.join(out, f), os.path.join(prep, f))
+    logger = logging.getLogger(__name__)
+    logger.info(f"Setting up output path {out}")
+    os.makedirs(out, exist_ok=True)
     xz_folder(prep, os.path.join(out, "preprocessed.tar.xz"), remove_original=True)
     if settings.USE_S3_TO_UPLOAD_MODELS:
         upload_to_s3(out, parent=f"{settings.PARENT_BUCKET_FOLDER}/training_{inst.id}")
@@ -458,6 +461,8 @@ def train_model(
                 "input",
                 f"training_{training_id}",
             )
+            logger.info(f"Setting up input path {input_path}")
+            os.makedirs(input_path, exist_ok=True)
 
             input_path, aoi_ser, labels = prepare_data(
                 inst,
@@ -495,6 +500,7 @@ def train_model(
                 result["preprocess_output"],
                 result["accuracy"],
             )
+        logger.info(f"Cleaning up input path {input_path}")
         safe_rmtree(input_path)
         logger.info("Training completed successfully")
         send_notification(inst, "Completed")
@@ -529,6 +535,7 @@ def predict_area(prediction_request_id):
     try:
         logger.info("Starting model prediction task")
         with capture_output_to_file(log_file):
+            # send_notification(inst, "Failed")
             inst.status, inst.started_at, inst.task_id = (
                 "RUNNING",
                 timezone.now(),
