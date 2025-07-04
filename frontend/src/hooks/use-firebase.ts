@@ -1,5 +1,14 @@
-import { API_ENDPOINTS } from "@/services";
-import { getDatabase, ref, push, set } from "firebase/database";
+import {
+  getDatabase,
+  ref,
+  push,
+  set,
+  DatabaseReference,
+  query,
+  get,
+  orderByChild,
+  equalTo,
+} from "firebase/database";
 
 /**
  *  Custom hook to interact with Firebase Realtime Database.
@@ -7,14 +16,15 @@ import { getDatabase, ref, push, set } from "firebase/database";
  */
 export const useFirebase = () => {
   const database = getDatabase();
-  const databaseRef = ref(
-    database,
-    API_ENDPOINTS.CREATE_MAPSWIPE_DRAFT_PROJECTS,
-  );
   return {
     database,
-    databaseRef,
-    pushToDatabase: () => push(databaseRef),
-    setToDatabase: (data: any) => set(databaseRef, data),
+    ref,
+    pushToDatabase: (databaseRef: DatabaseReference) => push(databaseRef),
+    setToDatabase: (databaseRef: DatabaseReference, data: any) =>
+      set(databaseRef, data),
+    query,
+    getValueFromFirebase: get,
+    orderByChild,
+    equalTo,
   };
 };
