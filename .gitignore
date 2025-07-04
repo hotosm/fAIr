@@ -59,3 +59,5 @@ fAIr-utilities
 
 .env*
 data
+
+fair-app-data/*

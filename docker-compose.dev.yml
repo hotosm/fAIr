@@ -6,9 +6,9 @@ x-common-env: &common-env
 
 x-common-volumes: &common-volumes
   volumes:
-    - ${LOG_PATH:-./fair-app-data/log}:/app/log
-    - ${RAMP_HOME:-./fair-app-data/ramp}:/RAMP_HOME
-    - ${TRAINING_WORKSPACE:-./fair-app-data/trainings}:/TRAINING_WORKSPACE
+    - ${LOG_PATH:-./fair-app-data/log}:${LOG_PATH:-/app/log}
+    - ${RAMP_HOME:-./fair-app-data/ramp}:${RAMP_HOME:-/ramp}
+    - ${TRAINING_WORKSPACE:-./fair-app-data/trainings}:${TRAINING_WORKSPACE:-/trainings}
     - ${APP_HOME:-./}backend/core:/app/core
     - ${APP_HOME:-./}backend/login:/app/login
     - ${APP_HOME:-./}backend/aiproject:/app/aiproject
