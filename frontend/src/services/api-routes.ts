@@ -104,5 +104,7 @@ export const API_ENDPOINTS = {
   UPDATE_NOTIFICATIONS: "notifications/mark-all-as-read/",
 
   // MapSwipe
-  CREATE_MAPSWIPE_DRAFT_PROJECTS: "v2/projects/",
+  CREATE_MAPSWIPE_DRAFT_PROJECTS: "v2/projectDrafts/",
+  CREATE_MAPSWIPE_PROJECTS: (draftKey: string) =>
+    `v2/projectDrafts/${draftKey}`,
 };
