@@ -55,7 +55,6 @@ export const CreateMapswipeProjectDialog = ({
     projectRegion: "",
     projectDetails: "",
     requestingOrganisation: "HOT",
-    visibility: "Public",
     tutorialId: "tutorial_-MQsj5VWpNcJxCTVTOyH",
     manualUrl:
       MATOMO_APP_DOMAIN +
@@ -69,7 +68,6 @@ export const CreateMapswipeProjectDialog = ({
       API_ENDPOINTS.DOWNLOAD_PREDICTION_LABELS_FILE(predictionResult.id),
     tileServiceURL: predictionResult.config.source,
     tileServiceCredits: "",
-
     projectType: 8, // 8 is the project type for conflation
     createdBy: "atCSosZACaN0qhcVjtMO1tq9d1G3",
     image:
@@ -78,12 +76,16 @@ export const CreateMapswipeProjectDialog = ({
     // The project number is the prediction result ID, which is used to link the project to the prediction result
     projectNumber: predictionResult.id,
   };
+
   const [form, setForm] = useState(DEFAULT_FORMDATA);
 
   const updateField = (key: keyof typeof form, value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
+  /**
+   * Validation states for the form fields.
+   */
   const [descriptionIsValid, setDescriptionIsValid] = useState({
     valid:
       form.projectDetails.length >= DESCRIPTION_MIN_LENGTH &&
@@ -115,7 +117,9 @@ export const CreateMapswipeProjectDialog = ({
   const handleCloseDialog = () => {
     closeDialog();
     setLoading(false);
+    // Reset the form to default values
     setForm(DEFAULT_FORMDATA);
+    // Reset validation states
     setDescriptionIsValid({
       valid:
         form.projectDetails.length >= DESCRIPTION_MIN_LENGTH &&
@@ -151,6 +155,8 @@ export const CreateMapswipeProjectDialog = ({
     try {
       setLoading(true);
 
+      // The name of the project is a combination of the project topic, region, number, and requesting organisation.
+      // This is used to create a unique name for the project.
       const name = `${form.projectTopic} - ${form.projectRegion} - ${form.projectNumber} - ${form.requestingOrganisation}`;
 
       const projectRef = ref(database, "v2/projects");
@@ -174,6 +180,8 @@ export const CreateMapswipeProjectDialog = ({
         return;
       }
 
+      // Create a new project draft in the database
+      // This is a temporary draft that will be used to create the final project
       const newProjectDraftsRef = await pushToDatabase(projectDraftsRef);
 
       if (newProjectDraftsRef.key) {
