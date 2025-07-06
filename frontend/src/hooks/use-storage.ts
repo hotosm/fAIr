@@ -1,5 +1,4 @@
 import { showErrorToast } from "@/utils";
-import { getLocalStorageValue, setLocalStorageValue } from "@/utils/storage";
 
 /**
  * Custom hook to interact with the browser's localStorage.
@@ -15,20 +14,18 @@ import { getLocalStorageValue, setLocalStorageValue } from "@/utils/storage";
 export const useLocalStorage = () => {
   const getValue = (key: string): string | undefined => {
     try {
-      const item = getLocalStorageValue(key);
+      const item = localStorage.getItem(key);
       return item ? item : undefined;
     } catch (error) {
-      showErrorToast(error);
+      showErrorToast(error as Error);
     }
   };
 
   const setValue = (key: string, value: string): void => {
     try {
-      setLocalStorageValue(key, value);
+      localStorage.setItem(key, value);
     } catch (error) {
-      showErrorToast(
-        "Storage limit exceeded. Please clear the predictions or hard refresh the application.",
-      );
+      showErrorToast(error as Error);
     }
   };
 
@@ -36,7 +33,7 @@ export const useLocalStorage = () => {
     try {
       localStorage.removeItem(key);
     } catch (error) {
-      showErrorToast(error);
+      showErrorToast(error as Error);
     }
   };
 
@@ -60,7 +57,7 @@ export const useSessionStorage = () => {
       const item = sessionStorage.getItem(key);
       return item ? item : undefined;
     } catch (error) {
-      showErrorToast(error);
+      showErrorToast(error as Error);
     }
   };
 
@@ -68,7 +65,7 @@ export const useSessionStorage = () => {
     try {
       sessionStorage.setItem(key, value);
     } catch (error) {
-      showErrorToast(error);
+      showErrorToast(error as Error);
     }
   };
 
@@ -76,7 +73,7 @@ export const useSessionStorage = () => {
     try {
       sessionStorage.removeItem(key);
     } catch (error) {
-      showErrorToast(error);
+      showErrorToast(error as Error);
     }
   };
   return { getSessionValue, setSessionValue, removeSessionValue };

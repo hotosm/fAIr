@@ -49,7 +49,7 @@ export const getTileServerRegex = (serviceType: TileServiceType) => {
  * @returns The type of tile service if matched, otherwise null.
  */
 export const getTileServerTypeFromURL = (
-  tileServiceURL: string,
+  tileServiceURL: string
 ): TileServiceType => {
   if (TILEJSON_TILESERVER_URL_REGEX_PATTERN.test(tileServiceURL)) {
     return TileServiceType.TILEJSON;

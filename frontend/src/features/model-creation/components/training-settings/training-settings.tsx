@@ -4,7 +4,7 @@ import { StepHeading } from "@/features/model-creation/components/";
 
 const TrainingSettingsStep = () => {
   return (
-    <div className="flex flex-col gap-y-10 w-full">
+    <div className="flex w-full flex-col gap-y-10">
       <StepHeading
         heading={MODELS_CONTENT.modelCreation.trainingSettings.pageTitle}
         description={

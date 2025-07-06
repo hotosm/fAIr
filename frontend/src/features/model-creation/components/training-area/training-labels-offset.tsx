@@ -76,7 +76,7 @@ export const TrainingLabelsOffset = ({
    * This is used to debounce the input value before updating the offset.
    */
   const [localInput, setLocalInput] = useState<string>(
-    `${trainingDatasetOffset.x.toFixed(2)}, ${trainingDatasetOffset.y.toFixed(2)}`,
+    `${trainingDatasetOffset.x.toFixed(2)}, ${trainingDatasetOffset.y.toFixed(2)}`
   );
 
   /**
@@ -149,11 +149,11 @@ export const TrainingLabelsOffset = ({
         localInput ===
           `${initialOffset.x.toFixed(2)}, ${initialOffset.y.toFixed(2)}`) ||
       isPending,
-    [trainingDatasetOffset, initialOffset, localInput, isPending],
+    [trainingDatasetOffset, initialOffset, localInput, isPending]
   );
 
   return (
-    <div className="bg-white p-2 lg:p-4 min-h-16 h-auto flex flex-col gap-y-4 rounded-lg transition-all duration-200 ease-in-out">
+    <div className="flex h-auto min-h-16 flex-col gap-y-4 rounded-lg bg-white p-2 transition-all duration-200 ease-in-out lg:p-4">
       {/* Toggle Button */}
       <button
         tabIndex={0}
@@ -161,7 +161,7 @@ export const TrainingLabelsOffset = ({
         onKeyDown={(e) =>
           e.key === "Enter" && setShowOffsetController(!showOffsetController)
         }
-        className="font-semibold text-sm flex items-center justify-between gap-x-2 p-2 rounded hover:bg-hover-accent transition"
+        className="flex items-center justify-between gap-x-2 rounded p-2 text-sm font-semibold transition hover:bg-hover-accent"
       >
         <span>Imagery Offset</span>
         <ChevronDownIcon
@@ -171,25 +171,25 @@ export const TrainingLabelsOffset = ({
 
       {/* Offset Controller Panel */}
       {showOffsetController && (
-        <div className="max-w-sm mx-auto rounded-xl border space-y-6 p-4">
-          <p className="text-start text-dark text-sm">
+        <div className="mx-auto max-w-sm space-y-6 rounded-xl border p-4">
+          <p className="text-start text-sm text-dark">
             Adjust the fetched training labels offset, or enter the offset
             values in meters.
           </p>
 
-          <div className="rounded-lg p-2 bg-gray-border">
-            <div className="bg-white rounded-lg relative flex items-center justify-center h-40 xl:p-2">
-              <div className="relative w-full h-full bg-white rounded-lg p-1 flex items-center justify-center">
+          <div className="rounded-lg bg-gray-border p-2">
+            <div className="relative flex h-40 items-center justify-center rounded-lg bg-white xl:p-2">
+              <div className="relative flex size-full items-center justify-center rounded-lg bg-white p-1">
                 <DirectionalButton
                   positionClasses="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-10"
                   icon={
-                    <DirectionIcon className="size-3 text-dark -rotate-90" />
+                    <DirectionIcon className="size-3 -rotate-90 text-dark" />
                   }
                   tooltip="Move Up"
                   onClick={() => {
                     updateOffset(
                       trainingDatasetOffset.x,
-                      trainingDatasetOffset.y + OFFSET_STEP,
+                      trainingDatasetOffset.y + OFFSET_STEP
                     );
                   }}
                 />
@@ -197,14 +197,14 @@ export const TrainingLabelsOffset = ({
                 <DirectionalButton
                   positionClasses="absolute top-1/2 left-0 -translate-y-1/2 w-10 h-12"
                   icon={
-                    <DirectionIcon className="size-3 text-dark -rotate-180" />
+                    <DirectionIcon className="size-3 -rotate-180 text-dark" />
                   }
                   tooltip="Move Left"
                   toolTipPlacement={ToolTipPlacement.LEFT}
                   onClick={() => {
                     updateOffset(
                       trainingDatasetOffset.x - OFFSET_STEP,
-                      trainingDatasetOffset.y,
+                      trainingDatasetOffset.y
                     );
                   }}
                 />
@@ -217,7 +217,7 @@ export const TrainingLabelsOffset = ({
                   onClick={() => {
                     updateOffset(
                       trainingDatasetOffset.x + OFFSET_STEP,
-                      trainingDatasetOffset.y,
+                      trainingDatasetOffset.y
                     );
                   }}
                 />
@@ -225,14 +225,14 @@ export const TrainingLabelsOffset = ({
                 <DirectionalButton
                   positionClasses="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-10"
                   icon={
-                    <DirectionIcon className="size-3 text-dark rotate-90" />
+                    <DirectionIcon className="size-3 rotate-90 text-dark" />
                   }
                   tooltip="Move Down"
                   toolTipPlacement={ToolTipPlacement.BOTTOM}
                   onClick={() => {
                     updateOffset(
                       trainingDatasetOffset.x,
-                      trainingDatasetOffset.y - OFFSET_STEP,
+                      trainingDatasetOffset.y - OFFSET_STEP
                     );
                   }}
                   isDiv
@@ -249,7 +249,7 @@ export const TrainingLabelsOffset = ({
                   onClick={() => {
                     handleOffsetReset();
                     setLocalInput(
-                      `${initialOffset.x.toFixed(2)}, ${initialOffset.y.toFixed(2)}`,
+                      `${initialOffset.x.toFixed(2)}, ${initialOffset.y.toFixed(2)}`
                     );
                   }}
                   iconClass="text-red-500 text-xl"
@@ -268,7 +268,7 @@ export const TrainingLabelsOffset = ({
                   disabled={disabled}
                 />
 
-                <div className="bg-gray-border p-2 rounded-lg">
+                <div className="rounded-lg bg-gray-border p-2">
                   <Input
                     size={SHOELACE_SIZES.SMALL}
                     value={localInput}

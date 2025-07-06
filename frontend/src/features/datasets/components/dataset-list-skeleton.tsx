@@ -4,7 +4,7 @@ export const DatasetListSkeleton = () => {
       {Array.from({ length: 12 }).map((_, index) => (
         <div
           key={index}
-          className="w-full h-48 bg-light-gray rounded-lg animate-pulse"
+          className="h-48 w-full animate-pulse rounded-lg bg-light-gray"
         ></div>
       ))}
     </div>

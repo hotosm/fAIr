@@ -23,7 +23,7 @@ export const AllPredictionsLayer = ({
       type: "FeatureCollection",
       features: features,
     }),
-    [features],
+    [features]
   );
 
   useEffect(() => {
@@ -98,7 +98,7 @@ export const AllPredictionsLayer = ({
   useEffect(() => {
     if (!map || !features || !map.getStyle()) return;
     const source = map.getSource(
-      ALL_MODEL_PREDICTIONS_SOURCE_ID,
+      ALL_MODEL_PREDICTIONS_SOURCE_ID
     ) as GeoJSONSource;
     if (source) {
       source.setData(geoJsonData as GeoJSONType);

@@ -87,7 +87,7 @@ const TrainingAreaMap = ({
     useGetTrainingDatasetLabels(
       trainingDatasetId,
       debouncedBbox,
-      Number(debouncedZoom),
+      Number(debouncedZoom)
     );
 
   const createTrainingArea = useCreateTrainingArea({
@@ -136,7 +136,7 @@ const TrainingAreaMap = ({
         // Don't accept the drawing if they don't meet the size criteria
         if (validateGeoJSONArea(drawnFeature)) {
           showWarningToast(
-            `Area is too small or too large. Please adjust the area to meet the size requirements.`,
+            `Area is too small or too large. Please adjust the area to meet the size requirements.`
           );
           terraDraw.clear();
           return;
@@ -145,7 +145,7 @@ const TrainingAreaMap = ({
         if (tileServiceBounds) {
           if (!featureIsWithinBounds(tileServiceBounds, drawnFeature)) {
             showWarningToast(
-              "The drawn polygon extends beyond the OAM bounds. Please ensure the training area is within the specified bounds.",
+              "The drawn polygon extends beyond the OAM bounds. Please ensure the training area is within the specified bounds."
             );
             terraDraw.clear();
             return;
@@ -159,7 +159,7 @@ const TrainingAreaMap = ({
           {
             onSuccess: () =>
               showSuccessToast("Training area created successfully"),
-          },
+          }
         );
         terraDraw.clear();
       }

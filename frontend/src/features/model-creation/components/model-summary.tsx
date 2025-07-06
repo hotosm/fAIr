@@ -22,20 +22,20 @@ const SummaryItem = ({
   label: string;
   icon: React.ComponentType<IconProps>;
 }) => (
-  <div className="flex items-center gap-x-4 gap-y-4">
+  <div className="flex items-center gap-4">
     <Icon className="icon-lg text-primary" />
     <div>
       <p className="text-grey">{label}</p>
       {Array.isArray(content) ? (
-        <div className="flex flex-col md:flex-row md:items-center gap-x-4">
+        <div className="flex flex-col gap-x-4 md:flex-row md:items-center">
           {content.map((item, index) => (
-            <p key={index} className="text-dark text-body-3">
+            <p key={index} className="text-body-3 text-dark">
               {item}
             </p>
           ))}
         </div>
       ) : (
-        <p className="text-dark text-body-3">{content}</p>
+        <p className="text-body-3 text-dark">{content}</p>
       )}
     </div>
   </div>

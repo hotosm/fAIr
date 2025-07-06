@@ -75,14 +75,14 @@ export const Kpi = () => {
   ];
 
   return (
-    <section className="p-4 grid grid-cols-1 gap-y-4 sm:grid-cols-2 min-h-40 place-items-center lg:grid-cols-4 justify-items-center bg-off-white">
+    <section className="grid min-h-40 grid-cols-1 place-items-center justify-items-center gap-y-4 bg-off-white p-4 sm:grid-cols-2 lg:grid-cols-4">
       {KPIs.map((kpi, id) => (
         <div
-          className={`flex gap-x-3 items-center h-24 w-48`}
+          className={`flex h-24 w-48 items-center gap-x-3`}
           key={`kpi-${id}`}
         >
-          <div className="bg-primary rounded-full flex items-center justify-center p-2">
-            <kpi.icon className="h-8 w-8 text-white" />
+          <div className="flex items-center justify-center rounded-full bg-primary p-2">
+            <kpi.icon className="size-8 text-white" />
           </div>
           <div className="flex flex-col items-start">
             <h1
@@ -90,7 +90,7 @@ export const Kpi = () => {
             >
               {kpi.figure?.toLocaleString()}
             </h1>
-            <p className="text-body-3 font-semibold text-nowrap">{kpi.label}</p>
+            <p className="text-nowrap text-body-3 font-semibold">{kpi.label}</p>
           </div>
         </div>
       ))}

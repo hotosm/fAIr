@@ -38,11 +38,11 @@ const FillLegendStyle = ({
   fillOpacity: number;
 }) => (
   <span
-    className="block w-4 h-3 rounded-[2px] border-[1px]"
+    className="block h-3 w-4 rounded-[2px] border"
     style={{
       backgroundColor: `rgba(${parseInt(fillColor.slice(1, 3), 16)}, ${parseInt(
         fillColor.slice(3, 5),
-        16,
+        16
       )}, ${parseInt(fillColor.slice(5, 7), 16)}, ${fillOpacity})`,
       borderColor: fillColor,
     }}
