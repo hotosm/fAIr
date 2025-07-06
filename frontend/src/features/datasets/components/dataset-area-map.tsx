@@ -31,7 +31,7 @@ export const DatasetAreaMap = ({
   data?: PaginatedTrainingArea;
   trainingDatasetId: number;
   map: Map | null;
-  mapContainerRef: RefObject<HTMLDivElement> | null;
+  mapContainerRef: RefObject<HTMLDivElement | null> | null;
   trainingAreaIsPending: boolean;
 }) => {
   // Training Areas

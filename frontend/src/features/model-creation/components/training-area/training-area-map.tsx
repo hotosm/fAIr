@@ -58,7 +58,7 @@ const TrainingAreaMap = ({
   drawingMode: DrawingModes;
   setDrawingMode: (newMode: DrawingModes) => void;
   terraDraw?: TerraDraw;
-  mapContainerRef: RefObject<HTMLDivElement> | null;
+  mapContainerRef: RefObject<HTMLDivElement | null> | null;
   trainingAreaIsPending: boolean;
   trainingDatasetOffset: { x: number; y: number };
   tileServiceBounds?: LngLatBoundsLike;
