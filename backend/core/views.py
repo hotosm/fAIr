@@ -98,7 +98,8 @@ def home(request):
 
 class UserAssignmentMixin:
     """
-    Mixin to automatically assign the current user to created objects.
+    Mixin to automatically assign the current user to created objects
+    and only return objects belonging to the current user.
     """
 
     def perform_create(self, serializer):
@@ -106,12 +107,10 @@ class UserAssignmentMixin:
 
     def get_queryset(self):
         """
-        If 'owned_only' parameter is provided, filter queryset to show only user's objects.
+        Only return objects belonging to the current user.
         """
         queryset = super().get_queryset()
-        if self.request.query_params.get("owned_only") == "true":
-            queryset = queryset.filter(user=self.request.user)
-        return queryset
+        return queryset.filter(user=self.request.user)
 
 
 class DatasetViewSet(
@@ -1043,6 +1042,7 @@ class PredictionViewSet(UserAssignmentMixin, viewsets.ModelViewSet):
     permission_classes = [IsOsmAuthenticated, IsOwnerOrReadOnly]
     public_methods = ["GET"]
     http_method_names = ["get", "post", "patch"]
+    queryset = Prediction.objects.all()
     filter_backends = (
         DjangoFilterBackend,
         filters.SearchFilter,
@@ -1068,6 +1068,3 @@ class PredictionViewSet(UserAssignmentMixin, viewsets.ModelViewSet):
                 )
 
         return super().partial_update(request, *args, **kwargs)
-
-    def get_queryset(self):
-        return Prediction.objects.filter(user=self.request.user)
