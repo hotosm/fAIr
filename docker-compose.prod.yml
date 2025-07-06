@@ -128,7 +128,7 @@ services:
     platform: linux/amd64
     container_name: worker-gpu
     restart: always
-    command: celery -A aiproject worker --loglevel=INFO --concurrency=1 -Q ramp_training,yolo_training --pool=solo
+    command: celery -A aiproject worker --loglevel=INFO --concurrency=1 -Q ramp_training,yolo_training --max-tasks-per-child 1000  -n worker-gpu@%h
     depends_on:
       backend-api:
         condition: service_healthy
@@ -154,7 +154,7 @@ services:
     platform: linux/amd64
     container_name: prediction-worker
     restart: always
-    command: celery -A aiproject worker --loglevel=INFO --concurrency=1 -Q predictions --pool=solo
+    command: celery -A aiproject worker --loglevel=INFO --concurrency=1 -Q predictions --max-tasks-per-child 1000  -n prediction-worker@%h
     depends_on:
       backend-api:
         condition: service_healthy
@@ -178,7 +178,7 @@ services:
     restart: always
     command: celery --broker=redis://${REDIS_HOST:-redis}:${REDIS_PORT:-6379}/0 flower --address=0.0.0.0 --port=5000 --basic_auth=${FLOWER_USER:-admin}:${FLOWER_PASSWORD:-admin}
     ports:
-      - "127.0.0.1:5500:5000"
+      - "5000:5000"
     networks:
       - backend-network
     depends_on:
