@@ -52,7 +52,7 @@ export const START_MAPPING_PAGE_CONTENT: TStartMappingPageContent = {
     predictionInProgress: "Generating...",
   },
   settings: {
-    useJOSMQ: {
+    orthogonalize: {
       label: "Use JOSM Q",
       tooltip: "Returns predictions in regular shape",
     },

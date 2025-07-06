@@ -73,7 +73,7 @@ export type TDownloadOptions = {
 }[];
 
 export const SEARCH_PARAMS = {
-  useJOSMQ: "useJOSMQ",
+  orthogonalize: "orthogonalize",
   confidenceLevel: "confidenceLevel",
   tolerance: "tolerance",
   area: "area",
@@ -157,8 +157,8 @@ export const StartMappingPage = () => {
 
   const [query, setQuery] = useState<TQueryParams>(() => {
     return {
-      [SEARCH_PARAMS.useJOSMQ]:
-        searchParams.get(SEARCH_PARAMS.useJOSMQ) || true,
+      [SEARCH_PARAMS.orthogonalize]:
+        searchParams.get(SEARCH_PARAMS.orthogonalize) || true,
       [SEARCH_PARAMS.confidenceLevel]:
         searchParams.get(SEARCH_PARAMS.confidenceLevel) || 50,
       [SEARCH_PARAMS.tolerance]:

@@ -216,12 +216,12 @@ export type TPredictionsConfig = {
   area_threshold: number;
   checkpoint: string;
   confidence: number;
-  max_angle_change: number;
+  ortho_max_angle_change_deg: number;
   model_id: string;
-  skew_tolerance: number;
+  ortho_skew_tolerance_deg: number;
   source: string;
   tolerance: number;
-  use_josm_q: boolean;
+  orthogonalize: boolean;
   zoom_level: number;
   source_imagery?: string;
 };
