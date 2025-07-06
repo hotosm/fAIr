@@ -13,9 +13,9 @@ import { Feature, GeoJSONType } from "@/types";
 import { GeoJSONSource, Map, Popup } from "maplibre-gl";
 import { useEffect, useMemo, useRef, useState } from "react";
 
+
 let markerIcon = new Image(17, 20);
 markerIcon.src = CommentIcon;
-
 export const FeedbacksLayer = ({
   map,
   features,
@@ -31,8 +31,8 @@ export const FeedbacksLayer = ({
         ...feature.properties,
         comment_length:
           feature?.properties &&
-          "comments" in feature.properties &&
-          feature.properties.comments
+            "comments" in feature.properties &&
+            feature.properties.comments
             ? feature.properties.comments.length
             : 0,
       },
@@ -102,7 +102,7 @@ export const FeedbacksLayer = ({
         source: MODEL_FEEDBACKS_SOURCE_ID,
         layout: {
           "icon-image": "commentIcon",
-          "icon-size": 1.5,
+          "icon-size": 1,
         },
       });
     }

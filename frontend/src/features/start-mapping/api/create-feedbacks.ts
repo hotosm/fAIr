@@ -6,42 +6,50 @@ export type TCreateFeedbackPayload = {
   comments: string;
   feedback_type: string;
   geom: string;
-  source_imagery: string;
-  zoom_level: number;
   training: number;
+  config: {
+    area_threshold?: number;
+    use_josm_q?: boolean;
+    max_angle_change?: number;
+    skew_tolerance?: number;
+    zoom_level?: number;
+    confidence?: number;
+    tolerance?: number;
+    source_imagery?: string;
+    checkpoint?: string;
+  };
 };
 
 export const createFeedback = async ({
   comments,
   feedback_type,
   geom,
-  source_imagery,
-  zoom_level,
-  training,
+  config,
+  training
 }: TCreateFeedbackPayload): Promise<Feature & { id: number }> => {
   return await (
     await apiClient.post(API_ENDPOINTS.CREATE_FEEDBACK, {
       comments,
       feedback_type,
       geom,
-      source_imagery,
-      zoom_level,
-      training,
+      config,
       action: FeedbackType.REJECT,
+      training
     })
   ).data;
 };
 
 export type TCreateApprovedPredictionPayload = {
   config: {
-    area_threshold: number;
-    use_josm_q: boolean;
-    max_angle_change: number;
-    skew_tolerance: number;
-    zoom_level: number;
-    confidence: number;
-    tolerance: number;
-    source_imagery: string;
+    area_threshold?: number;
+    use_josm_q?: boolean;
+    max_angle_change?: number;
+    skew_tolerance?: number;
+    zoom_level?: number;
+    confidence?: number;
+    tolerance?: number;
+    source_imagery?: string;
+    checkpoint?: string;
   };
   geom: string;
   training: number;
