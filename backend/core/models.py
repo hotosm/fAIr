@@ -6,7 +6,8 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 from login.models import OsmUser
-
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 
 class Dataset(models.Model):
     class DatasetStatus(models.IntegerChoices):
@@ -227,8 +228,9 @@ class UserNotification(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     read_at = models.DateTimeField(null=True, blank=True)
     message = models.TextField(max_length=500)
-    training = models.ForeignKey(Training, to_field="id", on_delete=models.DO_NOTHING)
-
+    content_type = models.ForeignKey(ContentType, on_delete=models.DO_NOTHING)
+    object_id = models.PositiveIntegerField()
+    related_object = GenericForeignKey('content_type', 'object_id')
     def mark_as_read(self):
         if not self.is_read:
             self.is_read = True

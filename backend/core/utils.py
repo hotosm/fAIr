@@ -464,14 +464,14 @@ class S3Uploader:
         }
 
 
-def get_email_message(training_instance, status):
+def get_email_message(obj_instance, status):
     hostname = settings.FRONTEND_URL
-    training_model_url = f"{hostname}/ai-models/{training_instance.model.id}"
-
+    # training_model_url = f"{hostname}/ai-models/{training_instance.model.id}"
+    profile_url = f"{hostname}/profile" # doing profile for now as training url won't work for the predictions, i can read from the class name and filter out the condition , keeping it simple for now can do that later #todo
     message_template = (
         "Hi {username},\n\n"
-        "Your training task (ID: {training_id}) of model {model_name} has {status}. You can view the details here:\n"
-        "{training_model_url}\n\n"
+        "Your {obj_instance.__class__.__name__} task (ID: {object_id}) of model {model_name} has {status}. You can view the details in your profile:\n"
+        "{profile_url}\n\n"
         "Thank you for using fAIr - AI Assisted Mapping Tool.\n\n"
         "Best regards,\n"
         "The fAIr Dev Team\n\n"
@@ -480,36 +480,36 @@ def get_email_message(training_instance, status):
     )
 
     message = message_template.format(
-        username=training_instance.user.username,
-        training_id=training_instance.id,
-        model_name=training_instance.model.name,
+        username=obj_instance.user.username,
+        object_id=obj_instance.id,
+        model_name=obj_instance.model.name,
         status=status.lower(),
-        training_model_url=training_model_url,
+        profile_url=profile_url,
         hostname=hostname,
     )
-    subject = f"fAIr : Training {training_instance.id} {status.capitalize()}"
+    subject = f"fAIr : {obj_instance.__class__.__name__} {obj_instance.id} - {status.capitalize()}"
     return message, subject
 
 
-def send_notification(training_instance, status):
-    if "web" in training_instance.user.notifications_delivery_methods:
+def send_notification(obj_instance, status):
+    if "web" in obj_instance.user.notifications_delivery_methods:
         UserNotification.objects.create(
-            user=training_instance.user,
-            message=f"Training {training_instance.id} has {status}.",
-            training=training_instance,
+            user=obj_instance.user,
+            message=f"Your {obj_instance.__class__.__name__} {obj_instance.id} has been {status}.",
+            related_object=obj_instance,
         )
-    if "email" in training_instance.user.notifications_delivery_methods:
+    if "email" in obj_instance.user.notifications_delivery_methods:
         if (
-            training_instance.user.email
-            and training_instance.user.email != ""
-            and training_instance.user.email_verified
+            obj_instance.user.email
+            and obj_instance.user.email != ""
+            and obj_instance.user.email_verified
         ):
-            message, subject = get_email_message(training_instance, status)
+            message, subject = get_email_message(obj_instance, status)
             send_mail(
                 subject=subject,
                 message=message,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[training_instance.user.email],
+                recipient_list=[obj_instance.user.email],
                 fail_silently=settings.FAIL_EMAIL_SILENTLY,
             )
 

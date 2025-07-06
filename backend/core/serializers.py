@@ -363,19 +363,19 @@ class PredictionParamSerializer(serializers.Serializer):
     bbox = serializers.ListField(child=serializers.FloatField(), required=True)
     model_id = serializers.IntegerField(required=True)
     zoom_level = serializers.IntegerField(required=True)
-    use_josm_q = serializers.BooleanField(required=False)
+    orthogonalize = serializers.BooleanField(required=False)
     source = serializers.URLField(required=False)
     # configs
     confidence = serializers.IntegerField(required=False)
     # for josm q
-    max_angle_change = serializers.IntegerField(required=False)
-    skew_tolerance = serializers.IntegerField(required=False)
+    ortho_max_angle_change_deg = serializers.IntegerField(required=False)
+    ortho_skew_tolerance_deg = serializers.IntegerField(required=False)
     # for vectorization
     tolerance = serializers.FloatField(required=False)
     area_threshold = serializers.FloatField(required=False)
     tile_overlap_distance = serializers.FloatField(required=False)
 
-    def validate_max_angle_change(self, value):
+    def validate_ortho_max_angle_change_deg(self, value):
         if value is not None:
             if value < 0 or value > 45:
                 raise serializers.ValidationError(
@@ -383,7 +383,7 @@ class PredictionParamSerializer(serializers.Serializer):
                 )
         return value
 
-    def validate_skew_tolerance(self, value):
+    def validate_ortho_skew_tolerance_deg(self, value):
         if value is not None:
             if value < 0 or value > 45:
                 raise serializers.ValidationError(
@@ -431,14 +431,14 @@ class PredictionParamSerializer(serializers.Serializer):
                 f"""Invalid Zoom level : {data["zoom_level"]}, Supported between 18-22"""
             )
 
-        if "max_angle_change" in data:
-            data["max_angle_change"] = self.validate_max_angle_change(
-                data["max_angle_change"]
+        if "ortho_max_angle_change_deg" in data:
+            data["ortho_max_angle_change_deg"] = self.validate_ortho_max_angle_change_deg(
+                data["ortho_max_angle_change_deg"]
             )
 
-        if "skew_tolerance" in data:
-            data["skew_tolerance"] = self.validate_skew_tolerance(
-                data["skew_tolerance"]
+        if "ortho_skew_tolerance_deg" in data:
+            data["ortho_skew_tolerance_deg"] = self.validate_ortho_skew_tolerance_deg(
+                data["ortho_skew_tolerance_deg"]
             )
 
         if "tolerance" in data:
@@ -541,17 +541,21 @@ class UserNotificationSerializer(serializers.ModelSerializer):
             "created_at",
             "read_at",
             "message",
-            "training_model",
+            "related_object",
         )
         read_only_fields = (
             "id",
             "created_at",
             "read_at",
             "message",
-            "training_model",
+            "related_object",
         )
 
-    def get_training_model(self, obj):
-        if obj.training and obj.training.model:
-            return obj.training.model.id
+    def get_related_object(self, obj):
+        if obj.related_object:
+            return {
+                'id': obj.related_object.id,
+                'type': type(obj.related_object).__name__,
+                'model': obj.related_object.model if hasattr(obj.related_object, 'model') else None,
+            }
         return None
