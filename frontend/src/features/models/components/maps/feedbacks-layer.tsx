@@ -14,7 +14,8 @@ import { GeoJSONSource, Map, Popup } from "maplibre-gl";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 
-
+let markerIcon = new Image(17, 20);
+markerIcon.src = CommentIcon;
 export const FeedbacksLayer = ({
   map,
   features,
@@ -84,8 +85,12 @@ export const FeedbacksLayer = ({
     }
 
     if (!map.getImage("commentIcon")) {
-      // @ts-expect-error maplibre-gl does not have types for images
-      map.addImage("commentIcon", CommentIcon);
+      map.addImage("commentIcon", markerIcon, {
+        // @ts-expect-error bad type definition
+        width: 15,
+        height: 15,
+        data: markerIcon,
+      });
     }
 
     if (!map.getLayer(MODEL_FEEDBACKS_SYMBOL_LAYER_ID)) {
