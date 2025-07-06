@@ -53,7 +53,7 @@ export const START_MAPPING_PAGE_CONTENT: TStartMappingPageContent = {
   },
   settings: {
     orthogonalize: {
-      label: "Use JOSM Q",
+      label: "Orthogonalize",
       tooltip: "Returns predictions in regular shape",
     },
     confidence: {
