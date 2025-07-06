@@ -41,7 +41,7 @@ const ModelAction = ({
 }) => {
   const { modelId } = useParams();
   const [predictionZoomLevel, setPredictionZoomLevel] = useState<number | null>(
-    null,
+    null
   );
   const currentZoom = useMapStore((state) => state.zoom);
 
@@ -78,7 +78,7 @@ const ModelAction = ({
     mutationConfig: {
       onSuccess: (data) => {
         showSuccessToast(
-          TOAST_NOTIFICATIONS.startMapping.modelPrediction.success,
+          TOAST_NOTIFICATIONS.startMapping.modelPrediction.success
         );
         const conflatedResults = handleConflation(
           modelPredictions,
@@ -86,7 +86,7 @@ const ModelAction = ({
           {
             ...getTrainingConfig(),
             zoom_level: predictionZoomLevel ?? currentZoom,
-          },
+          }
         );
         setModelPredictions(conflatedResults);
       },
@@ -108,7 +108,7 @@ const ModelAction = ({
       isOfflineMode) &&
     !hasDrawnAOI;
   return (
-    <div className="flex gap-y-3 flex-col-reverse flex-wrap  md:items-center md:flex-row md:justify-between md:gap-x-2 md:flex-nowrap">
+    <div className="flex flex-col-reverse flex-wrap gap-y-3  md:flex-row md:flex-nowrap md:items-center md:justify-between md:gap-x-2">
       <ToolTip
         content={
           disablePredictionButton
@@ -121,9 +121,9 @@ const ModelAction = ({
           onClick={
             hasDrawnAOI ? openOfflinePredictionRequestDialog : handlePrediction
           }
-          className={`w-full text-nowrap bg-primary px-3 py-3 md:py-1.5 rounded-md text-white ${disablePredictionButton ? "opacity-50" : ""}`}
+          className={`w-full text-nowrap rounded-md bg-primary p-3 text-white md:py-1.5 ${disablePredictionButton ? "opacity-50" : ""}`}
         >
-          <span className="capitalize text-body-4">
+          <span className="text-body-4 capitalize">
             {modelPredictionMutation.isPending
               ? START_MAPPING_PAGE_CONTENT.buttons.predictionInProgress
               : isOfflineMode

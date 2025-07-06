@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
 
 import { describe, it, expect, vi, afterEach } from "vitest";
@@ -30,11 +31,11 @@ describe("AuthService", () => {
       apiClient.get.mockRejectedValue(new Error("Network Error"));
 
       await expect(authService.getOAuthURL()).rejects.toThrow(
-        "Unable to retrieve login URL.",
+        "Unable to retrieve login URL."
       );
       expect(showErrorToast).toHaveBeenCalledWith(
         undefined,
-        "Failed to get OAuth URL",
+        "Failed to get OAuth URL"
       );
     });
   });
@@ -51,7 +52,7 @@ describe("AuthService", () => {
       expect(window.open).toHaveBeenCalledWith(
         mockOAuthURL.login_url,
         "_parent",
-        expect.any(String),
+        expect.any(String)
       );
     });
 
@@ -61,11 +62,11 @@ describe("AuthService", () => {
       window.open = vi.fn().mockReturnValue(null);
 
       await expect(authService.initializeOAuthFlow()).rejects.toThrow(
-        "Popup blocked or not created.",
+        "Popup blocked or not created."
       );
       expect(showErrorToast).toHaveBeenCalledWith(
         undefined,
-        "OAuth flow initialization failed",
+        "OAuth flow initialization failed"
       );
     });
   });
@@ -85,11 +86,11 @@ describe("AuthService", () => {
       apiClient.get.mockRejectedValue(new Error("Network Error"));
 
       await expect(authService.getUser()).rejects.toThrow(
-        "Unable to retrieve user data.",
+        "Unable to retrieve user data."
       );
       expect(showErrorToast).toHaveBeenCalledWith(
         undefined,
-        "Failed to fetch user data",
+        "Failed to fetch user data"
       );
     });
   });
@@ -103,7 +104,7 @@ describe("AuthService", () => {
 
       expect(result).toEqual(mockResponse.data);
       expect(apiClient.get).toHaveBeenCalledWith(
-        `${API_ENDPOINTS.AUTH_CALLBACK}?code=code&state=state`,
+        `${API_ENDPOINTS.AUTH_CALLBACK}?code=code&state=state`
       );
     });
 
@@ -111,11 +112,11 @@ describe("AuthService", () => {
       apiClient.get.mockRejectedValue(new Error("Network Error"));
 
       await expect(authService.authenticate("state", "code")).rejects.toThrow(
-        "Failed to authenticate user.",
+        "Failed to authenticate user."
       );
       expect(showErrorToast).toHaveBeenCalledWith(
         undefined,
-        "Authentication failed",
+        "Authentication failed"
       );
     });
   });

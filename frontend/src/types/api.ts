@@ -279,3 +279,8 @@ export type TOfflinePrediction = {
   config: TModelPredictionsConfig;
   result_count: number;
 };
+
+export type TValidationState = {
+  valid: boolean;
+  message: string;
+};

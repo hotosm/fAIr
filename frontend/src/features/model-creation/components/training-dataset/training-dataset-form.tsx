@@ -14,7 +14,7 @@ import {
   useUpdateTrainingDataset,
 } from "@/features/model-creation/hooks/use-training-datasets";
 import { showErrorToast, showSuccessToast } from "@/utils";
-import { TTrainingDataset } from "@/types";
+import { TTrainingDataset, TValidationState } from "@/types";
 
 const validateDatasetName = (name: string) => {
   const min =
@@ -70,18 +70,17 @@ export const NewTrainingDatasetForm = ({
     valid: false,
     message: "",
   });
-  const handleDatasetNameValidity = (e: { valid: any; message: any }) => {
-    setDatasetNameValidity({
-      valid: e.valid,
-      message: e.message,
-    });
+  const handleDatasetNameValidity = (e: TValidationState) => {
+    setDatasetNameValidity(e);
   };
 
   const datasetCreateMutation = useCreateTrainingDataset({
     mutationConfig: {
       onSuccess: (data) => {
         showSuccessToast(TOAST_NOTIFICATIONS.trainingDatasetCreationSuccess);
-        onSuccess && onSuccess(data);
+        if (onSuccess) {
+          onSuccess(data);
+        }
       },
       onError: (error) => {
         showErrorToast(error);
@@ -92,7 +91,9 @@ export const NewTrainingDatasetForm = ({
   const datasetUpdateMutation = useUpdateTrainingDataset({
     mutationConfig: {
       onSuccess: (data) => {
-        onSuccess && onSuccess(data);
+        if (onSuccess) {
+          onSuccess(data);
+        }
         showSuccessToast("Dataset updated successfully");
       },
       onError: (error) => {
@@ -123,7 +124,9 @@ export const NewTrainingDatasetForm = ({
     } else {
       handleTrainingDatasetUpdate();
     }
-    onClick && onClick();
+    if (onClick) {
+      onClick();
+    }
   }, [
     isCreateNewDataset,
     handleTrainingDatasetCreation,
@@ -141,7 +144,7 @@ export const NewTrainingDatasetForm = ({
   const disabled =
     datasetCreateMutation.isPending || datasetUpdateMutation.isPending;
   return (
-    <div className="flex flex-col gap-y-10 w-full">
+    <div className="flex w-full flex-col gap-y-10">
       <Input
         handleInput={(e) => setTrainingDatasetName(e.target.value)}
         value={trainingdatasetName}
@@ -182,7 +185,7 @@ export const NewTrainingDatasetForm = ({
         />
       </div>
       {tileJSONMetadata !== null && tileserverURL.length > 0 && (
-        <div className="text-body-4 text-grey border border-gray-border p-2 rounded-lg max-h-60 overflow-y-auto">
+        <div className="max-h-60 overflow-y-auto rounded-lg border border-gray-border p-2 text-body-4 text-grey">
           <p className="font-semibold text-dark">TileJSON Metadata</p>
           {Object.entries(tileJSONMetadata).map(([key, value]) => (
             <p key={key}>

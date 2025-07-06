@@ -6,18 +6,18 @@ export const XYZ_TILESERVER_URL_REGEX_PATTERN =
 
 // Matches valid TMS tile server URLs.
 export const TMS_TILESERVER_URL_REGEX_PATTERN =
-  /^https?:\/\/[^\/]+(?:\/[^\/]+)*\/\{z\}\/\{x\}\/\{-y\}(?:@[0-9a-z]+)?(?:\.(jpg|png|jpeg|webp))?(?:\?.*)?$/i;
+  /^https?:\/\/[^/]+(?:\/[^/]+)*\/\{z\}\/\{x\}\/\{-y\}(?:@[0-9a-z]+)?(?:\.(jpg|png|jpeg|webp))?(?:\?.*)?$/i;
 
 // Matches valid TileJSON URLs.
 export const TILEJSON_TILESERVER_URL_REGEX_PATTERN =
-  /^https?:\/\/[^\/]+(?:\/[^\/?#]+)*\/[^\/?#]+\.json(?:\?.*)?$/i;
+  /^https?:\/\/[^/]+(?:\/[^/?#]+)*\/[^/?#]+\.json(?:\?.*)?$/i;
 
 // Allows letters, numbers, and spaces
 export const VALID_CHARACTER_PATTERN = /^[a-zA-Z0-9\s]*$/;
 
 // Matches valid model checkpoint URLs with .onnx or .tflite extensions.
 export const VALID_MODEL_CHECKPOINT_PATH =
-  /^https?:\/\/.*\/[^\/]+\.(onnx|tflite)\/?/;
+  /^https?:\/\/.*\/[^/]+\.(onnx|tflite)\/?/;
 
 // Matches valid OpenAerialMap tile server URLs.
 export const OPENAERIALMAP_TILESERVER_URL_REGEX_PATTERN =

@@ -9,7 +9,7 @@ const ModelFeedbacks = ({ trainingId }: { trainingId: number }) => {
   const navigate = useNavigate();
   const currentPath = useLocation().pathname;
   if (isLoading) {
-    return <div className="w-20 h-6 animate-pulse bg-light-gray"></div>;
+    return <div className="h-6 w-20 animate-pulse bg-light-gray"></div>;
   }
 
   return (
@@ -21,7 +21,7 @@ const ModelFeedbacks = ({ trainingId }: { trainingId: number }) => {
           disabled={trainingId === null || data?.count === 0}
           onClick={() => {
             navigate(
-              `${currentPath}/${APPLICATION_ROUTES.MODEL_FEEDBACKS_BASE_ROUTE}`,
+              `${currentPath}/${APPLICATION_ROUTES.MODEL_FEEDBACKS_BASE_ROUTE}`
             );
           }}
         >

@@ -1,7 +1,7 @@
 const ModelNotFound = () => {
   return (
-    <div className="h-[400px] flex w-full col-span-5 items-center justify-center">
-      <div className="w-full flex flex-col items-center justify-center gap-y-10">
+    <div className="col-span-5 flex h-[400px] w-full items-center justify-center">
+      <div className="flex w-full flex-col items-center justify-center gap-y-10">
         <svg
           width="100"
           height="101"
