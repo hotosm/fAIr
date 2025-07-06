@@ -1042,7 +1042,6 @@ class PredictionViewSet(UserAssignmentMixin, viewsets.ModelViewSet):
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsOsmAuthenticated, IsOwnerOrReadOnly]
     public_methods = ["GET"]
-    queryset = Prediction.objects.all()
     http_method_names = ["get", "post", "patch"]
     filter_backends = (
         DjangoFilterBackend,
@@ -1069,3 +1068,6 @@ class PredictionViewSet(UserAssignmentMixin, viewsets.ModelViewSet):
                 )
 
         return super().partial_update(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return Prediction.objects.filter(user=self.request.user)
