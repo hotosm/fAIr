@@ -55,6 +55,23 @@ const PredictedFeatureActionPopup = ({
   const alreadyAccepted = featureStatus === PredictedFeatureStatus.ACCEPTED;
   const alreadyRejected = featureStatus === PredictedFeatureStatus.REJECTED;
 
+  const config = useMemo(() => {
+    if (!feature) return {};
+    return {
+      area_threshold: feature?.properties.config.area_threshold ?? 0,
+      use_josm_q: feature?.properties.config.use_josm_q ?? false,
+      max_angle_change: feature?.properties.config.max_angle_change ?? 0,
+      skew_tolerance: feature?.properties.config.skew_tolerance ?? 0,
+      zoom_level: feature?.properties.config.zoom_level ?? 0,
+      confidence: feature?.properties.config.confidence ?? 0,
+      tolerance: feature?.properties.config.tolerance ?? 0,
+      checkpoint: feature?.properties.config.checkpoint ?? "",
+      source_imagery:
+        (feature?.properties.config.source as string) ??
+        (feature?.properties.config.source_imagery as string),
+    }
+  }, [feature]);
+
   useEffect(() => {
     if (!map) return;
 
@@ -149,14 +166,11 @@ const PredictedFeatureActionPopup = ({
       onSuccess: async (_, variables) => {
         if (variables.createFeedback) {
           await createModelFeedbackMutation.mutateAsync({
-            zoom_level: feature?.properties.config.zoom_level as number,
             comments: comment,
             geom: geojsonToWKT(feature?.geometry as GeoJSONType),
             feedback_type: "TN",
-            source_imagery:
-              (feature?.properties.config.source as string) ??
-              (feature?.properties.config.source_imagery as string),
             training: trainingId,
+            config
           });
         } else {
           if (featureId !== null) {
@@ -177,18 +191,7 @@ const PredictedFeatureActionPopup = ({
     await createApprovedModelPredictionMutation.mutateAsync({
       geom: geojsonToWKT(feature?.geometry as GeoJSONType),
       training: trainingId,
-      config: {
-        area_threshold: feature?.properties.config.area_threshold ?? 0,
-        use_josm_q: feature?.properties.config.use_josm_q ?? false,
-        max_angle_change: feature?.properties.config.max_angle_change ?? 0,
-        skew_tolerance: feature?.properties.config.skew_tolerance ?? 0,
-        zoom_level: feature?.properties.config.zoom_level ?? 0,
-        confidence: feature?.properties.config.confidence ?? 0,
-        tolerance: feature?.properties.config.tolerance ?? 0,
-        source_imagery:
-          (feature?.properties.config.source as string) ??
-          (feature?.properties.config.source_imagery as string),
-      },
+      config,
       user: user.osm_id,
     });
   };
@@ -215,14 +218,11 @@ const PredictedFeatureActionPopup = ({
       });
     } else {
       await createModelFeedbackMutation.mutateAsync({
-        zoom_level: feature?.properties.config.zoom_level as number,
         comments: comment,
         geom: geojsonToWKT(feature?.geometry as GeoJSONType),
         feedback_type: "TN",
-        source_imagery:
-          (feature?.properties.config.source as string) ??
-          (feature?.properties.config.source_imagery as string),
         training: trainingId,
+        config,
       });
     }
   };
@@ -254,51 +254,51 @@ const PredictedFeatureActionPopup = ({
 
   const primaryButton = alreadyAccepted
     ? {
+      label: START_MAPPING_PAGE_CONTENT.map.popup.reject,
+      action: handleRejection,
+      className: "bg-primary",
+      icon: RejectIcon,
+      disabled: false,
+    }
+    : alreadyRejected
+      ? {
+        label: START_MAPPING_PAGE_CONTENT.map.popup.resolve,
+        action: handleResolve,
+        className: "bg-black",
+        icon: ResolveIcon,
+        disabled: deleteModelFeedbackMutation.isPending,
+      }
+      : {
+        label: START_MAPPING_PAGE_CONTENT.map.popup.accept,
+        action: handleAcceptance,
+        className: "bg-green-primary",
+        icon: AcceptIcon,
+        disabled: createApprovedModelPredictionMutation.isPending,
+      };
+
+  const secondaryButton = alreadyAccepted
+    ? {
+      label: START_MAPPING_PAGE_CONTENT.map.popup.resolve,
+      action: handleResolve,
+      className: "bg-black",
+      icon: ResolveIcon,
+      disabled: deleteApprovedModelPrediction.isPending,
+    }
+    : alreadyRejected
+      ? {
+        label: START_MAPPING_PAGE_CONTENT.map.popup.accept,
+        action: handleAcceptance,
+        className: "bg-green-primary",
+        icon: AcceptIcon,
+        disabled: deleteModelFeedbackMutation.isPending,
+      }
+      : {
         label: START_MAPPING_PAGE_CONTENT.map.popup.reject,
         action: handleRejection,
         className: "bg-primary",
         icon: RejectIcon,
         disabled: false,
-      }
-    : alreadyRejected
-      ? {
-          label: START_MAPPING_PAGE_CONTENT.map.popup.resolve,
-          action: handleResolve,
-          className: "bg-black",
-          icon: ResolveIcon,
-          disabled: deleteModelFeedbackMutation.isPending,
-        }
-      : {
-          label: START_MAPPING_PAGE_CONTENT.map.popup.accept,
-          action: handleAcceptance,
-          className: "bg-green-primary",
-          icon: AcceptIcon,
-          disabled: createApprovedModelPredictionMutation.isPending,
-        };
-
-  const secondaryButton = alreadyAccepted
-    ? {
-        label: START_MAPPING_PAGE_CONTENT.map.popup.resolve,
-        action: handleResolve,
-        className: "bg-black",
-        icon: ResolveIcon,
-        disabled: deleteApprovedModelPrediction.isPending,
-      }
-    : alreadyRejected
-      ? {
-          label: START_MAPPING_PAGE_CONTENT.map.popup.accept,
-          action: handleAcceptance,
-          className: "bg-green-primary",
-          icon: AcceptIcon,
-          disabled: deleteModelFeedbackMutation.isPending,
-        }
-      : {
-          label: START_MAPPING_PAGE_CONTENT.map.popup.reject,
-          action: handleRejection,
-          className: "bg-primary",
-          icon: RejectIcon,
-          disabled: false,
-        };
+      };
 
   return (
     <div
@@ -339,7 +339,7 @@ const PredictedFeatureActionPopup = ({
           >
             {createModelFeedbackMutation.isPending
               ? START_MAPPING_PAGE_CONTENT.map.popup.comment
-                  .submissionInProgress
+                .submissionInProgress
               : START_MAPPING_PAGE_CONTENT.map.popup.comment.submit}
           </button>
         </>
