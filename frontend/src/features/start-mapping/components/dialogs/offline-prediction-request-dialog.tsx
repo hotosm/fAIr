@@ -141,7 +141,7 @@ export const OfflinePredictionRequestDialog = ({
               variant={ButtonVariant.PRIMARY}
               disabled={
                 predictionRequestName.trim().length <
-                  MINIMUM_PREDICTION_NAME_LENGTH ||
+                MINIMUM_PREDICTION_NAME_LENGTH ||
                 modelPredictionMutation.isPending
               }
               onClick={() => {
@@ -154,10 +154,10 @@ export const OfflinePredictionRequestDialog = ({
                     orthogonalize: query[SEARCH_PARAMS.orthogonalize] as boolean,
                     confidence: query[SEARCH_PARAMS.confidenceLevel] as number,
                     checkpoint: predictionModelCheckpoint,
-                    ortho_max_angle_change_deg: 15,
+                    ortho_max_angle_change_deg: query[SEARCH_PARAMS.maxAngleChange] as number,
                     zoom_level: parseInt(zoomLevel, 10),
                     model_id: modelId as string,
-                    ortho_skew_tolerance_deg: 15,
+                    ortho_skew_tolerance_deg: query[SEARCH_PARAMS.skewTolerance] as number,
                     source:
                       tileServerURL ??
                       (modelInfo?.dataset?.source_imagery as string),

@@ -443,7 +443,7 @@ const REFRESH_BUFFER_MS: number = 1000;
  */
 export const KPI_STATS_CACHE_TIME_MS: number =
   parseIntEnv(ENVS.KPI_STATS_CACHE_TIME, DEFAULT_KPI_STATS_CACHE_TIME_SECONDS) *
-    1000 +
+  1000 +
   REFRESH_BUFFER_MS;
 
 /**
@@ -460,6 +460,15 @@ export const MAXIMUM_PREDICTION_TOLERANCE: number = parseIntEnv(
 export const MAXIMUM_PREDICTION_AREA: number = parseIntEnv(
   ENVS.MAXIMUM_PREDICTION_AREA,
   20,
+);
+
+
+/**
+ * The maximum value for the ortho_skew_tolerance_deg and ortho_max_angle_change_deg prediction settings.
+ */
+export const MAXIMUM_ORTHO_SKEW_TOLEARANCE_AND_MAX_ANGLE_CHANGE_IN_DEGREES: number = parseIntEnv(
+  ENVS.MAXIMUM_ORTHO_SKEW_TOLEARANCE_AND_MAX_ANGLE_CHANGE_IN_DEGREES,
+  45,
 );
 
 /**
