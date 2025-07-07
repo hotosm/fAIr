@@ -1049,7 +1049,7 @@ class PredictionViewSet(UserAssignmentMixin, viewsets.ModelViewSet):
         filters.OrderingFilter,
     )
     serializer_class = PredictionSerializer
-    filterset_fields = ["status", "user", "id"]
+    filterset_fields = ["status", "id"]
     search_fields = ["description", "id"]
     ordering_fields = ["created_at", "id", "status"]
 

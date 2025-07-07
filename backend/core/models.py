@@ -228,8 +228,8 @@ class UserNotification(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     read_at = models.DateTimeField(null=True, blank=True)
     message = models.TextField(max_length=500)
-    content_type = models.ForeignKey(ContentType, on_delete=models.DO_NOTHING)
-    object_id = models.PositiveIntegerField()
+    content_type = models.ForeignKey(ContentType, on_delete=models.DO_NOTHING, null=True)
+    object_id = models.PositiveIntegerField(null=True)
     related_object = GenericForeignKey('content_type', 'object_id')
     def mark_as_read(self):
         if not self.is_read:

@@ -531,8 +531,7 @@ class UserStatsSerializer(serializers.ModelSerializer):
 
 
 class UserNotificationSerializer(serializers.ModelSerializer):
-    training_model = serializers.SerializerMethodField()
-
+    related_obj = serializers.SerializerMethodField()
     class Meta:
         model = UserNotification
         fields = (
@@ -541,21 +540,21 @@ class UserNotificationSerializer(serializers.ModelSerializer):
             "created_at",
             "read_at",
             "message",
-            "related_object",
+            "related_obj",
         )
         read_only_fields = (
             "id",
             "created_at",
             "read_at",
             "message",
-            "related_object",
+            "related_obj",
         )
 
-    def get_related_object(self, obj):
+    def get_related_obj(self, obj):
         if obj.related_object:
             return {
                 'id': obj.related_object.id,
                 'type': type(obj.related_object).__name__,
-                'model': obj.related_object.model if hasattr(obj.related_object, 'model') else None,
+                'model': obj.related_object.model.id if hasattr(obj.related_object, 'model') else None,
             }
         return None
