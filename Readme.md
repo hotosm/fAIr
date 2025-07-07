@@ -131,6 +131,6 @@ You _must_ verify that imagery provider's license is compatible with fAIr’s in
 
 ### Extended Use
 
-- If you plan to use the API or imagery services beyond the scope of the listed license, **reach out to** [info@hotosm.org](mailto:info@hotosm.org) for further guidance.
+- If you plan to use the API or imagery services beyond the scope of the listed license, **reach out to** [info@hotosm.org](mailto:info@hotosm.org) for further guidance .
 
 ![image](https://github.com/user-attachments/assets/9cbdc3a6-0a47-4c6e-8880-7ce5dbb1491e)
