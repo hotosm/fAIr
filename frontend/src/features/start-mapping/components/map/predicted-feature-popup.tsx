@@ -59,9 +59,9 @@ const PredictedFeatureActionPopup = ({
     if (!feature) return {};
     return {
       area_threshold: feature?.properties.config.area_threshold ?? 0,
-      use_josm_q: feature?.properties.config.use_josm_q ?? false,
-      max_angle_change: feature?.properties.config.max_angle_change ?? 0,
-      skew_tolerance: feature?.properties.config.skew_tolerance ?? 0,
+      orthogonalize: feature?.properties.config.orthogonalize ?? false,
+      ortho_max_angle_change_deg: feature?.properties.config.ortho_max_angle_change_deg ?? 0,
+      ortho_skew_tolerance_deg: feature?.properties.config.ortho_skew_tolerance_deg ?? 0,
       zoom_level: feature?.properties.config.zoom_level ?? 0,
       confidence: feature?.properties.config.confidence ?? 0,
       tolerance: feature?.properties.config.tolerance ?? 0,

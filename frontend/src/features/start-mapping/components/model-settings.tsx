@@ -72,15 +72,15 @@ export const ModelSettings = ({
     <div className="flex flex-col bg-white p-3 justify-between rounded-xl flex-wrap gap-y-4">
       <div className="flex gap-x-2 justify-between">
         <FormLabel
-          label={START_MAPPING_PAGE_CONTENT.settings.useJOSMQ.label}
+          label={START_MAPPING_PAGE_CONTENT.settings.orthogonalize.label}
           withTooltip
-          toolTipContent={START_MAPPING_PAGE_CONTENT.settings.useJOSMQ.tooltip}
+          toolTipContent={START_MAPPING_PAGE_CONTENT.settings.orthogonalize.tooltip}
           position="left"
         />
         <Switch
-          checked={query[SEARCH_PARAMS.useJOSMQ] as boolean}
+          checked={query[SEARCH_PARAMS.orthogonalize] as boolean}
           handleSwitchChange={(event) => {
-            handleQueryUpdate(SEARCH_PARAMS.useJOSMQ, event.target.checked);
+            handleQueryUpdate(SEARCH_PARAMS.orthogonalize, event.target.checked);
           }}
         />
       </div>

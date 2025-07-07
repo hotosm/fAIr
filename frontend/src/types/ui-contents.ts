@@ -517,7 +517,7 @@ export type TStartMappingPageContent = {
     predictionInProgress: string;
   };
   settings: {
-    useJOSMQ: {
+    orthogonalize: {
       label: string;
       tooltip: string;
     };

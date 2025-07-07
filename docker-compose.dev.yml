@@ -46,7 +46,7 @@ services:
     volumes:
       - ${REDIS_DATA:-./fair-app-data/redis}:/data
     ports:
-      - "6379:6379"
+      - "6378:6379"
     networks:
       - backend-network
     healthcheck:

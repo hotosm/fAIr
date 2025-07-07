@@ -9,9 +9,9 @@ export type TCreateFeedbackPayload = {
   training: number;
   config: {
     area_threshold?: number;
-    use_josm_q?: boolean;
-    max_angle_change?: number;
-    skew_tolerance?: number;
+    orthogonalize?: boolean;
+    ortho_max_angle_change_deg?: number;
+    ortho_skew_tolerance_deg?: number;
     zoom_level?: number;
     confidence?: number;
     tolerance?: number;
@@ -42,9 +42,9 @@ export const createFeedback = async ({
 export type TCreateApprovedPredictionPayload = {
   config: {
     area_threshold?: number;
-    use_josm_q?: boolean;
-    max_angle_change?: number;
-    skew_tolerance?: number;
+    orthogonalize?: boolean;
+    ortho_max_angle_change_deg?: number;
+    ortho_skew_tolerance_deg?: number;
     zoom_level?: number;
     confidence?: number;
     tolerance?: number;

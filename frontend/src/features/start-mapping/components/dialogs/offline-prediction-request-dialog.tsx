@@ -151,13 +151,13 @@ export const OfflinePredictionRequestDialog = ({
                   config: {
                     tolerance: query[SEARCH_PARAMS.tolerance] as number,
                     area_threshold: query[SEARCH_PARAMS.area] as number,
-                    use_josm_q: query[SEARCH_PARAMS.useJOSMQ] as boolean,
+                    orthogonalize: query[SEARCH_PARAMS.orthogonalize] as boolean,
                     confidence: query[SEARCH_PARAMS.confidenceLevel] as number,
                     checkpoint: predictionModelCheckpoint,
-                    max_angle_change: 15,
+                    ortho_max_angle_change_deg: 15,
                     zoom_level: parseInt(zoomLevel, 10),
                     model_id: modelId as string,
-                    skew_tolerance: 15,
+                    ortho_skew_tolerance_deg: 15,
                     source:
                       tileServerURL ??
                       (modelInfo?.dataset?.source_imagery as string),
