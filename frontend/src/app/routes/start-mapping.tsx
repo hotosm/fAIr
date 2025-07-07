@@ -33,7 +33,6 @@ import {
   showSuccessToast,
   showWarningToast,
   uuid4,
-
 } from "@/utils";
 
 import {
@@ -82,8 +81,8 @@ export const SEARCH_PARAMS = {
   predictionModelCheckpoint: "checkpoint",
   tileserver: "tileserver",
   mode: "mode",
-  skewTolerance: 'ortho_skew_tolerance_deg',
-  maxAngleChange: 'ortho_max_angle_change_deg'
+  skewTolerance: "ortho_skew_tolerance_deg",
+  maxAngleChange: "ortho_max_angle_change_deg",
 };
 
 export type TQueryParams = {
@@ -166,8 +165,10 @@ export const StartMappingPage = () => {
       [SEARCH_PARAMS.tolerance]:
         searchParams.get(SEARCH_PARAMS.tolerance) || 0.3,
       [SEARCH_PARAMS.area]: searchParams.get(SEARCH_PARAMS.area) || 3,
-      [SEARCH_PARAMS.skewTolerance]: searchParams.get(SEARCH_PARAMS.skewTolerance) || 15,
-      [SEARCH_PARAMS.maxAngleChange]: searchParams.get(SEARCH_PARAMS.maxAngleChange) || 15,
+      [SEARCH_PARAMS.skewTolerance]:
+        searchParams.get(SEARCH_PARAMS.skewTolerance) || 15,
+      [SEARCH_PARAMS.maxAngleChange]:
+        searchParams.get(SEARCH_PARAMS.maxAngleChange) || 15,
     };
   });
   const { openDialog, isOpened, closeDialog } = useDialog();
@@ -698,6 +699,8 @@ export const StartMappingPage = () => {
         predictionModelCheckpoint={predictionModelCheckpoint}
         tileServerURL={tileserverURL}
         resetOfflinePredictionModeState={resetOfflinePredictionModeState}
+        predictionImagerySource={predictionImagerySource}
+        predictionModel={predictionModel}
       />
       <div className="h-screen flex flex-col fullscreen">
         {/* Base model dialog */}

@@ -25,7 +25,7 @@ export const createFeedback = async ({
   feedback_type,
   geom,
   config,
-  training
+  training,
 }: TCreateFeedbackPayload): Promise<Feature & { id: number }> => {
   return await (
     await apiClient.post(API_ENDPOINTS.CREATE_FEEDBACK, {
@@ -34,7 +34,7 @@ export const createFeedback = async ({
       geom,
       config,
       action: FeedbackType.REJECT,
-      training
+      training,
     })
   ).data;
 };

@@ -536,11 +536,11 @@ export type TStartMappingPageContent = {
     skewTolerance: {
       label: string;
       tooltip: string;
-    },
+    };
     maxAngleChange: {
       label: string;
       tooltip: string;
-    },
+    };
     tooltip: string;
   };
   mapData: {

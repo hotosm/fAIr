@@ -60,8 +60,10 @@ const PredictedFeatureActionPopup = ({
     return {
       area_threshold: feature?.properties.config.area_threshold ?? 0,
       orthogonalize: feature?.properties.config.orthogonalize ?? false,
-      ortho_max_angle_change_deg: feature?.properties.config.ortho_max_angle_change_deg ?? 0,
-      ortho_skew_tolerance_deg: feature?.properties.config.ortho_skew_tolerance_deg ?? 0,
+      ortho_max_angle_change_deg:
+        feature?.properties.config.ortho_max_angle_change_deg ?? 0,
+      ortho_skew_tolerance_deg:
+        feature?.properties.config.ortho_skew_tolerance_deg ?? 0,
       zoom_level: feature?.properties.config.zoom_level ?? 0,
       confidence: feature?.properties.config.confidence ?? 0,
       tolerance: feature?.properties.config.tolerance ?? 0,
@@ -69,7 +71,7 @@ const PredictedFeatureActionPopup = ({
       source_imagery:
         (feature?.properties.config.source as string) ??
         (feature?.properties.config.source_imagery as string),
-    }
+    };
   }, [feature]);
 
   useEffect(() => {
@@ -170,7 +172,7 @@ const PredictedFeatureActionPopup = ({
             geom: geojsonToWKT(feature?.geometry as GeoJSONType),
             feedback_type: "TN",
             training: trainingId,
-            config
+            config,
           });
         } else {
           if (featureId !== null) {
@@ -254,51 +256,51 @@ const PredictedFeatureActionPopup = ({
 
   const primaryButton = alreadyAccepted
     ? {
-      label: START_MAPPING_PAGE_CONTENT.map.popup.reject,
-      action: handleRejection,
-      className: "bg-primary",
-      icon: RejectIcon,
-      disabled: false,
-    }
-    : alreadyRejected
-      ? {
-        label: START_MAPPING_PAGE_CONTENT.map.popup.resolve,
-        action: handleResolve,
-        className: "bg-black",
-        icon: ResolveIcon,
-        disabled: deleteModelFeedbackMutation.isPending,
-      }
-      : {
-        label: START_MAPPING_PAGE_CONTENT.map.popup.accept,
-        action: handleAcceptance,
-        className: "bg-green-primary",
-        icon: AcceptIcon,
-        disabled: createApprovedModelPredictionMutation.isPending,
-      };
-
-  const secondaryButton = alreadyAccepted
-    ? {
-      label: START_MAPPING_PAGE_CONTENT.map.popup.resolve,
-      action: handleResolve,
-      className: "bg-black",
-      icon: ResolveIcon,
-      disabled: deleteApprovedModelPrediction.isPending,
-    }
-    : alreadyRejected
-      ? {
-        label: START_MAPPING_PAGE_CONTENT.map.popup.accept,
-        action: handleAcceptance,
-        className: "bg-green-primary",
-        icon: AcceptIcon,
-        disabled: deleteModelFeedbackMutation.isPending,
-      }
-      : {
         label: START_MAPPING_PAGE_CONTENT.map.popup.reject,
         action: handleRejection,
         className: "bg-primary",
         icon: RejectIcon,
         disabled: false,
-      };
+      }
+    : alreadyRejected
+      ? {
+          label: START_MAPPING_PAGE_CONTENT.map.popup.resolve,
+          action: handleResolve,
+          className: "bg-black",
+          icon: ResolveIcon,
+          disabled: deleteModelFeedbackMutation.isPending,
+        }
+      : {
+          label: START_MAPPING_PAGE_CONTENT.map.popup.accept,
+          action: handleAcceptance,
+          className: "bg-green-primary",
+          icon: AcceptIcon,
+          disabled: createApprovedModelPredictionMutation.isPending,
+        };
+
+  const secondaryButton = alreadyAccepted
+    ? {
+        label: START_MAPPING_PAGE_CONTENT.map.popup.resolve,
+        action: handleResolve,
+        className: "bg-black",
+        icon: ResolveIcon,
+        disabled: deleteApprovedModelPrediction.isPending,
+      }
+    : alreadyRejected
+      ? {
+          label: START_MAPPING_PAGE_CONTENT.map.popup.accept,
+          action: handleAcceptance,
+          className: "bg-green-primary",
+          icon: AcceptIcon,
+          disabled: deleteModelFeedbackMutation.isPending,
+        }
+      : {
+          label: START_MAPPING_PAGE_CONTENT.map.popup.reject,
+          action: handleRejection,
+          className: "bg-primary",
+          icon: RejectIcon,
+          disabled: false,
+        };
 
   return (
     <div
@@ -339,7 +341,7 @@ const PredictedFeatureActionPopup = ({
           >
             {createModelFeedbackMutation.isPending
               ? START_MAPPING_PAGE_CONTENT.map.popup.comment
-                .submissionInProgress
+                  .submissionInProgress
               : START_MAPPING_PAGE_CONTENT.map.popup.comment.submit}
           </button>
         </>
