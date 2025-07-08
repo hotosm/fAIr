@@ -576,10 +576,18 @@ def predict_area(prediction_request_id):
                 os.path.join(out, "aois.geojson"),
                 inst.geom.geojson,
             )
-            write_json(
+            shutil.copy(
+                os.path.join(out,"results", "geojson", "predictions.geojson"),
                 os.path.join(out, "labels.geojson"),
-                predictions,
             )
+            shutil.copy(
+                os.path.join(out,"results", "geojson", "predictions_points.geojson"),
+                os.path.join(out, "labels_points.geojson"),
+            )
+            # write_json(
+            #     os.path.join(out, "labels.geojson"),
+            #     predictions,
+            # )
             run_tippecanoe(out)
             if settings.USE_S3_TO_UPLOAD_MODELS:
                 upload_to_s3(
