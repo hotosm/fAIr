@@ -427,7 +427,7 @@ update() {
   echo -e "${GREEN}Updating fAIr application images...${NC}"
   
   # Pull latest images
-  docker compose -f $COMPOSE_FILE pull
+  docker compose -f $COMPOSE_FILE --env-file $ENV_FILE --profile $PROFILE pull
   
   # Restart
   systemctl restart $SERVICE_NAME
