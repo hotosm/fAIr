@@ -9,8 +9,6 @@ authors = [
     {name = "HOTOSM", email = "sysadmin@hotosm.org"},
 ]
 dependencies = [
-    "geomltoolkits>=0.3.6",
-    "gunicorn>=23.0.0",
 ]
 
 [tool.uv]
@@ -32,9 +30,10 @@ api = [
     "djangorestframework-gis>=1.0",
     "drf-yasg>=1.21.10",
     "flower>=2.0.1",
-    "geomltoolkits>=0.3.7",
+    "geomltoolkits>=0.3.8",
     "geopandas>=0.13.2",
     "gpxpy>=1.6.2",
+    "gunicorn>=23.0.0",
     "mercantile>=1.2.1",
     "numpy>=1.24.4",
     "osm-login-python>=1.0.0",
