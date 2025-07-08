@@ -11,6 +11,16 @@ on:
       - ".github/workflows/frontend_build_push.yml"
   release:
     types: [released]
+  workflow_dispatch:
+    inputs:
+      use_cache:
+        description: 'Use Docker build cache'
+        required: false
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
 
 env:
   REGISTRY: ghcr.io
@@ -59,8 +69,8 @@ jobs:
           push: true
           tags: ${{ steps.meta_api.outputs.tags }}
           labels: ${{ steps.meta_api.outputs.labels }}
-          cache-from: type=gha,scope=api,timeout=20m
-          cache-to: type=gha,mode=max,scope=api,timeout=20m,ignore-error=true
+          cache-from: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.use_cache == 'false') && '' || 'type=gha,scope=api,timeout=20m' }}
+          cache-to: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.use_cache == 'false') && '' || 'type=gha,mode=max,scope=api,timeout=20m,ignore-error=true' }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
   build-and-push-worker-image:
@@ -111,8 +121,8 @@ jobs:
             BUILD_TYPE=${{ matrix.build_type }}
           tags: ${{ steps.meta_worker.outputs.tags }}
           labels: ${{ steps.meta_worker.outputs.labels }}
-          cache-from: type=gha,scope=docker-worker-${{ matrix.build_type }},timeout=20m
-          cache-to: type=gha,mode=min,scope=docker-worker-${{ matrix.build_type }},timeout=20m,ignore-error=true
+          cache-from: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.use_cache == 'false') && '' || format('type=gha,scope=docker-worker-{0},timeout=20m', matrix.build_type) }}
+          cache-to: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.use_cache == 'false') && '' || format('type=gha,mode=min,scope=docker-worker-{0},timeout=20m,ignore-error=true', matrix.build_type) }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
   build-and-push-offline-predictor-image:
@@ -160,6 +170,6 @@ jobs:
             BUILD_TARGET=predictor
           tags: ${{ steps.meta_offline_predictor.outputs.tags }}
           labels: ${{ steps.meta_offline_predictor.outputs.labels }}
-          cache-from: type=gha,scope=offline-predictor,timeout=20m
-          cache-to: type=gha,mode=max,scope=offline-predictor,timeout=20m,ignore-error=true
+          cache-from: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.use_cache == 'false') && '' || 'type=gha,scope=offline-predictor,timeout=20m' }}
+          cache-to: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.use_cache == 'false') && '' || 'type=gha,mode=max,scope=offline-predictor,timeout=20m,ignore-error=true' }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
