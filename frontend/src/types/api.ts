@@ -85,7 +85,11 @@ export type TNotification = {
   created_at: string;
   message: string;
   is_read: boolean;
-  training_model: number;
+  related_obj: {
+    id: number;
+    model: number | null,
+    type: string
+  } | null;
 };
 
 export type PaginatedNotifications = {
@@ -201,10 +205,10 @@ export type Feature = {
   geometry: Geometry;
   id?: string | number;
   properties:
-    | {
-        mid: string;
-      }
-    | GeoJsonProperties;
+  | {
+    mid: string;
+  }
+  | GeoJsonProperties;
 };
 
 export type FeatureCollection = {

@@ -90,3 +90,8 @@ export enum TileServiceType {
   TILEJSON = "TileJSON",
   ESRI = "ESRI",
 }
+
+export enum NotificationType {
+  PREDICTION = 'Prediction',
+  TRAINING = 'Training'
+}
