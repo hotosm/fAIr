@@ -167,20 +167,20 @@ const DropDown = forwardRef<SlDropdownType, DropDownProps>((props, ref) => {
                   ></SlCheckbox>
                 )}
                 {menuItem.value}
-                {
-                  menuItem?.subMenuItems ?
-                    <SlMenu slot="submenu">
-                      {menuItem.subMenuItems?.map((subMenuItem, id) => (
-                        <SlMenuItem
-                          key={`dropdown-submenu-item-${id}`}
-                          value={subMenuItem.value}
-                          className={cn(`${subMenuItem.className}`)}
-                          onClick={subMenuItem.onClick}
-                        >
-                          {subMenuItem.value}
-                        </SlMenuItem>
-                      ))}
-                    </SlMenu> : null}
+                {menuItem?.subMenuItems ? (
+                  <SlMenu slot="submenu">
+                    {menuItem.subMenuItems?.map((subMenuItem, id) => (
+                      <SlMenuItem
+                        key={`dropdown-submenu-item-${id}`}
+                        value={subMenuItem.value}
+                        className={cn(`${subMenuItem.className}`)}
+                        onClick={subMenuItem.onClick}
+                      >
+                        {subMenuItem.value}
+                      </SlMenuItem>
+                    ))}
+                  </SlMenu>
+                ) : null}
               </SlMenuItem>
             ))}
           </SlMenu>
