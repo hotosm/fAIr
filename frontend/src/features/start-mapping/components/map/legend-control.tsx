@@ -49,7 +49,7 @@ const FillLegendStyle = ({
   ></span>
 );
 
-export const Legend = ({ disableDefaultPrediction = false, title = 'Predictions' }: { disableDefaultPrediction: boolean, title: string }) => {
+export const Legend = ({ disableDefaultPrediction = false, title = 'Predictions' }: { disableDefaultPrediction?: boolean, title?: string }) => {
   const { isSmallViewport } = useScreenSize();
   const [expandLegend, setExpandLegend] = useState(true);
 
