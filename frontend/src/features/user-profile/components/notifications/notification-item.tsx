@@ -24,16 +24,20 @@ export const NotificationItem = ({
       const target = e.target as HTMLElement;
 
       // Ignore clicks on the dropdown
-      if (target.closest('sl-dropdown')) return;
+      if (target.closest("sl-dropdown")) return;
 
       const modelId = notification.related_obj?.model ?? null;
-      const shouldNavigateToModelsPage = modelId !== null && notification.related_obj?.type === NotificationType.TRAINING;
+      const shouldNavigateToModelsPage =
+        modelId !== null &&
+        notification.related_obj?.type === NotificationType.TRAINING;
 
       const goToModel = () => {
         closeNotificationPanel();
         if (shouldNavigateToModelsPage) {
           navigate(`${APPLICATION_ROUTES.MODELS}/${modelId}`);
-        } else if (notification.related_obj?.type === NotificationType.PREDICTION) {
+        } else if (
+          notification.related_obj?.type === NotificationType.PREDICTION
+        ) {
           navigate(`${APPLICATION_ROUTES.PROFILE_OFFLINE_PREDICTIONS}`);
         } else {
           navigate(`${APPLICATION_ROUTES.PROFILE_BASE}`);
@@ -54,7 +58,6 @@ export const NotificationItem = ({
     },
     [notification, navigate, mutate],
   );
-
 
   return (
     <div

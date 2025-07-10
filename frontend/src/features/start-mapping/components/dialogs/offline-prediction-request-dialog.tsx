@@ -184,7 +184,7 @@ export const OfflinePredictionRequestDialog = ({
               variant={ButtonVariant.PRIMARY}
               disabled={
                 predictionRequestName.trim().length <
-                MINIMUM_PREDICTION_NAME_LENGTH ||
+                  MINIMUM_PREDICTION_NAME_LENGTH ||
                 modelPredictionMutation.isPending
               }
               onClick={() => {

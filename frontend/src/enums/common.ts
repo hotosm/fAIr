@@ -92,6 +92,6 @@ export enum TileServiceType {
 }
 
 export enum NotificationType {
-  PREDICTION = 'Prediction',
-  TRAINING = 'Training'
+  PREDICTION = "Prediction",
+  TRAINING = "Training",
 }

@@ -87,8 +87,8 @@ export type TNotification = {
   is_read: boolean;
   related_obj: {
     id: number;
-    model: number | null,
-    type: string
+    model: number | null;
+    type: string;
   } | null;
 };
 
@@ -205,10 +205,10 @@ export type Feature = {
   geometry: Geometry;
   id?: string | number;
   properties:
-  | {
-    mid: string;
-  }
-  | GeoJsonProperties;
+    | {
+        mid: string;
+      }
+    | GeoJsonProperties;
 };
 
 export type FeatureCollection = {

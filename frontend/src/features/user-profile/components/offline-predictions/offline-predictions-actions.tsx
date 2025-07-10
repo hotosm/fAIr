@@ -55,22 +55,42 @@ export const OfflinePredictionActions = ({
             <ElipsisIcon className="icon rotate-90" />
           </Badge>
         }
-        className="text-right"
+        className="text-left"
         distance={10}
         menuItems={[
           {
             name: "Download results",
             value: "Download results",
-            onClick: (e) => {
-              e.stopPropagation();
-              const downloadUrl =
-                BASE_API_URL +
-                API_ENDPOINTS.DOWNLOAD_PREDICTION_LABELS_FILE(
-                  predictionResult.id,
-                );
-              window.open(downloadUrl, "_blank");
-            },
+
             disabled: predictionResult.status !== ModelTrainingStatus.FINISHED,
+            subMenuItems: [
+              {
+                name: 'As Points',
+                value: 'As Points',
+                onClick: (e) => {
+                  e.stopPropagation();
+                  const downloadUrl =
+                    BASE_API_URL +
+                    API_ENDPOINTS.DOWNLOAD_PREDICTION_RESULTS_POINTS_LABELS_FILE_(
+                      predictionResult.id,
+                    );
+                  window.open(downloadUrl, "_blank");
+                },
+              },
+              {
+                name: 'As Polygons',
+                value: 'As Polygons',
+                onClick: (e) => {
+                  e.stopPropagation();
+                  const downloadUrl =
+                    BASE_API_URL +
+                    API_ENDPOINTS.DOWNLOAD_PREDICTION_LABELS_FILE(
+                      predictionResult.id,
+                    );
+                  window.open(downloadUrl, "_blank");
+                },
+              }
+            ]
           },
           {
             name: "View results",
@@ -88,9 +108,9 @@ export const OfflinePredictionActions = ({
               e.stopPropagation();
               await copyToClipboard(
                 BASE_API_URL +
-                  API_ENDPOINTS.DOWNLOAD_PREDICTION_LABELS_FILE(
-                    predictionResult.id,
-                  ),
+                API_ENDPOINTS.DOWNLOAD_PREDICTION_LABELS_FILE(
+                  predictionResult.id,
+                ),
               );
               showSuccessToast("Copied results link to clipboard!");
             },
@@ -98,15 +118,15 @@ export const OfflinePredictionActions = ({
           },
           ...(showSettingsInfo
             ? [
-                {
-                  name: "View settings info",
-                  value: "View settings info",
-                  onClick: (e: { stopPropagation: () => void }) => {
-                    e.stopPropagation();
-                    handleSettingsInfo();
-                  },
+              {
+                name: "View settings info",
+                value: "View settings info",
+                onClick: (e: { stopPropagation: () => void }) => {
+                  e.stopPropagation();
+                  handleSettingsInfo();
                 },
-              ]
+              },
+            ]
             : []),
           {
             name: !predictionResult.mapswipe_id
