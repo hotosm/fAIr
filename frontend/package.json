@@ -37,6 +37,7 @@
     "react-dom": "19.1.0",
     "react-dropzone": "^14.2.10",
     "react-error-boundary": "^4.0.13",
+    "react-map-gl": "^8.0.4",
     "react-markdown": "^9.0.1",
     "react-medium-image-zoom": "^5.2.11",
     "react-router-dom": "^6.26.2",
