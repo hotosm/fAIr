@@ -59,7 +59,7 @@ export const DatasetExplorer = ({
   }, [mapViewIsActive]);
 
   return (
-    <div className="flex flex-col gap-y-4 h-full w-full min-h-screen">
+    <div className="flex size-full min-h-screen flex-col gap-y-4">
       {!disableInstruction && (
         <HelpText
           content={
@@ -68,8 +68,8 @@ export const DatasetExplorer = ({
           }
         />
       )}
-      <div className="flex flex-col md:flex-row gap-4 md:gap-y-0 w-full justify-between md:items-center">
-        <div className="flex flex-col md:flex-row gap-x-4 gap-y-4 md:gap-y-0 w-full">
+      <div className="flex w-full flex-col justify-between gap-4 md:flex-row md:items-center md:gap-y-0">
+        <div className="flex w-full flex-col gap-4 md:flex-row md:gap-y-0">
           <SearchFilter
             query={query}
             updateQuery={updateQuery}
@@ -81,9 +81,9 @@ export const DatasetExplorer = ({
         <ShowMapToggle query={query} updateQuery={updateQuery} />
       </div>
 
-      <div className="flex flex-col gap-y-6 md:gap-y-0 w-full justify-between">
+      <div className="flex w-full flex-col justify-between gap-y-6 md:gap-y-0">
         <p className="text-body-3 font-semibold">{data?.count} datasets</p>
-        <div className="flex w-full justify-between md:justify-end items-center md:gap-x-6">
+        <div className="flex w-full items-center justify-between md:justify-end md:gap-x-6">
           <OrderingFilter
             query={query}
             updateQuery={updateQuery}
@@ -115,10 +115,10 @@ export const DatasetExplorer = ({
       </div>
 
       <div
-        className={`w-full grid grid-cols-1 ${mapViewIsActive ? "grid-rows-2 h-screen" : ""} lg:grid-rows-1 lg:grid-cols-2 rounded-md gap-x-2 gap-y-6 lg:gap-y-0  min-h-screen`}
+        className={`grid w-full grid-cols-1 ${mapViewIsActive ? "h-screen grid-rows-2" : ""} min-h-screen gap-x-2 gap-y-6 rounded-md lg:grid-cols-2 lg:grid-rows-1  lg:gap-y-0`}
       >
         <div
-          className={`w-full overflow-y-auto h-full scrollable p-2 lg:row-start-1 ${mapViewIsActive ? "overflow-y-auto" : "lg:col-span-2"}`}
+          className={`scrollable size-full overflow-y-auto p-2 lg:row-start-1 ${mapViewIsActive ? "overflow-y-auto" : "lg:col-span-2"}`}
         >
           <DatasetList
             isError={isError}
@@ -139,13 +139,13 @@ export const DatasetExplorer = ({
         </div>
         {mapViewIsActive && (
           <div
-            className="row-start-1 md:border md:border-gray-border overflow-hidden rounded-md"
+            className="row-start-1 overflow-hidden rounded-md md:border md:border-gray-border"
             id={mapViewElementId}
           >
             {mapDataIsPending ||
             mapDataIsError ||
             mapData.features.length === 0 ? (
-              <div className="w-full h-full animate-pulse bg-light-gray flex items-center justify-center">
+              <div className="flex size-full animate-pulse items-center justify-center bg-light-gray">
                 <Spinner />
               </div>
             ) : (

@@ -17,7 +17,7 @@ export const OfflinePredictionActions = ({
   showSettingsInfo = false,
   placement,
 }: {
-  handlePredictionResultModal: (prediction: any) => void;
+  handlePredictionResultModal: (prediction: TOfflinePrediction) => void;
   handleTrainingLogsModal: (taskId: string) => void;
   predictionResult: TOfflinePrediction;
   showSettingsInfo?: boolean;
@@ -50,7 +50,7 @@ export const OfflinePredictionActions = ({
               // Prevent the row click event from firing
               e.stopPropagation();
             }}
-            className="rounded-lg px-2 items-center flex"
+            className="flex items-center rounded-lg px-2"
           >
             <ElipsisIcon className="icon rotate-90" />
           </Badge>
@@ -72,7 +72,7 @@ export const OfflinePredictionActions = ({
                   const downloadUrl =
                     BASE_API_URL +
                     API_ENDPOINTS.DOWNLOAD_PREDICTION_RESULTS_POINTS_LABELS_FILE_(
-                      predictionResult.id,
+                      predictionResult.id
                     );
                   window.open(downloadUrl, "_blank");
                 },
@@ -85,7 +85,7 @@ export const OfflinePredictionActions = ({
                   const downloadUrl =
                     BASE_API_URL +
                     API_ENDPOINTS.DOWNLOAD_PREDICTION_LABELS_FILE(
-                      predictionResult.id,
+                      predictionResult.id
                     );
                   window.open(downloadUrl, "_blank");
                 },
@@ -109,8 +109,8 @@ export const OfflinePredictionActions = ({
               await copyToClipboard(
                 BASE_API_URL +
                   API_ENDPOINTS.DOWNLOAD_PREDICTION_LABELS_FILE(
-                    predictionResult.id,
-                  ),
+                    predictionResult.id
+                  )
               );
               showSuccessToast("Copied results link to clipboard!");
             },
@@ -138,7 +138,7 @@ export const OfflinePredictionActions = ({
             onClick: (e) => {
               e.stopPropagation();
               showWarningToast(
-                "This feature is not yet implemented. Please check back later.",
+                "This feature is not yet implemented. Please check back later."
               );
             },
             disabled: predictionResult.status !== ModelTrainingStatus.FINISHED,

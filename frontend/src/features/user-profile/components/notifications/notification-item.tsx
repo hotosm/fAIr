@@ -49,7 +49,7 @@ export const NotificationItem = ({
           { id: notification.id },
           {
             onSuccess: goToModel,
-          },
+          }
         );
         return;
       }

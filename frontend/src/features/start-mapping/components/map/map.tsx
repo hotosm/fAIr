@@ -73,7 +73,7 @@ export const StartMappingMapComponent = ({
   updateFeatureStatus: (
     id: number,
     status: PredictedFeatureStatus,
-    updatedProperties: Partial<TModelPredictionFeature["properties"]>,
+    updatedProperties: Partial<TModelPredictionFeature["properties"]>
   ) => void;
   tileServerURL: string;
   handleDrawingStateChange: (isDrawing: boolean) => void;
@@ -91,9 +91,9 @@ export const StartMappingMapComponent = ({
     () =>
       modelPredictions.filter(
         (feature) =>
-          feature.properties.status === PredictedFeatureStatus.UNTOUCHED,
+          feature.properties.status === PredictedFeatureStatus.UNTOUCHED
       ),
-    [modelPredictions],
+    [modelPredictions]
   );
 
   const { hadHashOnLoad } = useInitialHashFit(map);
@@ -122,7 +122,7 @@ export const StartMappingMapComponent = ({
         bbox({
           type: "FeatureCollection",
           features: untouchedPredictedFeatures,
-        }) as LngLatBoundsLike,
+        }) as LngLatBoundsLike
       );
     } else {
       map.fitBounds(tileJSONMetadata.bounds);
@@ -217,7 +217,7 @@ export const StartMappingMapComponent = ({
       {memoizedToolTip}
       <div
         className={
-          "absolute top-40 left-3 map-elements-z-index hidden md:block"
+          "map-elements-z-index absolute left-3 top-40 hidden md:block"
         }
       >
         {terraDraw && map && (
@@ -234,7 +234,7 @@ export const StartMappingMapComponent = ({
       </div>
       {terraDraw && map && (
         <div
-          className={`absolute ${hasDrawnAOI ? "top-64" : "top-52"} left-3 map-elements-z-index hidden md:block`}
+          className={`absolute ${hasDrawnAOI ? "top-64" : "top-52"} map-elements-z-index left-3 hidden md:block`}
         >
           <ToolTip
             content={
@@ -245,7 +245,7 @@ export const StartMappingMapComponent = ({
             placement={ToolTipPlacement.RIGHT}
           >
             <button
-              className={`p-1.5 flex items-center justify-center transition-colors duration-200 bg-white`}
+              className={`flex items-center justify-center bg-white p-1.5 transition-colors duration-200`}
               onClick={openFileUploadDialog}
               disabled={hasDrawnAOI}
             >

@@ -65,10 +65,10 @@ export const Legend = ({
 
   return (
     <button
-      className={`flex z-10 items-center gap-x-4 bg-white p-2.5 rounded-xl ${
+      className={`z-10 flex items-center gap-x-4 rounded-xl bg-white p-2.5 ${
         isSmallViewport
           ? "border border-gray-border"
-          : "absolute flex-col gap-y-4 left-3 bottom-3 rounded-[4px] border border-gray-border"
+          : "absolute bottom-3 left-3 flex-col gap-y-4 rounded-[4px] border border-gray-border"
       }`}
       onClick={handleToggleExpand}
     >
@@ -83,7 +83,7 @@ export const Legend = ({
       )}
 
       {!isSmallViewport && (
-        <p className="w-full text-dark font-semibold text-body-2base flex items-center gap-x-10 justify-between">
+        <p className="flex w-full items-center justify-between gap-x-10 text-body-2base font-semibold text-dark">
           {title}
           <ToolTip
             content={
@@ -107,11 +107,11 @@ export const Legend = ({
             .filter((v) =>
               disableDefaultPrediction
                 ? v.status !== PredictedFeatureStatus.UNTOUCHED
-                : v,
+                : v
             )
             .map(({ label, fillColor, fillOpacity }, id) => (
               <p
-                className="w-full flex items-center text-dark gap-x-2 text-body-4 md:text-body-3 text-nowrap"
+                className="flex w-full items-center gap-x-2 text-nowrap text-body-4 text-dark md:text-body-3"
                 key={id}
               >
                 <FillLegendStyle

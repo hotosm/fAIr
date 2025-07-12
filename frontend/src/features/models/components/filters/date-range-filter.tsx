@@ -1,23 +1,11 @@
-import { DateFilter, TQueryParams } from "@/types";
+import { TQueryParams } from "@/types";
 import { DateRangePicker } from "@/components/ui/form";
 import { DropDown } from "@/components/ui/dropdown";
 import { SEARCH_PARAMS } from "@/utils/search-params";
 import { SlCheckbox } from "@shoelace-style/shoelace/dist/react";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { useEffect, useState } from "react";
-
-export const dateFilters: DateFilter[] = [
-  {
-    label: "Date Created",
-    apiValue: "created_at",
-    searchParams: "dateCreated",
-  },
-  {
-    label: "Last Modified",
-    apiValue: "last_modified",
-    searchParams: "lastModified",
-  },
-];
+import { dateFilters } from "@/constants/ui-contents/date-filter-contents";
 
 type DateRangeFilterProps = {
   disabled: boolean;

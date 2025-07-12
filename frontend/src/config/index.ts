@@ -166,7 +166,7 @@ export const MIN_TRAINING_AREA_SIZE: number = parseIntEnv(
  */
 export const MAX_TRAINING_AREA_UPLOAD_FILE_SIZE: number = parseIntEnv(
   ENVS.MAX_TRAINING_AREA_UPLOAD_FILE_SIZE,
-  1 * 1024 * 1024,
+  1 * 1024 * 1024
 );
 
 /**
@@ -466,7 +466,7 @@ export const MAXIMUM_PREDICTION_TOLERANCE: number = parseIntEnv(
  */
 export const MAXIMUM_PREDICTION_AREA: number = parseIntEnv(
   ENVS.MAXIMUM_PREDICTION_AREA,
-  20,
+  20
 );
 
 /**
@@ -475,7 +475,7 @@ export const MAXIMUM_PREDICTION_AREA: number = parseIntEnv(
 export const MAXIMUM_ORTHO_SKEW_TOLEARANCE_AND_MAX_ANGLE_CHANGE_IN_DEGREES: number =
   parseIntEnv(
     ENVS.MAXIMUM_ORTHO_SKEW_TOLEARANCE_AND_MAX_ANGLE_CHANGE_IN_DEGREES,
-    45,
+    45
   );
 
 /**

@@ -324,9 +324,10 @@ export const UserProfileSettingsPage = () => {
                           ]
                         }
                         handleSwitchChange={(e) => {
+                          const target = e.target as HTMLInputElement;
                           const updatedNotifications = {
                             ...notifications,
-                            [notification.key]: e.target.checked,
+                            [notification.key]: target.checked,
                           };
                           setIsNotificationPending(true);
                           updateNotifications(

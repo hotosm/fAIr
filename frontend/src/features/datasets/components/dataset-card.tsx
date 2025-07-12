@@ -20,7 +20,9 @@ export const DatasetCard = ({
     if (navigateOnClick) {
       return;
     }
-    onDatasetSelect && onDatasetSelect(dataset);
+    if (onDatasetSelect) {
+      onDatasetSelect(dataset);
+    }
   };
 
   const handleKeyDown: React.KeyboardEventHandler = (e) => {
@@ -46,7 +48,9 @@ export const DatasetCard = ({
         tabIndex={0}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
-            onDatasetSelect && onDatasetSelect(dataset);
+            if (onDatasetSelect) {
+              onDatasetSelect(dataset);
+            }
           }
         }}
         aria-pressed={selectedDatasetId === dataset.id}

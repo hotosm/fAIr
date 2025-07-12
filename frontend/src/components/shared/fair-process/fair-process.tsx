@@ -54,7 +54,7 @@ export const TheFAIRProcess = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<Array<React.RefObject<HTMLDivElement | null>>>(
-    steps.map(() => React.createRef<HTMLDivElement>()),
+    steps.map(() => React.createRef<HTMLDivElement>())
   );
 
   const [activeIndex, setActiveIndex] = useState<number>(0);
@@ -102,49 +102,49 @@ export const TheFAIRProcess = ({
       className={disableStyle ? "relative" : styles.fairProcess}
       ref={containerRef}
     >
-      <h2 className="text-title-2 lg:text-4xl font-semibold mb-[73px]">
+      <h2 className="mb-[73px] text-title-2 font-semibold lg:text-4xl">
         {SHARED_CONTENT.homepage.fairProcess.title}
       </h2>
-      <ol className="flex flex-col md:flex-row justify-between items-start  w-full">
+      <ol className="flex w-full flex-col items-start justify-between  md:flex-row">
         {steps.map((step, id) => (
           <li
             key={`fair-process-${id}`}
-            className="cursor-pointer flex flex-row md:flex-col"
+            className="flex cursor-pointer flex-row md:flex-col"
             onClick={() => handleClick(id)}
           >
-            <div className="flex flex-col md:flex-row items-center">
+            <div className="flex flex-col items-center md:flex-row">
               <div
-                className={`${activeIndex === id ? "bg-primary" : ""} p-1 z-10 shadow-xl flex items-center justify-center transition-all w-11 h-11 md:w-16 md:h-16 rounded-full`}
+                className={`${activeIndex === id ? "bg-primary" : ""} z-10 flex size-11 items-center justify-center rounded-full p-1 shadow-xl transition-all md:size-16`}
                 ref={itemRefs.current[id]}
               >
                 <step.icon
-                  className={`w-7 h-7 md:w-8 md:h-8 p-1 transition-all ${activeIndex !== id ? "text-grey-disabled" : "text-white scale-125"}`}
+                  className={`size-7 p-1 transition-all md:size-8 ${activeIndex !== id ? "text-grey-disabled" : "scale-125 text-white"}`}
                 />
               </div>
               {/* Disable for the last timeline on web. */}
               {id !== steps.length - 1 && (
                 <div
-                  className="hidden md:inline-flex w-full h-[2px] bg-[#E4E4E4]"
+                  className="hidden h-[2px] w-full bg-[#E4E4E4] md:inline-flex"
                   style={{ width: `calc(100% - 4rem)` }}
                 ></div>
               )}
               {/* Disable for the last timeline on mobile. */}
               {id !== steps.length - 1 && (
                 <div
-                  className="md:hidden inline-flex w-[2px] bg-[#E4E4E4]"
+                  className="inline-flex w-[2px] bg-[#E4E4E4] md:hidden"
                   style={{ height: `calc(100% - 2.5rem)` }}
                 ></div>
               )}
             </div>
 
-            <div className="inline-flex flex-col gap-y-4 pe-8 md:mt-[34px] ml-6 md:ml-0">
+            <div className="ml-6 inline-flex flex-col gap-y-4 pe-8 md:ml-0 md:mt-[34px]">
               <h3
-                className={`text-body-1 md:text-2xl md:mt-4 font-bold transition-all  ${activeIndex !== id ? "text-grey-disabled" : "text-dark"}`}
+                className={`text-body-1 font-bold transition-all md:mt-4 md:text-2xl  ${activeIndex !== id ? "text-grey-disabled" : "text-dark"}`}
               >
                 {step.title}
               </h3>
               <p
-                className={`text-body-2base md:text-body-2 mb-[68px] md:mb-0 md:mt-2 ${activeIndex !== id ? "text-grey" : "text-grey-600 "}`}
+                className={`mb-[68px] text-body-2base md:mb-0 md:mt-2 md:text-body-2 ${activeIndex !== id ? "text-grey" : "text-grey-600 "}`}
               >
                 {step.paragraph}
               </p>

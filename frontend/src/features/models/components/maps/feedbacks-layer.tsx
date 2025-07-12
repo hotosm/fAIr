@@ -10,10 +10,10 @@ import {
 } from "@/config";
 import { PredictedFeatureStatus } from "@/enums/start-mapping";
 import { Feature, GeoJSONType } from "@/types";
-import { GeoJSONSource, Map, Popup } from "maplibre-gl";
+import { GeoJSONSource, Map, MapLayerMouseEvent, Popup } from "maplibre-gl";
 import { useEffect, useMemo, useRef, useState } from "react";
 
-let markerIcon = new Image(17, 20);
+const markerIcon = new Image(17, 20);
 markerIcon.src = CommentIcon;
 export const FeedbacksLayer = ({
   map,
@@ -43,7 +43,7 @@ export const FeedbacksLayer = ({
       type: "FeatureCollection",
       features: updatedFeatures,
     }),
-    [updatedFeatures],
+    [updatedFeatures]
   );
 
   const popupContainerRef = useRef<HTMLDivElement>(null);
@@ -126,7 +126,7 @@ export const FeedbacksLayer = ({
       map.getCanvas().style.cursor = "";
     });
 
-    map.on("click", MODEL_FEEDBACKS_FILL_LAYER_ID, (e: any) => {
+    map.on("click", MODEL_FEEDBACKS_FILL_LAYER_ID, (e: MapLayerMouseEvent) => {
       const properties = e.features && e.features[0].properties;
       if (properties) {
         if (properties.comment_length === 0) return;

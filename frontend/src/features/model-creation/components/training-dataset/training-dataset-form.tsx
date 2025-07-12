@@ -14,7 +14,7 @@ import {
   useUpdateTrainingDataset,
 } from "@/features/model-creation/hooks/use-training-datasets";
 import { showErrorToast, showSuccessToast } from "@/utils";
-import { TTrainingDataset, TValidationState } from "@/types";
+import { TileJSON, TTrainingDataset, TValidationState } from "@/types";
 
 const validateDatasetName = (name: string) => {
   const min =
@@ -58,7 +58,7 @@ export const NewTrainingDatasetForm = ({
     message: string;
   }) => void;
   loading?: boolean;
-  tileJSONMetadata?: any | null;
+  tileJSONMetadata?: TileJSON | null;
   buttonText?: string;
   isCreateNewDataset?: boolean;
   onSuccess?: (data: TTrainingDataset) => void;
@@ -184,17 +184,19 @@ export const NewTrainingDatasetForm = ({
           setTileServiceType={setTileServiceType}
         />
       </div>
-      {tileJSONMetadata !== null && tileserverURL.length > 0 && (
-        <div className="max-h-60 overflow-y-auto rounded-lg border border-gray-border p-2 text-body-4 text-grey">
-          <p className="font-semibold text-dark">TileJSON Metadata</p>
-          {Object.entries(tileJSONMetadata).map(([key, value]) => (
-            <p key={key}>
-              <strong>{key.charAt(0).toUpperCase() + key.slice(1)}:</strong>{" "}
-              {Array.isArray(value) ? value.join(", ") : value?.toString()}
-            </p>
-          ))}
-        </div>
-      )}
+      {tileJSONMetadata &&
+        tileJSONMetadata !== null &&
+        tileserverURL.length > 0 && (
+          <div className="max-h-60 overflow-y-auto rounded-lg border border-gray-border p-2 text-body-4 text-grey">
+            <p className="font-semibold text-dark">TileJSON Metadata</p>
+            {Object.entries(tileJSONMetadata).map(([key, value]) => (
+              <p key={key}>
+                <strong>{key.charAt(0).toUpperCase() + key.slice(1)}:</strong>{" "}
+                {Array.isArray(value) ? value.join(", ") : value?.toString()}
+              </p>
+            ))}
+          </div>
+        )}
       <Button
         variant={ButtonVariant.DARK}
         className="w-full md:w-1/2"

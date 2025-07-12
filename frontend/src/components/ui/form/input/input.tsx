@@ -134,7 +134,7 @@ const Input: React.FC<InputProps> = ({
        */}
       {!isChrome && type === "date" && (
         <CalenderIcon
-          className="icon text-dark cursor-pointer"
+          className="icon cursor-pointer text-dark"
           slot="suffix"
           onClick={openNativeDatePicker}
         />
@@ -142,7 +142,7 @@ const Input: React.FC<InputProps> = ({
 
       {isValid && (
         <span
-          className="icon rounded-full p-1 bg-green-primary flex items-center justify-center"
+          className="icon flex items-center justify-center rounded-full bg-green-primary p-1"
           slot="suffix"
         >
           <CheckIcon className=" text-white" />

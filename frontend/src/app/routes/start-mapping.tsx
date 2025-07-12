@@ -211,20 +211,20 @@ export const StartMappingPage = () => {
   );
 
   const currentMode = searchParams.get(SEARCH_PARAMS.mode) ?? MapMode.ONLINE;
-  const setCurrentMode = (newMode: MapMode) => {
-    updateQuery({ [SEARCH_PARAMS.mode]: newMode });
-  };
+  const setCurrentMode = useCallback(
+    (newMode: MapMode) => {
+      updateQuery({ [SEARCH_PARAMS.mode]: newMode });
+    },
+    [updateQuery]
+  );
 
   const customTileServerURL = searchParams.get(SEARCH_PARAMS.tileserver) || "";
 
-  const predictionImagerySource = useMemo(() => {
-    const imagery = searchParams.get(SEARCH_PARAMS.imagery);
-    if (imagery) return imagery as PredictionImagerySource;
-
-    if (customTileServerURL) return PredictionImagerySource.CustomImagery;
-
-    return PredictionImagerySource.ModelDefault;
-  }, [searchParams, customTileServerURL]);
+  const predictionImagerySource = searchParams.get(SEARCH_PARAMS.imagery)
+    ? (searchParams.get(SEARCH_PARAMS.imagery) as PredictionImagerySource)
+    : (customTileServerURL as PredictionImagerySource)
+      ? PredictionImagerySource.CustomImagery
+      : (PredictionImagerySource.ModelDefault as PredictionImagerySource);
 
   const setPredictionImagerySource = (newValue: string) => {
     updateQuery({ [SEARCH_PARAMS.imagery]: newValue });

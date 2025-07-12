@@ -75,7 +75,7 @@ export const ModelDetailsPage = () => {
           title={MODELS_CONTENT.models.modelsDetailsCard.propertiesSectionTitle}
         >
           {!data?.published_training ? (
-            <div className="rounded-xl w-full h-80 border border-gray-border text-center flex flex-col gap-y-6 items-center justify-center text-grey">
+            <div className="flex h-80 w-full flex-col items-center justify-center gap-y-6 rounded-xl border border-gray-border text-center text-grey">
               <Image
                 src={TrainingInProgressImage}
                 alt="Model training in progress"
@@ -107,7 +107,7 @@ export const ModelDetailsPage = () => {
             MODELS_CONTENT.models.modelsDetailsCard.trainingHistorySectionTitle
           }
         >
-          <div className="md:flex self-end hidden">
+          <div className="hidden self-end md:flex">
             <ButtonWithIcon
               label={MODELS_CONTENT.models.modelsDetailsCard.enhanceModel}
               variant={ButtonVariant.DARK}
