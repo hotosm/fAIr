@@ -2,56 +2,42 @@ import { API_ENDPOINTS, apiClient } from "@/services";
 import { KPI_STATS_CACHE_TIME_MS } from "@/config";
 import { SHARED_CONTENT } from "@/constants";
 import { useQuery } from "@tanstack/react-query";
-import { useState, useEffect, FC } from "react";
+import { useState, useEffect } from "react";
 import {
   BotIcon,
   FeedbackIcon,
   PeopleIcon,
   ProductionCheckmarkIcon,
 } from "@/components/ui/icons";
-import { IconProps } from "@/types";
 
-type TKPIS = {
-  figure?: number;
-  label: string;
-  icon: FC<IconProps>;
-}[];
-
-type TKPIResponse = {
+type KPIResponse = {
   total_accepted_predictions: number;
   total_feedback_labels: number;
   total_models_published: number;
   total_registered_users: number;
 };
 
-const fetchKPIStats = async (): Promise<TKPIResponse> => {
+const fetchKPIStats = async (): Promise<KPIResponse> => {
   const { data } = await apiClient.get(API_ENDPOINTS.GET_KPI_STATS);
   return data;
 };
 
 export const Kpi = () => {
-  const [enabled, setEnabled] = useState<boolean>(false);
+  const [enabled, setEnabled] = useState(false);
 
   const { data } = useQuery({
     queryKey: ["kpis"],
     queryFn: fetchKPIStats,
     refetchInterval: KPI_STATS_CACHE_TIME_MS,
-    enabled: enabled,
+    enabled,
   });
 
-  /**
-   * This effect is used to delay the KPI stats fetching by 1 second.
-   * This is done to allow the page to load first and then fetch the KPI stats.
-   */
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setEnabled(true);
-    }, 1000);
-
+    const timer = setTimeout(() => setEnabled(true), 1000);
     return () => clearTimeout(timer);
   }, []);
 
-  const KPIs: TKPIS = [
+  const kpis = [
     {
       figure: data?.total_models_published ?? 0,
       label: SHARED_CONTENT.homepage.kpi.publishedAIModels,
@@ -76,11 +62,8 @@ export const Kpi = () => {
 
   return (
     <section className="grid min-h-40 grid-cols-1 place-items-center justify-items-center gap-y-4 bg-off-white p-4 sm:grid-cols-2 lg:grid-cols-4">
-      {KPIs.map((kpi, id) => (
-        <div
-          className={`flex h-24 w-48 items-center gap-x-3`}
-          key={`kpi-${id}`}
-        >
+      {kpis.map((kpi, id) => (
+        <div className="flex h-24 w-48 items-center gap-x-3" key={id}>
           <div className="flex items-center justify-center rounded-full bg-primary p-2">
             <kpi.icon className="size-8 text-white" />
           </div>

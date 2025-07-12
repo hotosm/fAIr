@@ -13,11 +13,11 @@ export const AboutPage = () => {
       <section className="flex flex-col items-center justify-between gap-y-20 md:flex-row">
         <div className="flex basis-1/2 flex-col gap-y-8">
           <h1 className="text-title-2 font-semibold xl:text-title-1">
-            {ABOUT_PAGE_CONTENT.heroHeading.firstSegment}{" "}
+            {ABOUT_PAGE_CONTENT.heroHeading.firstSegment}
             <span className="text-primary">
               {ABOUT_PAGE_CONTENT.heroHeading.secondSegment}
-            </span>{" "}
-            {ABOUT_PAGE_CONTENT.heroHeading.thirdSegment}{" "}
+            </span>
+            {ABOUT_PAGE_CONTENT.heroHeading.thirdSegment}
           </h1>
         </div>
       </section>
@@ -27,6 +27,7 @@ export const AboutPage = () => {
           src={HOTTeamLandscape}
           width="100%"
           height="100%"
+          className="size-2 md:size-full"
         />
       </section>
       <section className="flex w-full flex-col-reverse items-center md:flex-row md:justify-between">

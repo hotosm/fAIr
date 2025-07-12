@@ -46,7 +46,11 @@ const Link: React.FC<LinkProps> = ({
           {children}
         </a>
       ) : (
-        <ReactRouterLink to={href} {...commonProps}>
+        <ReactRouterLink
+          rel={blank ? "noreferrer" : "preconnect"}
+          to={href}
+          {...commonProps}
+        >
           {children}
         </ReactRouterLink>
       )}

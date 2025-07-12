@@ -80,7 +80,7 @@ export const Corevalues = () => {
         <div className={styles.dashedLineWrapper}>
           <Image
             src={DashedLineConnector}
-            alt=""
+            alt="dashed-line"
             className={styles.image}
             width="100"
             height="100"

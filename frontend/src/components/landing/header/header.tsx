@@ -9,8 +9,8 @@ import { ButtonVariant } from "@/enums";
 export const Header = () => {
   return (
     <header className={styles.headerContainer}>
-      <main className={`${styles.jumbotronContainer}`}>
-        <div className={`${styles.jumbotronContentContainer}`}>
+      <main className={styles.jumbotronContainer}>
+        <div className={styles.jumbotronContentContainer}>
           <div className={styles.jumbotronText}>
             <h1>{SHARED_CONTENT.homepage.jumbotronTitle}</h1>
             <p>{SHARED_CONTENT.homepage.jumbotronHeadline}</p>
@@ -25,7 +25,7 @@ export const Header = () => {
             </Link>
             <Link
               href={APPLICATION_ROUTES.MODELS}
-              title={SHARED_CONTENT.homepage.ctaPrimaryButton}
+              title={SHARED_CONTENT.homepage.ctaSecondaryButton}
               nativeAnchor={false}
             >
               <Button variant={ButtonVariant.SECONDARY}>
@@ -37,7 +37,10 @@ export const Header = () => {
         <div className={styles.jumbotronImage}>
           <Image
             src={BackgroundImage}
-            alt={SHARED_CONTENT.homepage.jumbotronImageAlt}
+            alt={
+              SHARED_CONTENT.homepage.jumbotronImageAlt ||
+              "Jumbotron background"
+            }
             width="100%"
             height="100%"
           />
