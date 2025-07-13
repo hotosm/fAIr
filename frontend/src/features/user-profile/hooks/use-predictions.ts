@@ -29,8 +29,8 @@ export const useOfflinePredictionsQueryParams = (userId?: number) => {
     [SEARCH_PARAMS.ordering]:
       searchParams.get(SEARCH_PARAMS.ordering) ||
       (ORDERING_FIELDS[1].apiValue as string),
-    [SEARCH_PARAMS.layout]: searchParams.get(SEARCH_PARAMS.layout) || LayoutView.LIST
-
+    [SEARCH_PARAMS.layout]:
+      searchParams.get(SEARCH_PARAMS.layout) || LayoutView.LIST,
   };
 
   const [query, setQuery] = useState<TQueryParams>(defaultQueries);

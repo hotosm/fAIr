@@ -6,10 +6,12 @@ export const CopyButton = ({
   text,
   size = "large",
   tooltipContent = "Copy to clipboard",
+  iconClassName,
 }: {
   text: string;
   size?: "small" | "large";
   tooltipContent?: string;
+  iconClassName?: string;
 }) => {
   const { copyToClipboard, isCopied } = useCopyToClipboard();
   const iconSize = size === "small" ? "icon" : "icon md:icon-lg";
@@ -21,12 +23,12 @@ export const CopyButton = ({
         className={`relative ${iconSize} flex items-center justify-center`}
       >
         <ClipboardIcon
-          className={`absolute inset-0 top-1/2 -translate-y-1/2 ${iconSize} transition-all duration-300 ${
+          className={`absolute ${iconClassName} inset-0 top-1/2 -translate-y-1/2 ${iconSize} transition-all duration-300 ${
             isCopied ? "opacity-0" : "opacity-100"
           }`}
         />
         <CheckIcon
-          className={`absolute inset-0 top-1/2 -translate-y-1/2  ${iconSize} transition-all duration-300 ${
+          className={`absolute inset-0 ${iconClassName} top-1/2 -translate-y-1/2  ${iconSize} transition-all duration-300 ${
             isCopied ? "opacity-100" : "opacity-0"
           }`}
         />

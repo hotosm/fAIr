@@ -1,18 +1,17 @@
 import { CommentIcon } from "@/assets/images";
 import {
-  MODEL_FEEDBACKS_FILL_COLOR,
   MODEL_FEEDBACKS_FILL_LAYER_ID,
   MODEL_FEEDBACKS_FILL_OPACITY,
-  MODEL_FEEDBACKS_OUTLINE_COLOR,
   MODEL_FEEDBACKS_OUTLINE_LAYER_ID,
   MODEL_FEEDBACKS_OUTLINE_WIDTH,
   MODEL_FEEDBACKS_SOURCE_ID,
   MODEL_FEEDBACKS_SYMBOL_LAYER_ID,
+  PREDICTED_LAYER_STATUS_COLORS,
 } from "@/config";
+import { PredictedFeatureStatus } from "@/enums/start-mapping";
 import { Feature, GeoJSONType } from "@/types";
 import { GeoJSONSource, Map, Popup } from "maplibre-gl";
 import { useEffect, useMemo, useRef, useState } from "react";
-
 
 let markerIcon = new Image(17, 20);
 markerIcon.src = CommentIcon;
@@ -31,8 +30,8 @@ export const FeedbacksLayer = ({
         ...feature.properties,
         comment_length:
           feature?.properties &&
-            "comments" in feature.properties &&
-            feature.properties.comments
+          "comments" in feature.properties &&
+          feature.properties.comments
             ? feature.properties.comments.length
             : 0,
       },
@@ -65,8 +64,14 @@ export const FeedbacksLayer = ({
         type: "fill",
         source: MODEL_FEEDBACKS_SOURCE_ID,
         paint: {
-          "fill-color": MODEL_FEEDBACKS_FILL_COLOR,
-          "fill-opacity": MODEL_FEEDBACKS_FILL_OPACITY,
+          "fill-color": [
+            "match",
+            ["get", "action"],
+            "ACCEPT",
+            PREDICTED_LAYER_STATUS_COLORS[PredictedFeatureStatus.ACCEPTED],
+            PREDICTED_LAYER_STATUS_COLORS[PredictedFeatureStatus.REJECTED],
+          ],
+          "fill-opacity": MODEL_FEEDBACKS_FILL_OPACITY, // Same opacity for accept and reject only color difference.
         },
         layout: { visibility: "visible" },
       });
@@ -77,8 +82,14 @@ export const FeedbacksLayer = ({
         type: "line",
         source: MODEL_FEEDBACKS_SOURCE_ID,
         paint: {
-          "line-color": MODEL_FEEDBACKS_OUTLINE_COLOR,
-          "line-width": MODEL_FEEDBACKS_OUTLINE_WIDTH,
+          "line-color": [
+            "match",
+            ["get", "action"],
+            "ACCEPT",
+            PREDICTED_LAYER_STATUS_COLORS[PredictedFeatureStatus.ACCEPTED],
+            PREDICTED_LAYER_STATUS_COLORS[PredictedFeatureStatus.REJECTED],
+          ],
+          "line-width": MODEL_FEEDBACKS_OUTLINE_WIDTH, // Same width for accept and reject, only color difference.
         },
         layout: { visibility: "visible" },
       });

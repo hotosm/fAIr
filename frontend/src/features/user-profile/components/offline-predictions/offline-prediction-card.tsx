@@ -42,9 +42,7 @@ export const OfflinePredictionCard = ({
             size={SHOELACE_SIZES.SMALL}
             uppercase={false}
           >
-            <p>
-              ID:  {predictionResult.id}
-            </p>
+            <p>ID: {predictionResult.id}</p>
           </Button>
           <Button
             variant={ButtonVariant.DARK}
@@ -67,7 +65,10 @@ export const OfflinePredictionCard = ({
           Duration:{" "}
           <span className="font-semibold">
             {predictionResult.created_at && predictionResult.finished_at
-              ? formatDuration(new Date(predictionResult.finished_at), new Date(predictionResult.created_at))
+              ? formatDuration(
+                  new Date(predictionResult.finished_at),
+                  new Date(predictionResult.created_at),
+                )
               : "-"}
           </span>
         </p>

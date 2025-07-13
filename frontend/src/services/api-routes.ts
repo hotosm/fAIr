@@ -87,7 +87,8 @@ export const API_ENDPOINTS = {
 
   DOWNLOAD_PREDICTION_LABELS_FILE: (predictionID: number) =>
     `workspace/download/prediction_${predictionID}/labels.geojson`,
-
+  DOWNLOAD_PREDICTION_RESULTS_POINTS_LABELS_FILE_: (predictionID: number) =>
+    `workspace/download/prediction_${predictionID}/labels_points.geojson`,
   GET_PMTILES_URL: (trainingAreaId: number) =>
     `/workspace/download/training_${trainingAreaId}/meta.pmtiles/?url_only=true`,
 

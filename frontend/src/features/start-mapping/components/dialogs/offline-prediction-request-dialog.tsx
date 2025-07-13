@@ -1,5 +1,5 @@
 import { Dialog } from "@/components/ui/dialog";
-import { Divider } from "@/components/ui/divider";
+
 import { FormLabel, Input } from "@/components/ui/form";
 import { RadioGroup } from "@/components/ui/form/radio-group/radio-group";
 import { useState } from "react";
@@ -8,13 +8,19 @@ import { Feature, TModelDetails, TQueryParams } from "@/types";
 import { Button } from "@/components/ui/button";
 import { ButtonVariant } from "@/enums";
 import { Alert } from "@/components/ui/alert";
-import { showErrorToast } from "@/utils";
+import {
+  calculateGeoJSONArea,
+  formatAreaInAppropriateUnit,
+  showErrorToast,
+} from "@/utils";
 import { useSubmitOfflinePredictionsRequest } from "@/features/start-mapping/hooks/use-model-predictions";
 import { SEARCH_PARAMS } from "@/app/routes/start-mapping";
 import { useParams } from "react-router-dom";
 import { Geometry } from "geojson";
 import { OfflinePredictionRequestSuccess } from "@/features/start-mapping/components/dialogs/offline-prediction-request-success-dialog";
 import { useDialog } from "@/hooks/use-dialog";
+import { DatabaseIcon, LayerStackIcon, MapIcon } from "@/components/ui/icons";
+import { PredictionImagerySource } from "@/enums/start-mapping";
 
 const MINIMUM_PREDICTION_NAME_LENGTH = 2;
 const MAXIMUM_PREDICTION_NAME_LENGTH = 50;
@@ -28,6 +34,8 @@ export const OfflinePredictionRequestDialog = ({
   tileServerURL,
   modelInfo,
   resetOfflinePredictionModeState,
+  predictionImagerySource,
+  predictionModel,
 }: {
   isOpen: boolean;
   onClose: () => void;
@@ -38,6 +46,8 @@ export const OfflinePredictionRequestDialog = ({
   tileServerURL: string | undefined;
   predictionModelCheckpoint: string;
   resetOfflinePredictionModeState: () => void;
+  predictionImagerySource: PredictionImagerySource;
+  predictionModel: string;
 }) => {
   const { modelId } = useParams();
   const [predictionRequestName, setPredictionRequestName] =
@@ -79,7 +89,40 @@ export const OfflinePredictionRequestDialog = ({
             request.
           </small>
         </Alert>
-        <Divider />
+        <div className="border border-gray-border rounded-md mt-2">
+          <div className="p-4">
+            <h3 className="text-body-3 md:text-body-2 font-semibold  mb-3 flex items-center gap-2">
+              Request Summary
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-body-4 md:text-body-3">
+              <div className="flex items-center gap-2">
+                <DatabaseIcon className="icon md:icon-lg" />
+                <div>
+                  <div className="font-medium ">Model</div>
+                  <div className="">{predictionModel}</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <MapIcon className="icon md:icon-lg" />
+                <div>
+                  <div className="font-medium ">AOI Size</div>
+                  <div className="">
+                    {formatAreaInAppropriateUnit(
+                      drawnAOI ? calculateGeoJSONArea(drawnAOI as Feature) : 0,
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <LayerStackIcon className="icon md:icon-lg" />
+                <div>
+                  <div className="font-medium">Imagery</div>
+                  <div className="">{predictionImagerySource}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
         <div className="flex flex-col gap-8 mt-4">
           <Input
             handleInput={(e) => setPredictionRequestName(e.target.value)}
@@ -151,13 +194,19 @@ export const OfflinePredictionRequestDialog = ({
                   config: {
                     tolerance: query[SEARCH_PARAMS.tolerance] as number,
                     area_threshold: query[SEARCH_PARAMS.area] as number,
-                    orthogonalize: query[SEARCH_PARAMS.orthogonalize] as boolean,
+                    orthogonalize: query[
+                      SEARCH_PARAMS.orthogonalize
+                    ] as boolean,
                     confidence: query[SEARCH_PARAMS.confidenceLevel] as number,
                     checkpoint: predictionModelCheckpoint,
-                    ortho_max_angle_change_deg: 15,
+                    ortho_max_angle_change_deg: query[
+                      SEARCH_PARAMS.maxAngleChange
+                    ] as number,
                     zoom_level: parseInt(zoomLevel, 10),
                     model_id: modelId as string,
-                    ortho_skew_tolerance_deg: 15,
+                    ortho_skew_tolerance_deg: query[
+                      SEARCH_PARAMS.skewTolerance
+                    ] as number,
                     source:
                       tileServerURL ??
                       (modelInfo?.dataset?.source_imagery as string),

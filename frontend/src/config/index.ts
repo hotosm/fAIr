@@ -337,8 +337,6 @@ export const MODEL_FEEDBACKS_OUTLINE_LAYER_ID: string = `${MAP_STYLES_PREFIX}-fe
 export const MODEL_FEEDBACKS_SOURCE_ID: string = `${MAP_STYLES_PREFIX}-feedbacks-source`;
 export const MODEL_FEEDBACKS_FILL_LAYER_ID: string = `${MAP_STYLES_PREFIX}-feedbacks-fill-layer`;
 export const MODEL_FEEDBACKS_SYMBOL_LAYER_ID: string = `${MAP_STYLES_PREFIX}-feedbacks-symbol-layer`;
-export const MODEL_FEEDBACKS_FILL_COLOR: string = "#D73434";
-export const MODEL_FEEDBACKS_OUTLINE_COLOR: string = "#D73434";
 export const MODEL_FEEDBACKS_OUTLINE_WIDTH: number = 4;
 export const MODEL_FEEDBACKS_FILL_OPACITY: number = 0.4;
 
@@ -461,6 +459,15 @@ export const MAXIMUM_PREDICTION_AREA: number = parseIntEnv(
   ENVS.MAXIMUM_PREDICTION_AREA,
   20,
 );
+
+/**
+ * The maximum value for the ortho_skew_tolerance_deg and ortho_max_angle_change_deg prediction settings.
+ */
+export const MAXIMUM_ORTHO_SKEW_TOLEARANCE_AND_MAX_ANGLE_CHANGE_IN_DEGREES: number =
+  parseIntEnv(
+    ENVS.MAXIMUM_ORTHO_SKEW_TOLEARANCE_AND_MAX_ANGLE_CHANGE_IN_DEGREES,
+    45,
+  );
 
 /**
  * The base path to the model checkpoint files.

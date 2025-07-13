@@ -51,7 +51,7 @@ export const OfflinePredictionsSettingsInfo = ({
           .map(([key, value]) => (
             <span
               key={key}
-              className="text-body-3 text-dark flex items-center gap-x-2 justify-between"
+              className="text-body-3 text-dark flex items-center gap-x-2 justify-between text-nowrap"
             >
               {key.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}:{" "}
               <span className="font-semibold">
