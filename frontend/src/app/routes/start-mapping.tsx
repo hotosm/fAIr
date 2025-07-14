@@ -97,6 +97,15 @@ export const StartMappingPage = () => {
     true,
   );
 
+  const defaultQuery = {
+    [SEARCH_PARAMS.orthogonalize]: true,
+    [SEARCH_PARAMS.confidenceLevel]: 50,
+    [SEARCH_PARAMS.tolerance]: 0.3,
+    [SEARCH_PARAMS.area]: 3,
+    [SEARCH_PARAMS.skewTolerance]: 15,
+    [SEARCH_PARAMS.maxAngleChange]: 15,
+  };
+
   const { isSmallViewport } = useScreenSize();
 
   const {
@@ -129,18 +138,57 @@ export const StartMappingPage = () => {
     customPredictionModelCheckpointPath,
     setCustomPredictionModelCheckpointPath,
   ] = useState<string>("");
+
+
+  const updateQuery = useCallback(
+    (newParams: TQueryParams) => {
+      setQuery((prev) => {
+        const updated = { ...prev, ...newParams };
+
+        const updatedParams = new URLSearchParams();
+
+        for (const [key, value] of Object.entries(updated)) {
+          // Skip keys equal to default or null/undefined
+          // This is to prevent the same settings from repeating in the url
+          if (
+            value !== undefined &&
+            value !== null &&
+            value !== defaultQuery[key]
+          ) {
+            updatedParams.set(key, String(value));
+          }
+        }
+
+        const currentHash = window.location.hash;
+        setSearchParams(updatedParams, { replace: true });
+
+        if (currentHash) {
+          window.location.hash = currentHash;
+        }
+
+        return updated;
+      });
+    },
+    [setSearchParams],
+  );
+
+
   const currentMode = searchParams.get(SEARCH_PARAMS.mode) ?? MapMode.ONLINE;
   const setCurrentMode = (newMode: MapMode) => {
     updateQuery({ [SEARCH_PARAMS.mode]: newMode });
   };
 
+
   const customTileServerURL = searchParams.get(SEARCH_PARAMS.tileserver) || "";
 
-  const predictionImagerySource = searchParams.get(SEARCH_PARAMS.imagery)
-    ? (searchParams.get(SEARCH_PARAMS.imagery) as PredictionImagerySource)
-    : (customTileServerURL as PredictionImagerySource)
-      ? PredictionImagerySource.CustomImagery
-      : (PredictionImagerySource.ModelDefault as PredictionImagerySource);
+  const predictionImagerySource = useMemo(() => {
+    const imagery = searchParams.get(SEARCH_PARAMS.imagery);
+    if (imagery) return imagery as PredictionImagerySource;
+
+    if (customTileServerURL) return PredictionImagerySource.CustomImagery;
+
+    return PredictionImagerySource.ModelDefault;
+  }, [searchParams, customTileServerURL]);
 
   const setPredictionImagerySource = (newValue: string) => {
     updateQuery({ [SEARCH_PARAMS.imagery]: newValue });
@@ -196,30 +244,6 @@ export const StartMappingPage = () => {
     error,
   } = useModelDetails(modelId as string, !!modelId);
 
-  const updateQuery = useCallback(
-    (newParams: TQueryParams) => {
-      setQuery((prev) => ({ ...prev, ...newParams }));
-
-      const updatedParams = new URLSearchParams(searchParams);
-
-      for (const [key, value] of Object.entries(newParams)) {
-        if (value !== undefined && value !== null) {
-          updatedParams.set(key, String(value));
-        } else {
-          updatedParams.delete(key);
-        }
-      }
-
-      const currentHash = window.location.hash;
-
-      setSearchParams(updatedParams, { replace: true });
-
-      if (currentHash) {
-        window.location.hash = currentHash;
-      }
-    },
-    [searchParams, setSearchParams],
-  );
 
   const {
     tileServiceType,
@@ -269,6 +293,7 @@ export const StartMappingPage = () => {
    *  When the user selects the Kontour prediction imagery source or pass it directly in the url.
    */
   useEffect(() => {
+
     if (predictionImagerySource === PredictionImagerySource.Kontour) {
       setTileserverURL(OPENAERIALMAP_MOSAIC_TILES_URL);
     }
@@ -461,15 +486,26 @@ export const StartMappingPage = () => {
    */
   const handleDrawingStateChange = useCallback(
     (isDrawing: boolean) => {
-      if (isDrawing) {
+      if (isDrawing && currentMode !== MapMode.OFFLINE) {
         setCurrentMode(MapMode.OFFLINE);
-      } else {
+      } else if (!isDrawing && currentMode !== MapMode.ONLINE) {
         setCurrentMode(MapMode.ONLINE);
         setDrawingMode(DrawingModes.STATIC);
       }
     },
-    [setCurrentMode],
+    [setCurrentMode, setDrawingMode, currentMode],
   );
+
+  useEffect(() => {
+    const imagery = searchParams.get(SEARCH_PARAMS.imagery);
+
+    if (!imagery) {
+      // Only set default imagery if none present
+      if (predictionImagerySource === PredictionImagerySource.ModelDefault && modelInfo?.dataset?.source_imagery) {
+        updateQuery({ [SEARCH_PARAMS.imagery]: PredictionImagerySource.ModelDefault });
+      }
+    }
+  }, [searchParams, predictionImagerySource, modelInfo, updateQuery]);
 
   /**
    * Check if the model predictions exist.
@@ -483,16 +519,16 @@ export const StartMappingPage = () => {
     () => [
       ...(modelPredictions.length > 0
         ? [
-            {
-              value:
-                START_MAPPING_PAGE_CONTENT.map.controls.legendControl
-                  .predictionResults,
-              subLayers: [
-                ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
-                ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
-              ],
-            },
-          ]
+          {
+            value:
+              START_MAPPING_PAGE_CONTENT.map.controls.legendControl
+                .predictionResults,
+            subLayers: [
+              ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
+              ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
+            ],
+          },
+        ]
         : []),
     ],
     [modelPredictions],
