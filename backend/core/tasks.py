@@ -391,18 +391,17 @@ def prepare_data(
 def run_tippecanoe(out):
     logger = logging.getLogger(__name__)
     try:
-        subprocess.run(
+        subprocess.check_output(
             f"tippecanoe -o {out}/meta.pmtiles -Z7 -z18 "
             f"-L aois:{out}/aois.geojson -L labels:{out}/labels.geojson "
             "--force --read-parallel -rg --drop-densest-as-needed",
             shell=True,
-            check=True,
-            capture_output=True,
+            preexec_fn=os.setsid,
+            timeout=60 * 60 * 2,  # 2 hours timeout
         )
     except subprocess.CalledProcessError as e:
         logger.error("Vector tiles creation failed: %s", e.stderr.decode())
         raise
-
 
 
 def finalize(inst, out, prep, acc):
@@ -567,8 +566,8 @@ def predict_area(prediction_request_id):
                     orthogonalize=params.orthogonalize,
                     ortho_skew_tolerance_deg=params.ortho_skew_tolerance_deg,
                     ortho_max_angle_change_deg=params.ortho_max_angle_change_deg,
-                    get_predictions_as_points=True, # True by default for now , however once it is implemented in the frontend make it parameterized #todo
-                    remove_metadata= True,
+                    get_predictions_as_points=True,  # True by default for now , however once it is implemented in the frontend make it parameterized #todo
+                    remove_metadata=True,
                     output_path=out,
                 )
             )
@@ -577,18 +576,22 @@ def predict_area(prediction_request_id):
                 inst.geom.geojson,
             )
             shutil.copy(
-                os.path.join(out,"results", "geojson", "predictions.geojson"),
+                os.path.join(out, "results", "geojson", "predictions.geojson"),
                 os.path.join(out, "labels.geojson"),
             )
             shutil.copy(
-                os.path.join(out,"results", "geojson", "predictions_points.geojson"),
+                os.path.join(out, "results", "geojson", "predictions_points.geojson"),
                 os.path.join(out, "labels_points.geojson"),
             )
-            shutil.rmtree(os.path.join(out, "results")) # todo : later on after implementation with the frontend keep this
+            shutil.rmtree(
+                os.path.join(out, "results")
+            )  # todo : later on after implementation with the frontend keep this
             # write_json(
             #     os.path.join(out, "labels.geojson"),
             #     predictions,
             # )
+            if len(predictions["features"]) == 0:
+                raise ValueError("No features found in the predictions geojson")
             run_tippecanoe(out)
             if settings.USE_S3_TO_UPLOAD_MODELS:
                 upload_to_s3(
