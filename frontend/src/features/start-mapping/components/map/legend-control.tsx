@@ -49,7 +49,13 @@ const FillLegendStyle = ({
   ></span>
 );
 
-export const Legend = ({ disableDefaultPrediction = false, title = 'Predictions' }: { disableDefaultPrediction?: boolean, title?: string }) => {
+export const Legend = ({
+  disableDefaultPrediction = false,
+  title = "Predictions",
+}: {
+  disableDefaultPrediction?: boolean;
+  title?: string;
+}) => {
   const { isSmallViewport } = useScreenSize();
   const [expandLegend, setExpandLegend] = useState(true);
 
@@ -59,10 +65,11 @@ export const Legend = ({ disableDefaultPrediction = false, title = 'Predictions'
 
   return (
     <button
-      className={`flex z-10 items-center gap-x-4 bg-white p-2.5 rounded-xl ${isSmallViewport
-        ? "border border-gray-border"
-        : "absolute flex-col gap-y-4 left-3 bottom-3 rounded-[4px] border border-gray-border"
-        }`}
+      className={`flex z-10 items-center gap-x-4 bg-white p-2.5 rounded-xl ${
+        isSmallViewport
+          ? "border border-gray-border"
+          : "absolute flex-col gap-y-4 left-3 bottom-3 rounded-[4px] border border-gray-border"
+      }`}
       onClick={handleToggleExpand}
     >
       {!expandLegend && isSmallViewport && (
@@ -82,9 +89,9 @@ export const Legend = ({ disableDefaultPrediction = false, title = 'Predictions'
             content={
               expandLegend
                 ? START_MAPPING_PAGE_CONTENT.map.controls.legendControl.toolTip
-                  .hide
+                    .hide
                 : START_MAPPING_PAGE_CONTENT.map.controls.legendControl.toolTip
-                  .show
+                    .show
             }
           >
             <LegendBookIcon className="icon" />
@@ -96,20 +103,24 @@ export const Legend = ({ disableDefaultPrediction = false, title = 'Predictions'
         <div
           className={`flex w-full ${isSmallViewport ? "flex-row gap-x-2" : "flex-col"} gap-y-3`}
         >
-          {statusLegend.filter((v) =>
-            disableDefaultPrediction ? v.status !== PredictedFeatureStatus.UNTOUCHED : v
-          ).map(({ label, fillColor, fillOpacity }, id) => (
-            <p
-              className="w-full flex items-center text-dark gap-x-2 text-body-4 md:text-body-3 text-nowrap"
-              key={id}
-            >
-              <FillLegendStyle
-                fillColor={fillColor}
-                fillOpacity={fillOpacity}
-              />
-              {label}
-            </p>
-          ))}
+          {statusLegend
+            .filter((v) =>
+              disableDefaultPrediction
+                ? v.status !== PredictedFeatureStatus.UNTOUCHED
+                : v,
+            )
+            .map(({ label, fillColor, fillOpacity }, id) => (
+              <p
+                className="w-full flex items-center text-dark gap-x-2 text-body-4 md:text-body-3 text-nowrap"
+                key={id}
+              >
+                <FillLegendStyle
+                  fillColor={fillColor}
+                  fillOpacity={fillOpacity}
+                />
+                {label}
+              </p>
+            ))}
         </div>
       )}
 
