@@ -7,6 +7,7 @@ x-common-volumes: &common-volumes
     - ${LOG_PATH:-/opt/fair-app/data/log}:${LOG_PATH:-/opt/fair-app/data/log}
     - ${RAMP_HOME:-/opt/fair-app/data/ramp}:${RAMP_HOME:-/opt/fair-app/data/ramp}
     - ${TRAINING_WORKSPACE:-/opt/fair-app/data/trainings}:${TRAINING_WORKSPACE:-/opt/fair-app/data/trainings}
+    - ${BASEMODELS_PATH:-/opt/fair-app/data/basemodels}:${BASEMODELS_PATH:-/opt/fair-app/data/basemodels}
 
 services:
   postgres:
