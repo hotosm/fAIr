@@ -34,6 +34,7 @@ from core.utils import bbox, is_dir_empty
 
 from .utils import (
     S3Uploader,
+    check_and_convert_crs,
     copyfile,
     get_file_count,
     safe_copytree,
@@ -391,6 +392,7 @@ def prepare_data(
 def run_tippecanoe(out):
     logger = logging.getLogger(__name__)
     try:
+        check_and_convert_crs(os.path.join(out, "labels.geojson"))
         subprocess.check_output(
             f"tippecanoe -o {out}/meta.pmtiles -Z7 -z18 "
             f"-L aois:{out}/aois.geojson -L labels:{out}/labels.geojson "

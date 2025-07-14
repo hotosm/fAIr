@@ -467,7 +467,7 @@ class S3Uploader:
 def get_email_message(obj_instance, status):
     hostname = settings.FRONTEND_URL
     # training_model_url = f"{hostname}/ai-models/{training_instance.model.id}"
-    profile_url = f"{hostname}/profile" # doing profile for now as training url won't work for the predictions, i can read from the class name and filter out the condition , keeping it simple for now can do that later #todo
+    profile_url = f"{hostname}/profile"  # doing profile for now as training url won't work for the predictions, i can read from the class name and filter out the condition , keeping it simple for now can do that later #todo
     message_template = (
         "Hi {username},\n\n"
         "Your {obj_instance.__class__.__name__} task (ID: {object_id}) of model {model_name} has {status}. You can view the details in your profile:\n"
@@ -657,3 +657,15 @@ def setup_ramp():
 
     os.environ["RAMP_HOME"] = str(ramp_home)
     os.environ["TRAINING_WORKSPACE"] = str(training_workspace)
+
+
+def check_and_convert_crs(geojson_path):
+    gdf = gpd.read_file(geojson_path)
+    print(f"Original CRS: {gdf.crs}")
+
+    if gdf.crs.to_epsg() != 4326:
+        print("Converting to EPSG:4326")
+        gdf_4326 = gdf.to_crs(epsg=4326)
+        gdf_4326.to_file(geojson_path, driver="GeoJSON")
+    else:
+        print("Already in EPSG:4326, no conversion needed")
