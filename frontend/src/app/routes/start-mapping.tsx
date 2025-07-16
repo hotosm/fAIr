@@ -85,8 +85,57 @@ export const SEARCH_PARAMS = {
   maxAngleChange: "ortho_max_angle_change_deg",
 };
 
+
 export type TQueryParams = {
   [x: string]: string | number | boolean | undefined;
+};
+
+
+const defaultQuery = {
+  [SEARCH_PARAMS.orthogonalize]: true,
+  [SEARCH_PARAMS.confidenceLevel]: 50,
+  [SEARCH_PARAMS.tolerance]: 0.3,
+  [SEARCH_PARAMS.area]: 3,
+  [SEARCH_PARAMS.skewTolerance]: 15,
+  [SEARCH_PARAMS.maxAngleChange]: 15,
+};
+
+const getMergedQueryFromSearchParams = (
+  params: URLSearchParams,
+): TQueryParams => {
+  return {
+    [SEARCH_PARAMS.orthogonalize]:
+      params.get(SEARCH_PARAMS.orthogonalize) !== null
+        ? params.get(SEARCH_PARAMS.orthogonalize) === "true"
+        : defaultQuery[SEARCH_PARAMS.orthogonalize],
+    [SEARCH_PARAMS.confidenceLevel]:
+      params.get(SEARCH_PARAMS.confidenceLevel) !== null
+        ? Number(params.get(SEARCH_PARAMS.confidenceLevel))
+        : defaultQuery[SEARCH_PARAMS.confidenceLevel],
+    [SEARCH_PARAMS.tolerance]:
+      params.get(SEARCH_PARAMS.tolerance) !== null
+        ? Number(params.get(SEARCH_PARAMS.tolerance))
+        : defaultQuery[SEARCH_PARAMS.tolerance],
+    [SEARCH_PARAMS.area]:
+      params.get(SEARCH_PARAMS.area) !== null
+        ? Number(params.get(SEARCH_PARAMS.area))
+        : defaultQuery[SEARCH_PARAMS.area],
+    [SEARCH_PARAMS.skewTolerance]:
+      params.get(SEARCH_PARAMS.skewTolerance) !== null
+        ? Number(params.get(SEARCH_PARAMS.skewTolerance))
+        : defaultQuery[SEARCH_PARAMS.skewTolerance],
+    [SEARCH_PARAMS.maxAngleChange]:
+      params.get(SEARCH_PARAMS.maxAngleChange) !== null
+        ? Number(params.get(SEARCH_PARAMS.maxAngleChange))
+        : defaultQuery[SEARCH_PARAMS.maxAngleChange],
+
+    [SEARCH_PARAMS.model]: params.get(SEARCH_PARAMS.model) ?? undefined,
+    [SEARCH_PARAMS.imagery]: params.get(SEARCH_PARAMS.imagery) ?? undefined,
+    [SEARCH_PARAMS.predictionModelCheckpoint]:
+      params.get(SEARCH_PARAMS.predictionModelCheckpoint) ?? undefined,
+    [SEARCH_PARAMS.tileserver]: params.get(SEARCH_PARAMS.tileserver) ?? undefined,
+    [SEARCH_PARAMS.mode]: params.get(SEARCH_PARAMS.mode) ?? undefined,
+  };
 };
 
 export const StartMappingPage = () => {
@@ -97,14 +146,6 @@ export const StartMappingPage = () => {
     true,
   );
 
-  const defaultQuery = {
-    [SEARCH_PARAMS.orthogonalize]: true,
-    [SEARCH_PARAMS.confidenceLevel]: 50,
-    [SEARCH_PARAMS.tolerance]: 0.3,
-    [SEARCH_PARAMS.area]: 3,
-    [SEARCH_PARAMS.skewTolerance]: 15,
-    [SEARCH_PARAMS.maxAngleChange]: 15,
-  };
 
   const { isSmallViewport } = useScreenSize();
 
@@ -204,21 +245,9 @@ export const StartMappingPage = () => {
     updateQuery({ [SEARCH_PARAMS.model]: newValue });
   };
 
-  const [query, setQuery] = useState<TQueryParams>(() => {
-    return {
-      [SEARCH_PARAMS.orthogonalize]:
-        searchParams.get(SEARCH_PARAMS.orthogonalize) || true,
-      [SEARCH_PARAMS.confidenceLevel]:
-        searchParams.get(SEARCH_PARAMS.confidenceLevel) || 50,
-      [SEARCH_PARAMS.tolerance]:
-        searchParams.get(SEARCH_PARAMS.tolerance) || 0.3,
-      [SEARCH_PARAMS.area]: searchParams.get(SEARCH_PARAMS.area) || 3,
-      [SEARCH_PARAMS.skewTolerance]:
-        searchParams.get(SEARCH_PARAMS.skewTolerance) || 15,
-      [SEARCH_PARAMS.maxAngleChange]:
-        searchParams.get(SEARCH_PARAMS.maxAngleChange) || 15,
-    };
-  });
+  const [query, setQuery] = useState<TQueryParams>(() =>
+    getMergedQueryFromSearchParams(searchParams),
+  );
   const { openDialog, isOpened, closeDialog } = useDialog();
   const {
     openDialog: openModelSelectionDialog,
