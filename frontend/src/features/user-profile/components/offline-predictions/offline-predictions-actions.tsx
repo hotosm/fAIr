@@ -15,13 +15,14 @@ export const OfflinePredictionActions = ({
   handleTrainingLogsModal,
   predictionResult,
   showSettingsInfo = false,
-  placement,
+  placement
 }: {
   handlePredictionResultModal: (prediction: any) => void;
   handleTrainingLogsModal: (taskId: string) => void;
   predictionResult: TOfflinePrediction;
   showSettingsInfo?: boolean;
   placement?: DropdownPlacement;
+
 }) => {
   const { copyToClipboard } = useCopyToClipboard();
   const { dropdownRef } = useDropdownMenu();
@@ -108,9 +109,9 @@ export const OfflinePredictionActions = ({
               e.stopPropagation();
               await copyToClipboard(
                 BASE_API_URL +
-                  API_ENDPOINTS.DOWNLOAD_PREDICTION_LABELS_FILE(
-                    predictionResult.id,
-                  ),
+                API_ENDPOINTS.DOWNLOAD_PREDICTION_LABELS_FILE(
+                  predictionResult.id,
+                ),
               );
               showSuccessToast("Copied results link to clipboard!");
             },
@@ -118,15 +119,15 @@ export const OfflinePredictionActions = ({
           },
           ...(showSettingsInfo
             ? [
-                {
-                  name: "View settings info",
-                  value: "View settings info",
-                  onClick: (e: { stopPropagation: () => void }) => {
-                    e.stopPropagation();
-                    handleSettingsInfo();
-                  },
+              {
+                name: "View settings info",
+                value: "View settings info",
+                onClick: (e: { stopPropagation: () => void }) => {
+                  e.stopPropagation();
+                  handleSettingsInfo();
                 },
-              ]
+              },
+            ]
             : []),
           {
             name: !predictionResult.mapswipe_id
