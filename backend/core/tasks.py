@@ -11,10 +11,6 @@ from contextlib import contextmanager
 from datetime import datetime
 
 from celery import shared_task
-from django.conf import settings
-from django.shortcuts import get_object_or_404
-from django.utils import timezone
-
 from core.models import (
     AOI,
     FeedbackAOI,
@@ -31,6 +27,9 @@ from core.serializers import (
     LabelFileSerializer,
 )
 from core.utils import bbox, is_dir_empty
+from django.conf import settings
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
 
 from .utils import (
     S3Uploader,
@@ -305,7 +304,7 @@ class Trainer:
             f.write(tflite_model)
 
         write_json(os.path.join(out, "labels.geojson"), labels)
-        write_json(os.path.join(out, "aois.geojson"), aois.data)
+        write_json(os.path.join(out, "aois.geojson"), json.loads(aois.data))
         safe_rmtree(base)
         return {"accuracy": acc, "output_path": out, "preprocess_output": prep}
 
@@ -399,7 +398,7 @@ def run_tippecanoe(out):
             "--force --read-parallel -rg --drop-densest-as-needed",
             shell=True,
             preexec_fn=os.setsid,
-            timeout=60 * 60 * 2,  # 2 hours timeout
+            timeout=60 * 60 * 1,  # 1 hour timeout
         )
     except subprocess.CalledProcessError as e:
         logger.error("Vector tiles creation failed: %s", e.stderr.decode())
@@ -575,7 +574,7 @@ def predict_area(prediction_request_id):
             )
             write_json(
                 os.path.join(out, "aois.geojson"),
-                inst.geom.geojson,
+                json.loads(inst.geom.geojson),
             )
             shutil.copy(
                 os.path.join(out, "results", "geojson", "predictions.geojson"),
