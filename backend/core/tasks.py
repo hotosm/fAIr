@@ -598,7 +598,11 @@ def predict_area(prediction_request_id):
                 upload_to_s3(
                     out, parent=f"{settings.PARENT_BUCKET_FOLDER}/prediction_{inst.id}"
                 )
-            inst.status, inst.finished_at = "FINISHED", timezone.now()
+            inst.status, inst.finished_at, inst.result_count = (
+                "FINISHED",
+                timezone.now(),
+                len(predictions["features"]),
+            )
             send_notification(inst, "Finished")
             inst.save()
     except Exception as ex:

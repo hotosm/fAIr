@@ -1,13 +1,14 @@
 import re
 
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.gis.db import models as geomodels
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 from login.models import OsmUser
-from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
+
 
 class Dataset(models.Model):
     class DatasetStatus(models.IntegerChoices):
@@ -228,9 +229,12 @@ class UserNotification(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     read_at = models.DateTimeField(null=True, blank=True)
     message = models.TextField(max_length=500)
-    content_type = models.ForeignKey(ContentType, on_delete=models.DO_NOTHING, null=True)
+    content_type = models.ForeignKey(
+        ContentType, on_delete=models.DO_NOTHING, null=True
+    )
     object_id = models.PositiveIntegerField(null=True)
-    related_object = GenericForeignKey('content_type', 'object_id')
+    related_object = GenericForeignKey("content_type", "object_id")
+
     def mark_as_read(self):
         if not self.is_read:
             self.is_read = True
@@ -255,6 +259,7 @@ class Prediction(models.Model):
     status = models.CharField(
         choices=STATUS_CHOICES, default="SUBMITTED", max_length=10
     )
+    result_count = models.PositiveIntegerField(default=0)
     task_id = models.CharField(null=True, blank=True, max_length=100)
     mapswipe_id = models.CharField(null=True, blank=True, max_length=100)
     config = models.JSONField(null=True, blank=True)
