@@ -304,7 +304,7 @@ class Trainer:
             f.write(tflite_model)
 
         write_json(os.path.join(out, "labels.geojson"), labels)
-        write_json(os.path.join(out, "aois.geojson"), json.loads(aois.data))
+        write_json(os.path.join(out, "aois.geojson"), aois.data)
         safe_rmtree(base)
         return {"accuracy": acc, "output_path": out, "preprocess_output": prep}
 
@@ -392,9 +392,27 @@ def run_tippecanoe(out):
     logger = logging.getLogger(__name__)
     try:
         check_and_convert_crs(os.path.join(out, "labels.geojson"))
+
+        layers = []
+
+        layers.append(
+            f'-L{{"file":"{out}/aois.geojson", "layer":"aois", "description":"Area of Interest boundaries"}}'
+        )
+
+        layers.append(
+            f'-L{{"file":"{out}/labels.geojson", "layer":"labels", "description":"Footprints labels"}}'
+        )
+
+        if os.path.exists(os.path.join(out, "labels_points.geojson")):
+            layers.append(
+                f'-L{{"file":"{out}/labels_points.geojson", "layer":"labels_points", "description":"Footprint label points"}}'
+            )
+
+        layers_str = " ".join(layers)
+
         subprocess.check_output(
-            f"tippecanoe -o {out}/meta.pmtiles -Z7 -z18 "
-            f"-L aois:{out}/aois.geojson -L labels:{out}/labels.geojson "
+            f"tippecanoe -o {out}/meta.pmtiles -Z7 -z20 "
+            f"{layers_str} "
             "--force --read-parallel -rg --drop-densest-as-needed",
             shell=True,
             preexec_fn=os.setsid,
