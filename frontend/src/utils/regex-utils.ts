@@ -2,7 +2,7 @@ import { TileServiceType } from "@/enums";
 
 // Matches valid XYZ tile server URLs.
 export const XYZ_TILESERVER_URL_REGEX_PATTERN =
-  /^https?:\/\/[^\/]+(?:\/[^\/]+)*\/\{z\}\/\{(x|y)\}\/\{(x|y)\}(?:@[0-9a-z]+)?(?:\.(jpg|png|jpeg|webp))?(?:\?.*)?$/i;
+  /^https?:\/\/[^/]+(?:\/[^/]+)*\/\{z\}\/\{(x|y)\}\/\{(x|y)\}(?:@[0-9a-z]+)?(?:\.(jpg|png|jpeg|webp))?(?:\?.*)?$/i;
 
 // Matches valid TMS tile server URLs.
 export const TMS_TILESERVER_URL_REGEX_PATTERN =

@@ -95,7 +95,7 @@ export const PredictionResultDrawer: React.FC<PredictionResultProps> = ({
                       const downloadUrl =
                         BASE_API_URL +
                         API_ENDPOINTS.DOWNLOAD_PREDICTION_RESULTS_POINTS_LABELS_FILE_(
-                          predictionId,
+                          predictionId
                         );
                       window.open(downloadUrl, "_blank");
                     },
@@ -107,7 +107,7 @@ export const PredictionResultDrawer: React.FC<PredictionResultProps> = ({
                       const downloadUrl =
                         BASE_API_URL +
                         API_ENDPOINTS.DOWNLOAD_PREDICTION_LABELS_FILE(
-                          predictionId,
+                          predictionId
                         );
                       window.open(downloadUrl, "_blank");
                     },
