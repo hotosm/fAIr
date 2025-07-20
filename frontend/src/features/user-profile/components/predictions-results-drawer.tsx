@@ -10,6 +10,7 @@ import { showErrorToast } from "@/utils";
 import { Drawer } from "@/components/ui/drawer";
 import { CloudDownloadIcon } from "@/components/ui/icons";
 import { BASE_API_URL } from "@/config";
+import { DropDown } from "@/components/ui/dropdown";
 
 type PredictionResultProps = DialogProps & {
   predictionId: number;
@@ -74,22 +75,44 @@ export const PredictionResultDrawer: React.FC<PredictionResultProps> = ({
         {data?.result && tileServiceUrl && (
           <div className="flex w-full h-full flex-col space-y-4">
             <div className="flex justify-end">
-              <ButtonWithIcon
-                onClick={() => {
-                  const downloadUrl =
-                    BASE_API_URL +
-                    API_ENDPOINTS.DOWNLOAD_PREDICTION_LABELS_FILE(predictionId);
-                  // It's possible that the download file is large, so we open it in a new tab
-                  // to avoid blocking the UI.
-                  // This will allow the user to download the file without interrupting their workflow.
-                  window.open(downloadUrl, "_blank");
-                }}
-                label="Download Results"
-                disabled={!data?.result}
-                className="!w-fit"
-                size={SHOELACE_SIZES.MEDIUM}
-                variant={ButtonVariant.PRIMARY}
-                prefixIcon={CloudDownloadIcon}
+              <DropDown
+                triggerComponent={
+                  <ButtonWithIcon
+                    label="Download Results"
+                    disabled={!data?.result}
+                    className="!w-fit"
+                    size={SHOELACE_SIZES.MEDIUM}
+                    variant={ButtonVariant.PRIMARY}
+                    prefixIcon={CloudDownloadIcon}
+                    textClassName="capitalize"
+                  />
+                }
+                menuItems={[
+                  {
+                    name: "As Points",
+                    value: "As Points",
+                    onClick: () => {
+                      const downloadUrl =
+                        BASE_API_URL +
+                        API_ENDPOINTS.DOWNLOAD_PREDICTION_RESULTS_POINTS_LABELS_FILE_(
+                          predictionId,
+                        );
+                      window.open(downloadUrl, "_blank");
+                    },
+                  },
+                  {
+                    name: "As Polygons",
+                    value: "As Polygons",
+                    onClick: () => {
+                      const downloadUrl =
+                        BASE_API_URL +
+                        API_ENDPOINTS.DOWNLOAD_PREDICTION_LABELS_FILE(
+                          predictionId,
+                        );
+                      window.open(downloadUrl, "_blank");
+                    },
+                  },
+                ]}
               />
             </div>
             <div className="w-full h-full relative border">
