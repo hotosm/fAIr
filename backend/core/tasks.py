@@ -395,12 +395,12 @@ def run_tippecanoe(out):
         check_and_convert_crs(os.path.join(out, "labels.geojson"))
 
         layers = []
-
-        layers.append(f'-L aois:"{out}/aois.geojson"')
-        layers.append(f'-L labels:"{out}/labels.geojson"')
-
         if os.path.exists(os.path.join(out, "labels_points.geojson")):
             layers.append(f'-L labels_points:"{out}/labels_points.geojson"')
+
+        layers.append(f'-L labels:"{out}/labels.geojson"')
+
+        layers.append(f'-L aois:"{out}/aois.geojson"')
 
         layers_str = " ".join(layers)
 
