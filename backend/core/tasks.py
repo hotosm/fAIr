@@ -11,6 +11,10 @@ from contextlib import contextmanager
 from datetime import datetime
 
 from celery import shared_task
+from django.conf import settings
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
+
 from core.models import (
     AOI,
     FeedbackAOI,
@@ -27,9 +31,6 @@ from core.serializers import (
     LabelFileSerializer,
 )
 from core.utils import bbox, is_dir_empty
-from django.conf import settings
-from django.shortcuts import get_object_or_404
-from django.utils import timezone
 
 from .utils import (
     S3Uploader,
@@ -395,18 +396,11 @@ def run_tippecanoe(out):
 
         layers = []
 
-        layers.append(
-            f'-L{{"file":"{out}/aois.geojson", "layer":"aois", "description":"Area of Interest boundaries"}}'
-        )
-
-        layers.append(
-            f'-L{{"file":"{out}/labels.geojson", "layer":"labels", "description":"Footprints labels"}}'
-        )
+        layers.append(f'-L aois:"{out}/aois.geojson"')
+        layers.append(f'-L labels:"{out}/labels.geojson"')
 
         if os.path.exists(os.path.join(out, "labels_points.geojson")):
-            layers.append(
-                f'-L{{"file":"{out}/labels_points.geojson", "layer":"labels_points", "description":"Footprint label points"}}'
-            )
+            layers.append(f'-L labels_points:"{out}/labels_points.geojson"')
 
         layers_str = " ".join(layers)
 
