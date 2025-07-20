@@ -431,10 +431,10 @@ export const ModelsProvider: React.FC<{
         zoom_level: formData.zoomLevels,
       });
     },
-    [formData, modelId]
+    [formData, createNewTrainingRequestMutation]
   );
 
-  const handleModelCreationOrUpdateSuccess = (id: string) => {
+  const handleModelCreationOrUpdateSuccess = useCallback((id: string) => {
     if (isEditMode && isModelOwner) {
       showSuccessToast(TOAST_NOTIFICATIONS.modelUpdateSuccess);
     } else if (!isEditMode) {
@@ -444,7 +444,7 @@ export const ModelsProvider: React.FC<{
     navigate(`${getFullPath(MODELS_ROUTES.CONFIRMATION)}?id=${id}`);
     // Submit the model for training request
     submitTrainingRequest(id);
-  };
+  }, []);
 
   const modelCreateMutation = useCreateModel({
     mutationConfig: {
@@ -489,7 +489,7 @@ export const ModelsProvider: React.FC<{
     [formData]
   );
 
-  const handleModelCreationAndUpdate = () => {
+  const handleModelCreationAndUpdate = useCallback(() => {
     // The user is trying to edit their model.
     // In this case, send a PATCH request and submit a training request.
     if (isEditMode && isModelOwner) {
@@ -512,7 +512,15 @@ export const ModelsProvider: React.FC<{
         base_model: formData.baseModel,
       });
     }
-  };
+  }, [
+    isEditMode,
+    isModelOwner,
+    modelUpdateMutation,
+    formData,
+    modelId,
+    handleModelCreationOrUpdateSuccess,
+    modelCreateMutation,
+  ]);
 
   const modelCreationOrUpdateInProgress = useMemo(
     () => modelCreateMutation.isPending || modelUpdateMutation.isPending,
