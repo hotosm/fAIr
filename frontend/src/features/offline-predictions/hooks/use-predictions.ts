@@ -1,5 +1,5 @@
 import useDebounce from "@/hooks/use-debounce";
-import { TOfflinePrediction, TQueryParams } from "@/types";
+import { TQueryParams } from "@/types";
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { ORDERING_FIELDS } from "@/components/shared/filters/ordering-filter";
