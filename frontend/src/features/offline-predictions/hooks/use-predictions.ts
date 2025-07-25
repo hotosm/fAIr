@@ -1,12 +1,14 @@
 import useDebounce from "@/hooks/use-debounce";
-import { TQueryParams } from "@/types";
+import { TOfflinePrediction, TQueryParams } from "@/types";
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { ORDERING_FIELDS } from "@/components/shared/filters/ordering-filter";
 import { SEARCH_PARAMS } from "@/utils/search-params";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { getPredictionsQueryOptions } from "@/features/offline-predictions/api/factory";
 import { LayoutView } from "@/enums";
+import { TOfflinePredictionUpdateArgs, updateOfflinePrediction } from "../api/offline-predictions";
+import { MutationConfig } from "@/services";
 
 export const useGetPredictions = (
   searchQuery?: string,
@@ -112,4 +114,23 @@ export const useOfflinePredictionsQueryParams = (userId?: number) => {
     refetch,
     clearAllFilters,
   };
+};
+
+
+
+
+type useUpdateOfflinePredictionOptions = {
+  mutationConfig?: MutationConfig<typeof updateOfflinePrediction>;
+};
+
+export const useUpdateOfflinePrediction = ({ mutationConfig }: useUpdateOfflinePredictionOptions) => {
+  const { onSuccess, ...restConfig } = mutationConfig || {};
+
+  return useMutation({
+    mutationFn: (args: TOfflinePredictionUpdateArgs) => updateOfflinePrediction(args),
+    onSuccess: (...args) => {
+      onSuccess?.(...args);
+    },
+    ...restConfig,
+  });
 };

@@ -13,6 +13,8 @@ import { useDialog } from "@/hooks/use-dialog";
 import { useFirebase } from "@/hooks/use-firebase";
 import { showErrorToast } from "@/utils";
 import { formatProjectTopic } from "@/utils/firebase-utils";
+import { useUpdateOfflinePrediction } from "@/features/offline-predictions/hooks/use-predictions";
+
 
 const DESCRIPTION_MAX_LENGTH = 500;
 const DESCRIPTION_MIN_LENGTH = 10;
@@ -43,12 +45,10 @@ export const CreateMapswipeProjectDialog = ({
     database,
     ref,
     setToDatabase,
-    query,
-    getValueFromFirebase,
-    orderByChild,
-    equalTo,
   } = useFirebase();
   const [loading, setLoading] = useState<boolean>(false);
+
+
   // default values for the MapSwipe project creation form
   const DEFAULT_FORMDATA = {
     projectTopic: "",
@@ -67,7 +67,7 @@ export const CreateMapswipeProjectDialog = ({
       BASE_API_URL +
       API_ENDPOINTS.DOWNLOAD_PREDICTION_LABELS_FILE(predictionResult.id),
     tileServiceURL: predictionResult.config.source,
-    tileServiceCredits: "",
+    tileServiceCredits: "OpenStreetMap contributors",
     projectType: 8, // 8 is the project type for conflation
     createdBy: "atCSosZACaN0qhcVjtMO1tq9d1G3",
     image:
@@ -146,6 +146,19 @@ export const CreateMapswipeProjectDialog = ({
     });
   };
 
+  const { mutateAsync } = useUpdateOfflinePrediction({
+    mutationConfig: {
+      onSuccess: () => {
+        handleCloseDialog();
+        openSuccessDialog();
+        setLoading(false);
+      },
+      onError: (error) => {
+        showErrorToast(error)
+      }
+    }
+  })
+
   const projectDraftsRef = ref(
     database,
     API_ENDPOINTS.CREATE_MAPSWIPE_DRAFT_PROJECTS,
@@ -159,26 +172,26 @@ export const CreateMapswipeProjectDialog = ({
       // This is used to create a unique name for the project.
       const name = `${form.projectTopic} - ${form.projectRegion} - ${form.projectNumber} - ${form.requestingOrganisation}`;
 
-      const projectRef = ref(database, "v2/projects");
+      // const projectRef = ref(database, "v2/projects");
 
       const projectTopickey = formatProjectTopic(form.projectTopic);
 
-      // Check if project topic already exists or not.
-      const prevProjectNameQuery = query(
-        projectRef,
-        orderByChild("projectTopicKey"),
-        equalTo(projectTopickey),
-      );
+      // // Check if project topic already exists or not.
+      // const prevProjectNameQuery = query(
+      //   projectRef,
+      //   orderByChild("projectTopicKey"),
+      //   equalTo(projectTopickey),
+      // );
 
-      const snapshot = await getValueFromFirebase(prevProjectNameQuery);
+      // const snapshot = await getValueFromFirebase(prevProjectNameQuery);
 
-      if (snapshot.exists()) {
-        showErrorToast(
-          "A project with this name already exists, please use a different project name (Please note that the name comparison is not case sensitive)",
-        );
+      // if (snapshot.exists()) {
+      //   showErrorToast(
+      //     "A project with this name already exists, please use a different project name (Please note that the name comparison is not case sensitive)",
+      //   );
 
-        return;
-      }
+      //   return;
+      // }
 
       // Create a new project draft in the database
       // This is a temporary draft that will be used to create the final project
@@ -202,15 +215,16 @@ export const CreateMapswipeProjectDialog = ({
           },
         };
 
+
         // Update the database with the new project data
         await setToDatabase(newProjectRef, data);
 
-        // TODO - patch this prediction result with the mapswipe project id
-        // on success of this, then close the dialog and open the success dialog.
-        // Close the dialog and reset the form
-        // handleCloseDialog();
-        openSuccessDialog();
-        setLoading(false);
+        await mutateAsync({
+          id: predictionResult.id, data: {
+            mapswipe_id: newProjectDraftsRef.key
+          }
+        }
+        )
       } else {
         showErrorToast("Failed to create MapSwipe project.");
       }
