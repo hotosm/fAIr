@@ -548,6 +548,7 @@ def predict_area(prediction_request_id, folder=None):
     )
     logger.addHandler(file_handler)
     try:
+        result = {}
         logger.info("Starting model prediction task")
         with capture_output_to_file(log_file):
             send_notification(inst, "Started")
@@ -605,13 +606,19 @@ def predict_area(prediction_request_id, folder=None):
             # )
             if len(predictions["features"]) == 0:
                 raise ValueError("No features found in the predictions geojson")
+            result["len_predictions"] = len(predictions["features"])
+
             run_tippecanoe(out)
             if settings.USE_S3_TO_UPLOAD_MODELS:
+                s3_out_path = (
+                    f"{settings.PARENT_BUCKET_FOLDER}/prediction_{inst.id}"
+                    if not folder
+                    else f"{settings.PARENT_BUCKET_FOLDER}/prediction/{folder}"
+                )
+                result["s3_path"] = s3_out_path
                 upload_to_s3(
                     out,
-                    parent=f"{settings.PARENT_BUCKET_FOLDER}/prediction_{inst.id}"  # to do : migrate this to prediction/id later on
-                    if not folder
-                    else f"{settings.PARENT_BUCKET_FOLDER}/prediction/{folder}",
+                    parent=s3_out_path,
                 )
             inst.status, inst.finished_at, inst.result_count = (
                 "FINISHED",
@@ -620,6 +627,7 @@ def predict_area(prediction_request_id, folder=None):
             )
             send_notification(inst, "Finished")
             inst.save()
+        return result
     except Exception as ex:
         logger.exception("Prediction failed")
         inst.status, inst.finished_at = "FAILED", timezone.now()
