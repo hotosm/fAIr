@@ -532,7 +532,7 @@ def train_model(
 
 
 @shared_task
-def predict_area(prediction_request_id):
+def predict_area(prediction_request_id, folder=None):
     from predictor import predict
     from predictor.models import PredictionRequest
 
@@ -608,7 +608,10 @@ def predict_area(prediction_request_id):
             run_tippecanoe(out)
             if settings.USE_S3_TO_UPLOAD_MODELS:
                 upload_to_s3(
-                    out, parent=f"{settings.PARENT_BUCKET_FOLDER}/prediction_{inst.id}"
+                    out,
+                    parent=f"{settings.PARENT_BUCKET_FOLDER}/prediction_{inst.id}"  # to do : migrate this to prediction/id later on
+                    if not folder
+                    else f"{settings.PARENT_BUCKET_FOLDER}/prediction/{folder}",
                 )
             inst.status, inst.finished_at, inst.result_count = (
                 "FINISHED",
