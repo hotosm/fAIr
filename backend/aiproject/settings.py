@@ -37,6 +37,7 @@ HOSTNAME = env("HOSTNAME", default="127.0.0.1")
 
 FRONTEND_URL = env("FRONTEND_URL", default="https://fair.hotosm.org")
 
+API_BASE_URL = env("API_BASE_URL", default="https://fair-dev.hotosm.org/api/v1")
 
 EXPORT_TOOL_API_URL = env(
     "EXPORT_TOOL_API_URL",

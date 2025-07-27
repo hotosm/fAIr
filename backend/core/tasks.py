@@ -609,13 +609,11 @@ def predict_area(prediction_request_id, folder=None):
             result["len_predictions"] = len(predictions["features"])
 
             run_tippecanoe(out)
+            folder = (
+                f"prediction_{inst.id}" if folder is None else f"prediction/{folder}"
+            )
             if settings.USE_S3_TO_UPLOAD_MODELS:
-                s3_out_path = (
-                    f"{settings.PARENT_BUCKET_FOLDER}/prediction_{inst.id}"
-                    if not folder
-                    else f"{settings.PARENT_BUCKET_FOLDER}/prediction/{folder}"
-                )
-                result["s3_path"] = s3_out_path
+                s3_out_path = f"{settings.PARENT_BUCKET_FOLDER}/{folder}"
                 upload_to_s3(
                     out,
                     parent=s3_out_path,
@@ -627,6 +625,14 @@ def predict_area(prediction_request_id, folder=None):
             )
             send_notification(inst, "Finished")
             inst.save()
+            base_url = settings.API_BASE_URL + "workspace/download/" + folder
+            result["output"] = base_url
+            result["output"] = {
+                "aois": f"{base_url}/aois.geojson",
+                "predictions": f"{base_url}/labels.geojson",
+                "predictions_points": f"{base_url}/labels_points.geojson",
+                "pmtiles": f"{base_url}/meta.pmtiles",
+            }
         return result
     except Exception as ex:
         logger.exception("Prediction failed")
