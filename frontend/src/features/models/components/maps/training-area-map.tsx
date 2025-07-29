@@ -2,7 +2,7 @@ import { ControlsPosition } from "@/enums";
 import { errorMessages } from "@/constants";
 import { MapComponent } from "@/components/map";
 import { PMTiles } from "pmtiles";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useMapInstance } from "@/hooks/use-map-instance";
 import {
   LayerSpecification,
@@ -13,6 +13,8 @@ import {
 
 import { showErrorToast, addLayers, addSources } from "@/utils";
 import {
+  PREDICTIONS_RESULTS_POINT_FILL_COLOR,
+  PREDICTIONS_RESULTS_POINT_OUTLINE_COLOR,
   TRAINING_AREAS_AOI_FILL_COLOR,
   TRAINING_AREAS_AOI_FILL_OPACITY,
   TRAINING_AREAS_AOI_LABELS_FILL_COLOR,
@@ -49,6 +51,12 @@ const getLayerConfigs = (layerType: string) => {
         ? TRAINING_AREAS_AOI_OUTLINE_WIDTH
         : TRAINING_AREAS_AOI_LABELS_OUTLINE_WIDTH,
     },
+    circle: {
+      "circle-color": PREDICTIONS_RESULTS_POINT_FILL_COLOR,
+      "circle-stroke-color": PREDICTIONS_RESULTS_POINT_OUTLINE_COLOR,
+      'circle-stroke-width': 1,
+      'circle-radius': 8
+    },
   };
 };
 
@@ -78,13 +86,16 @@ export const TrainingAreaMap = ({
     [0, 0],
   ]);
 
-  const trainingAreasSourceId = isPredictionResult
-    ? `prediction-results-for-${trainingAreaId}`
-    : `training-areas-for-${trainingAreaId}`;
+  const trainingAreasSourceId = useMemo(() => (
+    isPredictionResult
+      ? `prediction-results-for-${trainingAreaId}`
+      : `training-areas-for-${trainingAreaId}`
+  ), [isPredictionResult, trainingAreaId]);
 
-  const mapLayers: LayerSpecification[] = vectorLayers.flatMap((layer) => {
-    const { fill, outline } = getLayerConfigs(layer.id);
-    return [
+  const mapLayers: LayerSpecification[] = useMemo(() => vectorLayers.flatMap((layer) => {
+    const { fill, outline, circle } = getLayerConfigs(layer.id);
+
+    const layers: LayerSpecification[] = [
       {
         id: `${layer.id}_fill`,
         type: "fill",
@@ -102,9 +113,22 @@ export const TrainingAreaMap = ({
         layout: { visibility: "visible" },
       },
     ];
-  });
 
-  const sources = [
+    if (layer.id.includes("points")) {
+      layers.push({
+        id: `${layer.id}`,
+        type: "circle",
+        source: trainingAreasSourceId,
+        paint: circle,
+        "source-layer": layer.id,
+        layout: { visibility: "visible" },
+      });
+    }
+
+    return layers;
+  }), [vectorLayers, trainingAreasSourceId])
+
+  const sources = useMemo(() => [
     {
       id: trainingAreasSourceId,
       spec: {
@@ -112,12 +136,12 @@ export const TrainingAreaMap = ({
         url: `pmtiles://${file}`,
       } as SourceSpecification,
     },
-  ];
+  ], [trainingAreasSourceId, file]);
 
-  const layerControlLayers = vectorLayers.map((layer) => ({
-    value: isPredictionResult ? "Prediction Results" : `Training ${layer.id}`,
-    subLayers: [`${layer.id}_fill`, `${layer.id}_outline`],
-  }));
+  const layerControlLayers = useMemo(() => vectorLayers.map((layer) => ({
+    value: `${layer.id}`,
+    subLayers: [`${layer.id}_fill`, `${layer.id}_outline`, `${layer.id}`],
+  })), [vectorLayers])
 
   const fitToBounds = useCallback(() => {
     if (!map) return;
@@ -171,15 +195,15 @@ export const TrainingAreaMap = ({
                         <table>
                             <tbody>
                                 ${Object.entries(feature.properties)
-                                  .map(
-                                    ([key, value]) => `
+            .map(
+              ([key, value]) => `
                                     <tr>
                                         <td class="text-grey">${key}</td>
                                         <td class="font-semibold text-dark">${typeof value === "boolean" ? JSON.stringify(value) : value}</td>
                                     </tr>
                                 `,
-                                  )
-                                  .join("")}
+            )
+            .join("")}
                             </tbody>
                         </table>
                     </div>
@@ -244,6 +268,7 @@ export const TrainingAreaMap = ({
   useEffect(() => {
     if (!map) return;
     if (!map.getStyle()) return;
+
     addSources(map, sources);
     addLayers(map, mapLayers);
     return () => {
