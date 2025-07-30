@@ -325,6 +325,15 @@ export const TRAINING_AREAS_MASK_FILL_COLOR: string = parseStringEnv(
   "#D73434",
 );
 
+export const PREDICTIONS_RESULTS_POINT_FILL_COLOR: string = parseStringEnv(
+  ENVS.PREDICTIONS_RESULTS_POINT_FILL_COLOR,
+  "#34D77C",
+);
+export const PREDICTIONS_RESULTS_POINT_OUTLINE_COLOR: string = parseStringEnv(
+  ENVS.PREDICTIONS_RESULTS_POINT_OUTLINE_COLOR,
+  "#34D77C",
+);
+
 // Start Mapping Legend - only the fill layers are in the legend.
 export const LEGEND_NAME_MAPPING: Record<string, string> = {
   [ALL_MODEL_PREDICTIONS_FILL_LAYER_ID]: "Default",
@@ -441,7 +450,7 @@ const REFRESH_BUFFER_MS: number = 1000;
  */
 export const KPI_STATS_CACHE_TIME_MS: number =
   parseIntEnv(ENVS.KPI_STATS_CACHE_TIME, DEFAULT_KPI_STATS_CACHE_TIME_SECONDS) *
-    1000 +
+  1000 +
   REFRESH_BUFFER_MS;
 
 /**
@@ -485,6 +494,9 @@ export const FAIR_BASE_MODELS_PATH: Record<BASE_MODELS, string> = {
 
 export const OPENAERIALMAP_MOSAIC_TILES_URL =
   "https://apps.kontur.io/raster-tiler/oam/mosaic/{z}/{x}/{y}.png";
+
+
+
 /**
  *  The default offset step for the training labels offset controller.
  */
