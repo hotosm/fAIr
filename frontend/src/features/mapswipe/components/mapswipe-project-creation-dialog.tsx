@@ -56,11 +56,11 @@ export const CreateMapswipeProjectDialog = ({
       predictionResult.config.model_id,
     verificationNumber: "3",
     groupSize: 25,
-    inputGeometryUrl:
-    {
-      "geometry": BASE_API_URL +
+    inputGeometryUrl: {
+      geometry:
+        BASE_API_URL +
         API_ENDPOINTS.DOWNLOAD_PREDICTION_LABELS_FILE(predictionResult.id),
-      "inputType": "link"
+      inputType: "link",
     },
     tileServiceURL: predictionResult.config.source,
     tileServiceCredits: "OpenStreetMap contributors",
