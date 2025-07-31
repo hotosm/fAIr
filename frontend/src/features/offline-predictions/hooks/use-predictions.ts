@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { ORDERING_FIELDS } from "@/components/shared/filters/ordering-filter";
 import { SEARCH_PARAMS } from "@/utils/search-params";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { QueryClient, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getPredictionsQueryOptions } from "@/features/offline-predictions/api/factory";
 import { LayoutView } from "@/enums";
 import {
@@ -123,16 +123,20 @@ type useUpdateOfflinePredictionOptions = {
   mutationConfig?: MutationConfig<typeof updateOfflinePrediction>;
 };
 
+
+
 export const useUpdateOfflinePrediction = ({
   mutationConfig,
 }: useUpdateOfflinePredictionOptions) => {
   const { onSuccess, ...restConfig } = mutationConfig || {};
-
+  const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (args: TOfflinePredictionUpdateArgs) =>
       updateOfflinePrediction(args),
     onSuccess: (...args) => {
       onSuccess?.(...args);
+      // Refectch the offline predictions to sync the table.
+      queryClient.invalidateQueries({ queryKey: ['offline-predictions'] })
     },
     ...restConfig,
   });
