@@ -5,6 +5,7 @@ import { TOfflinePrediction } from "@/types";
 import { formatDate, formatDuration, formatNumber } from "@/utils";
 import { OfflinePredictionActions } from "./offline-predictions-actions";
 import { MapIcon } from "@/components/ui/icons";
+import { MapSwipeProjectIsActive } from "./mapswipe-project-active";
 
 export const OfflinePredictionCard = ({
   predictionResult,
