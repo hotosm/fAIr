@@ -15,7 +15,6 @@ import { showErrorToast } from "@/utils";
 import { formatProjectTopic } from "@/utils/firebase-utils";
 import { useUpdateOfflinePrediction } from "@/features/offline-predictions/hooks/use-predictions";
 
-
 const DESCRIPTION_MAX_LENGTH = 500;
 const DESCRIPTION_MIN_LENGTH = 10;
 const PROJECT_TOPIC_MAX_LENGTH = 50;
@@ -40,14 +39,8 @@ export const CreateMapswipeProjectDialog = ({
     openDialog: openSuccessDialog,
   } = useDialog();
 
-  const {
-    pushToDatabase,
-    database,
-    ref,
-    setToDatabase,
-  } = useFirebase();
+  const { pushToDatabase, database, ref, setToDatabase } = useFirebase();
   const [loading, setLoading] = useState<boolean>(false);
-
 
   // default values for the MapSwipe project creation form
   const DEFAULT_FORMDATA = {
@@ -64,8 +57,11 @@ export const CreateMapswipeProjectDialog = ({
     verificationNumber: "3",
     groupSize: 25,
     inputGeometryUrl:
-      BASE_API_URL +
-      API_ENDPOINTS.DOWNLOAD_PREDICTION_LABELS_FILE(predictionResult.id),
+    {
+      "geometry": BASE_API_URL +
+        API_ENDPOINTS.DOWNLOAD_PREDICTION_LABELS_FILE(predictionResult.id),
+      "inputType": "link"
+    },
     tileServiceURL: predictionResult.config.source,
     tileServiceCredits: "OpenStreetMap contributors",
     projectType: 8, // 8 is the project type for conflation
@@ -154,10 +150,10 @@ export const CreateMapswipeProjectDialog = ({
         setLoading(false);
       },
       onError: (error) => {
-        showErrorToast(error)
-      }
-    }
-  })
+        showErrorToast(error);
+      },
+    },
+  });
 
   const projectDraftsRef = ref(
     database,
@@ -172,26 +168,7 @@ export const CreateMapswipeProjectDialog = ({
       // This is used to create a unique name for the project.
       const name = `${form.projectTopic} - ${form.projectRegion} - ${form.projectNumber} - ${form.requestingOrganisation}`;
 
-      // const projectRef = ref(database, "v2/projects");
-
       const projectTopickey = formatProjectTopic(form.projectTopic);
-
-      // // Check if project topic already exists or not.
-      // const prevProjectNameQuery = query(
-      //   projectRef,
-      //   orderByChild("projectTopicKey"),
-      //   equalTo(projectTopickey),
-      // );
-
-      // const snapshot = await getValueFromFirebase(prevProjectNameQuery);
-
-      // if (snapshot.exists()) {
-      //   showErrorToast(
-      //     "A project with this name already exists, please use a different project name (Please note that the name comparison is not case sensitive)",
-      //   );
-
-      //   return;
-      // }
 
       // Create a new project draft in the database
       // This is a temporary draft that will be used to create the final project
@@ -215,16 +192,15 @@ export const CreateMapswipeProjectDialog = ({
           },
         };
 
-
         // Update the database with the new project data
         await setToDatabase(newProjectRef, data);
 
         await mutateAsync({
-          id: predictionResult.id, data: {
-            mapswipe_id: newProjectDraftsRef.key
-          }
-        }
-        )
+          id: predictionResult.id,
+          data: {
+            mapswipe_id: newProjectDraftsRef.key,
+          },
+        });
       } else {
         showErrorToast("Failed to create MapSwipe project.");
       }
@@ -363,7 +339,7 @@ export const CreateMapswipeProjectDialog = ({
             />
             <Input
               label="Input Geometries"
-              value={form.inputGeometryUrl}
+              value={form.inputGeometryUrl.geometry}
               handleInput={() => null}
               showBorder
               disabled

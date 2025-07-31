@@ -8,7 +8,6 @@ import {
   get,
   orderByChild,
   equalTo,
-
 } from "firebase/database";
 
 /**

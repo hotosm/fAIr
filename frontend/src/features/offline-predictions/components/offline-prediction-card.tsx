@@ -4,7 +4,7 @@ import { ButtonVariant, DropdownPlacement, SHOELACE_SIZES } from "@/enums";
 import { TOfflinePrediction } from "@/types";
 import { formatDate, formatDuration } from "@/utils";
 import { OfflinePredictionActions } from "@/features/offline-predictions/components/offline-predictions-actions";
-
+import { MapSwipeProjectIsActive } from "@/features/offline-predictions/components/mapswipe-project-active";
 export const OfflinePredictionCard = ({
   predictionResult,
   handleTrainingLogsModal,
@@ -39,7 +39,13 @@ export const OfflinePredictionCard = ({
             }
           />
         </div>
-        <TrainingStatusBadge status={predictionResult.status} />
+        <div className="flex items-center gap-x-2">
+          <TrainingStatusBadge status={predictionResult.status} />
+          <MapSwipeProjectIsActive
+            MapSwipeId={predictionResult.mapswipe_id as string}
+            isCard
+          />
+        </div>
         <div className="flex gap-x-4 mt-2">
           <Button
             variant={ButtonVariant.TERTIARY}

@@ -9,6 +9,7 @@ import { formatDate, formatDuration, truncateString } from "@/utils";
 import { TrainingStatusBadge } from "@/components/shared/training-status-badge";
 import { OfflinePredictionsSettingsInfo } from "@/features/offline-predictions/components/offline-predictions-settings-info";
 import { OfflinePredictionActions } from "@/features/offline-predictions/components/offline-predictions-actions";
+import { MapSwipeProjectIsActive } from "@/features/offline-predictions/components/mapswipe-project-active";
 
 type OfflinePredictionsTableProps = {
   data: TOfflinePrediction[];
@@ -65,6 +66,15 @@ const columnDefinitions = (
         : "-",
     cell: (row) => (
       <span title={row.getValue() as string}>{row.getValue() as string}</span>
+    ),
+  },
+  {
+    header: "MapSwipe",
+    accessorKey: "result_count",
+    cell: (row) => (
+      <MapSwipeProjectIsActive
+        MapSwipeId={row.row.original.mapswipe_id as string}
+      />
     ),
   },
   {
