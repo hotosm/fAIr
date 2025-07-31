@@ -7,7 +7,7 @@ export const MapSwipeProjectIsActive = ({
   isCard,
 }: {
   MapSwipeId: string;
-  isCard: boolean;
+  isCard?: boolean;
 }) => {
   return (
     <span className="flex items-center justify-start">
