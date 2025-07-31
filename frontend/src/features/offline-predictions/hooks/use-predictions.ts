@@ -7,7 +7,10 @@ import { SEARCH_PARAMS } from "@/utils/search-params";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { getPredictionsQueryOptions } from "@/features/offline-predictions/api/factory";
 import { LayoutView } from "@/enums";
-import { TOfflinePredictionUpdateArgs, updateOfflinePrediction } from "../api/offline-predictions";
+import {
+  TOfflinePredictionUpdateArgs,
+  updateOfflinePrediction,
+} from "../api/offline-predictions";
 import { MutationConfig } from "@/services";
 
 export const useGetPredictions = (
@@ -116,18 +119,18 @@ export const useOfflinePredictionsQueryParams = (userId?: number) => {
   };
 };
 
-
-
-
 type useUpdateOfflinePredictionOptions = {
   mutationConfig?: MutationConfig<typeof updateOfflinePrediction>;
 };
 
-export const useUpdateOfflinePrediction = ({ mutationConfig }: useUpdateOfflinePredictionOptions) => {
+export const useUpdateOfflinePrediction = ({
+  mutationConfig,
+}: useUpdateOfflinePredictionOptions) => {
   const { onSuccess, ...restConfig } = mutationConfig || {};
 
   return useMutation({
-    mutationFn: (args: TOfflinePredictionUpdateArgs) => updateOfflinePrediction(args),
+    mutationFn: (args: TOfflinePredictionUpdateArgs) =>
+      updateOfflinePrediction(args),
     onSuccess: (...args) => {
       onSuccess?.(...args);
     },
