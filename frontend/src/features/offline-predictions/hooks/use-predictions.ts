@@ -5,7 +5,7 @@ import { useSearchParams } from "react-router-dom";
 import { ORDERING_FIELDS } from "@/components/shared/filters/ordering-filter";
 import { SEARCH_PARAMS } from "@/utils/search-params";
 import {
-  QueryClient,
+
   useMutation,
   useQuery,
   useQueryClient,
