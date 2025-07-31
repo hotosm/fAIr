@@ -160,6 +160,8 @@ class Trainer:
             georeference_images=True,
             multimasks=(multimasks or self.model_type == "YOLO_V8_V1"),
             epsg=4326 if self.model_type == "YOLO_V8_V2" else 3857,
+            input_contact_spacing=4,
+            input_boundary_width=2,
         )
 
         inst.chips_length = get_file_count(os.path.join(prep, "chips"))
@@ -398,13 +400,17 @@ def run_tippecanoe(out):
             capture_output=True,
         )
     except subprocess.CalledProcessError as e:
-        logger.error("Tippecanoe failed: %s", e.stderr.decode())
+        logger.error("Vector tiles creation failed: %s", e.stderr.decode())
         raise
+
 
 
 def finalize(inst, out, prep, acc):
     for f in ["aois.geojson", "labels.geojson"]:
         copyfile(os.path.join(out, f), os.path.join(prep, f))
+    logger = logging.getLogger(__name__)
+    logger.info(f"Setting up output path {out}")
+    os.makedirs(out, exist_ok=True)
     xz_folder(prep, os.path.join(out, "preprocessed.tar.xz"), remove_original=True)
     if settings.USE_S3_TO_UPLOAD_MODELS:
         upload_to_s3(out, parent=f"{settings.PARENT_BUCKET_FOLDER}/training_{inst.id}")
@@ -458,6 +464,8 @@ def train_model(
                 "input",
                 f"training_{training_id}",
             )
+            logger.info(f"Setting up input path {input_path}")
+            os.makedirs(input_path, exist_ok=True)
 
             input_path, aoi_ser, labels = prepare_data(
                 inst,
@@ -495,6 +503,7 @@ def train_model(
                 result["preprocess_output"],
                 result["accuracy"],
             )
+        logger.info(f"Cleaning up input path {input_path}")
         safe_rmtree(input_path)
         logger.info("Training completed successfully")
         send_notification(inst, "Completed")
@@ -529,6 +538,7 @@ def predict_area(prediction_request_id):
     try:
         logger.info("Starting model prediction task")
         with capture_output_to_file(log_file):
+            send_notification(inst, "Started")
             inst.status, inst.started_at, inst.task_id = (
                 "RUNNING",
                 timezone.now(),
@@ -543,6 +553,8 @@ def predict_area(prediction_request_id):
                     0,
                 ]  # add default bbox to pass through validation , TODO : Fix this , improve the pydantic model at fairpredictor side
             params = PredictionRequest(**inst.config)
+            out = os.path.join(settings.PREDICTION_WORKSPACE, str(inst.id))
+            os.makedirs(out, exist_ok=True)
             predictions = asyncio.run(
                 predict(
                     geojson=inst.geom.geojson,
@@ -552,13 +564,14 @@ def predict_area(prediction_request_id):
                     confidence=params.confidence / 100,
                     tolerance=params.tolerance,
                     area_threshold=params.area_threshold,
-                    orthogonalize=params.use_josm_q,
-                    vectorization_algorithm=params.vectorization_algorithm,
+                    orthogonalize=params.orthogonalize,
+                    ortho_skew_tolerance_deg=params.ortho_skew_tolerance_deg,
+                    ortho_max_angle_change_deg=params.ortho_max_angle_change_deg,
+                    get_predictions_as_points=True, # True by default for now , however once it is implemented in the frontend make it parameterized #todo
+                    remove_metadata= True,
+                    output_path=out,
                 )
             )
-
-            out = os.path.join(settings.PREDICTION_WORKSPACE, str(inst.id))
-            os.makedirs(out, exist_ok=True)
             write_json(
                 os.path.join(out, "aois.geojson"),
                 inst.geom.geojson,
@@ -573,12 +586,13 @@ def predict_area(prediction_request_id):
                     out, parent=f"{settings.PARENT_BUCKET_FOLDER}/prediction_{inst.id}"
                 )
             inst.status, inst.finished_at = "FINISHED", timezone.now()
+            send_notification(inst, "Finished")
             inst.save()
     except Exception as ex:
         logger.exception("Prediction failed")
         inst.status, inst.finished_at = "FAILED", timezone.now()
         inst.save()
-        # send_notification(inst, "Failed")
+        send_notification(inst, "Failed")
         raise ex
     finally:
         logger.removeHandler(file_handler)

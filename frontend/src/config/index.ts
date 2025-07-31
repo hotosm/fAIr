@@ -325,6 +325,15 @@ export const TRAINING_AREAS_MASK_FILL_COLOR: string = parseStringEnv(
   "#D73434",
 );
 
+export const PREDICTIONS_RESULTS_POINT_FILL_COLOR: string = parseStringEnv(
+  ENVS.PREDICTIONS_RESULTS_POINT_FILL_COLOR,
+  "#34D77C",
+);
+export const PREDICTIONS_RESULTS_POINT_OUTLINE_COLOR: string = parseStringEnv(
+  ENVS.PREDICTIONS_RESULTS_POINT_OUTLINE_COLOR,
+  "#34D77C",
+);
+
 // Start Mapping Legend - only the fill layers are in the legend.
 export const LEGEND_NAME_MAPPING: Record<string, string> = {
   [ALL_MODEL_PREDICTIONS_FILL_LAYER_ID]: "Default",
@@ -337,8 +346,6 @@ export const MODEL_FEEDBACKS_OUTLINE_LAYER_ID: string = `${MAP_STYLES_PREFIX}-fe
 export const MODEL_FEEDBACKS_SOURCE_ID: string = `${MAP_STYLES_PREFIX}-feedbacks-source`;
 export const MODEL_FEEDBACKS_FILL_LAYER_ID: string = `${MAP_STYLES_PREFIX}-feedbacks-fill-layer`;
 export const MODEL_FEEDBACKS_SYMBOL_LAYER_ID: string = `${MAP_STYLES_PREFIX}-feedbacks-symbol-layer`;
-export const MODEL_FEEDBACKS_FILL_COLOR: string = "#D73434";
-export const MODEL_FEEDBACKS_OUTLINE_COLOR: string = "#D73434";
 export const MODEL_FEEDBACKS_OUTLINE_WIDTH: number = 4;
 export const MODEL_FEEDBACKS_FILL_OPACITY: number = 0.4;
 
@@ -463,6 +470,15 @@ export const MAXIMUM_PREDICTION_AREA: number = parseIntEnv(
 );
 
 /**
+ * The maximum value for the ortho_skew_tolerance_deg and ortho_max_angle_change_deg prediction settings.
+ */
+export const MAXIMUM_ORTHO_SKEW_TOLEARANCE_AND_MAX_ANGLE_CHANGE_IN_DEGREES: number =
+  parseIntEnv(
+    ENVS.MAXIMUM_ORTHO_SKEW_TOLEARANCE_AND_MAX_ANGLE_CHANGE_IN_DEGREES,
+    45,
+  );
+
+/**
  * The base path to the model checkpoint files.
  */
 export const FAIR_MODELS_BASE_PATH: string = parseStringEnv(
@@ -478,6 +494,7 @@ export const FAIR_BASE_MODELS_PATH: Record<BASE_MODELS, string> = {
 
 export const OPENAERIALMAP_MOSAIC_TILES_URL =
   "https://apps.kontur.io/raster-tiler/oam/mosaic/{z}/{x}/{y}.png";
+
 /**
  *  The default offset step for the training labels offset controller.
  */

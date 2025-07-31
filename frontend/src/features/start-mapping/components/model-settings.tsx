@@ -1,6 +1,7 @@
 import { DropDown } from "@/components/ui/dropdown";
 import {
   ELEMENT_DISTANCE_FROM_NAVBAR,
+  MAXIMUM_ORTHO_SKEW_TOLEARANCE_AND_MAX_ANGLE_CHANGE_IN_DEGREES,
   MAXIMUM_PREDICTION_AREA,
   MAXIMUM_PREDICTION_TOLERANCE,
 } from "@/config";
@@ -52,11 +53,14 @@ export const ModelSettings = ({
     });
   };
 
-  const [toleranceValidity, setToleranceValidity] = useState(true);
-  const [areaValidity, setAreaValidity] = useState(true);
+  const [toleranceValidity, setToleranceValidity] = useState<boolean>(true);
+  const [areaValidity, setAreaValidity] = useState<boolean>(true);
+  const [skewToleranceValidity, setSkewToleranceValidity] =
+    useState<boolean>(true);
+  const [maxAngleValidity, setMaxAngleValidity] = useState<boolean>(true);
 
   /**
-   * Reset tolerance and area to default values if they are invalid.
+   * Reset tolerance, skew tolerance, max angle and area to default values if they are invalid.
    * If the user enters a value that is not a number or greater than the limit, the input will be invalid.
    */
   useEffect(() => {
@@ -66,21 +70,97 @@ export const ModelSettings = ({
     if (!areaValidity) {
       handleQueryUpdate(SEARCH_PARAMS.area, 0);
     }
-  }, [toleranceValidity, areaValidity]);
+    if (!skewToleranceValidity) {
+      handleQueryUpdate(SEARCH_PARAMS.area, 0);
+    }
+    if (!maxAngleValidity) {
+      handleQueryUpdate(SEARCH_PARAMS.area, 0);
+    }
+  }, [
+    toleranceValidity,
+    areaValidity,
+    maxAngleValidity,
+    skewToleranceValidity,
+  ]);
 
   const modelSettings = (
     <div className="flex flex-col bg-white p-3 justify-between rounded-xl flex-wrap gap-y-4">
       <div className="flex gap-x-2 justify-between">
         <FormLabel
-          label={START_MAPPING_PAGE_CONTENT.settings.useJOSMQ.label}
+          label={START_MAPPING_PAGE_CONTENT.settings.orthogonalize.label}
           withTooltip
-          toolTipContent={START_MAPPING_PAGE_CONTENT.settings.useJOSMQ.tooltip}
+          toolTipContent={
+            START_MAPPING_PAGE_CONTENT.settings.orthogonalize.tooltip
+          }
           position="left"
         />
         <Switch
-          checked={query[SEARCH_PARAMS.useJOSMQ] as boolean}
+          checked={query[SEARCH_PARAMS.orthogonalize] as boolean}
           handleSwitchChange={(event) => {
-            handleQueryUpdate(SEARCH_PARAMS.useJOSMQ, event.target.checked);
+            handleQueryUpdate(
+              SEARCH_PARAMS.orthogonalize,
+              event.target.checked,
+            );
+          }}
+        />
+      </div>
+      <div className="flex justify-between  items-center gap-x-2">
+        <FormLabel
+          label={START_MAPPING_PAGE_CONTENT.settings.skewTolerance.label}
+          withTooltip
+          toolTipContent={
+            START_MAPPING_PAGE_CONTENT.settings.skewTolerance.tooltip
+          }
+          position="left"
+        />
+        <Input
+          className="w-16"
+          size={SHOELACE_SIZES.SMALL}
+          value={query[SEARCH_PARAMS.skewTolerance] as number}
+          labelWithTooltip
+          type={INPUT_TYPES.NUMBER}
+          showBorder
+          handleInput={(event) =>
+            handleQueryUpdate(
+              SEARCH_PARAMS.skewTolerance,
+              Number(event.target.value),
+            )
+          }
+          min={0}
+          step={5}
+          max={MAXIMUM_ORTHO_SKEW_TOLEARANCE_AND_MAX_ANGLE_CHANGE_IN_DEGREES}
+          validationStateUpdateCallback={(validity) => {
+            setSkewToleranceValidity(validity.valid);
+          }}
+        />
+      </div>
+      <div className="flex justify-between  items-center gap-x-2">
+        <FormLabel
+          label={START_MAPPING_PAGE_CONTENT.settings.maxAngleChange.label}
+          withTooltip
+          toolTipContent={
+            START_MAPPING_PAGE_CONTENT.settings.maxAngleChange.tooltip
+          }
+          position="left"
+        />
+        <Input
+          className="w-16"
+          size={SHOELACE_SIZES.SMALL}
+          value={query[SEARCH_PARAMS.maxAngleChange] as number}
+          labelWithTooltip
+          type={INPUT_TYPES.NUMBER}
+          showBorder
+          handleInput={(event) =>
+            handleQueryUpdate(
+              SEARCH_PARAMS.maxAngleChange,
+              Number(event.target.value),
+            )
+          }
+          min={0}
+          step={5}
+          max={MAXIMUM_ORTHO_SKEW_TOLEARANCE_AND_MAX_ANGLE_CHANGE_IN_DEGREES}
+          validationStateUpdateCallback={(validity) => {
+            setMaxAngleValidity(validity.valid);
           }}
         />
       </div>

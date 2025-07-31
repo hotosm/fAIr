@@ -1,6 +1,6 @@
 # fAIr Frontend
 
-This project is a frontend web application built using **React 18**, **TypeScript**, and **Vite**. The app leverages modern libraries such as **@hotosm/ui**, and **Shoelace** for UI components, and **React Router** for client-side routing.
+This project is a frontend web application built using **React 19**, **TypeScript**, and **Vite**. The app leverages modern libraries such as **@hotosm/ui**, and **Shoelace** for UI components, and **React Router** for client-side routing.
 
 ## Table of Contents
 
@@ -139,7 +139,6 @@ fAIr also bundles portions of the following open source software.
 - [Terra Draw (MIT)](https://github.com/JamesLMilner/terra-draw).
 - [Vaul (MIT)](https://github.com/emilkowalski/vaul).
 - [XMLBuilder2 (MIT)](https://github.com/oozcitak/xmlbuilder2).
-- [React Helmet Async (Apache-2.0)](https://github.com/staylor/react-helmet-async).
 - [Maplibre GL JS (BSD-3-Clause)](https://github.com/maplibre/maplibre-gl-js).
 - [PMTiles (BSD-3-Clause)](https://github.com/protomaps/PMTiles).
 - [React Medium Image Zoom (BSD-3-Clause)](https://github.com/rpearce/react-medium-image-zoom).

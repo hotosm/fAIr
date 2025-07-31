@@ -53,7 +53,7 @@ export const TheFAIRProcess = ({
   disableStyle?: boolean;
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const itemRefs = useRef<Array<React.RefObject<HTMLDivElement>>>(
+  const itemRefs = useRef<Array<React.RefObject<HTMLDivElement | null>>>(
     steps.map(() => React.createRef<HTMLDivElement>()),
   );
 

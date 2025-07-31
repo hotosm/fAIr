@@ -41,7 +41,6 @@ backend/env
 backend/temp
 backend/postgres-data
 backend/**/__pycache__/**
-backend/**/migrations/**
 backend/media
 backend/data/*
 backend/log/*
@@ -59,3 +58,5 @@ fAIr-utilities
 
 .env*
 data
+
+fair-app-data/*

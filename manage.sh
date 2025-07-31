@@ -15,7 +15,7 @@ RAMP_DIR="${RAMP_HOME:-/opt/fAIr-app/data/ramp}"
 TRAINING_DIR="${TRAINING_WORKSPACE:-/opt/fAIr-app/data/trainings}"
 POSTGRES_DATA_DIR="${POSTGRES_DATA:-/opt/fAIr-app/data/postgres}"
 REDIS_DATA_DIR="${REDIS_DATA:-/opt/fAIr-app/data/redis}"
-APP_LOGS_DIR="${APP_LOGS:-/opt/fAIr-app/data/logs}"
+LOG_PATH_DIR="${LOG_PATH:-/opt/fAIr-app/data/logs}"
 ENV_FILE="$APP_DIR/.env.production"
 COMPOSE_FILE="$APP_DIR/docker-compose.prod.yml"
 SERVICE_NAME="fAIr-app.service"
@@ -61,7 +61,7 @@ load_env() {
 
 # Ensure directories exist and have correct permissions
 ensure_directories() {
-  for dir in "$APP_DIR" "$DATA_DIR" "$RAMP_DIR" "$TRAINING_DIR" "$POSTGRES_DATA_DIR" "$REDIS_DATA_DIR" "$APP_LOGS_DIR"; do
+  for dir in "$APP_DIR" "$DATA_DIR" "$RAMP_DIR" "$TRAINING_DIR" "$POSTGRES_DATA_DIR" "$REDIS_DATA_DIR" "$LOG_PATH_DIR"; do
     if [ ! -d "$dir" ]; then
       echo -e "${YELLOW}Creating directory: $dir${NC}"
       mkdir -p "$dir"
@@ -124,7 +124,7 @@ TAG=develop
 DATA_DIR=$DATA_DIR
 RAMP_HOME=$RAMP_DIR
 TRAINING_WORKSPACE=$TRAINING_DIR
-APP_LOGS=$APP_LOGS_DIR
+LOG_PATH=$LOG_PATH_DIR
 POSTGRES_DATA=$POSTGRES_DATA_DIR
 REDIS_DATA=$REDIS_DATA_DIR
 
@@ -176,8 +176,8 @@ WorkingDirectory=$APP_DIR
 EnvironmentFile=$ENV_FILE
 User=$USER_NAME
 Group=$GROUP_NAME
-ExecStartPre=/bin/mkdir -p \${RAMP_HOME} \${TRAINING_WORKSPACE} \${APP_LOGS} \${POSTGRES_DATA} \${REDIS_DATA}
-ExecStartPre=/bin/chown -R $USER_NAME:$GROUP_NAME \${RAMP_HOME} \${TRAINING_WORKSPACE} \${APP_LOGS} \${POSTGRES_DATA} \${REDIS_DATA}
+ExecStartPre=/bin/mkdir -p \${RAMP_HOME} \${TRAINING_WORKSPACE} \${LOG_PATH} \${POSTGRES_DATA} \${REDIS_DATA}
+ExecStartPre=/bin/chown -R $USER_NAME:$GROUP_NAME \${RAMP_HOME} \${TRAINING_WORKSPACE} \${LOG_PATH} \${POSTGRES_DATA} \${REDIS_DATA}
 ExecStart=/usr/bin/docker compose -f $COMPOSE_FILE --env-file $ENV_FILE --profile $PROFILE up -d
 ExecStop=/usr/bin/docker compose -f $COMPOSE_FILE down
 Restart=on-failure

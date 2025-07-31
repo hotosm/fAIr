@@ -49,12 +49,12 @@ const ModelAction = ({
     return {
       tolerance: query[SEARCH_PARAMS.tolerance] as number,
       area_threshold: query[SEARCH_PARAMS.area] as number,
-      use_josm_q: query[SEARCH_PARAMS.useJOSMQ] as boolean,
+      orthogonalize: query[SEARCH_PARAMS.orthogonalize] as boolean,
       confidence: query[SEARCH_PARAMS.confidenceLevel] as number,
       checkpoint: predictionModelCheckpoint,
-      max_angle_change: 15,
+      ortho_max_angle_change_deg: query[SEARCH_PARAMS.maxAngleChange] as number,
       model_id: modelId as string,
-      skew_tolerance: 15,
+      ortho_skew_tolerance_deg: query[SEARCH_PARAMS.skewTolerance] as number,
       source: tileServerURL ?? (modelInfo?.dataset?.source_imagery as string),
       zoom_level: predictionZoomLevel ?? currentZoom,
       bbox: [

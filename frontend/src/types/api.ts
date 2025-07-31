@@ -85,7 +85,11 @@ export type TNotification = {
   created_at: string;
   message: string;
   is_read: boolean;
-  training_model: number;
+  related_obj: {
+    id: number;
+    model: number | null;
+    type: string;
+  } | null;
 };
 
 export type PaginatedNotifications = {
@@ -201,10 +205,10 @@ export type Feature = {
   geometry: Geometry;
   id?: string | number;
   properties:
-    | {
-        mid: string;
-      }
-    | GeoJsonProperties;
+  | {
+    mid: string;
+  }
+  | GeoJsonProperties;
 };
 
 export type FeatureCollection = {
@@ -216,12 +220,12 @@ export type TPredictionsConfig = {
   area_threshold: number;
   checkpoint: string;
   confidence: number;
-  max_angle_change: number;
+  ortho_max_angle_change_deg: number;
   model_id: string;
-  skew_tolerance: number;
+  ortho_skew_tolerance_deg: number;
   source: string;
   tolerance: number;
-  use_josm_q: boolean;
+  orthogonalize: boolean;
   zoom_level: number;
   source_imagery?: string;
 };
@@ -260,4 +264,5 @@ export type TOfflinePrediction = {
   mapswipe_id: string | null;
   user: number;
   config: TModelPredictionsConfig;
+  result_count: number
 };

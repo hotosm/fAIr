@@ -7,7 +7,7 @@ import { APPLICATION_ROUTES } from "@/constants";
 import { useCallback } from "react";
 import { DropDown } from "@/components/ui/dropdown";
 import { ElipsisIcon } from "@/components/ui/icons";
-import { DropdownPlacement } from "@/enums";
+import { DropdownPlacement, NotificationType } from "@/enums";
 
 export const NotificationItem = ({
   notification,
@@ -21,27 +21,40 @@ export const NotificationItem = ({
 
   const handleClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
-      /**
-       * Disable this when the user clicks on the dropdown menu.
-       */
-      if ((e.target as HTMLElement).closest(`sl-dropdown`)) return;
+      const target = e.target as HTMLElement;
+
+      // Ignore clicks on the dropdown
+      if (target.closest("sl-dropdown")) return;
+
+      const modelId = notification.related_obj?.model ?? null;
+      const shouldNavigateToModelsPage =
+        modelId !== null &&
+        notification.related_obj?.type === NotificationType.TRAINING;
+
+      const goToModel = () => {
+        closeNotificationPanel();
+        if (shouldNavigateToModelsPage) {
+          navigate(`${APPLICATION_ROUTES.MODELS}/${modelId}`);
+        } else if (
+          notification.related_obj?.type === NotificationType.PREDICTION
+        ) {
+          navigate(`${APPLICATION_ROUTES.PROFILE_OFFLINE_PREDICTIONS}`);
+        } else {
+          navigate(`${APPLICATION_ROUTES.PROFILE_BASE}`);
+        }
+      };
 
       if (!notification.is_read) {
         mutate(
           { id: notification.id },
           {
-            onSuccess: () => {
-              closeNotificationPanel();
-              navigate(
-                `${APPLICATION_ROUTES.MODELS}/${notification.training_model}`,
-              );
-            },
+            onSuccess: goToModel,
           },
         );
-      } else {
-        closeNotificationPanel();
-        navigate(`${APPLICATION_ROUTES.MODELS}/${notification.training_model}`);
+        return;
       }
+
+      goToModel();
     },
     [notification, navigate, mutate],
   );

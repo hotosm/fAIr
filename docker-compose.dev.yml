@@ -4,6 +4,15 @@ x-common-env: &common-env
   env_file:
     - ${ENV_FILE:-.env.dev}
 
+x-common-volumes: &common-volumes
+  volumes:
+    - ${LOG_PATH:-./fair-app-data/log}:${LOG_PATH:-/app/log}
+    - ${RAMP_HOME:-./fair-app-data/ramp}:${RAMP_HOME:-/ramp}
+    - ${TRAINING_WORKSPACE:-./fair-app-data/trainings}:${TRAINING_WORKSPACE:-/trainings}
+    - ${APP_HOME:-./}backend/core:/app/core
+    - ${APP_HOME:-./}backend/login:/app/login
+    - ${APP_HOME:-./}backend/aiproject:/app/aiproject
+
 services:
   postgres:
     <<: *common-env
@@ -37,7 +46,7 @@ services:
     volumes:
       - ${REDIS_DATA:-./fair-app-data/redis}:/data
     ports:
-      - "6379:6379"
+      - "6378:6379"
     networks:
       - backend-network
     healthcheck:
@@ -47,7 +56,7 @@ services:
       retries: 5
 
   backend-api:
-    <<: *common-env
+    <<: [*common-env, *common-volumes]
     image: ghcr.io/hotosm/fair-api:develop
     build:
       context: ./backend
@@ -58,13 +67,7 @@ services:
     command: python manage.py runserver_with_q 0.0.0.0:8000
     ports:
       - "127.0.0.1:8000:8000"
-    volumes:
-      - ${APP_LOGS:-./fair-app-data/log}:/app/log
-      - ${RAMP_HOME:-./fair-app-data/ramp}:/RAMP_HOME
-      - ${TRAINING_WORKSPACE:-./fair-app-data/trainings}:/TRAINING_WORKSPACE
-      - ${APP_HOME:-./}backend/core:/app/core
-      - ${APP_HOME:-./}backend/login:/app/login
-      - ${APP_HOME:-./}backend/aiproject:/app/aiproject
+
     depends_on:
       redis:
         condition: service_healthy
@@ -88,7 +91,7 @@ services:
           memory: 1G
 
   backend-worker-cpu:
-    <<: *common-env
+    <<: [*common-env, *common-volumes]
     profiles: ["cpu"]
     image: ghcr.io/hotosm/fair-worker:develop-cpu
     build:
@@ -100,13 +103,6 @@ services:
     container_name: worker-cpu
     restart: unless-stopped
     command: celery -A aiproject worker --loglevel=INFO --concurrency=1 -Q ramp_training,yolo_training
-    volumes:
-      - ${APP_LOGS:-./fair-app-data/log}:/app/log
-      - ${RAMP_HOME:-./fair-app-data/ramp}:/RAMP_HOME
-      - ${TRAINING_WORKSPACE:-./fair-app-data/trainings}:/TRAINING_WORKSPACE
-      - ${APP_HOME:-./}backend/core:/app/core
-      - ${APP_HOME:-./}backend/login:/app/login
-      - ${APP_HOME:-./}backend/aiproject:/app/aiproject
     depends_on:
       backend-api:
         condition: service_healthy
@@ -123,7 +119,7 @@ services:
           memory: 2G
 
   backend-worker-gpu:
-    <<: *common-env
+    <<: [*common-env, *common-volumes]
     profiles: ["gpu"]
     image: ghcr.io/hotosm/fair-worker:develop-gpu
     build:
@@ -135,13 +131,6 @@ services:
     container_name: worker-gpu
     restart: unless-stopped
     command: celery -A aiproject worker --loglevel=INFO --concurrency=1 -Q ramp_training,yolo_training --pool=solo
-    volumes:
-      - ${APP_LOGS:-./fair-app-data/log}:/app/log
-      - ${RAMP_HOME:-./fair-app-data/ramp}:/RAMP_HOME
-      - ${TRAINING_WORKSPACE:-./fair-app-data/trainings}:/TRAINING_WORKSPACE
-      - ${APP_HOME:-./}backend/core:/app/core
-      - ${APP_HOME:-./}backend/login:/app/login
-      - ${APP_HOME:-./}backend/aiproject:/app/aiproject
     depends_on:
       backend-api:
         condition: service_healthy
@@ -161,7 +150,7 @@ services:
           memory: 4G
 
   prediction-worker:
-    <<: *common-env
+    <<: [*common-env, *common-volumes]
     image: ghcr.io/hotosm/fair-offline-predictor:develop
     build:
       context: ./backend
@@ -172,13 +161,6 @@ services:
     container_name: prediction-worker
     restart: unless-stopped
     command: celery -A aiproject worker --loglevel=INFO --concurrency=1 -Q predictions --pool=solo
-    volumes:
-      - ${APP_LOGS:-./fair-app-data/log}:/app/log
-      - ${RAMP_HOME:-./fair-app-data/ramp}:/RAMP_HOME
-      - ${TRAINING_WORKSPACE:-./fair-app-data/trainings}:/TRAINING_WORKSPACE
-      - ${APP_HOME:-./}backend/core:/app/core
-      - ${APP_HOME:-./}backend/login:/app/login
-      - ${APP_HOME:-./}backend/aiproject:/app/aiproject
     depends_on:
       backend-api:
         condition: service_healthy
@@ -211,7 +193,7 @@ services:
     profiles:
       - cpu
       - gpu
-  # docker-compose.yml (add under services:)
+
   frontend:
     <<: *common-env
     build:

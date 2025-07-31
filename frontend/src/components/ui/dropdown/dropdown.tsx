@@ -5,6 +5,7 @@ import { SlCheckbox } from "@shoelace-style/shoelace/dist/react";
 import { SlDropdown } from "@shoelace-style/shoelace/dist/react";
 import { SlMenu } from "@shoelace-style/shoelace/dist/react";
 import { SlMenuItem } from "@shoelace-style/shoelace/dist/react";
+
 import {
   forwardRef,
   useEffect,
@@ -15,13 +16,16 @@ import {
 import "./dropdown.css";
 import { SlDropdownType } from "@/types";
 
-export type DropdownMenuItem = {
+type TDropdownMenuItem = {
   value: string;
   onClick?: (e: any | undefined) => void;
   className?: string;
   name?: string;
   disabled?: boolean;
   apiValue?: string | number;
+};
+export type DropdownMenuItem = TDropdownMenuItem & {
+  subMenuItems?: TDropdownMenuItem[];
 };
 
 type DropDownProps = {
@@ -164,6 +168,20 @@ const DropDown = forwardRef<SlDropdownType, DropDownProps>((props, ref) => {
                   ></SlCheckbox>
                 )}
                 {menuItem.value}
+                {menuItem?.subMenuItems ? (
+                  <SlMenu slot="submenu">
+                    {menuItem.subMenuItems?.map((subMenuItem, id) => (
+                      <SlMenuItem
+                        key={`dropdown-submenu-item-${id}`}
+                        value={subMenuItem.value}
+                        className={cn(`${subMenuItem.className}`)}
+                        onClick={subMenuItem.onClick}
+                      >
+                        {subMenuItem.value}
+                      </SlMenuItem>
+                    ))}
+                  </SlMenu>
+                ) : null}
               </SlMenuItem>
             ))}
           </SlMenu>

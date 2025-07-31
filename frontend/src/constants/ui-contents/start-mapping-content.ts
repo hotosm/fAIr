@@ -52,8 +52,8 @@ export const START_MAPPING_PAGE_CONTENT: TStartMappingPageContent = {
     predictionInProgress: "Generating...",
   },
   settings: {
-    useJOSMQ: {
-      label: "Use JOSM Q",
+    orthogonalize: {
+      label: "Orthogonalize",
       tooltip: "Returns predictions in regular shape",
     },
     confidence: {
@@ -67,6 +67,16 @@ export const START_MAPPING_PAGE_CONTENT: TStartMappingPageContent = {
     area: {
       label: "Area",
       tooltip: "Filters prediction geometries below than specified area",
+    },
+    maxAngleChange: {
+      label: "Skew Tolerance",
+      tooltip:
+        "Defines the maximum allowed deviation from a perfectly orthogonal (90-degree) angle. A higher value allows for greater angular imperfection in the detected features, which can be useful for noisy or irregular data.",
+    },
+    skewTolerance: {
+      label: "Max Angle Change",
+      tooltip:
+        "Sets the largest angle change permitted between successive segments of a detected feature. A lower value will result in smoother, less angular features, while a higher value can capture sharper turns.",
     },
     tooltip: "Settings",
   },

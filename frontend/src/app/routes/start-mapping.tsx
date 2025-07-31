@@ -72,7 +72,7 @@ export type TDownloadOptions = {
 }[];
 
 export const SEARCH_PARAMS = {
-  useJOSMQ: "useJOSMQ",
+  orthogonalize: "orthogonalize",
   confidenceLevel: "confidenceLevel",
   tolerance: "tolerance",
   area: "area",
@@ -81,10 +81,60 @@ export const SEARCH_PARAMS = {
   predictionModelCheckpoint: "checkpoint",
   tileserver: "tileserver",
   mode: "mode",
+  skewTolerance: "ortho_skew_tolerance_deg",
+  maxAngleChange: "ortho_max_angle_change_deg",
 };
 
 export type TQueryParams = {
   [x: string]: string | number | boolean | undefined;
+};
+
+const defaultQuery = {
+  [SEARCH_PARAMS.orthogonalize]: true,
+  [SEARCH_PARAMS.confidenceLevel]: 50,
+  [SEARCH_PARAMS.tolerance]: 0.3,
+  [SEARCH_PARAMS.area]: 3,
+  [SEARCH_PARAMS.skewTolerance]: 15,
+  [SEARCH_PARAMS.maxAngleChange]: 15,
+};
+
+const getMergedQueryFromSearchParams = (
+  params: URLSearchParams,
+): TQueryParams => {
+  return {
+    [SEARCH_PARAMS.orthogonalize]:
+      params.get(SEARCH_PARAMS.orthogonalize) !== null
+        ? params.get(SEARCH_PARAMS.orthogonalize) === "true"
+        : defaultQuery[SEARCH_PARAMS.orthogonalize],
+    [SEARCH_PARAMS.confidenceLevel]:
+      params.get(SEARCH_PARAMS.confidenceLevel) !== null
+        ? Number(params.get(SEARCH_PARAMS.confidenceLevel))
+        : defaultQuery[SEARCH_PARAMS.confidenceLevel],
+    [SEARCH_PARAMS.tolerance]:
+      params.get(SEARCH_PARAMS.tolerance) !== null
+        ? Number(params.get(SEARCH_PARAMS.tolerance))
+        : defaultQuery[SEARCH_PARAMS.tolerance],
+    [SEARCH_PARAMS.area]:
+      params.get(SEARCH_PARAMS.area) !== null
+        ? Number(params.get(SEARCH_PARAMS.area))
+        : defaultQuery[SEARCH_PARAMS.area],
+    [SEARCH_PARAMS.skewTolerance]:
+      params.get(SEARCH_PARAMS.skewTolerance) !== null
+        ? Number(params.get(SEARCH_PARAMS.skewTolerance))
+        : defaultQuery[SEARCH_PARAMS.skewTolerance],
+    [SEARCH_PARAMS.maxAngleChange]:
+      params.get(SEARCH_PARAMS.maxAngleChange) !== null
+        ? Number(params.get(SEARCH_PARAMS.maxAngleChange))
+        : defaultQuery[SEARCH_PARAMS.maxAngleChange],
+
+    [SEARCH_PARAMS.model]: params.get(SEARCH_PARAMS.model) ?? undefined,
+    [SEARCH_PARAMS.imagery]: params.get(SEARCH_PARAMS.imagery) ?? undefined,
+    [SEARCH_PARAMS.predictionModelCheckpoint]:
+      params.get(SEARCH_PARAMS.predictionModelCheckpoint) ?? undefined,
+    [SEARCH_PARAMS.tileserver]:
+      params.get(SEARCH_PARAMS.tileserver) ?? undefined,
+    [SEARCH_PARAMS.mode]: params.get(SEARCH_PARAMS.mode) ?? undefined,
+  };
 };
 
 export const StartMappingPage = () => {
@@ -127,6 +177,39 @@ export const StartMappingPage = () => {
     customPredictionModelCheckpointPath,
     setCustomPredictionModelCheckpointPath,
   ] = useState<string>("");
+
+  const updateQuery = useCallback(
+    (newParams: TQueryParams) => {
+      setQuery((prev) => {
+        const updated = { ...prev, ...newParams };
+
+        const updatedParams = new URLSearchParams();
+
+        for (const [key, value] of Object.entries(updated)) {
+          // Skip keys equal to default or null/undefined
+          // This is to prevent the same settings from repeating in the url
+          if (
+            value !== undefined &&
+            value !== null &&
+            value !== defaultQuery[key]
+          ) {
+            updatedParams.set(key, String(value));
+          }
+        }
+
+        const currentHash = window.location.hash;
+        setSearchParams(updatedParams, { replace: true });
+
+        if (currentHash) {
+          window.location.hash = currentHash;
+        }
+
+        return updated;
+      });
+    },
+    [setSearchParams],
+  );
+
   const currentMode = searchParams.get(SEARCH_PARAMS.mode) ?? MapMode.ONLINE;
   const setCurrentMode = (newMode: MapMode) => {
     updateQuery({ [SEARCH_PARAMS.mode]: newMode });
@@ -134,11 +217,14 @@ export const StartMappingPage = () => {
 
   const customTileServerURL = searchParams.get(SEARCH_PARAMS.tileserver) || "";
 
-  const predictionImagerySource = searchParams.get(SEARCH_PARAMS.imagery)
-    ? (searchParams.get(SEARCH_PARAMS.imagery) as PredictionImagerySource)
-    : (customTileServerURL as PredictionImagerySource)
-      ? PredictionImagerySource.CustomImagery
-      : (PredictionImagerySource.ModelDefault as PredictionImagerySource);
+  const predictionImagerySource = useMemo(() => {
+    const imagery = searchParams.get(SEARCH_PARAMS.imagery);
+    if (imagery) return imagery as PredictionImagerySource;
+
+    if (customTileServerURL) return PredictionImagerySource.CustomImagery;
+
+    return PredictionImagerySource.ModelDefault;
+  }, [searchParams, customTileServerURL]);
 
   const setPredictionImagerySource = (newValue: string) => {
     updateQuery({ [SEARCH_PARAMS.imagery]: newValue });
@@ -154,17 +240,9 @@ export const StartMappingPage = () => {
     updateQuery({ [SEARCH_PARAMS.model]: newValue });
   };
 
-  const [query, setQuery] = useState<TQueryParams>(() => {
-    return {
-      [SEARCH_PARAMS.useJOSMQ]:
-        searchParams.get(SEARCH_PARAMS.useJOSMQ) || true,
-      [SEARCH_PARAMS.confidenceLevel]:
-        searchParams.get(SEARCH_PARAMS.confidenceLevel) || 50,
-      [SEARCH_PARAMS.tolerance]:
-        searchParams.get(SEARCH_PARAMS.tolerance) || 0.3,
-      [SEARCH_PARAMS.area]: searchParams.get(SEARCH_PARAMS.area) || 3,
-    };
-  });
+  const [query, setQuery] = useState<TQueryParams>(() =>
+    getMergedQueryFromSearchParams(searchParams),
+  );
   const { openDialog, isOpened, closeDialog } = useDialog();
   const {
     openDialog: openModelSelectionDialog,
@@ -189,31 +267,6 @@ export const StartMappingPage = () => {
     data: modelInfo,
     error,
   } = useModelDetails(modelId as string, !!modelId);
-
-  const updateQuery = useCallback(
-    (newParams: TQueryParams) => {
-      setQuery((prev) => ({ ...prev, ...newParams }));
-
-      const updatedParams = new URLSearchParams(searchParams);
-
-      for (const [key, value] of Object.entries(newParams)) {
-        if (value !== undefined && value !== null) {
-          updatedParams.set(key, String(value));
-        } else {
-          updatedParams.delete(key);
-        }
-      }
-
-      const currentHash = window.location.hash;
-
-      setSearchParams(updatedParams, { replace: true });
-
-      if (currentHash) {
-        window.location.hash = currentHash;
-      }
-    },
-    [searchParams, setSearchParams],
-  );
 
   const {
     tileServiceType,
@@ -455,15 +508,31 @@ export const StartMappingPage = () => {
    */
   const handleDrawingStateChange = useCallback(
     (isDrawing: boolean) => {
-      if (isDrawing) {
+      if (isDrawing && currentMode !== MapMode.OFFLINE) {
         setCurrentMode(MapMode.OFFLINE);
-      } else {
+      } else if (!isDrawing && currentMode !== MapMode.ONLINE) {
         setCurrentMode(MapMode.ONLINE);
         setDrawingMode(DrawingModes.STATIC);
       }
     },
-    [setCurrentMode],
+    [setCurrentMode, setDrawingMode, currentMode],
   );
+
+  useEffect(() => {
+    const imagery = searchParams.get(SEARCH_PARAMS.imagery);
+
+    if (!imagery) {
+      // Only set default imagery if none present
+      if (
+        predictionImagerySource === PredictionImagerySource.ModelDefault &&
+        modelInfo?.dataset?.source_imagery
+      ) {
+        updateQuery({
+          [SEARCH_PARAMS.imagery]: PredictionImagerySource.ModelDefault,
+        });
+      }
+    }
+  }, [searchParams, predictionImagerySource, modelInfo, updateQuery]);
 
   /**
    * Check if the model predictions exist.
@@ -693,6 +762,8 @@ export const StartMappingPage = () => {
         predictionModelCheckpoint={predictionModelCheckpoint}
         tileServerURL={tileserverURL}
         resetOfflinePredictionModeState={resetOfflinePredictionModeState}
+        predictionImagerySource={predictionImagerySource}
+        predictionModel={predictionModel}
       />
       <div className="h-screen flex flex-col fullscreen">
         {/* Base model dialog */}

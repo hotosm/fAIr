@@ -15,15 +15,14 @@ RAMP_DIR="${RAMP_HOME:-$(pwd)/fair-app-data/ramp}"
 TRAINING_DIR="${TRAINING_WORKSPACE:-$(pwd)/fair-app-data/trainings}"
 POSTGRES_DATA_DIR="${POSTGRES_DATA:-$(pwd)/fair-app-data/postgres}"
 REDIS_DATA_DIR="${REDIS_DATA:-$(pwd)/fair-app-data/redis}"
-APP_LOGS_DIR="${APP_LOGS:-$(pwd)/fair-app-data/logs}"
+LOG_PATH_DIR="${LOG_PATH:-$(pwd)/fair-app-data/logs}"
 ENV_FILE="$(pwd)/.env.dev"
 COMPOSE_FILE="$(pwd)/docker-compose.dev.yml"
 PROFILE="${PROFILE:-cpu}"  # Default profile (can be 'gpu' or 'cpu')
 USER_NAME="${USER}"
 
 POSTGRES_PASSWORD="${POSTGRES_PASSWORD:-dev_pg_pass}"
-REDIS_PASSWORD="${REDIS_PASSWORD:-dev_redis_pass}"
-FLOWER_PASSWORD="${FLOWER_PASSWORD:-dev_flower_pass}"
+
 
 # Header
 show_header() {
@@ -43,7 +42,7 @@ command_exists() {
 
 # Ensure directories exist
 ensure_directories() {
-  for dir in "$APP_DIR" "$DATA_DIR" "$RAMP_DIR" "$TRAINING_DIR" "$POSTGRES_DATA_DIR" "$REDIS_DATA_DIR" "$APP_LOGS_DIR"; do
+  for dir in "$APP_DIR" "$DATA_DIR" "$RAMP_DIR" "$TRAINING_DIR" "$POSTGRES_DATA_DIR" "$REDIS_DATA_DIR" "$LOG_PATH_DIR"; do
     [ -d "$dir" ] || mkdir -p "$dir"
   done
 }
@@ -96,11 +95,6 @@ POSTGRES_PASSWORD=$POSTGRES_PASSWORD
 # Redis configuration
 REDIS_HOST=redis
 REDIS_PORT=6379
-REDIS_PASSWORD=$REDIS_PASSWORD
-
-# Flower configuration
-FLOWER_USER=admin
-FLOWER_PASSWORD=$FLOWER_PASSWORD
 
 TAG=develop
 
@@ -108,7 +102,7 @@ TAG=develop
 DATA_DIR=$DATA_DIR
 RAMP_HOME=$RAMP_DIR
 TRAINING_WORKSPACE=$TRAINING_DIR
-APP_LOGS=$APP_LOGS_DIR
+LOG_PATH=$LOG_PATH_DIR
 POSTGRES_DATA=$POSTGRES_DATA_DIR
 REDIS_DATA=$REDIS_DATA_DIR
 
@@ -232,6 +226,7 @@ initialize_app() {
 # Run migrations
 run_migrations() {
   docker exec api bash -c "python manage.py makemigrations" || echo -e "${YELLOW}makemigrations failed (possibly no changes)${NC}"
+  docker exec api bash -c "python manage.py makemigrations core login" || echo -e "${YELLOW}makemigrations failed (possibly no changes)${NC}"
   docker exec api bash -c "python manage.py migrate" || {
     echo -e "${RED}Migration failed!${NC}"
     docker logs api --tail 50

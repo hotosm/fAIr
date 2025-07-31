@@ -517,7 +517,7 @@ export type TStartMappingPageContent = {
     predictionInProgress: string;
   };
   settings: {
-    useJOSMQ: {
+    orthogonalize: {
       label: string;
       tooltip: string;
     };
@@ -530,6 +530,14 @@ export type TStartMappingPageContent = {
       tooltip: string;
     };
     area: {
+      label: string;
+      tooltip: string;
+    };
+    skewTolerance: {
+      label: string;
+      tooltip: string;
+    };
+    maxAngleChange: {
       label: string;
       tooltip: string;
     };

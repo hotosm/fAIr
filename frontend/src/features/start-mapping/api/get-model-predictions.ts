@@ -8,12 +8,12 @@ export const getModelPredictions = async ({
   bbox,
   checkpoint,
   confidence,
-  max_angle_change,
+  ortho_max_angle_change_deg,
   model_id,
-  skew_tolerance,
+  ortho_skew_tolerance_deg,
   source,
   tolerance,
-  use_josm_q,
+  orthogonalize,
   zoom_level,
 }: TModelPredictionsConfig): Promise<FeatureCollection> => {
   return await (
@@ -22,12 +22,12 @@ export const getModelPredictions = async ({
       bbox,
       checkpoint,
       confidence,
-      max_angle_change,
+      ortho_max_angle_change_deg,
       model_id,
-      skew_tolerance,
+      ortho_skew_tolerance_deg,
       source,
       tolerance,
-      use_josm_q,
+      orthogonalize,
       zoom_level,
     })
   ).data;

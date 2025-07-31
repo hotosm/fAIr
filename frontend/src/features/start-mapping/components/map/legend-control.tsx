@@ -49,7 +49,13 @@ const FillLegendStyle = ({
   ></span>
 );
 
-export const Legend = () => {
+export const Legend = ({
+  disableDefaultPrediction = false,
+  title = "Predictions",
+}: {
+  disableDefaultPrediction?: boolean;
+  title?: string;
+}) => {
   const { isSmallViewport } = useScreenSize();
   const [expandLegend, setExpandLegend] = useState(true);
 
@@ -78,7 +84,7 @@ export const Legend = () => {
 
       {!isSmallViewport && (
         <p className="w-full text-dark font-semibold text-body-2base flex items-center gap-x-10 justify-between">
-          {START_MAPPING_PAGE_CONTENT.map.controls.legendControl.title}
+          {title}
           <ToolTip
             content={
               expandLegend
@@ -97,18 +103,24 @@ export const Legend = () => {
         <div
           className={`flex w-full ${isSmallViewport ? "flex-row gap-x-2" : "flex-col"} gap-y-3`}
         >
-          {statusLegend.map(({ label, fillColor, fillOpacity }, id) => (
-            <p
-              className="w-full flex items-center text-dark gap-x-2 text-body-4 md:text-body-3 text-nowrap"
-              key={id}
-            >
-              <FillLegendStyle
-                fillColor={fillColor}
-                fillOpacity={fillOpacity}
-              />
-              {label}
-            </p>
-          ))}
+          {statusLegend
+            .filter((v) =>
+              disableDefaultPrediction
+                ? v.status !== PredictedFeatureStatus.UNTOUCHED
+                : v,
+            )
+            .map(({ label, fillColor, fillOpacity }, id) => (
+              <p
+                className="w-full flex items-center text-dark gap-x-2 text-body-4 md:text-body-3 text-nowrap"
+                key={id}
+              >
+                <FillLegendStyle
+                  fillColor={fillColor}
+                  fillOpacity={fillOpacity}
+                />
+                {label}
+              </p>
+            ))}
         </div>
       )}
 

@@ -15,6 +15,7 @@ import {
   MODEL_FEEDBACKS_OUTLINE_LAYER_ID,
   MODEL_FEEDBACKS_SYMBOL_LAYER_ID,
 } from "@/config";
+import { Legend } from "@/features/start-mapping/components";
 
 type ModelsMapProps = {
   mapData?: FeatureCollection;
@@ -96,6 +97,9 @@ export const FeedbacksMap: React.FC<ModelsMapProps> = ({
           />
         </div>
         {map && <FeedbacksLayer map={map} features={mapData?.features} />}
+        {map && mapData && mapData?.features?.length > 0 && (
+          <Legend disableDefaultPrediction title="Feedbacks" />
+        )}
       </MapComponent>
     </div>
   );
