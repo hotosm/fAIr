@@ -54,8 +54,8 @@ const getLayerConfigs = (layerType: string) => {
     circle: {
       "circle-color": PREDICTIONS_RESULTS_POINT_FILL_COLOR,
       "circle-stroke-color": PREDICTIONS_RESULTS_POINT_OUTLINE_COLOR,
-      'circle-stroke-width': 1,
-      'circle-radius': 8
+      "circle-stroke-width": 1,
+      "circle-radius": 8,
     },
   };
 };
@@ -86,62 +86,75 @@ export const TrainingAreaMap = ({
     [0, 0],
   ]);
 
-  const trainingAreasSourceId = useMemo(() => (
-    isPredictionResult
-      ? `prediction-results-for-${trainingAreaId}`
-      : `training-areas-for-${trainingAreaId}`
-  ), [isPredictionResult, trainingAreaId]);
+  const trainingAreasSourceId = useMemo(
+    () =>
+      isPredictionResult
+        ? `prediction-results-for-${trainingAreaId}`
+        : `training-areas-for-${trainingAreaId}`,
+    [isPredictionResult, trainingAreaId],
+  );
 
-  const mapLayers: LayerSpecification[] = useMemo(() => vectorLayers.flatMap((layer) => {
-    const { fill, outline, circle } = getLayerConfigs(layer.id);
+  const mapLayers: LayerSpecification[] = useMemo(
+    () =>
+      vectorLayers.flatMap((layer) => {
+        const { fill, outline, circle } = getLayerConfigs(layer.id);
 
-    const layers: LayerSpecification[] = [
+        const layers: LayerSpecification[] = [
+          {
+            id: `${layer.id}_fill`,
+            type: "fill",
+            source: trainingAreasSourceId,
+            paint: fill,
+            "source-layer": layer.id,
+            layout: { visibility: "visible" },
+          },
+          {
+            id: `${layer.id}_outline`,
+            type: "line",
+            source: trainingAreasSourceId,
+            paint: outline,
+            "source-layer": layer.id,
+            layout: { visibility: "visible" },
+          },
+        ];
+
+        if (layer.id.includes("points")) {
+          layers.push({
+            id: `${layer.id}`,
+            type: "circle",
+            source: trainingAreasSourceId,
+            paint: circle,
+            "source-layer": layer.id,
+            layout: { visibility: "visible" },
+          });
+        }
+
+        return layers;
+      }),
+    [vectorLayers, trainingAreasSourceId],
+  );
+
+  const sources = useMemo(
+    () => [
       {
-        id: `${layer.id}_fill`,
-        type: "fill",
-        source: trainingAreasSourceId,
-        paint: fill,
-        "source-layer": layer.id,
-        layout: { visibility: "visible" },
+        id: trainingAreasSourceId,
+        spec: {
+          type: "vector",
+          url: `pmtiles://${file}`,
+        } as SourceSpecification,
       },
-      {
-        id: `${layer.id}_outline`,
-        type: "line",
-        source: trainingAreasSourceId,
-        paint: outline,
-        "source-layer": layer.id,
-        layout: { visibility: "visible" },
-      },
-    ];
+    ],
+    [trainingAreasSourceId, file],
+  );
 
-    if (layer.id.includes("points")) {
-      layers.push({
-        id: `${layer.id}`,
-        type: "circle",
-        source: trainingAreasSourceId,
-        paint: circle,
-        "source-layer": layer.id,
-        layout: { visibility: "visible" },
-      });
-    }
-
-    return layers;
-  }), [vectorLayers, trainingAreasSourceId])
-
-  const sources = useMemo(() => [
-    {
-      id: trainingAreasSourceId,
-      spec: {
-        type: "vector",
-        url: `pmtiles://${file}`,
-      } as SourceSpecification,
-    },
-  ], [trainingAreasSourceId, file]);
-
-  const layerControlLayers = useMemo(() => vectorLayers.map((layer) => ({
-    value: `${layer.id}`,
-    subLayers: [`${layer.id}_fill`, `${layer.id}_outline`, `${layer.id}`],
-  })), [vectorLayers])
+  const layerControlLayers = useMemo(
+    () =>
+      vectorLayers.map((layer) => ({
+        value: `${layer.id}`,
+        subLayers: [`${layer.id}_fill`, `${layer.id}_outline`, `${layer.id}`],
+      })),
+    [vectorLayers],
+  );
 
   const fitToBounds = useCallback(() => {
     if (!map) return;
@@ -195,15 +208,15 @@ export const TrainingAreaMap = ({
                         <table>
                             <tbody>
                                 ${Object.entries(feature.properties)
-            .map(
-              ([key, value]) => `
+                                  .map(
+                                    ([key, value]) => `
                                     <tr>
                                         <td class="text-grey">${key}</td>
                                         <td class="font-semibold text-dark">${typeof value === "boolean" ? JSON.stringify(value) : value}</td>
                                     </tr>
                                 `,
-            )
-            .join("")}
+                                  )
+                                  .join("")}
                             </tbody>
                         </table>
                     </div>

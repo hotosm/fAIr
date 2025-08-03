@@ -40,13 +40,11 @@ export const OfflinePredictionsSettingsInfo = ({
       distance={10}
     >
       <div className="flex flex-col gap-2 bg-white p-4 min-w-48">
-        <p className="font-bold text-body-3  text-dark text-start">
-          Settings Info
-        </p>
+        <p className="font-bold text-body-3  text-dark text-start">Settings</p>
         {Object.entries(predictionConfig)
           .filter(
             ([key]) =>
-              key !== "checkpoint" && key !== "source" && key !== "bbox",
+              !["checkpoint", "source", "model_id", "bbox"].includes(key),
           )
           .map(([key, value]) => (
             <span

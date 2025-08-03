@@ -22,7 +22,11 @@ describe("Regex Patterns", () => {
         "https://example.com/tiles/{z}/{x}/{y}?format=jpg",
       ),
     ).toBe(true);
-    expect(XYZ_TILESERVER_URL_REGEX_PATTERN.test('https://services.arcgisonline.com/ArcGis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}')).toBe(true)
+    expect(
+      XYZ_TILESERVER_URL_REGEX_PATTERN.test(
+        "https://services.arcgisonline.com/ArcGis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+      ),
+    ).toBe(true);
     expect(
       XYZ_TILESERVER_URL_REGEX_PATTERN.test(
         "https://example.com/tiles/path/{z}/{x}/{y}",

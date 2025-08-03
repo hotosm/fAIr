@@ -85,11 +85,9 @@ export const SEARCH_PARAMS = {
   maxAngleChange: "ortho_max_angle_change_deg",
 };
 
-
 export type TQueryParams = {
   [x: string]: string | number | boolean | undefined;
 };
-
 
 const defaultQuery = {
   [SEARCH_PARAMS.orthogonalize]: true,
@@ -133,7 +131,8 @@ const getMergedQueryFromSearchParams = (
     [SEARCH_PARAMS.imagery]: params.get(SEARCH_PARAMS.imagery) ?? undefined,
     [SEARCH_PARAMS.predictionModelCheckpoint]:
       params.get(SEARCH_PARAMS.predictionModelCheckpoint) ?? undefined,
-    [SEARCH_PARAMS.tileserver]: params.get(SEARCH_PARAMS.tileserver) ?? undefined,
+    [SEARCH_PARAMS.tileserver]:
+      params.get(SEARCH_PARAMS.tileserver) ?? undefined,
     [SEARCH_PARAMS.mode]: params.get(SEARCH_PARAMS.mode) ?? undefined,
   };
 };
@@ -145,7 +144,6 @@ export const StartMappingPage = () => {
     false,
     true,
   );
-
 
   const { isSmallViewport } = useScreenSize();
 
@@ -180,7 +178,6 @@ export const StartMappingPage = () => {
     setCustomPredictionModelCheckpointPath,
   ] = useState<string>("");
 
-
   const updateQuery = useCallback(
     (newParams: TQueryParams) => {
       setQuery((prev) => {
@@ -213,12 +210,10 @@ export const StartMappingPage = () => {
     [setSearchParams],
   );
 
-
   const currentMode = searchParams.get(SEARCH_PARAMS.mode) ?? MapMode.ONLINE;
   const setCurrentMode = (newMode: MapMode) => {
     updateQuery({ [SEARCH_PARAMS.mode]: newMode });
   };
-
 
   const customTileServerURL = searchParams.get(SEARCH_PARAMS.tileserver) || "";
 
@@ -273,7 +268,6 @@ export const StartMappingPage = () => {
     error,
   } = useModelDetails(modelId as string, !!modelId);
 
-
   const {
     tileServiceType,
     setTileServiceType,
@@ -322,7 +316,6 @@ export const StartMappingPage = () => {
    *  When the user selects the Kontour prediction imagery source or pass it directly in the url.
    */
   useEffect(() => {
-
     if (predictionImagerySource === PredictionImagerySource.Kontour) {
       setTileserverURL(OPENAERIALMAP_MOSAIC_TILES_URL);
     }
@@ -530,8 +523,13 @@ export const StartMappingPage = () => {
 
     if (!imagery) {
       // Only set default imagery if none present
-      if (predictionImagerySource === PredictionImagerySource.ModelDefault && modelInfo?.dataset?.source_imagery) {
-        updateQuery({ [SEARCH_PARAMS.imagery]: PredictionImagerySource.ModelDefault });
+      if (
+        predictionImagerySource === PredictionImagerySource.ModelDefault &&
+        modelInfo?.dataset?.source_imagery
+      ) {
+        updateQuery({
+          [SEARCH_PARAMS.imagery]: PredictionImagerySource.ModelDefault,
+        });
       }
     }
   }, [searchParams, predictionImagerySource, modelInfo, updateQuery]);
@@ -548,16 +546,16 @@ export const StartMappingPage = () => {
     () => [
       ...(modelPredictions.length > 0
         ? [
-          {
-            value:
-              START_MAPPING_PAGE_CONTENT.map.controls.legendControl
-                .predictionResults,
-            subLayers: [
-              ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
-              ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
-            ],
-          },
-        ]
+            {
+              value:
+                START_MAPPING_PAGE_CONTENT.map.controls.legendControl
+                  .predictionResults,
+              subLayers: [
+                ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
+                ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
+              ],
+            },
+          ]
         : []),
     ],
     [modelPredictions],
