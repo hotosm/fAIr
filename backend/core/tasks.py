@@ -625,7 +625,7 @@ def predict_area(prediction_request_id, folder=None):
             )
             send_notification(inst, "Finished")
             inst.save()
-            base_url = settings.API_BASE_URL + "workspace/download/" + folder
+            base_url = settings.API_BASE_URL + "/workspace/download/" + folder
             result["output"] = base_url
             result["output"] = {
                 "aois": f"{base_url}/aois.geojson",
