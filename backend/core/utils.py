@@ -470,7 +470,7 @@ def get_email_message(obj_instance, status):
     profile_url = f"{hostname}/profile"  # doing profile for now as training url won't work for the predictions, i can read from the class name and filter out the condition , keeping it simple for now can do that later #todo
     message_template = (
         "Hi {username},\n\n"
-        "Your {obj_instance.__class__.__name__} task (ID: {object_id}) of model {model_name} has {status}. You can view the details in your profile:\n"
+        "Your {obj_instance.__class__.__name__} task (ID: {object_id}) has {status}. You can view the details in your profile:\n"
         "{profile_url}\n\n"
         "Thank you for using fAIr - AI Assisted Mapping Tool.\n\n"
         "Best regards,\n"
@@ -482,7 +482,7 @@ def get_email_message(obj_instance, status):
     message = message_template.format(
         username=obj_instance.user.username,
         object_id=obj_instance.id,
-        model_name=obj_instance.model.name if obj_instance.model else "N/A",
+        # model_name=obj_instance.model.name if obj_instance.model else "N/A",
         status=status.lower(),
         profile_url=profile_url,
         hostname=hostname,
