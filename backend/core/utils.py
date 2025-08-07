@@ -506,6 +506,7 @@ def send_notification(obj_instance, status):
         ):
             try:
                 message, subject = get_email_message(obj_instance, status)
+                logging.info("Notification content generated, Sending email...")
                 send_mail(
                     subject=subject,
                     message=message,
