@@ -482,7 +482,7 @@ def get_email_message(obj_instance, status):
     message = message_template.format(
         username=obj_instance.user.username,
         object_id=obj_instance.id,
-        model_name=obj_instance.model.name,
+        model_name=obj_instance.model.name if obj_instance.model else "N/A",
         status=status.lower(),
         profile_url=profile_url,
         hostname=hostname,
@@ -504,14 +504,19 @@ def send_notification(obj_instance, status):
             and obj_instance.user.email != ""
             and obj_instance.user.email_verified
         ):
-            message, subject = get_email_message(obj_instance, status)
-            send_mail(
-                subject=subject,
-                message=message,
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[obj_instance.user.email],
-                fail_silently=settings.FAIL_EMAIL_SILENTLY,
-            )
+            try:
+                message, subject = get_email_message(obj_instance, status)
+                send_mail(
+                    subject=subject,
+                    message=message,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[obj_instance.user.email],
+                    fail_silently=settings.FAIL_EMAIL_SILENTLY,
+                )
+            except Exception as e:
+                logging.getLogger(__name__).error(
+                    f"Error sending email notification: {e}"
+                )
 
 
 def shift_labels_by_offset(serialized_labels, offset):
