@@ -55,7 +55,8 @@ export const OfflinePredictionCard = ({
           </Button>
         </div>
         <p className="text-dark text-body-3">
-          <MapIcon className="icon" /> {formatNumber(predictionResult.result_count)} detected features
+          <MapIcon className="icon" />{" "}
+          {formatNumber(predictionResult.result_count)} detected features
         </p>
         <p className="text-dark text-body-3">
           Date Submitted:{" "}
@@ -70,9 +71,9 @@ export const OfflinePredictionCard = ({
           <span className="font-semibold">
             {predictionResult.created_at && predictionResult.finished_at
               ? formatDuration(
-                new Date(predictionResult.finished_at),
-                new Date(predictionResult.created_at),
-              )
+                  new Date(predictionResult.finished_at),
+                  new Date(predictionResult.created_at),
+                )
               : "-"}
           </span>
         </p>

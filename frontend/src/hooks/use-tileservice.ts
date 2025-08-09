@@ -137,7 +137,6 @@ export const useTileServiceLayer = ({
   } = useTileservice(getTileServerTypeFromURL(tileServiceURL), tileServiceURL);
 
   useEffect(() => {
-
     if (!tileServiceTypeValidity.valid || !map || !sourceURL || !addLayerToMap)
       return;
 
@@ -152,14 +151,12 @@ export const useTileServiceLayer = ({
     setLoading(true);
     try {
       if (isOpenAerialMap || tileServiceType === TileServiceType.TILEJSON) {
-
         map.addSource(TMS_SOURCE_ID, {
           type: "raster",
           url: sourceURL,
           tileSize: 256,
         });
       } else {
-
         map.addSource(TMS_SOURCE_ID, {
           type: "raster",
           tiles: [sourceURL],
@@ -167,15 +164,12 @@ export const useTileServiceLayer = ({
         });
       }
 
-      map.addLayer(
-        {
-          id: TMS_LAYER_ID,
-          type: "raster",
-          source: TMS_SOURCE_ID,
-          layout: { visibility: "visible" },
-        },
-
-      );
+      map.addLayer({
+        id: TMS_LAYER_ID,
+        type: "raster",
+        source: TMS_SOURCE_ID,
+        layout: { visibility: "visible" },
+      });
     } catch (e) {
       setError(
         "Unable to load the tile server. Please verify the URL and try again.",

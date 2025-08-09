@@ -122,7 +122,6 @@ export const PredictionResultDrawer: React.FC<PredictionResultProps> = ({
                 visible={isOpened}
                 file={data.result}
                 isPredictionResult
-
               />
             </div>
           </div>

@@ -8,7 +8,6 @@ export const TileServiceLayer = ({
   map: MapInstance;
   tileServiceURL: string;
 }) => {
-
   useTileServiceLayer({
     map,
     tileServiceURL,

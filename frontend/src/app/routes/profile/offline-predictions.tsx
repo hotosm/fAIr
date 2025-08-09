@@ -51,8 +51,8 @@ export const UserProfileOfflinePredictionsPage = () => {
           isOpened={isPredictionResultOpened}
           closeDialog={() => {
             // Cleanup to ensure fresh rendering
-            setActivePrediction(null)
-            closePredictionResultDialog()
+            setActivePrediction(null);
+            closePredictionResultDialog();
           }}
         />
       )}
