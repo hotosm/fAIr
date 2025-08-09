@@ -546,16 +546,16 @@ export const StartMappingPage = () => {
     () => [
       ...(modelPredictions.length > 0
         ? [
-            {
-              value:
-                START_MAPPING_PAGE_CONTENT.map.controls.legendControl
-                  .predictionResults,
-              subLayers: [
-                ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
-                ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
-              ],
-            },
-          ]
+          {
+            value:
+              START_MAPPING_PAGE_CONTENT.map.controls.legendControl
+                .predictionResults,
+            subLayers: [
+              ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
+              ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
+            ],
+          },
+        ]
         : []),
     ],
     [modelPredictions],
@@ -726,6 +726,28 @@ export const StartMappingPage = () => {
     closeModelSelectionDialog();
   }, [closeModelSelectionDialog, setOpenMobileDrawer]);
 
+
+  /**
+   * Handle the opening of the offline prediction request dialog.
+   * It closes the mobile drawer to prevent focus trapping issues with vaul.
+   */
+  const handleOfflinePredictionRequestDialogOpen = useCallback(() => {
+    /**
+     * Close the mobile drawer when the model selection dialog is opened to prevent focus trapping issues with vaul.
+     */
+    setOpenMobileDrawer(false);
+    openOfflinePredictionRequestDialog()
+  }, [openOfflinePredictionRequestDialog, setOpenMobileDrawer]);
+
+  /**
+   * Handle the closing of the offline prediction request form dialog.
+   * It reopens the mobile drawer to allow the user to interact with it again.
+   */
+  const handleOfflinePredictionRequestDialogClose = useCallback(() => {
+    setOpenMobileDrawer(true);
+    closeOfflinePredictionDialog();
+  }, [closeOfflinePredictionDialog, setOpenMobileDrawer]);
+
   return (
     <>
       <Head title={START_MAPPING_PAGE_CONTENT.pageTitle(modelInfo?.name)} />
@@ -753,7 +775,7 @@ export const StartMappingPage = () => {
         buttonText="Add to Map"
       />
       <OfflinePredictionRequestDialog
-        onClose={closeOfflinePredictionDialog}
+        onClose={handleOfflinePredictionRequestDialogClose}
         isOpen={isOfflinePredictionRequestDialogOpened}
         query={query}
         updateQuery={updateQuery}
@@ -849,7 +871,7 @@ export const StartMappingPage = () => {
             isOfflineMode={isOfflineMode}
             hasDrawnAOI={hasDrawnAOI}
             openOfflinePredictionRequestDialog={
-              openOfflinePredictionRequestDialog
+              handleOfflinePredictionRequestDialogOpen
             }
           />
         )}
@@ -892,7 +914,7 @@ export const StartMappingPage = () => {
             isOfflineMode={isOfflineMode}
             hasDrawnAOI={hasDrawnAOI}
             openOfflinePredictionRequestDialog={
-              openOfflinePredictionRequestDialog
+              handleOfflinePredictionRequestDialogOpen
             }
           />
         </div>
