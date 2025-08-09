@@ -546,16 +546,16 @@ export const StartMappingPage = () => {
     () => [
       ...(modelPredictions.length > 0
         ? [
-          {
-            value:
-              START_MAPPING_PAGE_CONTENT.map.controls.legendControl
-                .predictionResults,
-            subLayers: [
-              ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
-              ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
-            ],
-          },
-        ]
+            {
+              value:
+                START_MAPPING_PAGE_CONTENT.map.controls.legendControl
+                  .predictionResults,
+              subLayers: [
+                ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
+                ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
+              ],
+            },
+          ]
         : []),
     ],
     [modelPredictions],
@@ -726,7 +726,6 @@ export const StartMappingPage = () => {
     closeModelSelectionDialog();
   }, [closeModelSelectionDialog, setOpenMobileDrawer]);
 
-
   /**
    * Handle the opening of the offline prediction request dialog.
    * It closes the mobile drawer to prevent focus trapping issues with vaul.
@@ -736,7 +735,7 @@ export const StartMappingPage = () => {
      * Close the mobile drawer when the model selection dialog is opened to prevent focus trapping issues with vaul.
      */
     setOpenMobileDrawer(false);
-    openOfflinePredictionRequestDialog()
+    openOfflinePredictionRequestDialog();
   }, [openOfflinePredictionRequestDialog, setOpenMobileDrawer]);
 
   /**
