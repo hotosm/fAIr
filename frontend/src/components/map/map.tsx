@@ -44,7 +44,6 @@ type MapComponentProps = {
 export const MapComponent: React.FC<MapComponentProps> = ({
   geolocationControl = false,
   controlsPosition = ControlsPosition.TOP_RIGHT,
-
   showCurrentZoom = false,
   layerControl = false,
   layerControlLayers = [],
@@ -64,11 +63,10 @@ export const MapComponent: React.FC<MapComponentProps> = ({
       {map ? (
         <>
           <div
-            className={`absolute top-5 ${
-              controlsPosition === ControlsPosition.TOP_RIGHT
+            className={`absolute top-5 ${controlsPosition === ControlsPosition.TOP_RIGHT
                 ? "right-3"
                 : "left-3"
-            } map-elements-z-index flex flex-col gap-y-[1px]`}
+              } map-elements-z-index flex flex-col gap-y-[1px]`}
           >
             {zoomControls ? <ZoomControls map={map} /> : null}
             {geolocationControl && <GeolocationControl map={map} />}

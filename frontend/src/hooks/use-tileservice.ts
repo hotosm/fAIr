@@ -137,10 +137,12 @@ export const useTileServiceLayer = ({
   } = useTileservice(getTileServerTypeFromURL(tileServiceURL), tileServiceURL);
 
   useEffect(() => {
+
     if (!tileServiceTypeValidity.valid || !map || !sourceURL || !addLayerToMap)
       return;
 
     const source = map.getSource(TMS_SOURCE_ID);
+
     if (source) {
       map.removeLayer(TMS_LAYER_ID);
       map.removeSource(TMS_SOURCE_ID);
@@ -148,15 +150,16 @@ export const useTileServiceLayer = ({
 
     setError("");
     setLoading(true);
-
     try {
       if (isOpenAerialMap || tileServiceType === TileServiceType.TILEJSON) {
+
         map.addSource(TMS_SOURCE_ID, {
           type: "raster",
           url: sourceURL,
           tileSize: 256,
         });
       } else {
+
         map.addSource(TMS_SOURCE_ID, {
           type: "raster",
           tiles: [sourceURL],
@@ -171,7 +174,7 @@ export const useTileServiceLayer = ({
           source: TMS_SOURCE_ID,
           layout: { visibility: "visible" },
         },
-        undefined,
+
       );
     } catch (e) {
       setError(
