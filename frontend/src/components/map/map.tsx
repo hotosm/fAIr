@@ -44,7 +44,6 @@ type MapComponentProps = {
 export const MapComponent: React.FC<MapComponentProps> = ({
   geolocationControl = false,
   controlsPosition = ControlsPosition.TOP_RIGHT,
-
   showCurrentZoom = false,
   layerControl = false,
   layerControlLayers = [],

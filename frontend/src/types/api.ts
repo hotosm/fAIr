@@ -205,10 +205,10 @@ export type Feature = {
   geometry: Geometry;
   id?: string | number;
   properties:
-  | {
-    mid: string;
-  }
-  | GeoJsonProperties;
+    | {
+        mid: string;
+      }
+    | GeoJsonProperties;
 };
 
 export type FeatureCollection = {
@@ -264,5 +264,5 @@ export type TOfflinePrediction = {
   mapswipe_id: string | null;
   user: number;
   config: TModelPredictionsConfig;
-  result_count: number
+  result_count: number;
 };

@@ -49,7 +49,11 @@ export const UserProfileOfflinePredictionsPage = () => {
           tileServiceUrl={activePrediction.config.source}
           predictionId={activePrediction.id}
           isOpened={isPredictionResultOpened}
-          closeDialog={closePredictionResultDialog}
+          closeDialog={() => {
+            // Cleanup to ensure fresh rendering
+            setActivePrediction(null);
+            closePredictionResultDialog();
+          }}
         />
       )}
       {activeTaskId && (
