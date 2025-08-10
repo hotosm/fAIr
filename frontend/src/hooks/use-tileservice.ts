@@ -170,7 +170,7 @@ export const useTileServiceLayer = ({
         source: TMS_SOURCE_ID,
         layout: { visibility: "visible" },
       });
-    } catch (e) {
+    } catch {
       setError(
         "Unable to load the tile server. Please verify the URL and try again."
       );

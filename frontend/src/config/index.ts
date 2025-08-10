@@ -327,11 +327,11 @@ export const TRAINING_AREAS_MASK_FILL_COLOR: string = parseStringEnv(
 
 export const PREDICTIONS_RESULTS_POINT_FILL_COLOR: string = parseStringEnv(
   ENVS.PREDICTIONS_RESULTS_POINT_FILL_COLOR,
-  "#34D77C",
+  "#34D77C"
 );
 export const PREDICTIONS_RESULTS_POINT_OUTLINE_COLOR: string = parseStringEnv(
   ENVS.PREDICTIONS_RESULTS_POINT_OUTLINE_COLOR,
-  "#34D77C",
+  "#34D77C"
 );
 
 // Start Mapping Legend - only the fill layers are in the legend.

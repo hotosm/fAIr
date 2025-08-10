@@ -25,7 +25,7 @@ export const Header = () => {
             </Link>
             <Link
               href={APPLICATION_ROUTES.MODELS}
-              title={SHARED_CONTENT.homepage.ctaSecondaryButton}
+              title={SHARED_CONTENT.homepage.ctaPrimaryButton}
               nativeAnchor={false}
             >
               <Button variant={ButtonVariant.SECONDARY}>
