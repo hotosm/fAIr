@@ -1071,3 +1071,49 @@ class PredictionViewSet(UserAssignmentMixin, viewsets.ModelViewSet):
                 )
 
         return super().partial_update(request, *args, **kwargs)
+
+
+class TerminatePredictionView(APIView):
+    authentication_classes = [OsmAuthentication]
+    permission_classes = [IsOsmAuthenticated]
+
+    def post(self, request, prediction_id, format=None):
+        try:
+            prediction_instance = Prediction.objects.get(
+                id=prediction_id, user=request.user
+            )
+
+            task_id = prediction_instance.task_id
+            if not task_id:
+                return Response(
+                    {"detail": "No task associated with this prediction."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            task = AsyncResult(task_id, app=current_app)
+            if (
+                task.state in ["PENDING", "STARTED", "RETRY", "FAILURE"]
+                and prediction_instance.status != "FAILED"
+            ):
+                current_app.control.revoke(task_id, terminate=True)
+                prediction_instance.status = "FAILED"
+                prediction_instance.finished_at = now()
+                prediction_instance.save()
+                send_notification(prediction_instance, "Cancelled")
+                return Response(
+                    {"detail": "Prediction task cancelled successfully."},
+                    status=status.HTTP_200_OK,
+                )
+            else:
+                return Response(
+                    {
+                        "detail": f"Task cannot be cancelled. Current state: {task.state}"
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+        except Prediction.DoesNotExist:
+            return Response(
+                {"detail": "Prediction not found or do not belong to you"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
