@@ -36,6 +36,7 @@ from .utils import (
     S3Uploader,
     check_and_convert_crs,
     copyfile,
+    geojson_to_fgb,
     get_file_count,
     safe_copytree,
     safe_rmtree,
@@ -608,6 +609,9 @@ def predict_area(prediction_request_id, folder=None):
             result["len_predictions"] = len(predictions["features"])
             if len(predictions["features"]) != 0:
                 print("No features found in the predictions geojson")
+                geojson_to_fgb(
+                    os.path.join(out, "labels.geojson"), os.path.join(out, "labels.fgb")
+                )
                 run_tippecanoe(out)
                 folder = (
                     f"prediction_{inst.id}"

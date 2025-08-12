@@ -676,3 +676,7 @@ def check_and_convert_crs(geojson_path):
         gdf_4326.to_file(geojson_path, driver="GeoJSON")
     else:
         print("Already in EPSG:4326, no conversion needed")
+
+
+def geojson_to_fgb(input_path, output_path):
+    gpd.read_file(input_path).to_file(output_path, driver="FlatGeobuf")
