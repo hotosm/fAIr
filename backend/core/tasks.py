@@ -605,7 +605,9 @@ def predict_area(prediction_request_id, folder=None):
             #     os.path.join(out, "labels.geojson"),
             #     predictions,
             # )
-
+            folder = (
+                f"prediction_{inst.id}" if folder is None else f"prediction/{folder}"
+            )
             result["len_predictions"] = len(predictions["features"])
             if len(predictions["features"]) != 0:
                 print("No features found in the predictions geojson")
@@ -613,11 +615,7 @@ def predict_area(prediction_request_id, folder=None):
                     os.path.join(out, "labels.geojson"), os.path.join(out, "labels.fgb")
                 )
                 run_tippecanoe(out)
-                folder = (
-                    f"prediction_{inst.id}"
-                    if folder is None
-                    else f"prediction/{folder}"
-                )
+
                 if settings.USE_S3_TO_UPLOAD_MODELS:
                     s3_out_path = f"{settings.PARENT_BUCKET_FOLDER}/{folder}"
                     upload_to_s3(
