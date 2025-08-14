@@ -478,7 +478,7 @@ def get_email_message(obj_instance, status):
 
     message_template = (
         "Hi {username},\n\n"
-        "Your {obj_class_name} task (ID: {object_id}) has {status}. You can view the details in your profile:\n"
+        "Your {obj_class_name} task (ID: {object_id}) has {status}. You can view the details using following link:\n"
         "{profile_url}\n\n"
         "Thank you for using fAIr - AI Assisted Mapping Tool.\n\n"
         "Best regards,\n"
