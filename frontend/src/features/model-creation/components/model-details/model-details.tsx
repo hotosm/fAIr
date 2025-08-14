@@ -34,6 +34,22 @@ const baseModelOptions = [
         BASE_MODELS.YOLOV8_V2
       ],
   },
+  {
+    name: BASE_MODELS.YOLOV11,
+    value: BASE_MODELS.YOLOV11,
+    suffix:
+      MODELS_CONTENT.modelCreation.modelDetails.form.baseModel.suffixes[
+        BASE_MODELS.YOLOV11
+      ],
+  },
+  {
+    name: BASE_MODELS.YOLOV11_SAM,
+    value: BASE_MODELS.YOLOV11_SAM,
+    suffix:
+      MODELS_CONTENT.modelCreation.modelDetails.form.baseModel.suffixes[
+        BASE_MODELS.YOLOV11_SAM
+      ],
+  },
 ];
 
 const ModelDetailsForm = () => {

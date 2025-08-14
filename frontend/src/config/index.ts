@@ -393,6 +393,8 @@ export const PREDICTION_API_FILE_EXTENSIONS: Record<BASE_MODELS, string> = {
   [BASE_MODELS.RAMP]: ".tflite",
   [BASE_MODELS.YOLOV8_V1]: ".onnx",
   [BASE_MODELS.YOLOV8_V2]: ".onnx",
+  [BASE_MODELS.YOLOV11]: ".onnx",
+  [BASE_MODELS.YOLOV11_SAM]: ".onnx",
 };
 
 /**
@@ -490,6 +492,8 @@ export const FAIR_BASE_MODELS_PATH: Record<BASE_MODELS, string> = {
   [BASE_MODELS.RAMP]: `${FAIR_MODELS_BASE_PATH}/basemodels/ramp/baseline.tflite`,
   [BASE_MODELS.YOLOV8_V1]: `${FAIR_MODELS_BASE_PATH}/basemodels/yolo/yolov8s_v1-seg.onnx`,
   [BASE_MODELS.YOLOV8_V2]: `${FAIR_MODELS_BASE_PATH}/basemodels/yolo/yolov8s_v2-seg.onnx`,
+  [BASE_MODELS.YOLOV11]: `${FAIR_MODELS_BASE_PATH}/basemodels/yolo/yolov11-seg.onnx`,
+  [BASE_MODELS.YOLOV11_SAM]: `${FAIR_MODELS_BASE_PATH}/basemodels/yolo/yolov11-seg.onnx`,
 };
 
 export const OPENAERIALMAP_MOSAIC_TILES_URL =

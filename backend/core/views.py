@@ -197,7 +197,7 @@ class TrainingSerializer(
                 raise ValidationError(
                     f"Batch size can't be greater than {settings.RAMP_BATCH_SIZE_LIMIT} on this server"
                 )
-        if model.base_model in ["YOLO_V8_V1", "YOLO_V8_V2"]:
+        if model.base_model in ["YOLO_V8_V1", "YOLO_V8_V2", "YOLO_V11", "YOLO_V11_SAM"]:
             if epochs > settings.YOLO_EPOCHS_LIMIT:
                 raise ValidationError(
                     f"Epochs can't be greater than {settings.YOLO_EPOCHS_LIMIT} on this server"

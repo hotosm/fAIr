@@ -40,6 +40,10 @@ export const MODELS_CONTENT: TModelsContent = {
               "A well-balanced model offering good accuracy for detecting structures in major areas. Trained by the community.",
             [BASE_MODELS.YOLOV8_V2]:
               "Our most advanced model. Designed for detecting various features across different areas. Developed in collaboration with Omdena AI.",
+            [BASE_MODELS.YOLOV11]:
+              "YOLO11 is the latest iteration in the Ultralytics YOLO series of real-time object detectors, redefining what's possible with cutting-edge accuracy, speed, and efficiency.",
+            [BASE_MODELS.YOLOV11_SAM]:
+              "You can pair YOLO11 with SAM2 for segmentation within detected bounding boxes, enabling precise downstream tasks",
           },
         },
         modelDescription: {
@@ -266,6 +270,8 @@ export const MODELS_CONTENT: TModelsContent = {
             RAMP: "https://rampml.global/",
             YOLO_V8_V2: "https://yolov8.com/ ",
             YOLO_V8_V1: "https://yolov8.com/ ",
+            YOLO_V11: "https://yolov11.com/",
+            YOLO_V11_SAM: "https://blog.roboflow.com/train-yolov11-instance-segmentation/",
           },
         },
         sourceImage: {

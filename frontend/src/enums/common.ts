@@ -2,6 +2,8 @@ export enum BASE_MODELS {
   RAMP = "RAMP",
   YOLOV8_V1 = "YOLO_V8_V1",
   YOLOV8_V2 = "YOLO_V8_V2",
+  YOLOV11 = "YOLO_V11",
+  YOLOV11_SAM = "YOLO_V11_SAM",
 }
 
 export enum ButtonVariant {

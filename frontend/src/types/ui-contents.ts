@@ -230,6 +230,8 @@ export type TModelsContent = {
             RAMP: string;
             YOLO_V8_V2: string;
             YOLO_V8_V1: string;
+            YOLO_V11: string;
+            YOLO_V11_SAM: string;
           };
         };
         sourceImage: {

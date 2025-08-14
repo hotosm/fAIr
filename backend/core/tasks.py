@@ -127,8 +127,16 @@ class Trainer:
         from hot_fair_utilities.preprocessing.yolo_v8_v2.yolo_format import (
             yolo_format as v2,
         )
+        from hot_fair_utilities.preprocessing.yolo_v11.yolo_format  import (
+            yolo_format as v11,
+        )
+        from hot_fair_utilities.preprocessing.yolo_v11_sam.yolo_format  import (
+            yolo_format as v11_sam,
+        )
         from hot_fair_utilities.training.yolo_v8_v1.train import train as train_v1
         from hot_fair_utilities.training.yolo_v8_v2.train import train as train_v2
+        from hot_fair_utilities.training.yolo_v11.train import train as train_v11
+        from hot_fair_utilities.training.yolo_v11_sam.train import train as train_v11_sam
 
         (
             inst,
@@ -161,7 +169,7 @@ class Trainer:
             rasterize_options=["binary"],
             georeference_images=True,
             multimasks=(multimasks or self.model_type == "YOLO_V8_V1"),
-            epsg=4326 if self.model_type == "YOLO_V8_V2" else 3857,
+            epsg=4326 if (self.model_type == "YOLO_V8_V2" or self.model_type == "YOLO_V11" or self.model_type == "YOLO_V11_sam") else 3857,
             input_contact_spacing=4,
             input_boundary_width=2,
         )
@@ -169,23 +177,54 @@ class Trainer:
         inst.chips_length = get_file_count(os.path.join(prep, "chips"))
         inst.save()
 
-        with print_time("YOLO format"):
-            if self.model_type == "YOLO_V8_V1":
-                v1(
-                    preprocessed_dirs=prep,
-                    yolo_dir=model_dir,
-                    multimask=True,
-                    p_val=0.05,
-                )
-            else:
-                v2(input_path=prep, output_path=model_dir)
+        match self.model_type:
+            case "YOLO_V8_V1":
+                with print_time("YOLO format"):
+                    v1(
+                        preprocessed_dirs=prep,
+                        yolo_dir=model_dir,
+                        multimask=True,
+                        p_val=0.05,
+                    )
+                weights = "yolov8s_v1-seg-best.pt"
+            case "YOLO_V8_V2":
+                with print_time("YOLO format"):
+                    v2(input_path=prep, output_path=model_dir)
+                train_fn = train_v1     
+                weights = "yolov8s_v2-seg.pt"
+            case "YOLO_V11":
+                with print_time("YOLO format"):
+                    v11(input_path=prep, output_path=model_dir)
+                train_fn = train_v11
+                weights = "yolo11n-seg.pt"
+            case "YOLO_V11_SAM":
+                with print_time("YOLO format"):
+                    v11_sam(input_path=prep, output_path=model_dir)
+                train_fn = train_v11_sam
+                weights = "yolo11n-seg.pt"
+            case _:
+                with print_time("YOLO format"):
+                    v2(input_path=prep, output_path=model_dir)
+                train_fn = train_v2
+                weights = "yolov8s_v1-seg-best.pt"
 
-        train_fn = train_v1 if self.model_type == "YOLO_V8_V1" else train_v2
-        weights = (
-            "yolov8s_v1-seg-best.pt"
-            if self.model_type == "YOLO_V8_V1"
-            else "yolov8s_v2-seg.pt"
-        )
+        # with print_time("YOLO format"):
+        #     if self.model_type == "YOLO_V8_V1":
+        #         v1(
+        #             preprocessed_dirs=prep,
+        #             yolo_dir=model_dir,
+        #             multimask=True,
+        #             p_val=0.05,
+        #         )
+        #     else:
+        #         v2(input_path=prep, output_path=model_dir)
+
+        # train_fn = train_v1 if self.model_type == "YOLO_V8_V1" else train_v2
+        # weights = (
+        #     "yolov8s_v1-seg-best.pt"
+        #     if self.model_type == "YOLO_V8_V1"
+        #     else "yolov8s_v2-seg.pt"
+        # )
 
         model_path, acc = train_fn(
             data=base,
