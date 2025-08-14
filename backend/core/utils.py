@@ -466,8 +466,16 @@ class S3Uploader:
 
 def get_email_message(obj_instance, status):
     hostname = settings.FRONTEND_URL
-    # training_model_url = f"{hostname}/ai-models/{training_instance.model.id}"
-    profile_url = f"{hostname}/profile/offline-predictions"  # doing profile for now as training url won't work for the predictions, i can read from the class name and filter out the condition , keeping it simple for now can do that later #todo
+    
+    if obj_instance.__class__.__name__ =='Prediction':
+        profile_url = f"{hostname}/profile/offline-predictions" # todo : later on add the instance id here once we have the offline prediction page itself
+
+    elif obj_instance.__class__.__name__ == 'Training':
+        profile_url = f"{hostname}/ai-models/{obj_instance.model.id}"
+
+    else : 
+        profile_url = f"{hostname}/profile"
+
     message_template = (
         "Hi {username},\n\n"
         "Your {obj_class_name} task (ID: {object_id}) has {status}. You can view the details in your profile:\n"
