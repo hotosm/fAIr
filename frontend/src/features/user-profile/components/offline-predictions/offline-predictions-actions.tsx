@@ -6,9 +6,10 @@ import { DropdownPlacement, ModelTrainingStatus } from "@/enums";
 import useCopyToClipboard from "@/hooks/use-clipboard";
 import { API_ENDPOINTS } from "@/services";
 import { TOfflinePrediction } from "@/types";
-import { showSuccessToast, showWarningToast } from "@/utils";
+import { showErrorToast, showSuccessToast, showWarningToast } from "@/utils";
 import { OfflinePredictionsSettingsInfo } from "./offline-predictions-settings-info";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
+import { useTerminateOfflinePrediction } from "@/features/user-profile/api/predictions";
 
 export const OfflinePredictionActions = ({
   handlePredictionResultModal,
@@ -31,7 +32,17 @@ export const OfflinePredictionActions = ({
       dropdownRef.current.show();
     }
   };
-
+  const { mutate: terminationMutation } = useTerminateOfflinePrediction({
+    mutationConfig: {
+      onSuccess: (data) => {
+        showSuccessToast(data.data.detail);
+      },
+      onError: (err) => {
+        showErrorToast(err);
+      },
+    },
+    predictionId: Number(predictionResult.id),
+  });
   return (
     <>
       <OfflinePredictionsSettingsInfo
@@ -58,10 +69,21 @@ export const OfflinePredictionActions = ({
         className="text-left"
         distance={10}
         menuItems={[
+          ...(predictionResult.status === ModelTrainingStatus.RUNNING || predictionResult.status === ModelTrainingStatus.SUBMITTED
+            ? [
+              {
+                name: "Cancel prediction",
+                value: "Cancel prediction",
+                onClick: (e: { stopPropagation: () => void }) => {
+                  e.stopPropagation();
+                  terminationMutation(predictionResult.id)
+                },
+              },
+            ]
+            : []),
           {
             name: "Download results",
             value: "Download results",
-
             disabled: predictionResult.status !== ModelTrainingStatus.FINISHED || predictionResult.result_count === 0,
             subMenuItems: [
               {
