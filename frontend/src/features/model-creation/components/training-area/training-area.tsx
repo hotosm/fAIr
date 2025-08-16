@@ -262,7 +262,7 @@ const ActionButtons = ({
   const { isTablet } = useScreenSize();
   return (
     <div
-      className={`mb-2 mt-auto flex w-full gap-y-2 px-4 md:px-1  lg:px-4 ${trainingAreasDataCount === 0 ? "w-full flex-col" : "items-center justify-between gap-x-1 md:gap-x-2 "}"`}
+      className={`mb-2 mt-auto flex w-full gap-y-2 px-4 md:px-1  lg:px-4 ${trainingAreasDataCount === 0 ? "w-full flex-col gap-1" : "items-center justify-between gap-x-1 md:gap-x-2 "}"`}
     >
       <div className="w-full" id={APP_TOUR_IDS.DRAW_TRAINING_AREA}>
         <Button

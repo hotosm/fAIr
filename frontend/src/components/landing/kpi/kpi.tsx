@@ -32,6 +32,10 @@ export const Kpi = () => {
     enabled,
   });
 
+  /**
+   * This effect is used to delay the KPI stats fetching by 1 second.
+   * This is done to allow the page to load first and then fetch the KPI stats.
+   */
   useEffect(() => {
     const timer = setTimeout(() => setEnabled(true), 1000);
     return () => clearTimeout(timer);

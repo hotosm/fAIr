@@ -36,11 +36,22 @@ export const getModelsQueryOptions = ({
   dateFilters,
   id,
   userId,
+  dataset,
 }: TModelQueryOptions) => {
   return queryOptions({
     queryKey: [
       "models",
-      { status, searchQuery, offset, orderBy, dateFilters, id, userId, limit },
+      {
+        status,
+        searchQuery,
+        offset,
+        orderBy,
+        dateFilters,
+        id,
+        userId,
+        limit,
+        dataset,
+      },
     ],
     queryFn: () =>
       getModels(
@@ -51,7 +62,8 @@ export const getModelsQueryOptions = ({
         searchQuery,
         dateFilters,
         id,
-        userId
+        userId,
+        dataset
       ),
     placeholderData: keepPreviousData,
   });
