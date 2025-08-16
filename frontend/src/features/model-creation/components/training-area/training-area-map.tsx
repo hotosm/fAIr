@@ -289,7 +289,7 @@ const TrainingAreaMap = ({
           <p>{getFeedbackMessage()}</p>
         </MapCursorToolTip>
       )}
-      <div className={"absolute top-28 left-3 map-elements-z-index"}>
+      <div className={"map-elements-z-index absolute left-3 top-28"}>
         {terraDraw && (
           <DrawControl
             terraDraw={terraDraw}

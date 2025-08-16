@@ -177,7 +177,7 @@ export const FeedbacksLayer = ({
   return (
     <div
       ref={popupContainerRef}
-      className="w-60 h-40 bg-white rounded-md p-4 flex flex-col gap-y-2 overflow-auto"
+      className="flex h-40 w-60 flex-col gap-y-2 overflow-auto rounded-md bg-white p-4"
     >
       <h1 className="text-body-2 font-semibold text-dark">Feedback</h1>
       <div className="flex flex-col gap-y-2">
