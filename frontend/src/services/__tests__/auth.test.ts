@@ -33,10 +33,7 @@ describe("AuthService", () => {
       await expect(authService.getOAuthURL()).rejects.toThrow(
         "Unable to retrieve login URL."
       );
-      expect(showErrorToast).toHaveBeenCalledWith(
-        undefined,
-        "Failed to get OAuth URL"
-      );
+      expect(showErrorToast).toHaveBeenCalledWith("Failed to get OAuth URL");
     });
   });
 
@@ -65,7 +62,6 @@ describe("AuthService", () => {
         "Popup blocked or not created."
       );
       expect(showErrorToast).toHaveBeenCalledWith(
-        undefined,
         "OAuth flow initialization failed"
       );
     });
@@ -88,10 +84,7 @@ describe("AuthService", () => {
       await expect(authService.getUser()).rejects.toThrow(
         "Unable to retrieve user data."
       );
-      expect(showErrorToast).toHaveBeenCalledWith(
-        undefined,
-        "Failed to fetch user data"
-      );
+      expect(showErrorToast).toHaveBeenCalledWith("Failed to fetch user data");
     });
   });
 
@@ -114,10 +107,7 @@ describe("AuthService", () => {
       await expect(authService.authenticate("state", "code")).rejects.toThrow(
         "Failed to authenticate user."
       );
-      expect(showErrorToast).toHaveBeenCalledWith(
-        undefined,
-        "Authentication failed"
-      );
+      expect(showErrorToast).toHaveBeenCalledWith("Authentication failed");
     });
   });
 });
