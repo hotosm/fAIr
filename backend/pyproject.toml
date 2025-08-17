@@ -9,6 +9,8 @@ authors = [
     {name = "HOTOSM", email = "sysadmin@hotosm.org"},
 ]
 dependencies = [
+    "geojson2osm>=0.0.1",
+    "pyogrio>=0.11.1",
 ]
 
 [tool.uv]

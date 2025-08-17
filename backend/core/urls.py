@@ -24,6 +24,7 @@ from .views import (  # ApprovedPredictionsViewSet,; geojson2osmconverter,
     PredictionViewSet,
     RawdataApiAOIView,
     RawdataApiFeedbackView,
+    StreamFGBView,
     TerminatePredictionView,
     TerminateTrainingView,
     TrainingViewSet,
@@ -88,6 +89,7 @@ urlpatterns = [
         "workspace/download/<path:lookup_dir>/", TrainingWorkspaceDownloadView.as_view()
     ),
     path("workspace/<path:lookup_dir>/", TrainingWorkspaceView.as_view()),
+    path("workspace/stream/<path:file_path>", StreamFGBView.as_view()),
     path("kpi/stats/", get_kpi_stats, name="get_kpi_stats"),
     path(
         "notifications/mark-as-read/<int:notification_id>/",

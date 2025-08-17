@@ -5,10 +5,11 @@ import logging
 import os
 import pathlib
 import subprocess
-import time
 import zipfile
 from datetime import datetime
 from urllib.parse import quote
+
+import pyogrio
 
 # import tensorflow as tf
 from celery import current_app
@@ -25,8 +26,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django_q.tasks import async_task
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
-
-# from geojson2osm import geojson2osm
+from geojson2osm import geojson2osm
 from login.authentication import OsmAuthentication
 from login.permissions import (
     IsAdminUser,
@@ -46,6 +46,7 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ReadOnlyModelViewSet
 from rest_framework_gis.fields import GeometryField
 from rest_framework_gis.filters import InBBoxFilter, TMSTileFilter
+from shapely.geometry import box
 
 from .models import (
     AOI,
@@ -1117,3 +1118,50 @@ class TerminatePredictionView(APIView):
                 {"detail": "Prediction not found or do not belong to you"},
                 status=status.HTTP_404_NOT_FOUND,
             )
+
+
+class StreamFGBView(APIView):
+    @method_decorator(cache_page(60 * 15))
+    def get(self, request, file_path):
+        if not file_path.endswith(".fgb"):
+            return Response({"error": "Only .fgb files supported"}, status=400)
+
+        bbox_param = request.query_params.get("bbox")
+        if not bbox_param:
+            return Response({"error": "bbox parameter required"}, status=400)
+
+        try:
+            minx, miny, maxx, maxy = [float(x) for x in bbox_param.split(",")]
+        except (ValueError, TypeError):
+            return Response({"error": "Invalid bbox format"}, status=400)
+
+        output_format = request.query_params.get("format", "geojson").lower()
+        if output_format not in ["geojson", "osmxml"]:
+            return Response({"error": "Unsupported format"}, status=400)
+
+        if not s3_object_exists(settings.AWS_STORAGE_BUCKET_NAME, file_path):
+            return Response({"error": "File not found"}, status=404)
+
+        s3_url = f"s3://{settings.AWS_STORAGE_BUCKET_NAME}/{file_path}"
+
+        try:
+            gdf = pyogrio.read_dataframe(
+                s3_url, bbox=(minx, miny, maxx, maxy), use_arrow=True
+            )
+        except Exception:
+            return Response({"error": "Error reading file"}, status=500)
+
+        if gdf.empty:
+            if output_format == "geojson":
+                return Response({"type": "FeatureCollection", "features": []})
+            else:
+                return HttpResponse(
+                    '<?xml version="1.0"?><osm></osm>', content_type="application/xml"
+                )
+
+        if output_format == "geojson":
+            return Response(json.loads(gdf.to_json()))
+        else:
+            geojson_data = json.loads(gdf.to_json())
+            osm_xml = geojson2osm(geojson_data)
+            return HttpResponse(osm_xml, content_type="application/xml")
