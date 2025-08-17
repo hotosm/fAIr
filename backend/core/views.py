@@ -1139,10 +1139,12 @@ class StreamFGBView(APIView):
         if output_format not in ["geojson", "osmxml"]:
             return Response({"error": "Unsupported format"}, status=400)
 
-        if not s3_object_exists(settings.AWS_STORAGE_BUCKET_NAME, file_path):
+        if not s3_object_exists(settings.BUCKET_NAME, file_path):
             return Response({"error": "File not found"}, status=404)
 
-        s3_url = f"s3://{settings.AWS_STORAGE_BUCKET_NAME}/{file_path}"
+        s3_url = (
+            f"s3://{settings.BUCKET_NAME}/{settings.PARENT_BUCKET_FOLDER}/{file_path}"
+        )
 
         try:
             gdf = pyogrio.read_dataframe(
