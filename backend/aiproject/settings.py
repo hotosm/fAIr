@@ -64,6 +64,7 @@ PARENT_BUCKET_FOLDER = env(
     "PARENT_BUCKET_FOLDER", default="dev"
 )  # use prod for production
 AWS_REGION = env("AWS_REGION", default="us-east-1")
+AWS_STORAGE_BUCKET_NAME = env("AWS_STORAGE_BUCKET_NAME", default="fair-dev")
 AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID", default=None)
 AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY", default=None)
 PRESIGNED_URL_EXPIRY = env("PRESIGNED_URL_EXPIRY", default=3600)
