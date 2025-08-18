@@ -1244,17 +1244,21 @@ class StreamFGBView(APIView):
                     f"FGB request: Could not read file bounds: {str(bounds_ex)}"
                 )
 
-            gdf = pyogrio.read_dataframe(
-                s3_url,
-                bbox=(minx, miny, maxx, maxy),
-                use_arrow=settings.FGB_USE_ARROW_FOR_STREAMING,
-                max_features=settings.FGB_MAX_FEATURES_LIMIT,
-            )
+            read_kwargs = {
+                "bbox": (minx, miny, maxx, maxy),
+                "use_arrow": settings.FGB_USE_ARROW_FOR_STREAMING,
+            }
+
+            if not settings.FGB_USE_ARROW_FOR_STREAMING:
+                read_kwargs["max_features"] = settings.FGB_MAX_FEATURES_LIMIT
+
+            gdf = pyogrio.read_dataframe(s3_url, **read_kwargs)
 
             if len(gdf) > settings.FGB_MAX_FEATURES_LIMIT:
                 return Response(
                     {
-                        "error": f"Too many features returned ({len(gdf)}). Maximum allowed: {settings.FGB_MAX_FEATURES_LIMIT}"
+                        "error": f"Too many features returned ({len(gdf)}). Maximum allowed: {settings.FGB_MAX_FEATURES_LIMIT}. "
+                        f"Please use a smaller bounding box."
                     },
                     status=400,
                 )
