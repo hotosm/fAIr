@@ -83,9 +83,11 @@ from .serializers import (
 )
 from .tasks import predict_area, train_model
 from .utils import (
+    degrees_to_km,
     download_s3_file,
     get_s3_directory,
     gpx_generator,
+    km_to_degrees,
     process_rawdata,
     request_rawdata,
     s3_object_exists,
@@ -1135,6 +1137,51 @@ class StreamFGBView(APIView):
         except (ValueError, TypeError):
             return Response({"error": "Invalid bbox format"}, status=400)
 
+        if not (
+            -180 <= minx <= 180
+            and -180 <= maxx <= 180
+            and -90 <= miny <= 90
+            and -90 <= maxy <= 90
+        ):
+            return Response(
+                {"error": "Bbox coordinates out of valid range"}, status=400
+            )
+
+        if minx >= maxx or miny >= maxy:
+            return Response(
+                {"error": "Invalid bbox: min values must be less than max values"},
+                status=400,
+            )
+
+        width = maxx - minx
+        height = maxy - miny
+
+        # Convert km limits to degrees for comparison
+        center_lat = (miny + maxy) / 2
+        max_dim_deg, _ = km_to_degrees(settings.FGB_MAX_BBOX_DIMENSION_KM, center_lat)
+
+        # Calculate area in km² for comparison
+        lat_km, lon_km = degrees_to_km(1.0, center_lat)
+        area_km2 = width * lon_km * height * lat_km
+
+        if width > max_dim_deg or height > max_dim_deg:
+            return Response(
+                {
+                    "error": f"Bbox dimension too large. Maximum allowed: {settings.FGB_MAX_BBOX_DIMENSION_KM}km "
+                    f"(requested: ~{width * lon_km:.1f}km x {height * lat_km:.1f}km)"
+                },
+                status=400,
+            )
+
+        if area_km2 > settings.FGB_MAX_BBOX_AREA_KM2:
+            return Response(
+                {
+                    "error": f"Bbox area too large. Maximum allowed: {settings.FGB_MAX_BBOX_AREA_KM2}km² "
+                    f"(requested: ~{area_km2:.1f}km²)"
+                },
+                status=400,
+            )
+
         output_format = request.query_params.get("format", "geojson").lower()
         if output_format not in ["geojson", "osmxml"]:
             return Response({"error": "Unsupported format"}, status=400)
@@ -1149,19 +1196,93 @@ class StreamFGBView(APIView):
         )
 
         try:
-            gdf = pyogrio.read_dataframe(
-                s3_url, bbox=(minx, miny, maxx, maxy), use_arrow=True
+            # Calculate area in km² for logging
+            center_lat = (miny + maxy) / 2
+            lat_km, lon_km = degrees_to_km(1.0, center_lat)
+            area_km2 = width * lon_km * height * lat_km
+
+            logging.info(
+                f"FGB request: file={file_path}, bbox=({minx},{miny},{maxx},{maxy}), "
+                f"area={area_km2:.1f}km², size={width * lon_km:.1f}x{height * lat_km:.1f}km, format={output_format}"
             )
+
+            try:
+                file_info = pyogrio.read_info(s3_url)
+                file_bounds = file_info.get("total_bounds")
+
+                if file_bounds is not None:
+                    file_minx, file_miny, file_maxx, file_maxy = file_bounds
+
+                    if (
+                        maxx < file_minx
+                        or minx > file_maxx
+                        or maxy < file_miny
+                        or miny > file_maxy
+                    ):
+                        logging.info(
+                            "FGB request: No intersection with file bounds, returning empty result"
+                        )
+                        if output_format == "geojson":
+                            return Response(
+                                {"type": "FeatureCollection", "features": []}
+                            )
+                        else:
+                            return HttpResponse(
+                                '<?xml version="1.0"?><osm></osm>',
+                                content_type="application/xml",
+                            )
+                    else:
+                        logging.info(
+                            "FGB request: Bbox intersects with file bounds, proceeding with read"
+                        )
+                else:
+                    logging.warning(
+                        "FGB request: File bounds not available from metadata"
+                    )
+            except Exception as bounds_ex:
+                logging.warning(
+                    f"FGB request: Could not read file bounds: {str(bounds_ex)}"
+                )
+
+            gdf = pyogrio.read_dataframe(
+                s3_url,
+                bbox=(minx, miny, maxx, maxy),
+                use_arrow=True,
+                max_features=settings.FGB_MAX_FEATURES_LIMIT,
+            )
+
+            if len(gdf) > settings.FGB_MAX_FEATURES_LIMIT:
+                return Response(
+                    {
+                        "error": f"Too many features returned ({len(gdf)}). Maximum allowed: {settings.FGB_MAX_FEATURES_LIMIT}"
+                    },
+                    status=400,
+                )
         except Exception as ex:
-            return Response({"error": f"Error reading file: {str(ex)}"}, status=500)
+            error_msg = str(ex).lower()
+            if any(
+                keyword in error_msg
+                for keyword in ["memory", "allocation", "out of memory"]
+            ):
+                return Response(
+                    {"error": "Request too large. Please use a smaller bounding box."},
+                    status=413,
+                )
+            else:
+                return Response({"error": f"Error reading file: {str(ex)}"}, status=500)
 
         if gdf.empty:
+            logging.info(
+                "FGB request: No features found in bbox, returning empty result"
+            )
             if output_format == "geojson":
                 return Response({"type": "FeatureCollection", "features": []})
             else:
                 return HttpResponse(
                     '<?xml version="1.0"?><osm></osm>', content_type="application/xml"
                 )
+
+        logging.info(f"FGB request: Successfully returned {len(gdf)} features")
 
         if output_format == "geojson":
             return Response(json.loads(gdf.to_json()))

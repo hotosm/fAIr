@@ -85,6 +85,13 @@ TRAINING_WORKSPACE_DOWNLOAD_LIMIT = env(
     "TRAINING_WORKSPACE_DOWNLOAD_LIMIT", default=200
 )
 
+## FGB Stream API Safety Limits
+# Examples: 500km = ~4.5° at equator, 10000km² = ~100x100km area
+FGB_MAX_BBOX_AREA_KM2 = env("FGB_MAX_BBOX_AREA_KM2", default=10000.0)
+FGB_MAX_BBOX_DIMENSION_KM = env("FGB_MAX_BBOX_DIMENSION_KM", default=500.0)
+FGB_MAX_FEATURES_LIMIT = env("FGB_MAX_FEATURES_LIMIT", default=50000)
+FGB_REQUEST_TIMEOUT = env("FGB_REQUEST_TIMEOUT", default=60)
+
 
 # Application definition
 

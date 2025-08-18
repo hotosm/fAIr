@@ -50,6 +50,53 @@ def get_s3_client():
 s3_client = get_s3_client()
 
 
+def km_to_degrees(km_distance, latitude=0.0):
+    """
+    Convert kilometers to degrees for bbox validation.
+
+    Args:
+        km_distance: Distance in kilometers
+        latitude: Latitude for longitude conversion (default 0 for equator)
+
+    Returns:
+        tuple: (latitude_degrees, longitude_degrees)
+
+    Examples:
+        # 100km at equator
+        lat_deg, lon_deg = km_to_degrees(100)  # (0.899, 0.899)
+
+        # 50km at latitude 27 (Nepal/Kathmandu area)
+        lat_deg, lon_deg = km_to_degrees(50, 27)  # (0.449, 0.504)
+    """
+    # 1 degree latitude ≈ 111 km everywhere
+    lat_degrees = km_distance / 111.0
+
+    # 1 degree longitude varies by latitude: 111 * cos(lat)
+    import math
+
+    lon_degrees = km_distance / (111.0 * math.cos(math.radians(latitude)))
+
+    return lat_degrees, lon_degrees
+
+
+def degrees_to_km(degrees, latitude=0.0):
+    """
+    Convert degrees to kilometers for human-readable display.
+
+    Args:
+        degrees: Distance in degrees
+        latitude: Latitude for longitude conversion (default 0 for equator)
+
+    Returns:
+        tuple: (latitude_km, longitude_km)
+    """
+    import math
+
+    lat_km = degrees * 111.0
+    lon_km = degrees * 111.0 * math.cos(math.radians(latitude))
+    return lat_km, lon_km
+
+
 def s3_object_exists(bucket_name, key):
     """Check if an object exists in S3."""
     try:
@@ -466,14 +513,14 @@ class S3Uploader:
 
 def get_email_message(obj_instance, status):
     hostname = settings.FRONTEND_URL
-    
-    if obj_instance.__class__.__name__ =='Prediction':
-        profile_url = f"{hostname}/profile/offline-predictions" # todo : later on add the instance id here once we have the offline prediction page itself
 
-    elif obj_instance.__class__.__name__ == 'Training':
+    if obj_instance.__class__.__name__ == "Prediction":
+        profile_url = f"{hostname}/profile/offline-predictions"  # todo : later on add the instance id here once we have the offline prediction page itself
+
+    elif obj_instance.__class__.__name__ == "Training":
         profile_url = f"{hostname}/ai-models/{obj_instance.model.id}"
 
-    else : 
+    else:
         profile_url = f"{hostname}/profile"
 
     message_template = (
