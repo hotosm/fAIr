@@ -1247,7 +1247,7 @@ class StreamFGBView(APIView):
             gdf = pyogrio.read_dataframe(
                 s3_url,
                 bbox=(minx, miny, maxx, maxy),
-                use_arrow=True,
+                use_arrow=settings.FGB_USE_ARROW_FOR_STREAMING,
                 max_features=settings.FGB_MAX_FEATURES_LIMIT,
             )
 
