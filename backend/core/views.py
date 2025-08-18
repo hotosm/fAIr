@@ -1150,7 +1150,7 @@ class StreamFGBView(APIView):
 
         try:
             gdf = pyogrio.read_dataframe(
-                s3_url, bbox=(minx, miny, maxx, maxy), use_arrow=True
+                s3_url, bbox=(minx, miny, maxx, maxy), read_arrow=True
             )
         except Exception as ex:
             return Response({"error": f"Error reading file: {str(ex)}"}, status=500)
