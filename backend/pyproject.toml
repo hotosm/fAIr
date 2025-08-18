@@ -9,8 +9,7 @@ authors = [
     {name = "HOTOSM", email = "sysadmin@hotosm.org"},
 ]
 dependencies = [
-    "geojson2osm>=0.0.1",
-    "pyogrio>=0.6.0,<0.7.0",
+
 ]
 
 [tool.uv]
@@ -32,6 +31,7 @@ api = [
     "djangorestframework-gis>=1.0",
     "drf-yasg>=1.21.10",
     "flower>=2.0.1",
+    "geojson2osm>=0.0.1",
     "geomltoolkits>=0.4.1",
     "geopandas>=0.13.2",
     "gpxpy>=1.6.2",
@@ -40,6 +40,8 @@ api = [
     "numpy>=1.24.4",
     "osm-login-python>=1.0.0",
     "psycopg2>=2.9.10",
+    "pyarrow>=21.0.0",
+    "pyogrio>=0.6.0, <0.7.0",
     "rasterio>=1.3.11",
     "redis>=6.0.0",
     "validators>=0.34.0",
