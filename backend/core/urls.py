@@ -90,7 +90,7 @@ urlpatterns = [
     ),
     path("workspace/<path:lookup_dir>/", TrainingWorkspaceView.as_view()),
     path(
-        "workspace/stream/<path:file_path>/", StreamFGBView.as_view(), name="stream-fgb"
+        "workspace/stream/<path:file_path>", StreamFGBView.as_view(), name="stream-fgb"
     ),
     path("kpi/stats/", get_kpi_stats, name="get_kpi_stats"),
     path(
