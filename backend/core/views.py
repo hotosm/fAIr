@@ -1152,8 +1152,8 @@ class StreamFGBView(APIView):
             gdf = pyogrio.read_dataframe(
                 s3_url, bbox=(minx, miny, maxx, maxy), use_arrow=True
             )
-        except Exception:
-            return Response({"error": "Error reading file"}, status=500)
+        except Exception as ex:
+            return Response({"error": f"Error reading file: {str(ex)}"}, status=500)
 
         if gdf.empty:
             if output_format == "geojson":
