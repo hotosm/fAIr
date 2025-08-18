@@ -1049,8 +1049,10 @@ class PredictionViewSet(UserAssignmentMixin, viewsets.ModelViewSet):
     public_methods = ["GET"]
     http_method_names = ["get", "post", "patch"]
     queryset = Prediction.objects.all()
+    bbox_filter_field = "geom"
     filter_backends = (
         DjangoFilterBackend,
+        InBBoxFilter,
         filters.SearchFilter,
         filters.OrderingFilter,
     )
