@@ -89,8 +89,7 @@ ESLint is used to maintain code quality and adhering to coding standards.
 You can run linting to automatically check and fix code style issues. Run the following command in your terminal:
 
 ```bash
-1. pnpm/npm/yarn lint
-
+pnpm lint
 ```
 
 #### Precommit
@@ -98,8 +97,7 @@ You can run linting to automatically check and fix code style issues. Run the fo
 The precommit script is used to automatically check code style, run tests, and format code before commits are made. To run it manually, use:
 
 ```bash
-1. pnpm/npm/yarn precommit
-
+pnpm precommit
 ```
 
 #### Prettier
@@ -107,9 +105,9 @@ The precommit script is used to automatically check code style, run tests, and f
 Prettier is a used to maintain consistent code formatting in the project. To format run the code below in the terminal.
 
 ```bash
-1. pnpm/npm/yarn format
+1. pnpm format
 
-2. pnpm/npm/yarn format:check
+2. pnpm format:check
 ```
 
 #### TypeScript
