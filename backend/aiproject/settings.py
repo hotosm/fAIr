@@ -281,6 +281,10 @@ FAIL_EMAIL_SILENTLY = os.getenv("FAIL_EMAIL_SILENTLY", "True")
 # CORS settings
 
 
+# Cache settings
+CACHE_TIMEOUT_MINUTES = int(os.getenv("CACHE_TIMEOUT_MINUTES", 5))
+
+
 def extract_domain(url):
     return urlparse(url).hostname
 

@@ -819,7 +819,7 @@ class GenerateFeedbackAOIGpxView(APIView):
 
 
 class TrainingWorkspaceView(APIView):
-    @method_decorator(cache_page(60 * 15))
+    @method_decorator(cache_page(60 * settings.CACHE_TIMEOUT_MINUTES))
     @method_decorator(vary_on_headers("access-token"))
     def get(self, request, lookup_dir):
         bucket_name = settings.BUCKET_NAME
@@ -865,7 +865,7 @@ class BannerViewSet(viewsets.ModelViewSet):
         ) | Banner.objects.filter(end_date__isnull=True)
 
 
-@cache_page(60 * 5)  ## Cache for 5 mins
+@cache_page(60 * settings.CACHE_TIMEOUT_MINUTES)
 # @vary_on_cookie
 @api_view(["GET"])
 def get_kpi_stats(request):
@@ -1124,7 +1124,7 @@ class TerminatePredictionView(APIView):
 
 
 class StreamFGBView(APIView):
-    @method_decorator(cache_page(60 * 15))
+    @method_decorator(cache_page(60 * settings.CACHE_TIMEOUT_MINUTES))
     def get(self, request, file_path):
         if not file_path.endswith(".fgb"):
             return Response({"error": "Only .fgb files supported"}, status=400)
