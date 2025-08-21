@@ -11,10 +11,6 @@ from contextlib import contextmanager
 from datetime import datetime
 
 from celery import shared_task
-from django.conf import settings
-from django.shortcuts import get_object_or_404
-from django.utils import timezone
-
 from core.models import (
     AOI,
     FeedbackAOI,
@@ -31,6 +27,9 @@ from core.serializers import (
     LabelFileSerializer,
 )
 from core.utils import bbox, is_dir_empty
+from django.conf import settings
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
 
 from .utils import (
     S3Uploader,
@@ -558,6 +557,10 @@ def predict_area(prediction_request_id, folder=None):
                 timezone.now(),
                 predict_area.request.id,
             )
+            folder = (
+                f"prediction_{inst.id}" if folder is None else f"prediction/{folder}"
+            )
+            inst.config["folder"] = folder
             inst.save()
             if not inst.config.get("bbox"):
                 inst.config["bbox"] = [
@@ -605,9 +608,7 @@ def predict_area(prediction_request_id, folder=None):
             #     os.path.join(out, "labels.geojson"),
             #     predictions,
             # )
-            folder = (
-                f"prediction_{inst.id}" if folder is None else f"prediction/{folder}"
-            )
+
             result["len_predictions"] = len(predictions["features"])
             if len(predictions["features"]) != 0:
                 print("No features found in the predictions geojson")
