@@ -2,7 +2,7 @@ Checklist for the deployments:
 
 **Pre-Deployment Checklist**
 
-* Verify last model creation workflow on dev environment
+* Perform sanity check on the dev env with model creation , predictions , dataset creation ! 
 * Ensure PYPI package is deployed automatically after release
 * Backup the Database 
 
