@@ -12,6 +12,7 @@ Checklist for the deployments:
 * Release fairpredictor 
 * Verify the pypi releases for utilities and predictor
 * Make PR to include new versions from utilities and predictor & finally Release fAIr
+- Document the env variable changes that are required for this release as compared to the previous version
 
 Make sure you always follow this order because : new version of fAIr utilities and fAIrpredictor should be included in the fAIr backend envs, hence it can only be done after first two release . A PR would be required to bump it to new versions and docker images should be built for the prediciton and new release of fAIr should include those versions from utilties and predictor ! 
 
@@ -34,6 +35,8 @@ Make sure you have backups available in case things go wrong !
 * Verify Docker images for fAIr production are built and deployed
 *  [worker](https://github.com/hotosm/fAIr/pkgs/container/fair-worker)  , [api](https://github.com/hotosm/fAIr/pkgs/container/fair-api)  & [offline-predictor](https://github.com/hotosm/fAIr/pkgs/container/fair-offline-predictor ) images should be built and pointed to latest release 
 * Verify Docker image for [fairpredictor](https://github.com/hotosm/fairpredictor/pkgs/container/fairpredictor) is built and deployed
+- Now create new task definition for api , worker , predictor and prediction worker , Verify the env variable changes if there are any 
+- 
 
 **Flower Deployment Checklist**
 
