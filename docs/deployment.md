@@ -15,23 +15,25 @@ Checklist for the deployments:
 
 Make sure you always follow this order because : new version of fAIr utilities and fAIrpredictor should be included in the fAIr backend envs, hence it can only be done after first two release . A PR would be required to bump it to new versions and docker images should be built for the prediciton and new release of fAIr should include those versions from utilties and predictor ! 
 
-**Post-Deployment Checklist**
+**Database Migration Checklist**
 
-* Verify Docker images for fAIr production are built and deployed (https://github.com/hotosm/fAIr/actions/runs/14220844877)
-* Verify Docker image for fairpredictor is built and deployed (https://github.com/hotosm/fairpredictor/actions/runs/14220876505)
+Make sure you have backups available in case things go wrong ! 
+* Login to SSH
+* Login as admin
+* Checkout to release
+* Activate virtualenv (source fAIr/backend/.venv/bin/activate)
+* Run `python manage.py makemigrations`
+* Verify changes
+* Run `python manage.py migrate`
+
+**Deployment Checklist**
+
 * Verify PYPI packages are available:
 	+ hot-fair-utilities (https://pypi.org/project/hot-fair-utilities/)
 	+ fairpredictor (https://pypi.org/project/fairpredictor/ v0.1.10)
 
-**Database Migration Checklist**
-
-* Login to SSH
-* Login as admin
-* Checkout to release
-* Activate virtualenv (source env/bin/activate)
-* Run `python manage.py makemigrations`
-* Verify changes
-* Run `python manage.py migrate`
+* Verify Docker images for fAIr production are built and deployed 
+* Verify Docker image for fairpredictor is built and deployed
 
 **Flower Deployment Checklist**
 
@@ -43,6 +45,3 @@ Make sure you always follow this order because : new version of fAIr utilities a
 * Test SMTP server connection from EC2 server
 * Verify Matomo after deployment
 
-**Documentation Checklist**
-
-* Create a document of checklist for deployment
