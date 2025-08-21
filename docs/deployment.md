@@ -30,7 +30,7 @@ Make sure you have backups available in case things go wrong !
 
 * Verify PYPI packages are available:
 	+ hot-fair-utilities (https://pypi.org/project/hot-fair-utilities/)
-	+ fairpredictor (https://pypi.org/project/fairpredictor/ v0.1.10)
+	+ fairpredictor (https://pypi.org/project/fairpredictor/)
 
 * Verify Docker images for fAIr production are built and deployed
 *  [worker](https://github.com/hotosm/fAIr/pkgs/container/fair-worker)  , [api](https://github.com/hotosm/fAIr/pkgs/container/fair-api)  & [offline-predictor](https://github.com/hotosm/fAIr/pkgs/container/fair-offline-predictor ) images should be built and pointed to latest release 
