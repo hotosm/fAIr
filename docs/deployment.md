@@ -8,9 +8,12 @@ Checklist for the deployments:
 
 **Release Checklist**
 
-* Release fAIr utilities (https://github.com/hotosm/fAIr-utilities/releases/tag/v2.0.11)
-* Release fAIr (https://github.com/hotosm/fAIr/releases/tag/v2.1.0)
-* Release fairpredictor (https://github.com/hotosm/fairpredictor/releases/tag/v0.1.10)
+* Release fAIr utilities 
+* Release fairpredictor 
+* Verify the pypi releases for utilities and predictor
+* Make PR to include new versions from utilities and predictor & finally Release fAIr
+
+Make sure you always follow this order because : new version of fAIr utilities and fAIrpredictor should be included in the fAIr backend envs, hence it can only be done after first two release . A PR would be required to bump it to new versions and docker images should be built for the prediciton and new release of fAIr should include those versions from utilties and predictor ! 
 
 **Post-Deployment Checklist**
 
