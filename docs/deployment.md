@@ -32,8 +32,9 @@ Make sure you have backups available in case things go wrong !
 	+ hot-fair-utilities (https://pypi.org/project/hot-fair-utilities/)
 	+ fairpredictor (https://pypi.org/project/fairpredictor/ v0.1.10)
 
-* Verify Docker images for fAIr production are built and deployed 
-* Verify Docker image for fairpredictor is built and deployed
+* Verify Docker images for fAIr production are built and deployed
+*  [worker](https://github.com/hotosm/fAIr/pkgs/container/fair-worker)  , [api](https://github.com/hotosm/fAIr/pkgs/container/fair-api)  & [offline-predictor](https://github.com/hotosm/fAIr/pkgs/container/fair-offline-predictor ) images should be built and pointed to latest release 
+* Verify Docker image for [fairpredictor](https://github.com/hotosm/fairpredictor/pkgs/container/fairpredictor) is built and deployed
 
 **Flower Deployment Checklist**
 
