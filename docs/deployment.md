@@ -36,15 +36,13 @@ Make sure you have backups available in case things go wrong !
 *  [worker](https://github.com/hotosm/fAIr/pkgs/container/fair-worker)  , [api](https://github.com/hotosm/fAIr/pkgs/container/fair-api)  & [offline-predictor](https://github.com/hotosm/fAIr/pkgs/container/fair-offline-predictor ) images should be built and pointed to latest release 
 * Verify Docker image for [fairpredictor](https://github.com/hotosm/fairpredictor/pkgs/container/fairpredictor) is built and deployed
 - Now create new task definition for api , worker , predictor and prediction worker , Verify the env variable changes if there are any 
-- 
+- Deploy the services 
 
-**Flower Deployment Checklist**
-
-* Update task definition to point to latest API endpoint
 
 **Verification Checklist**
 
-* Verify worker instances on EC2 (reduced to 2 instances)
-* Test SMTP server connection from EC2 server
+* Verify all the workers are appearing in flower 
+* Verify the full workflow in frontend ! 
+- Check the cache for the s3 (frontend cloudfront) 
 * Verify Matomo after deployment
 
