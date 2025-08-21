@@ -3,8 +3,8 @@ Checklist for the deployments:
 **Pre-Deployment Checklist**
 
 * Perform sanity check on the dev env with model creation , predictions , dataset creation ! 
-* Ensure PYPI package is deployed automatically after release
-* Backup the Database 
+* Backup the Database , `python manage.py backup_db myoutputpath/backup.sql`
+* Check and verify any database migration exists for the release if they do kindly verify the migrations files are stored in the git itself , production uses migrations from the repo 
 
 **Release Checklist**
 
