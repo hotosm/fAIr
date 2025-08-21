@@ -22,7 +22,6 @@ Make sure you have backups available in case things go wrong !
 * Login as admin
 * Checkout to release
 * Activate virtualenv (source fAIr/backend/.venv/bin/activate)
-* Run `python manage.py makemigrations`
 * Verify changes
 * Run `python manage.py migrate`
 
