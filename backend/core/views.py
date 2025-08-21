@@ -1011,7 +1011,6 @@ class TerminateTrainingView(APIView):
 
 class PredictionSerializer(serializers.ModelSerializer):
     geom = GeometryField()
-    folder = serializers.CharField(required=False, default=None)
 
     class Meta:
         model = Prediction
@@ -1026,8 +1025,8 @@ class PredictionSerializer(serializers.ModelSerializer):
         )
 
     def create(self, validated_data):
-        folder = validated_data.pop("folder", None)
         instance = Prediction.objects.create(**validated_data)
+        folder = instance.config.get("folder") if instance.config else None
         task = predict_area.apply_async(
             kwargs={
                 "prediction_request_id": instance.id,
