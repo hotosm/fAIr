@@ -865,19 +865,19 @@ class BannerViewSet(viewsets.ModelViewSet):
         ) | Banner.objects.filter(end_date__isnull=True)
 
 
-@cache_page(60 * 15)  ## Cache for 15 mins
+@cache_page(60 * 5)  ## Cache for 5 mins
 # @vary_on_cookie
 @api_view(["GET"])
 def get_kpi_stats(request):
     total_models_with_status_published = Model.objects.filter(status=0).count()
     total_registered_users = OsmUser.objects.count()
-    total_feedback_labels = Feedback.objects.filter(action="ACCEPT").count()
-    total_approved_predictions = Feedback.objects.filter(action="REJECT").count()
+    total_accepted_predictions = Feedback.objects.filter(action="ACCEPT").count()
+    total_feedback_labels = Feedback.objects.filter(action="REJECT").count()
 
     data = {
         "total_models_published": total_models_with_status_published,
         "total_registered_users": total_registered_users,
-        "total_accepted_predictions": total_approved_predictions,
+        "total_accepted_predictions": total_accepted_predictions,
         "total_feedback_labels": total_feedback_labels,
     }
 
