@@ -91,7 +91,7 @@ export const TrainingAreaMap = ({
       isPredictionResult
         ? `prediction-results-for-${trainingAreaId}`
         : `training-areas-for-${trainingAreaId}`,
-    [isPredictionResult, trainingAreaId]
+    [isPredictionResult, trainingAreaId],
   );
 
   const mapLayers: LayerSpecification[] = useMemo(
@@ -131,7 +131,7 @@ export const TrainingAreaMap = ({
 
         return layers;
       }),
-    [vectorLayers, trainingAreasSourceId]
+    [vectorLayers, trainingAreasSourceId],
   );
 
   const sources = useMemo(
@@ -144,7 +144,7 @@ export const TrainingAreaMap = ({
         } as SourceSpecification,
       },
     ],
-    [trainingAreasSourceId, file]
+    [trainingAreasSourceId, file],
   );
 
   const layerControlLayers = useMemo(
@@ -153,7 +153,7 @@ export const TrainingAreaMap = ({
         value: `${layer.id}`,
         subLayers: [`${layer.id}_fill`, `${layer.id}_outline`, `${layer.id}`],
       })),
-    [vectorLayers]
+    [vectorLayers],
   );
 
   const fitToBounds = useCallback(() => {
@@ -186,11 +186,11 @@ export const TrainingAreaMap = ({
             `${layer.id}_fill`,
             `${layer.id}_outline`,
           ]),
-        }
+        },
       );
 
       const clickedFeatures = queriedFeatures.filter(
-        (feature) => feature.source === trainingAreasSourceId
+        (feature) => feature.source === trainingAreasSourceId,
       );
 
       if (popupRef.current) {
@@ -214,7 +214,7 @@ export const TrainingAreaMap = ({
                                         <td class="text-grey">${key}</td>
                                         <td class="font-semibold text-dark">${typeof value === "boolean" ? JSON.stringify(value) : value}</td>
                                     </tr>
-                                `
+                                `,
                                   )
                                   .join("")}
                             </tbody>
@@ -229,7 +229,7 @@ export const TrainingAreaMap = ({
         popupRef.current = popup;
       }
     },
-    [map, trainingAreasSourceId, vectorLayers]
+    [map, trainingAreasSourceId, vectorLayers],
   );
 
   useEffect(() => {

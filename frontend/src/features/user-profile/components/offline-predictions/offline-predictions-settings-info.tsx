@@ -4,7 +4,7 @@ import { InfoIcon } from "@/components/ui/icons";
 import { DropdownPlacement } from "@/enums";
 import { TPredictionsConfig } from "@/types";
 import { SlDropdown } from "@shoelace-style/shoelace";
-import { RefObject } from "react";
+import { MutableRefObject } from "react";
 
 export const OfflinePredictionsSettingsInfo = ({
   predictionConfig,
@@ -13,12 +13,13 @@ export const OfflinePredictionsSettingsInfo = ({
   placement = DropdownPlacement.BOTTOM_END,
 }: {
   predictionConfig: TPredictionsConfig;
-  dropdownRef?: RefObject<SlDropdown | null>;
+  dropdownRef?: MutableRefObject<SlDropdown | null>;
   disableSettingsInfoIcon?: boolean;
   placement?: DropdownPlacement;
 }) => {
   return (
     <DropDown
+      // @ts-ignore
       ref={dropdownRef}
       disableCheveronIcon
       placement={placement}
@@ -29,7 +30,7 @@ export const OfflinePredictionsSettingsInfo = ({
             onClick={(e) => {
               e.stopPropagation();
             }}
-            className="flex items-center rounded-lg px-2"
+            className="rounded-lg px-2 items-center flex"
           >
             <InfoIcon className="icon" />
           </Badge>
@@ -38,17 +39,17 @@ export const OfflinePredictionsSettingsInfo = ({
       className="text-right"
       distance={10}
     >
-      <div className="flex min-w-48 flex-col gap-2 bg-white p-4">
-        <p className="text-start text-body-3  font-bold text-dark">Settings</p>
+      <div className="flex flex-col gap-2 bg-white p-4 min-w-48">
+        <p className="font-bold text-body-3  text-dark text-start">Settings</p>
         {Object.entries(predictionConfig)
           .filter(
             ([key]) =>
-              !["checkpoint", "source", "model_id", "bbox"].includes(key)
+              !["checkpoint", "source", "model_id", "bbox"].includes(key),
           )
           .map(([key, value]) => (
             <span
               key={key}
-              className="flex items-center justify-between gap-x-2 text-nowrap text-body-3 text-dark"
+              className="text-body-3 text-dark flex items-center gap-x-2 justify-between text-nowrap"
             >
               {key.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}:{" "}
               <span className="font-semibold">

@@ -31,7 +31,7 @@ export const OfflinePredictionsList = ({
    */
   if (isError) {
     return (
-      <div className="flex size-full flex-col items-center justify-center gap-y-10">
+      <div className="flex flex-col items-center justify-center w-full h-full gap-y-10">
         Error loading offline predictions.
         <Button className="!w-fit" onClick={() => refetch()}>
           Retry
@@ -46,7 +46,7 @@ export const OfflinePredictionsList = ({
 
   if (data.length === 0) {
     return (
-      <div className="flex flex-col  items-center justify-center gap-y-10">
+      <div className="flex flex-col  gap-y-10 items-center justify-center">
         <NoTrainingAreaIcon />
         <p>No offline predictions found.</p>
       </div>
@@ -57,7 +57,7 @@ export const OfflinePredictionsList = ({
    * Dataset list
    */
   return (
-    <div className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-6 md:grid-cols-[repeat(auto-fill,minmax(299px,1fr))]">
+    <div className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] md:grid-cols-[repeat(auto-fill,minmax(299px,1fr))] gap-6">
       {data.map((data) => (
         <OfflinePredictionCard
           predictionResult={data}

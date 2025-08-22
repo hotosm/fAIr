@@ -13,12 +13,12 @@ import { useMapStore } from "@/store/map-store";
  */
 export const useMapInstance = (
   pmtiles: boolean = false,
-  hash: boolean = false
+  hash: boolean = false,
 ) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<Map | null>(null);
   const [drawingMode, setDrawingMode] = useState<DrawingModes>(
-    DrawingModes.STATIC
+    DrawingModes.STATIC,
   );
 
   const setZoom = useMapStore((state) => state.setZoom);

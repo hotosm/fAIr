@@ -7,7 +7,7 @@ const ModelDetailUser = ({
   label: string;
   value?: string;
 }) => (
-  <p className="text-body-2 text-dark">
+  <p className="text-dark text-body-2">
     <span className="text-grey">{label}: </span>
     <Link
       nativeAnchor={false}

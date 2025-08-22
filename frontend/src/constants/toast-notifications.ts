@@ -52,8 +52,6 @@ export const TOAST_NOTIFICATIONS = {
 
   // JOSM
   errorLoadingData: "An error occurred while loading data",
-  errorConvertingGeoJSONTOXML:
-    "An error occurred while converting GeoJSON to OSM XML",
   dataLoadingSuccess: "Data loaded successfully",
   josmOpenSuccess: "Map view opened in JOSM successfully!",
   josmBBOXZoomFailed: "Failed to zoom to the bounding box in JOSM.",

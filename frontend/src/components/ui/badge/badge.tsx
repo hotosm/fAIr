@@ -26,11 +26,11 @@ const Badge: React.FC<BadgeProps> = ({
   return (
     <button
       className={cn(
-        `h-8 w-fit ${variants[variant]} ${rounded ? "rounded-full p-2" : "rounded-2xl py-1 px-3 "} ${className}`
+        `h-8 w-fit ${variants[variant]} ${rounded ? "rounded-full p-2" : "rounded-2xl py-1 px-3 "} ${className}`,
       )}
       onClick={onClick}
     >
-      <span className="flex items-center justify-center text-body-3 font-medium capitalize">
+      <span className="font-medium capitalize text-body-3 flex items-center justify-center">
         {children}
       </span>
     </button>

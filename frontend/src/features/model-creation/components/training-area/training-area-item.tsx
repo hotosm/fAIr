@@ -85,7 +85,7 @@ const LabelFetchStatus = ({
     updateTimeSince();
     const intervalId = setInterval(
       updateTimeSince,
-      TRAINING_AREA_LABELS_FETCH_POOLING_TIME_MS
+      TRAINING_AREA_LABELS_FETCH_POOLING_TIME_MS,
     );
     return () => clearInterval(intervalId);
   }, [fetchedDate]);
@@ -128,20 +128,20 @@ const DropdownMenu = ({
       ref={dropdownRef}
       disableCheveronIcon
       triggerComponent={
-        <button className="flex items-center justify-center rounded-full bg-off-white p-2">
+        <button className="bg-off-white p-2 rounded-full items-center flex justify-center">
           <ElipsisIcon className="icon" />
         </button>
       }
       className="text-right"
       distance={10}
     >
-      <div className="flex items-center justify-between gap-x-4 bg-white p-2">
+      <div className="flex gap-x-4 p-2 justify-between items-center bg-white">
         {dropdownMenuItems.map((Item, idx) => (
           <ToolTip content={Item.tooltip} key={`menu-item-${idx}`}>
             <button
               onClick={Item.onClick}
               disabled={Item.disabled}
-              className={`${Item.isDelete ? "bg-secondary text-primary" : "bg-off-white"} flex size-8 items-center justify-center rounded-md p-1.5`}
+              className={`${Item.isDelete ? "text-primary bg-secondary" : "bg-off-white"} w-8 h-8 p-1.5 items-center justify-center flex rounded-md`}
             >
               {Item.isIcon ? (
                 Item.Icon && <Item.Icon className="icon md:icon-lg" />
@@ -191,13 +191,13 @@ export const TrainingAreaItem: React.FC<
 
   const getTrainingAreaLabels = useGetTrainingAreaLabels(
     trainingArea.id,
-    false
+    false,
   );
 
   const getTrainingArea = useGetTrainingArea(
     trainingArea.id,
     labelState.shouldPoll,
-    TRAINING_AREA_LABELS_FETCH_POOLING_TIME_MS
+    TRAINING_AREA_LABELS_FETCH_POOLING_TIME_MS,
   );
 
   const handleLabelError = useCallback(() => {
@@ -211,7 +211,8 @@ export const TrainingAreaItem: React.FC<
 
     if (!labelState.errorToastShown) {
       showErrorToast(
-        `Could not fetch labels for AOI ${trainingArea.id}. Please retry.`
+        undefined,
+        `Could not fetch labels for AOI ${trainingArea.id}. Please retry.`,
       );
       setLabelState((prev) => ({ ...prev, errorToastShown: true }));
     }
@@ -284,10 +285,10 @@ export const TrainingAreaItem: React.FC<
         queryKey: [QUERY_KEYS.TRAINING_AREAS(datasetId, offset)],
       });
       showSuccessToast(
-        `Training labels for Training Area ${trainingArea.id} have been successfully fetched.`
+        `Training labels for Training Area ${trainingArea.id} have been successfully fetched.`,
       );
     },
-    [setLabelState]
+    [setLabelState],
   );
 
   useEffect(() => {
@@ -354,7 +355,7 @@ export const TrainingAreaItem: React.FC<
         formData: formData,
       });
     },
-    [createTrainingLabelsForAOI, trainingArea.id]
+    [createTrainingLabelsForAOI, trainingArea.id],
   );
 
   const disableLabelsFetchOrUpload =
@@ -383,7 +384,7 @@ export const TrainingAreaItem: React.FC<
           [trainingArea],
           formData.tmsURL,
           formData.selectedTrainingDatasetId,
-          trainingArea.id
+          trainingArea.id,
         ),
     },
     {
@@ -465,7 +466,7 @@ export const TrainingAreaItem: React.FC<
         disableFileSizeValidation
         isAOILabelsUpload
       />
-      <div className="flex w-full items-center justify-between gap-x-4">
+      <div className="flex items-center justify-between w-full gap-x-4">
         <div className="flex flex-col gap-y-1">
           <p className="text-body-4 md:text-body-3">
             ID: <span className="font-semibold">{trainingArea.id}</span>
@@ -496,7 +497,7 @@ export const TrainingAreaItem: React.FC<
             <button
               id={APP_TOUR_IDS.FETCH_OSM_DATA}
               disabled={disableLabelsFetchOrUpload}
-              className="flex items-center gap-x-2 text-nowrap rounded-md bg-green-secondary px-2 py-1 text-[9px] font-light"
+              className="bg-green-secondary px-2 py-1 rounded-md text-nowrap text-[9px] flex items-center gap-x-2 font-light"
               onClick={handleFetchLabels}
             >
               <MapIcon className="icon md:icon-lg text-green-primary" />
@@ -508,7 +509,7 @@ export const TrainingAreaItem: React.FC<
             }
           >
             <button
-              className="rounded-md bg-off-white px-2 py-1"
+              className="bg-off-white px-2 py-1 rounded-md"
               onClick={handleFitToBounds}
             >
               <FullScreenIcon className="icon" />

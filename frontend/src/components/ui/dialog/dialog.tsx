@@ -2,7 +2,6 @@ import useScreenSize from "@/hooks/use-screen-size";
 import { SHOELACE_SIZES } from "@/enums";
 import { SlDialog } from "@shoelace-style/shoelace/dist/react";
 import "./dialog.css";
-import { SlRequestCloseEvent } from "@shoelace-style/shoelace";
 
 type DialogProps = {
   label?: string;
@@ -25,7 +24,7 @@ const Dialog: React.FC<DialogProps> = ({
   size,
 }) => {
   // Prevent the dialog from closing when the user clicks on the overlay
-  function handleRequestClose(event: SlRequestCloseEvent) {
+  function handleRequestClose(event: any) {
     if (event.detail.source === "overlay") {
       event.preventDefault();
     }

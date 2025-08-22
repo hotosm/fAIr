@@ -6,7 +6,7 @@ export const getPredictions = async (
   searchQuery?: string,
   ordering: string = "-id",
   userId?: number,
-  offset?: number
+  offset?: number,
 ): Promise<{
   count: number;
   next: string | null;

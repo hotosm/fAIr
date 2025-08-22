@@ -45,7 +45,7 @@ export const DrawControl = ({
           open={drawingIsActive}
         >
           <button
-            className={`flex items-center justify-center p-1.5 transition-colors duration-200 ${drawingIsActive ? "bg-primary" : "bg-white"}`}
+            className={`p-1.5 flex items-center justify-center transition-colors duration-200 ${drawingIsActive ? "bg-primary" : "bg-white"}`}
             onClick={handleClick}
             aria-pressed={drawingIsActive}
             type="button"
@@ -60,7 +60,7 @@ export const DrawControl = ({
       {showDeleteButton && (
         <ToolTip content="Delete AOI" placement={ToolTipPlacement.RIGHT}>
           <button
-            className="flex cursor-pointer items-center justify-center bg-white p-1.5 text-primary "
+            className="p-1.5 flex items-center justify-center bg-white cursor-pointer text-primary "
             type="button"
             onClick={() => {
               onDelete?.();

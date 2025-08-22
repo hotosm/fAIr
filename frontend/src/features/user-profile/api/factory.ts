@@ -5,7 +5,7 @@ export const getPredictionsQueryOptions = (
   searchQuery?: string,
   ordering?: string,
   userId?: number,
-  offset?: number
+  offset?: number,
 ) => {
   return queryOptions({
     queryKey: ["offline-predictions", searchQuery, ordering, userId, offset],

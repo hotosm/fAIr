@@ -38,7 +38,7 @@ const Link: React.FC<LinkProps> = ({
       {nativeAnchor ? (
         <a
           href={href}
-          rel={blank ? "noreferrer" : "preconnect"}
+          rel="origin"
           target={blank ? "_blank" : "_self"}
           download={download}
           {...commonProps}
@@ -46,11 +46,7 @@ const Link: React.FC<LinkProps> = ({
           {children}
         </a>
       ) : (
-        <ReactRouterLink
-          rel={blank ? "noreferrer" : "preconnect"}
-          to={href}
-          {...commonProps}
-        >
+        <ReactRouterLink to={href} {...commonProps}>
           {children}
         </ReactRouterLink>
       )}

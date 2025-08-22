@@ -10,7 +10,7 @@ const BackButton = ({ className }: { className?: string }) => {
       title="Go back"
     >
       <ArrowBackIcon className="icon md:icon-lg" />
-      <span className={`text-body-3 text-dark`}>Back</span>
+      <span className={`text-dark text-body-3`}>Back</span>
     </button>
   );
 };

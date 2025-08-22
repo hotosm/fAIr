@@ -17,8 +17,8 @@ export const ProfileSectionHeader = ({
     navigate(createRoute as string);
   };
   return (
-    <div className="flex items-center justify-between">
-      <h1 className="self-start text-title-3 font-bold md:text-title-2">
+    <div className="flex justify-between items-center">
+      <h1 className="font-bold text-title-3 md:text-title-2 self-start">
         {title}
       </h1>
       {createRoute && createButtonAlt && (

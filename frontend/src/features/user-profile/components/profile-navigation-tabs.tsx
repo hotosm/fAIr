@@ -21,8 +21,8 @@ export const ProfileNavigationTabs = () => {
   }, [pathname]);
 
   return (
-    <section className="hide-scrollbar overflow-x-auto border-b border-gray-border px-4 md:px-8">
-      <ul className="flex gap-x-20 px-4 transition-all duration-300">
+    <section className="border-b border-gray-border px-4 md:px-8 overflow-x-auto hide-scrollbar">
+      <ul className="flex gap-x-20 transition-all duration-300 px-4">
         {PROFILE_NAVIGATION_TABS.filter((route) => route.active).map(
           (route) => (
             <li key={route.title}>
@@ -32,16 +32,16 @@ export const ProfileNavigationTabs = () => {
                   title={route.title}
                   nativeAnchor={false}
                   disableLinkStyle
-                  className={`flex flex-col whitespace-nowrap text-body-3 text-grey transition-all duration-300`}
+                  className={`text-grey text-body-3 transition-all duration-300 flex flex-col whitespace-nowrap`}
                 >
                   {route.title}
                   <span
-                    className={`h-1 w-[120%] self-center rounded-t-3xl transition-all duration-100 ${pathname === route.href ? "visible bg-red-500" : "invisible"}`}
+                    className={`transition-all duration-100 w-[120%] self-center rounded-t-3xl h-1 ${pathname === route.href ? "visible bg-red-500" : "invisible"}`}
                   ></span>
                 </Link>
               </div>
             </li>
-          )
+          ),
         )}
       </ul>
     </section>

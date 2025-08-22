@@ -5,7 +5,7 @@ import { useCallback, useEffect } from "react";
 export const useMapLayers = (
   layersSpec: LayerSpecification[],
   sourcesSpec: { id: string; spec: SourceSpecification }[],
-  map: Map | null
+  map: Map | null,
 ) => {
   const addSourcesAndLayers = useCallback(() => {
     if (!map || !map.isStyleLoaded()) return;
@@ -36,9 +36,9 @@ export const useDynamicMapLayer = (
   layerId: string,
   sourceSpec: SourceSpecification | null,
   layerSpec: LayerSpecification | null,
-  dependencies: unknown[] = [],
+  dependencies: any[] = [],
   enabled: boolean = true,
-  belowLayerIds: string[] = []
+  belowLayerIds: string[] = [],
 ) => {
   useEffect(() => {
     if (!map || !sourceSpec || !layerSpec || !enabled || !map.getStyle())

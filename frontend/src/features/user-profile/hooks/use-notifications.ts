@@ -20,7 +20,7 @@ export const useNotifications = ({
   is_read,
 }: UseNotificationsOptions) => {
   return useInfiniteQuery<PaginatedNotifications, PaginatedNotifications>({
-    queryKey: ["user-notifications", is_read],
+    queryKey: ["user-notifications"],
     queryFn: ({ pageParam: offset = 0 }) =>
       getNotifications(is_read, offset as number),
     enabled,

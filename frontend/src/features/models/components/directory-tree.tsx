@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { API_ENDPOINTS, apiClient } from "@/services";
 import {
   CloudDownloadIcon,
@@ -27,17 +26,12 @@ type DirectoryTreeProps = {
   isOpened: boolean;
 };
 
-type DirectoryTreeItems = {
-  dir: Record<string, DirectoryTreeItems & { size: number; length: number }>;
-  file: Record<string, { size: number; length: number }>;
-};
-
 const DirectoryLoadingSkeleton = () => (
-  <ul className="flex w-full flex-col gap-y-4">
+  <ul className="flex gap-y-4 flex-col w-full">
     {new Array(3).fill(null).map((_, id) => (
       <li
         key={`model-file-${id}`}
-        className="flex h-10 w-full items-center gap-x-4"
+        className="h-10 flex gap-x-4 w-full items-center"
       >
         <div className="h-6 w-[10%] animate-pulse bg-light-gray"></div>
         <div className="h-6 w-[90%] animate-pulse bg-light-gray"></div>
@@ -62,18 +56,18 @@ const FileItem = ({
   validPath: string;
 }) => {
   return (
-    <div className="group flex cursor-pointer items-center gap-x-2 pr-20">
-      <FileIcon className="size-4" />
-      <div className="flex flex-col gap-x-2 sm:flex-row">
-        <span title={keyName} className="text-nowrap text-body-2base text-dark">
+    <div className="flex items-center gap-x-2 cursor-pointer group pr-20">
+      <FileIcon className="w-4 h-4" />
+      <div className="flex flex-col sm:flex-row gap-x-2">
+        <span title={keyName} className="text-dark text-nowrap text-body-2base">
           {truncateString(keyName)}
         </span>
-        <span className="flex items-center gap-x-2 text-nowrap text-body-3 text-grey">
+        <span className="text-grey text-body-3 text-nowrap flex items-center gap-x-2">
           <SlFormatBytes value={size} />
           {isDownloading && <Spinner />}
         </span>
         {validPath && trainingId && (
-          <div className="flex items-center gap-x-4 group-hover:inline-flex sm:hidden">
+          <div className="flex items-center gap-x-4 sm:hidden group-hover:inline-flex">
             <ToolTip content="Click to download file.">
               <button disabled={isDownloading} onClick={onDownload}>
                 <span className="group-hover:inline">
@@ -109,16 +103,16 @@ const DirectoryItem = ({
 }) => (
   <>
     <div className="flex items-center gap-x-2">
-      <DirectoryIcon className="size-4" />
-      <div className="flex flex-col gap-x-2 md:flex-row">
-        <span title={keyName} className="text-nowrap text-body-2base text-dark">
+      <DirectoryIcon className="w-4 h-4" />
+      <div className="flex flex-col md:flex-row gap-x-2">
+        <span title={keyName} className="text-dark text-nowrap text-body-2base">
           {truncateString(keyName)}
         </span>
         <div className="flex gap-x-2">
-          <span className="text-nowrap text-body-3 text-grey">
+          <span className="text-grey text-body-3 text-nowrap">
             <SlFormatBytes value={size} />
           </span>
-          <span className="text-nowrap text-body-3 text-grey">
+          <span className="text-grey text-body-3 text-nowrap">
             {length} items
           </span>
         </div>
@@ -155,8 +149,8 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
   const fetchDirectoryRecursive = async (
     currentDirectory: string = "",
     currentDepth: number = 0,
-    maxDepth: number = 2
-  ): Promise<unknown> => {
+    maxDepth: number = 2,
+  ): Promise<any> => {
     if (currentDepth >= maxDepth) {
       return {};
     }
@@ -176,16 +170,16 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
               const subDirData = await fetchDirectoryRecursive(
                 fullPath,
                 currentDepth + 1,
-                maxDepth
+                maxDepth,
               );
               return {
                 [key]: {
-                  ...(typeof subDirData === "object" ? subDirData : {}),
+                  ...subDirData,
                   size: dir[key]?.size || 0,
                   length: dir[key]?.len || 0,
                 },
               };
-            })
+            }),
           )
         : [];
 
@@ -220,7 +214,7 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
         API_ENDPOINTS.DOWNLOAD_TRAINING_FILE(trainingId, validPath),
         {
           responseType: "blob",
-        }
+        },
       );
 
       if (response.status !== 200) {
@@ -239,17 +233,14 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
       a.remove();
       window.URL.revokeObjectURL(url);
       showSuccessToast(TOAST_NOTIFICATIONS.fileDownloadSuccess);
-    } catch {
-      showErrorToast(TOAST_NOTIFICATIONS.fileDownloadFailed);
+    } catch (error) {
+      showErrorToast(error);
     } finally {
       setDownLoadingFilePath("");
     }
   };
 
-  const renderTreeItems = (
-    items: DirectoryTreeItems,
-    parentKey: string = ""
-  ) => {
+  const renderTreeItems = (items: any, parentKey: string = "") => {
     const combinedItems = {
       ...items.dir,
       ...items.file,
@@ -257,8 +248,7 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
 
     return Object.entries(combinedItems).map(([key, value]: [string, any]) => {
       const isDirectory =
-        Object.prototype.hasOwnProperty.call(value, "dir") ||
-        Object.prototype.hasOwnProperty.call(value, "length");
+        value.hasOwnProperty("dir") || value.hasOwnProperty("length");
       const currentPath = parentKey ? `${parentKey}/${key}` : key;
       return (
         <SlTreeItem key={currentPath}>
@@ -296,7 +286,7 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
   return (
     <SlTree style={{ "--indent-guide-width": "1px" } as TCSSWithVars}>
       <SlTreeItem key="root">
-        <DirectoryIcon className="mr-2 size-4" />
+        <DirectoryIcon className="w-4 h-4 mr-2" />
         <span>
           {
             MODELS_CONTENT.models.modelsDetailsCard.modelFilesDialog

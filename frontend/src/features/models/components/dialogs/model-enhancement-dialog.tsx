@@ -1,11 +1,10 @@
-import { useNavigate } from "react-router-dom";
-
-import { ModelsProvider } from "@/app/providers/models-provider";
-import { Dialog } from "@/components/ui/dialog";
-import { ChevronDownIcon } from "@/components/ui/icons";
-import { MODELS_BASE, MODELS_CONTENT, MODELS_ROUTES } from "@/constants";
 import ModelTrainingSettingsDialog from "@/features/models/components/dialogs/training-settings-dialog";
+import { ChevronDownIcon } from "@/components/ui/icons";
+import { Dialog } from "@/components/ui/dialog";
+import { MODELS_BASE, MODELS_CONTENT, MODELS_ROUTES } from "@/constants";
+import { ModelsProvider } from "@/app/providers/models-provider";
 import { useDialog } from "@/hooks/use-dialog";
+import { useNavigate } from "react-router-dom";
 
 type ModelEnhancementDialogProps = {
   isOpened: boolean;
@@ -41,7 +40,7 @@ const ModelEnhancementDialog: React.FC<ModelEnhancementDialogProps> = ({
           .description,
       onClick: () =>
         navigate(
-          MODELS_BASE + "/" + modelId + "/" + MODELS_ROUTES.TRAINING_AREA
+          MODELS_BASE + "/" + modelId + "/" + MODELS_ROUTES.TRAINING_AREA,
         ),
     },
   ];
@@ -57,7 +56,7 @@ const ModelEnhancementDialog: React.FC<ModelEnhancementDialogProps> = ({
         isOpened={isOpened}
         closeDialog={closeDialog}
         label={
-          MODELS_CONTENT.models.modelsDetailsCard.modelUpdate.dialogHeading
+          MODELS_CONTENT.models.modelsDetailsCard.modelEnhancement.dialogHeading
         }
       >
         <ModelTrainingSettingsDialog
@@ -65,22 +64,25 @@ const ModelEnhancementDialog: React.FC<ModelEnhancementDialogProps> = ({
           closeDialog={handleClose}
           modelId={modelId}
         />
-        <ul className="flex w-full flex-col gap-y-4">
+
+        <ul className="flex flex-col gap-y-4 w-full">
           {options.map((option, id) => (
             <li
               key={`mode-enhancement-option-${id}`}
-              className="flex items-center justify-between rounded-lg border border-gray-border px-2 hover:border-primary"
+              className="border border-gray-border rounded-lg px-2 hover:border-primary flex items-center justify-between"
             >
               <button
-                className="p-6 text-start transition-colors"
+                className="text-start transition-colors p-6 w-5/6"
                 onClick={option.onClick}
               >
                 <span className="flex flex-col gap-y-2">
-                  <p className="text-body-1 text-dark">{option.name}</p>
-                  <p className="text-gray text-body-3">{option.description}</p>
+                  <p className="text-dark text-body-1">{option.name}</p>
+                  <p className="text-grey text-body-3">{option.description}</p>
                 </span>
               </button>
-              <ChevronDownIcon className="icon -rotate-90" />
+              <div className="w-1/6 text-right">
+                <ChevronDownIcon className="icon -rotate-90" />
+              </div>
             </li>
           ))}
         </ul>

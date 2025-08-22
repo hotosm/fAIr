@@ -10,21 +10,21 @@ export const ModelPredictionsTracker = ({
   resetModelPredictions: (features: TModelPredictionFeature[]) => void;
 }) => {
   const accepted = features.filter(
-    (f) => f.properties.status === PredictedFeatureStatus.ACCEPTED
+    (f) => f.properties.status === PredictedFeatureStatus.ACCEPTED,
   );
   const rejected = features.filter(
-    (f) => f.properties.status === PredictedFeatureStatus.REJECTED
+    (f) => f.properties.status === PredictedFeatureStatus.REJECTED,
   );
 
   return (
     <div className="flex items-center gap-x-2">
-      <p className="text-nowrap text-body-4 font-medium text-dark">
+      <p className="text-dark text-body-4 font-medium text-nowrap">
         {START_MAPPING_PAGE_CONTENT.mapData.accepted}: {accepted.length}{" "}
         {START_MAPPING_PAGE_CONTENT.mapData.rejected}: {rejected.length}{" "}
       </p>
       {features.length > 0 ? (
         <button
-          className="rounded-md bg-grey px-3 py-0.5 text-body-4 text-white md:py-1"
+          className="text-body-4 px-3 py-0.5 md:py-1 bg-grey text-white rounded-md"
           onClick={() => resetModelPredictions([])}
         >
           Clear

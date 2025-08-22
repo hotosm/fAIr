@@ -35,7 +35,7 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({
 
   if (!isMobileFilterModal) {
     return (
-      <div className="hidden border border-gray-border px-4 py-2 md:block">
+      <div className="hidden md:block border border-gray-border py-2 px-4">
         <DropDown
           menuItems={categories}
           handleMenuSelection={() => null}
@@ -43,7 +43,7 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({
           withCheckbox
           defaultSelectedItem={categories[0].value}
           triggerComponent={
-            <p className="text-nowrap text-sm text-dark">
+            <p className="text-sm text-dark text-nowrap">
               {categories[0].value}
             </p>
           }

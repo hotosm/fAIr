@@ -51,7 +51,7 @@ export const RootLayout = () => {
       <AuthenticationModal
         isOpen={state?.backgroundLocation && !isAuthenticated}
       />
-      <main className="relative flex min-h-screen flex-col">
+      <main className="min-h-screen relative flex flex-col">
         {!pathname.includes(APPLICATION_ROUTES.AUTH_CALLBACK) &&
           !pathname.includes(APPLICATION_ROUTES.EMAIL_VERIFICATION_CALLBACK) &&
           !pathname.includes(APPLICATION_ROUTES.START_MAPPING_BASE) &&
@@ -68,7 +68,7 @@ export const RootLayout = () => {
 
         <div
           // Disable global padding on landing page.
-          className={`mx-auto w-full flex-1 ${pathname === APPLICATION_ROUTES.HOMEPAGE ? "" : "app-padding"} ${pathname.includes(MODELS_ROUTES.CREATE_MODEL_BASE) || modelId ? "bg-frosted-blue" : ""}`}
+          className={`flex-1 mx-auto w-full ${pathname === APPLICATION_ROUTES.HOMEPAGE ? "" : "app-padding"} ${pathname.includes(MODELS_ROUTES.CREATE_MODEL_BASE) || modelId ? "bg-frosted-blue" : ""}`}
         >
           <Outlet />
         </div>
@@ -77,7 +77,7 @@ export const RootLayout = () => {
           !modelId &&
           !pathname.includes(APPLICATION_ROUTES.AUTH_CALLBACK) &&
           !pathname.includes(
-            APPLICATION_ROUTES.EMAIL_VERIFICATION_CALLBACK
+            APPLICATION_ROUTES.EMAIL_VERIFICATION_CALLBACK,
           ) && <Footer />}
       </main>
     </>

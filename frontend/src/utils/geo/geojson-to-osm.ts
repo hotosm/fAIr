@@ -49,7 +49,7 @@ export const geojsonToOsmPolygons = (geojson: FeatureCollection): string => {
       properties || {},
       ways,
       nodes,
-      nodesIndex
+      nodesIndex,
     );
   });
 
@@ -88,12 +88,12 @@ export const geojsonToOsmPolygons = (geojson: FeatureCollection): string => {
 // Helper Function to Process Polygons
 const processPolygon = (
   coordinates: Position[][],
-  properties: Record<string, string | number>,
+  properties: Record<string, any>,
   ways: Way[],
   nodes: Node[],
-  nodesIndex: Record<string, Node>
+  nodesIndex: Record<string, Node>,
 ): void => {
-  coordinates.forEach((ring) => {
+  coordinates.forEach((ring, _) => {
     const way = new Way({
       ...mapPropertiesToTags(properties),
     });
@@ -126,7 +126,7 @@ const processPolygon = (
 };
 
 const mapPropertiesToTags = (
-  properties: Record<string, string | number>
+  properties: Record<string, any>,
 ): Record<string, string> => {
   const tags: Record<string, string> = {};
 

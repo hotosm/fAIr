@@ -7,7 +7,6 @@ import { FormLabel, HelpText } from "@/components/ui/form";
 import { INPUT_TYPES, SHOELACE_SIZES } from "@/enums";
 import { SlInput } from "@shoelace-style/shoelace/dist/react";
 import { useRef } from "react";
-import { TValidationState } from "@/types";
 
 type InputProps = {
   handleInput: (arg: React.ChangeEvent<HTMLInputElement>) => void;
@@ -27,7 +26,10 @@ type InputProps = {
   maxLength?: number;
   minLength?: number;
   pattern?: RegExp | string;
-  validationStateUpdateCallback?: (validity: TValidationState) => void;
+  validationStateUpdateCallback?: (validity: {
+    valid: boolean;
+    message: string;
+  }) => void;
   isValid?: boolean;
   min?: number;
   max?: number;
@@ -74,12 +76,12 @@ const Input: React.FC<InputProps> = ({
   return (
     <SlInput
       onSlInput={(e) => {
-        if (validationStateUpdateCallback) {
-          validationStateUpdateCallback({
+        validationStateUpdateCallback &&
+          validationStateUpdateCallback?.({
             valid: inputRef.current?.validity?.valid as boolean,
             message: inputRef.current?.validationMessage as string,
           });
-        }
+
         // @ts-expect-error bad type definition
         handleInput(e);
       }}
@@ -134,7 +136,7 @@ const Input: React.FC<InputProps> = ({
        */}
       {!isChrome && type === "date" && (
         <CalenderIcon
-          className="icon cursor-pointer text-dark"
+          className="icon text-dark cursor-pointer"
           slot="suffix"
           onClick={openNativeDatePicker}
         />
@@ -142,7 +144,7 @@ const Input: React.FC<InputProps> = ({
 
       {isValid && (
         <span
-          className="icon flex items-center justify-center rounded-full bg-green-primary p-1"
+          className="icon rounded-full p-1 bg-green-primary flex items-center justify-center"
           slot="suffix"
         >
           <CheckIcon className=" text-white" />

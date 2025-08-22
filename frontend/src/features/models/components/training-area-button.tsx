@@ -11,7 +11,7 @@ export const TrainingAreaButton = ({
   return (
     <button
       disabled={disabled}
-      className={`flex items-center gap-x-2 text-body-3 md:self-end md:text-body-2 md:font-semibold ${disabled ? "cursor-not-allowed text-grey" : "cursor-pointer  text-primary"}`}
+      className={`md:self-end flex items-center gap-x-2 text-body-3 md:text-body-2 md:font-semibold ${disabled ? "cursor-not-allowed text-grey" : "cursor-pointer  text-primary"}`}
       onClick={onClick}
     >
       <p>{MODELS_CONTENT.models.modelsDetailsCard.viewTrainingArea}</p>

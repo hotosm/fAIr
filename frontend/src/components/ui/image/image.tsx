@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
-
 import { cn } from "@/utils";
+import { useEffect, useState } from "react";
 
 type ImageProps = {
   src: string;
@@ -38,9 +37,11 @@ const Image: React.FC<ImageProps> = ({
     setImageSrc(src);
   }, [src]);
   return (
-    <picture>
+    <>
       {isLoading && (
-        <div className="size-full animate-pulse bg-light-gray"></div>
+        <div
+          className={`animate-pulse bg-light-gray w-full h-full ${className}`}
+        ></div>
       )}
       <img
         src={imageSrc}
@@ -52,7 +53,7 @@ const Image: React.FC<ImageProps> = ({
         onLoad={handleLoad}
         onError={handleError}
       />
-    </picture>
+    </>
   );
 };
 

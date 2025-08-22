@@ -42,7 +42,7 @@ export const TabGroup = ({
 
   return (
     <div
-      className={`flex w-fit gap-x-4 overflow-x-auto  rounded-[4px] border border-gray-border  bg-gray-100 p-0.5 font-medium ${className}`}
+      className={`flex gap-x-4 border border-gray-border  bg-gray-100 overflow-x-auto font-medium  w-fit rounded-[4px] p-0.5 ${className}`}
       role="tablist"
     >
       {tabs.map((tab, index) => (
@@ -51,8 +51,8 @@ export const TabGroup = ({
           ref={(el) => {
             tabRefs.current[index] = el;
           }}
-          className={`text-nowrap rounded-[4px] px-2  py-1 text-body-3 transition-colors duration-150 md:px-4 md:text-base ${
-            activeTab === tab ? "bg-white text-black shadow-sm" : "text-grey"
+          className={`md:px-4 px-2 py-1  text-nowrap text-body-3 md:text-base transition-colors duration-150 rounded-[4px] ${
+            activeTab === tab ? "bg-white shadow-sm text-black" : "text-grey"
           }`}
           role="tab"
           aria-selected={activeTab === tab}

@@ -13,7 +13,7 @@ const ModelFilesButton = ({
   return (
     <ButtonWithIcon
       label={MODELS_CONTENT.models.modelsDetailsCard.modelFiles}
-      className="border border-dark"
+      className="border-dark border"
       variant={ButtonVariant.NONE}
       onClick={openModelFilesDialog}
       prefixIcon={DirectoryIcon}

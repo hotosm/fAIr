@@ -14,7 +14,6 @@ type ResponsiveImageProps = {
  * @returns
  * Responsive image tool: https://www.responsivebreakpoints.com/
  */
-// eslint-disable-next-line no-empty-pattern
 export const ResponsiveImage = ({}: ResponsiveImageProps) => {
   return (
     <picture>

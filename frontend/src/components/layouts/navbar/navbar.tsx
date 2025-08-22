@@ -61,7 +61,7 @@ export const NavBar = () => {
       </Drawer>
 
       <nav
-        className={`${styles.nav} app-padding z-20 border-b border-gray-border py-1`}
+        className={`${styles.nav} app-padding z-20 py-1 border-b border-gray-border`}
       >
         <NavLogo />
         <div>
@@ -128,9 +128,7 @@ const NavBarLinks: React.FC<NavBarLinksProps> = ({ className, setOpen }) => {
             key={`navbar-item-${id}`}
             onClick={() => {
               //close the drawer after navigating to a new page on mobile
-              if (setOpen) {
-                setOpen(false);
-              }
+              setOpen && setOpen(false);
             }}
             className={`${styles.navLinkItem} ${location.pathname === link.href && styles.activeLink}`}
           >

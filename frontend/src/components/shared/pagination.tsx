@@ -70,26 +70,26 @@ export const Pagination: React.FC<PaginationProps> = ({
 
   return (
     <div
-      className={`flex w-full items-center gap-x-2 ${centerOnMobile ? "justify-center" : "justify-between"}`}
+      className={`flex gap-x-2 items-center w-full ${centerOnMobile ? "justify-center" : "justify-between"}`}
     >
       <div>
         <p
-          className={`"text-body-4 mr-1 text-nowrap md:inline-block  ${showCountOnMobile ? "inline-block" : "hidden"}`}
+          className={`"text-body-4 text-nowrap md:inline-block mr-1  ${showCountOnMobile ? "inline-block" : "hidden"}`}
         >
-          <span className="text-body-4 md:font-semibold">
+          <span className="md:font-semibold text-body-4">
             {totalLength > 0 ? _offset + 1 : 0} -{" "}
             {_offset + pageLimit < (totalLength ? totalLength : 0)
               ? _offset + pageLimit
               : totalLength}
           </span>{" "}
-          <span className="text-body-4 md:font-semibold">
+          <span className="md:font-semibold text-body-4">
             {" "}
             of {totalLength}
           </span>
         </p>
       </div>
       <div>
-        <div className="flex w-full items-center justify-between gap-x-4 md:w-fit ">
+        <div className="flex items-center gap-x-4 justify-between w-full md:w-fit ">
           <button
             className="w-4 cursor-pointer"
             title="Prev"

@@ -3,7 +3,7 @@ import { PaginatedNotifications, TNotification } from "@/types";
 
 export const getNotifications = async (
   is_read: boolean | undefined,
-  offset?: number
+  offset?: number,
 ): Promise<PaginatedNotifications> => {
   const res = await apiClient.get(API_ENDPOINTS.NOTIFICATIONS, {
     params: {

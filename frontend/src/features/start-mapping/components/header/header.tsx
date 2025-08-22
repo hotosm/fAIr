@@ -24,7 +24,6 @@ import { ModelSelectorTriggerButton } from "@/features/start-mapping/components/
 import { ModelDetailsInfoButton } from "./model-details-info-button";
 import { memo } from "react";
 
-// eslint-disable-next-line react/display-name
 const StartMappingHeader = memo(
   ({
     modelInfo,
@@ -110,7 +109,7 @@ const StartMappingHeader = memo(
               <div>
                 <BrandLogoWithDropDown />
               </div>
-              <div className="flex items-center gap-x-1">
+              <div className="flex gap-x-1 items-center">
                 <ModelSelectorTriggerButton
                   modelInfo={modelInfo}
                   setPredictionModel={setPredictionModel}
@@ -152,7 +151,7 @@ const StartMappingHeader = memo(
             </div>
             <div className="flex flex-row items-center gap-x-2">
               <ModelSettings updateQuery={updateQuery} query={query} />
-              <div className="flex flex-row items-center gap-x-2 gap-y-3">
+              <div className="flex flex-row items-center gap-y-3 gap-x-2">
                 <ModelPredictionsTracker
                   features={modelPredictions}
                   resetModelPredictions={setModelPredictions}
@@ -167,7 +166,7 @@ const StartMappingHeader = memo(
                       content={
                         !modelPredictionsExist
                           ? START_MAPPING_PAGE_CONTENT.actions.disabledModeTooltip(
-                              "see actions"
+                              "see actions",
                             )
                           : null
                       }
@@ -208,7 +207,7 @@ const StartMappingHeader = memo(
         )}
       </div>
     );
-  }
+  },
 );
 
 export default StartMappingHeader;

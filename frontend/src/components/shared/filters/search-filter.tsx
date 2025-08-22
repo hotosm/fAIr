@@ -7,7 +7,7 @@ import { useCallback } from "react";
 
 type SearchFilterProps = {
   query: TQueryParams;
-  updateQuery: (param: TQueryParams) => void;
+  updateQuery: (param: any) => void;
   placeholder: string;
   className?: string;
 };
@@ -25,19 +25,19 @@ export const SearchFilter: React.FC<SearchFilterProps> = ({
         [SEARCH_PARAMS.searchQuery]: value,
       });
     },
-    []
+    [],
   );
 
   return (
     <div
       className={`flex max-w-[60%] items-center border border-gray-border ${className}`}
     >
-      <SearchIcon className={`icon-lg ml-2 text-dark`} />
+      <SearchIcon className={`ml-2 icon-lg text-dark`} />
       <Input
         handleInput={onSearchInput}
         value={query[SEARCH_PARAMS.searchQuery] as string}
         placeholder={placeholder}
-        className="w-4/5 border-none outline-none focus:outline-none focus:ring-0"
+        className="w-[80%] outline-none border-none focus:outline-none focus:ring-0"
         size={SHOELACE_SIZES.MEDIUM}
         disableOutline
       />

@@ -38,7 +38,7 @@ const ShowMapToggle = ({
             : "inline-flex",
       ].join(" ")}
     >
-      <p className="text-nowrap text-body-2base">
+      <p className="text-body-2base text-nowrap">
         {MODELS_CONTENT.models.modelsList.filtersSection.mapViewToggleText}
       </p>
       <ToolTip

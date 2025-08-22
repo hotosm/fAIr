@@ -10,7 +10,7 @@ export const DatasetAreaButton = ({
   return (
     <button
       disabled={disabled}
-      className={`flex items-center gap-x-2 text-nowrap text-body-3 md:self-end md:text-body-2 md:font-semibold ${disabled ? "cursor-not-allowed text-grey" : "cursor-pointer  text-primary"}`}
+      className={`md:self-end flex text-nowrap items-center gap-x-2 text-body-3 md:text-body-2 md:font-semibold ${disabled ? "cursor-not-allowed text-grey" : "cursor-pointer  text-primary"}`}
       onClick={onClick}
     >
       <p>View Dataset Area</p>

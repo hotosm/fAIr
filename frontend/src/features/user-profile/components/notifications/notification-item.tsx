@@ -49,32 +49,32 @@ export const NotificationItem = ({
           { id: notification.id },
           {
             onSuccess: goToModel,
-          }
+          },
         );
         return;
       }
 
       goToModel();
     },
-    [notification, navigate, mutate]
+    [notification, navigate, mutate],
   );
 
   return (
     <div
       onClick={handleClick}
-      className="group flex w-full cursor-pointer flex-col items-start justify-between gap-y-4 rounded-lg p-3 transition-colors duration-150 hover:bg-gray-border"
+      className="flex flex-col gap-y-4 p-3 items-start transition-colors duration-150 justify-between rounded-lg w-full hover:bg-gray-border cursor-pointer group"
     >
       <div className="flex w-full">
         <div className="w-3/4">
-          <p className="h-1/2 text-body-4">{notification.message}</p>
+          <p className="text-body-4 h-1/2">{notification.message}</p>
         </div>
-        <div className="flex w-1/4 items-center justify-end">
+        <div className="w-1/4 flex items-center justify-end">
           {!notification.is_read && (
-            <span className="size-2 rounded-full bg-primary" />
+            <span className="w-2 h-2 bg-primary rounded-full" />
           )}
         </div>
       </div>
-      <div className="group flex w-full items-center justify-between">
+      <div className="w-full flex justify-between items-center group">
         <p className="text-body-4 text-grey">
           {formatDate(notification.created_at)}
         </p>

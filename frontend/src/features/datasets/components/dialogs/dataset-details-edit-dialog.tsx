@@ -2,7 +2,7 @@ import { Dialog } from "@/components/ui/dialog";
 import { TTrainingDataset } from "@/types";
 import { NewTrainingDatasetForm } from "@/features/model-creation/components/training-dataset/training-dataset-form";
 import { useTileservice } from "@/hooks/use-tileservice";
-import { getTileServerTypeFromURL } from "@/utils";
+import { getTileServerRegex, getTileServerTypeFromURL } from "@/utils";
 
 type DatasetEditDialogProps = {
   isOpened: boolean;
@@ -25,9 +25,10 @@ export const DatasetEditDialog: React.FC<DatasetEditDialogProps> = ({
     loading,
   } = useTileservice(
     getTileServerTypeFromURL(data.source_imagery),
-    data.source_imagery
+    data.source_imagery,
   );
 
+  getTileServerRegex;
   return (
     <Dialog
       isOpened={isOpened}

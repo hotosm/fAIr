@@ -9,7 +9,7 @@ import {
 
 export const useTrainingDetails = (
   id: number,
-  refetchInterval: boolean | number = false
+  refetchInterval: boolean | number = false,
 ) => {
   return useQuery({
     ...getTrainingDetailsQueryOptions(id),
@@ -34,7 +34,7 @@ export const useTrainingFeedbacks = (id: number) => {
 };
 export const useTrainingWorkspace = (
   trainingId: number,
-  directory_name = ""
+  directory_name = "",
 ) => {
   return useQuery({
     ...getTrainingWorkspaceQueryOptions(trainingId, directory_name),
@@ -49,7 +49,7 @@ export const useTrainingHistory = (
   modelId?: string,
   userId?: number,
   enabled?: boolean,
-  refetchInterval?: number
+  refetchInterval?: number,
 ) => {
   return useQuery({
     ...getTrainingHistoryQueryOptions(offset, limit, ordering, modelId, userId),

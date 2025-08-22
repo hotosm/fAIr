@@ -24,7 +24,7 @@ export const UserProfileDatasetsPage = () => {
       <Head title={USER_PROFILE_PAGE_CONTENT.datasets.pageTitle} />
       <div className="space-y-8">
         {/* Section heading */}
-        <div className="flex w-full flex-col items-start justify-between gap-y-6 sm:flex-row sm:items-center sm:gap-y-0">
+        <div className="w-full gap-y-6 sm:gap-y-0 flex flex-col sm:flex-row justify-between items-start sm:items-center">
           <ProfileSectionHeader
             title={USER_PROFILE_PAGE_CONTENT.datasets.sectionTitle}
           />
@@ -35,9 +35,9 @@ export const UserProfileDatasetsPage = () => {
             className="w-full max-w-full sm:w-auto"
           />
         </div>
-        <div className="flex w-full flex-col justify-between gap-y-6 md:gap-y-0">
+        <div className="flex flex-col gap-y-6 md:gap-y-0 w-full justify-between">
           <p className="text-body-3 font-semibold">{data?.count} datasets</p>
-          <div className="flex w-full items-center justify-between md:justify-end md:gap-x-4">
+          <div className="flex w-full justify-between md:justify-end items-center md:gap-x-4">
             <OrderingFilter
               query={query}
               updateQuery={updateQuery}

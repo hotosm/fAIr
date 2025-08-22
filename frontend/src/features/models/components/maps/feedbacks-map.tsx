@@ -58,7 +58,7 @@ export const FeedbacksMap: React.FC<ModelsMapProps> = ({
   }, [map, boundsRef.current]);
 
   return (
-    <div className="size-full">
+    <div className="h-full w-full">
       <MapComponent
         map={map}
         mapContainerRef={mapContainerRef}
@@ -67,7 +67,7 @@ export const FeedbacksMap: React.FC<ModelsMapProps> = ({
         tileServiceURL={tileServiceURL}
         hasTileServiceLayer
       >
-        <div className="absolute left-3 top-28 z-[1]">
+        <div className="absolute left-3 z-[1] top-28">
           <FitToBounds
             bounds={boundsRef.current}
             map={map}
@@ -75,7 +75,7 @@ export const FeedbacksMap: React.FC<ModelsMapProps> = ({
             mobileClassName="p-1.5"
           />
         </div>
-        <div className="absolute right-3 top-4 z-[1] flex flex-col items-end gap-3 md:flex-row">
+        <div className="absolute right-3 z-[1] top-4 flex flex-col md:flex-row gap-3 items-end">
           <ZoomLevel />
           <LayerControl
             basemaps={false}

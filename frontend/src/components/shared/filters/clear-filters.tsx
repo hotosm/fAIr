@@ -16,7 +16,7 @@ export const ClearFilters = ({
     query[SEARCH_PARAMS.searchQuery] ||
       query[SEARCH_PARAMS.startDate] ||
       query[SEARCH_PARAMS.endDate] ||
-      query[SEARCH_PARAMS.id]
+      query[SEARCH_PARAMS.id],
   );
 
   return (

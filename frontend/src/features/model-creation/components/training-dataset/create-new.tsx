@@ -68,9 +68,9 @@ const CreateNewTrainingDatasetForm = () => {
         source: PREVIEW_TMS_SOURCE_ID,
         layout: { visibility: "visible" },
       });
-    } catch {
+    } catch (e) {
       setError(
-        "Unable to load the tile server. Please verify the URL and try again."
+        "Unable to load the tile server. Please verify the URL and try again.",
       );
     } finally {
       setLoading(false);
@@ -97,15 +97,15 @@ const CreateNewTrainingDatasetForm = () => {
   }, [tileJSONMetadata]);
 
   return (
-    <div className="flex flex-col justify-between gap-12 md:flex-row">
-      <div className="flex w-full max-w-3xl flex-col gap-y-10 md:w-1/2">
+    <div className="flex flex-col md:flex-row justify-between gap-12">
+      <div className="flex flex-col gap-y-10 max-w-3xl w-full md:w-1/2">
         <NewTrainingDatasetForm
           datasetName={formData.datasetName}
           tileServiceType={tileServiceType}
           onClick={() =>
             handleChange(
               MODEL_CREATION_FORM_NAME.TILESERVICE_TYPE,
-              tileServiceType
+              tileServiceType,
             )
           }
           setTileServiceType={setTileServiceType}
@@ -121,38 +121,38 @@ const CreateNewTrainingDatasetForm = () => {
             handleChange(MODEL_CREATION_FORM_NAME.TMS_URL, data.source_imagery);
             handleChange(
               MODEL_CREATION_FORM_NAME.TILESERVICE_TYPE,
-              getTileServerTypeFromURL(data.source_imagery)
+              getTileServerTypeFromURL(data.source_imagery),
             );
             handleChange(
               MODEL_CREATION_FORM_NAME.SELECTED_TRAINING_DATASET_ID,
-              data.id
+              data.id,
             );
             handleChange(MODEL_CREATION_FORM_NAME.DATASET_OFFSET, data.offset);
           }}
         />
       </div>
       <div className="w-full md:w-1/2 ">
-        <div className="relative h-80 text-clip rounded-lg border border-gray-border">
+        <div className="border border-gray-border relative h-80 rounded-lg overflow-clip">
           <MapComponent map={map} mapContainerRef={mapContainerRef} />
           {loading && (
-            <div className="absolute inset-0 z-10 flex items-center justify-center bg-white">
+            <div className="absolute inset-0 bg-white flex items-center justify-center z-10">
               <Spinner />
             </div>
           )}
           {!tileServiceTypeValidity.valid && !loading && (
-            <div className="absolute inset-0 z-10 flex size-full flex-col items-center justify-center gap-y-3 bg-off-white p-1 text-body-4 text-grey md:text-base">
+            <div className="p-1 absolute z-[10] inset-0 bg-off-white flex flex-col gap-y-3 items-center justify-center w-full h-full text-body-4 md:text-base text-grey">
               <MapIcon className="icon-lg" />
               <p>Enter a valid tile service url to see a preview.</p>
             </div>
           )}
           {error && tileserverURL.length > 0 && (
-            <div className="absolute inset-0 z-10 flex items-center justify-center bg-white px-4 text-center text-primary">
+            <div className="absolute inset-0 bg-white flex items-center justify-center z-10 text-primary text-center px-4">
               {error}
             </div>
           )}{" "}
         </div>
         {tileServiceType !== TileServiceType.TILEJSON && (
-          <p className="mt-2 text-body-4 text-grey">
+          <p className="text-body-4 text-grey mt-2">
             Selected {tileServiceType} tile service. Consider using TileJSON or
             OpenAerialMap TMS, for automatic bounds detection and metadata.
           </p>

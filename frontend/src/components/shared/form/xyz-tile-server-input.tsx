@@ -103,7 +103,6 @@ export const XYZTileServerInput = ({
             href="https://github.com/hotosm/fair?tab=readme-ov-file#imagery-license"
             target="_blank"
             className="text-primary underline"
-            rel="noreferrer"
           >
             license requirements
           </a>

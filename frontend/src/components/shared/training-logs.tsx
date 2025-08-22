@@ -18,15 +18,15 @@ export const TrainingLogs = ({
 
   if (isPending) {
     return (
-      <div className="col-span-5 h-40 w-full animate-pulse bg-light-gray"></div>
+      <div className="h-40 col-span-5 w-full animate-pulse bg-light-gray"></div>
     );
   }
   return (
-    <div className="col-span-3 flex w-full flex-col gap-y-2">
+    <div className="col-span-3 flex flex-col gap-y-2 w-full">
       {!disableExpandButton && (
         <button
           onClick={() => setShowLogs(!showLogs)}
-          className="flex items-center gap-x-2 text-body-2 text-grey"
+          className="flex items-center gap-x-2 text-grey text-body-2"
         >
           <p>
             {MODELS_CONTENT.models.modelsDetailsCard.trainingInfoDialog.logs}
