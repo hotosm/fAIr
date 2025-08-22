@@ -6,18 +6,18 @@ import { Protocol } from "pmtiles";
 export const setupMaplibreMap = (
   containerRef: React.RefObject<HTMLElement | null>,
   pmtiles: boolean,
-  hash: boolean = false
+  hash: boolean = false,
 ): Map => {
   // Check if RTL plugin is needed and set it
   if (maplibregl.getRTLTextPluginStatus() === "unavailable") {
     maplibregl.setRTLTextPlugin(
       "https://unpkg.com/@mapbox/mapbox-gl-rtl-text@0.2.3/mapbox-gl-rtl-text.min.js",
-      true
+      true,
     );
   }
 
   if (pmtiles) {
-    const protocol = new Protocol();
+    let protocol = new Protocol();
     maplibregl.addProtocol("pmtiles", protocol.tile);
   }
 

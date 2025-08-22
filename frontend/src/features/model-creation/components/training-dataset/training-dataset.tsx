@@ -24,7 +24,7 @@ const TrainingDatasetForm = () => {
   }, []);
 
   return (
-    <div className="flex w-full flex-col gap-y-6">
+    <div className="flex flex-col gap-y-6 w-full">
       <StepHeading
         heading={MODELS_CONTENT.modelCreation.trainingDataset.pageTitle}
         description={

@@ -43,11 +43,11 @@ export const ModelDetailsInfoButton = ({
         >
           <button
             className={
-              "hover:icon-interaction flex items-center justify-center p-1"
+              "p-1 flex items-center justify-center hover:icon-interaction"
             }
             onClick={handleClick}
           >
-            <TagsInfoIcon className="icon-lg text-grey md:size-5" />
+            <TagsInfoIcon className="icon-lg md:size-5 text-grey" />
           </button>
         </ToolTip>
       }

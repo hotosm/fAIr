@@ -20,7 +20,7 @@ const ModelDetailsUpdateDialog: React.FC<ModelDetailsUpdateDialogProps> = ({
 }) => {
   const [modelName, setModelName] = useState(data.name ?? "");
   const [modelDescription, setModelDescription] = useState(
-    data.description ?? ""
+    data.description ?? "",
   );
   const modelUpdateMutation = useUpdateModel({
     modelId: data.id,

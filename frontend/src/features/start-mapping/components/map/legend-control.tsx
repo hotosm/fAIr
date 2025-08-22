@@ -38,11 +38,11 @@ const FillLegendStyle = ({
   fillOpacity: number;
 }) => (
   <span
-    className="block h-3 w-4 rounded-[2px] border"
+    className="block w-4 h-3 rounded-[2px] border-[1px]"
     style={{
       backgroundColor: `rgba(${parseInt(fillColor.slice(1, 3), 16)}, ${parseInt(
         fillColor.slice(3, 5),
-        16
+        16,
       )}, ${parseInt(fillColor.slice(5, 7), 16)}, ${fillOpacity})`,
       borderColor: fillColor,
     }}
@@ -65,10 +65,10 @@ export const Legend = ({
 
   return (
     <button
-      className={`z-10 flex items-center gap-x-4 rounded-xl bg-white p-2.5 ${
+      className={`flex z-10 items-center gap-x-4 bg-white p-2.5 rounded-xl ${
         isSmallViewport
           ? "border border-gray-border"
-          : "absolute bottom-3 left-3 flex-col gap-y-4 rounded-[4px] border border-gray-border"
+          : "absolute flex-col gap-y-4 left-3 bottom-3 rounded-[4px] border border-gray-border"
       }`}
       onClick={handleToggleExpand}
     >
@@ -83,7 +83,7 @@ export const Legend = ({
       )}
 
       {!isSmallViewport && (
-        <p className="flex w-full items-center justify-between gap-x-10 text-body-2base font-semibold text-dark">
+        <p className="w-full text-dark font-semibold text-body-2base flex items-center gap-x-10 justify-between">
           {title}
           <ToolTip
             content={
@@ -107,11 +107,11 @@ export const Legend = ({
             .filter((v) =>
               disableDefaultPrediction
                 ? v.status !== PredictedFeatureStatus.UNTOUCHED
-                : v
+                : v,
             )
             .map(({ label, fillColor, fillOpacity }, id) => (
               <p
-                className="flex w-full items-center gap-x-2 text-nowrap text-body-4 text-dark md:text-body-3"
+                className="w-full flex items-center text-dark gap-x-2 text-body-4 md:text-body-3 text-nowrap"
                 key={id}
               >
                 <FillLegendStyle

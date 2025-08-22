@@ -8,7 +8,7 @@ type ModelPredictionState = {
   updateFeatureStatus: (
     id: number,
     status: PredictedFeatureStatus,
-    updatedProperties: Partial<TModelPredictionFeature["properties"]>
+    updatedProperties: Partial<TModelPredictionFeature["properties"]>,
   ) => void;
 };
 
@@ -23,9 +23,9 @@ export const useModelPredictionStore = create<ModelPredictionState>(
               ...f,
               properties: { ...f.properties, status, ...updatedProperties },
             }
-          : f
+          : f,
       );
       set({ features: updated });
     },
-  })
+  }),
 );

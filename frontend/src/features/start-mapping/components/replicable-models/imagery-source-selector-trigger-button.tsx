@@ -71,12 +71,12 @@ export const ImagerySourceSelectorTriggerButton = ({
       setTileserverURL,
       loading,
       setTileServiceType,
-    ]
+    ],
   );
 
   return (
-    <div className="flex w-fit items-center gap-x-1">
-      <p className="hidden text-body-4 lg:inline-block">Imagery:</p>
+    <div className="flex items-center gap-x-1 w-fit">
+      <p className="text-body-4 hidden lg:inline-block">Imagery:</p>
       <DropDown
         ref={dropdownRef}
         placement={DropdownPlacement.TOP_END}
@@ -106,15 +106,15 @@ type ButtonProps = {
 };
 
 const DropdownButton = ({ label, isSmallViewport, onClick }: ButtonProps) => (
-  <div className="flex items-center gap-x-2 rounded-[6px] border border-off-white p-2 hover:bg-off-white">
+  <div className="px-2 border border-off-white hover:bg-off-white flex items-center p-2 gap-x-2 rounded-[6px]">
     <button
       onClick={onClick}
-      className={`${isSmallViewport ? "w-fit max-w-[100px]" : "max-w-[50px] lg:max-w-[100px]"} truncate text-body-4`}
+      className={`${isSmallViewport ? "w-fit max-w-[100px]" : "max-w-[50px] lg:max-w-[100px]"} text-body-4 overflow-hidden text-ellipsis whitespace-nowrap`}
     >
       {label}
     </button>
     <ChevronDownIcon
-      className={`transition-all ${isSmallViewport ? "-rotate-90" : ""} size-3`}
+      className={`transition-all ${isSmallViewport ? "-rotate-90" : ""} w-3 h-3`}
     />
   </div>
 );

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { API_ENDPOINTS, apiClient } from "@/services";
 
 export type TDeleteTrainingAreaArgs = {
@@ -10,7 +9,7 @@ export const deleteTrainingArea = async ({
 }: TDeleteTrainingAreaArgs): Promise<any> => {
   return await (
     await apiClient.delete(
-      `${API_ENDPOINTS.DELETE_TRAINING_AREA(trainingAreaId)}`
+      `${API_ENDPOINTS.DELETE_TRAINING_AREA(trainingAreaId)}`,
     )
   ).data;
 };

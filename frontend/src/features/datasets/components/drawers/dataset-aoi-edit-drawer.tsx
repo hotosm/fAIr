@@ -21,7 +21,7 @@ export const DatasetAOIEditDrawer: React.FC<TrainingAreaDrawerProps> = ({
       label={"Edit Area of Interest"}
       noHeader={false}
     >
-      <div className="size-full">
+      <div className="w-full h-full">
         {isOpened && (
           <TrainingAreaForm
             isDatasetEditMode

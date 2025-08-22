@@ -22,7 +22,7 @@ export const UserNotifications = () => {
   const { screenWidth } = useScreenSize();
 
   const [notificationType, setNotificationType] = useState<NotificationType>(
-    NotificationType.UNREAD
+    NotificationType.UNREAD,
   );
 
   const {

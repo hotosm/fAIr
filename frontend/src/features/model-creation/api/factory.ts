@@ -12,7 +12,7 @@ import { QUERY_KEYS } from "@/services";
 
 export const getTrainingAreasQueryOptions = (
   datasetId: number,
-  offset: number
+  offset: number,
 ) => {
   return queryOptions({
     queryKey: [QUERY_KEYS.TRAINING_AREAS(datasetId, offset)],
@@ -40,7 +40,7 @@ export const createTrainingDatasetsQueryOptions = ({
 
 export const getTrainingDatasetLabelsQueryOptions = (
   aoiDatasetId: number,
-  bbox: string
+  bbox: string,
 ) => {
   return queryOptions({
     queryKey: ["training-dataset-labels", aoiDatasetId, bbox],

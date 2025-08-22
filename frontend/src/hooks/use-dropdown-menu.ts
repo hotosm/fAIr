@@ -29,6 +29,6 @@ export const useDropdownMenu = () => {
       onDropdownHide,
       dropdownRef,
     }),
-    [onDropdownShow, onDropdownHide, dropdownRef]
+    [onDropdownShow, onDropdownHide, dropdownRef],
   );
 };

@@ -66,15 +66,13 @@ const ModelListTableLayout: React.FC<ModelListProps> = ({
   isPending,
   isError,
 }) => {
+  if (isPending || isError) return <TableSkeleton />;
   const [sorting, setSorting] = useState<SortingState>([]);
   const navigate = useNavigate();
-
-  if (isPending || isError) return <TableSkeleton />;
 
   const handleClick = (rowData: TModel) => {
     navigate(`${APPLICATION_ROUTES.MODELS}/${rowData.id}`);
   };
-
   return (
     <DataTable
       data={models as TModel[]}

@@ -10,7 +10,7 @@ export const getModels = async (
   dateFilters?: Record<string, string>,
   id?: number,
   userId?: number,
-  dataset?: number
+  dataset?: number,
 ): Promise<PaginatedModels> => {
   const res = await apiClient.get(API_ENDPOINTS.GET_MODELS, {
     params: {

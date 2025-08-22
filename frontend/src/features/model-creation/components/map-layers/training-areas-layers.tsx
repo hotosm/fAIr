@@ -26,7 +26,7 @@ export const TrainingAreasLayers = ({
       type: "FeatureCollection",
       features: features,
     }),
-    [features]
+    [features],
   );
 
   useEffect(() => {

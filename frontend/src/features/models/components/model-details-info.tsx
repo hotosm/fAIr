@@ -43,18 +43,18 @@ const ModelDetailsInfo = ({
       <ModelDetailsSection title="">
         <div className="flex flex-col gap-y-8">
           <div className="inline-flex flex-col gap-y-4">
-            <p className="text-body-2 text-grey">
+            <p className="text-grey text-body-2">
               {MODELS_CONTENT.models.modelsDetailsCard.modelId} {data?.id}
             </p>
-            <div className="flex w-full flex-col gap-y-8 md:flex-row md:items-center md:justify-between">
+            <div className="w-full flex flex-col md:flex-row md:items-center md:justify-between gap-y-8">
               <div className="flex flex-col gap-y-4">
                 <h1
-                  className="text-wrap text-title-2 font-semibold text-dark md:text-large-title"
+                  className="font-semibold text-dark text-title-2 md:text-large-title text-wrap"
                   title={data?.name}
                 >
                   {truncateString(data?.name, 40)}
                 </h1>
-                <p className="max-w-lg text-wrap text-body-3 text-grey md:max-w-xl md:text-body-2 xl:max-w-4xl">
+                <p className="text-body-3 text-grey md:text-body-2 text-wrap max-w-lg md:max-w-xl xl:max-w-4xl">
                   {data?.description ??
                     MODELS_CONTENT.models.modelsDetailsCard
                       .modelDescriptionNotAvailable}
@@ -69,7 +69,7 @@ const ModelDetailsInfo = ({
                   disabled={data?.published_training === null}
                   onClick={() => {
                     navigate(
-                      `${APPLICATION_ROUTES.START_MAPPING_BASE}${data.id}`
+                      `${APPLICATION_ROUTES.START_MAPPING_BASE}${data.id}`,
                     );
                   }}
                 />
@@ -84,7 +84,7 @@ const ModelDetailsInfo = ({
       </ModelDetailsSection>
       <Divider />
       <ModelDetailsSection title="Details">
-        <div className="grid grid-cols-1 gap-y-9 sm:grid-cols-2 md:grid-cols-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-9">
           <div className="flex flex-col gap-y-4">
             <ModelDetailUser
               label={MODELS_CONTENT.models.modelsDetailsCard.createdBy}
@@ -99,8 +99,8 @@ const ModelDetailsInfo = ({
               value={formatDate(data?.last_modified)}
             />
           </div>
-          <div className="col-span-1 flex flex-col items-start justify-between gap-y-4">
-            <div className="flex w-full flex-wrap gap-x-1 text-nowrap text-body-2 text-dark">
+          <div className="col-span-1 items-start justify-between flex flex-col gap-y-4">
+            <div className="text-dark text-body-2 flex w-full gap-x-1 text-nowrap flex-wrap">
               <span className="text-grey">
                 {MODELS_CONTENT.models.modelsDetailsCard.datasetName}
               </span>
@@ -110,7 +110,7 @@ const ModelDetailsInfo = ({
             </div>
 
             <Link
-              className="flex gap-x-1 text-body-2 text-dark"
+              className="text-dark text-body-2 flex gap-x-1"
               href={`${APPLICATION_ROUTES.DATASETS}/${data?.dataset?.id}`}
               title={`Dataset ${data?.dataset?.id}`}
               disableLinkStyle
@@ -128,7 +128,7 @@ const ModelDetailsInfo = ({
             />
           </div>
 
-          <div className="col-span-1 flex flex-col gap-y-4 md:items-end md:justify-between">
+          <div className="col-span-1 flex flex-col md:items-end md:justify-between gap-y-4">
             <div>
               {isAuthenticated && user?.osm_id === data?.user?.osm_id && (
                 <button

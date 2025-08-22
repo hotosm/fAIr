@@ -38,7 +38,7 @@ export const useCreateTrainingArea = ({
 }: useCreateTrainingAreaOptions) => {
   const { refetch: refetchTrainingAreas } = useGetTrainingAreas(
     datasetId,
-    offset
+    offset,
   );
 
   const { onSuccess, ...restConfig } = mutationConfig || {};
@@ -84,7 +84,7 @@ export const useDeleteTrainingArea = ({
 }: useDeleteTrainingAreaOptions) => {
   const { refetch: refetchTrainingAreas } = useGetTrainingAreas(
     datasetId,
-    offset
+    offset,
   );
 
   const { onSuccess, ...restConfig } = mutationConfig || {};
@@ -124,7 +124,7 @@ export const useGetTrainingAreaLabelsFromOSM = ({
 export const useGetTrainingDatasetLabels = (
   datasetId: number,
   bbox: string,
-  currentZoom: number
+  currentZoom: number,
 ) => {
   return useQuery({
     ...getTrainingDatasetLabelsQueryOptions(datasetId, bbox),
@@ -144,7 +144,7 @@ export const useGetTrainingAreaLabels = (aoiId: number, enabled: boolean) => {
 export const useGetTrainingArea = (
   aoiId: number,
   enabled: boolean,
-  refetchInterval: number
+  refetchInterval: number,
 ) => {
   return useQuery({
     ...getTrainingAreaQueryOptions(aoiId),
@@ -160,7 +160,7 @@ type TOSMDatabaseResponse = {
 export const fetchOSMDatabaseLastUpdated =
   async (): Promise<TOSMDatabaseResponse> => {
     const { data } = await axios.get(
-      API_ENDPOINTS.GET_OSM_DATABASE_LAST_UPDATED
+      API_ENDPOINTS.GET_OSM_DATABASE_LAST_UPDATED,
     );
     return data;
   };

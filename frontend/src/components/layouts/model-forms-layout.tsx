@@ -87,11 +87,11 @@ export const ModelFormsLayout = () => {
         />
         <TrainingAreaTourDialog />
         <Head title="Create New Model" />
-        <div className="my-6 flex size-full min-h-screen flex-col gap-y-2">
+        <div className="flex flex-col gap-y-2 my-6 w-full min-h-screen h-full">
           <BackButton />
-          <div className="my-2 grid min-h-screen w-full grid-cols-12 grid-rows-[auto_1fr_auto] justify-center gap-y-8">
+          <div className="min-h-screen grid grid-cols-12 grid-rows-[auto_1fr_auto] gap-y-8 w-full justify-center my-2">
             <div
-              className="col-span-12 w-full xl:col-span-10 xl:col-start-2"
+              className="col-span-12 xl:col-start-2 xl:col-span-10 w-full"
               id={APP_TOUR_IDS.STEP_HEADING}
             >
               <ProgressBar
@@ -102,7 +102,7 @@ export const ModelFormsLayout = () => {
             </div>
 
             <div
-              className={`col-span-12 mb-48  rounded-xl border border-gray-border bg-white p-6 shadow-sm ${pathname.includes(MODELS_ROUTES.TRAINING_AREA) || pathname.includes(MODELS_ROUTES.TRAINING_DATASET) ? "" : " xl:col-span-10 xl:col-start-2 2xl:col-span-6 2xl:col-start-4"}`}
+              className={`col-span-12 mb-48  bg-white rounded-xl shadow-sm p-6 border border-gray-border ${pathname.includes(MODELS_ROUTES.TRAINING_AREA) || pathname.includes(MODELS_ROUTES.TRAINING_DATASET) ? "" : " xl:col-start-2 xl:col-span-10 2xl:col-start-4 2xl:col-span-6"}`}
             >
               <Outlet />
             </div>
@@ -110,7 +110,7 @@ export const ModelFormsLayout = () => {
             {!pathname.includes(MODELS_ROUTES.CONFIRMATION) && (
               <div
                 id={APP_TOUR_IDS.PROGRESS_BUTTONS}
-                className="app-padding fixed inset-x-0 bottom-0 z-[10000] mx-auto h-16  w-full border-t border-light-gray bg-white py-2 md:h-20 md:py-4"
+                className="fixed left-0 right-0 mx-auto bottom-0 h-16 md:h-20  bg-white w-full app-padding border-t border-light-gray z-[10000] py-2 md:py-4"
               >
                 <ProgressButtons
                   pages={pages}

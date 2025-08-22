@@ -52,9 +52,9 @@ export const AppTourProvider: React.FC<AppTourProviderProps> = ({
     setShowTourModal(false);
     setIsOpen(true);
     // @ts-expect-error bad types definition
-    setSteps(() => {
+    setSteps((prevSteps) => {
       const visibleSteps = APP_TOUR_STEPS.filter((step) =>
-        document.querySelector(step.selector)
+        document.querySelector(step.selector),
       );
       return visibleSteps;
     });

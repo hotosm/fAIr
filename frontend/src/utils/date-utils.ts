@@ -40,7 +40,7 @@ export const extractDatePart = (isoString: string) => {
 export const buildDateFilterQueryString = (
   selectedFilter?: DateFilter,
   startDate?: string,
-  endDate?: string
+  endDate?: string,
 ): Record<string, string> => {
   const params: Record<string, string> = {};
   if (startDate) {
@@ -78,7 +78,7 @@ export const formatDate = (isoString: string): string => {
 export const formatDuration = (
   startDate: Date,
   endDate: Date,
-  maxUnits: number = 4
+  maxUnits: number = 4,
 ): string => {
   const diff = Math.abs(endDate.getTime() - startDate.getTime());
 

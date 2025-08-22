@@ -40,7 +40,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
   return (
     <div
       ref={containerRef}
-      className="flex w-full items-center justify-between gap-x-4 overflow-x-auto p-1"
+      className="flex items-center justify-between w-full gap-x-4 overflow-x-auto p-1"
     >
       {pages.map((step, index) => {
         const activeStep = currentPath.includes(step.path);
@@ -48,7 +48,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
         const isLastPage = index === pages.length - 1;
         // Disable other buttons when the user is on the confirmation page.
         const isConfirmationPage = currentPath.includes(
-          MODELS_ROUTES.CONFIRMATION
+          MODELS_ROUTES.CONFIRMATION,
         );
         // Disable the model details and training dataset if the user is not the owner of the model and if in edit mode.
         const disableButton =
@@ -64,8 +64,8 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
             onClick={() => !isLastPage && navigate(getFullPath(step.path))}
           >
             {step.id < currentPageIndex + 1 ? (
-              <span className="flex size-9 items-center justify-center rounded-full bg-primary">
-                <CheckIcon className="icon-lg rounded-full bg-white p-1 text-primary" />
+              <span className="rounded-full bg-primary flex items-center justify-center w-9 h-9">
+                <CheckIcon className="icon-lg text-primary bg-white rounded-full p-1" />
               </span>
             ) : (
               <span
@@ -74,14 +74,14 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
                     activeStep
                       ? "outline-dashed outline-2 outline-offset-2 outline-primary bg-primary"
                       : "bg-grey"
-                  }`
+                  }`,
                 )}
               >
                 {<step.icon className="icon-lg text-white" />}
               </span>
             )}
 
-            <span className="whitespace-nowrap text-dark">{step.title}</span>
+            <span className="text-dark whitespace-nowrap">{step.title}</span>
           </button>
         );
       })}

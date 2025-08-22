@@ -4,7 +4,6 @@ import { DropdownMenuItem } from "@/components/ui/dropdown/dropdown";
 import { MODELS_CONTENT } from "@/constants";
 import { TQueryParams } from "@/types";
 import { SEARCH_PARAMS } from "@/utils/search-params";
-import { SlSelectEvent } from "@shoelace-style/shoelace";
 
 export const ORDERING_FIELDS: DropdownMenuItem[] = [
   {
@@ -40,12 +39,10 @@ export const OrderingFilter: React.FC<OrderingFilterProps> = ({
   isMobileFilterModal = false,
   className = "hidden md:block",
 }) => {
-  const onSortSelect = (
-    selectedItem: string | string[] | SlSelectEvent | undefined
-  ) => {
+  const onSortSelect = (selectedItem: string) => {
     updateQuery({
       [SEARCH_PARAMS.ordering]: ORDERING_FIELDS.find(
-        (v) => v.value === selectedItem
+        (v) => v.value === selectedItem,
       )?.apiValue as string,
     });
   };
@@ -60,11 +57,11 @@ export const OrderingFilter: React.FC<OrderingFilterProps> = ({
           withCheckbox
           defaultSelectedItem={
             ORDERING_FIELDS.find(
-              (v) => v.apiValue === query[SEARCH_PARAMS.ordering]
+              (v) => v.apiValue === query[SEARCH_PARAMS.ordering],
             )?.value
           }
           triggerComponent={
-            <p className="text-nowrap text-xs text-dark md:text-sm">
+            <p className="text-xs md:text-sm text-dark text-nowrap">
               {
                 MODELS_CONTENT.models.modelsList.sortingAndPaginationSection
                   .sortingTitle
@@ -84,7 +81,7 @@ export const OrderingFilter: React.FC<OrderingFilterProps> = ({
       onCheck={onSortSelect}
       defaultSelectedOption={
         ORDERING_FIELDS.find(
-          (v) => v.apiValue === query[SEARCH_PARAMS.ordering]
+          (v) => v.apiValue === query[SEARCH_PARAMS.ordering],
         )?.value
       }
     ></CheckboxGroup>

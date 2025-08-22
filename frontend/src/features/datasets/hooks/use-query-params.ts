@@ -25,7 +25,7 @@ export const useDatasetsQueryParams = (userId?: number) => {
 
   const debouncedSearchText = useDebounce(
     query[SEARCH_PARAMS.searchQuery] as string,
-    300
+    300,
   );
 
   const { isPending, isError, data, refetch, isPlaceholderData } =
@@ -36,7 +36,7 @@ export const useDatasetsQueryParams = (userId?: number) => {
       query[SEARCH_PARAMS.offset] !== undefined
         ? (query[SEARCH_PARAMS.offset] as number)
         : undefined,
-      query[SEARCH_PARAMS.id] as number
+      query[SEARCH_PARAMS.id] as number,
     );
 
   const updateQuery = useCallback(
@@ -57,7 +57,7 @@ export const useDatasetsQueryParams = (userId?: number) => {
 
       setSearchParams(updatedParams, { replace: true });
     },
-    [searchParams, setSearchParams]
+    [searchParams, setSearchParams],
   );
 
   //reset offset back to 0 when searching or when ID filtering is applied from the map.

@@ -26,7 +26,7 @@ export const UserProfileSettingsPage = () => {
     {
       valid: true,
       message: "",
-    }
+    },
   );
 
   const [showForm, setShowForm] = useState<boolean>(user?.email.length === 0);
@@ -40,10 +40,10 @@ export const UserProfileSettingsPage = () => {
   }>({
     monthlyNewsletter: user.newsletter_subscription,
     emailTrainingNotification: user.notifications_delivery_methods.includes(
-      NotificationDeliveryMethod.MAIL
+      NotificationDeliveryMethod.MAIL,
     ),
     webTrainingNotification: user.notifications_delivery_methods.includes(
-      NotificationDeliveryMethod.WEB
+      NotificationDeliveryMethod.WEB,
     ),
   });
 
@@ -60,7 +60,7 @@ export const UserProfileSettingsPage = () => {
         setIsEmailPending(false);
       },
       onError: (error) => {
-        showErrorToast(error);
+        showErrorToast(error, "Error updating email.");
         setIsEmailPending(false);
       },
     },
@@ -85,7 +85,7 @@ export const UserProfileSettingsPage = () => {
         openSuccessDialog();
       },
       onError: (error) => {
-        showErrorToast(error);
+        showErrorToast(error, "Account deletion request failed.");
       },
     },
   });
@@ -97,7 +97,7 @@ export const UserProfileSettingsPage = () => {
     mutationConfig: {
       onSuccess: () => {
         showSuccessToast(
-          "Email verification instructions has been sent to your email address."
+          "Email verification instructions has been sent to your email address.",
         );
       },
       onError: (error) => {
@@ -114,7 +114,7 @@ export const UserProfileSettingsPage = () => {
         setIsNotificationPending(false);
       },
       onError: (error) => {
-        showErrorToast(error);
+        showErrorToast(error, "Error updating notifications.");
         setIsNotificationPending(false);
       },
     },
@@ -133,7 +133,7 @@ export const UserProfileSettingsPage = () => {
     <>
       {/* Delete success dialog */}
       <Dialog isOpened={isSuccessDialogOpened} closeDialog={closeSuccessDialog}>
-        <div className="flex size-full flex-col items-center justify-center gap-y-4">
+        <div className="flex flex-col items-center gap-y-4 h-full w-full justify-center">
           <Image
             src={ModelFormConfirmation}
             alt="Model Creation Success Icon"
@@ -144,7 +144,7 @@ export const UserProfileSettingsPage = () => {
                 .deletionSuccessTitle
             }
           </h1>
-          <p className="text-center text-body-3">
+          <p className="text-body-3 text-center">
             {
               USER_PROFILE_PAGE_CONTENT.settings.account.deleteModal
                 .deletionSuccessDescription
@@ -153,7 +153,7 @@ export const UserProfileSettingsPage = () => {
           <div className="flex  w-full items-center justify-center">
             <Button
               onClick={closeSuccessDialog}
-              className="!px-4 py-2 md:!w-fit"
+              className="md:!w-fit !px-4 py-2"
               contentClassName="md:!px-8"
             >
               {
@@ -176,8 +176,8 @@ export const UserProfileSettingsPage = () => {
         isDeleting={accountDeletionRequestIsPending}
       />
 
-      <div className="flex items-center justify-center">
-        <div className="flex w-full flex-col gap-y-10 md:max-w-[400px]">
+      <div className="flex justify-center items-center">
+        <div className="w-full md:max-w-[400px] flex flex-col gap-y-10">
           {!showForm && (
             <>
               <SectionHeader
@@ -186,8 +186,8 @@ export const UserProfileSettingsPage = () => {
                     .emailAddressSectionHeading
                 }
               />
-              <div className="flex flex-col justify-between gap-y-2 md:flex-row md:items-center md:gap-0">
-                <p className="flex items-center gap-x-2 text-body-3 md:text-body-2">
+              <div className="flex flex-col md:flex-row gap-y-2 md:gap-0 justify-between md:items-center">
+                <p className="text-body-3 md:text-body-2 flex items-center gap-x-2">
                   {truncateString(email)}
                   {user.email_verified && (
                     <ToolTip
@@ -196,7 +196,7 @@ export const UserProfileSettingsPage = () => {
                           .emailVerifiedTooltip
                       }
                     >
-                      <span className="flex size-5 items-center justify-center rounded-full bg-green-500 p-1">
+                      <span className="w-5 h-5 p-1 rounded-full bg-green-500 flex items-center justify-center">
                         <CheckIcon className="icon text-white" />
                       </span>
                     </ToolTip>
@@ -259,7 +259,7 @@ export const UserProfileSettingsPage = () => {
           )}
 
           {!user.email_verified && user?.email.length > 0 && (
-            <div className="flex h-full flex-col gap-y-6 rounded-md bg-off-white p-4 text-sm">
+            <div className="text-sm flex flex-col gap-y-6 h-full bg-off-white rounded-md p-4">
               <p>
                 {
                   USER_PROFILE_PAGE_CONTENT.settings.form
@@ -296,13 +296,13 @@ export const UserProfileSettingsPage = () => {
                 (notification, index) => (
                   <div key={index} className="flex flex-col space-y-2">
                     <div
-                      className={`flex items-center justify-between transition-opacity duration-200 ${user.email.length === 0 && notification.key !== USER_PROFILE_PAGE_CONTENT.settings.notifications.notificationKeys.webTrainingNotification ? "opacity-50" : ""}`}
+                      className={`flex justify-between items-center transition-opacity duration-200 ${user.email.length === 0 && notification.key !== USER_PROFILE_PAGE_CONTENT.settings.notifications.notificationKeys.webTrainingNotification ? "opacity-50" : ""}`}
                     >
                       <div className="flex flex-col gap-y-1">
                         <h3 className="text-body-3 md:text-body-2">
                           {notification.label}
                         </h3>
-                        <p className="text-body-4 text-grey md:text-body-3">
+                        <p className="text-body-4 md:text-body-3 text-grey">
                           {notification.description}
                         </p>
                       </div>
@@ -324,10 +324,9 @@ export const UserProfileSettingsPage = () => {
                           ]
                         }
                         handleSwitchChange={(e) => {
-                          const target = e.target as HTMLInputElement;
                           const updatedNotifications = {
                             ...notifications,
-                            [notification.key]: target.checked,
+                            [notification.key]: e.target.checked,
                           };
                           setIsNotificationPending(true);
                           updateNotifications(
@@ -348,15 +347,18 @@ export const UserProfileSettingsPage = () => {
                                 setNotifications(updatedNotifications);
                               },
                               onError: (error) => {
-                                showErrorToast(error);
+                                showErrorToast(
+                                  error,
+                                  "Error updating notifications",
+                                );
                               },
-                            }
+                            },
                           );
                         }}
                       />
                     </div>
                   </div>
-                )
+                ),
               )}
             </div>
           </div>
@@ -371,7 +373,7 @@ export const UserProfileSettingsPage = () => {
                 <p className="text-body-3 md:text-body-2">
                   {USER_PROFILE_PAGE_CONTENT.settings.account.title}
                 </p>
-                <p className="text-body-3 text-grey">
+                <p className="text-grey text-body-3">
                   {!user.account_deletion_requested
                     ? USER_PROFILE_PAGE_CONTENT.settings.account.description
                     : USER_PROFILE_PAGE_CONTENT.settings.account
@@ -402,7 +404,7 @@ export const UserProfileSettingsPage = () => {
 const SectionHeader = ({ sectionTitle }: { sectionTitle: string }) => {
   return (
     <div>
-      <h2 className="md:text-title-4 text-body-1 font-semibold">
+      <h2 className="text-body-1 md:text-title-4 font-semibold">
         {sectionTitle}
       </h2>
     </div>

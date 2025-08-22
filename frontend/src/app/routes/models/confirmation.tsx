@@ -26,10 +26,10 @@ export const ModelConfirmationPage = () => {
   return (
     <div
       className={
-        "col-span-12 flex flex-col gap-y-10 md:col-span-8 md:col-start-3"
+        "col-span-12 md:col-start-3 md:col-span-8 flex flex-col gap-y-10"
       }
     >
-      <div className="flex size-full flex-col items-center justify-center gap-y-10 text-center">
+      <div className="flex items-center justify-center w-full h-full flex-col gap-y-10 text-center">
         <ConfettiExplosion
           force={0.2}
           duration={5000}
@@ -45,7 +45,7 @@ export const ModelConfirmationPage = () => {
             ? MODELS_CONTENT.modelCreation.confirmation.updateDescription
             : MODELS_CONTENT.modelCreation.confirmation.description}
         </p>
-        <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <Link
             href={`${APPLICATION_ROUTES.MODELS}/${modelId}`}
             title={MODELS_CONTENT.modelCreation.confirmation.buttons.goToModel}

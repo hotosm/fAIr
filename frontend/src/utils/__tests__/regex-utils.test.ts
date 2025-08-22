@@ -13,94 +13,98 @@ describe("Regex Patterns", () => {
   it("XYZ_TILESERVER_URL_REGEX_PATTERN matches valid XYZ URLs", () => {
     expect(
       XYZ_TILESERVER_URL_REGEX_PATTERN.test(
-        "http://example.com/tiles/{z}/{x}/{y}?format=png"
-      )
+        "http://example.com/tiles/{z}/{x}/{y}?format=png",
+      ),
     ).toBe(true);
 
     expect(
       XYZ_TILESERVER_URL_REGEX_PATTERN.test(
-        "https://example.com/tiles/{z}/{x}/{y}?format=jpg"
-      )
+        "https://example.com/tiles/{z}/{x}/{y}?format=jpg",
+      ),
     ).toBe(true);
     expect(
       XYZ_TILESERVER_URL_REGEX_PATTERN.test(
-        "https://services.arcgisonline.com/ArcGis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-      )
+        "https://services.arcgisonline.com/ArcGis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+      ),
     ).toBe(true);
     expect(
       XYZ_TILESERVER_URL_REGEX_PATTERN.test(
-        "https://example.com/tiles/path/{z}/{x}/{y}"
-      )
+        "https://example.com/tiles/path/{z}/{x}/{y}",
+      ),
     ).toBe(true);
 
     expect(
       XYZ_TILESERVER_URL_REGEX_PATTERN.test(
-        "http://example.com/tiles/{z}/{x}/{-y}?format=png"
-      )
+        "http://example.com/tiles/{z}/{x}/{-y}?format=png",
+      ),
     ).toBe(false); // -y is TMS, not XYZ
 
     expect(
       XYZ_TILESERVER_URL_REGEX_PATTERN.test(
-        "http://example.com/tiles/{z}/{x}/{y}?format=gif"
-      )
+        "http://example.com/tiles/{z}/{x}/{y}?format=gif",
+      ),
     ).toBe(true);
 
     expect(
       XYZ_TILESERVER_URL_REGEX_PATTERN.test(
-        "https://c.tiles.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}@2x.jpg?access_token=pk.abc123"
-      )
+        "https://c.tiles.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}@2x.jpg?access_token=pk.abc123",
+      ),
     ).toBe(true); // supports @2x suffix after {y}
   });
   it("TMS_TILESERVER_URL_REGEX_PATTERN matches valid TMS URLs", () => {
     expect(
       TMS_TILESERVER_URL_REGEX_PATTERN.test(
-        "http://example.com/tiles/{z}/{x}/{-y}?format=png"
-      )
+        "http://example.com/tiles/{z}/{x}/{-y}?format=png",
+      ),
     ).toBe(true);
     expect(
       TMS_TILESERVER_URL_REGEX_PATTERN.test(
-        "https://example.com/tiles/{z}/{x}/{-y}?format=jpg"
-      )
+        "https://example.com/tiles/{z}/{x}/{-y}?format=jpg",
+      ),
     ).toBe(true);
     expect(
       TMS_TILESERVER_URL_REGEX_PATTERN.test(
-        "https://example.com/tiles/path/{z}/{x}/{-y}"
-      )
+        "https://example.com/tiles/path/{z}/{x}/{-y}",
+      ),
     ).toBe(true);
 
     expect(
       TMS_TILESERVER_URL_REGEX_PATTERN.test(
-        "http://example.com/tiles/{z}/{x}/{y}?format=png"
-      )
+        "http://example.com/tiles/{z}/{x}/{y}?format=png",
+      ),
     ).toBe(false); // not TMS if {y} not {-y}
   });
 
   it("TILEJSON_TILESERVER_URL_REGEX_PATTERN matches valid TileJSON URLs", () => {
     expect(
       TILEJSON_TILESERVER_URL_REGEX_PATTERN.test(
-        "http://example.com/tiles.json"
-      )
+        "http://example.com/tiles.json",
+      ),
     ).toBe(true);
     expect(
       TILEJSON_TILESERVER_URL_REGEX_PATTERN.test(
-        "https://example.com/path/to/tiles.json"
-      )
+        "https://example.com/path/to/tiles.json",
+      ),
     ).toBe(true);
     expect(
       TILEJSON_TILESERVER_URL_REGEX_PATTERN.test(
-        "https://clarity.maptiles.arcgis.tiles.json"
-      )
+        "https://clarity.maptiles.arcgis.tiles.json",
+      ),
     ).toBe(false);
     expect(
       TILEJSON_TILESERVER_URL_REGEX_PATTERN.test(
-        "https://example.com/tiles.json?token=abc"
-      )
+        "https://example.com/tiles.json?token=abc",
+      ),
     ).toBe(true);
     expect(
-      TILEJSON_TILESERVER_URL_REGEX_PATTERN.test("http://example.com/tiles.png")
+      TILEJSON_TILESERVER_URL_REGEX_PATTERN.test(
+        "http://example.com/tiles.png",
+      ),
     ).toBe(false);
     expect(
-      TILEJSON_TILESERVER_URL_REGEX_PATTERN.test("ftp://example.com/tiles.json")
+      TILEJSON_TILESERVER_URL_REGEX_PATTERN.test(
+        "ftp://example.com/tiles.json",
+      ),
     ).toBe(false); // wrong protocol
   });
 
@@ -112,33 +116,33 @@ describe("Regex Patterns", () => {
 
   it("VALID_MODEL_CHECKPOINT_PATH matches valid URLs", () => {
     expect(
-      VALID_MODEL_CHECKPOINT_PATH.test("http://example.com/model.onnx")
+      VALID_MODEL_CHECKPOINT_PATH.test("http://example.com/model.onnx"),
     ).toBe(true);
     expect(
       VALID_MODEL_CHECKPOINT_PATH.test(
-        "https://example.com/path/to/model.tflite"
-      )
+        "https://example.com/path/to/model.tflite",
+      ),
     ).toBe(true);
     expect(
-      VALID_MODEL_CHECKPOINT_PATH.test("http://example.com/model.pb")
+      VALID_MODEL_CHECKPOINT_PATH.test("http://example.com/model.pb"),
     ).toBe(false);
   });
 
   it("OPENAERIALMAP_TILESERVER_URL_REGEX_PATTERN matches valid URLs", () => {
     expect(
       OPENAERIALMAP_TILESERVER_URL_REGEX_PATTERN.test(
-        "https://tiles.openaerialmap.org/abc123/1/xyz456/{z}/{x}/{y}"
-      )
+        "https://tiles.openaerialmap.org/abc123/1/xyz456/{z}/{x}/{y}",
+      ),
     ).toBe(true);
     expect(
       OPENAERIALMAP_TILESERVER_URL_REGEX_PATTERN.test(
-        "https://tiles.openaerialmap.org/abc123/1/xyz456/{z}/{x}/{-y}"
-      )
+        "https://tiles.openaerialmap.org/abc123/1/xyz456/{z}/{x}/{-y}",
+      ),
     ).toBe(false);
     expect(
       OPENAERIALMAP_TILESERVER_URL_REGEX_PATTERN.test(
-        "http://tiles.openaerialmap.org/abc123/1/xyz456/{z}/{x}/{y}"
-      )
+        "http://tiles.openaerialmap.org/abc123/1/xyz456/{z}/{x}/{y}",
+      ),
     ).toBe(false);
   });
 });

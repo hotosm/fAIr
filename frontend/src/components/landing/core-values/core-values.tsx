@@ -78,13 +78,7 @@ export const Corevalues = () => {
 
         {/* Connector */}
         <div className={styles.dashedLineWrapper}>
-          <Image
-            src={DashedLineConnector}
-            alt="dashed-line"
-            className={styles.image}
-            width="100"
-            height="100"
-          />
+          <Image src={DashedLineConnector} alt="" className={styles.image} />
         </div>
 
         {/* Humans not replaced */}
@@ -102,8 +96,6 @@ export const Corevalues = () => {
               src={MapathonOngoing}
               alt={SHARED_CONTENT.homepage.coreValues.humansNotReplaced.title}
               className={styles.image}
-              width="100%"
-              height="100%"
             />
             {/* The rectangles */}
             <div

@@ -17,7 +17,7 @@ export const getTrainingDatasetsQueryOptionsV2 = (
   ordering?: string,
   userId?: number,
   offset?: number,
-  id?: number
+  id?: number,
 ) => {
   return queryOptions({
     queryKey: [

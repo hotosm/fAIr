@@ -97,7 +97,7 @@ export type TGetTrainingAreaLabelsFromOSMArgs = {
 
 export const getTrainingAreaLabelsFromOSM = async ({
   aoiId,
-}: TGetTrainingAreaLabelsFromOSMArgs): Promise<string> => {
+}: TGetTrainingAreaLabelsFromOSMArgs): Promise<String> => {
   return await (
     await apiClient.post(API_ENDPOINTS.GET_TRAINING_AREA_LABELS_FROM_OSM(aoiId))
   ).data;
@@ -111,11 +111,11 @@ export type TCreateTrainingLabelsForAOIArgs = {
 export const createTrainingLabelsForAOI = async ({
   aoiId,
   formData,
-}: TCreateTrainingLabelsForAOIArgs): Promise<string> => {
+}: TCreateTrainingLabelsForAOIArgs): Promise<String> => {
   return await (
     await apiClient.post(
       API_ENDPOINTS.UPLOAD_TRAINING_AREA_LABELS(aoiId),
-      formData
+      formData,
     )
   ).data.status;
 };

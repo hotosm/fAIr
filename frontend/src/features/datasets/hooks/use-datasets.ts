@@ -17,7 +17,7 @@ export const useGetTrainingDatasetsV2 = (
   ordering?: string,
   userId?: number,
   offset?: number,
-  id?: number
+  id?: number,
 ) => {
   return useQuery({
     ...getTrainingDatasetsQueryOptionsV2(
@@ -25,7 +25,7 @@ export const useGetTrainingDatasetsV2 = (
       ordering,
       userId,
       offset,
-      id
+      id,
     ),
   });
 };

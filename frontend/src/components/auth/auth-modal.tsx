@@ -30,10 +30,10 @@ export const AuthenticationModal = ({
 
   return (
     <Dialog isOpened={isOpen} closeDialog={handleOnClose} label="">
-      <div className="flex flex-col items-center justify-center gap-y-20 px-2 md:px-4">
+      <div className="px-2 md:px-4 flex items-center justify-center flex-col gap-y-20">
         <NavLogo />
-        <div className="flex flex-col gap-y-2 text-center">
-          <h1 className="text-body-2 font-semibold md:text-title-2 xl:text-title-1">
+        <div className="text-center flex flex-col gap-y-2">
+          <h1 className="text-body-2 md:text-title-2 xl:text-title-1 font-semibold">
             {AUTH_PAGE_AND_MODAL_CONTENT.title}
           </h1>
           <p className="text-body-3  xl:text-body-2">
@@ -55,7 +55,7 @@ export const AuthenticationModal = ({
           >
             <Image
               src={OSMLogo}
-              className="size-6"
+              className="w-6 h-6"
               alt={AUTH_PAGE_AND_MODAL_CONTENT.buttonText}
             />
             {AUTH_PAGE_AND_MODAL_CONTENT.buttonText}

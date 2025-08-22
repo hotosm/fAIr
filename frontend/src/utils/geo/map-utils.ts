@@ -2,7 +2,7 @@ import { LayerSpecification, Map, SourceSpecification } from "maplibre-gl";
 
 export const addSources = (
   map: Map,
-  sources: { id: string; spec: SourceSpecification }[]
+  sources: { id: string; spec: SourceSpecification }[],
 ) => {
   if (!map) return;
   sources.forEach((source) => {
@@ -14,7 +14,7 @@ export const addSources = (
 
 export const removeSources = (
   map: Map,
-  sources: { id: string; spec: SourceSpecification }[]
+  sources: { id: string; spec: SourceSpecification }[],
 ) => {
   if (!map) return;
   sources.forEach((source) => {

@@ -105,17 +105,17 @@ describe("roundNumber", () => {
 
   describe("edge cases and invalid inputs", () => {
     it("should return 0 for non-numeric input (string)", () => {
-      // @ts-expect-error - Intentionally testing invalid input type
+      // @ts-ignore - Intentionally testing invalid input type
       expect(roundNumber("abc")).toBe(0);
     });
 
     it("should return 0 for null input", () => {
-      // @ts-expect-error - Intentionally testing invalid input type
+      // @ts-ignore
       expect(roundNumber(null)).toBe(0);
     });
 
     it("should return 0 for undefined input", () => {
-      // @ts-expect-error - Intentionally testing invalid input type
+      // @ts-ignore
       expect(roundNumber(undefined)).toBe(0);
     });
 

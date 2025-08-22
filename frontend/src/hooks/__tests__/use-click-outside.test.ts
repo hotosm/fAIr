@@ -14,7 +14,7 @@ describe("useClickOutside", () => {
         "div",
         null,
         createElement("div", { ref, "data-testid": "inside" }, "Inside"),
-        createElement("div", { "data-testid": "outside" }, "Outside")
+        createElement("div", { "data-testid": "outside" }, "Outside"),
       );
     };
 

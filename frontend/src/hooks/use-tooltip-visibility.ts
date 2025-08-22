@@ -1,10 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import type { Map, MapMouseEvent } from "maplibre-gl";
-import { DrawingModes } from "@/enums";
 
 export const useToolTipVisibility = (
   map: Map | null,
-  dependencies: (number | DrawingModes)[] = []
+  dependencies: any[] = [],
 ) => {
   const [tooltipVisible, setTooltipVisible] = useState<boolean>(false);
   const [tooltipPosition, setTooltipPosition] = useState<{

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   MIN_ZOOM_LEVEL_FOR_TRAINING_AREA_LABELS,
   TRAINING_AREAS_AOI_LABELS_FILL_COLOR,
@@ -22,7 +21,7 @@ import { useEffect, useMemo } from "react";
 const offsetGeoJSON = (
   features: Feature[],
   lat: number,
-  offset?: { x: number; y: number }
+  offset?: { x: number; y: number },
 ): Feature[] => {
   if (!offset?.x && !offset?.y) return features;
 

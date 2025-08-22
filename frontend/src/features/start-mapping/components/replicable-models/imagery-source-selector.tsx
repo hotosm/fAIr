@@ -89,7 +89,7 @@ export const ImagerySourceSelector = ({
       [PredictionImagerySource.ModelDefault]: modelDefaultImageryURL,
       [PredictionImagerySource.Kontour]: OPENAERIALMAP_MOSAIC_TILES_URL,
     }),
-    [localTileServerURL, modelDefaultImageryURL]
+    [localTileServerURL, modelDefaultImageryURL],
   );
 
   const handleApply = () => {
@@ -101,7 +101,7 @@ export const ImagerySourceSelector = ({
           PredictionImagerySource,
           string | undefined
         >
-      )[localPredictionImagerySource] || ""
+      )[localPredictionImagerySource] || "",
     );
     setTileServiceTypeValidity(localTileServiceTypeValidity);
     if (!loading) onDropdownHide();
@@ -109,7 +109,7 @@ export const ImagerySourceSelector = ({
 
   return (
     <div
-      className={`bg-white ${isMobile ? "w-full" : "w-[350px] rounded-xl border border-gray-border shadow-lg "} scrollable flex max-h-[400px] flex-col gap-y-4 overflow-y-auto p-4`}
+      className={`bg-white ${isMobile ? "w-full" : "w-[350px] shadow-lg rounded-xl border border-gray-border "} p-4 max-h-[400px] gap-y-4 overflow-y-auto flex flex-col scrollable`}
     >
       {!isMobile && (
         <div>
@@ -141,7 +141,7 @@ export const ImagerySourceSelector = ({
       />
       {localPredictionImagerySource ===
         PredictionImagerySource.CustomImagery && (
-        <div className="mt-2 flex flex-col gap-y-2">
+        <div className="flex flex-col gap-y-2 mt-2">
           <XYZTileServerInput
             tileServiceType={localTileServiceType}
             isValid={localTileServiceTypeValidity}
@@ -160,7 +160,7 @@ export const ImagerySourceSelector = ({
         </small>
       )}
       <Divider />
-      <div className="flex items-center justify-between gap-x-2">
+      <div className="flex justify-between items-center gap-x-2">
         <Button
           size={SHOELACE_SIZES.SMALL}
           uppercase={false}

@@ -10,7 +10,7 @@ const MobileFilter = ({
     <div
       role="button"
       className={
-        "flex cursor-pointer  items-center justify-center border border-gray-border p-2 text-dark md:hidden"
+        "flex md:hidden  border border-gray-border p-2 items-center justify-center text-dark cursor-pointer"
       }
       onClick={openMobileFilterModal}
     >

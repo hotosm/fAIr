@@ -15,11 +15,9 @@ import {
 } from "react";
 import "./dropdown.css";
 import { SlDropdownType } from "@/types";
-import { SlSelectEvent } from "@shoelace-style/shoelace";
 
 type TDropdownMenuItem = {
   value: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onClick?: (e: any | undefined) => void;
   className?: string;
   name?: string;
@@ -37,9 +35,7 @@ type DropDownProps = {
   onDropdownHide?: (event: React.MouseEvent<HTMLDivElement>) => void;
   menuItems?: DropdownMenuItem[];
   className?: string;
-  handleMenuSelection?: (
-    selectedItems?: string[] | string | SlSelectEvent
-  ) => void;
+  handleMenuSelection?: (selectedItems?: string[] | any) => void;
   disabled?: boolean;
   withCheckbox?: boolean;
   defaultSelectedItems?: string[];
@@ -82,7 +78,7 @@ const DropDown = forwardRef<SlDropdownType, DropDownProps>((props, ref) => {
     }
   }, [defaultSelectedItems, defaultSelectedItem, multiSelect]);
 
-  const handleSelect = (event: SlSelectEvent) => {
+  const handleSelect = (event: any) => {
     if (withCheckbox) {
       const value = event.detail.item.value;
       if (multiSelect) {
@@ -92,7 +88,7 @@ const DropDown = forwardRef<SlDropdownType, DropDownProps>((props, ref) => {
 
           if (isSelected) {
             updatedSelectedItems = prevSelectedItems.filter(
-              (item) => item !== value
+              (item) => item !== value,
             );
           } else {
             updatedSelectedItems = [...prevSelectedItems, value];
@@ -136,7 +132,7 @@ const DropDown = forwardRef<SlDropdownType, DropDownProps>((props, ref) => {
     >
       <div
         slot="trigger"
-        className="inline-flex w-full cursor-pointer items-center"
+        className="inline-flex items-center w-full cursor-pointer"
       >
         {triggerComponent}
         {!disableCheveronIcon && (
@@ -147,7 +143,7 @@ const DropDown = forwardRef<SlDropdownType, DropDownProps>((props, ref) => {
       </div>
       <div
         className={cn(
-          `shadow-2xl z-[1000000000] map-elements-z-index ${className}`
+          `shadow-2xl z-[1000000000] map-elements-z-index ${className}`,
         )}
       >
         {menuItems && menuItems.length > 0 ? (

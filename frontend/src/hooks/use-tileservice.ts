@@ -13,16 +13,16 @@ import { useEffect, useMemo, useState } from "react";
 
 export const useTileservice = (
   defaultTileServiceType: TileServiceType,
-  defaultTileserverURL: string
+  defaultTileserverURL: string,
 ) => {
   const [tileServiceType, setTileServiceType] = useState<TileServiceType>(
-    defaultTileServiceType
+    defaultTileServiceType,
   );
 
   const [loading, setLoading] = useState<boolean>(false);
 
   const [tileJSONMetadata, setTileJSONMetadata] = useState<TileJSON | null>(
-    null
+    null,
   );
 
   const [tileserverURL, setTileserverURL] =
@@ -35,11 +35,11 @@ export const useTileservice = (
 
   const currentRegex = useMemo(
     () => getTileServerRegex(tileServiceType),
-    [tileServiceType]
+    [tileServiceType],
   );
   const isValidTileserverURL = useMemo(
     () => currentRegex.test(tileserverURL),
-    [tileserverURL, currentRegex]
+    [tileserverURL, currentRegex],
   );
 
   /**
@@ -79,13 +79,13 @@ export const useTileservice = (
       try {
         setLoading(true);
         const tileJSON = await getTMSTileJSON(
-          isOpenAerialMap ? extractTileJSONURL(tileserverURL) : tileserverURL
+          isOpenAerialMap ? extractTileJSONURL(tileserverURL) : tileserverURL,
         );
         if (tileJSON?.bounds) {
           setTileJSONMetadata(tileJSON);
         }
-      } catch {
-        showErrorToast("Failed to fetch TileJSON metadata.");
+      } catch (e) {
+        showErrorToast(undefined, "Failed to fetch TileJSON metadata.");
       } finally {
         setLoading(false);
       }
@@ -170,9 +170,9 @@ export const useTileServiceLayer = ({
         source: TMS_SOURCE_ID,
         layout: { visibility: "visible" },
       });
-    } catch {
+    } catch (e) {
       setError(
-        "Unable to load the tile server. Please verify the URL and try again."
+        "Unable to load the tile server. Please verify the URL and try again.",
       );
     } finally {
       setLoading(false);
@@ -193,7 +193,7 @@ export const useTileServiceLayer = ({
 
   useEffect(() => {
     if (error) {
-      showErrorToast(error);
+      showErrorToast(undefined, error);
     }
   }, [error]);
 

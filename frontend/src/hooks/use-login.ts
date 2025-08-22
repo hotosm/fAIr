@@ -31,8 +31,8 @@ export const useLogin = () => {
     setSessionValue(HOT_FAIR_SESSION_REDIRECT_KEY, currentPathWithQuery);
     try {
       await authService.initializeOAuthFlow();
-    } catch {
-      showErrorToast(TOAST_NOTIFICATIONS.authenticationFailed);
+    } catch (error) {
+      showErrorToast(undefined, TOAST_NOTIFICATIONS.authenticationFailed);
     } finally {
       setLoading(false);
     }

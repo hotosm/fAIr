@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
 
 import { renderHook } from "@testing-library/react";
@@ -16,7 +15,7 @@ vi.mock("react-router-dom", () => ({
     key: "testKey",
   })),
   useParams: vi.fn(
-    () => ({ id: "123" }) // Mocking useParams to return a sample id
+    () => ({ id: "123" }), // Mocking useParams to return a sample id
   ),
 }));
 

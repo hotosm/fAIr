@@ -116,12 +116,12 @@ export const StartMappingMobileDrawer = ({
     >
       <div className="mb-20">
         {disablePrediction && (
-          <p className="w-full text-center text-body-4 italic text-primary">
+          <p className="text-center italic text-body-4 text-primary w-full">
             {MINIMUM_ZOOM_LEVEL_INSTRUCTION_FOR_PREDICTION}
           </p>
         )}
         <div className="flex flex-col gap-y-6">
-          <div className="flex w-full items-center gap-x-2">
+          <div className="flex items-center gap-x-2 w-full">
             <div className="flex-1">
               <ModelAction
                 query={query}
@@ -138,7 +138,7 @@ export const StartMappingMobileDrawer = ({
                 }
               />
             </div>
-            <div className="rounded-md bg-off-white p-1">
+            <div className="bg-off-white rounded-md p-1">
               <ModelDetailsInfoButton
                 modelInfo={modelInfo}
                 modelInfoRequestIsPending={modelInfoRequestIsPending}
@@ -147,8 +147,8 @@ export const StartMappingMobileDrawer = ({
               />
             </div>
           </div>
-          <div className="flex w-full items-center justify-between gap-x-2">
-            <p className="text-nowrap text-body-3">Model:</p>
+          <div className="flex items-center gap-x-2 w-full justify-between">
+            <p className="text-body-3 text-nowrap">Model:</p>
             {modelInfo && (
               <ModelSelectorTriggerButton
                 modelInfo={modelInfo}
@@ -167,8 +167,8 @@ export const StartMappingMobileDrawer = ({
               />
             )}
           </div>
-          <div className="flex w-full items-center justify-between gap-x-2">
-            <p className="text-nowrap text-body-3">Prediction imagery:</p>
+          <div className="flex items-center gap-x-2 w-full justify-between">
+            <p className="text-body-3 text-nowrap">Prediction imagery:</p>
             <ImagerySourceSelectorTriggerButton
               predictionImagerySource={predictionImagerySource}
               setPredictionImagerySource={setPredictionImagerySource}
@@ -184,7 +184,7 @@ export const StartMappingMobileDrawer = ({
               isSmallViewport={isSmallViewport}
             />
           </div>
-          <div className="flex items-center gap-x-2 text-body-3 font-normal">
+          <div className="text-body-3 font-normal flex items-center gap-x-2">
             {START_MAPPING_PAGE_CONTENT.mapData.title} -{" "}
             <ModelPredictionsTracker
               features={modelPredictions}
@@ -193,11 +193,11 @@ export const StartMappingMobileDrawer = ({
           </div>
           <div className="flex flex-col gap-y-4">
             <p className="text-body-3 font-semibold">Settings</p>
-            <div className="rounded-lg border border-gray-border p-2">
+            <div className="border rounded-lg border-gray-border p-2">
               <ModelSettings query={query} updateQuery={updateQuery} isMobile />
             </div>
           </div>
-          <div className="flex h-fit flex-col">
+          <div className="flex flex-col h-fit">
             <button
               className="flex w-fit items-center gap-x-4"
               disabled={disablePrediction}
@@ -207,7 +207,7 @@ export const StartMappingMobileDrawer = ({
                 content={
                   disablePrediction
                     ? START_MAPPING_PAGE_CONTENT.actions.disabledModeTooltip(
-                        "see download options"
+                        "see download options",
                       )
                     : null
                 }
@@ -221,7 +221,7 @@ export const StartMappingMobileDrawer = ({
               </ToolTip>
             </button>
             {showDownloadOptions ? (
-              <ul className="mt-2 flex flex-col gap-y-4 text-body-3">
+              <ul className="flex flex-col gap-y-4 text-body-3 mt-2">
                 {downloadOptions
                   .filter((option) => option.showOnMobile)
                   .map((option) => (
@@ -230,7 +230,7 @@ export const StartMappingMobileDrawer = ({
                         className="flex items-center gap-x-4"
                         onClick={option.onClick}
                       >
-                        {option.name} <CloudDownloadIcon className="size-5" />
+                        {option.name} <CloudDownloadIcon className="w-5 h-5" />
                       </button>
                     </li>
                   ))}
