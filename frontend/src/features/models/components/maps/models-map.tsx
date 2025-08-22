@@ -1,5 +1,5 @@
 import { FeatureCollection, TQueryParams } from "@/types";
-import { Map } from "maplibre-gl";
+import { Map, MapLayerMouseEvent } from "maplibre-gl";
 import { MapComponent } from "@/components/map";
 import { MapMarkerIcon } from "@/assets/images";
 import { SEARCH_PARAMS } from "@/utils/search-params";
@@ -12,14 +12,14 @@ const licensedFonts = ["Noto Sans Regular"];
 // Font from Open Map Tiles
 // const licensedFonts = ["Open Sans Semibold"];
 
-let markerIcon = new Image(17, 20);
+const markerIcon = new Image(17, 20);
 markerIcon.src = MapMarkerIcon;
 
 const maplibreLayerDefn = (
   map: Map,
-  mapResults: any,
+  mapResults: FeatureCollection,
   handleClickOnModelID: (clickedId: string) => void,
-  disablePoiClick = false,
+  disablePoiClick = false
 ) => {
   map.addImage("mapMarker", markerIcon, {
     // @ts-expect-error bad type definition
@@ -103,7 +103,7 @@ const maplibreLayerDefn = (
     map.getCanvas().style.cursor = "";
   });
 
-  map.on("click", "models-unclustered-points", (e: any) => {
+  map.on("click", "models-unclustered-points", (e: MapLayerMouseEvent) => {
     const value =
       e.features && e.features[0].properties && e.features[0].properties.mid;
     handleClickOnModelID(value);
@@ -127,7 +127,7 @@ export const ModelsMap: React.FC<ModelsMapProps> = ({
         [SEARCH_PARAMS.id]: clickedModel,
       });
     },
-    [updateQuery],
+    [updateQuery]
   );
 
   useEffect(() => {
@@ -144,13 +144,13 @@ export const ModelsMap: React.FC<ModelsMapProps> = ({
       maplibreLayerDefn(map, mapResults, handleClickOnModelID);
     } else {
       map.on("load", () =>
-        maplibreLayerDefn(map, mapResults, handleClickOnModelID),
+        maplibreLayerDefn(map, mapResults, handleClickOnModelID)
       );
     }
   }, [map, mapResults, handleClickOnModelID]);
 
   return (
-    <div className="h-full w-full">
+    <div className="size-full">
       <MapComponent
         geolocationControl
         map={map}

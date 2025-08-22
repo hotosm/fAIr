@@ -12,7 +12,7 @@ import { PredictedFeatureStatus } from "@/enums/start-mapping";
  */
 export const parseIntEnv = (
   value: string | undefined,
-  defaultValue: number,
+  defaultValue: number
 ): number =>
   value !== undefined && !isNaN(parseInt(value, 10))
     ? parseInt(value, 10)
@@ -23,7 +23,7 @@ export const parseIntEnv = (
  */
 export const parseFloatEnv = (
   value: string | undefined,
-  defaultValue: number,
+  defaultValue: number
 ): number =>
   value !== undefined && !isNaN(parseFloat(value))
     ? parseFloat(value)
@@ -34,7 +34,7 @@ export const parseFloatEnv = (
  */
 export const parseStringEnv = (
   value: string | undefined,
-  defaultValue: string,
+  defaultValue: string
 ): string => (value && value.trim() !== "" ? value.trim() : defaultValue);
 
 // ==============================================================================================================================
@@ -47,7 +47,7 @@ export const parseStringEnv = (
  */
 export const BASE_API_URL: string = parseStringEnv(
   ENVS.BASE_API_URL,
-  "http://localhost:8000/api/v1/",
+  "http://localhost:8000/api/v1/"
 );
 
 /**
@@ -55,7 +55,7 @@ export const BASE_API_URL: string = parseStringEnv(
  */
 export const OAM_TITILER_ENDPOINT: string = parseStringEnv(
   ENVS.OAM_TITILER_ENDPOINT,
-  "https://titiler.hotosm.org/",
+  "https://titiler.hotosm.org/"
 );
 
 /**
@@ -63,7 +63,7 @@ export const OAM_TITILER_ENDPOINT: string = parseStringEnv(
  */
 export const OAM_S3_BUCKET_URL: string = parseStringEnv(
   ENVS.OAM_S3_BUCKET_URL,
-  "https://oin-hotosm-temp.s3.us-east-1.amazonaws.com/",
+  "https://oin-hotosm-temp.s3.us-east-1.amazonaws.com/"
 );
 
 /**
@@ -71,7 +71,7 @@ export const OAM_S3_BUCKET_URL: string = parseStringEnv(
  */
 export const JOSM_REMOTE_URL: string = parseStringEnv(
   ENVS.JOSM_REMOTE_URL,
-  "http://127.0.0.1:8111/",
+  "http://127.0.0.1:8111/"
 );
 
 /**
@@ -79,7 +79,7 @@ export const JOSM_REMOTE_URL: string = parseStringEnv(
  */
 export const OSM_DATABASE_STATUS_API_ENDPOINT: string = parseStringEnv(
   ENVS.OSM_DATABASE_STATUS_API_URL,
-  "https://api-prod.raw-data.hotosm.org/v1/status/",
+  "https://api-prod.raw-data.hotosm.org/v1/status/"
 );
 
 /**
@@ -87,7 +87,7 @@ export const OSM_DATABASE_STATUS_API_ENDPOINT: string = parseStringEnv(
  */
 export const FAIR_PREDICTOR_API_ENDPOINT: string = parseStringEnv(
   ENVS.FAIR_PREDICTOR_API_URL,
-  "https://predictor-dev.fair.hotosm.org/predict/",
+  "https://predictor-dev.fair.hotosm.org/predict/"
 );
 
 // ==============================================================================================================================
@@ -130,7 +130,7 @@ export const HOT_FAIR_BANNER_LOCAL_STORAGE_KEY: string =
  * The key used to store the predictions for the specific model in the users local storage.
  */
 export const HOT_FAIR_MODEL_PREDICTIONS_LOCAL_STORAGE_KEY = (
-  modelId: string,
+  modelId: string
 ): string => `__hot_fair_model_predictions_for_model_${modelId}`;
 
 /**
@@ -148,7 +148,7 @@ export const TRAINING_AREA_TOUR_LOCAL_STORAGE_KEY =
  */
 export const MAX_TRAINING_AREA_SIZE: number = parseIntEnv(
   ENVS.MAX_TRAINING_AREA_SIZE,
-  5000000,
+  5000000
 );
 
 /**
@@ -157,7 +157,7 @@ export const MAX_TRAINING_AREA_SIZE: number = parseIntEnv(
  */
 export const MIN_TRAINING_AREA_SIZE: number = parseIntEnv(
   ENVS.MIN_TRAINING_AREA_SIZE,
-  5797,
+  5797
 );
 
 /**
@@ -166,7 +166,7 @@ export const MIN_TRAINING_AREA_SIZE: number = parseIntEnv(
  */
 export const MAX_TRAINING_AREA_UPLOAD_FILE_SIZE: number = parseIntEnv(
   ENVS.MAX_TRAINING_AREA_UPLOAD_FILE_SIZE,
-  1 * 1024 * 1024,
+  1 * 1024 * 1024
 );
 
 /**
@@ -182,7 +182,7 @@ export const MAX_GEOJSON_FILE_UPLOAD_FOR_TRAINING_AREA_LABELS: number =
  */
 export const MAX_GEOJSON_FILE_UPLOAD_FOR_TRAINING_AREAS: number = parseIntEnv(
   ENVS.MAX_GEOJSON_FILE_UPLOAD_FOR_TRAINING_AREAS,
-  10,
+  10
 );
 
 /**
@@ -208,7 +208,7 @@ export const MAX_ZOOM_LEVEL: number = parseIntEnv(ENVS.MAX_ZOOM_LEVEL, 21);
  */
 export const MIN_ZOOM_LEVEL_FOR_START_MAPPING_PREDICTION: number = parseIntEnv(
   ENVS.MIN_ZOOM_LEVEL_FOR_START_MAPPING_PREDICTION,
-  18,
+  18
 );
 
 /**
@@ -226,7 +226,7 @@ export const MAP_STYLES_PREFIX: string = "fAIr";
  */
 export const MIN_ZOOM_LEVEL_FOR_TRAINING_AREA_LABELS: number = parseIntEnv(
   ENVS.MIN_ZOOM_LEVEL_FOR_TRAINING_AREA_LABELS,
-  18,
+  18
 );
 
 /**
@@ -289,49 +289,49 @@ export const PREDICTION_IMAGERY_LAYER_ID: string = `${MAP_STYLES_PREFIX}-predict
 // Training Areas
 export const TRAINING_AREAS_AOI_FILL_COLOR: string = parseStringEnv(
   ENVS.TRAINING_AREAS_AOI_FILL_COLOR,
-  "#247DCACC",
+  "#247DCACC"
 );
 export const TRAINING_AREAS_AOI_OUTLINE_COLOR: string = parseStringEnv(
   ENVS.TRAINING_AREAS_AOI_OUTLINE_COLOR,
-  "#247DCACC",
+  "#247DCACC"
 );
 export const TRAINING_AREAS_AOI_OUTLINE_WIDTH: number = parseIntEnv(
   ENVS.TRAINING_AREAS_AOI_OUTLINE_WIDTH,
-  4,
+  4
 );
 export const TRAINING_AREAS_AOI_FILL_OPACITY: number = parseFloatEnv(
   ENVS.TRAINING_AREAS_AOI_FILL_OPACITY,
-  0.4,
+  0.4
 );
 export const TRAINING_AREAS_AOI_LABELS_FILL_OPACITY: number = parseFloatEnv(
   ENVS.TRAINING_AREAS_AOI_LABELS_FILL_OPACITY,
-  0.3,
+  0.3
 );
 export const TRAINING_AREAS_AOI_LABELS_OUTLINE_WIDTH: number = parseIntEnv(
   ENVS.TRAINING_AREAS_AOI_LABELS_OUTLINE_WIDTH,
-  2,
+  2
 );
 export const TRAINING_AREAS_AOI_LABELS_FILL_COLOR: string = parseStringEnv(
   ENVS.TRAINING_AREAS_AOI_LABELS_FILL_COLOR,
-  "#D73434",
+  "#D73434"
 );
 export const TRAINING_AREAS_AOI_LABELS_OUTLINE_COLOR: string = parseStringEnv(
   ENVS.TRAINING_AREAS_AOI_LABELS_OUTLINE_COLOR,
-  "#D73434",
+  "#D73434"
 );
 
 export const TRAINING_AREAS_MASK_FILL_COLOR: string = parseStringEnv(
   ENVS.TRAINING_AREAS_MASK_FILL_COLOR,
-  "#D73434",
+  "#D73434"
 );
 
 export const PREDICTIONS_RESULTS_POINT_FILL_COLOR: string = parseStringEnv(
   ENVS.PREDICTIONS_RESULTS_POINT_FILL_COLOR,
-  "#34D77C",
+  "#34D77C"
 );
 export const PREDICTIONS_RESULTS_POINT_OUTLINE_COLOR: string = parseStringEnv(
   ENVS.PREDICTIONS_RESULTS_POINT_OUTLINE_COLOR,
-  "#34D77C",
+  "#34D77C"
 );
 
 // Start Mapping Legend - only the fill layers are in the legend.
@@ -365,7 +365,7 @@ export const MATOMO_ID: string = parseStringEnv(ENVS.MATOMO_ID, "0");
  */
 export const MATOMO_APP_DOMAIN: string = parseStringEnv(
   ENVS.MATOMO_APP_DOMAIN,
-  "fair.hotosm.org",
+  "fair.hotosm.org"
 );
 
 /**
@@ -373,7 +373,7 @@ export const MATOMO_APP_DOMAIN: string = parseStringEnv(
  */
 export const MATOMO_TRACKING_URL: string = parseStringEnv(
   ENVS.MATOMO_TRACKING_URL,
-  "https://matomo.hotosm.org",
+  "https://matomo.hotosm.org"
 );
 
 /**
@@ -383,7 +383,7 @@ export const HOT_TRACKING_HTML_TAG_NAME: string = "hot-tracking";
 
 export const BANNER_TIMEOUT_DURATION: number = parseIntEnv(
   ENVS.BANNER_TIMEOUT_DURATION,
-  3000,
+  3000
 );
 
 /**
@@ -401,7 +401,7 @@ export const PREDICTION_API_FILE_EXTENSIONS: Record<BASE_MODELS, string> = {
  */
 export const TRAINING_AREA_LABELS_FETCH_POOLING_TIME_MS: number = parseIntEnv(
   ENVS.TRAINING_AREA_LABELS_FETCH_POOLING_INTERVAL_MS,
-  5000,
+  5000
 );
 
 /**
@@ -410,7 +410,7 @@ export const TRAINING_AREA_LABELS_FETCH_POOLING_TIME_MS: number = parseIntEnv(
  */
 export const OSM_LAST_UPDATED_POOLING_INTERVAL_MS: number = parseIntEnv(
   ENVS.OSM_LAST_UPDATED_POOLING_INTERVAL_MS,
-  10000,
+  10000
 );
 
 /**
@@ -431,7 +431,7 @@ export const FAIR_VERSION: string = parseStringEnv(ENVS.FAIR_VERSION, "v0.1");
  */
 export const OSM_HASHTAGS: string = parseStringEnv(
   ENVS.OSM_HASHTAGS,
-  "#HOT-fAIr",
+  "#HOT-fAIr"
 );
 
 /**
@@ -458,7 +458,7 @@ export const KPI_STATS_CACHE_TIME_MS: number =
  */
 export const MAXIMUM_PREDICTION_TOLERANCE: number = parseIntEnv(
   ENVS.MAXIMUM_PREDICTION_TOLERANCE,
-  10,
+  10
 );
 
 /**
@@ -466,7 +466,7 @@ export const MAXIMUM_PREDICTION_TOLERANCE: number = parseIntEnv(
  */
 export const MAXIMUM_PREDICTION_AREA: number = parseIntEnv(
   ENVS.MAXIMUM_PREDICTION_AREA,
-  20,
+  20
 );
 
 /**
@@ -475,7 +475,7 @@ export const MAXIMUM_PREDICTION_AREA: number = parseIntEnv(
 export const MAXIMUM_ORTHO_SKEW_TOLEARANCE_AND_MAX_ANGLE_CHANGE_IN_DEGREES: number =
   parseIntEnv(
     ENVS.MAXIMUM_ORTHO_SKEW_TOLEARANCE_AND_MAX_ANGLE_CHANGE_IN_DEGREES,
-    45,
+    45
   );
 
 /**
@@ -483,7 +483,7 @@ export const MAXIMUM_ORTHO_SKEW_TOLEARANCE_AND_MAX_ANGLE_CHANGE_IN_DEGREES: numb
  */
 export const FAIR_MODELS_BASE_PATH: string = parseStringEnv(
   ENVS.FAIR_MODELS_BASE_PATH,
-  "/mnt/efsmount/data",
+  "/mnt/efsmount/data"
 );
 
 export const FAIR_BASE_MODELS_PATH: Record<BASE_MODELS, string> = {

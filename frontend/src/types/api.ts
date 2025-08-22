@@ -2,10 +2,19 @@ import { BASE_MODELS, ModelTrainingStatus } from "@/enums";
 import { BBOX } from "./common";
 import { GeoJsonProperties, Geometry } from "geojson";
 import { PredictedFeatureStatus } from "@/enums/start-mapping";
+import { AxiosError, AxiosResponse } from "axios";
 
 /**
  * This file contains the different types/schema for the API responses from the backend.
  */
+type ExtendedAxiosResponseData = {
+  message?: string;
+  detail?: string;
+};
+
+export type ExtendedAxiosError = AxiosError & {
+  response?: AxiosResponse<ExtendedAxiosResponseData>;
+};
 
 // Auth and User API response types
 
@@ -15,6 +24,10 @@ export type TLogin = {
 
 export type TAuthenticate = {
   access_token: string;
+};
+
+export type TVerifyEmail = {
+  message: string;
 };
 
 export type TUser = {
@@ -181,7 +194,7 @@ export type TTrainingDetails = {
 
 export type TTrainingStatus = {
   id: string;
-  result: any;
+  result: unknown;
   status: "PENDING";
   traceback: string;
 };
@@ -265,4 +278,9 @@ export type TOfflinePrediction = {
   user: number;
   config: TModelPredictionsConfig;
   result_count: number;
+};
+
+export type TValidationState = {
+  valid: boolean;
+  message: string;
 };

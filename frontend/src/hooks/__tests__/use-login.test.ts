@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -58,14 +59,14 @@ describe("useLogin", () => {
     expect(result.current.loading).toBe(false);
     expect(setValueMock).toHaveBeenCalledWith(
       HOT_FAIR_SESSION_REDIRECT_KEY,
-      pathname,
+      pathname
     );
     expect(authService.initializeOAuthFlow).toHaveBeenCalled();
   });
 
   it("should show error toast if authService.initializeOAuthFlow throws an error", async () => {
     (authService.initializeOAuthFlow as vi.Mock).mockRejectedValue(
-      new Error("OAuth error"),
+      new Error("OAuth error")
     );
 
     const { result } = renderHook(() => useLogin());
@@ -76,8 +77,7 @@ describe("useLogin", () => {
 
     expect(result.current.loading).toBe(false);
     expect(showErrorToast).toHaveBeenCalledWith(
-      undefined,
-      TOAST_NOTIFICATIONS.authenticationFailed,
+      TOAST_NOTIFICATIONS.authenticationFailed
     );
   });
 });

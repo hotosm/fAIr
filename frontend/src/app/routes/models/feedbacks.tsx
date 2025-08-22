@@ -9,14 +9,14 @@ export const ModelFeedbacksPage = () => {
   const { data, isPending, isError } = useModelsContext();
 
   const { data: feedbacksData, isLoading } = useTrainingFeedbacks(
-    data?.published_training,
+    data?.published_training
   );
 
   if (isLoading || isPending || isError) {
     return (
       <div className="my-12 flex flex-col gap-y-10">
-        <div className="h-24 md:w-32 bg-light-gray animated-pulse" />
-        <div className="h-80 w-full bg-light-gray animated-pulse " />
+        <div className="animated-pulse h-24 bg-light-gray md:w-32" />
+        <div className="animated-pulse h-80 w-full bg-light-gray " />
       </div>
     );
   }
@@ -25,20 +25,20 @@ export const ModelFeedbacksPage = () => {
     <>
       <Head title={`${data?.name} Model Feedbacks`} />
       <BackButton className="mt-6" />
-      <div className="h-full w-full my-8 space-y-10">
+      <div className="my-8 size-full space-y-10">
         <div>
-          <p className="text-grey text-body-3 md:text-body-2">
+          <p className="text-body-3 text-grey md:text-body-2">
             Training ID: {data?.published_training}
           </p>
-          <div className="flex gap-y-8 flex-col md:flex-row w-full">
-            <div className="inline-flex flex-col gap-y-4 w-full">
-              <div className="w-full flex flex-col md:flex-row md:items-center md:justify-between gap-y-8">
+          <div className="flex w-full flex-col gap-y-8 md:flex-row">
+            <div className="inline-flex w-full flex-col gap-y-4">
+              <div className="flex w-full flex-col gap-y-8 md:flex-row md:items-center md:justify-between">
                 <div className="flex flex-col gap-y-3">
-                  <div className="flex flex-col md:flex-row md:items-center gap-4 ">
-                    <h1 className="font-semibold text-dark text-title-2 md:text-large-title text-wrap">
+                  <div className="flex flex-col gap-4 md:flex-row md:items-center ">
+                    <h1 className="text-wrap text-title-2 font-semibold text-dark md:text-large-title">
                       Feedbacks
                     </h1>
-                    <div className="flex gap-x-2 items-center">
+                    <div className="flex items-center gap-x-2">
                       <span className="text-body-3 text-grey">
                         Model Details
                       </span>
@@ -50,21 +50,21 @@ export const ModelFeedbacksPage = () => {
                       />
                     </div>
                   </div>
-                  <p className="text-body-3 text-grey md:text-body-2 text-wrap max-w-lg md:max-w-xl xl:max-w-4xl">
+                  <p className="max-w-lg text-wrap text-body-3 text-grey md:max-w-xl md:text-body-2 xl:max-w-4xl">
                     These are the rejected mapping results for this training by
                     users. Some have comments attached to them.
                   </p>
                 </div>
               </div>
             </div>
-            <div className="flex w-fit flex-col gap-y-4 justify-between md:items-end ">
-              <p className="text-body-4 font-semibold text-nowrap">
+            <div className="flex w-fit flex-col justify-between gap-y-4 md:items-end ">
+              <p className="text-nowrap text-body-4 font-semibold">
                 Total Feedbacks: {feedbacksData?.count}
               </p>
             </div>
           </div>
         </div>
-        <div className="w-full h-[400px] md:h-[500px] lg:h-[600px] xl:h-[700px]  border-8 border-off-white">
+        <div className="h-[400px] w-full border-8 border-off-white md:h-[500px]  lg:h-[600px] xl:h-[700px]">
           <FeedbacksMap
             mapData={feedbacksData?.results}
             tileServiceURL={data?.dataset?.source_imagery}

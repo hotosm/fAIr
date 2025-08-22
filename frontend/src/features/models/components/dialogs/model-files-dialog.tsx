@@ -22,7 +22,7 @@ const ModelFilesDialog: React.FC<TrainingAreaDrawerProps> = ({
         MODELS_CONTENT.models.modelsDetailsCard.modelFilesDialog.dialogTitle
       }
     >
-      <p className="text-dark text-body-2base px-2 mb-4">
+      <p className="mb-4 px-2 text-body-2base text-dark">
         {
           MODELS_CONTENT.models.modelsDetailsCard.modelFilesDialog
             .dialogDescription

@@ -42,7 +42,7 @@ const ModelTrainingSettingsDialog: React.FC<ModelEnhancementDialogProps> = ({
     if (!data) return;
     handleChange(
       MODEL_CREATION_FORM_NAME.BASE_MODELS,
-      data?.base_model as string,
+      data?.base_model as string
     );
   }, [data?.base_model]);
 
@@ -51,7 +51,7 @@ const ModelTrainingSettingsDialog: React.FC<ModelEnhancementDialogProps> = ({
     0,
     PAGE_LIMIT,
     "-id",
-    modelId,
+    modelId
   );
 
   const handleClick = () => {
@@ -72,7 +72,7 @@ const ModelTrainingSettingsDialog: React.FC<ModelEnhancementDialogProps> = ({
         onError: () => {
           closeDialog();
         },
-      },
+      }
     );
   };
 
@@ -90,14 +90,14 @@ const ModelTrainingSettingsDialog: React.FC<ModelEnhancementDialogProps> = ({
       ) : isPending ? (
         <div className="h-40 w-full animate-pulse bg-light-gray"></div>
       ) : (
-        <div className="flex flex-col gap-y-6 w-full">
+        <div className="flex w-full flex-col gap-y-6">
           <p className="text-grey">
             {
               MODELS_CONTENT.models.modelsDetailsCard.trainingSettings
                 .description
             }
           </p>
-          <h1 className="text-title-3 lg:text-title-1 font-semibold">
+          <h1 className="text-title-3 font-semibold lg:text-title-1">
             {data.name}
           </h1>
           <TrainingSettingsForm />

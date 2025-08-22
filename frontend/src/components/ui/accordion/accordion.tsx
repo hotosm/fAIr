@@ -11,8 +11,8 @@ const Accordion: React.FC<AccordionProps> = ({ summary, content }) => {
   return (
     <SlDetails>
       <span slot="summary">{summary}</span>
-      <ChevronDownIcon className="w-4 h-4 rotate-0" slot="expand-icon" />
-      <ChevronDownIcon className="w-4 h-4 rotate-180" slot="collapse-icon" />
+      <ChevronDownIcon className="size-4 rotate-0" slot="expand-icon" />
+      <ChevronDownIcon className="size-4 rotate-180" slot="collapse-icon" />
       {content}
     </SlDetails>
   );

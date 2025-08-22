@@ -1,0 +1,7 @@
+echo "===== Navigating to project directory ====="
+cd frontend
+
+echo "===== Running precommit script ====="
+pnpm precommit 
+
+echo "===== Pre-commit hook finished ====="

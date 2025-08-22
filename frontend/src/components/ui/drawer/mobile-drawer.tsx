@@ -34,7 +34,7 @@ export const MobileDrawer = ({
       <Drawer.Portal>
         <Drawer.Content
           data-testid="content"
-          className="fixed z-[1] border border-gray-border flex flex-col bg-white border-b-none py-2 rounded-t-[10px] bottom-0 left-0 right-0  h-full max-h-[97%] mx-[-1px] lg:h-[320px] outline-none"
+          className="border-b-none fixed inset-x-0 bottom-0 z-[1] -mx-px flex h-full max-h-[97%] flex-col rounded-t-[10px] border border-gray-border  bg-white py-2 outline-none lg:h-[320px]"
         >
           <div
             className={cn(`flex flex-col max-w-md mx-auto w-full app-padding`, {
@@ -44,10 +44,10 @@ export const MobileDrawer = ({
           >
             {canClose ? (
               <Drawer.Close
-                className="w-full flex justify-end app-padding"
+                className="app-padding flex w-full justify-end"
                 onClick={closeDrawer}
               >
-                <span className="text-body-2 text-grey icon-interaction w-fit py-1 px-2.5 rounded-full">
+                <span className="icon-interaction w-fit rounded-full px-2.5 py-1 text-body-2 text-grey">
                   {" "}
                   &#x2715;
                 </span>
@@ -57,7 +57,7 @@ export const MobileDrawer = ({
             <Drawer.Description hidden>{dialogTitle}</Drawer.Description>
             <div
               aria-hidden
-              className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-grey mb-4"
+              className="mx-auto mb-4 h-1.5 w-12 shrink-0 rounded-full bg-grey"
             />
             {children}
           </div>

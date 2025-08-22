@@ -89,12 +89,12 @@ export const OfflinePredictionRequestDialog = ({
             request.
           </small>
         </Alert>
-        <div className="border border-gray-border rounded-md mt-2">
+        <div className="mt-2 rounded-md border border-gray-border">
           <div className="p-4">
-            <h3 className="text-body-3 md:text-body-2 font-semibold  mb-3 flex items-center gap-2">
+            <h3 className="mb-3 flex items-center  gap-2 text-body-3 font-semibold md:text-body-2">
               Request Summary
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-body-4 md:text-body-3">
+            <div className="grid grid-cols-1 gap-4 text-body-4 md:grid-cols-3 md:text-body-3">
               <div className="flex items-center gap-2">
                 <DatabaseIcon className="icon md:icon-lg" />
                 <div>
@@ -108,7 +108,7 @@ export const OfflinePredictionRequestDialog = ({
                   <div className="font-medium ">AOI Size</div>
                   <div className="">
                     {formatAreaInAppropriateUnit(
-                      drawnAOI ? calculateGeoJSONArea(drawnAOI as Feature) : 0,
+                      drawnAOI ? calculateGeoJSONArea(drawnAOI as Feature) : 0
                     )}
                   </div>
                 </div>
@@ -123,7 +123,7 @@ export const OfflinePredictionRequestDialog = ({
             </div>
           </div>
         </div>
-        <div className="flex flex-col gap-8 mt-4">
+        <div className="mt-4 flex flex-col gap-8">
           <Input
             handleInput={(e) => setPredictionRequestName(e.target.value)}
             value={predictionRequestName}
@@ -153,7 +153,7 @@ export const OfflinePredictionRequestDialog = ({
                 { label: "Zoom 20", value: "20" },
                 { label: "Zoom 21", value: "21" },
               ]}
-              className="md:items-center gap-x-8 flex-col md:flex-row"
+              className="flex-col gap-x-8 md:flex-row md:items-center"
               value={zoomLevel}
               onChange={(selection) => setZoomLevel(selection)}
             />
@@ -166,11 +166,11 @@ export const OfflinePredictionRequestDialog = ({
                 "You can select the advanced settings for your prediction request. These settings will be applied to your predictions."
               }
             />
-            <div className="border rounded-xl">
+            <div className="rounded-xl border">
               <ModelSettings query={query} updateQuery={updateQuery} isMobile />
             </div>
           </div>
-          <div className="flex flex-col md:flex-row justify-between gap-8">
+          <div className="flex flex-col justify-between gap-8 md:flex-row">
             <Button
               variant={ButtonVariant.DARK}
               onClick={onClose}

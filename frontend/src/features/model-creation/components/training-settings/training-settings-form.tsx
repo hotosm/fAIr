@@ -85,24 +85,24 @@ const TrainingSettingsForm = () => {
   useEffect(() => {
     handleChange(
       MODEL_CREATION_FORM_NAME.EPOCH,
-      defaultTrainingSettings[formData.trainingType].epoch,
+      defaultTrainingSettings[formData.trainingType].epoch
     );
     handleChange(
       MODEL_CREATION_FORM_NAME.BATCH_SIZE,
-      defaultTrainingSettings[formData.trainingType].batchSize,
+      defaultTrainingSettings[formData.trainingType].batchSize
     );
     handleChange(
       MODEL_CREATION_FORM_NAME.CONTACT_SPACING,
-      defaultTrainingSettings[formData.trainingType].contactSpacing,
+      defaultTrainingSettings[formData.trainingType].contactSpacing
     );
     handleChange(
       MODEL_CREATION_FORM_NAME.BOUNDARY_WIDTH,
-      defaultTrainingSettings[formData.trainingType].boundaryWidth,
+      defaultTrainingSettings[formData.trainingType].boundaryWidth
     );
   }, [formData.trainingType, formData.baseModel]);
 
   return (
-    <div className="flex flex-col gap-y-20 w-full">
+    <div className="flex w-full flex-col gap-y-20">
       <div className="flex flex-col gap-y-6">
         <FormLabel
           label={
@@ -117,7 +117,7 @@ const TrainingSettingsForm = () => {
         <CheckboxGroup
           variant="primary"
           multiple
-          className="flex-col md:flex-row gap-x-10 md:items-center flex-wrap"
+          className="flex-col flex-wrap gap-x-10 md:flex-row md:items-center"
           options={[
             { value: "Zoom 19", apiValue: "19" },
             { value: "Zoom 20", apiValue: "20" },
@@ -127,7 +127,7 @@ const TrainingSettingsForm = () => {
           onCheck={(selection) =>
             handleChange(
               MODEL_CREATION_FORM_NAME.ZOOM_LEVELS,
-              selection.sort().map(Number),
+              selection.sort().map(Number)
             )
           }
         />
@@ -146,7 +146,7 @@ const TrainingSettingsForm = () => {
           }
           required
         />
-        <div className="flex flex-col md:flex-row md:items-center gap-4 w-full justify-between overflow-x-auto">
+        <div className="flex w-full flex-col justify-between gap-4 overflow-x-auto md:flex-row md:items-center">
           {trainingTypes.map((type, id) => (
             <ButtonWithIcon
               key={`training-type-${id}`}
@@ -167,7 +167,7 @@ const TrainingSettingsForm = () => {
       </div>
 
       <div className="flex flex-col gap-y-6">
-        <div className="flex items-center gap-x-4 w-full">
+        <div className="flex w-full items-center gap-x-4">
           <FormLabel
             label={
               MODELS_CONTENT.modelCreation.trainingSettings.form
@@ -190,7 +190,7 @@ const TrainingSettingsForm = () => {
         </div>
         {showAdvancedSettings && (
           <>
-            <div className="flex items-center justify-between gap-4 flex-wrap lg:flex-nowrap">
+            <div className="flex flex-wrap items-center justify-between gap-4 lg:flex-nowrap">
               {advancedSettings
                 .filter((setting) => setting.enabled)
                 .map((setting, id) => (
@@ -232,11 +232,11 @@ const TrainingSettingsForm = () => {
                         if (inputValue < min || inputValue > max) {
                           // Set validation message for out-of-range values
                           setValidationMessage(
-                            `${setting.label} must be between ${min} and ${max}.`,
+                            `${setting.label} must be between ${min} and ${max}.`
                           );
                           handleChange(
                             MODEL_CREATION_FORM_NAME.TRAINING_SETTINGS_IS_VALID,
-                            false,
+                            false
                           );
                         } else {
                           // Clear the validation message if the value is valid
@@ -244,7 +244,7 @@ const TrainingSettingsForm = () => {
                           handleChange(setting.value, inputValue);
                           handleChange(
                             MODEL_CREATION_FORM_NAME.TRAINING_SETTINGS_IS_VALID,
-                            true,
+                            true
                           );
                         }
                       }}

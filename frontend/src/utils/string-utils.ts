@@ -24,7 +24,7 @@ export const extractTileJSONURL = (OAMTMSURL: string) => {
   // we have to grab the unique id of the aerial imagery, construct the new S3 bucket location and give it to titiler to get the new TileJSON.
   const uniqueImageryId = OAMTMSURL.replace(
     "https://tiles.openaerialmap.org/",
-    "",
+    ""
   ).replace("/{z}/{x}/{y}", "");
 
   // Construct the URL to fetch the TileJSON from titiler.

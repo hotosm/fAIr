@@ -49,6 +49,7 @@ export const getModelsQueryOptions = ({
         dateFilters,
         id,
         userId,
+        limit,
         dataset,
       },
     ],
@@ -62,7 +63,7 @@ export const getModelsQueryOptions = ({
         dateFilters,
         id,
         userId,
-        dataset,
+        dataset
       ),
     placeholderData: keepPreviousData,
   });
@@ -71,7 +72,7 @@ export const getModelsQueryOptions = ({
 export const getModelDetailsQueryOptions = (
   id: string,
   refetchInterval: boolean | number,
-  enabled: boolean,
+  enabled: boolean
 ) => {
   return queryOptions({
     queryKey: [QUERY_KEYS.MODEL_DETAILS(id)],
@@ -115,7 +116,7 @@ export const getTrainingFeedbacksQueryOptions = (id: number) => {
 
 export const getTrainingWorkspaceQueryOptions = (
   trainingId: number,
-  directory_name: string,
+  directory_name: string
 ) => {
   return queryOptions({
     queryKey: ["training-workspace", trainingId, directory_name],
@@ -129,7 +130,7 @@ export const getTrainingHistoryQueryOptions = (
   limit: number,
   ordering: string,
   modelId?: string,
-  userId?: number,
+  userId?: number
 ) => {
   return queryOptions({
     queryKey: ["training-history", modelId, offset, limit, ordering, userId],

@@ -19,12 +19,12 @@ export const TrainingAreaTourDialog = () => {
       preventClose
     >
       <p className="mb-4">
-        This is where you'll define the specific geographical area for your AI
-        model to analyze. Follow this quick tour to learn how to use this
+        This is where you&apos;ll define the specific geographical area for your
+        AI model to analyze. Follow this quick tour to learn how to use this
         section effectively.
       </p>
       <nav
-        className="flex flex-col md:flex-row gap-4 w-full"
+        className="flex w-full flex-col gap-4 md:flex-row"
         aria-label="Tour navigation"
       >
         <Button

@@ -36,7 +36,7 @@ export const ModelDetailsInfo = ({
       skeletonClassName="h-40"
     >
       {predictionModel === PredictionModel.DEFAULT ? (
-        <div className="flex flex-col gap-y-3 text-dark font-normal text-body-3">
+        <div className="flex flex-col gap-y-3 text-body-3 font-normal text-dark">
           <p>
             {START_MAPPING_PAGE_CONTENT.modelDetails.popover.modelId}:{" "}
             <span className="font-medium">{modelInfo?.id}</span>
@@ -59,14 +59,14 @@ export const ModelDetailsInfo = ({
             {START_MAPPING_PAGE_CONTENT.modelDetails.popover.datasetId}:{" "}
             <span className="font-medium">{modelInfo?.dataset.id}</span>
           </p>
-          <p className="flex items-center gap-x-1 text-nowrap flex-wrap">
+          <p className="flex flex-wrap items-center gap-x-1 text-nowrap">
             {START_MAPPING_PAGE_CONTENT.modelDetails.popover.datasetName}:{" "}
             <SkeletonWrapper
               showSkeleton={modelInfoRequestIsPending}
               skeletonClassName="w-20 h-4"
             >
               <span
-                className="text-dark font-medium text-wrap"
+                className="text-wrap font-medium text-dark"
                 title={modelInfo?.dataset?.name}
               >
                 {modelInfoRequestIsError
@@ -76,13 +76,13 @@ export const ModelDetailsInfo = ({
             </SkeletonWrapper>
           </p>
 
-          <p className="flex items-center gap-x-1 text-nowrap flex-wrap">
+          <p className="flex flex-wrap items-center gap-x-1 text-nowrap">
             {START_MAPPING_PAGE_CONTENT.modelDetails.popover.zoomLevel}:{" "}
             <SkeletonWrapper
               showSkeleton={trainingDetailsIsPending}
               skeletonClassName="w-20 h-4"
             >
-              <span className="text-dark font-medium">
+              <span className="font-medium text-dark">
                 {trainingDetailsError
                   ? "N/A"
                   : trainingDetails?.zoom_level?.reverse().join(", ")}{" "}
@@ -102,11 +102,11 @@ export const ModelDetailsInfo = ({
           </p>
         </div>
       ) : predictionModel === PredictionModel.CUSTOM ? (
-        <p className="text-dark font-normal text-body-3">
+        <p className="text-body-3 font-normal text-dark">
           Custom model for generating predictions.
         </p>
       ) : (
-        <p className="text-dark font-normal text-body-3">
+        <p className="text-body-3 font-normal text-dark">
           {
             MODELS_CONTENT.modelCreation.modelDetails.form.baseModel.suffixes[
               predictionModel as keyof typeof PredictionModel
@@ -146,7 +146,7 @@ export const ModelDetailsInfo = ({
 
   return (
     <div
-      className={`border bg-white border-gray-border shadown-sm rounded-xl w-[350px] scrollable p-5 max-h-[400px] overflow-y-auto flex flex-col`}
+      className={`shadown-sm scrollable flex max-h-[400px] w-[350px] flex-col overflow-y-auto rounded-xl border border-gray-border bg-white p-5`}
     >
       {!modelInfo && modelInfoRequestIsError ? (
         <div>{START_MAPPING_PAGE_CONTENT.modelDetails.error}</div>

@@ -21,7 +21,7 @@ import { API_ENDPOINTS } from "@/services";
  * @param {Feature[]} features - The GeoJSON features. If it's not provided, it creates an empty FeatureCollection.
  */
 export const createFeatureCollection = (
-  features: Feature[] = [],
+  features: Feature[] = []
 ): FeatureCollection => {
   return {
     type: "FeatureCollection",
@@ -43,14 +43,14 @@ export const openInIDEditor = (
   features: Feature[],
   imageryURL: string,
   datasetId: string,
-  aoiId: number,
+  aoiId: number
 ) => {
   const bounds = bbox(createFeatureCollection(features));
   const [leftLng, bottomLat, rightLng, topLat] = bounds;
   const centerLat = (bottomLat + topLat) / 2;
   const centerLng = (leftLng + rightLng) / 2;
   const zoomLevel = 17;
-  let idEditorURL = `https://www.openstreetmap.org/edit?editor=id#disable_features=boundaries&gpx=${BASE_API_URL + API_ENDPOINTS.GET_TRAINING_AREA_GPX(aoiId)}&map=${zoomLevel}/${centerLat}/${centerLng}&background=custom:${encodeURIComponent(imageryURL)}&hashtags=#dataset-${datasetId},#TA-${aoiId}`;
+  const idEditorURL = `https://www.openstreetmap.org/edit?editor=id#disable_features=boundaries&gpx=${BASE_API_URL + API_ENDPOINTS.GET_TRAINING_AREA_GPX(aoiId)}&map=${zoomLevel}/${centerLat}/${centerLng}&background=custom:${encodeURIComponent(imageryURL)}&hashtags=#dataset-${datasetId},#TA-${aoiId}`;
   window.open(idEditorURL, "_blank", "noreferrer");
 };
 
@@ -86,7 +86,7 @@ export const validateGeoJSONArea = (geojsonFeature: Feature) => {
  */
 export const geoJSONDowloader = (
   geojson: FeatureCollection | Feature,
-  filename: string,
+  filename: string
 ) => {
   const geojsonStr = JSON.stringify(geojson);
   const blob = new Blob([geojsonStr], { type: "application/json" });
@@ -103,7 +103,7 @@ export const openInJOSM = async (
   oamTileName: string,
   tmsURL: string,
   features?: Feature[],
-  toXML = false,
+  toXML = false
 ) => {
   try {
     const imgURL = new URL(`${JOSM_REMOTE_URL}imagery`);
@@ -114,7 +114,7 @@ export const openInJOSM = async (
     const imgResponse = await fetch(imgURL);
 
     if (!imgResponse.ok) {
-      showErrorToast(undefined, TOAST_NOTIFICATIONS.josmImageryLoadFailed);
+      showErrorToast(TOAST_NOTIFICATIONS.josmImageryLoadFailed);
       return;
     }
 
@@ -127,12 +127,12 @@ export const openInJOSM = async (
       loadurl.searchParams.set("right", String(bounds[2]));
       loadurl.searchParams.set(
         "changeset_tags",
-        `comment=${OSM_HASHTAGS}|source=${oamTileName}`,
+        `comment=${OSM_HASHTAGS}|source=${oamTileName}`
       );
       await fetch(loadurl);
       showSuccessToast(TOAST_NOTIFICATIONS.josmOpenSuccess);
-    } catch (error) {
-      showErrorToast(undefined, TOAST_NOTIFICATIONS.josmBBOXZoomFailed);
+    } catch {
+      showErrorToast(TOAST_NOTIFICATIONS.josmBBOXZoomFailed);
     }
     // XML Conversion
     if (toXML) {
@@ -145,13 +145,13 @@ export const openInJOSM = async (
         // No need to show success toast since there'll be a success toast later on
         // This is to avoid multiple toasts showing up at once.
         if (!response.ok) {
-          showErrorToast(undefined, TOAST_NOTIFICATIONS.errorLoadingData);
+          showErrorToast(TOAST_NOTIFICATIONS.errorLoadingData);
         }
-      } catch (error) {
-        showErrorToast(error);
+      } catch {
+        showErrorToast(TOAST_NOTIFICATIONS.errorConvertingGeoJSONTOXML);
       }
     }
-  } catch (error) {
-    showErrorToast(undefined, TOAST_NOTIFICATIONS.josmOpenFailed);
+  } catch {
+    showErrorToast(TOAST_NOTIFICATIONS.josmOpenFailed);
   }
 };
