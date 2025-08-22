@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { CheckIcon } from "@/components/ui/icons";
-import { ColumnDef, SortingState } from "@tanstack/react-table";
+import { Column, ColumnDef, SortingState } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table";
 import { DropDown } from "@/components/ui/dropdown";
 import { ElipsisIcon, InfoIcon } from "@/components/ui/icons";
@@ -46,7 +46,7 @@ const columnDefinitions = (
   terminationMutation: (trainingId: number) => void,
   publishedTrainingId?: number,
   showUserTrainingHistory?: boolean,
-  modelOwner?: string,
+  modelOwner?: string
 ): ColumnDef<TTrainingDetails>[] => [
   {
     accessorKey: "id",
@@ -88,7 +88,11 @@ const columnDefinitions = (
     ? [
         {
           accessorKey: "model",
-          header: ({ column }: { column: any }) => (
+          header: ({
+            column,
+          }: {
+            column: Column<TTrainingDetails, unknown>;
+          }) => (
             <SortableHeader
               title={
                 MODELS_CONTENT.models.modelsDetailsCard
@@ -97,14 +101,14 @@ const columnDefinitions = (
               column={column}
             />
           ),
-          cell: ({ row }: { row: any }) => {
+          cell: ({ row }: { row: { original: TTrainingDetails } }) => {
             return (
               <span className="hover:underline">
                 <Link
                   nativeAnchor={false}
                   disableLinkStyle
                   href={`${APPLICATION_ROUTES.MODELS}/${row.original.model.id}`}
-                  title={row.original.model.id}
+                  title={row.original.model.name}
                 >
                   {row.original.model.id}
                 </Link>
@@ -119,7 +123,7 @@ const columnDefinitions = (
           header:
             MODELS_CONTENT.models.modelsDetailsCard.trainingHistoryTableHeader
               .sumittedBy,
-          cell: ({ row }: { row: any }) => {
+          cell: ({ row }: { row: { original: TTrainingDetails } }) => {
             return <span>{truncateString(row.original.user.username)}</span>;
           },
         },
@@ -186,7 +190,14 @@ const columnDefinitions = (
             MODELS_CONTENT.models.modelsDetailsCard.trainingHistoryTableHeader
               .inUse,
 
-          cell: ({ row }: { row: any }) => {
+          cell: ({
+            row,
+          }: {
+            row: {
+              original: TTrainingDetails;
+              getValue: (key: string) => unknown;
+            };
+          }) => {
             return (
               <span>
                 {row.getValue("id") === publishedTrainingId ? (
@@ -207,7 +218,7 @@ const columnDefinitions = (
             MODELS_CONTENT.models.modelsDetailsCard.trainingHistoryTableHeader
               .info,
 
-          cell: ({ row }: { row: any }) => {
+          cell: ({ row }: { row: { original: TTrainingDetails } }) => {
             return (
               <Badge
                 variant="default"
@@ -215,10 +226,10 @@ const columnDefinitions = (
                 onClick={(e) => {
                   // Prevent the row click event from firing
                   e.stopPropagation();
-                  handleTrainingModal(Number(row.getValue("id")));
+                  handleTrainingModal(Number(row.original.id));
                 }}
               >
-                <InfoIcon className="icon text-dark font-bold" />
+                <InfoIcon className="icon font-bold text-dark" />
               </Badge>
             );
           },
@@ -232,7 +243,7 @@ const columnDefinitions = (
             MODELS_CONTENT.models.modelsDetailsCard.trainingHistoryTableHeader
               .action,
 
-          cell: ({ row }: { row: any }) => {
+          cell: ({ row }: { row: { original: TTrainingDetails } }) => {
             return (
               <DropDown
                 disableCheveronIcon
@@ -243,7 +254,7 @@ const columnDefinitions = (
                       // Prevent the row click event from firing
                       e.stopPropagation();
                     }}
-                    className="rounded-lg px-2 items-center flex"
+                    className="flex items-center rounded-lg px-2"
                   >
                     <ElipsisIcon className="icon" />
                   </Badge>
@@ -257,13 +268,12 @@ const columnDefinitions = (
                     onClick: (e) => {
                       // Prevent the row click event from firing
                       e.stopPropagation();
-                      publishTraining(row.getValue("id"));
+                      publishTraining(row.original.id);
                     },
                     disabled:
-                      row.getValue("status") === ModelTrainingStatus.FAILED ||
-                      row.getValue("status") ===
-                        ModelTrainingStatus.IN_PROGRESS ||
-                      row.getValue("status") === ModelTrainingStatus.SUBMITTED,
+                      row.original.status === ModelTrainingStatus.FAILED ||
+                      row.original.status === ModelTrainingStatus.IN_PROGRESS ||
+                      row.original.status === ModelTrainingStatus.SUBMITTED,
                   },
                   {
                     name: "Cancel training",
@@ -271,11 +281,11 @@ const columnDefinitions = (
                     onClick: (e) => {
                       // Prevent the row click event from firing
                       e.stopPropagation();
-                      terminationMutation(row.getValue("id"));
+                      terminationMutation(row.original.id);
                     },
                     disabled:
-                      row.getValue("status") === ModelTrainingStatus.FAILED ||
-                      row.getValue("status") === ModelTrainingStatus.FINISHED,
+                      row.original.status === ModelTrainingStatus.FAILED ||
+                      row.original.status === ModelTrainingStatus.FINISHED,
                   },
                   {
                     name: "View training details",
@@ -283,7 +293,7 @@ const columnDefinitions = (
                     onClick: (e) => {
                       // Prevent the row click event from firing
                       e.stopPropagation();
-                      handleTrainingModal(row.getValue("id") as number);
+                      handleTrainingModal(row.original.id);
                     },
                   },
                 ]}
@@ -311,12 +321,12 @@ const TrainingHistoryTable: React.FC<TrainingHistoryTableProps> = ({
     showUserTrainingHistory ? undefined : modelId,
     showUserTrainingHistory ? user.osm_id : undefined,
     !!modelId || showUserTrainingHistory,
-    10000,
+    10000
   );
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [activeTrainingId, setActiveTrainingId] = useState<number | undefined>(
-    publishedTrainingId,
+    publishedTrainingId
   );
 
   const { isOpened, openDialog, closeDialog } = useDialog();
@@ -364,7 +374,7 @@ const TrainingHistoryTable: React.FC<TrainingHistoryTableProps> = ({
       )}
 
       <div className="h-full">
-        <div className="w-full items-center text-body-3 flex justify-between my-4">
+        <div className="my-4 flex w-full items-center justify-between text-body-3">
           <p className="text-nowrap">
             {data?.count}{" "}
             {
@@ -398,7 +408,7 @@ const TrainingHistoryTable: React.FC<TrainingHistoryTableProps> = ({
               terminationMutation,
               publishedTrainingId,
               showUserTrainingHistory,
-              showUserTrainingHistory ? user?.username : modelOwner,
+              showUserTrainingHistory ? user?.username : modelOwner
             )}
             sorting={sorting}
             setSorting={setSorting}

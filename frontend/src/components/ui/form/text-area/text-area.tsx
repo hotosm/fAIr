@@ -48,12 +48,12 @@ const TextArea: React.FC<TextAreaProps> = ({
       resize="none"
       disabled={disabled}
       onSlInput={(e) => {
-        validationStateUpdateCallback &&
+        if (validationStateUpdateCallback) {
           validationStateUpdateCallback?.({
             valid: inputRef.current?.validity?.valid as boolean,
             message: inputRef.current?.validationMessage as string,
           });
-
+        }
         // @ts-expect-error bad type definition
         handleChange(e);
       }}

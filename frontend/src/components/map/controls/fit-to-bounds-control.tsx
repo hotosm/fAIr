@@ -1,6 +1,6 @@
 import useScreenSize from "@/hooks/use-screen-size";
 import { ArrowMoveIcon } from "@/components/ui/icons";
-import { Map } from "maplibre-gl";
+import { LngLatBoundsLike, Map } from "maplibre-gl";
 import { MAP_CONTENT } from "@/constants";
 import { ToolTip } from "@/components/ui/tooltip";
 import { useCallback } from "react";
@@ -12,7 +12,7 @@ export const FitToBounds = ({
   rounded = true,
 }: {
   map: Map | null;
-  bounds: any;
+  bounds: LngLatBoundsLike | undefined;
   mobileClassName?: string;
   rounded?: boolean;
 }) => {

@@ -12,5 +12,5 @@ createRoot(document.getElementById("root")!).render(
     <ErrorBoundary FallbackComponent={MainErrorFallback}>
       <App />
     </ErrorBoundary>
-  </StrictMode>,
+  </StrictMode>
 );

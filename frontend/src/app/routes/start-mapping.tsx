@@ -99,7 +99,7 @@ const defaultQuery = {
 };
 
 const getMergedQueryFromSearchParams = (
-  params: URLSearchParams,
+  params: URLSearchParams
 ): TQueryParams => {
   return {
     [SEARCH_PARAMS.orthogonalize]:
@@ -142,7 +142,7 @@ export const StartMappingPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { map, mapContainerRef, setDrawingMode, terraDraw } = useMapInstance(
     false,
-    true,
+    true
   );
 
   const { isSmallViewport } = useScreenSize();
@@ -159,9 +159,9 @@ export const StartMappingPage = () => {
   const acceptedFeatures = useMemo(
     () =>
       modelPredictions.filter(
-        (f) => f.properties.status === PredictedFeatureStatus.ACCEPTED,
+        (f) => f.properties.status === PredictedFeatureStatus.ACCEPTED
       ),
-    [modelPredictions],
+    [modelPredictions]
   );
 
   const navigate = useNavigate();
@@ -207,24 +207,24 @@ export const StartMappingPage = () => {
         return updated;
       });
     },
-    [setSearchParams],
+    [setSearchParams]
   );
 
   const currentMode = searchParams.get(SEARCH_PARAMS.mode) ?? MapMode.ONLINE;
-  const setCurrentMode = (newMode: MapMode) => {
-    updateQuery({ [SEARCH_PARAMS.mode]: newMode });
-  };
+  const setCurrentMode = useCallback(
+    (newMode: MapMode) => {
+      updateQuery({ [SEARCH_PARAMS.mode]: newMode });
+    },
+    [updateQuery]
+  );
 
   const customTileServerURL = searchParams.get(SEARCH_PARAMS.tileserver) || "";
 
-  const predictionImagerySource = useMemo(() => {
-    const imagery = searchParams.get(SEARCH_PARAMS.imagery);
-    if (imagery) return imagery as PredictionImagerySource;
-
-    if (customTileServerURL) return PredictionImagerySource.CustomImagery;
-
-    return PredictionImagerySource.ModelDefault;
-  }, [searchParams, customTileServerURL]);
+  const predictionImagerySource = searchParams.get(SEARCH_PARAMS.imagery)
+    ? (searchParams.get(SEARCH_PARAMS.imagery) as PredictionImagerySource)
+    : (customTileServerURL as PredictionImagerySource)
+      ? PredictionImagerySource.CustomImagery
+      : (PredictionImagerySource.ModelDefault as PredictionImagerySource);
 
   const setPredictionImagerySource = (newValue: string) => {
     updateQuery({ [SEARCH_PARAMS.imagery]: newValue });
@@ -241,7 +241,7 @@ export const StartMappingPage = () => {
   };
 
   const [query, setQuery] = useState<TQueryParams>(() =>
-    getMergedQueryFromSearchParams(searchParams),
+    getMergedQueryFromSearchParams(searchParams)
   );
   const { openDialog, isOpened, closeDialog } = useDialog();
   const {
@@ -307,7 +307,7 @@ export const StartMappingPage = () => {
       setPredictionModelCheckpoint(constructModelCheckpointPath(modelInfo));
     } else if (predictionModel && predictionModel !== PredictionModel.CUSTOM) {
       setPredictionModelCheckpoint(
-        FAIR_BASE_MODELS_PATH[predictionModel as BASE_MODELS],
+        FAIR_BASE_MODELS_PATH[predictionModel as BASE_MODELS]
       );
     }
   }, [predictionModel, modelInfo]);
@@ -406,7 +406,7 @@ export const StartMappingPage = () => {
    */
   const isOfflineMode = useMemo(
     () => currentMode === MapMode.OFFLINE,
-    [currentMode],
+    [currentMode]
   );
 
   /**
@@ -435,14 +435,14 @@ export const StartMappingPage = () => {
       if (tileJSONMetadata?.bounds) {
         if (!featureIsWithinBounds(tileJSONMetadata.bounds, features[0])) {
           showWarningToast(
-            "The drawn polygon extends beyond the imagery bounds. Please ensure the polygon AOI is within the imagery bounds.",
+            "The drawn polygon extends beyond the imagery bounds. Please ensure the polygon AOI is within the imagery bounds."
           );
           if (!feature && terraDraw) {
             terraDraw.removeFeatures(
               features
                 .slice(0)
                 .map((f) => f.id)
-                .filter((id): id is string | number => id !== undefined),
+                .filter((id): id is string | number => id !== undefined)
             );
           }
           return;
@@ -450,7 +450,7 @@ export const StartMappingPage = () => {
       }
       if (features.length > 1) {
         showWarningToast(
-          "Only one polygon can be drawn at a time. Please delete the existing polygon before drawing a new one.",
+          "Only one polygon can be drawn at a time. Please delete the existing polygon before drawing a new one."
         );
         // Remove the last drawn feature, keeping only the first one
         if (!feature && terraDraw) {
@@ -458,7 +458,7 @@ export const StartMappingPage = () => {
             features
               .slice(1)
               .map((f) => f.id)
-              .filter((id): id is string | number => id !== undefined),
+              .filter((id): id is string | number => id !== undefined)
           );
         }
         return;
@@ -470,7 +470,7 @@ export const StartMappingPage = () => {
       setOfflinePredictionAOI(features[0]);
       showSuccessToast("AOI drawn successfully.");
     },
-    [terraDraw, tileJSONMetadata],
+    [terraDraw, tileJSONMetadata]
   );
 
   /**
@@ -515,7 +515,7 @@ export const StartMappingPage = () => {
         setDrawingMode(DrawingModes.STATIC);
       }
     },
-    [setCurrentMode, setDrawingMode, currentMode],
+    [setCurrentMode, setDrawingMode, currentMode]
   );
 
   useEffect(() => {
@@ -558,7 +558,7 @@ export const StartMappingPage = () => {
           ]
         : []),
     ],
-    [modelPredictions],
+    [modelPredictions]
   );
 
   const handleAllFeaturesDownload = useCallback(async () => {
@@ -567,7 +567,7 @@ export const StartMappingPage = () => {
         type: "FeatureCollection",
         features: modelPredictions,
       },
-      `all_predictions_${modelInfo.dataset.id}`,
+      `all_predictions_${modelInfo.dataset.id}`
     );
     showSuccessToast(TOAST_NOTIFICATIONS.startMapping.fileDownloadSuccess);
   }, [modelPredictions, modelInfo]);
@@ -604,7 +604,7 @@ export const StartMappingPage = () => {
   const handleAcceptedFeaturesDownload = useCallback(async () => {
     geoJSONDowloader(
       { type: "FeatureCollection", features: acceptedFeatures },
-      `accepted_predictions_${modelInfo.dataset.id}`,
+      `accepted_predictions_${modelInfo.dataset.id}`
     );
     showSuccessToast(TOAST_NOTIFICATIONS.startMapping.fileDownloadSuccess);
   }, [acceptedFeatures, modelInfo]);
@@ -620,10 +620,10 @@ export const StartMappingPage = () => {
         modelInfo.dataset.name,
         modelInfo.dataset.source_imagery,
         features,
-        true,
+        true
       );
     },
-    [map, modelInfo],
+    [map, modelInfo]
   );
 
   /**
@@ -645,21 +645,21 @@ export const StartMappingPage = () => {
   const downloadOptions: TDownloadOptions = [
     {
       name: START_MAPPING_PAGE_CONTENT.buttons.download.options.allFeatures(
-        isSmallViewport ? "All" : "Download all",
+        isSmallViewport ? "All" : "Download all"
       ),
       value: START_MAPPING_PAGE_CONTENT.buttons.download.options.allFeatures(
-        isSmallViewport ? "All" : "Download all",
+        isSmallViewport ? "All" : "Download all"
       ),
       onClick: handleAllFeaturesDownload,
       showOnMobile: true,
     },
     {
       name: START_MAPPING_PAGE_CONTENT.buttons.download.options.acceptedFeatures(
-        isSmallViewport ? "Accepted" : "Download accepted",
+        isSmallViewport ? "Accepted" : "Download accepted"
       ),
       value:
         START_MAPPING_PAGE_CONTENT.buttons.download.options.acceptedFeatures(
-          isSmallViewport ? "Accepted" : "Download accepted",
+          isSmallViewport ? "Accepted" : "Download accepted"
         ),
       onClick: handleAcceptedFeaturesDownload,
       showOnMobile: true,
@@ -786,7 +786,7 @@ export const StartMappingPage = () => {
         predictionImagerySource={predictionImagerySource}
         predictionModel={predictionModel}
       />
-      <div className="h-screen flex flex-col fullscreen">
+      <div className="fullscreen flex h-screen flex-col">
         {/* Base model dialog */}
         <Dialog
           label="Model"
@@ -876,7 +876,7 @@ export const StartMappingPage = () => {
         )}
         {/* Mobile bottom sheet */}
 
-        <div className="sticky top-0 bg-white z-10 px-4 xl:px-large py-1 hidden md:block">
+        <div className="sticky top-0 z-10 hidden bg-white px-4 py-1 md:block xl:px-large">
           {/* Web Header */}
           <StartMappingHeader
             modelInfo={modelInfo}
@@ -917,16 +917,16 @@ export const StartMappingPage = () => {
             }
           />
         </div>
-        <div className="col-span-12 h-[70vh] md:h-full md:border-8 md:border-off-white flex-grow relative map-elements-z-index">
+        <div className="map-elements-z-index relative col-span-12 h-[70vh] grow md:h-full md:border-8 md:border-off-white">
           {/* Mobile Header and Map Controls */}
           <div className="md:hidden">
-            <div className="absolute top-4 right-4  z-[10]">
+            <div className="absolute right-4 top-4  z-10">
               <UserProfile hideFullName />
             </div>
-            <div className="absolute top-4 left-4  z-[10]">
+            <div className="absolute left-4 top-4  z-10">
               <BrandLogoWithDropDown />
             </div>
-            <div className={"absolute top-[10vh] left-3 map-elements-z-index"}>
+            <div className={"map-elements-z-index absolute left-3 top-[10vh]"}>
               {terraDraw && map && (
                 <DrawControl
                   terraDraw={terraDraw}
@@ -941,7 +941,7 @@ export const StartMappingPage = () => {
             </div>
             {terraDraw && map && (
               <div
-                className={`absolute ${hasDrawnAOI ? "top-[20vh]" : "top-[16vh]"} left-3 map-elements-z-index`}
+                className={`absolute ${hasDrawnAOI ? "top-[20vh]" : "top-[16vh]"} map-elements-z-index left-3`}
               >
                 <ToolTip
                   content={
@@ -952,7 +952,7 @@ export const StartMappingPage = () => {
                   placement={ToolTipPlacement.RIGHT}
                 >
                   <button
-                    className={`p-1.5 flex items-center justify-center transition-colors duration-200 bg-white`}
+                    className={`flex items-center justify-center bg-white p-1.5 transition-colors duration-200`}
                     onClick={openFileUploadDialog}
                     disabled={hasDrawnAOI}
                   >
@@ -963,7 +963,7 @@ export const StartMappingPage = () => {
                 </ToolTip>
               </div>
             )}
-            <div className="absolute top-[10vh] right-4 z-[2] flex flex-col gap-y-4 items-end">
+            <div className="absolute right-4 top-[10vh] z-[2] flex flex-col items-end gap-y-4">
               <ZoomLevel />
               <LayerControl
                 layers={mapLayers}
@@ -973,7 +973,7 @@ export const StartMappingPage = () => {
                 rounded
               />
             </div>
-            <div className="absolute bottom-[30vh] flex flex-col gap-y-4 right-4 z-[1] items-end">
+            <div className="absolute bottom-[30vh] right-4 z-[1] flex flex-col items-end gap-y-4">
               <FitToBounds bounds={tileJSONMetadata?.bounds} map={map} />
               <div>{modelPredictionsExist && <Legend />}</div>
             </div>

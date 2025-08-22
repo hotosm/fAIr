@@ -22,13 +22,13 @@ type TAPIResponse = {
 };
 
 const getPredicitionResultPMTilesUrl = async (
-  predictionId: number,
+  predictionId: number
 ): Promise<TAPIResponse> => {
   const { data } = await apiClient.get(
-    API_ENDPOINTS.GET_PREDICTIONS_PMTILES_URL(predictionId),
+    API_ENDPOINTS.GET_PREDICTIONS_PMTILES_URL(predictionId)
   );
   if (!data || !data.result) {
-    showErrorToast(undefined, errorMessages.MAP_LOAD_FAILURE);
+    showErrorToast(errorMessages.MAP_LOAD_FAILURE);
     throw new Error(errorMessages.MAP_LOAD_FAILURE);
   }
   return data;
@@ -54,7 +54,7 @@ export const PredictionResultDrawer: React.FC<PredictionResultProps> = ({
       label={"Prediction Result"}
       noHeader={false}
     >
-      <div className="w-full flex items-center justify-center h-full">
+      <div className="flex size-full items-center justify-center">
         {isLoading && (
           <div className="flex flex-col items-center justify-center">
             <Spinner />
@@ -65,7 +65,7 @@ export const PredictionResultDrawer: React.FC<PredictionResultProps> = ({
         )}
 
         {isError && (
-          <div className="text-center space-y-4">
+          <div className="space-y-4 text-center">
             <p className="text-red-500">{errorMessages.MAP_LOAD_FAILURE}</p>
             <Button onClick={() => refetch()} size={SHOELACE_SIZES.MEDIUM}>
               {MODELS_CONTENT.trainingArea.retryButton}
@@ -73,7 +73,7 @@ export const PredictionResultDrawer: React.FC<PredictionResultProps> = ({
           </div>
         )}
         {data?.result && tileServiceUrl && (
-          <div className="flex w-full h-full flex-col space-y-4">
+          <div className="flex size-full flex-col space-y-4">
             <div className="flex justify-end">
               <DropDown
                 triggerComponent={
@@ -95,7 +95,7 @@ export const PredictionResultDrawer: React.FC<PredictionResultProps> = ({
                       const downloadUrl =
                         BASE_API_URL +
                         API_ENDPOINTS.DOWNLOAD_PREDICTION_RESULTS_POINTS_LABELS_FILE_(
-                          predictionId,
+                          predictionId
                         );
                       window.open(downloadUrl, "_blank");
                     },
@@ -107,7 +107,7 @@ export const PredictionResultDrawer: React.FC<PredictionResultProps> = ({
                       const downloadUrl =
                         BASE_API_URL +
                         API_ENDPOINTS.DOWNLOAD_PREDICTION_LABELS_FILE(
-                          predictionId,
+                          predictionId
                         );
                       window.open(downloadUrl, "_blank");
                     },
@@ -115,7 +115,7 @@ export const PredictionResultDrawer: React.FC<PredictionResultProps> = ({
                 ]}
               />
             </div>
-            <div className="w-full h-full relative border">
+            <div className="relative size-full border">
               <TrainingAreaMap
                 tmsURL={tileServiceUrl}
                 trainingAreaId={predictionId}

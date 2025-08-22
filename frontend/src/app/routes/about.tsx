@@ -10,14 +10,14 @@ export const AboutPage = () => {
     <main className="static-page-layout">
       <Head title={ABOUT_PAGE_CONTENT.pageTitle} />
       <Header title={ABOUT_PAGE_CONTENT.pageHeader} />
-      <section className="flex flex-col md:flex-row gap-y-20 justify-between items-center">
-        <div className="flex flex-col gap-y-8 basis-1/2">
-          <h1 className="font-semibold text-title-2 xl:text-title-1">
-            {ABOUT_PAGE_CONTENT.heroHeading.firstSegment}{" "}
+      <section className="flex flex-col items-center justify-between gap-y-20 md:flex-row">
+        <div className="flex basis-1/2 flex-col gap-y-8">
+          <h1 className="text-title-2 font-semibold xl:text-title-1">
+            {ABOUT_PAGE_CONTENT.heroHeading.firstSegment}
             <span className="text-primary">
               {ABOUT_PAGE_CONTENT.heroHeading.secondSegment}
-            </span>{" "}
-            {ABOUT_PAGE_CONTENT.heroHeading.thirdSegment}{" "}
+            </span>
+            {ABOUT_PAGE_CONTENT.heroHeading.thirdSegment}
           </h1>
         </div>
       </section>
@@ -27,11 +27,12 @@ export const AboutPage = () => {
           src={HOTTeamLandscape}
           width="100%"
           height="100%"
+          className="size-2 md:size-full"
         />
       </section>
-      <section className="flex flex-col-reverse md:flex-row items-center md:justify-between w-full">
-        <div className="basis-2/4 flex gap-y-4 flex-col">
-          <p className="text-body-2base md:text-body-2 text-dark">
+      <section className="flex w-full flex-col-reverse items-center md:flex-row md:justify-between">
+        <div className="flex basis-2/4 flex-col gap-y-4">
+          <p className="text-body-2base text-dark md:text-body-2">
             {ABOUT_PAGE_CONTENT.bodyContent.firstParagraph}
           </p>
           <p>{ABOUT_PAGE_CONTENT.bodyContent.secondParagraph}</p>

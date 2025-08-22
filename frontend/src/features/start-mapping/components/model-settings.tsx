@@ -18,6 +18,7 @@ import {
   SHOELACE_SIZES,
 } from "@/enums";
 import { useEffect, useState } from "react";
+import { SlChangeEvent } from "@shoelace-style/shoelace";
 
 const confidenceLevels = [
   {
@@ -48,9 +49,7 @@ export const ModelSettings = ({
   isMobile?: boolean;
 }) => {
   const handleQueryUpdate = (key: string, val: number | boolean) => {
-    updateQuery({
-      [key]: val,
-    });
+    updateQuery({ [key]: val });
   };
 
   const [toleranceValidity, setToleranceValidity] = useState<boolean>(true);
@@ -84,8 +83,8 @@ export const ModelSettings = ({
   ]);
 
   const modelSettings = (
-    <div className="flex flex-col bg-white p-3 justify-between rounded-xl flex-wrap gap-y-4">
-      <div className="flex gap-x-2 justify-between">
+    <div className="flex flex-col flex-wrap justify-between gap-y-4 rounded-xl bg-white p-3">
+      <div className="flex justify-between gap-x-2">
         <FormLabel
           label={START_MAPPING_PAGE_CONTENT.settings.orthogonalize.label}
           withTooltip
@@ -95,16 +94,14 @@ export const ModelSettings = ({
           position="left"
         />
         <Switch
-          checked={query[SEARCH_PARAMS.orthogonalize] as boolean}
-          handleSwitchChange={(event) => {
-            handleQueryUpdate(
-              SEARCH_PARAMS.orthogonalize,
-              event.target.checked,
-            );
+          checked={Boolean(query[SEARCH_PARAMS.orthogonalize])}
+          handleSwitchChange={(event: SlChangeEvent) => {
+            const target = event.target as HTMLInputElement;
+            handleQueryUpdate(SEARCH_PARAMS.orthogonalize, target.checked);
           }}
         />
       </div>
-      <div className="flex justify-between  items-center gap-x-2">
+      <div className="flex items-center  justify-between gap-x-2">
         <FormLabel
           label={START_MAPPING_PAGE_CONTENT.settings.skewTolerance.label}
           withTooltip
@@ -123,7 +120,7 @@ export const ModelSettings = ({
           handleInput={(event) =>
             handleQueryUpdate(
               SEARCH_PARAMS.skewTolerance,
-              Number(event.target.value),
+              Number(event.target.value)
             )
           }
           min={0}
@@ -134,7 +131,7 @@ export const ModelSettings = ({
           }}
         />
       </div>
-      <div className="flex justify-between  items-center gap-x-2">
+      <div className="flex items-center  justify-between gap-x-2">
         <FormLabel
           label={START_MAPPING_PAGE_CONTENT.settings.maxAngleChange.label}
           withTooltip
@@ -153,7 +150,7 @@ export const ModelSettings = ({
           handleInput={(event) =>
             handleQueryUpdate(
               SEARCH_PARAMS.maxAngleChange,
-              Number(event.target.value),
+              Number(event.target.value)
             )
           }
           min={0}
@@ -164,7 +161,7 @@ export const ModelSettings = ({
           }}
         />
       </div>
-      <div className="flex justify-between items-center gap-x-4">
+      <div className="flex items-center justify-between gap-x-4">
         <FormLabel
           label={START_MAPPING_PAGE_CONTENT.settings.confidence.label}
           withTooltip
@@ -183,7 +180,7 @@ export const ModelSettings = ({
           }}
         />
       </div>
-      <div className="flex justify-between items-center gap-x-2">
+      <div className="flex items-center justify-between gap-x-2">
         <FormLabel
           label={START_MAPPING_PAGE_CONTENT.settings.tolerance.label}
           withTooltip
@@ -200,7 +197,7 @@ export const ModelSettings = ({
           handleInput={(event) =>
             handleQueryUpdate(
               SEARCH_PARAMS.tolerance,
-              Number(event.target.value),
+              Number(event.target.value)
             )
           }
           validationStateUpdateCallback={(validity) => {
@@ -211,7 +208,7 @@ export const ModelSettings = ({
           step={0.1}
         />
       </div>
-      <div className="flex justify-between  items-center gap-x-2">
+      <div className="flex items-center justify-between gap-x-2">
         <FormLabel
           label={START_MAPPING_PAGE_CONTENT.settings.area.label}
           withTooltip
@@ -246,8 +243,8 @@ export const ModelSettings = ({
         disableCheveronIcon
         triggerComponent={
           <ToolTip content={START_MAPPING_PAGE_CONTENT.settings.tooltip}>
-            <button className={"p-1 flex items-center hover:icon-interaction"}>
-              <SettingsIcon className="w-5 h-5 text-dark" />
+            <button className={"hover:icon-interaction flex items-center p-1"}>
+              <SettingsIcon className="size-5 text-dark" />
             </button>
           </ToolTip>
         }

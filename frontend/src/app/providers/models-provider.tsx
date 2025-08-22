@@ -205,7 +205,7 @@ const ModelsContext = createContext<{
       | number
       | number[]
       | Record<string, string | number | boolean>
-      | LngLatBoundsLike,
+      | LngLatBoundsLike
   ) => void;
 
   hasLabeledTrainingAreas: boolean;
@@ -266,37 +266,43 @@ export const ModelsProvider: React.FC<{
   const datasetId = searchParams.get(DatasetURLParams.DATASET_ID);
   const datasetName = searchParams.get(DatasetURLParams.DATASET_NAME);
   const datasetSourceImagery = searchParams.get(
-    DatasetURLParams.DATASET_SOURCE_IMAGERY,
+    DatasetURLParams.DATASET_SOURCE_IMAGERY
   );
   const { setValue, removeValue, getValue } = useLocalStorage();
   const storedFormData = getValue(HOT_FAIR_MODEL_CREATION_LOCAL_STORAGE_KEY);
   const [formData, setFormData] = useState<typeof initialFormState>(
-    storedFormData ? JSON.parse(storedFormData) : initialFormState,
+    storedFormData ? JSON.parse(storedFormData) : initialFormState
   );
   const { user, isAuthenticated } = useAuth();
 
-  const handleChange = (
-    field: string,
-    value:
-      | string
-      | boolean
-      | number
-      | number[]
-      | Record<string, string | number | boolean>
-      | LngLatBoundsLike,
-  ) => {
-    setFormData((prev) => {
-      const updatedData = { ...prev, [field]: value };
-      setValue(
-        HOT_FAIR_MODEL_CREATION_LOCAL_STORAGE_KEY,
-        JSON.stringify(updatedData),
-      );
-      return updatedData;
-    });
-  };
+  const handleChange = useCallback(
+    (
+      field: string,
+      value:
+        | string
+        | boolean
+        | number
+        | number[]
+        | Record<string, string | number | boolean>
+        | LngLatBoundsLike
+    ) => {
+      setFormData((prev) => {
+        const updatedData = { ...prev, [field]: value };
+        setValue(
+          HOT_FAIR_MODEL_CREATION_LOCAL_STORAGE_KEY,
+          JSON.stringify(updatedData)
+        );
+        return updatedData;
+      });
+    },
+    []
+  );
 
-  const getFullPath = (path: string) =>
-    `${isEditMode ? MODELS_BASE + "/" + modelId : MODELS_ROUTES.CREATE_MODEL_BASE}/${path}/`;
+  const getFullPath = useCallback(
+    (path: string) =>
+      `${isEditMode ? MODELS_BASE + "/" + modelId : MODELS_ROUTES.CREATE_MODEL_BASE}/${path}/`,
+    []
+  );
 
   const timeOutRef = useRef<number | null>(null);
 
@@ -305,7 +311,7 @@ export const ModelsProvider: React.FC<{
   const { data, isPending, isError, error } = useModelDetails(
     id ?? (modelId as string),
     !!id || !!modelId,
-    10000,
+    10000
   );
 
   const isModelOwner = isAuthenticated && data?.user?.osm_id === user?.osm_id;
@@ -340,7 +346,7 @@ export const ModelsProvider: React.FC<{
     if (datasetId && datasetName && datasetSourceImagery) {
       handleChange(
         MODEL_CREATION_FORM_NAME.SELECTED_TRAINING_DATASET_ID,
-        datasetId,
+        datasetId
       );
       handleChange(MODEL_CREATION_FORM_NAME.DATASET_NAME, datasetName);
       handleChange(MODEL_CREATION_FORM_NAME.TMS_URL, datasetSourceImagery);
@@ -353,32 +359,32 @@ export const ModelsProvider: React.FC<{
     handleChange(MODEL_CREATION_FORM_NAME.BASE_MODELS, data.base_model);
     handleChange(
       MODEL_CREATION_FORM_NAME.MODEL_DESCRIPTION,
-      data.description ?? "",
+      data.description ?? ""
     );
     handleChange(MODEL_CREATION_FORM_NAME.MODEL_NAME, data.name ?? "");
     handleChange(
       MODEL_CREATION_FORM_NAME.SELECTED_TRAINING_DATASET_ID,
-      data.dataset.id,
+      data.dataset.id
     );
     handleChange(
       MODEL_CREATION_FORM_NAME.DATASET_NAME,
-      data.dataset.name ?? "",
+      data.dataset.name ?? ""
     );
     handleChange(
       MODEL_CREATION_FORM_NAME.TMS_URL,
-      data.dataset.source_imagery ?? "",
+      data.dataset.source_imagery ?? ""
     );
     handleChange(
       MODEL_CREATION_FORM_NAME.TILESERVICE_TYPE,
-      getTileServerTypeFromURL(data.dataset.source_imagery ?? ""),
+      getTileServerTypeFromURL(data.dataset.source_imagery ?? "")
     );
     handleChange(MODEL_CREATION_FORM_NAME.DATASET_OFFSET, data.dataset.offset);
   }, [isEditMode, isError, isPending, data]);
 
-  const resetState = () => {
+  const resetState = useCallback(() => {
     removeValue(HOT_FAIR_MODEL_CREATION_LOCAL_STORAGE_KEY);
     setFormData(initialFormState);
-  };
+  }, []);
 
   useEffect(() => {
     // Cleanup the timeout on component unmount
@@ -425,10 +431,10 @@ export const ModelsProvider: React.FC<{
         zoom_level: formData.zoomLevels,
       });
     },
-    [formData, modelId],
+    [formData, createNewTrainingRequestMutation]
   );
 
-  const handleModelCreationOrUpdateSuccess = (id: string) => {
+  const handleModelCreationOrUpdateSuccess = useCallback((id: string) => {
     if (isEditMode && isModelOwner) {
       showSuccessToast(TOAST_NOTIFICATIONS.modelUpdateSuccess);
     } else if (!isEditMode) {
@@ -438,7 +444,7 @@ export const ModelsProvider: React.FC<{
     navigate(`${getFullPath(MODELS_ROUTES.CONFIRMATION)}?id=${id}`);
     // Submit the model for training request
     submitTrainingRequest(id);
-  };
+  }, []);
 
   const modelCreateMutation = useCreateModel({
     mutationConfig: {
@@ -468,9 +474,9 @@ export const ModelsProvider: React.FC<{
     () =>
       formData.trainingAreas.length > 0 &&
       formData.trainingAreas.every(
-        (aoi: TTrainingAreaFeature) => aoi.properties.label_fetched !== null,
+        (aoi: TTrainingAreaFeature) => aoi.properties.label_fetched !== null
       ),
-    [formData],
+    [formData]
   );
 
   // Confirm that all of the training areas have a geometry.
@@ -478,12 +484,12 @@ export const ModelsProvider: React.FC<{
     () =>
       formData.trainingAreas.length > 0 &&
       formData.trainingAreas.every(
-        (aoi: TTrainingAreaFeature) => aoi.geometry !== null,
+        (aoi: TTrainingAreaFeature) => aoi.geometry !== null
       ),
-    [formData],
+    [formData]
   );
 
-  const handleModelCreationAndUpdate = () => {
+  const handleModelCreationAndUpdate = useCallback(() => {
     // The user is trying to edit their model.
     // In this case, send a PATCH request and submit a training request.
     if (isEditMode && isModelOwner) {
@@ -506,11 +512,19 @@ export const ModelsProvider: React.FC<{
         base_model: formData.baseModel,
       });
     }
-  };
+  }, [
+    isEditMode,
+    isModelOwner,
+    modelUpdateMutation,
+    formData,
+    modelId,
+    handleModelCreationOrUpdateSuccess,
+    modelCreateMutation,
+  ]);
 
   const modelCreationOrUpdateInProgress = useMemo(
     () => modelCreateMutation.isPending || modelUpdateMutation.isPending,
-    [modelCreateMutation.isPending, modelUpdateMutation.isPending],
+    [modelCreateMutation.isPending, modelUpdateMutation.isPending]
   );
 
   const memoizedValues = useMemo(
@@ -553,7 +567,7 @@ export const ModelsProvider: React.FC<{
       isError,
       isModelOwner,
       modelCreationOrUpdateInProgress,
-    ],
+    ]
   );
 
   return (

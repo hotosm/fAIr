@@ -1,4 +1,4 @@
-import { Map, Popup } from "maplibre-gl";
+import { Map, MapGeoJSONFeature, MapLayerMouseEvent, Popup } from "maplibre-gl";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { geojsonToWKT } from "@terraformer/wkt";
 import { Input } from "@/components/ui/form";
@@ -32,15 +32,15 @@ const PredictedFeatureActionPopup = ({
   updateFeatureStatus: (
     id: number,
     status: PredictedFeatureStatus,
-    updatedProperties: Partial<TModelPredictionFeature["properties"]>,
+    updatedProperties: Partial<TModelPredictionFeature["properties"]>
   ) => void;
 }) => {
   const { user } = useAuth();
 
   const popupContainerRef = useRef<HTMLDivElement>(null);
   const popupInstanceRef = useRef<Popup | null>(null);
-  const selectedFeatureRef = useRef<any>(null);
-  const selectedEventRef = useRef<any>(null);
+  const selectedFeatureRef = useRef<MapGeoJSONFeature | null>(null);
+  const selectedEventRef = useRef<MapLayerMouseEvent | null>(null);
 
   const [featureId, setFeatureId] = useState<number | null>(null);
   const [showComment, setShowComment] = useState(false);
@@ -48,7 +48,7 @@ const PredictedFeatureActionPopup = ({
 
   const feature = useMemo(
     () => features.find((f) => f.properties.id === featureId),
-    [featureId, features],
+    [featureId, features]
   );
 
   const featureStatus = feature?.properties.status;
@@ -85,7 +85,7 @@ const PredictedFeatureActionPopup = ({
       map.getCanvas().style.cursor = "";
     };
 
-    const handleClick = (e: any) => {
+    const handleClick = (e: MapLayerMouseEvent) => {
       const clickedFeature = e.features?.[0];
       if (!clickedFeature) return;
 
@@ -113,12 +113,12 @@ const PredictedFeatureActionPopup = ({
       map.off(
         "mouseenter",
         ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
-        handleMouseEnter,
+        handleMouseEnter
       );
       map.off(
         "mouseleave",
         ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
-        handleMouseLeave,
+        handleMouseLeave
       );
       map.off("click", ALL_MODEL_PREDICTIONS_FILL_LAYER_ID, handleClick);
     };
@@ -179,7 +179,7 @@ const PredictedFeatureActionPopup = ({
             updateFeatureStatus(
               featureId,
               PredictedFeatureStatus.UNTOUCHED,
-              {},
+              {}
             );
           }
         }
@@ -304,17 +304,17 @@ const PredictedFeatureActionPopup = ({
 
   return (
     <div
-      className="bg-white p-4 rounded-xl flex flex-col gap-y-4 w-fit md:w-[300px]"
+      className="flex w-fit flex-col gap-y-4 rounded-xl bg-white p-4 md:w-[300px]"
       ref={popupContainerRef}
     >
       <div className="flex items-center justify-between">
-        <p className="font-semibold text-body-3 md:text-body-2base">
+        <p className="text-body-3 font-semibold md:text-body-2base">
           {showComment
             ? START_MAPPING_PAGE_CONTENT.map.popup.commentTitle
             : START_MAPPING_PAGE_CONTENT.map.popup.defaultTitle}
         </p>
         <button
-          className="text-dark text-sm md:text-lg self-end"
+          className="self-end text-sm text-dark md:text-lg"
           onClick={closePopup}
           title="Close"
         >
@@ -335,7 +335,7 @@ const PredictedFeatureActionPopup = ({
             size={SHOELACE_SIZES.MEDIUM}
           />
           <button
-            className="w-fit bg-primary text-white rounded-lg px-6 py-2 text-body-4 md:text-body-3 text-nowrap"
+            className="w-fit text-nowrap rounded-lg bg-primary px-6 py-2 text-body-4 text-white md:text-body-3"
             onClick={submitRejectionFeedback}
             disabled={createModelFeedbackMutation.isPending}
           >
@@ -350,9 +350,9 @@ const PredictedFeatureActionPopup = ({
           <p className="text-xs md:text-sm">
             {START_MAPPING_PAGE_CONTENT.map.popup.description}
           </p>
-          <div className="flex justify-between items-center gap-x-6">
+          <div className="flex items-center justify-between gap-x-6">
             <button
-              className={`w-full ${primaryButton.className} text-white rounded-lg p-2 text-body-4 md:text-body-3 text-nowrap flex gap-x-3 justify-between items-center`}
+              className={`w-full ${primaryButton.className} flex items-center justify-between gap-x-3 text-nowrap rounded-lg p-2 text-body-4 text-white md:text-body-3`}
               onClick={primaryButton.action}
               disabled={primaryButton.disabled}
             >
@@ -361,7 +361,7 @@ const PredictedFeatureActionPopup = ({
               {primaryButton.disabled && <Spinner />}
             </button>
             <button
-              className={`w-full ${secondaryButton.className} text-white rounded-lg p-2 text-body-4 md:text-body-3 text-nowrap flex justify-between items-center gap-x-3`}
+              className={`w-full ${secondaryButton.className} flex items-center justify-between gap-x-3 text-nowrap rounded-lg p-2 text-body-4 text-white md:text-body-3`}
               onClick={secondaryButton.action}
               disabled={secondaryButton.disabled}
             >
@@ -379,19 +379,19 @@ const PredictedFeatureActionPopup = ({
 export default PredictedFeatureActionPopup;
 
 const RejectIcon = () => (
-  <span className="w-4 h-4 p-1 text-xs border rounded-full flex items-center justify-center">
+  <span className="flex size-4 items-center justify-center rounded-full border p-1 text-xs">
     &#x2715;
   </span>
 );
 
 const AcceptIcon = () => (
-  <span className="w-4 h-4 border rounded-full flex items-center justify-center">
-    <CheckIcon className="w-2 h-2" />
+  <span className="flex size-4 items-center justify-center rounded-full border">
+    <CheckIcon className="size-2" />
   </span>
 );
 
 const ResolveIcon = () => (
-  <span className="w-4 h-4 border rounded-full flex items-center justify-center">
+  <span className="flex size-4 items-center justify-center rounded-full border">
     -
   </span>
 );

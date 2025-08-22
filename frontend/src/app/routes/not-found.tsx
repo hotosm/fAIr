@@ -7,11 +7,11 @@ export const PageNotFound = () => {
   const location = useLocation();
 
   const modelNotFound = location.state?.from.includes(
-    APPLICATION_ROUTES.MODELS,
+    APPLICATION_ROUTES.MODELS
   );
 
   const trainingDatasetNotFound = location.state?.from.includes(
-    APPLICATION_ROUTES.DATASETS,
+    APPLICATION_ROUTES.DATASETS
   );
 
   const navigate = useNavigate();
@@ -19,9 +19,9 @@ export const PageNotFound = () => {
   return (
     <>
       <Head title="Page Not Found" />
-      <section className="min-h-[80vh] flex flex-col mt-20 items-center justify-around lg:justify-center">
+      <section className="mt-20 flex min-h-[80vh] flex-col items-center justify-around lg:justify-center">
         <div>
-          <p className="text-body-1 lg:text-title1 font-semibold text-dark text-center">
+          <p className="lg:text-title1 text-center text-body-1 font-semibold text-dark">
             {SHARED_CONTENT.pageNotFound.messages.constant}{" "}
             {location.state?.error
               ? location.state?.error
@@ -32,9 +32,9 @@ export const PageNotFound = () => {
                   : SHARED_CONTENT.pageNotFound.messages.pageNotFound}
           </p>
         </div>
-        <h1 className="w-72 text-[200px] lg:w-[450px] lg:text-[450px] flex items-center justify-center font-semibold text-light-gray relative">
+        <h1 className="relative flex w-72 items-center justify-center text-[200px] font-semibold text-light-gray lg:w-[450px] lg:text-[450px]">
           404
-          <span className="absolute flex items-center w-full justify-center h-full">
+          <span className="absolute flex size-full items-center justify-center">
             {/* Icon */}
             <svg
               viewBox="0 0 408 193"
@@ -71,7 +71,7 @@ export const PageNotFound = () => {
                 ? APPLICATION_ROUTES.MODELS
                 : trainingDatasetNotFound
                   ? APPLICATION_ROUTES.DATASETS
-                  : APPLICATION_ROUTES.HOMEPAGE,
+                  : APPLICATION_ROUTES.HOMEPAGE
             );
           }}
           className="max-w-[300px]"

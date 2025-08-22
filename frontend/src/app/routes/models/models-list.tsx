@@ -77,7 +77,7 @@ export const ModelsPage = () => {
 
     if (mapViewIsActive) {
       return (
-        <div className="w-full grid grid-cols-1 grid-rows-2 lg:grid-rows-1 lg:grid-cols-2 md:border rounded-md lg:p-2 md:border-gray-border gap-x-2 mt-10  gap-y-6 lg:gap-y-0 h-screen">
+        <div className="mt-10 grid h-screen w-full grid-cols-1 grid-rows-2 gap-x-2 gap-y-6 rounded-md md:border md:border-gray-border lg:grid-cols-2  lg:grid-rows-1 lg:gap-y-0 lg:p-2">
           <div className="w-full overflow-y-auto lg:row-start-1">
             <ModelListGridLayout
               models={data?.results}
@@ -89,7 +89,7 @@ export const ModelsPage = () => {
             {modelsMapDataIsPending ||
             modelsMapDataIsError ||
             mapData.features.length === 0 ? (
-              <div className="w-full h-full animate-pulse bg-light-gray flex items-center justify-center">
+              <div className="flex size-full animate-pulse items-center justify-center bg-light-gray">
                 <Spinner />
               </div>
             ) : (
@@ -136,10 +136,10 @@ export const ModelsPage = () => {
       <section className="my-10 min-h-screen">
         <PageHeader />
         {/* Filters */}
-        <div className="sticky top-0 bg-white z-10 py-1">
+        <div className="sticky top-0 z-10 bg-white py-1">
           <div className="flex flex-col gap-y-1">
-            <div className=" flex items-center justify-between w-full ">
-              <div className="flex items-center justify-between w-full md:gap-x-4 gap-y-2 md:gap-y-0  md:w-auto">
+            <div className=" flex w-full items-center justify-between ">
+              <div className="flex w-full items-center justify-between gap-y-2 md:w-auto md:gap-x-4  md:gap-y-0">
                 <SearchFilter
                   updateQuery={updateQuery}
                   query={query}
@@ -150,7 +150,7 @@ export const ModelsPage = () => {
                 />
                 <CategoryFilter disabled={isPending} />
                 {/* Mobile filters */}
-                <div className="flex md:hidden items-center gap-x-4">
+                <div className="flex items-center gap-x-4 md:hidden">
                   <MobileFilter openMobileFilterModal={openDialog} />
                   <LayoutToggle
                     updateQuery={updateQuery}
@@ -167,7 +167,7 @@ export const ModelsPage = () => {
                 {/* Desktop */}
                 <ClearFilters query={query} clearAllFilters={clearAllFilters} />
               </div>
-              <div className="md:flex items-center gap-x-10 hidden">
+              <div className="hidden items-center gap-x-10 md:flex">
                 {/* Desktop */}
                 <ShowMapToggle updateQuery={updateQuery} query={query} />
                 <LayoutToggle
@@ -187,11 +187,11 @@ export const ModelsPage = () => {
             </div>
           </div>
           {isPending ? (
-            <div className="w-full h-10 mt-10 bg-light-gray animate-pulse text-dark"></div>
+            <div className="mt-10 h-10 w-full animate-pulse bg-light-gray text-dark"></div>
           ) : (
-            <div className="flex items-center justify-between w-full my-4 top-16">
-              <div className="w-full flex items-center justify-between">
-                <p className="font-semibold text-body-3">
+            <div className="top-16 my-4 flex w-full items-center justify-between">
+              <div className="flex w-full items-center justify-between">
+                <p className="text-body-3 font-semibold">
                   {data?.count}{" "}
                   {
                     MODELS_CONTENT.models.modelsList.sortingAndPaginationSection
@@ -230,7 +230,7 @@ export const ModelsPage = () => {
         </div>
         {renderContent()}
         {/* mobile pagination */}
-        <div className="w-full flex items-center justify-center md:hidden mt-10">
+        <div className="mt-10 flex w-full items-center justify-center md:hidden">
           <Pagination
             totalLength={data?.count}
             hasNextPage={data?.hasNext}

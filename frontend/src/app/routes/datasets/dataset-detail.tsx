@@ -25,7 +25,7 @@ export const TrainingDatasetsDetailPage = () => {
   const datasetId = id ? parseInt(id, 10) : undefined;
   const { data, isPending, isError, refetch, error } = useGetTrainingDataset(
     datasetId as number,
-    !!datasetId,
+    !!datasetId
   );
 
   const { isAuthenticated, user } = useAuth();
@@ -62,7 +62,7 @@ export const TrainingDatasetsDetailPage = () => {
 
   if (isError) {
     return (
-      <div className="flex flex-col items-center justify-center w-full h-screen gap-y-10">
+      <div className="flex h-screen w-full flex-col items-center justify-center gap-y-10">
         <p className="inline-flex gap-x-2">
           Error loading dataset <span className="font-bold">{datasetId}.</span>
         </p>
@@ -96,36 +96,36 @@ export const TrainingDatasetsDetailPage = () => {
         trainingDataset={data}
       />
       <BackButton className="my-6" />
-      <p className="text-grey text-body-2base">Dataset ID: {data.id}</p>
+      <p className="text-body-2base text-grey">Dataset ID: {data.id}</p>
       <div className="flex flex-col gap-y-8">
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start my-4 w-full ">
-          <div className="flex flex-col gap-y-8 col-span-4 ">
+        <div className="my-4 grid w-full grid-cols-1 items-start gap-8 lg:grid-cols-5 ">
+          <div className="col-span-4 flex flex-col gap-y-8 ">
             <h1
-              className="font-semibold text-dark text-title-2 md:text-large-title leading-tight"
+              className="text-title-2 font-semibold leading-tight text-dark md:text-large-title"
               title={data.name}
             >
               {truncateString(data.name, 40)}
             </h1>
-            <div className="flex flex-col md:flex-row gap-4">
-              <p className="text-dark text-body-2 text-nowrap">
+            <div className="flex flex-col gap-4 md:flex-row">
+              <p className="text-nowrap text-body-2 text-dark">
                 <span className="text-grey">Used by:</span> {data.models_count}{" "}
                 {data.models_count > 1 ? "models" : "model"}
               </p>
-              <p className="text-dark text-body-2 text-nowrap">
+              <p className="text-nowrap text-body-2 text-dark">
                 <span className="text-grey">Created by:</span>{" "}
                 {data.user.username}
               </p>
-              <p className="text-dark text-body-2">
+              <p className="text-body-2 text-dark">
                 <span className="text-grey">Last Modified:</span>{" "}
                 {formatDate(data.last_modified)}
               </p>
             </div>
             <div className="flex items-center text-body-2 text-dark">
-              <span className="text-grey mr-2">Source Image:</span>
+              <span className="mr-2 text-grey">Source Image:</span>
               <CopyButton text={data.source_imagery} />
             </div>
           </div>
-          <div className="flex flex-col col-span-1 w-fit  lg:w-full gap-y-8 lg:justify-between h-full lg:items-end">
+          <div className="col-span-1 flex h-full w-fit  flex-col gap-y-8 lg:w-full lg:items-end lg:justify-between">
             <ButtonWithIcon
               label="Use Dataset"
               variant={ButtonVariant.PRIMARY}
@@ -133,7 +133,7 @@ export const TrainingDatasetsDetailPage = () => {
               prefixIcon={DatabaseIcon}
               onClick={() => {
                 navigate(
-                  `${APPLICATION_ROUTES.CREATE_NEW_MODEL}/?${DatasetURLParams.DATASET_ID}=${data.id}&${DatasetURLParams.DATASET_NAME}=${data.name}&${DatasetURLParams.DATASET_SOURCE_IMAGERY}=${data.source_imagery}`,
+                  `${APPLICATION_ROUTES.CREATE_NEW_MODEL}/?${DatasetURLParams.DATASET_ID}=${data.id}&${DatasetURLParams.DATASET_NAME}=${data.name}&${DatasetURLParams.DATASET_SOURCE_IMAGERY}=${data.source_imagery}`
                 );
               }}
               className="!w-fit"
@@ -143,13 +143,13 @@ export const TrainingDatasetsDetailPage = () => {
               disabled={false}
             />
             {/* Edit Dropdown  */}
-            <div className="flex justify-start lg:justify-end items-start">
+            <div className="flex items-start justify-start lg:justify-end">
               {showEditOptions && (
                 <DropDown
                   ref={dropdownRef}
                   className="bg-white"
                   triggerComponent={
-                    <button className="flex items-center space-x-2 text-nowrap text-body-3 md:text-body-2 hover:text-dark">
+                    <button className="flex items-center space-x-2 text-nowrap text-body-3 hover:text-dark md:text-body-2">
                       <PenIcon className="icon" />
                       <span>Edit Dataset</span>
                     </button>

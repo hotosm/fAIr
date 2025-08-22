@@ -1,7 +1,7 @@
 import { API_ENDPOINTS } from "@/services/api-routes";
 import { apiClient } from "@/services/api-client";
 import { showErrorToast } from "@/utils";
-import { TAuthenticate, TLogin, TUser } from "@/types/api";
+import { TAuthenticate, TLogin, TUser, TVerifyEmail } from "@/types/api";
 
 /**
  * This class encapsulate the various authentication services.
@@ -35,8 +35,8 @@ class AuthService {
       const response = await apiClient.get(API_ENDPOINTS.LOGIN);
       const oauthUrl: TLogin = await response.data;
       return oauthUrl;
-    } catch (error) {
-      showErrorToast(undefined, "Failed to get OAuth URL");
+    } catch {
+      showErrorToast("Failed to get OAuth URL");
       throw new Error("Unable to retrieve login URL.");
     }
   }
@@ -53,7 +53,7 @@ class AuthService {
         throw new Error("Popup blocked or not created.");
       }
     } catch (error) {
-      showErrorToast(undefined, "OAuth flow initialization failed");
+      showErrorToast("OAuth flow initialization failed");
       throw error;
     }
   }
@@ -66,8 +66,8 @@ class AuthService {
     try {
       const response = await apiClient.get(API_ENDPOINTS.USER);
       return response.data;
-    } catch (error) {
-      showErrorToast(undefined, "Failed to fetch user data");
+    } catch {
+      showErrorToast("Failed to fetch user data");
       throw new Error("Unable to retrieve user data.");
     }
   }
@@ -80,11 +80,11 @@ class AuthService {
   async authenticate(state: string, code: string): Promise<TAuthenticate> {
     try {
       const response = await apiClient.get(
-        `${API_ENDPOINTS.AUTH_CALLBACK}?code=${code}&state=${state}`,
+        `${API_ENDPOINTS.AUTH_CALLBACK}?code=${code}&state=${state}`
       );
       return response.data;
-    } catch (error) {
-      showErrorToast(undefined, "Authentication failed");
+    } catch {
+      showErrorToast("Authentication failed");
       throw new Error("Failed to authenticate user.");
     }
   }
@@ -95,7 +95,7 @@ class AuthService {
    * @param token The token retrieved from the URL params.
    * @returns The email verification status from the backend.
    */
-  async verifyEmail(uid: string, token: string): Promise<any> {
+  async verifyEmail(uid: string, token: string): Promise<TVerifyEmail> {
     try {
       const response = await apiClient.get(API_ENDPOINTS.VERIFY_EMAIL, {
         params: {
@@ -105,7 +105,8 @@ class AuthService {
       });
       return response.data;
     } catch (error) {
-      showErrorToast(error);
+      showErrorToast("Failed to verify email");
+      throw error;
     }
   }
 }

@@ -1,10 +1,44 @@
+import { AxiosError } from "axios";
+
+import "@shoelace-style/shoelace/dist/components/alert/alert.js";
+import { DefaultError } from "@tanstack/react-query";
+
+import { ExtendedAxiosError, TModelDetails } from "@/types";
 import {
   FAIR_MODELS_BASE_PATH,
   PREDICTION_API_FILE_EXTENSIONS,
 } from "@/config";
 import { BASE_MODELS } from "@/enums";
-import { useToastNotification } from "@/hooks/use-toast-notification";
-import { TModelDetails } from "@/types";
+
+/**
+ * Custom function for displaying toast notifications.
+ * @param {string} message - The message to display in the notification.
+ * @param {"primary" | "success" | "neutral" | "warning" | "danger"} [variant="primary"] - Type of notification style. It defaults to primary.
+ * @param {number} [duration=3000] - Duration in milliseconds for how long the notification stays visible.
+ *
+ * @example
+ * createToastNotification("Data saved successfully", "success", 2000);
+ */
+
+export const createToastNotification = (
+  message: string,
+  variant: "primary" | "success" | "neutral" | "warning" | "danger" = "primary",
+  duration: number = 3000
+) => {
+  const alert = Object.assign(document.createElement("sl-alert"), {
+    variant,
+    closable: true,
+    duration,
+    innerHTML: `
+            ${message}
+          `,
+  });
+  // make the variant the classname
+  alert.classList.add(variant);
+  document.body.append(alert);
+
+  alert.toast();
+};
 
 /**
  * Displays an error message as a toast notification.
@@ -19,36 +53,36 @@ import { TModelDetails } from "@/types";
  *                                 displayed as the toast notification.
  */
 
-export const showErrorToast = (
-  error: any | undefined = undefined,
-  customMessage: string | undefined = undefined,
-) => {
-  const toast = useToastNotification();
+export const showErrorToast = (error: string | AxiosError | DefaultError) => {
   let message = "An unexpected error occurred";
-  if (customMessage) {
-    message = customMessage;
-  } else if (
-    error?.response?.data &&
-    typeof error?.response?.data !== "object"
-  ) {
-    message = error?.response?.data;
-  } else if (error?.response?.data?.error) {
-    message = error.response.data.error;
-  } else if (error?.response?.data?.message) {
-    message = error.response.data.message;
-  } else if (
-    error?.response?.data?.detail &&
-    typeof error?.response?.data?.detail !== "object"
-  ) {
-    message = error?.response?.data?.detail;
-  } else if (error?.response?.data[0]) {
-    message = error?.response?.data[0];
-  } else if (error.response?.statusText) {
-    message = error.response?.statusText;
-  } else if (error.message) {
-    message = error.message;
+
+  if (error) {
+    // Custom errors
+    if (typeof error === "string") {
+      message = error;
+      // Backend/API errors
+    } else if ((error as AxiosError).response) {
+      const axiosError = error as ExtendedAxiosError;
+      if (typeof axiosError.response?.data === "string") {
+        message = axiosError.response.data;
+        // Handle different types of error responses
+      } else if (axiosError.response?.data?.message) {
+        message = axiosError.response.data.message;
+      } else if (axiosError.response?.data?.detail) {
+        message = axiosError.response.data.detail;
+      } else if (
+        Array.isArray(axiosError.response?.data) &&
+        axiosError.response.data[0]
+      ) {
+        message = axiosError.response.data[0];
+      } else if (axiosError.response?.statusText) {
+        message = axiosError.response.statusText;
+      }
+    } else if (error.message) {
+      message = error.message;
+    }
   }
-  toast(message, "danger");
+  createToastNotification(message, "danger");
 };
 
 /**
@@ -57,8 +91,7 @@ export const showErrorToast = (
  * @param {string} message - Optional. The message that will be displayed as the toast notification.
  */
 export const showSuccessToast = (message: string = "") => {
-  const toast = useToastNotification();
-  toast(message, "success");
+  createToastNotification(message, "success");
 };
 
 /**
@@ -67,8 +100,7 @@ export const showSuccessToast = (message: string = "") => {
  * @param {string} message - Optional. The message that will be displayed as the toast notification.
  */
 export const showWarningToast = (message: string = "") => {
-  const toast = useToastNotification();
-  toast(message, "warning");
+  createToastNotification(message, "warning");
 };
 
 /**
@@ -83,14 +115,13 @@ export const uuid4 = function (): string {
     return v.toString(16);
   });
 };
-
 /**
  *
  * @param modelInfo - The model information object containing dataset ID, training ID, and base model.
  * @returns {string} - The constructed model checkpoint path.
  */
 export const constructModelCheckpointPath = (
-  modelInfo: TModelDetails,
+  modelInfo: TModelDetails
 ): string => {
   const datasetId = modelInfo?.dataset?.id;
   const trainingId = modelInfo?.published_training;
@@ -99,7 +130,7 @@ export const constructModelCheckpointPath = (
 
   if (!datasetId || !trainingId || !fileExtension) {
     throw new Error(
-      "Invalid modelInfo provided. Ensure dataset ID, training ID, and base model are defined.",
+      "Invalid modelInfo provided. Ensure dataset ID, training ID, and base model are defined."
     );
   }
   // move to environment variable - /mnt/efsmount/data/trainings
