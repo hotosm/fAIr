@@ -7,7 +7,7 @@ import { useEffect, useRef } from "react";
  * @returns A ref object to be attached to the element you want to detect clicks outside of.
  */
 export const useClickOutside = <T extends HTMLElement>(
-  handler: (event: MouseEvent | TouchEvent) => void,
+  handler: (event: MouseEvent | TouchEvent) => void
 ) => {
   const ref = useRef<T>(null);
 

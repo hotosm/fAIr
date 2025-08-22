@@ -97,9 +97,9 @@ export const ModelExplorer = ({
         updateQuery={updateQuery}
         disabled={isPending}
       />
-      <section className="min-h-screen gap-y-2 flex flex-col">
-        <div className="flex justify-between items-center">
-          <h1 className="font-bold text-title-3 md:text-title-2 self-start">
+      <section className="flex min-h-screen flex-col gap-y-2">
+        <div className="flex items-center justify-between">
+          <h1 className="self-start text-title-3 font-bold md:text-title-2">
             {title}
           </h1>
           {createRoute && createButtonAlt && (
@@ -112,10 +112,10 @@ export const ModelExplorer = ({
           )}
         </div>
         {/* Filters */}
-        <div className="sticky top-0 bg-white z-10 py-1">
+        <div className="sticky top-0 z-10 bg-white py-1">
           <div className="flex flex-col gap-y-1">
-            <div className=" flex items-center justify-between w-full ">
-              <div className="flex items-center justify-between w-full md:gap-x-4 gap-y-2 md:gap-y-0  md:w-auto">
+            <div className=" flex w-full items-center justify-between ">
+              <div className="flex w-full items-center justify-between gap-y-2 md:w-auto md:gap-x-4  md:gap-y-0">
                 <SearchFilter
                   updateQuery={updateQuery}
                   query={query}
@@ -133,7 +133,7 @@ export const ModelExplorer = ({
                   />
                 )}
                 {/* Mobile filters */}
-                <div className="flex md:hidden items-center gap-x-4">
+                <div className="flex items-center gap-x-4 md:hidden">
                   <MobileFilter openMobileFilterModal={openDialog} />
                   <LayoutToggle
                     updateQuery={updateQuery}
@@ -149,7 +149,7 @@ export const ModelExplorer = ({
                 {/* Desktop */}
                 <ClearFilters query={query} clearAllFilters={clearAllFilters} />
               </div>
-              <div className="md:flex items-center gap-x-10 hidden">
+              <div className="hidden items-center gap-x-10 md:flex">
                 {/* Desktop */}
                 <LayoutToggle updateQuery={updateQuery} query={query} />
               </div>
@@ -164,11 +164,11 @@ export const ModelExplorer = ({
             </div>
           </div>
           {isPending ? (
-            <div className="w-full h-10 mt-10 bg-light-gray animate-pulse text-dark"></div>
+            <div className="mt-10 h-10 w-full animate-pulse bg-light-gray text-dark"></div>
           ) : (
-            <div className="flex items-center justify-between w-full my-4 top-16">
-              <div className="w-full flex items-center justify-between">
-                <p className="font-semibold text-body-3">
+            <div className="top-16 my-4 flex w-full items-center justify-between">
+              <div className="flex w-full items-center justify-between">
+                <p className="text-body-3 font-semibold">
                   {data?.count}{" "}
                   {
                     MODELS_CONTENT.models.modelsList.sortingAndPaginationSection
@@ -204,7 +204,7 @@ export const ModelExplorer = ({
         {renderContent()}
 
         {/* mobile pagination */}
-        <div className="w-full flex items-center justify-center md:hidden">
+        <div className="flex w-full items-center justify-center md:hidden">
           <Pagination
             totalLength={data?.count}
             hasNextPage={data?.hasNext}

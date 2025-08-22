@@ -3,7 +3,7 @@ import { API_ENDPOINTS, apiClient } from "@/services";
 import { FeatureCollection, TTrainingDataset } from "@/types";
 
 export const getTrainingDataset = async (
-  id: number,
+  id: number
 ): Promise<TTrainingDataset> => {
   const res = await apiClient.get(API_ENDPOINTS.GET_TRAINING_DATASET(id));
   return res.data;
@@ -16,7 +16,7 @@ export const getTrainingDatasetsV2 = async (
   // page: number,
   userId?: number,
   offset?: number,
-  id?: number,
+  id?: number
 ): Promise<{
   count: number;
   next: string | null;
@@ -44,7 +44,7 @@ export const getTrainingDatasetsV2 = async (
 
 export const getDatasetsMapData = async (): Promise<FeatureCollection> => {
   const res = await apiClient.get(
-    API_ENDPOINTS.GET_TRAINING_DATASETS_CENTROIDS,
+    API_ENDPOINTS.GET_TRAINING_DATASETS_CENTROIDS
   );
   return res.data;
 };

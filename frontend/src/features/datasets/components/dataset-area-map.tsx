@@ -54,7 +54,7 @@ export const DatasetAreaMap = ({
     useGetTrainingDatasetLabels(
       trainingDatasetId,
       debouncedBbox,
-      Number(debouncedZoom),
+      Number(debouncedZoom)
     );
 
   const updateBbox = useCallback(() => {

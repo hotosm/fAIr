@@ -10,10 +10,10 @@ import {
 } from "@/config";
 import { PredictedFeatureStatus } from "@/enums/start-mapping";
 import { Feature, GeoJSONType } from "@/types";
-import { GeoJSONSource, Map, Popup } from "maplibre-gl";
+import { GeoJSONSource, Map, MapLayerMouseEvent, Popup } from "maplibre-gl";
 import { useEffect, useMemo, useRef, useState } from "react";
 
-let markerIcon = new Image(17, 20);
+const markerIcon = new Image(17, 20);
 markerIcon.src = CommentIcon;
 export const FeedbacksLayer = ({
   map,
@@ -43,7 +43,7 @@ export const FeedbacksLayer = ({
       type: "FeatureCollection",
       features: updatedFeatures,
     }),
-    [updatedFeatures],
+    [updatedFeatures]
   );
 
   const popupContainerRef = useRef<HTMLDivElement>(null);
@@ -126,7 +126,7 @@ export const FeedbacksLayer = ({
       map.getCanvas().style.cursor = "";
     });
 
-    map.on("click", MODEL_FEEDBACKS_FILL_LAYER_ID, (e: any) => {
+    map.on("click", MODEL_FEEDBACKS_FILL_LAYER_ID, (e: MapLayerMouseEvent) => {
       const properties = e.features && e.features[0].properties;
       if (properties) {
         if (properties.comment_length === 0) return;
@@ -177,7 +177,7 @@ export const FeedbacksLayer = ({
   return (
     <div
       ref={popupContainerRef}
-      className="w-60 h-40 bg-white rounded-md p-4 flex flex-col gap-y-2 overflow-auto"
+      className="flex h-40 w-60 flex-col gap-y-2 overflow-auto rounded-md bg-white p-4"
     >
       <h1 className="text-body-2 font-semibold text-dark">Feedback</h1>
       <div className="flex flex-col gap-y-2">

@@ -19,20 +19,20 @@ const AccuracyDisplay = ({ accuracy }: { accuracy: number }) => {
 
   return (
     <div className="flex items-center gap-x-4">
-      <span className="text-dark font-semibold text-title-3">
+      <span className="text-title-3 font-semibold text-dark">
         {roundNumber(accuracy)}
       </span>
-      <div className="relative w-20 h-4">
+      <div className="relative h-4 w-20">
         <div className="flex h-full">
           {thresholds.map((_, index) => (
             <div
               key={index}
-              className={`flex-1 h-full ${index === activeIndex ? activeColor : colors[index]}`}
+              className={`h-full flex-1 ${index === activeIndex ? activeColor : colors[index]}`}
             />
           ))}
         </div>
         <div
-          className="absolute bottom-[-3px] rounded-sm left-0 transform -translate-x-1/2 border-l-8 border-r-8 border-b-8 border-transparent border-b-dark"
+          className="absolute bottom-[-3px] left-0 -translate-x-1/2 rounded-sm border-x-8 border-b-8 border-transparent border-b-dark"
           style={{ left: `${arrowPosition}%` }}
         />
       </div>

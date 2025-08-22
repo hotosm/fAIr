@@ -50,7 +50,7 @@ const Button: React.FC<ButtonProps> = ({
     >
       <div
         className={cn(
-          `flex items-center gap-x-2  ${uppercase && "uppercase"} ${contentClassName} `,
+          `flex items-center gap-x-2  ${uppercase && "uppercase"} ${contentClassName} `
         )}
       >
         {children}

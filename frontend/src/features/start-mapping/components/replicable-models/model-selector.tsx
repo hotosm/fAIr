@@ -75,7 +75,7 @@ export const ModelSelector = ({
         tooltip: "Custom model for generating predictions.",
       },
     ],
-    [defaultPredictionModel, predictionModel],
+    [defaultPredictionModel, predictionModel]
   );
 
   const PredictionModelsCheckpoints = useMemo(
@@ -85,7 +85,7 @@ export const ModelSelector = ({
           dataset: { id: "" },
           published_training: "",
           base_model: "",
-        },
+        }
       ),
       [PredictionModel.RAMP]: FAIR_BASE_MODELS_PATH[PredictionModel.RAMP],
       [PredictionModel.YOLOV8_V1]:
@@ -94,12 +94,12 @@ export const ModelSelector = ({
         FAIR_BASE_MODELS_PATH[PredictionModel.YOLOV8_V2],
       [PredictionModel.CUSTOM]: predictionModelCheckpoint,
     }),
-    [predictionModelCheckpoint, modelInfo, predictionModel],
+    [predictionModelCheckpoint, modelInfo, predictionModel]
   );
 
   return (
     <div
-      className={` bg-white ${isMobile ? "w-full" : "w-[350px]  shadow-lg rounded-xl border border-gray-border "} p-4 max-h-[400px] gap-y-4 overflow-y-auto flex flex-col scrollable`}
+      className={` bg-white ${isMobile ? "w-full" : "w-[350px]  rounded-xl border border-gray-border shadow-lg "} scrollable flex max-h-[400px] flex-col gap-y-4 overflow-y-auto p-4`}
     >
       {!isMobile && (
         <div>
@@ -117,7 +117,7 @@ export const ModelSelector = ({
           setPredictionModel(e);
           if (e !== PredictionModel.CUSTOM) {
             setPredictionModelCheckpoint(
-              PredictionModelsCheckpoints[e as keyof typeof PredictionModel],
+              PredictionModelsCheckpoints[e as keyof typeof PredictionModel]
             );
           } else {
             /**
@@ -156,7 +156,7 @@ const CustomModelInput = ({
   });
 
   return (
-    <div className="flex flex-col gap-y-2 mt-2">
+    <div className="mt-2 flex flex-col gap-y-2">
       <Input
         label={"Custom Model Checkpoint"}
         labelWithTooltip

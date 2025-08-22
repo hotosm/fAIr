@@ -15,13 +15,13 @@ type TAPIResponse = {
 };
 
 const getTrainingAreaPMTilesUrl = async (
-  trainingAreaId: number,
+  trainingAreaId: number
 ): Promise<TAPIResponse> => {
   const { data } = await apiClient.get(
-    API_ENDPOINTS.GET_PMTILES_URL(trainingAreaId),
+    API_ENDPOINTS.GET_PMTILES_URL(trainingAreaId)
   );
   if (!data || !data.result) {
-    showErrorToast(undefined, errorMessages.MAP_LOAD_FAILURE);
+    showErrorToast(errorMessages.MAP_LOAD_FAILURE);
     throw new Error(errorMessages.MAP_LOAD_FAILURE);
   }
   return data;
@@ -52,7 +52,7 @@ export const TrainingAreaDrawer: React.FC<TrainingAreaDrawerProps> = ({
       label={MODELS_CONTENT.trainingArea.modalTitle}
       noHeader={false}
     >
-      <div className="w-full flex items-center justify-center h-full">
+      <div className="flex size-full items-center justify-center">
         {isLoading && (
           <div className="flex flex-col items-center justify-center">
             <Spinner />
@@ -63,7 +63,7 @@ export const TrainingAreaDrawer: React.FC<TrainingAreaDrawerProps> = ({
         )}
 
         {isError && (
-          <div className="text-center space-y-4">
+          <div className="space-y-4 text-center">
             <p className="text-red-500">{errorMessages.MAP_LOAD_FAILURE}</p>
             <Button onClick={() => refetch()} size={SHOELACE_SIZES.MEDIUM}>
               {MODELS_CONTENT.trainingArea.retryButton}
@@ -72,7 +72,7 @@ export const TrainingAreaDrawer: React.FC<TrainingAreaDrawerProps> = ({
         )}
 
         {data?.result && tmsURL && (
-          <div className="w-full h-full relative">
+          <div className="relative size-full">
             <TrainingAreaMap
               file={data.result}
               trainingAreaId={trainingAreaId}

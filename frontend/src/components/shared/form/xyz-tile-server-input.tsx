@@ -68,7 +68,7 @@ export const XYZTileServerInput = ({
         size={size as unknown as SHOELACE_SELECT_SIZES}
       />
       <Input
-        label={`${tileServiceType} ${tileServiceType !== TileServiceType.TILEJSON ? "Tile Server" : ""} URL`}
+        label={`${tileServiceType ?? ""} ${tileServiceType !== TileServiceType.TILEJSON ? "Tile Server" : ""} URL`}
         labelWithTooltip={labelWithTooltip}
         value={tileServerURL}
         toolTipContent={
@@ -103,6 +103,7 @@ export const XYZTileServerInput = ({
             href="https://github.com/hotosm/fair?tab=readme-ov-file#imagery-license"
             target="_blank"
             className="text-primary underline"
+            rel="noreferrer"
           >
             license requirements
           </a>

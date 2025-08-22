@@ -25,12 +25,12 @@ const SelectExistingTrainingDatasetForm = () => {
         onDatasetSelect={(dataset: TTrainingDataset) => {
           handleChange(
             MODEL_CREATION_FORM_NAME.SELECTED_TRAINING_DATASET_ID,
-            dataset.id,
+            dataset.id
           );
           handleChange(MODEL_CREATION_FORM_NAME.DATASET_NAME, dataset.name);
           handleChange(
             MODEL_CREATION_FORM_NAME.TMS_URL,
-            dataset.source_imagery,
+            dataset.source_imagery
           );
         }}
       />
