@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export const terminateOfflinePrediction = (predictionId: number) => {
   return apiClient.post(
-    `${API_ENDPOINTS.TERMINATE_OFFLINE_PREDICTION(predictionId)}`,
+    `${API_ENDPOINTS.TERMINATE_OFFLINE_PREDICTION(predictionId)}`
   );
 };
 
