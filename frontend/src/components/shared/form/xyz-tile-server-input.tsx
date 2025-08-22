@@ -68,7 +68,7 @@ export const XYZTileServerInput = ({
         size={size as unknown as SHOELACE_SELECT_SIZES}
       />
       <Input
-        label={`${tileServiceType} ${tileServiceType !== TileServiceType.TILEJSON ? "Tile Server" : ""} URL`}
+        label={`${tileServiceType ?? ""} ${tileServiceType !== TileServiceType.TILEJSON ? "Tile Server" : ""} URL`}
         labelWithTooltip={labelWithTooltip}
         value={tileServerURL}
         toolTipContent={
