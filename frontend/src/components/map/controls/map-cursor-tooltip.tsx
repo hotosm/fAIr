@@ -1,3 +1,4 @@
+import { DrawingModes } from "@/enums";
 import { useToolTipVisibility } from "@/hooks/use-tooltip-visibility";
 import { useMapStore } from "@/store/map-store";
 import { Map } from "maplibre-gl";
@@ -13,7 +14,7 @@ export const MapCursorToolTip = ({
   map: Map | null;
   showTooltip: boolean;
   children: React.ReactNode;
-  dependencies?: any[];
+  dependencies?: (DrawingModes | number)[];
   minZoom?: number;
 }) => {
   const currentZoom = useMapStore((state) => state.zoom);
@@ -24,7 +25,7 @@ export const MapCursorToolTip = ({
 
   return (
     <div
-      className={`absolute w-50 text-white px-2 pointer-events-none text-nowrap rounded-lg shadow-2xl flex flex-col ${color}`}
+      className={`w-50 pointer-events-none absolute flex flex-col text-nowrap rounded-lg px-2 text-white shadow-2xl ${color}`}
       style={{
         left: `${tooltipPosition.x}px`,
         top: `${tooltipPosition.y}px`,

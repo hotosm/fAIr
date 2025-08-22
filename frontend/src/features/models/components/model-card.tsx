@@ -29,15 +29,15 @@ const ModelCard: React.FC<ModelCardProps> = ({ model }) => {
   };
 
   return (
-    <div className="flex items-center  w-full">
+    <div className="flex w-full  items-center">
       <Link
         nativeAnchor={false}
         disableLinkStyle
         href={`${APPLICATION_ROUTES.MODELS}/${model.id}`}
         title={model.name}
-        className="w-full  md:max-w-[300px] mx-auto h-auto flex flex-col border border-gray-border hover:shadow-md overflow-hidden group"
+        className="group  mx-auto flex h-auto w-full flex-col overflow-hidden border border-gray-border hover:shadow-md md:max-w-[300px]"
       >
-        <div className="h-[200px] w-full relative">
+        <div className="relative h-[200px] w-full">
           <Image
             height="256px"
             width="256px"
@@ -48,48 +48,48 @@ const ModelCard: React.FC<ModelCardProps> = ({ model }) => {
             }
             alt={model.name}
             placeHolder={FairModelPlaceholderImage}
-            className="w-full h-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-105"
+            className="size-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-105"
           />
           {canAddStatusBadge && (
-            <div className="absolute top-2 right-2">
+            <div className="absolute right-2 top-2">
               <Badge variant={statusToBadgeVariant[String(model.status)]}>
                 {statusMapping[String(model.status)]}
               </Badge>
             </div>
           )}
         </div>
-        <div className="p-5 flex flex-col gap-y-6 h-[320px]">
-          <div className="inline-flex flex-col gap-y-2 flex-grow">
-            <p className="font-medium text-body-1 text-black line-clamp-2 h-16">
+        <div className="flex h-[320px] flex-col gap-y-6 p-5">
+          <div className="inline-flex grow flex-col gap-y-2">
+            <p className="line-clamp-2 h-16 text-body-1 font-medium text-black">
               {truncateString(model.name, 50)}
             </p>
-            <p className="text-grey text-body-2">
+            <p className="text-body-2 text-grey">
               ID: <span>{model.id}</span>
             </p>
           </div>
           {/* accuracy */}
           <div>
-            <p className="text-grey text-body-3">
+            <p className="text-body-3 text-grey">
               {MODELS_CONTENT.models.modelsList.modelCard.accuracy}
             </p>
-            <p className="text-dark font-semibold text-body-2">
+            <p className="text-body-2 font-semibold text-dark">
               {roundNumber(model.accuracy ?? 0)} %
             </p>
           </div>
           {/* Status badge */}
 
           {/* Name, date and base model */}
-          <div className="inline-flex flex-col gap-y-2 flex-grow">
-            <p className="font-semibold text-body-2base text-dark">
+          <div className="inline-flex grow flex-col gap-y-2">
+            <p className="text-body-2base font-semibold text-dark">
               {model.user.username}
             </p>
-            <p className="text-grey text-body-3">
+            <p className="text-body-3 text-grey">
               {MODELS_CONTENT.models.modelsList.modelCard.lastModified}{" "}
               <span className="font-bold">
                 {extractDatePart(model.last_modified)}
               </span>
             </p>
-            <p className="text-grey text-body-3 flex gap-x-2">
+            <p className="flex gap-x-2 text-body-3 text-grey">
               {MODELS_CONTENT.models.modelsList.modelCard.baseModel}
               <span className="font-bold text-dark">
                 {extractDatePart(model.base_model)}

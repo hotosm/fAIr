@@ -4,9 +4,9 @@ import { SHARED_CONTENT } from "@/constants";
 export const MainErrorFallback = () => {
   return (
     <>
-      <section className="min-h-[80vh] flex flex-col mt-20 items-center justify-around">
+      <section className="mt-20 flex min-h-[80vh] flex-col items-center justify-around">
         <div>
-          <p className="text-body-1 lg:text-title-1 font-semibold text-dark text-center">
+          <p className="text-center text-body-1 font-semibold text-dark lg:text-title-1">
             {SHARED_CONTENT.errorBoundary.title}
           </p>
         </div>

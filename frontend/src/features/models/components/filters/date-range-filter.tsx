@@ -1,23 +1,11 @@
-import { DateFilter, TQueryParams } from "@/types";
+import { TQueryParams } from "@/types";
 import { DateRangePicker } from "@/components/ui/form";
 import { DropDown } from "@/components/ui/dropdown";
 import { SEARCH_PARAMS } from "@/utils/search-params";
 import { SlCheckbox } from "@shoelace-style/shoelace/dist/react";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { useEffect, useState } from "react";
-
-export const dateFilters: DateFilter[] = [
-  {
-    label: "Date Created",
-    apiValue: "created_at",
-    searchParams: "dateCreated",
-  },
-  {
-    label: "Last Modified",
-    apiValue: "last_modified",
-    searchParams: "lastModified",
-  },
-];
+import { dateFilters } from "@/constants/ui-contents/date-filter-contents";
 
 type DateRangeFilterProps = {
   disabled: boolean;
@@ -35,10 +23,10 @@ const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
   const { onDropdownHide, dropdownRef } = useDropdownMenu();
 
   const [startDate, setStartDate] = useState<string>(
-    query[SEARCH_PARAMS.startDate] as string,
+    query[SEARCH_PARAMS.startDate] as string
   );
   const [endDate, setEndDate] = useState<string>(
-    query[SEARCH_PARAMS.endDate] as string,
+    query[SEARCH_PARAMS.endDate] as string
   );
   const [triggerText, setTriggerText] = useState<string>("Date");
 
@@ -54,7 +42,7 @@ const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
           ? `${startDate} - Today`
           : endDate
             ? `Start - ${endDate}`
-            : "Date",
+            : "Date"
     );
     onDropdownHide();
   };
@@ -65,7 +53,7 @@ const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
     setTriggerText(
       query[SEARCH_PARAMS.startDate] || query[SEARCH_PARAMS.endDate]
         ? `${query[SEARCH_PARAMS.startDate] || "Start"} - ${query[SEARCH_PARAMS.endDate] || "Today"}`
-        : "Date",
+        : "Date"
     );
   }, [query[SEARCH_PARAMS.startDate], query[SEARCH_PARAMS.endDate]]);
 
@@ -80,17 +68,17 @@ const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
 
   if (!isMobileFilterModal) {
     return (
-      <div className="border border-gray-border py-2 px-4 hidden md:block">
+      <div className="hidden border border-gray-border px-4 py-2 md:block">
         <DropDown
           ref={dropdownRef}
           disabled={disabled}
           triggerComponent={
-            <p className="text-sm text-dark text-nowrap">{triggerText}</p>
+            <p className="text-nowrap text-sm text-dark">{triggerText}</p>
           }
         >
-          <div className="flex flex-col gap-y-4 w-full p-4 bg-white">
+          <div className="flex w-full flex-col gap-y-4 bg-white p-4">
             {/* The user can only select one at a time*/}
-            <div className="flex items-center gap-x-6 justify-start w-full">
+            <div className="flex w-full items-center justify-start gap-x-6">
               {dateFilters.map((datefilter, id) => (
                 <SlCheckbox
                   key={`date-filter-${id}`}
@@ -124,8 +112,8 @@ const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
   }
 
   return (
-    <div className="flex flex-col gap-y-4 w-full bg-white">
-      <div className="flex items-center w-full gap-x-4">
+    <div className="flex w-full flex-col gap-y-4 bg-white">
+      <div className="flex w-full items-center gap-x-4">
         {dateFilters.map((datefilter, id) => (
           <SlCheckbox
             key={`date-filter-${id}`}

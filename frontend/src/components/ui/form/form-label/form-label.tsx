@@ -26,10 +26,10 @@ const FormLabel: React.FC<FormLabelProps> = ({
   return (
     <p
       slot="label"
-      className={`flex text-body-3 font-semibold items-center gap-x-2 text-dark ${position === "top" && "mb-2"}`}
+      className={`flex items-center gap-x-2 text-body-3 font-semibold text-dark ${position === "top" && "mb-2"}`}
     >
       <span>
-        {label} {required && <small className="text-primary text-xl">*</small>}
+        {label} {required && <small className="text-xl text-primary">*</small>}
       </span>
 
       {maxLength && (

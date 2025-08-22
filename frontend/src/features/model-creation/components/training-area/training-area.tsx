@@ -52,7 +52,7 @@ const TrainingAreaForm = ({
   const { startTrainingAreaTour } = useAppTour();
   const datasetId = useMemo(
     () => Number(trainingDataset?.id ?? formData.selectedTrainingDatasetId),
-    [trainingDataset?.id, formData.selectedTrainingDatasetId],
+    [trainingDataset?.id, formData.selectedTrainingDatasetId]
   );
   const {
     data: trainingAreasData,
@@ -66,7 +66,7 @@ const TrainingAreaForm = ({
     handleChange(
       MODEL_CREATION_FORM_NAME.TRAINING_AREAS,
       // @ts-expect-error bad type definition
-      trainingAreasData?.results.features,
+      trainingAreasData?.results.features
     );
   }, [trainingAreasData]);
 
@@ -113,8 +113,8 @@ const TrainingAreaForm = ({
         successToast={TOAST_NOTIFICATIONS.trainingAreasFileUploadSuccess}
         disabled={createTrainingArea.isPending}
       />
-      <div className="lg:h-screen min-h-screen flex flex-col mb-40">
-        <div className="flex md:justify-between md:items-center flex-col md:flex-row gap-y-4 mb-10">
+      <div className="mb-40 flex min-h-screen flex-col lg:h-screen">
+        <div className="mb-10 flex flex-col gap-y-4 md:flex-row md:items-center md:justify-between">
           {!isDatasetEditMode && (
             <div className="basis-2/3">
               <StepHeading
@@ -125,7 +125,7 @@ const TrainingAreaForm = ({
               />
             </div>
           )}
-          <div className="flex flex-col md:items-end gap-y-4 self-end">
+          <div className="flex flex-col gap-y-4 self-end md:items-end">
             {!isDatasetEditMode && (
               <button
                 className="flex items-center gap-x-2"
@@ -156,7 +156,7 @@ const TrainingAreaForm = ({
             />
           </div>
 
-          <div className="border-t border-gray-border min-h-24">
+          <div className="min-h-24 border-t border-gray-border">
             <TrainingLabelsOffset
               trainingDatasetOffset={trainingDatasetOffset}
               setTrainingDatasetOffset={setTrainingDatasetOffset}
@@ -169,9 +169,9 @@ const TrainingAreaForm = ({
 
         <div
           ref={mapElementRef}
-          className="h-full grid grid-cols-12 lg:grid-cols-9 fullscreen md:no-fullscreen bg-off-white pl-2 py-2"
+          className="fullscreen md:no-fullscreen grid h-full grid-cols-12 bg-off-white py-2 pl-2 lg:grid-cols-9"
         >
-          <div className="w-full h-[90vh] col-span-12 lg:col-span-6 2xl:col-span-7 pr-2 lg:pr-0">
+          <div className="col-span-12 h-[90vh] w-full pr-2 lg:col-span-6 lg:pr-0 2xl:col-span-7">
             <TrainingAreaMap
               tileServiceURL={
                 trainingDataset?.source_imagery ?? formData.tmsURL
@@ -190,7 +190,7 @@ const TrainingAreaForm = ({
             />
           </div>
           {/* web */}
-          <div className="hidden lg:flex h-[90vh] max-h-screen col-span-12 lg:col-span-3 2xl:col-span-2 flex-col w-full px-2 gap-y-2">
+          <div className="col-span-12 hidden h-[90vh] max-h-screen w-full flex-col gap-y-2 px-2 lg:col-span-3 lg:flex 2xl:col-span-2">
             <OpenAerialMap
               map={map}
               trainingDatasetId={datasetId}
@@ -207,7 +207,7 @@ const TrainingAreaForm = ({
               initialOffset={initialOffset}
               datasetId={datasetId}
             />
-            <div className="bg-white flex-1 flex flex-col p-2 rounded-lg min-h-0">
+            <div className="flex min-h-0 flex-1 flex-col rounded-lg bg-white p-2">
               <TrainingAreaList
                 offset={offset}
                 setOffset={setOffset}
@@ -226,7 +226,7 @@ const TrainingAreaForm = ({
           </div>
         </div>
         {/* Mobile  */}
-        <div className="flex flex-col lg:hidden h-[90vh] max-h-screen fullscreen sm:no-fullscreen py-2">
+        <div className="fullscreen sm:no-fullscreen flex h-[90vh] max-h-screen flex-col py-2 lg:hidden">
           <TrainingAreaList
             offset={offset}
             setOffset={setOffset}
@@ -262,7 +262,7 @@ const ActionButtons = ({
   const { isTablet } = useScreenSize();
   return (
     <div
-      className={`flex gap-y-2 mt-auto mb-2 px-4 md:px-1 lg:px-4  w-full ${trainingAreasDataCount === 0 ? "flex-col w-full" : "items-center justify-between gap-x-1 md:gap-x-2 "}"`}
+      className={`mb-2 mt-auto flex w-full gap-y-2 px-4 md:px-1  lg:px-4 ${trainingAreasDataCount === 0 ? "w-full flex-col gap-1" : "items-center justify-between gap-x-1 md:gap-x-2 "}"`}
     >
       <div className="w-full" id={APP_TOUR_IDS.DRAW_TRAINING_AREA}>
         <Button
@@ -274,7 +274,7 @@ const ActionButtons = ({
         >
           <div className="flex items-center gap-x-1 md:gap-x-2">
             <p>{MODELS_CONTENT.modelCreation.trainingArea.form.draw}</p>
-            <div className="w-4 h-4 border-2 rounded-md border-white"></div>
+            <div className="size-4 rounded-md border-2 border-white"></div>
           </div>
         </Button>
       </div>

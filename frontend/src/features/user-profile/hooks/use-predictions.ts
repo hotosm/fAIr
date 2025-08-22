@@ -12,7 +12,7 @@ export const useGetPredictions = (
   searchQuery?: string,
   ordering?: string,
   userId?: number,
-  offset?: number,
+  offset?: number
 ) => {
   return useQuery({
     ...getPredictionsQueryOptions(searchQuery, ordering, userId, offset),
@@ -37,7 +37,7 @@ export const useOfflinePredictionsQueryParams = (userId?: number) => {
 
   const debouncedSearchText = useDebounce(
     query[SEARCH_PARAMS.searchQuery] as string,
-    300,
+    300
   );
 
   const { isPending, isError, data, refetch, isPlaceholderData } =
@@ -47,7 +47,7 @@ export const useOfflinePredictionsQueryParams = (userId?: number) => {
       userId !== undefined ? userId : undefined,
       query[SEARCH_PARAMS.offset] !== undefined
         ? (query[SEARCH_PARAMS.offset] as number)
-        : undefined,
+        : undefined
     );
 
   const updateQuery = useCallback(
@@ -68,7 +68,7 @@ export const useOfflinePredictionsQueryParams = (userId?: number) => {
 
       setSearchParams(updatedParams, { replace: true });
     },
-    [searchParams, setSearchParams],
+    [searchParams, setSearchParams]
   );
 
   //reset offset back to 0 when searching.

@@ -17,16 +17,16 @@ export const OfflinePredictionRequestSuccess = ({
 
   return (
     <Dialog isOpened={isOpen} closeDialog={onClose}>
-      <div className="flex flex-col items-center gap-y-4 h-full  w-full justify-center">
-        <div className="bg-secondary p-2 rounded-full flex items-center justify-center">
+      <div className="flex size-full flex-col items-center justify-center  gap-y-4">
+        <div className="flex items-center justify-center rounded-full bg-secondary p-2">
           <Image src={ModelFormConfirmation} alt="Success Icon" />
         </div>
         <h1 className="text-title-3 font-semibold">Prediction Request Sent</h1>
-        <p className="text-body-3 text-center">
+        <p className="text-center text-body-3">
           We have received the request to run prediction on your specified area.
           You will be notified when the prediction is done.
         </p>
-        <div className="flex flex-col md:flex-row gap-y-3 md:gap-0 justify-between w-full">
+        <div className="flex w-full flex-col justify-between gap-y-3 md:flex-row md:gap-0">
           <Button
             variant={ButtonVariant.DARK}
             onClick={() => {

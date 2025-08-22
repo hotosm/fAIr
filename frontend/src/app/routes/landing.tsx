@@ -1,15 +1,25 @@
-import { FAQs } from "@/components/shared";
 import { Head } from "@/components/seo";
 import {
   Header,
   Kpi,
-  TaglineBanner,
-  TheFAIRProcess,
-  CallToAction,
-  Corevalues,
-  CoreFeatures,
   WhatIsFAIR,
+  TheFAIRProcess,
+  CoreFeatures,
+  Corevalues,
 } from "@/components/landing";
+import { Suspense, lazy } from "react";
+
+const FAQs = lazy(() =>
+  import("@/components/shared").then((mod) => ({ default: mod.FAQs }))
+);
+const TaglineBanner = lazy(() =>
+  import("@/components/landing").then((mod) => ({
+    default: mod.TaglineBanner,
+  }))
+);
+const CallToAction = lazy(() =>
+  import("@/components/landing").then((mod) => ({ default: mod.CallToAction }))
+);
 
 export const LandingPage = () => {
   return (
@@ -21,11 +31,13 @@ export const LandingPage = () => {
       <TheFAIRProcess />
       <CoreFeatures />
       <Corevalues />
-      <section className="app-padding">
-        <FAQs disableSeeMoreButton />
-      </section>
-      <TaglineBanner />
-      <CallToAction />
+      <Suspense fallback={null}>
+        <section className="app-padding">
+          <FAQs disableSeeMoreButton />
+        </section>
+        <TaglineBanner />
+        <CallToAction />
+      </Suspense>
     </>
   );
 };

@@ -33,7 +33,7 @@ export const GoogleBasemapLayer = ({ map }: { map: Map | null }) => {
         },
       },
     ],
-    map,
+    map
   );
   // return (
   //   <Source

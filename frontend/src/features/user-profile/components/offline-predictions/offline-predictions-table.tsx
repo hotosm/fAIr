@@ -1,4 +1,4 @@
-import { ColumnDef, SortingState } from "@tanstack/react-table";
+import { ColumnDef, Row, SortingState } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table";
 import { SortableHeader } from "@/features/models/components/table-header";
 import { TableSkeleton } from "@/features/models/components/skeletons";
@@ -14,10 +14,6 @@ import {
 import { TrainingStatusBadge } from "@/components/shared/training-status-badge";
 import { OfflinePredictionsSettingsInfo } from "./offline-predictions-settings-info";
 import { OfflinePredictionActions } from "./offline-predictions-actions";
-// import { Badge } from "@/components/ui/badge";
-// import { Image } from "@/components/ui/image";
-// import { MapSwipeLogo } from "@/assets/svgs";
-// import { ToolTip } from "@/components/ui/tooltip";
 
 type OfflinePredictionsTableProps = {
   data: TOfflinePrediction[];
@@ -29,7 +25,7 @@ type OfflinePredictionsTableProps = {
 
 const columnDefinitions = (
   handleTrainingLogsModal: (taskId: string) => void,
-  handlePredictionResultModal: (prediction: TOfflinePrediction) => void,
+  handlePredictionResultModal: (prediction: TOfflinePrediction) => void
 ): ColumnDef<TOfflinePrediction>[] => [
   {
     accessorKey: "id",
@@ -111,13 +107,13 @@ const columnDefinitions = (
   // },
   {
     header: "Info",
-    cell: ({ row }: { row: any }) => (
+    cell: ({ row }: { row: Row<TOfflinePrediction> }) => (
       <OfflinePredictionsSettingsInfo predictionConfig={row.original.config} />
     ),
   },
   {
     header: "Actions",
-    cell: ({ row }: { row: any }) => (
+    cell: ({ row }: { row: Row<TOfflinePrediction> }) => (
       <OfflinePredictionActions
         handlePredictionResultModal={handlePredictionResultModal}
         handleTrainingLogsModal={handleTrainingLogsModal}
@@ -139,13 +135,12 @@ const OfflinePredictionsTable: React.FC<OfflinePredictionsTableProps> = ({
   if (isPending || isError) return <TableSkeleton />;
 
   return (
-    <div className="max-w-full overflow-auto min-h-screen">
+    <div className="min-h-screen max-w-full overflow-auto">
       <DataTable
-        // @ts-ignore
         data={data as TOfflinePrediction[]}
         columns={columnDefinitions(
           handleTrainingLogsModal,
-          handlePredictionResultModal,
+          handlePredictionResultModal
         )}
         sorting={sorting}
         setSorting={setSorting}

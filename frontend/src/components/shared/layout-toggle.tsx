@@ -26,7 +26,7 @@ export const LayoutToggle = ({
       content={`${disabled ? "Toggle off mapview to show as" : "Show as"} ${activeLayout === LayoutView.GRID ? LayoutView.LIST : (LayoutView.GRID as string)}`}
     >
       <button
-        className={`${isMobile ? "flex md:hidden" : "hidden md:flex"} ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"} border border-gray-border p-2 items-center justify-center text-dark`}
+        className={`${isMobile ? "flex md:hidden" : "hidden md:flex"} ${disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"} items-center justify-center border border-gray-border p-2 text-dark`}
         onClick={() => {
           updateQuery({
             [SEARCH_PARAMS.layout]:

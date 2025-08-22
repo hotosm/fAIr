@@ -14,7 +14,7 @@ type UseLayerReorderProps = {
  */
 export const useLayerReorder = (
   map: Map | null,
-  { featureLayerIds }: UseLayerReorderProps,
+  { featureLayerIds }: UseLayerReorderProps
 ) => {
   const didReorder = useRef<boolean>(false);
 

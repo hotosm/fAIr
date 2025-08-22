@@ -47,7 +47,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     useSessionStorage();
 
   const [token, setToken] = useState<string | undefined>(
-    getValue(HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY),
+    getValue(HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY)
   );
   const [user, setUser] = useState<TUser | undefined>(undefined);
 
@@ -76,7 +76,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
    */
   useEffect(() => {
     const loginSuccessful = getSessionValue(
-      HOT_FAIR_LOGIN_SUCCESSFUL_SESSION_KEY,
+      HOT_FAIR_LOGIN_SUCCESSFUL_SESSION_KEY
     );
     if (loginSuccessful == "success") {
       showSuccessToast(TOAST_NOTIFICATIONS.loginSuccess);
@@ -118,7 +118,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(user);
       handleRedirection();
     } catch (error) {
-      showErrorToast(error);
+      showErrorToast(error as Error);
     }
   };
 
@@ -148,8 +148,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const data = await authService.authenticate(state, code);
       setValue(HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY, data.access_token);
       setToken(data.access_token);
-    } catch (error) {
-      showErrorToast(error, TOAST_NOTIFICATIONS.authenticationFailed);
+    } catch {
+      showErrorToast(TOAST_NOTIFICATIONS.authenticationFailed);
       // Delay for 5 seconds, incase it's the network speed.
       // Otherwise, redirect the user back to the home page.
       setTimeout(() => {
@@ -177,7 +177,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         window.location.href = APPLICATION_ROUTES.PROFILE_SETTINGS;
       }, 3000);
     } catch (error) {
-      showErrorToast(error);
+      showErrorToast(error as Error);
       // Delay for 3 seconds, incase it's the network speed.
       // Otherwise, redirect the user back to the home page.
       setTimeout(() => {

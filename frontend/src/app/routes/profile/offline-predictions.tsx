@@ -64,9 +64,9 @@ export const UserProfileOfflinePredictionsPage = () => {
         />
       )}
       <Head title="Offline Predictions" />
-      <div className="space-y-8 h-full">
+      <div className="h-full space-y-8">
         {/* Section heading */}
-        <div className="w-full gap-y-6 sm:gap-y-0 flex flex-col sm:flex-row justify-between items-start sm:items-center">
+        <div className="flex w-full flex-col items-start justify-between gap-y-6 sm:flex-row sm:items-center sm:gap-y-0">
           <ProfileSectionHeader title={"Predictions"} />
           <SearchFilter
             query={query}
@@ -75,9 +75,9 @@ export const UserProfileOfflinePredictionsPage = () => {
             className="w-full max-w-full sm:w-auto"
           />
         </div>
-        <div className="flex gap-y-6 flex-col md:flex-row md:gap-y-0 w-full justify-between md:items-center">
-          <div className="flex items-center justify-between w-full">
-            <p className="text-body-3 font-semibold text-nowrap">
+        <div className="flex w-full flex-col justify-between gap-y-6 md:flex-row md:items-center md:gap-y-0">
+          <div className="flex w-full items-center justify-between">
+            <p className="text-nowrap text-body-3 font-semibold">
               {data?.count} prediction
               {data?.count && data?.count > 1 ? "s" : ""}
             </p>
@@ -88,7 +88,7 @@ export const UserProfileOfflinePredictionsPage = () => {
               iconSize="icon"
             />
           </div>
-          <div className="flex w-full justify-between md:justify-end items-center md:gap-x-4">
+          <div className="flex w-full items-center justify-between md:justify-end md:gap-x-4">
             <OrderingFilter
               query={query}
               updateQuery={updateQuery}

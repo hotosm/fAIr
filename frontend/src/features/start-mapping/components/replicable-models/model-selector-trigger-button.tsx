@@ -65,11 +65,11 @@ export const ModelSelectorTriggerButton = ({
       setCustomPredictionModelCheckpointPath,
       setPredictionModel,
       setPredictionModelCheckpoint,
-    ],
+    ]
   );
 
   return (
-    <div className="flex items-center gap-x-1 mr-1 lg:mr-0">
+    <div className="mr-1 flex items-center gap-x-1 lg:mr-0">
       <DropDown
         placement={DropdownPlacement.BOTTOM_START}
         disableCheveronIcon
@@ -99,19 +99,19 @@ type ButtonProps = {
 };
 
 const DropdownButton = ({ label, isSmallViewport, onClick }: ButtonProps) => (
-  <div className="px-2 border border-off-white hover:bg-off-white flex items-center p-2 gap-x-2 rounded-[6px]">
+  <div className="flex items-center gap-x-2 rounded-[6px] border border-off-white p-2 hover:bg-off-white">
     <button
       onClick={onClick}
       className={`${
         isSmallViewport
           ? "w-fit max-w-[100px]"
           : "max-w-[50px] lg:max-w-[200px]"
-      } text-body-4 overflow-hidden text-ellipsis whitespace-nowrap`}
+      } truncate text-body-4`}
     >
       {label}
     </button>
     <ChevronDownIcon
-      className={`transition-all ${isSmallViewport ? "-rotate-90" : ""} w-3 h-3`}
+      className={`transition-all ${isSmallViewport ? "-rotate-90" : ""} size-3`}
     />
   </div>
 );

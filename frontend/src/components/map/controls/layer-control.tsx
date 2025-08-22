@@ -60,7 +60,7 @@ export const LayerControl = ({
           layerVisibility[value] !== undefined ? layerVisibility[value] : true;
         return acc;
       },
-      {} as { [key: string]: boolean },
+      {} as { [key: string]: boolean }
     );
 
     setLayerVisibility(initialVisibility);
@@ -75,7 +75,7 @@ export const LayerControl = ({
             : true;
         return acc;
       },
-      {} as { [key: string]: boolean },
+      {} as { [key: string]: boolean }
     );
 
     setBasemapVisibility(initialVisibility);
@@ -94,7 +94,7 @@ export const LayerControl = ({
             map.setLayoutProperty(
               mapLayerId,
               "visibility",
-              updatedVisibility[value] ? "visible" : "none",
+              updatedVisibility[value] ? "visible" : "none"
             );
           }
         });
@@ -114,7 +114,7 @@ export const LayerControl = ({
           map.setLayoutProperty(
             subLayer,
             "visibility",
-            updatedVisibility[value] ? "visible" : "none",
+            updatedVisibility[value] ? "visible" : "none"
           );
         }
       }
@@ -129,7 +129,7 @@ export const LayerControl = ({
         disableCheveronIcon
         triggerComponent={
           <div
-            className={`bg-white p-1.5 border border-gray-border md:border-0 relative ${rounded && "rounded-lg"}`}
+            className={`relative border border-gray-border bg-white p-1.5 md:border-0 ${rounded && "rounded-lg"}`}
           >
             <LayerStackIcon className="icon-lg" />
           </div>
@@ -138,7 +138,7 @@ export const LayerControl = ({
         distance={10}
       >
         <div
-          className={`bg-white px-4 py-2 text-nowrap rounded-md w-full flex flex-col gap-y-4`}
+          className={`flex w-full flex-col gap-y-4 text-nowrap rounded-md bg-white px-4 py-2`}
         >
           {layerControlData.baseLayers.length > 0 ? (
             <>
@@ -156,7 +156,7 @@ export const LayerControl = ({
               <p className="text-sm">Layers</p>
               <CheckboxGroup
                 defaultSelectedOption={Object.keys(layerVisibility).filter(
-                  (layer) => layerVisibility[layer],
+                  (layer) => layerVisibility[layer]
                 )}
                 multiple
                 options={layerControlData.layers_}

@@ -22,15 +22,15 @@ export const DeleteModal = ({
 
   return (
     <Dialog isOpened={isOpen} closeDialog={onClose} preventClose={isDeleting}>
-      <div className="flex flex-col items-center gap-y-4 h-full  w-full justify-center">
-        <div className="bg-secondary p-2 rounded-full flex items-center justify-center">
+      <div className="flex size-full flex-col items-center justify-center  gap-y-4">
+        <div className="flex items-center justify-center rounded-full bg-secondary p-2">
           <DeleteIcon className="icon-lg text-primary" />
         </div>
         <h1 className="text-title-3 font-semibold">{title}</h1>
-        <p className="text-body-3 text-center">
+        <p className="text-center text-body-3">
           Are you sure you want to delete {messageSuffix}?
         </p>
-        <div className="flex flex-col md:flex-row gap-y-3 md:gap-0 justify-between w-full">
+        <div className="flex w-full flex-col justify-between gap-y-3 md:flex-row md:gap-0">
           <Button
             disabled={isDeleting}
             onClick={onDelete}

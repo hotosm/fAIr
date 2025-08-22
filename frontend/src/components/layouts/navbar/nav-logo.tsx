@@ -12,7 +12,11 @@ export const NavLogo = ({
 }) => {
   const navigate = useNavigate();
   const handleClick = () => {
-    onClick ? onClick() : navigate(APPLICATION_ROUTES.HOMEPAGE);
+    if (onClick) {
+      onClick();
+    } else {
+      navigate(APPLICATION_ROUTES.HOMEPAGE);
+    }
   };
 
   return (
@@ -24,10 +28,10 @@ export const NavLogo = ({
       <Image
         src={HOTLogo}
         alt={SHARED_CONTENT.navbar.logoAlt}
-        className={smallerSize ? "w-10 h-10" : "w-12 h-12 md:w-16 md:h-16"}
+        className={smallerSize ? "size-10" : "size-12 md:size-16"}
       />
       <p
-        className={`font-barlow font-bold text-dark leading-[1.2] ${smallerSize ? "text-body-2" : "text-body-1 md:text-title-2"}`}
+        className={`font-barlow font-bold leading-[1.2] text-dark ${smallerSize ? "text-body-2" : "text-body-1 md:text-title-2"}`}
       >
         fAIr
       </p>

@@ -19,7 +19,7 @@ const NotificationsPanelSkeleton = () => {
       {Array.from({ length: 10 }).map((_, index) => (
         <div
           key={index}
-          className="animate-pulse flex space-x-4 mb-4 w-full h-10 bg-light-gray"
+          className="mb-4 flex h-10 w-full animate-pulse space-x-4 bg-light-gray"
         ></div>
       ))}
     </div>
@@ -113,8 +113,8 @@ export const NotificationsPanel = ({
   const popUpContent = () => {
     return (
       <>
-        <div className="px-2 space-y-2">
-          <p className="font-semibold text-body-3 md:text-body-2">
+        <div className="space-y-2 px-2">
+          <p className="text-body-3 font-semibold md:text-body-2">
             {USER_PROFILE_PAGE_CONTENT.notifications.panelTitle}
           </p>
           <Divider />
@@ -152,7 +152,7 @@ export const NotificationsPanel = ({
             {unreadCount > 0 && (
               <button
                 disabled={isNotificationsUpdatePending}
-                className="text-grey text-body-4"
+                className="text-body-4 text-grey"
                 onClick={() => updateNotifications(undefined)}
               >
                 {USER_PROFILE_PAGE_CONTENT.notifications.markAllAsRead}
@@ -161,7 +161,7 @@ export const NotificationsPanel = ({
           </div>
         </div>
         <div
-          className="h-96 max-h-96 overflow-y-auto scrollable flex flex-col gap-y-4 py-5"
+          className="scrollable flex h-96 max-h-96 flex-col gap-y-4 overflow-y-auto py-5"
           ref={scrollRef}
           onScroll={handleScroll}
         >
@@ -169,20 +169,20 @@ export const NotificationsPanel = ({
             <NotificationsPanelSkeleton />
           ) : isError ? (
             <div className="flex flex-col items-center gap-y-4">
-              <p className="text-center text-primary text-body-3">
+              <p className="text-center text-body-3 text-primary">
                 {USER_PROFILE_PAGE_CONTENT.notifications.errorState}
               </p>
             </div>
           ) : !notificationsToRender || notificationsToRender.length === 0 ? (
-            <div className="flex items-center justify-center gap-y-4 w-full h-full flex-col">
-              <NoTrainingAreaIcon className="w-10 h-10" />
-              <p className="text-grey text-body-3">
+            <div className="flex size-full flex-col items-center justify-center gap-y-4">
+              <NoTrainingAreaIcon className="size-10" />
+              <p className="text-body-3 text-grey">
                 {" "}
                 {USER_PROFILE_PAGE_CONTENT.notifications.emptyState}
               </p>
             </div>
           ) : (
-            <div className="flex gap-y-4 flex-col">
+            <div className="flex flex-col gap-y-4">
               {notificationsToRender.map((notification) => (
                 <NotificationItem
                   key={notification.id}
@@ -211,7 +211,7 @@ export const NotificationsPanel = ({
         closeDrawer={closeDrawer}
       >
         <div
-          className={` w-full p-3 py-4 flex flex-col gap-y-4`}
+          className={`flex w-full flex-col gap-y-4 p-3 py-4`}
           onScroll={handleScroll}
         >
           {popUpContent()}
@@ -228,7 +228,7 @@ export const NotificationsPanel = ({
       skidding={30}
     >
       <div
-        className={`border w-96 p-3 py-4 flex flex-col gap-y-4 border-gray-border shadow-2xl rounded-2xl bg-white`}
+        className={`flex w-96 flex-col gap-y-4 rounded-2xl border border-gray-border bg-white p-3 py-4 shadow-2xl`}
         onScroll={handleScroll}
         ref={clickOutsideRef}
       >

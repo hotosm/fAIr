@@ -23,7 +23,7 @@ export const useUpdateTraining = ({
 }: UseUpdateTrainingOptions) => {
   const { refetch: refetchModelDetails } = useModelDetails(
     String(modelId),
-    !!modelId,
+    !!modelId
   );
   const { refetch: refetchTrainingHistory } = useTrainingHistory(
     0,
@@ -31,7 +31,7 @@ export const useUpdateTraining = ({
     "-id",
     String(modelId),
     undefined,
-    !!modelId,
+    !!modelId
   );
 
   const { onSuccess, ...restConfig } = mutationConfig || {};
@@ -57,7 +57,7 @@ export const useTerminateTraining = ({
     "-id",
     String(modelId),
     undefined,
-    !!modelId,
+    !!modelId
   );
 
   const { onSuccess, ...restConfig } = mutationConfig || {};

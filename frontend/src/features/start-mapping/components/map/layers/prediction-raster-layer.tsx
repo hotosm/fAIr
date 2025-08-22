@@ -44,7 +44,7 @@ export const PredictionRasterLayer = ({
             tiles: [sourceURL],
             tileSize: 256,
           },
-    [sourceURL, tileServiceType],
+    [sourceURL, tileServiceType]
   );
 
   const layerSpec: RasterLayerSpecification = useMemo(
@@ -56,7 +56,7 @@ export const PredictionRasterLayer = ({
         visibility: "visible",
       },
     }),
-    [layerId, sourceId],
+    [layerId, sourceId]
   );
 
   /**
@@ -78,7 +78,7 @@ export const PredictionRasterLayer = ({
       ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
       ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
       TILE_BOUNDARY_LAYER_ID,
-    ],
+    ]
   );
   return null;
 };

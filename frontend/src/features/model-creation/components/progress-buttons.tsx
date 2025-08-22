@@ -95,7 +95,7 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
   }, [formData, currentPath]);
 
   return (
-    <div className="col-span-12 md:col-start-4 md:col-span-6 w-full flex items-center justify-between">
+    <div className="col-span-12 flex w-full items-center justify-between md:col-span-6 md:col-start-4">
       <ButtonWithIcon
         variant={ButtonVariant.DEFAULT}
         prefixIcon={ChevronDownIcon}

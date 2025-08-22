@@ -122,7 +122,7 @@ const NavBarLinks: React.FC<NavBarLinksProps> = ({ className, setOpen }) => {
           key={`navbar-item-${id}`}
           onClick={() => {
             //close the drawer after navigating to a new page on mobile
-            setOpen && setOpen(false);
+            if (setOpen) setOpen(false);
           }}
           className={`${styles.navLinkItem} ${location.pathname.includes(link.href) && styles.activeLink}`}
         >
