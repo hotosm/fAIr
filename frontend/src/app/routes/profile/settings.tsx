@@ -8,6 +8,7 @@ import { Input, Switch } from "@/components/ui/form";
 import { CheckIcon, DeleteIcon } from "@/components/ui/icons";
 import { Image } from "@/components/ui/image";
 import { ToolTip } from "@/components/ui/tooltip";
+import { HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY } from "@/config";
 import { USER_PROFILE_PAGE_CONTENT } from "@/constants/ui-contents/user-profile-content";
 import { ButtonVariant, INPUT_TYPES } from "@/enums";
 import { NotificationDeliveryMethod } from "@/enums/user-profile";
@@ -15,7 +16,9 @@ import {
   useEmailVerification,
   useUpdateUserProfile,
 } from "@/features/user-profile/hooks/use-user-profile";
+import useCopyToClipboard from "@/hooks/use-clipboard";
 import { useDialog } from "@/hooks/use-dialog";
+import { useLocalStorage } from "@/hooks/use-storage";
 import { showErrorToast, showSuccessToast, truncateString } from "@/utils";
 import { useState } from "react";
 
@@ -28,7 +31,8 @@ export const UserProfileSettingsPage = () => {
       message: "",
     },
   );
-
+  const { getValue } = useLocalStorage();
+  const { copyToClipboard } = useCopyToClipboard()
   const [showForm, setShowForm] = useState<boolean>(user?.email.length === 0);
 
   const [isEmailPending, setIsEmailPending] = useState<boolean>(false);
@@ -105,6 +109,10 @@ export const UserProfileSettingsPage = () => {
       },
     },
   });
+  const handleCopyAccessToken = async () => {
+    await copyToClipboard(getValue(HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY) as string)
+    showSuccessToast('Access token copied to clipboard.')
+  }
 
   const { mutate: updateNotifications } = useUpdateUserProfile({
     mutationConfig: {
@@ -251,7 +259,7 @@ export const UserProfileSettingsPage = () => {
                 >
                   {isEmailPending
                     ? USER_PROFILE_PAGE_CONTENT.settings.form
-                        .submissionInProgress
+                      .submissionInProgress
                     : USER_PROFILE_PAGE_CONTENT.settings.form.submitButton}
                 </Button>
               </div>
@@ -311,16 +319,16 @@ export const UserProfileSettingsPage = () => {
                           isNotificationPending ||
                           (!user.email_verified &&
                             notification.key !==
-                              USER_PROFILE_PAGE_CONTENT.settings.notifications
-                                .notificationKeys.webTrainingNotification) ||
+                            USER_PROFILE_PAGE_CONTENT.settings.notifications
+                              .notificationKeys.webTrainingNotification) ||
                           (user.email.length === 0 &&
                             notification.key !==
-                              USER_PROFILE_PAGE_CONTENT.settings.notifications
-                                .notificationKeys.webTrainingNotification)
+                            USER_PROFILE_PAGE_CONTENT.settings.notifications
+                              .notificationKeys.webTrainingNotification)
                         }
                         checked={
                           notifications[
-                            notification.key as keyof typeof notifications
+                          notification.key as keyof typeof notifications
                           ]
                         }
                         handleSwitchChange={(e) => {
@@ -377,7 +385,7 @@ export const UserProfileSettingsPage = () => {
                   {!user.account_deletion_requested
                     ? USER_PROFILE_PAGE_CONTENT.settings.account.description
                     : USER_PROFILE_PAGE_CONTENT.settings.account
-                        .deleteRequestPending}
+                      .deleteRequestPending}
                 </p>
               </div>
               <ButtonWithIcon
@@ -392,6 +400,29 @@ export const UserProfileSettingsPage = () => {
                 onClick={openDialog}
                 size="small"
                 disabled={user.account_deletion_requested}
+              />
+            </div>
+          </div>
+          <div className="flex flex-col gap-y-6">
+            <div className="flex flex-col gap-y-6">
+              <div className="flex flex-col gap-y-1">
+                <p className="text-body-3 md:text-body-2">
+                  Access Token
+                </p>
+                <p className="text-grey text-body-3">
+                  ⚠️ Keep this token safe. Anyone with it can access your account.
+                </p>
+              </div>
+              <ButtonWithIcon
+                label={
+                  "Copy Access Token"
+                }
+                variant={ButtonVariant.PRIMARY}
+                uppercase={false}
+                className="!w-fit"
+                textClassName="p-0.5 md:px-1 md:py-2 text-body-4"
+                onClick={handleCopyAccessToken}
+                size="small"
               />
             </div>
           </div>
