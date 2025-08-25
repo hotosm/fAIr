@@ -5,7 +5,7 @@ import { DeleteModal } from "@/components/shared/modals";
 import { Button, ButtonWithIcon } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { Input, Switch } from "@/components/ui/form";
-import { CheckIcon, DeleteIcon } from "@/components/ui/icons";
+import { CheckIcon, ClipboardIcon, DeleteIcon } from "@/components/ui/icons";
 import { Image } from "@/components/ui/image";
 import { ToolTip } from "@/components/ui/tooltip";
 import { HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY } from "@/config";
@@ -419,6 +419,7 @@ export const UserProfileSettingsPage = () => {
                 }
                 variant={ButtonVariant.PRIMARY}
                 uppercase={false}
+                prefixIcon={ClipboardIcon}
                 className="!w-fit"
                 textClassName="p-0.5 md:px-1 md:py-2 text-body-4"
                 onClick={handleCopyAccessToken}
