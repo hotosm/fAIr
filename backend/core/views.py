@@ -1033,7 +1033,16 @@ class PredictionSerializer(serializers.ModelSerializer):
             geom = value
             
         if isinstance(geom, MultiPolygon):
-            return geom.unary_union
+            unified = geom.unary_union
+            
+            if isinstance(unified, MultiPolygon):
+                extent = geom.extent
+                from django.contrib.gis.geos import Polygon as GEOSPolygon
+                bbox_polygon = GEOSPolygon.from_bbox(extent)
+                bbox_polygon.srid = geom.srid
+                return bbox_polygon
+            else:
+                return unified
         elif isinstance(geom, Polygon):
             return geom
         else:

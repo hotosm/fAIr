@@ -615,6 +615,9 @@ def predict_area(prediction_request_id, folder=None):
                 geojson_to_fgb(
                     os.path.join(out, "labels.geojson"), os.path.join(out, "labels.fgb")
                 )
+                geojson_to_fgb(
+                    os.path.join(out, "labels_points.geojson"), os.path.join(out, "labels_points.fgb")
+                )
                 run_tippecanoe(out)
 
                 if settings.USE_S3_TO_UPLOAD_MODELS:
