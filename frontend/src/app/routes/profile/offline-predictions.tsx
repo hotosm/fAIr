@@ -48,6 +48,7 @@ export const UserProfileOfflinePredictionsPage = () => {
         <PredictionResultDrawer
           tileServiceUrl={activePrediction.config.source}
           predictionId={activePrediction.id}
+          folder={activePrediction.config.folder}
           isOpened={isPredictionResultOpened}
           closeDialog={() => {
             // Cleanup to ensure fresh rendering

@@ -82,13 +82,22 @@ export const API_ENDPOINTS = {
   GET_TRAINING_DATASETS_CENTROIDS: "datasets/centroid/",
 
   // Workspaces
-  GET_PREDICTIONS_PMTILES_URL: (predictionID: number) =>
-    `/workspace/download/prediction_${predictionID}/meta.pmtiles/?url_only=true`,
+  GET_PREDICTIONS_PMTILES_URL: (predictionID: number, folder?: string) =>
+    folder
+      ? `/workspace/download/prediction/${folder}/meta.pmtiles/?url_only=true`
+      : `/workspace/download/prediction_${predictionID}/meta.pmtiles/?url_only=true`,
 
-  DOWNLOAD_PREDICTION_LABELS_FILE: (predictionID: number) =>
-    `workspace/download/prediction_${predictionID}/labels.geojson`,
-  DOWNLOAD_PREDICTION_RESULTS_POINTS_LABELS_FILE_: (predictionID: number) =>
-    `workspace/download/prediction_${predictionID}/labels_points.geojson`,
+  DOWNLOAD_PREDICTION_LABELS_FILE: (predictionID: number, folder?: string) =>
+    folder
+      ? `workspace/download/prediction/${folder}/labels.geojson`
+      : `workspace/download/prediction_${predictionID}/labels.geojson`,
+  DOWNLOAD_PREDICTION_RESULTS_POINTS_LABELS_FILE_: (
+    predictionID: number,
+    folder?: string,
+  ) =>
+    folder
+      ? `workspace/download/prediction/${folder}/labels_points.geojson`
+      : `workspace/download/prediction_${predictionID}/labels_points.geojson`,
   GET_PMTILES_URL: (trainingAreaId: number) =>
     `/workspace/download/training_${trainingAreaId}/meta.pmtiles/?url_only=true`,
 

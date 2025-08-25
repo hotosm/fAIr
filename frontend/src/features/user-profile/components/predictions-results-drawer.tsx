@@ -15,6 +15,7 @@ import { DropDown } from "@/components/ui/dropdown";
 type PredictionResultProps = DialogProps & {
   predictionId: number;
   tileServiceUrl: string;
+  folder?: string;
 };
 
 type TAPIResponse = {
@@ -23,9 +24,10 @@ type TAPIResponse = {
 
 const getPredicitionResultPMTilesUrl = async (
   predictionId: number,
+  folder?: string,
 ): Promise<TAPIResponse> => {
   const { data } = await apiClient.get(
-    API_ENDPOINTS.GET_PREDICTIONS_PMTILES_URL(predictionId),
+    API_ENDPOINTS.GET_PREDICTIONS_PMTILES_URL(predictionId, folder),
   );
   if (!data || !data.result) {
     showErrorToast(undefined, errorMessages.MAP_LOAD_FAILURE);
@@ -39,10 +41,11 @@ export const PredictionResultDrawer: React.FC<PredictionResultProps> = ({
   closeDialog,
   predictionId,
   tileServiceUrl,
+  folder,
 }) => {
   const { data, isLoading, isError, refetch } = useQuery<TAPIResponse, Error>({
     queryKey: ["prediction-result-pmtiles-url", predictionId],
-    queryFn: () => getPredicitionResultPMTilesUrl(predictionId),
+    queryFn: () => getPredicitionResultPMTilesUrl(predictionId, folder),
     enabled: isOpened,
   });
 
@@ -96,6 +99,7 @@ export const PredictionResultDrawer: React.FC<PredictionResultProps> = ({
                         BASE_API_URL +
                         API_ENDPOINTS.DOWNLOAD_PREDICTION_RESULTS_POINTS_LABELS_FILE_(
                           predictionId,
+                          folder,
                         );
                       window.open(downloadUrl, "_blank");
                     },
@@ -108,6 +112,7 @@ export const PredictionResultDrawer: React.FC<PredictionResultProps> = ({
                         BASE_API_URL +
                         API_ENDPOINTS.DOWNLOAD_PREDICTION_LABELS_FILE(
                           predictionId,
+                          folder,
                         );
                       window.open(downloadUrl, "_blank");
                     },
