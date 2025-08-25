@@ -1024,6 +1024,21 @@ class PredictionSerializer(serializers.ModelSerializer):
             "task_id",
         )
 
+    def validate_geom(self, value):
+        from django.contrib.gis.geos import GEOSGeometry, MultiPolygon, Polygon
+        
+        if isinstance(value, (str, dict)):
+            geom = GEOSGeometry(str(value))
+        else:
+            geom = value
+            
+        if isinstance(geom, MultiPolygon):
+            return geom.unary_union
+        elif isinstance(geom, Polygon):
+            return geom
+        else:
+            raise serializers.ValidationError("Geometry must be Polygon or MultiPolygon")
+
     def create(self, validated_data):
         instance = Prediction.objects.create(**validated_data)
         folder = instance.config.get("folder") if instance.config else None
