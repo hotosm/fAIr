@@ -89,13 +89,23 @@ class GetMyData(APIView):
         user = request.user
 
         original_email = user.email
+        original_deletion_requested = user.account_deletion_requested
 
         serializer = UserStatsSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
+            
             if "email" in request.data and request.data["email"] != original_email:
                 user.email_verified = False
                 user.save(update_fields=["email_verified"])
+
+            if "account_deletion_requested" in request.data and request.data["account_deletion_requested"] and not original_deletion_requested:
+                send_mail(
+                    subject="fAIr : Account deletion requested",
+                    message=f"User {user.username} (OSM ID: {user.osm_id}) has requested account deletion.",
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=["fair@hotosm.org"],
+                )
 
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
