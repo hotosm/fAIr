@@ -14,6 +14,7 @@ import {
 import { TrainingStatusBadge } from "@/components/shared/training-status-badge";
 import { OfflinePredictionsSettingsInfo } from "./offline-predictions-settings-info";
 import { OfflinePredictionActions } from "./offline-predictions-actions";
+import { ToolTip } from "@/components/ui/tooltip";
 // import { Badge } from "@/components/ui/badge";
 // import { Image } from "@/components/ui/image";
 // import { MapSwipeLogo } from "@/assets/svgs";
@@ -38,18 +39,18 @@ const columnDefinitions = (
   {
     header: "Prediction Name",
     accessorFn: (row) =>
-      row.description && row.description.length > 0
-        ? truncateString(row.description)
-        : "-",
+      row.description && row.description.length > 0 ? row.description : "-",
     cell: (row) => {
+      const value = row.getValue() as string;
       return (
-        <span className="flex items-center gap-x-2">
-          {row.getValue() as string}{" "}
-        </span>
+        <ToolTip content={value}>
+          <span className="flex items-center gap-x-2 max-w-[200px] truncate">
+            {truncateString(value)}
+          </span>
+        </ToolTip>
       );
     },
   },
-
   {
     accessorKey: "created_at",
     accessorFn: (row) =>
