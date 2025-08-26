@@ -228,6 +228,7 @@ export type TPredictionsConfig = {
   orthogonalize: boolean;
   zoom_level: number;
   source_imagery?: string;
+  folder?: string;
 };
 
 export type TModelPredictionsConfig = TPredictionsConfig & {
