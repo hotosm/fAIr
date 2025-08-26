@@ -32,7 +32,7 @@ export const UserProfileSettingsPage = () => {
     },
   );
   const { getValue } = useLocalStorage();
-  const { copyToClipboard } = useCopyToClipboard()
+  const { copyToClipboard } = useCopyToClipboard();
   const [showForm, setShowForm] = useState<boolean>(user?.email.length === 0);
 
   const [isEmailPending, setIsEmailPending] = useState<boolean>(false);
@@ -110,9 +110,11 @@ export const UserProfileSettingsPage = () => {
     },
   });
   const handleCopyAccessToken = async () => {
-    await copyToClipboard(getValue(HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY) as string)
-    showSuccessToast('Access token copied to clipboard.')
-  }
+    await copyToClipboard(
+      getValue(HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY) as string,
+    );
+    showSuccessToast("Access token copied to clipboard.");
+  };
 
   const { mutate: updateNotifications } = useUpdateUserProfile({
     mutationConfig: {
@@ -259,7 +261,7 @@ export const UserProfileSettingsPage = () => {
                 >
                   {isEmailPending
                     ? USER_PROFILE_PAGE_CONTENT.settings.form
-                      .submissionInProgress
+                        .submissionInProgress
                     : USER_PROFILE_PAGE_CONTENT.settings.form.submitButton}
                 </Button>
               </div>
@@ -319,16 +321,16 @@ export const UserProfileSettingsPage = () => {
                           isNotificationPending ||
                           (!user.email_verified &&
                             notification.key !==
-                            USER_PROFILE_PAGE_CONTENT.settings.notifications
-                              .notificationKeys.webTrainingNotification) ||
+                              USER_PROFILE_PAGE_CONTENT.settings.notifications
+                                .notificationKeys.webTrainingNotification) ||
                           (user.email.length === 0 &&
                             notification.key !==
-                            USER_PROFILE_PAGE_CONTENT.settings.notifications
-                              .notificationKeys.webTrainingNotification)
+                              USER_PROFILE_PAGE_CONTENT.settings.notifications
+                                .notificationKeys.webTrainingNotification)
                         }
                         checked={
                           notifications[
-                          notification.key as keyof typeof notifications
+                            notification.key as keyof typeof notifications
                           ]
                         }
                         handleSwitchChange={(e) => {
@@ -385,7 +387,7 @@ export const UserProfileSettingsPage = () => {
                   {!user.account_deletion_requested
                     ? USER_PROFILE_PAGE_CONTENT.settings.account.description
                     : USER_PROFILE_PAGE_CONTENT.settings.account
-                      .deleteRequestPending}
+                        .deleteRequestPending}
                 </p>
               </div>
               <ButtonWithIcon
@@ -406,17 +408,14 @@ export const UserProfileSettingsPage = () => {
           <div className="flex flex-col gap-y-6">
             <div className="flex flex-col gap-y-6">
               <div className="flex flex-col gap-y-1">
-                <p className="text-body-3 md:text-body-2">
-                  Access Token
-                </p>
+                <p className="text-body-3 md:text-body-2">Access Token</p>
                 <p className="text-grey text-body-3">
-                  ⚠️ Keep this token safe. Anyone with it can access your account.
+                  ⚠️ Keep this token safe. Anyone with it can access your
+                  account.
                 </p>
               </div>
               <ButtonWithIcon
-                label={
-                  "Copy Access Token"
-                }
+                label={"Copy Access Token"}
                 variant={ButtonVariant.PRIMARY}
                 uppercase={false}
                 prefixIcon={ClipboardIcon}
