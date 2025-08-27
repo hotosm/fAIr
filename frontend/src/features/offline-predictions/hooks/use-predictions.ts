@@ -5,7 +5,7 @@ import { useSearchParams } from "react-router-dom";
 import { ORDERING_FIELDS } from "@/components/shared/filters/ordering-filter";
 import { SEARCH_PARAMS } from "@/utils/search-params";
 import { useQuery } from "@tanstack/react-query";
-import { getPredictionsQueryOptions } from "../api/factory";
+import { getPredictionsQueryOptions } from "@/features/offline-predictions/api/factory";
 import { LayoutView } from "@/enums";
 
 export const useGetPredictions = (

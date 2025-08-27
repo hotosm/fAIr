@@ -3,17 +3,21 @@ import { Button } from "@/components/ui/button";
 import { ButtonVariant, DropdownPlacement, SHOELACE_SIZES } from "@/enums";
 import { TOfflinePrediction } from "@/types";
 import { formatDate, formatDuration, formatNumber } from "@/utils";
-import { OfflinePredictionActions } from "./offline-predictions-actions";
+
 import { MapIcon } from "@/components/ui/icons";
+
+import { OfflinePredictionActions } from "@/features/offline-predictions/components/offline-predictions-actions";
 
 export const OfflinePredictionCard = ({
   predictionResult,
   handleTrainingLogsModal,
   handlePredictionResultModal,
+  handleCreateOrViewMapSwipeProject,
 }: {
   predictionResult: TOfflinePrediction;
   handleTrainingLogsModal: (taskId: string) => void;
   handlePredictionResultModal: (prediction: TOfflinePrediction) => void;
+  handleCreateOrViewMapSwipeProject: (prediction: TOfflinePrediction) => void;
 }) => {
   return (
     <div
@@ -33,6 +37,9 @@ export const OfflinePredictionCard = ({
             predictionResult={predictionResult}
             showSettingsInfo
             placement={DropdownPlacement.BOTTOM_START}
+            handleCreateOrViewMapSwipeProject={
+              handleCreateOrViewMapSwipeProject
+            }
           />
         </div>
         <TrainingStatusBadge status={predictionResult.status} />
@@ -71,9 +78,9 @@ export const OfflinePredictionCard = ({
           <span className="font-semibold">
             {predictionResult.created_at && predictionResult.finished_at
               ? formatDuration(
-                  new Date(predictionResult.finished_at),
-                  new Date(predictionResult.created_at),
-                )
+                new Date(predictionResult.finished_at),
+                new Date(predictionResult.created_at),
+              )
               : "-"}
           </span>
         </p>

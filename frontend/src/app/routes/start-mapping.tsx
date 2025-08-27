@@ -59,7 +59,7 @@ import {
   FAIR_BASE_MODELS_PATH,
   OPENAERIALMAP_MOSAIC_TILES_URL,
 } from "@/config";
-import { OfflinePredictionRequestDialog } from "@/features/start-mapping/components/dialogs/offline-prediction-request-dialog";
+import { OfflinePredictionRequestDialog } from "@/features/offline-predictions/components/dialogs/offline-prediction-request-dialog";
 import { GeoJSONStoreFeatures } from "terra-draw";
 import { FileUploadIcon } from "@/components/ui/icons";
 import { ToolTip } from "@/components/ui/tooltip";
