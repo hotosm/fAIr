@@ -38,6 +38,7 @@ const columnDefinitions = (
   handleCreateOrViewMapSwipeProject: (prediction: TOfflinePrediction) => void,
 ): ColumnDef<TOfflinePrediction>[] => [
 <<<<<<< HEAD
+<<<<<<< HEAD
     {
       accessorKey: "id",
       header: ({ column }) => <SortableHeader title={"ID"} column={column} />,
@@ -94,9 +95,26 @@ const columnDefinitions = (
       cell: (row) => (
         <span title={row.getValue() as string}>
           {roundNumber(row.getValue() as number)}
-        </span>
-      ),
+=======
+  {
+            accessorKey: "id",
+          header: ({column}) => <SortableHeader title={"ID"} column={column} />,
+  },
+          {
+            header: "Prediction Name",
+    accessorFn: (row) =>
+      row.description && row.description.length > 0
+          ? truncateString(row.description)
+          : "-",
+    cell: (row) => {
+      return (
+          <span className="flex items-center gap-x-2">
+            {row.getValue() as string}{" "}
+>>>>>>> 96253ddb (chore: formatting)
+          </span>
+      );
     },
+<<<<<<< HEAD
     // {
     //   header: "MapSwipe",
     //   accessorKey: "result_count",
@@ -164,37 +182,71 @@ const columnDefinitions = (
     },
   },
   {
-    header: "Status",
-    accessorKey: "status",
-    cell: (row) => <TrainingStatusBadge status={row.getValue() as string} />,
+=======
+  },
+
+  {
+    accessorKey: "created_at",
+    accessorFn: (row) =>
+      row.created_at !== null ? formatDate(row.created_at) : "-",
+    header: "Date Submitted",
+    cell: (row) => {
+      return <span>{row.getValue() as string}</span>;
+    },
   },
   {
-    header: "Duration",
+    accessorFn: (row) => row.config.zoom_level,
+    header: "Zoom Level",
+    cell: (row) => {
+      return <span>{row.getValue() as string}</span>;
+    },
+  },
+
+  {
+>>>>>>> 96253ddb (chore: formatting)
+header: "Status",
+  accessorKey: "status",
+    cell: (row) => <TrainingStatusBadge status={row.getValue() as string} />,
+  },
+{
+  header: "Duration",
     accessorFn: (row) =>
       row.finished_at && row.started_at
         ? formatDuration(new Date(row.started_at), new Date(row.finished_at))
         : "-",
-    cell: (row) => (
-      <span title={row.getValue() as string}>{row.getValue() as string}</span>
-    ),
+      cell: (row) => (
+        <span title={row.getValue() as string}>{row.getValue() as string}</span>
+      ),
   },
-  {
-    header: "MapSwipe",
+{
+<<<<<<< HEAD
+=======
+    header: "Detected Features",
     accessorKey: "result_count",
     cell: (row) => (
-      <MapSwipeProjectIsActive
-        MapSwipeId={row.row.original.mapswipe_id as string}
-      />
+      <span title={row.getValue() as string}>
+        {roundNumber(row.getValue() as number)}
+      </span>
     ),
   },
   {
-    header: "Info",
+>>>>>>> 96253ddb (chore: formatting)
+  header: "MapSwipe",
+    accessorKey: "result_count",
+      cell: (row) => (
+        <MapSwipeProjectIsActive
+          MapSwipeId={row.row.original.mapswipe_id as string}
+        />
+      ),
+  },
+{
+  header: "Info",
     cell: ({ row }: { row: any }) => (
       <OfflinePredictionsSettingsInfo predictionConfig={row.original.config} />
     ),
   },
-  {
-    header: "Actions",
+{
+  header: "Actions",
     cell: ({ row }: { row: any }) => (
       <OfflinePredictionActions
         handlePredictionResultModal={handlePredictionResultModal}
@@ -205,7 +257,10 @@ const columnDefinitions = (
     ),
   },
 ];
+<<<<<<< HEAD
 >>>>>>> 7c4f2468 (feat: wip with mapswipe integration)
+=======
+>>>>>>> 96253ddb (chore: formatting)
 
 const OfflinePredictionsTable: React.FC<OfflinePredictionsTableProps> = ({
   data,

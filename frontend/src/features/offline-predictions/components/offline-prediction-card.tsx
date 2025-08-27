@@ -85,15 +85,10 @@ export const OfflinePredictionCard = ({
           <span className="font-semibold">
             {predictionResult.created_at && predictionResult.finished_at
               ? formatDuration(
-<<<<<<< HEAD
                 new Date(predictionResult.finished_at),
                 new Date(predictionResult.created_at),
               )
-=======
-                  new Date(predictionResult.finished_at),
-                  new Date(predictionResult.created_at),
-                )
->>>>>>> 7c4f2468 (feat: wip with mapswipe integration)
+
               : "-"}
           </span>
         </p>
