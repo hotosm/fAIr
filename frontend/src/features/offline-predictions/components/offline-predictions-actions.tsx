@@ -6,8 +6,7 @@ import { DropdownPlacement, ModelTrainingStatus } from "@/enums";
 import useCopyToClipboard from "@/hooks/use-clipboard";
 import { API_ENDPOINTS } from "@/services";
 import { TOfflinePrediction } from "@/types";
-import { showErrorToast, showSuccessToast } from "@/utils";
-
+import { showSuccessToast } from "@/utils";
 import { OfflinePredictionsSettingsInfo } from "@/features/offline-predictions/components/offline-predictions-settings-info";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { useTerminateOfflinePrediction } from "@/features/user-profile/api/predictions";

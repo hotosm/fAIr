@@ -12,16 +12,11 @@ import {
 } from "@/utils";
 
 import { TrainingStatusBadge } from "@/components/shared/training-status-badge";
-
+import { OfflinePredictionsSettingsInfo } from "./offline-predictions-settings-info";
+import { OfflinePredictionActions } from "./offline-predictions-actions";
 import { ToolTip } from "@/components/ui/tooltip";
-// import { Badge } from "@/components/ui/badge";
-// import { Image } from "@/components/ui/image";
-// import { MapSwipeLogo } from "@/assets/svgs";
-// import { ToolTip } from "@/components/ui/tooltip";
+import { MapSwipeProjectIsActive } from "./mapswipe-project-active";
 
-import { OfflinePredictionsSettingsInfo } from "@/features/offline-predictions/components/offline-predictions-settings-info";
-import { OfflinePredictionActions } from "@/features/offline-predictions/components/offline-predictions-actions";
-import { MapSwipeProjectIsActive } from "@/features/offline-predictions/components/mapswipe-project-active";
 
 type OfflinePredictionsTableProps = {
   data: TOfflinePrediction[];
@@ -37,8 +32,6 @@ const columnDefinitions = (
   handlePredictionResultModal: (prediction: TOfflinePrediction) => void,
   handleCreateOrViewMapSwipeProject: (prediction: TOfflinePrediction) => void,
 ): ColumnDef<TOfflinePrediction>[] => [
-<<<<<<< HEAD
-<<<<<<< HEAD
     {
       accessorKey: "id",
       header: ({ column }) => <SortableHeader title={"ID"} column={column} />,
@@ -95,45 +88,18 @@ const columnDefinitions = (
       cell: (row) => (
         <span title={row.getValue() as string}>
           {roundNumber(row.getValue() as number)}
-=======
-  {
-            accessorKey: "id",
-          header: ({column}) => <SortableHeader title={"ID"} column={column} />,
-  },
-          {
-            header: "Prediction Name",
-    accessorFn: (row) =>
-      row.description && row.description.length > 0
-          ? truncateString(row.description)
-          : "-",
-    cell: (row) => {
-      return (
-          <span className="flex items-center gap-x-2">
-            {row.getValue() as string}{" "}
->>>>>>> 96253ddb (chore: formatting)
-          </span>
-      );
+        </span>
+      ),
     },
-<<<<<<< HEAD
-    // {
-    //   header: "MapSwipe",
-    //   accessorKey: "result_count",
-    //   cell: (row) => (
-    //     <span className="flex items-center justify-start">
-    //       {row.row.original.mapswipe_id ? (
-    //         <ToolTip
-    //           content={"A MapSwipe project is associated with this prediction. Click on 'actions"}
-    //         >
-    //           <Image
-    //             src={MapSwipeLogo}
-    //             className="icon lg:icon-lg"
-    //             alt="MapSwipe Icon"
-    //           />
-    //         </ToolTip>
-    //       ) : "-"}
-    //     </span>
-    //   ),
-    // },
+    {
+      header: "MapSwipe",
+      accessorKey: "result_count",
+      cell: (row) => (
+        <MapSwipeProjectIsActive
+          MapSwipeId={row.row.original.mapswipe_id as string}
+        />
+      ),
+    },
     {
       header: "Info",
       cell: ({ row }: { row: any }) => (
@@ -152,123 +118,13 @@ const columnDefinitions = (
       ),
     },
   ];
-=======
-  {
-    accessorKey: "id",
-    header: ({ column }) => <SortableHeader title={"ID"} column={column} />,
-  },
-  {
-    header: "Prediction Name",
-    accessorFn: (row) =>
-      row.description && row.description.length > 0
-        ? truncateString(row.description)
-        : "-",
-  },
-
-  {
-    accessorKey: "created_at",
-    accessorFn: (row) =>
-      row.created_at !== null ? formatDate(row.created_at) : "-",
-    header: "Date Submitted",
-    cell: (row) => {
-      return <span>{row.getValue() as string}</span>;
-    },
-  },
-  {
-    accessorFn: (row) => row.config.zoom_level,
-    header: "Zoom Level",
-    cell: (row) => {
-      return <span>{row.getValue() as string}</span>;
-    },
-  },
-  {
-=======
-  },
-
-  {
-    accessorKey: "created_at",
-    accessorFn: (row) =>
-      row.created_at !== null ? formatDate(row.created_at) : "-",
-    header: "Date Submitted",
-    cell: (row) => {
-      return <span>{row.getValue() as string}</span>;
-    },
-  },
-  {
-    accessorFn: (row) => row.config.zoom_level,
-    header: "Zoom Level",
-    cell: (row) => {
-      return <span>{row.getValue() as string}</span>;
-    },
-  },
-
-  {
->>>>>>> 96253ddb (chore: formatting)
-header: "Status",
-  accessorKey: "status",
-    cell: (row) => <TrainingStatusBadge status={row.getValue() as string} />,
-  },
-{
-  header: "Duration",
-    accessorFn: (row) =>
-      row.finished_at && row.started_at
-        ? formatDuration(new Date(row.started_at), new Date(row.finished_at))
-        : "-",
-      cell: (row) => (
-        <span title={row.getValue() as string}>{row.getValue() as string}</span>
-      ),
-  },
-{
-<<<<<<< HEAD
-=======
-    header: "Detected Features",
-    accessorKey: "result_count",
-    cell: (row) => (
-      <span title={row.getValue() as string}>
-        {roundNumber(row.getValue() as number)}
-      </span>
-    ),
-  },
-  {
->>>>>>> 96253ddb (chore: formatting)
-  header: "MapSwipe",
-    accessorKey: "result_count",
-      cell: (row) => (
-        <MapSwipeProjectIsActive
-          MapSwipeId={row.row.original.mapswipe_id as string}
-        />
-      ),
-  },
-{
-  header: "Info",
-    cell: ({ row }: { row: any }) => (
-      <OfflinePredictionsSettingsInfo predictionConfig={row.original.config} />
-    ),
-  },
-{
-  header: "Actions",
-    cell: ({ row }: { row: any }) => (
-      <OfflinePredictionActions
-        handlePredictionResultModal={handlePredictionResultModal}
-        handleTrainingLogsModal={handleTrainingLogsModal}
-        predictionResult={row.original}
-        handleCreateOrViewMapSwipeProject={handleCreateOrViewMapSwipeProject}
-      />
-    ),
-  },
-];
-<<<<<<< HEAD
->>>>>>> 7c4f2468 (feat: wip with mapswipe integration)
-=======
->>>>>>> 96253ddb (chore: formatting)
 
 const OfflinePredictionsTable: React.FC<OfflinePredictionsTableProps> = ({
   data,
   isPending,
   isError,
   handleTrainingLogsModal,
-  handlePredictionResultModal,
-  handleCreateOrViewMapSwipeProject,
+  handlePredictionResultModal, handleCreateOrViewMapSwipeProject,
 }) => {
   const [sorting, setSorting] = useState<SortingState>([]);
 

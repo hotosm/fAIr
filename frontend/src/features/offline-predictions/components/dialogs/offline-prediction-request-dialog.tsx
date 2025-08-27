@@ -19,6 +19,7 @@ import { useParams } from "react-router-dom";
 import { Geometry } from "geojson";
 
 import { useDialog } from "@/hooks/use-dialog";
+import { OfflinePredictionRequestSuccess } from "./offline-prediction-request-success-dialog";
 import { DatabaseIcon, LayerStackIcon, MapIcon } from "@/components/ui/icons";
 import { PredictionImagerySource } from "@/enums/start-mapping";
 import { OfflinePredictionRequestSuccess } from "./offline-prediction-request-success-dialog";

@@ -3,12 +3,9 @@ import { Button } from "@/components/ui/button";
 import { ButtonVariant, DropdownPlacement, SHOELACE_SIZES } from "@/enums";
 import { TOfflinePrediction } from "@/types";
 import { formatDate, formatDuration, formatNumber } from "@/utils";
-
+import { OfflinePredictionActions } from "./offline-predictions-actions";
 import { MapIcon } from "@/components/ui/icons";
-import { MapSwipeProjectIsActive } from "./mapswipe-project-active";
 
-
-import { OfflinePredictionActions } from "@/features/offline-predictions/components/offline-predictions-actions";
 import { MapSwipeProjectIsActive } from "@/features/offline-predictions/components/mapswipe-project-active";
 export const OfflinePredictionCard = ({
   predictionResult,
@@ -89,7 +86,6 @@ export const OfflinePredictionCard = ({
                 new Date(predictionResult.finished_at),
                 new Date(predictionResult.created_at),
               )
-
               : "-"}
           </span>
         </p>
