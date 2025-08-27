@@ -18,6 +18,7 @@ import { ToolTip } from "@/components/ui/tooltip";
 // import { Image } from "@/components/ui/image";
 // import { MapSwipeLogo } from "@/assets/svgs";
 // import { ToolTip } from "@/components/ui/tooltip";
+
 import { OfflinePredictionsSettingsInfo } from "@/features/offline-predictions/components/offline-predictions-settings-info";
 import { OfflinePredictionActions } from "@/features/offline-predictions/components/offline-predictions-actions";
 
@@ -35,6 +36,7 @@ const columnDefinitions = (
   handlePredictionResultModal: (prediction: TOfflinePrediction) => void,
   handleCreateOrViewMapSwipeProject: (prediction: TOfflinePrediction) => void,
 ): ColumnDef<TOfflinePrediction>[] => [
+<<<<<<< HEAD
     {
       accessorKey: "id",
       header: ({ column }) => <SortableHeader title={"ID"} column={column} />,
@@ -131,6 +133,69 @@ const columnDefinitions = (
       ),
     },
   ];
+=======
+  {
+    accessorKey: "id",
+    header: ({ column }) => <SortableHeader title={"ID"} column={column} />,
+  },
+  {
+    header: "Prediction Name",
+    accessorFn: (row) =>
+      row.description && row.description.length > 0
+        ? truncateString(row.description)
+        : "-",
+  },
+
+  {
+    accessorKey: "created_at",
+    accessorFn: (row) =>
+      row.created_at !== null ? formatDate(row.created_at) : "-",
+    header: "Date Submitted",
+    cell: (row) => {
+      return <span>{row.getValue() as string}</span>;
+    },
+  },
+  {
+    accessorFn: (row) => row.config.zoom_level,
+    header: "Zoom Level",
+    cell: (row) => {
+      return <span>{row.getValue() as string}</span>;
+    },
+  },
+  {
+    header: "Status",
+    accessorKey: "status",
+    cell: (row) => <TrainingStatusBadge status={row.getValue() as string} />,
+  },
+  {
+    header: "Duration",
+    accessorFn: (row) =>
+      row.finished_at && row.started_at
+        ? formatDuration(new Date(row.started_at), new Date(row.finished_at))
+        : "-",
+    cell: (row) => (
+      <span title={row.getValue() as string}>{row.getValue() as string}</span>
+    ),
+  },
+  {
+    header: "Info",
+    cell: ({ row }: { row: any }) => (
+      <OfflinePredictionsSettingsInfo predictionConfig={row.original.config} />
+    ),
+  },
+  {
+    header: "Actions",
+    cell: ({ row }: { row: any }) => (
+      <OfflinePredictionActions
+        handlePredictionResultModal={handlePredictionResultModal}
+        handleTrainingLogsModal={handleTrainingLogsModal}
+        predictionResult={row.original}
+        handleCreateOrViewMapSwipeProject={handleCreateOrViewMapSwipeProject}
+      />
+    ),
+  },
+];
+>>>>>>> 7c4f2468 (feat: wip with mapswipe integration)
 
 const OfflinePredictionsTable: React.FC<OfflinePredictionsTableProps> = ({
   data,

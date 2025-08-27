@@ -6,6 +6,7 @@ import { formatDate, formatDuration, formatNumber } from "@/utils";
 
 import { MapIcon } from "@/components/ui/icons";
 
+
 import { OfflinePredictionActions } from "@/features/offline-predictions/components/offline-predictions-actions";
 
 export const OfflinePredictionCard = ({
@@ -78,9 +79,15 @@ export const OfflinePredictionCard = ({
           <span className="font-semibold">
             {predictionResult.created_at && predictionResult.finished_at
               ? formatDuration(
+<<<<<<< HEAD
                 new Date(predictionResult.finished_at),
                 new Date(predictionResult.created_at),
               )
+=======
+                  new Date(predictionResult.finished_at),
+                  new Date(predictionResult.created_at),
+                )
+>>>>>>> 7c4f2468 (feat: wip with mapswipe integration)
               : "-"}
           </span>
         </p>
