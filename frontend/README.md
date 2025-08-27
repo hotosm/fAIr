@@ -118,7 +118,7 @@ Please refer to the [CONTRIBUTING](../CONTRIBUTING.md) guide for more informatio
 
 See [LICENSE](../LICENSE) for fAIr license.
 
-fAIr also bundles portions of the following open source software.
+fAIr also bundles portions of the following open source software:
 
 - [Shoelace (MIT)](https://github.com/shoelace-style/shoelace).
 - [TanStack Query (MIT)](https://github.com/TanStack/query).
