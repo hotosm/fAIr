@@ -22,7 +22,6 @@ import { useDialog } from "@/hooks/use-dialog";
 import { OfflinePredictionRequestSuccess } from "./offline-prediction-request-success-dialog";
 import { DatabaseIcon, LayerStackIcon, MapIcon } from "@/components/ui/icons";
 import { PredictionImagerySource } from "@/enums/start-mapping";
-import { OfflinePredictionRequestSuccess } from "./offline-prediction-request-success-dialog";
 
 const MINIMUM_PREDICTION_NAME_LENGTH = 2;
 const MAXIMUM_PREDICTION_NAME_LENGTH = 50;
@@ -186,7 +185,7 @@ export const OfflinePredictionRequestDialog = ({
               variant={ButtonVariant.PRIMARY}
               disabled={
                 predictionRequestName.trim().length <
-                  MINIMUM_PREDICTION_NAME_LENGTH ||
+                MINIMUM_PREDICTION_NAME_LENGTH ||
                 modelPredictionMutation.isPending
               }
               onClick={() => {
