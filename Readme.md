@@ -141,7 +141,7 @@ You _must_ verify that imagery provider's license is compatible with fAIr’s in
 
 By submitting labels to fAIr for model creation, you:
 
-1. Grant fAIr permission to use the labels you provide for training and inference.  
+1. Grant fAIr permission to use the labels you provide for training.  
 2. Allow fAIr to redistribute these labels under the same license applied to the training area you specify.  
 3. Acknowledge responsibility for the content of the labels you share.
 
