@@ -119,8 +119,8 @@ By submitting imagery link to fAIr for model creation, you:
 
 ### Commercial TMS Notice
 
-- If you are using a **commercial TMS** (Tile Map Service) with your own token, please be aware that **fAIr will download , store and derive information from** the tiles for your specified area.
-- These tiles may be **published as part of the training process** and made available to others.
+- If you are using a **commercial TMS** (Tile Map Service) with your own token, please be aware that **fAIr will download , store and derive information from** the tiles for your specified training area. However for inference the image tiles wont be stored , they will be cached and removed after the prediction ! 
+- These tiles may be **published as part of the training process** and made available to others. For inference : Only the results are stored , area where predictions are made and the source imagery used , Not the tiles as tiles are cached
 
 You _must_ verify that imagery provider's license is compatible with fAIr’s intended use.
 
