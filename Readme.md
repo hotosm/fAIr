@@ -134,3 +134,35 @@ You _must_ verify that imagery provider's license is compatible with fAIr’s in
 - If you plan to use the API or imagery services beyond the scope of the listed license, **reach out to** [info@hotosm.org](mailto:info@hotosm.org) for further guidance .
 
 ![image](https://github.com/user-attachments/assets/9cbdc3a6-0a47-4c6e-8880-7ce5dbb1491e)
+
+## Labels License
+
+### Labels Submission
+
+By submitting labels to fAIr for model creation, you:
+
+1. **Grant fAIr permission to use the labels** you provide for training and inference.  
+2. **Allow fAIr to redistribute these labels** under the same license applied to the training area you specify.  
+3. **Acknowledge responsibility** for the content of the labels you share.
+
+### License Type
+
+- All labels used and shared by fAIr are licensed under the [ODbL 1.0](https://opendatacommons.org/licenses/odbl/).  
+- This is the same license used by [OpenStreetMap](https://www.openstreetmap.org/copyright).
+
+### Labels from OpenStreetMap
+
+- If labels are pulled from OpenStreetMap, **no user account information is included**.  
+- Only the **attributes and geometry** are extracted for use.
+
+### Labels You Upload Yourself
+
+- If you upload your own labels, **you must comply with ODbL**.  
+- You are fully **responsible for the data you submit** and what information you choose to include or exclude.  
+
+### Compliance
+
+- Make sure the labels you provide can legally be shared under ODbL.  
+- fAIr will redistribute labels only under ODbL, making them available for others working with the same training area.
+
+
