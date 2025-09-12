@@ -1065,6 +1065,9 @@ wheels = [
 name = "fair"
 version = "1.0.1"
 source = { virtual = "." }
+dependencies = [
+    { name = "osmconflator" },
+]
 
 [package.dev-dependencies]
 api = [
@@ -1116,6 +1119,7 @@ ramp-workers = [
 ]
 
 [package.metadata]
+requires-dist = [{ name = "osmconflator", specifier = ">=0.0.11" }]
 
 [package.metadata.requires-dev]
 api = [
@@ -2705,6 +2709,16 @@ sdist = { url = "https://files.pythonhosted.org/packages/71/32/1aae4704a91d28815
 wheels = [
     { url = "https://files.pythonhosted.org/packages/4d/e1/4de4056c1b766149aaa5707b3e51b00f56d1fa37ba3d5bc797ec6625fb77/osm_login_python-2.0.0-py3-none-any.whl", hash = "sha256:1289410fb1967f584ee52b02d96c85ff2cb104068481fa6530d5f3b138ec7afc", size = 17136, upload-time = "2024-08-09T10:35:42.173Z" },
 ]
+
+[[package]]
+name = "osmconflator"
+version = "0.0.11"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "requests" },
+    { name = "shapely" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/47/87/dcab7dfe89d36a57fbe2b302e70e0842aa6d00d4ba804f549282b6ad7951/osmconflator-0.0.11.tar.gz", hash = "sha256:1c867e677e24910dde156ee25e96bb32a7a8378e651373b2434f7e645be8f48e", size = 5820, upload-time = "2024-08-22T04:34:31.602Z" }
 
 [[package]]
 name = "packaging"

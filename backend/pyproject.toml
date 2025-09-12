@@ -9,7 +9,7 @@ authors = [
     {name = "HOTOSM", email = "sysadmin@hotosm.org"},
 ]
 dependencies = [
-
+    "osmconflator>=0.0.11",
 ]
 
 [tool.uv]

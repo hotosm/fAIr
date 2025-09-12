@@ -80,7 +80,7 @@ urlpatterns = [
     # path("feedback/training/submit/", FeedbackView.as_view()),
     # path("status/", APIStatus.as_view()),
     # path("geojson2osm/", geojson2osmconverter, name="geojson2osmconverter"),
-    # path("conflate/", ConflateGeojson, name="Conflate Geojson"),
+    path("conflate/", ConflateGeojson, name="Conflate Geojson"),
     path("aoi/gpx/<int:aoi_id>/", GenerateGpxView.as_view()),
     # path(
     #     "feedback-aoi/gpx/<int:feedback_aoi_id>/", GenerateFeedbackAOIGpxView.as_view()

@@ -34,8 +34,7 @@ from login.permissions import (
     IsOwnerOrReadOnly,
     IsStaffUser,
 )
-
-# from osmconflator import conflate_geojson
+from osmconflator import conflate_geojson
 from rest_framework import decorators, filters, serializers, status, viewsets
 from rest_framework.decorators import api_view
 from rest_framework.exceptions import ValidationError
@@ -1026,18 +1025,19 @@ class PredictionSerializer(serializers.ModelSerializer):
 
     def validate_geom(self, value):
         from django.contrib.gis.geos import GEOSGeometry, MultiPolygon, Polygon
-        
+
         if isinstance(value, (str, dict)):
             geom = GEOSGeometry(str(value))
         else:
             geom = value
-            
+
         if isinstance(geom, MultiPolygon):
             unified = geom.unary_union
-            
+
             if isinstance(unified, MultiPolygon):
                 extent = geom.extent
                 from django.contrib.gis.geos import Polygon as GEOSPolygon
+
                 bbox_polygon = GEOSPolygon.from_bbox(extent)
                 bbox_polygon.srid = geom.srid
                 return bbox_polygon
@@ -1046,7 +1046,9 @@ class PredictionSerializer(serializers.ModelSerializer):
         elif isinstance(geom, Polygon):
             return geom
         else:
-            raise serializers.ValidationError("Geometry must be Polygon or MultiPolygon")
+            raise serializers.ValidationError(
+                "Geometry must be Polygon or MultiPolygon"
+            )
 
     def create(self, validated_data):
         instance = Prediction.objects.create(**validated_data)
@@ -1181,11 +1183,9 @@ class StreamFGBView(APIView):
         width = maxx - minx
         height = maxy - miny
 
-        # Convert km limits to degrees for comparison
         center_lat = (miny + maxy) / 2
         max_dim_deg, _ = km_to_degrees(settings.FGB_MAX_BBOX_DIMENSION_KM, center_lat)
 
-        # Calculate area in km² for comparison
         lat_km, lon_km = degrees_to_km(1.0, center_lat)
         area_km2 = width * lon_km * height * lat_km
 

@@ -13,6 +13,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from core.views import home
 from django.conf.urls import include
 from django.contrib import admin
@@ -28,7 +29,7 @@ schema_view = get_schema_view(
         description="AI-Assisted Mapping fAIr - Checkout Detail documentation on /redoc",
         terms_of_service="https://www.google.com/policies/terms/",
         contact=openapi.Contact(email="sysadmin@hotosm.org"),
-        license=openapi.License(name="BSD License"),
+        # license=openapi.License(name="BSD License"),
     ),
     public=True,
     permission_classes=[permissions.AllowAny],
