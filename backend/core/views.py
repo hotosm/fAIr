@@ -18,6 +18,7 @@ from django.conf import settings
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.utils import timezone
+from django_ratelimit.decorators import ratelimit
 from django.utils.decorators import method_decorator
 from django.utils.timezone import now
 from django.views.decorators.cache import cache_page
@@ -81,6 +82,7 @@ from .serializers import (
     UserStatsSerializer,
 )
 from .tasks import predict_area, train_model
+from .validators import validate_geojson
 from .utils import (
     degrees_to_km,
     download_s3_file,
@@ -252,7 +254,7 @@ class TrainingSerializer(
             instance.description += f" Multimask params (ct/bw): {input_contact_spacing}/{input_boundary_width}"
         instance.task_id = task.id
         instance.save()
-        print(f"Saved train model request to queue with id {task.id}")
+        logging.info(f"Training request queued with task ID {task.id}")
         return instance
 
     def to_representation(self, instance):
@@ -265,9 +267,8 @@ class TrainingSerializer(
         return ret
 
 
-class TrainingViewSet(
-    viewsets.ModelViewSet
-):  # This is TrainingViewSet , will be tightly coupled with the models
+@method_decorator(ratelimit(key='user', rate='10/h', method='POST', block=True), name='create')
+class TrainingViewSet(viewsets.ModelViewSet):
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsOsmAuthenticated]
     public_methods = ["GET"]
@@ -481,6 +482,9 @@ class LabelUploadView(APIView):
         return Response(
             {"error": "No GeoJSON file provided"}, status=status.HTTP_400_BAD_REQUEST
         )
+
+    def validate_geojson(self, geojson_data):
+        return validate_geojson(geojson_data)
 
     def validate_geojson(self, geojson_data):
         if geojson_data.get("type") != "FeatureCollection":
@@ -758,7 +762,7 @@ class FeedbackView(APIView):
                 instance.source_imagery = instance.model.dataset.source_imagery
             instance.task_id = task.id
             instance.save()
-            print(f"Saved Feedback train model request to queue with id {task.id}")
+            logging.info(f"Feedback training request queued with task ID {task.id}")
             return HttpResponse(status=200)
 
         return Response(res_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -1064,10 +1068,11 @@ class PredictionSerializer(serializers.ModelSerializer):
 
         instance.task_id = task.id
         instance.save()
-        print(f"Saved Prediction request to queue with id {task.id}")
+        logging.info(f"Prediction request queued with task ID {task.id}")
         return instance
 
 
+@method_decorator(ratelimit(key='user', rate='50/h', method='POST', block=True), name='create')
 class PredictionViewSet(UserAssignmentMixin, viewsets.ModelViewSet):
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsOsmAuthenticated, IsOwnerOrReadOnly]

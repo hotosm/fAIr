@@ -26,12 +26,19 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Take environment variables from .env file
 environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
-# False if not in os.environ
-DEBUG = env("DEBUG", default=False)
 
-# set secret key in production always
-SECRET_KEY = env("SECRET_KEY", default="default_secret_key")
+# Security
+DEBUG = env("DEBUG", default=False)
+if not DEBUG and env("FORCE_DEBUG", default=False):
+    raise ValueError("DEBUG=True not allowed in production. Remove FORCE_DEBUG to override.")
+
+if DEBUG:
+    SECRET_KEY = env("SECRET_KEY", default="dev-only-insecure-key-change-in-production")
+else:
+    SECRET_KEY = env("SECRET_KEY")
+
 LOG_PATH = env("LOG_PATH", default=os.path.join(os.getcwd(), "log"))
+os.makedirs(LOG_PATH, exist_ok=True)
 
 HOSTNAME = env("HOSTNAME", default="127.0.0.1")
 
@@ -118,7 +125,6 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
-    "django.middleware.common.CommonMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -127,6 +133,25 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+SECURE_SSL_REDIRECT = not DEBUG
+SECURE_HSTS_SECONDS = 31536000 if not DEBUG else 0
+SECURE_HSTS_INCLUDE_SUBDOMAINS = not DEBUG
+SECURE_HSTS_PRELOAD = not DEBUG
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_BROWSER_XSS_FILTER = True
+X_FRAME_OPTIONS = 'DENY'
+SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+
+SESSION_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_AGE = 3600
+
+CSRF_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_SAMESITE = 'Lax'
+CSRF_TRUSTED_ORIGINS = env("CSRF_TRUSTED_ORIGINS", default="").split(",") if not DEBUG else []
 
 DEFAULT_PAGINATION_SIZE = env("DEFAULT_PAGINATION_SIZE", default=50)
 
@@ -172,8 +197,16 @@ WSGI_APPLICATION = "aiproject.wsgi.application"
 DATABASES = {}
 
 DATABASES["default"] = dj_database_url.config(
-    default="postgis://admin:password@localhost:5432/ai", conn_max_age=500
+    default="postgis://admin:password@localhost:5432/fair", 
+    conn_max_age=500,
+    conn_health_checks=True,
 )
+
+if not DEBUG:
+    DATABASES["default"]["OPTIONS"] = {
+        "sslmode": "require",
+        **DATABASES["default"].get("OPTIONS", {})
+    }
 
 # Password validation
 # https://docs.aiproject.com/en/3.1/ref/settings/#auth-password-validators
@@ -213,8 +246,59 @@ USE_TZ = True
 
 STATIC_URL = "/api_static/"
 MEDIA_URL = "/media/"
-
 STATIC_ROOT = os.path.join(BASE_DIR, "api_static")
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG' if DEBUG else 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'core': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}
+
+if not DEBUG:
+    LOGGING['handlers']['file'] = {
+        'level': 'INFO',
+        'class': 'logging.FileHandler',
+        'filename': os.path.join(LOG_PATH, 'django.log'),
+        'formatter': 'verbose',
+    }
+    LOGGING['handlers']['mail_admins'] = {
+        'level': 'ERROR',
+        'class': 'django.utils.log.AdminEmailHandler',
+    }
+    LOGGING['loggers']['django']['handlers'].append('file')
+    LOGGING['loggers']['django']['handlers'].append('mail_admins')
+    LOGGING['loggers']['core']['handlers'].append('file')
 
 if DEBUG:
     logging.info("Enabling oauthlib insecure transport in debug mode")
@@ -281,34 +365,84 @@ FAIL_EMAIL_SILENTLY = os.getenv("FAIL_EMAIL_SILENTLY", "True")
 # CORS settings
 
 
-# Cache settings
 CACHE_TIMEOUT_MINUTES = int(os.getenv("CACHE_TIMEOUT_MINUTES", 5))
+
+RATELIMIT_ENABLE = not DEBUG
+RATELIMIT_USE_CACHE = 'default'
+RATELIMIT_VIEW = 'core.ratelimit.ratelimit_key_from_user'
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': env("REDIS_URL", default="redis://127.0.0.1:6379/1"),
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}
+
+TRAINING_RATE_LIMIT = env("TRAINING_RATE_LIMIT", default="10/h")
+PREDICTION_RATE_LIMIT = env("PREDICTION_RATE_LIMIT", default="50/h")
+API_RATE_LIMIT = env("API_RATE_LIMIT", default="1000/h")
 
 
 def extract_domain(url):
     return urlparse(url).hostname
 
-
 if DEBUG:
-    CORS_ORIGIN_ALLOW_ALL = True
+    CORS_ALLOW_ALL_ORIGINS = True
+    CORS_ALLOW_CREDENTIALS = False
 else:
-    CORS_ORIGIN_ALLOW_ALL = env("CORS_ORIGIN_ALLOW_ALL", default=False)
-
-CORS_ALLOWED_ORIGINS = env(
-    "CORS_ALLOWED_ORIGINS", default="http://127.0.0.1:8000"
-).split(",")
+    CORS_ALLOW_ALL_ORIGINS = False
+    CORS_ALLOW_CREDENTIALS = True
+    cors_origins = env("CORS_ALLOWED_ORIGINS", default="").split(",")
+    CORS_ALLOWED_ORIGINS = [origin.strip() for origin in cors_origins if origin.strip()]
+    if FRONTEND_URL and FRONTEND_URL not in CORS_ALLOWED_ORIGINS:
+        CORS_ALLOWED_ORIGINS.append(FRONTEND_URL)
 
 CORS_ALLOW_HEADERS = list(default_headers) + [
     "access-token",
-    "authorization",
+    "authorization", 
     "content-type",
     "x-csrftoken",
+    "x-requested-with",
 ]
-ALLOWED_HOSTS = [
+
+CORS_ALLOWED_METHODS = ['DELETE', 'GET', 'OPTIONS', 'PATCH', 'POST', 'PUT']
+CORS_PREFLIGHT_MAX_AGE = 86400
+base_allowed_hosts = [
     "localhost",
-    "127.0.0.1",
-    FRONTEND_URL,
+    "127.0.0.1", 
     env("HOSTNAME", default="127.0.0.1"),
-    gethostname(),
-    gethostbyname(gethostname()),
-] + [extract_domain(url) for url in CORS_ALLOWED_ORIGINS if url]
+]
+
+if not DEBUG:
+    production_hosts = env("ALLOWED_HOSTS", default="").split(",")
+    base_allowed_hosts.extend([host.strip() for host in production_hosts if host.strip()])
+    if FRONTEND_URL:
+        frontend_domain = extract_domain(FRONTEND_URL)
+        if frontend_domain and frontend_domain not in base_allowed_hosts:
+            base_allowed_hosts.append(frontend_domain)
+else:
+    try:
+        base_allowed_hosts.extend([gethostname(), gethostbyname(gethostname())])
+    except Exception:
+        pass
+
+if 'CORS_ALLOWED_ORIGINS' in locals():
+    base_allowed_hosts.extend([extract_domain(url) for url in CORS_ALLOWED_ORIGINS if url and extract_domain(url)])
+
+ALLOWED_HOSTS = list(set(filter(None, base_allowed_hosts)))
+
+# Security validation for production
+if not DEBUG:
+    required_env_vars = [
+        'SECRET_KEY', 'DATABASE_URL', 'ALLOWED_HOSTS', 
+        'OSM_CLIENT_ID', 'OSM_CLIENT_SECRET', 'OSM_SECRET_KEY'
+    ]
+    missing_vars = [var for var in required_env_vars if not env(var, default=None)]
+    if missing_vars:
+        raise ValueError(f"Required environment variables missing in production: {', '.join(missing_vars)}")
+    
+    if 'dev' in SECRET_KEY or 'default' in SECRET_KEY or len(SECRET_KEY) < 32:
+        raise ValueError("Insecure SECRET_KEY detected in production")

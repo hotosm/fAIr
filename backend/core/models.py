@@ -8,6 +8,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 from login.models import OsmUser
+from .validators import validate_geometry, validate_geojson
 
 
 class Dataset(models.Model):
@@ -53,6 +54,10 @@ class AOI(models.Model):
     last_modified = models.DateTimeField(auto_now=True)
     user = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
 
+    def clean(self):
+        if self.geom:
+            self.geom = validate_geometry(self.geom)
+
 
 class Label(models.Model):
     aoi = models.ForeignKey(AOI, to_field="id", on_delete=models.CASCADE)
@@ -60,6 +65,10 @@ class Label(models.Model):
     osm_id = models.BigIntegerField(null=True, blank=True)
     tags = models.JSONField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def clean(self):
+        if self.geom:
+            self.geom = validate_geometry(self.geom)
 
 
 class Model(models.Model):
@@ -162,6 +171,10 @@ class Feedback(models.Model):
     comments = models.TextField(max_length=100, null=True, blank=True)
     user = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
 
+    def clean(self):
+        if self.geom:
+            self.geom = validate_geometry(self.geom)
+
 
 class FeedbackAOI(models.Model):
     class DownloadStatus(models.IntegerChoices):
@@ -178,6 +191,10 @@ class FeedbackAOI(models.Model):
     source_imagery = models.URLField()
     user = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
 
+    def clean(self):
+        if self.geom:
+            self.geom = validate_geometry(self.geom)
+
 
 class FeedbackLabel(models.Model):
     osm_id = models.BigIntegerField(null=True, blank=True)
@@ -185,22 +202,25 @@ class FeedbackLabel(models.Model):
         FeedbackAOI, to_field="id", on_delete=models.CASCADE
     )
     tags = models.JSONField(null=True, blank=True)
-
     geom = geomodels.PolygonField(srid=4326)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def clean(self):
+        if self.geom:
+            self.geom = validate_geometry(self.geom)
 
 
 # TODO : Remote this table after migration is done to feedback
 class ApprovedPredictions(models.Model):
     training = models.ForeignKey(Training, to_field="id", on_delete=models.DO_NOTHING)
-    config = models.JSONField(
-        null=True, blank=True
-    )  ### Config meant to be kept for vectorization config / zoom config , to know what user is using for the most of the time
-    geom = geomodels.GeometryField(
-        srid=4326
-    )  ## Making this geometry field to support point/line prediction later on
+    config = models.JSONField(null=True, blank=True)
+    geom = geomodels.GeometryField(srid=4326)
     approved_at = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
+
+    def clean(self):
+        if self.geom:
+            self.geom = validate_geometry(self.geom)
 
 
 class Banner(models.Model):
@@ -267,12 +287,13 @@ class Prediction(models.Model):
     user = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
 
     def clean(self):
+        if self.geom:
+            self.geom = validate_geometry(self.geom)
         if self.config:
             required_fields = ["checkpoint", "zoom_level", "source"]
             missing_fields = [
                 field for field in required_fields if field not in self.config
             ]
-
             if missing_fields:
                 raise ValidationError(
                     {"config": f"Missing required fields: {', '.join(missing_fields)}"}
