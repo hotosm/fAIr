@@ -36,19 +36,18 @@ from .serializers import LabelSerializer
 
 
 def validate_training_params(model, epochs, batch_size):
-    """Validate training parameters based on model type."""
-    from rest_framework.exceptions import ValidationError
+    from .exceptions import ValidationException, handle_validation_error
     
     if model.base_model == "RAMP":
         if epochs > settings.RAMP_EPOCHS_LIMIT:
-            raise ValidationError(f"Epochs can't be greater than {settings.RAMP_EPOCHS_LIMIT} on this server")
+            raise handle_validation_error("epochs", f"Epochs can't be greater than {settings.RAMP_EPOCHS_LIMIT} on this server", epochs)
         if batch_size > settings.RAMP_BATCH_SIZE_LIMIT:
-            raise ValidationError(f"Batch size can't be greater than {settings.RAMP_BATCH_SIZE_LIMIT} on this server")
+            raise handle_validation_error("batch_size", f"Batch size can't be greater than {settings.RAMP_BATCH_SIZE_LIMIT} on this server", batch_size)
     elif model.base_model in ["YOLO_V8_V1", "YOLO_V8_V2"]:
         if epochs > settings.YOLO_EPOCHS_LIMIT:
-            raise ValidationError(f"Epochs can't be greater than {settings.YOLO_EPOCHS_LIMIT} on this server")
+            raise handle_validation_error("epochs", f"Epochs can't be greater than {settings.YOLO_EPOCHS_LIMIT} on this server", epochs)
         if batch_size > settings.YOLO_BATCH_SIZE_LIMIT:
-            raise ValidationError(f"Batch size can't be greater than {settings.YOLO_BATCH_SIZE_LIMIT} on this server")
+            raise handle_validation_error("batch_size", f"Batch size can't be greater than {settings.YOLO_BATCH_SIZE_LIMIT} on this server", batch_size)
 
 
 def get_s3_client():
@@ -143,7 +142,8 @@ def handle_s3_operation(operation, *args, **kwargs):
     try:
         return operation(*args, **kwargs)
     except Exception as e:
-        raise Exception(f"S3 operation failed: {str(e)}")
+        from .exceptions import S3ServiceException
+        raise S3ServiceException(message="S3 operation failed", details={"operation": "get_s3_client", "error": str(e)})
 
 
 def get_s3_metadata(bucket_name, key):

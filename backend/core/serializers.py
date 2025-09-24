@@ -235,7 +235,8 @@ class ImageDownloadSerializer(serializers.Serializer):
         """
         for i in data["zoom_level"]:
             if int(i) < 19 or int(i) > 21:
-                raise serializers.ValidationError("Zoom level Supported between 19-21")
+                from .exceptions import handle_validation_error
+                raise handle_validation_error("zoom_level", "Zoom level must be between 19-21", i)
         return data
 
 

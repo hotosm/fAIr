@@ -5,10 +5,11 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.gis.db import models as geomodels
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
-from django.db import models
+from django.db import models, transaction
 from django.utils import timezone
 from login.models import OsmUser
 from .validators import validate_geometry, validate_geojson
+from .exceptions import ValidationException, handle_validation_error
 
 
 class Dataset(models.Model):
@@ -35,9 +36,7 @@ class Dataset(models.Model):
 
     def clean(self):
         if self.offset and len(self.offset) != 2:
-            raise ValidationError(
-                {"offset": "Offset must be a list of exactly two numbers."}
-            )
+            raise handle_validation_error("offset", "Offset must be a list of exactly two numbers", self.offset)
 
 
 class AOI(models.Model):
@@ -54,6 +53,7 @@ class AOI(models.Model):
     last_modified = models.DateTimeField(auto_now=True)
     user = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
 
+    @transaction.atomic
     def clean(self):
         if self.geom:
             self.geom = validate_geometry(self.geom)
@@ -66,6 +66,7 @@ class Label(models.Model):
     tags = models.JSONField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    @transaction.atomic
     def clean(self):
         if self.geom:
             self.geom = validate_geometry(self.geom)
@@ -83,7 +84,7 @@ class Model(models.Model):
         PUBLISHED = 0
         DRAFT = -1
 
-    dataset = models.ForeignKey(Dataset, to_field="id", on_delete=models.DO_NOTHING)
+    dataset = models.ForeignKey(Dataset, to_field="id", on_delete=models.PROTECT)
     name = models.CharField(max_length=50)
     created_at = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now=True)
@@ -219,6 +220,7 @@ class Prediction(models.Model):
     geom = geomodels.PolygonField(srid=4326)
     user = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
 
+    @transaction.atomic
     def clean(self):
         if self.geom:
             self.geom = validate_geometry(self.geom)
@@ -228,6 +230,4 @@ class Prediction(models.Model):
                 field for field in required_fields if field not in self.config
             ]
             if missing_fields:
-                raise ValidationError(
-                    {"config": f"Missing required fields: {', '.join(missing_fields)}"}
-                )
+                raise handle_validation_error("config", f"Missing required fields: {', '.join(missing_fields)}", self.config)

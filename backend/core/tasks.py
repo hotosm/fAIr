@@ -356,7 +356,8 @@ def prepare_data(
     else:
         print("[✗] 'chips' folder does not exist at:", chips_folder)
     if is_dir_empty(input_path):
-        raise ValueError("No images found in the area")
+        from .exceptions import ModelTrainingException
+        raise ModelTrainingException(message="No training images found in the specified area", details={"area_path": str(input_path)})
 
     serialized = label_serializer(label_qs, many=True).data
     label_path = os.path.join(input_path, "labels.geojson")

@@ -38,7 +38,13 @@ from login.permissions import (
 from osmconflator import conflate_geojson
 from rest_framework import decorators, filters, serializers, status, viewsets
 from rest_framework.decorators import api_view
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError as DRFValidationError
+from .exceptions import (
+    ValidationException,
+    ResourceNotFoundException,
+    handle_validation_error,
+    ExternalServiceException
+)
 from rest_framework.generics import ListAPIView
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
@@ -258,40 +264,32 @@ class LabelUploadView(APIView):
                     {"status": "GeoJSON file is being processed"},
                     status=status.HTTP_202_ACCEPTED,
                 )
-            except (json.JSONDecodeError, ValidationError) as e:
-                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        return Response(
-            {"error": "No GeoJSON file provided"}, status=status.HTTP_400_BAD_REQUEST
-        )
+            except (json.JSONDecodeError, ValidationException) as e:
+                raise e
+        raise handle_validation_error("geojson_file", "No GeoJSON file provided")
 
     def validate_geojson(self, geojson_data):
         return validate_geojson(geojson_data)
 
     def validate_geojson(self, geojson_data):
         if geojson_data.get("type") != "FeatureCollection":
-            raise ValidationError("Invalid GeoJSON type. Expected 'FeatureCollection'.")
-        if "features" not in geojson_data or not isinstance(
-            geojson_data["features"], list
-        ):
-            raise ValidationError("Invalid GeoJSON format. 'features' must be a list.")
+            raise handle_validation_error("geojson_type", "Invalid GeoJSON type. Expected 'FeatureCollection'", geojson_data.get("type"))
+        if "features" not in geojson_data or not isinstance(geojson_data["features"], list):
+            raise handle_validation_error("geojson_features", "Invalid GeoJSON format. 'features' must be a list")
         if not geojson_data["features"]:
-            raise ValidationError("GeoJSON 'features' list is empty.")
+            raise handle_validation_error("geojson_features", "GeoJSON 'features' list is empty")
 
-        # Validate the first feature
         first_feature = geojson_data["features"][0]
         if first_feature.get("type") != "Feature":
-            raise ValidationError("Invalid GeoJSON feature type. Expected 'Feature'.")
+            raise handle_validation_error("geojson_feature_type", "Invalid GeoJSON feature type. Expected 'Feature'", first_feature.get("type"))
         if "geometry" not in first_feature or "properties" not in first_feature:
-            raise ValidationError(
-                "Invalid GeoJSON feature format. 'geometry' and 'properties' are required."
-            )
+            raise handle_validation_error("geojson_feature_format", "Invalid GeoJSON feature format. 'geometry' and 'properties' are required")
 
-        # Validate the first feature with the serializer
         first_feature["properties"]["aoi"] = self.kwargs.get("aoi_id")
         serializer = LabelSerializer(data=first_feature)
 
         if not serializer.is_valid():
-            raise ValidationError(serializer.errors)
+            raise ValidationException(message="Label validation failed", details={"serializer_errors": serializer.errors})
 
 
 def process_labels_geojson(geojson_data, aoi_id):
