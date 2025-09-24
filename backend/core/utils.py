@@ -36,12 +36,13 @@ from .serializers import LabelSerializer
 
 
 def get_s3_client():
-    if settings.AWS_ACCESS_KEY_ID and settings.AWS_SECRET_ACCESS_KEY:
+    if (hasattr(settings, 'AWS_ACCESS_KEY_ID') and hasattr(settings, 'AWS_SECRET_ACCESS_KEY') 
+        and settings.AWS_ACCESS_KEY_ID and settings.AWS_SECRET_ACCESS_KEY):
         return boto3.client(
             "s3",
             aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
             aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-            region_name=settings.AWS_REGION,
+            region_name=getattr(settings, 'AWS_REGION', 'us-east-1'),
         )
     else:
         return boto3.client("s3")
