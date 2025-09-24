@@ -66,8 +66,10 @@ from .serializers import (
     DatasetSerializer,
     LabelSerializer,
     ModelCentroidSerializer,
+    ModelMetaSerializer,
     ModelSerializer,
     PredictionParamSerializer,
+    TrainingSerializer,
     UserNotificationSerializer,
     UserSerializer,
     UserStatsSerializer,
@@ -85,6 +87,25 @@ from .utils import (
     s3_object_exists,
     send_notification,
 )
+
+
+class BasePublicViewSet(viewsets.ModelViewSet):
+    """Base ViewSet for public endpoints with OSM authentication."""
+    authentication_classes = [OsmAuthentication]
+    permission_classes = [IsOsmAuthenticated]
+    public_methods = ["GET"]
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter)
+
+
+class BaseSpatialViewSet(BasePublicViewSet):
+    """Base ViewSet for spatial data with bbox and TMS filtering."""
+    filter_backends = (
+        InBBoxFilter,
+        TMSTileFilter,
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
+    )
 
 
 def home(request):
@@ -108,169 +129,16 @@ class UserAssignmentMixin:
         return queryset.filter(user=self.request.user)
 
 
-class DatasetViewSet(
-    viewsets.ModelViewSet
-):  # This is datasetviewset , will be tightly coupled with the models
-    authentication_classes = [OsmAuthentication]
-    permission_classes = [IsOsmAuthenticated]
-    public_methods = ["GET"]
+class DatasetViewSet(BaseSpatialViewSet):
     queryset = Dataset.objects.all()
-    filter_backends = (
-        DjangoFilterBackend,
-        filters.SearchFilter,
-        filters.OrderingFilter,
-    )
-    serializer_class = DatasetSerializer  # connecting serializer
-    filterset_fields = {
-        "status": ["exact"],
-        "created_at": ["exact", "gt", "gte", "lt", "lte"],
-        "last_modified": ["exact", "gt", "gte", "lt", "lte"],
-        "user": ["exact"],
-        "id": ["exact"],
-        "source_imagery": ["exact"],
-    }
-    ordering_fields = ["created_at", "last_modified", "id", "status"]
-    search_fields = ["name", "id"]
-
-
-class ModelMetaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Model
-        fields = ["id", "name", "dataset", "base_model", "status"]
-
-
-class TrainingSerializer(
-    serializers.ModelSerializer
-):  # serializers are used to translate models objects to api
-    user = UserSerializer(read_only=True)
-    multimasks = serializers.BooleanField(required=False, default=False)
-    input_contact_spacing = serializers.IntegerField(
-        required=False, default=8, min_value=0, max_value=20
-    )
-    input_boundary_width = serializers.IntegerField(
-        required=False, default=3, min_value=0, max_value=10
-    )
-
-    class Meta:
-        model = Training
-        fields = "__all__"  # defining all the fields to  be included in curd for now , we can restrict few if we want
-        read_only_fields = (
-            "created_at",
-            "status",
-            "user",
-            "started_at",
-            "finished_at",
-            "accuracy",
-        )
-
-    def create(self, validated_data):
-        model_id = validated_data["model"].id
-        existing_trainings = Training.objects.filter(model_id=model_id).exclude(
-            status__in=["FINISHED", "FAILED"]
-        )
-        if existing_trainings.exists():
-            raise ValidationError(
-                "Another training is already running or submitted for this model."
-            )
-
-        model = get_object_or_404(Model, id=model_id)
-        if not Label.objects.filter(
-            aoi__in=AOI.objects.filter(dataset=model.dataset)
-        ).exists():
-            raise ValidationError(
-                "Error: No labels associated with the model, Create AOI & Labels for Dataset"
-            )
-
-        epochs = validated_data["epochs"]
-        batch_size = validated_data["batch_size"]
-        if model.base_model == "RAMP":
-            if epochs > settings.RAMP_EPOCHS_LIMIT:
-                raise ValidationError(
-                    f"Epochs can't be greater than {settings.RAMP_EPOCHS_LIMIT} on this server"
-                )
-            if batch_size > settings.RAMP_BATCH_SIZE_LIMIT:
-                raise ValidationError(
-                    f"Batch size can't be greater than {settings.RAMP_BATCH_SIZE_LIMIT} on this server"
-                )
-        if model.base_model in ["YOLO_V8_V1", "YOLO_V8_V2"]:
-            if epochs > settings.YOLO_EPOCHS_LIMIT:
-                raise ValidationError(
-                    f"Epochs can't be greater than {settings.YOLO_EPOCHS_LIMIT} on this server"
-                )
-            if batch_size > settings.YOLO_BATCH_SIZE_LIMIT:
-                raise ValidationError(
-                    f"Batch size can't be greater than {settings.YOLO_BATCH_SIZE_LIMIT} on this server"
-                )
-        user = self.context["request"].user
-        validated_data["user"] = user
-        # create the model instance
-        multimasks = validated_data.get("multimasks", False)
-        input_contact_spacing = validated_data.get("input_contact_spacing", 0.75)
-        input_boundary_width = validated_data.get("input_boundary_width", 0.5)
-
-        pop_keys = ["multimasks", "input_contact_spacing", "input_boundary_width"]
-
-        for key in pop_keys:
-            if key in validated_data.keys():
-                validated_data.pop(key)
-
-        instance = Training.objects.create(**validated_data)
-
-        # run your function here
-        task = train_model.apply_async(
-            kwargs={
-                "dataset_id": instance.model.dataset.id,
-                "training_id": instance.id,
-                "epochs": instance.epochs,
-                "batch_size": instance.batch_size,
-                "zoom_level": instance.zoom_level,
-                "source_imagery": instance.source_imagery
-                or instance.model.dataset.source_imagery,
-                "freeze_layers": instance.freeze_layers,
-                "multimasks": multimasks,
-                "input_contact_spacing": input_contact_spacing,
-                "input_boundary_width": input_boundary_width,
-            },
-            queue=(
-                "ramp_training"
-                if instance.model.base_model == "RAMP"
-                else "yolo_training"
-            ),
-        )
-        logging.info("Record saved in queue")
-
-        if not instance.source_imagery:
-            instance.source_imagery = instance.model.dataset.source_imagery
-        if multimasks:
-            instance.description += f" Multimask params (ct/bw): {input_contact_spacing}/{input_boundary_width}"
-        instance.task_id = task.id
-        instance.save()
-        logging.info(f"Training request queued with task ID {task.id}")
-        return instance
-
-    def to_representation(self, instance):
-        ret = super().to_representation(instance)
-        request = self.context.get("request")
-        if request and request.method.upper() == "GET":
-            ret["model"] = ModelMetaSerializer(
-                instance.model, context=self.context
-            ).data
-        return ret
+    serializer_class = DatasetSerializer
 
 
 @method_decorator(ratelimit(key='user', rate='10/h', method='POST', block=True), name='create')
-class TrainingViewSet(viewsets.ModelViewSet):
-    authentication_classes = [OsmAuthentication]
-    permission_classes = [IsOsmAuthenticated]
-    public_methods = ["GET"]
+class TrainingViewSet(BasePublicViewSet):
     queryset = Training.objects.all()
     http_method_names = ["get", "post", "delete"]
-    filter_backends = (
-        DjangoFilterBackend,
-        filters.SearchFilter,
-        filters.OrderingFilter,
-    )
-    serializer_class = TrainingSerializer  # connecting serializer
+    serializer_class = TrainingSerializer
     filterset_fields = ["model", "status", "user", "id"]
 
     ordering_fields = ["created_at", "accuracy", "id", "model", "status"]
@@ -283,19 +151,8 @@ class TrainingViewSet(viewsets.ModelViewSet):
         return Response(data, status=status.HTTP_200_OK)
 
 
-class ModelViewSet(
-    viewsets.ModelViewSet
-):  # This is ModelViewSet , will be tightly coupled with the models
-    authentication_classes = [OsmAuthentication]
-    permission_classes = [IsOsmAuthenticated]
-    public_methods = ["GET"]
+class ModelViewSet(BaseSpatialViewSet):
     queryset = Model.objects.all()
-    filter_backends = (
-        InBBoxFilter,  # it will take bbox like this api/v1/model/?in_bbox=-90,29,-89,35 ,
-        DjangoFilterBackend,
-        filters.SearchFilter,
-        filters.OrderingFilter,
-    )
     serializer_class = ModelSerializer
     filterset_fields = {
         "status": ["exact"],
@@ -348,33 +205,20 @@ class UsersView(ListAPIView):
     search_fields = ["username", "osm_id"]
 
 
-class AOIViewSet(viewsets.ModelViewSet):
-    authentication_classes = [OsmAuthentication]
-    permission_classes = [IsOsmAuthenticated]
-    public_methods = ["GET"]
+class AOIViewSet(BasePublicViewSet):
     authenticated_user_allowed_methods = ["POST", "DELETE"]
     queryset = AOI.objects.all()
-    serializer_class = AOISerializer  # connecting serializer
+    serializer_class = AOISerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["dataset"]
 
 
-class LabelViewSet(viewsets.ModelViewSet):
-    authentication_classes = [OsmAuthentication]
-    permission_classes = [IsOsmAuthenticated]
-    public_methods = ["GET"]
+class LabelViewSet(BaseSpatialViewSet):
     queryset = Label.objects.all()
-    serializer_class = LabelSerializer  # connecting serializer
+    serializer_class = LabelSerializer
     bbox_filter_field = "geom"
     pagination_class = None
-    filter_backends = (
-        InBBoxFilter,  # it will take bbox like this api/v1/label/?in_bbox=-90,29,-89,35 ,
-        TMSTileFilter,  # will serve as tms tiles https://wiki.openstreetmap.org/wiki/TMS ,  use like this ?tile=8/100/200 z/x/y which is equivalent to filtering on the bbox (-39.37500,-71.07406,-37.96875,-70.61261) # Note that the tile address start in the upper left, not the lower left origin used by some implementations.
-        DjangoFilterBackend,
-    )
-    bbox_filter_include_overlapping = (
-        True  # Optional to include overlapping labels in the tile served
-    )
+    bbox_filter_include_overlapping = True
     filterset_fields = ["aoi", "aoi__dataset"]
 
     def create(self, request, *args, **kwargs):
@@ -627,7 +471,7 @@ def publish_training(request, training_id: int):
             return Response(
                 "Can't publish the training since its accuracy is below 70%", status=403
             )
-    else:  ## Training publish limit for other model than ramp , TODO : Change this limit after testing for yolo
+    else:
         if training_instance.accuracy < 5:
             return Response(
                 "Can't publish the training since its accuracy is below 5%", status=403
@@ -648,7 +492,6 @@ class GenerateGpxView(APIView):
     def get(self, request, aoi_id: int):
         aoi = get_object_or_404(AOI, id=aoi_id)
         geom_json = json.loads(aoi.geom.json)
-        # Create a new GPX object
         gpx_xml = gpx_generator(geom_json)
         return HttpResponse(gpx_xml, content_type="application/xml")
 

@@ -3,7 +3,7 @@ from django.conf import settings
 from login.models import OsmUser
 from rest_framework import serializers
 from rest_framework_gis.serializers import (
-    GeoFeatureModelSerializer,  # this will be used if we used to serialize as geojson
+    GeoFeatureModelSerializer,
 )
 
 from .models import (
@@ -18,6 +18,12 @@ from .models import (
 )
 
 # from .tasks import train_model
+
+
+class ModelMetaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Model
+        fields = ["id", "name", "dataset", "base_model", "status"]
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -72,9 +78,7 @@ class DatasetSerializer(serializers.ModelSerializer):
         ).count()
 
     def to_representation(self, instance):
-        # get default
         ret = super().to_representation(instance)
-        # For GET requests, replace the user field with detailed UserSerializer data
         if self.context.get("request") and self.context["request"].method == "GET":
             ret["user"] = UserSerializer(instance.user).data
         return ret
@@ -133,59 +137,51 @@ class ModelSerializer(serializers.ModelSerializer):
         return None
 
 
-class ModelCentroidSerializer(GeoFeatureModelSerializer):
+class BaseCentroidSerializer(GeoFeatureModelSerializer):
     geometry = serializers.SerializerMethodField()
+
+    def get_aoi_centroid(self, dataset_id):
+        """Common method to get AOI centroid for a dataset."""
+        aoi = AOI.objects.filter(dataset=dataset_id).first()
+        if aoi and aoi.geom:
+            return {
+                "type": "Point",
+                "coordinates": aoi.geom.centroid.coords,
+            }
+        return None
+
+
+class ModelCentroidSerializer(BaseCentroidSerializer):
     mid = serializers.IntegerField(source="id")
 
     class Meta:
         model = Model
         geo_field = "geometry"
         fields = ("mid", "geometry")
-        # fields = ("mid", "name", "geometry")
 
     def get_geometry(self, obj):
-        """
-        Get the centroid of the AOI linked to the dataset of the given model.
-        """
-        aoi = AOI.objects.filter(dataset=obj.dataset).first()
-        if aoi and aoi.geom:
-            return {
-                "type": "Point",
-                "coordinates": aoi.geom.centroid.coords,
-            }
-        return None
+        return self.get_aoi_centroid(obj.dataset.id)
 
 
-class DatasetCentroidSerializer(GeoFeatureModelSerializer):
-    geometry = serializers.SerializerMethodField()
+class DatasetCentroidSerializer(BaseCentroidSerializer):
     did = serializers.IntegerField(source="id")
 
     class Meta:
         model = Dataset
         geo_field = "geometry"
-        # fields = ("did", "geometry")
         fields = ("did", "name", "geometry")
 
     def get_geometry(self, obj):
-        """
-        Get the centroid of the AOI linked to the dataset of the given model.
-        """
-        aoi = AOI.objects.filter(dataset=obj.id).first()
-        if aoi and aoi.geom:
-            return {
-                "type": "Point",
-                "coordinates": aoi.geom.centroid.coords,
-            }
-        return None
+        return self.get_aoi_centroid(obj.id)
 
 
 class AOISerializer(
     GeoFeatureModelSerializer
-):  # serializers are used to translate models objects to api
+):
     class Meta:
         model = AOI
-        geo_field = "geom"  # this will be used as geometry in order to create geojson api , geofeatureserializer will let you create api in geojson
-        fields = "__all__"  # defining all the fields to  be included in curd for now , we can restrict few if we want
+        geo_field = "geom"
+        fields = "__all__"
 
         read_only_fields = (
             "created_at",
@@ -433,3 +429,109 @@ class UserNotificationSerializer(serializers.ModelSerializer):
                 'model': obj.related_object.model.id if hasattr(obj.related_object, 'model') else None,
             }
         return None
+
+
+class TrainingSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    multimasks = serializers.BooleanField(required=False, default=False)
+    input_contact_spacing = serializers.IntegerField(
+        required=False, default=8, min_value=0, max_value=20
+    )
+    input_boundary_width = serializers.IntegerField(
+        required=False, default=3, min_value=0, max_value=10
+    )
+
+    class Meta:
+        model = Training
+        fields = "__all__"
+        read_only_fields = (
+            "created_at",
+            "status", 
+            "user",
+            "started_at",
+            "finished_at",
+            "accuracy",
+        )
+
+    def create(self, validated_data):
+        from django.shortcuts import get_object_or_404
+        from rest_framework.exceptions import ValidationError
+        from .tasks import train_model
+        from .utils import validate_training_params
+        from .models import Label, AOI
+        import logging
+
+        model_id = validated_data["model"].id
+        existing_trainings = Training.objects.filter(model_id=model_id).exclude(
+            status__in=["FINISHED", "FAILED"]
+        )
+        if existing_trainings.exists():
+            raise ValidationError(
+                "Another training is already running or submitted for this model."
+            )
+
+        model = get_object_or_404(Model, id=model_id)
+        if not Label.objects.filter(
+            aoi__in=AOI.objects.filter(dataset=model.dataset)
+        ).exists():
+            raise ValidationError(
+                "Error: No labels associated with the model, Create AOI & Labels for Dataset"
+            )
+
+        epochs = validated_data["epochs"]
+        batch_size = validated_data["batch_size"]
+        validate_training_params(model, epochs, batch_size)
+        
+        user = self.context["request"].user
+        validated_data["user"] = user
+        
+        multimasks = validated_data.get("multimasks", False)
+        input_contact_spacing = validated_data.get("input_contact_spacing", 0.75)
+        input_boundary_width = validated_data.get("input_boundary_width", 0.5)
+
+        pop_keys = ["multimasks", "input_contact_spacing", "input_boundary_width"]
+        for key in pop_keys:
+            if key in validated_data.keys():
+                validated_data.pop(key)
+
+        instance = Training.objects.create(**validated_data)
+
+        task = train_model.apply_async(
+            kwargs={
+                "dataset_id": instance.model.dataset.id,
+                "training_id": instance.id,
+                "epochs": instance.epochs,
+                "batch_size": instance.batch_size,
+                "zoom_level": instance.zoom_level,
+                "source_imagery": instance.source_imagery
+                or instance.model.dataset.source_imagery,
+                "freeze_layers": instance.freeze_layers,
+                "multimasks": multimasks,
+                "input_contact_spacing": input_contact_spacing,
+                "input_boundary_width": input_boundary_width,
+            },
+            queue=(
+                "ramp_training"
+                if instance.model.base_model == "RAMP"
+                else "yolo_training"
+            ),
+        )
+        logging.info("Record saved in queue")
+
+        if not instance.source_imagery:
+            instance.source_imagery = instance.model.dataset.source_imagery
+        if multimasks:
+            instance.description += f" Multimask params (ct/bw): {input_contact_spacing}/{input_boundary_width}"
+        instance.task_id = task.id
+        instance.save()
+        logging.info(f"Training request queued with task ID {task.id}")
+        return instance
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        request = self.context.get("request")
+        if request and request.method.upper() == "GET":
+            ret["model"] = ModelMetaSerializer(
+                instance.model, context=self.context
+            ).data
+        return ret

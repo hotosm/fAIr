@@ -1085,6 +1085,18 @@ wheels = [
 ]
 
 [[package]]
+name = "factory-boy"
+version = "3.3.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "faker" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/ba/98/75cacae9945f67cfe323829fc2ac451f64517a8a330b572a06a323997065/factory_boy-3.3.3.tar.gz", hash = "sha256:866862d226128dfac7f2b4160287e899daf54f2612778327dd03d0e2cb1e3d03", size = 164146, upload-time = "2025-02-03T09:49:04.433Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/27/8d/2bc5f5546ff2ccb3f7de06742853483ab75bf74f36a92254702f8baecc79/factory_boy-3.3.3-py2.py3-none-any.whl", hash = "sha256:1c39e3289f7e667c4285433f305f8d506efc2fe9c73aaea4151ebd5cdea394fc", size = 37036, upload-time = "2025-02-03T09:49:01.659Z" },
+]
+
+[[package]]
 name = "fair"
 version = "1.0.1"
 source = { virtual = "." }
@@ -1110,6 +1122,7 @@ api = [
     { name = "djangorestframework" },
     { name = "djangorestframework-gis" },
     { name = "drf-yasg" },
+    { name = "factory-boy" },
     { name = "flower" },
     { name = "geojson2osm" },
     { name = "geomltoolkits" },
@@ -1163,6 +1176,7 @@ api = [
     { name = "djangorestframework", specifier = ">=3.15.2" },
     { name = "djangorestframework-gis", specifier = ">=1.0" },
     { name = "drf-yasg", specifier = ">=1.21.10" },
+    { name = "factory-boy", specifier = ">=3.3.3" },
     { name = "flower", specifier = ">=2.0.1" },
     { name = "geojson2osm", specifier = ">=0.0.1" },
     { name = "geomltoolkits", specifier = ">=0.4.1" },
@@ -1212,6 +1226,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/7b/41/08495157c5e2c4ec20d495495b8fc58337893daa7e10c1584134fcf467e0/fairpredictor-0.3.8.tar.gz", hash = "sha256:575ae4d6fb5a78e13dcca98dfd840c1d150a29294c8cef1e59c5e00ee108be4e", size = 12576, upload-time = "2025-08-03T13:57:58.9Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/2b/04/632dd4e4bc3846c020309dba1f3bd479f71d69b2ea7cfc8ca2ba9e7ca3d2/fairpredictor-0.3.8-py3-none-any.whl", hash = "sha256:0b9eeac51bd844d6e93b37bc7e8b10d0cc90ba7166cc70b46deef265368e8d00", size = 15477, upload-time = "2025-08-03T13:57:58.035Z" },
+]
+
+[[package]]
+name = "faker"
+version = "37.8.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "tzdata" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/3a/da/1336008d39e5d4076dddb4e0f3a52ada41429274bf558a3cc28030d324a3/faker-37.8.0.tar.gz", hash = "sha256:090bb5abbec2b30949a95ce1ba6b20d1d0ed222883d63483a0d4be4a970d6fb8", size = 1912113, upload-time = "2025-09-15T20:24:13.592Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f5/11/02ebebb09ff2104b690457cb7bc6ed700c9e0ce88cf581486bb0a5d3c88b/faker-37.8.0-py3-none-any.whl", hash = "sha256:b08233118824423b5fc239f7dd51f145e7018082b4164f8da6a9994e1f1ae793", size = 1953940, upload-time = "2025-09-15T20:24:11.482Z" },
 ]
 
 [[package]]

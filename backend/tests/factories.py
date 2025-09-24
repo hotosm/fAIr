@@ -14,14 +14,15 @@ class OsmUserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = OsmUser
 
-    osm_id = 123456
+    osm_id = factory.Sequence(lambda n: 123456 + n)
+    username = factory.Sequence(lambda n: f"testuser{n}")
 
 
 class DatasetFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Dataset
 
-    name = "My test dataset"
+    name = factory.Sequence(lambda n: f"Test dataset {n}")
     source_imagery = "https://tiles.openaerialmap.org/5ac4fc6f26964b0010033112/0/5ac4fc6f26964b0010033113/{z}/{x}/{y}"
     user = factory.SubFactory(OsmUserFactory)
 
@@ -63,7 +64,7 @@ class ModelFactory(factory.django.DjangoModelFactory):
         model = Model
 
     dataset = factory.SubFactory(DatasetFactory)
-    name = "My test model"
+    name = factory.Sequence(lambda n: f"Test model {n}")
     user = factory.SubFactory(OsmUserFactory)
 
 
@@ -72,7 +73,7 @@ class TrainingFactory(factory.django.DjangoModelFactory):
         model = Training
 
     model = factory.SubFactory(ModelFactory)
-    description = "My very first training"
+    description = factory.Sequence(lambda n: f"Test training {n}")
     user = factory.SubFactory(OsmUserFactory)
     epochs = 1
     zoom_level = [20, 21]

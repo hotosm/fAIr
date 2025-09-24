@@ -35,6 +35,22 @@ from .models import AOI, Label, UserNotification
 from .serializers import LabelSerializer
 
 
+def validate_training_params(model, epochs, batch_size):
+    """Validate training parameters based on model type."""
+    from rest_framework.exceptions import ValidationError
+    
+    if model.base_model == "RAMP":
+        if epochs > settings.RAMP_EPOCHS_LIMIT:
+            raise ValidationError(f"Epochs can't be greater than {settings.RAMP_EPOCHS_LIMIT} on this server")
+        if batch_size > settings.RAMP_BATCH_SIZE_LIMIT:
+            raise ValidationError(f"Batch size can't be greater than {settings.RAMP_BATCH_SIZE_LIMIT} on this server")
+    elif model.base_model in ["YOLO_V8_V1", "YOLO_V8_V2"]:
+        if epochs > settings.YOLO_EPOCHS_LIMIT:
+            raise ValidationError(f"Epochs can't be greater than {settings.YOLO_EPOCHS_LIMIT} on this server")
+        if batch_size > settings.YOLO_BATCH_SIZE_LIMIT:
+            raise ValidationError(f"Batch size can't be greater than {settings.YOLO_BATCH_SIZE_LIMIT} on this server")
+
+
 def get_s3_client():
     if (hasattr(settings, 'AWS_ACCESS_KEY_ID') and hasattr(settings, 'AWS_SECRET_ACCESS_KEY') 
         and settings.AWS_ACCESS_KEY_ID and settings.AWS_SECRET_ACCESS_KEY):
@@ -122,13 +138,18 @@ def download_s3_file(bucket_name, s3_key):
         return None
 
 
+def handle_s3_operation(operation, *args, **kwargs):
+    """Generic S3 operation handler with error handling."""
+    try:
+        return operation(*args, **kwargs)
+    except Exception as e:
+        raise Exception(f"S3 operation failed: {str(e)}")
+
+
 def get_s3_metadata(bucket_name, key):
     """Retrieve metadata for an S3 object."""
-    try:
-        response = s3_client.head_object(Bucket=bucket_name, Key=key)
-        return {"size": response.get("ContentLength")}
-    except Exception as e:
-        raise Exception(f"Error fetching metadata: {str(e)}")
+    response = handle_s3_operation(s3_client.head_object, Bucket=bucket_name, Key=key)
+    return {"size": response.get("ContentLength")}
 
 
 def get_s3_directory_size_and_length(bucket_name, prefix):
@@ -303,18 +324,16 @@ def process_rawdata(file_download_url, aoi_id):
     """This will create temp directory , Downloads file from URL provided,
     Unzips it Finds a geojson file , Process it and finally removes
     processed Geojson file and downloaded zip file from Directory"""
-    headers = {"Referer": "https://fair-dev.hotosm.org/"}  # TODO : Use request uri
+    headers = {"Referer": "https://fair-dev.hotosm.org/"}
     r = requests.get(file_download_url, headers=headers)
     # Check whether the export path exists or not
     path = "temp/"
     isExist = os.path.exists(path)
     if not isExist:
-        # Create a exports directory because it does not exist
         os.makedirs(path)
-    file_temp_path = os.path.join(path, f"{str(uuid4())}.zip")  # unique
+    file_temp_path = os.path.join(path, f"{str(uuid4())}.zip")
     open(file_temp_path, "wb").write(r.content)
     with ZipFile(file_temp_path, "r") as zipObj:
-        # Get a list of all archived file names from the zip
         listOfFileNames = zipObj.namelist()
         # Iterate over the file names
         geojson_file_path = f"""{path}/geojson/"""
@@ -404,7 +423,6 @@ def process_geojson(geojson_file_path, aoi_id):
         (os.cpu_count() - 1) if os.cpu_count() != 1 else 1
     )  # leave one cpu free always
     Label.objects.filter(aoi__id=aoi_id).delete()
-    # max_workers = os.cpu_count()  # get total cpu count available on the
 
     with open(geojson_file_path) as f:
         data = json.load(f)
@@ -487,7 +505,7 @@ def get_email_message(obj_instance, status):
     hostname = settings.FRONTEND_URL
 
     if obj_instance.__class__.__name__ == "Prediction":
-        profile_url = f"{hostname}/profile/offline-predictions"  # todo : later on add the instance id here once we have the offline prediction page itself
+        profile_url = f"{hostname}/profile/offline-predictions"
 
     elif obj_instance.__class__.__name__ == "Training":
         profile_url = f"{hostname}/ai-models/{obj_instance.model.id}"
@@ -604,14 +622,21 @@ def write_json(path, data):
         json.dump(data, f)
 
 
-def get_file_count(path):
+def safe_file_operation(operation, default_value=None, log_errors=True):
+    """Generic file operation wrapper with error handling."""
     try:
-        return len(
-            [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
-        )
+        return operation()
     except Exception as e:
-        logging.getLogger(__name__).error(f"Error counting files: {e}")
-        return 0
+        if log_errors:
+            logging.getLogger(__name__).error(f"File operation failed: {e}")
+        return default_value
+
+
+def get_file_count(path):
+    return safe_file_operation(
+        lambda: len([f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]),
+        default_value=0
+    )
 
 
 def xz_folder(folder_path, output_filename, remove_original=False):
