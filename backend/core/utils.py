@@ -31,8 +31,8 @@ from shapely.affinity import translate
 from tqdm import tqdm
 
 # Local imports
-from .models import AOI, FeedbackAOI, FeedbackLabel, Label, UserNotification
-from .serializers import FeedbackLabelSerializer, LabelSerializer
+from .models import AOI, Label, UserNotification
+from .serializers import LabelSerializer
 
 
 def get_s3_client():
@@ -298,7 +298,7 @@ def request_rawdata(geometry):
     return snapshot_url
 
 
-def process_rawdata(file_download_url, aoi_id, feedback=False):
+def process_rawdata(file_download_url, aoi_id):
     """This will create temp directory , Downloads file from URL provided,
     Unzips it Finds a geojson file , Process it and finally removes
     processed Geojson file and downloaded zip file from Directory"""
@@ -327,7 +327,7 @@ def process_rawdata(file_download_url, aoi_id, feedback=False):
                     print(f"""Geojson file{fileName} from API wrote to disk""")
                     break
         geojson_file = f"""{geojson_file_path}{fileName}"""
-        process_geojson(geojson_file, aoi_id, feedback)
+        process_geojson(geojson_file, aoi_id)
     remove_file(file_temp_path)
     remove_file(geojson_file)
 
@@ -364,50 +364,31 @@ def gpx_generator(geom_json):
     return gpx.to_xml()
 
 
-def process_feature(feature, aoi_id, foreign_key_id, feedback=False):
+def process_feature(feature, aoi_id, foreign_key_id):
     """Multi thread process of features"""
     properties = feature["properties"]
     osm_id = properties["osm_id"]
     tags = properties["tags"]
     geometry = feature["geometry"]
-    if feedback:
-        if FeedbackLabel.objects.filter(
-            osm_id=int(osm_id), feedback_aoi__training=foreign_key_id
-        ).exists():
-            FeedbackLabel.objects.filter(
-                osm_id=int(osm_id), feedback_aoi__training=foreign_key_id
-            ).delete()
 
-        label = FeedbackLabelSerializer(
-            data={
-                "osm_id": int(osm_id),
-                "tags": tags,
-                "geom": geometry,
-                "feedback_aoi": aoi_id,
-            }
-        )
-
-    else:
-        if Label.objects.filter(
+    if Label.objects.filter(
+        osm_id=int(osm_id), aoi__dataset=foreign_key_id
+    ).exists():
+        Label.objects.filter(
             osm_id=int(osm_id), aoi__dataset=foreign_key_id
-        ).exists():
-            Label.objects.filter(
-                osm_id=int(osm_id), aoi__dataset=foreign_key_id
-            ).delete()
+        ).delete()
 
-        label = LabelSerializer(
-            data={"osm_id": int(osm_id), "tags": tags, "geom": geometry, "aoi": aoi_id}
-        )
+    label = LabelSerializer(
+        data={"osm_id": int(osm_id), "tags": tags, "geom": geometry, "aoi": aoi_id}
+    )
     if label.is_valid():
         label.save()
     else:
         raise ValidationErr(label.errors)
 
 
-def process_geojson(geojson_file_path, aoi_id, feedback=False):
-    """Responsible for Processing Geojson file from directory ,
-        Opens the file reads the record , Checks either record
-        present or not if not inserts into database
+def process_geojson(geojson_file_path, aoi_id):
+    """Multi-threaded Geojson processing to  database
 
     Args:
         geojson_file_path (_type_): _description_
@@ -417,17 +398,11 @@ def process_geojson(geojson_file_path, aoi_id, feedback=False):
         ValidationErr: _description_
     """
     print("Geojson Processing Started")
-    if feedback:
-        foreign_key_id = FeedbackAOI.objects.get(id=aoi_id).training
-    else:
-        foreign_key_id = AOI.objects.get(id=aoi_id).dataset
+    foreign_key_id = AOI.objects.get(id=aoi_id).dataset
     max_workers = (
         (os.cpu_count() - 1) if os.cpu_count() != 1 else 1
     )  # leave one cpu free always
-    if feedback:
-        FeedbackLabel.objects.filter(feedback_aoi__id=aoi_id).delete()
-    else:
-        Label.objects.filter(aoi__id=aoi_id).delete()
+    Label.objects.filter(aoi__id=aoi_id).delete()
     # max_workers = os.cpu_count()  # get total cpu count available on the
 
     with open(geojson_file_path) as f:
@@ -435,14 +410,10 @@ def process_geojson(geojson_file_path, aoi_id, feedback=False):
         with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
             futures = [
                 executor.submit(
-                    process_feature, feature, aoi_id, foreign_key_id, feedback
+                    process_feature, feature, aoi_id, foreign_key_id
                 )
                 for feature in data["features"]
             ]
-            for f in tqdm(futures, total=len(data["features"])):
-                f.result()
-
-    print("writing to database finished")
 
 
 class S3Uploader:

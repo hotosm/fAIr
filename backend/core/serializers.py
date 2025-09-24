@@ -6,7 +6,16 @@ from rest_framework_gis.serializers import (
     GeoFeatureModelSerializer,  # this will be used if we used to serialize as geojson
 )
 
-from .models import *
+from .models import (
+    AOI,
+    Banner,
+    Dataset,
+    Label,
+    Model,
+    Prediction,
+    Training,
+    UserNotification,
+)
 
 # from .tasks import train_model
 
@@ -199,46 +208,6 @@ class AOISerializer(
         return super().update(instance, validated_data)
 
 
-class FeedbackAOISerializer(GeoFeatureModelSerializer):
-    class Meta:
-        model = FeedbackAOI
-        geo_field = "geom"
-        fields = "__all__"
-        partial = True
-
-        read_only_fields = (
-            "created_at",
-            "last_modified",
-            "label_fetched",
-            "label_status",
-            "user",
-        )
-
-    def create(self, validated_data):
-        user = self.context["request"].user
-        validated_data["user"] = user
-        return super().create(validated_data)
-
-
-class FeedbackSerializer(GeoFeatureModelSerializer):
-    class Meta:
-        model = Feedback
-        geo_field = "geom"
-        fields = "__all__"
-        read_only_fields = ("created_at", "last_modified", "user")
-        partial = True
-
-    def create(self, validated_data):
-        user = self.context["request"].user
-        validated_data["user"] = user
-        return super().create(validated_data)
-
-    def to_representation(self, instance):
-        ret = super().to_representation(instance)
-        ret["properties"]["id"] = instance.id
-        return ret
-
-
 class LabelSerializer(GeoFeatureModelSerializer):
     class Meta:
         model = Label
@@ -249,42 +218,12 @@ class LabelSerializer(GeoFeatureModelSerializer):
         # read_only_fields = ("created_at", "osm_id")
 
 
-class ApprovedPredictionsSerializer(GeoFeatureModelSerializer):
-    class Meta:
-        model = ApprovedPredictions
-        geo_field = "geom"
-        fields = "__all__"
-
-
-class FeedbackLabelSerializer(GeoFeatureModelSerializer):
-    class Meta:
-        model = FeedbackLabel
-        geo_field = "geom"
-        fields = "__all__"
-        # read_only_fields = ("created_at", "osm_id")
-
-
 class LabelFileSerializer(GeoFeatureModelSerializer):
     class Meta:
         model = Label
         geo_field = "geom"
         # auto_bbox = True
         fields = ("osm_id", "tags")
-
-
-class FeedbackLabelFileSerializer(GeoFeatureModelSerializer):
-    class Meta:
-        model = FeedbackLabel
-        geo_field = "geom"
-        # auto_bbox = True
-        fields = ("osm_id", "tags")
-
-
-class FeedbackFileSerializer(GeoFeatureModelSerializer):
-    class Meta:
-        fields = ("training",)
-        model = Feedback
-        geo_field = "geom"
 
 
 class ImageDownloadSerializer(serializers.Serializer):
@@ -301,61 +240,6 @@ class ImageDownloadSerializer(serializers.Serializer):
         for i in data["zoom_level"]:
             if int(i) < 19 or int(i) > 21:
                 raise serializers.ValidationError("Zoom level Supported between 19-21")
-        return data
-
-
-class FeedbackParamSerializer(serializers.Serializer):
-    training_id = serializers.IntegerField(required=True)
-    epochs = serializers.IntegerField(required=False)
-    batch_size = serializers.IntegerField(required=False)
-    zoom_level = serializers.ListField(child=serializers.IntegerField(), required=False)
-
-    def validate_training_id(self, value):
-        try:
-            Training.objects.get(id=value)
-        except Training.DoesNotExist:
-            raise serializers.ValidationError("Training doesn't exist")
-
-        return value
-
-    def validate(self, data):
-        training_id = data.get("training_id")
-
-        try:
-            fd_aois = FeedbackAOI.objects.filter(training=training_id)
-        except FeedbackAOI.DoesNotExist:
-            raise serializers.ValidationError(
-                "No feedback AOI is associated with Training"
-            )
-
-        if fd_aois.filter(
-            label_status=FeedbackAOI.DownloadStatus.NOT_DOWNLOADED
-        ).exists():
-            raise serializers.ValidationError(
-                "Not all AOIs have their labels downloaded"
-            )
-
-        if "epochs" in data and (
-            data["epochs"] > settings.EPOCHS_LIMIT or data["epochs"] <= 0
-        ):
-            raise serializers.ValidationError(
-                f"Epochs should be 1 - {settings.EPOCHS_LIMIT} on this server"
-            )
-
-        if "batch_size" in data and (
-            data["batch_size"] > settings.BATCH_SIZE_LIMIT or data["batch_size"] <= 0
-        ):
-            raise serializers.ValidationError(
-                f"Batch size should be 1 - {settings.BATCH_SIZE_LIMIT} on this server"
-            )
-
-        if "zoom_level" in data:
-            for zoom in data["zoom_level"]:
-                if zoom < 19 or zoom > 21:
-                    raise serializers.ValidationError(
-                        "Zoom level must be between 19 and 21"
-                    )
-
         return data
 
 
@@ -465,8 +349,7 @@ class BannerSerializer(serializers.ModelSerializer):
 class UserStatsSerializer(serializers.ModelSerializer):
     models_count = serializers.SerializerMethodField()
     datasets_count = serializers.SerializerMethodField()
-    feedbacks_count = serializers.SerializerMethodField()
-    approved_predictions_count = serializers.SerializerMethodField()
+
     profile_completion_percentage = serializers.SerializerMethodField()
     unread_notifications_count = serializers.SerializerMethodField()
 
@@ -485,8 +368,6 @@ class UserStatsSerializer(serializers.ModelSerializer):
             "account_deletion_requested",
             "models_count",
             "datasets_count",
-            "feedbacks_count",
-            "approved_predictions_count",
             "profile_completion_percentage",
             "unread_notifications_count",
         ]
@@ -498,8 +379,6 @@ class UserStatsSerializer(serializers.ModelSerializer):
             "email_verified",
             "models_count",
             "datasets_count",
-            "feedbacks_count",
-            "approved_predictions_count",
             "profile_completion_percentage",
             "unread_notifications_count",
         ]
@@ -510,11 +389,7 @@ class UserStatsSerializer(serializers.ModelSerializer):
     def get_datasets_count(self, obj):
         return Dataset.objects.filter(user=obj).count()
 
-    def get_feedbacks_count(self, obj):
-        return Feedback.objects.filter(user=obj, action="REJECT").count()
 
-    def get_approved_predictions_count(self, obj):
-        return Feedback.objects.filter(user=obj, action="ACCEPT").count()
 
     def get_profile_completion_percentage(self, obj):
         profile_percentage = 25

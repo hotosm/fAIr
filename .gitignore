@@ -49,6 +49,8 @@ trainings/*
 backend/.env
 backend/config.txt
 backend/postgres-data
+backend/.github
+
 
 ramp
 trainings

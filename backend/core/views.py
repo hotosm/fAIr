@@ -50,12 +50,8 @@ from shapely.geometry import box
 
 from .models import (
     AOI,
-    ApprovedPredictions,
     Banner,
     Dataset,
-    Feedback,
-    FeedbackAOI,
-    FeedbackLabel,
     Label,
     Model,
     OsmUser,
@@ -65,14 +61,9 @@ from .models import (
 )
 from .serializers import (
     AOISerializer,
-    ApprovedPredictionsSerializer,
     BannerSerializer,
     DatasetCentroidSerializer,
     DatasetSerializer,
-    FeedbackAOISerializer,
-    FeedbackLabelSerializer,
-    FeedbackParamSerializer,
-    FeedbackSerializer,
     LabelSerializer,
     ModelCentroidSerializer,
     ModelSerializer,
@@ -288,62 +279,8 @@ class TrainingViewSet(viewsets.ModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
-        feedback_count = Feedback.objects.filter(
-            training=instance.id, action="REJECT"
-        ).count()  # cal feedback count
-        approved_predictions_count = Feedback.objects.filter(
-            training=instance.id, action="ACCEPT"
-        ).count()
         data = serializer.data
-        data["feedback_count"] = feedback_count
-        data["approved_predictions_count"] = approved_predictions_count
         return Response(data, status=status.HTTP_200_OK)
-
-
-class FeedbackViewset(viewsets.ModelViewSet):
-    authentication_classes = [OsmAuthentication]
-    permission_classes = [IsOsmAuthenticated]
-    public_methods = ["GET"]
-    queryset = Feedback.objects.all()
-    http_method_names = ["get", "post", "patch", "delete"]
-    serializer_class = FeedbackSerializer
-    bbox_filter_field = "geom"
-    filter_backends = (
-        InBBoxFilter,
-        # TMSTileFilter,
-        DjangoFilterBackend,
-    )
-    bbox_filter_include_overlapping = True
-    filterset_fields = ["training", "user", "action"]
-
-
-class FeedbackAOIViewset(viewsets.ModelViewSet):
-    authentication_classes = [OsmAuthentication]
-    permission_classes = [IsOsmAuthenticated]
-    public_methods = ["GET"]
-    queryset = FeedbackAOI.objects.all()
-    http_method_names = ["get", "post", "patch", "delete"]
-    serializer_class = FeedbackAOISerializer
-    filterset_fields = [
-        "training",
-        "user",
-    ]
-
-
-class FeedbackLabelViewset(viewsets.ModelViewSet):
-    authentication_classes = [OsmAuthentication]
-    permission_classes = [IsOsmAuthenticated]
-    public_methods = ["GET"]
-    queryset = FeedbackLabel.objects.all()
-    http_method_names = ["get", "post", "patch", "delete"]
-    serializer_class = FeedbackLabelSerializer
-    bbox_filter_field = "geom"
-    filter_backends = (
-        InBBoxFilter,  # it will take bbox like this api/v1/label/?in_bbox=-90,29,-89,35 ,
-        DjangoFilterBackend,
-    )
-    bbox_filter_include_overlapping = True
-    filterset_fields = ["feedback_aoi", "feedback_aoi__training"]
 
 
 class ModelViewSet(
@@ -533,44 +470,12 @@ def process_labels_geojson(geojson_data, aoi_id):
         logging.error(ex)
 
 
-class RawdataApiFeedbackView(APIView):
-    authentication_classes = [OsmAuthentication]
-    permission_classes = [IsOsmAuthenticated]
-
-    def post(self, request, feedbackaoi_id, *args, **kwargs):
-        """Downloads available osm data as labels within given feedback aoi
-
-        Args:
-            request (_type_): _description_
-            feedbackaoi_id (_type_): _description_
-
-        Returns:
-            status: Success/Failed
-        """
-        obj = get_object_or_404(FeedbackAOI, id=feedbackaoi_id)
-        try:
-            obj.label_status = 0
-            obj.save()
-            file_download_url = request_rawdata(obj.geom.geojson)
-            process_rawdata(file_download_url, feedbackaoi_id, feedback=True)
-            obj.label_status = 1
-            obj.label_fetched = datetime.utcnow()
-            obj.save()
-            return Response("Success", status=status.HTTP_201_CREATED)
-        except Exception as ex:
-            obj.label_status = -1
-            obj.save()
-            # raise ex
-            logging.error(ex)
-            return Response("OSM Fetch Failed", status=500)
-
-
 class RawdataApiAOIView(APIView):
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsOsmAuthenticated]
 
     def post(self, request, aoi_id, *args, **kwargs):
-        """Downloads available osm data as labels within given feedback
+        """Downloads available osm data as labels within given AOI
 
         Args:
             request (_type_): _description_
@@ -704,70 +609,6 @@ def run_task_status(request, run_id: str):
         return Response(result)
 
 
-class FeedbackView(APIView):
-    """Applies Associated feedback to Training Published Checkpoint
-
-    Args:
-        APIView (_type_): _description_
-
-    Returns:
-        _type_: _description_
-    """
-
-    authentication_classes = [OsmAuthentication]
-    permission_classes = [IsOsmAuthenticated]
-
-    @swagger_auto_schema(
-        request_body=FeedbackParamSerializer, responses={status.HTTP_200_OK: "ok"}
-    )
-    def post(self, request, *args, **kwargs):
-        res_serializer = FeedbackParamSerializer(data=request.data)
-
-        if res_serializer.is_valid():
-            deserialized_data = res_serializer.data
-            training_id = deserialized_data["training_id"]
-            training_instance = Training.objects.get(id=training_id)
-            if Training.objects.filter(
-                model_id=training_instance.model, status__in=["RUNNING", "SUBMITTED"]
-            ).exists():
-                raise ValidationError(
-                    "Another training/feedback is in progress or submitted for this model."
-                )
-
-            zoom_level = deserialized_data.get("zoom_level", [19, 20])
-            epochs = deserialized_data.get("epochs", 20)
-            batch_size = deserialized_data.get("batch_size", 8)
-
-            instance = Training.objects.create(
-                model=training_instance.model,
-                status="SUBMITTED",
-                description=f"Feedback of Training {training_id}",
-                user=self.request.user,
-                zoom_level=zoom_level,
-                epochs=epochs,
-                batch_size=batch_size,
-                source_imagery=training_instance.source_imagery,
-            )
-            task = train_model.delay(
-                dataset_id=instance.model.dataset.id,
-                training_id=instance.id,
-                epochs=instance.epochs,
-                batch_size=instance.batch_size,
-                zoom_level=instance.zoom_level,
-                source_imagery=instance.source_imagery,
-                feedback=training_id,
-                freeze_layers=True,  # True by default for feedback
-            )
-            if not instance.source_imagery:
-                instance.source_imagery = instance.model.dataset.source_imagery
-            instance.task_id = task.id
-            instance.save()
-            logging.info(f"Feedback training request queued with task ID {task.id}")
-            return HttpResponse(status=200)
-
-        return Response(res_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
 DEFAULT_TILE_SIZE = 256
 
 
@@ -806,15 +647,6 @@ def publish_training(request, training_id: int):
 class GenerateGpxView(APIView):
     def get(self, request, aoi_id: int):
         aoi = get_object_or_404(AOI, id=aoi_id)
-        geom_json = json.loads(aoi.geom.json)
-        # Create a new GPX object
-        gpx_xml = gpx_generator(geom_json)
-        return HttpResponse(gpx_xml, content_type="application/xml")
-
-
-class GenerateFeedbackAOIGpxView(APIView):
-    def get(self, request, feedback_aoi_id: int):
-        aoi = get_object_or_404(FeedbackAOI, id=feedback_aoi_id)
         geom_json = json.loads(aoi.geom.json)
         # Create a new GPX object
         gpx_xml = gpx_generator(geom_json)
@@ -874,14 +706,10 @@ class BannerViewSet(viewsets.ModelViewSet):
 def get_kpi_stats(request):
     total_models_with_status_published = Model.objects.filter(status=0).count()
     total_registered_users = OsmUser.objects.count()
-    total_accepted_predictions = Feedback.objects.filter(action="ACCEPT").count()
-    total_feedback_labels = Feedback.objects.filter(action="REJECT").count()
 
     data = {
         "total_models_published": total_models_with_status_published,
         "total_registered_users": total_registered_users,
-        "total_accepted_predictions": total_accepted_predictions,
-        "total_feedback_labels": total_feedback_labels,
     }
 
     return Response(data)

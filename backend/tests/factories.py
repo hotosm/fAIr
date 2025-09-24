@@ -2,9 +2,6 @@ import factory
 from core.models import (
     AOI,
     Dataset,
-    Feedback,
-    FeedbackAOI,
-    FeedbackLabel,
     Label,
     Model,
     Training,
@@ -82,56 +79,4 @@ class TrainingFactory(factory.django.DjangoModelFactory):
     batch_size = 1
 
 
-class FeedbackFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = Feedback
 
-    geom = Polygon(
-        (
-            (32.588507094820351, 0.348666499011499),
-            (32.588517512656978, 0.348184682976698),
-            (32.588869114643053, 0.348171660921362),
-            (32.588840465592334, 0.348679521066151),
-            (32.588507094820351, 0.348666499011499),
-        )
-    )
-    training = factory.SubFactory(TrainingFactory)
-    zoom_level = 19
-    feedback_type = "TP"
-    user = factory.SubFactory(OsmUserFactory)
-    source_imagery = "https://tiles.openaerialmap.org/5ac4fc6f26964b0010033112/0/5ac4fc6f26964b0010033113/{z}/{x}/{y}"
-
-
-class FeedbackAoiFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = FeedbackAOI
-
-    training = factory.SubFactory(TrainingFactory)
-    geom = Polygon(
-        (
-            (32.588507094820351, 0.348666499011499),
-            (32.588517512656978, 0.348184682976698),
-            (32.588869114643053, 0.348171660921362),
-            (32.588840465592334, 0.348679521066151),
-            (32.588507094820351, 0.348666499011499),
-        )
-    )
-    label_status = -1
-    source_imagery = "https://tiles.openaerialmap.org/5ac4fc6f26964b0010033112/0/5ac4fc6f26964b0010033113/{z}/{x}/{y}"
-    user = factory.SubFactory(OsmUserFactory)
-
-
-class FeedbackLabelFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = FeedbackLabel
-
-    feedback_aoi = factory.SubFactory(FeedbackAoiFactory)
-    geom = Polygon(
-        (
-            (32.588507094820351, 0.348666499011499),
-            (32.588517512656978, 0.348184682976698),
-            (32.588869114643053, 0.348171660921362),
-            (32.588840465592334, 0.348679521066151),
-            (32.588507094820351, 0.348666499011499),
-        )
-    )

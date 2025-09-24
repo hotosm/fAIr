@@ -1,7 +1,16 @@
 from django.contrib import admin
 from django.contrib.gis import admin as geoadmin
 
-from .models import *
+from .models import (
+    AOI,
+    Banner,
+    Dataset,
+    Label,
+    Model,
+    Prediction,
+    Training,
+    UserNotification,
+)
 
 # Register your models here.
 
@@ -37,16 +46,6 @@ class TrainingAdmin(geoadmin.GISModelAdmin):
         return obj.model.id
 
     get_model_id.short_description = "Model"
-
-
-@admin.register(FeedbackAOI)
-class FeedbackAOIAdmin(geoadmin.GISModelAdmin):
-    list_display = ["training", "user"]
-
-
-@admin.register(Feedback)
-class FeedbackAdmin(geoadmin.GISModelAdmin):
-    list_display = ["training", "user", "created_at"]
 
 
 @admin.register(Banner)
