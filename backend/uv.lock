@@ -1122,7 +1122,6 @@ api = [
     { name = "djangorestframework" },
     { name = "djangorestframework-gis" },
     { name = "drf-yasg" },
-    { name = "factory-boy" },
     { name = "flower" },
     { name = "geojson2osm" },
     { name = "geomltoolkits" },
@@ -1155,6 +1154,9 @@ ramp-workers = [
     { name = "protobuf" },
     { name = "shapely" },
 ]
+test = [
+    { name = "factory-boy" },
+]
 
 [package.metadata]
 requires-dist = [{ name = "osmconflator", specifier = ">=0.0.11" }]
@@ -1176,7 +1178,6 @@ api = [
     { name = "djangorestframework", specifier = ">=3.15.2" },
     { name = "djangorestframework-gis", specifier = ">=1.0" },
     { name = "drf-yasg", specifier = ">=1.21.10" },
-    { name = "factory-boy", specifier = ">=3.3.3" },
     { name = "flower", specifier = ">=2.0.1" },
     { name = "geojson2osm", specifier = ">=0.0.1" },
     { name = "geomltoolkits", specifier = ">=0.4.1" },
@@ -1207,6 +1208,7 @@ ramp-workers = [
     { name = "protobuf", specifier = ">=3.19.6,<4" },
     { name = "shapely", specifier = ">=1.8.0,<2" },
 ]
+test = [{ name = "factory-boy", specifier = ">=3.3.3" }]
 yolo-workers = []
 
 [[package]]

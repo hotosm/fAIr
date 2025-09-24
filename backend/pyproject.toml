@@ -32,7 +32,6 @@ api = [
     "djangorestframework>=3.15.2",
     "djangorestframework-gis>=1.0",
     "drf-yasg>=1.21.10",
-    "factory-boy>=3.3.3",
     "flower>=2.0.1",
     "geojson2osm>=0.0.1",
     "geomltoolkits>=0.4.1",
@@ -51,6 +50,9 @@ api = [
 ]
 dev = [
     "commitizen>=3.31.0",
+]
+test = [
+    "factory-boy>=3.3.3",
 ]
 base-workers = [
     "hot-fair-utilities>=2.0.12",
