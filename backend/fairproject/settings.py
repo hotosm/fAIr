@@ -114,8 +114,8 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "aiproject.urls"
-WSGI_APPLICATION = "aiproject.wsgi.application"
+ROOT_URLCONF = "fairproject.urls"
+WSGI_APPLICATION = "fairproject.wsgi.application"
 
 if DEBUG:
     ALLOWED_HOSTS = ["*"]
