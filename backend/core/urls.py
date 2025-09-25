@@ -9,6 +9,7 @@ from .views import (
     ConflateGeojson,
     DatasetCentroidView,
     DatasetViewSet,
+    FeedbackViewset,
     GenerateGpxView,
     LabelUploadView,
     LabelViewSet,
@@ -39,6 +40,7 @@ router.register(r"label", LabelViewSet)
 
 router.register(r"training", TrainingViewSet)
 router.register(r"model", ModelViewSet)
+router.register(r"feedback", FeedbackViewset)
 router.register(r"banner", BannerViewSet)
 router.register(r"notifications/me", UserNotificationViewSet, basename="notifications")
 router.register(r"prediction", PredictionViewSet)

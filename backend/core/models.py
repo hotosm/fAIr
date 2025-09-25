@@ -199,6 +199,26 @@ class UserNotification(models.Model):
         return f"Notification for {self.user.username}: {self.message[:50]}..."
 
 
+class Feedback(models.Model):
+    ACTION_CHOICES = (
+        ("ACCEPT", "ACCEPT"),
+        ("REJECT", "REJECT"),
+    )
+    geom = geomodels.GeometryField(srid=4326)
+    training = models.ForeignKey(
+        Training, to_field="id", on_delete=models.CASCADE, blank=True, null=True
+    )
+    action = models.CharField(choices=ACTION_CHOICES, default="ACCEPT", max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+    config = models.JSONField(null=True, blank=True)
+    comments = models.TextField(max_length=100, null=True, blank=True)
+    user = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
+
+    def clean(self):
+        if self.geom:
+            self.geom = validate_geometry(self.geom)
+
+
 class Prediction(models.Model):
     STATUS_CHOICES = (
         ("SUBMITTED", "SUBMITTED"),

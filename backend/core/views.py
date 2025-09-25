@@ -58,6 +58,7 @@ from .models import (
     AOI,
     Banner,
     Dataset,
+    Feedback,
     Label,
     Model,
     OsmUser,
@@ -70,6 +71,7 @@ from .serializers import (
     BannerSerializer,
     DatasetCentroidSerializer,
     DatasetSerializer,
+    FeedbackSerializer,
     LabelSerializer,
     ModelCentroidSerializer,
     ModelMetaSerializer,
@@ -153,8 +155,32 @@ class TrainingViewSet(BasePublicViewSet):
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
+        feedback_count = Feedback.objects.filter(
+            training=instance.id, action="REJECT"
+        ).count()  # cal feedback count
+        approved_predictions_count = Feedback.objects.filter(
+            training=instance.id, action="ACCEPT"
+        ).count()
         data = serializer.data
+        data["feedback_count"] = feedback_count
+        data["approved_predictions_count"] = approved_predictions_count
         return Response(data, status=status.HTTP_200_OK)
+
+
+class FeedbackViewset(viewsets.ModelViewSet):
+    authentication_classes = [OsmAuthentication]
+    permission_classes = [IsOsmAuthenticated]
+    public_methods = ["GET"]
+    queryset = Feedback.objects.all()
+    http_method_names = ["get", "post", "patch", "delete"]
+    serializer_class = FeedbackSerializer
+    bbox_filter_field = "geom"
+    filter_backends = (
+        InBBoxFilter,
+        DjangoFilterBackend,
+    )
+    bbox_filter_include_overlapping = True
+    filterset_fields = ["training", "user", "action"]
 
 
 class ModelViewSet(BaseSpatialViewSet):
@@ -547,10 +573,14 @@ class BannerViewSet(viewsets.ModelViewSet):
 def get_kpi_stats(request):
     total_models_with_status_published = Model.objects.filter(status=0).count()
     total_registered_users = OsmUser.objects.count()
+    total_accepted_predictions = Feedback.objects.filter(action="ACCEPT").count()
+    total_feedback_labels = Feedback.objects.filter(action="REJECT").count()
 
     data = {
         "total_models_published": total_models_with_status_published,
         "total_registered_users": total_registered_users,
+        "total_accepted_predictions": total_accepted_predictions,
+        "total_feedback_labels": total_feedback_labels,
     }
 
     return Response(data)

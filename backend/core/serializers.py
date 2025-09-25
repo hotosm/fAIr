@@ -10,6 +10,7 @@ from .models import (
     AOI,
     Banner,
     Dataset,
+    Feedback,
     Label,
     Model,
     Prediction,
@@ -346,7 +347,8 @@ class BannerSerializer(serializers.ModelSerializer):
 class UserStatsSerializer(serializers.ModelSerializer):
     models_count = serializers.SerializerMethodField()
     datasets_count = serializers.SerializerMethodField()
-
+    feedbacks_count = serializers.SerializerMethodField()
+    approved_predictions_count = serializers.SerializerMethodField()
     profile_completion_percentage = serializers.SerializerMethodField()
     unread_notifications_count = serializers.SerializerMethodField()
 
@@ -365,6 +367,8 @@ class UserStatsSerializer(serializers.ModelSerializer):
             "account_deletion_requested",
             "models_count",
             "datasets_count",
+            "feedbacks_count",
+            "approved_predictions_count",
             "profile_completion_percentage",
             "unread_notifications_count",
         ]
@@ -376,6 +380,8 @@ class UserStatsSerializer(serializers.ModelSerializer):
             "email_verified",
             "models_count",
             "datasets_count",
+            "feedbacks_count",
+            "approved_predictions_count",
             "profile_completion_percentage",
             "unread_notifications_count",
         ]
@@ -386,7 +392,11 @@ class UserStatsSerializer(serializers.ModelSerializer):
     def get_datasets_count(self, obj):
         return Dataset.objects.filter(user=obj).count()
 
+    def get_feedbacks_count(self, obj):
+        return Feedback.objects.filter(user=obj, action="REJECT").count()
 
+    def get_approved_predictions_count(self, obj):
+        return Feedback.objects.filter(user=obj, action="ACCEPT").count()
 
     def get_profile_completion_percentage(self, obj):
         profile_percentage = 25
@@ -535,4 +545,23 @@ class TrainingSerializer(serializers.ModelSerializer):
             ret["model"] = ModelMetaSerializer(
                 instance.model, context=self.context
             ).data
+        return ret
+
+
+class FeedbackSerializer(GeoFeatureModelSerializer):
+    class Meta:
+        model = Feedback
+        geo_field = "geom"
+        fields = "__all__"
+        read_only_fields = ("created_at", "user")
+        partial = True
+
+    def create(self, validated_data):
+        user = self.context["request"].user
+        validated_data["user"] = user
+        return super().create(validated_data)
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        ret["properties"]["id"] = instance.id
         return ret

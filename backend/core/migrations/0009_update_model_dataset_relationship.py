@@ -12,14 +12,6 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RemoveField(
-            model_name='feedback',
-            name='training',
-        ),
-        migrations.RemoveField(
-            model_name='feedback',
-            name='user',
-        ),
-        migrations.RemoveField(
             model_name='feedbackaoi',
             name='training',
         ),
@@ -38,9 +30,6 @@ class Migration(migrations.Migration):
         ),
         migrations.DeleteModel(
             name='ApprovedPredictions',
-        ),
-        migrations.DeleteModel(
-            name='Feedback',
         ),
         migrations.DeleteModel(
             name='FeedbackAOI',

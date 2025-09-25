@@ -5,15 +5,13 @@ from .models import (
     AOI,
     Banner,
     Dataset,
+    Feedback,
     Label,
     Model,
     Prediction,
     Training,
     UserNotification,
 )
-
-# Register your models here.
-
 
 @admin.register(Dataset)
 class DatasetAdmin(geoadmin.GISModelAdmin):
@@ -46,6 +44,24 @@ class TrainingAdmin(geoadmin.GISModelAdmin):
         return obj.model.id
 
     get_model_id.short_description = "Model"
+
+
+@admin.register(Feedback)
+class FeedbackAdmin(geoadmin.GISModelAdmin):
+    list_display = [
+        "id",
+        "get_training_id",
+        "action",
+        "user",
+        "created_at",
+    ]
+    list_filter = ["action", "created_at"]
+    search_fields = ["user__username", "comments"]
+
+    def get_training_id(self, obj):
+        return obj.training.id if obj.training else "N/A"
+
+    get_training_id.short_description = "Training"
 
 
 @admin.register(Banner)
