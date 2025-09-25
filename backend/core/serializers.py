@@ -18,7 +18,11 @@ from .models import (
     UserNotification,
 )
 
-# from .tasks import train_model
+class BaseModelSerializer(serializers.ModelSerializer):
+    def create(self, validated_data):
+        if hasattr(self.Meta.model, 'user') and 'user' not in validated_data:
+            validated_data['user'] = self.context['request'].user
+        return super().create(validated_data)
 
 
 class ModelMetaSerializer(serializers.ModelSerializer):
@@ -30,53 +34,23 @@ class ModelMetaSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = OsmUser
-        fields = [
-            "osm_id",
-            "username",
-            # "is_superuser",
-            # "is_active",
-            # "is_staff",
-            # "date_joined",
-            # "email",
-            # "img_url",
-            # "user_permissions",
-        ]
-
-    read_only_fields = ["osm_id", "username"]
+        fields = ["osm_id", "username"]
+        read_only_fields = ["osm_id", "username"]
 
 
-class DatasetSerializer(serializers.ModelSerializer):
+class DatasetSerializer(BaseModelSerializer):
     models_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Dataset
         fields = [
-            "id",
-            "name",
-            "source_imagery",
-            "last_modified",
-            "created_at",
-            "status",
-            "models_count",
-            "offset",
-            "user",
+            "id", "name", "source_imagery", "last_modified", 
+            "created_at", "status", "models_count", "offset", "user"
         ]
-        read_only_fields = (
-            "user",
-            "created_at",
-            "last_modified",
-            "models_count",
-        )
-
-    def create(self, validated_data):
-        user = self.context["request"].user
-        validated_data["user"] = user
-        return super().create(validated_data)
+        read_only_fields = ("user", "created_at", "last_modified", "models_count")
 
     def get_models_count(self, obj):
-        return Model.objects.filter(
-            dataset=obj, status=Model.ModelStatus.PUBLISHED
-        ).count()
+        return Model.objects.filter(dataset=obj, status=Model.ModelStatus.PUBLISHED).count()
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
@@ -85,7 +59,7 @@ class DatasetSerializer(serializers.ModelSerializer):
         return ret
 
 
-class ModelSerializer(serializers.ModelSerializer):
+class ModelSerializer(BaseModelSerializer):
     user = UserSerializer(read_only=True)
     accuracy = serializers.SerializerMethodField()
     thumbnail_url = serializers.SerializerMethodField()
@@ -93,17 +67,7 @@ class ModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Model
         fields = "__all__"
-        read_only_fields = (
-            "created_at",
-            "last_modified",
-            "user",
-            "published_training",
-        )
-
-    def create(self, validated_data):
-        user = self.context["request"].user
-        validated_data["user"] = user
-        return super().create(validated_data)
+        read_only_fields = ("created_at", "last_modified", "user", "published_training")
 
     def __init__(self, *args, **kwargs):
         super(ModelSerializer, self).__init__(*args, **kwargs)
@@ -548,18 +512,13 @@ class TrainingSerializer(serializers.ModelSerializer):
         return ret
 
 
-class FeedbackSerializer(GeoFeatureModelSerializer):
+class FeedbackSerializer(GeoFeatureModelSerializer, BaseModelSerializer):
     class Meta:
         model = Feedback
         geo_field = "geom"
         fields = "__all__"
         read_only_fields = ("created_at", "user")
         partial = True
-
-    def create(self, validated_data):
-        user = self.context["request"].user
-        validated_data["user"] = user
-        return super().create(validated_data)
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)

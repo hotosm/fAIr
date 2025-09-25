@@ -95,46 +95,12 @@ from .utils import (
     s3_object_exists,
     send_notification,
 )
-
-
-class BasePublicViewSet(viewsets.ModelViewSet):
-    """Base ViewSet for public endpoints with OSM authentication."""
-    authentication_classes = [OsmAuthentication]
-    permission_classes = [IsOsmAuthenticated]
-    public_methods = ["GET"]
-    filter_backends = (DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter)
-
-
-class BaseSpatialViewSet(BasePublicViewSet):
-    """Base ViewSet for spatial data with bbox and TMS filtering."""
-    filter_backends = (
-        InBBoxFilter,
-        TMSTileFilter,
-        DjangoFilterBackend,
-        filters.SearchFilter,
-        filters.OrderingFilter,
-    )
+from .responses import APIResponse, APIResponseCodes
+from .mixins import BaseModelViewSet, BaseSpatialViewSet, UserAssignmentMixin
 
 
 def home(request):
     return redirect("schema-swagger-ui")
-
-
-class UserAssignmentMixin:
-    """
-    Mixin to automatically assign the current user to created objects
-    and only return objects belonging to the current user.
-    """
-
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
-
-    def get_queryset(self):
-        """
-        Only return objects belonging to the current user.
-        """
-        queryset = super().get_queryset()
-        return queryset.filter(user=self.request.user)
 
 
 class DatasetViewSet(BaseSpatialViewSet):
@@ -143,43 +109,29 @@ class DatasetViewSet(BaseSpatialViewSet):
 
 
 @method_decorator(ratelimit(key='user', rate='10/h', method='POST', block=True), name='create')
-class TrainingViewSet(BasePublicViewSet):
+class TrainingViewSet(BaseModelViewSet):
     queryset = Training.objects.all()
     http_method_names = ["get", "post", "delete"]
     serializer_class = TrainingSerializer
     filterset_fields = ["model", "status", "user", "id"]
-
     ordering_fields = ["created_at", "accuracy", "id", "model", "status"]
     search_fields = ["description", "id", "model__name"]
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
-        feedback_count = Feedback.objects.filter(
-            training=instance.id, action="REJECT"
-        ).count()  # cal feedback count
-        approved_predictions_count = Feedback.objects.filter(
-            training=instance.id, action="ACCEPT"
-        ).count()
         data = serializer.data
-        data["feedback_count"] = feedback_count
-        data["approved_predictions_count"] = approved_predictions_count
-        return Response(data, status=status.HTTP_200_OK)
+        data.update({
+            "feedback_count": Feedback.objects.filter(training=instance.id, action="REJECT").count(),
+            "approved_predictions_count": Feedback.objects.filter(training=instance.id, action="ACCEPT").count()
+        })
+        return Response(data)
 
 
-class FeedbackViewset(viewsets.ModelViewSet):
-    authentication_classes = [OsmAuthentication]
-    permission_classes = [IsOsmAuthenticated]
-    public_methods = ["GET"]
+class FeedbackViewset(BaseSpatialViewSet):
     queryset = Feedback.objects.all()
-    http_method_names = ["get", "post", "patch", "delete"]
     serializer_class = FeedbackSerializer
     bbox_filter_field = "geom"
-    filter_backends = (
-        InBBoxFilter,
-        DjangoFilterBackend,
-    )
-    bbox_filter_include_overlapping = True
     filterset_fields = ["training", "user", "action"]
 
 
@@ -237,11 +189,9 @@ class UsersView(ListAPIView):
     search_fields = ["username", "osm_id"]
 
 
-class AOIViewSet(BasePublicViewSet):
-    authenticated_user_allowed_methods = ["POST", "DELETE"]
+class AOIViewSet(BaseModelViewSet):
     queryset = AOI.objects.all()
     serializer_class = AOISerializer
-    filter_backends = [DjangoFilterBackend]
     filterset_fields = ["dataset"]
 
 
@@ -250,7 +200,6 @@ class LabelViewSet(BaseSpatialViewSet):
     serializer_class = LabelSerializer
     bbox_filter_field = "geom"
     pagination_class = None
-    bbox_filter_include_overlapping = True
     filterset_fields = ["aoi", "aoi__dataset"]
 
     def create(self, request, *args, **kwargs):
@@ -557,12 +506,13 @@ class BannerViewSet(viewsets.ModelViewSet):
     serializer_class = BannerSerializer
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsAdminUser, IsStaffUser]
-    public_methods = ["GET"]
     pagination_class = None
 
     def get_queryset(self):
         now = timezone.now()
-        return Banner.objects.filter(start_date__lte=now).filter(
+        return Banner.objects.filter(
+            start_date__lte=now
+        ).filter(
             end_date__gte=now
         ) | Banner.objects.filter(end_date__isnull=True)
 
@@ -772,23 +722,15 @@ class PredictionSerializer(serializers.ModelSerializer):
 
 
 @method_decorator(ratelimit(key='user', rate='50/h', method='POST', block=True), name='create')
-class PredictionViewSet(UserAssignmentMixin, viewsets.ModelViewSet):
-    authentication_classes = [OsmAuthentication]
-    permission_classes = [IsOsmAuthenticated, IsOwnerOrReadOnly]
-    public_methods = ["GET"]
+class PredictionViewSet(UserAssignmentMixin, BaseSpatialViewSet):
     http_method_names = ["get", "post", "patch"]
     queryset = Prediction.objects.all()
     bbox_filter_field = "geom"
-    filter_backends = (
-        DjangoFilterBackend,
-        InBBoxFilter,
-        filters.SearchFilter,
-        filters.OrderingFilter,
-    )
     serializer_class = PredictionSerializer
     filterset_fields = ["status", "id"]
     search_fields = ["description", "id"]
     ordering_fields = ["created_at", "id", "status"]
+    permission_classes = [IsOsmAuthenticated, IsOwnerOrReadOnly]
 
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
