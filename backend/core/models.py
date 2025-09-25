@@ -56,7 +56,7 @@ class AOI(models.Model):
     class Meta:
         indexes = [
             models.Index(fields=['dataset']),
-            models.Index(fields=['geom'], opclasses=['gist']),
+            models.Index(fields=['geom'], name='aoi_geom_gist_idx', opclasses=['gist']),
         ]
 
     @transaction.atomic
@@ -76,7 +76,7 @@ class Label(models.Model):
         indexes = [
             models.Index(fields=['aoi']),
             models.Index(fields=['osm_id']),
-            models.Index(fields=['geom'], opclasses=['gist']),
+            models.Index(fields=['geom'], name='label_geom_gist_idx', opclasses=['gist']),
         ]
 
     @transaction.atomic
@@ -251,7 +251,7 @@ class Feedback(models.Model):
             models.Index(fields=['training']),
             models.Index(fields=['user']),
             models.Index(fields=['action']),
-            models.Index(fields=['geom'], opclasses=['gist']),
+            models.Index(fields=['geom'], name='feedback_geom_gist_idx', opclasses=['gist']),
         ]
 
     def clean(self):
