@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.9"
 resolution-markers = [
     "python_full_version >= '3.12' and sys_platform == 'darwin'",
@@ -1138,7 +1138,7 @@ api = [
     { name = "drf-yasg", specifier = ">=1.21.10" },
     { name = "flower", specifier = ">=2.0.1" },
     { name = "geojson2osm", specifier = ">=0.0.1" },
-    { name = "geomltoolkits", specifier = ">=0.4.1" },
+    { name = "geomltoolkits", specifier = ">=0.4.2" },
     { name = "geopandas", specifier = ">=0.13.2" },
     { name = "gpxpy", specifier = ">=1.6.2" },
     { name = "gunicorn", specifier = ">=23.0.0" },
@@ -1158,7 +1158,7 @@ base-workers = [
 ]
 dev = [{ name = "commitizen", specifier = ">=3.31.0" }]
 prediction-workers = [
-    { name = "fairpredictor", specifier = ">=0.3.8" },
+    { name = "fairpredictor", specifier = ">=0.3.9" },
     { name = "tippecanoe", specifier = ">=2.72.0" },
 ]
 ramp-workers = [
@@ -1170,7 +1170,7 @@ yolo-workers = []
 
 [[package]]
 name = "fairpredictor"
-version = "0.3.8"
+version = "0.3.9"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "ai-edge-litert" },
@@ -1182,9 +1182,9 @@ dependencies = [
     { name = "requests" },
     { name = "tqdm" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/7b/41/08495157c5e2c4ec20d495495b8fc58337893daa7e10c1584134fcf467e0/fairpredictor-0.3.8.tar.gz", hash = "sha256:575ae4d6fb5a78e13dcca98dfd840c1d150a29294c8cef1e59c5e00ee108be4e", size = 12576, upload-time = "2025-08-03T13:57:58.9Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/5a/75/3d9c75f9d872f8ac20883457a437dac5d55c3ce9abef87e3b10e9139a49d/fairpredictor-0.3.9.tar.gz", hash = "sha256:ad044ff42b68bbd15b4422fc4fee86269386871b03980645454c0c3a567ffb61", size = 12661, upload-time = "2025-09-25T21:43:14.304Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/2b/04/632dd4e4bc3846c020309dba1f3bd479f71d69b2ea7cfc8ca2ba9e7ca3d2/fairpredictor-0.3.8-py3-none-any.whl", hash = "sha256:0b9eeac51bd844d6e93b37bc7e8b10d0cc90ba7166cc70b46deef265368e8d00", size = 15477, upload-time = "2025-08-03T13:57:58.035Z" },
+    { url = "https://files.pythonhosted.org/packages/a2/0e/78417ab19ab7f0fe20f57e81ca7bbcd012d9d6f5789f658bc9944317ada1/fairpredictor-0.3.9-py3-none-any.whl", hash = "sha256:79d292f0e5849416a573dc50e5a4478b7e7381b501b0ba4a59cea0803d1e2840", size = 15571, upload-time = "2025-09-25T21:43:13.079Z" },
 ]
 
 [[package]]
@@ -1439,7 +1439,7 @@ sdist = { url = "https://files.pythonhosted.org/packages/3a/05/7fc55180671bfa5a5
 
 [[package]]
 name = "geomltoolkits"
-version = "0.4.1"
+version = "0.4.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohttp" },
@@ -1451,9 +1451,9 @@ dependencies = [
     { name = "shapely" },
     { name = "tqdm" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/44/6d/f2ce68cfa384ad92bcdb5fdc21f2b29a5de4375d553a8a6c3316525fdfe4/geomltoolkits-0.4.1.tar.gz", hash = "sha256:539762d26ef6b7dc8f6a6029f3643d0ae5ad4b7eb4d41a81a1cc75ec8e3f425f", size = 206334, upload-time = "2025-08-03T13:36:08.183Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/b2/42/757fce8c6d50d5c5b34187221240222f5c0378afc62b79270b3aec8d3722/geomltoolkits-0.4.2.tar.gz", hash = "sha256:cf50db4abb1889395b145396ffeb0be41d41802efa7639d3c821caa1f0fbdbee", size = 207641, upload-time = "2025-09-25T21:36:35.546Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/bd/45/09ba9740873ee49c3d16a0e793cf05dc79e53e284a1a3e6a15ab1c1b83c3/geomltoolkits-0.4.1-py3-none-any.whl", hash = "sha256:6c8cdb31acdcc7463f7f39bd4ae357486f8e1c3acea6d506131bac96470e0e74", size = 26729, upload-time = "2025-08-03T13:36:07.285Z" },
+    { url = "https://files.pythonhosted.org/packages/f5/61/24bba8ad072baba35a6063995963367e4e65c1331c76dcd4f101d692b966/geomltoolkits-0.4.2-py3-none-any.whl", hash = "sha256:17ccf73f9d6f0c5b08f44b157910973312bb17865477bcb98053c56e54131628", size = 27176, upload-time = "2025-09-25T21:36:34.639Z" },
 ]
 
 [[package]]

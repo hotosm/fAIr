@@ -32,7 +32,7 @@ api = [
     "drf-yasg>=1.21.10",
     "flower>=2.0.1",
     "geojson2osm>=0.0.1",
-    "geomltoolkits>=0.4.1",
+    "geomltoolkits>=0.4.2",
     "geopandas>=0.13.2",
     "gpxpy>=1.6.2",
     "gunicorn>=23.0.0",
@@ -61,6 +61,6 @@ ramp-workers = [
 yolo-workers = [
 ]
 prediction-workers = [
-    "fairpredictor>=0.3.8",
+    "fairpredictor>=0.3.9",
     "tippecanoe>=2.72.0",
 ]
