@@ -25,7 +25,7 @@ class Dataset(models.Model):
     source_imagery = models.URLField(blank=True, null=True)
     status = models.IntegerField(
         default=-1, choices=DatasetStatus.choices
-    )  # 0 for active , 1 for archieved
+    )
 
     offset = ArrayField(
         base_field=models.FloatField(),
@@ -53,6 +53,12 @@ class AOI(models.Model):
     last_modified = models.DateTimeField(auto_now=True)
     user = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['dataset']),
+            models.Index(fields=['geom'], opclasses=['gist']),
+        ]
+
     @transaction.atomic
     def clean(self):
         if self.geom:
@@ -65,6 +71,13 @@ class Label(models.Model):
     osm_id = models.BigIntegerField(null=True, blank=True)
     tags = models.JSONField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['aoi']),
+            models.Index(fields=['osm_id']),
+            models.Index(fields=['geom'], opclasses=['gist']),
+        ]
 
     @transaction.atomic
     def clean(self):
@@ -96,6 +109,15 @@ class Model(models.Model):
         choices=BASE_MODEL_CHOICES, default="RAMP", max_length=50
     )
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['status']),
+            models.Index(fields=['created_at']),
+            models.Index(fields=['last_modified']),
+            models.Index(fields=['user']),
+            models.Index(fields=['dataset']),
+        ]
+
 
 class Training(models.Model):
     STATUS_CHOICES = (
@@ -126,11 +148,14 @@ class Training(models.Model):
     freeze_layers = models.BooleanField(default=False)
     centroid = geomodels.PointField(srid=4326, null=True, blank=True)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['model']),
+            models.Index(fields=['status']),
+            models.Index(fields=['user']),
+        ]
+
     def get_source_imagery_type(self):
-        """
-        Returns: 'TILEJSON', 'XYZ', 'TMS', or 'UNKNOWN'
-        """
-        ## source ref here : https://github.com/hotosm/fAIr/blob/develop/frontend/src/utils/regex-utils.ts
         if not self.source_imagery:
             return "UNKNOWN"
         xyz_pattern = re.compile(
@@ -189,6 +214,13 @@ class UserNotification(models.Model):
     object_id = models.PositiveIntegerField(null=True)
     related_object = GenericForeignKey("content_type", "object_id")
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['is_read']),
+            models.Index(fields=['user']),
+
+        ]
+
     def mark_as_read(self):
         if not self.is_read:
             self.is_read = True
@@ -213,6 +245,14 @@ class Feedback(models.Model):
     config = models.JSONField(null=True, blank=True)
     comments = models.TextField(max_length=100, null=True, blank=True)
     user = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['training']),
+            models.Index(fields=['user']),
+            models.Index(fields=['action']),
+            models.Index(fields=['geom'], opclasses=['gist']),
+        ]
 
     def clean(self):
         if self.geom:
@@ -251,3 +291,8 @@ class Prediction(models.Model):
             ]
             if missing_fields:
                 raise handle_validation_error("config", f"Missing required fields: {', '.join(missing_fields)}", self.config)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['status']),
+        ]

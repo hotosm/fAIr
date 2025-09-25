@@ -76,3 +76,28 @@ class BannerAdmin(admin.ModelAdmin):
 
     is_displayable.boolean = True
     is_displayable.short_description = "Currently Displayable"
+
+
+@admin.register(AOI)
+class AOIAdmin(geoadmin.GISModelAdmin):
+    list_display = ["id", "get_dataset_id", "label_status", "user", "created_at"]
+    list_filter = ["label_status", "created_at"]
+
+    def get_dataset_id(self, obj):
+        return obj.dataset.id
+
+    get_dataset_id.short_description = "Dataset"
+
+
+@admin.register(Prediction)
+class PredictionAdmin(geoadmin.GISModelAdmin):
+    list_display = ["id", "description", "status", "result_count", "user", "created_at"]
+    list_filter = ["status", "created_at"]
+    search_fields = ["description", "user__username"]
+
+
+@admin.register(UserNotification)
+class UserNotificationAdmin(admin.ModelAdmin):
+    list_display = ["id", "user", "message", "is_read", "created_at"]
+    list_filter = ["is_read", "created_at"]
+    search_fields = ["user__username", "message"]
