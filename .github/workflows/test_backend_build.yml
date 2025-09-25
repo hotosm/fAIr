@@ -79,6 +79,7 @@ jobs:
           OSM_CLIENT_SECRET: ${{ secrets.OSM_CLIENT_SECRET }}
           OSM_SECRET_KEY: ${{ secrets.OSM_SECRET_KEY }}
           SECRET_KEY: "TEST_DJANGO_APP_SECRET_KEY"
+          DEBUG: "True"
           # DATABASE_URL, RAMP_HOME, TRAINING_WORKSPACE are available from the previous step via $GITHUB_ENV
         working-directory: ./backend
         run: |
@@ -96,6 +97,7 @@ jobs:
           OSM_CLIENT_SECRET: ${{ secrets.OSM_CLIENT_SECRET }}
           OSM_SECRET_KEY: ${{ secrets.OSM_SECRET_KEY }}
           SECRET_KEY: "TEST_DJANGO_APP_SECRET_KEY"
+          DEBUG: "True"
           # DATABASE_URL, RAMP_HOME, TRAINING_WORKSPACE are available from $GITHUB_ENV
         working-directory: ./backend
         run: uv run coverage run manage.py test tests
