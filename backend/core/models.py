@@ -67,6 +67,8 @@ class Model(models.Model):
         ("RAMP", "RAMP"),
         ("YOLO_V8_V1", "YOLO_V8_V1"),
         ("YOLO_V8_V2", "YOLO_V8_V2"),
+        ("YOLO_V11", "YOLO_V11"),
+        ("YOLO_V11_SAM", "YOLO_V11_SAM"),
     )
 
     class ModelStatus(models.IntegerChoices):

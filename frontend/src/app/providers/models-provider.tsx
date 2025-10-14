@@ -149,6 +149,44 @@ export const FORM_VALIDATION_CONFIG = {
       min: 1,
     },
   },
+  [BASE_MODELS.YOLOV11]: {
+    epoch: {
+      max: 150,
+      min: 20,
+    },
+    batchSize: {
+      max: 16,
+      min: 8,
+    },
+    // These are not used
+    contactSpacing: {
+      max: 8,
+      min: 1,
+    },
+    boundaryWidth: {
+      max: 8,
+      min: 1,
+    },
+  },
+  [BASE_MODELS.YOLOV11_SAM]: {
+    epoch: {
+      max: 150,
+      min: 20,
+    },
+    batchSize: {
+      max: 16,
+      min: 8,
+    },
+    // These are not used
+    contactSpacing: {
+      max: 8,
+      min: 1,
+    },
+    boundaryWidth: {
+      max: 8,
+      min: 1,
+    },
+  },
 };
 
 type FormData = {

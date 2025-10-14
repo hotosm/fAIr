@@ -70,6 +70,22 @@ export const ModelSelector = ({
           ],
       },
       {
+        value: PredictionModel.YOLOV11,
+        label: "YOLO v11",
+        tooltip:
+          MODELS_CONTENT.modelCreation.modelDetails.form.baseModel.suffixes[
+          PredictionModel.YOLOV11
+          ],
+      },
+      {
+        value: PredictionModel.YOLOV11_SAM,
+        label: "YOLO v11+SAM",
+        tooltip:
+          MODELS_CONTENT.modelCreation.modelDetails.form.baseModel.suffixes[
+          PredictionModel.YOLOV11_SAM
+          ],
+      },
+      {
         value: PredictionModel.CUSTOM,
         label: "Custom",
         tooltip: "Custom model for generating predictions.",
@@ -92,6 +108,10 @@ export const ModelSelector = ({
         FAIR_BASE_MODELS_PATH[PredictionModel.YOLOV8_V1],
       [PredictionModel.YOLOV8_V2]:
         FAIR_BASE_MODELS_PATH[PredictionModel.YOLOV8_V2],
+      [PredictionModel.YOLOV11]:
+        FAIR_BASE_MODELS_PATH[PredictionModel.YOLOV11],
+      [PredictionModel.YOLOV11_SAM]:
+        FAIR_BASE_MODELS_PATH[PredictionModel.YOLOV11_SAM],
       [PredictionModel.CUSTOM]: predictionModelCheckpoint,
     }),
     [predictionModelCheckpoint, modelInfo, predictionModel],
