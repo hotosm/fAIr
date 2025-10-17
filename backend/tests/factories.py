@@ -80,4 +80,42 @@ class TrainingFactory(factory.django.DjangoModelFactory):
     batch_size = 1
 
 
+class FeedbackFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = "core.Feedback"
+
+    training = factory.SubFactory(TrainingFactory)
+    user = factory.SubFactory(OsmUserFactory)
+    action = "ACCEPT"
+    geom = Polygon(
+        (
+            (32.588507094820351, 0.348666499011499),
+            (32.588517512656978, 0.348184682976698),
+            (32.588869114643053, 0.348171660921362),
+            (32.588840465592334, 0.348679521066151),
+            (32.588507094820351, 0.348666499011499),
+        )
+    )
+
+
+class PredictionFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = "core.Prediction"
+
+    user = factory.SubFactory(OsmUserFactory)
+    geom = Polygon(
+        (
+            (32.588507094820351, 0.348666499011499),
+            (32.588517512656978, 0.348184682976698),
+            (32.588869114643053, 0.348171660921362),
+            (32.588840465592334, 0.348679521066151),
+            (32.588507094820351, 0.348666499011499),
+        )
+    )
+    config = {
+        "checkpoint": "test-checkpoint",
+        "zoom_level": 20,
+        "source": "https://tiles.openaerialmap.org/test/{z}/{x}/{y}"
+    }
+
 

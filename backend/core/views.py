@@ -272,19 +272,23 @@ class LabelViewSet(BaseSpatialViewSet):
         }
     )
     def create(self, request, *args, **kwargs):
-        aoi_id = request.data.get("aoi")
-        geom = request.data.get("geom")
-
-        existing_label = Label.objects.filter(aoi=aoi_id, geom=geom).first()
-
-        if existing_label:
-            serializer = LabelSerializer(existing_label, data=request.data)
-        else:
-            serializer = LabelSerializer(data=request.data)
+        serializer = LabelSerializer(data=request.data)
 
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            aoi_id = serializer.validated_data.get("aoi")
+            geom = serializer.validated_data.get("geom")
+            
+            existing_label = Label.objects.filter(aoi=aoi_id, geom=geom).first()
+            
+            if existing_label:
+                serializer = LabelSerializer(existing_label, data=request.data)
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+        
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
