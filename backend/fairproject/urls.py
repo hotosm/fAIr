@@ -26,22 +26,21 @@ api_info = openapi.Info(
     title="fAIr API",
     default_version="v1",
     description="""
-# AI-Assisted Mapping : fAIr API
+## AI-Assisted Mapping 
 
-## Overview
 fAIr enables AI-powered mapping using aerial imagery.
 
-## Authentication
+### Authentication
 Most endpoints require authentication using OSM OAuth2:
 1. Get access token: `POST /api/v1/auth/login/`
 2. Use token in header: `access-token: YOUR_TOKEN`
 
-## Typical Workflow
+### Typical Workflow
 1. **Create Dataset** : Define imagery source
 2. **Create AOI** : Define mapping area with polygon
 3. **Add Labels** : Either:
-   - Fetch from OSM: `POST /api/v1/label/osm/fetch/{aoi_id}/`
-   - Upload GeoJSON: `POST /api/v1/label/geojson/upload/{aoi_id}/`
+   - Fetch from OSM
+   - Upload GeoJSON
 4. **Create Model** : Initialize AI model
 5. **Run Training** : Train model 
 6. **Run Prediction** : Run inference on new areas
