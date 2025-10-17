@@ -587,13 +587,14 @@ class BannerViewSet(viewsets.ModelViewSet):
     API endpoint for managing notification banners.
     
     Banners are time-bound messages displayed to users.
-    Admin and staff only.
+    Read access is public, write operations require admin/staff permissions.
     """
     queryset = Banner.objects.all()
     serializer_class = BannerSerializer
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsAdminUser, IsStaffUser]
     pagination_class = None
+    public_methods = ["GET"]
 
     def get_queryset(self):
         now = timezone.now()
@@ -780,6 +781,18 @@ class PredictionSerializer(serializers.ModelSerializer):
             "finished_at",
             "task_id",
         )
+
+    def validate_config(self, value):
+        if value:
+            required_fields = ["checkpoint", "zoom_level", "source"]
+            missing_fields = [
+                field for field in required_fields if field not in value
+            ]
+            if missing_fields:
+                raise serializers.ValidationError(
+                    f"Missing required fields: {', '.join(missing_fields)}"
+                )
+        return value
 
     def validate_geom(self, value):
         from django.contrib.gis.geos import GEOSGeometry, MultiPolygon, Polygon

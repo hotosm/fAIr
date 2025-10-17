@@ -272,13 +272,92 @@ class GeoAPITestCase(BaseAPITestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
     def test_create_prediction_with_geojson(self):
-        self.skipTest("Requires Redis/Celery connection")
+        geojson = {
+            "type": "Polygon",
+            "coordinates": [[
+                [32.588507094820351, 0.348666499011499],
+                [32.588517512656978, 0.348184682976698],
+                [32.588869114643053, 0.348171660921362],
+                [32.588840465592334, 0.348679521066151],
+                [32.588507094820351, 0.348666499011499],
+            ]]
+        }
+
+        payload = {
+            "geom": geojson,
+            "description": "Test prediction",
+            "config": {
+                "checkpoint": "test-checkpoint",
+                "zoom_level": 20,
+                "source": "https://tiles.openaerialmap.org/test/{z}/{x}/{y}"
+            }
+        }
+
+        res = self.post_json(self.get_api_url("/prediction/"), payload)
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        
+        prediction = Prediction.objects.get(id=res.json()["id"])
+        self.assertIsNotNone(prediction.geom)
+        self.assertEqual(prediction.geom.geom_type, "Polygon")
+        self.assertEqual(prediction.task_id, 'test-prediction-task-id')
 
     def test_create_prediction_with_multipolygon_converts_to_bbox(self):
-        self.skipTest("Requires Redis/Celery connection")
+        geojson = {
+            "type": "MultiPolygon",
+            "coordinates": [
+                [[
+                    [32.588507094820351, 0.348666499011499],
+                    [32.588517512656978, 0.348184682976698],
+                    [32.588869114643053, 0.348171660921362],
+                    [32.588840465592334, 0.348679521066151],
+                    [32.588507094820351, 0.348666499011499],
+                ]],
+                [[
+                    [32.589507094820351, 0.349666499011499],
+                    [32.589517512656978, 0.349184682976698],
+                    [32.589869114643053, 0.349171660921362],
+                    [32.589840465592334, 0.349679521066151],
+                    [32.589507094820351, 0.349666499011499],
+                ]]
+            ]
+        }
+
+        payload = {
+            "geom": geojson,
+            "config": {
+                "checkpoint": "test-checkpoint",
+                "zoom_level": 20,
+                "source": "https://tiles.openaerialmap.org/test/{z}/{x}/{y}"
+            }
+        }
+
+        res = self.post_json(self.get_api_url("/prediction/"), payload)
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        
+        prediction = Prediction.objects.get(id=res.json()["id"])
+        self.assertEqual(prediction.geom.geom_type, "Polygon")
 
     def test_prediction_missing_config_fields_fails(self):
-        self.skipTest("Requires Redis/Celery connection")
+        geojson = {
+            "type": "Polygon",
+            "coordinates": [[
+                [32.588507094820351, 0.348666499011499],
+                [32.588517512656978, 0.348184682976698],
+                [32.588869114643053, 0.348171660921362],
+                [32.588840465592334, 0.348679521066151],
+                [32.588507094820351, 0.348666499011499],
+            ]]
+        }
+
+        payload = {
+            "geom": geojson,
+            "config": {
+                "checkpoint": "test-checkpoint"
+            }
+        }
+
+        res = self.post_json(self.get_api_url("/prediction/"), payload)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_prediction_response_includes_geom(self):
         prediction = PredictionFactory(user=self.user)
@@ -301,9 +380,6 @@ class GeoAPITestCase(BaseAPITestCase):
         )
         
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-
-    def test_prediction_missing_config_fields_fails(self):
-        self.skipTest("Requires Redis/Celery connection")
 
     def test_aoi_invalid_geom_fails(self):
         payload = {
@@ -328,5 +404,19 @@ class GeoAPITestCase(BaseAPITestCase):
         res = self.post_json(self.get_api_url("/label/"), payload)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_feedback_without_training_fails(self):
-        self.skipTest("Feedback model allows null training field")
+    def test_feedback_without_training_succeeds(self):
+        geojson = {
+            "type": "Point",
+            "coordinates": [32.588507094820351, 0.348666499011499]
+        }
+
+        payload = {
+            "geom": geojson,
+            "action": "ACCEPT",
+        }
+
+        res = self.post_json(self.get_api_url("/feedback/"), payload)
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        
+        feedback = Feedback.objects.get(id=res.json()["properties"]["id"])
+        self.assertIsNone(feedback.training)

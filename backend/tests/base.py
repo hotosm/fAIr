@@ -67,16 +67,38 @@ class BaseAPITestCase(APILiveServerTestCase):
         self.mock_cache = self.cache_patcher.start()
         self.mock_cache.get.return_value = None
         
+        mock_predict_task = MagicMock()
+        mock_predict_task.id = 'test-prediction-task-id'
+        self.predict_patcher = patch('core.views.predict_area')
+        self.mock_predict = self.predict_patcher.start()
+        self.mock_predict.apply_async.return_value = mock_predict_task
+        
+        # Mock train_model task
+        mock_train_task = MagicMock()
+        mock_train_task.id = 'test-training-task-id'
+        self.train_patcher = patch('core.tasks.train_model')
+        self.mock_train = self.train_patcher.start()
+        self.mock_train.apply_async.return_value = mock_train_task
+        
     def tearDown(self):
+        self.train_patcher.stop()
+        self.predict_patcher.stop()
         self.cache_patcher.stop()
         self.celery_patcher.stop()
         self.auth_patcher.stop()
         super().tearDown()
         
-    def post_json(self, url, data, headers=None, expect_status=None):
+    def post_json(self, url, data, headers=None, expect_status=None, method="POST"):
         """Helper method for JSON POST requests."""
         headers = headers or self.json_headers
-        response = self.client.post(url, json.dumps(data), headers=headers)
+        if method == "POST":
+            response = self.client.post(url, json.dumps(data), headers=headers)
+        elif method == "PATCH":
+            response = self.client.patch(url, json.dumps(data), headers=headers)
+        elif method == "PUT":
+            response = self.client.put(url, json.dumps(data), headers=headers)
+        else:
+            response = self.client.post(url, json.dumps(data), headers=headers)
         if expect_status:
             self.assertEqual(response.status_code, expect_status)
         return response
