@@ -39,7 +39,7 @@ Most endpoints require authentication using OSM OAuth2:
 ## Typical Workflow
 1. **Create Dataset** : Define imagery source
 2. **Create AOI** : Define mapping area with polygon
-3. **Add Labels** : REQUIRED! Either:
+3. **Add Labels** : Either:
    - Fetch from OSM: `POST /api/v1/label/osm/fetch/{aoi_id}/`
    - Upload GeoJSON: `POST /api/v1/label/geojson/upload/{aoi_id}/`
 4. **Create Model** : Initialize AI model
