@@ -48,6 +48,14 @@ class DatasetSerializer(BaseModelSerializer):
             "created_at", "status", "models_count", "offset", "user"
         ]
         read_only_fields = ("user", "created_at", "last_modified", "models_count")
+        swagger_schema_fields = {
+            "example": {
+                "name": "Building Detection Nepal",
+                "source_imagery": "https://tiles.openaerialmap.org/62dbd947dd564e0c8b63a91e/0/62dbd947dd564e0c8b63a91f/{z}/{x}/{y}.png",
+                "status": "DRAFT",
+                "offset": [0, 0]
+            }
+        }
 
     def get_models_count(self, obj):
         return Model.objects.filter(dataset=obj, status=Model.ModelStatus.PUBLISHED).count()
@@ -81,6 +89,15 @@ class ModelSerializer(BaseModelSerializer):
             "thumbnail_url",
         ]
         read_only_fields = ("created_at", "last_modified", "user", "published_training")
+        swagger_schema_fields = {
+            "example": {
+                "dataset": 1,
+                "name": "YOLOv8 Building Model v1",
+                "description": "Building detection model trained on Kathmandu imagery",
+                "base_model": "YOLO_V8_V1",
+                "status": "DRAFT"
+            }
+        }
 
     def __init__(self, *args, **kwargs):
         super(ModelSerializer, self).__init__(*args, **kwargs)
@@ -176,6 +193,23 @@ class AOISerializer(
             "label_status",
             "user",
         )
+        swagger_schema_fields = {
+            "example": {
+                "dataset": 1,
+                "geom": {
+                    "type": "Polygon",
+                    "coordinates": [
+                        [
+                            [85.3240, 27.7172],
+                            [85.3250, 27.7172],
+                            [85.3250, 27.7182],
+                            [85.3240, 27.7182],
+                            [85.3240, 27.7172]
+                        ]
+                    ]
+                }
+            }
+        }
 
     def create(self, validated_data):
         request = self.context.get("request")
@@ -245,6 +279,17 @@ class PredictionParamSerializer(serializers.Serializer):
     tolerance = serializers.FloatField(required=False)
     area_threshold = serializers.FloatField(required=False)
     tile_overlap_distance = serializers.FloatField(required=False)
+
+    class Meta:
+        swagger_schema_fields = {
+            "example": {
+                "bbox": [85.3240, 27.7172, 85.3250, 27.7182],
+                "model_id": 1,
+                "zoom_level": 20,
+                "confidence": 50,
+                "source": "https://tiles.openaerialmap.org/62dbd947dd564e0c8b63a91e/0/62dbd947dd564e0c8b63a91f/{z}/{x}/{y}.png"
+            }
+        }
 
     def validate_ortho_max_angle_change_deg(self, value):
         if value is not None:
@@ -331,6 +376,13 @@ class BannerSerializer(serializers.ModelSerializer):
             "start_date",
             "end_date",
         ]
+        swagger_schema_fields = {
+            "example": {
+                "message": "System maintenance scheduled for Dec 25, 2025",
+                "start_date": "2025-12-25T00:00:00Z",
+                "end_date": "2025-12-25T23:59:59Z"
+            }
+        }
 
 
 class UserStatsSerializer(serializers.ModelSerializer):
@@ -473,6 +525,20 @@ class TrainingSerializer(serializers.ModelSerializer):
             "finished_at",
             "accuracy",
         )
+        swagger_schema_fields = {
+            "example": {
+                "model": 1,
+                "description": "Training run with 50 epochs",
+                "zoom_level": [19, 20],
+                "epochs": 50,
+                "batch_size": 8,
+                "freeze_layers": False,
+                "source_imagery": "https://tiles.openaerialmap.org/62dbd947dd564e0c8b63a91e/0/62dbd947dd564e0c8b63a91f/{z}/{x}/{y}.png",
+                "multimasks": False,
+                "input_contact_spacing": 8,
+                "input_boundary_width": 3
+            }
+        }
 
     def create(self, validated_data):
         from django.shortcuts import get_object_or_404
@@ -574,6 +640,26 @@ class FeedbackSerializer(GeoFeatureModelSerializer, BaseModelSerializer):
         ]
         read_only_fields = ("created_at", "user")
         partial = True
+        swagger_schema_fields = {
+            "example": {
+                "geom": {
+                    "type": "Polygon",
+                    "coordinates": [
+                        [
+                            [85.3240, 27.7172],
+                            [85.3250, 27.7172],
+                            [85.3250, 27.7182],
+                            [85.3240, 27.7182],
+                            [85.3240, 27.7172]
+                        ]
+                    ]
+                },
+                "training": 1,
+                "action": "ACCEPT",
+                "comments": "Good detection",
+                "config": {"confidence": 50}
+            }
+        }
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)

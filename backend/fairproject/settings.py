@@ -279,13 +279,27 @@ AUTH_USER_MODEL = "login.OsmUser"
 SWAGGER_SETTINGS = {
     "DEFAULT_INFO": "fairproject.urls.api_info",
     "SECURITY_DEFINITIONS": {
-        "OSM": {"type": "apiKey", "name": "access-token", "in": "header"},
+        "OSM": {
+            "type": "apiKey", 
+            "name": "access-token", 
+            "in": "header",
+            "description": "OSM OAuth2 access token. Get it from /api/v1/auth/login/"
+        },
     },
     "USE_SESSION_AUTH": False,
     "PERSIST_AUTH": True,
     "REFETCH_SCHEMA_WITH_AUTH": True,
     "REFETCH_SCHEMA_ON_LOGOUT": True,
     "DEFAULT_MODEL_RENDERING": "example",
+    "DEFAULT_MODEL_DEPTH": 2,
+    "SHOW_REQUEST_HEADERS": True,
+    "SUPPORTED_SUBMIT_METHODS": ["get", "post", "put", "delete", "patch"],
+    "OPERATIONS_SORTER": "alpha",
+    "TAGS_SORTER": "alpha",
+    "DOC_EXPANSION": "list",
+    "DEEP_LINKING": True,
+    "DISPLAY_OPERATION_ID": False,
+    "DEFAULT_AUTO_SCHEMA_CLASS": "drf_yasg.inspectors.SwaggerAutoSchema",
 }
 
 RAMP_HOME = env("RAMP_HOME", default=None)

@@ -130,6 +130,73 @@ class DatasetViewSet(BaseSpatialViewSet):
     queryset = Dataset.objects.all()
     serializer_class = DatasetSerializer
 
+    @swagger_auto_schema(
+        operation_summary="List all datasets",
+        operation_description="Get paginated list of datasets. Supports filtering by status and search by name.",
+        tags=['Datasets'],
+        manual_parameters=[
+            openapi.Parameter('search', openapi.IN_QUERY, description='Search by dataset name', type=openapi.TYPE_STRING, example='Building'),
+            openapi.Parameter('status', openapi.IN_QUERY, description='Filter by status', type=openapi.TYPE_STRING, enum=['DRAFT', 'PUBLISHED']),
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Create a new dataset",
+        operation_description="Create a dataset with imagery source URL and metadata. Authentication required.",
+        tags=['Datasets'],
+        responses={
+            201: openapi.Response(description="Dataset created successfully"),
+            400: "Validation error - check required fields",
+            401: "Authentication required"
+        }
+    )
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Get dataset details",
+        operation_description="Retrieve detailed information about a specific dataset including model count and user info.",
+        tags=['Datasets'],
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Update dataset",
+        operation_description="Full update of a dataset. Requires ownership.",
+        tags=['Datasets'],
+        responses={
+            200: "Dataset updated successfully",
+            403: "Permission denied - must be owner",
+            404: "Dataset not found"
+        }
+    )
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Partially update dataset",
+        operation_description="Update specific fields of a dataset. Requires ownership.",
+        tags=['Datasets'],
+    )
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Delete dataset",
+        operation_description="Delete a dataset and all associated data. Requires ownership or admin permissions.",
+        tags=['Datasets'],
+        responses={
+            204: "Dataset deleted successfully",
+            403: "Permission denied",
+            404: "Dataset not found"
+        }
+    )
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
+
 
 @method_decorator(ratelimit(key='user', rate='10/h', method='POST', block=True), name='create')
 class TrainingViewSet(BaseModelViewSet):
@@ -199,6 +266,69 @@ class ModelViewSet(BaseSpatialViewSet):
     ordering_fields = ["created_at", "last_modified", "id", "status"]
     search_fields = ["name", "id"]
 
+    @swagger_auto_schema(
+        operation_summary="List all models",
+        operation_description="Get paginated list of AI models. Filter by status, dataset, dates. Order by various fields.",
+        tags=['Models'],
+        manual_parameters=[
+            openapi.Parameter('search', openapi.IN_QUERY, description='Search by model name or ID', type=openapi.TYPE_STRING, example='YOLOv8'),
+            openapi.Parameter('status', openapi.IN_QUERY, description='Filter by status', type=openapi.TYPE_STRING, enum=['DRAFT', 'PUBLISHED']),
+            openapi.Parameter('dataset', openapi.IN_QUERY, description='Filter by dataset ID', type=openapi.TYPE_INTEGER, example=1),
+            openapi.Parameter('ordering', openapi.IN_QUERY, description='Order by field (prefix with - for descending)', type=openapi.TYPE_STRING, example='-created_at'),
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Create a new model",
+        operation_description="Initialize a new AI model linked to a dataset. Choose YOLO or RAMP base model.",
+        tags=['Models'],
+        responses={
+            201: openapi.Response(description="Model created successfully"),
+            400: "Validation error",
+            401: "Authentication required"
+        }
+    )
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Get model details",
+        operation_description="Get detailed model info including accuracy, published training, thumbnail URL.",
+        tags=['Models'],
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Update model",
+        operation_description="Full update of model metadata. Requires ownership.",
+        tags=['Models'],
+    )
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Partially update model",
+        operation_description="Update specific fields like status, description, name. Requires ownership.",
+        tags=['Models'],
+    )
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Delete model",
+        operation_description="Delete a model. Requires ownership or admin permissions.",
+        tags=['Models'],
+        responses={
+            204: "Model deleted successfully",
+            403: "Permission denied"
+        }
+    )
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
+
 
 class ModelCentroidView(ListAPIView):
     queryset = Model.objects.filter(status=0)  ## only deliver the published model
@@ -248,6 +378,65 @@ class AOIViewSet(BaseModelViewSet):
     queryset = AOI.objects.all()
     serializer_class = AOISerializer
     filterset_fields = ["dataset"]
+
+    @swagger_auto_schema(
+        operation_summary="List all AOIs",
+        operation_description="Get list of Areas of Interest with GeoJSON polygon geometry.",
+        tags=['AOI (Areas of Interest)'],
+        manual_parameters=[
+            openapi.Parameter('dataset', openapi.IN_QUERY, description='Filter by dataset ID', type=openapi.TYPE_INTEGER, example=1),
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Create a new AOI",
+        operation_description="Create an Area of Interest with polygon geometry. Must be a valid Polygon.",
+        tags=['AOI (Areas of Interest)'],
+        responses={
+            201: openapi.Response(description="AOI created successfully"),
+            400: "Invalid geometry or dataset not found"
+        }
+    )
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Get AOI details",
+        operation_description="Retrieve AOI with full GeoJSON geometry and label statistics.",
+        tags=['AOI (Areas of Interest)'],
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Update AOI",
+        operation_description="Update AOI geometry or metadata. Requires ownership.",
+        tags=['AOI (Areas of Interest)'],
+    )
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Partially update AOI",
+        operation_description="Update specific AOI fields. Requires ownership.",
+        tags=['AOI (Areas of Interest)'],
+    )
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Delete AOI",
+        operation_description="Delete an AOI and all associated labels. Requires ownership.",
+        tags=['AOI (Areas of Interest)'],
+        responses={
+            204: "AOI deleted successfully",
+            403: "Permission denied"
+        }
+    )
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
 
 
 class LabelViewSet(BaseSpatialViewSet):
