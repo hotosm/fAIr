@@ -73,7 +73,6 @@ class BaseAPITestCase(APILiveServerTestCase):
         self.mock_predict = self.predict_patcher.start()
         self.mock_predict.apply_async.return_value = mock_predict_task
         
-        # Mock train_model task
         mock_train_task = MagicMock()
         mock_train_task.id = 'test-training-task-id'
         self.train_patcher = patch('core.tasks.train_model')

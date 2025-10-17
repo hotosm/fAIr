@@ -137,6 +137,104 @@ class TaskApiTest(BaseAPITestCase):
             self.get_api_url(f"task/status/{training.id}/"), headers=self.headers
         )
         self.assertEqual(res.status_code, status.HTTP_200_OK)
+        data = res.json()
+        self.assertIn('status', data)
+        self.assertEqual(data['status'], 'SUCCESS')
+    
+    def test_task_status_with_training_result(self):
+        from unittest.mock import MagicMock
+        
+        training = TrainingFactory(model=self.model, user=self.user)
+        
+        mock_result = MagicMock()
+        mock_result.state = 'SUCCESS'
+        mock_result.failed.return_value = False
+        mock_result.result = {
+            "accuracy": 0.85,
+            "output_path": f"/workspace/training_{training.id}/",
+            "preprocess_output": f"/workspace/training_{training.id}/preprocessed"
+        }
+        self.mock_celery.return_value = mock_result
+        
+        res = self.client.get(
+            self.get_api_url(f"task/status/{training.task_id}/"), headers=self.headers
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        data = res.json()
+        self.assertEqual(data['status'], 'SUCCESS')
+        self.assertIsInstance(data['result'], dict)
+        self.assertIn('accuracy', data['result'])
+        self.assertEqual(data['result']['accuracy'], 0.85)
+    
+    def test_task_status_with_prediction_result(self):
+        from unittest.mock import MagicMock
+        from .factories import PredictionFactory
+        
+        prediction = PredictionFactory(user=self.user)
+        
+        mock_result = MagicMock()
+        mock_result.state = 'SUCCESS'
+        mock_result.failed.return_value = False
+        mock_result.result = {
+            "len_predictions": 42,
+            "output": {
+                "aois": f"{settings.API_BASE_URL}/workspace/download/prediction_{prediction.id}/aois.geojson",
+                "predictions": f"{settings.API_BASE_URL}/workspace/download/prediction_{prediction.id}/labels.geojson",
+                "predictions_points": f"{settings.API_BASE_URL}/workspace/download/prediction_{prediction.id}/labels_points.geojson",
+                "pmtiles": f"{settings.API_BASE_URL}/workspace/download/prediction_{prediction.id}/meta.pmtiles",
+            }
+        }
+        self.mock_celery.return_value = mock_result
+        
+        res = self.client.get(
+            self.get_api_url(f"task/status/{prediction.task_id}/"), headers=self.headers
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        data = res.json()
+        self.assertEqual(data['status'], 'SUCCESS')
+        self.assertIsInstance(data['result'], dict)
+        self.assertIn('len_predictions', data['result'])
+        self.assertEqual(data['result']['len_predictions'], 42)
+        self.assertIn('output', data['result'])
+    
+    def test_task_status_pending_state(self):
+        from unittest.mock import MagicMock
+        
+        training = TrainingFactory(model=self.model, user=self.user)
+        
+        mock_result = MagicMock()
+        mock_result.state = 'PENDING'
+        mock_result.failed.return_value = False
+        mock_result.result = None
+        self.mock_celery.return_value = mock_result
+        
+        res = self.client.get(
+            self.get_api_url(f"task/status/{training.task_id}/"), headers=self.headers
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        data = res.json()
+        self.assertEqual(data['status'], 'PENDING')
+    
+    def test_task_status_failed_state(self):
+        from unittest.mock import MagicMock
+        
+        training = TrainingFactory(model=self.model, user=self.user)
+        
+        mock_result = MagicMock()
+        mock_result.state = 'FAILURE'
+        mock_result.failed.return_value = True
+        mock_result.result = Exception("Test error message")
+        mock_result.traceback = "Traceback (most recent call last):\n  File test.py"
+        self.mock_celery.return_value = mock_result
+        
+        res = self.client.get(
+            self.get_api_url(f"task/status/{training.task_id}/"), headers=self.headers
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        data = res.json()
+        self.assertEqual(data['status'], 'FAILURE')
+        self.assertIn('error', data)
+        self.assertIn('traceback', data)
 
     def test_submit_training_feedback(self):
         training = TrainingFactory(model=self.model, user=self.user)
