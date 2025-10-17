@@ -277,9 +277,15 @@ Q_CLUSTER = {
 AUTH_USER_MODEL = "login.OsmUser"
 
 SWAGGER_SETTINGS = {
+    "DEFAULT_INFO": "fairproject.urls.api_info",
     "SECURITY_DEFINITIONS": {
         "OSM": {"type": "apiKey", "name": "access-token", "in": "header"},
-    }
+    },
+    "USE_SESSION_AUTH": False,
+    "PERSIST_AUTH": True,
+    "REFETCH_SCHEMA_WITH_AUTH": True,
+    "REFETCH_SCHEMA_ON_LOGOUT": True,
+    "DEFAULT_MODEL_RENDERING": "example",
 }
 
 RAMP_HOME = env("RAMP_HOME", default=None)

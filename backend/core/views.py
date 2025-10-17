@@ -120,12 +120,24 @@ def home(request):
 
 
 class DatasetViewSet(BaseSpatialViewSet):
+    """
+    API endpoint for managing training datasets.
+    
+    Datasets contain training areas and associated models for AI-assisted mapping.
+    Supports spatial filtering and full CRUD operations.
+    """
     queryset = Dataset.objects.all()
     serializer_class = DatasetSerializer
 
 
 @method_decorator(ratelimit(key='user', rate='10/h', method='POST', block=True), name='create')
 class TrainingViewSet(BaseModelViewSet):
+    """
+    API endpoint for managing model training sessions.
+    
+    Training sessions use labeled data from datasets to train AI models.
+    Rate-limited to 10 creations per hour per user.
+    """
     queryset = Training.objects.all()
     http_method_names = ["get", "post", "delete"]
     serializer_class = TrainingSerializer
@@ -133,6 +145,15 @@ class TrainingViewSet(BaseModelViewSet):
     ordering_fields = ["created_at", "accuracy", "id", "model", "status"]
     search_fields = ["description", "id", "model__name"]
 
+    @swagger_auto_schema(
+        operation_description="Retrieve training details with feedback statistics",
+        responses={
+            200: openapi.Response(
+                description="Training details including feedback counts",
+                schema=TrainingSerializer
+            )
+        }
+    )
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
@@ -145,6 +166,12 @@ class TrainingViewSet(BaseModelViewSet):
 
 
 class FeedbackViewset(BaseSpatialViewSet):
+    """
+    API endpoint for managing training feedback.
+    
+    Feedback allows users to accept or reject predictions to improve model quality.
+    Supports spatial filtering by geometry.
+    """
     queryset = Feedback.objects.all()
     serializer_class = FeedbackSerializer
     bbox_filter_field = "geom"
@@ -152,6 +179,12 @@ class FeedbackViewset(BaseSpatialViewSet):
 
 
 class ModelViewSet(BaseSpatialViewSet):
+    """
+    API endpoint for managing AI models.
+    
+    Models are trained versions that can be published for use in predictions.
+    Supports filtering by status, dataset, and date ranges.
+    """
     queryset = Model.objects.all()
     serializer_class = ModelSerializer
     filterset_fields = {
@@ -206,18 +239,37 @@ class UsersView(ListAPIView):
 
 
 class AOIViewSet(BaseModelViewSet):
+    """
+    API endpoint for managing Areas of Interest (AOI).
+    
+    AOIs define geographic regions within datasets for labeling and training.
+    """
     queryset = AOI.objects.all()
     serializer_class = AOISerializer
     filterset_fields = ["dataset"]
 
 
 class LabelViewSet(BaseSpatialViewSet):
+    """
+    API endpoint for managing training labels.
+    
+    Labels are geographic features used to train AI models.
+    Supports spatial filtering and GeoJSON upload.
+    """
     queryset = Label.objects.all()
     serializer_class = LabelSerializer
     bbox_filter_field = "geom"
     pagination_class = None
     filterset_fields = ["aoi", "aoi__dataset"]
 
+    @swagger_auto_schema(
+        operation_description="Create or update a label. If a label with the same AOI and geometry exists, it will be updated.",
+        request_body=LabelSerializer,
+        responses={
+            200: openapi.Response(description="Label created or updated successfully", schema=LabelSerializer),
+            400: "Bad request"
+        }
+    )
     def create(self, request, *args, **kwargs):
         aoi_id = request.data.get("aoi")
         geom = request.data.get("geom")
@@ -518,6 +570,12 @@ class TrainingWorkspaceDownloadView(APIView):
 
 
 class BannerViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint for managing notification banners.
+    
+    Banners are time-bound messages displayed to users.
+    Admin and staff only.
+    """
     queryset = Banner.objects.all()
     serializer_class = BannerSerializer
     authentication_classes = [OsmAuthentication]
@@ -534,7 +592,6 @@ class BannerViewSet(viewsets.ModelViewSet):
 
 
 @cache_page(60 * settings.CACHE_TIMEOUT_MINUTES)
-# @vary_on_cookie
 @api_view(["GET"])
 def get_kpi_stats(request):
     total_models_with_status_published = Model.objects.filter(status=0).count()
@@ -553,6 +610,12 @@ def get_kpi_stats(request):
 
 
 class UserNotificationViewSet(ReadOnlyModelViewSet):
+    """
+    API endpoint for user notifications.
+    
+    Allows users to view their notifications. Read-only.
+    Use separate endpoints to mark as read.
+    """
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsOsmAuthenticated]
     serializer_class = UserNotificationSerializer
@@ -682,7 +745,20 @@ class PredictionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Prediction
-        fields = "__all__"
+        fields = [
+            "id",
+            "description",
+            "created_at",
+            "started_at",
+            "finished_at",
+            "status",
+            "result_count",
+            "task_id",
+            "mapswipe_id",
+            "config",
+            "geom",
+            "user",
+        ]
         read_only_fields = (
             "created_at",
             "status",
@@ -739,6 +815,13 @@ class PredictionSerializer(serializers.ModelSerializer):
 
 @method_decorator(ratelimit(key='user', rate='50/h', method='POST', block=True), name='create')
 class PredictionViewSet(UserAssignmentMixin, BaseSpatialViewSet):
+    """
+    API endpoint for managing predictions.
+    
+    Predictions use trained models to detect features in new areas.
+    Rate-limited to 50 creations per hour per user.
+    Supports spatial filtering and status tracking.
+    """
     http_method_names = ["get", "post", "patch"]
     queryset = Prediction.objects.all()
     bbox_filter_field = "geom"

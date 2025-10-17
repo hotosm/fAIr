@@ -66,7 +66,20 @@ class ModelSerializer(BaseModelSerializer):
 
     class Meta:
         model = Model
-        fields = "__all__"
+        fields = [
+            "id",
+            "dataset",
+            "name",
+            "created_at",
+            "last_modified",
+            "description",
+            "user",
+            "published_training",
+            "status",
+            "base_model",
+            "accuracy",
+            "thumbnail_url",
+        ]
         read_only_fields = ("created_at", "last_modified", "user", "published_training")
 
     def __init__(self, *args, **kwargs):
@@ -146,8 +159,16 @@ class AOISerializer(
     class Meta:
         model = AOI
         geo_field = "geom"
-        fields = "__all__"
-
+        fields = [
+            "id",
+            "dataset",
+            "geom",
+            "label_status",
+            "label_fetched",
+            "created_at",
+            "last_modified",
+            "user",
+        ]
         read_only_fields = (
             "created_at",
             "last_modified",
@@ -173,10 +194,14 @@ class LabelSerializer(GeoFeatureModelSerializer):
     class Meta:
         model = Label
         geo_field = "geom"
-        # auto_bbox = True
-        fields = "__all__"
-
-        # read_only_fields = ("created_at", "osm_id")
+        fields = [
+            "id",
+            "aoi",
+            "geom",
+            "osm_id",
+            "tags",
+            "created_at",
+        ]
 
 
 class LabelFileSerializer(GeoFeatureModelSerializer):
@@ -418,7 +443,28 @@ class TrainingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Training
-        fields = "__all__"
+        fields = [
+            "id",
+            "model",
+            "source_imagery",
+            "description",
+            "created_at",
+            "status",
+            "task_id",
+            "zoom_level",
+            "user",
+            "started_at",
+            "finished_at",
+            "accuracy",
+            "epochs",
+            "chips_length",
+            "batch_size",
+            "freeze_layers",
+            "centroid",
+            "multimasks",
+            "input_contact_spacing",
+            "input_boundary_width",
+        ]
         read_only_fields = (
             "created_at",
             "status", 
@@ -516,7 +562,16 @@ class FeedbackSerializer(GeoFeatureModelSerializer, BaseModelSerializer):
     class Meta:
         model = Feedback
         geo_field = "geom"
-        fields = "__all__"
+        fields = [
+            "id",
+            "geom",
+            "training",
+            "action",
+            "created_at",
+            "config",
+            "comments",
+            "user",
+        ]
         read_only_fields = ("created_at", "user")
         partial = True
 
