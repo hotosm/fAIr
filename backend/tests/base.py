@@ -1,8 +1,10 @@
 import json
 import os
+from unittest.mock import patch, MagicMock
 from rest_framework import status
 from rest_framework.test import APILiveServerTestCase, APITestCase, RequestsClient
 from rest_framework.test import APIClient
+from rest_framework.exceptions import AuthenticationFailed
 from .factories import (
     OsmUserFactory,
     DatasetFactory,
@@ -17,7 +19,7 @@ API_BASE = "http://testserver/api/v1"
 
 DEFAULT_HEADERS = {
     "accept": "application/json",
-    "access-token": os.environ.get("TESTING_TOKEN"),
+    "access-token": "test-token-123",
 }
 
 
@@ -35,11 +37,41 @@ class BaseAPITestCase(APILiveServerTestCase):
         self.json_headers = self.headers.copy()
         self.json_headers["content-type"] = "application/json"
         
-        # Create common test objects
         self.user = OsmUserFactory()
         self.dataset = DatasetFactory(user=self.user)
         self.aoi = AoiFactory(dataset=self.dataset, user=self.user)
         self.model = ModelFactory(dataset=self.dataset, user=self.user)
+        
+        def mock_authenticate(request):
+            access_token = request.META.get("HTTP_ACCESS_TOKEN")
+            if access_token == "test-token-123":
+                return (self.user, None)
+            return None
+        
+        self.auth_patcher = patch('login.authentication.OsmAuthentication.authenticate')
+        self.mock_auth = self.auth_patcher.start()
+        self.mock_auth.side_effect = mock_authenticate
+        
+        mock_celery_result = MagicMock()
+        mock_celery_result.state = 'SUCCESS'
+        mock_celery_result.info = {}
+        mock_celery_result.result = None  
+        mock_celery_result.traceback = None
+        mock_celery_result.failed.return_value = False
+        
+        self.celery_patcher = patch('core.views.AsyncResult')
+        self.mock_celery = self.celery_patcher.start()
+        self.mock_celery.return_value = mock_celery_result
+        
+        self.cache_patcher = patch('core.views.cache')
+        self.mock_cache = self.cache_patcher.start()
+        self.mock_cache.get.return_value = None
+        
+    def tearDown(self):
+        self.cache_patcher.stop()
+        self.celery_patcher.stop()
+        self.auth_patcher.stop()
+        super().tearDown()
         
     def post_json(self, url, data, headers=None, expect_status=None):
         """Helper method for JSON POST requests."""

@@ -15,6 +15,7 @@ import pyogrio
 from celery import current_app
 from celery.result import AsyncResult
 from django.conf import settings
+from django.core.cache import cache
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -452,46 +453,54 @@ def ConflateGeojson(request):
 
 
 @api_view(["GET"])
+@ratelimit(key='user_or_ip', rate='30/m', method='GET', block=False)
 def run_task_status(request, run_id: str):
-    """Gives the status of running task from background process
-
-    Args:
-        request (_type_): _description_
-        run_id (_type_): _description_
-    """
+    cache_key = f"task_status_{run_id}"
+    cached_result = cache.get(cache_key)
+    if cached_result:
+        return Response(cached_result)
+    
     task_result = AsyncResult(run_id, app=current_app)
+    
     if task_result.failed():
-        return Response(
-            {
-                "id": run_id,
-                "status": task_result.state,
-                "error": str(task_result.result),
-                "traceback": str(task_result.traceback),
-            }
-        )
-    elif task_result.state == "PENDING" or task_result.state == "STARTED":
+        result = {
+            "id": run_id,
+            "status": task_result.state,
+            "error": str(task_result.result),
+            "traceback": str(task_result.traceback),
+        }
+        cache.set(cache_key, result, 2)
+        return Response(result)
+    
+    if task_result.state in ("PENDING", "STARTED"):
         log_file = os.path.join(settings.LOG_PATH, f"run_{run_id}.log")
-        try:
-            # read the last 10 lines of the log file
-            cmd = ["tail", "-n", str(settings.LOG_LINE_STREAM_TRUNCATE_VALUE), log_file]
-            # print(cmd)
-            output = subprocess.check_output(cmd, universal_newlines=True)
-        except Exception as e:
-            output = str(e)
+        output = ""
+        
+        if os.path.exists(log_file):
+            try:
+                from collections import deque
+                with open(log_file, 'r') as f:
+                    lines = deque(f, maxlen=settings.LOG_LINE_STREAM_TRUNCATE_VALUE)
+                    output = ''.join(lines)
+            except Exception as e:
+                output = str(e)
+        
         result = {
             "id": run_id,
             "status": task_result.state,
             "result": task_result.result,
-            "traceback": str(output),
+            "traceback": output,
         }
+        cache.set(cache_key, result, 2)
         return Response(result)
-    else:
-        result = {
-            "id": run_id,
-            "status": task_result.state,
-            "result": task_result.result,
-        }
-        return Response(result)
+    
+    result = {
+        "id": run_id,
+        "status": task_result.state,
+        "result": task_result.result,
+    }
+    cache.set(cache_key, result, 2)
+    return Response(result)
 
 
 DEFAULT_TILE_SIZE = 256
