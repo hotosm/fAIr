@@ -732,3 +732,22 @@ def check_and_convert_crs(geojson_path):
 
 def geojson_to_fgb(input_path, output_path):
     gpd.read_file(input_path).to_file(output_path, driver="FlatGeobuf")
+
+
+def get_api_version():
+    try:
+        import tomllib
+    except ImportError:
+        import tomli as tomllib
+    
+    pyproject_path = Path(__file__).parent.parent / "pyproject.toml"
+    
+    if not pyproject_path.exists():
+        return "unknown"
+    
+    try:
+        with open(pyproject_path, "rb") as f:
+            data = tomllib.load(f)
+        return data.get("project", {}).get("version", "unknown")
+    except Exception:
+        return "unknown"

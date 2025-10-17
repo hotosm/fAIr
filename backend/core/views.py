@@ -16,7 +16,7 @@ from celery import current_app
 from celery.result import AsyncResult
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django_ratelimit.decorators import ratelimit
 from django.utils.decorators import method_decorator
@@ -87,6 +87,7 @@ from .validators import validate_geojson
 from .utils import (
     degrees_to_km,
     download_s3_file,
+    get_api_version,
     get_s3_directory,
     gpx_generator,
     km_to_degrees,
@@ -99,8 +100,23 @@ from .responses import APIResponse, APIResponseCodes
 from .mixins import BaseModelViewSet, BaseSpatialViewSet, UserAssignmentMixin
 
 
+@api_view(['GET'])
 def home(request):
-    return redirect("schema-swagger-ui")
+    version = get_api_version()
+    
+    return Response({
+        "name": "fAIr API",
+        "version": version,
+        "description": "AI-Assisted Mapping",
+        "documentation": {
+            "swagger": request.build_absolute_uri('/api/swagger/'),
+            "redoc": request.build_absolute_uri('/api/redoc/'),
+            "openapi_schema": request.build_absolute_uri('/api/swagger.json')
+        },
+        "api": {
+            "v1": request.build_absolute_uri('/api/v1/')
+        }
+    })
 
 
 class DatasetViewSet(BaseSpatialViewSet):
