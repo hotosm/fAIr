@@ -37,15 +37,15 @@ Most endpoints require authentication using OSM OAuth2:
 2. Use token in header: `access-token: YOUR_TOKEN`
 
 ## Typical Workflow
-1. **Create Dataset** → Define imagery source
-2. **Create AOI** → Define mapping area with polygon
-3. **Add Labels** → REQUIRED! Either:
+1. **Create Dataset** : Define imagery source
+2. **Create AOI** : Define mapping area with polygon
+3. **Add Labels** : REQUIRED! Either:
    - Fetch from OSM: `POST /api/v1/label/osm/fetch/{aoi_id}/`
    - Upload GeoJSON: `POST /api/v1/label/geojson/upload/{aoi_id}/`
-4. **Create Model** → Initialize AI model
-5. **Run Training** → Train model 
-6. **Run Prediction** → Run inference on new areas
-7. **Submit Feedback** → Accept/reject predictions
+4. **Create Model** : Initialize AI model
+5. **Run Training** : Train model 
+6. **Run Prediction** : Run inference on new areas
+7. **Submit Feedback** : Accept/reject predictions
 
     """,
     terms_of_service="https://www.hotosm.org/privacy",
