@@ -26,10 +26,10 @@ api_info = openapi.Info(
     title="fAIr API",
     default_version="v1",
     description="""
-# AI-Assisted Mapping fAIr API
+# AI-Assisted Mapping : fAIr API
 
 ## Overview
-fAIr enables AI-powered building detection and mapping using satellite imagery.
+fAIr enables AI-powered mapping using aerial imagery.
 
 ## Authentication
 Most endpoints require authentication using OSM OAuth2:
@@ -43,14 +43,10 @@ Most endpoints require authentication using OSM OAuth2:
    - Fetch from OSM: `POST /api/v1/label/osm/fetch/{aoi_id}/`
    - Upload GeoJSON: `POST /api/v1/label/geojson/upload/{aoi_id}/`
 4. **Create Model** → Initialize AI model
-5. **Start Training** → Train model (will fail without labels!)
+5. **Run Training** → Train model 
 6. **Run Prediction** → Run inference on new areas
 7. **Submit Feedback** → Accept/reject predictions
 
-## Resources
-- Detailed Docs: `/api/redoc/`
-- OpenAPI Schema: `/api/swagger.json`
-- Contact: sysadmin@hotosm.org
     """,
     terms_of_service="https://www.hotosm.org/privacy",
     contact=openapi.Contact(email="sysadmin@hotosm.org", name="HOT Tech Team"),
