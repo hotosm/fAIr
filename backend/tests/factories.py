@@ -119,3 +119,12 @@ class PredictionFactory(factory.django.DjangoModelFactory):
     }
 
 
+class UserNotificationFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = "core.UserNotification"
+
+    user = factory.SubFactory(OsmUserFactory)
+    message = factory.Sequence(lambda n: f"Notification message {n}")
+    is_read = False
+
+
