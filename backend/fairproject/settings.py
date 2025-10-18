@@ -61,8 +61,8 @@ if USE_S3_TO_UPLOAD_MODELS:
     BUCKET_NAME = env("BUCKET_NAME", default="fair-dev")
     PARENT_BUCKET_FOLDER = env("PARENT_BUCKET_FOLDER", default="dev")
     AWS_REGION = env("AWS_REGION", default="us-east-1")
-    AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID")
-    AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY")
+    AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID", default=None)
+    AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY", default=None)
     PRESIGNED_URL_EXPIRY = env.int("PRESIGNED_URL_EXPIRY", default=3600)
 
 EPOCHS_LIMIT = env.int("EPOCHS_LIMIT", default=20)
