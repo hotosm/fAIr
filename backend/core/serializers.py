@@ -1,10 +1,9 @@
 import mercantile
 from django.conf import settings
-from login.models import OsmUser
 from rest_framework import serializers
-from rest_framework_gis.serializers import (
-    GeoFeatureModelSerializer,
-)
+from rest_framework_gis.serializers import GeoFeatureModelSerializer
+
+from login.models import OsmUser
 
 from .models import (
     AOI,
@@ -18,10 +17,11 @@ from .models import (
     UserNotification,
 )
 
+
 class BaseModelSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
-        if hasattr(self.Meta.model, 'user') and 'user' not in validated_data:
-            validated_data['user'] = self.context['request'].user
+        if hasattr(self.Meta.model, "user") and "user" not in validated_data:
+            validated_data["user"] = self.context["request"].user
         return super().create(validated_data)
 
 
@@ -44,21 +44,37 @@ class DatasetSerializer(BaseModelSerializer):
     class Meta:
         model = Dataset
         fields = [
-            "id", "name", "source_imagery", "last_modified", 
-            "created_at", "status", "models_count", "offset", "user"
+            "id",
+            "name",
+            "source_imagery",
+            "last_modified",
+            "created_at",
+            "status",
+            "models_count",
+            "offset",
+            "user",
         ]
         read_only_fields = ("user", "created_at", "last_modified", "models_count")
         swagger_schema_fields = {
             "example": {
                 "name": "Building Detection Nepal",
                 "source_imagery": "https://tiles.openaerialmap.org/62dbd947dd564e0c8b63a91e/0/62dbd947dd564e0c8b63a91f/{z}/{x}/{y}.png",
-                "status": "DRAFT",
-                "offset": [0, 0]
+                "status": -1,
+                "offset": [0.0, 0.0],
             }
         }
 
+    def validate_status(self, value):
+        if self.instance is None and value != Dataset.DatasetStatus.DRAFT:
+            raise serializers.ValidationError(
+                "New datasets can only be created in DRAFT status. Update to ACTIVE or ARCHIVED after creation."
+            )
+        return value
+
     def get_models_count(self, obj):
-        return Model.objects.filter(dataset=obj, status=Model.ModelStatus.PUBLISHED).count()
+        return Model.objects.filter(
+            dataset=obj, status=Model.ModelStatus.PUBLISHED
+        ).count()
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
@@ -95,20 +111,26 @@ class ModelSerializer(BaseModelSerializer):
                 "name": "YOLOv8 Building Model v1",
                 "description": "Building detection model trained on Kathmandu imagery",
                 "base_model": "YOLO_V8_V1",
-                "status": "DRAFT"
+                "status": -1,
             }
         }
 
     def __init__(self, *args, **kwargs):
         super(ModelSerializer, self).__init__(*args, **kwargs)
         request = self.context.get("request")
-        # Check if there's a pk in the URL (detail view) and then override dataset field.
         if (
             request
             and request.resolver_match
             and request.resolver_match.kwargs.get("pk")
         ):
             self.fields["dataset"] = DatasetSerializer(read_only=True)
+
+    def validate_status(self, value):
+        if self.instance is None and value != Model.ModelStatus.DRAFT:
+            raise serializers.ValidationError(
+                "New models can only be created in DRAFT status. Update to PUBLISHED or ARCHIVED after creation."
+            )
+        return value
 
     def get_thumbnail_url(self, obj):
         training = Training.objects.filter(id=obj.published_training).first()
@@ -117,11 +139,11 @@ class ModelSerializer(BaseModelSerializer):
             if training.source_imagery:
                 aoi = AOI.objects.filter(dataset=obj.dataset).first()
                 if aoi and aoi.geom:
-                    centroid = aoi.geom.centroid.coords  ## Centroid can be stored in db table if required when project grows bigger
+                    centroid = aoi.geom.centroid.coords
                     try:
                         tile = mercantile.tile(centroid[0], centroid[1], zoom=18)
                         return training.source_imagery.format(x=tile.x, y=tile.y, z=18)
-                    except Exception as ex:
+                    except Exception:
                         pass
         return None
 
@@ -170,9 +192,7 @@ class DatasetCentroidSerializer(BaseCentroidSerializer):
         return self.get_aoi_centroid(obj.id)
 
 
-class AOISerializer(
-    GeoFeatureModelSerializer
-):
+class AOISerializer(GeoFeatureModelSerializer):
     class Meta:
         model = AOI
         geo_field = "geom"
@@ -204,10 +224,10 @@ class AOISerializer(
                             [85.3250, 27.7172],
                             [85.3250, 27.7182],
                             [85.3240, 27.7182],
-                            [85.3240, 27.7172]
+                            [85.3240, 27.7172],
                         ]
-                    ]
-                }
+                    ],
+                },
             }
         }
 
@@ -260,7 +280,10 @@ class ImageDownloadSerializer(serializers.Serializer):
         for i in data["zoom_level"]:
             if int(i) < 19 or int(i) > 21:
                 from .exceptions import handle_validation_error
-                raise handle_validation_error("zoom_level", "Zoom level must be between 19-21", i)
+
+                raise handle_validation_error(
+                    "zoom_level", "Zoom level must be between 19-21", i
+                )
         return data
 
 
@@ -287,7 +310,7 @@ class PredictionParamSerializer(serializers.Serializer):
                 "model_id": 1,
                 "zoom_level": 20,
                 "confidence": 50,
-                "source": "https://tiles.openaerialmap.org/62dbd947dd564e0c8b63a91e/0/62dbd947dd564e0c8b63a91f/{z}/{x}/{y}.png"
+                "source": "https://tiles.openaerialmap.org/62dbd947dd564e0c8b63a91e/0/62dbd947dd564e0c8b63a91f/{z}/{x}/{y}.png",
             }
         }
 
@@ -348,8 +371,10 @@ class PredictionParamSerializer(serializers.Serializer):
             )
 
         if "ortho_max_angle_change_deg" in data:
-            data["ortho_max_angle_change_deg"] = self.validate_ortho_max_angle_change_deg(
-                data["ortho_max_angle_change_deg"]
+            data["ortho_max_angle_change_deg"] = (
+                self.validate_ortho_max_angle_change_deg(
+                    data["ortho_max_angle_change_deg"]
+                )
             )
 
         if "ortho_skew_tolerance_deg" in data:
@@ -380,7 +405,7 @@ class BannerSerializer(serializers.ModelSerializer):
             "example": {
                 "message": "System maintenance scheduled for Dec 25, 2025",
                 "start_date": "2025-12-25T00:00:00Z",
-                "end_date": "2025-12-25T23:59:59Z"
+                "end_date": "2025-12-25T23:59:59Z",
             }
         }
 
@@ -455,6 +480,7 @@ class UserStatsSerializer(serializers.ModelSerializer):
 
 class UserNotificationSerializer(serializers.ModelSerializer):
     related_obj = serializers.SerializerMethodField()
+
     class Meta:
         model = UserNotification
         fields = (
@@ -476,9 +502,13 @@ class UserNotificationSerializer(serializers.ModelSerializer):
     def get_related_obj(self, obj):
         if obj.related_object:
             return {
-                'id': obj.related_object.id,
-                'type': type(obj.related_object).__name__,
-                'model': obj.related_object.model.id if hasattr(obj.related_object, 'model') else None,
+                "id": obj.related_object.id,
+                "type": type(obj.related_object).__name__,
+                "model": (
+                    obj.related_object.model.id
+                    if hasattr(obj.related_object, "model")
+                    else None
+                ),
             }
         return None
 
@@ -519,7 +549,7 @@ class TrainingSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = (
             "created_at",
-            "status", 
+            "status",
             "user",
             "started_at",
             "finished_at",
@@ -536,17 +566,19 @@ class TrainingSerializer(serializers.ModelSerializer):
                 "source_imagery": "https://tiles.openaerialmap.org/62dbd947dd564e0c8b63a91e/0/62dbd947dd564e0c8b63a91f/{z}/{x}/{y}.png",
                 "multimasks": False,
                 "input_contact_spacing": 8,
-                "input_boundary_width": 3
+                "input_boundary_width": 3,
             }
         }
 
     def create(self, validated_data):
+        import logging
+
         from django.shortcuts import get_object_or_404
         from rest_framework.exceptions import ValidationError
+
+        from .models import AOI, Label
         from .tasks import train_model
         from .utils import validate_training_params
-        from .models import Label, AOI
-        import logging
 
         model_id = validated_data["model"].id
         existing_trainings = Training.objects.filter(model_id=model_id).exclude(
@@ -568,10 +600,10 @@ class TrainingSerializer(serializers.ModelSerializer):
         epochs = validated_data["epochs"]
         batch_size = validated_data["batch_size"]
         validate_training_params(model, epochs, batch_size)
-        
+
         user = self.context["request"].user
         validated_data["user"] = user
-        
+
         multimasks = validated_data.get("multimasks", False)
         input_contact_spacing = validated_data.get("input_contact_spacing", 0.75)
         input_boundary_width = validated_data.get("input_boundary_width", 0.5)
@@ -650,14 +682,14 @@ class FeedbackSerializer(GeoFeatureModelSerializer, BaseModelSerializer):
                             [85.3250, 27.7172],
                             [85.3250, 27.7182],
                             [85.3240, 27.7182],
-                            [85.3240, 27.7172]
+                            [85.3240, 27.7172],
                         ]
-                    ]
+                    ],
                 },
                 "training": 1,
                 "action": "ACCEPT",
                 "comments": "Good detection",
-                "config": {"confidence": 50}
+                "config": {"confidence": 50},
             }
         }
 
