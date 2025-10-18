@@ -62,7 +62,7 @@ jobs:
       - name: Install Dependencies
         working-directory: ./backend
         run: |
-          uv add coverage factory-boy
+          uv sync --group test
 
       - name: Clone Ramp
         run: git clone https://github.com/kshitijrajsharma/ramp-code-fAIr.git ramp-code
