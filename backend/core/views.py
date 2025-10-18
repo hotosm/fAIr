@@ -105,6 +105,7 @@ from django.http import JsonResponse
 from celery import current_app
 from django.core.cache import cache
 from rest_framework.decorators import api_view
+
 @api_view(["GET"])
 def health(request):
     status = {"postgresql": False, "redis": False, "celery_workers": False}
@@ -292,6 +293,7 @@ class ModelViewSet(BaseSpatialViewSet):
     }
     ordering_fields = ["created_at", "last_modified", "id", "status"]
     search_fields = ["name", "id"]
+    public_methods = ["GET"]
 
     @swagger_auto_schema(
         operation_summary="List all models",
@@ -405,6 +407,7 @@ class AOIViewSet(BaseModelViewSet):
     queryset = AOI.objects.all()
     serializer_class = AOISerializer
     filterset_fields = ["dataset"]
+    public_methods = ["GET"]
 
     @swagger_auto_schema(
         operation_summary="List all AOIs",
