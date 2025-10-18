@@ -231,7 +231,7 @@ initialize_app() {
   
   # Start the web server in the API container
   echo -e "${YELLOW}Starting web server...${NC}"
-  docker exec -d api bash -c "gunicorn aiproject.wsgi:application --bind 0.0.0.0:8000 --workers=4 --timeout=120"
+  docker exec -d api bash -c "gunicorn fairproject.wsgi:application --bind 0.0.0.0:8000 --workers=4 --timeout=120"
   
   # Mark container as ready for health checks
   docker exec api bash -c "touch /app/ready"

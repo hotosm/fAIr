@@ -27,7 +27,7 @@ ExecStart=/usr/local/envs/fair/bin/gunicorn \
           --access-logfile - \
           --workers 3 \
           --bind unix:/run/gunicorn.sock \
-          aiproject.wsgi:application --timeout 180 --log-level debug
+          fairproject.wsgi:application --timeout 180 --log-level debug
 
 [Install]
 WantedBy=multi-user.target

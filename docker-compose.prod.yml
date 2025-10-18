@@ -57,7 +57,7 @@ services:
     platform: linux/amd64
     container_name: api
     restart: always
-    command: gunicorn --bind 0.0.0.0:8000 --workers 3 aiproject.wsgi:application
+    command: gunicorn --bind 0.0.0.0:8000 --workers 3 fairproject.wsgi:application
     ports:
       - "8000:8000"
     depends_on:
@@ -106,7 +106,7 @@ services:
     platform: linux/amd64
     container_name: worker-cpu
     restart: always
-    command: celery -A aiproject worker --loglevel=INFO --pool=threads --concurrency=1 -Q ramp_training,yolo_training
+    command: celery -A fairproject worker --loglevel=INFO --pool=threads --concurrency=1 -Q ramp_training,yolo_training
     depends_on:
       backend-api:
         condition: service_healthy
@@ -129,7 +129,7 @@ services:
     platform: linux/amd64
     container_name: worker-gpu
     restart: always
-    command: celery -A aiproject worker --loglevel=INFO --pool=threads --concurrency=1 -Q ramp_training,yolo_training --max-tasks-per-child 1000  -n worker-gpu@%h
+    command: celery -A fairproject worker --loglevel=INFO --pool=threads --concurrency=1 -Q ramp_training,yolo_training --max-tasks-per-child 1000  -n worker-gpu@%h
     depends_on:
       backend-api:
         condition: service_healthy
@@ -155,7 +155,7 @@ services:
     platform: linux/amd64
     container_name: prediction-worker
     restart: always
-    command: celery -A aiproject worker --loglevel=INFO --concurrency=1 -Q predictions --max-tasks-per-child 1000  -n prediction-worker@%h
+    command: celery -A fairproject worker --loglevel=INFO --concurrency=1 -Q predictions --max-tasks-per-child 1000  -n prediction-worker@%h
     depends_on:
       backend-api:
         condition: service_healthy

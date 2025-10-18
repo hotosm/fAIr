@@ -11,7 +11,7 @@ x-common-volumes: &common-volumes
     - ${TRAINING_WORKSPACE:-./fair-app-data/trainings}:${TRAINING_WORKSPACE:-/trainings}
     - ${APP_HOME:-./}backend/core:/app/core
     - ${APP_HOME:-./}backend/login:/app/login
-    - ${APP_HOME:-./}backend/aiproject:/app/aiproject
+    - ${APP_HOME:-./}backend/fairproject:/app/fairproject
 
 services:
   postgres:
@@ -102,7 +102,7 @@ services:
     platform: linux/amd64
     container_name: worker-cpu
     restart: unless-stopped
-    command: celery -A aiproject worker --loglevel=INFO --concurrency=1 -Q ramp_training,yolo_training
+    command: celery -A fairproject worker --loglevel=INFO --concurrency=1 -Q ramp_training,yolo_training
     depends_on:
       backend-api:
         condition: service_healthy
@@ -130,7 +130,7 @@ services:
     platform: linux/amd64
     container_name: worker-gpu
     restart: unless-stopped
-    command: celery -A aiproject worker --loglevel=INFO --concurrency=1 -Q ramp_training,yolo_training --pool=solo
+    command: celery -A fairproject worker --loglevel=INFO --concurrency=1 -Q ramp_training,yolo_training --pool=solo
     depends_on:
       backend-api:
         condition: service_healthy
@@ -160,7 +160,7 @@ services:
     platform: linux/amd64
     container_name: prediction-worker
     restart: unless-stopped
-    command: celery -A aiproject worker --loglevel=INFO --concurrency=1 -Q predictions --pool=solo
+    command: celery -A fairproject worker --loglevel=INFO --concurrency=1 -Q predictions --pool=solo
     depends_on:
       backend-api:
         condition: service_healthy

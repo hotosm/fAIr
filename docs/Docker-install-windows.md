@@ -184,7 +184,7 @@ Extra. Do you want to run your local tiles?
         context: ./backend
         dockerfile: Dockerfile_CPU
         container_name: worker
-        command: celery -A aiproject worker --loglevel=INFO --concurrency=1
+        command: celery -A fairproject worker --loglevel=INFO --concurrency=1
 
         volumes:
         - ./backend:/app
