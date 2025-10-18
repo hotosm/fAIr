@@ -13,8 +13,6 @@ from datetime import datetime
 from celery import shared_task
 from core.models import (
     AOI,
-    FeedbackAOI,
-    FeedbackLabel,
     Label,
     Model,
     Prediction,
@@ -22,8 +20,6 @@ from core.models import (
 )
 from core.serializers import (
     AOISerializer,
-    FeedbackAOISerializer,
-    FeedbackLabelFileSerializer,
     LabelFileSerializer,
 )
 from core.utils import bbox, is_dir_empty
@@ -320,25 +316,17 @@ def upload_to_s3(path, parent=None):
 
 
 def prepare_data(
-    inst, dataset_id, feedback, zoom_level, imagery, input_path, imagery_type
+    inst, dataset_id, zoom_level, imagery, input_path, imagery_type
 ):
     from geomltoolkits.downloader import tms as TMSDownloader
 
     safe_rmtree(input_path)
     os.makedirs(input_path)
 
-    aois = (
-        FeedbackAOI.objects.filter(training=feedback)
-        if feedback
-        else AOI.objects.filter(dataset=dataset_id)
-    )
-    serializer = FeedbackAOISerializer if feedback else AOISerializer
-    label_qs = (
-        FeedbackLabel.objects.filter(feedback_aoi__in=aois)
-        if feedback
-        else Label.objects.filter(aoi__in=aois)
-    )
-    label_serializer = FeedbackLabelFileSerializer if feedback else LabelFileSerializer
+    aois = AOI.objects.filter(dataset=dataset_id)
+    serializer = AOISerializer
+    label_qs = Label.objects.filter(aoi__in=aois)
+    label_serializer = LabelFileSerializer
 
     inst.centroid = aois[0].geom.centroid
     inst.save()
@@ -368,7 +356,8 @@ def prepare_data(
     else:
         print("[✗] 'chips' folder does not exist at:", chips_folder)
     if is_dir_empty(input_path):
-        raise ValueError("No images found in the area")
+        from .exceptions import ModelTrainingException
+        raise ModelTrainingException(message="No training images found in the specified area", details={"area_path": str(input_path)})
 
     serialized = label_serializer(label_qs, many=True).data
     label_path = os.path.join(input_path, "labels.geojson")
@@ -440,7 +429,6 @@ def train_model(
     batch_size,
     zoom_level,
     source_imagery,
-    feedback=None,
     freeze_layers=False,
     multimasks=False,
     input_contact_spacing=8,
@@ -482,7 +470,6 @@ def train_model(
             input_path, aoi_ser, labels = prepare_data(
                 inst,
                 dataset_id,
-                feedback,
                 zoom_level,
                 source_imagery,
                 input_path,

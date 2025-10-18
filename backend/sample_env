@@ -1,21 +1,36 @@
 DEBUG=True
-SECRET_KEY=yl2w)c0boi_ma-1v5)935^2#&m*r!1s9z9^*9e5co^08_ixzo6
-DATABASE_URL=postgis://admin:password@localhost:5432/ai
-EXPORT_TOOL_API_URL=MY_RAW_DATA_URL
-CORS_ALLOWED_ORIGINS=http://localhost:3000
-HOSTNAME=
-GDAL_LIBRARY_PATH=''
-MAXAR_CONNECT_ID=
-OSM_CLIENT_ID=
-OSM_CLIENT_SECRET=
+# SECRET_KEY=your-production-secret-key
+
+# DATABASE_URL=sqlite:///db.sqlite3
+DATABASE_URL=postgis://admin:password@localhost:5432/fair
+# DATABASE_SSL_MODE=require
+
+OSM_CLIENT_ID=your-osm-client-id
+OSM_CLIENT_SECRET=your-osm-client-secret
+OSM_SECRET_KEY=your-osm-secret-key
 OSM_URL=https://www.openstreetmap.org
 OSM_SCOPE=read_prefs
 OSM_LOGIN_REDIRECT_URI=http://127.0.0.1:8000/api/v1/auth/callback/
-OSM_SECRET_KEY=
-CELERY_BROKER_URL="redis://localhost:6379/0"
-CELERY_RESULT_BACKEND="redis://localhost:6379/0"
-RAMP_HOME="/home/kshitij/hotosm/fAIr-utilities"
-TRAINING_WORKSPACE="/home/kshitij/hotosm/fAIr/backend/training"
-LOG_PATH="/home/kshitij/hotosm/fAIr/backend/training/log"
 
-TESTING_TOKEN = your_osm_access_token_only_if_you_run_tets
+HOSTNAME=127.0.0.1
+API_BASE_URL=http://127.0.0.1:8000/api/v1
+FRONTEND_URL=http://localhost:3000
+# ALLOWED_HOSTS=yourdomain.com,api.yourdomain.com
+
+RAMP_HOME=/path/to/ramp-code
+TRAINING_WORKSPACE=/tmp/fair-training
+PREDICTION_WORKSPACE=/tmp/fair-prediction
+
+REDIS_URL=redis://127.0.0.1:6379/1
+CELERY_BROKER_URL=redis://127.0.0.1:6379/0
+CELERY_RESULT_BACKEND=redis://127.0.0.1:6379/0
+
+EXPORT_TOOL_API_URL=https://api-prod.raw-data.hotosm.org/v1
+# GDAL_LIBRARY_PATH=/usr/lib/libgdal.so
+
+LOG_PATH=/tmp/fair-logs
+
+# CORS_ALLOWED_ORIGINS=https://yourdomain.com
+# CSRF_TRUSTED_ORIGINS=https://yourdomain.com
+
+TESTING_TOKEN=your_osm_access_token_only_for_tests

@@ -1,10 +1,11 @@
+import logging
 from django.conf import settings
 from osm_login_python.core import Auth
 from rest_framework import authentication, exceptions
 
 from .models import OsmUser
 
-# initialize osm_auth with our credentials
+logger = logging.getLogger(__name__)
 
 
 class OsmAuthentication(authentication.BaseAuthentication):
@@ -43,9 +44,15 @@ class OsmAuthentication(authentication.BaseAuthentication):
                     )
 
             except Exception as ex:
-                print(ex)
-                # raise ex
+                logger.warning(
+                    "OSM authentication failed",
+                    extra={
+                        "error": str(ex),
+                        "access_token_length": len(access_token) if access_token else 0,
+                        "osm_url": settings.OSM_URL
+                    }
+                )
                 raise exceptions.AuthenticationFailed(
-                    f"Osm Authentication Failed"
-                )  # raise exception if user does not exist
+                    "OSM authentication failed: Invalid or expired access token"
+                )
         return (user, None)  # authentication successful return id,user_name,img

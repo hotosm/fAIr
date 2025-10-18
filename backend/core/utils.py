@@ -31,17 +31,33 @@ from shapely.affinity import translate
 from tqdm import tqdm
 
 # Local imports
-from .models import AOI, FeedbackAOI, FeedbackLabel, Label, UserNotification
-from .serializers import FeedbackLabelSerializer, LabelSerializer
+from .models import AOI, Label, UserNotification
+from .serializers import LabelSerializer
+
+
+def validate_training_params(model, epochs, batch_size):
+    from .exceptions import ValidationException, handle_validation_error
+    
+    if model.base_model == "RAMP":
+        if epochs > settings.RAMP_EPOCHS_LIMIT:
+            raise handle_validation_error("epochs", f"Epochs can't be greater than {settings.RAMP_EPOCHS_LIMIT} on this server", epochs)
+        if batch_size > settings.RAMP_BATCH_SIZE_LIMIT:
+            raise handle_validation_error("batch_size", f"Batch size can't be greater than {settings.RAMP_BATCH_SIZE_LIMIT} on this server", batch_size)
+    elif model.base_model in ["YOLO_V8_V1", "YOLO_V8_V2"]:
+        if epochs > settings.YOLO_EPOCHS_LIMIT:
+            raise handle_validation_error("epochs", f"Epochs can't be greater than {settings.YOLO_EPOCHS_LIMIT} on this server", epochs)
+        if batch_size > settings.YOLO_BATCH_SIZE_LIMIT:
+            raise handle_validation_error("batch_size", f"Batch size can't be greater than {settings.YOLO_BATCH_SIZE_LIMIT} on this server", batch_size)
 
 
 def get_s3_client():
-    if settings.AWS_ACCESS_KEY_ID and settings.AWS_SECRET_ACCESS_KEY:
+    if (hasattr(settings, 'AWS_ACCESS_KEY_ID') and hasattr(settings, 'AWS_SECRET_ACCESS_KEY') 
+        and settings.AWS_ACCESS_KEY_ID and settings.AWS_SECRET_ACCESS_KEY):
         return boto3.client(
             "s3",
             aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
             aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-            region_name=settings.AWS_REGION,
+            region_name=getattr(settings, 'AWS_REGION', 'us-east-1'),
         )
     else:
         return boto3.client("s3")
@@ -121,13 +137,19 @@ def download_s3_file(bucket_name, s3_key):
         return None
 
 
+def handle_s3_operation(operation, *args, **kwargs):
+    """Generic S3 operation handler with error handling."""
+    try:
+        return operation(*args, **kwargs)
+    except Exception as e:
+        from .exceptions import S3ServiceException
+        raise S3ServiceException(message="S3 operation failed", details={"operation": "get_s3_client", "error": str(e)})
+
+
 def get_s3_metadata(bucket_name, key):
     """Retrieve metadata for an S3 object."""
-    try:
-        response = s3_client.head_object(Bucket=bucket_name, Key=key)
-        return {"size": response.get("ContentLength")}
-    except Exception as e:
-        raise Exception(f"Error fetching metadata: {str(e)}")
+    response = handle_s3_operation(s3_client.head_object, Bucket=bucket_name, Key=key)
+    return {"size": response.get("ContentLength")}
 
 
 def get_s3_directory_size_and_length(bucket_name, prefix):
@@ -298,22 +320,20 @@ def request_rawdata(geometry):
     return snapshot_url
 
 
-def process_rawdata(file_download_url, aoi_id, feedback=False):
+def process_rawdata(file_download_url, aoi_id):
     """This will create temp directory , Downloads file from URL provided,
     Unzips it Finds a geojson file , Process it and finally removes
     processed Geojson file and downloaded zip file from Directory"""
-    headers = {"Referer": "https://fair-dev.hotosm.org/"}  # TODO : Use request uri
+    headers = {"Referer": "https://fair-dev.hotosm.org/"}
     r = requests.get(file_download_url, headers=headers)
     # Check whether the export path exists or not
     path = "temp/"
     isExist = os.path.exists(path)
     if not isExist:
-        # Create a exports directory because it does not exist
         os.makedirs(path)
-    file_temp_path = os.path.join(path, f"{str(uuid4())}.zip")  # unique
+    file_temp_path = os.path.join(path, f"{str(uuid4())}.zip")
     open(file_temp_path, "wb").write(r.content)
     with ZipFile(file_temp_path, "r") as zipObj:
-        # Get a list of all archived file names from the zip
         listOfFileNames = zipObj.namelist()
         # Iterate over the file names
         geojson_file_path = f"""{path}/geojson/"""
@@ -327,7 +347,7 @@ def process_rawdata(file_download_url, aoi_id, feedback=False):
                     print(f"""Geojson file{fileName} from API wrote to disk""")
                     break
         geojson_file = f"""{geojson_file_path}{fileName}"""
-        process_geojson(geojson_file, aoi_id, feedback)
+        process_geojson(geojson_file, aoi_id)
     remove_file(file_temp_path)
     remove_file(geojson_file)
 
@@ -364,50 +384,31 @@ def gpx_generator(geom_json):
     return gpx.to_xml()
 
 
-def process_feature(feature, aoi_id, foreign_key_id, feedback=False):
+def process_feature(feature, aoi_id, foreign_key_id):
     """Multi thread process of features"""
     properties = feature["properties"]
     osm_id = properties["osm_id"]
     tags = properties["tags"]
     geometry = feature["geometry"]
-    if feedback:
-        if FeedbackLabel.objects.filter(
-            osm_id=int(osm_id), feedback_aoi__training=foreign_key_id
-        ).exists():
-            FeedbackLabel.objects.filter(
-                osm_id=int(osm_id), feedback_aoi__training=foreign_key_id
-            ).delete()
 
-        label = FeedbackLabelSerializer(
-            data={
-                "osm_id": int(osm_id),
-                "tags": tags,
-                "geom": geometry,
-                "feedback_aoi": aoi_id,
-            }
-        )
-
-    else:
-        if Label.objects.filter(
+    if Label.objects.filter(
+        osm_id=int(osm_id), aoi__dataset=foreign_key_id
+    ).exists():
+        Label.objects.filter(
             osm_id=int(osm_id), aoi__dataset=foreign_key_id
-        ).exists():
-            Label.objects.filter(
-                osm_id=int(osm_id), aoi__dataset=foreign_key_id
-            ).delete()
+        ).delete()
 
-        label = LabelSerializer(
-            data={"osm_id": int(osm_id), "tags": tags, "geom": geometry, "aoi": aoi_id}
-        )
+    label = LabelSerializer(
+        data={"osm_id": int(osm_id), "tags": tags, "geom": geometry, "aoi": aoi_id}
+    )
     if label.is_valid():
         label.save()
     else:
         raise ValidationErr(label.errors)
 
 
-def process_geojson(geojson_file_path, aoi_id, feedback=False):
-    """Responsible for Processing Geojson file from directory ,
-        Opens the file reads the record , Checks either record
-        present or not if not inserts into database
+def process_geojson(geojson_file_path, aoi_id):
+    """Multi-threaded Geojson processing to  database
 
     Args:
         geojson_file_path (_type_): _description_
@@ -417,32 +418,21 @@ def process_geojson(geojson_file_path, aoi_id, feedback=False):
         ValidationErr: _description_
     """
     print("Geojson Processing Started")
-    if feedback:
-        foreign_key_id = FeedbackAOI.objects.get(id=aoi_id).training
-    else:
-        foreign_key_id = AOI.objects.get(id=aoi_id).dataset
+    foreign_key_id = AOI.objects.get(id=aoi_id).dataset
     max_workers = (
         (os.cpu_count() - 1) if os.cpu_count() != 1 else 1
     )  # leave one cpu free always
-    if feedback:
-        FeedbackLabel.objects.filter(feedback_aoi__id=aoi_id).delete()
-    else:
-        Label.objects.filter(aoi__id=aoi_id).delete()
-    # max_workers = os.cpu_count()  # get total cpu count available on the
+    Label.objects.filter(aoi__id=aoi_id).delete()
 
     with open(geojson_file_path) as f:
         data = json.load(f)
         with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
             futures = [
                 executor.submit(
-                    process_feature, feature, aoi_id, foreign_key_id, feedback
+                    process_feature, feature, aoi_id, foreign_key_id
                 )
                 for feature in data["features"]
             ]
-            for f in tqdm(futures, total=len(data["features"])):
-                f.result()
-
-    print("writing to database finished")
 
 
 class S3Uploader:
@@ -515,7 +505,7 @@ def get_email_message(obj_instance, status):
     hostname = settings.FRONTEND_URL
 
     if obj_instance.__class__.__name__ == "Prediction":
-        profile_url = f"{hostname}/profile/offline-predictions"  # todo : later on add the instance id here once we have the offline prediction page itself
+        profile_url = f"{hostname}/profile/offline-predictions"
 
     elif obj_instance.__class__.__name__ == "Training":
         profile_url = f"{hostname}/ai-models/{obj_instance.model.id}"
@@ -632,14 +622,21 @@ def write_json(path, data):
         json.dump(data, f)
 
 
-def get_file_count(path):
+def safe_file_operation(operation, default_value=None, log_errors=True):
+    """Generic file operation wrapper with error handling."""
     try:
-        return len(
-            [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
-        )
+        return operation()
     except Exception as e:
-        logging.getLogger(__name__).error(f"Error counting files: {e}")
-        return 0
+        if log_errors:
+            logging.getLogger(__name__).error(f"File operation failed: {e}")
+        return default_value
+
+
+def get_file_count(path):
+    return safe_file_operation(
+        lambda: len([f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]),
+        default_value=0
+    )
 
 
 def xz_folder(folder_path, output_filename, remove_original=False):
@@ -735,3 +732,22 @@ def check_and_convert_crs(geojson_path):
 
 def geojson_to_fgb(input_path, output_path):
     gpd.read_file(input_path).to_file(output_path, driver="FlatGeobuf")
+
+
+def get_api_version():
+    try:
+        import tomllib
+    except ImportError:
+        import tomli as tomllib
+    
+    pyproject_path = Path(__file__).parent.parent / "pyproject.toml"
+    
+    if not pyproject_path.exists():
+        return "unknown"
+    
+    try:
+        with open(pyproject_path, "rb") as f:
+            data = tomllib.load(f)
+        return data.get("project", {}).get("version", "unknown")
+    except Exception:
+        return "unknown"

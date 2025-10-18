@@ -22,15 +22,38 @@ from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 
+api_info = openapi.Info(
+    title="fAIr API",
+    default_version="v1",
+    description="""
+## AI-Assisted Mapping 
+
+fAIr enables AI-powered mapping using aerial imagery.
+
+### Authentication
+Most endpoints require authentication using OSM OAuth2:
+1. Get access token: `POST /api/v1/auth/login/`
+2. Use token in header: `access-token: YOUR_TOKEN`
+
+### Typical Workflow
+1. **Create Dataset** : Define imagery source
+2. **Create AOI** : Define mapping area with polygon
+3. **Add Labels** : Either:
+   - Fetch from OSM
+   - Upload GeoJSON
+4. **Create Model** : Initialize AI model
+5. **Run Training** : Train model 
+6. **Run Prediction** : Run inference on new areas
+7. **Submit Feedback** : Accept/reject predictions
+
+    """,
+    terms_of_service="https://www.hotosm.org/privacy",
+    contact=openapi.Contact(email="sysadmin@hotosm.org", name="HOT Tech Team"),
+    license=openapi.License(name="AGPL-3.0", url="https://www.gnu.org/licenses/agpl-3.0.en.html"),
+)
+
 schema_view = get_schema_view(
-    openapi.Info(
-        title="fAIr API",
-        default_version="v1",
-        description="AI-Assisted Mapping fAIr - Checkout Detail documentation on /redoc",
-        terms_of_service="https://www.google.com/policies/terms/",
-        contact=openapi.Contact(email="sysadmin@hotosm.org"),
-        # license=openapi.License(name="BSD License"),
-    ),
+    api_info,
     public=True,
     permission_classes=[permissions.AllowAny],
 )

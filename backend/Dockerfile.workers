@@ -15,7 +15,7 @@ COPY pyproject.toml uv.lock manage.py /app/
 RUN uv pip compile --python-version=3.10  pyproject.toml -o requirements.txt --group api --group base-workers --group ramp-workers \
     && pip install --no-cache-dir -r requirements.txt
 
-COPY aiproject /app/aiproject
+COPY fairproject /app/fairproject
 COPY core /app/core
 COPY login /app/login
 COPY docker/cuda-libdevice  /usr/local/cuda/nvvm/libdevice

@@ -1,35 +1,44 @@
 import mercantile
 from django.conf import settings
-from login.models import OsmUser
 from rest_framework import serializers
-from rest_framework_gis.serializers import (
-    GeoFeatureModelSerializer,  # this will be used if we used to serialize as geojson
+from rest_framework_gis.serializers import GeoFeatureModelSerializer
+
+from login.models import OsmUser
+
+from .models import (
+    AOI,
+    Banner,
+    Dataset,
+    Feedback,
+    Label,
+    Model,
+    Prediction,
+    Training,
+    UserNotification,
 )
 
-from .models import *
 
-# from .tasks import train_model
+class BaseModelSerializer(serializers.ModelSerializer):
+    def create(self, validated_data):
+        if hasattr(self.Meta.model, "user") and "user" not in validated_data:
+            validated_data["user"] = self.context["request"].user
+        return super().create(validated_data)
+
+
+class ModelMetaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Model
+        fields = ["id", "name", "dataset", "base_model", "status"]
 
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = OsmUser
-        fields = [
-            "osm_id",
-            "username",
-            # "is_superuser",
-            # "is_active",
-            # "is_staff",
-            # "date_joined",
-            # "email",
-            # "img_url",
-            # "user_permissions",
-        ]
-
-    read_only_fields = ["osm_id", "username"]
+        fields = ["osm_id", "username"]
+        read_only_fields = ["osm_id", "username"]
 
 
-class DatasetSerializer(serializers.ModelSerializer):
+class DatasetSerializer(BaseModelSerializer):
     models_count = serializers.SerializerMethodField()
 
     class Meta:
@@ -45,17 +54,22 @@ class DatasetSerializer(serializers.ModelSerializer):
             "offset",
             "user",
         ]
-        read_only_fields = (
-            "user",
-            "created_at",
-            "last_modified",
-            "models_count",
-        )
+        read_only_fields = ("user", "created_at", "last_modified", "models_count")
+        swagger_schema_fields = {
+            "example": {
+                "name": "Building Detection Nepal",
+                "source_imagery": "https://tiles.openaerialmap.org/62dbd947dd564e0c8b63a91e/0/62dbd947dd564e0c8b63a91f/{z}/{x}/{y}.png",
+                "status": -1,
+                "offset": [0.0, 0.0],
+            }
+        }
 
-    def create(self, validated_data):
-        user = self.context["request"].user
-        validated_data["user"] = user
-        return super().create(validated_data)
+    def validate_status(self, value):
+        if self.instance is None and value != Dataset.DatasetStatus.DRAFT:
+            raise serializers.ValidationError(
+                "New datasets can only be created in DRAFT status. Update to ACTIVE or ARCHIVED after creation."
+            )
+        return value
 
     def get_models_count(self, obj):
         return Model.objects.filter(
@@ -63,44 +77,60 @@ class DatasetSerializer(serializers.ModelSerializer):
         ).count()
 
     def to_representation(self, instance):
-        # get default
         ret = super().to_representation(instance)
-        # For GET requests, replace the user field with detailed UserSerializer data
         if self.context.get("request") and self.context["request"].method == "GET":
             ret["user"] = UserSerializer(instance.user).data
         return ret
 
 
-class ModelSerializer(serializers.ModelSerializer):
+class ModelSerializer(BaseModelSerializer):
     user = UserSerializer(read_only=True)
     accuracy = serializers.SerializerMethodField()
     thumbnail_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Model
-        fields = "__all__"
-        read_only_fields = (
+        fields = [
+            "id",
+            "dataset",
+            "name",
             "created_at",
             "last_modified",
+            "description",
             "user",
             "published_training",
-        )
-
-    def create(self, validated_data):
-        user = self.context["request"].user
-        validated_data["user"] = user
-        return super().create(validated_data)
+            "status",
+            "base_model",
+            "accuracy",
+            "thumbnail_url",
+        ]
+        read_only_fields = ("created_at", "last_modified", "user", "published_training")
+        swagger_schema_fields = {
+            "example": {
+                "dataset": 1,
+                "name": "YOLOv8 Building Model v1",
+                "description": "Building detection model trained on Kathmandu imagery",
+                "base_model": "YOLO_V8_V1",
+                "status": -1,
+            }
+        }
 
     def __init__(self, *args, **kwargs):
         super(ModelSerializer, self).__init__(*args, **kwargs)
         request = self.context.get("request")
-        # Check if there's a pk in the URL (detail view) and then override dataset field.
         if (
             request
             and request.resolver_match
             and request.resolver_match.kwargs.get("pk")
         ):
             self.fields["dataset"] = DatasetSerializer(read_only=True)
+
+    def validate_status(self, value):
+        if self.instance is None and value != Model.ModelStatus.DRAFT:
+            raise serializers.ValidationError(
+                "New models can only be created in DRAFT status. Update to PUBLISHED or ARCHIVED after creation."
+            )
+        return value
 
     def get_thumbnail_url(self, obj):
         training = Training.objects.filter(id=obj.published_training).first()
@@ -109,11 +139,11 @@ class ModelSerializer(serializers.ModelSerializer):
             if training.source_imagery:
                 aoi = AOI.objects.filter(dataset=obj.dataset).first()
                 if aoi and aoi.geom:
-                    centroid = aoi.geom.centroid.coords  ## Centroid can be stored in db table if required when project grows bigger
+                    centroid = aoi.geom.centroid.coords
                     try:
                         tile = mercantile.tile(centroid[0], centroid[1], zoom=18)
                         return training.source_imagery.format(x=tile.x, y=tile.y, z=18)
-                    except Exception as ex:
+                    except Exception:
                         pass
         return None
 
@@ -124,60 +154,58 @@ class ModelSerializer(serializers.ModelSerializer):
         return None
 
 
-class ModelCentroidSerializer(GeoFeatureModelSerializer):
+class BaseCentroidSerializer(GeoFeatureModelSerializer):
     geometry = serializers.SerializerMethodField()
+
+    def get_aoi_centroid(self, dataset_id):
+        """Common method to get AOI centroid for a dataset."""
+        aoi = AOI.objects.filter(dataset=dataset_id).first()
+        if aoi and aoi.geom:
+            return {
+                "type": "Point",
+                "coordinates": aoi.geom.centroid.coords,
+            }
+        return None
+
+
+class ModelCentroidSerializer(BaseCentroidSerializer):
     mid = serializers.IntegerField(source="id")
 
     class Meta:
         model = Model
         geo_field = "geometry"
         fields = ("mid", "geometry")
-        # fields = ("mid", "name", "geometry")
 
     def get_geometry(self, obj):
-        """
-        Get the centroid of the AOI linked to the dataset of the given model.
-        """
-        aoi = AOI.objects.filter(dataset=obj.dataset).first()
-        if aoi and aoi.geom:
-            return {
-                "type": "Point",
-                "coordinates": aoi.geom.centroid.coords,
-            }
-        return None
+        return self.get_aoi_centroid(obj.dataset.id)
 
 
-class DatasetCentroidSerializer(GeoFeatureModelSerializer):
-    geometry = serializers.SerializerMethodField()
+class DatasetCentroidSerializer(BaseCentroidSerializer):
     did = serializers.IntegerField(source="id")
 
     class Meta:
         model = Dataset
         geo_field = "geometry"
-        # fields = ("did", "geometry")
         fields = ("did", "name", "geometry")
 
     def get_geometry(self, obj):
-        """
-        Get the centroid of the AOI linked to the dataset of the given model.
-        """
-        aoi = AOI.objects.filter(dataset=obj.id).first()
-        if aoi and aoi.geom:
-            return {
-                "type": "Point",
-                "coordinates": aoi.geom.centroid.coords,
-            }
-        return None
+        return self.get_aoi_centroid(obj.id)
 
 
-class AOISerializer(
-    GeoFeatureModelSerializer
-):  # serializers are used to translate models objects to api
+class AOISerializer(GeoFeatureModelSerializer):
     class Meta:
         model = AOI
-        geo_field = "geom"  # this will be used as geometry in order to create geojson api , geofeatureserializer will let you create api in geojson
-        fields = "__all__"  # defining all the fields to  be included in curd for now , we can restrict few if we want
-
+        geo_field = "geom"
+        fields = [
+            "id",
+            "dataset",
+            "geom",
+            "label_status",
+            "label_fetched",
+            "created_at",
+            "last_modified",
+            "user",
+        ]
         read_only_fields = (
             "created_at",
             "last_modified",
@@ -185,6 +213,23 @@ class AOISerializer(
             "label_status",
             "user",
         )
+        swagger_schema_fields = {
+            "example": {
+                "dataset": 1,
+                "geom": {
+                    "type": "Polygon",
+                    "coordinates": [
+                        [
+                            [85.3240, 27.7172],
+                            [85.3250, 27.7172],
+                            [85.3250, 27.7182],
+                            [85.3240, 27.7182],
+                            [85.3240, 27.7172],
+                        ]
+                    ],
+                },
+            }
+        }
 
     def create(self, validated_data):
         request = self.context.get("request")
@@ -199,69 +244,18 @@ class AOISerializer(
         return super().update(instance, validated_data)
 
 
-class FeedbackAOISerializer(GeoFeatureModelSerializer):
-    class Meta:
-        model = FeedbackAOI
-        geo_field = "geom"
-        fields = "__all__"
-        partial = True
-
-        read_only_fields = (
-            "created_at",
-            "last_modified",
-            "label_fetched",
-            "label_status",
-            "user",
-        )
-
-    def create(self, validated_data):
-        user = self.context["request"].user
-        validated_data["user"] = user
-        return super().create(validated_data)
-
-
-class FeedbackSerializer(GeoFeatureModelSerializer):
-    class Meta:
-        model = Feedback
-        geo_field = "geom"
-        fields = "__all__"
-        read_only_fields = ("created_at", "last_modified", "user")
-        partial = True
-
-    def create(self, validated_data):
-        user = self.context["request"].user
-        validated_data["user"] = user
-        return super().create(validated_data)
-
-    def to_representation(self, instance):
-        ret = super().to_representation(instance)
-        ret["properties"]["id"] = instance.id
-        return ret
-
-
 class LabelSerializer(GeoFeatureModelSerializer):
     class Meta:
         model = Label
         geo_field = "geom"
-        # auto_bbox = True
-        fields = "__all__"
-
-        # read_only_fields = ("created_at", "osm_id")
-
-
-class ApprovedPredictionsSerializer(GeoFeatureModelSerializer):
-    class Meta:
-        model = ApprovedPredictions
-        geo_field = "geom"
-        fields = "__all__"
-
-
-class FeedbackLabelSerializer(GeoFeatureModelSerializer):
-    class Meta:
-        model = FeedbackLabel
-        geo_field = "geom"
-        fields = "__all__"
-        # read_only_fields = ("created_at", "osm_id")
+        fields = [
+            "id",
+            "aoi",
+            "geom",
+            "osm_id",
+            "tags",
+            "created_at",
+        ]
 
 
 class LabelFileSerializer(GeoFeatureModelSerializer):
@@ -270,21 +264,6 @@ class LabelFileSerializer(GeoFeatureModelSerializer):
         geo_field = "geom"
         # auto_bbox = True
         fields = ("osm_id", "tags")
-
-
-class FeedbackLabelFileSerializer(GeoFeatureModelSerializer):
-    class Meta:
-        model = FeedbackLabel
-        geo_field = "geom"
-        # auto_bbox = True
-        fields = ("osm_id", "tags")
-
-
-class FeedbackFileSerializer(GeoFeatureModelSerializer):
-    class Meta:
-        fields = ("training",)
-        model = Feedback
-        geo_field = "geom"
 
 
 class ImageDownloadSerializer(serializers.Serializer):
@@ -300,62 +279,11 @@ class ImageDownloadSerializer(serializers.Serializer):
         """
         for i in data["zoom_level"]:
             if int(i) < 19 or int(i) > 21:
-                raise serializers.ValidationError("Zoom level Supported between 19-21")
-        return data
+                from .exceptions import handle_validation_error
 
-
-class FeedbackParamSerializer(serializers.Serializer):
-    training_id = serializers.IntegerField(required=True)
-    epochs = serializers.IntegerField(required=False)
-    batch_size = serializers.IntegerField(required=False)
-    zoom_level = serializers.ListField(child=serializers.IntegerField(), required=False)
-
-    def validate_training_id(self, value):
-        try:
-            Training.objects.get(id=value)
-        except Training.DoesNotExist:
-            raise serializers.ValidationError("Training doesn't exist")
-
-        return value
-
-    def validate(self, data):
-        training_id = data.get("training_id")
-
-        try:
-            fd_aois = FeedbackAOI.objects.filter(training=training_id)
-        except FeedbackAOI.DoesNotExist:
-            raise serializers.ValidationError(
-                "No feedback AOI is associated with Training"
-            )
-
-        if fd_aois.filter(
-            label_status=FeedbackAOI.DownloadStatus.NOT_DOWNLOADED
-        ).exists():
-            raise serializers.ValidationError(
-                "Not all AOIs have their labels downloaded"
-            )
-
-        if "epochs" in data and (
-            data["epochs"] > settings.EPOCHS_LIMIT or data["epochs"] <= 0
-        ):
-            raise serializers.ValidationError(
-                f"Epochs should be 1 - {settings.EPOCHS_LIMIT} on this server"
-            )
-
-        if "batch_size" in data and (
-            data["batch_size"] > settings.BATCH_SIZE_LIMIT or data["batch_size"] <= 0
-        ):
-            raise serializers.ValidationError(
-                f"Batch size should be 1 - {settings.BATCH_SIZE_LIMIT} on this server"
-            )
-
-        if "zoom_level" in data:
-            for zoom in data["zoom_level"]:
-                if zoom < 19 or zoom > 21:
-                    raise serializers.ValidationError(
-                        "Zoom level must be between 19 and 21"
-                    )
-
+                raise handle_validation_error(
+                    "zoom_level", "Zoom level must be between 19-21", i
+                )
         return data
 
 
@@ -374,6 +302,17 @@ class PredictionParamSerializer(serializers.Serializer):
     tolerance = serializers.FloatField(required=False)
     area_threshold = serializers.FloatField(required=False)
     tile_overlap_distance = serializers.FloatField(required=False)
+
+    class Meta:
+        swagger_schema_fields = {
+            "example": {
+                "bbox": [85.3240, 27.7172, 85.3250, 27.7182],
+                "model_id": 1,
+                "zoom_level": 20,
+                "confidence": 50,
+                "source": "https://tiles.openaerialmap.org/62dbd947dd564e0c8b63a91e/0/62dbd947dd564e0c8b63a91f/{z}/{x}/{y}.png",
+            }
+        }
 
     def validate_ortho_max_angle_change_deg(self, value):
         if value is not None:
@@ -432,8 +371,10 @@ class PredictionParamSerializer(serializers.Serializer):
             )
 
         if "ortho_max_angle_change_deg" in data:
-            data["ortho_max_angle_change_deg"] = self.validate_ortho_max_angle_change_deg(
-                data["ortho_max_angle_change_deg"]
+            data["ortho_max_angle_change_deg"] = (
+                self.validate_ortho_max_angle_change_deg(
+                    data["ortho_max_angle_change_deg"]
+                )
             )
 
         if "ortho_skew_tolerance_deg" in data:
@@ -460,6 +401,13 @@ class BannerSerializer(serializers.ModelSerializer):
             "start_date",
             "end_date",
         ]
+        swagger_schema_fields = {
+            "example": {
+                "message": "System maintenance scheduled for Dec 25, 2025",
+                "start_date": "2025-12-25T00:00:00Z",
+                "end_date": "2025-12-25T23:59:59Z",
+            }
+        }
 
 
 class UserStatsSerializer(serializers.ModelSerializer):
@@ -532,6 +480,7 @@ class UserStatsSerializer(serializers.ModelSerializer):
 
 class UserNotificationSerializer(serializers.ModelSerializer):
     related_obj = serializers.SerializerMethodField()
+
     class Meta:
         model = UserNotification
         fields = (
@@ -553,8 +502,198 @@ class UserNotificationSerializer(serializers.ModelSerializer):
     def get_related_obj(self, obj):
         if obj.related_object:
             return {
-                'id': obj.related_object.id,
-                'type': type(obj.related_object).__name__,
-                'model': obj.related_object.model.id if hasattr(obj.related_object, 'model') else None,
+                "id": obj.related_object.id,
+                "type": type(obj.related_object).__name__,
+                "model": (
+                    obj.related_object.model.id
+                    if hasattr(obj.related_object, "model")
+                    else None
+                ),
             }
         return None
+
+
+class TrainingSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    multimasks = serializers.BooleanField(required=False, default=False)
+    input_contact_spacing = serializers.IntegerField(
+        required=False, default=8, min_value=0, max_value=20
+    )
+    input_boundary_width = serializers.IntegerField(
+        required=False, default=3, min_value=0, max_value=10
+    )
+
+    class Meta:
+        model = Training
+        fields = [
+            "id",
+            "model",
+            "source_imagery",
+            "description",
+            "created_at",
+            "status",
+            "task_id",
+            "zoom_level",
+            "user",
+            "started_at",
+            "finished_at",
+            "accuracy",
+            "epochs",
+            "chips_length",
+            "batch_size",
+            "freeze_layers",
+            "centroid",
+            "multimasks",
+            "input_contact_spacing",
+            "input_boundary_width",
+        ]
+        read_only_fields = (
+            "created_at",
+            "status",
+            "user",
+            "started_at",
+            "finished_at",
+            "accuracy",
+        )
+        swagger_schema_fields = {
+            "example": {
+                "model": 1,
+                "description": "Training run with 50 epochs",
+                "zoom_level": [19, 20],
+                "epochs": 50,
+                "batch_size": 8,
+                "freeze_layers": False,
+                "source_imagery": "https://tiles.openaerialmap.org/62dbd947dd564e0c8b63a91e/0/62dbd947dd564e0c8b63a91f/{z}/{x}/{y}.png",
+                "multimasks": False,
+                "input_contact_spacing": 8,
+                "input_boundary_width": 3,
+            }
+        }
+
+    def create(self, validated_data):
+        import logging
+
+        from django.shortcuts import get_object_or_404
+        from rest_framework.exceptions import ValidationError
+
+        from .models import AOI, Label
+        from .tasks import train_model
+        from .utils import validate_training_params
+
+        model_id = validated_data["model"].id
+        existing_trainings = Training.objects.filter(model_id=model_id).exclude(
+            status__in=["FINISHED", "FAILED"]
+        )
+        if existing_trainings.exists():
+            raise ValidationError(
+                "Another training is already running or submitted for this model."
+            )
+
+        model = get_object_or_404(Model, id=model_id)
+        if not Label.objects.filter(
+            aoi__in=AOI.objects.filter(dataset=model.dataset)
+        ).exists():
+            raise ValidationError(
+                "Error: No labels associated with the model, Create AOI & Labels for Dataset"
+            )
+
+        epochs = validated_data["epochs"]
+        batch_size = validated_data["batch_size"]
+        validate_training_params(model, epochs, batch_size)
+
+        user = self.context["request"].user
+        validated_data["user"] = user
+
+        multimasks = validated_data.get("multimasks", False)
+        input_contact_spacing = validated_data.get("input_contact_spacing", 0.75)
+        input_boundary_width = validated_data.get("input_boundary_width", 0.5)
+
+        pop_keys = ["multimasks", "input_contact_spacing", "input_boundary_width"]
+        for key in pop_keys:
+            if key in validated_data.keys():
+                validated_data.pop(key)
+
+        instance = Training.objects.create(**validated_data)
+
+        task = train_model.apply_async(
+            kwargs={
+                "dataset_id": instance.model.dataset.id,
+                "training_id": instance.id,
+                "epochs": instance.epochs,
+                "batch_size": instance.batch_size,
+                "zoom_level": instance.zoom_level,
+                "source_imagery": instance.source_imagery
+                or instance.model.dataset.source_imagery,
+                "freeze_layers": instance.freeze_layers,
+                "multimasks": multimasks,
+                "input_contact_spacing": input_contact_spacing,
+                "input_boundary_width": input_boundary_width,
+            },
+            queue=(
+                "ramp_training"
+                if instance.model.base_model == "RAMP"
+                else "yolo_training"
+            ),
+        )
+        logging.info("Record saved in queue")
+
+        if not instance.source_imagery:
+            instance.source_imagery = instance.model.dataset.source_imagery
+        if multimasks:
+            instance.description += f" Multimask params (ct/bw): {input_contact_spacing}/{input_boundary_width}"
+        instance.task_id = task.id
+        instance.save()
+        logging.info(f"Training request queued with task ID {task.id}")
+        return instance
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        request = self.context.get("request")
+        if request and request.method.upper() == "GET":
+            ret["model"] = ModelMetaSerializer(
+                instance.model, context=self.context
+            ).data
+        return ret
+
+
+class FeedbackSerializer(GeoFeatureModelSerializer, BaseModelSerializer):
+    class Meta:
+        model = Feedback
+        geo_field = "geom"
+        fields = [
+            "id",
+            "geom",
+            "training",
+            "action",
+            "created_at",
+            "config",
+            "comments",
+            "user",
+        ]
+        read_only_fields = ("created_at", "user")
+        partial = True
+        swagger_schema_fields = {
+            "example": {
+                "geom": {
+                    "type": "Polygon",
+                    "coordinates": [
+                        [
+                            [85.3240, 27.7172],
+                            [85.3250, 27.7172],
+                            [85.3250, 27.7182],
+                            [85.3240, 27.7182],
+                            [85.3240, 27.7172],
+                        ]
+                    ],
+                },
+                "training": 1,
+                "action": "ACCEPT",
+                "comments": "Good detection",
+                "config": {"confidence": 50},
+            }
+        }
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        ret["properties"]["id"] = instance.id
+        return ret

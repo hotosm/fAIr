@@ -15,9 +15,11 @@ import pyogrio
 from celery import current_app
 from celery.result import AsyncResult
 from django.conf import settings
+from django.core.cache import cache
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from django_ratelimit.decorators import ratelimit
 from django.utils.decorators import method_decorator
 from django.utils.timezone import now
 from django.views.decorators.cache import cache_page
@@ -37,7 +39,13 @@ from login.permissions import (
 from osmconflator import conflate_geojson
 from rest_framework import decorators, filters, serializers, status, viewsets
 from rest_framework.decorators import api_view
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError as DRFValidationError
+from .exceptions import (
+    ValidationException,
+    ResourceNotFoundException,
+    handle_validation_error,
+    ExternalServiceException
+)
 from rest_framework.generics import ListAPIView
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
@@ -49,12 +57,9 @@ from shapely.geometry import box
 
 from .models import (
     AOI,
-    ApprovedPredictions,
     Banner,
     Dataset,
     Feedback,
-    FeedbackAOI,
-    FeedbackLabel,
     Label,
     Model,
     OsmUser,
@@ -64,26 +69,26 @@ from .models import (
 )
 from .serializers import (
     AOISerializer,
-    ApprovedPredictionsSerializer,
     BannerSerializer,
     DatasetCentroidSerializer,
     DatasetSerializer,
-    FeedbackAOISerializer,
-    FeedbackLabelSerializer,
-    FeedbackParamSerializer,
     FeedbackSerializer,
     LabelSerializer,
     ModelCentroidSerializer,
+    ModelMetaSerializer,
     ModelSerializer,
     PredictionParamSerializer,
+    TrainingSerializer,
     UserNotificationSerializer,
     UserSerializer,
     UserStatsSerializer,
 )
 from .tasks import predict_area, train_model
+from .validators import validate_geojson
 from .utils import (
     degrees_to_km,
     download_s3_file,
+    get_api_version,
     get_s3_directory,
     gpx_generator,
     km_to_degrees,
@@ -92,272 +97,163 @@ from .utils import (
     s3_object_exists,
     send_notification,
 )
+from .responses import APIResponse, APIResponseCodes
+from .mixins import BaseModelViewSet, BaseSpatialViewSet, UserAssignmentMixin
 
 
+@api_view(['GET'])
 def home(request):
-    return redirect("schema-swagger-ui")
+    version = get_api_version()
+    
+    return Response({
+        "name": "fAIr API",
+        "version": version,
+        "description": "AI-Assisted Mapping",
+        "documentation": {
+            "swagger": request.build_absolute_uri('/api/swagger/'),
+            "redoc": request.build_absolute_uri('/api/redoc/'),
+            "openapi_schema": request.build_absolute_uri('/api/swagger.json')
+        },
+        "api": {
+            "v1": request.build_absolute_uri('/api/v1/')
+        }
+    })
 
 
-class UserAssignmentMixin:
+class DatasetViewSet(BaseSpatialViewSet):
     """
-    Mixin to automatically assign the current user to created objects
-    and only return objects belonging to the current user.
+    API endpoint for managing training datasets.
+    
+    Datasets contain training areas and associated models for AI-assisted mapping.
+    Supports spatial filtering and full CRUD operations.
     """
-
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
-
-    def get_queryset(self):
-        """
-        Only return objects belonging to the current user.
-        """
-        queryset = super().get_queryset()
-        return queryset.filter(user=self.request.user)
-
-
-class DatasetViewSet(
-    viewsets.ModelViewSet
-):  # This is datasetviewset , will be tightly coupled with the models
-    authentication_classes = [OsmAuthentication]
-    permission_classes = [IsOsmAuthenticated]
-    public_methods = ["GET"]
     queryset = Dataset.objects.all()
-    filter_backends = (
-        DjangoFilterBackend,
-        filters.SearchFilter,
-        filters.OrderingFilter,
+    serializer_class = DatasetSerializer
+
+    @swagger_auto_schema(
+        operation_summary="List all datasets",
+        operation_description="Get paginated list of datasets. Supports filtering by status and search by name.",
+        tags=['Datasets'],
+        manual_parameters=[
+            openapi.Parameter('search', openapi.IN_QUERY, description='Search by dataset name', type=openapi.TYPE_STRING, example='Building'),
+            openapi.Parameter('status', openapi.IN_QUERY, description='Filter by status', type=openapi.TYPE_STRING, enum=['DRAFT', 'PUBLISHED']),
+        ]
     )
-    serializer_class = DatasetSerializer  # connecting serializer
-    filterset_fields = {
-        "status": ["exact"],
-        "created_at": ["exact", "gt", "gte", "lt", "lte"],
-        "last_modified": ["exact", "gt", "gte", "lt", "lte"],
-        "user": ["exact"],
-        "id": ["exact"],
-        "source_imagery": ["exact"],
-    }
-    ordering_fields = ["created_at", "last_modified", "id", "status"]
-    search_fields = ["name", "id"]
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
-
-class ModelMetaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Model
-        fields = ["id", "name", "dataset", "base_model", "status"]
-
-
-class TrainingSerializer(
-    serializers.ModelSerializer
-):  # serializers are used to translate models objects to api
-    user = UserSerializer(read_only=True)
-    multimasks = serializers.BooleanField(required=False, default=False)
-    input_contact_spacing = serializers.IntegerField(
-        required=False, default=8, min_value=0, max_value=20
+    @swagger_auto_schema(
+        operation_summary="Create a new dataset",
+        operation_description="Create a dataset with imagery source URL and metadata. Authentication required.",
+        tags=['Datasets'],
+        responses={
+            201: openapi.Response(description="Dataset created successfully"),
+            400: "Validation error - check required fields",
+            401: "Authentication required"
+        }
     )
-    input_boundary_width = serializers.IntegerField(
-        required=False, default=3, min_value=0, max_value=10
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Get dataset details",
+        operation_description="Retrieve detailed information about a specific dataset including model count and user info.",
+        tags=['Datasets'],
     )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
 
-    class Meta:
-        model = Training
-        fields = "__all__"  # defining all the fields to  be included in curd for now , we can restrict few if we want
-        read_only_fields = (
-            "created_at",
-            "status",
-            "user",
-            "started_at",
-            "finished_at",
-            "accuracy",
-        )
+    @swagger_auto_schema(
+        operation_summary="Update dataset",
+        operation_description="Full update of a dataset. Requires ownership.",
+        tags=['Datasets'],
+        responses={
+            200: "Dataset updated successfully",
+            403: "Permission denied - must be owner",
+            404: "Dataset not found"
+        }
+    )
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
 
-    def create(self, validated_data):
-        model_id = validated_data["model"].id
-        existing_trainings = Training.objects.filter(model_id=model_id).exclude(
-            status__in=["FINISHED", "FAILED"]
-        )
-        if existing_trainings.exists():
-            raise ValidationError(
-                "Another training is already running or submitted for this model."
-            )
+    @swagger_auto_schema(
+        operation_summary="Partially update dataset",
+        operation_description="Update specific fields of a dataset. Requires ownership.",
+        tags=['Datasets'],
+    )
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
 
-        model = get_object_or_404(Model, id=model_id)
-        if not Label.objects.filter(
-            aoi__in=AOI.objects.filter(dataset=model.dataset)
-        ).exists():
-            raise ValidationError(
-                "Error: No labels associated with the model, Create AOI & Labels for Dataset"
-            )
-
-        epochs = validated_data["epochs"]
-        batch_size = validated_data["batch_size"]
-        if model.base_model == "RAMP":
-            if epochs > settings.RAMP_EPOCHS_LIMIT:
-                raise ValidationError(
-                    f"Epochs can't be greater than {settings.RAMP_EPOCHS_LIMIT} on this server"
-                )
-            if batch_size > settings.RAMP_BATCH_SIZE_LIMIT:
-                raise ValidationError(
-                    f"Batch size can't be greater than {settings.RAMP_BATCH_SIZE_LIMIT} on this server"
-                )
-        if model.base_model in ["YOLO_V8_V1", "YOLO_V8_V2"]:
-            if epochs > settings.YOLO_EPOCHS_LIMIT:
-                raise ValidationError(
-                    f"Epochs can't be greater than {settings.YOLO_EPOCHS_LIMIT} on this server"
-                )
-            if batch_size > settings.YOLO_BATCH_SIZE_LIMIT:
-                raise ValidationError(
-                    f"Batch size can't be greater than {settings.YOLO_BATCH_SIZE_LIMIT} on this server"
-                )
-        user = self.context["request"].user
-        validated_data["user"] = user
-        # create the model instance
-        multimasks = validated_data.get("multimasks", False)
-        input_contact_spacing = validated_data.get("input_contact_spacing", 0.75)
-        input_boundary_width = validated_data.get("input_boundary_width", 0.5)
-
-        pop_keys = ["multimasks", "input_contact_spacing", "input_boundary_width"]
-
-        for key in pop_keys:
-            if key in validated_data.keys():
-                validated_data.pop(key)
-
-        instance = Training.objects.create(**validated_data)
-
-        # run your function here
-        task = train_model.apply_async(
-            kwargs={
-                "dataset_id": instance.model.dataset.id,
-                "training_id": instance.id,
-                "epochs": instance.epochs,
-                "batch_size": instance.batch_size,
-                "zoom_level": instance.zoom_level,
-                "source_imagery": instance.source_imagery
-                or instance.model.dataset.source_imagery,
-                "freeze_layers": instance.freeze_layers,
-                "multimasks": multimasks,
-                "input_contact_spacing": input_contact_spacing,
-                "input_boundary_width": input_boundary_width,
-            },
-            queue=(
-                "ramp_training"
-                if instance.model.base_model == "RAMP"
-                else "yolo_training"
-            ),
-        )
-        logging.info("Record saved in queue")
-
-        if not instance.source_imagery:
-            instance.source_imagery = instance.model.dataset.source_imagery
-        if multimasks:
-            instance.description += f" Multimask params (ct/bw): {input_contact_spacing}/{input_boundary_width}"
-        instance.task_id = task.id
-        instance.save()
-        print(f"Saved train model request to queue with id {task.id}")
-        return instance
-
-    def to_representation(self, instance):
-        ret = super().to_representation(instance)
-        request = self.context.get("request")
-        if request and request.method.upper() == "GET":
-            ret["model"] = ModelMetaSerializer(
-                instance.model, context=self.context
-            ).data
-        return ret
+    @swagger_auto_schema(
+        operation_summary="Delete dataset",
+        operation_description="Delete a dataset and all associated data. Requires ownership or admin permissions.",
+        tags=['Datasets'],
+        responses={
+            204: "Dataset deleted successfully",
+            403: "Permission denied",
+            404: "Dataset not found"
+        }
+    )
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
 
 
-class TrainingViewSet(
-    viewsets.ModelViewSet
-):  # This is TrainingViewSet , will be tightly coupled with the models
-    authentication_classes = [OsmAuthentication]
-    permission_classes = [IsOsmAuthenticated]
-    public_methods = ["GET"]
+@method_decorator(ratelimit(key='user', rate='10/h', method='POST', block=True), name='create')
+class TrainingViewSet(BaseModelViewSet):
+    """
+    API endpoint for managing model training sessions.
+    
+    Training sessions use labeled data from datasets to train AI models.
+    Rate-limited to 10 creations per hour per user.
+    """
     queryset = Training.objects.all()
     http_method_names = ["get", "post", "delete"]
-    filter_backends = (
-        DjangoFilterBackend,
-        filters.SearchFilter,
-        filters.OrderingFilter,
-    )
-    serializer_class = TrainingSerializer  # connecting serializer
+    serializer_class = TrainingSerializer
     filterset_fields = ["model", "status", "user", "id"]
-
     ordering_fields = ["created_at", "accuracy", "id", "model", "status"]
     search_fields = ["description", "id", "model__name"]
 
+    @swagger_auto_schema(
+        operation_description="Retrieve training details with feedback statistics",
+        responses={
+            200: openapi.Response(
+                description="Training details including feedback counts",
+                schema=TrainingSerializer
+            )
+        }
+    )
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
-        feedback_count = Feedback.objects.filter(
-            training=instance.id, action="REJECT"
-        ).count()  # cal feedback count
-        approved_predictions_count = Feedback.objects.filter(
-            training=instance.id, action="ACCEPT"
-        ).count()
         data = serializer.data
-        data["feedback_count"] = feedback_count
-        data["approved_predictions_count"] = approved_predictions_count
-        return Response(data, status=status.HTTP_200_OK)
+        data.update({
+            "feedback_count": Feedback.objects.filter(training=instance.id, action="REJECT").count(),
+            "approved_predictions_count": Feedback.objects.filter(training=instance.id, action="ACCEPT").count()
+        })
+        return Response(data)
 
 
-class FeedbackViewset(viewsets.ModelViewSet):
-    authentication_classes = [OsmAuthentication]
-    permission_classes = [IsOsmAuthenticated]
-    public_methods = ["GET"]
+class FeedbackViewset(BaseSpatialViewSet):
+    """
+    API endpoint for managing training feedback.
+    
+    Feedback allows users to accept or reject predictions to improve model quality.
+    Supports spatial filtering by geometry.
+    """
     queryset = Feedback.objects.all()
-    http_method_names = ["get", "post", "patch", "delete"]
     serializer_class = FeedbackSerializer
     bbox_filter_field = "geom"
-    filter_backends = (
-        InBBoxFilter,
-        # TMSTileFilter,
-        DjangoFilterBackend,
-    )
-    bbox_filter_include_overlapping = True
     filterset_fields = ["training", "user", "action"]
 
 
-class FeedbackAOIViewset(viewsets.ModelViewSet):
-    authentication_classes = [OsmAuthentication]
-    permission_classes = [IsOsmAuthenticated]
-    public_methods = ["GET"]
-    queryset = FeedbackAOI.objects.all()
-    http_method_names = ["get", "post", "patch", "delete"]
-    serializer_class = FeedbackAOISerializer
-    filterset_fields = [
-        "training",
-        "user",
-    ]
-
-
-class FeedbackLabelViewset(viewsets.ModelViewSet):
-    authentication_classes = [OsmAuthentication]
-    permission_classes = [IsOsmAuthenticated]
-    public_methods = ["GET"]
-    queryset = FeedbackLabel.objects.all()
-    http_method_names = ["get", "post", "patch", "delete"]
-    serializer_class = FeedbackLabelSerializer
-    bbox_filter_field = "geom"
-    filter_backends = (
-        InBBoxFilter,  # it will take bbox like this api/v1/label/?in_bbox=-90,29,-89,35 ,
-        DjangoFilterBackend,
-    )
-    bbox_filter_include_overlapping = True
-    filterset_fields = ["feedback_aoi", "feedback_aoi__training"]
-
-
-class ModelViewSet(
-    viewsets.ModelViewSet
-):  # This is ModelViewSet , will be tightly coupled with the models
-    authentication_classes = [OsmAuthentication]
-    permission_classes = [IsOsmAuthenticated]
-    public_methods = ["GET"]
+class ModelViewSet(BaseSpatialViewSet):
+    """
+    API endpoint for managing AI models.
+    
+    Models are trained versions that can be published for use in predictions.
+    Supports filtering by status, dataset, and date ranges.
+    """
     queryset = Model.objects.all()
-    filter_backends = (
-        InBBoxFilter,  # it will take bbox like this api/v1/model/?in_bbox=-90,29,-89,35 ,
-        DjangoFilterBackend,
-        filters.SearchFilter,
-        filters.OrderingFilter,
-    )
     serializer_class = ModelSerializer
     filterset_fields = {
         "status": ["exact"],
@@ -369,6 +265,69 @@ class ModelViewSet(
     }
     ordering_fields = ["created_at", "last_modified", "id", "status"]
     search_fields = ["name", "id"]
+
+    @swagger_auto_schema(
+        operation_summary="List all models",
+        operation_description="Get paginated list of AI models. Filter by status, dataset, dates. Order by various fields.",
+        tags=['Models'],
+        manual_parameters=[
+            openapi.Parameter('search', openapi.IN_QUERY, description='Search by model name or ID', type=openapi.TYPE_STRING, example='YOLOv8'),
+            openapi.Parameter('status', openapi.IN_QUERY, description='Filter by status', type=openapi.TYPE_STRING, enum=['DRAFT', 'PUBLISHED']),
+            openapi.Parameter('dataset', openapi.IN_QUERY, description='Filter by dataset ID', type=openapi.TYPE_INTEGER, example=1),
+            openapi.Parameter('ordering', openapi.IN_QUERY, description='Order by field (prefix with - for descending)', type=openapi.TYPE_STRING, example='-created_at'),
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Create a new model",
+        operation_description="Initialize a new AI model linked to a dataset. Choose YOLO or RAMP base model.",
+        tags=['Models'],
+        responses={
+            201: openapi.Response(description="Model created successfully"),
+            400: "Validation error",
+            401: "Authentication required"
+        }
+    )
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Get model details",
+        operation_description="Get detailed model info including accuracy, published training, thumbnail URL.",
+        tags=['Models'],
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Update model",
+        operation_description="Full update of model metadata. Requires ownership.",
+        tags=['Models'],
+    )
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Partially update model",
+        operation_description="Update specific fields like status, description, name. Requires ownership.",
+        tags=['Models'],
+    )
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Delete model",
+        operation_description="Delete a model. Requires ownership or admin permissions.",
+        tags=['Models'],
+        responses={
+            204: "Model deleted successfully",
+            403: "Permission denied"
+        }
+    )
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
 
 
 class ModelCentroidView(ListAPIView):
@@ -410,49 +369,115 @@ class UsersView(ListAPIView):
     search_fields = ["username", "osm_id"]
 
 
-class AOIViewSet(viewsets.ModelViewSet):
-    authentication_classes = [OsmAuthentication]
-    permission_classes = [IsOsmAuthenticated]
-    public_methods = ["GET"]
-    authenticated_user_allowed_methods = ["POST", "DELETE"]
+class AOIViewSet(BaseModelViewSet):
+    """
+    API endpoint for managing Areas of Interest (AOI).
+    
+    AOIs define geographic regions within datasets for labeling and training.
+    """
     queryset = AOI.objects.all()
-    serializer_class = AOISerializer  # connecting serializer
-    filter_backends = [DjangoFilterBackend]
+    serializer_class = AOISerializer
     filterset_fields = ["dataset"]
 
+    @swagger_auto_schema(
+        operation_summary="List all AOIs",
+        operation_description="Get list of Areas of Interest with GeoJSON polygon geometry.",
+        tags=['AOI (Areas of Interest)'],
+        manual_parameters=[
+            openapi.Parameter('dataset', openapi.IN_QUERY, description='Filter by dataset ID', type=openapi.TYPE_INTEGER, example=1),
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
-class LabelViewSet(viewsets.ModelViewSet):
-    authentication_classes = [OsmAuthentication]
-    permission_classes = [IsOsmAuthenticated]
-    public_methods = ["GET"]
+    @swagger_auto_schema(
+        operation_summary="Create a new AOI",
+        operation_description="Create an Area of Interest with polygon geometry. Must be a valid Polygon.",
+        tags=['AOI (Areas of Interest)'],
+        responses={
+            201: openapi.Response(description="AOI created successfully"),
+            400: "Invalid geometry or dataset not found"
+        }
+    )
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Get AOI details",
+        operation_description="Retrieve AOI with full GeoJSON geometry and label statistics.",
+        tags=['AOI (Areas of Interest)'],
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Update AOI",
+        operation_description="Update AOI geometry or metadata. Requires ownership.",
+        tags=['AOI (Areas of Interest)'],
+    )
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Partially update AOI",
+        operation_description="Update specific AOI fields. Requires ownership.",
+        tags=['AOI (Areas of Interest)'],
+    )
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Delete AOI",
+        operation_description="Delete an AOI and all associated labels. Requires ownership.",
+        tags=['AOI (Areas of Interest)'],
+        responses={
+            204: "AOI deleted successfully",
+            403: "Permission denied"
+        }
+    )
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
+
+
+class LabelViewSet(BaseSpatialViewSet):
+    """
+    API endpoint for managing training labels.
+    
+    Labels are geographic features used to train AI models.
+    Supports spatial filtering and GeoJSON upload.
+    """
     queryset = Label.objects.all()
-    serializer_class = LabelSerializer  # connecting serializer
+    serializer_class = LabelSerializer
     bbox_filter_field = "geom"
     pagination_class = None
-    filter_backends = (
-        InBBoxFilter,  # it will take bbox like this api/v1/label/?in_bbox=-90,29,-89,35 ,
-        TMSTileFilter,  # will serve as tms tiles https://wiki.openstreetmap.org/wiki/TMS ,  use like this ?tile=8/100/200 z/x/y which is equivalent to filtering on the bbox (-39.37500,-71.07406,-37.96875,-70.61261) # Note that the tile address start in the upper left, not the lower left origin used by some implementations.
-        DjangoFilterBackend,
-    )
-    bbox_filter_include_overlapping = (
-        True  # Optional to include overlapping labels in the tile served
-    )
     filterset_fields = ["aoi", "aoi__dataset"]
 
+    @swagger_auto_schema(
+        operation_description="Create or update a label. If a label with the same AOI and geometry exists, it will be updated.",
+        request_body=LabelSerializer,
+        responses={
+            200: openapi.Response(description="Label created or updated successfully", schema=LabelSerializer),
+            400: "Bad request"
+        }
+    )
     def create(self, request, *args, **kwargs):
-        aoi_id = request.data.get("aoi")
-        geom = request.data.get("geom")
-
-        existing_label = Label.objects.filter(aoi=aoi_id, geom=geom).first()
-
-        if existing_label:
-            serializer = LabelSerializer(existing_label, data=request.data)
-        else:
-            serializer = LabelSerializer(data=request.data)
+        serializer = LabelSerializer(data=request.data)
 
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            aoi_id = serializer.validated_data.get("aoi")
+            geom = serializer.validated_data.get("geom")
+            
+            existing_label = Label.objects.filter(aoi=aoi_id, geom=geom).first()
+            
+            if existing_label:
+                serializer = LabelSerializer(existing_label, data=request.data)
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+        
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -476,37 +501,32 @@ class LabelUploadView(APIView):
                     {"status": "GeoJSON file is being processed"},
                     status=status.HTTP_202_ACCEPTED,
                 )
-            except (json.JSONDecodeError, ValidationError) as e:
-                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        return Response(
-            {"error": "No GeoJSON file provided"}, status=status.HTTP_400_BAD_REQUEST
-        )
+            except (json.JSONDecodeError, ValidationException) as e:
+                raise e
+        raise handle_validation_error("geojson_file", "No GeoJSON file provided")
+
+    def validate_geojson(self, geojson_data):
+        return validate_geojson(geojson_data)
 
     def validate_geojson(self, geojson_data):
         if geojson_data.get("type") != "FeatureCollection":
-            raise ValidationError("Invalid GeoJSON type. Expected 'FeatureCollection'.")
-        if "features" not in geojson_data or not isinstance(
-            geojson_data["features"], list
-        ):
-            raise ValidationError("Invalid GeoJSON format. 'features' must be a list.")
+            raise handle_validation_error("geojson_type", "Invalid GeoJSON type. Expected 'FeatureCollection'", geojson_data.get("type"))
+        if "features" not in geojson_data or not isinstance(geojson_data["features"], list):
+            raise handle_validation_error("geojson_features", "Invalid GeoJSON format. 'features' must be a list")
         if not geojson_data["features"]:
-            raise ValidationError("GeoJSON 'features' list is empty.")
+            raise handle_validation_error("geojson_features", "GeoJSON 'features' list is empty")
 
-        # Validate the first feature
         first_feature = geojson_data["features"][0]
         if first_feature.get("type") != "Feature":
-            raise ValidationError("Invalid GeoJSON feature type. Expected 'Feature'.")
+            raise handle_validation_error("geojson_feature_type", "Invalid GeoJSON feature type. Expected 'Feature'", first_feature.get("type"))
         if "geometry" not in first_feature or "properties" not in first_feature:
-            raise ValidationError(
-                "Invalid GeoJSON feature format. 'geometry' and 'properties' are required."
-            )
+            raise handle_validation_error("geojson_feature_format", "Invalid GeoJSON feature format. 'geometry' and 'properties' are required")
 
-        # Validate the first feature with the serializer
         first_feature["properties"]["aoi"] = self.kwargs.get("aoi_id")
         serializer = LabelSerializer(data=first_feature)
 
         if not serializer.is_valid():
-            raise ValidationError(serializer.errors)
+            raise ValidationException(message="Label validation failed", details={"serializer_errors": serializer.errors})
 
 
 def process_labels_geojson(geojson_data, aoi_id):
@@ -529,44 +549,12 @@ def process_labels_geojson(geojson_data, aoi_id):
         logging.error(ex)
 
 
-class RawdataApiFeedbackView(APIView):
-    authentication_classes = [OsmAuthentication]
-    permission_classes = [IsOsmAuthenticated]
-
-    def post(self, request, feedbackaoi_id, *args, **kwargs):
-        """Downloads available osm data as labels within given feedback aoi
-
-        Args:
-            request (_type_): _description_
-            feedbackaoi_id (_type_): _description_
-
-        Returns:
-            status: Success/Failed
-        """
-        obj = get_object_or_404(FeedbackAOI, id=feedbackaoi_id)
-        try:
-            obj.label_status = 0
-            obj.save()
-            file_download_url = request_rawdata(obj.geom.geojson)
-            process_rawdata(file_download_url, feedbackaoi_id, feedback=True)
-            obj.label_status = 1
-            obj.label_fetched = datetime.utcnow()
-            obj.save()
-            return Response("Success", status=status.HTTP_201_CREATED)
-        except Exception as ex:
-            obj.label_status = -1
-            obj.save()
-            # raise ex
-            logging.error(ex)
-            return Response("OSM Fetch Failed", status=500)
-
-
 class RawdataApiAOIView(APIView):
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsOsmAuthenticated]
 
     def post(self, request, aoi_id, *args, **kwargs):
-        """Downloads available osm data as labels within given feedback
+        """Downloads available osm data as labels within given AOI
 
         Args:
             request (_type_): _description_
@@ -658,110 +646,54 @@ def ConflateGeojson(request):
 
 
 @api_view(["GET"])
+@ratelimit(key='user_or_ip', rate='30/m', method='GET', block=False)
 def run_task_status(request, run_id: str):
-    """Gives the status of running task from background process
-
-    Args:
-        request (_type_): _description_
-        run_id (_type_): _description_
-    """
+    cache_key = f"task_status_{run_id}"
+    cached_result = cache.get(cache_key)
+    if cached_result:
+        return Response(cached_result)
+    
     task_result = AsyncResult(run_id, app=current_app)
+    
     if task_result.failed():
-        return Response(
-            {
-                "id": run_id,
-                "status": task_result.state,
-                "error": str(task_result.result),
-                "traceback": str(task_result.traceback),
-            }
-        )
-    elif task_result.state == "PENDING" or task_result.state == "STARTED":
+        result = {
+            "id": run_id,
+            "status": task_result.state,
+            "error": str(task_result.result),
+            "traceback": str(task_result.traceback),
+        }
+        cache.set(cache_key, result, 2)
+        return Response(result)
+    
+    if task_result.state in ("PENDING", "STARTED"):
         log_file = os.path.join(settings.LOG_PATH, f"run_{run_id}.log")
-        try:
-            # read the last 10 lines of the log file
-            cmd = ["tail", "-n", str(settings.LOG_LINE_STREAM_TRUNCATE_VALUE), log_file]
-            # print(cmd)
-            output = subprocess.check_output(cmd, universal_newlines=True)
-        except Exception as e:
-            output = str(e)
+        output = ""
+        
+        if os.path.exists(log_file):
+            try:
+                from collections import deque
+                with open(log_file, 'r') as f:
+                    lines = deque(f, maxlen=settings.LOG_LINE_STREAM_TRUNCATE_VALUE)
+                    output = ''.join(lines)
+            except Exception as e:
+                output = str(e)
+        
         result = {
             "id": run_id,
             "status": task_result.state,
             "result": task_result.result,
-            "traceback": str(output),
+            "traceback": output,
         }
+        cache.set(cache_key, result, 2)
         return Response(result)
-    else:
-        result = {
-            "id": run_id,
-            "status": task_result.state,
-            "result": task_result.result,
-        }
-        return Response(result)
-
-
-class FeedbackView(APIView):
-    """Applies Associated feedback to Training Published Checkpoint
-
-    Args:
-        APIView (_type_): _description_
-
-    Returns:
-        _type_: _description_
-    """
-
-    authentication_classes = [OsmAuthentication]
-    permission_classes = [IsOsmAuthenticated]
-
-    @swagger_auto_schema(
-        request_body=FeedbackParamSerializer, responses={status.HTTP_200_OK: "ok"}
-    )
-    def post(self, request, *args, **kwargs):
-        res_serializer = FeedbackParamSerializer(data=request.data)
-
-        if res_serializer.is_valid():
-            deserialized_data = res_serializer.data
-            training_id = deserialized_data["training_id"]
-            training_instance = Training.objects.get(id=training_id)
-            if Training.objects.filter(
-                model_id=training_instance.model, status__in=["RUNNING", "SUBMITTED"]
-            ).exists():
-                raise ValidationError(
-                    "Another training/feedback is in progress or submitted for this model."
-                )
-
-            zoom_level = deserialized_data.get("zoom_level", [19, 20])
-            epochs = deserialized_data.get("epochs", 20)
-            batch_size = deserialized_data.get("batch_size", 8)
-
-            instance = Training.objects.create(
-                model=training_instance.model,
-                status="SUBMITTED",
-                description=f"Feedback of Training {training_id}",
-                user=self.request.user,
-                zoom_level=zoom_level,
-                epochs=epochs,
-                batch_size=batch_size,
-                source_imagery=training_instance.source_imagery,
-            )
-            task = train_model.delay(
-                dataset_id=instance.model.dataset.id,
-                training_id=instance.id,
-                epochs=instance.epochs,
-                batch_size=instance.batch_size,
-                zoom_level=instance.zoom_level,
-                source_imagery=instance.source_imagery,
-                feedback=training_id,
-                freeze_layers=True,  # True by default for feedback
-            )
-            if not instance.source_imagery:
-                instance.source_imagery = instance.model.dataset.source_imagery
-            instance.task_id = task.id
-            instance.save()
-            print(f"Saved Feedback train model request to queue with id {task.id}")
-            return HttpResponse(status=200)
-
-        return Response(res_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    result = {
+        "id": run_id,
+        "status": task_result.state,
+        "result": task_result.result,
+    }
+    cache.set(cache_key, result, 2)
+    return Response(result)
 
 
 DEFAULT_TILE_SIZE = 256
@@ -782,7 +714,7 @@ def publish_training(request, training_id: int):
             return Response(
                 "Can't publish the training since its accuracy is below 70%", status=403
             )
-    else:  ## Training publish limit for other model than ramp , TODO : Change this limit after testing for yolo
+    else:
         if training_instance.accuracy < 5:
             return Response(
                 "Can't publish the training since its accuracy is below 5%", status=403
@@ -803,16 +735,6 @@ class GenerateGpxView(APIView):
     def get(self, request, aoi_id: int):
         aoi = get_object_or_404(AOI, id=aoi_id)
         geom_json = json.loads(aoi.geom.json)
-        # Create a new GPX object
-        gpx_xml = gpx_generator(geom_json)
-        return HttpResponse(gpx_xml, content_type="application/xml")
-
-
-class GenerateFeedbackAOIGpxView(APIView):
-    def get(self, request, feedback_aoi_id: int):
-        aoi = get_object_or_404(FeedbackAOI, id=feedback_aoi_id)
-        geom_json = json.loads(aoi.geom.json)
-        # Create a new GPX object
         gpx_xml = gpx_generator(geom_json)
         return HttpResponse(gpx_xml, content_type="application/xml")
 
@@ -850,22 +772,29 @@ class TrainingWorkspaceDownloadView(APIView):
 
 
 class BannerViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint for managing notification banners.
+    
+    Banners are time-bound messages displayed to users.
+    Read access is public, write operations require admin/staff permissions.
+    """
     queryset = Banner.objects.all()
     serializer_class = BannerSerializer
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsAdminUser, IsStaffUser]
-    public_methods = ["GET"]
     pagination_class = None
+    public_methods = ["GET"]
 
     def get_queryset(self):
         now = timezone.now()
-        return Banner.objects.filter(start_date__lte=now).filter(
+        return Banner.objects.filter(
+            start_date__lte=now
+        ).filter(
             end_date__gte=now
         ) | Banner.objects.filter(end_date__isnull=True)
 
 
 @cache_page(60 * settings.CACHE_TIMEOUT_MINUTES)
-# @vary_on_cookie
 @api_view(["GET"])
 def get_kpi_stats(request):
     total_models_with_status_published = Model.objects.filter(status=0).count()
@@ -884,6 +813,12 @@ def get_kpi_stats(request):
 
 
 class UserNotificationViewSet(ReadOnlyModelViewSet):
+    """
+    API endpoint for user notifications.
+    
+    Allows users to view their notifications. Read-only.
+    Use separate endpoints to mark as read.
+    """
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsOsmAuthenticated]
     serializer_class = UserNotificationSerializer
@@ -1013,7 +948,20 @@ class PredictionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Prediction
-        fields = "__all__"
+        fields = [
+            "id",
+            "description",
+            "created_at",
+            "started_at",
+            "finished_at",
+            "status",
+            "result_count",
+            "task_id",
+            "mapswipe_id",
+            "config",
+            "geom",
+            "user",
+        ]
         read_only_fields = (
             "created_at",
             "status",
@@ -1022,6 +970,18 @@ class PredictionSerializer(serializers.ModelSerializer):
             "finished_at",
             "task_id",
         )
+
+    def validate_config(self, value):
+        if value:
+            required_fields = ["checkpoint", "zoom_level", "source"]
+            missing_fields = [
+                field for field in required_fields if field not in value
+            ]
+            if missing_fields:
+                raise serializers.ValidationError(
+                    f"Missing required fields: {', '.join(missing_fields)}"
+                )
+        return value
 
     def validate_geom(self, value):
         from django.contrib.gis.geos import GEOSGeometry, MultiPolygon, Polygon
@@ -1064,27 +1024,27 @@ class PredictionSerializer(serializers.ModelSerializer):
 
         instance.task_id = task.id
         instance.save()
-        print(f"Saved Prediction request to queue with id {task.id}")
+        logging.info(f"Prediction request queued with task ID {task.id}")
         return instance
 
 
-class PredictionViewSet(UserAssignmentMixin, viewsets.ModelViewSet):
-    authentication_classes = [OsmAuthentication]
-    permission_classes = [IsOsmAuthenticated, IsOwnerOrReadOnly]
-    public_methods = ["GET"]
+@method_decorator(ratelimit(key='user', rate='50/h', method='POST', block=True), name='create')
+class PredictionViewSet(UserAssignmentMixin, BaseSpatialViewSet):
+    """
+    API endpoint for managing predictions.
+    
+    Predictions use trained models to detect features in new areas.
+    Rate-limited to 50 creations per hour per user.
+    Supports spatial filtering and status tracking.
+    """
     http_method_names = ["get", "post", "patch"]
     queryset = Prediction.objects.all()
     bbox_filter_field = "geom"
-    filter_backends = (
-        DjangoFilterBackend,
-        InBBoxFilter,
-        filters.SearchFilter,
-        filters.OrderingFilter,
-    )
     serializer_class = PredictionSerializer
     filterset_fields = ["status", "id"]
     search_fields = ["description", "id"]
     ordering_fields = ["created_at", "id", "status"]
+    permission_classes = [IsOsmAuthenticated, IsOwnerOrReadOnly]
 
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()

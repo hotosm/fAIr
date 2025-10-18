@@ -4,6 +4,7 @@ This repository contains the backend sourcecode for the fAIr project. The backen
 is composed of several services that are orchestrated using Docker Compose.
 
 The backend of fAIr is powered by
+
 - tensorflow:2.9.2
 - django 3.1.2 & geodjango
 - celery and flower
@@ -25,9 +26,8 @@ The platform that fAIr provides is a further fine-tuning of the base-line model 
 The backend codebase is organised into the following main directories and files:
 
 - [docker](../docker/): This directory contains the Docker configurations for the project.
-    - ramp: This directory contains the RAMP (Rapid Analytics and Model Prototyping) configurations.
-    - solaris: This directory contains the Solaris configurations, a Python library for piping and translation between geospatial and ML formats
-    
+  - ramp: This directory contains the RAMP (Rapid Analytics and Model Prototyping) configurations.
+  - solaris: This directory contains the Solaris configurations, a Python library for piping and translation between geospatial and ML formats
 - [requirements.txt](../requirements.txt): This file lists the Python dependencies required by the project.
 
 ### Deploying
@@ -64,22 +64,22 @@ Configure .env:
 Create .env in the root backend project , and add the credentials as provided on .env_sample , Export your secret key and database url to your env
 
 ```bash
-# Export your database url 
+# Export your database url
 export DATABASE_URL=postgis://postgres:postgres@localhost:5432/ai
 ```
 
-You will need more env variables (Such as Ramp home, Training Home) that can be found on ```.sample_env```  
+You will need more env variables (Such as Ramp home, Training Home) that can be found on `.sample_env`
 
 Now change your username, password and db name in settings.py accordingly to your database
 
 > The application is boostrapped by calling `manage.py` to bootstrap the geodjango application.
 
-``` bash
+```bash
 python manage.py makemigrations login
 python manage.py migrate login
 python manage.py makemigrations core
-python manage.py migrate core 
-python manage.py makemigrations 
+python manage.py migrate core
+python manage.py makemigrations
 python manage.py migrate
 python manage.py runserver
 ```
@@ -96,22 +96,25 @@ python manage.py createsuperuser
 
 fAIr uses oauth2.0 Authentication using ![osm-login-python](https://github.com/kshitijrajsharma/osm-login-python)
 
-1. Get your login Url Hit /api/v1/auth/login/ 
+1. Get your login Url Hit /api/v1/auth/login/
+
 - URL will give you login URL which you can use to provide your osm credentials and authorize fAIr
 - After successful login you will get access-token that you can use across all osm login required endpoints in fAIr
+
 2. Check authentication by getting back your data Hit /api/v1/auth/me/
+
 - URL requires access-token as header and in return you will see your osm username, id and image url
 
 ### Start celery workers
 
 ```bash
-celery -A aiproject worker --loglevel=debug -n my_worker
+celery -A fairproject worker --loglevel=debug -n my_worker
 ```
 
 Monitor using flower if you are using redis as result backend, api supports both options django / redis You can start flower to start monitoring your tasks
 
 ```bash
-celery -A aiproject  --broker=redis://127.0.0.1:6379/0 flower 
+celery -A fairproject  --broker=redis://127.0.0.1:6379/0 flower
 ```
 
 ### Run Tests
@@ -120,22 +123,21 @@ celery -A aiproject  --broker=redis://127.0.0.1:6379/0 flower
 python manage.py test
 ```
 
-
 ### Services
 
 The backend is composedof the following services:
 
 - **PostgreSQL Database (with PostGIS)**: This service uses the `postgis/postgis` Docker image
-to provide a spatial enabled RDBMS. This is where the geospatial data for this project is stored
+  to provide a spatial enabled RDBMS. This is where the geospatial data for this project is stored
 
 - **Redis**: This is an key-value in memory database for the queueing system for User/Instance/Worker celery.
-This stores the user list and specifications of task requests for RAMP.
+  This stores the user list and specifications of task requests for RAMP.
 
 - **App**: This is hte main application service. Built from the Dockerfile, the django and geodjango
-bootstraps the various API communication services.
+  bootstraps the various API communication services.
 
 - **Worker**: This is the Celery service that manages the AWS resources. The queueing process can be monitored using **Flower**
-nke
+  nke
 
 #### Flowchart
 
@@ -144,6 +146,7 @@ nke
 #### Ports
 
 The services are exposed on the following ports:
+
 - PostgreSQL: 5434
 - Redis: 6379
 - App: 8000

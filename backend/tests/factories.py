@@ -2,9 +2,6 @@ import factory
 from core.models import (
     AOI,
     Dataset,
-    Feedback,
-    FeedbackAOI,
-    FeedbackLabel,
     Label,
     Model,
     Training,
@@ -17,14 +14,15 @@ class OsmUserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = OsmUser
 
-    osm_id = 123456
+    osm_id = factory.Sequence(lambda n: 123456 + n)
+    username = factory.Sequence(lambda n: f"testuser{n}")
 
 
 class DatasetFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Dataset
 
-    name = "My test dataset"
+    name = factory.Sequence(lambda n: f"Test dataset {n}")
     source_imagery = "https://tiles.openaerialmap.org/5ac4fc6f26964b0010033112/0/5ac4fc6f26964b0010033113/{z}/{x}/{y}"
     user = factory.SubFactory(OsmUserFactory)
 
@@ -66,7 +64,7 @@ class ModelFactory(factory.django.DjangoModelFactory):
         model = Model
 
     dataset = factory.SubFactory(DatasetFactory)
-    name = "My test model"
+    name = factory.Sequence(lambda n: f"Test model {n}")
     user = factory.SubFactory(OsmUserFactory)
 
 
@@ -75,7 +73,7 @@ class TrainingFactory(factory.django.DjangoModelFactory):
         model = Training
 
     model = factory.SubFactory(ModelFactory)
-    description = "My very first training"
+    description = factory.Sequence(lambda n: f"Test training {n}")
     user = factory.SubFactory(OsmUserFactory)
     epochs = 1
     zoom_level = [20, 21]
@@ -84,48 +82,11 @@ class TrainingFactory(factory.django.DjangoModelFactory):
 
 class FeedbackFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = Feedback
-
-    geom = Polygon(
-        (
-            (32.588507094820351, 0.348666499011499),
-            (32.588517512656978, 0.348184682976698),
-            (32.588869114643053, 0.348171660921362),
-            (32.588840465592334, 0.348679521066151),
-            (32.588507094820351, 0.348666499011499),
-        )
-    )
-    training = factory.SubFactory(TrainingFactory)
-    zoom_level = 19
-    feedback_type = "TP"
-    user = factory.SubFactory(OsmUserFactory)
-    source_imagery = "https://tiles.openaerialmap.org/5ac4fc6f26964b0010033112/0/5ac4fc6f26964b0010033113/{z}/{x}/{y}"
-
-
-class FeedbackAoiFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = FeedbackAOI
+        model = "core.Feedback"
 
     training = factory.SubFactory(TrainingFactory)
-    geom = Polygon(
-        (
-            (32.588507094820351, 0.348666499011499),
-            (32.588517512656978, 0.348184682976698),
-            (32.588869114643053, 0.348171660921362),
-            (32.588840465592334, 0.348679521066151),
-            (32.588507094820351, 0.348666499011499),
-        )
-    )
-    label_status = -1
-    source_imagery = "https://tiles.openaerialmap.org/5ac4fc6f26964b0010033112/0/5ac4fc6f26964b0010033113/{z}/{x}/{y}"
     user = factory.SubFactory(OsmUserFactory)
-
-
-class FeedbackLabelFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = FeedbackLabel
-
-    feedback_aoi = factory.SubFactory(FeedbackAoiFactory)
+    action = "ACCEPT"
     geom = Polygon(
         (
             (32.588507094820351, 0.348666499011499),
@@ -135,3 +96,35 @@ class FeedbackLabelFactory(factory.django.DjangoModelFactory):
             (32.588507094820351, 0.348666499011499),
         )
     )
+
+
+class PredictionFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = "core.Prediction"
+
+    user = factory.SubFactory(OsmUserFactory)
+    geom = Polygon(
+        (
+            (32.588507094820351, 0.348666499011499),
+            (32.588517512656978, 0.348184682976698),
+            (32.588869114643053, 0.348171660921362),
+            (32.588840465592334, 0.348679521066151),
+            (32.588507094820351, 0.348666499011499),
+        )
+    )
+    config = {
+        "checkpoint": "test-checkpoint",
+        "zoom_level": 20,
+        "source": "https://tiles.openaerialmap.org/test/{z}/{x}/{y}"
+    }
+
+
+class UserNotificationFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = "core.UserNotification"
+
+    user = factory.SubFactory(OsmUserFactory)
+    message = factory.Sequence(lambda n: f"Notification message {n}")
+    is_read = False
+
+

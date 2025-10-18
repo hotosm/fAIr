@@ -5,96 +5,52 @@ import shutil
 import validators
 from django.conf import settings
 from rest_framework import status
-from rest_framework.test import APILiveServerTestCase, RequestsClient
 
+from .base import BaseAPITestCase
 from .factories import (
-    AoiFactory,
-    DatasetFactory,
-    FeedbackAoiFactory,
     LabelFactory,
-    ModelFactory,
-    OsmUserFactory,
     TrainingFactory,
 )
 
-API_BASE = "http://testserver/api/v1"
 
-# Set the custom headers
-headersList = {
-    "accept": "application/json",
-    "access-token": os.environ.get("TESTING_TOKEN"),
-}
-
-
-class TaskApiTest(APILiveServerTestCase):
-    def setUp(self):
-        # Create a request factory instance
-        self.client = RequestsClient()
-        self.user = OsmUserFactory(osm_id=123)
-        self.dataset = DatasetFactory(user=self.user)
-        self.aoi = AoiFactory(dataset=self.dataset, user=self.user)
-        self.model = ModelFactory(dataset=self.dataset, user=self.user)
-        self.json_type_header = headersList.copy()
-        self.json_type_header["content-type"] = "application/json"
+class TaskApiTest(BaseAPITestCase):
 
     def test_auth_me(self):
-        res = self.client.get(f"{API_BASE}/auth/me/", headers=headersList)
+        res = self.client.get(self.get_api_url("/auth/me/"), headers=self.headers)
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
 
     def test_auth_login(self):
-        res = self.client.get(f"{API_BASE}/auth/login/")
+        res = self.client.get(self.get_api_url("/auth/login/"))
         res_body = res.json()
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(validators.url(res_body["login_url"]), True)
 
     def test_create_dataset(self):
-        # create dataset
-
         payload = {
             "name": self.dataset.name,
             "source_imagery": self.dataset.source_imagery,
         }
-        # test without authentication should be forbidden
-        res = self.client.post(f"{API_BASE}/dataset/", payload)
+        res = self.client.post(self.get_api_url("/dataset/"), payload)
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
-        # test with authentication should be passed
-        res = self.client.post(f"{API_BASE}/dataset/", payload, headers=headersList)
+        res = self.client.post(self.get_api_url("/dataset/"), payload, headers=self.headers)
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
 
     def test_create_training(self):
-        # now dataset is created, create first aoi inside it
-
         payload_second = {"geom": self.aoi.geom.json, "dataset": self.dataset.id}
 
-        res = self.client.post(
-            f"{API_BASE}/aoi/",
-            json.dumps(payload_second),
-            headers=self.json_type_header,
-        )
+        res = self.post_json(self.get_api_url("/aoi/"), payload_second)
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-
-        # create second aoi too, to test multiple aois
 
         payload_third = {
             "geom": self.aoi.geom.json,
             "dataset": self.dataset.id,
         }
-        res = self.client.post(
-            f"{API_BASE}/aoi/", json.dumps(payload_third), headers=self.json_type_header
-        )
+        res = self.post_json(self.get_api_url("/aoi/"), payload_third)
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-
-        # create model
 
         model_payload = {"name": self.model.name, "dataset": self.dataset.id}
-        res = self.client.post(
-            f"{API_BASE}/model/",
-            json.dumps(model_payload),
-            headers=self.json_type_header,
-        )
+        res = self.post_json(self.get_api_url("/model/"), model_payload)
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-
-        # create training without label
 
         training_payload = {
             "description": "My very first training",
@@ -103,28 +59,18 @@ class TaskApiTest(APILiveServerTestCase):
             "batch_size": 1,
             "model": self.model.id,
         }
-        res = self.client.post(
-            f"{API_BASE}/training/",
-            json.dumps(training_payload),
-            headers=self.json_type_header,
-        )
+        res = self.post_json(self.get_api_url("training/"), training_payload)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
-        # download labels from osm for 1
-
         res = self.client.post(
-            f"{API_BASE}/label/osm/fetch/{self.aoi.id}/", "", headers=headersList
+            self.get_api_url(f"/label/osm/fetch/{self.aoi.id}/"), "", headers=self.headers
         )
         self.assertEqual(res.status_code, 202)
 
-        # download labels from osm for 2
-
         res = self.client.post(
-            f"{API_BASE}/label/osm/fetch/{self.aoi.id}/", "", headers=headersList
+            self.get_api_url(f"/label/osm/fetch/{self.aoi.id}/"), "", headers=self.headers
         )
         self.assertEqual(res.status_code, 202)
-
-        # create training with epochs greater than the limit
 
         training_payload = {
             "description": "My very first training",
@@ -133,14 +79,8 @@ class TaskApiTest(APILiveServerTestCase):
             "batch_size": 1,
             "model": self.model.id,
         }
-        res = self.client.post(
-            f"{API_BASE}/training/",
-            json.dumps(training_payload),
-            headers=self.json_type_header,
-        )
+        res = self.post_json(self.get_api_url("training/"), training_payload)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-
-        # create training with batch size greater than the limit
 
         training_payload = {
             "description": "My very first training",
@@ -149,30 +89,8 @@ class TaskApiTest(APILiveServerTestCase):
             "batch_size": 9,
             "model": self.model.id,
         }
-        res = self.client.post(
-            f"{API_BASE}/training/",
-            json.dumps(training_payload),
-            headers=self.json_type_header,
-        )
+        res = self.post_json(self.get_api_url("training/"), training_payload)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-
-        # create training inside model
-        ### FIX ME
-        # training_payload = {
-        #     "description": "My very first training",
-        #     "epochs": 1,
-        #     "zoom_level": [20, 21],
-        #     "batch_size": 1,
-        #     "model": self.model.id,
-        # }
-        # res = self.client.post(
-        #     f"{API_BASE}/training/",
-        #     json.dumps(training_payload),
-        #     headers=self.json_type_header,
-        # )
-        # self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-
-        # create another training for the same model
 
         training_payload = {
             "description": "My very first training",
@@ -181,11 +99,7 @@ class TaskApiTest(APILiveServerTestCase):
             "batch_size": 1,
             "model": self.model.id,
         }
-        res = self.client.post(
-            f"{API_BASE}/training/",
-            json.dumps(training_payload),
-            headers=self.json_type_header,
-        )
+        res = self.post_json(self.get_api_url("training/"), training_payload)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
         self.training = TrainingFactory(model=self.model, user=self.user)
@@ -194,76 +108,136 @@ class TaskApiTest(APILiveServerTestCase):
         self.label = LabelFactory(aoi=self.aoi)
         self.training = TrainingFactory(model=self.model, user=self.user)
 
-        # create label
-
         label_payload = {
             "geom": self.label.geom.json,
             "aoi": self.aoi.id,
         }
 
-        res = self.client.post(
-            f"{API_BASE}/label/",
-            json.dumps(label_payload),
-            headers=self.json_type_header,
-        )
-        self.assertEqual(res.status_code, status.HTTP_200_OK)  # 201- for create
-
-        # create another label with the same geom and aoi
+        res = self.post_json(self.get_api_url("label/"), label_payload)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
 
         label_payload2 = {
             "geom": self.label.geom.json,
             "aoi": self.aoi.id,
         }
 
-        res = self.client.post(
-            f"{API_BASE}/label/",
-            json.dumps(label_payload2),
-            headers=self.json_type_header,
-        )
-        self.assertEqual(res.status_code, status.HTTP_200_OK)  # 200- for update
-
-        # create another label with error
+        res = self.post_json(self.get_api_url("label/"), label_payload2)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
 
         label_payload3 = {
             "geom": self.label.geom.json,
-            "aoi": 40,  # non-existent aoi
+            "aoi": 40,
         }
-        res = self.client.post(
-            f"{API_BASE}/label/",
-            json.dumps(label_payload3),
-            headers=self.json_type_header,
-        )
+        res = self.post_json(self.get_api_url("label/"), label_payload3)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-
-    # def test_fetch_feedbackAoi_osm_label(self):
-    #     # create feedback aoi
-    #     training = TrainingFactory(model=self.model, user=self.user)
-    #     feedbackAoi = FeedbackAoiFactory(training=training, user=self.user)
-
-    #     # download available osm data as labels for the feedback aoi
-
-    #     res = self.client.post(
-    #         f"{API_BASE}/label/feedback/osm/fetch/{feedbackAoi.id}/",
-    #         "",
-    #         headers=headersList,
-    #     )
-    #     self.assertEqual(res.status_code, status.HTTP_201_CREATED)
 
     def test_get_runStatus(self):
         training = TrainingFactory(model=self.model, user=self.user)
-
-        # get running training status
-
         res = self.client.get(
-            f"{API_BASE}/task/status/{training.id}/", headers=headersList
+            self.get_api_url(f"task/status/{training.id}/"), headers=self.headers
         )
         self.assertEqual(res.status_code, status.HTTP_200_OK)
+        data = res.json()
+        self.assertIn('status', data)
+        self.assertEqual(data['status'], 'SUCCESS')
+    
+    def test_task_status_with_training_result(self):
+        from unittest.mock import MagicMock
+        
+        training = TrainingFactory(model=self.model, user=self.user)
+        
+        mock_result = MagicMock()
+        mock_result.state = 'SUCCESS'
+        mock_result.failed.return_value = False
+        mock_result.result = {
+            "accuracy": 0.85,
+            "output_path": f"/workspace/training_{training.id}/",
+            "preprocess_output": f"/workspace/training_{training.id}/preprocessed"
+        }
+        self.mock_celery.return_value = mock_result
+        
+        res = self.client.get(
+            self.get_api_url(f"task/status/{training.task_id}/"), headers=self.headers
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        data = res.json()
+        self.assertEqual(data['status'], 'SUCCESS')
+        self.assertIsInstance(data['result'], dict)
+        self.assertIn('accuracy', data['result'])
+        self.assertEqual(data['result']['accuracy'], 0.85)
+    
+    def test_task_status_with_prediction_result(self):
+        from unittest.mock import MagicMock
+        from .factories import PredictionFactory
+        
+        prediction = PredictionFactory(user=self.user)
+        
+        mock_result = MagicMock()
+        mock_result.state = 'SUCCESS'
+        mock_result.failed.return_value = False
+        mock_result.result = {
+            "len_predictions": 42,
+            "output": {
+                "aois": f"{settings.API_BASE_URL}/workspace/download/prediction_{prediction.id}/aois.geojson",
+                "predictions": f"{settings.API_BASE_URL}/workspace/download/prediction_{prediction.id}/labels.geojson",
+                "predictions_points": f"{settings.API_BASE_URL}/workspace/download/prediction_{prediction.id}/labels_points.geojson",
+                "pmtiles": f"{settings.API_BASE_URL}/workspace/download/prediction_{prediction.id}/meta.pmtiles",
+            }
+        }
+        self.mock_celery.return_value = mock_result
+        
+        res = self.client.get(
+            self.get_api_url(f"task/status/{prediction.task_id}/"), headers=self.headers
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        data = res.json()
+        self.assertEqual(data['status'], 'SUCCESS')
+        self.assertIsInstance(data['result'], dict)
+        self.assertIn('len_predictions', data['result'])
+        self.assertEqual(data['result']['len_predictions'], 42)
+        self.assertIn('output', data['result'])
+    
+    def test_task_status_pending_state(self):
+        from unittest.mock import MagicMock
+        
+        training = TrainingFactory(model=self.model, user=self.user)
+        
+        mock_result = MagicMock()
+        mock_result.state = 'PENDING'
+        mock_result.failed.return_value = False
+        mock_result.result = None
+        self.mock_celery.return_value = mock_result
+        
+        res = self.client.get(
+            self.get_api_url(f"task/status/{training.task_id}/"), headers=self.headers
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        data = res.json()
+        self.assertEqual(data['status'], 'PENDING')
+    
+    def test_task_status_failed_state(self):
+        from unittest.mock import MagicMock
+        
+        training = TrainingFactory(model=self.model, user=self.user)
+        
+        mock_result = MagicMock()
+        mock_result.state = 'FAILURE'
+        mock_result.failed.return_value = True
+        mock_result.result = Exception("Test error message")
+        mock_result.traceback = "Traceback (most recent call last):\n  File test.py"
+        self.mock_celery.return_value = mock_result
+        
+        res = self.client.get(
+            self.get_api_url(f"task/status/{training.task_id}/"), headers=self.headers
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        data = res.json()
+        self.assertEqual(data['status'], 'FAILURE')
+        self.assertIn('error', data)
+        self.assertIn('traceback', data)
 
     def test_submit_training_feedback(self):
         training = TrainingFactory(model=self.model, user=self.user)
-
-        # apply feedback to training published checkpoints
-
         training_feedback_payload = {
             "training_id": training.id,
             "config": {
@@ -274,21 +248,14 @@ class TaskApiTest(APILiveServerTestCase):
             "comments": "This is not a good feedback",
             "action": "REJECT",
         }
-        res = self.client.post(
-            f"{API_BASE}/feedback/",
-            json.dumps(training_feedback_payload),
-            headers=self.json_type_header,
-        )
-        # submit unfinished/unpublished training feedback should not pass
+        res = self.post_json(self.get_api_url("feedback/"), training_feedback_payload)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_publish_training(self):
         training = TrainingFactory(model=self.model, user=self.user)
 
-        # publish an unfinished training should not pass
-
         res = self.client.post(
-            f"{API_BASE}/training/publish/{training.id}/", headers=headersList
+            self.get_api_url(f"training/publish/{training.id}/"), headers=self.headers
         )
         self.assertEqual(res.status_code, 409)
 

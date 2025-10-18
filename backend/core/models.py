@@ -5,9 +5,11 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.gis.db import models as geomodels
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
-from django.db import models
+from django.db import models, transaction
 from django.utils import timezone
 from login.models import OsmUser
+from .validators import validate_geometry, validate_geojson
+from .exceptions import ValidationException, handle_validation_error
 
 
 class Dataset(models.Model):
@@ -23,7 +25,7 @@ class Dataset(models.Model):
     source_imagery = models.URLField(blank=True, null=True)
     status = models.IntegerField(
         default=-1, choices=DatasetStatus.choices
-    )  # 0 for active , 1 for archieved
+    )
 
     offset = ArrayField(
         base_field=models.FloatField(),
@@ -34,9 +36,7 @@ class Dataset(models.Model):
 
     def clean(self):
         if self.offset and len(self.offset) != 2:
-            raise ValidationError(
-                {"offset": "Offset must be a list of exactly two numbers."}
-            )
+            raise handle_validation_error("offset", "Offset must be a list of exactly two numbers", self.offset)
 
 
 class AOI(models.Model):
@@ -53,6 +53,17 @@ class AOI(models.Model):
     last_modified = models.DateTimeField(auto_now=True)
     user = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['dataset']),
+            models.Index(fields=['geom'], name='aoi_geom_gist_idx', opclasses=['gist']),
+        ]
+
+    @transaction.atomic
+    def clean(self):
+        if self.geom:
+            self.geom = validate_geometry(self.geom)
+
 
 class Label(models.Model):
     aoi = models.ForeignKey(AOI, to_field="id", on_delete=models.CASCADE)
@@ -60,6 +71,18 @@ class Label(models.Model):
     osm_id = models.BigIntegerField(null=True, blank=True)
     tags = models.JSONField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['aoi']),
+            models.Index(fields=['osm_id']),
+            models.Index(fields=['geom'], name='label_geom_gist_idx', opclasses=['gist']),
+        ]
+
+    @transaction.atomic
+    def clean(self):
+        if self.geom:
+            self.geom = validate_geometry(self.geom)
 
 
 class Model(models.Model):
@@ -74,7 +97,7 @@ class Model(models.Model):
         PUBLISHED = 0
         DRAFT = -1
 
-    dataset = models.ForeignKey(Dataset, to_field="id", on_delete=models.DO_NOTHING)
+    dataset = models.ForeignKey(Dataset, to_field="id", on_delete=models.PROTECT)
     name = models.CharField(max_length=50)
     created_at = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now=True)
@@ -85,6 +108,15 @@ class Model(models.Model):
     base_model = models.CharField(
         choices=BASE_MODEL_CHOICES, default="RAMP", max_length=50
     )
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['status']),
+            models.Index(fields=['created_at']),
+            models.Index(fields=['last_modified']),
+            models.Index(fields=['user']),
+            models.Index(fields=['dataset']),
+        ]
 
 
 class Training(models.Model):
@@ -116,11 +148,14 @@ class Training(models.Model):
     freeze_layers = models.BooleanField(default=False)
     centroid = geomodels.PointField(srid=4326, null=True, blank=True)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['model']),
+            models.Index(fields=['status']),
+            models.Index(fields=['user']),
+        ]
+
     def get_source_imagery_type(self):
-        """
-        Returns: 'TILEJSON', 'XYZ', 'TMS', or 'UNKNOWN'
-        """
-        ## source ref here : https://github.com/hotosm/fAIr/blob/develop/frontend/src/utils/regex-utils.ts
         if not self.source_imagery:
             return "UNKNOWN"
         xyz_pattern = re.compile(
@@ -145,62 +180,6 @@ class Training(models.Model):
             return "TMS"
         else:
             return "UNKNOWN"
-
-
-class Feedback(models.Model):
-    ACTION_CHOICES = (
-        ("ACCEPT", "ACCEPT"),
-        ("REJECT", "REJECT"),
-    )
-    geom = geomodels.GeometryField(srid=4326)
-    training = models.ForeignKey(
-        Training, to_field="id", on_delete=models.CASCADE, blank=True, null=True
-    )
-    action = models.CharField(choices=ACTION_CHOICES, default="ACCEPT", max_length=6)
-    created_at = models.DateTimeField(auto_now_add=True)
-    config = models.JSONField(null=True, blank=True)
-    comments = models.TextField(max_length=100, null=True, blank=True)
-    user = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
-
-
-class FeedbackAOI(models.Model):
-    class DownloadStatus(models.IntegerChoices):
-        DOWNLOADED = 1
-        NOT_DOWNLOADED = -1
-        RUNNING = 0
-
-    training = models.ForeignKey(Training, to_field="id", on_delete=models.CASCADE)
-    geom = geomodels.PolygonField(srid=4326)
-    label_status = models.IntegerField(default=-1, choices=DownloadStatus.choices)
-    label_fetched = models.DateTimeField(null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    last_modified = models.DateTimeField(auto_now=True)
-    source_imagery = models.URLField()
-    user = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
-
-
-class FeedbackLabel(models.Model):
-    osm_id = models.BigIntegerField(null=True, blank=True)
-    feedback_aoi = models.ForeignKey(
-        FeedbackAOI, to_field="id", on_delete=models.CASCADE
-    )
-    tags = models.JSONField(null=True, blank=True)
-
-    geom = geomodels.PolygonField(srid=4326)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-
-# TODO : Remote this table after migration is done to feedback
-class ApprovedPredictions(models.Model):
-    training = models.ForeignKey(Training, to_field="id", on_delete=models.DO_NOTHING)
-    config = models.JSONField(
-        null=True, blank=True
-    )  ### Config meant to be kept for vectorization config / zoom config , to know what user is using for the most of the time
-    geom = geomodels.GeometryField(
-        srid=4326
-    )  ## Making this geometry field to support point/line prediction later on
-    approved_at = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
 
 
 class Banner(models.Model):
@@ -235,6 +214,13 @@ class UserNotification(models.Model):
     object_id = models.PositiveIntegerField(null=True)
     related_object = GenericForeignKey("content_type", "object_id")
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['is_read']),
+            models.Index(fields=['user']),
+
+        ]
+
     def mark_as_read(self):
         if not self.is_read:
             self.is_read = True
@@ -243,6 +229,34 @@ class UserNotification(models.Model):
 
     def __str__(self):
         return f"Notification for {self.user.username}: {self.message[:50]}..."
+
+
+class Feedback(models.Model):
+    ACTION_CHOICES = (
+        ("ACCEPT", "ACCEPT"),
+        ("REJECT", "REJECT"),
+    )
+    geom = geomodels.GeometryField(srid=4326)
+    training = models.ForeignKey(
+        Training, to_field="id", on_delete=models.CASCADE, blank=True, null=True
+    )
+    action = models.CharField(choices=ACTION_CHOICES, default="ACCEPT", max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+    config = models.JSONField(null=True, blank=True)
+    comments = models.TextField(max_length=100, null=True, blank=True)
+    user = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['training']),
+            models.Index(fields=['user']),
+            models.Index(fields=['action']),
+            models.Index(fields=['geom'], name='feedback_geom_gist_idx', opclasses=['gist']),
+        ]
+
+    def clean(self):
+        if self.geom:
+            self.geom = validate_geometry(self.geom)
 
 
 class Prediction(models.Model):
@@ -266,14 +280,19 @@ class Prediction(models.Model):
     geom = geomodels.PolygonField(srid=4326)
     user = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
 
+    @transaction.atomic
     def clean(self):
+        if self.geom:
+            self.geom = validate_geometry(self.geom)
         if self.config:
             required_fields = ["checkpoint", "zoom_level", "source"]
             missing_fields = [
                 field for field in required_fields if field not in self.config
             ]
-
             if missing_fields:
-                raise ValidationError(
-                    {"config": f"Missing required fields: {', '.join(missing_fields)}"}
-                )
+                raise handle_validation_error("config", f"Missing required fields: {', '.join(missing_fields)}", self.config)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['status']),
+        ]

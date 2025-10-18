@@ -62,7 +62,7 @@ jobs:
       - name: Install Dependencies
         working-directory: ./backend
         run: |
-          uv add coverage factory-boy
+          uv sync --group test
 
       - name: Clone Ramp
         run: git clone https://github.com/kshitijrajsharma/ramp-code-fAIr.git ramp-code
@@ -78,6 +78,8 @@ jobs:
           OSM_CLIENT_ID: ${{ secrets.OSM_CLIENT_ID }}
           OSM_CLIENT_SECRET: ${{ secrets.OSM_CLIENT_SECRET }}
           OSM_SECRET_KEY: ${{ secrets.OSM_SECRET_KEY }}
+          SECRET_KEY: "TEST_DJANGO_APP_SECRET_KEY"
+          DEBUG: "True"
           # DATABASE_URL, RAMP_HOME, TRAINING_WORKSPACE are available from the previous step via $GITHUB_ENV
         working-directory: ./backend
         run: |
@@ -94,6 +96,8 @@ jobs:
           OSM_CLIENT_ID: ${{ secrets.OSM_CLIENT_ID }}
           OSM_CLIENT_SECRET: ${{ secrets.OSM_CLIENT_SECRET }}
           OSM_SECRET_KEY: ${{ secrets.OSM_SECRET_KEY }}
+          SECRET_KEY: "TEST_DJANGO_APP_SECRET_KEY"
+          DEBUG: "True"
           # DATABASE_URL, RAMP_HOME, TRAINING_WORKSPACE are available from $GITHUB_ENV
         working-directory: ./backend
         run: uv run coverage run manage.py test tests
