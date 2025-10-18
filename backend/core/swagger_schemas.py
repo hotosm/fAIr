@@ -9,12 +9,12 @@ DATASET_CREATE_EXAMPLE = openapi.Schema(
             description='TMS URL template for imagery tiles',
             example='https://tiles.openaerialmap.org/62dbd947dd564e0c8b63a91e/0/62dbd947dd564e0c8b63a91f/{z}/{x}/{y}.png'
         ),
-        'status': openapi.Schema(type=openapi.TYPE_STRING, description='Dataset status', enum=['DRAFT', 'PUBLISHED'], example='DRAFT'),
+        'status': openapi.Schema(type=openapi.TYPE_INTEGER, description='Dataset status (-1: DRAFT, 0: ACTIVE, 1: ARCHIVED)', enum=[-1, 0, 1], example=-1),
         'offset': openapi.Schema(
             type=openapi.TYPE_ARRAY, 
-            items=openapi.Schema(type=openapi.TYPE_INTEGER),
+            items=openapi.Schema(type=openapi.TYPE_NUMBER),
             description='Tile offset for imagery alignment',
-            example=[0, 0]
+            example=[0.0, 0.0]
         ),
     },
     required=['name']
