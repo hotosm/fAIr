@@ -240,6 +240,7 @@ class TrainingViewSet(BaseModelViewSet):
     filterset_fields = ["model", "status", "user", "id"]
     ordering_fields = ["created_at", "accuracy", "id", "model", "status"]
     search_fields = ["description", "id", "model__name"]
+    public_methods = ["GET"]
 
     @swagger_auto_schema(
         operation_description="Retrieve training details with feedback statistics",
