@@ -55,6 +55,7 @@ dev = [
 test = [
     "factory-boy>=3.3.3",
     "pytest-django>=4.5.2",
+    "responses>=0.25.8",
 ]
 base-workers = [
     "hot-fair-utilities>=2.0.12",
