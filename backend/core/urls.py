@@ -30,6 +30,7 @@ from .views import (
     get_kpi_stats,
     publish_training,
     run_task_status,
+    health,
 )
 
 # CURD Block
@@ -85,4 +86,5 @@ urlpatterns = [
         MarkAllNotificationsAsRead.as_view(),
         name="mark_all_notifications_as_read",
     ),
+    path("health/", health, name="health"),
 ]

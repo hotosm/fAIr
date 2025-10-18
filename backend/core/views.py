@@ -99,6 +99,33 @@ from .utils import (
 )
 from .responses import APIResponse, APIResponseCodes
 from .mixins import BaseModelViewSet, BaseSpatialViewSet, UserAssignmentMixin
+from django.db import connections
+from django.db.utils import OperationalError
+from django.http import JsonResponse
+from celery import current_app
+from django.core.cache import cache
+from rest_framework.decorators import api_view
+@api_view(["GET"])
+def health(request):
+    status = {"postgresql": False, "redis": False, "celery_workers": False}
+    try:
+        connections['default'].cursor()
+        status["postgresql"] = True
+    except OperationalError:
+        status["postgresql"] = False
+    try:
+        cache.set("health_check", "ok", timeout=1)
+        if cache.get("health_check") == "ok":
+            status["redis"] = True
+    except Exception:
+        status["redis"] = False
+    try:
+        i = current_app.control.inspect()
+        active = i.active()
+        status["celery_workers"] = bool(active)
+    except Exception:
+        status["celery_workers"] = False
+    return JsonResponse({"status": status})
 
 
 @api_view(['GET'])
