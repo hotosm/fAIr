@@ -9,7 +9,10 @@ from corsheaders.defaults import default_headers
 
 env = environ.Env()
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
+env_file = os.environ.get("ENV_FILE", ".env")
+env_path = os.path.join(BASE_DIR, env_file)
+if os.path.exists(env_path):
+    environ.Env.read_env(env_path)
 
 DEBUG = env.bool("DEBUG", default=False)
 
