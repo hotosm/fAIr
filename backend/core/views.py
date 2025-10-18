@@ -157,6 +157,7 @@ class DatasetViewSet(BaseSpatialViewSet):
     """
     queryset = Dataset.objects.all()
     serializer_class = DatasetSerializer
+    public_methods = ["GET"]
 
     @swagger_auto_schema(
         operation_summary="List all datasets",
@@ -273,6 +274,8 @@ class FeedbackViewset(BaseSpatialViewSet):
     serializer_class = FeedbackSerializer
     bbox_filter_field = "geom"
     filterset_fields = ["training", "user", "action"]
+    public_methods = ["GET"]
+    
 
 
 class ModelViewSet(BaseSpatialViewSet):
@@ -482,6 +485,8 @@ class LabelViewSet(BaseSpatialViewSet):
     bbox_filter_field = "geom"
     pagination_class = None
     filterset_fields = ["aoi", "aoi__dataset"]
+    public_methods = ["GET"]
+    
 
     @swagger_auto_schema(
         operation_description="Create or update a label. If a label with the same AOI and geometry exists, it will be updated.",
