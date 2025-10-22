@@ -119,6 +119,7 @@ const TrainingSettingsForm = () => {
           multiple
           className="flex-col md:flex-row gap-x-10 md:items-center flex-wrap"
           options={[
+            { value: "Zoom 18", apiValue: "18" },
             { value: "Zoom 19", apiValue: "19" },
             { value: "Zoom 20", apiValue: "20" },
             { value: "Zoom 21", apiValue: "21" },
