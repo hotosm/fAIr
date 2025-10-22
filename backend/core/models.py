@@ -25,7 +25,7 @@ class Dataset(models.Model):
     source_imagery = models.URLField(blank=True, null=True)
     status = models.IntegerField(
         default=-1, choices=DatasetStatus.choices
-    )
+    ) # this is not relevant anymore , get rid of it later 
 
     offset = ArrayField(
         base_field=models.FloatField(),
@@ -84,6 +84,7 @@ class Label(models.Model):
         if self.geom:
             self.geom = validate_geometry(self.geom)
 
+## todo : here add base model as a new table and store licenses , information as well as config for the model hereby and use it as a choice for local models 
 
 class Model(models.Model):
     BASE_MODEL_CHOICES = (

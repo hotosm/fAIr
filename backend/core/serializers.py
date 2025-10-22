@@ -64,12 +64,12 @@ class DatasetSerializer(BaseModelSerializer):
             }
         }
 
-    def validate_status(self, value):
-        if self.instance is None and value != Dataset.DatasetStatus.DRAFT:
-            raise serializers.ValidationError(
-                "New datasets can only be created in DRAFT status. Update to ACTIVE or ARCHIVED after creation."
-            )
-        return value
+    # def validate_status(self, value):
+    #     if self.instance is None and value != Dataset.DatasetStatus.DRAFT:
+    #         raise serializers.ValidationError(
+    #             "New datasets can only be created in DRAFT status. Update to ACTIVE or ARCHIVED after creation."
+    #         )
+    #     return value # fixme: this should be enabled but frontend needs to be in sync first 
 
     def get_models_count(self, obj):
         return Model.objects.filter(
@@ -559,7 +559,7 @@ class TrainingSerializer(serializers.ModelSerializer):
             "example": {
                 "model": 1,
                 "description": "Training run with 50 epochs",
-                "zoom_level": [19, 20],
+                "zoom_level": [18,19, 20],
                 "epochs": 50,
                 "batch_size": 8,
                 "freeze_layers": False,
@@ -599,7 +599,8 @@ class TrainingSerializer(serializers.ModelSerializer):
 
         epochs = validated_data["epochs"]
         batch_size = validated_data["batch_size"]
-        validate_training_params(model, epochs, batch_size)
+        zoom_level = validated_data["zoom_level"]
+        validate_training_params(model, epochs, batch_size, zoom_level)
 
         user = self.context["request"].user
         validated_data["user"] = user

@@ -35,9 +35,13 @@ from .models import AOI, Label, UserNotification
 from .serializers import LabelSerializer
 
 
-def validate_training_params(model, epochs, batch_size):
+def validate_training_params(model, epochs, batch_size, zoom_level):
     from .exceptions import ValidationException, handle_validation_error
     
+
+    for z in zoom_level:
+        if z not in settings.SUPPORTED_TRAINING_ZOOM_LEVELS:
+            raise handle_validation_error("zoom_level", f"Zoom level {z} is not supported", z)
     if model.base_model == "RAMP":
         if epochs > settings.RAMP_EPOCHS_LIMIT:
             raise handle_validation_error("epochs", f"Epochs can't be greater than {settings.RAMP_EPOCHS_LIMIT} on this server", epochs)
