@@ -10,42 +10,37 @@ from datetime import datetime
 from urllib.parse import quote
 
 import pyogrio
+from botocore.exceptions import ClientError, NoCredentialsError
 
 # import tensorflow as tf
 from celery import current_app
 from celery.result import AsyncResult
 from django.conf import settings
 from django.core.cache import cache
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
+from django.db import connections
+from django.db.utils import OperationalError
+from django.http import (
+    HttpResponse,
+    HttpResponseBadRequest,
+    HttpResponseRedirect,
+    JsonResponse,
+)
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
-from django_ratelimit.decorators import ratelimit
 from django.utils.decorators import method_decorator
 from django.utils.timezone import now
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_cookie, vary_on_headers
 from django_filters.rest_framework import DjangoFilterBackend
 from django_q.tasks import async_task
+from django_ratelimit.decorators import ratelimit
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from geojson2osm import geojson2osm
-from login.authentication import OsmAuthentication
-from login.permissions import (
-    IsAdminUser,
-    IsOsmAuthenticated,
-    IsOwnerOrReadOnly,
-    IsStaffUser,
-)
 from osmconflator import conflate_geojson
 from rest_framework import decorators, filters, serializers, status, viewsets
 from rest_framework.decorators import api_view
 from rest_framework.exceptions import ValidationError as DRFValidationError
-from .exceptions import (
-    ValidationException,
-    ResourceNotFoundException,
-    handle_validation_error,
-    ExternalServiceException
-)
 from rest_framework.generics import ListAPIView
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
@@ -55,6 +50,21 @@ from rest_framework_gis.fields import GeometryField
 from rest_framework_gis.filters import InBBoxFilter, TMSTileFilter
 from shapely.geometry import box
 
+from login.authentication import OsmAuthentication
+from login.permissions import (
+    IsAdminUser,
+    IsOsmAuthenticated,
+    IsOwnerOrReadOnly,
+    IsStaffUser,
+)
+
+from .exceptions import (
+    ExternalServiceException,
+    ResourceNotFoundException,
+    ValidationException,
+    handle_validation_error,
+)
+from .mixins import BaseModelViewSet, BaseSpatialViewSet, UserAssignmentMixin
 from .models import (
     AOI,
     Banner,
@@ -67,6 +77,7 @@ from .models import (
     Training,
     UserNotification,
 )
+from .responses import APIResponse, APIResponseCodes
 from .serializers import (
     AOISerializer,
     BannerSerializer,
@@ -84,7 +95,6 @@ from .serializers import (
     UserStatsSerializer,
 )
 from .tasks import predict_area, train_model
-from .validators import validate_geojson
 from .utils import (
     degrees_to_km,
     download_s3_file,
@@ -97,21 +107,14 @@ from .utils import (
     s3_object_exists,
     send_notification,
 )
-from .responses import APIResponse, APIResponseCodes
-from .mixins import BaseModelViewSet, BaseSpatialViewSet, UserAssignmentMixin
-from django.db import connections
-from django.db.utils import OperationalError
-from django.http import JsonResponse
-from botocore.exceptions import ClientError, NoCredentialsError
-from celery import current_app
-from django.core.cache import cache
-from rest_framework.decorators import api_view
+from .validators import validate_geojson
+
 
 @api_view(["GET"])
 def health(request):
     status = {"postgresql": False, "redis": False, "celery_workers": False, "s3": None}
     try:
-        connections['default'].cursor()
+        connections["default"].cursor()
         status["postgresql"] = True
     except OperationalError:
         status["postgresql"] = False
@@ -145,32 +148,33 @@ def health(request):
     return JsonResponse({"status": status})
 
 
-@api_view(['GET'])
+@api_view(["GET"])
 def home(request):
     version = get_api_version()
-    
-    return Response({
-        "name": "fAIr API",
-        "version": version,
-        "description": "AI-Assisted Mapping",
-        "documentation": {
-            "swagger": request.build_absolute_uri('/api/swagger/'),
-            "redoc": request.build_absolute_uri('/api/redoc/'),
-            "openapi_schema": request.build_absolute_uri('/api/swagger.json')
-        },
-        "api": {
-            "v1": request.build_absolute_uri('/api/v1/')
+
+    return Response(
+        {
+            "name": "fAIr API",
+            "version": version,
+            "description": "AI-Assisted Mapping",
+            "documentation": {
+                "swagger": request.build_absolute_uri("/api/swagger/"),
+                "redoc": request.build_absolute_uri("/api/redoc/"),
+                "openapi_schema": request.build_absolute_uri("/api/swagger.json"),
+            },
+            "api": {"v1": request.build_absolute_uri("/api/v1/")},
         }
-    })
+    )
 
 
 class DatasetViewSet(BaseSpatialViewSet):
     """
     API endpoint for managing training datasets.
-    
+
     Datasets contain training areas and associated models for AI-assisted mapping.
     Supports spatial filtering and full CRUD operations.
     """
+
     queryset = Dataset.objects.all()
     serializer_class = DatasetSerializer
     public_methods = ["GET"]
@@ -178,11 +182,23 @@ class DatasetViewSet(BaseSpatialViewSet):
     @swagger_auto_schema(
         operation_summary="List all datasets",
         operation_description="Get paginated list of datasets. Supports filtering by status and search by name.",
-        tags=['Datasets'],
+        tags=["Datasets"],
         manual_parameters=[
-            openapi.Parameter('search', openapi.IN_QUERY, description='Search by dataset name', type=openapi.TYPE_STRING, example='Building'),
-            openapi.Parameter('status', openapi.IN_QUERY, description='Filter by status', type=openapi.TYPE_STRING, enum=['DRAFT', 'PUBLISHED']),
-        ]
+            openapi.Parameter(
+                "search",
+                openapi.IN_QUERY,
+                description="Search by dataset name",
+                type=openapi.TYPE_STRING,
+                example="Building",
+            ),
+            openapi.Parameter(
+                "status",
+                openapi.IN_QUERY,
+                description="Filter by status",
+                type=openapi.TYPE_STRING,
+                enum=["DRAFT", "PUBLISHED"],
+            ),
+        ],
     )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
@@ -190,12 +206,12 @@ class DatasetViewSet(BaseSpatialViewSet):
     @swagger_auto_schema(
         operation_summary="Create a new dataset",
         operation_description="Create a dataset with imagery source URL and metadata. Authentication required.",
-        tags=['Datasets'],
+        tags=["Datasets"],
         responses={
             201: openapi.Response(description="Dataset created successfully"),
             400: "Validation error - check required fields",
-            401: "Authentication required"
-        }
+            401: "Authentication required",
+        },
     )
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
@@ -203,7 +219,7 @@ class DatasetViewSet(BaseSpatialViewSet):
     @swagger_auto_schema(
         operation_summary="Get dataset details",
         operation_description="Retrieve detailed information about a specific dataset including model count and user info.",
-        tags=['Datasets'],
+        tags=["Datasets"],
     )
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
@@ -211,12 +227,12 @@ class DatasetViewSet(BaseSpatialViewSet):
     @swagger_auto_schema(
         operation_summary="Update dataset",
         operation_description="Full update of a dataset. Requires ownership.",
-        tags=['Datasets'],
+        tags=["Datasets"],
         responses={
             200: "Dataset updated successfully",
             403: "Permission denied - must be owner",
-            404: "Dataset not found"
-        }
+            404: "Dataset not found",
+        },
     )
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
@@ -224,7 +240,7 @@ class DatasetViewSet(BaseSpatialViewSet):
     @swagger_auto_schema(
         operation_summary="Partially update dataset",
         operation_description="Update specific fields of a dataset. Requires ownership.",
-        tags=['Datasets'],
+        tags=["Datasets"],
     )
     def partial_update(self, request, *args, **kwargs):
         return super().partial_update(request, *args, **kwargs)
@@ -232,25 +248,28 @@ class DatasetViewSet(BaseSpatialViewSet):
     @swagger_auto_schema(
         operation_summary="Delete dataset",
         operation_description="Delete a dataset and all associated data. Requires ownership or admin permissions.",
-        tags=['Datasets'],
+        tags=["Datasets"],
         responses={
             204: "Dataset deleted successfully",
             403: "Permission denied",
-            404: "Dataset not found"
-        }
+            404: "Dataset not found",
+        },
     )
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
 
 
-@method_decorator(ratelimit(key='user', rate='10/h', method='POST', block=True), name='create')
+@method_decorator(
+    ratelimit(key="user", rate="10/h", method="POST", block=True), name="create"
+)
 class TrainingViewSet(BaseModelViewSet):
     """
     API endpoint for managing model training sessions.
-    
+
     Training sessions use labeled data from datasets to train AI models.
     Rate-limited to 10 creations per hour per user.
     """
+
     queryset = Training.objects.all()
     http_method_names = ["get", "post", "delete"]
     serializer_class = TrainingSerializer
@@ -264,43 +283,50 @@ class TrainingViewSet(BaseModelViewSet):
         responses={
             200: openapi.Response(
                 description="Training details including feedback counts",
-                schema=TrainingSerializer
+                schema=TrainingSerializer,
             )
-        }
+        },
     )
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         data = serializer.data
-        data.update({
-            "feedback_count": Feedback.objects.filter(training=instance.id, action="REJECT").count(),
-            "approved_predictions_count": Feedback.objects.filter(training=instance.id, action="ACCEPT").count()
-        })
+        data.update(
+            {
+                "feedback_count": Feedback.objects.filter(
+                    training=instance.id, action="REJECT"
+                ).count(),
+                "approved_predictions_count": Feedback.objects.filter(
+                    training=instance.id, action="ACCEPT"
+                ).count(),
+            }
+        )
         return Response(data)
 
 
 class FeedbackViewset(BaseSpatialViewSet):
     """
     API endpoint for managing training feedback.
-    
+
     Feedback allows users to accept or reject predictions to improve model quality.
     Supports spatial filtering by geometry.
     """
+
     queryset = Feedback.objects.all()
     serializer_class = FeedbackSerializer
     bbox_filter_field = "geom"
     filterset_fields = ["training", "user", "action"]
     public_methods = ["GET"]
-    
 
 
 class ModelViewSet(BaseSpatialViewSet):
     """
     API endpoint for managing AI models.
-    
+
     Models are trained versions that can be published for use in predictions.
     Supports filtering by status, dataset, and date ranges.
     """
+
     queryset = Model.objects.all()
     serializer_class = ModelSerializer
     filterset_fields = {
@@ -318,13 +344,37 @@ class ModelViewSet(BaseSpatialViewSet):
     @swagger_auto_schema(
         operation_summary="List all models",
         operation_description="Get paginated list of AI models. Filter by status, dataset, dates. Order by various fields.",
-        tags=['Models'],
+        tags=["Models"],
         manual_parameters=[
-            openapi.Parameter('search', openapi.IN_QUERY, description='Search by model name or ID', type=openapi.TYPE_STRING, example='YOLOv8'),
-            openapi.Parameter('status', openapi.IN_QUERY, description='Filter by status', type=openapi.TYPE_STRING, enum=['DRAFT', 'PUBLISHED']),
-            openapi.Parameter('dataset', openapi.IN_QUERY, description='Filter by dataset ID', type=openapi.TYPE_INTEGER, example=1),
-            openapi.Parameter('ordering', openapi.IN_QUERY, description='Order by field (prefix with - for descending)', type=openapi.TYPE_STRING, example='-created_at'),
-        ]
+            openapi.Parameter(
+                "search",
+                openapi.IN_QUERY,
+                description="Search by model name or ID",
+                type=openapi.TYPE_STRING,
+                example="YOLOv8",
+            ),
+            openapi.Parameter(
+                "status",
+                openapi.IN_QUERY,
+                description="Filter by status",
+                type=openapi.TYPE_STRING,
+                enum=["DRAFT", "PUBLISHED"],
+            ),
+            openapi.Parameter(
+                "dataset",
+                openapi.IN_QUERY,
+                description="Filter by dataset ID",
+                type=openapi.TYPE_INTEGER,
+                example=1,
+            ),
+            openapi.Parameter(
+                "ordering",
+                openapi.IN_QUERY,
+                description="Order by field (prefix with - for descending)",
+                type=openapi.TYPE_STRING,
+                example="-created_at",
+            ),
+        ],
     )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
@@ -332,12 +382,12 @@ class ModelViewSet(BaseSpatialViewSet):
     @swagger_auto_schema(
         operation_summary="Create a new model",
         operation_description="Initialize a new AI model linked to a dataset. Choose YOLO or RAMP base model.",
-        tags=['Models'],
+        tags=["Models"],
         responses={
             201: openapi.Response(description="Model created successfully"),
             400: "Validation error",
-            401: "Authentication required"
-        }
+            401: "Authentication required",
+        },
     )
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
@@ -345,7 +395,7 @@ class ModelViewSet(BaseSpatialViewSet):
     @swagger_auto_schema(
         operation_summary="Get model details",
         operation_description="Get detailed model info including accuracy, published training, thumbnail URL.",
-        tags=['Models'],
+        tags=["Models"],
     )
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
@@ -353,7 +403,7 @@ class ModelViewSet(BaseSpatialViewSet):
     @swagger_auto_schema(
         operation_summary="Update model",
         operation_description="Full update of model metadata. Requires ownership.",
-        tags=['Models'],
+        tags=["Models"],
     )
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
@@ -361,7 +411,7 @@ class ModelViewSet(BaseSpatialViewSet):
     @swagger_auto_schema(
         operation_summary="Partially update model",
         operation_description="Update specific fields like status, description, name. Requires ownership.",
-        tags=['Models'],
+        tags=["Models"],
     )
     def partial_update(self, request, *args, **kwargs):
         return super().partial_update(request, *args, **kwargs)
@@ -369,11 +419,8 @@ class ModelViewSet(BaseSpatialViewSet):
     @swagger_auto_schema(
         operation_summary="Delete model",
         operation_description="Delete a model. Requires ownership or admin permissions.",
-        tags=['Models'],
-        responses={
-            204: "Model deleted successfully",
-            403: "Permission denied"
-        }
+        tags=["Models"],
+        responses={204: "Model deleted successfully", 403: "Permission denied"},
     )
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
@@ -421,9 +468,10 @@ class UsersView(ListAPIView):
 class AOIViewSet(BaseModelViewSet):
     """
     API endpoint for managing Areas of Interest (AOI).
-    
+
     AOIs define geographic regions within datasets for labeling and training.
     """
+
     queryset = AOI.objects.all()
     serializer_class = AOISerializer
     filterset_fields = ["dataset"]
@@ -432,10 +480,16 @@ class AOIViewSet(BaseModelViewSet):
     @swagger_auto_schema(
         operation_summary="List all AOIs",
         operation_description="Get list of Areas of Interest with GeoJSON polygon geometry.",
-        tags=['AOI (Areas of Interest)'],
+        tags=["AOI (Areas of Interest)"],
         manual_parameters=[
-            openapi.Parameter('dataset', openapi.IN_QUERY, description='Filter by dataset ID', type=openapi.TYPE_INTEGER, example=1),
-        ]
+            openapi.Parameter(
+                "dataset",
+                openapi.IN_QUERY,
+                description="Filter by dataset ID",
+                type=openapi.TYPE_INTEGER,
+                example=1,
+            ),
+        ],
     )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
@@ -443,11 +497,11 @@ class AOIViewSet(BaseModelViewSet):
     @swagger_auto_schema(
         operation_summary="Create a new AOI",
         operation_description="Create an Area of Interest with polygon geometry. Must be a valid Polygon.",
-        tags=['AOI (Areas of Interest)'],
+        tags=["AOI (Areas of Interest)"],
         responses={
             201: openapi.Response(description="AOI created successfully"),
-            400: "Invalid geometry or dataset not found"
-        }
+            400: "Invalid geometry or dataset not found",
+        },
     )
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
@@ -455,7 +509,7 @@ class AOIViewSet(BaseModelViewSet):
     @swagger_auto_schema(
         operation_summary="Get AOI details",
         operation_description="Retrieve AOI with full GeoJSON geometry and label statistics.",
-        tags=['AOI (Areas of Interest)'],
+        tags=["AOI (Areas of Interest)"],
     )
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
@@ -463,7 +517,7 @@ class AOIViewSet(BaseModelViewSet):
     @swagger_auto_schema(
         operation_summary="Update AOI",
         operation_description="Update AOI geometry or metadata. Requires ownership.",
-        tags=['AOI (Areas of Interest)'],
+        tags=["AOI (Areas of Interest)"],
     )
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
@@ -471,7 +525,7 @@ class AOIViewSet(BaseModelViewSet):
     @swagger_auto_schema(
         operation_summary="Partially update AOI",
         operation_description="Update specific AOI fields. Requires ownership.",
-        tags=['AOI (Areas of Interest)'],
+        tags=["AOI (Areas of Interest)"],
     )
     def partial_update(self, request, *args, **kwargs):
         return super().partial_update(request, *args, **kwargs)
@@ -479,11 +533,8 @@ class AOIViewSet(BaseModelViewSet):
     @swagger_auto_schema(
         operation_summary="Delete AOI",
         operation_description="Delete an AOI and all associated labels. Requires ownership.",
-        tags=['AOI (Areas of Interest)'],
-        responses={
-            204: "AOI deleted successfully",
-            403: "Permission denied"
-        }
+        tags=["AOI (Areas of Interest)"],
+        responses={204: "AOI deleted successfully", 403: "Permission denied"},
     )
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
@@ -492,25 +543,28 @@ class AOIViewSet(BaseModelViewSet):
 class LabelViewSet(BaseSpatialViewSet):
     """
     API endpoint for managing training labels.
-    
+
     Labels are geographic features used to train AI models.
     Supports spatial filtering and GeoJSON upload.
     """
+
     queryset = Label.objects.all()
     serializer_class = LabelSerializer
     bbox_filter_field = "geom"
     pagination_class = None
     filterset_fields = ["aoi", "aoi__dataset"]
     public_methods = ["GET"]
-    
 
     @swagger_auto_schema(
         operation_description="Create or update a label. If a label with the same AOI and geometry exists, it will be updated.",
         request_body=LabelSerializer,
         responses={
-            200: openapi.Response(description="Label created or updated successfully", schema=LabelSerializer),
-            400: "Bad request"
-        }
+            200: openapi.Response(
+                description="Label created or updated successfully",
+                schema=LabelSerializer,
+            ),
+            400: "Bad request",
+        },
     )
     def create(self, request, *args, **kwargs):
         serializer = LabelSerializer(data=request.data)
@@ -518,9 +572,9 @@ class LabelViewSet(BaseSpatialViewSet):
         if serializer.is_valid():
             aoi_id = serializer.validated_data.get("aoi")
             geom = serializer.validated_data.get("geom")
-            
+
             existing_label = Label.objects.filter(aoi=aoi_id, geom=geom).first()
-            
+
             if existing_label:
                 serializer = LabelSerializer(existing_label, data=request.data)
                 if serializer.is_valid():
@@ -529,7 +583,7 @@ class LabelViewSet(BaseSpatialViewSet):
             else:
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_200_OK)
-        
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -562,23 +616,43 @@ class LabelUploadView(APIView):
 
     def validate_geojson(self, geojson_data):
         if geojson_data.get("type") != "FeatureCollection":
-            raise handle_validation_error("geojson_type", "Invalid GeoJSON type. Expected 'FeatureCollection'", geojson_data.get("type"))
-        if "features" not in geojson_data or not isinstance(geojson_data["features"], list):
-            raise handle_validation_error("geojson_features", "Invalid GeoJSON format. 'features' must be a list")
+            raise handle_validation_error(
+                "geojson_type",
+                "Invalid GeoJSON type. Expected 'FeatureCollection'",
+                geojson_data.get("type"),
+            )
+        if "features" not in geojson_data or not isinstance(
+            geojson_data["features"], list
+        ):
+            raise handle_validation_error(
+                "geojson_features", "Invalid GeoJSON format. 'features' must be a list"
+            )
         if not geojson_data["features"]:
-            raise handle_validation_error("geojson_features", "GeoJSON 'features' list is empty")
+            raise handle_validation_error(
+                "geojson_features", "GeoJSON 'features' list is empty"
+            )
 
         first_feature = geojson_data["features"][0]
         if first_feature.get("type") != "Feature":
-            raise handle_validation_error("geojson_feature_type", "Invalid GeoJSON feature type. Expected 'Feature'", first_feature.get("type"))
+            raise handle_validation_error(
+                "geojson_feature_type",
+                "Invalid GeoJSON feature type. Expected 'Feature'",
+                first_feature.get("type"),
+            )
         if "geometry" not in first_feature or "properties" not in first_feature:
-            raise handle_validation_error("geojson_feature_format", "Invalid GeoJSON feature format. 'geometry' and 'properties' are required")
+            raise handle_validation_error(
+                "geojson_feature_format",
+                "Invalid GeoJSON feature format. 'geometry' and 'properties' are required",
+            )
 
         first_feature["properties"]["aoi"] = self.kwargs.get("aoi_id")
         serializer = LabelSerializer(data=first_feature)
 
         if not serializer.is_valid():
-            raise ValidationException(message="Label validation failed", details={"serializer_errors": serializer.errors})
+            raise ValidationException(
+                message="Label validation failed",
+                details={"serializer_errors": serializer.errors},
+            )
 
 
 def process_labels_geojson(geojson_data, aoi_id):
@@ -698,15 +772,15 @@ def ConflateGeojson(request):
 
 
 @api_view(["GET"])
-@ratelimit(key='user_or_ip', rate='30/m', method='GET', block=False)
+@ratelimit(key="user_or_ip", rate="30/m", method="GET", block=False)
 def run_task_status(request, run_id: str):
     cache_key = f"task_status_{run_id}"
     cached_result = cache.get(cache_key)
     if cached_result:
         return Response(cached_result)
-    
+
     task_result = AsyncResult(run_id, app=current_app)
-    
+
     if task_result.failed():
         result = {
             "id": run_id,
@@ -716,20 +790,21 @@ def run_task_status(request, run_id: str):
         }
         cache.set(cache_key, result, 2)
         return Response(result)
-    
+
     if task_result.state in ("PENDING", "STARTED"):
         log_file = os.path.join(settings.LOG_PATH, f"run_{run_id}.log")
         output = ""
-        
+
         if os.path.exists(log_file):
             try:
                 from collections import deque
-                with open(log_file, 'r') as f:
+
+                with open(log_file, "r") as f:
                     lines = deque(f, maxlen=settings.LOG_LINE_STREAM_TRUNCATE_VALUE)
-                    output = ''.join(lines)
+                    output = "".join(lines)
             except Exception as e:
                 output = str(e)
-        
+
         result = {
             "id": run_id,
             "status": task_result.state,
@@ -738,7 +813,7 @@ def run_task_status(request, run_id: str):
         }
         cache.set(cache_key, result, 2)
         return Response(result)
-    
+
     result = {
         "id": run_id,
         "status": task_result.state,
@@ -795,11 +870,15 @@ class TrainingWorkspaceView(APIView):
     @method_decorator(cache_page(60 * settings.CACHE_TIMEOUT_MINUTES))
     @method_decorator(vary_on_headers("access-token"))
     def get(self, request, lookup_dir):
-        bucket_name = settings.BUCKET_NAME
-        encoded_file_path = quote(lookup_dir.strip("/"))
-        s3_prefix = f"{settings.PARENT_BUCKET_FOLDER}/{encoded_file_path}/"
+        parent = settings.PARENT_BUCKET_FOLDER
+        lookup = (lookup_dir or "").strip("/")
+        encoded_file_path = quote(lookup) if lookup else ""
+        s3_prefix = (
+            f"{parent}/{encoded_file_path}/" if encoded_file_path else f"{parent}/"
+        )
+
         try:
-            data = get_s3_directory(bucket_name, s3_prefix)
+            data = get_s3_directory(settings.BUCKET_NAME, s3_prefix)
         except Exception as e:
             return Response({"Error": str(e)}, status=500)
 
@@ -826,10 +905,11 @@ class TrainingWorkspaceDownloadView(APIView):
 class BannerViewSet(viewsets.ModelViewSet):
     """
     API endpoint for managing notification banners.
-    
+
     Banners are time-bound messages displayed to users.
     Read access is public, write operations require admin/staff permissions.
     """
+
     queryset = Banner.objects.all()
     serializer_class = BannerSerializer
     authentication_classes = [OsmAuthentication]
@@ -839,9 +919,7 @@ class BannerViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         now = timezone.now()
-        return Banner.objects.filter(
-            start_date__lte=now
-        ).filter(
+        return Banner.objects.filter(start_date__lte=now).filter(
             end_date__gte=now
         ) | Banner.objects.filter(end_date__isnull=True)
 
@@ -867,10 +945,11 @@ def get_kpi_stats(request):
 class UserNotificationViewSet(ReadOnlyModelViewSet):
     """
     API endpoint for user notifications.
-    
+
     Allows users to view their notifications. Read-only.
     Use separate endpoints to mark as read.
     """
+
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsOsmAuthenticated]
     serializer_class = UserNotificationSerializer
@@ -1026,9 +1105,7 @@ class PredictionSerializer(serializers.ModelSerializer):
     def validate_config(self, value):
         if value:
             required_fields = ["checkpoint", "zoom_level", "source"]
-            missing_fields = [
-                field for field in required_fields if field not in value
-            ]
+            missing_fields = [field for field in required_fields if field not in value]
             if missing_fields:
                 raise serializers.ValidationError(
                     f"Missing required fields: {', '.join(missing_fields)}"
@@ -1080,15 +1157,18 @@ class PredictionSerializer(serializers.ModelSerializer):
         return instance
 
 
-@method_decorator(ratelimit(key='user', rate='50/h', method='POST', block=True), name='create')
+@method_decorator(
+    ratelimit(key="user", rate="50/h", method="POST", block=True), name="create"
+)
 class PredictionViewSet(UserAssignmentMixin, BaseSpatialViewSet):
     """
     API endpoint for managing predictions.
-    
+
     Predictions use trained models to detect features in new areas.
     Rate-limited to 50 creations per hour per user.
     Supports spatial filtering and status tracking.
     """
+
     http_method_names = ["get", "post", "patch"]
     queryset = Prediction.objects.all()
     bbox_filter_field = "geom"

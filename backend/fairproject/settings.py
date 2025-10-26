@@ -1,11 +1,12 @@
-import logging
 import os
 from socket import gethostbyname, gethostname
 from urllib.parse import urlparse
+
 import boto3
 import dj_database_url
 import environ
 from corsheaders.defaults import default_headers
+
 env = environ.Env()
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 env_file = os.environ.get("ENV_FILE", ".env")
@@ -23,8 +24,12 @@ else:
 LOG_PATH = env("LOG_PATH", default=os.path.join(BASE_DIR, "logs"))
 os.makedirs(LOG_PATH, exist_ok=True)
 
-TRAINING_WORKSPACE = env("TRAINING_WORKSPACE", default=os.path.join(BASE_DIR, "training"))
-PREDICTION_WORKSPACE = env("PREDICTION_WORKSPACE", default=os.path.join(BASE_DIR, "prediction"))
+TRAINING_WORKSPACE = env(
+    "TRAINING_WORKSPACE", default=os.path.join(BASE_DIR, "training")
+)
+PREDICTION_WORKSPACE = env(
+    "PREDICTION_WORKSPACE", default=os.path.join(BASE_DIR, "prediction")
+)
 
 if DEBUG:
     FRONTEND_URL = env("FRONTEND_URL", default="http://localhost:3000")
@@ -35,7 +40,9 @@ else:
     API_BASE_URL = env("API_BASE_URL", default="https://fair-dev.hotosm.org/api/v1")
     HOSTNAME = env("HOSTNAME", default="127.0.0.1")
 
-EXPORT_TOOL_API_URL = env("EXPORT_TOOL_API_URL", default="https://api-prod.raw-data.hotosm.org/v1")
+EXPORT_TOOL_API_URL = env(
+    "EXPORT_TOOL_API_URL", default="https://api-prod.raw-data.hotosm.org/v1"
+)
 
 if env("GDAL_LIBRARY_PATH", default=None):
     GDAL_LIBRARY_PATH = env("GDAL_LIBRARY_PATH")
@@ -52,8 +59,8 @@ else:
 OSM_URL = env("OSM_URL", default="https://www.openstreetmap.org")
 OSM_SCOPE = env("OSM_SCOPE", default="read_prefs")
 OSM_LOGIN_REDIRECT_URI = env(
-    "OSM_LOGIN_REDIRECT_URI", 
-    default="http://127.0.0.1:8000/api/v1/auth/callback/" if DEBUG else None
+    "OSM_LOGIN_REDIRECT_URI",
+    default="http://127.0.0.1:8000/api/v1/auth/callback/" if DEBUG else None,
 )
 
 
@@ -68,16 +75,15 @@ if USE_S3_TO_UPLOAD_MODELS:
     AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY", default=None)
     PRESIGNED_URL_EXPIRY = env.int("PRESIGNED_URL_EXPIRY", default=3600)
 
-
     if AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY:
-        S3_CLIENT= boto3.client(
+        S3_CLIENT = boto3.client(
             "s3",
             aws_access_key_id=AWS_ACCESS_KEY_ID,
             aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
             region_name=AWS_REGION,
         )
     else:
-        S3_CLIENT= boto3.client("s3")
+        S3_CLIENT = boto3.client("s3")
 
 EPOCHS_LIMIT = env.int("EPOCHS_LIMIT", default=20)
 BATCH_SIZE_LIMIT = env.int("BATCH_SIZE_LIMIT", default=8)
@@ -89,9 +95,13 @@ RAMP_EPOCHS_LIMIT = env.int("RAMP_EPOCHS_LIMIT", default=40)
 RAMP_BATCH_SIZE_LIMIT = env.int("RAMP_BATCH_SIZE_LIMIT", default=8)
 
 
-SUPPORTED_TRAINING_ZOOM_LEVELS = env.list("SUPPORTED_TRAINING_ZOOM_LEVELS", default=[18, 19, 20, 21])
+SUPPORTED_TRAINING_ZOOM_LEVELS = env.list(
+    "SUPPORTED_TRAINING_ZOOM_LEVELS", default=[18, 19, 20, 21]
+)
 
-TRAINING_WORKSPACE_DOWNLOAD_LIMIT = env.int("TRAINING_WORKSPACE_DOWNLOAD_LIMIT", default=200)
+TRAINING_WORKSPACE_DOWNLOAD_LIMIT = env.int(
+    "TRAINING_WORKSPACE_DOWNLOAD_LIMIT", default=200
+)
 
 FGB_MAX_BBOX_AREA_KM2 = env.float("FGB_MAX_BBOX_AREA_KM2", default=10000.0)
 FGB_MAX_BBOX_DIMENSION_KM = env.float("FGB_MAX_BBOX_DIMENSION_KM", default=500.0)
@@ -155,14 +165,14 @@ else:
 
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_BROWSER_XSS_FILTER = True
-X_FRAME_OPTIONS = 'DENY'
-SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+X_FRAME_OPTIONS = "DENY"
+SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 
 SESSION_COOKIE_HTTPONLY = True
-SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SAMESITE = "Lax"
 SESSION_COOKIE_AGE = env.int("SESSION_COOKIE_AGE", default=3600)
 CSRF_COOKIE_HTTPONLY = True
-CSRF_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SAMESITE = "Lax"
 
 DEFAULT_PAGINATION_SIZE = env.int("DEFAULT_PAGINATION_SIZE", default=50)
 
@@ -215,11 +225,13 @@ if database_url.scheme in ["postgres", "postgresql", "postgis"]:
     ssl_mode = "disable" if DEBUG else "require"
     DATABASES["default"]["OPTIONS"] = {
         "sslmode": env("DATABASE_SSL_MODE", default=ssl_mode),
-        **DATABASES["default"].get("OPTIONS", {})
+        **DATABASES["default"].get("OPTIONS", {}),
     }
 
 AUTH_PASSWORD_VALIDATORS = [
-    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
+    },
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
@@ -236,39 +248,39 @@ MEDIA_URL = "/media/"
 STATIC_ROOT = os.path.join(BASE_DIR, "api_static")
 
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {'format': '{levelname} {asctime} {module} {message}', 'style': '{'},
-        'simple': {'format': '{levelname} {message}', 'style': '{'},
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {"format": "{levelname} {asctime} {module} {message}", "style": "{"},
+        "simple": {"format": "{levelname} {message}", "style": "{"},
     },
-    'handlers': {
-        'console': {
-            'level': 'DEBUG' if DEBUG else 'INFO',
-            'class': 'logging.StreamHandler',
-            'formatter': 'simple',
+    "handlers": {
+        "console": {
+            "level": "DEBUG" if DEBUG else "INFO",
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
         },
     },
-    'root': {'handlers': ['console']},
-    'loggers': {
-        'django': {'handlers': ['console'], 'level': 'INFO', 'propagate': False},
-        'core': {'handlers': ['console'], 'level': 'INFO', 'propagate': False},
+    "root": {"handlers": ["console"]},
+    "loggers": {
+        "django": {"handlers": ["console"], "level": "INFO", "propagate": False},
+        "core": {"handlers": ["console"], "level": "INFO", "propagate": False},
     },
 }
 
 if not DEBUG:
-    LOGGING['handlers']['file'] = {
-        'level': 'INFO',
-        'class': 'logging.FileHandler',
-        'filename': os.path.join(LOG_PATH, 'django.log'),
-        'formatter': 'verbose',
+    LOGGING["handlers"]["file"] = {
+        "level": "INFO",
+        "class": "logging.FileHandler",
+        "filename": os.path.join(LOG_PATH, "django.log"),
+        "formatter": "verbose",
     }
-    LOGGING['handlers']['mail_admins'] = {
-        'level': 'ERROR',
-        'class': 'django.utils.log.AdminEmailHandler',
+    LOGGING["handlers"]["mail_admins"] = {
+        "level": "ERROR",
+        "class": "django.utils.log.AdminEmailHandler",
     }
-    LOGGING['loggers']['django']['handlers'].extend(['file', 'mail_admins'])
-    LOGGING['loggers']['core']['handlers'].append('file')
+    LOGGING["loggers"]["django"]["handlers"].extend(["file", "mail_admins"])
+    LOGGING["loggers"]["core"]["handlers"].append("file")
 
 if DEBUG:
     os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
@@ -284,7 +296,7 @@ Q_CLUSTER = {
     "recycle": env.int("Q_CLUSTER_RECYCLE", default=50),
     "queue_limit": env.int("Q_CLUSTER_QUEUE_LIMIT", default=50),
     "timeout": env.int("Q_CLUSTER_TIMEOUT", default=300),
-    "label": "Django Q", 
+    "label": "Django Q",
     "orm": "default",
 }
 
@@ -295,10 +307,10 @@ SWAGGER_SETTINGS = {
     "DEFAULT_INFO": "fairproject.urls.api_info",
     "SECURITY_DEFINITIONS": {
         "OSM": {
-            "type": "apiKey", 
-            "name": "access-token", 
+            "type": "apiKey",
+            "name": "access-token",
             "in": "header",
-            "description": "OSM OAuth2 access token. Get it from /api/v1/auth/login/"
+            "description": "OSM OAuth2 access token. Get it from /api/v1/auth/login/",
         },
     },
     "USE_SESSION_AUTH": False,
@@ -333,7 +345,9 @@ TEST_RUNNER = "tests.test_runners.NoDestroyTestRunner"
 if DEBUG:
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 else:
-    EMAIL_BACKEND = env("EMAIL_BACKEND", default="django.core.mail.backends.smtp.EmailBackend")
+    EMAIL_BACKEND = env(
+        "EMAIL_BACKEND", default="django.core.mail.backends.smtp.EmailBackend"
+    )
     EMAIL_HOST = env("EMAIL_HOST", default="smtp.gmail.com")
     EMAIL_PORT = env.int("EMAIL_PORT", default=587)
     EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
@@ -346,14 +360,14 @@ else:
 CACHE_TIMEOUT_MINUTES = env.int("CACHE_TIMEOUT_MINUTES", default=5)
 
 RATELIMIT_ENABLE = not DEBUG
-RATELIMIT_USE_CACHE = 'default'
-RATELIMIT_VIEW = 'core.ratelimit.ratelimit_key_from_user'
+RATELIMIT_USE_CACHE = "default"
+RATELIMIT_VIEW = "core.ratelimit.ratelimit_key_from_user"
 
 CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': env("REDIS_CACHE_URL", default=CELERY_RESULT_BACKEND),
-        'OPTIONS': {'CLIENT_CLASS': 'django_redis.client.DefaultClient'}
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": env("REDIS_CACHE_URL", default=CELERY_RESULT_BACKEND),
+        "OPTIONS": {"CLIENT_CLASS": "django_redis.client.DefaultClient"},
     }
 }
 
@@ -365,6 +379,7 @@ API_RATE_LIMIT = env("API_RATE_LIMIT", default="1000/h")
 def extract_domain(url):
     return urlparse(url).hostname
 
+
 if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
     CORS_ALLOW_CREDENTIALS = False
@@ -373,23 +388,28 @@ else:
     CORS_ALLOW_CREDENTIALS = True
     cors_origins = env.list("CORS_ALLOWED_ORIGINS", default=[])
     CORS_ALLOWED_ORIGINS = cors_origins.copy()
-    
+
     if FRONTEND_URL and FRONTEND_URL not in CORS_ALLOWED_ORIGINS:
         CORS_ALLOWED_ORIGINS.append(FRONTEND_URL)
 
 CORS_ALLOW_HEADERS = list(default_headers) + [
-    "access-token", "authorization", "content-type", "x-csrftoken", "x-requested-with"
+    "access-token",
+    "authorization",
+    "content-type",
+    "x-csrftoken",
+    "x-requested-with",
 ]
 
-CORS_ALLOWED_METHODS = ['DELETE', 'GET', 'OPTIONS', 'PATCH', 'POST', 'PUT']
+CORS_ALLOWED_METHODS = ["DELETE", "GET", "OPTIONS", "PATCH", "POST", "PUT"]
 CORS_PREFLIGHT_MAX_AGE = 86400
+
 
 def get_allowed_hosts():
     hosts = ["localhost", "127.0.0.1", "0.0.0.0"]
     hostname = env("HOSTNAME", default="127.0.0.1")
     if hostname not in hosts:
         hosts.append(hostname)
-    
+
     if DEBUG:
         try:
             hosts.extend([gethostname(), gethostbyname(gethostname())])
@@ -398,28 +418,35 @@ def get_allowed_hosts():
     else:
         production_hosts = env.list("ALLOWED_HOSTS", default=[])
         hosts.extend(production_hosts)
-        
+
         if FRONTEND_URL:
             frontend_domain = extract_domain(FRONTEND_URL)
             if frontend_domain:
                 hosts.append(frontend_domain)
-        
-        if 'CORS_ALLOWED_ORIGINS' in locals():
+
+        if "CORS_ALLOWED_ORIGINS" in locals():
             cors_domains = [extract_domain(url) for url in CORS_ALLOWED_ORIGINS if url]
             hosts.extend(filter(None, cors_domains))
-    
+
     return list(set(filter(None, hosts)))
+
 
 ALLOWED_HOSTS = get_allowed_hosts()
 
 if not DEBUG:
     required_env_vars = [
-        'SECRET_KEY', 'DATABASE_URL', 'ALLOWED_HOSTS', 
-        'OSM_CLIENT_ID', 'OSM_CLIENT_SECRET', 'OSM_SECRET_KEY'
+        "SECRET_KEY",
+        "DATABASE_URL",
+        "ALLOWED_HOSTS",
+        "OSM_CLIENT_ID",
+        "OSM_CLIENT_SECRET",
+        "OSM_SECRET_KEY",
     ]
     missing_vars = [var for var in required_env_vars if not env(var, default=None)]
     if missing_vars:
-        raise ValueError(f"Required environment variables missing in production: {', '.join(missing_vars)}")
-    
-    if 'dev' in SECRET_KEY or 'unsafe' in SECRET_KEY or len(SECRET_KEY) < 32:
+        raise ValueError(
+            f"Required environment variables missing in production: {', '.join(missing_vars)}"
+        )
+
+    if "dev" in SECRET_KEY or "unsafe" in SECRET_KEY or len(SECRET_KEY) < 32:
         raise ValueError("Insecure SECRET_KEY detected in production")
