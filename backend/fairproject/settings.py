@@ -2,11 +2,10 @@ import logging
 import os
 from socket import gethostbyname, gethostname
 from urllib.parse import urlparse
-
+import boto3
 import dj_database_url
 import environ
 from corsheaders.defaults import default_headers
-
 env = environ.Env()
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 env_file = os.environ.get("ENV_FILE", ".env")
@@ -60,6 +59,7 @@ OSM_LOGIN_REDIRECT_URI = env(
 
 USE_S3_TO_UPLOAD_MODELS = env.bool("USE_S3_TO_UPLOAD_MODELS", default=False)
 
+
 if USE_S3_TO_UPLOAD_MODELS:
     BUCKET_NAME = env("BUCKET_NAME", default="fair-dev")
     PARENT_BUCKET_FOLDER = env("PARENT_BUCKET_FOLDER", default="dev")
@@ -67,6 +67,19 @@ if USE_S3_TO_UPLOAD_MODELS:
     AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID", default=None)
     AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY", default=None)
     PRESIGNED_URL_EXPIRY = env.int("PRESIGNED_URL_EXPIRY", default=3600)
+
+
+    if AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY:
+        print('aws connection key is provided')
+        print(f'AWS_ACCESS_KEY_ID: {AWS_ACCESS_KEY_ID}')
+        S3_CLIENT= boto3.client(
+            "s3",
+            aws_access_key_id=AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+            region_name=AWS_REGION,
+        )
+    else:
+        S3_CLIENT= boto3.client("s3")
 
 EPOCHS_LIMIT = env.int("EPOCHS_LIMIT", default=20)
 BATCH_SIZE_LIMIT = env.int("BATCH_SIZE_LIMIT", default=8)
@@ -187,8 +200,6 @@ TEMPLATES = [
 ]
 
 if DEBUG:
-    default_db_url = "sqlite:///" + os.path.join(BASE_DIR, "db.sqlite3")
-else:
     default_db_url = "postgis://admin:password@localhost:5432/fair"
 
 DATABASE_URL = env("DATABASE_URL", default=default_db_url)

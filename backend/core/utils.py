@@ -16,7 +16,7 @@ from pathlib import Path
 from uuid import uuid4
 from xml.dom import ValidationErr
 from zipfile import ZipFile
-
+import logging
 # Third-party Libraries
 import boto3
 import geopandas as gpd
@@ -33,7 +33,6 @@ from tqdm import tqdm
 # Local imports
 from .models import AOI, Label, UserNotification
 from .serializers import LabelSerializer
-
 
 def validate_training_params(model, epochs, batch_size, zoom_level):
     from .exceptions import ValidationException, handle_validation_error
@@ -53,21 +52,6 @@ def validate_training_params(model, epochs, batch_size, zoom_level):
         if batch_size > settings.YOLO_BATCH_SIZE_LIMIT:
             raise handle_validation_error("batch_size", f"Batch size can't be greater than {settings.YOLO_BATCH_SIZE_LIMIT} on this server", batch_size)
 
-
-def get_s3_client():
-    if (hasattr(settings, 'AWS_ACCESS_KEY_ID') and hasattr(settings, 'AWS_SECRET_ACCESS_KEY') 
-        and settings.AWS_ACCESS_KEY_ID and settings.AWS_SECRET_ACCESS_KEY):
-        return boto3.client(
-            "s3",
-            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-            region_name=getattr(settings, 'AWS_REGION', 'us-east-1'),
-        )
-    else:
-        return boto3.client("s3")
-
-
-s3_client = get_s3_client()
 
 
 def km_to_degrees(km_distance, latitude=0.0):
@@ -120,7 +104,7 @@ def degrees_to_km(degrees, latitude=0.0):
 def s3_object_exists(bucket_name, key):
     """Check if an object exists in S3."""
     try:
-        s3_client.head_object(Bucket=bucket_name, Key=key)
+        settings.S3_CLIENT.head_object(Bucket=bucket_name, Key=key)
         return True
     except ClientError as e:
         if e.response["Error"]["Code"] == "404":
@@ -131,7 +115,7 @@ def s3_object_exists(bucket_name, key):
 def download_s3_file(bucket_name, s3_key):
     """Generate a presigned URL for downloading a file from S3."""
     try:
-        presigned_url = s3_client.generate_presigned_url(
+        presigned_url = settings.S3_CLIENT.generate_presigned_url(
             "get_object",
             Params={"Bucket": bucket_name, "Key": s3_key},
             ExpiresIn=settings.PRESIGNED_URL_EXPIRY,
@@ -147,12 +131,12 @@ def handle_s3_operation(operation, *args, **kwargs):
         return operation(*args, **kwargs)
     except Exception as e:
         from .exceptions import S3ServiceException
-        raise S3ServiceException(message="S3 operation failed", details={"operation": "get_s3_client", "error": str(e)})
+        raise S3ServiceException(message="S3 operation failed", details={"operation": "get_settings.S3_CLIENT", "error": str(e)})
 
 
 def get_s3_metadata(bucket_name, key):
     """Retrieve metadata for an S3 object."""
-    response = handle_s3_operation(s3_client.head_object, Bucket=bucket_name, Key=key)
+    response = handle_s3_operation(settings.S3_CLIENT.head_object, Bucket=bucket_name, Key=key)
     return {"size": response.get("ContentLength")}
 
 
@@ -169,7 +153,7 @@ def get_s3_directory_size_and_length(bucket_name, prefix):
     """
     total_size = 0
     total_length = 0
-    paginator = s3_client.get_paginator("list_objects_v2")
+    paginator = settings.S3_CLIENT.get_paginator("list_objects_v2")
 
     for page in paginator.paginate(Bucket=bucket_name, Prefix=prefix):
         total_length += len(page.get("Contents", []))
@@ -182,7 +166,7 @@ def get_s3_directory_size_and_length(bucket_name, prefix):
 def get_s3_directory(bucket_name, prefix):
     """List objects in an S3 directory."""
     data = {"file": {}, "dir": {}}
-    paginator = s3_client.get_paginator("list_objects_v2")
+    paginator = settings.S3_CLIENT.get_paginator("list_objects_v2")
     for page in paginator.paginate(Bucket=bucket_name, Prefix=prefix, Delimiter="/"):
         for obj in page.get("Contents", []):
             key = obj["Key"]
@@ -456,7 +440,7 @@ class S3Uploader:
             else:
                 self.aws_session = boto3.Session()
 
-            self.s3_client = self.aws_session.client("s3")
+            self.settings.S3_CLIENT = self.aws_session.client("s3")
             self.bucket_name = bucket_name
             self.parent = parent
             logging.info("S3 connection initialized successfully")
@@ -485,7 +469,7 @@ class S3Uploader:
 
     def _upload_file(self, file_path, bucket_name):
         s3_key = f"{self.parent}/{os.path.basename(file_path)}"
-        self.s3_client.upload_file(file_path, bucket_name, s3_key)
+        self.settings.S3_CLIENT.upload_file(file_path, bucket_name, s3_key)
         return f"s3://{bucket_name}/{s3_key}"
 
     def _upload_directory(self, directory_path, bucket_name):
@@ -496,7 +480,7 @@ class S3Uploader:
                 relative_path = os.path.relpath(local_path, directory_path)
                 relative_path = relative_path.replace("\\", "/")
                 s3_key = f"{self.parent}/{relative_path}"
-                self.s3_client.upload_file(local_path, bucket_name, s3_key)
+                self.settings.S3_CLIENT.upload_file(local_path, bucket_name, s3_key)
                 total_files += 1
         return {
             "directory_name": os.path.basename(directory_path),
