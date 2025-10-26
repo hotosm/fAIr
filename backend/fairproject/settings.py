@@ -70,8 +70,6 @@ if USE_S3_TO_UPLOAD_MODELS:
 
 
     if AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY:
-        print('aws connection key is provided')
-        print(f'AWS_ACCESS_KEY_ID: {AWS_ACCESS_KEY_ID}')
         S3_CLIENT= boto3.client(
             "s3",
             aws_access_key_id=AWS_ACCESS_KEY_ID,
