@@ -102,13 +102,14 @@ from .mixins import BaseModelViewSet, BaseSpatialViewSet, UserAssignmentMixin
 from django.db import connections
 from django.db.utils import OperationalError
 from django.http import JsonResponse
+from botocore.exceptions import ClientError, NoCredentialsError
 from celery import current_app
 from django.core.cache import cache
 from rest_framework.decorators import api_view
 
 @api_view(["GET"])
 def health(request):
-    status = {"postgresql": False, "redis": False, "celery_workers": False}
+    status = {"postgresql": False, "redis": False, "celery_workers": False, "s3": None}
     try:
         connections['default'].cursor()
         status["postgresql"] = True
@@ -126,6 +127,21 @@ def health(request):
         status["celery_workers"] = bool(active)
     except Exception:
         status["celery_workers"] = False
+    try:
+        if settings.USE_S3_TO_UPLOAD_MODELS:
+            bucket = settings.BUCKET_NAME
+            if bucket and settings.S3_CLIENT:
+                try:
+                    settings.S3_CLIENT.head_bucket(Bucket=bucket)
+                    status["s3"] = True
+                except (ClientError, NoCredentialsError):
+                    status["s3"] = False
+            else:
+                status["s3"] = False
+        else:
+            status["s3"] = None
+    except Exception:
+        status["s3"] = False
     return JsonResponse({"status": status})
 
 
