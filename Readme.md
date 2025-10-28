@@ -57,10 +57,10 @@ To eliminate model biases, fAIr is built to work with the local communities and 
 |✅| fAIr evaluation | detailed research with Masaryk University & Missing Maps Czechia and Slovakia, welcome to join the efforts, [here is the final report](https://drive.google.com/file/d/10axeli5RozCE0gL2XeTIugAUHJPUDgvu/view?usp=sharing) 
 |✅| Handling User Profile | Enable users to log in easily and have insights in their user  activity, their own models/datasets and submitted trainings
 |✅| Notifications features | Training status change would trigger a notification on the web/email to let user know training is finished successfully or with a failure 
-|🔄| Replicable Models | Enable users to run a pre-trained model on new imagery/on a different area of their choice and using different satellite imagery | 
-|🔄| Offline AI Prediction | Enable users to submit requests for prediction using any pre-trained model and any imagery and process it in the background and provide the results back to user.
-|📅| Post Processing Enhancement | Users would get enhanced geometry features (points/polygons) based on the need of the mapping process
-|📅| fAIrSwipe | Enable users to validate fAIR generated features and push them into OSM by integrating fAIr  with MapSwipe, [more details](https://docs.google.com/document/d/1dWQlBl6HM7Nky-deahw0DfKlOOEbBhuWRPnLquyf7jU/edit?usp=sharing)
+|✅| Replicable Models | Enable users to run a pre-trained model on new imagery/on a different area of their choice and using different satellite imagery | 
+|✅| Offline AI Prediction | Enable users to submit requests for prediction using any pre-trained model and any imagery and process it in the background and provide the results back to user.
+|✅| Post Processing Enhancement | Users would get enhanced geometry features (points/polygons) based on the need of the mapping process
+|🔄| fAIrSwipe | Enable users to validate fAIR generated features and push them into OSM by integrating fAIr  with MapSwipe, [more details](https://docs.google.com/document/d/1dWQlBl6HM7Nky-deahw0DfKlOOEbBhuWRPnLquyf7jU/edit?usp=sharing)
 
 |👀| You can follow [here](https://docs.google.com/document/d/1A8kRG-Tw922bV8CTz4HXjCpp7cZmHSpehLOQQF1EXao/edit?usp=sharing) the details and scope of each of the above features. and you can see and follow the [Figma design progress](https://www.figma.com/design/1WXme5jfWV4tCaY9Rcaekk/fAIr-Project---UIUX-Team?node-id=2772-7466&p=f) for current in development 🔄 features
 
@@ -99,7 +99,7 @@ Checkout Docker Installation [docs](./docs/Docker-installation.md)
 - Start by reading our [Code of conduct](https://github.com/hotosm/fAIr/blob/master/docs/Code-of-Conduct.md)
 - Get familiar with our [contributor guidelines](CONTRIBUTING.md) explaining the different ways in which you can support this project! We need your help!
 
-# Licenses 
+# Licenses
 
 ## Imagery License
 
@@ -107,38 +107,38 @@ Checkout Docker Installation [docs](./docs/Docker-installation.md)
 
 By submitting imagery links to fAIr for model creation, you:
 
-1. Grant fAIr permission to download tiles covering your specified area of interest.  
-2. Authorize fAIr to use these tiles for training and inference.  
-3. Allow fAIr to redistribute the downloaded tiles to anyone who wishes to view or reproduce the dataset used for model training.  
+1. Grant fAIr permission to download tiles covering your specified area of interest.
+2. Authorize fAIr to use these tiles for training and inference.
+3. Allow fAIr to redistribute the downloaded tiles to anyone who wishes to view or reproduce the dataset used for model training.
 
 ### Training vs Inference
 
-- **Training:** Image tiles will be downloaded, stored, and will be published as part of the training dataset for the specified area only (Not the full image).  
-- **Inference:** Image tiles will not be stored. They are only cached temporarily during prediction and removed after. Only the results, the prediction area, and the source imagery reference are stored.  
+- **Training:** Image tiles will be downloaded, stored, and will be published as part of the training dataset for the specified area only (Not the full image).
+- **Inference:** Image tiles will not be stored. They are only cached temporarily during prediction and removed after. Only the results, the prediction area, and the source imagery reference are stored.
 
 ### Copyright
 
-- The original copyright remains with the imagery’s source or rights holder.  
+- The original copyright remains with the imagery’s source or rights holder.
 
 ### License Grant
 
-- You grant fAIr the right to license the downloaded tiles under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed.en).  
+- You grant fAIr the right to license the downloaded tiles under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed.en).
 
 ### Commercial TMS Notice
 
-- If you are using a commercial TMS (Tile Map Service) with your own token, fAIr will download, store, and derive information from the tiles for training in your specified area.  
-- For inference, tiles are cached only for prediction and removed afterward.  
+- If you are using a commercial TMS (Tile Map Service) with your own token, fAIr will download, store, and derive information from the tiles for training in your specified area.
+- For inference, tiles are cached only for prediction and removed afterward.
 
-You must verify that your imagery provider’s license is compatible with fAIr’s intended use.  
+You must verify that your imagery provider’s license is compatible with fAIr’s intended use.
 
 ### Imagery License Compliance
 
-- When submitting imagery to fAIr, ensure you are not violating the license of the TMS or imagery provider.  
-- If you are using imagery from OpenAerialMap, review the [legal page](https://openaerialmap.org/legal/) for applicable terms.  
+- When submitting imagery to fAIr, ensure you are not violating the license of the TMS or imagery provider.
+- If you are using imagery from OpenAerialMap, review the [legal page](https://openaerialmap.org/legal/) for applicable terms.
 
 ### Extended Use
 
-- If you plan to use the API or imagery services beyond the scope of this license, reach out to [info@hotosm.org](mailto:info@hotosm.org) for guidance.  
+- If you plan to use the API or imagery services beyond the scope of this license, reach out to [info@hotosm.org](mailto:info@hotosm.org) for guidance.
 
 ---
 
@@ -148,30 +148,26 @@ You must verify that your imagery provider’s license is compatible with fAIr�
 
 By submitting labels to fAIr for model creation, you:
 
-1. Grant fAIr permission to use the labels you provide for training.  
-2. Allow fAIr to redistribute these labels under the same license applied to the training area you specify.  
-3. Acknowledge responsibility for the content of the labels you share.  
+1. Grant fAIr permission to use the labels you provide for training.
+2. Allow fAIr to redistribute these labels under the same license applied to the training area you specify.
+3. Acknowledge responsibility for the content of the labels you share.
 
 ### License Type
 
-- All labels used and shared by fAIr are licensed under the [ODbL 1.0](https://opendatacommons.org/licenses/odbl/).  
-- This is the same license used by [OpenStreetMap](https://osmfoundation.org/wiki/Licence/Licence_Compatibility).  
+- All labels used and shared by fAIr are licensed under the [ODbL 1.0](https://opendatacommons.org/licenses/odbl/).
+- This is the same license used by [OpenStreetMap](https://osmfoundation.org/wiki/Licence/Licence_Compatibility).
 
 ### Labels from OpenStreetMap
 
-- If labels are pulled from OpenStreetMap, no user account information is included.  
-- Only the attributes and geometry are extracted for use.  
+- If labels are pulled from OpenStreetMap, no user account information is included.
+- Only the attributes and geometry are extracted for use.
 
 ### Labels You Upload Yourself
 
-- If you upload your own labels, you must comply with ODbL.  
-- You are fully responsible for the data you submit and what information you choose to include or exclude.  
+- If you upload your own labels, you must comply with ODbL.
+- You are fully responsible for the data you submit and what information you choose to include or exclude.
 
 ### Compliance
 
-- Make sure the labels you provide can legally be shared under ODbL.  
-- fAIr will redistribute labels only under ODbL, making them available for others working with the same training area.  
-
-
-
-
+- Make sure the labels you provide can legally be shared under ODbL.
+- fAIr will redistribute labels only under ODbL, making them available for others working with the same training area.
