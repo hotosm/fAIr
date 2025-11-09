@@ -457,7 +457,7 @@ if not DEBUG:
 
 MAPSWIPE_BACKEND_URL = env("MAPSWIPE_BACKEND_URL", default="https://backend-2.mapswipe.dev.togglecorp.com")
 MAPSWIPE_MANAGER_URL = env("MAPSWIPE_MANAGER_URL", default="https://manager-2.mapswipe.dev.togglecorp.com")
-MAPSWIPE_WEB_URL = env("MAPSWIPE_WEB_URL", default="https://web-2.mapswipe.dev.togglecorp.com")
+MAPSWIPE_WEB_URL = env("MAPSWIPE_WEB_URL", default="https://web-app-2.mapswipe.dev.togglecorp.com")
 
 MAPSWIPE_CSRFTOKEN_KEY= env("MAPSWIPE_CSRFTOKEN_KEY", default='MAPSWIPE-ALPHA-2-CSRFTOKEN')
 
