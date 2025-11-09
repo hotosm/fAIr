@@ -26,6 +26,7 @@ from .views import (
     TrainingWorkspaceDownloadView,
     TrainingWorkspaceView,
     UserNotificationViewSet,
+    MapswipeProjectViewSet,
     UsersView,
     get_kpi_stats,
     publish_training,
@@ -45,6 +46,7 @@ router.register(r"feedback", FeedbackViewset)
 router.register(r"banner", BannerViewSet)
 router.register(r"notifications/me", UserNotificationViewSet, basename="notifications")
 router.register(r"prediction", PredictionViewSet)
+router.register(r"mapswipe-project", MapswipeProjectViewSet, basename="mapswipe-project")
 
 
 urlpatterns = [

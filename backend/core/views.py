@@ -1,5 +1,5 @@
 from __future__ import absolute_import
-
+import random
 import json
 import logging
 import os
@@ -8,9 +8,11 @@ import subprocess
 import zipfile
 from datetime import datetime
 from urllib.parse import quote
-
+import httpx
 import pyogrio
 from botocore.exceptions import ClientError, NoCredentialsError
+from tempfile import NamedTemporaryFile
+from django.core.files.uploadedfile import InMemoryUploadedFile
 
 # import tensorflow as tf
 from celery import current_app
@@ -85,6 +87,7 @@ from .serializers import (
     DatasetSerializer,
     FeedbackSerializer,
     LabelSerializer,
+    MapswipeProjectCreateSerializer,
     ModelCentroidSerializer,
     ModelMetaSerializer,
     ModelSerializer,
@@ -108,7 +111,7 @@ from .utils import (
     send_notification,
 )
 from .validators import validate_geojson
-
+from .mapswipe_client import MapswipeClient
 
 @api_view(["GET"])
 def health(request):
@@ -1411,3 +1414,101 @@ class StreamFGBView(APIView):
             geojson_data = json.loads(gdf.to_json())
             osm_xml = geojson2osm(geojson_data)
             return HttpResponse(osm_xml, content_type="application/xml")
+
+
+class MapswipeProjectViewSet(viewsets.ViewSet):
+    """
+    API endpoint for managing MapSwipe projects.
+    """
+    serializer_class = MapswipeProjectCreateSerializer
+
+    @swagger_auto_schema(
+        operation_summary="Create a new MapSwipe project",
+        request_body=MapswipeProjectCreateSerializer,
+        responses={
+            201: openapi.Response(description="Project created successfully"),
+            400: "Invalid input",
+        },
+    )
+    def create(self, request):
+        serializer = MapswipeProjectCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        validated_data = serializer.validated_data
+        temp_file_path= None
+        if 'cover_image' in validated_data:
+            cover_image = validated_data["cover_image"]
+
+            with NamedTemporaryFile(delete=False, suffix=".png") as temp_file:
+                if isinstance(cover_image, InMemoryUploadedFile):
+                    temp_file.write(cover_image.read())
+                else:
+                    with open(cover_image.temporary_file_path(), 'rb') as f:
+                        temp_file.write(f.read())
+                temp_file_path = temp_file.name
+
+        try:
+            with MapswipeClient(
+                backend_url=settings.MAPSWIPE_BACKEND_URL,
+                manager_url=settings.MAPSWIPE_MANAGER_URL,
+                fb_auth_url=settings.MAPSWIPE_FB_AUTH_URL,
+                fb_username=settings.MAPSWIPE_FB_USERNAME,
+                fb_password=settings.MAPSWIPE_FB_PASSWORD,
+                csrftoken_key=settings.MAPSWIPE_CSRFTOKEN_KEY,
+            ) as client:
+                organization_id = settings.MAPSWIPE_ORGANIZATION_ID
+                new_project_id, image_asset_id = client.create_validation_project(
+                    topic=validated_data["topic"],
+                    region=validated_data["region"],
+                    description=validated_data["description"],
+                    instruction=validated_data["instruction"],
+                    look_for=validated_data["look_for"],
+                    project_number=random.randint(1, 100),  # idk why this is needed and whats the use of this; i am mimicing the request from https://github.com/mapswipe/mapswipe-docs/blob/feat/api-example/examples/mapswipe-backend-api/run.py , TODO : please verify this
+                    # cover_image_path=temp_file_path,
+                    organization_id=organization_id,
+                )
+                geojson_update = client.update_project(
+                    project_id=new_project_id,
+                    geojson_url=validated_data["geojson_url"],
+                    tms_url=validated_data["tms_url"],
+                    image_asset_id=image_asset_id,
+                )
+
+                status_update = client.update_project_status(new_project_id, "READY_TO_PROCESS")
+                
+                # print(status_update)
+                # client.poll_project_status(new_project_id, "PROCESSED")
+                # client.update_project_status(new_project_id, "READY_TO_PUBLISH")
+
+                return Response(
+                    {"project_id": new_project_id, "status": status_update['result']['status']},
+                    status=status.HTTP_201_CREATED,
+                )
+        finally:
+            if temp_file_path:
+                os.remove(temp_file_path)
+
+    @swagger_auto_schema(
+        operation_summary="Get MapSwipe project details",
+        manual_parameters=[
+        ],
+        responses={200: "Project details", 404: "Project not found"},
+    )
+    def retrieve(self, request, pk=None):
+        with MapswipeClient(
+            backend_url=settings.MAPSWIPE_BACKEND_URL,
+            manager_url=settings.MAPSWIPE_MANAGER_URL,
+            fb_auth_url=settings.MAPSWIPE_FB_AUTH_URL,
+            fb_username=settings.MAPSWIPE_FB_USERNAME,
+            fb_password=settings.MAPSWIPE_FB_PASSWORD,
+        ) as client:
+            try:
+                project_details = client.get_project_details(pk)
+                return Response(project_details)
+            except httpx.HTTPStatusError as e:
+                if e.response.status_code == 404:
+                    return Response(
+                        {"error": "Project not found"}, status=status.HTTP_404_NOT_FOUND
+                    )
+                raise e
+
+

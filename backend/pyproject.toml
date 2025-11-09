@@ -9,7 +9,9 @@ authors = [
     {name = "HOTOSM", email = "sysadmin@hotosm.org"},
 ]
 dependencies = [
+    "httpx>=0.28.1",
     "osmconflator>=0.0.11",
+    "python-ulid>=3.1.0",
     "tomli>=2.0.1; python_version < '3.11'",
 ]
 
