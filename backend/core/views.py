@@ -1669,13 +1669,6 @@ class MapswipeProjectViewSet(viewsets.ViewSet):
         operation_description="Retrieves detailed information about a specific MapSwipe project by its ID.",
         tags=["MapSwipe Projects"],
         manual_parameters=[
-            openapi.Parameter(
-                "pk",
-                openapi.IN_PATH,
-                description="MapSwipe project ID",
-                type=openapi.TYPE_STRING,
-                required=True,
-            )
         ],
         responses={
             200: "Project details",

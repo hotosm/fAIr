@@ -60,6 +60,14 @@ class MapswipeClient:
             projectInstruction
             lookFor
             projectNumber
+            processingStatus
+            progress
+            groupSize
+            verificationNumber
+            requiredResults
+            numberOfContributorUsers
+            lastContributionDate
+            createdAt
             requestingOrganization { id, name }
           }
         }
@@ -247,11 +255,19 @@ class MapswipeClient:
 
     def get_project_details(self, project_id: str) -> dict:
         """Polls and fetches the details for a given project ID."""
-        return self._graphql_request(
+        
+        project_data = self._graphql_request(
             query=self._PROJECT_BY_ID_QUERY,
             variables={"id": project_id},
             operation_name="ProjectById"
         )["project"]
+
+        if project_data['firebaseId']:
+            project_data['webUrl'] = f"{settings.MAPSWIPE_WEB_URL}/#/en/projects/{project_data['firebaseId']}"
+            
+        return project_data
+        
+        
 
     def update_project(
         self,
