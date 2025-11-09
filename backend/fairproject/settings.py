@@ -326,7 +326,7 @@ SWAGGER_SETTINGS = {
     "DOC_EXPANSION": "list",
     "DEEP_LINKING": True,
     "DISPLAY_OPERATION_ID": False,
-    "DEFAULT_AUTO_SCHEMA_CLASS": "drf_yasg.inspectors.SwaggerAutoSchema",
+    "DEFAULT_AUTO_SCHEMA_CLASS": "core.swagger_inspector.CustomAutoSchema",
 }
 
 RAMP_HOME = env("RAMP_HOME", default=None)
