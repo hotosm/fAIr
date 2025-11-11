@@ -100,27 +100,11 @@ class MapswipeClient:
     _PROJECT_RESULTS_QUERY = """
         query ProjectResults($id: ID!) {
           publicProject(id: $id) {
+            id
             exportResults {
-              assetTypeSpecifics {
-                ... on AoiGeometryAssetPropertyType {
-                  area
-                  bbox
-                  center
-                }
-                ... on ObjectImageAssetPropertyType {
-                  annotations {
-                    area
-                    bbox
-                    categoryId
-                    id
-                  }
-                  image {
-                    cocoUrl
-                  }
-                }
-              }
               file {
                 name
+                url
               }
             }
           }
