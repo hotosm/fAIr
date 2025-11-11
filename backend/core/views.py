@@ -1668,12 +1668,12 @@ class MapswipeProjectViewSet(viewsets.ViewSet):
 
     @swagger_auto_schema(
         operation_summary="Get MapSwipe project details",
-        operation_description="Retrieves detailed information about a specific MapSwipe project by its ID.",
+        operation_description="Retrieves detailed information about a specific MapSwipe project by its ID. If the project status is 'FINISHED', export results will be included automatically.",
         tags=["MapSwipe Projects"],
         manual_parameters=[
         ],
         responses={
-            200: "Project details",
+            200: "Project details with results if available",
             404: "Project not found",
             502: "External service error"
         },
@@ -1688,6 +1688,15 @@ class MapswipeProjectViewSet(viewsets.ViewSet):
                 fb_password=settings.MAPSWIPE_FB_PASSWORD,
             ) as client:
                 project_details = client.get_project_details(pk)
+                
+                if project_details.get("status") == "FINISHED":
+                    try:
+                        results = client.get_project_results(pk)
+                        project_details["exportResults"] = results.get("exportResults", [])
+                    except Exception as e:
+                        project_details["exportResults"] = []
+                        project_details["resultsError"] = f"Failed to fetch results: {str(e)}"
+                
                 return APIResponse.success(
                     data=project_details,
                     message="Project details retrieved successfully"
@@ -1715,5 +1724,4 @@ class MapswipeProjectViewSet(viewsets.ViewSet):
                 message=f"Unexpected error retrieving project: {str(e)}",
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-
 

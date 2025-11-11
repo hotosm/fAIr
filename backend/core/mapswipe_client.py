@@ -97,6 +97,35 @@ class MapswipeClient:
             project(id: $id) { id, status, statusMessage, processingStatus }
         }
     """
+    _PROJECT_RESULTS_QUERY = """
+        query ProjectResults($id: ID!) {
+          publicProject(id: $id) {
+            exportResults {
+              assetTypeSpecifics {
+                ... on AoiGeometryAssetPropertyType {
+                  area
+                  bbox
+                  center
+                }
+                ... on ObjectImageAssetPropertyType {
+                  annotations {
+                    area
+                    bbox
+                    categoryId
+                    id
+                  }
+                  image {
+                    cocoUrl
+                  }
+                }
+              }
+              file {
+                name
+              }
+            }
+          }
+        }
+    """
 
     def __init__(
         self,
@@ -385,6 +414,15 @@ class MapswipeClient:
         raise TimeoutError(
             f"Project did not reach '{target_status}' status within {timeout} seconds."
         )
+
+    def get_project_results(self, project_id: str) -> dict:
+        """Fetches export results for a given project ID."""
+        data = self._graphql_request(
+            query=self._PROJECT_RESULTS_QUERY,
+            variables={"id": project_id},
+            operation_name="ProjectResults"
+        )
+        return data.get("publicProject", {})
 
     def close(self):
         self._client.close()
