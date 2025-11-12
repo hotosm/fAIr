@@ -1599,7 +1599,10 @@ class MapswipeProjectViewSet(viewsets.ViewSet):
         serializer.is_valid(raise_exception=True)
         validated_data = serializer.validated_data
         
-        prediction_instance = get_object_or_404(Prediction, id=validated_data["prediction_id"])
+        prediction_instance = None
+        prediction_id = validated_data.get("prediction_id")
+        if prediction_id:
+            prediction_instance = get_object_or_404(Prediction, id=prediction_id)
         
         temp_file_path = None
         
@@ -1642,16 +1645,22 @@ class MapswipeProjectViewSet(viewsets.ViewSet):
 
                 status_update = client.update_project_status(new_project_id, "READY_TO_PROCESS")
                 
-                prediction_instance.mapswipe_id = new_project_id
-                prediction_instance.save()
+                response_data = {
+                    "project_id": new_project_id,
+                    "status": status_update['result']['status']
+                }
+                
+                if prediction_instance:
+                    prediction_instance.mapswipe_id = new_project_id
+                    prediction_instance.save()
+                    response_data["prediction_id"] = prediction_instance.id
+                    message = "MapSwipe project created successfully and linked to prediction"
+                else:
+                    message = "MapSwipe project created successfully"
                 
                 return APIResponse.success(
-                    data={
-                        "project_id": new_project_id,
-                        "prediction_id": prediction_instance.id,
-                        "status": status_update['result']['status']
-                    },
-                    message="MapSwipe project created successfully and linked to prediction",
+                    data=response_data,
+                    message=message,
                     status_code=status.HTTP_201_CREATED
                 )
                 
