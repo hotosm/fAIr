@@ -326,7 +326,7 @@ SWAGGER_SETTINGS = {
     "DOC_EXPANSION": "list",
     "DEEP_LINKING": True,
     "DISPLAY_OPERATION_ID": False,
-    "DEFAULT_AUTO_SCHEMA_CLASS": "drf_yasg.inspectors.SwaggerAutoSchema",
+    "DEFAULT_AUTO_SCHEMA_CLASS": "core.swagger_inspector.CustomAutoSchema",
 }
 
 RAMP_HOME = env("RAMP_HOME", default=None)
@@ -450,3 +450,30 @@ if not DEBUG:
 
     if "dev" in SECRET_KEY or "unsafe" in SECRET_KEY or len(SECRET_KEY) < 32:
         raise ValueError("Insecure SECRET_KEY detected in production")
+
+
+### Mapswipe block 
+
+
+MAPSWIPE_BACKEND_URL = env("MAPSWIPE_BACKEND_URL", default="https://backend-2.mapswipe.dev.togglecorp.com")
+MAPSWIPE_MANAGER_URL = env("MAPSWIPE_MANAGER_URL", default="https://manager-2.mapswipe.dev.togglecorp.com")
+MAPSWIPE_WEB_URL = env("MAPSWIPE_WEB_URL", default="https://web-app-2.mapswipe.dev.togglecorp.com")
+
+MAPSWIPE_CSRFTOKEN_KEY= env("MAPSWIPE_CSRFTOKEN_KEY", default='MAPSWIPE-ALPHA-2-CSRFTOKEN')
+
+# XXX: For the key, go to the managers dashboard login page, open th network tab, after login you can see the key in the network tab
+# MAPSWIPE_FB_AUTH_URL=https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+MAPSWIPE_FB_AUTH_URL = env("MAPSWIPE_FB_AUTH_URL", default=None)
+
+# web-app login credentials
+MAPSWIPE_FB_USERNAME = env("MAPSWIPE_FB_USERNAME", default=None)
+MAPSWIPE_FB_PASSWORD = env("MAPSWIPE_FB_PASSWORD", default=None)
+
+ENABLE_MASPSWIPE_INTEGRATION = env.bool("ENABLE_MAPSWIPE_INTEGRATION", default=(MAPSWIPE_CSRFTOKEN_KEY and MAPSWIPE_FB_AUTH_URL and MAPSWIPE_FB_USERNAME and MAPSWIPE_FB_PASSWORD))
+
+
+MAPSWIPE_ORGANIZATION_ID = env.int("MAPSWIPE_ORGANIZATION_ID", default=4)
+
+
+MAPSWIPE_POLL_INTERVAL = env.int("MAPSWIPE_POLL_INTERVAL", default=10)
+MAPSWIPE_POLL_TIMEOUT = env.int("MAPSWIPE_POLL_TIMEOUT", default=600)

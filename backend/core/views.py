@@ -1,5 +1,5 @@
 from __future__ import absolute_import
-
+import random
 import json
 import logging
 import os
@@ -8,9 +8,11 @@ import subprocess
 import zipfile
 from datetime import datetime
 from urllib.parse import quote
-
+import httpx
 import pyogrio
 from botocore.exceptions import ClientError, NoCredentialsError
+from tempfile import NamedTemporaryFile
+from django.core.files.uploadedfile import InMemoryUploadedFile
 
 # import tensorflow as tf
 from celery import current_app
@@ -85,6 +87,7 @@ from .serializers import (
     DatasetSerializer,
     FeedbackSerializer,
     LabelSerializer,
+    MapswipeProjectCreateSerializer,
     ModelCentroidSerializer,
     ModelMetaSerializer,
     ModelSerializer,
@@ -108,7 +111,7 @@ from .utils import (
     send_notification,
 )
 from .validators import validate_geojson
-
+from .mapswipe_client import MapswipeClient
 
 @api_view(["GET"])
 def health(request):
@@ -279,7 +282,26 @@ class TrainingViewSet(BaseModelViewSet):
     public_methods = ["GET"]
 
     @swagger_auto_schema(
+        operation_summary="List training sessions",
+        operation_description="Get paginated list of training sessions. Supports filtering by model, status, user.",
+        tags=["Training"],
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Start new training",
+        operation_description="Start a new training session for a model. Rate-limited to 10 per hour.",
+        tags=["Training"],
+        responses={201: "Training started", 400: "Validation error", 429: "Rate limit exceeded"},
+    )
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Get training details",
         operation_description="Retrieve training details with feedback statistics",
+        tags=["Training"],
         responses={
             200: openapi.Response(
                 description="Training details including feedback counts",
@@ -303,6 +325,15 @@ class TrainingViewSet(BaseModelViewSet):
         )
         return Response(data)
 
+    @swagger_auto_schema(
+        operation_summary="Delete training",
+        operation_description="Delete a training session. Requires ownership or admin permissions.",
+        tags=["Training"],
+        responses={204: "Training deleted", 403: "Permission denied", 404: "Not found"},
+    )
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
+
 
 class FeedbackViewset(BaseSpatialViewSet):
     """
@@ -317,6 +348,31 @@ class FeedbackViewset(BaseSpatialViewSet):
     bbox_filter_field = "geom"
     filterset_fields = ["training", "user", "action"]
     public_methods = ["GET"]
+
+    @swagger_auto_schema(
+        operation_summary="List feedback",
+        operation_description="Get paginated list of feedback. Supports filtering by training, user, action.",
+        tags=["Feedback"],
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Get feedback details",
+        operation_description="Retrieve detailed information about specific feedback.",
+        tags=["Feedback"],
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Submit feedback",
+        operation_description="Accept or reject a prediction to improve model quality.",
+        tags=["Feedback"],
+        responses={201: "Feedback submitted", 400: "Validation error"},
+    )
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
 
 
 class ModelViewSet(BaseSpatialViewSet):
@@ -556,7 +612,25 @@ class LabelViewSet(BaseSpatialViewSet):
     public_methods = ["GET"]
 
     @swagger_auto_schema(
+        operation_summary="List labels",
+        operation_description="Get all labels with optional filtering by AOI or dataset. Supports spatial bbox filtering.",
+        tags=["Labels"],
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Get label details",
+        operation_description="Retrieve detailed information about a specific label.",
+        tags=["Labels"],
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Create or update label",
         operation_description="Create or update a label. If a label with the same AOI and geometry exists, it will be updated.",
+        tags=["Labels"],
         request_body=LabelSerializer,
         responses={
             200: openapi.Response(
@@ -917,6 +991,47 @@ class BannerViewSet(viewsets.ModelViewSet):
     pagination_class = None
     public_methods = ["GET"]
 
+    @swagger_auto_schema(
+        operation_summary="List active banners",
+        operation_description="Get all active banners based on start and end dates.",
+        tags=["Banners"],
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Get banner details",
+        operation_description="Retrieve detailed information about a specific banner.",
+        tags=["Banners"],
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Create banner",
+        operation_description="Create a new banner. Admin/staff permissions required.",
+        tags=["Banners"],
+        responses={201: "Banner created", 400: "Validation error", 403: "Permission denied"},
+    )
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Update banner",
+        operation_description="Update a banner. Admin/staff permissions required.",
+        tags=["Banners"],
+    )
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Delete banner",
+        operation_description="Delete a banner. Admin/staff permissions required.",
+        tags=["Banners"],
+    )
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
+
     def get_queryset(self):
         now = timezone.now()
         return Banner.objects.filter(start_date__lte=now).filter(
@@ -955,6 +1070,22 @@ class UserNotificationViewSet(ReadOnlyModelViewSet):
     serializer_class = UserNotificationSerializer
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_fields = ["is_read"]
+
+    @swagger_auto_schema(
+        operation_summary="List user notifications",
+        operation_description="Get paginated list of notifications for the authenticated user. Filter by read status.",
+        tags=["Notifications"],
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Get notification details",
+        operation_description="Retrieve detailed information about a specific notification.",
+        tags=["Notifications"],
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
     ordering = ["-created_at"]
     ordering_fields = ["created_at", "read_at", "is_read"]
 
@@ -1178,6 +1309,37 @@ class PredictionViewSet(UserAssignmentMixin, BaseSpatialViewSet):
     ordering_fields = ["created_at", "id", "status"]
     permission_classes = [IsOsmAuthenticated, IsOwnerOrReadOnly]
 
+    @swagger_auto_schema(
+        operation_summary="List predictions",
+        operation_description="Get paginated list of predictions. Supports filtering by status and spatial bbox.",
+        tags=["Predictions"],
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Get prediction details",
+        operation_description="Retrieve detailed information about a specific prediction including status and results.",
+        tags=["Predictions"],
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Run new prediction",
+        operation_description="Start a new prediction using a trained model. Rate-limited to 50 per hour.",
+        tags=["Predictions"],
+        responses={201: "Prediction started", 400: "Validation error", 429: "Rate limit exceeded"},
+    )
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Update prediction",
+        operation_description="Partially update prediction details. Only mapswipe_id field can be updated.",
+        tags=["Predictions"],
+        responses={200: "Prediction updated", 400: "Invalid field", 403: "Permission denied"},
+    )
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
 
@@ -1411,3 +1573,155 @@ class StreamFGBView(APIView):
             geojson_data = json.loads(gdf.to_json())
             osm_xml = geojson2osm(geojson_data)
             return HttpResponse(osm_xml, content_type="application/xml")
+
+
+class MapswipeProjectViewSet(viewsets.ViewSet):
+    """
+    API endpoint for managing MapSwipe projects.
+    """
+    authentication_classes = [OsmAuthentication]
+    permission_classes = [IsOsmAuthenticated]
+    serializer_class = MapswipeProjectCreateSerializer
+
+    @swagger_auto_schema(
+        operation_summary="Create a new MapSwipe project",
+        operation_description="Creates a validation project in MapSwipe with the provided configuration, including GeoJSON features and TMS tile server.",
+        tags=["MapSwipe Projects"],
+        request_body=MapswipeProjectCreateSerializer,
+        responses={
+            201: openapi.Response(description="Project created successfully"),
+            400: "Invalid input",
+            502: "External service error",
+        },
+    )
+    def create(self, request):
+        serializer = MapswipeProjectCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        validated_data = serializer.validated_data
+        temp_file_path = None
+        
+        if 'cover_image' in validated_data:
+            cover_image = validated_data["cover_image"]
+            with NamedTemporaryFile(delete=False, suffix=".png") as temp_file:
+                if isinstance(cover_image, InMemoryUploadedFile):
+                    temp_file.write(cover_image.read())
+                else:
+                    with open(cover_image.temporary_file_path(), 'rb') as f:
+                        temp_file.write(f.read())
+                temp_file_path = temp_file.name
+
+        try:
+            with MapswipeClient(
+                backend_url=settings.MAPSWIPE_BACKEND_URL,
+                manager_url=settings.MAPSWIPE_MANAGER_URL,
+                fb_auth_url=settings.MAPSWIPE_FB_AUTH_URL,
+                fb_username=settings.MAPSWIPE_FB_USERNAME,
+                fb_password=settings.MAPSWIPE_FB_PASSWORD,
+                csrftoken_key=settings.MAPSWIPE_CSRFTOKEN_KEY,
+            ) as client:
+                organization_id = settings.MAPSWIPE_ORGANIZATION_ID
+                new_project_id, image_asset_id = client.create_validation_project(
+                    topic=validated_data["topic"],
+                    region=validated_data["region"],
+                    description=validated_data["description"],
+                    instruction=validated_data["instruction"],
+                    look_for=validated_data["look_for"],
+                    project_number=random.randint(1, 100),
+                    organization_id=organization_id,
+                )
+                
+                client.update_project(
+                    project_id=new_project_id,
+                    geojson_url=validated_data["geojson_url"],
+                    tms_url=validated_data["tms_url"],
+                    image_asset_id=image_asset_id,
+                )
+
+                status_update = client.update_project_status(new_project_id, "READY_TO_PROCESS")
+                
+                return APIResponse.success(
+                    data={
+                        "project_id": new_project_id,
+                        "status": status_update['result']['status']
+                    },
+                    message="MapSwipe project created successfully",
+                    status_code=status.HTTP_201_CREATED
+                )
+                
+        except RuntimeError as e:
+            return APIResponse.external_service_error(
+                message=f"MapSwipe service error: {str(e)}"
+            )
+        except httpx.HTTPError as e:
+            return APIResponse.external_service_error(
+                message=f"Failed to communicate with MapSwipe: {str(e)}"
+            )
+        except Exception as e:
+            return APIResponse.error(
+                code=APIResponseCodes.EXTERNAL_SERVICE_ERROR,
+                message=f"Unexpected error creating MapSwipe project: {str(e)}",
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        finally:
+            if temp_file_path:
+                os.remove(temp_file_path)
+
+    @swagger_auto_schema(
+        operation_summary="Get MapSwipe project details",
+        operation_description="Retrieves detailed information about a specific MapSwipe project by its ID. If the project status is 'FINISHED', export results will be included automatically.",
+        tags=["MapSwipe Projects"],
+        manual_parameters=[
+        ],
+        responses={
+            200: "Project details with results if available",
+            404: "Project not found",
+            502: "External service error"
+        },
+    )
+    def retrieve(self, request, pk=None):
+        try:
+            with MapswipeClient(
+                backend_url=settings.MAPSWIPE_BACKEND_URL,
+                manager_url=settings.MAPSWIPE_MANAGER_URL,
+                fb_auth_url=settings.MAPSWIPE_FB_AUTH_URL,
+                fb_username=settings.MAPSWIPE_FB_USERNAME,
+                fb_password=settings.MAPSWIPE_FB_PASSWORD,
+            ) as client:
+                project_details = client.get_project_details(pk)
+                
+                if project_details.get("status") == "FINISHED":
+                    try:
+                        results = client.get_project_results(pk)
+                        project_details["exportResults"] = results.get("exportResults", [])
+                    except Exception as e:
+                        project_details["exportResults"] = []
+                        project_details["resultsError"] = f"Failed to fetch results: {str(e)}"
+                
+                return APIResponse.success(
+                    data=project_details,
+                    message="Project details retrieved successfully"
+                )
+                
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 404:
+                return APIResponse.not_found(
+                    message=f"MapSwipe project with ID {pk} not found"
+                )
+            return APIResponse.external_service_error(
+                message=f"MapSwipe service returned error: {e.response.status_code}"
+            )
+        except RuntimeError as e:
+            return APIResponse.external_service_error(
+                message=f"MapSwipe service error: {str(e)}"
+            )
+        except httpx.HTTPError as e:
+            return APIResponse.external_service_error(
+                message=f"Failed to communicate with MapSwipe: {str(e)}"
+            )
+        except Exception as e:
+            return APIResponse.error(
+                code=APIResponseCodes.EXTERNAL_SERVICE_ERROR,
+                message=f"Unexpected error retrieving project: {str(e)}",
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+

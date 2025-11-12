@@ -52,10 +52,16 @@ Most endpoints require authentication using OSM OAuth2:
     license=openapi.License(name="AGPL-3.0", url="https://www.gnu.org/licenses/agpl-3.0.en.html"),
 )
 
+from core.swagger_inspector import CustomAutoSchema
+
 schema_view = get_schema_view(
     api_info,
     public=True,
     permission_classes=[permissions.AllowAny],
+    patterns=[
+        path("api/v1/auth/", include("login.urls")),
+        path("api/v1/", include("core.urls")),
+    ],
 )
 
 
