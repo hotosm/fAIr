@@ -706,7 +706,7 @@ class MapswipeProjectCreateSerializer(serializers.Serializer):
     description = serializers.CharField()
     instruction = serializers.CharField()
     look_for = serializers.CharField(max_length=255, default="buildings")
-    # project_number = serializers.IntegerField()
+    prediction_id = serializers.IntegerField()
     geojson_url = serializers.URLField()
     tms_url = serializers.URLField()
     cover_image = serializers.ImageField(required=False)

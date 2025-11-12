@@ -1598,6 +1598,9 @@ class MapswipeProjectViewSet(viewsets.ViewSet):
         serializer = MapswipeProjectCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         validated_data = serializer.validated_data
+        
+        prediction_instance = get_object_or_404(Prediction, id=validated_data["prediction_id"])
+        
         temp_file_path = None
         
         if 'cover_image' in validated_data:
@@ -1639,12 +1642,16 @@ class MapswipeProjectViewSet(viewsets.ViewSet):
 
                 status_update = client.update_project_status(new_project_id, "READY_TO_PROCESS")
                 
+                prediction_instance.mapswipe_id = new_project_id
+                prediction_instance.save()
+                
                 return APIResponse.success(
                     data={
                         "project_id": new_project_id,
+                        "prediction_id": prediction_instance.id,
                         "status": status_update['result']['status']
                     },
-                    message="MapSwipe project created successfully",
+                    message="MapSwipe project created successfully and linked to prediction",
                     status_code=status.HTTP_201_CREATED
                 )
                 
