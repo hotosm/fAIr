@@ -5,14 +5,14 @@ import { Image } from "@/components/ui/image";
 
 import { ButtonVariant } from "@/enums/common";
 
-export const MapswipeProjectCreationSuccess = ({
+export const MapswipeProjectStatusDialog = ({
   isOpen,
   onClose,
-  handleMapswipeProjectDetailsOpen,
+  mapSwipeProjectId,
 }: {
   isOpen: boolean;
   onClose: () => void;
-  handleMapswipeProjectDetailsOpen: () => void;
+  mapSwipeProjectId?: string;
 }) => {
   return (
     <Dialog isOpened={isOpen} closeDialog={onClose}>
@@ -20,19 +20,14 @@ export const MapswipeProjectCreationSuccess = ({
         <div className="bg-secondary p-2 rounded-full flex items-center justify-center">
           <Image src={ModelFormConfirmation} alt="Success Icon" />
         </div>
-        <h1 className="text-title-3 font-semibold">MapSwipe Project Created</h1>
+        <h1 className="text-title-3 font-semibold">
+          MapSwipe Project Status for project {mapSwipeProjectId}
+        </h1>
         <p className="text-body-3 text-center">
           Your MapSwipe project has been successfully created. You can now ask
           managers to approve or wait for this project to be approved
         </p>
         <div className="flex flex-col md:flex-row gap-y-3 md:gap-0 justify-between w-full">
-          <Button
-            variant={ButtonVariant.TERTIARY}
-            onClick={handleMapswipeProjectDetailsOpen}
-            className="md:!w-fit"
-          >
-            Open
-          </Button>
           <Button
             onClick={onClose}
             variant={ButtonVariant.PRIMARY}

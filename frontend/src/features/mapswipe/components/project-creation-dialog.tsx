@@ -5,23 +5,23 @@ import { Input, TextArea } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { ButtonVariant, INPUT_TYPES } from "@/enums";
 import { TOfflinePrediction } from "@/types";
-import { BASE_API_URL, MATOMO_APP_DOMAIN } from "@/config";
-import { APPLICATION_ROUTES } from "@/constants";
+import { BASE_API_URL } from "@/config";
 import { API_ENDPOINTS } from "@/services";
-import { MapswipeProjectCreationSuccess } from "./project-success-dialog";
+import { MapswipeProjectCreationSuccess } from "@/features/mapswipe/components/project-success-dialog";
 import { useDialog } from "@/hooks/use-dialog";
 import { showErrorToast } from "@/utils";
 import { formatProjectTopic } from "@/utils/mapswipe-utils";
 import { useUpdateOfflinePrediction } from "@/features/user-profile/hooks/use-predictions";
+import { useCreateMapSwipeProject } from "@/features/mapswipe/hooks/use-mapswipe-project";
 
 const DESCRIPTION_MAX_LENGTH = 500;
 const DESCRIPTION_MIN_LENGTH = 10;
-const PROJECT_TOPIC_MAX_LENGTH = 50;
+const PROJECT_TOPIC_MAX_LENGTH = 255;
 const PROJECT_TOPIC_MIN_LENGTH = 5;
-const PROJECT_REGION_MAX_LENGTH = 50;
+const PROJECT_REGION_MAX_LENGTH = 255;
 const PROJECT_REGION_MIN_LENGTH = 5;
-const TILE_SERVICE_CREDITS_MAX_LENGTH = 100;
-const TILE_SERVICE_CREDITS_MIN_LENGTH = 5;
+const INSTRUCTIONS_MAX_LENGTH = 255;
+const INSTRUCTIONS_MIN_LENGTH = 5;
 
 export const CreateMapswipeProjectDialog = ({
   isOpened,
@@ -38,38 +38,22 @@ export const CreateMapswipeProjectDialog = ({
     openDialog: openSuccessDialog,
   } = useDialog();
 
-  
   const [loading, setLoading] = useState<boolean>(false);
+
+  const { mutateAsync: MapSwipeProjectAsyncMutation } =
+    useCreateMapSwipeProject({});
 
   // default values for the MapSwipe project creation form
   const DEFAULT_FORMDATA = {
-    projectTopic: "",
-    projectRegion: "",
-    projectDetails: "",
-    requestingOrganisation: "HOT",
-    tutorialId: "tutorial_-MQsj5VWpNcJxCTVTOyH",
-    manualUrl:
-      MATOMO_APP_DOMAIN +
-      APPLICATION_ROUTES.MODELS +
-      "/" +
-      predictionResult.config.model_id,
-    verificationNumber: "3",
-    groupSize: 25,
-    inputGeometryUrl: {
-      geometry:
-        BASE_API_URL +
-        API_ENDPOINTS.DOWNLOAD_PREDICTION_LABELS_FILE(predictionResult.id),
-      inputType: "link",
-    },
-    tileServiceURL: predictionResult.config.source,
-    tileServiceCredits: "OpenStreetMap contributors",
-    projectType: 8, // 8 is the project type for conflation
-    createdBy: "atCSosZACaN0qhcVjtMO1tq9d1G3",
-    image:
-      "https://firebasestorage.googleapis.com/v0/b/dev-mapswipe.appspot.com/o/projectImages%2F1742895229710-project-image-1x1.png?alt=media&token=26cf1956-9ab7-4348-b529-9952f2f8424e",
-    lookFor: "Buildings",
-    // The project number is the prediction result ID, which is used to link the project to the prediction result
-    projectNumber: predictionResult.id,
+    topic: "",
+    region: "",
+    description: "",
+    instruction: "",
+    geojson_url:
+      BASE_API_URL +
+      API_ENDPOINTS.DOWNLOAD_PREDICTION_LABELS_FILE(predictionResult.id),
+    tms_url: predictionResult.config.source,
+    look_for: "buildings",
   };
 
   const [form, setForm] = useState(DEFAULT_FORMDATA);
@@ -83,29 +67,29 @@ export const CreateMapswipeProjectDialog = ({
    */
   const [descriptionIsValid, setDescriptionIsValid] = useState({
     valid:
-      form.projectDetails.length >= DESCRIPTION_MIN_LENGTH &&
-      form.projectDetails.length <= DESCRIPTION_MAX_LENGTH,
+      form.description.length >= DESCRIPTION_MIN_LENGTH &&
+      form.description.length <= DESCRIPTION_MAX_LENGTH,
     message: "",
   });
 
-  const [tileServiceCreditsIsValid, setTileServiceCreditsIsValid] = useState({
+  const [instructionIsValid, setInstructionIsValid] = useState({
     valid:
-      form.tileServiceCredits.length >= TILE_SERVICE_CREDITS_MIN_LENGTH &&
-      form.tileServiceCredits.length <= TILE_SERVICE_CREDITS_MAX_LENGTH,
+      form.instruction.length >= INSTRUCTIONS_MIN_LENGTH &&
+      form.instruction.length <= INSTRUCTIONS_MAX_LENGTH,
     message: "",
   });
 
   const [topicIsValid, setTopicIsValid] = useState({
     valid:
-      form.projectTopic.length >= PROJECT_TOPIC_MIN_LENGTH &&
-      form.projectTopic.length <= PROJECT_TOPIC_MAX_LENGTH,
+      form.topic.length >= PROJECT_TOPIC_MIN_LENGTH &&
+      form.topic.length <= PROJECT_TOPIC_MAX_LENGTH,
     message: "",
   });
 
   const [regionIsValid, setRegionIsValid] = useState({
     valid:
-      form.projectRegion.length >= PROJECT_REGION_MIN_LENGTH &&
-      form.projectRegion.length <= PROJECT_REGION_MAX_LENGTH,
+      form.region.length >= PROJECT_REGION_MIN_LENGTH &&
+      form.region.length <= PROJECT_REGION_MAX_LENGTH,
     message: "",
   });
 
@@ -117,26 +101,26 @@ export const CreateMapswipeProjectDialog = ({
     // Reset validation states
     setDescriptionIsValid({
       valid:
-        form.projectDetails.length >= DESCRIPTION_MIN_LENGTH &&
-        form.projectDetails.length <= DESCRIPTION_MAX_LENGTH,
+        form.description.length >= DESCRIPTION_MIN_LENGTH &&
+        form.description.length <= DESCRIPTION_MAX_LENGTH,
       message: "",
     });
     setTopicIsValid({
       valid:
-        form.projectTopic.length >= PROJECT_TOPIC_MIN_LENGTH &&
-        form.projectTopic.length <= PROJECT_TOPIC_MAX_LENGTH,
+        form.topic.length >= PROJECT_TOPIC_MIN_LENGTH &&
+        form.topic.length <= PROJECT_TOPIC_MAX_LENGTH,
       message: "",
     });
     setRegionIsValid({
       valid:
-        form.projectRegion.length >= PROJECT_REGION_MIN_LENGTH &&
-        form.projectRegion.length <= PROJECT_REGION_MAX_LENGTH,
+        form.region.length >= PROJECT_REGION_MIN_LENGTH &&
+        form.region.length <= PROJECT_REGION_MAX_LENGTH,
       message: "",
     });
-    setTileServiceCreditsIsValid({
+    setInstructionIsValid({
       valid:
-        form.tileServiceCredits.length >= TILE_SERVICE_CREDITS_MIN_LENGTH &&
-        form.tileServiceCredits.length <= TILE_SERVICE_CREDITS_MAX_LENGTH,
+        form.instruction.length >= INSTRUCTIONS_MIN_LENGTH &&
+        form.instruction.length <= INSTRUCTIONS_MAX_LENGTH,
       message: "",
     });
   };
@@ -154,47 +138,26 @@ export const CreateMapswipeProjectDialog = ({
     },
   });
 
-  
-
   const handleMapswipeProjectCreation = async () => {
     try {
       setLoading(true);
+      const response = await MapSwipeProjectAsyncMutation({
+        ...form,
+        topic: formatProjectTopic(form.topic),
+      });
 
-      // The name of the project is a combination of the project topic, region, number, and requesting organisation.
-      // This is used to create a unique name for the project.
-      const name = `${form.projectTopic} - ${form.projectRegion} - ${form.projectNumber} - ${form.requestingOrganisation}`;
-
-      const projectTopickey = formatProjectTopic(form.projectTopic);
-
-      // Create a new project draft in the database
-      // This is a temporary draft that will be used to create the final project
-      
-      
-       
-
-        const data = {
-          ...form,
-          name,
-          projectTopicKey: projectTopickey,
-          tileServer: {
-            url: predictionResult.config.source,
-            credits: form.tileServiceCredits,
-            name: "custom",
-            wmtsLayerName: "-",
+      if (response.data.project_id) {
+        mutateAsync({
+          id: predictionResult.id,
+          data: {
+            mapswipe_id: response.data.project_id,
           },
-        };
-
-        // Update the database with the new project data
-       
-      //   await mutateAsync({
-      //     id: predictionResult.id,
-      //     data: {
-      //       mapswipe_id: newProjectDraftsRef.key,
-      //     },
-      //   });
-      // } else {
-      //   showErrorToast("Failed to create MapSwipe project.");
-      // }
+        });
+      } else {
+        showErrorToast(
+          "An error occurred while creating the MapSwipe project. Please try again.",
+        );
+      }
     } catch (error) {
       setLoading(false);
       showErrorToast(error);
@@ -206,7 +169,7 @@ export const CreateMapswipeProjectDialog = ({
       <MapswipeProjectCreationSuccess
         isOpen={isSuccessDialogOpened}
         onClose={closeSuccessDialog}
-        handleMapswipeProjectOpen={closeSuccessDialog}
+        handleMapswipeProjectDetailsOpen={closeSuccessDialog}
       />
       <Dialog
         isOpened={isOpened}
@@ -216,25 +179,27 @@ export const CreateMapswipeProjectDialog = ({
       >
         <Divider />
 
-        <div className="flex flex-col gap-6 mt-6">
+        <div className="flex flex-col gap-2 mt-2">
           <div className="grid md:grid-cols-2 gap-6">
             <Input
               label="Project Topic"
-              value={form.projectTopic}
-              handleInput={(e) => updateField("projectTopic", e.target.value)}
+              required
+              value={form.topic}
+              handleInput={(e) => updateField("topic", e.target.value)}
               showBorder
               maxLength={PROJECT_TOPIC_MAX_LENGTH}
               labelWithTooltip
               toolTipContent="Starts with the project type title by MapSwipe convention (Conflate ..., Compare ..., etc)"
-              placeholder="Conflate fAIr buildings"
+              placeholder="Validate Building Footprint"
               minLength={PROJECT_TOPIC_MIN_LENGTH}
               validationStateUpdateCallback={setTopicIsValid}
-              isValid={form.projectTopic.length > 0 && topicIsValid.valid}
+              isValid={form.topic.length > 0 && topicIsValid.valid}
             />
             <Input
               label="Project Region"
-              value={form.projectRegion}
-              handleInput={(e) => updateField("projectRegion", e.target.value)}
+              value={form.region}
+              required
+              handleInput={(e) => updateField("region", e.target.value)}
               showBorder
               maxLength={PROJECT_REGION_MAX_LENGTH}
               labelWithTooltip
@@ -242,95 +207,75 @@ export const CreateMapswipeProjectDialog = ({
               placeholder="Banepa, Nepal"
               minLength={PROJECT_REGION_MIN_LENGTH}
               validationStateUpdateCallback={setRegionIsValid}
-              isValid={form.projectRegion.length > 0 && regionIsValid.valid}
+              isValid={form.region.length > 0 && regionIsValid.valid}
             />
           </div>
 
           <TextArea
+            required
             label="Project Details"
-            value={form.projectDetails}
-            handleChange={(e) => updateField("projectDetails", e.target.value)}
+            value={form.description}
+            handleChange={(e) => updateField("description", e.target.value)}
             labelWithTooltip
             toolTipContent="More detailed description of the mapping project."
             maxLength={DESCRIPTION_MAX_LENGTH}
             helpText={descriptionIsValid.message}
-            isValid={form.projectDetails.length > 0 && descriptionIsValid.valid}
+            isValid={form.description.length > 0 && descriptionIsValid.valid}
             validationStateUpdateCallback={setDescriptionIsValid}
             minLength={DESCRIPTION_MIN_LENGTH}
-            placeholder="This project is about conflating buildings in Banepa, Nepal. The goal is to improve the accuracy of building footprints."
+            placeholder="This project is about validating building footprint in Banepa, Nepal. The goal is to improve the accuracy of building footprints."
           />
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <TextArea
+            labelWithTooltip
+            required
+            label="Instruction"
+            value={form.instruction}
+            handleChange={(e) => updateField("instruction", e.target.value)}
+            maxLength={INSTRUCTIONS_MAX_LENGTH}
+            helpText={instructionIsValid.message}
+            isValid={form.instruction.length > 0 && instructionIsValid.valid}
+            validationStateUpdateCallback={setInstructionIsValid}
+            minLength={INSTRUCTIONS_MIN_LENGTH}
+            placeholder="Review each building footprint and verify it matches the satellite imagery. Mark as correct if the outline accurately traces the building structure."
+            toolTipContent="Provide an intruction to guide the contributors on this project."
+          />
+
+          <div className="grid md:grid-cols-2 gap-2">
             <Input
               label="Group Size"
-              value={form.groupSize}
-              handleInput={(e) => updateField("groupSize", e.target.value)}
+              value={25}
+              handleInput={() => null}
               showBorder
-              max={250}
-              min={10}
+              disabled
               type={INPUT_TYPES.NUMBER}
               labelWithTooltip
               toolTipContent="The number of tasks/features to validate/conflate in one group."
             />
             <Input
               label="Verification Number"
-              value={form.verificationNumber}
               type={INPUT_TYPES.NUMBER}
-              min={1}
-              max={10}
-              handleInput={(e) =>
-                updateField("verificationNumber", e.target.value)
-              }
+              disabled
+              value={4}
+              handleInput={() => null}
               showBorder
               toolTipContent="The number of answers from different users per task needed to consider the task completed."
               labelWithTooltip
             />
-          </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
-            <Input
-              label="Tile Service Credits"
-              value={form.tileServiceCredits}
-              handleInput={(e) =>
-                updateField("tileServiceCredits", e.target.value)
-              }
-              maxLength={TILE_SERVICE_CREDITS_MAX_LENGTH}
-              helpText={tileServiceCreditsIsValid.message}
-              isValid={
-                form.tileServiceCredits.length > 0 &&
-                tileServiceCreditsIsValid.valid
-              }
-              validationStateUpdateCallback={setTileServiceCreditsIsValid}
-              minLength={TILE_SERVICE_CREDITS_MIN_LENGTH}
-              showBorder
-              labelWithTooltip
-              placeholder="e.g., © OpenStreetMap contributors"
-              toolTipContent="The attribution for the tile service used in the project. This is usually the name of the tile service provider."
-            />{" "}
             <Input
               label="Tile Service URL"
-              value={form.tileServiceURL}
+              value={form.tms_url}
               handleInput={() => null}
               showBorder
               disabled
               labelWithTooltip
               toolTipContent="The URL to the tile service used in the project. The prediction result source is used by default."
             />
-          </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
-            <Input
-              label="Additional information URL"
-              value={form.manualUrl}
-              handleInput={() => null}
-              labelWithTooltip
-              toolTipContent="A link to a manual or additional information resource for the project. The model details page is used by default."
-              showBorder
-              disabled
-            />
             <Input
               label="Input Geometries"
-              value={form.inputGeometryUrl.geometry}
+              value={form.geojson_url}
               handleInput={() => null}
               showBorder
               disabled

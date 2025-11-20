@@ -267,3 +267,12 @@ export type TOfflinePrediction = {
   config: TModelPredictionsConfig;
   result_count: number;
 };
+
+export type TMapSwipeProjectAPIResponse = {
+  code: string;
+  message: string;
+  data: {
+    project_id: string;
+    status: string;
+  };
+};

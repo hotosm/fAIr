@@ -72,17 +72,17 @@ export const OfflinePredictionActions = ({
         distance={10}
         menuItems={[
           ...(predictionResult.status === ModelTrainingStatus.RUNNING ||
-            predictionResult.status === ModelTrainingStatus.SUBMITTED
+          predictionResult.status === ModelTrainingStatus.SUBMITTED
             ? [
-              {
-                name: "Cancel prediction",
-                value: "Cancel prediction",
-                onClick: (e: { stopPropagation: () => void }) => {
-                  e.stopPropagation();
-                  terminationMutation(predictionResult.id);
+                {
+                  name: "Cancel prediction",
+                  value: "Cancel prediction",
+                  onClick: (e: { stopPropagation: () => void }) => {
+                    e.stopPropagation();
+                    terminationMutation(predictionResult.id);
+                  },
                 },
-              },
-            ]
+              ]
             : []),
           {
             name: "Download results",
@@ -137,9 +137,9 @@ export const OfflinePredictionActions = ({
               e.stopPropagation();
               await copyToClipboard(
                 BASE_API_URL +
-                API_ENDPOINTS.DOWNLOAD_PREDICTION_LABELS_FILE(
-                  predictionResult.id,
-                ),
+                  API_ENDPOINTS.DOWNLOAD_PREDICTION_LABELS_FILE(
+                    predictionResult.id,
+                  ),
               );
               showSuccessToast("Copied results link to clipboard!");
             },
@@ -149,15 +149,15 @@ export const OfflinePredictionActions = ({
           },
           ...(showSettingsInfo
             ? [
-              {
-                name: "View settings info",
-                value: "View settings info",
-                onClick: (e: { stopPropagation: () => void }) => {
-                  e.stopPropagation();
-                  handleSettingsInfo();
+                {
+                  name: "View settings info",
+                  value: "View settings info",
+                  onClick: (e: { stopPropagation: () => void }) => {
+                    e.stopPropagation();
+                    handleSettingsInfo();
+                  },
                 },
-              },
-            ]
+              ]
             : []),
           {
             name: !predictionResult.mapswipe_id

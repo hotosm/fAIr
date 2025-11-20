@@ -14,6 +14,7 @@ import { TOfflinePrediction } from "@/types";
 import { PredictionResultDrawer } from "@/features/user-profile/components/predictions-results-drawer";
 import { TrainingLogsDialog } from "@/features/user-profile/components/training-logs-dialog";
 import { CreateMapswipeProjectDialog } from "@/features/mapswipe/components/project-creation-dialog";
+import { MapswipeProjectStatusDialog } from "@/features/mapswipe/components/project-status-dialog";
 
 export const UserProfileOfflinePredictionsPage = () => {
   const { user } = useAuth();
@@ -37,6 +38,13 @@ export const UserProfileOfflinePredictionsPage = () => {
     openDialog: openMapSwipeProjectCreationDialog,
     closeDialog: closeMapSwipeProjectCreationDialog,
   } = useDialog();
+
+  const {
+    isOpened: isMapSwipeProjectStatusDialogOpened,
+    openDialog: openMapSwipeProjectStatusDialog,
+    closeDialog: closeMapSwipeProjectStatusDialog,
+  } = useDialog();
+
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
   const [activePrediction, setActivePrediction] =
     useState<TOfflinePrediction | null>(null);
@@ -54,16 +62,25 @@ export const UserProfileOfflinePredictionsPage = () => {
     const mapSwipeProjectExists = prediction.mapswipe_id;
     if (!mapSwipeProjectExists) {
       openMapSwipeProjectCreationDialog();
+    } else {
+      openMapSwipeProjectStatusDialog();
     }
     setActivePrediction(prediction);
   };
   return (
     <>
-     {activePrediction && (
+      {activePrediction && (
         <CreateMapswipeProjectDialog
           isOpened={isMapSwipeProjectCreationDialogOpened}
           closeDialog={closeMapSwipeProjectCreationDialog}
           predictionResult={activePrediction}
+        />
+      )}
+      {activePrediction && (
+        <MapswipeProjectStatusDialog
+          isOpen={isMapSwipeProjectStatusDialogOpened}
+          onClose={closeMapSwipeProjectStatusDialog}
+          mapSwipeProjectId={activePrediction.mapswipe_id as string}
         />
       )}
       {activePrediction && (
@@ -157,7 +174,7 @@ export const UserProfileOfflinePredictionsPage = () => {
             refetch={refetch}
             handleTrainingLogsModal={handleTrainingLogsModal}
             handlePredictionResultModal={handlePredictionResultModal}
-             handleCreateOrViewMapSwipeProject={
+            handleCreateOrViewMapSwipeProject={
               handleCreateOrViewMapSwipeProject
             }
           />

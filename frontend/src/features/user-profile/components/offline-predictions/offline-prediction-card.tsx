@@ -10,10 +10,12 @@ export const OfflinePredictionCard = ({
   predictionResult,
   handleTrainingLogsModal,
   handlePredictionResultModal,
+  handleCreateOrViewMapSwipeProject,
 }: {
   predictionResult: TOfflinePrediction;
   handleTrainingLogsModal: (taskId: string) => void;
   handlePredictionResultModal: (prediction: TOfflinePrediction) => void;
+  handleCreateOrViewMapSwipeProject: (prediction: TOfflinePrediction) => void;
 }) => {
   return (
     <div
@@ -33,6 +35,9 @@ export const OfflinePredictionCard = ({
             predictionResult={predictionResult}
             showSettingsInfo
             placement={DropdownPlacement.BOTTOM_START}
+            handleCreateOrViewMapSwipeProject={
+              handleCreateOrViewMapSwipeProject
+            }
           />
         </div>
         <TrainingStatusBadge status={predictionResult.status} />
