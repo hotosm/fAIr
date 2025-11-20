@@ -25,7 +25,7 @@ export const API_ENDPOINTS = {
 
   CREATE_OFFLINE_PREDICTION: "prediction/",
   GET_OFFLINE_PREDICTIONS: "prediction/",
-
+  UPDATE_OFFLINE_PREDICTION: (id: number) => `prediction/${id}/`,
   // Feedbacks
 
   CREATE_FEEDBACK: "feedback/",
@@ -112,4 +112,8 @@ export const API_ENDPOINTS = {
   UPDATE_NOTIFICATION: (id: number) => `notifications/mark-as-read/${id}/`,
 
   UPDATE_NOTIFICATIONS: "notifications/mark-all-as-read/",
+
+  CREATE_MAPSWIPE_DRAFT_PROJECTS: "v2/projectDrafts/",
+  CREATE_MAPSWIPE_PROJECTS: (draftKey: string) =>
+    `v2/projectDrafts/${draftKey}`,
 };
