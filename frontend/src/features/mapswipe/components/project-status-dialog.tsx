@@ -21,7 +21,7 @@ export const MapswipeProjectStatusDialog = ({
           <Image src={ModelFormConfirmation} alt="Success Icon" />
         </div>
         <h1 className="text-title-3 font-semibold">
-          MapSwipe Project Status for project {mapSwipeProjectId}
+          Project {mapSwipeProjectId}
         </h1>
         <p className="text-body-3 text-center">
           Your MapSwipe project has been successfully created. You can now ask
