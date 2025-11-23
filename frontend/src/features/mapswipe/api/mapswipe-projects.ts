@@ -1,5 +1,5 @@
 import { API_ENDPOINTS, apiClient } from "@/services";
-import { TMapSwipeProjectAPIResponse } from "@/types";
+import { TMapSwipeProjectAPIResponse, TMapSwipeProjectStatus } from "@/types";
 
 export type TMapSwipeProjectCreateArgs = {
   topic: string;
@@ -18,5 +18,16 @@ export const createMapSwipeProject = async ({
   });
   return {
     ...res.data,
+  };
+};
+
+export const getMapSwipeProjectStatus = async (
+  projectId: string,
+): Promise<TMapSwipeProjectStatus> => {
+  const res = await apiClient.get(
+    API_ENDPOINTS.GET_MAPSWIPE_PROJECT_STATUS(projectId),
+  );
+  return {
+    ...res.data.data,
   };
 };

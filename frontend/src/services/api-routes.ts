@@ -114,4 +114,7 @@ export const API_ENDPOINTS = {
   UPDATE_NOTIFICATIONS: "notifications/mark-all-as-read/",
 
   CREATE_MAPSWIPE_PROJECT: "mapswipe-project/",
+
+  GET_MAPSWIPE_PROJECT_STATUS: (projectId: string) =>
+    `mapswipe-project/${projectId}/`,
 };

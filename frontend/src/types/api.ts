@@ -276,3 +276,36 @@ export type TMapSwipeProjectAPIResponse = {
     status: string;
   };
 };
+
+export type TMapSwipeProjectStatus = {
+  id: string;
+  firebaseId: string;
+  name: string;
+  status: string;
+  projectType: string;
+  description: string;
+  topic: string;
+  region: string;
+  projectInstruction: string;
+  lookFor: string;
+  projectNumber: number;
+  processingStatus: string;
+  progress: number;
+  groupSize: number;
+  verificationNumber: number;
+  requiredResults: number;
+  numberOfContributorUsers: number;
+  createdAt: string;
+  lastContributionDate: string | null;
+  requestingOrganization: {
+    id: string;
+    name: string;
+  };
+  webUrl: string;
+  exportResults: null | {
+    file: {
+      name: string;
+      url: string;
+    };
+  };
+};

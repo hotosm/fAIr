@@ -17,3 +17,19 @@ export const formatProjectTopic = (projectTopic: string) => {
 
   return newProjectTopic;
 };
+
+/**
+ * Converts a project status code such as READY_TO_PUBLISH into a
+ * readable label. The function lowercases the value, splits it by
+ * underscores, capitalizes each piece, then joins them with spaces.
+ *
+ * Example:
+ * READY_TO_PROCESS becomes Ready To Process
+ */
+export const formatMapSwipeProjectStatus = (value: string) => {
+  return value
+    .toLowerCase()
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+};
