@@ -26,6 +26,7 @@ export type InfoCardProps = {
   info?: string;
   orientation?: "left" | "right";
   variant?: "default" | "red";
+  className?:string;
 };
 
 const ProjectStatusLoadingSkeleton = () => {
@@ -67,13 +68,14 @@ const InfoBlock = ({
   info,
   orientation = "left",
   variant = "default",
+  className="cursor-default"
 }: InfoCardProps) => {
   const isRight = orientation === "right";
 
   return (
     <Badge
       variant={variant as TBadgeVariants}
-      className="py-3 px-4 flex items-center h-10 rounded-full text-black"
+      className={`py-3 px-4 flex items-center h-10 rounded-full text-black ${className}`}
     >
       <div className={`flex items-center justify-center w-full`}>
         {!isRight && (
@@ -170,6 +172,7 @@ export const MapswipeProjectStatusDialog = ({
                       info="Open in MapSwipe"
                       orientation="right"
                       variant="red"
+                      className="cursor-pointer"
                     />
                   </a>
                 ) : (
@@ -178,6 +181,7 @@ export const MapswipeProjectStatusDialog = ({
                     info="Open in MapSwipe"
                     orientation="right"
                     variant="red"
+                   className="cursor-not-allowed"
                   />
                 )}
               </ToolTip>
