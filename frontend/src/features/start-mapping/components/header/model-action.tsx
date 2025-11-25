@@ -73,7 +73,7 @@ const ModelAction = ({
     predictionModelCheckpoint,
     tileServerURL,
   ]);
-  
+
   const modelPredictionMutation = useGetModelPredictions({
     mutationConfig: {
       onSuccess: (data) => {
