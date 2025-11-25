@@ -107,7 +107,7 @@ export const MapswipeProjectStatusDialog = ({
         <ProjectStatusLoadingSkeleton />
       ) : isError ? (
         <ProjectStatusErrorSkeleton retry={refetch} />
-      ) : (
+      ) : data? (
         <div className="flex flex-col items-center gap-4 2xl:gap-6 h-full  w-full justify-center">
           <Image
             src={fAIrSwipeIllustration}
@@ -260,7 +260,7 @@ export const MapswipeProjectStatusDialog = ({
             </div>
           </div>
         </div>
-      )}
+      ):null}
     </Dialog>
   );
 };
