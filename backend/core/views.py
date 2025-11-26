@@ -1694,6 +1694,7 @@ class MapswipeProjectViewSet(viewsets.ViewSet):
             502: "External service error"
         },
     )
+    # @method_decorator(cache_page(60 * settings.CACHE_TIMEOUT_MINUTES))
     def retrieve(self, request, pk=None):
         try:
             with MapswipeClient(
@@ -1709,8 +1710,11 @@ class MapswipeProjectViewSet(viewsets.ViewSet):
                     try:
                         results = client.get_project_results(pk)
                         project_details["exportResults"] = results.get("exportResults", [])
+                        project_details["exportAggregatedResultsWithGeometry"] = results.get("exportAggregatedResultsWithGeometry", [])
+                        
                     except Exception as e:
                         project_details["exportResults"] = []
+                        project_details["exportAggregatedResultsWithGeometry"] = []
                         project_details["resultsError"] = f"Failed to fetch results: {str(e)}"
                 
                 return APIResponse.success(

@@ -107,6 +107,12 @@ class MapswipeClient:
                 url
               }
             }
+            exportAggregatedResultsWithGeometry {
+            file {
+                name
+                url
+            }
+            }
           }
         }
     """
