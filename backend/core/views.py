@@ -1728,6 +1728,7 @@ class MapswipeProjectViewSet(viewsets.ViewSet):
                                     },
                                     queue=("predictions"), # using same queue as prediction for now , on future we can have different queue if it gets overhelming at any point, which i don't assume it will be but if it does bravooo we have massive usage haha
                                 )
+                                results['mapswipe']['pmtiles_conversion_status'] = "SUBMITTED"
                                 results['mapswipe']['task_id'] = task.id
                                 logging.info(f"Mapswipe results processing queued with task ID {task.id}")
                                 pred_inst.result = results
