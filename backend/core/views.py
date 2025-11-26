@@ -27,6 +27,7 @@ from django.http import (
     HttpResponseRedirect,
     JsonResponse,
 )
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.decorators import method_decorator
@@ -97,7 +98,7 @@ from .serializers import (
     UserSerializer,
     UserStatsSerializer,
 )
-from .tasks import predict_area, train_model
+from .tasks import predict_area, train_model, process_mapswipe_results
 from .utils import (
     degrees_to_km,
     download_s3_file,
@@ -1218,6 +1219,7 @@ class PredictionSerializer(serializers.ModelSerializer):
             "finished_at",
             "status",
             "result_count",
+            "result",
             "task_id",
             "mapswipe_id",
             "config",
@@ -1579,8 +1581,8 @@ class MapswipeProjectViewSet(viewsets.ViewSet):
     """
     API endpoint for managing MapSwipe projects.
     """
-    authentication_classes = [OsmAuthentication]
-    permission_classes = [IsOsmAuthenticated]
+    # authentication_classes = [OsmAuthentication]
+    # permission_classes = [IsOsmAuthenticated]
     serializer_class = MapswipeProjectCreateSerializer
 
     @swagger_auto_schema(
@@ -1663,7 +1665,6 @@ class MapswipeProjectViewSet(viewsets.ViewSet):
                     message=message,
                     status_code=status.HTTP_201_CREATED
                 )
-                
         except RuntimeError as e:
             return APIResponse.external_service_error(
                 message=f"MapSwipe service error: {str(e)}"
@@ -1697,6 +1698,8 @@ class MapswipeProjectViewSet(viewsets.ViewSet):
     # @method_decorator(cache_page(60 * settings.CACHE_TIMEOUT_MINUTES))
     def retrieve(self, request, pk=None):
         try:
+            pred_inst = get_object_or_404(Prediction, mapswipe_id=pk)
+    
             with MapswipeClient(
                 backend_url=settings.MAPSWIPE_BACKEND_URL,
                 manager_url=settings.MAPSWIPE_MANAGER_URL,
@@ -1705,27 +1708,38 @@ class MapswipeProjectViewSet(viewsets.ViewSet):
                 fb_password=settings.MAPSWIPE_FB_PASSWORD,
             ) as client:
                 project_details = client.get_project_details(pk)
-                
                 if project_details.get("status") == "FINISHED":
                     try:
-                        results = client.get_project_results(pk)
-                        project_details["exportResults"] = results.get("exportResults", [])
-                        project_details["exportAggregatedResultsWithGeometry"] = results.get("exportAggregatedResultsWithGeometry", [])
-                        
+                        if 'mapswipe' in pred_inst.result:
+                            results = pred_inst.result['mapswipe']
+                        else : 
+                            results = client.get_project_results(pk)
+                            pred_inst.result['mapswipe'] = results
+                            pred_inst.save()
+                            geojson_url = results['exportAggregatedResultsWithGeometry']['file'].get("url", None)
+                            if geojson_url :
+                                task = process_mapswipe_results.apply_async(
+                                    kwargs={
+                                        "prediction_request_id": pred_inst.id,
+                                    },
+                                    queue=("predictions"), # using same queue as prediction for now , on future we can have different queue if it gets overhelming at any point, which i don't assume it will be but if it does bravooo we have massive usage haha
+                                )
+                                pred_inst.result['mapswipe']['task_id'] = task.id
+                                pred_inst.save()
+                                logging.info(f"Mapswipe results processing queued with task ID {task.id}")
+                        project_details["results"] = results
+
                     except Exception as e:
-                        project_details["exportResults"] = []
-                        project_details["exportAggregatedResultsWithGeometry"] = []
-                        project_details["resultsError"] = f"Failed to fetch results: {str(e)}"
-                
+                        logging.error(f"Error fetching or processing MapSwipe results for project {pk}: {str(e)}")
+                        project_details["results"] = {"error": "Failed to fetch or process results"}
                 return APIResponse.success(
                     data=project_details,
                     message="Project details retrieved successfully"
                 )
-                
         except httpx.HTTPStatusError as e:
             if e.response.status_code == 404:
                 return APIResponse.not_found(
-                    message=f"MapSwipe project with ID {pk} not found"
+                    message=f"MapSwipe project with ID {pk} not found or not associated with any prediction id"
                 )
             return APIResponse.external_service_error(
                 message=f"MapSwipe service returned error: {e.response.status_code}"
@@ -1738,6 +1752,10 @@ class MapswipeProjectViewSet(viewsets.ViewSet):
             return APIResponse.external_service_error(
                 message=f"Failed to communicate with MapSwipe: {str(e)}"
             )
+        except Http404 as e:
+            return APIResponse.not_found(
+                    message=f"MapSwipe project with ID {pk} is not associated with any predictions"
+                )
         except Exception as e:
             return APIResponse.error(
                 code=APIResponseCodes.EXTERNAL_SERVICE_ERROR,

@@ -274,10 +274,11 @@ class Prediction(models.Model):
     status = models.CharField(
         choices=STATUS_CHOICES, default="SUBMITTED", max_length=10
     )
-    result_count = models.PositiveIntegerField(default=0)
+    result_count = models.PositiveIntegerField(default=0) # remove this after the migration and put it under result config
     task_id = models.CharField(null=True, blank=True, max_length=100)
     mapswipe_id = models.CharField(null=True, blank=True, max_length=100)
     config = models.JSONField(null=True, blank=True)
+    result = models.JSONField(null=True, blank=True)
     geom = geomodels.PolygonField(srid=4326)
     user = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
 
