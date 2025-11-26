@@ -21,7 +21,7 @@ class MapswipeProjectViewSetTest(BaseAPITestCase):
     @patch('core.views.get_object_or_404')
     @patch('core.views.settings')
     @patch('core.views.MapswipeClient')
-    def test_create_and_retrieve_mapswipe_project(self, mock_client, mock_settings):
+    def test_create_and_retrieve_mapswipe_project(self, mock_client, mock_settings,mock_get_obj):
         """Test full workflow: create project then retrieve its status."""
         mock_settings.MAPSWIPE_BACKEND_URL = "http://test.mapswipe.org"
         mock_settings.MAPSWIPE_MANAGER_URL = "http://manager.test"
@@ -35,13 +35,21 @@ class MapswipeProjectViewSetTest(BaseAPITestCase):
         mock_client.return_value.__enter__.return_value = instance
         
         project_id = "test-project-123"
-        instance.mapswipe_id = project_id
         instance.create_validation_project.return_value = (project_id, "asset-456")
         instance.update_project.return_value = {"result": {"id": project_id}, "errors": None}
         instance.update_project_status.return_value = {
             "result": {"id": project_id, "status": "READY_TO_PROCESS"},
             "errors": None
         }
+        
+        
+        pred_mock = MagicMock()
+        pred_mock.id = 1
+        pred_mock.mapswipe_id = project_id
+        pred_mock.result = None
+        mock_get_obj.return_value = pred_mock
+
+        
         
         res = self.post_json(self.mapswipe_create_url, self.valid_payload)
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
