@@ -654,50 +654,57 @@ def process_mapswipe_results(prediction_request_id):
 
     folder = inst.config["folder"]
     if 'exportAggregatedResultsWithGeometry' in inst.result.get('mapswipe', {}):
-        geojson_url = inst.result['mapswipe']['exportAggregatedResultsWithGeometry']['file'].get("url", None)
-        if geojson_url :
-            inst.result['mapswipe']['pmtiles_conversion_status'] = "STARTED"
-            inst.save()
-            base_mapswipe_path = os.path.join(settings.PREDICTION_WORKSPACE, str(inst.id),'mapswipe')
-            os.makedirs(base_mapswipe_path, exist_ok=True)
-            result_path = download_and_decompress_file(
-                geojson_url,
-                os.path.join(base_mapswipe_path, "mapswipe_results_geom.geojson")
-            )
-            try:
-                if result_path:
-                    
-                    check_and_convert_crs(result_path)
-                    layers = []
-                    layers.append(f'-L results:"{result_path}"')
-
-                    # layers.append(f'-L aois:"{out}/aois.geojson"') in case if we need other layers on future
-
-                    layers_str = " ".join(layers)
-
-                    subprocess.check_output(
-                        f"tippecanoe -o {os.path.join(base_mapswipe_path, 'mapswipe_results.pmtiles')} -Z7 -z20 "
-                        f"{layers_str} "
-                        "--force --read-parallel -rg --drop-densest-as-needed",
-                        shell=True,
-                        preexec_fn=os.setsid,
-                        timeout=60 * 60 * 1,  # 1 hour timeout,
-                    )
-            except subprocess.CalledProcessError as e:
-                raise
-            if settings.USE_S3_TO_UPLOAD_MODELS:
-                upload_to_s3(
-                    base_mapswipe_path,
-                    parent=f"{settings.PARENT_BUCKET_FOLDER}/{folder}/mapswipe"
-                )
-                result_base_url = settings.API_BASE_URL + "/workspace/download/" + folder + "/mapswipe"
-                inst.result['mapswipe']["post_processed"] = {
-                    "geom": f"{result_base_url}/mapswipe_results_geom.geojson",
-                    "pmtiles": f"{result_base_url}/mapswipe_results.pmtiles",
-                }
+        try : 
+            geojson_url = inst.result['mapswipe']['exportAggregatedResultsWithGeometry']['file'].get("url", None)
+            if geojson_url :
+                inst.result['mapswipe']['pmtiles_conversion_status'] = "STARTED"
                 inst.save()
-        inst.result['mapswipe']['pmtiles_conversion_status'] = "FINISHED"
-        inst.save()
+                base_mapswipe_path = os.path.join(settings.PREDICTION_WORKSPACE, str(inst.id),'mapswipe')
+                os.makedirs(base_mapswipe_path, exist_ok=True)
+                result_path = download_and_decompress_file(
+                    geojson_url,
+                    os.path.join(base_mapswipe_path, "mapswipe_results_geom.geojson")
+                )
+                try:
+                    if result_path:
+                        
+                        check_and_convert_crs(result_path)
+                        layers = []
+                        layers.append(f'-L results:"{result_path}"')
+
+                        # layers.append(f'-L aois:"{out}/aois.geojson"') in case if we need other layers on future
+
+                        layers_str = " ".join(layers)
+
+                        subprocess.check_output(
+                            f"tippecanoe -o {os.path.join(base_mapswipe_path, 'mapswipe_results.pmtiles')} -Z7 -z20 "
+                            f"{layers_str} "
+                            "--force --read-parallel -rg --drop-densest-as-needed",
+                            shell=True,
+                            preexec_fn=os.setsid,
+                            timeout=60 * 60 * 1,  # 1 hour timeout,
+                        )
+                except subprocess.CalledProcessError as e:
+                    raise
+                if settings.USE_S3_TO_UPLOAD_MODELS:
+                    upload_to_s3(
+                        base_mapswipe_path,
+                        parent=f"{settings.PARENT_BUCKET_FOLDER}/{folder}/mapswipe"
+                    )
+                    result_base_url = settings.API_BASE_URL + "/workspace/download/" + folder + "/mapswipe"
+                    inst.result['mapswipe']["post_processed"] = {
+                        "geom": f"{result_base_url}/mapswipe_results_geom.geojson",
+                        "pmtiles": f"{result_base_url}/mapswipe_results.pmtiles",
+                    }
+                    inst.save()
+            inst.result['mapswipe']['pmtiles_conversion_status'] = "FINISHED"
+            inst.save()
+            
+        except Exception as e:
+            logging.error(f"Error in processing MapSwipe results for prediction {prediction_request_id}: {str(e)}")
+            inst.result['mapswipe']['pmtiles_conversion_status'] = "FAILED"
+            inst.save()
+            raise e
         return inst.result['mapswipe']
         
      

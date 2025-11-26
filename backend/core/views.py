@@ -1581,8 +1581,8 @@ class MapswipeProjectViewSet(viewsets.ViewSet):
     """
     API endpoint for managing MapSwipe projects.
     """
-    # authentication_classes = [OsmAuthentication]
-    # permission_classes = [IsOsmAuthenticated]
+    authentication_classes = [OsmAuthentication]
+    permission_classes = [IsOsmAuthenticated]
     serializer_class = MapswipeProjectCreateSerializer
 
     @swagger_auto_schema(
@@ -1710,13 +1710,17 @@ class MapswipeProjectViewSet(viewsets.ViewSet):
                 project_details = client.get_project_details(pk)
                 if project_details.get("status") == "FINISHED":
                     try:
-                        if 'mapswipe' in pred_inst.result:
-                            results = pred_inst.result['mapswipe']
+                        
+                        if pred_inst.result : 
+                            if 'mapswipe' in pred_inst.result:
+                                results = pred_inst.result
                         else : 
-                            results = client.get_project_results(pk)
-                            pred_inst.result['mapswipe'] = results
-                            pred_inst.save()
-                            geojson_url = results['exportAggregatedResultsWithGeometry']['file'].get("url", None)
+                            results = {}
+                            pred_inst.result = results
+                            results_resp = client.get_project_results(pk)
+                            results['mapswipe'] = results_resp
+
+                            geojson_url = results_resp['exportAggregatedResultsWithGeometry']['file'].get("url", None)
                             if geojson_url :
                                 task = process_mapswipe_results.apply_async(
                                     kwargs={
@@ -1724,9 +1728,11 @@ class MapswipeProjectViewSet(viewsets.ViewSet):
                                     },
                                     queue=("predictions"), # using same queue as prediction for now , on future we can have different queue if it gets overhelming at any point, which i don't assume it will be but if it does bravooo we have massive usage haha
                                 )
-                                pred_inst.result['mapswipe']['task_id'] = task.id
-                                pred_inst.save()
+                                results['mapswipe']['task_id'] = task.id
                                 logging.info(f"Mapswipe results processing queued with task ID {task.id}")
+                                pred_inst.result = results
+                                pred_inst.save()
+                        
                         project_details["results"] = results
 
                     except Exception as e:
