@@ -18,7 +18,7 @@ class MapswipeProjectViewSetTest(BaseAPITestCase):
             "geojson_url": "https://fair-dev.hotosm.org/api/v1/workspace/download/training_1142/labels.geojson/",
             "tms_url": "https://tiles.openaerialmap.org/68bed3070dea6f775adb9b06/0/68bed3070dea6f775adb9b07/{z}/{x}/{y}"
         }
-
+    @patch('core.views.get_object_or_404')
     @patch('core.views.settings')
     @patch('core.views.MapswipeClient')
     def test_create_and_retrieve_mapswipe_project(self, mock_client, mock_settings):
@@ -35,6 +35,7 @@ class MapswipeProjectViewSetTest(BaseAPITestCase):
         mock_client.return_value.__enter__.return_value = instance
         
         project_id = "test-project-123"
+        instance.mapswipe_id = project_id
         instance.create_validation_project.return_value = (project_id, "asset-456")
         instance.update_project.return_value = {"result": {"id": project_id}, "errors": None}
         instance.update_project_status.return_value = {
