@@ -40,6 +40,7 @@ from .utils import (
     shift_labels_by_offset,
     write_json,
     xz_folder,
+    download_and_decompress_file
 )
 
 DEFAULT_TILE_SIZE = 256
@@ -613,7 +614,7 @@ def predict_area(prediction_request_id, folder=None):
                         out,
                         parent=s3_out_path,
                     )
-            inst.status, inst.finished_at, inst.result_count = (
+            inst.status, inst.finished_at, inst.result['count'] = (
                 "FINISHED",
                 timezone.now(),
                 len(predictions["features"]),
@@ -621,13 +622,16 @@ def predict_area(prediction_request_id, folder=None):
             send_notification(inst, "Finished")
             inst.save()
             base_url = settings.API_BASE_URL + "/workspace/download/" + folder
-            result["output"] = base_url
+            # result["output"] = base_url
             result["output"] = {
                 "aois": f"{base_url}/aois.geojson",
                 "predictions": f"{base_url}/labels.geojson",
                 "predictions_points": f"{base_url}/labels_points.geojson",
                 "pmtiles": f"{base_url}/meta.pmtiles",
             }
+            inst.result['output'] = result["output"]
+            inst.save()
+        logger.info("Prediction completed successfully")
         return result
     except Exception as ex:
         logger.exception("Prediction failed")
@@ -638,3 +642,69 @@ def predict_area(prediction_request_id, folder=None):
     finally:
         logger.removeHandler(file_handler)
         file_handler.close()
+
+
+
+
+
+@shared_task
+def process_mapswipe_results(prediction_request_id):
+    
+    inst = get_object_or_404(Prediction, id=prediction_request_id)
+
+    folder = inst.config["folder"]
+    if 'exportAggregatedResultsWithGeometry' in inst.result.get('mapswipe', {}):
+        try : 
+            geojson_url = inst.result['mapswipe']['exportAggregatedResultsWithGeometry']['file'].get("url", None)
+            if geojson_url :
+                inst.result['mapswipe']['pmtiles_conversion_status'] = "STARTED"
+                inst.save()
+                base_mapswipe_path = os.path.join(settings.PREDICTION_WORKSPACE, str(inst.id),'mapswipe')
+                os.makedirs(base_mapswipe_path, exist_ok=True)
+                result_path = download_and_decompress_file(
+                    geojson_url,
+                    os.path.join(base_mapswipe_path, "mapswipe_results_geom.geojson")
+                )
+                try:
+                    if result_path:
+                        
+                        check_and_convert_crs(result_path)
+                        layers = []
+                        layers.append(f'-L results:"{result_path}"')
+
+                        # layers.append(f'-L aois:"{out}/aois.geojson"') in case if we need other layers on future
+
+                        layers_str = " ".join(layers)
+
+                        subprocess.check_output(
+                            f"tippecanoe -o {os.path.join(base_mapswipe_path, 'mapswipe_results.pmtiles')} -Z7 -z20 "
+                            f"{layers_str} "
+                            "--force --read-parallel -rg --drop-densest-as-needed",
+                            shell=True,
+                            preexec_fn=os.setsid,
+                            timeout=60 * 60 * 1,  # 1 hour timeout,
+                        )
+                except subprocess.CalledProcessError as e:
+                    raise
+                if settings.USE_S3_TO_UPLOAD_MODELS:
+                    upload_to_s3(
+                        base_mapswipe_path,
+                        parent=f"{settings.PARENT_BUCKET_FOLDER}/{folder}/mapswipe"
+                    )
+                    result_base_url = settings.API_BASE_URL + "/workspace/download/" + folder + "/mapswipe"
+                    inst.result['mapswipe']["post_processed"] = {
+                        "geom": f"{result_base_url}/mapswipe_results_geom.geojson",
+                        "pmtiles": f"{result_base_url}/mapswipe_results.pmtiles",
+                    }
+                    inst.save()
+            inst.result['mapswipe']['pmtiles_conversion_status'] = "FINISHED"
+            inst.save()
+            
+        except Exception as e:
+            logging.error(f"Error in processing MapSwipe results for prediction {prediction_request_id}: {str(e)}")
+            inst.result['mapswipe']['pmtiles_conversion_status'] = "FAILED"
+            inst.save()
+            raise e
+        return inst.result['mapswipe']
+        
+     

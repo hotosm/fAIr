@@ -1,5 +1,6 @@
 # Standard Library
 import concurrent.futures
+import gzip
 import gc
 import glob
 import json
@@ -739,3 +740,17 @@ def get_api_version():
         return data.get("project", {}).get("version", "unknown")
     except Exception:
         return "unknown"
+
+def download_and_decompress_file(url, file_path):
+    try:
+        response = requests.get(url, stream=True)
+        response.raise_for_status()  # Raise an exception for HTTP errors
+
+        with gzip.GzipFile(fileobj=response.raw) as f:
+            with open(file_path, 'w') as geojson_file:
+                geojson_file.write(f.read().decode('utf-8'))
+        print(f"File downloaded and decompressed to: {file_path}")
+        return file_path
+    except requests.exceptions.RequestException as e:
+        print(f"An error occurred: {e}")
+        return None
