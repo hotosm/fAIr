@@ -207,8 +207,8 @@ TEMPLATES = [
     },
 ]
 
-if DEBUG:
-    default_db_url = "postgis://admin:password@localhost:5432/fair"
+
+default_db_url = "postgis://admin:password@localhost:5432/fair"
 
 DATABASE_URL = env("DATABASE_URL", default=default_db_url)
 
