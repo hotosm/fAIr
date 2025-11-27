@@ -31,14 +31,10 @@ PREDICTION_WORKSPACE = env(
     "PREDICTION_WORKSPACE", default=os.path.join(BASE_DIR, "prediction")
 )
 
-if DEBUG:
-    FRONTEND_URL = env("FRONTEND_URL", default="http://localhost:3000")
-    API_BASE_URL = env("API_BASE_URL", default="http://127.0.0.1:8000/api/v1")
-    HOSTNAME = env("HOSTNAME", default="127.0.0.1")
-else:
-    FRONTEND_URL = env("FRONTEND_URL", default="https://fair.hotosm.org")
-    API_BASE_URL = env("API_BASE_URL", default="https://fair-dev.hotosm.org/api/v1")
-    HOSTNAME = env("HOSTNAME", default="127.0.0.1")
+
+FRONTEND_URL = env("FRONTEND_URL", default="https://fair-dev.hotosm.org")
+API_BASE_URL = env("API_BASE_URL", default="https://fair-dev.hotosm.org/api/v1")
+HOSTNAME = env("HOSTNAME", default="https://fair-dev.hotosm.org")
 
 EXPORT_TOOL_API_URL = env(
     "EXPORT_TOOL_API_URL", default="https://api-prod.raw-data.hotosm.org/v1"
@@ -47,14 +43,10 @@ EXPORT_TOOL_API_URL = env(
 if env("GDAL_LIBRARY_PATH", default=None):
     GDAL_LIBRARY_PATH = env("GDAL_LIBRARY_PATH")
 
-if DEBUG:
-    OSM_CLIENT_ID = env("OSM_CLIENT_ID", default="debug-client-id")
-    OSM_CLIENT_SECRET = env("OSM_CLIENT_SECRET", default="debug-client-secret")
-    OSM_SECRET_KEY = env("OSM_SECRET_KEY", default="debug-secret-key")
-else:
-    OSM_CLIENT_ID = env("OSM_CLIENT_ID")
-    OSM_CLIENT_SECRET = env("OSM_CLIENT_SECRET")
-    OSM_SECRET_KEY = env("OSM_SECRET_KEY")
+
+OSM_CLIENT_ID = env("OSM_CLIENT_ID", default="debug-client-id")
+OSM_CLIENT_SECRET = env("OSM_CLIENT_SECRET", default="debug-client-secret")
+OSM_SECRET_KEY = env("OSM_SECRET_KEY", default="debug-secret-key")
 
 OSM_URL = env("OSM_URL", default="https://www.openstreetmap.org")
 OSM_SCOPE = env("OSM_SCOPE", default="read_prefs")
