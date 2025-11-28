@@ -83,8 +83,8 @@ const columnDefinitions = (
   },
   {
     header: "Detected Features",
-    accessorKey: "result_count",
-
+    accessorFn: (row) => (row.result ? row.result["count"] : 0),
+    // accessorKey: "result_count",
     cell: (row) => (
       <span title={row.getValue() as string}>
         {roundNumber(row.getValue() as number)}

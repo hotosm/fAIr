@@ -7,6 +7,7 @@ import {
   FilledCalendarIcon,
   FilledFlagIcon,
   FilledLocationIcon,
+  MapIcon,
   ProductionCheckmarkIcon,
 } from "@/components/ui/icons";
 import { Image } from "@/components/ui/image";
@@ -20,13 +21,15 @@ import { CopyButton } from "@/components/ui/copy-button";
 import { formatMapSwipeProjectStatus } from "@/utils/mapswipe-utils";
 import { TBadgeVariants } from "@/types";
 import { ToolTip } from "@/components/ui/tooltip";
+import { MapSwipeProcessingStatus, PmtilesConversionStatus } from "@/enums";
+import { DropDown } from "@/components/ui/dropdown";
 
 export type InfoCardProps = {
   icon: React.ReactNode;
   info?: string;
   orientation?: "left" | "right";
   variant?: "default" | "red";
-  className?:string;
+  className?: string;
 };
 
 const ProjectStatusLoadingSkeleton = () => {
@@ -63,12 +66,17 @@ const ProjectStatusErrorSkeleton = ({ retry }: { retry: () => void }) => {
   );
 };
 
+const VALID_PROJECT_STATUSES = [
+  MapSwipeProcessingStatus.PUBLISHED,
+  MapSwipeProcessingStatus.FINISHED,
+];
+
 const InfoBlock = ({
   icon,
   info,
   orientation = "left",
   variant = "default",
-  className="cursor-default"
+  className = "cursor-default",
 }: InfoCardProps) => {
   const isRight = orientation === "right";
 
@@ -91,13 +99,31 @@ export const MapswipeProjectStatusDialog = ({
   isOpen,
   onClose,
   mapSwipeProjectId,
+  handleMapSwipeProjectResultMapModal,
 }: {
   isOpen: boolean;
   onClose: () => void;
   mapSwipeProjectId: string;
+  handleMapSwipeProjectResultMapModal: (pmtiles: string) => void;
 }) => {
   const { isLoading, data, isError, isRefetching, refetch } =
     useMapSwipeProjectStatus(mapSwipeProjectId, isOpen);
+
+  const pmStatus = data?.results?.mapswipe?.pmtiles_conversion_status as
+    | PmtilesConversionStatus
+    | undefined;
+  const isFinished = pmStatus === PmtilesConversionStatus.FINISHED;
+
+  const pmtilesTooltipContent = (() => {
+    if (isFinished) {
+      return "Postprocessed results are ready, click to open the results in the map viewer.";
+    }
+    if (!pmStatus) {
+      return "Postprocessing has not started for this project, there are no map results to view yet.";
+    }
+
+    return `Postprocessing status: ${pmStatus}, the map results will be available once the status becomes FINISHED.`;
+  })();
 
   return (
     <Dialog
@@ -156,12 +182,16 @@ export const MapswipeProjectStatusDialog = ({
               />
               <ToolTip
                 content={
-                  data?.status !== "PUBLISHED"
+                  !VALID_PROJECT_STATUSES.includes(
+                    data?.status as MapSwipeProcessingStatus,
+                  )
                     ? "This project isn't published yet. It will be viewable once published."
                     : "Open the project on MapSwipe Web."
                 }
               >
-                {data?.status === "PUBLISHED" ? (
+                {VALID_PROJECT_STATUSES.includes(
+                  data?.status as MapSwipeProcessingStatus,
+                ) ? (
                   <a
                     href={data.webUrl}
                     target="_blank"
@@ -181,9 +211,29 @@ export const MapswipeProjectStatusDialog = ({
                     info="Open in MapSwipe"
                     orientation="right"
                     variant="red"
-                   className="cursor-not-allowed"
+                    className="cursor-not-allowed"
                   />
                 )}
+              </ToolTip>
+              <ToolTip content={pmtilesTooltipContent}>
+                <Button
+                  variant={ButtonVariant.NONE}
+                  className="!w-36"
+                  disabled={!isFinished}
+                  onClick={() => {
+                    handleMapSwipeProjectResultMapModal(
+                      data.results?.mapswipe.post_processed?.pmtiles as string,
+                    );
+                  }}
+                  aria-disabled={!isFinished}
+                >
+                  <InfoBlock
+                    icon={<MapIcon className="text-black size-4" />}
+                    info="View Results"
+                    orientation="right"
+                    variant={"red"}
+                  />
+                </Button>
               </ToolTip>
             </div>
             <div className="flex items-center w-full justify-between gap-4 flex-wrap">
@@ -206,21 +256,49 @@ export const MapswipeProjectStatusDialog = ({
 
               <ToolTip
                 content={
-                  !data?.exportResults
+                  !data?.results?.mapswipe.exportResults
                     ? "Download options will be ready when the project is finished."
-                    : "Download results."
+                    : "Download results as CSV or GeoJSON."
                 }
               >
-                <ButtonWithIcon
-                  onClick={() => {
-                    downloadFile(data?.exportResults?.file.url as string);
-                  }}
-                  variant={ButtonVariant.PRIMARY}
-                  className="md:!w-fit"
-                  suffixIcon={DownloadIcon}
-                  label="Download Result"
-                  uppercase={false}
-                  disabled={!data?.exportResults}
+                <DropDown
+                  triggerComponent={
+                    <ButtonWithIcon
+                      variant={ButtonVariant.PRIMARY}
+                      className="md:!w-fit"
+                      suffixIcon={DownloadIcon}
+                      label="Download Result"
+                      uppercase={false}
+                      disabled={!data?.results?.mapswipe.exportResults}
+                    />
+                  }
+                  distance={4}
+                  menuItems={[
+                    {
+                      name: "As CSV",
+                      value: "As CSV",
+                      onClick: (e) => {
+                        e.stopPropagation();
+
+                        downloadFile(
+                          data?.results?.mapswipe.exportResults.file
+                            .url as string,
+                        );
+                      },
+                    },
+                    {
+                      name: "As GeoJSON",
+                      value: "As GeoJSON",
+                      onClick: (e) => {
+                        e.stopPropagation();
+                        downloadFile(
+                          data?.results?.mapswipe
+                            .exportAggregatedResultsWithGeometry.file
+                            .url as string,
+                        );
+                      },
+                    },
+                  ]}
                 />
               </ToolTip>
             </div>

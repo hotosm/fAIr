@@ -1,7 +1,26 @@
 import { Badge } from "@/components/ui/badge";
 import { ToolTip } from "@/components/ui/tooltip";
+import { MapSwipeProcessingStatus } from "@/enums";
 import { TBadgeVariants } from "@/types";
 import { formatMapSwipeProjectStatus } from "@/utils/mapswipe-utils";
+
+const greenStatuses = new Set([
+  MapSwipeProcessingStatus.PUBLISHED,
+  MapSwipeProcessingStatus.FINISHED,
+]);
+
+const redStatuses = new Set([
+  MapSwipeProcessingStatus.PROCESSING_FAILED,
+  MapSwipeProcessingStatus.PUBLISHING_FAILED,
+]);
+
+export const statusToVariant = (
+  status: MapSwipeProcessingStatus,
+): TBadgeVariants => {
+  if (greenStatuses.has(status)) return "green";
+  if (redStatuses.has(status)) return "red";
+  return "yellow";
+};
 
 export const MapSwipeProjectStatusBadge = ({
   status,
@@ -10,19 +29,6 @@ export const MapSwipeProjectStatusBadge = ({
   status: string;
   isRefetching: boolean;
 }) => {
-  const statusToVariant: Record<string, TBadgeVariants> = {
-    READY_TO_PROCESS: "default",
-    DISCARDED: "red",
-    PROCESSING_FAILED: "red",
-    PUBLISHING_FAILED: "red",
-    WITHDRAWN: "red",
-    PROCESSED: "green",
-    PUBLISHED: "green",
-    FINISHED: "green",
-    PAUSED: "blue",
-    READY_TO_PUBLISH: "yellow",
-    DRAFT: "default",
-  };
   const formattedStatus = formatMapSwipeProjectStatus(status);
   return (
     <ToolTip
@@ -38,7 +44,10 @@ export const MapSwipeProjectStatusBadge = ({
                 : `Current Status: ${formattedStatus}`
       }
     >
-      <Badge variant={statusToVariant[status] as TBadgeVariants} className={`${isRefetching ? 'cursor-wait':'cursor-default'}`}>
+      <Badge
+        variant={statusToVariant(status as MapSwipeProcessingStatus)}
+        className={`${isRefetching ? "cursor-wait" : "cursor-default"}`}
+      >
         <span className={`${isRefetching ? "animate-pulse" : ""}`}>
           {formattedStatus}
         </span>

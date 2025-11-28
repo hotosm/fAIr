@@ -60,7 +60,7 @@ export const formatDate = (isoString: string): string => {
     const [year, month, day] = isoString.split("-");
     return `${day}/${month}/${year}`;
   }
-  
+
   const date = new Date(isoString);
 
   const day = String(date.getDate()).padStart(2, "0");

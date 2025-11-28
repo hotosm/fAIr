@@ -15,6 +15,7 @@ import { PredictionResultDrawer } from "@/features/user-profile/components/predi
 import { TrainingLogsDialog } from "@/features/user-profile/components/training-logs-dialog";
 import { CreateMapswipeProjectDialog } from "@/features/mapswipe/components/project-creation-dialog";
 import { MapswipeProjectStatusDialog } from "@/features/mapswipe/components/project-status-dialog";
+import { MapSwipeProjectResultMapDrawer } from "@/features/mapswipe/components/project-results-map";
 
 export const UserProfileOfflinePredictionsPage = () => {
   const { user } = useAuth();
@@ -33,6 +34,13 @@ export const UserProfileOfflinePredictionsPage = () => {
     openDialog: openPredictionResultDialog,
     closeDialog: closePredictionResultDialog,
   } = useDialog();
+
+  const {
+    isOpened: isMapSwipeProjectResultMapOpened,
+    openDialog: openMapSwipeProjectResultMapDialog,
+    closeDialog: closeMapSwipeProjectResultMapDialog,
+  } = useDialog();
+
   const {
     isOpened: isMapSwipeProjectCreationDialogOpened,
     openDialog: openMapSwipeProjectCreationDialog,
@@ -56,6 +64,12 @@ export const UserProfileOfflinePredictionsPage = () => {
     setActivePrediction(prediction);
     openPredictionResultDialog();
   };
+
+  const handleMapSwipeProjectResultMapModal = (pmtiles: string) => {
+    console.log(pmtiles, activePrediction);
+    openMapSwipeProjectResultMapDialog();
+  };
+
   const handleCreateOrViewMapSwipeProject = (
     prediction: TOfflinePrediction,
   ) => {
@@ -81,6 +95,21 @@ export const UserProfileOfflinePredictionsPage = () => {
           isOpen={isMapSwipeProjectStatusDialogOpened}
           onClose={closeMapSwipeProjectStatusDialog}
           mapSwipeProjectId={activePrediction.mapswipe_id as string}
+          handleMapSwipeProjectResultMapModal={
+            handleMapSwipeProjectResultMapModal
+          }
+        />
+      )}
+
+      {activePrediction && (
+        <MapSwipeProjectResultMapDrawer
+          tileServiceUrl={activePrediction.config.source}
+          predictionId={activePrediction.id}
+          folder={activePrediction.config.folder}
+          isOpened={isMapSwipeProjectResultMapOpened}
+          closeDialog={() => {
+            closeMapSwipeProjectResultMapDialog();
+          }}
         />
       )}
       {activePrediction && (
