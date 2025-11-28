@@ -262,6 +262,7 @@ export const MapswipeProjectStatusDialog = ({
                 }
               >
                 <DropDown
+                  disabled={!data?.results?.mapswipe.exportResults}
                   triggerComponent={
                     <ButtonWithIcon
                       variant={ButtonVariant.PRIMARY}
