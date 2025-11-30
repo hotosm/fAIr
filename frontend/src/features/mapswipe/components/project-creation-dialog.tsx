@@ -27,10 +27,12 @@ export const CreateMapswipeProjectDialog = ({
   isOpened,
   closeDialog,
   predictionResult,
+  openProjectStatus,
 }: {
   isOpened: boolean;
   closeDialog: () => void;
   predictionResult: TOfflinePrediction;
+  openProjectStatus: () => void;
 }) => {
   const {
     isOpened: isSuccessDialogOpened,
@@ -169,7 +171,10 @@ export const CreateMapswipeProjectDialog = ({
       <MapswipeProjectCreationSuccess
         isOpen={isSuccessDialogOpened}
         onClose={closeSuccessDialog}
-        handleMapswipeProjectDetailsOpen={closeSuccessDialog}
+        handleMapswipeProjectDetailsOpen={() => {
+          openProjectStatus();
+          closeSuccessDialog();
+        }}
       />
       <Dialog
         isOpened={isOpened}

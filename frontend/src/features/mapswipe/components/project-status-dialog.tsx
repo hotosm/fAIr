@@ -232,6 +232,7 @@ export const MapswipeProjectStatusDialog = ({
                     info="View Results"
                     orientation="right"
                     variant={"red"}
+                    className="cursor-pointer"
                   />
                 </Button>
               </ToolTip>
@@ -256,13 +257,13 @@ export const MapswipeProjectStatusDialog = ({
 
               <ToolTip
                 content={
-                  !data?.results?.mapswipe.exportResults
+                  !data?.results?.mapswipe?.exportResults
                     ? "Download options will be ready when the project is finished."
                     : "Download results as CSV or GeoJSON."
                 }
               >
                 <DropDown
-                  disabled={!data?.results?.mapswipe.exportResults}
+                  disabled={!data?.results?.mapswipe?.exportResults}
                   triggerComponent={
                     <ButtonWithIcon
                       variant={ButtonVariant.PRIMARY}
@@ -270,7 +271,7 @@ export const MapswipeProjectStatusDialog = ({
                       suffixIcon={DownloadIcon}
                       label="Download Result"
                       uppercase={false}
-                      disabled={!data?.results?.mapswipe.exportResults}
+                      disabled={!data?.results?.mapswipe?.exportResults}
                     />
                   }
                   distance={4}
@@ -282,7 +283,7 @@ export const MapswipeProjectStatusDialog = ({
                         e.stopPropagation();
 
                         downloadFile(
-                          data?.results?.mapswipe.exportResults.file
+                          data?.results?.mapswipe?.exportResults?.file
                             .url as string,
                         );
                       },
@@ -294,8 +295,8 @@ export const MapswipeProjectStatusDialog = ({
                         e.stopPropagation();
                         downloadFile(
                           data?.results?.mapswipe
-                            .exportAggregatedResultsWithGeometry.file
-                            .url as string,
+                            ?.exportAggregatedResultsWithGeometry?.file
+                            ?.url as string,
                         );
                       },
                     },

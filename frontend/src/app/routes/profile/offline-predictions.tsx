@@ -56,6 +56,10 @@ export const UserProfileOfflinePredictionsPage = () => {
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
   const [activePrediction, setActivePrediction] =
     useState<TOfflinePrediction | null>(null);
+
+  const [MapSwipeResultsPmtiles, setMapSwipeResultsPmtiles] = useState<
+    string | null
+  >(null);
   const handleTrainingLogsModal = (taskId: string) => {
     setActiveTaskId(taskId);
     openDialog();
@@ -66,10 +70,16 @@ export const UserProfileOfflinePredictionsPage = () => {
   };
 
   const handleMapSwipeProjectResultMapModal = (pmtiles: string) => {
-    console.log(pmtiles, activePrediction);
+    setMapSwipeResultsPmtiles(pmtiles);
+    closeMapSwipeProjectStatusDialog();
     openMapSwipeProjectResultMapDialog();
   };
 
+  const handleCloseMapSwipeProjectResultMapModal = () => {
+    closeMapSwipeProjectResultMapDialog();
+    openMapSwipeProjectStatusDialog();
+    setMapSwipeResultsPmtiles(null);
+  };
   const handleCreateOrViewMapSwipeProject = (
     prediction: TOfflinePrediction,
   ) => {
@@ -88,6 +98,7 @@ export const UserProfileOfflinePredictionsPage = () => {
           isOpened={isMapSwipeProjectCreationDialogOpened}
           closeDialog={closeMapSwipeProjectCreationDialog}
           predictionResult={activePrediction}
+          openProjectStatus={openMapSwipeProjectStatusDialog}
         />
       )}
       {activePrediction && (
@@ -101,15 +112,14 @@ export const UserProfileOfflinePredictionsPage = () => {
         />
       )}
 
-      {activePrediction && (
+      {activePrediction && MapSwipeResultsPmtiles && (
         <MapSwipeProjectResultMapDrawer
           tileServiceUrl={activePrediction.config.source}
           predictionId={activePrediction.id}
           folder={activePrediction.config.folder}
           isOpened={isMapSwipeProjectResultMapOpened}
-          closeDialog={() => {
-            closeMapSwipeProjectResultMapDialog();
-          }}
+          closeDialog={handleCloseMapSwipeProjectResultMapModal}
+          pmtilesUrl={MapSwipeResultsPmtiles}
         />
       )}
       {activePrediction && (
