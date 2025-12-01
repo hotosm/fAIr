@@ -174,6 +174,7 @@ class ModelCentroidSerializer(BaseCentroidSerializer):
     class Meta:
         model = Model
         geo_field = "geometry"
+        id_field = "mid"
         fields = ("mid", "geometry")
 
     def get_geometry(self, obj):
@@ -186,6 +187,7 @@ class DatasetCentroidSerializer(BaseCentroidSerializer):
     class Meta:
         model = Dataset
         geo_field = "geometry"
+        id_field = "did"
         fields = ("did", "name", "geometry")
 
     def get_geometry(self, obj):
@@ -193,9 +195,12 @@ class DatasetCentroidSerializer(BaseCentroidSerializer):
 
 
 class AOISerializer(GeoFeatureModelSerializer):
+    id = serializers.IntegerField(read_only=True)
+    
     class Meta:
         model = AOI
         geo_field = "geom"
+        id_field = "id"
         fields = [
             "id",
             "dataset",
@@ -245,9 +250,12 @@ class AOISerializer(GeoFeatureModelSerializer):
 
 
 class LabelSerializer(GeoFeatureModelSerializer):
+    id = serializers.IntegerField(read_only=True)
+    
     class Meta:
         model = Label
         geo_field = "geom"
+        id_field = "id"
         fields = [
             "id",
             "aoi",
@@ -262,7 +270,7 @@ class LabelFileSerializer(GeoFeatureModelSerializer):
     class Meta:
         model = Label
         geo_field = "geom"
-        # auto_bbox = True
+        id_field = False
         fields = ("osm_id", "tags")
 
 
@@ -658,9 +666,12 @@ class TrainingSerializer(serializers.ModelSerializer):
 
 
 class FeedbackSerializer(GeoFeatureModelSerializer, BaseModelSerializer):
+    id = serializers.IntegerField(read_only=True)
+    
     class Meta:
         model = Feedback
         geo_field = "geom"
+        id_field = "id"
         fields = [
             "id",
             "geom",

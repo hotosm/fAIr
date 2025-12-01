@@ -12,6 +12,7 @@ x-common-volumes: &common-volumes
     - ./backend/core:/app/core
     - ./backend/login:/app/login
     - ./backend/fairproject:/app/fairproject
+    - ./backend/api_static:/app/api_static
 
 services:
   postgres:
@@ -55,6 +56,8 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile.API
+      args:
+        BUILD_TARGET: predictor
     container_name: fair-api
     command: python manage.py runserver_with_q 0.0.0.0:8000
     ports:

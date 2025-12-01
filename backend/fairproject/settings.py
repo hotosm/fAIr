@@ -114,7 +114,7 @@ INSTALLED_APPS = [
     "rest_framework_gis",
     "django_filters",
     "corsheaders",
-    "drf_yasg",
+    "drf_spectacular",
     "celery",
     "django_celery_results",
     "django_q",
@@ -169,7 +169,7 @@ CSRF_COOKIE_SAMESITE = "Lax"
 DEFAULT_PAGINATION_SIZE = env.int("DEFAULT_PAGINATION_SIZE", default=50)
 
 REST_FRAMEWORK = {
-    "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema",
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.BasicAuthentication",
@@ -238,6 +238,7 @@ USE_TZ = True
 STATIC_URL = "/api_static/"
 MEDIA_URL = "/media/"
 STATIC_ROOT = os.path.join(BASE_DIR, "api_static")
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 LOGGING = {
     "version": 1,
@@ -295,30 +296,60 @@ Q_CLUSTER = {
 
 AUTH_USER_MODEL = "login.OsmUser"
 
-SWAGGER_SETTINGS = {
-    "DEFAULT_INFO": "fairproject.urls.api_info",
-    "SECURITY_DEFINITIONS": {
-        "OSM": {
-            "type": "apiKey",
-            "name": "access-token",
-            "in": "header",
-            "description": "OSM OAuth2 access token. Get it from /api/v1/auth/login/",
-        },
+SPECTACULAR_SETTINGS = {
+    "TITLE": "fAIr API",
+    "DESCRIPTION": """
+## AI-Assisted Mapping
+
+fAIr enables AI-powered mapping using aerial imagery.
+
+### Authentication
+Most endpoints require authentication using OSM OAuth2:
+1. Get access token: `POST /api/v1/auth/login/`
+2. Use token in header: `access-token: YOUR_TOKEN`
+
+### Typical Workflow
+1. **Create Dataset**: Define imagery source
+2. **Create AOI**: Define mapping area with polygon
+3. **Add Labels**: Either fetch from OSM or upload GeoJSON
+4. **Create Model**: Initialize AI model
+5. **Run Training**: Train model
+6. **Run Prediction**: Run inference on new areas
+7. **Submit Feedback**: Accept/reject predictions
+    """,
+    "VERSION": "v1",
+    "CONTACT": {"name": "HOT Tech Team", "email": "sysadmin@hotosm.org"},
+    "LICENSE": {"name": "AGPL-3.0", "url": "https://www.gnu.org/licenses/agpl-3.0.en.html"},
+    "TERMS_OF_SERVICE": "https://www.hotosm.org/privacy",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "SWAGGER_UI_SETTINGS": {
+        "deepLinking": True,
+        "persistAuthorization": True,
+        "displayOperationId": False,
+        "filter": True,
+        "tagsSorter": "alpha",
+        "operationsSorter": "alpha",
     },
-    "USE_SESSION_AUTH": False,
-    "PERSIST_AUTH": True,
-    "REFETCH_SCHEMA_WITH_AUTH": True,
-    "REFETCH_SCHEMA_ON_LOGOUT": True,
-    "DEFAULT_MODEL_RENDERING": "example",
-    "DEFAULT_MODEL_DEPTH": 2,
-    "SHOW_REQUEST_HEADERS": True,
-    "SUPPORTED_SUBMIT_METHODS": ["get", "post", "put", "delete", "patch"],
-    "OPERATIONS_SORTER": "alpha",
-    "TAGS_SORTER": "alpha",
-    "DOC_EXPANSION": "list",
-    "DEEP_LINKING": True,
-    "DISPLAY_OPERATION_ID": False,
-    "DEFAULT_AUTO_SCHEMA_CLASS": "core.swagger_inspector.CustomAutoSchema",
+    "COMPONENT_SPLIT_REQUEST": True,
+    "SCHEMA_PATH_PREFIX": "/api/v1",
+    "SECURITY": [{"OsmAuth": []}],
+    "APPEND_COMPONENTS": {
+        "securitySchemes": {
+            "OsmAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "access-token",
+                "description": "OSM OAuth2 access token obtained from /api/v1/auth/login/",
+            }
+        }
+    },
+    "DISABLE_ERRORS_AND_WARNINGS": False,
+    "PREPROCESSING_HOOKS": [],
+    "POSTPROCESSING_HOOKS": [],
+    "ENUM_NAME_OVERRIDES": {},
+    "SERVERS": [],
+    "SCHEMA_COERCE_PATH_PK": True,
+    "SCHEMA_COERCE_METHOD_NAMES": {},
 }
 
 RAMP_HOME = env("RAMP_HOME", default=None)
@@ -469,3 +500,7 @@ MAPSWIPE_ORGANIZATION_ID = env.int("MAPSWIPE_ORGANIZATION_ID", default=4)
 
 MAPSWIPE_POLL_INTERVAL = env.int("MAPSWIPE_POLL_INTERVAL", default=10)
 MAPSWIPE_POLL_TIMEOUT = env.int("MAPSWIPE_POLL_TIMEOUT", default=600)
+
+ENABLE_FAIR_PREDICTOR = env.bool("ENABLE_FAIR_PREDICTOR", default=True) # for standalone fairpredictor module , you can enable this to test in the dev in production fairpredictor can be deployed independently
+
+print(f"ENABLE_FAIR_PREDICTOR is set to {ENABLE_FAIR_PREDICTOR}")
