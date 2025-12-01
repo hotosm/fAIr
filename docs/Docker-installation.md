@@ -23,7 +23,7 @@ make init PROFILE=gpu
 
 ## Access
 
-- Frontend: http://localhost:3500
+- Frontend: http://127.0.0.1:3500/
 - API: http://localhost:8200
 - Docs: http://localhost:8200/api/docs
 
