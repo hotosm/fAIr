@@ -1,56 +1,68 @@
-Docker Compose is created with redis , worker , postgis database ,  api and frontend all in one making it easy for development . For production it is not recommended
+# fAIr Development Setup with docker
 
-## [DEV] Installation With Docker 
+## Prerequisites
 
-1. Clone Repo 
+- Docker & Docker Compose
+- Make
 
-    ```bash
-    git clone https://github.com/hotosm/fAIr.git
-    ```
+## Quick Start
 
-2. Get Docker Compose Installed 
+```bash
+git clone https://github.com/hotosm/fAIr.git
+cd fAIr
+make init
+```
 
-    If docker is not installed , Install it from [here](https://docs.docker.com/engine/install/) 
-    ```bash
-    docker compose version
-    ```
+First run creates `.env.dev`. Edit it with your OSM credentials, then run `make init` again.
 
-3. Check your Graphics (Optional)
+**GPU workers:**
 
-    fAIr works best with graphics card , Ideally you can also set it up only with CPU though for the development , but if you want models to be trained locally GPU is recommended. Nvidia Graphics cards are tested 
+```bash
+make init PROFILE=gpu
+```
 
-    You need to make sure you can see your graphics card details and can be accessed through docker by installing necessary drivers
+## Access
 
-    By following command you can see your graphics and graphics driver details & nvidia container toolkit is installed More details [here](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)
-    ```bash
-    nvidia-smi
-    ```
+- Frontend: http://localhost:3500
+- API: http://localhost:8200
+- Docs: http://localhost:8200/api/docs
 
-4. Setup
-   ```bash
-   bash ./manage-dev.sh setup
-   ```
-   It will create .env.dev in your dir , Now replace your credentials for the Login 
+## Commands
 
-5. Register your Local setup to OSM 
+```bash
+make init              # Complete setup
+make build             # Build images
+make up                # Start services
+make down              # Stop services
+make logs              # View logs
+make logs SERVICE=api  # Specific service
+make migrate           # Run migrations
+make superuser         # Create admin user
+make shell             # API container shell
+make clean             # Remove all
+```
 
-    - Go to [OpenStreetMap](https://www.openstreetmap.org/) , Login/Create Account
-    - Click on your Profile and Hit ```My Settings```
-    - Navigate to ```Oauth2 Applications```
-    - Register new application 
-    - Check permissions for ```Read user preferences``` and Redirect URI to be ```http://127.0.0.1:3000/authenticate/``` , Give it name as ```fAIr Dev Local```
-    - You will get ```OSM_CLIENT_ID``` , ```OSM_CLIENT_SECRET``` Copy them & Replace it back to the .env.dev
+## Configuration
 
-6. Build & Run containers 
+Edit `.env.dev`:
 
-    ```bash
-    bash ./manage-dev.sh start
-    ```
+- OSM credentials: [Get here](https://www.openstreetmap.org/oauth2/applications)
 
-    Frontend will be available on 5000 port , Backend will be on 8000 , Flower will be on 5500 
+## Hot Reload
 
-    Please open the frontend using URL `127.0.0.1:3000` instead of `localhost:3000` to ensure login functionality.
+All code changes auto-reload (Django, Vite, Celery watchdog).
 
-7. Want to run your local tiles ? 
+## Troubleshooting
 
-    You can use [titler](https://github.com/developmentseed/titiler) , [gdals2tiles](https://gdal.org/programs/gdal2tiles.html) or nginx to run your own TMS server and add following to docker compose in order to access your localhost through docker containers . Add those to API and Worker . Make sure you update the .env variable accordingly 
+**Reset database:**
+
+```bash
+make clean
+make init
+```
+
+**Check status:**
+
+```bash
+make status
+```

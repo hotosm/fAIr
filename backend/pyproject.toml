@@ -63,6 +63,7 @@ test = [
 base-workers = [
     "hot-fair-utilities>=2.0.12",
     "tippecanoe>=2.72.0",
+    "watchdog>=6.0.0",
 ]
 ramp-workers = [
     "numpy>=1.24.4,<2",
