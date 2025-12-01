@@ -57,21 +57,27 @@ fAIr uses oauth2.0 Authentication using [osm-login-python](https://github.com/ks
    Hit `/api/v1/auth/me/`
    - URL requires access-token as header and in return you will see your osm username, id and image url
 
-## Start celery workers
+## Start Celery Workers
 
-- Sync workers env
+Sync workers environment:
 
 ```bash
 uv sync --group base-workers
 ```
 
-- Start celery workers
+Basic worker:
 
-```
-uv run celery -A fairproject worker --loglevel=debug -n my_worker -Q ramp_training,yolo_training
+```bash
+uv run celery -A fairproject worker --loglevel=INFO -Q ramp_training,yolo_training
 ```
 
-## Start background tasks
+With auto-reload (development):
+
+```bash
+uv run watchmedo auto-restart -d . -p '*.py' --recursive -- celery -A fairproject worker --loglevel=INFO -Q ramp_training,yolo_training
+```
+
+## Start Background Tasks
 
 ```bash
 uv run python manage.py qcluster
@@ -79,10 +85,10 @@ uv run python manage.py qcluster
 
 ## Run Tests
 
-```
+```bash
 uv run python manage.py test
 ```
 
-# Build fAIr with Docker for Development
+# Docker Development
 
-Follow docker setup instructions [../SETUP.md](../SETUP.md)
+See [docker-setup.md](../docs/Docker-installation.md) for Docker setup with hot-reload enabled.
