@@ -15,74 +15,27 @@ Including another URLconf
 """
 
 from core.views import home
+from django.conf import settings
 from django.conf.urls import include
 from django.contrib import admin
-from django.urls import path, re_path
-from drf_yasg import openapi
-from drf_yasg.views import get_schema_view
-from rest_framework import permissions
-
-api_info = openapi.Info(
-    title="fAIr API",
-    default_version="v1",
-    description="""
-## AI-Assisted Mapping 
-
-fAIr enables AI-powered mapping using aerial imagery.
-
-### Authentication
-Most endpoints require authentication using OSM OAuth2:
-1. Get access token: `POST /api/v1/auth/login/`
-2. Use token in header: `access-token: YOUR_TOKEN`
-
-### Typical Workflow
-1. **Create Dataset** : Define imagery source
-2. **Create AOI** : Define mapping area with polygon
-3. **Add Labels** : Either:
-   - Fetch from OSM
-   - Upload GeoJSON
-4. **Create Model** : Initialize AI model
-5. **Run Training** : Train model 
-6. **Run Prediction** : Run inference on new areas
-7. **Submit Feedback** : Accept/reject predictions
-
-    """,
-    terms_of_service="https://www.hotosm.org/privacy",
-    contact=openapi.Contact(email="sysadmin@hotosm.org", name="HOT Tech Team"),
-    license=openapi.License(name="AGPL-3.0", url="https://www.gnu.org/licenses/agpl-3.0.en.html"),
+from django.urls import path
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularRedocView,
+    SpectacularSwaggerView,
 )
-
-from core.swagger_inspector import CustomAutoSchema
-
-schema_view = get_schema_view(
-    api_info,
-    public=True,
-    permission_classes=[permissions.AllowAny],
-    patterns=[
-        path("api/v1/auth/", include("login.urls")),
-        path("api/v1/", include("core.urls")),
-    ],
-)
-
 
 urlpatterns = [
-    re_path(
-        r"^api/swagger(?P<format>\.json|\.yaml)$",
-        schema_view.without_ui(cache_timeout=0),
-        name="schema-json",
-    ),
-    re_path(
-        r"^api/swagger/$",
-        schema_view.with_ui("swagger", cache_timeout=0),
-        name="schema-swagger-ui",
-    ),
-    re_path(
-        r"^api/redoc/$",
-        schema_view.with_ui("redoc", cache_timeout=0),
-        name="schema-redoc",
-    ),
+    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
+    path("api/swagger/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
+    path("api/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
     path("api/", home, name="home"),
-    path("api/v1/auth/", include("login.urls")),  # add auth urls
-    path("api/v1/", include("core.urls")),  # add core urls
+    path("api/v1/auth/", include("login.urls")),
+    path("api/v1/", include("core.urls")),
     path("api/admin/", admin.site.urls),
 ]
+
+if settings.DEBUG:
+    from django.conf.urls.static import static
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
