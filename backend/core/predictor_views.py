@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import os
 import time
@@ -43,7 +44,7 @@ class PredictorPredictView(APIView):
             
             params = PredictionRequest(**request.data)
             
-            predictions = predict(
+            predictions = asyncio.run(predict(
                 bbox=params.bbox,
                 model_path=params.checkpoint,
                 zoom_level=params.zoom_level,
@@ -54,9 +55,9 @@ class PredictorPredictView(APIView):
                 orthogonalize=params.orthogonalize,
                 ortho_skew_tolerance_deg=params.ortho_skew_tolerance_deg,
                 ortho_max_angle_change_deg=params.ortho_max_angle_change_deg,
-                get_predictions_as_points=params.get_predictions_as_points,
+                get_predictions_as_apoints=params.get_predictions_as_points,
                 make_geoms_valid=params.make_geoms_valid,
-            )
+            ))
             
             if params.checkpoint.startswith("/tmp") and os.path.exists(params.checkpoint):
                 try:
