@@ -3,7 +3,7 @@ import json
 from core.serializers import UserStatsSerializer
 from django.conf import settings
 from django.core.mail import send_mail
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect
 from django.utils import timezone
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
@@ -19,6 +19,12 @@ from login.permissions import IsOsmAuthenticated
 
 from .models import OsmUser
 from .tokens import email_verification_token
+from .hanko_helpers import (
+    generate_synthetic_osm_id,
+    find_legacy_user_by_osm_id,
+    create_osm_user,
+    is_real_osm_user,
+)
 
 # Create your views here.
 # initialize osm_auth with our credentials
@@ -169,3 +175,171 @@ class VerifyEmail(APIView):
             return Response({"message": "Email successfully verified."}, status=200)
         else:
             return Response({"error": "Invalid or expired token."}, status=400)
+
+
+class OnboardingCallback(APIView):
+    """Handle onboarding callback from login service.
+
+    This endpoint is called after the user completes onboarding in login.hotosm.test.
+    It creates the OsmUser and mapping based on whether the user is new or legacy.
+
+    Query params:
+    - new_user=true: User is new, generate synthetic osm_id
+    - (no param): User is legacy, osm_connection cookie should be set
+
+    Only works when AUTH_PROVIDER=hanko.
+    """
+
+    def get(self, request):
+        from django.conf import settings
+        from hotosm_auth.integrations.django import create_user_mapping
+
+        # Only for Hanko auth
+        if getattr(settings, 'AUTH_PROVIDER', 'legacy') != 'hanko':
+            return Response(
+                {"error": "Onboarding only available with Hanko auth"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Need Hanko user from middleware
+        if not hasattr(request, 'hotosm') or not request.hotosm.user:
+            return Response(
+                {"error": "Not authenticated with Hanko"},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        hanko_user = request.hotosm.user
+        is_new_user = request.query_params.get('new_user') == 'true'
+
+        if is_new_user:
+            # New user - generate synthetic osm_id
+            osm_id = generate_synthetic_osm_id(hanko_user.id)
+            username = hanko_user.email.split('@')[0]  # Use email prefix as username
+
+            # Create OsmUser
+            user = create_osm_user(
+                osm_id=osm_id,
+                username=username,
+                email=hanko_user.email,
+            )
+
+            # Create mapping
+            create_user_mapping(
+                hanko_user_id=hanko_user.id,
+                app_user_id=str(osm_id),
+                app_name="fair",
+            )
+
+            # Redirect to fAIr homepage
+            frontend_url = getattr(settings, 'FRONTEND_URL', '/')
+            return HttpResponseRedirect(frontend_url)
+
+        else:
+            # Legacy user - should have osm_connection cookie
+            osm_connection = request.hotosm.osm
+
+            if not osm_connection:
+                return Response(
+                    {"error": "OSM connection required for legacy users"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            osm_id = osm_connection.osm_user_id
+
+            # Check if OsmUser already exists (true legacy)
+            existing_user = find_legacy_user_by_osm_id(osm_id)
+
+            if not existing_user:
+                # No existing fAIr account with this OSM ID
+                # Redirect back to Login with error message
+                from urllib.parse import urlencode, quote
+                login_url = getattr(settings, 'LOGIN_URL', 'https://login.hotosm.org')
+                frontend_url = getattr(settings, 'FRONTEND_URL', '/')
+                error_msg = f"No existing account found for '{osm_connection.osm_username}'. Please select 'No, I'm new' to create a new account."
+                params = urlencode({
+                    'onboarding': 'fair',
+                    'return_to': frontend_url,
+                    'error': error_msg,
+                })
+                return HttpResponseRedirect(f"{login_url}/app?{params}")
+
+            # True legacy user - create mapping
+            create_user_mapping(
+                hanko_user_id=hanko_user.id,
+                app_user_id=str(osm_id),
+                app_name="fair",
+            )
+
+            # Redirect to fAIr homepage
+            frontend_url = getattr(settings, 'FRONTEND_URL', '/')
+            return HttpResponseRedirect(frontend_url)
+
+
+class AuthStatus(APIView):
+    """Check authentication status for Hanko users.
+
+    Returns:
+    - authenticated: true if user has valid mapping
+    - needs_onboarding: true if user needs to complete onboarding
+    - hanko_user: Hanko user info if authenticated with Hanko
+
+    Only works when AUTH_PROVIDER=hanko.
+    """
+
+    def get(self, request):
+        from django.conf import settings
+        from hotosm_auth.integrations.django import get_mapped_user_id
+
+        # Only for Hanko auth
+        if getattr(settings, 'AUTH_PROVIDER', 'legacy') != 'hanko':
+            return Response({
+                "auth_provider": "legacy",
+                "authenticated": request.user.is_authenticated if hasattr(request, 'user') else False,
+            })
+
+        # Check Hanko user
+        if not hasattr(request, 'hotosm') or not request.hotosm.user:
+            return Response({
+                "auth_provider": "hanko",
+                "authenticated": False,
+                "hanko_authenticated": False,
+            })
+
+        hanko_user = request.hotosm.user
+
+        # Check mapping
+        mapped_osm_id = get_mapped_user_id(hanko_user, app_name="fair")
+
+        if mapped_osm_id is not None:
+            # Has mapping - fully authenticated
+            try:
+                osm_id = int(mapped_osm_id)
+                user = OsmUser.objects.get(osm_id=osm_id)
+                return Response({
+                    "auth_provider": "hanko",
+                    "authenticated": True,
+                    "needs_onboarding": False,
+                    "user": {
+                        "osm_id": osm_id,
+                        "username": user.username,
+                        "is_real_osm": is_real_osm_user(osm_id),
+                    },
+                    "hanko_user": {
+                        "id": hanko_user.id,
+                        "email": hanko_user.email,
+                    }
+                })
+            except OsmUser.DoesNotExist:
+                pass  # Fall through to needs_onboarding
+
+        # No mapping - needs onboarding
+        return Response({
+            "auth_provider": "hanko",
+            "authenticated": False,
+            "needs_onboarding": True,
+            "hanko_authenticated": True,
+            "hanko_user": {
+                "id": hanko_user.id,
+                "email": hanko_user.email,
+            }
+        })

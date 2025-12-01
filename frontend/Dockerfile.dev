@@ -10,6 +10,10 @@ RUN pnpm install
 
 COPY . .
 
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 EXPOSE 3000
 
-CMD ["pnpm", "run", "dev", "--host", "0.0.0.0"]
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["pnpm", "run", "dev", "--port", "3000", "--host", "0.0.0.0"]

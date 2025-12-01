@@ -1,3 +1,6 @@
+/* Import Web Awesome styles for hotosm-auth component */
+@import url("https://early.webawesome.com/webawesome@3.0.0-beta.1/dist/styles/webawesome.css");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

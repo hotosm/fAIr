@@ -38,6 +38,42 @@ export const parseStringEnv = (
 ): string => (value && value.trim() !== "" ? value.trim() : defaultValue);
 
 // ==============================================================================================================================
+// Authentication
+// ==============================================================================================================================
+
+/**
+ * The authentication provider to use.
+ * Options: "legacy" (OSM OAuth direct) or "hanko" (Hanko SSO + OSM linking)
+ */
+export const AUTH_PROVIDER: string = parseStringEnv(
+  ENVS.AUTH_PROVIDER,
+  "legacy",
+);
+
+/**
+ * The Hanko API URL (when AUTH_PROVIDER="hanko")
+ */
+export const HANKO_API_URL: string = parseStringEnv(
+  ENVS.HANKO_API_URL,
+  "https://dev.login.hotosm.org",
+);
+
+/**
+ * The Login service URL for Hanko authentication (login.hotosm.org)
+ */
+export const LOGIN_URL: string = parseStringEnv(
+  ENVS.LOGIN_URL,
+  "https://dev.login.hotosm.org",
+);
+
+/**
+ * The frontend URL for callback redirects
+ */
+export const FRONTEND_URL: string = typeof window !== "undefined"
+  ? window.location.origin
+  : "http://localhost:5173";
+
+// ==============================================================================================================================
 // API Endpoints
 // ==============================================================================================================================
 

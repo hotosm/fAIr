@@ -13,6 +13,18 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { UserProfile } from "@/components/layouts";
 import { useState } from "react";
 import { UserNotifications } from "@/features/user-profile/components/notifications/user-notifications";
+import {
+  AUTH_PROVIDER,
+  HANKO_API_URL,
+  LOGIN_URL,
+  FRONTEND_URL,
+} from "@/config";
+import { APPLICATION_ROUTES } from "@/constants";
+
+// Import Hanko web component when using SSO
+if (AUTH_PROVIDER === "hanko") {
+  import("../../../../auth-libs/web-component/dist/hanko-auth.esm.js");
+}
 
 export const NavBar = () => {
   const [open, setOpen] = useState(false);
@@ -22,6 +34,21 @@ export const NavBar = () => {
   const navigate = useNavigate();
 
   const location = useLocation();
+
+  // Build return URL for Hanko SSO callback
+  const hankoReturnUrl = `${FRONTEND_URL}${APPLICATION_ROUTES.HANKO_AUTH_CALLBACK}`;
+
+  // Hanko auth component
+  // Note: NO osm-required or auto-connect here
+  // fAIr handles onboarding separately via /auth/onboarding/
+  const HankoAuthComponent = () => (
+    <hotosm-auth
+      hanko-url={HANKO_API_URL}
+      base-path={LOGIN_URL}
+      redirect-after-login={hankoReturnUrl}
+      redirect-after-logout="/"
+    />
+  );
 
   return (
     <>
@@ -40,14 +67,13 @@ export const NavBar = () => {
             <NavBarLinks className={styles.mobileNavLinks} setOpen={setOpen} />
           </div>
           <div className={styles.loginButtonContainer}>
-            {isAuthenticated ? (
+            {AUTH_PROVIDER === "hanko" ? (
+              <HankoAuthComponent />
+            ) : isAuthenticated ? (
               <UserProfile />
             ) : (
               <Button
                 onClick={() => {
-                  /*
-                   * Set the `backgroundLocation` in location state so that when we open the authentication modal we still see the current page in the background.
-                   */
                   navigate(location, {
                     state: { backgroundLocation: location },
                   });
@@ -67,8 +93,10 @@ export const NavBar = () => {
         <div>
           <NavBarLinks className={styles.webNavLinks} />
         </div>
-        <div>
-          {isAuthenticated ? (
+        <div className="hidden mdx:block">
+          {AUTH_PROVIDER === "hanko" ? (
+            <HankoAuthComponent />
+          ) : isAuthenticated ? (
             <div className={`${styles.profileContainer} `}>
               {/* Notification on the web */}
               {isAuthenticated && <UserNotifications />}
@@ -78,9 +106,6 @@ export const NavBar = () => {
             <Button
               className={styles.loginButton}
               onClick={() => {
-                /*
-                 * Set the `backgroundLocation` in location state so that when we open the authentication modal we still see the current page in the background.
-                 */
                 navigate(location, {
                   state: { backgroundLocation: location },
                 });

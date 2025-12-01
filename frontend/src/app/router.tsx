@@ -392,6 +392,13 @@ const router = createBrowserRouter([
           return { Component: AuthenticationCallbackPage };
         },
       },
+      {
+        path: APPLICATION_ROUTES.HANKO_AUTH_CALLBACK,
+        lazy: async () => {
+          const HankoAuth = await import("@/app/routes/hanko-auth");
+          return { Component: HankoAuth.default };
+        },
+      },
       /**
        * Auth route ends.
        */

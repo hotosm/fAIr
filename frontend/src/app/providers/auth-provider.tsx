@@ -2,6 +2,8 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { apiClient } from "@/services/api-client";
 import { authService } from "@/services";
 import {
+  AUTH_PROVIDER,
+  BASE_API_URL,
   HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY,
   HOT_FAIR_LOGIN_SUCCESSFUL_SESSION_KEY,
   HOT_FAIR_SESSION_REDIRECT_KEY,
@@ -46,18 +48,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const { getSessionValue, removeSessionValue, setSessionValue } =
     useSessionStorage();
 
+  // For Hanko auth, we don't use localStorage token (JWT is in httpOnly cookie)
   const [token, setToken] = useState<string | undefined>(
-    getValue(HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY),
+    AUTH_PROVIDER === "hanko"
+      ? "hanko-cookie-auth" // Placeholder - actual auth is via cookie
+      : getValue(HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY),
   );
   const [user, setUser] = useState<TUser | undefined>(undefined);
 
-  // For use across the application.
-  const isAuthenticated = user !== undefined && token !== undefined;
+  // For Hanko: authenticated if we have a user (cookie-based)
+  // For legacy: authenticated if we have both user and token
+  const isAuthenticated =
+    AUTH_PROVIDER === "hanko"
+      ? user !== undefined
+      : user !== undefined && token !== undefined;
 
   /**
    * Set token globally to eliminate the need to rewrite it.
+   * For Hanko, we use withCredentials instead of header token.
    */
-  apiClient.defaults.headers.common["access-token"] = token ? `${token}` : null;
+  if (AUTH_PROVIDER === "hanko") {
+    apiClient.defaults.withCredentials = true;
+  } else {
+    apiClient.defaults.headers.common["access-token"] = token ? `${token}` : null;
+  }
 
   const handleRedirection = () => {
     const redirectTo = getSessionValue(HOT_FAIR_SESSION_REDIRECT_KEY);
@@ -110,31 +124,58 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   /**
    * Retrieve the user profile information from the backend.
-   * @param token The access token stored in local storage.
+   * For Hanko: uses cookie-based auth with credentials: include
+   * For legacy: uses access-token header
    */
   const fetchUserProfile = async () => {
     try {
-      const user = await authService.getUser();
-      setUser(user);
-      handleRedirection();
+      if (AUTH_PROVIDER === "hanko") {
+        // For Hanko, fetch with credentials to send cookie
+        const response = await fetch(`${BASE_API_URL}auth/me/`, {
+          credentials: "include",
+        });
+        if (response.ok) {
+          const userData = await response.json();
+          setUser(userData);
+          handleRedirection();
+        } else {
+          // Not authenticated or session expired
+          setUser(undefined);
+        }
+      } else {
+        const user = await authService.getUser();
+        setUser(user);
+        handleRedirection();
+      }
     } catch (error) {
-      showErrorToast(error);
+      if (AUTH_PROVIDER !== "hanko") {
+        showErrorToast(error);
+      }
+      setUser(undefined);
     }
   };
 
   useEffect(() => {
-    if (token) {
+    if (AUTH_PROVIDER === "hanko") {
+      // For Hanko, always try to fetch user on mount (cookie might be set)
+      fetchUserProfile();
+    } else if (token) {
+      // For legacy, only fetch if we have a token
       fetchUserProfile();
     }
   }, [token]);
 
   /**
    * Clean up and logout.
+   * For Hanko: web component handles logout via Portal
+   * For legacy: clear localStorage token
    */
   const logout = () => {
-    setToken(undefined);
     setUser(undefined);
-    removeValue(HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY);
+    if (AUTH_PROVIDER !== "hanko") {
+      setToken(undefined);
+      removeValue(HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY);
+    }
     showSuccessToast(TOAST_NOTIFICATIONS.logoutSuccess);
   };
 
@@ -192,7 +233,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
    */
   useEffect(() => {
     const intervalId = setInterval(() => {
-      if (token) {
+      if (AUTH_PROVIDER === "hanko") {
+        // For Hanko, poll with credentials
+        fetch(`${BASE_API_URL}auth/me/`, { credentials: "include" })
+          .then((res) => (res.ok ? res.json() : Promise.reject()))
+          .then(setUser)
+          .catch(() => setUser(undefined));
+      } else if (token) {
         authService.getUser().then(setUser).catch(showErrorToast);
       }
     }, 15000);
