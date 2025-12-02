@@ -1043,7 +1043,7 @@ class PredictionViewSet(UserAssignmentMixin, BaseSpatialViewSet):
             queue="predictions"
         )
         instance.task_id = task.id
-        instance.status = "PENDING"
+        instance.status = "SUBMITTED"
         instance.started_at = instance.finished_at = None
         instance.result = instance.result or {}
         instance.result['retried_at'] = timezone.now().isoformat()
