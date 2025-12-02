@@ -1031,6 +1031,25 @@ class PredictionViewSet(UserAssignmentMixin, BaseSpatialViewSet):
 
         return super().partial_update(request, *args, **kwargs)
 
+    @decorators.action(detail=True, methods=["post"], url_path="retry")
+    def retry(self, request, pk=None):
+        """Retry a failed or finished prediction."""
+        instance = self.get_object()
+        if instance.status not in ["FAILED", "FINISHED"]:
+            return Response({"detail": f"Cannot retry {instance.status} prediction"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        task = predict_area.apply_async(
+            kwargs={"prediction_request_id": instance.id, "folder": instance.config.get("folder") if instance.config else None},
+            queue="predictions"
+        )
+        instance.task_id = task.id
+        instance.status = "PENDING"
+        instance.started_at = instance.finished_at = None
+        instance.result = instance.result or {}
+        instance.result['retried_at'] = timezone.now().isoformat()
+        instance.save()
+        return Response({"detail": "Queued for retry", "task_id": task.id})
+
 
 class TerminatePredictionView(APIView):
     authentication_classes = [OsmAuthentication]
