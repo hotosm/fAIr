@@ -1040,7 +1040,7 @@ class PredictionViewSet(UserAssignmentMixin, BaseSpatialViewSet):
         
         task = predict_area.apply_async(
             kwargs={"prediction_request_id": instance.id, "folder": instance.config.get("folder") if instance.config else None},
-            queue="predictions"
+            queue=("predictions"),
         )
         instance.task_id = task.id
         instance.status = "SUBMITTED"
