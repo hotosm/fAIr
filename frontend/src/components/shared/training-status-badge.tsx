@@ -7,6 +7,7 @@ export const TrainingStatusBadge = ({ status }: { status: string }) => {
     failed: "red",
     submitted: "blue",
     running: "yellow",
+    pending: "yellow",
   };
 
   return (

@@ -32,13 +32,15 @@ export const CreateMapswipeProjectDialog = ({
   isOpened: boolean;
   closeDialog: () => void;
   predictionResult: TOfflinePrediction;
-  openProjectStatus: () => void;
+  openProjectStatus: (prediction: TOfflinePrediction) => void;
 }) => {
   const {
     isOpened: isSuccessDialogOpened,
     closeDialog: closeSuccessDialog,
     openDialog: openSuccessDialog,
   } = useDialog();
+  const [localPrediction, setLocalPrediction] =
+    useState<TOfflinePrediction>(predictionResult);
 
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -53,8 +55,8 @@ export const CreateMapswipeProjectDialog = ({
     instruction: "",
     geojson_url:
       BASE_API_URL +
-      API_ENDPOINTS.DOWNLOAD_PREDICTION_LABELS_FILE(predictionResult.id),
-    tms_url: predictionResult.config.source,
+      API_ENDPOINTS.DOWNLOAD_PREDICTION_LABELS_FILE(localPrediction.id),
+    tms_url: localPrediction.config.source,
     look_for: "buildings",
   };
 
@@ -129,8 +131,13 @@ export const CreateMapswipeProjectDialog = ({
 
   const { mutateAsync } = useUpdateOfflinePrediction({
     mutationConfig: {
-      onSuccess: () => {
+      onSuccess: (data) => {
         handleCloseDialog();
+        setLocalPrediction((prev) => ({
+          ...prev,
+          mapswipe_id: data.mapswipe_id,
+        }));
+
         openSuccessDialog();
         setLoading(false);
       },
@@ -150,7 +157,7 @@ export const CreateMapswipeProjectDialog = ({
 
       if (response.data.project_id) {
         mutateAsync({
-          id: predictionResult.id,
+          id: localPrediction.id,
           data: {
             mapswipe_id: response.data.project_id,
           },
@@ -172,7 +179,7 @@ export const CreateMapswipeProjectDialog = ({
         isOpen={isSuccessDialogOpened}
         onClose={closeSuccessDialog}
         handleMapswipeProjectDetailsOpen={() => {
-          openProjectStatus();
+          openProjectStatus(localPrediction);
           closeSuccessDialog();
         }}
       />

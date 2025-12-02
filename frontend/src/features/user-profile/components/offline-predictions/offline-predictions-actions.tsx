@@ -9,7 +9,10 @@ import { TOfflinePrediction } from "@/types";
 import { showErrorToast, showSuccessToast } from "@/utils";
 import { OfflinePredictionsSettingsInfo } from "@/features/user-profile/components/offline-predictions/offline-predictions-settings-info";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
-import { useTerminateOfflinePrediction } from "@/features/user-profile/api/predictions";
+import {
+  useRetryOfflinePrediction,
+  useTerminateOfflinePrediction,
+} from "@/features/user-profile/api/predictions";
 
 export const OfflinePredictionActions = ({
   handlePredictionResultModal,
@@ -35,6 +38,18 @@ export const OfflinePredictionActions = ({
     }
   };
   const { mutate: terminationMutation } = useTerminateOfflinePrediction({
+    mutationConfig: {
+      onSuccess: (data) => {
+        showSuccessToast(data.data.detail);
+      },
+      onError: (err) => {
+        showErrorToast(err);
+      },
+    },
+    predictionId: Number(predictionResult.id),
+  });
+
+  const { mutate: retryMutation } = useRetryOfflinePrediction({
     mutationConfig: {
       onSuccess: (data) => {
         showSuccessToast(data.data.detail);
@@ -75,8 +90,8 @@ export const OfflinePredictionActions = ({
           predictionResult.status === ModelTrainingStatus.SUBMITTED
             ? [
                 {
-                  name: "Cancel prediction",
-                  value: "Cancel prediction",
+                  name: "Cancel Prediction",
+                  value: "Cancel Prediction",
                   onClick: (e: { stopPropagation: () => void }) => {
                     e.stopPropagation();
                     terminationMutation(predictionResult.id);
@@ -84,12 +99,25 @@ export const OfflinePredictionActions = ({
                 },
               ]
             : []),
+
+          ...(predictionResult.status === ModelTrainingStatus.FAILED
+            ? [
+                {
+                  name: "Retry Prediction",
+                  value: "Retry Prediction",
+                  onClick: (e: { stopPropagation: () => void }) => {
+                    e.stopPropagation();
+                    retryMutation(predictionResult.id);
+                  },
+                },
+              ]
+            : []),
           {
-            name: "Download results",
-            value: "Download results",
+            name: "Download Results",
+            value: "Download Results",
             disabled:
               predictionResult.status !== ModelTrainingStatus.FINISHED ||
-              predictionResult.result_count === 0,
+              predictionResult?.result?.count === 0,
             subMenuItems: [
               {
                 name: "As Points",
@@ -120,19 +148,19 @@ export const OfflinePredictionActions = ({
             ],
           },
           {
-            name: "View results",
-            value: "View results",
+            name: "View Results",
+            value: "View Results",
             onClick: (e) => {
               e.stopPropagation();
               handlePredictionResultModal(predictionResult);
             },
             disabled:
               predictionResult.status !== ModelTrainingStatus.FINISHED ||
-              predictionResult.result_count === 0,
+              predictionResult?.result?.count === 0,
           },
           {
-            name: "Copy results link",
-            value: "Copy results link",
+            name: "Copy Results Link",
+            value: "Copy Results Link",
             onClick: async (e) => {
               e.stopPropagation();
               await copyToClipboard(
@@ -145,13 +173,13 @@ export const OfflinePredictionActions = ({
             },
             disabled:
               predictionResult.status !== ModelTrainingStatus.FINISHED ||
-              predictionResult.result_count === 0,
+              predictionResult?.result?.count === 0,
           },
           ...(showSettingsInfo
             ? [
                 {
-                  name: "View settings info",
-                  value: "View settings info",
+                  name: "View Settings Info",
+                  value: "View Settings Info",
                   onClick: (e: { stopPropagation: () => void }) => {
                     e.stopPropagation();
                     handleSettingsInfo();
@@ -161,22 +189,22 @@ export const OfflinePredictionActions = ({
             : []),
           {
             name: !predictionResult.mapswipe_id
-              ? "Create MapSwipe project"
-              : "View MapSwipe project",
+              ? "Create MapSwipe Project"
+              : "View MapSwipe Project",
             value: !predictionResult.mapswipe_id
-              ? "Create MapSwipe project"
-              : "View MapSwipe project",
+              ? "Create MapSwipe Project"
+              : "View MapSwipe Project",
             onClick: (e) => {
               e.stopPropagation();
               handleCreateOrViewMapSwipeProject(predictionResult);
             },
             disabled:
               predictionResult.status !== ModelTrainingStatus.FINISHED ||
-              predictionResult.result_count === 0,
+              predictionResult?.result?.count === 0,
           },
           {
-            name: "View logs",
-            value: "View logs",
+            name: "View Logs",
+            value: "View Logs",
             disabled: ![
               ModelTrainingStatus.FAILED,
               ModelTrainingStatus.IN_PROGRESS,
@@ -188,8 +216,8 @@ export const OfflinePredictionActions = ({
             },
           },
           {
-            name: "Copy imagery link",
-            value: "Copy imagery link",
+            name: "Copy Imagery Link",
+            value: "Copy Imagery Link",
             onClick: async (e) => {
               e.stopPropagation();
               await copyToClipboard(predictionResult.config.source);

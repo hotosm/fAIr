@@ -48,7 +48,7 @@ export const MapSwipeProjectStatusBadge = ({
         variant={statusToVariant(status as MapSwipeProcessingStatus)}
         className={`${isRefetching ? "cursor-wait" : "cursor-default"}`}
       >
-        <span className={`${isRefetching ? "animate-pulse" : ""}`}>
+        <span className={`text-nowrap ${isRefetching ? "animate-pulse" : ""}`}>
           {formattedStatus}
         </span>
       </Badge>

@@ -98,7 +98,7 @@ export const UserProfileOfflinePredictionsPage = () => {
           isOpened={isMapSwipeProjectCreationDialogOpened}
           closeDialog={closeMapSwipeProjectCreationDialog}
           predictionResult={activePrediction}
-          openProjectStatus={openMapSwipeProjectStatusDialog}
+          openProjectStatus={handleCreateOrViewMapSwipeProject}
         />
       )}
       {activePrediction && (

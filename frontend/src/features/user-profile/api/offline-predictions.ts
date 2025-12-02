@@ -10,9 +10,7 @@ export type TOfflinePredictionUpdateArgs = {
 export const updateOfflinePrediction = async ({
   id,
   data,
-}: TOfflinePredictionUpdateArgs): Promise<{
-  results: TOfflinePrediction;
-}> => {
+}: TOfflinePredictionUpdateArgs): Promise<TOfflinePrediction> => {
   const res = await apiClient.patch(
     API_ENDPOINTS.UPDATE_OFFLINE_PREDICTION(id),
     { ...data },
