@@ -41,15 +41,16 @@ export const NavBar = () => {
     </Button>
   );
 
-  // Hanko auth component
-  // Note: NO osm-required or auto-connect here
-  // fAIr handles onboarding separately via /auth/onboarding/
+  // Hanko auth component with session verification
+  // verify-session ensures users coming from other apps are redirected to /hanko-auth
+  // to verify their mapping, triggering onboarding if needed
   const HankoAuthComponent = () => (
     <hotosm-auth
       hanko-url={HANKO_API_URL}
       base-path={LOGIN_URL}
       redirect-after-login={hankoReturnUrl}
       redirect-after-logout="/"
+      verify-session
     />
   );
 

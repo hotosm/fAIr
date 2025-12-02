@@ -9,6 +9,7 @@ declare namespace JSX {
       "redirect-after-logout"?: string;
       "osm-required"?: string | boolean;
       "auto-connect"?: string | boolean;
+      "verify-session"?: string | boolean;
     };
   }
 }

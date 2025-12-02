@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { APPLICATION_ROUTES } from "@/constants";
-import { BASE_API_URL, HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY, LOGIN_URL } from "@/config";
+import { BASE_API_URL, HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY, LOGIN_URL, HANKO_API_URL } from "@/config";
 import { showErrorToast, showSuccessToast } from "@/utils";
 import { TOAST_NOTIFICATIONS } from "@/constants";
 import { Spinner } from "@/components/ui/spinner";
@@ -14,10 +14,11 @@ import { Spinner } from "@/components/ui/spinner";
  * 1. User clicks login -> redirects to Login (login.hotosm.org)
  * 2. Login handles Hanko authentication and sets JWT cookie
  * 3. Login redirects back to this component (/hanko-auth)
- * 4. This component calls /auth/me/:
+ * 4. This component first verifies Hanko session exists
+ * 5. Then calls /auth/me/:
  *    - If OK -> user has mapping, navigate home
  *    - If 401/403 -> needs onboarding, redirect to Login with ?onboarding=fair
- * 5. Login asks "Did you have an account?" and redirects to /auth/onboarding/
+ * 6. Login asks "Did you have an account?" and redirects to /auth/onboarding/
  */
 const HankoAuth = () => {
   const navigate = useNavigate();
@@ -30,7 +31,28 @@ const HankoAuth = () => {
       queryClient.clear();
 
       try {
-        // Try to get user data (requires valid mapping)
+        // First, verify we have a valid Hanko session
+        // This prevents redirect loops when user is not logged in at all
+        const sessionResponse = await fetch(`${HANKO_API_URL}/sessions/validate`, {
+          credentials: "include",
+        });
+
+        if (!sessionResponse.ok) {
+          // No valid Hanko session - just go home, don't redirect to Login
+          console.log("No valid Hanko session (HTTP error), returning to home");
+          navigate(APPLICATION_ROUTES.HOMEPAGE);
+          return;
+        }
+
+        const sessionData = await sessionResponse.json();
+        if (sessionData.is_valid === false) {
+          // Endpoint returns 200 with is_valid:false when no session
+          console.log("No valid Hanko session (is_valid:false), returning to home");
+          navigate(APPLICATION_ROUTES.HOMEPAGE);
+          return;
+        }
+
+        // We have a valid Hanko session, now check app mapping
         const response = await fetch(`${BASE_API_URL}auth/me/`, {
           credentials: "include",
         });
@@ -42,7 +64,7 @@ const HankoAuth = () => {
           return;
         }
 
-        // Auth failed - redirect to Login for onboarding
+        // Has Hanko session but no app mapping - redirect to Login for onboarding
         const returnTo = encodeURIComponent(window.location.origin);
         window.location.href = `${LOGIN_URL}/app?onboarding=fair&return_to=${returnTo}`;
       } catch (error) {
