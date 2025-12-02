@@ -68,7 +68,10 @@ export const NavBar = () => {
           </div>
           <div className={styles.loginButtonContainer}>
             {AUTH_PROVIDER === "hanko" ? (
-              <HankoAuthComponent />
+              <>
+                {isAuthenticated && <UserProfile />}
+                <HankoAuthComponent />
+              </>
             ) : isAuthenticated ? (
               <UserProfile />
             ) : (
@@ -95,7 +98,11 @@ export const NavBar = () => {
         </div>
         <div className="hidden mdx:block">
           {AUTH_PROVIDER === "hanko" ? (
-            <HankoAuthComponent />
+            <div className={`${styles.profileContainer} `}>
+              {isAuthenticated && <UserNotifications />}
+              {isAuthenticated && <UserProfile />}
+              <HankoAuthComponent />
+            </div>
           ) : isAuthenticated ? (
             <div className={`${styles.profileContainer} `}>
               {/* Notification on the web */}
