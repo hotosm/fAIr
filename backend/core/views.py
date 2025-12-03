@@ -913,7 +913,7 @@ class PredictionSerializer(serializers.ModelSerializer):
             "started_at",
             "finished_at",
             "status",
-            "result_count",
+            # "result_count",
             "result",
             "task_id",
             "mapswipe_id",

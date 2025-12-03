@@ -4,12 +4,11 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.gis.db import models as geomodels
 from django.contrib.postgres.fields import ArrayField
-from django.core.exceptions import ValidationError
 from django.db import models, transaction
 from django.utils import timezone
 from login.models import OsmUser
-from .validators import validate_geometry, validate_geojson
-from .exceptions import ValidationException, handle_validation_error
+from .validators import validate_geometry
+from .exceptions import handle_validation_error
 
 
 class Dataset(models.Model):
@@ -274,7 +273,6 @@ class Prediction(models.Model):
     status = models.CharField(
         choices=STATUS_CHOICES, default="SUBMITTED", max_length=10
     )
-    result_count = models.PositiveIntegerField(default=0) # remove this after the migration and put it under result config
     task_id = models.CharField(null=True, blank=True, max_length=100)
     mapswipe_id = models.CharField(null=True, blank=True, max_length=100)
     config = models.JSONField(null=True, blank=True)

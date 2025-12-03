@@ -502,5 +502,3 @@ MAPSWIPE_POLL_INTERVAL = env.int("MAPSWIPE_POLL_INTERVAL", default=10)
 MAPSWIPE_POLL_TIMEOUT = env.int("MAPSWIPE_POLL_TIMEOUT", default=600)
 
 ENABLE_FAIR_PREDICTOR = env.bool("ENABLE_FAIR_PREDICTOR", default=True) # for standalone fairpredictor module , you can enable this to test in the dev in production fairpredictor can be deployed independently
-
-print(f"ENABLE_FAIR_PREDICTOR is set to {ENABLE_FAIR_PREDICTOR}")
