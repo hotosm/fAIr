@@ -5,20 +5,23 @@ import { TOfflinePrediction } from "@/types";
 import { formatDate, formatDuration, formatNumber } from "@/utils";
 import { OfflinePredictionActions } from "./offline-predictions-actions";
 import { MapIcon } from "@/components/ui/icons";
+import { MapSwipeProjectIsActive } from "./mapswipe-project-active";
 
 export const OfflinePredictionCard = ({
   predictionResult,
   handleTrainingLogsModal,
   handlePredictionResultModal,
+  handleCreateOrViewMapSwipeProject,
 }: {
   predictionResult: TOfflinePrediction;
   handleTrainingLogsModal: (taskId: string) => void;
   handlePredictionResultModal: (prediction: TOfflinePrediction) => void;
+  handleCreateOrViewMapSwipeProject: (prediction: TOfflinePrediction) => void;
 }) => {
   return (
     <div
       title={predictionResult.description as string}
-      className={`w-full relative min-h-48 border border-gray-border  hover:shadow-sm bg-frosted-blue rounded-lg p-4 flex flex-col justify-between cursor-pointer  transition-colors duration-150 hover:border-primary`}
+      className={`w-full relative min-h-48 border border-gray-border  hover:shadow-sm bg-frosted-blue rounded-lg py-2 px-4 flex flex-col justify-between cursor-pointer  transition-colors duration-150 hover:border-primary`}
     >
       <div className="flex flex-col gap-y-2 min-h-1/2 w-full">
         <div className="flex items-center justify-between gap-4">
@@ -33,6 +36,9 @@ export const OfflinePredictionCard = ({
             predictionResult={predictionResult}
             showSettingsInfo
             placement={DropdownPlacement.BOTTOM_START}
+            handleCreateOrViewMapSwipeProject={
+              handleCreateOrViewMapSwipeProject
+            }
           />
         </div>
         <TrainingStatusBadge status={predictionResult.status} />
@@ -53,10 +59,15 @@ export const OfflinePredictionCard = ({
           >
             <p>Zoom: {predictionResult.config.zoom_level}</p>
           </Button>
+          <MapSwipeProjectIsActive
+            MapSwipeId={predictionResult.mapswipe_id as string}
+            isCard
+          />
         </div>
         <p className="text-dark text-body-3">
           <MapIcon className="icon" />{" "}
-          {formatNumber(predictionResult.result_count)} detected features
+          {formatNumber((predictionResult?.result?.count as number) ?? 0)}{" "}
+          detected features
         </p>
         <p className="text-dark text-body-3">
           Date Submitted:{" "}

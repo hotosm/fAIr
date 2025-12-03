@@ -13,6 +13,9 @@ import { useState } from "react";
 import { TOfflinePrediction } from "@/types";
 import { PredictionResultDrawer } from "@/features/user-profile/components/predictions-results-drawer";
 import { TrainingLogsDialog } from "@/features/user-profile/components/training-logs-dialog";
+import { CreateMapswipeProjectDialog } from "@/features/mapswipe/components/project-creation-dialog";
+import { MapswipeProjectStatusDialog } from "@/features/mapswipe/components/project-status-dialog";
+import { MapSwipeProjectResultMapDrawer } from "@/features/mapswipe/components/project-results-map";
 
 export const UserProfileOfflinePredictionsPage = () => {
   const { user } = useAuth();
@@ -31,9 +34,32 @@ export const UserProfileOfflinePredictionsPage = () => {
     openDialog: openPredictionResultDialog,
     closeDialog: closePredictionResultDialog,
   } = useDialog();
+
+  const {
+    isOpened: isMapSwipeProjectResultMapOpened,
+    openDialog: openMapSwipeProjectResultMapDialog,
+    closeDialog: closeMapSwipeProjectResultMapDialog,
+  } = useDialog();
+
+  const {
+    isOpened: isMapSwipeProjectCreationDialogOpened,
+    openDialog: openMapSwipeProjectCreationDialog,
+    closeDialog: closeMapSwipeProjectCreationDialog,
+  } = useDialog();
+
+  const {
+    isOpened: isMapSwipeProjectStatusDialogOpened,
+    openDialog: openMapSwipeProjectStatusDialog,
+    closeDialog: closeMapSwipeProjectStatusDialog,
+  } = useDialog();
+
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
   const [activePrediction, setActivePrediction] =
     useState<TOfflinePrediction | null>(null);
+
+  const [MapSwipeResultsPmtiles, setMapSwipeResultsPmtiles] = useState<
+    string | null
+  >(null);
   const handleTrainingLogsModal = (taskId: string) => {
     setActiveTaskId(taskId);
     openDialog();
@@ -42,8 +68,60 @@ export const UserProfileOfflinePredictionsPage = () => {
     setActivePrediction(prediction);
     openPredictionResultDialog();
   };
+
+  const handleMapSwipeProjectResultMapModal = (pmtiles: string) => {
+    setMapSwipeResultsPmtiles(pmtiles);
+    closeMapSwipeProjectStatusDialog();
+    openMapSwipeProjectResultMapDialog();
+  };
+
+  const handleCloseMapSwipeProjectResultMapModal = () => {
+    closeMapSwipeProjectResultMapDialog();
+    openMapSwipeProjectStatusDialog();
+    setMapSwipeResultsPmtiles(null);
+  };
+  const handleCreateOrViewMapSwipeProject = (
+    prediction: TOfflinePrediction,
+  ) => {
+    const mapSwipeProjectExists = prediction.mapswipe_id;
+    if (!mapSwipeProjectExists) {
+      openMapSwipeProjectCreationDialog();
+    } else {
+      openMapSwipeProjectStatusDialog();
+    }
+    setActivePrediction(prediction);
+  };
   return (
     <>
+      {activePrediction && (
+        <CreateMapswipeProjectDialog
+          isOpened={isMapSwipeProjectCreationDialogOpened}
+          closeDialog={closeMapSwipeProjectCreationDialog}
+          predictionResult={activePrediction}
+          openProjectStatus={handleCreateOrViewMapSwipeProject}
+        />
+      )}
+      {activePrediction && (
+        <MapswipeProjectStatusDialog
+          isOpen={isMapSwipeProjectStatusDialogOpened}
+          onClose={closeMapSwipeProjectStatusDialog}
+          mapSwipeProjectId={activePrediction.mapswipe_id as string}
+          handleMapSwipeProjectResultMapModal={
+            handleMapSwipeProjectResultMapModal
+          }
+        />
+      )}
+
+      {activePrediction && MapSwipeResultsPmtiles && (
+        <MapSwipeProjectResultMapDrawer
+          tileServiceUrl={activePrediction.config.source}
+          predictionId={activePrediction.id}
+          folder={activePrediction.config.folder}
+          isOpened={isMapSwipeProjectResultMapOpened}
+          closeDialog={handleCloseMapSwipeProjectResultMapModal}
+          pmtilesUrl={MapSwipeResultsPmtiles}
+        />
+      )}
       {activePrediction && (
         <PredictionResultDrawer
           tileServiceUrl={activePrediction.config.source}
@@ -123,6 +201,9 @@ export const UserProfileOfflinePredictionsPage = () => {
             isPending={isPending}
             handleTrainingLogsModal={handleTrainingLogsModal}
             handlePredictionResultModal={handlePredictionResultModal}
+            handleCreateOrViewMapSwipeProject={
+              handleCreateOrViewMapSwipeProject
+            }
           />
         ) : (
           <OfflinePredictionsList
@@ -132,6 +213,9 @@ export const UserProfileOfflinePredictionsPage = () => {
             refetch={refetch}
             handleTrainingLogsModal={handleTrainingLogsModal}
             handlePredictionResultModal={handlePredictionResultModal}
+            handleCreateOrViewMapSwipeProject={
+              handleCreateOrViewMapSwipeProject
+            }
           />
         )}
       </div>

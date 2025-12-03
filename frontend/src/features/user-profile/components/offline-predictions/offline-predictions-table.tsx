@@ -15,10 +15,7 @@ import { TrainingStatusBadge } from "@/components/shared/training-status-badge";
 import { OfflinePredictionsSettingsInfo } from "./offline-predictions-settings-info";
 import { OfflinePredictionActions } from "./offline-predictions-actions";
 import { ToolTip } from "@/components/ui/tooltip";
-// import { Badge } from "@/components/ui/badge";
-// import { Image } from "@/components/ui/image";
-// import { MapSwipeLogo } from "@/assets/svgs";
-// import { ToolTip } from "@/components/ui/tooltip";
+import { MapSwipeProjectIsActive } from "./mapswipe-project-active";
 
 type OfflinePredictionsTableProps = {
   data: TOfflinePrediction[];
@@ -26,11 +23,13 @@ type OfflinePredictionsTableProps = {
   isPending: boolean;
   handleTrainingLogsModal: (taskId: string) => void;
   handlePredictionResultModal: (prediction: TOfflinePrediction) => void;
+  handleCreateOrViewMapSwipeProject: (prediction: TOfflinePrediction) => void;
 };
 
 const columnDefinitions = (
   handleTrainingLogsModal: (taskId: string) => void,
   handlePredictionResultModal: (prediction: TOfflinePrediction) => void,
+  handleCreateOrViewMapSwipeProject: (prediction: TOfflinePrediction) => void,
 ): ColumnDef<TOfflinePrediction>[] => [
   {
     accessorKey: "id",
@@ -84,32 +83,23 @@ const columnDefinitions = (
   },
   {
     header: "Detected Features",
-    accessorKey: "result_count",
+    accessorFn: (row) => (row.result ? row.result["count"] : 0),
+    // accessorKey: "result_count",
     cell: (row) => (
       <span title={row.getValue() as string}>
         {roundNumber(row.getValue() as number)}
       </span>
     ),
   },
-  // {
-  //   header: "MapSwipe",
-  //   accessorKey: "result_count",
-  //   cell: (row) => (
-  //     <span className="flex items-center justify-start">
-  //       {row.row.original.mapswipe_id ? (
-  //         <ToolTip
-  //           content={"A MapSwipe project is associated with this prediction. Click on 'actions"}
-  //         >
-  //           <Image
-  //             src={MapSwipeLogo}
-  //             className="icon lg:icon-lg"
-  //             alt="MapSwipe Icon"
-  //           />
-  //         </ToolTip>
-  //       ) : "-"}
-  //     </span>
-  //   ),
-  // },
+  {
+    header: "MapSwipe",
+    accessorKey: undefined,
+    cell: (row) => (
+      <MapSwipeProjectIsActive
+        MapSwipeId={row.row.original.mapswipe_id as string}
+      />
+    ),
+  },
   {
     header: "Info",
     cell: ({ row }: { row: any }) => (
@@ -123,6 +113,7 @@ const columnDefinitions = (
         handlePredictionResultModal={handlePredictionResultModal}
         handleTrainingLogsModal={handleTrainingLogsModal}
         predictionResult={row.original}
+        handleCreateOrViewMapSwipeProject={handleCreateOrViewMapSwipeProject}
       />
     ),
   },
@@ -134,6 +125,7 @@ const OfflinePredictionsTable: React.FC<OfflinePredictionsTableProps> = ({
   isError,
   handleTrainingLogsModal,
   handlePredictionResultModal,
+  handleCreateOrViewMapSwipeProject,
 }) => {
   const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -147,6 +139,7 @@ const OfflinePredictionsTable: React.FC<OfflinePredictionsTableProps> = ({
         columns={columnDefinitions(
           handleTrainingLogsModal,
           handlePredictionResultModal,
+          handleCreateOrViewMapSwipeProject,
         )}
         sorting={sorting}
         setSorting={setSorting}

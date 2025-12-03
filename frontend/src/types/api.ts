@@ -1,4 +1,9 @@
-import { BASE_MODELS, ModelTrainingStatus } from "@/enums";
+import {
+  BASE_MODELS,
+  MapSwipeProcessingStatus,
+  ModelTrainingStatus,
+  PmtilesConversionStatus,
+} from "@/enums";
 import { BBOX } from "./common";
 import { GeoJsonProperties, Geometry } from "geojson";
 import { PredictedFeatureStatus } from "@/enums/start-mapping";
@@ -266,4 +271,64 @@ export type TOfflinePrediction = {
   user: number;
   config: TModelPredictionsConfig;
   result_count: number;
+  result: null | {
+    count: number;
+  };
+};
+
+export type TMapSwipeProjectAPIResponse = {
+  code: string;
+  message: string;
+  data: {
+    project_id: string;
+    status: string;
+  };
+};
+
+type TFileResult = {
+  name: string;
+  url: string;
+};
+export type TMapSwipeProjectStatus = {
+  id: string;
+  firebaseId: string;
+  name: string;
+  status: string;
+  projectType: string;
+  description: string;
+  topic: string;
+  region: string;
+  projectInstruction: string;
+  lookFor: string;
+  projectNumber: number;
+  processingStatus: MapSwipeProcessingStatus;
+  progress: number;
+  groupSize: number;
+  verificationNumber: number;
+  requiredResults: number;
+  numberOfContributorUsers: number;
+  createdAt: string;
+  lastContributionDate: string | null;
+  requestingOrganization: {
+    id: string;
+    name: string;
+  };
+  webUrl: string;
+  results: null | {
+    mapswipe: {
+      id: string;
+      task_id: string;
+      exportResults: {
+        file: TFileResult;
+      };
+      pmtiles_conversion_status: PmtilesConversionStatus;
+      exportAggregatedResultsWithGeometry: {
+        file: TFileResult;
+      };
+      post_processed: null | {
+        geom: string;
+        pmtiles: string;
+      };
+    };
+  };
 };
