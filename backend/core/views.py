@@ -186,6 +186,21 @@ class DatasetViewSet(BaseSpatialViewSet):
     serializer_class = DatasetSerializer
     public_methods = ["GET"]
 
+    def partial_update(self, request, *args, **kwargs):
+        if "offset" in request.data:
+            # Bypass self.get_object() to skip IsOsmAuthenticated's ownership check
+            # This allows ANY authenticated user to update the offset ## FIXME : I don't like this at all , for now i am allowing as a temp check later cloning of dataset would be recommended
+            instance = get_object_or_404(self.get_queryset(), pk=kwargs.get("pk"))
+            
+            serializer = self.get_serializer(
+                instance, data={"offset": request.data["offset"]}, partial=True
+            )
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
+            return Response(serializer.data)
+            
+        return super().partial_update(request, *args, **kwargs)
+
 
 @method_decorator(
     ratelimit(key="user", rate="10/h", method="POST", block=True), name="create"
