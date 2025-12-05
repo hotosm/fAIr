@@ -34,6 +34,9 @@ from .views import (
     health,
 )
 
+if settings.ENABLE_FAIR_PREDICTOR:
+    from .predictor_views import PredictorPredictView
+
 # CURD Block
 router = routers.DefaultRouter()
 router.register(r"dataset", DatasetViewSet)
@@ -90,3 +93,9 @@ urlpatterns = [
     ),
     path("health/", health, name="health"),
 ]
+
+if settings.ENABLE_FAIR_PREDICTOR:
+    urlpatterns.append(
+        path("fairpredictor/predict/", PredictorPredictView.as_view(), name="predictor-predict")
+    )
+

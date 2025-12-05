@@ -1,4 +1,4 @@
-.PHONY: help init setup build up down restart logs migrate superuser clean status shell
+.PHONY: help init setup build up down restart logs migrate superuser collectstatic clean status shell
 
 COMPOSE := docker compose -f docker-compose.dev.yml
 PROFILE ?= cpu
@@ -11,6 +11,7 @@ help:
 	@echo "  make down                    - Stop services"
 	@echo "  make logs [SERVICE=name]     - View logs"
 	@echo "  make migrate                 - Run migrations"
+	@echo "  make collectstatic           - Collect static files"
 	@echo "  make superuser               - Create superuser"
 	@echo "  make shell                   - API shell"
 	@echo "  make clean                   - Remove all"
@@ -27,6 +28,7 @@ init: setup build down
 	@$(COMPOSE) up -d postgres redis
 	@sleep 8
 	@$(COMPOSE) run --rm api python manage.py migrate
+	@$(COMPOSE) run --rm api python manage.py collectstatic --noinput
 	@$(COMPOSE) --profile $(PROFILE) up
 	@echo "API: http://localhost:8200"
 	@echo "Frontend: http://localhost:3500"
@@ -50,6 +52,9 @@ endif
 
 migrate:
 	@$(COMPOSE) exec api python manage.py migrate
+
+collectstatic:
+	@$(COMPOSE) exec api python manage.py collectstatic --noinput
 
 superuser:
 	@$(COMPOSE) exec api python manage.py createsuperuser

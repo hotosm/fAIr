@@ -614,11 +614,11 @@ def predict_area(prediction_request_id, folder=None):
                         out,
                         parent=s3_out_path,
                     )
-            inst.status, inst.finished_at, inst.result['count'] = (
-                "FINISHED",
-                timezone.now(),
-                len(predictions["features"]),
-            )
+            inst.status = "FINISHED"
+            inst.finished_at = timezone.now()
+            if inst.result is None:
+                inst.result = {}
+            inst.result['count'] = len(predictions["features"])
             send_notification(inst, "Finished")
             inst.save()
             base_url = settings.API_BASE_URL + "/workspace/download/" + folder

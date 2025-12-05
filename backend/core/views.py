@@ -37,8 +37,6 @@ from django.views.decorators.vary import vary_on_cookie, vary_on_headers
 from django_filters.rest_framework import DjangoFilterBackend
 from django_q.tasks import async_task
 from django_ratelimit.decorators import ratelimit
-from drf_yasg import openapi
-from drf_yasg.utils import swagger_auto_schema
 from geojson2osm import geojson2osm
 from osmconflator import conflate_geojson
 from rest_framework import decorators, filters, serializers, status, viewsets
@@ -177,90 +175,31 @@ class DatasetViewSet(BaseSpatialViewSet):
 
     Datasets contain training areas and associated models for AI-assisted mapping.
     Supports spatial filtering and full CRUD operations.
+
+    Query Parameters:
+    - search: Search by dataset name
+    - status: Filter by status (DRAFT, PUBLISHED)
+    - ordering: Order results by field
     """
 
     queryset = Dataset.objects.all()
     serializer_class = DatasetSerializer
     public_methods = ["GET"]
 
-    @swagger_auto_schema(
-        operation_summary="List all datasets",
-        operation_description="Get paginated list of datasets. Supports filtering by status and search by name.",
-        tags=["Datasets"],
-        manual_parameters=[
-            openapi.Parameter(
-                "search",
-                openapi.IN_QUERY,
-                description="Search by dataset name",
-                type=openapi.TYPE_STRING,
-                example="Building",
-            ),
-            openapi.Parameter(
-                "status",
-                openapi.IN_QUERY,
-                description="Filter by status",
-                type=openapi.TYPE_STRING,
-                enum=["DRAFT", "PUBLISHED"],
-            ),
-        ],
-    )
-    def list(self, request, *args, **kwargs):
-        return super().list(request, *args, **kwargs)
-
-    @swagger_auto_schema(
-        operation_summary="Create a new dataset",
-        operation_description="Create a dataset with imagery source URL and metadata. Authentication required.",
-        tags=["Datasets"],
-        responses={
-            201: openapi.Response(description="Dataset created successfully"),
-            400: "Validation error - check required fields",
-            401: "Authentication required",
-        },
-    )
-    def create(self, request, *args, **kwargs):
-        return super().create(request, *args, **kwargs)
-
-    @swagger_auto_schema(
-        operation_summary="Get dataset details",
-        operation_description="Retrieve detailed information about a specific dataset including model count and user info.",
-        tags=["Datasets"],
-    )
-    def retrieve(self, request, *args, **kwargs):
-        return super().retrieve(request, *args, **kwargs)
-
-    @swagger_auto_schema(
-        operation_summary="Update dataset",
-        operation_description="Full update of a dataset. Requires ownership.",
-        tags=["Datasets"],
-        responses={
-            200: "Dataset updated successfully",
-            403: "Permission denied - must be owner",
-            404: "Dataset not found",
-        },
-    )
-    def update(self, request, *args, **kwargs):
-        return super().update(request, *args, **kwargs)
-
-    @swagger_auto_schema(
-        operation_summary="Partially update dataset",
-        operation_description="Update specific fields of a dataset. Requires ownership.",
-        tags=["Datasets"],
-    )
     def partial_update(self, request, *args, **kwargs):
+        if "offset" in request.data:
+            # Bypass self.get_object() to skip IsOsmAuthenticated's ownership check
+            # This allows ANY authenticated user to update the offset ## FIXME : I don't like this at all , for now i am allowing as a temp check later cloning of dataset would be recommended
+            instance = get_object_or_404(self.get_queryset(), pk=kwargs.get("pk"))
+            
+            serializer = self.get_serializer(
+                instance, data={"offset": request.data["offset"]}, partial=True
+            )
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
+            return Response(serializer.data)
+            
         return super().partial_update(request, *args, **kwargs)
-
-    @swagger_auto_schema(
-        operation_summary="Delete dataset",
-        operation_description="Delete a dataset and all associated data. Requires ownership or admin permissions.",
-        tags=["Datasets"],
-        responses={
-            204: "Dataset deleted successfully",
-            403: "Permission denied",
-            404: "Dataset not found",
-        },
-    )
-    def destroy(self, request, *args, **kwargs):
-        return super().destroy(request, *args, **kwargs)
 
 
 @method_decorator(
@@ -282,34 +221,12 @@ class TrainingViewSet(BaseModelViewSet):
     search_fields = ["description", "id", "model__name"]
     public_methods = ["GET"]
 
-    @swagger_auto_schema(
-        operation_summary="List training sessions",
-        operation_description="Get paginated list of training sessions. Supports filtering by model, status, user.",
-        tags=["Training"],
-    )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_summary="Start new training",
-        operation_description="Start a new training session for a model. Rate-limited to 10 per hour.",
-        tags=["Training"],
-        responses={201: "Training started", 400: "Validation error", 429: "Rate limit exceeded"},
-    )
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_summary="Get training details",
-        operation_description="Retrieve training details with feedback statistics",
-        tags=["Training"],
-        responses={
-            200: openapi.Response(
-                description="Training details including feedback counts",
-                schema=TrainingSerializer,
-            )
-        },
-    )
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
@@ -326,12 +243,6 @@ class TrainingViewSet(BaseModelViewSet):
         )
         return Response(data)
 
-    @swagger_auto_schema(
-        operation_summary="Delete training",
-        operation_description="Delete a training session. Requires ownership or admin permissions.",
-        tags=["Training"],
-        responses={204: "Training deleted", 403: "Permission denied", 404: "Not found"},
-    )
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
 
@@ -350,28 +261,12 @@ class FeedbackViewset(BaseSpatialViewSet):
     filterset_fields = ["training", "user", "action"]
     public_methods = ["GET"]
 
-    @swagger_auto_schema(
-        operation_summary="List feedback",
-        operation_description="Get paginated list of feedback. Supports filtering by training, user, action.",
-        tags=["Feedback"],
-    )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_summary="Get feedback details",
-        operation_description="Retrieve detailed information about specific feedback.",
-        tags=["Feedback"],
-    )
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_summary="Submit feedback",
-        operation_description="Accept or reject a prediction to improve model quality.",
-        tags=["Feedback"],
-        responses={201: "Feedback submitted", 400: "Validation error"},
-    )
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
 
@@ -398,87 +293,21 @@ class ModelViewSet(BaseSpatialViewSet):
     search_fields = ["name", "id"]
     public_methods = ["GET"]
 
-    @swagger_auto_schema(
-        operation_summary="List all models",
-        operation_description="Get paginated list of AI models. Filter by status, dataset, dates. Order by various fields.",
-        tags=["Models"],
-        manual_parameters=[
-            openapi.Parameter(
-                "search",
-                openapi.IN_QUERY,
-                description="Search by model name or ID",
-                type=openapi.TYPE_STRING,
-                example="YOLOv8",
-            ),
-            openapi.Parameter(
-                "status",
-                openapi.IN_QUERY,
-                description="Filter by status",
-                type=openapi.TYPE_STRING,
-                enum=["DRAFT", "PUBLISHED"],
-            ),
-            openapi.Parameter(
-                "dataset",
-                openapi.IN_QUERY,
-                description="Filter by dataset ID",
-                type=openapi.TYPE_INTEGER,
-                example=1,
-            ),
-            openapi.Parameter(
-                "ordering",
-                openapi.IN_QUERY,
-                description="Order by field (prefix with - for descending)",
-                type=openapi.TYPE_STRING,
-                example="-created_at",
-            ),
-        ],
-    )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_summary="Create a new model",
-        operation_description="Initialize a new AI model linked to a dataset. Choose YOLO or RAMP base model.",
-        tags=["Models"],
-        responses={
-            201: openapi.Response(description="Model created successfully"),
-            400: "Validation error",
-            401: "Authentication required",
-        },
-    )
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_summary="Get model details",
-        operation_description="Get detailed model info including accuracy, published training, thumbnail URL.",
-        tags=["Models"],
-    )
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_summary="Update model",
-        operation_description="Full update of model metadata. Requires ownership.",
-        tags=["Models"],
-    )
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_summary="Partially update model",
-        operation_description="Update specific fields like status, description, name. Requires ownership.",
-        tags=["Models"],
-    )
     def partial_update(self, request, *args, **kwargs):
         return super().partial_update(request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_summary="Delete model",
-        operation_description="Delete a model. Requires ownership or admin permissions.",
-        tags=["Models"],
-        responses={204: "Model deleted successfully", 403: "Permission denied"},
-    )
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
 
@@ -534,65 +363,21 @@ class AOIViewSet(BaseModelViewSet):
     filterset_fields = ["dataset"]
     public_methods = ["GET"]
 
-    @swagger_auto_schema(
-        operation_summary="List all AOIs",
-        operation_description="Get list of Areas of Interest with GeoJSON polygon geometry.",
-        tags=["AOI (Areas of Interest)"],
-        manual_parameters=[
-            openapi.Parameter(
-                "dataset",
-                openapi.IN_QUERY,
-                description="Filter by dataset ID",
-                type=openapi.TYPE_INTEGER,
-                example=1,
-            ),
-        ],
-    )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_summary="Create a new AOI",
-        operation_description="Create an Area of Interest with polygon geometry. Must be a valid Polygon.",
-        tags=["AOI (Areas of Interest)"],
-        responses={
-            201: openapi.Response(description="AOI created successfully"),
-            400: "Invalid geometry or dataset not found",
-        },
-    )
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_summary="Get AOI details",
-        operation_description="Retrieve AOI with full GeoJSON geometry and label statistics.",
-        tags=["AOI (Areas of Interest)"],
-    )
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_summary="Update AOI",
-        operation_description="Update AOI geometry or metadata. Requires ownership.",
-        tags=["AOI (Areas of Interest)"],
-    )
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_summary="Partially update AOI",
-        operation_description="Update specific AOI fields. Requires ownership.",
-        tags=["AOI (Areas of Interest)"],
-    )
     def partial_update(self, request, *args, **kwargs):
         return super().partial_update(request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_summary="Delete AOI",
-        operation_description="Delete an AOI and all associated labels. Requires ownership.",
-        tags=["AOI (Areas of Interest)"],
-        responses={204: "AOI deleted successfully", 403: "Permission denied"},
-    )
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
 
@@ -612,35 +397,12 @@ class LabelViewSet(BaseSpatialViewSet):
     filterset_fields = ["aoi", "aoi__dataset"]
     public_methods = ["GET"]
 
-    @swagger_auto_schema(
-        operation_summary="List labels",
-        operation_description="Get all labels with optional filtering by AOI or dataset. Supports spatial bbox filtering.",
-        tags=["Labels"],
-    )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_summary="Get label details",
-        operation_description="Retrieve detailed information about a specific label.",
-        tags=["Labels"],
-    )
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_summary="Create or update label",
-        operation_description="Create or update a label. If a label with the same AOI and geometry exists, it will be updated.",
-        tags=["Labels"],
-        request_body=LabelSerializer,
-        responses={
-            200: openapi.Response(
-                description="Label created or updated successfully",
-                schema=LabelSerializer,
-            ),
-            400: "Bad request",
-        },
-    )
     def create(self, request, *args, **kwargs):
         serializer = LabelSerializer(data=request.data)
 
@@ -992,44 +754,18 @@ class BannerViewSet(viewsets.ModelViewSet):
     pagination_class = None
     public_methods = ["GET"]
 
-    @swagger_auto_schema(
-        operation_summary="List active banners",
-        operation_description="Get all active banners based on start and end dates.",
-        tags=["Banners"],
-    )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_summary="Get banner details",
-        operation_description="Retrieve detailed information about a specific banner.",
-        tags=["Banners"],
-    )
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_summary="Create banner",
-        operation_description="Create a new banner. Admin/staff permissions required.",
-        tags=["Banners"],
-        responses={201: "Banner created", 400: "Validation error", 403: "Permission denied"},
-    )
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_summary="Update banner",
-        operation_description="Update a banner. Admin/staff permissions required.",
-        tags=["Banners"],
-    )
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_summary="Delete banner",
-        operation_description="Delete a banner. Admin/staff permissions required.",
-        tags=["Banners"],
-    )
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
 
@@ -1072,19 +808,9 @@ class UserNotificationViewSet(ReadOnlyModelViewSet):
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_fields = ["is_read"]
 
-    @swagger_auto_schema(
-        operation_summary="List user notifications",
-        operation_description="Get paginated list of notifications for the authenticated user. Filter by read status.",
-        tags=["Notifications"],
-    )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_summary="Get notification details",
-        operation_description="Retrieve detailed information about a specific notification.",
-        tags=["Notifications"],
-    )
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
     ordering = ["-created_at"]
@@ -1098,9 +824,6 @@ class MarkNotificationAsRead(APIView):
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsOsmAuthenticated]
 
-    @swagger_auto_schema(
-        operation_description="Mark a specific notification as read.",
-    )
     def post(self, request, notification_id, format=None):
         try:
             notification = UserNotification.objects.get(
@@ -1131,19 +854,6 @@ class MarkAllNotificationsAsRead(APIView):
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsOsmAuthenticated]
 
-    @swagger_auto_schema(
-        operation_description="Mark all unread notifications as read.",
-        responses={
-            200: openapi.Response(
-                description="All unread notifications marked as read.",
-                examples={
-                    "application/json": {
-                        "detail": "All unread notifications marked as read."
-                    }
-                },
-            ),
-        },
-    )
     def post(self, request, format=None):
         unread_notifications = UserNotification.objects.filter(
             user=request.user, is_read=False
@@ -1218,7 +928,7 @@ class PredictionSerializer(serializers.ModelSerializer):
             "started_at",
             "finished_at",
             "status",
-            "result_count",
+            # "result_count",
             "result",
             "task_id",
             "mapswipe_id",
@@ -1311,37 +1021,15 @@ class PredictionViewSet(UserAssignmentMixin, BaseSpatialViewSet):
     ordering_fields = ["created_at", "id", "status"]
     permission_classes = [IsOsmAuthenticated, IsOwnerOrReadOnly]
 
-    @swagger_auto_schema(
-        operation_summary="List predictions",
-        operation_description="Get paginated list of predictions. Supports filtering by status and spatial bbox.",
-        tags=["Predictions"],
-    )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_summary="Get prediction details",
-        operation_description="Retrieve detailed information about a specific prediction including status and results.",
-        tags=["Predictions"],
-    )
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_summary="Run new prediction",
-        operation_description="Start a new prediction using a trained model. Rate-limited to 50 per hour.",
-        tags=["Predictions"],
-        responses={201: "Prediction started", 400: "Validation error", 429: "Rate limit exceeded"},
-    )
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_summary="Update prediction",
-        operation_description="Partially update prediction details. Only mapswipe_id field can be updated.",
-        tags=["Predictions"],
-        responses={200: "Prediction updated", 400: "Invalid field", 403: "Permission denied"},
-    )
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
 
@@ -1357,6 +1045,25 @@ class PredictionViewSet(UserAssignmentMixin, BaseSpatialViewSet):
                 )
 
         return super().partial_update(request, *args, **kwargs)
+
+    @decorators.action(detail=True, methods=["post"], url_path="retry")
+    def retry(self, request, pk=None):
+        """Retry a failed or finished prediction."""
+        instance = self.get_object()
+        if instance.status not in ["FAILED", "FINISHED"]:
+            return Response({"detail": f"Cannot retry {instance.status} prediction"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        task = predict_area.apply_async(
+            kwargs={"prediction_request_id": instance.id, "folder": instance.config.get("folder") if instance.config else None},
+            queue=("predictions"),
+        )
+        instance.task_id = task.id
+        instance.status = "SUBMITTED"
+        instance.started_at = instance.finished_at = None
+        instance.result = instance.result or {}
+        instance.result['retried_at'] = timezone.now().isoformat()
+        instance.save()
+        return Response({"detail": "Queued for retry", "task_id": task.id})
 
 
 class TerminatePredictionView(APIView):
@@ -1585,17 +1292,6 @@ class MapswipeProjectViewSet(viewsets.ViewSet):
     permission_classes = [IsOsmAuthenticated]
     serializer_class = MapswipeProjectCreateSerializer
 
-    @swagger_auto_schema(
-        operation_summary="Create a new MapSwipe project",
-        operation_description="Creates a validation project in MapSwipe with the provided configuration, including GeoJSON features and TMS tile server.",
-        tags=["MapSwipe Projects"],
-        request_body=MapswipeProjectCreateSerializer,
-        responses={
-            201: openapi.Response(description="Project created successfully"),
-            400: "Invalid input",
-            502: "External service error",
-        },
-    )
     def create(self, request):
         serializer = MapswipeProjectCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -1683,19 +1379,6 @@ class MapswipeProjectViewSet(viewsets.ViewSet):
             if temp_file_path:
                 os.remove(temp_file_path)
 
-    @swagger_auto_schema(
-        operation_summary="Get MapSwipe project details",
-        operation_description="Retrieves detailed information about a specific MapSwipe project by its ID. If the project status is 'FINISHED', export results will be included automatically.",
-        tags=["MapSwipe Projects"],
-        manual_parameters=[
-        ],
-        responses={
-            200: "Project details with results if available",
-            404: "Project not found",
-            502: "External service error"
-        },
-    )
-    # @method_decorator(cache_page(60 * settings.CACHE_TIMEOUT_MINUTES))
     def retrieve(self, request, pk=None):
         try:
             pred_inst = get_object_or_404(Prediction, mapswipe_id=pk)
