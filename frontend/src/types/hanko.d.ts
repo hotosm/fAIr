@@ -1,7 +1,7 @@
 // Type declarations for HOTOSM Auth web component
 
 // Module declaration for auth-libs
-declare module '../../../../auth-libs/web-component/dist/hanko-auth.esm.js';
+declare module '@AuthLibs/web-component/dist/hanko-auth.esm.js';
 
 declare namespace JSX {
   interface IntrinsicElements {

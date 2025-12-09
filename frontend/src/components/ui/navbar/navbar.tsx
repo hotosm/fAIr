@@ -21,7 +21,7 @@ import {
 
 // Import Hanko web component when using SSO
 if (AUTH_PROVIDER === "hanko") {
-  import("../../../../auth-libs/web-component/dist/hanko-auth.esm.js");
+  import("@AuthLibs/web-component/dist/hanko-auth.esm.js");
 }
 
 export const NavBar = () => {
