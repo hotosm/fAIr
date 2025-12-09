@@ -63,6 +63,7 @@ jobs:
           EC2_USER: ${{ secrets.EC2_USER }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_ACTOR: ${{ github.actor }}
+          COOKIE_SECRET: ${{ secrets.COOKIE_SECRET }}
         run: |
           ssh $EC2_USER@$EC2_HOST << ENDSSH
             set -e
@@ -90,12 +91,13 @@ jobs:
             git reset --hard origin/login_hanko
             echo "Updated to latest login_hanko"
 
-            # Create .env with defaults (ok for testing)
+            # Create .env with secrets
             cat > .env << EOF
           POSTGRES_USER=fair
           POSTGRES_PASSWORD=fair
           POSTGRES_DB=fair
           SECRET_KEY=test-secret-key-for-testing-only-min-32-chars
+          COOKIE_SECRET=${COOKIE_SECRET}
           EOF
             echo "Created .env"
 
