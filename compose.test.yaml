@@ -100,6 +100,8 @@ services:
     environment:
       - DATABASE_URL=postgis://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
       - SECRET_KEY=${SECRET_KEY}
+      - DEBUG=True
+      - ALLOWED_HOSTS=testlogin.fair.hotosm.org
     networks:
       - internal
 
