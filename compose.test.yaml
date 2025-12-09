@@ -1,0 +1,114 @@
+# compose.test.yaml - Test environment for login-hanko branch
+# Deploy to: testlogin.fair.hotosm.org
+# Requires: Traefik running in /opt/traefik with hotosm-test network
+
+services:
+  # Frontend syncs built files to a shared volume
+  frontend:
+    image: ghcr.io/hotosm/fair/frontend:login-hanko
+    restart: unless-stopped
+    volumes:
+      - frontend-html:/frontend_html
+    networks:
+      - internal
+
+  # Nginx serves the static files
+  nginx:
+    image: nginx:alpine
+    restart: unless-stopped
+    depends_on:
+      - frontend
+    volumes:
+      - frontend-html:/usr/share/nginx/html:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - hotosm-test
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.fair-frontend.rule=Host(`testlogin.fair.hotosm.org`) && !PathPrefix(`/api`)"
+      - "traefik.http.routers.fair-frontend.entrypoints=websecure"
+      - "traefik.http.routers.fair-frontend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.fair-frontend.loadbalancer.server.port=80"
+
+  backend:
+    image: ghcr.io/hotosm/fair/backend:login-hanko
+    restart: unless-stopped
+    depends_on:
+      - db
+      - redis
+    environment:
+      - DATABASE_URL=postgis://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      - AUTH_PROVIDER=hanko
+      - HANKO_API_URL=https://dev.login.hotosm.org
+      - JWT_ISSUER=https://dev.login.hotosm.org
+      - COOKIE_SECRET=${SECRET_KEY}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - DJANGO_SECRET_KEY=${SECRET_KEY}
+      - DJANGO_DEBUG=False
+      - DEBUG=False
+      - ALLOWED_HOSTS=testlogin.fair.hotosm.org
+      - ALLOWED_ORIGINS=https://testlogin.fair.hotosm.org,https://dev.login.hotosm.org
+      - FRONTEND_URL=https://testlogin.fair.hotosm.org
+      - LOGIN_URL=https://dev.login.hotosm.org
+    command: gunicorn --bind 0.0.0.0:8000 --workers 2 fairproject.wsgi:application
+    networks:
+      - hotosm-test
+      - internal
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.fair-backend.rule=Host(`testlogin.fair.hotosm.org`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.fair-backend.entrypoints=websecure"
+      - "traefik.http.routers.fair-backend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.fair-backend.loadbalancer.server.port=8000"
+
+  db:
+    image: postgis/postgis:16-3.4
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - fair-db:/var/lib/postgresql/data
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  migrations:
+    image: ghcr.io/hotosm/fair/backend:login-hanko
+    command: python manage.py migrate --noinput
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgis://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      - DJANGO_SECRET_KEY=${SECRET_KEY}
+    networks:
+      - internal
+
+networks:
+  hotosm-test:
+    external: true
+  internal:
+
+volumes:
+  fair-db:
+  frontend-html:
