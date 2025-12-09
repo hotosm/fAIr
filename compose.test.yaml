@@ -47,8 +47,7 @@ services:
       - REDIS_PORT=6379
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
-      - DJANGO_DEBUG=False
-      - DEBUG=False
+      - DEBUG=True
       - ALLOWED_HOSTS=testlogin.fair.hotosm.org
       - ALLOWED_ORIGINS=https://testlogin.fair.hotosm.org,https://dev.login.hotosm.org
       - FRONTEND_URL=https://testlogin.fair.hotosm.org
