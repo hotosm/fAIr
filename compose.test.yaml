@@ -42,11 +42,11 @@ services:
       - HANKO_API_URL=https://dev.login.hotosm.org
       - JWT_ISSUER=https://dev.login.hotosm.org
       - COOKIE_SECRET=${SECRET_KEY}
+      - SECRET_KEY=${SECRET_KEY}
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
-      - DJANGO_SECRET_KEY=${SECRET_KEY}
       - DJANGO_DEBUG=False
       - DEBUG=False
       - ALLOWED_HOSTS=testlogin.fair.hotosm.org
@@ -100,7 +100,7 @@ services:
         condition: service_healthy
     environment:
       - DATABASE_URL=postgis://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
-      - DJANGO_SECRET_KEY=${SECRET_KEY}
+      - SECRET_KEY=${SECRET_KEY}
     networks:
       - internal
 
