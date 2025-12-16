@@ -14,6 +14,17 @@ import { customElement, property, state } from "lit/decorators.js";
 import { register } from "@teamhanko/hanko-elements";
 import "@awesome.me/webawesome";
 
+// Singleton state to share across all instances
+const sharedState = {
+  user: null as UserState | null,
+  osmConnected: false,
+  osmData: null as OSMData | null,
+  initialized: false,
+  initializing: false,
+  hanko: null as any,
+  listeners: new Set<() => void>(),
+};
+
 interface UserState {
   id: string;
   email: string | null;
@@ -355,6 +366,8 @@ export class HankoAuth extends LitElement {
     );
     window.removeEventListener("focus", this._handleWindowFocus);
     document.removeEventListener("hanko-login", this._handleExternalLogin);
+    // Unregister from shared state
+    sharedState.listeners.delete(this.syncFromSharedState.bind(this));
   }
 
   private _handleVisibilityChange = () => {
@@ -483,6 +496,42 @@ export class HankoAuth extends LitElement {
   }
 
   private async init() {
+    // If already initialized by another instance, just sync state
+    if (sharedState.initialized) {
+      this.log("🔄 Using shared state from another instance");
+      this.syncFromSharedState();
+      this.loading = false;
+      this._hanko = sharedState.hanko;
+      // Register this instance to receive updates
+      sharedState.listeners.add(this.syncFromSharedState.bind(this));
+      this.setupEventListeners();
+      return;
+    }
+
+    // If another instance is initializing, wait for it
+    if (sharedState.initializing) {
+      this.log("⏳ Waiting for another instance to initialize...");
+      await new Promise<void>((resolve) => {
+        const check = () => {
+          if (sharedState.initialized) {
+            this.syncFromSharedState();
+            this.loading = false;
+            this._hanko = sharedState.hanko;
+            sharedState.listeners.add(this.syncFromSharedState.bind(this));
+            this.setupEventListeners();
+            resolve();
+          } else {
+            setTimeout(check, 100);
+          }
+        };
+        check();
+      });
+      return;
+    }
+
+    // This instance will do the initialization
+    sharedState.initializing = true;
+
     try {
       await register(this.hankoUrl, {
         enablePasskeys: false,
@@ -504,6 +553,7 @@ export class HankoAuth extends LitElement {
           };
 
       this._hanko = new Hanko(this.hankoUrl, cookieOptions);
+      sharedState.hanko = this._hanko;
 
       // Set up session lifecycle event listeners (these persist across the component lifecycle)
       this._hanko.onSessionExpired(() => {
@@ -518,13 +568,39 @@ export class HankoAuth extends LitElement {
 
       await this.checkSession();
       await this.checkOSMConnection();
+
+      // Save to shared state
+      this.syncToSharedState();
+      sharedState.initialized = true;
+      sharedState.initializing = false;
+
+      // Register this instance
+      sharedState.listeners.add(this.syncFromSharedState.bind(this));
+
       this.loading = false;
       this.setupEventListeners();
     } catch (error: any) {
       console.error("Failed to initialize hanko-auth:", error);
       this.error = error.message;
       this.loading = false;
+      sharedState.initializing = false;
     }
+  }
+
+  private syncFromSharedState() {
+    this.user = sharedState.user;
+    this.osmConnected = sharedState.osmConnected;
+    this.osmData = sharedState.osmData;
+  }
+
+  private syncToSharedState() {
+    sharedState.user = this.user;
+    sharedState.osmConnected = this.osmConnected;
+    sharedState.osmData = this.osmData;
+  }
+
+  private notifyAllInstances() {
+    sharedState.listeners.forEach((listener) => listener());
   }
 
   private async checkSession() {
@@ -620,6 +696,10 @@ export class HankoAuth extends LitElement {
           }
 
           if (this.user) {
+            // Sync to shared state and notify other instances
+            this.syncToSharedState();
+            this.notifyAllInstances();
+
             // If verify-session is enabled and we have a redirect URL,
             // redirect to the callback so the app can verify the user mapping
             // Use sessionStorage to avoid redirect loops
@@ -766,6 +846,10 @@ export class HankoAuth extends LitElement {
           this.osmConnected = true;
           this.osmData = data;
 
+          // Sync to shared state and notify other instances
+          this.syncToSharedState();
+          this.notifyAllInstances();
+
           this.dispatchEvent(
             new CustomEvent("osm-connected", {
               detail: { osmData: data },
@@ -782,6 +866,9 @@ export class HankoAuth extends LitElement {
           this.log("❌ OSM is NOT connected");
           this.osmConnected = false;
           this.osmData = null;
+          // Sync to shared state
+          this.syncToSharedState();
+          this.notifyAllInstances();
         }
       }
     } catch (error) {
@@ -1032,6 +1119,10 @@ export class HankoAuth extends LitElement {
     this.osmConnected = false;
     this.osmData = null;
 
+    // Sync to shared state and notify other instances
+    this.syncToSharedState();
+    this.notifyAllInstances();
+
     this.dispatchEvent(
       new CustomEvent("logout", {
         bubbles: true,
@@ -1091,6 +1182,10 @@ export class HankoAuth extends LitElement {
     this.user = null;
     this.osmConnected = false;
     this.osmData = null;
+
+    // Sync to shared state and notify other instances
+    this.syncToSharedState();
+    this.notifyAllInstances();
 
     // Clear cookies
     const hostname = window.location.hostname;
