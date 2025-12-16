@@ -58,6 +58,9 @@ export class HankoAuth extends LitElement {
   private _sessionJWT: string | null = null;
   private _lastSessionId: string | null = null;
   private _hanko: any = null;
+  private _checkSessionPending = false;
+  private _checkOSMPending = false;
+  private _lastOSMCheck = 0;
 
   static styles = css`
     :host {
@@ -525,10 +528,18 @@ export class HankoAuth extends LitElement {
   }
 
   private async checkSession() {
+    // Debounce: skip if already checking
+    if (this._checkSessionPending) {
+      this.log("⏭️ Session check debounced");
+      return;
+    }
+    this._checkSessionPending = true;
+
     this.log("🔍 Checking for existing Hanko session...");
 
     if (!this._hanko) {
       this.log("⚠️ Hanko instance not initialized yet");
+      this._checkSessionPending = false;
       return;
     }
 
@@ -646,7 +657,7 @@ export class HankoAuth extends LitElement {
             // Also check if we need to auto-connect to OSM
             await this.checkOSMConnection();
             if (this.osmRequired && this.autoConnect && !this.osmConnected) {
-              console.log(
+              this.log(
                 "🔄 Auto-connecting to OSM (from existing session)..."
               );
               this.handleOSMConnect();
@@ -662,6 +673,8 @@ export class HankoAuth extends LitElement {
     } catch (error) {
       this.log("⚠️ Session check error:", error);
       this.log("ℹ️ No existing session - user needs to login");
+    } finally {
+      this._checkSessionPending = false;
     }
   }
 
@@ -697,6 +710,15 @@ export class HankoAuth extends LitElement {
       return;
     }
 
+    // Debounce: skip if already checking or checked recently (within 2 seconds)
+    const now = Date.now();
+    if (this._checkOSMPending || (now - this._lastOSMCheck < 2000)) {
+      this.log("⏭️ OSM check debounced");
+      return;
+    }
+    this._checkOSMPending = true;
+    this._lastOSMCheck = now;
+
     // Don't set osmLoading during init - keep component in loading state
     // Only set osmLoading when user manually triggers OSM check after initial load
     const wasLoading = this.loading;
@@ -713,19 +735,14 @@ export class HankoAuth extends LitElement {
       const statusPath = `${basePath}${authPath}/status`;
       const statusUrl = `${statusPath}`; // Relative URL for proxy
 
-      console.log("🔍 Checking OSM connection at:", statusUrl);
-      console.log("  basePath:", basePath);
-      console.log("  authPath:", authPath);
-      console.log("🍪 Current cookies:", document.cookie);
+      this.log("🔍 Checking OSM connection at:", statusUrl);
 
       const response = await fetch(statusUrl, {
         credentials: "include",
         redirect: "follow",
       });
 
-      console.log("📡 OSM status response:", response.status);
-      console.log("📡 Final URL after redirects:", response.url);
-      console.log("📡 Response headers:", [...response.headers.entries()]);
+      this.log("📡 OSM status response:", response.status);
 
       if (response.ok) {
         const text = await response.text();
@@ -768,8 +785,9 @@ export class HankoAuth extends LitElement {
         }
       }
     } catch (error) {
-      console.error("OSM connection check failed:", error);
+      this.logError("OSM connection check failed:", error);
     } finally {
+      this._checkOSMPending = false;
       if (!wasLoading) {
         this.osmLoading = false;
       }
@@ -1148,7 +1166,7 @@ export class HankoAuth extends LitElement {
   }
 
   render() {
-    console.log(
+    this.log(
       "🎨 RENDER - showProfile:",
       this.showProfile,
       "user:",

@@ -3988,8 +3988,6 @@ var Ui = {
   loading: "Loading",
   nextSlide: "Next slide",
   numOptionsSelected: (n) => n === 0 ? "No options selected" : n === 1 ? "1 option selected" : `${n} options selected`,
-  pauseAnimation: "Pause animation",
-  playAnimation: "Play animation",
   previousSlide: "Previous slide",
   progress: "Progress",
   remove: "Remove",
@@ -4014,7 +4012,7 @@ var la = Object.defineProperty, ca = Object.getOwnPropertyDescriptor, Ue = (n, e
 };
 let Ie = class extends Nt {
   constructor() {
-    super(...arguments), this.hankoUrlAttr = "", this.basePath = "", this.authPath = "/api/auth/osm", this.osmRequired = !1, this.osmScopes = "read_prefs", this.showProfile = !1, this.redirectAfterLogin = "", this.autoConnect = !1, this.verifySession = !1, this.redirectAfterLogout = "", this.user = null, this.osmConnected = !1, this.osmData = null, this.osmLoading = !1, this.loading = !0, this.error = null, this._trailingSlashCache = {}, this._debugMode = !1, this._sessionJWT = null, this._lastSessionId = null, this._hanko = null, this._handleVisibilityChange = () => {
+    super(...arguments), this.hankoUrlAttr = "", this.basePath = "", this.authPath = "/api/auth/osm", this.osmRequired = !1, this.osmScopes = "read_prefs", this.showProfile = !1, this.redirectAfterLogin = "", this.autoConnect = !1, this.verifySession = !1, this.redirectAfterLogout = "", this.user = null, this.osmConnected = !1, this.osmData = null, this.osmLoading = !1, this.loading = !0, this.error = null, this._trailingSlashCache = {}, this._debugMode = !1, this._sessionJWT = null, this._lastSessionId = null, this._hanko = null, this._checkSessionPending = !1, this._checkOSMPending = !1, this._lastOSMCheck = 0, this._handleVisibilityChange = () => {
       !document.hidden && !this.showProfile && !this.user && (this.log("👁️ Page visible, re-checking session..."), this.checkSession());
     }, this._handleWindowFocus = () => {
       !this.showProfile && !this.user && (this.log("🎯 Window focused, re-checking session..."), this.checkSession());
@@ -4117,8 +4115,12 @@ let Ie = class extends Nt {
     }
   }
   async checkSession() {
-    if (this.log("🔍 Checking for existing Hanko session..."), !this._hanko) {
-      this.log("⚠️ Hanko instance not initialized yet");
+    if (this._checkSessionPending) {
+      this.log("⏭️ Session check debounced");
+      return;
+    }
+    if (this._checkSessionPending = !0, this.log("🔍 Checking for existing Hanko session..."), !this._hanko) {
+      this.log("⚠️ Hanko instance not initialized yet"), this._checkSessionPending = !1;
       return;
     }
     try {
@@ -4198,7 +4200,7 @@ let Ie = class extends Nt {
                 bubbles: !0,
                 composed: !0
               })
-            ), await this.checkOSMConnection(), this.osmRequired && this.autoConnect && !this.osmConnected && (console.log(
+            ), await this.checkOSMConnection(), this.osmRequired && this.autoConnect && !this.osmConnected && (this.log(
               "🔄 Auto-connecting to OSM (from existing session)..."
             ), this.handleOSMConnect());
           }
@@ -4209,6 +4211,8 @@ let Ie = class extends Nt {
       }
     } catch (n) {
       this.log("⚠️ Session check error:", n), this.log("ℹ️ No existing session - user needs to login");
+    } finally {
+      this._checkSessionPending = !1;
     }
   }
   async syncJWTToCookie() {
@@ -4230,39 +4234,45 @@ let Ie = class extends Nt {
       this.log("⏭️ Already connected to OSM, skipping check");
       return;
     }
-    const n = this.loading;
-    n || (this.osmLoading = !0);
+    const n = Date.now();
+    if (this._checkOSMPending || n - this._lastOSMCheck < 2e3) {
+      this.log("⏭️ OSM check debounced");
+      return;
+    }
+    this._checkOSMPending = !0, this._lastOSMCheck = n;
+    const e = this.loading;
+    e || (this.osmLoading = !0);
     try {
-      const e = this.getBasePath(), t = this.authPath, i = `${`${e}${t}/status`}`;
-      console.log("🔍 Checking OSM connection at:", i), console.log("  basePath:", e), console.log("  authPath:", t), console.log("🍪 Current cookies:", document.cookie);
-      const r = await fetch(i, {
+      const t = this.getBasePath(), o = this.authPath, r = `${`${t}${o}/status`}`;
+      this.log("🔍 Checking OSM connection at:", r);
+      const a = await fetch(r, {
         credentials: "include",
         redirect: "follow"
       });
-      if (console.log("📡 OSM status response:", r.status), console.log("📡 Final URL after redirects:", r.url), console.log("📡 Response headers:", [...r.headers.entries()]), r.ok) {
-        const a = await r.text();
-        this.log("📡 OSM raw response:", a.substring(0, 200));
-        let d;
+      if (this.log("📡 OSM status response:", a.status), a.ok) {
+        const d = await a.text();
+        this.log("📡 OSM raw response:", d.substring(0, 200));
+        let c;
         try {
-          d = JSON.parse(a);
+          c = JSON.parse(d);
         } catch {
           throw console.error(
             "Failed to parse OSM response as JSON:",
-            a.substring(0, 500)
+            d.substring(0, 500)
           ), new Error("Invalid JSON response from OSM status endpoint");
         }
-        this.log("📡 OSM status data:", d), d.connected ? (this.log("✅ OSM is connected:", d.osm_username), this.osmConnected = !0, this.osmData = d, this.dispatchEvent(
+        this.log("📡 OSM status data:", c), c.connected ? (this.log("✅ OSM is connected:", c.osm_username), this.osmConnected = !0, this.osmData = c, this.dispatchEvent(
           new CustomEvent("osm-connected", {
-            detail: { osmData: d },
+            detail: { osmData: c },
             bubbles: !0,
             composed: !0
           })
         )) : (this.log("❌ OSM is NOT connected"), this.osmConnected = !1, this.osmData = null);
       }
-    } catch (e) {
-      console.error("OSM connection check failed:", e);
+    } catch (t) {
+      this.logError("OSM connection check failed:", t);
     } finally {
-      n || (this.osmLoading = !1);
+      this._checkOSMPending = !1, e || (this.osmLoading = !1);
     }
   }
   setupEventListeners() {
@@ -4474,7 +4484,7 @@ let Ie = class extends Nt {
   }
   render() {
     var n, e, t;
-    if (console.log(
+    if (this.log(
       "🎨 RENDER - showProfile:",
       this.showProfile,
       "user:",
