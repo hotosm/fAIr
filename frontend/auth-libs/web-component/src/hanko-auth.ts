@@ -58,6 +58,8 @@ export class HankoAuth extends LitElement {
   private _sessionJWT: string | null = null;
   private _lastSessionId: string | null = null;
   private _hanko: any = null;
+  private _initialized = false;
+  private _visibilityObserver: IntersectionObserver | null = null;
 
   static styles = css`
     :host {
@@ -333,7 +335,16 @@ export class HankoAuth extends LitElement {
     this._debugMode = this._checkDebugMode();
     this.log("🔌 hanko-auth connectedCallback called");
     this.log("  hankoUrl:", this.hankoUrl);
-    this.init();
+
+    // Only initialize if visible - prevents duplicate init from hidden components
+    // (e.g., mobile drawer that's not displayed)
+    if (this._isVisible()) {
+      this.log("👁️ Component is visible, initializing...");
+      this.init();
+    } else {
+      this.log("👁️ Component is hidden, waiting for visibility...");
+      this._setupVisibilityObserver();
+    }
 
     // Listen for page visibility changes to re-check session
     // This handles the case where user logs in on /login and comes back
@@ -352,6 +363,34 @@ export class HankoAuth extends LitElement {
     );
     window.removeEventListener("focus", this._handleWindowFocus);
     document.removeEventListener("hanko-login", this._handleExternalLogin);
+
+    // Clean up visibility observer
+    if (this._visibilityObserver) {
+      this._visibilityObserver.disconnect();
+      this._visibilityObserver = null;
+    }
+  }
+
+  private _isVisible(): boolean {
+    // Check if element is visible (not inside display:none parent)
+    // offsetParent is null for hidden elements
+    return this.offsetParent !== null || getComputedStyle(this).display !== "none";
+  }
+
+  private _setupVisibilityObserver() {
+    this._visibilityObserver = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (entry.isIntersecting && !this._initialized) {
+          this.log("👁️ Component became visible, initializing...");
+          this._visibilityObserver?.disconnect();
+          this._visibilityObserver = null;
+          this.init();
+        }
+      },
+      { threshold: 0.1 }
+    );
+    this._visibilityObserver.observe(this);
   }
 
   private _handleVisibilityChange = () => {
@@ -480,6 +519,13 @@ export class HankoAuth extends LitElement {
   }
 
   private async init() {
+    // Prevent re-initialization
+    if (this._initialized) {
+      this.log("⏭️ Already initialized, skipping...");
+      return;
+    }
+    this._initialized = true;
+
     try {
       await register(this.hankoUrl, {
         enablePasskeys: false,

@@ -4012,7 +4012,7 @@ var la = Object.defineProperty, ca = Object.getOwnPropertyDescriptor, Ue = (n, e
 };
 let Ie = class extends Nt {
   constructor() {
-    super(...arguments), this.hankoUrlAttr = "", this.basePath = "", this.authPath = "/api/auth/osm", this.osmRequired = !1, this.osmScopes = "read_prefs", this.showProfile = !1, this.redirectAfterLogin = "", this.autoConnect = !1, this.verifySession = !1, this.redirectAfterLogout = "", this.user = null, this.osmConnected = !1, this.osmData = null, this.osmLoading = !1, this.loading = !0, this.error = null, this._trailingSlashCache = {}, this._debugMode = !1, this._sessionJWT = null, this._lastSessionId = null, this._hanko = null, this._handleVisibilityChange = () => {
+    super(...arguments), this.hankoUrlAttr = "", this.basePath = "", this.authPath = "/api/auth/osm", this.osmRequired = !1, this.osmScopes = "read_prefs", this.showProfile = !1, this.redirectAfterLogin = "", this.autoConnect = !1, this.verifySession = !1, this.redirectAfterLogout = "", this.user = null, this.osmConnected = !1, this.osmData = null, this.osmLoading = !1, this.loading = !0, this.error = null, this._trailingSlashCache = {}, this._debugMode = !1, this._sessionJWT = null, this._lastSessionId = null, this._hanko = null, this._initialized = !1, this._visibilityObserver = null, this._handleVisibilityChange = () => {
       !document.hidden && !this.showProfile && !this.user && (this.log("👁️ Page visible, re-checking session..."), this.checkSession());
     }, this._handleWindowFocus = () => {
       !this.showProfile && !this.user && (this.log("🎯 Window focused, re-checking session..."), this.checkSession());
@@ -4041,13 +4041,25 @@ let Ie = class extends Nt {
     return this.log("🔍 hanko-url auto-detected from window.location.origin:", e), e;
   }
   connectedCallback() {
-    super.connectedCallback(), this._debugMode = this._checkDebugMode(), this.log("🔌 hanko-auth connectedCallback called"), this.log("  hankoUrl:", this.hankoUrl), this.init(), document.addEventListener("visibilitychange", this._handleVisibilityChange), window.addEventListener("focus", this._handleWindowFocus), document.addEventListener("hanko-login", this._handleExternalLogin);
+    super.connectedCallback(), this._debugMode = this._checkDebugMode(), this.log("🔌 hanko-auth connectedCallback called"), this.log("  hankoUrl:", this.hankoUrl), this._isVisible() ? (this.log("👁️ Component is visible, initializing..."), this.init()) : (this.log("👁️ Component is hidden, waiting for visibility..."), this._setupVisibilityObserver()), document.addEventListener("visibilitychange", this._handleVisibilityChange), window.addEventListener("focus", this._handleWindowFocus), document.addEventListener("hanko-login", this._handleExternalLogin);
   }
   disconnectedCallback() {
     super.disconnectedCallback(), document.removeEventListener(
       "visibilitychange",
       this._handleVisibilityChange
-    ), window.removeEventListener("focus", this._handleWindowFocus), document.removeEventListener("hanko-login", this._handleExternalLogin);
+    ), window.removeEventListener("focus", this._handleWindowFocus), document.removeEventListener("hanko-login", this._handleExternalLogin), this._visibilityObserver && (this._visibilityObserver.disconnect(), this._visibilityObserver = null);
+  }
+  _isVisible() {
+    return this.offsetParent !== null || getComputedStyle(this).display !== "none";
+  }
+  _setupVisibilityObserver() {
+    this._visibilityObserver = new IntersectionObserver(
+      (n) => {
+        var t;
+        n[0].isIntersecting && !this._initialized && (this.log("👁️ Component became visible, initializing..."), (t = this._visibilityObserver) == null || t.disconnect(), this._visibilityObserver = null, this.init());
+      },
+      { threshold: 0.1 }
+    ), this._visibilityObserver.observe(this);
   }
   _checkDebugMode() {
     if (new URLSearchParams(window.location.search).get("debug") === "true")
@@ -4095,6 +4107,11 @@ let Ie = class extends Nt {
     }
   }
   async init() {
+    if (this._initialized) {
+      this.log("⏭️ Already initialized, skipping...");
+      return;
+    }
+    this._initialized = !0;
     try {
       await Di(this.hankoUrl, {
         enablePasskeys: !1,
