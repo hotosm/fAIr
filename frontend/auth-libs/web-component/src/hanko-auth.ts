@@ -14,6 +14,18 @@ import { customElement, property, state } from "lit/decorators.js";
 import { register } from "@teamhanko/hanko-elements";
 import "@awesome.me/webawesome";
 
+// Module-level singleton state - shared across all instances
+const sharedAuth = {
+  primary: null as any, // The primary instance that makes API calls
+  user: null as any,
+  osmConnected: false,
+  osmData: null as any,
+  loading: true,
+  hanko: null as any,
+  initialized: false,
+  instances: new Set<any>(),
+};
+
 interface UserState {
   id: string;
   email: string | null;
@@ -58,8 +70,7 @@ export class HankoAuth extends LitElement {
   private _sessionJWT: string | null = null;
   private _lastSessionId: string | null = null;
   private _hanko: any = null;
-  private _initialized = false;
-  private _visibilityObserver: IntersectionObserver | null = null;
+  private _isPrimary = false; // Is this the primary instance?
 
   static styles = css`
     :host {
@@ -336,14 +347,20 @@ export class HankoAuth extends LitElement {
     this.log("🔌 hanko-auth connectedCallback called");
     this.log("  hankoUrl:", this.hankoUrl);
 
-    // Only initialize if visible - prevents duplicate init from hidden components
-    // (e.g., mobile drawer that's not displayed)
-    if (this._isVisible()) {
-      this.log("👁️ Component is visible, initializing...");
-      this.init();
+    // Register this instance
+    sharedAuth.instances.add(this);
+
+    // If already initialized by another instance, sync state and skip init
+    if (sharedAuth.initialized) {
+      this.log("🔄 Using shared state from primary instance");
+      this._syncFromShared();
+      this._isPrimary = false;
     } else {
-      this.log("👁️ Component is hidden, waiting for visibility...");
-      this._setupVisibilityObserver();
+      // This is the first/primary instance
+      this.log("👑 This is the primary instance");
+      this._isPrimary = true;
+      sharedAuth.primary = this;
+      this.init();
     }
 
     // Listen for page visibility changes to re-check session
@@ -364,33 +381,48 @@ export class HankoAuth extends LitElement {
     window.removeEventListener("focus", this._handleWindowFocus);
     document.removeEventListener("hanko-login", this._handleExternalLogin);
 
-    // Clean up visibility observer
-    if (this._visibilityObserver) {
-      this._visibilityObserver.disconnect();
-      this._visibilityObserver = null;
+    // Unregister this instance
+    sharedAuth.instances.delete(this);
+
+    // If this was the primary and there are other instances, promote one
+    if (this._isPrimary && sharedAuth.instances.size > 0) {
+      const newPrimary = sharedAuth.instances.values().next().value;
+      if (newPrimary) {
+        this.log("👑 Promoting new primary instance");
+        newPrimary._isPrimary = true;
+        sharedAuth.primary = newPrimary;
+      }
+    }
+
+    // If no instances left, reset shared state
+    if (sharedAuth.instances.size === 0) {
+      sharedAuth.initialized = false;
+      sharedAuth.primary = null;
     }
   }
 
-  private _isVisible(): boolean {
-    // Check if element is visible (not inside display:none parent)
-    // offsetParent is null for hidden elements
-    return this.offsetParent !== null || getComputedStyle(this).display !== "none";
+  // Sync local state from shared state
+  private _syncFromShared() {
+    this.user = sharedAuth.user;
+    this.osmConnected = sharedAuth.osmConnected;
+    this.osmData = sharedAuth.osmData;
+    this.loading = sharedAuth.loading;
+    this._hanko = sharedAuth.hanko;
   }
 
-  private _setupVisibilityObserver() {
-    this._visibilityObserver = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0];
-        if (entry.isIntersecting && !this._initialized) {
-          this.log("👁️ Component became visible, initializing...");
-          this._visibilityObserver?.disconnect();
-          this._visibilityObserver = null;
-          this.init();
-        }
-      },
-      { threshold: 0.1 }
-    );
-    this._visibilityObserver.observe(this);
+  // Update shared state and broadcast to all instances
+  private _broadcastState() {
+    sharedAuth.user = this.user;
+    sharedAuth.osmConnected = this.osmConnected;
+    sharedAuth.osmData = this.osmData;
+    sharedAuth.loading = this.loading;
+
+    // Sync to all other instances
+    sharedAuth.instances.forEach((instance) => {
+      if (instance !== this) {
+        instance._syncFromShared();
+      }
+    });
   }
 
   private _handleVisibilityChange = () => {
@@ -519,12 +551,11 @@ export class HankoAuth extends LitElement {
   }
 
   private async init() {
-    // Prevent re-initialization
-    if (this._initialized) {
-      this.log("⏭️ Already initialized, skipping...");
+    // Only primary instance should initialize
+    if (!this._isPrimary) {
+      this.log("⏭️ Not primary, skipping init...");
       return;
     }
-    this._initialized = true;
 
     try {
       await register(this.hankoUrl, {
@@ -547,6 +578,7 @@ export class HankoAuth extends LitElement {
           };
 
       this._hanko = new Hanko(this.hankoUrl, cookieOptions);
+      sharedAuth.hanko = this._hanko;
 
       // Set up session lifecycle event listeners (these persist across the component lifecycle)
       this._hanko.onSessionExpired(() => {
@@ -562,11 +594,18 @@ export class HankoAuth extends LitElement {
       await this.checkSession();
       await this.checkOSMConnection();
       this.loading = false;
+
+      // Mark as initialized and broadcast to other instances
+      sharedAuth.initialized = true;
+      this._broadcastState();
+
       this.setupEventListeners();
     } catch (error: any) {
       console.error("Failed to initialize hanko-auth:", error);
       this.error = error.message;
       this.loading = false;
+      sharedAuth.initialized = true; // Still mark as initialized so others don't try
+      this._broadcastState();
     }
   }
 
@@ -708,6 +747,11 @@ export class HankoAuth extends LitElement {
     } catch (error) {
       this.log("⚠️ Session check error:", error);
       this.log("ℹ️ No existing session - user needs to login");
+    } finally {
+      // Broadcast state changes to other instances
+      if (this._isPrimary) {
+        this._broadcastState();
+      }
     }
   }
 
@@ -819,6 +863,10 @@ export class HankoAuth extends LitElement {
       if (!wasLoading) {
         this.osmLoading = false;
       }
+      // Broadcast state changes to other instances
+      if (this._isPrimary) {
+        this._broadcastState();
+      }
     }
   }
 
@@ -897,6 +945,11 @@ export class HankoAuth extends LitElement {
     }
 
     this.log("✅ User state updated:", this.user);
+
+    // Broadcast state changes to other instances
+    if (this._isPrimary) {
+      this._broadcastState();
+    }
 
     this.dispatchEvent(
       new CustomEvent("hanko-login", {
@@ -1060,6 +1113,11 @@ export class HankoAuth extends LitElement {
     this.osmConnected = false;
     this.osmData = null;
 
+    // Broadcast state changes to other instances
+    if (this._isPrimary) {
+      this._broadcastState();
+    }
+
     this.dispatchEvent(
       new CustomEvent("logout", {
         bubbles: true,
@@ -1119,6 +1177,11 @@ export class HankoAuth extends LitElement {
     this.user = null;
     this.osmConnected = false;
     this.osmData = null;
+
+    // Broadcast state changes to other instances
+    if (this._isPrimary) {
+      this._broadcastState();
+    }
 
     // Clear cookies
     const hostname = window.location.hostname;
