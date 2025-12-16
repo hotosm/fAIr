@@ -467,7 +467,10 @@ export class HankoAuth extends LitElement {
 
   private async init() {
     try {
-      await register(this.hankoUrl);
+      await register(this.hankoUrl, {
+        enablePasskeys: false,
+        hidePasskeyButtonOnLogin: true
+      });
 
       // Create persistent Hanko instance and set up session event listeners
       const { Hanko } = await import('@teamhanko/hanko-elements');

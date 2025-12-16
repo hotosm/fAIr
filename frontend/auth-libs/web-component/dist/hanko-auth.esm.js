@@ -4088,7 +4088,10 @@ let Ie = class extends Nt {
   }
   async init() {
     try {
-      await Di(this.hankoUrl);
+      await Di(this.hankoUrl, {
+        enablePasskeys: !1,
+        hidePasskeyButtonOnLogin: !0
+      });
       const { Hanko: n } = await Promise.resolve().then(() => na), e = window.location.hostname, o = e === "localhost" || e === "127.0.0.1" ? {} : {
         cookieDomain: ".hotosm.org",
         cookieName: "hanko",
