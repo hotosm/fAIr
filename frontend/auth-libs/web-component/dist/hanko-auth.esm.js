@@ -4052,7 +4052,11 @@ let je = class extends Ut {
     return this.log("🔍 hanko-url auto-detected from window.location.origin:", e), e;
   }
   connectedCallback() {
-    super.connectedCallback(), this._debugMode = this._checkDebugMode(), this.log("🔌 hanko-auth connectedCallback called"), this.log("  hankoUrl:", this.hankoUrl), ye.instances.add(this), ye.initialized ? (this.log("🔄 Using shared state from primary instance"), this._syncFromShared(), this._isPrimary = !1) : (this.log("👑 This is the primary instance"), this._isPrimary = !0, ye.primary = this, this.init()), document.addEventListener("visibilitychange", this._handleVisibilityChange), window.addEventListener("focus", this._handleWindowFocus), document.addEventListener("hanko-login", this._handleExternalLogin);
+    super.connectedCallback(), this._debugMode = this._checkDebugMode(), this.log("🔌 hanko-auth connectedCallback called"), ye.instances.add(this), document.addEventListener("visibilitychange", this._handleVisibilityChange), window.addEventListener("focus", this._handleWindowFocus), document.addEventListener("hanko-login", this._handleExternalLogin);
+  }
+  // Use firstUpdated instead of connectedCallback to ensure React props are set
+  firstUpdated() {
+    this.log("🔌 hanko-auth firstUpdated called"), this.log("  hankoUrl:", this.hankoUrl), this.log("  basePath:", this.basePath), ye.initialized ? (this.log("🔄 Using shared state from primary instance"), this._syncFromShared(), this._isPrimary = !1) : (this.log("👑 This is the primary instance"), this._isPrimary = !0, ye.primary = this, this.init());
   }
   disconnectedCallback() {
     if (super.disconnectedCallback(), document.removeEventListener(
