@@ -4093,7 +4093,7 @@ let je = class extends Ut {
     console.error(...n);
   }
   getBasePath() {
-    return this.hasAttribute("base-path") ? (this.log("🔍 getBasePath() using attribute:", this.basePath), this.basePath || "") : (this.log("🔍 getBasePath() using default: empty string"), "");
+    return this.basePath ? (this.log("🔍 getBasePath() using basePath:", this.basePath), this.basePath) : (this.log("🔍 getBasePath() using default: empty string"), "");
   }
   addTrailingSlash(n, e) {
     const t = this._trailingSlashCache[e];
