@@ -25,6 +25,21 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
 )
 
+# Admin routes for user mappings (only when using Hanko auth)
+admin_mapping_patterns = []
+if getattr(settings, 'AUTH_PROVIDER', 'legacy') == 'hanko':
+    try:
+        from hotosm_auth.integrations.django_admin_routes import create_admin_urlpatterns
+        admin_mapping_patterns = create_admin_urlpatterns(
+            app_name="fair",
+            user_model="login.OsmUser",
+            user_id_column="osm_id",
+            user_name_column="username",
+            user_email_column="email",
+        )
+    except ImportError:
+        pass
+
 urlpatterns = [
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/swagger/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
@@ -32,7 +47,10 @@ urlpatterns = [
     path("api/", home, name="home"),
     path("api/v1/auth/", include("login.urls")),
     path("api/v1/", include("core.urls")),
-    path("api/admin/", admin.site.urls),
+    # User mapping admin routes (Hanko auth)
+    path("api/admin/", include(admin_mapping_patterns)),
+    # Django admin interface
+    path("django-admin/", admin.site.urls),
 ]
 
 if settings.DEBUG:
