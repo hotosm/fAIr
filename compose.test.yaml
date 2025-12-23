@@ -53,6 +53,7 @@ services:
       - ALLOWED_ORIGINS=https://testlogin.fair.hotosm.org,https://dev.login.hotosm.org
       - FRONTEND_URL=https://testlogin.fair.hotosm.org
       - LOGIN_URL=https://dev.login.hotosm.org
+      - ADMIN_EMAILS=hernangigena@gmail.com
     command: gunicorn --bind 0.0.0.0:8000 --workers 2 fairproject.wsgi:application
     networks:
       - hotosm-test
