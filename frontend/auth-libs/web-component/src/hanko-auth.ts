@@ -367,16 +367,17 @@ export class HankoAuth extends LitElement {
     this.log("  hankoUrl:", this.hankoUrl);
     this.log("  basePath:", this.basePath);
 
-    // If already initialized by another instance, sync state and skip init
-    if (sharedAuth.initialized) {
+    // If already initialized or being initialized by another instance, sync state and skip init
+    if (sharedAuth.initialized || sharedAuth.primary) {
       this.log("🔄 Using shared state from primary instance");
       this._syncFromShared();
       this._isPrimary = false;
     } else {
-      // This is the first/primary instance
+      // This is the first/primary instance - claim it immediately to prevent race conditions
       this.log("👑 This is the primary instance");
       this._isPrimary = true;
       sharedAuth.primary = this;
+      sharedAuth.initialized = true; // Mark as initialized immediately to prevent other instances from also initializing
       this.init();
     }
   }
@@ -410,13 +411,13 @@ export class HankoAuth extends LitElement {
     }
   }
 
-  // Sync local state from shared state
+  // Sync local state from shared state (only if values changed to prevent render loops)
   private _syncFromShared() {
-    this.user = sharedAuth.user;
-    this.osmConnected = sharedAuth.osmConnected;
-    this.osmData = sharedAuth.osmData;
-    this.loading = sharedAuth.loading;
-    this._hanko = sharedAuth.hanko;
+    if (this.user !== sharedAuth.user) this.user = sharedAuth.user;
+    if (this.osmConnected !== sharedAuth.osmConnected) this.osmConnected = sharedAuth.osmConnected;
+    if (this.osmData !== sharedAuth.osmData) this.osmData = sharedAuth.osmData;
+    if (this.loading !== sharedAuth.loading) this.loading = sharedAuth.loading;
+    if (this._hanko !== sharedAuth.hanko) this._hanko = sharedAuth.hanko;
   }
 
   // Update shared state and broadcast to all instances
@@ -605,8 +606,7 @@ export class HankoAuth extends LitElement {
       await this.fetchProfileDisplayName();
       this.loading = false;
 
-      // Mark as initialized and broadcast to other instances
-      sharedAuth.initialized = true;
+      // Broadcast final state to other instances
       this._broadcastState();
 
       this.setupEventListeners();
@@ -614,7 +614,6 @@ export class HankoAuth extends LitElement {
       console.error("Failed to initialize hanko-auth:", error);
       this.error = error.message;
       this.loading = false;
-      sharedAuth.initialized = true; // Still mark as initialized so others don't try
       this._broadcastState();
     }
   }
@@ -1219,12 +1218,20 @@ export class HankoAuth extends LitElement {
   }
 
   private async handleSessionExpired() {
-    console.log("🆕🆕🆕 NEW CODE RUNNING - handleSessionExpired v3.0 🆕🆕🆕");
-    console.log("🕒 Session expired - cleaning up state");
-    console.log("📊 State before cleanup:", {
+    console.log("🕒 Session expired event received");
+    console.log("📊 Current state:", {
       user: this.user,
       osmConnected: this.osmConnected,
     });
+
+    // If we have an active user, the session is still valid
+    // The SDK may fire this event for old/stale sessions while a new session exists
+    if (this.user) {
+      console.log("✅ User is logged in, ignoring stale session expired event");
+      return;
+    }
+
+    console.log("🧹 No active user - cleaning up state");
 
     // Call OSM disconnect endpoint to clear httpOnly cookie
     try {

@@ -22,21 +22,28 @@ def generate_synthetic_osm_id(hanko_id: str) -> int:
     """Generate a synthetic (fake) osm_id for users without OSM account.
 
     Uses negative numbers to distinguish from real OSM IDs (always positive).
+    Limited to 9 digits to stay within JavaScript's safe integer range and
+    match the magnitude of real OSM IDs.
 
     Args:
         hanko_id: The Hanko user UUID
 
     Returns:
-        int: Negative osm_id derived from hanko_id hash
+        int: Negative osm_id derived from hanko_id hash (max 9 digits)
 
     Example:
         >>> generate_synthetic_osm_id("abc-123-def")
-        -4567890123456789012
+        -531248375
     """
     # Use hash to get a consistent number from hanko_id
-    # Limit to 62 bits to fit in BigInteger, make negative
-    # Parentheses ensure negation happens AFTER modulo
-    synthetic_id = -(abs(hash(hanko_id)) % (2**62))
+    # Limit to 10^9 (9 digits) to:
+    # 1. Stay within JS MAX_SAFE_INTEGER (avoids precision loss in frontend)
+    # 2. Match magnitude of real OSM IDs (typically 7-8 digits)
+    # Make negative to distinguish from real OSM IDs
+    synthetic_id = -(abs(hash(hanko_id)) % 10**9)
+    # Ensure we don't get 0 (edge case)
+    if synthetic_id == 0:
+        synthetic_id = -1
     logger.debug(f"Generated synthetic osm_id {synthetic_id} for hanko_id {hanko_id}")
     return synthetic_id
 
