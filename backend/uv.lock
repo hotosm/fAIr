@@ -1164,7 +1164,7 @@ api = [
     { name = "geopandas", specifier = ">=0.13.2" },
     { name = "gpxpy", specifier = ">=1.6.2" },
     { name = "gunicorn", specifier = ">=23.0.0" },
-    { name = "hotosm-auth", path = "auth-libs/dist/hotosm_auth-0.1.6-py3-none-any.whl" },
+    { name = "hotosm-auth", path = "auth-libs/dist/hotosm_auth-0.1.8-py3-none-any.whl" },
     { name = "mercantile", specifier = ">=1.2.1" },
     { name = "numpy", specifier = ">=1.24.4" },
     { name = "osm-login-python", specifier = ">=1.0.0" },
@@ -1539,8 +1539,8 @@ sdist = { url = "https://files.pythonhosted.org/packages/a5/c9/c5b6b27852efdc86c
 
 [[package]]
 name = "hotosm-auth"
-version = "0.1.6"
-source = { path = "auth-libs/dist/hotosm_auth-0.1.6-py3-none-any.whl" }
+version = "0.1.8"
+source = { path = "auth-libs/dist/hotosm_auth-0.1.8-py3-none-any.whl" }
 dependencies = [
     { name = "cryptography" },
     { name = "httpx" },
@@ -1549,7 +1549,7 @@ dependencies = [
     { name = "python-dateutil" },
 ]
 wheels = [
-    { filename = "hotosm_auth-0.1.6-py3-none-any.whl", hash = "sha256:37c4e2a83ce3fb960cd1c0f969eefb807ffec9f154f31666e2d72b8a8398a566" },
+    { filename = "hotosm_auth-0.1.8-py3-none-any.whl", hash = "sha256:bfece53945d644208c509711fe1359193b0e0015e41313a965d5ce936b8194b1" },
 ]
 
 [package.metadata]
