@@ -41,7 +41,7 @@ api = [
     "geopandas>=0.13.2",
     "gpxpy>=1.6.2",
     "gunicorn>=23.0.0",
-    "hotosm-auth",
+    "hotosm-auth @ git+https://github.com/LawalCoop/hot-auth-libs.git@v0.1.8#subdirectory=python",
     "mercantile>=1.2.1",
     "numpy>=1.24.4",
     "osm-login-python>=1.0.0",
@@ -79,5 +79,3 @@ prediction-workers = [
     "tippecanoe>=2.72.0",
 ]
 
-[tool.uv.sources]
-hotosm-auth = { path = "auth-libs/dist/hotosm_auth-0.1.8-py3-none-any.whl" }
