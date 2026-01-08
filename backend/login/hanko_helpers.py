@@ -163,3 +163,28 @@ def create_osm_user(
     )
     logger.info(f"Created OsmUser: osm_id={osm_id}, username={final_username}")
     return user
+
+
+class HankoUserFilterMixin:
+    """Mixin to auto-filter queryset by authenticated Hanko user.
+
+    When user is authenticated and no explicit ?user= filter is provided,
+    automatically filters queryset to show only the user's own resources.
+
+    Usage:
+        class ModelViewSet(HankoUserFilterMixin, BaseSpatialViewSet):
+            ...
+    """
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+
+        # Auto-filter if authenticated and no explicit ?user= param
+        if (hasattr(self.request, 'user')
+            and self.request.user
+            and self.request.user.is_authenticated
+            and 'user' not in self.request.query_params):
+            queryset = queryset.filter(user=self.request.user)
+            logger.debug(f"Auto-filtered by user {self.request.user.osm_id}")
+
+        return queryset

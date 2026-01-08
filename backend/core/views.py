@@ -52,6 +52,7 @@ from rest_framework_gis.filters import InBBoxFilter, TMSTileFilter
 from shapely.geometry import box
 
 from login.authentication import OsmAuthentication
+from login.hanko_helpers import HankoUserFilterMixin
 from login.permissions import (
     IsAdminUser,
     IsOsmAuthenticated,
@@ -169,7 +170,7 @@ def home(request):
     )
 
 
-class DatasetViewSet(BaseSpatialViewSet):
+class DatasetViewSet(HankoUserFilterMixin, BaseSpatialViewSet):
     """
     API endpoint for managing training datasets.
 
@@ -271,7 +272,7 @@ class FeedbackViewset(BaseSpatialViewSet):
         return super().create(request, *args, **kwargs)
 
 
-class ModelViewSet(BaseSpatialViewSet):
+class ModelViewSet(HankoUserFilterMixin, BaseSpatialViewSet):
     """
     API endpoint for managing AI models.
 
