@@ -140,11 +140,26 @@ def create_osm_user(
     Returns:
         OsmUser: Created user instance
     """
+    # Check if user with this osm_id already exists
+    try:
+        existing = OsmUser.objects.get(osm_id=osm_id)
+        logger.info(f"Found existing OsmUser: osm_id={osm_id}")
+        return existing
+    except OsmUser.DoesNotExist:
+        pass
+
+    # Handle username conflicts by appending suffix
+    final_username = username
+    suffix = 1
+    while OsmUser.objects.filter(username=final_username).exists():
+        final_username = f"{username}_{suffix}"
+        suffix += 1
+
     user = OsmUser.objects.create(
         osm_id=osm_id,
-        username=username,
+        username=final_username,
         img_url=img_url,
         email=email or "",
     )
-    logger.info(f"Created OsmUser: osm_id={osm_id}, username={username}")
+    logger.info(f"Created OsmUser: osm_id={osm_id}, username={final_username}")
     return user
