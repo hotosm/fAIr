@@ -185,7 +185,11 @@ class DatasetViewSet(BaseSpatialViewSet):
     queryset = Dataset.objects.all()
     serializer_class = DatasetSerializer
     public_methods = ["GET"]
-
+    filter_backends = (
+        DjangoFilterBackend,
+    )
+    filterset_fields = ["user", "status", "id"]
+    
     def partial_update(self, request, *args, **kwargs):
         if "offset" in request.data:
             # Bypass self.get_object() to skip IsOsmAuthenticated's ownership check
