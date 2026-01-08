@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { APPLICATION_ROUTES } from "@/constants";
-import { BASE_API_URL, HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY, LOGIN_URL, HANKO_API_URL } from "@/config";
+import { BASE_API_URL, HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY, LOGIN_URL } from "@/config";
 import { showErrorToast, showSuccessToast } from "@/utils";
 import { TOAST_NOTIFICATIONS } from "@/constants";
 import { Spinner } from "@/components/ui/spinner";
