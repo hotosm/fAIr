@@ -166,25 +166,33 @@ def create_osm_user(
 
 
 class HankoUserFilterMixin:
-    """Mixin to auto-filter queryset by authenticated Hanko user.
+    """Mixin to filter queryset by authenticated Hanko user when requested.
 
-    When user is authenticated and no explicit ?user= filter is provided,
-    automatically filters queryset to show only the user's own resources.
+    Only filters when ?mine=true is passed AND user is authenticated.
+    This preserves public access to resources while allowing user-specific filtering.
 
     Usage:
         class ModelViewSet(HankoUserFilterMixin, BaseSpatialViewSet):
             ...
+
+    Query params:
+        ?mine=true  - Filter to show only authenticated user's resources
     """
 
     def get_queryset(self):
         queryset = super().get_queryset()
 
-        # Auto-filter if authenticated and no explicit ?user= param
-        if (hasattr(self.request, 'user')
-            and self.request.user
-            and self.request.user.is_authenticated
-            and 'user' not in self.request.query_params):
-            queryset = queryset.filter(user=self.request.user)
-            logger.debug(f"Auto-filtered by user {self.request.user.osm_id}")
+        # Only filter if ?mine=true is explicitly requested
+        mine_param = self.request.query_params.get('mine', '').lower()
+        if mine_param == 'true':
+            if (hasattr(self.request, 'user')
+                and self.request.user
+                and self.request.user.is_authenticated):
+                queryset = queryset.filter(user=self.request.user)
+                logger.debug(f"Filtered by user {self.request.user.osm_id} (mine=true)")
+            else:
+                # If mine=true but not authenticated, return empty
+                queryset = queryset.none()
+                logger.debug("mine=true requested but user not authenticated, returning empty")
 
         return queryset
