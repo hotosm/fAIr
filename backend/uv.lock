@@ -1164,7 +1164,7 @@ api = [
     { name = "geopandas", specifier = ">=0.13.2" },
     { name = "gpxpy", specifier = ">=1.6.2" },
     { name = "gunicorn", specifier = ">=23.0.0" },
-    { name = "hotosm-auth", git = "https://github.com/LawalCoop/hot-auth-libs.git?subdirectory=python&rev=v0.1.10" },
+    { name = "hotosm-auth", git = "https://github.com/LawalCoop/hot-auth-libs.git?subdirectory=python&rev=v0.1.11" },
     { name = "mercantile", specifier = ">=1.2.1" },
     { name = "numpy", specifier = ">=1.24.4" },
     { name = "osm-login-python", specifier = ">=1.0.0" },
@@ -1539,8 +1539,8 @@ sdist = { url = "https://files.pythonhosted.org/packages/a5/c9/c5b6b27852efdc86c
 
 [[package]]
 name = "hotosm-auth"
-version = "0.1.10"
-source = { git = "https://github.com/LawalCoop/hot-auth-libs.git?subdirectory=python&rev=v0.1.10#362fd191021f2fc3ad3d614f05df340123c2969d" }
+version = "0.1.11"
+source = { git = "https://github.com/LawalCoop/hot-auth-libs.git?subdirectory=python&rev=v0.1.11#3fef0d59a21fdf36bef8f06cff011130af7aaf0e" }
 dependencies = [
     { name = "cryptography" },
     { name = "httpx" },
