@@ -436,6 +436,9 @@ export class HankoAuth extends LitElement {
   }
 
   private _handleVisibilityChange = () => {
+    // Only primary instance should handle visibility changes to prevent race conditions
+    if (!this._isPrimary) return;
+
     if (!document.hidden && !this.showProfile && !this.user) {
       // Page became visible, we're in header mode, and no user is logged in
       // Re-check session in case user logged in elsewhere
@@ -445,6 +448,9 @@ export class HankoAuth extends LitElement {
   };
 
   private _handleWindowFocus = () => {
+    // Only primary instance should handle window focus to prevent race conditions
+    if (!this._isPrimary) return;
+
     if (!this.showProfile && !this.user) {
       // Window focused, we're in header mode, and no user is logged in
       // Re-check session in case user logged in
@@ -454,11 +460,15 @@ export class HankoAuth extends LitElement {
   };
 
   private _handleExternalLogin = (event: Event) => {
+    // Only primary instance should handle external login events to prevent race conditions
+    if (!this._isPrimary) return;
+
     const customEvent = event as CustomEvent;
     if (!this.showProfile && !this.user && customEvent.detail?.user) {
       // Another component (e.g., login page) logged in
       this.log("🔔 External login detected, updating user state...");
       this.user = customEvent.detail.user;
+      this._broadcastState();
       // Also re-check OSM connection
       this.checkOSMConnection();
     }
