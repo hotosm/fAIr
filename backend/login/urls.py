@@ -15,4 +15,6 @@ urlpatterns = [
     path("me/verify-email/", views.VerifyEmail.as_view(), name="verify-email"),
     # Hanko onboarding endpoint (only used when AUTH_PROVIDER=hanko)
     path("onboarding/", views.OnboardingCallback.as_view(), name="onboarding-callback"),
+    # Auth status check (for web component silent check)
+    path("status/", views.AuthStatus.as_view(), name="auth-status"),
 ]

@@ -15,16 +15,31 @@ import { useState } from "react";
 import { UserNotifications } from "@/features/user-profile/components/notifications/user-notifications";
 import {
   AUTH_PROVIDER,
+  BASE_API_URL,
+  FRONTEND_URL,
   HANKO_API_URL,
   LOGIN_URL,
-  FRONTEND_URL,
 } from "@/config";
-import { APPLICATION_ROUTES } from "@/constants";
 
 // Import Hanko web component when using SSO
 if (AUTH_PROVIDER === "hanko") {
   import("@AuthLibs/web-component/dist/hanko-auth.esm.js");
 }
+
+// Hanko auth component - defined outside NavBar to avoid re-creation on every render
+// mapping-check-url silently verifies if user has app mapping
+// If not, redirects to Login for onboarding
+console.log("🔧 HankoAuthComponent config:", { FRONTEND_URL, BASE_API_URL, HANKO_API_URL });
+const HankoAuthComponent = () => (
+  <hotosm-auth
+    hanko-url={HANKO_API_URL}
+    base-path={LOGIN_URL}
+    redirect-after-login={FRONTEND_URL}
+    redirect-after-logout={FRONTEND_URL}
+    mapping-check-url={`${BASE_API_URL}auth/status/`}
+    app-id="fair"
+  />
+);
 
 export const NavBar = () => {
   const [open, setOpen] = useState(false);
@@ -34,22 +49,6 @@ export const NavBar = () => {
   const navigate = useNavigate();
 
   const location = useLocation();
-
-  // Build return URL for Hanko SSO callback
-  const hankoReturnUrl = `${FRONTEND_URL}${APPLICATION_ROUTES.HANKO_AUTH_CALLBACK}`;
-
-  // Hanko auth component with session verification
-  // verify-session ensures users coming from other apps are redirected to /hanko-auth
-  // to verify their mapping, triggering onboarding if needed
-  const HankoAuthComponent = () => (
-    <hotosm-auth
-      hanko-url={HANKO_API_URL}
-      base-path={LOGIN_URL}
-      redirect-after-login={hankoReturnUrl}
-      redirect-after-logout="/"
-      verify-session
-    />
-  );
 
   return (
     <>

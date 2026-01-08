@@ -50,7 +50,6 @@ export const APPLICATION_ROUTES = {
   START_MAPPING: "/start-mapping/:modelId",
   NOTFOUND: "/404",
   AUTH_CALLBACK: "/authenticate",
-  HANKO_AUTH_CALLBACK: "/hanko-auth",
   EMAIL_VERIFICATION_CALLBACK: "/verify-email",
   PRIVACY_POLICY: "/privacy",
   LEARN: "/learn",
