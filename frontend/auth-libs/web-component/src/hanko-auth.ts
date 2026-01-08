@@ -77,6 +77,7 @@ export class HankoAuth extends LitElement {
   @state() private hasAppMapping = false; // True if user has mapping in the app
 
   // Private fields
+  private _trailingSlashCache: Record<string, boolean> = {};
   private _debugMode = false;
   private _sessionJWT: string | null = null;
   private _lastSessionId: string | null = null;
