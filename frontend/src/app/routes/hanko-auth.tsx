@@ -31,28 +31,16 @@ const HankoAuth = () => {
       queryClient.clear();
 
       try {
-        // First, verify we have a valid Hanko session
-        // This prevents redirect loops when user is not logged in at all
-        const sessionResponse = await fetch(`${HANKO_API_URL}/sessions/validate`, {
-          credentials: "include",
-        });
-
-        if (!sessionResponse.ok) {
-          // No valid Hanko session - just go home, don't redirect to Login
-          console.log("No valid Hanko session (HTTP error), returning to home");
+        // Quick check: if no hanko cookie, just go home (no network request needed)
+        // The web component already verified the session before redirecting here
+        const hasHankoCookie = document.cookie.includes("hanko=");
+        if (!hasHankoCookie) {
+          console.log("No hanko cookie found, returning to home");
           navigate(APPLICATION_ROUTES.HOMEPAGE);
           return;
         }
 
-        const sessionData = await sessionResponse.json();
-        if (sessionData.is_valid === false) {
-          // Endpoint returns 200 with is_valid:false when no session
-          console.log("No valid Hanko session (is_valid:false), returning to home");
-          navigate(APPLICATION_ROUTES.HOMEPAGE);
-          return;
-        }
-
-        // We have a valid Hanko session, now check app mapping
+        // Check app mapping - this is the main purpose of this callback
         const response = await fetch(`${BASE_API_URL}auth/me/`, {
           credentials: "include",
         });
@@ -64,9 +52,16 @@ const HankoAuth = () => {
           return;
         }
 
-        // Has Hanko session but no app mapping - redirect to Login for onboarding
-        const returnTo = encodeURIComponent(window.location.origin);
-        window.location.href = `${LOGIN_URL}/app?onboarding=fair&return_to=${returnTo}`;
+        if (response.status === 401 || response.status === 403) {
+          // Has Hanko session but no app mapping - redirect to Login for onboarding
+          const returnTo = encodeURIComponent(window.location.origin);
+          window.location.href = `${LOGIN_URL}/app?onboarding=fair&return_to=${returnTo}`;
+          return;
+        }
+
+        // Unexpected error - go home
+        console.log("Unexpected response from /auth/me/:", response.status);
+        navigate(APPLICATION_ROUTES.HOMEPAGE);
       } catch (error) {
         console.error("Hanko auth error:", error);
         showErrorToast(
