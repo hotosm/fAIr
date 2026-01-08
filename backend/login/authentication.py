@@ -78,7 +78,7 @@ class HankoAuthentication(authentication.BaseAuthentication):
     - No → Create account with synthetic (negative) osm_id
     """
     def authenticate(self, request):
-        from hotosm_auth.integrations.django import get_mapped_user_id
+        from hotosm_auth_django import get_mapped_user_id
 
         # HankoAuthMiddleware adds request.hotosm with user and osm
         if not hasattr(request, 'hotosm'):

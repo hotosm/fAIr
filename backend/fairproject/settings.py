@@ -164,7 +164,7 @@ MIDDLEWARE = [
 if AUTH_PROVIDER == "hanko":
     MIDDLEWARE.insert(
         MIDDLEWARE.index("django.contrib.auth.middleware.AuthenticationMiddleware"),
-        "hotosm_auth.integrations.django.HankoAuthMiddleware",
+        "hotosm_auth_django.HankoAuthMiddleware",
     )
 
 ROOT_URLCONF = "fairproject.urls"

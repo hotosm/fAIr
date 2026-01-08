@@ -29,7 +29,7 @@ from drf_spectacular.views import (
 admin_mapping_patterns = []
 if getattr(settings, 'AUTH_PROVIDER', 'legacy') == 'hanko':
     try:
-        from hotosm_auth.integrations.django_admin_routes import create_admin_urlpatterns
+        from hotosm_auth_django.admin_routes import create_admin_urlpatterns
         admin_mapping_patterns = create_admin_urlpatterns(
             app_name="fair",
             user_model="login.OsmUser",

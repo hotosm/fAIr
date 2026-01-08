@@ -179,7 +179,7 @@ class OnboardingCallback(APIView):
 
     def get(self, request):
         from django.conf import settings
-        from hotosm_auth.integrations.django import create_user_mapping
+        from hotosm_auth_django import create_user_mapping
 
         # Only for Hanko auth
         if getattr(settings, 'AUTH_PROVIDER', 'legacy') != 'hanko':
@@ -275,7 +275,7 @@ class AuthStatus(APIView):
 
     def get(self, request):
         from django.conf import settings
-        from hotosm_auth.integrations.django import get_mapped_user_id
+        from hotosm_auth_django import get_mapped_user_id
 
         # Only for Hanko auth
         if getattr(settings, 'AUTH_PROVIDER', 'legacy') != 'hanko':
