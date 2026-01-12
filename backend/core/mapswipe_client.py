@@ -160,7 +160,7 @@ class MapswipeClient:
 
         csrf_token = self._client.cookies.get(self._csrftoken_key)
         if not csrf_token:
-            raise ValueError("CSRF token not found in cookies.")
+            raise ValueError(f"CSRF token {self._csrftoken_key} not found in cookies.")
 
         self._headers = {
             "x-csrftoken": csrf_token,
