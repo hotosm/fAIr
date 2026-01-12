@@ -1394,6 +1394,8 @@ class MapswipeProjectViewSet(viewsets.ViewSet):
                 fb_auth_url=settings.MAPSWIPE_FB_AUTH_URL,
                 fb_username=settings.MAPSWIPE_FB_USERNAME,
                 fb_password=settings.MAPSWIPE_FB_PASSWORD,
+                csrftoken_key=settings.MAPSWIPE_CSRFTOKEN_KEY,
+                
             ) as client:
                 project_details = client.get_project_details(pk)
                 if project_details.get("status") == "FINISHED":
