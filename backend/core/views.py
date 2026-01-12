@@ -186,7 +186,11 @@ class DatasetViewSet(HankoUserFilterMixin, BaseSpatialViewSet):
     queryset = Dataset.objects.all()
     serializer_class = DatasetSerializer
     public_methods = ["GET"]
-
+    filter_backends = (
+        DjangoFilterBackend,
+    )
+    filterset_fields = ["user", "status", "id"]
+    
     def partial_update(self, request, *args, **kwargs):
         if "offset" in request.data:
             # Bypass self.get_object() to skip IsOsmAuthenticated's ownership check
@@ -1340,6 +1344,7 @@ class MapswipeProjectViewSet(viewsets.ViewSet):
                     geojson_url=validated_data["geojson_url"],
                     tms_url=validated_data["tms_url"],
                     image_asset_id=image_asset_id,
+                    tutorial_id=settings.MAPSWIPE_TUTORIAL_ID,
                 )
 
                 status_update = client.update_project_status(new_project_id, "READY_TO_PROCESS")
@@ -1390,6 +1395,8 @@ class MapswipeProjectViewSet(viewsets.ViewSet):
                 fb_auth_url=settings.MAPSWIPE_FB_AUTH_URL,
                 fb_username=settings.MAPSWIPE_FB_USERNAME,
                 fb_password=settings.MAPSWIPE_FB_PASSWORD,
+                csrftoken_key=settings.MAPSWIPE_CSRFTOKEN_KEY,
+                
             ) as client:
                 project_details = client.get_project_details(pk)
                 if project_details.get("status") == "FINISHED":

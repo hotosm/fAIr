@@ -124,7 +124,7 @@ class MapswipeClient:
         fb_auth_url: str,
         fb_username: str,
         fb_password: str,
-        csrftoken_key: str = "MAPSWIPE-ALPHA-2-CSRFTOKEN",
+        csrftoken_key: str,
         enable_authentication: bool = True,
     ):
         self._base_url = backend_url
@@ -160,7 +160,7 @@ class MapswipeClient:
 
         csrf_token = self._client.cookies.get(self._csrftoken_key)
         if not csrf_token:
-            raise ValueError("CSRF token not found in cookies.")
+            raise ValueError(f"CSRF token {self._csrftoken_key} not found in cookies.")
 
         self._headers = {
             "x-csrftoken": csrf_token,
@@ -296,6 +296,7 @@ class MapswipeClient:
         image_asset_id: str,
         group_size: int = 25,
         verification_number: int = 4,
+        tutorial_id: str = "37",
     ):
         """Updates a project with additional details."""
         update_params = {
@@ -303,7 +304,7 @@ class MapswipeClient:
             "groupSize": group_size,
             "verificationNumber": verification_number,
             "image": image_asset_id,
-            "tutorial": "37",
+            "tutorial": tutorial_id,
             "projectTypeSpecifics": {
                 "validate": {
                     "objectSource": {
