@@ -124,7 +124,7 @@ class MapswipeClient:
         fb_auth_url: str,
         fb_username: str,
         fb_password: str,
-        csrftoken_key: str = "MAPSWIPE-ALPHA-2-CSRFTOKEN",
+        csrftoken_key: str,
         enable_authentication: bool = True,
     ):
         self._base_url = backend_url
