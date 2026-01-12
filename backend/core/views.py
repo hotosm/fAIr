@@ -1343,6 +1343,7 @@ class MapswipeProjectViewSet(viewsets.ViewSet):
                     geojson_url=validated_data["geojson_url"],
                     tms_url=validated_data["tms_url"],
                     image_asset_id=image_asset_id,
+                    tutorial_id=settings.MAPSWIPE_TUTORIAL_ID,
                 )
 
                 status_update = client.update_project_status(new_project_id, "READY_TO_PROCESS")

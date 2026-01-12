@@ -296,6 +296,7 @@ class MapswipeClient:
         image_asset_id: str,
         group_size: int = 25,
         verification_number: int = 4,
+        tutorial_id: str = "37",
     ):
         """Updates a project with additional details."""
         update_params = {
@@ -303,7 +304,7 @@ class MapswipeClient:
             "groupSize": group_size,
             "verificationNumber": verification_number,
             "image": image_asset_id,
-            "tutorial": "37",
+            "tutorial": tutorial_id,
             "projectTypeSpecifics": {
                 "validate": {
                     "objectSource": {
