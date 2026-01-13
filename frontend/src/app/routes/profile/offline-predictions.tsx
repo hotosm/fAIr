@@ -11,7 +11,7 @@ import { SEARCH_PARAMS } from "@/utils/search-params";
 import { useDialog } from "@/hooks/use-dialog";
 import { useState } from "react";
 import { TOfflinePrediction } from "@/types";
-import { PredictionResultDrawer } from "@/features/user-profile/components/predictions-results-drawer";
+import { PredictionResultDrawer } from "@/features/user-profile/components/offline-predictions/predictions-results-drawer";
 import { TrainingLogsDialog } from "@/features/user-profile/components/training-logs-dialog";
 import { CreateMapswipeProjectDialog } from "@/features/mapswipe/components/project-creation-dialog";
 import { MapswipeProjectStatusDialog } from "@/features/mapswipe/components/project-status-dialog";

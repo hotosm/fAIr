@@ -317,6 +317,7 @@ export const TrainingAreaMap = ({
       bounds={boundsRef.current}
       mapContainerRef={mapContainerRef}
       map={map}
+      showCurrentZoom
     />
   );
 };
