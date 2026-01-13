@@ -17,8 +17,7 @@ import {
   AUTH_PROVIDER,
   BASE_API_URL,
   FRONTEND_URL,
-  HANKO_API_URL,
-  LOGIN_URL,
+  HANKO_URL,
 } from "@/config";
 
 // Import Hanko web component when using SSO
@@ -29,11 +28,10 @@ if (AUTH_PROVIDER === "hanko") {
 // Hanko auth component - defined outside NavBar to avoid re-creation on every render
 // mapping-check-url silently verifies if user has app mapping
 // If not, redirects to Login for onboarding
-console.log("🔧 HankoAuthComponent config:", { FRONTEND_URL, BASE_API_URL, HANKO_API_URL });
 const HankoAuthComponent = () => (
   <hotosm-auth
-    hanko-url={HANKO_API_URL}
-    base-path={LOGIN_URL}
+    hanko-url={HANKO_URL}
+    base-path={HANKO_URL}
     redirect-after-login={FRONTEND_URL}
     redirect-after-logout={FRONTEND_URL}
     mapping-check-url={`${BASE_API_URL}auth/status/`}

@@ -51,18 +51,12 @@ export const AUTH_PROVIDER: string = parseStringEnv(
 );
 
 /**
- * The Hanko API URL (when AUTH_PROVIDER="hanko")
+ * The Hanko URL (when AUTH_PROVIDER="hanko")
+ * This is the login service URL (login.hotosm.org) that handles both
+ * Hanko authentication and OSM OAuth endpoints.
  */
-export const HANKO_API_URL: string = parseStringEnv(
-  ENVS.HANKO_API_URL,
-  "https://dev.login.hotosm.org",
-);
-
-/**
- * The Login service URL for Hanko authentication (login.hotosm.org)
- */
-export const LOGIN_URL: string = parseStringEnv(
-  ENVS.LOGIN_URL,
+export const HANKO_URL: string = parseStringEnv(
+  ENVS.HANKO_URL,
   "https://dev.login.hotosm.org",
 );
 
