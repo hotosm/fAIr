@@ -24,6 +24,7 @@ const sharedAuth = {
   hanko: null as any,
   initialized: false,
   instances: new Set<any>(),
+  profileDisplayName: "", // Shared profile display name
 };
 
 // Session storage key generators to avoid duplication
@@ -426,6 +427,7 @@ export class HankoAuth extends LitElement {
     if (this.osmData !== sharedAuth.osmData) this.osmData = sharedAuth.osmData;
     if (this.loading !== sharedAuth.loading) this.loading = sharedAuth.loading;
     if (this._hanko !== sharedAuth.hanko) this._hanko = sharedAuth.hanko;
+    if (this.profileDisplayName !== sharedAuth.profileDisplayName) this.profileDisplayName = sharedAuth.profileDisplayName;
   }
 
   // Update shared state and broadcast to all instances
@@ -434,6 +436,7 @@ export class HankoAuth extends LitElement {
     sharedAuth.osmConnected = this.osmConnected;
     sharedAuth.osmData = this.osmData;
     sharedAuth.loading = this.loading;
+    sharedAuth.profileDisplayName = this.profileDisplayName;
 
     // Sync to all other instances
     sharedAuth.instances.forEach((instance) => {
