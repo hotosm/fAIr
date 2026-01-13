@@ -572,8 +572,11 @@ export class HankoAuth extends LitElement {
       });
 
       await this.checkSession();
-      await this.checkOSMConnection();
-      await this.fetchProfileDisplayName();
+      // Only check OSM and fetch profile if we have a logged-in user
+      if (this.user) {
+        await this.checkOSMConnection();
+        await this.fetchProfileDisplayName();
+      }
       this.loading = false;
 
       // Broadcast final state to other instances
@@ -1162,12 +1165,11 @@ export class HankoAuth extends LitElement {
     try {
       const basePath = this.getBasePath();
       const authPath = this.authPath;
-      const origin = window.location.origin;
-      const disconnectPath = this.addTrailingSlash(
-        `${basePath}${authPath}/disconnect`,
-        basePath
-      );
-      const disconnectUrl = `${origin}${disconnectPath}`;
+      const disconnectPath = `${basePath}${authPath}/disconnect`;
+      // If basePath is already a full URL, use it directly; otherwise prepend origin
+      const disconnectUrl = disconnectPath.startsWith("http")
+        ? disconnectPath
+        : `${window.location.origin}${disconnectPath}`;
       this.log("🔌 Calling OSM disconnect:", disconnectUrl);
 
       const response = await fetch(disconnectUrl, {
@@ -1266,12 +1268,11 @@ export class HankoAuth extends LitElement {
     try {
       const basePath = this.getBasePath();
       const authPath = this.authPath;
-      const origin = window.location.origin;
-      const disconnectPath = this.addTrailingSlash(
-        `${basePath}${authPath}/disconnect`,
-        basePath
-      );
-      const disconnectUrl = `${origin}${disconnectPath}`;
+      const disconnectPath = `${basePath}${authPath}/disconnect`;
+      // If basePath is already a full URL, use it directly; otherwise prepend origin
+      const disconnectUrl = disconnectPath.startsWith("http")
+        ? disconnectPath
+        : `${window.location.origin}${disconnectPath}`;
       this.log(
         "🔌 Calling OSM disconnect (session expired):",
         disconnectUrl

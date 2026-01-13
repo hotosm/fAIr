@@ -4123,7 +4123,7 @@ let _e = class extends Ut {
         this.log("🕒 Hanko session expired event received"), this.handleSessionExpired();
       }), this._hanko.onUserLoggedOut(() => {
         this.log("🚪 Hanko user logged out event received"), this.handleUserLoggedOut();
-      }), await this.checkSession(), await this.checkOSMConnection(), await this.fetchProfileDisplayName(), this.loading = !1, this._broadcastState(), this.setupEventListeners();
+      }), await this.checkSession(), this.user && (await this.checkOSMConnection(), await this.fetchProfileDisplayName()), this.loading = !1, this._broadcastState(), this.setupEventListeners();
     } catch (n) {
       this.logError("Failed to initialize hanko-auth:", n), this.error = n.message, this.loading = !1, this._broadcastState();
     }
@@ -4457,18 +4457,15 @@ let _e = class extends Ut {
       osmData: this.osmData
     }), this.log("🍪 Cookies before logout:", document.cookie);
     try {
-      const n = this.getBasePath(), e = this.authPath, t = window.location.origin, o = this.addTrailingSlash(
-        `${n}${e}/disconnect`,
-        n
-      ), i = `${t}${o}`;
-      this.log("🔌 Calling OSM disconnect:", i);
-      const s = await fetch(i, {
+      const n = this.getBasePath(), e = this.authPath, t = `${n}${e}/disconnect`, o = t.startsWith("http") ? t : `${window.location.origin}${t}`;
+      this.log("🔌 Calling OSM disconnect:", o);
+      const i = await fetch(o, {
         method: "POST",
         credentials: "include"
       });
-      this.log("📡 Disconnect response status:", s.status);
-      const a = await s.json();
-      this.log("📡 Disconnect response data:", a), this.log("✅ OSM disconnected");
+      this.log("📡 Disconnect response status:", i.status);
+      const s = await i.json();
+      this.log("📡 Disconnect response data:", s), this.log("✅ OSM disconnected");
     } catch (n) {
       this.logError("❌ OSM disconnect failed:", n);
     }
@@ -4506,21 +4503,18 @@ let _e = class extends Ut {
     }
     this.log("🧹 No active user - cleaning up state");
     try {
-      const n = this.getBasePath(), e = this.authPath, t = window.location.origin, o = this.addTrailingSlash(
-        `${n}${e}/disconnect`,
-        n
-      ), i = `${t}${o}`;
+      const n = this.getBasePath(), e = this.authPath, t = `${n}${e}/disconnect`, o = t.startsWith("http") ? t : `${window.location.origin}${t}`;
       this.log(
         "🔌 Calling OSM disconnect (session expired):",
-        i
+        o
       );
-      const s = await fetch(i, {
+      const i = await fetch(o, {
         method: "POST",
         credentials: "include"
       });
-      this.log("📡 Disconnect response status:", s.status);
-      const a = await s.json();
-      this.log("📡 Disconnect response data:", a), this.log("✅ OSM disconnected");
+      this.log("📡 Disconnect response status:", i.status);
+      const s = await i.json();
+      this.log("📡 Disconnect response data:", s), this.log("✅ OSM disconnected");
     } catch (n) {
       this.logError("❌ OSM disconnect failed:", n);
     }
