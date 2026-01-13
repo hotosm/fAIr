@@ -9,6 +9,7 @@ import {
   FilledLocationIcon,
   MapIcon,
   ProductionCheckmarkIcon,
+  RefreshIcon,
 } from "@/components/ui/icons";
 import { Image } from "@/components/ui/image";
 
@@ -74,23 +75,23 @@ const VALID_PROJECT_STATUSES = [
 const InfoBlock = ({
   icon,
   info,
-  orientation = "left",
   variant = "default",
   className = "cursor-default",
 }: InfoCardProps) => {
-  const isRight = orientation === "right";
-
   return (
     <Badge
       variant={variant as TBadgeVariants}
-      className={`py-3 px-4 flex items-center h-10 rounded-full text-black ${className}`}
+      className={`py-1 md:py-3 px-3 md:px-4 flex items-center h-8 md:h-10 rounded-full text-black ${className}`}
     >
-      <div className={`flex items-center justify-center w-full text-xs md:text-base`}>
-        {!isRight && (
-          <div className={`${info && "mr-3"} flex-shrink-0 text-black size-3.5 md:size-4`}>{icon}</div>
-        )}
+      <div
+        className={`flex items-center justify-center w-full text-body-4 md:text-body-3`}
+      >
+        <div
+          className={`${info && "mr-2"} flex-shrink-0  text-black size-3.5 md:size-4`}
+        >
+          {icon}
+        </div>
         {info}
-        {isRight && info && <div className="ml-3 flex-shrink-0 text-black size-3.5 md:size-4">{icon}</div>}
       </div>
     </Badge>
   );
@@ -154,32 +155,35 @@ export const MapswipeProjectStatusDialog = ({
           <div className="w-full justify-between flex items-center flex-wrap gap-4 2xl:gap-6">
             <div className="inline-flex items-center gap-4 flex-wrap">
               <InfoBlock
-                icon={<ProductionCheckmarkIcon  />}
+                icon={<ProductionCheckmarkIcon />}
                 info={formatMapSwipeProjectStatus(data?.projectType as string)}
               />
               <InfoBlock
-                icon={<FilledLocationIcon  />}
+                icon={<FilledLocationIcon />}
                 info={truncateString(data?.region as string)}
               />
               <InfoBlock
-                icon={<FilledFlagIcon  />}
+                icon={<FilledFlagIcon />}
                 info={data?.requestingOrganization.name as string}
               />
               <InfoBlock
-                icon={<FilledCalendarIcon  />}
+                icon={<FilledCalendarIcon />}
                 info={formatDate(data?.createdAt as string)}
               />
             </div>
             <div className="inline-flex items-center justify-start w-full gap-4 flex-wrap">
-              <InfoBlock
-                icon={
-                  <CopyButton
-                    text={data?.webUrl as string}
-                    tooltipContent="Copy Project URL "
-                  />
-                }
-                variant="red"
-              />
+              <Badge
+                variant={"red" as TBadgeVariants}
+                className={`py-1 md:py-3 px-4 md:px-6 flex items-center h-8 md:h-10 rounded-full text-black`}
+              >
+                <CopyButton
+                  text={data?.webUrl as string}
+                  tooltipContent="Copy Project URL"
+                  label="Copy"
+                  iconClassName="size-3.5 md:size-4"
+                />
+              </Badge>
+
               <ToolTip
                 content={
                   !VALID_PROJECT_STATUSES.includes(
@@ -198,9 +202,8 @@ export const MapswipeProjectStatusDialog = ({
                     rel="noopener noreferrer"
                   >
                     <InfoBlock
-                      icon={<ExternalLinkIcon  />}
+                      icon={<ExternalLinkIcon />}
                       info="Open in MapSwipe"
-                      orientation="right"
                       variant="red"
                       className="cursor-pointer text-nowrap"
                     />
@@ -209,7 +212,6 @@ export const MapswipeProjectStatusDialog = ({
                   <InfoBlock
                     icon={<ExternalLinkIcon />}
                     info="Open in MapSwipe"
-                    orientation="right"
                     variant="red"
                     className="cursor-not-allowed text-nowrap"
                   />
@@ -218,8 +220,7 @@ export const MapswipeProjectStatusDialog = ({
               <ToolTip content={pmtilesTooltipContent}>
                 <Button
                   variant={ButtonVariant.NONE}
-                  size={"small"}
-                  className="!w-56"
+                  className="!w-fit !max-w-52"
                   disabled={!isFinished}
                   onClick={() => {
                     handleMapSwipeProjectResultMapModal(
@@ -229,9 +230,37 @@ export const MapswipeProjectStatusDialog = ({
                   aria-disabled={!isFinished}
                 >
                   <InfoBlock
-                    icon={<MapIcon  />}
+                    icon={<MapIcon />}
                     info="View MapSwipe Results"
-                    orientation="right"
+                    variant={"red"}
+                    className="cursor-pointer"
+                  />
+                </Button>
+              </ToolTip>
+
+              <ToolTip
+                content={
+                  isRefetching
+                    ? "Checking for updates"
+                    : "Check for the latest MapSwipe project updates"
+                }
+              >
+                <Button
+                  variant={ButtonVariant.NONE}
+                  className="!w-fit !max-w-40"
+                  disabled={isRefetching}
+                  onClick={() => {
+                    refetch();
+                  }}
+                  aria-disabled={isRefetching}
+                >
+                  <InfoBlock
+                    icon={
+                      <RefreshIcon
+                        className={`${isRefetching ? "animate-spin cursor-progress" : ""}`}
+                      />
+                    }
+                    info="Check updates"
                     variant={"red"}
                     className="cursor-pointer"
                   />

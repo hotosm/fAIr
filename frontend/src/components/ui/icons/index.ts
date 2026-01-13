@@ -67,3 +67,4 @@ export { FilledCalendarIcon } from "./filled-calendar-icon";
 export { FilledFlagIcon } from "./filled-flag-icon";
 export { FilledLocationIcon } from "./filled-location-icon";
 export { DownloadIcon } from "./download-icon";
+export { RefreshIcon } from "./refresh-icon";
