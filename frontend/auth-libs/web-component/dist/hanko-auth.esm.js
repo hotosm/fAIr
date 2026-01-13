@@ -4055,7 +4055,7 @@ let _e = class extends Ut {
     return this.log("🔍 hanko-url auto-detected from window.location.origin:", e), e;
   }
   connectedCallback() {
-    super.connectedCallback(), this._debugMode = this._checkDebugMode(), this.log("🔌 hanko-auth connectedCallback called"), le.instances.add(this), document.addEventListener("visibilitychange", this._handleVisibilityChange), window.addEventListener("focus", this._handleWindowFocus), document.addEventListener("hanko-login", this._handleExternalLogin);
+    super.connectedCallback(), this._debugMode = this._checkDebugMode(), this.log("🔌 hanko-auth connectedCallback called"), this._injectWebAwesomeStyles(), le.instances.add(this), document.addEventListener("visibilitychange", this._handleVisibilityChange), window.addEventListener("focus", this._handleWindowFocus), document.addEventListener("hanko-login", this._handleExternalLogin);
   }
   // Use firstUpdated instead of connectedCallback to ensure React props are set
   firstUpdated() {
@@ -4080,6 +4080,18 @@ let _e = class extends Ut {
     le.user = this.user, le.osmConnected = this.osmConnected, le.osmData = this.osmData, le.loading = this.loading, le.profileDisplayName = this.profileDisplayName, le.instances.forEach((n) => {
       n !== this && n._syncFromShared();
     });
+  }
+  /**
+   * Auto-inject Web Awesome styles into the document if not already present.
+   * This allows the component to work without requiring the consuming app
+   * to manually import Web Awesome CSS.
+   */
+  _injectWebAwesomeStyles() {
+    const n = "webawesome-styles";
+    if (!document.getElementById(n)) {
+      const e = document.createElement("link");
+      e.id = n, e.rel = "stylesheet", e.href = "https://early.webawesome.com/webawesome@3.0.0-beta.1/dist/styles/webawesome.css", document.head.appendChild(e), this.log("💅 Injected Web Awesome styles");
+    }
   }
   _checkDebugMode() {
     if (new URLSearchParams(window.location.search).get("debug") === "true")
