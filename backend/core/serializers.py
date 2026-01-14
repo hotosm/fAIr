@@ -174,7 +174,7 @@ class ModelCentroidSerializer(BaseCentroidSerializer):
     class Meta:
         model = Model
         geo_field = "geometry"
-        id_field = "mid"
+        # id_field = "mid"
         fields = ("mid", "geometry")
 
     def get_geometry(self, obj):
@@ -187,7 +187,7 @@ class DatasetCentroidSerializer(BaseCentroidSerializer):
     class Meta:
         model = Dataset
         geo_field = "geometry"
-        id_field = "did"
+        # id_field = "did"
         fields = ("did", "name", "geometry")
 
     def get_geometry(self, obj):
