@@ -189,6 +189,8 @@ class DatasetViewSet(BaseSpatialViewSet):
         DjangoFilterBackend,
     )
     filterset_fields = ["user", "status", "id"]
+    search_fields = ["id", "name"]
+    
     
     def partial_update(self, request, *args, **kwargs):
         if "offset" in request.data:
