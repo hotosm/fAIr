@@ -73,6 +73,6 @@ ramp-workers = [
 yolo-workers = [
 ]
 prediction-workers = [
-    "fairpredictor>=0.3.10",
+    "fairpredictor>=0.3.12",
     "tippecanoe>=2.72.0",
 ]
