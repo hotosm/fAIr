@@ -104,6 +104,7 @@ FGB_USE_ARROW_FOR_STREAMING = env.bool("FGB_USE_ARROW_FOR_STREAMING", default=Tr
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
+    "django.contrib.postgres",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",

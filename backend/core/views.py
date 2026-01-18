@@ -1415,16 +1415,13 @@ class MapswipeProjectViewSet(viewsets.ViewSet):
                 project_details = client.get_project_details(pk)
                 if project_details.get("status") == "FINISHED":
                     try:
-                        
-                        if pred_inst.result : 
-                            if 'mapswipe' in pred_inst.result:
-                                results = pred_inst.result
+                        results = pred_inst.result or {}
+                        if pred_inst.result and 'mapswipe' in pred_inst.result: 
+                            results = pred_inst.result
                         else : 
-                            results = {}
-                            pred_inst.result = results
                             results_resp = client.get_project_results(pk)
                             results['mapswipe'] = results_resp
-
+                            logging.info(f"Fetched MapSwipe results for project {pk}")
                             geojson_url = results_resp['exportAggregatedResultsWithGeometry']['file'].get("url", None)
                             if geojson_url :
                                 task = process_mapswipe_results.apply_async(
