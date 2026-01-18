@@ -253,7 +253,7 @@ export const MAP_STYLES: Record<string, string | StyleSpecification> = {
         type: "raster",
         source: "raster-tiles",
         minzoom: 0,
-        maxzoom: 22,
+        maxzoom: 19,
       },
     ],
   },
