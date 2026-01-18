@@ -1307,8 +1307,8 @@ class MapswipeProjectViewSet(viewsets.ViewSet):
     """
     API endpoint for managing MapSwipe projects.
     """
-    # authentication_classes = [OsmAuthentication]
-    # permission_classes = [IsOsmAuthenticated]
+    authentication_classes = [OsmAuthentication]
+    permission_classes = [IsOsmAuthenticated]
     serializer_class = MapswipeProjectCreateSerializer
 
     def create(self, request):
