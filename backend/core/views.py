@@ -147,6 +147,18 @@ def health(request):
             status["s3"] = None
     except Exception:
         status["s3"] = False
+    
+    if settings.ENABLE_MAPSWIPE_INTEGREATION:
+        try:
+            client = MapswipeClient()
+            client.get_projects(page_size=1)
+            status["mapswipe_api"] = True
+        except Exception:
+            status["mapswipe_api"] = False
+        status['mapswipe_backend_url'] = settings.MAPSWIPE_BACKEND_URL
+        status['mapswipe_manager_url'] = settings.MAPSWIPE_MANAGER_URL
+        status['mapswipe_web_url'] = settings.MAPSWIPE_WEB_URL
+    
     return JsonResponse({"status": status})
 
 
