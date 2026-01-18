@@ -199,6 +199,7 @@ class DatasetViewSet(BaseSpatialViewSet):
     public_methods = ["GET"]
     filter_backends = (
         DjangoFilterBackend,
+        filters.SearchFilter,
     )
     filterset_fields = ["user", "status", "id"]
     search_fields = ["id", "name"]
