@@ -1415,7 +1415,7 @@ class MapswipeProjectViewSet(viewsets.ViewSet):
                 project_details = client.get_project_details(pk)
                 if project_details.get("status") == "FINISHED":
                     try:
-                        results = pred_inst.result or {}
+                        results = pred_inst.result or None
                         if pred_inst.result and 'mapswipe' in pred_inst.result: 
                             results = pred_inst.result
                         else : 
