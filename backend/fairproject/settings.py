@@ -477,7 +477,7 @@ if not DEBUG:
 
 ### Mapswipe block 
 
-ENABLE_MAPSWIPE_INTEGREATION = False
+ENABLE_MAPSWIPE_INTEGREATION = True
 
 MAPSWIPE_BACKEND_URL = env("MAPSWIPE_BACKEND_URL", default="https://backend-2.mapswipe.dev.togglecorp.com")
 MAPSWIPE_MANAGER_URL = env("MAPSWIPE_MANAGER_URL", default="https://manager-2.mapswipe.dev.togglecorp.com")
