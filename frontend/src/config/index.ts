@@ -242,7 +242,7 @@ export const MAP_STYLES: Record<string, string | StyleSpecification> = {
       "raster-tiles": {
         type: "raster",
         tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
-        tileSize: 128,
+        tileSize: 256,
         attribution:
           '© <a href="https://www.openstreetmap.org/copyright/">OpenStreetMap</a> contributors',
       },
