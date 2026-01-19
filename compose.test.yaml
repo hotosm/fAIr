@@ -38,7 +38,7 @@ services:
       - redis
     environment:
       - DATABASE_URL=postgis://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
-      - AUTH_PROVIDER=hanko
+      - AUTH_PROVIDER=${AUTH_PROVIDER:-hanko}
       - HANKO_API_URL=https://dev.login.hotosm.org
       - JWT_ISSUER=https://dev.login.hotosm.org
       - COOKIE_SECRET=${COOKIE_SECRET}

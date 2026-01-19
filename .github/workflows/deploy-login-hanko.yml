@@ -36,7 +36,7 @@ jobs:
         run: |
           docker build -t ghcr.io/${{ env.IMAGE_PREFIX }}/frontend:login-hanko \
             --target prod \
-            --build-arg VITE_AUTH_PROVIDER=hanko \
+            --build-arg VITE_AUTH_PROVIDER=${{ vars.AUTH_PROVIDER || 'hanko' }} \
             --build-arg VITE_HANKO_URL=https://dev.login.hotosm.org \
             --build-arg VITE_BASE_API_URL=https://testlogin.fair.hotosm.org/api/v1/ \
             -f frontend/Dockerfile.prod \
@@ -63,6 +63,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_ACTOR: ${{ github.actor }}
           COOKIE_SECRET: ${{ secrets.COOKIE_SECRET }}
+          AUTH_PROVIDER: ${{ vars.AUTH_PROVIDER || 'hanko' }}
         run: |
           ssh $EC2_USER@$EC2_HOST << ENDSSH
             set -e
@@ -97,6 +98,7 @@ jobs:
           POSTGRES_DB=fair
           SECRET_KEY=test-secret-key-for-testing-only-min-32-chars
           COOKIE_SECRET=${COOKIE_SECRET}
+          AUTH_PROVIDER=${AUTH_PROVIDER}
           EOF
             echo "Created .env"
 
