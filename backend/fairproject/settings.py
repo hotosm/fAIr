@@ -127,6 +127,7 @@ FGB_USE_ARROW_FOR_STREAMING = env.bool("FGB_USE_ARROW_FOR_STREAMING", default=Tr
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
+    "django.contrib.postgres",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
@@ -181,7 +182,7 @@ if DEBUG:
     CSRF_TRUSTED_ORIGINS = []
 else:
     ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
-    SECURE_SSL_REDIRECT = True
+    SECURE_SSL_REDIRECT = env.bool("SECURE_SSL_REDIRECT", default=True)
     SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
@@ -515,6 +516,7 @@ if not DEBUG:
 
 ### Mapswipe block 
 
+ENABLE_MAPSWIPE_INTEGREATION = True
 
 MAPSWIPE_BACKEND_URL = env("MAPSWIPE_BACKEND_URL", default="https://backend-2.mapswipe.dev.togglecorp.com")
 MAPSWIPE_MANAGER_URL = env("MAPSWIPE_MANAGER_URL", default="https://manager-2.mapswipe.dev.togglecorp.com")

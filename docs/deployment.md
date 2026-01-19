@@ -11,7 +11,8 @@ Checklist for the deployments:
 * Release fAIr utilities 
 * Release fairpredictor 
 * Verify the pypi releases for utilities and predictor
-* Make PR to include new versions from utilities and predictor & finally Release fAIr
+* Make PR to include new versions from utilities and
+ predictor & finally Release fAIr
 - Document the env variable changes that are required for this release as compared to the previous version
 
 Make sure you always follow this order because : new version of fAIr utilities and fAIrpredictor should be included in the fAIr backend envs, hence it can only be done after first two release . A PR would be required to bump it to new versions and docker images should be built for the prediciton and new release of fAIr should include those versions from utilties and predictor ! 

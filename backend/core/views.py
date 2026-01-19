@@ -148,6 +148,18 @@ def health(request):
             status["s3"] = None
     except Exception:
         status["s3"] = False
+    
+    if settings.ENABLE_MAPSWIPE_INTEGREATION:
+        try:
+            client = MapswipeClient()
+            client.get_projects(page_size=1)
+            status["mapswipe_api"] = True
+        except Exception:
+            status["mapswipe_api"] = False
+        status['mapswipe_backend_url'] = settings.MAPSWIPE_BACKEND_URL
+        status['mapswipe_manager_url'] = settings.MAPSWIPE_MANAGER_URL
+        status['mapswipe_web_url'] = settings.MAPSWIPE_WEB_URL
+    
     return JsonResponse({"status": status})
 
 
@@ -188,8 +200,11 @@ class DatasetViewSet(HankoUserFilterMixin, BaseSpatialViewSet):
     public_methods = ["GET"]
     filter_backends = (
         DjangoFilterBackend,
+        filters.SearchFilter,
     )
     filterset_fields = ["user", "status", "id"]
+    search_fields = ["id", "name"]
+    
     
     def partial_update(self, request, *args, **kwargs):
         if "offset" in request.data:
@@ -1401,17 +1416,17 @@ class MapswipeProjectViewSet(viewsets.ViewSet):
                 project_details = client.get_project_details(pk)
                 if project_details.get("status") == "FINISHED":
                     try:
-                        
-                        if pred_inst.result : 
-                            if 'mapswipe' in pred_inst.result:
-                                results = pred_inst.result
+                        results = pred_inst.result or None
+                        if pred_inst.result and 'mapswipe' in pred_inst.result: 
+                            results = pred_inst.result
                         else : 
-                            results = {}
-                            pred_inst.result = results
                             results_resp = client.get_project_results(pk)
                             results['mapswipe'] = results_resp
-
-                            geojson_url = results_resp['exportAggregatedResultsWithGeometry']['file'].get("url", None)
+                            logging.info(f"Fetched MapSwipe results for project {pk}")
+                            geojson_url = None
+                            if results_resp and results_resp.get('exportAggregatedResultsWithGeometry') and results_resp['exportAggregatedResultsWithGeometry'].get('file'):
+                                geojson_url = results_resp['exportAggregatedResultsWithGeometry']['file'].get("url", None)
+                            
                             if geojson_url :
                                 task = process_mapswipe_results.apply_async(
                                     kwargs={
