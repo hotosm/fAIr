@@ -26,7 +26,7 @@ export const navLinks: TNavBarLinks = [
   {
     title: SHARED_CONTENT.navbar.routes.resources,
     href: APPLICATION_ROUTES.RESOURCES,
-    active: true,
+    active: false,
   },
 ];
 
@@ -63,7 +63,7 @@ export const footerLinks: TFooterGroupLinks = {
       title: "resources",
       route: APPLICATION_ROUTES.RESOURCES,
       isExternalLink: false,
-      active: true,
+      active: false,
     },
     {
       title: "privacy policy",
