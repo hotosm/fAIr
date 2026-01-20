@@ -637,6 +637,15 @@ export type TVideo = {
   description: string;
   link: string;
 };
+
+export type TCourse = {
+  title: string;
+  courseLength: string;
+  language: string;
+  duration: string;
+  available: boolean;
+  courseImage: string;
+};
 export type TLearnPageContent = {
   pageTitle: string;
   pageHeader: string;
@@ -653,9 +662,12 @@ export type TLearnPageContent = {
   sectionHeaders: {
     guides: string;
     videos: string;
+    courses: string
+    updates: string
   };
   guides: TGuide[];
   videos: TVideo[];
+  courses: TCourse[];
 };
 // Learn page content types ends.
 

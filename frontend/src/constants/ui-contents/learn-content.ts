@@ -1,3 +1,4 @@
+import { AdvancedCourseImage, BeginnerCourseImage, IntermediateCourseImage } from "@/assets/images";
 import { BookTemplateIcon, DesktopCursorIcon } from "@/components/ui/icons";
 import { TLearnPageContent } from "@/types";
 
@@ -15,11 +16,39 @@ export const LEARN_PAGE_CONTENT: TLearnPageContent = {
     seventhSegment: "of the map.",
   },
   heroDescription:
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",
+    "Everybody can create a model that work for their mapping area and can as well use already existing models that is similar to their area of interest. Which ever path you choose fAIr is there to make your mapping experience a lot less daunting.",
   sectionHeaders: {
     guides: "Guides",
     videos: "Videos",
+    courses: "Learn about fAIr",
+    updates: "fAIr Update"
   },
+  courses: [
+    {
+      title: "Beginner Course",
+      courseLength: "10 course content",
+      language: "English",
+      duration: "2 hours",
+      available: true,
+      courseImage: BeginnerCourseImage
+    },
+        {
+      title: "Intermediate Course",
+      courseLength: "8 course content",
+      language: "English",
+      duration: "4hr",
+      available: true,
+      courseImage: IntermediateCourseImage
+    },
+       {
+      title: "Advanced Course",
+      courseLength: "14 course content",
+      language: "English & German",
+      duration: "8hr",
+      available: true,
+      courseImage: AdvancedCourseImage
+    },
+  ],
   guides: [
     {
       title: "Onscreen Tutorial",

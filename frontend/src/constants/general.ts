@@ -8,6 +8,11 @@ export const navLinks: TNavBarLinks = [
     href: APPLICATION_ROUTES.MODELS,
     active: true,
   },
+   {
+    title: SHARED_CONTENT.navbar.routes.learn,
+    href: APPLICATION_ROUTES.LEARN,
+    active: true,
+  },
   {
     title: SHARED_CONTENT.navbar.routes.exploreDatasets,
     href: APPLICATION_ROUTES.DATASETS,
@@ -40,7 +45,7 @@ export const footerLinks: TFooterGroupLinks = {
     {
       title: "learn",
       route: APPLICATION_ROUTES.LEARN,
-      active: false,
+      active: true,
     },
     {
       title: "about",

@@ -11,3 +11,8 @@ export { default as TrainingInProgressImage } from "@/assets/images/training_in_
 export { default as fAIrLogo } from "@/assets/images/fAIr_logo.png";
 export { default as OSMLogo } from "@/assets/images/osm_logo.png";
 export { default as CommentIcon } from "@/assets/images/comment_icon.png";
+export { default as BeginnerCourseImage } from "@/assets/images/beginner-course.png";
+export { default as IntermediateCourseImage } from "@/assets/images/intermediate-course.png";
+export { default as AdvancedCourseImage } from "@/assets/images/advanced-course.png";
+
+
