@@ -30,11 +30,8 @@ WORKDIR /app
 
 COPY pyproject.toml manage.py /app/
 
-RUN if [ "$BUILD_TARGET" = "prediction-workers" ]; then \
-    uv lock --group prediction-workers; \
-    else \
-    uv lock; \
-    fi
+RUN uv lock
+
 RUN --mount=type=cache,target=/root/.cache/uv \
     echo "Supplied BUILD_TARGET: $BUILD_TARGET" && \
     if [ "$BUILD_TARGET" = "predictor" ]; then \
