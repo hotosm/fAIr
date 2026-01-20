@@ -1,2 +1,2 @@
-// Module declaration for auth-libs
-declare module '@AuthLibs/web-component/dist/hanko-auth.esm.js';
+// Module declaration for @hotosm/hanko-auth
+declare module '@hotosm/hanko-auth';

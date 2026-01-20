@@ -15,6 +15,9 @@ importers:
       '@awesome.me/webawesome':
         specifier: 3.0.0-beta.1
         version: 3.0.0-beta.1(@floating-ui/utils@0.2.10)
+      '@hotosm/hanko-auth':
+        specifier: ^0.3.1
+        version: 0.3.1(@awesome.me/webawesome@3.0.0-beta.1(@floating-ui/utils@0.2.10))
       '@reactour/tour':
         specifier: ^3.7.0
         version: 3.7.0(react@19.1.0)
@@ -364,6 +367,11 @@ packages:
     resolution: {integrity: sha512-WyOx8cJQ+FQus4Mm4uPIZA64gbk3Wxh0so5Lcii0aJifqwoVOlfFtorjLE0Hen4OYyHZMXDWqMmaQemBhgxFRQ==}
     engines: {node: '>=14'}
 
+  '@denysvuika/preact-translate@0.5.1':
+    resolution: {integrity: sha512-qqKkpjzR8E55nlLA+H3gP9Q99mCCWiTtRupVQBh8YRZljX+Q8YbsaJtV3F+TX4DR4lV8NLgvv2+sSUcHoWvNtQ==}
+    peerDependencies:
+      preact: '>=10.13.0'
+
   '@emotion/is-prop-valid@0.7.3':
     resolution: {integrity: sha512-uxJqm/sqwXw3YPA5GXX365OBcJGFtxUVkB6WyezqFHlNe9jqUWH5ur2O2M8dGBz61kn1g3ZBlzUunFQXQIClhA==}
 
@@ -559,6 +567,11 @@ packages:
 
   '@floating-ui/utils@0.2.8':
     resolution: {integrity: sha512-kym7SodPp8/wloecOpcmSnWJsK7M0E5Wg8UcFA+uO4B9s5d0ywXOEro/8HM9x0rW+TljRzul/14UYz3TleT3ig==}
+
+  '@hotosm/hanko-auth@0.3.1':
+    resolution: {integrity: sha512-8hVKcI2PFkvdSTek7ZXNc6EeFYWgDT4f4xN9o2wWbsaIOiJ73qg3cRMvNchUZwLm4YgSBSMqDg976LQLvO4xCA==}
+    peerDependencies:
+      '@awesome.me/webawesome': ^3.0.0-beta.1
 
   '@humanwhocodes/module-importer@1.0.1':
     resolution: {integrity: sha512-bxveV4V8v5Yb4ncFTT3rPSgZBOpCkjfK0y4oVVVJwIuDVBRMDXrPyXRL988i5ap9m9bnyEEjWfm5WkBmtffLfA==}
@@ -990,6 +1003,17 @@ packages:
     resolution: {integrity: sha512-P9dF7XbibHph2PFRz8gfBKEXEY/HJPOhym8CHmjF8y3q5mWpKx9xtZapXQUWCgkqvsK0R46Azuz+VaxD4Xl+Tg==}
     engines: {node: '>=12'}
 
+  '@teamhanko/hanko-elements@1.5.2':
+    resolution: {integrity: sha512-RrOgSoKwHbysDOOffOHn3p8s/zXxY2qvWwZFQdMeEP8Qp/C/RQBwGOzax0Y2gySWflDHM2uu4+tW8dXB+mZfQg==}
+
+  '@teamhanko/hanko-frontend-sdk@1.5.2':
+    resolution: {integrity: sha512-sSY2NGsJRndrC4HwxBIdog9gOGUzJ3EGKmEn7p+rzXzJaLik3ywJb25DloegPekMZQ8hwOzliF0uJh7kNxFgTA==}
+
+  '@teamhanko/preact-custom-element@4.2.2':
+    resolution: {integrity: sha512-3djCQr25IxQIgpidxD8J0fTQ7/hMuoa5Nmv7delQc6sX4kXgv9e/pE01cywpmGZLi69H1KUH4dmZ4cPPJQrsQQ==}
+    peerDependencies:
+      preact: 10.x
+
   '@terraformer/wkt@2.2.1':
     resolution: {integrity: sha512-XDUsW/lvbMzFi7GIuRD9+UqR4QyP+5C+TugeJLMDczKIRbaHoE9J3N8zLSdyOGmnJL9B6xTS3YMMlBnMU0Ar5A==}
 
@@ -1102,6 +1126,9 @@ packages:
 
   '@types/hast@3.0.4':
     resolution: {integrity: sha512-WPs+bbQw5aCj+x6laNGWLH3wviHtoCv/P3+otBhbOhJgG8qtpdAMlTCxLtsTWA7LH1Oh/bFCHsBn0TPS5m30EQ==}
+
+  '@types/js-cookie@3.0.6':
+    resolution: {integrity: sha512-wkw9yd1kEXOPnvEeEV1Go1MmxtBJL0RR79aOTAApecWFVu7w0NNXNqhcWgvw2YgZDYadliXkl14pa3WXw5jlCQ==}
 
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
@@ -1511,6 +1538,9 @@ packages:
   chokidar@3.6.0:
     resolution: {integrity: sha512-7VT13fmjotKpGipCW9JEQAusEPE+Ei8nl6/g4FBAmIm0GOOLMua9NDDo/DWp0ZAxCr3cPq5ZpBqmPAQgDda2Pw==}
     engines: {node: '>= 8.10.0'}
+
+  classnames@2.5.1:
+    resolution: {integrity: sha512-saHYOzhIQs6wy2sVxTM6bUDsQO4F50V9RQ22qBpEdCW+I+/Wmke2HOl6lS6dTpdxVhb88/I6+Hs+438c3lfUow==}
 
   clsx@2.1.1:
     resolution: {integrity: sha512-eYm0QWBtUrBWZWG0d386OGAw16Z995PiOVo2B7bjWSbHedGl5e0ZWaq65kOGgUSNesEIDkB9ISbTg/JK9dhCZA==}
@@ -2775,6 +2805,9 @@ packages:
   potpack@2.0.0:
     resolution: {integrity: sha512-Q+/tYsFU9r7xoOJ+y/ZTtdVQwTWfzjbiXBDMM/JKUux3+QPP02iUuIoeBQ+Ot6oEDlC+/PGjB/5A3K7KKb7hcw==}
 
+  preact@10.28.2:
+    resolution: {integrity: sha512-lbteaWGzGHdlIuiJ0l2Jq454m6kcpI1zNje6d8MlGAFlYvP2GO4ibnat7P74Esfz4sPTdM6UxtTwh/d3pwM9JA==}
+
   prelude-ls@1.2.1:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
     engines: {node: '>= 0.8.0'}
@@ -3746,6 +3779,10 @@ snapshots:
 
   '@ctrl/tinycolor@4.1.0': {}
 
+  '@denysvuika/preact-translate@0.5.1(preact@10.28.2)':
+    dependencies:
+      preact: 10.28.2
+
   '@emotion/is-prop-valid@0.7.3':
     dependencies:
       '@emotion/memoize': 0.7.1
@@ -3883,6 +3920,12 @@ snapshots:
   '@floating-ui/utils@0.2.10': {}
 
   '@floating-ui/utils@0.2.8': {}
+
+  '@hotosm/hanko-auth@0.3.1(@awesome.me/webawesome@3.0.0-beta.1(@floating-ui/utils@0.2.10))':
+    dependencies:
+      '@awesome.me/webawesome': 3.0.0-beta.1(@floating-ui/utils@0.2.10)
+      '@teamhanko/hanko-elements': 1.5.2
+      lit: 3.3.1
 
   '@humanwhocodes/module-importer@1.0.1': {}
 
@@ -4261,6 +4304,22 @@ snapshots:
 
   '@tanstack/table-core@8.20.5': {}
 
+  '@teamhanko/hanko-elements@1.5.2':
+    dependencies:
+      '@denysvuika/preact-translate': 0.5.1(preact@10.28.2)
+      '@teamhanko/hanko-frontend-sdk': 1.5.2
+      '@teamhanko/preact-custom-element': 4.2.2(preact@10.28.2)
+      classnames: 2.5.1
+      preact: 10.28.2
+
+  '@teamhanko/hanko-frontend-sdk@1.5.2':
+    dependencies:
+      '@types/js-cookie': 3.0.6
+
+  '@teamhanko/preact-custom-element@4.2.2(preact@10.28.2)':
+    dependencies:
+      preact: 10.28.2
+
   '@terraformer/wkt@2.2.1': {}
 
   '@testing-library/dom@10.4.0':
@@ -4459,6 +4518,8 @@ snapshots:
   '@types/hast@3.0.4':
     dependencies:
       '@types/unist': 3.0.3
+
+  '@types/js-cookie@3.0.6': {}
 
   '@types/json-schema@7.0.15': {}
 
@@ -4956,6 +5017,8 @@ snapshots:
       readdirp: 3.6.0
     optionalDependencies:
       fsevents: 2.3.3
+
+  classnames@2.5.1: {}
 
   clsx@2.1.1: {}
 
@@ -6546,6 +6609,8 @@ snapshots:
       source-map-js: 1.2.1
 
   potpack@2.0.0: {}
+
+  preact@10.28.2: {}
 
   prelude-ls@1.2.1: {}
 
