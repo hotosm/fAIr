@@ -573,7 +573,6 @@ def predict_area(prediction_request_id, folder=None):
                     ortho_skew_tolerance_deg=params.ortho_skew_tolerance_deg,
                     ortho_max_angle_change_deg=params.ortho_max_angle_change_deg,
                     get_predictions_as_points=True,  # True by default for now , however once it is implemented in the frontend make it parameterized #todo
-                    remove_metadata=True,
                     output_path=out,
                 )
             )

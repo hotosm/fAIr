@@ -14,6 +14,7 @@ WORKDIR /app
 COPY pyproject.toml manage.py /app/
 
 RUN uv lock
+
 RUN uv pip compile --python-version=3.10  pyproject.toml -o requirements.txt --group api --group base-workers --group ramp-workers \
     && pip install --no-cache-dir -r requirements.txt
 
