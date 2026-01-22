@@ -47,7 +47,15 @@ Unlike other AI data producers, fAIr is a free and open-source AI service that a
 
 To eliminate model biases, fAIr is built to work with the local communities and receive constant feedback on the models, which will result in the progressive intelligence of computer vision models. The AI models suggest detected features to be added to OpenStreetMap (OSM), but mass import into OSM is not planned. Whenever an OSM mapper uses the AI models for assisted mapping and completes corrections, fAIr can take those corrections as feedback to enhance the AI model’s accuracy.
 
-## Product Roadmap (Users' Roadmap)
+## Product Roadmap (Users' Roadmap) 2026
+
+<!-- prettier-ignore-start -->
+| Status | Feature | Detailed Description | Release | 
+|:--:| :-- | :-- | :-- |
+|🔄| Comming soon |  Comming soon | v##
+
+
+## Product Roadmap (Users' Roadmap) 2025
 
 <!-- prettier-ignore-start -->
 | Status | Feature | Detailed Description | Release | 
@@ -60,7 +68,7 @@ To eliminate model biases, fAIr is built to work with the local communities and 
 |✅| Replicable Models | Enable users to run a pre-trained model on new imagery/on a different area of their choice and using different satellite imagery | v2.2.0
 |✅| Offline AI Prediction | Enable users to submit requests for prediction using any pre-trained model and any imagery and process it in the background and provide the results back to user. | v2.2.3
 |✅| Post Processing Enhancement | Users would get enhanced geometry features (points/polygons) based on the need of the mapping process | v2.2.4
-|🔄| fAIrSwipe | Enable users to validate fAIR generated features and push them into OSM by integrating fAIr  with MapSwipe, [more details](https://docs.google.com/document/d/1dWQlBl6HM7Nky-deahw0DfKlOOEbBhuWRPnLquyf7jU/edit?usp=sharing)
+|✅| fAIrSwipe | Enable users to validate fAIR generated features and push them into OSM by integrating fAIr  with MapSwipe, [more details](https://docs.google.com/document/d/1dWQlBl6HM7Nky-deahw0DfKlOOEbBhuWRPnLquyf7jU/edit?usp=sharing) | v2.2.15
 
 |👀| You can follow [here](https://docs.google.com/document/d/1A8kRG-Tw922bV8CTz4HXjCpp7cZmHSpehLOQQF1EXao/edit?usp=sharing) the details and scope of each of the above features. and you can see and follow the [Figma design progress](https://www.figma.com/design/1WXme5jfWV4tCaY9Rcaekk/fAIr-Project---UIUX-Team?node-id=2772-7466&p=f) for current in development 🔄 features
 
