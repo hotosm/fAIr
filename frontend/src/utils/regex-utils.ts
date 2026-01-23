@@ -62,3 +62,12 @@ export const getTileServerTypeFromURL = (
   }
   return TileServiceType.XYZ;
 };
+
+
+export const extractYouTubeVideoId = (url: string): string | null => {
+  // Regex to match various YouTube URL formats
+  const youtubeRegex =
+    /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|v\/)|youtu\.be\/)([\w-]{11})/i;
+  const match = url.match(youtubeRegex);
+  return match ? match[1] : null;
+};

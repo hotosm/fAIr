@@ -81,3 +81,16 @@ export type TProfileNavigationTabs = {
 export type MapInstance = Map | null;
 
 export type { Source as AnySourceImplementation } from "maplibre-gl";
+
+
+export type TFairVideo = {
+  id: number;
+  name: string;
+  url: string;
+  slug: string;
+  date: string;
+};
+
+export type TFairUpdates = {
+  videos: TFairVideo[];
+};

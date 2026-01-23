@@ -6,6 +6,7 @@ export const LEARN_PAGE_CONTENT: TLearnPageContent = {
   // The title to show near the browsers favicon or in social media open graph
   pageTitle: "Learn",
   pageHeader: "Learn",
+   comingSoonText: "Coming Soon",
   heroHeading: {
     firstSegment: "fAIr is built to make mapping",
     secondSegment: "easier",
@@ -15,13 +16,14 @@ export const LEARN_PAGE_CONTENT: TLearnPageContent = {
     sixthSegment: "100% control",
     seventhSegment: "of the map.",
   },
+ 
   heroDescription:
     "Everybody can create a model that work for their mapping area and can as well use already existing models that is similar to their area of interest. Which ever path you choose fAIr is there to make your mapping experience a lot less daunting.",
   sectionHeaders: {
     guides: "Guides",
     videos: "Videos",
-    courses: "Learn about fAIr",
-    updates: "fAIr Update"
+    courses: "Trainings",
+    updates: "fAIr Updates"
   },
   courses: [
     {
@@ -29,7 +31,7 @@ export const LEARN_PAGE_CONTENT: TLearnPageContent = {
       courseLength: "10 course content",
       language: "English",
       duration: "2 hours",
-      available: true,
+      available: false,
       courseImage: BeginnerCourseImage
     },
         {
@@ -37,7 +39,7 @@ export const LEARN_PAGE_CONTENT: TLearnPageContent = {
       courseLength: "8 course content",
       language: "English",
       duration: "4hr",
-      available: true,
+      available: false,
       courseImage: IntermediateCourseImage
     },
        {
@@ -45,7 +47,7 @@ export const LEARN_PAGE_CONTENT: TLearnPageContent = {
       courseLength: "14 course content",
       language: "English & German",
       duration: "8hr",
-      available: true,
+      available: false,
       courseImage: AdvancedCourseImage
     },
   ],
@@ -58,6 +60,7 @@ export const LEARN_PAGE_CONTENT: TLearnPageContent = {
       isVideo: true,
       onClick: () => null,
       buttonText: "Open",
+      comingSoon: true,
     },
     {
       title: "Quick Guide",
@@ -67,6 +70,7 @@ export const LEARN_PAGE_CONTENT: TLearnPageContent = {
       href: "https://learnmore.com",
       isLink: true,
       buttonText: "Open",
+      comingSoon: true,
     },
   ],
   videos: [

@@ -5,6 +5,7 @@ import {
 import { BASE_MODELS } from "@/enums";
 import { useToastNotification } from "@/hooks/use-toast-notification";
 import { TModelDetails } from "@/types";
+import { extractYouTubeVideoId } from "./regex-utils";
 
 /**
  * Displays an error message as a toast notification.
@@ -50,7 +51,7 @@ export const showErrorToast = (
   }
   toast(message, "danger");
 };
-
+export const BACKUP_VIDEO_URL = "https://youtu.be/N2_9Bvm05_0";
 /**
  * Displays a success message as a toast notification.
  *
@@ -104,4 +105,22 @@ export const constructModelCheckpointPath = (
   }
   // move to environment variable - /mnt/efsmount/data/trainings
   return `${FAIR_MODELS_BASE_PATH}/trainings/dataset_${datasetId}/output/training_${trainingId}/checkpoint${fileExtension}`;
+};
+
+
+export const getValidVideoUrl = (url: string): string => {
+  const videoId = extractYouTubeVideoId(url);
+  return videoId ? url : BACKUP_VIDEO_URL;
+};
+
+/**
+ * Gets the YouTube thumbnail URL from a video URL
+ */
+export const getYouTubeThumbnail = (url: string): string => {
+  const validUrl = getValidVideoUrl(url);
+  const videoId = extractYouTubeVideoId(validUrl);
+  // Use maxresdefault for highest quality, falls back to hqdefault
+  return videoId
+    ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`
+    : "/cover.png";
 };
