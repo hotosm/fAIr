@@ -346,7 +346,14 @@ export const ModelsProvider: React.FC<{
       handleChange(MODEL_CREATION_FORM_NAME.TMS_URL, datasetSourceImagery);
     }
   }, [datasetId, datasetName, datasetSourceImagery]);
-  // Prefill formData with model details in edit mode.
+
+  // Prevent stale dataset state when the datasetId changes.
+  useEffect(() => {
+    handleChange(MODEL_CREATION_FORM_NAME.TRAINING_AREAS, []);
+    handleChange(MODEL_CREATION_FORM_NAME.DATASET_OFFSET, [0, 0]);
+    handleChange(MODEL_CREATION_FORM_NAME.TMS_URL, "");
+  }, [datasetId]);
+
   useEffect(() => {
     if (!isEditMode || isPending || !data || isError) return;
 
