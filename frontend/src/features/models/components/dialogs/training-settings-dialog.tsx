@@ -31,7 +31,6 @@ const ModelTrainingSettingsDialog: React.FC<ModelEnhancementDialogProps> = ({
     data,
     isPending,
     isError,
-    resetState,
   } = useModelsContext();
 
   {
@@ -79,6 +78,7 @@ const ModelTrainingSettingsDialog: React.FC<ModelEnhancementDialogProps> = ({
     );
   };
 
+  if (!isOpened) return null;
   return (
     <Dialog
       isOpened={isOpened}
