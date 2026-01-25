@@ -31,6 +31,7 @@ const ModelTrainingSettingsDialog: React.FC<ModelEnhancementDialogProps> = ({
     data,
     isPending,
     isError,
+    resetState
   } = useModelsContext();
 
   {
@@ -46,7 +47,9 @@ const ModelTrainingSettingsDialog: React.FC<ModelEnhancementDialogProps> = ({
     );
   }, [data?.base_model]);
 
-  const disableButton = formData.zoomLevels.length === 0;
+  const disableButton = formData.zoomLevels.length === 0 || !formData.trainingSettingsIsValid; 
+ 
+
   const { refetch: refetchTrainingHistory } = useTrainingHistory(
     0,
     PAGE_LIMIT,
