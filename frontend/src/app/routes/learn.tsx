@@ -18,7 +18,7 @@ import { UpdateCard } from "@/components/learn/update-card";
 import { CourseCard } from "@/components/learn/learn-course-card";
 import { GuideCard } from "@/components/learn/guide-card";
 export const LearnPage = () => {
-  const { data } = useFairUpdates();
+  const { data, isLoading } = useFairUpdates();
   const { breakpoint } = useBreakpoint();
   const slidesPerPage = getSlidesPerPage(breakpoint);
   const [selectedVideo, setSelectedVideo] = useState<TFairVideo | null>(null);
@@ -89,18 +89,28 @@ export const LearnPage = () => {
               } as React.CSSProperties
             }
           >
-            {data?.videos.map((update, index) => (
-              <SlCarouselItem
-                key={update.id}
-                aria-label={`Slide ${index + 1} of ${data?.videos.length}: ${update.name}`}
-                aria-roledescription="slide"
-              >
-                <UpdateCard
-                  update={update}
-                  onClick={() => handleVideoSelect(update)}
-                />
-              </SlCarouselItem>
-            ))}
+            {isLoading
+              ? Array.from({ length: 5 }).map((_, index) => (
+                  <SlCarouselItem
+                    key={index}
+                    aria-label={`Loading slide ${index + 1}`}
+                    aria-roledescription="slide"
+                  >
+                    <UpdateCardSkeleton />
+                  </SlCarouselItem>
+                ))
+              : data?.videos.map((update, index) => (
+                  <SlCarouselItem
+                    key={update.id}
+                    aria-label={`Slide ${index + 1} of ${data?.videos.length}: ${update.name}`}
+                    aria-roledescription="slide"
+                  >
+                    <UpdateCard
+                      update={update}
+                      onClick={() => handleVideoSelect(update)}
+                    />
+                  </SlCarouselItem>
+                ))}
           </SlCarousel>
         </div>
       </section>
@@ -114,8 +124,6 @@ export const LearnPage = () => {
         </div>
       </section>
 
-    
-
       {/* <section>
         <SectionHeader title={LEARN_PAGE_CONTENT.sectionHeaders.videos} />
         <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-y-20 md:gap-x-6">
@@ -124,8 +132,7 @@ export const LearnPage = () => {
           ))}
         </div>
       </section> */}
-<UpdateCardSkeleton />
-
+      <UpdateCardSkeleton />
 
       <section>
         <SectionHeader title={LEARN_PAGE_CONTENT.sectionHeaders.guides} />
@@ -147,14 +154,3 @@ export const LearnPage = () => {
     </main>
   );
 };
-
-
-
-
-
-
-
-
-
- 
-
