@@ -227,6 +227,8 @@
   height: 2.5rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: all 0.2s ease;
+    color: #2C3038;
+
 }
 
 @media (max-width: 639px) {
@@ -249,27 +251,29 @@
 
 .updates-carousel::part(navigation-button--previous) {
   position: absolute;
-  left: -3rem;
+  left: -1rem;
   top: 50%;
   transform: translateY(-50%);
   z-index: 10;
+  /* Dont show left button */
+  display: none;
 }
 
-@media (max-width: 767px) {
+/* @media (max-width: 767px) {
   .updates-carousel::part(navigation-button--previous) {
-    left: -2.5rem;
+    left: -0.75rem;
   }
-}
+} */
 
-@media (max-width: 639px) {
+/* @media (max-width: 639px) {
   .updates-carousel::part(navigation-button--previous) {
     left: -2rem;
   }
-}
+} */
 
 .updates-carousel::part(navigation-button--next) {
   position: absolute;
-  right: -3rem;
+  right: -1rem;
   top: 50%;
   transform: translateY(-50%);
   z-index: 10;
@@ -277,13 +281,13 @@
 
 @media (max-width: 767px) {
   .updates-carousel::part(navigation-button--next) {
-    right: -2.5rem;
+    right: -0.75rem;
   }
 }
 
 @media (max-width: 639px) {
   .updates-carousel::part(navigation-button--next) {
-    right: -2rem;
+    right: -0.5rem;
   }
 }
 
@@ -293,19 +297,20 @@
 
 /* Responsive Update Card */
 .update-card {
-  width: 100%;
+  width: 90%;
   height: 100%;
   min-height: 400px;
 }
 
 @media (min-width: 640px) {
   .update-card {
-    min-height: 350px;
+    min-height: 400px;
   }
 }
 
 @media (min-width: 1024px) {
   .update-card {
     min-height: 400px;
+    max-width: 100%;
   }
 }

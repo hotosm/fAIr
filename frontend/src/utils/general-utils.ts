@@ -51,7 +51,7 @@ export const showErrorToast = (
   }
   toast(message, "danger");
 };
-export const BACKUP_VIDEO_URL = "https://youtu.be/N2_9Bvm05_0";
+export const BACKUP_VIDEO_URL = "https://www.youtube.com/embed/N2_9Bvm05_0?si=to_2aoeRCW3APmmZ";
 /**
  * Displays a success message as a toast notification.
  *
@@ -124,3 +124,11 @@ export const getYouTubeThumbnail = (url: string): string => {
     ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`
     : "/cover.png";
 };
+
+ export const getYouTubeEmbedUrl = (url: string): string => {
+    const validUrl = getValidVideoUrl(url);
+    const videoId = extractYouTubeVideoId(validUrl);
+    return videoId
+      ? `https://www.youtube.com/embed/${videoId}&autoplay=1&enablejsapi=1`
+      : "";
+  };

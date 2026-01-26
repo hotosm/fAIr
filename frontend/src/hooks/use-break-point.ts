@@ -120,7 +120,7 @@ export const getSlidesPerPage = (breakpoint: Breakpoint): number => {
     case "sm":
       return 2;
     case "md":
-      return 3;
+      return 2;
     case "lg":
     case "xl":
     case "2xl":
