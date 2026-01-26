@@ -24,6 +24,16 @@ export const navLinks: TNavBarLinks = [
     href: APPLICATION_ROUTES.ABOUT,
     active: true,
   },
+  {
+    title: SHARED_CONTENT.navbar.routes.learn,
+    href: APPLICATION_ROUTES.LEARN,
+    active: true,
+  },
+  {
+    title: SHARED_CONTENT.navbar.routes.resources,
+    href: APPLICATION_ROUTES.RESOURCES,
+    active: false,
+  },
 ];
 
 type TFooterGroupLinks = {

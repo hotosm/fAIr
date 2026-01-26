@@ -54,6 +54,7 @@ const TrainingAreaForm = ({
     () => Number(trainingDataset?.id ?? formData.selectedTrainingDatasetId),
     [trainingDataset?.id, formData.selectedTrainingDatasetId],
   );
+
   const {
     data: trainingAreasData,
     isPending: trainingAreaIsPending,

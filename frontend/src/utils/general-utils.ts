@@ -107,6 +107,23 @@ export const constructModelCheckpointPath = (
   return `${FAIR_MODELS_BASE_PATH}/trainings/dataset_${datasetId}/output/training_${trainingId}/checkpoint${fileExtension}`;
 };
 
+/**
+ * Opens the provided URL in a new browser tab.
+ * Useful for downloading files or navigating to external resources.
+ *
+ * @param url The full URL to open
+ */
+
+/**
+ * Opens the provided URL in a new browser tab.
+ * Useful for downloading files or navigating to external resources.
+ *
+ * @param url The full URL to open
+ */
+export const downloadFile = (url: string) => {
+  window.open(url, "_blank");
+};
+
 
 export const getValidVideoUrl = (url: string): string => {
   const videoId = extractYouTubeVideoId(url);

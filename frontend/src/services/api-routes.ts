@@ -25,7 +25,7 @@ export const API_ENDPOINTS = {
 
   CREATE_OFFLINE_PREDICTION: "prediction/",
   GET_OFFLINE_PREDICTIONS: "prediction/",
-
+  UPDATE_OFFLINE_PREDICTION: (id: number) => `prediction/${id}/`,
   // Feedbacks
 
   CREATE_FEEDBACK: "feedback/",
@@ -106,10 +106,16 @@ export const API_ENDPOINTS = {
   DOWNLOAD_TRAINING_FILE: (trainingId: number, directory_name: string) =>
     `workspace/download/training_${trainingId}/${directory_name}/`,
   TERMINATE_OFFLINE_PREDICTION: (id: number) => `prediction/terminate/${id}/`,
+  RETRY_OFFLINE_PREDICTION: (id: number) => `prediction/${id}/retry/`,
   // Notifications
   NOTIFICATIONS: "notifications/me",
 
   UPDATE_NOTIFICATION: (id: number) => `notifications/mark-as-read/${id}/`,
 
   UPDATE_NOTIFICATIONS: "notifications/mark-all-as-read/",
+
+  CREATE_MAPSWIPE_PROJECT: "mapswipe-project/",
+
+  GET_MAPSWIPE_PROJECT_STATUS: (projectId: string) =>
+    `mapswipe-project/${projectId}/`,
 };

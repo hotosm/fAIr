@@ -201,7 +201,7 @@ export const MAX_ACCEPTABLE_POLYGON_IN_TRAINING_AREA_GEOJSON_FILE: number =
  * Model predictions require a max zoom of 22.
  * 21 is used here because 1 is already added to the 'currentZoom' in the useMapInstance() hook.
  */
-export const MAX_ZOOM_LEVEL: number = parseIntEnv(ENVS.MAX_ZOOM_LEVEL, 21);
+export const MAX_ZOOM_LEVEL: number = parseIntEnv(ENVS.MAX_ZOOM_LEVEL, 19);
 
 /**
  * The minimum zoom level for the map before the prediction components can be activated.
@@ -242,7 +242,7 @@ export const MAP_STYLES: Record<string, string | StyleSpecification> = {
       "raster-tiles": {
         type: "raster",
         tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
-        tileSize: 128,
+        tileSize: 256,
         attribution:
           '© <a href="https://www.openstreetmap.org/copyright/">OpenStreetMap</a> contributors',
       },
@@ -253,7 +253,7 @@ export const MAP_STYLES: Record<string, string | StyleSpecification> = {
         type: "raster",
         source: "raster-tiles",
         minzoom: 0,
-        maxzoom: 22,
+        maxzoom: 19,
       },
     ],
   },

@@ -63,3 +63,8 @@ export { ResetIcon } from "./reset-icon";
 export { DirectionIcon } from "./direction-icon";
 export { CloseIcon } from "./close-icon";
 export { FileUploadIcon } from "./file-upload-icon";
+export { FilledCalendarIcon } from "./filled-calendar-icon";
+export { FilledFlagIcon } from "./filled-flag-icon";
+export { FilledLocationIcon } from "./filled-location-icon";
+export { DownloadIcon } from "./download-icon";
+export { RefreshIcon } from "./refresh-icon";

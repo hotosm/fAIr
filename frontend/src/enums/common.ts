@@ -83,6 +83,7 @@ export enum ModelTrainingStatus {
   FINISHED = "FINISHED",
   FAILED = "FAILED",
   RUNNING = "RUNNING",
+  PENDING = "PENDING",
 }
 
 export enum TileServiceType {

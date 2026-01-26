@@ -7,14 +7,22 @@ export const terminateOfflinePrediction = (predictionId: number) => {
   );
 };
 
-type TUseTerminatePredictionOptions = {
-  mutationConfig?: MutationConfig<typeof terminateOfflinePrediction>;
+export const retryOfflinePrediction = (predictionId: number) => {
+  return apiClient.post(
+    `${API_ENDPOINTS.RETRY_OFFLINE_PREDICTION(predictionId)}`,
+  );
+};
+
+type TUseTerminateOrRetryPredictionOptions = {
+  mutationConfig?:
+    | MutationConfig<typeof terminateOfflinePrediction>
+    | MutationConfig<typeof retryOfflinePrediction>;
   predictionId: number;
 };
 
 export const useTerminateOfflinePrediction = ({
   mutationConfig,
-}: TUseTerminatePredictionOptions) => {
+}: TUseTerminateOrRetryPredictionOptions) => {
   const queryClient = useQueryClient();
   const { onSuccess, ...restConfig } = mutationConfig || {};
   return useMutation({
@@ -27,5 +35,23 @@ export const useTerminateOfflinePrediction = ({
     },
     ...restConfig,
     mutationFn: terminateOfflinePrediction,
+  });
+};
+
+export const useRetryOfflinePrediction = ({
+  mutationConfig,
+}: TUseTerminateOrRetryPredictionOptions) => {
+  const queryClient = useQueryClient();
+  const { onSuccess, ...restConfig } = mutationConfig || {};
+  return useMutation({
+    onSuccess: async (...args) => {
+      onSuccess?.(...args);
+      // clear the cache to update the table
+      queryClient.invalidateQueries({
+        queryKey: ["offline-predictions"],
+      });
+    },
+    ...restConfig,
+    mutationFn: retryOfflinePrediction,
   });
 };
