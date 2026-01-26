@@ -125,13 +125,7 @@ export const getYouTubeThumbnail = (url: string): string => {
     : "/cover.png";
 };
 
-//  export const getYouTubeEmbedUrl = (url: string): string => {
-//     const validUrl = getValidVideoUrl(url);
-//     const videoId = extractYouTubeVideoId(validUrl);
-//     return videoId
-//       ? `https://www.youtube.com/embed/${videoId}&autoplay=1&enablejsapi=1`
-//       : BACKUP_VIDEO_URL;
-//   };
+
 
   export const getYouTubeEmbedUrl = (url: string) => {
   const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/);
