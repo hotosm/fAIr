@@ -14,11 +14,6 @@ export const navLinks: TNavBarLinks = [
     href: APPLICATION_ROUTES.DATASETS,
     active: true,
   },
-   {
-    title: SHARED_CONTENT.navbar.routes.learn,
-    href: APPLICATION_ROUTES.LEARN,
-    active: true,
-  },
   {
     title: SHARED_CONTENT.navbar.routes.about,
     href: APPLICATION_ROUTES.ABOUT,

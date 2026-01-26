@@ -123,7 +123,6 @@ export const LearnPage = () => {
           ))}
         </div>
       </section>
-      <UpdateCardSkeleton />
 
       <section>
         <SectionHeader title={LEARN_PAGE_CONTENT.sectionHeaders.guides} />
