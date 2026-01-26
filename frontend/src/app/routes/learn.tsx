@@ -1,4 +1,3 @@
-// import { PageUnderConstruction } from "@/components/errors";
 import { fAIrValues } from "@/assets/svgs";
 import { Head } from "@/components/seo";
 import { Header, SectionHeader } from "@/components/shared";
@@ -30,6 +29,8 @@ export const LearnPage = () => {
   const handleCloseModal = () => {
     setSelectedVideo(null);
   };
+
+  console.log(data)
   return (
     // <PageUnderConstruction />
     <main className="static-page-layout">
@@ -114,7 +115,6 @@ export const LearnPage = () => {
           </SlCarousel>
         </div>
       </section>
-      {/* <TheFAIRProcess disableStyle /> */}
       <section>
         <SectionHeader title={LEARN_PAGE_CONTENT.sectionHeaders.courses} />
         <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-y-20 md:gap-x-6">
@@ -123,15 +123,6 @@ export const LearnPage = () => {
           ))}
         </div>
       </section>
-
-      {/* <section>
-        <SectionHeader title={LEARN_PAGE_CONTENT.sectionHeaders.videos} />
-        <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-y-20 md:gap-x-6">
-          {LEARN_PAGE_CONTENT.videos.map((video, id) => (
-            <VideoCard video={video} key={id} />
-          ))}
-        </div>
-      </section> */}
       <UpdateCardSkeleton />
 
       <section>

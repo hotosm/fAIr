@@ -19,7 +19,6 @@ export const VideoPlayerModal = ({
   const embedUrl = getYouTubeEmbedUrl(video.url);
   const { isSmallViewport } = useScreenSize();
 
-  // Nothing open, nothing mounted, nothing haunting the DOM 👻
   if (!isOpen) return null;
 
   return (
