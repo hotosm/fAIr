@@ -31,14 +31,10 @@ PREDICTION_WORKSPACE = env(
     "PREDICTION_WORKSPACE", default=os.path.join(BASE_DIR, "prediction")
 )
 
-if DEBUG:
-    FRONTEND_URL = env("FRONTEND_URL", default="http://localhost:3000")
-    API_BASE_URL = env("API_BASE_URL", default="http://127.0.0.1:8000/api/v1")
-    HOSTNAME = env("HOSTNAME", default="127.0.0.1")
-else:
-    FRONTEND_URL = env("FRONTEND_URL", default="https://fair.hotosm.org")
-    API_BASE_URL = env("API_BASE_URL", default="https://fair-dev.hotosm.org/api/v1")
-    HOSTNAME = env("HOSTNAME", default="127.0.0.1")
+
+FRONTEND_URL = env("FRONTEND_URL", default="https://fair-dev.hotosm.org")
+API_BASE_URL = env("API_BASE_URL", default="https://fair-dev.hotosm.org/api/v1")
+HOSTNAME = env("HOSTNAME", default="https://fair-dev.hotosm.org")
 
 EXPORT_TOOL_API_URL = env(
     "EXPORT_TOOL_API_URL", default="https://api-prod.raw-data.hotosm.org/v1"
@@ -47,14 +43,10 @@ EXPORT_TOOL_API_URL = env(
 if env("GDAL_LIBRARY_PATH", default=None):
     GDAL_LIBRARY_PATH = env("GDAL_LIBRARY_PATH")
 
-if DEBUG:
-    OSM_CLIENT_ID = env("OSM_CLIENT_ID", default="debug-client-id")
-    OSM_CLIENT_SECRET = env("OSM_CLIENT_SECRET", default="debug-client-secret")
-    OSM_SECRET_KEY = env("OSM_SECRET_KEY", default="debug-secret-key")
-else:
-    OSM_CLIENT_ID = env("OSM_CLIENT_ID")
-    OSM_CLIENT_SECRET = env("OSM_CLIENT_SECRET")
-    OSM_SECRET_KEY = env("OSM_SECRET_KEY")
+
+OSM_CLIENT_ID = env("OSM_CLIENT_ID", default="debug-client-id")
+OSM_CLIENT_SECRET = env("OSM_CLIENT_SECRET", default="debug-client-secret")
+OSM_SECRET_KEY = env("OSM_SECRET_KEY", default="debug-secret-key")
 
 OSM_URL = env("OSM_URL", default="https://www.openstreetmap.org")
 OSM_SCOPE = env("OSM_SCOPE", default="read_prefs")
@@ -112,6 +104,7 @@ FGB_USE_ARROW_FOR_STREAMING = env.bool("FGB_USE_ARROW_FOR_STREAMING", default=Tr
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
+    "django.contrib.postgres",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
@@ -122,7 +115,7 @@ INSTALLED_APPS = [
     "rest_framework_gis",
     "django_filters",
     "corsheaders",
-    "drf_yasg",
+    "drf_spectacular",
     "celery",
     "django_celery_results",
     "django_q",
@@ -155,7 +148,7 @@ if DEBUG:
     CSRF_TRUSTED_ORIGINS = []
 else:
     ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
-    SECURE_SSL_REDIRECT = True
+    SECURE_SSL_REDIRECT = env.bool("SECURE_SSL_REDIRECT", default=True)
     SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
@@ -177,7 +170,7 @@ CSRF_COOKIE_SAMESITE = "Lax"
 DEFAULT_PAGINATION_SIZE = env.int("DEFAULT_PAGINATION_SIZE", default=50)
 
 REST_FRAMEWORK = {
-    "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema",
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.BasicAuthentication",
@@ -207,8 +200,8 @@ TEMPLATES = [
     },
 ]
 
-if DEBUG:
-    default_db_url = "postgis://admin:password@localhost:5432/fair"
+
+default_db_url = "postgis://admin:password@localhost:5432/fair"
 
 DATABASE_URL = env("DATABASE_URL", default=default_db_url)
 
@@ -246,6 +239,7 @@ USE_TZ = True
 STATIC_URL = "/api_static/"
 MEDIA_URL = "/media/"
 STATIC_ROOT = os.path.join(BASE_DIR, "api_static")
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 LOGGING = {
     "version": 1,
@@ -303,30 +297,60 @@ Q_CLUSTER = {
 
 AUTH_USER_MODEL = "login.OsmUser"
 
-SWAGGER_SETTINGS = {
-    "DEFAULT_INFO": "fairproject.urls.api_info",
-    "SECURITY_DEFINITIONS": {
-        "OSM": {
-            "type": "apiKey",
-            "name": "access-token",
-            "in": "header",
-            "description": "OSM OAuth2 access token. Get it from /api/v1/auth/login/",
-        },
+SPECTACULAR_SETTINGS = {
+    "TITLE": "fAIr API",
+    "DESCRIPTION": """
+## AI-Assisted Mapping
+
+fAIr enables AI-powered mapping using aerial imagery.
+
+### Authentication
+Most endpoints require authentication using OSM OAuth2:
+1. Get access token: `POST /api/v1/auth/login/`
+2. Use token in header: `access-token: YOUR_TOKEN`
+
+### Typical Workflow
+1. **Create Dataset**: Define imagery source
+2. **Create AOI**: Define mapping area with polygon
+3. **Add Labels**: Either fetch from OSM or upload GeoJSON
+4. **Create Model**: Initialize AI model
+5. **Run Training**: Train model
+6. **Run Prediction**: Run inference on new areas
+7. **Submit Feedback**: Accept/reject predictions
+    """,
+    "VERSION": "v1",
+    "CONTACT": {"name": "HOT Tech Team", "email": "sysadmin@hotosm.org"},
+    "LICENSE": {"name": "AGPL-3.0", "url": "https://www.gnu.org/licenses/agpl-3.0.en.html"},
+    "TERMS_OF_SERVICE": "https://www.hotosm.org/privacy",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "SWAGGER_UI_SETTINGS": {
+        "deepLinking": True,
+        "persistAuthorization": True,
+        "displayOperationId": False,
+        "filter": True,
+        "tagsSorter": "alpha",
+        "operationsSorter": "alpha",
     },
-    "USE_SESSION_AUTH": False,
-    "PERSIST_AUTH": True,
-    "REFETCH_SCHEMA_WITH_AUTH": True,
-    "REFETCH_SCHEMA_ON_LOGOUT": True,
-    "DEFAULT_MODEL_RENDERING": "example",
-    "DEFAULT_MODEL_DEPTH": 2,
-    "SHOW_REQUEST_HEADERS": True,
-    "SUPPORTED_SUBMIT_METHODS": ["get", "post", "put", "delete", "patch"],
-    "OPERATIONS_SORTER": "alpha",
-    "TAGS_SORTER": "alpha",
-    "DOC_EXPANSION": "list",
-    "DEEP_LINKING": True,
-    "DISPLAY_OPERATION_ID": False,
-    "DEFAULT_AUTO_SCHEMA_CLASS": "core.swagger_inspector.CustomAutoSchema",
+    "COMPONENT_SPLIT_REQUEST": True,
+    "SCHEMA_PATH_PREFIX": "/api/v1",
+    "SECURITY": [{"OsmAuth": []}],
+    "APPEND_COMPONENTS": {
+        "securitySchemes": {
+            "OsmAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "access-token",
+                "description": "OSM OAuth2 access token obtained from /api/v1/auth/login/",
+            }
+        }
+    },
+    "DISABLE_ERRORS_AND_WARNINGS": False,
+    "PREPROCESSING_HOOKS": [],
+    "POSTPROCESSING_HOOKS": [],
+    "ENUM_NAME_OVERRIDES": {},
+    "SERVERS": [],
+    "SCHEMA_COERCE_PATH_PK": True,
+    "SCHEMA_COERCE_METHOD_NAMES": {},
 }
 
 RAMP_HOME = env("RAMP_HOME", default=None)
@@ -454,6 +478,7 @@ if not DEBUG:
 
 ### Mapswipe block 
 
+ENABLE_MAPSWIPE_INTEGREATION = True
 
 MAPSWIPE_BACKEND_URL = env("MAPSWIPE_BACKEND_URL", default="https://backend-2.mapswipe.dev.togglecorp.com")
 MAPSWIPE_MANAGER_URL = env("MAPSWIPE_MANAGER_URL", default="https://manager-2.mapswipe.dev.togglecorp.com")
@@ -471,9 +496,11 @@ MAPSWIPE_FB_PASSWORD = env("MAPSWIPE_FB_PASSWORD", default=None)
 
 ENABLE_MASPSWIPE_INTEGRATION = env.bool("ENABLE_MAPSWIPE_INTEGRATION", default=(MAPSWIPE_CSRFTOKEN_KEY and MAPSWIPE_FB_AUTH_URL and MAPSWIPE_FB_USERNAME and MAPSWIPE_FB_PASSWORD))
 
-
+MAPSWIPE_TUTORIAL_ID = env("MAPSWIPE_TUTORIAL_ID", default="37")
 MAPSWIPE_ORGANIZATION_ID = env.int("MAPSWIPE_ORGANIZATION_ID", default=4)
 
 
 MAPSWIPE_POLL_INTERVAL = env.int("MAPSWIPE_POLL_INTERVAL", default=10)
 MAPSWIPE_POLL_TIMEOUT = env.int("MAPSWIPE_POLL_TIMEOUT", default=600)
+
+ENABLE_FAIR_PREDICTOR = env.bool("ENABLE_FAIR_PREDICTOR", default=True) # for standalone fairpredictor module , you can enable this to test in the dev in production fairpredictor can be deployed independently

@@ -28,7 +28,9 @@ ENV C_INCLUDE_PATH=/usr/include/gdal
 
 WORKDIR /app
 
-COPY pyproject.toml uv.lock manage.py /app/
+COPY pyproject.toml manage.py /app/
+
+RUN uv lock
 
 RUN --mount=type=cache,target=/root/.cache/uv \
     echo "Supplied BUILD_TARGET: $BUILD_TARGET" && \

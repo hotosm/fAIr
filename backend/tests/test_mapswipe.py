@@ -18,10 +18,10 @@ class MapswipeProjectViewSetTest(BaseAPITestCase):
             "geojson_url": "https://fair-dev.hotosm.org/api/v1/workspace/download/training_1142/labels.geojson/",
             "tms_url": "https://tiles.openaerialmap.org/68bed3070dea6f775adb9b06/0/68bed3070dea6f775adb9b07/{z}/{x}/{y}"
         }
-
+    @patch('core.views.get_object_or_404')
     @patch('core.views.settings')
     @patch('core.views.MapswipeClient')
-    def test_create_and_retrieve_mapswipe_project(self, mock_client, mock_settings):
+    def test_create_and_retrieve_mapswipe_project(self, mock_client, mock_settings,mock_get_obj):
         """Test full workflow: create project then retrieve its status."""
         mock_settings.MAPSWIPE_BACKEND_URL = "http://test.mapswipe.org"
         mock_settings.MAPSWIPE_MANAGER_URL = "http://manager.test"
@@ -41,6 +41,15 @@ class MapswipeProjectViewSetTest(BaseAPITestCase):
             "result": {"id": project_id, "status": "READY_TO_PROCESS"},
             "errors": None
         }
+        
+        
+        pred_mock = MagicMock()
+        pred_mock.id = 1
+        pred_mock.mapswipe_id = project_id
+        pred_mock.result = None
+        mock_get_obj.return_value = pred_mock
+
+        
         
         res = self.post_json(self.mapswipe_create_url, self.valid_payload)
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)

@@ -91,7 +91,7 @@ class AOIAdmin(geoadmin.GISModelAdmin):
 
 @admin.register(Prediction)
 class PredictionAdmin(geoadmin.GISModelAdmin):
-    list_display = ["id", "description", "status", "result_count", "user", "created_at"]
+    list_display = ["id", "description", "status", "result", "user", "created_at"]
     list_filter = ["status", "created_at"]
     search_fields = ["description", "user__username"]
 

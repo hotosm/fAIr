@@ -26,13 +26,15 @@ from .views import (
     TrainingWorkspaceDownloadView,
     TrainingWorkspaceView,
     UserNotificationViewSet,
-    MapswipeProjectViewSet,
     UsersView,
     get_kpi_stats,
     publish_training,
     run_task_status,
     health,
 )
+
+if settings.ENABLE_FAIR_PREDICTOR:
+    from .predictor_views import PredictorPredictView
 
 # CURD Block
 router = routers.DefaultRouter()
@@ -46,7 +48,9 @@ router.register(r"feedback", FeedbackViewset)
 router.register(r"banner", BannerViewSet)
 router.register(r"notifications/me", UserNotificationViewSet, basename="notifications")
 router.register(r"prediction", PredictionViewSet)
-router.register(r"mapswipe-project", MapswipeProjectViewSet, basename="mapswipe-project")
+if settings.ENABLE_MAPSWIPE_INTEGREATION:
+    from .views import MapswipeProjectViewSet
+    router.register(r"mapswipe-project", MapswipeProjectViewSet, basename="mapswipe-project")
 
 
 urlpatterns = [
@@ -90,3 +94,9 @@ urlpatterns = [
     ),
     path("health/", health, name="health"),
 ]
+
+if settings.ENABLE_FAIR_PREDICTOR:
+    urlpatterns.append(
+        path("fairpredictor/predict/", PredictorPredictView.as_view(), name="predictor-predict")
+    )
+

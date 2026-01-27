@@ -1,5 +1,6 @@
 # Standard Library
 import concurrent.futures
+import gzip
 import gc
 import glob
 import json
@@ -440,7 +441,7 @@ class S3Uploader:
             else:
                 self.aws_session = boto3.Session()
 
-            self.settings.S3_CLIENT = self.aws_session.client("s3")
+            self.S3_CLIENT = self.aws_session.client("s3")
             self.bucket_name = bucket_name
             self.parent = parent
             logging.info("S3 connection initialized successfully")
@@ -469,7 +470,7 @@ class S3Uploader:
 
     def _upload_file(self, file_path, bucket_name):
         s3_key = f"{self.parent}/{os.path.basename(file_path)}"
-        self.settings.S3_CLIENT.upload_file(file_path, bucket_name, s3_key)
+        self.S3_CLIENT.upload_file(file_path, bucket_name, s3_key)
         return f"s3://{bucket_name}/{s3_key}"
 
     def _upload_directory(self, directory_path, bucket_name):
@@ -480,7 +481,7 @@ class S3Uploader:
                 relative_path = os.path.relpath(local_path, directory_path)
                 relative_path = relative_path.replace("\\", "/")
                 s3_key = f"{self.parent}/{relative_path}"
-                self.settings.S3_CLIENT.upload_file(local_path, bucket_name, s3_key)
+                self.S3_CLIENT.upload_file(local_path, bucket_name, s3_key)
                 total_files += 1
         return {
             "directory_name": os.path.basename(directory_path),
@@ -739,3 +740,17 @@ def get_api_version():
         return data.get("project", {}).get("version", "unknown")
     except Exception:
         return "unknown"
+
+def download_and_decompress_file(url, file_path):
+    try:
+        response = requests.get(url, stream=True)
+        response.raise_for_status()  # Raise an exception for HTTP errors
+
+        with gzip.GzipFile(fileobj=response.raw) as f:
+            with open(file_path, 'w') as geojson_file:
+                geojson_file.write(f.read().decode('utf-8'))
+        print(f"File downloaded and decompressed to: {file_path}")
+        return file_path
+    except requests.exceptions.RequestException as e:
+        print(f"An error occurred: {e}")
+        return None

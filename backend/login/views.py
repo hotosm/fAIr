@@ -7,8 +7,6 @@ from django.http import JsonResponse
 from django.utils import timezone
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
-from drf_yasg import openapi
-from drf_yasg.utils import swagger_auto_schema
 from osm_login_python.core import Auth
 from rest_framework import status
 from rest_framework.response import Response
@@ -74,17 +72,6 @@ class GetMyData(APIView):
         serialized_field = UserStatsSerializer(instance=user)
         return Response(serialized_field.data, status=status.HTTP_201_CREATED)
 
-    @swagger_auto_schema(
-        request_body=openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            properties={
-                "email": openapi.Schema(
-                    type=openapi.TYPE_STRING, format=openapi.FORMAT_EMAIL
-                )
-            },
-            required=["email"],
-        )
-    )
     def patch(self, request, format=None):
         user = request.user
 

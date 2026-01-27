@@ -34,7 +34,7 @@ api = [
     "django-redis>=5.4.0",
     "djangorestframework>=3.15.2",
     "djangorestframework-gis>=1.0",
-    "drf-yasg>=1.21.10",
+    "drf-spectacular>=0.29.0",
     "flower>=2.0.1",
     "geojson2osm>=0.0.1",
     "geomltoolkits>=0.4.2",
@@ -63,6 +63,7 @@ test = [
 base-workers = [
     "hot-fair-utilities>=2.0.12",
     "tippecanoe>=2.72.0",
+    "watchdog>=6.0.0",
 ]
 ramp-workers = [
     "numpy>=1.24.4,<2",
@@ -72,6 +73,7 @@ ramp-workers = [
 yolo-workers = [
 ]
 prediction-workers = [
-    "fairpredictor>=0.3.9",
+    "fairpredictor>=0.3.15",
+    "pydantic>=2.12.5",
     "tippecanoe>=2.72.0",
 ]
