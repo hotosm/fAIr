@@ -623,7 +623,7 @@ type TGuideWithOnClick = TGuideBase & {
   onClick: () => void;
   isLink?: false;
   href?: never;
-   comingSoon: boolean;
+  comingSoon: boolean;
 };
 type TGuideWithLink = TGuideBase & {
   isLink: true;
@@ -638,7 +638,6 @@ export type TVideo = {
   title: string;
   description: string;
   link: string;
-  
 };
 
 export type TCourse = {
@@ -650,13 +649,13 @@ export type TCourse = {
   courseImage: string;
 };
 
-export type IUpdate ={
+export type IUpdate = {
   id: number;
   name: string;
   url: string;
   slug: string;
   date: string;
-}
+};
 export type TLearnPageContent = {
   pageTitle: string;
   pageHeader: string;
@@ -674,8 +673,8 @@ export type TLearnPageContent = {
   sectionHeaders: {
     guides: string;
     videos: string;
-    courses: string
-    updates: string
+    courses: string;
+    updates: string;
   };
   guides: TGuide[];
   videos: TVideo[];

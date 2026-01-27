@@ -6,6 +6,7 @@ import { BASE_MODELS } from "@/enums";
 import { useToastNotification } from "@/hooks/use-toast-notification";
 import { TModelDetails } from "@/types";
 import { extractYouTubeVideoId } from "./regex-utils";
+import { UpdateCoverImage } from "@/assets/images";
 
 /**
  * Displays an error message as a toast notification.
@@ -51,7 +52,8 @@ export const showErrorToast = (
   }
   toast(message, "danger");
 };
-export const BACKUP_VIDEO_URL = "https://www.youtube.com/embed/N2_9Bvm05_0?si=to_2aoeRCW3APmmZ";
+export const BACKUP_VIDEO_URL =
+  "https://www.youtube.com/embed/N2_9Bvm05_0?si=to_2aoeRCW3APmmZ";
 /**
  * Displays a success message as a toast notification.
  *
@@ -124,7 +126,6 @@ export const downloadFile = (url: string) => {
   window.open(url, "_blank");
 };
 
-
 export const getValidVideoUrl = (url: string): string => {
   const videoId = extractYouTubeVideoId(url);
   return videoId ? url : BACKUP_VIDEO_URL;
@@ -139,12 +140,10 @@ export const getYouTubeThumbnail = (url: string): string => {
   // Use maxresdefault for highest quality, falls back to hqdefault
   return videoId
     ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`
-    : "/cover.png";
+    : UpdateCoverImage; //fallback image
 };
 
-
-
-  export const getYouTubeEmbedUrl = (url: string) => {
+export const getYouTubeEmbedUrl = (url: string) => {
   const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/);
   const videoId = match ? match[1] : null;
   return videoId

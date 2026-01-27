@@ -4,22 +4,16 @@ import { Header, SectionHeader } from "@/components/shared";
 import { Image } from "@/components/ui/image";
 import { LEARN_PAGE_CONTENT } from "@/constants";
 import { TFairVideo } from "@/types";
-import { useFairUpdates } from "@/hooks/use-get-fair-updates";
-import {
-  SlCarousel,
-  SlCarouselItem,
-} from "@shoelace-style/shoelace/dist/react";
-import { useBreakpoint, getSlidesPerPage } from "@/hooks/use-break-point";
+import { useFairUpdates } from "@/hooks/services/use-get-fair-updates";
 import { useState } from "react";
 import { UpdateCardSkeleton } from "@/components/learn/update-card-skeleton";
 import { VideoPlayerModal } from "@/components/learn/update-video-player";
 import { UpdateCard } from "@/components/learn/update-card";
 import { CourseCard } from "@/components/learn/learn-course-card";
 import { GuideCard } from "@/components/learn/guide-card";
+import { Carousel } from "@/components/ui/carousel/carousel";
 export const LearnPage = () => {
   const { data, isLoading } = useFairUpdates();
-  const { breakpoint } = useBreakpoint();
-  const slidesPerPage = getSlidesPerPage(breakpoint);
   const [selectedVideo, setSelectedVideo] = useState<TFairVideo | null>(null);
 
   const handleVideoSelect = (video: TFairVideo) => {
@@ -30,7 +24,7 @@ export const LearnPage = () => {
     setSelectedVideo(null);
   };
 
-  console.log(data)
+  console.log(data);
   return (
     // <PageUnderConstruction />
     <main className="static-page-layout">
@@ -72,7 +66,23 @@ export const LearnPage = () => {
         className="overflow-visible"
       >
         <SectionHeader title={LEARN_PAGE_CONTENT.sectionHeaders.updates} />
-        <div
+
+        <Carousel
+          items={data?.videos ?? []}
+          isLoading={isLoading}
+          loadingCount={5}
+          ariaLabel="fAIr Updates Videos"
+          containerClassName="updates-carousel-container"
+          carouselClassName="updates-carousel" //
+          renderSkeleton={(index) => <UpdateCardSkeleton key={index} />}
+          renderItem={(update) => (
+            <UpdateCard
+              update={update}
+              onClick={() => handleVideoSelect(update)}
+            />
+          )}
+        />
+        {/* <div
           className="relative updates-carousel-container"
           role="region"
           aria-roledescription="carousel"
@@ -113,7 +123,7 @@ export const LearnPage = () => {
                   </SlCarouselItem>
                 ))}
           </SlCarousel>
-        </div>
+        </div> */}
       </section>
       <section>
         <SectionHeader title={LEARN_PAGE_CONTENT.sectionHeaders.courses} />

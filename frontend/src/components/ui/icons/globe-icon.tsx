@@ -16,4 +16,3 @@ export const GlobeIcon: React.FC<IconProps> = (props) => (
     ></path>
   </svg>
 );
-

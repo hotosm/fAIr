@@ -1,7 +1,7 @@
 import { TFairVideo } from "@/types";
 import { getYouTubeThumbnail, formatUpdateDate } from "@/utils";
-import { YouTubePlayCircleIcon } from "../ui/icons";
-import { Image } from "../ui/image";
+import { YouTubePlayCircleIcon } from "@/components/ui/icons";
+import { Image } from "@/components/ui/image";
 
 export const UpdateCard = ({
   update,

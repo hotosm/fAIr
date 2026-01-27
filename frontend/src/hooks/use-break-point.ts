@@ -21,7 +21,6 @@ const breakpoints: BreakpointConfig = {
   "2xl": 1536,
 };
 
-
 export const useBreakpoint = () => {
   const [currentBreakpoint, setCurrentBreakpoint] = useState<Breakpoint>("lg");
 

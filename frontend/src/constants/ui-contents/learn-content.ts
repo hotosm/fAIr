@@ -1,4 +1,8 @@
-import { AdvancedCourseImage, BeginnerCourseImage, IntermediateCourseImage } from "@/assets/images";
+import {
+  AdvancedCourseImage,
+  BeginnerCourseImage,
+  IntermediateCourseImage,
+} from "@/assets/images";
 import { BookTemplateIcon, DesktopCursorIcon } from "@/components/ui/icons";
 import { TLearnPageContent } from "@/types";
 
@@ -6,7 +10,7 @@ export const LEARN_PAGE_CONTENT: TLearnPageContent = {
   // The title to show near the browsers favicon or in social media open graph
   pageTitle: "Learn",
   pageHeader: "Learn",
-   comingSoonText: "Coming Soon",
+  comingSoonText: "Coming Soon",
   heroHeading: {
     firstSegment: "fAIr is built to make mapping",
     secondSegment: "easier",
@@ -16,14 +20,14 @@ export const LEARN_PAGE_CONTENT: TLearnPageContent = {
     sixthSegment: "100% control",
     seventhSegment: "of the map.",
   },
- 
+
   heroDescription:
     "Everybody can create a model that work for their mapping area and can as well use already existing models that is similar to their area of interest. Which ever path you choose fAIr is there to make your mapping experience a lot less daunting.",
   sectionHeaders: {
     guides: "Guides",
     videos: "Videos",
     courses: "Trainings",
-    updates: "fAIr Updates"
+    updates: "fAIr Updates",
   },
   courses: [
     {
@@ -32,23 +36,23 @@ export const LEARN_PAGE_CONTENT: TLearnPageContent = {
       language: "English",
       duration: "2 hours",
       available: false,
-      courseImage: BeginnerCourseImage
+      courseImage: BeginnerCourseImage,
     },
-        {
+    {
       title: "Intermediate Course",
       courseLength: "8 course content",
       language: "English",
       duration: "4hr",
       available: false,
-      courseImage: IntermediateCourseImage
+      courseImage: IntermediateCourseImage,
     },
-       {
+    {
       title: "Advanced Course",
       courseLength: "14 course content",
-      language: "English & German",
+      language: "English",
       duration: "8hr",
       available: false,
-      courseImage: AdvancedCourseImage
+      courseImage: AdvancedCourseImage,
     },
   ],
   guides: [

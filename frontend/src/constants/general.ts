@@ -8,7 +8,7 @@ export const navLinks: TNavBarLinks = [
     href: APPLICATION_ROUTES.MODELS,
     active: true,
   },
-  
+
   {
     title: SHARED_CONTENT.navbar.routes.exploreDatasets,
     href: APPLICATION_ROUTES.DATASETS,
