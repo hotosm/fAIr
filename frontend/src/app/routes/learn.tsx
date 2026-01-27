@@ -25,7 +25,6 @@ export const LearnPage = () => {
   };
 
   return (
-    // <PageUnderConstruction />
     <main className="static-page-layout">
       <Head title={LEARN_PAGE_CONTENT.pageTitle} />
       <Header title={LEARN_PAGE_CONTENT.pageHeader} />
