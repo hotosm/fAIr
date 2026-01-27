@@ -44,6 +44,7 @@ type DropDownProps = {
   triggerComponent: React.ReactNode;
   distance?: number;
   disableCheveronIcon?: boolean;
+  hoist?: boolean;
 };
 
 const DropDown = forwardRef<SlDropdownType, DropDownProps>((props, ref) => {
@@ -63,6 +64,7 @@ const DropDown = forwardRef<SlDropdownType, DropDownProps>((props, ref) => {
     triggerComponent,
     distance = 20,
     disableCheveronIcon = false,
+    hoist = false,
   } = props;
 
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
@@ -128,6 +130,7 @@ const DropDown = forwardRef<SlDropdownType, DropDownProps>((props, ref) => {
       className={className}
       disabled={disabled}
       distance={distance}
+      hoist={hoist}
       stayOpenOnSelect={withCheckbox} // when selecting a single item, we can close the dropdown after selection.
     >
       <div

@@ -90,6 +90,21 @@ export const FAIR_PREDICTOR_API_ENDPOINT: string = parseStringEnv(
   "https://predictor-dev.fair.hotosm.org/predict/",
 );
 
+/**
+ * Fair YouTube Updates URL.
+ */
+export const FAIR_YOUTUBE_UPDATES_URL: string = parseStringEnv(
+  ENVS.FAIR_YOUTUBE_UPDATES_URL,
+  "https://raw.githubusercontent.com/hotosm/fAIr/develop/docs/assets/fair-updates.json",
+);
+
+/**
+ * FAIR Youtube Backup Video URL.
+ */
+export const BACKUP_VIDEO_URL: string = parseStringEnv(
+  ENVS.FAIR_VIDEO_BACKUP_URL,
+  "https://www.youtube.com/embed/N2_9Bvm05_0?si=to_2aoeRCW3APmmZ",
+);
 // ==============================================================================================================================
 // Local & Session Storage Keys
 // ==============================================================================================================================

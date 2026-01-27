@@ -41,7 +41,20 @@ export const getTileServerRegex = (serviceType: TileServiceType) => {
       return XYZ_TILESERVER_URL_REGEX_PATTERN;
   }
 };
-
+/**
+ * Function to extract the YouTube video ID from a given URL.
+ * This function matches common YouTube URL formats such as watch, embed, and short links.
+ *
+ * @param url - The YouTube URL to parse.
+ * @returns The extracted 11-character YouTube video ID, or null if no match is found.
+ */
+export const extractYouTubeVideoId = (url: string): string | null => {
+  // Regex to match various YouTube URL formats
+  const youtubeRegex =
+    /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|v\/)|youtu\.be\/)([\w-]{11})/i;
+  const match = url.match(youtubeRegex);
+  return match ? match[1] : null;
+};
 /**
  * Function to get the tile server type from a given URL.
  * This function checks the URL against known patterns for different tile service types.

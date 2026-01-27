@@ -235,6 +235,7 @@ const columnDefinitions = (
           cell: ({ row }: { row: any }) => {
             return (
               <DropDown
+                hoist
                 disableCheveronIcon
                 triggerComponent={
                   <Badge
