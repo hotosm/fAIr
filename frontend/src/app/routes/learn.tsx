@@ -99,14 +99,13 @@ export const LearnPage = () => {
           <div className="absolute inset-0 bg-light-gray h-full w-full top-12 left-4 md:left-8"></div>
         </div>
       </section>
-
-      <VideoPlayerModal
-        video={
-          selectedVideo || { id: 0, name: "", url: "", slug: "", date: "" }
-        }
-        onClose={handleCloseModal}
-        isOpen={!!selectedVideo}
-      />
+      {selectedVideo && (
+        <VideoPlayerModal
+          video={selectedVideo}
+          onClose={handleCloseModal}
+          isOpen={!!selectedVideo}
+        />
+      )}
     </main>
   );
 };
