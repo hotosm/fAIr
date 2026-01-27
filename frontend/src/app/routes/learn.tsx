@@ -24,7 +24,6 @@ export const LearnPage = () => {
     setSelectedVideo(null);
   };
 
-  console.log(data);
   return (
     // <PageUnderConstruction />
     <main className="static-page-layout">
@@ -82,48 +81,6 @@ export const LearnPage = () => {
             />
           )}
         />
-        {/* <div
-          className="relative updates-carousel-container"
-          role="region"
-          aria-roledescription="carousel"
-          aria-label="fAIr Updates Videos"
-        >
-          <SlCarousel
-            navigation
-            slidesPerPage={slidesPerPage}
-            slidesPerMove={1}
-            className="updates-carousel"
-            style={
-              {
-                "--slide-gap": "1rem",
-                "--aspect-ratio": "auto",
-              } as React.CSSProperties
-            }
-          >
-            {isLoading
-              ? Array.from({ length: 5 }).map((_, index) => (
-                  <SlCarouselItem
-                    key={index}
-                    aria-label={`Loading slide ${index + 1}`}
-                    aria-roledescription="slide"
-                  >
-                    <UpdateCardSkeleton />
-                  </SlCarouselItem>
-                ))
-              : data?.videos.map((update, index) => (
-                  <SlCarouselItem
-                    key={update.id}
-                    aria-label={`Slide ${index + 1} of ${data?.videos.length}: ${update.name}`}
-                    aria-roledescription="slide"
-                  >
-                    <UpdateCard
-                      update={update}
-                      onClick={() => handleVideoSelect(update)}
-                    />
-                  </SlCarouselItem>
-                ))}
-          </SlCarousel>
-        </div> */}
       </section>
       <section>
         <SectionHeader title={LEARN_PAGE_CONTENT.sectionHeaders.courses} />

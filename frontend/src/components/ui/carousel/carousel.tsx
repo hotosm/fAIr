@@ -52,7 +52,6 @@ export function Carousel<T>({
         slidesPerPage={slidesPerPage}
         slidesPerMove={slidesPerMove}
         className={carouselClassName}
-        // className="sl-carousel"
         style={
           {
             "--slide-gap": "1rem",

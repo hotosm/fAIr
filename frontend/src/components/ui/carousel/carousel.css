@@ -65,18 +65,6 @@
   display: none;
 }
 
-/* @media (max-width: 767px) {
-  .updates-carousel::part(navigation-button--previous) {
-    left: -0.75rem;
-  }
-} */
-
-/* @media (max-width: 639px) {
-  .updates-carousel::part(navigation-button--previous) {
-    left: -2rem;
-  }
-} */
-
 .updates-carousel::part(navigation-button--next) {
   position: absolute;
   right: -1rem;

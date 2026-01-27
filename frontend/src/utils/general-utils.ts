@@ -1,4 +1,5 @@
 import {
+  BACKUP_VIDEO_URL,
   FAIR_MODELS_BASE_PATH,
   PREDICTION_API_FILE_EXTENSIONS,
 } from "@/config";
@@ -52,8 +53,7 @@ export const showErrorToast = (
   }
   toast(message, "danger");
 };
-export const BACKUP_VIDEO_URL =
-  "https://www.youtube.com/embed/N2_9Bvm05_0?si=to_2aoeRCW3APmmZ";
+
 /**
  * Displays a success message as a toast notification.
  *
