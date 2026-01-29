@@ -142,11 +142,11 @@ export const UserProfileOfflinePredictionsPage = () => {
           closeDialog={closeDialog}
         />
       )}
-      <Head title="Offline Predictions" />
+      <Head title="Prediction Requests" />
       <div className="space-y-8 h-full">
         {/* Section heading */}
         <div className="w-full gap-y-6 sm:gap-y-0 flex flex-col sm:flex-row justify-between items-start sm:items-center">
-          <ProfileSectionHeader title={"Predictions"} />
+          <ProfileSectionHeader title={"Prediction Requests"} />
           <SearchFilter
             query={query}
             updateQuery={updateQuery}

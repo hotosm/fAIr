@@ -59,7 +59,7 @@ export const APPLICATION_ROUTES = {
   PROFILE_SETTINGS: "/profile/settings",
   PROFILE_MODELS: "/profile/models",
   PROFILE_DATASETS: "/profile/datasets",
-  PROFILE_OFFLINE_PREDICTIONS: "/profile/offline-predictions",
+  PROFILE_OFFLINE_PREDICTIONS: "/profile/prediction-requests",
 };
 
 export const HOT_PRIVACY_POLICY_URL: string = "https://www.hotosm.org/privacy";
@@ -83,7 +83,7 @@ export const PROFILE_NAVIGATION_TABS: TProfileNavigationTabs = [
     active: true,
   },
   {
-    title: "Offline Predictions",
+    title: "Prediction Requests",
     href: APPLICATION_ROUTES.PROFILE_OFFLINE_PREDICTIONS,
     active: true,
   },

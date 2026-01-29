@@ -133,8 +133,8 @@ export const useUpdateOfflinePrediction = ({
       updateOfflinePrediction(args),
     onSuccess: (...args) => {
       onSuccess?.(...args);
-      // Refectch the offline predictions to sync the table.
-      queryClient.invalidateQueries({ queryKey: ["offline-predictions"] });
+      // Refectch the prediction requests to sync the table.
+      queryClient.invalidateQueries({ queryKey: ["prediction-requests"] });
     },
     ...restConfig,
   });
