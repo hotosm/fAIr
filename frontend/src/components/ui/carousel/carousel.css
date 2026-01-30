@@ -61,8 +61,6 @@
   top: 50%;
   transform: translateY(-50%);
   z-index: 10;
-  /* Dont show left button */
-  display: none;
 }
 
 .updates-carousel::part(navigation-button--next) {
@@ -77,11 +75,17 @@
   .updates-carousel::part(navigation-button--next) {
     right: -0.75rem;
   }
+  .updates-carousel::part(navigation-button--previous) {
+    left: -0.75rem;
+  }
 }
 
 @media (max-width: 639px) {
   .updates-carousel::part(navigation-button--next) {
     right: -0.5rem;
+  }
+  .updates-carousel::part(navigation-button--previous) {
+    left: -0.5rem;
   }
 }
 
