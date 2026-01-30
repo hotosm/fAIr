@@ -5,20 +5,30 @@ import { Image } from "@/components/ui/image";
 import { LEARN_PAGE_CONTENT } from "@/constants";
 import { TFairVideo } from "@/types";
 import { useFairUpdates } from "@/hooks/services/use-get-fair-updates";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { UpdateCardSkeleton } from "@/components/learn/update-card-skeleton";
 import { VideoPlayerModal } from "@/components/learn/update-video-player";
 import { UpdateCard } from "@/components/learn/update-card";
 import { CourseCard } from "@/components/learn/learn-course-card";
 import { GuideCard } from "@/components/learn/guide-card";
 import { Carousel } from "@/components/ui/carousel/carousel";
+import { useParams } from "react-router-dom";
+
 export const LearnPage = () => {
   const { data, isLoading } = useFairUpdates();
   const [selectedVideo, setSelectedVideo] = useState<TFairVideo | null>(null);
+  const { slug } = useParams<{ slug?: string }>();
 
   const handleVideoSelect = (video: TFairVideo) => {
     setSelectedVideo(video);
   };
+
+  useEffect(() => {
+    if (slug && data) {
+      const videoToOpen = data.videos.find((v) => v.slug === slug);
+      if (videoToOpen) setSelectedVideo(videoToOpen);
+    }
+  }, [slug, data]);
 
   const handleCloseModal = () => {
     setSelectedVideo(null);
@@ -71,7 +81,7 @@ export const LearnPage = () => {
           loadingCount={5}
           ariaLabel="fAIr Updates Videos"
           containerClassName="updates-carousel-container"
-          carouselClassName="updates-carousel" //
+          carouselClassName="updates-carousel"
           renderSkeleton={(index) => <UpdateCardSkeleton key={index} />}
           renderItem={(update) => (
             <UpdateCard

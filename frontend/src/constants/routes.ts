@@ -22,6 +22,7 @@ export const MODELS_ROUTES = {
 export const APPLICATION_ROUTES = {
   HOMEPAGE: "/",
   MODELS: MODELS_BASE,
+
   MODEL_FEEDBACKS_BASE_ROUTE: "feedbacks",
   MODEL_DETAILS: `${MODELS_BASE}/:id`,
   MODEL_FEEDBACKS: `${MODELS_BASE}/:id/feedbacks`,
@@ -52,7 +53,8 @@ export const APPLICATION_ROUTES = {
   AUTH_CALLBACK: "/authenticate",
   EMAIL_VERIFICATION_CALLBACK: "/verify-email",
   PRIVACY_POLICY: "/privacy",
-  LEARN: "/learn",
+  LEARN_BASE: "/learn",
+  LEARN: "/learn/:slug?",
   ABOUT: "/about",
   RESOURCES: "/resources",
   PROFILE_BASE: "/profile",

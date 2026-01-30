@@ -16,7 +16,7 @@ export const UpdateCard = ({
   const { copyToClipboard, isCopied } = useCopyToClipboard();
   const handleShareClick = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    const updateLink = `${window.location.origin}${APPLICATION_ROUTES.LEARN}/${update.slug}`;
+    const updateLink = `${window.location.origin}${APPLICATION_ROUTES.LEARN_BASE}/${update.slug}`;
     await copyToClipboard(updateLink);
   };
   return (

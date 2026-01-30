@@ -5,19 +5,17 @@ import {
 } from "@shoelace-style/shoelace/dist/react";
 import { useBreakpoint, getSlidesPerPage } from "@/hooks/use-break-point";
 import "./carousel.css";
+
 type CarouselProps<T> = {
   items: T[];
   renderItem: (item: T, index: number) => React.ReactNode;
-
   isLoading?: boolean;
   loadingCount?: number;
   renderSkeleton?: (index: number) => React.ReactNode;
-
   navigation?: boolean;
   slidesPerMove?: number;
   ariaLabel?: string;
   style?: React.CSSProperties;
-
   containerClassName?: string; // wrapper div
   carouselClassName?: string;
 };
@@ -25,11 +23,9 @@ type CarouselProps<T> = {
 export function Carousel<T>({
   items,
   renderItem,
-
   isLoading = false,
   loadingCount = 5,
   renderSkeleton,
-
   navigation = true,
   slidesPerMove = 1,
   ariaLabel = "carousel",
