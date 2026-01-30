@@ -59,7 +59,7 @@ export const LEARN_PAGE_CONTENT: TLearnPageContent = {
     {
       title: "Onscreen Tutorial",
       description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",
+        "Learn step by step directly on your screen with our interactive tutorials, guiding you through every feature to make using fAIr effortless.",
       icon: DesktopCursorIcon,
       isVideo: true,
       onClick: () => null,
@@ -69,7 +69,7 @@ export const LEARN_PAGE_CONTENT: TLearnPageContent = {
     {
       title: "Quick Guide",
       description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",
+        "Get started fast with our concise guide. Find essential tips, shortcuts, and instructions to navigate and use fAIr efficiently.",
       icon: BookTemplateIcon,
       href: "https://learnmore.com",
       isLink: true,
