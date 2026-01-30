@@ -1,5 +1,5 @@
 import { TFairVideo } from "@/types";
-import { getYouTubeThumbnail, formatUpdateDate } from "@/utils";
+import { getYouTubeThumbnail, formatDate } from "@/utils";
 import { YouTubePlayCircleIcon } from "@/components/ui/icons";
 import { Image } from "@/components/ui/image";
 
@@ -10,8 +10,6 @@ export const UpdateCard = ({
   update: TFairVideo;
   onClick?: () => void;
 }) => {
-  const thumbnailUrl = getYouTubeThumbnail(update.url);
-  const formattedDate = formatUpdateDate(update.date);
 
   return (
     <div
@@ -27,7 +25,7 @@ export const UpdateCard = ({
       className="update-card cursor-pointer relative overflow-hidden group"
     >
       <Image
-        src={thumbnailUrl}
+        src={getYouTubeThumbnail(update.url)}
         title={update.name}
         width="100%"
         alt={update.name}
@@ -44,7 +42,7 @@ export const UpdateCard = ({
         <h2 className="text-body-2 md:text-body-1 lg:text-title-3 font-bold text-white line-clamp-2">
           {update.name}
         </h2>
-        <p className="text-sm text-white ">{formattedDate}</p>
+        <p className="text-sm text-white ">{formatDate(update.date,true)}</p>
       </div>
     </div>
   );
