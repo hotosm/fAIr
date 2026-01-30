@@ -21,7 +21,7 @@ export const navLinks: TNavBarLinks = [
   },
   {
     title: SHARED_CONTENT.navbar.routes.learn,
-    href: APPLICATION_ROUTES.LEARN,
+    href: APPLICATION_ROUTES.LEARN_BASE,
     active: true,
   },
   {
@@ -50,7 +50,7 @@ export const footerLinks: TFooterGroupLinks = {
     },
     {
       title: "learn",
-      route: APPLICATION_ROUTES.LEARN,
+      route: APPLICATION_ROUTES.LEARN_BASE,
       active: true,
     },
     {
