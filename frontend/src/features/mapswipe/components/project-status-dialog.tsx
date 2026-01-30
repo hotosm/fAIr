@@ -272,15 +272,19 @@ export const MapswipeProjectStatusDialog = ({
                 <div className="flex items-center justify-between  text-nowrap text-grey font-medium text-body-4 md:text-body-3">
                   <p>Project Completion</p>
                   <p>
-                    <span className="font-bold">{Math.round((data?.progress ?? 0) * 100)}</span>%
-                    Complete
+                    <span className="font-bold">
+                      {Math.round((data?.progress ?? 0) * 100)}
+                    </span>
+                    % Complete
                   </p>
                 </div>
 
                 <div className="h-[6px] bg-light-gray w-full rounded-md">
                   <div
                     className="h-[6px] bg-primary rounded-md"
-                    style={{ width: `${Math.round((data?.progress ?? 0) * 100)}%` }}
+                    style={{
+                      width: `${Math.round((data?.progress ?? 0) * 100)}%`,
+                    }}
                   ></div>
                 </div>
               </div>

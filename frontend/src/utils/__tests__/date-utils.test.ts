@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { extractDatePart, buildDateFilterQueryString, formatDate, formatDuration } from "@/utils"; 
+import {
+  extractDatePart,
+  buildDateFilterQueryString,
+  formatDate,
+  formatDuration,
+} from "@/utils";
 import type { DateFilter } from "@/types";
 
 describe("extractDatePart", () => {
@@ -18,10 +23,18 @@ describe("extractDatePart", () => {
 });
 
 describe("buildDateFilterQueryString", () => {
-  const filter: DateFilter = { apiValue: "createdAt", label: "Created At" , searchParams:""};
+  const filter: DateFilter = {
+    apiValue: "createdAt",
+    label: "Created At",
+    searchParams: "",
+  };
 
   it("should build query with start and end dates", () => {
-    const result = buildDateFilterQueryString(filter, "2024-01-01", "2024-12-31");
+    const result = buildDateFilterQueryString(
+      filter,
+      "2024-01-01",
+      "2024-12-31",
+    );
     expect(result).toEqual({
       createdAt__gte: "2024-01-01",
       createdAt__lte: "2024-12-31",
@@ -84,6 +97,8 @@ describe("formatDuration", () => {
   it("should handle days", () => {
     const startDate = new Date("2026-01-28T00:00:00");
     const endDate = new Date("2026-01-30T01:02:03");
-    expect(formatDuration(startDate, endDate)).toBe("2 days 1 hr 2 mins 3 secs");
+    expect(formatDuration(startDate, endDate)).toBe(
+      "2 days 1 hr 2 mins 3 secs",
+    );
   });
 });

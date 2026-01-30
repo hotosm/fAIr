@@ -53,7 +53,6 @@ export const buildDateFilterQueryString = (
   return Object.assign({}, params);
 };
 
-
 /**
  * Formats a date string into a human-readable format.
  *
@@ -69,15 +68,15 @@ export const buildDateFilterQueryString = (
  * @returns A formatted date string.
  *
  * @example
- * formatDate("01-02-2025"); 
+ * formatDate("01-02-2025");
  * // "Feb 1, 2025" if short=true, otherwise "01/02/2025"
  *
  * @example
- * formatDate("2026-01-30"); 
+ * formatDate("2026-01-30");
  * // "Jan 30, 2026" if short=true, otherwise "30/01/2026"
  *
  * @example
- * formatDate("2026-01-30T06:45:12", true); 
+ * formatDate("2026-01-30T06:45:12", true);
  * // "Jan 30, 2026"
  */
 export const formatDate = (dateString: string, short?: boolean): string => {
@@ -134,7 +133,6 @@ export const formatDate = (dateString: string, short?: boolean): string => {
   return `${day}/${month}/${year}`;
 };
 
-
 /**
  * Formats the duration between two Date objects (startDate and endDate) into a human-readable string.
  *
@@ -165,4 +163,3 @@ export const formatDuration = (
 
   return timeParts.slice(0, maxUnits).join(" ");
 };
-

@@ -21,7 +21,6 @@ export const VideoPlayerModal = ({
 
   if (!isOpen) return null;
 
-
   return (
     <section className="relative">
       {isSmallViewport ? (

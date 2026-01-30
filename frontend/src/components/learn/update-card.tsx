@@ -1,7 +1,10 @@
 import { TFairVideo } from "@/types";
 import { getYouTubeThumbnail, formatDate } from "@/utils";
-import { YouTubePlayCircleIcon } from "@/components/ui/icons";
+import { ExternalLinkIcon, YouTubePlayCircleIcon } from "@/components/ui/icons";
 import { Image } from "@/components/ui/image";
+import { APPLICATION_ROUTES } from "@/constants";
+import useCopyToClipboard from "@/hooks/use-clipboard";
+import { ToolTip } from "@/components/ui/tooltip";
 
 export const UpdateCard = ({
   update,
@@ -10,7 +13,12 @@ export const UpdateCard = ({
   update: TFairVideo;
   onClick?: () => void;
 }) => {
-
+  const { copyToClipboard, isCopied } = useCopyToClipboard();
+  const handleShareClick = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const updateLink = `${window.location.origin}${APPLICATION_ROUTES.LEARN}/${update.slug}`;
+    await copyToClipboard(updateLink);
+  };
   return (
     <div
       onClick={onClick}
@@ -42,7 +50,20 @@ export const UpdateCard = ({
         <h2 className="text-body-2 md:text-body-1 lg:text-title-3 font-bold text-white line-clamp-2">
           {update.name}
         </h2>
-        <p className="text-sm text-white ">{formatDate(update.date,true)}</p>
+        <div className="flex justify-between w-full">
+          <p className="text-sm text-white">{formatDate(update.date, true)}</p>
+          <ToolTip
+            content={isCopied ? "Copied to clipboard!" : "Copy update link"}
+          >
+            <button
+              onClick={handleShareClick}
+              className="flex items-center text-sm text-white gap-x-1"
+            >
+              <ExternalLinkIcon className="icon" />
+              Share
+            </button>
+          </ToolTip>
+        </div>
       </div>
     </div>
   );
