@@ -15,13 +15,13 @@ export const navLinks: TNavBarLinks = [
     active: true,
   },
   {
-    title: SHARED_CONTENT.navbar.routes.about,
-    href: APPLICATION_ROUTES.ABOUT,
+    title: SHARED_CONTENT.navbar.routes.learn,
+    href: APPLICATION_ROUTES.LEARN_BASE,
     active: true,
   },
   {
-    title: SHARED_CONTENT.navbar.routes.learn,
-    href: APPLICATION_ROUTES.LEARN_BASE,
+    title: SHARED_CONTENT.navbar.routes.about,
+    href: APPLICATION_ROUTES.ABOUT,
     active: true,
   },
   {
