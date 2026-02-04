@@ -12,13 +12,15 @@ import { UpdateCard } from "@/components/learn/update-card";
 import { CourseCard } from "@/components/learn/learn-course-card";
 import { GuideCard } from "@/components/learn/guide-card";
 import { Carousel } from "@/components/ui/carousel/carousel";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { APPLICATION_ROUTES } from "@/constants";
 
 export const LearnPage = () => {
   const { data, isLoading } = useFairUpdates();
   const [selectedVideo, setSelectedVideo] = useState<TFairVideo | null>(null);
   const { slug } = useParams<{ slug?: string }>();
-
+  const navigate = useNavigate();
+  
   const handleVideoSelect = (video: TFairVideo) => {
     setSelectedVideo(video);
   };
@@ -32,6 +34,10 @@ export const LearnPage = () => {
 
   const handleCloseModal = () => {
     setSelectedVideo(null);
+    navigate(APPLICATION_ROUTES.LEARN_BASE, {
+      replace: true,
+      preventScrollReset: true,
+    });
   };
 
   return (
