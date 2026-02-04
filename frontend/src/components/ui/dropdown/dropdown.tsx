@@ -45,7 +45,6 @@ type DropDownProps = {
   distance?: number;
   disableCheveronIcon?: boolean;
   hoist?: boolean;
-
 };
 
 const DropDown = forwardRef<SlDropdownType, DropDownProps>((props, ref) => {

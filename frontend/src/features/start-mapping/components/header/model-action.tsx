@@ -127,7 +127,7 @@ const ModelAction = ({
             {modelPredictionMutation.isPending
               ? START_MAPPING_PAGE_CONTENT.buttons.predictionInProgress
               : isOfflineMode
-                ? "Request offline prediction"
+                ? "Request prediction"
                 : START_MAPPING_PAGE_CONTENT.buttons.runPrediction}
           </span>
         </button>

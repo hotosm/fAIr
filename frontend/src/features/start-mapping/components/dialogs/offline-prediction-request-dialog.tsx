@@ -78,7 +78,7 @@ export const OfflinePredictionRequestDialog = ({
       <Dialog
         isOpened={isOpen}
         closeDialog={onClose}
-        label="Request Offline Prediction"
+        label="Request Prediction"
         preventClose={modelPredictionMutation.isPending}
       >
         <Alert>

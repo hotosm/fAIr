@@ -34,7 +34,7 @@ export const OfflinePredictionsList = ({
   if (isError) {
     return (
       <div className="flex flex-col items-center justify-center w-full h-full gap-y-10">
-        Error loading offline predictions.
+        Error loading prediction requests.
         <Button className="!w-fit" onClick={() => refetch()}>
           Retry
         </Button>
@@ -50,7 +50,7 @@ export const OfflinePredictionsList = ({
     return (
       <div className="flex flex-col  gap-y-10 items-center justify-center">
         <NoTrainingAreaIcon />
-        <p>No offline predictions found.</p>
+        <p>No prediction requests found.</p>
       </div>
     );
   }

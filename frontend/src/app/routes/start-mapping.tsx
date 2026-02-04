@@ -494,7 +494,7 @@ export const StartMappingPage = () => {
 
   /**
    * Effect to set the current mode to OFFLINE if an AOI has been drawn.
-   * This is to ensure that the user can start offline predictions after drawing an AOI.
+   * This is to ensure that the user can start prediction requests after drawing an AOI.
    */
   useEffect(() => {
     if (hasDrawnAOI && currentMode !== MapMode.OFFLINE) {

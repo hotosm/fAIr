@@ -26,6 +26,6 @@ export enum FeedbackType {
 
 export enum MapMode {
   ONLINE = "online",
-  // This is enabled when the user is trying to draw an AOI for offline predictions.
+  // This is enabled when the user is trying to draw an AOI for prediction requests.
   OFFLINE = "offline",
 }

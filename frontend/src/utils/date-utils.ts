@@ -53,24 +53,84 @@ export const buildDateFilterQueryString = (
   return Object.assign({}, params);
 };
 
-export const formatDate = (isoString: string): string => {
-  const hasTime = isoString.includes("T");
+/**
+ * Formats a date string into a human-readable format.
+ *
+ * Handles:
+ * - DD-MM-YYYY (e.g., "01-02-2025")
+ * - YYYY-MM-DD (e.g., "2025-02-01")
+ * - Full ISO timestamps (YYYY-MM-DDTHH:MM:SS)
+ *
+ * Optionally returns a short format (e.g., "Jan 30, 2026") for dates with or without time.
+ *
+ * @param dateString - The date string to format.
+ * @param short - If true, returns a short format (e.g., "Jan 30, 2026").
+ * @returns A formatted date string.
+ *
+ * @example
+ * formatDate("01-02-2025");
+ * // "Feb 1, 2025" if short=true, otherwise "01/02/2025"
+ *
+ * @example
+ * formatDate("2026-01-30");
+ * // "Jan 30, 2026" if short=true, otherwise "30/01/2026"
+ *
+ * @example
+ * formatDate("2026-01-30T06:45:12", true);
+ * // "Jan 30, 2026"
+ */
+export const formatDate = (dateString: string, short?: boolean): string => {
+  // Detect if it's ISO timestamp with time
+  const hasTime = dateString.includes("T");
 
-  if (!hasTime) {
-    const [year, month, day] = isoString.split("-");
-    return `${day}/${month}/${year}`;
+  let date: Date;
+
+  if (hasTime) {
+    // ISO timestamp with time
+    date = new Date(dateString);
+  } else if (dateString.includes("-")) {
+    const parts = dateString.split("-").map(Number);
+
+    if (parts[0] > 31) {
+      // Assume YYYY-MM-DD
+      const [year, month, day] = parts;
+      date = new Date(year, month - 1, day);
+    } else {
+      // Assume DD-MM-YYYY
+      const [day, month, year] = parts;
+      date = new Date(year, month - 1, day);
+    }
+  } else {
+    throw new Error("Unsupported date format");
   }
 
-  const date = new Date(isoString);
+  if (short) {
+    // Short format: "Jan 30, 2026"
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  }
 
+  if (hasTime) {
+    // Full format with time: "DD/MM/YYYY, HH:MM:SS"
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const seconds = String(date.getSeconds()).padStart(2, "0");
+
+    return `${day}/${month}/${year}, ${hours}:${minutes}:${seconds}`;
+  }
+
+  // Default plain date format: "DD/MM/YYYY"
   const day = String(date.getDate()).padStart(2, "0");
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const year = date.getFullYear();
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-  const seconds = String(date.getSeconds()).padStart(2, "0");
 
-  return `${day}/${month}/${year}, ${hours}:${minutes}:${seconds}`;
+  return `${day}/${month}/${year}`;
 };
 
 /**

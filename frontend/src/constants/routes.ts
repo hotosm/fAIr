@@ -22,6 +22,7 @@ export const MODELS_ROUTES = {
 export const APPLICATION_ROUTES = {
   HOMEPAGE: "/",
   MODELS: MODELS_BASE,
+
   MODEL_FEEDBACKS_BASE_ROUTE: "feedbacks",
   MODEL_DETAILS: `${MODELS_BASE}/:id`,
   MODEL_FEEDBACKS: `${MODELS_BASE}/:id/feedbacks`,
@@ -52,14 +53,15 @@ export const APPLICATION_ROUTES = {
   AUTH_CALLBACK: "/authenticate",
   EMAIL_VERIFICATION_CALLBACK: "/verify-email",
   PRIVACY_POLICY: "/privacy",
-  LEARN: "/learn",
+  LEARN_BASE: "/learn",
+  LEARN: "/learn/:slug?",
   ABOUT: "/about",
   RESOURCES: "/resources",
   PROFILE_BASE: "/profile",
   PROFILE_SETTINGS: "/profile/settings",
   PROFILE_MODELS: "/profile/models",
   PROFILE_DATASETS: "/profile/datasets",
-  PROFILE_OFFLINE_PREDICTIONS: "/profile/offline-predictions",
+  PROFILE_OFFLINE_PREDICTIONS: "/profile/prediction-requests",
 };
 
 export const HOT_PRIVACY_POLICY_URL: string = "https://www.hotosm.org/privacy";
@@ -83,7 +85,7 @@ export const PROFILE_NAVIGATION_TABS: TProfileNavigationTabs = [
     active: true,
   },
   {
-    title: "Offline Predictions",
+    title: "Prediction Requests",
     href: APPLICATION_ROUTES.PROFILE_OFFLINE_PREDICTIONS,
     active: true,
   },

@@ -125,8 +125,7 @@ nav {
 
   .webNavLinks {
     display: flex;
-
-    gap: var(--sl-spacing-3x-large);
+    gap: var(--sl-spacing-medium);
   }
 
   .loginButton {
@@ -139,6 +138,18 @@ nav {
 
   .profileContainer {
     @apply flex items-center gap-x-3;
+  }
+
+  /* NavBar styles ends */
+}
+
+/* xl: */
+@media (min-width: 1280px) {
+  /* NavBar styles start */
+
+  .webNavLinks {
+    display: flex;
+    gap: var(--sl-spacing-2x-large);
   }
 
   /* NavBar styles ends */

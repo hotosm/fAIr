@@ -11,7 +11,7 @@ import { SEARCH_PARAMS } from "@/utils/search-params";
 import { useDialog } from "@/hooks/use-dialog";
 import { useState } from "react";
 import { TOfflinePrediction } from "@/types";
-import { PredictionResultDrawer } from "@/features/user-profile/components/predictions-results-drawer";
+import { PredictionResultDrawer } from "@/features/user-profile/components/offline-predictions/predictions-results-drawer";
 import { TrainingLogsDialog } from "@/features/user-profile/components/training-logs-dialog";
 import { CreateMapswipeProjectDialog } from "@/features/mapswipe/components/project-creation-dialog";
 import { MapswipeProjectStatusDialog } from "@/features/mapswipe/components/project-status-dialog";
@@ -142,11 +142,11 @@ export const UserProfileOfflinePredictionsPage = () => {
           closeDialog={closeDialog}
         />
       )}
-      <Head title="Offline Predictions" />
+      <Head title="Prediction Requests" />
       <div className="space-y-8 h-full">
         {/* Section heading */}
         <div className="w-full gap-y-6 sm:gap-y-0 flex flex-col sm:flex-row justify-between items-start sm:items-center">
-          <ProfileSectionHeader title={"Predictions"} />
+          <ProfileSectionHeader title={"Prediction Requests"} />
           <SearchFilter
             query={query}
             updateQuery={updateQuery}

@@ -34,7 +34,7 @@ export const OfflinePredictionRequestSuccess = ({
             }}
             className="md:!w-fit"
           >
-            See requests
+            View requests
           </Button>
           <Button
             onClick={onClose}

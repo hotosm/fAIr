@@ -44,13 +44,13 @@ const router = createBrowserRouter([
           return { Component: AboutPage };
         },
       },
-      {
-        path: APPLICATION_ROUTES.RESOURCES,
-        lazy: async () => {
-          const { ResourcesPage } = await import("@/app/routes/resources");
-          return { Component: ResourcesPage };
-        },
-      },
+      // {
+      //   path: APPLICATION_ROUTES.RESOURCES,
+      //   lazy: async () => {
+      //     const { ResourcesPage } = await import("@/app/routes/resources");
+      //     return { Component: ResourcesPage };
+      //   },
+      // },
       /**
        * Models details, list and feedbacks route starts.
        */
