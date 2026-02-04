@@ -1,24 +1,34 @@
 # fAIr Frontend
 
-This project is a frontend web application built using **React 19**, **TypeScript**, and **Vite**. The app leverages modern libraries such as **@hotosm/ui**, and **Shoelace** for UI components, and **React Router** for client-side routing.
+fAIr (Free and Open AI for Humanitarian Response) is an open-source AI-assisted mapping tool developed by the [Humanitarian OpenStreetMap Team (HOT)](https://www.hotosm.org/). It uses machine learning to help map buildings and infrastructure in underserved areas, supporting disaster response, urban planning, and humanitarian efforts worldwide.
+
+This project is the frontend web application built using **React 19**, **TypeScript**, and **Vite**. The app leverages modern libraries such as **Shoelace** for UI components, **MapLibre GL** for mapping, and **React Router** for client-side routing.
 
 ## Table of Contents
 
+- [Prerequisites](#prerequisites)
 - [Installation](#installation)
 - [Build](#build)
+- [Testing](#testing)
+- [Docker Development](#docker-development)
 - [Folder Structure](#folder-structure)
 - [Codebase Standards](#codebase-standards)
 - [Contributing](#contributing)
 - [License](#license)
 
-## Installation
+## Prerequisites
 
-Note: This project is tested with Node v20.13.1.
+Before you begin, ensure you have the following installed:
+
+- [Node.js](https://nodejs.org/) v20.13.1 or higher
+- [pnpm](https://pnpm.io/) (recommended) or npm/yarn
+
+## Installation
 
 1. Clone the repository:
 
 ```bash
-git https://github.com/hotosm/fAIr.git
+git clone https://github.com/hotosm/fAIr.git
 cd fAIr/frontend
 ```
 
@@ -49,6 +59,40 @@ pnpm build
 ```
 
 This will create an optimized build of your app in the dist/ folder, which can be deployed.
+
+To preview the production build locally:
+
+```bash
+pnpm preview
+```
+
+## Testing
+
+This project uses [Vitest](https://vitest.dev/) for testing.
+
+Run tests:
+
+```bash
+pnpm test
+```
+
+Run tests with coverage report:
+
+```bash
+pnpm coverage
+```
+
+## Docker Development
+
+A development Docker configuration is available for containerized development:
+
+```bash
+# From the frontend directory
+docker build -f Dockerfile.dev -t fair-frontend-dev .
+docker run -p 5173:5173 -v $(pwd):/app fair-frontend-dev
+```
+
+For production builds, use `Dockerfile.prod`.
 
 ## Folder Structure
 
@@ -82,16 +126,22 @@ The project standards are crucial for maintaining code quality, consistency, and
 
 #### ESLint
 
-ESLint is used to maintain code quality and adhering to coding standards.
+ESLint is used to maintain code quality and adhere to coding standards:
+
+```bash
+pnpm lint
+```
 
 #### Prettier
 
-Prettier is a used to maintain consistent code formatting in the project. To format run the code below in the terminal.
+Prettier is used to maintain consistent code formatting in the project:
 
 ```bash
-1. pnpm/npm/yarn format
+# Format all files
+pnpm format
 
-2. pnpm/npm/yarn format:check
+# Check formatting without making changes
+pnpm format:check
 ```
 
 #### TypeScript
