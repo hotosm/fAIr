@@ -23,10 +23,10 @@ export const LearnPage = () => {
   
   const handleVideoSelect = (video: TFairVideo) => {
     setSelectedVideo(video);
-    navigate(`${APPLICATION_ROUTES.LEARN_BASE}/${video.slug}`, {
-      replace: false,
-      preventScrollReset: true,
-    });
+    // navigate(`${APPLICATION_ROUTES.LEARN_BASE}/${video.slug}`, {
+    //   replace: false,
+    //   preventScrollReset: true,
+    // });
   };
 
   useEffect(() => {
