@@ -1,68 +1,113 @@
-# fAIr Development Setup with docker
+# fAIr Development Setup with Docker
 
 ## Prerequisites
 
-- Docker & Docker Compose
-- Make
+- Docker Desktop or Docker Engine + Docker Compose
+- Git
+- 4GB+ RAM (8GB+ for GPU training)
 
 ## Quick Start
 
 ```bash
 git clone https://github.com/hotosm/fAIr.git
 cd fAIr
-make init
+./setup.sh
 ```
 
-First run creates `.env.dev`. Edit it with your OSM credentials, then run `make init` again.
-
-**GPU workers:**
+GPU profile:
 
 ```bash
+./setup.sh gpu
+```
+
+## Manual Setup
+
+```bash
+git clone https://github.com/hotosm/fAIr.git
+cd fAIr
+make init
 make init PROFILE=gpu
 ```
 
 ## Access
 
-- Frontend: http://127.0.0.1:3500/
-- API: http://localhost:8200
-- Docs: http://localhost:8200/api/docs
-
-## Commands
-
-```bash
-make init              # Complete setup
-make build             # Build images
-make up                # Start services
-make down              # Stop services
-make logs              # View logs
-make logs SERVICE=api  # Specific service
-make migrate           # Run migrations
-make superuser         # Create admin user
-make shell             # API container shell
-make clean             # Remove all
-```
+- Frontend: <http://localhost:3500>
+- API: <http://localhost:8200>
+- API Docs: <http://localhost:8200/api/docs>
 
 ## Configuration
 
-Edit `.env.dev`:
+On first run, `.env.dev` is created from `.env.dev.example`. Update it for:
 
-- OSM credentials: [Get here](https://www.openstreetmap.org/oauth2/applications)
+- OpenStreetMap OAuth (`OSM_CLIENT_ID`, `OSM_CLIENT_SECRET`)
+- Email settings
+- Frontend URL
 
-## Hot Reload
+Default ports (edit `docker-compose.dev.yml` if needed):
 
-All code changes auto-reload (Django, Vite, Celery watchdog).
+- 3500: Frontend
+- 8200: API
+- 5434: PostgreSQL
+- 6378: Redis
+
+## Common Commands
+
+```bash
+make up
+make down
+make restart
+make status
+make logs
+make logs SERVICE=api
+make migrate
+make superuser
+make collectstatic
+make shell
+make clean
+```
 
 ## Troubleshooting
 
-**Reset database:**
+Logs:
+
+```bash
+make logs SERVICE=api
+make logs SERVICE=frontend
+make logs SERVICE=postgres
+```
+
+Reset:
 
 ```bash
 make clean
-make init
+./setup.sh
 ```
 
-**Check status:**
+Ports in use: edit `docker-compose.dev.yml` and change port mappings.
+
+Build cache issues:
 
 ```bash
-make status
+docker compose -f docker-compose.dev.yml build --no-cache
 ```
+
+## GPU Support
+
+Install NVIDIA Container Toolkit, then:
+
+```bash
+./setup.sh gpu
+make init PROFILE=gpu
+```
+
+## Next Steps
+
+- Create admin user: `make superuser`
+- Open frontend: <http://localhost:3500>
+- Use API docs: <http://localhost:8200/api/docs>
+
+## Help
+
+- [DOCKER_QUICK_REF.md](../DOCKER_QUICK_REF.md)
+- [docs](../docs)
+- <https://github.com/hotosm/fAIr/issues>

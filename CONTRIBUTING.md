@@ -18,9 +18,39 @@ The [issue queue](https://github.com/hotosm/fAIr/issues) is the best way to get 
 
 ## Code contributions
 
-Fork this repository, Maintain your local changes on a separate branch and Create pull requests (PRs) for changes that you think are needed. We would really appreciate your help! 
+Fork this repository, Maintain your local changes on a separate branch and Create pull requests (PRs) for changes that you think are needed. We would really appreciate your help!
 
-## Documentation contributions 
+### Setting Up Your Development Environment
+
+Before you start contributing code, set up your local development environment:
+
+1. **Fork and clone** the repository:
+
+   ```bash
+   git clone https://github.com/hotosm/fAIr.git
+   cd fAIr
+   ```
+
+2. **Set up Docker environment** (recommended):
+
+   ```bash
+   ./setup.sh
+   ```
+
+   This will build all images, set up the database, and start all services.
+
+3. **Access the application**:
+   - Frontend: <http://localhost:3500>
+   - API: <http://localhost:8200>
+   - API Docs: <http://localhost:8200/api/docs>
+
+4. **Make your changes** and see them live with hot reload!
+
+For detailed setup instructions, see [Docker Installation Guide](./docs/Docker-installation.md) and [Quick Reference](./DOCKER_QUICK_REF.md).
+
+### Making Changes
+
+## Documentation contributions
 
 Create pull requests (PRs) for changes that you think are needed to the documentation of fAIr. As of now you can find the documentation work at the [docs](./docs) directory.
 
