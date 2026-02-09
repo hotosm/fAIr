@@ -3,6 +3,11 @@
 COMPOSE := docker compose -f docker-compose.dev.yml
 PROFILE ?= cpu
 
+ifneq ($(filter logs,$(MAKECMDGOALS)),)
+	SERVICE_ARG := $(word 2,$(MAKECMDGOALS))
+	$(eval $(SERVICE_ARG):;@:)
+endif
+
 help:
 	@echo "Commands:"
 	@echo "  make init [PROFILE=cpu|gpu]"
@@ -12,7 +17,7 @@ help:
 	@echo "  make down"
 	@echo "  make restart"
 	@echo "  make status"
-	@echo "  make logs [SERVICE=name]"
+	@echo "  make logs [service]"
 	@echo "  make shell"
 	@echo "  make migrate"
 	@echo "  make superuser"
@@ -57,11 +62,7 @@ restart:
 	@$(COMPOSE) restart
 
 logs:
-ifdef SERVICE
-	@$(COMPOSE) logs -f $(SERVICE)
-else
-	@$(COMPOSE) logs -f
-endif
+	@if [ -n "$(SERVICE_ARG)" ]; then $(COMPOSE) logs -f $(SERVICE_ARG); else $(COMPOSE) logs -f; fi
 
 migrate:
 	@echo "Migrate"

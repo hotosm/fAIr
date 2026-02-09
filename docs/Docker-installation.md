@@ -58,7 +58,7 @@ make down
 make restart
 make status
 make logs
-make logs SERVICE=api
+make logs api
 make migrate
 make superuser
 make collectstatic
@@ -71,9 +71,9 @@ make clean
 Logs:
 
 ```bash
-make logs SERVICE=api
-make logs SERVICE=frontend
-make logs SERVICE=postgres
+make logs api
+make logs frontend
+make logs postgres
 ```
 
 Reset:
