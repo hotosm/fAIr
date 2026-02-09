@@ -49,6 +49,8 @@ up:
 down:
 	@echo "Down"
 	@$(COMPOSE) down --remove-orphans
+	@docker ps -q --filter network=fair-network | xargs -r docker rm -f >/dev/null 2>&1 || true
+	@docker network rm fair-network >/dev/null 2>&1 || true
 
 restart:
 	@echo "Restart"
@@ -82,5 +84,7 @@ shell:
 clean:
 	@echo "Clean"
 	@$(COMPOSE) down -v --remove-orphans
+	@docker ps -q --filter network=fair-network | xargs -r docker rm -f >/dev/null 2>&1 || true
+	@docker network rm fair-network >/dev/null 2>&1 || true
 	@echo "Removing data directories"
 	@rm -rf fair-app-data
