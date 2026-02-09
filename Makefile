@@ -41,7 +41,7 @@ init: setup build down
 	@sleep 10
 	@$(COMPOSE) run --rm api python manage.py migrate
 	@$(COMPOSE) run --rm api python manage.py collectstatic --noinput
-	@$(COMPOSE) --profile $(PROFILE) up -d
+	@$(COMPOSE) --profile $(PROFILE) up
 	@echo "Done"
 	@echo "Frontend: http://localhost:3500"
 	@echo "API:      http://localhost:8200"
@@ -49,13 +49,15 @@ init: setup build down
 
 up:
 	@echo "Up"
-	@$(COMPOSE) --profile $(PROFILE) up -d
+	@$(COMPOSE) --profile $(PROFILE) up
+	@echo "Done"
+	@echo "Frontend: http://localhost:3500"
+	@echo "API:      http://localhost:8200"
+	@echo "API Docs: http://localhost:8200/api/docs"
 
 down:
 	@echo "Down"
 	@$(COMPOSE) down --remove-orphans
-	@docker ps -q --filter network=fair-network | xargs -r docker rm -f >/dev/null 2>&1 || true
-	@docker network rm fair-network >/dev/null 2>&1 || true
 
 restart:
 	@echo "Restart"
