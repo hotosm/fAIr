@@ -5,13 +5,15 @@ import { ToolTip } from "./tooltip";
 export const CopyButton = ({
   text,
   size = "large",
+  label,
   tooltipContent = "Copy to clipboard",
-  iconClassName,
+  iconClassName = "size-6",
 }: {
   text: string;
   size?: "small" | "large";
   tooltipContent?: string;
   iconClassName?: string;
+  label?: string;
 }) => {
   const { copyToClipboard, isCopied } = useCopyToClipboard();
   const iconSize = size === "small" ? "icon" : "icon md:icon-lg";
@@ -20,18 +22,26 @@ export const CopyButton = ({
     <ToolTip content={isCopied ? "Copied!" : tooltipContent}>
       <button
         onClick={() => copyToClipboard(text)}
-        className={`relative ${iconSize} flex items-center justify-center`}
+        className={`flex items-center gap-2`}
       >
-        <ClipboardIcon
-          className={`absolute ${iconClassName} inset-0 top-1/2 -translate-y-1/2 ${iconSize} transition-all duration-300 ${
-            isCopied ? "opacity-0" : "opacity-100"
-          }`}
-        />
-        <CheckIcon
-          className={`absolute inset-0 ${iconClassName} top-1/2 -translate-y-1/2  ${iconSize} transition-all duration-300 ${
-            isCopied ? "opacity-100" : "opacity-0"
-          }`}
-        />
+        <span className="relative flex items-center justify-center">
+          <ClipboardIcon
+            className={`absolute ${iconClassName} transition-opacity duration-300 ${iconSize} ${
+              isCopied ? "opacity-0" : "opacity-100"
+            }`}
+          />
+          <CheckIcon
+            className={`absolute  ${iconClassName} transition-opacity duration-300 ${iconSize} ${
+              isCopied ? "opacity-100" : "opacity-0"
+            }`}
+          />
+        </span>
+
+        {label && (
+          <span className="ml-2 text-body-4 md:text-body-3 whitespace-nowrap">
+            {label}
+          </span>
+        )}
       </button>
     </ToolTip>
   );

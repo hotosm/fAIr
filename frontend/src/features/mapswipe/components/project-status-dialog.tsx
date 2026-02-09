@@ -9,6 +9,7 @@ import {
   FilledLocationIcon,
   MapIcon,
   ProductionCheckmarkIcon,
+  RefreshIcon,
 } from "@/components/ui/icons";
 import { Image } from "@/components/ui/image";
 
@@ -74,23 +75,23 @@ const VALID_PROJECT_STATUSES = [
 const InfoBlock = ({
   icon,
   info,
-  orientation = "left",
   variant = "default",
   className = "cursor-default",
 }: InfoCardProps) => {
-  const isRight = orientation === "right";
-
   return (
     <Badge
       variant={variant as TBadgeVariants}
-      className={`py-3 px-4 flex items-center h-10 rounded-full text-black ${className}`}
+      className={`py-1 md:py-3 px-3 md:px-4 flex items-center h-8 md:h-10 rounded-full text-black ${className}`}
     >
-      <div className={`flex items-center justify-center w-full`}>
-        {!isRight && (
-          <div className={`${info && "mr-3"} flex-shrink-0`}>{icon}</div>
-        )}
+      <div
+        className={`flex items-center justify-center w-full text-body-4 md:text-body-3`}
+      >
+        <div
+          className={`${info && "mr-2"} flex-shrink-0  text-black size-3.5 md:size-4`}
+        >
+          {icon}
+        </div>
         {info}
-        {isRight && info && <div className="ml-3 flex-shrink-0">{icon}</div>}
       </div>
     </Badge>
   );
@@ -143,7 +144,7 @@ export const MapswipeProjectStatusDialog = ({
             className="w-full h-full"
           />
           <div className="inline-flex items-center gap-x-4 w-full">
-            <h1 className="text-black text-body-1 md:text-title-2 font-semibold">
+            <h1 className="text-black text-body-2 md:text-title-3 font-semibold">
               {truncateString(data?.name, 400)}
             </h1>
             <MapSwipeProjectStatusBadge
@@ -154,32 +155,35 @@ export const MapswipeProjectStatusDialog = ({
           <div className="w-full justify-between flex items-center flex-wrap gap-4 2xl:gap-6">
             <div className="inline-flex items-center gap-4 flex-wrap">
               <InfoBlock
-                icon={<ProductionCheckmarkIcon className="text-black size-4" />}
+                icon={<ProductionCheckmarkIcon />}
                 info={formatMapSwipeProjectStatus(data?.projectType as string)}
               />
               <InfoBlock
-                icon={<FilledLocationIcon className="text-black size-4" />}
+                icon={<FilledLocationIcon />}
                 info={truncateString(data?.region as string)}
               />
               <InfoBlock
-                icon={<FilledFlagIcon className="text-black size-4" />}
+                icon={<FilledFlagIcon />}
                 info={data?.requestingOrganization.name as string}
               />
               <InfoBlock
-                icon={<FilledCalendarIcon className="text-black size-4" />}
+                icon={<FilledCalendarIcon />}
                 info={formatDate(data?.createdAt as string)}
               />
             </div>
-            <div className="inline-flex items-center gap-x-4">
-              <InfoBlock
-                icon={
-                  <CopyButton
-                    text={data?.webUrl as string}
-                    tooltipContent="Copy Project URL "
-                  />
-                }
-                variant="red"
-              />
+            <div className="inline-flex items-center justify-start w-full gap-4 flex-wrap">
+              <Badge
+                variant={"red" as TBadgeVariants}
+                className={`py-1 md:py-3 px-4 md:px-6 flex items-center h-8 md:h-10 rounded-full text-black`}
+              >
+                <CopyButton
+                  text={data?.webUrl as string}
+                  tooltipContent="Copy Project URL"
+                  label="Copy"
+                  iconClassName="size-3.5 md:size-4"
+                />
+              </Badge>
+
               <ToolTip
                 content={
                   !VALID_PROJECT_STATUSES.includes(
@@ -198,27 +202,25 @@ export const MapswipeProjectStatusDialog = ({
                     rel="noopener noreferrer"
                   >
                     <InfoBlock
-                      icon={<ExternalLinkIcon className="text-black size-4" />}
+                      icon={<ExternalLinkIcon />}
                       info="Open in MapSwipe"
-                      orientation="right"
                       variant="red"
-                      className="cursor-pointer"
+                      className="cursor-pointer text-nowrap"
                     />
                   </a>
                 ) : (
                   <InfoBlock
-                    icon={<ExternalLinkIcon className="text-black size-4" />}
+                    icon={<ExternalLinkIcon />}
                     info="Open in MapSwipe"
-                    orientation="right"
                     variant="red"
-                    className="cursor-not-allowed"
+                    className="cursor-not-allowed text-nowrap"
                   />
                 )}
               </ToolTip>
               <ToolTip content={pmtilesTooltipContent}>
                 <Button
                   variant={ButtonVariant.NONE}
-                  className="!w-36"
+                  className="!w-fit !max-w-52"
                   disabled={!isFinished}
                   onClick={() => {
                     handleMapSwipeProjectResultMapModal(
@@ -228,9 +230,37 @@ export const MapswipeProjectStatusDialog = ({
                   aria-disabled={!isFinished}
                 >
                   <InfoBlock
-                    icon={<MapIcon className="text-black size-4" />}
-                    info="View Results"
-                    orientation="right"
+                    icon={<MapIcon />}
+                    info="View MapSwipe Results"
+                    variant={"red"}
+                    className="cursor-pointer"
+                  />
+                </Button>
+              </ToolTip>
+
+              <ToolTip
+                content={
+                  isRefetching
+                    ? "Checking for updates"
+                    : "Check for the latest MapSwipe project updates"
+                }
+              >
+                <Button
+                  variant={ButtonVariant.NONE}
+                  className="!w-fit !max-w-40"
+                  disabled={isRefetching}
+                  onClick={() => {
+                    refetch();
+                  }}
+                  aria-disabled={isRefetching}
+                >
+                  <InfoBlock
+                    icon={
+                      <RefreshIcon
+                        className={`${isRefetching ? "animate-spin cursor-progress" : ""}`}
+                      />
+                    }
+                    info="Check updates"
                     variant={"red"}
                     className="cursor-pointer"
                   />
@@ -239,18 +269,22 @@ export const MapswipeProjectStatusDialog = ({
             </div>
             <div className="flex items-center w-full justify-between gap-4 flex-wrap">
               <div className="flex flex-col w-full xl:w-2/3 gap-2">
-                <div className="flex items-center justify-between  text-nowrap text-grey font-medium text-body-3 md:text-body-2">
+                <div className="flex items-center justify-between  text-nowrap text-grey font-medium text-body-4 md:text-body-3">
                   <p>Project Completion</p>
                   <p>
-                    <span className="font-bold">{Math.round((data?.progress ?? 0) * 100)}</span>%
-                    Complete
+                    <span className="font-bold">
+                      {Math.round((data?.progress ?? 0) * 100)}
+                    </span>
+                    % Complete
                   </p>
                 </div>
 
                 <div className="h-[6px] bg-light-gray w-full rounded-md">
                   <div
                     className="h-[6px] bg-primary rounded-md"
-                    style={{ width: `${Math.round((data?.progress ?? 0) * 100)}%` }}
+                    style={{
+                      width: `${Math.round((data?.progress ?? 0) * 100)}%`,
+                    }}
                   ></div>
                 </div>
               </div>
@@ -267,8 +301,10 @@ export const MapswipeProjectStatusDialog = ({
                   triggerComponent={
                     <ButtonWithIcon
                       variant={ButtonVariant.PRIMARY}
+                      size="medium"
                       className="md:!w-fit"
                       suffixIcon={DownloadIcon}
+                      contentClassName="text-body-4 md:text-body-3"
                       label="Download Result"
                       uppercase={false}
                       disabled={!data?.results?.mapswipe?.exportResults}
@@ -304,7 +340,7 @@ export const MapswipeProjectStatusDialog = ({
                 />
               </ToolTip>
             </div>
-            <div className="flex flex-col text-nowrap text-grey font-medium gap-2 text-body-3 md:text-body-2">
+            <div className="flex flex-col text-nowrap text-grey font-medium gap-2 text-body-4 md:text-body-3">
               {data?.lastContributionDate ? (
                 <>
                   <p>
@@ -326,18 +362,18 @@ export const MapswipeProjectStatusDialog = ({
 
             <div className="w-full flex flex-col gap-4">
               <div className="flex flex-col gap-4">
-                <h1 className="text-black text-body-3 md:text-body-2 font-semibold">
+                <h1 className="text-black text-body-4 md:text-body-3 font-semibold">
                   Project Description
                 </h1>
-                <p className="text-body-3 text-black text-wrap max-w-lg md:max-w-2xl">
+                <p className="text-body-4 md:text-body-3 text-black text-wrap max-w-lg md:max-w-2xl">
                   {data?.description}
                 </p>
               </div>
               <div className="flex flex-col gap-4">
-                <h1 className="text-black text-body-3 md:text-body-2 font-semibold">
+                <h1 className="text-black text-body-4 md:text-body-3 font-semibold">
                   Project Instruction
                 </h1>
-                <p className=" text-black text-body-3 text-wrap max-w-lg md:max-w-2xl">
+                <p className=" text-black text-body-4 md:text-body-3 text-wrap max-w-lg md:max-w-2xl">
                   {data?.projectInstruction}
                 </p>
               </div>

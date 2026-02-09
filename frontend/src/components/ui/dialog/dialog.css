@@ -1,3 +1,7 @@
+/* Remove padding from the dialog body if .no-padding is present on the dialog */
+.sl-dialog.no-padding::part(body) {
+  padding: 0 !important;
+}
 sl-dialog::part(title) {
   font-size: var(--hot-fair-font-size-title-4);
   font-weight: var(--hot-fair-font-weight-semibold);

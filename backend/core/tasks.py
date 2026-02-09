@@ -3,14 +3,22 @@ import json
 import logging
 import os
 import pathlib
+import re
 import shutil
 import subprocess
 import sys
+import tempfile
 import time
 from contextlib import contextmanager
 from datetime import datetime
+from urllib.parse import urlparse
 
+import requests
 from celery import shared_task
+from django.conf import settings
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
+
 from core.models import (
     AOI,
     Label,
@@ -23,14 +31,12 @@ from core.serializers import (
     LabelFileSerializer,
 )
 from core.utils import bbox, is_dir_empty
-from django.conf import settings
-from django.shortcuts import get_object_or_404
-from django.utils import timezone
 
 from .utils import (
     S3Uploader,
     check_and_convert_crs,
     copyfile,
+    download_and_decompress_file,
     geojson_to_fgb,
     get_file_count,
     safe_copytree,
@@ -40,7 +46,6 @@ from .utils import (
     shift_labels_by_offset,
     write_json,
     xz_folder,
-    download_and_decompress_file
 )
 
 DEFAULT_TILE_SIZE = 256
@@ -316,9 +321,7 @@ def upload_to_s3(path, parent=None):
     ).upload(path)
 
 
-def prepare_data(
-    inst, dataset_id, zoom_level, imagery, input_path, imagery_type
-):
+def prepare_data(inst, dataset_id, zoom_level, imagery, input_path, imagery_type):
     from geomltoolkits.downloader import tms as TMSDownloader
 
     safe_rmtree(input_path)
@@ -358,7 +361,11 @@ def prepare_data(
         print("[✗] 'chips' folder does not exist at:", chips_folder)
     if is_dir_empty(input_path):
         from .exceptions import ModelTrainingException
-        raise ModelTrainingException(message="No training images found in the specified area", details={"area_path": str(input_path)})
+
+        raise ModelTrainingException(
+            message="No training images found in the specified area",
+            details={"area_path": str(input_path)},
+        )
 
     serialized = label_serializer(label_qs, many=True).data
     label_path = os.path.join(input_path, "labels.geojson")
@@ -535,6 +542,8 @@ def predict_area(prediction_request_id, folder=None):
         logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
     )
     logger.addHandler(file_handler)
+    temp_checkpoint_path = None
+    temp_checkpoint_dir = None
     try:
         result = {}
         logger.info("Starting model prediction task")
@@ -545,6 +554,53 @@ def predict_area(prediction_request_id, folder=None):
                 timezone.now(),
                 predict_area.request.id,
             )
+
+            checkpoint_path = inst.config.get("checkpoint")
+            checkpoint_url = urlparse(checkpoint_path)
+            is_url = checkpoint_url.scheme in {"http", "https"}
+
+            if is_url:
+                logger.info(f"Checkpoint URL provided: {checkpoint_path}")
+            elif os.path.exists(checkpoint_path):
+                logger.info(f"Checkpoint found at {checkpoint_path}")
+            else:
+                logger.warning(
+                    f"Checkpoint not found at {checkpoint_path}, trying to download it from s3"
+                )
+                m = re.search(
+                    r"training_(\d+)[/\\]([^/\\]+\.(?:tflite|h5))$",
+                    checkpoint_path,
+                    re.IGNORECASE,
+                )
+                training_id = int(m.group(1)) if m else None
+                filename = m.group(2) if m else None
+                if not training_id or not filename:
+                    raise ValueError(f"Invalid checkpoint path: {checkpoint_path}")
+                model_download_url = (
+                    settings.API_BASE_URL
+                    + f"/workspace/download/training_{training_id}/{filename}"
+                )
+                try:
+                    temp_checkpoint_dir = tempfile.mkdtemp(
+                        prefix="checkpoint_fairpredictor_"
+                    )
+                    temp_checkpoint_path = os.path.join(temp_checkpoint_dir, filename)
+
+                    r = requests.get(model_download_url, timeout=60)
+                    r.raise_for_status()
+                    with open(temp_checkpoint_path, "wb") as f:
+                        f.write(r.content)
+
+                    checkpoint_path = temp_checkpoint_path
+                    inst.config["checkpoint"] = checkpoint_path
+                except Exception as e:
+                    logger.error(
+                        f"Failed to download checkpoint from {model_download_url}: {str(e)}"
+                    )
+                    raise FileNotFoundError(
+                        f"Checkpoint not found at {checkpoint_path} and failed to download from {model_download_url}"
+                    )
+
             folder = (
                 f"prediction_{inst.id}" if folder is None else f"prediction/{folder}"
             )
@@ -603,7 +659,8 @@ def predict_area(prediction_request_id, folder=None):
                     os.path.join(out, "labels.geojson"), os.path.join(out, "labels.fgb")
                 )
                 geojson_to_fgb(
-                    os.path.join(out, "labels_points.geojson"), os.path.join(out, "labels_points.fgb")
+                    os.path.join(out, "labels_points.geojson"),
+                    os.path.join(out, "labels_points.fgb"),
                 )
                 run_tippecanoe(out)
 
@@ -617,7 +674,7 @@ def predict_area(prediction_request_id, folder=None):
             inst.finished_at = timezone.now()
             if inst.result is None:
                 inst.result = {}
-            inst.result['count'] = len(predictions["features"])
+            inst.result["count"] = len(predictions["features"])
             send_notification(inst, "Finished")
             inst.save()
             base_url = settings.API_BASE_URL + "/workspace/download/" + folder
@@ -628,7 +685,7 @@ def predict_area(prediction_request_id, folder=None):
                 "predictions_points": f"{base_url}/labels_points.geojson",
                 "pmtiles": f"{base_url}/meta.pmtiles",
             }
-            inst.result['output'] = result["output"]
+            inst.result["output"] = result["output"]
             inst.save()
         logger.info("Prediction completed successfully")
         return result
@@ -639,34 +696,36 @@ def predict_area(prediction_request_id, folder=None):
         send_notification(inst, "Failed")
         raise ex
     finally:
+        if temp_checkpoint_dir:
+            shutil.rmtree(temp_checkpoint_dir, ignore_errors=True)
         logger.removeHandler(file_handler)
         file_handler.close()
 
 
-
-
-
 @shared_task
 def process_mapswipe_results(prediction_request_id):
-    
+
     inst = get_object_or_404(Prediction, id=prediction_request_id)
 
     folder = inst.config["folder"]
-    if 'exportAggregatedResultsWithGeometry' in inst.result.get('mapswipe', {}):
-        try : 
-            geojson_url = inst.result['mapswipe']['exportAggregatedResultsWithGeometry']['file'].get("url", None)
-            if geojson_url :
-                inst.result['mapswipe']['pmtiles_conversion_status'] = "STARTED"
+    if "exportAggregatedResultsWithGeometry" in inst.result.get("mapswipe", {}):
+        try:
+            geojson_url = inst.result["mapswipe"][
+                "exportAggregatedResultsWithGeometry"
+            ]["file"].get("url", None)
+            if geojson_url:
+                inst.result["mapswipe"]["pmtiles_conversion_status"] = "STARTED"
                 inst.save()
-                base_mapswipe_path = os.path.join(settings.PREDICTION_WORKSPACE, str(inst.id),'mapswipe')
+                base_mapswipe_path = os.path.join(
+                    settings.PREDICTION_WORKSPACE, str(inst.id), "mapswipe"
+                )
                 os.makedirs(base_mapswipe_path, exist_ok=True)
                 result_path = download_and_decompress_file(
                     geojson_url,
-                    os.path.join(base_mapswipe_path, "mapswipe_results_geom.geojson")
+                    os.path.join(base_mapswipe_path, "mapswipe_results_geom.geojson"),
                 )
                 try:
                     if result_path:
-                        
                         check_and_convert_crs(result_path)
                         layers = []
                         layers.append(f'-L results:"{result_path}"')
@@ -688,22 +747,27 @@ def process_mapswipe_results(prediction_request_id):
                 if settings.USE_S3_TO_UPLOAD_MODELS:
                     upload_to_s3(
                         base_mapswipe_path,
-                        parent=f"{settings.PARENT_BUCKET_FOLDER}/{folder}/mapswipe"
+                        parent=f"{settings.PARENT_BUCKET_FOLDER}/{folder}/mapswipe",
                     )
-                    result_base_url = settings.API_BASE_URL + "/workspace/download/" + folder + "/mapswipe"
-                    inst.result['mapswipe']["post_processed"] = {
+                    result_base_url = (
+                        settings.API_BASE_URL
+                        + "/workspace/download/"
+                        + folder
+                        + "/mapswipe"
+                    )
+                    inst.result["mapswipe"]["post_processed"] = {
                         "geom": f"{result_base_url}/mapswipe_results_geom.geojson",
                         "pmtiles": f"{result_base_url}/mapswipe_results.pmtiles",
                     }
                     inst.save()
-            inst.result['mapswipe']['pmtiles_conversion_status'] = "FINISHED"
+            inst.result["mapswipe"]["pmtiles_conversion_status"] = "FINISHED"
             inst.save()
-            
+
         except Exception as e:
-            logging.error(f"Error in processing MapSwipe results for prediction {prediction_request_id}: {str(e)}")
-            inst.result['mapswipe']['pmtiles_conversion_status'] = "FAILED"
+            logging.error(
+                f"Error in processing MapSwipe results for prediction {prediction_request_id}: {str(e)}"
+            )
+            inst.result["mapswipe"]["pmtiles_conversion_status"] = "FAILED"
             inst.save()
             raise e
-        return inst.result['mapswipe']
-        
-     
+        return inst.result["mapswipe"]

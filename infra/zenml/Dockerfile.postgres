@@ -1,0 +1,25 @@
+
+ARG ZENML_VERSION
+FROM zenmldocker/zenml-server:${ZENML_VERSION} AS base
+
+
+FROM base AS build
+USER root
+RUN apt-get update && apt-get install -y \
+    gcc \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+RUN pip install "psycopg[c]"
+
+
+FROM base AS runtime
+USER root
+RUN apt-get update && apt-get install -y \
+    libpq5 \
+    && rm -rf /var/lib/apt/lists/*
+COPY --from=build /opt/venv /opt/venv
+COPY patch_zenml.py /patch_zenml.py
+COPY verify_postgres_setup.py /verify_postgres_setup.py
+RUN python /patch_zenml.py && python /verify_postgres_setup.py
+RUN rm /patch_zenml.py /verify_postgres_setup.py
+USER zenml

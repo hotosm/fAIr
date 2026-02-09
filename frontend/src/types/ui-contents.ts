@@ -623,12 +623,14 @@ type TGuideWithOnClick = TGuideBase & {
   onClick: () => void;
   isLink?: false;
   href?: never;
+  comingSoon: boolean;
 };
 type TGuideWithLink = TGuideBase & {
   isLink: true;
   href: string;
   isVideo?: false;
   onClick?: never;
+  comingSoon?: boolean;
 };
 
 export type TGuide = TGuideWithOnClick | TGuideWithLink;
@@ -637,9 +639,27 @@ export type TVideo = {
   description: string;
   link: string;
 };
+
+export type TCourse = {
+  title: string;
+  courseLength: string;
+  language: string;
+  duration: string;
+  available: boolean;
+  courseImage: string;
+};
+
+export type IUpdate = {
+  id: number;
+  name: string;
+  url: string;
+  slug: string;
+  date: string;
+};
 export type TLearnPageContent = {
   pageTitle: string;
   pageHeader: string;
+  comingSoonText: string;
   heroHeading: {
     firstSegment: string;
     secondSegment: string;
@@ -653,9 +673,12 @@ export type TLearnPageContent = {
   sectionHeaders: {
     guides: string;
     videos: string;
+    courses: string;
+    updates: string;
   };
   guides: TGuide[];
   videos: TVideo[];
+  courses: TCourse[];
 };
 // Learn page content types ends.
 

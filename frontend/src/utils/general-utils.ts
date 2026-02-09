@@ -1,10 +1,13 @@
 import {
+  BACKUP_VIDEO_URL,
   FAIR_MODELS_BASE_PATH,
   PREDICTION_API_FILE_EXTENSIONS,
 } from "@/config";
 import { BASE_MODELS } from "@/enums";
 import { useToastNotification } from "@/hooks/use-toast-notification";
 import { TModelDetails } from "@/types";
+import { extractYouTubeVideoId } from "./regex-utils";
+import { UpdateCoverImage } from "@/assets/images";
 
 /**
  * Displays an error message as a toast notification.
@@ -112,6 +115,38 @@ export const constructModelCheckpointPath = (
  *
  * @param url The full URL to open
  */
+
+/**
+ * Opens the provided URL in a new browser tab.
+ * Useful for downloading files or navigating to external resources.
+ *
+ * @param url The full URL to open
+ */
 export const downloadFile = (url: string) => {
   window.open(url, "_blank");
+};
+
+export const getValidVideoUrl = (url: string): string => {
+  const videoId = extractYouTubeVideoId(url);
+  return videoId ? url : BACKUP_VIDEO_URL;
+};
+
+/**
+ * Gets the YouTube thumbnail URL from a video URL
+ */
+export const getYouTubeThumbnail = (url: string): string => {
+  const validUrl = getValidVideoUrl(url);
+  const videoId = extractYouTubeVideoId(validUrl);
+  // Use maxresdefault for highest quality, falls back to hqdefault
+  return videoId
+    ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`
+    : UpdateCoverImage; //fallback image
+};
+
+export const getYouTubeEmbedUrl = (url: string) => {
+  const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/);
+  const videoId = match ? match[1] : null;
+  return videoId
+    ? `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1`
+    : BACKUP_VIDEO_URL; // fallback
 };

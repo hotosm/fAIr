@@ -151,9 +151,20 @@ const TrainingSettingsForm = () => {
           {trainingTypes.map((type, id) => (
             <ButtonWithIcon
               key={`training-type-${id}`}
-              onClick={() =>
-                handleChange(MODEL_CREATION_FORM_NAME.TRAINING_TYPE, type.label)
-              }
+              onClick={() => {
+                handleChange(
+                  MODEL_CREATION_FORM_NAME.TRAINING_TYPE,
+                  type.label,
+                );
+                // reset training settings state when the buttons are switched, otherwise, after a first validation error, if the user
+                // switches to another training type e.g from Basic -> Advanced, they won't be able to proceed because of the previous validation error
+                // on one of the advanced settings in the previous traning type.
+                handleChange(
+                  MODEL_CREATION_FORM_NAME.TRAINING_SETTINGS_IS_VALID,
+                  true,
+                );
+                setValidationMessage("");
+              }}
               label={type.label}
               variant={
                 formData.trainingType === type.label

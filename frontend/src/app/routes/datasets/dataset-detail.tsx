@@ -121,7 +121,7 @@ export const TrainingDatasetsDetailPage = () => {
               </p>
             </div>
             <div className="flex items-center text-body-2 text-dark">
-              <span className="text-grey mr-2">Source Image:</span>
+              <span className="text-grey mr-3">Source Imagery:</span>
               <CopyButton text={data.source_imagery} />
             </div>
           </div>
