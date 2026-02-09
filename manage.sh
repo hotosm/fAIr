@@ -129,6 +129,10 @@ logs() {
   fi
 }
 
+services() {
+  docker compose -f $COMPOSE_FILE config --services
+}
+
 migrations() {
   check_privileges
   
@@ -206,6 +210,7 @@ show_help() {
   echo -e "  ${GREEN}restart${NC}         - Restart the application"
   echo -e "  ${GREEN}status${NC}          - Check application status"
   echo -e "  ${GREEN}logs [service]${NC}  - View application logs (optionally specify a service name)"
+  echo -e "  ${GREEN}services${NC}        - List available services"
   echo -e "  ${GREEN}migrations${NC}      - Run Django database migrations"
   echo -e "  ${GREEN}createsuperuser${NC} - Create a Django superuser account"
   echo -e "  ${GREEN}backup${NC}          - Create a backup of the application"
@@ -215,6 +220,7 @@ show_help() {
   echo -e "  ${YELLOW}$0 setup${NC}              - Set up the application"
   echo -e "  ${YELLOW}$0 -p cpu start${NC}       - Start with CPU profile"
   echo -e "  ${YELLOW}$0 migrations${NC}         - Run database migrations"
+  echo -e "  ${YELLOW}$0 services${NC}           - List available services"
   echo -e "  ${YELLOW}$0 logs api${NC}           - View logs for backend API"
 }
 
@@ -261,6 +267,9 @@ case "$1" in
     ;;
   logs)
     logs $2
+    ;;
+  services)
+    services
     ;;
   migrations)
     migrations
