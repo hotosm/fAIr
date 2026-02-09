@@ -41,12 +41,12 @@ Before you start contributing code, set up your local development environment:
 
 3. **Access the application**:
    - Frontend: <http://localhost:3500>
-   - API: <http://localhost:8200>
-   - API Docs: <http://localhost:8200/api/docs>
+   - API: <http://localhost:8200/api>
+   - API Docs: <http://localhost:8200/api/swagger>
 
 4. **Make your changes** and see them live with hot reload!
 
-For detailed setup instructions, see [Docker Installation Guide](./docs/Docker-installation.md) and [Quick Reference](./DOCKER_QUICK_REF.md).
+For detailed setup instructions, see [Docker Installation Guide](./docs/Docker-installation.md).
 
 ### Making Changes
 

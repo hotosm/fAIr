@@ -32,8 +32,8 @@ make init PROFILE=gpu
 ## Access
 
 - Frontend: <http://localhost:3500>
-- API: <http://localhost:8200>
-- API Docs: <http://localhost:8200/api/docs>
+- API: <http://localhost:8200/api>
+- API Docs: <http://localhost:8200/api/swagger>
 
 ## Configuration
 
@@ -104,10 +104,9 @@ make init PROFILE=gpu
 
 - Create admin user: `make superuser`
 - Open frontend: <http://localhost:3500>
-- Use API docs: <http://localhost:8200/api/docs>
+- Use API docs: <http://localhost:8200/api/swagger>
 
 ## Help
 
-- [DOCKER_QUICK_REF.md](../DOCKER_QUICK_REF.md)
 - [docs](../docs)
 - <https://github.com/hotosm/fAIr/issues>
