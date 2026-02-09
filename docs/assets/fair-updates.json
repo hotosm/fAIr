@@ -1,11 +1,5 @@
 {
     "videos": [
-		{"id": 1, "name":"Building Communities Capacity with TOSTAN: Data For Community Protection. (Part A)", "url":"https://www.youtube.com/watch?v=uqFsaBEDBhE", "slug":"sample-video-1", "date":"01-01-2025"},
-		{"id": 2, "name":"Demo of fAIr, responsible AI-assited Mapping", "url":"https://www.youtube.com/watch?v=GQI8DbztivM", "slug":"Field-TMWorkflow3-Demo-Mapping", "date":"01-02-2025"},
-		{"id": 2, "name":"Field-TM Workflow 3 Demo: Mapping", "url":"https://www.youtube.com/watch?v=fAVycJ5rowY", "slug":"sample-video-3", "date":"01-02-2025"},
-		{"id": 2, "name":"Field-TM Workflow 2 Demo: Project Creation", "url":"https://www.youtube.com/watch?v=iLCuc2bXLcs", "slug":"sample-video-4", "date":"01-02-2025"},
-		{"id": 2, "name":"sample video 2", "url":"https//youtube.com", "slug":"sample-video-5", "date":"01-02-2025"},
-		{"id": 2, "name":"Demo of fAIr, responsible AI-assited Mapping", "url":"https://www.youtube.com/watch?v=GQI8DbztivM", "slug":"sample-video-6", "date":"01-02-2025"},
-		{"id": 2, "name":"Field-TM Workflow 2 Demo: Project Creation", "url":"https://www.youtube.com/watch?v=iLCuc2bXLcs", "slug":"sample-video-7", "date":"01-02-2025"}
+		{"id": 1, "name":"Predcition Request Feature", "url":"https://www.youtube.com/watch?v=jRDBiSAgm3c", "slug":"predcition-request-feature", "date":"09-02-2026"}
 	]
 }
