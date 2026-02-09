@@ -44,16 +44,16 @@ init: setup build down
 	@$(COMPOSE) --profile $(PROFILE) up
 	@echo "Done"
 	@echo "Frontend: http://localhost:3500"
-	@echo "API:      http://localhost:8200"
-	@echo "API Docs: http://localhost:8200/api/docs"
+	@echo "API:      http://localhost:8200/api"
+	@echo "API Docs: http://localhost:8200/api/swagger"
 
 up:
 	@echo "Up"
 	@$(COMPOSE) --profile $(PROFILE) up
 	@echo "Done"
 	@echo "Frontend: http://localhost:3500"
-	@echo "API:      http://localhost:8200"
-	@echo "API Docs: http://localhost:8200/api/docs"
+	@echo "API:      http://localhost:8200/api"
+	@echo "API Docs: http://localhost:8200/api/swagger"
 
 down:
 	@echo "Down"
