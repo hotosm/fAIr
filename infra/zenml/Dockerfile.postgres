@@ -22,5 +22,7 @@ COPY patch_zenml.py /patch_zenml.py
 COPY verify_postgres_setup.py /verify_postgres_setup.py
 RUN python /patch_zenml.py && python /verify_postgres_setup.py \
     && rm /patch_zenml.py /verify_postgres_setup.py \
-    && chown zenml:zenml /zenml/.zenconfig/config.yaml
+    && chown zenml:zenml /zenml/.zenconfig/config.yaml \
+    # Add integrations
+    && zenml integration install -y kubernetes mlflow wandb
 USER zenml
