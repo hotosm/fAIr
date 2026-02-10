@@ -13,12 +13,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { UserProfile } from "@/components/layouts";
 import { useState } from "react";
 import { UserNotifications } from "@/features/user-profile/components/notifications/user-notifications";
-import {
-  AUTH_PROVIDER,
-  BASE_API_URL,
-  FRONTEND_URL,
-  HANKO_URL,
-} from "@/config";
+import { AUTH_PROVIDER, BASE_API_URL, FRONTEND_URL, HANKO_URL } from "@/config";
+import "@hotosm/tool-menu";
+import { Divider } from "@/components/ui/divider";
 
 // Import Hanko web component when using SSO
 if (AUTH_PROVIDER === "hanko") {
@@ -36,6 +33,8 @@ const HankoAuthComponent = () => (
     redirect-after-logout={FRONTEND_URL}
     mapping-check-url={`${BASE_API_URL}auth/status/`}
     app-id="fair"
+    button-variant="filled"
+    button-color="danger"
   />
 );
 
@@ -50,7 +49,12 @@ export const NavBar = () => {
 
   return (
     <>
-      <Drawer open={open} setOpen={setOpen} placement={DrawerPlacements.END}>
+      <Drawer
+        open={open}
+        setOpen={setOpen}
+        placement={DrawerPlacements.TOP}
+        className={styles.navDrawer}
+      >
         <div className={styles.drawerContentContainer}>
           <div className={styles.drawerHeaderContainer}>
             <NavLogo />
@@ -64,26 +68,36 @@ export const NavBar = () => {
           <div className={styles.navLinksContainer}>
             <NavBarLinks className={styles.mobileNavLinks} setOpen={setOpen} />
           </div>
-          <div className={styles.loginButtonContainer}>
-            {AUTH_PROVIDER === "hanko" ? (
+          {isAuthenticated && <Divider />}
+
+          {AUTH_PROVIDER === "hanko" ? (
+            <>
+              {isAuthenticated && (
+                <UserProfile
+                  isHanko
+                  hideFullName
+                  variant="list"
+                  onNavigate={() => setOpen(false)}
+                />
+              )}
               <>
-                {isAuthenticated && <UserProfile />}
+                {isAuthenticated && <Divider />}
                 <HankoAuthComponent />
               </>
-            ) : isAuthenticated ? (
-              <UserProfile />
-            ) : (
-              <Button
-                onClick={() => {
-                  navigate(location, {
-                    state: { backgroundLocation: location },
-                  });
-                }}
-              >
-                {SHARED_CONTENT.navbar.loginButton}
-              </Button>
-            )}
-          </div>
+            </>
+          ) : isAuthenticated ? (
+            <UserProfile variant="list" onNavigate={() => setOpen(false)} />
+          ) : (
+            <Button
+              onClick={() => {
+                navigate(location, {
+                  state: { backgroundLocation: location },
+                });
+              }}
+            >
+              {SHARED_CONTENT.navbar.loginButton}
+            </Button>
+          )}
         </div>
       </Drawer>
 
@@ -94,19 +108,18 @@ export const NavBar = () => {
         <div>
           <NavBarLinks className={styles.webNavLinks} />
         </div>
-        <div className="hidden mdx:block">
+        <div className="hidden mdx:flex items-center gap-x-3">
           {AUTH_PROVIDER === "hanko" ? (
-            <div className={`${styles.profileContainer} `}>
+            <>
               {isAuthenticated && <UserNotifications />}
-              {isAuthenticated && <UserProfile />}
+              {isAuthenticated && <UserProfile isHanko hideFullName />}
               <HankoAuthComponent />
-            </div>
+            </>
           ) : isAuthenticated ? (
-            <div className={`${styles.profileContainer} `}>
-              {/* Notification on the web */}
+            <>
               {isAuthenticated && <UserNotifications />}
               <UserProfile />
-            </div>
+            </>
           ) : (
             <Button
               className={styles.loginButton}
@@ -119,6 +132,7 @@ export const NavBar = () => {
               {SHARED_CONTENT.navbar.loginButton}
             </Button>
           )}
+          <hotosm-tool-menu></hotosm-tool-menu>
         </div>
         <div className="flex items-center gap-x-2 mdx:hidden">
           {/* Notification bell on the small screens */}

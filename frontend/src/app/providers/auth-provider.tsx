@@ -228,6 +228,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   /**
+   * Listen for "hanko-login" and "logout" events from the hotosm-auth web component
+   * to immediately update user state instead of waiting for the next poll.
+   */
+  useEffect(() => {
+    if (AUTH_PROVIDER !== "hanko") return;
+
+    const handleLogin = () => {
+      fetchUserProfile();
+    };
+
+    const handleLogout = () => {
+      setUser(undefined);
+    };
+
+    document.addEventListener("hanko-login", handleLogin);
+    document.addEventListener("logout", handleLogout);
+    return () => {
+      document.removeEventListener("hanko-login", handleLogin);
+      document.removeEventListener("logout", handleLogout);
+    };
+  }, []);
+
+  /**
    * Poll the backend for the user profile information every 15 seconds.
    * This is majorly to keep the user profile information up to date, especially when the user is logged in.
    */

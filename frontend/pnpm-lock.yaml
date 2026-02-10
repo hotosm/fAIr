@@ -16,8 +16,11 @@ importers:
         specifier: 3.0.0-beta.1
         version: 3.0.0-beta.1(@floating-ui/utils@0.2.10)
       '@hotosm/hanko-auth':
-        specifier: ^0.4.2
-        version: 0.4.2
+        specifier: 0.4.4
+        version: 0.4.4
+      '@hotosm/tool-menu':
+        specifier: 0.2.4
+        version: 0.2.4
       '@reactour/tour':
         specifier: ^3.7.0
         version: 3.7.0(react@19.1.0)
@@ -568,8 +571,12 @@ packages:
   '@floating-ui/utils@0.2.8':
     resolution: {integrity: sha512-kym7SodPp8/wloecOpcmSnWJsK7M0E5Wg8UcFA+uO4B9s5d0ywXOEro/8HM9x0rW+TljRzul/14UYz3TleT3ig==}
 
-  '@hotosm/hanko-auth@0.4.2':
-    resolution: {integrity: sha512-DAN6r80ane+APwNyQ6P4SDXEh9E8P6EHnOHxNapwfnSSYZrn3ZINzK2yXpD+lwP2u0G9+z7V0mAGs6zg44onoA==}
+  '@hotosm/hanko-auth@0.4.4':
+    resolution: {integrity: sha512-OGPVad5mBUvp76SwE6TvSbRqp1AzNtzQt5Pc/A2CsiYZXENTnH9t1nq5//RfZJ8TLpIhI1AN222xChEDnKCdPw==}
+
+  '@hotosm/tool-menu@0.2.4':
+    resolution: {integrity: sha512-EciBN/+C3qHsmFC3arl+c6c9lsstIJoewbKGssDnuobmstfbeSF9xs6jqpTjDUyyAbtOBqlXRM+cb6u95ugCaQ==}
+    engines: {node: '>=14.17.0'}
 
   '@humanwhocodes/module-importer@1.0.1':
     resolution: {integrity: sha512-bxveV4V8v5Yb4ncFTT3rPSgZBOpCkjfK0y4oVVVJwIuDVBRMDXrPyXRL988i5ap9m9bnyEEjWfm5WkBmtffLfA==}
@@ -3919,9 +3926,13 @@ snapshots:
 
   '@floating-ui/utils@0.2.8': {}
 
-  '@hotosm/hanko-auth@0.4.2':
+  '@hotosm/hanko-auth@0.4.4':
     dependencies:
       '@teamhanko/hanko-elements': 1.5.2
+      lit: 3.3.1
+
+  '@hotosm/tool-menu@0.2.4':
+    dependencies:
       lit: 3.3.1
 
   '@humanwhocodes/module-importer@1.0.1': {}

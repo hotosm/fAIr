@@ -18,11 +18,14 @@ nav {
 .mobileNavLinks {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-transform: uppercase;
+  align-items: start;
   font-weight: var(--sl-spacing-medium);
   font-size: var(--hot-fair-font-size-body-text-3);
-  gap: var(--sl-spacing-3x-large);
+  gap: var(--sl-spacing-medium);
+  padding: 0 var(--body-spacing);
+}
+.mobileNavLinks .link {
+  text-transform: capitalize;
 }
 
 .loginButton {
@@ -35,36 +38,71 @@ nav {
 
 /* Mobile Nav */
 
+.navDrawer::part(panel) {
+  height: auto;
+}
+
+.navDrawer::part(body) {
+  padding: 0;
+}
+
 .drawerContentContainer {
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  row-gap: var(--sl-spacing-3x-large);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sl-spacing-large);
 }
 
 .drawerHeaderContainer {
-  grid-column: span 12;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 0 var(--body-spacing);
 }
 
 .navLinksContainer {
-  grid-column: span 12;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: var(--sl-spacing-3x-large);
 }
 
 .loginButtonContainer {
-  grid-column: 3 / 7;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  justify-content: center;
+}
+.hankoMobileBar {
   display: flex;
   align-items: center;
-  justify-content: center;
 }
 
 .closeButton {
   font-size: var(--hot-fair-font-size-title-3);
+}
+
+.profileList {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  gap: var(--sl-spacing-medium);
+  font-weight: var(--sl-spacing-medium);
+  font-size: var(--hot-fair-font-size-body-text-3);
+  padding: 0 var(--body-spacing);
+}
+
+.profileListItem {
+  cursor: pointer;
+}
+
+.logoutButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  text-transform: inherit;
+  color: var(--hot-fair-color-primary);
 }
 
 /* NavBar styles ends */

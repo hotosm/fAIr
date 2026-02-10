@@ -2,7 +2,7 @@
 
 import type React from 'react';
 
-// JSX IntrinsicElements for hotosm-auth custom web component
+// JSX IntrinsicElements for custom web components
 declare module 'react' {
   namespace JSX {
     interface IntrinsicElements extends IntrinsicElements {
@@ -18,7 +18,15 @@ declare module 'react' {
         'osm-required'?: string | boolean;
         'auto-connect'?: string | boolean;
         'verify-session'?: string | boolean;
+        'mapping-check-url'?: string;
+        'app-id'?: string;
+        'button-variant'?: string;
+        'button-color'?: string;
       };
+      'hotosm-tool-menu': React.DetailedHTMLProps<
+        React.HTMLAttributes<HTMLElement>,
+        HTMLElement
+      >;
     }
   }
 }
