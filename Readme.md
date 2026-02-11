@@ -52,7 +52,15 @@ To eliminate model biases, fAIr is built to work with the local communities and 
 <!-- prettier-ignore-start -->
 | Status | Feature | Detailed Description | Release | 
 |:--:| :-- | :-- | :-- |
-|🔄| Comming soon |  Comming soon | v##
+|🔄| AI Community Contribution |  AI Developer can contribute their GeoAI models to fAIr, estiamted Jun-Jul 2026| v##
+|📅| Start Mapping  | End users can select any GeoAI community model and any imagery to map specific features supported by the community models, e.g. solap panels, different rooftops martial...etc. estiamed Jun-Jul 2026 | v##
+|📅| Integrate Tasking Manager |  Users can select specific TM project (with licensed imagery) and select validated taks to be used in fAIr to create building detection GeoAI models, estimated Jul-Aug 2026 | v##
+|📅| fAIrSwipe integration to create training dataset | Model creators would be able to seek community support of MapSwipe to create training data using MapSwipe projects, estiamted  May 206 | v##
+|📅| fAIrSwipe integration to AI predcitions | users would be able to seek community support to validate the AI prediction producing a human validated data for different features such as solar panels, seagrass, road ...etc., estiamted  Aug-Sept 206 | v##
+|📅| Private/Public Datasets/Models | Users can create provate and public datasets/model, estimated Sept 2026| v##
+|📅| Public Predcitions Request List | Users can publish publically their prediction request relsults dataset in a public list, estimated Aug 2026 | v##
+|📅| Clone model | Users can select a GeoAI model and replicated with its dataset to be able to develop them further, estiamted Oct 2026 | v##
+|📅| Community discussion | Other fAIr users can comment and give feedback on public models, estiamed Nov 2026 | v##
 
 
 ## Product Roadmap (Users' Roadmap) 2025
