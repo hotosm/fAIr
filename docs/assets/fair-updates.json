@@ -1,5 +1,5 @@
 {
     "videos": [
-		{"id": 1, "name":"Predcition Request Feature", "url":"https://www.youtube.com/watch?v=jRDBiSAgm3c", "slug":"predcition-request-feature", "date":"09-02-2026"}
+		{"id": 1, "name":"Prediction Request Feature", "url":"https://www.youtube.com/watch?v=jRDBiSAgm3c", "slug":"prediction-request-feature", "date":"09-02-2026"}
 	]
 }
