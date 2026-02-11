@@ -320,7 +320,10 @@ Most endpoints require authentication using OSM OAuth2:
     """,
     "VERSION": "v1",
     "CONTACT": {"name": "HOT Tech Team", "email": "sysadmin@hotosm.org"},
-    "LICENSE": {"name": "AGPL-3.0", "url": "https://www.gnu.org/licenses/agpl-3.0.en.html"},
+    "LICENSE": {
+        "name": "AGPL-3.0",
+        "url": "https://www.gnu.org/licenses/agpl-3.0.en.html",
+    },
     "TERMS_OF_SERVICE": "https://www.hotosm.org/privacy",
     "SERVE_INCLUDE_SCHEMA": False,
     "SWAGGER_UI_SETTINGS": {
@@ -476,15 +479,23 @@ if not DEBUG:
         raise ValueError("Insecure SECRET_KEY detected in production")
 
 
-### Mapswipe block 
+### Mapswipe block
 
 ENABLE_MAPSWIPE_INTEGREATION = True
 
-MAPSWIPE_BACKEND_URL = env("MAPSWIPE_BACKEND_URL", default="https://backend-2.mapswipe.dev.togglecorp.com")
-MAPSWIPE_MANAGER_URL = env("MAPSWIPE_MANAGER_URL", default="https://manager-2.mapswipe.dev.togglecorp.com")
-MAPSWIPE_WEB_URL = env("MAPSWIPE_WEB_URL", default="https://web-app-2.mapswipe.dev.togglecorp.com")
+MAPSWIPE_BACKEND_URL = env(
+    "MAPSWIPE_BACKEND_URL", default="https://backend-2.mapswipe.dev.togglecorp.com"
+)
+MAPSWIPE_MANAGER_URL = env(
+    "MAPSWIPE_MANAGER_URL", default="https://manager-2.mapswipe.dev.togglecorp.com"
+)
+MAPSWIPE_WEB_URL = env(
+    "MAPSWIPE_WEB_URL", default="https://web-app-2.mapswipe.dev.togglecorp.com"
+)
 
-MAPSWIPE_CSRFTOKEN_KEY= env("MAPSWIPE_CSRFTOKEN_KEY", default='MAPSWIPE-ALPHA-2-CSRFTOKEN')
+MAPSWIPE_CSRFTOKEN_KEY = env(
+    "MAPSWIPE_CSRFTOKEN_KEY", default="MAPSWIPE-ALPHA-2-CSRFTOKEN"
+)
 
 # XXX: For the key, go to the managers dashboard login page, open th network tab, after login you can see the key in the network tab
 # MAPSWIPE_FB_AUTH_URL=https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
@@ -494,13 +505,23 @@ MAPSWIPE_FB_AUTH_URL = env("MAPSWIPE_FB_AUTH_URL", default=None)
 MAPSWIPE_FB_USERNAME = env("MAPSWIPE_FB_USERNAME", default=None)
 MAPSWIPE_FB_PASSWORD = env("MAPSWIPE_FB_PASSWORD", default=None)
 
-ENABLE_MASPSWIPE_INTEGRATION = env.bool("ENABLE_MAPSWIPE_INTEGRATION", default=(MAPSWIPE_CSRFTOKEN_KEY and MAPSWIPE_FB_AUTH_URL and MAPSWIPE_FB_USERNAME and MAPSWIPE_FB_PASSWORD))
+ENABLE_MASPSWIPE_INTEGRATION = env.bool(
+    "ENABLE_MAPSWIPE_INTEGRATION",
+    default=(
+        MAPSWIPE_CSRFTOKEN_KEY
+        and MAPSWIPE_FB_AUTH_URL
+        and MAPSWIPE_FB_USERNAME
+        and MAPSWIPE_FB_PASSWORD
+    ),
+)
 
 MAPSWIPE_TUTORIAL_ID = env("MAPSWIPE_TUTORIAL_ID", default="37")
 MAPSWIPE_ORGANIZATION_ID = env.int("MAPSWIPE_ORGANIZATION_ID", default=4)
-
+MAPSWIPE_VERIFICATION_NUMBER = env.int("MAPSWIPE_VERIFICATION_NUMBER", default=1)
 
 MAPSWIPE_POLL_INTERVAL = env.int("MAPSWIPE_POLL_INTERVAL", default=10)
 MAPSWIPE_POLL_TIMEOUT = env.int("MAPSWIPE_POLL_TIMEOUT", default=600)
 
-ENABLE_FAIR_PREDICTOR = env.bool("ENABLE_FAIR_PREDICTOR", default=True) # for standalone fairpredictor module , you can enable this to test in the dev in production fairpredictor can be deployed independently
+ENABLE_FAIR_PREDICTOR = env.bool(
+    "ENABLE_FAIR_PREDICTOR", default=True
+)  # for standalone fairpredictor module , you can enable this to test in the dev in production fairpredictor can be deployed independently
