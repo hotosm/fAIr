@@ -22,6 +22,7 @@ declare module 'react' {
         'app-id'?: string;
         'button-variant'?: string;
         'button-color'?: string;
+        'display'?: string;
       };
       'hotosm-tool-menu': React.DetailedHTMLProps<
         React.HTMLAttributes<HTMLElement>,

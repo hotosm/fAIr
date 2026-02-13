@@ -25,7 +25,7 @@ if (AUTH_PROVIDER === "hanko") {
 // Hanko auth component - defined outside NavBar to avoid re-creation on every render
 // mapping-check-url silently verifies if user has app mapping
 // If not, redirects to Login for onboarding
-const HankoAuthComponent = () => (
+const HankoAuthComponent = ({ displayBar }: { displayBar?: boolean }) => (
   <hotosm-auth
     hanko-url={HANKO_URL}
     base-path={HANKO_URL}
@@ -35,6 +35,7 @@ const HankoAuthComponent = () => (
     app-id="fair"
     button-variant="filled"
     button-color="danger"
+    display={displayBar ? "bar" : "default"}
   />
 );
 
@@ -81,8 +82,9 @@ export const NavBar = () => {
                 />
               )}
               <>
-                {isAuthenticated && <Divider />}
-                <HankoAuthComponent />
+                <span className={isAuthenticated ? "border-t-2" : "pb-4 pl-4"}>
+                  <HankoAuthComponent displayBar />
+                </span>
               </>
             </>
           ) : isAuthenticated ? (
