@@ -268,7 +268,7 @@ export const CreateMapswipeProjectDialog = ({
               label="Verification Number"
               type={INPUT_TYPES.NUMBER}
               disabled
-              value={4}
+              value={1}
               handleInput={() => null}
               showBorder
               toolTipContent="The number of answers from different users per task needed to consider the task completed."

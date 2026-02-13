@@ -1,10 +1,12 @@
-import httpx
 import json
 import time
-from ulid import ULID
-from django.conf import settings
-import requests
 from urllib.parse import urlparse
+
+import httpx
+import requests
+from django.conf import settings
+from ulid import ULID
+
 
 class MapswipeClient:
     """
@@ -166,12 +168,14 @@ class MapswipeClient:
             "x-csrftoken": csrf_token,
             "origin": self._manager_url,
         }
-        
-    def _graphql_request(self, query: str, variables: dict = None, operation_name: str = None):
+
+    def _graphql_request(
+        self, query: str, variables: dict = None, operation_name: str = None
+    ):
         payload = {"query": query, "variables": variables}
         if operation_name:
             payload["operationName"] = operation_name
-        
+
         response = self._client.post("/graphql/", headers=self._headers, json=payload)
         response.raise_for_status()
         data = response.json()
@@ -179,12 +183,16 @@ class MapswipeClient:
             raise RuntimeError(f"GraphQL errors: {data['errors']}")
         return data["data"]
 
-    def _graphql_request_with_files(self, query: str, files: dict, map_data: dict, variables: dict):
+    def _graphql_request_with_files(
+        self, query: str, files: dict, map_data: dict, variables: dict
+    ):
         form_data = {
             "operations": json.dumps({"query": query, "variables": variables}),
             "map": json.dumps(map_data),
         }
-        response = self._client.post("/graphql/", headers=self._headers, files=files, data=form_data)
+        response = self._client.post(
+            "/graphql/", headers=self._headers, files=files, data=form_data
+        )
         response.raise_for_status()
         data = response.json()
         if "errors" in data:
@@ -198,7 +206,7 @@ class MapswipeClient:
     #     if not organizations:
     #         raise RuntimeError("No organizations found for the user.")
     #     return organizations[0]["id"]
-    
+
     def create_validation_project(
         self,
         topic: str,
@@ -207,7 +215,7 @@ class MapswipeClient:
         instruction: str,
         look_for: str,
         project_number: int,
-        cover_image_path: str = 'https://www.pngall.com/wp-content/uploads/8/Sample.png',
+        cover_image_path: str = "https://www.pngall.com/wp-content/uploads/8/Sample.png",
         organization_id: str = "4",
         additional_info_url: str = "fair-dev.hotosm.org",
     ) -> tuple[str, str]:
@@ -224,19 +232,18 @@ class MapswipeClient:
             "requestingOrganization": organization_id,
             "additionalInfoUrl": additional_info_url,
         }
-        
+
         create_project_data = self._graphql_request(
             query=self._CREATE_DRAFT_PROJECT_MUTATION,
             variables={"data": project_params},
-            operation_name="NewDraftProject"
+            operation_name="NewDraftProject",
         )
-        
+
         response_data = create_project_data.get("createProject", {})
         if not response_data.get("result") or response_data.get("errors"):
             raise RuntimeError(f"Failed to create draft project: {response_data}")
 
         project_id = response_data["result"]["id"]
-
 
         def is_url(path):
             try:
@@ -249,11 +256,11 @@ class MapswipeClient:
             response = requests.get(cover_image_path)
             response.raise_for_status()
             image_data = response.content
-            filename = cover_image_path.split('/')[-1]
+            filename = cover_image_path.split("/")[-1]
         else:
             with open(cover_image_path, "rb") as image_file:
                 image_data = image_file.read()
-                filename = cover_image_path.split('/')[-1]
+                filename = cover_image_path.split("/")[-1]
 
         asset_params = {
             "inputType": "COVER_IMAGE",
@@ -271,22 +278,21 @@ class MapswipeClient:
         image_asset_id = asset_response["createProjectAsset"]["result"]["id"]
         return project_id, image_asset_id
 
-
     def get_project_details(self, project_id: str) -> dict:
         """Polls and fetches the details for a given project ID."""
-        
+
         project_data = self._graphql_request(
             query=self._PROJECT_BY_ID_QUERY,
             variables={"id": project_id},
-            operation_name="ProjectById"
+            operation_name="ProjectById",
         )["project"]
 
-        if project_data['firebaseId']:
-            project_data['webUrl'] = f"{settings.MAPSWIPE_WEB_URL}/#/en/projects/{project_data['firebaseId']}"
-            
+        if project_data["firebaseId"]:
+            project_data["webUrl"] = (
+                f"{settings.MAPSWIPE_WEB_URL}/#/en/projects/{project_data['firebaseId']}"
+            )
+
         return project_data
-        
-        
 
     def update_project(
         self,
@@ -295,7 +301,7 @@ class MapswipeClient:
         tms_url: str,
         image_asset_id: str,
         group_size: int = 25,
-        verification_number: int = 4,
+        verification_number: int = 1,
         tutorial_id: str = "37",
     ):
         """Updates a project with additional details."""
@@ -357,11 +363,11 @@ class MapswipeClient:
             variables={"id": project_id, "data": update_params},
             operation_name="UpdateProject",
         )
-        
+
         response_data = update_data.get("updateProject", {})
         if not response_data.get("result") or response_data.get("errors"):
             raise RuntimeError(f"Failed to update project: {response_data}")
-        
+
         return response_data
 
     def update_project_status(self, project_id: str, status: str):
@@ -372,11 +378,11 @@ class MapswipeClient:
             variables={"id": project_id, "data": status_params},
             operation_name="UpdateProjectStatus",
         )
-        
+
         response_data = status_data.get("updateProjectStatus", {})
         if not response_data.get("result") or response_data.get("errors"):
             raise RuntimeError(f"Failed to update project status: {response_data}")
-        
+
         return response_data
 
     def get_project_status(self, project_id: str) -> dict:
@@ -387,9 +393,7 @@ class MapswipeClient:
             operation_name="ProjectStatus",
         )["project"]
 
-    def poll_project_status(
-        self, project_id: str, target_status: str
-    ):
+    def poll_project_status(self, project_id: str, target_status: str):
         """Polls the project status until it reaches the target status."""
         interval = settings.MAPSWIPE_POLL_INTERVAL
         timeout = settings.MAPSWIPE_POLL_TIMEOUT
@@ -411,7 +415,7 @@ class MapswipeClient:
         data = self._graphql_request(
             query=self._PROJECT_RESULTS_QUERY,
             variables={"id": project_id},
-            operation_name="ProjectResults"
+            operation_name="ProjectResults",
         )
         return data.get("publicProject", {})
 

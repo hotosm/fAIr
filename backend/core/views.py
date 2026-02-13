@@ -1,33 +1,35 @@
 from __future__ import absolute_import
-import random
+
 import json
 import logging
 import os
 import pathlib
+import random
 import subprocess
 import zipfile
 from datetime import datetime
+from tempfile import NamedTemporaryFile
 from urllib.parse import quote
+
 import httpx
 import pyogrio
 from botocore.exceptions import ClientError, NoCredentialsError
-from tempfile import NamedTemporaryFile
-from django.core.files.uploadedfile import InMemoryUploadedFile
 
 # import tensorflow as tf
 from celery import current_app
 from celery.result import AsyncResult
 from django.conf import settings
 from django.core.cache import cache
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db import connections
 from django.db.utils import OperationalError
 from django.http import (
+    Http404,
     HttpResponse,
     HttpResponseBadRequest,
     HttpResponseRedirect,
     JsonResponse,
 )
-from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.decorators import method_decorator
@@ -38,6 +40,13 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django_q.tasks import async_task
 from django_ratelimit.decorators import ratelimit
 from geojson2osm import geojson2osm
+from login.authentication import OsmAuthentication
+from login.permissions import (
+    IsAdminUser,
+    IsOsmAuthenticated,
+    IsOwnerOrReadOnly,
+    IsStaffUser,
+)
 from osmconflator import conflate_geojson
 from rest_framework import decorators, filters, serializers, status, viewsets
 from rest_framework.decorators import api_view
@@ -59,13 +68,13 @@ from login.permissions import (
     IsOwnerOrReadOnly,
     IsStaffUser,
 )
-
 from .exceptions import (
     ExternalServiceException,
     ResourceNotFoundException,
     ValidationException,
     handle_validation_error,
 )
+from .mapswipe_client import MapswipeClient
 from .mixins import BaseModelViewSet, BaseSpatialViewSet, UserAssignmentMixin
 from .models import (
     AOI,
@@ -97,7 +106,7 @@ from .serializers import (
     UserSerializer,
     UserStatsSerializer,
 )
-from .tasks import predict_area, train_model, process_mapswipe_results
+from .tasks import predict_area, process_mapswipe_results, train_model
 from .utils import (
     degrees_to_km,
     download_s3_file,
@@ -111,7 +120,7 @@ from .utils import (
     send_notification,
 )
 from .validators import validate_geojson
-from .mapswipe_client import MapswipeClient
+
 
 @api_view(["GET"])
 def health(request):
@@ -148,7 +157,7 @@ def health(request):
             status["s3"] = None
     except Exception:
         status["s3"] = False
-    
+
     if settings.ENABLE_MAPSWIPE_INTEGREATION:
         try:
             client = MapswipeClient()
@@ -156,10 +165,10 @@ def health(request):
             status["mapswipe_api"] = True
         except Exception:
             status["mapswipe_api"] = False
-        status['mapswipe_backend_url'] = settings.MAPSWIPE_BACKEND_URL
-        status['mapswipe_manager_url'] = settings.MAPSWIPE_MANAGER_URL
-        status['mapswipe_web_url'] = settings.MAPSWIPE_WEB_URL
-    
+        status["mapswipe_backend_url"] = settings.MAPSWIPE_BACKEND_URL
+        status["mapswipe_manager_url"] = settings.MAPSWIPE_MANAGER_URL
+        status["mapswipe_web_url"] = settings.MAPSWIPE_WEB_URL
+
     return JsonResponse({"status": status})
 
 
@@ -204,21 +213,20 @@ class DatasetViewSet(HankoUserFilterMixin, BaseSpatialViewSet):
     )
     filterset_fields = ["user", "status", "id"]
     search_fields = ["id", "name"]
-    
-    
+
     def partial_update(self, request, *args, **kwargs):
         if "offset" in request.data:
             # Bypass self.get_object() to skip IsOsmAuthenticated's ownership check
             # This allows ANY authenticated user to update the offset ## FIXME : I don't like this at all , for now i am allowing as a temp check later cloning of dataset would be recommended
             instance = get_object_or_404(self.get_queryset(), pk=kwargs.get("pk"))
-            
+
             serializer = self.get_serializer(
                 instance, data={"offset": request.data["offset"]}, partial=True
             )
             serializer.is_valid(raise_exception=True)
             self.perform_update(serializer)
             return Response(serializer.data)
-            
+
         return super().partial_update(request, *args, **kwargs)
 
 
@@ -833,6 +841,7 @@ class UserNotificationViewSet(ReadOnlyModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
+
     ordering = ["-created_at"]
     ordering_fields = ["created_at", "read_at", "is_read"]
 
@@ -1071,17 +1080,23 @@ class PredictionViewSet(UserAssignmentMixin, BaseSpatialViewSet):
         """Retry a failed or finished prediction."""
         instance = self.get_object()
         if instance.status not in ["FAILED", "FINISHED"]:
-            return Response({"detail": f"Cannot retry {instance.status} prediction"}, status=status.HTTP_400_BAD_REQUEST)
-        
+            return Response(
+                {"detail": f"Cannot retry {instance.status} prediction"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         task = predict_area.apply_async(
-            kwargs={"prediction_request_id": instance.id, "folder": instance.config.get("folder") if instance.config else None},
+            kwargs={
+                "prediction_request_id": instance.id,
+                "folder": instance.config.get("folder") if instance.config else None,
+            },
             queue=("predictions"),
         )
         instance.task_id = task.id
         instance.status = "SUBMITTED"
         instance.started_at = instance.finished_at = None
         instance.result = instance.result or {}
-        instance.result['retried_at'] = timezone.now().isoformat()
+        instance.result["retried_at"] = timezone.now().isoformat()
         instance.save()
         return Response({"detail": "Queued for retry", "task_id": task.id})
 
@@ -1308,6 +1323,7 @@ class MapswipeProjectViewSet(viewsets.ViewSet):
     """
     API endpoint for managing MapSwipe projects.
     """
+
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsOsmAuthenticated]
     serializer_class = MapswipeProjectCreateSerializer
@@ -1316,21 +1332,21 @@ class MapswipeProjectViewSet(viewsets.ViewSet):
         serializer = MapswipeProjectCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         validated_data = serializer.validated_data
-        
+
         prediction_instance = None
         prediction_id = validated_data.get("prediction_id")
         if prediction_id:
             prediction_instance = get_object_or_404(Prediction, id=prediction_id)
-        
+
         temp_file_path = None
-        
-        if 'cover_image' in validated_data:
+
+        if "cover_image" in validated_data:
             cover_image = validated_data["cover_image"]
             with NamedTemporaryFile(delete=False, suffix=".png") as temp_file:
                 if isinstance(cover_image, InMemoryUploadedFile):
                     temp_file.write(cover_image.read())
                 else:
-                    with open(cover_image.temporary_file_path(), 'rb') as f:
+                    with open(cover_image.temporary_file_path(), "rb") as f:
                         temp_file.write(f.read())
                 temp_file_path = temp_file.name
 
@@ -1353,34 +1369,39 @@ class MapswipeProjectViewSet(viewsets.ViewSet):
                     project_number=random.randint(1, 100),
                     organization_id=organization_id,
                 )
-                
+
                 client.update_project(
                     project_id=new_project_id,
                     geojson_url=validated_data["geojson_url"],
                     tms_url=validated_data["tms_url"],
                     image_asset_id=image_asset_id,
                     tutorial_id=settings.MAPSWIPE_TUTORIAL_ID,
+                    verification_number=settings.MAPSWIPE_VERIFICATION_NUMBER,
                 )
 
-                status_update = client.update_project_status(new_project_id, "READY_TO_PROCESS")
-                
+                status_update = client.update_project_status(
+                    new_project_id, "READY_TO_PROCESS"
+                )
+
                 response_data = {
                     "project_id": new_project_id,
-                    "status": status_update['result']['status']
+                    "status": status_update["result"]["status"],
                 }
-                
+
                 if prediction_instance:
                     prediction_instance.mapswipe_id = new_project_id
                     prediction_instance.save()
                     response_data["prediction_id"] = prediction_instance.id
-                    message = "MapSwipe project created successfully and linked to prediction"
+                    message = (
+                        "MapSwipe project created successfully and linked to prediction"
+                    )
                 else:
                     message = "MapSwipe project created successfully"
-                
+
                 return APIResponse.success(
                     data=response_data,
                     message=message,
-                    status_code=status.HTTP_201_CREATED
+                    status_code=status.HTTP_201_CREATED,
                 )
         except RuntimeError as e:
             return APIResponse.external_service_error(
@@ -1394,7 +1415,7 @@ class MapswipeProjectViewSet(viewsets.ViewSet):
             return APIResponse.error(
                 code=APIResponseCodes.EXTERNAL_SERVICE_ERROR,
                 message=f"Unexpected error creating MapSwipe project: {str(e)}",
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
         finally:
             if temp_file_path:
@@ -1403,7 +1424,7 @@ class MapswipeProjectViewSet(viewsets.ViewSet):
     def retrieve(self, request, pk=None):
         try:
             pred_inst = get_object_or_404(Prediction, mapswipe_id=pk)
-    
+
             with MapswipeClient(
                 backend_url=settings.MAPSWIPE_BACKEND_URL,
                 manager_url=settings.MAPSWIPE_MANAGER_URL,
@@ -1411,43 +1432,62 @@ class MapswipeProjectViewSet(viewsets.ViewSet):
                 fb_username=settings.MAPSWIPE_FB_USERNAME,
                 fb_password=settings.MAPSWIPE_FB_PASSWORD,
                 csrftoken_key=settings.MAPSWIPE_CSRFTOKEN_KEY,
-                
             ) as client:
                 project_details = client.get_project_details(pk)
                 if project_details.get("status") == "FINISHED":
                     try:
                         results = pred_inst.result or None
-                        if pred_inst.result and 'mapswipe' in pred_inst.result: 
+                        if pred_inst.result and "mapswipe" in pred_inst.result:
                             results = pred_inst.result
-                        else : 
+                        else:
                             results_resp = client.get_project_results(pk)
-                            results['mapswipe'] = results_resp
+                            results["mapswipe"] = results_resp
                             logging.info(f"Fetched MapSwipe results for project {pk}")
                             geojson_url = None
-                            if results_resp and results_resp.get('exportAggregatedResultsWithGeometry') and results_resp['exportAggregatedResultsWithGeometry'].get('file'):
-                                geojson_url = results_resp['exportAggregatedResultsWithGeometry']['file'].get("url", None)
-                            
-                            if geojson_url :
+                            if (
+                                results_resp
+                                and results_resp.get(
+                                    "exportAggregatedResultsWithGeometry"
+                                )
+                                and results_resp[
+                                    "exportAggregatedResultsWithGeometry"
+                                ].get("file")
+                            ):
+                                geojson_url = results_resp[
+                                    "exportAggregatedResultsWithGeometry"
+                                ]["file"].get("url", None)
+
+                            if geojson_url:
                                 task = process_mapswipe_results.apply_async(
                                     kwargs={
                                         "prediction_request_id": pred_inst.id,
                                     },
-                                    queue=("predictions"), # using same queue as prediction for now , on future we can have different queue if it gets overhelming at any point, which i don't assume it will be but if it does bravooo we have massive usage haha
+                                    queue=(
+                                        "predictions"
+                                    ),  # using same queue as prediction for now , on future we can have different queue if it gets overhelming at any point, which i don't assume it will be but if it does bravooo we have massive usage haha
                                 )
-                                results['mapswipe']['pmtiles_conversion_status'] = "SUBMITTED"
-                                results['mapswipe']['task_id'] = task.id
-                                logging.info(f"Mapswipe results processing queued with task ID {task.id}")
+                                results["mapswipe"]["pmtiles_conversion_status"] = (
+                                    "SUBMITTED"
+                                )
+                                results["mapswipe"]["task_id"] = task.id
+                                logging.info(
+                                    f"Mapswipe results processing queued with task ID {task.id}"
+                                )
                                 pred_inst.result = results
                                 pred_inst.save()
-                        
+
                         project_details["results"] = results
 
                     except Exception as e:
-                        logging.error(f"Error fetching or processing MapSwipe results for project {pk}: {str(e)}")
-                        project_details["results"] = {"error": "Failed to fetch or process results"}
+                        logging.error(
+                            f"Error fetching or processing MapSwipe results for project {pk}: {str(e)}"
+                        )
+                        project_details["results"] = {
+                            "error": "Failed to fetch or process results"
+                        }
                 return APIResponse.success(
                     data=project_details,
-                    message="Project details retrieved successfully"
+                    message="Project details retrieved successfully",
                 )
         except httpx.HTTPStatusError as e:
             if e.response.status_code == 404:
@@ -1467,12 +1507,11 @@ class MapswipeProjectViewSet(viewsets.ViewSet):
             )
         except Http404 as e:
             return APIResponse.not_found(
-                    message=f"MapSwipe project with ID {pk} is not associated with any predictions"
-                )
+                message=f"MapSwipe project with ID {pk} is not associated with any predictions"
+            )
         except Exception as e:
             return APIResponse.error(
                 code=APIResponseCodes.EXTERNAL_SERVICE_ERROR,
                 message=f"Unexpected error retrieving project: {str(e)}",
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
-
