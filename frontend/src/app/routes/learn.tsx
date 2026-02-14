@@ -5,29 +5,31 @@ import { Image } from "@/components/ui/image";
 import { LEARN_PAGE_CONTENT } from "@/constants";
 import { TFairVideo } from "@/types";
 import { useFairUpdates } from "@/hooks/services/use-get-fair-updates";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { UpdateCardSkeleton } from "@/components/learn/update-card-skeleton";
 import { VideoPlayerModal } from "@/components/learn/update-video-player";
 import { UpdateCard } from "@/components/learn/update-card";
 import { CourseCard } from "@/components/learn/learn-course-card";
 import { GuideCard } from "@/components/learn/guide-card";
 import { Carousel } from "@/components/ui/carousel/carousel";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { APPLICATION_ROUTES } from "@/constants";
+import { useUpdateUrl } from "@/hooks/use-update-url";
 
 export const LearnPage = () => {
   const { data, isLoading } = useFairUpdates();
   const [selectedVideo, setSelectedVideo] = useState<TFairVideo | null>(null);
+  const updateUrl = useUpdateUrl();
+
   const { slug } = useParams<{ slug?: string }>();
-  const navigate = useNavigate();
-  
-  const handleVideoSelect = (video: TFairVideo) => {
-    setSelectedVideo(video);
-    // navigate(`${APPLICATION_ROUTES.LEARN_BASE}/${video.slug}`, {
-    //   replace: false,
-    //   preventScrollReset: true,
-    // });
-  };
+
+  const handleVideoSelect = useCallback(
+    (video: TFairVideo) => {
+      setSelectedVideo(video);
+      updateUrl(`${APPLICATION_ROUTES.LEARN_BASE}/${video.slug}`);
+    },
+    [updateUrl],
+  );
 
   useEffect(() => {
     if (slug && data) {
@@ -36,13 +38,10 @@ export const LearnPage = () => {
     }
   }, [slug, data]);
 
-  const handleCloseModal = () => {
+  const handleCloseModal = useCallback(() => {
     setSelectedVideo(null);
-    navigate(APPLICATION_ROUTES.LEARN_BASE, {
-      replace: true,
-      preventScrollReset: true,
-    });
-  };
+    updateUrl(APPLICATION_ROUTES.LEARN_BASE);
+  }, [updateUrl]);
 
   return (
     <main className="static-page-layout">
