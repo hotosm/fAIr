@@ -122,6 +122,7 @@ from .utils import (
 from .validators import validate_geojson
 
 
+@cache_page(60 * settings.CACHE_TIMEOUT_MINUTES)
 @api_view(["GET"])
 def health(request):
     status = {"postgresql": False, "redis": False, "celery_workers": False, "s3": None}
@@ -160,8 +161,14 @@ def health(request):
 
     if settings.ENABLE_MAPSWIPE_INTEGREATION:
         try:
-            client = MapswipeClient()
-            client.get_projects(page_size=1)
+            client = MapswipeClient(
+                backend_url=settings.MAPSWIPE_BACKEND_URL,
+                manager_url=settings.MAPSWIPE_MANAGER_URL,
+                fb_auth_url=settings.MAPSWIPE_FB_AUTH_URL,
+                fb_username=settings.MAPSWIPE_FB_USERNAME,
+                fb_password=settings.MAPSWIPE_FB_PASSWORD,
+                csrftoken_key=settings.MAPSWIPE_CSRFTOKEN_KEY,
+            )
             status["mapswipe_api"] = True
         except Exception:
             status["mapswipe_api"] = False
