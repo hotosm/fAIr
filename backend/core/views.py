@@ -75,7 +75,12 @@ from .exceptions import (
     handle_validation_error,
 )
 from .mapswipe_client import MapswipeClient
-from .mixins import BaseModelViewSet, BaseSpatialViewSet, UserAssignmentMixin
+from .mixins import (
+    BaseModelViewSet,
+    BaseSpatialViewSet,
+    PublicFilterMixin,
+    UserAssignmentMixin,
+)
 from .models import (
     AOI,
     Banner,
@@ -971,6 +976,7 @@ class PredictionSerializer(serializers.ModelSerializer):
             "config",
             "geom",
             "user",
+            "published",
         ]
         read_only_fields = (
             "created_at",
@@ -1039,7 +1045,7 @@ class PredictionSerializer(serializers.ModelSerializer):
 @method_decorator(
     ratelimit(key="user", rate="50/h", method="POST", block=True), name="create"
 )
-class PredictionViewSet(UserAssignmentMixin, BaseSpatialViewSet):
+class PredictionViewSet(PublicFilterMixin, UserAssignmentMixin, BaseSpatialViewSet):
     """
     API endpoint for managing predictions.
 
@@ -1052,10 +1058,11 @@ class PredictionViewSet(UserAssignmentMixin, BaseSpatialViewSet):
     queryset = Prediction.objects.all()
     bbox_filter_field = "geom"
     serializer_class = PredictionSerializer
-    filterset_fields = ["status", "id"]
+    filterset_fields = ["status", "id", "published"]
     search_fields = ["description", "id"]
-    ordering_fields = ["created_at", "id", "status"]
+    ordering_fields = ["created_at", "id", "status", "published"]
     permission_classes = [IsOsmAuthenticated, IsOwnerOrReadOnly]
+    public_filter_field = "published"
 
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
@@ -1069,7 +1076,7 @@ class PredictionViewSet(UserAssignmentMixin, BaseSpatialViewSet):
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
 
-        allowed_fields = ["mapswipe_id"]
+        allowed_fields = ["mapswipe_id", "published"]
 
         for field in request.data:
             if field not in allowed_fields:
