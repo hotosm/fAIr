@@ -12,8 +12,10 @@ import {
   ExpressionSpecification
 } from "maplibre-gl";
 
-import { showErrorToast, addLayers, addSources, FILL_COLORS, OUTLINE_COLORS } from "@/utils";
+import { showErrorToast, addLayers, addSources} from "@/utils";
 import {
+  MAPSWIPE_AGREEMENT_FILL_COLORS,
+  MAPSWIPE_AGREEMENT_OUTLINE_COLORS,
   PREDICTIONS_RESULTS_POINT_FILL_COLOR,
   PREDICTIONS_RESULTS_POINT_OUTLINE_COLOR,
   TRAINING_AREAS_AOI_FILL_COLOR,
@@ -33,9 +35,9 @@ type Metadata = {
   vector_layers: LayerSpecification[];
 };
 // Choropleth fill color for MapSwipe results based on "agreement" property:
-// agreement === 1       → green
-// agreement === 0       → red
-// 0 < agreement < 1     → purple (rebeccapurple #663399)
+// agreement === 1       = green
+// agreement === 0       = red
+// 0 < agreement < 1     = purple (rebeccapurple #663399)
 const buildAgreementColorExpression = (
   defaultColor: string,
   colors: { green: string; red: string; purple: string },
@@ -67,7 +69,7 @@ const getLayerConfigs = (
   return {
     fill: {
       "fill-color": isPredictionResult
-        ? buildAgreementColorExpression(defaultFillColor, FILL_COLORS)
+        ? buildAgreementColorExpression(defaultFillColor, MAPSWIPE_AGREEMENT_FILL_COLORS)
         : defaultFillColor,
       "fill-opacity": isPredictionResult
         ? 0.6
@@ -77,7 +79,7 @@ const getLayerConfigs = (
     },
     outline: {
       "line-color": isPredictionResult
-        ? buildAgreementColorExpression(defaultOutlineColor, OUTLINE_COLORS)
+        ? buildAgreementColorExpression(defaultOutlineColor, MAPSWIPE_AGREEMENT_OUTLINE_COLORS)
         : defaultOutlineColor,
       "line-width": isAoi
         ? TRAINING_AREAS_AOI_OUTLINE_WIDTH
@@ -87,13 +89,13 @@ const getLayerConfigs = (
       "circle-color": isPredictionResult
         ? buildAgreementColorExpression(
             PREDICTIONS_RESULTS_POINT_FILL_COLOR,
-            FILL_COLORS,
+            MAPSWIPE_AGREEMENT_FILL_COLORS,
           )
         : PREDICTIONS_RESULTS_POINT_FILL_COLOR,
       "circle-stroke-color": isPredictionResult
         ? buildAgreementColorExpression(
             PREDICTIONS_RESULTS_POINT_OUTLINE_COLOR,
-            OUTLINE_COLORS,
+            MAPSWIPE_AGREEMENT_OUTLINE_COLORS,
           )
         : PREDICTIONS_RESULTS_POINT_OUTLINE_COLOR,
       "circle-stroke-width": 1,

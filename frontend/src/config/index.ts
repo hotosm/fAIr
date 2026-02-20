@@ -522,3 +522,11 @@ export const OFFSET_STEP: number = parseIntEnv(ENVS.OFFSET_STEP, 0.5);
  * Distance of the elements from the navbar in px for dropdowns and popups on the start mapping page.
  */
 export const ELEMENT_DISTANCE_FROM_NAVBAR: number = 10;
+
+/**
+ * Mapswipe agreement colors for fill and outline. 
+ * Green for agreement is 1, Red for agreement is 0, and Purple for 0 < agreement < 1.
+ */
+export const MAPSWIPE_AGREEMENT_FILL_COLORS = { green: "#22c55e", red: "#ef4444", purple: "#663399" };
+export const MAPSWIPE_AGREEMENT_OUTLINE_COLORS = { green: "#16a34a", red: "#dc2626", purple: "#4b2270" };
+
