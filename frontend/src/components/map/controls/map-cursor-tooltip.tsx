@@ -24,7 +24,7 @@ export const MapCursorToolTip = ({
 
   return (
     <div
-      className={`absolute w-50 text-white px-2 pointer-events-none text-nowrap rounded-lg shadow-2xl flex flex-col ${color}`}
+      className={`absolute w-50 text-white px-2 pointer-events-none text-nowrap rounded-lg shadow-2xl z-10 flex flex-col ${color}`}
       style={{
         left: `${tooltipPosition.x}px`,
         top: `${tooltipPosition.y}px`,
