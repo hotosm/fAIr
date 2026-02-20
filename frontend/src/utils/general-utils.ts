@@ -150,3 +150,8 @@ export const getYouTubeEmbedUrl = (url: string) => {
     ? `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1`
     : BACKUP_VIDEO_URL; // fallback
 };
+
+// Mapswipe choropleth colors
+export const FILL_COLORS = { green: "#22c55e", red: "#ef4444", purple: "#663399" };
+export const OUTLINE_COLORS = { green: "#16a34a", red: "#dc2626", purple: "#4b2270" };
+
