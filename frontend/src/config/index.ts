@@ -530,3 +530,11 @@ export const ELEMENT_DISTANCE_FROM_NAVBAR: number = 10;
 export const MAPSWIPE_VERIFICATION_NUMBER: number = parseIntEnv(ENVS.MAPSWIPE_VERIFICATION_NUMBER, 4);
 
 export const MAPSWIPE_GROUP_SIZE: number = parseIntEnv(ENVS.MAPSWIPE_GROUP_SIZE, 25);
+
+/**
+ * Mapswipe agreement colors for fill and outline. 
+ * Green for agreement is 1, Red for agreement is 0, and Purple for 0 < agreement < 1.
+ */
+export const MAPSWIPE_AGREEMENT_FILL_COLORS = { green: "#22c55e", red: "#ef4444", purple: "#663399" };
+export const MAPSWIPE_AGREEMENT_OUTLINE_COLORS = { green: "#16a34a", red: "#dc2626", purple: "#4b2270" };
+
