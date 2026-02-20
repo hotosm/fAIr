@@ -13,7 +13,7 @@ export const formatProjectTopic = (projectTopic: string) => {
     /\s+/g,
     " ",
   );
-  const newProjectTopic = removeMultiSpaceToSingle.toLowerCase();
+  const newProjectTopic = removeMultiSpaceToSingle;
 
   return newProjectTopic;
 };

@@ -5,7 +5,7 @@ import { Input, TextArea } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { ButtonVariant, INPUT_TYPES } from "@/enums";
 import { TOfflinePrediction } from "@/types";
-import { BASE_API_URL } from "@/config";
+import { BASE_API_URL, MAPSWIPE_GROUP_SIZE, MAPSWIPE_VERIFICATION_NUMBER } from "@/config";
 import { API_ENDPOINTS } from "@/services";
 import { MapswipeProjectCreationSuccess } from "@/features/mapswipe/components/project-success-dialog";
 import { useDialog } from "@/hooks/use-dialog";
@@ -256,7 +256,7 @@ export const CreateMapswipeProjectDialog = ({
           <div className="grid md:grid-cols-2 gap-2">
             <Input
               label="Group Size"
-              value={25}
+              value={MAPSWIPE_GROUP_SIZE}
               handleInput={() => null}
               showBorder
               disabled
@@ -268,7 +268,7 @@ export const CreateMapswipeProjectDialog = ({
               label="Verification Number"
               type={INPUT_TYPES.NUMBER}
               disabled
-              value={1}
+              value={MAPSWIPE_VERIFICATION_NUMBER}
               handleInput={() => null}
               showBorder
               toolTipContent="The number of answers from different users per task needed to consider the task completed."
