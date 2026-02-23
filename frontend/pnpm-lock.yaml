@@ -16,8 +16,8 @@ importers:
         specifier: 3.0.0-beta.1
         version: 3.0.0-beta.1(@floating-ui/utils@0.2.10)
       '@hotosm/hanko-auth':
-        specifier: 0.4.6
-        version: 0.4.6
+        specifier: 0.4.7
+        version: 0.4.7
       '@hotosm/tool-menu':
         specifier: 0.2.6
         version: 0.2.6
@@ -571,8 +571,8 @@ packages:
   '@floating-ui/utils@0.2.8':
     resolution: {integrity: sha512-kym7SodPp8/wloecOpcmSnWJsK7M0E5Wg8UcFA+uO4B9s5d0ywXOEro/8HM9x0rW+TljRzul/14UYz3TleT3ig==}
 
-  '@hotosm/hanko-auth@0.4.6':
-    resolution: {integrity: sha512-nsMrgxVunc++Y6qm+W9gD6gUd6Qvgp8dip/5C4vTUBU9KFx9aSdwkgQnzoVuUEL6VUmMtQJvYas2C76k9V8uWQ==}
+  '@hotosm/hanko-auth@0.4.7':
+    resolution: {integrity: sha512-CgaLvaeIHopalfp2khZGJ6DYI9A715AsK0kF1JU7/CxXs4qSV/Jon7gLf7RX2hLyQG8X2We41LlS52rSh8CdsQ==}
 
   '@hotosm/tool-menu@0.2.6':
     resolution: {integrity: sha512-CbDTuQ6NoyS5Kmye3r1ud2DjoqqgG9h6LIMrd6pi+P6O8kHKnW6akUtT2l0FIjaAZXu1azE7Fj6TePzXIy0dtA==}
@@ -3926,7 +3926,7 @@ snapshots:
 
   '@floating-ui/utils@0.2.8': {}
 
-  '@hotosm/hanko-auth@0.4.6':
+  '@hotosm/hanko-auth@0.4.7':
     dependencies:
       '@teamhanko/hanko-elements': 1.5.2
       lit: 3.3.1
