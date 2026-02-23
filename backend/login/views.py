@@ -24,8 +24,7 @@ from .hanko_helpers import (
     is_real_osm_user,
 )
 
-# Create your views here.
-# initialize osm_auth with our credentials
+# Initialize osm_auth with credentials
 osm_auth = Auth(
     osm_url=settings.OSM_URL,
     client_id=settings.OSM_CLIENT_ID,
@@ -38,29 +37,14 @@ osm_auth = Auth(
 
 class login(APIView):
     def get(self, request, format=None):
-        """Generates login url for OSM Login
-
-        Args:
-            request (get): _description_
-
-        Returns:
-            json: login_url
-        """
+        """Generates login url for OSM Login."""
         login_url = osm_auth.login()
         return JsonResponse(login_url)
 
 
 class callback(APIView):
     def get(self, request, format=None):  # pragma: no cover
-        """Callback method redirected from osm callback method
-
-        Args:
-            request (_type_): contains code and state as parametr redirected from osm
-
-        Returns:
-            json: access_token
-        """
-        # Generating token through osm_auth library method
+        """OSM OAuth callback - receives code and state, returns access_token."""
         uri = request.build_absolute_uri()
         token = osm_auth.callback(uri)
         token["access_token"] = token.pop("user_data")
@@ -165,23 +149,11 @@ class VerifyEmail(APIView):
 
 
 class OnboardingCallback(APIView):
-    """Handle onboarding callback from login service.
-
-    This endpoint is called after the user completes onboarding in login.hotosm.test.
-    It creates the OsmUser and mapping based on whether the user is new or legacy.
-
-    Query params:
-    - new_user=true: User is new, generate synthetic osm_id
-    - (no param): User is legacy, osm_connection cookie should be set
-
-    Only works when AUTH_PROVIDER=hanko.
-    """
+    """Onboarding callback from login service. Creates user mapping for Hanko auth."""
 
     def get(self, request):
-        from django.conf import settings
         from hotosm_auth_django import create_user_mapping
 
-        # Only for Hanko auth
         if getattr(settings, 'AUTH_PROVIDER', 'legacy') != 'hanko':
             return Response(
                 {"error": "Onboarding only available with Hanko auth"},
@@ -239,7 +211,7 @@ class OnboardingCallback(APIView):
             if not existing_user:
                 # No existing fAIr account with this OSM ID
                 # Redirect back to Login with error message
-                from urllib.parse import urlencode, quote
+                from urllib.parse import urlencode
                 login_url = getattr(settings, 'LOGIN_URL', 'https://login.hotosm.org')
                 frontend_url = getattr(settings, 'FRONTEND_URL', '/')
                 error_msg = f"No existing account found for '{osm_connection.osm_username}'. Please select 'No, I'm new' to create a new account."
@@ -263,21 +235,11 @@ class OnboardingCallback(APIView):
 
 
 class AuthStatus(APIView):
-    """Check authentication status for Hanko users.
-
-    Returns:
-    - authenticated: true if user has valid mapping
-    - needs_onboarding: true if user needs to complete onboarding
-    - hanko_user: Hanko user info if authenticated with Hanko
-
-    Only works when AUTH_PROVIDER=hanko.
-    """
+    """Check authentication status for Hanko users."""
 
     def get(self, request):
-        from django.conf import settings
         from hotosm_auth_django import get_mapped_user_id
 
-        # Only for Hanko auth
         if getattr(settings, 'AUTH_PROVIDER', 'legacy') != 'hanko':
             return Response({
                 "auth_provider": "legacy",

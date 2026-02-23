@@ -48,25 +48,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const { getSessionValue, removeSessionValue, setSessionValue } =
     useSessionStorage();
 
-  // For Hanko auth, we don't use localStorage token (JWT is in httpOnly cookie)
   const [token, setToken] = useState<string | undefined>(
     AUTH_PROVIDER === "hanko"
-      ? "hanko-cookie-auth" // Placeholder - actual auth is via cookie
+      ? "hanko-cookie-auth"
       : getValue(HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY),
   );
   const [user, setUser] = useState<TUser | undefined>(undefined);
 
-  // For Hanko: authenticated if we have a user (cookie-based)
-  // For legacy: authenticated if we have both user and token
   const isAuthenticated =
     AUTH_PROVIDER === "hanko"
       ? user !== undefined
       : user !== undefined && token !== undefined;
 
-  /**
-   * Set token globally to eliminate the need to rewrite it.
-   * For Hanko, we use withCredentials instead of header token.
-   */
   if (AUTH_PROVIDER === "hanko") {
     apiClient.defaults.withCredentials = true;
   } else {
@@ -122,11 +115,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, []);
 
-  /**
-   * Retrieve the user profile information from the backend.
-   * For Hanko: uses cookie-based auth with credentials: include
-   * For legacy: uses access-token header
-   */
   const fetchUserProfile = async () => {
     try {
       if (AUTH_PROVIDER === "hanko") {
@@ -165,11 +153,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, [token]);
 
-  /**
-   * Clean up and logout.
-   * For Hanko: web component handles logout via Portal
-   * For legacy: clear localStorage token
-   */
   const logout = () => {
     setUser(undefined);
     if (AUTH_PROVIDER !== "hanko") {
@@ -227,10 +210,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  /**
-   * Listen for "hanko-login" and "logout" events from the hotosm-auth web component
-   * to immediately update user state instead of waiting for the next poll.
-   */
   useEffect(() => {
     if (AUTH_PROVIDER !== "hanko") return;
 
@@ -250,10 +229,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
   }, []);
 
-  /**
-   * Poll the backend for the user profile information every 15 seconds.
-   * This is majorly to keep the user profile information up to date, especially when the user is logged in.
-   */
   useEffect(() => {
     const intervalId = setInterval(() => {
       if (AUTH_PROVIDER === "hanko") {

@@ -1,13 +1,7 @@
 """
 Hanko authentication helpers for fAIr.
 
-These helpers implement the user mapping flow for fAIr:
-1. Check if mapping exists (hanko_id → osm_id)
-2. If not, ask user if they had an account before
-3. Legacy user → Connect OSM to recover account
-4. New user → Generate synthetic osm_id (negative)
-
-See: /home/willaru/.claude/plans/dreamy-hugging-liskov.md
+Handles user mapping between Hanko IDs and fAIr's osm_id based users.
 """
 
 from typing import Optional, Tuple
@@ -19,62 +13,21 @@ logger = logging.getLogger(__name__)
 
 
 def generate_synthetic_osm_id(hanko_id: str) -> int:
-    """Generate a synthetic (fake) osm_id for users without OSM account.
-
-    Uses negative numbers to distinguish from real OSM IDs (always positive).
-    Limited to 9 digits to stay within JavaScript's safe integer range and
-    match the magnitude of real OSM IDs.
-
-    Args:
-        hanko_id: The Hanko user UUID
-
-    Returns:
-        int: Negative osm_id derived from hanko_id hash (max 9 digits)
-
-    Example:
-        >>> generate_synthetic_osm_id("abc-123-def")
-        -531248375
-    """
-    # Use hash to get a consistent number from hanko_id
-    # Limit to 10^9 (9 digits) to:
-    # 1. Stay within JS MAX_SAFE_INTEGER (avoids precision loss in frontend)
-    # 2. Match magnitude of real OSM IDs (typically 7-8 digits)
-    # Make negative to distinguish from real OSM IDs
+    """Generate a negative osm_id for users without OSM account."""
+    # Negative to distinguish from real OSM IDs, limited to 9 digits for JS safety
     synthetic_id = -(abs(hash(hanko_id)) % 10**9)
-    # Ensure we don't get 0 (edge case)
     if synthetic_id == 0:
         synthetic_id = -1
-    logger.debug(f"Generated synthetic osm_id {synthetic_id} for hanko_id {hanko_id}")
     return synthetic_id
 
 
 def is_real_osm_user(osm_id: int) -> bool:
-    """Check if osm_id is from a real OSM account.
-
-    Real OSM IDs are always positive.
-    Synthetic IDs (for users without OSM) are negative.
-
-    Args:
-        osm_id: The user's osm_id
-
-    Returns:
-        bool: True if real OSM user, False if synthetic
-    """
+    """Real OSM IDs are positive, synthetic ones are negative."""
     return osm_id > 0
 
 
 def find_legacy_user_by_osm_id(osm_id: int) -> Optional[OsmUser]:
-    """Find existing user by osm_id.
-
-    Used after OSM connect to check if this osm_id already exists
-    in the database (legacy user).
-
-    Args:
-        osm_id: OSM user ID from OAuth
-
-    Returns:
-        OsmUser if found, None otherwise
-    """
+    """Find existing user by osm_id, or None if not found."""
     try:
         return OsmUser.objects.get(osm_id=osm_id)
     except OsmUser.DoesNotExist:
@@ -82,19 +35,7 @@ def find_legacy_user_by_osm_id(osm_id: int) -> Optional[OsmUser]:
 
 
 def handle_legacy_recovery(osm_data: dict) -> Tuple[Optional[OsmUser], int]:
-    """Handle legacy user recovery after OSM connect.
-
-    Called when user said "Yes, I had an account" and connected OSM.
-    Checks if the osm_id from OAuth exists in the database.
-
-    Args:
-        osm_data: OSM OAuth response containing 'id', 'username', 'img_url'
-
-    Returns:
-        Tuple of (existing_user, osm_id):
-        - If existing_user is not None: Legacy user found, create mapping
-        - If existing_user is None: No legacy user, need to create new account
-    """
+    """Check if osm_id from OAuth exists in database (legacy user recovery)."""
     osm_id = osm_data["id"]
     existing_user = find_legacy_user_by_osm_id(osm_id)
 
@@ -107,17 +48,7 @@ def handle_legacy_recovery(osm_data: dict) -> Tuple[Optional[OsmUser], int]:
 
 
 def handle_new_user(hanko_id: str) -> int:
-    """Handle new user registration (no previous fAIr account).
-
-    New users get a synthetic (negative) osm_id since they don't
-    need to connect OSM.
-
-    Args:
-        hanko_id: Hanko user UUID
-
-    Returns:
-        int: Synthetic negative osm_id
-    """
+    """Generate synthetic osm_id for new user without previous fAIr account."""
     osm_id = generate_synthetic_osm_id(hanko_id)
     logger.info(f"New user: generated synthetic osm_id={osm_id} for hanko_id={hanko_id}")
     return osm_id
@@ -129,18 +60,7 @@ def create_osm_user(
     img_url: Optional[str] = None,
     email: Optional[str] = None,
 ) -> OsmUser:
-    """Create a new OsmUser.
-
-    Args:
-        osm_id: OSM user ID (positive=real, negative=synthetic)
-        username: Display username
-        img_url: Avatar URL (optional)
-        email: Email address (optional)
-
-    Returns:
-        OsmUser: Created user instance
-    """
-    # Check if user with this osm_id already exists
+    """Create OsmUser or return existing one. Handles username conflicts."""
     try:
         existing = OsmUser.objects.get(osm_id=osm_id)
         logger.info(f"Found existing OsmUser: osm_id={osm_id}")
@@ -148,7 +68,7 @@ def create_osm_user(
     except OsmUser.DoesNotExist:
         pass
 
-    # Handle username conflicts by appending suffix
+    # Handle username conflicts
     final_username = username
     suffix = 1
     while OsmUser.objects.filter(username=final_username).exists():
@@ -166,23 +86,11 @@ def create_osm_user(
 
 
 class HankoUserFilterMixin:
-    """Mixin to filter queryset by authenticated Hanko user when requested.
-
-    Only filters when ?mine=true is passed AND user is authenticated.
-    This preserves public access to resources while allowing user-specific filtering.
-
-    Usage:
-        class ModelViewSet(HankoUserFilterMixin, BaseSpatialViewSet):
-            ...
-
-    Query params:
-        ?mine=true  - Filter to show only authenticated user's resources
-    """
+    """Mixin to filter queryset by authenticated user when ?mine=true is passed."""
 
     def get_queryset(self):
         queryset = super().get_queryset()
 
-        # Only filter if ?mine=true is explicitly requested
         mine_param = self.request.query_params.get('mine', '').lower()
         if mine_param == 'true':
             if (hasattr(self.request, 'user')
@@ -191,7 +99,6 @@ class HankoUserFilterMixin:
                 queryset = queryset.filter(user=self.request.user)
                 logger.debug(f"Filtered by user {self.request.user.osm_id} (mine=true)")
             else:
-                # If mine=true but not authenticated, return empty
                 queryset = queryset.none()
                 logger.debug("mine=true requested but user not authenticated, returning empty")
 

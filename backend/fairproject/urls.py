@@ -25,7 +25,6 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
 )
 
-# Admin routes for user mappings (only when using Hanko auth)
 admin_mapping_patterns = []
 if getattr(settings, 'AUTH_PROVIDER', 'legacy') == 'hanko':
     try:
@@ -47,9 +46,7 @@ urlpatterns = [
     path("api/", home, name="home"),
     path("api/v1/auth/", include("login.urls")),
     path("api/v1/", include("core.urls")),
-    # User mapping admin routes (Hanko auth)
     path("api/admin/", include(admin_mapping_patterns)),
-    # Django admin interface
     path("django-admin/", admin.site.urls),
 ]
 

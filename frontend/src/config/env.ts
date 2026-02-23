@@ -4,11 +4,7 @@
 export const ENVS = {
   BASE_API_URL: import.meta.env.VITE_BASE_API_URL,
 
-  // Authentication provider: "legacy" (OSM OAuth) or "hanko" (Hanko SSO)
   AUTH_PROVIDER: import.meta.env.VITE_AUTH_PROVIDER,
-
-  // Hanko URL (when AUTH_PROVIDER="hanko")
-  // Points to login.hotosm.org which handles Hanko auth and OSM OAuth
   HANKO_URL: import.meta.env.VITE_HANKO_URL,
 
   MATOMO_ID: import.meta.env.VITE_MATOMO_ID,

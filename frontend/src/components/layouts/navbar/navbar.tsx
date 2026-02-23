@@ -17,14 +17,10 @@ import { AUTH_PROVIDER, BASE_API_URL, FRONTEND_URL, HANKO_URL } from "@/config";
 import "@hotosm/tool-menu";
 import { Divider } from "@/components/ui/divider";
 
-// Import Hanko web component when using SSO
 if (AUTH_PROVIDER === "hanko") {
   import("@hotosm/hanko-auth");
 }
 
-// Hanko auth component - defined outside NavBar to avoid re-creation on every render
-// mapping-check-url silently verifies if user has app mapping
-// If not, redirects to Login for onboarding
 const HankoAuthComponent = ({ displayBar }: { displayBar?: boolean }) => (
   <hotosm-auth
     hanko-url={HANKO_URL}

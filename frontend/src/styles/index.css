@@ -1,4 +1,3 @@
-/* Import Web Awesome styles for hotosm-auth component */
 @import url("https://early.webawesome.com/webawesome@3.0.0-beta.1/dist/styles/webawesome.css");
 
 @tailwind base;
@@ -254,8 +253,6 @@ sl-alert.success::part(base) {
 
 /* Matomo placement style ends */
 
-/* Hanko auth style starts */
 hotosm-auth {
   --login-btn-border-radius: 0px;
 }
-/* Hanko auth style ends */

@@ -19,12 +19,10 @@ import {
   HANKO_URL,
 } from "@/config";
 
-// Import Hanko web component when using SSO
 if (AUTH_PROVIDER === "hanko") {
   import("@hotosm/hanko-auth");
 }
 
-// Hanko auth component - defined outside NavBar to avoid re-creation on every render
 const HankoAuthComponent = () => (
   <hotosm-auth
     hanko-url={HANKO_URL}
@@ -41,7 +39,6 @@ export const NavBar = () => {
   const { isAuthenticated } = useAuth();
   const { handleLogin, loading } = useLogin();
 
-  // Legacy login button component
   const LegacyLoginButton = ({ className }: { className?: string }) => (
     <Button className={className} onClick={handleLogin} spinner={loading}>
       {loading

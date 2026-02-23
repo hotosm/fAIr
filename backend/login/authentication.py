@@ -118,8 +118,8 @@ class HankoAuthentication(authentication.BaseAuthentication):
 # Select authentication class based on AUTH_PROVIDER
 # =============================================================================
 if getattr(settings, 'AUTH_PROVIDER', 'legacy') == 'hanko':
-    logger.info("🔐 Using Hanko SSO authentication")
+    logger.info("Using Hanko SSO authentication")
     OsmAuthentication = HankoAuthentication
 else:
-    logger.info("🔐 Using legacy OSM authentication")
+    logger.info("Using legacy OSM authentication")
     OsmAuthentication = LegacyOsmAuthentication
