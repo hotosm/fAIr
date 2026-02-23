@@ -114,9 +114,7 @@ class HankoAuthentication(authentication.BaseAuthentication):
         return (None, None)
 
 
-# =============================================================================
 # Select authentication class based on AUTH_PROVIDER
-# =============================================================================
 if getattr(settings, 'AUTH_PROVIDER', 'legacy') == 'hanko':
     logger.info("Using Hanko SSO authentication")
     OsmAuthentication = HankoAuthentication
