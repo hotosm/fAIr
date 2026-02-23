@@ -968,6 +968,7 @@ class PredictionSerializer(serializers.ModelSerializer):
             "created_at",
             "started_at",
             "finished_at",
+            "published_at",
             "status",
             # "result_count",
             "result",
@@ -984,6 +985,7 @@ class PredictionSerializer(serializers.ModelSerializer):
             "user",
             "started_at",
             "finished_at",
+            "published_at",
             "task_id",
         )
 

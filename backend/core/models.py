@@ -111,10 +111,16 @@ class Model(models.Model):
     description = models.TextField(max_length=4000, null=True, blank=True)
     user = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
     published_training = models.PositiveIntegerField(null=True, blank=True)
+    published_at = models.DateTimeField(null=True, blank=True)
     status = models.IntegerField(default=-1, choices=ModelStatus.choices)
     base_model = models.CharField(
         choices=BASE_MODEL_CHOICES, default="RAMP", max_length=50
     )
+
+    def save(self, *args, **kwargs):
+        if self.status == self.ModelStatus.PUBLISHED and not self.published_at:
+            self.published_at = timezone.now()
+        super().save(*args, **kwargs)
 
     class Meta:
         indexes = [
@@ -288,6 +294,12 @@ class Prediction(models.Model):
     geom = geomodels.PolygonField(srid=4326)
     user = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
     published = models.BooleanField(default=False)
+    published_at = models.DateTimeField(null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if self.published and not self.published_at:
+            self.published_at = timezone.now()
+        super().save(*args, **kwargs)
 
     @transaction.atomic
     def clean(self):
