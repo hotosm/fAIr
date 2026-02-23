@@ -527,6 +527,6 @@ export const ELEMENT_DISTANCE_FROM_NAVBAR: number = 10;
  * Mapswipe agreement colors for fill and outline. 
  * Green for agreement is 1, Red for agreement is 0, and Purple for 0 < agreement < 1.
  */
-export const MAPSWIPE_AGREEMENT_FILL_COLORS = { green: "#22c55e", red: "#ef4444", purple: "#663399" };
+export const MAPSWIPE_AGREEMENT_FILL_COLORS = { green: PREDICTED_LAYER_STATUS_COLORS[PredictedFeatureStatus.ACCEPTED], red: PREDICTED_LAYER_STATUS_COLORS[PredictedFeatureStatus.REJECTED], purple:  PREDICTED_LAYER_STATUS_COLORS[PredictedFeatureStatus.UNTOUCHED] };
 export const MAPSWIPE_AGREEMENT_OUTLINE_COLORS = { green: "#16a34a", red: "#dc2626", purple: "#4b2270" };
 
