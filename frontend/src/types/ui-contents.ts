@@ -720,7 +720,7 @@ export type TMapContent = {
       tooltip: string;
     };
   };
-    agreementLegend: {
+  agreementLegend: {
     fullAgreement: string;
     partialAgreement: string;
     noAgreement: string;

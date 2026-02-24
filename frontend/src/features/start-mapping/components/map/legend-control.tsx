@@ -6,7 +6,6 @@ import { useState, useCallback } from "react";
 import { PredictedFeatureStatus } from "@/enums/start-mapping";
 import { PREDICTED_LAYER_STATUS_COLORS } from "@/config";
 
-
 export type LegendItem = {
   label: string;
   fillColor: string;

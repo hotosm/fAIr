@@ -7,8 +7,8 @@ export const MAP_CONTENT: TMapContent = {
     },
   },
   agreementLegend: {
-  fullAgreement: "Full Agreement (1)",
-  partialAgreement: "Partial Agreement (0–1)",
-  noAgreement: "No Agreement (0)",
-},
+    fullAgreement: "Full Agreement (1)",
+    partialAgreement: "Partial Agreement (0–1)",
+    noAgreement: "No Agreement (0)",
+  },
 };
