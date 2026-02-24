@@ -1,2 +1,8 @@
 #!/bin/sh
-pnpm format && pnpm build
+echo "===== Navigating to project directory ====="
+cd frontend || exit 1
+
+echo "===== Running precommit script ====="
+pnpm precommit
+
+echo "===== Pre-commit hook finished ====="
