@@ -132,7 +132,7 @@ export const TrainingAreaMap = ({
   const { mapContainerRef, map } = useMapInstance(true);
 
   const [vectorLayers, setVectorLayers] = useState<LayerSpecification[]>([]);
-  const [hasAgreement, setHasAgreement] = useState(false);
+  const [hasAgreement, setHasAgreement] = useState<boolean>(false);
 
   const popupRef = useRef<Popup | null>(null);
 

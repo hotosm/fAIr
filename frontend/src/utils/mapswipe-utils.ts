@@ -9,13 +9,10 @@ export const formatProjectTopic = (projectTopic: string) => {
   const projectWithoutStartAndEndSpace = projectTopic.trim();
 
   // Note: this will change multi space to single space
-  const removeMultiSpaceToSingle = projectWithoutStartAndEndSpace.replace(
+  return projectWithoutStartAndEndSpace.replace(
     /\s+/g,
     " ",
   );
-  const newProjectTopic = removeMultiSpaceToSingle;
-
-  return newProjectTopic;
 };
 
 /**
