@@ -5,7 +5,11 @@ import { Input, TextArea } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { ButtonVariant, INPUT_TYPES } from "@/enums";
 import { TOfflinePrediction } from "@/types";
-import { BASE_API_URL, MAPSWIPE_GROUP_SIZE, MAPSWIPE_VERIFICATION_NUMBER } from "@/config";
+import {
+  BASE_API_URL,
+  MAPSWIPE_GROUP_SIZE,
+  MAPSWIPE_VERIFICATION_NUMBER,
+} from "@/config";
 import { API_ENDPOINTS } from "@/services";
 import { MapswipeProjectCreationSuccess } from "@/features/mapswipe/components/project-success-dialog";
 import { useDialog } from "@/hooks/use-dialog";
