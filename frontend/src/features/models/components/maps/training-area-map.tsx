@@ -9,10 +9,11 @@ import {
   MapLayerMouseEvent,
   Popup,
   SourceSpecification,
-  ExpressionSpecification
+  ExpressionSpecification,
 } from "maplibre-gl";
+import { AgreementLegend } from "@/features/mapswipe/components/agreement-legend";
 
-import { showErrorToast, addLayers, addSources} from "@/utils";
+import { showErrorToast, addLayers, addSources } from "@/utils";
 import {
   MAPSWIPE_AGREEMENT_FILL_COLORS,
   MAPSWIPE_AGREEMENT_OUTLINE_COLORS,
@@ -28,16 +29,20 @@ import {
   TRAINING_AREAS_AOI_OUTLINE_WIDTH,
 } from "@/config";
 
+type VectorLayerMeta = LayerSpecification & {
+  fields?: Record<string, string>;
+};
+
 type Metadata = {
   name?: string;
   type?: string;
   tilestats?: unknown;
-  vector_layers: LayerSpecification[];
+  vector_layers: VectorLayerMeta[];
 };
 // Choropleth fill color for MapSwipe results based on "agreement" property:
 // agreement === 1       = green
 // agreement === 0       = red
-// 0 < agreement < 1     = purple (rebeccapurple #663399)
+// 0 < agreement < 1     = purple
 const buildAgreementColorExpression = (
   defaultColor: string,
   colors: { green: string; red: string; purple: string },
@@ -51,7 +56,6 @@ const buildAgreementColorExpression = (
   colors.red,
   colors.purple,
 ];
-
 
 const getLayerConfigs = (
   layerType: string,
@@ -69,7 +73,10 @@ const getLayerConfigs = (
   return {
     fill: {
       "fill-color": isPredictionResult
-        ? buildAgreementColorExpression(defaultFillColor, MAPSWIPE_AGREEMENT_FILL_COLORS)
+        ? buildAgreementColorExpression(
+            defaultFillColor,
+            MAPSWIPE_AGREEMENT_FILL_COLORS,
+          )
         : defaultFillColor,
       "fill-opacity": isPredictionResult
         ? 0.6
@@ -79,7 +86,10 @@ const getLayerConfigs = (
     },
     outline: {
       "line-color": isPredictionResult
-        ? buildAgreementColorExpression(defaultOutlineColor, MAPSWIPE_AGREEMENT_OUTLINE_COLORS)
+        ? buildAgreementColorExpression(
+            defaultOutlineColor,
+            MAPSWIPE_AGREEMENT_OUTLINE_COLORS,
+          )
         : defaultOutlineColor,
       "line-width": isAoi
         ? TRAINING_AREAS_AOI_OUTLINE_WIDTH
@@ -122,6 +132,7 @@ export const TrainingAreaMap = ({
   const { mapContainerRef, map } = useMapInstance(true);
 
   const [vectorLayers, setVectorLayers] = useState<LayerSpecification[]>([]);
+  const [hasAgreement, setHasAgreement] = useState(false);
 
   const popupRef = useRef<Popup | null>(null);
 
@@ -141,7 +152,10 @@ export const TrainingAreaMap = ({
   const mapLayers: LayerSpecification[] = useMemo(
     () =>
       vectorLayers.flatMap((layer) => {
-        const { fill, outline, circle } = getLayerConfigs(layer.id, isPredictionResult);
+        const { fill, outline, circle } = getLayerConfigs(
+          layer.id,
+          isPredictionResult,
+        );
 
         const layers: LayerSpecification[] = [
           {
@@ -302,7 +316,11 @@ export const TrainingAreaMap = ({
 
         const metadata = (await pmtilesFile.getMetadata()) as Metadata;
         const layers = metadata.vector_layers;
-
+        if (isPredictionResult) {
+          setHasAgreement(
+            layers.some((layer) => layer.fields && "agreement" in layer.fields),
+          );
+        }
         setVectorLayers(layers);
       } catch (error) {
         console.error("Error loading PMTiles:", error);
@@ -362,6 +380,8 @@ export const TrainingAreaMap = ({
       mapContainerRef={mapContainerRef}
       map={map}
       showCurrentZoom
-    />
+    >
+      {isPredictionResult && hasAgreement && <AgreementLegend />}
+    </MapComponent>
   );
 };

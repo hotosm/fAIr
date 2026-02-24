@@ -150,5 +150,3 @@ export const getYouTubeEmbedUrl = (url: string) => {
     ? `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1`
     : BACKUP_VIDEO_URL; // fallback
 };
-
-
