@@ -36,7 +36,7 @@ export const NavBar = () => {
           </div>
           <div className={styles.loginButtonContainer}>
             {isAuthenticated ? (
-              <UserProfile />
+              <UserProfile setOpen={setOpen} />
             ) : (
               <Button onClick={handleLogin} spinner={loading}>
                 {loading

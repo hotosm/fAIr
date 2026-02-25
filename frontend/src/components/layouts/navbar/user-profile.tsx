@@ -12,9 +12,11 @@ import { Avatar } from "@/components/ui/avatar/avatar";
 export const UserProfile = ({
   hideFullName,
   smallerSize,
+  setOpen,
 }: {
   hideFullName?: boolean;
   smallerSize?: boolean;
+  setOpen?: (arg: boolean) => void;
 }) => {
   const { user, logout } = useAuth();
 
@@ -30,36 +32,42 @@ export const UserProfile = ({
           value: SHARED_CONTENT.navbar.userProfile.profile,
           onClick: () => {
             navigate(APPLICATION_ROUTES.PROFILE_BASE);
+            setOpen?.(false);
           },
         },
         {
           value: SHARED_CONTENT.navbar.userProfile.datasets,
           onClick: () => {
             navigate(APPLICATION_ROUTES.PROFILE_DATASETS);
+            setOpen?.(false);
           },
         },
         {
           value: SHARED_CONTENT.navbar.userProfile.models,
           onClick: () => {
             navigate(APPLICATION_ROUTES.PROFILE_MODELS);
+            setOpen?.(false);
           },
         },
         {
           value: SHARED_CONTENT.navbar.userProfile.offlinePredictions,
           onClick: () => {
             navigate(APPLICATION_ROUTES.PROFILE_OFFLINE_PREDICTIONS);
+            setOpen?.(false);
           },
         },
         {
           value: SHARED_CONTENT.navbar.userProfile.settings,
           onClick: () => {
             navigate(APPLICATION_ROUTES.PROFILE_SETTINGS);
+            setOpen?.(false);
           },
         },
         {
           value: SHARED_CONTENT.navbar.userProfile.logout,
           onClick: () => {
             logout();
+            setOpen?.(false);
           },
           className: "logoutButton",
         },
