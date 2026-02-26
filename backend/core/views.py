@@ -122,7 +122,13 @@ from .validators import validate_geojson
 @cache_page(60 * settings.CACHE_TIMEOUT_MINUTES)
 @api_view(["GET"])
 def health(request):
-    status = {"postgresql": False, "redis": False, "celery_workers": False, "s3": None}
+    status = {
+        "postgresql": False,
+        "redis": False,
+        "celery_workers": False,
+        "celery_queues": {},
+        "s3": None,
+    }
     try:
         connections["default"].cursor()
         status["postgresql"] = True
@@ -140,6 +146,16 @@ def health(request):
         status["celery_workers"] = bool(active)
     except Exception:
         status["celery_workers"] = False
+    try:
+        from django_redis import get_redis_connection
+
+        redis_conn = get_redis_connection("default")
+        queue_names = ["ramp_training", "yolo_training", "predictions"]
+        for queue_name in queue_names:
+            queue_length = redis_conn.llen(queue_name)
+            status["celery_queues"][queue_name] = queue_length
+    except Exception:
+        status["celery_queues"] = {}
     try:
         if settings.USE_S3_TO_UPLOAD_MODELS:
             bucket = settings.BUCKET_NAME
