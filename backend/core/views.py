@@ -119,7 +119,7 @@ from .utils import (
 from .validators import validate_geojson
 
 
-@cache_page(60 * settings.CACHE_TIMEOUT_MINUTES)
+# @cache_page(60 * settings.CACHE_TIMEOUT_MINUTES)
 @api_view(["GET"])
 def health(request):
     status = {
