@@ -429,7 +429,7 @@ def finalize(inst, out, prep, acc):
     inst.save()
 
 
-@shared_task
+@shared_task(time_limit=settings.CELERY_TASK_TIME_LIMIT)
 def train_model(
     dataset_id,
     training_id,
@@ -526,7 +526,7 @@ def train_model(
         file_handler.close()
 
 
-@shared_task
+@shared_task(time_limit=settings.CELERY_TASK_TIME_LIMIT)
 def predict_area(prediction_request_id, folder=None):
     from predictor import predict
     from predictor.models import PredictionRequest
@@ -702,7 +702,7 @@ def predict_area(prediction_request_id, folder=None):
         file_handler.close()
 
 
-@shared_task
+@shared_task(time_limit=settings.CELERY_TASK_TIME_LIMIT)
 def process_mapswipe_results(prediction_request_id):
 
     inst = get_object_or_404(Prediction, id=prediction_request_id)
