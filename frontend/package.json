@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@awesome.me/webawesome": "3.0.0-beta.1",
-    "@hotosm/hanko-auth": "0.4.7",
+    "@hotosm/hanko-auth": "0.4.8",
     "@hotosm/tool-menu": "0.2.6",
     "@reactour/tour": "^3.7.0",
     "@shoelace-style/shoelace": "^2.17.1",
