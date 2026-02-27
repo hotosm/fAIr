@@ -1,5 +1,5 @@
 
-ARG ZENML_VERSION
+ARG ZENML_VERSION=0.93.3
 FROM zenmldocker/zenml-server:${ZENML_VERSION} AS base
 
 
