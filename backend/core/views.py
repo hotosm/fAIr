@@ -144,14 +144,26 @@ def health(request):
     inspect_active = {}
     try:
         i = current_app.control.inspect(timeout=1)
+        inspect_registered = i.registered() or {}
         inspect_active = i.active() or {}
-        active_worker_names = [
-            worker_name for worker_name, tasks in inspect_active.items() if tasks
+        worker_names = sorted(
+            set(inspect_registered.keys()) | set(inspect_active.keys())
+        )
+        workers = [
+            {
+                "name": worker_name,
+                "online": worker_name in inspect_active
+                or worker_name in inspect_registered,
+                "active": bool(inspect_active.get(worker_name)),
+            }
+            for worker_name in worker_names
         ]
+        active_workers_count = sum(1 for worker in workers if worker["active"])
+        online_workers_count = sum(1 for worker in workers if worker["online"])
         status["celery_workers"] = {
-            "online": len(inspect_active),
-            "active": len(active_worker_names),
-            "active_worker_names": active_worker_names,
+            "online": online_workers_count,
+            "active": active_workers_count,
+            "workers": workers,
         }
     except Exception:
         status["celery_workers"] = {}
