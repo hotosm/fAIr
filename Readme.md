@@ -38,15 +38,22 @@ The name fAIr is derived from the following terms:
 
 ## Features
 
-- Intuitive and fair AI-assisted mapping tool
-- Open-source AI models created and trained by local communities
-- Uses open-source satellite and UAV imagery from HOT's OpenAerialMap (OAM) to detect map features and suggest additions to OpenStreetMap (OSM)
+For mappers/project managers leading mapping projects
+- Map object detection using open-source ML models, open imagery and open community-led training and validation data
+- Use of open-source satellite and UAV imagery shared on HOT's OpenAerialMap (OAM) to detect map features 
+- Trainimg of base ML models using localised datasets for the creation of localised AI models that better fit the local context
 - Constant feedback loop to eliminate model biases and ensure models are relevant to local communities
 
-Unlike other AI data producers, fAIr is a free and open-source AI service that allows OSM community members to create and train their own AI models for mapping in their region of interest and/or humanitarian need. The goal of fAIr is to provide access to AI-assisted mapping across mobile and in-browser editors, using community-created AI models, and to ensure that the models are relevant to the communities where the maps are being created to improve the conditions of the people living there.
+For model developers
+- Sharing open ML models and making them available to the open mapping community
 
-To eliminate model biases, fAIr is built to work with the local communities and receive constant feedback on the models, which will result in the progressive intelligence of computer vision models. The AI models suggest detected features to be added to OpenStreetMap (OSM), but mass import into OSM is not planned. Whenever an OSM mapper uses the AI models for assisted mapping and completes corrections, fAIr can take those corrections as feedback to enhance the AI model’s accuracy.
+Unlike other GeoAI data platforms, fAIr is a free and open-source AI service that allows open mapping community members to access open AI models shared by model developer on the platform, and create and train their own AI models for mapping in their region of interest and/or humanitarian need. The goal of fAIr is to provide access to AI-assisted mapping across mobile and in-browser editors, using open ML models to ensure that the models are relevant to the places where communities aim to generate map data. 
 
+To eliminate model biases, fAIr is built to work with the local communities and receive constant feedback on the models, which will result in the progressive intelligence of computer vision models. 
+Whenever an mapper uses the AI models for assisted mapping, fAIr can take those corrections as feedback to enhance the AI model’s accuracy.
+
+The ML models suggest detected features to be added to OpenStreetMap (OSM) or other open datalayers.
+ 
 ## Product Roadmap (Users' Roadmap) 2026
 
 <!-- prettier-ignore-start -->
