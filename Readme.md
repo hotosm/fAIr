@@ -7,7 +7,6 @@
 
 <div align="center">
     <h1>fAIr: AI-assisted mapping</h1>
-    <p>Open AI-assisted mapping service for Humanitarian</p>
     <a href="https://github.com/hotosm/fair/releases">
         <img src="https://img.shields.io/github/v/release/hotosm/fair?logo=github" alt="Release Version" />
     </a>
