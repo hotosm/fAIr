@@ -22,7 +22,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db import connections
-from django.db.models import Count, F, Q
+from django.db.models import Count, Q
 from django.db.utils import OperationalError
 from django.http import (
     Http404,
@@ -127,7 +127,7 @@ def health(request):
         "postgresql": False,
         "redis": False,
         "celery_workers": {},
-        "workload": {},
+        "load": {},
         "s3": None,
     }
     try:
@@ -169,18 +169,14 @@ def health(request):
         status["celery_workers"] = {}
 
     try:
-        training_by_base_model_rows = Training.objects.values(
-            base_model=F("model__base_model")
-        ).annotate(
-            submitted=Count("id", filter=Q(status="SUBMITTED")),
-            running=Count("id", filter=Q(status="RUNNING")),
-        )
         training_by_base_model = {
-            row["base_model"]: {
-                "submitted": row["submitted"],
-                "running": row["running"],
-            }
-            for row in training_by_base_model_rows
+            base_model: {"submitted": submitted, "running": running}
+            for base_model, submitted, running in Training.objects.values_list(
+                "model__base_model"
+            ).annotate(
+                submitted=Count("id", filter=Q(status="SUBMITTED")),
+                running=Count("id", filter=Q(status="RUNNING")),
+            )
         }
         prediction_counts = Prediction.objects.aggregate(
             submitted=Count("id", filter=Q(status="SUBMITTED")),
