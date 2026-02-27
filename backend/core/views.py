@@ -22,6 +22,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db import connections
+from django.db.models import Count, Q
 from django.db.utils import OperationalError
 from django.http import (
     Http404,
@@ -125,8 +126,8 @@ def health(request):
     status = {
         "postgresql": False,
         "redis": False,
-        "celery_workers": False,
-        "celery_queues": {},
+        "celery_workers": {},
+        "workload": {},
         "s3": None,
     }
     try:
@@ -140,22 +141,43 @@ def health(request):
             status["redis"] = True
     except Exception:
         status["redis"] = False
+    inspect_active = {}
     try:
-        i = current_app.control.inspect()
-        active = i.active()
-        status["celery_workers"] = bool(active)
+        i = current_app.control.inspect(timeout=1)
+        inspect_active = i.active() or {}
+        active_worker_names = [
+            worker_name for worker_name, tasks in inspect_active.items() if tasks
+        ]
+        status["celery_workers"] = {
+            "online": len(inspect_active),
+            "active": len(active_worker_names),
+            "active_worker_names": active_worker_names,
+        }
     except Exception:
-        status["celery_workers"] = False
-    try:
-        from django_redis import get_redis_connection
+        status["celery_workers"] = {}
 
-        redis_conn = get_redis_connection("default")
-        queue_names = ["ramp_training", "yolo_training", "predictions"]
-        for queue_name in queue_names:
-            queue_length = redis_conn.llen(queue_name)
-            status["celery_queues"][queue_name] = queue_length
+    try:
+        training_counts = Training.objects.aggregate(
+            submitted=Count("id", filter=Q(status="SUBMITTED")),
+            running=Count("id", filter=Q(status="RUNNING")),
+        )
+        prediction_counts = Prediction.objects.aggregate(
+            submitted=Count("id", filter=Q(status="SUBMITTED")),
+            running=Count("id", filter=Q(status="RUNNING")),
+        )
+        status["workload"] = {
+            "training": {
+                "submitted": training_counts["submitted"],
+                "running": training_counts["running"],
+            },
+            "prediction": {
+                "submitted": prediction_counts["submitted"],
+                "running": prediction_counts["running"],
+            },
+        }
     except Exception:
-        status["celery_queues"] = {}
+        status["workload"] = {}
+
     try:
         if settings.USE_S3_TO_UPLOAD_MODELS:
             bucket = settings.BUCKET_NAME
