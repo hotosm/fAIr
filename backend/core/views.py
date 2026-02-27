@@ -22,7 +22,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db import connections
-from django.db.models import Count, Q
+from django.db.models import Count, F, Q
 from django.db.utils import OperationalError
 from django.http import (
     Http404,
@@ -169,26 +169,32 @@ def health(request):
         status["celery_workers"] = {}
 
     try:
-        training_counts = Training.objects.aggregate(
+        training_by_base_model_rows = Training.objects.values(
+            base_model=F("model__base_model")
+        ).annotate(
             submitted=Count("id", filter=Q(status="SUBMITTED")),
             running=Count("id", filter=Q(status="RUNNING")),
         )
+        training_by_base_model = {
+            row["base_model"]: {
+                "submitted": row["submitted"],
+                "running": row["running"],
+            }
+            for row in training_by_base_model_rows
+        }
         prediction_counts = Prediction.objects.aggregate(
             submitted=Count("id", filter=Q(status="SUBMITTED")),
             running=Count("id", filter=Q(status="RUNNING")),
         )
-        status["workload"] = {
-            "training": {
-                "submitted": training_counts["submitted"],
-                "running": training_counts["running"],
-            },
+        status["load"] = {
+            "training": training_by_base_model,
             "prediction": {
                 "submitted": prediction_counts["submitted"],
                 "running": prediction_counts["running"],
             },
         }
     except Exception:
-        status["workload"] = {}
+        status["load"] = {}
 
     try:
         if settings.USE_S3_TO_UPLOAD_MODELS:
