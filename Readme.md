@@ -28,7 +28,7 @@
 
 </div>
 
-fAIr is an open AI-assisted mapping service developed by the [Humanitarian OpenStreetMap Team (HOT)](https://www.hotosm.org/) that aims to improve the efficiency and accuracy of mapping efforts for humanitarian purposes. The service uses AI models, specifically computer vision techniques, to detect objects such as buildings, roads, waterways, and trees from satellite and UAV imagery.
+fAIr is an open AI-assisted mapping service developed by the [Humanitarian OpenStreetMap Team (HOT)](https://www.hotosm.org/) that aims to improve the efficiency and accuracy of mapping efforts for humanitarian and development purposes. The service uses AI models, specifically computer vision techniques, to detect objects such as buildings, roads, waterways, and trees from satellite and UAV imagery.
 
 The name fAIr is derived from the following terms:
 
