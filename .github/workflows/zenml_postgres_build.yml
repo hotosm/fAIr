@@ -18,7 +18,7 @@ jobs:
       contents: read
       packages: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           sparse-checkout: infra/zenml
 
@@ -39,17 +39,36 @@ jobs:
             type=raw,value=latest
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Build and push ZenML Postgres image
+        id: build
         uses: docker/build-push-action@v6
         with:
           context: infra/zenml
           file: infra/zenml/Dockerfile.postgres
           build-args: ZENML_VERSION=${{ inputs.zenml_version }}
+          platforms: linux/amd64
+          provenance: false
+          sbom: false
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha,scope=zenml-postgres,timeout=20m
           cache-to: type=gha,mode=max,scope=zenml-postgres,timeout=20m,ignore-error=true
           github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Validate pushed manifest
+        env:
+          IMAGE_REF: ${{ env.REGISTRY }}/${{ github.repository_owner }}/zenml-postgres@${{ steps.build.outputs.digest }}
+        run: |
+          json=$(docker buildx imagetools inspect --format '{{json .}}' "$IMAGE_REF")
+          echo "$json" | jq -e '
+            if (.manifest.manifests? | type) == "array" then
+              (any(.manifest.manifests[]?; .platform.os == "linux" and .platform.architecture == "amd64"))
+              and
+              (all(.manifest.manifests[]?; (.platform.os != "unknown" and .platform.architecture != "unknown")))
+            else
+              (.image.os == "linux" and .image.architecture == "amd64")
+            end
+          ' >/dev/null
