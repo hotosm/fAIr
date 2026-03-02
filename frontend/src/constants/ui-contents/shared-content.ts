@@ -140,7 +140,8 @@ export const SHARED_CONTENT: TSharedContent = {
     },
     baseModelCTA: {
       title: "Contribute your Base Model",
-      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",
+      description:
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",
       ctaButton: "Contribute",
       ctaLink: "/base-models",
     },
@@ -160,7 +161,8 @@ export const SHARED_CONTENT: TSharedContent = {
   },
   baseModelsPage: {
     pageHeadingTitle: "Base Models",
-    pageHeadingDescription: " Each model is trained using one of the training datasets. Published models can be used to find mappable features in imagery that is similar to the training areas that dataset comes from.",
+    pageHeadingDescription:
+      " Each model is trained using one of the training datasets. Published models can be used to find mappable features in imagery that is similar to the training areas that dataset comes from.",
     pageHeadingButtonText: "Contribute model",
     contributeModelDialog: {
       label: "Model Contribution Journey",
@@ -192,8 +194,7 @@ export const SHARED_CONTENT: TSharedContent = {
                 "Weights License: (e.g., Apache 2.0, CC BY 4.0, or Custom)",
                 "Data License: (e.g., CC BY, CC BY-NC, or Custom Terms)",
               ],
-              note:
-                "Note: This will be automatically validated if your selections are HOT-compliant to prevent future rejection.",
+              note: "Note: This will be automatically validated if your selections are HOT-compliant to prevent future rejection.",
             },
             {
               title: "Verify Model Endpoints",
@@ -252,8 +253,7 @@ export const SHARED_CONTENT: TSharedContent = {
             {
               variant: "changes",
               label: "🔴 Needs Changes",
-              description:
-                "Feedback has been provided; updates are required.",
+              description: "Feedback has been provided; updates are required.",
             },
             {
               variant: "approved",

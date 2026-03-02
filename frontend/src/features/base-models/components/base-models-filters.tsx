@@ -1,7 +1,10 @@
 import { DropDown } from "@/components/ui/dropdown";
 import { Switch } from "@/components/ui/form";
 import { FilterIcon, ListIcon, SearchIcon } from "@/components/ui/icons";
-import { DATE_SORT_OPTIONS, TASK_CATEGORIES } from "@/features/base-models/data/base-model-data";
+import {
+  DATE_SORT_OPTIONS,
+  TASK_CATEGORIES,
+} from "@/features/base-models/data/base-model-data";
 
 type MenuItem = {
   value: string;
@@ -56,14 +59,20 @@ const BaseModelsFilters: React.FC<BaseModelsFiltersProps> = ({
                 menuItems={categoryMenuItems}
                 withCheckbox
                 handleMenuSelection={(value: string) => {
-                  const selected = TASK_CATEGORIES.find((c) => c.label === value);
+                  const selected = TASK_CATEGORIES.find(
+                    (c) => c.label === value,
+                  );
                   if (selected) {
-                    setCategory(selected.value === "all" ? null : selected.value);
+                    setCategory(
+                      selected.value === "all" ? null : selected.value,
+                    );
                   }
                 }}
                 defaultSelectedItem={selectedCategoryLabel}
                 triggerComponent={
-                  <p className="text-sm text-dark text-nowrap">{selectedCategoryLabel}</p>
+                  <p className="text-sm text-dark text-nowrap">
+                    {selectedCategoryLabel}
+                  </p>
                 }
               />
             </div>
@@ -73,14 +82,20 @@ const BaseModelsFilters: React.FC<BaseModelsFiltersProps> = ({
                 menuItems={dateMenuItems}
                 withCheckbox
                 handleMenuSelection={(value: string) => {
-                  const selected = DATE_SORT_OPTIONS.find((d) => d.label === value);
+                  const selected = DATE_SORT_OPTIONS.find(
+                    (d) => d.label === value,
+                  );
                   if (selected) {
-                    setDateSort(selected.value === "newest" ? null : selected.value);
+                    setDateSort(
+                      selected.value === "newest" ? null : selected.value,
+                    );
                   }
                 }}
                 defaultSelectedItem={selectedDateLabel}
                 triggerComponent={
-                  <p className="text-sm text-dark text-nowrap">{selectedDateLabel}</p>
+                  <p className="text-sm text-dark text-nowrap">
+                    {selectedDateLabel}
+                  </p>
                 }
               />
             </div>
@@ -111,7 +126,9 @@ const BaseModelsFilters: React.FC<BaseModelsFiltersProps> = ({
       </div>
 
       <div className="flex items-center justify-between w-full my-4">
-        <p className="font-semibold text-body-3">{filteredModelsCount} Models</p>
+        <p className="font-semibold text-body-3">
+          {filteredModelsCount} Models
+        </p>
         <div className="inline-flex md:hidden items-center gap-x-4">
           <p className="text-body-2base text-nowrap">Map View</p>
           <Switch

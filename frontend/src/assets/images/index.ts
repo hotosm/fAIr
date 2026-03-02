@@ -17,5 +17,4 @@ export { default as AdvancedCourseImage } from "@/assets/images/advanced_course.
 export { default as UpdateCoverImage } from "@/assets/images/cover.png";
 export { default as BaseModelCTAImage } from "@/assets/images/base_model_cta_image.png";
 
-
 export { default as fAIrSwipeIllustration } from "@/assets/images/fairswipe_illustration.png";

@@ -119,7 +119,7 @@ export const BaseModelsPage = () => {
           filteredModelsCount={filteredModels.length}
         />
 
-          {filteredModels.length === 0 ? (
+        {filteredModels.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 gap-y-4">
             <p className="text-grey text-body-1 font-medium">No models found</p>
             <p className="text-grey text-body-2base">

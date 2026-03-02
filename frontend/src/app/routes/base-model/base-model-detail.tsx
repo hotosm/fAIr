@@ -186,8 +186,6 @@ export const BaseModelDetailPage = () => {
       ]
     : [];
 
-  
-
   // If model not found, redirect to 404
   if (!model) {
     return (
@@ -246,7 +244,10 @@ export const BaseModelDetailPage = () => {
               label="Model Weights License"
               value={model.modelWeightsLicense}
             />
-            <MetadataItem label="Dataset License" value={model.datasetLicense} />
+            <MetadataItem
+              label="Dataset License"
+              value={model.datasetLicense}
+            />
           </div>
           <div className="flex flex-col gap-y-3">
             <MetadataItem
@@ -268,10 +269,7 @@ export const BaseModelDetailPage = () => {
 
         {/* Download Metadata Link */}
         <div>
-          <button
-           
-            className="inline-flex items-center gap-x-1 text-primary text-body-3 hover:text-primary transition-colors underline "
-          >
+          <button className="inline-flex items-center gap-x-1 text-primary text-body-3 hover:text-primary transition-colors underline ">
             <span className="">Download Metadata</span>
             <DownloadIconNew className="w-4 h-4" />
           </button>

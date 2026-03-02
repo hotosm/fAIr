@@ -302,7 +302,6 @@ export type TModelsContent = {
       };
     };
   };
- 
 };
 
 // Models related pages content types ends.
@@ -440,7 +439,7 @@ export type TSharedContent = {
       ctaLink: string;
     };
   };
-   baseModelsPage:{
+  baseModelsPage: {
     pageHeadingTitle: string;
     pageHeadingDescription: string;
     pageHeadingButtonText: string;
@@ -474,7 +473,7 @@ export type TSharedContent = {
         }[];
       }[];
     };
-  }
+  };
   pageNotFound: {
     messages: {
       constant: string;

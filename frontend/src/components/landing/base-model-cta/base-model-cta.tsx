@@ -19,7 +19,6 @@ export const BaseModelCTA = () => {
             href={SHARED_CONTENT.homepage.baseModelCTA.ctaLink}
             title={SHARED_CONTENT.homepage.baseModelCTA.ctaButton}
             nativeAnchor
-            
           >
             <Button variant={ButtonVariant.SECONDARY}>
               {SHARED_CONTENT.homepage.baseModelCTA.ctaButton}
