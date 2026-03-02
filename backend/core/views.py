@@ -22,6 +22,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db import connections
+from django.db.models import Count, Q
 from django.db.utils import OperationalError
 from django.http import (
     Http404,
@@ -127,10 +128,16 @@ from .utils import (
 from .validators import validate_geojson
 
 
-@cache_page(60 * settings.CACHE_TIMEOUT_MINUTES)
+# @cache_page(60 * settings.CACHE_TIMEOUT_MINUTES)
 @api_view(["GET"])
 def health(request):
-    status = {"postgresql": False, "redis": False, "celery_workers": False, "s3": None}
+    status = {
+        "postgresql": False,
+        "redis": False,
+        "celery_workers": {},
+        "load": {},
+        "s3": None,
+    }
     try:
         connections["default"].cursor()
         status["postgresql"] = True
@@ -142,12 +149,57 @@ def health(request):
             status["redis"] = True
     except Exception:
         status["redis"] = False
+    inspect_active = {}
     try:
-        i = current_app.control.inspect()
-        active = i.active()
-        status["celery_workers"] = bool(active)
+        i = current_app.control.inspect(timeout=1)
+        inspect_registered = i.registered() or {}
+        inspect_active = i.active() or {}
+        worker_names = sorted(
+            set(inspect_registered.keys()) | set(inspect_active.keys())
+        )
+        workers = [
+            {
+                "name": worker_name,
+                "online": worker_name in inspect_active
+                or worker_name in inspect_registered,
+                "active": bool(inspect_active.get(worker_name)),
+            }
+            for worker_name in worker_names
+        ]
+        active_workers_count = sum(1 for worker in workers if worker["active"])
+        online_workers_count = sum(1 for worker in workers if worker["online"])
+        status["celery_workers"] = {
+            "online": online_workers_count,
+            "active": active_workers_count,
+            "workers": workers,
+        }
     except Exception:
-        status["celery_workers"] = False
+        status["celery_workers"] = {}
+
+    try:
+        training_by_base_model = {
+            base_model: {"submitted": submitted, "running": running}
+            for base_model, submitted, running in Training.objects.values_list(
+                "model__base_model"
+            ).annotate(
+                submitted=Count("id", filter=Q(status="SUBMITTED")),
+                running=Count("id", filter=Q(status="RUNNING")),
+            )
+        }
+        prediction_counts = Prediction.objects.aggregate(
+            submitted=Count("id", filter=Q(status="SUBMITTED")),
+            running=Count("id", filter=Q(status="RUNNING")),
+        )
+        status["load"] = {
+            "training": training_by_base_model,
+            "prediction": {
+                "submitted": prediction_counts["submitted"],
+                "running": prediction_counts["running"],
+            },
+        }
+    except Exception:
+        status["load"] = {}
+
     try:
         if settings.USE_S3_TO_UPLOAD_MODELS:
             bucket = settings.BUCKET_NAME
