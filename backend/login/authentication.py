@@ -63,40 +63,23 @@ class LegacyOsmAuthentication(authentication.BaseAuthentication):
 
 
 class HankoAuthentication(authentication.BaseAuthentication):
-    """Hanko SSO authentication with user mapping.
-
-    Used when AUTH_PROVIDER="hanko".
-    Reads Hanko JWT from cookie (via HankoAuthMiddleware).
-
-    Flow:
-    1. Check if hanko_user_mappings has entry for this hanko_id
-    2. If yes → use mapped osm_id to get user
-    3. If no → user needs onboarding (set request.needs_onboarding = True)
-
-    The onboarding flow asks "Do you have an existing fAIr account?"
-    - Yes → Connect OSM to recover account
-    - No → Create account with synthetic (negative) osm_id
-    """
+    """Hanko SSO authentication using user mappings."""
     def authenticate(self, request):
         from hotosm_auth_django import get_mapped_user_id
 
-        # HankoAuthMiddleware adds request.hotosm with user and osm
         if not hasattr(request, 'hotosm'):
             logger.debug("No hotosm attribute on request - HankoAuthMiddleware not active")
             return (None, None)
 
         hanko_user = request.hotosm.user
 
-        # If no Hanko user, not authenticated
         if not hanko_user:
             logger.debug("No Hanko user in request")
             return (None, None)
 
-        # Check if mapping exists for this Hanko user
         mapped_osm_id = get_mapped_user_id(hanko_user, app_name="fair")
 
         if mapped_osm_id is not None:
-            # Mapping exists - get the user by osm_id
             try:
                 osm_id = int(mapped_osm_id)
                 user = OsmUser.objects.get(osm_id=osm_id)
@@ -104,10 +87,8 @@ class HankoAuthentication(authentication.BaseAuthentication):
                 return (user, None)
             except (OsmUser.DoesNotExist, ValueError) as e:
                 logger.warning(f"Mapping exists but user not found: osm_id={mapped_osm_id}, error={e}")
-                # Fall through to onboarding
+                # Fall through to onboarding.
 
-        # No mapping - user needs onboarding
-        # Set flag so views can detect this
         request.needs_onboarding = True
         request.hanko_user_for_onboarding = hanko_user
         logger.debug(f"Hanko user {hanko_user.email} needs onboarding (no mapping)")

@@ -4,7 +4,7 @@ Hanko authentication helpers for fAIr.
 Handles user mapping between Hanko IDs and fAIr's osm_id based users.
 """
 
-from typing import Optional, Tuple
+from typing import Optional
 import logging
 
 from .models import OsmUser
@@ -32,26 +32,6 @@ def find_legacy_user_by_osm_id(osm_id: int) -> Optional[OsmUser]:
         return OsmUser.objects.get(osm_id=osm_id)
     except OsmUser.DoesNotExist:
         return None
-
-
-def handle_legacy_recovery(osm_data: dict) -> Tuple[Optional[OsmUser], int]:
-    """Check if osm_id from OAuth exists in database (legacy user recovery)."""
-    osm_id = osm_data["id"]
-    existing_user = find_legacy_user_by_osm_id(osm_id)
-
-    if existing_user:
-        logger.info(f"Legacy user found: osm_id={osm_id}, username={existing_user.username}")
-    else:
-        logger.info(f"No legacy user found for osm_id={osm_id}")
-
-    return existing_user, osm_id
-
-
-def handle_new_user(hanko_id: str) -> int:
-    """Generate synthetic osm_id for new user without previous fAIr account."""
-    osm_id = generate_synthetic_osm_id(hanko_id)
-    logger.info(f"New user: generated synthetic osm_id={osm_id} for hanko_id={hanko_id}")
-    return osm_id
 
 
 def create_osm_user(

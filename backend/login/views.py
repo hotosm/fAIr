@@ -160,7 +160,6 @@ class OnboardingCallback(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Need Hanko user from middleware
         if not hasattr(request, 'hotosm') or not request.hotosm.user:
             return Response(
                 {"error": "Not authenticated with Hanko"},
@@ -171,30 +170,25 @@ class OnboardingCallback(APIView):
         is_new_user = request.query_params.get('new_user') == 'true'
 
         if is_new_user:
-            # New user - generate synthetic osm_id
             osm_id = generate_synthetic_osm_id(hanko_user.id)
-            username = hanko_user.email.split('@')[0]  # Use email prefix as username
+            username = hanko_user.email.split('@')[0]
 
-            # Create OsmUser
-            user = create_osm_user(
+            create_osm_user(
                 osm_id=osm_id,
                 username=username,
                 email=hanko_user.email,
             )
 
-            # Create mapping
             create_user_mapping(
                 hanko_user_id=hanko_user.id,
                 app_user_id=str(osm_id),
                 app_name="fair",
             )
 
-            # Redirect to fAIr homepage
             frontend_url = getattr(settings, 'FRONTEND_URL', '/')
             return HttpResponseRedirect(frontend_url)
 
         else:
-            # Legacy user - should have osm_connection cookie
             osm_connection = request.hotosm.osm
 
             if not osm_connection:
@@ -205,12 +199,9 @@ class OnboardingCallback(APIView):
 
             osm_id = osm_connection.osm_user_id
 
-            # Check if OsmUser already exists (true legacy)
             existing_user = find_legacy_user_by_osm_id(osm_id)
 
             if not existing_user:
-                # No existing fAIr account with this OSM ID
-                # Redirect back to Login with error message
                 from urllib.parse import urlencode
                 login_url = getattr(settings, 'LOGIN_URL', 'https://login.hotosm.org')
                 frontend_url = getattr(settings, 'FRONTEND_URL', '/')
@@ -222,14 +213,12 @@ class OnboardingCallback(APIView):
                 })
                 return HttpResponseRedirect(f"{login_url}/app?{params}")
 
-            # True legacy user - create mapping
             create_user_mapping(
                 hanko_user_id=hanko_user.id,
                 app_user_id=str(osm_id),
                 app_name="fair",
             )
 
-            # Redirect to fAIr homepage
             frontend_url = getattr(settings, 'FRONTEND_URL', '/')
             return HttpResponseRedirect(frontend_url)
 
@@ -246,7 +235,6 @@ class AuthStatus(APIView):
                 "authenticated": request.user.is_authenticated if hasattr(request, 'user') else False,
             })
 
-        # Check Hanko user
         if not hasattr(request, 'hotosm') or not request.hotosm.user:
             return Response({
                 "auth_provider": "hanko",
@@ -256,11 +244,9 @@ class AuthStatus(APIView):
 
         hanko_user = request.hotosm.user
 
-        # Check mapping
         mapped_osm_id = get_mapped_user_id(hanko_user, app_name="fair")
 
         if mapped_osm_id is not None:
-            # Has mapping - fully authenticated
             try:
                 osm_id = int(mapped_osm_id)
                 user = OsmUser.objects.get(osm_id=osm_id)
@@ -279,9 +265,8 @@ class AuthStatus(APIView):
                     }
                 })
             except OsmUser.DoesNotExist:
-                pass  # Fall through to needs_onboarding
+                pass
 
-        # No mapping - needs onboarding
         return Response({
             "auth_provider": "hanko",
             "authenticated": False,

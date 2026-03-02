@@ -69,18 +69,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const handleRedirection = () => {
     const redirectTo = getSessionValue(HOT_FAIR_SESSION_REDIRECT_KEY);
     if (redirectTo) {
-      // remove it before redirecting.
       removeSessionValue(HOT_FAIR_SESSION_REDIRECT_KEY);
-      // This is the last stage of the auth, we can assume that the login is successful, then store a reference
-      // in the session storage.
       setSessionValue(HOT_FAIR_LOGIN_SUCCESSFUL_SESSION_KEY, "success");
       window.location.replace(redirectTo);
     }
   };
 
-  /**
-   * To show the login success after completing redirection if any.
-   */
   useEffect(() => {
     const loginSuccessful = getSessionValue(
       HOT_FAIR_LOGIN_SUCCESSFUL_SESSION_KEY,
@@ -91,9 +85,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, []);
 
-  /**
-   * Proceed with the oauth flow when the state and code are in the url params.
-   */
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const code = params.get("code");
@@ -103,9 +94,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, [user]);
 
-  /**
-   *  Proceed with the email verification flow when the uid and token are in the url params.
-   */
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const uid = params.get("uid");
@@ -118,7 +106,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const fetchUserProfile = async () => {
     try {
       if (AUTH_PROVIDER === "hanko") {
-        // For Hanko, fetch with credentials to send cookie
         const response = await fetch(`${BASE_API_URL}auth/me/`, {
           credentials: "include",
         });
@@ -127,7 +114,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setUser(userData);
           handleRedirection();
         } else {
-          // Not authenticated or session expired
           setUser(undefined);
         }
       } else {
@@ -145,10 +131,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   useEffect(() => {
     if (AUTH_PROVIDER === "hanko") {
-      // For Hanko, always try to fetch user on mount (cookie might be set)
       fetchUserProfile();
     } else if (token) {
-      // For legacy, only fetch if we have a token
       fetchUserProfile();
     }
   }, [token]);
@@ -162,11 +146,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     showSuccessToast(TOAST_NOTIFICATIONS.logoutSuccess);
   };
 
-  /**
-   * Complete the oauth flow by exchanging code, and state tokens for access token from the backend.
-   * @param state The state token from OSM.
-   * @param code  The code token from OSM.
-   */
   const authenticateUser = async (state: string, code: string) => {
     try {
       const data = await authService.authenticate(state, code);
@@ -174,19 +153,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setToken(data.access_token);
     } catch (error) {
       showErrorToast(error, TOAST_NOTIFICATIONS.authenticationFailed);
-      // Delay for 5 seconds, incase it's the network speed.
-      // Otherwise, redirect the user back to the home page.
       setTimeout(() => {
         window.location.href = APPLICATION_ROUTES.HOMEPAGE;
       }, 5000);
     }
   };
 
-  /**
-   * Complete the email verification flow by sending the uid and token to the backend.
-   * @param uid The uid from the email.
-   * @param token  The token from the email.
-   */
   const verifyUserEmail = async (uid: string, token: string) => {
     try {
       const data = await authService.verifyEmail(uid, token);
@@ -194,16 +166,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         showSuccessToast(data.message);
         showSuccessToast("Redirecting you to your profile page...");
       }
-      /**
-       * Redirect the user to the profile page after 3 seconds.
-       */
       setTimeout(() => {
         window.location.href = APPLICATION_ROUTES.PROFILE_SETTINGS;
       }, 3000);
     } catch (error) {
       showErrorToast(error);
-      // Delay for 3 seconds, incase it's the network speed.
-      // Otherwise, redirect the user back to the home page.
       setTimeout(() => {
         window.location.href = APPLICATION_ROUTES.HOMEPAGE;
       }, 3000);
@@ -232,7 +199,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const intervalId = setInterval(() => {
       if (AUTH_PROVIDER === "hanko") {
-        // For Hanko, poll with credentials
         fetch(`${BASE_API_URL}auth/me/`, { credentials: "include" })
           .then((res) => (res.ok ? res.json() : Promise.reject()))
           .then(setUser)
