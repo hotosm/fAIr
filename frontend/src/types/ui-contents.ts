@@ -302,6 +302,7 @@ export type TModelsContent = {
       };
     };
   };
+ 
 };
 
 // Models related pages content types ends.
@@ -432,7 +433,48 @@ export type TSharedContent = {
       ctaLink: string;
       paragraph: string;
     };
+    baseModelCTA: {
+      title: string;
+      description: string;
+      ctaButton: string;
+      ctaLink: string;
+    };
   };
+   baseModelsPage:{
+    pageHeadingTitle: string;
+    pageHeadingDescription: string;
+    pageHeadingButtonText: string;
+    contributeModelDialog: {
+      label: string;
+      intro: string;
+      statusBadgeClasses: {
+        pending: string;
+        changes: string;
+        approved: string;
+      };
+      github: {
+        title: string;
+        href: string;
+        buttonLabel: string;
+      };
+      steps: {
+        title: string;
+        description?: string;
+        sections?: {
+          title: string;
+          description?: string;
+          listType?: "unordered" | "ordered";
+          items?: string[];
+          note?: string;
+        }[];
+        statuses?: {
+          variant: "pending" | "changes" | "approved";
+          label: string;
+          description: string;
+        }[];
+      }[];
+    };
+  }
   pageNotFound: {
     messages: {
       constant: string;

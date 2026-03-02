@@ -27,6 +27,11 @@ export const APPLICATION_ROUTES = {
   MODEL_DETAILS: `${MODELS_BASE}/:id`,
   MODEL_FEEDBACKS: `${MODELS_BASE}/:id/feedbacks`,
 
+  // base-model start
+  BASE_MODELS_HOME: "/base-models",
+  BASE_MODEL_DETAILS_PAGE: "/base-models/:id",
+  // base-model end
+
   // Model routes start
 
   CREATE_NEW_MODEL: `${MODELS_ROUTES.CREATE_MODEL_BASE}/${MODELS_ROUTES.DETAILS}`,
