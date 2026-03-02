@@ -16,3 +16,9 @@ export enum MapSwipeProcessingStatus {
   READY_TO_PUBLISH = "READY_TO_PUBLISH",
   DRAFT = "DRAFT",
 }
+
+export enum AgreementStatus {
+  FULL = "full",
+  PARTIAL = "partial",
+  NONE = "none",
+}
