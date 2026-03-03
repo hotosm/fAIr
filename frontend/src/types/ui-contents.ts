@@ -446,11 +446,7 @@ export type TSharedContent = {
     contributeModelDialog: {
       label: string;
       intro: string;
-      statusBadgeClasses: {
-        pending: string;
-        changes: string;
-        approved: string;
-      };
+  
       github: {
         title: string;
         href: string;

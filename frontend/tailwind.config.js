@@ -16,10 +16,8 @@ export default {
         "green-secondary": "var(--hot-fair-color-green-secondary)",
         "green-primary": "var(--hot-fair-color-green-primary)",
         "frosted-blue": "var(--hot-fair-color-frosted-blue)",
-        "status-pending-bg": "var(--hot-fair-color-status-pending-bg)",
-        "status-changes-bg": "var(--hot-fair-color-status-changes-bg)",
-        "status-approved-bg": "var(--hot-fair-color-status-approved-bg)",
-        "status-text": "var(--hot-fair-color-status-text)",
+        "status-pending-color": "var(--hot-fair-color-status-pending-color)",
+        "status-changes-color": "var(--hot-fair-color-status-changes-color)",
       },
       fontFamily: {
         archivo: "var(--sl-font-sans)",

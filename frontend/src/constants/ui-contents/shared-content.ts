@@ -141,7 +141,7 @@ export const SHARED_CONTENT: TSharedContent = {
     baseModelCTA: {
       title: "Contribute your Base Model",
       description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",
+        "Contribute a base model to fAIr and help teams turn imagery into actionable map data, faster and more reliably.",
       ctaButton: "Contribute",
       ctaLink: "/base-models",
     },
@@ -168,11 +168,6 @@ export const SHARED_CONTENT: TSharedContent = {
       label: "Model Contribution Journey",
       intro:
         "Model contribution into fAIr is handled in GITHUB /fAIr-models repository. Here are high level explanation for the contribution four steps and detailed documentation is available when you go to GITHUB",
-      statusBadgeClasses: {
-        pending: "bg-status-pending-bg text-status-text",
-        changes: "bg-status-changes-bg text-status-text",
-        approved: "bg-status-approved-bg text-status-text",
-      },
       github: {
         title: "Fair Model github",
         href: "https://github.com/hotosm/fAIr-models",

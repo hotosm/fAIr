@@ -18,6 +18,11 @@ type StepProps = {
   onToggle: () => void;
 };
 
+const statusBadgeClasses = {
+  pending: "bg-status-pending-color text-grey",
+  changes: "bg-status-changes-color text-grey",
+  approved: "bg-green-secondary text-grey",
+};
 const Step: React.FC<StepProps> = ({
   stepNumber,
   title,
@@ -31,7 +36,7 @@ const Step: React.FC<StepProps> = ({
         className="flex items-center w-full text-left gap-x-3 cursor-pointer"
         onClick={onToggle}
       >
-        <span className="inline-flex items-center rounded-md justify-center bg-[#D63F40] text-white text-body-3 font-semibold  px-2 py-1 min-w-max">
+        <span className="inline-flex items-center rounded-md justify-center bg-primary text-white text-body-3 font-semibold  px-2 py-1 min-w-max">
           Step {stepNumber}
         </span>
         <h3 className="font-semibold text-body-1 text-dark flex-1">{title}</h3>
@@ -147,11 +152,7 @@ const ContributeModelDialog: React.FC<ContributeModelDialogProps> = ({
                       key={status.label}
                     >
                       <StatusBadge
-                        className={
-                          contributeModelDialogContent.statusBadgeClasses[
-                            status.variant
-                          ]
-                        }
+                        className={statusBadgeClasses[status.variant]}
                         label={status.label}
                       />
                       <span className="text-grey text-body-4 md:text-body-3">
@@ -168,10 +169,11 @@ const ContributeModelDialog: React.FC<ContributeModelDialogProps> = ({
         {/* Go to GitHub Button */}
         <div className="flex justify-end mt-4">
           <Link
+            
             title={contributeModelDialogContent.github.title}
             href={contributeModelDialogContent.github.href}
           >
-            <Button>{contributeModelDialogContent.github.buttonLabel}</Button>
+            <Button className="rounded-sm">{contributeModelDialogContent.github.buttonLabel}</Button>
           </Link>
         </div>
       </div>

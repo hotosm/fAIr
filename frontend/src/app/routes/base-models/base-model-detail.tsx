@@ -11,7 +11,7 @@ import {
   TBaseModelVariant,
 } from "@/features/base-models/data/base-model-data";
 import AccuracyDisplay from "@/features/models/components/accuracy-display";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 type TInfoRowConfig = {
@@ -38,7 +38,7 @@ const CollapsibleSection = ({
   children: React.ReactNode;
   defaultOpen?: boolean;
 }) => {
-  const [isOpen, setIsOpen] = useState(defaultOpen);
+  const [isOpen, setIsOpen] = useState<boolean>(defaultOpen);
 
   return (
     <div className="border-b border-gray-border pb-4 mb-4 last:border-b-0">
@@ -123,6 +123,20 @@ export const BaseModelDetailPage = () => {
     return BASE_MODELS_DETAIL_DATA.find((m) => String(m.id) === id);
   }, [id]);
 
+  useEffect(() => {
+    if (!model) {
+      navigate(APPLICATION_ROUTES.NOTFOUND, {
+        replace: true,
+        state: {
+          from: APPLICATION_ROUTES.BASE_MODELS_HOME,
+          error: "base model not found",
+          buttonLabel: "Back to Base Models",
+          redirectPath: APPLICATION_ROUTES.BASE_MODELS_HOME,
+        },
+      });
+    }
+  }, [model, navigate]);
+
   const architectureRows: TInfoRowConfig[] = model
     ? [
         { label: "Base Model", value: model.architecture.baseModel },
@@ -186,24 +200,8 @@ export const BaseModelDetailPage = () => {
       ]
     : [];
 
-  // If model not found, redirect to 404
   if (!model) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-y-6">
-        <h2 className="text-title-1 font-semibold text-dark">
-          Model Not Found
-        </h2>
-        <p className="text-grey text-body-2">
-          The base model you are looking for does not exist.
-        </p>
-        <button
-          onClick={() => navigate(APPLICATION_ROUTES.BASE_MODELS_HOME)}
-          className="text-primary font-semibold text-body-2 underline"
-        >
-          Back to Base Models
-        </button>
-      </div>
-    );
+    return null;
   }
 
   return (

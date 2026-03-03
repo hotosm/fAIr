@@ -10,7 +10,7 @@ import {
 } from "@/features/base-models/data/base-model-data";
 import { useDialog } from "@/hooks/use-dialog";
 import { useMemo } from "react";
-import { useQueryState, parseAsString } from "nuqs";
+import { parseAsString, useQueryStates } from "nuqs";
 import BaseModelCard from "@/features/base-models/components/base-model-card";
 import ContributeModelDialog from "@/features/base-models/components/contribute-model-dialog";
 import BaseModelsFilters from "@/features/base-models/components/base-models-filters";
@@ -18,19 +18,15 @@ import BaseModelsFilters from "@/features/base-models/components/base-models-fil
 export const BaseModelsPage = () => {
   const { isOpened, openDialog, closeDialog } = useDialog();
   // nuqs-powered search params state
-  const [search, setSearch] = useQueryState("q", parseAsString.withDefault(""));
-  const [category, setCategory] = useQueryState(
-    "category",
-    parseAsString.withDefault("all"),
-  );
-  const [dateSort, setDateSort] = useQueryState(
-    "date",
-    parseAsString.withDefault("newest"),
-  );
-  const [mapView, setMapView] = useQueryState(
-    "map",
-    parseAsString.withDefault("false"),
-  );
+  const [
+    { q: search, category, date: dateSort, map: mapView },
+    setQueryStates,
+  ] = useQueryStates({
+    q: parseAsString.withDefault(""),
+    category: parseAsString.withDefault("all"),
+    date: parseAsString.withDefault("newest"),
+    map: parseAsString.withDefault("false"),
+  });
 
   const isMapViewActive = mapView === "true";
 
@@ -50,7 +46,7 @@ export const BaseModelsPage = () => {
     }
 
     // Category filter
-    if (category && category !== "all") {
+    if (category !== "all") {
       models = models.filter((model) => model.task === category);
     }
 
@@ -105,17 +101,17 @@ export const BaseModelsPage = () => {
           </p>
         </div>
 
-        <BaseModelsFilters
+     <BaseModelsFilters
           search={search}
-          setSearch={setSearch}
+          setSearch={(value) => setQueryStates({ q: value })}
           categoryMenuItems={categoryMenuItems}
           dateMenuItems={dateMenuItems}
           selectedCategoryLabel={selectedCategoryLabel}
           selectedDateLabel={selectedDateLabel}
-          setCategory={setCategory}
-          setDateSort={setDateSort}
+          setCategory={(value) => setQueryStates({ category: value })}
+          setDateSort={(value) => setQueryStates({ date: value })}
           isMapViewActive={isMapViewActive}
-          setMapView={setMapView}
+          setMapView={(value) => setQueryStates({ map: value })}
           filteredModelsCount={filteredModels.length}
         />
 

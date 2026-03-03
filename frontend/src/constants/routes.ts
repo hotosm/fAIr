@@ -29,7 +29,7 @@ export const APPLICATION_ROUTES = {
 
   // base-model start
   BASE_MODELS_HOME: "/base-models",
-  BASE_MODEL_DETAILS_PAGE: "/base-models/:id",
+  BASE_MODEL_DETAILS: "/base-models/:id",
   // base-model end
 
   // Model routes start
