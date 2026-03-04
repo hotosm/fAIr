@@ -85,8 +85,7 @@ export const StartMappingMapComponent = ({
   openFileUploadDialog?: () => void;
 }) => {
   const { isSmallViewport } = useScreenSize();
-  const currentZoom = useMapStore.getState().zoom;
-
+  const currentZoom = useMapStore((state) => state.zoom);
   const untouchedPredictedFeatures = useMemo(
     () =>
       modelPredictions.filter(
@@ -154,7 +153,7 @@ export const StartMappingMapComponent = ({
         {MINIMUM_ZOOM_LEVEL_INSTRUCTION_FOR_PREDICTION}
       </MapCursorToolTip>
     );
-  }, [map, currentZoom]);
+  }, [map, shouldShowTooltip]);
 
   const predictionImageryLayerId = useMemo(() => {
     return `${PREDICTION_IMAGERY_LAYER_ID}-${predictionImagerySource}`;

@@ -9,10 +9,14 @@ import {
   MapLayerMouseEvent,
   Popup,
   SourceSpecification,
+  ExpressionSpecification,
 } from "maplibre-gl";
+import { AgreementLegend } from "@/features/mapswipe/components/agreement-legend";
 
 import { showErrorToast, addLayers, addSources } from "@/utils";
 import {
+  MAPSWIPE_AGREEMENT_FILL_COLORS,
+  MAPSWIPE_AGREEMENT_OUTLINE_COLORS,
   PREDICTIONS_RESULTS_POINT_FILL_COLOR,
   PREDICTIONS_RESULTS_POINT_OUTLINE_COLOR,
   TRAINING_AREAS_AOI_FILL_COLOR,
@@ -25,35 +29,85 @@ import {
   TRAINING_AREAS_AOI_OUTLINE_WIDTH,
 } from "@/config";
 
+type VectorLayerMeta = LayerSpecification & {
+  fields?: Record<string, string>;
+};
+
 type Metadata = {
   name?: string;
   type?: string;
   tilestats?: unknown;
-  vector_layers: LayerSpecification[];
+  vector_layers: VectorLayerMeta[];
 };
+// Choropleth fill color for MapSwipe results based on "agreement" property:
+// agreement === 1       = green
+// agreement === 0       = red
+// 0 < agreement < 1     = purple
+const buildAgreementColorExpression = (
+  defaultColor: string,
+  colors: { green: string; red: string; purple: string },
+): ExpressionSpecification => [
+  "case",
+  ["!", ["has", "agreement"]],
+  defaultColor,
+  ["==", ["get", "agreement"], 1],
+  colors.green,
+  ["==", ["get", "agreement"], 0],
+  colors.red,
+  colors.purple,
+];
 
-const getLayerConfigs = (layerType: string) => {
+const getLayerConfigs = (
+  layerType: string,
+  isPredictionResult: boolean = false,
+) => {
   const isAoi = layerType === "aois";
+
+  const defaultFillColor = isAoi
+    ? TRAINING_AREAS_AOI_FILL_COLOR
+    : TRAINING_AREAS_AOI_LABELS_FILL_COLOR;
+  const defaultOutlineColor = isAoi
+    ? TRAINING_AREAS_AOI_OUTLINE_COLOR
+    : TRAINING_AREAS_AOI_LABELS_OUTLINE_COLOR;
+
   return {
     fill: {
-      "fill-color": isAoi
-        ? TRAINING_AREAS_AOI_FILL_COLOR
-        : TRAINING_AREAS_AOI_LABELS_FILL_COLOR,
-      "fill-opacity": isAoi
-        ? TRAINING_AREAS_AOI_FILL_OPACITY
-        : TRAINING_AREAS_AOI_LABELS_FILL_OPACITY,
+      "fill-color": isPredictionResult
+        ? buildAgreementColorExpression(
+            defaultFillColor,
+            MAPSWIPE_AGREEMENT_FILL_COLORS,
+          )
+        : defaultFillColor,
+      "fill-opacity": isPredictionResult
+        ? 0.6
+        : isAoi
+          ? TRAINING_AREAS_AOI_FILL_OPACITY
+          : TRAINING_AREAS_AOI_LABELS_FILL_OPACITY,
     },
     outline: {
-      "line-color": isAoi
-        ? TRAINING_AREAS_AOI_OUTLINE_COLOR
-        : TRAINING_AREAS_AOI_LABELS_OUTLINE_COLOR,
+      "line-color": isPredictionResult
+        ? buildAgreementColorExpression(
+            defaultOutlineColor,
+            MAPSWIPE_AGREEMENT_OUTLINE_COLORS,
+          )
+        : defaultOutlineColor,
       "line-width": isAoi
         ? TRAINING_AREAS_AOI_OUTLINE_WIDTH
         : TRAINING_AREAS_AOI_LABELS_OUTLINE_WIDTH,
     },
     circle: {
-      "circle-color": PREDICTIONS_RESULTS_POINT_FILL_COLOR,
-      "circle-stroke-color": PREDICTIONS_RESULTS_POINT_OUTLINE_COLOR,
+      "circle-color": isPredictionResult
+        ? buildAgreementColorExpression(
+            PREDICTIONS_RESULTS_POINT_FILL_COLOR,
+            MAPSWIPE_AGREEMENT_FILL_COLORS,
+          )
+        : PREDICTIONS_RESULTS_POINT_FILL_COLOR,
+      "circle-stroke-color": isPredictionResult
+        ? buildAgreementColorExpression(
+            PREDICTIONS_RESULTS_POINT_OUTLINE_COLOR,
+            MAPSWIPE_AGREEMENT_OUTLINE_COLORS,
+          )
+        : PREDICTIONS_RESULTS_POINT_OUTLINE_COLOR,
       "circle-stroke-width": 1,
       "circle-radius": 8,
     },
@@ -78,6 +132,7 @@ export const TrainingAreaMap = ({
   const { mapContainerRef, map } = useMapInstance(true);
 
   const [vectorLayers, setVectorLayers] = useState<LayerSpecification[]>([]);
+  const [hasAgreement, setHasAgreement] = useState<boolean>(false);
 
   const popupRef = useRef<Popup | null>(null);
 
@@ -97,7 +152,10 @@ export const TrainingAreaMap = ({
   const mapLayers: LayerSpecification[] = useMemo(
     () =>
       vectorLayers.flatMap((layer) => {
-        const { fill, outline, circle } = getLayerConfigs(layer.id);
+        const { fill, outline, circle } = getLayerConfigs(
+          layer.id,
+          isPredictionResult,
+        );
 
         const layers: LayerSpecification[] = [
           {
@@ -131,7 +189,7 @@ export const TrainingAreaMap = ({
 
         return layers;
       }),
-    [vectorLayers, trainingAreasSourceId],
+    [vectorLayers, trainingAreasSourceId, isPredictionResult],
   );
 
   const sources = useMemo(
@@ -258,7 +316,11 @@ export const TrainingAreaMap = ({
 
         const metadata = (await pmtilesFile.getMetadata()) as Metadata;
         const layers = metadata.vector_layers;
-
+        if (isPredictionResult) {
+          setHasAgreement(
+            layers.some((layer) => layer.fields && "agreement" in layer.fields),
+          );
+        }
         setVectorLayers(layers);
       } catch (error) {
         console.error("Error loading PMTiles:", error);
@@ -318,6 +380,8 @@ export const TrainingAreaMap = ({
       mapContainerRef={mapContainerRef}
       map={map}
       showCurrentZoom
-    />
+    >
+      {isPredictionResult && hasAgreement && <AgreementLegend />}
+    </MapComponent>
   );
 };

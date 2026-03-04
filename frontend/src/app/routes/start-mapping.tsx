@@ -92,8 +92,8 @@ export type TQueryParams = {
 const defaultQuery = {
   [SEARCH_PARAMS.orthogonalize]: true,
   [SEARCH_PARAMS.confidenceLevel]: 50,
-  [SEARCH_PARAMS.tolerance]: 0.3,
-  [SEARCH_PARAMS.area]: 3,
+  [SEARCH_PARAMS.tolerance]: 2,
+  [SEARCH_PARAMS.area]: 1,
   [SEARCH_PARAMS.skewTolerance]: 15,
   [SEARCH_PARAMS.maxAngleChange]: 15,
 };

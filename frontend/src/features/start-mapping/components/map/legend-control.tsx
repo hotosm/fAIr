@@ -6,6 +6,12 @@ import { useState, useCallback } from "react";
 import { PredictedFeatureStatus } from "@/enums/start-mapping";
 import { PREDICTED_LAYER_STATUS_COLORS } from "@/config";
 
+export type LegendItem = {
+  label: string;
+  fillColor: string;
+  fillOpacity: number;
+};
+
 const statusLegend = [
   {
     status: PredictedFeatureStatus.ACCEPTED,
@@ -52,9 +58,11 @@ const FillLegendStyle = ({
 export const Legend = ({
   disableDefaultPrediction = false,
   title = "Predictions",
+  items,
 }: {
   disableDefaultPrediction?: boolean;
   title?: string;
+  items?: LegendItem[];
 }) => {
   const { isSmallViewport } = useScreenSize();
   const [expandLegend, setExpandLegend] = useState(true);
@@ -62,6 +70,14 @@ export const Legend = ({
   const handleToggleExpand = useCallback(() => {
     setExpandLegend((prev) => !prev);
   }, []);
+
+  const legendItems: LegendItem[] = items
+    ? items
+    : statusLegend.filter((v) =>
+        disableDefaultPrediction
+          ? v.status !== PredictedFeatureStatus.UNTOUCHED
+          : v,
+      );
 
   return (
     <button
@@ -103,24 +119,18 @@ export const Legend = ({
         <div
           className={`flex w-full ${isSmallViewport ? "flex-row gap-x-2" : "flex-col"} gap-y-3`}
         >
-          {statusLegend
-            .filter((v) =>
-              disableDefaultPrediction
-                ? v.status !== PredictedFeatureStatus.UNTOUCHED
-                : v,
-            )
-            .map(({ label, fillColor, fillOpacity }, id) => (
-              <p
-                className="w-full flex items-center text-dark gap-x-2 text-body-4 md:text-body-3 text-nowrap"
-                key={id}
-              >
-                <FillLegendStyle
-                  fillColor={fillColor}
-                  fillOpacity={fillOpacity}
-                />
-                {label}
-              </p>
-            ))}
+          {legendItems.map(({ label, fillColor, fillOpacity }, id) => (
+            <p
+              className="w-full flex items-center text-dark gap-x-2 text-body-4 md:text-body-3 text-nowrap"
+              key={id}
+            >
+              <FillLegendStyle
+                fillColor={fillColor}
+                fillOpacity={fillOpacity}
+              />
+              {label}
+            </p>
+          ))}
         </div>
       )}
 
