@@ -7,7 +7,7 @@ import {
   BASE_MODELS_DATA,
   TASK_CATEGORIES,
   DATE_SORT_OPTIONS,
-} from "@/features/base-models/data/base-model-data";
+} from "@/utils/base-model-data";
 import { useDialog } from "@/hooks/use-dialog";
 import { useMemo } from "react";
 import { parseAsString, useQueryStates } from "nuqs";
@@ -101,7 +101,7 @@ export const BaseModelsPage = () => {
           </p>
         </div>
 
-     <BaseModelsFilters
+        <BaseModelsFilters
           search={search}
           setSearch={(value) => setQueryStates({ q: value })}
           categoryMenuItems={categoryMenuItems}

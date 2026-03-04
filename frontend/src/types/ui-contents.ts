@@ -446,7 +446,7 @@ export type TSharedContent = {
     contributeModelDialog: {
       label: string;
       intro: string;
-  
+
       github: {
         title: string;
         href: string;
