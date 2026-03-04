@@ -180,11 +180,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     if (AUTH_PROVIDER !== "hanko") return;
 
-    const handleLogin = () => {
+    const handleLogin = (e: Event) => {
+      const user = (e as CustomEvent).detail?.user;
+      if (user) {
+        localStorage.setItem("hotosm-auth-user", JSON.stringify(user));
+      }
       fetchUserProfile();
     };
 
     const handleLogout = () => {
+      localStorage.removeItem("hotosm-auth-user");
       setUser(undefined);
     };
 
