@@ -169,11 +169,12 @@ const ContributeModelDialog: React.FC<ContributeModelDialogProps> = ({
         {/* Go to GitHub Button */}
         <div className="flex justify-end mt-4">
           <Link
-            
             title={contributeModelDialogContent.github.title}
             href={contributeModelDialogContent.github.href}
           >
-            <Button className="rounded-sm">{contributeModelDialogContent.github.buttonLabel}</Button>
+            <Button className="rounded-sm">
+              {contributeModelDialogContent.github.buttonLabel}
+            </Button>
           </Link>
         </div>
       </div>

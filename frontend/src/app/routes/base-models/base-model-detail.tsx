@@ -5,12 +5,13 @@ import { DownloadIconNew } from "@/components/ui/icons/download-icon";
 import { ToolTip } from "@/components/ui/tooltip";
 import { APPLICATION_ROUTES } from "@/constants";
 import { ButtonVariant } from "@/enums";
+
+import AccuracyDisplay from "@/features/models/components/accuracy-display";
 import {
   BASE_MODELS_DETAIL_DATA,
   TBaseModelDetail,
   TBaseModelVariant,
-} from "@/features/base-models/data/base-model-data";
-import AccuracyDisplay from "@/features/models/components/accuracy-display";
+} from "@/utils/base-model-data";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 

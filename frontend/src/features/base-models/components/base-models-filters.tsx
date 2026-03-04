@@ -1,10 +1,7 @@
 import { DropDown } from "@/components/ui/dropdown";
 import { Switch } from "@/components/ui/form";
 import { FilterIcon, ListIcon, SearchIcon } from "@/components/ui/icons";
-import {
-  DATE_SORT_OPTIONS,
-  TASK_CATEGORIES,
-} from "@/features/base-models/data/base-model-data";
+import { DATE_SORT_OPTIONS, TASK_CATEGORIES } from "@/utils/base-model-data";
 
 type MenuItem = {
   value: string;
