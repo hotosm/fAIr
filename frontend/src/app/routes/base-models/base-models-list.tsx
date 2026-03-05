@@ -2,7 +2,7 @@ import { Head } from "@/components/seo";
 import { ButtonWithIcon } from "@/components/ui/button";
 import { AddIcon } from "@/components/ui/icons";
 import { SHARED_CONTENT } from "@/constants";
-import { ButtonVariant } from "@/enums";
+import { ButtonVariant, LayoutView } from "@/enums";
 import {
   BASE_MODELS_DATA,
   TASK_CATEGORIES,
@@ -11,24 +11,33 @@ import {
 import { useDialog } from "@/hooks/use-dialog";
 import { useMemo } from "react";
 import { parseAsString, useQueryStates } from "nuqs";
-import BaseModelCard from "@/features/base-models/components/base-model-card";
 import ContributeModelDialog from "@/features/base-models/components/contribute-model-dialog";
-import BaseModelsFilters from "@/features/base-models/components/base-models-filters";
+import {
+  BaseModelsFilters,
+  MobileBaseModelFiltersDialog,
+} from "@/features/base-models/components";
+import {
+  BaseModelGridLayout,
+  BaseModelTableLayout,
+} from "@/features/base-models/layouts";
 
 export const BaseModelsPage = () => {
   const { isOpened, openDialog, closeDialog } = useDialog();
-  // nuqs-powered search params state
-  const [
-    { q: search, category, date: dateSort, map: mapView },
-    setQueryStates,
-  ] = useQueryStates({
-    q: parseAsString.withDefault(""),
-    category: parseAsString.withDefault("all"),
-    date: parseAsString.withDefault("newest"),
-    map: parseAsString.withDefault("false"),
-  });
 
-  const isMapViewActive = mapView === "true";
+  const {
+    isOpened: isMobileFiltersOpen,
+    openDialog: openMobileFilters,
+    closeDialog: closeMobileFilters,
+  } = useDialog();
+  // nuqs-powered search params state
+  const [{ q: search, category, date: dateSort, layout }, setQueryStates] =
+    useQueryStates({
+      q: parseAsString.withDefault(""),
+      category: parseAsString.withDefault("all"),
+      date: parseAsString.withDefault("newest"),
+      layout: parseAsString.withDefault(LayoutView.GRID),
+    });
+  const isListView = layout === LayoutView.LIST;
 
   // Filter and sort models
   const filteredModels = useMemo(() => {
@@ -75,11 +84,48 @@ export const BaseModelsPage = () => {
 
   const selectedDateLabel =
     DATE_SORT_OPTIONS.find((d) => d.value === dateSort)?.label || "Date";
+  const toggleLayout = () => {
+    setQueryStates({
+      layout: isListView ? LayoutView.GRID : LayoutView.LIST,
+    });
+  };
+
+  const renderContent = () => {
+    if (filteredModels.length === 0) {
+      return (
+        <div className="flex flex-col items-center justify-center py-20 gap-y-4">
+          <p className="text-grey text-body-1 font-medium">No models found</p>
+          <p className="text-grey text-body-2base">
+            Try adjusting your search or filter criteria.
+          </p>
+        </div>
+      );
+    }
+
+    if (isListView) {
+      return (
+        <div className="col-span-5 overflow-x-auto">
+          <BaseModelTableLayout models={filteredModels} />
+        </div>
+      );
+    }
+
+    return <BaseModelGridLayout models={filteredModels} />;
+  };
   return (
     <>
       <Head title="Base Models" />
       <ContributeModelDialog isOpened={isOpened} closeDialog={closeDialog} />
-
+      <MobileBaseModelFiltersDialog
+        isOpened={isMobileFiltersOpen}
+        closeDialog={closeMobileFilters}
+        categoryMenuItems={categoryMenuItems}
+        dateMenuItems={dateMenuItems}
+        selectedCategoryLabel={selectedCategoryLabel}
+        selectedDateLabel={selectedDateLabel}
+        setCategory={(value) => setQueryStates({ category: value })}
+        setDateSort={(value) => setQueryStates({ date: value })}
+      />
       <section className="my-10 min-h-screen">
         {/* Header */}
         <div className="flex flex-col gap-y-8 my-12">
@@ -110,25 +156,13 @@ export const BaseModelsPage = () => {
           selectedDateLabel={selectedDateLabel}
           setCategory={(value) => setQueryStates({ category: value })}
           setDateSort={(value) => setQueryStates({ date: value })}
-          isMapViewActive={isMapViewActive}
-          setMapView={(value) => setQueryStates({ map: value })}
           filteredModelsCount={filteredModels.length}
+          layout={layout}
+          onToggleLayout={toggleLayout}
+          onOpenMobileFilters={openMobileFilters}
         />
 
-        {filteredModels.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 gap-y-4">
-            <p className="text-grey text-body-1 font-medium">No models found</p>
-            <p className="text-grey text-body-2base">
-              Try adjusting your search or filter criteria.
-            </p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredModels.map((model) => (
-              <BaseModelCard key={model.id} model={model} />
-            ))}
-          </div>
-        )}
+        {renderContent()}
       </section>
     </>
   );

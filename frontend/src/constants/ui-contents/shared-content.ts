@@ -139,7 +139,7 @@ export const SHARED_CONTENT: TSharedContent = {
         "fAIr is a collaborative project. We welcome all types of experience to join our community on HOTOSM Slack. There is always a room for AI/ML for earth observation expertise, community engagement enthusiastic, academic researcher or student looking for an academic challenge around social impact.",
     },
     baseModelCTA: {
-      title: "Contribute your Base Model",
+      title: "Contribute Your Base Model",
       description:
         "Contribute a base model to fAIr and help teams turn imagery into actionable map data, faster and more reliably.",
       ctaButton: "Contribute",

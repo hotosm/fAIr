@@ -1,4 +1,5 @@
 import { Head } from "@/components/seo";
+import MarkdownViewer from "@/components/shared/markdown-render";
 import { BackButton, ButtonWithIcon } from "@/components/ui/button";
 import { ChevronDownIcon, InfoIcon } from "@/components/ui/icons";
 import { DownloadIconNew } from "@/components/ui/icons/download-icon";
@@ -277,71 +278,10 @@ export const BaseModelDetailPage = () => {
         {/* Main Content: Two Column Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-x-12 gap-y-10">
           {/* Left Column - Overview */}
-          <div className="flex flex-col gap-y-8">
-            {/* Overview */}
-            <section>
-              <h2 className="font-semibold text-title-3 text-dark mb-4">
-                Overview
-              </h2>
-              {model.overview.split("\n\n").map((paragraph, i) => (
-                <p key={i} className="text-grey text-body-2base mb-3">
-                  {paragraph}
-                </p>
-              ))}
-            </section>
-
-            {/* Use Cases */}
-            <section>
-              <h2 className="font-semibold text-title-3 text-dark mb-4">
-                Use Cases
-              </h2>
-              <div className="flex flex-col gap-y-4">
-                <div>
-                  <p className="text-grey text-body-2base font-medium mb-2">
-                    Suitable for:
-                  </p>
-                  <ul className="list-disc list-inside text-grey text-body-2base space-y-1 ml-2">
-                    {model.useCases.suitable.map((item, i) => (
-                      <li key={i}>{item}</li>
-                    ))}
-                  </ul>
-                </div>
-                <div>
-                  <p className="text-grey text-body-2base font-medium mb-2">
-                    Not suitable for:
-                  </p>
-                  <ul className="list-disc list-inside text-grey text-body-2base space-y-1 ml-2">
-                    {model.useCases.notSuitable.map((item, i) => (
-                      <li key={i}>{item}</li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </section>
-
-            {/* Performance */}
-            <section>
-              <h2 className="font-semibold text-title-3 text-dark mb-4">
-                Performance
-              </h2>
-              <p className="text-grey text-body-2base">{model.performance}</p>
-            </section>
-
-            {/* Limitations */}
-            <section>
-              <h2 className="font-semibold text-title-3 text-dark mb-4">
-                Limitations
-              </h2>
-              <ol className="list-decimal list-inside text-grey text-body-2base space-y-3 ml-2">
-                {model.limitations.map((item, i) => (
-                  <li key={i}>{item}</li>
-                ))}
-              </ol>
-            </section>
-          </div>
+          <MarkdownViewer content={model.markdownContent} />
 
           {/* Right Column - Architecture Info */}
-          <div className="bg-frosted-blue border rounded-lg border-gray-border p-6 h-fit">
+          <div className="bg-frosted-blue border rounded-lg border-gray-border p-6 h-fit sticky top-8">
             <CollapsibleSection title="Architecture Info" defaultOpen={true}>
               <div className="flex flex-col">
                 {architectureRows.map((row) => (
@@ -363,7 +303,7 @@ export const BaseModelDetailPage = () => {
               </div>
             </CollapsibleSection>
 
-            <CollapsibleSection title="Data Info" defaultOpen={true}>
+            <CollapsibleSection title="Data Info" defaultOpen={false}>
               <div className="flex flex-col">
                 {dataInfoRows.map((row) => (
                   <InfoRow
