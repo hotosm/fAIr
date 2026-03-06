@@ -67,35 +67,38 @@ export const NavBar = () => {
           </div>
           {isAuthenticated && <Divider />}
 
-          {AUTH_PROVIDER === "hanko" ? (
-            <>
-              {isAuthenticated && (
-                <UserProfile
-                  isHanko
-                  hideFullName
-                  variant="list"
-                  onNavigate={() => setOpen(false)}
-                />
-              )}
+          <div className={styles.loginButtonContainer}>
+            {AUTH_PROVIDER === "hanko" ? (
               <>
-                <span className={isAuthenticated ? "border-t-2" : "pb-4 pl-4"}>
-                  <HankoAuthComponent displayBar />
-                </span>
+                {isAuthenticated && (
+                  <UserProfile
+                    isHanko
+                    hideFullName
+                    variant="list"
+                    onNavigate={() => setOpen(false)}
+                    setOpen={setOpen}
+                  />
+                )}
+                <>
+                  <span className={isAuthenticated ? "border-t-2" : "pb-4 pl-4"}>
+                    <HankoAuthComponent displayBar />
+                  </span>
+                </>
               </>
-            </>
-          ) : isAuthenticated ? (
-            <UserProfile variant="list" onNavigate={() => setOpen(false)} />
-          ) : (
-            <Button
-              onClick={() => {
-                navigate(location, {
-                  state: { backgroundLocation: location },
-                });
-              }}
-            >
-              {SHARED_CONTENT.navbar.loginButton}
-            </Button>
-          )}
+            ) : isAuthenticated ? (
+              <UserProfile variant="list" onNavigate={() => setOpen(false)} setOpen={setOpen} />
+            ) : (
+              <Button
+                onClick={() => {
+                  navigate(location, {
+                    state: { backgroundLocation: location },
+                  });
+                }}
+              >
+                {SHARED_CONTENT.navbar.loginButton}
+              </Button>
+            )}
+          </div>
         </div>
       </Drawer>
 

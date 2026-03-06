@@ -39,12 +39,14 @@ export const UserProfile = ({
   isHanko,
   variant = "dropdown",
   onNavigate,
+  setOpen,
 }: {
   hideFullName?: boolean;
   smallerSize?: boolean;
   isHanko?: boolean;
   variant?: "dropdown" | "list";
   onNavigate?: () => void;
+  setOpen?: (arg: boolean) => void;
 }) => {
   const { user, logout } = useAuth();
 
@@ -90,7 +92,10 @@ export const UserProfile = ({
       menuItems={[
         ...profileMenuItems.map((item) => ({
           value: item.value,
-          onClick: () => navigate(item.route),
+          onClick: () => {
+            navigate(item.route);
+            setOpen?.(false);
+          },
         })),
         ...(!isHanko
           ? [
@@ -98,6 +103,7 @@ export const UserProfile = ({
                 value: SHARED_CONTENT.navbar.userProfile.logout,
                 onClick: () => {
                   logout();
+                  setOpen?.(false);
                 },
                 className: "logoutButton",
               },

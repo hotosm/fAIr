@@ -53,7 +53,11 @@ export const UpdateCard = ({
         <div className="flex justify-between w-full">
           <p className="text-sm text-white">{formatDate(update.date, true)}</p>
           <ToolTip
-            content={isCopied ? "Copied to clipboard!" : "Copy update link"}
+            content={
+              isCopied
+                ? "Video link copied to clipboard"
+                : "Copy link to this update video"
+            }
           >
             <button
               onClick={handleShareClick}

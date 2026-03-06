@@ -108,9 +108,9 @@ export const MODELS_CONTENT: TModelsContent = {
         openAerialMap: "Open Aerial Imagery",
         maxZoom: "Max zoom:",
         minZoom: "Min zoom:",
-        trainingArea: "Training Area",
+        trainingArea: "Training Area (TA)",
         draw: "Draw",
-        upload: "Upload",
+        upload: "Upload TA",
       },
       fileUploadDialog: {
         title: "Upload Training Area(s)",

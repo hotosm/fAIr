@@ -67,7 +67,7 @@ export const NavBar = () => {
             {AUTH_PROVIDER === "hanko" ? (
               <HankoAuthComponent />
             ) : isAuthenticated ? (
-              <UserProfile />
+              <UserProfile setOpen={setOpen} />
             ) : (
               <LegacyLoginButton />
             )}

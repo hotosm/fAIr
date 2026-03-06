@@ -720,6 +720,11 @@ export type TMapContent = {
       tooltip: string;
     };
   };
+  agreementLegend: {
+    fullAgreement: string;
+    partialAgreement: string;
+    noAgreement: string;
+  };
 };
 
 // Map content types end.

@@ -3,7 +3,7 @@ import { CopyButton } from "@/components/ui/copy-button";
 const CodeBlock = ({ content }: { content: string }) => {
   return (
     <div className="w-full bg-dark p-2 h-80">
-      <div className="h-auto flex items-end justify-end">
+      <div className="h-auto flex items-end justify-end m-2">
         <CopyButton
           text={content}
           tooltipContent="Copy logs"

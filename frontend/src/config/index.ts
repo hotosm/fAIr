@@ -529,3 +529,31 @@ export const OFFSET_STEP: number = parseIntEnv(ENVS.OFFSET_STEP, 0.5);
  * Distance of the elements from the navbar in px for dropdowns and popups on the start mapping page.
  */
 export const ELEMENT_DISTANCE_FROM_NAVBAR: number = 10;
+
+// ==============================================================================================================================
+// MapSwipe
+// ==============================================================================================================================
+export const MAPSWIPE_VERIFICATION_NUMBER: number = parseIntEnv(
+  ENVS.MAPSWIPE_VERIFICATION_NUMBER,
+  4,
+);
+
+export const MAPSWIPE_GROUP_SIZE: number = parseIntEnv(
+  ENVS.MAPSWIPE_GROUP_SIZE,
+  25,
+);
+
+/**
+ * Mapswipe agreement colors for fill and outline.
+ * Green for agreement is 1, Red for agreement is 0, and Purple for 0 < agreement < 1.
+ */
+export const MAPSWIPE_AGREEMENT_FILL_COLORS = {
+  green: PREDICTED_LAYER_STATUS_COLORS[PredictedFeatureStatus.ACCEPTED],
+  red: PREDICTED_LAYER_STATUS_COLORS[PredictedFeatureStatus.REJECTED],
+  purple: PREDICTED_LAYER_STATUS_COLORS[PredictedFeatureStatus.UNTOUCHED],
+};
+export const MAPSWIPE_AGREEMENT_OUTLINE_COLORS = {
+  green: PREDICTED_LAYER_STATUS_COLORS[PredictedFeatureStatus.ACCEPTED],
+  red: PREDICTED_LAYER_STATUS_COLORS[PredictedFeatureStatus.REJECTED],
+  purple: PREDICTED_LAYER_STATUS_COLORS[PredictedFeatureStatus.UNTOUCHED],
+};

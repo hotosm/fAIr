@@ -83,16 +83,21 @@ def verify_schema():
         print(sql_str)
         sys.exit(1)
 
-    print("\nVerifying ApiTransactionSchema DDL (Postgres)...")
-    from zenml.zen_stores.schemas.api_transaction_schemas import ApiTransactionSchema
+    print("\nVerifying ApiTransactionResultSchema DDL (Postgres)...")
+    from zenml.zen_stores.schemas.api_transaction_schemas import ApiTransactionResultSchema
 
-    table_sql_api = CreateTable(ApiTransactionSchema.__table__).compile(engine)
-    sql_str_api = str(table_sql_api)
-    if "MEDIUMTEXT" in sql_str_api:
-        print("FAILURE: ApiTransactionSchema DDL contains MEDIUMTEXT. DDL:")
-        print(sql_str_api)
+    table_sql_result = CreateTable(ApiTransactionResultSchema.__table__).compile(engine)
+    sql_str_result = str(table_sql_result)
+    for mysql_type in ("MEDIUMTEXT", "MEDIUMBLOB"):
+        if mysql_type in sql_str_result:
+            print(f"FAILURE: ApiTransactionResultSchema DDL contains MySQL-specific type {mysql_type}. DDL:")
+            print(sql_str_result)
+            sys.exit(1)
+    if "result" not in sql_str_result:
+        print("FAILURE: result column missing from ApiTransactionResultSchema DDL. DDL:")
+        print(sql_str_result)
         sys.exit(1)
-    print("SUCCESS: ApiTransactionSchema DDL is Postgres-compatible.")
+    print("SUCCESS: ApiTransactionResultSchema DDL is Postgres-compatible.")
 
     print("\nVerifying Identifier Lengths...")
     from zenml.zen_stores.schemas.schema_utils import (
