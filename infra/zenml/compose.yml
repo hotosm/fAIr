@@ -4,8 +4,8 @@ services:
       context: .
       dockerfile: Dockerfile.postgres
       args:
-        ZENML_VERSION: 0.93.2
-    image: ghcr.io/hotosm/zenml-postgres:0.93.2
+        ZENML_VERSION: 0.94.0
+    image: ghcr.io/hotosm/zenml-postgres:0.94.0
     restart: on-failure
     ports:
       - "8080:8080"
