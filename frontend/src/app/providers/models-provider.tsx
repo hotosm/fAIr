@@ -415,7 +415,6 @@ export const ModelsProvider: React.FC<{
         showSuccessToast(TOAST_NOTIFICATIONS.trainingRequestSubmittedSuccess);
       },
       onError: (error) => {
-        console.log(error);
         showErrorToast(error);
         resetState();
       },
