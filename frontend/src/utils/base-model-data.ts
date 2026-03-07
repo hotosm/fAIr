@@ -23,6 +23,7 @@ export type TBaseModel = {
 export type TBaseModelDetail = TBaseModel & {
   fullTitle: string;
   overview: string;
+  markdownContent: string; // Optional field for additional markdown content
   useCases: {
     suitable: string[];
     notSuitable: string[];
@@ -114,6 +115,37 @@ export const BASE_MODELS_DETAIL_DATA: TBaseModelDetail[] = [
   {
     ...BASE_MODELS_DATA[0],
     fullTitle: "RAMP Building Footprint Segmentation Model",
+    markdownContent: `## Overview
+
+This model extracts building footprints from high-resolution overhead RGB satellite imagery. It produces per-pixel class masks that can be post-processed into building polygons for micromapping and humanitarian mapping workflows.
+
+This card describes the reference RAMP segmentation model family: an **EfficientNet encoder + U-Net (decoder)** semantic segmentation network trained on 256×256 RGB chips. Specific trained checkpoints (weights) vary by AOI/dataset and training configuration.
+
+## Use Cases
+
+### Suitable for
+
+- Building footprint mapping from high-resolution overhead RGB imagery
+- Generating building polygons (GeoJSON) for micromapping workflows
+- Training and fine-tuning building segmentation models for new regions using the same pipeline
+
+### Not suitable for
+
+- Non-RGB-only inputs (e.g., SAR-only, multispectral without adapting the model)
+- Low-resolution imagery where buildings are not resolvable at chip scale
+- "Out of the box" global inference without validation (models are strongly data/domain-dependent)
+
+## Performance
+
+Evaluation metrics (validation): Validation pixel-wise sparse categorical accuracy ≈ 1,000 for a representative binary-building checkpoint. This means that **≈98.9%** of pixels in the validation chips were assigned the correct class (building vs background). Because background pixels typically dominate, pixel accuracy can overstate real-extent footprint quality; also report polygon level Precision/Recall/F1 on validation using Intersection-over-Union (IoU) matching at IoU ≥ 0.5 (IoU@0.5) recommended.
+
+## Limitations
+
+1. **Domain shift / transfer risk:** Performance can degrade substantially across countries, roof materials, seasons, and label conventions. Validate on representative samples before scaling.
+2. **Resolution & tiling constraints:** The default production/training flow assumes 256 × 256 chips and model-specific preprocessing; changing resolution or chip size requires spatial revalidation.
+3. **Preprocessing sensitivity:** Images are normalized per-chip to \`[0,1]\` via division by the chip's max value. This differs from fixed global scaling and can change behavior across datasets.
+4. **Polygon post processing assumptions:** Polygon fusion across tile boundaries and boundary buffering depend on mask conventions (binary vs multi-mask with boundary pixels). Incorrect settings can distort outputs.
+`,
     overview:
       "This model extracts building footprints from high-resolution overhead RGB satellite imagery. It produces per-pixel class masks that can be post-processed into building polygons for micromapping and humanitarian mapping workflows.\n\nThis card describes the reference RAMP segmentation model family: an EfficientNet encoder + U-Net (decoder) semantic segmentation network trained on 256×256 RGB chips. Specific trained checkpoints (weights) vary by AOI/dataset and training configuration.",
     useCases: {
@@ -135,6 +167,12 @@ export const BASE_MODELS_DETAIL_DATA: TBaseModelDetail[] = [
       "Resolution & tiling constraints: The default production/training flow assumes 256 × 256 chips and model-specific preprocessing; changing resolution or chip size requires spatial revalidation.",
       "Preprocessing sensitivity: Images are normalized per-chip to [0,1] via division by the chip's max value. This differs from fixed global scaling and can change behavior across datasets.",
       "Polygon post processing assumptions: Polygon fusion across tile boundaries and boundary buffering depend on mask conventions (binary vs multi-mask with boundary pixels). Incorrect settings can distort outputs.",
+      "Domain shift / transfer risk: Performance can degrade substantially across countries, roof materials, seasons, and label conventions. Validate on representative samples before scaling.",
+      "Resolution & tiling constraints: The default production/training flow assumes 256 × 256 chips and model-specific preprocessing; changing resolution or chip size requires spatial revalidation.",
+      "Preprocessing sensitivity: Images are normalized per-chip to [0,1] via division by the chip's max value. This differs from fixed global scaling and can change behavior across datasets.",
+      "Polygon post processing assumptions: Polygon fusion across tile boundaries and boundary buffering depend on mask conventions (binary vs multi-mask with boundary pixels). Incorrect settings can distort outputs.",
+      "Domain shift / transfer risk: Performance can degrade substantially across countries, roof materials, seasons, and label conventions. Validate on representative samples before scaling.",
+      "Resolution & tiling constraints: The default production/training flow assumes 256 × 256 chips and model-specific preprocessing; changing resolution or chip size requires spatial revalidation.",
     ],
     architecture: {
       baseModel: "EfficientNet-B0 encoder (imagenet-pretrained)",
@@ -170,6 +208,37 @@ export const BASE_MODELS_DETAIL_DATA: TBaseModelDetail[] = [
   {
     ...BASE_MODELS_DATA[1],
     fullTitle: "YOLO V8 V1 Building Detection Model",
+    markdownContent: `## Overview
+
+This model extracts building footprints from high-resolution overhead RGB satellite imagery. It produces per-pixel class masks that can be post-processed into building polygons for micromapping and humanitarian mapping workflows.
+
+This card describes the reference RAMP segmentation model family: an **EfficientNet encoder + U-Net (decoder)** semantic segmentation network trained on 256×256 RGB chips. Specific trained checkpoints (weights) vary by AOI/dataset and training configuration.
+
+## Use Cases
+
+### Suitable for
+
+- Building footprint mapping from high-resolution overhead RGB imagery
+- Generating building polygons (GeoJSON) for micromapping workflows
+- Training and fine-tuning building segmentation models for new regions using the same pipeline
+
+### Not suitable for
+
+- Non-RGB-only inputs (e.g., SAR-only, multispectral without adapting the model)
+- Low-resolution imagery where buildings are not resolvable at chip scale
+- "Out of the box" global inference without validation (models are strongly data/domain-dependent)
+
+## Performance
+
+Evaluation metrics (validation): Validation pixel-wise sparse categorical accuracy ≈ 1,000 for a representative binary-building checkpoint. This means that **≈98.9%** of pixels in the validation chips were assigned the correct class (building vs background). Because background pixels typically dominate, pixel accuracy can overstate real-extent footprint quality; also report polygon level Precision/Recall/F1 on validation using Intersection-over-Union (IoU) matching at IoU ≥ 0.5 (IoU@0.5) recommended.
+
+## Limitations
+
+1. **Domain shift / transfer risk:** Performance can degrade substantially across countries, roof materials, seasons, and label conventions. Validate on representative samples before scaling.
+2. **Resolution & tiling constraints:** The default production/training flow assumes 256 × 256 chips and model-specific preprocessing; changing resolution or chip size requires spatial revalidation.
+3. **Preprocessing sensitivity:** Images are normalized per-chip to \`[0,1]\` via division by the chip's max value. This differs from fixed global scaling and can change behavior across datasets.
+4. **Polygon post processing assumptions:** Polygon fusion across tile boundaries and boundary buffering depend on mask conventions (binary vs multi-mask with boundary pixels). Incorrect settings can distort outputs.
+`,
     overview:
       "A well-balanced YOLOv8-based model trained by the community. It offers good accuracy for detecting building structures in major urban and suburban areas using high-resolution overhead imagery.\n\nThis model leverages the YOLOv8 architecture for instance segmentation, producing both bounding boxes and pixel-level masks for individual buildings.",
     useCases: {
@@ -219,6 +288,37 @@ export const BASE_MODELS_DETAIL_DATA: TBaseModelDetail[] = [
   },
   {
     ...BASE_MODELS_DATA[2],
+    markdownContent: `## Overview
+
+This model extracts building footprints from high-resolution overhead RGB satellite imagery. It produces per-pixel class masks that can be post-processed into building polygons for micromapping and humanitarian mapping workflows.
+
+This card describes the reference RAMP segmentation model family: an **EfficientNet encoder + U-Net (decoder)** semantic segmentation network trained on 256×256 RGB chips. Specific trained checkpoints (weights) vary by AOI/dataset and training configuration.
+
+## Use Cases
+
+### Suitable for
+
+- Building footprint mapping from high-resolution overhead RGB imagery
+- Generating building polygons (GeoJSON) for micromapping workflows
+- Training and fine-tuning building segmentation models for new regions using the same pipeline
+
+### Not suitable for
+
+- Non-RGB-only inputs (e.g., SAR-only, multispectral without adapting the model)
+- Low-resolution imagery where buildings are not resolvable at chip scale
+- "Out of the box" global inference without validation (models are strongly data/domain-dependent)
+
+## Performance
+
+Evaluation metrics (validation): Validation pixel-wise sparse categorical accuracy ≈ 1,000 for a representative binary-building checkpoint. This means that **≈98.9%** of pixels in the validation chips were assigned the correct class (building vs background). Because background pixels typically dominate, pixel accuracy can overstate real-extent footprint quality; also report polygon level Precision/Recall/F1 on validation using Intersection-over-Union (IoU) matching at IoU ≥ 0.5 (IoU@0.5) recommended.
+
+## Limitations
+
+1. **Domain shift / transfer risk:** Performance can degrade substantially across countries, roof materials, seasons, and label conventions. Validate on representative samples before scaling.
+2. **Resolution & tiling constraints:** The default production/training flow assumes 256 × 256 chips and model-specific preprocessing; changing resolution or chip size requires spatial revalidation.
+3. **Preprocessing sensitivity:** Images are normalized per-chip to \`[0,1]\` via division by the chip's max value. This differs from fixed global scaling and can change behavior across datasets.
+4. **Polygon post processing assumptions:** Polygon fusion across tile boundaries and boundary buffering depend on mask conventions (binary vs multi-mask with boundary pixels). Incorrect settings can distort outputs.
+`,
     fullTitle: "YOLO V8 V2 Multi-Feature Detection Model",
     overview:
       "Our most advanced model, developed in collaboration with Omdena AI. This YOLOv8 v2 model is designed for detecting various features across different geographic areas, including buildings, roads, and other infrastructure.\n\nBuilt on extensive community-contributed training data from multiple countries, it provides robust detection across diverse environments.",

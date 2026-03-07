@@ -14,8 +14,7 @@ type StepProps = {
   stepNumber: number;
   title: string;
   children: React.ReactNode;
-  isExpanded: boolean;
-  onToggle: () => void;
+  defaultOpen?: boolean;
 };
 
 const statusBadgeClasses = {
@@ -27,14 +26,15 @@ const Step: React.FC<StepProps> = ({
   stepNumber,
   title,
   children,
-  isExpanded,
-  onToggle,
+  defaultOpen = false,
 }) => {
+  const [isExpanded, setIsExpanded] = useState(defaultOpen);
+
   return (
     <div className="border-b border-gray-border last:border-b-0 pb-6 mb-6 last:mb-0 last:pb-0">
       <button
         className="flex items-center w-full text-left gap-x-3 cursor-pointer"
-        onClick={onToggle}
+        onClick={() => setIsExpanded((prev) => !prev)}
       >
         <span className="inline-flex items-center rounded-md justify-center bg-primary text-white text-body-3 font-semibold  px-2 py-1 min-w-max">
           Step {stepNumber}
@@ -72,11 +72,6 @@ const ContributeModelDialog: React.FC<ContributeModelDialogProps> = ({
 }) => {
   const contributeModelDialogContent =
     SHARED_CONTENT.baseModelsPage.contributeModelDialog;
-  const [expandedStep, setExpandedStep] = useState<number>(1);
-
-  const handleToggle = (step: number) => {
-    setExpandedStep((prev) => (prev === step ? -1 : step));
-  };
 
   return (
     <Dialog
@@ -94,8 +89,7 @@ const ContributeModelDialog: React.FC<ContributeModelDialogProps> = ({
             key={step.title}
             stepNumber={index + 1}
             title={step.title}
-            isExpanded={expandedStep === index + 1}
-            onToggle={() => handleToggle(index + 1)}
+            defaultOpen={index === 0}
           >
             <div className="flex flex-col gap-y-4">
               {step.description && (
@@ -171,6 +165,7 @@ const ContributeModelDialog: React.FC<ContributeModelDialogProps> = ({
           <Link
             title={contributeModelDialogContent.github.title}
             href={contributeModelDialogContent.github.href}
+            blank
           >
             <Button className="rounded-sm">
               {contributeModelDialogContent.github.buttonLabel}
