@@ -1,1 +1,1 @@
-declare module '@hotosm/hanko-auth';
+declare module "@hotosm/hanko-auth";

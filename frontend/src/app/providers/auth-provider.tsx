@@ -63,7 +63,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   if (AUTH_PROVIDER === "hanko") {
     apiClient.defaults.withCredentials = true;
   } else {
-    apiClient.defaults.headers.common["access-token"] = token ? `${token}` : null;
+    apiClient.defaults.headers.common["access-token"] = token
+      ? `${token}`
+      : null;
   }
 
   const handleRedirection = () => {

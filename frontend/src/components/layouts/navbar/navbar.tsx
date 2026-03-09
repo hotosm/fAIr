@@ -80,13 +80,19 @@ export const NavBar = () => {
                   />
                 )}
                 <>
-                  <span className={isAuthenticated ? "border-t-2" : "pb-4 pl-4"}>
+                  <span
+                    className={isAuthenticated ? "border-t-2" : "pb-4 pl-4"}
+                  >
                     <HankoAuthComponent displayBar />
                   </span>
                 </>
               </>
             ) : isAuthenticated ? (
-              <UserProfile variant="list" onNavigate={() => setOpen(false)} setOpen={setOpen} />
+              <UserProfile
+                variant="list"
+                onNavigate={() => setOpen(false)}
+                setOpen={setOpen}
+              />
             ) : (
               <Button
                 onClick={() => {

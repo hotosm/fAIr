@@ -12,12 +12,7 @@ import { useLocation } from "react-router-dom";
 import { useLogin } from "@/hooks/use-login";
 import { UserProfile } from "@/components/layouts";
 import { useState } from "react";
-import {
-  AUTH_PROVIDER,
-  BASE_API_URL,
-  FRONTEND_URL,
-  HANKO_URL,
-} from "@/config";
+import { AUTH_PROVIDER, BASE_API_URL, FRONTEND_URL, HANKO_URL } from "@/config";
 
 if (AUTH_PROVIDER === "hanko") {
   import("@hotosm/hanko-auth");
