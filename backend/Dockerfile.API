@@ -15,7 +15,6 @@ ENV UV_LINK_MODE=copy
 ENV UV_PYTHON_DOWNLOADS=0
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    git \
     gdal-bin \
     libgdal-dev \
     gcc \
@@ -29,9 +28,7 @@ ENV C_INCLUDE_PATH=/usr/include/gdal
 
 WORKDIR /app
 
-COPY pyproject.toml manage.py /app/
-
-RUN uv lock
+COPY pyproject.toml uv.lock manage.py /app/
 
 RUN --mount=type=cache,target=/root/.cache/uv \
     echo "Supplied BUILD_TARGET: $BUILD_TARGET" && \

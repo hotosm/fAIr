@@ -1,16 +1,13 @@
-# sudo chmod -R 700 /opt/fAIr-app/data/redis
-# sudo chmod -R 700 /opt/fAIr-app/data/postgres
-
 x-common-env: &common-env
   env_file:
     - ${ENV_FILE:-.env.production}
 
 x-common-volumes: &common-volumes
   volumes:
-    - ${LOG_PATH:-/opt/fAIr-app/data/log}:${LOG_PATH:-/opt/fAIr-app/data/log}
-    - ${RAMP_HOME:-/opt/fAIr-app/data/ramp}:${RAMP_HOME:-/opt/fAIr-app/data/ramp}
-    - ${TRAINING_WORKSPACE:-/opt/fAIr-app/data/trainings}:${TRAINING_WORKSPACE:-/opt/fAIr-app/data/trainings}
-    - ${BASEMODELS_PATH:-/opt/fAIr-app/data/basemodels}:${BASEMODELS_PATH:-/opt/fAIr-app/data/basemodels}
+    - ${LOG_PATH:-/opt/fair-app/data/log}:${LOG_PATH:-/opt/fair-app/data/log}
+    - ${RAMP_HOME:-/opt/fair-app/data/ramp}:${RAMP_HOME:-/opt/fair-app/data/ramp}
+    - ${TRAINING_WORKSPACE:-/opt/fair-app/data/trainings}:${TRAINING_WORKSPACE:-/opt/fair-app/data/trainings}
+    - ${BASEMODELS_PATH:-/opt/fair-app/data/basemodels}:${BASEMODELS_PATH:-/opt/fair-app/data/basemodels}
 
 services:
   postgres:
@@ -24,7 +21,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - ${POSTGRES_DATA:-/opt/fair-app/data/postgres}:/var/lib/postgresql/data
     ports:
       - "127.0.0.1:5434:5432"
     networks:
@@ -43,13 +40,13 @@ services:
     restart: always
     command: redis-server --appendonly yes
     volumes:
-      - redisdata:/data
+      - ${REDIS_DATA:-/opt/fair-app/data/redis}:/data
     ports:
       - "127.0.0.1:6378:6379"
     networks:
       - backend-network
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD", "redis-cli", "-a", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -72,10 +69,12 @@ services:
       - backend-network
     healthcheck:
       test:
-        - CMD-SHELL
-        - >
-          python -c "import sys, requests; r = requests.get('http://127.0.0.1:8000/api/'); print(r); sys.exit(0 if r.status_code==200 else 1)"
+        [
+          "CMD-SHELL",
+          'python -c "import sys, requests; r = requests.get(''http://127.0.0.1:8000/api/''); print(r); sys.exit(0 if r.status_code==200 else 1)"',
+        ]
       interval: 30s
+      timeout: 10s
       retries: 2
 
   backend-api-django-q:
@@ -193,17 +192,3 @@ services:
 networks:
   backend-network:
     driver: bridge
-
-volumes:
-  pgdata:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${POSTGRES_DATA:-/opt/fAIr-app/data/postgres}
-  redisdata:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${REDIS_DATA:-/opt/fAIr-app/data/redis}

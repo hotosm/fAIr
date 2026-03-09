@@ -1,20 +1,15 @@
-FROM node:22-alpine
+FROM node:22
 
 WORKDIR /app
 
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN npm install -g pnpm
 
 COPY package.json pnpm-lock.yaml ./
 
-RUN echo "Installing dependencies..." && \
-    pnpm install --frozen-lockfile 
+RUN pnpm install --force
 
 COPY . .
 
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-
 EXPOSE 3000
 
-ENTRYPOINT ["/entrypoint.sh"]
-CMD ["pnpm", "run", "dev", "--port", "3000", "--host", "0.0.0.0"]
+CMD ["pnpm", "run", "dev", "--port", "3000", "--host","0.0.0.0"]
