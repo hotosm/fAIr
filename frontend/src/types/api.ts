@@ -271,6 +271,7 @@ export type TOfflinePrediction = {
   user: number;
   config: TModelPredictionsConfig;
   result_count: number;
+  published: boolean;
   result: null | {
     count: number;
   };

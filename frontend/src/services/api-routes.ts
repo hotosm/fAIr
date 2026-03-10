@@ -107,6 +107,7 @@ export const API_ENDPOINTS = {
     `workspace/download/training_${trainingId}/${directory_name}/`,
   TERMINATE_OFFLINE_PREDICTION: (id: number) => `prediction/terminate/${id}/`,
   RETRY_OFFLINE_PREDICTION: (id: number) => `prediction/${id}/retry/`,
+  PUBLISH_OFFLINE_PREDICTION: (id: number) => `prediction/${id}/`,
   // Notifications
   NOTIFICATIONS: "notifications/me",
 

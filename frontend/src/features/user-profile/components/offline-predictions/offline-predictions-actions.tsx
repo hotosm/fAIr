@@ -13,6 +13,8 @@ import {
   useRetryOfflinePrediction,
   useTerminateOfflinePrediction,
 } from "@/features/user-profile/api/predictions";
+import { PublishPredictionFlow } from "@/features/user-profile/components/offline-predictions/publish-prediction-flow";
+import { useState } from "react";
 
 export const OfflinePredictionActions = ({
   handlePredictionResultModal,
@@ -31,12 +33,14 @@ export const OfflinePredictionActions = ({
 }) => {
   const { copyToClipboard } = useCopyToClipboard();
   const { dropdownRef } = useDropdownMenu();
+  const [isPublishFlowOpen, setIsPublishFlowOpen] = useState(false);
 
   const handleSettingsInfo = () => {
     if (dropdownRef?.current) {
       dropdownRef.current.show();
     }
   };
+
   const { mutate: terminationMutation } = useTerminateOfflinePrediction({
     mutationConfig: {
       onSuccess: (data) => {
@@ -60,8 +64,20 @@ export const OfflinePredictionActions = ({
     },
     predictionId: Number(predictionResult.id),
   });
+  // Extracted isFinished and hasResults for better readability and reusablity
+  const isFinished = predictionResult.status === ModelTrainingStatus.FINISHED;
+  const hasResults = (predictionResult?.result?.count ?? 0) > 0;
+  const canPublishOrRetract = isFinished && hasResults;
+
   return (
     <>
+      <PublishPredictionFlow
+        predictionId={predictionResult.id}
+        isPublished={predictionResult.published}
+        isOpen={isPublishFlowOpen}
+        onClose={() => setIsPublishFlowOpen(false)}
+      />
+
       <OfflinePredictionsSettingsInfo
         disableSettingsInfoIcon
         predictionConfig={predictionResult.config}
@@ -115,9 +131,7 @@ export const OfflinePredictionActions = ({
           {
             name: "Download Results",
             value: "Download Results",
-            disabled:
-              predictionResult.status !== ModelTrainingStatus.FINISHED ||
-              predictionResult?.result?.count === 0,
+            disabled: !isFinished || !hasResults,
             subMenuItems: [
               {
                 name: "As Points",
@@ -154,9 +168,7 @@ export const OfflinePredictionActions = ({
               e.stopPropagation();
               handlePredictionResultModal(predictionResult);
             },
-            disabled:
-              predictionResult.status !== ModelTrainingStatus.FINISHED ||
-              predictionResult?.result?.count === 0,
+            disabled: !isFinished || !hasResults,
           },
           {
             name: "Copy Results Link",
@@ -171,9 +183,7 @@ export const OfflinePredictionActions = ({
               );
               showSuccessToast("Copied results link to clipboard!");
             },
-            disabled:
-              predictionResult.status !== ModelTrainingStatus.FINISHED ||
-              predictionResult?.result?.count === 0,
+            disabled: !isFinished || !hasResults,
           },
           ...(showSettingsInfo
             ? [
@@ -198,9 +208,7 @@ export const OfflinePredictionActions = ({
               e.stopPropagation();
               handleCreateOrViewMapSwipeProject(predictionResult);
             },
-            disabled:
-              predictionResult.status !== ModelTrainingStatus.FINISHED ||
-              predictionResult?.result?.count === 0,
+            disabled: !isFinished || !hasResults,
           },
           {
             name: "View Logs",
@@ -224,6 +232,22 @@ export const OfflinePredictionActions = ({
               showSuccessToast("Copied imagery link to clipboard");
             },
           },
+          ...(canPublishOrRetract
+            ? [
+                {
+                  name: predictionResult.published
+                    ? "Retract Result"
+                    : "Publish Result",
+                  value: predictionResult.published
+                    ? "Retract Result"
+                    : "Publish Result",
+                  onClick: (e: { stopPropagation: () => void }) => {
+                    e.stopPropagation();
+                    setIsPublishFlowOpen(true);
+                  },
+                },
+              ]
+            : []),
         ]}
       />
     </>

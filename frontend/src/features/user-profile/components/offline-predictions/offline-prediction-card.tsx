@@ -6,6 +6,7 @@ import { formatDate, formatDuration, formatNumber } from "@/utils";
 import { OfflinePredictionActions } from "./offline-predictions-actions";
 import { MapIcon } from "@/components/ui/icons";
 import { MapSwipeProjectIsActive } from "./mapswipe-project-active";
+import { getDisplayStatus } from "@/features/user-profile/utils/get-display-status";
 
 export const OfflinePredictionCard = ({
   predictionResult,
@@ -41,7 +42,13 @@ export const OfflinePredictionCard = ({
             }
           />
         </div>
-        <TrainingStatusBadge status={predictionResult.status} />
+        <TrainingStatusBadge
+          status={getDisplayStatus(
+            predictionResult.status,
+            predictionResult.published,
+          )}
+        />
+
         <div className="flex gap-x-4 mt-2">
           <Button
             variant={ButtonVariant.TERTIARY}
