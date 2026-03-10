@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
-import { SHOELACE_SIZES } from "@/enums";
 
 type SuccessModalProps = {
   isOpen: boolean;
