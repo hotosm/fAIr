@@ -33,7 +33,7 @@ export const OfflinePredictionActions = ({
 }) => {
   const { copyToClipboard } = useCopyToClipboard();
   const { dropdownRef } = useDropdownMenu();
-  const [isPublishFlowOpen, setIsPublishFlowOpen] = useState(false);
+  const [isPublishFlowOpen, setIsPublishFlowOpen] = useState<boolean>(false);
 
   const handleSettingsInfo = () => {
     if (dropdownRef?.current) {

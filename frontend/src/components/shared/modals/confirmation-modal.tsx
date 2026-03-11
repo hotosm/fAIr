@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
-import { ButtonVariant } from "@/enums";
+import { ButtonVariant, SHOELACE_SIZES } from "@/enums";
+import useScreenSize from "@/hooks/use-screen-size";
 
 type ConfirmationModalProps = {
   isOpen: boolean;
@@ -23,6 +24,8 @@ export const ConfirmationModal = ({
   confirmLabel = "Confirm",
   cancelLabel = "Cancel",
 }: ConfirmationModalProps) => {
+  const { isMobile } = useScreenSize();
+
   if (!isOpen) return null;
 
   return (
@@ -31,6 +34,7 @@ export const ConfirmationModal = ({
       closeDialog={onClose}
       preventClose={isConfirming}
       noHeader
+      size={!isMobile ? SHOELACE_SIZES.SMALL : undefined}
     >
       <div className="flex flex-col items-center gap-y-4 py-8 px-4">
         {icon}
