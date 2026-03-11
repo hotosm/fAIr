@@ -18,15 +18,17 @@ export const SuccessModal = ({
   icon,
   closeLabel = "Done",
 }: SuccessModalProps) => {
-    const { isMobile } = useScreenSize();
-  
+  const { isMobile } = useScreenSize();
+
   if (!isOpen) return null;
 
   return (
     <Dialog
-          size={!isMobile ? SHOELACE_SIZES.SMALL : undefined}
-    
-    isOpened={isOpen} closeDialog={onClose} noHeader>
+      size={!isMobile ? SHOELACE_SIZES.SMALL : undefined}
+      isOpened={isOpen}
+      closeDialog={onClose}
+      noHeader
+    >
       <div className="flex flex-col items-center gap-y-4 py-6 px-4">
         {icon}
         <p className="text-body-2 font-semibold text-center">{message}</p>

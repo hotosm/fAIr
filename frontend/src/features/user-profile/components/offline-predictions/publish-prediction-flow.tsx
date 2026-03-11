@@ -80,7 +80,6 @@ export const PublishPredictionFlow = ({
       isOpen
       onClose={handleClose}
       onConfirm={handleConfirm}
-      
       isConfirming={isPending}
       message={
         isPublished
