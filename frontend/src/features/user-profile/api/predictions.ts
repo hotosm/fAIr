@@ -55,3 +55,36 @@ export const useRetryOfflinePrediction = ({
     mutationFn: retryOfflinePrediction,
   });
 };
+
+export const publishPrediction = ({
+  predictionId,
+  published,
+}: {
+  predictionId: number;
+  published: boolean;
+}) => {
+  return apiClient.patch(
+    API_ENDPOINTS.PUBLISH_OFFLINE_PREDICTION(predictionId),
+    { published },
+  );
+};
+
+type TUsePublishPredictionOptions = {
+  mutationConfig?: MutationConfig<typeof publishPrediction>;
+};
+export const usePublishPrediction = ({
+  mutationConfig,
+}: TUsePublishPredictionOptions) => {
+  const queryClient = useQueryClient();
+  const { onSuccess, ...restConfig } = mutationConfig || {};
+  return useMutation({
+    onSuccess: async (...args) => {
+      onSuccess?.(...args);
+      queryClient.invalidateQueries({
+        queryKey: ["offline-predictions"],
+      });
+    },
+    ...restConfig,
+    mutationFn: publishPrediction,
+  });
+};
