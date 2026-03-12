@@ -13,6 +13,27 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { UserProfile } from "@/components/layouts";
 import { useState } from "react";
 import { UserNotifications } from "@/features/user-profile/components/notifications/user-notifications";
+import { AUTH_PROVIDER, BASE_API_URL, FRONTEND_URL, HANKO_URL } from "@/config";
+import "@hotosm/tool-menu";
+import { Divider } from "@/components/ui/divider";
+
+if (AUTH_PROVIDER === "hanko") {
+  import("@hotosm/hanko-auth");
+}
+
+const HankoAuthComponent = ({ displayBar }: { displayBar?: boolean }) => (
+  <hotosm-auth
+    hanko-url={HANKO_URL}
+    base-path={HANKO_URL}
+    redirect-after-login={FRONTEND_URL}
+    redirect-after-logout={FRONTEND_URL}
+    mapping-check-url={`${BASE_API_URL}auth/status/`}
+    app-id="fair"
+    button-variant="filled"
+    button-color="danger"
+    display={displayBar ? "bar" : "default"}
+  />
+);
 
 export const NavBar = () => {
   const [open, setOpen] = useState(false);
@@ -25,7 +46,12 @@ export const NavBar = () => {
 
   return (
     <>
-      <Drawer open={open} setOpen={setOpen} placement={DrawerPlacements.END}>
+      <Drawer
+        open={open}
+        setOpen={setOpen}
+        placement={DrawerPlacements.TOP}
+        className={styles.navDrawer}
+      >
         <div className={styles.drawerContentContainer}>
           <div className={styles.drawerHeaderContainer}>
             <NavLogo />
@@ -39,15 +65,39 @@ export const NavBar = () => {
           <div className={styles.navLinksContainer}>
             <NavBarLinks className={styles.mobileNavLinks} setOpen={setOpen} />
           </div>
+          {isAuthenticated && <Divider />}
+
           <div className={styles.loginButtonContainer}>
-            {isAuthenticated ? (
-              <UserProfile setOpen={setOpen} />
+            {AUTH_PROVIDER === "hanko" ? (
+              <>
+                {isAuthenticated && (
+                  <UserProfile
+                    isHanko
+                    hideFullName
+                    variant="list"
+                    onNavigate={() => setOpen(false)}
+                    setOpen={setOpen}
+                  />
+                )}
+                <>
+                  <span
+                    className={
+                      isAuthenticated ? "border-t-2 w-full mt-2" : "pb-4 pl-4"
+                    }
+                  >
+                    <HankoAuthComponent displayBar />
+                  </span>
+                </>
+              </>
+            ) : isAuthenticated ? (
+              <UserProfile
+                variant="list"
+                onNavigate={() => setOpen(false)}
+                setOpen={setOpen}
+              />
             ) : (
               <Button
                 onClick={() => {
-                  /*
-                   * Set the `backgroundLocation` in location state so that when we open the authentication modal we still see the current page in the background.
-                   */
                   navigate(location, {
                     state: { backgroundLocation: location },
                   });
@@ -64,23 +114,25 @@ export const NavBar = () => {
         className={`${styles.nav} app-padding z-20 py-1 border-b border-gray-border`}
       >
         <NavLogo />
-        <div>
+        <div className="hidden sm:flex">
           <NavBarLinks className={styles.webNavLinks} />
         </div>
-        <div>
-          {isAuthenticated ? (
-            <div className={`${styles.profileContainer} `}>
-              {/* Notification on the web */}
+        <div className="hidden sm:flex items-center gap-x-3">
+          {AUTH_PROVIDER === "hanko" ? (
+            <>
+              {isAuthenticated && <UserNotifications />}
+              {isAuthenticated && <UserProfile isHanko hideFullName />}
+              <HankoAuthComponent />
+            </>
+          ) : isAuthenticated ? (
+            <>
               {isAuthenticated && <UserNotifications />}
               <UserProfile />
-            </div>
+            </>
           ) : (
             <Button
               className={styles.loginButton}
               onClick={() => {
-                /*
-                 * Set the `backgroundLocation` in location state so that when we open the authentication modal we still see the current page in the background.
-                 */
                 navigate(location, {
                   state: { backgroundLocation: location },
                 });
@@ -89,8 +141,9 @@ export const NavBar = () => {
               {SHARED_CONTENT.navbar.loginButton}
             </Button>
           )}
+          <hotosm-tool-menu></hotosm-tool-menu>
         </div>
-        <div className="flex items-center gap-x-2 mdx:hidden">
+        <div className="flex items-center gap-x-2 sm:hidden">
           {/* Notification bell on the small screens */}
           {isAuthenticated && <UserNotifications />}
           <button

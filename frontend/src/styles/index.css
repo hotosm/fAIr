@@ -250,3 +250,7 @@ sl-alert.success::part(base) {
 }
 
 /* Matomo placement style ends */
+
+hotosm-auth {
+  --login-btn-border-radius: 0px;
+}

@@ -4,6 +4,7 @@ import { SHARED_CONTENT } from "@/constants";
 import { ShieldIcon } from "@/components/ui/icons";
 import { useAuth } from "@/app/providers/auth-provider";
 import { useLocation, useNavigate } from "react-router-dom";
+import { AUTH_PROVIDER, HANKO_URL, FRONTEND_URL } from "@/config";
 
 type ProtectedRouteProps = {
   children: React.ReactNode;
@@ -13,6 +14,16 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const handleLogin = () => {
+    if (AUTH_PROVIDER === "hanko") {
+      const returnTo = `${FRONTEND_URL}${location.pathname}${location.search}`;
+      window.location.href = `${HANKO_URL}?return_to=${encodeURIComponent(returnTo)}`;
+    } else {
+      navigate(location, { state: { backgroundLocation: location } });
+    }
+  };
+
   if (!isAuthenticated) {
     return (
       <>
@@ -31,15 +42,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
               </p>
             </div>
           </div>
-          <Button
-            onClick={() => {
-              /*
-               * Set the `backgroundLocation` in location state so that when we open the authentication modal we still see the current page in the background.
-               */
-              navigate(location, { state: { backgroundLocation: location } });
-            }}
-            className="max-w-[300px]"
-          >
+          <Button onClick={handleLogin} className="max-w-[300px]">
             {SHARED_CONTENT.protectedPage.ctaButton}
           </Button>
         </section>

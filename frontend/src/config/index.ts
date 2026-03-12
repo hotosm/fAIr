@@ -37,6 +37,20 @@ export const parseStringEnv = (
   defaultValue: string,
 ): string => (value && value.trim() !== "" ? value.trim() : defaultValue);
 
+// Authentication
+export const AUTH_PROVIDER: string = parseStringEnv(
+  ENVS.AUTH_PROVIDER,
+  "legacy",
+);
+export const HANKO_URL: string = parseStringEnv(
+  ENVS.HANKO_URL,
+  "https://dev.login.hotosm.org",
+);
+export const FRONTEND_URL: string =
+  typeof window !== "undefined"
+    ? window.location.origin
+    : "http://localhost:5173";
+
 // ==============================================================================================================================
 // API Endpoints
 // ==============================================================================================================================

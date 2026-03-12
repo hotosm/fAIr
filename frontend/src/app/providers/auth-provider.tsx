@@ -2,6 +2,8 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { apiClient } from "@/services/api-client";
 import { authService } from "@/services";
 import {
+  AUTH_PROVIDER,
+  BASE_API_URL,
   HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY,
   HOT_FAIR_LOGIN_SUCCESSFUL_SESSION_KEY,
   HOT_FAIR_SESSION_REDIRECT_KEY,
@@ -47,33 +49,34 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     useSessionStorage();
 
   const [token, setToken] = useState<string | undefined>(
-    getValue(HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY),
+    AUTH_PROVIDER === "hanko"
+      ? "hanko-cookie-auth"
+      : getValue(HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY),
   );
   const [user, setUser] = useState<TUser | undefined>(undefined);
 
-  // For use across the application.
-  const isAuthenticated = user !== undefined && token !== undefined;
+  const isAuthenticated =
+    AUTH_PROVIDER === "hanko"
+      ? user !== undefined
+      : user !== undefined && token !== undefined;
 
-  /**
-   * Set token globally to eliminate the need to rewrite it.
-   */
-  apiClient.defaults.headers.common["access-token"] = token ? `${token}` : null;
+  if (AUTH_PROVIDER === "hanko") {
+    apiClient.defaults.withCredentials = true;
+  } else {
+    apiClient.defaults.headers.common["access-token"] = token
+      ? `${token}`
+      : null;
+  }
 
   const handleRedirection = () => {
     const redirectTo = getSessionValue(HOT_FAIR_SESSION_REDIRECT_KEY);
     if (redirectTo) {
-      // remove it before redirecting.
       removeSessionValue(HOT_FAIR_SESSION_REDIRECT_KEY);
-      // This is the last stage of the auth, we can assume that the login is successful, then store a reference
-      // in the session storage.
       setSessionValue(HOT_FAIR_LOGIN_SUCCESSFUL_SESSION_KEY, "success");
       window.location.replace(redirectTo);
     }
   };
 
-  /**
-   * To show the login success after completing redirection if any.
-   */
   useEffect(() => {
     const loginSuccessful = getSessionValue(
       HOT_FAIR_LOGIN_SUCCESSFUL_SESSION_KEY,
@@ -84,9 +87,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, []);
 
-  /**
-   * Proceed with the oauth flow when the state and code are in the url params.
-   */
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const code = params.get("code");
@@ -96,9 +96,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, [user]);
 
-  /**
-   *  Proceed with the email verification flow when the uid and token are in the url params.
-   */
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const uid = params.get("uid");
@@ -108,41 +105,57 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, []);
 
-  /**
-   * Retrieve the user profile information from the backend.
-   * @param token The access token stored in local storage.
-   */
   const fetchUserProfile = async () => {
     try {
-      const user = await authService.getUser();
-      setUser(user);
-      handleRedirection();
+      if (AUTH_PROVIDER === "hanko") {
+        const response = await fetch(`${BASE_API_URL}auth/me/`, {
+          credentials: "include",
+        });
+        if (response.ok) {
+          const userData = await response.json();
+          if (!userData.img_url) {
+            const hankoUser = JSON.parse(
+              localStorage.getItem("hotosm-auth-user") || "{}",
+            );
+            if (hankoUser.avatarUrl) {
+              userData.img_url = hankoUser.avatarUrl;
+            }
+          }
+          setUser(userData);
+          handleRedirection();
+        } else {
+          setUser(undefined);
+        }
+      } else {
+        const user = await authService.getUser();
+        setUser(user);
+        handleRedirection();
+      }
     } catch (error) {
-      showErrorToast(error);
+      if (AUTH_PROVIDER !== "hanko") {
+        showErrorToast(error);
+      }
+      setUser(undefined);
     }
   };
 
   useEffect(() => {
-    if (token) {
+    if (AUTH_PROVIDER === "hanko") {
+      fetchUserProfile();
+    } else if (token) {
       fetchUserProfile();
     }
   }, [token]);
 
-  /**
-   * Clean up and logout.
-   */
   const logout = () => {
-    setToken(undefined);
     setUser(undefined);
-    removeValue(HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY);
+    if (AUTH_PROVIDER !== "hanko") {
+      setToken(undefined);
+      removeValue(HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY);
+    }
     showSuccessToast(TOAST_NOTIFICATIONS.logoutSuccess);
   };
 
-  /**
-   * Complete the oauth flow by exchanging code, and state tokens for access token from the backend.
-   * @param state The state token from OSM.
-   * @param code  The code token from OSM.
-   */
   const authenticateUser = async (state: string, code: string) => {
     try {
       const data = await authService.authenticate(state, code);
@@ -150,19 +163,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setToken(data.access_token);
     } catch (error) {
       showErrorToast(error, TOAST_NOTIFICATIONS.authenticationFailed);
-      // Delay for 5 seconds, incase it's the network speed.
-      // Otherwise, redirect the user back to the home page.
       setTimeout(() => {
         window.location.href = APPLICATION_ROUTES.HOMEPAGE;
       }, 5000);
     }
   };
 
-  /**
-   * Complete the email verification flow by sending the uid and token to the backend.
-   * @param uid The uid from the email.
-   * @param token  The token from the email.
-   */
   const verifyUserEmail = async (uid: string, token: string) => {
     try {
       const data = await authService.verifyEmail(uid, token);
@@ -170,29 +176,59 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         showSuccessToast(data.message);
         showSuccessToast("Redirecting you to your profile page...");
       }
-      /**
-       * Redirect the user to the profile page after 3 seconds.
-       */
       setTimeout(() => {
         window.location.href = APPLICATION_ROUTES.PROFILE_SETTINGS;
       }, 3000);
     } catch (error) {
       showErrorToast(error);
-      // Delay for 3 seconds, incase it's the network speed.
-      // Otherwise, redirect the user back to the home page.
       setTimeout(() => {
         window.location.href = APPLICATION_ROUTES.HOMEPAGE;
       }, 3000);
     }
   };
 
-  /**
-   * Poll the backend for the user profile information every 15 seconds.
-   * This is majorly to keep the user profile information up to date, especially when the user is logged in.
-   */
+  useEffect(() => {
+    if (AUTH_PROVIDER !== "hanko") return;
+
+    const handleLogin = (e: Event) => {
+      const user = (e as CustomEvent).detail?.user;
+      if (user) {
+        localStorage.setItem("hotosm-auth-user", JSON.stringify(user));
+      }
+      fetchUserProfile();
+    };
+
+    const handleLogout = () => {
+      localStorage.removeItem("hotosm-auth-user");
+      setUser(undefined);
+    };
+
+    document.addEventListener("hanko-login", handleLogin);
+    document.addEventListener("logout", handleLogout);
+    return () => {
+      document.removeEventListener("hanko-login", handleLogin);
+      document.removeEventListener("logout", handleLogout);
+    };
+  }, []);
+
   useEffect(() => {
     const intervalId = setInterval(() => {
-      if (token) {
+      if (AUTH_PROVIDER === "hanko") {
+        fetch(`${BASE_API_URL}auth/me/`, { credentials: "include" })
+          .then((res) => (res.ok ? res.json() : Promise.reject()))
+          .then((userData) => {
+            if (!userData.img_url) {
+              const hankoUser = JSON.parse(
+                localStorage.getItem("hotosm-auth-user") || "{}",
+              );
+              if (hankoUser.avatarUrl) {
+                userData.img_url = hankoUser.avatarUrl;
+              }
+            }
+            setUser(userData);
+          })
+          .catch(() => setUser(undefined));
+      } else if (token) {
         authService.getUser().then(setUser).catch(showErrorToast);
       }
     }, 15000);
