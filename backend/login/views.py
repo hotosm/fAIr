@@ -24,7 +24,8 @@ from .hanko_helpers import (
     is_real_osm_user,
 )
 
-# Initialize osm_auth with credentials
+# Create your views here.
+# initialize osm_auth with our credentials
 osm_auth = Auth(
     osm_url=settings.OSM_URL,
     client_id=settings.OSM_CLIENT_ID,
@@ -37,14 +38,29 @@ osm_auth = Auth(
 
 class login(APIView):
     def get(self, request, format=None):
-        """Generates login url for OSM Login."""
+        """Generates login url for OSM Login
+
+        Args:
+            request (get): _description_
+
+        Returns:
+            json: login_url
+        """
         login_url = osm_auth.login()
         return JsonResponse(login_url)
 
 
 class callback(APIView):
     def get(self, request, format=None):  # pragma: no cover
-        """OSM OAuth callback - receives code and state, returns access_token."""
+        """Callback method redirected from osm callback method
+
+        Args:
+            request (_type_): contains code and state as parametr redirected from osm
+
+        Returns:
+            json: access_token
+        """
+        # Generating token through osm_auth library method
         uri = request.build_absolute_uri()
         token = osm_auth.callback(uri)
         token["access_token"] = token.pop("user_data")

@@ -60,6 +60,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       ? user !== undefined
       : user !== undefined && token !== undefined;
 
+  /**
+   * Set token globally to eliminate the need to rewrite it.
+   * For Hanko, we use withCredentials instead of header token.
+   */
   if (AUTH_PROVIDER === "hanko") {
     apiClient.defaults.withCredentials = true;
   } else {
@@ -77,6 +81,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  /**
+   * To show the login success after completing redirection if any.
+   */
   useEffect(() => {
     const loginSuccessful = getSessionValue(
       HOT_FAIR_LOGIN_SUCCESSFUL_SESSION_KEY,
@@ -87,6 +94,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, []);
 
+  /**
+   * Proceed with the oauth flow when the state and code are in the url params.
+   */
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const code = params.get("code");
@@ -96,6 +106,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, [user]);
 
+  /**
+   * Proceed with the email verification flow when the uid and token are in the url params.
+   */
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const uid = params.get("uid");
@@ -105,6 +118,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, []);
 
+  /**
+   * Retrieve the user profile information from the backend.
+   * For Hanko auth, fetches from auth/me/ endpoint with credentials.
+   * For legacy auth, uses authService.getUser().
+   */
   const fetchUserProfile = async () => {
     try {
       if (AUTH_PROVIDER === "hanko") {
@@ -147,6 +165,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, [token]);
 
+  /**
+   * Clean up and logout.
+   */
   const logout = () => {
     setUser(undefined);
     if (AUTH_PROVIDER !== "hanko") {
@@ -156,6 +177,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     showSuccessToast(TOAST_NOTIFICATIONS.logoutSuccess);
   };
 
+  /**
+   * Complete the oauth flow by exchanging code and state tokens for access token from the backend.
+   * @param state The state token from OSM.
+   * @param code The code token from OSM.
+   */
   const authenticateUser = async (state: string, code: string) => {
     try {
       const data = await authService.authenticate(state, code);
@@ -163,12 +189,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setToken(data.access_token);
     } catch (error) {
       showErrorToast(error, TOAST_NOTIFICATIONS.authenticationFailed);
+      // Delay for 5 seconds, incase it's the network speed.
+      // Otherwise, redirect the user back to the home page.
       setTimeout(() => {
         window.location.href = APPLICATION_ROUTES.HOMEPAGE;
       }, 5000);
     }
   };
 
+  /**
+   * Complete the email verification flow by sending the uid and token to the backend.
+   * @param uid The uid from the email.
+   * @param token The token from the email.
+   */
   const verifyUserEmail = async (uid: string, token: string) => {
     try {
       const data = await authService.verifyEmail(uid, token);
@@ -176,11 +209,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         showSuccessToast(data.message);
         showSuccessToast("Redirecting you to your profile page...");
       }
+      /**
+       * Redirect the user to the profile page after 3 seconds.
+       */
       setTimeout(() => {
         window.location.href = APPLICATION_ROUTES.PROFILE_SETTINGS;
       }, 3000);
     } catch (error) {
       showErrorToast(error);
+      // Delay for 3 seconds, incase it's the network speed.
+      // Otherwise, redirect the user back to the home page.
       setTimeout(() => {
         window.location.href = APPLICATION_ROUTES.HOMEPAGE;
       }, 3000);
@@ -211,6 +249,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
   }, []);
 
+  /**
+   * Poll the backend for the user profile information every 15 seconds.
+   * This is majorly to keep the user profile information up to date, especially when the user is logged in.
+   */
   useEffect(() => {
     const intervalId = setInterval(() => {
       if (AUTH_PROVIDER === "hanko") {
