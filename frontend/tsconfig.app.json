@@ -20,8 +20,7 @@
     /*Absolute imports*/
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "@AuthLibs/*": ["./auth-libs/*"]
+      "@/*": ["./src/*"]
     }
   },
   "include": ["src","./test-setup.ts"]
