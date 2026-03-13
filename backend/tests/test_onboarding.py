@@ -100,6 +100,7 @@ class TestOnboardingCallback(TestCase):
         request.hotosm = MagicMock()
         request.hotosm.user = MagicMock()
         request.hotosm.user.id = "hanko-legacy-456"
+        request.hotosm.user.email = "legacy@example.com"
         request.hotosm.osm = MagicMock()
         request.hotosm.osm.osm_user_id = 555
         request.hotosm.osm.osm_username = 'legacymapper'
