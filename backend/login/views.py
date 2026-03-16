@@ -30,6 +30,9 @@ def get_osm_auth() -> Auth:
     )
 
 
+osm_auth = get_osm_auth()
+
+
 class login(APIView):
     def get(self, request, format=None):
         """Generates login url for OSM Login
@@ -40,7 +43,7 @@ class login(APIView):
         Returns:
             json: login_url
         """
-        login_url = get_osm_auth().login()
+        login_url = osm_auth.login()
         return JsonResponse(login_url)
 
 
@@ -55,8 +58,6 @@ class callback(APIView):
             json: access_token
         """
         # Generating token through osm_auth library method
-        osm_auth = get_osm_auth()
-        osm_auth.oauth._state = request.query_params.get("state")
         uri = request.build_absolute_uri()
         token = osm_auth.callback(uri)
         token["access_token"] = token.pop("user_data")
