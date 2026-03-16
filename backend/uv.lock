@@ -1882,7 +1882,7 @@ api = [
     { name = "gunicorn", specifier = ">=23.0.0" },
     { name = "mercantile", specifier = ">=1.2.1" },
     { name = "numpy", specifier = ">=1.24.4" },
-    { name = "osm-login-python", specifier = ">=2.1.1" },
+    { name = "osm-login-python", specifier = ">=2.1.4" },
     { name = "psycopg2", specifier = ">=2.9.10" },
     { name = "pyarrow", specifier = ">=21.0.0" },
     { name = "pyogrio", specifier = ">=0.6.0,<0.7.0" },
@@ -4135,15 +4135,16 @@ wheels = [
 
 [[package]]
 name = "osm-login-python"
-version = "2.1.1"
+version = "2.1.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
+    { name = "httpx" },
     { name = "itsdangerous" },
     { name = "requests-oauthlib" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/9d/f0/bb9ec7a4a8093938053a97e0bb7f8bb742508f3a427010d06bb6f279fc23/osm_login_python-2.1.1.tar.gz", hash = "sha256:622692691b81e515956d882f6c2ff53e32b24800f8727ec57e4fbc4482308a8a", size = 86269, upload-time = "2026-03-16T09:46:36.163Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/16/b2/33a4ffdb17d71946646426658f22df70965193f8ddaf74066ebe7d7f84cd/osm_login_python-2.1.4.tar.gz", hash = "sha256:4b07f49d2a70958ac7d8cb043be28017b0b142664a78b718e0cd2ec9344520e8", size = 99241, upload-time = "2026-03-16T21:19:49.417Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/62/83/2459f532dc9d0e159feaddd85715684ff67fa3e5f0263a3b8f1a691fda73/osm_login_python-2.1.1-py3-none-any.whl", hash = "sha256:8a642647b4e814f90153c4f49be2e5650ef8341b38d57ae76d8181e5843f80ad", size = 17383, upload-time = "2026-03-16T09:46:35.248Z" },
+    { url = "https://files.pythonhosted.org/packages/d5/5c/4cfde6477485604cef14b91c269dd14046a3f25acd7d3530f6f390425907/osm_login_python-2.1.4-py3-none-any.whl", hash = "sha256:870e85ff22dbaeb2b648d0319c3e3f4ef77fb959ef4a66ba8378ebeaa0834edf", size = 17547, upload-time = "2026-03-16T21:19:50.543Z" },
 ]
 
 [[package]]
