@@ -24,6 +24,8 @@ import { TBadgeVariants } from "@/types";
 import { ToolTip } from "@/components/ui/tooltip";
 import { MapSwipeProcessingStatus, PmtilesConversionStatus } from "@/enums";
 import { DropDown } from "@/components/ui/dropdown";
+import { MarkdownRenderer } from "@/components/shared";
+import { Divider } from "@/components/ui/divider";
 
 export type InfoCardProps = {
   icon: React.ReactNode;
@@ -360,22 +362,21 @@ export const MapswipeProjectStatusDialog = ({
               ) : null}
             </div>
 
-            <div className="w-full flex flex-col gap-4">
-              <div className="flex flex-col gap-4">
-                <h1 className="text-black text-body-4 md:text-body-3 font-semibold">
+            <div className="w-full flex flex-col gap-6">
+              <div className="flex flex-col gap-2">
+                <h2 className="text-grey text-body-4 md:text-base uppercase font-semibold">
                   Project Description
-                </h1>
-                <p className="text-body-4 md:text-body-3 text-black text-wrap max-w-lg md:max-w-2xl">
-                  {data?.description}
-                </p>
+                </h2>
+                <Divider />
+                <MarkdownRenderer content={data?.description} />
               </div>
-              <div className="flex flex-col gap-4">
-                <h1 className="text-black text-body-4 md:text-body-3 font-semibold">
-                  Project Instruction
-                </h1>
-                <p className=" text-black text-body-4 md:text-body-3 text-wrap max-w-lg md:max-w-2xl">
-                  {data?.projectInstruction}
-                </p>
+              <div className="flex flex-col gap-2">
+                <h2 className="text-grey text-body-4 md:text-base uppercase font-semibold">
+                  Project Instructions
+                </h2>
+                <Divider />
+
+                <MarkdownRenderer content={data?.projectInstruction} />
               </div>
             </div>
           </div>
