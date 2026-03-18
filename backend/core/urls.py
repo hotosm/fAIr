@@ -17,6 +17,7 @@ from .views import (
     MarkNotificationAsRead,
     ModelCentroidView,
     ModelViewSet,
+    PredictionCentroidView,
     PredictionViewSet,
     RawdataApiAOIView,
     StreamFGBView,
@@ -28,9 +29,9 @@ from .views import (
     UserNotificationViewSet,
     UsersView,
     get_kpi_stats,
+    health,
     publish_training,
     run_task_status,
-    health,
 )
 
 if settings.ENABLE_FAIR_PREDICTOR:
@@ -50,7 +51,10 @@ router.register(r"notifications/me", UserNotificationViewSet, basename="notifica
 router.register(r"prediction", PredictionViewSet)
 if settings.ENABLE_MAPSWIPE_INTEGREATION:
     from .views import MapswipeProjectViewSet
-    router.register(r"mapswipe-project", MapswipeProjectViewSet, basename="mapswipe-project")
+
+    router.register(
+        r"mapswipe-project", MapswipeProjectViewSet, basename="mapswipe-project"
+    )
 
 
 urlpatterns = [
@@ -60,6 +64,11 @@ urlpatterns = [
     path("users/", UsersView.as_view(), name="user-list-view"),
     path("models/centroid/", ModelCentroidView.as_view(), name="models-centroid"),
     path("datasets/centroid/", DatasetCentroidView.as_view(), name="datasets-centroid"),
+    path(
+        "prediction/centroid/",
+        PredictionCentroidView.as_view(),
+        name="prediction-centroid",
+    ),
     path("task/status/<str:run_id>/", run_task_status),
     path("training/publish/<int:training_id>/", publish_training),
     path(
@@ -97,6 +106,9 @@ urlpatterns = [
 
 if settings.ENABLE_FAIR_PREDICTOR:
     urlpatterns.append(
-        path("fairpredictor/predict/", PredictorPredictView.as_view(), name="predictor-predict")
+        path(
+            "fairpredictor/predict/",
+            PredictorPredictView.as_view(),
+            name="predictor-predict",
+        )
     )
-

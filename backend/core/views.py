@@ -98,6 +98,7 @@ from .serializers import (
     ModelCentroidSerializer,
     ModelMetaSerializer,
     ModelSerializer,
+    PredictionCentroidSerializer,
     PredictionParamSerializer,
     TrainingSerializer,
     UserNotificationSerializer,
@@ -414,6 +415,18 @@ class DatasetCentroidView(ListAPIView):
     serializer_class = DatasetCentroidSerializer
     filter_backends = (
         # InBBoxFilter,
+        DjangoFilterBackend,
+        filters.SearchFilter,
+    )
+    filterset_fields = ["id"]
+    search_fields = ["name", "id"]
+    pagination_class = None
+
+
+class PredictionCentroidView(ListAPIView):
+    queryset = Prediction.objects.filter(published=True)
+    serializer_class = PredictionCentroidSerializer
+    filter_backends = (
         DjangoFilterBackend,
         filters.SearchFilter,
     )
@@ -1092,11 +1105,6 @@ class PredictionSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         if request and request.method == "GET":
             ret["user"] = UserSerializer(instance.user).data
-            centroid_param = request.query_params.get("centroid", "false").lower()
-            if centroid_param == "true":
-                centroid = instance.geom.centroid
-                centroid.srid = instance.geom.srid
-                ret["geom"] = GeometryField().to_representation(centroid)
             config = getattr(instance, "config", {}) or {}
             model_id = config.get("model_id")
             if model_id:
