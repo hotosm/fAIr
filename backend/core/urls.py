@@ -65,7 +65,7 @@ urlpatterns = [
     path("models/centroid/", ModelCentroidView.as_view(), name="models-centroid"),
     path("datasets/centroid/", DatasetCentroidView.as_view(), name="datasets-centroid"),
     path(
-        "prediction/centroid/",
+        "predictions/centroid/",
         PredictionCentroidView.as_view(),
         name="prediction-centroid",
     ),
