@@ -1087,6 +1087,12 @@ class PredictionSerializer(serializers.ModelSerializer):
         logging.info(f"Prediction request queued with task ID {task.id}")
         return instance
 
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        if self.context.get("request") and self.context["request"].method == "GET":
+            ret["user"] = UserSerializer(instance.user).data
+        return ret
+
 
 @method_decorator(
     ratelimit(key="user", rate="50/h", method="POST", block=True), name="create"
