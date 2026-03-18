@@ -199,11 +199,13 @@ class DatasetCentroidSerializer(BaseCentroidSerializer):
     def get_geometry(self, obj):
         return self.get_aoi_centroid(obj.id)
 
+
 class PredictionCentroidSerializer(GeoFeatureModelSerializer):
     centroid = serializers.SerializerMethodField()
 
     class Meta:
         model = Prediction
+        geo_field = "centroid"
         fields = ("id", "centroid")
 
     def get_centroid(self, obj):
@@ -214,6 +216,7 @@ class PredictionCentroidSerializer(GeoFeatureModelSerializer):
                 "coordinates": centroid.coords,
             }
         return None
+
 
 class AOISerializer(GeoFeatureModelSerializer):
     id = serializers.IntegerField(read_only=True)

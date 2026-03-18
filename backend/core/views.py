@@ -431,7 +431,7 @@ class PredictionCentroidView(ListAPIView):
         filters.SearchFilter,
     )
     filterset_fields = ["id"]
-    search_fields = ["name", "id"]
+    search_fields = ["description", "id"]
     pagination_class = None
 
 
