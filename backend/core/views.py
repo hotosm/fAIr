@@ -1097,6 +1097,14 @@ class PredictionSerializer(serializers.ModelSerializer):
                 centroid = instance.geom.centroid
                 centroid.srid = instance.geom.srid
                 ret["geom"] = GeometryField().to_representation(centroid)
+            config = getattr(instance, "config", {}) or {}
+            model_id = config.get("model_id")
+            if model_id:
+                try:
+                    model_obj = Model.objects.only("name").get(id=model_id)
+                    ret["model_name"] = model_obj.name
+                except Model.DoesNotExist:
+                    ret["model_name"] = None
         return ret
 
 
