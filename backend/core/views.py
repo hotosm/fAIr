@@ -1089,8 +1089,14 @@ class PredictionSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
-        if self.context.get("request") and self.context["request"].method == "GET":
+        request = self.context.get("request")
+        if request and request.method == "GET":
             ret["user"] = UserSerializer(instance.user).data
+            centroid_param = request.query_params.get("centroid", "false").lower()
+            if centroid_param == "true":
+                centroid = instance.geom.centroid
+                centroid.srid = instance.geom.srid
+                ret["geom"] = GeometryField().to_representation(centroid)
         return ret
 
 
