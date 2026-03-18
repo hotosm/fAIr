@@ -146,7 +146,7 @@ export const MapswipeProjectStatusDialog = ({
           <div className="inline-flex items-center gap-x-4 w-full">
             <h1 className="text-black text-body-2 md:text-title-3 font-semibold">
               {truncateString(data?.name, 400)}
-          </h1>
+            </h1>
             <MapSwipeProjectStatusBadge
               status={data?.status as string}
               isRefetching={isRefetching}

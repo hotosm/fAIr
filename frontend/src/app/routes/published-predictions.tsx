@@ -58,7 +58,7 @@ export const PublishedPredictionsPage = () => {
 
   return (
     <>
-      <Head title="AI Predictions" />
+      <Head title="Public AI Predictions" />
 
       {/* Prediction result drawer (reused from existing feature) */}
       {activePrediction && (
@@ -91,7 +91,7 @@ export const PublishedPredictionsPage = () => {
         {/* Page header */}
 
         <PageHeader
-          title="AI Predictions"
+          title="Public AI Predictions"
           description={
             "This is a list of published predictions that has been produced by community users and made public. Any user can public predictions by using Prediction Request feature under and published from their profile."
           }

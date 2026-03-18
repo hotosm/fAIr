@@ -98,7 +98,7 @@ const router = createBrowserRouter([
         },
       },
 
-         /**
+      /**
        * AI Predictions route (published predictions).
        */
       {
@@ -113,7 +113,6 @@ const router = createBrowserRouter([
         },
       },
 
-     
       /**
        *  Models details, list and feedbacks route ends.
        */

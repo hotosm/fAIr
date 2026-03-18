@@ -5,9 +5,6 @@ import { formatDate, formatNumber } from "@/utils";
 import { SlDropdown } from "@shoelace-style/shoelace";
 import { MutableRefObject } from "react";
 
-
-
-
 export const PublishedPredictionDetailsInfo = ({
   prediction,
   modelUsed,
@@ -22,7 +19,7 @@ export const PublishedPredictionDetailsInfo = ({
   placement?: DropdownPlacement;
 }) => {
   const featureCount = prediction.result?.count ?? 0;
-  
+
   const publishedDate = prediction.published_at
     ? formatDate(prediction.published_at)
     : "-";

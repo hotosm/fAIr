@@ -43,7 +43,6 @@ export const PublishedPredictionsFilters = ({
   const selectedOrderingLabel =
     ORDERING_OPTIONS.find((o) => o.value === ordering)?.label ?? "Sort by";
 
-
   const endIndex =
     offset + PAGE_LIMIT < totalCount ? offset + PAGE_LIMIT : totalCount;
 
@@ -88,7 +87,7 @@ export const PublishedPredictionsFilters = ({
               <p className="text-xs md:text-sm text-dark text-nowrap cursor-pointer">
                 Sort by
               </p>
-          }
+            }
           />
 
           {/* Pagination */}
@@ -105,7 +104,9 @@ export const PublishedPredictionsFilters = ({
               disabled={!hasPrevPage}
               onClick={onPrevPage}
             >
-              <ChevronDownIcon className={`rotate-90 ${hasPrevPage ? "text-dark" : "text-light-gray"}`} />
+              <ChevronDownIcon
+                className={`rotate-90 ${hasPrevPage ? "text-dark" : "text-light-gray"}`}
+              />
             </button>
             <button
               className="w-4 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
@@ -113,11 +114,11 @@ export const PublishedPredictionsFilters = ({
               disabled={!hasNextPage || isPlaceholderData}
               onClick={onNextPage}
             >
-              <ChevronDownIcon className={`-rotate-90 ${hasNextPage ? "text-dark" : "text-light-gray"}`} />
+              <ChevronDownIcon
+                className={`-rotate-90 ${hasNextPage ? "text-dark" : "text-light-gray"}`}
+              />
             </button>
           </div>
-
-       
         </div>
       </div>
     </div>

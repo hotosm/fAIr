@@ -1,5 +1,4 @@
 import { MapSwipeLogo } from "@/assets/svgs";
-import { Button } from "@/components/ui/button";
 import { Image } from "@/components/ui/image";
 import { ToolTip } from "@/components/ui/tooltip";
 

@@ -43,7 +43,9 @@ const InfoBlock = ({
       className={`py-1 md:py-3 px-3 md:px-4 flex items-center h-8 md:h-10 rounded-full text-black ${className}`}
     >
       <div className="flex items-center justify-center w-full text-body-4 md:text-body-3">
-        <div className={`${info && "mr-2"} flex-shrink-0 text-black size-3.5 md:size-4`}>
+        <div
+          className={`${info && "mr-2"} flex-shrink-0 text-black size-3.5 md:size-4`}
+        >
           {icon}
         </div>
         {info}
@@ -89,7 +91,10 @@ export const PublishedPredictionDetailDialog = ({
             <h1 className="text-black text-body-2 md:text-title-3 font-semibold">
               {truncateString(title, 400)}
             </h1>
-            <Badge variant="green" className="py-1 px-4 h-8 md:h-8 flex items-center rounded-lg text-sm font-medium">
+            <Badge
+              variant="green"
+              className="py-1 px-4 h-8 md:h-8 flex items-center rounded-lg text-sm font-medium"
+            >
               Published
             </Badge>
           </div>
@@ -129,7 +134,7 @@ export const PublishedPredictionDetailDialog = ({
                       BASE_API_URL +
                       API_ENDPOINTS.DOWNLOAD_PREDICTION_LABELS_FILE(
                         prediction.id,
-                        prediction.config.folder
+                        prediction.config.folder,
                       )
                     }
                     tooltipContent="Copy Result Link"
@@ -202,9 +207,9 @@ export const PublishedPredictionDetailDialog = ({
                         BASE_API_URL +
                           API_ENDPOINTS.DOWNLOAD_PREDICTION_RESULTS_POINTS_LABELS_FILE_(
                             prediction.id,
-                            prediction.config.folder
+                            prediction.config.folder,
                           ),
-                        "_blank"
+                        "_blank",
                       );
                     },
                   },
@@ -217,9 +222,9 @@ export const PublishedPredictionDetailDialog = ({
                         BASE_API_URL +
                           API_ENDPOINTS.DOWNLOAD_PREDICTION_LABELS_FILE(
                             prediction.id,
-                            prediction.config.folder
+                            prediction.config.folder,
                           ),
-                        "_blank"
+                        "_blank",
                       );
                     },
                   },
@@ -233,18 +238,20 @@ export const PublishedPredictionDetailDialog = ({
                   Prediction overview
                 </h1>
                 <p className="text-body-4 md:text-body-3 text-black text-wrap max-w-lg md:max-w-4xl opacity-80">
-                  This prediction includes bounding boxes or polygon detections extracted 
-                  by the AI model. Download the results as GeoJSON for Points or Polygons.
+                  This prediction includes bounding boxes or polygon detections
+                  extracted by the AI model. Download the results as GeoJSON for
+                  Points or Polygons.
                 </p>
               </div>
-              
+
               {(prediction.description || prediction.config.source) && (
                 <div className="flex flex-col gap-2">
                   <h1 className="text-black text-body-4 md:text-body-3 font-bold">
                     Prediction description
                   </h1>
                   <p className="text-black text-body-4 md:text-body-3 text-wrap max-w-lg md:max-w-4xl opacity-80">
-                    {prediction.description || "No specific description provided for this prediction."}
+                    {prediction.description ||
+                      "No specific description provided for this prediction."}
                   </p>
                 </div>
               )}

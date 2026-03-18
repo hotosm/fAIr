@@ -115,7 +115,7 @@ export const NavBar = () => {
 type NavBarLinksProps = {
   className: string;
   setOpen?: (arg: boolean) => void;
-   isMobile?: boolean;
+  isMobile?: boolean;
 };
 
 const NavBarLinks: React.FC<NavBarLinksProps> = ({ className, setOpen }) => {
@@ -129,8 +129,8 @@ const NavBarLinks: React.FC<NavBarLinksProps> = ({ className, setOpen }) => {
         .map((link, id) => {
           const isActive =
             location.pathname.includes(link.href) ||
-            (link.children?.some(
-              (child) => location.pathname.includes(child.href),
+            (link.children?.some((child) =>
+              location.pathname.includes(child.href),
             ) ??
               false);
 
@@ -143,7 +143,7 @@ const NavBarLinks: React.FC<NavBarLinksProps> = ({ className, setOpen }) => {
                   setOpen && setOpen(false);
                 }
               }}
-              className={`${styles.navLinkItem} ${isActive && styles.activeLink} ${link.children ? 'flex items-center' : ''}`}
+              className={`${styles.navLinkItem} ${isActive && styles.activeLink} ${link.children ? "flex items-center" : ""}`}
             >
               {link.children ? (
                 <DropDown
