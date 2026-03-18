@@ -1106,7 +1106,7 @@ class PredictionViewSet(PublicFilterMixin, UserAssignmentMixin, BaseSpatialViewS
     serializer_class = PredictionSerializer
     filterset_fields = ["status", "id", "published"]
     search_fields = ["description", "id"]
-    ordering_fields = ["created_at", "id", "status", "published"]
+    ordering_fields = ["created_at", "id", "status", "published", "published_at"]
     permission_classes = [IsOsmAuthenticated, IsOwnerOrReadOnly]
     public_filter_field = "published"
 
