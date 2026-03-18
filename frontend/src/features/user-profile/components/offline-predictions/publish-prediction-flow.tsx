@@ -3,7 +3,6 @@ import { WarningIcon } from "@/components/ui/icons/warning-icon";
 import { usePublishPrediction } from "@/features/user-profile/api/predictions";
 import { showErrorToast, showSuccessToast } from "@/utils";
 
-
 type PublishPredictionFlowProps = {
   predictionId: number;
   isPublished: boolean;
