@@ -265,6 +265,7 @@ export type TOfflinePrediction = {
   created_at: string;
   started_at: string | null;
   finished_at: string | null;
+  published_at: string | null;
   status: ModelTrainingStatus;
   task_id: string;
   mapswipe_id: string | null;
@@ -274,6 +275,12 @@ export type TOfflinePrediction = {
   published: boolean;
   result: null | {
     count: number;
+    output?: {
+      aois: string;
+      pmtiles: string;
+      predictions: string;
+      predictions_points: string;
+    };
   };
 };
 

@@ -32,6 +32,7 @@
     "framer-motion": "^12.19.1",
     "geojson": "^0.5.0",
     "maplibre-gl": "^5.3.1",
+    "nuqs": "^2.8.9",
     "pmtiles": "^4.3.0",
     "react": "19.1.0",
     "react-confetti-explosion": "^3.0.3",

@@ -13,6 +13,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { UserProfile } from "@/components/layouts";
 import { useState } from "react";
 import { UserNotifications } from "@/features/user-profile/components/notifications/user-notifications";
+import { DropDown } from "@/components/ui/dropdown";
 
 export const NavBar = () => {
   const [open, setOpen] = useState(false);
@@ -114,29 +115,64 @@ export const NavBar = () => {
 type NavBarLinksProps = {
   className: string;
   setOpen?: (arg: boolean) => void;
+   isMobile?: boolean;
 };
 
 const NavBarLinks: React.FC<NavBarLinksProps> = ({ className, setOpen }) => {
   const location = useLocation();
+  const navigate = useNavigate();
 
   return (
     <ul className={className}>
       {navLinks
-        .filter((link) => link.active)
-        .map((link, id) => (
-          <li
-            key={`navbar-item-${id}`}
-            onClick={() => {
-              //close the drawer after navigating to a new page on mobile
-              setOpen && setOpen(false);
-            }}
-            className={`${styles.navLinkItem} ${location.pathname === link.href && styles.activeLink}`}
-          >
-            <Link href={link.href} title={link.title} nativeAnchor={false}>
-              {link.title}
-            </Link>
-          </li>
-        ))}
+        .filter((link) => link.href !== "")
+        .map((link, id) => {
+          const isActive =
+            location.pathname.includes(link.href) ||
+            (link.children?.some(
+              (child) => location.pathname.includes(child.href),
+            ) ??
+              false);
+
+          return (
+            <li
+              key={`navbar-item-${id}`}
+              onClick={() => {
+                //close the drawer after navigating to a new page on mobile
+                if (!link.children) {
+                  setOpen && setOpen(false);
+                }
+              }}
+              className={`${styles.navLinkItem} ${isActive && styles.activeLink} ${link.children ? 'flex items-center' : ''}`}
+            >
+              {link.children ? (
+                <DropDown
+                  disableCheveronIcon={false}
+                  distance={20}
+                  triggerComponent={
+                    <span className="cursor-pointer bg-transparent border-none p-0 font-inherit text-inherit uppercase font-medium text-[length:var(--hot-fair-font-size-body-text-2base)] xl:text-[length:var(--hot-fair-font-size-body-text-2)]">
+                      {link.title}
+                    </span>
+                  }
+                  menuItems={link.children?.map((child) => ({
+                    value: child.title,
+                    name: child.title,
+                    className: "!uppercase hover:bg-gray-50",
+                    onClick: (e: any) => {
+                      e?.stopPropagation();
+                      navigate(child.href);
+                      setOpen?.(false);
+                    },
+                  }))}
+                />
+              ) : (
+                <Link href={link.href} title={link.title} nativeAnchor={false}>
+                  {link.title}
+                </Link>
+              )}
+            </li>
+          );
+        })}
     </ul>
   );
 };

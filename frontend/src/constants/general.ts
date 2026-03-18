@@ -8,11 +8,20 @@ export const navLinks: TNavBarLinks = [
     href: APPLICATION_ROUTES.MODELS,
     active: true,
   },
-
   {
     title: SHARED_CONTENT.navbar.routes.exploreDatasets,
     href: APPLICATION_ROUTES.DATASETS,
     active: true,
+    children: [
+      {
+        title: "Datasets",
+        href: APPLICATION_ROUTES.DATASETS,
+      },
+      {
+        title: "AI Predictions",
+        href: APPLICATION_ROUTES.PUBLISHED_PREDICTIONS,
+      },
+    ],
   },
   {
     title: SHARED_CONTENT.navbar.routes.learn,

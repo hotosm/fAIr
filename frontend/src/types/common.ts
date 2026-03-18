@@ -23,7 +23,7 @@ export type TQueryParams = Record<
   string | number | boolean | undefined
 >;
 
-export type TBadgeVariants = "green" | "red" | "yellow" | "blue" | "default";
+export type TBadgeVariants = "green" | "red" | "yellow" | "blue"  | "default";
 
 export type ButtonSize = "large" | "medium" | "small";
 
@@ -55,8 +55,13 @@ export type TNavBarLinks = {
   title: string;
   href: string;
   active: boolean;
+  children?: { title: string; href: string }[];
 }[];
-
+export type NavLinkItem = {
+  title: string;
+  href: string;
+  children?: { title: string; href: string }[];
+};
 // Extending with shoelace properties.
 export type TCSSWithVars = React.CSSProperties & {
   "--size"?: string;

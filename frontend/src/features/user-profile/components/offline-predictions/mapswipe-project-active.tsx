@@ -1,13 +1,16 @@
 import { MapSwipeLogo } from "@/assets/svgs";
+import { Button } from "@/components/ui/button";
 import { Image } from "@/components/ui/image";
 import { ToolTip } from "@/components/ui/tooltip";
 
 export const MapSwipeProjectIsActive = ({
   MapSwipeId,
   isCard,
+  onClick,
 }: {
   MapSwipeId: string;
   isCard?: boolean;
+  onClick?: () => void;
 }) => {
   return (
     <span className="flex items-center justify-start">
@@ -15,11 +18,21 @@ export const MapSwipeProjectIsActive = ({
         <ToolTip
           content={"A MapSwipe project is associated with this prediction."}
         >
-          <Image
-            src={MapSwipeLogo}
-            className="icon lg:icon-lg"
-            alt="MapSwipe Icon"
-          />
+          {onClick ? (
+            <button className="cursor-pointer" onClick={onClick}>
+              <Image
+                src={MapSwipeLogo}
+                className="icon lg:icon-lg"
+                alt="MapSwipe Icon"
+              />
+            </button>
+          ) : (
+            <Image
+              src={MapSwipeLogo}
+              className="icon lg:icon-lg"
+              alt="MapSwipe Icon"
+            />
+          )}
         </ToolTip>
       ) : isCard ? null : (
         "-"
