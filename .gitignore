@@ -62,3 +62,6 @@ fAIr-utilities
 data
 
 fair-app-data/*
+
+# helm charts
+fair-*.tgz
