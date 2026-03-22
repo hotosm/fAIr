@@ -270,7 +270,7 @@ export type TOfflinePrediction = {
   task_id: string;
   mapswipe_id: string | null;
   user: {
-    username: string; 
+    username: string;
     osm_id: string;
   };
   model_name: string;

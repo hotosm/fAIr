@@ -18,7 +18,7 @@ export const PublishedPredictionDetailsInfo = ({
   createdBy: string;
   dropdownRef?: MutableRefObject<SlDropdown | null>;
   placement?: DropdownPlacement;
-  triggerComponent?: ReactNode
+  triggerComponent?: ReactNode;
 }) => {
   const featureCount = prediction.result?.count ?? 0;
 

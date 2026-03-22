@@ -13,8 +13,14 @@ type PublishedPredictionsGridProps = {
   isMapView?: boolean;
 };
 
-const GridSkeleton = ({isMapview }: {isMapview?: boolean}) => (
-  <div className={isMapview ? "grid grid-cols-1 sm:grid-cols-2 gap-6" : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"}>
+const GridSkeleton = ({ isMapview }: { isMapview?: boolean }) => (
+  <div
+    className={
+      isMapview
+        ? "grid grid-cols-1 sm:grid-cols-2 gap-6"
+        : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+    }
+  >
     {Array.from({ length: 12 }).map((_, index) => (
       <div
         key={index}
@@ -31,7 +37,7 @@ export const PublishedPredictionsGrid = ({
   refetch,
   onViewResults,
   onViewDetails,
-  isMapView
+  isMapView,
 }: PublishedPredictionsGridProps) => {
   if (isPending) {
     return <GridSkeleton isMapview={isMapView} />;
@@ -62,16 +68,17 @@ export const PublishedPredictionsGrid = ({
   }
 
   return (
-    <div className={
-      isMapView ?
-      "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6"
-      :
-      "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-    }>
+    <div
+      className={
+        isMapView
+          ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6"
+          : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+      }
+    >
       {data.map((prediction) => (
         <PublishedPredictionCard
           key={prediction.id}
-          prediction={prediction}         
+          prediction={prediction}
           onViewResults={onViewResults}
           onViewDetails={onViewDetails}
         />

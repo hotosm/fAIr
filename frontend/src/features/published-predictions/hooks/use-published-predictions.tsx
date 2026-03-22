@@ -124,8 +124,7 @@ export const usePublishedPredictions = () => {
     }
   }, [params.layout, params.map, setParams]);
 
-
-    const query: TQueryParams = {
+  const query: TQueryParams = {
     [SEARCH_PARAMS.searchQuery]: search,
     [SEARCH_PARAMS.id]: predictionIdParam,
     [SEARCH_PARAMS.offset]: offset,
