@@ -269,7 +269,11 @@ export type TOfflinePrediction = {
   status: ModelTrainingStatus;
   task_id: string;
   mapswipe_id: string | null;
-  user: number;
+  user: {
+    username: string; 
+    osm_id: string;
+  };
+  model_name: string;
   config: TModelPredictionsConfig;
   result_count: number;
   published: boolean;

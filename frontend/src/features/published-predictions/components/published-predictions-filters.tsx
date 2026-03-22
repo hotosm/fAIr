@@ -1,10 +1,14 @@
 import { Input } from "@/components/ui/form";
-import { SearchIcon } from "@/components/ui/icons";
+import { CategoryIcon, ListIcon, SearchIcon } from "@/components/ui/icons";
 import { DropDown } from "@/components/ui/dropdown";
 import { ChevronDownIcon } from "@/components/ui/icons";
-import { SHOELACE_SIZES } from "@/enums";
-import { PAGE_LIMIT } from "@/components/shared";
+import { LayoutView, SHOELACE_SIZES } from "@/enums";
+import { ClearFilters, PAGE_LIMIT } from "@/components/shared";
 import { ORDERING_OPTIONS } from "@/features/published-predictions/hooks/use-published-predictions";
+import { ToolTip } from "@/components/ui/tooltip";
+import ShowMapToggle from "@/components/shared/show-map-toggle";
+import { SEARCH_PARAMS } from "@/utils/search-params";
+import { TQueryParams } from "@/types";
 
 type PublishedPredictionsFiltersProps = {
   search: string;
@@ -15,10 +19,14 @@ type PublishedPredictionsFiltersProps = {
   onLayoutChange: (value: string) => void;
   totalCount: number;
   offset: number;
+  query: TQueryParams;
   hasNextPage: boolean;
+  clearAllFilters: () => void;
   hasPrevPage: boolean;
+  onMapViewChange: (value: boolean) => void;
   onNextPage: () => void;
   onPrevPage: () => void;
+  mapViewIsActive: boolean;
   isPlaceholderData: boolean;
 };
 
@@ -31,18 +39,28 @@ export const PublishedPredictionsFilters = ({
   offset,
   hasNextPage,
   hasPrevPage,
+  clearAllFilters,
   onNextPage,
+  layout,
+  onLayoutChange,
   onPrevPage,
   isPlaceholderData,
+  onMapViewChange,
+  mapViewIsActive,
+  query,
 }: PublishedPredictionsFiltersProps) => {
   const orderingMenuItems = ORDERING_OPTIONS.map((opt) => ({
     value: opt.label,
     apiValue: opt.value,
   }));
+  const isGridView = layout === LayoutView.GRID;
 
   const selectedOrderingLabel =
     ORDERING_OPTIONS.find((o) => o.value === ordering)?.label ?? "Sort by";
-
+  const mapToggleQuery: TQueryParams = {
+    [SEARCH_PARAMS.layout]: layout,
+    [SEARCH_PARAMS.mapIsActive]: mapViewIsActive,
+  };
   const endIndex =
     offset + PAGE_LIMIT < totalCount ? offset + PAGE_LIMIT : totalCount;
 
@@ -63,6 +81,7 @@ export const PublishedPredictionsFilters = ({
             disableOutline
           />
         </div>
+        <ClearFilters query={query} clearAllFilters={clearAllFilters} />
       </div>
 
       {/* Count, sort, pagination, layout row */}
@@ -119,6 +138,30 @@ export const PublishedPredictionsFilters = ({
               />
             </button>
           </div>
+          <ShowMapToggle
+            query={mapToggleQuery}
+            updateQuery={(params) => {
+              onMapViewChange(Boolean(params[SEARCH_PARAMS.mapIsActive]));
+            }}
+          />
+          {/* Layout toggle */}
+          <ToolTip
+            content={`Show as ${isGridView ? LayoutView.LIST : LayoutView.GRID}`}
+          >
+            <button
+              className="border border-gray-border p-2 items-center flex justify-center text-dark cursor-pointer"
+              disabled={mapViewIsActive}
+              onClick={() =>
+                onLayoutChange(isGridView ? LayoutView.LIST : LayoutView.GRID)
+              }
+            >
+              {isGridView ? (
+                <ListIcon className="icon" />
+              ) : (
+                <CategoryIcon className="icon" />
+              )}
+            </button>
+          </ToolTip>
         </div>
       </div>
     </div>

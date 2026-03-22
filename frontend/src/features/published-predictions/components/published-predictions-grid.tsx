@@ -6,16 +6,15 @@ import { PublishedPredictionCard } from "./published-prediction-card";
 type PublishedPredictionsGridProps = {
   data: TOfflinePrediction[];
   isPending: boolean;
-  modelNamesById: Record<string, string>;
-  modelOwnersById: Record<string, string>;
   isError: boolean;
   refetch: () => void;
   onViewResults: (prediction: TOfflinePrediction) => void;
   onViewDetails: (prediction: TOfflinePrediction) => void;
+  isMapView?: boolean;
 };
 
-const GridSkeleton = () => (
-  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+const GridSkeleton = ({isMapview }: {isMapview?: boolean}) => (
+  <div className={isMapview ? "grid grid-cols-1 sm:grid-cols-2 gap-6" : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"}>
     {Array.from({ length: 12 }).map((_, index) => (
       <div
         key={index}
@@ -30,13 +29,12 @@ export const PublishedPredictionsGrid = ({
   isPending,
   isError,
   refetch,
-  modelNamesById,
-  modelOwnersById,
   onViewResults,
   onViewDetails,
+  isMapView
 }: PublishedPredictionsGridProps) => {
   if (isPending) {
-    return <GridSkeleton />;
+    return <GridSkeleton isMapview={isMapView} />;
   }
 
   if (isError) {
@@ -64,13 +62,16 @@ export const PublishedPredictionsGrid = ({
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div className={
+      isMapView ?
+      "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6"
+      :
+      "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+    }>
       {data.map((prediction) => (
         <PublishedPredictionCard
           key={prediction.id}
-          prediction={prediction}
-          modelNamesById={modelNamesById}
-          modelOwnersById={modelOwnersById}
+          prediction={prediction}         
           onViewResults={onViewResults}
           onViewDetails={onViewDetails}
         />

@@ -15,29 +15,20 @@ type PublishedPredictionCardProps = {
   prediction: TOfflinePrediction;
   onViewResults: (prediction: TOfflinePrediction) => void;
   onViewDetails: (prediction: TOfflinePrediction) => void;
-  modelNamesById: Record<string, string>;
-  modelOwnersById: Record<string, string>;
 };
 
 export const PublishedPredictionCard = ({
   prediction,
   onViewResults,
   onViewDetails,
-  modelNamesById,
-  modelOwnersById,
 }: PublishedPredictionCardProps) => {
   const { copyToClipboard } = useCopyToClipboard();
   const { dropdownRef } = useDropdownMenu();
-
   const title = prediction.description || `Prediction ${prediction.id}`;
 
   const handleDetailsInfo = () => {
     dropdownRef.current?.show();
   };
-  const modelUsed =
-    modelNamesById[prediction.config.model_id] ?? prediction.config.model_id;
-
-  const createdBy = modelOwnersById[prediction.config.model_id];
 
   return (
     <>
@@ -169,7 +160,7 @@ export const PublishedPredictionCard = ({
           <div className=" flex  items-center justify-between text-body-4 text-grey">
             <div>
               <p className="text-dark text-body-4">Model Used:</p>
-              <span className="font-semibold">{modelUsed}</span>
+              <span className="font-semibold">{prediction.model_name}</span>
             </div>
             <div>
               <p className="text-dark flex justify-end flex-col text-body-4">
@@ -190,8 +181,8 @@ export const PublishedPredictionCard = ({
         <div className="absolute top-0 right-0">
           <PublishedPredictionDetailsInfo
             prediction={prediction}
-            modelUsed={modelUsed}
-            createdBy={createdBy}
+            modelUsed={prediction.model_name}
+            createdBy={prediction.user.username}
             dropdownRef={dropdownRef}
           />
         </div>

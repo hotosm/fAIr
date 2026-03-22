@@ -3,7 +3,7 @@ import { DropdownPlacement } from "@/enums";
 import { TOfflinePrediction } from "@/types";
 import { formatDate, formatNumber } from "@/utils";
 import { SlDropdown } from "@shoelace-style/shoelace";
-import { MutableRefObject } from "react";
+import { MutableRefObject, ReactNode } from "react";
 
 export const PublishedPredictionDetailsInfo = ({
   prediction,
@@ -11,12 +11,14 @@ export const PublishedPredictionDetailsInfo = ({
   createdBy,
   dropdownRef,
   placement = DropdownPlacement.BOTTOM_END,
+  triggerComponent,
 }: {
   prediction: TOfflinePrediction;
   modelUsed: string;
   createdBy: string;
   dropdownRef?: MutableRefObject<SlDropdown | null>;
   placement?: DropdownPlacement;
+  triggerComponent?: ReactNode
 }) => {
   const featureCount = prediction.result?.count ?? 0;
 
@@ -29,7 +31,7 @@ export const PublishedPredictionDetailsInfo = ({
       ref={dropdownRef}
       disableCheveronIcon
       placement={placement}
-      triggerComponent={null}
+      triggerComponent={triggerComponent}
       className="text-right"
       distance={10}
     >

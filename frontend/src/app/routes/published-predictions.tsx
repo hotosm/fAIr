@@ -3,12 +3,19 @@ import { PublishedPredictionsFilters } from "@/features/published-predictions/co
 import { PublishedPredictionsGrid } from "@/features/published-predictions/components/published-predictions-grid";
 import { usePublishedPredictions } from "@/features/published-predictions/hooks/use-published-predictions";
 import { PredictionResultDrawer } from "@/features/user-profile/components/offline-predictions/predictions-results-drawer";
-import { TOfflinePrediction } from "@/types";
-import { useState } from "react";
+import { FeatureCollection, TOfflinePrediction } from "@/types";
+import { useEffect, useState } from "react";
 import { useDialog } from "@/hooks/use-dialog";
 import PageHeader from "@/features/models/components/header";
 import { MapswipeProjectStatusDialog } from "@/features/mapswipe/components/project-status-dialog";
-import { usePredictionModelsMeta } from "@/features/published-predictions/hooks/use-prediction-model-meta";
+import {
+  useScrollToElement,
+  useScrollToTop,
+} from "@/hooks/use-scroll-to-element";
+import { LayoutView } from "@/enums";
+import { PublishedPredictionsListLayout } from "@/features/published-predictions/components/published-predictions-table";
+import { Spinner } from "@/components/ui/spinner";
+import { PublishedPredictionsMap } from "@/features/published-predictions/components/published-predictions-map";
 
 export const PublishedPredictionsPage = () => {
   const {
@@ -20,12 +27,20 @@ export const PublishedPredictionsPage = () => {
     search,
     ordering,
     layout,
+    query,
     offset,
+    setMapView,
     setSearch,
     setOrdering,
     setLayout,
+    mapViewIsActive,
+    mapData,
+    isMapDataPending,
+    isMapDataError,
     goToNextPage,
     goToPrevPage,
+    setPredictionId,
+    clearAllFilters,
   } = usePublishedPredictions();
 
   const [activePrediction, setActivePrediction] =
@@ -36,10 +51,13 @@ export const PublishedPredictionsPage = () => {
     openDialog: openPredictionResultDialog,
     closeDialog: closePredictionResultDialog,
   } = useDialog();
-  const predictions = data?.results ?? [];
-  const { modelNamesById, modelOwnersById } =
-    usePredictionModelsMeta(predictions);
+
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
+  const mapViewElementId = "published-predictions-map-view";
+  const { scrollToElement } = useScrollToElement(mapViewElementId);
+  const { scrollToTop } = useScrollToTop();
+
+  const isListView = layout === LayoutView.LIST;
 
   const handleViewResults = (prediction: TOfflinePrediction) => {
     setActivePrediction(prediction);
@@ -56,6 +74,72 @@ export const PublishedPredictionsPage = () => {
     setActivePrediction(null);
   };
 
+  useEffect(() => {
+    if (mapViewIsActive) {
+      scrollToElement();
+    } else {
+      scrollToTop();
+    }
+  }, [mapViewIsActive, scrollToElement, scrollToTop]);
+
+  const renderContent = () => {
+    if (mapViewIsActive) {
+      return (
+        <div className="w-full grid grid-cols-1 grid-rows-2 lg:grid-rows-1 lg:grid-cols-2 md:border rounded-md lg:p-2 md:border-gray-border gap-x-2 mt-6 gap-y-6 lg:gap-y-0 h-screen">
+          <div className="w-full overflow-y-auto lg:row-start-1">
+            <PublishedPredictionsGrid
+              data={data?.results ?? []}
+              isPending={isPending}
+              isError={isError}
+              refetch={refetch}
+              isMapView={mapViewIsActive}
+              onViewResults={handleViewResults}
+              onViewDetails={handleViewDetails}
+            />
+          </div>
+          <div className="row-start-1" id={mapViewElementId}>
+            {isMapDataPending ||
+            isMapDataError ||
+            !mapData ||
+            mapData.features.length === 0 ? (
+              <div className="w-full h-full animate-pulse bg-light-gray flex items-center justify-center">
+                <Spinner />
+              </div>
+            ) : (
+              <PublishedPredictionsMap
+                mapResults={mapData as FeatureCollection}
+                setPredictionId={setPredictionId}
+              />
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="mt-6">
+        {isListView ? (
+          <PublishedPredictionsListLayout
+            data={data?.results ?? []}
+            isPending={isPending}
+            isError={isError}
+            refetch={refetch}
+            onViewResults={handleViewResults}
+            onViewDetails={handleViewDetails}
+          />
+        ) : (
+          <PublishedPredictionsGrid
+            data={data?.results ?? []}
+            isPending={isPending}
+            isError={isError}
+            refetch={refetch}
+            onViewResults={handleViewResults}
+            onViewDetails={handleViewDetails}
+          />
+        )}
+      </div>
+    );
+  };
   return (
     <>
       <Head title="Public AI Predictions" />
@@ -89,7 +173,6 @@ export const PublishedPredictionsPage = () => {
 
       <section className="my-10 min-h-screen">
         {/* Page header */}
-
         <PageHeader
           title="Public AI Predictions"
           description={
@@ -106,7 +189,11 @@ export const PublishedPredictionsPage = () => {
           ordering={ordering}
           onOrderingChange={setOrdering}
           layout={layout}
+          onMapViewChange={setMapView}
+          mapViewIsActive={mapViewIsActive}
+          clearAllFilters={clearAllFilters}
           onLayoutChange={setLayout}
+          query={query}
           totalCount={data?.count ?? 0}
           offset={offset}
           hasNextPage={data?.hasNext ?? false}
@@ -117,18 +204,7 @@ export const PublishedPredictionsPage = () => {
         />
 
         {/* Content */}
-        <div className="mt-6">
-          <PublishedPredictionsGrid
-            data={data?.results ?? []}
-            isPending={isPending}
-            isError={isError}
-            modelNamesById={modelNamesById}
-            modelOwnersById={modelOwnersById}
-            refetch={refetch}
-            onViewResults={handleViewResults}
-            onViewDetails={handleViewDetails}
-          />
-        </div>
+        <div className="mt-6">{renderContent()}</div>
       </section>
     </>
   );

@@ -1,6 +1,6 @@
 import { PAGE_LIMIT } from "@/components/shared";
 import { API_ENDPOINTS, apiClient } from "@/services";
-import { TOfflinePrediction } from "@/types";
+import { FeatureCollection, TOfflinePrediction } from "@/types";
 
 export type PublishedPredictionsResponse = {
   count: number;
@@ -15,6 +15,7 @@ export const getPublishedPredictions = async (
   searchQuery?: string,
   ordering: string = "-id",
   offset?: number,
+  id?: number,
 ): Promise<PublishedPredictionsResponse> => {
   const res = await apiClient.get(API_ENDPOINTS.GET_PUBLISHED_PREDICTIONS, {
     params: {
@@ -23,6 +24,7 @@ export const getPublishedPredictions = async (
       ordering,
       offset,
       limit: PAGE_LIMIT,
+      id,
     },
   });
   return {
@@ -31,3 +33,12 @@ export const getPublishedPredictions = async (
     hasPrev: res.data.previous !== null,
   };
 };
+
+export const getPublishedPredictionsMapData =
+  async (): Promise<FeatureCollection> => {
+    const res = await apiClient.get(
+      API_ENDPOINTS.GET_PUBLISHED_PREDICTIONS_CENTROIDS,
+    );
+
+    return res.data;
+  };
