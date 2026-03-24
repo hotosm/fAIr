@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
 import { ToolTip } from "@/components/ui/tooltip";
-import { NoTrainingAreaIcon,InfoIcon } from "@/components/ui/icons";
+import { NoTrainingAreaIcon, InfoIcon } from "@/components/ui/icons";
 import { ColumnDef, SortingState } from "@tanstack/react-table";
 import { SortableHeader } from "@/features/models/components/table-header";
 import { TableSkeleton } from "@/features/models/components/skeletons";
