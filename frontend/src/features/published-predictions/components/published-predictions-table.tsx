@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
 import { ToolTip } from "@/components/ui/tooltip";
-import { NoTrainingAreaIcon, MapIcon, InfoIcon } from "@/components/ui/icons";
+import { NoTrainingAreaIcon,InfoIcon } from "@/components/ui/icons";
 import { ColumnDef, SortingState } from "@tanstack/react-table";
 import { SortableHeader } from "@/features/models/components/table-header";
 import { TableSkeleton } from "@/features/models/components/skeletons";
@@ -40,12 +40,12 @@ const columnDefinitions = (
     accessorKey: "id",
     header: ({ column }) => <SortableHeader title={"ID"} column={column} />,
     cell: ({ row }) => (
-      <Badge
-        variant="default"
-        className="rounded-[4px] bg-primary text-white font-semibold"
+      <div
+        // variant="default"
+        className=""
       >
-        <span className="text-body-3 uppercase">ID: {row.original.id}</span>
-      </Badge>
+        <span className="text-body-3 uppercase">{row.original.id}</span>
+      </div>
     ),
   },
   {
@@ -68,7 +68,6 @@ const columnDefinitions = (
     accessorFn: (row) => row.result?.count ?? 0,
     cell: ({ row }) => (
       <span className="flex items-center gap-x-1">
-        <MapIcon className="icon shrink-0" />
         {formatNumber(row.original.result?.count ?? 0)}
       </span>
     ),

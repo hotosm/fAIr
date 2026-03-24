@@ -85,32 +85,64 @@ export const PublishedPredictionsFilters = ({
       </div>
 
       {/* Count, sort, pagination, layout row */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <p className="text-body-3 font-semibold text-nowrap">
           {totalCount} Prediction{totalCount !== 1 ? "s" : ""}
         </p>
 
-        <div className="flex items-center gap-x-4 flex-wrap">
-          {/* Sort */}
-          <DropDown
-            menuItems={orderingMenuItems}
-            handleMenuSelection={(selectedLabel: string) => {
-              const opt = ORDERING_OPTIONS.find(
-                (o) => o.label === selectedLabel,
-              );
-              if (opt) onOrderingChange(opt.value);
-            }}
-            withCheckbox
-            defaultSelectedItem={selectedOrderingLabel}
-            triggerComponent={
-              <p className="text-xs md:text-sm text-dark text-nowrap cursor-pointer">
-                Sort by
-              </p>
-            }
-          />
+        <div className="w-full sm:w-auto flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-x-4">
+          <div className="flex items-center justify-between w-full sm:w-auto sm:justify-start sm:gap-x-4">
+            {/* Sort */}
+            <DropDown
+              menuItems={orderingMenuItems}
+              handleMenuSelection={(selectedLabel: string) => {
+                const opt = ORDERING_OPTIONS.find(
+                  (o) => o.label === selectedLabel,
+                );
+                if (opt) onOrderingChange(opt.value);
+              }}
+              withCheckbox
+              defaultSelectedItem={selectedOrderingLabel}
+              triggerComponent={
+                <p className="text-xs md:text-sm text-dark text-nowrap cursor-pointer">
+                  Sort by
+                </p>
+              }
+            />
+
+            <div className="flex items-center gap-x-3 shrink-0">
+              <ShowMapToggle
+                query={mapToggleQuery}
+                updateQuery={(params) => {
+                  onMapViewChange(Boolean(params[SEARCH_PARAMS.mapIsActive]));
+                }}
+              />
+
+              {/* Layout toggle */}
+              <ToolTip
+                content={`Show as ${isGridView ? LayoutView.LIST : LayoutView.GRID}`}
+              >
+                <button
+                  className="border border-gray-border p-2 items-center flex justify-center text-dark cursor-pointer"
+                  disabled={mapViewIsActive}
+                  onClick={() =>
+                    onLayoutChange(
+                      isGridView ? LayoutView.LIST : LayoutView.GRID,
+                    )
+                  }
+                >
+                  {isGridView ? (
+                    <ListIcon className="icon" />
+                  ) : (
+                    <CategoryIcon className="icon" />
+                  )}
+                </button>
+              </ToolTip>
+            </div>
+          </div>
 
           {/* Pagination */}
-          <div className="flex items-center gap-x-2">
+          <div className="flex items-center md:justify-end gap-x-2">
             <p className="text-body-4 text-nowrap">
               <span className="font-semibold">
                 {totalCount > 0 ? offset + 1 : 0}-{endIndex}
@@ -138,30 +170,6 @@ export const PublishedPredictionsFilters = ({
               />
             </button>
           </div>
-          <ShowMapToggle
-            query={mapToggleQuery}
-            updateQuery={(params) => {
-              onMapViewChange(Boolean(params[SEARCH_PARAMS.mapIsActive]));
-            }}
-          />
-          {/* Layout toggle */}
-          <ToolTip
-            content={`Show as ${isGridView ? LayoutView.LIST : LayoutView.GRID}`}
-          >
-            <button
-              className="border border-gray-border p-2 items-center flex justify-center text-dark cursor-pointer"
-              disabled={mapViewIsActive}
-              onClick={() =>
-                onLayoutChange(isGridView ? LayoutView.LIST : LayoutView.GRID)
-              }
-            >
-              {isGridView ? (
-                <ListIcon className="icon" />
-              ) : (
-                <CategoryIcon className="icon" />
-              )}
-            </button>
-          </ToolTip>
         </div>
       </div>
     </div>
