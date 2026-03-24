@@ -52,7 +52,7 @@ export const PublishedPredictionsPage = () => {
     closeDialog: closePredictionResultDialog,
   } = useDialog();
 
-  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
+  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState<boolean>(false);
   const mapViewElementId = "published-predictions-map-view";
   const { scrollToElement } = useScrollToElement(mapViewElementId);
   const { scrollToTop } = useScrollToTop();
