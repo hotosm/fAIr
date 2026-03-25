@@ -1,8 +1,7 @@
-import Markdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import { API_ENDPOINTS, apiClient } from "@/services";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { MarkdownRenderer } from "@/components/shared";
 
 type TBannerResponse = {
   start_date: string;
@@ -33,12 +32,10 @@ const Banner = () => {
 
   return (
     <div className="w-full px-4 py-2 bg-primary flex items-center justify-between">
-      <Markdown
-        remarkPlugins={[remarkGfm]}
-        className="w-[90%] text-wrap xl:text-nowrap prose"
-      >
-        {data?.[0]?.message}
-      </Markdown>
+      <MarkdownRenderer
+        className="w-[90%] text-wrap xl:text-nowrap"
+        content={data?.[0]?.message ?? ""}
+      />
       <button onClick={handleCloseBanner} className="font-bold  text-white">
         ✕
       </button>

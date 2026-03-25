@@ -94,7 +94,6 @@ export const StartMappingMapComponent = ({
       ),
     [modelPredictions],
   );
-
   const { hadHashOnLoad } = useInitialHashFit(map);
 
   useEffect(() => {
