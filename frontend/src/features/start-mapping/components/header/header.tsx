@@ -56,6 +56,7 @@ const StartMappingHeader = memo(
     isOfflineMode,
     hasDrawnAOI,
     openOfflinePredictionRequestDialog,
+    stopMappingFn,
   }: {
     modelPredictionsExist: boolean;
     modelInfoRequestIsPending: boolean;
@@ -98,6 +99,7 @@ const StartMappingHeader = memo(
     isOfflineMode: boolean;
     hasDrawnAOI: boolean;
     openOfflinePredictionRequestDialog: () => void;
+    stopMappingFn: () => void;
   }) => {
     return (
       <div className="h-10">
@@ -107,7 +109,7 @@ const StartMappingHeader = memo(
           <div className="flex items-center justify-between gap-x-1">
             <div className="flex items-center gap-x-2">
               <div>
-                <BrandLogoWithDropDown />
+                <BrandLogoWithDropDown stopMappingFn={stopMappingFn} />
               </div>
               <div className="flex gap-x-1 items-center">
                 <ModelSelectorTriggerButton
