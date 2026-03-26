@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       zenml_version:
-        description: "ZenML version to build (e.g. 0.93.3)"
+        description: "ZenML version to build"
         required: true
         type: string
 
