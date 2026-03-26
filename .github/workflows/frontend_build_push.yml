@@ -23,10 +23,6 @@ jobs:
     env:
       CI: false
 
-    strategy:
-      matrix:
-        node-version: [20]
-
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v5
@@ -34,7 +30,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 22
 
       - name: Install pnpm
         run: npm install -g pnpm
