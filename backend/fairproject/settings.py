@@ -55,10 +55,15 @@ OSM_LOGIN_REDIRECT_URI = env(
     default="http://127.0.0.1:8000/api/v1/auth/callback/" if DEBUG else None,
 )
 
-# Authentication: "legacy" (OSM OAuth) or "hanko" (Hanko SSO)
-AUTH_PROVIDER = env("AUTH_PROVIDER", default="legacy")
+# Authentication provider constants
+class AuthProvider:
+    LEGACY = "legacy"
+    HANKO = "hanko"
 
-if AUTH_PROVIDER == "hanko":
+
+AUTH_PROVIDER = env("AUTH_PROVIDER", default=AuthProvider.LEGACY)
+
+if AUTH_PROVIDER == AuthProvider.HANKO:
     HANKO_API_URL = env("HANKO_API_URL")
     COOKIE_SECRET = env("COOKIE_SECRET")
     COOKIE_DOMAIN = env("COOKIE_DOMAIN", default=None)
@@ -140,7 +145,7 @@ INSTALLED_APPS = [
     "login",
 ]
 
-if AUTH_PROVIDER == "hanko":
+if AUTH_PROVIDER == AuthProvider.HANKO:
     INSTALLED_APPS.append("hotosm_auth_django")
 
 MIDDLEWARE = [
@@ -154,7 +159,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-if AUTH_PROVIDER == "hanko":
+if AUTH_PROVIDER == AuthProvider.HANKO:
     MIDDLEWARE.insert(
         MIDDLEWARE.index("django.contrib.auth.middleware.AuthenticationMiddleware"),
         "hotosm_auth_django.HankoAuthMiddleware",

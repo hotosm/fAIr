@@ -1,5 +1,6 @@
 import logging
 from django.conf import settings
+from fairproject.settings import AuthProvider
 from rest_framework import authentication, exceptions
 
 from .models import OsmUser
@@ -19,6 +20,8 @@ class LegacyOsmAuthentication(authentication.BaseAuthentication):
         access_token = request.headers.get(
             "access-token"
         )  # get the access token as header
+        # if not access_token: # no access token passed on header
+        #     raise exceptions.AuthenticationFailed('Access token not supplied')
         user = None
         if access_token:
             try:
@@ -59,7 +62,7 @@ class LegacyOsmAuthentication(authentication.BaseAuthentication):
                 raise exceptions.AuthenticationFailed(
                     "OSM authentication failed: Invalid or expired access token"
                 )
-        return (user, None)
+        return (user, None)  # authentication successful return id,user_name,img
 
 
 class HankoAuthentication(authentication.BaseAuthentication):
@@ -68,8 +71,9 @@ class HankoAuthentication(authentication.BaseAuthentication):
         from hotosm_auth_django import get_mapped_user_id
 
         if not hasattr(request, 'hotosm'):
-            logger.debug("No hotosm attribute on request - HankoAuthMiddleware not active")
-            return (None, None)
+            raise exceptions.AuthenticationFailed(
+                "HankoAuthMiddleware not configured"
+            )
 
         hanko_user = request.hotosm.user
 
@@ -96,7 +100,7 @@ class HankoAuthentication(authentication.BaseAuthentication):
 
 
 # Select authentication class based on AUTH_PROVIDER
-if getattr(settings, 'AUTH_PROVIDER', 'legacy') == 'hanko':
+if settings.AUTH_PROVIDER == AuthProvider.HANKO:
     logger.info("Using Hanko SSO authentication")
     OsmAuthentication = HankoAuthentication
 else:

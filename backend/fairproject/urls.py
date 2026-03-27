@@ -16,6 +16,7 @@ Including another URLconf
 
 from core.views import home
 from django.conf import settings
+from fairproject.settings import AuthProvider
 from django.conf.urls import include
 from django.contrib import admin
 from django.urls import path
@@ -26,18 +27,15 @@ from drf_spectacular.views import (
 )
 
 admin_mapping_patterns = []
-if getattr(settings, 'AUTH_PROVIDER', 'legacy') == 'hanko':
-    try:
-        from hotosm_auth_django.admin_routes import create_admin_urlpatterns
-        admin_mapping_patterns = create_admin_urlpatterns(
-            app_name="fair",
-            user_model="login.OsmUser",
-            user_id_column="osm_id",
-            user_name_column="username",
-            user_email_column="email",
-        )
-    except ImportError:
-        pass
+if settings.AUTH_PROVIDER == AuthProvider.HANKO:
+    from hotosm_auth_django.admin_routes import create_admin_urlpatterns
+    admin_mapping_patterns = create_admin_urlpatterns(
+        app_name="fair",
+        user_model="login.OsmUser",
+        user_id_column="osm_id",
+        user_name_column="username",
+        user_email_column="email",
+    )
 
 urlpatterns = [
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),

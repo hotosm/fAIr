@@ -1,7 +1,9 @@
 import json
 
+from core.exceptions import AuthenticationException, LoginException, ValidationException
 from core.serializers import UserStatsSerializer
 from django.conf import settings
+from fairproject.settings import AuthProvider
 from django.core.mail import send_mail
 from django.http import JsonResponse, HttpResponseRedirect
 from django.utils import timezone
@@ -170,17 +172,14 @@ class OnboardingCallback(APIView):
     def get(self, request):
         from hotosm_auth_django import create_user_mapping
 
-        if getattr(settings, 'AUTH_PROVIDER', 'legacy') != 'hanko':
+        if settings.AUTH_PROVIDER != AuthProvider.HANKO:
             return Response(
                 {"error": "Onboarding only available with Hanko auth"},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
         if not hasattr(request, 'hotosm') or not request.hotosm.user:
-            return Response(
-                {"error": "Not authenticated with Hanko"},
-                status=status.HTTP_401_UNAUTHORIZED
-            )
+            raise AuthenticationException("Not authenticated with Hanko")
 
         hanko_user = request.hotosm.user
         is_new_user = request.query_params.get('new_user') == 'true'
@@ -202,17 +201,14 @@ class OnboardingCallback(APIView):
                 app_name="fair",
             )
 
-            frontend_url = getattr(settings, 'FRONTEND_URL', '/')
+            frontend_url = settings.FRONTEND_URL
             return HttpResponseRedirect(frontend_url)
 
         else:
             osm_connection = request.hotosm.osm
 
             if not osm_connection:
-                return Response(
-                    {"error": "OSM connection required for legacy users"},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+                raise LoginException("OSM connection required for legacy users")
 
             osm_id = osm_connection.osm_user_id
 
@@ -220,8 +216,8 @@ class OnboardingCallback(APIView):
 
             if not existing_user:
                 from urllib.parse import urlencode
-                login_url = getattr(settings, 'LOGIN_URL', 'https://login.hotosm.org')
-                frontend_url = getattr(settings, 'FRONTEND_URL', '/')
+                login_url = settings.LOGIN_URL
+                frontend_url = settings.FRONTEND_URL
                 error_msg = f"No existing account found for '{osm_connection.osm_username}'. Please select 'No, I'm new' to create a new account."
                 params = urlencode({
                     'onboarding': 'fair',
@@ -241,7 +237,7 @@ class OnboardingCallback(APIView):
                 app_name="fair",
             )
 
-            frontend_url = getattr(settings, 'FRONTEND_URL', '/')
+            frontend_url = settings.FRONTEND_URL
             return HttpResponseRedirect(frontend_url)
 
 
@@ -251,7 +247,7 @@ class AuthStatus(APIView):
     def get(self, request):
         from hotosm_auth_django import get_mapped_user_id
 
-        if getattr(settings, 'AUTH_PROVIDER', 'legacy') != 'hanko':
+        if settings.AUTH_PROVIDER != AuthProvider.HANKO:
             return Response({
                 "auth_provider": "legacy",
                 "authenticated": request.user.is_authenticated if hasattr(request, 'user') else False,

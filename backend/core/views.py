@@ -42,6 +42,7 @@ from django_q.tasks import async_task
 from django_ratelimit.decorators import ratelimit
 from geojson2osm import geojson2osm
 from login.authentication import OsmAuthentication
+from login.hanko_helpers import HankoUserFilterMixin
 from login.permissions import (
     IsAdminUser,
     IsOsmAuthenticated,
@@ -62,7 +63,6 @@ from rest_framework_gis.filters import InBBoxFilter, TMSTileFilter
 from shapely.geometry import box
 
 from login.authentication import OsmAuthentication
-from login.hanko_helpers import HankoUserFilterMixin
 from login.permissions import (
     IsAdminUser,
     IsOsmAuthenticated,
