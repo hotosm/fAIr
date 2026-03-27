@@ -41,8 +41,8 @@ const columnDefinitions = (
     header: ({ column }) => <SortableHeader title={"ID"} column={column} />,
     cell: ({ row }) => (
       <div
-        // variant="default"
-        className=""
+  
+     
       >
         <span className="text-body-3 uppercase">{row.original.id}</span>
       </div>

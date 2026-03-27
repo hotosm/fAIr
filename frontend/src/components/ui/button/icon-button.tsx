@@ -14,7 +14,7 @@ type ButtonWithIconProps = {
   iconClassName?: string;
   disabled?: boolean;
   size?: ButtonSize;
-  uppercase?: boolean;
+
   contentClassName?: string;
 };
 const ButtonWithIcon: React.FC<ButtonWithIconProps> = ({
@@ -27,7 +27,6 @@ const ButtonWithIcon: React.FC<ButtonWithIconProps> = ({
   iconClassName,
   disabled,
   size,
-  uppercase,
   textClassName,
   contentClassName,
 }) => {
@@ -39,7 +38,7 @@ const ButtonWithIcon: React.FC<ButtonWithIconProps> = ({
         className={className}
         disabled={disabled}
         size={size}
-        uppercase={uppercase}
+       
         contentClassName={contentClassName}
       >
         {PrefixIcon && <PrefixIcon className={cn(`icon ${iconClassName}`)} />}

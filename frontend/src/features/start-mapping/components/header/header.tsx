@@ -174,7 +174,7 @@ const StartMappingHeader = memo(
                       }
                     >
                       <ButtonWithIcon
-                        uppercase={false}
+                     
                         suffixIcon={ChevronDownIcon}
                         label={
                           START_MAPPING_PAGE_CONTENT.buttons.download.label

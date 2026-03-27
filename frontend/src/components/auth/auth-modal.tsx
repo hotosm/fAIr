@@ -49,7 +49,6 @@ export const AuthenticationModal = ({
         ) : (
           <Button
             onClick={handleLogin}
-            uppercase={false}
             className="!w-fit"
             disabled={loading}
           >

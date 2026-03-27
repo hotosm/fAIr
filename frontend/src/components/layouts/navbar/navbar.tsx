@@ -45,7 +45,7 @@ export const NavBar = () => {
               <UserProfile setOpen={setOpen} />
             ) : (
               <Button
-                uppercase={false}
+               
                 onClick={() => {
                   /*
                    * Set the `backgroundLocation` in location state so that when we open the authentication modal we still see the current page in the background.
@@ -79,7 +79,7 @@ export const NavBar = () => {
           ) : (
             <Button
               className={styles.loginButton}
-              uppercase={false}
+              
               onClick={() => {
                 /*
                  * Set the `backgroundLocation` in location state so that when we open the authentication modal we still see the current page in the background.

@@ -47,7 +47,7 @@ export const Footer = () => {
           <div className="col-span-8 lg:col-span-4">
             <p className="text-body-1">{SHARED_CONTENT.footer.title}</p>
           </div>
-          <div className="col-span-8 uppercase text-body-2 flex  lg:col-start-7 lg:col-span-4  w-full justify-between">
+          <div className="col-span-8 text-body-2 flex  lg:col-start-7 lg:col-span-4  w-full justify-between">
             <ul className="space-y-4">
               {footerLinks.groupOne
                 .filter((link) => link.active)

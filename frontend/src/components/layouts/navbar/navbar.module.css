@@ -19,7 +19,6 @@ nav {
   display: flex;
   flex-direction: column;
   align-items: center;
-  text-transform: uppercase;
   font-weight: var(--sl-spacing-medium);
   font-size: var(--hot-fair-font-size-body-text-3);
   gap: var(--sl-spacing-3x-large);
