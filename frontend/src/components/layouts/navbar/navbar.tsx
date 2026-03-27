@@ -78,6 +78,7 @@ export const NavBar = () => {
           ) : (
             <Button
               className={styles.loginButton}
+              uppercase ={false}
               onClick={() => {
                 /*
                  * Set the `backgroundLocation` in location state so that when we open the authentication modal we still see the current page in the background.
@@ -151,14 +152,14 @@ const NavBarLinks: React.FC<NavBarLinksProps> = ({ className, setOpen }) => {
                   disableCheveronIcon={false}
                   distance={20}
                   triggerComponent={
-                    <span className="cursor-pointer bg-transparent border-none p-0 font-inherit text-inherit uppercase font-medium text-[length:var(--hot-fair-font-size-body-text-2base)] xl:text-[length:var(--hot-fair-font-size-body-text-2)]">
+                    <span className="cursor-pointer capitalize bg-transparent border-none p-0 font-inherit text-inherit uppercase font-medium text-[length:var(--hot-fair-font-size-body-text-2base)] xl:text-[length:var(--hot-fair-font-size-body-text-2)]">
                       {link.title}
                     </span>
                   }
                   menuItems={link.children?.map((child) => ({
                     value: child.title,
                     name: child.title,
-                    className: "!uppercase hover:bg-gray-50",
+                    className: "!uppercase hover:bg-gray-50 !capitalize",
                     onClick: (e: any) => {
                       e?.stopPropagation();
                       navigate(child.href);
@@ -167,7 +168,7 @@ const NavBarLinks: React.FC<NavBarLinksProps> = ({ className, setOpen }) => {
                   }))}
                 />
               ) : (
-                <Link href={link.href} title={link.title} nativeAnchor={false}>
+                <Link href={link.href} title={link.title} nativeAnchor={false} className="capitalize">
                   {link.title}
                 </Link>
               )}
