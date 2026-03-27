@@ -126,6 +126,7 @@ const NavBarLinks: React.FC<NavBarLinksProps> = ({ className, setOpen }) => {
     <ul className={className}>
       {navLinks
         .filter((link) => link.href !== "")
+        .filter((link) => link.active)
         .map((link, id) => {
           const isActive =
             location.pathname.includes(link.href) ||

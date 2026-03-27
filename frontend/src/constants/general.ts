@@ -14,7 +14,7 @@ export const navLinks: TNavBarLinks = [
     active: true,
     children: [
       {
-        title: "Datasets",
+        title: "Training Datasets",
         href: APPLICATION_ROUTES.DATASETS,
       },
       {
@@ -53,18 +53,18 @@ export const footerLinks: TFooterGroupLinks = {
       active: true,
     },
     {
-      title: "datasets",
+      title: "Training datasets",
+      route: APPLICATION_ROUTES.DATASETS,
+      active: true,
+    },
+     {
+      title: "AI Predictions",
       route: APPLICATION_ROUTES.DATASETS,
       active: true,
     },
     {
       title: "learn",
       route: APPLICATION_ROUTES.LEARN_BASE,
-      active: true,
-    },
-    {
-      title: "about",
-      route: APPLICATION_ROUTES.ABOUT,
       active: true,
     },
   ],
@@ -79,6 +79,11 @@ export const footerLinks: TFooterGroupLinks = {
       title: "privacy policy",
       route: HOT_PRIVACY_POLICY_URL,
       isExternalLink: true,
+      active: true,
+    },
+       {
+      title: "about",
+      route: APPLICATION_ROUTES.ABOUT,
       active: true,
     },
   ],
