@@ -85,7 +85,7 @@ export const PublishedPredictionsFilters = ({
       </div>
 
       {/* Count, sort, pagination, layout row */}
-       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <p className="text-body-3 font-semibold text-nowrap">
           {totalCount} Prediction{totalCount !== 1 ? "s" : ""}
         </p>

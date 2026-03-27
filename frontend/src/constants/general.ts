@@ -57,7 +57,7 @@ export const footerLinks: TFooterGroupLinks = {
       route: APPLICATION_ROUTES.DATASETS,
       active: true,
     },
-     {
+    {
       title: "AI Predictions",
       route: APPLICATION_ROUTES.DATASETS,
       active: true,
@@ -81,7 +81,7 @@ export const footerLinks: TFooterGroupLinks = {
       isExternalLink: true,
       active: true,
     },
-       {
+    {
       title: "about",
       route: APPLICATION_ROUTES.ABOUT,
       active: true,

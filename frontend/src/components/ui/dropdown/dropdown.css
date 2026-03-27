@@ -1,7 +1,3 @@
-/*  
-    Customizing the menu item for the logout button in the user profile dropdown. 
-    The 'logoutButton' class is passed from the userprofile component.
-*/
 
 sl-menu-item::part(base) {
   color: var(--hot-fair-color-dark);
@@ -12,6 +8,21 @@ sl-menu-item::part(base) {
 sl-menu-item::part(base):hover {
   background-color: var(--hot-fair-color-hover-accent);
 }
+
+/* Remove blue focus line */
+sl-menu-item::part(base):focus,
+sl-menu-item::part(base):active,
+sl-menu-item::part(base):focus-visible{
+  outline: none;
+  box-shadow: none;
+  border: none;
+
+}
+
+/*  
+    Customizing the menu item for the logout button in the user profile dropdown. 
+    The 'logoutButton' class is passed from the userprofile component.
+*/
 
 sl-menu-item.logoutButton::part(base) {
   color: var(--hot-fair-color-primary);
