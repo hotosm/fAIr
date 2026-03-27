@@ -147,7 +147,7 @@ export const NavBar = () => {
               {SHARED_CONTENT.navbar.loginButton}
             </Button>
           )}
-          {AUTH_PROVIDER === "hanko" && <hotosm-tool-menu></hotosm-tool-menu>}
+          <hotosm-tool-menu></hotosm-tool-menu>
         </div>
         <div className="flex items-center gap-x-2 sm:hidden">
           {/* Notification bell on the small screens */}
