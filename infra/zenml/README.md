@@ -20,3 +20,11 @@ docker compose run zenml
 - The backup process relies on MySQL specific tools.
 - Instead we manage Postgres backups in an external
   system, such as CloudNativePG.
+
+## Building Via CI
+
+- It's possible to build using compose, as above.
+- It may be easier to use the bundled image build workflow,
+  which has the advantage of building multi-arch (+ARM).
+- Simply go to Github Actions, trigger the workflow,
+  and enter the ZenML version to build.

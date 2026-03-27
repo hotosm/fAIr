@@ -63,6 +63,7 @@ import { OfflinePredictionRequestDialog } from "@/features/start-mapping/compone
 import { GeoJSONStoreFeatures } from "terra-draw";
 import { FileUploadIcon } from "@/components/ui/icons";
 import { ToolTip } from "@/components/ui/tooltip";
+import { useHistory } from "@/hooks/use-history";
 
 export type TDownloadOptions = {
   name: string;
@@ -146,11 +147,12 @@ export const StartMappingPage = () => {
   );
 
   const { isSmallViewport } = useScreenSize();
-
+  const { goBack } = useHistory();
   const {
     features: modelPredictions,
     setFeatures: setModelPredictions,
     updateFeatureStatus,
+    clearFeatures,
   } = useModelPredictionStore();
 
   const [offlinePredictionAOI, setOfflinePredictionAOI] =
@@ -279,6 +281,12 @@ export const StartMappingPage = () => {
     tileJSONMetadata,
   } = useTileservice(TileServiceType.XYZ, customTileServerURL);
 
+  /**
+   * Clear the predicted features from the store when the modelId changes to ensure that predictions from a previous model do not persist when the user navigates to a different model's mapping page.
+   */
+  useEffect(() => {
+    clearFeatures();
+  }, [modelId]);
   /**
    *  On first load, if someone came in with ?checkpoint=..., prefill our custom state
    */
@@ -747,6 +755,18 @@ export const StartMappingPage = () => {
     closeOfflinePredictionDialog();
   }, [closeOfflinePredictionDialog, setOpenMobileDrawer]);
 
+  /**
+   * Handle the stopping of mapping.
+   * It navigates the user back to the previous page and clears the query parameters from the URL and predicted features from the store.
+   * This is to ensure that when the user starts mapping again, they start with a clean slate without any previous settings in the URL.
+   */
+
+  const stopMapping = () => {
+    clearFeatures();
+    setSearchParams(new URLSearchParams(), { replace: true });
+    goBack();
+  };
+
   return (
     <>
       <Head title={START_MAPPING_PAGE_CONTENT.pageTitle(modelInfo?.name)} />
@@ -915,6 +935,7 @@ export const StartMappingPage = () => {
             openOfflinePredictionRequestDialog={
               handleOfflinePredictionRequestDialogOpen
             }
+            stopMappingFn={stopMapping}
           />
         </div>
         <div className="col-span-12 h-[70vh] md:h-full md:border-8 md:border-off-white flex-grow relative map-elements-z-index">
@@ -924,7 +945,7 @@ export const StartMappingPage = () => {
               <UserProfile hideFullName />
             </div>
             <div className="absolute top-4 left-4  z-[10]">
-              <BrandLogoWithDropDown />
+              <BrandLogoWithDropDown stopMappingFn={stopMapping} />
             </div>
             <div className={"absolute top-[10vh] left-3 map-elements-z-index"}>
               {terraDraw && map && (

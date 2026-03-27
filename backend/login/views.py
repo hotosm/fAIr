@@ -18,16 +18,19 @@ from login.permissions import IsOsmAuthenticated
 from .models import OsmUser
 from .tokens import email_verification_token
 
-# Create your views here.
-# initialize osm_auth with our credentials
-osm_auth = Auth(
-    osm_url=settings.OSM_URL,
-    client_id=settings.OSM_CLIENT_ID,
-    client_secret=settings.OSM_CLIENT_SECRET,
-    secret_key=settings.OSM_SECRET_KEY,
-    login_redirect_uri=settings.OSM_LOGIN_REDIRECT_URI,
-    scope=settings.OSM_SCOPE,
-)
+
+def get_osm_auth() -> Auth:
+    return Auth(
+        osm_url=settings.OSM_URL,
+        client_id=settings.OSM_CLIENT_ID,
+        client_secret=settings.OSM_CLIENT_SECRET,
+        secret_key=settings.OSM_SECRET_KEY,
+        login_redirect_uri=settings.OSM_LOGIN_REDIRECT_URI,
+        scope=settings.OSM_SCOPE,
+    )
+
+
+osm_auth = get_osm_auth()
 
 
 class login(APIView):
@@ -81,12 +84,16 @@ class GetMyData(APIView):
         serializer = UserStatsSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            
+
             if "email" in request.data and request.data["email"] != original_email:
                 user.email_verified = False
                 user.save(update_fields=["email_verified"])
 
-            if "account_deletion_requested" in request.data and request.data["account_deletion_requested"] and not original_deletion_requested:
+            if (
+                "account_deletion_requested" in request.data
+                and request.data["account_deletion_requested"]
+                and not original_deletion_requested
+            ):
                 send_mail(
                     subject="fAIr : Account deletion requested",
                     message=f"User {user.username} (OSM ID: {user.osm_id}) has requested account deletion.",

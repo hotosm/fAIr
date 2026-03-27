@@ -30,7 +30,7 @@ export const useMapInstance = (
 
     map.on("load", () => {
       setMap(map);
-      setZoom(Math.round(map.getZoom()) + 1);
+      setZoom(Math.floor(map.getZoom()));
     });
 
     return () => map.remove();
@@ -54,8 +54,7 @@ export const useMapInstance = (
   useEffect(() => {
     if (!map) return;
     const updateZoom = () => {
-      const zoom = Math.round(map.getZoom());
-      setZoom(zoom);
+      setZoom(Math.floor(map.getZoom()));
     };
 
     map.on("zoomend", updateZoom);

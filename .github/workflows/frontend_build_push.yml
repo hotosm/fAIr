@@ -12,7 +12,7 @@ permissions:
 jobs:
   frontend-unit-test:
     uses: hotosm/gh-workflows/.github/workflows/test_pnpm.yml@3.2.0
-    
+
     with:
       working_dir: frontend
   build_and_upload:
@@ -23,18 +23,14 @@ jobs:
     env:
       CI: false
 
-    strategy:
-      matrix:
-        node-version: [20]
-
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 22
 
       - name: Install pnpm
         run: npm install -g pnpm
