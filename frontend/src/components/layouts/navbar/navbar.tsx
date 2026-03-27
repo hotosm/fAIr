@@ -45,6 +45,7 @@ export const NavBar = () => {
               <UserProfile setOpen={setOpen} />
             ) : (
               <Button
+                uppercase={false}
                 onClick={() => {
                   /*
                    * Set the `backgroundLocation` in location state so that when we open the authentication modal we still see the current page in the background.
@@ -78,7 +79,7 @@ export const NavBar = () => {
           ) : (
             <Button
               className={styles.loginButton}
-              uppercase ={false}
+              uppercase={false}
               onClick={() => {
                 /*
                  * Set the `backgroundLocation` in location state so that when we open the authentication modal we still see the current page in the background.
@@ -152,7 +153,7 @@ const NavBarLinks: React.FC<NavBarLinksProps> = ({ className, setOpen }) => {
                   disableCheveronIcon={false}
                   distance={20}
                   triggerComponent={
-                    <span className="cursor-pointer capitalize bg-transparent border-none p-0 font-inherit text-inherit uppercase font-medium text-[length:var(--hot-fair-font-size-body-text-2base)] xl:text-[length:var(--hot-fair-font-size-body-text-2)]">
+                    <span className="cursor-pointer capitalize bg-transparent border-none p-0 font-inherit text-inherit  text-[length:var(--hot-fair-font-size-body-text-2base)] xl:text-[length:var(--hot-fair-font-size-body-text-2)]">
                       {link.title}
                     </span>
                   }
@@ -168,7 +169,12 @@ const NavBarLinks: React.FC<NavBarLinksProps> = ({ className, setOpen }) => {
                   }))}
                 />
               ) : (
-                <Link href={link.href} title={link.title} nativeAnchor={false} className="capitalize">
+                <Link
+                  href={link.href}
+                  title={link.title}
+                  nativeAnchor={false}
+                  className="capitalize"
+                >
                   {link.title}
                 </Link>
               )}
