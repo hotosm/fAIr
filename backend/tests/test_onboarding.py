@@ -23,26 +23,26 @@ class TestOnboardingCallback(TestCase):
     @override_settings(AUTH_PROVIDER='hanko')
     def test_rejects_unauthenticated(self):
         from login.views import OnboardingCallback
+        from core.exceptions import AuthenticationException
 
         view = OnboardingCallback()
         request = MagicMock(spec=[])
 
-        response = view.get(request)
-
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        with self.assertRaises(AuthenticationException):
+            view.get(request)
 
     @override_settings(AUTH_PROVIDER='hanko')
     def test_rejects_no_hanko_user(self):
         from login.views import OnboardingCallback
+        from core.exceptions import AuthenticationException
 
         view = OnboardingCallback()
         request = MagicMock()
         request.hotosm = MagicMock()
         request.hotosm.user = None
 
-        response = view.get(request)
-
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        with self.assertRaises(AuthenticationException):
+            view.get(request)
 
     @override_settings(AUTH_PROVIDER='hanko', FRONTEND_URL='https://fair.hotosm.org')
     @patch('hotosm_auth_django.create_user_mapping')
@@ -74,6 +74,7 @@ class TestOnboardingCallback(TestCase):
     @override_settings(AUTH_PROVIDER='hanko')
     def test_legacy_user_requires_osm_connection(self):
         from login.views import OnboardingCallback
+        from core.exceptions import LoginException
 
         view = OnboardingCallback()
         request = MagicMock()
@@ -83,10 +84,8 @@ class TestOnboardingCallback(TestCase):
         request.hotosm.osm = None
         request.query_params = {'new_user': 'false'}
 
-        response = view.get(request)
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('OSM connection', response.data['error'])
+        with self.assertRaises(LoginException):
+            view.get(request)
 
     @override_settings(AUTH_PROVIDER='hanko', FRONTEND_URL='https://fair.hotosm.org')
     @patch('hotosm_auth_django.create_user_mapping')

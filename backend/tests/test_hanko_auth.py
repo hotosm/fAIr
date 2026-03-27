@@ -101,12 +101,13 @@ class TestHankoAuthentication(TestCase):
 
     def test_no_hotosm_attribute(self):
         from login.authentication import HankoAuthentication
+        from rest_framework.exceptions import AuthenticationFailed
 
         auth = HankoAuthentication()
         request = MagicMock(spec=[])  # Empty spec = no attributes
 
-        result = auth.authenticate(request)
-        self.assertEqual(result, (None, None))
+        with self.assertRaises(AuthenticationFailed):
+            auth.authenticate(request)
 
     def test_no_hanko_user(self):
         from login.authentication import HankoAuthentication
