@@ -49,7 +49,9 @@ export const PublishedPredictionsPage = () => {
     openDialog: openMapSwipeProjectStatusDialog,
     closeDialog: closeMapSwipeProjectStatusDialog,
   } = useDialog();
-  const [mapSwipeResultsPmtiles, setMapSwipeResultsPmtiles] = useState<string | null>(null);
+  const [mapSwipeResultsPmtiles, setMapSwipeResultsPmtiles] = useState<
+    string | null
+  >(null);
 
   const {
     isOpened: isMapSwipeProjectResultMapOpened,
@@ -93,8 +95,6 @@ export const PublishedPredictionsPage = () => {
     openPredictionResultDialog();
   };
 
-
-
   useEffect(() => {
     if (mapViewIsActive) {
       scrollToElement();
@@ -120,9 +120,9 @@ export const PublishedPredictionsPage = () => {
           </div>
           <div className="row-start-1" id={mapViewElementId}>
             {isMapDataPending ||
-              isMapDataError ||
-              !mapData ||
-              mapData.features.length === 0 ? (
+            isMapDataError ||
+            !mapData ||
+            mapData.features.length === 0 ? (
               <div className="w-full h-full animate-pulse bg-light-gray flex items-center justify-center">
                 <Spinner />
               </div>
@@ -186,7 +186,9 @@ export const PublishedPredictionsPage = () => {
           isOpen={isMapswipeDialogOpen}
           onClose={closeMapSwipeProjectStatusDialog}
           mapSwipeProjectId={activePrediction.mapswipe_id ?? ""}
-          handleMapSwipeProjectResultMapModal={handleMapSwipeProjectResultMapModal}
+          handleMapSwipeProjectResultMapModal={
+            handleMapSwipeProjectResultMapModal
+          }
         />
       )}
 
