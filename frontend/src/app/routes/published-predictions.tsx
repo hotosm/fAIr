@@ -6,6 +6,8 @@ import { PredictionResultDrawer } from "@/features/user-profile/components/offli
 import { FeatureCollection, TOfflinePrediction } from "@/types";
 import { useEffect, useState } from "react";
 import { useDialog } from "@/hooks/use-dialog";
+import { MapSwipeProjectResultMapDrawer } from "@/features/mapswipe/components/project-results-map";
+
 import PageHeader from "@/features/models/components/header";
 import { MapswipeProjectStatusDialog } from "@/features/mapswipe/components/project-status-dialog";
 import {
@@ -42,7 +44,35 @@ export const PublishedPredictionsPage = () => {
     setPredictionId,
     clearAllFilters,
   } = usePublishedPredictions();
+  const {
+    isOpened: isMapswipeDialogOpen,
+    openDialog: openMapSwipeProjectStatusDialog,
+    closeDialog: closeMapSwipeProjectStatusDialog,
+  } = useDialog();
+  const [mapSwipeResultsPmtiles, setMapSwipeResultsPmtiles] = useState<string | null>(null);
 
+  const {
+    isOpened: isMapSwipeProjectResultMapOpened,
+    openDialog: openMapSwipeProjectResultMapDialog,
+    closeDialog: closeMapSwipeProjectResultMapDialog,
+  } = useDialog();
+  const handleViewMapswipe = (prediction: TOfflinePrediction) => {
+    setMapSwipeResultsPmtiles(null);
+    setActivePrediction(prediction);
+    openMapSwipeProjectStatusDialog();
+  };
+
+  const handleMapSwipeProjectResultMapModal = (pmtiles: string) => {
+    setMapSwipeResultsPmtiles(pmtiles);
+    closeMapSwipeProjectStatusDialog();
+    openMapSwipeProjectResultMapDialog();
+  };
+
+  const handleCloseMapSwipeProjectResultMapModal = () => {
+    closeMapSwipeProjectResultMapDialog();
+    setMapSwipeResultsPmtiles(null);
+    openMapSwipeProjectStatusDialog();
+  };
   const [activePrediction, setActivePrediction] =
     useState<TOfflinePrediction | null>(null);
 
@@ -52,7 +82,6 @@ export const PublishedPredictionsPage = () => {
     closeDialog: closePredictionResultDialog,
   } = useDialog();
 
-  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState<boolean>(false);
   const mapViewElementId = "published-predictions-map-view";
   const { scrollToElement } = useScrollToElement(mapViewElementId);
   const { scrollToTop } = useScrollToTop();
@@ -64,15 +93,7 @@ export const PublishedPredictionsPage = () => {
     openPredictionResultDialog();
   };
 
-  const handleViewDetails = (prediction: TOfflinePrediction) => {
-    setActivePrediction(prediction);
-    setIsDetailDialogOpen(true);
-  };
 
-  const handleCloseDetail = () => {
-    setIsDetailDialogOpen(false);
-    setActivePrediction(null);
-  };
 
   useEffect(() => {
     if (mapViewIsActive) {
@@ -94,14 +115,14 @@ export const PublishedPredictionsPage = () => {
               refetch={refetch}
               isMapView={mapViewIsActive}
               onViewResults={handleViewResults}
-              onViewDetails={handleViewDetails}
+              onViewDetails={handleViewMapswipe}
             />
           </div>
           <div className="row-start-1" id={mapViewElementId}>
             {isMapDataPending ||
-            isMapDataError ||
-            !mapData ||
-            mapData.features.length === 0 ? (
+              isMapDataError ||
+              !mapData ||
+              mapData.features.length === 0 ? (
               <div className="w-full h-full animate-pulse bg-light-gray flex items-center justify-center">
                 <Spinner />
               </div>
@@ -125,7 +146,7 @@ export const PublishedPredictionsPage = () => {
             isError={isError}
             refetch={refetch}
             onViewResults={handleViewResults}
-            onViewDetails={handleViewDetails}
+            onViewDetails={handleViewMapswipe}
           />
         ) : (
           <PublishedPredictionsGrid
@@ -134,7 +155,7 @@ export const PublishedPredictionsPage = () => {
             isError={isError}
             refetch={refetch}
             onViewResults={handleViewResults}
-            onViewDetails={handleViewDetails}
+            onViewDetails={handleViewMapswipe}
           />
         )}
       </div>
@@ -159,15 +180,24 @@ export const PublishedPredictionsPage = () => {
       )}
 
       {/* Detail dialog */}
+
       {activePrediction && (
         <MapswipeProjectStatusDialog
-          isOpen={isDetailDialogOpen}
-          onClose={handleCloseDetail}
+          isOpen={isMapswipeDialogOpen}
+          onClose={closeMapSwipeProjectStatusDialog}
           mapSwipeProjectId={activePrediction.mapswipe_id ?? ""}
-          handleMapSwipeProjectResultMapModal={(pmtiles: string) => {
-            // Can be expanded to open a PM tiles viewer if requested
-            window.open(pmtiles, "_blank");
-          }}
+          handleMapSwipeProjectResultMapModal={handleMapSwipeProjectResultMapModal}
+        />
+      )}
+
+      {activePrediction && mapSwipeResultsPmtiles && (
+        <MapSwipeProjectResultMapDrawer
+          tileServiceUrl={activePrediction.config.source}
+          predictionId={activePrediction.id}
+          folder={activePrediction.config.folder}
+          isOpened={isMapSwipeProjectResultMapOpened}
+          closeDialog={handleCloseMapSwipeProjectResultMapModal}
+          pmtilesUrl={mapSwipeResultsPmtiles}
         />
       )}
 
