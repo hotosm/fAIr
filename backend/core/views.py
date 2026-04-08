@@ -62,13 +62,6 @@ from rest_framework_gis.fields import GeometryField
 from rest_framework_gis.filters import InBBoxFilter, TMSTileFilter
 from shapely.geometry import box
 
-from login.authentication import OsmAuthentication
-from login.permissions import (
-    IsAdminUser,
-    IsOsmAuthenticated,
-    IsOwnerOrReadOnly,
-    IsStaffUser,
-)
 from .exceptions import (
     ExternalServiceException,
     ResourceNotFoundException,
@@ -1113,12 +1106,13 @@ class PredictionSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         if request and request.method == "GET":
             ret["user"] = UserSerializer(instance.user).data
-            config = getattr(instance, "config", {}) or {}
-            model_id = config.get("model_id")
-            if model_id:
+            config = instance.config or {}
+            model_name = config.get("model_name")
+            if config.get("model_id") and not model_name:
                 try:
-                    model_obj = Model.objects.only("name").get(id=model_id)
-                    ret["model_name"] = model_obj.name
+                    ret["model_name"] = (
+                        Model.objects.only("name").get(id=config["model_id"]).name
+                    )
                 except Model.DoesNotExist:
                     ret["model_name"] = None
         return ret
