@@ -1,5 +1,8 @@
 import { queryOptions } from "@tanstack/react-query";
-import { getAIPredictions, getAIPredictionsMapData } from "./get-ai-predictions";
+import {
+  getAIPredictions,
+  getAIPredictionsMapData,
+} from "./get-ai-predictions";
 
 export const getAIPredictionsQueryOptions = (
   searchQuery?: string,

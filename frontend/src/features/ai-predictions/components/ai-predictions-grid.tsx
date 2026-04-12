@@ -60,9 +60,7 @@ export const AIPredictionsGrid = ({
     return (
       <div className="flex flex-col gap-y-4 items-center justify-center py-20">
         <NoTrainingAreaIcon />
-        <p className="text-grey text-body-2base">
-          No AI predictions found.
-        </p>
+        <p className="text-grey text-body-2base">No AI predictions found.</p>
       </div>
     );
   }

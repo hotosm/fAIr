@@ -6,9 +6,7 @@ sl-button.button::part(base) {
   display: flex;
   align-items: center;
   gap: 3px;
-  
 }
-
 
 sl-button.secondary::part(base) {
   background-color: var(--hot-fair-color-white);

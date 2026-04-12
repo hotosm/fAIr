@@ -174,7 +174,6 @@ const StartMappingHeader = memo(
                       }
                     >
                       <ButtonWithIcon
-                     
                         suffixIcon={ChevronDownIcon}
                         label={
                           START_MAPPING_PAGE_CONTENT.buttons.download.label
@@ -195,6 +194,9 @@ const StartMappingHeader = memo(
                 modelInfo={modelInfo}
                 tileServerURL={tileServerURL}
                 predictionModelCheckpoint={predictionModelCheckpoint}
+                customPredictionModelCheckpointPath={
+                  customPredictionModelCheckpointPath
+                }
                 setModelPredictions={setModelPredictions}
                 modelPredictions={modelPredictions}
                 isOfflineMode={isOfflineMode}

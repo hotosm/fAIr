@@ -76,9 +76,7 @@ export const DatasetCard = ({
           </div>
           {showUsername && (
             <div className="w-1/2">
-              <p className="text-grey text-body-4">
-                Created by:
-              </p>
+              <p className="text-grey text-body-4">Created by:</p>
               <p className="text-dark font-semibold text-body-4  truncate">
                 {dataset.user.username}
               </p>

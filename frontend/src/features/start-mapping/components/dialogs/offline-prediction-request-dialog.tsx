@@ -2,7 +2,7 @@ import { Dialog } from "@/components/ui/dialog";
 
 import { FormLabel, Input } from "@/components/ui/form";
 import { RadioGroup } from "@/components/ui/form/radio-group/radio-group";
-import { useState } from "react";
+import {  useState } from "react";
 import { ModelSettings } from "@/features/start-mapping/components/model-settings";
 import { Feature, TModelDetails, TQueryParams } from "@/types";
 import { Button } from "@/components/ui/button";
@@ -68,6 +68,14 @@ export const OfflinePredictionRequestDialog = ({
       onError: (error) => showErrorToast(error),
     },
   });
+
+  const getModelName = () => {
+    let selectedModel = query[SEARCH_PARAMS.model];
+    if (selectedModel && selectedModel !== "Default") {
+      return selectedModel;
+    }
+    return modelInfo?.name;
+  };
 
   return (
     <>
@@ -210,6 +218,7 @@ export const OfflinePredictionRequestDialog = ({
                     source:
                       tileServerURL ??
                       (modelInfo?.dataset?.source_imagery as string),
+                    model_name: getModelName() as string,
                   },
                 });
               }}

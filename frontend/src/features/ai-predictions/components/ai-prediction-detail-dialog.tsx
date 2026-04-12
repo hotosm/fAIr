@@ -193,7 +193,6 @@ export const PublishedPredictionDetailDialog = ({
                     suffixIcon={CloudDownloadIcon}
                     contentClassName="text-body-4 md:text-body-3 font-semibold"
                     label="Download Result"
-                    
                   />
                 }
                 distance={4}

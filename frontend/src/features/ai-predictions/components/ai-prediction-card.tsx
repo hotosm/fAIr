@@ -160,7 +160,9 @@ export const AIPredictionCard = ({
           <div className=" flex  items-center justify-between text-body-4">
             <div>
               <p className="text-body-4  text-grey">Model Used:</p>
-              <span className="text-dark font-semibold">{prediction.model_name}</span>
+              <span className="text-dark font-semibold">
+                {prediction.model_name}
+              </span>
             </div>
             <div>
               <p className="text-grey flex justify-end flex-col text-body-4">

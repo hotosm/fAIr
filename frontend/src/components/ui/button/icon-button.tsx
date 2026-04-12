@@ -38,7 +38,6 @@ const ButtonWithIcon: React.FC<ButtonWithIconProps> = ({
         className={className}
         disabled={disabled}
         size={size}
-       
         contentClassName={contentClassName}
       >
         {PrefixIcon && <PrefixIcon className={cn(`icon ${iconClassName}`)} />}

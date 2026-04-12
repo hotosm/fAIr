@@ -39,10 +39,7 @@ const columnDefinitions = (
     accessorKey: "id",
     header: ({ column }) => <SortableHeader title={"ID"} column={column} />,
     cell: ({ row }) => (
-      <div
-  
-     
-      >
+      <div>
         <span className="text-body-3 uppercase">{row.original.id}</span>
       </div>
     ),
@@ -123,7 +120,6 @@ const columnDefinitions = (
         }
         modelUsed={getModelUsed(row.original)}
         createdBy={row.original.user?.username}
-   
       />
     ),
   },
@@ -159,9 +155,7 @@ export const AIPredictionsListLayout = ({
     return (
       <div className="flex flex-col gap-y-4 items-center justify-center py-20">
         <NoTrainingAreaIcon />
-        <p className="text-grey text-body-2base">
-          No AI predictions found.
-        </p>
+        <p className="text-grey text-body-2base">No AI predictions found.</p>
       </div>
     );
   }

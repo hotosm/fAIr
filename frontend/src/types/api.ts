@@ -234,6 +234,7 @@ export type TPredictionsConfig = {
   zoom_level: number;
   source_imagery?: string;
   folder?: string;
+  model_name?: string;
 };
 
 export type TModelPredictionsConfig = TPredictionsConfig & {

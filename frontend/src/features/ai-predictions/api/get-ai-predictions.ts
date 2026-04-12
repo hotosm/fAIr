@@ -34,11 +34,8 @@ export const getAIPredictions = async (
   };
 };
 
-export const getAIPredictionsMapData =
-  async (): Promise<FeatureCollection> => {
-    const res = await apiClient.get(
-      API_ENDPOINTS.GET_AI_PREDICTIONS_CENTROIDS,
-    );
+export const getAIPredictionsMapData = async (): Promise<FeatureCollection> => {
+  const res = await apiClient.get(API_ENDPOINTS.GET_AI_PREDICTIONS_CENTROIDS);
 
-    return res.data;
-  };
+  return res.data;
+};

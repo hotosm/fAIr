@@ -130,9 +130,10 @@ type AIPredictionsMapProps = {
   setPredictionId: (predictionId: string) => void;
 };
 
-export const AIPredictionsMap: React.FC<
-  AIPredictionsMapProps
-> = ({ mapResults, setPredictionId }) => {
+export const AIPredictionsMap: React.FC<AIPredictionsMapProps> = ({
+  mapResults,
+  setPredictionId,
+}) => {
   const { map, mapContainerRef } = useMapInstance(false, false);
 
   const handleClickOnPredictionID = useCallback(

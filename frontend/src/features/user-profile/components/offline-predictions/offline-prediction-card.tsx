@@ -54,7 +54,6 @@ export const OfflinePredictionCard = ({
             variant={ButtonVariant.TERTIARY}
             className="!w-fit"
             size={SHOELACE_SIZES.SMALL}
-            
           >
             <p>ID: {predictionResult.id}</p>
           </Button>
@@ -62,7 +61,6 @@ export const OfflinePredictionCard = ({
             variant={ButtonVariant.DARK}
             className="!w-fit"
             size={SHOELACE_SIZES.SMALL}
-         
           >
             <p>Zoom: {predictionResult.config.zoom_level}</p>
           </Button>

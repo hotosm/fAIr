@@ -187,7 +187,6 @@ const CustomModelInput = ({
       <Button
         className="!w-fit"
         size={SHOELACE_SIZES.SMALL}
-        
         disabled={customModelCheckpointPath.length === 0 || !isValid.valid}
         onClick={() => {
           setPredictionModelCheckpoint(customModelCheckpointPath);

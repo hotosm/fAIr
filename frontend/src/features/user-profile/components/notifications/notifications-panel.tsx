@@ -128,7 +128,6 @@ export const NotificationsPanel = ({
                 }
                 size="small"
                 className={`!w-fit ${notificationType === NotificationType.ALL ? "font-bold" : ""}`}
-               
                 contentClassName="text-body-4"
                 onClick={() => setNotificationType(NotificationType.ALL)}
               >
@@ -142,7 +141,6 @@ export const NotificationsPanel = ({
                 }
                 size="small"
                 className={`!w-fit ${notificationType === NotificationType.UNREAD ? "font-bold" : ""}`}
-                
                 contentClassName="text-body-4"
                 onClick={() => setNotificationType(NotificationType.UNREAD)}
               >
