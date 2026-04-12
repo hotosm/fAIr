@@ -12,11 +12,35 @@ import { useLocation } from "react-router-dom";
 import { useLogin } from "@/hooks/use-login";
 import { UserProfile } from "@/components/layouts";
 import { useState } from "react";
+import { AUTH_PROVIDER, BASE_API_URL, FRONTEND_URL, HANKO_URL } from "@/config";
+
+if (AUTH_PROVIDER === "hanko") {
+  import("@hotosm/hanko-auth");
+}
+
+const HankoAuthComponent = () => (
+  <hotosm-auth
+    hanko-url={HANKO_URL}
+    base-path={HANKO_URL}
+    redirect-after-login={FRONTEND_URL}
+    redirect-after-logout={FRONTEND_URL}
+    mapping-check-url={`${BASE_API_URL}auth/status/`}
+    app-id="fair"
+  />
+);
 
 export const NavBar = () => {
   const [open, setOpen] = useState(false);
   const { isAuthenticated } = useAuth();
   const { handleLogin, loading } = useLogin();
+
+  const LegacyLoginButton = ({ className }: { className?: string }) => (
+    <Button className={className} onClick={handleLogin} spinner={loading}>
+      {loading
+        ? SHARED_CONTENT.loginButtonLoading
+        : SHARED_CONTENT.navbar.loginButton}
+    </Button>
+  );
 
   return (
     <>
@@ -35,14 +59,12 @@ export const NavBar = () => {
             <NavBarLinks className={styles.mobileNavLinks} setOpen={setOpen} />
           </div>
           <div className={styles.loginButtonContainer}>
-            {isAuthenticated ? (
+            {AUTH_PROVIDER === "hanko" ? (
+              <HankoAuthComponent />
+            ) : isAuthenticated ? (
               <UserProfile setOpen={setOpen} />
             ) : (
-              <Button onClick={handleLogin} spinner={loading}>
-                {loading
-                  ? SHARED_CONTENT.loginButtonLoading
-                  : SHARED_CONTENT.navbar.loginButton}
-              </Button>
+              <LegacyLoginButton />
             )}
           </div>
         </div>
@@ -53,20 +75,14 @@ export const NavBar = () => {
           <NavBarLinks className={styles.webNavLinks} />
         </div>
         <div>
-          {isAuthenticated ? (
+          {AUTH_PROVIDER === "hanko" ? (
+            <HankoAuthComponent />
+          ) : isAuthenticated ? (
             <div className={styles.profileContainer}>
               <UserProfile />
             </div>
           ) : (
-            <Button
-              className={styles.loginButton}
-              onClick={handleLogin}
-              spinner={loading}
-            >
-              {loading
-                ? SHARED_CONTENT.loginButtonLoading
-                : SHARED_CONTENT.navbar.loginButton}
-            </Button>
+            <LegacyLoginButton className={styles.loginButton} />
           )}
         </div>
         <button className={styles.hamburgerMenu} onClick={() => setOpen(true)}>

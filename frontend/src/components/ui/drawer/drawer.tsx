@@ -9,6 +9,7 @@ type DrawerProps = {
   children: React.ReactNode;
   label?: string;
   noHeader?: boolean;
+  className?: string;
 };
 const Drawer: React.FC<DrawerProps> = ({
   children,
@@ -17,6 +18,7 @@ const Drawer: React.FC<DrawerProps> = ({
   placement,
   label = "",
   noHeader = true,
+  className,
 }) => {
   return (
     <SlDrawer
@@ -29,6 +31,7 @@ const Drawer: React.FC<DrawerProps> = ({
         }
       }}
       noHeader={noHeader}
+      className={className}
     >
       {children}
     </SlDrawer>

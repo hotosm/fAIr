@@ -3,7 +3,7 @@ name = "fAIr"
 version = "1.0.1"
 description = "AI Assisted Mapping"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = {text = "AGPL-3.0 license"}
 authors = [
     {name = "HOTOSM", email = "sysadmin@hotosm.org"},
@@ -41,6 +41,7 @@ api = [
     "geopandas>=0.13.2",
     "gpxpy>=1.6.2",
     "gunicorn>=23.0.0",
+    "hotosm-auth[django]==0.2.10",
     "mercantile>=1.2.1",
     "numpy>=1.24.4",
     "osm-login-python>=2.1.4",
@@ -51,6 +52,7 @@ api = [
     "redis>=6.0.0",
     "validators>=0.34.0",
 ]
+
 dev = [
     "commitizen>=3.31.0",
 ]
@@ -77,3 +79,4 @@ prediction-workers = [
     "pydantic>=2.12.5",
     "tippecanoe>=2.72.0",
 ]
+

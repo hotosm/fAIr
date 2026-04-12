@@ -1,4 +1,5 @@
 import { useAuth } from "@/app/providers/auth-provider";
+import { AUTH_PROVIDER } from "@/config";
 import { ModelFormConfirmation } from "@/assets/images";
 import { Head } from "@/components/seo";
 import { DeleteModal } from "@/components/shared/modals";
@@ -369,58 +370,64 @@ export const UserProfileSettingsPage = () => {
               )}
             </div>
           </div>
-          <div className="flex flex-col gap-y-6">
-            <SectionHeader
-              sectionTitle={
-                USER_PROFILE_PAGE_CONTENT.settings.account.sectionTitle
-              }
-            />
+          {AUTH_PROVIDER !== "hanko" && (
             <div className="flex flex-col gap-y-6">
-              <div className="flex flex-col gap-y-1">
-                <p className="text-body-3 md:text-body-2">
-                  {USER_PROFILE_PAGE_CONTENT.settings.account.title}
-                </p>
-                <p className="text-grey text-body-3">
-                  {!user.account_deletion_requested
-                    ? USER_PROFILE_PAGE_CONTENT.settings.account.description
-                    : USER_PROFILE_PAGE_CONTENT.settings.account
-                        .deleteRequestPending}
-                </p>
-              </div>
-              <ButtonWithIcon
-                label={
-                  USER_PROFILE_PAGE_CONTENT.settings.account.deleteButtonText
+              <SectionHeader
+                sectionTitle={
+                  USER_PROFILE_PAGE_CONTENT.settings.account.sectionTitle
                 }
-                variant={ButtonVariant.PRIMARY}
-                prefixIcon={DeleteIcon}
-                className="!w-fit"
-                textClassName="p-0.5 md:px-1 md:py-2 text-body-4"
-                onClick={openDialog}
-                size="small"
-                disabled={user.account_deletion_requested}
               />
-            </div>
-          </div>
-          <div className="flex flex-col gap-y-6">
-            <div className="flex flex-col gap-y-6">
-              <div className="flex flex-col gap-y-1">
-                <p className="text-body-3 md:text-body-2">Access Token</p>
-                <p className="text-grey text-body-3">
-                  ⚠️ Keep this token safe. Anyone with it can access your
-                  account.
-                </p>
+              <div className="flex flex-col gap-y-6">
+                <div className="flex flex-col gap-y-1">
+                  <p className="text-body-3 md:text-body-2">
+                    {USER_PROFILE_PAGE_CONTENT.settings.account.title}
+                  </p>
+                  <p className="text-grey text-body-3">
+                    {!user.account_deletion_requested
+                      ? USER_PROFILE_PAGE_CONTENT.settings.account.description
+                      : USER_PROFILE_PAGE_CONTENT.settings.account
+                          .deleteRequestPending}
+                  </p>
+                </div>
+                <ButtonWithIcon
+                  label={
+                    USER_PROFILE_PAGE_CONTENT.settings.account.deleteButtonText
+                  }
+                  variant={ButtonVariant.PRIMARY}
+                  prefixIcon={DeleteIcon}
+                  uppercase={false}
+                  className="!w-fit"
+                  textClassName="p-0.5 md:px-1 md:py-2 text-body-4"
+                  onClick={openDialog}
+                  size="small"
+                  disabled={user.account_deletion_requested}
+                />
               </div>
-              <ButtonWithIcon
-                label={"Copy Access Token"}
-                variant={ButtonVariant.PRIMARY}
-                prefixIcon={ClipboardIcon}
-                className="!w-fit"
-                textClassName="p-0.5 md:px-1 md:py-2 text-body-4"
-                onClick={handleCopyAccessToken}
-                size="small"
-              />
             </div>
-          </div>
+          )}
+          {AUTH_PROVIDER !== "hanko" && (
+            <div className="flex flex-col gap-y-6">
+              <div className="flex flex-col gap-y-6">
+                <div className="flex flex-col gap-y-1">
+                  <p className="text-body-3 md:text-body-2">Access Token</p>
+                  <p className="text-grey text-body-3">
+                    ⚠️ Keep this token safe. Anyone with it can access your
+                    account.
+                  </p>
+                </div>
+                <ButtonWithIcon
+                  label={"Copy Access Token"}
+                  variant={ButtonVariant.PRIMARY}
+                  uppercase={false}
+                  prefixIcon={ClipboardIcon}
+                  className="!w-fit"
+                  textClassName="p-0.5 md:px-1 md:py-2 text-body-4"
+                  onClick={handleCopyAccessToken}
+                  size="small"
+                />
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </>

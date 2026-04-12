@@ -42,6 +42,7 @@ from django_q.tasks import async_task
 from django_ratelimit.decorators import ratelimit
 from geojson2osm import geojson2osm
 from login.authentication import OsmAuthentication
+from login.hanko_helpers import HankoUserFilterMixin
 from login.permissions import (
     IsAdminUser,
     IsOsmAuthenticated,
@@ -248,7 +249,7 @@ def home(request):
     )
 
 
-class DatasetViewSet(BaseSpatialViewSet):
+class DatasetViewSet(HankoUserFilterMixin, BaseSpatialViewSet):
     """
     API endpoint for managing training datasets.
 
@@ -356,7 +357,7 @@ class FeedbackViewset(BaseSpatialViewSet):
         return super().create(request, *args, **kwargs)
 
 
-class ModelViewSet(BaseSpatialViewSet):
+class ModelViewSet(HankoUserFilterMixin, BaseSpatialViewSet):
     """
     API endpoint for managing AI models.
 
@@ -1105,12 +1106,13 @@ class PredictionSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         if request and request.method == "GET":
             ret["user"] = UserSerializer(instance.user).data
-            config = getattr(instance, "config", {}) or {}
-            model_id = config.get("model_id")
-            if model_id:
+            config = instance.config or {}
+            model_name = config.get("model_name")
+            if config.get("model_id") and not model_name:
                 try:
-                    model_obj = Model.objects.only("name").get(id=model_id)
-                    ret["model_name"] = model_obj.name
+                    ret["model_name"] = (
+                        Model.objects.only("name").get(id=config["model_id"]).name
+                    )
                 except Model.DoesNotExist:
                     ret["model_name"] = None
         return ret

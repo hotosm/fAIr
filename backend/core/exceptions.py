@@ -40,6 +40,12 @@ class AuthenticationException(FairBaseException):
     error_code = "AUTHENTICATION_ERROR"
 
 
+class LoginException(FairBaseException):
+    default_message = "Login failed"
+    status_code = status.HTTP_400_BAD_REQUEST
+    error_code = "LOGIN_ERROR"
+
+
 class AuthorizationException(FairBaseException):
     default_message = "Permission denied"
     status_code = status.HTTP_403_FORBIDDEN

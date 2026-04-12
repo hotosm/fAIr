@@ -16,6 +16,7 @@ Including another URLconf
 
 from core.views import home
 from django.conf import settings
+from fairproject.settings import AuthProvider
 from django.conf.urls import include
 from django.contrib import admin
 from django.urls import path
@@ -25,6 +26,17 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
 )
 
+admin_mapping_patterns = []
+if settings.AUTH_PROVIDER == AuthProvider.HANKO:
+    from hotosm_auth_django.admin_routes import create_admin_urlpatterns
+    admin_mapping_patterns = create_admin_urlpatterns(
+        app_name="fair",
+        user_model="login.OsmUser",
+        user_id_column="osm_id",
+        user_name_column="username",
+        user_email_column="email",
+    )
+
 urlpatterns = [
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/swagger/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
@@ -32,7 +44,8 @@ urlpatterns = [
     path("api/", home, name="home"),
     path("api/v1/auth/", include("login.urls")),
     path("api/v1/", include("core.urls")),
-    path("api/admin/", admin.site.urls),
+    path("api/admin/", include(admin_mapping_patterns)),
+    path("django-admin/", admin.site.urls),
 ]
 
 if settings.DEBUG:

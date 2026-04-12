@@ -5,10 +5,12 @@ import { Dialog } from "@/components/ui/dialog";
 import { Image } from "@/components/ui/image";
 import { useDialog } from "@/hooks/use-dialog";
 import { useLogin } from "@/hooks/use-login";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { AUTH_PAGE_AND_MODAL_CONTENT } from "@/constants/ui-contents/auth-content";
 import { Spinner } from "@/components/ui/spinner";
+import { AUTH_PROVIDER, FRONTEND_URL, HANKO_URL } from "@/config";
+import { useEffect } from "react";
 
 export const AuthenticationModal = ({
   callbackPage = false,
@@ -21,7 +23,24 @@ export const AuthenticationModal = ({
 }) => {
   const { closeDialog } = useDialog();
   const navigate = useNavigate();
+  const location = useLocation();
   const { handleLogin, loading } = useLogin();
+
+  useEffect(() => {
+    if (
+      isOpen &&
+      AUTH_PROVIDER === "hanko" &&
+      !callbackPage &&
+      !emailVerification
+    ) {
+      const returnTo = `${FRONTEND_URL}${location.pathname}${location.search}`;
+      window.location.href = `${HANKO_URL}?return_to=${encodeURIComponent(returnTo)}`;
+    }
+  }, [isOpen, callbackPage, emailVerification, location]);
+
+  if (AUTH_PROVIDER === "hanko" && !callbackPage && !emailVerification) {
+    return null;
+  }
 
   const handleOnClose = () => {
     closeDialog();

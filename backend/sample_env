@@ -5,12 +5,22 @@ DEBUG=True
 DATABASE_URL=postgis://admin:password@localhost:5432/fair
 # DATABASE_SSL_MODE=require
 
+# Authentication: "legacy" (default) or "hanko"
+AUTH_PROVIDER=legacy
+
+# Legacy OSM OAuth (when AUTH_PROVIDER=legacy)
 OSM_CLIENT_ID=your-osm-client-id
 OSM_CLIENT_SECRET=your-osm-client-secret
 OSM_SECRET_KEY=your-osm-secret-key
 OSM_URL=https://www.openstreetmap.org
 OSM_SCOPE=read_prefs
 OSM_LOGIN_REDIRECT_URI=http://127.0.0.1:8000/api/v1/auth/callback/
+
+# Hanko SSO (when AUTH_PROVIDER=hanko)
+# HANKO_API_URL=https://login.hotosm.org
+# COOKIE_SECRET=shared-secret-for-cookie-encryption
+# COOKIE_DOMAIN=.hotosm.org
+# LOGIN_URL=https://login.hotosm.org
 
 HOSTNAME=127.0.0.1
 API_BASE_URL=http://127.0.0.1:8000/api/v1

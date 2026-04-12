@@ -55,6 +55,28 @@ OSM_LOGIN_REDIRECT_URI = env(
     default="http://127.0.0.1:8000/api/v1/auth/callback/" if DEBUG else None,
 )
 
+# Authentication provider constants
+class AuthProvider:
+    LEGACY = "legacy"
+    HANKO = "hanko"
+
+
+AUTH_PROVIDER = env("AUTH_PROVIDER", default=AuthProvider.LEGACY)
+
+if AUTH_PROVIDER == AuthProvider.HANKO:
+    HANKO_API_URL = env("HANKO_API_URL")
+    COOKIE_SECRET = env("COOKIE_SECRET")
+    COOKIE_DOMAIN = env("COOKIE_DOMAIN", default=None)
+    COOKIE_SECURE = env.bool("COOKIE_SECURE", default=not DEBUG)
+    JWT_AUDIENCE = env("JWT_AUDIENCE", default=None)
+
+    LOGIN_URL = env("LOGIN_URL", default="https://login.hotosm.org")
+
+    OSM_REDIRECT_URI = env(
+        "OSM_REDIRECT_URI",
+        default="http://127.0.0.1:8000/api/v1/auth/osm/callback/" if DEBUG else None,
+    )
+
 
 USE_S3_TO_UPLOAD_MODELS = env.bool("USE_S3_TO_UPLOAD_MODELS", default=False)
 
@@ -123,6 +145,9 @@ INSTALLED_APPS = [
     "login",
 ]
 
+if AUTH_PROVIDER == AuthProvider.HANKO:
+    INSTALLED_APPS.append("hotosm_auth_django")
+
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
@@ -133,6 +158,12 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+if AUTH_PROVIDER == AuthProvider.HANKO:
+    MIDDLEWARE.insert(
+        MIDDLEWARE.index("django.contrib.auth.middleware.AuthenticationMiddleware"),
+        "hotosm_auth_django.HankoAuthMiddleware",
+    )
 
 ROOT_URLCONF = "fairproject.urls"
 WSGI_APPLICATION = "fairproject.wsgi.application"
@@ -437,6 +468,9 @@ def get_allowed_hosts():
     hostname = env("HOSTNAME", default="127.0.0.1")
     if hostname not in hosts:
         hosts.append(hostname)
+
+    configured_hosts = env.list("ALLOWED_HOSTS", default=[])
+    hosts.extend(configured_hosts)
 
     if DEBUG:
         try:
