@@ -161,7 +161,7 @@ export const AIPredictionCard = ({
             <div>
               <p className="text-body-4  text-grey">Model Used:</p>
               <span className="text-dark font-semibold">
-                {prediction.model_name}
+                {prediction.model_name ?? prediction.config.model_name}
               </span>
             </div>
             <div>
