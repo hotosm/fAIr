@@ -69,17 +69,17 @@ export const DatasetCard = ({
         </div>
         <div className="flex justify-between w-full gap-x-4">
           <div className="w-1/2">
-            <p className="text-grey text-body-4 md:text-body-3">Used by:</p>
-            <p className="text-dark font-semibold text-body-4 md:text-body-3">
+            <p className="text-grey text-body-4">Used by:</p>
+            <p className="text-dark font-semibold text-body-4">
               {dataset.models_count} Model{dataset.models_count ? "s" : ""}
             </p>
           </div>
           {showUsername && (
             <div className="w-1/2">
-              <p className="text-grey text-body-4 md:text-body-3">
+              <p className="text-grey text-body-4">
                 Created by:
               </p>
-              <p className="text-dark font-semibold text-body-4 md:text-body-3 truncate">
+              <p className="text-dark font-semibold text-body-4  truncate">
                 {dataset.user.username}
               </p>
             </div>

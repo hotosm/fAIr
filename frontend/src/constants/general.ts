@@ -19,7 +19,7 @@ export const navLinks: TNavBarLinks = [
       },
       {
         title: "AI Predictions",
-        href: APPLICATION_ROUTES.PUBLISHED_PREDICTIONS,
+        href: APPLICATION_ROUTES.AI_PREDICTIONS,
       },
     ],
   },
@@ -59,7 +59,7 @@ export const footerLinks: TFooterGroupLinks = {
     },
     {
       title: "AI Predictions",
-      route: APPLICATION_ROUTES.DATASETS,
+      route: APPLICATION_ROUTES.AI_PREDICTIONS,
       active: true,
     },
     {

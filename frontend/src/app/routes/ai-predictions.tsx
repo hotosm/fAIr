@@ -1,7 +1,7 @@
 import { Head } from "@/components/seo";
-import { PublishedPredictionsFilters } from "@/features/published-predictions/components/published-predictions-filters";
-import { PublishedPredictionsGrid } from "@/features/published-predictions/components/published-predictions-grid";
-import { usePublishedPredictions } from "@/features/published-predictions/hooks/use-published-predictions";
+import { AIPredictionsFilters } from "@/features/ai-predictions/components/ai-predictions-filters";
+import { AIPredictionsGrid } from "@/features/ai-predictions/components/ai-predictions-grid";
+import { useAIPredictions } from "@/features/ai-predictions/hooks/use-ai-predictions";
 import { PredictionResultDrawer } from "@/features/user-profile/components/offline-predictions/predictions-results-drawer";
 import { FeatureCollection, TOfflinePrediction } from "@/types";
 import { useEffect, useState } from "react";
@@ -15,11 +15,11 @@ import {
   useScrollToTop,
 } from "@/hooks/use-scroll-to-element";
 import { LayoutView } from "@/enums";
-import { PublishedPredictionsListLayout } from "@/features/published-predictions/components/published-predictions-table";
+import { AIPredictionsListLayout } from "@/features/ai-predictions/components/ai-predictions-table";
 import { Spinner } from "@/components/ui/spinner";
-import { PublishedPredictionsMap } from "@/features/published-predictions/components/published-predictions-map";
+import { AIPredictionsMap } from "@/features/ai-predictions/components/ai-predictions-map";
 
-export const PublishedPredictionsPage = () => {
+export const AIPredictionsPage = () => {
   const {
     data,
     isPending,
@@ -43,7 +43,7 @@ export const PublishedPredictionsPage = () => {
     goToPrevPage,
     setPredictionId,
     clearAllFilters,
-  } = usePublishedPredictions();
+  } = useAIPredictions();
   const {
     isOpened: isMapswipeDialogOpen,
     openDialog: openMapSwipeProjectStatusDialog,
@@ -108,7 +108,7 @@ export const PublishedPredictionsPage = () => {
       return (
         <div className="w-full grid grid-cols-1 grid-rows-2 lg:grid-rows-1 lg:grid-cols-2 md:border rounded-md lg:p-2 md:border-gray-border gap-x-2 mt-6 gap-y-6 lg:gap-y-0 h-screen">
           <div className="w-full overflow-y-auto lg:row-start-1">
-            <PublishedPredictionsGrid
+            <AIPredictionsGrid
               data={data?.results ?? []}
               isPending={isPending}
               isError={isError}
@@ -127,7 +127,7 @@ export const PublishedPredictionsPage = () => {
                 <Spinner />
               </div>
             ) : (
-              <PublishedPredictionsMap
+              <AIPredictionsMap
                 mapResults={mapData as FeatureCollection}
                 setPredictionId={setPredictionId}
               />
@@ -140,7 +140,7 @@ export const PublishedPredictionsPage = () => {
     return (
       <div className="mt-6">
         {isListView ? (
-          <PublishedPredictionsListLayout
+          <AIPredictionsListLayout
             data={data?.results ?? []}
             isPending={isPending}
             isError={isError}
@@ -149,7 +149,7 @@ export const PublishedPredictionsPage = () => {
             onViewDetails={handleViewMapswipe}
           />
         ) : (
-          <PublishedPredictionsGrid
+          <AIPredictionsGrid
             data={data?.results ?? []}
             isPending={isPending}
             isError={isError}
@@ -208,14 +208,14 @@ export const PublishedPredictionsPage = () => {
         <PageHeader
           title="Public AI Predictions"
           description={
-            "This is a list of published predictions that has been produced by community users and made public. Any user can public predictions by using Prediction Request feature under and published from their profile."
+            "This is a list of AI predictions produced by community users and made public. Any user can publish predictions using the Prediction Request feature from their profile."
           }
           disableCreateButton
           isTrainingDataset
         />
 
         {/* Filters */}
-        <PublishedPredictionsFilters
+        <AIPredictionsFilters
           search={search}
           onSearchChange={setSearch}
           ordering={ordering}

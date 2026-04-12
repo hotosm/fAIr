@@ -9,19 +9,19 @@ import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { API_ENDPOINTS } from "@/services";
 import { TOfflinePrediction } from "@/types";
 import { extractDatePart, formatDate, showSuccessToast } from "@/utils";
-import { PublishedPredictionDetailsInfo } from "./published-prediction-details-info";
+import { AIPredictionDetailsInfo } from "./ai-prediction-details-info";
 
-type PublishedPredictionCardProps = {
+type AIPredictionCardProps = {
   prediction: TOfflinePrediction;
   onViewResults: (prediction: TOfflinePrediction) => void;
   onViewDetails: (prediction: TOfflinePrediction) => void;
 };
 
-export const PublishedPredictionCard = ({
+export const AIPredictionCard = ({
   prediction,
   onViewResults,
   onViewDetails,
-}: PublishedPredictionCardProps) => {
+}: AIPredictionCardProps) => {
   const { copyToClipboard } = useCopyToClipboard();
   const { dropdownRef } = useDropdownMenu();
   const title = prediction.description || `Prediction ${prediction.id}`;
@@ -157,15 +157,15 @@ export const PublishedPredictionCard = ({
 
         {/* Card body */}
         <div className="">
-          <div className=" flex  items-center justify-between text-body-4 text-grey">
+          <div className=" flex  items-center justify-between text-body-4">
             <div>
-              <p className="text-dark text-body-4">Model Used:</p>
-              <span className="font-semibold">{prediction.model_name}</span>
+              <p className="text-body-4  text-grey">Model Used:</p>
+              <span className="text-dark font-semibold">{prediction.model_name}</span>
             </div>
             <div>
-              <p className="text-dark flex justify-end flex-col text-body-4">
+              <p className="text-grey flex justify-end flex-col text-body-4">
                 Date Published:{" "}
-                <span className="font-semibold">
+                <span className="text-dark font-semibold">
                   {prediction.published_at
                     ? formatDate(
                         extractDatePart(prediction.published_at as string),
@@ -177,9 +177,8 @@ export const PublishedPredictionCard = ({
           </div>
         </div>
 
-        {/* Added the  */}
         <div className="absolute top-0 right-0">
-          <PublishedPredictionDetailsInfo
+          <AIPredictionDetailsInfo
             prediction={prediction}
             modelUsed={prediction.model_name}
             createdBy={prediction.user.username}

@@ -102,13 +102,13 @@ const router = createBrowserRouter([
        * AI Predictions route (published predictions).
        */
       {
-        path: APPLICATION_ROUTES.PUBLISHED_PREDICTIONS,
+        path: APPLICATION_ROUTES.AI_PREDICTIONS,
         lazy: async () => {
-          const { PublishedPredictionsPage } = await import(
-            "@/app/routes/published-predictions"
+          const { AIPredictionsPage } = await import(
+            "@/app/routes/ai-predictions"
           );
           return {
-            Component: () => <PublishedPredictionsPage />,
+            Component: () => <AIPredictionsPage />,
           };
         },
       },

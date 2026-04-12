@@ -5,7 +5,7 @@ import { formatDate, formatNumber } from "@/utils";
 import { SlDropdown } from "@shoelace-style/shoelace";
 import { MutableRefObject, ReactNode } from "react";
 
-export const PublishedPredictionDetailsInfo = ({
+export const AIPredictionDetailsInfo = ({
   prediction,
   modelUsed,
   createdBy,

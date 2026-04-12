@@ -3,7 +3,7 @@ import { NoTrainingAreaIcon, MapIcon } from "@/components/ui/icons";
 import { TOfflinePrediction } from "@/types";
 import { formatDate, formatNumber } from "@/utils";
 
-type PublishedPredictionsListProps = {
+type AIPredictionsListProps = {
   data: TOfflinePrediction[];
   isPending: boolean;
   isError: boolean;
@@ -23,14 +23,14 @@ const ListSkeleton = () => (
   </div>
 );
 
-export const PublishedPredictionsList = ({
+export const AIPredictionsList = ({
   data,
   isPending,
   isError,
   refetch,
   onViewResults,
   onViewDetails,
-}: PublishedPredictionsListProps) => {
+}: AIPredictionsListProps) => {
   if (isPending) {
     return <ListSkeleton />;
   }
@@ -39,7 +39,7 @@ export const PublishedPredictionsList = ({
     return (
       <div className="flex flex-col items-center justify-center w-full py-20 gap-y-4">
         <p className="text-grey text-body-2base">
-          Error loading published predictions.
+          Error loading AI predictions.
         </p>
         <Button className="!w-fit" onClick={() => refetch()}>
           Retry
@@ -53,7 +53,7 @@ export const PublishedPredictionsList = ({
       <div className="flex flex-col gap-y-4 items-center justify-center py-20">
         <NoTrainingAreaIcon />
         <p className="text-grey text-body-2base">
-          No published predictions found.
+          No AI predictions found.
         </p>
       </div>
     );

@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { NoTrainingAreaIcon } from "@/components/ui/icons";
 import { TOfflinePrediction } from "@/types";
-import { PublishedPredictionCard } from "./published-prediction-card";
+import { AIPredictionCard } from "./ai-prediction-card";
 
-type PublishedPredictionsGridProps = {
+type AIPredictionsGridProps = {
   data: TOfflinePrediction[];
   isPending: boolean;
   isError: boolean;
@@ -30,7 +30,7 @@ const GridSkeleton = ({ isMapview }: { isMapview?: boolean }) => (
   </div>
 );
 
-export const PublishedPredictionsGrid = ({
+export const AIPredictionsGrid = ({
   data,
   isPending,
   isError,
@@ -38,7 +38,7 @@ export const PublishedPredictionsGrid = ({
   onViewResults,
   onViewDetails,
   isMapView,
-}: PublishedPredictionsGridProps) => {
+}: AIPredictionsGridProps) => {
   if (isPending) {
     return <GridSkeleton isMapview={isMapView} />;
   }
@@ -47,7 +47,7 @@ export const PublishedPredictionsGrid = ({
     return (
       <div className="flex flex-col items-center justify-center w-full py-20 gap-y-4">
         <p className="text-grey text-body-2base">
-          Error loading published predictions.
+          Error loading AI predictions.
         </p>
         <Button className="!w-fit" onClick={() => refetch()}>
           Retry
@@ -61,7 +61,7 @@ export const PublishedPredictionsGrid = ({
       <div className="flex flex-col gap-y-4 items-center justify-center py-20">
         <NoTrainingAreaIcon />
         <p className="text-grey text-body-2base">
-          No published predictions found.
+          No AI predictions found.
         </p>
       </div>
     );
@@ -76,7 +76,7 @@ export const PublishedPredictionsGrid = ({
       }
     >
       {data.map((prediction) => (
-        <PublishedPredictionCard
+        <AIPredictionCard
           key={prediction.id}
           prediction={prediction}
           onViewResults={onViewResults}

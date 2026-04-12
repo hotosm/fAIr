@@ -125,13 +125,13 @@ const maplibreLayerDefn = (
   });
 };
 
-type PublishedPredictionsMapProps = {
+type AIPredictionsMapProps = {
   mapResults: FeatureCollection;
   setPredictionId: (predictionId: string) => void;
 };
 
-export const PublishedPredictionsMap: React.FC<
-  PublishedPredictionsMapProps
+export const AIPredictionsMap: React.FC<
+  AIPredictionsMapProps
 > = ({ mapResults, setPredictionId }) => {
   const { map, mapContainerRef } = useMapInstance(false, false);
 

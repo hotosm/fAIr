@@ -13,12 +13,12 @@ import {
   truncateString,
 } from "@/utils";
 import { MapSwipeProjectIsActive } from "@/features/user-profile/components/offline-predictions/mapswipe-project-active";
-import { PublishedPredictionDetailsInfo } from "./published-prediction-details-info";
+import { AIPredictionDetailsInfo } from "./ai-prediction-details-info";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { DropdownPlacement } from "@/enums";
 
-type PublishedPredictionsListProps = {
+type AIPredictionsListProps = {
   data: TOfflinePrediction[];
   isPending: boolean;
   isError: boolean;
@@ -26,7 +26,6 @@ type PublishedPredictionsListProps = {
   onViewDetails: (prediction: TOfflinePrediction) => void;
   onViewResults: (prediction: TOfflinePrediction) => void;
 };
-//   const { dropdownRef } = useDropdownMenu();
 
 const getPredictionTitle = (prediction: TOfflinePrediction) =>
   prediction.description;
@@ -108,7 +107,7 @@ const columnDefinitions = (
   {
     header: "Info",
     cell: ({ row }) => (
-      <PublishedPredictionDetailsInfo
+      <AIPredictionDetailsInfo
         prediction={row.original}
         placement={DropdownPlacement.BOTTOM_START}
         triggerComponent={
@@ -124,19 +123,19 @@ const columnDefinitions = (
         }
         modelUsed={getModelUsed(row.original)}
         createdBy={row.original.user?.username}
-        // dropdownRef={dropdownRef}
+   
       />
     ),
   },
 ];
 
-export const PublishedPredictionsListLayout = ({
+export const AIPredictionsListLayout = ({
   data,
   isPending,
   isError,
   refetch,
   onViewDetails,
-}: PublishedPredictionsListProps) => {
+}: AIPredictionsListProps) => {
   const [sorting, setSorting] = useState<SortingState>([]);
 
   if (isPending) {
@@ -147,7 +146,7 @@ export const PublishedPredictionsListLayout = ({
     return (
       <div className="flex flex-col items-center justify-center w-full py-20 gap-y-4">
         <p className="text-grey text-body-2base">
-          Error loading published predictions.
+          Error loading AI predictions.
         </p>
         <Button className="!w-fit" onClick={() => refetch()}>
           Retry
@@ -161,7 +160,7 @@ export const PublishedPredictionsListLayout = ({
       <div className="flex flex-col gap-y-4 items-center justify-center py-20">
         <NoTrainingAreaIcon />
         <p className="text-grey text-body-2base">
-          No published predictions found.
+          No AI predictions found.
         </p>
       </div>
     );

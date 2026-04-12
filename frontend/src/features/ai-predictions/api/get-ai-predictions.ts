@@ -2,7 +2,7 @@ import { PAGE_LIMIT } from "@/components/shared";
 import { API_ENDPOINTS, apiClient } from "@/services";
 import { FeatureCollection, TOfflinePrediction } from "@/types";
 
-export type PublishedPredictionsResponse = {
+export type AIPredictionsResponse = {
   count: number;
   next: string | null;
   previous: string | null;
@@ -11,13 +11,13 @@ export type PublishedPredictionsResponse = {
   hasPrev: boolean;
 };
 
-export const getPublishedPredictions = async (
+export const getAIPredictions = async (
   searchQuery?: string,
   ordering: string = "-id",
   offset?: number,
   id?: number,
-): Promise<PublishedPredictionsResponse> => {
-  const res = await apiClient.get(API_ENDPOINTS.GET_PUBLISHED_PREDICTIONS, {
+): Promise<AIPredictionsResponse> => {
+  const res = await apiClient.get(API_ENDPOINTS.GET_AI_PREDICTIONS, {
     params: {
       published: true,
       search: searchQuery,
@@ -34,10 +34,10 @@ export const getPublishedPredictions = async (
   };
 };
 
-export const getPublishedPredictionsMapData =
+export const getAIPredictionsMapData =
   async (): Promise<FeatureCollection> => {
     const res = await apiClient.get(
-      API_ENDPOINTS.GET_PUBLISHED_PREDICTIONS_CENTROIDS,
+      API_ENDPOINTS.GET_AI_PREDICTIONS_CENTROIDS,
     );
 
     return res.data;

@@ -4,13 +4,13 @@ import { DropDown } from "@/components/ui/dropdown";
 import { ChevronDownIcon } from "@/components/ui/icons";
 import { LayoutView, SHOELACE_SIZES } from "@/enums";
 import { ClearFilters, PAGE_LIMIT } from "@/components/shared";
-import { ORDERING_OPTIONS } from "@/features/published-predictions/hooks/use-published-predictions";
+import { ORDERING_OPTIONS } from "@/features/ai-predictions/hooks/use-ai-predictions";
 import { ToolTip } from "@/components/ui/tooltip";
 import ShowMapToggle from "@/components/shared/show-map-toggle";
 import { SEARCH_PARAMS } from "@/utils/search-params";
 import { TQueryParams } from "@/types";
 
-type PublishedPredictionsFiltersProps = {
+type AIPredictionsFiltersProps = {
   search: string;
   onSearchChange: (value: string) => void;
   ordering: string;
@@ -30,7 +30,7 @@ type PublishedPredictionsFiltersProps = {
   isPlaceholderData: boolean;
 };
 
-export const PublishedPredictionsFilters = ({
+export const AIPredictionsFilters = ({
   search,
   onSearchChange,
   ordering,
@@ -48,7 +48,7 @@ export const PublishedPredictionsFilters = ({
   onMapViewChange,
   mapViewIsActive,
   query,
-}: PublishedPredictionsFiltersProps) => {
+}: AIPredictionsFiltersProps) => {
   const orderingMenuItems = ORDERING_OPTIONS.map((opt) => ({
     value: opt.label,
     apiValue: opt.value,

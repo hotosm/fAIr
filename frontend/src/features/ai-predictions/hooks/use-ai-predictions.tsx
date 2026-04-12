@@ -8,9 +8,9 @@ import {
 } from "nuqs";
 import { useQuery } from "@tanstack/react-query";
 import {
-  getPublishedPredictionsMapDataQueryOptions,
-  getPublishedPredictionsQueryOptions,
-} from "@/features/published-predictions/api/factory";
+  getAIPredictionsMapDataQueryOptions,
+  getAIPredictionsQueryOptions,
+} from "@/features/ai-predictions/api/factory";
 import { PAGE_LIMIT } from "@/components/shared";
 import { LayoutView } from "@/enums";
 import { SEARCH_PARAMS } from "@/utils/search-params";
@@ -21,7 +21,7 @@ const ORDERING_OPTIONS = [
   { label: "Oldest Published", value: "published_at" },
 ] as const;
 
-const usePublishedPredictionsSearchParams = () => {
+const useAIPredictionsSearchParams = () => {
   return useQueryStates({
     [SEARCH_PARAMS.searchQuery]: parseAsString.withDefault(""),
     [SEARCH_PARAMS.ordering]: parseAsString.withDefault("-id"),
@@ -32,8 +32,8 @@ const usePublishedPredictionsSearchParams = () => {
   });
 };
 
-export const usePublishedPredictions = () => {
-  const [params, setParams] = usePublishedPredictionsSearchParams();
+export const useAIPredictions = () => {
+  const [params, setParams] = useAIPredictionsSearchParams();
   const search = params[SEARCH_PARAMS.searchQuery] as string;
   const orderingParam = params[SEARCH_PARAMS.ordering] as string;
   const offset = params[SEARCH_PARAMS.offset] as number;
@@ -50,7 +50,7 @@ export const usePublishedPredictions = () => {
     });
   }, [setParams]);
   const { isPending, isError, data, refetch, isPlaceholderData } = useQuery({
-    ...getPublishedPredictionsQueryOptions(
+    ...getAIPredictionsQueryOptions(
       debouncedSearch.length > 0 ? debouncedSearch : undefined,
       orderingParam,
       offset > 0 ? offset : undefined,
@@ -115,7 +115,7 @@ export const usePublishedPredictions = () => {
     isPending: isMapDataPending,
     isError: isMapDataError,
   } = useQuery({
-    ...getPublishedPredictionsMapDataQueryOptions(),
+    ...getAIPredictionsMapDataQueryOptions(),
     enabled: mapIsActive && params.layout !== LayoutView.LIST,
   });
   useEffect(() => {
