@@ -395,7 +395,6 @@ export const UserProfileSettingsPage = () => {
                   }
                   variant={ButtonVariant.PRIMARY}
                   prefixIcon={DeleteIcon}
-                  uppercase={false}
                   className="!w-fit"
                   textClassName="p-0.5 md:px-1 md:py-2 text-body-4"
                   onClick={openDialog}
@@ -418,7 +417,6 @@ export const UserProfileSettingsPage = () => {
                 <ButtonWithIcon
                   label={"Copy Access Token"}
                   variant={ButtonVariant.PRIMARY}
-                  uppercase={false}
                   prefixIcon={ClipboardIcon}
                   className="!w-fit"
                   textClassName="p-0.5 md:px-1 md:py-2 text-body-4"

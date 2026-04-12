@@ -2,7 +2,7 @@ import { Dialog } from "@/components/ui/dialog";
 
 import { FormLabel, Input } from "@/components/ui/form";
 import { RadioGroup } from "@/components/ui/form/radio-group/radio-group";
-import {  useState } from "react";
+import { useState } from "react";
 import { ModelSettings } from "@/features/start-mapping/components/model-settings";
 import { Feature, TModelDetails, TQueryParams } from "@/types";
 import { Button } from "@/components/ui/button";
