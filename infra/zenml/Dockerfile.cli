@@ -1,0 +1,20 @@
+ARG ZENML_VERSION
+FROM ghcr.io/spwoodcock/awscli-kubectl:latest AS cli-tools
+
+
+FROM ghcr.io/hotosm/zenml-postgres:${ZENML_VERSION} AS cli
+COPY --from=cli-tools \
+    /usr/bin/fish /usr/bin/fish \
+    /usr/bin/tofu /usr/bin/tofu \
+    /usr/bin/kubectl /usr/bin/kubectl \
+    /usr/local/bin/aws /usr/local/bin/aws \
+    /usr/local/bin/kubeseal /usr/local/bin/kubeseal \
+    /usr/local/bin/helm /usr/local/bin/helm \
+    /usr/local/bin/kubie /usr/local/bin/kubie \
+    /usr/local/bin/kubectl-cnpg /usr/local/bin/kubectl-cnpg \
+    /root/.config/fish/config.fish /root/.config/fish/config.fish \
+    /root/.config/fish/fish_variables /root/.config/fish/fish_variables
+ENV SHELL=/usr/bin/fish
+SHELL ["/usr/bin/fish", "-c"]
+ENTRYPOINT ["fish", "-c"]
+CMD [ "fish"]
