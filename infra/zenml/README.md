@@ -44,7 +44,8 @@ Then create a shell alias in your bashrc or fish config:
 ```sh
 # Default - override in your session if needed,
 # or update in your config file
-ZENML_VERSION=0.94.1
+export ZENML_VERSION=0.94.1
+# For fish: set -x ZENML_VERSION 0.94.1
 
 alias fair-cli='sh -c '"'"'
 if [ -z "${ZENML_VERSION:-}" ]; then
