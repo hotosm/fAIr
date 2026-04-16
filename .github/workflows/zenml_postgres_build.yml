@@ -26,7 +26,7 @@ jobs:
     uses: hotosm/gh-workflows/.github/workflows/image_build.yml@3.6.0
     with:
       context: infra/zenml
-      image_name: ghcr.io/${{ github.repository }}/cli
+      image_name: ghcr.io/${{ github.repository_owner }}/fair/cli
       build_target: cli
       dockerfile: Dockerfile.cli
       extra_build_args: ZENML_VERSION=${{ inputs.zenml_version }}
