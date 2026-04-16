@@ -33,3 +33,5 @@ jobs:
       image_tags: ghcr.io/${{ github.repository_owner }}/fair/cli:${{ inputs.zenml_version }}
       # Disable dockerfile_scan else it flags usage of :latest image
       scan_dockerfile: false
+      # It's a CLI, so we don't care about vulnerabilities
+      scan_image: false
