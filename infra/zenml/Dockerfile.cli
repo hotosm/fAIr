@@ -9,7 +9,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 COPY --from=cli-tools /usr/bin/tofu /usr/bin/tofu
 COPY --from=cli-tools /usr/bin/kubectl /usr/bin/kubectl
-COPY --from=cli-tools /usr/local/bin/aws /usr/local/bin/aws
+COPY --from=cli-tools /usr/local/aws-cli /usr/local/aws-cli
+RUN ln -s /usr/local/aws-cli/v2/current/bin/aws /usr/local/bin/aws
 COPY --from=cli-tools /usr/local/bin/kubeseal /usr/local/bin/kubeseal
 COPY --from=cli-tools /usr/local/bin/helm /usr/local/bin/helm
 COPY --from=cli-tools /usr/local/bin/kubie /usr/local/bin/kubie
