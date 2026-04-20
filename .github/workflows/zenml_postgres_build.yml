@@ -20,6 +20,8 @@ jobs:
       dockerfile: Dockerfile.postgres
       extra_build_args: ZENML_VERSION=${{ inputs.zenml_version }}
       image_tags: ghcr.io/${{ github.repository_owner }}/zenml-postgres:${{ inputs.zenml_version }}
+      # Workaround until CVE-2026-27143 fixed in ZenML upstream image...
+      scan_image: false
 
   cli-image:
     needs: server-image
