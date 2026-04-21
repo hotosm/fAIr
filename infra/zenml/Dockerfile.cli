@@ -6,6 +6,7 @@ FROM ghcr.io/hotosm/zenml-postgres:${ZENML_VERSION} AS cli
 USER root
 RUN apt-get update && apt-get install -y --no-install-recommends \
     fish \
+    git \
     && rm -rf /var/lib/apt/lists/*
 COPY --from=cli-tools /usr/bin/tofu /usr/bin/tofu
 COPY --from=cli-tools /usr/bin/kubectl /usr/bin/kubectl
