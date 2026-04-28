@@ -165,6 +165,23 @@ if AUTH_PROVIDER == AuthProvider.HANKO:
         "hotosm_auth_django.HankoAuthMiddleware",
     )
 
+    LOGIN_INTERNAL_API_KEY = env("LOGIN_INTERNAL_API_KEY", default="")
+    LOGIN_BACKEND_URL = env("LOGIN_BACKEND_URL", default=LOGIN_URL)
+    if LOGIN_INTERNAL_API_KEY:
+        try:
+            from hotosm_auth import remote_pat_resolver
+            from hotosm_auth_django import init_auth_django
+
+            init_auth_django(
+                app_name="fair",
+                pat_resolver=remote_pat_resolver(
+                    login_url=LOGIN_BACKEND_URL,
+                    internal_key=LOGIN_INTERNAL_API_KEY,
+                ),
+            )
+        except ImportError:
+            pass  # auth-libs version without PAT support
+
 ROOT_URLCONF = "fairproject.urls"
 WSGI_APPLICATION = "fairproject.wsgi.application"
 
