@@ -41,7 +41,7 @@ api = [
     "geopandas>=0.13.2",
     "gpxpy>=1.6.2",
     "gunicorn>=23.0.0",
-    "hotosm-auth[django]==0.2.10",
+    "hotosm-auth[django]==0.2.12",
     "mercantile>=1.2.1",
     "numpy>=1.24.4",
     "osm-login-python>=2.1.4",
