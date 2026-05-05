@@ -234,6 +234,7 @@ export type TPredictionsConfig = {
   zoom_level: number;
   source_imagery?: string;
   folder?: string;
+  model_name?: string;
 };
 
 export type TModelPredictionsConfig = TPredictionsConfig & {
@@ -265,14 +266,26 @@ export type TOfflinePrediction = {
   created_at: string;
   started_at: string | null;
   finished_at: string | null;
+  published_at: string | null;
   status: ModelTrainingStatus;
   task_id: string;
   mapswipe_id: string | null;
-  user: number;
+  user: {
+    username: string;
+    osm_id: string;
+  };
+  model_name: string;
   config: TModelPredictionsConfig;
   result_count: number;
+  published: boolean;
   result: null | {
     count: number;
+    output?: {
+      aois: string;
+      pmtiles: string;
+      predictions: string;
+      predictions_points: string;
+    };
   };
 };
 

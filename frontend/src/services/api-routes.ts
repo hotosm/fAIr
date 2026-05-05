@@ -26,6 +26,9 @@ export const API_ENDPOINTS = {
   CREATE_OFFLINE_PREDICTION: "prediction/",
   GET_OFFLINE_PREDICTIONS: "prediction/",
   UPDATE_OFFLINE_PREDICTION: (id: number) => `prediction/${id}/`,
+  GET_AI_PREDICTIONS: "prediction/",
+  GET_AI_PREDICTIONS_CENTROIDS: "predictions/centroid/",
+
   // Feedbacks
 
   CREATE_FEEDBACK: "feedback/",
@@ -107,6 +110,7 @@ export const API_ENDPOINTS = {
     `workspace/download/training_${trainingId}/${directory_name}/`,
   TERMINATE_OFFLINE_PREDICTION: (id: number) => `prediction/terminate/${id}/`,
   RETRY_OFFLINE_PREDICTION: (id: number) => `prediction/${id}/retry/`,
+  PUBLISH_OFFLINE_PREDICTION: (id: number) => `prediction/${id}/`,
   // Notifications
   NOTIFICATIONS: "notifications/me",
 

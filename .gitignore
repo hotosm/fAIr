@@ -65,3 +65,7 @@ data
 
 fair-app-data/*
 *.log
+
+
+# helm charts
+fair-*.tgz
