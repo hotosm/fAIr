@@ -50,7 +50,7 @@ setup() {
   echo -e "${GREEN}Setting up fAIr application...${NC}"
   
   for cmd in docker docker-compose; do
-      echo -e "${RED}$cmd is not installed${NC}"
+    if ! command_exists "$cmd"; then
       echo -e "${RED}Error: $cmd is not installed${NC}"
       exit 1
     fi
@@ -60,6 +60,8 @@ setup() {
   if [ -f "docker-compose.prod.yml" ]; then
     cp docker-compose.prod.yml $COMPOSE_FILE
   fi
+
+}
 
 start() {
   check_privileges

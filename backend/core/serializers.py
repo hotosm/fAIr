@@ -1,9 +1,8 @@
 import mercantile
 from django.conf import settings
+from login.models import OsmUser
 from rest_framework import serializers
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
-
-from login.models import OsmUser
 
 from .models import (
     AOI,
@@ -69,7 +68,7 @@ class DatasetSerializer(BaseModelSerializer):
     #         raise serializers.ValidationError(
     #             "New datasets can only be created in DRAFT status. Update to ACTIVE or ARCHIVED after creation."
     #         )
-    #     return value # fixme: this should be enabled but frontend needs to be in sync first 
+    #     return value # fixme: this should be enabled but frontend needs to be in sync first
 
     def get_models_count(self, obj):
         return Model.objects.filter(
@@ -95,6 +94,7 @@ class ModelSerializer(BaseModelSerializer):
             "dataset",
             "name",
             "created_at",
+            "published_at",
             "last_modified",
             "description",
             "user",
@@ -104,7 +104,13 @@ class ModelSerializer(BaseModelSerializer):
             "accuracy",
             "thumbnail_url",
         ]
-        read_only_fields = ("created_at", "last_modified", "user", "published_training")
+        read_only_fields = (
+            "created_at",
+            "last_modified",
+            "user",
+            "published_training",
+            "published_at",
+        )
         swagger_schema_fields = {
             "example": {
                 "dataset": 1,
@@ -194,9 +200,27 @@ class DatasetCentroidSerializer(BaseCentroidSerializer):
         return self.get_aoi_centroid(obj.id)
 
 
+class PredictionCentroidSerializer(GeoFeatureModelSerializer):
+    centroid = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Prediction
+        geo_field = "centroid"
+        fields = ("id", "centroid")
+
+    def get_centroid(self, obj):
+        if obj.geom:
+            centroid = obj.geom.centroid
+            return {
+                "type": "Point",
+                "coordinates": centroid.coords,
+            }
+        return None
+
+
 class AOISerializer(GeoFeatureModelSerializer):
     id = serializers.IntegerField(read_only=True)
-    
+
     class Meta:
         model = AOI
         geo_field = "geom"
@@ -251,7 +275,7 @@ class AOISerializer(GeoFeatureModelSerializer):
 
 class LabelSerializer(GeoFeatureModelSerializer):
     id = serializers.IntegerField(read_only=True)
-    
+
     class Meta:
         model = Label
         geo_field = "geom"
@@ -567,7 +591,7 @@ class TrainingSerializer(serializers.ModelSerializer):
             "example": {
                 "model": 1,
                 "description": "Training run with 50 epochs",
-                "zoom_level": [18,19, 20],
+                "zoom_level": [18, 19, 20],
                 "epochs": 50,
                 "batch_size": 8,
                 "freeze_layers": False,
@@ -667,7 +691,7 @@ class TrainingSerializer(serializers.ModelSerializer):
 
 class FeedbackSerializer(GeoFeatureModelSerializer, BaseModelSerializer):
     id = serializers.IntegerField(read_only=True)
-    
+
     class Meta:
         model = Feedback
         geo_field = "geom"
@@ -721,4 +745,3 @@ class MapswipeProjectCreateSerializer(serializers.Serializer):
     geojson_url = serializers.URLField()
     tms_url = serializers.URLField()
     cover_image = serializers.ImageField(required=False)
-    

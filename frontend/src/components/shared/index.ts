@@ -8,3 +8,4 @@ export { MadeWithLove } from "./made-with-love";
 export * from "./modals";
 export { ProtectedRoute } from "./protected-route";
 export * from "./filters";
+export { MarkdownRenderer } from "./markdown-renderer";

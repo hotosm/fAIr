@@ -160,6 +160,14 @@ def patch_schemas(base_path):
                 content
             )
 
+        pattern_blob = r'(\.with_variant\(\s*MEDIUMBLOB,\s*"mysql"\s*\))'
+        if '.with_variant(LargeBinary(), "postgresql")' not in content:
+            content = re.sub(
+                pattern_blob,
+                r'\1.with_variant(LargeBinary(), "postgresql")',
+                content
+            )
+
         if ('TEXT, "postgresql"' in content or "String()" in content) and not re.search(r"from sqlalchemy import.*TEXT", content):
             if "import TEXT" not in content:
                 before_import = content

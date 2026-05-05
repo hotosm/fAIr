@@ -22,6 +22,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db import connections
+from django.db.models import Count, Q
 from django.db.utils import OperationalError
 from django.http import (
     Http404,
@@ -41,6 +42,7 @@ from django_q.tasks import async_task
 from django_ratelimit.decorators import ratelimit
 from geojson2osm import geojson2osm
 from login.authentication import OsmAuthentication
+from login.hanko_helpers import HankoUserFilterMixin
 from login.permissions import (
     IsAdminUser,
     IsOsmAuthenticated,
@@ -67,7 +69,12 @@ from .exceptions import (
     handle_validation_error,
 )
 from .mapswipe_client import MapswipeClient
-from .mixins import BaseModelViewSet, BaseSpatialViewSet, UserAssignmentMixin
+from .mixins import (
+    BaseModelViewSet,
+    BaseSpatialViewSet,
+    PublicFilterMixin,
+    UserAssignmentMixin,
+)
 from .models import (
     AOI,
     Banner,
@@ -92,6 +99,7 @@ from .serializers import (
     ModelCentroidSerializer,
     ModelMetaSerializer,
     ModelSerializer,
+    PredictionCentroidSerializer,
     PredictionParamSerializer,
     TrainingSerializer,
     UserNotificationSerializer,
@@ -114,9 +122,16 @@ from .utils import (
 from .validators import validate_geojson
 
 
+# @cache_page(60 * settings.CACHE_TIMEOUT_MINUTES)
 @api_view(["GET"])
 def health(request):
-    status = {"postgresql": False, "redis": False, "celery_workers": False, "s3": None}
+    status = {
+        "postgresql": False,
+        "redis": False,
+        "celery_workers": {},
+        "load": {},
+        "s3": None,
+    }
     try:
         connections["default"].cursor()
         status["postgresql"] = True
@@ -128,12 +143,57 @@ def health(request):
             status["redis"] = True
     except Exception:
         status["redis"] = False
+    inspect_active = {}
     try:
-        i = current_app.control.inspect()
-        active = i.active()
-        status["celery_workers"] = bool(active)
+        i = current_app.control.inspect(timeout=1)
+        inspect_registered = i.registered() or {}
+        inspect_active = i.active() or {}
+        worker_names = sorted(
+            set(inspect_registered.keys()) | set(inspect_active.keys())
+        )
+        workers = [
+            {
+                "name": worker_name,
+                "online": worker_name in inspect_active
+                or worker_name in inspect_registered,
+                "active": bool(inspect_active.get(worker_name)),
+            }
+            for worker_name in worker_names
+        ]
+        active_workers_count = sum(1 for worker in workers if worker["active"])
+        online_workers_count = sum(1 for worker in workers if worker["online"])
+        status["celery_workers"] = {
+            "online": online_workers_count,
+            "active": active_workers_count,
+            "workers": workers,
+        }
     except Exception:
-        status["celery_workers"] = False
+        status["celery_workers"] = {}
+
+    try:
+        training_by_base_model = {
+            base_model: {"submitted": submitted, "running": running}
+            for base_model, submitted, running in Training.objects.values_list(
+                "model__base_model"
+            ).annotate(
+                submitted=Count("id", filter=Q(status="SUBMITTED")),
+                running=Count("id", filter=Q(status="RUNNING")),
+            )
+        }
+        prediction_counts = Prediction.objects.aggregate(
+            submitted=Count("id", filter=Q(status="SUBMITTED")),
+            running=Count("id", filter=Q(status="RUNNING")),
+        )
+        status["load"] = {
+            "training": training_by_base_model,
+            "prediction": {
+                "submitted": prediction_counts["submitted"],
+                "running": prediction_counts["running"],
+            },
+        }
+    except Exception:
+        status["load"] = {}
+
     try:
         if settings.USE_S3_TO_UPLOAD_MODELS:
             bucket = settings.BUCKET_NAME
@@ -152,8 +212,14 @@ def health(request):
 
     if settings.ENABLE_MAPSWIPE_INTEGREATION:
         try:
-            client = MapswipeClient()
-            client.get_projects(page_size=1)
+            client = MapswipeClient(
+                backend_url=settings.MAPSWIPE_BACKEND_URL,
+                manager_url=settings.MAPSWIPE_MANAGER_URL,
+                fb_auth_url=settings.MAPSWIPE_FB_AUTH_URL,
+                fb_username=settings.MAPSWIPE_FB_USERNAME,
+                fb_password=settings.MAPSWIPE_FB_PASSWORD,
+                csrftoken_key=settings.MAPSWIPE_CSRFTOKEN_KEY,
+            )
             status["mapswipe_api"] = True
         except Exception:
             status["mapswipe_api"] = False
@@ -183,7 +249,7 @@ def home(request):
     )
 
 
-class DatasetViewSet(BaseSpatialViewSet):
+class DatasetViewSet(HankoUserFilterMixin, BaseSpatialViewSet):
     """
     API endpoint for managing training datasets.
 
@@ -291,7 +357,7 @@ class FeedbackViewset(BaseSpatialViewSet):
         return super().create(request, *args, **kwargs)
 
 
-class ModelViewSet(BaseSpatialViewSet):
+class ModelViewSet(HankoUserFilterMixin, BaseSpatialViewSet):
     """
     API endpoint for managing AI models.
 
@@ -355,6 +421,18 @@ class DatasetCentroidView(ListAPIView):
     )
     filterset_fields = ["id"]
     search_fields = ["name", "id"]
+    pagination_class = None
+
+
+class PredictionCentroidView(ListAPIView):
+    queryset = Prediction.objects.filter(published=True)
+    serializer_class = PredictionCentroidSerializer
+    filter_backends = (
+        DjangoFilterBackend,
+        filters.SearchFilter,
+    )
+    filterset_fields = ["id"]
+    search_fields = ["description", "id"]
     pagination_class = None
 
 
@@ -948,6 +1026,7 @@ class PredictionSerializer(serializers.ModelSerializer):
             "created_at",
             "started_at",
             "finished_at",
+            "published_at",
             "status",
             # "result_count",
             "result",
@@ -956,6 +1035,7 @@ class PredictionSerializer(serializers.ModelSerializer):
             "config",
             "geom",
             "user",
+            "published",
         ]
         read_only_fields = (
             "created_at",
@@ -963,6 +1043,7 @@ class PredictionSerializer(serializers.ModelSerializer):
             "user",
             "started_at",
             "finished_at",
+            "published_at",
             "task_id",
         )
 
@@ -1020,11 +1101,27 @@ class PredictionSerializer(serializers.ModelSerializer):
         logging.info(f"Prediction request queued with task ID {task.id}")
         return instance
 
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        request = self.context.get("request")
+        if request and request.method == "GET":
+            ret["user"] = UserSerializer(instance.user).data
+            config = instance.config or {}
+            model_name = config.get("model_name")
+            if config.get("model_id") and not model_name:
+                try:
+                    ret["model_name"] = (
+                        Model.objects.only("name").get(id=config["model_id"]).name
+                    )
+                except Model.DoesNotExist:
+                    ret["model_name"] = None
+        return ret
+
 
 @method_decorator(
     ratelimit(key="user", rate="50/h", method="POST", block=True), name="create"
 )
-class PredictionViewSet(UserAssignmentMixin, BaseSpatialViewSet):
+class PredictionViewSet(PublicFilterMixin, UserAssignmentMixin, BaseSpatialViewSet):
     """
     API endpoint for managing predictions.
 
@@ -1037,10 +1134,11 @@ class PredictionViewSet(UserAssignmentMixin, BaseSpatialViewSet):
     queryset = Prediction.objects.all()
     bbox_filter_field = "geom"
     serializer_class = PredictionSerializer
-    filterset_fields = ["status", "id"]
+    filterset_fields = ["status", "id", "published"]
     search_fields = ["description", "id"]
-    ordering_fields = ["created_at", "id", "status"]
+    ordering_fields = ["created_at", "id", "status", "published", "published_at"]
     permission_classes = [IsOsmAuthenticated, IsOwnerOrReadOnly]
+    public_filter_field = "published"
 
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
@@ -1054,7 +1152,7 @@ class PredictionViewSet(UserAssignmentMixin, BaseSpatialViewSet):
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
 
-        allowed_fields = ["mapswipe_id"]
+        allowed_fields = ["mapswipe_id", "published"]
 
         for field in request.data:
             if field not in allowed_fields:

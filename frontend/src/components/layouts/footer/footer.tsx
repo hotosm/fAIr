@@ -56,7 +56,7 @@ export const Footer = () => {
                     <Link
                       href={route.route}
                       title={route.title}
-                      className="!text-white"
+                      className="!text-white capitalize"
                       nativeAnchor={false}
                     >
                       {route.title}
@@ -73,7 +73,7 @@ export const Footer = () => {
                     <Link
                       href={route.route}
                       title={route.title}
-                      className="!text-white"
+                      className="!text-white capitalize"
                       nativeAnchor={route.isExternalLink}
                       blank={route.isExternalLink}
                     >
