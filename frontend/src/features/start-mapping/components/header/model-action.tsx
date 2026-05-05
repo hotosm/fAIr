@@ -26,6 +26,7 @@ const ModelAction = ({
   setModelPredictions,
   isOfflineMode = false,
   hasDrawnAOI = false,
+  customPredictionModelCheckpointPath,
   openOfflinePredictionRequestDialog,
 }: {
   map: Map | null;
@@ -38,6 +39,7 @@ const ModelAction = ({
   isOfflineMode?: boolean;
   hasDrawnAOI?: boolean;
   openOfflinePredictionRequestDialog?: () => void;
+  customPredictionModelCheckpointPath?: string;
 }) => {
   const { modelId } = useParams();
   const [predictionZoomLevel, setPredictionZoomLevel] = useState<number | null>(
@@ -105,8 +107,10 @@ const ModelAction = ({
       modelPredictionMutation.isPending ||
       tileServerURL?.length === 0 ||
       predictionModelCheckpoint?.length === 0 ||
-      isOfflineMode) &&
+      isOfflineMode ||
+      customPredictionModelCheckpointPath?.length === 0) &&
     !hasDrawnAOI;
+
   return (
     <div className="flex gap-y-3 flex-col-reverse flex-wrap  md:items-center md:flex-row md:justify-between md:gap-x-2 md:flex-nowrap">
       <ToolTip

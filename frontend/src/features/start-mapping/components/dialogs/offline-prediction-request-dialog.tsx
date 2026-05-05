@@ -69,6 +69,14 @@ export const OfflinePredictionRequestDialog = ({
     },
   });
 
+  const getModelName = () => {
+    let selectedModel = query[SEARCH_PARAMS.model];
+    if (selectedModel && selectedModel !== "Default") {
+      return selectedModel;
+    }
+    return modelInfo?.name;
+  };
+
   return (
     <>
       <OfflinePredictionRequestSuccess
@@ -210,6 +218,7 @@ export const OfflinePredictionRequestDialog = ({
                     source:
                       tileServerURL ??
                       (modelInfo?.dataset?.source_imagery as string),
+                    model_name: getModelName() as string,
                   },
                 });
               }}

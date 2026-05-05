@@ -29,7 +29,7 @@ const Link: React.FC<LinkProps> = ({
 }) => {
   const commonProps = {
     title,
-    className: cn(`${!disableLinkStyle && styles.link} ${className}`),
+    className: cn(`${!disableLinkStyle && styles.link} ${className} `),
     onClick,
     onKeyDown,
   };
