@@ -40,13 +40,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: lint
     services:
-      redis:
-        image: redis
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-        ports:
-          - 6379:6379
       postgres:
         image: postgis/postgis:17-3.5
         env:
@@ -79,23 +72,17 @@ jobs:
         working-directory: ./backend
         run: uv sync
 
-      - name: Set environment variables
-        run: |
-          echo "DATABASE_URL=postgis://admin:password@localhost:5432/ai" >> $GITHUB_ENV
-          echo "TRAINING_WORKSPACE=${{ github.workspace }}/backend/training" >> $GITHUB_ENV
-
       - name: Run migrations and tests
         env:
-          TESTING_TOKEN: ${{ secrets.TESTING_TOKEN }}
-          OSM_CLIENT_ID: ${{ secrets.OSM_CLIENT_ID }}
-          OSM_CLIENT_SECRET: ${{ secrets.OSM_CLIENT_SECRET }}
-          OSM_SECRET_KEY: ${{ secrets.OSM_SECRET_KEY }}
-          SECRET_KEY: TEST_DJANGO_APP_SECRET_KEY
+          DATABASE_URL: postgis://admin:password@localhost:5432/ai
+          SECRET_KEY: ci-test-secret-key-not-for-production-use-only
           DEBUG: "True"
           FRONTEND_URL: http://localhost:3500
           API_BASE_URL: http://localhost:8000/api/v1
+          AUTH_PROVIDER: dev
+          FAIR_DEV_TOKEN: ci-test-token-min-32-chars-long-xxxxxx
+          ALLOWED_HOSTS: localhost,127.0.0.1,testserver
         working-directory: ./backend
         run: |
-          uv run python manage.py makemigrations
           uv run python manage.py migrate
-          uv run coverage run manage.py test tests
+          uv run pytest
