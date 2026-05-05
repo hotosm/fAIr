@@ -82,6 +82,9 @@ jobs:
           AUTH_PROVIDER: dev
           FAIR_DEV_TOKEN: ci-test-token-min-32-chars-long-xxxxxx
           ALLOWED_HOSTS: localhost,127.0.0.1,testserver
+          BUCKET_NAME: fair-ci-test
+          AWS_ACCESS_KEY_ID: ci-access-key
+          AWS_SECRET_ACCESS_KEY: ci-secret-key
         working-directory: ./backend
         run: |
           uv run python manage.py migrate
