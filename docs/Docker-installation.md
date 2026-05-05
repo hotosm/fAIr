@@ -1,112 +1,47 @@
-# fAIr Development Setup with Docker
+# fAIr Development Setup
 
 ## Prerequisites
 
 - Docker Desktop or Docker Engine + Docker Compose
 - Git
-- 4GB+ RAM (8GB+ for GPU training)
+- 4GB+ RAM
+- A running fair-py-ops dev stack (kind cluster + ZenML + STAC API + MinIO + MLflow).( TODO : Add a single command up to set everything up)
 
-## Quick Start
-
-```bash
-git clone https://github.com/hotosm/fAIr.git
-cd fAIr
-./setup.sh
-```
-
-GPU profile:
-
-```bash
-./setup.sh gpu
-```
-
-## Manual Setup
+## Quick start
 
 ```bash
 git clone https://github.com/hotosm/fAIr.git
 cd fAIr
-make init
-make init PROFILE=gpu
+docker compose up postgres -d
+cp backend/.env.example backend/.env
+# fill in real values, see backend/README.md for which vars are required
+docker compose up api worker
 ```
 
-## Access
+The `frontend` service runs under the `dev` profile (`docker compose --profile dev up frontend`).
+
+## Default ports
+
+- 3500: Frontend
+- 8000: API
+- 5434: PostgreSQL (host)
+
+## Endpoints
 
 - Frontend: <http://localhost:3500>
-- API: <http://localhost:8200/api>
-- API Docs: <http://localhost:8200/api/swagger>
+- API root: <http://localhost:8000/api/>
+- OpenAPI schema: <http://localhost:8000/api/schema/>
+- Swagger UI: <http://localhost:8000/api/docs/>
+- ReDoc: <http://localhost:8000/api/redoc/>
+- Health probes: <http://localhost:8000/api/v1/health/>
+
+All v1 routes are under `/api/v1/`. Versioning uses DRF `NamespaceVersioning`, so `request.version` is set per request and `/api/v2/` is one URL line away when needed.
 
 ## Configuration
 
-On first run, `.env.dev` is created from `.env.dev.example`. Update it for:
-
-- OpenStreetMap OAuth (`OSM_CLIENT_ID`, `OSM_CLIENT_SECRET`)
-- Email settings
-- Frontend URL
-
-Default ports (edit `docker-compose.dev.yml` if needed):
-
-- 3500: Frontend
-- 8200: API
-- 5434: PostgreSQL
-- 6378: Redis
-
-## Common Commands
-
-```bash
-make up
-make down
-make restart
-make status
-make logs
-make logs api
-make migrate
-make superuser
-make collectstatic
-make shell
-make clean
-```
-
-## Troubleshooting
-
-Logs:
-
-```bash
-make logs api
-make logs frontend
-make logs postgres
-```
-
-Reset:
-
-```bash
-make clean
-./setup.sh
-```
-
-Ports in use: edit `docker-compose.dev.yml` and change port mappings.
-
-Build cache issues:
-
-```bash
-docker compose -f docker-compose.dev.yml build --no-cache
-```
-
-## GPU Support
-
-Install NVIDIA Container Toolkit, then:
-
-```bash
-./setup.sh gpu
-make init PROFILE=gpu
-```
-
-## Next Steps
-
-- Create admin user: `make superuser`
-- Open frontend: <http://localhost:3500>
-- Use API docs: <http://localhost:8200/api/swagger>
+`backend/.env` is read by `pydantic-settings`. Required vars raise at boot if missing. See [backend/README.md](../backend/README.md) for a concise overview and `backend/.env.example` for the annotated source of truth.
 
 ## Help
 
-- [docs](../docs)
+- [Backend docs](../backend/README.md)
 - <https://github.com/hotosm/fAIr/issues>

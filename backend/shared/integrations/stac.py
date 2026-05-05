@@ -1,0 +1,175 @@
+"""STAC catalog access for the fAIr backend.
+
+Wraps fair-py-ops' backend Protocol with a Django LocMem cache layer and
+helpers used by the API serializers and pin/unpin actions. Property
+mutations go through ``patch_item`` (single roundtrip via JSON Merge Patch);
+``set_item_property`` is the convenience wrapper for the one-key case.
+"""
+
+from concurrent.futures import ThreadPoolExecutor
+
+import pystac
+from django.conf import settings
+from django.core.cache import cache
+from fair.stac.constants import (
+    BASE_MODELS_COLLECTION,
+    DATASETS_COLLECTION,
+    LOCAL_MODELS_COLLECTION,
+)
+
+from .zenml import get_master_client
+
+__all__ = [
+    "BASE_MODELS_COLLECTION",
+    "DATASETS_COLLECTION",
+    "FAIR_PINNED_PROPERTY",
+    "LOCAL_MODELS_COLLECTION",
+    "bulk_get_cached_items",
+    "deprecate_item",
+    "get_active_local_model_item",
+    "get_base_model",
+    "get_cached_item",
+    "get_dataset",
+    "get_local_model",
+    "invalidate_stac_cache",
+    "item_exists",
+    "list_base_models",
+    "list_datasets",
+    "list_local_models",
+    "serialize_item",
+    "set_item_property",
+]
+
+FAIR_PINNED_PROPERTY = "fair:pinned"
+
+_CACHE_TTL_SECONDS = settings.STAC_CACHE_TTL
+_BULK_FETCH_MAX_WORKERS = settings.STAC_BULK_FETCH_WORKERS
+
+
+def _backend():
+    return get_master_client()._get_backend()
+
+
+def get_base_model(item_id: str) -> pystac.Item:
+    return _backend().get_item(BASE_MODELS_COLLECTION, item_id)
+
+
+def get_dataset(item_id: str) -> pystac.Item:
+    return _backend().get_item(DATASETS_COLLECTION, item_id)
+
+
+def get_local_model(item_id: str) -> pystac.Item:
+    return _backend().get_item(LOCAL_MODELS_COLLECTION, item_id)
+
+
+def list_base_models(*, limit: int | None = None) -> list[pystac.Item]:
+    return _backend().list_items(BASE_MODELS_COLLECTION, limit=limit)
+
+
+def list_datasets(*, limit: int | None = None) -> list[pystac.Item]:
+    return _backend().list_items(DATASETS_COLLECTION, limit=limit)
+
+
+def list_local_models(*, limit: int | None = None) -> list[pystac.Item]:
+    return _backend().list_items(LOCAL_MODELS_COLLECTION, limit=limit)
+
+
+def item_exists(collection_id: str, item_id: str) -> bool:
+    return _backend().item_exists(collection_id, item_id)
+
+
+def deprecate_item(collection_id: str, item_id: str) -> pystac.Item:
+    invalidate_stac_cache(collection_id, item_id)
+    return _backend().deprecate_item(collection_id, item_id)
+
+
+def serialize_item(item: pystac.Item) -> dict:
+    """JSON-safe extract of the STAC fields the API exposes.
+
+    Narrow on purpose: cards/detail need description, datetime, geometry,
+    assets, properties, links. Anything else stays inside the raw STAC item
+    and is not surfaced through the backend.
+    """
+    raw = item.to_dict(include_self_link=False, transform_hrefs=False)
+    properties = raw.get("properties") or {}
+    return {
+        "description": properties.get("description"),
+        "datetime": properties.get("datetime"),
+        "geometry": raw.get("geometry"),
+        "assets": raw.get("assets") or {},
+        "properties": properties,
+        "links": raw.get("links") or [],
+    }
+
+
+def _cache_key(collection_id: str, item_id: str) -> str:
+    return f"stac:{collection_id}:{item_id}"
+
+
+def get_cached_item(collection_id: str, item_id: str) -> dict:
+    """Fetch a STAC item through the LocMem cache. Raises on STAC error."""
+    key = _cache_key(collection_id, item_id)
+    hit = cache.get(key)
+    if hit is not None:
+        return hit
+    payload = serialize_item(_backend().get_item(collection_id, item_id))
+    cache.set(key, payload, _CACHE_TTL_SECONDS)
+    return payload
+
+
+def bulk_get_cached_items(
+    pairs: list[tuple[str, str]],
+) -> dict[tuple[str, str], dict]:
+    """Parallel cold-fetch for a page of items. Cached entries skip the network.
+
+    Raises if any backing STAC fetch fails (consistent with fail-loud).
+    """
+    if not pairs:
+        return {}
+
+    keys = [_cache_key(c, i) for c, i in pairs]
+    cached = cache.get_many(keys)
+    result: dict[tuple[str, str], dict] = {}
+    misses: list[tuple[str, str]] = []
+    for (collection_id, item_id), key in zip(pairs, keys, strict=True):
+        if key in cached:
+            result[(collection_id, item_id)] = cached[key]
+        else:
+            misses.append((collection_id, item_id))
+
+    if misses:
+        with ThreadPoolExecutor(max_workers=min(_BULK_FETCH_MAX_WORKERS, len(misses))) as pool:
+            fetched = list(pool.map(lambda p: (p, serialize_item(_backend().get_item(*p))), misses))
+        to_set = {_cache_key(c, i): payload for (c, i), payload in fetched}
+        cache.set_many(to_set, _CACHE_TTL_SECONDS)
+        for (collection_id, item_id), payload in fetched:
+            result[(collection_id, item_id)] = payload
+
+    return result
+
+
+def invalidate_stac_cache(collection_id: str, item_id: str) -> None:
+    cache.delete(_cache_key(collection_id, item_id))
+
+
+def get_active_local_model_item(model_name: str) -> pystac.Item | None:
+    # STAC items are keyed by version UUID; callers that hold the slug
+    # (LocalModel.name == mlm:name) need this lookup before writing
+    # per-version properties.
+    # TODO(stac-cql2): linear scan via list_items. Plumb a CQL2 search through
+    # the StacBackend protocol once it's needed at scale.
+    for item in _backend().list_items(LOCAL_MODELS_COLLECTION):
+        if item.properties.get("mlm:name") != model_name:
+            continue
+        if item.properties.get("deprecated"):
+            continue
+        return item
+    return None
+
+
+def set_item_property(collection_id: str, item_id: str, key: str, value: object) -> dict:
+    # JSON Merge Patch single-key write. Refreshes the cache to the new value.
+    patched = _backend().patch_item(collection_id, item_id, {"properties": {key: value}})
+    payload = serialize_item(patched)
+    cache.set(_cache_key(collection_id, item_id), payload, _CACHE_TTL_SECONDS)
+    return payload
