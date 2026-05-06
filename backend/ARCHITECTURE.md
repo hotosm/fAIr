@@ -1,4 +1,4 @@
-# fAIr Backend — Architecture
+# fAIr Backend : Architecture
 
 The fAIr backend is a Django REST Framework service that owns dataset, training, and prediction orchestration. It is a thin coordinator: it persists ownership and lifecycle in postgres, validates inputs, and delegates the heavy work : tile + label downloads, ML training, inference to async workers (django-tasks) and a ZenML server. Datasets, base models, and finetuned local models live in a STAC catalog; pipeline runs and step state live in ZenML; chips, weights, and prediction outputs live in S3-compatible object storage.
 
