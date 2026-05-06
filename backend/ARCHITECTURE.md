@@ -24,14 +24,14 @@ What happens behind each step:
 | --- | --- | --- |
 | **1. AOI** | Validates polygon, stores in postgres. | Row in `datasets_aoi`. |
 | **2. Build dataset** | Async worker downloads OAM tiles + OSM labels for the AOI, uploads chips + `labels.geojson` to MinIO, registers a STAC item under `datasets/`. | Published STAC dataset. Poll `GET /datasets/{id}/` until `build_status=published`. |
-| **3. Submit training** | Async worker submits a ZenML pipeline. ZenML schedules an orchestrator + step pods on the autoscaling ml pool (`split → train → eval → onnx`). Worker polls ZenML status into the DB every 30s. | Trained `weights.pt` + `model.onnx` in MinIO. Poll `GET /trainings/{id}/` until `status=completed`. Tail with `GET /trainings/runs/{run_id}/logs/`. |
+| **3. Submit training** | Async worker submits a ZenML pipeline. ZenML schedules an orchestrator + step pods on the autoscaling ml pool (`split -> train -> eval -> onnx`). Worker polls ZenML status into the DB every 30s. | Trained `weights.pt` + `model.onnx` in MinIO. Poll `GET /trainings/{id}/` until `status=completed`. Tail with `GET /trainings/runs/{run_id}/logs/`. |
 | **4. Promote** | API builds a versioned STAC `local-models/` item from the run's hyperparameters + asset URLs, validates against the base-model's `fair:hyperparameters_spec`, publishes. | `local_model_stac_id`. |
 | **5. Predict** | Async worker downloads chips for the requested bbox, submits an inference pipeline, then post-processes the geojson into `.fgb` + `.pmtiles` via tippecanoe. | Three presigned URLs at `GET /predictions/{id}/result/` once `results_ready=true`. |
 
 ### Key invariants
 
 - **Datasets, base-models, and local-models are STAC items.** The postgres tables (`datasets_dataset`, `modelregistry_localmodel`) are thin pointers that hold ownership + lifecycle state. Per-version metadata (assets, hyperparameter specs, mlm:training image, etc.) lives only in STAC.
-- **Training and prediction are async.** The `POST /…/submit/` endpoints return 202 + a row whose `zenml_run_id` is null until the worker actually submits the pipeline. Status flow: `initializing → submitted → provisioning → running → completed | failed | …`.
+- **Training and prediction are async.** The `POST /…/submit/` endpoints return 202 + a row whose `zenml_run_id` is null until the worker actually submits the pipeline. Status flow: `initializing -> submitted -> provisioning -> running -> completed | failed | …`.
 - **`results_ready` on a Prediction is a separate flag from `status=completed`.** The worker's `post_run` step generates `.fgb` and `.pmtiles` from the geojson via tippecanoe *after* ZenML reports completion; until that finishes, `/predictions/{id}/result/` returns 409.
 - **Publish is the only step that writes a versioned local-model STAC item.** It validates `mlm:hyperparameters` (logged by the training pipeline) against the base-model's `fair:hyperparameters_spec`. Any logged key not declared in the spec causes a 500 — the spec must stay in sync with the keys the training image actually emits.
 
@@ -70,7 +70,7 @@ erDiagram
         string title
         url source_imagery "TMS template"
         string build_status "draft|building|published|failed"
-        bigint user_id FK "→ OsmUser.osm_id"
+        bigint user_id FK "-> OsmUser.osm_id"
         datetime created_at
         datetime last_modified
     }
@@ -94,7 +94,7 @@ erDiagram
     TrainingRunRef {
         int id PK
         string zenml_run_id UK "nullable until worker submits"
-        int local_model_id FK "→ LocalModel"
+        int local_model_id FK "-> LocalModel"
         string base_model_stac_id "STAC base-models item"
         int dataset_id FK "PROTECT (can't drop dataset with runs)"
         json overrides "epochs, batch_size, learning_rate, ..."
@@ -184,7 +184,7 @@ Send these one at a time from Swagger (`/api/docs/`) or any HTTP client. Every r
 }
 ```
 
-Response carries `properties.id` → call this `AOI_ID`.
+Response carries `properties.id` -> call this `AOI_ID`.
 
 **2. Build the dataset** : `POST /api/v1/datasets/build/`
 
@@ -203,7 +203,7 @@ Response carries `properties.id` → call this `AOI_ID`.
 }
 ```
 
-Response: `id` (→ `DATASET_ID`), `stac_id` (→ `STAC_ID`), `build_status: "building"`.
+Response: `id` (-> `DATASET_ID`), `stac_id` (-> `STAC_ID`), `build_status: "building"`.
 
 **3. Wait for the build** : `GET /api/v1/datasets/{DATASET_ID}/`
 
@@ -225,7 +225,7 @@ Poll until `build_status == "published"` (~2 min for this AOI).
 }
 ```
 
-Response: `id` → `TR_ID`. Poll `GET /api/v1/trainings/{TR_ID}/` until `status == "completed"` (~22 min, ml-pool autoscale + 4 pipeline steps). Tail logs anytime with `GET /api/v1/trainings/runs/{zenml_run_id}/logs/?tail=100`.
+Response: `id` -> `TR_ID`. Poll `GET /api/v1/trainings/{TR_ID}/` until `status == "completed"` (~22 min, ml-pool autoscale + 4 pipeline steps). Tail logs anytime with `GET /api/v1/trainings/runs/{zenml_run_id}/logs/?tail=100`.
 
 **5. Promote** — `POST /api/v1/trainings/{TR_ID}/publish/`
 
@@ -233,7 +233,7 @@ Response: `id` → `TR_ID`. Poll `GET /api/v1/trainings/{TR_ID}/` until `status 
 { "description": "smoke" }
 ```
 
-Response: `local_model_stac_id` → `LM_STAC_ID`. Inspect with `GET /api/v1/local-models/` and the STAC item at `https://stac.<domain>/stac/collections/local-models/items/{LM_STAC_ID}` to see `weights.pt`, `model.onnx`, training metrics.
+Response: `local_model_stac_id` -> `LM_STAC_ID`. Inspect with `GET /api/v1/local-models/` and the STAC item at `https://stac.<domain>/stac/collections/local-models/items/{LM_STAC_ID}` to see `weights.pt`, `model.onnx`, training metrics.
 
 **6. Submit the prediction** : `POST /api/v1/predictions/submit/`
 
@@ -247,7 +247,7 @@ Response: `local_model_stac_id` → `LM_STAC_ID`. Inspect with `GET /api/v1/loca
 }
 ```
 
-Response: `id` → `PRED_ID`. Poll `GET /api/v1/predictions/{PRED_ID}/` until `results_ready == true` (~10 min).
+Response: `id` -> `PRED_ID`. Poll `GET /api/v1/predictions/{PRED_ID}/` until `results_ready == true` (~10 min).
 
 **7. Fetch the results** : `GET /api/v1/predictions/{PRED_ID}/result/`
 
