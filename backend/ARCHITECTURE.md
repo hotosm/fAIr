@@ -8,77 +8,25 @@ For the cluster topology, deployment manifests, and ops notes specific to the Ku
 
 ## 1. End-to-end user flow
 
+The user makes five calls. 
+
 ```mermaid
-sequenceDiagram
-    autonumber
-    participant U as User
-    participant API as fair-backend (api)
-    participant W as fair-backend (worker)
-    participant DB as postgres (fair)
-    participant Z as ZenML server
-    participant S as STAC
-    participant M as object store (S3 / MinIO)
-    participant ML as ml workers (autoscaled)
-
-    U->>API: POST /aois/ {polygon}
-    API->>DB: INSERT datasets_aoi
-    API-->>U: 201 {id, geom}
-
-    U->>API: POST /datasets/build/ {aoi_ids, source_imagery, label_classes, ...}
-    API->>DB: INSERT datasets_dataset (status=building)
-    API->>W: enqueue build_dataset
-    API-->>U: 202 {id, stac_id, status=building}
-    W->>OAM: download TMS tiles for AOI
-    W->>OSM: download building footprints (raw-data API)
-    W->>M: upload chips/, labels/labels.geojson
-    W->>S: PUT collections/datasets/items/{stac_id}
-    W->>DB: UPDATE status=published
-
-    U->>API: poll GET /datasets/{id}/ → status=published
-
-    U->>API: POST /trainings/submit/ {base_model_stac_id, dataset_stac_id, model_name, overrides}
-    API->>S: validate base_model + dataset items exist
-    API->>DB: INSERT modelregistry_localmodel (status=draft)
-    API->>DB: INSERT trainings_trainingrunref (status=initializing)
-    API->>W: enqueue submit_training
-    API-->>U: 202 {id, status=initializing}
-
-    W->>Z: submit training_pipeline
-    Z->>ML: schedule orchestrator + step pods
-    ML->>M: read chips/labels
-    ML->>M: write checkpoint.pt + model.onnx
-    ML->>Z: log step status
-    W->>API: sync_training_status (every 30s)<br/>polls Z, updates DB
-
-    U->>API: GET /trainings/runs/{run_id}/status/<br/>or /trainings/{id}/
-    U->>API: GET /trainings/runs/{run_id}/logs/?tail=100
-
-    U->>API: POST /trainings/{id}/publish/
-    API->>S: build local-model STAC item with mlm:hyperparameters
-    API->>S: validate against base-model fair:hyperparameters_spec
-    API->>S: PUT collections/local-models/items/{uuid}
-    API->>DB: UPDATE localmodel.status=published
-    API-->>U: 201 {local_model_stac_id}
-
-    U->>API: GET /local-models/{id}/<br/>(weights.pt, model.onnx, training-metrics)
-
-    U->>API: POST /predictions/submit/ {model_stac_id, image_uri, bbox, zoom}
-    API->>S: validate local-model item exists
-    API->>DB: INSERT predictions_prediction (status=initializing)
-    API->>W: enqueue submit_prediction
-    W->>OAM: download chips for bbox
-    W->>M: stage chips at predict/{id}/input/
-    W->>Z: submit inference_pipeline
-    Z->>ML: schedule inference pod
-    ML->>M: read weights + chips
-    ML->>M: write predictions.geojson
-    W->>API: sync_prediction_status polls Z
-    W->>W: post_process (geojson → fgb + pmtiles via tippecanoe)
-    W->>M: write predictions.fgb + predictions.pmtiles
-    W->>DB: UPDATE results_ready=true
-
-    U->>API: GET /predictions/{id}/result/<br/>→ presigned URLs (geojson, fgb, pmtiles)
+flowchart LR
+    A[1. Draw AOI<br/>POST /aois/] --> B[2. Build dataset<br/>POST /datasets/build/]
+    B --> C[3. Submit training<br/>POST /trainings/submit/]
+    C --> D[4. Promote<br/>POST /trainings/&#123;id&#125;/publish/]
+    D --> E[5. Predict<br/>POST /predictions/submit/<br/>GET /predictions/&#123;id&#125;/result/]
 ```
+
+What happens behind each step:
+
+| Step | What the backend does | Output |
+| --- | --- | --- |
+| **1. AOI** | Validates polygon, stores in postgres. | Row in `datasets_aoi`. |
+| **2. Build dataset** | Async worker downloads OAM tiles + OSM labels for the AOI, uploads chips + `labels.geojson` to MinIO, registers a STAC item under `datasets/`. | Published STAC dataset. Poll `GET /datasets/{id}/` until `build_status=published`. |
+| **3. Submit training** | Async worker submits a ZenML pipeline. ZenML schedules an orchestrator + step pods on the autoscaling ml pool (`split → train → eval → onnx`). Worker polls ZenML status into the DB every 30s. | Trained `weights.pt` + `model.onnx` in MinIO. Poll `GET /trainings/{id}/` until `status=completed`. Tail with `GET /trainings/runs/{run_id}/logs/`. |
+| **4. Promote** | API builds a versioned STAC `local-models/` item from the run's hyperparameters + asset URLs, validates against the base-model's `fair:hyperparameters_spec`, publishes. | `local_model_stac_id`. |
+| **5. Predict** | Async worker downloads chips for the requested bbox, submits an inference pipeline, then post-processes the geojson into `.fgb` + `.pmtiles` via tippecanoe. | Three presigned URLs at `GET /predictions/{id}/result/` once `results_ready=true`. |
 
 ### Key invariants
 
@@ -178,21 +126,6 @@ erDiagram
         datetime last_polled_at
     }
 ```
-
-### Per-table notes
-
-**`OsmUser`** ([accounts/models.py](accounts/models.py)). Subclass of Django's `AbstractUser`, stored in `auth_user` (the `Meta.db_table` is `auth_user` so Django auth keeps working). Every other table FKs to `osm_id`, not to Django's auto-PK — this keeps user identity stable across reauths and matches OSM's user identity model. Holds notification preferences, image URL, and account-deletion flags.
-
-**`Dataset`** ([datasets/models.py](datasets/models.py)). One row per AOI-collection that's been turned into chips + labels. `stac_id` is the unique key into the STAC `datasets/` collection. `build_status` flows `draft → building → published` (or `failed`); only `published` rows are valid as input to `POST /trainings/submit/`. `source_imagery` is the TMS template that was used to download chips. The actual chips, labels.geojson, and STAC metadata live outside this table — the row is just ownership + state.
-
-**`AOI`** ([datasets/models.py](datasets/models.py)). A polygon (EPSG:4326, GiST-indexed) owned by a user. `dataset_id` is nullable because AOIs are created standalone via `POST /aois/` and only attached to a Dataset when `POST /datasets/build/` consumes them. One Dataset can have multiple AOIs (their geometries get unioned at build time). `bbox`-filterable via the InBBox filter backend on the list endpoint.
-
-**`LocalModel`** ([modelregistry/models.py](modelregistry/models.py)). A *family* of finetuned models — every promote of a training run with the same `model_name` adds a new version under this row, not a new LocalModel. The `name` field is the chain key: `name == ZenML model_name == STAC mlm:name on every version`. Per-version detail (description, keywords, weights URLs, training metrics) lives in STAC; this row holds only the family name, ownership, and the family-level status (draft until first publish, then published; an archive flow is TODO).
-
-**`TrainingRunRef`** ([trainings/models.py](trainings/models.py)). One row per `POST /trainings/submit/`. `zenml_run_id` is nullable because submit is async — the worker fills it after `client.submit_finetune(...)` returns. `dataset_id` uses `on_delete=PROTECT` so a Dataset that has training runs cannot be deleted; that would orphan the lineage. `overrides` is a free-form JSON object whose keys must match the base-model's `fair:hyperparameters_spec` (validated at publish time, not submit). `status` mirrors the ZenML run status; the worker's `sync_training_status` task self-enqueues every 30s to keep it fresh.
-
-**`Prediction`** ([predictions/models.py](predictions/models.py)). One row per `POST /predictions/submit/`. Carries the inputs (`image_uri`, `bbox`, `zoom`, `params`, `remove_osm`) plus two distinct lifecycle flags: `status` (the ZenML run state) and `results_ready` (whether the post-run task has materialized geojson + fgb + pmtiles). `is_public` toggles anonymous read of the result via `/public-predictions/{id}/`. `mapswipe_project_id` is set when `POST /predictions/{id}/mapswipe/` creates a validation project from this prediction.
-
 ---
 
 ## 3. API reference
