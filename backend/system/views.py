@@ -9,6 +9,7 @@ from django.db import connections
 from django.db.utils import OperationalError
 from drf_spectacular.utils import extend_schema
 from rest_framework import serializers
+from rest_framework.decorators import throttle_classes
 from rest_framework.response import Response
 
 from shared.integrations.stac import (
@@ -89,6 +90,7 @@ def _probe_s3() -> bool:
     ),
 )
 @api_view(["GET"])
+@throttle_classes([])
 async def health(request) -> Response:
     payload: dict[str, object] = {}
 
