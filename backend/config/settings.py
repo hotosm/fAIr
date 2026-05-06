@@ -367,8 +367,9 @@ else:
     CORS_ALLOW_ALL_ORIGINS = False
     CORS_ALLOW_CREDENTIALS = True
     CORS_ALLOWED_ORIGINS = list(settings.cors_allowed_origins)
-    if FRONTEND_URL and FRONTEND_URL not in CORS_ALLOWED_ORIGINS:
-        CORS_ALLOWED_ORIGINS.append(FRONTEND_URL)
+    frontend_origin = FRONTEND_URL.rstrip("/") if FRONTEND_URL else None
+    if frontend_origin and frontend_origin not in CORS_ALLOWED_ORIGINS:
+        CORS_ALLOWED_ORIGINS.append(frontend_origin)
 
 CORS_ALLOW_HEADERS = [
     *default_headers,
