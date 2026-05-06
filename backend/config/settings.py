@@ -23,6 +23,11 @@ BASE_DIR = settings.model_config["env_file"].parent  # type: ignore[index]
 DEBUG = settings.debug
 SECRET_KEY = settings.secret_key.get_secret_value()
 
+if settings.enable_sentry:
+    import sentry_sdk
+
+    sentry_sdk.init(dsn=settings.sentry_dsn.get_secret_value())
+
 LOG_PATH = str(settings.log_path)
 os.makedirs(LOG_PATH, exist_ok=True)
 

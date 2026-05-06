@@ -132,6 +132,10 @@ class Settings(BaseSettings):
     cache_timeout_minutes: int = 5
     log_line_stream_truncate_value: int = 10
 
+    # Sentry (off by default; set enable_sentry=true with a sentry_dsn to turn on)
+    enable_sentry: bool = False
+    sentry_dsn: SecretStr | None = None
+
     # Tunable polling / caching / processing knobs
     health_probe_timeout: float = 2.0
     prediction_sync_interval: int = 15
@@ -186,6 +190,12 @@ class Settings(BaseSettings):
         ]
         if missing:
             raise ValueError(f"ENABLE_MAPSWIPE=true requires: {', '.join(missing)}")
+        return self
+
+    @model_validator(mode="after")
+    def _check_sentry_fields(self) -> Self:
+        if self.enable_sentry and not self.sentry_dsn:
+            raise ValueError("ENABLE_SENTRY=true requires: sentry_dsn")
         return self
 
     @model_validator(mode="after")
