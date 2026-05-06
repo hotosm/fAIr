@@ -8,11 +8,11 @@ ENV UV_LINK_MODE=copy \
     UV_PYTHON_DOWNLOADS=never
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        build-essential \
-        libgdal-dev \
-        libproj-dev \
-        gdal-bin \
-        proj-bin \
+    build-essential \
+    libgdal-dev \
+    libproj-dev \
+    gdal-bin \
+    proj-bin \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -28,32 +28,36 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 FROM python:${PYTHON_VERSION}-slim-bookworm AS runtime
 
-# Build-time deps for tippecanoe (the worker uses it to convert prediction
-# GeoJSON to PMTiles in the post-run step). Compiled in this layer, then the
-# build toolchain is dropped.
+# Build-time deps for tippecanoe  : geojson2pmtilesfgb
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        gdal-bin \
-        libgdal32 \
-        libproj25 \
-        proj-bin \
-        libpq5 \
-        ca-certificates \
-        git \
-        build-essential \
-        zlib1g-dev \
-        libsqlite3-dev \
+    gdal-bin \
+    libgdal32 \
+    libproj25 \
+    proj-bin \
+    libpq5 \
+    ca-certificates \
+    git \
+    build-essential \
+    zlib1g-dev \
+    libsqlite3-dev \
     && git clone --depth=1 https://github.com/felt/tippecanoe /tmp/tippecanoe \
     && cd /tmp/tippecanoe \
     && make -j"$(nproc)" \
     && make install \
     && cd / \
     && rm -rf /tmp/tippecanoe \
-    && apt-get purge -y --auto-remove git build-essential zlib1g-dev libsqlite3-dev \
+    && apt-get purge -y --auto-remove build-essential zlib1g-dev libsqlite3-dev \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
 COPY --from=builder /app /app
+
+# ZenML's CodeArchive uses `git ls-files --others --exclude-standard` to decide
+# what to upload as the pipeline source bundle. Without a repo + .gitignore it
+# falls back to walking everything under WORKDIR 
+RUN printf '.venv/\nartifacts/\n.zen/\n*.pyc\n__pycache__/\n*.log\n' > /app/.gitignore \
+    && git -C /app init -q -b main
 
 ENV PATH="/app/.venv/bin:${PATH}" \
     PYTHONUNBUFFERED=1 \
