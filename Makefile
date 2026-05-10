@@ -1,4 +1,4 @@
-.PHONY: help init setup build up down restart logs migrate superuser collectstatic clean status shell test
+.PHONY: help init setup build up down restart logs migrate makemigrations superuser collectstatic clean status shell test
 
 COMPOSE := docker compose -f docker-compose.dev.yml
 PROFILE ?= cpu
@@ -19,6 +19,7 @@ help:
 	@echo "  make status"
 	@echo "  make logs [service]"
 	@echo "  make shell"
+	@echo "  make makemigrations"
 	@echo "  make migrate"
 	@echo "  make superuser"
 	@echo "  make collectstatic"
@@ -65,6 +66,10 @@ restart:
 
 logs:
 	@if [ -n "$(SERVICE_ARG)" ]; then $(COMPOSE) logs -f $(SERVICE_ARG); else $(COMPOSE) logs -f; fi
+
+makemigrations:
+	@echo "Makemigrations"
+	@$(COMPOSE) exec api python manage.py makemigrations
 
 migrate:
 	@echo "Migrate"

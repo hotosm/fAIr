@@ -1,0 +1,243 @@
+import { Head } from "@/components/seo";
+import { AIPredictionsFilters } from "@/features/ai-predictions/components/ai-predictions-filters";
+import { AIPredictionsGrid } from "@/features/ai-predictions/components/ai-predictions-grid";
+import { useAIPredictions } from "@/features/ai-predictions/hooks/use-ai-predictions";
+import { PredictionResultDrawer } from "@/features/user-profile/components/offline-predictions/predictions-results-drawer";
+import { FeatureCollection, TOfflinePrediction } from "@/types";
+import { useEffect, useState } from "react";
+import { useDialog } from "@/hooks/use-dialog";
+import { MapSwipeProjectResultMapDrawer } from "@/features/mapswipe/components/project-results-map";
+
+import PageHeader from "@/features/models/components/header";
+import { MapswipeProjectStatusDialog } from "@/features/mapswipe/components/project-status-dialog";
+import {
+  useScrollToElement,
+  useScrollToTop,
+} from "@/hooks/use-scroll-to-element";
+import { LayoutView } from "@/enums";
+import { AIPredictionsListLayout } from "@/features/ai-predictions/components/ai-predictions-table";
+import { Spinner } from "@/components/ui/spinner";
+import { AIPredictionsMap } from "@/features/ai-predictions/components/ai-predictions-map";
+
+export const AIPredictionsPage = () => {
+  const {
+    data,
+    isPending,
+    isError,
+    isPlaceholderData,
+    refetch,
+    search,
+    ordering,
+    layout,
+    query,
+    offset,
+    setMapView,
+    setSearch,
+    setOrdering,
+    setLayout,
+    mapViewIsActive,
+    mapData,
+    isMapDataPending,
+    isMapDataError,
+    goToNextPage,
+    goToPrevPage,
+    setPredictionId,
+    clearAllFilters,
+  } = useAIPredictions();
+  const {
+    isOpened: isMapswipeDialogOpen,
+    openDialog: openMapSwipeProjectStatusDialog,
+    closeDialog: closeMapSwipeProjectStatusDialog,
+  } = useDialog();
+  const [mapSwipeResultsPmtiles, setMapSwipeResultsPmtiles] = useState<
+    string | null
+  >(null);
+
+  const {
+    isOpened: isMapSwipeProjectResultMapOpened,
+    openDialog: openMapSwipeProjectResultMapDialog,
+    closeDialog: closeMapSwipeProjectResultMapDialog,
+  } = useDialog();
+  const handleViewMapswipe = (prediction: TOfflinePrediction) => {
+    setMapSwipeResultsPmtiles(null);
+    setActivePrediction(prediction);
+    openMapSwipeProjectStatusDialog();
+  };
+
+  const handleMapSwipeProjectResultMapModal = (pmtiles: string) => {
+    setMapSwipeResultsPmtiles(pmtiles);
+    closeMapSwipeProjectStatusDialog();
+    openMapSwipeProjectResultMapDialog();
+  };
+
+  const handleCloseMapSwipeProjectResultMapModal = () => {
+    closeMapSwipeProjectResultMapDialog();
+    setMapSwipeResultsPmtiles(null);
+    openMapSwipeProjectStatusDialog();
+  };
+  const [activePrediction, setActivePrediction] =
+    useState<TOfflinePrediction | null>(null);
+
+  const {
+    isOpened: isPredictionResultOpened,
+    openDialog: openPredictionResultDialog,
+    closeDialog: closePredictionResultDialog,
+  } = useDialog();
+
+  const mapViewElementId = "published-predictions-map-view";
+  const { scrollToElement } = useScrollToElement(mapViewElementId);
+  const { scrollToTop } = useScrollToTop();
+
+  const isListView = layout === LayoutView.LIST;
+
+  const handleViewResults = (prediction: TOfflinePrediction) => {
+    setActivePrediction(prediction);
+    openPredictionResultDialog();
+  };
+
+  useEffect(() => {
+    if (mapViewIsActive) {
+      scrollToElement();
+    } else {
+      scrollToTop();
+    }
+  }, [mapViewIsActive, scrollToElement, scrollToTop]);
+
+  const renderContent = () => {
+    if (mapViewIsActive) {
+      return (
+        <div className="w-full grid grid-cols-1 grid-rows-2 lg:grid-rows-1 lg:grid-cols-2 md:border rounded-md lg:p-2 md:border-gray-border gap-x-2 mt-6 gap-y-6 lg:gap-y-0 h-screen">
+          <div className="w-full overflow-y-auto lg:row-start-1">
+            <AIPredictionsGrid
+              data={data?.results ?? []}
+              isPending={isPending}
+              isError={isError}
+              refetch={refetch}
+              isMapView={mapViewIsActive}
+              onViewResults={handleViewResults}
+              onViewDetails={handleViewMapswipe}
+            />
+          </div>
+          <div className="row-start-1" id={mapViewElementId}>
+            {isMapDataPending ||
+            isMapDataError ||
+            !mapData ||
+            mapData.features.length === 0 ? (
+              <div className="w-full h-full animate-pulse bg-light-gray flex items-center justify-center">
+                <Spinner />
+              </div>
+            ) : (
+              <AIPredictionsMap
+                mapResults={mapData as FeatureCollection}
+                setPredictionId={setPredictionId}
+              />
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="mt-6">
+        {isListView ? (
+          <AIPredictionsListLayout
+            data={data?.results ?? []}
+            isPending={isPending}
+            isError={isError}
+            refetch={refetch}
+            onViewResults={handleViewResults}
+            onViewDetails={handleViewMapswipe}
+          />
+        ) : (
+          <AIPredictionsGrid
+            data={data?.results ?? []}
+            isPending={isPending}
+            isError={isError}
+            refetch={refetch}
+            onViewResults={handleViewResults}
+            onViewDetails={handleViewMapswipe}
+          />
+        )}
+      </div>
+    );
+  };
+  return (
+    <>
+      <Head title="Public AI Predictions" />
+
+      {/* Prediction result drawer (reused from existing feature) */}
+      {activePrediction && (
+        <PredictionResultDrawer
+          tileServiceUrl={activePrediction.config.source}
+          predictionId={activePrediction.id}
+          folder={activePrediction.config.folder}
+          isOpened={isPredictionResultOpened}
+          closeDialog={() => {
+            setActivePrediction(null);
+            closePredictionResultDialog();
+          }}
+        />
+      )}
+
+      {/* Detail dialog */}
+
+      {activePrediction && (
+        <MapswipeProjectStatusDialog
+          isOpen={isMapswipeDialogOpen}
+          onClose={closeMapSwipeProjectStatusDialog}
+          mapSwipeProjectId={activePrediction.mapswipe_id ?? ""}
+          handleMapSwipeProjectResultMapModal={
+            handleMapSwipeProjectResultMapModal
+          }
+        />
+      )}
+
+      {activePrediction && mapSwipeResultsPmtiles && (
+        <MapSwipeProjectResultMapDrawer
+          tileServiceUrl={activePrediction.config.source}
+          predictionId={activePrediction.id}
+          folder={activePrediction.config.folder}
+          isOpened={isMapSwipeProjectResultMapOpened}
+          closeDialog={handleCloseMapSwipeProjectResultMapModal}
+          pmtilesUrl={mapSwipeResultsPmtiles}
+        />
+      )}
+
+      <section className="my-10 min-h-screen">
+        {/* Page header */}
+        <PageHeader
+          title="Public AI Predictions"
+          description={
+            "This is a list of AI predictions produced by community users and made public. Any user can publish predictions using the Prediction Request feature from their profile."
+          }
+          disableCreateButton
+          isTrainingDataset
+        />
+
+        {/* Filters */}
+        <AIPredictionsFilters
+          search={search}
+          onSearchChange={setSearch}
+          ordering={ordering}
+          onOrderingChange={setOrdering}
+          layout={layout}
+          onMapViewChange={setMapView}
+          mapViewIsActive={mapViewIsActive}
+          clearAllFilters={clearAllFilters}
+          onLayoutChange={setLayout}
+          query={query}
+          totalCount={data?.count ?? 0}
+          offset={offset}
+          hasNextPage={data?.hasNext ?? false}
+          hasPrevPage={data?.hasPrev ?? false}
+          onNextPage={goToNextPage}
+          onPrevPage={goToPrevPage}
+          isPlaceholderData={isPlaceholderData}
+        />
+
+        {/* Content */}
+        <div className="mt-6">{renderContent()}</div>
+      </section>
+    </>
+  );
+};

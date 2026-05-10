@@ -5,11 +5,13 @@ import { ELEMENT_DISTANCE_FROM_NAVBAR } from "@/config";
 import { Link } from "@/components/ui/link";
 import { navLinks } from "@/constants/general";
 import { NavLogo } from "@/components/layouts";
-import { useHistory } from "@/hooks/use-history";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 
-export const BrandLogoWithDropDown = () => {
-  const { goBack } = useHistory();
+export const BrandLogoWithDropDown = ({
+  stopMappingFn,
+}: {
+  stopMappingFn: () => void;
+}) => {
   const { dropdownRef } = useDropdownMenu();
   const navItems = navLinks.map((link, id) => (
     <li key={`${link.title}-${id}`}>
@@ -37,7 +39,7 @@ export const BrandLogoWithDropDown = () => {
         <Divider />
         <button
           className="text-body-3  block w-full px-4 py-2 text-start hover:bg-off-white hover:rounded-b-xl text-primary"
-          onClick={goBack}
+          onClick={stopMappingFn}
         >
           Stop Mapping
         </button>

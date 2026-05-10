@@ -127,6 +127,22 @@ const router = createBrowserRouter([
           };
         },
       },
+
+      /**
+       * AI Predictions route (published predictions).
+       */
+      {
+        path: APPLICATION_ROUTES.AI_PREDICTIONS,
+        lazy: async () => {
+          const { AIPredictionsPage } = await import(
+            "@/app/routes/ai-predictions"
+          );
+          return {
+            Component: () => <AIPredictionsPage />,
+          };
+        },
+      },
+
       /**
        *  Models details, list and feedbacks route ends.
        */

@@ -55,6 +55,28 @@ OSM_LOGIN_REDIRECT_URI = env(
     default="http://127.0.0.1:8000/api/v1/auth/callback/" if DEBUG else None,
 )
 
+# Authentication provider constants
+class AuthProvider:
+    LEGACY = "legacy"
+    HANKO = "hanko"
+
+
+AUTH_PROVIDER = env("AUTH_PROVIDER", default=AuthProvider.LEGACY)
+
+if AUTH_PROVIDER == AuthProvider.HANKO:
+    HANKO_API_URL = env("HANKO_API_URL")
+    COOKIE_SECRET = env("COOKIE_SECRET")
+    COOKIE_DOMAIN = env("COOKIE_DOMAIN", default=None)
+    COOKIE_SECURE = env.bool("COOKIE_SECURE", default=not DEBUG)
+    JWT_AUDIENCE = env("JWT_AUDIENCE", default=None)
+
+    LOGIN_URL = env("LOGIN_URL", default="https://login.hotosm.org")
+
+    OSM_REDIRECT_URI = env(
+        "OSM_REDIRECT_URI",
+        default="http://127.0.0.1:8000/api/v1/auth/osm/callback/" if DEBUG else None,
+    )
+
 
 USE_S3_TO_UPLOAD_MODELS = env.bool("USE_S3_TO_UPLOAD_MODELS", default=False)
 
@@ -123,6 +145,9 @@ INSTALLED_APPS = [
     "login",
 ]
 
+if AUTH_PROVIDER == AuthProvider.HANKO:
+    INSTALLED_APPS.append("hotosm_auth_django")
+
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
@@ -133,6 +158,26 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+if AUTH_PROVIDER == AuthProvider.HANKO:
+    MIDDLEWARE.insert(
+        MIDDLEWARE.index("django.contrib.auth.middleware.AuthenticationMiddleware"),
+        "hotosm_auth_django.HankoAuthMiddleware",
+    )
+
+    LOGIN_INTERNAL_API_KEY = env("LOGIN_INTERNAL_API_KEY", default="")
+    LOGIN_BACKEND_URL = env("LOGIN_BACKEND_URL", default=LOGIN_URL)
+    if LOGIN_INTERNAL_API_KEY:
+        from hotosm_auth import remote_pat_resolver
+        from hotosm_auth_django import init_auth_django
+
+        init_auth_django(
+            app_name="fair",
+            pat_resolver=remote_pat_resolver(
+                login_url=LOGIN_BACKEND_URL,
+                internal_key=LOGIN_INTERNAL_API_KEY,
+            ),
+        )
 
 ROOT_URLCONF = "fairproject.urls"
 WSGI_APPLICATION = "fairproject.wsgi.application"
@@ -281,6 +326,7 @@ if DEBUG:
 
 CELERY_BROKER_URL = env("CELERY_BROKER_URL", default="redis://127.0.0.1:6379/0")
 CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND", default="redis://127.0.0.1:6379/0")
+CELERY_TASK_TIME_LIMIT = env.int("CELERY_TASK_TIME_LIMIT", default=60 * 60 * 6)
 
 Q_CLUSTER = {
     "name": "DjangORM",
@@ -437,6 +483,9 @@ def get_allowed_hosts():
     if hostname not in hosts:
         hosts.append(hostname)
 
+    configured_hosts = env.list("ALLOWED_HOSTS", default=[])
+    hosts.extend(configured_hosts)
+
     if DEBUG:
         try:
             hosts.extend([gethostname(), gethostbyname(gethostname())])
@@ -517,7 +566,7 @@ ENABLE_MASPSWIPE_INTEGRATION = env.bool(
 
 MAPSWIPE_TUTORIAL_ID = env("MAPSWIPE_TUTORIAL_ID", default="37")
 MAPSWIPE_ORGANIZATION_ID = env.int("MAPSWIPE_ORGANIZATION_ID", default=4)
-MAPSWIPE_VERIFICATION_NUMBER = env.int("MAPSWIPE_VERIFICATION_NUMBER", default=1)
+MAPSWIPE_VERIFICATION_NUMBER = env.int("MAPSWIPE_VERIFICATION_NUMBER", default=3)
 
 MAPSWIPE_POLL_INTERVAL = env.int("MAPSWIPE_POLL_INTERVAL", default=10)
 MAPSWIPE_POLL_TIMEOUT = env.int("MAPSWIPE_POLL_TIMEOUT", default=600)

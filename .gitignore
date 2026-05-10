@@ -34,13 +34,13 @@ frontend/package-lock*
 
 frontend/.env
 
-# for backend 
+# for backend
+**/__pycache__
 backend/static
 backend/api_static
 backend/env
 backend/temp
 backend/postgres-data
-backend/**/__pycache__/**
 backend/media
 backend/data/*
 backend/log/*
@@ -62,3 +62,6 @@ fAIr-utilities
 data
 
 fair-app-data/*
+
+# helm charts
+fair-*.tgz

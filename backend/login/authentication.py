@@ -1,6 +1,6 @@
 import logging
 from django.conf import settings
-from osm_login_python.core import Auth
+from fairproject.settings import AuthProvider
 from rest_framework import authentication, exceptions
 
 from .models import OsmUser
@@ -8,8 +8,15 @@ from .models import OsmUser
 logger = logging.getLogger(__name__)
 
 
-class OsmAuthentication(authentication.BaseAuthentication):
+class LegacyOsmAuthentication(authentication.BaseAuthentication):
+    """Legacy OSM OAuth authentication using osm_login_python.
+
+    Used when AUTH_PROVIDER="legacy".
+    Reads access-token from header and validates directly with OSM.
+    """
     def authenticate(self, request):
+        from osm_login_python.core import Auth
+
         access_token = request.headers.get(
             "access-token"
         )  # get the access token as header
@@ -56,3 +63,46 @@ class OsmAuthentication(authentication.BaseAuthentication):
                     "OSM authentication failed: Invalid or expired access token"
                 )
         return (user, None)  # authentication successful return id,user_name,img
+
+
+class HankoAuthentication(authentication.BaseAuthentication):
+    """Hanko SSO authentication using user mappings."""
+    def authenticate(self, request):
+        from hotosm_auth_django import get_mapped_user_id
+
+        if not hasattr(request, 'hotosm'):
+            raise exceptions.AuthenticationFailed(
+                "HankoAuthMiddleware not configured"
+            )
+
+        hanko_user = request.hotosm.user
+
+        if not hanko_user:
+            logger.debug("No Hanko user in request")
+            return (None, None)
+
+        mapped_osm_id = get_mapped_user_id(hanko_user, app_name="fair")
+
+        if mapped_osm_id is not None:
+            try:
+                osm_id = int(mapped_osm_id)
+                user = OsmUser.objects.get(osm_id=osm_id)
+                logger.debug(f"Authenticated via mapping: Hanko={hanko_user.email}, osm_id={osm_id}")
+                return (user, None)
+            except (OsmUser.DoesNotExist, ValueError) as e:
+                logger.warning(f"Mapping exists but user not found: osm_id={mapped_osm_id}, error={e}")
+                # Fall through to onboarding.
+
+        request.needs_onboarding = True
+        request.hanko_user_for_onboarding = hanko_user
+        logger.debug(f"Hanko user {hanko_user.email} needs onboarding (no mapping)")
+        return (None, None)
+
+
+# Select authentication class based on AUTH_PROVIDER
+if settings.AUTH_PROVIDER == AuthProvider.HANKO:
+    logger.info("Using Hanko SSO authentication")
+    OsmAuthentication = HankoAuthentication
+else:
+    logger.info("Using legacy OSM authentication")
+    OsmAuthentication = LegacyOsmAuthentication

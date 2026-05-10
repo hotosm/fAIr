@@ -16,7 +16,7 @@ import { OfflinePredictionsSettingsInfo } from "./offline-predictions-settings-i
 import { OfflinePredictionActions } from "./offline-predictions-actions";
 import { ToolTip } from "@/components/ui/tooltip";
 import { MapSwipeProjectIsActive } from "./mapswipe-project-active";
-
+import { getDisplayStatus } from "@/features/user-profile/utils/get-display-status";
 type OfflinePredictionsTableProps = {
   data: TOfflinePrediction[];
   isError: boolean;
@@ -69,8 +69,15 @@ const columnDefinitions = (
   {
     header: "Status",
     accessorKey: "status",
-    cell: (row) => <TrainingStatusBadge status={row.getValue() as string} />,
+    cell: ({ row }) => {
+      const displayStatus = getDisplayStatus(
+        row.original.status,
+        row.original.published,
+      );
+      return <TrainingStatusBadge status={displayStatus} />;
+    },
   },
+
   {
     header: "Duration",
     accessorFn: (row) =>

@@ -7,8 +7,9 @@ from django.contrib.postgres.fields import ArrayField
 from django.db import models, transaction
 from django.utils import timezone
 from login.models import OsmUser
-from .validators import validate_geometry
+
 from .exceptions import handle_validation_error
+from .validators import validate_geometry
 
 
 class Dataset(models.Model):
@@ -24,7 +25,7 @@ class Dataset(models.Model):
     source_imagery = models.URLField(blank=True, null=True)
     status = models.IntegerField(
         default=-1, choices=DatasetStatus.choices
-    ) # this is not relevant anymore , get rid of it later 
+    )  # this is not relevant anymore , get rid of it later
 
     offset = ArrayField(
         base_field=models.FloatField(),
@@ -35,7 +36,9 @@ class Dataset(models.Model):
 
     def clean(self):
         if self.offset and len(self.offset) != 2:
-            raise handle_validation_error("offset", "Offset must be a list of exactly two numbers", self.offset)
+            raise handle_validation_error(
+                "offset", "Offset must be a list of exactly two numbers", self.offset
+            )
 
 
 class AOI(models.Model):
@@ -54,8 +57,8 @@ class AOI(models.Model):
 
     class Meta:
         indexes = [
-            models.Index(fields=['dataset']),
-            models.Index(fields=['geom'], name='aoi_geom_gist_idx', opclasses=['gist']),
+            models.Index(fields=["dataset"]),
+            models.Index(fields=["geom"], name="aoi_geom_gist_idx", opclasses=["gist"]),
         ]
 
     @transaction.atomic
@@ -73,9 +76,11 @@ class Label(models.Model):
 
     class Meta:
         indexes = [
-            models.Index(fields=['aoi']),
-            models.Index(fields=['osm_id']),
-            models.Index(fields=['geom'], name='label_geom_gist_idx', opclasses=['gist']),
+            models.Index(fields=["aoi"]),
+            models.Index(fields=["osm_id"]),
+            models.Index(
+                fields=["geom"], name="label_geom_gist_idx", opclasses=["gist"]
+            ),
         ]
 
     @transaction.atomic
@@ -83,7 +88,9 @@ class Label(models.Model):
         if self.geom:
             self.geom = validate_geometry(self.geom)
 
-## todo : here add base model as a new table and store licenses , information as well as config for the model hereby and use it as a choice for local models 
+
+## todo : here add base model as a new table and store licenses , information as well as config for the model hereby and use it as a choice for local models
+
 
 class Model(models.Model):
     BASE_MODEL_CHOICES = (
@@ -104,18 +111,24 @@ class Model(models.Model):
     description = models.TextField(max_length=4000, null=True, blank=True)
     user = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
     published_training = models.PositiveIntegerField(null=True, blank=True)
+    published_at = models.DateTimeField(null=True, blank=True)
     status = models.IntegerField(default=-1, choices=ModelStatus.choices)
     base_model = models.CharField(
         choices=BASE_MODEL_CHOICES, default="RAMP", max_length=50
     )
 
+    def save(self, *args, **kwargs):
+        if self.status == self.ModelStatus.PUBLISHED and not self.published_at:
+            self.published_at = timezone.now()
+        super().save(*args, **kwargs)
+
     class Meta:
         indexes = [
-            models.Index(fields=['status']),
-            models.Index(fields=['created_at']),
-            models.Index(fields=['last_modified']),
-            models.Index(fields=['user']),
-            models.Index(fields=['dataset']),
+            models.Index(fields=["status"]),
+            models.Index(fields=["created_at"]),
+            models.Index(fields=["last_modified"]),
+            models.Index(fields=["user"]),
+            models.Index(fields=["dataset"]),
         ]
 
 
@@ -150,9 +163,9 @@ class Training(models.Model):
 
     class Meta:
         indexes = [
-            models.Index(fields=['model']),
-            models.Index(fields=['status']),
-            models.Index(fields=['user']),
+            models.Index(fields=["model"]),
+            models.Index(fields=["status"]),
+            models.Index(fields=["user"]),
         ]
 
     def get_source_imagery_type(self):
@@ -216,9 +229,8 @@ class UserNotification(models.Model):
 
     class Meta:
         indexes = [
-            models.Index(fields=['is_read']),
-            models.Index(fields=['user']),
-
+            models.Index(fields=["is_read"]),
+            models.Index(fields=["user"]),
         ]
 
     def mark_as_read(self):
@@ -248,10 +260,12 @@ class Feedback(models.Model):
 
     class Meta:
         indexes = [
-            models.Index(fields=['training']),
-            models.Index(fields=['user']),
-            models.Index(fields=['action']),
-            models.Index(fields=['geom'], name='feedback_geom_gist_idx', opclasses=['gist']),
+            models.Index(fields=["training"]),
+            models.Index(fields=["user"]),
+            models.Index(fields=["action"]),
+            models.Index(
+                fields=["geom"], name="feedback_geom_gist_idx", opclasses=["gist"]
+            ),
         ]
 
     def clean(self):
@@ -279,6 +293,13 @@ class Prediction(models.Model):
     result = models.JSONField(null=True, blank=True)
     geom = geomodels.PolygonField(srid=4326)
     user = models.ForeignKey(OsmUser, to_field="osm_id", on_delete=models.CASCADE)
+    published = models.BooleanField(default=False)
+    published_at = models.DateTimeField(null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if self.published and not self.published_at:
+            self.published_at = timezone.now()
+        super().save(*args, **kwargs)
 
     @transaction.atomic
     def clean(self):
@@ -290,9 +311,13 @@ class Prediction(models.Model):
                 field for field in required_fields if field not in self.config
             ]
             if missing_fields:
-                raise handle_validation_error("config", f"Missing required fields: {', '.join(missing_fields)}", self.config)
+                raise handle_validation_error(
+                    "config",
+                    f"Missing required fields: {', '.join(missing_fields)}",
+                    self.config,
+                )
 
     class Meta:
         indexes = [
-            models.Index(fields=['status']),
+            models.Index(fields=["status"]),
         ]

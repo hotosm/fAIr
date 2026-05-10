@@ -23,18 +23,14 @@ jobs:
     env:
       CI: false
 
-    strategy:
-      matrix:
-        node-version: [18, 20, 22]
-
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
-      - name: Set up Node.js ${{ matrix.node-version }}
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 22
 
       - name: Install pnpm
         run: npm install -g pnpm

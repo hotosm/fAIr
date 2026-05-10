@@ -1,0 +1,116 @@
+# -- Number of backend replicas
+backendReplicaCount: 1
+
+image:
+  backend:
+    repository: ghcr.io/hotosm/fair-api
+    tag: ""  # defaults to appVersion
+    pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+# -- Backend (Django API) configuration
+backend:
+  command:
+    - gunicorn
+    - --bind=0.0.0.0:8000
+    - --workers=3
+    - --timeout=120
+    - fairproject.wsgi:application
+
+  # -- Run Django-Q cluster as a sidecar for lightweight async tasks
+  djangoQ:
+    enabled: true
+    resources:
+      limits:
+        cpu: "2"
+        memory: 2Gi
+      requests:
+        cpu: 250m
+        memory: 512Mi
+
+  port: 8000
+
+  env: {}
+    # DJANGO_SECRET_KEY: ""
+    # DJANGO_ALLOWED_HOSTS: "*"
+    # OSM_CLIENT_ID: ""
+    # OSM_CLIENT_SECRET: ""
+    # OSM_SECRET_KEY: ""
+
+  # -- Reference an existing Secret for sensitive env vars
+  envFrom: []
+    # - secretRef:
+    #     name: fair-backend-secrets
+
+  resources:
+    limits:
+      cpu: "2"
+      memory: 2Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+
+  livenessProbe:
+    httpGet:
+      path: /api/
+      port: http
+    initialDelaySeconds: 30
+    periodSeconds: 30
+    timeoutSeconds: 5
+
+  readinessProbe:
+    httpGet:
+      path: /api/
+      port: http
+    initialDelaySeconds: 15
+    periodSeconds: 10
+    timeoutSeconds: 5
+
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  podAnnotations: {}
+  podSecurityContext: {}
+  securityContext: {}
+
+  # -- Run Django migrations as a pre-install/upgrade hook
+  migrate:
+    enabled: true
+
+  service:
+    type: ClusterIP
+    port: 8000
+
+# -- Ingress configuration
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+    # nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+  hosts:
+    - host: fair.example.com
+      paths:
+        - path: /api
+          pathType: Prefix
+  tls: []
+  #  - secretName: fair-tls
+  #    hosts:
+  #      - fair.example.com
+
+# -- External PostgreSQL connection
+externalDatabase:
+  host: ""
+  port: 5432
+  database: ai
+  username: postgres
+  password: ""
+  existingSecret: ""
+  existingSecretKey: password

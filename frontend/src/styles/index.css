@@ -29,6 +29,7 @@ body {
   --hot-fair-color-ink: #202325;
   --hot-fair-color-status-pending-color: #fff9da;
   --hot-fair-color-status-changes-color: #ffe3da;
+  --hot-fair-color-yellow-secondary: #fffddb;
 
   /* Font sizes in rem */
   --hot-fair-font-size-extra-large: 4.25rem;
@@ -147,10 +148,122 @@ sl-alert.success::part(base) {
 
 /* Banner content customization starts */
 .prose:not(.model-detail-prose) * {
+/* Banner markdown content customization starts */
+
+.prose:not(.markdown-prose) * {
   color: var(--hot-fair-color-white) !important;
   margin: 0px !important;
 }
-/* Banner content customization ends */
+/* Banner markdown content customization ends */
+
+/* Markdown prose styles starts */
+.markdown-prose {
+  color: var(--hot-fair-color-dark);
+}
+
+.markdown-prose h2 {
+  color: var(--hot-fair-color-dark);
+  font-weight: 600;
+  font-size: var(--hot-fair-font-size-title-3);
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+}
+
+.markdown-prose > *:first-child {
+  margin-top: 0;
+}
+
+.markdown-prose > *:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-prose h3 {
+  color: var(--hot-fair-color-dark);
+  font-weight: 500;
+  font-size: calc(var(--hot-fair-font-size-body-text-1) + 2px);
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.markdown-prose p {
+  color: var(--hot-fair-color-gray);
+  font-size: var(--hot-fair-font-size-body-text-2base);
+  line-height: 1.7;
+  margin-bottom: 1rem;
+}
+
+.markdown-prose ul,
+.markdown-prose ol {
+  color: var(--hot-fair-color-gray);
+  font-size: var(--hot-fair-font-size-body-text-2base);
+  padding-left: 1.5rem;
+  margin: 1rem 0;
+}
+
+.markdown-prose li {
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+.markdown-prose strong {
+  color: var(--hot-fair-color-dark);
+  font-weight: 600;
+}
+
+.markdown-prose blockquote {
+  border-left: 3px solid var(--hot-fair-color-primary);
+  padding-left: 1rem;
+  color: var(--hot-fair-color-gray);
+  margin: 1rem 0;
+}
+
+.markdown-prose pre {
+  background: var(--hot-fair-color-off-white);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+}
+
+.markdown-prose pre code {
+  background: none;
+  padding: 0;
+}
+.markdown-prose hr {
+  border: none;
+  border-top: 1px solid #e5e5e5;
+  margin: 2rem 0;
+}
+.markdown-prose code {
+  color: var(--hot-fair-color-primary);
+  background-color: var(--hot-fair-color-off-white);
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  font-size: 0.875em;
+}
+
+.markdown-prose a {
+  color: var(--hot-fair-color-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.markdown-prose a:hover {
+  opacity: 0.8;
+}
+
+.markdown-prose a {
+  color: var(--hot-fair-color-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  word-break: break-word;
+}
+
+.markdown-prose {
+  overflow-wrap: anywhere;
+}
+
+/* Markdown prose styles ends */
 
 /* Model detail page markdown prose styles starts */
 .model-detail-prose {
@@ -322,3 +435,7 @@ sl-alert.success::part(base) {
 }
 
 /* Matomo placement style ends */
+
+hotosm-auth {
+  --login-btn-border-radius: 0px;
+}
