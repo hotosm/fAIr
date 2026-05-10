@@ -6,7 +6,6 @@ import {
 } from "@/components/ui/icons";
 import { DropDown } from "@/components/ui/dropdown";
 import { ToolTip } from "@/components/ui/tooltip";
-import { TASK_CATEGORIES, DATE_SORT_OPTIONS } from "@/utils/base-model-data";
 import { LayoutView } from "@/enums";
 
 type TMenuItem = {
@@ -68,14 +67,15 @@ const BaseModelsFilters: React.FC<BaseModelsFiltersProps> = ({
                 menuItems={categoryMenuItems}
                 withCheckbox
                 handleMenuSelection={(value: string) => {
-                  const selected = TASK_CATEGORIES.find(
-                    (c) => c.label === value,
+                  const selected = categoryMenuItems.find(
+                    (c) => c.value === value,
                   );
-                  if (selected) {
-                    setCategory(
-                      selected.value === "all" ? null : selected.value,
-                    );
-                  }
+
+                  if (!selected) return;
+
+                  setCategory(
+                    selected.apiValue === "all" ? null : selected.apiValue,
+                  );
                 }}
                 defaultSelectedItem={selectedCategoryLabel}
                 triggerComponent={
@@ -92,14 +92,13 @@ const BaseModelsFilters: React.FC<BaseModelsFiltersProps> = ({
                 menuItems={dateMenuItems}
                 withCheckbox
                 handleMenuSelection={(value: string) => {
-                  const selected = DATE_SORT_OPTIONS.find(
-                    (d) => d.label === value,
+                  const selected = dateMenuItems.find((d) => d.value === value);
+
+                  if (!selected) return;
+
+                  setDateSort(
+                    selected.apiValue === "newest" ? null : selected.apiValue,
                   );
-                  if (selected) {
-                    setDateSort(
-                      selected.value === "newest" ? null : selected.value,
-                    );
-                  }
                 }}
                 defaultSelectedItem={selectedDateLabel}
                 triggerComponent={
@@ -121,6 +120,7 @@ const BaseModelsFilters: React.FC<BaseModelsFiltersProps> = ({
             >
               <FilterIcon className="icon-lg" />
             </div>
+
             {/* Desktop layout toggle */}
             <div className="hidden md:flex items-center">
               <ToolTip content={`Show as ${isListView ? "grid" : "list"}`}>
@@ -145,7 +145,7 @@ const BaseModelsFilters: React.FC<BaseModelsFiltersProps> = ({
         <p className="font-semibold text-body-3">
           {filteredModelsCount} Models
         </p>
-        {/* Mobile Layout toggle */}
+
         <ToolTip content={`Show as ${isListView ? "grid" : "list"}`}>
           <button
             className="flex md:hidden border border-gray-border p-2 items-center justify-center text-dark cursor-pointer"

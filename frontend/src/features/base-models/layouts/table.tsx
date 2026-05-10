@@ -5,7 +5,7 @@ import { SortableHeader } from "@/features/models/components/table-header";
 import { roundNumber, truncateString } from "@/utils";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { TBaseModel } from "@/utils/base-model-data";
+import { TBaseModel } from "@/types";
 
 const columnDefinitions: ColumnDef<TBaseModel>[] = [
   {
@@ -26,7 +26,7 @@ const columnDefinitions: ColumnDef<TBaseModel>[] = [
     header: "Task",
   },
   {
-    accessorKey: "createdBy",
+    accessorKey: "author",
     header: "Created by",
   },
   {

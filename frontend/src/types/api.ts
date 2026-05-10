@@ -345,3 +345,20 @@ export type TMapSwipeProjectStatus = {
     };
   };
 };
+
+export type TBaseModel = {
+  id: number;
+  name: string;
+  description: string;
+  accuracy: number;
+  author: string;
+  lastModified: string;
+  task: string;
+  version: string;
+};
+
+export type TBaseModelVariant = {
+  name: string;
+  classes: string;
+  notes: string;
+};

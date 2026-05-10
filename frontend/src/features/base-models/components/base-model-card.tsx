@@ -1,6 +1,6 @@
 import { Link } from "@/components/ui/link";
 import { APPLICATION_ROUTES } from "@/constants";
-import { TBaseModel } from "@/utils/base-model-data";
+import { TBaseModel } from "@/types";
 import { roundNumber } from "@/utils/number-utils";
 
 type BaseModelCardProps = {

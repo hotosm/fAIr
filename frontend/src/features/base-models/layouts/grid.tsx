@@ -1,4 +1,4 @@
-import { TBaseModel } from "@/utils/base-model-data";
+import { TBaseModel } from "@/types";
 import BaseModelCard from "@/features/base-models/components/base-model-card";
 
 type BaseModelGridLayoutProps = {

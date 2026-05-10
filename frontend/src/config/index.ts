@@ -65,6 +65,14 @@ export const BASE_API_URL: string = parseStringEnv(
 );
 
 /**
+ * The STAC Catalog API endpoint url. This is used to fetch the base models, datasets and local models as STAC items from the catalog.
+ */
+export const STAC_CATALOG_API_URL: string = parseStringEnv(
+  ENVS.FAIR_STAC_CATALOG_BASE_URL,
+  "https://stac.fair.krschap.tech/stac/",
+);
+
+/**
  * The Base URL for OAM's Titiler.
  */
 export const OAM_TITILER_ENDPOINT: string = parseStringEnv(

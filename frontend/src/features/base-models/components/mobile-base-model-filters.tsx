@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { DropDown } from "@/components/ui/dropdown";
 import { ButtonVariant } from "@/enums";
-import { TASK_CATEGORIES, DATE_SORT_OPTIONS } from "@/utils/base-model-data";
+import { DATE_SORT_OPTIONS } from "@/features/base-models/utils/common";
 
 type TMenuItem = {
   value: string;
@@ -50,12 +50,14 @@ const MobileBaseModelFiltersDialog: React.FC<
   return (
     <Dialog isOpened={isOpened} closeDialog={closeDialog} label={"Filter"}>
       <div className="flex flex-col gap-y-4">
+        {/* Sort */}
         <FilterItem title="Sort by">
           <DropDown
             menuItems={dateMenuItems}
             withCheckbox
             handleMenuSelection={(value: string) => {
               const selected = DATE_SORT_OPTIONS.find((d) => d.label === value);
+
               if (selected) {
                 setDateSort(
                   selected.value === "newest" ? null : selected.value,
@@ -71,14 +73,18 @@ const MobileBaseModelFiltersDialog: React.FC<
           />
         </FilterItem>
 
+        {/* Category */}
         <FilterItem title="Filter by Category">
           <DropDown
             menuItems={categoryMenuItems}
             withCheckbox
             handleMenuSelection={(value: string) => {
-              const selected = TASK_CATEGORIES.find((c) => c.label === value);
+              const selected = categoryMenuItems.find((c) => c.value === value);
+
               if (selected) {
-                setCategory(selected.value === "all" ? null : selected.value);
+                setCategory(
+                  selected.apiValue === "all" ? null : selected.apiValue,
+                );
               }
             }}
             defaultSelectedItem={selectedCategoryLabel}
@@ -90,6 +96,7 @@ const MobileBaseModelFiltersDialog: React.FC<
           />
         </FilterItem>
 
+        {/* Footer */}
         <div className="flex items-center justify-between gap-x-4">
           <Button
             slot="footer"

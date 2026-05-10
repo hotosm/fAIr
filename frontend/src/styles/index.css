@@ -146,8 +146,6 @@ sl-alert.success::part(base) {
 
 /* Tailwind styles begins */
 
-/* Banner content customization starts */
-.prose:not(.model-detail-prose) * {
 /* Banner markdown content customization starts */
 
 .prose:not(.markdown-prose) * {

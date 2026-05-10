@@ -8,13 +8,10 @@ import { APPLICATION_ROUTES } from "@/constants";
 import { ButtonVariant } from "@/enums";
 
 import AccuracyDisplay from "@/features/models/components/accuracy-display";
-import {
-  BASE_MODELS_DETAIL_DATA,
-  TBaseModelDetail,
-  TBaseModelVariant,
-} from "@/utils/base-model-data";
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useBaseModel } from "@/features/base-models/hooks/use-base-models";
+import { TBaseModelVariant } from "@/types";
 
 type TInfoRowConfig = {
   label: string;
@@ -121,23 +118,15 @@ export const BaseModelDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const model: TBaseModelDetail | undefined = useMemo(() => {
-    return BASE_MODELS_DETAIL_DATA.find((m) => String(m.id) === id);
-  }, [id]);
+  const { data: model, isLoading, isError } = useBaseModel(id);
 
-  useEffect(() => {
-    if (!model) {
-      navigate(APPLICATION_ROUTES.NOTFOUND, {
-        replace: true,
-        state: {
-          from: APPLICATION_ROUTES.BASE_MODELS_HOME,
-          error: "base model not found",
-          buttonLabel: "Back to Base Models",
-          redirectPath: APPLICATION_ROUTES.BASE_MODELS_HOME,
-        },
-      });
-    }
-  }, [model, navigate]);
+  if (isLoading) {
+    return <div className="py-20 text-center">Loading model...</div>;
+  }
+
+  if (isError || !model) {
+    return <div className="py-20 text-center">Failed to load model</div>;
+  }
 
   const architectureRows: TInfoRowConfig[] = model
     ? [
@@ -206,6 +195,7 @@ export const BaseModelDetailPage = () => {
     return null;
   }
 
+  console.log("Model data:", model);
   return (
     <>
       <Head title={`${model.fullTitle}`} />
