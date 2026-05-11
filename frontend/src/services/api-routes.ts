@@ -3,7 +3,6 @@ import {
   OSM_DATABASE_STATUS_API_ENDPOINT,
 } from "@/config";
 
-
 /**
  * The backend API endpoints.
  */

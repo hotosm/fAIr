@@ -14,7 +14,13 @@ import { UserProfile } from "@/components/layouts";
 import { useState } from "react";
 import { UserNotifications } from "@/features/user-profile/components/notifications/user-notifications";
 import { DropDown } from "@/components/ui/dropdown";
-import { AUTH_PROVIDER, BASE_API_URL, FRONTEND_URL, HANKO_URL } from "@/config";
+import {
+  AUTH_PROVIDER,
+  BASE_API_URL,
+  FRONTEND_URL,
+  HANKO_URL,
+  IS_DEV,
+} from "@/config";
 import "@hotosm/tool-menu";
 import { Divider } from "@/components/ui/divider";
 
@@ -122,7 +128,7 @@ export const NavBar = () => {
           <NavBarLinks className={styles.webNavLinks} />
         </div>
         <div className="hidden sm:flex items-center gap-x-3">
-          {AUTH_PROVIDER === "hanko" ? (
+          {AUTH_PROVIDER === "hanko" && !IS_DEV ? (
             <>
               {isAuthenticated && <UserNotifications />}
               {isAuthenticated && <UserProfile isHanko hideFullName />}

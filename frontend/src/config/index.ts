@@ -51,6 +51,10 @@ export const FRONTEND_URL: string =
     ? window.location.origin
     : "http://localhost:5173";
 
+export const NODE_ENV: string = parseStringEnv(ENVS.NODE_ENV, "development");
+export const IS_DEV = NODE_ENV === "development";
+export const IS_PROD = NODE_ENV === "production";
+
 // ==============================================================================================================================
 // API Endpoints
 // ==============================================================================================================================
