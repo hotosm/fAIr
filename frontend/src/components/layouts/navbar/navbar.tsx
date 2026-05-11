@@ -75,7 +75,7 @@ export const NavBar = () => {
           {isAuthenticated && <Divider />}
 
           <div className={styles.loginButtonContainer}>
-            {AUTH_PROVIDER === "hanko" ? (
+            {AUTH_PROVIDER === "hanko" && !IS_DEV ? (
               <>
                 {isAuthenticated && (
                   <UserProfile
