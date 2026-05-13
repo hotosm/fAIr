@@ -56,12 +56,15 @@ _DEV_USER_CACHE: OsmUser | None = None
 class DevAuthentication(authentication.BaseAuthentication):
     """Local-development authentication via a static `FAIR_DEV_TOKEN`.
 
-    Active only when AUTH_PROVIDER=dev. Rejects every request whose `access-token`
-    header does not match the configured token in constant time. On match, returns
-    a single seeded `OsmUser(osm_id=1, username='dev-user')` (created on first hit).
+    Active only when AUTH_PROVIDER=dev. Reads `Authorization: Bearer <token>` and
+    constant-time compares against `FAIR_DEV_TOKEN`. Same header contract as the
+    Hanko provider, so dev and prod clients are identical. On match, returns a
+    single seeded `OsmUser(osm_id=1, username='dev-user')` (created on first hit).
 
     Never enable in prod: anyone with the token has full dev-user access.
     """
+
+    keyword = "Bearer"
 
     def authenticate(self, request):
         global _DEV_USER_CACHE
@@ -71,10 +74,11 @@ class DevAuthentication(authentication.BaseAuthentication):
                 "AUTH_PROVIDER=dev requires FAIR_DEV_TOKEN to be set"
             )
 
-        provided = request.headers.get("access-token") or ""
-        if not provided:
+        header = request.META.get("HTTP_AUTHORIZATION", "")
+        if not header.startswith(f"{self.keyword} "):
             return None
 
+        provided = header[len(self.keyword) + 1 :]
         if not secrets.compare_digest(provided, configured):
             raise exceptions.AuthenticationFailed("Invalid FAIR_DEV_TOKEN")
 
@@ -84,6 +88,9 @@ class DevAuthentication(authentication.BaseAuthentication):
                 defaults={"username": _DEV_USER_USERNAME},
             )
         return (_DEV_USER_CACHE, None)
+
+    def authenticate_header(self, request):
+        return self.keyword
 
 
 # Select authentication class based on AUTH_PROVIDER

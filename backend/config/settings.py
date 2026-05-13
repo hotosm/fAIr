@@ -378,7 +378,6 @@ else:
 
 CORS_ALLOW_HEADERS = [
     *default_headers,
-    "access-token",
     "authorization",
     "content-type",
     "x-csrftoken",

@@ -130,7 +130,7 @@ erDiagram
 
 ## 3. API reference
 
-All endpoints live under `/api/v1/` and require the header `access-token: <FAIR_DEV_TOKEN>` when `AUTH_PROVIDER=dev`, or a Hanko bearer token when `AUTH_PROVIDER=hanko`. Swagger UI: `/api/docs/`. OpenAPI: `/api/schema/`.
+All endpoints live under `/api/v1/` and require `Authorization: Bearer <token>`. The token is `FAIR_DEV_TOKEN` when `AUTH_PROVIDER=dev`, or a Hanko-issued JWT when `AUTH_PROVIDER=hanko`. Swagger UI: `/api/docs/`. OpenAPI: `/api/schema/`.
 
 ### Core flow
 
@@ -165,7 +165,7 @@ All endpoints live under `/api/v1/` and require the header `access-token: <FAIR_
 
 ### User test 
 
-Send these one at a time from Swagger (`/api/docs/`) or any HTTP client. Every request needs the header `access-token: <FAIR_DEV_TOKEN>`. Substitute the IDs returned from each step into the next.
+Send these one at a time from Swagger (`/api/docs/`) or any HTTP client. Every request needs `Authorization: Bearer <FAIR_DEV_TOKEN>`. Substitute the IDs returned from each step into the next.
 
 **1. Create the AOI** : `POST /api/v1/aois/`
 

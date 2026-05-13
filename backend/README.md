@@ -40,7 +40,7 @@ OpenAPI schema at `/api/schema/`, Swagger UI at `/api/docs/`, ReDoc at `/api/red
 
 ### Authentication
 
-`AUTH_PROVIDER` selects the auth backend. `hanko` (production) issues JWTs via cookie that `hotosm_auth_django` validates. `dev` (local only) accepts a static token via the `access-token` header — anyone with the token gets full dev-user access.
+`AUTH_PROVIDER` selects the auth backend. Both share one contract: `Authorization: Bearer <token>`. `hanko` (production) validates a per-user JWT issued by Hanko (sent via Bearer header or `hanko` cookie). `dev` (local only) compares the Bearer token against the static `FAIR_DEV_TOKEN`; anyone with the token gets full dev-user access. Same header in dev and prod, only the issuer differs.
 
 | Name | Required | Default | Description |
 |------|----------|---------|-------------|
