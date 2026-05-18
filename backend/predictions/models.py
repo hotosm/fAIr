@@ -1,6 +1,7 @@
 from django.db import models
 
 from accounts.models import OsmUser
+from shared.enums import Visibility
 
 
 class Prediction(models.Model):
@@ -11,7 +12,9 @@ class Prediction(models.Model):
     zoom = models.PositiveSmallIntegerField()
     params = models.JSONField(default=dict, blank=True)
     remove_osm = models.BooleanField(default=False)
-    is_public = models.BooleanField(default=False, db_index=True)
+    visibility = models.CharField(
+        max_length=20, choices=Visibility.choices, default=Visibility.PRIVATE, db_index=True
+    )
     description = models.TextField(blank=True)
     status = models.CharField(max_length=20, default="initializing")
     results_ready = models.BooleanField(default=False)

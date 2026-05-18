@@ -1,6 +1,7 @@
 from django.db import models
 
 from accounts.models import OsmUser
+from shared.enums import Visibility
 
 
 class LocalModel(models.Model):
@@ -10,8 +11,7 @@ class LocalModel(models.Model):
     # (title, description, assets) lives in STAC.
 
     class Status(models.TextChoices):
-        DRAFT = "draft", "Draft"
-        PUBLISHED = "published", "Published"
+        ACTIVE = "active", "Active"
         # TODO(archive-cascade): no endpoint flips a model to ARCHIVED yet.
         # When added, must (1) archive_model_version per STAC item with
         # mlm:name == self.name, (2) deprecate those STAC items, (3) mark
@@ -19,7 +19,10 @@ class LocalModel(models.Model):
         ARCHIVED = "archived", "Archived"
 
     name = models.CharField(max_length=200, unique=True)
-    status = models.CharField(max_length=20, choices=Status.choices, default=Status.DRAFT)
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.ACTIVE)
+    visibility = models.CharField(
+        max_length=20, choices=Visibility.choices, default=Visibility.PRIVATE, db_index=True
+    )
     user = models.ForeignKey(
         OsmUser,
         to_field="osm_id",

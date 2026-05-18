@@ -1,16 +1,23 @@
 from django.conf import settings
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema, extend_schema_view, inline_serializer
-from rest_framework import filters, serializers, status, views, viewsets
+from rest_framework import filters, serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound, PermissionDenied
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.throttling import ScopedRateThrottle
 
 from accounts.authentication import OsmAuthentication
-from accounts.permissions import IsOwnerOrAdminOrReadOnly, _is_admin
+from accounts.permissions import (
+    IsOwnerOrAdmin,
+    IsOwnerOrAdminOrReadOnly,
+    PublishedReadOrAuthenticatedWrite,
+    _is_admin,
+)
+from shared.enums import Visibility
 from shared.integrations.stac import LOCAL_MODELS_COLLECTION, item_exists
 from shared.integrations.zenml import (
     fetch_run_logs,
@@ -71,11 +78,25 @@ class PredictionViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Prediction.objects.all()
     serializer_class = PredictionSerializer
     authentication_classes = [OsmAuthentication]
-    permission_classes = [IsAuthenticated, IsOwnerOrAdminOrReadOnly]
+    permission_classes = [PublishedReadOrAuthenticatedWrite, IsOwnerOrAdminOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
-    filterset_fields = ["local_model_stac_id", "user", "status", "is_public"]
+    filterset_fields = ["local_model_stac_id", "user", "status", "visibility"]
     ordering_fields = ["submitted_at", "last_polled_at"]
     throttle_scope = "prediction_submit"
+
+    def get_queryset(self):
+        qs = Prediction.objects.all()
+        user = self.request.user
+        if not user.is_authenticated:
+            return qs.filter(visibility=Visibility.PUBLIC)
+        if _is_admin(user):
+            return qs
+        return qs.filter(Q(user=user) | Q(visibility=Visibility.PUBLIC))
+
+    def get_permissions(self):
+        if self.action in {"publish", "unpublish", "submit", "mapswipe", "run_cancel"}:
+            return [IsAuthenticated(), IsOwnerOrAdmin()]
+        return super().get_permissions()
 
     @action(
         detail=False,
@@ -144,20 +165,18 @@ class PredictionViewSet(viewsets.ReadOnlyModelViewSet):
 
     @action(detail=True, methods=["post"], url_path="publish")
     def publish(self, request, pk: int | None = None) -> Response:
-        # TODO(prediction-stac):
-        # - paired with unpublish below — set S3 ACL to public-read for output files.
+        # TODO(prediction-stac): also flip S3 ACL on output files to public-read.
         prediction = self.get_object()
-        prediction.is_public = True
-        prediction.save(update_fields=["is_public"])
+        prediction.visibility = Visibility.PUBLIC
+        prediction.save(update_fields=["visibility"])
         return Response(PredictionSerializer(prediction).data)
 
     @action(detail=True, methods=["post"], url_path="unpublish")
     def unpublish(self, request, pk: int | None = None) -> Response:
-        # TODO(prediction-stac): paired with publish above — flip S3 ACL
-        # back to private and deprecate the STAC item (don't delete).
+        # TODO(prediction-stac): also flip S3 ACL back to private and deprecate the STAC item.
         prediction = self.get_object()
-        prediction.is_public = False
-        prediction.save(update_fields=["is_public"])
+        prediction.visibility = Visibility.PRIVATE
+        prediction.save(update_fields=["visibility"])
         return Response(PredictionSerializer(prediction).data)
 
     @action(detail=True, methods=["post"], url_path="mapswipe")
@@ -249,39 +268,6 @@ class PredictionViewSet(viewsets.ReadOnlyModelViewSet):
             entries = fetch_run_logs(run_id, tail=tail)
         data = [{"level": e.level, "message": e.message, "timestamp": e.timestamp} for e in entries]
         return Response(LogEntrySerializer(data, many=True).data)
-
-
-@extend_schema(tags=["public-predictions"])
-class PublicPredictionRetrieveView(views.APIView):
-    """Anonymous read-only access to predictions whose owner ran `publish`."""
-
-    authentication_classes: list = []
-    permission_classes = [AllowAny]
-    serializer_class = PredictionSerializer
-
-    @extend_schema(responses=PredictionSerializer)
-    def get(self, request, pk: int) -> Response:
-        prediction = get_object_or_404(Prediction, pk=pk, is_public=True)
-        return Response(PredictionSerializer(prediction).data)
-
-
-@extend_schema(tags=["public-predictions"])
-class PublicPredictionResultView(views.APIView):
-    """Presigned URLs for a published prediction's output formats."""
-
-    authentication_classes: list = []
-    permission_classes = [AllowAny]
-    serializer_class = PredictionResultSerializer
-
-    @extend_schema(responses={200: PredictionResultSerializer, 409: None})
-    def get(self, request, pk: int) -> Response:
-        prediction = get_object_or_404(Prediction, pk=pk, is_public=True)
-        if not prediction.results_ready:
-            return Response(
-                {"detail": "Result not ready; wait for post-run to finish."},
-                status=status.HTTP_409_CONFLICT,
-            )
-        return Response(PredictionResultSerializer(_presigned_result_urls(prediction)).data)
 
 
 def _presigned_result_urls(prediction: Prediction) -> dict[str, str]:

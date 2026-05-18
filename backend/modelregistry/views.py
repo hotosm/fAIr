@@ -1,4 +1,4 @@
-from django.db.models import Count
+from django.db.models import Count, Q
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import filters, status, viewsets
@@ -7,7 +7,13 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from accounts.authentication import OsmAuthentication
-from accounts.permissions import IsAdmin
+from accounts.permissions import (
+    IsAdmin,
+    IsOwnerOrAdmin,
+    PublishedReadOrAuthenticatedWrite,
+    _is_admin,
+)
+from shared.enums import Visibility
 from shared.integrations.stac import (
     FAIR_PINNED_PROPERTY,
     LOCAL_MODELS_COLLECTION,
@@ -36,34 +42,56 @@ class LocalModelViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = LocalModel.objects.all()
     serializer_class = LocalModelSerializer
     authentication_classes = [OsmAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [PublishedReadOrAuthenticatedWrite]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ["status", "user"]
+    filterset_fields = ["status", "visibility", "user"]
     search_fields = ["name"]
     ordering_fields = ["created_at", "last_modified"]
 
     def get_queryset(self):
         qs = LocalModel.objects.all().annotate(run_count=Count("runs"))
+        user = self.request.user
+        if not user.is_authenticated:
+            qs = qs.filter(visibility=Visibility.PUBLIC)
+        elif not _is_admin(user):
+            qs = qs.filter(Q(user=user) | Q(visibility=Visibility.PUBLIC))
         return annotate_stars(qs, self.request, key_field="name")
 
     def get_permissions(self):
         if self.action == "pin":
             return [IsAuthenticated(), IsAdmin()]
+        if self.action in {"publish", "unpublish"}:
+            return [IsAuthenticated(), IsOwnerOrAdmin()]
         return super().get_permissions()
+
+    @extend_schema(request=None, responses={200: LocalModelSerializer})
+    @action(detail=True, methods=["post"], url_path="publish")
+    def publish(self, request, pk: int | None = None) -> Response:
+        model = self.get_object()
+        model.visibility = Visibility.PUBLIC
+        model.save(update_fields=["visibility", "last_modified"])
+        return Response(self.get_serializer(model).data, status=status.HTTP_200_OK)
+
+    @extend_schema(request=None, responses={200: LocalModelSerializer})
+    @action(detail=True, methods=["post"], url_path="unpublish")
+    def unpublish(self, request, pk: int | None = None) -> Response:
+        model = self.get_object()
+        model.visibility = Visibility.PRIVATE
+        model.save(update_fields=["visibility", "last_modified"])
+        return Response(self.get_serializer(model).data, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=["patch"], url_path="pin")
     def pin(self, request, pk: int | None = None) -> Response:
         model = self.get_object()
-        # STAC items are keyed by version UUID; resolve the active version
-        # by mlm:name == model.name. Pinning a model with no published version
-        # yet makes no sense, so 409 in that case.
+        # STAC items are keyed by version UUID; the active version is
+        # whichever STAC item has mlm:name == model.name.
         active = get_active_local_model_item(model.name)
         if active is None:
             return Response(
                 {
                     "detail": (
-                        f"Model '{model.name}' has no active published version. "
-                        "Publish at least one training run before pinning."
+                        f"Model '{model.name}' has no active STAC version. "
+                        "Promote at least one training run before pinning."
                     ),
                 },
                 status=status.HTTP_409_CONFLICT,

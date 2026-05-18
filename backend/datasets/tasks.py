@@ -68,13 +68,13 @@ def build_dataset(
         client = for_user(str(dataset.user.osm_id))
         published_id = client.register_dataset(params, paths=BackendDatasetPaths)
         dataset.stac_id = published_id
-        dataset.build_status = Dataset.BuildStatus.PUBLISHED
-        dataset.save(update_fields=["stac_id", "build_status", "last_modified"])
+        dataset.status = Dataset.Status.BUILT
+        dataset.save(update_fields=["stac_id", "status", "last_modified"])
         invalidate_stac_cache(DATASETS_COLLECTION, published_id)
     except Exception:
         logger.exception("dataset build failed for %s", dataset_id)
-        dataset.build_status = Dataset.BuildStatus.FAILED
-        dataset.save(update_fields=["build_status", "last_modified"])
+        dataset.status = Dataset.Status.FAILED
+        dataset.save(update_fields=["status", "last_modified"])
         raise
 
 

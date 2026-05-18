@@ -108,7 +108,7 @@ class TrainingViewSet(viewsets.ReadOnlyModelViewSet):
         dataset = get_object_or_404(
             Dataset,
             stac_id=payload["dataset_stac_id"],
-            build_status=Dataset.BuildStatus.PUBLISHED,
+            status=Dataset.Status.BUILT,
         )
 
         # TODO(clone-training): expose POST /api/v1/trainings/{id}/clone/ that
@@ -260,7 +260,7 @@ class TrainingViewSet(viewsets.ReadOnlyModelViewSet):
             pipeline_run_id=run_ref.zenml_run_id,
             paths=BackendLocalModelPaths,
         )
-        run_ref.local_model.status = LocalModel.Status.PUBLISHED
+        run_ref.local_model.status = LocalModel.Status.ACTIVE
         run_ref.local_model.save(update_fields=["status", "last_modified"])
         invalidate_stac_cache(LOCAL_MODELS_COLLECTION, run_ref.local_model.name)
         return Response({"local_model_stac_id": local_id}, status=status.HTTP_201_CREATED)

@@ -121,13 +121,14 @@ def test_dataset_build_enqueues_task_and_returns_202(mock_task, client, aoi):
     )
     assert response.status_code == 202
     body = response.json()
-    assert body["build_status"] == "building"
+    assert body["status"] == "building"
     assert body["title"] == "Buildings Banepa"
     mock_task.enqueue.assert_called_once()
     assert Dataset.objects.filter(title="Buildings Banepa").count() == 1
 
 
-def test_unauthenticated_dataset_list_is_denied(db):
+def test_unauthenticated_dataset_list_returns_only_public(db):
     api = APIClient()
     response = api.get("/api/v1/datasets/")
-    assert response.status_code in (401, 403)
+    assert response.status_code == 200
+    assert response.json()["results"] == []
