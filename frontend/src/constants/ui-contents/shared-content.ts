@@ -3,7 +3,7 @@ import { TSharedContent } from "@/types";
 export const SHARED_CONTENT: TSharedContent = {
   navbar: {
     logoAlt: "HOT fAIr Logo",
-    loginButton: "Login",
+    loginButton: "Start Mapping",
     hamburgerMenuAlt: "Hamburger Menu Icon",
     hamburgerMenuTitle: "Toggle Menu",
     routes: {
@@ -45,8 +45,8 @@ export const SHARED_CONTENT: TSharedContent = {
     jumbotronTitle: "Your AI Mapping Partner",
     jumbotronHeadline:
       "AI-powered assistant that amplify your mapping efforts intelligently and quickly, helping you map smarter and faster.",
-    ctaPrimaryButton: "Create AI Model",
-    ctaSecondaryButton: "explore models",
+    ctaPrimaryButton: "Try fAIr",
+    ctaSecondaryButton: "Start Mapping",
     jumbotronImageAlt: "A user engaging in a mapping activity",
     kpi: {
       publishedAIModels: "Published AI Models",

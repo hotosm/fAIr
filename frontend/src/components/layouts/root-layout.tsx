@@ -75,6 +75,7 @@ export const RootLayout = () => {
         {!pathname.includes(APPLICATION_ROUTES.START_MAPPING_BASE) &&
           !pathname.includes(MODELS_ROUTES.CREATE_MODEL_BASE) &&
           !modelId &&
+          !pathname.includes(APPLICATION_ROUTES.TRY_FAIR) &&
           !pathname.includes(APPLICATION_ROUTES.AUTH_CALLBACK) &&
           !pathname.includes(
             APPLICATION_ROUTES.EMAIL_VERIFICATION_CALLBACK,

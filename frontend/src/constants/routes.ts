@@ -67,6 +67,8 @@ export const APPLICATION_ROUTES = {
   PROFILE_MODELS: "/profile/models",
   PROFILE_DATASETS: "/profile/datasets",
   PROFILE_OFFLINE_PREDICTIONS: "/profile/prediction-requests",
+  TRY_FAIR: "/try-fair",
+
 
   // Published AI Predictions
   AI_PREDICTIONS: "/ai-predictions",

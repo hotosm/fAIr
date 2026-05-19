@@ -17,18 +17,20 @@ export const Header = () => {
           </div>
           <div className={styles.ctaButtons}>
             <Link
-              href={APPLICATION_ROUTES.CREATE_NEW_MODEL}
+              href={APPLICATION_ROUTES.TRY_FAIR}
               title={SHARED_CONTENT.homepage.ctaPrimaryButton}
               nativeAnchor={false}
             >
-              <Button>{SHARED_CONTENT.homepage.ctaPrimaryButton}</Button>
+              <Button rounded>
+                {SHARED_CONTENT.homepage.ctaPrimaryButton}
+                </Button>
             </Link>
             <Link
-              href={APPLICATION_ROUTES.MODELS}
+              href={APPLICATION_ROUTES.START_MAPPING}
               title={SHARED_CONTENT.homepage.ctaPrimaryButton}
               nativeAnchor={false}
             >
-              <Button variant={ButtonVariant.SECONDARY}>
+              <Button rounded variant={ButtonVariant.SECONDARY}>
                 {SHARED_CONTENT.homepage.ctaSecondaryButton}
               </Button>
             </Link>

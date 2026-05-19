@@ -104,6 +104,7 @@ export const NavBar = () => {
               />
             ) : (
               <Button
+              rounded
                 onClick={() => {
                   /*
                    * Set the `backgroundLocation` in location state so that when we open the authentication modal we still see the current page in the background.
@@ -124,9 +125,9 @@ export const NavBar = () => {
         className={`${styles.nav} app-padding z-20 py-1 border-b border-gray-border`}
       >
         <NavLogo />
-        <div className="hidden sm:flex">
+        {/* <div className="hidden sm:flex">
           <NavBarLinks className={styles.webNavLinks} />
-        </div>
+        </div> */}
         <div className="hidden sm:flex items-center gap-x-3">
           {AUTH_PROVIDER === "hanko" && !IS_DEV ? (
             <>
@@ -142,6 +143,7 @@ export const NavBar = () => {
           ) : (
             <Button
               className={styles.loginButton}
+              rounded
               onClick={() => {
                 /*
                  * Set the `backgroundLocation` in location state so that when we open the authentication modal we still see the current page in the background.

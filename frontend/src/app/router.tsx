@@ -31,6 +31,20 @@ const router = createBrowserRouter([
       /**
        * Landing page route ends
        */
+
+      /**
+       * Try fAIr (public demo) route starts.
+       */
+      {
+        path: APPLICATION_ROUTES.TRY_FAIR,
+        lazy: async () => {
+          const { TryFairPage } = await import("@/app/routes/try-fair");
+          return { Component: TryFairPage };
+        },
+      },
+      /**
+       * Try fAIr route ends.
+       */
       {
         path: APPLICATION_ROUTES.LEARN,
         lazy: async () => {

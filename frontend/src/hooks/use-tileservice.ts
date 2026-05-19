@@ -134,7 +134,13 @@ export const useTileServiceLayer = ({
     sourceURL,
     loading,
     setLoading,
+    setTileserverURL,
   } = useTileservice(getTileServerTypeFromURL(tileServiceURL), tileServiceURL);
+
+  // Sync internal state when the URL prop changes (e.g. user switches model)
+  useEffect(() => {
+    setTileserverURL(tileServiceURL);
+  }, [tileServiceURL]);
 
   useEffect(() => {
     if (!tileServiceTypeValidity.valid || !map || !sourceURL || !addLayerToMap)

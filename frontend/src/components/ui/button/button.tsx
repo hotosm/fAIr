@@ -15,7 +15,7 @@ type ButtonProps = {
   size?: ButtonSize;
   disabled?: boolean;
   slot?: string;
-
+  rounded?: boolean;
   type?: "button" | "submit";
   contentClassName?: string;
 };
@@ -28,6 +28,7 @@ const Button: React.FC<ButtonProps> = ({
   disabled = false,
   size,
   slot,
+  rounded = false,
   type = "button",
   contentClassName,
 }) => {
@@ -39,7 +40,7 @@ const Button: React.FC<ButtonProps> = ({
       //@ts-expect-error bad type definition
       variant={variant}
       size={size ? size : isMobile ? "medium" : "large"}
-      className={cn(`button ${variant} ${className}`)}
+      className={cn(`button ${variant} ${rounded ? "rounded" : ""} ${className} `)}
       style={{ width: "100%" }}
       //@ts-expect-error bad type definition
       onClick={onClick}
