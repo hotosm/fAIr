@@ -7,7 +7,7 @@ export type TryFairModel = {
   featureType: string;
   tileServiceUrl: string;
   bbox: string;
-  availableZoomLevels: number[]
+  availableZoomLevels: number[];
 };
 
 export const MODELS_LIST: TryFairModel[] = [
@@ -21,7 +21,7 @@ export const MODELS_LIST: TryFairModel[] = [
     tileServiceUrl:
       "https://tiles.openaerialmap.org/686e390615a6768f282b22b3/0/686e390615a6768f282b22b4/{z}/{x}/{y}",
     bbox: "",
-    availableZoomLevels: [18, 19, 20]
+    availableZoomLevels: [18, 19, 20],
   },
   {
     id: 2,
@@ -33,8 +33,7 @@ export const MODELS_LIST: TryFairModel[] = [
     tileServiceUrl:
       "https://tiles.openaerialmap.org/6a0aa45052774984bedbcfef/0/6a0aa45052774984bedbcff0/{z}/{x}/{y}",
     bbox: "",
-    availableZoomLevels: [18, 19, 20]
-
+    availableZoomLevels: [18, 19, 20],
   },
   {
     id: 3,
@@ -46,8 +45,7 @@ export const MODELS_LIST: TryFairModel[] = [
     tileServiceUrl:
       "https://tiles.openaerialmap.org/66149f1cc055e600014ac54c/0/66149f1cc055e600014ac54d/{z}/{x}/{y}",
     bbox: "",
-    availableZoomLevels: [18, 19, 20]
-
+    availableZoomLevels: [18, 19, 20],
   },
   {
     id: 4,
@@ -59,7 +57,6 @@ export const MODELS_LIST: TryFairModel[] = [
     tileServiceUrl:
       "https://tiles.openaerialmap.org/6a0b8d586103984552b5f7f2/0/6a0b8d586103984552b5f7f3/{z}/{x}/{y}",
     bbox: "",
-    availableZoomLevels: [19, 20, 21]
-
+    availableZoomLevels: [19, 20, 21],
   },
 ];

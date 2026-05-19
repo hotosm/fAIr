@@ -5,7 +5,11 @@ import { ClusterIcon } from "@/components/ui/icons/cluster-icon";
 import { PolygonIcon } from "@/components/ui/icons/polygon-icon";
 import React from "react";
 
-export const RESOLUTIONS: { value: TryFairResolution; label: string; size: number }[] = [
+export const RESOLUTIONS: {
+  value: TryFairResolution;
+  label: string;
+  size: number;
+}[] = [
   {
     value: TryFairResolution.LOW,
     label: TRY_FAIR_PAGE_CONTENT.sidebar.parameters.resolution.low,

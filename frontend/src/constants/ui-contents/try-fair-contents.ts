@@ -17,7 +17,8 @@ export const TRY_FAIR_PAGE_CONTENT: TTryFairPageContent = {
     },
     parameters: {
       label: "Parameters",
-      description: "Adjust the settings parameters to see what works best for you.",
+      description:
+        "Adjust the settings parameters to see what works best for you.",
       learnMore: "Learn more",
       resolution: {
         label: "Resolution",

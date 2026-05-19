@@ -2,9 +2,7 @@ import { Head } from "@/components/seo";
 import { TRY_FAIR_PAGE_CONTENT } from "@/constants/ui-contents/try-fair-contents";
 import { TryFairMapOutputType, TryFairResolution } from "@/enums/try-fair";
 import { TryFairMap } from "@/features/try-fair/components/map/try-fair-map";
-import {
-  TryFairSidebar,
-} from "@/features/try-fair/components/try-fair-sidebar";
+import { TryFairSidebar } from "@/features/try-fair/components/try-fair-sidebar";
 import { MODELS_LIST, TryFairModel } from "@/features/try-fair/models";
 import { useMapInstance } from "@/hooks/use-map-instance";
 import { useEffect, useState } from "react";

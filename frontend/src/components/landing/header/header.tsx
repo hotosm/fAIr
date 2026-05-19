@@ -23,7 +23,7 @@ export const Header = () => {
             >
               <Button rounded>
                 {SHARED_CONTENT.homepage.ctaPrimaryButton}
-                </Button>
+              </Button>
             </Link>
             <Link
               href={APPLICATION_ROUTES.START_MAPPING}

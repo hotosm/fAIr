@@ -9,7 +9,10 @@ import { SnowflakeIcon } from "@/components/ui/icons/snow-flake-icon";
 import { GridIcon } from "@/components/ui/icons/grid-icon";
 import { FlameIcon } from "@/components/ui/icons/flame-icon";
 import { MODELS_LIST, TryFairModel } from "@/features/try-fair/models";
-import { OUTPUT_TYPES, RESOLUTIONS } from "@/features/try-fair/utils/constants.tsx";
+import {
+  OUTPUT_TYPES,
+  RESOLUTIONS,
+} from "@/features/try-fair/utils/constants.tsx";
 
 type TryFairSidebarProps = {
   selectedModel: TryFairModel;
@@ -22,7 +25,6 @@ type TryFairSidebarProps = {
   onConfidenceChange: (value: number) => void;
 };
 
-
 export const TryFairSidebar = ({
   selectedModel,
   onSelectModel,
@@ -33,7 +35,6 @@ export const TryFairSidebar = ({
   confidence,
   onConfidenceChange,
 }: TryFairSidebarProps) => {
-
   return (
     <div className="bg-white rounded-lg flex flex-col space-y-4 px-3 py-4 shadow-lg w-[300px] overflow-hidden">
       {/* ── Model selector + Map button ── */}

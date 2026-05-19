@@ -31,7 +31,6 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
-
   // Recompute panel position whenever it opens
   const updatePosition = useCallback(() => {
     if (!triggerRef.current) return;

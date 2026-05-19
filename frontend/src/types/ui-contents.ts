@@ -848,7 +848,6 @@ export type TUserProfilePageContent = {
 
 // User profile types ends.
 
-
 // Try fAIr page content types starts.
 
 export type TTryFairPageContent = {

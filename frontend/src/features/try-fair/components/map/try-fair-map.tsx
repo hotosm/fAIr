@@ -9,12 +9,15 @@ import { TryFairMapOutputType, TryFairResolution } from "@/enums/try-fair";
 type TryFairMapProps = {
   map: Map | null;
   mapContainerRef: RefObject<HTMLDivElement | null>;
-//   predictions: Feature[];
+  //   predictions: Feature[];
   outputType: TryFairMapOutputType;
   tileServerURL: string;
 };
 
-export const TRY_FAIR_RESOLUTION_ZOOM_LEVELS: Record<TryFairResolution, number> = {
+export const TRY_FAIR_RESOLUTION_ZOOM_LEVELS: Record<
+  TryFairResolution,
+  number
+> = {
   [TryFairResolution.LOW]: MIN_ZOOM_LEVEL_FOR_START_MAPPING_PREDICTION,
   [TryFairResolution.MID]: MIN_ZOOM_LEVEL_FOR_START_MAPPING_PREDICTION + 1,
   [TryFairResolution.HIGH]: MIN_ZOOM_LEVEL_FOR_START_MAPPING_PREDICTION + 2,
@@ -23,8 +26,8 @@ export const TRY_FAIR_RESOLUTION_ZOOM_LEVELS: Record<TryFairResolution, number> 
 export const TryFairMap = ({
   map,
   mapContainerRef,
-//   predictions,
-//   outputType,
+  //   predictions,
+  //   outputType,
   tileServerURL,
 }: TryFairMapProps) => {
   const zoom = useMapStore((state) => state.zoom);
@@ -42,7 +45,7 @@ export const TryFairMap = ({
         // geolocationControl
         basemaps
       />
-       
+
       {/* </MapComponent> */}
 
       {zoom < minZoom && (

@@ -104,7 +104,7 @@ export const NavBar = () => {
               />
             ) : (
               <Button
-              rounded
+                rounded
                 onClick={() => {
                   /*
                    * Set the `backgroundLocation` in location state so that when we open the authentication modal we still see the current page in the background.
