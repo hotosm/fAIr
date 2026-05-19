@@ -5,14 +5,27 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 export const PageNotFound = () => {
   const location = useLocation();
+  const fromPath = location.state?.from ?? "";
+  const buttonLabelFromState = location.state?.buttonLabel;
+  const redirectPathFromState = location.state?.redirectPath;
 
-  const modelNotFound = location.state?.from.includes(
-    APPLICATION_ROUTES.MODELS,
-  );
+  const modelNotFound = fromPath.includes(APPLICATION_ROUTES.MODELS);
 
-  const trainingDatasetNotFound = location.state?.from.includes(
+  const trainingDatasetNotFound = fromPath.includes(
     APPLICATION_ROUTES.DATASETS,
   );
+
+  const fallbackRedirectPath = modelNotFound
+    ? APPLICATION_ROUTES.MODELS
+    : trainingDatasetNotFound
+      ? APPLICATION_ROUTES.DATASETS
+      : APPLICATION_ROUTES.HOMEPAGE;
+
+  const fallbackButtonLabel = modelNotFound
+    ? SHARED_CONTENT.pageNotFound.actionButtons.modelNotFound
+    : trainingDatasetNotFound
+      ? SHARED_CONTENT.pageNotFound.actionButtons.trainingDatasetNotFound
+      : SHARED_CONTENT.pageNotFound.actionButtons.pageNotFound;
 
   const navigate = useNavigate();
 
@@ -66,22 +79,11 @@ export const PageNotFound = () => {
         </h1>
         <Button
           onClick={() => {
-            navigate(
-              modelNotFound
-                ? APPLICATION_ROUTES.MODELS
-                : trainingDatasetNotFound
-                  ? APPLICATION_ROUTES.DATASETS
-                  : APPLICATION_ROUTES.HOMEPAGE,
-            );
+            navigate(redirectPathFromState ?? fallbackRedirectPath);
           }}
           className="max-w-[300px]"
         >
-          {modelNotFound
-            ? SHARED_CONTENT.pageNotFound.actionButtons.modelNotFound
-            : trainingDatasetNotFound
-              ? SHARED_CONTENT.pageNotFound.actionButtons
-                  .trainingDatasetNotFound
-              : SHARED_CONTENT.pageNotFound.actionButtons.pageNotFound}
+          {buttonLabelFromState ?? fallbackButtonLabel}
         </Button>
       </section>
     </>

@@ -2,6 +2,7 @@ import Axios, { InternalAxiosRequestConfig } from "axios";
 import {
   BASE_API_URL,
   HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY,
+  STAC_CATALOG_API_URL,
 } from "@/config";
 import { showErrorToast } from "@/utils";
 
@@ -10,6 +11,10 @@ import { showErrorToast } from "@/utils";
  */
 export const apiClient = Axios.create({
   baseURL: BASE_API_URL,
+});
+
+export const stacClient = Axios.create({
+  baseURL: STAC_CATALOG_API_URL,
 });
 
 function authRequestInterceptor(config: InternalAxiosRequestConfig) {

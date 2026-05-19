@@ -216,7 +216,6 @@ export const UserProfileSettingsPage = () => {
                 <Button
                   variant={ButtonVariant.TERTIARY}
                   onClick={() => setShowForm(true)}
-                  uppercase={false}
                   className="!w-fit"
                   contentClassName="md:!p-0.5 text-body-4"
                   size="small"
@@ -256,7 +255,6 @@ export const UserProfileSettingsPage = () => {
                   type="submit"
                   onClick={handleEmailSubmit}
                   className="!w-fit"
-                  uppercase={false}
                   contentClassName="!px-4 py-2"
                   size="small"
                 >
@@ -281,7 +279,6 @@ export const UserProfileSettingsPage = () => {
                 <Button
                   variant={ButtonVariant.PRIMARY}
                   onClick={() => requestEmailVerification(undefined)}
-                  uppercase={false}
                   disabled={emailVerificationRequestIsPending}
                   className="!w-fit"
                   contentClassName="md:!p-0.5 text-body-4"
@@ -398,7 +395,6 @@ export const UserProfileSettingsPage = () => {
                   }
                   variant={ButtonVariant.PRIMARY}
                   prefixIcon={DeleteIcon}
-                  uppercase={false}
                   className="!w-fit"
                   textClassName="p-0.5 md:px-1 md:py-2 text-body-4"
                   onClick={openDialog}
@@ -421,7 +417,6 @@ export const UserProfileSettingsPage = () => {
                 <ButtonWithIcon
                   label={"Copy Access Token"}
                   variant={ButtonVariant.PRIMARY}
-                  uppercase={false}
                   prefixIcon={ClipboardIcon}
                   className="!w-fit"
                   textClassName="p-0.5 md:px-1 md:py-2 text-body-4"

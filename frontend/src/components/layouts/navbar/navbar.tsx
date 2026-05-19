@@ -13,7 +13,14 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { UserProfile } from "@/components/layouts";
 import { useState } from "react";
 import { UserNotifications } from "@/features/user-profile/components/notifications/user-notifications";
-import { AUTH_PROVIDER, BASE_API_URL, FRONTEND_URL, HANKO_URL } from "@/config";
+import { DropDown } from "@/components/ui/dropdown";
+import {
+  AUTH_PROVIDER,
+  BASE_API_URL,
+  FRONTEND_URL,
+  HANKO_URL,
+  IS_DEV,
+} from "@/config";
 import "@hotosm/tool-menu";
 import { Divider } from "@/components/ui/divider";
 
@@ -68,7 +75,7 @@ export const NavBar = () => {
           {isAuthenticated && <Divider />}
 
           <div className={styles.loginButtonContainer}>
-            {AUTH_PROVIDER === "hanko" ? (
+            {AUTH_PROVIDER === "hanko" && !IS_DEV ? (
               <>
                 {isAuthenticated && (
                   <UserProfile
@@ -121,7 +128,7 @@ export const NavBar = () => {
           <NavBarLinks className={styles.webNavLinks} />
         </div>
         <div className="hidden sm:flex items-center gap-x-3">
-          {AUTH_PROVIDER === "hanko" ? (
+          {AUTH_PROVIDER === "hanko" && !IS_DEV ? (
             <>
               {isAuthenticated && <UserNotifications />}
               {isAuthenticated && <UserProfile isHanko hideFullName />}
@@ -173,29 +180,70 @@ export const NavBar = () => {
 type NavBarLinksProps = {
   className: string;
   setOpen?: (arg: boolean) => void;
+  isMobile?: boolean;
 };
 
 const NavBarLinks: React.FC<NavBarLinksProps> = ({ className, setOpen }) => {
   const location = useLocation();
+  const navigate = useNavigate();
 
   return (
     <ul className={className}>
       {navLinks
+        .filter((link) => link.href !== "")
         .filter((link) => link.active)
-        .map((link, id) => (
-          <li
-            key={`navbar-item-${id}`}
-            onClick={() => {
-              //close the drawer after navigating to a new page on mobile
-              setOpen && setOpen(false);
-            }}
-            className={`${styles.navLinkItem} ${location.pathname === link.href && styles.activeLink}`}
-          >
-            <Link href={link.href} title={link.title} nativeAnchor={false} className="capitalize">
-              {link.title}
-            </Link>
-          </li>
-        ))}
+        .map((link, id) => {
+          const isActive =
+            location.pathname.includes(link.href) ||
+            (link.children?.some((child) =>
+              location.pathname.includes(child.href),
+            ) ??
+              false);
+
+          return (
+            <li
+              key={`navbar-item-${id}`}
+              onClick={() => {
+                //close the drawer after navigating to a new page on mobile
+                if (!link.children) {
+                  setOpen && setOpen(false);
+                }
+              }}
+              className={`${styles.navLinkItem} ${isActive && styles.activeLink} ${link.children ? "flex items-center" : ""}`}
+            >
+              {link.children ? (
+                <DropDown
+                  disableCheveronIcon={false}
+                  distance={20}
+                  triggerComponent={
+                    <span className="cursor-pointer capitalize bg-transparent border-none p-0 font-inherit text-inherit  text-[length:var(--hot-fair-font-size-body-text-2base)] xl:text-[length:var(--hot-fair-font-size-body-text-2)]">
+                      {link.title}
+                    </span>
+                  }
+                  menuItems={link.children?.map((child) => ({
+                    value: child.title,
+                    name: child.title,
+                    className: "!uppercase hover:bg-gray-50 !capitalize",
+                    onClick: (e: any) => {
+                      e?.stopPropagation();
+                      navigate(child.href);
+                      setOpen?.(false);
+                    },
+                  }))}
+                />
+              ) : (
+                <Link
+                  href={link.href}
+                  title={link.title}
+                  nativeAnchor={false}
+                  className="capitalize"
+                >
+                  {link.title}
+                </Link>
+              )}
+            </li>
+          );
+        })}
     </ul>
   );
 };

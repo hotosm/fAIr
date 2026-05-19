@@ -12,6 +12,7 @@ import {
   createBrowserRouter,
 } from "react-router-dom";
 import { ModelsProvider } from "@/app/providers/models-provider";
+import { NuqsAdapter } from "nuqs/adapters/react-router/v6";
 
 const router = createBrowserRouter([
   {
@@ -53,6 +54,36 @@ const router = createBrowserRouter([
       // },
       /**
        * Models details, list and feedbacks route starts.
+       */
+
+      /**
+       * Base Models routes.
+       */
+      {
+        path: APPLICATION_ROUTES.BASE_MODELS_HOME,
+        lazy: async () => {
+          const { BaseModelsPage } = await import(
+            "@/app/routes/base-models/base-models-list"
+          );
+          return {
+            Component: () => <BaseModelsPage />,
+          };
+        },
+      },
+      {
+        path: APPLICATION_ROUTES.BASE_MODEL_DETAILS,
+        lazy: async () => {
+          const { BaseModelDetailPage } = await import(
+            "@/app/routes/base-models/base-model-detail"
+          );
+          return {
+            Component: () => <BaseModelDetailPage />,
+          };
+        },
+      },
+
+      /**
+       * Base Models routes ends.
        */
       {
         path: APPLICATION_ROUTES.MODEL_DETAILS,
@@ -96,6 +127,22 @@ const router = createBrowserRouter([
           };
         },
       },
+
+      /**
+       * AI Predictions route (published predictions).
+       */
+      {
+        path: APPLICATION_ROUTES.AI_PREDICTIONS,
+        lazy: async () => {
+          const { AIPredictionsPage } = await import(
+            "@/app/routes/ai-predictions"
+          );
+          return {
+            Component: () => <AIPredictionsPage />,
+          };
+        },
+      },
+
       /**
        *  Models details, list and feedbacks route ends.
        */
@@ -441,5 +488,9 @@ const router = createBrowserRouter([
 ]);
 
 export const AppRouter = () => {
-  return <RouterProvider router={router} />;
+  return (
+    <NuqsAdapter>
+      <RouterProvider router={router} />
+    </NuqsAdapter>
+  );
 };

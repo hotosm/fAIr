@@ -1,13 +1,7 @@
-import { ConfirmationModal, SuccessModal } from "@/components/shared/modals";
+import { ConfirmationModal } from "@/components/shared/modals";
 import { WarningIcon } from "@/components/ui/icons/warning-icon";
-import { WavyCheckIcon } from "@/components/ui/icons/wavy-check-icon";
 import { usePublishPrediction } from "@/features/user-profile/api/predictions";
-import { showErrorToast } from "@/utils";
-import { useState } from "react";
-
-type ModalStep = "confirming" | "success";
-
-type PublishAction = "publish" | "unpublish";
+import { showErrorToast, showSuccessToast } from "@/utils";
 
 type PublishPredictionFlowProps = {
   predictionId: number;
@@ -22,17 +16,16 @@ export const PublishPredictionFlow = ({
   isOpen,
   onClose,
 }: PublishPredictionFlowProps) => {
-  const [step, setStep] = useState<ModalStep>("confirming");
-  /*
-  stored the action locally because `isPublished` from props may still contain
-  the previous value when the success modal renders after the mutation. This
-  prevents the UI from briefly showing the wrong success message.
-*/
-  const [action, setAction] = useState<PublishAction | null>(null);
-
   const { mutate, isPending } = usePublishPrediction({
     mutationConfig: {
-      onSuccess: () => setStep("success"),
+      onSuccess: () => {
+        showSuccessToast(
+          isPublished
+            ? "Prediction retracted successfully."
+            : "Prediction published successfully.",
+        );
+        onClose();
+      },
       onError: (err) => {
         onClose();
         showErrorToast(err);
@@ -41,14 +34,10 @@ export const PublishPredictionFlow = ({
   });
 
   const handleClose = () => {
-    setStep("confirming");
-    setAction(null);
     onClose();
   };
 
   const handleConfirm = () => {
-    const nextAction: PublishAction = isPublished ? "unpublish" : "publish";
-    setAction(nextAction);
     mutate({
       predictionId,
       published: !isPublished,
@@ -56,24 +45,6 @@ export const PublishPredictionFlow = ({
   };
 
   if (!isOpen) return null;
-  if (step === "success") {
-    return (
-      <SuccessModal
-        isOpen
-        onClose={handleClose}
-        message={
-          action === "unpublish"
-            ? "Prediction Unpublished!"
-            : "Prediction Published!"
-        }
-        icon={
-          <div className="bg-green-secondary p-3 rounded-full">
-            <WavyCheckIcon />
-          </div>
-        }
-      />
-    );
-  }
 
   return (
     <ConfirmationModal

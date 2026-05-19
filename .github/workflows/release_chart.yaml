@@ -1,0 +1,24 @@
+name: Release Chart
+
+on:
+  # Push includes PR merge
+  push:
+    branches:
+      - develop
+    paths:
+      # Workflow is triggered only if chart dir changes
+      - chart/**
+  # Allow manual trigger
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    uses: hotosm/gh-workflows/.github/workflows/just.yml@3.3.2
+    with:
+      environment: "test"
+      command: "chart publish"
+    secrets: inherit

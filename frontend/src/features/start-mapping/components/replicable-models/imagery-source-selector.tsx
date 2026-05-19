@@ -163,7 +163,6 @@ export const ImagerySourceSelector = ({
       <div className="flex justify-between items-center gap-x-2">
         <Button
           size={SHOELACE_SIZES.SMALL}
-          uppercase={false}
           disabled={
             (localPredictionImagerySource ===
               PredictionImagerySource.CustomImagery &&
@@ -178,7 +177,6 @@ export const ImagerySourceSelector = ({
         </Button>
         <Button
           size={SHOELACE_SIZES.SMALL}
-          uppercase={false}
           disabled={loading}
           onClick={onDropdownHide}
           variant={ButtonVariant.DEFAULT}

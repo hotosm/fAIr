@@ -51,6 +51,10 @@ export const FRONTEND_URL: string =
     ? window.location.origin
     : "http://localhost:5173";
 
+export const NODE_ENV: string = parseStringEnv(ENVS.NODE_ENV, "development");
+export const IS_DEV = NODE_ENV === "development";
+export const IS_PROD = NODE_ENV === "production";
+
 // ==============================================================================================================================
 // API Endpoints
 // ==============================================================================================================================
@@ -62,6 +66,14 @@ export const FRONTEND_URL: string =
 export const BASE_API_URL: string = parseStringEnv(
   ENVS.BASE_API_URL,
   "http://localhost:8000/api/v1/",
+);
+
+/**
+ * The STAC Catalog API endpoint url. This is used to fetch the base models, datasets and local models as STAC items from the catalog.
+ */
+export const STAC_CATALOG_API_URL: string = parseStringEnv(
+  ENVS.FAIR_STAC_CATALOG_BASE_URL,
+  "https://stac.fair.krschap.tech/stac/",
 );
 
 /**
