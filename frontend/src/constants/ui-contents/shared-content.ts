@@ -46,7 +46,7 @@ export const SHARED_CONTENT: TSharedContent = {
     jumbotronHeadline:
       "AI-powered assistant that amplify your mapping efforts intelligently and quickly, helping you map smarter and faster.",
     ctaPrimaryButton: "Try fAIr",
-    ctaSecondaryButton: "Start Mapping",
+    ctaSecondaryButton: "Login",
     jumbotronImageAlt: "A user engaging in a mapping activity",
     kpi: {
       publishedAIModels: "Published AI Models",

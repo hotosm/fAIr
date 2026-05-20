@@ -23,6 +23,9 @@ type TryFairSidebarProps = {
   onResolutionChange: (resolution: TryFairResolution) => void;
   confidence: number;
   onConfidenceChange: (value: number) => void;
+  onMap: () => void;
+  isPredicting: boolean;
+  isMapButtonDisabled: boolean;
 };
 
 export const TryFairSidebar = ({
@@ -34,6 +37,9 @@ export const TryFairSidebar = ({
   onResolutionChange,
   confidence,
   onConfidenceChange,
+  onMap,
+  isPredicting,
+  isMapButtonDisabled,
 }: TryFairSidebarProps) => {
   return (
     <div className="bg-white rounded-lg flex flex-col space-y-4 px-3 py-4 shadow-lg w-[300px] overflow-hidden">
@@ -50,12 +56,14 @@ export const TryFairSidebar = ({
         {/* Vertical divider */}
         <div className="self-stretch w-px bg-gray-border shrink-0" />
 
-        <div className="">
+        <div>
           <Button
             type="button"
             size="medium"
             className="flex gap-2 items-center"
             rounded
+            onClick={onMap}
+            disabled={isMapButtonDisabled || isPredicting}
           >
             <MapPlayIcon />
             Map

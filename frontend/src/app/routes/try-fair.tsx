@@ -5,7 +5,9 @@ import { TryFairMap } from "@/features/try-fair/components/map/try-fair-map";
 import { TryFairSidebar } from "@/features/try-fair/components/try-fair-sidebar";
 import { MODELS_LIST, TryFairModel } from "@/features/try-fair/models";
 import { useMapInstance } from "@/hooks/use-map-instance";
-import { useEffect, useState } from "react";
+import { useTileservice } from "@/hooks/use-tileservice";
+import { useCallback, useEffect, useState } from "react";
+import { getTileServerTypeFromURL } from "@/utils";
 
 export const TryFairPage = () => {
   const { map, mapContainerRef } = useMapInstance(false, false);
@@ -20,28 +22,54 @@ export const TryFairPage = () => {
     TryFairResolution.MID,
   );
   const [confidence, setConfidence] = useState<number>(30);
+  const [isDirty, setIsDirty] = useState(true);
 
-  const RESOLUTION_INDEX: Record<TryFairResolution, number> = {
-    [TryFairResolution.LOW]: 0,
-    [TryFairResolution.MID]: 1,
-    [TryFairResolution.HIGH]: 2,
-  };
+  const {
+    tileserverURL,
+    setTileserverURL,
+    tileJSONMetadata,
+    tileServiceTypeValidity,
+  } = useTileservice(
+    getTileServerTypeFromURL(selectedModel.tileServiceUrl),
+    selectedModel.tileServiceUrl,
+  );
 
-  // Fly to the zoom level that matches the selected resolution
+  useEffect(() => {
+    setTileserverURL(selectedModel.tileServiceUrl);
+  }, [selectedModel.tileServiceUrl, setTileserverURL]);
+
   useEffect(() => {
     if (!map) return;
-    const zoomIndex = RESOLUTION_INDEX[resolution];
-    const targetZoom = selectedModel.availableZoomLevels[zoomIndex];
-    if (targetZoom !== undefined) {
-      map.flyTo({ zoom: targetZoom });
-    }
-  }, [resolution, selectedModel, map]);
+    map.flyTo({ center: selectedModel.center, zoom: 18, essential: true });
+    map.once("moveend", () => {
+      if (map.getZoom() !== 18) map.setZoom(18);
+    });
+  }, [map, selectedModel, tileJSONMetadata]);
 
-  // Reset resolution to MID when the model changes
   const handleSelectModel = (model: TryFairModel) => {
     setSelectedModel(model);
     setResolution(TryFairResolution.MID);
+    setIsDirty(true);
   };
+
+  const handleResolutionChange = (res: TryFairResolution) => {
+    setResolution(res);
+    setIsDirty(true);
+  };
+
+  const handleConfidenceChange = (value: number) => {
+    setConfidence(value);
+    setIsDirty(true);
+  };
+
+  const handleOutputTypeChange = (type: TryFairMapOutputType) => {
+    setOutputType(type);
+    setIsDirty(true);
+  };
+
+  const handleBBoxChange = useCallback(() => {
+    setIsDirty(true);
+  }, []);
 
   return (
     <>
@@ -49,25 +77,28 @@ export const TryFairPage = () => {
 
       <div className="h-screen flex flex-col fullscreen">
         <div className="flex-grow relative">
-          {/* Map fills the entire available space */}
           <TryFairMap
             map={map}
             mapContainerRef={mapContainerRef}
             outputType={outputType}
-            tileServerURL={selectedModel.tileServiceUrl}
+            tileServerURL={tileserverURL}
+            tileServiceValid={tileServiceTypeValidity.valid}
+            onBBoxChange={handleBBoxChange}
           />
 
-          {/* Floating sidebar panel, absolutely positioned over the map */}
           <div className="absolute top-4 left-4 z-10">
             <TryFairSidebar
               selectedModel={selectedModel}
               onSelectModel={handleSelectModel}
               outputType={outputType}
-              onOutputTypeChange={setOutputType}
+              onOutputTypeChange={handleOutputTypeChange}
               resolution={resolution}
-              onResolutionChange={setResolution}
+              onResolutionChange={handleResolutionChange}
               confidence={confidence}
-              onConfidenceChange={setConfidence}
+              onConfidenceChange={handleConfidenceChange}
+              onMap={() => setIsDirty(false)}
+              isPredicting={false}
+              isMapButtonDisabled={!isDirty}
             />
           </div>
         </div>

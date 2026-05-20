@@ -113,7 +113,7 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
+                className="text-grey "
                 aria-label="Close"
               >
                 <CloseIcon />
@@ -129,10 +129,8 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
                     key={model.id}
                     type="button"
                     onClick={() => handleSelect(model)}
-                    className={`text-left p-3 bg-frosted-blue rounded-lg border-2 transition-colors ${
-                      isSelected
-                        ? "border-primary"
-                        : "border-gray-200 hover:border-gray-300"
+                    className={`text-left p-3 bg-frosted-blue rounded-lg border-2  ${
+                      isSelected ? "border-primary" : "border-gray-border"
                     }`}
                   >
                     <div className="flex items-start justify-between gap-2 mb-1">
@@ -141,7 +139,7 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
                       </p>
                       <span
                         className={`mt-0.5 shrink-0 w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                          isSelected ? "border-primary" : "border-gray-300"
+                          isSelected ? "border-primary" : "border-gray-border"
                         }`}
                       >
                         {isSelected && (
@@ -149,12 +147,10 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
                         )}
                       </span>
                     </div>
-                    <p className="text-gray-400 text-xs mb-0.5">
+                    <p className="text-grey text-xs mb-0.5">
                       Model: {model.modelName}
                     </p>
-                    <p className="text-gray-400 text-xs mb-2">
-                      By: {model.author}
-                    </p>
+                    <p className="text-grey text-xs mb-2">By: {model.author}</p>
                     <FeatureBadge
                       type={model.featureType}
                       label={model.feature}
