@@ -7,7 +7,7 @@ import { Image } from "@/components/ui/image";
 import { Link } from "@/components/ui/link";
 import { navLinks } from "@/constants/general";
 import { NavLogo } from "@/components/layouts";
-import { SHARED_CONTENT } from "@/constants";
+import { APPLICATION_ROUTES, SHARED_CONTENT } from "@/constants";
 import { useAuth } from "@/app/providers/auth-provider";
 import { useLocation, useNavigate } from "react-router-dom";
 import { UserProfile } from "@/components/layouts";
@@ -69,9 +69,14 @@ export const NavBar = () => {
               &#x2715;
             </button>
           </div>
-          <div className={styles.navLinksContainer}>
-            <NavBarLinks className={styles.mobileNavLinks} setOpen={setOpen} />
-          </div>
+          {!location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR) && (
+            <div className={styles.navLinksContainer}>
+              <NavBarLinks
+                className={styles.mobileNavLinks}
+                setOpen={setOpen}
+              />
+            </div>
+          )}
           {isAuthenticated && <Divider />}
 
           <div className={styles.loginButtonContainer}>
@@ -104,7 +109,11 @@ export const NavBar = () => {
               />
             ) : (
               <Button
-                rounded
+                rounded={
+                  location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR)
+                    ? true
+                    : false
+                }
                 onClick={() => {
                   /*
                    * Set the `backgroundLocation` in location state so that when we open the authentication modal we still see the current page in the background.
@@ -114,7 +123,9 @@ export const NavBar = () => {
                   });
                 }}
               >
-                {SHARED_CONTENT.navbar.loginButton}
+                {location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR)
+                  ? SHARED_CONTENT.homepage.ctaSecondaryButton
+                  : SHARED_CONTENT.navbar.loginButton}
               </Button>
             )}
           </div>
@@ -125,9 +136,11 @@ export const NavBar = () => {
         className={`${styles.nav} app-padding z-20 py-1 border-b border-gray-border`}
       >
         <NavLogo />
-        {/* <div className="hidden sm:flex">
-          <NavBarLinks className={styles.webNavLinks} />
-        </div> */}
+        {!location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR) && (
+          <div className="hidden sm:flex">
+            <NavBarLinks className={styles.webNavLinks} />
+          </div>
+        )}
         <div className="hidden sm:flex items-center gap-x-3">
           {AUTH_PROVIDER === "hanko" && !IS_DEV ? (
             <>
@@ -143,7 +156,11 @@ export const NavBar = () => {
           ) : (
             <Button
               className={styles.loginButton}
-              rounded
+              rounded={
+                location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR)
+                  ? true
+                  : false
+              }
               onClick={() => {
                 /*
                  * Set the `backgroundLocation` in location state so that when we open the authentication modal we still see the current page in the background.
@@ -153,7 +170,9 @@ export const NavBar = () => {
                 });
               }}
             >
-              {SHARED_CONTENT.navbar.loginButton}
+              {location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR)
+                ? SHARED_CONTENT.homepage.ctaSecondaryButton
+                : SHARED_CONTENT.navbar.loginButton}
             </Button>
           )}
           {AUTH_PROVIDER === "hanko" && <hotosm-tool-menu></hotosm-tool-menu>}

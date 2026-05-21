@@ -35,6 +35,7 @@ export const TryFairMap = ({
         tileServiceURL={tileServiceValid ? tileServerURL : undefined}
         zoomControls
         basemaps
+        showCurrentZoom
       />
 
       {map && (
