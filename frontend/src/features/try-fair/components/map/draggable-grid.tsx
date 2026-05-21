@@ -121,9 +121,15 @@ export const TryFairDraggableGrid = ({
     if (!map || hasDragged) return;
     const syncToCenter = () => {
       setAnchor(getCenteredAnchor(map.getCenter()));
+      // Unsubscribe immediately after the first sync so panning doesn't
+      // recentre the grid.
+      map.off("idle", syncToCenter);
     };
-    syncToCenter();
-    map.on("idle", syncToCenter);
+    if (map.isStyleLoaded()) {
+      syncToCenter();
+    } else {
+      map.once("idle", syncToCenter);
+    }
     return () => {
       map.off("idle", syncToCenter);
     };
