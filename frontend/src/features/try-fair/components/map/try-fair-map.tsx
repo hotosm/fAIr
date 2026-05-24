@@ -14,8 +14,6 @@ import {
 } from "@/components/map/controls";
 import { PREDICTION_LAYER_IDS } from "@/features/try-fair/utils/common";
 
-
-
 type TryFairMapProps = {
   map: Map | null;
   mapContainerRef: RefObject<HTMLDivElement | null>;
