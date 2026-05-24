@@ -12,17 +12,9 @@ import {
   FitToBounds,
   ZoomControls,
 } from "@/components/map/controls";
+import { PREDICTION_LAYER_IDS } from "@/features/try-fair/utils/common";
 
-// Prediction layer IDs (kept in sync with try-fair-prediction-results.tsx)
-const PREDICTION_LAYER_IDS = [
-  "try-fair-predictions-fill",
-  "try-fair-predictions-outline",
-  "try-fair-predictions-circle",
-  "try-fair-predictions-cluster",
-  "try-fair-predictions-cluster-count",
-  "try-fair-predictions-choropleth-fill",
-  "try-fair-predictions-choropleth-outline",
-];
+
 
 type TryFairMapProps = {
   map: Map | null;

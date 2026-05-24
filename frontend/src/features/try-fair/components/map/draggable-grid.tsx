@@ -10,30 +10,8 @@ import {
   useRef,
   useState,
 } from "react";
+import { DEFAULT_SELECTED_GRID, MAX_GRID_ZOOM, MIN_GRID_ZOOM, SELECTED_GRID_BY_ZOOM, SelectedGridSpec, VISIBLE_GRID_COLUMNS, VISIBLE_GRID_ROWS } from "@/features/try-fair/utils/common";
 
-// ── Grid constants ───────────────────────────────────────────────────────────
-
-/** Visible draggable grid (what users see). */
-const VISIBLE_GRID_COLUMNS = 4;
-const VISIBLE_GRID_ROWS = 4;
-
-type SelectedGridSpec = { columns: number; rows: number };
-
-/**
- * Selected tile footprint (what gets sent to prediction), configurable by
- * tile zoom level. The visible grid stays 4x4 and is drawn inside this area.
- */
-const DEFAULT_SELECTED_GRID: SelectedGridSpec = { columns: 2, rows: 2 };
-const SELECTED_GRID_BY_ZOOM: Record<number, SelectedGridSpec> = {
-  17: { columns: 2, rows: 2 },
-  18: { columns: 2, rows: 2 },
-  19: { columns: 3, rows: 3 },
-  20: { columns: 3, rows: 3 },
-};
-
-const BASE_GRID_ZOOM = 17;
-const MIN_GRID_ZOOM = BASE_GRID_ZOOM;
-const MAX_GRID_ZOOM = 22;
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -124,12 +102,9 @@ type GridScreenGeometry = {
   topRight: { x: number; y: number };
 };
 
-const toPointString = (line: {
-  x1: number;
-  y1: number;
-  x2: number;
-  y2: number;
-}): string => `${line.x1},${line.y1} ${line.x2},${line.y2}`;
+const toPointString = (
+  line: { x1: number; y1: number; x2: number; y2: number },
+): string => `${line.x1},${line.y1} ${line.x2},${line.y2}`;
 
 // ── Component ────────────────────────────────────────────────────────────────
 
@@ -146,8 +121,9 @@ export const TryFairDraggableGrid = ({
   center?: [number, number];
 }) => {
   const [anchor, setAnchor] = useState<TileAnchor | null>(null);
-  const [screenGeometry, setScreenGeometry] =
-    useState<GridScreenGeometry | null>(null);
+  const [screenGeometry, setScreenGeometry] = useState<GridScreenGeometry | null>(
+    null,
+  );
   const [dragState, setDragState] = useState<DragState>({
     isDragging: false,
     startAnchor: null,
@@ -163,9 +139,7 @@ export const TryFairDraggableGrid = ({
   // Initialize / recenter grid from imagery center using the active tile zoom.
   useEffect(() => {
     if (!map) return;
-    const nextCenter = center
-      ? ([center[0], center[1]] as [number, number])
-      : null;
+    const nextCenter = center ? ([center[0], center[1]] as [number, number]) : null;
     const previousCenter = previousCenterRef.current;
     const centerChanged =
       !!nextCenter &&
@@ -237,14 +211,10 @@ export const TryFairDraggableGrid = ({
       const x = anchor.x + (column / VISIBLE_GRID_COLUMNS) * selected.columns;
       const top = num2deg(x, anchor.y, anchor.z);
       const bottom = num2deg(x, anchor.y + selected.rows, anchor.z);
-      const p1 = map.project({
-        lng: top.lon_deg,
-        lat: top.lat_deg,
-      } as LngLatLike);
-      const p2 = map.project({
-        lng: bottom.lon_deg,
-        lat: bottom.lat_deg,
-      } as LngLatLike);
+      const p1 = map.project({ lng: top.lon_deg, lat: top.lat_deg } as LngLatLike);
+      const p2 = map.project(
+        { lng: bottom.lon_deg, lat: bottom.lat_deg } as LngLatLike,
+      );
       verticalLines.push({ x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y });
     }
 
@@ -252,29 +222,20 @@ export const TryFairDraggableGrid = ({
       const y = anchor.y + (row / VISIBLE_GRID_ROWS) * selected.rows;
       const left = num2deg(anchor.x, y, anchor.z);
       const right = num2deg(anchor.x + selected.columns, y, anchor.z);
-      const p1 = map.project({
-        lng: left.lon_deg,
-        lat: left.lat_deg,
-      } as LngLatLike);
-      const p2 = map.project({
-        lng: right.lon_deg,
-        lat: right.lat_deg,
-      } as LngLatLike);
+      const p1 = map.project({ lng: left.lon_deg, lat: left.lat_deg } as LngLatLike);
+      const p2 = map.project({ lng: right.lon_deg, lat: right.lat_deg } as LngLatLike);
       horizontalLines.push({ x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y });
     }
 
     const topRight = verticalLines[VISIBLE_GRID_COLUMNS]
       ? {
-          x: verticalLines[VISIBLE_GRID_COLUMNS].x1,
-          y: verticalLines[VISIBLE_GRID_COLUMNS].y1,
-        }
+        x: verticalLines[VISIBLE_GRID_COLUMNS].x1,
+        y: verticalLines[VISIBLE_GRID_COLUMNS].y1,
+      }
       : { x: 0, y: 0 };
 
-    const hasInvalidPoint = [...verticalLines, ...horizontalLines].some(
-      (line) =>
-        [line.x1, line.y1, line.x2, line.y2].some(
-          (value) => !Number.isFinite(value),
-        ),
+    const hasInvalidPoint = [...verticalLines, ...horizontalLines].some((line) =>
+      [line.x1, line.y1, line.x2, line.y2].some((value) => !Number.isFinite(value)),
     );
     if (hasInvalidPoint) return;
 
@@ -303,12 +264,7 @@ export const TryFairDraggableGrid = ({
   }, [anchor, map, mapContainerRef, syncScreenGeometry]);
 
   useEffect(() => {
-    if (
-      !dragState.isDragging ||
-      !map ||
-      !dragState.startAnchor ||
-      !dragState.startTile
-    )
+    if (!dragState.isDragging || !map || !dragState.startAnchor || !dragState.startTile)
       return;
     const { startAnchor, startTile } = dragState;
 
@@ -325,11 +281,7 @@ export const TryFairDraggableGrid = ({
       const dx = xtile - startTile.x;
       const dy = ytile - startTile.y;
       setAnchor(
-        clampAnchor({
-          x: startAnchor.x + dx,
-          y: startAnchor.y + dy,
-          z: startAnchor.z,
-        }),
+        clampAnchor({ x: startAnchor.x + dx, y: startAnchor.y + dy, z: startAnchor.z }),
       );
     };
 
@@ -360,11 +312,7 @@ export const TryFairDraggableGrid = ({
         dragRafRef.current = null;
       }
       flushPendingPointer();
-      if (
-        dragState.dragPanWasEnabled &&
-        map.dragPan &&
-        !map.dragPan.isEnabled()
-      ) {
+      if (dragState.dragPanWasEnabled && map.dragPan && !map.dragPan.isEnabled()) {
         map.dragPan.enable();
       }
       setDragState((prev) => ({
@@ -398,11 +346,7 @@ export const TryFairDraggableGrid = ({
     if (!container) return;
     const rect = container.getBoundingClientRect();
     const lngLat = map.unproject([e.clientX - rect.left, e.clientY - rect.top]);
-    const { xtile, ytile } = lngLatToTileCoords(
-      lngLat.lat,
-      lngLat.lng,
-      anchor.z,
-    );
+    const { xtile, ytile } = lngLatToTileCoords(lngLat.lat, lngLat.lng, anchor.z);
     isUserPositionedRef.current = true;
     const dragPanWasEnabled = map.dragPan ? map.dragPan.isEnabled() : false;
     if (dragPanWasEnabled) map.dragPan.disable();
@@ -436,9 +380,7 @@ export const TryFairDraggableGrid = ({
             points={toPointString(line)}
             fill="none"
             stroke="#EF4444"
-            strokeOpacity={
-              index === 0 || index === VISIBLE_GRID_ROWS ? 1 : 0.75
-            }
+            strokeOpacity={index === 0 || index === VISIBLE_GRID_ROWS ? 1 : 0.75}
             strokeWidth={index === 0 || index === VISIBLE_GRID_ROWS ? 2 : 1}
           />
         ))}
@@ -449,9 +391,8 @@ export const TryFairDraggableGrid = ({
         type="button"
         onPointerDown={handleDragStart}
         title="Move grid"
-        className={`absolute z-20 pointer-events-auto rounded-full bg-white border border-primary p-1.5 shadow-sm ${
-          dragState.isDragging ? "cursor-grabbing" : "cursor-grab"
-        }`}
+        className={`absolute z-20 pointer-events-auto rounded-full bg-white border border-primary p-1.5 shadow-sm ${dragState.isDragging ? "cursor-grabbing" : "cursor-grab"
+          }`}
         style={{
           left: `${screenGeometry.topRight.x}px`,
           top: `${screenGeometry.topRight.y}px`,

@@ -1,7 +1,12 @@
 // ── Geometry helpers ──────────────────────────────────────────────────────────
 
 import { BBOX } from "@/types";
-import { deg2num, num2deg } from "@/utils/geo/geometry-utils";
+import { num2deg } from "@/utils/geo/geometry-utils";
+import {
+  getGridSpec,
+  VISIBLE_GRID_COLUMNS,
+  VISIBLE_GRID_ROWS,
+} from "@/features/try-fair/utils/common";
 
 /**
  * Returns the centroid of a single exterior ring (array of [lon, lat] positions).
@@ -58,10 +63,10 @@ export const CHOROPLETH_GRID_ROWS = 5;
 
 /** Lavender → deep purple ramp (5 buckets, matches design) */
 export const CHOROPLETH_COLORS = [
-  "#EDE9FE",
-  "#C4B5FD",
-  "#8B5CF6",
-  "#6D28D9",
+  "#E5CEF2",
+  "#C58EE4",
+  "#A14AD5",
+  "#6E2D93",
   "#3B0764",
 ] as const;
 
@@ -74,25 +79,32 @@ export type ChoroplethBucket = {
 
 // ── Choropleth grid spec (mirrors draggable-grid.tsx — must stay in sync) ───
 
-type GridSpec = { columns: number; rows: number };
-const DEFAULT_GRID_SPEC: GridSpec = { columns: 2, rows: 2 };
-const GRID_SPEC_BY_ZOOM: Record<number, GridSpec> = {
-  17: { columns: 3, rows: 3 },
-  18: { columns: 2, rows: 2 },
-  19: { columns: 3, rows: 3 },
-  20: { columns: 3, rows: 3 },
+/**
+ * Floor-free tile coordinate conversion (matches lngLatToTileCoords in
+ * draggable-grid.tsx). Unlike deg2num, this does NOT apply Math.floor so we
+ * get fractional tile positions needed for sub-tile choropleth cells.
+ */
+const lngLatToFractionalTile = (
+  lat_deg: number,
+  lon_deg: number,
+  zoom: number,
+): { xtile: number; ytile: number } => {
+  const lat_rad = (lat_deg * Math.PI) / 180;
+  const n = Math.pow(2, zoom);
+  return {
+    xtile: ((lon_deg + 180) / 360) * n,
+    ytile: ((1 - Math.asinh(Math.tan(lat_rad)) / Math.PI) / 2) * n,
+  };
 };
-const getGridSpec = (zoom: number): GridSpec =>
-  GRID_SPEC_BY_ZOOM[zoom] ?? DEFAULT_GRID_SPEC;
 
 /**
  * Divides `bbox` into a grid and counts how many prediction feature centroids
  * fall in each cell.
  *
  * When `gridZoom` is provided the cells are tile-aligned (using the same
- * num2deg / deg2num math as the visual draggable grid), so the choropleth
- * fills overlay exactly on top of the red grid.  Without `gridZoom` it falls
- * back to a simple 5×5 equal-degree division.
+ * num2deg / lngLatToFractionalTile math as the visual draggable grid), so the
+ * choropleth overlay sits exactly on top of the red grid lines.
+ * Without `gridZoom` it falls back to a simple 5×5 equal-degree division.
  */
 export const buildChoropleth = (
   predictions: GeoJSON.FeatureCollection,
@@ -112,16 +124,26 @@ const buildTileAlignedChoropleth = (
   bbox: BBOX,
   gridZoom: number,
 ): GeoJSON.FeatureCollection => {
-  // Recover the integer anchor tile from the bbox NW corner.
-  // The bbox was computed with num2deg so deg2num should give very nearly
-  // integer values — Math.round cleans up any floating-point drift.
   const [west, , , north] = bbox;
-  const { xtile, ytile } = deg2num(north, west, gridZoom);
+
+  // Recover the fractional anchor tile from the bbox NW corner using the
+  // same floor-free formula as draggable-grid, then round to the nearest
+  // integer to clean up floating-point drift from num2deg→lngLat conversion.
+  const { xtile, ytile } = lngLatToFractionalTile(north, west, gridZoom);
   const anchorX = Math.round(xtile);
   const anchorY = Math.round(ytile);
-  const { columns: numCols, rows: numRows } = getGridSpec(gridZoom);
 
-  // Count predictions per tile cell
+  // The selected grid spec tells us how many TILES the selection spans.
+  // The choropleth must use the VISIBLE cell count (4×4) so it aligns with
+  // the visual grid lines.  The step is a fraction of a tile:
+  //   colStep = selectedCols / VISIBLE_GRID_COLUMNS  (e.g. 2/4 = 0.5 tiles)
+  const { columns: selCols, rows: selRows } = getGridSpec(gridZoom);
+  const colStep = selCols / VISIBLE_GRID_COLUMNS;
+  const rowStep = selRows / VISIBLE_GRID_ROWS;
+  const numCols = VISIBLE_GRID_COLUMNS;
+  const numRows = VISIBLE_GRID_ROWS;
+
+  // Count predictions per visual cell
   const counts: number[][] = Array.from({ length: numRows }, () =>
     Array(numCols).fill(0),
   );
@@ -129,26 +151,27 @@ const buildTileAlignedChoropleth = (
     const centroid = featureCentroid(feature);
     if (!centroid) continue;
     const [cx, cy] = centroid;
-    const { xtile: tx, ytile: ty } = deg2num(cy, cx, gridZoom);
-    const col = Math.floor(tx - anchorX);
-    const row = Math.floor(ty - anchorY);
+    const { xtile: tx, ytile: ty } = lngLatToFractionalTile(cy, cx, gridZoom);
+    // Map fractional offset from anchor into visual cell indices
+    const col = Math.floor((tx - anchorX) / colStep);
+    const row = Math.floor((ty - anchorY) / rowStep);
     if (col >= 0 && col < numCols && row >= 0 && row < numRows) {
       counts[row][col]++;
     }
   }
 
-  // Build one polygon per tile using exact tile-corner coordinates
+  // Build one polygon per visual cell using exact sub-tile corner coordinates
   const features: GeoJSON.Feature[] = [];
   for (let r = 0; r < numRows; r++) {
     for (let c = 0; c < numCols; c++) {
       const { lon_deg: w, lat_deg: n } = num2deg(
-        anchorX + c,
-        anchorY + r,
+        anchorX + c * colStep,
+        anchorY + r * rowStep,
         gridZoom,
       );
       const { lon_deg: e, lat_deg: s } = num2deg(
-        anchorX + c + 1,
-        anchorY + r + 1,
+        anchorX + (c + 1) * colStep,
+        anchorY + (r + 1) * rowStep,
         gridZoom,
       );
       features.push({
