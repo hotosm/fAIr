@@ -21,8 +21,6 @@ type PredictArgs = {
   params: Record<string, number | string | boolean>;
 };
 
-
-
 export const useFairPredict = () => {
   const { mutate, isPending, data, error, reset } = useMutation<
     PredictResult,

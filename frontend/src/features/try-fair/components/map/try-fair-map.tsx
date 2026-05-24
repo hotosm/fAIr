@@ -7,9 +7,11 @@ import { TryFairDraggableGrid } from "@/features/try-fair/components/map/draggab
 import { TryFairPredictionsLayer } from "@/features/try-fair/components/map/try-fair-prediction-results";
 import { ChoroplethBucket } from "@/features/try-fair/utils/helpers";
 import { TryFairChoroplethLegend } from "@/features/try-fair/components/map/chloropleth-legend";
-import { LayerControl, FitToBounds, ZoomControls } from "@/components/map/controls";
-
-
+import {
+  LayerControl,
+  FitToBounds,
+  ZoomControls,
+} from "@/components/map/controls";
 
 // Prediction layer IDs (kept in sync with try-fair-prediction-results.tsx)
 const PREDICTION_LAYER_IDS = [
@@ -54,15 +56,13 @@ export const TryFairMap = ({
   // Track the grid bbox locally so fit-to-grid always has the latest value
   const gridBBoxRef = useRef<BBOX | null>(null);
 
-
-
   const handleFitToGrid = useCallback(() => {
     const bbox = gridBBoxRef.current;
     if (!map || !bbox) return;
-    map.fitBounds(
-      [bbox[0], bbox[1], bbox[2], bbox[3]],
-      { padding: 40, essential: true },
-    );
+    map.fitBounds([bbox[0], bbox[1], bbox[2], bbox[3]], {
+      padding: 40,
+      essential: true,
+    });
   }, [map]);
 
   return (

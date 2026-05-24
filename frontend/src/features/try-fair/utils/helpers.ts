@@ -1,4 +1,3 @@
-
 // ── Geometry helpers ──────────────────────────────────────────────────────────
 
 import { BBOX } from "@/types";
@@ -13,7 +12,6 @@ export const ringCentroid = (ring: number[][]): [number, number] => {
   return [sumX / ring.length, sumY / ring.length];
 };
 
-
 /**
  * Returns exactly ONE centroid per feature regardless of geometry type.
  * - Point        → the coordinate itself
@@ -21,7 +19,9 @@ export const ringCentroid = (ring: number[][]): [number, number] => {
  * - MultiPolygon → centroid computed across ALL sub-polygon exterior rings
  *                  (one representative point for the whole shape)
  */
-export const featureCentroid = (feature: GeoJSON.Feature): [number, number] | null => {
+export const featureCentroid = (
+  feature: GeoJSON.Feature,
+): [number, number] | null => {
   const geom = feature.geometry;
   if (geom.type === "Point") return geom.coordinates as [number, number];
   if (geom.type === "Polygon") {
@@ -43,11 +43,13 @@ export const toPointCollection = (
   features: fc.features.flatMap((f) => {
     const coords = featureCentroid(f);
     if (!coords) return [];
-    return [{
-      type: "Feature" as const,
-      geometry: { type: "Point" as const, coordinates: coords },
-      properties: f.properties,
-    }];
+    return [
+      {
+        type: "Feature" as const,
+        geometry: { type: "Point" as const, coordinates: coords },
+        properties: f.properties,
+      },
+    ];
   }),
 });
 
@@ -69,7 +71,6 @@ export type ChoroplethBucket = {
   color: string;
   label: string;
 };
-
 
 // ── Choropleth grid spec (mirrors draggable-grid.tsx — must stay in sync) ───
 
@@ -140,13 +141,29 @@ const buildTileAlignedChoropleth = (
   const features: GeoJSON.Feature[] = [];
   for (let r = 0; r < numRows; r++) {
     for (let c = 0; c < numCols; c++) {
-      const { lon_deg: w, lat_deg: n } = num2deg(anchorX + c, anchorY + r, gridZoom);
-      const { lon_deg: e, lat_deg: s } = num2deg(anchorX + c + 1, anchorY + r + 1, gridZoom);
+      const { lon_deg: w, lat_deg: n } = num2deg(
+        anchorX + c,
+        anchorY + r,
+        gridZoom,
+      );
+      const { lon_deg: e, lat_deg: s } = num2deg(
+        anchorX + c + 1,
+        anchorY + r + 1,
+        gridZoom,
+      );
       features.push({
         type: "Feature",
         geometry: {
           type: "Polygon",
-          coordinates: [[[w, s], [e, s], [e, n], [w, n], [w, s]]],
+          coordinates: [
+            [
+              [w, s],
+              [e, s],
+              [e, n],
+              [w, n],
+              [w, s],
+            ],
+          ],
         },
         properties: { count: counts[r][c] },
       });
@@ -181,7 +198,12 @@ const buildEqualDegreeChoropleth = (
       Math.floor((cy - south) / cellH),
       CHOROPLETH_GRID_ROWS - 1,
     );
-    if (col >= 0 && col < CHOROPLETH_GRID_COLS && row >= 0 && row < CHOROPLETH_GRID_ROWS) {
+    if (
+      col >= 0 &&
+      col < CHOROPLETH_GRID_COLS &&
+      row >= 0 &&
+      row < CHOROPLETH_GRID_ROWS
+    ) {
       counts[row][col]++;
     }
   }
@@ -197,7 +219,15 @@ const buildEqualDegreeChoropleth = (
         type: "Feature",
         geometry: {
           type: "Polygon",
-          coordinates: [[[w, s], [e, s], [e, n], [w, n], [w, s]]],
+          coordinates: [
+            [
+              [w, s],
+              [e, s],
+              [e, n],
+              [w, n],
+              [w, s],
+            ],
+          ],
         },
         properties: { count: counts[r][c] },
       });
@@ -228,8 +258,7 @@ export const computeChoroplethBuckets = (
       min: i + 1,
       max: i === CHOROPLETH_COLORS.length - 1 ? Infinity : i + 1,
       color,
-      label:
-        i === CHOROPLETH_COLORS.length - 1 ? `${i + 1}+` : `${i + 1}`,
+      label: i === CHOROPLETH_COLORS.length - 1 ? `${i + 1}+` : `${i + 1}`,
     }));
   }
 
@@ -238,11 +267,7 @@ export const computeChoroplethBuckets = (
     const min = i * step + 1;
     const max = i === CHOROPLETH_COLORS.length - 1 ? Infinity : (i + 1) * step;
     const label =
-      max === Infinity
-        ? `${min}+`
-        : min === max
-          ? `${min}`
-          : `${min}–${max}`; // en-dash
+      max === Infinity ? `${min}+` : min === max ? `${min}` : `${min}–${max}`; // en-dash
     return { min, max, color, label };
   });
 };

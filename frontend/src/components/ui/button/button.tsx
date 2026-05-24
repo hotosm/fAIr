@@ -45,9 +45,7 @@ const Button: React.FC<ButtonProps> = ({
       className={cn(
         `button ${variant} ${rounded ? "rounded" : ""} ${className} `,
       )}
-      style={{ width: "100%",
-
-       }}
+      style={{ width: "100%" }}
       //@ts-expect-error bad type definition
       onClick={onClick}
       disabled={disabled}

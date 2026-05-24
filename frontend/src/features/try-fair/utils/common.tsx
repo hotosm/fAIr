@@ -49,8 +49,6 @@ export const OUTPUT_TYPES: {
   },
 ];
 
-
-
 export const TRY_FAIR_RESOLUTION_ZOOM: Record<TryFairResolution, number> = {
   [TryFairResolution.LOW]: 17,
   [TryFairResolution.MID]: 18,

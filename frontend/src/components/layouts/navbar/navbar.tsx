@@ -114,8 +114,11 @@ export const NavBar = () => {
                     ? true
                     : false
                 }
-              variant={  location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR) ? ButtonVariant.TERTIARY : ButtonVariant.PRIMARY}
-
+                variant={
+                  location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR)
+                    ? ButtonVariant.TERTIARY
+                    : ButtonVariant.PRIMARY
+                }
                 onClick={() => {
                   /*
                    * Set the `backgroundLocation` in location state so that when we open the authentication modal we still see the current page in the background.
@@ -158,8 +161,11 @@ export const NavBar = () => {
           ) : (
             <Button
               className={styles.loginButton}
-              variant={  location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR) ? ButtonVariant.TERTIARY : ButtonVariant.PRIMARY}
-
+              variant={
+                location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR)
+                  ? ButtonVariant.TERTIARY
+                  : ButtonVariant.PRIMARY
+              }
               rounded={
                 location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR)
                   ? true

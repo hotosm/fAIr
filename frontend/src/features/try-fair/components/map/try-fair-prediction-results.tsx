@@ -8,7 +8,7 @@ import {
   toPointCollection,
 } from "@/features/try-fair/utils/helpers";
 
-// ── Layer / source IDs    
+// ── Layer / source IDs
 
 const SOURCE_ID = "try-fair-predictions";
 const FILL_LAYER = "try-fair-predictions-fill";
@@ -28,7 +28,6 @@ const ALL_LAYER_IDS = [
   CHOROPLETH_FILL_LAYER,
   CHOROPLETH_OUTLINE_LAYER,
 ];
-
 
 const removeLayers = (map: Map) => {
   ALL_LAYER_IDS.forEach((id) => {
@@ -66,7 +65,11 @@ export const TryFairPredictionsLayer = ({
     ) {
       return { choropleth: null, buckets: null };
     }
-    const fc = buildChoropleth(predictions, predictionBBox, predictionGridZoom ?? undefined);
+    const fc = buildChoropleth(
+      predictions,
+      predictionBBox,
+      predictionGridZoom ?? undefined,
+    );
     return { choropleth: fc, buckets: computeChoroplethBuckets(fc) };
   }, [outputType, predictions, predictionBBox, predictionGridZoom]);
 
@@ -96,7 +99,7 @@ export const TryFairPredictionsLayer = ({
         paint: { "line-color": "#A243DC", "line-width": 1.5 },
       });
 
-    // ── Points ───────────────────────────────────────────────────────────────
+      // ── Points ───────────────────────────────────────────────────────────────
     } else if (outputType === TryFairMapOutputType.POINTS) {
       map.addSource(SOURCE_ID, {
         type: "geojson",
@@ -114,7 +117,7 @@ export const TryFairPredictionsLayer = ({
         },
       });
 
-    // ── Choropleth ───────────────────────────────────────────────────────────
+      // ── Choropleth ───────────────────────────────────────────────────────────
     } else if (outputType === TryFairMapOutputType.CLUSTER) {
       if (!choropleth || !buckets) return;
 

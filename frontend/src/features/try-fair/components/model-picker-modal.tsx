@@ -4,11 +4,10 @@ import { ChevronDownIcon, CloseIcon } from "@/components/ui/icons";
 import { BaseModelStacItem } from "@/features/try-fair/api/stac";
 
 type ModelPickerProps = {
-   selectedModel: BaseModelStacItem | null;
+  selectedModel: BaseModelStacItem | null;
   onSelect: (model: BaseModelStacItem) => void;
-   models: BaseModelStacItem[];
+  models: BaseModelStacItem[];
   loading?: boolean;
-
 };
 
 // const FeatureBadge = ({ label, type }: { label: string; type: string }) => (
@@ -19,7 +18,6 @@ type ModelPickerProps = {
 //     {label}
 //   </span>
 // );
-
 
 const FeatureBadge = ({ label }: { label: string }) => {
   const featureLabel = label
@@ -81,7 +79,7 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
     return () => document.removeEventListener("mousedown", handler);
   }, [isOpen]);
 
-const handleSelect = (model: BaseModelStacItem) => {
+  const handleSelect = (model: BaseModelStacItem) => {
     onSelect(model);
     setIsOpen(false);
   };
@@ -95,7 +93,7 @@ const handleSelect = (model: BaseModelStacItem) => {
         onClick={() => setIsOpen((v) => !v)}
         className="flex  h-[40px] justify-between gap-2 items-center w-full min-w-0"
       >
-         <div className="text-left min-w-0">
+        <div className="text-left min-w-0">
           {loading ? (
             <p className="text-grey text-xs animate-pulse">Loading models…</p>
           ) : selectedModel ? (
@@ -141,16 +139,16 @@ const handleSelect = (model: BaseModelStacItem) => {
 
             {/* 2-column card grid */}
             <div className="grid grid-cols-2 gap-3">
-                 {models.map((model) => {
+              {models.map((model) => {
                 const isSelected = selectedModel?.id === model.id;
                 const tasks = model.properties["mlm:tasks"] ?? [];
-              
+
                 return (
                   <button
                     key={model.id}
                     type="button"
                     onClick={() => handleSelect(model)}
-                      className={`text-left p-3 bg-frosted-blue rounded-lg border-2  ${
+                    className={`text-left p-3 bg-frosted-blue rounded-lg border-2  ${
                       isSelected ? "border-primary" : "border-gray-border"
                     }`}
                   >
@@ -159,7 +157,7 @@ const handleSelect = (model: BaseModelStacItem) => {
                         {model.properties["mlm:architecture"]}
                       </p>
                       <span
-                       className={`mt-0.5 shrink-0 w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                        className={`mt-0.5 shrink-0 w-4 h-4 rounded-full border-2 flex items-center justify-center ${
                           isSelected ? "border-primary" : "border-gray-border"
                         }`}
                       >
@@ -173,7 +171,7 @@ const handleSelect = (model: BaseModelStacItem) => {
                     </p>
                     <div className="flex flex-wrap gap-1">
                       {tasks.map((t) => (
-                        <FeatureBadge  key={t} label={t} />
+                        <FeatureBadge key={t} label={t} />
                       ))}
                     </div>
                   </button>

@@ -8,11 +8,11 @@ import { ParametersIcon } from "@/components/ui/icons/parameters-icon";
 import { SnowflakeIcon } from "@/components/ui/icons/snow-flake-icon";
 import { GridIcon } from "@/components/ui/icons/grid-icon";
 import { FlameIcon } from "@/components/ui/icons/flame-icon";
+import { OUTPUT_TYPES, RESOLUTIONS } from "@/features/try-fair/utils/common";
 import {
-  OUTPUT_TYPES,
-  RESOLUTIONS,
-} from "@/features/try-fair/utils/common";
-import { BaseModelStacItem, InferenceParam } from "@/features/try-fair/api/stac";
+  BaseModelStacItem,
+  InferenceParam,
+} from "@/features/try-fair/api/stac";
 
 type TryFairSidebarProps = {
   selectedModel: BaseModelStacItem | null;
@@ -93,10 +93,11 @@ export const TryFairSidebar = ({
               onClick={() => onOutputTypeChange(type)}
               title={label}
               aria-label={label}
-              className={`flex-1 flex items-center justify-center py-2 rounded-lg ${outputType === type
-                ? "bg-secondary text-primary"
-                : "bg-off-white"
-                }`}
+              className={`flex-1 flex items-center justify-center py-2 rounded-lg ${
+                outputType === type
+                  ? "bg-secondary text-primary"
+                  : "bg-off-white"
+              }`}
             >
               {icon}
             </button>
@@ -143,18 +144,16 @@ export const TryFairSidebar = ({
                 key={value}
                 type="button"
                 onClick={() => onResolutionChange(value)}
-                className={`flex-1 gap-1 flex text-xs items-center justify-center py-2 rounded-lg ${resolution === value ? "bg-secondary" : "bg-off-white"
-                  }`}
+                className={`flex-1 gap-1 flex text-xs items-center justify-center py-2 rounded-lg ${
+                  resolution === value ? "bg-secondary" : "bg-off-white"
+                }`}
               >
                 <GridIcon width={size} height={size} />
                 {label}
               </button>
             ))}
           </div>
-
         </div>
-
-
 
         {/* Confidence is the only inference param exposed in the UI.
             Other params (iou_threshold, min_class_value, …) stay at their
@@ -178,22 +177,21 @@ export const TryFairSidebar = ({
                 <div className="flex items-center gap-2">
                   <SnowflakeIcon />
 
-
                   <input
                     type="range"
                     min={min}
                     max={max}
                     step={0.01}
                     value={Number(value)}
-                    onChange={(e) => onParamChange(key, parseFloat(e.target.value))}
-
+                    onChange={(e) =>
+                      onParamChange(key, parseFloat(e.target.value))
+                    }
                     className="try-fair-confidence-slider flex-1 h-1.5 rounded-full appearance-none cursor-pointer outline-none"
                     style={{
                       background: `linear-gradient(90deg, #0088FF 0%, #FF383C 100%)`,
                     }}
                   />
                   <FlameIcon />
-
                 </div>
               </div>
             );
@@ -203,9 +201,11 @@ export const TryFairSidebar = ({
   );
 };
 
-
-        {/* Confidence */}
-        {/* <div>
+{
+  /* Confidence */
+}
+{
+  /* <div>
           <div className="flex items-center justify-between mb-2">
             <p className="text-dark text-xs font-medium">
               {TRY_FAIR_PAGE_CONTENT.sidebar.parameters.confidence.label}
@@ -231,4 +231,5 @@ export const TryFairSidebar = ({
             />
             <FlameIcon />
           </div>
-        </div> */}
+        </div> */
+}

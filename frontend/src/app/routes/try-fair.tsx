@@ -12,7 +12,10 @@ import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params"
 import { useBaseModels } from "@/features/try-fair/hooks/use-base-models";
 import { BBOX } from "@/types";
 import { useFairPredict } from "@/features/try-fair/hooks/use-fair-predict";
-import { getInferenceParams, InferenceParam } from "@/features/try-fair/api/stac";
+import {
+  getInferenceParams,
+  InferenceParam,
+} from "@/features/try-fair/api/stac";
 import { TRY_FAIR_RESOLUTION_ZOOM } from "@/features/try-fair/utils/common";
 
 export const TryFairPage = () => {
@@ -79,10 +82,7 @@ export const TryFairPage = () => {
     loading: tileLoading,
     tileJSONMetadata,
     tileServiceTypeValidity,
-  } = useTileservice(
-    getTileServerTypeFromURL(tileServiceUrl),
-    tileServiceUrl,
-  );
+  } = useTileservice(getTileServerTypeFromURL(tileServiceUrl), tileServiceUrl);
 
   useEffect(() => {
     setTileserverURL(tileServiceUrl);
@@ -109,23 +109,34 @@ export const TryFairPage = () => {
     if (!map || !demoConfig || !imageryCenter) return;
 
     const doFly = () => {
-      map.flyTo({ center: imageryCenter, zoom: INITIAL_MAP_ZOOM, essential: true });
+      map.flyTo({
+        center: imageryCenter,
+        zoom: INITIAL_MAP_ZOOM,
+        essential: true,
+      });
     };
 
     if (map.isStyleLoaded()) {
       doFly();
     } else {
       map.once("load", doFly);
-      return () => { map.off("load", doFly); };
+      return () => {
+        map.off("load", doFly);
+      };
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map, demoConfig, imageryCenter]);
 
+  // Predict
+  const {
+    predict,
+    isPredicting,
+    predictions,
+    predictionBBox,
+    predictionGridZoom,
+  } = useFairPredict();
 
-  // Predict   
-  const { predict, isPredicting, predictions, predictionBBox, predictionGridZoom } = useFairPredict();
-
-  // Handlers  
+  // Handlers
   const handleSelectModel = (model: { id: string }) => {
     setModelId(model.id);
     setResolution(TryFairResolution.MID);
@@ -136,7 +147,8 @@ export const TryFairPage = () => {
     setResolution(res);
     setIsDirty(true);
     // Zoom the map to the tile zoom that matches this resolution so the grid
-    if (map) map.easeTo({ zoom: TRY_FAIR_RESOLUTION_ZOOM[res], essential: true });
+    if (map)
+      map.easeTo({ zoom: TRY_FAIR_RESOLUTION_ZOOM[res], essential: true });
   };
 
   const handleOutputTypeChange = (type: TryFairMapOutputType) => {
@@ -164,7 +176,9 @@ export const TryFairPage = () => {
     // Invert confidence_threshold for the API: a lower threshold value produces better results
     const apiParams = Object.fromEntries(
       Object.entries(paramValues).map(([k, v]) =>
-        k === "confidence_threshold" ? [k, parseFloat((1 - Number(v)).toFixed(2))] : [k, v],
+        k === "confidence_threshold"
+          ? [k, parseFloat((1 - Number(v)).toFixed(2))]
+          : [k, v],
       ),
     );
     predict({

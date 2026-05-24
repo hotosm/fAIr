@@ -76,8 +76,6 @@ export const MODELS_LIST: TryFairModel[] = [
   },
 ];
 
-
-
 export type DemoModelConfig = {
   baseModelId: string;
   localModelUri: string;
