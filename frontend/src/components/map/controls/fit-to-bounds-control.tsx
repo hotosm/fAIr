@@ -10,18 +10,25 @@ export const FitToBounds = ({
   bounds,
   mobileClassName = "p-2.5 border border-gray-border md:border-0",
   rounded = true,
+  onClick,
 }: {
   map: Map | null;
   bounds: any;
   mobileClassName?: string;
   rounded?: boolean;
+  /** Override the default fitBounds click handler. */
+  onClick?: () => void;
 }) => {
   const { isSmallViewport } = useScreenSize();
 
   const fitToBounds = useCallback(() => {
+    if (onClick) {
+      onClick();
+      return;
+    }
     if (!map || !bounds) return;
     map?.fitBounds(bounds);
-  }, [map, bounds]);
+  }, [map, bounds, onClick]);
 
   return (
     <ToolTip content={MAP_CONTENT.controls.fitToBounds.tooltip}>

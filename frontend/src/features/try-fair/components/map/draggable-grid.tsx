@@ -1,4 +1,5 @@
 import { ArrowMoveIcon } from "@/components/ui/icons";
+import { deg2num, num2deg } from "@/utils/geo/geometry-utils";
 import { BBOX } from "@/types";
 import { LngLatLike, Map } from "maplibre-gl";
 import {
@@ -6,273 +7,423 @@ import {
   RefObject,
   useCallback,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from "react";
 
-const GRID_ZOOM = 18;
-const GRID_COLUMNS = 5;
-const GRID_ROWS = 5;
-const GRID_GEOGRAPHIC_AREA_SCALE = 0.09;
+// ── Grid constants ───────────────────────────────────────────────────────────
 
-const getGridCellTileSpan = (areaScale: number) => {
-  if (!Number.isFinite(areaScale) || areaScale <= 0) return 1;
-  return Math.sqrt(areaScale);
+/** Visible draggable grid (what users see). */
+const VISIBLE_GRID_COLUMNS = 4;
+const VISIBLE_GRID_ROWS = 4;
+
+type SelectedGridSpec = { columns: number; rows: number };
+
+/**
+ * Selected tile footprint (what gets sent to prediction), configurable by
+ * tile zoom level. The visible grid stays 4x4 and is drawn inside this area.
+ */
+const DEFAULT_SELECTED_GRID: SelectedGridSpec = { columns: 2, rows: 2 };
+const SELECTED_GRID_BY_ZOOM: Record<number, SelectedGridSpec> = {
+  17: { columns: 2, rows: 2 },
+  18: { columns: 2, rows: 2 },
+  19: { columns: 3, rows: 3 },
+  20: { columns: 3, rows: 3 },
 };
 
-const GRID_CELL_TILE_SPAN = getGridCellTileSpan(GRID_GEOGRAPHIC_AREA_SCALE);
+const BASE_GRID_ZOOM = 17;
+const MIN_GRID_ZOOM = BASE_GRID_ZOOM;
+const MAX_GRID_ZOOM = 22;
+
+// ── Types ────────────────────────────────────────────────────────────────────
 
 type TileAnchor = { x: number; y: number; z: number };
+
 type DragState = {
   isDragging: boolean;
   startAnchor: TileAnchor | null;
-  startTileFrac: { x: number; y: number } | null;
+  startTile: { x: number; y: number } | null;
+  dragPanWasEnabled: boolean;
 };
 
-const clamp = (value: number, min: number, max: number) =>
-  Math.min(Math.max(value, min), max);
+// ── Pure helpers ─────────────────────────────────────────────────────────────
 
-const worldSizeAtZoom = (z: number) => 2 ** z;
+const clamp = (v: number, lo: number, hi: number) =>
+  Math.min(Math.max(v, lo), hi);
 
-const lonToTileX = (lon: number, z: number) =>
-  ((lon + 180) / 360) * worldSizeAtZoom(z);
+const getSelectedGridSpec = (zoom: number): SelectedGridSpec =>
+  SELECTED_GRID_BY_ZOOM[zoom] ?? DEFAULT_SELECTED_GRID;
 
-const latToTileY = (lat: number, z: number) => {
-  const sinLat = Math.sin((lat * Math.PI) / 180);
-  const y = (1 - Math.log((1 + sinLat) / (1 - sinLat)) / (2 * Math.PI)) / 2;
-  return y * worldSizeAtZoom(z);
-};
-
-const tileToLng = (x: number, z: number) =>
-  (x / worldSizeAtZoom(z)) * 360 - 180;
-
-const tileToLat = (y: number, z: number) => {
-  const n = Math.PI - (2 * Math.PI * y) / worldSizeAtZoom(z);
-  return Math.atan(0.5 * (Math.exp(n) - Math.exp(-n))) * (180 / Math.PI);
-};
-
-const getFracTileCoords = (
-  lngLat: { lng: number; lat: number },
-  z: number,
-) => ({
-  x: lonToTileX(lngLat.lng, z),
-  y: latToTileY(lngLat.lat, z),
-});
-
-const getGridBBoxFromAnchor = (anchor: TileAnchor): BBOX => {
-  const west = tileToLng(anchor.x, anchor.z);
-  const east = tileToLng(
-    anchor.x + GRID_COLUMNS * GRID_CELL_TILE_SPAN,
-    anchor.z,
-  );
-  const north = tileToLat(anchor.y, anchor.z);
-  const south = tileToLat(anchor.y + GRID_ROWS * GRID_CELL_TILE_SPAN, anchor.z);
-  return [west, south, east, north];
-};
-
-const clampAnchor = (anchor: TileAnchor): TileAnchor => {
-  const maxX = worldSizeAtZoom(anchor.z) - GRID_COLUMNS * GRID_CELL_TILE_SPAN;
-  const maxY = worldSizeAtZoom(anchor.z) - GRID_ROWS * GRID_CELL_TILE_SPAN;
+const lngLatToTileCoords = (
+  lat_deg: number,
+  lon_deg: number,
+  zoom: number,
+): { xtile: number; ytile: number } => {
+  const lat_rad = (lat_deg * Math.PI) / 180;
+  const n = Math.pow(2, zoom);
   return {
-    ...anchor,
-    x: clamp(anchor.x, 0, maxX),
-    y: clamp(anchor.y, 0, maxY),
+    xtile: ((lon_deg + 180) / 360) * n,
+    ytile: ((1 - Math.asinh(Math.tan(lat_rad)) / Math.PI) / 2) * n,
   };
 };
 
-const getCenteredAnchor = (center: {
-  lng: number;
-  lat: number;
-}): TileAnchor => {
-  const tileCoords = getFracTileCoords(center, GRID_ZOOM);
+const clampAnchor = (a: TileAnchor): TileAnchor => {
+  const selected = getSelectedGridSpec(a.z);
+  const max = Math.pow(2, a.z);
+  const maxX = Math.max(0, max - selected.columns);
+  const maxY = Math.max(0, max - selected.rows);
+  return {
+    ...a,
+    x: clamp(a.x, 0, maxX),
+    y: clamp(a.y, 0, maxY),
+  };
+};
+
+const getCenteredAnchor = (
+  center: { lng: number; lat: number },
+  zoom: number,
+): TileAnchor => {
+  const selected = getSelectedGridSpec(zoom);
+  const { xtile, ytile } = deg2num(center.lat, center.lng, zoom);
   return clampAnchor({
-    x: tileCoords.x - (GRID_COLUMNS * GRID_CELL_TILE_SPAN) / 2,
-    y: tileCoords.y - (GRID_ROWS * GRID_CELL_TILE_SPAN) / 2,
-    z: GRID_ZOOM,
+    x: xtile - Math.floor(selected.columns / 2),
+    y: ytile - Math.floor(selected.rows / 2),
+    z: zoom,
   });
 };
+
+const getSelectedGridBBox = (anchor: TileAnchor): BBOX => {
+  const selected = getSelectedGridSpec(anchor.z);
+  const nw = num2deg(anchor.x, anchor.y, anchor.z);
+  const se = num2deg(
+    anchor.x + selected.columns,
+    anchor.y + selected.rows,
+    anchor.z,
+  );
+  return [nw.lon_deg, se.lat_deg, se.lon_deg, nw.lat_deg];
+};
+
+const getSnappedAnchor = (anchor: TileAnchor): TileAnchor =>
+  clampAnchor({
+    ...anchor,
+    x: Math.floor(anchor.x),
+    y: Math.floor(anchor.y),
+  });
+
+/**
+ * Keep draggable-grid tile zoom aligned with the visible map tile zoom
+ * (same offset logic used by tile-boundaries), but never below the
+ * base 17-tile grid requested for Try fAIr.
+ */
+const getGridZoomFromMap = (map: Map): number =>
+  clamp(Math.round(map.getZoom() + 1), MIN_GRID_ZOOM, MAX_GRID_ZOOM);
+
+type GridScreenGeometry = {
+  verticalLines: { x1: number; y1: number; x2: number; y2: number }[];
+  horizontalLines: { x1: number; y1: number; x2: number; y2: number }[];
+  topRight: { x: number; y: number };
+};
+
+const toPointString = (
+  line: { x1: number; y1: number; x2: number; y2: number },
+): string => `${line.x1},${line.y1} ${line.x2},${line.y2}`;
+
+// ── Component ────────────────────────────────────────────────────────────────
 
 export const TryFairDraggableGrid = ({
   map,
   mapContainerRef,
   onBBoxChange,
+  center,
 }: {
   map: Map | null;
   mapContainerRef: RefObject<HTMLDivElement | null>;
-  onBBoxChange: (bbox: BBOX) => void;
+  onBBoxChange: (bbox: BBOX, tileZoom: number) => void;
+  /** Imagery center from tileJSON — snaps the grid here when it resolves */
+  center?: [number, number];
 }) => {
   const [anchor, setAnchor] = useState<TileAnchor | null>(null);
-  const [screenRect, setScreenRect] = useState<{
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-  } | null>(null);
+  const [screenGeometry, setScreenGeometry] = useState<GridScreenGeometry | null>(
+    null,
+  );
   const [dragState, setDragState] = useState<DragState>({
     isDragging: false,
     startAnchor: null,
-    startTileFrac: null,
+    startTile: null,
+    dragPanWasEnabled: false,
   });
-  const [hasDragged, setHasDragged] = useState(false);
   const handleRef = useRef<HTMLButtonElement | null>(null);
+  const previousCenterRef = useRef<[number, number] | null>(null);
+  const isUserPositionedRef = useRef(false);
+  const pendingPointerRef = useRef<{ x: number; y: number } | null>(null);
+  const dragRafRef = useRef<number | null>(null);
 
+  // Initialize / recenter grid from imagery center using the active tile zoom.
   useEffect(() => {
-    if (!map || hasDragged) return;
-    const syncToCenter = () => {
-      setAnchor(getCenteredAnchor(map.getCenter()));
-      // Unsubscribe immediately after the first sync so panning doesn't
-      // recentre the grid.
-      map.off("idle", syncToCenter);
-    };
-    if (map.isStyleLoaded()) {
-      syncToCenter();
-    } else {
-      map.once("idle", syncToCenter);
+    if (!map) return;
+    const nextCenter = center ? ([center[0], center[1]] as [number, number]) : null;
+    const previousCenter = previousCenterRef.current;
+    const centerChanged =
+      !!nextCenter &&
+      (!previousCenter ||
+        previousCenter[0] !== nextCenter[0] ||
+        previousCenter[1] !== nextCenter[1]);
+
+    if (!anchor || centerChanged) {
+      const target = nextCenter
+        ? { lng: nextCenter[0], lat: nextCenter[1] }
+        : map.getCenter();
+      setAnchor(getCenteredAnchor(target, getGridZoomFromMap(map)));
+      isUserPositionedRef.current = false;
     }
-    return () => {
-      map.off("idle", syncToCenter);
+
+    previousCenterRef.current = nextCenter;
+  }, [map, center, anchor]);
+
+  // Re-tile at every tile zoom change while preserving the current area centre.
+  useEffect(() => {
+    if (!map) return;
+
+    const retileAtCurrentZoom = () => {
+      const nextGridZoom = getGridZoomFromMap(map);
+      setAnchor((prev) => {
+        if (!prev) {
+          const target = center
+            ? { lng: center[0], lat: center[1] }
+            : map.getCenter();
+          return getCenteredAnchor(target, nextGridZoom);
+        }
+        if (prev.z === nextGridZoom) return prev;
+
+        // Keep grid centered on the visible map unless the user explicitly dragged it.
+        if (!isUserPositionedRef.current) {
+          return getCenteredAnchor(map.getCenter(), nextGridZoom);
+        }
+
+        const [west, south, east, north] = getSelectedGridBBox(prev);
+        const currentCenter = {
+          lng: (west + east) / 2,
+          lat: (south + north) / 2,
+        };
+        return getCenteredAnchor(currentCenter, nextGridZoom);
+      });
     };
-  }, [hasDragged, map]);
+
+    retileAtCurrentZoom();
+    map.on("zoom", retileAtCurrentZoom);
+    return () => {
+      map.off("zoom", retileAtCurrentZoom);
+    };
+  }, [map, center]);
 
   useEffect(() => {
     if (!anchor) return;
-    onBBoxChange(getGridBBoxFromAnchor(anchor));
+    onBBoxChange(getSelectedGridBBox(getSnappedAnchor(anchor)), anchor.z);
   }, [anchor, onBBoxChange]);
 
-  const syncScreenRect = useCallback(() => {
+  const syncScreenGeometry = useCallback(() => {
     if (!map || !anchor) return;
-    const [west, south, east, north] = getGridBBoxFromAnchor(anchor);
-    const topLeft = map.project({ lng: west, lat: north } as LngLatLike);
-    const bottomRight = map.project({ lng: east, lat: south } as LngLatLike);
-    const x = Math.min(topLeft.x, bottomRight.x);
-    const y = Math.min(topLeft.y, bottomRight.y);
-    const width = Math.abs(bottomRight.x - topLeft.x);
-    const height = Math.abs(bottomRight.y - topLeft.y);
-    if (width <= 0 || height <= 0) return;
-    setScreenRect({ x, y, width, height });
+    const selected = getSelectedGridSpec(anchor.z);
+    const verticalLines: GridScreenGeometry["verticalLines"] = [];
+    const horizontalLines: GridScreenGeometry["horizontalLines"] = [];
+
+    // Draw a 4x4 visual grid inside the selected tile bbox using fractional
+    // tile coordinates, so we don't add extra tiles outside the selected area.
+    for (let column = 0; column <= VISIBLE_GRID_COLUMNS; column++) {
+      const x = anchor.x + (column / VISIBLE_GRID_COLUMNS) * selected.columns;
+      const top = num2deg(x, anchor.y, anchor.z);
+      const bottom = num2deg(x, anchor.y + selected.rows, anchor.z);
+      const p1 = map.project({ lng: top.lon_deg, lat: top.lat_deg } as LngLatLike);
+      const p2 = map.project(
+        { lng: bottom.lon_deg, lat: bottom.lat_deg } as LngLatLike,
+      );
+      verticalLines.push({ x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y });
+    }
+
+    for (let row = 0; row <= VISIBLE_GRID_ROWS; row++) {
+      const y = anchor.y + (row / VISIBLE_GRID_ROWS) * selected.rows;
+      const left = num2deg(anchor.x, y, anchor.z);
+      const right = num2deg(anchor.x + selected.columns, y, anchor.z);
+      const p1 = map.project({ lng: left.lon_deg, lat: left.lat_deg } as LngLatLike);
+      const p2 = map.project({ lng: right.lon_deg, lat: right.lat_deg } as LngLatLike);
+      horizontalLines.push({ x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y });
+    }
+
+    const topRight = verticalLines[VISIBLE_GRID_COLUMNS]
+      ? {
+          x: verticalLines[VISIBLE_GRID_COLUMNS].x1,
+          y: verticalLines[VISIBLE_GRID_COLUMNS].y1,
+        }
+      : { x: 0, y: 0 };
+
+    const hasInvalidPoint = [...verticalLines, ...horizontalLines].some((line) =>
+      [line.x1, line.y1, line.x2, line.y2].some((value) => !Number.isFinite(value)),
+    );
+    if (hasInvalidPoint) return;
+
+    setScreenGeometry({ verticalLines, horizontalLines, topRight });
   }, [anchor, map]);
 
   useEffect(() => {
     if (!map || !anchor) return;
-    syncScreenRect();
-    map.on("move", syncScreenRect);
-    map.on("zoom", syncScreenRect);
+    syncScreenGeometry();
+    map.on("move", syncScreenGeometry);
+    map.on("zoom", syncScreenGeometry);
     const container = mapContainerRef.current;
-    let resizeObserver: ResizeObserver | null = null;
+    let ro: ResizeObserver | null = null;
     if (container && typeof ResizeObserver !== "undefined") {
-      resizeObserver = new ResizeObserver(syncScreenRect);
-      resizeObserver.observe(container);
+      ro = new ResizeObserver(syncScreenGeometry);
+      ro.observe(container);
     } else {
-      window.addEventListener("resize", syncScreenRect);
+      window.addEventListener("resize", syncScreenGeometry);
     }
     return () => {
-      map.off("move", syncScreenRect);
-      map.off("zoom", syncScreenRect);
-      if (resizeObserver) resizeObserver.disconnect();
-      else window.removeEventListener("resize", syncScreenRect);
+      map.off("move", syncScreenGeometry);
+      map.off("zoom", syncScreenGeometry);
+      if (ro) ro.disconnect();
+      else window.removeEventListener("resize", syncScreenGeometry);
     };
-  }, [anchor, map, mapContainerRef, syncScreenRect]);
+  }, [anchor, map, mapContainerRef, syncScreenGeometry]);
 
   useEffect(() => {
-    if (
-      !dragState.isDragging ||
-      !map ||
-      !dragState.startAnchor ||
-      !dragState.startTileFrac
-    )
+    if (!dragState.isDragging || !map || !dragState.startAnchor || !dragState.startTile)
       return;
-    const { startAnchor, startTileFrac } = dragState;
+    const { startAnchor, startTile } = dragState;
 
-    const handlePointerMove = (event: PointerEvent) => {
+    const updateAnchorFromPointer = (clientX: number, clientY: number) => {
       const container = mapContainerRef.current;
       if (!container) return;
       const rect = container.getBoundingClientRect();
-      const lngLat = map.unproject([
-        event.clientX - rect.left,
-        event.clientY - rect.top,
-      ]);
-      const currentFrac = getFracTileCoords(lngLat, GRID_ZOOM);
-      const tileDeltaX = currentFrac.x - startTileFrac.x;
-      const tileDeltaY = currentFrac.y - startTileFrac.y;
-      const deltaX =
-        Math.round(tileDeltaX / GRID_CELL_TILE_SPAN) * GRID_CELL_TILE_SPAN;
-      const deltaY =
-        Math.round(tileDeltaY / GRID_CELL_TILE_SPAN) * GRID_CELL_TILE_SPAN;
+      const lngLat = map.unproject([clientX - rect.left, clientY - rect.top]);
+      const { xtile, ytile } = lngLatToTileCoords(
+        lngLat.lat,
+        lngLat.lng,
+        startAnchor.z,
+      );
+      const dx = xtile - startTile.x;
+      const dy = ytile - startTile.y;
       setAnchor(
-        clampAnchor({
-          x: startAnchor.x + deltaX,
-          y: startAnchor.y + deltaY,
-          z: startAnchor.z,
-        }),
+        clampAnchor({ x: startAnchor.x + dx, y: startAnchor.y + dy, z: startAnchor.z }),
       );
     };
 
+    const flushPendingPointer = () => {
+      if (!pendingPointerRef.current) return;
+      const { x, y } = pendingPointerRef.current;
+      pendingPointerRef.current = null;
+      updateAnchorFromPointer(x, y);
+    };
+
+    const scheduleFrame = () => {
+      if (dragRafRef.current !== null) return;
+      dragRafRef.current = window.requestAnimationFrame(() => {
+        dragRafRef.current = null;
+        flushPendingPointer();
+        if (pendingPointerRef.current) scheduleFrame();
+      });
+    };
+
+    const handlePointerMove = (e: PointerEvent) => {
+      pendingPointerRef.current = { x: e.clientX, y: e.clientY };
+      scheduleFrame();
+    };
+
     const handlePointerUp = () => {
-      setDragState((prev) => ({ ...prev, isDragging: false }));
+      if (dragRafRef.current !== null) {
+        window.cancelAnimationFrame(dragRafRef.current);
+        dragRafRef.current = null;
+      }
+      flushPendingPointer();
+      if (dragState.dragPanWasEnabled && map.dragPan && !map.dragPan.isEnabled()) {
+        map.dragPan.enable();
+      }
+      setDragState((prev) => ({
+        ...prev,
+        isDragging: false,
+        startAnchor: null,
+        startTile: null,
+        dragPanWasEnabled: false,
+      }));
       handleRef.current?.blur();
     };
 
     window.addEventListener("pointermove", handlePointerMove);
     window.addEventListener("pointerup", handlePointerUp);
     return () => {
+      if (dragRafRef.current !== null) {
+        window.cancelAnimationFrame(dragRafRef.current);
+        dragRafRef.current = null;
+      }
+      pendingPointerRef.current = null;
       window.removeEventListener("pointermove", handlePointerMove);
       window.removeEventListener("pointerup", handlePointerUp);
     };
   }, [dragState, map, mapContainerRef]);
 
-  const handleDragStart = (event: ReactPointerEvent<HTMLButtonElement>) => {
+  const handleDragStart = (e: ReactPointerEvent<HTMLButtonElement>) => {
     if (!map || !anchor) return;
-    event.preventDefault();
-    event.stopPropagation();
+    e.preventDefault();
+    e.stopPropagation();
     const container = mapContainerRef.current;
     if (!container) return;
     const rect = container.getBoundingClientRect();
-    const lngLat = map.unproject([
-      event.clientX - rect.left,
-      event.clientY - rect.top,
-    ]);
+    const lngLat = map.unproject([e.clientX - rect.left, e.clientY - rect.top]);
+    const { xtile, ytile } = lngLatToTileCoords(lngLat.lat, lngLat.lng, anchor.z);
+    isUserPositionedRef.current = true;
+    const dragPanWasEnabled = map.dragPan ? map.dragPan.isEnabled() : false;
+    if (dragPanWasEnabled) map.dragPan.disable();
     setDragState({
       isDragging: true,
       startAnchor: anchor,
-      startTileFrac: getFracTileCoords(lngLat, GRID_ZOOM),
+      startTile: { x: xtile, y: ytile },
+      dragPanWasEnabled,
     });
-    setHasDragged(true);
   };
 
-  const gridBackgroundWidthSize = useMemo(() => `${100 / GRID_COLUMNS}%`, []);
-  const gridBackgroundHeightSize = useMemo(() => `${100 / GRID_ROWS}%`, []);
-
-  if (!screenRect) return null;
-
+  if (!screenGeometry) return null;
   return (
-    <div
-      className="absolute inset-0 pointer-events-none"
-      style={{ zIndex: 10 }}
-    >
-      <div
-        className="absolute border-2 border-red-500 rounded-sm shadow-[0_0_0_1px_rgba(239,68,68,0.25)]"
+    <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 1 }}>
+      <svg className="absolute inset-0 w-full h-full overflow-visible">
+        {screenGeometry.verticalLines.map((line, index) => (
+          <polyline
+            key={`grid-v-${index}`}
+            points={toPointString(line)}
+            fill="none"
+            stroke="#EF4444"
+            strokeOpacity={
+              index === 0 || index === VISIBLE_GRID_COLUMNS ? 1 : 0.75
+            }
+            strokeWidth={index === 0 || index === VISIBLE_GRID_COLUMNS ? 2 : 1}
+          />
+        ))}
+        {screenGeometry.horizontalLines.map((line, index) => (
+          <polyline
+            key={`grid-h-${index}`}
+            points={toPointString(line)}
+            fill="none"
+            stroke="#EF4444"
+            strokeOpacity={index === 0 || index === VISIBLE_GRID_ROWS ? 1 : 0.75}
+            strokeWidth={index === 0 || index === VISIBLE_GRID_ROWS ? 2 : 1}
+          />
+        ))}
+      </svg>
+
+      <button
+        ref={handleRef}
+        type="button"
+        onPointerDown={handleDragStart}
+        title="Move grid"
+        className={`absolute z-20 pointer-events-auto rounded-full bg-white border border-primary p-1.5 shadow-sm ${
+          dragState.isDragging ? "cursor-grabbing" : "cursor-grab"
+        }`}
         style={{
-          width: `${screenRect.width}px`,
-          height: `${screenRect.height}px`,
-          left: `${screenRect.x}px`,
-          top: `${screenRect.y}px`,
-          backgroundImage:
-            "linear-gradient(to right, rgba(239,68,68,0.75) 1px, transparent 1px), linear-gradient(to bottom, rgba(239,68,68,0.75) 1px, transparent 1px)",
-          backgroundSize: `${gridBackgroundWidthSize} 100%, 100% ${gridBackgroundHeightSize}`,
-          backgroundPosition: "-1px -1px",
+          left: `${screenGeometry.topRight.x}px`,
+          top: `${screenGeometry.topRight.y}px`,
+          transform: "translate(-50%, -50%)",
         }}
       >
-        <button
-          ref={handleRef}
-          type="button"
-          onPointerDown={handleDragStart}
-          title="Move grid"
-          className={`absolute -top-4 -right-4 z-20 pointer-events-auto rounded-full bg-white border border-red-500 p-1.5 shadow-sm ${dragState.isDragging ? "cursor-grabbing" : "cursor-grab"}`}
-        >
-          <ArrowMoveIcon className="w-4 h-4 text-red-600" />
-        </button>
-      </div>
+        <ArrowMoveIcon className="w-4 h-4 text-red-600" />
+      </button>
     </div>
   );
 };

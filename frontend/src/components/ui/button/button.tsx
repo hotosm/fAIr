@@ -18,6 +18,7 @@ type ButtonProps = {
   rounded?: boolean;
   type?: "button" | "submit";
   contentClassName?: string;
+  fontSize?: React.CSSProperties["fontSize"];
 };
 const Button: React.FC<ButtonProps> = ({
   children,
@@ -31,6 +32,7 @@ const Button: React.FC<ButtonProps> = ({
   rounded = false,
   type = "button",
   contentClassName,
+  fontSize,
 }) => {
   const spinnerColor = variant === "primary" ? "white" : "red";
   const trackColor = variant === "primary" ? "red" : "white";
@@ -43,7 +45,9 @@ const Button: React.FC<ButtonProps> = ({
       className={cn(
         `button ${variant} ${rounded ? "rounded" : ""} ${className} `,
       )}
-      style={{ width: "100%" }}
+      style={{ width: "100%",
+
+       }}
       //@ts-expect-error bad type definition
       onClick={onClick}
       disabled={disabled}
@@ -54,6 +58,7 @@ const Button: React.FC<ButtonProps> = ({
         className={cn(
           `flex items-center gap-x-2 ${contentClassName} capitalize`,
         )}
+        style={fontSize ? { fontSize } : undefined}
       >
         {children}
         {spinner && (

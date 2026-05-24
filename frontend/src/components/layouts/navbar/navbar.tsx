@@ -1,7 +1,7 @@
 import styles from "@/components/layouts/navbar/navbar.module.css";
 import { Button } from "@/components/ui/button";
 import { Drawer } from "@/components/ui/drawer";
-import { DrawerPlacements } from "@/enums";
+import { ButtonVariant, DrawerPlacements } from "@/enums";
 import { HamburgerIcon } from "@/assets/svgs";
 import { Image } from "@/components/ui/image";
 import { Link } from "@/components/ui/link";
@@ -114,6 +114,8 @@ export const NavBar = () => {
                     ? true
                     : false
                 }
+              variant={  location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR) ? ButtonVariant.TERTIARY : ButtonVariant.PRIMARY}
+
                 onClick={() => {
                   /*
                    * Set the `backgroundLocation` in location state so that when we open the authentication modal we still see the current page in the background.
@@ -156,6 +158,8 @@ export const NavBar = () => {
           ) : (
             <Button
               className={styles.loginButton}
+              variant={  location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR) ? ButtonVariant.TERTIARY : ButtonVariant.PRIMARY}
+
               rounded={
                 location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR)
                   ? true

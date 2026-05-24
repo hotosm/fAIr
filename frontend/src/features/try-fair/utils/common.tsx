@@ -48,3 +48,11 @@ export const OUTPUT_TYPES: {
     icon: <ClusterIcon />,
   },
 ];
+
+
+
+export const TRY_FAIR_RESOLUTION_ZOOM: Record<TryFairResolution, number> = {
+  [TryFairResolution.LOW]: 17,
+  [TryFairResolution.MID]: 18,
+  [TryFairResolution.HIGH]: 19,
+};

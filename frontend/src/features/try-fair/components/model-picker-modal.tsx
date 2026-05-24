@@ -1,30 +1,41 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { ChevronDownIcon, CloseIcon } from "@/components/ui/icons";
-import { TryFairModel } from "@/features/try-fair/models";
-import { BuildingIcon } from "@/components/ui/icons/buildings-icon";
-import { TreesIcon } from "@/components/ui/icons/trees-icon";
-import { SolarPanelIcon } from "@/components/ui/icons/solar-panel-icon";
+import { BaseModelStacItem } from "@/features/try-fair/api/stac";
 
 type ModelPickerProps = {
-  selectedModel: TryFairModel;
-  onSelect: (model: TryFairModel) => void;
-  models: TryFairModel[];
+   selectedModel: BaseModelStacItem | null;
+  onSelect: (model: BaseModelStacItem) => void;
+   models: BaseModelStacItem[];
+  loading?: boolean;
+
 };
 
-const FeatureBadge = ({ label, type }: { label: string; type: string }) => (
-  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-grey text-white text-xs font-medium">
-    {type === "building" && <BuildingIcon />}
-    {type === "trees" && <TreesIcon />}
-    {type === "solar-panel" && <SolarPanelIcon />}
-    {label}
-  </span>
-);
+// const FeatureBadge = ({ label, type }: { label: string; type: string }) => (
+//   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-grey text-white text-xs font-medium">
+//     {type === "building" && <BuildingIcon />}
+//     {type === "trees" && <TreesIcon />}
+//     {type === "solar-panel" && <SolarPanelIcon />}
+//     {label}
+//   </span>
+// );
 
+
+const FeatureBadge = ({ label }: { label: string }) => {
+  const featureLabel = label
+    .replace(/-/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+  return (
+    <span className="inline-flex items-center px-2 py-0.5 rounded bg-grey text-white text-xs font-medium">
+      {featureLabel}
+    </span>
+  );
+};
 export const ModelPicker: React.FC<ModelPickerProps> = ({
   selectedModel,
   onSelect,
   models,
+  loading = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [panelStyle, setPanelStyle] = useState<React.CSSProperties>({});
@@ -70,7 +81,7 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
     return () => document.removeEventListener("mousedown", handler);
   }, [isOpen]);
 
-  const handleSelect = (model: TryFairModel) => {
+const handleSelect = (model: BaseModelStacItem) => {
     onSelect(model);
     setIsOpen(false);
   };
@@ -84,13 +95,21 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
         onClick={() => setIsOpen((v) => !v)}
         className="flex  h-[40px] justify-between gap-2 items-center w-full min-w-0"
       >
-        <div className="text-left min-w-0">
-          <p className="font-medium text-dark text-xs leading-tight truncate">
-            {selectedModel.feature}
-          </p>
-          <p className="text-grey  text-xs leading-tight">
-            {selectedModel.location}
-          </p>
+         <div className="text-left min-w-0">
+          {loading ? (
+            <p className="text-grey text-xs animate-pulse">Loading models…</p>
+          ) : selectedModel ? (
+            <>
+              <p className="font-medium text-dark text-xs leading-tight truncate">
+                {selectedModel.properties["mlm:architecture"]}
+              </p>
+              <p className="text-grey text-xs leading-tight truncate">
+                {selectedModel.properties.title}
+              </p>
+            </>
+          ) : (
+            <p className="text-grey text-xs">Select a model</p>
+          )}
         </div>
         <ChevronDownIcon
           className={`w-4 h-4 shrink-0 text-grey transition-transform ${isOpen ? "rotate-180" : ""}`}
@@ -122,8 +141,47 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
 
             {/* 2-column card grid */}
             <div className="grid grid-cols-2 gap-3">
-              {models.map((model) => {
-                const isSelected = selectedModel.id === model.id;
+                 {models.map((model) => {
+                const isSelected = selectedModel?.id === model.id;
+                const tasks = model.properties["mlm:tasks"] ?? [];
+              
+                return (
+                  <button
+                    key={model.id}
+                    type="button"
+                    onClick={() => handleSelect(model)}
+                      className={`text-left p-3 bg-frosted-blue rounded-lg border-2  ${
+                      isSelected ? "border-primary" : "border-gray-border"
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-2 mb-1">
+                      <p className="text-dark text-sm font-bold leading-tight">
+                        {model.properties["mlm:architecture"]}
+                      </p>
+                      <span
+                       className={`mt-0.5 shrink-0 w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                          isSelected ? "border-primary" : "border-gray-border"
+                        }`}
+                      >
+                        {isSelected && (
+                          <span className="w-2 h-2 rounded-full bg-primary" />
+                        )}
+                      </span>
+                    </div>
+                    <p className="text-gray-500 text-xs mb-2 line-clamp-2 leading-relaxed">
+                      {model.properties.description}
+                    </p>
+                    <div className="flex flex-wrap gap-1">
+                      {tasks.map((t) => (
+                        <FeatureBadge  key={t} label={t} />
+                      ))}
+                    </div>
+                  </button>
+                );
+              })}
+              {/* {models.map((model) => {
+                const isSelected = selectedModel?.id === model.id;
+                const tasks = model.properties["mlm:tasks"] ?? [];
                 return (
                   <button
                     key={model.id}
@@ -152,12 +210,11 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
                     </p>
                     <p className="text-grey text-xs mb-2">By: {model.author}</p>
                     <FeatureBadge
-                      type={model.featureType}
                       label={model.feature}
                     />
                   </button>
                 );
-              })}
+              })} */}
             </div>
           </div>,
           document.body,

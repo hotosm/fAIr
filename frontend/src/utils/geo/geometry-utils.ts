@@ -95,7 +95,7 @@ const degrees_to_radians = (degrees: number): number => {
  *  - `xtile` {number}: The tile number on the x-axis.
  *  - `ytile` {number}: The tile number on the y-axis.
  */
-const deg2num = (
+export const deg2num = (
   lat_deg: number,
   lon_deg: number,
   zoom: number,
@@ -119,7 +119,7 @@ const deg2num = (
  *
  * @returns {number} The angle in degress.
  */
-const radians_to_degrees = (radians: number): number => {
+export const radians_to_degrees = (radians: number): number => {
   const pi = Math.PI;
   return radians * (180 / pi);
 };
@@ -135,7 +135,7 @@ const radians_to_degrees = (radians: number): number => {
  *  - `lat_deg` {number}: The latitude in degrees.
  *  - `lon_deg` {number}: The longitude in degrees.
  */
-const num2deg = (
+export const num2deg = (
   xtile: number,
   ytile: number,
   zoom: number,

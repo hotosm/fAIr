@@ -59,10 +59,12 @@ export const Legend = ({
   disableDefaultPrediction = false,
   title = "Predictions",
   items,
+  position = "bottom-right",
 }: {
   disableDefaultPrediction?: boolean;
   title?: string;
   items?: LegendItem[];
+  position?: "bottom-right" | "bottom-left";
 }) => {
   const { isSmallViewport } = useScreenSize();
   const [expandLegend, setExpandLegend] = useState(true);
@@ -84,7 +86,9 @@ export const Legend = ({
       className={`flex z-10 items-center gap-x-4 bg-white p-2.5 rounded-xl ${
         isSmallViewport
           ? "border border-gray-border"
-          : "absolute flex-col gap-y-4 left-3 bottom-3 rounded-[4px] border border-gray-border"
+          : position === "bottom-right"
+            ? "absolute flex-col gap-y-4 right-3 bottom-3 rounded-[4px] border border-gray-border"
+            : "absolute flex-col gap-y-4 left-3 bottom-3 rounded-[4px] border border-gray-border"
       }`}
       onClick={handleToggleExpand}
     >
