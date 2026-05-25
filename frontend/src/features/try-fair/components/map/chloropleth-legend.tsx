@@ -10,7 +10,7 @@ type Props = {
 
 export const TryFairChoroplethLegend = ({
   buckets,
-  title = "Legend",
+  title = "Buildings per cell",
   fillOpacity = 0.75,
 }: Props) => {
   if (!buckets || buckets.length === 0) return null;

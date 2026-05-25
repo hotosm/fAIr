@@ -87,7 +87,7 @@ export const Legend = ({
         isSmallViewport
           ? "border border-gray-border"
           : position === "bottom-right"
-            ? "absolute flex-col gap-y-4 right-3 bottom-3 rounded-[4px] border border-gray-border"
+            ? "absolute flex-col gap-y-4 right-3 bottom-20 rounded-[4px] border border-gray-border"
             : "absolute flex-col gap-y-4 left-3 bottom-3 rounded-[4px] border border-gray-border"
       }`}
       onClick={handleToggleExpand}

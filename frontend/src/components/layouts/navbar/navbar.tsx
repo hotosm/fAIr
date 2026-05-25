@@ -114,6 +114,7 @@ export const NavBar = () => {
                     ? true
                     : false
                 }
+                size={ location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR) ? "medium" : "large" }
                 variant={
                   location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR)
                     ? ButtonVariant.TERTIARY
@@ -166,6 +167,8 @@ export const NavBar = () => {
                   ? ButtonVariant.TERTIARY
                   : ButtonVariant.PRIMARY
               }
+                size={ location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR) ? "medium" : "large" }
+
               rounded={
                 location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR)
                   ? true

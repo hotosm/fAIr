@@ -1,7 +1,7 @@
 import { MapComponent } from "@/components/map";
 import { Map } from "maplibre-gl";
 import { RefObject, useCallback, useRef, useState } from "react";
-import { TryFairMapOutputType } from "@/enums/try-fair";
+import { TryFairMapOutputType, TryFairResolution } from "@/enums/try-fair";
 import { BBOX } from "@/types";
 import { TryFairDraggableGrid } from "@/features/try-fair/components/map/draggable-grid";
 import { TryFairPredictionsLayer } from "@/features/try-fair/components/map/try-fair-prediction-results";
@@ -26,6 +26,8 @@ type TryFairMapProps = {
   predictionBBox: BBOX | null;
   predictionGridZoom?: number | null;
   imageryCenter?: [number, number];
+  resolution?: TryFairResolution;
+  modelId?: string | null;
 };
 
 export const TryFairMap = ({
@@ -39,12 +41,23 @@ export const TryFairMap = ({
   predictionBBox,
   predictionGridZoom,
   imageryCenter,
+  resolution,
+  modelId,
 }: TryFairMapProps) => {
   const [choroplethBuckets, setChoroplethBuckets] = useState<
     ChoroplethBucket[] | null
   >(null);
   // Track the grid bbox locally so fit-to-grid always has the latest value
   const gridBBoxRef = useRef<BBOX | null>(null);
+
+  // Intercept bbox changes so gridBBoxRef always has the latest value
+  const handleBBoxChange = useCallback(
+    (bbox: BBOX, tileZoom: number) => {
+      gridBBoxRef.current = bbox;
+      onBBoxChange(bbox, tileZoom);
+    },
+    [onBBoxChange],
+  );
 
   const handleFitToGrid = useCallback(() => {
     const bbox = gridBBoxRef.current;
@@ -79,8 +92,10 @@ export const TryFairMap = ({
         <TryFairDraggableGrid
           map={map}
           mapContainerRef={mapContainerRef}
-          onBBoxChange={onBBoxChange}
+          onBBoxChange={handleBBoxChange}
           center={imageryCenter}
+          resolution={resolution}
+          modelId={modelId}
         />
       )}
 

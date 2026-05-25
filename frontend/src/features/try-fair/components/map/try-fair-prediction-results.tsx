@@ -1,7 +1,7 @@
 import { TryFairMapOutputType } from "@/enums/try-fair";
 import { BBOX } from "@/types";
-import { ExpressionSpecification, Map } from "maplibre-gl";
-import { useEffect, useMemo } from "react";
+import { ExpressionSpecification, Map, MapMouseEvent } from "maplibre-gl";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   buildChoropleth,
   computeChoroplethBuckets,
@@ -49,6 +49,12 @@ type Props = {
   ) => void;
 };
 
+type HoverTooltip = {
+  x: number;
+  y: number;
+  count: number;
+} | null;
+
 export const TryFairPredictionsLayer = ({
   map,
   predictions,
@@ -77,6 +83,12 @@ export const TryFairPredictionsLayer = ({
   useEffect(() => {
     onChoroplethBucketsChange?.(buckets);
   }, [buckets, onChoroplethBucketsChange]);
+
+  // ── Hover tooltip state ────────────────────────────────────────────────────
+  const [tooltip, setTooltip] = useState<HoverTooltip>(null);
+  // Keep a ref so event handlers always read the latest map without stale closure
+  const mapRef = useRef<Map | null>(null);
+  mapRef.current = map;
 
   useEffect(() => {
     if (!map || !map.getStyle()) return;
@@ -161,5 +173,73 @@ export const TryFairPredictionsLayer = ({
     };
   }, [map, predictions, predictionBBox, outputType, choropleth, buckets]);
 
-  return null;
+  // ── Choropleth hover interactions ──────────────────────────────────────────
+  useEffect(() => {
+    if (!map || outputType !== TryFairMapOutputType.CLUSTER) {
+      setTooltip(null);
+      return;
+    }
+
+    const handleMouseMove = (e: MapMouseEvent) => {
+      const features = map.queryRenderedFeatures(e.point, {
+        layers: [CHOROPLETH_FILL_LAYER],
+      });
+      if (!features.length) {
+        setTooltip(null);
+        map.getCanvas().style.cursor = "";
+        return;
+      }
+      const count = (features[0].properties?.count as number) ?? 0;
+      map.getCanvas().style.cursor = "pointer";
+      setTooltip({ x: e.point.x, y: e.point.y, count });
+    };
+
+    const handleMouseLeave = () => {
+      setTooltip(null);
+      map.getCanvas().style.cursor = "";
+    };
+
+    map.on("mousemove", CHOROPLETH_FILL_LAYER, handleMouseMove);
+    map.on("mouseleave", CHOROPLETH_FILL_LAYER, handleMouseLeave);
+
+    return () => {
+      map.off("mousemove", CHOROPLETH_FILL_LAYER, handleMouseMove);
+      map.off("mouseleave", CHOROPLETH_FILL_LAYER, handleMouseLeave);
+      map.getCanvas().style.cursor = "";
+      setTooltip(null);
+    };
+  }, [map, outputType]);
+
+  if (!tooltip) return null;
+
+  return (
+    <div
+      className="pointer-events-none absolute z-50"
+      style={{ left: tooltip.x, top: tooltip.y }}
+    >
+      {/* Offset so the tooltip doesn't sit directly under the cursor */}
+      <div
+        className="relative"
+        style={{ transform: "translate(12px, -50%)" }}
+      >
+        <div className="bg-white/95 backdrop-blur-sm border border-gray-200 rounded-lg shadow-lg px-3 py-2 flex flex-col items-start gap-0.5 min-w-[120px]">
+          <p className="text-[10px] font-medium text-gray-500 uppercase tracking-wide leading-none">
+            Buildings detected
+          </p>
+          <p className="text-base font-bold text-purple-700 leading-tight">
+            {tooltip.count.toLocaleString()}
+          </p>
+        </div>
+        {/* Arrow pointing left toward cursor */}
+        <div
+          className="absolute top-1/2 -left-[6px] -translate-y-1/2 w-0 h-0"
+          style={{
+            borderTop: "6px solid transparent",
+            borderBottom: "6px solid transparent",
+            borderRight: "6px solid white",
+          }}
+        />
+      </div>
+    </div>
+  );
 };

@@ -19,6 +19,7 @@ import {
   VISIBLE_GRID_COLUMNS,
   VISIBLE_GRID_ROWS,
 } from "@/features/try-fair/utils/common";
+import { TryFairResolution } from "@/enums/try-fair";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -123,12 +124,18 @@ export const TryFairDraggableGrid = ({
   mapContainerRef,
   onBBoxChange,
   center,
+  resolution,
+  modelId,
 }: {
   map: Map | null;
   mapContainerRef: RefObject<HTMLDivElement | null>;
   onBBoxChange: (bbox: BBOX, tileZoom: number) => void;
   /** Imagery center from tileJSON — snaps the grid here when it resolves */
   center?: [number, number];
+  /** Current resolution selection — triggers a re-center when it changes */
+  resolution?: TryFairResolution;
+  /** Selected model ID — triggers a re-center when the model changes */
+  modelId?: string | null;
 }) => {
   const [anchor, setAnchor] = useState<TileAnchor | null>(null);
   const [screenGeometry, setScreenGeometry] =
@@ -168,6 +175,25 @@ export const TryFairDraggableGrid = ({
 
     previousCenterRef.current = nextCenter;
   }, [map, center, anchor]);
+
+  // Re-center the grid when resolution changes (zoom will ease to match).
+  useEffect(() => {
+    if (!map || resolution === undefined) return;
+    isUserPositionedRef.current = false;
+    // Snap the grid immediately to the map center at the current grid zoom.
+    setAnchor(getCenteredAnchor(map.getCenter(), getGridZoomFromMap(map)));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resolution]);
+
+  // Re-center the grid when the model changes.
+  useEffect(() => {
+    if (!map || !modelId) return;
+    isUserPositionedRef.current = false;
+    // Clear the remembered imagery center so the new model's center triggers a fresh snap.
+    previousCenterRef.current = null;
+    setAnchor(getCenteredAnchor(map.getCenter(), getGridZoomFromMap(map)));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [modelId]);
 
   // Re-tile at every tile zoom change while preserving the current area centre.
   useEffect(() => {

@@ -196,7 +196,7 @@ export const TryFairPage = () => {
     <>
       <Head title={TRY_FAIR_PAGE_CONTENT.pageTitle} />
 
-      <div className="flex  h-[87vh] flex-col fullscreen">
+      <div className="flex  h-[92vh] flex-col fullscreen">
         <div className="flex-grow relative">
           <TryFairMap
             map={map}
@@ -210,6 +210,8 @@ export const TryFairPage = () => {
             predictionBBox={predictionBBox}
             predictionGridZoom={predictionGridZoom}
             imageryCenter={imageryCenter}
+            resolution={resolution}
+            modelId={modelId}
           />
 
           <div className="absolute top-4 left-4 z-10">

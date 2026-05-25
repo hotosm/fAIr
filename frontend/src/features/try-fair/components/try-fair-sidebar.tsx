@@ -94,7 +94,7 @@ export const TryFairSidebar = ({
               title={label}
               disabled={isPredicting}
               aria-label={label}
-              className={`flex-1 flex items-center justify-center py-2 rounded-lg ${
+              className={`flex-1 flex disabled:cursor-not-allowed items-center justify-center py-2 rounded-lg ${
                 outputType === type
                   ? "bg-secondary text-primary"
                   : "bg-off-white"
@@ -189,7 +189,7 @@ export const TryFairSidebar = ({
                     onChange={(e) =>
                       onParamChange(key, parseFloat(e.target.value))
                     }
-                    className="try-fair-confidence-slider flex-1 h-1.5 rounded-full appearance-none cursor-pointer outline-none"
+                    className="try-fair-confidence-slider disabled:cursor-not-allowed flex-1 h-1.5 rounded-full appearance-none cursor-pointer outline-none"
                     style={{
                       background: `linear-gradient(90deg, #0088FF 0%, #FF383C 100%)`,
                     }}
