@@ -92,6 +92,7 @@ export const TryFairSidebar = ({
               type="button"
               onClick={() => onOutputTypeChange(type)}
               title={label}
+              disabled={isPredicting}
               aria-label={label}
               className={`flex-1 flex items-center justify-center py-2 rounded-lg ${
                 outputType === type
@@ -143,6 +144,7 @@ export const TryFairSidebar = ({
               <button
                 key={value}
                 type="button"
+                disabled={isPredicting}
                 onClick={() => onResolutionChange(value)}
                 className={`flex-1 gap-1 flex text-xs items-center justify-center py-2 rounded-lg ${
                   resolution === value ? "bg-secondary" : "bg-off-white"
@@ -182,6 +184,7 @@ export const TryFairSidebar = ({
                     min={min}
                     max={max}
                     step={0.01}
+                    disabled={isPredicting}
                     value={Number(value)}
                     onChange={(e) =>
                       onParamChange(key, parseFloat(e.target.value))
