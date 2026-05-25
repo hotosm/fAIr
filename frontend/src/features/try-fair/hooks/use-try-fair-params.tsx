@@ -18,7 +18,7 @@ export const useTryFairParams = () => {
     {
       model: parseAsString.withDefault("unet-segmentation"),
       output: parseAsString.withDefault(TryFairMapOutputType.POINTS),
-      resolution: parseAsString.withDefault(TryFairResolution.LOW),
+      resolution: parseAsString.withDefault(TryFairResolution.MID),
       confidence: parseAsFloat.withDefault(0.5),
     },
     { history: "replace" },

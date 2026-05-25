@@ -218,10 +218,7 @@ export const TryFairPredictionsLayer = ({
       style={{ left: tooltip.x, top: tooltip.y }}
     >
       {/* Offset so the tooltip doesn't sit directly under the cursor */}
-      <div
-        className="relative"
-        style={{ transform: "translate(12px, -50%)" }}
-      >
+      <div className="relative" style={{ transform: "translate(12px, -50%)" }}>
         <div className="bg-white/95 backdrop-blur-sm border border-gray-200 rounded-lg shadow-lg px-3 py-2 flex flex-col items-start gap-0.5 min-w-[120px]">
           <p className="text-[10px] font-medium text-gray-500 uppercase tracking-wide leading-none">
             Buildings detected

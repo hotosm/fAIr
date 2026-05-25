@@ -182,7 +182,7 @@ export const TryFairDraggableGrid = ({
     isUserPositionedRef.current = false;
     // Snap the grid immediately to the map center at the current grid zoom.
     setAnchor(getCenteredAnchor(map.getCenter(), getGridZoomFromMap(map)));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resolution]);
 
   // Re-center the grid when the model changes.
@@ -192,7 +192,7 @@ export const TryFairDraggableGrid = ({
     // Clear the remembered imagery center so the new model's center triggers a fresh snap.
     previousCenterRef.current = null;
     setAnchor(getCenteredAnchor(map.getCenter(), getGridZoomFromMap(map)));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [modelId]);
 
   // Re-tile at every tile zoom change while preserving the current area centre.

@@ -50,6 +50,7 @@ export const NavBar = () => {
   const navigate = useNavigate();
 
   const location = useLocation();
+  const isTryFairPage = location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR);
 
   return (
     <>
@@ -69,7 +70,7 @@ export const NavBar = () => {
               &#x2715;
             </button>
           </div>
-          {!location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR) && (
+          {!isTryFairPage && (
             <div className={styles.navLinksContainer}>
               <NavBarLinks
                 className={styles.mobileNavLinks}
@@ -109,17 +110,9 @@ export const NavBar = () => {
               />
             ) : (
               <Button
-                rounded={
-                  location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR)
-                    ? true
-                    : false
-                }
-                size={ location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR) ? "medium" : "large" }
-                variant={
-                  location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR)
-                    ? ButtonVariant.TERTIARY
-                    : ButtonVariant.PRIMARY
-                }
+                rounded={isTryFairPage}
+                size={isTryFairPage ? "medium" : "large"}
+                variant={isTryFairPage ? ButtonVariant.TERTIARY : ButtonVariant.PRIMARY}
                 onClick={() => {
                   /*
                    * Set the `backgroundLocation` in location state so that when we open the authentication modal we still see the current page in the background.
@@ -129,7 +122,7 @@ export const NavBar = () => {
                   });
                 }}
               >
-                {location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR)
+                {isTryFairPage
                   ? SHARED_CONTENT.homepage.ctaSecondaryButton
                   : SHARED_CONTENT.navbar.loginButton}
               </Button>
@@ -142,7 +135,7 @@ export const NavBar = () => {
         className={`${styles.nav} app-padding z-20 py-1 border-b border-gray-border`}
       >
         <NavLogo />
-        {!location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR) && (
+        {!isTryFairPage && (
           <div className="hidden sm:flex">
             <NavBarLinks className={styles.webNavLinks} />
           </div>
@@ -162,18 +155,9 @@ export const NavBar = () => {
           ) : (
             <Button
               className={styles.loginButton}
-              variant={
-                location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR)
-                  ? ButtonVariant.TERTIARY
-                  : ButtonVariant.PRIMARY
-              }
-                size={ location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR) ? "medium" : "large" }
-
-              rounded={
-                location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR)
-                  ? true
-                  : false
-              }
+              variant={isTryFairPage ? ButtonVariant.TERTIARY : ButtonVariant.PRIMARY}
+              size={isTryFairPage ? "medium" : "large"}
+              rounded={isTryFairPage}
               onClick={() => {
                 /*
                  * Set the `backgroundLocation` in location state so that when we open the authentication modal we still see the current page in the background.
@@ -183,7 +167,7 @@ export const NavBar = () => {
                 });
               }}
             >
-              {location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR)
+              {isTryFairPage
                 ? SHARED_CONTENT.homepage.ctaSecondaryButton
                 : SHARED_CONTENT.navbar.loginButton}
             </Button>
