@@ -212,6 +212,7 @@ export const TryFairPage = () => {
             imageryCenter={imageryCenter}
             resolution={resolution}
             modelId={modelId}
+            isPredicting={isPredicting}
           />
 
           <div className="absolute top-4 left-4 z-10">

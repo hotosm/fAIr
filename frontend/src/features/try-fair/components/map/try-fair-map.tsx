@@ -1,6 +1,6 @@
 import { MapComponent } from "@/components/map";
 import { Map } from "maplibre-gl";
-import { RefObject, useCallback, useRef, useState } from "react";
+import { RefObject, useCallback, useEffect, useRef, useState } from "react";
 import { TryFairMapOutputType, TryFairResolution } from "@/enums/try-fair";
 import { BBOX } from "@/types";
 import { TryFairDraggableGrid } from "@/features/try-fair/components/map/draggable-grid";
@@ -28,6 +28,7 @@ type TryFairMapProps = {
   imageryCenter?: [number, number];
   resolution?: TryFairResolution;
   modelId?: string | null;
+  isPredicting?: boolean;
 };
 
 export const TryFairMap = ({
@@ -43,6 +44,7 @@ export const TryFairMap = ({
   imageryCenter,
   resolution,
   modelId,
+  isPredicting = false,
 }: TryFairMapProps) => {
   const [choroplethBuckets, setChoroplethBuckets] = useState<
     ChoroplethBucket[] | null
@@ -68,6 +70,31 @@ export const TryFairMap = ({
     });
   }, [map]);
 
+  // Disable all map interactions while a prediction is running so the grid
+  // stays anchored over the area that was submitted.
+  useEffect(() => {
+    if (!map) return;
+    const handlers = [
+      map.scrollZoom,
+      map.boxZoom,
+      map.dragRotate,
+      map.dragPan,
+      map.keyboard,
+      map.doubleClickZoom,
+      map.touchZoomRotate,
+      map.touchPitch,
+    ];
+    if (isPredicting) {
+      handlers.forEach((h) => h?.disable());
+    } else {
+      handlers.forEach((h) => h?.enable());
+    }
+    return () => {
+      // Always re-enable on unmount/cleanup to avoid getting stuck
+      handlers.forEach((h) => h?.enable());
+    };
+  }, [map, isPredicting]);
+
   return (
     <div className="relative w-full h-full  overflow-hidden">
       <MapComponent
@@ -77,6 +104,7 @@ export const TryFairMap = ({
         tileServiceURL={tileServiceValid ? tileServerURL : undefined}
         zoomControls={false}
         basemaps
+        onTileServiceFitToBounds={handleFitToGrid}
       />
 
       <TryFairPredictionsLayer
@@ -96,6 +124,7 @@ export const TryFairMap = ({
           center={imageryCenter}
           resolution={resolution}
           modelId={modelId}
+          isPredicting={isPredicting}
         />
       )}
 
@@ -114,6 +143,7 @@ export const TryFairMap = ({
             bounds={null}
             onClick={handleFitToGrid}
             rounded={false}
+            tooltipContent="Zoom to grid bounds"
           />
 
           {/* Layers panel */}

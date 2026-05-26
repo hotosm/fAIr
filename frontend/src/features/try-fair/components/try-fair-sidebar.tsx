@@ -111,7 +111,7 @@ export const TryFairSidebar = ({
         {/* Section header */}
         <div className="flex items-center gap-2">
           <ParametersIcon />
-          <p className="text-dark text-xs">
+          <p className="text-dark font-bold uppercase text-xs">
             {TRY_FAIR_PAGE_CONTENT.sidebar.parameters.label}
           </p>
         </div>

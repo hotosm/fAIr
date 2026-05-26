@@ -119,10 +119,13 @@ export const useTileServiceLayer = ({
   map,
   tileServiceURL,
   addLayerToMap = false,
+  onFitToBounds,
 }: {
   map: MapInstance;
   tileServiceURL: string;
   addLayerToMap?: boolean;
+  /** Override the default fitBounds-to-imagery behavior when tileJSON loads. */
+  onFitToBounds?: () => void;
 }) => {
   const [error, setError] = useState<string>("");
 
@@ -211,7 +214,13 @@ export const useTileServiceLayer = ({
   };
 
   useEffect(() => {
-    fitToBounds();
+    if (!tileJSONMetadata) return;
+    if (onFitToBounds) {
+      onFitToBounds();
+    } else {
+      fitToBounds();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map, tileJSONMetadata]);
 
   const hasBounds = useMemo(() => {

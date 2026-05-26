@@ -126,6 +126,7 @@ export const TryFairDraggableGrid = ({
   center,
   resolution,
   modelId,
+  isPredicting = false,
 }: {
   map: Map | null;
   mapContainerRef: RefObject<HTMLDivElement | null>;
@@ -136,6 +137,8 @@ export const TryFairDraggableGrid = ({
   resolution?: TryFairResolution;
   /** Selected model ID — triggers a re-center when the model changes */
   modelId?: string | null;
+  /** When true, grid dragging is disabled */
+  isPredicting?: boolean;
 }) => {
   const [anchor, setAnchor] = useState<TileAnchor | null>(null);
   const [screenGeometry, setScreenGeometry] =
@@ -402,7 +405,7 @@ export const TryFairDraggableGrid = ({
   }, [dragState, map, mapContainerRef]);
 
   const handleDragStart = (e: ReactPointerEvent<HTMLButtonElement>) => {
-    if (!map || !anchor) return;
+    if (!map || !anchor || isPredicting) return;
     e.preventDefault();
     e.stopPropagation();
     const container = mapContainerRef.current;
@@ -459,9 +462,14 @@ export const TryFairDraggableGrid = ({
         ref={handleRef}
         type="button"
         onPointerDown={handleDragStart}
-        title="Move grid"
+        title={isPredicting ? "Grid locked during prediction" : "Move grid"}
+        disabled={isPredicting}
         className={`absolute z-20 pointer-events-auto rounded-full bg-white border border-primary p-1.5 shadow-sm ${
-          dragState.isDragging ? "cursor-grabbing" : "cursor-grab"
+          isPredicting
+            ? "opacity-40 cursor-not-allowed"
+            : dragState.isDragging
+              ? "cursor-grabbing"
+              : "cursor-grab"
         }`}
         style={{
           left: `${screenGeometry.topRight.x}px`,

@@ -39,6 +39,8 @@ type MapComponentProps = {
   zoomControls?: boolean;
   tileServiceURL?: string;
   hasTileServiceLayer?: boolean;
+  /** Override the default fitBounds-to-imagery behavior when tileJSON loads. */
+  onTileServiceFitToBounds?: () => void;
 };
 
 export const MapComponent: React.FC<MapComponentProps> = ({
@@ -57,6 +59,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
   zoomControls = true,
   tileServiceURL,
   hasTileServiceLayer = false,
+  onTileServiceFitToBounds,
 }) => {
   return (
     <div className={`h-full relative w-full`} ref={mapContainerRef}>
@@ -95,7 +98,11 @@ export const MapComponent: React.FC<MapComponentProps> = ({
       {/* Order according to how they'll be rendered */}
       {basemaps && <GoogleBasemapLayer map={map} />}
       {tileServiceURL && (
-        <TileServiceLayer tileServiceURL={tileServiceURL} map={map} />
+        <TileServiceLayer
+          tileServiceURL={tileServiceURL}
+          map={map}
+          onFitToBounds={onTileServiceFitToBounds}
+        />
       )}
       {children}
       {showTileBoundaries && <TileBoundaries map={map} />}
