@@ -193,7 +193,14 @@ export const TryFairPage = () => {
   const isMapButtonDisabled = !isDirty || !latestBBox || !demoConfig;
   useEffect(() => {
     if (autoTriggeredRef.current) return;
-    if (!map || !tileJSONMetadata || !gridZoomed || isMapButtonDisabled || isPredicting) return;
+    if (
+      !map ||
+      !tileJSONMetadata ||
+      !gridZoomed ||
+      isMapButtonDisabled ||
+      isPredicting
+    )
+      return;
     autoTriggeredRef.current = true;
     handleMap();
     // eslint-disable-next-line react-hooks/exhaustive-deps

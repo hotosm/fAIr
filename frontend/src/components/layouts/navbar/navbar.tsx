@@ -119,7 +119,9 @@ export const NavBar = () => {
                   rounded={isTryFairPage}
                   size={isTryFairPage ? "medium" : "large"}
                   variant={
-                    isTryFairPage ? ButtonVariant.TERTIARY : ButtonVariant.PRIMARY
+                    isTryFairPage
+                      ? ButtonVariant.TERTIARY
+                      : ButtonVariant.PRIMARY
                   }
                   onClick={() => {
                     /*

@@ -110,7 +110,9 @@ export const Legend = ({
       {!isSmallViewport && (
         <div className="w-full flex items-start justify-between gap-x-10">
           <div className="w-full">
-            <p className="w-full text-dark font-semibold text-body-2base">{title}</p>
+            <p className="w-full text-dark font-semibold text-body-2base">
+              {title}
+            </p>
             {subtitle && expandLegend && (
               <p className="w-full text-grey text-body-4 mt-0.5">{subtitle}</p>
             )}

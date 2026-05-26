@@ -5,7 +5,10 @@ type TryFairBannerProps = {
   onDismiss: () => void;
 };
 
-export const TryFairBanner = ({ mapClickCount, onDismiss }: TryFairBannerProps) => {
+export const TryFairBanner = ({
+  mapClickCount,
+  onDismiss,
+}: TryFairBannerProps) => {
   const isSecondRun = mapClickCount >= 2;
 
   return (
@@ -17,13 +20,15 @@ export const TryFairBanner = ({ mapClickCount, onDismiss }: TryFairBannerProps) 
             <p className="text-grey text-xs mt-1 leading-relaxed">
               Export your results and access advanced mapping tools.
             </p>
-            
           </>
         ) : (
           <>
-            <p className="text-dark font-semibold text-sm">Want more results?</p>
+            <p className="text-dark font-semibold text-sm">
+              Want more results?
+            </p>
             <p className="text-grey text-xs mt-1 leading-relaxed">
-              Try adjusting confidence or resolution — small changes can reveal more features.
+              Try adjusting confidence or resolution — small changes can reveal
+              more features.
             </p>
           </>
         )}

@@ -169,9 +169,7 @@ export const TryFairMap = ({
       )}
 
       {outputType === TryFairMapOutputType.POINTS && (
-        <TryFairPointsLegend
-          totalCount={predictions?.features.length ?? 0}
-        />
+        <TryFairPointsLegend totalCount={predictions?.features.length ?? 0} />
       )}
     </div>
   );

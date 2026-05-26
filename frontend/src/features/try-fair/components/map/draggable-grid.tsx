@@ -171,7 +171,9 @@ export const TryFairDraggableGrid = ({
       const target = nextCenter
         ? { lng: nextCenter[0], lat: nextCenter[1] }
         : map.getCenter();
-      setAnchor(getCenteredAnchor(target, getTileZoomForResolution(resolution)));
+      setAnchor(
+        getCenteredAnchor(target, getTileZoomForResolution(resolution)),
+      );
       isUserPositionedRef.current = false;
     }
 
@@ -185,7 +187,9 @@ export const TryFairDraggableGrid = ({
     const newTileZoom = TRY_FAIR_RESOLUTION_ZOOM[resolution];
     const center = map.getCenter();
     isUserPositionedRef.current = false;
-    setAnchor(getCenteredAnchor({ lng: center.lng, lat: center.lat }, newTileZoom));
+    setAnchor(
+      getCenteredAnchor({ lng: center.lng, lat: center.lat }, newTileZoom),
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resolution]);
 
@@ -260,9 +264,9 @@ export const TryFairDraggableGrid = ({
 
     const topRight = verticalLines[VISIBLE_GRID_COLUMNS]
       ? {
-        x: verticalLines[VISIBLE_GRID_COLUMNS].x1,
-        y: verticalLines[VISIBLE_GRID_COLUMNS].y1,
-      }
+          x: verticalLines[VISIBLE_GRID_COLUMNS].x1,
+          y: verticalLines[VISIBLE_GRID_COLUMNS].y1,
+        }
       : { x: 0, y: 0 };
 
     const hasInvalidPoint = [...verticalLines, ...horizontalLines].some(
@@ -448,12 +452,13 @@ export const TryFairDraggableGrid = ({
         onPointerDown={handleDragStart}
         title={isPredicting ? "Grid locked during prediction" : "Move grid"}
         disabled={isPredicting}
-        className={`absolute z-20 pointer-events-auto rounded-full bg-white border border-primary p-1.5 shadow-sm ${isPredicting
+        className={`absolute z-20 pointer-events-auto rounded-full bg-white border border-primary p-1.5 shadow-sm ${
+          isPredicting
             ? "opacity-40 cursor-not-allowed"
             : dragState.isDragging
               ? "cursor-grabbing"
               : "cursor-grab"
-          }`}
+        }`}
         style={{
           left: `${screenGeometry.topRight.x}px`,
           top: `${screenGeometry.topRight.y}px`,
