@@ -9,6 +9,7 @@ import { navLinks } from "@/constants/general";
 import { NavLogo } from "@/components/layouts";
 import { APPLICATION_ROUTES, SHARED_CONTENT } from "@/constants";
 import { useAuth } from "@/app/providers/auth-provider";
+import { useTryFairStore } from "@/store/try-fair-store";
 import { useLocation, useNavigate } from "react-router-dom";
 import { UserProfile } from "@/components/layouts";
 import { useState } from "react";
@@ -46,6 +47,7 @@ export const NavBar = () => {
   const [open, setOpen] = useState(false);
 
   const { isAuthenticated } = useAuth();
+  const highlightStartMapping = useTryFairStore((s) => s.highlightStartMapping);
 
   const navigate = useNavigate();
 
@@ -109,25 +111,30 @@ export const NavBar = () => {
                 setOpen={setOpen}
               />
             ) : (
-              <Button
-                rounded={isTryFairPage}
-                size={isTryFairPage ? "medium" : "large"}
-                variant={
-                  isTryFairPage ? ButtonVariant.TERTIARY : ButtonVariant.PRIMARY
-                }
-                onClick={() => {
-                  /*
-                   * Set the `backgroundLocation` in location state so that when we open the authentication modal we still see the current page in the background.
-                   */
-                  navigate(location, {
-                    state: { backgroundLocation: location },
-                  });
-                }}
-              >
-                {isTryFairPage
-                  ? SHARED_CONTENT.homepage.ctaSecondaryButton
-                  : SHARED_CONTENT.navbar.loginButton}
-              </Button>
+              <div className="relative">
+                {highlightStartMapping && isTryFairPage && (
+                  <div className="absolute inset-0 ring-2 ring-primary ring-offset-2 rounded-full animate-pulse pointer-events-none z-10" />
+                )}
+                <Button
+                  rounded={isTryFairPage}
+                  size={isTryFairPage ? "medium" : "large"}
+                  variant={
+                    isTryFairPage ? ButtonVariant.TERTIARY : ButtonVariant.PRIMARY
+                  }
+                  onClick={() => {
+                    /*
+                     * Set the `backgroundLocation` in location state so that when we open the authentication modal we still see the current page in the background.
+                     */
+                    navigate(location, {
+                      state: { backgroundLocation: location },
+                    });
+                  }}
+                >
+                  {isTryFairPage
+                    ? SHARED_CONTENT.homepage.ctaSecondaryButton
+                    : SHARED_CONTENT.navbar.loginButton}
+                </Button>
+              </div>
             )}
           </div>
         </div>
@@ -155,26 +162,31 @@ export const NavBar = () => {
               <UserProfile />
             </>
           ) : (
-            <Button
-              className={styles.loginButton}
-              variant={
-                isTryFairPage ? ButtonVariant.TERTIARY : ButtonVariant.PRIMARY
-              }
-              size={isTryFairPage ? "medium" : "large"}
-              rounded={isTryFairPage}
-              onClick={() => {
-                /*
-                 * Set the `backgroundLocation` in location state so that when we open the authentication modal we still see the current page in the background.
-                 */
-                navigate(location, {
-                  state: { backgroundLocation: location },
-                });
-              }}
-            >
-              {isTryFairPage
-                ? SHARED_CONTENT.homepage.ctaSecondaryButton
-                : SHARED_CONTENT.navbar.loginButton}
-            </Button>
+            <div className="relative">
+              {highlightStartMapping && isTryFairPage && (
+                <div className="absolute inset-0 ring-2 ring-primary ring-offset-2 rounded-full animate-pulse pointer-events-none z-10" />
+              )}
+              <Button
+                className={styles.loginButton}
+                variant={
+                  isTryFairPage ? ButtonVariant.TERTIARY : ButtonVariant.PRIMARY
+                }
+                size={isTryFairPage ? "medium" : "large"}
+                rounded={isTryFairPage}
+                onClick={() => {
+                  /*
+                   * Set the `backgroundLocation` in location state so that when we open the authentication modal we still see the current page in the background.
+                   */
+                  navigate(location, {
+                    state: { backgroundLocation: location },
+                  });
+                }}
+              >
+                {isTryFairPage
+                  ? SHARED_CONTENT.homepage.ctaSecondaryButton
+                  : SHARED_CONTENT.navbar.loginButton}
+              </Button>
+            </div>
           )}
           {AUTH_PROVIDER === "hanko" && <hotosm-tool-menu></hotosm-tool-menu>}
         </div>

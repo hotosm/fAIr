@@ -13,6 +13,8 @@ import {
   BaseModelStacItem,
   InferenceParam,
 } from "@/features/try-fair/api/stac";
+import { cn } from "@/utils";
+import useScreenSize from "@/hooks/use-screen-size";
 
 type TryFairSidebarProps = {
   selectedModel: BaseModelStacItem | null;
@@ -29,6 +31,7 @@ type TryFairSidebarProps = {
   onMap: () => void;
   isPredicting: boolean;
   isMapButtonDisabled: boolean;
+  className?: string;
 };
 
 export const TryFairSidebar = ({
@@ -46,11 +49,26 @@ export const TryFairSidebar = ({
   onMap,
   isPredicting,
   isMapButtonDisabled,
+  className,
 }: TryFairSidebarProps) => {
+  const { isSmallViewport } = useScreenSize();
+
   return (
-    <div className="bg-white rounded-lg flex flex-col space-y-4 px-3 py-4 shadow-lg w-[300px] overflow-hidden">
+    <div
+      className={cn(
+        "bg-white rounded-lg flex flex-col space-y-4 p-2 sm:px-3 sm:py-4 shadow-lg w-[300px] overflow-hidden",
+        className,
+      )}
+    >
       {/* ── Model selector + Map button ── */}
-      <div className="flex bg-[#FAFAFA] items-center border p-2.5 gap-2 rounded-lg">
+      <div
+        className={cn(
+          "flex bg-[#FAFAFA] border p-2.5 rounded-lg",
+          isSmallViewport
+            ? "flex-col items-stretch gap-2"
+            : "items-center gap-2",
+        )}
+      >
         <div className="flex-1 min-w-0 items-center">
           <ModelPicker
             selectedModel={selectedModel}
@@ -61,13 +79,15 @@ export const TryFairSidebar = ({
         </div>
 
         {/* Vertical divider */}
-        <div className="self-stretch w-px bg-gray-border shrink-0" />
+        {!isSmallViewport && (
+          <div className="self-stretch w-px bg-gray-border shrink-0" />
+        )}
 
         <div>
           <Button
             type="button"
             size="medium"
-            className="flex   gap-2 items-center"
+            className="flex gap-2 items-center"
             rounded
             onClick={onMap}
             disabled={isMapButtonDisabled || isPredicting}
@@ -123,13 +143,6 @@ export const TryFairSidebar = ({
             <p className="text-grey text-xs italic leading-relaxed">
               {TRY_FAIR_PAGE_CONTENT.sidebar.parameters.description}{" "}
             </p>
-            {/* <a
-              href="#"
-              className="text-grey text-xs underline underline-offset-2"
-              onClick={(e) => e.preventDefault()}
-            >
-              {TRY_FAIR_PAGE_CONTENT.sidebar.parameters.learnMore}
-            </a> */}
           </div>
         </div>
 
@@ -157,9 +170,6 @@ export const TryFairSidebar = ({
           </div>
         </div>
 
-        {/* Confidence is the only inference param exposed in the UI.
-            Other params (iou_threshold, min_class_value, …) stay at their
-            STAC defaults and are forwarded to the predict call */}
         {inferenceParams
           .filter((p) => p.key === "confidence_threshold")
           .map(({ key, spec }) => {
@@ -203,36 +213,3 @@ export const TryFairSidebar = ({
     </div>
   );
 };
-
-{
-  /* Confidence */
-}
-{
-  /* <div>
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-dark text-xs font-medium">
-              {TRY_FAIR_PAGE_CONTENT.sidebar.parameters.confidence.label}
-            </p>
-            <span className="text-dark text-xs font-semibold">
-              {confidence}%
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <SnowflakeIcon />
-            <input
-              type="range"
-              min={min}
-              max={max}
-              step={0.01}
-              value={Number(value)}
-              onChange={(e) => onParamChange(key, parseFloat(e.target.value))}
-
-              className="try-fair-confidence-slider flex-1 h-1.5 rounded-full appearance-none cursor-pointer outline-none"
-              style={{
-                background: `linear-gradient(90deg, #0088FF 0%, #FF383C 100%)`,
-              }}
-            />
-            <FlameIcon />
-          </div>
-        </div> */
-}

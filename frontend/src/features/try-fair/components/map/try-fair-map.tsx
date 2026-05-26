@@ -7,6 +7,7 @@ import { TryFairDraggableGrid } from "@/features/try-fair/components/map/draggab
 import { TryFairPredictionsLayer } from "@/features/try-fair/components/map/try-fair-prediction-results";
 import { ChoroplethBucket } from "@/features/try-fair/utils/helpers";
 import { TryFairChoroplethLegend } from "@/features/try-fair/components/map/chloropleth-legend";
+import { TryFairPointsLegend } from "@/features/try-fair/components/map/points-legend";
 import {
   LayerControl,
   FitToBounds,
@@ -29,6 +30,7 @@ type TryFairMapProps = {
   resolution?: TryFairResolution;
   modelId?: string | null;
   isPredicting?: boolean;
+  onGridZoom?: () => void;
 };
 
 export const TryFairMap = ({
@@ -45,6 +47,7 @@ export const TryFairMap = ({
   resolution,
   modelId,
   isPredicting = false,
+  onGridZoom,
 }: TryFairMapProps) => {
   const [choroplethBuckets, setChoroplethBuckets] = useState<
     ChoroplethBucket[] | null
@@ -68,7 +71,8 @@ export const TryFairMap = ({
       padding: 40,
       essential: true,
     });
-  }, [map]);
+    onGridZoom?.();
+  }, [map, onGridZoom]);
 
   // Disable all map interactions while a prediction is running so the grid
   // stays anchored over the area that was submitted.
@@ -142,7 +146,6 @@ export const TryFairMap = ({
             map={map}
             bounds={null}
             onClick={handleFitToGrid}
-            rounded={false}
             tooltipContent="Zoom to grid bounds"
           />
 
@@ -163,6 +166,12 @@ export const TryFairMap = ({
 
       {outputType === TryFairMapOutputType.CLUSTER && (
         <TryFairChoroplethLegend buckets={choroplethBuckets} />
+      )}
+
+      {outputType === TryFairMapOutputType.POINTS && (
+        <TryFairPointsLegend
+          totalCount={predictions?.features.length ?? 0}
+        />
       )}
     </div>
   );

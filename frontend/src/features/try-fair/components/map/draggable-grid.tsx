@@ -1,5 +1,5 @@
 import { ArrowMoveIcon } from "@/components/ui/icons";
-import { deg2num, num2deg } from "@/utils/geo/geometry-utils";
+import { num2deg } from "@/utils/geo/geometry-utils";
 import { BBOX } from "@/types";
 import { LngLatLike, Map } from "maplibre-gl";
 import {
@@ -12,10 +12,9 @@ import {
 } from "react";
 import {
   DEFAULT_SELECTED_GRID,
-  MAX_GRID_ZOOM,
-  MIN_GRID_ZOOM,
   SELECTED_GRID_BY_ZOOM,
   SelectedGridSpec,
+  TRY_FAIR_RESOLUTION_ZOOM,
   VISIBLE_GRID_COLUMNS,
   VISIBLE_GRID_ROWS,
 } from "@/features/try-fair/utils/common";
@@ -70,12 +69,16 @@ const getCenteredAnchor = (
   zoom: number,
 ): TileAnchor => {
   const selected = getSelectedGridSpec(zoom);
-  const { xtile, ytile } = deg2num(center.lat, center.lng, zoom);
-  return clampAnchor({
-    x: xtile - Math.floor(selected.columns / 2),
-    y: ytile - Math.floor(selected.rows / 2),
-    z: zoom,
-  });
+  const { xtile, ytile } = lngLatToTileCoords(center.lat, center.lng, zoom);
+  // Snap to integer tile boundaries so the visual grid always aligns with the
+  // bbox that gets sent to the prediction API (which uses getSnappedAnchor).
+  return getSnappedAnchor(
+    clampAnchor({
+      x: xtile - selected.columns / 2,
+      y: ytile - selected.rows / 2,
+      z: zoom,
+    }),
+  );
 };
 
 const getSelectedGridBBox = (anchor: TileAnchor): BBOX => {
@@ -96,13 +99,9 @@ const getSnappedAnchor = (anchor: TileAnchor): TileAnchor =>
     y: Math.floor(anchor.y),
   });
 
-/**
- * Keep draggable-grid tile zoom aligned with the visible map tile zoom
- * (same offset logic used by tile-boundaries), but never below the
- * base 17-tile grid requested for Try fAIr.
- */
-const getGridZoomFromMap = (map: Map): number =>
-  clamp(Math.round(map.getZoom() + 1), MIN_GRID_ZOOM, MAX_GRID_ZOOM);
+/** Returns the tile zoom for the given resolution, falling back to MID. */
+const getTileZoomForResolution = (resolution?: TryFairResolution): number =>
+  TRY_FAIR_RESOLUTION_ZOOM[resolution ?? TryFairResolution.MID];
 
 type GridScreenGeometry = {
   verticalLines: { x1: number; y1: number; x2: number; y2: number }[];
@@ -155,7 +154,7 @@ export const TryFairDraggableGrid = ({
   const pendingPointerRef = useRef<{ x: number; y: number } | null>(null);
   const dragRafRef = useRef<number | null>(null);
 
-  // Initialize / recenter grid from imagery center using the active tile zoom.
+  // Initialize / recenter grid from imagery center using the resolution tile zoom.
   useEffect(() => {
     if (!map) return;
     const nextCenter = center
@@ -172,19 +171,21 @@ export const TryFairDraggableGrid = ({
       const target = nextCenter
         ? { lng: nextCenter[0], lat: nextCenter[1] }
         : map.getCenter();
-      setAnchor(getCenteredAnchor(target, getGridZoomFromMap(map)));
+      setAnchor(getCenteredAnchor(target, getTileZoomForResolution(resolution)));
       isUserPositionedRef.current = false;
     }
 
     previousCenterRef.current = nextCenter;
   }, [map, center, anchor]);
 
-  // Re-center the grid when resolution changes (zoom will ease to match).
+  // Update the grid tile zoom when resolution changes, centering on the current map view.
+  // The map camera is never touched — only the grid tile structure updates.
   useEffect(() => {
     if (!map || resolution === undefined) return;
+    const newTileZoom = TRY_FAIR_RESOLUTION_ZOOM[resolution];
+    const center = map.getCenter();
     isUserPositionedRef.current = false;
-    // Snap the grid immediately to the map center at the current grid zoom.
-    setAnchor(getCenteredAnchor(map.getCenter(), getGridZoomFromMap(map)));
+    setAnchor(getCenteredAnchor({ lng: center.lng, lat: center.lat }, newTileZoom));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resolution]);
 
@@ -194,45 +195,25 @@ export const TryFairDraggableGrid = ({
     isUserPositionedRef.current = false;
     // Clear the remembered imagery center so the new model's center triggers a fresh snap.
     previousCenterRef.current = null;
-    setAnchor(getCenteredAnchor(map.getCenter(), getGridZoomFromMap(map)));
+    setAnchor(
+      getCenteredAnchor(map.getCenter(), getTileZoomForResolution(resolution)),
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [modelId]);
 
-  // Re-tile at every tile zoom change while preserving the current area centre.
+  // Initialise the anchor once on map-load if not already set by the imagery-centre effect.
+  // The grid is geo-fixed after this: it does NOT retile when the user scrolls/zooms.
   useEffect(() => {
     if (!map) return;
-
-    const retileAtCurrentZoom = () => {
-      const nextGridZoom = getGridZoomFromMap(map);
-      setAnchor((prev) => {
-        if (!prev) {
-          const target = center
-            ? { lng: center[0], lat: center[1] }
-            : map.getCenter();
-          return getCenteredAnchor(target, nextGridZoom);
-        }
-        if (prev.z === nextGridZoom) return prev;
-
-        // Keep grid centered on the visible map unless the user explicitly dragged it.
-        if (!isUserPositionedRef.current) {
-          return getCenteredAnchor(map.getCenter(), nextGridZoom);
-        }
-
-        const [west, south, east, north] = getSelectedGridBBox(prev);
-        const currentCenter = {
-          lng: (west + east) / 2,
-          lat: (south + north) / 2,
-        };
-        return getCenteredAnchor(currentCenter, nextGridZoom);
-      });
-    };
-
-    retileAtCurrentZoom();
-    map.on("zoom", retileAtCurrentZoom);
-    return () => {
-      map.off("zoom", retileAtCurrentZoom);
-    };
-  }, [map, center]);
+    setAnchor((prev) => {
+      if (prev) return prev;
+      const target = center
+        ? { lng: center[0], lat: center[1] }
+        : map.getCenter();
+      return getCenteredAnchor(target, getTileZoomForResolution(resolution));
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [map]);
 
   useEffect(() => {
     if (!anchor) return;
@@ -279,9 +260,9 @@ export const TryFairDraggableGrid = ({
 
     const topRight = verticalLines[VISIBLE_GRID_COLUMNS]
       ? {
-          x: verticalLines[VISIBLE_GRID_COLUMNS].x1,
-          y: verticalLines[VISIBLE_GRID_COLUMNS].y1,
-        }
+        x: verticalLines[VISIBLE_GRID_COLUMNS].x1,
+        y: verticalLines[VISIBLE_GRID_COLUMNS].y1,
+      }
       : { x: 0, y: 0 };
 
     const hasInvalidPoint = [...verticalLines, ...horizontalLines].some(
@@ -381,6 +362,9 @@ export const TryFairDraggableGrid = ({
       ) {
         map.dragPan.enable();
       }
+      // Snap to integer tile boundaries so the visual grid aligns with the
+      // bbox reported to the prediction API.
+      setAnchor((prev) => (prev ? getSnappedAnchor(prev) : prev));
       setDragState((prev) => ({
         ...prev,
         isDragging: false,
@@ -464,13 +448,12 @@ export const TryFairDraggableGrid = ({
         onPointerDown={handleDragStart}
         title={isPredicting ? "Grid locked during prediction" : "Move grid"}
         disabled={isPredicting}
-        className={`absolute z-20 pointer-events-auto rounded-full bg-white border border-primary p-1.5 shadow-sm ${
-          isPredicting
+        className={`absolute z-20 pointer-events-auto rounded-full bg-white border border-primary p-1.5 shadow-sm ${isPredicting
             ? "opacity-40 cursor-not-allowed"
             : dragState.isDragging
               ? "cursor-grabbing"
               : "cursor-grab"
-        }`}
+          }`}
         style={{
           left: `${screenGeometry.topRight.x}px`,
           top: `${screenGeometry.topRight.y}px`,

@@ -119,7 +119,7 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
           <div
             ref={panelRef}
             style={panelStyle}
-            className="bg-white rounded-xl shadow-2xl w-[520px] p-4"
+            className="bg-white rounded-xl shadow-2xl w-fit sm:w-[520px] p-4"
           >
             {/* Header */}
             <div className="flex items-center justify-between mb-3">
@@ -137,7 +137,7 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
             </div>
 
             {/* 2-column card grid */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {models.map((model) => {
                 const isSelected = selectedModel?.id === model.id;
                 const tasks = model.properties["mlm:tasks"] ?? [];

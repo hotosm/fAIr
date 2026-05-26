@@ -10,6 +10,7 @@ export type LegendItem = {
   label: string;
   fillColor: string;
   fillOpacity: number;
+  shape?: "square" | "circle";
 };
 
 const statusLegend = [
@@ -39,12 +40,14 @@ const statusLegend = [
 const FillLegendStyle = ({
   fillColor,
   fillOpacity,
+  shape = "square",
 }: {
   fillColor: string;
   fillOpacity: number;
+  shape?: "square" | "circle";
 }) => (
   <span
-    className="block w-4 h-3 rounded-[2px] border-[1px]"
+    className={`block border-[1px] flex-shrink-0 ${shape === "circle" ? "w-3 h-3 rounded-full" : "w-4 h-3 rounded-[2px]"}`}
     style={{
       backgroundColor: `rgba(${parseInt(fillColor.slice(1, 3), 16)}, ${parseInt(
         fillColor.slice(3, 5),
@@ -58,11 +61,13 @@ const FillLegendStyle = ({
 export const Legend = ({
   disableDefaultPrediction = false,
   title = "Predictions",
+  subtitle,
   items,
   position = "bottom-right",
 }: {
   disableDefaultPrediction?: boolean;
   title?: string;
+  subtitle?: string;
   items?: LegendItem[];
   position?: "bottom-right" | "bottom-left";
 }) => {
@@ -103,8 +108,13 @@ export const Legend = ({
       )}
 
       {!isSmallViewport && (
-        <p className="w-full text-dark font-semibold text-body-2base flex items-center gap-x-10 justify-between">
-          {title}
+        <div className="w-full flex items-start justify-between gap-x-10">
+          <div className="w-full">
+            <p className="w-full text-dark font-semibold text-body-2base">{title}</p>
+            {subtitle && expandLegend && (
+              <p className="w-full text-grey text-body-4 mt-0.5">{subtitle}</p>
+            )}
+          </div>
           <ToolTip
             content={
               expandLegend
@@ -114,16 +124,16 @@ export const Legend = ({
                     .show
             }
           >
-            <LegendBookIcon className="icon" />
+            <LegendBookIcon className="icon shrink-0" />
           </ToolTip>
-        </p>
+        </div>
       )}
 
       {expandLegend && (
         <div
           className={`flex w-full ${isSmallViewport ? "flex-row gap-x-2" : "flex-col"} gap-y-3`}
         >
-          {legendItems.map(({ label, fillColor, fillOpacity }, id) => (
+          {legendItems.map(({ label, fillColor, fillOpacity, shape }, id) => (
             <p
               className="w-full flex items-center text-dark gap-x-2 text-body-4 md:text-body-3 text-nowrap"
               key={id}
@@ -131,6 +141,7 @@ export const Legend = ({
               <FillLegendStyle
                 fillColor={fillColor}
                 fillOpacity={fillOpacity}
+                shape={shape}
               />
               {label}
             </p>

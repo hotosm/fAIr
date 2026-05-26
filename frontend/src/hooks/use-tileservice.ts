@@ -220,7 +220,7 @@ export const useTileServiceLayer = ({
     } else {
       fitToBounds();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map, tileJSONMetadata]);
 
   const hasBounds = useMemo(() => {

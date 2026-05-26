@@ -6,20 +6,23 @@ import { TryFairSidebar } from "@/features/try-fair/components/try-fair-sidebar"
 import { DEMO_MODEL_CONFIGS, getDemoConfig } from "@/features/try-fair/models";
 import { useMapInstance } from "@/hooks/use-map-instance";
 import { useTileservice } from "@/hooks/use-tileservice";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getTileServerTypeFromURL } from "@/utils";
 import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
 import { useBaseModels } from "@/features/try-fair/hooks/use-base-models";
 import { BBOX } from "@/types";
 import { useFairPredict } from "@/features/try-fair/hooks/use-fair-predict";
+import { TryFairBanner } from "@/features/try-fair/components/try-fair-banner";
+import { useTryFairStore } from "@/store/try-fair-store";
 import {
   getInferenceParams,
   InferenceParam,
 } from "@/features/try-fair/api/stac";
-import { TRY_FAIR_RESOLUTION_ZOOM } from "@/features/try-fair/utils/common";
-
+import useScreenSize from "@/hooks/use-screen-size";
+import { MobileDrawer } from "@/components/ui/drawer";
 export const TryFairPage = () => {
   const { map, mapContainerRef } = useMapInstance(false, false);
+  const { isSmallViewport } = useScreenSize();
 
   // URL-persisted state (nuqs)
   const {
@@ -72,6 +75,16 @@ export const TryFairPage = () => {
   const [latestBBox, setLatestBBox] = useState<BBOX | null>(null);
   const [latestGridZoom, setLatestGridZoom] = useState<number | null>(null);
   const [isDirty, setIsDirty] = useState(true);
+
+  // Event tracking
+  const [gridZoomed, setGridZoomed] = useState(false);
+  const [mapClickCount, setMapClickCount] = useState(0);
+  const [bannerVisible, setBannerVisible] = useState(false);
+  const [highlightSidebar, setHighlightSidebar] = useState(false);
+  const autoTriggeredRef = useRef(false);
+  const setHighlightStartMapping = useTryFairStore(
+    (s) => s.setHighlightStartMapping,
+  );
 
   // Tile service
   const tileServiceUrl = demoConfig?.tileServiceUrl ?? "";
@@ -134,6 +147,7 @@ export const TryFairPage = () => {
     predictions,
     predictionBBox,
     predictionGridZoom,
+    clearPredictions,
   } = useFairPredict();
 
   // Handlers
@@ -141,14 +155,14 @@ export const TryFairPage = () => {
     setModelId(model.id);
     setResolution(TryFairResolution.MID);
     setIsDirty(true);
+    clearPredictions();
+    setBannerVisible(false);
   };
 
   const handleResolutionChange = (res: TryFairResolution) => {
     setResolution(res);
     setIsDirty(true);
-    // Zoom the map to the tile zoom that matches this resolution so the grid
-    if (map)
-      map.easeTo({ zoom: TRY_FAIR_RESOLUTION_ZOOM[res], essential: true });
+    // Resolution only changes the grid tile structure — the map camera stays put.
   };
 
   const handleOutputTypeChange = (type: TryFairMapOutputType) => {
@@ -170,9 +184,43 @@ export const TryFairPage = () => {
     setIsDirty(true);
   }, []);
 
+  const handleGridZoom = useCallback(() => {
+    setGridZoomed(true);
+  }, []);
+
+  // Auto-trigger the first prediction once the map is ready, imagery has loaded,
+  // and the grid has been fit-to-bounds.
+  const isMapButtonDisabled = !isDirty || !latestBBox || !demoConfig;
+  useEffect(() => {
+    if (autoTriggeredRef.current) return;
+    if (!map || !tileJSONMetadata || !gridZoomed || isMapButtonDisabled || isPredicting) return;
+    autoTriggeredRef.current = true;
+    handleMap();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [map, tileJSONMetadata, gridZoomed, isMapButtonDisabled, isPredicting]);
+
+  // Show the banner each time a prediction finishes.
+  useEffect(() => {
+    if (!isPredicting && predictions) {
+      setBannerVisible(true);
+      if (mapClickCount === 1) {
+        setHighlightSidebar(true);
+        const timer = setTimeout(() => setHighlightSidebar(false), 5000);
+        return () => clearTimeout(timer);
+      }
+      if (mapClickCount >= 2) {
+        setHighlightStartMapping(true);
+        const timer = setTimeout(() => setHighlightStartMapping(false), 5000);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [isPredicting, predictions]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const handleMap = () => {
     if (!selectedModel || !latestBBox || !demoConfig) return;
     setIsDirty(false);
+    setMapClickCount((n) => n + 1);
+    setBannerVisible(false);
     // Invert confidence_threshold for the API: a lower threshold value produces better results
     const apiParams = Object.fromEntries(
       Object.entries(paramValues).map(([k, v]) =>
@@ -213,26 +261,75 @@ export const TryFairPage = () => {
             resolution={resolution}
             modelId={modelId}
             isPredicting={isPredicting}
+            onGridZoom={handleGridZoom}
           />
 
-          <div className="absolute top-4 left-4 z-10">
-            <TryFairSidebar
-              selectedModel={selectedModel}
-              models={models}
-              modelsLoading={modelsLoading}
-              onSelectModel={handleSelectModel}
-              outputType={outputType}
-              onOutputTypeChange={handleOutputTypeChange}
-              resolution={resolution}
-              onResolutionChange={handleResolutionChange}
-              inferenceParams={inferenceParams}
-              paramValues={paramValues}
-              onParamChange={handleParamChange}
-              onMap={handleMap}
-              isPredicting={isPredicting}
-              isMapButtonDisabled={!isDirty || !latestBBox || !demoConfig}
-            />
-          </div>
+          {bannerVisible && (
+            <div className="absolute bottom-4 left-4 z-10">
+              <TryFairBanner
+                mapClickCount={mapClickCount}
+                onDismiss={() => {
+                  setBannerVisible(false);
+                  setHighlightStartMapping(false);
+                }}
+              />
+            </div>
+          )}
+
+          {!isSmallViewport && (
+            <div className="absolute top-4 left-4 z-10">
+              {highlightSidebar && (
+                <div className="absolute inset-0 ring-2 ring-primary ring-offset-2 rounded-xl animate-pulse pointer-events-none z-20" />
+              )}
+              <TryFairSidebar
+                selectedModel={selectedModel}
+                models={models}
+                modelsLoading={modelsLoading}
+                onSelectModel={handleSelectModel}
+                outputType={outputType}
+                onOutputTypeChange={handleOutputTypeChange}
+                resolution={resolution}
+                onResolutionChange={handleResolutionChange}
+                inferenceParams={inferenceParams}
+                paramValues={paramValues}
+                onParamChange={handleParamChange}
+                onMap={handleMap}
+                isPredicting={isPredicting}
+                isMapButtonDisabled={isMapButtonDisabled}
+              />
+            </div>
+          )}
+
+          {isSmallViewport && (
+            <div className="relative">
+              {highlightSidebar && (
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 h-10 w-28 ring-2 ring-primary ring-offset-2 rounded-full animate-pulse pointer-events-none z-20" />
+              )}
+              <MobileDrawer
+                open={isSmallViewport}
+                dialogTitle="Try Fair Settings"
+                snapPoints={[0.2, 0.9]}
+              >
+                <TryFairSidebar
+                  selectedModel={selectedModel}
+                  models={models}
+                  modelsLoading={modelsLoading}
+                  onSelectModel={handleSelectModel}
+                  outputType={outputType}
+                  onOutputTypeChange={handleOutputTypeChange}
+                  resolution={resolution}
+                  onResolutionChange={handleResolutionChange}
+                  inferenceParams={inferenceParams}
+                  paramValues={paramValues}
+                  onParamChange={handleParamChange}
+                  onMap={handleMap}
+                  isPredicting={isPredicting}
+                  isMapButtonDisabled={isMapButtonDisabled}
+                  className="w-full shadow-none"
+                />
+              </MobileDrawer>
+            </div>
+          )}
         </div>
       </div>
     </>
