@@ -21,7 +21,10 @@ export const Header = () => {
               title={SHARED_CONTENT.homepage.ctaPrimaryButton}
               nativeAnchor={false}
             >
-              <Button rounded>
+              <Button
+                rounded
+                capitalize={false}
+              >
                 {SHARED_CONTENT.homepage.ctaPrimaryButton}
               </Button>
             </Link>

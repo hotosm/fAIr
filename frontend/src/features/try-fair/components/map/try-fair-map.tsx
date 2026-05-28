@@ -129,6 +129,8 @@ export const TryFairMap = ({
           resolution={resolution}
           modelId={modelId}
           isPredicting={isPredicting}
+          predictions={predictions}
+          outputType={outputType}
         />
       )}
 

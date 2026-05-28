@@ -165,10 +165,7 @@ export const TryFairPage = () => {
     // Resolution only changes the grid tile structure — the map camera stays put.
   };
 
-  const handleOutputTypeChange = (type: TryFairMapOutputType) => {
-    setOutputType(type);
-    // Output type switch is client side approach - if server side then we will need to re-predict
-  };
+  // handleOutputTypeChange is defined after handleMap (below) so it can call it.
 
   const handleParamChange = useCallback(
     (key: string, value: number | string | boolean) => {
@@ -245,6 +242,15 @@ export const TryFairPage = () => {
       resolution,
       params: apiParams,
     });
+  };
+
+  const handleOutputTypeChange = (type: TryFairMapOutputType) => {
+    setOutputType(type);
+    // If the grid has been moved since the last prediction, re-run at the new
+    // location rather than just switching the rendering of stale results.
+    if (isDirty && predictions) {
+      handleMap();
+    }
   };
 
   return (

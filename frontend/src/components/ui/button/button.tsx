@@ -19,6 +19,7 @@ type ButtonProps = {
   type?: "button" | "submit";
   contentClassName?: string;
   fontSize?: React.CSSProperties["fontSize"];
+  capitalize?: boolean;
 };
 const Button: React.FC<ButtonProps> = ({
   children,
@@ -32,6 +33,7 @@ const Button: React.FC<ButtonProps> = ({
   rounded = false,
   type = "button",
   contentClassName,
+  capitalize = true,
   fontSize,
 }) => {
   const spinnerColor = variant === "primary" ? "white" : "red";
@@ -54,7 +56,7 @@ const Button: React.FC<ButtonProps> = ({
     >
       <div
         className={cn(
-          `flex items-center gap-x-2 ${contentClassName} capitalize`,
+          `flex items-center gap-x-2 ${contentClassName} ${capitalize ? "capitalize" : ""}`,
         )}
         style={fontSize ? { fontSize } : undefined}
       >

@@ -102,7 +102,7 @@ export const TryFairPredictionsLayer = ({
         id: FILL_LAYER,
         type: "fill",
         source: SOURCE_ID,
-        paint: { "fill-color": "#A243DC", "fill-opacity": 0.45 },
+        paint: { "fill-color": "#A243DC", "fill-opacity": 0.5 },
       });
       map.addLayer({
         id: OUTLINE_LAYER,
@@ -122,7 +122,7 @@ export const TryFairPredictionsLayer = ({
         type: "circle",
         source: SOURCE_ID,
         paint: {
-          "circle-radius": 4,
+          "circle-radius": 2,
           "circle-color": "#A147D8",
           "circle-stroke-color": "#A147D8",
           "circle-stroke-width": 1,

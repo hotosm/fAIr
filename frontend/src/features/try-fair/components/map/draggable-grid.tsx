@@ -1,5 +1,8 @@
-import { ArrowMoveIcon } from "@/components/ui/icons";
+import { ElipsisIcon, CloudDownloadIcon } from "@/components/ui/icons";
+import { DropDown } from "@/components/ui/dropdown";
+import { ToolTip } from "@/components/ui/tooltip";
 import { num2deg } from "@/utils/geo/geometry-utils";
+import { geoJSONDowloader } from "@/utils/geo/geo-utils";
 import { BBOX } from "@/types";
 import { LngLatLike, Map } from "maplibre-gl";
 import {
@@ -19,6 +22,7 @@ import {
   VISIBLE_GRID_ROWS,
 } from "@/features/try-fair/utils/common";
 import { TryFairResolution } from "@/enums/try-fair";
+import { TryFairMapOutputType } from "@/enums/try-fair";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -116,6 +120,15 @@ const toPointString = (line: {
   y2: number;
 }): string => `${line.x1},${line.y1} ${line.x2},${line.y2}`;
 
+// ── Export helper ─────────────────────────────────────────────────────────────
+
+const exportPredictions = (
+  predictions: GeoJSON.FeatureCollection,
+  outputType: TryFairMapOutputType,
+) => {
+  geoJSONDowloader(predictions, `fair-predictions-${outputType.toLowerCase()}`);
+};
+
 // ── Component ────────────────────────────────────────────────────────────────
 
 export const TryFairDraggableGrid = ({
@@ -126,6 +139,8 @@ export const TryFairDraggableGrid = ({
   resolution,
   modelId,
   isPredicting = false,
+  predictions,
+  outputType,
 }: {
   map: Map | null;
   mapContainerRef: RefObject<HTMLDivElement | null>;
@@ -138,6 +153,10 @@ export const TryFairDraggableGrid = ({
   modelId?: string | null;
   /** When true, grid dragging is disabled */
   isPredicting?: boolean;
+  /** Current predictions — when present, shows the export dropdown */
+  predictions?: GeoJSON.FeatureCollection | null;
+  /** Currently selected output type — used to name the export file */
+  outputType?: TryFairMapOutputType;
 }) => {
   const [anchor, setAnchor] = useState<TileAnchor | null>(null);
   const [screenGeometry, setScreenGeometry] =
@@ -148,11 +167,19 @@ export const TryFairDraggableGrid = ({
     startTile: null,
     dragPanWasEnabled: false,
   });
-  const handleRef = useRef<HTMLButtonElement | null>(null);
   const previousCenterRef = useRef<[number, number] | null>(null);
   const isUserPositionedRef = useRef(false);
   const pendingPointerRef = useRef<{ x: number; y: number } | null>(null);
   const dragRafRef = useRef<number | null>(null);
+
+  const hasPredictions = !!predictions && predictions.features.length > 0;
+
+  // Hide the export dropdown once the grid is moved away from the prediction area.
+  // Reset when fresh predictions arrive.
+  const [gridMovedSincePredict, setGridMovedSincePredict] = useState(false);
+  useEffect(() => {
+    if (hasPredictions) setGridMovedSincePredict(false);
+  }, [predictions]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Initialize / recenter grid from imagery center using the resolution tile zoom.
   useEffect(() => {
@@ -180,8 +207,7 @@ export const TryFairDraggableGrid = ({
     previousCenterRef.current = nextCenter;
   }, [map, center, anchor]);
 
-  // Update the grid tile zoom when resolution changes, centering on the current map view.
-  // The map camera is never touched — only the grid tile structure updates.
+  // Update the grid tile zoom when resolution changes.
   useEffect(() => {
     if (!map || resolution === undefined) return;
     const newTileZoom = TRY_FAIR_RESOLUTION_ZOOM[resolution];
@@ -197,7 +223,6 @@ export const TryFairDraggableGrid = ({
   useEffect(() => {
     if (!map || !modelId) return;
     isUserPositionedRef.current = false;
-    // Clear the remembered imagery center so the new model's center triggers a fresh snap.
     previousCenterRef.current = null;
     setAnchor(
       getCenteredAnchor(map.getCenter(), getTileZoomForResolution(resolution)),
@@ -205,8 +230,7 @@ export const TryFairDraggableGrid = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [modelId]);
 
-  // Initialise the anchor once on map-load if not already set by the imagery-centre effect.
-  // The grid is geo-fixed after this: it does NOT retile when the user scrolls/zooms.
+  // Initialise the anchor once on map-load.
   useEffect(() => {
     if (!map) return;
     setAnchor((prev) => {
@@ -230,20 +254,12 @@ export const TryFairDraggableGrid = ({
     const verticalLines: GridScreenGeometry["verticalLines"] = [];
     const horizontalLines: GridScreenGeometry["horizontalLines"] = [];
 
-    // Draw a 4x4 visual grid inside the selected tile bbox using fractional
-    // tile coordinates, so we don't add extra tiles outside the selected area.
     for (let column = 0; column <= VISIBLE_GRID_COLUMNS; column++) {
       const x = anchor.x + (column / VISIBLE_GRID_COLUMNS) * selected.columns;
       const top = num2deg(x, anchor.y, anchor.z);
       const bottom = num2deg(x, anchor.y + selected.rows, anchor.z);
-      const p1 = map.project({
-        lng: top.lon_deg,
-        lat: top.lat_deg,
-      } as LngLatLike);
-      const p2 = map.project({
-        lng: bottom.lon_deg,
-        lat: bottom.lat_deg,
-      } as LngLatLike);
+      const p1 = map.project({ lng: top.lon_deg, lat: top.lat_deg } as LngLatLike);
+      const p2 = map.project({ lng: bottom.lon_deg, lat: bottom.lat_deg } as LngLatLike);
       verticalLines.push({ x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y });
     }
 
@@ -251,14 +267,8 @@ export const TryFairDraggableGrid = ({
       const y = anchor.y + (row / VISIBLE_GRID_ROWS) * selected.rows;
       const left = num2deg(anchor.x, y, anchor.z);
       const right = num2deg(anchor.x + selected.columns, y, anchor.z);
-      const p1 = map.project({
-        lng: left.lon_deg,
-        lat: left.lat_deg,
-      } as LngLatLike);
-      const p2 = map.project({
-        lng: right.lon_deg,
-        lat: right.lat_deg,
-      } as LngLatLike);
+      const p1 = map.project({ lng: left.lon_deg, lat: left.lat_deg } as LngLatLike);
+      const p2 = map.project({ lng: right.lon_deg, lat: right.lat_deg } as LngLatLike);
       horizontalLines.push({ x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y });
     }
 
@@ -366,8 +376,6 @@ export const TryFairDraggableGrid = ({
       ) {
         map.dragPan.enable();
       }
-      // Snap to integer tile boundaries so the visual grid aligns with the
-      // bbox reported to the prediction API.
       setAnchor((prev) => (prev ? getSnappedAnchor(prev) : prev));
       setDragState((prev) => ({
         ...prev,
@@ -376,7 +384,6 @@ export const TryFairDraggableGrid = ({
         startTile: null,
         dragPanWasEnabled: false,
       }));
-      handleRef.current?.blur();
     };
 
     window.addEventListener("pointermove", handlePointerMove);
@@ -392,7 +399,8 @@ export const TryFairDraggableGrid = ({
     };
   }, [dragState, map, mapContainerRef]);
 
-  const handleDragStart = (e: ReactPointerEvent<HTMLButtonElement>) => {
+  // Generic drag start — works from any pointer-event source (SVG polygon, button, etc.)
+  const handleDragStart = (e: ReactPointerEvent) => {
     if (!map || !anchor || isPredicting) return;
     e.preventDefault();
     e.stopPropagation();
@@ -406,6 +414,7 @@ export const TryFairDraggableGrid = ({
       anchor.z,
     );
     isUserPositionedRef.current = true;
+    setGridMovedSincePredict(true);
     const dragPanWasEnabled = map.dragPan ? map.dragPan.isEnabled() : false;
     if (dragPanWasEnabled) map.dragPan.disable();
     setDragState({
@@ -417,10 +426,36 @@ export const TryFairDraggableGrid = ({
   };
 
   if (!screenGeometry) return null;
+
+  const { verticalLines, horizontalLines, topRight } = screenGeometry;
+
+  // Four corners of the grid boundary for the drag polygon
+  const polygonPoints = [
+    `${verticalLines[0].x1},${verticalLines[0].y1}`,
+    `${verticalLines[VISIBLE_GRID_COLUMNS].x1},${verticalLines[VISIBLE_GRID_COLUMNS].y1}`,
+    `${verticalLines[VISIBLE_GRID_COLUMNS].x2},${verticalLines[VISIBLE_GRID_COLUMNS].y2}`,
+    `${verticalLines[0].x2},${verticalLines[0].y2}`,
+  ].join(" ");
+
+  const cursorClass = isPredicting
+    ? "cursor-not-allowed"
+    : dragState.isDragging
+      ? "cursor-grabbing"
+      : "cursor-grab";
+
   return (
     <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 1 }}>
       <svg className="absolute inset-0 w-full h-full overflow-visible">
-        {screenGeometry.verticalLines.map((line, index) => (
+        {/* Transparent drag surface covering the entire grid */}
+        <polygon
+          points={polygonPoints}
+          fill="transparent"
+          className={`pointer-events-auto ${cursorClass}`}
+          onPointerDown={handleDragStart}
+        />
+
+        {/* Grid lines */}
+        {verticalLines.map((line, index) => (
           <polyline
             key={`grid-v-${index}`}
             points={toPointString(line)}
@@ -432,7 +467,7 @@ export const TryFairDraggableGrid = ({
             strokeWidth={index === 0 || index === VISIBLE_GRID_COLUMNS ? 2 : 1}
           />
         ))}
-        {screenGeometry.horizontalLines.map((line, index) => (
+        {horizontalLines.map((line, index) => (
           <polyline
             key={`grid-h-${index}`}
             points={toPointString(line)}
@@ -446,27 +481,42 @@ export const TryFairDraggableGrid = ({
         ))}
       </svg>
 
-      <button
-        ref={handleRef}
-        type="button"
-        onPointerDown={handleDragStart}
-        title={isPredicting ? "Grid locked during prediction" : "Move grid"}
-        disabled={isPredicting}
-        className={`absolute z-20 pointer-events-auto rounded-full bg-white border border-primary p-1.5 shadow-sm ${
-          isPredicting
-            ? "opacity-40 cursor-not-allowed"
-            : dragState.isDragging
-              ? "cursor-grabbing"
-              : "cursor-grab"
-        }`}
-        style={{
-          left: `${screenGeometry.topRight.x}px`,
-          top: `${screenGeometry.topRight.y}px`,
-          transform: "translate(-50%, -50%)",
-        }}
-      >
-        <ArrowMoveIcon className="w-4 h-4 text-red-600" />
-      </button>
+      {/* Export dropdown — shown when results exist and grid hasn't moved */}
+      {hasPredictions && !gridMovedSincePredict && outputType && (
+        <div
+          className="absolute z-20 pointer-events-auto"
+          style={{
+            left: `${topRight.x}px`,
+            top: `${topRight.y}px`,
+            transform: "translate(-50%, -50%)",
+          }}
+        >
+          <DropDown
+            disableCheveronIcon
+            distance={10}
+            triggerComponent={
+              <button
+                type="button"
+                className="bg-white p-1.5 rounded-full items-center flex justify-center shadow-sm border border-gray-border"
+              >
+                <ElipsisIcon className="icon" />
+              </button>
+            }
+          >
+            <div className="flex gap-x-2 p-2 items-center bg-white">
+              <ToolTip content="Export results">
+                <button
+                  type="button"
+                  onClick={() => exportPredictions(predictions!, outputType)}
+                  className="bg-off-white w-8 h-8 p-1.5 items-center justify-center flex rounded-md"
+                >
+                  <CloudDownloadIcon className="icon md:icon-lg" />
+                </button>
+              </ToolTip>
+            </div>
+          </DropDown>
+        </div>
+      )}
     </div>
   );
 };
