@@ -45,12 +45,20 @@ type TryFairDraggableGridProps = {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
+const CHOROPLETH_FILL_LAYER_ID = "try-fair-predictions-choropleth-fill";
+
 const downloadPredictions = (
   predictions: GeoJSON.FeatureCollection,
   outputType: TryFairMapOutputType,
 ) => {
   geoJSONDowloader(predictions, `fair-predictions-${outputType.toLowerCase()}`);
 };
+
+type HoverTooltip = {
+  x: number;
+  y: number;
+  count: number;
+} | null;
 
 // ── Component ────────────────────────────────────────────────────────────────
 
@@ -81,6 +89,7 @@ export const TryFairDraggableGrid = ({
   // area where the prediction was run.
   const [gridMovedSincePredict, setGridMovedSincePredict] =
     useState<boolean>(false);
+  const [hoverTooltip, setHoverTooltip] = useState<HoverTooltip>(null);
 
   const hasPredictions = !!predictions && predictions.features.length > 0;
 
@@ -134,6 +143,34 @@ export const TryFairDraggableGrid = ({
 
   const showExportDropdown =
     hasPredictions && !gridMovedSincePredict && outputType;
+  const isChoroplethOutput = outputType === TryFairMapOutputType.CLUSTER;
+
+  const handleDragSurfacePointerMove = (
+    e: React.PointerEvent<SVGPolygonElement>,
+  ) => {
+    if (!map || !isChoroplethOutput) {
+      setHoverTooltip(null);
+      return;
+    }
+
+    const canvasRect = map.getCanvas().getBoundingClientRect();
+    const point = {
+      x: e.clientX - canvasRect.left,
+      y: e.clientY - canvasRect.top,
+    };
+    const queryPoint: [number, number] = [point.x, point.y];
+
+    const features = map.queryRenderedFeatures(queryPoint, {
+      layers: [CHOROPLETH_FILL_LAYER_ID],
+    });
+    if (!features.length) {
+      setHoverTooltip(null);
+      return;
+    }
+
+    const count = Number(features[0].properties?.count ?? 0);
+    setHoverTooltip({ x: point.x, y: point.y, count });
+  };
 
   return (
     <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 1 }}>
@@ -145,6 +182,8 @@ export const TryFairDraggableGrid = ({
           className={`pointer-events-auto ${cursorStyle}`}
           style={{ touchAction: "none" }}
           onPointerDown={handlePointerDown}
+          onPointerMove={handleDragSurfacePointerMove}
+          onPointerLeave={() => setHoverTooltip(null)}
         />
 
         {/* Vertical grid lines */}
@@ -219,6 +258,35 @@ export const TryFairDraggableGrid = ({
           </DropDown>
         </div>
       )}
+
+      {hoverTooltip ? (
+        <div
+          className="pointer-events-none absolute z-50"
+          style={{ left: hoverTooltip.x, top: hoverTooltip.y }}
+        >
+          <div
+            className="relative"
+            style={{ transform: "translate(12px, -50%)" }}
+          >
+            <div className="bg-white/95 backdrop-blur-sm border border-gray-border rounded-lg shadow-lg px-3 py-2 flex flex-col items-start gap-0.5 min-w-[120px]">
+              <p className="text-[10px] font-medium text-grey uppercase tracking-wide leading-none">
+                Buildings detected
+              </p>
+              <p className="text-base font-bold text-purple-700 leading-tight">
+                {hoverTooltip.count.toLocaleString()}
+              </p>
+            </div>
+            <div
+              className="absolute top-1/2 -left-[6px] -translate-y-1/2 w-0 h-0"
+              style={{
+                borderTop: "6px solid transparent",
+                borderBottom: "6px solid transparent",
+                borderRight: "6px solid white",
+              }}
+            />
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 };

@@ -92,7 +92,7 @@ export const TryFairLayerControl = ({
   const predictionSwatchClassName = "bg-[#A147D8]";
 
   const setMapLayerVisibility = (layerId: string, visible: boolean) => {
-    if (!map?.isStyleLoaded()) return;
+    if (!map) return;
     if (!map.getLayer(layerId)) return;
     map.setLayoutProperty(layerId, "visibility", visible ? "visible" : "none");
   };
