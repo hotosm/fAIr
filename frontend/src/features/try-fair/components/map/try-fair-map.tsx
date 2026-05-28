@@ -8,12 +8,9 @@ import { TryFairPredictionsLayer } from "@/features/try-fair/components/map/try-
 import { ChoroplethBucket } from "@/features/try-fair/utils/helpers";
 import { TryFairChoroplethLegend } from "@/features/try-fair/components/map/chloropleth-legend";
 import { TryFairPointsLegend } from "@/features/try-fair/components/map/points-legend";
-import {
-  LayerControl,
-  FitToBounds,
-  ZoomControls,
-} from "@/components/map/controls";
+import { FitToBounds, ZoomControls } from "@/components/map/controls";
 import { PREDICTION_LAYER_IDS } from "@/features/try-fair/utils/common";
+import { TryFairLayerControl } from "@/features/try-fair/components/map/try-fair-layer-control";
 
 type TryFairMapProps = {
   map: Map | null;
@@ -108,6 +105,7 @@ export const TryFairMap = ({
         tileServiceURL={tileServiceValid ? tileServerURL : undefined}
         zoomControls={false}
         basemaps
+        showTileBoundaries
         onTileServiceFitToBounds={handleFitToGrid}
       />
 
@@ -136,13 +134,9 @@ export const TryFairMap = ({
 
       {/* ── Right-side control strip ──────────────────────────────────── */}
       {map && (
-        <div className="absolute top-5 right-3 map-elements-z-index flex flex-col gap-y-[1px]">
+        <div className="absolute top-5 right-3 map-elements-z-index flex flex-col gap-y-[3px]">
           {/* Zoom in / out */}
-          <ZoomControls map={map} />
-
-          {/* Divider */}
-          <div className="h-2" />
-
+          <ZoomControls map={map} rounded={true} />
           {/* Zoom to grid */}
           <FitToBounds
             map={map}
@@ -152,16 +146,11 @@ export const TryFairMap = ({
           />
 
           {/* Layers panel */}
-          <LayerControl
+          <TryFairLayerControl
             map={map}
-            basemaps
+            hasActivePrediction={Boolean(predictions?.features?.length)}
             hasTileServiceLayer={tileServiceValid}
-            layers={[
-              {
-                value: "Predictions",
-                subLayers: PREDICTION_LAYER_IDS,
-              },
-            ]}
+            predictionLayerIds={PREDICTION_LAYER_IDS}
           />
         </div>
       )}

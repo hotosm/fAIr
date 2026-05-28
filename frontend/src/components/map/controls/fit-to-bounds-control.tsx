@@ -50,7 +50,7 @@ export const FitToBounds = ({
         className={cn(
           "bg-white",
           isSmallViewport ? mobileClassName : "p-1.5",
-          rounded && "rounded-lg",
+          rounded && "rounded-[4px]",
           buttonClassName,
         )}
         onClick={fitToBounds}

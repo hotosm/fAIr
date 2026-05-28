@@ -122,7 +122,7 @@ export const TryFairPredictionsLayer = ({
         type: "circle",
         source: SOURCE_ID,
         paint: {
-          "circle-radius": 2,
+          "circle-radius": 4,
           "circle-color": "#A147D8",
           "circle-stroke-color": "#A147D8",
           "circle-stroke-width": 1,

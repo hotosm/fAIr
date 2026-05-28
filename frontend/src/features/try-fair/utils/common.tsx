@@ -13,7 +13,7 @@ export const RESOLUTIONS: {
   {
     value: TryFairResolution.LOW,
     label: TRY_FAIR_PAGE_CONTENT.sidebar.parameters.resolution.low,
-    size: 12,
+    size: 18,
   },
   {
     value: TryFairResolution.MID,
@@ -23,7 +23,7 @@ export const RESOLUTIONS: {
   {
     value: TryFairResolution.HIGH,
     label: TRY_FAIR_PAGE_CONTENT.sidebar.parameters.resolution.high,
-    size: 18,
+    size: 12,
   },
 ];
 
@@ -50,9 +50,9 @@ export const OUTPUT_TYPES: {
 ];
 
 export const TRY_FAIR_RESOLUTION_ZOOM: Record<TryFairResolution, number> = {
-  [TryFairResolution.LOW]: 17,
-  [TryFairResolution.MID]: 18,
-  [TryFairResolution.HIGH]: 19,
+  [TryFairResolution.LOW]: 18,
+  [TryFairResolution.MID]: 19,
+  [TryFairResolution.HIGH]: 20,
 };
 
 // Prediction layer IDs (kept in sync with try-fair-prediction-results.tsx)
@@ -86,9 +86,9 @@ export const SELECTED_GRID_BY_ZOOM: Record<number, SelectedGridSpec> = {
   20: { columns: 3, rows: 3 },
 };
 
-export const BASE_GRID_ZOOM = 17;
+export const BASE_GRID_ZOOM = 18;
 export const MIN_GRID_ZOOM = BASE_GRID_ZOOM;
-export const MAX_GRID_ZOOM = 22;
+export const MAX_GRID_ZOOM = 21;
 type GridSpec = { columns: number; rows: number };
 const DEFAULT_GRID_SPEC: GridSpec = { columns: 2, rows: 2 };
 

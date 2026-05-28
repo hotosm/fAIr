@@ -9,21 +9,23 @@ const ZoomButton = ({
   onClick,
   disabled,
   icon,
+  rounded = false,
 }: {
   onClick: () => void;
   disabled: boolean;
   icon: string;
+  rounded?: boolean;
 }) => (
-  <button className={cn(`p-2 bg-white `)} onClick={onClick} disabled={disabled}>
+  <button className={cn(`p-2 bg-white ${rounded ? "rounded-[4px]" : ""} `)} onClick={onClick} disabled={disabled}>
     <span
-      className={`map-icon border-[2px] ${disabled ? "border-gray-border text-gray-border  cursor-not-allowed" : "text-dark border-dark"} text-lg inline-flex items-center justify-center rounded-[4px]`}
+      className={`map-icon border-[2px] ${disabled ? "border-gray-border text-gray-border  cursor-not-allowed" : "text-dark border-dark"} text-lg inline-flex items-center justify-center `}
     >
       {icon}
     </span>
   </button>
 );
 
-export const ZoomControls = ({ map }: { map: Map | null }) => {
+export const ZoomControls = ({ map, rounded }: { map: Map | null; rounded?: boolean }) => {
   const currentZoom = useMapStore((state) => state.zoom);
 
   const handleZoomIn = useCallback(() => {
@@ -39,12 +41,13 @@ export const ZoomControls = ({ map }: { map: Map | null }) => {
   }, [map, currentZoom]);
 
   return (
-    <div className="flex flex-col gap-y-[1px]">
+    <div className="flex flex-col gap-y-[4px]">
       <ToolTip placement={ToolTipPlacement.RIGHT} content="Zoom In">
         <ZoomButton
           onClick={handleZoomIn}
           disabled={currentZoom >= Number(map?.getMaxZoom())}
           icon="+"
+          rounded={rounded}
         />
       </ToolTip>
       <ToolTip placement={ToolTipPlacement.RIGHT} content="Zoom Out">
@@ -52,6 +55,7 @@ export const ZoomControls = ({ map }: { map: Map | null }) => {
           onClick={handleZoomOut}
           disabled={currentZoom <= Number(map?.getMinZoom())}
           icon="-"
+          rounded={rounded}
         />
       </ToolTip>
     </div>
