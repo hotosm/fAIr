@@ -41,8 +41,7 @@ export const lngLatToTileCoords = (
   const tileCount = Math.pow(2, tileZoom);
   return {
     tileX: ((longitudeDeg + 180) / 360) * tileCount,
-    tileY:
-      ((1 - Math.asinh(Math.tan(latitudeRad)) / Math.PI) / 2) * tileCount,
+    tileY: ((1 - Math.asinh(Math.tan(latitudeRad)) / Math.PI) / 2) * tileCount,
   };
 };
 
@@ -108,7 +107,12 @@ export const computeGridBBox = (anchor: TileAnchor): BBOX => {
     anchor.y + gridSpec.rows,
     anchor.z,
   );
-  return [northWest.lon_deg, southEast.lat_deg, southEast.lon_deg, northWest.lat_deg];
+  return [
+    northWest.lon_deg,
+    southEast.lat_deg,
+    southEast.lon_deg,
+    northWest.lat_deg,
+  ];
 };
 
 /** Map a resolution enum to its corresponding tile zoom level. Defaults to MID. */

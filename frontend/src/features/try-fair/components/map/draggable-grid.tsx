@@ -18,12 +18,12 @@ import {
   screenLineToPointsAttr,
 } from "@/features/try-fair/hooks/use-grid-screen-geometry";
 
-//  Constants 
+//  Constants
 
 /** Grid line colour — extracted so it's easy to theme or adjust. */
 const GRID_LINE_COLOR = "#EF4444";
 
-// Types 
+// Types
 
 type TryFairDraggableGridProps = {
   map: Map | null;
@@ -65,7 +65,7 @@ export const TryFairDraggableGrid = ({
   predictions,
   outputType,
 }: TryFairDraggableGridProps) => {
-  // Grid anchor & bbox management 
+  // Grid anchor & bbox management
 
   const { anchor, setAnchor } = useTileGrid({
     map,
@@ -75,11 +75,12 @@ export const TryFairDraggableGrid = ({
     onBBoxChange,
   });
 
-  //  Drag interaction  
+  //  Drag interaction
 
   // Hide the export dropdown once the user drags the grid away from the
   // area where the prediction was run.
-  const [gridMovedSincePredict, setGridMovedSincePredict] = useState(false);
+  const [gridMovedSincePredict, setGridMovedSincePredict] =
+    useState<boolean>(false);
 
   const hasPredictions = !!predictions && predictions.features.length > 0;
 
@@ -97,7 +98,7 @@ export const TryFairDraggableGrid = ({
     onDragStart: () => setGridMovedSincePredict(true),
   });
 
-  //  Screen projection   
+  //  Screen projection
 
   const screenGeometry = useGridScreenGeometry({
     map,
@@ -106,8 +107,8 @@ export const TryFairDraggableGrid = ({
   });
 
   // Safe predictions ref for the export closure
- 
-  const  predictionsRef = useRef(predictions);
+
+  const predictionsRef = useRef<GeoJSON.FeatureCollection | null>(predictions);
   predictionsRef.current = predictions;
 
   //  Render
@@ -148,8 +149,7 @@ export const TryFairDraggableGrid = ({
 
         {/* Vertical grid lines */}
         {verticalLines.map((line, index) => {
-          const isBorderLine =
-            index === 0 || index === VISIBLE_GRID_COLUMNS;
+          const isBorderLine = index === 0 || index === VISIBLE_GRID_COLUMNS;
           return (
             <polyline
               key={`grid-v-${index}`}

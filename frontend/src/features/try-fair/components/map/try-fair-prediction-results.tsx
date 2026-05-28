@@ -219,15 +219,14 @@ export const TryFairPredictionsLayer = ({
     >
       {/* Offset so the tooltip doesn't sit directly under the cursor */}
       <div className="relative" style={{ transform: "translate(12px, -50%)" }}>
-        <div className="bg-white/95 backdrop-blur-sm border border-gray-200 rounded-lg shadow-lg px-3 py-2 flex flex-col items-start gap-0.5 min-w-[120px]">
-          <p className="text-[10px] font-medium text-gray-500 uppercase tracking-wide leading-none">
+        <div className="bg-white/95 backdrop-blur-sm border border-gray-border rounded-lg shadow-lg px-3 py-2 flex flex-col items-start gap-0.5 min-w-[120px]">
+          <p className="text-[10px] font-medium text-grey uppercase tracking-wide leading-none">
             Buildings detected
           </p>
           <p className="text-base font-bold text-purple-700 leading-tight">
             {tooltip.count.toLocaleString()}
           </p>
         </div>
-        {/* Arrow pointing left toward cursor */}
         <div
           className="absolute top-1/2 -left-[6px] -translate-y-1/2 w-0 h-0"
           style={{

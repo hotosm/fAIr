@@ -16,7 +16,11 @@ const ZoomButton = ({
   icon: string;
   rounded?: boolean;
 }) => (
-  <button className={cn(`p-2 bg-white ${rounded ? "rounded-[4px]" : ""} `)} onClick={onClick} disabled={disabled}>
+  <button
+    className={cn(`p-2 bg-white ${rounded ? "rounded-[4px]" : ""} `)}
+    onClick={onClick}
+    disabled={disabled}
+  >
     <span
       className={`map-icon border-[2px] ${disabled ? "border-gray-border text-gray-border  cursor-not-allowed" : "text-dark border-dark"} text-lg inline-flex items-center justify-center `}
     >
@@ -25,7 +29,13 @@ const ZoomButton = ({
   </button>
 );
 
-export const ZoomControls = ({ map, rounded }: { map: Map | null; rounded?: boolean }) => {
+export const ZoomControls = ({
+  map,
+  rounded,
+}: {
+  map: Map | null;
+  rounded?: boolean;
+}) => {
   const currentZoom = useMapStore((state) => state.zoom);
 
   const handleZoomIn = useCallback(() => {

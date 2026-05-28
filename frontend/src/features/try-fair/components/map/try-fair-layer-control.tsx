@@ -161,7 +161,6 @@ export const TryFairLayerControl = ({
       >
         <div className="bg-white w-[210px] rounded-lg py-3 flex flex-col gap-y-4">
           <div className="px-4">
-
             <p className="text-sm font-medium text-grey">Layers</p>
           </div>
 
@@ -178,15 +177,10 @@ export const TryFairLayerControl = ({
             >
               <div
                 className={cn(
-                  "w-full px-4 flex items-center bg-off-white justify-between rounded-sm py-2  transition-colors"
-                
+                  "w-full px-4 flex items-center bg-off-white justify-between rounded-sm py-2  transition-colors",
                 )}
               >
-                <div
-                  className={cn(
-                    "flex gap-4 items-center gap-x-2 text-sm"
-                  )}
-                >
+                <div className={cn("flex gap-4 items-center gap-x-2 text-sm")}>
                   <span
                     className={cn(
                       "w-3 h-3 rounded-[3px]",
@@ -200,9 +194,7 @@ export const TryFairLayerControl = ({
                   onClick={togglePrediction}
                   className={cn(
                     "flex items-center justify-center size-6 rounded transition-colors",
-                    layersVisibility.prediction
-                      ? "border-[#B7B7B7] bg-white text-dark"
-                      : "",
+                    layersVisibility.prediction ? " bg-white text-dark" : "",
                   )}
                   aria-label={
                     layersVisibility.prediction

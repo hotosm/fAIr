@@ -13,7 +13,7 @@ import {
   snapAnchorToTileBoundary,
 } from "@/features/try-fair/utils/tile-math";
 
-// ── Types 
+// ── Types
 
 type UseGridDragOptions = {
   map: Map | null;
@@ -212,9 +212,6 @@ export const useGridDrag = ({
       window.removeEventListener("pointermove", onPointerMove);
       window.removeEventListener("pointerup", onPointerUp);
     };
-    // `isDragging` is the sole dependency — the effect subscribes when
-    // dragging starts and unsubscribes when it ends. All other values are
-    // read from refs to avoid re-subscription churn.
   }, [isDragging]);
 
   return { isDragging, handlePointerDown };

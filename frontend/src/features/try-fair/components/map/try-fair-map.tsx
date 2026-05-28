@@ -86,13 +86,13 @@ export const TryFairMap = ({
       map.touchPitch,
     ];
     if (isPredicting) {
-      handlers.forEach((h) => h?.disable());
+      handlers.forEach((handler) => handler?.disable());
     } else {
-      handlers.forEach((h) => h?.enable());
+      handlers.forEach((handler) => handler?.enable());
     }
     return () => {
       // Always re-enable on unmount/cleanup to avoid getting stuck
-      handlers.forEach((h) => h?.enable());
+      handlers.forEach((handler) => handler?.enable());
     };
   }, [map, isPredicting]);
 

@@ -69,15 +69,10 @@ export const useGridScreenGeometry = ({
 
     // Vertical lines: one per visible column boundary.
     for (let col = 0; col <= VISIBLE_GRID_COLUMNS; col++) {
-      const tileX =
-        anchor.x + (col / VISIBLE_GRID_COLUMNS) * gridSpec.columns;
+      const tileX = anchor.x + (col / VISIBLE_GRID_COLUMNS) * gridSpec.columns;
 
       const topCorner = num2deg(tileX, anchor.y, anchor.z);
-      const bottomCorner = num2deg(
-        tileX,
-        anchor.y + gridSpec.rows,
-        anchor.z,
-      );
+      const bottomCorner = num2deg(tileX, anchor.y + gridSpec.rows, anchor.z);
 
       const topPixel = map.project({
         lng: topCorner.lon_deg,
@@ -98,15 +93,10 @@ export const useGridScreenGeometry = ({
 
     // Horizontal lines: one per visible row boundary.
     for (let row = 0; row <= VISIBLE_GRID_ROWS; row++) {
-      const tileY =
-        anchor.y + (row / VISIBLE_GRID_ROWS) * gridSpec.rows;
+      const tileY = anchor.y + (row / VISIBLE_GRID_ROWS) * gridSpec.rows;
 
       const leftCorner = num2deg(anchor.x, tileY, anchor.z);
-      const rightCorner = num2deg(
-        anchor.x + gridSpec.columns,
-        tileY,
-        anchor.z,
-      );
+      const rightCorner = num2deg(anchor.x + gridSpec.columns, tileY, anchor.z);
 
       const leftPixel = map.project({
         lng: leftCorner.lon_deg,

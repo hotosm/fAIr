@@ -10,7 +10,7 @@ import {
   snapAnchorToTileBoundary,
 } from "@/features/try-fair/utils/tile-math";
 
-// ── Types 
+// ── Types
 
 type UseTileGridOptions = {
   map: Map | null;
