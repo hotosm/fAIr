@@ -9,7 +9,6 @@ import { navLinks } from "@/constants/general";
 import { NavLogo } from "@/components/layouts";
 import { APPLICATION_ROUTES, SHARED_CONTENT } from "@/constants";
 import { useAuth } from "@/app/providers/auth-provider";
-import { useTryFairStore } from "@/store/try-fair-store";
 import { useLocation, useNavigate } from "react-router-dom";
 import { UserProfile } from "@/components/layouts";
 import { useState } from "react";
@@ -47,7 +46,6 @@ export const NavBar = () => {
   const [open, setOpen] = useState(false);
 
   const { isAuthenticated } = useAuth();
-  const highlightStartMapping = useTryFairStore((s) => s.highlightStartMapping);
 
   const navigate = useNavigate();
 
@@ -112,9 +110,7 @@ export const NavBar = () => {
               />
             ) : (
               <div className="relative">
-                {highlightStartMapping && isTryFairPage && (
-                  <div className="absolute inset-0 ring-2 ring-primary ring-offset-2 rounded-full animate-pulse pointer-events-none z-10" />
-                )}
+           
                 <Button
                   rounded={isTryFairPage}
                   size={isTryFairPage ? "medium" : "large"}
@@ -165,9 +161,7 @@ export const NavBar = () => {
             </>
           ) : (
             <div className="relative">
-              {highlightStartMapping && isTryFairPage && (
-                <div className="absolute inset-0 ring-2 ring-primary ring-offset-2 rounded-full animate-pulse pointer-events-none z-10" />
-              )}
+         
               <Button
                 className={styles.loginButton}
                 variant={

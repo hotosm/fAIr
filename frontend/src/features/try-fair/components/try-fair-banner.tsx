@@ -9,7 +9,7 @@ export const TryFairBanner = ({
   mapClickCount,
   onDismiss,
 }: TryFairBannerProps) => {
-  const isSecondRun = mapClickCount >= 2;
+  const isSecondRun = mapClickCount >= 4;
 
   return (
     <div className="flex items-start gap-3 bg-white rounded-xl border border-gray-border shadow-lg p-4 w-[260px] animate-fade-in">
