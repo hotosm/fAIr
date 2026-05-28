@@ -154,8 +154,8 @@ export const TryFairLayerControl = ({
         disableCheveronIcon
         distance={10}
         triggerComponent={
-          <div className="bg-white p-1.5 border border-gray-border md:border-0 relative rounded-[4px]">
-            <LayerStackIcon className="icon-lg text-dark" />
+          <div className="bg-white p-2 border border-gray-border md:border-0 relative rounded-[4px]">
+            <LayerStackIcon className="size-7 text-dark" />
           </div>
         }
       >
