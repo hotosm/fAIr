@@ -105,7 +105,6 @@ export const TryFairMap = ({
         tileServiceURL={tileServiceValid ? tileServerURL : undefined}
         zoomControls={false}
         basemaps
-        showTileBoundaries
         onTileServiceFitToBounds={handleFitToGrid}
       />
 

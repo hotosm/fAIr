@@ -13,6 +13,9 @@ import { TryFairResolution } from "@/enums/try-fair";
 /** A tile-space position: integer/fractional x/y at a given tile zoom level. */
 export type TileAnchor = { x: number; y: number; z: number };
 
+// Floating-point tolerance used when snapping near exact tile boundaries.
+const TILE_SNAP_EPSILON = 1e-6;
+
 // ── Pure helpers ─────────────────────────────────────────────────────────────
 
 /** Clamp `value` to the range [`min`, `max`]. */
@@ -71,8 +74,8 @@ export const clampAnchorToWorldBounds = (anchor: TileAnchor): TileAnchor => {
 export const snapAnchorToTileBoundary = (anchor: TileAnchor): TileAnchor =>
   clampAnchorToWorldBounds({
     ...anchor,
-    x: Math.floor(anchor.x),
-    y: Math.floor(anchor.y),
+    x: Math.floor(anchor.x + TILE_SNAP_EPSILON),
+    y: Math.floor(anchor.y + TILE_SNAP_EPSILON),
   });
 
 /**

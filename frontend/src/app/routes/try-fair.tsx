@@ -203,20 +203,24 @@ export const TryFairPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map, tileJSONMetadata, gridZoomed, isMapButtonDisabled, isPredicting]);
 
-  // Show the banner each time a prediction finishes.
+  // Show the banner only on the 1st and 4th successful map runs.
   useEffect(() => {
-    if (!isPredicting && predictions) {
-      setBannerVisible(true);
-      if (mapClickCount === 1) {
-        setHighlightSidebar(true);
-        const timer = setTimeout(() => setHighlightSidebar(false), 5000);
-        return () => clearTimeout(timer);
-      }
-      if (mapClickCount >= 2) {
-        setHighlightStartMapping(true);
-        const timer = setTimeout(() => setHighlightStartMapping(false), 5000);
-        return () => clearTimeout(timer);
-      }
+    if (isPredicting || !predictions) return;
+
+    const shouldShowBanner = mapClickCount === 1 || mapClickCount === 4;
+    setBannerVisible(shouldShowBanner);
+    if (!shouldShowBanner) return;
+
+    if (mapClickCount === 1) {
+      setHighlightSidebar(true);
+      const timer = setTimeout(() => setHighlightSidebar(false), 5000);
+      return () => clearTimeout(timer);
+    }
+
+    if (mapClickCount === 4) {
+      setHighlightStartMapping(true);
+      const timer = setTimeout(() => setHighlightStartMapping(false), 5000);
+      return () => clearTimeout(timer);
     }
   }, [isPredicting, predictions]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -227,10 +231,10 @@ export const TryFairPage = () => {
     setBannerVisible(false);
     // Invert confidence_threshold for the API: a lower threshold value produces better results
     const apiParams = Object.fromEntries(
-      Object.entries(paramValues).map(([k, v]) =>
-        k === "confidence_threshold"
-          ? [k, parseFloat((1 - Number(v)).toFixed(2))]
-          : [k, v],
+      Object.entries(paramValues).map(([parameterName, parameterValue]) =>
+        parameterName === "confidence_threshold"
+          ? [parameterName, parseFloat((1 - Number(parameterValue)).toFixed(2))]
+          : [parameterName, parameterValue],
       ),
     );
     predict({

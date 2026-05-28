@@ -110,7 +110,6 @@ export const NavBar = () => {
               />
             ) : (
               <div className="relative">
-           
                 <Button
                   rounded={isTryFairPage}
                   size={isTryFairPage ? "medium" : "large"}
@@ -161,7 +160,6 @@ export const NavBar = () => {
             </>
           ) : (
             <div className="relative">
-         
               <Button
                 className={styles.loginButton}
                 variant={

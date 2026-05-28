@@ -195,7 +195,6 @@ export const BaseModelDetailPage = () => {
     return null;
   }
 
-  console.log("Model data:", model);
   return (
     <>
       <Head title={`${model.fullTitle}`} />
