@@ -258,8 +258,14 @@ export const TryFairDraggableGrid = ({
       const x = anchor.x + (column / VISIBLE_GRID_COLUMNS) * selected.columns;
       const top = num2deg(x, anchor.y, anchor.z);
       const bottom = num2deg(x, anchor.y + selected.rows, anchor.z);
-      const p1 = map.project({ lng: top.lon_deg, lat: top.lat_deg } as LngLatLike);
-      const p2 = map.project({ lng: bottom.lon_deg, lat: bottom.lat_deg } as LngLatLike);
+      const p1 = map.project({
+        lng: top.lon_deg,
+        lat: top.lat_deg,
+      } as LngLatLike);
+      const p2 = map.project({
+        lng: bottom.lon_deg,
+        lat: bottom.lat_deg,
+      } as LngLatLike);
       verticalLines.push({ x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y });
     }
 
@@ -267,8 +273,14 @@ export const TryFairDraggableGrid = ({
       const y = anchor.y + (row / VISIBLE_GRID_ROWS) * selected.rows;
       const left = num2deg(anchor.x, y, anchor.z);
       const right = num2deg(anchor.x + selected.columns, y, anchor.z);
-      const p1 = map.project({ lng: left.lon_deg, lat: left.lat_deg } as LngLatLike);
-      const p2 = map.project({ lng: right.lon_deg, lat: right.lat_deg } as LngLatLike);
+      const p1 = map.project({
+        lng: left.lon_deg,
+        lat: left.lat_deg,
+      } as LngLatLike);
+      const p2 = map.project({
+        lng: right.lon_deg,
+        lat: right.lat_deg,
+      } as LngLatLike);
       horizontalLines.push({ x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y });
     }
 
