@@ -116,7 +116,7 @@ export const TryFairSidebar = ({
               aria-label={label}
               className={`flex-1 flex disabled:cursor-not-allowed items-center justify-center py-2 rounded-lg ${
                 outputType === type
-                  ? "bg-secondary text-primary"
+                  ? "bg-secondary text-primary border-[#D63F4080] border"
                   : "bg-off-white"
               }`}
             >
@@ -160,7 +160,7 @@ export const TryFairSidebar = ({
                 disabled={isPredicting}
                 onClick={() => onResolutionChange(value)}
                 className={`flex-1 gap-1 flex text-xs items-center justify-center py-2 rounded-lg ${
-                  resolution === value ? "bg-secondary" : "bg-off-white"
+                  resolution === value ? "bg-secondary border-[#D63F4080] border" : "bg-off-white"
                 }`}
               >
                 <GridIcon width={size} height={size} />
