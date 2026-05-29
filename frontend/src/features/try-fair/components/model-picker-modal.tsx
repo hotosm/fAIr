@@ -8,6 +8,7 @@ type ModelPickerProps = {
   onSelect: (model: BaseModelStacItem) => void;
   models: BaseModelStacItem[];
   loading?: boolean;
+  disabled?: boolean
 };
 
 // const FeatureBadge = ({ label, type }: { label: string; type: string }) => (
@@ -34,6 +35,7 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
   onSelect,
   models,
   loading = false,
+  disabled = false
 }) => {
   const [isOpen, setIsOpen] = useState<Boolean>(false);
   const [panelStyle, setPanelStyle] = useState<React.CSSProperties>({});
@@ -90,7 +92,8 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
         ref={triggerRef}
         type="button"
         onClick={() => setIsOpen((v) => !v)}
-        className="flex  h-[40px] justify-between gap-2 items-center w-full min-w-0"
+        disabled={disabled}
+        className="flex  h-[40px] justify-between disabled:cursor-wait gap-2 items-center w-full min-w-0"
       >
         <div className="text-left min-w-0">
           {loading ? (

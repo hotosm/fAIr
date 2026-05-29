@@ -5,8 +5,9 @@ import { TILE_BOUNDARY_LAYER_ID, TILE_BOUNDARY_SOURCE_ID } from "@/config";
 import { useCallback, useEffect } from "react";
 
 export const TileBoundaries = ({ map }: { map: Map | null }) => {
-  useEffect(() => {
+  const ensureTileBoundaryLayer = useCallback(() => {
     if (!map || !map.getStyle()) return;
+
     if (!map.getSource(TILE_BOUNDARY_SOURCE_ID)) {
       map.addSource(TILE_BOUNDARY_SOURCE_ID, {
         type: "geojson",
@@ -21,39 +22,58 @@ export const TileBoundaries = ({ map }: { map: Map | null }) => {
         source: TILE_BOUNDARY_SOURCE_ID,
         paint: {
           "line-color": "#FFF",
-          "line-width": 0.5,
+          "line-opacity": 0.3,
+          "line-width": [
+            "interpolate",
+            ["linear"],
+            ["zoom"],
+            16,
+            0.8,
+            20,
+            1.2,
+            22,
+            1.5,
+          ],
         },
         layout: { visibility: "visible" },
       });
-      // It should be moved to the top of the layer stack.
-      map.moveLayer(TILE_BOUNDARY_LAYER_ID);
     }
-  }, [map]);
 
-  const updateTileBoundary = useCallback(() => {
-    if (map && map.getStyle()) {
-      if (map.getSource(TILE_BOUNDARY_SOURCE_ID)) {
-        const tileBoundaries = getTileBoundariesGeoJSON(
-          map,
-          // There is a mismatch of 1 in the mag.getZoom() results and the actual zoom level of the map.
-          // Adding 1 to the result resolves it.
-          Math.round(map.getZoom() + 1),
-        );
-        const source = map.getSource(TILE_BOUNDARY_SOURCE_ID) as GeoJSONSource;
-        source.setData(tileBoundaries as GeoJSONType);
-      }
-    }
+    // Keep tile boundaries above newly added layers.
+    map.moveLayer(TILE_BOUNDARY_LAYER_ID);
   }, [map]);
 
   useEffect(() => {
-    if (map && map.getStyle()) {
-      map.on("moveend", updateTileBoundary);
+    ensureTileBoundaryLayer();
+  }, [ensureTileBoundaryLayer]);
+
+  const updateTileBoundary = useCallback(() => {
+    if (!map || !map.getStyle()) return;
+
+    ensureTileBoundaryLayer();
+
+    if (map.getSource(TILE_BOUNDARY_SOURCE_ID)) {
+      const tileBoundaries = getTileBoundariesGeoJSON(
+        map,
+        Math.max(0, Math.floor(map.getZoom())),
+      );
+      const source = map.getSource(TILE_BOUNDARY_SOURCE_ID) as GeoJSONSource;
+      source.setData(tileBoundaries as GeoJSONType);
     }
+  }, [map, ensureTileBoundaryLayer]);
+
+  useEffect(() => {
+    if (!map) return;
+
+    updateTileBoundary();
+    map.on("move", updateTileBoundary);
+    map.on("zoom", updateTileBoundary);
+    map.on("styledata", updateTileBoundary);
 
     return () => {
-      if (map && map.getStyle()) {
-        map.off("moveend", updateTileBoundary);
-      }
+      map.off("move", updateTileBoundary);
+      map.off("zoom", updateTileBoundary);
+      map.off("styledata", updateTileBoundary);
     };
   }, [map, updateTileBoundary]);
 

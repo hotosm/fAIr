@@ -2,6 +2,7 @@ import { TryFairMapOutputType, TryFairResolution } from "@/enums/try-fair";
 import { InfoIcon } from "@/components/ui/icons";
 import { ModelPicker } from "./model-picker-modal";
 import { TRY_FAIR_PAGE_CONTENT } from "@/constants/ui-contents/try-fair-contents";
+import { APP_TOUR_IDS } from "@/constants/site-tour";
 import { Button } from "@/components/ui/button";
 import { MapPlayIcon } from "@/components/ui/icons/map-play-icon";
 import { ParametersIcon } from "@/components/ui/icons/parameters-icon";
@@ -74,6 +75,7 @@ export const TryFairSidebar = ({
             selectedModel={selectedModel}
             onSelect={onSelectModel}
             models={models}
+            disabled={isPredicting}
             loading={modelsLoading}
           />
         </div>
@@ -87,7 +89,7 @@ export const TryFairSidebar = ({
           <Button
             type="button"
             size="medium"
-            className="flex gap-2 items-center"
+            className="flex gap-2 items-center !disabled:cursor-wait"
             rounded
             onClick={onMap}
             disabled={isMapButtonDisabled || isPredicting}
@@ -114,7 +116,7 @@ export const TryFairSidebar = ({
               title={label}
               disabled={isPredicting}
               aria-label={label}
-              className={`flex-1 flex disabled:cursor-not-allowed items-center justify-center py-2 rounded-lg ${
+              className={`flex-1 flex disabled:cursor-wait items-center justify-center py-2 rounded-lg ${
                 outputType === type
                   ? "bg-secondary text-primary border-[#D63F4080] border"
                   : "bg-off-white"
@@ -127,7 +129,10 @@ export const TryFairSidebar = ({
       </div>
 
       {/* ── Parameters ── */}
-      <div className="p-3 border bg-[#FAFAFA] rounded-lg border-gray-border space-y-4 flex flex-col">
+      <div
+        id={APP_TOUR_IDS.TRY_FAIR_PARAMETERS}
+        className="p-3 border bg-[#FAFAFA] rounded-lg border-gray-border space-y-4 flex flex-col"
+      >
         {/* Section header */}
         <div className="flex items-center gap-2">
           <ParametersIcon />
@@ -159,7 +164,7 @@ export const TryFairSidebar = ({
                 type="button"
                 disabled={isPredicting}
                 onClick={() => onResolutionChange(value)}
-                className={`flex-1 gap-1 flex text-xs items-center justify-center py-2 rounded-lg ${
+                className={`flex-1 gap-1 flex disabled:cursor-wait text-xs items-center justify-center py-2 rounded-lg ${
                   resolution === value
                     ? "bg-secondary border-[#D63F4080] border"
                     : "bg-off-white"
@@ -201,7 +206,7 @@ export const TryFairSidebar = ({
                     onChange={(e) =>
                       onParamChange(key, parseFloat(e.target.value))
                     }
-                    className="try-fair-confidence-slider disabled:cursor-not-allowed flex-1 h-1.5 rounded-full appearance-none cursor-pointer outline-none"
+                    className="try-fair-confidence-slider disabled:cursor-wait flex-1 h-1.5 rounded-full appearance-none cursor-pointer outline-none"
                     style={{
                       background: `linear-gradient(90deg, #0088FF 0%, #FF383C 100%)`,
                     }}

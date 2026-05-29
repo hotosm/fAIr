@@ -11,6 +11,7 @@ import { TryFairPointsLegend } from "@/features/try-fair/components/map/points-l
 import { FitToBounds, ZoomControls } from "@/components/map/controls";
 import { PREDICTION_LAYER_IDS } from "@/features/try-fair/utils/common";
 import { TryFairLayerControl } from "@/features/try-fair/components/map/try-fair-layer-control";
+import useScreenSize from "@/hooks/use-screen-size";
 
 type TryFairMapProps = {
   map: Map | null;
@@ -46,6 +47,7 @@ export const TryFairMap = ({
   isPredicting = false,
   onGridZoom,
 }: TryFairMapProps) => {
+  const { isSmallViewport } = useScreenSize();
   const [choroplethBuckets, setChoroplethBuckets] = useState<
     ChoroplethBucket[] | null
   >(null);
@@ -71,20 +73,11 @@ export const TryFairMap = ({
     onGridZoom?.();
   }, [map, onGridZoom]);
 
-  // Disable all map interactions while a prediction is running so the grid
-  // stays anchored over the area that was submitted.
+  // While predicting, disable only map dragging/panning.
+  // Keep zoom interactions enabled.
   useEffect(() => {
     if (!map) return;
-    const handlers = [
-      map.scrollZoom,
-      map.boxZoom,
-      map.dragRotate,
-      map.dragPan,
-      map.keyboard,
-      map.doubleClickZoom,
-      map.touchZoomRotate,
-      map.touchPitch,
-    ];
+    const handlers = [map.dragRotate, map.dragPan, map.touchPitch];
     if (isPredicting) {
       handlers.forEach((handler) => handler?.disable());
     } else {
@@ -96,6 +89,13 @@ export const TryFairMap = ({
     };
   }, [map, isPredicting]);
 
+  const legend =
+    outputType === TryFairMapOutputType.CLUSTER ? (
+      <TryFairChoroplethLegend buckets={choroplethBuckets} />
+    ) : outputType === TryFairMapOutputType.POINTS ? (
+      <TryFairPointsLegend totalCount={predictions?.features.length ?? 0} />
+    ) : null;
+
   return (
     <div className="relative w-full h-full  overflow-hidden">
       <MapComponent
@@ -103,6 +103,7 @@ export const TryFairMap = ({
         mapContainerRef={mapContainerRef}
         hasTileServiceLayer={tileServiceValid}
         tileServiceURL={tileServiceValid ? tileServerURL : undefined}
+        showTileBoundaries
         zoomControls={false}
         basemaps
         onTileServiceFitToBounds={handleFitToGrid}
@@ -128,10 +129,12 @@ export const TryFairMap = ({
           isPredicting={isPredicting}
           predictions={predictions}
           outputType={outputType}
+          predictionBBox={predictionBBox}
+          predictionGridZoom={predictionGridZoom}
         />
       )}
 
-      {/* ── Right-side control strip ──────────────────────────────────── */}
+      {/* ── Right-side  */}
       {map && (
         <div className="absolute top-5 right-3 map-elements-z-index flex flex-col gap-y-[3px]">
           {/* Zoom in / out */}
@@ -154,13 +157,12 @@ export const TryFairMap = ({
         </div>
       )}
 
-      {outputType === TryFairMapOutputType.CLUSTER && (
-        <TryFairChoroplethLegend buckets={choroplethBuckets} />
-      )}
-
-      {outputType === TryFairMapOutputType.POINTS && (
-        <TryFairPointsLegend totalCount={predictions?.features.length ?? 0} />
-      )}
+      {legend &&
+        (isSmallViewport ? (
+          <div className="absolute bottom-[25vh] right-4 z-10">{legend}</div>
+        ) : (
+          legend
+        ))}
     </div>
   );
 };

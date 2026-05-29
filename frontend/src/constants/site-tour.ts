@@ -1,3 +1,5 @@
+import type { StepType } from "@reactour/tour";
+
 export const APP_TOUR_IDS = {
   STEP_HEADING: "step-heading",
   PROGRESS_BUTTONS: "progress-buttons",
@@ -6,6 +8,8 @@ export const APP_TOUR_IDS = {
   MORE_INFORMATION: "more-information",
   TUTORIAL_BUTTON: "tutorial-button",
   TRAINING_AREA_TOOLS: "training-area-tools",
+  TRY_FAIR_PARAMETERS: "try-fair-parameters",
+  TRY_FAIR_START_MAPPING_BUTTON: "try-fair-start-mapping-button",
 };
 
 export const APP_TOUR_STEPS = [
@@ -33,5 +37,22 @@ export const APP_TOUR_STEPS = [
   {
     selector: `#${APP_TOUR_IDS.TUTORIAL_BUTTON}`,
     content: "Restart the tour at any time by clicking this button.",
+  },
+];
+
+export const getTryFairTourSteps = (
+  isSmallViewport: boolean,
+): StepType[] => [
+  {
+    selector: `#${APP_TOUR_IDS.TRY_FAIR_PARAMETERS}`,
+    content:
+      "Adjust confidence and resolution to explore how prediction output changes.",
+    position: isSmallViewport ? "top" : "right",
+  },
+  {
+    selector: `#${APP_TOUR_IDS.TRY_FAIR_START_MAPPING_BUTTON}`,
+    content:
+      "Ready for full mapping? Click Start Mapping to continue with advanced tools.",
+    
   },
 ];

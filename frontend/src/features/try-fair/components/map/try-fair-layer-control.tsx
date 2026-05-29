@@ -220,7 +220,7 @@ export const TryFairLayerControl = ({
               }
             >
               <LayerRow
-                label="TMS"
+                label="Open Aerial Imagery"
                 active={layersVisibility.imagery}
                 icon={<TryFairImageryIcon />}
                 onClick={toggleImagery}
@@ -236,7 +236,7 @@ export const TryFairLayerControl = ({
             }
           >
             <LayerRow
-              label="OSM"
+              label="OpenstreetMap"
               active={layersVisibility.osm}
               icon={<TryFairOSMIcon />}
               onClick={() => toggleBasemap("osm")}

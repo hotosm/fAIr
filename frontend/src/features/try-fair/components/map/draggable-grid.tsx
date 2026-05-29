@@ -17,10 +17,14 @@ import {
   useGridScreenGeometry,
   screenLineToPointsAttr,
 } from "@/features/try-fair/hooks/use-grid-screen-geometry";
+import {
+  buildChoropleth,
+  toPointCollection,
+} from "@/features/try-fair/utils/helpers";
 
 //  Constants
 
-/** Grid line colour — extracted so it's easy to theme or adjust. */
+/** Grid line colour  */
 const GRID_LINE_COLOR = "#EF4444";
 
 // Types
@@ -41,17 +45,48 @@ type TryFairDraggableGridProps = {
   predictions?: GeoJSON.FeatureCollection | null;
   /** Currently selected output type — used to name the export file. */
   outputType?: TryFairMapOutputType;
+  /** Bounding box used for the current prediction result. */
+  predictionBBox?: BBOX | null;
+  /** Grid zoom used for the current prediction result. */
+  predictionGridZoom?: number | null;
 };
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 const CHOROPLETH_FILL_LAYER_ID = "try-fair-predictions-choropleth-fill";
 
+const getDownloadData = (
+  predictions: GeoJSON.FeatureCollection,
+  outputType: TryFairMapOutputType,
+  predictionBBox?: BBOX | null,
+  predictionGridZoom?: number | null,
+): GeoJSON.FeatureCollection => {
+  if (outputType === TryFairMapOutputType.POINTS) {
+    return toPointCollection(predictions);
+  }
+  if (outputType === TryFairMapOutputType.CLUSTER && predictionBBox) {
+    return buildChoropleth(
+      predictions,
+      predictionBBox,
+      predictionGridZoom ?? undefined,
+    );
+  }
+  return predictions;
+};
+
 const downloadPredictions = (
   predictions: GeoJSON.FeatureCollection,
   outputType: TryFairMapOutputType,
+  predictionBBox?: BBOX | null,
+  predictionGridZoom?: number | null,
 ) => {
-  geoJSONDowloader(predictions, `fair-predictions-${outputType.toLowerCase()}`);
+  const exportData = getDownloadData(
+    predictions,
+    outputType,
+    predictionBBox,
+    predictionGridZoom,
+  );
+  geoJSONDowloader(exportData, `fair-predictions-${outputType.toLowerCase()}`);
 };
 
 type HoverTooltip = {
@@ -72,6 +107,8 @@ export const TryFairDraggableGrid = ({
   isPredicting = false,
   predictions,
   outputType,
+  predictionBBox,
+  predictionGridZoom,
 }: TryFairDraggableGridProps) => {
   // Grid anchor & bbox management
 
@@ -172,6 +209,30 @@ export const TryFairDraggableGrid = ({
     setHoverTooltip({ x: point.x, y: point.y, count });
   };
 
+  const handleDragSurfaceWheel = (e: React.WheelEvent<SVGPolygonElement>) => {
+    if (!map || isPredicting) return;
+
+    // The draggable overlay sits on top of the map and captures wheel/trackpad
+    // gestures. Forward zoom intent to the map so users can zoom while hovering
+    // inside the grid.
+    e.preventDefault();
+    e.stopPropagation();
+
+    const canvasRect = map.getCanvas().getBoundingClientRect();
+    const point = {
+      x: e.clientX - canvasRect.left,
+      y: e.clientY - canvasRect.top,
+    };
+
+    const zoomDelta = -e.deltaY / 300;
+    const nextZoom = map.getZoom() + zoomDelta;
+
+    map.zoomTo(nextZoom, {
+      around: map.unproject([point.x, point.y]),
+      duration: 0,
+    });
+  };
+
   return (
     <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 1 }}>
       <svg className="absolute inset-0 w-full h-full overflow-visible">
@@ -179,11 +240,12 @@ export const TryFairDraggableGrid = ({
         <polygon
           points={dragSurfacePoints}
           fill="transparent"
-          className={`pointer-events-auto ${cursorStyle}`}
+          className={`${isPredicting ? "pointer-events-none" : "pointer-events-auto"} ${cursorStyle}`}
           style={{ touchAction: "none" }}
           onPointerDown={handlePointerDown}
           onPointerMove={handleDragSurfacePointerMove}
           onPointerLeave={() => setHoverTooltip(null)}
+          onWheel={handleDragSurfaceWheel}
         />
 
         {/* Vertical grid lines */}
@@ -246,12 +308,18 @@ export const TryFairDraggableGrid = ({
                   onClick={() => {
                     const currentPredictions = predictionsRef.current;
                     if (currentPredictions) {
-                      downloadPredictions(currentPredictions, outputType);
+                      downloadPredictions(
+                        currentPredictions,
+                        outputType,
+                        predictionBBox,
+                        predictionGridZoom,
+                      );
                     }
                   }}
-                  className="bg-off-white w-8 h-8 p-1.5 items-center justify-center flex rounded-md"
+                  className="bg-off-white h-8 px-2.5 gap-1.5 items-center justify-center flex rounded-md"
                 >
                   <CloudDownloadIcon className="icon md:icon-lg" />
+                  <span className="text-xs text-dark">Download</span>
                 </button>
               </ToolTip>
             </div>

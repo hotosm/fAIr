@@ -8,6 +8,7 @@ import { Link } from "@/components/ui/link";
 import { navLinks } from "@/constants/general";
 import { NavLogo } from "@/components/layouts";
 import { APPLICATION_ROUTES, SHARED_CONTENT } from "@/constants";
+import { APP_TOUR_IDS } from "@/constants/site-tour";
 import { useAuth } from "@/app/providers/auth-provider";
 import { useLocation, useNavigate } from "react-router-dom";
 import { UserProfile } from "@/components/layouts";
@@ -109,10 +110,10 @@ export const NavBar = () => {
                 setOpen={setOpen}
               />
             ) : (
-              <div className="relative">
-                <Button
-                  rounded={isTryFairPage}
-                  size={isTryFairPage ? "medium" : "large"}
+            <div className="relative">
+              <Button
+                rounded={isTryFairPage}
+                size={isTryFairPage ? "medium" : "large"}
                   variant={
                     isTryFairPage
                       ? ButtonVariant.TERTIARY
@@ -159,7 +160,14 @@ export const NavBar = () => {
               <UserProfile />
             </>
           ) : (
-            <div className="relative">
+            <div
+              className="relative"
+              id={
+                isTryFairPage
+                  ? APP_TOUR_IDS.TRY_FAIR_START_MAPPING_BUTTON
+                  : undefined
+              }
+            >
               <Button
                 className={styles.loginButton}
                 variant={

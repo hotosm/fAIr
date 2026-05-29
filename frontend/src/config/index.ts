@@ -180,6 +180,24 @@ export const HOT_FAIR_MODEL_PREDICTIONS_LOCAL_STORAGE_KEY = (
 export const TRAINING_AREA_TOUR_LOCAL_STORAGE_KEY =
   "__fAIr_training_area_tour_seen";
 
+/**
+ * The key used to store whether a user has seen the Try fAIr welcome dialog.
+ */
+export const TRY_FAIR_WELCOME_DIALOG_SEEN_LOCAL_STORAGE_KEY =
+  "__fAIr_try_fair_welcome_seen";
+
+/**
+ * The key used to store whether a user has seen Try fAIr tour step one.
+ */
+export const TRY_FAIR_TOUR_STEP_ONE_SEEN_LOCAL_STORAGE_KEY =
+  "__fAIr_try_fair_tour_step_one_seen";
+
+/**
+ * The key used to store whether a user has seen Try fAIr tour step two.
+ */
+export const TRY_FAIR_TOUR_STEP_TWO_SEEN_LOCAL_STORAGE_KEY =
+  "__fAIr_try_fair_tour_step_two_seen";
+
 // ==============================================================================================================================
 // Training Area Configurations
 // ==============================================================================================================================

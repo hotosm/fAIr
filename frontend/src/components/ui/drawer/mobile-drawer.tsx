@@ -9,6 +9,9 @@ export const MobileDrawer = ({
   canClose = false,
   closeDrawer,
   snapPoints = [0.2, 0.5, 0.8],
+  modal = true,
+  showOverlay = true,
+  handleOnly = false,
 }: {
   open: boolean;
   children: React.ReactNode;
@@ -16,7 +19,10 @@ export const MobileDrawer = ({
   closeDrawer?: () => void;
   canClose?: boolean;
   startingSnapPoint?: number | string;
-  snapPoints?: number[];
+  snapPoints?: (number | string)[];
+  modal?: boolean;
+  showOverlay?: boolean;
+  handleOnly?: boolean;
 }) => {
   const [snap, setSnap] = useState<number | string | null>(snapPoints[0]);
   const lastSnapPoint = snapPoints[snapPoints.length - 1];
@@ -29,8 +35,12 @@ export const MobileDrawer = ({
       open={open}
       onClose={closeDrawer}
       repositionInputs={false}
+      modal={modal}
+      handleOnly={handleOnly}
     >
-      <Drawer.Overlay className="fixed inset-0 bg-black/40" />
+      {showOverlay ? (
+        <Drawer.Overlay className="fixed inset-0 bg-black/40" />
+      ) : null}
       <Drawer.Portal>
         <Drawer.Content
           data-testid="content"
@@ -55,8 +65,7 @@ export const MobileDrawer = ({
             ) : null}
             <Drawer.Title hidden>{dialogTitle}</Drawer.Title>
             <Drawer.Description hidden>{dialogTitle}</Drawer.Description>
-            <div
-              aria-hidden
+            <Drawer.Handle
               className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-grey mb-4"
             />
             {children}

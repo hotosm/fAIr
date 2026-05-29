@@ -61,7 +61,6 @@ export const toPointCollection = (
 export const CHOROPLETH_GRID_COLS = 5;
 export const CHOROPLETH_GRID_ROWS = 5;
 
-/** Lavender → deep purple ramp (5 buckets, matches design) */
 export const CHOROPLETH_COLORS = [
   "#E5CEF2",
   "#C58EE4",
@@ -77,7 +76,6 @@ export type ChoroplethBucket = {
   label: string;
 };
 
-// ── Choropleth grid spec (mirrors draggable-grid.tsx — must stay in sync) ───
 
 /**
  * Floor-free tile coordinate conversion (matches lngLatToTileCoords in
@@ -117,7 +115,6 @@ export const buildChoropleth = (
   return buildEqualDegreeChoropleth(predictions, bbox);
 };
 
-// ── Tile-aligned (primary path) ───────────────────────────────────────────────
 
 const buildTileAlignedChoropleth = (
   predictions: GeoJSON.FeatureCollection,
@@ -195,7 +192,6 @@ const buildTileAlignedChoropleth = (
   return { type: "FeatureCollection", features };
 };
 
-// ── Equal-degree fallback (kept for non-tile-zoom contexts) ───────────────────
 
 const buildEqualDegreeChoropleth = (
   predictions: GeoJSON.FeatureCollection,

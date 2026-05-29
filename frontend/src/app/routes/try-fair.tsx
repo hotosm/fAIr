@@ -12,19 +12,34 @@ import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params"
 import { useBaseModels } from "@/features/try-fair/hooks/use-base-models";
 import { BBOX } from "@/types";
 import { useFairPredict } from "@/features/try-fair/hooks/use-fair-predict";
-import { TryFairBanner } from "@/features/try-fair/components/try-fair-banner";
-import { useTryFairStore } from "@/store/try-fair-store";
+import { TryFairWelcomeDialog } from "@/features/try-fair/components/try-fair-welcome-dialog";
+import { getTryFairTourSteps } from "@/constants/site-tour";
 import {
   getInferenceParams,
   InferenceParam,
 } from "@/features/try-fair/api/stac";
 import useScreenSize from "@/hooks/use-screen-size";
 import { MobileDrawer } from "@/components/ui/drawer";
+import {
+  TRY_FAIR_TOUR_STEP_ONE_SEEN_LOCAL_STORAGE_KEY,
+  TRY_FAIR_TOUR_STEP_TWO_SEEN_LOCAL_STORAGE_KEY,
+  TRY_FAIR_WELCOME_DIALOG_SEEN_LOCAL_STORAGE_KEY,
+} from "@/config";
+import { useLocalStorage } from "@/hooks/use-storage";
+import { useTour, type StepType } from "@reactour/tour";
+import { TRY_FAIR_INITIAL_MAP_ZOOM } from "@/features/try-fair/utils/common";
 export const TryFairPage = () => {
   const { map, mapContainerRef } = useMapInstance(false, false);
   const { isSmallViewport } = useScreenSize();
+  const { getValue, setValue } = useLocalStorage();
+  const { setIsOpen, setCurrentStep, setSteps } = useTour();
+  const hasSeenWelcomeDialog =
+    getValue(TRY_FAIR_WELCOME_DIALOG_SEEN_LOCAL_STORAGE_KEY) === "true";
+  const hasSeenTourStepOne =
+    getValue(TRY_FAIR_TOUR_STEP_ONE_SEEN_LOCAL_STORAGE_KEY) === "true";
+  const hasSeenTourStepTwo =
+    getValue(TRY_FAIR_TOUR_STEP_TWO_SEEN_LOCAL_STORAGE_KEY) === "true";
 
-  // URL-persisted state (nuqs)
   const {
     modelId,
     outputType,
@@ -36,7 +51,6 @@ export const TryFairPage = () => {
     setConfidence,
   } = useTryFairParams();
 
-  // ── Models from STAC
   const { models: allModels, loading: modelsLoading } = useBaseModels();
 
   const models = useMemo(
@@ -56,13 +70,12 @@ export const TryFairPage = () => {
     [selectedModel],
   );
 
-  // ── Inference params (derived from selected model's STAC spec) ────────────
   const inferenceParams: InferenceParam[] = useMemo(
     () => (selectedModel ? getInferenceParams(selectedModel) : []),
     [selectedModel],
   );
 
-  // Merge STAC defaults with URL-persisted confidence
+
   const paramValues = useMemo(() => {
     const values: Record<string, number | string | boolean> = {};
     inferenceParams.forEach(({ key, spec }) => {
@@ -71,22 +84,22 @@ export const TryFairPage = () => {
     return values;
   }, [inferenceParams, confidence]);
 
-  // Other UI state (not in URL)
   const [latestBBox, setLatestBBox] = useState<BBOX | null>(null);
   const [latestGridZoom, setLatestGridZoom] = useState<number | null>(null);
   const [isDirty, setIsDirty] = useState(true);
 
-  // Event tracking
   const [gridZoomed, setGridZoomed] = useState(false);
   const [mapClickCount, setMapClickCount] = useState(0);
-  const [bannerVisible, setBannerVisible] = useState(false);
-  const [highlightSidebar, setHighlightSidebar] = useState(false);
-  const autoTriggeredRef = useRef(false);
-  const setHighlightStartMapping = useTryFairStore(
-    (s) => s.setHighlightStartMapping,
+  const [showWelcomeModal, setShowWelcomeModal] = useState(
+    () => !hasSeenWelcomeDialog,
   );
+  const [allowInitialPrediction, setAllowInitialPrediction] = useState(
+    () => hasSeenWelcomeDialog,
+  );
+  const [tourStepOneSeen, setTourStepOneSeen] = useState(() => hasSeenTourStepOne);
+  const [tourStepTwoSeen, setTourStepTwoSeen] = useState(() => hasSeenTourStepTwo);
+  const autoTriggeredRef = useRef(false);
 
-  // Tile service
   const tileServiceUrl = demoConfig?.tileServiceUrl ?? "";
 
   const {
@@ -101,8 +114,6 @@ export const TryFairPage = () => {
     setTileserverURL(tileServiceUrl);
   }, [tileServiceUrl, setTileserverURL]);
 
-  // Derive the best centre to fly/recenter to:
-  // 1. tileJSON `center` field  2. bounds midpoint  3. demoConfig fallback
   const imageryCenter = useMemo((): [number, number] | undefined => {
     if (tileJSONMetadata?.center) {
       return [tileJSONMetadata.center[0], tileJSONMetadata.center[1]];
@@ -114,9 +125,6 @@ export const TryFairPage = () => {
     return demoConfig?.center;
   }, [tileJSONMetadata, demoConfig]);
 
-  // Fly to imagery centre on model load. Resolution controls prediction zoom,
-  // while the draggable grid now follows the active map zoom level.
-  const INITIAL_MAP_ZOOM = 18;
 
   useEffect(() => {
     if (!map || !demoConfig || !imageryCenter) return;
@@ -124,7 +132,7 @@ export const TryFairPage = () => {
     const doFly = () => {
       map.flyTo({
         center: imageryCenter,
-        zoom: INITIAL_MAP_ZOOM,
+        zoom: TRY_FAIR_INITIAL_MAP_ZOOM,
         essential: true,
       });
     };
@@ -137,10 +145,8 @@ export const TryFairPage = () => {
         map.off("load", doFly);
       };
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map, demoConfig, imageryCenter]);
 
-  // Predict
   const {
     predict,
     isPredicting,
@@ -150,22 +156,17 @@ export const TryFairPage = () => {
     clearPredictions,
   } = useFairPredict();
 
-  // Handlers
   const handleSelectModel = (model: { id: string }) => {
     setModelId(model.id);
     setResolution(TryFairResolution.MID);
     setIsDirty(true);
     clearPredictions();
-    setBannerVisible(false);
   };
 
   const handleResolutionChange = (res: TryFairResolution) => {
     setResolution(res);
     setIsDirty(true);
-    // Resolution only changes the grid tile structure — the map camera stays put.
   };
-
-  // handleOutputTypeChange is defined after handleMap (below) so it can call it.
 
   const handleParamChange = useCallback(
     (key: string, value: number | string | boolean) => {
@@ -185,51 +186,50 @@ export const TryFairPage = () => {
     setGridZoomed(true);
   }, []);
 
-  // Auto-trigger the first prediction once the map is ready, imagery has loaded,
-  // and the grid has been fit-to-bounds.
-  const isMapButtonDisabled = !isDirty || !latestBBox || !demoConfig;
-  useEffect(() => {
-    if (autoTriggeredRef.current) return;
-    if (
-      !map ||
-      !tileJSONMetadata ||
-      !gridZoomed ||
-      isMapButtonDisabled ||
-      isPredicting
-    )
+  const handleContinueToTryFair = useCallback(() => {
+    setValue(TRY_FAIR_WELCOME_DIALOG_SEEN_LOCAL_STORAGE_KEY, "true");
+    setShowWelcomeModal(false);
+    setAllowInitialPrediction(true);
+    setGridZoomed(false);
+
+    if (map && latestBBox) {
+      map.fitBounds(
+        [latestBBox[0], latestBBox[1], latestBBox[2], latestBBox[3]],
+        {
+          padding: 40,
+          essential: true,
+        },
+      );
+      map.once("moveend", () => setGridZoomed(true));
       return;
-    autoTriggeredRef.current = true;
-    handleMap();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [map, tileJSONMetadata, gridZoomed, isMapButtonDisabled, isPredicting]);
-
-  // Show the banner only on the 1st and 4th successful map runs.
-  useEffect(() => {
-    if (isPredicting || !predictions) return;
-
-    const shouldShowBanner = mapClickCount === 1 || mapClickCount === 4;
-    setBannerVisible(shouldShowBanner);
-    if (!shouldShowBanner) return;
-
-    if (mapClickCount === 1) {
-      setHighlightSidebar(true);
-      const timer = setTimeout(() => setHighlightSidebar(false), 5000);
-      return () => clearTimeout(timer);
     }
 
-    if (mapClickCount === 4) {
-      setHighlightStartMapping(true);
-      const timer = setTimeout(() => setHighlightStartMapping(false), 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [isPredicting, predictions]); // eslint-disable-line react-hooks/exhaustive-deps
+    setGridZoomed(true);
+  }, [latestBBox, map, setValue]);
 
-  const handleMap = () => {
+  const tryFairTourSteps = useMemo<StepType[]>(
+    () => getTryFairTourSteps(isSmallViewport),
+    [isSmallViewport],
+  );
+
+  const openTryFairTourStep = useCallback(
+    (stepIndex: number) => {
+      const step = tryFairTourSteps[stepIndex];
+      const selector = step?.selector;
+      if (!selector) return;
+      if (typeof selector === "string" && !document.querySelector(selector))
+        return;
+      setSteps?.([step]);
+      setCurrentStep(0);
+      setIsOpen(true);
+    },
+    [setCurrentStep, setIsOpen, setSteps, tryFairTourSteps],
+  );
+
+  const handleMap = useCallback(() => {
     if (!selectedModel || !latestBBox || !demoConfig) return;
     setIsDirty(false);
     setMapClickCount((n) => n + 1);
-    setBannerVisible(false);
-    // Invert confidence_threshold for the API: a lower threshold value produces better results
     const apiParams = Object.fromEntries(
       Object.entries(paramValues).map(([parameterName, parameterValue]) =>
         parameterName === "confidence_threshold"
@@ -246,12 +246,67 @@ export const TryFairPage = () => {
       resolution,
       params: apiParams,
     });
-  };
+  }, [
+    selectedModel,
+    latestBBox,
+    demoConfig,
+    paramValues,
+    predict,
+    tileserverURL,
+    latestGridZoom,
+    resolution,
+  ]);
+
+  const isMapButtonDisabled = !isDirty || !latestBBox || !demoConfig;
+  useEffect(() => {
+    if (autoTriggeredRef.current) return;
+    if (
+      !allowInitialPrediction ||
+      !map ||
+      !tileJSONMetadata ||
+      !gridZoomed ||
+      isMapButtonDisabled ||
+      isPredicting
+    )
+      return;
+    autoTriggeredRef.current = true;
+    handleMap();
+  }, [
+    allowInitialPrediction,
+    handleMap,
+    map,
+    tileJSONMetadata,
+    gridZoomed,
+    isMapButtonDisabled,
+    isPredicting,
+  ]);
+
+  useEffect(() => {
+    if (isPredicting || !predictions) return;
+    if (mapClickCount === 1 && !tourStepOneSeen) {
+      openTryFairTourStep(0);
+      setValue(TRY_FAIR_TOUR_STEP_ONE_SEEN_LOCAL_STORAGE_KEY, "true");
+      setTourStepOneSeen(true);
+      return;
+    }
+    if (mapClickCount === 4 && !isSmallViewport && !tourStepTwoSeen) {
+      openTryFairTourStep(1);
+      setValue(TRY_FAIR_TOUR_STEP_TWO_SEEN_LOCAL_STORAGE_KEY, "true");
+      setTourStepTwoSeen(true);
+    }
+  }, [
+    isPredicting,
+    predictions,
+    mapClickCount,
+    isSmallViewport,
+    tourStepOneSeen,
+    tourStepTwoSeen,
+    setValue,
+    openTryFairTourStep,
+  ]);
 
   const handleOutputTypeChange = (type: TryFairMapOutputType) => {
     setOutputType(type);
-    // If the grid has been moved since the last prediction, re-run at the new
-    // location rather than just switching the rendering of stale results.
     if (isDirty && predictions) {
       handleMap();
     }
@@ -260,8 +315,12 @@ export const TryFairPage = () => {
   return (
     <>
       <Head title={TRY_FAIR_PAGE_CONTENT.pageTitle} />
+      <TryFairWelcomeDialog
+        isOpened={showWelcomeModal}
+        onContinue={handleContinueToTryFair}
+      />
 
-      <div className="flex  h-[92vh] flex-col fullscreen">
+      <div className="flex h-screen md:h-[92vh] flex-col fullscreen">
         <div className="flex-grow relative">
           <TryFairMap
             map={map}
@@ -281,23 +340,8 @@ export const TryFairPage = () => {
             onGridZoom={handleGridZoom}
           />
 
-          {bannerVisible && (
-            <div className="absolute bottom-4 left-4 z-10">
-              <TryFairBanner
-                mapClickCount={mapClickCount}
-                onDismiss={() => {
-                  setBannerVisible(false);
-                  setHighlightStartMapping(false);
-                }}
-              />
-            </div>
-          )}
-
           {!isSmallViewport && (
             <div className="absolute top-4 left-4 z-10">
-              {highlightSidebar && (
-                <div className="absolute inset-0 ring-2 ring-primary ring-offset-2 rounded-xl animate-pulse pointer-events-none z-20" />
-              )}
               <TryFairSidebar
                 selectedModel={selectedModel}
                 models={models}
@@ -319,13 +363,13 @@ export const TryFairPage = () => {
 
           {isSmallViewport && (
             <div className="relative">
-              {highlightSidebar && (
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 h-10 w-28 ring-2 ring-primary ring-offset-2 rounded-full animate-pulse pointer-events-none z-20" />
-              )}
               <MobileDrawer
                 open={isSmallViewport}
                 dialogTitle="Try Fair Settings"
                 snapPoints={[0.2, 0.9]}
+                modal={false}
+                showOverlay={false}
+                handleOnly
               >
                 <TryFairSidebar
                   selectedModel={selectedModel}
