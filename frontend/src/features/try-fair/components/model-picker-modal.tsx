@@ -8,7 +8,7 @@ type ModelPickerProps = {
   onSelect: (model: BaseModelStacItem) => void;
   models: BaseModelStacItem[];
   loading?: boolean;
-  disabled?: boolean
+  disabled?: boolean;
 };
 
 // const FeatureBadge = ({ label, type }: { label: string; type: string }) => (
@@ -35,7 +35,7 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
   onSelect,
   models,
   loading = false,
-  disabled = false
+  disabled = false,
 }) => {
   const [isOpen, setIsOpen] = useState<Boolean>(false);
   const [panelStyle, setPanelStyle] = useState<React.CSSProperties>({});

@@ -40,9 +40,7 @@ export const APP_TOUR_STEPS = [
   },
 ];
 
-export const getTryFairTourSteps = (
-  isSmallViewport: boolean,
-): StepType[] => [
+export const getTryFairTourSteps = (isSmallViewport: boolean): StepType[] => [
   {
     selector: `#${APP_TOUR_IDS.TRY_FAIR_PARAMETERS}`,
     content:
@@ -53,6 +51,5 @@ export const getTryFairTourSteps = (
     selector: `#${APP_TOUR_IDS.TRY_FAIR_START_MAPPING_BUTTON}`,
     content:
       "Ready for full mapping? Click Start Mapping to continue with advanced tools.",
-    
   },
 ];

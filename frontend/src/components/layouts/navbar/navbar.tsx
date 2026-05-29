@@ -110,10 +110,10 @@ export const NavBar = () => {
                 setOpen={setOpen}
               />
             ) : (
-            <div className="relative">
-              <Button
-                rounded={isTryFairPage}
-                size={isTryFairPage ? "medium" : "large"}
+              <div className="relative">
+                <Button
+                  rounded={isTryFairPage}
+                  size={isTryFairPage ? "medium" : "large"}
                   variant={
                     isTryFairPage
                       ? ButtonVariant.TERTIARY

@@ -76,7 +76,6 @@ export type ChoroplethBucket = {
   label: string;
 };
 
-
 /**
  * Floor-free tile coordinate conversion (matches lngLatToTileCoords in
  * draggable-grid.tsx). Unlike deg2num, this does NOT apply Math.floor so we
@@ -114,7 +113,6 @@ export const buildChoropleth = (
   }
   return buildEqualDegreeChoropleth(predictions, bbox);
 };
-
 
 const buildTileAlignedChoropleth = (
   predictions: GeoJSON.FeatureCollection,
@@ -191,7 +189,6 @@ const buildTileAlignedChoropleth = (
   }
   return { type: "FeatureCollection", features };
 };
-
 
 const buildEqualDegreeChoropleth = (
   predictions: GeoJSON.FeatureCollection,

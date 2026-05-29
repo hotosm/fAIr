@@ -11,9 +11,8 @@ export const TryFairWelcomeDialog = ({
   isOpened,
   onContinue,
 }: TryFairWelcomeDialogProps) => {
-  
   return (
-    <Dialog  isOpened={isOpened} closeDialog={() => null} preventClose noHeader>
+    <Dialog isOpened={isOpened} closeDialog={() => null} preventClose noHeader>
       <div className="space-y-4">
         <h2 className="text-title-3 font-semibold text-dark">
           Welcome to Try fAIr

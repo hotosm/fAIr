@@ -65,9 +65,7 @@ export const MobileDrawer = ({
             ) : null}
             <Drawer.Title hidden>{dialogTitle}</Drawer.Title>
             <Drawer.Description hidden>{dialogTitle}</Drawer.Description>
-            <Drawer.Handle
-              className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-grey mb-4"
-            />
+            <Drawer.Handle className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-grey mb-4" />
             {children}
           </div>
         </Drawer.Content>

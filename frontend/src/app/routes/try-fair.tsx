@@ -75,7 +75,6 @@ export const TryFairPage = () => {
     [selectedModel],
   );
 
-
   const paramValues = useMemo(() => {
     const values: Record<string, number | string | boolean> = {};
     inferenceParams.forEach(({ key, spec }) => {
@@ -96,8 +95,12 @@ export const TryFairPage = () => {
   const [allowInitialPrediction, setAllowInitialPrediction] = useState(
     () => hasSeenWelcomeDialog,
   );
-  const [tourStepOneSeen, setTourStepOneSeen] = useState(() => hasSeenTourStepOne);
-  const [tourStepTwoSeen, setTourStepTwoSeen] = useState(() => hasSeenTourStepTwo);
+  const [tourStepOneSeen, setTourStepOneSeen] = useState(
+    () => hasSeenTourStepOne,
+  );
+  const [tourStepTwoSeen, setTourStepTwoSeen] = useState(
+    () => hasSeenTourStepTwo,
+  );
   const autoTriggeredRef = useRef(false);
 
   const tileServiceUrl = demoConfig?.tileServiceUrl ?? "";
@@ -124,7 +127,6 @@ export const TryFairPage = () => {
     }
     return demoConfig?.center;
   }, [tileJSONMetadata, demoConfig]);
-
 
   useEffect(() => {
     if (!map || !demoConfig || !imageryCenter) return;
