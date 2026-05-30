@@ -233,10 +233,39 @@ export const TryFairDraggableGrid = ({
     });
   };
 
+  const svgWidth = mapContainerRef.current?.clientWidth ?? 0;
+  const svgHeight = mapContainerRef.current?.clientHeight ?? 0;
   return (
     <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 1 }}>
       <svg className="absolute inset-0 w-full h-full overflow-visible">
-        {/* Transparent drag surface covering the entire grid */}
+        <defs>
+          <mask id="grid-focus-mask">
+            {/* Show entire overlay */}
+            <rect
+              x="0"
+              y="0"
+              width={svgWidth}
+              height={svgHeight}
+              fill="white"
+            />
+
+            {/* Cut a hole where the grid is */}
+            <polygon points={dragSurfacePoints} fill="black" />
+          </mask>
+        </defs>
+
+        {/* Darken everything outside the grid */}
+        <rect
+          x="0"
+          y="0"
+          width={svgWidth}
+          height={svgHeight}
+          fill="#000"
+          opacity="0.4"
+          mask="url(#grid-focus-mask)"
+        />
+
+        {/* Existing drag surface */}
         <polygon
           points={dragSurfacePoints}
           fill="transparent"
@@ -251,6 +280,7 @@ export const TryFairDraggableGrid = ({
         {/* Vertical grid lines */}
         {verticalLines.map((line, index) => {
           const isBorderLine = index === 0 || index === VISIBLE_GRID_COLUMNS;
+
           return (
             <polyline
               key={`grid-v-${index}`}
@@ -258,7 +288,7 @@ export const TryFairDraggableGrid = ({
               fill="none"
               stroke={GRID_LINE_COLOR}
               strokeOpacity={isBorderLine ? 1 : 0.75}
-              strokeWidth={isBorderLine ? 2 : 1}
+              strokeWidth={isBorderLine ? 3 : 1}
             />
           );
         })}
@@ -266,6 +296,7 @@ export const TryFairDraggableGrid = ({
         {/* Horizontal grid lines */}
         {horizontalLines.map((line, index) => {
           const isBorderLine = index === 0 || index === VISIBLE_GRID_ROWS;
+
           return (
             <polyline
               key={`grid-h-${index}`}
@@ -273,7 +304,7 @@ export const TryFairDraggableGrid = ({
               fill="none"
               stroke={GRID_LINE_COLOR}
               strokeOpacity={isBorderLine ? 1 : 0.75}
-              strokeWidth={isBorderLine ? 2 : 1}
+              strokeWidth={isBorderLine ? 3 : 1}
             />
           );
         })}

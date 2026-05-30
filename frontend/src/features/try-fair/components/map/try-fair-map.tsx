@@ -12,6 +12,7 @@ import { FitToBounds, ZoomControls } from "@/components/map/controls";
 import { PREDICTION_LAYER_IDS } from "@/features/try-fair/utils/common";
 import { TryFairLayerControl } from "@/features/try-fair/components/map/try-fair-layer-control";
 import useScreenSize from "@/hooks/use-screen-size";
+import { PredictionStatusLayer } from "./prediction-status";
 
 type TryFairMapProps = {
   map: Map | null;
@@ -28,7 +29,7 @@ type TryFairMapProps = {
   resolution?: TryFairResolution;
   modelId?: string | null;
   isPredicting?: boolean;
-  canFitToBounds:boolean 
+  canFitToBounds: boolean;
 };
 
 export const TryFairMap = ({
@@ -45,7 +46,7 @@ export const TryFairMap = ({
   resolution,
   modelId,
   isPredicting = false,
-  canFitToBounds
+  canFitToBounds,
 }: TryFairMapProps) => {
   const { isSmallViewport } = useScreenSize();
   const [choroplethBuckets, setChoroplethBuckets] = useState<
@@ -53,41 +54,64 @@ export const TryFairMap = ({
   >(null);
   // Track the grid bbox locally so fit-to-grid always has the latest value
   const gridBBoxRef = useRef<BBOX | null>(null);
+  const [gridBBox, setGridBBox] = useState<BBOX | null>(null);
 
   // Intercept bbox changes so gridBBoxRef always has the latest value
   const handleBBoxChange = useCallback(
     (bbox: BBOX, tileZoom: number) => {
       gridBBoxRef.current = bbox;
+      setGridBBox(bbox);
       onBBoxChange(bbox, tileZoom);
     },
     [onBBoxChange],
   );
 
   const handleFitToGrid = useCallback(() => {
-    if(!canFitToBounds) return 
+    if (!canFitToBounds) return;
     const bbox = gridBBoxRef.current;
     if (!map || !bbox) return;
     map.fitBounds([bbox[0], bbox[1], bbox[2], bbox[3]], {
       padding: 40,
       essential: true,
     });
-  }, [map,canFitToBounds]);
+  }, [map, canFitToBounds]);
 
-  // While predicting, disable only map dragging/panning.
-  // Keep zoom interactions enabled.
   useEffect(() => {
     if (!map) return;
-    const handlers = [map.dragRotate, map.dragPan, map.touchPitch];
+
     if (isPredicting) {
-      handlers.forEach((handler) => handler?.disable());
+      map.dragPan.disable();
+      map.dragRotate.disable();
+      map.scrollZoom.disable();
+      map.boxZoom.disable();
+      map.doubleClickZoom.disable();
+      map.keyboard.disable();
+      map.touchZoomRotate.disable();
+      map.touchPitch.disable();
     } else {
-      handlers.forEach((handler) => handler?.enable());
+      map.dragPan.enable();
+      map.dragRotate.enable();
+      map.scrollZoom.enable();
+      map.boxZoom.enable();
+      map.doubleClickZoom.enable();
+      map.keyboard.enable();
+      map.touchZoomRotate.enable();
+      map.touchPitch.enable();
     }
-    return () => {
-      // Always re-enable on unmount/cleanup to avoid getting stuck
-      handlers.forEach((handler) => handler?.enable());
-    };
   }, [map, isPredicting]);
+  // useEffect(() => {
+  //   if (!map) return;
+  //   const handlers = [map.dragRotate, map.dragPan, map.touchPitch, map.touchZoomRotate];
+  //   if (isPredicting) {
+  //     handlers.forEach((handler) => handler?.disable());
+  //   } else {
+  //     handlers.forEach((handler) => handler?.enable());
+  //   }
+  //   return () => {
+  //     // Always re-enable on unmount/cleanup to avoid getting stuck
+  //     handlers.forEach((handler) => handler?.enable());
+  //   };
+  // }, [map, isPredicting]);
 
   const legend =
     outputType === TryFairMapOutputType.CLUSTER ? (
@@ -103,7 +127,7 @@ export const TryFairMap = ({
         mapContainerRef={mapContainerRef}
         hasTileServiceLayer={tileServiceValid}
         tileServiceURL={tileServiceValid ? tileServerURL : undefined}
-        showTileBoundaries
+        // showTileBoundaries
         zoomControls={false}
         basemaps
         onTileServiceFitToBounds={handleFitToGrid}
@@ -134,20 +158,22 @@ export const TryFairMap = ({
         />
       )}
 
-      {/* ── Right-side  */}
+      {map && isPredicting && (
+        <PredictionStatusLayer
+          map={map}
+          isPredicting={isPredicting}
+          bbox={gridBBox}
+        />
+      )}
       {map && (
         <div className="absolute top-5 right-3 map-elements-z-index flex flex-col gap-y-[3px]">
-          {/* Zoom in / out */}
           <ZoomControls map={map} rounded={true} />
-          {/* Zoom to grid */}
           <FitToBounds
             map={map}
             bounds={null}
             onClick={handleFitToGrid}
             tooltipContent="Zoom to grid bounds"
           />
-
-          {/* Layers panel */}
           <TryFairLayerControl
             map={map}
             hasActivePrediction={Boolean(predictions?.features?.length)}

@@ -8,8 +8,6 @@ import {
   toPointCollection,
 } from "@/features/try-fair/utils/helpers";
 
-// ── Layer / source IDs
-
 const SOURCE_ID = "try-fair-predictions";
 const FILL_LAYER = "try-fair-predictions-fill";
 const OUTLINE_LAYER = "try-fair-predictions-outline";
@@ -35,8 +33,6 @@ const removeLayers = (map: Map) => {
   });
   if (map.getSource(SOURCE_ID)) map.removeSource(SOURCE_ID);
 };
-
-// ── Component ─────────────────────────────────────────────────────────────────
 
 type Props = {
   map: Map | null;
@@ -84,7 +80,6 @@ export const TryFairPredictionsLayer = ({
     onChoroplethBucketsChange?.(buckets);
   }, [buckets, onChoroplethBucketsChange]);
 
-  // ── Hover tooltip state ────────────────────────────────────────────────────
   const [tooltip, setTooltip] = useState<HoverTooltip>(null);
   // Keep a ref so event handlers always read the latest map without stale closure
   const mapRef = useRef<Map | null>(null);

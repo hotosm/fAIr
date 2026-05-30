@@ -127,6 +127,18 @@ export const DEMO_MODEL_CONFIGS: DemoModelConfig[] = [
     featureType: "building",
     author: "HOTOSM",
   },
+  {
+    baseModelId: "dinov3-buildings",
+    localModelUri:
+      "https://huggingface.co/kshitijrajsharma/dinov3-hot-buildings/resolve/main/dinov3_buildings.onnx",
+    tileServiceUrl:
+      "https://tiles.openaerialmap.org/690585b76415e43597ffd7ea/0/690585b76415e43597ffd7eb/{z}/{x}/{y}",
+    center: [-13.2415, 8.4835],
+    displayName: "Buildings",
+    location: "Nepal",
+    featureType: "building",
+    author: "HOTOSM",
+  },
 ];
 
 export const getDemoConfig = (

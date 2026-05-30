@@ -75,7 +75,7 @@ export const TryFairOnboardingDialog = ({
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-6 items-center">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 items-center">
           <div className="overflow-hidden rounded-xl border bg-muted/30">
             <img
               src={currentStep.image}
@@ -90,10 +90,12 @@ export const TryFairOnboardingDialog = ({
                 <StepIcon className="h-5 w-5 text-primary" />
               </div>
 
-              <div>
-                <h3 className="text-xl font-semibold">{currentStep.title}</h3>
+              <div className="min-w-0">
+                <h3 className="text-lg md:text-xl font-semibold">
+                  {currentStep.title}
+                </h3>
 
-                <p className="mt-2 text-muted-foreground">
+                <p className="mt-2 text-sm md:text-base text-muted-foreground">
                   {currentStep.description}
                 </p>
               </div>

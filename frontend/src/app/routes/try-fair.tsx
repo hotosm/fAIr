@@ -162,13 +162,13 @@ export const TryFairPage = () => {
   }, [tileServiceUrl, setTileserverURL]);
 
   const imageryCenter = useMemo((): [number, number] | undefined => {
-    if (tileJSONMetadata?.center) {
-      return [tileJSONMetadata.center[0], tileJSONMetadata.center[1]];
-    }
-    if (tileJSONMetadata?.bounds) {
-      const b = tileJSONMetadata.bounds as [number, number, number, number];
-      return [(b[0] + b[2]) / 2, (b[1] + b[3]) / 2];
-    }
+    // if (tileJSONMetadata?.center) {
+    //   return [tileJSONMetadata.center[0], tileJSONMetadata.center[1]];
+    // }
+    // if (tileJSONMetadata?.bounds) {
+    //   const b = tileJSONMetadata.bounds as [number, number, number, number];
+    //   return [(b[0] + b[2]) / 2, (b[1] + b[3]) / 2];
+    // }
     return demoConfig?.center;
   }, [tileJSONMetadata, demoConfig]);
 
@@ -255,7 +255,9 @@ export const TryFairPage = () => {
     if (tourStepMapButtonTooltipSeen) {
       setIsSiteTourOpen(false);
     }
-
+    // Always centerlize the grid whenever the user clicks on Map
+    // This is to prevent situations whereby the user drags the grid to another place and the prediction is not visible to them.
+    handleZoomToGrid();
     setIsDirty(false);
     setMapClickCount((n) => n + 1);
     const apiParams = Object.fromEntries(
@@ -361,6 +363,7 @@ export const TryFairPage = () => {
   return (
     <>
       <Head title={TRY_FAIR_PAGE_CONTENT.pageTitle} />
+
       {showOnboarding && (
         <TryFairOnboardingDialog
           isOpened={showOnboarding}
@@ -415,10 +418,7 @@ export const TryFairPage = () => {
               <MobileDrawer
                 open={isSmallViewport}
                 dialogTitle="Try Fair Settings"
-                snapPoints={[0.2, 0.6]}
-                modal={false}
-                showOverlay={false}
-                handleOnly
+                snapPoints={[0.2, 0.7]}
               >
                 <TryFairSidebar
                   selectedModel={selectedModel}

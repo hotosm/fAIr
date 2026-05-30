@@ -75,6 +75,7 @@ export const TryFairSidebar = ({
             models={models}
             disabled={isPredicting}
             loading={modelsLoading}
+            isSmallViewport={isSmallViewport}
           />
         </div>
 
