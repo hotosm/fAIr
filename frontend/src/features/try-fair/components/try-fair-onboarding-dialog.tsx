@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/icons";
 import { useState } from "react";
 import { cn } from "@/utils";
-import { SelectModelGIF,SelectAreaGIF,RunModelGIF } from "@/assets/gifs";
+import { SelectModelGIF, SelectAreaGIF, RunModelGIF } from "@/assets/gifs";
 
 type TryFairOnboardingDialogProps = {
   isOpened: boolean;

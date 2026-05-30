@@ -44,7 +44,7 @@ export const MobileDrawer = ({
       <Drawer.Portal>
         <Drawer.Content
           data-testid="content"
-          className="fixed z-[1] border border-gray-border flex flex-col bg-white border-b-none py-2 rounded-t-[10px] bottom-0 left-0 right-0  h-full max-h-[97%] mx-[-1px] lg:h-[320px] outline-none"
+          className="fixed z-[10] border border-gray-border flex flex-col bg-white border-b-none py-2 rounded-t-[10px] bottom-0 left-0 right-0  h-full max-h-[97%] mx-[-1px] lg:h-[320px] outline-none"
         >
           <div
             className={cn(`flex flex-col max-w-md mx-auto w-full app-padding`, {

@@ -414,7 +414,7 @@ export const TryFairPage = () => {
               <MobileDrawer
                 open={isSmallViewport}
                 dialogTitle="Try Fair Settings"
-                snapPoints={[0.2, 0.9]}
+                snapPoints={[0.2, 0.6]}
                 modal={false}
                 showOverlay={false}
                 handleOnly
