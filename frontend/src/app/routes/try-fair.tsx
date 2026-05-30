@@ -85,23 +85,23 @@ export const TryFairPage = () => {
 
   const [latestBBox, setLatestBBox] = useState<BBOX | null>(null);
   const [latestGridZoom, setLatestGridZoom] = useState<number | null>(null);
-  const [isDirty, setIsDirty] = useState(true);
+  const [isDirty, setIsDirty] = useState<boolean>(true);
 
-  const [gridZoomed, setGridZoomed] = useState(false);
-  const [mapClickCount, setMapClickCount] = useState(0);
-  const [showWelcomeModal, setShowWelcomeModal] = useState(
+  const [gridZoomed, setGridZoomed] = useState<boolean>(false);
+  const [mapClickCount, setMapClickCount] = useState<number>(0);
+  const [showWelcomeModal, setShowWelcomeModal] = useState<boolean>(
     () => !hasSeenWelcomeDialog,
   );
-  const [allowInitialPrediction, setAllowInitialPrediction] = useState(
-    () => hasSeenWelcomeDialog,
-  );
-  const [tourStepOneSeen, setTourStepOneSeen] = useState(
-    () => hasSeenTourStepOne,
-  );
-  const [tourStepTwoSeen, setTourStepTwoSeen] = useState(
-    () => hasSeenTourStepTwo,
-  );
-  const autoTriggeredRef = useRef(false);
+  const [allowInitialPrediction, setAllowInitialPrediction] = useState<
+    boolean
+  >(() => hasSeenWelcomeDialog);
+  const [tourStepOneSeen, setTourStepOneSeen] = useState<
+    boolean
+  >(() => hasSeenTourStepOne);
+  const [tourStepTwoSeen, setTourStepTwoSeen] = useState<
+    boolean
+  >(() => hasSeenTourStepTwo);
+  const autoTriggeredRef = useRef<boolean>(false);
 
   const tileServiceUrl = demoConfig?.tileServiceUrl ?? "";
 
