@@ -16,7 +16,7 @@ export const TRY_FAIR_PAGE_CONTENT: TTryFairPageContent = {
       label: "Map Output",
     },
     parameters: {
-      label: "SETTINGS",
+      label: "Parameters",
       description:
         "Adjust confidence and resolution to explore different prediction results.",
       learnMore: "Learn more",
