@@ -73,3 +73,4 @@ export { TryFairOSMIcon } from "./try-fair-osm-icon";
 export { TryFairGoogleSatelliteIcon } from "./try-fair-google-satellite-icon";
 export { TryFairPredictionOutputIcon } from "./try-fair-prediction-output-icon";
 export { TryFairPredictionToggleIcon } from "./try-fair-prediction-toggle-icon";
+export { SparklesIcon } from "./sparkles-icon";

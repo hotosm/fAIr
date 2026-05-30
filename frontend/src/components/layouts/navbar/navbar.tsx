@@ -24,6 +24,8 @@ import {
 } from "@/config";
 import "@hotosm/tool-menu";
 import { Divider } from "@/components/ui/divider";
+import { ToolTip } from "@/components/ui/tooltip";
+import { ExternalLinkIcon } from "@/components/ui/icons";
 
 if (AUTH_PROVIDER === "hanko") {
   import("@hotosm/hanko-auth");
@@ -110,28 +112,40 @@ export const NavBar = () => {
                 setOpen={setOpen}
               />
             ) : (
-              <div className="relative">
-                <Button
-                  rounded={isTryFairPage}
-                  size={isTryFairPage ? "medium" : "large"}
-                  variant={
+              <div className="relative pb-4 pl-4">
+                <ToolTip
+                  content={
                     isTryFairPage
-                      ? ButtonVariant.TERTIARY
-                      : ButtonVariant.PRIMARY
+                      ? "Sign in to access full mapping tools and features"
+                      : undefined
                   }
-                  onClick={() => {
-                    /*
-                     * Set the `backgroundLocation` in location state so that when we open the authentication modal we still see the current page in the background.
-                     */
-                    navigate(location, {
-                      state: { backgroundLocation: location },
-                    });
-                  }}
                 >
-                  {isTryFairPage
-                    ? SHARED_CONTENT.homepage.ctaSecondaryButton
-                    : SHARED_CONTENT.navbar.loginButton}
-                </Button>
+                  <Button
+                    rounded={isTryFairPage}
+                    size={isTryFairPage ? "medium" : "large"}
+                    variant={
+                      isTryFairPage
+                        ? ButtonVariant.TERTIARY
+                        : ButtonVariant.PRIMARY
+                    }
+                    onClick={() => {
+                      /*
+                       * Set the `backgroundLocation` in location state so that when we open the authentication modal we still see the current page in the background.
+                       */
+                      navigate(location, {
+                        state: { backgroundLocation: location },
+                      });
+                    }}
+                  >
+                    {isTryFairPage
+                      ? `${SHARED_CONTENT.homepage.ctaSecondaryButton}`
+                      : SHARED_CONTENT.navbar.loginButton}
+
+                    {isTryFairPage ? (
+                      <ExternalLinkIcon className="text-white size-3" />
+                    ) : null}
+                  </Button>
+                </ToolTip>
               </div>
             )}
           </div>
@@ -168,26 +182,40 @@ export const NavBar = () => {
                   : undefined
               }
             >
-              <Button
-                className={styles.loginButton}
-                variant={
-                  isTryFairPage ? ButtonVariant.TERTIARY : ButtonVariant.PRIMARY
+              <ToolTip
+                content={
+                  isTryFairPage
+                    ? "Sign in to access full mapping tools and features"
+                    : undefined
                 }
-                size={isTryFairPage ? "medium" : "large"}
-                rounded={isTryFairPage}
-                onClick={() => {
-                  /*
-                   * Set the `backgroundLocation` in location state so that when we open the authentication modal we still see the current page in the background.
-                   */
-                  navigate(location, {
-                    state: { backgroundLocation: location },
-                  });
-                }}
               >
-                {isTryFairPage
-                  ? SHARED_CONTENT.homepage.ctaSecondaryButton
-                  : SHARED_CONTENT.navbar.loginButton}
-              </Button>
+                <Button
+                  className={styles.loginButton}
+                  variant={
+                    isTryFairPage
+                      ? ButtonVariant.TERTIARY
+                      : ButtonVariant.PRIMARY
+                  }
+                  size={isTryFairPage ? "medium" : "large"}
+                  rounded={isTryFairPage}
+                  onClick={() => {
+                    /*
+                     * Set the `backgroundLocation` in location state so that when we open the authentication modal we still see the current page in the background.
+                     */
+                    navigate(location, {
+                      state: { backgroundLocation: location },
+                    });
+                  }}
+                >
+                  {isTryFairPage
+                    ? `${SHARED_CONTENT.homepage.ctaSecondaryButton}`
+                    : SHARED_CONTENT.navbar.loginButton}
+
+                  {isTryFairPage ? (
+                    <ExternalLinkIcon className="text-white size-3" />
+                  ) : null}
+                </Button>
+              </ToolTip>
             </div>
           )}
           {AUTH_PROVIDER === "hanko" && <hotosm-tool-menu></hotosm-tool-menu>}

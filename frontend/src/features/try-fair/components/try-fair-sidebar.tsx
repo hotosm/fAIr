@@ -1,5 +1,4 @@
 import { TryFairMapOutputType, TryFairResolution } from "@/enums/try-fair";
-import { InfoIcon } from "@/components/ui/icons";
 import { ModelPicker } from "./model-picker-modal";
 import { TRY_FAIR_PAGE_CONTENT } from "@/constants/ui-contents/try-fair-contents";
 import { APP_TOUR_IDS } from "@/constants/site-tour";
@@ -61,7 +60,6 @@ export const TryFairSidebar = ({
         className,
       )}
     >
-      {/* ── Model selector + Map button ── */}
       <div
         className={cn(
           "flex bg-[#FAFAFA] border p-2.5 rounded-lg",
@@ -85,11 +83,11 @@ export const TryFairSidebar = ({
           <div className="self-stretch w-px bg-gray-border shrink-0" />
         )}
 
-        <div>
+        <div id={APP_TOUR_IDS.TRY_FAIR_MAP_BUTTON_TOOLTIP}>
           <Button
             type="button"
             size="medium"
-            className="flex gap-2 items-center !disabled:cursor-wait"
+            className="flex gap-2 items-center"
             rounded
             onClick={onMap}
             disabled={isMapButtonDisabled || isPredicting}
@@ -143,9 +141,8 @@ export const TryFairSidebar = ({
 
         {/* Description */}
         <div className="flex items-start gap-2">
-          <InfoIcon className="size-6" />
           <div>
-            <p className="text-grey text-xs italic leading-relaxed">
+            <p className="text-grey text-xs leading-relaxed">
               {TRY_FAIR_PAGE_CONTENT.sidebar.parameters.description}{" "}
             </p>
           </div>

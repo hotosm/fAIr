@@ -6,13 +6,13 @@ import { TryFairSidebar } from "@/features/try-fair/components/try-fair-sidebar"
 import { DEMO_MODEL_CONFIGS, getDemoConfig } from "@/features/try-fair/models";
 import { useMapInstance } from "@/hooks/use-map-instance";
 import { useTileservice } from "@/hooks/use-tileservice";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { getTileServerTypeFromURL } from "@/utils";
 import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
 import { useBaseModels } from "@/features/try-fair/hooks/use-base-models";
 import { BBOX } from "@/types";
 import { useFairPredict } from "@/features/try-fair/hooks/use-fair-predict";
-import { TryFairWelcomeDialog } from "@/features/try-fair/components/try-fair-welcome-dialog";
+import { TryFairOnboardingDialog } from "@/features/try-fair/components/try-fair-onboarding-dialog";
 import { getTryFairTourSteps } from "@/constants/site-tour";
 import {
   getInferenceParams,
@@ -21,24 +21,20 @@ import {
 import useScreenSize from "@/hooks/use-screen-size";
 import { MobileDrawer } from "@/components/ui/drawer";
 import {
-  TRY_FAIR_TOUR_STEP_ONE_SEEN_LOCAL_STORAGE_KEY,
-  TRY_FAIR_TOUR_STEP_TWO_SEEN_LOCAL_STORAGE_KEY,
-  TRY_FAIR_WELCOME_DIALOG_SEEN_LOCAL_STORAGE_KEY,
+  TRY_FAIR_ONBOARDING_DIALOG_SEEN_LOCAL_STORAGE_KEY,
+  TRY_FAIR_TOUR_PARAMETERS_ADJUSTMENTS_SEEN_LOCAL_STORAGE_KEY,
+  TRY_FAIR_TOUR_START_MAPPING_BUTTON_SEEN_LOCAL_STORAGE_KEY,
+  TRY_FAIR_TOUR_MAP_BUTTON_TOOLTIP_LOCAL_STORAGE_KEY,
 } from "@/config";
 import { useLocalStorage } from "@/hooks/use-storage";
 import { useTour, type StepType } from "@reactour/tour";
 import { TRY_FAIR_INITIAL_MAP_ZOOM } from "@/features/try-fair/utils/common";
+
 export const TryFairPage = () => {
   const { map, mapContainerRef } = useMapInstance(false, false);
   const { isSmallViewport } = useScreenSize();
   const { getValue, setValue } = useLocalStorage();
-  const { setIsOpen, setCurrentStep, setSteps } = useTour();
-  const hasSeenWelcomeDialog =
-    getValue(TRY_FAIR_WELCOME_DIALOG_SEEN_LOCAL_STORAGE_KEY) === "true";
-  const hasSeenTourStepOne =
-    getValue(TRY_FAIR_TOUR_STEP_ONE_SEEN_LOCAL_STORAGE_KEY) === "true";
-  const hasSeenTourStepTwo =
-    getValue(TRY_FAIR_TOUR_STEP_TWO_SEEN_LOCAL_STORAGE_KEY) === "true";
+  const { setIsOpen: setIsSiteTourOpen, setCurrentStep, setSteps } = useTour();
 
   const {
     modelId,
@@ -60,6 +56,7 @@ export const TryFairPage = () => {
       ),
     [allModels],
   );
+
   const selectedModel = useMemo(
     () => models.find((m) => m.id === modelId) ?? null,
     [models, modelId],
@@ -84,24 +81,41 @@ export const TryFairPage = () => {
   }, [inferenceParams, confidence]);
 
   const [latestBBox, setLatestBBox] = useState<BBOX | null>(null);
+
   const [latestGridZoom, setLatestGridZoom] = useState<number | null>(null);
   const [isDirty, setIsDirty] = useState<boolean>(true);
 
-  const [gridZoomed, setGridZoomed] = useState<boolean>(false);
+  
   const [mapClickCount, setMapClickCount] = useState<number>(0);
-  const [showWelcomeModal, setShowWelcomeModal] = useState<boolean>(
-    () => !hasSeenWelcomeDialog,
+
+  const hasSeenOnboardingDialog =
+    getValue(TRY_FAIR_ONBOARDING_DIALOG_SEEN_LOCAL_STORAGE_KEY) === "true";
+
+  const [showOnboarding, setShowOnboarding] = useState<boolean>(
+    () => !hasSeenOnboardingDialog,
   );
-  const [allowInitialPrediction, setAllowInitialPrediction] = useState<boolean>(
-    () => hasSeenWelcomeDialog,
+
+  // Site Tours
+  const [tourStepMapButtonTooltipSeen, setTourStepMapButtonTooltipSeen] =
+    useState<boolean>(
+      () =>
+        getValue(TRY_FAIR_TOUR_MAP_BUTTON_TOOLTIP_LOCAL_STORAGE_KEY) === "true",
+    );
+  const [
+    tourStepParametersAdjustmentsSeen,
+    setTourStepParametersAdjustmentsSeen,
+  ] = useState<boolean>(
+    () =>
+      getValue(TRY_FAIR_TOUR_PARAMETERS_ADJUSTMENTS_SEEN_LOCAL_STORAGE_KEY) ===
+      "true",
   );
-  const [tourStepOneSeen, setTourStepOneSeen] = useState<boolean>(
-    () => hasSeenTourStepOne,
-  );
-  const [tourStepTwoSeen, setTourStepTwoSeen] = useState<boolean>(
-    () => hasSeenTourStepTwo,
-  );
-  const autoTriggeredRef = useRef<boolean>(false);
+
+  const [tourStepStartMappingButtonSeen, setTourStepStartMappingButtonSeen] =
+    useState<boolean>(
+      () =>
+        getValue(TRY_FAIR_TOUR_START_MAPPING_BUTTON_SEEN_LOCAL_STORAGE_KEY) ===
+        "true",
+    );
 
   const tileServiceUrl = demoConfig?.tileServiceUrl ?? "";
 
@@ -112,6 +126,39 @@ export const TryFairPage = () => {
     tileJSONMetadata,
     tileServiceTypeValidity,
   } = useTileservice(getTileServerTypeFromURL(tileServiceUrl), tileServiceUrl);
+
+  // Site tour trigger logic based on map interactions and prediction state.
+  const GRID_ZOOM_IN_DURATION = 1500;
+
+  // Zoom to grid and fit the map to the grid bbox.
+  const handleZoomToGrid = useCallback(() => {
+   
+    if (map && latestBBox) {
+      // This is to prevent the users from interrupting the flyTo animation.
+      map.dragPan.disable();
+      map.scrollZoom.disable();
+      map.boxZoom.disable();
+      map.dragRotate.disable();
+      map.touchZoomRotate.disable();
+      map.fitBounds(
+        [latestBBox[0], latestBBox[1], latestBBox[2], latestBBox[3]],
+        {
+          padding: 40,
+          duration: GRID_ZOOM_IN_DURATION,
+          essential: true,
+        },
+      );
+      map.once("moveend", () => {
+        map.dragPan.enable();
+        map.scrollZoom.enable();
+        map.boxZoom.enable();
+        map.dragRotate.enable();
+        map.touchZoomRotate.enable();
+        
+      });
+      return;
+    }
+  }, [latestBBox, map]);
 
   useEffect(() => {
     setTileserverURL(tileServiceUrl);
@@ -129,8 +176,8 @@ export const TryFairPage = () => {
   }, [tileJSONMetadata, demoConfig]);
 
   useEffect(() => {
+    if (showOnboarding) return;
     if (!map || !demoConfig || !imageryCenter) return;
-
     const doFly = () => {
       map.flyTo({
         center: imageryCenter,
@@ -138,7 +185,6 @@ export const TryFairPage = () => {
         essential: true,
       });
     };
-
     if (map.isStyleLoaded()) {
       doFly();
     } else {
@@ -184,30 +230,6 @@ export const TryFairPage = () => {
     setIsDirty(true);
   }, []);
 
-  const handleGridZoom = useCallback(() => {
-    setGridZoomed(true);
-  }, []);
-
-  const handleContinueToTryFair = useCallback(() => {
-    setValue(TRY_FAIR_WELCOME_DIALOG_SEEN_LOCAL_STORAGE_KEY, "true");
-    setShowWelcomeModal(false);
-    setAllowInitialPrediction(true);
-    setGridZoomed(false);
-
-    if (map && latestBBox) {
-      map.fitBounds(
-        [latestBBox[0], latestBBox[1], latestBBox[2], latestBBox[3]],
-        {
-          padding: 40,
-          essential: true,
-        },
-      );
-      map.once("moveend", () => setGridZoomed(true));
-      return;
-    }
-
-    setGridZoomed(true);
-  }, [latestBBox, map, setValue]);
 
   const tryFairTourSteps = useMemo<StepType[]>(
     () => getTryFairTourSteps(isSmallViewport),
@@ -215,21 +237,29 @@ export const TryFairPage = () => {
   );
 
   const openTryFairTourStep = useCallback(
-    (stepIndex: number) => {
-      const step = tryFairTourSteps[stepIndex];
-      const selector = step?.selector;
+    (stepIndex: number | number[]) => {
+      const steps = Array.isArray(stepIndex)
+        ? stepIndex.map((i) => tryFairTourSteps[i])
+        : [tryFairTourSteps[stepIndex]];
+      const selector = steps[0]?.selector;
       if (!selector) return;
       if (typeof selector === "string" && !document.querySelector(selector))
         return;
-      setSteps?.([step]);
+      setSteps?.(steps);
       setCurrentStep(0);
-      setIsOpen(true);
+      setIsSiteTourOpen(true);
     },
-    [setCurrentStep, setIsOpen, setSteps, tryFairTourSteps],
+    [setCurrentStep, setIsSiteTourOpen, setSteps, tryFairTourSteps],
   );
 
   const handleMap = useCallback(() => {
     if (!selectedModel || !latestBBox || !demoConfig) return;
+
+    // Clear Map button tour step if it's still active.
+    if (tourStepMapButtonTooltipSeen) {
+      setIsSiteTourOpen(false);
+    }
+
     setIsDirty(false);
     setMapClickCount((n) => n + 1);
     const apiParams = Object.fromEntries(
@@ -260,51 +290,59 @@ export const TryFairPage = () => {
   ]);
 
   const isMapButtonDisabled = !isDirty || !latestBBox || !demoConfig;
-  useEffect(() => {
-    if (autoTriggeredRef.current) return;
-    if (
-      !allowInitialPrediction ||
-      !map ||
-      !tileJSONMetadata ||
-      !gridZoomed ||
-      isMapButtonDisabled ||
-      isPredicting
-    )
-      return;
-    autoTriggeredRef.current = true;
-    handleMap();
-  }, [
-    allowInitialPrediction,
-    handleMap,
-    map,
-    tileJSONMetadata,
-    gridZoomed,
-    isMapButtonDisabled,
-    isPredicting,
-  ]);
 
+  // Site tour trigger logic based on map interactions and prediction state.
   useEffect(() => {
-    if (isPredicting || !predictions) return;
-    if (mapClickCount === 1 && !tourStepOneSeen) {
-      openTryFairTourStep(0);
-      setValue(TRY_FAIR_TOUR_STEP_ONE_SEEN_LOCAL_STORAGE_KEY, "true");
-      setTourStepOneSeen(true);
-      return;
+    if (hasSeenOnboardingDialog && !tourStepMapButtonTooltipSeen) {
+      const timer = setTimeout(() => {
+        openTryFairTourStep(0);
+        setValue(TRY_FAIR_TOUR_MAP_BUTTON_TOOLTIP_LOCAL_STORAGE_KEY, "true");
+        setTourStepMapButtonTooltipSeen(true);
+      }, GRID_ZOOM_IN_DURATION + 200); // Delay to ensure it doesn't conflict with the zoom animation.
+
+      return () => clearTimeout(timer);
     }
-    if (mapClickCount === 4 && !isSmallViewport && !tourStepTwoSeen) {
-      openTryFairTourStep(1);
-      setValue(TRY_FAIR_TOUR_STEP_TWO_SEEN_LOCAL_STORAGE_KEY, "true");
-      setTourStepTwoSeen(true);
+    // Only show this a few ms after predictions has been returned.
+    if (
+      mapClickCount === 1 &&
+      !tourStepParametersAdjustmentsSeen &&
+      predictions
+    ) {
+      const timer = setTimeout(() => {
+        // Showing the second and third here because we have to nudge them to rerun the map button again to see the changes.
+        openTryFairTourStep([1, 2]);
+        setValue(
+          TRY_FAIR_TOUR_PARAMETERS_ADJUSTMENTS_SEEN_LOCAL_STORAGE_KEY,
+          "true",
+        );
+        setTourStepParametersAdjustmentsSeen(true);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+
+    // Show the start mapping trigger after the user has clicked the map button a few times.
+    if (
+      mapClickCount === 4 &&
+      !isSmallViewport &&
+      !tourStepStartMappingButtonSeen
+    ) {
+      openTryFairTourStep(3);
+      setValue(
+        TRY_FAIR_TOUR_START_MAPPING_BUTTON_SEEN_LOCAL_STORAGE_KEY,
+        "true",
+      );
+      setTourStepStartMappingButtonSeen(true);
     }
   }, [
-    isPredicting,
-    predictions,
+    hasSeenOnboardingDialog,
+    tourStepMapButtonTooltipSeen,
     mapClickCount,
     isSmallViewport,
-    tourStepOneSeen,
-    tourStepTwoSeen,
-    setValue,
+    tourStepParametersAdjustmentsSeen,
+    tourStepStartMappingButtonSeen,
     openTryFairTourStep,
+    setValue,
+    predictions,
   ]);
 
   const handleOutputTypeChange = (type: TryFairMapOutputType) => {
@@ -314,13 +352,26 @@ export const TryFairPage = () => {
     }
   };
 
+  const closeOnboarding = () => {
+    localStorage.setItem(
+      TRY_FAIR_ONBOARDING_DIALOG_SEEN_LOCAL_STORAGE_KEY,
+      "true",
+    );
+    setShowOnboarding(false);
+    // Zoom to the grid after the onboarding dialog is closed or skipped.
+    handleZoomToGrid();
+  };
+
   return (
     <>
       <Head title={TRY_FAIR_PAGE_CONTENT.pageTitle} />
-      <TryFairWelcomeDialog
-        isOpened={showWelcomeModal}
-        onContinue={handleContinueToTryFair}
-      />
+      {showOnboarding && (
+        <TryFairOnboardingDialog
+          isOpened={showOnboarding}
+          onContinue={closeOnboarding}
+          handleSkipOnboarding={closeOnboarding}
+        />
+      )}
 
       <div className="flex h-screen md:h-[92vh] flex-col fullscreen">
         <div className="flex-grow relative">
@@ -339,7 +390,6 @@ export const TryFairPage = () => {
             resolution={resolution}
             modelId={modelId}
             isPredicting={isPredicting}
-            onGridZoom={handleGridZoom}
           />
 
           {!isSmallViewport && (

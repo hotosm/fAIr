@@ -4,6 +4,9 @@ import { PointsIcon } from "@/components/ui/icons/points-icons";
 import { ClusterIcon } from "@/components/ui/icons/cluster-icon";
 import { PolygonIcon } from "@/components/ui/icons/polygon-icon";
 import React from "react";
+
+// This is the default zoom level to start mapping.
+
 export const TRY_FAIR_INITIAL_MAP_ZOOM = 18;
 
 export const RESOLUTIONS: {
@@ -14,17 +17,17 @@ export const RESOLUTIONS: {
   {
     value: TryFairResolution.LOW,
     label: TRY_FAIR_PAGE_CONTENT.sidebar.parameters.resolution.low,
-    size: 18,
+    size: 12,
   },
   {
     value: TryFairResolution.MID,
     label: TRY_FAIR_PAGE_CONTENT.sidebar.parameters.resolution.mid,
-    size: 16,
+    size: 14,
   },
   {
     value: TryFairResolution.HIGH,
     label: TRY_FAIR_PAGE_CONTENT.sidebar.parameters.resolution.high,
-    size: 12,
+    size: 16,
   },
 ];
 
@@ -51,7 +54,7 @@ export const OUTPUT_TYPES: {
 ];
 
 export const TRY_FAIR_RESOLUTION_ZOOM: Record<TryFairResolution, number> = {
-  [TryFairResolution.LOW]: 18,
+  [TryFairResolution.LOW]: TRY_FAIR_INITIAL_MAP_ZOOM,
   [TryFairResolution.MID]: 19,
   [TryFairResolution.HIGH]: 20,
 };

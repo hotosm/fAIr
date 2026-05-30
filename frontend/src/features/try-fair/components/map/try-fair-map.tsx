@@ -28,7 +28,7 @@ type TryFairMapProps = {
   resolution?: TryFairResolution;
   modelId?: string | null;
   isPredicting?: boolean;
-  onGridZoom?: () => void;
+
 };
 
 export const TryFairMap = ({
@@ -45,7 +45,6 @@ export const TryFairMap = ({
   resolution,
   modelId,
   isPredicting = false,
-  onGridZoom,
 }: TryFairMapProps) => {
   const { isSmallViewport } = useScreenSize();
   const [choroplethBuckets, setChoroplethBuckets] = useState<
@@ -70,8 +69,8 @@ export const TryFairMap = ({
       padding: 40,
       essential: true,
     });
-    onGridZoom?.();
-  }, [map, onGridZoom]);
+    // onGridZoom?.();
+  }, [map]);
 
   // While predicting, disable only map dragging/panning.
   // Keep zoom interactions enabled.

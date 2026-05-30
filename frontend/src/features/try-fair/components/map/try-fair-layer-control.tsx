@@ -220,7 +220,7 @@ export const TryFairLayerControl = ({
               }
             >
               <LayerRow
-                label="Open Aerial Imagery"
+                label="Open Aerial Map Imagery"
                 active={layersVisibility.imagery}
                 icon={<TryFairImageryIcon />}
                 onClick={toggleImagery}
