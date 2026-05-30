@@ -6,6 +6,7 @@ import {
   TryFairImageryIcon,
   TryFairOSMIcon,
   TryFairPredictionToggleIcon,
+  EyeClosedIcon,
 } from "@/components/ui/icons";
 import { ToolTip } from "@/components/ui/tooltip";
 import {
@@ -202,7 +203,11 @@ export const TryFairLayerControl = ({
                       : "Show prediction layer"
                   }
                 >
-                  <TryFairPredictionToggleIcon className="w-4 h-4" />
+                  {layersVisibility.prediction ? (
+                    <TryFairPredictionToggleIcon className="size-4" />
+                  ) : (
+                    <EyeClosedIcon className="size-4" />
+                  )}
                 </button>
               </div>
             </Section>

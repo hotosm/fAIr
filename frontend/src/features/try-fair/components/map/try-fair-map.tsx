@@ -28,6 +28,7 @@ type TryFairMapProps = {
   resolution?: TryFairResolution;
   modelId?: string | null;
   isPredicting?: boolean;
+  canFitToBounds:boolean 
 };
 
 export const TryFairMap = ({
@@ -44,6 +45,7 @@ export const TryFairMap = ({
   resolution,
   modelId,
   isPredicting = false,
+  canFitToBounds
 }: TryFairMapProps) => {
   const { isSmallViewport } = useScreenSize();
   const [choroplethBuckets, setChoroplethBuckets] = useState<
@@ -62,14 +64,14 @@ export const TryFairMap = ({
   );
 
   const handleFitToGrid = useCallback(() => {
+    if(!canFitToBounds) return 
     const bbox = gridBBoxRef.current;
     if (!map || !bbox) return;
     map.fitBounds([bbox[0], bbox[1], bbox[2], bbox[3]], {
       padding: 40,
       essential: true,
     });
-    // onGridZoom?.();
-  }, [map]);
+  }, [map,canFitToBounds]);
 
   // While predicting, disable only map dragging/panning.
   // Keep zoom interactions enabled.

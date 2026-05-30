@@ -386,6 +386,7 @@ export const TryFairPage = () => {
             resolution={resolution}
             modelId={modelId}
             isPredicting={isPredicting}
+            canFitToBounds={!showOnboarding}
           />
 
           {!isSmallViewport && (
