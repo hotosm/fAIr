@@ -53,10 +53,11 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
 
   const content = (
     <div className="bg-white rounded-xl p-4 space-y-4 max-h-[70vh] overflow-y-auto">
-      {!isSmallViewport && <small className="text-sm font-semibold">
-        What do you want to map?
-      </small>
-}
+      {!isSmallViewport && (
+        <small className="text-sm font-semibold">
+          What do you want to map?
+        </small>
+      )}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {models.map((model) => {
           const isSelected = selectedModel?.id === model.id;
@@ -68,9 +69,7 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
               type="button"
               onClick={() => handleSelect(model)}
               className={`text-left p-3 bg-frosted-blue rounded-lg border-2 transition-colors ${
-                isSelected
-                  ? "border-primary"
-                  : "border-gray-border"
+                isSelected ? "border-primary" : "border-gray-border"
               }`}
             >
               <div className="flex items-start justify-between gap-2 mb-1">
@@ -80,9 +79,7 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
 
                 <span
                   className={`mt-0.5 shrink-0 w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                    isSelected
-                      ? "border-primary"
-                      : "border-gray-border"
+                    isSelected ? "border-primary" : "border-gray-border"
                   }`}
                 >
                   {isSelected && (
@@ -97,10 +94,7 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
 
               <div className="flex flex-wrap gap-1">
                 {tasks.map((task) => (
-                  <FeatureBadge
-                    key={task}
-                    label={task}
-                  />
+                  <FeatureBadge key={task} label={task} />
                 ))}
               </div>
             </button>
@@ -114,9 +108,7 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
     <div className="flex justify-between items-center">
       <div className="w-full md:w-28 text-left flex-1 min-w-0">
         {loading ? (
-          <p className="text-grey text-xs animate-pulse">
-            Loading models…
-          </p>
+          <p className="text-grey text-xs animate-pulse">Loading models…</p>
         ) : selectedModel ? (
           <>
             <p className="font-medium text-dark text-xs leading-tight truncate">
@@ -128,9 +120,7 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
             </p>
           </>
         ) : (
-          <p className="text-grey text-xs">
-            Select a model
-          </p>
+          <p className="text-grey text-xs">Select a model</p>
         )}
       </div>
 
@@ -175,9 +165,7 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
       disableCheveronIcon
       triggerComponent={trigger}
     >
-      <div className="w-[520px] shadow-2xl">
-        {content}
-      </div>
+      <div className="w-[520px] shadow-2xl">{content}</div>
     </DropDown>
   );
 };

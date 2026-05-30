@@ -162,13 +162,13 @@ export const TryFairPage = () => {
   }, [tileServiceUrl, setTileserverURL]);
 
   const imageryCenter = useMemo((): [number, number] | undefined => {
-    // if (tileJSONMetadata?.center) {
-    //   return [tileJSONMetadata.center[0], tileJSONMetadata.center[1]];
-    // }
-    // if (tileJSONMetadata?.bounds) {
-    //   const b = tileJSONMetadata.bounds as [number, number, number, number];
-    //   return [(b[0] + b[2]) / 2, (b[1] + b[3]) / 2];
-    // }
+    if (tileJSONMetadata?.center) {
+      return [tileJSONMetadata.center[0], tileJSONMetadata.center[1]];
+    }
+    if (tileJSONMetadata?.bounds) {
+      const b = tileJSONMetadata.bounds as [number, number, number, number];
+      return [(b[0] + b[2]) / 2, (b[1] + b[3]) / 2];
+    }
     return demoConfig?.center;
   }, [tileJSONMetadata, demoConfig]);
 
