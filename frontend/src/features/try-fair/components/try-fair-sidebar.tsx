@@ -100,7 +100,6 @@ export const TryFairSidebar = ({
         </div>
       </div>
 
-      {/* ── Map Output ── */}
       <div className="">
         <p className="text-dark text-xs mb-2">
           {TRY_FAIR_PAGE_CONTENT.sidebar.mapOutput.label}
@@ -150,7 +149,7 @@ export const TryFairSidebar = ({
 
         {/* Resolution */}
         <div>
-          <p className="text-dark text-xs mb-2">
+          <p className="text-dark text-xs mb-2 font-medium">
             {TRY_FAIR_PAGE_CONTENT.sidebar.parameters.resolution.label}
           </p>
 
@@ -192,7 +191,6 @@ export const TryFairSidebar = ({
 
                 <div className="flex items-center gap-2">
                   <SnowflakeIcon />
-
                   <input
                     type="range"
                     min={min}
@@ -209,6 +207,10 @@ export const TryFairSidebar = ({
                     }}
                   />
                   <FlameIcon />
+                </div>
+                <div className="flex text-dark text-xs items-center justify-between">
+                  <small>Low</small>
+                  <small>High</small>
                 </div>
               </div>
             );

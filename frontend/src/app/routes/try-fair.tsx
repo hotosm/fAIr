@@ -85,7 +85,6 @@ export const TryFairPage = () => {
   const [latestGridZoom, setLatestGridZoom] = useState<number | null>(null);
   const [isDirty, setIsDirty] = useState<boolean>(true);
 
-  
   const [mapClickCount, setMapClickCount] = useState<number>(0);
 
   const hasSeenOnboardingDialog =
@@ -132,7 +131,6 @@ export const TryFairPage = () => {
 
   // Zoom to grid and fit the map to the grid bbox.
   const handleZoomToGrid = useCallback(() => {
-   
     if (map && latestBBox) {
       // This is to prevent the users from interrupting the flyTo animation.
       map.dragPan.disable();
@@ -154,7 +152,6 @@ export const TryFairPage = () => {
         map.boxZoom.enable();
         map.dragRotate.enable();
         map.touchZoomRotate.enable();
-        
       });
       return;
     }
@@ -229,7 +226,6 @@ export const TryFairPage = () => {
     setLatestGridZoom(tileZoom);
     setIsDirty(true);
   }, []);
-
 
   const tryFairTourSteps = useMemo<StepType[]>(
     () => getTryFairTourSteps(isSmallViewport),

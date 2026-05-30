@@ -28,7 +28,6 @@ type TryFairMapProps = {
   resolution?: TryFairResolution;
   modelId?: string | null;
   isPredicting?: boolean;
-
 };
 
 export const TryFairMap = ({
