@@ -92,15 +92,15 @@ export const TryFairPage = () => {
   const [showWelcomeModal, setShowWelcomeModal] = useState<boolean>(
     () => !hasSeenWelcomeDialog,
   );
-  const [allowInitialPrediction, setAllowInitialPrediction] = useState<
-    boolean
-  >(() => hasSeenWelcomeDialog);
-  const [tourStepOneSeen, setTourStepOneSeen] = useState<
-    boolean
-  >(() => hasSeenTourStepOne);
-  const [tourStepTwoSeen, setTourStepTwoSeen] = useState<
-    boolean
-  >(() => hasSeenTourStepTwo);
+  const [allowInitialPrediction, setAllowInitialPrediction] = useState<boolean>(
+    () => hasSeenWelcomeDialog,
+  );
+  const [tourStepOneSeen, setTourStepOneSeen] = useState<boolean>(
+    () => hasSeenTourStepOne,
+  );
+  const [tourStepTwoSeen, setTourStepTwoSeen] = useState<boolean>(
+    () => hasSeenTourStepTwo,
+  );
   const autoTriggeredRef = useRef<boolean>(false);
 
   const tileServiceUrl = demoConfig?.tileServiceUrl ?? "";
