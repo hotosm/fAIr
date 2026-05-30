@@ -147,6 +147,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setUser(undefined);
         }
       } else {
+        // Actually, only fetch this when token exists
+        if (!token) {
+          setUser(undefined);
+          return;
+        }
         const user = await authService.getUser();
         setUser(user);
         handleRedirection();
