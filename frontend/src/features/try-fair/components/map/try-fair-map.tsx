@@ -53,7 +53,6 @@ export const TryFairMap = ({
   >(null);
   // Track the grid bbox locally so fit-to-grid always has the latest value
   const gridBBoxRef = useRef<BBOX | null>(null);
- 
 
   // Intercept bbox changes so gridBBoxRef always has the latest value
   const handleBBoxChange = useCallback(
