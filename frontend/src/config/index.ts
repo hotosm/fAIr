@@ -181,18 +181,6 @@ export const TRAINING_AREA_TOUR_LOCAL_STORAGE_KEY =
   "__fAIr_training_area_tour_seen";
 
 /**
- * The key used to store whether a user has seen Try fAIr tour step one.
- */
-export const TRY_FAIR_TOUR_MAP_BUTTON_TOOLTIP_LOCAL_STORAGE_KEY =
-  "__fAIr_try_fair_tour_map_button_tooltip_seen";
-
-/**
- * The key used to store whether a user has seen Try fAIr tour parameters adjustments.
- */
-export const TRY_FAIR_TOUR_PARAMETERS_ADJUSTMENTS_SEEN_LOCAL_STORAGE_KEY =
-  "__fAIr_try_fair_tour_parameters_adjustments_seen";
-
-/**
  * The key used to store whether a user has seen Try fAIr tour start mapping button.
  */
 export const TRY_FAIR_TOUR_START_MAPPING_BUTTON_SEEN_LOCAL_STORAGE_KEY =

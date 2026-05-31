@@ -9,6 +9,8 @@ import { ChoroplethBucket } from "@/features/try-fair/utils/helpers";
 import { TryFairChoroplethLegend } from "@/features/try-fair/components/map/chloropleth-legend";
 import { TryFairPointsLegend } from "@/features/try-fair/components/map/points-legend";
 import { FitToBounds, ZoomControls } from "@/components/map/controls";
+import { InfoIcon } from "@/components/ui/icons";
+import { ToolTip } from "@/components/ui/tooltip";
 import { PREDICTION_LAYER_IDS } from "@/features/try-fair/utils/common";
 import { getTileZoomForResolution } from "@/features/try-fair/utils/tile-math";
 import { TryFairLayerControl } from "@/features/try-fair/components/map/try-fair-layer-control";
@@ -30,6 +32,8 @@ type TryFairMapProps = {
   modelId?: string | null;
   isPredicting?: boolean;
   canFitToBounds: boolean;
+  /** Opens the guided "how it works" tour. */
+  onHelp?: () => void;
 };
 
 export const TryFairMap = ({
@@ -47,6 +51,7 @@ export const TryFairMap = ({
   modelId,
   isPredicting = false,
   canFitToBounds,
+  onHelp,
 }: TryFairMapProps) => {
   const { isSmallViewport } = useScreenSize();
   const [choroplethBuckets, setChoroplethBuckets] = useState<
@@ -172,6 +177,18 @@ export const TryFairMap = ({
             hasTileServiceLayer={tileServiceValid}
             predictionLayerIds={PREDICTION_LAYER_IDS}
           />
+          {onHelp && (
+            <ToolTip content="How it works">
+              <button
+                type="button"
+                onClick={onHelp}
+                aria-label="Show the guided tour"
+                className="bg-white p-1.5 rounded-[4px]"
+              >
+                <InfoIcon className="icon-lg" />
+              </button>
+            </ToolTip>
+          )}
         </div>
       )}
 

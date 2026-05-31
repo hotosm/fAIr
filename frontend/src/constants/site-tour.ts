@@ -41,40 +41,28 @@ export const APP_TOUR_STEPS = [
   },
 ];
 
-export const getTryFairTourSteps = (isSmallViewport: boolean): StepType[] => [
+// Hide the dimming mask so the map stays visible/interactive during the tour.
+const hideMask = () => ({ display: "none" });
+const popoverStyle = (base: any) => ({
+  ...base,
+  maxWidth: "280px",
+  borderRadius: "6px",
+  "--reactour-accent": "#d63f40",
+});
+
+/**
+ * The guided "how it works" tour, launched from the Help button.
+ */
+export const getTryFairGuidedTourSteps = (
+  isSmallViewport: boolean,
+): StepType[] => [
   {
     selector: `#${APP_TOUR_IDS.TRY_FAIR_MAP_BUTTON_TOOLTIP}`,
-    content: "Click Map to run your first prediction.",
+    content: "Click Map to run a prediction over the highlighted grid.",
     position: isSmallViewport ? "top" : "right",
-
     styles: {
-      close: (base) => ({
-        ...base,
-        right: 12,
-        top: 12,
-      }),
-      popover: (base) => ({
-        ...base,
-        maxWidth: "260px",
-        borderRadius: "6px",
-        height: "100px",
-      }),
-      maskWrapper: () => ({
-        display: "none",
-      }),
-      navigation: (base) => ({
-        ...base,
-        display: "none",
-      }),
-      badge: (base) => ({
-        ...base,
-        display: "none",
-      }),
-
-      arrow: (base) => ({
-        ...base,
-        display: "none",
-      }),
+      popover: popoverStyle,
+      maskWrapper: hideMask,
     },
   },
   {
@@ -83,48 +71,30 @@ export const getTryFairTourSteps = (isSmallViewport: boolean): StepType[] => [
       "Adjust confidence and resolution to explore how prediction output changes.",
     position: isSmallViewport ? "top" : "bottom",
     styles: {
-      maskWrapper: () => ({
-        display: "none",
-      }),
+      popover: popoverStyle,
+      maskWrapper: hideMask,
     },
   },
   {
     selector: `#${APP_TOUR_IDS.TRY_FAIR_MAP_BUTTON_TOOLTIP}`,
-    content:
-      "And you can also click Map again to run predictions with the new parameters.",
+    content: "Click Map again to re-run the prediction with your new settings.",
     position: isSmallViewport ? "top" : "right",
     styles: {
-      maskWrapper: () => ({
-        display: "none",
-      }),
-    },
-  },
-  {
-    selector: `#${APP_TOUR_IDS.TRY_FAIR_START_MAPPING_BUTTON}`,
-    content:
-      "Ready for full mapping? Click Start Mapping to access advanced tools.",
-    styles: {
-      close: (base) => ({
-        ...base,
-        right: 12,
-        top: 12,
-      }),
-      maskWrapper: () => ({
-        display: "none",
-      }),
-      navigation: (base) => ({
-        ...base,
-        display: "none",
-      }),
-      badge: (base) => ({
-        ...base,
-        display: "none",
-      }),
-
-      arrow: (base) => ({
-        ...base,
-        display: "none",
-      }),
+      popover: popoverStyle,
+      maskWrapper: hideMask,
     },
   },
 ];
+
+export const getTryFairStartMappingStep = (): StepType => ({
+  selector: `#${APP_TOUR_IDS.TRY_FAIR_START_MAPPING_BUTTON}`,
+  content:
+    "Ready for full mapping? Click Start Mapping to access advanced tools.",
+  styles: {
+    close: (base) => ({ ...base, right: 12, top: 12 }),
+    maskWrapper: hideMask,
+    navigation: (base) => ({ ...base, display: "none" }),
+    badge: (base) => ({ ...base, display: "none" }),
+    arrow: (base) => ({ ...base, display: "none" }),
+  },
+});

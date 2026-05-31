@@ -6,7 +6,6 @@ import {
   snapAnchorToTileBoundary,
 } from "@/features/try-fair/utils/tile-math";
 
-
 export type GridVisibility = {
   /** True when the grid's bbox no longer intersects the current viewport. */
   isOffScreen: boolean;
@@ -22,12 +21,10 @@ type UseGridVisibilityOptions = {
   disabled?: boolean;
 };
 
-
 const HIDDEN: GridVisibility = {
   isOffScreen: false,
   angleRad: 0,
 };
-
 
 /**
  * Tracks whether the draggable grid has been left outside the current viewport.

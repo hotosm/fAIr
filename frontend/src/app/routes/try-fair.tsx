@@ -15,18 +15,17 @@ import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params"
 import { useBaseModels } from "@/features/try-fair/hooks/use-base-models";
 import { BBOX } from "@/types";
 import { useFairPredict } from "@/features/try-fair/hooks/use-fair-predict";
-import { getTryFairTourSteps } from "@/constants/site-tour";
+import {
+  getTryFairGuidedTourSteps,
+  getTryFairStartMappingStep,
+} from "@/constants/site-tour";
 import {
   getInferenceParams,
   InferenceParam,
 } from "@/features/try-fair/api/stac";
 import useScreenSize from "@/hooks/use-screen-size";
 import { MobileDrawer } from "@/components/ui/drawer";
-import {
-  TRY_FAIR_TOUR_PARAMETERS_ADJUSTMENTS_SEEN_LOCAL_STORAGE_KEY,
-  TRY_FAIR_TOUR_START_MAPPING_BUTTON_SEEN_LOCAL_STORAGE_KEY,
-  TRY_FAIR_TOUR_MAP_BUTTON_TOOLTIP_LOCAL_STORAGE_KEY,
-} from "@/config";
+import { TRY_FAIR_TOUR_START_MAPPING_BUTTON_SEEN_LOCAL_STORAGE_KEY } from "@/config";
 import { useLocalStorage } from "@/hooks/use-storage";
 import { useTour, type StepType } from "@reactour/tour";
 import { TRY_FAIR_INITIAL_MAP_ZOOM } from "@/features/try-fair/utils/common";
@@ -87,21 +86,6 @@ export const TryFairPage = () => {
   const [isDirty, setIsDirty] = useState<boolean>(true);
 
   const [mapClickCount, setMapClickCount] = useState<number>(0);
-
-  // Site Tours
-  const [tourStepMapButtonTooltipSeen, setTourStepMapButtonTooltipSeen] =
-    useState<boolean>(
-      () =>
-        getValue(TRY_FAIR_TOUR_MAP_BUTTON_TOOLTIP_LOCAL_STORAGE_KEY) === "true",
-    );
-  const [
-    tourStepParametersAdjustmentsSeen,
-    setTourStepParametersAdjustmentsSeen,
-  ] = useState<boolean>(
-    () =>
-      getValue(TRY_FAIR_TOUR_PARAMETERS_ADJUSTMENTS_SEEN_LOCAL_STORAGE_KEY) ===
-      "true",
-  );
 
   const [tourStepStartMappingButtonSeen, setTourStepStartMappingButtonSeen] =
     useState<boolean>(
@@ -220,34 +204,41 @@ export const TryFairPage = () => {
     setIsDirty(true);
   }, []);
 
-  const tryFairTourSteps = useMemo<StepType[]>(
-    () => getTryFairTourSteps(isSmallViewport),
+  const guidedTourSteps = useMemo<StepType[]>(
+    () => getTryFairGuidedTourSteps(isSmallViewport),
     [isSmallViewport],
   );
 
-  const openTryFairTourStep = useCallback(
-    (stepIndex: number | number[]) => {
-      const steps = Array.isArray(stepIndex)
-        ? stepIndex.map((i) => tryFairTourSteps[i])
-        : [tryFairTourSteps[stepIndex]];
-      const selector = steps[0]?.selector;
-      if (!selector) return;
-      if (typeof selector === "string" && !document.querySelector(selector))
-        return;
-      setSteps?.(steps);
-      setCurrentStep(0);
-      setIsSiteTourOpen(true);
-    },
-    [setCurrentStep, setIsSiteTourOpen, setSteps, tryFairTourSteps],
+  const startMappingStep = useMemo<StepType>(
+    () => getTryFairStartMappingStep(),
+    [],
   );
+
+  const openGuidedTour = useCallback(() => {
+    const firstSelector = guidedTourSteps[0]?.selector;
+    if (
+      typeof firstSelector === "string" &&
+      !document.querySelector(firstSelector)
+    )
+      return;
+    setSteps?.(guidedTourSteps);
+    setCurrentStep(0);
+    setIsSiteTourOpen(true);
+  }, [guidedTourSteps, setCurrentStep, setIsSiteTourOpen, setSteps]);
+
+  const openStartMappingStep = useCallback(() => {
+    const selector = startMappingStep.selector;
+    if (typeof selector === "string" && !document.querySelector(selector))
+      return;
+    setSteps?.([startMappingStep]);
+    setCurrentStep(0);
+    setIsSiteTourOpen(true);
+  }, [startMappingStep, setCurrentStep, setIsSiteTourOpen, setSteps]);
 
   const handleMap = useCallback(() => {
     if (!selectedModel || !latestBBox || !demoConfig) return;
 
-    // Clear Map button tour step if it's still active.
-    if (tourStepMapButtonTooltipSeen) {
-      setIsSiteTourOpen(false);
-    }
+    setIsSiteTourOpen(false);
     // Always centerlize the grid whenever the user clicks on Map
     // This is to prevent situations whereby the user drags the grid to another place and the prediction is not visible to them.
     handleZoomToGrid();
@@ -282,42 +273,13 @@ export const TryFairPage = () => {
 
   const isMapButtonDisabled = !isDirty || !latestBBox || !demoConfig;
 
-  // Site tour trigger logic based on map interactions and prediction state.
   useEffect(() => {
-    if (!tourStepMapButtonTooltipSeen) {
-      const timer = setTimeout(() => {
-        openTryFairTourStep(0);
-        setValue(TRY_FAIR_TOUR_MAP_BUTTON_TOOLTIP_LOCAL_STORAGE_KEY, "true");
-        setTourStepMapButtonTooltipSeen(true);
-      }, GRID_ZOOM_IN_DURATION + 200); // Delay to ensure it doesn't conflict with the zoom animation.
-
-      return () => clearTimeout(timer);
-    }
-    // Only show this a few ms after predictions has been returned.
-    if (
-      mapClickCount === 1 &&
-      !tourStepParametersAdjustmentsSeen &&
-      predictions
-    ) {
-      const timer = setTimeout(() => {
-        // Showing the second and third here because we have to nudge them to rerun the map button again to see the changes.
-        openTryFairTourStep([1, 2]);
-        setValue(
-          TRY_FAIR_TOUR_PARAMETERS_ADJUSTMENTS_SEEN_LOCAL_STORAGE_KEY,
-          "true",
-        );
-        setTourStepParametersAdjustmentsSeen(true);
-      }, 1000);
-      return () => clearTimeout(timer);
-    }
-
-    // Show the start mapping trigger after the user has clicked the map button a few times.
     if (
       mapClickCount === 4 &&
       !isSmallViewport &&
       !tourStepStartMappingButtonSeen
     ) {
-      openTryFairTourStep(3);
+      openStartMappingStep();
       setValue(
         TRY_FAIR_TOUR_START_MAPPING_BUTTON_SEEN_LOCAL_STORAGE_KEY,
         "true",
@@ -325,14 +287,11 @@ export const TryFairPage = () => {
       setTourStepStartMappingButtonSeen(true);
     }
   }, [
-    tourStepMapButtonTooltipSeen,
     mapClickCount,
     isSmallViewport,
-    tourStepParametersAdjustmentsSeen,
     tourStepStartMappingButtonSeen,
-    openTryFairTourStep,
+    openStartMappingStep,
     setValue,
-    predictions,
   ]);
 
   const handleOutputTypeChange = (type: TryFairMapOutputType) => {
@@ -364,6 +323,7 @@ export const TryFairPage = () => {
             modelId={modelId}
             isPredicting={isPredicting}
             canFitToBounds={true}
+            onHelp={openGuidedTour}
           />
 
           {!isSmallViewport && (

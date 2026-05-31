@@ -21,10 +21,8 @@ import {
   toPointCollection,
 } from "@/features/try-fair/utils/helpers";
 
-
 /** Grid line colour  */
 const GRID_LINE_COLOR = "#EF4444";
-
 
 type TryFairDraggableGridProps = {
   map: Map | null;
@@ -47,7 +45,6 @@ type TryFairDraggableGridProps = {
   /** Grid zoom used for the current prediction result. */
   predictionGridZoom?: number | null;
 };
-
 
 const CHOROPLETH_FILL_LAYER_ID = "try-fair-predictions-choropleth-fill";
 
@@ -90,7 +87,6 @@ type HoverTooltip = {
   y: number;
   count: number;
 } | null;
-
 
 export const TryFairDraggableGrid = ({
   map,
