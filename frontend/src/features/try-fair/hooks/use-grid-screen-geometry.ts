@@ -2,10 +2,6 @@ import { RefObject, useCallback, useEffect, useRef, useState } from "react";
 import { Map, LngLatLike } from "maplibre-gl";
 import { num2deg } from "@/utils/geo/geometry-utils";
 import {
-  VISIBLE_GRID_COLUMNS,
-  VISIBLE_GRID_ROWS,
-} from "@/features/try-fair/utils/common";
-import {
   TileAnchor,
   getSelectedGridSpec,
 } from "@/features/try-fair/utils/tile-math";
@@ -63,13 +59,16 @@ export const useGridScreenGeometry = ({
   const projectGridToScreen = useCallback(() => {
     if (!map || !anchor) return;
 
-    const gridSpec = getSelectedGridSpec(anchor.z);
+    const gridSpec = getSelectedGridSpec();
     const verticalLines: ScreenLine[] = [];
     const horizontalLines: ScreenLine[] = [];
 
-    // Vertical lines: one per visible column boundary.
-    for (let col = 0; col <= VISIBLE_GRID_COLUMNS; col++) {
-      const tileX = anchor.x + (col / VISIBLE_GRID_COLUMNS) * gridSpec.columns;
+    // One vertical line per whole-tile boundary. Stepping by integer tile
+    // increments (rather than subdividing the footprint into a fixed number of
+    // cells) is what keeps each visible cell aligned with a real world tile at
+    // `anchor.z` — the anchor is already snapped to integer tile boundaries.
+    for (let col = 0; col <= gridSpec.columns; col++) {
+      const tileX = anchor.x + col;
 
       const topCorner = num2deg(tileX, anchor.y, anchor.z);
       const bottomCorner = num2deg(tileX, anchor.y + gridSpec.rows, anchor.z);
@@ -91,9 +90,9 @@ export const useGridScreenGeometry = ({
       });
     }
 
-    // Horizontal lines: one per visible row boundary.
-    for (let row = 0; row <= VISIBLE_GRID_ROWS; row++) {
-      const tileY = anchor.y + (row / VISIBLE_GRID_ROWS) * gridSpec.rows;
+    // One horizontal line per whole-tile boundary.
+    for (let row = 0; row <= gridSpec.rows; row++) {
+      const tileY = anchor.y + row;
 
       const leftCorner = num2deg(anchor.x, tileY, anchor.z);
       const rightCorner = num2deg(anchor.x + gridSpec.columns, tileY, anchor.z);
@@ -125,7 +124,7 @@ export const useGridScreenGeometry = ({
     }
 
     // The export button sits at the top-right corner of the grid.
-    const lastVerticalLine = verticalLines[VISIBLE_GRID_COLUMNS];
+    const lastVerticalLine = verticalLines[gridSpec.columns];
     const exportButtonPosition = lastVerticalLine
       ? { x: lastVerticalLine.x1, y: lastVerticalLine.y1 }
       : { x: 0, y: 0 };

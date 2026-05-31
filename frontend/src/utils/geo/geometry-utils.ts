@@ -269,6 +269,16 @@ export const getTileBoundariesGeoJSON = (
 
   const features: Feature[] = [];
 
+  // Defensive cap: if the requested zoom is far above the current map zoom the
+  // visible bounds can span an enormous number of tiles, which would freeze the
+  // browser. Bail out (drawing nothing) rather than attempting to build them.
+  const MAX_TILES = 2_000;
+  const tileCount =
+    (maxTile.xtile - minTile.xtile + 1) * (maxTile.ytile - minTile.ytile + 1);
+  if (tileCount > MAX_TILES) {
+    return createFeatureCollection(features);
+  }
+
   for (let x = minTile.xtile; x <= maxTile.xtile; x++) {
     for (let y = minTile.ytile; y <= maxTile.ytile; y++) {
       const { lat_deg: lat1, lon_deg: lon1 } = num2deg(x, y, zoom);

@@ -87,8 +87,15 @@ export const useTileGrid = ({
   useEffect(() => {
     anchorRef.current = anchor;
     if (!anchor) return;
-    anchorsByResolutionRef.current[resolvedResolution] = anchor;
-  }, [anchor, resolvedResolution]);
+    // Only cache an anchor under a resolution once it actually matches that
+    // resolution's tile zoom. On a resolution switch this effect runs before
+    // the recenter effect (with the anchor still at the OLD zoom); caching it
+    // under the new key would let the recenter effect restore the old-zoom
+    // anchor, pinning the grid to its previous size instead of resizing.
+    if (anchor.z === tileZoom) {
+      anchorsByResolutionRef.current[resolvedResolution] = anchor;
+    }
+  }, [anchor, resolvedResolution, tileZoom]);
 
   //  Consolidated recentering effect
   useEffect(() => {

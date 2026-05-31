@@ -54,7 +54,7 @@ export const OUTPUT_TYPES: {
 ];
 
 export const TRY_FAIR_RESOLUTION_ZOOM: Record<TryFairResolution, number> = {
-  [TryFairResolution.LOW]: TRY_FAIR_INITIAL_MAP_ZOOM,
+  [TryFairResolution.LOW]: 18,
   [TryFairResolution.MID]: 19,
   [TryFairResolution.HIGH]: 20,
 };
@@ -72,29 +72,21 @@ export const PREDICTION_LAYER_IDS = [
 
 // ── Grid constants ───────────────────────────────────────────────────────────
 
-/** Visible draggable grid (what users see). */
-export const VISIBLE_GRID_COLUMNS = 4;
-export const VISIBLE_GRID_ROWS = 4;
-
 export type SelectedGridSpec = { columns: number; rows: number };
 
 /**
- * Selected tile footprint (what gets sent to prediction), configurable by
- * tile zoom level. The visible grid stays 4x4 and is drawn inside this area.
+ * The draggable grid is a fixed N×N block of tiles. The cell COUNT never
+ * changes — instead the on-screen size of the grid changes with the selected
+ * resolution's tile zoom: higher resolution → finer/smaller tiles → the grid
+ * (and its tile boundaries) shrinks; lower resolution → larger tiles → it
+ * grows. The map is never zoomed for this. This same N×N tile block is exactly
+ * what gets sent to the prediction backend.
  */
-export const DEFAULT_SELECTED_GRID: SelectedGridSpec = { columns: 2, rows: 2 };
-export const SELECTED_GRID_BY_ZOOM: Record<number, SelectedGridSpec> = {
-  17: { columns: 2, rows: 2 },
-  18: { columns: 2, rows: 2 },
-  19: { columns: 3, rows: 3 },
-  20: { columns: 3, rows: 3 },
+export const SELECTED_GRID_SIZE = 5;
+export const DEFAULT_SELECTED_GRID: SelectedGridSpec = {
+  columns: SELECTED_GRID_SIZE,
+  rows: SELECTED_GRID_SIZE,
 };
 
-export const BASE_GRID_ZOOM = 18;
-export const MIN_GRID_ZOOM = BASE_GRID_ZOOM;
-export const MAX_GRID_ZOOM = 21;
-type GridSpec = { columns: number; rows: number };
-const DEFAULT_GRID_SPEC: GridSpec = { columns: 2, rows: 2 };
-
-export const getGridSpec = (zoom: number): GridSpec =>
-  SELECTED_GRID_BY_ZOOM[zoom] ?? DEFAULT_GRID_SPEC;
+/** The grid footprint is a constant size, independent of zoom/resolution. */
+export const getGridSpec = (): SelectedGridSpec => DEFAULT_SELECTED_GRID;

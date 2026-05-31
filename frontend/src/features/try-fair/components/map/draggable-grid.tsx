@@ -7,10 +7,6 @@ import { geoJSONDowloader } from "@/utils/geo/geo-utils";
 import { BBOX } from "@/types";
 import { TryFairResolution } from "@/enums/try-fair";
 import { TryFairMapOutputType } from "@/enums/try-fair";
-import {
-  VISIBLE_GRID_COLUMNS,
-  VISIBLE_GRID_ROWS,
-} from "@/features/try-fair/utils/common";
 import { useTileGrid } from "@/features/try-fair/hooks/use-tile-grid";
 import { useGridDrag } from "@/features/try-fair/hooks/use-grid-drag";
 import {
@@ -165,10 +161,14 @@ export const TryFairDraggableGrid = ({
     screenGeometry;
 
   // Four corners of the grid boundary for the transparent drag polygon.
+  // The right edge is the last vertical line (count varies by tile zoom).
+  const lastVerticalIndex = verticalLines.length - 1;
+  const lastHorizontalIndex = horizontalLines.length - 1;
+  const rightEdge = verticalLines[lastVerticalIndex];
   const dragSurfacePoints = [
     `${verticalLines[0].x1},${verticalLines[0].y1}`,
-    `${verticalLines[VISIBLE_GRID_COLUMNS].x1},${verticalLines[VISIBLE_GRID_COLUMNS].y1}`,
-    `${verticalLines[VISIBLE_GRID_COLUMNS].x2},${verticalLines[VISIBLE_GRID_COLUMNS].y2}`,
+    `${rightEdge.x1},${rightEdge.y1}`,
+    `${rightEdge.x2},${rightEdge.y2}`,
     `${verticalLines[0].x2},${verticalLines[0].y2}`,
   ].join(" ");
 
@@ -250,7 +250,7 @@ export const TryFairDraggableGrid = ({
 
         {/* Vertical grid lines */}
         {verticalLines.map((line, index) => {
-          const isBorderLine = index === 0 || index === VISIBLE_GRID_COLUMNS;
+          const isBorderLine = index === 0 || index === lastVerticalIndex;
           return (
             <polyline
               key={`grid-v-${index}`}
@@ -258,14 +258,14 @@ export const TryFairDraggableGrid = ({
               fill="none"
               stroke={GRID_LINE_COLOR}
               strokeOpacity={isBorderLine ? 1 : 0.75}
-              strokeWidth={isBorderLine ? 2 : 1}
+              strokeWidth={isBorderLine ? 3 : 1}
             />
           );
         })}
 
         {/* Horizontal grid lines */}
         {horizontalLines.map((line, index) => {
-          const isBorderLine = index === 0 || index === VISIBLE_GRID_ROWS;
+          const isBorderLine = index === 0 || index === lastHorizontalIndex;
           return (
             <polyline
               key={`grid-h-${index}`}
@@ -273,7 +273,7 @@ export const TryFairDraggableGrid = ({
               fill="none"
               stroke={GRID_LINE_COLOR}
               strokeOpacity={isBorderLine ? 1 : 0.75}
-              strokeWidth={isBorderLine ? 2 : 1}
+              strokeWidth={isBorderLine ? 3 : 1}
             />
           );
         })}

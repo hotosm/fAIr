@@ -26,6 +26,8 @@ type MapComponentProps = {
     subLayers: string[];
   }[];
   showTileBoundaries?: boolean;
+  /** Fixed zoom for the tile-boundary layer (defaults to the map zoom). */
+  tileBoundaryZoom?: number;
   children?: React.ReactNode;
   basemaps?: boolean;
   fitToBounds?: boolean;
@@ -50,6 +52,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
   layerControl = false,
   layerControlLayers = [],
   showTileBoundaries = false,
+  tileBoundaryZoom,
   basemaps = false,
   children,
   fitToBounds,
@@ -105,7 +108,9 @@ export const MapComponent: React.FC<MapComponentProps> = ({
         />
       )}
       {children}
-      {showTileBoundaries && <TileBoundaries map={map} />}
+      {showTileBoundaries && (
+        <TileBoundaries map={map} zoom={tileBoundaryZoom} />
+      )}
     </div>
   );
 };

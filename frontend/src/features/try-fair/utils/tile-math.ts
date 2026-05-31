@@ -2,7 +2,6 @@ import { num2deg } from "@/utils/geo/geometry-utils";
 import { BBOX } from "@/types";
 import {
   DEFAULT_SELECTED_GRID,
-  SELECTED_GRID_BY_ZOOM,
   SelectedGridSpec,
   TRY_FAIR_RESOLUTION_ZOOM,
 } from "@/features/try-fair/utils/common";
@@ -13,9 +12,6 @@ import { TryFairResolution } from "@/enums/try-fair";
 /** A tile-space position: integer/fractional x/y at a given tile zoom level. */
 export type TileAnchor = { x: number; y: number; z: number };
 
-// Floating-point tolerance used when snapping near exact tile boundaries.
-const TILE_SNAP_EPSILON = 1e-6;
-
 // ── Pure helpers ─────────────────────────────────────────────────────────────
 
 /** Clamp `value` to the range [`min`, `max`]. */
@@ -23,11 +19,11 @@ export const clamp = (value: number, min: number, max: number): number =>
   Math.min(Math.max(value, min), max);
 
 /**
- * Look up the selected-grid spec (columns × rows sent to the prediction API)
- * for the given tile zoom level, falling back to the default spec.
+ * The selected grid footprint (columns × rows sent to the prediction API) is a
+ * constant N×N tile block. Its cell count is independent of zoom — only its
+ * on-screen size changes with the tile zoom.
  */
-export const getSelectedGridSpec = (tileZoom: number): SelectedGridSpec =>
-  SELECTED_GRID_BY_ZOOM[tileZoom] ?? DEFAULT_SELECTED_GRID;
+export const getSelectedGridSpec = (): SelectedGridSpec => DEFAULT_SELECTED_GRID;
 
 /**
  * Convert a geographic lng/lat to fractional tile coordinates at `tileZoom`.
@@ -56,7 +52,7 @@ export const lngLatToTileCoords = (
  * [0, 2^z − columns] × [0, 2^z − rows].
  */
 export const clampAnchorToWorldBounds = (anchor: TileAnchor): TileAnchor => {
-  const gridSpec = getSelectedGridSpec(anchor.z);
+  const gridSpec = getSelectedGridSpec();
   const maxTileIndex = Math.pow(2, anchor.z);
   const maxAnchorX = Math.max(0, maxTileIndex - gridSpec.columns);
   const maxAnchorY = Math.max(0, maxTileIndex - gridSpec.rows);
@@ -68,14 +64,18 @@ export const clampAnchorToWorldBounds = (anchor: TileAnchor): TileAnchor => {
 };
 
 /**
- * Snap anchor x/y down to the nearest integer tile boundary.
+ * Snap anchor x/y to the *nearest* integer tile boundary.
+ *
+ * Using round (rather than floor) means the grid follows the drag naturally:
+ * once the user has dragged more than halfway toward the next tile it snaps
+ * forward, instead of always jumping back toward the top-left (NW) tile.
  * This aligns the visual grid with the bbox sent to the prediction API.
  */
 export const snapAnchorToTileBoundary = (anchor: TileAnchor): TileAnchor =>
   clampAnchorToWorldBounds({
     ...anchor,
-    x: Math.floor(anchor.x + TILE_SNAP_EPSILON),
-    y: Math.floor(anchor.y + TILE_SNAP_EPSILON),
+    x: Math.round(anchor.x),
+    y: Math.round(anchor.y),
   });
 
 /**
@@ -86,7 +86,7 @@ export const computeCenteredAnchor = (
   center: { lng: number; lat: number },
   tileZoom: number,
 ): TileAnchor => {
-  const gridSpec = getSelectedGridSpec(tileZoom);
+  const gridSpec = getSelectedGridSpec();
   const { tileX, tileY } = lngLatToTileCoords(center.lat, center.lng, tileZoom);
 
   return snapAnchorToTileBoundary(
@@ -103,7 +103,7 @@ export const computeCenteredAnchor = (
  * area starting at `anchor`.
  */
 export const computeGridBBox = (anchor: TileAnchor): BBOX => {
-  const gridSpec = getSelectedGridSpec(anchor.z);
+  const gridSpec = getSelectedGridSpec();
   const northWest = num2deg(anchor.x, anchor.y, anchor.z);
   const southEast = num2deg(
     anchor.x + gridSpec.columns,

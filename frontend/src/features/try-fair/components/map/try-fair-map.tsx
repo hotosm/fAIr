@@ -10,6 +10,7 @@ import { TryFairChoroplethLegend } from "@/features/try-fair/components/map/chlo
 import { TryFairPointsLegend } from "@/features/try-fair/components/map/points-legend";
 import { FitToBounds, ZoomControls } from "@/components/map/controls";
 import { PREDICTION_LAYER_IDS } from "@/features/try-fair/utils/common";
+import { getTileZoomForResolution } from "@/features/try-fair/utils/tile-math";
 import { TryFairLayerControl } from "@/features/try-fair/components/map/try-fair-layer-control";
 import useScreenSize from "@/hooks/use-screen-size";
 
@@ -125,6 +126,7 @@ export const TryFairMap = ({
         hasTileServiceLayer={tileServiceValid}
         tileServiceURL={tileServiceValid ? tileServerURL : undefined}
         showTileBoundaries
+        tileBoundaryZoom={getTileZoomForResolution(resolution)}
         zoomControls={false}
         basemaps
         onTileServiceFitToBounds={handleFitToGrid}

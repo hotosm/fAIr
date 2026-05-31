@@ -1,12 +1,7 @@
-// ── Geometry helpers ──────────────────────────────────────────────────────────
 
 import { BBOX } from "@/types";
 import { num2deg } from "@/utils/geo/geometry-utils";
-import {
-  getGridSpec,
-  VISIBLE_GRID_COLUMNS,
-  VISIBLE_GRID_ROWS,
-} from "@/features/try-fair/utils/common";
+import { getGridSpec } from "@/features/try-fair/utils/common";
 
 /**
  * Returns the centroid of a single exterior ring (array of [lon, lat] positions).
@@ -128,15 +123,15 @@ const buildTileAlignedChoropleth = (
   const anchorX = Math.round(xtile);
   const anchorY = Math.round(ytile);
 
-  // The selected grid spec tells us how many TILES the selection spans.
-  // The choropleth must use the VISIBLE cell count (4×4) so it aligns with
-  // the visual grid lines.  The step is a fraction of a tile:
-  //   colStep = selectedCols / VISIBLE_GRID_COLUMNS  (e.g. 2/4 = 0.5 tiles)
-  const { columns: selCols, rows: selRows } = getGridSpec(gridZoom);
-  const colStep = selCols / VISIBLE_GRID_COLUMNS;
-  const rowStep = selRows / VISIBLE_GRID_ROWS;
-  const numCols = VISIBLE_GRID_COLUMNS;
-  const numRows = VISIBLE_GRID_ROWS;
+  // The selected grid spec tells us how many TILES the selection spans. The
+  // visual grid now draws one cell per whole tile, so the choropleth uses the
+  // same cell count with a step of exactly one tile — keeping it aligned with
+  // the red grid lines.
+  const { columns: selCols, rows: selRows } = getGridSpec();
+  const colStep = 1;
+  const rowStep = 1;
+  const numCols = selCols;
+  const numRows = selRows;
 
   // Count predictions per visual cell
   const counts: number[][] = Array.from({ length: numRows }, () =>
