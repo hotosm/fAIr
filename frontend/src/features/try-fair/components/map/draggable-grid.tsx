@@ -9,6 +9,9 @@ import { TryFairResolution } from "@/enums/try-fair";
 import { TryFairMapOutputType } from "@/enums/try-fair";
 import { useTileGrid } from "@/features/try-fair/hooks/use-tile-grid";
 import { useGridDrag } from "@/features/try-fair/hooks/use-grid-drag";
+import { useGridVisibility } from "@/features/try-fair/hooks/use-grid-visibility";
+import { GridOffScreenNudge } from "@/features/try-fair/components/map/grid-off-screen-nudge";
+import { computeCenteredAnchor } from "@/features/try-fair/utils/tile-math";
 import {
   useGridScreenGeometry,
   screenLineToPointsAttr,
@@ -18,12 +21,10 @@ import {
   toPointCollection,
 } from "@/features/try-fair/utils/helpers";
 
-//  Constants
 
 /** Grid line colour  */
 const GRID_LINE_COLOR = "#EF4444";
 
-// Types
 
 type TryFairDraggableGridProps = {
   map: Map | null;
@@ -47,7 +48,6 @@ type TryFairDraggableGridProps = {
   predictionGridZoom?: number | null;
 };
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
 
 const CHOROPLETH_FILL_LAYER_ID = "try-fair-predictions-choropleth-fill";
 
@@ -91,7 +91,6 @@ type HoverTooltip = {
   count: number;
 } | null;
 
-// ── Component ────────────────────────────────────────────────────────────────
 
 export const TryFairDraggableGrid = ({
   map,
@@ -147,6 +146,28 @@ export const TryFairDraggableGrid = ({
     mapContainerRef,
     anchor,
   });
+
+  //  Off-screen nudge
+
+  // The grid is the prediction AOI, so it intentionally stays put when the
+  // user pans. Detect when it's been left off-screen and offer a one-tap way
+  // to bring it to the current view.
+  const gridVisibility = useGridVisibility({
+    map,
+    mapContainerRef,
+    anchor,
+    disabled: isPredicting,
+  });
+
+  const handleBringGridToView = () => {
+    if (!map || !anchor) return;
+    const center = map.getCenter();
+    setAnchor(
+      computeCenteredAnchor({ lng: center.lng, lat: center.lat }, anchor.z),
+    );
+    // Relocating the grid invalidates the previous prediction's footprint.
+    setGridMovedSincePredict(true);
+  };
 
   // Safe predictions ref for the export closure
 
@@ -278,6 +299,12 @@ export const TryFairDraggableGrid = ({
           );
         })}
       </svg>
+
+      {/* Nudge to bring the grid back when it's been panned off-screen */}
+      <GridOffScreenNudge
+        visibility={gridVisibility}
+        onBringGrid={handleBringGridToView}
+      />
 
       {/* Export dropdown — shown when results exist and grid hasn't moved */}
       {showExportDropdown && (
