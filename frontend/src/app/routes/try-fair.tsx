@@ -3,7 +3,10 @@ import { TRY_FAIR_PAGE_CONTENT } from "@/constants/ui-contents/try-fair-contents
 import { TryFairMapOutputType, TryFairResolution } from "@/enums/try-fair";
 import { TryFairMap } from "@/features/try-fair/components/map/try-fair-map";
 import { TryFairSidebar } from "@/features/try-fair/components/try-fair-sidebar";
-import { DEMO_MODEL_CONFIGS, getDemoConfig } from "@/features/try-fair/utils/models";
+import {
+  DEMO_MODEL_CONFIGS,
+  getDemoConfig,
+} from "@/features/try-fair/utils/models";
 import { useMapInstance } from "@/hooks/use-map-instance";
 import { useTileservice } from "@/hooks/use-tileservice";
 import { useCallback, useEffect, useMemo, useState } from "react";

@@ -23,7 +23,8 @@ export const clamp = (value: number, min: number, max: number): number =>
  * constant N×N tile block. Its cell count is independent of zoom — only its
  * on-screen size changes with the tile zoom.
  */
-export const getSelectedGridSpec = (): SelectedGridSpec => DEFAULT_SELECTED_GRID;
+export const getSelectedGridSpec = (): SelectedGridSpec =>
+  DEFAULT_SELECTED_GRID;
 
 /**
  * Convert a geographic lng/lat to fractional tile coordinates at `tileZoom`.

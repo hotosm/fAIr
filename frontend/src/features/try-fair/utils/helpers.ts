@@ -1,4 +1,3 @@
-
 import { BBOX } from "@/types";
 import { num2deg } from "@/utils/geo/geometry-utils";
 import { getGridSpec } from "@/features/try-fair/utils/common";

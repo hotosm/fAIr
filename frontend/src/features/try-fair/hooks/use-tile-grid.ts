@@ -68,7 +68,6 @@ export const useTileGrid = ({
 }: UseTileGridOptions): UseTileGridReturn => {
   const [anchor, setAnchor] = useState<TileAnchor | null>(null);
   const tileZoom = getTileZoomForResolution(resolution);
-  const resolvedResolution = resolution ?? TryFairResolution.MID;
 
   // ── Track previous values to detect what changed ─────────────────────────
 
@@ -80,22 +79,10 @@ export const useTileGrid = ({
     imageryCenter,
   );
   const anchorRef = useRef<TileAnchor | null>(null);
-  const anchorsByResolutionRef = useRef<
-    Partial<Record<TryFairResolution, TileAnchor>>
-  >({});
 
   useEffect(() => {
     anchorRef.current = anchor;
-    if (!anchor) return;
-    // Only cache an anchor under a resolution once it actually matches that
-    // resolution's tile zoom. On a resolution switch this effect runs before
-    // the recenter effect (with the anchor still at the OLD zoom); caching it
-    // under the new key would let the recenter effect restore the old-zoom
-    // anchor, pinning the grid to its previous size instead of resizing.
-    if (anchor.z === tileZoom) {
-      anchorsByResolutionRef.current[resolvedResolution] = anchor;
-    }
-  }, [anchor, resolvedResolution, tileZoom]);
+  }, [anchor]);
 
   //  Consolidated recentering effect
   useEffect(() => {
@@ -113,61 +100,45 @@ export const useTileGrid = ({
     previousResolutionRef.current = resolution;
     previousImageryCenterRef.current = imageryCenter;
 
-    // Model changed — reset per-resolution cache and recenter from map center.
+    // Model changed — recenter from the map center (new imagery).
     if (modelChanged && modelId) {
       const mapCenter = map.getCenter();
       const nextAnchor = computeCenteredAnchor(
         { lng: mapCenter.lng, lat: mapCenter.lat },
         tileZoom,
       );
-      anchorsByResolutionRef.current = { [resolvedResolution]: nextAnchor };
       setAnchor(nextAnchor);
       return;
     }
 
-    // Resolution changed: restore cached anchor for that resolution if present.
-    // Otherwise, preserve the current grid center as closely as possible.
+    // Resolution changed: resize the grid in place. Recenter on the current
+    // grid center at the new tile zoom so the grid only grows/shrinks where it
+    // already is. If the grid has been left outside the current viewport, fall
+    // back to the map center so it's brought back into view rather than
+    // resizing somewhere off-screen.
     if (resolutionChanged) {
-      const cachedAnchor = anchorsByResolutionRef.current[resolvedResolution];
-      if (cachedAnchor) {
-        setAnchor(cachedAnchor);
-        return;
-      }
-
       const currentAnchor = anchorRef.current;
+      let center: { lng: number; lat: number } = map.getCenter();
       if (currentAnchor) {
-        const currentBBox = computeGridBBox(
-          snapAnchorToTileBoundary(currentAnchor),
-        );
-        const nextAnchor = computeCenteredAnchor(
-          {
-            lng: (currentBBox[0] + currentBBox[2]) / 2,
-            lat: (currentBBox[1] + currentBBox[3]) / 2,
-          },
-          tileZoom,
-        );
-        anchorsByResolutionRef.current[resolvedResolution] = nextAnchor;
-        setAnchor(nextAnchor);
-        return;
+        const bbox = computeGridBBox(snapAnchorToTileBoundary(currentAnchor));
+        const gridCenter = {
+          lng: (bbox[0] + bbox[2]) / 2,
+          lat: (bbox[1] + bbox[3]) / 2,
+        };
+        if (map.getBounds().contains([gridCenter.lng, gridCenter.lat])) {
+          center = gridCenter;
+        }
       }
-
-      const mapCenter = map.getCenter();
-      const nextAnchor = computeCenteredAnchor(
-        { lng: mapCenter.lng, lat: mapCenter.lat },
-        tileZoom,
-      );
-      anchorsByResolutionRef.current[resolvedResolution] = nextAnchor;
-      setAnchor(nextAnchor);
+      setAnchor(computeCenteredAnchor(center, tileZoom));
       return;
     }
 
-    // Imagery center resolved/changed — reset cache and recenter on imagery.
+    // Imagery center resolved/changed — recenter on imagery.
     if (imageryCenterChanged && imageryCenter) {
       const nextAnchor = computeCenteredAnchor(
         { lng: imageryCenter[0], lat: imageryCenter[1] },
         tileZoom,
       );
-      anchorsByResolutionRef.current = { [resolvedResolution]: nextAnchor };
       setAnchor(nextAnchor);
       return;
     }
@@ -177,15 +148,13 @@ export const useTileGrid = ({
       const target = imageryCenter
         ? { lng: imageryCenter[0], lat: imageryCenter[1] }
         : map.getCenter();
-      const nextAnchor = computeCenteredAnchor(target, tileZoom);
-      anchorsByResolutionRef.current[resolvedResolution] = nextAnchor;
-      setAnchor(nextAnchor);
+      setAnchor(computeCenteredAnchor(target, tileZoom));
     }
     // `anchor` is intentionally excluded from deps — we only want to
     // initialise when there's no anchor. Subsequent anchor updates are
     // driven by dragging, not by this effect.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [map, modelId, resolution, imageryCenter, tileZoom, resolvedResolution]);
+  }, [map, modelId, resolution, imageryCenter, tileZoom]);
 
   //
   // The old code called onBBoxChange on every fractional anchor update during

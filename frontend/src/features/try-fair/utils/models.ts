@@ -1,4 +1,3 @@
-
 export type DemoModelConfig = {
   baseModelId: string;
   localModelUri: string;
