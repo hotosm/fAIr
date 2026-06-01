@@ -35,32 +35,23 @@ type UseGridDragReturn = {
   handlePointerDown: (e: ReactPointerEvent) => void;
 };
 
-// ── Constants
-
-/** How long the user must hold before a touch becomes a grid drag (ms). */
-const LONG_PRESS_DURATION_MS = 300;
-/** Max movement (px) during the hold period before the long-press is cancelled. */
-const LONG_PRESS_MOVE_TOLERANCE_PX = 10;
-
 // ── Hook
 
 /**
  * Handles pointer-based dragging of the tile grid overlay.
  *
+ * Touch and mouse/pen all use the same immediate drag model: pointerdown
+ * on the grid polygon starts a drag, pointermove moves the grid, and
+ * pointerup/pointercancel ends it. Touches that land outside the grid
+ * polygon hit the map canvas directly for native panning.
+ *
  * Key design decisions:
  * - Mutable drag state (start anchor, start tile coords, saved dragPan
- *   state) is stored in a **ref** rather than `useState`. This avoids the
- *   old issue where the entire pointermove/pointerup effect re-subscribed
- *   on every state change.
+ *   state) is stored in a **ref** rather than `useState`. This avoids
+ *   effect re-subscription on every state change.
  * - Only the `isDragging` boolean is React state so the component can
  *   toggle cursor styles.
  * - Pointer-move updates are throttled via `requestAnimationFrame`.
- * - **Touch devices** use a long-press gesture: the user must hold for
- *   300 ms before the grid drag activates. Quick taps and swipes pass
- *   through to the map for panning / zooming.
- * - Long-press cancel listeners are managed **imperatively** (added in
- *   handlePointerDown, removed when the timer fires or is cancelled) to
- *   avoid re-subscription churn on every render.
  */
 export const useGridDrag = ({
   map,
@@ -81,12 +72,6 @@ export const useGridDrag = ({
   const pendingPointerRef = useRef<{ x: number; y: number } | null>(null);
   const animationFrameIdRef = useRef<number | null>(null);
 
-  // Long-press state — managed imperatively (no useEffect), so we store a
-  // cleanup function that removes the window listeners added during
-  // handlePointerDown for touch.
-  const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const longPressCleanupRef = useRef<(() => void) | null>(null);
-
   // Keep fresh references for values needed inside window event handlers.
   const mapRef = useRef(map);
   mapRef.current = map;
@@ -94,126 +79,45 @@ export const useGridDrag = ({
   containerRef.current = mapContainerRef;
   const setAnchorRef = useRef(setAnchor);
   setAnchorRef.current = setAnchor;
-  const anchorRef = useRef(anchor);
-  anchorRef.current = anchor;
-  const onDragStartRef = useRef(onDragStart);
-  onDragStartRef.current = onDragStart;
-
-  // ── Helpers ───────────────────────────────────────────────────────────
-
-  /** Cancel any pending long-press timer and remove its window listeners. */
-  const clearLongPress = () => {
-    if (longPressTimerRef.current !== null) {
-      clearTimeout(longPressTimerRef.current);
-      longPressTimerRef.current = null;
-    }
-    longPressCleanupRef.current?.();
-    longPressCleanupRef.current = null;
-  };
-
-  /** Shared logic to initialise a grid drag from a screen coordinate. */
-  const beginDrag = (clientX: number, clientY: number) => {
-    const currentMap = mapRef.current;
-    const currentAnchor = anchorRef.current;
-    const container = containerRef.current.current;
-    if (!currentMap || !currentAnchor || !container) return;
-
-    const containerRect = container.getBoundingClientRect();
-    const lngLat = currentMap.unproject([
-      clientX - containerRect.left,
-      clientY - containerRect.top,
-    ]);
-    const { tileX, tileY } = lngLatToTileCoords(
-      lngLat.lat,
-      lngLat.lng,
-      currentAnchor.z,
-    );
-
-    // Save drag-start state in refs.
-    dragStartAnchorRef.current = currentAnchor;
-    dragStartTileRef.current = { x: tileX, y: tileY };
-
-    // Disable map drag-panning while we own the pointer.
-    const wasDragPanEnabled = currentMap.dragPan
-      ? currentMap.dragPan.isEnabled()
-      : false;
-    dragPanWasEnabledRef.current = wasDragPanEnabled;
-    if (wasDragPanEnabled) currentMap.dragPan.disable();
-
-    // Also disable touch handlers so the map doesn't fight for the gesture.
-    currentMap.touchZoomRotate.disable();
-    currentMap.touchPitch.disable();
-
-    setIsDragging(true);
-    onDragStartRef.current?.();
-  };
 
   // ── Pointer-down: start a drag ─────────────────────────────────────────
 
   const handlePointerDown = (e: ReactPointerEvent) => {
     if (!map || !anchor || disabled) return;
 
-    if (e.pointerType === "touch") {
-      // Long-press gesture: wait LONG_PRESS_DURATION_MS with the finger
-      // held still before initiating the grid drag. Quick taps and swipes
-      // are left to the map for panning / zooming.
-      clearLongPress();
-
-      const origin = { x: e.clientX, y: e.clientY };
-      const pointerId = e.pointerId;
-
-      // ── Imperative window listeners to detect cancellation ──
-      // These are added here (not in a useEffect) so they don't re-subscribe
-      // on every render — a critical fix for drag smoothness.
-
-      const onMove = (ev: PointerEvent) => {
-        if (ev.pointerId !== pointerId) return;
-        const dx = ev.clientX - origin.x;
-        const dy = ev.clientY - origin.y;
-        if (Math.hypot(dx, dy) > LONG_PRESS_MOVE_TOLERANCE_PX) {
-          clearLongPress(); // finger moved — cancel
-        }
-      };
-
-      const onEnd = (ev: PointerEvent) => {
-        if (ev.pointerId !== pointerId) return;
-        clearLongPress(); // lifted or cancelled before timer
-      };
-
-      const removeListeners = () => {
-        window.removeEventListener("pointermove", onMove);
-        window.removeEventListener("pointerup", onEnd);
-        window.removeEventListener("pointercancel", onEnd);
-      };
-
-      window.addEventListener("pointermove", onMove);
-      window.addEventListener("pointerup", onEnd);
-      window.addEventListener("pointercancel", onEnd);
-
-      longPressCleanupRef.current = removeListeners;
-
-      longPressTimerRef.current = setTimeout(() => {
-        longPressTimerRef.current = null;
-        // Remove cancel listeners — the drag effect takes over from here.
-        removeListeners();
-        longPressCleanupRef.current = null;
-        // Begin the drag from the original touch point.
-        beginDrag(origin.x, origin.y);
-      }, LONG_PRESS_DURATION_MS);
-
-      return;
-    }
-
-    // Mouse / pen — immediate drag as before.
     e.preventDefault();
     e.stopPropagation();
-    beginDrag(e.clientX, e.clientY);
-  };
 
-  // Clean up the long-press timer on unmount.
-  useEffect(() => {
-    return () => clearLongPress();
-  }, []);
+    const container = mapContainerRef.current;
+    if (!container) return;
+
+    const containerRect = container.getBoundingClientRect();
+    const lngLat = map.unproject([
+      e.clientX - containerRect.left,
+      e.clientY - containerRect.top,
+    ]);
+    const { tileX, tileY } = lngLatToTileCoords(
+      lngLat.lat,
+      lngLat.lng,
+      anchor.z,
+    );
+
+    // Save drag-start state in refs.
+    dragStartAnchorRef.current = anchor;
+    dragStartTileRef.current = { x: tileX, y: tileY };
+
+    // Disable map drag-panning while we own the pointer.
+    const wasDragPanEnabled = map.dragPan ? map.dragPan.isEnabled() : false;
+    dragPanWasEnabledRef.current = wasDragPanEnabled;
+    if (wasDragPanEnabled) map.dragPan.disable();
+
+    // Disable touch handlers so the map doesn't fight for the gesture.
+    map.touchZoomRotate.disable();
+    map.touchPitch.disable();
+
+    setIsDragging(true);
+    onDragStart?.();
+  };
 
   // ── Pointer-move / pointer-up (attached to window while dragging) ──────
 
@@ -328,3 +232,4 @@ export const useGridDrag = ({
 
   return { isDragging, handlePointerDown };
 };
+
