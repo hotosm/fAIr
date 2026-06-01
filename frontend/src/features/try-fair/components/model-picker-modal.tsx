@@ -52,8 +52,6 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
     }, 200);
   };
 
-
-
   const trigger = (
     <div className="flex justify-between items-center">
       <div className="w-full md:w-28 text-left flex-1 min-w-0">
@@ -75,8 +73,9 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
       </div>
 
       <ChevronDownIcon
-        className={`w-4 h-4 shrink-0 text-grey transition-transform ${isOpen ? "rotate-180" : ""
-          }`}
+        className={`w-4 h-4 shrink-0 text-grey transition-transform ${
+          isOpen ? "rotate-180" : ""
+        }`}
       />
     </div>
   );
@@ -104,9 +103,15 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
       disableCheveronIcon
       triggerComponent={trigger}
     >
-      <div className="w-[520px] shadow-2xl">{
-        <ModelPickerContent models={models} selectedModel={selectedModel} onSelect={handleSelect} />
-        }</div>
+      <div className="w-[520px] shadow-2xl">
+        {
+          <ModelPickerContent
+            models={models}
+            selectedModel={selectedModel}
+            onSelect={handleSelect}
+          />
+        }
+      </div>
     </DropDown>
   );
 };
@@ -135,8 +140,9 @@ export const ModelPickerContent = ({
             key={model.id}
             type="button"
             onClick={() => onSelect(model)}
-            className={`text-left p-3 bg-frosted-blue rounded-lg border-2 transition-colors ${isSelected ? "border-primary" : "border-gray-border"
-              }`}
+            className={`text-left p-3 bg-frosted-blue rounded-lg border-2 transition-colors ${
+              isSelected ? "border-primary" : "border-gray-border"
+            }`}
           >
             <div className="flex items-start justify-between gap-2 mb-1">
               <p className="text-dark text-sm font-bold leading-tight">
@@ -144,8 +150,9 @@ export const ModelPickerContent = ({
               </p>
 
               <span
-                className={`mt-0.5 shrink-0 w-4 h-4 rounded-full border-2 flex items-center justify-center ${isSelected ? "border-primary" : "border-gray-border"
-                  }`}
+                className={`mt-0.5 shrink-0 w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                  isSelected ? "border-primary" : "border-gray-border"
+                }`}
               >
                 {isSelected && (
                   <span className="w-2 h-2 rounded-full bg-primary" />
