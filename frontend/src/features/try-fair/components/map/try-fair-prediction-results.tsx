@@ -119,7 +119,7 @@ export const TryFairPredictionsLayer = ({
         id: FILL_LAYER,
         type: "fill",
         source: SOURCE_ID,
-        paint: { "fill-color": "#E5CEF2", "fill-opacity": 0.1 },
+        paint: { "fill-color": "#E5CEF2", "fill-opacity": 0.2 },
       });
       map.addLayer({
         id: OUTLINE_LAYER,
