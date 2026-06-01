@@ -119,13 +119,13 @@ export const TryFairPredictionsLayer = ({
         id: FILL_LAYER,
         type: "fill",
         source: SOURCE_ID,
-        paint: { "fill-color": "#E5CEF2", "fill-opacity": 0.2 },
+        paint: { "fill-color": "#E5CEF2", "fill-opacity": 0.4 },
       });
       map.addLayer({
         id: OUTLINE_LAYER,
         type: "line",
         source: SOURCE_ID,
-        paint: { "line-color": "#A243DC", "line-width": 1 },
+        paint: { "line-color": "#A243DC", "line-width": 1.3 },
       });
 
       // Add a second source for the point centroids
