@@ -6,9 +6,10 @@ import { getGridSpec } from "@/features/try-fair/utils/common";
  * Returns the centroid of a single exterior ring (array of [lon, lat] positions).
  */
 export const ringCentroid = (ring: number[][]): [number, number] => {
-  const sumX = ring.reduce((s, c) => s + c[0], 0);
-  const sumY = ring.reduce((s, c) => s + c[1], 0);
-  return [sumX / ring.length, sumY / ring.length];
+  const pts = ring.slice(0, -1); // drop the closing duplicate
+  const sumX = pts.reduce((s, c) => s + c[0], 0);
+  const sumY = pts.reduce((s, c) => s + c[1], 0);
+  return [sumX / pts.length, sumY / pts.length];
 };
 
 /**

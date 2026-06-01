@@ -3,6 +3,7 @@ import { TRY_FAIR_PAGE_CONTENT } from "@/constants/ui-contents/try-fair-contents
 import { TryFairMapOutputType, TryFairResolution } from "@/enums/try-fair";
 import { TryFairMap } from "@/features/try-fair/components/map/try-fair-map";
 import { TryFairSidebar } from "@/features/try-fair/components/try-fair-sidebar";
+import { ModelPickerContent } from "@/features/try-fair/components/model-picker-modal";
 import {
   DEMO_MODEL_CONFIGS,
   getDemoConfig,
@@ -29,6 +30,8 @@ import { TRY_FAIR_TOUR_START_MAPPING_BUTTON_SEEN_LOCAL_STORAGE_KEY } from "@/con
 import { useLocalStorage } from "@/hooks/use-storage";
 import { useTour, type StepType } from "@reactour/tour";
 import { TRY_FAIR_INITIAL_MAP_ZOOM } from "@/features/try-fair/utils/common";
+import { Dialog } from "@/components/ui/dialog";
+import { useDialog } from "@/hooks/use-dialog";
 
 export const TryFairPage = () => {
   const { map, mapContainerRef } = useMapInstance(false, false);
@@ -84,6 +87,12 @@ export const TryFairPage = () => {
 
   const [latestGridZoom, setLatestGridZoom] = useState<number | null>(null);
   const [isDirty, setIsDirty] = useState<boolean>(true);
+
+  const {
+    openDialog: openModelPickerDialog,
+    isOpened: isModelPickerDialogOpened,
+    closeDialog: closeModelPickerDialog,
+  } = useDialog();
 
   const [mapClickCount, setMapClickCount] = useState<number>(0);
 
@@ -305,6 +314,22 @@ export const TryFairPage = () => {
     <>
       <Head title={TRY_FAIR_PAGE_CONTENT.pageTitle} />
 
+      {/* Model picker dialog – rendered at page level so it's not trapped inside MobileDrawer */}
+      <Dialog
+        label="Choose a Model"
+        isOpened={isModelPickerDialogOpened}
+        closeDialog={closeModelPickerDialog}
+      >
+        <ModelPickerContent
+          selectedModel={selectedModel}
+          onSelect={(model) => {
+            handleSelectModel(model);
+            closeModelPickerDialog();
+          }}
+          models={models}
+        />
+      </Dialog>
+
       <div className="flex h-screen md:h-[92vh] flex-col fullscreen">
         <div className="flex-grow relative">
           <TryFairMap
@@ -370,6 +395,7 @@ export const TryFairPage = () => {
                   isPredicting={isPredicting}
                   isMapButtonDisabled={isMapButtonDisabled}
                   className="w-full shadow-none"
+                  openMobileModelPickerDialog={openModelPickerDialog}
                 />
               </MobileDrawer>
             </div>

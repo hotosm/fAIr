@@ -32,6 +32,7 @@ type TryFairSidebarProps = {
   isPredicting: boolean;
   isMapButtonDisabled: boolean;
   className?: string;
+  openMobileModelPickerDialog?: () => void;
 };
 
 export const TryFairSidebar = ({
@@ -50,6 +51,7 @@ export const TryFairSidebar = ({
   isPredicting,
   isMapButtonDisabled,
   className,
+  openMobileModelPickerDialog,
 }: TryFairSidebarProps) => {
   const { isSmallViewport } = useScreenSize();
 
@@ -76,6 +78,7 @@ export const TryFairSidebar = ({
             disabled={isPredicting}
             loading={modelsLoading}
             isSmallViewport={isSmallViewport}
+            openMobileDialog={openMobileModelPickerDialog}
           />
         </div>
 
@@ -114,11 +117,10 @@ export const TryFairSidebar = ({
               title={label}
               disabled={isPredicting}
               aria-label={label}
-              className={`flex-1 flex disabled:cursor-wait items-center justify-center py-2 rounded-lg ${
-                outputType === type
+              className={`flex-1 flex disabled:cursor-wait items-center justify-center py-2 rounded-lg ${outputType === type
                   ? "bg-secondary text-primary border-[#D63F4080] border"
                   : "bg-off-white"
-              }`}
+                }`}
             >
               {icon}
             </button>
@@ -161,11 +163,10 @@ export const TryFairSidebar = ({
                 type="button"
                 disabled={isPredicting}
                 onClick={() => onResolutionChange(value)}
-                className={`flex-1 gap-1 flex disabled:cursor-wait text-xs items-center justify-center py-2 rounded-lg ${
-                  resolution === value
+                className={`flex-1 gap-1 flex disabled:cursor-wait text-xs items-center justify-center py-2 rounded-lg ${resolution === value
                     ? "bg-secondary border-[#D63F4080] border"
                     : "bg-off-white"
-                }`}
+                  }`}
               >
                 <GridIcon width={size} height={size} />
                 {label}

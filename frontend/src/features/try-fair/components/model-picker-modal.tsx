@@ -3,7 +3,6 @@ import { BaseModelStacItem } from "@/features/try-fair/api/stac";
 import DropDown from "@/components/ui/dropdown/dropdown";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { ChevronDownIcon } from "@/components/ui/icons";
-import { Dialog } from "@/components/ui/dialog";
 
 type ModelPickerProps = {
   selectedModel: BaseModelStacItem | null;
@@ -12,6 +11,7 @@ type ModelPickerProps = {
   loading?: boolean;
   disabled?: boolean;
   isSmallViewport: boolean;
+  openMobileDialog?: () => void;
 };
 
 const FeatureBadge = ({ label }: { label: string }) => {
@@ -33,6 +33,7 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
   loading = false,
   disabled = false,
   isSmallViewport,
+  openMobileDialog,
 }) => {
   const { onDropdownHide, dropdownRef } = useDropdownMenu();
 
@@ -51,58 +52,7 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
     }, 200);
   };
 
-  const content = (
-    <div className="bg-white rounded-xl p-4 space-y-4 max-h-[70vh] overflow-y-auto">
-      {!isSmallViewport && (
-        <small className="text-sm font-semibold">
-          What do you want to map?
-        </small>
-      )}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {models.map((model) => {
-          const isSelected = selectedModel?.id === model.id;
-          const tasks = model.properties["mlm:tasks"] ?? [];
 
-          return (
-            <button
-              key={model.id}
-              type="button"
-              onClick={() => handleSelect(model)}
-              className={`text-left p-3 bg-frosted-blue rounded-lg border-2 transition-colors ${
-                isSelected ? "border-primary" : "border-gray-border"
-              }`}
-            >
-              <div className="flex items-start justify-between gap-2 mb-1">
-                <p className="text-dark text-sm font-bold leading-tight">
-                  {model.properties["mlm:architecture"]}
-                </p>
-
-                <span
-                  className={`mt-0.5 shrink-0 w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                    isSelected ? "border-primary" : "border-gray-border"
-                  }`}
-                >
-                  {isSelected && (
-                    <span className="w-2 h-2 rounded-full bg-primary" />
-                  )}
-                </span>
-              </div>
-
-              <p className="text-gray-500 text-xs mb-2 line-clamp-2 leading-relaxed">
-                {model.properties.description}
-              </p>
-
-              <div className="flex flex-wrap gap-1">
-                {tasks.map((task) => (
-                  <FeatureBadge key={task} label={task} />
-                ))}
-              </div>
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
 
   const trigger = (
     <div className="flex justify-between items-center">
@@ -125,33 +75,22 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
       </div>
 
       <ChevronDownIcon
-        className={`w-4 h-4 shrink-0 text-grey transition-transform ${
-          isOpen ? "rotate-180" : ""
-        }`}
+        className={`w-4 h-4 shrink-0 text-grey transition-transform ${isOpen ? "rotate-180" : ""
+          }`}
       />
     </div>
   );
 
   if (isSmallViewport) {
     return (
-      <>
-        <button
-          type="button"
-          disabled={disabled}
-          onClick={() => setIsOpen(true)}
-          className="w-full rounded-xl border px-3 py-2 bg-white"
-        >
-          {trigger}
-        </button>
-
-        <Dialog
-          label="Choose a Model"
-          isOpened={isOpen}
-          closeDialog={() => setIsOpen(false)}
-        >
-          {content}
-        </Dialog>
-      </>
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={openMobileDialog}
+        className="w-full rounded-xl border px-3 py-2 bg-white"
+      >
+        {trigger}
+      </button>
     );
   }
 
@@ -165,7 +104,67 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
       disableCheveronIcon
       triggerComponent={trigger}
     >
-      <div className="w-[520px] shadow-2xl">{content}</div>
+      <div className="w-[520px] shadow-2xl">{
+        <ModelPickerContent models={models} selectedModel={selectedModel} onSelect={handleSelect} />
+        }</div>
     </DropDown>
   );
 };
+
+/**
+ * Standalone content for the model picker, exported so it can be rendered
+ * inside a page-level Dialog (outside the MobileDrawer).
+ */
+export const ModelPickerContent = ({
+  selectedModel,
+  onSelect,
+  models,
+}: {
+  selectedModel: BaseModelStacItem | null;
+  onSelect: (model: BaseModelStacItem) => void;
+  models: BaseModelStacItem[];
+}) => (
+  <div className="bg-white rounded-xl p-4 space-y-4 max-h-[70vh] overflow-y-auto">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      {models.map((model) => {
+        const isSelected = selectedModel?.id === model.id;
+        const tasks = model.properties["mlm:tasks"] ?? [];
+
+        return (
+          <button
+            key={model.id}
+            type="button"
+            onClick={() => onSelect(model)}
+            className={`text-left p-3 bg-frosted-blue rounded-lg border-2 transition-colors ${isSelected ? "border-primary" : "border-gray-border"
+              }`}
+          >
+            <div className="flex items-start justify-between gap-2 mb-1">
+              <p className="text-dark text-sm font-bold leading-tight">
+                {model.properties["mlm:architecture"]}
+              </p>
+
+              <span
+                className={`mt-0.5 shrink-0 w-4 h-4 rounded-full border-2 flex items-center justify-center ${isSelected ? "border-primary" : "border-gray-border"
+                  }`}
+              >
+                {isSelected && (
+                  <span className="w-2 h-2 rounded-full bg-primary" />
+                )}
+              </span>
+            </div>
+
+            <p className="text-gray-500 text-xs mb-2 line-clamp-2 leading-relaxed">
+              {model.properties.description}
+            </p>
+
+            <div className="flex flex-wrap gap-1">
+              {tasks.map((task) => (
+                <FeatureBadge key={task} label={task} />
+              ))}
+            </div>
+          </button>
+        );
+      })}
+    </div>
+  </div>
+);
