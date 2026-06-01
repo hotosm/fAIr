@@ -16,6 +16,7 @@ const CLUSTER_LAYER = "try-fair-predictions-cluster";
 const CLUSTER_COUNT_LAYER = "try-fair-predictions-cluster-count";
 const CHOROPLETH_FILL_LAYER = "try-fair-predictions-choropleth-fill";
 const CHOROPLETH_OUTLINE_LAYER = "try-fair-predictions-choropleth-outline";
+const POINT_SOURCE_ID = `${SOURCE_ID}-points`;
 
 const ALL_LAYER_IDS = [
   FILL_LAYER,
@@ -32,6 +33,8 @@ const removeLayers = (map: Map) => {
     if (map.getLayer(id)) map.removeLayer(id);
   });
   if (map.getSource(SOURCE_ID)) map.removeSource(SOURCE_ID);
+  if (map.getSource(POINT_SOURCE_ID)) map.removeSource(POINT_SOURCE_ID);
+
 };
 
 type Props = {
@@ -108,14 +111,35 @@ export const TryFairPredictionsLayer = ({
 
       // ── Points ───────────────────────────────────────────────────────────────
     } else if (outputType === TryFairMapOutputType.POINTS) {
+      // Add polygon source + layers first (reuse predictions directly)
       map.addSource(SOURCE_ID, {
         type: "geojson",
-        data: toPointCollection(predictions),
+        data: predictions,
       });
+      map.addLayer({
+        id: FILL_LAYER,
+        type: "fill",
+        source: SOURCE_ID,
+        paint: { "fill-color": "#E5CEF2", "fill-opacity": 0.2 },
+      });
+      map.addLayer({
+        id: OUTLINE_LAYER,
+        type: "line",
+        source: SOURCE_ID,
+        paint: { "line-color": "#A243DC", "line-width": 1 },
+      });
+
+      // Add a second source for the point centroids
+      if (!map.getSource(POINT_SOURCE_ID)) {
+        map.addSource(POINT_SOURCE_ID, {
+          type: "geojson",
+          data: toPointCollection(predictions),
+        });
+      }
       map.addLayer({
         id: CIRCLE_LAYER,
         type: "circle",
-        source: SOURCE_ID,
+        source: POINT_SOURCE_ID,
         paint: {
           "circle-radius": 4,
           "circle-color": "#A147D8",
