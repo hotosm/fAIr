@@ -34,7 +34,6 @@ const removeLayers = (map: Map) => {
   });
   if (map.getSource(SOURCE_ID)) map.removeSource(SOURCE_ID);
   if (map.getSource(POINT_SOURCE_ID)) map.removeSource(POINT_SOURCE_ID);
-
 };
 
 type Props = {
@@ -120,7 +119,7 @@ export const TryFairPredictionsLayer = ({
         id: FILL_LAYER,
         type: "fill",
         source: SOURCE_ID,
-        paint: { "fill-color": "#E5CEF2", "fill-opacity": 0.2 },
+        paint: { "fill-color": "#E5CEF2", "fill-opacity": 0.1 },
       });
       map.addLayer({
         id: OUTLINE_LAYER,
