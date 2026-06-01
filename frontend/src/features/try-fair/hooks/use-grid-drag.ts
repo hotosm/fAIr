@@ -232,4 +232,3 @@ export const useGridDrag = ({
 
   return { isDragging, handlePointerDown };
 };
-
