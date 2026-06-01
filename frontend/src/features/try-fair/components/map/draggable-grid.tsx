@@ -258,7 +258,7 @@ export const TryFairDraggableGrid = ({
           points={dragSurfacePoints}
           fill="transparent"
           className={`${isPredicting ? "pointer-events-none" : "pointer-events-auto"} ${cursorStyle}`}
-          style={{ touchAction: "none" }}
+          style={{ touchAction: "manipulation" }}
           onPointerDown={handlePointerDown}
           onPointerMove={handleDragSurfacePointerMove}
           onPointerLeave={() => setHoverTooltip(null)}

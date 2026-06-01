@@ -125,6 +125,7 @@ export const TryFairPage = () => {
       map.boxZoom.disable();
       map.dragRotate.disable();
       map.touchZoomRotate.disable();
+      map.touchPitch.disable();
       map.fitBounds(
         [latestBBox[0], latestBBox[1], latestBBox[2], latestBBox[3]],
         {
@@ -139,6 +140,7 @@ export const TryFairPage = () => {
         map.boxZoom.enable();
         map.dragRotate.enable();
         map.touchZoomRotate.enable();
+        map.touchPitch.enable();
       });
       return;
     }
@@ -378,6 +380,8 @@ export const TryFairPage = () => {
                 open={isSmallViewport}
                 dialogTitle="Try Fair Settings"
                 snapPoints={[0.2, 0.7]}
+                modal={false}
+                showOverlay={false}
               >
                 <TryFairSidebar
                   selectedModel={selectedModel}

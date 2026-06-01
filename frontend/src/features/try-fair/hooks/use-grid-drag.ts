@@ -81,6 +81,11 @@ export const useGridDrag = ({
   const handlePointerDown = (e: ReactPointerEvent) => {
     if (!map || !anchor || disabled) return;
 
+    // Let touch events pass through to the map for native pan / pinch-zoom.
+    // Grid repositioning on mobile is handled via the "bring grid to view"
+    // nudge button instead.
+    if (e.pointerType === "touch") return;
+
     e.preventDefault();
     e.stopPropagation();
 
