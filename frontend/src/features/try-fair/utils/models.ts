@@ -54,8 +54,8 @@ export const DEMO_MODEL_CONFIGS: DemoModelConfig[] = [
     localModelUri:
       "https://huggingface.co/kshitijrajsharma/dinov3-hot-buildings/resolve/main/dinov3_buildings.onnx",
     tileServiceUrl:
-      "https://tiles.openaerialmap.org/690585b76415e43597ffd7ea/0/690585b76415e43597ffd7eb/{z}/{x}/{y}",
-    center: [-13.2415, 8.4835],
+      "https://tiles.openaerialmap.org/62d85d11d8499800053796c1/0/62d85d11d8499800053796c2/{z}/{x}/{y}",
+    center: [85.5228304876195, 27.6337106889328],
     displayName: "Buildings",
     location: "Freetown",
     featureType: "building",

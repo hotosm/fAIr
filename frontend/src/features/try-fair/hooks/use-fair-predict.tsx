@@ -36,7 +36,11 @@ export const useFairPredict = () => {
       resolution,
       params,
     }) => {
-      const inferenceEndpoint = model.assets["mlm:inference-endpoint"].href;
+      // temp fix for dino
+      const inferenceEndpoint = model.assets["mlm:inference-endpoint"].href === "https://dinov3-buildings.predict.fair.krschap.tech/predict" ?
+        "http://dinov3s-buildings.predict.fair.krschap.tech/predict"
+        :
+        model.assets["mlm:inference-endpoint"].href
       const predictions = await runPredict(inferenceEndpoint, {
         model_uri: localModelUri,
         image_uri: tileServiceUrl,

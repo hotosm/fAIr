@@ -51,7 +51,6 @@ export const TryFairPage = () => {
   } = useTryFairParams();
 
   const { models: allModels, loading: modelsLoading } = useBaseModels();
-
   const models = useMemo(
     () =>
       DEMO_MODEL_CONFIGS.flatMap((cfg) =>
@@ -112,7 +111,6 @@ export const TryFairPage = () => {
     tileJSONMetadata,
     tileServiceTypeValidity,
   } = useTileservice(getTileServerTypeFromURL(tileServiceUrl), tileServiceUrl);
-
   // Site tour trigger logic based on map interactions and prediction state.
   const GRID_ZOOM_IN_DURATION = 1500;
 
@@ -311,7 +309,6 @@ export const TryFairPage = () => {
       handleMap();
     }
   };
-
   return (
     <>
       <Head title={TRY_FAIR_PAGE_CONTENT.pageTitle} />
