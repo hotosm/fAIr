@@ -44,8 +44,10 @@ backend/postgres-data
 backend/media
 backend/data/*
 backend/log/*
-backend/training/*
-trainings/*
+backend/logs/
+backend/artifacts/
+# backend/training/*
+# trainings/*
 backend/.env
 backend/config.txt
 backend/postgres-data
@@ -53,7 +55,7 @@ backend/.github
 
 
 ramp
-trainings
+# trainings
 fAIr-utilities
 **/.DS_Store
 
@@ -62,6 +64,8 @@ fAIr-utilities
 data
 
 fair-app-data/*
+*.log
+
 
 # helm charts
 fair-*.tgz

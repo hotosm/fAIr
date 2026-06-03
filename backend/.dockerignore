@@ -1,0 +1,38 @@
+# Secrets — must never enter an image.
+.env
+.env.*
+!.env.example
+
+# Local dev caches and venvs (rebuilt inside the image).
+.venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache
+.ruff_cache
+.mypy_cache
+.ty_cache
+.coverage
+htmlcov
+.tox
+
+# Local tooling state.
+.zen
+.git
+.gitignore
+.python-version
+
+# Build/dev-only sources not needed at runtime.
+tests
+docs
+logs
+data
+artifacts
+
+# Repo metadata.
+README.md
+CHANGELOG.md
+justfile
+Dockerfile
+.dockerignore
