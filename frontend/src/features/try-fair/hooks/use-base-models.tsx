@@ -1,6 +1,23 @@
 import { useQuery } from "@tanstack/react-query";
-import { getBaseModels } from "@/features/base-models/api/get-base-models";
 import { BaseModelStacItem } from "@/features/try-fair/api/stac";
+import { API_ENDPOINTS, stacClient } from "@/services";
+
+export type TGetBaseModelsParams = {
+  limit?: number;
+  page?: number;
+};
+
+export const getBaseModels = async ({
+  limit = 20,
+}: TGetBaseModelsParams = {}) => {
+  const res = await stacClient.get(API_ENDPOINTS.GET_BASE_MODELS(limit));
+  return {
+    ...res.data,
+    hasNext: res.data.next,
+    hasPrev: res.data.previous,
+  };
+};
+
 
 /**
  * Fetches all non-deprecated base models from the STAC catalogue.
@@ -10,7 +27,7 @@ import { BaseModelStacItem } from "@/features/try-fair/api/stac";
  */
 export const useBaseModels = () => {
   const { data, isLoading, error } = useQuery({
-    queryKey: ["try-fair-base-models"],
+    queryKey: ["fair-base-models"],
     queryFn: async () => {
       const res = await getBaseModels({ limit: 100 });
       return (res.features as BaseModelStacItem[]).filter(
