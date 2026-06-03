@@ -18,7 +18,6 @@ export const getBaseModels = async ({
   };
 };
 
-
 /**
  * Fetches all non-deprecated base models from the STAC catalogue.
  * Reuses the existing base-models API function but returns the raw STAC items
