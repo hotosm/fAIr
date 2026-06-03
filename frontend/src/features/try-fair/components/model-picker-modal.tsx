@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { BaseModelStacItem } from "@/features/try-fair/api/stac";
 import DropDown from "@/components/ui/dropdown/dropdown";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { ChevronDownIcon } from "@/components/ui/icons";
+import { BuildingIcon } from "@/components/ui/icons/buildings-icon";
+import { getDemoConfig } from "../utils/models";
 
 type ModelPickerProps = {
   selectedModel: BaseModelStacItem | null;
@@ -14,13 +16,14 @@ type ModelPickerProps = {
   openMobileDialog?: () => void;
 };
 
-const FeatureBadge = ({ label }: { label: string }) => {
-  const featureLabel = label
+const FeatureBadge = ({ label }: { label: string | undefined }) => {
+  const featureLabel = label ?? ''
     .replace(/-/g, " ")
     .replace(/\b\w/g, (c) => c.toUpperCase());
 
   return (
-    <span className="inline-flex items-center px-2 py-0.5 rounded bg-grey text-white text-xs font-medium">
+    <span className="inline-flex gap-2 items-center px-2 py-0.5 rounded bg-grey text-white text-xs font-medium">
+      <BuildingIcon />
       {featureLabel}
     </span>
   );
@@ -36,9 +39,11 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
   openMobileDialog,
 }) => {
   const { onDropdownHide, dropdownRef } = useDropdownMenu();
-
   const [isOpen, setIsOpen] = useState(false);
-
+  const modelConfig = useMemo(
+    () => (selectedModel ? getDemoConfig(selectedModel.id) : undefined),
+    [selectedModel],
+  );
   const handleSelect = (model: BaseModelStacItem) => {
     onSelect(model);
 
@@ -60,11 +65,13 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
         ) : selectedModel ? (
           <>
             <p className="font-medium text-dark text-xs leading-tight truncate">
-              {selectedModel.properties["mlm:architecture"]}
+              {/* {selectedModel.properties["mlm:architecture"]} */}
+              {modelConfig?.displayName}
             </p>
 
             <p className="text-grey text-xs leading-tight truncate">
-              {selectedModel.properties.title}
+              {/* {selectedModel.properties.title} */}
+              {modelConfig?.location}
             </p>
           </>
         ) : (
@@ -73,9 +80,8 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
       </div>
 
       <ChevronDownIcon
-        className={`w-4 h-4 shrink-0 text-grey transition-transform ${
-          isOpen ? "rotate-180" : ""
-        }`}
+        className={`w-4 h-4 shrink-0 text-grey transition-transform ${isOpen ? "rotate-180" : ""
+          }`}
       />
     </div>
   );
@@ -133,42 +139,38 @@ export const ModelPickerContent = ({
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
       {models.map((model) => {
         const isSelected = selectedModel?.id === model.id;
-        const tasks = model.properties["mlm:tasks"] ?? [];
-
+        // const tasks = model.properties["mlm:tasks"] ?? [];
+        const modelDetails = getDemoConfig(model.id)
         return (
           <button
             key={model.id}
             type="button"
             onClick={() => onSelect(model)}
-            className={`text-left p-3 bg-frosted-blue rounded-lg border-2 transition-colors ${
-              isSelected ? "border-primary" : "border-gray-border"
-            }`}
+            className={`text-left p-3 bg-frosted-blue rounded-lg  transition-colors ${isSelected ? "border-primary border-2" : ""
+              }`}
           >
-            <div className="flex items-start justify-between gap-2 mb-1">
-              <p className="text-dark text-sm font-bold leading-tight">
-                {model.properties["mlm:architecture"]}
+            <div className="flex space-y-2 items-start justify-between gap-2 mb-1">
+              <p className="text-dark capitalize text-sm font-bold leading-tight">
+                {modelDetails?.displayName} in {modelDetails?.location}
               </p>
-
               <span
-                className={`mt-0.5 shrink-0 w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                  isSelected ? "border-primary" : "border-gray-border"
-                }`}
+                className={`mt-0.5 shrink-0 w-4 h-4 rounded-full  flex items-center justify-center ${isSelected ? "border-primary border-2" : ""
+                  }`}
               >
                 {isSelected && (
                   <span className="w-2 h-2 rounded-full bg-primary" />
                 )}
               </span>
             </div>
-
-            <p className="text-gray-500 text-xs mb-2 line-clamp-2 leading-relaxed">
-              {model.properties.description}
+            <p className="text-grey text-xs mb-0.5">
+              Model: {modelDetails?.modelName}
             </p>
-
-            <div className="flex flex-wrap gap-1">
-              {tasks.map((task) => (
-                <FeatureBadge key={task} label={task} />
-              ))}
-            </div>
+            <p className="text-grey text-xs mb-2">
+              By: {modelDetails?.author}
+            </p>
+            <FeatureBadge
+              label={modelDetails?.featureType}
+            />
           </button>
         );
       })}

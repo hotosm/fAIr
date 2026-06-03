@@ -16,8 +16,8 @@ const VALID_RESOLUTIONS = Object.values(TryFairResolution) as string[];
 export const useTryFairParams = () => {
   const [params, setParams] = useQueryStates(
     {
-      model: parseAsString.withDefault("unet-segmentation"),
-      output: parseAsString.withDefault(TryFairMapOutputType.POINTS),
+      model: parseAsString.withDefault("dinov3s-buildings"),
+      output: parseAsString.withDefault(TryFairMapOutputType.POLYGON),
       resolution: parseAsString.withDefault(TryFairResolution.MID),
       confidence: parseAsFloat.withDefault(0.7),
     },

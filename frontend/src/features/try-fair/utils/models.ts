@@ -7,11 +7,25 @@ export type DemoModelConfig = {
   location: string;
   featureType: string;
   author: string;
+  modelName: string;
 };
 
 export const DEMO_MODEL_CONFIGS: DemoModelConfig[] = [
   {
-    // UNet segmentation — best polygons, shown first as the default
+    //best polygons, shown first as the default
+    baseModelId: "dinov3s-buildings",
+    localModelUri:
+      "https://huggingface.co/kshitijrajsharma/dinov3-hot-buildings/resolve/main/dinov3s_buildings.onnx",
+    tileServiceUrl:
+      "https://tiles.openaerialmap.org/62d85d11d8499800053796c1/0/62d85d11d8499800053796c2/{z}/{x}/{y}",
+    center: [85.5228304876195, 27.6337106889328],
+    displayName: "Buildings",
+    location: "Nepal",
+    featureType: "building",
+    modelName: "Dino3s",
+    author: "HOTOSM",
+  },
+  {
     baseModelId: "unet-segmentation",
     localModelUri:
       "https://s3.fair.krschap.tech/zenml/local-models/08e20666-f8fa-4b8a-8fe8-72661a590fd0/model/model.onnx",
@@ -19,8 +33,9 @@ export const DEMO_MODEL_CONFIGS: DemoModelConfig[] = [
       "https://tiles.openaerialmap.org/62d85d11d8499800053796c1/0/62d85d11d8499800053796c2/{z}/{x}/{y}",
     center: [85.5228, 27.6337],
     displayName: "Buildings",
-    location: "Freetown",
+       location: "Nepal",
     featureType: "building",
+    modelName: "Unet",
     author: "HOTOSM",
   },
   {
@@ -32,7 +47,8 @@ export const DEMO_MODEL_CONFIGS: DemoModelConfig[] = [
       "https://tiles.openaerialmap.org/62d85d11d8499800053796c1/0/62d85d11d8499800053796c2/{z}/{x}/{y}",
     center: [85.5228, 27.6337],
     displayName: "Buildings",
-    location: "Kathmandu",
+       location: "Nepal",
+    modelName: "Resnet",
     featureType: "building",
     author: "HOTOSM",
   },
@@ -48,18 +64,7 @@ export const DEMO_MODEL_CONFIGS: DemoModelConfig[] = [
     location: "Nepal",
     featureType: "building",
     author: "HOTOSM",
-  },
-  {
-    baseModelId: "dinov3-buildings",
-    localModelUri:
-      "https://huggingface.co/kshitijrajsharma/dinov3-hot-buildings/resolve/main/dinov3_buildings.onnx",
-    tileServiceUrl:
-      "https://tiles.openaerialmap.org/62d85d11d8499800053796c1/0/62d85d11d8499800053796c2/{z}/{x}/{y}",
-    center: [85.5228304876195, 27.6337106889328],
-    displayName: "Buildings",
-    location: "Freetown",
-    featureType: "building",
-    author: "HOTOSM",
+    modelName: "Yolo11n",
   },
 ];
 
