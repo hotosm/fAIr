@@ -2,21 +2,23 @@ from django.contrib.gis.db import models as geomodels
 from django.db import models, transaction
 
 from accounts.models import OsmUser
+from shared.enums import Visibility
 from shared.validators import validate_geometry
 
 
 class Dataset(models.Model):
-    class BuildStatus(models.TextChoices):
+    class Status(models.TextChoices):
         DRAFT = "draft", "Draft"
         BUILDING = "building", "Building"
-        PUBLISHED = "published", "Published"
+        BUILT = "built", "Built"
         FAILED = "failed", "Failed"
 
     stac_id = models.CharField(max_length=200, unique=True)
     title = models.CharField(max_length=200)
     source_imagery = models.URLField()
-    build_status = models.CharField(
-        max_length=20, choices=BuildStatus.choices, default=BuildStatus.DRAFT
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.DRAFT)
+    visibility = models.CharField(
+        max_length=20, choices=Visibility.choices, default=Visibility.PRIVATE, db_index=True
     )
     user = models.ForeignKey(
         OsmUser, to_field="osm_id", on_delete=models.CASCADE, related_name="datasets"
@@ -26,7 +28,7 @@ class Dataset(models.Model):
 
     class Meta:
         indexes = [
-            models.Index(fields=["build_status"]),
+            models.Index(fields=["status"]),
             models.Index(fields=["user"]),
         ]
         ordering = ["-created_at"]

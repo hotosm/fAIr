@@ -27,7 +27,7 @@ def published_dataset(db, authed_user: OsmUser) -> Dataset:
         stac_id="buildings-banepa",
         title="Buildings Banepa",
         source_imagery="https://tiles.example/{z}/{x}/{y}.png",
-        build_status=Dataset.BuildStatus.PUBLISHED,
+        status=Dataset.Status.BUILT,
         user=authed_user,
     )
 
@@ -36,7 +36,7 @@ def published_dataset(db, authed_user: OsmUser) -> Dataset:
 def local_model(db, authed_user: OsmUser) -> LocalModel:
     return LocalModel.objects.create(
         name="my-existing-finetune",
-        status=LocalModel.Status.DRAFT,
+        status=LocalModel.Status.ACTIVE,
         user=authed_user,
     )
 
@@ -118,7 +118,7 @@ def test_training_submit_404s_dataset_not_published(mock_item_exists, client, au
         stac_id="building-ds",
         title="Building",
         source_imagery="https://tiles.example/{z}/{x}/{y}.png",
-        build_status=Dataset.BuildStatus.BUILDING,
+        status=Dataset.Status.BUILDING,
         user=authed_user,
     )
     response = client.post(

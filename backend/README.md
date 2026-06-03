@@ -42,6 +42,8 @@ OpenAPI schema at `/api/schema/`, Swagger UI at `/api/docs/`, ReDoc at `/api/red
 
 `AUTH_PROVIDER` selects the auth backend. Both share one contract: `Authorization: Bearer <token>`. `hanko` (production) validates a per-user JWT issued by Hanko (sent via Bearer header or `hanko` cookie). `dev` (local only) compares the Bearer token against the static `FAIR_DEV_TOKEN`; anyone with the token gets full dev-user access. Same header in dev and prod, only the issuer differs.
 
+`GET` on datasets, local-models, and predictions is open to anonymous callers for rows with `visibility="public"`. Owner-scoped lifecycle data (AOIs, trainings, feedback, notifications) and every write require Bearer auth.
+
 | Name | Required | Default | Description |
 |------|----------|---------|-------------|
 | `AUTH_PROVIDER` | no | `hanko` | One of `hanko`, `dev`. |

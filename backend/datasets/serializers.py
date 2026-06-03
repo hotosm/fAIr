@@ -96,7 +96,8 @@ class DatasetSerializer(serializers.ModelSerializer):
             "stac_id",
             "title",
             "source_imagery",
-            "build_status",
+            "status",
+            "visibility",
             "stac_url",
             "user",
             "star_count",
@@ -109,7 +110,8 @@ class DatasetSerializer(serializers.ModelSerializer):
         read_only_fields = [
             "id",
             "stac_id",
-            "build_status",
+            "status",
+            "visibility",
             "stac_url",
             "user",
             "star_count",
@@ -130,7 +132,7 @@ class DatasetSerializer(serializers.ModelSerializer):
 
     @extend_schema_field(DatasetAssetsSerializer(allow_null=True))
     def get_assets(self, obj: Dataset) -> dict[str, str] | None:
-        if obj.build_status != Dataset.BuildStatus.PUBLISHED:
+        if obj.status != Dataset.Status.BUILT:
             return None
         from shared.storage import StoragePaths, presigned_get_url
 

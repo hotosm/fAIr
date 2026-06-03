@@ -17,6 +17,7 @@ class LocalModelSerializer(serializers.ModelSerializer):
             "id",
             "name",
             "status",
+            "visibility",
             "user",
             "star_count",
             "is_starred",

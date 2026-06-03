@@ -73,7 +73,7 @@ def aoi(db, user: OsmUser) -> AOI:
 def local_model(db, user: OsmUser) -> LocalModel:
     return LocalModel.objects.create(
         name="my-finetuned",
-        status=LocalModel.Status.DRAFT,
+        status=LocalModel.Status.ACTIVE,
         user=user,
     )
 
@@ -84,7 +84,7 @@ def published_dataset(db, user: OsmUser) -> Dataset:
         stac_id="ds-banepa",
         title="Banepa buildings",
         source_imagery="https://tiles.example/{z}/{x}/{y}.png",
-        build_status=Dataset.BuildStatus.PUBLISHED,
+        status=Dataset.Status.BUILT,
         user=user,
     )
 
@@ -249,7 +249,7 @@ def test_dataset_build_creates_record_and_enqueues(mock_task, client, aoi):
     assert response.status_code == 202, response.content
     body = response.json()
     assert body["title"] == "Buildings Banepa"
-    assert body["build_status"] == "building"
+    assert body["status"] == "building"
     # Temp stac_id is slug + random suffix to avoid unique-constraint
     # collisions when two datasets share a title; the build task overwrites
     # this with the published STAC id.
@@ -335,7 +335,7 @@ def test_dataset_retrieve_returns_record(client, published_dataset):
     body = response.json()
     assert body["stac_id"] == "ds-banepa"
     assert body["title"] == "Banepa buildings"
-    assert body["build_status"] == "published"
+    assert body["status"] == "built"
     # Pinning lives in STAC properties; default response (no expand) has no `stac` field set.
     assert body["stac"] is None
 
@@ -388,7 +388,8 @@ def test_local_model_retrieve_returns_record(client, local_model):
     assert response.status_code == 200
     body = response.json()
     assert body["name"] == "my-finetuned"
-    assert body["status"] == "draft"
+    assert body["status"] == "active"
+    assert body["visibility"] == "private"
     assert body["star_count"] == 0
     assert body["run_count"] == 0
     assert "stac" not in body
@@ -864,7 +865,7 @@ def test_prediction_submit_creates_record_and_enqueues(mock_task, mock_item_exis
     assert body["zoom"] == 19
     assert body["remove_osm"] is True
     assert body["status"] == "initializing"
-    assert body["is_public"] is False
+    assert body["visibility"] == "private"
     # Pre-completion: assets are None (no files in S3 yet).
     assert body["assets"] is None
     mock_task.enqueue.assert_called_once()
@@ -923,7 +924,7 @@ def test_dataset_assets_are_none_when_not_published(client, aoi, db):
         stac_id="ds-draft",
         title="Drafty",
         source_imagery="https://tiles.example/{z}/{x}/{y}.png",
-        build_status=Dataset.BuildStatus.BUILDING,
+        status=Dataset.Status.BUILDING,
         user=aoi.user,
     )
     response = client.get(f"/api/v1/datasets/{draft.id}/")
@@ -1025,34 +1026,34 @@ def test_prediction_run_status_404s_for_unknown_run(client):
 def test_prediction_publish_makes_record_public(client, prediction):
     response = client.post(f"/api/v1/predictions/{prediction.id}/publish/")
     assert response.status_code == 200
-    assert response.json()["is_public"] is True
+    assert response.json()["visibility"] == "public"
 
 
 def test_prediction_unpublish_makes_record_private(client, prediction):
-    prediction.is_public = True
-    prediction.save(update_fields=["is_public"])
+    prediction.visibility = "public"
+    prediction.save(update_fields=["visibility"])
     response = client.post(f"/api/v1/predictions/{prediction.id}/unpublish/")
     assert response.status_code == 200
-    assert response.json()["is_public"] is False
+    assert response.json()["visibility"] == "private"
 
 
-def test_prediction_publish_rejects_non_owner(other_user, prediction):
+def test_prediction_publish_hidden_from_non_owner(other_user, prediction):
     other_client = APIClient()
     other_client.force_authenticate(user=other_user)
     response = other_client.post(f"/api/v1/predictions/{prediction.id}/publish/")
-    assert response.status_code == 403
+    assert response.status_code == 404
 
 
-def test_public_prediction_endpoint_returns_published_record(anon_client, prediction):
-    prediction.is_public = True
-    prediction.save(update_fields=["is_public"])
-    response = anon_client.get(f"/api/v1/public-predictions/{prediction.id}/")
+def test_anon_can_read_public_prediction(anon_client, prediction):
+    prediction.visibility = "public"
+    prediction.save(update_fields=["visibility"])
+    response = anon_client.get(f"/api/v1/predictions/{prediction.id}/")
     assert response.status_code == 200
-    assert response.json()["is_public"] is True
+    assert response.json()["visibility"] == "public"
 
 
-def test_public_prediction_endpoint_404s_for_private_record(anon_client, prediction):
-    response = anon_client.get(f"/api/v1/public-predictions/{prediction.id}/")
+def test_anon_404s_on_private_prediction(anon_client, prediction):
+    response = anon_client.get(f"/api/v1/predictions/{prediction.id}/")
     assert response.status_code == 404
 
 
@@ -1306,3 +1307,111 @@ def test_sync_prediction_skips_post_process_when_already_ready(
 
     mock_post_run.assert_not_called()
     mock_get_status.assert_not_called()
+
+
+# --- Visibility / anonymous-read matrix ---------------------------------
+
+
+def test_anon_dataset_list_excludes_private(anon_client, published_dataset):
+    response = anon_client.get("/api/v1/datasets/")
+    assert response.status_code == 200
+    assert response.json()["results"] == []
+
+
+def test_anon_dataset_list_includes_public(anon_client, published_dataset):
+    published_dataset.visibility = "public"
+    published_dataset.save(update_fields=["visibility"])
+    response = anon_client.get("/api/v1/datasets/")
+    assert response.status_code == 200
+    body = response.json()
+    assert len(body["results"]) == 1
+    assert body["results"][0]["stac_id"] == "ds-banepa"
+
+
+def test_anon_dataset_retrieve_private_returns_404(anon_client, published_dataset):
+    response = anon_client.get(f"/api/v1/datasets/{published_dataset.id}/")
+    assert response.status_code == 404
+
+
+def test_anon_dataset_retrieve_public_returns_200(anon_client, published_dataset):
+    published_dataset.visibility = "public"
+    published_dataset.save(update_fields=["visibility"])
+    response = anon_client.get(f"/api/v1/datasets/{published_dataset.id}/")
+    assert response.status_code == 200
+    assert response.json()["visibility"] == "public"
+
+
+def test_anon_dataset_write_rejected(anon_client, aoi):
+    response = anon_client.post("/api/v1/datasets/build/", data={}, format="json")
+    assert response.status_code in (401, 403)
+
+
+def test_owner_sees_own_private_dataset(client, published_dataset):
+    response = client.get(f"/api/v1/datasets/{published_dataset.id}/")
+    assert response.status_code == 200
+    assert response.json()["visibility"] == "private"
+
+
+def test_dataset_publish_toggle_round_trip(client, published_dataset, anon_client):
+    response = client.post(f"/api/v1/datasets/{published_dataset.id}/publish/")
+    assert response.status_code == 200
+    assert response.json()["visibility"] == "public"
+
+    response = anon_client.get(f"/api/v1/datasets/{published_dataset.id}/")
+    assert response.status_code == 200
+
+    response = client.post(f"/api/v1/datasets/{published_dataset.id}/unpublish/")
+    assert response.status_code == 200
+    assert response.json()["visibility"] == "private"
+
+    response = anon_client.get(f"/api/v1/datasets/{published_dataset.id}/")
+    assert response.status_code == 404
+
+
+def test_anon_local_model_list_excludes_private(anon_client, local_model):
+    response = anon_client.get("/api/v1/local-models/")
+    assert response.status_code == 200
+    assert response.json()["results"] == []
+
+
+def test_anon_local_model_retrieve_public_returns_200(anon_client, local_model):
+    local_model.visibility = "public"
+    local_model.save(update_fields=["visibility"])
+    response = anon_client.get(f"/api/v1/local-models/{local_model.id}/")
+    assert response.status_code == 200
+    assert response.json()["visibility"] == "public"
+
+
+def test_local_model_publish_toggle_round_trip(client, local_model, anon_client):
+    response = client.post(f"/api/v1/local-models/{local_model.id}/publish/")
+    assert response.status_code == 200
+    assert response.json()["visibility"] == "public"
+
+    response = anon_client.get(f"/api/v1/local-models/{local_model.id}/")
+    assert response.status_code == 200
+
+    response = client.post(f"/api/v1/local-models/{local_model.id}/unpublish/")
+    assert response.status_code == 200
+    assert response.json()["visibility"] == "private"
+
+    response = anon_client.get(f"/api/v1/local-models/{local_model.id}/")
+    assert response.status_code == 404
+
+
+def test_other_user_sees_only_public_datasets(other_user, published_dataset):
+    other_client = APIClient()
+    other_client.force_authenticate(user=other_user)
+    response = other_client.get("/api/v1/datasets/")
+    assert response.status_code == 200
+    assert response.json()["results"] == []
+
+    published_dataset.visibility = "public"
+    published_dataset.save(update_fields=["visibility"])
+    response = other_client.get("/api/v1/datasets/")
+    assert len(response.json()["results"]) == 1
+
+
+def test_admin_sees_all_datasets(admin_client, published_dataset):
+    response = admin_client.get("/api/v1/datasets/")
+    assert response.status_code == 200
+    assert len(response.json()["results"]) == 1

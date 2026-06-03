@@ -30,3 +30,12 @@ class IsOwnerOrAdminOrReadOnly(permissions.BasePermission):
         if _is_admin(request.user):
             return True
         return getattr(obj, "user", None) == request.user
+
+
+class PublishedReadOrAuthenticatedWrite(permissions.BasePermission):
+    """View-level: SAFE methods open; non-SAFE requires authentication."""
+
+    def has_permission(self, request, view) -> bool:
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return bool(request.user and request.user.is_authenticated)

@@ -1,5 +1,6 @@
 import secrets
 
+from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.text import slugify
@@ -15,7 +16,14 @@ from rest_framework.views import APIView
 from rest_framework_gis.filters import InBBoxFilter
 
 from accounts.authentication import OsmAuthentication
-from accounts.permissions import IsAdmin, IsOwnerOrAdminOrReadOnly
+from accounts.permissions import (
+    IsAdmin,
+    IsOwnerOrAdmin,
+    IsOwnerOrAdminOrReadOnly,
+    PublishedReadOrAuthenticatedWrite,
+    _is_admin,
+)
+from shared.enums import Visibility
 from shared.integrations.stac import (
     DATASETS_COLLECTION,
     FAIR_PINNED_PROPERTY,
@@ -61,20 +69,28 @@ class DatasetViewSet(viewsets.ModelViewSet):
     queryset = Dataset.objects.all()
     serializer_class = DatasetSerializer
     authentication_classes = [OsmAuthentication]
-    permission_classes = [IsAuthenticated, IsOwnerOrAdminOrReadOnly]
+    permission_classes = [PublishedReadOrAuthenticatedWrite, IsOwnerOrAdminOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
-    filterset_fields = ["build_status", "user"]
+    filterset_fields = ["status", "visibility", "user"]
     search_fields = ["title", "stac_id"]
     ordering_fields = ["created_at", "last_modified"]
 
     def get_queryset(self):
         from shared.stars import annotate_stars
 
-        return annotate_stars(Dataset.objects.all(), self.request)
+        qs = Dataset.objects.all()
+        user = self.request.user
+        if not user.is_authenticated:
+            qs = qs.filter(visibility=Visibility.PUBLIC)
+        elif not _is_admin(user):
+            qs = qs.filter(Q(user=user) | Q(visibility=Visibility.PUBLIC))
+        return annotate_stars(qs, self.request)
 
     def get_permissions(self):
         if self.action == "pin":
             return [IsAuthenticated(), IsAdmin()]
+        if self.action in {"publish", "unpublish", "build"}:
+            return [IsAuthenticated(), IsOwnerOrAdmin()]
         return super().get_permissions()
 
     def get_serializer_context(self):
@@ -106,6 +122,22 @@ class DatasetViewSet(viewsets.ModelViewSet):
                 serializer = self.get_serializer(page, many=True)
                 return self.get_paginated_response(serializer.data)
         return super().list(request, *args, **kwargs)
+
+    @extend_schema(request=None, responses={200: DatasetSerializer})
+    @action(detail=True, methods=["post"], url_path="publish")
+    def publish(self, request, pk: int | None = None) -> Response:
+        dataset = self.get_object()
+        dataset.visibility = Visibility.PUBLIC
+        dataset.save(update_fields=["visibility", "last_modified"])
+        return Response(self.get_serializer(dataset).data, status=status.HTTP_200_OK)
+
+    @extend_schema(request=None, responses={200: DatasetSerializer})
+    @action(detail=True, methods=["post"], url_path="unpublish")
+    def unpublish(self, request, pk: int | None = None) -> Response:
+        dataset = self.get_object()
+        dataset.visibility = Visibility.PRIVATE
+        dataset.save(update_fields=["visibility", "last_modified"])
+        return Response(self.get_serializer(dataset).data, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=["patch"], url_path="pin")
     def pin(self, request, pk: int | None = None) -> Response:
@@ -141,7 +173,7 @@ class DatasetViewSet(viewsets.ModelViewSet):
             stac_id=_slugify(payload["title"]),
             title=payload["title"],
             source_imagery=payload["source_imagery"],
-            build_status=Dataset.BuildStatus.BUILDING,
+            status=Dataset.Status.BUILDING,
             user=request.user,
         )
         aoi_qs.update(dataset=dataset)

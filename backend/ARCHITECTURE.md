@@ -23,7 +23,7 @@ What happens behind each step:
 | Step | What the backend does | Output |
 | --- | --- | --- |
 | **1. AOI** | Validates polygon, stores in postgres. | Row in `datasets_aoi`. |
-| **2. Build dataset** | Async worker downloads OAM tiles + OSM labels for the AOI, uploads chips + `labels.geojson` to MinIO, registers a STAC item under `datasets/`. | Published STAC dataset. Poll `GET /datasets/{id}/` until `build_status=published`. |
+| **2. Build dataset** | Async worker downloads OAM tiles + OSM labels for the AOI, uploads chips + `labels.geojson` to MinIO, registers a STAC item under `datasets/`. | Built STAC dataset. Poll `GET /datasets/{id}/` until `status=built`. |
 | **3. Submit training** | Async worker submits a ZenML pipeline. ZenML schedules an orchestrator + step pods on the autoscaling ml pool (`split -> train -> eval -> onnx`). Worker polls ZenML status into the DB every 30s. | Trained `weights.pt` + `model.onnx` in MinIO. Poll `GET /trainings/{id}/` until `status=completed`. Tail with `GET /trainings/runs/{run_id}/logs/`. |
 | **4. Promote** | API builds a versioned STAC `local-models/` item from the run's hyperparameters + asset URLs, validates against the base-model's `fair:hyperparameters_spec`, publishes. | `local_model_stac_id`. |
 | **5. Predict** | Async worker downloads chips for the requested bbox, submits an inference pipeline, then post-processes the geojson into `.fgb` + `.pmtiles` via tippecanoe. | Three presigned URLs at `GET /predictions/{id}/result/` once `results_ready=true`. |
@@ -69,7 +69,8 @@ erDiagram
         string stac_id UK "STAC item id under datasets/"
         string title
         url source_imagery "TMS template"
-        string build_status "draft|building|published|failed"
+        string status "draft|building|built|failed"
+        string visibility "private|public"
         bigint user_id FK "-> OsmUser.osm_id"
         datetime created_at
         datetime last_modified
@@ -86,7 +87,8 @@ erDiagram
     LocalModel {
         int id PK
         string name UK "= ZenML model_name = STAC mlm:name"
-        string status "draft|published|archived"
+        string status "active|archived"
+        string visibility "private|public"
         bigint user_id FK
         datetime created_at
     }
@@ -116,7 +118,7 @@ erDiagram
         smallint zoom
         json params "confidence_threshold, ..."
         bool remove_osm
-        bool is_public
+        string visibility "private|public"
         text description
         string status
         bool results_ready "geojson+fgb+pmtiles materialized"
@@ -130,7 +132,7 @@ erDiagram
 
 ## 3. API reference
 
-All endpoints live under `/api/v1/` and require `Authorization: Bearer <token>`. The token is `FAIR_DEV_TOKEN` when `AUTH_PROVIDER=dev`, or a Hanko-issued JWT when `AUTH_PROVIDER=hanko`. Swagger UI: `/api/docs/`. OpenAPI: `/api/schema/`.
+All endpoints live under `/api/v1/`. Writes and owner-scoped reads require `Authorization: Bearer <token>`. The token is `FAIR_DEV_TOKEN` when `AUTH_PROVIDER=dev`, or a Hanko-issued JWT when `AUTH_PROVIDER=hanko`. `GET` on datasets, local-models, and predictions is open anonymously for rows with `visibility="public"`. Private rows are invisible to anonymous callers (404, not 401). Swagger UI: `/api/docs/`. OpenAPI: `/api/schema/`.
 
 ### Core flow
 
@@ -140,9 +142,11 @@ All endpoints live under `/api/v1/` and require `Authorization: Bearer <token>`.
 | POST | `/aois/` | Create an AOI polygon (GeoJSON Feature) |
 | GET | `/aois/` | List AOIs (bbox-filterable) |
 | POST | `/datasets/build/` | Enqueue a dataset build job. `aoi_ids`, `source_imagery` (TMS), `zoom`, `label_tasks`, `label_classes`, `keywords` (allowed: `building`, `road`, `tree`, `water`, `landuse`), `label_type`, `geometry_type` |
-| GET | `/datasets/{id}/?expand=stac` | Inspect dataset, with STAC metadata + presigned `chips`/`labels` URLs once published |
-| GET | `/local-models/` | List published local models (the *family*; STAC has per-version detail) |
+| GET | `/datasets/{id}/?expand=stac` | Inspect dataset, with STAC metadata + presigned `chips`/`labels` URLs once `status=built` |
+| POST | `/datasets/{id}/{publish,unpublish}/` | Toggle dataset `visibility` (anonymous read) |
+| GET | `/local-models/` | List local models (filterable by `status`, `visibility`, `user`) |
 | GET | `/local-models/{id}/runs/` | List ZenML pipeline runs that produced this model |
+| POST | `/local-models/{id}/{publish,unpublish}/` | Toggle local-model `visibility` (anonymous read) |
 | POST | `/trainings/submit/` | Enqueue a finetune. `base_model_stac_id`, `dataset_stac_id`, `model_name`, `overrides` (must match base-model's `fair:hyperparameters_spec`) |
 | GET | `/trainings/{id}/` | Run state including `zenml_run_id` |
 | GET | `/trainings/runs/{run_id}/status/` | Force-poll ZenML; refreshes the DB row |
@@ -153,7 +157,7 @@ All endpoints live under `/api/v1/` and require `Authorization: Bearer <token>`.
 | GET | `/predictions/{id}/` | Status + assets (presigned) once `results_ready=true` |
 | GET | `/predictions/{id}/result/` | Just the three presigned URLs (geojson / fgb / pmtiles); 409 until `results_ready` |
 | GET | `/predictions/runs/{run_id}/{status,logs}/` | Same shape as trainings |
-| POST | `/predictions/{id}/{publish,unpublish}/` | Toggle `is_public` (anonymous read of result) |
+| POST | `/predictions/{id}/{publish,unpublish}/` | Toggle prediction `visibility` (anonymous read of result) |
 
 ### Schema endpoints
 
@@ -203,11 +207,11 @@ Response carries `properties.id` -> call this `AOI_ID`.
 }
 ```
 
-Response: `id` (-> `DATASET_ID`), `stac_id` (-> `STAC_ID`), `build_status: "building"`.
+Response: `id` (-> `DATASET_ID`), `stac_id` (-> `STAC_ID`), `status: "building"`, `visibility: "private"`.
 
 **3. Wait for the build** : `GET /api/v1/datasets/{DATASET_ID}/`
 
-Poll until `build_status == "published"` (~2 min for this AOI).
+Poll until `status == "built"` (~2 min for this AOI). To make it readable by anonymous users, follow up with `POST /api/v1/datasets/{DATASET_ID}/publish/`.
 
 **4. Submit the fine-tune** : `POST /api/v1/trainings/submit/`
 
