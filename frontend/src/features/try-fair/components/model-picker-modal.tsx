@@ -17,9 +17,8 @@ type ModelPickerProps = {
 };
 
 const FeatureBadge = ({ label }: { label: string | undefined }) => {
-  const featureLabel = label ?? ''
-    .replace(/-/g, " ")
-    .replace(/\b\w/g, (c) => c.toUpperCase());
+  const featureLabel =
+    label ?? "".replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
   return (
     <span className="inline-flex gap-2 items-center px-2 py-0.5 rounded bg-grey text-white text-xs font-medium">
@@ -80,8 +79,9 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
       </div>
 
       <ChevronDownIcon
-        className={`w-4 h-4 shrink-0 text-grey transition-transform ${isOpen ? "rotate-180" : ""
-          }`}
+        className={`w-4 h-4 shrink-0 text-grey transition-transform ${
+          isOpen ? "rotate-180" : ""
+        }`}
       />
     </div>
   );
@@ -140,22 +140,24 @@ export const ModelPickerContent = ({
       {models.map((model) => {
         const isSelected = selectedModel?.id === model.id;
         // const tasks = model.properties["mlm:tasks"] ?? [];
-        const modelDetails = getDemoConfig(model.id)
+        const modelDetails = getDemoConfig(model.id);
         return (
           <button
             key={model.id}
             type="button"
             onClick={() => onSelect(model)}
-            className={`text-left p-3 bg-frosted-blue rounded-lg  transition-colors ${isSelected ? "border-primary border-2" : ""
-              }`}
+            className={`text-left p-3 bg-frosted-blue rounded-lg  transition-colors ${
+              isSelected ? "border-primary border-2" : ""
+            }`}
           >
             <div className="flex space-y-2 items-start justify-between gap-2 mb-1">
               <p className="text-dark capitalize text-sm font-bold leading-tight">
                 {modelDetails?.displayName} in {modelDetails?.location}
               </p>
               <span
-                className={`mt-0.5 shrink-0 w-4 h-4 rounded-full  flex items-center justify-center ${isSelected ? "border-primary border-2" : ""
-                  }`}
+                className={`mt-0.5 shrink-0 w-4 h-4 rounded-full  flex items-center justify-center ${
+                  isSelected ? "border-primary border-2" : ""
+                }`}
               >
                 {isSelected && (
                   <span className="w-2 h-2 rounded-full bg-primary" />
@@ -165,12 +167,8 @@ export const ModelPickerContent = ({
             <p className="text-grey text-xs mb-0.5">
               Model: {modelDetails?.modelName}
             </p>
-            <p className="text-grey text-xs mb-2">
-              By: {modelDetails?.author}
-            </p>
-            <FeatureBadge
-              label={modelDetails?.featureType}
-            />
+            <p className="text-grey text-xs mb-2">By: {modelDetails?.author}</p>
+            <FeatureBadge label={modelDetails?.featureType} />
           </button>
         );
       })}

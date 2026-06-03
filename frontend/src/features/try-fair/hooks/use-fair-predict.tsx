@@ -36,8 +36,7 @@ export const useFairPredict = () => {
       resolution,
       params,
     }) => {
-
-      const inferenceEndpoint = model.assets["mlm:inference-endpoint"].href
+      const inferenceEndpoint = model.assets["mlm:inference-endpoint"].href;
       const predictions = await runPredict(inferenceEndpoint, {
         model_uri: localModelUri,
         image_uri: tileServiceUrl,
