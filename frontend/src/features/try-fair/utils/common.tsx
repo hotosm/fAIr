@@ -94,7 +94,7 @@ export type SelectedGridSpec = { columns: number; rows: number };
  * Controlled by the VITE_FAIR_GRID_SIZE environment variable (must be a
  * positive integer). Defaults to 5 if the variable is absent or invalid.
  */
-const _rawGridSize = parseInt(ENVS.FAIR_GRID_SIZE ?? "");
+const _rawGridSize = parseInt(ENVS.TRY_FAIR_GRID_SIZE ?? "");
 export const SELECTED_GRID_SIZE = _rawGridSize > 0 ? _rawGridSize : 5;
 
 export const DEFAULT_SELECTED_GRID: SelectedGridSpec = {
