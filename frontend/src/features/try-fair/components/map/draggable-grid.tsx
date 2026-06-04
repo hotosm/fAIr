@@ -7,9 +7,7 @@ import { useTileGrid } from "@/features/try-fair/hooks/use-tile-grid";
 import { useGridDrag } from "@/features/try-fair/hooks/use-grid-drag";
 import { useGridVisibility } from "@/features/try-fair/hooks/use-grid-visibility";
 import { GridOffScreenNudge } from "@/features/try-fair/components/map/grid-off-screen-nudge";
-import {
-  computeCenteredAnchor,
-} from "@/features/try-fair/utils/tile-math";
+import { computeCenteredAnchor } from "@/features/try-fair/utils/tile-math";
 import {
   useGridScreenGeometry,
   screenLineToPointsAttr,
@@ -119,8 +117,6 @@ export const TryFairDraggableGrid = ({
       computeCenteredAnchor({ lng: center.lng, lat: center.lat }, anchor.z),
     );
   };
-
-
 
   //  Render
 

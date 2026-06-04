@@ -15,7 +15,7 @@ export const FitToBounds = ({
   tooltipContent,
   buttonClassName,
   iconClassName,
-  BoundsIcon
+  BoundsIcon,
 }: {
   map: Map | null;
   bounds: any;
@@ -24,7 +24,7 @@ export const FitToBounds = ({
   tooltipContent?: string;
   buttonClassName?: string;
   iconClassName?: string;
-  BoundsIcon?: ReactNode
+  BoundsIcon?: ReactNode;
 
   /** Override the default fitBounds click handler. */
   onClick?: () => void;
@@ -51,14 +51,17 @@ export const FitToBounds = ({
       <button
         className={cn(
           "bg-white",
-          isSmallViewport ? mobileClassName : "p-1.5 flex justify-center items-center",
+          isSmallViewport
+            ? mobileClassName
+            : "p-1.5 flex justify-center items-center",
           rounded && "rounded-[4px]",
           buttonClassName,
         )}
         onClick={fitToBounds}
       >
-        {BoundsIcon ?? <ArrowMoveIcon className={cn("icon-lg", iconClassName)} />}
-
+        {BoundsIcon ?? (
+          <ArrowMoveIcon className={cn("icon-lg", iconClassName)} />
+        )}
       </button>
     </ToolTip>
   );

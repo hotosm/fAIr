@@ -210,7 +210,12 @@ export const TryFairLayerControl = ({
         disableCheveronIcon
         distance={10}
         triggerComponent={
-          <div className={cn("size-8 p-0 bg-white rounded-[4px] border-0 relative flex items-center justify-center text-dark cursor-pointer", className)}>
+          <div
+            className={cn(
+              "size-8 p-0 bg-white rounded-[4px] border-0 relative flex items-center justify-center text-dark cursor-pointer",
+              className,
+            )}
+          >
             <LayerStackIcon className="size-5" />
           </div>
         }

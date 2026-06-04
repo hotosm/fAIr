@@ -189,7 +189,7 @@ export const TryFairMap = ({
               predictionLayerIds={PREDICTION_LAYER_IDS}
               className="border-b border-[#E4E4E4] border-t-0 border-x-0 rounded-t-[4px] rounded-b-none"
             />
-           
+
             <TryFairDownloadButton
               predictions={predictions}
               outputType={outputType}

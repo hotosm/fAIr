@@ -11,7 +11,7 @@ export const APP_TOUR_IDS = {
   TRY_FAIR_PARAMETERS: "try-fair-parameters",
   TRY_FAIR_MAP_BUTTON_TOOLTIP: "try-fair-map-button-tooltip",
   TRY_FAIR_START_MAPPING_BUTTON: "try-fair-start-mapping-button",
-  TRY_FAIR_DOWNLOAD_PREDICTIONS_BUTTON: "try-fair-download-predictions-button"
+  TRY_FAIR_DOWNLOAD_PREDICTIONS_BUTTON: "try-fair-download-predictions-button",
 };
 
 export const APP_TOUR_STEPS = [
@@ -40,7 +40,6 @@ export const APP_TOUR_STEPS = [
     selector: `#${APP_TOUR_IDS.TUTORIAL_BUTTON}`,
     content: "Restart the tour at any time by clicking this button.",
   },
-  
 ];
 
 // Hide the dimming mask so the map stays visible/interactive during the tour.
@@ -88,7 +87,8 @@ export const getTryFairGuidedTourSteps = (
   },
   {
     selector: `#${APP_TOUR_IDS.TRY_FAIR_DOWNLOAD_PREDICTIONS_BUTTON}`,
-    content: "Click here to download prediction data generated from the output you selected.",
+    content:
+      "Click here to download prediction data generated from the output you selected.",
     position: isSmallViewport ? "top" : "bottom",
     styles: {
       popover: (base: any) => ({

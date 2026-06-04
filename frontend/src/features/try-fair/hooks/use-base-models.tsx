@@ -39,7 +39,7 @@ export const useBaseModels = () => {
     queryFn: async () => {
       const res = await getBaseModels({ limit: 100 });
       return (res.features as BaseModelStacItem[]).filter(
-        (f) =>  f.properties["fair:pinned"],
+        (f) => f.properties["fair:pinned"],
       );
     },
   });
@@ -50,7 +50,6 @@ export const useBaseModels = () => {
     error: error instanceof Error ? error.message : null,
   };
 };
-
 
 export const useLocalModels = () => {
   const { data, isLoading, error } = useQuery({

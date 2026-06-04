@@ -126,7 +126,7 @@ export const API_ENDPOINTS = {
   // STAC
   GET_BASE_MODELS: (limit: number): string =>
     `/collections/base-models/items/?limit=${limit}`,
-    GET_LOCAL_MODELS: (limit: number): string =>
+  GET_LOCAL_MODELS: (limit: number): string =>
     `/collections/local-models/items/?limit=${limit}`,
   GET_BASE_MODEL_BY_ID: (id: string): string =>
     `/collections/base-models/items/${id}`,

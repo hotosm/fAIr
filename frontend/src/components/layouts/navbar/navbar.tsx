@@ -139,8 +139,6 @@ export const NavBar = () => {
                     {isTryFairPage
                       ? `${SHARED_CONTENT.homepage.ctaSecondaryButton}`
                       : SHARED_CONTENT.navbar.loginButton}
-
-
                   </Button>
                 </ToolTip>
               </div>
@@ -207,8 +205,6 @@ export const NavBar = () => {
                   {isTryFairPage
                     ? `${SHARED_CONTENT.homepage.ctaSecondaryButton}`
                     : SHARED_CONTENT.navbar.loginButton}
-
-
                 </Button>
               </ToolTip>
             </div>
