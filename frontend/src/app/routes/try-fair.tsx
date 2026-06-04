@@ -201,8 +201,6 @@ export const TryFairPage = () => {
     clearPredictions,
   } = useFairPredict();
 
-
-
   const handleSelectModel = (model: BaseModelStacItem) => {
     setModelId(model.id);
     setResolution(TryFairResolution.MID);

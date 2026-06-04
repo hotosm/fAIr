@@ -106,4 +106,5 @@ export const ENVS = {
   MAPSWIPE_GROUP_SIZE: import.meta.env.VITE_MAPSWIPE_GROUP_SIZE,
   FAIR_STAC_CATALOG_BASE_URL: import.meta.env.VITE_FAIR_STAC_CATALOG_BASE_URL,
   NODE_ENV: import.meta.env.VITE_NODE_ENV,
+  FAIR_GRID_SIZE: import.meta.env.VITE_FAIR_GRID_SIZE,
 };

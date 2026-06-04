@@ -3,6 +3,7 @@ import { TryFairMapOutputType, TryFairResolution } from "@/enums/try-fair";
 import { PointsIcon } from "@/components/ui/icons/points-icons";
 import { ClusterIcon } from "@/components/ui/icons/cluster-icon";
 import { PolygonIcon } from "@/components/ui/icons/polygon-icon";
+import { ENVS } from "@/config/env";
 import React from "react";
 
 // This is the default zoom level to start mapping.
@@ -89,8 +90,13 @@ export type SelectedGridSpec = { columns: number; rows: number };
  * (and its tile boundaries) shrinks; lower resolution → larger tiles → it
  * grows. The map is never zoomed for this. This same N×N tile block is exactly
  * what gets sent to the prediction backend.
+ *
+ * Controlled by the VITE_FAIR_GRID_SIZE environment variable (must be a
+ * positive integer). Defaults to 5 if the variable is absent or invalid.
  */
-export const SELECTED_GRID_SIZE = 5;
+const _rawGridSize = parseInt(ENVS.FAIR_GRID_SIZE ?? "");
+export const SELECTED_GRID_SIZE = _rawGridSize > 0 ? _rawGridSize : 5;
+
 export const DEFAULT_SELECTED_GRID: SelectedGridSpec = {
   columns: SELECTED_GRID_SIZE,
   rows: SELECTED_GRID_SIZE,
