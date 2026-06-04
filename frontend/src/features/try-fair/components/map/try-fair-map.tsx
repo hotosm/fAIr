@@ -15,6 +15,9 @@ import { PREDICTION_LAYER_IDS } from "@/features/try-fair/utils/common";
 import { getTileZoomForResolution } from "@/features/try-fair/utils/tile-math";
 import { TryFairLayerControl } from "@/features/try-fair/components/map/try-fair-layer-control";
 import useScreenSize from "@/hooks/use-screen-size";
+import { LocateGridIcon } from "@/components/ui/icons/locate-grid-icon";
+import { TryFairDownloadButton } from "@/features/try-fair/components/map/try-fair-download-button";
+import { cn } from "@/utils";
 
 type TryFairMapProps = {
   map: Map | null;
@@ -35,6 +38,9 @@ type TryFairMapProps = {
   /** Opens the guided "how it works" tour. */
   onHelp?: () => void;
 };
+
+const mapActionButtonClassName =
+  "size-8 p-1.5 bg-white rounded-[4px] border-0 flex items-center justify-center text-dark";
 
 export const TryFairMap = ({
   map,
@@ -57,10 +63,8 @@ export const TryFairMap = ({
   const [choroplethBuckets, setChoroplethBuckets] = useState<
     ChoroplethBucket[] | null
   >(null);
-  // Track the grid bbox locally so fit-to-grid always has the latest value
   const gridBBoxRef = useRef<BBOX | null>(null);
 
-  // Intercept bbox changes so gridBBoxRef always has the latest value
   const handleBBoxChange = useCallback(
     (bbox: BBOX, tileZoom: number) => {
       gridBBoxRef.current = bbox;
@@ -81,7 +85,6 @@ export const TryFairMap = ({
 
   useEffect(() => {
     if (!map) return;
-
     if (isPredicting) {
       map.dragPan.disable();
       map.dragRotate.disable();
@@ -102,19 +105,8 @@ export const TryFairMap = ({
       map.touchPitch.enable();
     }
   }, [map, isPredicting]);
-  // useEffect(() => {
-  //   if (!map) return;
-  //   const handlers = [map.dragRotate, map.dragPan, map.touchPitch, map.touchZoomRotate];
-  //   if (isPredicting) {
-  //     handlers.forEach((handler) => handler?.disable());
-  //   } else {
-  //     handlers.forEach((handler) => handler?.enable());
-  //   }
-  //   return () => {
-  //     // Always re-enable on unmount/cleanup to avoid getting stuck
-  //     handlers.forEach((handler) => handler?.enable());
-  //   };
-  // }, [map, isPredicting]);
+
+  const hasPredictions = Boolean(predictions?.features?.length);
 
   const legend =
     outputType === TryFairMapOutputType.CLUSTER ? (
@@ -124,7 +116,7 @@ export const TryFairMap = ({
     ) : null;
 
   return (
-    <div className="relative w-full h-full  overflow-hidden">
+    <div className="relative w-full h-full overflow-hidden">
       <MapComponent
         map={map}
         mapContainerRef={mapContainerRef}
@@ -155,7 +147,6 @@ export const TryFairMap = ({
           resolution={resolution}
           modelId={modelId}
           isPredicting={isPredicting}
-          predictions={predictions}
           outputType={outputType}
           predictionBBox={predictionBBox}
           predictionGridZoom={predictionGridZoom}
@@ -163,29 +154,60 @@ export const TryFairMap = ({
       )}
 
       {map && (
-        <div className="absolute top-5 right-3 map-elements-z-index flex flex-col gap-y-[3px]">
-          <ZoomControls map={map} rounded={true} />
-          <FitToBounds
-            map={map}
-            bounds={null}
-            onClick={handleFitToGrid}
-            tooltipContent="Zoom to grid bounds"
-          />
-          <TryFairLayerControl
-            map={map}
-            hasActivePrediction={Boolean(predictions?.features?.length)}
-            hasTileServiceLayer={tileServiceValid}
-            predictionLayerIds={PREDICTION_LAYER_IDS}
-          />
+        <div className="absolute top-5 right-3 map-elements-z-index flex flex-col gap-y-4">
+          {/* Group 1: Zoom In, Zoom Out, Fit to bounds */}
+          <div className="flex bg-white rounded-[4px] border border-gray-border md:border-0 shadow-sm flex-col gap-y-0">
+            <ZoomControls
+              map={map}
+              rounded={false}
+              className="gap-y-0"
+              buttonClassName="size-8 p-1.5 bg-white border-0 flex items-center justify-center text-dark rounded-none"
+              zoomInClassName="border-b border-[#E4E4E4] border-t-0 border-x-0 rounded-t-[4px]"
+              zoomOutClassName="border-b border-[#E4E4E4] border-t-0 border-x-0 rounded-none"
+              iconClassName="size-4 p-0 text-base leading-none"
+            />
+            <FitToBounds
+              map={map}
+              BoundsIcon={<LocateGridIcon className="size-5" />}
+              bounds={null}
+              onClick={handleFitToGrid}
+              tooltipContent="Zoom to grid bounds"
+              rounded={false}
+              buttonClassName={cn(
+                "size-8 p-1.5 bg-white border-0 flex items-center justify-center text-dark rounded-b-[4px] rounded-t-none",
+                !canFitToBounds && "cursor-not-allowed text-light-gray",
+              )}
+            />
+          </div>
+
+          {/* Group 2: Layer control, Download predictions */}
+          <div className="flex bg-white rounded-[4px] border border-gray-border md:border-0 shadow-sm flex-col gap-y-0">
+            <TryFairLayerControl
+              map={map}
+              hasActivePrediction={hasPredictions}
+              hasTileServiceLayer={tileServiceValid}
+              predictionLayerIds={PREDICTION_LAYER_IDS}
+              className="border-b border-[#E4E4E4] border-t-0 border-x-0 rounded-t-[4px] rounded-b-none"
+            />
+           
+            <TryFairDownloadButton
+              predictions={predictions}
+              outputType={outputType}
+              predictionBBox={predictionBBox}
+              predictionGridZoom={predictionGridZoom}
+              className="border-0 rounded-b-[4px] rounded-t-none"
+            />
+          </div>
+
           {onHelp && (
             <ToolTip content="How it works">
               <button
                 type="button"
                 onClick={onHelp}
                 aria-label="Show the guided tour"
-                className="bg-white p-1.5 rounded-[4px]"
+                className={mapActionButtonClassName}
               >
-                <InfoIcon className="icon-lg" />
+                <InfoIcon className="size-5" />
               </button>
             </ToolTip>
           )}

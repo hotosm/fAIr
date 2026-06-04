@@ -4,16 +4,16 @@ import { TryFairMapOutputType, TryFairResolution } from "@/enums/try-fair";
 import { TryFairMap } from "@/features/try-fair/components/map/try-fair-map";
 import { TryFairSidebar } from "@/features/try-fair/components/try-fair-sidebar";
 import { ModelPickerContent } from "@/features/try-fair/components/model-picker-modal";
-import {
-  DEMO_MODEL_CONFIGS,
-  getDemoConfig,
-} from "@/features/try-fair/utils/models";
+import { getSelectedModel } from "@/features/try-fair/utils/models";
 import { useMapInstance } from "@/hooks/use-map-instance";
 import { useTileservice } from "@/hooks/use-tileservice";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { getTileServerTypeFromURL } from "@/utils";
+import { getTileServerRegex, getTileServerTypeFromURL } from "@/utils";
 import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
-import { useBaseModels } from "@/features/try-fair/hooks/use-base-models";
+import {
+  useBaseModels,
+  useLocalModels,
+} from "@/features/try-fair/hooks/use-base-models";
 import { BBOX } from "@/types";
 import { useFairPredict } from "@/features/try-fair/hooks/use-fair-predict";
 import {
@@ -21,6 +21,7 @@ import {
   getTryFairStartMappingStep,
 } from "@/constants/site-tour";
 import {
+  BaseModelStacItem,
   getInferenceParams,
   InferenceParam,
 } from "@/features/try-fair/api/stac";
@@ -29,7 +30,12 @@ import { MobileDrawer } from "@/components/ui/drawer";
 import { TRY_FAIR_TOUR_START_MAPPING_BUTTON_SEEN_LOCAL_STORAGE_KEY } from "@/config";
 import { useLocalStorage } from "@/hooks/use-storage";
 import { useTour, type StepType } from "@reactour/tour";
-import { TRY_FAIR_INITIAL_MAP_ZOOM } from "@/features/try-fair/utils/common";
+import {
+  DEFAULT_FAIR_IMAGERY_CENTER,
+  FALLBACK_FAIR_IMAGERY,
+  FALLBACK_FAIR_IMAGERY_CENTER,
+  TRY_FAIR_INITIAL_MAP_ZOOM,
+} from "@/features/try-fair/utils/common";
 import { Dialog } from "@/components/ui/dialog";
 import { useDialog } from "@/hooks/use-dialog";
 
@@ -51,21 +57,19 @@ export const TryFairPage = () => {
   } = useTryFairParams();
 
   const { models: allModels, loading: modelsLoading } = useBaseModels();
-  const models = useMemo(
-    () =>
-      DEMO_MODEL_CONFIGS.flatMap((cfg) =>
-        allModels.filter((m) => m.id === cfg.baseModelId),
-      ),
-    [allModels],
-  );
+  const { models: localModels, loading: localModelLoading } = useLocalModels();
 
+  const models = useMemo(
+    () => [...allModels, ...localModels],
+    [allModels, localModels],
+  );
   const selectedModel = useMemo(
-    () => models.find((m) => m.id === modelId) ?? null,
+    () => getSelectedModel(models, modelId),
     [models, modelId],
   );
-
   const demoConfig = useMemo(
-    () => (selectedModel ? getDemoConfig(selectedModel.id) : undefined),
+    () =>
+      selectedModel ? getSelectedModel(models, selectedModel.id) : undefined,
     [selectedModel],
   );
 
@@ -102,8 +106,12 @@ export const TryFairPage = () => {
         "true",
     );
 
-  const tileServiceUrl = demoConfig?.tileServiceUrl ?? "";
-
+  const tileServiceUrl = useMemo(() => {
+    const modelImagery = selectedModel?.properties["fair:source_imagery"];
+    if (!modelImagery) return FALLBACK_FAIR_IMAGERY;
+    const regex = getTileServerRegex(getTileServerTypeFromURL(modelImagery));
+    return regex.test(modelImagery) ? modelImagery : FALLBACK_FAIR_IMAGERY;
+  }, [selectedModel]);
   const {
     tileserverURL,
     setTileserverURL,
@@ -148,19 +156,26 @@ export const TryFairPage = () => {
     setTileserverURL(tileServiceUrl);
   }, [tileServiceUrl, setTileserverURL]);
 
-  const imageryCenter = useMemo((): [number, number] | undefined => {
+  const imageryCenter = useMemo((): [number, number] => {
     if (tileJSONMetadata?.center) {
       return [tileJSONMetadata.center[0], tileJSONMetadata.center[1]];
     }
     if (tileJSONMetadata?.bounds) {
-      const b = tileJSONMetadata.bounds as [number, number, number, number];
-      return [(b[0] + b[2]) / 2, (b[1] + b[3]) / 2];
+      const [w, s, e, n] = tileJSONMetadata.bounds as [
+        number,
+        number,
+        number,
+        number,
+      ];
+      return [(w + e) / 2, (s + n) / 2];
     }
-    return demoConfig?.center;
-  }, [tileJSONMetadata, demoConfig]);
+    return tileServiceUrl === FALLBACK_FAIR_IMAGERY
+      ? FALLBACK_FAIR_IMAGERY_CENTER
+      : DEFAULT_FAIR_IMAGERY_CENTER;
+  }, [tileJSONMetadata, tileServiceUrl]);
 
   useEffect(() => {
-    if (!map || !demoConfig || !imageryCenter) return;
+    if (!map || !selectedModel || !imageryCenter) return;
     const doFly = () => {
       map.flyTo({
         center: imageryCenter,
@@ -176,8 +191,7 @@ export const TryFairPage = () => {
         map.off("load", doFly);
       };
     }
-  }, [map, demoConfig, imageryCenter]);
-
+  }, [map, selectedModel, imageryCenter]);
   const {
     predict,
     isPredicting,
@@ -187,9 +201,20 @@ export const TryFairPage = () => {
     clearPredictions,
   } = useFairPredict();
 
-  const handleSelectModel = (model: { id: string }) => {
+
+
+  const handleSelectModel = (model: BaseModelStacItem) => {
     setModelId(model.id);
     setResolution(TryFairResolution.MID);
+
+    // Reset confidence threshold to model's spec default if available
+    const infParams = getInferenceParams(model);
+    const confidenceParam = infParams.find(
+      (p) => p.key === "confidence_threshold",
+    );
+    if (confidenceParam && typeof confidenceParam.spec.default === "number") {
+      setConfidence(confidenceParam.spec.default);
+    }
     setIsDirty(true);
     clearPredictions();
   };
@@ -262,7 +287,7 @@ export const TryFairPage = () => {
     );
     predict({
       model: selectedModel,
-      localModelUri: demoConfig.localModelUri,
+      localModelUri: selectedModel?.assets?.model?.href ?? "",
       tileServiceUrl: tileserverURL,
       bbox: latestBBox,
       gridZoom: latestGridZoom ?? undefined,
@@ -355,7 +380,7 @@ export const TryFairPage = () => {
               <TryFairSidebar
                 selectedModel={selectedModel}
                 models={models}
-                modelsLoading={modelsLoading}
+                modelsLoading={modelsLoading || localModelLoading}
                 onSelectModel={handleSelectModel}
                 outputType={outputType}
                 onOutputTypeChange={handleOutputTypeChange}
@@ -383,7 +408,7 @@ export const TryFairPage = () => {
                 <TryFairSidebar
                   selectedModel={selectedModel}
                   models={models}
-                  modelsLoading={modelsLoading}
+                  modelsLoading={modelsLoading || localModelLoading}
                   onSelectModel={handleSelectModel}
                   outputType={outputType}
                   onOutputTypeChange={handleOutputTypeChange}

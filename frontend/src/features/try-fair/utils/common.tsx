@@ -8,7 +8,10 @@ import React from "react";
 // This is the default zoom level to start mapping.
 
 export const TRY_FAIR_INITIAL_MAP_ZOOM = 18;
-
+  
+export const FALLBACK_FAIR_IMAGERY = "https://tiles.openaerialmap.org/62d85d11d8499800053796c1/0/62d85d11d8499800053796c2/{z}/{x}/{y}"
+export const FALLBACK_FAIR_IMAGERY_CENTER: [number, number] = [85.5228, 27.6337];
+export const DEFAULT_FAIR_IMAGERY_CENTER: [number, number] = [-13.237922723117881, 8.474166946427818];
 export const RESOLUTIONS: {
   value: TryFairResolution;
   label: string;

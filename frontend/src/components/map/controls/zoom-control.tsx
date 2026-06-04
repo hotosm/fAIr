@@ -5,24 +5,37 @@ import { ToolTipPlacement } from "@/enums";
 import { useCallback } from "react";
 import { useMapStore } from "@/store/map-store";
 
-const ZoomButton = ({
+export const ZoomButton = ({
   onClick,
   disabled,
   icon,
   rounded = false,
+  buttonClassName,
+  iconClassName,
 }: {
   onClick: () => void;
   disabled: boolean;
   icon: string;
   rounded?: boolean;
+  buttonClassName?: string;
+  iconClassName?: string;
 }) => (
   <button
-    className={cn(`p-2 bg-white ${rounded ? "rounded-[4px]" : ""} `)}
+    className={cn(
+      `p-2 bg-white ${rounded ? "rounded-[4px]" : ""} `,
+      buttonClassName,
+    )}
     onClick={onClick}
     disabled={disabled}
   >
     <span
-      className={`map-icon border-[2px] ${disabled ? "border-gray-border text-gray-border  cursor-not-allowed" : "text-dark border-dark"} text-lg inline-flex items-center justify-center `}
+      className={cn(
+        "map-icon border-[2px] text-lg inline-flex items-center justify-center",
+        disabled
+          ? "border-gray-border text-gray-border cursor-not-allowed"
+          : "text-dark border-dark",
+        iconClassName,
+      )}
     >
       {icon}
     </span>
@@ -32,9 +45,19 @@ const ZoomButton = ({
 export const ZoomControls = ({
   map,
   rounded,
+  className,
+  buttonClassName,
+  iconClassName,
+  zoomInClassName,
+  zoomOutClassName,
 }: {
   map: Map | null;
   rounded?: boolean;
+  className?: string;
+  buttonClassName?: string;
+  iconClassName?: string;
+  zoomInClassName?: string;
+  zoomOutClassName?: string;
 }) => {
   const currentZoom = useMapStore((state) => state.zoom);
 
@@ -51,13 +74,15 @@ export const ZoomControls = ({
   }, [map, currentZoom]);
 
   return (
-    <div className="flex flex-col gap-y-[4px]">
+    <div className={cn("flex flex-col gap-y-[4px]", className)}>
       <ToolTip placement={ToolTipPlacement.RIGHT} content="Zoom In">
         <ZoomButton
           onClick={handleZoomIn}
           disabled={currentZoom >= Number(map?.getMaxZoom())}
           icon="+"
           rounded={rounded}
+          buttonClassName={cn(buttonClassName, zoomInClassName)}
+          iconClassName={iconClassName}
         />
       </ToolTip>
       <ToolTip placement={ToolTipPlacement.RIGHT} content="Zoom Out">
@@ -66,6 +91,8 @@ export const ZoomControls = ({
           disabled={currentZoom <= Number(map?.getMinZoom())}
           icon="-"
           rounded={rounded}
+          buttonClassName={cn(buttonClassName, zoomOutClassName)}
+          iconClassName={iconClassName}
         />
       </ToolTip>
     </div>

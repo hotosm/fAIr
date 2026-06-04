@@ -13,8 +13,14 @@ export type HyperParamSpec = {
   values?: string[];
 };
 
+type StacAsset = {
+  href: string;
+  [k: string]: unknown;
+};
+
 export type BaseModelStacItem = {
   id: string;
+  bbox?: BBOX;
   type: "Feature";
   properties: {
     title: string;
@@ -24,15 +30,17 @@ export type BaseModelStacItem = {
     "mlm:architecture": string;
     "mlm:tasks": string[];
     "mlm:framework": string;
+    "fair:pinned": boolean;
     "mlm:hyperparameters": Record<string, string | number | boolean>;
     "fair:hyperparameters_spec": HyperParamSpec[];
+    "fair:source_imagery"?: string;
     keywords: string[];
-    providers: Array<{ name: string; description: string; url: string }>;
+    providers: Array<{ name: string; description?: string; url?: string }>;
   };
   assets: {
-    model: { href: string };
-    "mlm:inference-endpoint": { href: string };
-    [key: string]: { href: string; [k: string]: unknown };
+    model?: StacAsset;
+    "mlm:inference-endpoint"?: StacAsset;
+    [key: string]: StacAsset | undefined;
   };
 };
 

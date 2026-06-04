@@ -17,7 +17,16 @@ export const getBaseModels = async ({
     hasPrev: res.data.previous,
   };
 };
-
+export const getLocalModels = async ({
+  limit = 20,
+}: TGetBaseModelsParams = {}) => {
+  const res = await stacClient.get(API_ENDPOINTS.GET_LOCAL_MODELS(limit));
+  return {
+    ...res.data,
+    hasNext: res.data.next,
+    hasPrev: res.data.previous,
+  };
+};
 /**
  * Fetches all non-deprecated base models from the STAC catalogue.
  * Reuses the existing base-models API function but returns the raw STAC items
@@ -30,7 +39,26 @@ export const useBaseModels = () => {
     queryFn: async () => {
       const res = await getBaseModels({ limit: 100 });
       return (res.features as BaseModelStacItem[]).filter(
-        (f) => !f.properties.deprecated,
+        (f) =>  f.properties["fair:pinned"],
+      );
+    },
+  });
+
+  return {
+    models: data ?? [],
+    loading: isLoading,
+    error: error instanceof Error ? error.message : null,
+  };
+};
+
+
+export const useLocalModels = () => {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["fair-local-models"],
+    queryFn: async () => {
+      const res = await getLocalModels({ limit: 100 });
+      return (res.features as BaseModelStacItem[]).filter(
+        (f) => f.properties["fair:pinned"],
       );
     },
   });

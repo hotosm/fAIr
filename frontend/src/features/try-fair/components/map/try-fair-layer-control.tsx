@@ -25,6 +25,7 @@ type TryFairLayerControlProps = {
   hasActivePrediction: boolean;
   hasTileServiceLayer: boolean;
   predictionLayerIds: string[];
+  className?: string;
 };
 
 type LayerRowProps = {
@@ -40,11 +41,62 @@ const LayerRow = ({ label, active, icon, onClick }: LayerRowProps) => (
     onClick={onClick}
     className={cn(
       "w-full flex px-4 items-center gap-x-2 text-xs transition-opacity",
-      active ? "opacity-100" : "opacity-45",
+      // active ? "opacity-100" : "opacity-45",
     )}
   >
-    {icon}
+    <div
+      className={cn(
+        "transition-opacity",
+        active ? "opacity-100" : "opacity-45",
+      )}
+    >
+      {icon}
+    </div>
     <span className="text-dark text-left">{label}</span>
+  </button>
+);
+
+type LayerToggleRowProps = {
+  label: string;
+  visible: boolean;
+  swatchClassName?: string;
+  icon?: ReactNode;
+  onClick: () => void;
+};
+
+const LayerToggleRow = ({
+  label,
+  visible,
+  swatchClassName,
+  icon,
+  onClick,
+}: LayerToggleRowProps) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className={cn(
+      "w-full px-4 flex items-center bg-off-white justify-between rounded-sm py-2 transition-colors",
+    )}
+  >
+    <div className={cn("flex gap-4 items-center gap-x-2 text-xs")}>
+      {icon ?? (
+        <span className={cn("w-3 h-3 rounded-[3px]", swatchClassName)} />
+      )}
+      <span className="text-dark">{label}</span>
+    </div>
+    <div
+      className={cn(
+        "flex items-center justify-center size-6 rounded transition-colors",
+        visible ? " bg-white text-dark" : "",
+      )}
+      aria-label={visible ? `Hide ${label} layer` : `Show ${label} layer`}
+    >
+      {visible ? (
+        <TryFairPredictionToggleIcon className="size-4" />
+      ) : (
+        <EyeClosedIcon className="size-4" />
+      )}
+    </div>
   </button>
 );
 
@@ -76,6 +128,7 @@ export const TryFairLayerControl = ({
   hasActivePrediction,
   hasTileServiceLayer,
   predictionLayerIds,
+  className,
 }: TryFairLayerControlProps) => {
   const [layersVisibility, setLayersVisibility] = useState({
     prediction: true,
@@ -113,14 +166,16 @@ export const TryFairLayerControl = ({
   };
 
   const toggleBasemap = (layer: "osm" | "googleSatellite") => {
-    const nextValue = !layersVisibility[layer];
-    const targetLayerId =
-      layer === "osm"
-        ? OSM_BASEMAP_LAYER_ID
-        : GOOGLE_SATELLITE_BASEMAP_LAYER_ID;
-
-    setMapLayerVisibility(targetLayerId, nextValue);
-    setLayersVisibility((prev) => ({ ...prev, [layer]: nextValue }));
+    setMapLayerVisibility(OSM_BASEMAP_LAYER_ID, layer === "osm");
+    setMapLayerVisibility(
+      GOOGLE_SATELLITE_BASEMAP_LAYER_ID,
+      layer === "googleSatellite",
+    );
+    setLayersVisibility((prev) => ({
+      ...prev,
+      osm: layer === "osm",
+      googleSatellite: layer === "googleSatellite",
+    }));
   };
 
   useEffect(() => {
@@ -155,8 +210,8 @@ export const TryFairLayerControl = ({
         disableCheveronIcon
         distance={10}
         triggerComponent={
-          <div className="bg-white p-2 border border-gray-border md:border-0 relative rounded-[4px]">
-            <LayerStackIcon className="size-7 text-dark" />
+          <div className={cn("size-8 p-0 bg-white rounded-[4px] border-0 relative flex items-center justify-center text-dark cursor-pointer", className)}>
+            <LayerStackIcon className="size-5" />
           </div>
         }
       >
@@ -176,40 +231,12 @@ export const TryFairLayerControl = ({
                 }))
               }
             >
-              <div
-                className={cn(
-                  "w-full px-4 flex items-center bg-off-white justify-between rounded-sm py-2  transition-colors",
-                )}
-              >
-                <div className={cn("flex gap-4 items-center gap-x-2 text-sm")}>
-                  <span
-                    className={cn(
-                      "w-3 h-3 rounded-[3px]",
-                      predictionSwatchClassName,
-                    )}
-                  />
-                  <span className="text-dark">{predictionLabel}</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={togglePrediction}
-                  className={cn(
-                    "flex items-center justify-center size-6 rounded transition-colors",
-                    layersVisibility.prediction ? " bg-white text-dark" : "",
-                  )}
-                  aria-label={
-                    layersVisibility.prediction
-                      ? "Hide prediction layer"
-                      : "Show prediction layer"
-                  }
-                >
-                  {layersVisibility.prediction ? (
-                    <TryFairPredictionToggleIcon className="size-4" />
-                  ) : (
-                    <EyeClosedIcon className="size-4" />
-                  )}
-                </button>
-              </div>
+              <LayerToggleRow
+                label={predictionLabel}
+                visible={layersVisibility.prediction}
+                swatchClassName={predictionSwatchClassName}
+                onClick={togglePrediction}
+              />
             </Section>
           ) : null}
 
@@ -224,9 +251,9 @@ export const TryFairLayerControl = ({
                 }))
               }
             >
-              <LayerRow
-                label="Open Aerial Map Imagery"
-                active={layersVisibility.imagery}
+              <LayerToggleRow
+                label="OpenAerialMap"
+                visible={layersVisibility.imagery}
                 icon={<TryFairImageryIcon />}
                 onClick={toggleImagery}
               />
@@ -243,13 +270,25 @@ export const TryFairLayerControl = ({
             <LayerRow
               label="OpenstreetMap"
               active={layersVisibility.osm}
-              icon={<TryFairOSMIcon />}
+              icon={
+                layersVisibility.osm ? (
+                  <TryFairOSMIcon />
+                ) : (
+                  <TryFairGoogleSatelliteIcon />
+                )
+              }
               onClick={() => toggleBasemap("osm")}
             />
             <LayerRow
               label="Google Satellite"
               active={layersVisibility.googleSatellite}
-              icon={<TryFairGoogleSatelliteIcon />}
+              icon={
+                layersVisibility.googleSatellite ? (
+                  <TryFairOSMIcon />
+                ) : (
+                  <TryFairGoogleSatelliteIcon />
+                )
+              }
               onClick={() => toggleBasemap("googleSatellite")}
             />
           </Section>

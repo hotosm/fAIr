@@ -1,10 +1,9 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { BaseModelStacItem } from "@/features/try-fair/api/stac";
 import DropDown from "@/components/ui/dropdown/dropdown";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { ChevronDownIcon } from "@/components/ui/icons";
 import { BuildingIcon } from "@/components/ui/icons/buildings-icon";
-import { getDemoConfig } from "../utils/models";
 
 type ModelPickerProps = {
   selectedModel: BaseModelStacItem | null;
@@ -21,7 +20,7 @@ const FeatureBadge = ({ label }: { label: string | undefined }) => {
     label ?? "".replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
   return (
-    <span className="inline-flex gap-2 items-center px-2 py-0.5 rounded bg-grey text-white text-xs font-medium">
+    <span className="inline-flex gap-2 items-center px-2 py-0.5 capitalize rounded bg-grey text-white text-xs font-medium">
       <BuildingIcon />
       {featureLabel}
     </span>
@@ -39,10 +38,7 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
 }) => {
   const { onDropdownHide, dropdownRef } = useDropdownMenu();
   const [isOpen, setIsOpen] = useState(false);
-  const modelConfig = useMemo(
-    () => (selectedModel ? getDemoConfig(selectedModel.id) : undefined),
-    [selectedModel],
-  );
+
   const handleSelect = (model: BaseModelStacItem) => {
     onSelect(model);
 
@@ -63,14 +59,8 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
           <p className="text-grey text-xs animate-pulse">Loading models…</p>
         ) : selectedModel ? (
           <>
-            <p className="font-medium text-dark text-xs leading-tight truncate">
-              {/* {selectedModel.properties["mlm:architecture"]} */}
-              {modelConfig?.displayName}
-            </p>
-
-            <p className="text-grey text-xs leading-tight truncate">
-              {/* {selectedModel.properties.title} */}
-              {modelConfig?.location}
+            <p className="font-medium text-dark text-xs leading-tight">
+              {selectedModel.properties.title}
             </p>
           </>
         ) : (
@@ -140,7 +130,6 @@ export const ModelPickerContent = ({
       {models.map((model) => {
         const isSelected = selectedModel?.id === model.id;
         // const tasks = model.properties["mlm:tasks"] ?? [];
-        const modelDetails = getDemoConfig(model.id);
         return (
           <button
             key={model.id}
@@ -152,8 +141,9 @@ export const ModelPickerContent = ({
           >
             <div className="flex space-y-2 items-start justify-between gap-2 mb-1">
               <p className="text-dark capitalize text-sm font-bold leading-tight">
-                {modelDetails?.displayName} in {modelDetails?.location}
+                {model?.properties?.title ?? ""}
               </p>
+
               <span
                 className={`mt-0.5 shrink-0 w-4 h-4 rounded-full  flex items-center justify-center ${
                   isSelected ? "border-primary border-2" : ""
@@ -165,10 +155,12 @@ export const ModelPickerContent = ({
               </span>
             </div>
             <p className="text-grey text-xs mb-0.5">
-              Model: {modelDetails?.modelName}
+              Model: {model?.properties?.["mlm:name"] ?? ""}
             </p>
-            <p className="text-grey text-xs mb-2">By: {modelDetails?.author}</p>
-            <FeatureBadge label={modelDetails?.featureType} />
+            <p className="text-grey text-xs mb-2">
+              By: {model?.properties?.providers[0]?.name ?? ""}
+            </p>
+            <FeatureBadge label={model?.properties?.keywords[0] ?? ""} />
           </button>
         );
       })}

@@ -36,7 +36,11 @@ export const useFairPredict = () => {
       resolution,
       params,
     }) => {
-      const inferenceEndpoint = model.assets["mlm:inference-endpoint"].href;
+      const inferenceEndpoint = model.assets["mlm:inference-endpoint"]?.href;
+      if (!inferenceEndpoint) {
+        throw new Error("Selected model is missing an inference endpoint.");
+      }
+
       const predictions = await runPredict(inferenceEndpoint, {
         model_uri: localModelUri,
         image_uri: tileServiceUrl,

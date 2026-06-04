@@ -25,7 +25,6 @@ import {
 import "@hotosm/tool-menu";
 import { Divider } from "@/components/ui/divider";
 import { ToolTip } from "@/components/ui/tooltip";
-import { ExternalLinkIcon } from "@/components/ui/icons";
 
 if (AUTH_PROVIDER === "hanko") {
   import("@hotosm/hanko-auth");
@@ -141,9 +140,7 @@ export const NavBar = () => {
                       ? `${SHARED_CONTENT.homepage.ctaSecondaryButton}`
                       : SHARED_CONTENT.navbar.loginButton}
 
-                    {isTryFairPage ? (
-                      <ExternalLinkIcon className="text-white size-3" />
-                    ) : null}
+
                   </Button>
                 </ToolTip>
               </div>
@@ -211,9 +208,7 @@ export const NavBar = () => {
                     ? `${SHARED_CONTENT.homepage.ctaSecondaryButton}`
                     : SHARED_CONTENT.navbar.loginButton}
 
-                  {isTryFairPage ? (
-                    <ExternalLinkIcon className="text-white size-3" />
-                  ) : null}
+
                 </Button>
               </ToolTip>
             </div>

@@ -3,7 +3,7 @@ import { ArrowMoveIcon } from "@/components/ui/icons";
 import { Map } from "maplibre-gl";
 import { MAP_CONTENT } from "@/constants";
 import { ToolTip } from "@/components/ui/tooltip";
-import { useCallback } from "react";
+import { ReactNode, useCallback } from "react";
 import { cn } from "@/utils";
 
 export const FitToBounds = ({
@@ -15,6 +15,7 @@ export const FitToBounds = ({
   tooltipContent,
   buttonClassName,
   iconClassName,
+  BoundsIcon
 }: {
   map: Map | null;
   bounds: any;
@@ -23,6 +24,7 @@ export const FitToBounds = ({
   tooltipContent?: string;
   buttonClassName?: string;
   iconClassName?: string;
+  BoundsIcon?: ReactNode
 
   /** Override the default fitBounds click handler. */
   onClick?: () => void;
@@ -49,13 +51,14 @@ export const FitToBounds = ({
       <button
         className={cn(
           "bg-white",
-          isSmallViewport ? mobileClassName : "p-1.5",
+          isSmallViewport ? mobileClassName : "p-1.5 flex justify-center items-center",
           rounded && "rounded-[4px]",
           buttonClassName,
         )}
         onClick={fitToBounds}
       >
-        <ArrowMoveIcon className={cn("icon-lg", iconClassName)} />
+        {BoundsIcon ?? <ArrowMoveIcon className={cn("icon-lg", iconClassName)} />}
+
       </button>
     </ToolTip>
   );

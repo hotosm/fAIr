@@ -1,9 +1,5 @@
-import { RefObject, useEffect, useRef, useState } from "react";
+import { RefObject, useMemo, useState } from "react";
 import { Map } from "maplibre-gl";
-import { ElipsisIcon, CloudDownloadIcon } from "@/components/ui/icons";
-import { DropDown } from "@/components/ui/dropdown";
-import { ToolTip } from "@/components/ui/tooltip";
-import { geoJSONDowloader } from "@/utils/geo/geo-utils";
 import { BBOX } from "@/types";
 import { TryFairResolution } from "@/enums/try-fair";
 import { TryFairMapOutputType } from "@/enums/try-fair";
@@ -11,18 +7,18 @@ import { useTileGrid } from "@/features/try-fair/hooks/use-tile-grid";
 import { useGridDrag } from "@/features/try-fair/hooks/use-grid-drag";
 import { useGridVisibility } from "@/features/try-fair/hooks/use-grid-visibility";
 import { GridOffScreenNudge } from "@/features/try-fair/components/map/grid-off-screen-nudge";
-import { computeCenteredAnchor } from "@/features/try-fair/utils/tile-math";
+import {
+  computeCenteredAnchor,
+} from "@/features/try-fair/utils/tile-math";
 import {
   useGridScreenGeometry,
   screenLineToPointsAttr,
 } from "@/features/try-fair/hooks/use-grid-screen-geometry";
-import {
-  buildChoropleth,
-  toPointCollection,
-} from "@/features/try-fair/utils/helpers";
 
 /** Grid line colour  */
 const GRID_LINE_COLOR = "#EF4444";
+
+const CHOROPLETH_FILL_LAYER_ID = "try-fair-predictions-choropleth-fill";
 
 type TryFairDraggableGridProps = {
   map: Map | null;
@@ -36,50 +32,12 @@ type TryFairDraggableGridProps = {
   modelId?: string | null;
   /** When true, grid dragging is disabled. */
   isPredicting?: boolean;
-  /** Current predictions — when present, shows the export dropdown. */
-  predictions?: GeoJSON.FeatureCollection | null;
   /** Currently selected output type — used to name the export file. */
   outputType?: TryFairMapOutputType;
   /** Bounding box used for the current prediction result. */
   predictionBBox?: BBOX | null;
   /** Grid zoom used for the current prediction result. */
   predictionGridZoom?: number | null;
-};
-
-const CHOROPLETH_FILL_LAYER_ID = "try-fair-predictions-choropleth-fill";
-
-const getDownloadData = (
-  predictions: GeoJSON.FeatureCollection,
-  outputType: TryFairMapOutputType,
-  predictionBBox?: BBOX | null,
-  predictionGridZoom?: number | null,
-): GeoJSON.FeatureCollection => {
-  if (outputType === TryFairMapOutputType.POINTS) {
-    return toPointCollection(predictions);
-  }
-  if (outputType === TryFairMapOutputType.CLUSTER && predictionBBox) {
-    return buildChoropleth(
-      predictions,
-      predictionBBox,
-      predictionGridZoom ?? undefined,
-    );
-  }
-  return predictions;
-};
-
-const downloadPredictions = (
-  predictions: GeoJSON.FeatureCollection,
-  outputType: TryFairMapOutputType,
-  predictionBBox?: BBOX | null,
-  predictionGridZoom?: number | null,
-) => {
-  const exportData = getDownloadData(
-    predictions,
-    outputType,
-    predictionBBox,
-    predictionGridZoom,
-  );
-  geoJSONDowloader(exportData, `fair-predictions-${outputType.toLowerCase()}`);
 };
 
 type HoverTooltip = {
@@ -96,10 +54,7 @@ export const TryFairDraggableGrid = ({
   resolution,
   modelId,
   isPredicting = false,
-  predictions,
   outputType,
-  predictionBBox,
-  predictionGridZoom,
 }: TryFairDraggableGridProps) => {
   // Grid anchor & bbox management
 
@@ -113,27 +68,7 @@ export const TryFairDraggableGrid = ({
 
   //  Drag interaction
 
-  // Hide the export dropdown once the user drags the grid away from the
-  // area where the prediction was run.
-  const [gridMovedSincePredict, setGridMovedSincePredict] =
-    useState<boolean>(false);
   const [hoverTooltip, setHoverTooltip] = useState<HoverTooltip>(null);
-
-  const hasPredictions = !!predictions && predictions.features.length > 0;
-
-  // Reset the "moved" flag when fresh predictions arrive.
-  useEffect(() => {
-    if (hasPredictions) setGridMovedSincePredict(false);
-  }, [hasPredictions]);
-
-  const { isDragging, handlePointerDown } = useGridDrag({
-    map,
-    mapContainerRef,
-    anchor,
-    setAnchor,
-    disabled: isPredicting,
-    onDragStart: () => setGridMovedSincePredict(true),
-  });
 
   //  Screen projection
 
@@ -141,6 +76,28 @@ export const TryFairDraggableGrid = ({
     map,
     mapContainerRef,
     anchor,
+  });
+
+  // Disable dragging when the grid covers ≥95% of the viewport height —
+  // at that size it blocks the entire map and dragging becomes impractical.
+  const gridCoversScreen = useMemo(() => {
+    if (!screenGeometry || !mapContainerRef.current) return false;
+    const { horizontalLines } = screenGeometry;
+    const topY = horizontalLines[0].y1;
+    const bottomY = horizontalLines[horizontalLines.length - 1].y1;
+    const gridHeight = Math.abs(bottomY - topY);
+    const containerHeight = mapContainerRef.current.clientHeight;
+    return gridHeight / containerHeight >= 0.95;
+  }, [screenGeometry, mapContainerRef]);
+
+  const dragDisabled = isPredicting || gridCoversScreen;
+
+  const { isDragging, handlePointerDown } = useGridDrag({
+    map,
+    mapContainerRef,
+    anchor,
+    setAnchor,
+    disabled: dragDisabled,
   });
 
   //  Off-screen nudge
@@ -161,21 +118,15 @@ export const TryFairDraggableGrid = ({
     setAnchor(
       computeCenteredAnchor({ lng: center.lng, lat: center.lat }, anchor.z),
     );
-    // Relocating the grid invalidates the previous prediction's footprint.
-    setGridMovedSincePredict(true);
   };
 
-  // Safe predictions ref for the export closure
 
-  const predictionsRef = useRef<GeoJSON.FeatureCollection | null>(predictions);
-  predictionsRef.current = predictions;
 
   //  Render
 
   if (!screenGeometry) return null;
 
-  const { verticalLines, horizontalLines, exportButtonPosition } =
-    screenGeometry;
+  const { verticalLines, horizontalLines } = screenGeometry;
 
   // Four corners of the grid boundary for the transparent drag polygon.
   // The right edge is the last vertical line (count varies by tile zoom).
@@ -189,14 +140,12 @@ export const TryFairDraggableGrid = ({
     `${verticalLines[0].x2},${verticalLines[0].y2}`,
   ].join(" ");
 
-  const cursorStyle = isPredicting
+  const cursorStyle = dragDisabled
     ? "cursor-not-allowed"
     : isDragging
       ? "cursor-grabbing"
       : "cursor-grab";
 
-  const showExportDropdown =
-    hasPredictions && !gridMovedSincePredict && outputType;
   const isChoroplethOutput = outputType === TryFairMapOutputType.CLUSTER;
 
   const handleDragSurfacePointerMove = (
@@ -257,7 +206,7 @@ export const TryFairDraggableGrid = ({
         <polygon
           points={dragSurfacePoints}
           fill="transparent"
-          className={`${isPredicting ? "pointer-events-none" : "pointer-events-auto"} ${cursorStyle}`}
+          className={`${dragDisabled ? "pointer-events-none" : "pointer-events-auto"} ${cursorStyle}`}
           style={{ touchAction: "none" }}
           onPointerDown={handlePointerDown}
           onPointerMove={handleDragSurfacePointerMove}
@@ -301,54 +250,6 @@ export const TryFairDraggableGrid = ({
         visibility={gridVisibility}
         onBringGrid={handleBringGridToView}
       />
-
-      {/* Export dropdown — shown when results exist and grid hasn't moved */}
-      {showExportDropdown && (
-        <div
-          className="absolute z-20 pointer-events-auto"
-          style={{
-            left: `${exportButtonPosition.x}px`,
-            top: `${exportButtonPosition.y}px`,
-            transform: "translate(-50%, -50%)",
-          }}
-        >
-          <DropDown
-            disableCheveronIcon
-            distance={10}
-            triggerComponent={
-              <button
-                type="button"
-                className="bg-white p-1.5 rounded-full items-center flex justify-center shadow-sm border border-gray-border"
-              >
-                <ElipsisIcon className="icon" />
-              </button>
-            }
-          >
-            <div className="flex gap-x-2 p-2 items-center bg-white">
-              <ToolTip content="Export results">
-                <button
-                  type="button"
-                  onClick={() => {
-                    const currentPredictions = predictionsRef.current;
-                    if (currentPredictions) {
-                      downloadPredictions(
-                        currentPredictions,
-                        outputType,
-                        predictionBBox,
-                        predictionGridZoom,
-                      );
-                    }
-                  }}
-                  className="bg-off-white h-8 px-2.5 gap-1.5 items-center justify-center flex rounded-md"
-                >
-                  <CloudDownloadIcon className="icon md:icon-lg" />
-                  <span className="text-xs text-dark">Download</span>
-                </button>
-              </ToolTip>
-            </div>
-          </DropDown>
-        </div>
-      )}
 
       {hoverTooltip ? (
         <div

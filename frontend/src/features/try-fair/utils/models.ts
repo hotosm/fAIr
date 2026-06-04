@@ -1,3 +1,5 @@
+import type { BaseModelStacItem } from "@/features/try-fair/api/stac";
+
 export type DemoModelConfig = {
   baseModelId: string;
   localModelUri: string;
@@ -26,7 +28,7 @@ export const DEMO_MODEL_CONFIGS: DemoModelConfig[] = [
     author: "HOTOSM",
   },
   {
-    baseModelId: "unet-segmentation",
+    baseModelId: "2e5ac894-731f-416d-bb34-ad3cafb4b9a6",
     localModelUri:
       "https://s3.fair.krschap.tech/zenml/local-models/08e20666-f8fa-4b8a-8fe8-72661a590fd0/model/model.onnx",
     tileServiceUrl:
@@ -72,3 +74,13 @@ export const getDemoConfig = (
   baseModelId: string,
 ): DemoModelConfig | undefined =>
   DEMO_MODEL_CONFIGS.find((c) => c.baseModelId === baseModelId);
+
+export const getSelectedModel = (
+  models: BaseModelStacItem[],
+  modelId: string | null,
+): BaseModelStacItem | null =>
+  (modelId && models.find((m) => m.id === modelId)) || null;
+
+
+  // https://tiles.openaerialmap.org/68b701d45288a43ff3e91007/0/68b701d45288a43ff3e91008/{z}/{x}/{y}
+  // 85.5228304876195, 27.6337106889328
