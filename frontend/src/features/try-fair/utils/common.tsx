@@ -95,7 +95,7 @@ export type SelectedGridSpec = { columns: number; rows: number };
  * positive integer). Defaults to 5 if the variable is absent or invalid.
  */
 
-export const SELECTED_GRID_SIZE = TRY_FAIR_GRID_SIZE
+export const SELECTED_GRID_SIZE = TRY_FAIR_GRID_SIZE;
 
 export const DEFAULT_SELECTED_GRID: SelectedGridSpec = {
   columns: SELECTED_GRID_SIZE,

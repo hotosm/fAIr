@@ -582,7 +582,6 @@ export const MAPSWIPE_AGREEMENT_OUTLINE_COLORS = {
   purple: PREDICTED_LAYER_STATUS_COLORS[PredictedFeatureStatus.UNTOUCHED],
 };
 
-
 /**
  * The draggable grid is a fixed N×N block of tiles. The cell COUNT never
  * changes — instead the on-screen size of the grid changes with the selected
