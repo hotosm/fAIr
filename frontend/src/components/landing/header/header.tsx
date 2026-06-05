@@ -26,7 +26,7 @@ export const Header = () => {
               </Button>
             </Link>
             <Link
-              href={APPLICATION_ROUTES.START_MAPPING}
+              href={APPLICATION_ROUTES.HEADER_START_MAPPING}
               title={SHARED_CONTENT.homepage.ctaPrimaryButton}
               nativeAnchor={false}
             >

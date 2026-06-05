@@ -107,4 +107,5 @@ export const ENVS = {
   FAIR_STAC_CATALOG_BASE_URL: import.meta.env.VITE_FAIR_STAC_CATALOG_BASE_URL,
   NODE_ENV: import.meta.env.VITE_NODE_ENV,
   TRY_FAIR_GRID_SIZE: import.meta.env.VITE_TRY_FAIR_GRID_SIZE,
+  FAIR_PROD_URL: import.meta.env.VITE_FAIR_PROD_URL,
 };
