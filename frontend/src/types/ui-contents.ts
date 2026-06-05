@@ -465,7 +465,6 @@ export type TSharedContent = {
 // Shared pages content types ends.
 
 // Start mapping page content types starts.
-
 export type TStartMappingPageContent = {
   pageTitle: (modelName: string) => string;
   map: {
@@ -810,3 +809,47 @@ export type TUserProfilePageContent = {
 };
 
 // User profile types ends.
+
+// Try fAIr page content types starts.
+
+export type TTryFairPageContent = {
+  pageTitle: string;
+  header: {
+    logoAlt: string;
+    startMappingButton: string;
+  };
+  sidebar: {
+    modelSelector: {
+      placeholder: string;
+    };
+    mapButton: string;
+    mapButtonRunning: string;
+    mapOutput: {
+      label: string;
+    };
+    parameters: {
+      label: string;
+      description: string;
+      learnMore: string;
+      resolution: {
+        label: string;
+        low: string;
+        mid: string;
+        high: string;
+      };
+      confidence: {
+        label: string;
+      };
+    };
+  };
+  modelPicker: {
+    title: string;
+    modelLabel: string;
+    byLabel: string;
+  };
+  map: {
+    zoomPrompt: string;
+  };
+};
+
+// Try fAIr page content types ends.

@@ -16,6 +16,8 @@ export default {
         "green-secondary": "var(--hot-fair-color-green-secondary)",
         "green-primary": "var(--hot-fair-color-green-primary)",
         "frosted-blue": "var(--hot-fair-color-frosted-blue)",
+        "status-pending-color": "var(--hot-fair-color-status-pending-color)",
+        "status-changes-color": "var(--hot-fair-color-status-changes-color)",
         "secondary-yellow": "var(--hot-fair-color-yellow-secondary)",
       },
       fontFamily: {

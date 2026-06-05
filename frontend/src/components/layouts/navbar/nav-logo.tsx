@@ -1,7 +1,8 @@
 import { APPLICATION_ROUTES, SHARED_CONTENT } from "@/constants";
 import { HOTLogo } from "@/assets/svgs";
 import { Image } from "@/components/ui/image";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { FAIR_PROD_URL } from "@/config";
 
 export const NavLogo = ({
   onClick,
@@ -10,9 +11,18 @@ export const NavLogo = ({
   onClick?: () => void;
   smallerSize?: boolean;
 }) => {
+  const { pathname } = useLocation();
+  const isTryFairPage = pathname.includes(APPLICATION_ROUTES.TRY_FAIR);
+
   const navigate = useNavigate();
   const handleClick = () => {
-    onClick ? onClick() : navigate(APPLICATION_ROUTES.HOMEPAGE);
+    if (onClick) {
+      onClick();
+    } else if (isTryFairPage) {
+      window.location.href = FAIR_PROD_URL;
+    } else {
+      navigate(APPLICATION_ROUTES.HOMEPAGE);
+    }
   };
 
   return (

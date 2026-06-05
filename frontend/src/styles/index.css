@@ -27,6 +27,8 @@ body {
   --hot-fair-color-green-primary: #198155;
   --hot-fair-color-frosted-blue: #f7f9fb;
   --hot-fair-color-ink: #202325;
+  --hot-fair-color-status-pending-color: #fff9da;
+  --hot-fair-color-status-changes-color: #ffe3da;
   --hot-fair-color-yellow-secondary: #fffddb;
 
   /* Font sizes in rem */
@@ -261,6 +263,76 @@ sl-alert.success::part(base) {
 
 /* Markdown prose styles ends */
 
+/* Model detail page markdown prose styles starts */
+.model-detail-prose {
+  color: var(--hot-fair-color-dark);
+}
+
+.model-detail-prose h2 {
+  color: var(--hot-fair-color-dark);
+  font-weight: 600;
+  font-size: var(--hot-fair-font-size-title-3);
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+}
+
+.model-detail-prose h2:first-child {
+  margin-top: 0;
+}
+
+.model-detail-prose h3 {
+  color: var(--hot-fair-color-dark);
+  font-weight: 500;
+  font-size: var(--hot-fair-font-size-body-text-1);
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.model-detail-prose p {
+  color: var(--hot-fair-color-gray);
+  font-size: var(--hot-fair-font-size-body-text-2base);
+  line-height: 1.7;
+  margin-bottom: 0.75rem;
+}
+
+.model-detail-prose ul,
+.model-detail-prose ol {
+  color: var(--hot-fair-color-gray);
+  font-size: var(--hot-fair-font-size-body-text-2base);
+  padding-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.model-detail-prose li {
+  margin-bottom: 0.375rem;
+  line-height: 1.6;
+}
+
+.model-detail-prose strong {
+  color: var(--hot-fair-color-dark);
+  font-weight: 600;
+}
+
+.model-detail-prose code {
+  color: var(--hot-fair-color-primary);
+  background-color: var(--hot-fair-color-off-white);
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  font-size: 0.875em;
+}
+
+.model-detail-prose a {
+  color: var(--hot-fair-color-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.model-detail-prose a:hover {
+  opacity: 0.8;
+}
+/* Model detail page markdown prose styles ends */
+
 @layer components {
   .icon {
     @apply inline-block h-4 w-4;
@@ -365,3 +437,23 @@ sl-alert.success::part(base) {
 hotosm-auth {
   --login-btn-border-radius: 0px;
 }
+
+/* Try fAIr confidence slider starts */
+.try-fair-confidence-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #687075;
+  cursor: pointer;
+}
+
+.try-fair-confidence-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #687075;
+  cursor: pointer;
+  border: none;
+}
+/* Try fAIr confidence slider ends */

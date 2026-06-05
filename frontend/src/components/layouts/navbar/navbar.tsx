@@ -1,22 +1,31 @@
 import styles from "@/components/layouts/navbar/navbar.module.css";
 import { Button } from "@/components/ui/button";
 import { Drawer } from "@/components/ui/drawer";
-import { DrawerPlacements } from "@/enums";
+import { ButtonVariant, DrawerPlacements } from "@/enums";
 import { HamburgerIcon } from "@/assets/svgs";
 import { Image } from "@/components/ui/image";
 import { Link } from "@/components/ui/link";
 import { navLinks } from "@/constants/general";
 import { NavLogo } from "@/components/layouts";
-import { SHARED_CONTENT } from "@/constants";
+import { APPLICATION_ROUTES, SHARED_CONTENT } from "@/constants";
+import { APP_TOUR_IDS } from "@/constants/site-tour";
 import { useAuth } from "@/app/providers/auth-provider";
 import { useLocation, useNavigate } from "react-router-dom";
 import { UserProfile } from "@/components/layouts";
 import { useState } from "react";
 import { UserNotifications } from "@/features/user-profile/components/notifications/user-notifications";
 import { DropDown } from "@/components/ui/dropdown";
-import { AUTH_PROVIDER, BASE_API_URL, FRONTEND_URL, HANKO_URL } from "@/config";
+import {
+  AUTH_PROVIDER,
+  BASE_API_URL,
+  FRONTEND_URL,
+  HANKO_URL,
+  IS_DEV,
+  FAIR_PROD_URL,
+} from "@/config";
 import "@hotosm/tool-menu";
 import { Divider } from "@/components/ui/divider";
+import { ToolTip } from "@/components/ui/tooltip";
 
 if (AUTH_PROVIDER === "hanko") {
   import("@hotosm/hanko-auth");
@@ -44,6 +53,7 @@ export const NavBar = () => {
   const navigate = useNavigate();
 
   const location = useLocation();
+  const isTryFairPage = location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR);
 
   return (
     <>
@@ -63,13 +73,18 @@ export const NavBar = () => {
               &#x2715;
             </button>
           </div>
-          <div className={styles.navLinksContainer}>
-            <NavBarLinks className={styles.mobileNavLinks} setOpen={setOpen} />
-          </div>
+          {!isTryFairPage && (
+            <div className={styles.navLinksContainer}>
+              <NavBarLinks
+                className={styles.mobileNavLinks}
+                setOpen={setOpen}
+              />
+            </div>
+          )}
           {isAuthenticated && <Divider />}
 
           <div className={styles.loginButtonContainer}>
-            {AUTH_PROVIDER === "hanko" ? (
+            {AUTH_PROVIDER === "hanko" && !IS_DEV ? (
               <>
                 {isAuthenticated && (
                   <UserProfile
@@ -97,18 +112,41 @@ export const NavBar = () => {
                 setOpen={setOpen}
               />
             ) : (
-              <Button
-                onClick={() => {
-                  /*
-                   * Set the `backgroundLocation` in location state so that when we open the authentication modal we still see the current page in the background.
-                   */
-                  navigate(location, {
-                    state: { backgroundLocation: location },
-                  });
-                }}
-              >
-                {SHARED_CONTENT.navbar.loginButton}
-              </Button>
+              <div className="relative pb-4 pl-4">
+                <ToolTip
+                  content={
+                    isTryFairPage
+                      ? "Sign in to access full mapping tools and features"
+                      : undefined
+                  }
+                >
+                  <Button
+                    rounded={isTryFairPage}
+                    size={isTryFairPage ? "medium" : "large"}
+                    variant={
+                      isTryFairPage
+                        ? ButtonVariant.TERTIARY
+                        : ButtonVariant.PRIMARY
+                    }
+                    onClick={() => {
+                      if (isTryFairPage) {
+                        window.location.href = FAIR_PROD_URL;
+                      } else {
+                        /*
+                         * Set the `backgroundLocation` in location state so that when we open the authentication modal we still see the current page in the background.
+                         */
+                        navigate(location, {
+                          state: { backgroundLocation: location },
+                        });
+                      }
+                    }}
+                  >
+                    {isTryFairPage
+                      ? `${SHARED_CONTENT.homepage.ctaSecondaryButton}`
+                      : SHARED_CONTENT.navbar.loginButton}
+                  </Button>
+                </ToolTip>
+              </div>
             )}
           </div>
         </div>
@@ -118,11 +156,13 @@ export const NavBar = () => {
         className={`${styles.nav} app-padding z-20 py-1 border-b border-gray-border`}
       >
         <NavLogo />
-        <div className="hidden sm:flex">
-          <NavBarLinks className={styles.webNavLinks} />
-        </div>
+        {!isTryFairPage && (
+          <div className="hidden sm:flex">
+            <NavBarLinks className={styles.webNavLinks} />
+          </div>
+        )}
         <div className="hidden sm:flex items-center gap-x-3">
-          {AUTH_PROVIDER === "hanko" ? (
+          {AUTH_PROVIDER === "hanko" && !IS_DEV ? (
             <>
               {isAuthenticated && <UserNotifications />}
               {isAuthenticated && <UserProfile isHanko hideFullName />}
@@ -134,19 +174,49 @@ export const NavBar = () => {
               <UserProfile />
             </>
           ) : (
-            <Button
-              className={styles.loginButton}
-              onClick={() => {
-                /*
-                 * Set the `backgroundLocation` in location state so that when we open the authentication modal we still see the current page in the background.
-                 */
-                navigate(location, {
-                  state: { backgroundLocation: location },
-                });
-              }}
+            <div
+              className="relative"
+              id={
+                isTryFairPage
+                  ? APP_TOUR_IDS.TRY_FAIR_START_MAPPING_BUTTON
+                  : undefined
+              }
             >
-              {SHARED_CONTENT.navbar.loginButton}
-            </Button>
+              <ToolTip
+                content={
+                  isTryFairPage
+                    ? "Sign in to access full mapping tools and features"
+                    : undefined
+                }
+              >
+                <Button
+                  className={styles.loginButton}
+                  variant={
+                    isTryFairPage
+                      ? ButtonVariant.TERTIARY
+                      : ButtonVariant.PRIMARY
+                  }
+                  size={isTryFairPage ? "medium" : "large"}
+                  rounded={isTryFairPage}
+                  onClick={() => {
+                    if (isTryFairPage) {
+                      window.location.href = FAIR_PROD_URL;
+                    } else {
+                      /*
+                       * Set the `backgroundLocation` in location state so that when we open the authentication modal we still see the current page in the background.
+                       */
+                      navigate(location, {
+                        state: { backgroundLocation: location },
+                      });
+                    }
+                  }}
+                >
+                  {isTryFairPage
+                    ? `${SHARED_CONTENT.homepage.ctaSecondaryButton}`
+                    : SHARED_CONTENT.navbar.loginButton}
+                </Button>
+              </ToolTip>
+            </div>
           )}
           {AUTH_PROVIDER === "hanko" && <hotosm-tool-menu></hotosm-tool-menu>}
         </div>

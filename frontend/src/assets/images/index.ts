@@ -15,5 +15,4 @@ export { default as BeginnerCourseImage } from "@/assets/images/beginner_course.
 export { default as IntermediateCourseImage } from "@/assets/images/intermediate_course.png";
 export { default as AdvancedCourseImage } from "@/assets/images/advanced_course.png";
 export { default as UpdateCoverImage } from "@/assets/images/cover.png";
-
 export { default as fAIrSwipeIllustration } from "@/assets/images/fairswipe_illustration.png";
