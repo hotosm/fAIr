@@ -10,7 +10,6 @@ import {
   CoreFeatures,
   WhatIsFAIR,
 } from "@/components/landing";
-import { BaseModelCTA } from "@/components/landing/base-model-cta/base-model-cta";
 
 export const LandingPage = () => {
   return (
@@ -20,7 +19,6 @@ export const LandingPage = () => {
       <Kpi />
       <WhatIsFAIR />
       <TheFAIRProcess />
-      <BaseModelCTA />
       <CoreFeatures />
       <Corevalues />
       <section className="app-padding">
