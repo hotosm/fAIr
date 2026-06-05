@@ -1,0 +1,46 @@
+default_install_hook_types: [ pre-commit, commit-msg, pre-push ]
+default_language_version:
+  python: python3.12
+
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.12
+    hooks:
+      - id: ruff-check
+        args: [ --fix ]
+        files: ^backend/
+      - id: ruff-format
+        files: ^backend/
+
+  - repo: local
+    hooks:
+      - id: ty
+        name: ty
+        entry: uv run --directory backend ty check
+        language: system
+        types: [ python ]
+        files: ^backend/
+        pass_filenames: false
+
+      - id: uv-lock-check
+        name: uv lock check
+        entry: uv lock --directory backend --check
+        language: system
+        files: ^backend/(pyproject\.toml|uv\.lock)$
+        pass_filenames: false
+
+      - id: pytest
+        name: pytest (backend)
+        entry: uv run --directory backend pytest
+        language: system
+        types: [ python ]
+        files: ^backend/
+        pass_filenames: false
+        stages: [ pre-push ]
+
+      - id: commitizen
+        name: commitizen check
+        entry: uv run cz--config pyproject.toml check --commit-msg-file
+        files: ^backend/
+        language: system
+        stages: [ commit-msg ]

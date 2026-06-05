@@ -1,5 +1,4 @@
-# .github/workflows/test_backend_build.yml
-name: Backend Tests with UV and Python Matrix
+name: Backend lint and tests
 
 on:
   push:
@@ -9,6 +8,7 @@ on:
     paths:
       - "backend/**"
       - ".github/workflows/test_backend_build.yml"
+      - ".pre-commit-config.yaml"
   pull_request:
     branches:
       - master
@@ -16,88 +16,76 @@ on:
     paths:
       - "backend/**"
       - ".github/workflows/test_backend_build.yml"
+      - ".pre-commit-config.yaml"
 
 jobs:
-  test_with_uv_matrix:
+  lint:
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b  # v8.1.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: "backend/uv.lock"
+
+      - name: Install backend dependencies
+        working-directory: ./backend
+        run: uv sync
+
+      - name: Run pre-commit
+        run: uv run --directory backend pre-commit run --all-files --show-diff-on-failure
+
+  test:
+    runs-on: ubuntu-latest
+    needs: lint
     services:
-      redis:
-        image: redis
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-        ports:
-          - 6379:6379
       postgres:
-        image: postgis/postgis:14-3.2
+        image: postgis/postgis:17-3.5
         env:
           POSTGRES_USER: admin
           POSTGRES_PASSWORD: password
           POSTGRES_DB: ai
         ports:
           - 5432:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 2
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.11"]
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
     permissions:
       id-token: write
 
     steps:
-      - name: Check out code
-        uses: actions/checkout@v5
+      - uses: actions/checkout@v5
 
-      - name: Set up Python ${{ matrix.python-version }} and uv
-        uses: astral-sh/setup-uv@v6
+      - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b  # v8.1.0
         with:
-          python-version: ${{ matrix.python-version }}
           enable-cache: true
-          cache-dependency-glob: "uv.lock"
+          cache-dependency-glob: "backend/uv.lock"
 
       - name: Install gdal
         run: |
-          sudo apt-get update && sudo apt-get -y install gdal-bin libgdal-dev python3-gdal && sudo apt-get -y autoremove && sudo apt-get clean
+          sudo apt-get update
+          sudo apt-get -y install gdal-bin libgdal-dev python3-gdal
+          sudo apt-get -y autoremove
+          sudo apt-get clean
 
-      - name: Install Dependencies
+      - name: Install dependencies
         working-directory: ./backend
-        run: |
-          uv sync --group test
+        run: uv sync
 
-      - name: Clone Ramp
-        run: git clone https://github.com/kshitijrajsharma/ramp-code-fAIr.git ramp-code
-
-      - name: Set up environment variables
-        run: |
-          echo "DATABASE_URL=postgis://admin:password@localhost:5432/ai" >> $GITHUB_ENV
-          echo "RAMP_HOME=${{ github.workspace }}" >> $GITHUB_ENV
-          echo "TRAINING_WORKSPACE=${{ github.workspace }}/backend/training" >> $GITHUB_ENV
-      - name: Run migrations
+      - name: Run migrations and tests
         env:
-          TESTING_TOKEN: ${{ secrets.TESTING_TOKEN }}
-          OSM_CLIENT_ID: ${{ secrets.OSM_CLIENT_ID }}
-          OSM_CLIENT_SECRET: ${{ secrets.OSM_CLIENT_SECRET }}
-          OSM_SECRET_KEY: ${{ secrets.OSM_SECRET_KEY }}
-          SECRET_KEY: "TEST_DJANGO_APP_SECRET_KEY"
+          DATABASE_URL: postgis://admin:password@localhost:5432/ai
+          SECRET_KEY: ci-test-secret-key-not-for-production-use-only
           DEBUG: "True"
-          # DATABASE_URL, RAMP_HOME, TRAINING_WORKSPACE are available from the previous step via $GITHUB_ENV
+          FRONTEND_URL: http://localhost:3500
+          API_BASE_URL: http://localhost:8000/api/v1
+          AUTH_PROVIDER: dev
+          FAIR_DEV_TOKEN: ci-test-token-min-32-chars-long-xxxxxx
+          ALLOWED_HOSTS: localhost,127.0.0.1,testserver
+          BUCKET_NAME: fair-ci-test
+          AWS_ACCESS_KEY_ID: ci-access-key
+          AWS_SECRET_ACCESS_KEY: ci-secret-key
         working-directory: ./backend
         run: |
-          uv run python manage.py makemigrations
-          uv run python manage.py makemigrations core
-          uv run python manage.py makemigrations login
           uv run python manage.py migrate
-          uv run python manage.py migrate login
-          uv run python manage.py migrate core
-
-      - name: Run tests
-        env:
-          TESTING_TOKEN: ${{ secrets.TESTING_TOKEN }}
-          OSM_CLIENT_ID: ${{ secrets.OSM_CLIENT_ID }}
-          OSM_CLIENT_SECRET: ${{ secrets.OSM_CLIENT_SECRET }}
-          OSM_SECRET_KEY: ${{ secrets.OSM_SECRET_KEY }}
-          SECRET_KEY: "TEST_DJANGO_APP_SECRET_KEY"
-          DEBUG: "True"
-          # DATABASE_URL, RAMP_HOME, TRAINING_WORKSPACE are available from $GITHUB_ENV
-        working-directory: ./backend
-        run: uv run coverage run manage.py test tests
+          uv run pytest

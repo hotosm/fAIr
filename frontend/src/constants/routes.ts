@@ -62,6 +62,9 @@ export const APPLICATION_ROUTES = {
   PROFILE_MODELS: "/profile/models",
   PROFILE_DATASETS: "/profile/datasets",
   PROFILE_OFFLINE_PREDICTIONS: "/profile/prediction-requests",
+
+  // Published AI Predictions
+  AI_PREDICTIONS: "/ai-predictions",
 };
 
 export const HOT_PRIVACY_POLICY_URL: string = "https://www.hotosm.org/privacy";

@@ -1,0 +1,20 @@
+fAIr has been deployed!
+
+Components:
+  - Backend API: {{ include "fair.backend.fullname" . }}
+{{- if .Values.backend.djangoQ.enabled }}
+  - Django-Q:    running as sidecar in backend pod
+{{- end }}
+  - PostgreSQL:  external ({{ .Values.externalDatabase.host }})
+
+{{- if .Values.ingress.enabled }}
+
+Access the application at:
+{{- range .Values.ingress.hosts }}
+  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .host }}
+{{- end }}
+{{- else }}
+
+To access the backend API, run:
+  kubectl port-forward svc/{{ include "fair.backend.fullname" . }} 8000:{{ .Values.backend.service.port }}
+{{- end }}

@@ -1,0 +1,53 @@
+{{- if .Values.backend.migrate.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "fair.backend.fullname" . }}-migrate
+  labels:
+    {{- include "fair.labels" . | nindent 4 }}
+    app.kubernetes.io/component: backend
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  template:
+    metadata:
+      labels:
+        {{- include "fair.backend.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "fair.serviceAccountName" . }}
+      restartPolicy: OnFailure
+      containers:
+        - name: migrate
+          image: {{ include "fair.backend.image" . }}
+          imagePullPolicy: {{ .Values.image.backend.pullPolicy }}
+          command:
+            - python
+            - manage.py
+            - migrate
+            - --noinput
+          envFrom:
+            - configMapRef:
+                name: {{ include "fair.backend.fullname" . }}
+            {{- with .Values.backend.envFrom }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          env:
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  {{- if .Values.externalDatabase.existingSecret }}
+                  name: {{ .Values.externalDatabase.existingSecret }}
+                  key: {{ .Values.externalDatabase.existingSecretKey }}
+                  {{- else }}
+                  name: {{ include "fair.backend.fullname" . }}-db
+                  key: password
+                  {{- end }}
+            - name: DATABASE_URL
+              value: {{ include "fair.databaseUrl" . | quote }}
+{{- end }}

@@ -308,7 +308,6 @@ export const MapswipeProjectStatusDialog = ({
                       suffixIcon={DownloadIcon}
                       contentClassName="text-body-4 md:text-body-3"
                       label="Download Result"
-                      uppercase={false}
                       disabled={!data?.results?.mapswipe?.exportResults}
                     />
                   }

@@ -66,12 +66,7 @@ export const AuthenticationModal = ({
         {callbackPage || emailVerification ? (
           <Spinner />
         ) : (
-          <Button
-            onClick={handleLogin}
-            uppercase={false}
-            className="!w-fit"
-            disabled={loading}
-          >
+          <Button onClick={handleLogin} className="!w-fit" disabled={loading}>
             <Image
               src={OSMLogo}
               className="w-6 h-6"

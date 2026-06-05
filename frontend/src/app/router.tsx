@@ -12,6 +12,7 @@ import {
   createBrowserRouter,
 } from "react-router-dom";
 import { ModelsProvider } from "@/app/providers/models-provider";
+import { NuqsAdapter } from "nuqs/adapters/react-router/v6";
 
 const router = createBrowserRouter([
   {
@@ -96,6 +97,22 @@ const router = createBrowserRouter([
           };
         },
       },
+
+      /**
+       * AI Predictions route (published predictions).
+       */
+      {
+        path: APPLICATION_ROUTES.AI_PREDICTIONS,
+        lazy: async () => {
+          const { AIPredictionsPage } = await import(
+            "@/app/routes/ai-predictions"
+          );
+          return {
+            Component: () => <AIPredictionsPage />,
+          };
+        },
+      },
+
       /**
        *  Models details, list and feedbacks route ends.
        */
@@ -441,5 +458,9 @@ const router = createBrowserRouter([
 ]);
 
 export const AppRouter = () => {
-  return <RouterProvider router={router} />;
+  return (
+    <NuqsAdapter>
+      <RouterProvider router={router} />
+    </NuqsAdapter>
+  );
 };

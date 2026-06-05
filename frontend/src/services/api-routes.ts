@@ -26,6 +26,9 @@ export const API_ENDPOINTS = {
   CREATE_OFFLINE_PREDICTION: "prediction/",
   GET_OFFLINE_PREDICTIONS: "prediction/",
   UPDATE_OFFLINE_PREDICTION: (id: number) => `prediction/${id}/`,
+  GET_AI_PREDICTIONS: "prediction/",
+  GET_AI_PREDICTIONS_CENTROIDS: "predictions/centroid/",
+
   // Feedbacks
 
   CREATE_FEEDBACK: "feedback/",

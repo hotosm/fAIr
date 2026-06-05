@@ -1,0 +1,30 @@
+set shell := ["bash", "-euo", "pipefail", "-c"]
+
+[doc('List recipes')]
+default:
+    @just --list --unsorted
+
+[doc('Install dependencies and pre-commit hooks')]
+setup:
+    uv sync
+    uv run pre-commit install --install-hooks --hook-type commit-msg --hook-type pre-commit
+
+[doc('Run all linters and type checks via pre-commit')]
+lint:
+    uv run pre-commit run --all-files
+
+[doc('Run tests')]
+test:
+    uv run pytest
+
+[doc('Run dev server')]
+run:
+    uv run python manage.py runserver 0.0.0.0:8000
+
+[doc('Apply database migrations')]
+migrate:
+    uv run python manage.py migrate
+
+[doc('Run the background task worker')]
+worker:
+    uv run python manage.py db_worker
