@@ -138,13 +138,6 @@ export const SHARED_CONTENT: TSharedContent = {
       paragraph:
         "fAIr is a collaborative project. We welcome all types of experience to join our community on HOTOSM Slack. There is always a room for AI/ML for earth observation expertise, community engagement enthusiastic, academic researcher or student looking for an academic challenge around social impact.",
     },
-    baseModelCTA: {
-      title: "Contribute Your Base Model",
-      description:
-        "Contribute a base model to fAIr and help teams turn imagery into actionable map data, faster and more reliably.",
-      ctaButton: "Contribute",
-      ctaLink: "/base-models",
-    },
   },
   pageNotFound: {
     messages: {
@@ -157,107 +150,6 @@ export const SHARED_CONTENT: TSharedContent = {
       modelNotFound: "Explore models",
       trainingDatasetNotFound: "Explore training datasets",
       pageNotFound: "go to homepage",
-    },
-  },
-  baseModelsPage: {
-    pageHeadingTitle: "Base Models",
-    pageHeadingDescription:
-      " Each model is trained using one of the training datasets. Published models can be used to find mappable features in imagery that is similar to the training areas that dataset comes from.",
-    pageHeadingButtonText: "Contribute model",
-    contributeModelDialog: {
-      label: "Model Contribution Journey",
-      intro:
-        "Model contribution into fAIr is handled in GITHUB /fAIr-models repository. Here are high level explanation for the contribution four steps and detailed documentation is available when you go to GITHUB",
-      github: {
-        title: "Fair Model github",
-        href: "https://github.com/hotosm/fAIr-models",
-        buttonLabel: "GO TO GITHUB",
-      },
-      steps: [
-        {
-          title: "Complete Prerequisites",
-          description:
-            "Before opening a Pull Request, verify your model meets the technical and legal standards.",
-          sections: [
-            {
-              title: "Define Licenses",
-              description:
-                "AI models require three distinct licenses. You must select one for each category:",
-              listType: "unordered",
-              items: [
-                "Code License: (e.g., Apache 2.0, MIT, or GPLv3)",
-                "Weights License: (e.g., Apache 2.0, CC BY 4.0, or Custom)",
-                "Data License: (e.g., CC BY, CC BY-NC, or Custom Terms)",
-              ],
-              note: "Note: This will be automatically validated if your selections are HOT-compliant to prevent future rejection.",
-            },
-            {
-              title: "Verify Model Endpoints",
-              description:
-                "Ensure your model code includes the four mandatory API endpoints:",
-              listType: "ordered",
-              items: [
-                "Training: For model fine-tuning.",
-                "Inference: For generating predictions.",
-                "Preprocessing: For imagery preparation.",
-                "Postprocessing: For cleaning and formatting results.",
-              ],
-            },
-            {
-              title: "Define Input/Output Shape",
-              description:
-                "Clearly describe the data formats your model handles.",
-              listType: "unordered",
-              items: [
-                "Input Example: Image RGB (tiles) + GeoJSON (labels)",
-                "Output Example: GeoJSON (detections) or Mask raster (segmentation)",
-              ],
-            },
-            {
-              title: "Select Task Category",
-              description: "Choose one of the currently supported tasks:",
-              listType: "unordered",
-              items: [
-                "Semantic Segmentation",
-                "Instance Segmentation",
-                "Object Detection (Selected for this session)",
-              ],
-            },
-          ],
-        },
-        {
-          title: "Review Guidelines",
-          description:
-            "To align with our community standards, you must read and acknowledge the contribution rules.",
-        },
-        {
-          title: "Submit and Track PR",
-          description:
-            "After reviewing the guidelines and finished the prerequisites, you can now open a PR.",
-        },
-        {
-          title: "Approval & Deployment",
-          description:
-            "Your contribution enters the final review stage by the fAIr maintainers.",
-          statuses: [
-            {
-              variant: "pending",
-              label: "🟡 Pending",
-              description: "Under review by maintainers or CI is running.",
-            },
-            {
-              variant: "changes",
-              label: "🔴 Needs Changes",
-              description: "Feedback has been provided; updates are required.",
-            },
-            {
-              variant: "approved",
-              label: "🟢 Approved",
-              description: "PR is merged! Your model is now a fAIr base model.",
-            },
-          ],
-        },
-      ],
     },
   },
   protectedPage: {
