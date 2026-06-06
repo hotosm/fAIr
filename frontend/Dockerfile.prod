@@ -6,8 +6,8 @@ FROM node:22 AS builder
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
 # COPY .env ./.env
-RUN npm install -g pnpm
-RUN pnpm install --force
+RUN npm install -g pnpm@9.8.0
+RUN pnpm install --frozen-lockfile
 COPY . .
 RUN pnpm run build
 
