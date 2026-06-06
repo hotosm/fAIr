@@ -157,6 +157,10 @@ export const TryFairPage = () => {
   }, [tileServiceUrl, setTileserverURL]);
 
   const imageryCenter = useMemo((): [number, number] => {
+    const previewLocation = selectedModel?.properties["fair:preview_location"];
+    if (previewLocation) {
+      return previewLocation.coordinates;
+    }
     if (tileJSONMetadata?.center) {
       return [tileJSONMetadata.center[0], tileJSONMetadata.center[1]];
     }
@@ -172,7 +176,7 @@ export const TryFairPage = () => {
     return tileServiceUrl === FALLBACK_FAIR_IMAGERY
       ? FALLBACK_FAIR_IMAGERY_CENTER
       : DEFAULT_FAIR_IMAGERY_CENTER;
-  }, [tileJSONMetadata, tileServiceUrl]);
+  }, [tileJSONMetadata, tileServiceUrl, selectedModel]);
 
   useEffect(() => {
     if (!map || !selectedModel || !imageryCenter) return;
