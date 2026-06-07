@@ -5,6 +5,7 @@ import { LayerStackIcon } from "@/components/ui/icons";
 import { Map } from "maplibre-gl";
 import { ToolTip } from "@/components/ui/tooltip";
 import { useEffect, useMemo, useState } from "react";
+import { cn } from "@/utils";
 import {
   GOOGLE_SATELLITE_BASEMAP_LAYER_ID,
   OSM_BASEMAP_LAYER_ID,
@@ -20,12 +21,16 @@ export const LayerControl = ({
   basemaps = true,
   hasTileServiceLayer = false,
   rounded = false,
+  triggerClassName,
+  iconClassName,
 }: {
   map: Map | null;
   layers: TLayers;
   basemaps?: boolean;
   hasTileServiceLayer?: boolean;
   rounded?: boolean;
+  triggerClassName?: string;
+  iconClassName?: string;
 }) => {
   const layerControlData = useMemo(() => {
     const layers_ = [
@@ -129,9 +134,13 @@ export const LayerControl = ({
         disableCheveronIcon
         triggerComponent={
           <div
-            className={`bg-white p-1.5 border border-gray-border md:border-0 relative ${rounded && "rounded-lg"}`}
+            className={cn(
+              "bg-white p-1.5 border border-gray-border md:border-0 relative",
+              rounded && "rounded-lg",
+              triggerClassName,
+            )}
           >
-            <LayerStackIcon className="icon-lg" />
+            <LayerStackIcon className={cn("icon-lg", iconClassName)} />
           </div>
         }
         withCheckbox

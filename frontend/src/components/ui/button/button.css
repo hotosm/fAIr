@@ -55,3 +55,7 @@ sl-button.primary::part(base):hover {
     font-size: var(--hot-fair-font-size-body-text-2base);
   }
 }
+
+sl-button.rounded::part(base) {
+  border-radius: 8px;
+}

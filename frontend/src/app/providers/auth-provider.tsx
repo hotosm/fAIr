@@ -7,6 +7,7 @@ import {
   HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY,
   HOT_FAIR_LOGIN_SUCCESSFUL_SESSION_KEY,
   HOT_FAIR_SESSION_REDIRECT_KEY,
+  IS_DEV,
 } from "@/config";
 import { showErrorToast, showSuccessToast } from "@/utils";
 import { TUser } from "@/types/api";
@@ -49,7 +50,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     useSessionStorage();
 
   const [token, setToken] = useState<string | undefined>(
-    AUTH_PROVIDER === "hanko"
+    AUTH_PROVIDER === "hanko" && !IS_DEV
       ? "hanko-cookie-auth"
       : getValue(HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY),
   );
@@ -64,11 +65,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
    * Set token globally to eliminate the need to rewrite it.
    * For Hanko, we use withCredentials instead of header token.
    */
-  if (AUTH_PROVIDER === "hanko") {
+
+  if (AUTH_PROVIDER === "hanko" && !IS_DEV) {
     apiClient.defaults.withCredentials = true;
   } else {
-    apiClient.defaults.headers.common["access-token"] = token
-      ? `${token}`
+    apiClient.defaults.headers.common["Authorization"] = token
+      ? `Bearer ${token}`
       : null;
   }
 
@@ -125,7 +127,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
    */
   const fetchUserProfile = async () => {
     try {
-      if (AUTH_PROVIDER === "hanko") {
+      if (AUTH_PROVIDER === "hanko" && !IS_DEV) {
         const response = await fetch(`${BASE_API_URL}auth/me/`, {
           credentials: "include",
         });
@@ -145,6 +147,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setUser(undefined);
         }
       } else {
+        // Actually, only fetch this when token exists
+        if (!token) {
+          setUser(undefined);
+          return;
+        }
         const user = await authService.getUser();
         setUser(user);
         handleRedirection();
@@ -255,7 +262,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
    */
   useEffect(() => {
     const intervalId = setInterval(() => {
-      if (AUTH_PROVIDER === "hanko") {
+      if (AUTH_PROVIDER === "hanko" && !IS_DEV) {
         fetch(`${BASE_API_URL}auth/me/`, { credentials: "include" })
           .then((res) => (res.ok ? res.json() : Promise.reject()))
           .then((userData) => {

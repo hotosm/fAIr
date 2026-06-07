@@ -51,6 +51,10 @@ export const FRONTEND_URL: string =
     ? window.location.origin
     : "http://localhost:5173";
 
+export const NODE_ENV: string = parseStringEnv(ENVS.NODE_ENV, "development");
+export const IS_DEV = NODE_ENV === "development";
+export const IS_PROD = NODE_ENV === "production";
+
 // ==============================================================================================================================
 // API Endpoints
 // ==============================================================================================================================
@@ -62,6 +66,14 @@ export const FRONTEND_URL: string =
 export const BASE_API_URL: string = parseStringEnv(
   ENVS.BASE_API_URL,
   "http://localhost:8000/api/v1/",
+);
+
+/**
+ * The STAC Catalog API endpoint url. This is used to fetch the base models, datasets and local models as STAC items from the catalog.
+ */
+export const STAC_CATALOG_API_URL: string = parseStringEnv(
+  ENVS.FAIR_STAC_CATALOG_BASE_URL,
+  "https://stac.fair.krschap.tech/stac/",
 );
 
 /**
@@ -167,6 +179,12 @@ export const HOT_FAIR_MODEL_PREDICTIONS_LOCAL_STORAGE_KEY = (
  */
 export const TRAINING_AREA_TOUR_LOCAL_STORAGE_KEY =
   "__fAIr_training_area_tour_seen";
+
+/**
+ * The key used to store whether a user has seen Try fAIr tour start mapping button.
+ */
+export const TRY_FAIR_TOUR_START_MAPPING_BUTTON_SEEN_LOCAL_STORAGE_KEY =
+  "__fAIr_try_fair_tour_start_mapping_button_seen";
 
 // ==============================================================================================================================
 // Training Area Configurations
@@ -563,3 +581,24 @@ export const MAPSWIPE_AGREEMENT_OUTLINE_COLORS = {
   red: PREDICTED_LAYER_STATUS_COLORS[PredictedFeatureStatus.REJECTED],
   purple: PREDICTED_LAYER_STATUS_COLORS[PredictedFeatureStatus.UNTOUCHED],
 };
+
+/**
+ * The draggable grid is a fixed N×N block of tiles. The cell COUNT never
+ * changes — instead the on-screen size of the grid changes with the selected
+ * resolution's tile zoom: higher resolution → finer/smaller tiles → the grid
+ * (and its tile boundaries) shrinks; lower resolution → larger tiles → it
+ * grows. The map is never zoomed for this. This same N×N tile block is exactly
+ * what gets sent to the prediction backend.
+ *
+ * Controlled by the VITE_FAIR_GRID_SIZE environment variable (must be a
+ * positive integer). Defaults to 5 if the variable is absent or invalid.
+ */
+export const TRY_FAIR_GRID_SIZE = parseIntEnv(ENVS.TRY_FAIR_GRID_SIZE, 5);
+
+/**
+ * The URL to the production environment of fAIr.
+ */
+export const FAIR_PROD_URL: string = parseStringEnv(
+  ENVS.FAIR_PROD_URL,
+  "https://fair.hotosm.org/",
+);

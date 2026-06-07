@@ -2,11 +2,29 @@ import { GeoJSONSource, Map } from "maplibre-gl";
 import { GeoJSONType } from "@/types";
 import { getTileBoundariesGeoJSON } from "@/utils";
 import { TILE_BOUNDARY_LAYER_ID, TILE_BOUNDARY_SOURCE_ID } from "@/config";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
-export const TileBoundaries = ({ map }: { map: Map | null }) => {
-  useEffect(() => {
+type TileBoundariesProps = {
+  map: Map | null;
+  /**
+   * Tile zoom to draw boundaries at. When omitted, boundaries follow the
+   * current map zoom (the default behaviour).
+   *
+   * When provided, boundaries are drawn at exactly this zoom so they align
+   * 1:1 with an overlay built at the same tile zoom (e.g. the try-fAIr
+   * draggable grid). `getTileBoundariesGeoJSON` caps the number of generated
+   * tiles, so if the map is zoomed far enough out that this zoom would span a
+   * huge area, it simply draws nothing instead of freezing.
+   */
+  zoom?: number;
+};
+
+export const TileBoundaries = ({ map, zoom }: TileBoundariesProps) => {
+  const rafIdRef = useRef<number | null>(null);
+
+  const ensureTileBoundaryLayer = useCallback(() => {
     if (!map || !map.getStyle()) return;
+
     if (!map.getSource(TILE_BOUNDARY_SOURCE_ID)) {
       map.addSource(TILE_BOUNDARY_SOURCE_ID, {
         type: "geojson",
@@ -21,38 +39,72 @@ export const TileBoundaries = ({ map }: { map: Map | null }) => {
         source: TILE_BOUNDARY_SOURCE_ID,
         paint: {
           "line-color": "#FFF",
-          "line-width": 0.5,
+          "line-opacity": 0.3,
+          "line-width": [
+            "interpolate",
+            ["linear"],
+            ["zoom"],
+            16,
+            0.8,
+            20,
+            1.2,
+            22,
+            1.5,
+          ],
         },
         layout: { visibility: "visible" },
       });
-      // It should be moved to the top of the layer stack.
-      map.moveLayer(TILE_BOUNDARY_LAYER_ID);
     }
-  }, [map]);
 
-  const updateTileBoundary = useCallback(() => {
-    if (map && map.getStyle()) {
-      if (map.getSource(TILE_BOUNDARY_SOURCE_ID)) {
-        const tileBoundaries = getTileBoundariesGeoJSON(
-          map,
-          // There is a mismatch of 1 in the mag.getZoom() results and the actual zoom level of the map.
-          // Adding 1 to the result resolves it.
-          Math.round(map.getZoom() + 1),
-        );
-        const source = map.getSource(TILE_BOUNDARY_SOURCE_ID) as GeoJSONSource;
-        source.setData(tileBoundaries as GeoJSONType);
-      }
-    }
+    // Keep tile boundaries above newly added layers.
+    map.moveLayer(TILE_BOUNDARY_LAYER_ID);
   }, [map]);
 
   useEffect(() => {
-    if (map && map.getStyle()) {
-      map.on("moveend", updateTileBoundary);
+    ensureTileBoundaryLayer();
+  }, [ensureTileBoundaryLayer]);
+
+  const updateTileBoundary = useCallback(() => {
+    if (!map || !map.getStyle()) return;
+
+    ensureTileBoundaryLayer();
+
+    if (map.getSource(TILE_BOUNDARY_SOURCE_ID)) {
+      // Draw at the requested (grid) zoom so the boundaries align 1:1 with the
+      // grid cells; fall back to the current map zoom when no zoom is given.
+      const boundaryZoom = zoom ?? Math.max(0, Math.floor(map.getZoom()));
+      const tileBoundaries = getTileBoundariesGeoJSON(map, boundaryZoom);
+      const source = map.getSource(TILE_BOUNDARY_SOURCE_ID) as GeoJSONSource;
+      source.setData(tileBoundaries as GeoJSONType);
     }
+  }, [map, ensureTileBoundaryLayer, zoom]);
+
+  useEffect(() => {
+    if (!map) return;
+
+    // Throttle regeneration to one update per animation frame — `move` can fire
+    // many times per frame while panning, and we now generate far more tiles
+    // (at the grid's zoom rather than the map's).
+    const scheduleUpdate = () => {
+      if (rafIdRef.current !== null) return;
+      rafIdRef.current = window.requestAnimationFrame(() => {
+        rafIdRef.current = null;
+        updateTileBoundary();
+      });
+    };
+
+    updateTileBoundary();
+    map.on("move", scheduleUpdate);
+    map.on("zoom", scheduleUpdate);
+    map.on("styledata", scheduleUpdate);
 
     return () => {
-      if (map && map.getStyle()) {
-        map.off("moveend", updateTileBoundary);
+      map.off("move", scheduleUpdate);
+      map.off("zoom", scheduleUpdate);
+      map.off("styledata", scheduleUpdate);
+      if (rafIdRef.current !== null) {
+        window.cancelAnimationFrame(rafIdRef.current);
+        rafIdRef.current = null;
       }
     };
   }, [map, updateTileBoundary]);
