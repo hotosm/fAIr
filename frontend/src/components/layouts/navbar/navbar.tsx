@@ -84,7 +84,7 @@ export const NavBar = () => {
           {isAuthenticated && <Divider />}
 
           <div className={styles.loginButtonContainer}>
-            {AUTH_PROVIDER === "hanko" && !IS_DEV ? (
+            {AUTH_PROVIDER === "hanko" && !IS_DEV && !isTryFairPage ? (
               <>
                 {isAuthenticated && (
                   <UserProfile
@@ -162,7 +162,7 @@ export const NavBar = () => {
           </div>
         )}
         <div className="hidden sm:flex items-center gap-x-3">
-          {AUTH_PROVIDER === "hanko" && !IS_DEV ? (
+          {AUTH_PROVIDER === "hanko" && !IS_DEV  && !isTryFairPage ? (
             <>
               {isAuthenticated && <UserNotifications />}
               {isAuthenticated && <UserProfile isHanko hideFullName />}
