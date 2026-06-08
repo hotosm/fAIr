@@ -69,8 +69,9 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
       </div>
 
       <ChevronDownIcon
-        className={`w-4 h-4 shrink-0 text-grey transition-transform ${isOpen ? "rotate-180" : ""
-          }`}
+        className={`w-4 h-4 shrink-0 text-grey transition-transform ${
+          isOpen ? "rotate-180" : ""
+        }`}
       />
     </div>
   );
@@ -134,8 +135,9 @@ export const ModelPickerContent = ({
             key={model.id}
             type="button"
             onClick={() => onSelect(model)}
-            className={`text-left p-3 bg-frosted-blue rounded-lg  transition-colors ${isSelected ? "border-primary border-2" : ""
-              }`}
+            className={`text-left p-3 bg-frosted-blue rounded-lg  transition-colors ${
+              isSelected ? "border-primary border-2" : ""
+            }`}
           >
             <div className="flex space-y-2 items-start justify-between gap-2 mb-1">
               <p className="text-dark capitalize text-sm font-bold leading-tight">
@@ -143,8 +145,9 @@ export const ModelPickerContent = ({
               </p>
 
               <span
-                className={`mt-0.5 shrink-0 w-4 h-4 rounded-full  flex items-center justify-center ${isSelected ? "border-primary border-2" : ""
-                  }`}
+                className={`mt-0.5 shrink-0 w-4 h-4 rounded-full  flex items-center justify-center ${
+                  isSelected ? "border-primary border-2" : ""
+                }`}
               >
                 {isSelected && (
                   <span className="w-2 h-2 rounded-full bg-primary" />

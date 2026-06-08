@@ -55,7 +55,7 @@ export const NavBar = () => {
   const location = useLocation();
   const isTryFairPage = location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR);
   const isHankoAuth = AUTH_PROVIDER === "hanko";
-  return (  
+  return (
     <>
       <Drawer
         open={open}
@@ -108,7 +108,7 @@ export const NavBar = () => {
             ) : isAuthenticated ? (
               <UserProfile
                 isHanko={isHankoAuth}
-                hideFullName={isHankoAuth}  
+                hideFullName={isHankoAuth}
                 variant="list"
                 onNavigate={() => setOpen(false)}
                 setOpen={setOpen}
