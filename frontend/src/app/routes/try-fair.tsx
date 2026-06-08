@@ -406,6 +406,7 @@ export const TryFairPage = () => {
                 snapPoints={[0.2, 0.7]}
                 modal={false}
                 showOverlay={false}
+                handleOnly
               >
                 <TryFairSidebar
                   selectedModel={selectedModel}
