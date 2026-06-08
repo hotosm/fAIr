@@ -239,7 +239,7 @@ export const TryFairPredictionsLayer = ({
       <div className="relative" style={{ transform: "translate(12px, -50%)" }}>
         <div className="bg-white/95 backdrop-blur-sm border border-gray-border rounded-lg shadow-lg px-3 py-2 flex flex-col items-start gap-0.5 min-w-[120px]">
           <p className="text-[10px] font-medium text-grey uppercase tracking-wide leading-none">
-            Buildings detected
+            objects detected
           </p>
           <p className="text-base font-bold text-purple-700 leading-tight">
             {tooltip.count.toLocaleString()}
