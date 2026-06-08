@@ -283,7 +283,7 @@ export const TryFairPage = () => {
     const apiParams = Object.fromEntries(
       Object.entries(paramValues).map(([parameterName, parameterValue]) =>
         parameterName === "confidence_threshold"
-          ? [parameterName, parseFloat((1 - Number(parameterValue)).toFixed(2))]
+          ? [parameterName, parseFloat(Number(parameterValue).toFixed(2))]
           : [parameterName, parameterValue],
       ),
     );

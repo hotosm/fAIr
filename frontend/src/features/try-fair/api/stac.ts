@@ -35,6 +35,7 @@ export type BaseModelStacItem = {
     "fair:hyperparameters_spec": HyperParamSpec[];
     "fair:source_imagery"?: string;
     "fair:preview_location"?: { type: "Point"; coordinates: [number, number] };
+    "fair:base_model_title"?: string;
     keywords: string[];
     providers: Array<{ name: string; description?: string; url?: string }>;
   };
