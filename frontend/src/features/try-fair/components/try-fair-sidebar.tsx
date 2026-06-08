@@ -205,10 +205,7 @@ export const TryFairSidebar = ({
                     onChange={(e) =>
                       onParamChange(key, parseFloat(e.target.value))
                     }
-                    className="try-fair-confidence-slider disabled:cursor-wait flex-1 h-1.5 rounded-full appearance-none cursor-pointer outline-none"
-                    style={{
-                      background: `linear-gradient(90deg, #0088FF 0%, #FF383C 100%)`,
-                    }}
+                    className="try-fair-confidence-slider disabled:cursor-wait flex-1 appearance-none cursor-pointer outline-none"
                   />
                   <FlameIcon />
                 </div>

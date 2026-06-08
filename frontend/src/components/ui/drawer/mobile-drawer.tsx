@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { cn } from "@/utils";
 import { Drawer } from "vaul";
 
@@ -26,6 +26,25 @@ export const MobileDrawer = ({
 }) => {
   const [snap, setSnap] = useState<number | string | null>(snapPoints[0]);
   const lastSnapPoint = snapPoints[snapPoints.length - 1];
+
+  const pressStart = useRef<{ x: number; y: number } | null>(null);
+
+  const handlePressDown = (event: React.PointerEvent) => {
+    pressStart.current = { x: event.clientX, y: event.clientY };
+  };
+
+  const handlePressUp = (event: React.PointerEvent) => {
+    const start = pressStart.current;
+    pressStart.current = null;
+    if (!start) return;
+    const moved =
+      Math.abs(event.clientX - start.x) > 8 ||
+      Math.abs(event.clientY - start.y) > 8;
+    if (moved) return;
+    setSnap((current) =>
+      current === lastSnapPoint ? snapPoints[0] : lastSnapPoint,
+    );
+  };
 
   return (
     <Drawer.Root
@@ -65,7 +84,19 @@ export const MobileDrawer = ({
             ) : null}
             <Drawer.Title hidden>{dialogTitle}</Drawer.Title>
             <Drawer.Description hidden>{dialogTitle}</Drawer.Description>
-            <Drawer.Handle className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-grey mb-4" />
+            <div
+              role="button"
+              tabIndex={0}
+              aria-label="Expand or collapse panel"
+              onPointerDown={handlePressDown}
+              onPointerUp={handlePressUp}
+              className="mx-auto mb-3 flex w-full cursor-pointer justify-center py-2"
+            >
+              <Drawer.Handle
+                preventCycle
+                className="w-12 h-1.5 flex-shrink-0 rounded-full bg-grey"
+              />
+            </div>
             {children}
           </div>
         </Drawer.Content>
