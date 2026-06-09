@@ -69,14 +69,14 @@ export const TryFairDraggableGrid = ({
 
   useEffect(() => {
     if (!isSmallViewport || !map) return;
-    const recenter = () => {
+    const recenter = (e: { originalEvent?: unknown }) => {
+      if (!e.originalEvent) return;
       const { lng, lat } = map.getCenter();
       setAnchor((prev) => {
         const next = computeCenteredAnchor({ lng, lat }, tileZoom);
         return prev && prev.x === next.x && prev.y === next.y ? prev : next;
       });
     };
-    recenter();
     map.on("move", recenter);
     return () => {
       map.off("move", recenter);
