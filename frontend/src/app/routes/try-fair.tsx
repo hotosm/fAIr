@@ -34,6 +34,7 @@ import {
   DEFAULT_FAIR_IMAGERY_CENTER,
   FALLBACK_FAIR_IMAGERY,
   FALLBACK_FAIR_IMAGERY_CENTER,
+  getModelOutputType,
   TRY_FAIR_INITIAL_MAP_ZOOM,
 } from "@/features/try-fair/utils/common";
 import { Dialog } from "@/components/ui/dialog";
@@ -217,6 +218,7 @@ export const TryFairPage = () => {
     if (confidenceParam && typeof confidenceParam.spec.default === "number") {
       setConfidence(confidenceParam.spec.default);
     }
+    setOutputType(getModelOutputType(model));
     setIsDirty(true);
     clearPredictions();
   };

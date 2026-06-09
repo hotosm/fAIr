@@ -66,10 +66,13 @@ export const MobileDrawer = ({
           className="fixed z-[10] border border-gray-border flex flex-col bg-white border-b-none py-2 rounded-t-[10px] bottom-0 left-0 right-0  h-full max-h-[97%] mx-[-1px] lg:h-[320px] outline-none"
         >
           <div
-            className={cn(`flex flex-col max-w-md mx-auto w-full app-padding`, {
-              "overflow-y-auto": snap === lastSnapPoint,
-              "overflow-hidden": snap !== lastSnapPoint,
-            })}
+            className={cn(
+              `flex flex-col max-w-md mx-auto w-full app-padding pb-[calc(env(safe-area-inset-bottom)+1rem)]`,
+              {
+                "overflow-y-auto": snap === lastSnapPoint,
+                "overflow-hidden": snap !== lastSnapPoint,
+              },
+            )}
           >
             {canClose ? (
               <Drawer.Close
