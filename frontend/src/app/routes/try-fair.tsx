@@ -197,6 +197,17 @@ export const TryFairPage = () => {
       };
     }
   }, [map, selectedModel, imageryCenter]);
+
+  useEffect(() => {
+    if (
+      selectedModel &&
+      getModelOutputType(selectedModel) === TryFairMapOutputType.POINTS &&
+      outputType === TryFairMapOutputType.POLYGON
+    ) {
+      setOutputType(TryFairMapOutputType.POINTS);
+    }
+  }, [selectedModel, outputType, setOutputType]);
+
   const {
     predict,
     isPredicting,

@@ -8,7 +8,11 @@ import { ParametersIcon } from "@/components/ui/icons/parameters-icon";
 import { SnowflakeIcon } from "@/components/ui/icons/snow-flake-icon";
 import { GridIcon } from "@/components/ui/icons/grid-icon";
 import { FlameIcon } from "@/components/ui/icons/flame-icon";
-import { OUTPUT_TYPES, RESOLUTIONS } from "@/features/try-fair/utils/common";
+import {
+  getModelOutputType,
+  OUTPUT_TYPES,
+  RESOLUTIONS,
+} from "@/features/try-fair/utils/common";
 import {
   BaseModelStacItem,
   InferenceParam,
@@ -54,6 +58,10 @@ export const TryFairSidebar = ({
   openMobileModelPickerDialog,
 }: TryFairSidebarProps) => {
   const { isSmallViewport } = useScreenSize();
+
+  const supportsPolygon = selectedModel
+    ? getModelOutputType(selectedModel) === TryFairMapOutputType.POLYGON
+    : true;
 
   return (
     <div
@@ -109,23 +117,29 @@ export const TryFairSidebar = ({
           {TRY_FAIR_PAGE_CONTENT.sidebar.mapOutput.label}
         </p>
         <div className="flex items-center gap-2">
-          {OUTPUT_TYPES.map(({ type, label, icon }) => (
-            <button
-              key={type}
-              type="button"
-              onClick={() => onOutputTypeChange(type)}
-              title={label}
-              disabled={isPredicting}
-              aria-label={label}
-              className={`flex-1 flex disabled:cursor-wait items-center justify-center py-2 rounded-lg ${
-                outputType === type
-                  ? "bg-secondary text-primary border-[#D63F4080] border"
-                  : "bg-off-white"
-              }`}
-            >
-              {icon}
-            </button>
-          ))}
+          {OUTPUT_TYPES.map(({ type, label, icon }) => {
+            const optionDisabled =
+              isPredicting ||
+              (type === TryFairMapOutputType.POLYGON && !supportsPolygon);
+            return (
+              <button
+                key={type}
+                type="button"
+                onClick={() => onOutputTypeChange(type)}
+                title={label}
+                disabled={optionDisabled}
+                aria-label={label}
+                className={cn(
+                  "flex-1 flex items-center justify-center py-2 rounded-lg disabled:cursor-not-allowed disabled:opacity-40",
+                  outputType === type
+                    ? "bg-secondary text-primary border-[#D63F4080] border"
+                    : "bg-off-white",
+                )}
+              >
+                {icon}
+              </button>
+            );
+          })}
         </div>
       </div>
 
