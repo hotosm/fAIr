@@ -84,6 +84,7 @@ export const getModelOutputType = (
 // Prediction layer IDs (kept in sync with try-fair-prediction-results.tsx)
 export const PREDICTION_LAYER_IDS = [
   "try-fair-predictions-fill",
+  "try-fair-predictions-casing",
   "try-fair-predictions-outline",
   "try-fair-predictions-circle",
   "try-fair-predictions-cluster",
