@@ -57,6 +57,8 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
       <div className="w-full md:w-28 text-left flex-1 min-w-0">
         {loading ? (
           <p className="text-grey text-xs animate-pulse">Loading models…</p>
+        ) : models.length === 0 ? (
+          <p className="text-grey text-xs">No models available</p>
         ) : selectedModel ? (
           <>
             <p className="font-medium text-dark text-xs leading-tight">
