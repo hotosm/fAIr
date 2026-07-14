@@ -252,7 +252,6 @@ export const TryFairSidebar = ({
               </div>
             );
           })}
-    
       </div>
     </div>
   );
