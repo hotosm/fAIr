@@ -119,10 +119,11 @@ export const TryFairSidebar = ({
               title={label}
               disabled={isPredicting}
               aria-label={label}
-              className={`flex-1 flex disabled:cursor-wait items-center justify-center py-2 rounded-lg ${outputType === type
+              className={`flex-1 flex disabled:cursor-wait items-center justify-center py-2 rounded-lg ${
+                outputType === type
                   ? "bg-secondary text-primary border-[#D63F4080] border"
                   : "bg-off-white"
-                }`}
+              }`}
             >
               {icon}
             </button>
@@ -144,11 +145,9 @@ export const TryFairSidebar = ({
             </p>
           </div>
 
-          <ToolTip content={'Reset Parameters'}>
+          <ToolTip content={"Reset Parameters"}>
             <button className="border  bg-[#F0EFEF] p-2 rounded-md">
-
               <RefreshIcon />
-
             </button>
           </ToolTip>
         </div>
@@ -175,10 +174,11 @@ export const TryFairSidebar = ({
                 type="button"
                 disabled={isPredicting}
                 onClick={() => onResolutionChange(value)}
-                className={`flex-1 gap-1 flex disabled:cursor-wait text-xs items-center justify-center py-2 rounded-lg ${resolution === value
+                className={`flex-1 gap-1 flex disabled:cursor-wait text-xs items-center justify-center py-2 rounded-lg ${
+                  resolution === value
                     ? "bg-secondary border-[#D63F4080] border"
                     : "bg-off-white"
-                  }`}
+                }`}
               >
                 <GridIcon width={size} height={size} />
                 {label}
@@ -210,7 +210,6 @@ export const TryFairSidebar = ({
                     min={min}
                     max={max}
                     step={0.01}
-
                     disabled={isPredicting}
                     value={Number(value)}
                     onChange={(e) =>
