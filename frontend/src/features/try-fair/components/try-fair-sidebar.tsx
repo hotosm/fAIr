@@ -218,21 +218,31 @@ export const TryFairSidebar = ({
 
                 <div className="flex items-center gap-2">
                   <SnowflakeIcon />
-                  <input
-                    type="range"
-                    min={min}
-                    max={max}
-                    step={0.01}
-                    disabled={isPredicting}
-                    value={Number(value)}
-                    onChange={(e) =>
-                      onParamChange(key, parseFloat(e.target.value))
-                    }
-                    className="try-fair-confidence-slider disabled:cursor-wait flex-1 h-1.5 rounded-full appearance-none cursor-pointer outline-none"
-                    style={{
-                      background: `linear-gradient(90deg, #0088FF 0%, #FF383C 100%)`,
-                    }}
-                  />
+                  <div className="relative flex-1">
+                    {/* Break lines at 25%, 50%, 75% */}
+                    {[25, 50, 75].map((pct) => (
+                      <div
+                        key={pct}
+                        className="absolute top-1/2 -translate-y-1/2 w-0.5 h-3 bg-white/80 pointer-events-none z-10"
+                        style={{ left: `${pct}%` }}
+                      />
+                    ))}
+                    <input
+                      type="range"
+                      min={min}
+                      max={max}
+                      step={0.25}
+                      disabled={isPredicting}
+                      value={Number(value)}
+                      onChange={(e) =>
+                        onParamChange(key, parseFloat(e.target.value))
+                      }
+                      className="try-fair-confidence-slider disabled:cursor-wait w-full h-1.5 rounded-full appearance-none cursor-pointer outline-none"
+                      style={{
+                        background: `linear-gradient(90deg, #0088FF 0%, #FF383C 100%)`,
+                      }}
+                    />
+                  </div>
                   <FlameIcon />
                 </div>
                 <div className="flex text-dark text-xs items-center justify-between">
@@ -242,24 +252,7 @@ export const TryFairSidebar = ({
               </div>
             );
           })}
-        {/* <div className="w-full">
-      <input 
-        type="range" 
-        min="0" 
-        max="100" 
-        step="25" 
-        list="steplist"
-        className="w-full"
-      />
-
-      <datalist id="steplist">
-        <option value="0" />
-        <option value="25" />
-        <option value="50" />
-        <option value="75" />
-        <option value="100" />
-      </datalist>
-    </div> */}
+    
       </div>
     </div>
   );

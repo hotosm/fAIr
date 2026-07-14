@@ -446,6 +446,8 @@ hotosm-auth {
   border-radius: 50%;
   background: #687075;
   cursor: pointer;
+  position: relative;
+  z-index: 20;
 }
 
 .try-fair-confidence-slider::-moz-range-thumb {
@@ -455,5 +457,7 @@ hotosm-auth {
   background: #687075;
   cursor: pointer;
   border: none;
+  position: relative;
+  z-index: 20;
 }
 /* Try fAIr confidence slider ends */
