@@ -63,9 +63,9 @@ export const OUTPUT_TYPES: {
 ];
 
 export const TRY_FAIR_RESOLUTION_ZOOM: Record<TryFairResolution, number> = {
-  [TryFairResolution.LOW]: 18,
+  [TryFairResolution.LOW]: 20,
   [TryFairResolution.MID]: 19,
-  [TryFairResolution.HIGH]: 20,
+  [TryFairResolution.HIGH]: 18,
 };
 
 // Prediction layer IDs (kept in sync with try-fair-prediction-results.tsx)

@@ -15,6 +15,8 @@ import {
 } from "@/features/try-fair/api/stac";
 import { cn } from "@/utils";
 import useScreenSize from "@/hooks/use-screen-size";
+import { RefreshIcon } from "@/components/ui/icons";
+import { ToolTip } from "@/components/ui/tooltip";
 
 type TryFairSidebarProps = {
   selectedModel: BaseModelStacItem | null;
@@ -117,11 +119,10 @@ export const TryFairSidebar = ({
               title={label}
               disabled={isPredicting}
               aria-label={label}
-              className={`flex-1 flex disabled:cursor-wait items-center justify-center py-2 rounded-lg ${
-                outputType === type
+              className={`flex-1 flex disabled:cursor-wait items-center justify-center py-2 rounded-lg ${outputType === type
                   ? "bg-secondary text-primary border-[#D63F4080] border"
                   : "bg-off-white"
-              }`}
+                }`}
             >
               {icon}
             </button>
@@ -135,11 +136,21 @@ export const TryFairSidebar = ({
         className="p-3 border bg-[#FAFAFA] rounded-lg border-gray-border space-y-4 flex flex-col"
       >
         {/* Section header */}
-        <div className="flex items-center gap-2">
-          <ParametersIcon />
-          <p className="text-dark font-bold uppercase text-xs">
-            {TRY_FAIR_PAGE_CONTENT.sidebar.parameters.label}
-          </p>
+        <div className="flex w-full justify-between items-center">
+          <div className="flex items-center gap-2">
+            <ParametersIcon />
+            <p className="text-dark font-bold uppercase text-xs">
+              {TRY_FAIR_PAGE_CONTENT.sidebar.parameters.label}
+            </p>
+          </div>
+
+          <ToolTip content={'Reset Parameters'}>
+            <button className="border  bg-[#F0EFEF] p-2 rounded-md">
+
+              <RefreshIcon />
+
+            </button>
+          </ToolTip>
         </div>
 
         {/* Description */}
@@ -164,11 +175,10 @@ export const TryFairSidebar = ({
                 type="button"
                 disabled={isPredicting}
                 onClick={() => onResolutionChange(value)}
-                className={`flex-1 gap-1 flex disabled:cursor-wait text-xs items-center justify-center py-2 rounded-lg ${
-                  resolution === value
+                className={`flex-1 gap-1 flex disabled:cursor-wait text-xs items-center justify-center py-2 rounded-lg ${resolution === value
                     ? "bg-secondary border-[#D63F4080] border"
                     : "bg-off-white"
-                }`}
+                  }`}
               >
                 <GridIcon width={size} height={size} />
                 {label}
@@ -187,7 +197,7 @@ export const TryFairSidebar = ({
             return (
               <div key={key}>
                 <div className="flex items-center justify-between mb-1.5">
-                  <p className="text-dark text-xs font-medium">Confidence</p>
+                  <p className="text-dark text-xs font-medium">Accuracy</p>
                   <span className="text-dark text-xs font-semibold">
                     {Math.round(Number(value) * 100)}%
                   </span>
@@ -200,6 +210,7 @@ export const TryFairSidebar = ({
                     min={min}
                     max={max}
                     step={0.01}
+
                     disabled={isPredicting}
                     value={Number(value)}
                     onChange={(e) =>
@@ -219,6 +230,24 @@ export const TryFairSidebar = ({
               </div>
             );
           })}
+        {/* <div className="w-full">
+      <input 
+        type="range" 
+        min="0" 
+        max="100" 
+        step="25" 
+        list="steplist"
+        className="w-full"
+      />
+
+      <datalist id="steplist">
+        <option value="0" />
+        <option value="25" />
+        <option value="50" />
+        <option value="75" />
+        <option value="100" />
+      </datalist>
+    </div> */}
       </div>
     </div>
   );

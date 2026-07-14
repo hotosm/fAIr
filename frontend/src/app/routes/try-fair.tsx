@@ -7,7 +7,7 @@ import { ModelPickerContent } from "@/features/try-fair/components/model-picker-
 import { getSelectedModel } from "@/features/try-fair/utils/models";
 import { useMapInstance } from "@/hooks/use-map-instance";
 import { useTileservice } from "@/hooks/use-tileservice";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getTileServerRegex, getTileServerTypeFromURL } from "@/utils";
 import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
 import {
@@ -89,7 +89,24 @@ export const TryFairPage = () => {
   const [latestBBox, setLatestBBox] = useState<BBOX | null>(null);
 
   const [latestGridZoom, setLatestGridZoom] = useState<number | null>(null);
-  const [isDirty, setIsDirty] = useState<boolean>(true);
+
+  // Snapshot of the current prediction inputs vs what was last submitted,
+  const lastPredictedInputsRef = useRef<string | null>(null);
+
+  const predictionInputsSnapshot = useMemo(() => {
+    if (!latestBBox || !modelId) return null;
+    return JSON.stringify({
+      modelId,
+      bbox: latestBBox,
+      gridZoom: latestGridZoom,
+      resolution,
+      paramValues,
+    });
+  }, [modelId, latestBBox, latestGridZoom, resolution, paramValues]);
+
+  const isDirty =
+    predictionInputsSnapshot === null ||
+    predictionInputsSnapshot !== lastPredictedInputsRef.current;
 
   const {
     openDialog: openModelPickerDialog,
@@ -213,19 +230,18 @@ export const TryFairPage = () => {
     if (confidenceParam && typeof confidenceParam.spec.default === "number") {
       setConfidence(confidenceParam.spec.default);
     }
-    setIsDirty(true);
+    // Invalidate so the Map button re-enables for the new model
+    lastPredictedInputsRef.current = null;
     clearPredictions();
   };
 
   const handleResolutionChange = (res: TryFairResolution) => {
     setResolution(res);
-    setIsDirty(true);
   };
 
   const handleParamChange = useCallback(
     (key: string, value: number | string | boolean) => {
       if (key === "confidence_threshold") setConfidence(value as number);
-      setIsDirty(true);
     },
     [setConfidence],
   );
@@ -233,7 +249,6 @@ export const TryFairPage = () => {
   const handleBBoxChange = useCallback((bbox: BBOX, tileZoom: number) => {
     setLatestBBox(bbox);
     setLatestGridZoom(tileZoom);
-    setIsDirty(true);
   }, []);
 
   const guidedTourSteps = useMemo<StepType[]>(
@@ -274,7 +289,8 @@ export const TryFairPage = () => {
     // Always centerlize the grid whenever the user clicks on Map
     // This is to prevent situations whereby the user drags the grid to another place and the prediction is not visible to them.
     handleZoomToGrid();
-    setIsDirty(false);
+    // Save what we just submitted so we can detect duplicate runs
+    lastPredictedInputsRef.current = predictionInputsSnapshot;
     setMapClickCount((n) => n + 1);
     const apiParams = Object.fromEntries(
       Object.entries(paramValues).map(([parameterName, parameterValue]) =>
@@ -301,6 +317,7 @@ export const TryFairPage = () => {
     tileserverURL,
     latestGridZoom,
     resolution,
+    predictionInputsSnapshot,
   ]);
 
   const isMapButtonDisabled = !isDirty || !latestBBox || !demoConfig;
