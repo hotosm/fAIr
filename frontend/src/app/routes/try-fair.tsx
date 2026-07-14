@@ -54,6 +54,8 @@ export const TryFairPage = () => {
     setOutputType,
     setResolution,
     setConfidence,
+    isParametersDefault,
+    resetParameters,
   } = useTryFairParams();
 
   const { models: allModels, loading: modelsLoading } = useBaseModels();
@@ -404,6 +406,8 @@ export const TryFairPage = () => {
                 inferenceParams={inferenceParams}
                 paramValues={paramValues}
                 onParamChange={handleParamChange}
+                onResetParameters={resetParameters}
+                isParametersDefault={isParametersDefault}
                 onMap={handleMap}
                 isPredicting={isPredicting}
                 isMapButtonDisabled={isMapButtonDisabled}
@@ -432,6 +436,8 @@ export const TryFairPage = () => {
                   inferenceParams={inferenceParams}
                   paramValues={paramValues}
                   onParamChange={handleParamChange}
+                  onResetParameters={resetParameters}
+                  isParametersDefault={isParametersDefault}
                   onMap={handleMap}
                   isPredicting={isPredicting}
                   isMapButtonDisabled={isMapButtonDisabled}

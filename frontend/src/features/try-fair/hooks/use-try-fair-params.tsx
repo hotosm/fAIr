@@ -4,6 +4,14 @@ import { parseAsFloat, parseAsString, useQueryStates } from "nuqs";
 const VALID_OUTPUTS = Object.values(TryFairMapOutputType) as string[];
 const VALID_RESOLUTIONS = Object.values(TryFairResolution) as string[];
 
+/** Default values for all Try fAIr parameters. */
+export const TRY_FAIR_PARAM_DEFAULTS = {
+  model: "dinov3s-buildings",
+  output: TryFairMapOutputType.POLYGON,
+  resolution: TryFairResolution.LOW,
+  confidence: 0.7,
+} as const;
+
 /**
  * Persists the Try fAIr sidebar UI state in URL search params via nuqs.
  *
@@ -16,10 +24,10 @@ const VALID_RESOLUTIONS = Object.values(TryFairResolution) as string[];
 export const useTryFairParams = () => {
   const [params, setParams] = useQueryStates(
     {
-      model: parseAsString.withDefault("dinov3s-buildings"),
-      output: parseAsString.withDefault(TryFairMapOutputType.POLYGON),
-      resolution: parseAsString.withDefault(TryFairResolution.MID),
-      confidence: parseAsFloat.withDefault(0.7),
+      model: parseAsString.withDefault(TRY_FAIR_PARAM_DEFAULTS.model),
+      output: parseAsString.withDefault(TRY_FAIR_PARAM_DEFAULTS.output),
+      resolution: parseAsString.withDefault(TRY_FAIR_PARAM_DEFAULTS.resolution),
+      confidence: parseAsFloat.withDefault(TRY_FAIR_PARAM_DEFAULTS.confidence),
     },
     { history: "replace" },
   );
@@ -32,6 +40,16 @@ export const useTryFairParams = () => {
     ? (params.resolution as TryFairResolution)
     : TryFairResolution.LOW;
 
+  const isParametersDefault =
+    resolution === TRY_FAIR_PARAM_DEFAULTS.resolution &&
+    params.confidence === TRY_FAIR_PARAM_DEFAULTS.confidence;
+
+  const resetParameters = () =>
+    setParams({
+      resolution: TRY_FAIR_PARAM_DEFAULTS.resolution,
+      confidence: TRY_FAIR_PARAM_DEFAULTS.confidence,
+    });
+
   return {
     modelId: params.model,
     outputType,
@@ -42,5 +60,8 @@ export const useTryFairParams = () => {
     setOutputType: (type: TryFairMapOutputType) => setParams({ output: type }),
     setResolution: (res: TryFairResolution) => setParams({ resolution: res }),
     setConfidence: (val: number) => setParams({ confidence: val }),
+
+    isParametersDefault,
+    resetParameters,
   };
 };

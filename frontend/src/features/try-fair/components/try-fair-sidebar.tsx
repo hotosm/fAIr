@@ -30,6 +30,8 @@ type TryFairSidebarProps = {
   inferenceParams: InferenceParam[];
   paramValues: Record<string, number | string | boolean>;
   onParamChange: (key: string, value: number | string | boolean) => void;
+  onResetParameters: () => void;
+  isParametersDefault: boolean;
   onMap: () => void;
   isPredicting: boolean;
   isMapButtonDisabled: boolean;
@@ -49,6 +51,8 @@ export const TryFairSidebar = ({
   inferenceParams,
   paramValues,
   onParamChange,
+  onResetParameters,
+  isParametersDefault,
   onMap,
   isPredicting,
   isMapButtonDisabled,
@@ -146,7 +150,16 @@ export const TryFairSidebar = ({
           </div>
 
           <ToolTip content={"Reset Parameters"}>
-            <button className="border  bg-[#F0EFEF] p-2 rounded-md">
+            <button
+              type="button"
+              className={`border p-2 rounded-md transition-opacity ${
+                isParametersDefault || isPredicting
+                  ? "bg-[#F0EFEF] opacity-40 cursor-not-allowed"
+                  : "bg-[#F0EFEF] hover:bg-[#E5E4E4]"
+              }`}
+              disabled={isParametersDefault || isPredicting}
+              onClick={onResetParameters}
+            >
               <RefreshIcon />
             </button>
           </ToolTip>

@@ -64,14 +64,7 @@ export const TryFairMap = ({
     ChoroplethBucket[] | null
   >(null);
   const gridBBoxRef = useRef<BBOX | null>(null);
-
-  const handleBBoxChange = useCallback(
-    (bbox: BBOX, tileZoom: number) => {
-      gridBBoxRef.current = bbox;
-      onBBoxChange(bbox, tileZoom);
-    },
-    [onBBoxChange],
-  );
+  const fitPendingRef = useRef(false);
 
   const handleFitToGrid = useCallback(() => {
     if (!canFitToBounds) return;
@@ -82,6 +75,33 @@ export const TryFairMap = ({
       essential: true,
     });
   }, [map, canFitToBounds]);
+
+  const handleBBoxChange = useCallback(
+    (bbox: BBOX, tileZoom: number) => {
+      gridBBoxRef.current = bbox;
+      onBBoxChange(bbox, tileZoom);
+      // If a resolution change triggered a grid recalculation, fit now.
+      if (fitPendingRef.current) {
+        fitPendingRef.current = false;
+        if (map && canFitToBounds) {
+          map.fitBounds([bbox[0], bbox[1], bbox[2], bbox[3]], {
+            padding: 40,
+            essential: true,
+          });
+        }
+      }
+    },
+    [onBBoxChange, map, canFitToBounds],
+  );
+
+  // When resolution changes, flag that we want to fit once the grid recalculates.
+  const prevResolutionRef = useRef(resolution);
+  useEffect(() => {
+    if (resolution !== prevResolutionRef.current) {
+      prevResolutionRef.current = resolution;
+      fitPendingRef.current = true;
+    }
+  }, [resolution]);
 
   useEffect(() => {
     if (!map) return;
