@@ -249,10 +249,7 @@ export const TryFairSidebar = ({
                   </div>
                   <FlameIcon />
                 </div>
-                <div className="flex text-dark text-xs items-center justify-between">
-                  <small>Low</small>
-                  <small>High</small>
-                </div>
+      
               </div>
             );
           })}
