@@ -48,6 +48,9 @@ spec:
             {{- toYaml . | nindent 12 }}
             {{- end }}
           env:
+            {{- if .Values.postgres.enabled }}
+            {{- include "fair.postgresDatabaseUrlEnv" . | nindent 12 }}
+            {{- else }}
             - name: DATABASE_PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -60,6 +63,7 @@ spec:
                   {{- end }}
             - name: DATABASE_URL
               value: {{ include "fair.databaseUrl" . | quote }}
+            {{- end }}
           {{- with .Values.backend.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
@@ -91,6 +95,9 @@ spec:
             {{- toYaml . | nindent 12 }}
             {{- end }}
           env:
+            {{- if .Values.postgres.enabled }}
+            {{- include "fair.postgresDatabaseUrlEnv" . | nindent 12 }}
+            {{- else }}
             - name: DATABASE_PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -103,6 +110,7 @@ spec:
                   {{- end }}
             - name: DATABASE_URL
               value: {{ include "fair.databaseUrl" . | quote }}
+            {{- end }}
           {{- with .Values.backend.djangoQ.resources }}
           resources:
             {{- toYaml . | nindent 12 }}

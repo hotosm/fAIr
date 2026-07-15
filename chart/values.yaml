@@ -105,7 +105,8 @@ ingress:
   #    hosts:
   #      - fair.example.com
 
-# -- External PostgreSQL connection
+# -- External PostgreSQL connection. Used when `postgres.enabled` is false
+# (the production path). Prefer supplying credentials via `existingSecret`.
 externalDatabase:
   host: ""
   port: 5432
@@ -114,3 +115,30 @@ externalDatabase:
   password: ""
   existingSecret: ""
   existingSecretKey: password
+
+# Bundled single-pod Postgres for staging / PR-preview / local dev. Disabled
+# by default - production deployments should point at a managed database via
+# `externalDatabase`. When enabled, the chart provisions a Postgres
+# StatefulSet and injects DATABASE_URL into the backend Deployment and
+# migration Job, overriding anything from `externalDatabase`. Uses the
+# PostGIS image because the app validates a `postgis://` DATABASE_URL.
+postgres:
+  enabled: false
+  image:
+    repository: docker.io/postgis/postgis
+    tag: "17-3.5-alpine"
+    pullPolicy: IfNotPresent
+  auth:
+    username: fair
+    password: fair
+    database: fair
+  service:
+    port: 5432
+  persistence:
+    enabled: false
+    size: 5Gi
+    storageClassName: ""
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
