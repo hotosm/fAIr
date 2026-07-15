@@ -83,8 +83,29 @@ Backend image
 {{- end }}
 
 {{/*
-DATABASE_URL for Django
+DATABASE_URL for Django (external database path).
 */}}
 {{- define "fair.databaseUrl" -}}
 postgis://$(DATABASE_USER):$(DATABASE_PASSWORD)@{{ .Values.externalDatabase.host }}:{{ .Values.externalDatabase.port | toString }}/{{ .Values.externalDatabase.database }}
+{{- end }}
+
+{{/*
+Name of the bundled Postgres resources (Service, StatefulSet, Secret).
+*/}}
+{{- define "fair.postgresName" -}}
+{{ include "fair.fullname" . }}-postgres
+{{- end }}
+
+{{/*
+DATABASE_URL env entry sourced from the chart-managed Postgres Secret.
+Included in the backend Deployment and migration Job when
+postgres.enabled=true so it overrides any DATABASE_URL / DATABASE_PASSWORD
+that would otherwise come from `externalDatabase`.
+*/}}
+{{- define "fair.postgresDatabaseUrlEnv" -}}
+- name: DATABASE_URL
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "fair.postgresName" . }}
+      key: DATABASE_URL
 {{- end }}
