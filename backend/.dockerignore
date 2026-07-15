@@ -1,7 +1,7 @@
 # Secrets — must never enter an image.
 .env
 .env.*
-!.env.example
+!.env_example
 
 # Local dev caches and venvs (rebuilt inside the image).
 .venv

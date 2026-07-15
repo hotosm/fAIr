@@ -10,7 +10,7 @@ Prerequisites: a running fair-py-ops dev stack (kind cluster + ZenML + STAC API 
 
 ```bash
 just setup                 # uv sync + pre-commit install
-cp .env.example .env       # fill in real values
+cp .env_example .env       # fill in real values
 just migrate
 just run                   # dev server on :8000
 just worker                # second terminal: db_worker for background tasks
@@ -20,7 +20,7 @@ OpenAPI schema at `/api/schema/`, Swagger UI at `/api/docs/`, ReDoc at `/api/red
 
 ## Environment
 
-`.env` is read by `pydantic-settings`. Empty values are treated as unset and fall back to defaults. Required vars raise at process boot if missing. `SecretStr` values are masked in tracebacks. `.env.example` mirrors the tables below.
+`.env` is read by `pydantic-settings`. Empty values are treated as unset and fall back to defaults. Required vars raise at process boot if missing. `SecretStr` values are masked in tracebacks. `.env_example` mirrors the tables below.
 
 ### Core Django
 
