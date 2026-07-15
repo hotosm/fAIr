@@ -1,0 +1,101 @@
+# Required for the backend to boot. Missing values raise at startup, no fallbacks.
+# Copy to .env and fill in real values.
+
+# Django
+DEBUG=true
+SECRET_KEY=change-me-min-32-chars-long-please-please
+DATABASE_URL=postgis://admin:password@localhost:5432/fair
+ALLOWED_HOSTS=localhost,127.0.0.1
+FRONTEND_URL=http://localhost:3500
+API_BASE_URL=http://localhost:8000/api/v1
+
+# Authentication provider: hanko (production / SSO) or dev (local-only static token)
+AUTH_PROVIDER=hanko
+
+# DEV provider (required when AUTH_PROVIDER=dev). Anyone with this token has
+# full dev-user access; keep in .env, never commit. Generate with `openssl rand -hex 32`.
+FAIR_DEV_TOKEN=
+
+# Hanko SSO (required when AUTH_PROVIDER=hanko)
+HANKO_API_URL=
+COOKIE_SECRET=
+COOKIE_DOMAIN=
+JWT_AUDIENCE=
+LOGIN_URL=https://login.hotosm.org
+LOGIN_INTERNAL_API_KEY=
+LOGIN_BACKEND_URL=
+# Only required when Hanko's "connect existing OSM account" flow is in use.
+OSM_LOGIN_REDIRECT_URI=
+
+# fair-py-ops connection (hosted ZenML + hosted STAC API)
+FAIR_ZENML_STORE_URL=
+FAIR_ZENML_STORE_API_KEY=
+FAIR_STAC_API_URL=
+FAIR_STAC_API_KEY=
+
+# S3 / object storage
+BUCKET_NAME=
+PARENT_BUCKET_FOLDER=dev
+AWS_REGION=us-east-1
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+PRESIGNED_URL_EXPIRY=900
+
+# Rate limits (used by DRF throttling)
+USER_RATE_LIMIT=1000/h
+ANON_RATE_LIMIT=100/h
+TRAINING_RATE_LIMIT=10/h
+PREDICTION_RATE_LIMIT=50/h
+
+# OSM raw-data API
+RAW_DATA_API_URL=https://api-prod.raw-data.hotosm.org/v1
+
+# Mapswipe (set ENABLE_MAPSWIPE=true in prod with all four MAPSWIPE_FB_* set)
+ENABLE_MAPSWIPE=false
+MAPSWIPE_BACKEND_URL=https://backend-2.mapswipe.dev.togglecorp.com
+MAPSWIPE_MANAGER_URL=https://manager-2.mapswipe.dev.togglecorp.com
+MAPSWIPE_WEB_URL=https://web-app-2.mapswipe.dev.togglecorp.com
+MAPSWIPE_CSRFTOKEN_KEY=MAPSWIPE-ALPHA-2-CSRFTOKEN
+MAPSWIPE_FB_AUTH_URL=
+MAPSWIPE_FB_USERNAME=
+MAPSWIPE_FB_PASSWORD=
+MAPSWIPE_TUTORIAL_ID=37
+MAPSWIPE_ORGANIZATION_ID=4
+MAPSWIPE_VERIFICATION_NUMBER=3
+MAPSWIPE_POLL_INTERVAL=10
+MAPSWIPE_POLL_TIMEOUT=600
+
+# Email (only checked when DEBUG=false)
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USE_TLS=true
+EMAIL_HOST_USER=
+EMAIL_HOST_PASSWORD=
+DEFAULT_FROM_EMAIL=no-reply@fair.hotosm.org
+
+# Sentry (optional; install with `uv sync --group sentry`)
+ENABLE_SENTRY=false
+SENTRY_DSN=
+
+# Logging
+LOG_PATH=./logs
+DEFAULT_PAGINATION_SIZE=50
+SESSION_COOKIE_AGE=3600
+DB_POOL_MIN_SIZE=4
+DB_POOL_MAX_SIZE=20
+DB_POOL_TIMEOUT=30
+
+# Operational tuning (all have safe defaults; only set to override)
+# Health endpoint HTTP probe timeout in seconds
+HEALTH_PROBE_TIMEOUT=2.0
+# How often (seconds) the prediction status poller re-enqueues itself
+PREDICTION_SYNC_INTERVAL=15
+# How often (seconds) the training status poller re-enqueues itself
+TRAINING_SYNC_INTERVAL=30
+# TTL (seconds) for LocMem STAC item cache
+STAC_CACHE_TTL=300
+# Max parallel threads for ?expand=stac bulk fetches
+STAC_BULK_FETCH_WORKERS=16
+# Tippecanoe zoom range for PMTiles generation
+PMTILES_MIN_ZOOM=10
+PMTILES_MAX_ZOOM=20
