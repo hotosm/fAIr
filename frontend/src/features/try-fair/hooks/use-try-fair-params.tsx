@@ -27,7 +27,7 @@ export const useTryFairParams = () => {
       model: parseAsString.withDefault(TRY_FAIR_PARAM_DEFAULTS.model),
       output: parseAsString.withDefault(TRY_FAIR_PARAM_DEFAULTS.output),
       resolution: parseAsString.withDefault(TRY_FAIR_PARAM_DEFAULTS.resolution),
-      confidence: parseAsFloat.withDefault(TRY_FAIR_PARAM_DEFAULTS.confidence),
+      confidence: parseAsFloat,
     },
     { history: "replace" },
   );
@@ -40,16 +40,6 @@ export const useTryFairParams = () => {
     ? (params.resolution as TryFairResolution)
     : TryFairResolution.LOW;
 
-  const isParametersDefault =
-    resolution === TRY_FAIR_PARAM_DEFAULTS.resolution &&
-    params.confidence === TRY_FAIR_PARAM_DEFAULTS.confidence;
-
-  const resetParameters = () =>
-    setParams({
-      resolution: TRY_FAIR_PARAM_DEFAULTS.resolution,
-      confidence: TRY_FAIR_PARAM_DEFAULTS.confidence,
-    });
-
   return {
     modelId: params.model,
     outputType,
@@ -59,9 +49,6 @@ export const useTryFairParams = () => {
     setModelId: (id: string) => setParams({ model: id }),
     setOutputType: (type: TryFairMapOutputType) => setParams({ output: type }),
     setResolution: (res: TryFairResolution) => setParams({ resolution: res }),
-    setConfidence: (val: number) => setParams({ confidence: val }),
-
-    isParametersDefault,
-    resetParameters,
+    setConfidence: (val: number | null) => setParams({ confidence: val }),
   };
 };

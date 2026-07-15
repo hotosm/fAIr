@@ -8,7 +8,7 @@ import { ParametersIcon } from "@/components/ui/icons/parameters-icon";
 import { SnowflakeIcon } from "@/components/ui/icons/snow-flake-icon";
 import { GridIcon } from "@/components/ui/icons/grid-icon";
 import { FlameIcon } from "@/components/ui/icons/flame-icon";
-import { OUTPUT_TYPES, RESOLUTIONS } from "@/features/try-fair/utils/common";
+import { getAccuracyLabel, OUTPUT_TYPES, RESOLUTIONS } from "@/features/try-fair/utils/common";
 import {
   BaseModelStacItem,
   InferenceParam,
@@ -38,6 +38,8 @@ type TryFairSidebarProps = {
   className?: string;
   openMobileModelPickerDialog?: () => void;
 };
+
+
 
 export const TryFairSidebar = ({
   selectedModel,
@@ -212,7 +214,7 @@ export const TryFairSidebar = ({
                 <div className="flex items-center justify-between mb-1.5">
                   <p className="text-dark text-xs font-medium">Accuracy</p>
                   <span className="text-dark text-xs font-semibold">
-                    {Math.round(Number(value) * 100)}%
+                    {getAccuracyLabel(value)}
                   </span>
                 </div>
 

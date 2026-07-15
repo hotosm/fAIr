@@ -104,3 +104,21 @@ export const DEFAULT_SELECTED_GRID: SelectedGridSpec = {
 
 /** The grid footprint is a constant size, independent of zoom/resolution. */
 export const getGridSpec = (): SelectedGridSpec => DEFAULT_SELECTED_GRID;
+
+/**
+ * Maps a numeric, string, or boolean confidence threshold value to a discrete accuracy label.
+ *
+ * @param value - The raw parameter value representing the confidence threshold (typically between 0 and 1).
+ * @returns A discrete accuracy label string: "Low", "Medium", or "High" (or empty string if invalid).
+ */
+export const getAccuracyLabel = (value: number | string | boolean): string => {
+  const percentage = Math.round(Number(value) * 100);
+  if (isNaN(percentage)) return "";
+  if (percentage <= 25) {
+    return "Low";
+  }
+  if (percentage <= 50) {
+    return "Medium";
+  }
+  return "High";
+};

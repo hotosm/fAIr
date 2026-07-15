@@ -9,7 +9,7 @@ import { useMapInstance } from "@/hooks/use-map-instance";
 import { useTileservice } from "@/hooks/use-tileservice";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getTileServerRegex, getTileServerTypeFromURL } from "@/utils";
-import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
+import { useTryFairParams, TRY_FAIR_PARAM_DEFAULTS } from "@/features/try-fair/hooks/use-try-fair-params";
 import {
   useBaseModels,
   useLocalModels,
@@ -49,13 +49,11 @@ export const TryFairPage = () => {
     modelId,
     outputType,
     resolution,
-    confidence,
+    confidence: urlConfidence,
     setModelId,
     setOutputType,
     setResolution,
     setConfidence,
-    isParametersDefault,
-    resetParameters,
   } = useTryFairParams();
 
   const { models: allModels, loading: modelsLoading } = useBaseModels();
@@ -79,6 +77,30 @@ export const TryFairPage = () => {
     () => (selectedModel ? getInferenceParams(selectedModel) : []),
     [selectedModel],
   );
+
+  const defaultConfidence = useMemo(() => {
+    const confidenceParam = inferenceParams.find(
+      (p) => p.key === "confidence_threshold",
+    );
+    if (confidenceParam && typeof confidenceParam.spec.default === "number") {
+      return confidenceParam.spec.default;
+    }
+    return TRY_FAIR_PARAM_DEFAULTS.confidence;
+  }, [inferenceParams]);
+
+  const confidence = urlConfidence ?? defaultConfidence;
+
+  const isParamsDefault = useMemo(() => {
+    return (
+      resolution === TRY_FAIR_PARAM_DEFAULTS.resolution &&
+      (urlConfidence === null || urlConfidence === defaultConfidence)
+    );
+  }, [resolution, urlConfidence, defaultConfidence]);
+
+  const handleResetParameters = useCallback(() => {
+    setResolution(TRY_FAIR_PARAM_DEFAULTS.resolution);
+    setConfidence(defaultConfidence);
+  }, [setResolution, setConfidence, defaultConfidence]);
 
   const paramValues = useMemo(() => {
     const values: Record<string, number | string | boolean> = {};
@@ -406,8 +428,8 @@ export const TryFairPage = () => {
                 inferenceParams={inferenceParams}
                 paramValues={paramValues}
                 onParamChange={handleParamChange}
-                onResetParameters={resetParameters}
-                isParametersDefault={isParametersDefault}
+                onResetParameters={handleResetParameters}
+                isParametersDefault={isParamsDefault}
                 onMap={handleMap}
                 isPredicting={isPredicting}
                 isMapButtonDisabled={isMapButtonDisabled}
@@ -436,8 +458,8 @@ export const TryFairPage = () => {
                   inferenceParams={inferenceParams}
                   paramValues={paramValues}
                   onParamChange={handleParamChange}
-                  onResetParameters={resetParameters}
-                  isParametersDefault={isParametersDefault}
+                  onResetParameters={handleResetParameters}
+                  isParametersDefault={isParamsDefault}
                   onMap={handleMap}
                   isPredicting={isPredicting}
                   isMapButtonDisabled={isMapButtonDisabled}
