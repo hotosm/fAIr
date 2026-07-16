@@ -215,7 +215,7 @@ export const TryFairSidebar = ({
               <div key={key}>
                 <div className="flex items-center justify-between mb-1.5">
                   <p className="text-dark text-xs font-medium">Accuracy</p>
-                  <span className="text-dark text-xs font-semibold">
+                  <span className="text-[#404446] text-xs ">
                     {getAccuracyLabel(value)}
                   </span>
                 </div>
@@ -223,7 +223,6 @@ export const TryFairSidebar = ({
                 <div className="flex items-center gap-2">
                   <SnowflakeIcon />
                   <div className="relative flex-1">
-                    {/* Break lines at 25%, 50%, 75% */}
                     {[25, 50, 75].map((pct) => (
                       <div
                         key={pct}
@@ -249,7 +248,6 @@ export const TryFairSidebar = ({
                   </div>
                   <FlameIcon />
                 </div>
-      
               </div>
             );
           })}
