@@ -35,6 +35,7 @@ dependencies = [
     "pyogrio>=0.10",
     "python-ulid>=3.1",
     "shapely>=2.0",
+    "whitenoise>=6.6",
 ]
 
 [dependency-groups]
