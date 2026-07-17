@@ -121,6 +121,8 @@ if settings.auth_provider is AuthProvider.HANKO:
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    # Optional deployment of frontend dist from the server
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -249,6 +251,12 @@ STATIC_URL = "/api_static/"
 MEDIA_URL = "/media/"
 STATIC_ROOT = str(BASE_DIR / "api_static")
 MEDIA_ROOT = str(BASE_DIR / "media")
+
+SERVE_FRONTEND = settings.serve_frontend
+FRONTEND_DIST_DIR = settings.frontend_dist_dir
+if SERVE_FRONTEND:
+    WHITENOISE_ROOT = str(FRONTEND_DIST_DIR)
+    WHITENOISE_INDEX_FILE = True
 
 _logger_handlers: list[str] = ["console"] if DEBUG else ["console", "file"]
 _log_handlers: dict[str, Any] = {
