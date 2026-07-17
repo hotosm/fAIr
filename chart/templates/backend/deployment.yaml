@@ -1,3 +1,4 @@
+{{- $bundle := eq (.Values.frontend.mode | default "bundleWithBackend") "bundleWithBackend" -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -28,6 +29,17 @@ spec:
       {{- with .Values.backend.podSecurityContext }}
       securityContext:
         {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if $bundle }}
+      initContainers:
+        # Copies the built SPA into the shared volume the API pod serves via
+        # Django/WhiteNoise (SERVE_FRONTEND=true, see configmap).
+        - name: frontend-assets
+          image: "{{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.frontend.image.pullPolicy }}
+          volumeMounts:
+            - name: frontend-html
+              mountPath: /frontend_html
       {{- end }}
       containers:
         - name: api
@@ -64,6 +76,12 @@ spec:
             - name: DATABASE_URL
               value: {{ include "fair.databaseUrl" . | quote }}
             {{- end }}
+          {{- if $bundle }}
+          volumeMounts:
+            - name: frontend-html
+              mountPath: /app/frontend_html
+              readOnly: true
+          {{- end }}
           {{- with .Values.backend.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
@@ -120,6 +138,11 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
         {{- end }}
+      {{- if $bundle }}
+      volumes:
+        - name: frontend-html
+          emptyDir: {}
+      {{- end }}
       {{- with .Values.backend.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
