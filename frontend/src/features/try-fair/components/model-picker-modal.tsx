@@ -185,11 +185,11 @@ export const ModelPickerContent = ({
         Apply
       </Button>
 
-     <button className="flex gap-2  items-center">
-      <GlobeSearchIcon />
-      <span>Choose a different location</span>
-<ChevronDownIcon className="size-4 -rotate-90" />
-     </button>
+      <button className="flex gap-2  items-center">
+        <GlobeSearchIcon />
+        <span>Choose a different location</span>
+        <ChevronDownIcon className="size-4 -rotate-90" />
+      </button>
     </div>
   </div>
 );

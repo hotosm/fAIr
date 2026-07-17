@@ -176,19 +176,18 @@ export const TryFairMap = ({
 
       {map && (
         <div className="absolute top-5 right-3 map-elements-z-index flex flex-col gap-y-4">
-          
-            <ToolTip content="Change Imagery">
-              <button
-                type="button"
-                // onClick={onHelp}
-                aria-label="Show the guided tour"
-                className={mapActionButtonClassName}
-              >
+          <ToolTip content="Change Imagery">
+            <button
+              type="button"
+              // onClick={onHelp}
+              aria-label="Show the guided tour"
+              className={mapActionButtonClassName}
+            >
               <GlobeSearchIcon />
-                {/* <InfoIcon className="size-5" /> */}
-              </button>
-            </ToolTip>
-         
+              {/* <InfoIcon className="size-5" /> */}
+            </button>
+          </ToolTip>
+
           {/* Group 1: Zoom In, Zoom Out, Fit to bounds */}
           <div className="flex bg-white rounded-[4px] border border-gray-border md:border-0 shadow-sm flex-col gap-y-0">
             <ZoomControls
