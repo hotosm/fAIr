@@ -72,3 +72,28 @@ if settings.DEBUG:
 
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
+if settings.SERVE_FRONTEND:
+    from django.http import Http404, HttpResponse
+    from django.urls import re_path
+
+    def spa_index(_request):
+        """Return the bundled SPA shell for any non-API route (client-side routing).
+
+        Intercepts all unmatched routes.
+        (Everything except the API, Django admin, and static/media)
+        """
+        index_file = Path(settings.FRONTEND_DIST_DIR) / "index.html"
+        try:
+            return HttpResponse(index_file.read_bytes(), content_type="text/html")
+        except FileNotFoundError as exc:
+            raise Http404("Frontend bundle not found") from exc
+
+    urlpatterns += [
+        re_path(
+            r"^(?!api/|api_static/|media/|django-admin/).*$",
+            spa_index,
+            name="spa",
+        ),
+    ]
