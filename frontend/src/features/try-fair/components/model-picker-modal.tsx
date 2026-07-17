@@ -4,6 +4,8 @@ import DropDown from "@/components/ui/dropdown/dropdown";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { ChevronDownIcon } from "@/components/ui/icons";
 import { BuildingIcon } from "@/components/ui/icons/buildings-icon";
+import { Button } from "@/components/ui/button";
+import { GlobeSearchIcon } from "@/components/ui/icons/globe-search-icon";
 
 type ModelPickerProps = {
   selectedModel: BaseModelStacItem | null;
@@ -177,6 +179,17 @@ export const ModelPickerContent = ({
           </p>
         </div>
       )}
+    </div>
+    <div className="flex w-full text-sm justify-between items-center ">
+      <Button rounded disabled className="!w-fit ">
+        Apply
+      </Button>
+
+     <button className="flex gap-2  items-center">
+      <GlobeSearchIcon />
+      <span>Choose a different location</span>
+<ChevronDownIcon className="size-4 -rotate-90" />
+     </button>
     </div>
   </div>
 );
