@@ -12,82 +12,20 @@ on:
   release:
     types: [released]
   workflow_dispatch:
-    inputs:
-      use_cache:
-        description: "Use Docker build cache"
-        required: false
-        default: "true"
-        type: choice
-        options:
-          - "true"
-          - "false"
-
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build-and-push-api-image:
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - name: Remove unnecessary files
-        run: |
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+  # Backend API image. amd64-only (GDAL + source-built tippecanoe make arm64
+  # emulation slow)
+  backend-build:
+    uses: hotosm/gh-workflows/.github/workflows/image_build.yml@3.6.0
+    with:
+      context: backend/
+      dockerfile: Dockerfile
+      image_name: ghcr.io/${{ github.repository_owner }}/fair-api
 
-      - uses: actions/checkout@v5
-
-      - name: Log in to the Container registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract metadata (tags, labels) for API Docker
-        id: meta_api
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/fair-api
-          tags: |
-            type=ref,event=branch
-            type=ref,event=tag
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build and push API Docker image
-        id: build_api
-        uses: docker/build-push-action@v6
-        with:
-          context: backend/
-          file: backend/Dockerfile
-          platforms: linux/amd64
-          provenance: false
-          sbom: false
-          push: true
-          tags: ${{ steps.meta_api.outputs.tags }}
-          labels: ${{ steps.meta_api.outputs.labels }}
-          cache-from: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.use_cache == 'false') && '' || 'type=gha,scope=api,timeout=20m' }}
-          cache-to: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.use_cache == 'false') && '' || 'type=gha,mode=max,scope=api,timeout=20m,ignore-error=true' }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Validate API manifest
-        env:
-          IMAGE_REF: ${{ env.REGISTRY }}/${{ github.repository_owner }}/fair-api@${{ steps.build_api.outputs.digest }}
-        run: |
-          json=$(docker buildx imagetools inspect --format '{{json .}}' "$IMAGE_REF")
-          echo "$json" | jq -e '
-            if (.manifest.manifests? | type) == "array" then
-              (any(.manifest.manifests[]?; .platform.os == "linux" and .platform.architecture == "amd64"))
-              and
-              (all(.manifest.manifests[]?; (.platform.os != "unknown" and .platform.architecture != "unknown")))
-            else
-              (.image.os == "linux" and .image.architecture == "amd64")
-            end
-          ' >/dev/null
+  frontend-build:
+    uses: hotosm/gh-workflows/.github/workflows/image_build.yml@3.6.0
+    with:
+      context: frontend/
+      dockerfile: Dockerfile.prod
+      image_name: ghcr.io/${{ github.repository_owner }}/fair-frontend
