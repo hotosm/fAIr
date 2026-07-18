@@ -1,4 +1,5 @@
 import { Alert } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 import { HelpText, Input, Select } from "@/components/ui/form";
 import {
   INPUT_TYPES,
@@ -40,6 +41,10 @@ export const XYZTileServerInput = ({
   size,
   tileServiceType,
   setTileServiceType,
+  variant = "horizontal",
+  showButton,
+  buttonOnclick,
+  useAlert = true,
 }: {
   tileServerURL: string;
   setTileServerURL: (url: string) => void;
@@ -47,16 +52,26 @@ export const XYZTileServerInput = ({
   labelWithTooltip?: boolean;
   showBorder?: boolean;
   size?: SHOELACE_SIZES;
+  variant?: "horizontal" | "vertical";
   validationStateUpdateCallback?: (validationState: {
     valid: boolean;
     message: string;
   }) => void;
   pattern?: string;
   tileServiceType: TileServiceType;
+  buttonOnclick?: () => void;
+  showButton?: boolean;
+  useAlert?: boolean;
   setTileServiceType: (tileServiceType: TileServiceType) => void;
 }) => {
   return (
-    <div className="flex flex-col gap-2">
+    <div
+      className={
+        variant === "horizontal"
+          ? "flex flex-col gap-2"
+          : "grid grid-cols-2 gap-4"
+      }
+    >
       <Select
         label="Tile Service Type"
         options={TILE_SERVICE_TYPES}
@@ -96,9 +111,24 @@ export const XYZTileServerInput = ({
           <span className="text-primary">{isValid.message}</span>
         </HelpText>
       )}
-      <Alert>
+
+      {useAlert ? (
+        <Alert>
+          <span className="text-wrap text-xs">
+            Ensure your imagery URL has CORS enabled and adheres to the{" "}
+            <a
+              href="https://github.com/hotosm/fair?tab=readme-ov-file#imagery-license"
+              target="_blank"
+              className="text-primary underline"
+            >
+              license requirements
+            </a>
+            .
+          </span>
+        </Alert>
+      ) : (
         <span className="text-wrap text-xs">
-          Ensure your imagery URL has CORS enabled and adheres to the{" "}
+          Ensure your imagery URL has CORS enabled and <br /> adheres to the{" "}
           <a
             href="https://github.com/hotosm/fair?tab=readme-ov-file#imagery-license"
             target="_blank"
@@ -108,7 +138,15 @@ export const XYZTileServerInput = ({
           </a>
           .
         </span>
-      </Alert>
+      )}
+
+      {showButton && (
+        <div className="flex justify-end items-end">
+          <Button onClick={buttonOnclick} rounded className="!w-fit">
+            Apply
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

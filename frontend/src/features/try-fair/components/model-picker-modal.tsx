@@ -6,6 +6,7 @@ import { ChevronDownIcon } from "@/components/ui/icons";
 import { BuildingIcon } from "@/components/ui/icons/buildings-icon";
 import { Button } from "@/components/ui/button";
 import { GlobeSearchIcon } from "@/components/ui/icons/globe-search-icon";
+import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
 
 type ModelPickerProps = {
   selectedModel: BaseModelStacItem | null;
@@ -130,6 +131,11 @@ export const ModelPickerContent = ({
   models: BaseModelStacItem[];
 }) => (
   <div className="bg-white rounded-xl p-4 space-y-4 max-h-[70vh] overflow-y-auto">
+    <div className="flex items-center gap-3">
+      <p className="text-grey text-xs shrink-0">Default Locations</p>
+      <div className="h-px bg-gray-border flex-1" />
+    </div>
+
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
       {models.length > 0 ? (
         models.map((model) => {
@@ -181,11 +187,16 @@ export const ModelPickerContent = ({
       )}
     </div>
     <div className="flex w-full text-sm justify-between items-center ">
-      <Button rounded disabled className="!w-fit ">
+      <Button size="small" rounded disabled className="!w-fit ">
         Apply
       </Button>
 
-      <button className="flex gap-2  items-center">
+      <button
+        className="flex gap-2 items-center"
+        onClick={() =>
+          useStartMappingStore.getState().setShowChooseLocationModal(true)
+        }
+      >
         <GlobeSearchIcon />
         <span>Choose a different location</span>
         <ChevronDownIcon className="size-4 -rotate-90" />

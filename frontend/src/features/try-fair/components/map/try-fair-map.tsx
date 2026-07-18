@@ -19,6 +19,7 @@ import { LocateGridIcon } from "@/components/ui/icons/locate-grid-icon";
 import { TryFairDownloadButton } from "@/features/try-fair/components/map/try-fair-download-button";
 import { cn } from "@/utils";
 import { GlobeSearchIcon } from "@/components/ui/icons/globe-search-icon";
+import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
 
 type TryFairMapProps = {
   map: Map | null;
@@ -61,6 +62,7 @@ export const TryFairMap = ({
   onHelp,
 }: TryFairMapProps) => {
   const { isSmallViewport } = useScreenSize();
+  const { setShowChooseLocationModal } = useStartMappingStore();
   const [choroplethBuckets, setChoroplethBuckets] = useState<
     ChoroplethBucket[] | null
   >(null);
@@ -179,12 +181,11 @@ export const TryFairMap = ({
           <ToolTip content="Change Imagery">
             <button
               type="button"
-              // onClick={onHelp}
-              aria-label="Show the guided tour"
+              onClick={() => setShowChooseLocationModal(true)}
+              aria-label="Choose a different location"
               className={mapActionButtonClassName}
             >
               <GlobeSearchIcon />
-              {/* <InfoIcon className="size-5" /> */}
             </button>
           </ToolTip>
 

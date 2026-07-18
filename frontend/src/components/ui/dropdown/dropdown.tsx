@@ -1,4 +1,5 @@
 import { ChevronDownIcon } from "@/components/ui/icons";
+import { Divider } from "@/components/ui/divider";
 import { cn } from "@/utils";
 import { DropdownPlacement } from "@/enums";
 import { SlCheckbox } from "@shoelace-style/shoelace/dist/react";
@@ -8,6 +9,7 @@ import { SlMenuItem } from "@shoelace-style/shoelace/dist/react";
 
 import {
   forwardRef,
+  Fragment,
   useEffect,
   useImperativeHandle,
   useRef,
@@ -18,11 +20,19 @@ import { SlDropdownType } from "@/types";
 
 type TDropdownMenuItem = {
   value: string;
+  /** Optional human-readable label. Falls back to `value` if omitted. */
+  label?: string;
   onClick?: (e: any | undefined) => void;
   className?: string;
   name?: string;
   disabled?: boolean;
   apiValue?: string | number;
+  /** Render a divider line above this item */
+  dividerBefore?: boolean;
+  /** SVG React component icon */
+  Icon?: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  /** Image URL icon (e.g. imported SVG asset) */
+  imgSrc?: string;
 };
 export type DropdownMenuItem = TDropdownMenuItem & {
   subMenuItems?: TDropdownMenuItem[];
@@ -152,40 +162,59 @@ const DropDown = forwardRef<SlDropdownType, DropDownProps>((props, ref) => {
         {menuItems && menuItems.length > 0 ? (
           <SlMenu onSlSelect={handleSelect}>
             {menuItems?.map((menuItem, id) => (
-              <SlMenuItem
-                key={`dropdown-menu-item-${id}`}
-                value={menuItem.value}
-                className={cn(`${menuItem.className}`)}
-                onClick={menuItem.onClick}
-                disabled={menuItem.disabled ?? false}
-              >
-                {withCheckbox && (
-                  <SlCheckbox
-                    slot="prefix"
-                    size="small"
-                    checked={
-                      !multiSelect
-                        ? menuItem.value === selectedItem
-                        : selectedItems.includes(menuItem.value)
-                    }
-                  ></SlCheckbox>
-                )}
-                {menuItem.value}
-                {menuItem?.subMenuItems ? (
-                  <SlMenu slot="submenu">
-                    {menuItem.subMenuItems?.map((subMenuItem, id) => (
-                      <SlMenuItem
-                        key={`dropdown-submenu-item-${id}`}
-                        value={subMenuItem.value}
-                        className={cn(`${subMenuItem.className}`)}
-                        onClick={subMenuItem.onClick}
-                      >
-                        {subMenuItem.value}
-                      </SlMenuItem>
-                    ))}
-                  </SlMenu>
-                ) : null}
-              </SlMenuItem>
+              <Fragment key={`dropdown-menu-item-${id}`}>
+                {menuItem.dividerBefore && <Divider />}
+                <SlMenuItem
+                  value={menuItem.value}
+                  className={cn(`${menuItem.className}`)}
+                  onClick={menuItem.onClick}
+                  disabled={menuItem.disabled ?? false}
+                >
+                  {/* Icon prefix: SVG component or image URL */}
+                  {(menuItem.Icon || menuItem.imgSrc) && !withCheckbox && (
+                    <span
+                      slot="prefix"
+                      className="flex items-center justify-center size-5"
+                    >
+                      {menuItem.imgSrc ? (
+                        <img
+                          src={menuItem.imgSrc}
+                          alt={menuItem.label ?? menuItem.value}
+                          className="size-5 object-contain"
+                        />
+                      ) : menuItem.Icon ? (
+                        <menuItem.Icon className="size-5" />
+                      ) : null}
+                    </span>
+                  )}
+                  {withCheckbox && (
+                    <SlCheckbox
+                      slot="prefix"
+                      size="small"
+                      checked={
+                        !multiSelect
+                          ? menuItem.value === selectedItem
+                          : selectedItems.includes(menuItem.value)
+                      }
+                    ></SlCheckbox>
+                  )}
+                  {menuItem.label ?? menuItem.value}
+                  {menuItem?.subMenuItems ? (
+                    <SlMenu slot="submenu">
+                      {menuItem.subMenuItems?.map((subMenuItem, id) => (
+                        <SlMenuItem
+                          key={`dropdown-submenu-item-${id}`}
+                          value={subMenuItem.value}
+                          className={cn(`${subMenuItem.className}`)}
+                          onClick={subMenuItem.onClick}
+                        >
+                          {subMenuItem.label ?? subMenuItem.value}
+                        </SlMenuItem>
+                      ))}
+                    </SlMenu>
+                  ) : null}
+                </SlMenuItem>
+              </Fragment>
             ))}
           </SlMenu>
         ) : (

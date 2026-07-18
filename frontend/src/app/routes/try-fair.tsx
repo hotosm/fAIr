@@ -38,10 +38,14 @@ import {
 } from "@/features/try-fair/utils/common";
 import { Dialog } from "@/components/ui/dialog";
 import { useDialog } from "@/hooks/use-dialog";
+import { ImageryLocationDialog } from "@/features/try-fair/components/imagery/imagery-location-modal";
+import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
 
 export const TryFairPage = () => {
   const { map, mapContainerRef } = useMapInstance(false, false);
   const { isSmallViewport } = useScreenSize();
+  const { showChooseLocationModal, setShowChooseLocationModal } =
+    useStartMappingStore();
   const { getValue, setValue } = useLocalStorage();
   const { setIsOpen: setIsSiteTourOpen, setCurrentStep, setSteps } = useTour();
 
@@ -370,6 +374,16 @@ export const TryFairPage = () => {
           models={models}
         />
       </Dialog>
+
+      {/* Imagery/location dialog – rendered at page level */}
+      <ImageryLocationDialog
+        isOpened={showChooseLocationModal}
+        closeDialog={() => setShowChooseLocationModal(false)}
+        onApply={(_selection) => {
+          // TODO: handle imagery selection
+          setShowChooseLocationModal(false);
+        }}
+      />
 
       <div className="flex h-screen md:h-[92vh] flex-col fullscreen">
         <div className="flex-grow relative">

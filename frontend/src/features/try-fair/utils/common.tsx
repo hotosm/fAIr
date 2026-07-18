@@ -5,6 +5,7 @@ import { ClusterIcon } from "@/components/ui/icons/cluster-icon";
 import { PolygonIcon } from "@/components/ui/icons/polygon-icon";
 import React from "react";
 import { TRY_FAIR_GRID_SIZE } from "@/config";
+import { ImagerySource } from "@/enums";
 
 // This is the default zoom level to start mapping.
 
@@ -122,3 +123,8 @@ export const getAccuracyLabel = (value: number | string | boolean): string => {
   }
   return "High";
 };
+
+export const IMAGERY_SOURCES: { value: ImagerySource; label: string }[] = [
+  { value: ImagerySource.OPEN_AERIAL_MAP, label: "OpenAerialMap" },
+  { value: ImagerySource.CUSTOM, label: "Custom Imagery" },
+];
