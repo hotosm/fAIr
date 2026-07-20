@@ -92,7 +92,9 @@ if settings.SERVE_FRONTEND:
 
     urlpatterns += [
         re_path(
-            r"^(?!api/|api_static/|media/|django-admin/).*$",
+            # We handle all URLs other than the API / Static / Admin ones
+            # in the frontend. This also accounts for trailing slashes.
+            r"^(?!api(/|$)|api_static/|media(/|$)|django-admin(/|$)).*$",
             spa_index,
             name="spa",
         ),
