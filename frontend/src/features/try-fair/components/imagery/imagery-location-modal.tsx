@@ -5,17 +5,17 @@ import { SHOELACE_SIZES } from "@/enums";
 import { BBOX } from "@/types";
 import { ImagerySourceToggle } from "@/features/try-fair/components/imagery/choose-imagery-source";
 import { useEffect, useRef, useState } from "react";
-import { AppliedCustomImagery, CustomImageryForm } from "./custom-imagery-form";
-import { OamImageryMap, SelectedCell } from "./oam-imagery-map";
+import { AppliedCustomImagery, CustomImageryForm } from "@/features/try-fair/components/imagery/custom-imagery-form";
+import { OamImageryMap, SelectedCell } from "@/features/try-fair/components/imagery/oam-imagery-map";
 import {
   geocodeLocation,
   getImageryTileUrl,
   OAMImageryItem,
   searchImagery,
-} from "../../api/hot-imagery";
+} from "@/features/try-fair/api/hot-imagery";
 import { Button } from "@/components/ui/button";
-import { OAMImageryPanel } from "./imagery-search-panel";
-import { ImagerySelection } from "../../types/imagery-types";
+import { OAMImageryPanel } from "@/features/try-fair/components/imagery/imagery-search-panel";
+import { ImagerySelection } from "@/features/try-fair/types/imagery-types";
 import { Divider } from "@/components/ui/divider";
 import { MapIcon } from "@/components/ui/icons";
 

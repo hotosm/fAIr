@@ -8,6 +8,8 @@ type IStartMappingStore = {
   setDownloadType: (imagery: string) => void;
   showChooseLocationModal: boolean;
   setShowChooseLocationModal: (show: boolean) => void;
+  showSigninModal: boolean;
+  setShowSigninModal: (show: boolean) => void;
 };
 
 export const useStartMappingStore = create<IStartMappingStore>((set) => ({
@@ -18,4 +20,7 @@ export const useStartMappingStore = create<IStartMappingStore>((set) => ({
   showChooseLocationModal: false,
   setShowChooseLocationModal: (showChooseLocationModal) =>
     set({ showChooseLocationModal }),
+  showSigninModal: false,
+  setShowSigninModal: (showSigninModal) =>
+    set({ showSigninModal }),
 }));

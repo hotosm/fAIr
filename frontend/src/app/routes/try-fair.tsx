@@ -40,11 +40,12 @@ import { Dialog } from "@/components/ui/dialog";
 import { useDialog } from "@/hooks/use-dialog";
 import { ImageryLocationDialog } from "@/features/try-fair/components/imagery/imagery-location-modal";
 import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
+import { SignInPromptDialog } from "@/features/try-fair/components/modals/sign-in-prompt";
 
 export const TryFairPage = () => {
   const { map, mapContainerRef } = useMapInstance(false, false);
   const { isSmallViewport } = useScreenSize();
-  const { showChooseLocationModal, setShowChooseLocationModal } =
+  const { showChooseLocationModal, setShowChooseLocationModal, showSigninModal, setShowSigninModal } =
     useStartMappingStore();
   const { getValue, setValue } = useLocalStorage();
   const { setIsOpen: setIsSiteTourOpen, setCurrentStep, setSteps } = useTour();
@@ -384,6 +385,12 @@ export const TryFairPage = () => {
           setShowChooseLocationModal(false);
         }}
       />
+      <SignInPromptDialog
+      isOpened={showSigninModal}
+      closeDialog={() => setShowSigninModal(false)}
+      />
+
+      {/* Signin Prompt */}
 
       <div className="flex h-screen md:h-[92vh] flex-col fullscreen">
         <div className="flex-grow relative">

@@ -20,6 +20,7 @@ import { TryFairDownloadButton } from "@/features/try-fair/components/map/try-fa
 import { cn } from "@/utils";
 import { GlobeSearchIcon } from "@/components/ui/icons/globe-search-icon";
 import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
+import { useAuth } from "@/app/providers/auth-provider";
 
 type TryFairMapProps = {
   map: Map | null;
@@ -62,7 +63,8 @@ export const TryFairMap = ({
   onHelp,
 }: TryFairMapProps) => {
   const { isSmallViewport } = useScreenSize();
-  const { setShowChooseLocationModal } = useStartMappingStore();
+  const { setShowChooseLocationModal, setShowSigninModal } = useStartMappingStore();
+  const {isAuthenticated} = useAuth()
   const [choroplethBuckets, setChoroplethBuckets] = useState<
     ChoroplethBucket[] | null
   >(null);
@@ -181,7 +183,13 @@ export const TryFairMap = ({
           <ToolTip content="Change Imagery">
             <button
               type="button"
-              onClick={() => setShowChooseLocationModal(true)}
+              onClick={() => {
+                if(isAuthenticated){
+                  setShowChooseLocationModal(true)
+                }else{
+                  setShowSigninModal(true)
+                }
+              }}
               aria-label="Choose a different location"
               className={mapActionButtonClassName}
             >

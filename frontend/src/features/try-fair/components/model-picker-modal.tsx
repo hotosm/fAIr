@@ -7,6 +7,7 @@ import { BuildingIcon } from "@/components/ui/icons/buildings-icon";
 import { Button } from "@/components/ui/button";
 import { GlobeSearchIcon } from "@/components/ui/icons/globe-search-icon";
 import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
+import { useAuth } from "@/app/providers/auth-provider";
 
 type ModelPickerProps = {
   selectedModel: BaseModelStacItem | null;
@@ -74,9 +75,8 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
       </div>
 
       <ChevronDownIcon
-        className={`w-4 h-4 shrink-0 text-grey transition-transform ${
-          isOpen ? "rotate-180" : ""
-        }`}
+        className={`w-4 h-4 shrink-0 text-grey transition-transform ${isOpen ? "rotate-180" : ""
+          }`}
       />
     </div>
   );
@@ -129,78 +129,85 @@ export const ModelPickerContent = ({
   selectedModel: BaseModelStacItem | null;
   onSelect: (model: BaseModelStacItem) => void;
   models: BaseModelStacItem[];
-}) => (
-  <div className="bg-white rounded-xl p-4 space-y-4 max-h-[70vh] overflow-y-auto">
-    <div className="flex items-center gap-3">
-      <p className="text-grey text-xs shrink-0">Default Locations</p>
-      <div className="h-px bg-gray-border flex-1" />
-    </div>
+}) => {
+  const { isAuthenticated } = useAuth()
+  const { setShowChooseLocationModal, setShowSigninModal } = useStartMappingStore();
 
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-      {models.length > 0 ? (
-        models.map((model) => {
-          const isSelected = selectedModel?.id === model.id;
-          // const tasks = model.properties["mlm:tasks"] ?? [];
-          return (
-            <button
-              key={model.id}
-              type="button"
-              onClick={() => onSelect(model)}
-              className={`text-left p-3 bg-frosted-blue rounded-lg  transition-colors ${
-                isSelected ? "border-primary border-2" : ""
-              }`}
-            >
-              <div className="flex space-y-2 items-start justify-between gap-2 mb-1">
-                <p className="text-dark capitalize text-sm font-bold leading-tight">
-                  {model?.properties?.title ?? ""}
-                </p>
+  return (
+    <div className="bg-white rounded-xl p-4 space-y-4 max-h-[70vh] overflow-y-auto">
+      <div className="flex items-center gap-3">
+        <p className="text-grey text-xs shrink-0">Default Locations</p>
+        <div className="h-px bg-gray-border flex-1" />
+      </div>
 
-                <span
-                  className={`mt-0.5 shrink-0 w-4 h-4 rounded-full  flex items-center justify-center ${
-                    isSelected ? "border-primary border-2" : ""
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {models.length > 0 ? (
+          models.map((model) => {
+            const isSelected = selectedModel?.id === model.id;
+            // const tasks = model.properties["mlm:tasks"] ?? [];
+            return (
+              <button
+                key={model.id}
+                type="button"
+                onClick={() => onSelect(model)}
+                className={`text-left p-3 bg-frosted-blue rounded-lg  transition-colors ${isSelected ? "border-primary border-2" : ""
                   }`}
-                >
-                  {isSelected && (
-                    <span className="w-2 h-2 rounded-full bg-primary" />
-                  )}
-                </span>
-              </div>
-              <p className="text-grey text-xs mb-0.5">
-                Model: {model?.properties?.["mlm:name"] ?? ""}
-              </p>
-              <p className="text-grey text-xs mb-2">
-                By: {model?.properties?.providers[0]?.name ?? ""}
-              </p>
-              <FeatureBadge label={model?.properties?.keywords[0] ?? ""} />
-            </button>
-          );
-        })
-      ) : (
-        <div className="col-span-2 flex flex-col items-center justify-center py-10 px-4 text-center">
-          <p className="text-dark font-semibold text-sm mb-1">
-            No models available
-          </p>
-          <p className="text-grey text-xs max-w-xs">
-            There are currently no models available for use.{" "}
-          </p>
-        </div>
-      )}
-    </div>
-    <div className="flex w-full text-sm justify-between items-center ">
-      <Button size="small" rounded disabled className="!w-fit ">
-        Apply
-      </Button>
+              >
+                <div className="flex space-y-2 items-start justify-between gap-2 mb-1">
+                  <p className="text-dark capitalize text-sm font-bold leading-tight">
+                    {model?.properties?.title ?? ""}
+                  </p>
 
-      <button
-        className="flex gap-2 items-center"
-        onClick={() =>
-          useStartMappingStore.getState().setShowChooseLocationModal(true)
-        }
-      >
-        <GlobeSearchIcon />
-        <span>Choose a different location</span>
-        <ChevronDownIcon className="size-4 -rotate-90" />
-      </button>
+                  <span
+                    className={`mt-0.5 shrink-0 w-4 h-4 rounded-full  flex items-center justify-center ${isSelected ? "border-primary border-2" : ""
+                      }`}
+                  >
+                    {isSelected && (
+                      <span className="w-2 h-2 rounded-full bg-primary" />
+                    )}
+                  </span>
+                </div>
+                <p className="text-grey text-xs mb-0.5">
+                  Model: {model?.properties?.["mlm:name"] ?? ""}
+                </p>
+                <p className="text-grey text-xs mb-2">
+                  By: {model?.properties?.providers[0]?.name ?? ""}
+                </p>
+                <FeatureBadge label={model?.properties?.keywords[0] ?? ""} />
+              </button>
+            );
+          })
+        ) : (
+          <div className="col-span-2 flex flex-col items-center justify-center py-10 px-4 text-center">
+            <p className="text-dark font-semibold text-sm mb-1">
+              No models available
+            </p>
+            <p className="text-grey text-xs max-w-xs">
+              There are currently no models available for use.{" "}
+            </p>
+          </div>
+        )}
+      </div>
+      <div className="flex w-full text-sm justify-between items-center ">
+        <Button size="small" rounded disabled className="!w-fit ">
+          Apply
+        </Button>
+
+        <button
+          className="flex gap-2 items-center"
+          onClick={() => {
+            if (isAuthenticated) {
+              setShowChooseLocationModal(true)
+            } else {
+              setShowSigninModal(true)
+            }
+          }}
+        >
+          <GlobeSearchIcon />
+          <span>Map a different location</span>
+          <ChevronDownIcon className="size-4 -rotate-90" />
+        </button>
+      </div>
     </div>
-  </div>
-);
+  );
+}
