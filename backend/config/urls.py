@@ -94,7 +94,9 @@ if settings.SERVE_FRONTEND:
         re_path(
             # We handle all URLs other than the API / Static / Admin ones
             # in the frontend. This also accounts for trailing slashes.
-            r"^(?!api(/|$)|api_static/|media(/|$)|django-admin(/|$)).*$",
+            # Groups stay non-capturing: re_path forwards captured groups as
+            # positional view arguments, which spa_index does not accept.
+            r"^(?!api(?:/|$)|api_static/|media(?:/|$)|django-admin(?:/|$)).*$",
             spa_index,
             name="spa",
         ),
