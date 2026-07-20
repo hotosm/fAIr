@@ -62,6 +62,9 @@ backend:
     httpGet:
       path: /api/
       port: http
+      httpHeaders:
+      - name: Host
+        value: localhost
     initialDelaySeconds: 30
     periodSeconds: 30
     timeoutSeconds: 5
@@ -70,6 +73,9 @@ backend:
     httpGet:
       path: /api/
       port: http
+      httpHeaders: # use localhost rather than hosts IP
+      - name: Host
+        value: localhost
     initialDelaySeconds: 15
     periodSeconds: 10
     timeoutSeconds: 5
