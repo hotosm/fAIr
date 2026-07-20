@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - stage
       - develop
     paths-ignore:
       - ".github/workflows/backend_build.yml"
@@ -17,14 +18,14 @@ jobs:
   # Backend API image. amd64-only (GDAL + source-built tippecanoe make arm64
   # emulation slow)
   backend-build:
-    uses: hotosm/gh-workflows/.github/workflows/image_build.yml@3.6.0
+    uses: hotosm/gh-workflows/.github/workflows/image_build.yml@4.0.3
     with:
       context: backend/
       dockerfile: Dockerfile
       image_name: ghcr.io/${{ github.repository_owner }}/fair-api
 
   frontend-build:
-    uses: hotosm/gh-workflows/.github/workflows/image_build.yml@3.6.0
+    uses: hotosm/gh-workflows/.github/workflows/image_build.yml@4.0.3
     with:
       context: frontend/
       dockerfile: Dockerfile.prod
