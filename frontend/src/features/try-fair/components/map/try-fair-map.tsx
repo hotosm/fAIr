@@ -63,8 +63,9 @@ export const TryFairMap = ({
   onHelp,
 }: TryFairMapProps) => {
   const { isSmallViewport } = useScreenSize();
-  const { setShowChooseLocationModal, setShowSigninModal } = useStartMappingStore();
-  const {isAuthenticated} = useAuth()
+  const { setShowChooseLocationModal, setShowSigninModal } =
+    useStartMappingStore();
+  const { isAuthenticated } = useAuth();
   const [choroplethBuckets, setChoroplethBuckets] = useState<
     ChoroplethBucket[] | null
   >(null);
@@ -184,10 +185,10 @@ export const TryFairMap = ({
             <button
               type="button"
               onClick={() => {
-                if(isAuthenticated){
-                  setShowChooseLocationModal(true)
-                }else{
-                  setShowSigninModal(true)
+                if (isAuthenticated) {
+                  setShowChooseLocationModal(true);
+                } else {
+                  setShowSigninModal(true);
                 }
               }}
               aria-label="Choose a different location"

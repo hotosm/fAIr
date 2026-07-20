@@ -12,7 +12,7 @@ type ConfirmationModalProps = {
   isConfirming?: boolean;
   confirmLabel?: string;
   cancelLabel?: string;
-  rounded?: boolean
+  rounded?: boolean;
 };
 
 export const ConfirmationModal = ({
@@ -24,7 +24,7 @@ export const ConfirmationModal = ({
   isConfirming = false,
   confirmLabel = "Confirm",
   cancelLabel = "Cancel",
-  rounded = false
+  rounded = false,
 }: ConfirmationModalProps) => {
   const { isMobile } = useScreenSize();
 
@@ -43,16 +43,14 @@ export const ConfirmationModal = ({
         <p className="text-sm text-dark text-center">{message}</p>
         <div className="flex gap-x-3 w-full mt-2">
           <Button
-          rounded={rounded}
+            rounded={rounded}
             variant={ButtonVariant.TERTIARY}
             onClick={onClose}
             disabled={isConfirming}
           >
             {cancelLabel}
           </Button>
-          <Button
-          rounded={rounded}
-          onClick={onConfirm} spinner={isConfirming}>
+          <Button rounded={rounded} onClick={onConfirm} spinner={isConfirming}>
             {confirmLabel}
           </Button>
         </div>

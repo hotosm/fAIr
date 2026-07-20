@@ -31,7 +31,7 @@ export const SignInPromptDialog = ({
         </div>
 
         <p className="text-dark text-lg text-center">
-         You must sign in to change the imagery.
+          You must sign in to change the imagery.
         </p>
 
         <div className="flex items-center justify-between gap-3">

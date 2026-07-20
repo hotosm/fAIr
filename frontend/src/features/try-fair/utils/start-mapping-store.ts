@@ -21,6 +21,5 @@ export const useStartMappingStore = create<IStartMappingStore>((set) => ({
   setShowChooseLocationModal: (showChooseLocationModal) =>
     set({ showChooseLocationModal }),
   showSigninModal: false,
-  setShowSigninModal: (showSigninModal) =>
-    set({ showSigninModal }),
+  setShowSigninModal: (showSigninModal) => set({ showSigninModal }),
 }));

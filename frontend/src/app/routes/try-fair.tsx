@@ -45,8 +45,12 @@ import { SignInPromptDialog } from "@/features/try-fair/components/modals/sign-i
 export const TryFairPage = () => {
   const { map, mapContainerRef } = useMapInstance(false, false);
   const { isSmallViewport } = useScreenSize();
-  const { showChooseLocationModal, setShowChooseLocationModal, showSigninModal, setShowSigninModal } =
-    useStartMappingStore();
+  const {
+    showChooseLocationModal,
+    setShowChooseLocationModal,
+    showSigninModal,
+    setShowSigninModal,
+  } = useStartMappingStore();
   const { getValue, setValue } = useLocalStorage();
   const { setIsOpen: setIsSiteTourOpen, setCurrentStep, setSteps } = useTour();
 
@@ -386,8 +390,8 @@ export const TryFairPage = () => {
         }}
       />
       <SignInPromptDialog
-      isOpened={showSigninModal}
-      closeDialog={() => setShowSigninModal(false)}
+        isOpened={showSigninModal}
+        closeDialog={() => setShowSigninModal(false)}
       />
 
       {/* Signin Prompt */}
