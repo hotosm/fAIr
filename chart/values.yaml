@@ -60,7 +60,7 @@ backend:
 
   livenessProbe:
     httpGet:
-      path: /api/
+      path: /api
       port: http
       httpHeaders:
       - name: Host
@@ -71,7 +71,7 @@ backend:
 
   readinessProbe:
     httpGet:
-      path: /api/
+      path: /api
       port: http
       httpHeaders: # use localhost rather than hosts IP
       - name: Host
