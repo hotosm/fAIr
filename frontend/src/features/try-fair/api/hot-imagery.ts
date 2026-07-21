@@ -133,6 +133,37 @@ const toGeocodeResult = (r: NominatimResult): GeocodeResult => {
   };
 };
 
+export type CountryResult = {
+  /** Country name, e.g. "Brazil". */
+  country: string;
+  /** ISO 3166-1 alpha-2 code, lower-cased (e.g. "br"); "" when unknown. */
+  countryCode: string;
+};
+
+/**
+ * Reverse-geocode a coordinate to its country via Nominatim. The imagery's tile
+ * URL carries no location, so the country is derived from the imagery's center
+ * (or any point inside its bounds). `zoom: 3` keeps Nominatim at country level.
+ */
+export const reverseGeocodeCountry = async (
+  lon: number,
+  lat: number,
+  signal?: AbortSignal,
+): Promise<CountryResult | null> => {
+  const { data } = await axios.get<{
+    address?: { country?: string; country_code?: string };
+  }>(`${NOMINATIM_API_URL}/reverse`, {
+    params: { format: "json", lat, lon, zoom: 3, addressdetails: 1 },
+    signal,
+  });
+  const country = data?.address?.country;
+  if (!country) return null;
+  return {
+    country,
+    countryCode: (data.address?.country_code ?? "").toLowerCase(),
+  };
+};
+
 /**
  * Autocomplete suggestions for a location query (up to `limit`), each with a
  * bounding box for map.fitBounds. Powers the search box's suggestion dropdown.

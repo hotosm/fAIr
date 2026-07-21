@@ -69,7 +69,7 @@ export const XYZTileServerInput = ({
       className={
         variant === "horizontal"
           ? "flex flex-col gap-2"
-          : "grid grid-cols-2 gap-4"
+          : "grid grid-cols-2 gap-2"
       }
     >
       <Select
@@ -82,7 +82,8 @@ export const XYZTileServerInput = ({
         defaultValue={tileServiceType}
         size={size as unknown as SHOELACE_SELECT_SIZES}
       />
-      <Input
+      <div className="flex flex-col gap-1">
+              <Input
         label={`${tileServiceType ?? ""} ${tileServiceType !== TileServiceType.TILEJSON ? "Tile Server" : ""} URL`}
         labelWithTooltip={labelWithTooltip}
         value={tileServerURL}
@@ -111,6 +112,7 @@ export const XYZTileServerInput = ({
           <span className="text-primary">{isValid.message}</span>
         </HelpText>
       )}
+      </div>
 
       {useAlert ? (
         <Alert>
@@ -142,7 +144,7 @@ export const XYZTileServerInput = ({
 
       {showButton && (
         <div className="flex justify-end items-end">
-          <Button onClick={buttonOnclick} rounded className="!w-fit">
+          <Button size="small" onClick={buttonOnclick} rounded className="!w-fit">
             Apply
           </Button>
         </div>

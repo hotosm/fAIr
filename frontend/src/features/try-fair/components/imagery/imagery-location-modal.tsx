@@ -23,7 +23,6 @@ import { Button } from "@/components/ui/button";
 import { OAMImageryPanel } from "@/features/try-fair/components/imagery/imagery-search-panel";
 import { ImagerySelection } from "@/features/try-fair/types/imagery-types";
 import { Divider } from "@/components/ui/divider";
-import { MapIcon } from "@/components/ui/icons";
 import { cn } from "@/utils";
 import { LocationSearch } from "./location-search";
 import { ToolTip } from "@/components/ui/tooltip";
@@ -178,34 +177,12 @@ export const ImageryLocationDialog = ({
                 </div>
               </>
             ) : (
-              <>
+              <div className="absolute inset-0 bg-white">
                 <CustomImageryForm
                   applied={appliedCustomImagery}
                   onApply={handleApplyCustomImagery}
                 />
-
-                {!appliedCustomImagery && (
-                  <div className="bg-[#E9E9E9] flex-col h-4/5 mt-4 rounded-lg flex justify-center space-y-2 items-center">
-                    <MapIcon className="size-6" />
-                    <h4 className="text-sm font-medium">
-                      No Imagery to preview
-                    </h4>
-                    <p className="text-dark text-xs">
-                      Once all field are populated correctly, the imagery will
-                      be displayed here
-                    </p>
-                  </div>
-                )}
-
-                {/* <CustomImageryMap
-                  tileUrl={appliedCustomImagery?.tileUrl ?? null}
-                  scheme={
-                    appliedCustomImagery?.tileServiceType === TileServiceType.TMS
-                      ? "tms"
-                      : "xyz"
-                  }
-                /> */}
-              </>
+              </div>
             )}
           </div>
         </div>

@@ -193,6 +193,12 @@ export const TryFairPage = () => {
   }, [tileServiceUrl, setTileserverURL]);
 
   const imageryCenter = useMemo((): [number, number] => {
+    // A selected imagery's own bounds take priority, so applying imagery
+    // re-centers the map on it (OAM XYZ tiles carry no TileJSON center).
+    if (selectedImagery?.bounds) {
+      const [w, s, e, n] = selectedImagery.bounds;
+      return [(w + e) / 2, (s + n) / 2];
+    }
     if (tileJSONMetadata?.center) {
       return [tileJSONMetadata.center[0], tileJSONMetadata.center[1]];
     }
@@ -208,18 +214,24 @@ export const TryFairPage = () => {
     return tileServiceUrl === FALLBACK_FAIR_IMAGERY
       ? FALLBACK_FAIR_IMAGERY_CENTER
       : DEFAULT_FAIR_IMAGERY_CENTER;
-  }, [tileJSONMetadata, tileServiceUrl]);
+  }, [tileJSONMetadata, tileServiceUrl, selectedImagery]);
 
+  const mapFlownRef = useRef(false);
   useEffect(() => {
     if (!map || !selectedModel || !imageryCenter) return;
     const doFly = () => {
+      mapFlownRef.current = true;
       map.flyTo({
         center: imageryCenter,
         zoom: TRY_FAIR_INITIAL_MAP_ZOOM,
         essential: true,
       });
     };
-    if (map.isStyleLoaded()) {
+    // After the first successful fly, fly directly on every center change.
+    // `isStyleLoaded()` transiently reports false while a newly-applied imagery
+    // source loads, and the map's one-shot `load` event has already fired — so
+    // re-gating on it here would trap the camera and it would never move.
+    if (mapFlownRef.current || map.isStyleLoaded()) {
       doFly();
     } else {
       map.once("load", doFly);
@@ -381,11 +393,9 @@ export const TryFairPage = () => {
       >
         <ModelPickerContent
           selectedModel={selectedModel}
-          onSelect={(model) => {
-            handleSelectModel(model);
-            closeModelPickerDialog();
-          }}
+          onSelect={handleSelectModel}
           models={models}
+          onClose={closeModelPickerDialog}
         />
       </Dialog>
 
@@ -393,11 +403,14 @@ export const TryFairPage = () => {
       <ImageryLocationDialog
         isOpened={showChooseLocationModal}
         closeDialog={() => setShowChooseLocationModal(false)}
-        onApply={(_selection) => {
-          // TODO: handle imagery selection
+        onApply={(selection) => {
           setCurrentModelType("imagery");
-          setSeletedImagery(_selection);
-
+          setSeletedImagery(selection);
+          // Invalidate the last prediction so the Map button re-enables and
+          // stale predictions clear when the imagery changes. The map re-centers
+          // on the new imagery via the imageryCenter/flyTo effect.
+          lastPredictedInputsRef.current = null;
+          clearPredictions();
           setShowChooseLocationModal(false);
         }}
       />

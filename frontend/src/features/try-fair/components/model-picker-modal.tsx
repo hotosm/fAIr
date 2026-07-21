@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BaseModelStacItem } from "@/features/try-fair/api/stac";
+import { useImageryCountry } from "@/features/try-fair/hooks/use-imagery-country";
 import DropDown from "@/components/ui/dropdown/dropdown";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { ChevronDownIcon } from "@/components/ui/icons";
@@ -32,6 +33,38 @@ const FeatureBadge = ({ label }: { label: string | undefined }) => {
   );
 };
 
+/** Radio indicator: filled primary dot when selected, empty grey ring otherwise. */
+const RadioDot = ({ selected }: { selected: boolean }) => (
+  <span
+    className={`mt-0.5 shrink-0 w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+      selected ? "border-primary" : "border-gray-border"
+    }`}
+  >
+    {selected && <span className="w-2 h-2 rounded-full bg-primary" />}
+  </span>
+);
+
+/** ISO 3166-1 alpha-2 code → flag emoji (regional indicator symbols). */
+const flagEmoji = (code: string): string =>
+  code.length === 2
+    ? String.fromCodePoint(
+        ...[...code.toUpperCase()].map((c) => 0x1f1e6 + c.charCodeAt(0) - 65),
+      )
+    : "🏳️";
+
+const CountryBadge = ({
+  country,
+  code,
+}: {
+  country: string;
+  code: string;
+}) => (
+  <span className="inline-flex gap-1.5 items-center px-2 py-0.5 rounded bg-grey text-white text-xs font-medium">
+    <span aria-hidden>{flagEmoji(code)}</span>
+    {country}
+  </span>
+);
+
 export const ModelPicker: React.FC<ModelPickerProps> = ({
   selectedModel,
   onSelect,
@@ -43,33 +76,31 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
 }) => {
   const { onDropdownHide, dropdownRef } = useDropdownMenu();
   const [isOpen, setIsOpen] = useState(false);
+  const { currentModelType, selectedImagery } = useStartMappingStore();
 
-  const handleSelect = (model: BaseModelStacItem) => {
-    onSelect(model);
-
-    if (isSmallViewport) {
-      setIsOpen(false);
-      return;
-    }
-
-    setTimeout(() => {
-      onDropdownHide();
-    }, 200);
-  };
+  // When imagery is the active source, the trigger shows the imagery's name
+  // instead of the default-location model title.
+  const showImagery = currentModelType === "imagery" && !!selectedImagery;
+  const imageryName =
+    selectedImagery?.source === ImagerySource.OPEN_AERIAL_MAP
+      ? selectedImagery.item.title
+      : "Custom Imagery";
 
   const trigger = (
     <div className="flex justify-between items-center">
       <div className="w-full md:w-28 text-left flex-1 min-w-0">
         {loading ? (
           <p className="text-grey text-xs animate-pulse">Loading models…</p>
+        ) : showImagery ? (
+          <p className="font-medium text-dark text-xs leading-tight capitalize truncate">
+            {imageryName}
+          </p>
         ) : models.length === 0 ? (
           <p className="text-grey text-xs">No models available</p>
         ) : selectedModel ? (
-          <>
-            <p className="font-medium text-dark text-xs leading-tight">
-              {selectedModel.properties.title}
-            </p>
-          </>
+          <p className="font-medium text-dark text-xs leading-tight">
+            {selectedModel.properties.title}
+          </p>
         ) : (
           <p className="text-grey text-xs">Select a model</p>
         )}
@@ -109,9 +140,13 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
       <div className="w-[520px] shadow-2xl">
         {
           <ModelPickerContent
+            // Remount on each open so a staged-but-not-applied choice never
+            // lingers when the dropdown is reopened.
+            key={isOpen ? "open" : "closed"}
             models={models}
             selectedModel={selectedModel}
-            onSelect={handleSelect}
+            onSelect={onSelect}
+            onClose={onDropdownHide}
           />
         }
       </div>
@@ -123,27 +158,79 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
  * Standalone content for the model picker, exported so it can be rendered
  * inside a page-level Dialog (outside the MobileDrawer).
  */
+// Sentinel key for the selected imagery (model ids are STAC ids, never this).
+const IMAGERY_KEY = "imagery";
+
+type StagedChoice =
+  | { type: "model"; model: BaseModelStacItem }
+  | { type: "imagery" };
+
 export const ModelPickerContent = ({
   selectedModel,
   onSelect,
   models,
+  onClose,
 }: {
   selectedModel: BaseModelStacItem | null;
   onSelect: (model: BaseModelStacItem) => void;
   models: BaseModelStacItem[];
+  /** Close the picker after a choice is applied. */
+  onClose?: () => void;
 }) => {
   const { isAuthenticated } = useAuth();
   const {
     setShowChooseLocationModal,
     setShowSigninModal,
+    setCurrentModelType,
     currentModelType,
     selectedImagery,
   } = useStartMappingStore();
-  console.log(
+
+  // The choice is staged locally and only committed on Apply, so picking a
+  // default location (or the imagery) doesn't change the map until Apply.
+  const [staged, setStaged] = useState<StagedChoice | null>(null);
+
+  // Drop the staged choice whenever the committed selection changes underneath.
+  useEffect(() => {
+    setStaged(null);
+  }, [selectedModel, currentModelType]);
+
+  // Derive the imagery's country by reverse-geocoding its center (the tile URL
+  // carries no location), shown as a badge on the imagery card.
+  const imageryCountry = useImageryCountry(
     selectedImagery?.source === ImagerySource.OPEN_AERIAL_MAP
-      ? selectedImagery.item
-      : undefined,
+      ? selectedImagery.bounds
+      : null,
   );
+
+  // Identify a selection by a single key — "imagery" for the selected imagery,
+  // or a model id for a default location. Collapsing both mutually-exclusive
+  // sources into one value turns every check below into a plain comparison.
+  const keyOf = (choice: StagedChoice): string =>
+    choice.type === "imagery" ? IMAGERY_KEY : choice.model.id;
+
+  const committedKey =
+    currentModelType === "imagery" ? IMAGERY_KEY : (selectedModel?.id ?? null);
+  const stagedKey = staged ? keyOf(staged) : null;
+
+  // What the picker highlights: the staged choice if any, else the committed one.
+  const activeKey = stagedKey ?? committedKey;
+  const imageryActive = activeKey === IMAGERY_KEY;
+
+  // Apply is enabled only when a staged choice differs from what's committed.
+  const hasChange = stagedKey !== null && stagedKey !== committedKey;
+
+  const handleApply = () => {
+    if (!staged) return;
+    if (staged.type === "model") {
+      onSelect(staged.model);
+    } else {
+      setCurrentModelType("imagery");
+    }
+    setStaged(null);
+    onClose?.();
+  };
+
   return (
     <div className="bg-white rounded-xl p-4 space-y-4 max-h-[70vh] overflow-y-auto">
       {selectedImagery &&
@@ -151,38 +238,29 @@ export const ModelPickerContent = ({
           <button
             key={selectedImagery.source}
             type="button"
-            // onClick={() => onSelect(model)}
-            className={`text-left p-3 bg-frosted-blue rounded-lg  transition-colors ${
-              currentModelType === "imagery" ? "border-primary border-2" : ""
+            onClick={() => setStaged({ type: "imagery" })}
+            className={`text-left p-3 w-full sm:w-1/2 bg-frosted-blue rounded-lg  transition-colors ${
+              imageryActive ? "border-primary border-2" : ""
             }`}
           >
             <div className="flex space-y-2 items-start justify-between gap-2 mb-1">
-              <p className="text-dark capitalize text-sm font-bold leading-tight">
+              <p className="text-dark capitalize text-sm font-medium leading-tight ">
                 {selectedImagery.item.title}
               </p>
 
-              <span
-                className={`mt-0.5 shrink-0 w-4 h-4 rounded-full  flex items-center justify-center ${
-                  currentModelType === "imagery"
-                    ? "border-primary border-2"
-                    : ""
-                }`}
-              >
-                {currentModelType === "imagery" && (
-                  <span className="w-2 h-2 rounded-full bg-primary" />
-                )}
-              </span>
+              <RadioDot selected={imageryActive} />
             </div>
-            <p className="capitalize text-sm text-grey">
+            <p className="text-grey text-xs">
               Imagery: {selectedImagery.source}
             </p>
-            {/* <p className="text-grey text-xs mb-0.5">
-                  Model: {model?.properties?.["mlm:name"] ?? ""}
-                </p>
-                <p className="text-grey text-xs mb-2">
-                  By: {model?.properties?.providers[0]?.name ?? ""}
-                </p> */}
-            {/* <FeatureBadge label={model?.properties?.keywords[0] ?? ""} /> */}
+            {imageryCountry && (
+              <div className="mt-2">
+                <CountryBadge
+                  country={imageryCountry.country}
+                  code={imageryCountry.countryCode}
+                />
+              </div>
+            )}
           </button>
         )}
       <div className="flex items-center gap-3">
@@ -193,13 +271,12 @@ export const ModelPickerContent = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {models.length > 0 ? (
           models.map((model) => {
-            const isSelected = selectedModel?.id === model.id;
-            // const tasks = model.properties["mlm:tasks"] ?? [];
+            const isSelected = activeKey === model.id;
             return (
               <button
                 key={model.id}
                 type="button"
-                onClick={() => onSelect(model)}
+                onClick={() => setStaged({ type: "model", model })}
                 className={`text-left p-3 bg-frosted-blue rounded-lg  transition-colors ${
                   isSelected ? "border-primary border-2" : ""
                 }`}
@@ -209,15 +286,7 @@ export const ModelPickerContent = ({
                     {model?.properties?.title ?? ""}
                   </p>
 
-                  <span
-                    className={`mt-0.5 shrink-0 w-4 h-4 rounded-full  flex items-center justify-center ${
-                      isSelected ? "border-primary border-2" : ""
-                    }`}
-                  >
-                    {isSelected && (
-                      <span className="w-2 h-2 rounded-full bg-primary" />
-                    )}
-                  </span>
+                  <RadioDot selected={isSelected} />
                 </div>
                 <p className="text-grey text-xs mb-0.5">
                   Model: {model?.properties?.["mlm:name"] ?? ""}
@@ -241,7 +310,13 @@ export const ModelPickerContent = ({
         )}
       </div>
       <div className="flex w-full text-sm justify-between items-center ">
-        <Button size="small" rounded disabled className="!w-fit ">
+        <Button
+          size="small"
+          rounded
+          disabled={!hasChange}
+          onClick={handleApply}
+          className="!w-fit "
+        >
           Apply
         </Button>
 
