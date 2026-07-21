@@ -8,8 +8,8 @@
  * (components) is separated from the "how" (this file).
  *
  * Layer stacking, bottom → top:
- *   basemap → density grid → selected-cell highlight → imagery/custom preview
- * Previews are added last so they sit above the grid.
+ *   basemap → density grid → count labels → selected-cell highlight → preview
+ * The image preview is added last so it sits above the grid.
  */
 import maplibregl, {
   GeoJSONSource,
@@ -24,10 +24,7 @@ import {
   HOT_IMAGERY_DENSITY_SOURCE_LAYER,
   MAX_ZOOM_LEVEL,
 } from "@/config";
-import {
-  getImageryTileUrl,
-  OAMImageryItem,
-} from "@/features/try-fair/api/hot-imagery";
+import { getImageryTileUrl, OAMImageryItem } from "@/features/try-fair/api/hot-imagery";
 
 // ── Ids ───────────────────────────────────────────────────────────────────────
 // Prefixed so they never collide with the try-fAIr map's own sources/layers.
@@ -37,23 +34,21 @@ const SOURCES = {
   density: "modal-oam-density",
   cell: "modal-selected-cell",
   imagery: "modal-oam-selected",
-  custom: "modal-custom-imagery",
 } as const;
 
 const LAYERS = {
   basemap: "modal-basemap-layer",
   densityFill: "modal-density-fill",
+  densityCount: "modal-density-count",
   cellFill: "modal-selected-cell-fill",
   cellLine: "modal-selected-cell-line",
   imagery: "modal-oam-selected-layer",
-  custom: "modal-custom-imagery-layer",
 } as const;
 
 // ── Styling ───────────────────────────────────────────────────────────────────
 
 // Blue choropleth ramp keyed on each cell's image `count`: pale where sparse,
-// deep where dense. Matches the imagery-coverage design (shaded cells, no
-// number labels). Pairs are [count, color], fed to an `interpolate`.
+// deep where dense. Pairs are [count, color], fed to an `interpolate`.
 const DENSITY_COLOR_RAMP: (string | number)[] = [
   1,
   "#cbdbe3",
@@ -74,8 +69,15 @@ const EMPTY_COLLECTION: GeoJSON.FeatureCollection = {
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-/** A density grid cell the user selected: its image extent and image count. */
-export type SelectedCell = { bbox: BBOX; count: number };
+/**
+ * A density grid cell the user selected: its aggregated image extent (`bbox`),
+ * image `count`, and the cell polygon `geometry` used to paint the highlight.
+ */
+export type SelectedCell = {
+  bbox: BBOX;
+  count: number;
+  geometry: GeoJSON.Geometry;
+};
 
 /** Properties baked into each density cell by the imagery.hotosm.org generator. */
 type DensityCellProps = {
@@ -85,8 +87,6 @@ type DensityCellProps = {
   bboxE?: number;
   bboxN?: number;
 };
-
-export type CustomScheme = "xyz" | "tms";
 
 // ── Map creation ──────────────────────────────────────────────────────────────
 
@@ -109,6 +109,9 @@ const registerPmtilesProtocol = () => {
 
 const baseStyle: StyleSpecification = {
   version: 8,
+  // Needed so the density count labels can render text. demotiles serves the
+  // Noto Sans stack (Open Sans is not available there).
+  glyphs: "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
   sources: {
     [SOURCES.basemap]: {
       type: "raster",
@@ -172,6 +175,28 @@ export const addImageryLayers = (map: MapLibreMap): void => {
     },
   });
 
+  // Image count per cell. The archive carries a Point label feature per cell
+  // (separate from the polygon, so tile clipping can't drift the label onto an
+  // edge), which is what we label here.
+  map.addLayer({
+    id: LAYERS.densityCount,
+    type: "symbol",
+    source: SOURCES.density,
+    "source-layer": HOT_IMAGERY_DENSITY_SOURCE_LAYER,
+    filter: ["==", ["geometry-type"], "Point"],
+    layout: {
+      "text-field": ["to-string", ["get", "count"]],
+      "text-font": ["Noto Sans Bold"],
+      "text-size": 12,
+      "text-allow-overlap": false,
+    },
+    paint: {
+      "text-color": "#1b3a4b",
+      "text-halo-color": "#ffffff",
+      "text-halo-width": 1.5,
+    },
+  });
+
   map.addSource(SOURCES.cell, { type: "geojson", data: EMPTY_COLLECTION });
   map.addLayer({
     id: LAYERS.cellFill,
@@ -197,24 +222,21 @@ export const addImageryLayers = (map: MapLibreMap): void => {
 
 /**
  * The density cell under a click point, or null if the click missed the grid.
- * Returns the parsed {@link SelectedCell} plus the cell geometry for the
- * highlight. `bboxW/S/E/N` (the aggregated image extent) is what the picker
- * searches, not the wider cell square.
+ * `bboxW/S/E/N` (the aggregated image extent) is what the picker searches, not
+ * the wider cell square; the cell polygon geometry is carried for the highlight.
  */
 export const readCellAt = (
   map: MapLibreMap,
   point: PointLike,
-): { cell: SelectedCell; geometry: GeoJSON.Geometry } | null => {
+): SelectedCell | null => {
   const hit = map.queryRenderedFeatures(point, {
     layers: [LAYERS.densityFill],
   })[0];
   const p = hit?.properties as DensityCellProps | undefined;
   if (!hit || !p || !p.count || p.bboxW == null) return null;
   return {
-    cell: {
-      bbox: [p.bboxW, p.bboxS!, p.bboxE!, p.bboxN!],
-      count: p.count,
-    },
+    bbox: [p.bboxW, p.bboxS!, p.bboxE!, p.bboxN!],
+    count: p.count,
     geometry: hit.geometry,
   };
 };
@@ -227,10 +249,7 @@ export const highlightCell = (
   const src = map.getSource(SOURCES.cell) as GeoJSONSource | undefined;
   src?.setData(
     geometry
-      ? {
-          type: "FeatureCollection",
-          features: [{ type: "Feature", properties: {}, geometry }],
-        }
+      ? { type: "FeatureCollection", features: [{ type: "Feature", properties: {}, geometry }] }
       : EMPTY_COLLECTION,
   );
 };
@@ -264,22 +283,3 @@ export const showImageryPreview = (
 
 export const clearImageryPreview = (map: MapLibreMap): void =>
   removeLayerAndSource(map, LAYERS.imagery, SOURCES.imagery);
-
-/** Preview a custom XYZ/TMS tile server over the basemap. */
-export const showCustomPreview = (
-  map: MapLibreMap,
-  tileUrl: string,
-  scheme: CustomScheme,
-): void => {
-  removeLayerAndSource(map, LAYERS.custom, SOURCES.custom);
-  map.addSource(SOURCES.custom, {
-    type: "raster",
-    tiles: [tileUrl],
-    tileSize: 256,
-    scheme,
-  });
-  map.addLayer({ id: LAYERS.custom, type: "raster", source: SOURCES.custom });
-};
-
-export const clearCustomPreview = (map: MapLibreMap): void =>
-  removeLayerAndSource(map, LAYERS.custom, SOURCES.custom);

@@ -14,7 +14,7 @@ import {
   SelectedCell,
 } from "@/features/try-fair/components/imagery/oam-imagery-map";
 import {
-  geocodeLocation,
+  GeocodeResult,
   getImageryTileUrl,
   OAMImageryItem,
   searchImagery,
@@ -24,6 +24,9 @@ import { OAMImageryPanel } from "@/features/try-fair/components/imagery/imagery-
 import { ImagerySelection } from "@/features/try-fair/types/imagery-types";
 import { Divider } from "@/components/ui/divider";
 import { MapIcon } from "@/components/ui/icons";
+import { cn } from "@/utils";
+import { LocationSearch } from "./location-search";
+import { ToolTip } from "@/components/ui/tooltip";
 
 export enum ImagerySource {
   OPEN_AERIAL_MAP = "openAerialMap",
@@ -51,10 +54,8 @@ export const ImageryLocationDialog = ({
   const [cellImages, setCellImages] = useState<OAMImageryItem[]>([]);
   const [cellLoading, setCellLoading] = useState<boolean>(false);
   const [selectedItem, setSelectedItem] = useState<OAMImageryItem | null>(null);
-  const [searching, setSearching] = useState<boolean>(false);
   const [appliedCustomImagery, setAppliedCustomImagery] =
     useState<AppliedCustomImagery | null>(null);
-
   const mapRef = useRef<MapLibreMap | null>(null);
   const searchAbortRef = useRef<AbortController | null>(null);
 
@@ -102,63 +103,75 @@ export const ImageryLocationDialog = ({
       bounds: imagery.bounds,
     });
   };
-
-  const handleSearch = async (query: string) => {
-    if (!mapRef.current || searching) return;
-    setSearching(true);
-    try {
-      const result = await geocodeLocation(query);
-      if (result) {
-        mapRef.current.fitBounds(result.bbox as BBOX, { padding: 40 });
-      }
-    } finally {
-      setSearching(false);
-    }
+  // Frame a picked search suggestion.
+  const handlePick = (result: GeocodeResult) => {
+    mapRef.current?.fitBounds(result.bbox as BBOX, { padding: 40 });
   };
-
+  // Clearing the search returns to the world coverage view.
+  const handleClearSearch = () => {
+    mapRef.current?.flyTo({ center: [0, 20], zoom: 1.4 });
+  };
   const isOAM = source === ImagerySource.OPEN_AERIAL_MAP;
   return (
     <Dialog
       label="Imagery to map"
       isOpened={isOpened}
       closeDialog={closeDialog}
-      size={isOAM ? SHOELACE_SIZES.LARGE : SHOELACE_SIZES.MEDIUM}
+      size={SHOELACE_SIZES.LARGE}
     >
       {isOpened && (
         <div className="flex flex-col gap-4">
+          <p className="text-grey text-sm w-1/2 -mt-6">
+            Select an imagery source to preview and map your location. You can choose pre-existing imagery from OpenAerialMap or enter a custom tile server URL.
+          </p>
           <ImagerySourceToggle value={source} onChange={setSource} />
           {!isOAM && <Divider />}
 
           <div className="relative w-full h-[620px] rounded-lg overflow-hidden">
+           
+            <div className={cn("absolute inset-0", !isOAM && "invisible")}>
+              <OamImageryMap
+                highlightGeometry={
+                  selectedCell && !selectedItem ? selectedCell.geometry : null
+                }
+                selectedItem={selectedItem}
+                onCellSelect={setSelectedCell}
+                onMapReady={(map) => {
+                  mapRef.current = map;
+                }}
+              />
+            </div>
             {isOAM ? (
               <>
-                <OamImageryMap
-                  selectedItem={selectedItem}
-                  onCellSelect={setSelectedCell}
-                  onMapReady={(map) => {
-                    mapRef.current = map;
-                  }}
-                />
+               <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30">
+                  <LocationSearch
+                    onPick={handlePick}
+                    onClear={handleClearSearch}
+                  />
+                </div>
 
-                <OAMImageryPanel
+                 <OAMImageryPanel
                   cellSelected={!!selectedCell}
-                  cellCount={selectedCell?.count ?? 0}
                   images={cellImages}
                   loading={cellLoading}
                   selectedItem={selectedItem}
                   onSelect={setSelectedItem}
-                  onSearch={handleSearch}
-                  searching={searching}
+                  onClose={() => setSelectedCell(null)}
                 />
 
-                <div className="absolute bottom-4 right-4 z-20">
-                  <Button
-                    size="medium"
-                    disabled={!selectedItem}
-                    onClick={handleApplyOAMItem}
+                  <div className="absolute bottom-4 right-4 z-20">
+                  <ToolTip
+                    content={!selectedItem ? "Select an image first" : undefined}
                   >
-                    Apply
-                  </Button>
+                    <Button
+                      size="medium"
+                      rounded
+                      disabled={!selectedItem}
+                      onClick={handleApplyOAMItem}
+                    >
+                      Use this image
+                    </Button>
+                  </ToolTip>
                 </div>
               </>
             ) : (

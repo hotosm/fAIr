@@ -59,9 +59,7 @@ type StacSearchResponse = {
 
 const toImageryItem = (feature: StacImageryFeature): OAMImageryItem => {
   const { properties, assets } = feature;
-  const assetName = assets.visual
-    ? "visual"
-    : (Object.keys(assets)[0] ?? "visual");
+  const assetName = assets.visual ? "visual" : (Object.keys(assets)[0] ?? "visual");
   return {
     id: feature.id,
     bbox: feature.bbox,
@@ -117,33 +115,34 @@ export const searchImagery = async ({
   return data.features.map(toImageryItem);
 };
 
-/**
- * Geocode a free-text location (e.g. "Brazil") via Nominatim and return its
- * bounding box, suitable for map.fitBounds.
- */
-export const geocodeLocation = async (
-  query: string,
-  signal?: AbortSignal,
-): Promise<GeocodeResult | null> => {
-  const { data } = await axios.get<
-    Array<{
-      display_name: string;
-      boundingbox: string[];
-      lat: string;
-      lon: string;
-    }>
-  >(`${NOMINATIM_API_URL}/search`, {
-    params: { format: "json", q: query, limit: 1 },
-    signal,
-  });
+type NominatimResult = {
+  display_name: string;
+  boundingbox: string[];
+  lat: string;
+  lon: string;
+};
 
-  const first = data?.[0];
-  if (!first) return null;
-
-  const [south, north, west, east] = first.boundingbox.map(parseFloat);
+const toGeocodeResult = (r: NominatimResult): GeocodeResult => {
+  const [south, north, west, east] = r.boundingbox.map(parseFloat);
   return {
-    displayName: first.display_name,
+    displayName: r.display_name,
     bbox: [west, south, east, north],
-    center: [parseFloat(first.lon), parseFloat(first.lat)],
+    center: [parseFloat(r.lon), parseFloat(r.lat)],
   };
+};
+
+/**
+ * Autocomplete suggestions for a location query (up to `limit`), each with a
+ * bounding box for map.fitBounds. Powers the search box's suggestion dropdown.
+ */
+export const geocodeSuggestions = async (
+  query: string,
+  limit = 5,
+  signal?: AbortSignal,
+): Promise<GeocodeResult[]> => {
+  const { data } = await axios.get<NominatimResult[]>(
+    `${NOMINATIM_API_URL}/search`,
+    { params: { format: "json", q: query, limit }, signal },
+  );
+  return (data ?? []).map(toGeocodeResult);
 };

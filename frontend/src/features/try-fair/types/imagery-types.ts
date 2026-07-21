@@ -24,6 +24,7 @@ export type AppliedCustomImagery = {
   tileServiceType: TileServiceType;
   bounds: BBOX | null;
 };
+/** The imagery choice emitted by the imagery/location dialog on Apply. */
 export type ImagerySelection =
   | {
       source: ImagerySource.OPEN_AERIAL_MAP;
@@ -38,3 +39,5 @@ export type ImagerySelection =
       tileServiceType: TileServiceType;
       bounds: BBOX | null;
     };
+export type DatePreset = "" | "week" | "month" | "year";
+export type ResolutionPreset = "" | "lt05" | "05to2" | "2to10" | "gt10";

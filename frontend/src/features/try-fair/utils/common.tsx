@@ -6,6 +6,7 @@ import { PolygonIcon } from "@/components/ui/icons/polygon-icon";
 import React from "react";
 import { TRY_FAIR_GRID_SIZE } from "@/config";
 import { ImagerySource } from "@/enums";
+import { DatePreset, ResolutionPreset } from "@/features/try-fair/types/imagery-types";
 
 // This is the default zoom level to start mapping.
 
@@ -128,3 +129,42 @@ export const IMAGERY_SOURCES: { value: ImagerySource; label: string }[] = [
   { value: ImagerySource.OPEN_AERIAL_MAP, label: "OpenAerialMap" },
   { value: ImagerySource.CUSTOM, label: "Custom Imagery" },
 ];
+
+
+
+
+export const IMAGERY_DATE_OPTIONS: { label: string; value: DatePreset }[] = [
+  { label: "Any date", value: "" },
+  { label: "Past week", value: "week" },
+  { label: "Past month", value: "month" },
+  { label: "Past year", value: "year" },
+];
+
+export const IMAGERY_RESOLUTION_PRESETS: { label: string; value: ResolutionPreset }[] = [
+  { label: "Any resolution", value: "" },
+  { label: "< 0.5 m", value: "lt05" },
+  { label: "0.5 – 2 m", value: "05to2" },
+  { label: "2 – 10 m", value: "2to10" },
+  { label: "> 10 m", value: "gt10" },
+];
+
+export const DAY_MS = 86_400_000;
+
+export const withinDate = (iso: string | null, preset: DatePreset): boolean => {
+  if (!preset) return true;
+  if (!iso) return false;
+  const days = preset === "week" ? 7 : preset === "month" ? 30 : 365;
+  return new Date(iso).getTime() >= Date.now() - days * DAY_MS;
+};
+
+export const withinResolution = (
+  gsd: number | null,
+  preset: ResolutionPreset,
+): boolean => {
+  if (!preset) return true;
+  if (gsd == null) return false;
+  if (preset === "lt05") return gsd < 0.5;
+  if (preset === "05to2") return gsd >= 0.5 && gsd <= 2;
+  if (preset === "2to10") return gsd > 2 && gsd <= 10;
+  return gsd > 10;
+};

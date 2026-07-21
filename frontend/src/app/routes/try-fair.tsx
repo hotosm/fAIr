@@ -50,6 +50,10 @@ export const TryFairPage = () => {
     setShowChooseLocationModal,
     showSigninModal,
     setShowSigninModal,
+    currentModelType,
+    setCurrentModelType,
+    setSeletedImagery,
+    selectedImagery
   } = useStartMappingStore();
   const { getValue, setValue } = useLocalStorage();
   const { setIsOpen: setIsSiteTourOpen, setCurrentStep, setSteps } = useTour();
@@ -135,11 +139,12 @@ export const TryFairPage = () => {
     );
 
   const tileServiceUrl = useMemo(() => {
-    const modelImagery = selectedModel?.properties["fair:source_imagery"];
+    const modelImagery = currentModelType === "demo" ? selectedModel?.properties["fair:source_imagery"] : selectedImagery?.tileUrl
     if (!modelImagery) return FALLBACK_FAIR_IMAGERY;
     const regex = getTileServerRegex(getTileServerTypeFromURL(modelImagery));
     return regex.test(modelImagery) ? modelImagery : FALLBACK_FAIR_IMAGERY;
-  }, [selectedModel]);
+  }, [selectedModel, currentModelType, selectedImagery]);
+
   const {
     tileserverURL,
     setTileserverURL,
@@ -149,6 +154,7 @@ export const TryFairPage = () => {
   } = useTileservice(getTileServerTypeFromURL(tileServiceUrl), tileServiceUrl);
   // Site tour trigger logic based on map interactions and prediction state.
   const GRID_ZOOM_IN_DURATION = 1500;
+
 
   // Zoom to grid and fit the map to the grid bbox.
   const handleZoomToGrid = useCallback(() => {
@@ -231,6 +237,7 @@ export const TryFairPage = () => {
 
   const handleSelectModel = (model: BaseModelStacItem) => {
     setModelId(model.id);
+    setCurrentModelType("demo")
     setResolution(TryFairResolution.MID);
 
     // Reset confidence threshold to model's spec default if available
@@ -366,7 +373,7 @@ export const TryFairPage = () => {
 
       {/* Model picker dialog – rendered at page level so it's not trapped inside MobileDrawer */}
       <Dialog
-        label="Choose a Model"
+        label="Where do you want to map?"
         isOpened={isModelPickerDialogOpened}
         closeDialog={closeModelPickerDialog}
       >
@@ -386,6 +393,9 @@ export const TryFairPage = () => {
         closeDialog={() => setShowChooseLocationModal(false)}
         onApply={(_selection) => {
           // TODO: handle imagery selection
+          setCurrentModelType("imagery")
+          setSeletedImagery(_selection)
+
           setShowChooseLocationModal(false);
         }}
       />
