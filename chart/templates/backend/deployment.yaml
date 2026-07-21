@@ -65,7 +65,7 @@ spec:
             {{- toYaml . | nindent 12 }}
             {{- end }}
           env:
-            {{- range $key, $val := .Values.env }}
+            {{- range $key, $val := .Values.backend.env }}
             - name: {{ $key }}
               value: {{ $val | quote }}
             {{- end }}
