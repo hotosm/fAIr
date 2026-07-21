@@ -33,6 +33,11 @@ spec:
         - name: frontend-assets
           image: "{{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.frontend.image.pullPolicy }}
+          env:
+            {{- range $key, $value := (.Values.frontend.runtimeEnv | default dict) }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
           volumeMounts:
             - name: frontend-html
               mountPath: /frontend_html

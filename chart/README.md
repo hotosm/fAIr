@@ -65,11 +65,9 @@ exits - not a running web server. `frontend.mode` picks how they're served:
   (e.g. `fair.example.com` and `api.fair.example.com`). See `values.yaml` for the
   full `frontend.cloudfront.*` options.
 
-> **API URL is baked in at build time** (`VITE_BASE_API_URL`). The published
-> image defaults to a relative `/api/v1/` - correct for `bundleWithBackend`
-> (same-origin). For `cloudfront` (separate domains), rebuild with an absolute
-> URL:
-> ```bash
-> docker build -f frontend/Dockerfile.prod \
->   --build-arg VITE_BASE_API_URL=https://api.fair.example.com/api/v1/ frontend/
-> ```
+Runtime config is injected at container start (written to `config.js`), so the
+same image runs in any environment without a rebuild. This follows the same setup
+as [hotosm/drone-tm](https://github.com/hotosm/drone-tm). For CloudFront
+deployments, set `frontend.runtimeEnv.VITE_BASE_API_URL` to the absolute backend
+API URL. The default build-time value remains `/api/v1/` for same-origin
+deployments.

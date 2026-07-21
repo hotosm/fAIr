@@ -1,7 +1,4 @@
-# Simply copies the built SPA into that shared volume and exits. See chart/values.yaml.
-#
-# VITE_BASE_API_URL defaults to a relative path (same-origin). Override via
-# --build-arg for a cross-origin CloudFront build.
+# Generates runtime config, copies the SPA into the shared volume, and exits.
 
 # Build stage
 FROM node:22-slim AS builder
@@ -18,4 +15,6 @@ RUN pnpm run build
 FROM alpine:3.20
 WORKDIR /app
 COPY --from=builder /app/dist ./dist
-CMD ["sh", "-c", "cp -a /app/dist/. /frontend_html/"]
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+ENTRYPOINT ["/docker-entrypoint.sh"]

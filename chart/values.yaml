@@ -60,16 +60,22 @@ backend:
 
   livenessProbe:
     httpGet:
-      path: /api/
+      path: /api
       port: http
+      httpHeaders:
+      - name: Host
+        value: localhost
     initialDelaySeconds: 30
     periodSeconds: 30
     timeoutSeconds: 5
 
   readinessProbe:
     httpGet:
-      path: /api/
+      path: /api
       port: http
+      httpHeaders: # use localhost rather than hosts IP
+      - name: Host
+        value: localhost
     initialDelaySeconds: 15
     periodSeconds: 10
     timeoutSeconds: 5
@@ -96,14 +102,18 @@ backend:
 #                         the API. Sets SERVE_FRONTEND=true automatically. Default.
 #   "cloudfront"        - a Helm Job syncs the SPA to S3 + CloudFront, using IRSA
 #                         (no static AWS keys).
-# NOTE: the API URL is baked into the SPA at build time (VITE_BASE_API_URL). The
-# published image defaults to a relative `/api/v1/` (correct for bundle mode).
-# For cloudfront (frontend on a separate domain) rebuild with an absolute URL.
+# Deployment-specific config can be set via `frontend.runtimeEnv`.
 frontend:
   image:
     repository: ghcr.io/hotosm/fair-frontend
     tag: ""  # defaults to appVersion
     pullPolicy: IfNotPresent
+
+  # Env written into SPA at container start (config.js), no img rebuild needed
+  runtimeEnv: {}
+    # VITE_BASE_API_URL: "https://api.example.com/api/v1/"
+    # VITE_AUTH_PROVIDER: "hanko"
+    # VITE_HANKO_URL: "https://login.hotosm.org"
 
   mode: "bundleWithBackend"
 
