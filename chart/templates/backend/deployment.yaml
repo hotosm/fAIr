@@ -65,6 +65,10 @@ spec:
             {{- toYaml . | nindent 12 }}
             {{- end }}
           env:
+            {{- range $key, $val := .Values.env }}
+            - name: {{ $key }}
+              value: {{ $val | quote }}
+            {{- end }}
             {{- if .Values.postgres.enabled }}
             {{- include "fair.postgresDatabaseUrlEnv" . | nindent 12 }}
             {{- else }}
