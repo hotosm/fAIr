@@ -34,7 +34,7 @@ export const AuthenticationModal = ({
       !emailVerification
     ) {
       const returnTo = `${FRONTEND_URL}${location.pathname}${location.search}`;
-      window.location.href = `${HANKO_URL}?return_to=${encodeURIComponent(returnTo)}`;
+      window.location.href = `${HANKO_URL}/app?return_to=${encodeURIComponent(returnTo)}`;
     }
   }, [isOpen, callbackPage, emailVerification, location]);
 
