@@ -83,35 +83,35 @@ export const XYZTileServerInput = ({
         size={size as unknown as SHOELACE_SELECT_SIZES}
       />
       <div className="flex flex-col gap-1">
-              <Input
-        label={`${tileServiceType ?? ""} ${tileServiceType !== TileServiceType.TILEJSON ? "Tile Server" : ""} URL`}
-        labelWithTooltip={labelWithTooltip}
-        value={tileServerURL}
-        toolTipContent={
-          tileServiceType === TileServiceType.TILEJSON
-            ? "Provide the URL to the TileJSON metadata file. For example, use a TileJSON link from a supported service."
-            : "Provide the URL template for your XYZ or TMS tile server. For example, use the TMS link from OpenAerialMap (OAM) or a custom URL."
-        }
-        placeholder={
-          tileServiceType === TileServiceType.TILEJSON
-            ? "e.g. https://example.com/tiles.json"
-            : tileServiceType === TileServiceType.XYZ
-              ? "e.g. https://tiles.example.com/{z}/{x}/{y}.png"
-              : "e.g. https://tiles.example.com/{z}/{x}/{-y}.png"
-        }
-        showBorder={showBorder}
-        pattern={getTileServerRegex(tileServiceType).source}
-        handleInput={(e) => setTileServerURL(e.target.value)}
-        type={INPUT_TYPES.URL}
-        validationStateUpdateCallback={validationStateUpdateCallback}
-        isValid={tileServerURL.length > 0 && isValid.valid}
-        size={size}
-      />
-      {tileServerURL.length > 0 && !isValid.valid && (
-        <HelpText>
-          <span className="text-primary">{isValid.message}</span>
-        </HelpText>
-      )}
+        <Input
+          label={`${tileServiceType ?? ""} ${tileServiceType !== TileServiceType.TILEJSON ? "Tile Server" : ""} URL`}
+          labelWithTooltip={labelWithTooltip}
+          value={tileServerURL}
+          toolTipContent={
+            tileServiceType === TileServiceType.TILEJSON
+              ? "Provide the URL to the TileJSON metadata file. For example, use a TileJSON link from a supported service."
+              : "Provide the URL template for your XYZ or TMS tile server. For example, use the TMS link from OpenAerialMap (OAM) or a custom URL."
+          }
+          placeholder={
+            tileServiceType === TileServiceType.TILEJSON
+              ? "e.g. https://example.com/tiles.json"
+              : tileServiceType === TileServiceType.XYZ
+                ? "e.g. https://tiles.example.com/{z}/{x}/{y}.png"
+                : "e.g. https://tiles.example.com/{z}/{x}/{-y}.png"
+          }
+          showBorder={showBorder}
+          pattern={getTileServerRegex(tileServiceType).source}
+          handleInput={(e) => setTileServerURL(e.target.value)}
+          type={INPUT_TYPES.URL}
+          validationStateUpdateCallback={validationStateUpdateCallback}
+          isValid={tileServerURL.length > 0 && isValid.valid}
+          size={size}
+        />
+        {tileServerURL.length > 0 && !isValid.valid && (
+          <HelpText>
+            <span className="text-primary">{isValid.message}</span>
+          </HelpText>
+        )}
       </div>
 
       {useAlert ? (
@@ -144,7 +144,12 @@ export const XYZTileServerInput = ({
 
       {showButton && (
         <div className="flex justify-end items-end">
-          <Button size="small" onClick={buttonOnclick} rounded className="!w-fit">
+          <Button
+            size="small"
+            onClick={buttonOnclick}
+            rounded
+            className="!w-fit"
+          >
             Apply
           </Button>
         </div>

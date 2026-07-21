@@ -52,13 +52,7 @@ const flagEmoji = (code: string): string =>
       )
     : "🏳️";
 
-const CountryBadge = ({
-  country,
-  code,
-}: {
-  country: string;
-  code: string;
-}) => (
+const CountryBadge = ({ country, code }: { country: string; code: string }) => (
   <span className="inline-flex gap-1.5 items-center px-2 py-0.5 rounded bg-grey text-white text-xs font-medium">
     <span aria-hidden>{flagEmoji(code)}</span>
     {country}
