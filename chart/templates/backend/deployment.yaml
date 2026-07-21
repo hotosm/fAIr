@@ -40,6 +40,11 @@ spec:
           volumeMounts:
             - name: frontend-html
               mountPath: /frontend_html
+          env:
+            {{- range $k, $v := (.Values.frontend.runtimeEnv | default dict) }}
+            - name: {{ $k }}
+              value: {{ $v | quote }}
+            {{- end }}
       {{- end }}
       containers:
         - name: api

@@ -110,6 +110,7 @@ frontend:
     repository: ghcr.io/hotosm/fair-frontend
     tag: ""  # defaults to appVersion
     pullPolicy: IfNotPresent
+  runtimeEnv: {}
 
   mode: "bundleWithBackend"
 
