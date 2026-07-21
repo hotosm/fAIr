@@ -59,7 +59,9 @@ type StacSearchResponse = {
 
 const toImageryItem = (feature: StacImageryFeature): OAMImageryItem => {
   const { properties, assets } = feature;
-  const assetName = assets.visual ? "visual" : (Object.keys(assets)[0] ?? "visual");
+  const assetName = assets.visual
+    ? "visual"
+    : (Object.keys(assets)[0] ?? "visual");
   return {
     id: feature.id,
     bbox: feature.bbox,

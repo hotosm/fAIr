@@ -53,7 +53,7 @@ export const TryFairPage = () => {
     currentModelType,
     setCurrentModelType,
     setSeletedImagery,
-    selectedImagery
+    selectedImagery,
   } = useStartMappingStore();
   const { getValue, setValue } = useLocalStorage();
   const { setIsOpen: setIsSiteTourOpen, setCurrentStep, setSteps } = useTour();
@@ -139,7 +139,10 @@ export const TryFairPage = () => {
     );
 
   const tileServiceUrl = useMemo(() => {
-    const modelImagery = currentModelType === "demo" ? selectedModel?.properties["fair:source_imagery"] : selectedImagery?.tileUrl
+    const modelImagery =
+      currentModelType === "demo"
+        ? selectedModel?.properties["fair:source_imagery"]
+        : selectedImagery?.tileUrl;
     if (!modelImagery) return FALLBACK_FAIR_IMAGERY;
     const regex = getTileServerRegex(getTileServerTypeFromURL(modelImagery));
     return regex.test(modelImagery) ? modelImagery : FALLBACK_FAIR_IMAGERY;
@@ -154,7 +157,6 @@ export const TryFairPage = () => {
   } = useTileservice(getTileServerTypeFromURL(tileServiceUrl), tileServiceUrl);
   // Site tour trigger logic based on map interactions and prediction state.
   const GRID_ZOOM_IN_DURATION = 1500;
-
 
   // Zoom to grid and fit the map to the grid bbox.
   const handleZoomToGrid = useCallback(() => {
@@ -237,7 +239,7 @@ export const TryFairPage = () => {
 
   const handleSelectModel = (model: BaseModelStacItem) => {
     setModelId(model.id);
-    setCurrentModelType("demo")
+    setCurrentModelType("demo");
     setResolution(TryFairResolution.MID);
 
     // Reset confidence threshold to model's spec default if available
@@ -393,8 +395,8 @@ export const TryFairPage = () => {
         closeDialog={() => setShowChooseLocationModal(false)}
         onApply={(_selection) => {
           // TODO: handle imagery selection
-          setCurrentModelType("imagery")
-          setSeletedImagery(_selection)
+          setCurrentModelType("imagery");
+          setSeletedImagery(_selection);
 
           setShowChooseLocationModal(false);
         }}

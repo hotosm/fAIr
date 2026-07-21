@@ -122,13 +122,14 @@ export const ImageryLocationDialog = ({
       {isOpened && (
         <div className="flex flex-col gap-4">
           <p className="text-grey text-sm w-1/2 -mt-6">
-            Select an imagery source to preview and map your location. You can choose pre-existing imagery from OpenAerialMap or enter a custom tile server URL.
+            Select an imagery source to preview and map your location. You can
+            choose pre-existing imagery from OpenAerialMap or enter a custom
+            tile server URL.
           </p>
           <ImagerySourceToggle value={source} onChange={setSource} />
           {!isOAM && <Divider />}
 
           <div className="relative w-full h-[620px] rounded-lg overflow-hidden">
-           
             <div className={cn("absolute inset-0", !isOAM && "invisible")}>
               <OamImageryMap
                 highlightGeometry={
@@ -143,14 +144,14 @@ export const ImageryLocationDialog = ({
             </div>
             {isOAM ? (
               <>
-               <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30">
+                <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30">
                   <LocationSearch
                     onPick={handlePick}
                     onClear={handleClearSearch}
                   />
                 </div>
 
-                 <OAMImageryPanel
+                <OAMImageryPanel
                   cellSelected={!!selectedCell}
                   images={cellImages}
                   loading={cellLoading}
@@ -159,9 +160,11 @@ export const ImageryLocationDialog = ({
                   onClose={() => setSelectedCell(null)}
                 />
 
-                  <div className="absolute bottom-4 right-4 z-20">
+                <div className="absolute bottom-4 right-4 z-20">
                   <ToolTip
-                    content={!selectedItem ? "Select an image first" : undefined}
+                    content={
+                      !selectedItem ? "Select an image first" : undefined
+                    }
                   >
                     <Button
                       size="medium"

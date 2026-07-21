@@ -6,8 +6,16 @@ import { ExpandIcon } from "@/components/ui/icons/expand-icon";
 import { CloseIcon } from "@/components/ui/icons";
 import { Select } from "@/components/ui/form";
 import { SHOELACE_SELECT_SIZES } from "@/enums";
-import { DatePreset, ResolutionPreset } from "@/features/try-fair/types/imagery-types";
-import { IMAGERY_DATE_OPTIONS, IMAGERY_RESOLUTION_PRESETS, withinDate, withinResolution } from "@/features/try-fair/utils/common";
+import {
+  DatePreset,
+  ResolutionPreset,
+} from "@/features/try-fair/types/imagery-types";
+import {
+  IMAGERY_DATE_OPTIONS,
+  IMAGERY_RESOLUTION_PRESETS,
+  withinDate,
+  withinResolution,
+} from "@/features/try-fair/utils/common";
 
 const formatGsd = (gsd: number | null): string => {
   if (gsd == null) return "N/A";
@@ -16,7 +24,6 @@ const formatGsd = (gsd: number | null): string => {
 
 const formatDate = (iso: string | null): string =>
   iso ? extractDatePart(iso) : "Unknown date";
-
 
 const FilterSelect = <V extends string>({
   value,
@@ -31,7 +38,7 @@ const FilterSelect = <V extends string>({
 }) => {
   const mappedOptions = useMemo(
     () => options.map((o) => ({ name: o.label, value: o.value })),
-    [options]
+    [options],
   );
 
   return (
@@ -43,7 +50,7 @@ const FilterSelect = <V extends string>({
       className={cn(
         "flex-grow",
         value &&
-          "[&::part(combobox)]:border-primary [&::part(display-input)]:text-primary"
+          "[&::part(combobox)]:border-primary [&::part(display-input)]:text-primary",
       )}
       placeholder={label}
     />
@@ -113,18 +120,16 @@ export const OAMImageryPanel = ({
   selectedItem,
   onSelect,
   onClose,
-  
 }: {
-cellSelected: boolean;
+  cellSelected: boolean;
   images: OAMImageryItem[];
   loading: boolean;
   selectedItem: OAMImageryItem | null;
   onSelect: (item: OAMImageryItem | null) => void;
   /** Close the images panel (clears the selected grid cell). */
   onClose: () => void;
-
 }) => {
-    const [dateFilter, setDateFilter] = useState<DatePreset>("");
+  const [dateFilter, setDateFilter] = useState<DatePreset>("");
   const [resolutionFilter, setResolutionFilter] =
     useState<ResolutionPreset>("");
 
@@ -142,62 +147,62 @@ cellSelected: boolean;
 
   return (
     <>
-     <div className="absolute top-4 bottom-4 left-4 z-10 w-[350px] bg-white rounded-lg shadow-lg flex flex-col overflow-hidden">
-              <div className="px-3 pt-3 pb-2 flex items-center gap-2">
-        <p className="text-dark text-sm flex-1">
-          {loading
-            ? "Loading images…"
-            : `${filtered.length} image${filtered.length === 1 ? "" : "s"} in this area`}
-        </p>
-        {loading && <Spinner style={{ fontSize: "14px" }} />}
-        <button
-          type="button"
-          aria-label="Close"
-          onClick={onClose}
-          className="text-grey hover:text-dark shrink-0"
-        >
-          <CloseIcon className="w-4 h-4" />
-        </button>
-      </div>
-
-      <div className="px-3 pb-2 flex items-center gap-2">
-        <FilterSelect
-          label="Filter by date"
-          value={dateFilter}
-          options={IMAGERY_DATE_OPTIONS}
-          onChange={setDateFilter}
-        />
-        <FilterSelect
-          label="Filter by resolution"
-          value={resolutionFilter}
-          options={IMAGERY_RESOLUTION_PRESETS}
-          onChange={setResolutionFilter}
-        />
-      </div>
-
-      <div className="flex-1 overflow-y-auto px-3 pb-3 scrollable">
-        {!loading && filtered.length === 0 ? (
-          <p className="text-grey text-xs p-2">
-            {images.length === 0
-              ? "No imagery available in this area."
-              : "No imagery matches the selected filters."}
+      <div className="absolute top-4 bottom-4 left-4 z-10 w-[350px] bg-white rounded-lg shadow-lg flex flex-col overflow-hidden">
+        <div className="px-3 pt-3 pb-2 flex items-center gap-2">
+          <p className="text-dark text-sm flex-1">
+            {loading
+              ? "Loading images…"
+              : `${filtered.length} image${filtered.length === 1 ? "" : "s"} in this area`}
           </p>
-        ) : (
-          <div className="grid grid-cols-2 gap-2">
-            {filtered.map((item) => (
-              <ImageryCard
-                key={item.id}
-                item={item}
-                isSelected={selectedItem?.id === item.id}
-                onSelect={(clicked) =>
-                  onSelect(selectedItem?.id === clicked.id ? null : clicked)
-                }
-              />
-            ))}
-          </div>
-        )}
-      </div>
+          {loading && <Spinner style={{ fontSize: "14px" }} />}
+          <button
+            type="button"
+            aria-label="Close"
+            onClick={onClose}
+            className="text-grey hover:text-dark shrink-0"
+          >
+            <CloseIcon className="w-4 h-4" />
+          </button>
         </div>
+
+        <div className="px-3 pb-2 flex items-center gap-2">
+          <FilterSelect
+            label="Filter by date"
+            value={dateFilter}
+            options={IMAGERY_DATE_OPTIONS}
+            onChange={setDateFilter}
+          />
+          <FilterSelect
+            label="Filter by resolution"
+            value={resolutionFilter}
+            options={IMAGERY_RESOLUTION_PRESETS}
+            onChange={setResolutionFilter}
+          />
+        </div>
+
+        <div className="flex-1 overflow-y-auto px-3 pb-3 scrollable">
+          {!loading && filtered.length === 0 ? (
+            <p className="text-grey text-xs p-2">
+              {images.length === 0
+                ? "No imagery available in this area."
+                : "No imagery matches the selected filters."}
+            </p>
+          ) : (
+            <div className="grid grid-cols-2 gap-2">
+              {filtered.map((item) => (
+                <ImageryCard
+                  key={item.id}
+                  item={item}
+                  isSelected={selectedItem?.id === item.id}
+                  onSelect={(clicked) =>
+                    onSelect(selectedItem?.id === clicked.id ? null : clicked)
+                  }
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
       {/* <form
         onSubmit={handleSearch}
         className="absolute top-4 left-1/2 -translate-x-1/2 z-10 flex items-center bg-white rounded-lg shadow-md border border-gray-border overflow-hidden w-[min(360px,60%)]"
@@ -222,8 +227,6 @@ cellSelected: boolean;
           )}
         </button>
       </form> */}
-
-    
     </>
   );
 };

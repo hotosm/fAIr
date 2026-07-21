@@ -6,7 +6,10 @@ import { PolygonIcon } from "@/components/ui/icons/polygon-icon";
 import React from "react";
 import { TRY_FAIR_GRID_SIZE } from "@/config";
 import { ImagerySource } from "@/enums";
-import { DatePreset, ResolutionPreset } from "@/features/try-fair/types/imagery-types";
+import {
+  DatePreset,
+  ResolutionPreset,
+} from "@/features/try-fair/types/imagery-types";
 
 // This is the default zoom level to start mapping.
 
@@ -130,9 +133,6 @@ export const IMAGERY_SOURCES: { value: ImagerySource; label: string }[] = [
   { value: ImagerySource.CUSTOM, label: "Custom Imagery" },
 ];
 
-
-
-
 export const IMAGERY_DATE_OPTIONS: { label: string; value: DatePreset }[] = [
   { label: "Any date", value: "" },
   { label: "Past week", value: "week" },
@@ -140,7 +140,10 @@ export const IMAGERY_DATE_OPTIONS: { label: string; value: DatePreset }[] = [
   { label: "Past year", value: "year" },
 ];
 
-export const IMAGERY_RESOLUTION_PRESETS: { label: string; value: ResolutionPreset }[] = [
+export const IMAGERY_RESOLUTION_PRESETS: {
+  label: string;
+  value: ResolutionPreset;
+}[] = [
   { label: "Any resolution", value: "" },
   { label: "< 0.5 m", value: "lt05" },
   { label: "0.5 – 2 m", value: "05to2" },

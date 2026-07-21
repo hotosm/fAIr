@@ -24,7 +24,10 @@ import {
   HOT_IMAGERY_DENSITY_SOURCE_LAYER,
   MAX_ZOOM_LEVEL,
 } from "@/config";
-import { getImageryTileUrl, OAMImageryItem } from "@/features/try-fair/api/hot-imagery";
+import {
+  getImageryTileUrl,
+  OAMImageryItem,
+} from "@/features/try-fair/api/hot-imagery";
 
 // ── Ids ───────────────────────────────────────────────────────────────────────
 // Prefixed so they never collide with the try-fAIr map's own sources/layers.
@@ -249,7 +252,10 @@ export const highlightCell = (
   const src = map.getSource(SOURCES.cell) as GeoJSONSource | undefined;
   src?.setData(
     geometry
-      ? { type: "FeatureCollection", features: [{ type: "Feature", properties: {}, geometry }] }
+      ? {
+          type: "FeatureCollection",
+          features: [{ type: "Feature", properties: {}, geometry }],
+        }
       : EMPTY_COLLECTION,
   );
 };

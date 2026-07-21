@@ -5,7 +5,7 @@ import { create } from "zustand";
 type IStartMappingStore = {
   selectedImagery: ImagerySelection | null;
   setSeletedImagery: (imagery: ImagerySelection | null) => void;
- 
+
   downloadType: string;
   setDownloadType: (imagery: string) => void;
   showChooseLocationModal: boolean;
@@ -27,5 +27,5 @@ export const useStartMappingStore = create<IStartMappingStore>((set) => ({
   showSigninModal: false,
   setShowSigninModal: (showSigninModal) => set({ showSigninModal }),
   currentModelType: "demo",
-  setCurrentModelType: (currentModelType) => set({currentModelType})
+  setCurrentModelType: (currentModelType) => set({ currentModelType }),
 }));

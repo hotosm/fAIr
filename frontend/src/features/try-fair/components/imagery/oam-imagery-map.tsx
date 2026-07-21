@@ -75,5 +75,7 @@ export const OamImageryMap = ({
     else clearImageryPreview(map);
   }, [map, selectedItem]);
 
-  return <MapComponent map={map} mapContainerRef={mapContainerRef} zoomControls />;
+  return (
+    <MapComponent map={map} mapContainerRef={mapContainerRef} zoomControls />
+  );
 };
