@@ -19,13 +19,11 @@ import {
   OAMImageryItem,
   searchImagery,
 } from "@/features/try-fair/api/hot-imagery";
-import { Button } from "@/components/ui/button";
 import { OAMImageryPanel } from "@/features/try-fair/components/imagery/imagery-search-panel";
 import { ImagerySelection } from "@/features/try-fair/types/imagery-types";
 import { Divider } from "@/components/ui/divider";
 import { cn } from "@/utils";
 import { LocationSearch } from "./location-search";
-import { ToolTip } from "@/components/ui/tooltip";
 
 export enum ImagerySource {
   OPEN_AERIAL_MAP = "openAerialMap",
@@ -137,6 +135,7 @@ export const ImageryLocationDialog = ({
                 }
                 selectedItem={selectedItem}
                 onCellSelect={setSelectedCell}
+                searchIconTooltipContent={showSearch ? "Hide search bar" : "Show search bar"}
                 onMapReady={(map) => {
                   mapRef.current = map;
                 }}
@@ -165,24 +164,11 @@ export const ImageryLocationDialog = ({
                   selectedItem={selectedItem}
                   onSelect={setSelectedItem}
                   onClose={() => setSelectedCell(null)}
+
+                  handleApplyOAMItem={handleApplyOAMItem}
                 />
 
-                <div className="absolute bottom-4 right-4 z-20">
-                  <ToolTip
-                    content={
-                      !selectedItem ? "Select an image first" : undefined
-                    }
-                  >
-                    <Button
-                      size="medium"
-                      rounded
-                      disabled={!selectedItem}
-                      onClick={handleApplyOAMItem}
-                    >
-                      Use this image
-                    </Button>
-                  </ToolTip>
-                </div>
+
               </>
             ) : (
               <div className="absolute inset-0 bg-white">

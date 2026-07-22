@@ -12,6 +12,7 @@ import {
   SelectedCell,
 } from "./imagery-modal-map.layers";
 import { SearchIcon } from "@/components/ui/icons";
+import { ToolTip } from "@/components/ui/tooltip";
 
 export type { SelectedCell };
 
@@ -27,6 +28,7 @@ type Props = {
   onMapReady?: (map: MapLibreMap) => void;
   /** Fired when the map's search button is clicked to toggle location search. */
   onToggleSearch?: () => void;
+  searchIconTooltipContent: string;
 };
 
 /**
@@ -43,6 +45,7 @@ export const OamImageryMap = ({
   onCellSelect,
   onMapReady,
   onToggleSearch,
+  searchIconTooltipContent
 }: Props) => {
   const { map, mapContainerRef } = useImageryModalMap();
 
@@ -81,14 +84,18 @@ export const OamImageryMap = ({
     <div className="relative w-full h-full overflow-hidden">
       <MapComponent map={map} mapContainerRef={mapContainerRef} zoomControls>
         <div className="absolute top-[18%] right-3 map-elements-z-index flex flex-col gap-y-4">
-          <button
-            type="button"
-            aria-label="Toggle location search"
-            onClick={onToggleSearch}
-            className="bg-white p-2 rounded-md shadow-md border border-gray-border hover:bg-off-white"
-          >
-            <SearchIcon className="size-5" />
-          </button>
+          <ToolTip content={searchIconTooltipContent}>
+
+            <button
+              type="button"
+              aria-label="Toggle location search"
+              onClick={onToggleSearch}
+              className="bg-white p-2   hover:bg-off-white"
+            >
+              <SearchIcon className="size-5" />
+            </button>
+          </ToolTip>
+
         </div>
       </MapComponent>
     </div>

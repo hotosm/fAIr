@@ -27,6 +27,7 @@ import "@hotosm/tool-menu";
 import { Divider } from "@/components/ui/divider";
 import { ToolTip } from "@/components/ui/tooltip";
 import ExportMapResults from "@/features/try-fair/components/start-mapping/export-map-results";
+import MappingMode from "@/features/try-fair/components/mapping-mode";
 
 if (AUTH_PROVIDER === "hanko") {
   import("@hotosm/hanko-auth");
@@ -160,6 +161,12 @@ export const NavBar = () => {
         {!isTryFairPage && (
           <div className="hidden sm:flex">
             <NavBarLinks className={styles.webNavLinks} />
+          </div>
+        )}
+
+        {isTryFairPage && (
+          <div className="hidden sm:flex">
+            <MappingMode />
           </div>
         )}
 

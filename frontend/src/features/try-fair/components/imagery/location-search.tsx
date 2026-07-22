@@ -5,6 +5,7 @@ import {
   geocodeSuggestions,
   GeocodeResult,
 } from "@/features/try-fair/api/hot-imagery";
+import { ToolTip } from "@/components/ui/tooltip";
 
 const DEBOUNCE_MS = 350;
 
@@ -118,11 +119,13 @@ export const LocationSearch = ({
             type="button"
             aria-label="Clear search"
             onClick={handleClear}
-            className="px-3 py-2.5 text-grey hover:text-dark shrink-0"
+            className="px-3 py-2.5  text-grey text-xs hover:text-dark shrink-0"
           >
-            <CloseIcon className="w-4 h-4" />
+            clear search
           </button>
         )}
+<ToolTip content={"Hide search bar"}>
+
 
         <button
           type="button"
@@ -132,6 +135,7 @@ export const LocationSearch = ({
         >
           <CloseIcon className="w-4 h-4" />
         </button>
+        </ToolTip>
       </div>
 
       {open && results.length > 0 && (

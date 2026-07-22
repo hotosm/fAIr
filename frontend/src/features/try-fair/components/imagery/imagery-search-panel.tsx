@@ -16,6 +16,8 @@ import {
   withinDate,
   withinResolution,
 } from "@/features/try-fair/utils/common";
+import { Button } from "@/components/ui/button";
+import { ToolTip } from "@/components/ui/tooltip";
 
 const formatGsd = (gsd: number | null): string => {
   if (gsd == null) return "N/A";
@@ -120,12 +122,14 @@ export const OAMImageryPanel = ({
   selectedItem,
   onSelect,
   onClose,
+  handleApplyOAMItem
 }: {
   cellSelected: boolean;
   images: OAMImageryItem[];
   loading: boolean;
   selectedItem: OAMImageryItem | null;
   onSelect: (item: OAMImageryItem | null) => void;
+  handleApplyOAMItem: () => void;
   /** Close the images panel (clears the selected grid cell). */
   onClose: () => void;
 }) => {
@@ -149,7 +153,7 @@ export const OAMImageryPanel = ({
     <>
       <div className="absolute top-4 bottom-4 left-4 z-10 w-[350px] bg-white rounded-lg shadow-lg flex flex-col overflow-hidden">
         <div className="px-3 pt-3 pb-2 flex items-center gap-2">
-          <p className="text-dark text-sm flex-1">
+          <p className="text-dark font-bold text-sm flex-1">
             {loading
               ? "Loading images…"
               : `${filtered.length} image${filtered.length === 1 ? "" : "s"} in this area`}
@@ -202,31 +206,24 @@ export const OAMImageryPanel = ({
             </div>
           )}
         </div>
+          <div className="absolute bottom-4 right-4 z-20">
+                  <ToolTip
+                    content={
+                      !selectedItem ? "Select an image first" : undefined
+                    }
+                  >
+                    <Button
+                      size="medium"
+                      rounded
+                      disabled={!selectedItem}
+                      onClick={handleApplyOAMItem}
+                    >
+                      Use this image
+                    </Button>
+                  </ToolTip>
+                </div>
       </div>
-      {/* <form
-        onSubmit={handleSearch}
-        className="absolute top-4 left-1/2 -translate-x-1/2 z-10 flex items-center bg-white rounded-lg shadow-md border border-gray-border overflow-hidden w-[min(360px,60%)]"
-      >
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search place to map"
-          className="flex-1 px-3 py-2.5 text-sm text-dark outline-none min-w-0"
-        />
-        <button
-          type="submit"
-          aria-label="Search location"
-          disabled={searching}
-          className="m-1 px-3 py-1.5 rounded-md bg-off-white border border-gray-border hover:bg-light-gray disabled:opacity-50"
-        >
-          {searching ? (
-            <Spinner style={{ fontSize: "14px" }} />
-          ) : (
-            <SearchIcon />
-          )}
-        </button>
-      </form> */}
+     
     </>
   );
 };
