@@ -135,7 +135,9 @@ export const ImageryLocationDialog = ({
                 }
                 selectedItem={selectedItem}
                 onCellSelect={setSelectedCell}
-                searchIconTooltipContent={showSearch ? "Hide search bar" : "Show search bar"}
+                searchIconTooltipContent={
+                  showSearch ? "Hide search bar" : "Show search bar"
+                }
                 onMapReady={(map) => {
                   mapRef.current = map;
                 }}
@@ -164,11 +166,8 @@ export const ImageryLocationDialog = ({
                   selectedItem={selectedItem}
                   onSelect={setSelectedItem}
                   onClose={() => setSelectedCell(null)}
-
                   handleApplyOAMItem={handleApplyOAMItem}
                 />
-
-
               </>
             ) : (
               <div className="absolute inset-0 bg-white">

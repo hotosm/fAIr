@@ -122,7 +122,7 @@ export const OAMImageryPanel = ({
   selectedItem,
   onSelect,
   onClose,
-  handleApplyOAMItem
+  handleApplyOAMItem,
 }: {
   cellSelected: boolean;
   images: OAMImageryItem[];
@@ -206,24 +206,21 @@ export const OAMImageryPanel = ({
             </div>
           )}
         </div>
-          <div className="absolute bottom-4 right-4 z-20">
-                  <ToolTip
-                    content={
-                      !selectedItem ? "Select an image first" : undefined
-                    }
-                  >
-                    <Button
-                      size="medium"
-                      rounded
-                      disabled={!selectedItem}
-                      onClick={handleApplyOAMItem}
-                    >
-                      Use this image
-                    </Button>
-                  </ToolTip>
-                </div>
+        <div className="absolute bottom-4 right-4 z-20">
+          <ToolTip
+            content={!selectedItem ? "Select an image first" : undefined}
+          >
+            <Button
+              size="medium"
+              rounded
+              disabled={!selectedItem}
+              onClick={handleApplyOAMItem}
+            >
+              Use this image
+            </Button>
+          </ToolTip>
+        </div>
       </div>
-     
     </>
   );
 };

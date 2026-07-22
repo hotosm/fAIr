@@ -45,7 +45,7 @@ export const OamImageryMap = ({
   onCellSelect,
   onMapReady,
   onToggleSearch,
-  searchIconTooltipContent
+  searchIconTooltipContent,
 }: Props) => {
   const { map, mapContainerRef } = useImageryModalMap();
 
@@ -85,7 +85,6 @@ export const OamImageryMap = ({
       <MapComponent map={map} mapContainerRef={mapContainerRef} zoomControls>
         <div className="absolute top-[18%] right-3 map-elements-z-index flex flex-col gap-y-4">
           <ToolTip content={searchIconTooltipContent}>
-
             <button
               type="button"
               aria-label="Toggle location search"
@@ -95,7 +94,6 @@ export const OamImageryMap = ({
               <SearchIcon className="size-5" />
             </button>
           </ToolTip>
-
         </div>
       </MapComponent>
     </div>

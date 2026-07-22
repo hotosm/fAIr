@@ -124,17 +124,15 @@ export const LocationSearch = ({
             clear search
           </button>
         )}
-<ToolTip content={"Hide search bar"}>
-
-
-        <button
-          type="button"
-          onClick={handleClose}
-          aria-label="Close location search"
-          className="m-1 px-3 py-1.5 rounded-md bg-off-white border border-gray-border hover:bg-light-gray disabled:opacity-50"
-        >
-          <CloseIcon className="w-4 h-4" />
-        </button>
+        <ToolTip content={"Hide search bar"}>
+          <button
+            type="button"
+            onClick={handleClose}
+            aria-label="Close location search"
+            className="m-1 px-3 py-1.5 rounded-md bg-off-white border border-gray-border hover:bg-light-gray disabled:opacity-50"
+          >
+            <CloseIcon className="w-4 h-4" />
+          </button>
         </ToolTip>
       </div>
 

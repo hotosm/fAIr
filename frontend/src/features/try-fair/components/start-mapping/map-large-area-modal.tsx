@@ -1,6 +1,6 @@
 import { MapComponent } from "@/components/map";
 import { Dialog } from "@/components/ui/dialog";
-import {  UploadIcon } from "@/components/ui/icons";
+import { UploadIcon } from "@/components/ui/icons";
 import { DrawIcon } from "@/components/ui/icons/draw-icon";
 import { PictureIcon } from "@/components/ui/icons/picture-icon";
 import { useModalMap } from "@/features/try-fair/hooks/use-modal-map";
@@ -64,17 +64,15 @@ export const MapLargeAreaModal = ({
   imageryBounds: BBOX | null;
   onSubmit: (aoi: Feature) => void;
 }) => {
-  return(
-  
-  <Dialog
-    label="Map Large Area"
-    isOpened={isOpened}
-    closeDialog={closeDialog}
-    // size={SHOELACE_SIZES.MEDIUM}
-  >
-    {/* Mount the content (and its map) only while open. */}
-    {isOpened && <MapLargeAreaContent tileServerURL={tileServerURL} />}
-  </Dialog>
-);
-
-}
+  return (
+    <Dialog
+      label="Map Large Area"
+      isOpened={isOpened}
+      closeDialog={closeDialog}
+      // size={SHOELACE_SIZES.MEDIUM}
+    >
+      {/* Mount the content (and its map) only while open. */}
+      {isOpened && <MapLargeAreaContent tileServerURL={tileServerURL} />}
+    </Dialog>
+  );
+};
