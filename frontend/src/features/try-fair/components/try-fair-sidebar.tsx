@@ -213,9 +213,9 @@ export const TryFairSidebar = ({
 
             return (
               <div key={key}>
-                <div className="flex items-center justify-between mb-1.5">
+                <div className="flex items-center gap-2 mb-1.5">
                   <p className="text-dark text-xs font-medium">Accuracy</p>
-                  <span className="text-[#404446] text-xs ">
+                  <span className="text-[#404446] bg-off-white p-1 rounded-md text-xs ">
                     {getAccuracyLabel(value)}
                   </span>
                 </div>

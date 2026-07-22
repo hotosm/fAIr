@@ -14,7 +14,9 @@ import {
   useBaseModels,
   useLocalModels,
 } from "@/features/try-fair/hooks/use-base-models";
-import { BBOX } from "@/types";
+import { BBOX, Feature } from "@/types";
+import { showSuccessToast } from "@/utils";
+import { MapLargeAreaModal } from "@/features/try-fair/components/start-mapping/map-large-area-modal";
 import { useFairPredict } from "@/features/try-fair/hooks/use-fair-predict";
 import {
   getTryFairGuidedTourSteps,
@@ -54,6 +56,8 @@ export const TryFairPage = () => {
     setCurrentModelType,
     setSeletedImagery,
     selectedImagery,
+    downloadType,
+    setDownloadType,
   } = useStartMappingStore();
   const { getValue, setValue } = useLocalStorage();
   const { setIsOpen: setIsSiteTourOpen, setCurrentStep, setSteps } = useTour();
@@ -215,6 +219,24 @@ export const TryFairPage = () => {
       ? FALLBACK_FAIR_IMAGERY_CENTER
       : DEFAULT_FAIR_IMAGERY_CENTER;
   }, [tileJSONMetadata, tileServiceUrl, selectedImagery]);
+
+  // The current imagery's extent, used as the "Whole Imagery" AOI in the
+  // Map Large Area modal.
+  const imageryBounds = useMemo<BBOX | null>(() => {
+    if (selectedImagery?.bounds) return selectedImagery.bounds;
+    if (tileJSONMetadata?.bounds) return tileJSONMetadata.bounds as BBOX;
+    return null;
+  }, [selectedImagery, tileJSONMetadata]);
+
+  // Map Large Area (Export → Map Large Area). Opens when downloadType is set to
+  // "large-area"; Submit hands the chosen AOI off here — the offline-prediction
+  // request will hook in at this seam next.
+  const largeAreaAOIRef = useRef<Feature | null>(null);
+  const handleLargeAreaSubmit = (aoi: Feature) => {
+    largeAreaAOIRef.current = aoi;
+    showSuccessToast("Area selected for mapping.");
+    setDownloadType("");
+  };
 
   const mapFlownRef = useRef(false);
   useEffect(() => {
@@ -417,6 +439,15 @@ export const TryFairPage = () => {
       <SignInPromptDialog
         isOpened={showSigninModal}
         closeDialog={() => setShowSigninModal(false)}
+      />
+
+      {/* Map Large Area (Export → Map Large Area) */}
+      <MapLargeAreaModal
+        isOpened={downloadType === "large-area"}
+        closeDialog={() => setDownloadType("")}
+        tileServerURL={tileserverURL}
+        imageryBounds={imageryBounds}
+        onSubmit={handleLargeAreaSubmit}
       />
 
       {/* Signin Prompt */}

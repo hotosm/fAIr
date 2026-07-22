@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { SearchIcon, CloseIcon } from "@/components/ui/icons";
+import {  CloseIcon } from "@/components/ui/icons";
 import { Spinner } from "@/components/ui/spinner";
 import {
   geocodeSuggestions,
@@ -17,12 +17,14 @@ const DEBOUNCE_MS = 350;
 export const LocationSearch = ({
   onPick,
   onClear,
+  onClose,
 }: {
   onPick: (result: GeocodeResult) => void;
   /** Fired when the user clears the search (e.g. to reset the map view). */
   onClear: () => void;
+  /** Fired to close / toggle off the search bar visibility. */
+  onClose?: () => void;
 }) => {
-  const [expanded, setExpanded] = useState(true);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<GeocodeResult[]>([]);
   const [loading, setLoading] = useState(false);
@@ -32,9 +34,14 @@ export const LocationSearch = ({
   const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(
     undefined,
   );
+  const justPickedRef = useRef(false);
 
   // Debounced suggestion fetch.
   useEffect(() => {
+    if (justPickedRef.current) {
+      justPickedRef.current = false;
+      return;
+    }
     if (!query.trim()) {
       setResults([]);
       setOpen(false);
@@ -61,6 +68,10 @@ export const LocationSearch = ({
   }, [query]);
 
   const handlePick = (r: GeocodeResult) => {
+    justPickedRef.current = true;
+    clearTimeout(debounceRef.current);
+    abortRef.current?.abort();
+    setLoading(false);
     setQuery(r.displayName);
     setResults([]);
     setOpen(false);
@@ -68,24 +79,23 @@ export const LocationSearch = ({
   };
 
   const handleClear = () => {
+    justPickedRef.current = false;
+    clearTimeout(debounceRef.current);
+    abortRef.current?.abort();
+    setLoading(false);
     setQuery("");
     setResults([]);
     setOpen(false);
     onClear();
   };
 
-  if (!expanded) {
-    return (
-      <button
-        type="button"
-        aria-label="Search for a place"
-        onClick={() => setExpanded(true)}
-        className="w-10 h-10 flex items-center justify-center bg-white rounded-lg shadow-md border border-gray-border hover:bg-off-white"
-      >
-        <SearchIcon />
-      </button>
-    );
-  }
+  const handleClose = () => {
+    clearTimeout(debounceRef.current);
+    abortRef.current?.abort();
+    setLoading(false);
+    setOpen(false);
+    onClose?.();
+  };
 
   return (
     <div className="relative w-[min(340px,78vw)]">
@@ -116,11 +126,11 @@ export const LocationSearch = ({
 
         <button
           type="button"
-          onClick={() => setExpanded(false)}
-          aria-label="Search location"
+          onClick={handleClose}
+          aria-label="Close location search"
           className="m-1 px-3 py-1.5 rounded-md bg-off-white border border-gray-border hover:bg-light-gray disabled:opacity-50"
         >
-          <SearchIcon />
+          <CloseIcon className="w-4 h-4" />
         </button>
       </div>
 

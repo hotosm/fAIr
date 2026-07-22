@@ -60,7 +60,13 @@ export const CustomImageryForm = ({
 
   const handleApply = () => {
     if (!isValid.valid) return;
-    onApply({ tileUrl: tileServerURL, tileServiceType, bounds: null });
+    // Capture what the preview is showing as the imagery's extent, so its
+    // location can be labelled (place + country) on the model-picker card.
+    const b = map?.getBounds();
+    const bounds: BBOX | null = b
+      ? [b.getWest(), b.getSouth(), b.getEast(), b.getNorth()]
+      : null;
+    onApply({ tileUrl: tileServerURL, tileServiceType, bounds });
     clearForm();
   };
 

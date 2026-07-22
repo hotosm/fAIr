@@ -190,12 +190,19 @@ export const ModelPickerContent = ({
   }, [selectedModel, currentModelType]);
 
   // Derive the imagery's country by reverse-geocoding its center (the tile URL
-  // carries no location), shown as a badge on the imagery card.
-  const imageryCountry = useImageryCountry(
-    selectedImagery?.source === ImagerySource.OPEN_AERIAL_MAP
-      ? selectedImagery.bounds
-      : null,
-  );
+  // carries no location), shown as a badge on the imagery card. Works for any
+  // source that has bounds (custom imagery may not).
+  const imageryCountry = useImageryCountry(selectedImagery?.bounds ?? null);
+
+  const isOamImagery =
+    selectedImagery?.source === ImagerySource.OPEN_AERIAL_MAP;
+  // OAM imagery uses its STAC item title; custom imagery has none, so it's
+  // named by its reverse-geocoded place (falling back to "Custom Imagery"),
+  // with a "Custom" source label.
+  const imageryTitle = isOamImagery
+    ? selectedImagery.item.title
+    : (imageryCountry?.place ?? "Custom Imagery");
+  const imagerySourceLabel = isOamImagery ? "OpenAerialMap" : "Custom";
 
   // Identify a selection by a single key — "imagery" for the selected imagery,
   // or a model id for a default location. Collapsing both mutually-exclusive
@@ -227,36 +234,33 @@ export const ModelPickerContent = ({
 
   return (
     <div className="bg-white rounded-xl p-4 space-y-4 max-h-[70vh] overflow-y-auto">
-      {selectedImagery &&
-        selectedImagery?.source === ImagerySource.OPEN_AERIAL_MAP && (
-          <button
-            key={selectedImagery.source}
-            type="button"
-            onClick={() => setStaged({ type: "imagery" })}
-            className={`text-left p-3 w-full sm:w-1/2 bg-frosted-blue rounded-lg  transition-colors ${
-              imageryActive ? "border-primary border-2" : ""
-            }`}
-          >
-            <div className="flex space-y-2 items-start justify-between gap-2 mb-1">
-              <p className="text-dark capitalize text-sm font-medium leading-tight ">
-                {selectedImagery.item.title}
-              </p>
-
-              <RadioDot selected={imageryActive} />
-            </div>
-            <p className="text-grey text-xs">
-              Imagery: {selectedImagery.source}
+      {selectedImagery && (
+        <button
+          key="imagery"
+          type="button"
+          onClick={() => setStaged({ type: "imagery" })}
+          className={`text-left p-3 w-full sm:w-1/2 bg-frosted-blue rounded-lg  transition-colors ${
+            imageryActive ? "border-primary border-2" : ""
+          }`}
+        >
+          <div className="flex space-y-2 items-start justify-between gap-2 mb-1">
+            <p className="text-dark capitalize text-sm font-medium leading-tight ">
+              {imageryTitle}
             </p>
-            {imageryCountry && (
-              <div className="mt-2">
-                <CountryBadge
-                  country={imageryCountry.country}
-                  code={imageryCountry.countryCode}
-                />
-              </div>
-            )}
-          </button>
-        )}
+
+            <RadioDot selected={imageryActive} />
+          </div>
+          <p className="text-grey text-xs">Imagery: {imagerySourceLabel}</p>
+          {imageryCountry && (
+            <div className="mt-2">
+              <CountryBadge
+                country={imageryCountry.country}
+                code={imageryCountry.countryCode}
+              />
+            </div>
+          )}
+        </button>
+      )}
       <div className="flex items-center gap-3">
         <p className="text-grey text-xs shrink-0">Default Locations</p>
         <div className="h-px bg-gray-border flex-1" />

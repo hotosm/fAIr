@@ -55,6 +55,7 @@ export const ImageryLocationDialog = ({
   const [selectedItem, setSelectedItem] = useState<OAMImageryItem | null>(null);
   const [appliedCustomImagery, setAppliedCustomImagery] =
     useState<AppliedCustomImagery | null>(null);
+  const [showSearch, setShowSearch] = useState<boolean>(false);
   const mapRef = useRef<MapLibreMap | null>(null);
   const searchAbortRef = useRef<AbortController | null>(null);
 
@@ -139,14 +140,21 @@ export const ImageryLocationDialog = ({
                 onMapReady={(map) => {
                   mapRef.current = map;
                 }}
+                onToggleSearch={() => setShowSearch((prev) => !prev)}
               />
             </div>
             {isOAM ? (
               <>
-                <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30">
+                <div
+                  className={cn(
+                    "absolute top-4 left-1/2 -translate-x-1/2 z-30 transition-opacity duration-200",
+                    !showSearch && "opacity-0 pointer-events-none invisible",
+                  )}
+                >
                   <LocationSearch
                     onPick={handlePick}
                     onClear={handleClearSearch}
+                    onClose={() => setShowSearch(false)}
                   />
                 </div>
 

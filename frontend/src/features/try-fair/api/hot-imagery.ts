@@ -134,33 +134,57 @@ const toGeocodeResult = (r: NominatimResult): GeocodeResult => {
 };
 
 export type CountryResult = {
+  /** Best locality name, e.g. "Angra dos Reis"; falls back to country. */
+  place: string;
   /** Country name, e.g. "Brazil". */
   country: string;
   /** ISO 3166-1 alpha-2 code, lower-cased (e.g. "br"); "" when unknown. */
   countryCode: string;
 };
 
+type NominatimAddress = {
+  city?: string;
+  town?: string;
+  village?: string;
+  municipality?: string;
+  county?: string;
+  state?: string;
+  country?: string;
+  country_code?: string;
+};
+
 /**
- * Reverse-geocode a coordinate to its country via Nominatim. The imagery's tile
- * URL carries no location, so the country is derived from the imagery's center
- * (or any point inside its bounds). `zoom: 3` keeps Nominatim at country level.
+ * Reverse-geocode a coordinate via Nominatim to a place + country. The imagery's
+ * tile URL carries no location, so this is derived from the imagery's center (or
+ * any point inside its bounds). `zoom: 10` resolves a town/city while still
+ * returning the country.
  */
 export const reverseGeocodeCountry = async (
   lon: number,
   lat: number,
   signal?: AbortSignal,
 ): Promise<CountryResult | null> => {
-  const { data } = await axios.get<{
-    address?: { country?: string; country_code?: string };
-  }>(`${NOMINATIM_API_URL}/reverse`, {
-    params: { format: "json", lat, lon, zoom: 3, addressdetails: 1 },
-    signal,
-  });
-  const country = data?.address?.country;
-  if (!country) return null;
+  const { data } = await axios.get<{ address?: NominatimAddress }>(
+    `${NOMINATIM_API_URL}/reverse`,
+    {
+      params: { format: "json", lat, lon, zoom: 10, addressdetails: 1 },
+      signal,
+    },
+  );
+  const a = data?.address;
+  if (!a?.country) return null;
+  const place =
+    a.city ||
+    a.town ||
+    a.village ||
+    a.municipality ||
+    a.county ||
+    a.state ||
+    a.country;
   return {
-    country,
-    countryCode: (data.address?.country_code ?? "").toLowerCase(),
+    place,
+    country: a.country,
+    countryCode: (a.country_code ?? "").toLowerCase(),
   };
 };
 

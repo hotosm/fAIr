@@ -69,7 +69,7 @@ export const XYZTileServerInput = ({
       className={
         variant === "horizontal"
           ? "flex flex-col gap-2"
-          : "grid grid-cols-2 gap-2"
+          : "grid grid-cols-2 gap-3"
       }
     >
       <Select
@@ -144,12 +144,7 @@ export const XYZTileServerInput = ({
 
       {showButton && (
         <div className="flex justify-end items-end">
-          <Button
-            size="small"
-            onClick={buttonOnclick}
-            rounded
-            className="!w-fit"
-          >
+          <Button onClick={buttonOnclick} rounded className="!w-fit">
             Apply
           </Button>
         </div>

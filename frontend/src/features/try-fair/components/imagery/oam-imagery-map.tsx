@@ -11,6 +11,7 @@ import {
   showImageryPreview,
   SelectedCell,
 } from "./imagery-modal-map.layers";
+import { SearchIcon } from "@/components/ui/icons";
 
 export type { SelectedCell };
 
@@ -24,6 +25,8 @@ type Props = {
   onCellSelect: (cell: SelectedCell | null) => void;
   /** Handed the map once ready, e.g. so the dialog can drive fitBounds on search. */
   onMapReady?: (map: MapLibreMap) => void;
+  /** Fired when the map's search button is clicked to toggle location search. */
+  onToggleSearch?: () => void;
 };
 
 /**
@@ -39,11 +42,10 @@ export const OamImageryMap = ({
   selectedItem,
   onCellSelect,
   onMapReady,
+  onToggleSearch,
 }: Props) => {
   const { map, mapContainerRef } = useImageryModalMap();
 
-  // Latest callback read inside the long-lived click handler, kept in a ref so
-  // the handler is bound once without re-binding on every render.
   const onCellSelectRef = useRef(onCellSelect);
   onCellSelectRef.current = onCellSelect;
 
@@ -76,6 +78,19 @@ export const OamImageryMap = ({
   }, [map, selectedItem]);
 
   return (
-    <MapComponent map={map} mapContainerRef={mapContainerRef} zoomControls />
+    <div className="relative w-full h-full overflow-hidden">
+      <MapComponent map={map} mapContainerRef={mapContainerRef} zoomControls>
+        <div className="absolute top-[18%] right-3 map-elements-z-index flex flex-col gap-y-4">
+          <button
+            type="button"
+            aria-label="Toggle location search"
+            onClick={onToggleSearch}
+            className="bg-white p-2 rounded-md shadow-md border border-gray-border hover:bg-off-white"
+          >
+            <SearchIcon className="size-5" />
+          </button>
+        </div>
+      </MapComponent>
+    </div>
   );
 };
