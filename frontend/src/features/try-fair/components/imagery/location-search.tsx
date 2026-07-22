@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import {  CloseIcon } from "@/components/ui/icons";
+import { CloseIcon } from "@/components/ui/icons";
 import { Spinner } from "@/components/ui/spinner";
 import {
   geocodeSuggestions,
@@ -25,10 +25,10 @@ export const LocationSearch = ({
   /** Fired to close / toggle off the search bar visibility. */
   onClose?: () => void;
 }) => {
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState<string>("");
   const [results, setResults] = useState<GeocodeResult[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [open, setOpen] = useState<boolean>(false);
 
   const abortRef = useRef<AbortController | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(
@@ -67,15 +67,15 @@ export const LocationSearch = ({
     return () => clearTimeout(debounceRef.current);
   }, [query]);
 
-  const handlePick = (r: GeocodeResult) => {
+  const handlePick = (result: GeocodeResult) => {
     justPickedRef.current = true;
     clearTimeout(debounceRef.current);
     abortRef.current?.abort();
     setLoading(false);
-    setQuery(r.displayName);
+    setQuery(result.displayName);
     setResults([]);
     setOpen(false);
-    onPick(r);
+    onPick(result);
   };
 
   const handleClear = () => {
