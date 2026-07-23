@@ -324,5 +324,3 @@ const NavBarLinks: React.FC<NavBarLinksProps> = ({ className, setOpen }) => {
     </ul>
   );
 };
-
-

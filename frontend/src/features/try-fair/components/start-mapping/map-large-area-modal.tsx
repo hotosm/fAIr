@@ -101,8 +101,8 @@ const MapLargeAreaContent = ({
               {activeTab === "upload"
                 ? uploadedFileName || "Mapping AOI.geojson"
                 : activeTab === "draw"
-                ? "Drawn AOI"
-                : "Whole Imagery AOI"}
+                  ? "Drawn AOI"
+                  : "Whole Imagery AOI"}
             </span>
             <button
               type="button"

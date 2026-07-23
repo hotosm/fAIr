@@ -20,7 +20,8 @@ export type TerraDrawStyleVariant = "default" | "red";
 export const DEFAULT_AOI_STYLE = {
   fillColor: TRAINING_AREAS_AOI_FILL_COLOR as TerraDrawExtend.HexColorStyling,
   fillOpacity: TRAINING_AREAS_AOI_FILL_OPACITY,
-  outlineColor: TRAINING_AREAS_AOI_OUTLINE_COLOR as TerraDrawExtend.HexColorStyling,
+  outlineColor:
+    TRAINING_AREAS_AOI_OUTLINE_COLOR as TerraDrawExtend.HexColorStyling,
   outlineWidth: TRAINING_AREAS_AOI_OUTLINE_WIDTH,
 };
 

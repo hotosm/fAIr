@@ -52,4 +52,3 @@ export const CopyButton = ({
     </ToolTip>
   );
 };
-

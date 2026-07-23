@@ -158,4 +158,3 @@ export const ShareProjectModal: React.FC<ShareProjectModalProps> = ({
     </Dialog>
   );
 };
-

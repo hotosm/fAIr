@@ -231,14 +231,13 @@ export const TryFairPage = () => {
   }, [selectedImagery, tileJSONMetadata]);
 
   // Map Large Area (Export → Map Large Area). Opens when downloadType is set to
-const navigate = useNavigate()
+  const navigate = useNavigate();
   const largeAreaAOIRef = useRef<Feature | null>(null);
   const handleLargeAreaSubmit = (aoi: Feature) => {
     largeAreaAOIRef.current = aoi;
     showSuccessToast("Area selected for mapping.");
     setDownloadType("");
-    navigate(APPLICATION_ROUTES.PROFILE_OFFLINE_PREDICTIONS)
-    
+    navigate(APPLICATION_ROUTES.PROFILE_OFFLINE_PREDICTIONS);
   };
 
   const mapFlownRef = useRef(false);

@@ -76,4 +76,3 @@ export { TryFairPredictionToggleIcon } from "./try-fair-prediction-toggle-icon";
 export { SparklesIcon } from "./sparkles-icon";
 export { EyeClosedIcon } from "./eye-closed-icon";
 export { LinkIcon } from "./link-icon";
-

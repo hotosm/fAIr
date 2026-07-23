@@ -88,7 +88,10 @@ export const useMapLargeArea = ({
 
     const updateMapLayer = () => {
       const geojsonData: FeatureCollection = selectedAOI
-        ? { type: "FeatureCollection", features: [selectedAOI as unknown as Feature] }
+        ? {
+            type: "FeatureCollection",
+            features: [selectedAOI as unknown as Feature],
+          }
         : { type: "FeatureCollection", features: [] };
 
       const source = map.getSource(SOURCE_ID) as GeoJSONSource | undefined;
