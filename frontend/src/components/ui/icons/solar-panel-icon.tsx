@@ -24,4 +24,3 @@ export const SolarPanelIcon: React.FC<IconProps> = (props) => (
     ></path>
   </svg>
 );
-

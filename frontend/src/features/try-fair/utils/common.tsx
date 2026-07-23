@@ -31,44 +31,44 @@ export const RESOLUTIONS: {
   label: string;
   size: number;
 }[] = [
-    {
-      value: TryFairResolution.LOW,
-      label: TRY_FAIR_PAGE_CONTENT.sidebar.parameters.resolution.low,
-      size: 12,
-    },
-    {
-      value: TryFairResolution.MID,
-      label: TRY_FAIR_PAGE_CONTENT.sidebar.parameters.resolution.mid,
-      size: 14,
-    },
-    {
-      value: TryFairResolution.HIGH,
-      label: TRY_FAIR_PAGE_CONTENT.sidebar.parameters.resolution.high,
-      size: 16,
-    },
-  ];
+  {
+    value: TryFairResolution.LOW,
+    label: TRY_FAIR_PAGE_CONTENT.sidebar.parameters.resolution.low,
+    size: 12,
+  },
+  {
+    value: TryFairResolution.MID,
+    label: TRY_FAIR_PAGE_CONTENT.sidebar.parameters.resolution.mid,
+    size: 14,
+  },
+  {
+    value: TryFairResolution.HIGH,
+    label: TRY_FAIR_PAGE_CONTENT.sidebar.parameters.resolution.high,
+    size: 16,
+  },
+];
 
 export const OUTPUT_TYPES: {
   type: TryFairMapOutputType;
   label: string;
   icon: React.ReactNode;
 }[] = [
-    {
-      type: TryFairMapOutputType.POINTS,
-      label: "Points",
-      icon: <PointsIcon />,
-    },
-    {
-      type: TryFairMapOutputType.POLYGON,
-      label: "Polygon",
-      icon: <PolygonIcon />,
-    },
-    {
-      type: TryFairMapOutputType.CLUSTER,
-      label: "Cluster",
-      icon: <ClusterIcon />,
-    },
-  ];
+  {
+    type: TryFairMapOutputType.POINTS,
+    label: "Points",
+    icon: <PointsIcon />,
+  },
+  {
+    type: TryFairMapOutputType.POLYGON,
+    label: "Polygon",
+    icon: <PolygonIcon />,
+  },
+  {
+    type: TryFairMapOutputType.CLUSTER,
+    label: "Cluster",
+    icon: <ClusterIcon />,
+  },
+];
 
 export const TRY_FAIR_RESOLUTION_ZOOM: Record<TryFairResolution, number> = {
   [TryFairResolution.LOW]: 20,
@@ -147,12 +147,12 @@ export const IMAGERY_RESOLUTION_PRESETS: {
   label: string;
   value: ResolutionPreset;
 }[] = [
-    { label: "Any resolution", value: "" },
-    { label: "< 0.5 m", value: "lt05" },
-    { label: "0.5 – 2 m", value: "05to2" },
-    { label: "2 – 10 m", value: "2to10" },
-    { label: "> 10 m", value: "gt10" },
-  ];
+  { label: "Any resolution", value: "" },
+  { label: "< 0.5 m", value: "lt05" },
+  { label: "0.5 – 2 m", value: "05to2" },
+  { label: "2 – 10 m", value: "2to10" },
+  { label: "> 10 m", value: "gt10" },
+];
 
 export const DAY_MS = 86_400_000;
 
@@ -175,22 +175,20 @@ export const withinResolution = (
   return gsd > 10;
 };
 
-
-
 export const FEATURES_TO_MAP = [
   {
     label: "Buildings",
     Icon: BuildingIcon,
-    value: "buildings"
+    value: "buildings",
   },
   {
     label: "Solar Panels",
     Icon: SolarPanelIcon,
-    value: "solar-panel"
+    value: "solar-panel",
   },
   {
     label: "Trees",
     Icon: TreesIcon,
-    value: "trees"
+    value: "trees",
   },
-]
+];

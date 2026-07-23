@@ -18,4 +18,3 @@ export const BuildingIcon: React.FC<IconProps> = (props) => (
     ></path>
   </svg>
 );
-

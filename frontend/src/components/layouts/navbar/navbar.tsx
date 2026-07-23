@@ -325,23 +325,19 @@ const NavBarLinks: React.FC<NavBarLinksProps> = ({ className, setOpen }) => {
 const startMappingLinks = [
   {
     title: "Help",
-    href: '/',
+    href: "/",
   },
   {
     title: "Share",
-    href: '/',
-  }
-]
-const StartMappingNavlinks: React.FC= () => {
+    href: "/",
+  },
+];
+const StartMappingNavlinks: React.FC = () => {
   return (
     <ul className="hidden lg:flex gap-3">
       {startMappingLinks.map((link) => (
-        <li className="px-2 py-2">
-          {link.title}
-        </li>
+        <li className="px-2 py-2">{link.title}</li>
       ))}
     </ul>
-  )
-}
-
-
+  );
+};
