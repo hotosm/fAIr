@@ -55,6 +55,7 @@ type DropDownProps = {
   distance?: number;
   disableCheveronIcon?: boolean;
   hoist?: boolean;
+  sync?: "width" | "height" | "both";
 };
 
 const DropDown = forwardRef<SlDropdownType, DropDownProps>((props, ref) => {
@@ -75,6 +76,7 @@ const DropDown = forwardRef<SlDropdownType, DropDownProps>((props, ref) => {
     distance = 20,
     disableCheveronIcon = false,
     hoist = false,
+    sync,
   } = props;
 
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
@@ -125,6 +127,7 @@ const DropDown = forwardRef<SlDropdownType, DropDownProps>((props, ref) => {
     <SlDropdown
       ref={dropdownRef}
       placement={placement}
+      sync={sync}
       onSlAfterShow={(event: CustomEvent) => {
         if (!disabled && event.target === event.currentTarget) {
           // @ts-expect-error bad type definition

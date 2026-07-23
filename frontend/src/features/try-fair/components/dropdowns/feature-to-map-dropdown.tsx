@@ -13,7 +13,7 @@ const FeatureToMapDropdown = () => {
   const SelectedIcon = selectedFeature.Icon;
 
   const trigger = (
-    <div className="flex bg-[#FAFAFA] border w-[280px] p-2 rounded-md border-gray-border justify-between items-center cursor-pointer">
+    <div className="flex bg-[#FAFAFA] border w-full md:w-[280px] p-2 rounded-md border-gray-border justify-between items-center cursor-pointer">
       <div className="flex items-center gap-2">
         <SelectedIcon className="w-4 h-4 text-dark shrink-0" />
         <p className="text-xs text-dark">{selectedFeature.label}</p>
@@ -27,9 +27,10 @@ const FeatureToMapDropdown = () => {
   );
 
   return (
-    <div className="flex flex-col space-y-2">
+    <div className="flex flex-col space-y-2 w-full">
       <h4 className="text-xs">Feature to map</h4>
       <DropDown
+        sync="width"
         className="rounded-xl w-full md:w-[280px] !disabled:cursor-wait"
         ref={dropdownRef}
         onDropdownShow={() => setIsOpen(true)}
@@ -40,7 +41,7 @@ const FeatureToMapDropdown = () => {
         disableCheveronIcon
         triggerComponent={trigger}
       >
-        <div className="bg-white rounded-md flex items-start p-2 gap-3 flex-col w-[280px]">
+        <div className="bg-white rounded-md flex items-start p-2 gap-3 flex-col w-full">
           {FEATURES_TO_MAP.map((feature) => {
             const FeatureIcon = feature.Icon;
             return (
