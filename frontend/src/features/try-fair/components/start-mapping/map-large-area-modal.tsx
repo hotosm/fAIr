@@ -3,6 +3,7 @@ import { Dialog } from "@/components/ui/dialog";
 import { UploadIcon } from "@/components/ui/icons";
 import { DrawIcon } from "@/components/ui/icons/draw-icon";
 import { PictureIcon } from "@/components/ui/icons/picture-icon";
+import { SHOELACE_SIZES } from "@/enums";
 import { useModalMap } from "@/features/try-fair/hooks/use-modal-map";
 import { BBOX, Feature, IconProps } from "@/types";
 import { useState } from "react";
@@ -12,7 +13,7 @@ import { useState } from "react";
 type AOITab = "whole" | "draw" | "upload";
 
 const TABS: { value: AOITab; label: string; Icon: React.FC<IconProps> }[] = [
-  { value: "whole", label: "Whole Imagery", Icon: PictureIcon },
+  { value: "whole", label: "Map Whole Imagery", Icon: PictureIcon },
   { value: "draw", label: "Draw Specific Area", Icon: DrawIcon },
   { value: "upload", label: "Upload Area of Interest", Icon: UploadIcon },
 ];
@@ -39,7 +40,7 @@ const MapLargeAreaContent = ({ tileServerURL }: { tileServerURL?: string }) => {
           </button>
         ))}
       </div>
-      <div className="relative h-[520px] rounded-[18px] overflow-hidden w-full z-10">
+      <div className="relative h-[620px] rounded-[18px] overflow-hidden w-full z-10">
         <MapComponent
           map={map}
           mapContainerRef={mapContainerRef}
@@ -69,7 +70,7 @@ export const MapLargeAreaModal = ({
       label="Map Large Area"
       isOpened={isOpened}
       closeDialog={closeDialog}
-      // size={SHOELACE_SIZES.MEDIUM}
+      size={SHOELACE_SIZES.LARGE}
     >
       {/* Mount the content (and its map) only while open. */}
       {isOpened && <MapLargeAreaContent tileServerURL={tileServerURL} />}

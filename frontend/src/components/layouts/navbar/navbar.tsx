@@ -157,20 +157,16 @@ export const NavBar = () => {
       <nav
         className={`${styles.nav} app-padding z-20 py-1 border-b border-gray-border`}
       >
-        <NavLogo />
-        {!isTryFairPage && (
-          <div className="hidden sm:flex">
-            <NavBarLinks className={styles.webNavLinks} />
-          </div>
-        )}
+        <div className="flex-1 flex items-center justify-start">
+          <NavLogo />
+        </div>
 
-        {isTryFairPage && (
-          <div className="hidden sm:flex">
-            <MappingMode />
-          </div>
-        )}
+        <div className="flex-1 hidden sm:flex items-center justify-center">
+          {!isTryFairPage && <NavBarLinks className={styles.webNavLinks} />}
+          {isTryFairPage && <MappingMode />}
+        </div>
 
-        <div className="hidden sm:flex items-center gap-x-3">
+        <div className="flex-1 hidden sm:flex items-center justify-end gap-x-3">
           {AUTH_PROVIDER === "hanko" && !IS_DEV ? (
             <>
               {isAuthenticated && <UserNotifications />}
@@ -179,7 +175,10 @@ export const NavBar = () => {
             </>
           ) : isAuthenticated ? (
             <>
+              {isTryFairPage && <StartMappingNavlinks />}
+
               {isAuthenticated && !isTryFairPage && <UserNotifications />}
+
               {isAuthenticated && isTryFairPage && <ExportMapResults />}
 
               <UserProfile />
@@ -322,3 +321,27 @@ const NavBarLinks: React.FC<NavBarLinksProps> = ({ className, setOpen }) => {
     </ul>
   );
 };
+
+const startMappingLinks = [
+  {
+    title: "Help",
+    href: '/',
+  },
+  {
+    title: "Share",
+    href: '/',
+  }
+]
+const StartMappingNavlinks: React.FC= () => {
+  return (
+    <ul className="hidden lg:flex gap-3">
+      {startMappingLinks.map((link) => (
+        <li className="px-2 py-2">
+          {link.title}
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+

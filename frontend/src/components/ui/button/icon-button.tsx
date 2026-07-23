@@ -5,7 +5,7 @@ import { cn } from "@/utils";
 
 type ButtonWithIconProps = {
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
-  label: string;
+label: string;
   variant: ButtonVariant;
   prefixIcon?: React.ElementType;
   suffixIcon?: React.ElementType;
