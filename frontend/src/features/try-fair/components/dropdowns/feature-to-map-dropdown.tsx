@@ -49,7 +49,10 @@ const FeatureToMapDropdown = () => {
                 key={feature.value}
                 type="button"
                 className="text-dark bg-[#FAFAFA] hover:bg-gray-100 rounded-lg flex justify-between items-center w-full py-3 px-2 transition-colors cursor-pointer"
-                onClick={() => setSelectedFeature(feature)}
+                onClick={() => {
+                  setSelectedFeature(feature);
+                  onDropdownHide();
+                }}
               >
                 <div className="flex items-center gap-2">
                   <FeatureIcon className="w-4 h-4 text-dark shrink-0" />

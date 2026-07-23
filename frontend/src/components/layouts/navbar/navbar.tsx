@@ -163,7 +163,7 @@ export const NavBar = () => {
 
         <div className="flex-1 hidden sm:flex items-center justify-center">
           {!isTryFairPage && <NavBarLinks className={styles.webNavLinks} />}
-          {isTryFairPage && <MappingMode />}
+          {isTryFairPage && isAuthenticated && <MappingMode />}
         </div>
 
         <div className="flex-1 hidden sm:flex items-center justify-end gap-x-3">
@@ -175,7 +175,7 @@ export const NavBar = () => {
             </>
           ) : isAuthenticated ? (
             <>
-              {isTryFairPage && <StartMappingNavlinks />}
+              {isTryFairPage && isAuthenticated && <StartMappingNavlinks />}
 
               {isAuthenticated && !isTryFairPage && <UserNotifications />}
 

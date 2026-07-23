@@ -18,6 +18,7 @@ import {
 } from "@/features/try-fair/utils/common";
 import { Button } from "@/components/ui/button";
 import { ToolTip } from "@/components/ui/tooltip";
+import { EmptyGridIcon } from "@/components/ui/icons/empty-grid-icon";
 
 const formatGsd = (gsd: number | null): string => {
   if (gsd == null) return "N/A";
@@ -186,11 +187,12 @@ export const OAMImageryPanel = ({
 
         <div className="flex-1 overflow-y-auto px-3 pb-3 scrollable">
           {!loading && filtered.length === 0 ? (
-            <p className="text-grey text-xs p-2">
-              {images.length === 0
+            <ImageriesEmptyState content={images.length === 0
                 ? "No imagery available in this area."
-                : "No imagery matches the selected filters."}
-            </p>
+                : "No imagery matches the selected filters."
+            } 
+            />
+           
           ) : (
             <div className="grid grid-cols-2 gap-2">
               {filtered.map((item) => (
@@ -206,7 +208,7 @@ export const OAMImageryPanel = ({
             </div>
           )}
         </div>
-        <div className="absolute bottom-4 right-4 z-20">
+        <div className="p-3 border-t border-gray-border bg-white flex justify-end shrink-0">
           <ToolTip
             content={!selectedItem ? "Select an image first" : undefined}
           >
@@ -224,3 +226,13 @@ export const OAMImageryPanel = ({
     </>
   );
 };
+
+
+const ImageriesEmptyState = ({content}: {content: string}) =>{
+  return(
+   <div className="h-full flex justify-center gap-3 flex-col items-center border rounded-md border-gray-border ">
+    <EmptyGridIcon />
+    <h3 className="text-xs text-grey">{content}</h3>
+   </div> 
+  )
+}

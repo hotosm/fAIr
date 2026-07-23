@@ -309,7 +309,6 @@ export const ModelPickerContent = ({
       </div>
       <div className="flex w-full text-sm justify-between items-center ">
         <Button
-          size="small"
           rounded
           disabled={!hasChange}
           onClick={handleApply}

@@ -6,7 +6,7 @@ import { PictureIcon } from "@/components/ui/icons/picture-icon";
 import { SHOELACE_SIZES } from "@/enums";
 import { useModalMap } from "@/features/try-fair/hooks/use-modal-map";
 import { BBOX, Feature, IconProps } from "@/types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 // ── Tabs ────────────────────────────────────────────────────────────────────────
 
@@ -18,9 +18,28 @@ const TABS: { value: AOITab; label: string; Icon: React.FC<IconProps> }[] = [
   { value: "upload", label: "Upload Area of Interest", Icon: UploadIcon },
 ];
 
-const MapLargeAreaContent = ({ tileServerURL }: { tileServerURL?: string }) => {
+const MapLargeAreaContent = ({
+  tileServerURL,
+  imageryBounds,
+}: {
+  tileServerURL?: string;
+  imageryBounds?: BBOX | null;
+}) => {
   const { mapContainerRef, map } = useModalMap();
   const [activeTab, setActiveTab] = useState<string>("draw");
+
+  useEffect(() => {
+    if (!map || !imageryBounds) return;
+    map.resize();
+    map.fitBounds(
+      [imageryBounds[0], imageryBounds[1], imageryBounds[2], imageryBounds[3]],
+      {
+        padding: 40,
+        maxZoom: 18,
+        essential: true,
+      },
+    );
+  }, [map, imageryBounds]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -56,7 +75,7 @@ export const MapLargeAreaModal = ({
   isOpened,
   closeDialog,
   tileServerURL,
-  // imageryBounds,
+  imageryBounds,
   // onSubmit,
 }: {
   isOpened: boolean;
@@ -73,7 +92,12 @@ export const MapLargeAreaModal = ({
       size={SHOELACE_SIZES.LARGE}
     >
       {/* Mount the content (and its map) only while open. */}
-      {isOpened && <MapLargeAreaContent tileServerURL={tileServerURL} />}
+      {isOpened && (
+        <MapLargeAreaContent
+          tileServerURL={tileServerURL}
+          imageryBounds={imageryBounds}
+        />
+      )}
     </Dialog>
   );
 };

@@ -105,8 +105,10 @@ export const ImageryLocationDialog = ({
   const handlePick = (result: GeocodeResult) => {
     mapRef.current?.fitBounds(result.bbox as BBOX, { padding: 40 });
   };
-  // Clearing the search returns to the world coverage view.
+  // Clearing the search returns to the world coverage view and clears/closes the panel.
   const handleClearSearch = () => {
+    setSelectedCell(null);
+    setSelectedItem(null);
     mapRef.current?.flyTo({ center: [0, 20], zoom: 1.4 });
   };
   const isOAM = source === ImagerySource.OPEN_AERIAL_MAP;
@@ -168,6 +170,8 @@ export const ImageryLocationDialog = ({
                   onClose={() => setSelectedCell(null)}
                   handleApplyOAMItem={handleApplyOAMItem}
                 />
+
+             
               </>
             ) : (
               <div className="absolute inset-0 bg-white">

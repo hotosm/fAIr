@@ -88,6 +88,7 @@ export const LocationSearch = ({
     setResults([]);
     setOpen(false);
     onClear();
+    onClose?.();
   };
 
   const handleClose = () => {
@@ -121,7 +122,7 @@ export const LocationSearch = ({
             onClick={handleClear}
             className="px-3 py-2.5  text-grey text-xs hover:text-dark shrink-0"
           >
-            clear search
+            clear
           </button>
         )}
         <ToolTip content={"Hide search bar"}>
