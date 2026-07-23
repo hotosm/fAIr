@@ -170,8 +170,6 @@ export const ImageryLocationDialog = ({
                   onClose={() => setSelectedCell(null)}
                   handleApplyOAMItem={handleApplyOAMItem}
                 />
-
-             
               </>
             ) : (
               <div className="absolute inset-0 bg-white">

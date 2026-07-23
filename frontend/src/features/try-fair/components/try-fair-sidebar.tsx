@@ -66,7 +66,7 @@ export const TryFairSidebar = ({
   openMobileModelPickerDialog,
 }: TryFairSidebarProps) => {
   const { isSmallViewport } = useScreenSize();
-  const { currentModelType } = useStartMappingStore()
+  const { currentModelType } = useStartMappingStore();
   return (
     <div
       className={cn(
@@ -116,11 +116,7 @@ export const TryFairSidebar = ({
         </div>
       </div>
 
-      {
-        currentModelType !== "demo" && (
-          <FeatureToMapDropdown />
-        )
-      }
+      {currentModelType !== "demo" && <FeatureToMapDropdown />}
 
       <div className="">
         <p className="text-dark text-xs mb-2">
@@ -135,10 +131,11 @@ export const TryFairSidebar = ({
               title={label}
               disabled={isPredicting}
               aria-label={label}
-              className={`flex-1 flex disabled:cursor-wait items-center justify-center py-2 rounded-lg ${outputType === type
+              className={`flex-1 flex disabled:cursor-wait items-center justify-center py-2 rounded-lg ${
+                outputType === type
                   ? "bg-secondary text-primary border-[#D63F4080] border"
                   : "bg-off-white"
-                }`}
+              }`}
             >
               {icon}
             </button>
@@ -163,10 +160,11 @@ export const TryFairSidebar = ({
           <ToolTip content={"Reset Parameters"}>
             <button
               type="button"
-              className={`border p-2 rounded-md transition-opacity ${isParametersDefault || isPredicting
+              className={`border p-2 rounded-md transition-opacity ${
+                isParametersDefault || isPredicting
                   ? "bg-[#F0EFEF] opacity-40 cursor-not-allowed"
                   : "bg-[#F0EFEF] hover:bg-[#E5E4E4]"
-                }`}
+              }`}
               disabled={isParametersDefault || isPredicting}
               onClick={onResetParameters}
             >
@@ -197,10 +195,11 @@ export const TryFairSidebar = ({
                 type="button"
                 disabled={isPredicting}
                 onClick={() => onResolutionChange(value)}
-                className={`flex-1 gap-1 flex disabled:cursor-wait text-xs items-center justify-center py-2 rounded-lg ${resolution === value
+                className={`flex-1 gap-1 flex disabled:cursor-wait text-xs items-center justify-center py-2 rounded-lg ${
+                  resolution === value
                     ? "bg-secondary border-[#D63F4080] border"
                     : "bg-off-white"
-                  }`}
+                }`}
               >
                 <GridIcon width={size} height={size} />
                 {label}
