@@ -15,22 +15,34 @@ import {
   TRAINING_AREAS_AOI_OUTLINE_WIDTH,
 } from "@/config";
 
-export const setupTerraDraw = (map: maplibregl.Map) => {
+export type TerraDrawStyleVariant = "default" | "red";
+
+export const DEFAULT_AOI_STYLE = {
+  fillColor: TRAINING_AREAS_AOI_FILL_COLOR as TerraDrawExtend.HexColorStyling,
+  fillOpacity: TRAINING_AREAS_AOI_FILL_OPACITY,
+  outlineColor: TRAINING_AREAS_AOI_OUTLINE_COLOR as TerraDrawExtend.HexColorStyling,
+  outlineWidth: TRAINING_AREAS_AOI_OUTLINE_WIDTH,
+};
+
+export const RED_AOI_STYLE = {
+  fillColor: "#D73434" as TerraDrawExtend.HexColorStyling,
+  fillOpacity: 0.25,
+  outlineColor: "#D73434" as TerraDrawExtend.HexColorStyling,
+  outlineWidth: 2,
+};
+
+export const setupTerraDraw = (
+  map: maplibregl.Map,
+  styleVariant: TerraDrawStyleVariant = "red",
+) => {
+  const styles = styleVariant === "red" ? RED_AOI_STYLE : DEFAULT_AOI_STYLE;
+
   return new TerraDraw({
     tracked: true,
     adapter: new TerraDrawMapLibreGLAdapter({
       map,
       coordinatePrecision: 20,
     }),
-    // idStrategy: {
-    //   isValidId: () => true,
-    //   getId: (function () {
-    //     let id = 0;
-    //     return function () {
-    //       return ++id;
-    //     };
-    //   })(),
-    // },
     modes: [
       new TerraDrawSelectMode({
         flags: {
@@ -64,6 +76,7 @@ export const setupTerraDraw = (map: maplibregl.Map) => {
           }
           return { valid: true };
         },
+        styles,
       }),
       new TerraDrawRectangleMode({
         validation: (feature, { updateType }) => {
@@ -74,21 +87,7 @@ export const setupTerraDraw = (map: maplibregl.Map) => {
             valid: true,
           };
         },
-        styles: {
-          // Fill colour (a string containing a 6 digit Hex color)
-          fillColor:
-            TRAINING_AREAS_AOI_FILL_COLOR as TerraDrawExtend.HexColorStyling,
-
-          // Fill opacity (0 - 1)
-          fillOpacity: TRAINING_AREAS_AOI_FILL_OPACITY,
-
-          // Outline colour (Hex color)
-          outlineColor:
-            TRAINING_AREAS_AOI_OUTLINE_COLOR as TerraDrawExtend.HexColorStyling,
-
-          //Outline width (Integer)
-          outlineWidth: TRAINING_AREAS_AOI_OUTLINE_WIDTH,
-        },
+        styles,
       }),
     ],
   });

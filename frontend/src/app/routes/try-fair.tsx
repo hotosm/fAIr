@@ -43,6 +43,8 @@ import { useDialog } from "@/hooks/use-dialog";
 import { ImageryLocationDialog } from "@/features/try-fair/components/imagery/imagery-location-modal";
 import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
 import { SignInPromptDialog } from "@/features/try-fair/components/modals/sign-in-prompt";
+import { useNavigate } from "react-router-dom";
+import { APPLICATION_ROUTES } from "@/constants";
 
 export const TryFairPage = () => {
   const { map, mapContainerRef } = useMapInstance(false, false);
@@ -229,13 +231,14 @@ export const TryFairPage = () => {
   }, [selectedImagery, tileJSONMetadata]);
 
   // Map Large Area (Export → Map Large Area). Opens when downloadType is set to
-  // "large-area"; Submit hands the chosen AOI off here — the offline-prediction
-  // request will hook in at this seam next.
+const navigate = useNavigate()
   const largeAreaAOIRef = useRef<Feature | null>(null);
   const handleLargeAreaSubmit = (aoi: Feature) => {
     largeAreaAOIRef.current = aoi;
     showSuccessToast("Area selected for mapping.");
     setDownloadType("");
+    navigate(APPLICATION_ROUTES.PROFILE_OFFLINE_PREDICTIONS)
+    
   };
 
   const mapFlownRef = useRef(false);

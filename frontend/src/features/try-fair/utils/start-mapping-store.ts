@@ -12,6 +12,8 @@ type IStartMappingStore = {
   setShowChooseLocationModal: (show: boolean) => void;
   showSigninModal: boolean;
   setShowSigninModal: (show: boolean) => void;
+  showShareModal: boolean;
+  setShowShareModal: (show: boolean) => void;
   currentModelType: "demo" | "imagery";
   setCurrentModelType: (type: "demo" | "imagery") => void;
 };
@@ -26,6 +28,8 @@ export const useStartMappingStore = create<IStartMappingStore>((set) => ({
     set({ showChooseLocationModal }),
   showSigninModal: false,
   setShowSigninModal: (showSigninModal) => set({ showSigninModal }),
+  showShareModal: false,
+  setShowShareModal: (showShareModal) => set({ showShareModal }),
   currentModelType: "demo",
   setCurrentModelType: (currentModelType) => set({ currentModelType }),
 }));

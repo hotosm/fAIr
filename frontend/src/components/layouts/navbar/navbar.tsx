@@ -28,6 +28,8 @@ import { Divider } from "@/components/ui/divider";
 import { ToolTip } from "@/components/ui/tooltip";
 import ExportMapResults from "@/features/try-fair/components/start-mapping/export-map-results";
 import MappingMode from "@/features/try-fair/components/mapping-mode";
+import { ShareProjectModal } from "@/features/try-fair/components/modals/share-project-modal";
+import { StartMappingNavlinks } from "@/features/try-fair/components/try-fair-nav-links";
 
 if (AUTH_PROVIDER === "hanko") {
   import("@hotosm/hanko-auth");
@@ -247,6 +249,7 @@ export const NavBar = () => {
           </button>
         </div>
       </nav>
+      <ShareProjectModal />
     </>
   );
 };
@@ -322,22 +325,4 @@ const NavBarLinks: React.FC<NavBarLinksProps> = ({ className, setOpen }) => {
   );
 };
 
-const startMappingLinks = [
-  {
-    title: "Help",
-    href: "/",
-  },
-  {
-    title: "Share",
-    href: "/",
-  },
-];
-const StartMappingNavlinks: React.FC = () => {
-  return (
-    <ul className="hidden lg:flex gap-3">
-      {startMappingLinks.map((link) => (
-        <li className="px-2 py-2">{link.title}</li>
-      ))}
-    </ul>
-  );
-};
+
