@@ -14,7 +14,7 @@ import { BBOX, Feature, IconProps } from "@/types";
 // ── Tabs ────────────────────────────────────────────────────────────────────────
 
 const TABS: { value: AOITab; label: string; Icon: React.FC<IconProps> }[] = [
-  { value: "whole", label: "Whole Imagery", Icon: PictureIcon },
+  { value: "whole", label: "Map Whole Area", Icon: PictureIcon },
   { value: "draw", label: "Draw Specific Area", Icon: DrawIcon },
   { value: "upload", label: "Upload Area of Interest", Icon: UploadIcon },
 ];

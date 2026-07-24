@@ -1,6 +1,6 @@
 import { Head } from "@/components/seo";
 import { TRY_FAIR_PAGE_CONTENT } from "@/constants/ui-contents/try-fair-contents";
-import { TryFairMapOutputType, TryFairResolution } from "@/enums/try-fair";
+import { ModelType, TryFairMapOutputType, TryFairResolution } from "@/enums";
 import { TryFairMap } from "@/features/try-fair/components/map/try-fair-map";
 import { TryFairSidebar } from "@/features/try-fair/components/try-fair-sidebar";
 import { ModelPickerContent } from "@/features/try-fair/components/model-picker-modal";
@@ -146,7 +146,7 @@ export const TryFairPage = () => {
 
   const tileServiceUrl = useMemo(() => {
     const modelImagery =
-      currentModelType === "demo"
+      currentModelType === ModelType.DEMO
         ? selectedModel?.properties["fair:source_imagery"]
         : selectedImagery?.tileUrl;
     if (!modelImagery) return FALLBACK_FAIR_IMAGERY;
@@ -275,7 +275,7 @@ export const TryFairPage = () => {
 
   const handleSelectModel = (model: BaseModelStacItem) => {
     setModelId(model.id);
-    setCurrentModelType("demo");
+    setCurrentModelType(ModelType.DEMO);
     setResolution(TryFairResolution.MID);
 
     // Reset confidence threshold to model's spec default if available
@@ -428,7 +428,7 @@ export const TryFairPage = () => {
         isOpened={showChooseLocationModal}
         closeDialog={() => setShowChooseLocationModal(false)}
         onApply={(selection) => {
-          setCurrentModelType("imagery");
+          setCurrentModelType(ModelType.IMAGERY);
           setSeletedImagery(selection);
           // Invalidate the last prediction so the Map button re-enables and
           // stale predictions clear when the imagery changes. The map re-centers

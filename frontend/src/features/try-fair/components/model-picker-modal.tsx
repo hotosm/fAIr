@@ -7,6 +7,7 @@ import { ChevronDownIcon } from "@/components/ui/icons";
 import { BuildingIcon } from "@/components/ui/icons/buildings-icon";
 import { Button } from "@/components/ui/button";
 import { GlobeSearchIcon } from "@/components/ui/icons/globe-search-icon";
+import { ModelType } from "@/enums";
 import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
 import { useAuth } from "@/app/providers/auth-provider";
 import { ImagerySource } from "@/features/try-fair/components/imagery/imagery-location-modal";
@@ -36,9 +37,8 @@ const FeatureBadge = ({ label }: { label: string | undefined }) => {
 /** Radio indicator: filled primary dot when selected, empty grey ring otherwise. */
 const RadioDot = ({ selected }: { selected: boolean }) => (
   <span
-    className={`mt-0.5 shrink-0 w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-      selected ? "border-primary" : "border-gray-border"
-    }`}
+    className={`mt-0.5 shrink-0 w-4 h-4 rounded-full border-2 flex items-center justify-center ${selected ? "border-primary" : "border-gray-border"
+      }`}
   >
     {selected && <span className="w-2 h-2 rounded-full bg-primary" />}
   </span>
@@ -48,8 +48,8 @@ const RadioDot = ({ selected }: { selected: boolean }) => (
 const flagEmoji = (code: string): string =>
   code.length === 2
     ? String.fromCodePoint(
-        ...[...code.toUpperCase()].map((c) => 0x1f1e6 + c.charCodeAt(0) - 65),
-      )
+      ...[...code.toUpperCase()].map((c) => 0x1f1e6 + c.charCodeAt(0) - 65),
+    )
     : "🏳️";
 
 const CountryBadge = ({ country, code }: { country: string; code: string }) => (
@@ -74,7 +74,7 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
 
   // When imagery is the active source, the trigger shows the imagery's name
   // instead of the default-location model title.
-  const showImagery = currentModelType === "imagery" && !!selectedImagery;
+  const showImagery = currentModelType === ModelType.IMAGERY && !!selectedImagery;
   const imageryName =
     selectedImagery?.source === ImagerySource.OPEN_AERIAL_MAP
       ? selectedImagery.item.title
@@ -101,9 +101,8 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
       </div>
 
       <ChevronDownIcon
-        className={`w-4 h-4 shrink-0 text-grey transition-transform ${
-          isOpen ? "rotate-180" : ""
-        }`}
+        className={`w-4 h-4 shrink-0 text-grey transition-transform ${isOpen ? "rotate-180" : ""
+          }`}
       />
     </div>
   );
@@ -211,7 +210,7 @@ export const ModelPickerContent = ({
     choice.type === "imagery" ? IMAGERY_KEY : choice.model.id;
 
   const committedKey =
-    currentModelType === "imagery" ? IMAGERY_KEY : (selectedModel?.id ?? null);
+    currentModelType === ModelType.IMAGERY ? IMAGERY_KEY : (selectedModel?.id ?? null);
   const stagedKey = staged ? keyOf(staged) : null;
 
   // What the picker highlights: the staged choice if any, else the committed one.
@@ -226,7 +225,7 @@ export const ModelPickerContent = ({
     if (staged.type === "model") {
       onSelect(staged.model);
     } else {
-      setCurrentModelType("imagery");
+      setCurrentModelType(ModelType.IMAGERY);
     }
     setStaged(null);
     onClose?.();
@@ -239,9 +238,8 @@ export const ModelPickerContent = ({
           key="imagery"
           type="button"
           onClick={() => setStaged({ type: "imagery" })}
-          className={`text-left p-3 w-full sm:w-1/2 bg-frosted-blue rounded-lg  transition-colors ${
-            imageryActive ? "border-primary border-2" : ""
-          }`}
+          className={`text-left p-3 w-full sm:w-1/2 bg-frosted-blue rounded-lg  transition-colors ${imageryActive ? "border-primary border-2" : ""
+            }`}
         >
           <div className="flex space-y-2 items-start justify-between gap-2 mb-1">
             <p className="text-dark capitalize text-sm font-medium leading-tight ">
@@ -275,9 +273,8 @@ export const ModelPickerContent = ({
                 key={model.id}
                 type="button"
                 onClick={() => setStaged({ type: "model", model })}
-                className={`text-left p-3 bg-frosted-blue rounded-lg  transition-colors ${
-                  isSelected ? "border-primary border-2" : ""
-                }`}
+                className={`text-left p-3 bg-frosted-blue rounded-lg  transition-colors ${isSelected ? "border-primary border-2" : ""
+                  }`}
               >
                 <div className="flex space-y-2 items-start justify-between gap-2 mb-1">
                   <p className="text-dark capitalize text-sm font-bold leading-tight">
@@ -309,13 +306,18 @@ export const ModelPickerContent = ({
       </div>
       <div className="flex w-full text-sm justify-between items-center ">
         <Button
+          type="button"
+          size="medium"
+          className="flex gap-2 !w-fit items-center"
           rounded
+          fontSize="12px"
           disabled={!hasChange}
           onClick={handleApply}
-          className="!w-fit "
         >
           Apply
         </Button>
+
+
 
         <button
           className="flex gap-2 items-center"

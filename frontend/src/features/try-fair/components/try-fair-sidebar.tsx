@@ -1,4 +1,4 @@
-import { TryFairMapOutputType, TryFairResolution } from "@/enums/try-fair";
+import { ModelType, TryFairMapOutputType, TryFairResolution } from "@/enums";
 import { ModelPicker } from "./model-picker-modal";
 import { TRY_FAIR_PAGE_CONTENT } from "@/constants/ui-contents/try-fair-contents";
 import { APP_TOUR_IDS } from "@/constants/site-tour";
@@ -116,7 +116,7 @@ export const TryFairSidebar = ({
         </div>
       </div>
 
-      {currentModelType !== "demo" && <FeatureToMapDropdown />}
+      {currentModelType !== ModelType.DEMO && <FeatureToMapDropdown />}
 
       <div className="">
         <p className="text-dark text-xs mb-2">

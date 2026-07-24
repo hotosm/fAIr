@@ -1,4 +1,4 @@
-// store/zoomStore.ts
+import { ModelType } from "@/enums";
 import { ImagerySelection } from "@/features/try-fair/types/imagery-types";
 import { create } from "zustand";
 
@@ -14,8 +14,8 @@ type IStartMappingStore = {
   setShowSigninModal: (show: boolean) => void;
   showShareModal: boolean;
   setShowShareModal: (show: boolean) => void;
-  currentModelType: "demo" | "imagery";
-  setCurrentModelType: (type: "demo" | "imagery") => void;
+  currentModelType: ModelType;
+  setCurrentModelType: (type: ModelType) => void;
 };
 
 export const useStartMappingStore = create<IStartMappingStore>((set) => ({
@@ -30,6 +30,6 @@ export const useStartMappingStore = create<IStartMappingStore>((set) => ({
   setShowSigninModal: (showSigninModal) => set({ showSigninModal }),
   showShareModal: false,
   setShowShareModal: (showShareModal) => set({ showShareModal }),
-  currentModelType: "demo",
+  currentModelType: ModelType.DEMO,
   setCurrentModelType: (currentModelType) => set({ currentModelType }),
 }));
