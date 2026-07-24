@@ -3,6 +3,7 @@ from django.db import models
 from accounts.models import OsmUser
 from datasets.models import Dataset
 from modelregistry.models import LocalModel
+from shared.enums import PipelineRunStatus
 
 
 class TrainingRunRef(models.Model):
@@ -25,7 +26,11 @@ class TrainingRunRef(models.Model):
     # keywords + dataset keywords + dataset fair:geometry_type) at publish.
     keywords = models.JSONField(default=list, blank=True)
     description = models.TextField(blank=True)
-    status = models.CharField(max_length=20, default="initializing")
+    status = models.CharField(
+        max_length=20,
+        choices=PipelineRunStatus.choices,
+        default=PipelineRunStatus.INITIALIZING,
+    )
     user = models.ForeignKey(
         OsmUser,
         to_field="osm_id",
@@ -41,5 +46,11 @@ class TrainingRunRef(models.Model):
             models.Index(fields=["status"]),
             models.Index(fields=["user"]),
             models.Index(fields=["base_model_stac_id"]),
+        ]
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(status__in=PipelineRunStatus.values),
+                name="trainingrunref_status_valid",
+            ),
         ]
         ordering = ["-submitted_at"]
