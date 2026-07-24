@@ -1,4 +1,3 @@
-import { JOSMLogo } from "@/assets/svgs";
 import { DropDown } from "@/components/ui/dropdown";
 import { DropdownMenuItem } from "@/components/ui/dropdown/dropdown";
 import {
@@ -14,11 +13,6 @@ export const EXPORT_MAP_MENU_ITEMS: Omit<DropdownMenuItem, "onClick">[] = [
     label: "Download Map Result",
     value: "download",
     Icon: CloudDownloadIcon,
-  },
-  {
-    label: "Open in JOSM",
-    value: "josm",
-    imgSrc: JOSMLogo,
   },
   {
     label: "Map Large Area",
