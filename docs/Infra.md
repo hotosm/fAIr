@@ -10,6 +10,19 @@ fAIr differs slightly, because we have:
 Currently model development happens in the `fAIr-models` repo, but this
 might eventually move to the `fAIr` monorepo.
 
+The model flow works like this:
+- Each model dir has a `stac-item.json`. These point at the moving
+  `dev-inference` image tag, and only seed a STAC the first time it starts up
+  (on dev, or a brand new prod).
+- After that the STAC database is the source of truth, updated through the
+  Django admin.
+- A CI matrix workflow builds an image for each dir under `./models` when its
+  contents change, tagged with the git SHA.
+- In the Django admin we give a SHA a version (`vX.Y.Z-rc.N`, then `vX.Y.Z`)
+  and register it in the STAC, pinned to the image digest ('rc' release candidates are used for staging, before full production tagging).
+- A `BaseModel` table holds the model name and its status. The version details
+  live entirely in the STAC though.
+
 ## Step 1: Development
 
 > [!NOTE]
@@ -40,19 +53,18 @@ might eventually move to the `fAIr` monorepo.
 > - Does not run it's own `knative` controller,
 >   instead using the cluster-wide instance.
 
-1. A point when we want to *stabilise* and either push out a **new model**
-   or **updates to the API / website**, then we have the same staging setup.
+1. When we want to stabilise and push out a **new model**, or **updates to the
+   API / website**, we use the staging setup.
 2. First a PR must be raised on the fAIr repo from `staging` --> `main`.
    This will set up `https://stage.ai.hotosm.org` with ZenML / STAC /
    Knative registration.
-3. A model is merged into the fAIr-models `staging` branch, building
-   the `-staging` tagged image.
-4. The new `-staging` tag is picked up by ArgoCD, deploying a helm
-   chart that simply contains a Job manifest. This job grabs all
-   the latest staging model records, and updates the newly started
-   **staging** STAC via pgstac database inserts.
-5. When we are happy with the staging changes, we merge the PR to
-   `main`, which triggered a shut down of the staging env.
+3. On boot the **staging** STAC is seeded (read-only) from the current
+   **production** STAC, so it mirrors live.
+4. CI has already built the model image, tagged by SHA. In the Django admin,
+   give that SHA a candidate version (`vX.Y.Z-rc.N`), register it in the
+   staging STAC, and test it.
+5. Once it looks good, register the model in production (Step 3) before merging
+   the PR to `main`. Merging shuts the staging env down.
 
 ## Step 3: Production
 
@@ -63,6 +75,6 @@ might eventually move to the `fAIr` monorepo.
 
 1. A new tagged version is made from the latest `main` code.
 2. This triggers a redeploy of the fAIr website / API.
-3. We also ensure that `staging` is merged to `main` on the
-   **fAIr-models** repo. This ensures the Job runs to sync
-   latest versioned models to the **production** STAC.
+3. In the production Django admin, give the tested SHA a release version
+   (`vX.Y.Z`), register its STAC item pinned to the digest, and make it live.
+   The image is already in GHCR, so it is available straight away.
