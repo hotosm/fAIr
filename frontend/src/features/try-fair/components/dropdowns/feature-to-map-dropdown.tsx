@@ -3,25 +3,41 @@ import { ChevronDownIcon } from "@/components/ui/icons";
 import { FeatureCheckIcon } from "@/components/ui/icons/feature-check-icon";
 import { FEATURES_TO_MAP } from "@/features/try-fair/utils/common";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
+import { IconProps } from "@/types";
+import { cn } from "@/utils";
 import { useState } from "react";
 
-const FeatureToMapDropdown = () => {
+type FeatureToMapDropdownProps = {
+  disabled?: boolean;
+};
+
+type FeatureType =
+  {
+    label: string;
+    Icon: React.FC<IconProps>;
+    value: string;
+  }
+const FeatureToMapDropdown = ({ disabled = false }: FeatureToMapDropdownProps) => {
   const { onDropdownHide, dropdownRef } = useDropdownMenu();
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [selectedFeature, setSelectedFeature] = useState(FEATURES_TO_MAP[0]);
+  const [selectedFeature, setSelectedFeature] = useState<FeatureType>(FEATURES_TO_MAP[0]);
 
   const SelectedIcon = selectedFeature.Icon;
 
   const trigger = (
-    <div className="flex bg-[#FAFAFA] border w-full md:w-[280px] p-2 rounded-md border-gray-border justify-between items-center cursor-pointer">
+    <div
+      className={cn(
+        "flex bg-[#FAFAFA] border w-full md:w-[280px] p-2 rounded-md border-gray-border justify-between items-center transition-opacity",
+        disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer",
+      )}
+    >
       <div className="flex items-center gap-2">
         <SelectedIcon className="w-4 h-4 text-dark shrink-0" />
         <p className="text-xs text-dark">{selectedFeature.label}</p>
       </div>
       <ChevronDownIcon
-        className={`w-4 h-4 shrink-0 text-grey transition-transform ${
-          isOpen ? "rotate-180" : ""
-        }`}
+        className={`w-4 h-4 shrink-0 text-grey transition-transform ${isOpen ? "rotate-180" : ""
+          }`}
       />
     </div>
   );
@@ -31,6 +47,7 @@ const FeatureToMapDropdown = () => {
       <h4 className="text-xs">Feature to map</h4>
       <DropDown
         sync="width"
+        disabled={disabled}
         className="rounded-xl w-full md:w-[280px] !disabled:cursor-wait"
         ref={dropdownRef}
         onDropdownShow={() => setIsOpen(true)}

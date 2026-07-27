@@ -152,8 +152,8 @@ export const OAMImageryPanel = ({
 
   return (
     <>
-      <div className="absolute top-4 bottom-4 left-4 z-10 w-[350px] bg-white rounded-lg shadow-lg flex flex-col overflow-hidden">
-        <div className="px-3 pt-3 pb-2 flex items-center gap-2">
+      <div className="absolute top-4 bottom-4 left-4 z-10 w-[200px]  md:w-[350px] bg-white rounded-lg shadow-lg flex flex-col overflow-hidden">
+        <div className="px-3 pt-3 pb-2 flex  items-center gap-2">
           <p className="text-dark font-bold text-sm flex-1">
             {loading
               ? "Loading images…"
@@ -170,7 +170,7 @@ export const OAMImageryPanel = ({
           </button>
         </div>
 
-        <div className="px-3 pb-2 flex items-center gap-2">
+        <div className="px-3 pb-2 flex md:flex-row flex-col items-center gap-2">
           <FilterSelect
             label="Filter by date"
             value={dateFilter}
@@ -195,7 +195,7 @@ export const OAMImageryPanel = ({
               }
             />
           ) : (
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               {filtered.map((item) => (
                 <ImageryCard
                   key={item.id}

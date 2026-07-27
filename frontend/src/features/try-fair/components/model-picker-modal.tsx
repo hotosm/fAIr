@@ -11,6 +11,7 @@ import { ModelType } from "@/enums";
 import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
 import { useAuth } from "@/app/providers/auth-provider";
 import { ImagerySource } from "@/features/try-fair/components/imagery/imagery-location-modal";
+import { flagEmoji } from "@/features/try-fair/utils/common";
 
 type ModelPickerProps = {
   selectedModel: BaseModelStacItem | null;
@@ -45,13 +46,7 @@ const RadioDot = ({ selected }: { selected: boolean }) => (
   </span>
 );
 
-/** ISO 3166-1 alpha-2 code → flag emoji (regional indicator symbols). */
-const flagEmoji = (code: string): string =>
-  code.length === 2
-    ? String.fromCodePoint(
-        ...[...code.toUpperCase()].map((c) => 0x1f1e6 + c.charCodeAt(0) - 65),
-      )
-    : "🏳️";
+
 
 const CountryBadge = ({ country, code }: { country: string; code: string }) => (
   <span className="inline-flex gap-1.5 items-center px-2 py-0.5 rounded bg-grey text-white text-xs font-medium">
@@ -237,7 +232,7 @@ export const ModelPickerContent = ({
   };
 
   return (
-    <div className="bg-white rounded-xl p-4 space-y-4 max-h-[70vh] overflow-y-auto">
+    <div className="bg-white rounded-xl p-2 md:p-4 space-y-4 max-h-[70vh] overflow-y-auto">
       {selectedImagery && (
         <button
           key="imagery"

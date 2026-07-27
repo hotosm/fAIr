@@ -60,6 +60,10 @@ export const TryFairPage = () => {
     selectedImagery,
     downloadType,
     setDownloadType,
+    setPredictions: setPredictionsInStore,
+    setPredictionBBox: setPredictionBBoxInStore,
+    setPredictionGridZoom: setPredictionGridZoomInStore,
+    setOutputType: setOutputTypeInStore,
   } = useStartMappingStore();
   const { getValue, setValue } = useLocalStorage();
   const { setIsOpen: setIsSiteTourOpen, setCurrentStep, setSteps } = useTour();
@@ -401,10 +405,18 @@ export const TryFairPage = () => {
 
   const handleOutputTypeChange = (type: TryFairMapOutputType) => {
     setOutputType(type);
+    setOutputTypeInStore(type);
     if (isDirty && predictions) {
       handleMap();
     }
   };
+
+  // Sync prediction state into the global store so the navbar Export button can access it.
+  useEffect(() => {
+    setPredictionsInStore(predictions);
+    setPredictionBBoxInStore(predictionBBox);
+    setPredictionGridZoomInStore(predictionGridZoom);
+  }, [predictions, predictionBBox, predictionGridZoom]);
   return (
     <>
       <Head title={TRY_FAIR_PAGE_CONTENT.pageTitle} />

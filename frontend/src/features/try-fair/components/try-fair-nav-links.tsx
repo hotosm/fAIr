@@ -1,10 +1,10 @@
 import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
 
 const startMappingLinks = [
-  {
-    title: "Help",
-    value: "help",
-  },
+  // {
+  //   title: "Help",
+  //   value: "help",
+  // },
   {
     title: "Share",
     value: "share",

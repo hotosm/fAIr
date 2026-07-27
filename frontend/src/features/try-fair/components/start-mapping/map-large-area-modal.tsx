@@ -4,12 +4,14 @@ import { Dialog } from "@/components/ui/dialog";
 import { DeleteIcon, UploadIcon } from "@/components/ui/icons";
 import { DrawIcon } from "@/components/ui/icons/draw-icon";
 import { PictureIcon } from "@/components/ui/icons/picture-icon";
-import { ControlsPosition, SHOELACE_SIZES } from "@/enums";
+import { ControlsPosition, DrawingModes, SHOELACE_SIZES } from "@/enums";
 import {
   AOITab,
   useMapLargeArea,
 } from "@/features/try-fair/hooks/use-map-large-area";
 import { BBOX, Feature, IconProps } from "@/types";
+import { cn } from "@/utils";
+import { ToolTip } from "@/components/ui/tooltip";
 
 // ── Tabs ────────────────────────────────────────────────────────────────────────
 
@@ -43,6 +45,7 @@ const MapLargeAreaContent = ({
     handleTabChange,
     handleFileChange,
     handleClearArea,
+    handleEnableDrawing,
     handleSubmit,
   } = useMapLargeArea({
     imageryBounds,
@@ -51,7 +54,7 @@ const MapLargeAreaContent = ({
   });
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-2">
       {/* Hidden file input for native OS file selection */}
       <input
         type="file"
@@ -62,26 +65,25 @@ const MapLargeAreaContent = ({
       />
 
       {/* Header Tabs */}
-      <div className="flex border border-gray-200 gap-3 justify-between w-full p-1.5 rounded-2xl bg-white">
+      <div className="flex border border-gray-border gap-2 md:flex-row flex-col justify-between w-full p-1.5 rounded-lg bg-white">
         {TABS.map(({ value, label, Icon }) => (
           <button
             type="button"
             onClick={() => handleTabChange(value)}
-            className={
-              activeTab === value
-                ? "p-2.5 lg:p-3 gap-2 bg-[#FEECEE] text-gray-900 rounded-xl flex items-center justify-center w-full font-medium transition-colors"
-                : "p-2.5 lg:p-3 gap-2 bg-[#EFEFEF] hover:bg-gray-200 text-gray-700 rounded-xl flex items-center justify-center w-full font-medium transition-colors"
-            }
+            className={cn(
+              "p-2 lg:p-3 gap-2 text-dark rounded-lg flex items-center justify-center w-full transition-colors",
+              activeTab === value ? "bg-secondary" : "bg-off-white",
+            )}
             key={value}
           >
-            <Icon className="size-5 text-gray-700" />
+            <Icon className="size-5 text-dark" />
             <span className="text-xs md:text-sm">{label}</span>
           </button>
         ))}
       </div>
 
       {/* Map Container */}
-      <div className="relative h-[540px] rounded-2xl overflow-hidden w-full z-10 border border-gray-200">
+      <div className="relative h-[450px] md:h-[540px] rounded-lg overflow-hidden w-full z-10 border border-gray-border">
         <MapComponent
           map={map}
           terraDraw={terraDraw}
@@ -95,8 +97,14 @@ const MapLargeAreaContent = ({
 
         {/* Selected AOI Status Floating Badge (Top Right) */}
         {selectedAOI && (
-          <div className="absolute top-4 right-4 z-20 bg-white/95 backdrop-blur-sm border border-gray-200 rounded-full px-3.5 py-1.5 shadow-sm flex items-center gap-2 text-xs font-medium text-gray-800">
-            <UploadIcon className="w-4 h-4 text-gray-600" />
+          <div className="absolute top-4 right-4 z-20 bg-white/95  border border-border-gray rounded-full px-3.5 py-1.5 shadow-sm flex items-center gap-2 text-xs  text-grey">
+            {activeTab === "whole" ? (
+              <PictureIcon className="w-4 h-4 text-dark" />
+            ) : activeTab === "draw" ? (
+              <DrawIcon className="w-4 h-4 text-dark" />
+            ) : (
+              <UploadIcon className="w-4 h-4 text-dark" />
+            )}
             <span>
               {activeTab === "upload"
                 ? uploadedFileName || "Mapping AOI.geojson"
@@ -104,14 +112,40 @@ const MapLargeAreaContent = ({
                   ? "Drawn AOI"
                   : "Whole Imagery AOI"}
             </span>
-            <button
-              type="button"
-              onClick={handleClearArea}
-              className="ml-1 text-red-500 hover:text-red-700 transition-colors p-1 rounded-full hover:bg-red-50"
-              title="Clear area"
-            >
-              <DeleteIcon className="w-4 h-4" />
-            </button>
+          {activeTab !== "whole" && (
+              <button
+                type="button"
+                onClick={handleClearArea}
+                className="ml-1 text-primary hover:text-primary transition-colors p-1 rounded-full"
+                title="Clear area"
+              >
+                <DeleteIcon className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Floating draw toggle button – only visible in draw mode */}
+        {map && activeTab === "draw" && (
+          <div className="absolute left-3 map-elements-z-index top-[24%] md:top-[20%]"  >
+            <ToolTip content={drawingMode === DrawingModes.POLYGON ? "Drawing active – click the first point to close" : "Click to draw a new area"} placement={undefined}>
+              <button
+                type="button"
+                onClick={() => {
+                  if (drawingMode === DrawingModes.POLYGON) return;
+                  handleEnableDrawing();
+                }}
+                aria-label="Enable drawing mode"
+                className={cn(
+                  "size-[38px] p-2  border flex items-center justify-center transition-colors",
+                  drawingMode === DrawingModes.POLYGON
+                    ? "bg-primary text-white border-primary cursor-default"
+                    : "bg-white text-dark   cursor-pointer",
+                )}
+              >
+                <DrawIcon className="size-4" />
+              </button>
+            </ToolTip>
           </div>
         )}
       </div>
@@ -120,6 +154,9 @@ const MapLargeAreaContent = ({
       <div className="flex justify-end pt-1">
         <Button
           className="!w-fit "
+          fontSize="14px"
+          size="medium"
+
           disabled={!selectedAOI}
           onClick={handleSubmit}
           rounded

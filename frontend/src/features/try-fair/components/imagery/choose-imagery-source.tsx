@@ -16,7 +16,7 @@ export const ImagerySourceToggle = ({
   <div
     role="radiogroup"
     aria-label="Imagery source"
-    className="flex items-center justify-center gap-3"
+    className="flex items-center max-w-[500px] w-full mx-auto md:flex-row flex-col justify-center gap-3"
   >
     {IMAGERY_SOURCES.map((source) => {
       const isSelected = value === source.value;
@@ -28,7 +28,7 @@ export const ImagerySourceToggle = ({
           aria-checked={isSelected}
           onClick={() => onChange(source.value)}
           className={cn(
-            "flex items-center bg-frosted-blue justify-between gap-6 min-w-[200px] px-4 py-2.5 rounded-lg transition-colors",
+            "flex items-center bg-frosted-blue justify-between gap-6 w-full md:min-w-[200px] px-4 py-2.5 rounded-lg transition-colors",
             isSelected ? "border-primary border " : "  ",
           )}
         >

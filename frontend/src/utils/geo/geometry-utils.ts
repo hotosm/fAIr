@@ -449,6 +449,23 @@ export const featureIsWithinBounds = (
 };
 
 /**
+ * Checks if a single [lng, lat] coordinate falls within the specified bounding box.
+ *
+ * @param {LngLatBoundsLike} bounds - The bounding box [west, south, east, north].
+ * @param {[number, number]} point - The [longitude, latitude] coordinate to check.
+ *
+ * @returns {boolean} True if the point is within the bounds, false otherwise.
+ */
+export const pointIsWithinBounds = (
+  bounds: LngLatBoundsLike,
+  point: [number, number],
+): boolean => {
+  const [west, south, east, north] = bounds as [number, number, number, number];
+  const [lng, lat] = point;
+  return lng >= west && lng <= east && lat >= south && lat <= north;
+};
+
+/**
  * Convert x/y meter to approximate longitude/latitude offsets based on the map center latitude.
  */
 export const metersToLngLat = (

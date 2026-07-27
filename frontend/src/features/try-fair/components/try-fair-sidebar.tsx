@@ -116,7 +116,9 @@ export const TryFairSidebar = ({
         </div>
       </div>
 
-      {currentModelType !== ModelType.DEMO && <FeatureToMapDropdown />}
+      {currentModelType !== ModelType.DEMO && (
+        <FeatureToMapDropdown disabled={isPredicting} />
+      )}
 
       <div className="">
         <p className="text-dark text-xs mb-2">

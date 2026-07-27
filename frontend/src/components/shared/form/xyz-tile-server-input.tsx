@@ -1,6 +1,7 @@
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { HelpText, Input, Select } from "@/components/ui/form";
+import { ToolTip } from "@/components/ui/tooltip";
 import {
   INPUT_TYPES,
   SHOELACE_SELECT_SIZES,
@@ -64,12 +65,15 @@ export const XYZTileServerInput = ({
   useAlert?: boolean;
   setTileServiceType: (tileServiceType: TileServiceType) => void;
 }) => {
+  const isApplyDisabled =
+    !tileServerURL || !tileServerURL.trim() || !isValid.valid || !tileServiceType;
+
   return (
     <div
       className={
         variant === "horizontal"
           ? "flex flex-col gap-2"
-          : "grid grid-cols-2 gap-3"
+          : "grid grid-cols-1 md:grid-cols-2 gap-3"
       }
     >
       <Select
@@ -144,9 +148,29 @@ export const XYZTileServerInput = ({
 
       {showButton && (
         <div className="flex justify-end items-end">
-          <Button onClick={buttonOnclick} rounded className="!w-fit">
-            Apply
-          </Button>
+          <ToolTip
+            content={
+              isApplyDisabled
+                ? !tileServiceType
+                  ? "Select a tile service type"
+                  : !tileServerURL || !tileServerURL.trim()
+                    ? "Enter a tile server URL"
+                    : isValid.message || "Enter a valid tile server URL"
+                : "Apply custom tile server"
+            }
+          >
+            <span className="inline-block">
+              <Button
+                size="medium"
+                onClick={buttonOnclick}
+                disabled={isApplyDisabled}
+                rounded
+                className="!w-fit"
+              >
+                Apply
+              </Button>
+            </span>
+          </ToolTip>
         </div>
       )}
     </div>

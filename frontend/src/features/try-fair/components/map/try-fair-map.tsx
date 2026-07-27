@@ -191,8 +191,12 @@ export const TryFairMap = ({
                   setShowSigninModal(true);
                 }
               }}
+              disabled={isPredicting}
               aria-label="Choose a different location"
-              className={mapActionButtonClassName}
+              className={cn(
+                mapActionButtonClassName,
+                isPredicting && "!disabled:cursor-wait",
+              )}
             >
               <GlobeSearchIcon />
             </button>

@@ -7,6 +7,7 @@ import {
 } from "@/components/map/setups/setup-terra-draw";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useMapStore } from "@/store/map-store";
+import { BBOX } from "@/types";
 
 /**
  * useMapInstance - Initializes and manages a MapLibre map instance with TerraDraw integration.
@@ -14,12 +15,14 @@ import { useMapStore } from "@/store/map-store";
  * @param {boolean} pmtiles - Optional flag to enable PMTiles support.
  * @param {boolean} hash - Optional flag to enable URL location hash.
  * @param {TerraDrawStyleVariant} styleVariant - Optional drawing style variant ("default" | "red"). Defaults to "red".
+ * @param {BBOX | null} imageryBounds - Optional imagery bounding box used to constrain polygon drawing to the imagery extent.
  * @returns {Object} - Contains map instance, zoom level, drawing mode, and container ref.
  */
 export const useMapInstance = (
   pmtiles: boolean = false,
   hash: boolean = false,
   styleVariant: TerraDrawStyleVariant = "default",
+  imageryBounds?: BBOX | null,
 ) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<Map | null>(null);
@@ -44,11 +47,11 @@ export const useMapInstance = (
 
   const terraDraw = useMemo(() => {
     if (map) {
-      const draw = setupTerraDraw(map, styleVariant);
+      const draw = setupTerraDraw(map, styleVariant, imageryBounds);
       draw.start();
       return draw;
     }
-  }, [map, styleVariant]);
+  }, [map, styleVariant, imageryBounds]);
 
   // Sync the drawing modes between terraDraw
   // and the application state
