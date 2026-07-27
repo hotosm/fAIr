@@ -22,11 +22,11 @@ jobs:
     with:
       context: backend/
       dockerfile: Dockerfile
-      image_name: ghcr.io/${{ github.repository_owner }}/fair/backend
+      image_name: ghcr.io/${{ github.repository_owner }}/fair/api
 
   frontend-build:
     uses: hotosm/gh-workflows/.github/workflows/image_build.yml@4.0.3
     with:
       context: frontend/
       dockerfile: Dockerfile.prod
-      image_name: ghcr.io/${{ github.repository_owner }}/fair-frontend
+      image_name: ghcr.io/${{ github.repository_owner }}/fair/frontend

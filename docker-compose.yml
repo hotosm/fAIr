@@ -1,5 +1,5 @@
 x-backend: &backend
-  image: ghcr.io/hotosm/fair-api:develop
+  image: ghcr.io/hotosm/fair/api:develop
   build:
     context: ./backend
   env_file:
@@ -198,7 +198,7 @@ services:
         done
 
   frontend-assets:
-    image: ghcr.io/hotosm/fair-frontend:develop
+    image: ghcr.io/hotosm/fair/frontend:develop
     build:
       context: ./frontend
       dockerfile: Dockerfile.prod
