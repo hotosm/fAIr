@@ -1053,7 +1053,7 @@ requires-dist = [
     { name = "djangorestframework", specifier = ">=3.15" },
     { name = "djangorestframework-gis", specifier = ">=1.1" },
     { name = "drf-spectacular", specifier = ">=0.29" },
-    { name = "fair-py-ops", extras = ["k8s"], specifier = "==0.3.0" },
+    { name = "fair-py-ops", extras = ["k8s"], specifier = "==0.3.2" },
     { name = "geomltoolkits", specifier = ">=2.1.0" },
     { name = "geopandas", specifier = ">=1.0" },
     { name = "gpxpy", specifier = ">=1.6" },
@@ -1087,23 +1087,26 @@ test = [
 
 [[package]]
 name = "fair-py-ops"
-version = "0.3.0"
+version = "0.3.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "httpx" },
     { name = "mlflow" },
     { name = "onnxruntime" },
     { name = "pystac", extra = ["validation"] },
+    { name = "reverse-geocode" },
+    { name = "typer" },
     { name = "universal-pathlib" },
     { name = "zenml" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/12/3a/87863266b4145fe92e4f4be83297fbafacfb3519ac18a21d8286c8bfc878/fair_py_ops-0.3.0.tar.gz", hash = "sha256:7c5530f7e86dbe7c2535cdb624f8863fcd83fa2eccecf1651a0af918dce4ed40", size = 80342, upload-time = "2026-05-18T13:54:28.201Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ca/68/6601800199b89189234886765195402c402d82a0bba5335ffbc2de881753/fair_py_ops-0.3.2.tar.gz", hash = "sha256:a3dcfcfa2f3f33bd02d543d9b9e1b23f0cb5978dc165682cb90d57b549faf8d8", size = 3927510, upload-time = "2026-07-22T16:53:11.084Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c2/46/f822386b258387194521e7a4365d93d26920181c9506ff77ff41122e56ca/fair_py_ops-0.3.0-py3-none-any.whl", hash = "sha256:45d7c737ab330f1408df52efd4c6d59043d09b96fd7c173c2a8d75d78416bd8d", size = 99790, upload-time = "2026-05-18T13:54:26.559Z" },
+    { url = "https://files.pythonhosted.org/packages/02/d0/f9983a7f62f0cdc0fb2f19770170f4757622513947fc4e39a7f5e1763b98/fair_py_ops-0.3.2-py3-none-any.whl", hash = "sha256:7741644a316f1d6c16a4cc6ac4b82b290b59b0cd1b2aa816259ea18d8a6ad2c5", size = 4117702, upload-time = "2026-07-22T16:53:08.954Z" },
 ]
 
 [package.optional-dependencies]
 k8s = [
+    { name = "kubernetes" },
     { name = "opentelemetry-proto" },
     { name = "pypgstac", extra = ["psycopg"] },
     { name = "pystac-client" },
@@ -3474,6 +3477,19 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/9f/b4/b7e040379838cc71bf5aabdb26998dfbe5ee73904c92c1c161faf5de8866/responses-0.26.0.tar.gz", hash = "sha256:c7f6923e6343ef3682816ba421c006626777893cb0d5e1434f674b649bac9eb4", size = 81303, upload-time = "2026-02-19T14:38:05.574Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/ce/04/7f73d05b556da048923e31a0cc878f03be7c5425ed1f268082255c75d872/responses-0.26.0-py3-none-any.whl", hash = "sha256:03ec4409088cd5c66b71ecbbbd27fe2c58ddfad801c66203457b3e6a04868c37", size = 35099, upload-time = "2026-02-19T14:38:03.847Z" },
+]
+
+[[package]]
+name = "reverse-geocode"
+version = "1.6.6"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+    { name = "scipy" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/ba/a6/be1e9403cd4b668ff2ec7fd532b534f8f4b31e62637ce7476fbb20ae1b37/reverse_geocode-1.6.6.tar.gz", hash = "sha256:14165815816cc639dd74eb660a74e464aeebcd1d0814de74a897d62071c99f2a", size = 3469126, upload-time = "2025-05-15T08:43:34.204Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/95/94/8df60b4efe9edc8934218bac4764024ac423d2a2ed082bd0eb48d9321fe6/reverse_geocode-1.6.6-py3-none-any.whl", hash = "sha256:f639fdb99cc88c08d2ffaf39dfb1eb5a0ecc2860c50288c4613eea30826d6a9f", size = 3466565, upload-time = "2025-05-15T08:43:29.518Z" },
 ]
 
 [[package]]

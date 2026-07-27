@@ -1,22 +1,24 @@
-# Required for the backend to boot. Missing values raise at startup, no fallbacks.
-# Copy to .env and fill in real values.
+# For running Django directly on the host against the compose dependencies:
+#
+#   docker compose up -d postgres minio stac mlflow zenml
+# Missing values raise at startup, no fallbacks. Copy to .env and fill in.
 
 # Django
 DEBUG=true
 SECRET_KEY=change-me-min-32-chars-long-please-please
-DATABASE_URL=postgis://admin:password@localhost:5432/fair
+DATABASE_URL=postgis://admin:password@localhost:5434/fair
 ALLOWED_HOSTS=localhost,127.0.0.1
 FRONTEND_URL=http://localhost:3500
 API_BASE_URL=http://localhost:8000/api/v1
 
 # Authentication provider: hanko (production / SSO) or dev (local-only static token)
-AUTH_PROVIDER=hanko
+AUTH_PROVIDER=dev
 
 # DEV provider (required when AUTH_PROVIDER=dev). Anyone with this token has
 # full dev-user access; keep in .env, never commit. Generate with `openssl rand -hex 32`.
-FAIR_DEV_TOKEN=
+FAIR_DEV_TOKEN=dev-token
 
-# Hanko SSO (required when AUTH_PROVIDER=hanko)
+# Hanko SSO (required when AUTH_PROVIDER=hanko; both values must be set)
 HANKO_API_URL=
 COOKIE_SECRET=
 COOKIE_DOMAIN=
@@ -27,18 +29,24 @@ LOGIN_BACKEND_URL=
 # Only required when Hanko's "connect existing OSM account" flow is in use.
 OSM_LOGIN_REDIRECT_URI=
 
-# fair-py-ops connection (hosted ZenML + hosted STAC API)
-FAIR_ZENML_STORE_URL=
-FAIR_ZENML_STORE_API_KEY=
-FAIR_STAC_API_URL=
+# fair-py-ops connection. FAIR_* is read by this backend, ZENML_STORE_* by the
+# zenml library. Both point at the same server. The compose stack's default user
+# is `default` with an empty password; set ZENML_STORE_API_KEY instead for a
+# hosted deployment.
+FAIR_ZENML_STORE_URL=http://localhost:8080
+FAIR_STAC_API_URL=http://localhost:8082
 FAIR_STAC_API_KEY=
+ZENML_STORE_URL=http://localhost:8080
+ZENML_STORE_USERNAME=default
+ZENML_STORE_PASSWORD=
 
 # S3 / object storage
-BUCKET_NAME=
+BUCKET_NAME=fair-data
 PARENT_BUCKET_FOLDER=dev
 AWS_REGION=us-east-1
-AWS_ACCESS_KEY_ID=
-AWS_SECRET_ACCESS_KEY=
+AWS_ENDPOINT_URL=http://localhost:9000
+AWS_ACCESS_KEY_ID=minioadmin
+AWS_SECRET_ACCESS_KEY=minioadmin
 PRESIGNED_URL_EXPIRY=900
 
 # Rate limits (used by DRF throttling)

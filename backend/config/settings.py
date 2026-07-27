@@ -66,7 +66,11 @@ if settings.auth_provider is AuthProvider.HANKO:
 
 FAIR_ZENML_STORE_URL = _str(settings.fair_zenml_store_url)
 FAIR_ZENML_STORE_API_KEY = _secret(settings.fair_zenml_store_api_key)
-FAIR_STAC_API_URL = _str(settings.fair_stac_api_url)
+# AnyHttpUrl appends a trailing slash when the URL carries no path, which would
+# double up against the "/collections/..." suffixes appended at every call site.
+FAIR_STAC_API_URL = (
+    _str(settings.fair_stac_api_url).rstrip("/") if settings.fair_stac_api_url else None
+)
 FAIR_STAC_API_KEY = _secret(settings.fair_stac_api_key)
 
 BUCKET_NAME = settings.bucket_name
