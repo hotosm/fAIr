@@ -112,7 +112,7 @@ const MapLargeAreaContent = ({
                   ? "Drawn AOI"
                   : "Whole Imagery AOI"}
             </span>
-          {activeTab !== "whole" && (
+            {activeTab !== "whole" && (
               <button
                 type="button"
                 onClick={handleClearArea}
@@ -127,8 +127,15 @@ const MapLargeAreaContent = ({
 
         {/* Floating draw toggle button – only visible in draw mode */}
         {map && activeTab === "draw" && (
-          <div className="absolute left-3 map-elements-z-index top-[24%] md:top-[20%]"  >
-            <ToolTip content={drawingMode === DrawingModes.POLYGON ? "Drawing active – click the first point to close" : "Click to draw a new area"} placement={undefined}>
+          <div className="absolute left-3 map-elements-z-index top-[24%] md:top-[20%]">
+            <ToolTip
+              content={
+                drawingMode === DrawingModes.POLYGON
+                  ? "Drawing active – click the first point to close"
+                  : "Click to draw a new area"
+              }
+              placement={undefined}
+            >
               <button
                 type="button"
                 onClick={() => {
@@ -156,7 +163,6 @@ const MapLargeAreaContent = ({
           className="!w-fit "
           fontSize="14px"
           size="medium"
-
           disabled={!selectedAOI}
           onClick={handleSubmit}
           rounded

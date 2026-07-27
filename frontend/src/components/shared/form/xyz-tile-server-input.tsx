@@ -66,7 +66,10 @@ export const XYZTileServerInput = ({
   setTileServiceType: (tileServiceType: TileServiceType) => void;
 }) => {
   const isApplyDisabled =
-    !tileServerURL || !tileServerURL.trim() || !isValid.valid || !tileServiceType;
+    !tileServerURL ||
+    !tileServerURL.trim() ||
+    !isValid.valid ||
+    !tileServiceType;
 
   return (
     <div

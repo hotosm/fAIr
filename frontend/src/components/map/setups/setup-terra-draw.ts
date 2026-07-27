@@ -37,10 +37,7 @@ export const RED_AOI_STYLE = {
  * Checks if every committed vertex in the ring lies inside the imagery bounds.
  * The closing duplicate coordinate is excluded.
  */
-const allCoordsWithinBounds = (
-  coords: number[][],
-  bounds: BBOX,
-): boolean => {
+const allCoordsWithinBounds = (coords: number[][], bounds: BBOX): boolean => {
   const [west, south, east, north] = bounds;
   // Exclude the closing duplicate (last coord === first coord)
   const ring = coords.slice(0, -1);
@@ -94,9 +91,8 @@ export const setupTerraDraw = (
         validation: (feature, { updateType }) => {
           if (updateType === "commit" && imageryBounds) {
             // Reject any vertex committed outside the imagery bounds.
-            const coords = (
-              feature.geometry as { coordinates: number[][][] }
-            )?.coordinates?.[0];
+            const coords = (feature.geometry as { coordinates: number[][][] })
+              ?.coordinates?.[0];
             if (coords && !allCoordsWithinBounds(coords, imageryBounds)) {
               return {
                 valid: false,

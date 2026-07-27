@@ -193,7 +193,6 @@ export const FEATURES_TO_MAP = [
   },
 ];
 
-
 /** ISO 3166-1 alpha-2 code → flag emoji (regional indicator symbols). */
 export const flagEmoji = (code: string): string =>
   code.length === 2

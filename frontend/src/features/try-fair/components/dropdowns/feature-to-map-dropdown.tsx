@@ -11,16 +11,19 @@ type FeatureToMapDropdownProps = {
   disabled?: boolean;
 };
 
-type FeatureType =
-  {
-    label: string;
-    Icon: React.FC<IconProps>;
-    value: string;
-  }
-const FeatureToMapDropdown = ({ disabled = false }: FeatureToMapDropdownProps) => {
+type FeatureType = {
+  label: string;
+  Icon: React.FC<IconProps>;
+  value: string;
+};
+const FeatureToMapDropdown = ({
+  disabled = false,
+}: FeatureToMapDropdownProps) => {
   const { onDropdownHide, dropdownRef } = useDropdownMenu();
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [selectedFeature, setSelectedFeature] = useState<FeatureType>(FEATURES_TO_MAP[0]);
+  const [selectedFeature, setSelectedFeature] = useState<FeatureType>(
+    FEATURES_TO_MAP[0],
+  );
 
   const SelectedIcon = selectedFeature.Icon;
 
@@ -36,8 +39,9 @@ const FeatureToMapDropdown = ({ disabled = false }: FeatureToMapDropdownProps) =
         <p className="text-xs text-dark">{selectedFeature.label}</p>
       </div>
       <ChevronDownIcon
-        className={`w-4 h-4 shrink-0 text-grey transition-transform ${isOpen ? "rotate-180" : ""
-          }`}
+        className={`w-4 h-4 shrink-0 text-grey transition-transform ${
+          isOpen ? "rotate-180" : ""
+        }`}
       />
     </div>
   );

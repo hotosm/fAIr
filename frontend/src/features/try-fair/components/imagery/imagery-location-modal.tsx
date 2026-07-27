@@ -24,7 +24,6 @@ import { ImagerySelection } from "@/features/try-fair/types/imagery-types";
 import { Divider } from "@/components/ui/divider";
 import { cn } from "@/utils";
 import { LocationSearch } from "./location-search";
-import useScreenSize from "@/hooks/use-screen-size";
 
 export enum ImagerySource {
   OPEN_AERIAL_MAP = "openAerialMap",
