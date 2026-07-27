@@ -51,7 +51,7 @@ backend:
 
 ## Frontend
 
-The SPA is delivered by the `fair-frontend` image (`frontend/Dockerfile.prod`),
+The SPA is delivered by the `fair/frontend` image (`frontend/Dockerfile.prod`),
 which is an init container that copies the built assets into a shared volume and
 exits - not a running web server. `frontend.mode` picks how they're served:
 

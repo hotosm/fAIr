@@ -7,7 +7,7 @@ metadata:
     app.kubernetes.io/component: backend
 data:
   {{- if eq (.Values.frontend.mode | default "bundleWithBackend") "bundleWithBackend" }}
-  # Serve the SPA baked into the fair-api image via Django/WhiteNoise.
+  # Serve the SPA baked into the fair/api image via Django/WhiteNoise.
   SERVE_FRONTEND: "true"
   {{- end }}
   {{- if not .Values.postgres.enabled }}

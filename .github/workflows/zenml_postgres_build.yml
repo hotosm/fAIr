@@ -13,13 +13,11 @@ jobs:
     uses: hotosm/gh-workflows/.github/workflows/image_build.yml@4.0.3
     with:
       context: infra/zenml
-      # This remains hotosm/zenml-postgres for legacy reasons
-      # Ideally it would be hotosm/fair/zenml-postgres
-      image_name: ghcr.io/${{ github.repository_owner }}/zenml-postgres
+      image_name: ghcr.io/${{ github.repository_owner }}/fair/zenml-postgres
       build_target: runtime
       dockerfile: Dockerfile.postgres
       extra_build_args: ZENML_VERSION=${{ inputs.zenml_version }}
-      image_tags: ghcr.io/${{ github.repository_owner }}/zenml-postgres:${{ inputs.zenml_version }}
+      image_tags: ghcr.io/${{ github.repository_owner }}/fair/zenml-postgres:${{ inputs.zenml_version }}
       # Workaround until CVE-2026-27143 fixed in ZenML upstream image...
       scan_image: false
 
