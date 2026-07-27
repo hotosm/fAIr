@@ -3,7 +3,7 @@ backendReplicaCount: 1
 
 image:
   backend:
-    repository: ghcr.io/hotosm/fair-api
+    repository: ghcr.io/hotosm/fair/api
     tag: ""  # defaults to appVersion
     pullPolicy: IfNotPresent
 
@@ -95,7 +95,7 @@ backend:
     type: ClusterIP
     port: 8000
 
-# -- Frontend deployment. The SPA comes from the fair-frontend image, which runs
+# -- Frontend deployment. The SPA comes from the fair/frontend image, which runs
 # as an init container (copies assets into a shared volume and exits; not a web
 # server). See frontend/Dockerfile.prod. Two mutually exclusive modes:
 #   "bundleWithBackend" - Django/WhiteNoise serves the SPA at `/`, same origin as
@@ -105,7 +105,7 @@ backend:
 # Deployment-specific config can be set via `frontend.runtimeEnv`.
 frontend:
   image:
-    repository: ghcr.io/hotosm/fair-frontend
+    repository: ghcr.io/hotosm/fair/frontend
     tag: ""  # defaults to appVersion
     pullPolicy: IfNotPresent
 

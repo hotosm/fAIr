@@ -13,8 +13,6 @@ jobs:
     uses: hotosm/gh-workflows/.github/workflows/image_build.yml@4.0.3
     with:
       context: infra/zenml
-      # This remains hotosm/zenml-postgres for legacy reasons
-      # Ideally it would be hotosm/fair/zenml-postgres
       image_name: ghcr.io/${{ github.repository_owner }}/fair/zenml-postgres
       build_target: runtime
       dockerfile: Dockerfile.postgres
