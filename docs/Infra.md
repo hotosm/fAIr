@@ -12,7 +12,8 @@ might eventually move to the `fAIr` monorepo.
 
 ## Step 1: Development
 
-> [!NOTE] The Environment
+> [!NOTE]
+> The Environment
 > - Single EC2, lightweight k3s cluster.
 > - Manually updated / synced with dev.
 > - Model registration in STAC etc is all manual.
@@ -29,7 +30,8 @@ might eventually move to the `fAIr` monorepo.
 
 ## Step 2: Staging
 
-> [!NOTE] The Environment
+> [!NOTE]
+> The Environment
 > - Runs all the same components as production, but
 >   start up via PR from `staging` --> `main`.
 > - The components run inside the `fair-staging`
@@ -54,7 +56,8 @@ might eventually move to the `fAIr` monorepo.
 
 ## Step 3: Production
 
-> [!NOTE] The Environment
+> [!NOTE]
+> The Environment
 > - Runs through tagged releases on Github, where ArgoCD
 >   picks up the latest helm chart tag and deploys.
 
