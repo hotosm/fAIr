@@ -62,7 +62,7 @@ jobs:
     with:
       context: frontend/
       dockerfile: Dockerfile.dev
-      image_name: ghcr.io/${{ github.repository_owner }}/fair-frontend
+      image_name: ghcr.io/${{ github.repository_owner }}/fair/frontend
       push: false
 
   docker-build-prod:
@@ -71,5 +71,5 @@ jobs:
     with:
       context: frontend/
       dockerfile: Dockerfile.prod
-      image_name: ghcr.io/${{ github.repository_owner }}/fair-frontend
+      image_name: ghcr.io/${{ github.repository_owner }}/fair/frontend
       push: false
