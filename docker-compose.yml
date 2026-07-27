@@ -143,7 +143,7 @@ services:
       - "${MLFLOW_PORT:-5000}:5000"
 
   zenml:
-    image: ghcr.io/hotosm/zenml-postgres:0.94.2
+    image: ghcr.io/hotosm/fair/zenml-postgres:0.94.2
     depends_on:
       db-init:
         condition: service_completed_successfully
