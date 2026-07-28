@@ -16,7 +16,8 @@ from rest_framework.views import APIView
 
 from accounts.models import OsmUser
 from feedback.models import Feedback
-from modelregistry.models import LocalModel, LocalModelStatus
+from modelregistry.models import LocalModel
+from shared.enums import FeedbackAction, LocalModelStatus
 from shared.integrations.stac import (
     BASE_MODELS_COLLECTION,
     DATASETS_COLLECTION,
@@ -173,7 +174,7 @@ class KpiStatsView(APIView):
                 "total_registered_users": OsmUser.objects.count(),
                 "total_feedback_labels": Feedback.objects.count(),
                 "total_accepted_predictions": Feedback.objects.filter(
-                    action=Feedback.Action.ACCEPT
+                    action=FeedbackAction.ACCEPT
                 ).count(),
             }
         )

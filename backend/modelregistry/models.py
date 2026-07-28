@@ -1,16 +1,12 @@
 from django.db import models
 
 from accounts.models import OsmUser
-from shared.enums import Visibility
-
-
-class LocalModelStatus(models.TextChoices):
-    ACTIVE = "active", "Active"
-    # TODO(archive-cascade): no endpoint flips a model to ARCHIVED yet.
-    # When added, must (1) archive_model_version per STAC item with
-    # mlm:name == self.name, (2) deprecate those STAC items, (3) mark
-    # related TrainingRunRefs (add `archived_at` field if needed).
-    ARCHIVED = "archived", "Archived"
+from shared.enums import (
+    BaseModelCategory,
+    BaseModelStatus,
+    LocalModelStatus,
+    Visibility,
+)
 
 
 class LocalModel(models.Model):
@@ -51,6 +47,57 @@ class LocalModel(models.Model):
             models.CheckConstraint(
                 condition=models.Q(visibility__in=Visibility.values),
                 name="localmodel_visibility_valid",
+            ),
+        ]
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:
+        return self.name
+
+
+class BaseModel(models.Model):
+    Status = BaseModelStatus
+    Category = BaseModelCategory
+
+    name = models.CharField(max_length=200, unique=True)
+    category = models.CharField(
+        max_length=50,
+        choices=BaseModelCategory.choices,
+        default=BaseModelCategory.OTHER,
+        db_index=True,
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=BaseModelStatus.choices,
+        default=BaseModelStatus.REGISTERING,
+    )
+    visibility = models.CharField(
+        max_length=20, choices=Visibility.choices, default=Visibility.PUBLIC, db_index=True
+    )
+    stac_item = models.JSONField(default=dict, blank=True)
+    error = models.TextField(blank=True, default="")
+    user = models.ForeignKey(
+        OsmUser,
+        to_field="osm_id",
+        on_delete=models.CASCADE,
+        related_name="base_models",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_modified = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["status"]),
+            models.Index(fields=["user"]),
+        ]
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(status__in=BaseModelStatus.values),
+                name="basemodel_status_valid",
+            ),
+            models.CheckConstraint(
+                condition=models.Q(visibility__in=Visibility.values),
+                name="basemodel_visibility_valid",
             ),
         ]
         ordering = ["-created_at"]

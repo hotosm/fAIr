@@ -356,6 +356,12 @@ SPECTACULAR_SETTINGS = {
     "COMPONENT_SPLIT_REQUEST": True,
     "SCHEMA_PATH_PREFIX": "/api/v1",
     "SCHEMA_PATH_PREFIX_TRIM": True,
+    "ENUM_NAME_OVERRIDES": {
+        "PipelineRunStatus": "shared.enums.PipelineRunStatus.choices",
+        "DatasetStatus": "shared.enums.DatasetStatus.choices",
+        "LocalModelStatus": "shared.enums.LocalModelStatus.choices",
+        "BaseModelStatus": "shared.enums.BaseModelStatus.choices",
+    },
 }
 
 TEST_RUNNER = "tests.test_runners.NoDestroyTestRunner"

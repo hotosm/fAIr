@@ -137,6 +137,17 @@ def test_openapi_schema_is_served(anon_client):
     assert b"openapi" in response.content
 
 
+def test_kpi_stats_returns_counts(anon_client, db):
+    response = anon_client.get("/api/v1/kpi/stats/")
+    assert response.status_code == 200
+    assert set(response.data) == {
+        "total_models_published",
+        "total_registered_users",
+        "total_feedback_labels",
+        "total_accepted_predictions",
+    }
+
+
 def test_swagger_ui_renders(anon_client):
     response = anon_client.get("/api/docs/")
     assert response.status_code == 200

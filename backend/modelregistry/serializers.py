@@ -1,8 +1,11 @@
+from typing import Any, cast
+
 from rest_framework import serializers
 
 from notifications.serializers import UserSerializer
+from shared.enums import BaseModelCategory
 
-from .models import LocalModel
+from .models import BaseModel, LocalModel
 
 
 class LocalModelSerializer(serializers.ModelSerializer):
@@ -34,6 +37,52 @@ class LocalModelSerializer(serializers.ModelSerializer):
             "created_at",
             "last_modified",
         ]
+
+
+class BaseModelSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+
+    class Meta:
+        model = BaseModel
+        fields = [
+            "id",
+            "name",
+            "category",
+            "status",
+            "visibility",
+            "error",
+            "user",
+            "created_at",
+            "last_modified",
+        ]
+        read_only_fields = fields
+
+
+class BaseModelRegisterSerializer(serializers.Serializer):
+    stac_item = serializers.JSONField()
+    category = serializers.ChoiceField(
+        choices=BaseModelCategory.choices,
+        default=BaseModelCategory.OTHER,
+    )
+
+    def validate_stac_item(self, value: object) -> dict[str, Any]:
+        if not isinstance(value, dict):
+            raise serializers.ValidationError("stac_item must be a JSON object.")
+        item = cast("dict[str, Any]", value)
+        properties = item.get("properties")
+        name = (
+            cast("dict[str, Any]", properties).get("mlm:name")
+            if isinstance(properties, dict)
+            else None
+        )
+        if not name:
+            raise serializers.ValidationError("stac_item.properties['mlm:name'] is required.")
+        return item
+
+
+class BaseModelCategorySerializer(serializers.Serializer):
+    value = serializers.CharField()
+    label = serializers.CharField()
 
 
 class TrainingRunSummarySerializer(serializers.Serializer):

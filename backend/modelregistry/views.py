@@ -1,7 +1,7 @@
 from django.db.models import Count, Q
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema, extend_schema_view
-from rest_framework import filters, status, viewsets
+from rest_framework import filters, mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -13,7 +13,7 @@ from accounts.permissions import (
     PublishedReadOrAuthenticatedWrite,
     _is_admin,
 )
-from shared.enums import Visibility
+from shared.enums import BaseModelCategory, Visibility
 from shared.integrations.stac import (
     FAIR_PINNED_PROPERTY,
     LOCAL_MODELS_COLLECTION,
@@ -23,8 +23,15 @@ from shared.integrations.stac import (
 from shared.integrations.zenml import list_runs_for_model
 from shared.stars import annotate_stars
 
-from .models import LocalModel
-from .serializers import LocalModelSerializer, TrainingRunSummarySerializer
+from .models import BaseModel, LocalModel
+from .serializers import (
+    BaseModelCategorySerializer,
+    BaseModelRegisterSerializer,
+    BaseModelSerializer,
+    LocalModelSerializer,
+    TrainingRunSummarySerializer,
+)
+from .tasks import register_base_model
 
 
 @extend_schema_view(
@@ -118,3 +125,70 @@ class LocalModelViewSet(viewsets.ReadOnlyModelViewSet):
             for s in summaries
         ]
         return Response(TrainingRunSummarySerializer(data, many=True).data)
+
+
+@extend_schema_view(
+    list=extend_schema(description="List registered base models (family records)."),
+    retrieve=extend_schema(description="Retrieve one base model by id."),
+    create=extend_schema(
+        description=(
+            "Register a base model from a STAC item JSON (admin only). Validates and "
+            "publishes the item to the base-models collection off-request; poll `status`."
+        ),
+        request=BaseModelRegisterSerializer,
+        responses={202: BaseModelSerializer},
+    ),
+)
+class BaseModelViewSet(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet,
+):
+    queryset = BaseModel.objects.all()
+    serializer_class = BaseModelSerializer
+    authentication_classes = [OsmAuthentication]
+    permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ["status", "visibility", "category", "user"]
+    search_fields = ["name"]
+    ordering_fields = ["created_at", "last_modified"]
+
+    def get_permissions(self):
+        if self.action == "create":
+            return [IsAuthenticated(), IsAdmin()]
+        return [IsAuthenticated()]
+
+    def create(self, request, *args, **kwargs) -> Response:
+        serializer = BaseModelRegisterSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        stac_item = serializer.validated_data["stac_item"]
+        category = serializer.validated_data["category"]
+        name = stac_item["properties"]["mlm:name"]
+
+        base_model, created = BaseModel.objects.get_or_create(
+            name=name,
+            defaults={
+                "user": request.user,
+                "category": category,
+                "stac_item": stac_item,
+                "status": BaseModel.Status.REGISTERING,
+            },
+        )
+        if not created:
+            base_model.category = category
+            base_model.stac_item = stac_item
+            base_model.status = BaseModel.Status.REGISTERING
+            base_model.error = ""
+            base_model.save(
+                update_fields=["category", "stac_item", "status", "error", "last_modified"]
+            )
+
+        register_base_model.enqueue(base_model_id=base_model.id)
+        return Response(BaseModelSerializer(base_model).data, status=status.HTTP_202_ACCEPTED)
+
+    @extend_schema(responses=BaseModelCategorySerializer(many=True))
+    @action(detail=False, methods=["get"], url_path="categories")
+    def categories(self, request) -> Response:
+        data = [{"value": value, "label": label} for value, label in BaseModelCategory.choices]
+        return Response(BaseModelCategorySerializer(data, many=True).data)

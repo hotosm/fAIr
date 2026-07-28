@@ -26,3 +26,35 @@ class PipelineRunStatus(models.TextChoices):
     RETRIED = "retried", "Retried"
     STOPPING = "stopping", "Stopping"
     STOPPED = "stopped", "Stopped"
+
+
+class DatasetStatus(models.TextChoices):
+    DRAFT = "draft", "Draft"
+    BUILDING = "building", "Building"
+    BUILT = "built", "Built"
+    FAILED = "failed", "Failed"
+
+
+class LocalModelStatus(models.TextChoices):
+    ACTIVE = "active", "Active"
+    ARCHIVED = "archived", "Archived"
+
+
+class BaseModelStatus(models.TextChoices):
+    REGISTERING = "registering", "Registering"
+    ACTIVE = "active", "Active"
+    FAILED = "failed", "Failed"
+    ARCHIVED = "archived", "Archived"
+
+
+class BaseModelCategory(models.TextChoices):
+    BUILDINGS = "buildings", "Buildings"
+    SOLAR_PANELS = "solar-panels", "Solar Panels"
+    TREES = "trees", "Trees"
+    ROADS = "roads", "Roads"
+    OTHER = "other", "Other"
+
+
+class FeedbackAction(models.TextChoices):
+    ACCEPT = "accept", "Accept"
+    REJECT = "reject", "Reject"

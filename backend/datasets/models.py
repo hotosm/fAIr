@@ -2,15 +2,8 @@ from django.contrib.gis.db import models as geomodels
 from django.db import models, transaction
 
 from accounts.models import OsmUser
-from shared.enums import Visibility
+from shared.enums import DatasetStatus, Visibility
 from shared.validators import validate_geometry
-
-
-class DatasetStatus(models.TextChoices):
-    DRAFT = "draft", "Draft"
-    BUILDING = "building", "Building"
-    BUILT = "built", "Built"
-    FAILED = "failed", "Failed"
 
 
 class Dataset(models.Model):
