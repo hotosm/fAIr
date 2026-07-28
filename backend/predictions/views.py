@@ -11,7 +11,7 @@ from drf_spectacular.utils import (
 from rest_framework import filters, serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound, PermissionDenied
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.throttling import ScopedRateThrottle
 
@@ -300,3 +300,23 @@ def _presigned_result_urls(prediction: Prediction) -> dict[str, str]:
         "fgb": presigned_get_url(StoragePaths.prediction_fgb_key(prediction.id)),
         "pmtiles": presigned_get_url(StoragePaths.prediction_pmtiles_key(prediction.id)),
     }
+
+
+@extend_schema_view(
+    list=extend_schema(
+        tags=["public-predictions"],
+        description="List published (public) predictions. No authentication required.",
+    ),
+    retrieve=extend_schema(
+        tags=["public-predictions"],
+        description="Retrieve one published (public) prediction. No authentication required.",
+    ),
+)
+class PublicPredictionViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Prediction.objects.filter(visibility=Visibility.PUBLIC)
+    serializer_class = PredictionSerializer
+    authentication_classes: list = []
+    permission_classes = [AllowAny]
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_fields = ["local_model_stac_id"]
+    ordering_fields = ["submitted_at"]
