@@ -4,7 +4,6 @@ import { Image } from "@/components/ui/image";
 import { useNavigate } from "react-router-dom";
 
 export const NavLogo = ({
-  
   smallerSize,
 }: {
   onClick?: () => void;
@@ -12,8 +11,7 @@ export const NavLogo = ({
 }) => {
   const navigate = useNavigate();
   const handleClick = () => {
-   
-      navigate(APPLICATION_ROUTES.HOMEPAGE);
+    navigate(APPLICATION_ROUTES.HOMEPAGE);
   };
 
   return (

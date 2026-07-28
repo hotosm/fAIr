@@ -133,16 +133,14 @@ export const NavBar = () => {
                         : ButtonVariant.PRIMARY
                     }
                     onClick={() => {
-                      if (isTryFairPage) {
-                        window.location.href = FAIR_PROD_URL;
-                      } else {
-                        /*
-                         * Set the `backgroundLocation` in location state so that when we open the authentication modal we still see the current page in the background.
-                         */
-                        navigate(location, {
-                          state: { backgroundLocation: location },
-                        });
-                      }
+
+                      /*
+                       * Set the `backgroundLocation` in location state so that when we open the authentication modal we still see the current page in the background.
+                       */
+                      navigate(location, {
+                        state: { backgroundLocation: location },
+                      });
+
                     }}
                   >
                     {isTryFairPage
