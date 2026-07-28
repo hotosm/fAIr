@@ -264,6 +264,8 @@ configs:
                 AWS_ENDPOINT_URL: http://minio:9000
                 AWS_ACCESS_KEY_ID: ${MINIO_ROOT_USER:-minioadmin}
                 AWS_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin}
+                NVIDIA_VISIBLE_DEVICES: all
+                NVIDIA_DRIVER_CAPABILITIES: compute,utility
         artifact_store:
           name: s3_compose
           flavor: s3

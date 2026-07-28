@@ -1,0 +1,75 @@
+# fair-dev instance override, layered on top of docker-compose.yml.
+services:
+  frontend-assets:
+    environment:
+      VITE_BASE_API_URL: ${VITE_BASE_API_URL}
+      VITE_AUTH_PROVIDER: ${VITE_AUTH_PROVIDER}
+      VITE_HANKO_URL: ${VITE_HANKO_URL}
+      VITE_FAIR_STAC_CATALOG_BASE_URL: ${VITE_FAIR_STAC_CATALOG_BASE_URL}
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    configs:
+      - source: caddyfile
+        target: /etc/caddy/Caddyfile
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - api
+
+  postgres:
+    restart: unless-stopped
+
+  minio:
+    restart: unless-stopped
+
+  stac:
+    restart: unless-stopped
+
+  mlflow:
+    restart: unless-stopped
+
+  zenml:
+    restart: unless-stopped
+
+  api:
+    restart: unless-stopped
+    entrypoint: ["sh", "-c", 'zenml init && zenml stack set fair-compose && python manage.py collectstatic --noinput && exec "$$@"', "--"]
+    command:
+      - gunicorn
+      - --bind=0.0.0.0:8000
+      - --workers=3
+      - --timeout=120
+      - config.wsgi:application
+
+  worker:
+    restart: unless-stopped
+
+configs:
+  caddyfile:
+    content: |
+      {
+        email ${CADDY_ACME_EMAIL:-sysadmin@hotosm.org}
+      }
+      ${PUBLIC_DOMAIN:-fair-dev.hotosm.org} {
+        handle_path /stac/* {
+          reverse_proxy stac:8080
+        }
+        reverse_proxy api:8000
+      }
+      # stac.${PUBLIC_DOMAIN:-fair-dev.hotosm.org} {
+      #   reverse_proxy stac:8080
+      # }
+      # mlflow.${PUBLIC_DOMAIN:-fair-dev.hotosm.org} { reverse_proxy mlflow:5000 }
+      # zenml.${PUBLIC_DOMAIN:-fair-dev.hotosm.org} { reverse_proxy zenml:8080 }
+      # minio.${PUBLIC_DOMAIN:-fair-dev.hotosm.org} { reverse_proxy minio:9000 }
+      # console.${PUBLIC_DOMAIN:-fair-dev.hotosm.org} { reverse_proxy minio:9001 }
+
+volumes:
+  caddy_data:
+  caddy_config:
