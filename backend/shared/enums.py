@@ -47,7 +47,7 @@ class BaseModelStatus(models.TextChoices):
     ARCHIVED = "archived", "Archived"
 
 
-class BaseModelCategory(models.TextChoices):
+class ModelCategory(models.TextChoices):
     BUILDINGS = "buildings", "Buildings"
     SOLAR_PANELS = "solar-panels", "Solar Panels"
     TREES = "trees", "Trees"

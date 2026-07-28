@@ -5,8 +5,9 @@ from .models import BaseModel, LocalModel
 
 @admin.register(LocalModel)
 class LocalModelAdmin(admin.ModelAdmin):
-    list_display = ["name", "status", "user", "created_at"]
-    list_filter = ["status", "created_at"]
+    list_display = ["name", "category", "status", "user", "created_at"]
+    list_editable = ["category", "status"]
+    list_filter = ["status", "category", "created_at"]
     search_fields = ["name", "user__username"]
     readonly_fields = ["created_at", "last_modified"]
     date_hierarchy = "created_at"
@@ -32,8 +33,10 @@ class BaseModelAdmin(admin.ModelAdmin):
 
         enqueued = 0
         for base_model in queryset:
-            if not base_model.stac_item:
-                messages.warning(request, f"{base_model.name}: no stac_item stored, skipped")
+            if not (base_model.stac_item or base_model.stac_item_url):
+                messages.warning(
+                    request, f"{base_model.name}: no stac_item or stac_item_url stored, skipped"
+                )
                 continue
             base_model.status = BaseModel.Status.REGISTERING
             base_model.error = ""

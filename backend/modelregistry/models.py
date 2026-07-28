@@ -2,9 +2,9 @@ from django.db import models
 
 from accounts.models import OsmUser
 from shared.enums import (
-    BaseModelCategory,
     BaseModelStatus,
     LocalModelStatus,
+    ModelCategory,
     Visibility,
 )
 
@@ -17,8 +17,15 @@ class LocalModel(models.Model):
 
     # Module-level enum: a nested class body cannot see it from inside Meta.
     Status = LocalModelStatus
+    Category = ModelCategory
 
     name = models.CharField(max_length=200, unique=True)
+    category = models.CharField(
+        max_length=50,
+        choices=ModelCategory.choices,
+        default=ModelCategory.OTHER,
+        db_index=True,
+    )
     status = models.CharField(
         max_length=20, choices=LocalModelStatus.choices, default=LocalModelStatus.ACTIVE
     )
@@ -57,13 +64,13 @@ class LocalModel(models.Model):
 
 class BaseModel(models.Model):
     Status = BaseModelStatus
-    Category = BaseModelCategory
+    Category = ModelCategory
 
     name = models.CharField(max_length=200, unique=True)
     category = models.CharField(
         max_length=50,
-        choices=BaseModelCategory.choices,
-        default=BaseModelCategory.OTHER,
+        choices=ModelCategory.choices,
+        default=ModelCategory.OTHER,
         db_index=True,
     )
     status = models.CharField(
@@ -75,6 +82,7 @@ class BaseModel(models.Model):
         max_length=20, choices=Visibility.choices, default=Visibility.PUBLIC, db_index=True
     )
     stac_item = models.JSONField(default=dict, blank=True)
+    stac_item_url = models.URLField(blank=True, default="")
     error = models.TextField(blank=True, default="")
     user = models.ForeignKey(
         OsmUser,
