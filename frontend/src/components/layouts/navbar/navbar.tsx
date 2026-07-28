@@ -21,7 +21,6 @@ import {
   FRONTEND_URL,
   HANKO_URL,
   IS_DEV,
-  FAIR_PROD_URL,
 } from "@/config";
 import "@hotosm/tool-menu";
 import { Divider } from "@/components/ui/divider";
@@ -133,14 +132,12 @@ export const NavBar = () => {
                         : ButtonVariant.PRIMARY
                     }
                     onClick={() => {
-
                       /*
                        * Set the `backgroundLocation` in location state so that when we open the authentication modal we still see the current page in the background.
                        */
                       navigate(location, {
                         state: { backgroundLocation: location },
                       });
-
                     }}
                   >
                     {isTryFairPage
@@ -209,16 +206,12 @@ export const NavBar = () => {
                   size={isTryFairPage ? "medium" : "large"}
                   rounded={isTryFairPage}
                   onClick={() => {
-                    if (isTryFairPage) {
-                      window.location.href = FAIR_PROD_URL;
-                    } else {
-                      /*
-                       * Set the `backgroundLocation` in location state so that when we open the authentication modal we still see the current page in the background.
-                       */
-                      navigate(location, {
-                        state: { backgroundLocation: location },
-                      });
-                    }
+                    /*
+                     * Set the `backgroundLocation` in location state so that when we open the authentication modal we still see the current page in the background.
+                     */
+                    navigate(location, {
+                      state: { backgroundLocation: location },
+                    });
                   }}
                 >
                   {isTryFairPage
