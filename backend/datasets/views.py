@@ -6,7 +6,12 @@ from django.shortcuts import get_object_or_404
 from django.utils.text import slugify
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import OpenApiResponse, extend_schema, extend_schema_view
+from drf_spectacular.utils import (
+    OpenApiExample,
+    OpenApiResponse,
+    extend_schema,
+    extend_schema_view,
+)
 from gpxpy.gpx import GPX, GPXTrack, GPXTrackPoint, GPXTrackSegment
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
@@ -155,7 +160,31 @@ class DatasetViewSet(viewsets.ModelViewSet):
         )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @extend_schema(request=DatasetCreateSerializer, responses={202: DatasetSerializer})
+    @extend_schema(
+        request=DatasetCreateSerializer,
+        responses={202: DatasetSerializer},
+        examples=[
+            OpenApiExample(
+                "Buildings dataset",
+                value={
+                    "title": "banepa-buildings",
+                    "description": "Buildings training dataset",
+                    "source_imagery": (
+                        "https://tiles.openaerialmap.org/62d85d11d8499800053796c1/0/"
+                        "62d85d11d8499800053796c2/{z}/{x}/{y}"
+                    ),
+                    "zoom": 19,
+                    "aoi_ids": [1],
+                    "label_tasks": ["semantic-segmentation"],
+                    "label_classes": [{"name": "building", "classes": ["*"]}],
+                    "keywords": ["building", "polygon"],
+                    "label_type": "vector",
+                    "geometry_type": "polygon",
+                },
+                request_only=True,
+            )
+        ],
+    )
     @action(detail=False, methods=["post"], url_path="build")
     def build(self, request) -> Response:
         serializer = DatasetCreateSerializer(data=request.data)
@@ -193,7 +222,31 @@ class DatasetViewSet(viewsets.ModelViewSet):
 
 @extend_schema_view(
     list=extend_schema(description="List AOIs visible to the caller, optionally filtered by bbox."),
-    create=extend_schema(description="Create an AOI polygon owned by the caller."),
+    create=extend_schema(
+        description="Create an AOI polygon owned by the caller.",
+        examples=[
+            OpenApiExample(
+                "Banepa AOI",
+                value={
+                    "type": "Feature",
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [85.51678, 27.63133],
+                                [85.52323, 27.63133],
+                                [85.52323, 27.63743],
+                                [85.51678, 27.63743],
+                                [85.51678, 27.63133],
+                            ]
+                        ],
+                    },
+                    "properties": {"dataset": None},
+                },
+                request_only=True,
+            )
+        ],
+    ),
     retrieve=extend_schema(description="Retrieve one AOI by id."),
     update=extend_schema(description="Replace an AOI (owner/admin only)."),
     partial_update=extend_schema(description="Patch an AOI (owner/admin only)."),

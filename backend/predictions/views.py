@@ -2,7 +2,12 @@ from django.conf import settings
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from drf_spectacular.utils import extend_schema, extend_schema_view, inline_serializer
+from drf_spectacular.utils import (
+    OpenApiExample,
+    extend_schema,
+    extend_schema_view,
+    inline_serializer,
+)
 from rest_framework import filters, serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound, PermissionDenied
@@ -98,6 +103,25 @@ class PredictionViewSet(viewsets.ReadOnlyModelViewSet):
             return [IsAuthenticated(), IsOwnerOrAdmin()]
         return super().get_permissions()
 
+    @extend_schema(
+        request=PredictionSubmitSerializer,
+        examples=[
+            OpenApiExample(
+                "Submit prediction",
+                value={
+                    "model_stac_id": "0311d82d-0f8e-4021-adc5-bb4d6b81a1d4",
+                    "image_uri": (
+                        "https://tiles.openaerialmap.org/62d85d11d8499800053796c1/0/"
+                        "62d85d11d8499800053796c2/{z}/{x}/{y}"
+                    ),
+                    "bbox": [85.51678, 27.63133, 85.52323, 27.63743],
+                    "zoom": 19,
+                    "params": {"confidence_threshold": 0.25},
+                },
+                request_only=True,
+            )
+        ],
+    )
     @action(
         detail=False,
         methods=["post"],
