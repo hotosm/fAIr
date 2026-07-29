@@ -34,6 +34,7 @@ import {
   DEFAULT_FAIR_IMAGERY_CENTER,
   FALLBACK_FAIR_IMAGERY,
   FALLBACK_FAIR_IMAGERY_CENTER,
+  getModelOutputType,
   TRY_FAIR_INITIAL_MAP_ZOOM,
 } from "@/features/try-fair/utils/common";
 import { Dialog } from "@/components/ui/dialog";
@@ -196,6 +197,17 @@ export const TryFairPage = () => {
       };
     }
   }, [map, selectedModel, imageryCenter]);
+
+  useEffect(() => {
+    if (
+      selectedModel &&
+      getModelOutputType(selectedModel) === TryFairMapOutputType.POINTS &&
+      outputType === TryFairMapOutputType.POLYGON
+    ) {
+      setOutputType(TryFairMapOutputType.POINTS);
+    }
+  }, [selectedModel, outputType, setOutputType]);
+
   const {
     predict,
     isPredicting,
@@ -217,6 +229,7 @@ export const TryFairPage = () => {
     if (confidenceParam && typeof confidenceParam.spec.default === "number") {
       setConfidence(confidenceParam.spec.default);
     }
+    setOutputType(getModelOutputType(model));
     setIsDirty(true);
     clearPredictions();
   };
@@ -283,7 +296,7 @@ export const TryFairPage = () => {
     const apiParams = Object.fromEntries(
       Object.entries(paramValues).map(([parameterName, parameterValue]) =>
         parameterName === "confidence_threshold"
-          ? [parameterName, parseFloat((1 - Number(parameterValue)).toFixed(2))]
+          ? [parameterName, parseFloat(Number(parameterValue).toFixed(2))]
           : [parameterName, parameterValue],
       ),
     );
@@ -406,6 +419,7 @@ export const TryFairPage = () => {
                 snapPoints={[0.2, 0.7]}
                 modal={false}
                 showOverlay={false}
+                handleOnly
               >
                 <TryFairSidebar
                   selectedModel={selectedModel}

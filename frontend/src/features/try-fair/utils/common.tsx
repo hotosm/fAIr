@@ -1,5 +1,6 @@
 import { TRY_FAIR_PAGE_CONTENT } from "@/constants/ui-contents/try-fair-contents";
 import { TryFairMapOutputType, TryFairResolution } from "@/enums/try-fair";
+import { BaseModelStacItem } from "@/features/try-fair/api/stac";
 import { PointsIcon } from "@/components/ui/icons/points-icons";
 import { ClusterIcon } from "@/components/ui/icons/cluster-icon";
 import { PolygonIcon } from "@/components/ui/icons/polygon-icon";
@@ -68,9 +69,22 @@ export const TRY_FAIR_RESOLUTION_ZOOM: Record<TryFairResolution, number> = {
   [TryFairResolution.HIGH]: 20,
 };
 
+/**
+ * The map output mode that matches a model's output geometry. The geometry is
+ * carried as one of the model's keywords (point | line | polygon): point output
+ * needs the circle layer, line and polygon render via the fill/line layers.
+ */
+export const getModelOutputType = (
+  model: BaseModelStacItem,
+): TryFairMapOutputType =>
+  model.properties.keywords.includes("point")
+    ? TryFairMapOutputType.POINTS
+    : TryFairMapOutputType.POLYGON;
+
 // Prediction layer IDs (kept in sync with try-fair-prediction-results.tsx)
 export const PREDICTION_LAYER_IDS = [
   "try-fair-predictions-fill",
+  "try-fair-predictions-casing",
   "try-fair-predictions-outline",
   "try-fair-predictions-circle",
   "try-fair-predictions-cluster",

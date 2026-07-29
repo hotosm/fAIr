@@ -66,7 +66,11 @@ if settings.auth_provider is AuthProvider.HANKO:
 
 FAIR_ZENML_STORE_URL = _str(settings.fair_zenml_store_url)
 FAIR_ZENML_STORE_API_KEY = _secret(settings.fair_zenml_store_api_key)
-FAIR_STAC_API_URL = _str(settings.fair_stac_api_url)
+# AnyHttpUrl appends a trailing slash when the URL carries no path, which would
+# double up against the "/collections/..." suffixes appended at every call site.
+FAIR_STAC_API_URL = (
+    _str(settings.fair_stac_api_url).rstrip("/") if settings.fair_stac_api_url else None
+)
 FAIR_STAC_API_KEY = _secret(settings.fair_stac_api_key)
 
 BUCKET_NAME = settings.bucket_name
@@ -121,6 +125,8 @@ if settings.auth_provider is AuthProvider.HANKO:
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    # Optional deployment of frontend dist from the server
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -250,6 +256,12 @@ MEDIA_URL = "/media/"
 STATIC_ROOT = str(BASE_DIR / "api_static")
 MEDIA_ROOT = str(BASE_DIR / "media")
 
+SERVE_FRONTEND = settings.serve_frontend
+FRONTEND_DIST_DIR = settings.frontend_dist_dir
+if SERVE_FRONTEND:
+    WHITENOISE_ROOT = str(FRONTEND_DIST_DIR)
+    WHITENOISE_INDEX_FILE = True
+
 _logger_handlers: list[str] = ["console"] if DEBUG else ["console", "file"]
 _log_handlers: dict[str, Any] = {
     "console": {
@@ -344,6 +356,13 @@ SPECTACULAR_SETTINGS = {
     "COMPONENT_SPLIT_REQUEST": True,
     "SCHEMA_PATH_PREFIX": "/api/v1",
     "SCHEMA_PATH_PREFIX_TRIM": True,
+    "ENUM_NAME_OVERRIDES": {
+        "PipelineRunStatus": "shared.enums.PipelineRunStatus.choices",
+        "DatasetStatus": "shared.enums.DatasetStatus.choices",
+        "LocalModelStatus": "shared.enums.LocalModelStatus.choices",
+        "BaseModelStatus": "shared.enums.BaseModelStatus.choices",
+        "ModelCategory": "shared.enums.ModelCategory.choices",
+    },
 }
 
 TEST_RUNNER = "tests.test_runners.NoDestroyTestRunner"
@@ -365,7 +384,7 @@ def _extract_domain(url: str) -> str | None:
     return urlparse(url).hostname
 
 
-if DEBUG:
+if DEBUG or settings.cors_allow_all_origins:
     CORS_ALLOW_ALL_ORIGINS = True
     CORS_ALLOW_CREDENTIALS = False
 else:

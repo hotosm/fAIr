@@ -1,3 +1,4 @@
+{{- $bundle := eq (.Values.frontend.mode | default "bundleWithBackend") "bundleWithBackend" -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -29,6 +30,22 @@ spec:
       securityContext:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- if $bundle }}
+      initContainers:
+        # Copies the built SPA into the shared volume the API pod serves via
+        # Django/WhiteNoise (SERVE_FRONTEND=true, see configmap).
+        - name: frontend-assets
+          image: "{{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.frontend.image.pullPolicy }}
+          env:
+            {{- range $key, $value := (.Values.frontend.runtimeEnv | default dict) }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+          volumeMounts:
+            - name: frontend-html
+              mountPath: /frontend_html
+      {{- end }}
       containers:
         - name: api
           image: {{ include "fair.backend.image" . }}
@@ -48,6 +65,13 @@ spec:
             {{- toYaml . | nindent 12 }}
             {{- end }}
           env:
+            {{- range $key, $val := .Values.backend.env }}
+            - name: {{ $key }}
+              value: {{ $val | quote }}
+            {{- end }}
+            {{- if .Values.postgres.enabled }}
+            {{- include "fair.postgresDatabaseUrlEnv" . | nindent 12 }}
+            {{- else }}
             - name: DATABASE_PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -60,6 +84,13 @@ spec:
                   {{- end }}
             - name: DATABASE_URL
               value: {{ include "fair.databaseUrl" . | quote }}
+            {{- end }}
+          {{- if $bundle }}
+          volumeMounts:
+            - name: frontend-html
+              mountPath: /app/frontend_html
+              readOnly: true
+          {{- end }}
           {{- with .Values.backend.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
@@ -91,6 +122,9 @@ spec:
             {{- toYaml . | nindent 12 }}
             {{- end }}
           env:
+            {{- if .Values.postgres.enabled }}
+            {{- include "fair.postgresDatabaseUrlEnv" . | nindent 12 }}
+            {{- else }}
             - name: DATABASE_PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -103,6 +137,7 @@ spec:
                   {{- end }}
             - name: DATABASE_URL
               value: {{ include "fair.databaseUrl" . | quote }}
+            {{- end }}
           {{- with .Values.backend.djangoQ.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
@@ -112,6 +147,11 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
         {{- end }}
+      {{- if $bundle }}
+      volumes:
+        - name: frontend-html
+          emptyDir: {}
+      {{- end }}
       {{- with .Values.backend.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

@@ -2,21 +2,20 @@ from django.contrib.gis.db import models as geomodels
 from django.db import models, transaction
 
 from accounts.models import OsmUser
-from shared.enums import Visibility
+from shared.enums import DatasetStatus, Visibility
 from shared.validators import validate_geometry
 
 
 class Dataset(models.Model):
-    class Status(models.TextChoices):
-        DRAFT = "draft", "Draft"
-        BUILDING = "building", "Building"
-        BUILT = "built", "Built"
-        FAILED = "failed", "Failed"
+    # Module-level enum: a nested class body cannot see it from inside Meta.
+    Status = DatasetStatus
 
     stac_id = models.CharField(max_length=200, unique=True)
     title = models.CharField(max_length=200)
     source_imagery = models.URLField()
-    status = models.CharField(max_length=20, choices=Status.choices, default=Status.DRAFT)
+    status = models.CharField(
+        max_length=20, choices=DatasetStatus.choices, default=DatasetStatus.DRAFT
+    )
     visibility = models.CharField(
         max_length=20, choices=Visibility.choices, default=Visibility.PRIVATE, db_index=True
     )
@@ -30,6 +29,16 @@ class Dataset(models.Model):
         indexes = [
             models.Index(fields=["status"]),
             models.Index(fields=["user"]),
+        ]
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(status__in=DatasetStatus.values),
+                name="dataset_status_valid",
+            ),
+            models.CheckConstraint(
+                condition=models.Q(visibility__in=Visibility.values),
+                name="dataset_visibility_valid",
+            ),
         ]
         ordering = ["-created_at"]
 

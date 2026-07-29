@@ -2,17 +2,18 @@ from django.contrib.gis.db import models as geomodels
 from django.db import models
 
 from accounts.models import OsmUser
+from shared.enums import FeedbackAction
 from shared.validators import validate_geometry
 
 
 class Feedback(models.Model):
-    class Action(models.TextChoices):
-        ACCEPT = "accept", "Accept"
-        REJECT = "reject", "Reject"
+    Action = FeedbackAction
 
     stac_id = models.CharField(max_length=200, db_index=True)
     geom = geomodels.GeometryField(srid=4326)
-    action = models.CharField(max_length=6, choices=Action.choices, default=Action.ACCEPT)
+    action = models.CharField(
+        max_length=6, choices=FeedbackAction.choices, default=FeedbackAction.ACCEPT
+    )
     comments = models.TextField(blank=True)
     config = models.JSONField(default=dict, blank=True)
     user = models.ForeignKey(

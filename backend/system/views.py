@@ -10,8 +10,14 @@ from django.db.utils import OperationalError
 from drf_spectacular.utils import extend_schema
 from rest_framework import serializers
 from rest_framework.decorators import throttle_classes
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
+from accounts.models import OsmUser
+from feedback.models import Feedback
+from modelregistry.models import LocalModel
+from shared.enums import FeedbackAction, LocalModelStatus
 from shared.integrations.stac import (
     BASE_MODELS_COLLECTION,
     DATASETS_COLLECTION,
@@ -136,3 +142,39 @@ async def health(request) -> Response:
         }
 
     return Response(payload)
+
+
+class KpiStatsSerializer(serializers.Serializer):
+    total_models_published = serializers.IntegerField()
+    total_registered_users = serializers.IntegerField()
+    total_feedback_labels = serializers.IntegerField()
+    total_accepted_predictions = serializers.IntegerField()
+
+
+class KpiStatsView(APIView):
+    authentication_classes: list = []
+    permission_classes = [AllowAny]
+    throttle_classes: list = []
+
+    @extend_schema(
+        tags=["system"],
+        responses=KpiStatsSerializer,
+        auth=[],
+        description=(
+            "Public homepage counters: published models, registered users, "
+            "feedback labels, accepted predictions."
+        ),
+    )
+    def get(self, request) -> Response:
+        return Response(
+            {
+                "total_models_published": LocalModel.objects.filter(
+                    status=LocalModelStatus.ACTIVE
+                ).count(),  # TODO: should be localmodels+basemodels
+                "total_registered_users": OsmUser.objects.count(),
+                "total_feedback_labels": Feedback.objects.count(),
+                "total_accepted_predictions": Feedback.objects.filter(
+                    action=FeedbackAction.ACCEPT
+                ).count(),
+            }
+        )

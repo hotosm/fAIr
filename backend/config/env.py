@@ -54,12 +54,20 @@ class Settings(BaseSettings):
     allowed_hosts: Annotated[list[str], NoDecode] = Field(default_factory=list)
     csrf_trusted_origins: Annotated[list[str], NoDecode] = Field(default_factory=list)
     cors_allowed_origins: Annotated[list[str], NoDecode] = Field(default_factory=list)
+    cors_allow_all_origins: bool = False
     secure_ssl_redirect: bool = True
 
     # Frontend / API URLs
     frontend_url: AnyHttpUrl
     api_base_url: AnyHttpUrl
     hostname: str = "127.0.0.1"
+
+    # Serve the built frontend SPA from this backend (bundled deploy). When true,
+    # WhiteNoise serves the SPA assets from `frontend_dist_dir` and a catch-all
+    # route returns index.html for client-side routes. Leave false when the
+    # frontend is served separately (e.g. S3 + CloudFront).
+    serve_frontend: bool = False
+    frontend_dist_dir: Path = BASE_DIR / "frontend_html"
 
     # Authentication
     auth_provider: AuthProvider = AuthProvider.HANKO

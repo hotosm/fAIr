@@ -1,6 +1,11 @@
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from drf_spectacular.utils import extend_schema, extend_schema_view, inline_serializer
+from drf_spectacular.utils import (
+    OpenApiExample,
+    extend_schema,
+    extend_schema_view,
+    inline_serializer,
+)
 from rest_framework import filters, serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound, PermissionDenied
@@ -83,6 +88,20 @@ class TrainingViewSet(viewsets.ReadOnlyModelViewSet):
     ordering_fields = ["submitted_at", "last_polled_at"]
     throttle_scope = "training_submit"
 
+    @extend_schema(
+        request=TrainingSubmitSerializer,
+        examples=[
+            OpenApiExample(
+                "Submit finetune",
+                value={
+                    "base_model_stac_id": "unet-segmentation",
+                    "dataset_stac_id": "banepa-buildings-1712345678-abcdef",
+                    "model_name": "banepa-unet",
+                },
+                request_only=True,
+            )
+        ],
+    )
     @action(
         detail=False,
         methods=["post"],
@@ -216,6 +235,16 @@ class TrainingViewSet(viewsets.ReadOnlyModelViewSet):
             name="TrainingPublishResponse",
             fields={"local_model_stac_id": serializers.CharField()},
         ),
+        examples=[
+            OpenApiExample(
+                "Publish trained model",
+                value={
+                    "title": "Banepa buildings UNet",
+                    "description": "Promoted from training run",
+                },
+                request_only=True,
+            )
+        ],
     )
     @action(detail=True, methods=["post"], url_path="publish")
     def publish(self, request, pk: int | None = None) -> Response:

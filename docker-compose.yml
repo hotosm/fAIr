@@ -1,3 +1,19 @@
+x-backend: &backend
+  image: ghcr.io/hotosm/fair/api:develop
+  build:
+    context: ./backend
+  env_file:
+    - ./.env
+
+# FairClient.setup() re-runs `zenml init`, which resets the active stack unless
+# the repo is already initialised, so api and worker prime it before starting.
+x-zenml-entrypoint: &zenml-entrypoint
+  entrypoint: ["sh", "-c", 'zenml init && zenml stack set fair-compose && exec "$$@"', "--"]
+
+networks:
+  default:
+    name: fair-net
+
 services:
   postgres:
     image: postgis/postgis:17-3.5-alpine
@@ -10,47 +26,266 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER:-admin}"]
+      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER:-admin}", "-d", "${POSTGRES_DB:-fair}"]
       interval: 5s
       timeout: 3s
       retries: 10
 
-  api:
+  db-init:
+    image: postgis/postgis:17-3.5-alpine
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGHOST: postgres
+      PGUSER: ${POSTGRES_USER:-admin}
+      PGPASSWORD: ${POSTGRES_PASSWORD:-password}
+      PGDATABASE: ${POSTGRES_DB:-fair}
+    command:
+      - sh
+      - -c
+      - |
+        set -e
+        for db in zenml mlflow stac; do
+          psql -tAc "SELECT 1 FROM pg_database WHERE datname='$$db'" | grep -q 1 ||
+            psql -c "CREATE DATABASE $$db"
+        done
+        psql -d stac -c "CREATE EXTENSION IF NOT EXISTS postgis; CREATE EXTENSION IF NOT EXISTS btree_gist"
+
+  minio:
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z
+    command: ["server", "/data", "--console-address", ":9001"]
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+    ports:
+      - "${MINIO_PORT:-9000}:9000"
+      - "${MINIO_CONSOLE_PORT:-9001}:9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  minio-init:
+    image: minio/mc:RELEASE.2025-08-13T08-35-41Z
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint:
+      - sh
+      - -c
+      - |
+        set -e
+        mc alias set --quiet fair http://minio:9000 ${MINIO_ROOT_USER:-minioadmin} ${MINIO_ROOT_PASSWORD:-minioadmin}
+        mc mb --ignore-existing fair/fair-data fair/mlflow fair/zenml
+        for b in fair-data zenml; do mc anonymous set download "fair/$$b"; done
+
+  pgstac-migrate:
+    image: ghcr.io/stac-utils/pgstac-pypgstac:v0.9.9
+    depends_on:
+      db-init:
+        condition: service_completed_successfully
+    environment:
+      PGHOST: postgres
+      PGPORT: "5432"
+      PGUSER: ${POSTGRES_USER:-admin}
+      PGPASSWORD: ${POSTGRES_PASSWORD:-password}
+      PGDATABASE: stac
+    command: ["pypgstac", "migrate"]
+
+  stac:
+    image: ghcr.io/stac-utils/stac-fastapi-pgstac:5.0.2
+    depends_on:
+      pgstac-migrate:
+        condition: service_completed_successfully
+    environment:
+      POSTGRES_HOST_READER: postgres
+      POSTGRES_HOST_WRITER: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: ${POSTGRES_USER:-admin}
+      POSTGRES_PASS: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_DBNAME: stac
+      APP_HOST: 0.0.0.0
+      APP_PORT: "8080"
+      ENABLE_TRANSACTIONS_EXTENSIONS: "TRUE"
+    ports:
+      - "${STAC_PORT:-8082}:8080"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/_mgmt/ping')"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  mlflow:
+    image: burakince/mlflow:3.7.0
+    depends_on:
+      db-init:
+        condition: service_completed_successfully
+      minio-init:
+        condition: service_completed_successfully
+    environment:
+      MLFLOW_S3_ENDPOINT_URL: http://minio:9000
+      AWS_ACCESS_KEY_ID: ${MINIO_ROOT_USER:-minioadmin}
+      AWS_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin}
+    command:
+      - mlflow
+      - server
+      - --host=0.0.0.0
+      - --port=5000
+      - --backend-store-uri=postgresql://${POSTGRES_USER:-admin}:${POSTGRES_PASSWORD:-password}@postgres:5432/mlflow
+      - --default-artifact-root=s3://mlflow/
+      - --serve-artifacts
+      - --allowed-hosts=mlflow:5000,localhost:5000
+    ports:
+      - "${MLFLOW_PORT:-5000}:5000"
+
+  zenml:
+    image: ghcr.io/hotosm/fair/zenml-postgres:0.94.2
+    depends_on:
+      db-init:
+        condition: service_completed_successfully
+    environment:
+      ZENML_STORE_URL: postgresql://${POSTGRES_USER:-admin}:${POSTGRES_PASSWORD:-password}@postgres:5432/zenml
+      ZENML_SERVER_AUTO_ACTIVATE: "1"
+      ZENML_ANALYTICS_OPT_IN: "false"
+    ports:
+      - "${ZENML_PORT:-8080}:8080"
+
+  zenml-init:
+    <<: *backend
+    depends_on:
+      zenml:
+        condition: service_started
+      minio-init:
+        condition: service_completed_successfully
+    configs:
+      - source: zenml_stack
+        target: /tmp/fair-compose.yaml
+    command:
+      - sh
+      - -c
+      - |
+        set -e
+        until zenml stack list; do sleep 5; done
+        zenml stack describe fair-compose ||
+          zenml stack import fair-compose -f /tmp/fair-compose.yaml --ignore-version-mismatch
+
+  # Registers the base models
+  stac-seed:
+    <<: *backend
+    depends_on:
+      stac:
+        condition: service_healthy
+    environment:
+      FAIR_USER_ID: fair-seed
+    command:
+      - sh
+      - -c
+      - |
+        set -e
+        root=$$(python -c "import models, pathlib; print(pathlib.Path(models.__file__).parent)")
+        registered=$$(fair item list base-models | cut -f1)
+        for item in "$$root"/*/stac-item.json; do
+          id=$$(python -c "import json, sys; print(json.load(open(sys.argv[1]))['id'])" "$$item")
+          if echo "$$registered" | grep -Fxq "$$id"; then
+            echo "seed: $$id already registered"
+          else
+            fair basemodel register "$$item"
+          fi
+        done
+
+  frontend-assets:
+    image: ghcr.io/hotosm/fair/frontend:develop
     build:
-      context: ./backend
-    env_file:
-      - ./backend/.env
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    environment:
+      VITE_FAIR_STAC_CATALOG_BASE_URL: ${VITE_FAIR_STAC_CATALOG_BASE_URL:-http://localhost:${STAC_PORT:-8082}/}
+    volumes:
+      - frontend_html:/frontend_html
+
+  migrate:
+    <<: *backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["python", "manage.py", "migrate", "--noinput"]
+
+  api:
+    <<: [*backend, *zenml-entrypoint]
+    environment:
+      SERVE_FRONTEND: "true"
+      FRONTEND_DIST_DIR: /frontend_html
     ports:
       - "${API_PORT:-8000}:8000"
     depends_on:
-      postgres:
-        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      frontend-assets:
+        condition: service_completed_successfully
+      zenml-init:
+        condition: service_completed_successfully
+      stac-seed:
+        condition: service_completed_successfully
     volumes:
-      - ./backend:/app
+      - frontend_html:/frontend_html
     command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
 
   worker:
-    build:
-      context: ./backend
-    env_file:
-      - ./backend/.env
+    <<: [*backend, *zenml-entrypoint]
     depends_on:
-      postgres:
-        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      zenml-init:
+        condition: service_completed_successfully
     volumes:
-      - ./backend:/app
+      - /var/run/docker.sock:/var/run/docker.sock
     command: ["python", "manage.py", "db_worker"]
 
-  frontend:
-    profiles: ["dev"]
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile.dev
-    ports:
-      - "${FRONTEND_PORT:-3500}:3000"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
+configs:
+  zenml_stack:
+    content: |
+      stack_name: fair-compose
+      zenml_version: 0.94.2
+      components:
+        orchestrator:
+          name: docker_compose
+          flavor: local_docker
+          type: orchestrator
+          configuration:
+            synchronous: false
+            run_args:
+              network: fair-net
+              user: "0"
+              environment:
+                AWS_ENDPOINT_URL: http://minio:9000
+                AWS_ACCESS_KEY_ID: ${MINIO_ROOT_USER:-minioadmin}
+                AWS_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin}
+                NVIDIA_VISIBLE_DEVICES: all
+                NVIDIA_DRIVER_CAPABILITIES: compute,utility
+        artifact_store:
+          name: s3_compose
+          flavor: s3
+          type: artifact_store
+          configuration:
+            path: s3://zenml
+            key: ${MINIO_ROOT_USER:-minioadmin}
+            secret: ${MINIO_ROOT_PASSWORD:-minioadmin}
+            client_kwargs:
+              endpoint_url: "http://minio:9000"
+        experiment_tracker:
+          name: mlflow_compose
+          flavor: mlflow
+          type: experiment_tracker
+          configuration:
+            tracking_uri: "http://mlflow:5000"
+            tracking_username: admin
+            tracking_password: admin
 
 volumes:
   postgres_data:
+  minio_data:
+  frontend_html:

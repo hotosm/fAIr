@@ -4,6 +4,10 @@ import DropDown from "@/components/ui/dropdown/dropdown";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { ChevronDownIcon } from "@/components/ui/icons";
 import { BuildingIcon } from "@/components/ui/icons/buildings-icon";
+import { TreesIcon } from "@/components/ui/icons/trees-icon";
+import { SwimmingPoolIcon } from "@/components/ui/icons/swimming-pool-icon";
+import { ParkingIcon } from "@/components/ui/icons/parking-icon";
+import { IconProps } from "@/types";
 
 type ModelPickerProps = {
   selectedModel: BaseModelStacItem | null;
@@ -15,13 +19,20 @@ type ModelPickerProps = {
   openMobileDialog?: () => void;
 };
 
+const FEATURE_ICONS: Record<string, React.FC<IconProps>> = {
+  building: BuildingIcon,
+  tree: TreesIcon,
+  swimming_pool: SwimmingPoolIcon,
+  parking: ParkingIcon,
+};
+
 const FeatureBadge = ({ label }: { label: string | undefined }) => {
-  const featureLabel =
-    label ?? "".replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  const Icon = FEATURE_ICONS[label ?? ""] ?? BuildingIcon;
+  const featureLabel = (label ?? "").replace(/[-_]/g, " ");
 
   return (
     <span className="inline-flex gap-2 items-center px-2 py-0.5 capitalize rounded bg-grey text-white text-xs font-medium">
-      <BuildingIcon />
+      <Icon />
       {featureLabel}
     </span>
   );
@@ -38,6 +49,12 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
 }) => {
   const { onDropdownHide, dropdownRef } = useDropdownMenu();
   const [isOpen, setIsOpen] = useState(false);
+  const selectedLocation = [
+    selectedModel?.properties["fair:preview_place"],
+    selectedModel?.properties["fair:preview_country"],
+  ]
+    .filter(Boolean)
+    .join(", ");
 
   const handleSelect = (model: BaseModelStacItem) => {
     onSelect(model);
@@ -62,6 +79,11 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
             <p className="font-medium text-dark text-xs leading-tight">
               {selectedModel.properties.title}
             </p>
+            {selectedLocation && (
+              <p className="text-grey text-[10px] leading-tight truncate">
+                {selectedLocation}
+              </p>
+            )}
           </>
         ) : (
           <p className="text-grey text-xs">Select a model</p>
@@ -129,7 +151,8 @@ export const ModelPickerContent = ({
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
       {models.map((model) => {
         const isSelected = selectedModel?.id === model.id;
-        // const tasks = model.properties["mlm:tasks"] ?? [];
+        const baseModelTitle = model?.properties?.["fair:base_model_title"];
+        const coverage = model?.properties?.["fair:coverage"];
         return (
           <button
             key={model.id}
@@ -154,9 +177,14 @@ export const ModelPickerContent = ({
                 )}
               </span>
             </div>
-            <p className="text-grey text-xs mb-0.5">
-              Model: {model?.properties?.["mlm:name"] ?? ""}
-            </p>
+            {baseModelTitle && (
+              <p className="text-grey text-xs mb-0.5">
+                Model: {baseModelTitle}
+              </p>
+            )}
+            {coverage && (
+              <p className="text-grey text-xs mb-0.5 capitalize">{coverage}</p>
+            )}
             <p className="text-grey text-xs mb-2">
               By: {model?.properties?.providers[0]?.name ?? ""}
             </p>

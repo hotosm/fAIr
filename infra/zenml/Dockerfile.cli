@@ -2,7 +2,7 @@ ARG ZENML_VERSION
 FROM ghcr.io/spwoodcock/awscli-kubectl:latest AS cli-tools
 
 
-FROM ghcr.io/hotosm/zenml-postgres:${ZENML_VERSION} AS cli
+FROM ghcr.io/hotosm/fair/zenml-postgres:${ZENML_VERSION} AS cli
 USER root
 RUN apt-get update && apt-get install -y --no-install-recommends \
     fish \

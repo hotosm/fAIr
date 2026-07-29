@@ -6,10 +6,16 @@ metadata:
     {{- include "fair.labels" . | nindent 4 }}
     app.kubernetes.io/component: backend
 data:
+  {{- if eq (.Values.frontend.mode | default "bundleWithBackend") "bundleWithBackend" }}
+  # Serve the SPA baked into the fair/api image via Django/WhiteNoise.
+  SERVE_FRONTEND: "true"
+  {{- end }}
+  {{- if not .Values.postgres.enabled }}
   DATABASE_HOST: {{ .Values.externalDatabase.host | quote }}
   DATABASE_PORT: {{ .Values.externalDatabase.port | toString | quote }}
   DATABASE_NAME: {{ .Values.externalDatabase.database | quote }}
   DATABASE_USER: {{ .Values.externalDatabase.username | quote }}
+  {{- end }}
   {{- range $key, $value := .Values.backend.env }}
   {{ $key }}: {{ $value | quote }}
   {{- end }}

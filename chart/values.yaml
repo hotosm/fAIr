@@ -3,7 +3,7 @@ backendReplicaCount: 1
 
 image:
   backend:
-    repository: ghcr.io/hotosm/fair-api
+    repository: ghcr.io/hotosm/fair/api
     tag: ""  # defaults to appVersion
     pullPolicy: IfNotPresent
 
@@ -23,7 +23,7 @@ backend:
     - --bind=0.0.0.0:8000
     - --workers=3
     - --timeout=120
-    - fairproject.wsgi:application
+    - config.wsgi:application
 
   # -- Run Django-Q cluster as a sidecar for lightweight async tasks
   djangoQ:
@@ -60,16 +60,22 @@ backend:
 
   livenessProbe:
     httpGet:
-      path: /api/
+      path: /api
       port: http
+      httpHeaders:
+      - name: Host
+        value: localhost
     initialDelaySeconds: 30
     periodSeconds: 30
     timeoutSeconds: 5
 
   readinessProbe:
     httpGet:
-      path: /api/
+      path: /api
       port: http
+      httpHeaders: # use localhost rather than hosts IP
+      - name: Host
+        value: localhost
     initialDelaySeconds: 15
     periodSeconds: 10
     timeoutSeconds: 5
@@ -89,7 +95,44 @@ backend:
     type: ClusterIP
     port: 8000
 
-# -- Ingress configuration
+# -- Frontend deployment. The SPA comes from the fair/frontend image, which runs
+# as an init container (copies assets into a shared volume and exits; not a web
+# server). See frontend/Dockerfile.prod. Two mutually exclusive modes:
+#   "bundleWithBackend" - Django/WhiteNoise serves the SPA at `/`, same origin as
+#                         the API. Sets SERVE_FRONTEND=true automatically. Default.
+#   "cloudfront"        - a Helm Job syncs the SPA to S3 + CloudFront, using IRSA
+#                         (no static AWS keys).
+# Deployment-specific config can be set via `frontend.runtimeEnv`.
+frontend:
+  image:
+    repository: ghcr.io/hotosm/fair/frontend
+    tag: ""  # defaults to appVersion
+    pullPolicy: IfNotPresent
+
+  # Env written into SPA at container start (config.js), no img rebuild needed
+  runtimeEnv: {}
+    # VITE_BASE_API_URL: "https://api.example.com/api/v1/"
+    # VITE_AUTH_PROVIDER: "hanko"
+    # VITE_HANKO_URL: "https://login.hotosm.org"
+
+  mode: "bundleWithBackend"
+
+  # Settings for mode: cloudfront
+  cloudfront:
+    roleArn: ""  # IAM role ARN for IRSA (annotated onto the ServiceAccount)
+    region: "us-east-1"
+    s3Bucket: ""  # Required, e.g. "fair-frontend"
+    version: ""  # S3 path prefix; defaults to appVersion. Set to an older value to rollback.
+    aliases: []  # e.g. ["fair.hotosm.org"]; only used when creating a new distribution
+    acmCertificateArn: ""  # Required when aliases are set
+    priceClass: "PriceClass_All"
+    awsCliImage:
+      repository: docker.io/amazon/aws-cli
+      tag: "2.34.17"
+      pullPolicy: IfNotPresent
+
+# -- Ingress configuration. In bundleWithBackend mode the backend serves both the
+# SPA (`/`) and API (`/api`). In cloudfront mode point the ingress at `/api`.
 ingress:
   enabled: false
   className: ""
@@ -98,14 +141,15 @@ ingress:
   hosts:
     - host: fair.example.com
       paths:
-        - path: /api
+        - path: /
           pathType: Prefix
   tls: []
   #  - secretName: fair-tls
   #    hosts:
   #      - fair.example.com
 
-# -- External PostgreSQL connection
+# -- External PostgreSQL connection. Used when `postgres.enabled` is false
+# (the production path). Prefer supplying credentials via `existingSecret`.
 externalDatabase:
   host: ""
   port: 5432
@@ -114,3 +158,30 @@ externalDatabase:
   password: ""
   existingSecret: ""
   existingSecretKey: password
+
+# Bundled single-pod Postgres for staging / PR-preview / local dev. Disabled
+# by default - production deployments should point at a managed database via
+# `externalDatabase`. When enabled, the chart provisions a Postgres
+# StatefulSet and injects DATABASE_URL into the backend Deployment and
+# migration Job, overriding anything from `externalDatabase`. Uses the
+# PostGIS image because the app validates a `postgis://` DATABASE_URL.
+postgres:
+  enabled: false
+  image:
+    repository: docker.io/postgis/postgis
+    tag: "17-3.5-alpine"
+    pullPolicy: IfNotPresent
+  auth:
+    username: fair
+    password: fair
+    database: fair
+  service:
+    port: 5432
+  persistence:
+    enabled: false
+    size: 5Gi
+    storageClassName: ""
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
