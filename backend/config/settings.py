@@ -361,7 +361,6 @@ SPECTACULAR_SETTINGS = {
         "DatasetStatus": "shared.enums.DatasetStatus.choices",
         "LocalModelStatus": "shared.enums.LocalModelStatus.choices",
         "BaseModelStatus": "shared.enums.BaseModelStatus.choices",
-        "ModelCategory": "shared.enums.ModelCategory.choices",
     },
 }
 

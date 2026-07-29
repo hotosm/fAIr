@@ -4,9 +4,26 @@ from accounts.models import OsmUser
 from shared.enums import (
     BaseModelStatus,
     LocalModelStatus,
-    ModelCategory,
     Visibility,
 )
+
+
+class Category(models.Model):
+    """Editable lookup of model domains (buildings, roads, ...) shared by base
+    and local models"""
+
+    slug = models.SlugField(max_length=50, unique=True)
+    label = models.CharField(max_length=100)
+    description = models.TextField(blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_modified = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["slug"]
+        verbose_name_plural = "categories"
+
+    def __str__(self) -> str:
+        return self.slug
 
 
 class LocalModel(models.Model):
@@ -17,14 +34,14 @@ class LocalModel(models.Model):
 
     # Module-level enum: a nested class body cannot see it from inside Meta.
     Status = LocalModelStatus
-    Category = ModelCategory
 
     name = models.CharField(max_length=200, unique=True)
-    category = models.CharField(
-        max_length=50,
-        choices=ModelCategory.choices,
-        default=ModelCategory.OTHER,
-        db_index=True,
+    category = models.ForeignKey(
+        Category,
+        to_field="slug",
+        on_delete=models.PROTECT,
+        related_name="local_models",
+        default="other",
     )
     # Active version's STAC item id (in the local-models collection). Set at
     # promote; the canonical id for STAC lookups and prediction submits.
@@ -67,14 +84,14 @@ class LocalModel(models.Model):
 
 class BaseModel(models.Model):
     Status = BaseModelStatus
-    Category = ModelCategory
 
     name = models.CharField(max_length=200, unique=True)
-    category = models.CharField(
-        max_length=50,
-        choices=ModelCategory.choices,
-        default=ModelCategory.OTHER,
-        db_index=True,
+    category = models.ForeignKey(
+        Category,
+        to_field="slug",
+        on_delete=models.PROTECT,
+        related_name="base_models",
+        default="other",
     )
     status = models.CharField(
         max_length=20,

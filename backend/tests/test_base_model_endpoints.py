@@ -54,7 +54,7 @@ def test_register_creates_row_and_returns_202(admin: OsmUser) -> None:
     base_model = BaseModel.objects.get(name="test-basemodel")
     assert base_model.status == BaseModel.Status.REGISTERING
     assert base_model.user_id == admin.osm_id
-    assert base_model.category == BaseModel.Category.OTHER
+    assert base_model.category_id == "other"
     assert base_model.stac_item == VALID_ITEM
 
 
@@ -65,7 +65,7 @@ def test_register_stores_category(admin: OsmUser) -> None:
         format="json",
     )
     assert resp.status_code == 202
-    assert BaseModel.objects.get(name="test-basemodel").category == "buildings"
+    assert BaseModel.objects.get(name="test-basemodel").category_id == "buildings"
 
 
 def test_register_rejects_missing_mlm_name(admin: OsmUser) -> None:
@@ -92,7 +92,7 @@ def test_register_from_url_stores_fetched_item(
     assert resp.status_code == 202
     base_model = BaseModel.objects.get(name="url-model")
     assert base_model.stac_item == fetched
-    assert base_model.category == "roads"
+    assert base_model.category_id == "roads"
 
 
 def test_register_rejects_both_sources(admin: OsmUser) -> None:
@@ -175,16 +175,36 @@ def test_register_task_stores_stac_item_id(admin: OsmUser) -> None:
     assert base_model.status == BaseModel.Status.ACTIVE
 
 
-def test_categories_endpoint_is_public(db) -> None:
-    resp = APIClient().get("/api/v1/base-models/categories/")
-    assert resp.status_code == 200
-    values = {c["value"] for c in resp.data}
-    assert {"buildings", "solar-panels", "other"} <= values
-
-
 def test_local_model_has_category(admin: OsmUser) -> None:
     model = LocalModel.objects.create(name="lm1", user=admin)
-    assert model.category == LocalModel.Category.OTHER
+    assert model.category_id == "other"
     resp = _client(admin).get(f"/api/v1/local-models/{model.id}/")
     assert resp.status_code == 200
     assert resp.data["category"] == "other"
+
+
+def test_category_list_is_public(db) -> None:
+    resp = APIClient().get("/api/v1/categories/")
+    assert resp.status_code == 200
+    assert {"buildings", "other", "roads"} <= {c["slug"] for c in resp.data["results"]}
+
+
+def test_category_create_requires_admin(user: OsmUser, admin: OsmUser) -> None:
+    from modelregistry.models import Category
+
+    body = {"slug": "cars", "label": "Cars"}
+    assert _client(user).post("/api/v1/categories/", body, format="json").status_code == 403
+    resp = _client(admin).post("/api/v1/categories/", body, format="json")
+    assert resp.status_code == 201
+    assert Category.objects.filter(slug="cars").exists()
+
+
+def test_category_delete_blocked_when_in_use(admin: OsmUser) -> None:
+    BaseModel.objects.create(name="b1", user=admin, category_id="buildings")
+    resp = _client(admin).delete("/api/v1/categories/buildings/")
+    assert resp.status_code == 409
+
+
+def test_category_delete_unused_ok(admin: OsmUser) -> None:
+    resp = _client(admin).delete("/api/v1/categories/trees/")
+    assert resp.status_code == 204

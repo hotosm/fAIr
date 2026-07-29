@@ -15,7 +15,7 @@ from accounts.permissions import (
     PublishedReadOrAuthenticatedWrite,
     _is_admin,
 )
-from shared.enums import ModelCategory, Visibility
+from shared.enums import Visibility
 from shared.integrations.stac import (
     FAIR_PINNED_PROPERTY,
     LOCAL_MODELS_COLLECTION,
@@ -25,11 +25,11 @@ from shared.integrations.stac import (
 from shared.integrations.zenml import list_runs_for_model
 from shared.stars import annotate_stars
 
-from .models import BaseModel, LocalModel
+from .models import BaseModel, Category, LocalModel
 from .serializers import (
-    BaseModelCategorySerializer,
     BaseModelRegisterSerializer,
     BaseModelSerializer,
+    CategorySerializer,
     LocalModelSerializer,
     TrainingRunSummarySerializer,
 )
@@ -217,7 +217,7 @@ class BaseModelViewSet(
     def get_permissions(self):
         if self.action == "create":
             return [IsAuthenticated(), IsAdmin()]
-        if self.action in {"list", "retrieve", "categories"}:
+        if self.action in {"list", "retrieve"}:
             return [AllowAny()]
         return [IsAuthenticated()]
 
@@ -225,7 +225,7 @@ class BaseModelViewSet(
         serializer = BaseModelRegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
-        category = data["category"]
+        category = data.get("category") or Category.objects.get(slug="other")
         stac_item = data.get("stac_item") or _fetch_stac_item(data["stac_item_url"])
         name = stac_item["properties"]["mlm:name"]
 
@@ -250,8 +250,33 @@ class BaseModelViewSet(
         register_base_model.enqueue(base_model_id=base_model.id)
         return Response(BaseModelSerializer(base_model).data, status=status.HTTP_202_ACCEPTED)
 
-    @extend_schema(responses=BaseModelCategorySerializer(many=True))
-    @action(detail=False, methods=["get"], url_path="categories")
-    def categories(self, request) -> Response:
-        data = [{"value": value, "label": label} for value, label in ModelCategory.choices]
-        return Response(BaseModelCategorySerializer(data, many=True).data)
+
+@extend_schema_view(
+    list=extend_schema(description="List model categories. No authentication required."),
+    retrieve=extend_schema(description="Retrieve one category by slug."),
+    create=extend_schema(description="Create a category (admin only)."),
+    update=extend_schema(description="Update a category (admin only)."),
+    partial_update=extend_schema(description="Partially update a category (admin only)."),
+    destroy=extend_schema(description="Delete a category (admin); blocked if a model uses it."),
+)
+class CategoryViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    authentication_classes = [OsmAuthentication]
+    lookup_field = "slug"
+
+    def get_permissions(self):
+        if self.action in {"list", "retrieve"}:
+            return [AllowAny()]
+        return [IsAuthenticated(), IsAdmin()]
+
+    def destroy(self, request, *args, **kwargs):
+        from django.db.models import ProtectedError
+
+        try:
+            return super().destroy(request, *args, **kwargs)
+        except ProtectedError:
+            return Response(
+                {"detail": "Category is in use by one or more models and cannot be deleted."},
+                status=status.HTTP_409_CONFLICT,
+            )

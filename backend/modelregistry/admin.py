@@ -1,6 +1,12 @@
 from django.contrib import admin, messages
 
-from .models import BaseModel, LocalModel
+from .models import BaseModel, Category, LocalModel
+
+
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ["slug", "label", "description"]
+    search_fields = ["slug", "label"]
 
 
 @admin.register(LocalModel)

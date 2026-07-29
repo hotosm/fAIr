@@ -3,13 +3,20 @@ from typing import Any, cast
 from rest_framework import serializers
 
 from notifications.serializers import UserSerializer
-from shared.enums import ModelCategory
 
-from .models import BaseModel, LocalModel
+from .models import BaseModel, Category, LocalModel
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ["id", "slug", "label", "description", "created_at", "last_modified"]
+        read_only_fields = ["id", "created_at", "last_modified"]
 
 
 class LocalModelSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
+    category = serializers.SlugRelatedField(slug_field="slug", read_only=True)
     star_count = serializers.IntegerField(read_only=True, default=0)
     is_starred = serializers.BooleanField(read_only=True, default=False)
     run_count = serializers.IntegerField(read_only=True, default=0)
@@ -44,6 +51,7 @@ class LocalModelSerializer(serializers.ModelSerializer):
 
 class BaseModelSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
+    category = serializers.SlugRelatedField(slug_field="slug", read_only=True)
     star_count = serializers.IntegerField(read_only=True, default=0)
     is_starred = serializers.BooleanField(read_only=True, default=False)
 
@@ -76,9 +84,10 @@ class BaseModelRegisterSerializer(serializers.Serializer):
 
     stac_item = serializers.JSONField(required=False)
     stac_item_url = serializers.URLField(required=False)
-    category = serializers.ChoiceField(
-        choices=ModelCategory.choices,
-        default=ModelCategory.OTHER,
+    category = serializers.SlugRelatedField(
+        slug_field="slug",
+        queryset=Category.objects.all(),
+        required=False,
     )
 
     def validate_stac_item(self, value: object) -> dict[str, Any]:
@@ -101,11 +110,6 @@ class BaseModelRegisterSerializer(serializers.Serializer):
                 "Provide exactly one of 'stac_item' or 'stac_item_url'."
             )
         return attrs
-
-
-class BaseModelCategorySerializer(serializers.Serializer):
-    value = serializers.CharField()
-    label = serializers.CharField()
 
 
 class TrainingRunSummarySerializer(serializers.Serializer):
