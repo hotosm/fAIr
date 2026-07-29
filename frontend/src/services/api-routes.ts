@@ -132,5 +132,5 @@ export const API_ENDPOINTS = {
     `/collections/base-models/items/${id}`,
 
   // Map large area
-  MAP_LARGE_AREA_REQUEST: "/predictions/submit/"
+  MAP_LARGE_AREA_REQUEST: "/predictions/submit/",
 };
