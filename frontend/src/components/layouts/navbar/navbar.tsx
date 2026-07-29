@@ -22,6 +22,7 @@ import {
   HANKO_URL,
   IS_DEV,
 } from "@/config";
+import { ENVS } from "@/config/env";
 import "@hotosm/tool-menu";
 import { Divider } from "@/components/ui/divider";
 import { ToolTip } from "@/components/ui/tooltip";
@@ -51,12 +52,14 @@ const HankoAuthComponent = ({ displayBar }: { displayBar?: boolean }) => (
 export const NavBar = () => {
   const [open, setOpen] = useState(false);
 
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated: _isAuthenticated } = useAuth();
 
   const navigate = useNavigate();
 
   const location = useLocation();
   const isTryFairPage = location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR);
+  const isAuthenticated =
+    (isTryFairPage && ENVS.DISABLE_AUTH_ON_TRY_FAIR) || _isAuthenticated;
   const isHankoAuth = AUTH_PROVIDER === "hanko";
   return (
     <>
@@ -84,12 +87,12 @@ export const NavBar = () => {
               />
             </div>
           )}
-          {isAuthenticated && <Divider />}
+          {_isAuthenticated && <Divider />}
 
           <div className={styles.loginButtonContainer}>
             {isHankoAuth && !IS_DEV && !isTryFairPage ? (
               <>
-                {isAuthenticated && (
+                {_isAuthenticated && (
                   <UserProfile
                     isHanko
                     hideFullName
@@ -108,7 +111,7 @@ export const NavBar = () => {
                   </span>
                 </>
               </>
-            ) : isAuthenticated ? (
+            ) : _isAuthenticated ? (
               <UserProfile
                 isHanko={isHankoAuth}
                 hideFullName={isHankoAuth}
@@ -168,19 +171,19 @@ export const NavBar = () => {
         <div className="flex-1 hidden sm:flex items-center justify-end gap-x-3">
           {isHankoAuth && !IS_DEV && !isTryFairPage ? (
             <>
-              {isAuthenticated && <UserNotifications />}
-              {isAuthenticated && <UserProfile isHanko hideFullName />}
+              {_isAuthenticated && <UserNotifications />}
+              {_isAuthenticated && <UserProfile isHanko hideFullName />}
               <HankoAuthComponent />
             </>
           ) : isAuthenticated ? (
             <>
               {isTryFairPage && <StartMappingNavlinks />}
 
-              {!isTryFairPage && <UserNotifications />}
+              {!isTryFairPage && _isAuthenticated && <UserNotifications />}
 
               {isTryFairPage && <ExportMapResults />}
 
-              <UserProfile />
+              {_isAuthenticated && <UserProfile />}
             </>
           ) : (
             <div
@@ -227,7 +230,7 @@ export const NavBar = () => {
         </div>
         <div className="flex items-center gap-x-2 sm:hidden">
           {/* Notification bell on the small screens */}
-          {isAuthenticated && <UserNotifications />}
+          {_isAuthenticated && <UserNotifications />}
           <button
             className={styles.hamburgerMenu}
             onClick={() => setOpen(true)}
