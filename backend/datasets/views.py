@@ -173,6 +173,7 @@ class DatasetViewSet(viewsets.ModelViewSet):
                         "https://tiles.openaerialmap.org/62d85d11d8499800053796c1/0/"
                         "62d85d11d8499800053796c2/{z}/{x}/{y}"
                     ),
+                    "category": "buildings",
                     "zoom": 19,
                     "aoi_ids": [1],
                     "label_tasks": ["semantic-segmentation"],
@@ -202,6 +203,7 @@ class DatasetViewSet(viewsets.ModelViewSet):
             stac_id=_slugify(payload["title"]),
             title=payload["title"],
             source_imagery=payload["source_imagery"],
+            category=payload["category"],
             status=Dataset.Status.BUILDING,
             user=request.user,
         )

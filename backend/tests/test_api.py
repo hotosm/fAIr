@@ -110,7 +110,12 @@ def prediction(db, user: OsmUser) -> Prediction:
         zenml_run_id="pred-run-1",
         local_model_stac_id="3a0374bf-d73c-4b4d-b165-081ffa2a18ad",
         image_uri="https://tiles.example/{z}/{x}/{y}.png",
-        bbox=[85.5, 27.6, 85.51, 27.61],
+        geometry={
+            "type": "Polygon",
+            "coordinates": [
+                [[85.5, 27.6], [85.51, 27.6], [85.51, 27.61], [85.5, 27.61], [85.5, 27.6]]
+            ],
+        },
         zoom=19,
         params={},
         description="p1",
@@ -249,6 +254,7 @@ def test_dataset_build_creates_record_and_enqueues(mock_task, client, aoi):
         "title": "Buildings Banepa",
         "description": "demo",
         "source_imagery": "https://tiles.example/{z}/{x}/{y}.png",
+        "category": "buildings",
         "zoom": 19,
         "aoi_ids": [aoi.id],
         "label_tasks": ["semantic-segmentation"],
@@ -874,7 +880,7 @@ def test_prediction_submit_creates_record_and_enqueues(mock_task, mock_item_exis
     assert response.status_code == 202, response.content
     body = response.json()
     assert body["local_model_stac_id"] == payload["model_stac_id"]
-    assert body["bbox"] == payload["bbox"]
+    assert body["geometry"]["type"] == "Polygon"
     assert body["zoom"] == 19
     assert body["remove_osm"] is True
     assert body["status"] == "initializing"
@@ -988,7 +994,7 @@ def test_prediction_retrieve_returns_record(client, prediction):
     body = response.json()
     assert body["zenml_run_id"] == "pred-run-1"
     assert body["status"] == "completed"
-    assert body["bbox"] == [85.5, 27.6, 85.51, 27.61]
+    assert body["geometry"]["type"] == "Polygon"
 
 
 @patch("predictions.views.get_run_status")
@@ -1283,7 +1289,7 @@ def test_sync_prediction_runs_post_process_when_status_jumps_to_completed(
         zenml_run_id="rid-1",
         local_model_stac_id="m-uuid",
         image_uri="https://t/{z}/{x}/{y}.png",
-        bbox=[0, 0, 1, 1],
+        geometry={"type": "Polygon", "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]]},
         zoom=19,
         status="completed",
         results_ready=False,
@@ -1309,7 +1315,7 @@ def test_sync_prediction_skips_post_process_when_already_ready(
         zenml_run_id="rid-2",
         local_model_stac_id="m-uuid",
         image_uri="https://t/{z}/{x}/{y}.png",
-        bbox=[0, 0, 1, 1],
+        geometry={"type": "Polygon", "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]]},
         zoom=19,
         status="completed",
         results_ready=True,

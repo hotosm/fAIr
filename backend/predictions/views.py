@@ -111,7 +111,7 @@ class PredictionViewSet(viewsets.ReadOnlyModelViewSet):
         request=PredictionSubmitSerializer,
         examples=[
             OpenApiExample(
-                "Submit prediction",
+                "Submit with bbox",
                 value={
                     "model_stac_id": "0311d82d-0f8e-4021-adc5-bb4d6b81a1d4",
                     "image_uri": (
@@ -123,7 +123,32 @@ class PredictionViewSet(viewsets.ReadOnlyModelViewSet):
                     "params": {"confidence_threshold": 0.25},
                 },
                 request_only=True,
-            )
+            ),
+            OpenApiExample(
+                "Submit with geometry",
+                value={
+                    "model_stac_id": "0311d82d-0f8e-4021-adc5-bb4d6b81a1d4",
+                    "image_uri": (
+                        "https://tiles.openaerialmap.org/62d85d11d8499800053796c1/0/"
+                        "62d85d11d8499800053796c2/{z}/{x}/{y}"
+                    ),
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [85.51678, 27.63133],
+                                [85.52323, 27.63133],
+                                [85.52323, 27.63743],
+                                [85.51678, 27.63743],
+                                [85.51678, 27.63133],
+                            ]
+                        ],
+                    },
+                    "zoom": 19,
+                    "params": {"confidence_threshold": 0.25},
+                },
+                request_only=True,
+            ),
         ],
     )
     @action(
@@ -150,7 +175,7 @@ class PredictionViewSet(viewsets.ReadOnlyModelViewSet):
         prediction = Prediction.objects.create(
             local_model_stac_id=payload["model_stac_id"],
             image_uri=payload["image_uri"],
-            bbox=payload["bbox"],
+            geometry=payload["geometry"],
             zoom=payload["zoom"],
             params=payload["params"],
             remove_osm=payload["remove_osm"],

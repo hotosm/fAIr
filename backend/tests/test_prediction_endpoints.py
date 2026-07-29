@@ -24,6 +24,11 @@ _TMS_URL = "https://tile.example.com/{z}/{x}/{y}.png"
 _BBOX = [85.5, 27.6, 85.51, 27.61]
 
 
+def _bbox_polygon(bbox):
+    w, s, e, n = bbox
+    return {"type": "Polygon", "coordinates": [[[w, s], [e, s], [e, n], [w, n], [w, s]]]}
+
+
 @patch("predictions.views.item_exists", return_value=True)
 @patch("predictions.views.submit_prediction")
 def test_prediction_submit_creates_record_and_enqueues(mock_task, mock_item_exists, client):
@@ -43,7 +48,7 @@ def test_prediction_submit_creates_record_and_enqueues(mock_task, mock_item_exis
     prediction = Prediction.objects.first()
     assert prediction is not None
     assert prediction.local_model_stac_id == _LOCAL_MODEL_UUID
-    assert prediction.bbox == _BBOX
+    assert prediction.geometry == _bbox_polygon(_BBOX)
     assert prediction.zoom == 19
     mock_task.enqueue.assert_called_once()
 
@@ -107,6 +112,91 @@ def test_prediction_submit_rejects_zoom_out_of_range(client):
     assert response.status_code == 400
 
 
+_POLY = {
+    "type": "Polygon",
+    "coordinates": [[[85.5, 27.6], [85.51, 27.6], [85.51, 27.61], [85.5, 27.61], [85.5, 27.6]]],
+}
+
+
+@patch("predictions.views.submit_prediction")
+@patch("predictions.views.item_exists", return_value=True)
+def test_prediction_submit_with_geometry_stores_it(mock_item_exists, mock_task, client):
+    response = client.post(
+        "/api/v1/predictions/submit/",
+        data={
+            "model_stac_id": _LOCAL_MODEL_UUID,
+            "image_uri": _TMS_URL,
+            "geometry": _POLY,
+            "zoom": 19,
+        },
+        format="json",
+    )
+    assert response.status_code == 202, response.json()
+    prediction = Prediction.objects.get()
+    assert prediction.geometry == _POLY
+    mock_task.enqueue.assert_called_once()
+
+
+@patch("predictions.views.submit_prediction")
+@patch("predictions.views.item_exists", return_value=True)
+def test_prediction_submit_bbox_is_stored_as_geometry(mock_item_exists, mock_task, client):
+    response = client.post(
+        "/api/v1/predictions/submit/",
+        data={
+            "model_stac_id": _LOCAL_MODEL_UUID,
+            "image_uri": _TMS_URL,
+            "bbox": _BBOX,
+            "zoom": 19,
+        },
+        format="json",
+    )
+    assert response.status_code == 202, response.json()
+    prediction = Prediction.objects.get()
+    assert prediction.geometry == _bbox_polygon(_BBOX)
+    assert not hasattr(prediction, "bbox")
+
+
+@patch("predictions.views.item_exists", return_value=True)
+def test_prediction_submit_requires_bbox_or_geometry(mock_item_exists, client):
+    response = client.post(
+        "/api/v1/predictions/submit/",
+        data={"model_stac_id": _LOCAL_MODEL_UUID, "image_uri": _TMS_URL, "zoom": 19},
+        format="json",
+    )
+    assert response.status_code == 400
+
+
+@patch("predictions.views.item_exists", return_value=True)
+def test_prediction_submit_rejects_both_bbox_and_geometry(mock_item_exists, client):
+    response = client.post(
+        "/api/v1/predictions/submit/",
+        data={
+            "model_stac_id": _LOCAL_MODEL_UUID,
+            "image_uri": _TMS_URL,
+            "bbox": _BBOX,
+            "geometry": _POLY,
+            "zoom": 19,
+        },
+        format="json",
+    )
+    assert response.status_code == 400
+
+
+@patch("predictions.views.item_exists", return_value=True)
+def test_prediction_submit_rejects_invalid_geometry(mock_item_exists, client):
+    response = client.post(
+        "/api/v1/predictions/submit/",
+        data={
+            "model_stac_id": _LOCAL_MODEL_UUID,
+            "image_uri": _TMS_URL,
+            "geometry": {"type": "Point", "coordinates": [85.5, 27.6]},
+            "zoom": 19,
+        },
+        format="json",
+    )
+    assert response.status_code == 400
+
+
 @patch("predictions.views.get_run_status")
 @patch("predictions.views.is_terminal")
 def test_prediction_run_status(mock_terminal, mock_status, client, authed_user):
@@ -116,7 +206,7 @@ def test_prediction_run_status(mock_terminal, mock_status, client, authed_user):
         zenml_run_id="zen-123",
         local_model_stac_id=_LOCAL_MODEL_UUID,
         image_uri=_TMS_URL,
-        bbox=_BBOX,
+        geometry=_bbox_polygon(_BBOX),
         zoom=19,
         user=authed_user,
     )

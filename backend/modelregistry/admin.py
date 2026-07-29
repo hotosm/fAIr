@@ -11,14 +11,27 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(LocalModel)
 class LocalModelAdmin(admin.ModelAdmin):
-    list_display = ["name", "category", "status", "user", "created_at"]
-    list_editable = ["category", "status"]
-    list_filter = ["status", "category", "created_at"]
+    list_display = [
+        "name",
+        "category",
+        "visibility",
+        "status",
+        "is_promoted",
+        "stac_item_id",
+        "user",
+        "created_at",
+    ]
+    list_editable = ["category", "visibility", "status"]
+    list_filter = ["visibility", "status", "category", "created_at"]
     search_fields = ["name", "user__username"]
-    readonly_fields = ["created_at", "last_modified"]
+    readonly_fields = ["stac_item_id", "created_at", "last_modified"]
     date_hierarchy = "created_at"
     list_per_page = 50
     autocomplete_fields = ["user"]
+
+    @admin.display(boolean=True, description="Promoted")
+    def is_promoted(self, obj) -> bool:
+        return bool(obj.stac_item_id)
 
 
 @admin.register(BaseModel)

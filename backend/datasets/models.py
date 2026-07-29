@@ -13,6 +13,13 @@ class Dataset(models.Model):
     stac_id = models.CharField(max_length=200, unique=True)
     title = models.CharField(max_length=200)
     source_imagery = models.URLField()
+    category = models.ForeignKey(
+        "modelregistry.Category",
+        to_field="slug",
+        on_delete=models.PROTECT,
+        related_name="datasets",
+        default="other",
+    )
     status = models.CharField(
         max_length=20, choices=DatasetStatus.choices, default=DatasetStatus.DRAFT
     )

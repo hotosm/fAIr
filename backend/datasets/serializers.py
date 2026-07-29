@@ -3,6 +3,7 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
 
+from modelregistry.models import Category
 from notifications.serializers import UserSerializer
 from shared.integrations.stac import DATASETS_COLLECTION
 from shared.serializers import StacFacetSerializer
@@ -25,6 +26,7 @@ class DatasetCreateSerializer(serializers.Serializer):
     title = serializers.CharField(max_length=200)
     description = serializers.CharField()
     source_imagery = serializers.URLField()
+    category = serializers.SlugRelatedField(slug_field="slug", queryset=Category.objects.all())
     zoom = serializers.IntegerField(min_value=14, max_value=22)
     aoi_ids = serializers.ListField(child=serializers.IntegerField(), min_length=1)
     label_tasks = serializers.ListField(
@@ -83,6 +85,7 @@ class DatasetAssetsSerializer(serializers.Serializer):
 
 class DatasetSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
+    category = serializers.SlugRelatedField(slug_field="slug", read_only=True)
     stac_url = serializers.SerializerMethodField()
     star_count = serializers.IntegerField(read_only=True, default=0)
     is_starred = serializers.BooleanField(read_only=True, default=False)
@@ -96,6 +99,7 @@ class DatasetSerializer(serializers.ModelSerializer):
             "stac_id",
             "title",
             "source_imagery",
+            "category",
             "status",
             "visibility",
             "stac_url",
