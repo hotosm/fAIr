@@ -26,6 +26,9 @@ class LocalModel(models.Model):
         default=ModelCategory.OTHER,
         db_index=True,
     )
+    # Active version's STAC item id (in the local-models collection). Set at
+    # promote; the canonical id for STAC lookups and prediction submits.
+    stac_item_id = models.CharField(max_length=64, blank=True, default="", db_index=True)
     status = models.CharField(
         max_length=20, choices=LocalModelStatus.choices, default=LocalModelStatus.ACTIVE
     )
@@ -82,7 +85,9 @@ class BaseModel(models.Model):
         max_length=20, choices=Visibility.choices, default=Visibility.PUBLIC, db_index=True
     )
     stac_item = models.JSONField(default=dict, blank=True)
-    stac_item_url = models.URLField(blank=True, default="")
+    # Active version's STAC item id (in the base-models collection), returned by
+    # registration. The canonical id for STAC lookups.
+    stac_item_id = models.CharField(max_length=64, blank=True, default="", db_index=True)
     error = models.TextField(blank=True, default="")
     user = models.ForeignKey(
         OsmUser,

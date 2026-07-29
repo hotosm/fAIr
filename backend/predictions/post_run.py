@@ -58,8 +58,10 @@ def _generate_fgb(geojson: dict[str, Any], prediction_id: int) -> None:
     # URL doesn't need to proxy bbox filtering through this service.
     import geopandas as gpd
 
-    gdf = gpd.GeoDataFrame.from_features(geojson.get("features", []), crs="EPSG:4326")
-    if gdf.empty:
+    features = geojson.get("features", [])
+    if features:
+        gdf = gpd.GeoDataFrame.from_features(features, crs="EPSG:4326")
+    else:
         gdf = gpd.GeoDataFrame({"geometry": []}, crs="EPSG:4326")
 
     with tempfile.TemporaryDirectory(prefix=f"fair-fgb-{prediction_id}-") as tmp:
@@ -70,6 +72,9 @@ def _generate_fgb(geojson: dict[str, Any], prediction_id: int) -> None:
 
 def _generate_pmtiles(geojson: dict[str, Any], prediction_id: int) -> None:
     # Tippecanoe is a local-only binary; stage in tempdir then upload.
+    if not geojson.get("features"):
+        logger.info("Prediction %s: no features, skipping pmtiles", prediction_id)
+        return
     if shutil.which("tippecanoe") is None:
         raise RuntimeError(
             "tippecanoe binary not found in PATH; install it on the worker host "

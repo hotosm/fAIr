@@ -38,12 +38,12 @@ from .tasks import register_base_model
 _STAC_FETCH_TIMEOUT_S = 30
 
 
-def _fetch_mlm_name(url: str) -> str:
-    """Fetch the STAC item at `url` and return its ``mlm:name`` chain key.
+def _fetch_stac_item(url: str) -> dict:
+    """Fetch and return the STAC item JSON at `url`.
 
-    Registration stores only the link, so the name (unique per family) is read
-    once here to key the row. A bad URL or a payload without the field is a
-    caller error surfaced as a 400.
+    A URL is a convenience input: the item is fetched once here and stored
+    inline, so the link itself is never persisted. A bad URL or a payload
+    without ``properties['mlm:name']`` is a caller error surfaced as a 400.
     """
     try:
         response = httpx.get(url, timeout=_STAC_FETCH_TIMEOUT_S, follow_redirects=True)
@@ -57,7 +57,7 @@ def _fetch_mlm_name(url: str) -> str:
         raise ValidationError(
             {"stac_item_url": "fetched STAC item is missing properties['mlm:name']."}
         )
-    return name
+    return item
 
 
 @extend_schema_view(
@@ -84,7 +84,7 @@ class LocalModelViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         qs = LocalModel.objects.all().annotate(run_count=Count("runs"))
         user = self.request.user
-        if not user.is_authenticated:
+        if not (user and user.is_authenticated):
             qs = qs.filter(visibility=Visibility.PUBLIC)
         elif not _is_admin(user):
             qs = qs.filter(Q(user=user) | Q(visibility=Visibility.PUBLIC))
@@ -205,10 +205,19 @@ class BaseModelViewSet(
     search_fields = ["name"]
     ordering_fields = ["created_at", "last_modified"]
 
+    def get_queryset(self):
+        qs = BaseModel.objects.all()
+        user = self.request.user
+        if not (user and user.is_authenticated):
+            return qs.filter(visibility=Visibility.PUBLIC)
+        if _is_admin(user):
+            return qs
+        return qs.filter(Q(user=user) | Q(visibility=Visibility.PUBLIC))
+
     def get_permissions(self):
         if self.action == "create":
             return [IsAuthenticated(), IsAdmin()]
-        if self.action == "categories":
+        if self.action in {"list", "retrieve", "categories"}:
             return [AllowAny()]
         return [IsAuthenticated()]
 
@@ -217,9 +226,8 @@ class BaseModelViewSet(
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
         category = data["category"]
-        stac_item = data.get("stac_item") or {}
-        stac_item_url = data.get("stac_item_url") or ""
-        name = stac_item["properties"]["mlm:name"] if stac_item else _fetch_mlm_name(stac_item_url)
+        stac_item = data.get("stac_item") or _fetch_stac_item(data["stac_item_url"])
+        name = stac_item["properties"]["mlm:name"]
 
         base_model, created = BaseModel.objects.get_or_create(
             name=name,
@@ -227,25 +235,16 @@ class BaseModelViewSet(
                 "user": request.user,
                 "category": category,
                 "stac_item": stac_item,
-                "stac_item_url": stac_item_url,
                 "status": BaseModel.Status.REGISTERING,
             },
         )
         if not created:
             base_model.category = category
             base_model.stac_item = stac_item
-            base_model.stac_item_url = stac_item_url
             base_model.status = BaseModel.Status.REGISTERING
             base_model.error = ""
             base_model.save(
-                update_fields=[
-                    "category",
-                    "stac_item",
-                    "stac_item_url",
-                    "status",
-                    "error",
-                    "last_modified",
-                ]
+                update_fields=["category", "stac_item", "status", "error", "last_modified"]
             )
 
         register_base_model.enqueue(base_model_id=base_model.id)

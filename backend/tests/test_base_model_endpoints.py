@@ -1,8 +1,11 @@
+from unittest.mock import patch
+
 import pytest
 from rest_framework.test import APIClient
 
 from accounts.models import OsmUser
 from modelregistry.models import BaseModel, LocalModel
+from modelregistry.tasks import register_base_model
 
 VALID_ITEM = {
     "type": "Feature",
@@ -73,10 +76,13 @@ def test_register_rejects_missing_mlm_name(admin: OsmUser) -> None:
     assert not BaseModel.objects.exists()
 
 
-def test_register_from_url_stores_link(admin: OsmUser, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_register_from_url_stores_fetched_item(
+    admin: OsmUser, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    fetched = {"type": "Feature", "properties": {"mlm:name": "url-model"}, "assets": {}}
     monkeypatch.setattr(
         "modelregistry.views.httpx.get",
-        lambda *args, **kwargs: _FakeResponse({"properties": {"mlm:name": "url-model"}}),
+        lambda *args, **kwargs: _FakeResponse(fetched),
     )
     resp = _client(admin).post(
         "/api/v1/base-models/",
@@ -85,8 +91,7 @@ def test_register_from_url_stores_link(admin: OsmUser, monkeypatch: pytest.Monke
     )
     assert resp.status_code == 202
     base_model = BaseModel.objects.get(name="url-model")
-    assert base_model.stac_item_url == "https://example.com/item.json"
-    assert base_model.stac_item == {}
+    assert base_model.stac_item == fetched
     assert base_model.category == "roads"
 
 
@@ -127,6 +132,35 @@ def test_list_visible_to_authenticated(user: OsmUser, admin: OsmUser) -> None:
     resp = _client(user).get("/api/v1/base-models/")
     assert resp.status_code == 200
     assert resp.data["count"] == 1
+
+
+def test_list_is_public_and_hides_private(admin: OsmUser) -> None:
+    from shared.enums import Visibility
+
+    BaseModel.objects.create(name="pub", user=admin, visibility=Visibility.PUBLIC)
+    BaseModel.objects.create(name="priv", user=admin, visibility=Visibility.PRIVATE)
+    resp = APIClient().get("/api/v1/base-models/")
+    assert resp.status_code == 200
+    names = {row["name"] for row in resp.data["results"]}
+    assert names == {"pub"}
+
+
+def test_retrieve_is_public(admin: OsmUser) -> None:
+    model = BaseModel.objects.create(name="pub", user=admin)
+    resp = APIClient().get(f"/api/v1/base-models/{model.id}/")
+    assert resp.status_code == 200
+    assert resp.data["name"] == "pub"
+    assert "stac_item_id" in resp.data
+
+
+def test_register_task_stores_stac_item_id(admin: OsmUser) -> None:
+    base_model = BaseModel.objects.create(name="dino", user=admin, stac_item=VALID_ITEM)
+    with patch("modelregistry.tasks.for_user") as mock_for_user:
+        mock_for_user.return_value.register_base_model.return_value = "dino-v2"
+        register_base_model.func(base_model_id=base_model.id)
+    base_model.refresh_from_db()
+    assert base_model.stac_item_id == "dino-v2"
+    assert base_model.status == BaseModel.Status.ACTIVE
 
 
 def test_categories_endpoint_is_public(db) -> None:

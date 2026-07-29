@@ -290,6 +290,7 @@ class TrainingViewSet(viewsets.ReadOnlyModelViewSet):
             paths=BackendLocalModelPaths,
         )
         run_ref.local_model.status = LocalModel.Status.ACTIVE
-        run_ref.local_model.save(update_fields=["status", "last_modified"])
+        run_ref.local_model.stac_item_id = local_id
+        run_ref.local_model.save(update_fields=["status", "stac_item_id", "last_modified"])
         invalidate_stac_cache(LOCAL_MODELS_COLLECTION, run_ref.local_model.name)
         return Response({"local_model_stac_id": local_id}, status=status.HTTP_201_CREATED)

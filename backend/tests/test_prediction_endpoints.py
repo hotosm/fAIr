@@ -48,6 +48,37 @@ def test_prediction_submit_creates_record_and_enqueues(mock_task, mock_item_exis
     mock_task.enqueue.assert_called_once()
 
 
+@patch("predictions.views.submit_prediction")
+@patch("predictions.views.item_exists", side_effect=[False, True])
+def test_prediction_submit_accepts_base_model(mock_item_exists, mock_task, client):
+    response = client.post(
+        "/api/v1/predictions/submit/",
+        data={
+            "model_stac_id": "dinov3s-buildings",
+            "image_uri": _TMS_URL,
+            "bbox": _BBOX,
+            "zoom": 19,
+        },
+        format="json",
+    )
+    assert response.status_code == 202, response.json()
+    assert Prediction.objects.get().local_model_stac_id == "dinov3s-buildings"
+    mock_task.enqueue.assert_called_once()
+
+
+@patch("predictions.views.submit_prediction")
+@patch("predictions.views.item_exists", side_effect=[False, False])
+def test_prediction_submit_404s_when_model_missing(mock_item_exists, mock_task, client):
+    response = client.post(
+        "/api/v1/predictions/submit/",
+        data={"model_stac_id": "ghost", "image_uri": _TMS_URL, "bbox": _BBOX, "zoom": 19},
+        format="json",
+    )
+    assert response.status_code == 404
+    assert Prediction.objects.count() == 0
+    mock_task.enqueue.assert_not_called()
+
+
 def test_prediction_submit_rejects_bad_bbox(client):
     response = client.post(
         "/api/v1/predictions/submit/",

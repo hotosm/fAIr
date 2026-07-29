@@ -20,6 +20,7 @@ class LocalModelSerializer(serializers.ModelSerializer):
             "id",
             "name",
             "category",
+            "stac_item_id",
             "status",
             "visibility",
             "user",
@@ -31,6 +32,7 @@ class LocalModelSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = [
             "id",
+            "stac_item_id",
             "user",
             "star_count",
             "is_starred",
@@ -49,9 +51,9 @@ class BaseModelSerializer(serializers.ModelSerializer):
             "id",
             "name",
             "category",
+            "stac_item_id",
             "status",
             "visibility",
-            "stac_item_url",
             "error",
             "user",
             "created_at",
@@ -63,8 +65,9 @@ class BaseModelSerializer(serializers.ModelSerializer):
 class BaseModelRegisterSerializer(serializers.Serializer):
     """Register a base model from an inline STAC item or a URL to one.
 
-    Exactly one of ``stac_item`` (inline JSON) or ``stac_item_url`` (a link the
-    catalog can fetch) must be supplied; the row stores whichever was given.
+    Exactly one of ``stac_item`` (inline JSON) or ``stac_item_url`` (a link
+    fetched at request time) must be supplied. Either way the resolved item is
+    stored in ``stac_item``; the URL itself is not persisted.
     """
 
     stac_item = serializers.JSONField(required=False)

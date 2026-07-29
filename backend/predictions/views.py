@@ -23,7 +23,11 @@ from accounts.permissions import (
     _is_admin,
 )
 from shared.enums import Visibility
-from shared.integrations.stac import LOCAL_MODELS_COLLECTION, item_exists
+from shared.integrations.stac import (
+    BASE_MODELS_COLLECTION,
+    LOCAL_MODELS_COLLECTION,
+    item_exists,
+)
 from shared.integrations.zenml import (
     fetch_run_logs,
     fetch_step_logs,
@@ -133,10 +137,14 @@ class PredictionViewSet(viewsets.ReadOnlyModelViewSet):
         serializer.is_valid(raise_exception=True)
         payload = serializer.validated_data
 
-        if not item_exists(LOCAL_MODELS_COLLECTION, payload["model_stac_id"]):
+        model_stac_id = payload["model_stac_id"]
+        if not (
+            item_exists(LOCAL_MODELS_COLLECTION, model_stac_id)
+            or item_exists(BASE_MODELS_COLLECTION, model_stac_id)
+        ):
             raise NotFound(
-                f"model_stac_id '{payload['model_stac_id']}' "
-                "not found in STAC local-models collection."
+                f"model_stac_id '{model_stac_id}' not found in "
+                "local-models or base-models collections."
             )
 
         prediction = Prediction.objects.create(

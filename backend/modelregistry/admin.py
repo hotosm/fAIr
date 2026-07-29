@@ -33,10 +33,8 @@ class BaseModelAdmin(admin.ModelAdmin):
 
         enqueued = 0
         for base_model in queryset:
-            if not (base_model.stac_item or base_model.stac_item_url):
-                messages.warning(
-                    request, f"{base_model.name}: no stac_item or stac_item_url stored, skipped"
-                )
+            if not base_model.stac_item:
+                messages.warning(request, f"{base_model.name}: no stac_item stored, skipped")
                 continue
             base_model.status = BaseModel.Status.REGISTERING
             base_model.error = ""

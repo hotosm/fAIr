@@ -23,21 +23,17 @@ def register_base_model(*, base_model_id: int) -> None:
     # TODO: make fair-py-ops verify the inference URL from the STAC item instead
     # of ensure_knative_service creating cluster resources on the prod path.
     base_model = BaseModel.objects.get(id=base_model_id)
-    item_path: str | None = None
+    handle, item_path = tempfile.mkstemp(suffix=".json")
     try:
-        if base_model.stac_item_url:
-            source = base_model.stac_item_url
-        elif base_model.stac_item:
-            handle, item_path = tempfile.mkstemp(suffix=".json")
-            with open(handle, "w") as fh:
-                json.dump(base_model.stac_item, fh)
-            source = item_path
-        else:
-            raise ValueError("base model has neither stac_item nor stac_item_url to register")
-        for_user(str(base_model.user.osm_id)).register_base_model(source)
+        if not base_model.stac_item:
+            raise ValueError("base model has no stored stac_item to register")
+        with open(handle, "w") as fh:
+            json.dump(base_model.stac_item, fh)
+        published_id = for_user(str(base_model.user.osm_id)).register_base_model(item_path)
+        base_model.stac_item_id = published_id
         base_model.status = BaseModel.Status.ACTIVE
         base_model.error = ""
-        base_model.save(update_fields=["status", "error", "last_modified"])
+        base_model.save(update_fields=["stac_item_id", "status", "error", "last_modified"])
         invalidate_stac_cache(BASE_MODELS_COLLECTION, base_model.name)
     except Exception as exc:
         logger.exception("base model registration failed for %s", base_model_id)
@@ -46,5 +42,4 @@ def register_base_model(*, base_model_id: int) -> None:
         base_model.save(update_fields=["status", "error", "last_modified"])
         raise
     finally:
-        if item_path:
-            Path(item_path).unlink(missing_ok=True)
+        Path(item_path).unlink(missing_ok=True)

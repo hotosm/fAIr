@@ -783,6 +783,8 @@ def test_training_publish_publishes_local_model(mock_for_user, client, training_
     )
     assert response.status_code == 201
     assert response.json() == {"local_model_stac_id": "local-model-id-xyz"}
+    training_ref.local_model.refresh_from_db()
+    assert training_ref.local_model.stac_item_id == "local-model-id-xyz"
     mock_for_user.assert_called_once_with(str(training_ref.user.osm_id))
     mock_for_user.return_value.promote.assert_called_once_with(
         training_ref.local_model.name,
