@@ -197,6 +197,40 @@ def test_auth_me_get_returns_user_profile(client, user):
     assert body["osm_id"] == user.osm_id
     assert body["username"] == "alice"
     assert body["email_verified"] is False
+    assert body["date_joined"] is not None
+    for key in (
+        "models_count",
+        "datasets_count",
+        "feedbacks_count",
+        "approved_predictions_count",
+        "unread_notifications_count",
+    ):
+        assert body[key] == 0
+    # Base 25%; no img_url, email, or verification on this fixture user.
+    assert body["profile_completion_percentage"] == 25
+
+
+def test_auth_me_profile_stats_reflect_owned_records(client, user):
+    from datasets.models import Dataset
+    from feedback.models import Feedback
+    from modelregistry.models import BaseModel, LocalModel
+    from notifications.models import UserNotification
+    from shared.enums import FeedbackAction
+
+    geom = Polygon(((0, 0), (0, 1), (1, 1), (1, 0), (0, 0)), srid=4326)
+    base = BaseModel.objects.create(name="b", stac_item_id="b", user=user)
+    LocalModel.objects.create(name="m1", base_model=base, user=user)
+    Dataset.objects.create(stac_id="d1", title="D1", source_imagery="https://x/{z}/{x}/{y}", user=user)
+    Feedback.objects.create(stac_id="s1", action=FeedbackAction.ACCEPT, geom=geom, user=user)
+    Feedback.objects.create(stac_id="s2", action=FeedbackAction.REJECT, geom=geom, user=user)
+    UserNotification.objects.create(user=user, message="hi", is_read=False)
+
+    body = client.get("/api/v1/auth/me/").json()
+    assert body["models_count"] == 1
+    assert body["datasets_count"] == 1
+    assert body["approved_predictions_count"] == 1
+    assert body["feedbacks_count"] == 1
+    assert body["unread_notifications_count"] == 1
 
 
 def test_auth_me_patch_updates_email(client):
