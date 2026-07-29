@@ -206,12 +206,14 @@ export const NavBar = () => {
                   size={isTryFairPage ? "medium" : "large"}
                   rounded={isTryFairPage}
                   onClick={() => {
+
                     /*
                      * Set the `backgroundLocation` in location state so that when we open the authentication modal we still see the current page in the background.
                      */
                     navigate(location, {
                       state: { backgroundLocation: location },
                     });
+
                   }}
                 >
                   {isTryFairPage

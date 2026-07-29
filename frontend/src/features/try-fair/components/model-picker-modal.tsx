@@ -38,9 +38,8 @@ const FeatureBadge = ({ label }: { label: string | undefined }) => {
 /** Radio indicator: filled primary dot when selected, empty grey ring otherwise. */
 const RadioDot = ({ selected }: { selected: boolean }) => (
   <span
-    className={`mt-0.5 shrink-0 w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-      selected ? "border-primary" : "border-gray-border"
-    }`}
+    className={`mt-0.5 shrink-0 w-4 h-4 rounded-full border-2 flex items-center justify-center ${selected ? "border-primary" : "border-gray-border"
+      }`}
   >
     {selected && <span className="w-2 h-2 rounded-full bg-primary" />}
   </span>
@@ -96,9 +95,8 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
       </div>
 
       <ChevronDownIcon
-        className={`w-4 h-4 shrink-0 text-grey transition-transform ${
-          isOpen ? "rotate-180" : ""
-        }`}
+        className={`w-4 h-4 shrink-0 text-grey transition-transform ${isOpen ? "rotate-180" : ""
+          }`}
       />
     </div>
   );
@@ -236,9 +234,8 @@ export const ModelPickerContent = ({
           key="imagery"
           type="button"
           onClick={() => setStaged({ type: "imagery" })}
-          className={`text-left p-3 w-full sm:w-1/2 bg-frosted-blue rounded-lg  transition-colors ${
-            imageryActive ? "border-primary border-2" : ""
-          }`}
+          className={`text-left p-3 w-full sm:w-1/2 bg-frosted-blue rounded-lg  transition-colors ${imageryActive ? "border-primary border-2" : ""
+            }`}
         >
           <div className="flex space-y-2 items-start justify-between gap-2 mb-1">
             <p className="text-dark capitalize text-sm font-medium leading-tight ">
@@ -272,9 +269,8 @@ export const ModelPickerContent = ({
                 key={model.id}
                 type="button"
                 onClick={() => setStaged({ type: "model", model })}
-                className={`text-left p-3 bg-frosted-blue rounded-lg  transition-colors ${
-                  isSelected ? "border-primary border-2" : ""
-                }`}
+                className={`text-left p-3 bg-frosted-blue rounded-lg  transition-colors ${isSelected ? "border-primary border-2" : ""
+                  }`}
               >
                 <div className="flex space-y-2 items-start justify-between gap-2 mb-1">
                   <p className="text-dark capitalize text-sm font-bold leading-tight">
