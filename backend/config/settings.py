@@ -386,7 +386,7 @@ def _extract_domain(url: str) -> str | None:
 
 if DEBUG or settings.cors_allow_all_origins:
     CORS_ALLOW_ALL_ORIGINS = True
-    CORS_ALLOW_CREDENTIALS = False
+    CORS_ALLOW_CREDENTIALS = True
 else:
     CORS_ALLOW_ALL_ORIGINS = False
     CORS_ALLOW_CREDENTIALS = True
