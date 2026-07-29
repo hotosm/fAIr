@@ -54,6 +54,7 @@ class Settings(BaseSettings):
     allowed_hosts: Annotated[list[str], NoDecode] = Field(default_factory=list)
     csrf_trusted_origins: Annotated[list[str], NoDecode] = Field(default_factory=list)
     cors_allowed_origins: Annotated[list[str], NoDecode] = Field(default_factory=list)
+    cors_allow_all_origins: bool = False
     secure_ssl_redirect: bool = True
 
     # Frontend / API URLs

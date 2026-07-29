@@ -2,19 +2,32 @@
 
 Thin coordination layer for the fAIr AI-Assisted Mapping platform. Owns the public REST API, the user database, and the orchestration of dataset builds, training runs and predictions. ML pipelines and STAC catalog operations live in [fair-py-ops](https://github.com/hotosm/fAIr-models) and run on a ZenML stack.
 
-Model code lives in per-model docker images that the ZenML k8s orchestrator pulls.
+Model code lives in per-model docker images that the ZenML orchestrator pulls.
 
 ## Quick start
 
-Prerequisites: a running fair-py-ops dev stack (kind cluster + ZenML + STAC API + MinIO + MLflow). See [fair-py-ops/infra/cli](https://github.com/hotosm/fAIr-models/tree/main/infra/cli) for the single-image bring-up.
+The compose file at the repository root runs this backend and everything it
+depends on. See [docs/Docker-installation.md](../docs/Docker-installation.md).
+
+### Running the backend on the host
+
+Useful when iterating on backend code. Start the dependencies in docker, then
+run Django outside it:
 
 ```bash
-just setup                 # uv sync + pre-commit install
-cp env_example .env       # fill in real values
+cd ..
+docker compose up -d postgres minio stac mlflow zenml
+cd backend
+just setup                 
+cp env_example .env      
 just migrate
-just run                   # dev server on :8000
-just worker                # second terminal: db_worker for background tasks
+just run                   
+just worker               tasks
 ```
+
+The two sample files differ only in host names: the root `env_example` uses
+compose service names (`postgres`, `minio`, `stac`, `zenml`), while
+`backend/env_example` uses `localhost` with the ports those services publish.
 
 OpenAPI schema at `/api/schema/`, Swagger UI at `/api/docs/`, ReDoc at `/api/redoc/`.
 
@@ -60,12 +73,19 @@ OpenAPI schema at `/api/schema/`, Swagger UI at `/api/docs/`, ReDoc at `/api/red
 
 ### fair-py-ops (ZenML + STAC)
 
+`FAIR_*` values are read by this backend. The `ZENML_STORE_*` values are read by
+the `zenml` library itself when it opens a connection, so both sets point at the
+same server. Authenticate with either an API key or a username and password.
+
 | Name | Required | Default | Description |
 |------|----------|---------|-------------|
 | `FAIR_ZENML_STORE_URL` | yes (at runtime) | `null` | URL of the deployed ZenML server. Optional at boot, raises loud at first call site. |
-| `FAIR_ZENML_STORE_API_KEY` | yes (at runtime) | `null` | Mint via `kubectl exec deploy/zenml -- zenml service-account create fair-cli`. |
-| `FAIR_STAC_API_URL` | yes (at runtime) | `null` | URL of the STAC API root (eoapi-stac-fastapi). |
+| `FAIR_STAC_API_URL` | yes (at runtime) | `null` | URL of the STAC API root (eoapi-stac-fastapi). Trailing slashes are stripped. |
 | `FAIR_STAC_API_KEY` | prod | `null` | Bearer token for the STAC Transactions extension. |
+| `ZENML_STORE_URL` | yes (at runtime) | `null` | Same server as `FAIR_ZENML_STORE_URL`. |
+| `ZENML_STORE_API_KEY` | one of the two | `null` | Service-account key. Mint with `zenml service-account create fair-backend`. |
+| `ZENML_STORE_USERNAME` | one of the two | `null` | Username, paired with `ZENML_STORE_PASSWORD`. The compose stack's default user is `default` with an empty password. |
+| `ZENML_STORE_PASSWORD` | with username | `null` | Password for the above. |
 
 ### Object storage (S3 / MinIO)
 
@@ -172,4 +192,4 @@ just test                  # pytest
 just lint                  # pre-commit run --all-files (ruff + format + ty + uv-lock-check + commitizen)
 ```
 
-Tests under `backend/tests/` import across apps and mock `shared.integrations.zenml`; nothing hits a live ZenML server. For end-to-end checks against the dev stack drive the public API with curl (see `/api/docs/`).
+Tests under `backend/tests/` import across apps and mock `shared.integrations.zenml`; nothing hits a live ZenML server. For end-to-end checks against a running stack, run [`test.py`](../test.py), which drives the public API end to end.

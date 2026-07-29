@@ -34,7 +34,7 @@ Make sure you have backups available in case things go wrong !
 	+ fairpredictor (https://pypi.org/project/fairpredictor/)
 
 * Verify Docker images for fAIr production are built and deployed
-*  [worker](https://github.com/hotosm/fAIr/pkgs/container/fair-worker)  , [api](https://github.com/hotosm/fAIr/pkgs/container/fair-api)  & [offline-predictor](https://github.com/hotosm/fAIr/pkgs/container/fair-offline-predictor ) images should be built and pointed to latest release 
+*  [worker](https://github.com/hotosm/fAIr/pkgs/container/fair/worker)  , [api](https://github.com/hotosm/fAIr/pkgs/container/fair/api)  & [offline-predictor](https://github.com/hotosm/fAIr/pkgs/container/fair-offline-predictor ) images should be built and pointed to latest release 
 * Verify Docker image for [fairpredictor](https://github.com/hotosm/fairpredictor/pkgs/container/fairpredictor) is built and deployed
 - Now create new task definition for api , worker , predictor and prediction worker , Verify the env variable changes if there are any 
 - Deploy the services 
