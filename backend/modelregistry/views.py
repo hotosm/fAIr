@@ -209,10 +209,10 @@ class BaseModelViewSet(
         qs = BaseModel.objects.all()
         user = self.request.user
         if not (user and user.is_authenticated):
-            return qs.filter(visibility=Visibility.PUBLIC)
-        if _is_admin(user):
-            return qs
-        return qs.filter(Q(user=user) | Q(visibility=Visibility.PUBLIC))
+            qs = qs.filter(visibility=Visibility.PUBLIC)
+        elif not _is_admin(user):
+            qs = qs.filter(Q(user=user) | Q(visibility=Visibility.PUBLIC))
+        return annotate_stars(qs, self.request, key_field="name")
 
     def get_permissions(self):
         if self.action == "create":

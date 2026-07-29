@@ -153,6 +153,18 @@ def test_retrieve_is_public(admin: OsmUser) -> None:
     assert "stac_item_id" in resp.data
 
 
+def test_list_exposes_star_count(user: OsmUser, admin: OsmUser) -> None:
+    from stars.models import Star
+
+    model = BaseModel.objects.create(name="ramp", user=admin)
+    Star.objects.create(target_id=model.name, user=user)
+    resp = _client(user).get("/api/v1/base-models/")
+    assert resp.status_code == 200
+    row = next(m for m in resp.data["results"] if m["name"] == "ramp")
+    assert row["star_count"] == 1
+    assert row["is_starred"] is True
+
+
 def test_register_task_stores_stac_item_id(admin: OsmUser) -> None:
     base_model = BaseModel.objects.create(name="dino", user=admin, stac_item=VALID_ITEM)
     with patch("modelregistry.tasks.for_user") as mock_for_user:

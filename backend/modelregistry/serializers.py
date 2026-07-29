@@ -44,6 +44,8 @@ class LocalModelSerializer(serializers.ModelSerializer):
 
 class BaseModelSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
+    star_count = serializers.IntegerField(read_only=True, default=0)
+    is_starred = serializers.BooleanField(read_only=True, default=False)
 
     class Meta:
         model = BaseModel
@@ -54,6 +56,8 @@ class BaseModelSerializer(serializers.ModelSerializer):
             "stac_item_id",
             "status",
             "visibility",
+            "star_count",
+            "is_starred",
             "error",
             "user",
             "created_at",
