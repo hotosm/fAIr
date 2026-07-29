@@ -105,9 +105,9 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
           <p className="text-grey text-xs">No models available</p>
         ) : selectedModel ? (
           <>
-          <p className="font-medium text-dark text-xs leading-tight">
-            {selectedModel.properties.title}
-          </p>
+            <p className="font-medium text-dark text-xs leading-tight">
+              {selectedModel.properties.title}
+            </p>
             {selectedLocation && (
               <p className="text-grey text-[10px] leading-tight truncate">
                 {selectedLocation}
