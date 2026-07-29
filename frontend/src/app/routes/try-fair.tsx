@@ -406,7 +406,11 @@ export const TryFairPage = () => {
     resolution,
     predictionInputsSnapshot,
   ]);
-
+useEffect(() => {
+  if (error) {
+    showErrorToast(error);
+  }
+}, [error]);
   const isMapButtonDisabled = !isDirty || !latestBBox || !demoConfig;
 
   useEffect(() => {
