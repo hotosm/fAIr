@@ -16,12 +16,6 @@ from accounts.permissions import (
     _is_admin,
 )
 from shared.enums import Visibility
-from shared.integrations.stac import (
-    FAIR_PINNED_PROPERTY,
-    LOCAL_MODELS_COLLECTION,
-    get_active_local_model_item,
-    set_item_property,
-)
 from shared.integrations.zenml import list_runs_for_model
 from shared.stars import annotate_stars
 
@@ -65,8 +59,8 @@ def _fetch_stac_item(url: str) -> dict:
     retrieve=extend_schema(description="Retrieve one local model by id."),
     pin=extend_schema(
         description=(
-            "Toggle the `fair:pinned` STAC property on a model (admin only). "
-            "Writes to STAC; the DB row is unchanged."
+            "Toggle the `is_pinned` curation flag on a model (admin only). "
+            'PATCH body `{"is_pinned": true|false}`; defaults to true.'
         ),
     ),
     runs=extend_schema(description="List ZenML pipeline runs that produced this model."),
@@ -77,12 +71,12 @@ class LocalModelViewSet(viewsets.ReadOnlyModelViewSet):
     authentication_classes = [OsmAuthentication]
     permission_classes = [PublishedReadOrAuthenticatedWrite]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ["status", "visibility", "category", "user"]
+    filterset_fields = ["status", "visibility", "category", "base_model", "is_pinned", "user"]
     search_fields = ["name"]
     ordering_fields = ["created_at", "last_modified"]
 
     def get_queryset(self):
-        qs = LocalModel.objects.all().annotate(run_count=Count("runs"))
+        qs = LocalModel.objects.select_related("base_model").all().annotate(run_count=Count("runs"))
         user = self.request.user
         if not (user and user.is_authenticated):
             qs = qs.filter(visibility=Visibility.PUBLIC)
@@ -116,21 +110,8 @@ class LocalModelViewSet(viewsets.ReadOnlyModelViewSet):
     @action(detail=True, methods=["patch"], url_path="pin")
     def pin(self, request, pk: int | None = None) -> Response:
         model = self.get_object()
-        # STAC items are keyed by version UUID; the active version is
-        # whichever STAC item has mlm:name == model.name.
-        active = get_active_local_model_item(model.name)
-        if active is None:
-            return Response(
-                {
-                    "detail": (
-                        f"Model '{model.name}' has no active STAC version. "
-                        "Promote at least one training run before pinning."
-                    ),
-                },
-                status=status.HTTP_409_CONFLICT,
-            )
-        desired = bool(request.data.get("is_pinned", True))
-        set_item_property(LOCAL_MODELS_COLLECTION, active.id, FAIR_PINNED_PROPERTY, desired)
+        model.is_pinned = bool(request.data.get("is_pinned", True))
+        model.save(update_fields=["is_pinned", "last_modified"])
         return Response(self.get_serializer(model).data, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=["get"], url_path="runs")
@@ -215,7 +196,7 @@ class BaseModelViewSet(
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ["status", "visibility", "category", "user"]
+    filterset_fields = ["status", "visibility", "category", "is_pinned", "user"]
     search_fields = ["name"]
     ordering_fields = ["created_at", "last_modified"]
 
@@ -229,11 +210,19 @@ class BaseModelViewSet(
         return annotate_stars(qs, self.request, key_field="name")
 
     def get_permissions(self):
-        if self.action == "create":
+        if self.action in {"create", "pin"}:
             return [IsAuthenticated(), IsAdmin()]
         if self.action in {"list", "retrieve"}:
             return [AllowAny()]
         return [IsAuthenticated()]
+
+    @extend_schema(request=None, responses={200: BaseModelSerializer})
+    @action(detail=True, methods=["patch"], url_path="pin")
+    def pin(self, request, pk: int | None = None) -> Response:
+        model = self.get_object()
+        model.is_pinned = bool(request.data.get("is_pinned", True))
+        model.save(update_fields=["is_pinned", "last_modified"])
+        return Response(BaseModelSerializer(model).data, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs) -> Response:
         serializer = BaseModelRegisterSerializer(data=request.data)
@@ -247,6 +236,9 @@ class BaseModelViewSet(
                 "type": "application/json",
                 "roles": ["mlm:inference-endpoint"],
             }
+        keywords = stac_item.setdefault("properties", {}).setdefault("keywords", [])
+        if category.slug not in keywords:
+            keywords.append(category.slug)
         name = stac_item["properties"]["mlm:name"]
 
         base_model, created = BaseModel.objects.get_or_create(
@@ -254,20 +246,16 @@ class BaseModelViewSet(
             defaults={
                 "user": request.user,
                 "category": category,
-                "stac_item": stac_item,
                 "status": BaseModel.Status.REGISTERING,
             },
         )
         if not created:
             base_model.category = category
-            base_model.stac_item = stac_item
             base_model.status = BaseModel.Status.REGISTERING
             base_model.error = ""
-            base_model.save(
-                update_fields=["category", "stac_item", "status", "error", "last_modified"]
-            )
+            base_model.save(update_fields=["category", "status", "error", "last_modified"])
 
-        register_base_model.enqueue(base_model_id=base_model.id)
+        register_base_model.enqueue(base_model_id=base_model.id, stac_item=stac_item)
         return Response(BaseModelSerializer(base_model).data, status=status.HTTP_202_ACCEPTED)
 
 

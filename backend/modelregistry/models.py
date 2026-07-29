@@ -26,7 +26,16 @@ class Category(models.Model):
         return self.slug
 
 
-class LocalModel(models.Model):
+class Pinnable(models.Model):
+    """Curation flag for featuring a model"""
+
+    is_pinned = models.BooleanField(default=False, db_index=True)
+
+    class Meta:
+        abstract = True
+
+
+class LocalModel(Pinnable):
     # `name` is the chain key (= ZenML model_name = STAC mlm:name on every
     # version), NOT a STAC item id. A LocalModel is the family; each promote
     # creates a new STAC item under the same `mlm:name`. Per-version metadata
@@ -42,6 +51,11 @@ class LocalModel(models.Model):
         on_delete=models.PROTECT,
         related_name="local_models",
         default="other",
+    )
+    base_model = models.ForeignKey(
+        "BaseModel",
+        on_delete=models.PROTECT,
+        related_name="local_models",
     )
     # Active version's STAC item id (in the local-models collection). Set at
     # promote; the canonical id for STAC lookups and prediction submits.
@@ -82,7 +96,7 @@ class LocalModel(models.Model):
         return self.name
 
 
-class BaseModel(models.Model):
+class BaseModel(Pinnable):
     Status = BaseModelStatus
 
     name = models.CharField(max_length=200, unique=True)
@@ -101,9 +115,6 @@ class BaseModel(models.Model):
     visibility = models.CharField(
         max_length=20, choices=Visibility.choices, default=Visibility.PUBLIC, db_index=True
     )
-    stac_item = models.JSONField(default=dict, blank=True)
-    # Active version's STAC item id (in the base-models collection), returned by
-    # registration. The canonical id for STAC lookups.
     stac_item_id = models.CharField(max_length=64, blank=True, default="", db_index=True)
     error = models.TextField(blank=True, default="")
     user = models.ForeignKey(

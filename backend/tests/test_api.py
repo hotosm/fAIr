@@ -20,7 +20,7 @@ from accounts.models import OsmUser
 from shared.storage import BackendLocalModelPaths
 from datasets.models import AOI, Dataset
 from feedback.models import Feedback
-from modelregistry.models import LocalModel
+from modelregistry.models import BaseModel, LocalModel
 from notifications.models import Banner, UserNotification
 from predictions.models import Prediction
 from trainings.models import TrainingRunRef
@@ -70,9 +70,20 @@ def aoi(db, user: OsmUser) -> AOI:
 
 
 @pytest.fixture
-def local_model(db, user: OsmUser) -> LocalModel:
+def registered_base_model(db, user: OsmUser) -> BaseModel:
+    return BaseModel.objects.create(
+        name="unet-segmentation",
+        stac_item_id="unet-segmentation",
+        category_id="buildings",
+        user=user,
+    )
+
+
+@pytest.fixture
+def local_model(db, user: OsmUser, registered_base_model: BaseModel) -> LocalModel:
     return LocalModel.objects.create(
         name="my-finetuned",
+        base_model=registered_base_model,
         status=LocalModel.Status.ACTIVE,
         user=user,
     )
@@ -449,97 +460,48 @@ def test_local_model_pin_blocks_non_admin(client, local_model):
     assert response.status_code == 403
 
 
-@patch("modelregistry.views.get_active_local_model_item")
-@patch("modelregistry.views.set_item_property")
-def test_local_model_pin_writes_fair_pinned_to_active_version(
-    mock_set, mock_active, admin_client, local_model
-):
-    active_item = MagicMock()
-    active_item.id = "ea6d758d-version-uuid"
-    mock_active.return_value = active_item
-    mock_set.return_value = {
-        "description": "demo",
-        "datetime": None,
-        "geometry": None,
-        "assets": {},
-        "properties": {"fair:pinned": True},
-        "links": [],
-    }
+def test_local_model_pin_sets_db_flag(admin_client, local_model):
+    assert local_model.is_pinned is False
     response = admin_client.patch(
         f"/api/v1/local-models/{local_model.id}/pin/",
         data={"is_pinned": True},
         format="json",
     )
     assert response.status_code == 200
-    mock_active.assert_called_once_with(local_model.name)
-    args = mock_set.call_args.args
-    assert args[0] == "local-models"
-    # NOTE: pinned is set on the active VERSION's item id (UUID), not on the
-    # family slug, since the version UUID is what STAC keys items by.
-    assert args[1] == "ea6d758d-version-uuid"
-    assert args[2] == "fair:pinned"
-    assert args[3] is True
-    assert "stac" not in response.json()
+    assert response.json()["is_pinned"] is True
+    local_model.refresh_from_db()
+    assert local_model.is_pinned is True
 
 
-@patch("modelregistry.views.get_active_local_model_item", return_value=None)
-@patch("modelregistry.views.set_item_property")
-def test_local_model_pin_409s_when_no_active_version(
-    mock_set, mock_active, admin_client, local_model
-):
+def test_local_model_unpin_clears_db_flag(admin_client, local_model):
+    local_model.is_pinned = True
+    local_model.save(update_fields=["is_pinned"])
     response = admin_client.patch(
         f"/api/v1/local-models/{local_model.id}/pin/",
-        data={"is_pinned": True},
+        data={"is_pinned": False},
         format="json",
     )
-    assert response.status_code == 409
-    mock_set.assert_not_called()
-
-
-def test_local_model_pin_integration_with_real_stac_backend(
-    admin_client, local_model, tmp_path
-):
-    # Boundary-level integration: real StacCatalogManager + real patch_item
-    # round-trip. Without this, mocked unit tests can codify the wrong
-    # arg shapes (as the original pin bug did).
-    from fair.stac.catalog_manager import StacCatalogManager
-    from fair.stac.collections import initialize_catalog
-    from datetime import UTC, datetime
-
-    import pystac
-
-    catalog_path = str(tmp_path / "catalog.json")
-    initialize_catalog(catalog_path)
-    backend = StacCatalogManager(catalog_path)
-
-    item = pystac.Item(
-        id="version-uuid-1",
-        geometry={
-            "type": "Polygon",
-            "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]],
-        },
-        bbox=[0, 0, 1, 1],
-        datetime=datetime.now(UTC),
-        properties={"mlm:name": local_model.name, "deprecated": False},
-    )
-    backend.publish_item("local-models", item)
-
-    with patch("shared.integrations.stac._backend", return_value=backend):
-        response = admin_client.patch(
-            f"/api/v1/local-models/{local_model.id}/pin/",
-            data={"is_pinned": True},
-            format="json",
-        )
-
     assert response.status_code == 200
-    refetched = backend.get_item("local-models", "version-uuid-1")
-    assert refetched.properties.get("fair:pinned") is True
+    assert response.json()["is_pinned"] is False
+    local_model.refresh_from_db()
+    assert local_model.is_pinned is False
+
+
+def test_local_models_filter_by_is_pinned(admin_client, local_model, admin_user):
+    base = local_model.base_model
+    LocalModel.objects.create(
+        name="pinned-one", base_model=base, user=admin_user, is_pinned=True
+    )
+    response = admin_client.get("/api/v1/local-models/?is_pinned=true")
+    assert response.status_code == 200
+    names = {row["name"] for row in response.json()["results"]}
+    assert names == {"pinned-one"}
 
 
 @patch("trainings.views.item_exists", return_value=True)
 @patch("trainings.views.submit_training")
 def test_training_submit_creates_run_and_enqueues(
-    mock_task, mock_item_exists, client, published_dataset
+    mock_task, mock_item_exists, client, published_dataset, registered_base_model
 ):
     payload = {
         "base_model_stac_id": "unet-segmentation",
@@ -556,14 +518,16 @@ def test_training_submit_creates_run_and_enqueues(
     assert body["overrides"] == {"epochs": 3, "learning_rate": 0.001}
     assert body["description"] == "First attempt"
     assert body["base_model_stac_id"] == "unet-segmentation"
-    assert TrainingRunRef.objects.filter(local_model__name="tuned-v1").exists()
+    run = TrainingRunRef.objects.get(local_model__name="tuned-v1")
+    assert run.local_model.base_model_id == registered_base_model.id
+    assert run.local_model.category_id == registered_base_model.category_id == "buildings"
     mock_task.enqueue.assert_called_once()
 
 
 @patch("trainings.views.item_exists", return_value=True)
 @patch("trainings.views.submit_training")
 def test_training_submit_persists_title_on_run_ref(
-    mock_task, mock_item_exists, client, published_dataset
+    mock_task, mock_item_exists, client, published_dataset, registered_base_model
 ):
     response = client.post(
         "/api/v1/trainings/submit/",
@@ -584,7 +548,7 @@ def test_training_submit_persists_title_on_run_ref(
 @patch("trainings.views.item_exists", return_value=True)
 @patch("trainings.views.submit_training")
 def test_training_submit_persists_keywords_on_run_ref(
-    mock_task, mock_item_exists, client, published_dataset
+    mock_task, mock_item_exists, client, published_dataset, registered_base_model
 ):
     response = client.post(
         "/api/v1/trainings/submit/",
@@ -604,7 +568,7 @@ def test_training_submit_persists_keywords_on_run_ref(
 @patch("trainings.views.item_exists", return_value=True)
 @patch("trainings.views.submit_training")
 def test_training_submit_dedupes_keywords(
-    mock_task, mock_item_exists, client, published_dataset
+    mock_task, mock_item_exists, client, published_dataset, registered_base_model
 ):
     response = client.post(
         "/api/v1/trainings/submit/",
@@ -621,10 +585,7 @@ def test_training_submit_dedupes_keywords(
     assert run.keywords == ["building", "high-resolution", "march"]
 
 
-@patch("trainings.views.item_exists", return_value=False)
-def test_training_submit_404s_when_base_model_missing_in_stac(
-    mock_item_exists, client, published_dataset
-):
+def test_training_submit_404s_when_base_model_not_registered(client, published_dataset):
     response = client.post(
         "/api/v1/trainings/submit/",
         data={
@@ -635,12 +596,13 @@ def test_training_submit_404s_when_base_model_missing_in_stac(
         format="json",
     )
     assert response.status_code == 404
+    assert "not a registered base model" in response.json()["error"]["details"]["detail"]
 
 
 @patch("trainings.views.item_exists", return_value=True)
 @patch("trainings.views.submit_training")
 def test_training_submit_slugifies_model_name(
-    mock_task, mock_item_exists, client, published_dataset
+    mock_task, mock_item_exists, client, published_dataset, registered_base_model
 ):
     response = client.post(
         "/api/v1/trainings/submit/",
@@ -674,11 +636,11 @@ def test_training_submit_rejects_unslugifiable_model_name(
 @patch("trainings.views.item_exists", return_value=True)
 @patch("trainings.views.submit_training")
 def test_training_submit_403s_when_model_owned_by_other_user(
-    mock_task, mock_item_exists, client, published_dataset, db
+    mock_task, mock_item_exists, client, published_dataset, registered_base_model, db
 ):
     # `client` fixture authenticates as `alice`; create a model owned by bob.
     bob = OsmUser.objects.create(osm_id=999, username="bob")
-    LocalModel.objects.create(name="bobs-model", user=bob)
+    LocalModel.objects.create(name="bobs-model", base_model=registered_base_model, user=bob)
     response = client.post(
         "/api/v1/trainings/submit/",
         data={

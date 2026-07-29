@@ -17,6 +17,8 @@ class CategorySerializer(serializers.ModelSerializer):
 class LocalModelSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     category = serializers.SlugRelatedField(slug_field="slug", read_only=True)
+    base_model = serializers.PrimaryKeyRelatedField(read_only=True)
+    base_model_name = serializers.CharField(source="base_model.name", read_only=True)
     star_count = serializers.IntegerField(read_only=True, default=0)
     is_starred = serializers.BooleanField(read_only=True, default=False)
     run_count = serializers.IntegerField(read_only=True, default=0)
@@ -27,9 +29,12 @@ class LocalModelSerializer(serializers.ModelSerializer):
             "id",
             "name",
             "category",
+            "base_model",
+            "base_model_name",
             "stac_item_id",
             "status",
             "visibility",
+            "is_pinned",
             "user",
             "star_count",
             "is_starred",
@@ -39,7 +44,10 @@ class LocalModelSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = [
             "id",
+            "base_model",
+            "base_model_name",
             "stac_item_id",
+            "is_pinned",
             "user",
             "star_count",
             "is_starred",
@@ -64,6 +72,7 @@ class BaseModelSerializer(serializers.ModelSerializer):
             "stac_item_id",
             "status",
             "visibility",
+            "is_pinned",
             "star_count",
             "is_starred",
             "error",

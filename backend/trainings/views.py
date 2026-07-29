@@ -16,9 +16,8 @@ from rest_framework.throttling import ScopedRateThrottle
 from accounts.authentication import OsmAuthentication
 from accounts.permissions import IsOwnerOrAdminOrReadOnly, _is_admin
 from datasets.models import Dataset
-from modelregistry.models import LocalModel
+from modelregistry.models import BaseModel, LocalModel
 from shared.integrations.stac import (
-    BASE_MODELS_COLLECTION,
     DATASETS_COLLECTION,
     LOCAL_MODELS_COLLECTION,
     get_active_local_model_item,
@@ -59,8 +58,8 @@ def _previous_version_description(model_name: str) -> str:
     submit=extend_schema(
         description=(
             "Enqueue a finetune ZenML pipeline run. Validates that "
-            "`base_model_stac_id` exists in the STAC base-models collection "
-            "and `dataset_stac_id` exists in datasets before enqueueing."
+            "`base_model_stac_id` is a registered base model and "
+            "`dataset_stac_id` exists in datasets before enqueueing."
         )
     ),
     run_status=extend_schema(description="Poll the live ZenML run status; updates status."),
@@ -113,10 +112,12 @@ class TrainingViewSet(viewsets.ReadOnlyModelViewSet):
         serializer.is_valid(raise_exception=True)
         payload = serializer.validated_data
 
-        if not item_exists(BASE_MODELS_COLLECTION, payload["base_model_stac_id"]):
+        base_model = BaseModel.objects.filter(stac_item_id=payload["base_model_stac_id"]).first()
+        if base_model is None:
             raise NotFound(
-                f"base_model_stac_id '{payload['base_model_stac_id']}' "
-                "not found in STAC base-models collection."
+                f"base_model_stac_id '{payload['base_model_stac_id']}' is not a "
+                "registered base model. Register it via POST /api/v1/base-models/ "
+                "before training."
             )
         if not item_exists(DATASETS_COLLECTION, payload["dataset_stac_id"]):
             raise NotFound(
@@ -136,7 +137,11 @@ class TrainingViewSet(viewsets.ReadOnlyModelViewSet):
         # re-key configs to retrain on someone else's setup.
         local_model, created = LocalModel.objects.get_or_create(
             name=payload["model_name"],
-            defaults={"user": request.user},
+            defaults={
+                "user": request.user,
+                "base_model": base_model,
+                "category": base_model.category,
+            },
         )
         if (
             not created

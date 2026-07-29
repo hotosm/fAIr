@@ -48,17 +48,21 @@ def test_register_requires_admin(user: OsmUser) -> None:
     assert not BaseModel.objects.exists()
 
 
-def test_register_creates_row_and_returns_202(admin: OsmUser) -> None:
+@patch("modelregistry.views.register_base_model")
+def test_register_creates_row_and_returns_202(mock_task, admin: OsmUser) -> None:
     resp = _client(admin).post("/api/v1/base-models/", {"stac_item": VALID_ITEM}, format="json")
     assert resp.status_code == 202
     base_model = BaseModel.objects.get(name="test-basemodel")
     assert base_model.status == BaseModel.Status.REGISTERING
     assert base_model.user_id == admin.osm_id
     assert base_model.category_id == "other"
-    assert base_model.stac_item == VALID_ITEM
+    item = mock_task.enqueue.call_args.kwargs["stac_item"]
+    assert item["properties"]["mlm:name"] == "test-basemodel"
+    assert "other" in item["properties"]["keywords"]
 
 
-def test_register_stores_category(admin: OsmUser) -> None:
+@patch("modelregistry.views.register_base_model")
+def test_register_stores_category(mock_task, admin: OsmUser) -> None:
     resp = _client(admin).post(
         "/api/v1/base-models/",
         {"stac_item": VALID_ITEM, "category": "buildings"},
@@ -66,27 +70,29 @@ def test_register_stores_category(admin: OsmUser) -> None:
     )
     assert resp.status_code == 202
     assert BaseModel.objects.get(name="test-basemodel").category_id == "buildings"
+    item = mock_task.enqueue.call_args.kwargs["stac_item"]
+    assert "buildings" in item["properties"]["keywords"]
 
 
-def test_register_with_inference_endpoint_sets_asset(admin: OsmUser) -> None:
+@patch("modelregistry.views.register_base_model")
+def test_register_with_inference_endpoint_sets_asset(mock_task, admin: OsmUser) -> None:
     resp = _client(admin).post(
         "/api/v1/base-models/",
         {"stac_item": VALID_ITEM, "inference_endpoint": "https://predict.example.com/m"},
         format="json",
     )
     assert resp.status_code == 202
-    asset = BaseModel.objects.get(name="test-basemodel").stac_item["assets"][
-        "mlm:inference-endpoint"
-    ]
+    asset = mock_task.enqueue.call_args.kwargs["stac_item"]["assets"]["mlm:inference-endpoint"]
     assert asset["href"] == "https://predict.example.com/m"
     assert asset["roles"] == ["mlm:inference-endpoint"]
 
 
-def test_register_without_inference_endpoint_leaves_item(admin: OsmUser) -> None:
+@patch("modelregistry.views.register_base_model")
+def test_register_without_inference_endpoint_leaves_item(mock_task, admin: OsmUser) -> None:
     resp = _client(admin).post("/api/v1/base-models/", {"stac_item": VALID_ITEM}, format="json")
     assert resp.status_code == 202
-    stored = BaseModel.objects.get(name="test-basemodel").stac_item
-    assert "mlm:inference-endpoint" not in stored.get("assets", {})
+    item = mock_task.enqueue.call_args.kwargs["stac_item"]
+    assert "mlm:inference-endpoint" not in item.get("assets", {})
 
 
 def test_register_rejects_missing_mlm_name(admin: OsmUser) -> None:
@@ -97,8 +103,9 @@ def test_register_rejects_missing_mlm_name(admin: OsmUser) -> None:
     assert not BaseModel.objects.exists()
 
 
+@patch("modelregistry.views.register_base_model")
 def test_register_from_url_stores_fetched_item(
-    admin: OsmUser, monkeypatch: pytest.MonkeyPatch
+    mock_task, admin: OsmUser, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     fetched = {"type": "Feature", "properties": {"mlm:name": "url-model"}, "assets": {}}
     monkeypatch.setattr(
@@ -111,9 +118,10 @@ def test_register_from_url_stores_fetched_item(
         format="json",
     )
     assert resp.status_code == 202
-    base_model = BaseModel.objects.get(name="url-model")
-    assert base_model.stac_item == fetched
-    assert base_model.category_id == "roads"
+    assert BaseModel.objects.get(name="url-model").category_id == "roads"
+    item = mock_task.enqueue.call_args.kwargs["stac_item"]
+    assert item["properties"]["mlm:name"] == "url-model"
+    assert "roads" in item["properties"]["keywords"]
 
 
 def test_register_rejects_both_sources(admin: OsmUser) -> None:
@@ -187,21 +195,55 @@ def test_list_exposes_star_count(user: OsmUser, admin: OsmUser) -> None:
 
 
 def test_register_task_stores_stac_item_id(admin: OsmUser) -> None:
-    base_model = BaseModel.objects.create(name="dino", user=admin, stac_item=VALID_ITEM)
+    base_model = BaseModel.objects.create(name="dino", user=admin)
     with patch("modelregistry.tasks.for_user") as mock_for_user:
         mock_for_user.return_value.register_base_model.return_value = "dino-v2"
-        register_base_model.func(base_model_id=base_model.id)
+        register_base_model.func(base_model_id=base_model.id, stac_item=VALID_ITEM)
     base_model.refresh_from_db()
     assert base_model.stac_item_id == "dino-v2"
     assert base_model.status == BaseModel.Status.ACTIVE
 
 
+def test_base_model_pin_sets_db_flag(admin: OsmUser) -> None:
+    base_model = BaseModel.objects.create(name="pin-me", user=admin, stac_item_id="pin-me")
+    resp = _client(admin).patch(
+        f"/api/v1/base-models/{base_model.id}/pin/", {"is_pinned": True}, format="json"
+    )
+    assert resp.status_code == 200
+    assert resp.data["is_pinned"] is True
+    base_model.refresh_from_db()
+    assert base_model.is_pinned is True
+
+
+def test_base_model_pin_blocks_non_admin(user: OsmUser, admin: OsmUser) -> None:
+    base_model = BaseModel.objects.create(name="pin-me", user=admin, stac_item_id="pin-me")
+    resp = _client(user).patch(
+        f"/api/v1/base-models/{base_model.id}/pin/", {"is_pinned": True}, format="json"
+    )
+    assert resp.status_code == 403
+
+
 def test_local_model_has_category(admin: OsmUser) -> None:
-    model = LocalModel.objects.create(name="lm1", user=admin)
+    base_model = BaseModel.objects.create(name="dino-base", user=admin, stac_item_id="dino-base")
+    model = LocalModel.objects.create(name="lm1", base_model=base_model, user=admin)
     assert model.category_id == "other"
     resp = _client(admin).get(f"/api/v1/local-models/{model.id}/")
     assert resp.status_code == 200
     assert resp.data["category"] == "other"
+    assert resp.data["base_model"] == base_model.id
+    assert resp.data["base_model_name"] == "dino-base"
+
+
+def test_local_models_filter_by_base_model(admin: OsmUser) -> None:
+    base_a = BaseModel.objects.create(name="base-a", user=admin, stac_item_id="base-a")
+    base_b = BaseModel.objects.create(name="base-b", user=admin, stac_item_id="base-b")
+    LocalModel.objects.create(name="lm-a", base_model=base_a, user=admin)
+    LocalModel.objects.create(name="lm-b", base_model=base_b, user=admin)
+    assert base_a.local_models.count() == 1
+    resp = _client(admin).get(f"/api/v1/local-models/?base_model={base_a.id}")
+    assert resp.status_code == 200
+    names = {row["name"] for row in resp.data["results"]}
+    assert names == {"lm-a"}
 
 
 def test_category_list_is_public(db) -> None:
