@@ -8,7 +8,11 @@ import { getSelectedModel } from "@/features/try-fair/utils/models";
 import { useMapInstance } from "@/hooks/use-map-instance";
 import { useTileservice } from "@/hooks/use-tileservice";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { getTileServerRegex, getTileServerTypeFromURL, showErrorToast } from "@/utils";
+import {
+  getTileServerRegex,
+  getTileServerTypeFromURL,
+  showErrorToast,
+} from "@/utils";
 import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
 import {
   useBaseModels,
@@ -291,7 +295,7 @@ export const TryFairPage = () => {
     predictionBBox,
     predictionGridZoom,
     clearPredictions,
-    error
+    error,
   } = useFairPredict();
 
   const handleSelectModel = (model: BaseModelStacItem) => {
@@ -377,7 +381,7 @@ export const TryFairPage = () => {
           : [parameterName, parameterValue],
       ),
     );
-    
+
     predict({
       model: selectedModel,
       localModelUri: selectedModel?.assets?.model?.href ?? "",
@@ -387,9 +391,9 @@ export const TryFairPage = () => {
       resolution,
       params: apiParams,
     });
-    if(error){
-      console.log(error)
-      showErrorToast(error)
+    if (error) {
+      console.log(error);
+      showErrorToast(error);
     }
   }, [
     selectedModel,
