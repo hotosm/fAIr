@@ -18,11 +18,11 @@ import { DropDown } from "@/components/ui/dropdown";
 import {
   AUTH_PROVIDER,
   BASE_API_URL,
+  DISABLE_AUTH_ON_TRY_FAIR,
   FRONTEND_URL,
   HANKO_URL,
   IS_DEV,
 } from "@/config";
-import { ENVS } from "@/config/env";
 import "@hotosm/tool-menu";
 import { Divider } from "@/components/ui/divider";
 import { ToolTip } from "@/components/ui/tooltip";
@@ -59,7 +59,7 @@ export const NavBar = () => {
   const location = useLocation();
   const isTryFairPage = location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR);
   const isAuthenticated =
-    (isTryFairPage && ENVS.DISABLE_AUTH_ON_TRY_FAIR) || _isAuthenticated;
+    (isTryFairPage && DISABLE_AUTH_ON_TRY_FAIR) || _isAuthenticated;
   const isHankoAuth = AUTH_PROVIDER === "hanko";
   return (
     <>

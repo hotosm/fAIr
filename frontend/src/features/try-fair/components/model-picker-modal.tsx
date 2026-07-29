@@ -14,7 +14,7 @@ import { GlobeSearchIcon } from "@/components/ui/icons/globe-search-icon";
 import { ModelType } from "@/enums";
 import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
 import { useAuth } from "@/app/providers/auth-provider";
-import { ENVS } from "@/config/env";
+import { DISABLE_AUTH_ON_TRY_FAIR } from "@/config";
 import { ImagerySource } from "@/features/try-fair/components/imagery/imagery-location-modal";
 import { flagEmoji } from "@/features/try-fair/utils/common";
 
@@ -192,7 +192,7 @@ export const ModelPickerContent = ({
   onClose?: () => void;
 }) => {
   const { isAuthenticated: _isAuthenticated } = useAuth();
-  const isAuthenticated = ENVS.DISABLE_AUTH_ON_TRY_FAIR || _isAuthenticated;
+  const isAuthenticated = DISABLE_AUTH_ON_TRY_FAIR || _isAuthenticated;
   const {
     setShowChooseLocationModal,
     setShowSigninModal,

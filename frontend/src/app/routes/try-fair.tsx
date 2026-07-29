@@ -46,7 +46,7 @@ import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-st
 import { SignInPromptDialog } from "@/features/try-fair/components/modals/sign-in-prompt";
 import { useNavigate } from "react-router-dom";
 import { APPLICATION_ROUTES } from "@/constants";
-import { ENVS } from "@/config/env";
+import { DISABLE_AUTH_ON_TRY_FAIR } from "@/config";
 
 export const TryFairPage = () => {
   const { map, mapContainerRef } = useMapInstance(false, false);
@@ -467,7 +467,7 @@ export const TryFairPage = () => {
           setShowChooseLocationModal(false);
         }}
       />
-      {!ENVS.DISABLE_AUTH_ON_TRY_FAIR && (
+      {!DISABLE_AUTH_ON_TRY_FAIR && (
         <SignInPromptDialog
           isOpened={showSigninModal}
           closeDialog={() => setShowSigninModal(false)}

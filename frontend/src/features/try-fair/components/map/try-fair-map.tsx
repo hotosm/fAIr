@@ -21,7 +21,7 @@ import { cn } from "@/utils";
 import { GlobeSearchIcon } from "@/components/ui/icons/globe-search-icon";
 import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
 import { useAuth } from "@/app/providers/auth-provider";
-import { ENVS } from "@/config/env";
+import { DISABLE_AUTH_ON_TRY_FAIR } from "@/config";
 
 type TryFairMapProps = {
   map: Map | null;
@@ -67,7 +67,7 @@ export const TryFairMap = ({
   const { setShowChooseLocationModal, setShowSigninModal } =
     useStartMappingStore();
   const { isAuthenticated: _isAuthenticated } = useAuth();
-  const isAuthenticated = ENVS.DISABLE_AUTH_ON_TRY_FAIR || _isAuthenticated;
+  const isAuthenticated = DISABLE_AUTH_ON_TRY_FAIR || _isAuthenticated;
   const [choroplethBuckets, setChoroplethBuckets] = useState<
     ChoroplethBucket[] | null
   >(null);
