@@ -7,11 +7,8 @@ Requires=docker.service
 Type=oneshot
 RemainAfterExit=yes
 WorkingDirectory=/opt/fAIr-app
-EnvironmentFile=/opt/fAIr-app/.env.production
-User=root
-Group=root
-ExecStart=/usr/bin/docker compose -f /opt/fAIr-app/docker-compose.prod.yml --env-file /opt/fAIr-app/.env.production --profile gpu up --build -d
-ExecStop=/usr/bin/docker  compose -f /opt/fAIr-app/docker-compose.prod.yml down
+ExecStart=/usr/bin/docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+ExecStop=/usr/bin/docker compose -f docker-compose.yml -f docker-compose.dev.yml down
 Restart=on-failure
 RestartSec=30
 

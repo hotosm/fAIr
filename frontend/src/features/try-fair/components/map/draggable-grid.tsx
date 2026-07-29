@@ -1,5 +1,6 @@
-import { RefObject, useMemo, useState } from "react";
+import { RefObject, useEffect, useMemo, useState } from "react";
 import { Map } from "maplibre-gl";
+import useScreenSize from "@/hooks/use-screen-size";
 import { BBOX } from "@/types";
 import { TryFairResolution } from "@/enums/try-fair";
 import { TryFairMapOutputType } from "@/enums/try-fair";
@@ -56,13 +57,31 @@ export const TryFairDraggableGrid = ({
 }: TryFairDraggableGridProps) => {
   // Grid anchor & bbox management
 
-  const { anchor, setAnchor } = useTileGrid({
+  const { isSmallViewport } = useScreenSize();
+
+  const { anchor, setAnchor, tileZoom } = useTileGrid({
     map,
     imageryCenter,
     resolution,
     modelId,
     onBBoxChange,
   });
+
+  useEffect(() => {
+    if (!isSmallViewport || !map) return;
+    const recenter = (e: { originalEvent?: unknown }) => {
+      if (!e.originalEvent) return;
+      const { lng, lat } = map.getCenter();
+      setAnchor((prev) => {
+        const next = computeCenteredAnchor({ lng, lat }, tileZoom);
+        return prev && prev.x === next.x && prev.y === next.y ? prev : next;
+      });
+    };
+    map.on("move", recenter);
+    return () => {
+      map.off("move", recenter);
+    };
+  }, [isSmallViewport, map, setAnchor, tileZoom]);
 
   //  Drag interaction
 
@@ -88,7 +107,7 @@ export const TryFairDraggableGrid = ({
     return gridHeight / containerHeight >= 0.95;
   }, [screenGeometry, mapContainerRef]);
 
-  const dragDisabled = isPredicting || gridCoversScreen;
+  const dragDisabled = isPredicting || gridCoversScreen || isSmallViewport;
 
   const { isDragging, handlePointerDown } = useGridDrag({
     map,
@@ -107,7 +126,7 @@ export const TryFairDraggableGrid = ({
     map,
     mapContainerRef,
     anchor,
-    disabled: isPredicting,
+    disabled: isPredicting || isSmallViewport,
   });
 
   const handleBringGridToView = () => {

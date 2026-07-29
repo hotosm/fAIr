@@ -5,7 +5,16 @@ Components:
 {{- if .Values.backend.djangoQ.enabled }}
   - Django-Q:    running as sidecar in backend pod
 {{- end }}
+{{- if eq (.Values.frontend.mode | default "bundleWithBackend") "bundleWithBackend" }}
+  - Frontend:    bundled - the API pod serves the SPA at `/` (Django + WhiteNoise)
+{{- else }}
+  - Frontend:    deployed to S3 + CloudFront by the {{ include "fair.fullname" . }}-cloudfront-deploy Job
+{{- end }}
+{{- if .Values.postgres.enabled }}
+  - PostgreSQL:  bundled ({{ include "fair.postgresName" . }})
+{{- else }}
   - PostgreSQL:  external ({{ .Values.externalDatabase.host }})
+{{- end }}
 
 {{- if .Values.ingress.enabled }}
 

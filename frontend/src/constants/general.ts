@@ -6,12 +6,12 @@ export const navLinks: TNavBarLinks = [
   {
     title: SHARED_CONTENT.navbar.routes.exploreModels,
     href: APPLICATION_ROUTES.MODELS,
-    active: true,
+    active: false,
   },
   {
     title: SHARED_CONTENT.navbar.routes.exploreDatasets,
     href: APPLICATION_ROUTES.DATASETS,
-    active: true,
+    active: false,
     children: [
       {
         title: "Training Datasets",
@@ -40,6 +40,21 @@ export const navLinks: TNavBarLinks = [
   },
 ];
 
+/**
+ * Determines whether a URL is available according to the navigation config.
+ *
+ * A disabled top-level item also disables every route below its URL. This keeps
+ * a hidden navigation item from still being accessible by pasting its URL.
+ */
+export const isNavigationRouteEnabled = (pathname: string): boolean => {
+  return !navLinks.some((link) => {
+    if (link.active || !link.href) return false;
+
+    const route = link.href.replace(/\/$/, "");
+    return pathname === route || pathname.startsWith(`${route}/`);
+  });
+};
+
 type TFooterGroupLinks = {
   groupOne: TFooterLinks;
   groupTwo: TFooterLinks;
@@ -50,17 +65,17 @@ export const footerLinks: TFooterGroupLinks = {
     {
       title: "explore models",
       route: APPLICATION_ROUTES.MODELS,
-      active: true,
+      active: false,
     },
     {
       title: "Training datasets",
       route: APPLICATION_ROUTES.DATASETS,
-      active: true,
+      active: false,
     },
     {
       title: "AI Predictions",
       route: APPLICATION_ROUTES.AI_PREDICTIONS,
-      active: true,
+      active: false,
     },
     {
       title: "learn",

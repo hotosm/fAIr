@@ -36,6 +36,7 @@ import {
   DEFAULT_FAIR_IMAGERY_CENTER,
   FALLBACK_FAIR_IMAGERY,
   FALLBACK_FAIR_IMAGERY_CENTER,
+  getModelOutputType,
   TRY_FAIR_INITIAL_MAP_ZOOM,
 } from "@/features/try-fair/utils/common";
 import { Dialog } from "@/components/ui/dialog";
@@ -209,6 +210,10 @@ export const TryFairPage = () => {
       const [w, s, e, n] = selectedImagery.bounds;
       return [(w + e) / 2, (s + n) / 2];
     }
+    const previewLocation = selectedModel?.properties["fair:preview_location"];
+    if (previewLocation) {
+      return previewLocation.coordinates;
+    }
     if (tileJSONMetadata?.center) {
       return [tileJSONMetadata.center[0], tileJSONMetadata.center[1]];
     }
@@ -224,7 +229,7 @@ export const TryFairPage = () => {
     return tileServiceUrl === FALLBACK_FAIR_IMAGERY
       ? FALLBACK_FAIR_IMAGERY_CENTER
       : DEFAULT_FAIR_IMAGERY_CENTER;
-  }, [tileJSONMetadata, tileServiceUrl, selectedImagery]);
+  }, [tileJSONMetadata, tileServiceUrl, selectedImagery, selectedModel]);
 
   // The current imagery's extent, used as the "Whole Imagery" AOI in the
   // Map Large Area modal.
@@ -267,6 +272,17 @@ export const TryFairPage = () => {
       };
     }
   }, [map, selectedModel, imageryCenter]);
+
+  useEffect(() => {
+    if (
+      selectedModel &&
+      getModelOutputType(selectedModel) === TryFairMapOutputType.POINTS &&
+      outputType === TryFairMapOutputType.POLYGON
+    ) {
+      setOutputType(TryFairMapOutputType.POINTS);
+    }
+  }, [selectedModel, outputType, setOutputType]);
+
   const {
     predict,
     isPredicting,
@@ -289,6 +305,7 @@ export const TryFairPage = () => {
     if (confidenceParam && typeof confidenceParam.spec.default === "number") {
       setConfidence(confidenceParam.spec.default);
     }
+    setOutputType(getModelOutputType(model));
     // Invalidate so the Map button re-enables for the new model
     lastPredictedInputsRef.current = null;
     clearPredictions();
@@ -354,7 +371,7 @@ export const TryFairPage = () => {
     const apiParams = Object.fromEntries(
       Object.entries(paramValues).map(([parameterName, parameterValue]) =>
         parameterName === "confidence_threshold"
-          ? [parameterName, parseFloat((1 - Number(parameterValue)).toFixed(2))]
+          ? [parameterName, parseFloat(Number(parameterValue).toFixed(2))]
           : [parameterName, parameterValue],
       ),
     );
@@ -517,6 +534,7 @@ export const TryFairPage = () => {
                 snapPoints={[0.2, 0.7]}
                 modal={false}
                 showOverlay={false}
+                handleOnly
               >
                 <TryFairSidebar
                   selectedModel={selectedModel}

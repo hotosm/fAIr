@@ -57,7 +57,7 @@ export const NavBar = () => {
 
   const location = useLocation();
   const isTryFairPage = location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR);
-
+  const isHankoAuth = AUTH_PROVIDER === "hanko";
   return (
     <>
       <Drawer
@@ -87,7 +87,7 @@ export const NavBar = () => {
           {isAuthenticated && <Divider />}
 
           <div className={styles.loginButtonContainer}>
-            {AUTH_PROVIDER === "hanko" && !IS_DEV ? (
+            {isHankoAuth && !IS_DEV && !isTryFairPage ? (
               <>
                 {isAuthenticated && (
                   <UserProfile
@@ -110,6 +110,8 @@ export const NavBar = () => {
               </>
             ) : isAuthenticated ? (
               <UserProfile
+                isHanko={isHankoAuth}
+                hideFullName={isHankoAuth}
                 variant="list"
                 onNavigate={() => setOpen(false)}
                 setOpen={setOpen}
@@ -164,7 +166,7 @@ export const NavBar = () => {
         </div>
 
         <div className="flex-1 hidden sm:flex items-center justify-end gap-x-3">
-          {AUTH_PROVIDER === "hanko" && !IS_DEV ? (
+          {isHankoAuth && !IS_DEV && !isTryFairPage ? (
             <>
               {isAuthenticated && <UserNotifications />}
               {isAuthenticated && <UserProfile isHanko hideFullName />}
@@ -221,7 +223,7 @@ export const NavBar = () => {
               </ToolTip>
             </div>
           )}
-          {AUTH_PROVIDER === "hanko" && <hotosm-tool-menu></hotosm-tool-menu>}
+          {isHankoAuth && <hotosm-tool-menu></hotosm-tool-menu>}
         </div>
         <div className="flex items-center gap-x-2 sm:hidden">
           {/* Notification bell on the small screens */}

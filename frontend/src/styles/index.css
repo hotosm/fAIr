@@ -437,7 +437,6 @@ sl-alert.success::part(base) {
 hotosm-auth {
   --login-btn-border-radius: 0px;
 }
-
 /* Try fAIr confidence slider starts */
 .try-fair-confidence-slider::-webkit-slider-thumb {
   appearance: none;

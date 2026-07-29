@@ -5,6 +5,10 @@ import DropDown from "@/components/ui/dropdown/dropdown";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { ChevronDownIcon } from "@/components/ui/icons";
 import { BuildingIcon } from "@/components/ui/icons/buildings-icon";
+import { TreesIcon } from "@/components/ui/icons/trees-icon";
+import { SwimmingPoolIcon } from "@/components/ui/icons/swimming-pool-icon";
+import { ParkingIcon } from "@/components/ui/icons/parking-icon";
+import { IconProps } from "@/types";
 import { Button } from "@/components/ui/button";
 import { GlobeSearchIcon } from "@/components/ui/icons/globe-search-icon";
 import { ModelType } from "@/enums";
@@ -23,13 +27,20 @@ type ModelPickerProps = {
   openMobileDialog?: () => void;
 };
 
+const FEATURE_ICONS: Record<string, React.FC<IconProps>> = {
+  building: BuildingIcon,
+  tree: TreesIcon,
+  swimming_pool: SwimmingPoolIcon,
+  parking: ParkingIcon,
+};
+
 const FeatureBadge = ({ label }: { label: string | undefined }) => {
-  const featureLabel =
-    label ?? "".replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  const Icon = FEATURE_ICONS[label ?? ""] ?? BuildingIcon;
+  const featureLabel = (label ?? "").replace(/[-_]/g, " ");
 
   return (
     <span className="inline-flex gap-2 items-center px-2 py-0.5 capitalize rounded bg-grey text-white text-xs font-medium">
-      <BuildingIcon />
+      <Icon />
       {featureLabel}
     </span>
   );
@@ -64,6 +75,12 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
 }) => {
   const { onDropdownHide, dropdownRef } = useDropdownMenu();
   const [isOpen, setIsOpen] = useState(false);
+  const selectedLocation = [
+    selectedModel?.properties["fair:preview_place"],
+    selectedModel?.properties["fair:preview_country"],
+  ]
+    .filter(Boolean)
+    .join(", ");
   const { currentModelType, selectedImagery } = useStartMappingStore();
 
   // When imagery is the active source, the trigger shows the imagery's name
@@ -87,9 +104,16 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
         ) : models.length === 0 ? (
           <p className="text-grey text-xs">No models available</p>
         ) : selectedModel ? (
+          <>
           <p className="font-medium text-dark text-xs leading-tight">
             {selectedModel.properties.title}
           </p>
+            {selectedLocation && (
+              <p className="text-grey text-[10px] leading-tight truncate">
+                {selectedLocation}
+              </p>
+            )}
+          </>
         ) : (
           <p className="text-grey text-xs">Select a model</p>
         )}

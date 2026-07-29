@@ -8,8 +8,10 @@ import { ParametersIcon } from "@/components/ui/icons/parameters-icon";
 import { SnowflakeIcon } from "@/components/ui/icons/snow-flake-icon";
 import { GridIcon } from "@/components/ui/icons/grid-icon";
 import { FlameIcon } from "@/components/ui/icons/flame-icon";
+
 import {
   getAccuracyLabel,
+  getModelOutputType,
   OUTPUT_TYPES,
   RESOLUTIONS,
 } from "@/features/try-fair/utils/common";
@@ -67,6 +69,10 @@ export const TryFairSidebar = ({
 }: TryFairSidebarProps) => {
   const { isSmallViewport } = useScreenSize();
   const { currentModelType } = useStartMappingStore();
+  const supportsPolygon = selectedModel
+    ? getModelOutputType(selectedModel) === TryFairMapOutputType.POLYGON
+    : true;
+
   return (
     <div
       className={cn(
@@ -125,23 +131,29 @@ export const TryFairSidebar = ({
           {TRY_FAIR_PAGE_CONTENT.sidebar.mapOutput.label}
         </p>
         <div className="flex items-center gap-2">
-          {OUTPUT_TYPES.map(({ type, label, icon }) => (
-            <button
-              key={type}
-              type="button"
-              onClick={() => onOutputTypeChange(type)}
-              title={label}
-              disabled={isPredicting}
-              aria-label={label}
-              className={`flex-1 flex disabled:cursor-wait items-center justify-center py-2 rounded-lg ${
-                outputType === type
-                  ? "bg-secondary text-primary border-[#D63F4080] border"
-                  : "bg-off-white"
-              }`}
-            >
-              {icon}
-            </button>
-          ))}
+          {OUTPUT_TYPES.map(({ type, label, icon }) => {
+            const optionDisabled =
+              isPredicting ||
+              (type === TryFairMapOutputType.POLYGON && !supportsPolygon);
+            return (
+              <button
+                key={type}
+                type="button"
+                onClick={() => onOutputTypeChange(type)}
+                title={label}
+                disabled={optionDisabled}
+                aria-label={label}
+                className={cn(
+                  "flex-1 flex items-center justify-center py-2 rounded-lg disabled:cursor-not-allowed disabled:opacity-40",
+                  outputType === type
+                    ? "bg-secondary text-primary border-[#D63F4080] border"
+                    : "bg-off-white",
+                )}
+              >
+                {icon}
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -162,11 +174,10 @@ export const TryFairSidebar = ({
           <ToolTip content={"Reset Parameters"}>
             <button
               type="button"
-              className={`border p-2 rounded-md transition-opacity ${
-                isParametersDefault || isPredicting
+              className={`border p-2 rounded-md transition-opacity ${isParametersDefault || isPredicting
                   ? "bg-[#F0EFEF] opacity-40 cursor-not-allowed"
                   : "bg-[#F0EFEF] hover:bg-[#E5E4E4]"
-              }`}
+                }`}
               disabled={isParametersDefault || isPredicting}
               onClick={onResetParameters}
             >
@@ -197,11 +208,10 @@ export const TryFairSidebar = ({
                 type="button"
                 disabled={isPredicting}
                 onClick={() => onResolutionChange(value)}
-                className={`flex-1 gap-1 flex disabled:cursor-wait text-xs items-center justify-center py-2 rounded-lg ${
-                  resolution === value
+                className={`flex-1 gap-1 flex disabled:cursor-wait text-xs items-center justify-center py-2 rounded-lg ${resolution === value
                     ? "bg-secondary border-[#D63F4080] border"
                     : "bg-off-white"
-                }`}
+                  }`}
               >
                 <GridIcon width={size} height={size} />
                 {label}

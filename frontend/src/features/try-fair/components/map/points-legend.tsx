@@ -12,7 +12,7 @@ export const TryFairPointsLegend = ({ totalCount }: Props) => {
 
   const items: LegendItem[] = [
     {
-      label: `${totalCount.toLocaleString()} buildings detected`,
+      label: `${totalCount.toLocaleString()} objects detected`,
       fillColor: POINT_COLOR,
       fillOpacity: 1,
       shape: "circle",
