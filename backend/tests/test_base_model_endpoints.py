@@ -68,6 +68,27 @@ def test_register_stores_category(admin: OsmUser) -> None:
     assert BaseModel.objects.get(name="test-basemodel").category_id == "buildings"
 
 
+def test_register_with_inference_endpoint_sets_asset(admin: OsmUser) -> None:
+    resp = _client(admin).post(
+        "/api/v1/base-models/",
+        {"stac_item": VALID_ITEM, "inference_endpoint": "https://predict.example.com/m"},
+        format="json",
+    )
+    assert resp.status_code == 202
+    asset = BaseModel.objects.get(name="test-basemodel").stac_item["assets"][
+        "mlm:inference-endpoint"
+    ]
+    assert asset["href"] == "https://predict.example.com/m"
+    assert asset["roles"] == ["mlm:inference-endpoint"]
+
+
+def test_register_without_inference_endpoint_leaves_item(admin: OsmUser) -> None:
+    resp = _client(admin).post("/api/v1/base-models/", {"stac_item": VALID_ITEM}, format="json")
+    assert resp.status_code == 202
+    stored = BaseModel.objects.get(name="test-basemodel").stac_item
+    assert "mlm:inference-endpoint" not in stored.get("assets", {})
+
+
 def test_register_rejects_missing_mlm_name(admin: OsmUser) -> None:
     resp = _client(admin).post(
         "/api/v1/base-models/", {"stac_item": {"properties": {}}}, format="json"

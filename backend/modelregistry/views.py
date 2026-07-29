@@ -187,6 +187,20 @@ class LocalModelViewSet(viewsets.ReadOnlyModelViewSet):
                 },
                 request_only=True,
             ),
+            OpenApiExample(
+                "With an inference endpoint",
+                value={
+                    "stac_item": {
+                        "type": "Feature",
+                        "id": "ramp-buildings",
+                        "properties": {"mlm:name": "ramp-buildings"},
+                        "assets": {},
+                    },
+                    "category": "buildings",
+                    "inference_endpoint": "https://predict.example.com/ramp-buildings",
+                },
+                request_only=True,
+            ),
         ],
     ),
 )
@@ -227,6 +241,12 @@ class BaseModelViewSet(
         data = serializer.validated_data
         category = data.get("category") or Category.objects.get(slug="other")
         stac_item = data.get("stac_item") or _fetch_stac_item(data["stac_item_url"])
+        if inference_endpoint := data.get("inference_endpoint"):
+            stac_item.setdefault("assets", {})["mlm:inference-endpoint"] = {
+                "href": inference_endpoint,
+                "type": "application/json",
+                "roles": ["mlm:inference-endpoint"],
+            }
         name = stac_item["properties"]["mlm:name"]
 
         base_model, created = BaseModel.objects.get_or_create(

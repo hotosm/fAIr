@@ -80,10 +80,15 @@ class BaseModelRegisterSerializer(serializers.Serializer):
     Exactly one of ``stac_item`` (inline JSON) or ``stac_item_url`` (a link
     fetched at request time) must be supplied. Either way the resolved item is
     stored in ``stac_item``; the URL itself is not persisted.
+
+    ``inference_endpoint`` is optional: when given, its URL is written to the
+    item's ``mlm:inference-endpoint`` asset before registration; when omitted,
+    whatever the STAC item already carries is used unchanged.
     """
 
     stac_item = serializers.JSONField(required=False)
     stac_item_url = serializers.URLField(required=False)
+    inference_endpoint = serializers.URLField(required=False)
     category = serializers.SlugRelatedField(
         slug_field="slug",
         queryset=Category.objects.all(),
