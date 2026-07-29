@@ -42,6 +42,7 @@ const MapLargeAreaContent = ({
     selectedAOI,
     uploadedFileName,
     fileInputRef,
+    isSubmittingMapLargeArea,
     handleTabChange,
     handleFileChange,
     handleClearArea,
@@ -163,7 +164,8 @@ const MapLargeAreaContent = ({
           className="!w-fit "
           fontSize="14px"
           size="medium"
-          disabled={!selectedAOI}
+          disabled={!selectedAOI || isSubmittingMapLargeArea}
+          spinner={isSubmittingMapLargeArea}
           onClick={handleSubmit}
           rounded
         >

@@ -172,11 +172,11 @@ export const NavBar = () => {
             </>
           ) : isAuthenticated ? (
             <>
-              {isTryFairPage && isAuthenticated && <StartMappingNavlinks />}
+              {isTryFairPage && <StartMappingNavlinks />}
 
-              {isAuthenticated && !isTryFairPage && <UserNotifications />}
+              {!isTryFairPage && <UserNotifications />}
 
-              {isAuthenticated && isTryFairPage && <ExportMapResults />}
+              {isTryFairPage && <ExportMapResults />}
 
               <UserProfile />
             </>

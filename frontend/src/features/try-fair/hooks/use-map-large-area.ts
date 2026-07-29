@@ -13,6 +13,13 @@ import { GeoJSONStoreFeatures } from "terra-draw";
 import { FeatureCollection, Polygon } from "geojson";
 import { GeoJSONSource } from "maplibre-gl";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
+import {
+  MapLargeAreaRequest,
+  useSubmitMapLargeArea,
+} from "@/features/try-fair/api/map-large-area";
+import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
+import { TRY_FAIR_RESOLUTION_ZOOM } from "@/features/try-fair/utils/common";
 
 export type AOITab = "whole" | "draw" | "upload";
 
@@ -51,6 +58,13 @@ export const useMapLargeArea = ({
 }: UseMapLargeAreaOptions) => {
   const { mapContainerRef, map, drawingMode, setDrawingMode, terraDraw } =
     useMapInstance(undefined, undefined, "red", imageryBounds ?? undefined);
+
+  const { mutate: submitMapLargeArea, isPending: isSubmittingMapLargeArea } =
+    useSubmitMapLargeArea();
+
+  const { selectedImagery } = useStartMappingStore();
+  const { modelId, selectedModel, inferenceParams, resolution, confidence } =
+    useTryFairParams();
   const [activeTab, setActiveTab] = useState<AOITab>("draw");
   const [selectedAOI, setSelectedAOI] = useState<Feature | null>(null);
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
@@ -390,8 +404,45 @@ export const useMapLargeArea = ({
 
   const handleSubmit = () => {
     if (!selectedAOI) return;
+
+    // Calculate BBOX array [minX, minY, maxX, maxY] from drawn or uploaded AOI
+    const bbox = getGeoJSONFeatureBounds(selectedAOI);
+
+    // Convert resolution to numeric zoom level
+    const zoomNumber = TRY_FAIR_RESOLUTION_ZOOM[resolution] ?? 18;
+
+    // Extra dynamic inference parameters from STAC
+    const extraParams: Record<string, unknown> = {};
+    if (inferenceParams && inferenceParams.length > 0) {
+      inferenceParams.forEach((param) => {
+        if (param.key !== "confidence_threshold") {
+          extraParams[param.key] = param.value;
+        }
+      });
+    }
+
+    const payload: MapLargeAreaRequest = {
+      model_stac_id: selectedModel?.id ?? modelId,
+      image_uri: selectedImagery?.tileUrl ?? "",
+      bbox,
+      zoom: zoomNumber,
+      params: {
+        confidence_threshold: confidence,
+        ...extraParams,
+      },
+    };
+
     onSubmit(selectedAOI);
-    closeDialog();
+
+    submitMapLargeArea(payload, {
+      onSuccess: () => {
+        showSuccessToast("Map large area request submitted successfully.");
+        closeDialog();
+      },
+      onError: (err) => {
+        showErrorToast(err, "Failed to submit map large area request.");
+      },
+    });
   };
 
   return {
@@ -404,6 +455,7 @@ export const useMapLargeArea = ({
     selectedAOI,
     uploadedFileName,
     fileInputRef,
+    isSubmittingMapLargeArea,
     handleTabChange,
     handleFileChange,
     handleClearArea,

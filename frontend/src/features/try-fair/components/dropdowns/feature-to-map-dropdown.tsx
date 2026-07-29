@@ -1,7 +1,10 @@
 import { DropDown } from "@/components/ui/dropdown";
 import { ChevronDownIcon } from "@/components/ui/icons";
+import { BuildingIcon } from "@/components/ui/icons/buildings-icon";
 import { FeatureCheckIcon } from "@/components/ui/icons/feature-check-icon";
-import { FEATURES_TO_MAP } from "@/features/try-fair/utils/common";
+import { SolarPanelIcon } from "@/components/ui/icons/solar-panel-icon";
+import { TreesIcon } from "@/components/ui/icons/trees-icon";
+import { useGetFeaturesToMap } from "@/features/try-fair/api/features-to-map";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { IconProps } from "@/types";
 import { cn } from "@/utils";
@@ -11,27 +14,40 @@ type FeatureToMapDropdownProps = {
   disabled?: boolean;
 };
 
-type FeatureType = {
-  label: string;
-  Icon: React.FC<IconProps>;
-  value: string;
+const FEATURE_ICONS: Record<string, React.FC<IconProps>> = {
+  buildings: BuildingIcon,
+  "solar-panels": SolarPanelIcon,
+  "solar-panel": SolarPanelIcon,
+  trees: TreesIcon,
 };
+
+const getFeatureIcon = (value: string): React.FC<IconProps> => {
+  return FEATURE_ICONS[value] || BuildingIcon;
+};
+
 const FeatureToMapDropdown = ({
   disabled = false,
 }: FeatureToMapDropdownProps) => {
+  const { data: features, isLoading } = useGetFeaturesToMap();
   const { onDropdownHide, dropdownRef } = useDropdownMenu();
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [selectedFeature, setSelectedFeature] = useState<FeatureType>(
-    FEATURES_TO_MAP[0],
-  );
+  const [selectedFeatureValue, setSelectedFeatureValue] = useState("buildings");
 
-  const SelectedIcon = selectedFeature.Icon;
+  const featureList = features ?? [];
+  const selectedFeature = featureList.find(
+    (feat) => feat.value === selectedFeatureValue,
+  ) ??
+    featureList[0] ?? { value: "buildings", label: "Buildings" };
+
+  const SelectedIcon = getFeatureIcon(selectedFeature.value);
 
   const trigger = (
     <div
       className={cn(
         "flex bg-[#FAFAFA] border w-full md:w-[280px] p-2 rounded-md border-gray-border justify-between items-center transition-opacity",
-        disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer",
+        disabled || isLoading
+          ? "opacity-50 cursor-not-allowed"
+          : "cursor-pointer",
       )}
     >
       <div className="flex items-center gap-2">
@@ -51,7 +67,7 @@ const FeatureToMapDropdown = ({
       <h4 className="text-xs">Feature to map</h4>
       <DropDown
         sync="width"
-        disabled={disabled}
+        disabled={disabled || isLoading}
         className="rounded-xl w-full md:w-[280px] !disabled:cursor-wait"
         ref={dropdownRef}
         onDropdownShow={() => setIsOpen(true)}
@@ -63,15 +79,15 @@ const FeatureToMapDropdown = ({
         triggerComponent={trigger}
       >
         <div className="bg-white rounded-md flex items-start p-2 gap-3 flex-col w-full">
-          {FEATURES_TO_MAP.map((feature) => {
-            const FeatureIcon = feature.Icon;
+          {featureList.map((feature) => {
+            const FeatureIcon = getFeatureIcon(feature.value);
             return (
               <button
                 key={feature.value}
                 type="button"
                 className="text-dark bg-[#FAFAFA] hover:bg-gray-100 rounded-lg flex justify-between items-center w-full py-3 px-2 transition-colors cursor-pointer"
                 onClick={() => {
-                  setSelectedFeature(feature);
+                  setSelectedFeatureValue(feature.value);
                   onDropdownHide();
                 }}
               >

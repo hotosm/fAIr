@@ -4,7 +4,6 @@ import { useMutation } from "@tanstack/react-query";
 
 export type MapLargeAreaParams = {
   confidence_threshold?: number;
-  remove_osm?: boolean;
   [key: string]: unknown;
 };
 
@@ -14,7 +13,6 @@ export type MapLargeAreaRequest = {
   bbox: BBOX;
   zoom: number;
   params?: MapLargeAreaParams;
-  remove_osm?: boolean;
   description?: string;
 };
 
@@ -26,7 +24,7 @@ const submitMapLargeArea = async (payload: MapLargeAreaRequest) => {
   return res.data;
 };
 
-export const useMapLargeArea = () => {
+export const useSubmitMapLargeArea = () => {
   return useMutation({
     mutationFn: (payload: MapLargeAreaRequest) => submitMapLargeArea(payload),
     mutationKey: ["map-large-area"],

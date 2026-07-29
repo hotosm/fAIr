@@ -321,7 +321,7 @@ export const ModelPickerContent = ({
           className="flex gap-2 items-center"
           onClick={() => {
             if (isAuthenticated) {
-              setShowChooseLocationModal(true);
+              setShowChooseLocationModal(true)
             } else {
               setShowSigninModal(true);
             }

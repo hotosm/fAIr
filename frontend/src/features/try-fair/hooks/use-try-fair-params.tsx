@@ -86,6 +86,8 @@ export const useTryFairParams = () => {
 
   return {
     modelId: params.model,
+    selectedModel,
+    inferenceParams,
     outputType,
     resolution,
     confidence,

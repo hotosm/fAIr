@@ -243,7 +243,6 @@ export const TryFairPage = () => {
     setDownloadType("");
     navigate(APPLICATION_ROUTES.PROFILE_OFFLINE_PREDICTIONS);
   };
-
   const mapFlownRef = useRef(false);
   useEffect(() => {
     if (!map || !selectedModel || !imageryCenter) return;
