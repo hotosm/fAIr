@@ -4,7 +4,7 @@ import { BuildingIcon } from "@/components/ui/icons/buildings-icon";
 import { FeatureCheckIcon } from "@/components/ui/icons/feature-check-icon";
 import { SolarPanelIcon } from "@/components/ui/icons/solar-panel-icon";
 import { TreesIcon } from "@/components/ui/icons/trees-icon";
-import { useGetFeaturesToMap } from "@/features/try-fair/api/features-to-map";
+import {  useGetFeaturesToMap } from "@/features/try-fair/api/features-to-map";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { IconProps } from "@/types";
 import { cn } from "@/utils";
@@ -35,12 +35,17 @@ const FeatureToMapDropdown = ({
   const { data: features, isLoading } = useGetFeaturesToMap();
   const { onDropdownHide, dropdownRef } = useDropdownMenu();
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const featureList = (features?.results ?? []).filter(
+    (feature) => feature.slug !== "other",
+  );
 
-  const featureList = features ?? [];
-  const selectedFeature = featureList.find((feat) => feat.value === value) ??
-    featureList[0] ?? { value: "buildings", label: "Buildings" };
 
-  const SelectedIcon = getFeatureIcon(selectedFeature.value);
+  const selectedFeature =
+    featureList.find((feature) => feature.slug === value) ??
+    featureList[0] ??
+    { slug: "buildings", label: "Buildings" };
+
+  const SelectedIcon = getFeatureIcon(selectedFeature.slug);
 
   const trigger = (
     <div
@@ -81,14 +86,14 @@ const FeatureToMapDropdown = ({
       >
         <div className="bg-white rounded-md flex items-start p-2 gap-3 flex-col w-full">
           {featureList.map((feature) => {
-            const FeatureIcon = getFeatureIcon(feature.value);
+            const FeatureIcon = getFeatureIcon(feature.slug);
             return (
               <button
-                key={feature.value}
+                key={feature.slug}
                 type="button"
                 className="text-dark bg-[#FAFAFA] hover:bg-gray-100 rounded-lg flex justify-between items-center w-full py-3 px-2 transition-colors cursor-pointer"
                 onClick={() => {
-                  onChange(feature.value);
+                  onChange(feature.slug);
                   onDropdownHide();
                 }}
               >
@@ -96,7 +101,7 @@ const FeatureToMapDropdown = ({
                   <FeatureIcon className="w-4 h-4 text-dark shrink-0" />
                   <p className="text-xs font-medium">{feature.label}</p>
                 </div>
-                {selectedFeature.value === feature.value && (
+                {selectedFeature.slug === feature.slug && (
                   <FeatureCheckIcon />
                 )}
               </button>

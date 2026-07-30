@@ -10,10 +10,10 @@ type PredictResult = {
 };
 
 type PredictArgs = {
-  /** Base model — provides the inference endpoint URL */
+  /** STAC item — provides the inference endpoint URL. */
   model: BaseModelStacItem;
-  localModelUri: string;
-  tileServiceUrl: string;
+  modelUri: string;
+  imageUri: string;
   bbox: BBOX;
   /** Exact tile zoom used to build the bbox from draggable grid tile boundaries. */
   gridZoom?: number;
@@ -29,8 +29,8 @@ export const useFairPredict = () => {
   >({
     mutationFn: async ({
       model,
-      localModelUri,
-      tileServiceUrl,
+      modelUri,
+      imageUri,
       bbox,
       gridZoom,
       resolution,
@@ -42,8 +42,8 @@ export const useFairPredict = () => {
       }
 
       const predictions = await runPredict(inferenceEndpoint, {
-        model_uri: localModelUri,
-        image_uri: tileServiceUrl,
+        model_uri: modelUri,
+        image_uri: imageUri,
         bbox,
         zoom: gridZoom ?? TRY_FAIR_RESOLUTION_ZOOM[resolution],
         params,

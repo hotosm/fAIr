@@ -14,6 +14,7 @@ import { BBOX } from "@/types";
 import { getTileServerRegex, getTileServerTypeFromURL } from "@/utils";
 import { Map } from "maplibre-gl";
 import { useEffect, useMemo, useRef } from "react";
+import { useShallow } from "zustand/react/shallow";
 
 type UseTryFairImageryOptions = {
   map: Map | null;
@@ -41,7 +42,14 @@ export const useTryFairImagery = ({
     setCurrentModelType,
     selectedImagery,
     setSeletedImagery,
-  } = useStartMappingStore();
+  } = useStartMappingStore(
+    useShallow((state) => ({
+      currentModelType: state.currentModelType,
+      setCurrentModelType: state.setCurrentModelType,
+      selectedImagery: state.selectedImagery,
+      setSeletedImagery: state.setSeletedImagery,
+    })),
+  );
   const { item: sharedOAMItem } = useOAMItem(oamItemId);
 
   const tileServiceUrl = useMemo(() => {

@@ -72,7 +72,9 @@ export const TryFairSidebar = ({
   openMobileModelPickerDialog,
 }: TryFairSidebarProps) => {
   const { isSmallViewport } = useScreenSize();
-  const { currentModelType } = useStartMappingStore();
+  const currentModelType = useStartMappingStore(
+    (state) => state.currentModelType,
+  );
   const supportsPolygon = selectedModel
     ? getModelOutputType(selectedModel) === TryFairMapOutputType.POLYGON
     : true;

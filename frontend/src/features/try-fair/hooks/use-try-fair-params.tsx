@@ -5,7 +5,7 @@ import {
   TryFairResolution,
 } from "@/enums";
 import { parseAsFloat, parseAsString, useQueryStates } from "nuqs";
-import { useBaseModels, useLocalModels } from "./use-base-models";
+import { useStacBaseModels, useStacLocalModels } from "./use-base-models";
 import { useMemo } from "react";
 import { getSelectedModel } from "@/features/try-fair/utils/models";
 import { getInferenceParams } from "@/features/try-fair/api/stac";
@@ -53,8 +53,8 @@ export const useTryFairParams = () => {
     { history: "replace" },
   );
 
-  const { models: allModels } = useBaseModels();
-  const { models: localModels } = useLocalModels();
+  const { models: allModels } = useStacBaseModels();
+  const { models: localModels } = useStacLocalModels();
 
   const models = useMemo(
     () => [...allModels, ...localModels],

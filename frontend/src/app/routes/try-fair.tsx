@@ -15,8 +15,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { showErrorToast } from "@/utils";
 import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
 import {
-  useBaseModels,
-  useLocalModels,
+  useStacBaseModels,
+  useStacLocalModels,
 } from "@/features/try-fair/hooks/use-base-models";
 import { BBOX } from "@/types";
 import { MapLargeAreaModal } from "@/features/try-fair/components/start-mapping/map-large-area-modal";
@@ -26,8 +26,8 @@ import { useTryFairTour } from "@/features/try-fair/hooks/use-try-fair-tour";
 import {
   BaseModelStacItem,
   getInferenceParams,
-  InferenceParam,
 } from "@/features/try-fair/api/stac";
+import { useImageryMappingModel } from "@/features/try-fair/hooks/use-imagery-mapping-model";
 import useScreenSize from "@/hooks/use-screen-size";
 import { MobileDrawer } from "@/components/ui/drawer";
 import { getModelOutputType } from "@/features/try-fair/utils/common";
@@ -39,6 +39,7 @@ import { SignInPromptDialog } from "@/features/try-fair/components/modals/sign-i
 import { DISABLE_AUTH_ON_TRY_FAIR } from "@/config";
 import type { ImagerySelection } from "@/features/try-fair/types/imagery-types";
 import { MapLargeAreaRequestSuccess } from "@/features/try-fair/components/start-mapping/map-large-area-request-success-dialog";
+import { useShallow } from "zustand/react/shallow";
 
 export const TryFairPage = () => {
   const { map, mapContainerRef } = useMapInstance(false, false);
@@ -54,7 +55,20 @@ export const TryFairPage = () => {
     setPredictionBBox: setPredictionBBoxInStore,
     setPredictionGridZoom: setPredictionGridZoomInStore,
     setOutputType: setOutputTypeInStore,
-  } = useStartMappingStore();
+  } = useStartMappingStore(
+    useShallow((state) => ({
+      showChooseLocationModal: state.showChooseLocationModal,
+      setShowChooseLocationModal: state.setShowChooseLocationModal,
+      showSigninModal: state.showSigninModal,
+      setShowSigninModal: state.setShowSigninModal,
+      downloadType: state.downloadType,
+      setDownloadType: state.setDownloadType,
+      setPredictions: state.setPredictions,
+      setPredictionBBox: state.setPredictionBBox,
+      setPredictionGridZoom: state.setPredictionGridZoom,
+      setOutputType: state.setOutputType,
+    })),
+  );
   const { closeGuidedTour, openGuidedTour, recordMapRun } =
     useTryFairTour(isSmallViewport);
 
@@ -79,8 +93,9 @@ export const TryFairPage = () => {
     resetParameters,
   } = useTryFairParams();
 
-  const { models: allModels, loading: modelsLoading } = useBaseModels();
-  const { models: localModels, loading: localModelLoading } = useLocalModels();
+  const { models: allModels, loading: modelsLoading } = useStacBaseModels();
+  const { models: localModels, loading: localModelLoading } =
+    useStacLocalModels();
 
   const models = useMemo(
     () => [...allModels, ...localModels],
@@ -90,12 +105,6 @@ export const TryFairPage = () => {
     () => getSelectedModel(models, modelId),
     [models, modelId],
   );
-  const demoConfig = useMemo(
-    () =>
-      selectedModel ? getSelectedModel(models, selectedModel.id) : undefined,
-    [selectedModel],
-  );
-
   const {
     imageryBounds,
     imageryCenter,
@@ -113,18 +122,18 @@ export const TryFairPage = () => {
     oamItemId,
   });
 
-  const inferenceParams: InferenceParam[] = useMemo(
-    () => (selectedModel ? getInferenceParams(selectedModel) : []),
-    [selectedModel],
-  );
-
-  const paramValues = useMemo(() => {
-    const values: Record<string, number | string | boolean> = {};
-    inferenceParams.forEach(({ key, spec }) => {
-      values[key] = key === "confidence_threshold" ? confidence : spec.default;
-    });
-    return values;
-  }, [inferenceParams, confidence]);
+  const {
+    modelForMapping,
+    mappingModelId,
+    modelUri,
+    hasNoModelsForFeature,
+    inferenceParams,
+    paramValues,
+  } = useImageryMappingModel({
+    feature,
+    confidence,
+    selectedModel,
+  });
 
   const [latestBBox, setLatestBBox] = useState<BBOX | null>(null);
 
@@ -134,15 +143,15 @@ export const TryFairPage = () => {
   const lastPredictedInputsRef = useRef<string | null>(null);
 
   const predictionInputsSnapshot = useMemo(() => {
-    if (!latestBBox || !modelId) return null;
+    if (!latestBBox || !mappingModelId) return null;
     return JSON.stringify({
-      modelId,
+      mappingModelId,
       bbox: latestBBox,
       gridZoom: latestGridZoom,
       resolution,
       paramValues,
     });
-  }, [modelId, latestBBox, latestGridZoom, resolution, paramValues]);
+  }, [mappingModelId, latestBBox, latestGridZoom, resolution, paramValues]);
 
   const isDirty =
     predictionInputsSnapshot === null ||
@@ -196,13 +205,13 @@ export const TryFairPage = () => {
   };
   useEffect(() => {
     if (
-      selectedModel &&
-      getModelOutputType(selectedModel) === TryFairMapOutputType.POINTS &&
+      modelForMapping &&
+      getModelOutputType(modelForMapping) === TryFairMapOutputType.POINTS &&
       outputType === TryFairMapOutputType.POLYGON
     ) {
       setOutputType(TryFairMapOutputType.POINTS);
     }
-  }, [selectedModel, outputType, setOutputType]);
+  }, [modelForMapping, outputType, setOutputType]);
 
   const {
     predict,
@@ -252,7 +261,14 @@ export const TryFairPage = () => {
   }, []);
 
   const handleMap = useCallback(() => {
-    if (!selectedModel || !latestBBox || !demoConfig) return;
+    if (
+      hasNoModelsForFeature ||
+      !modelForMapping ||
+      !mappingModelId ||
+      !modelUri ||
+      !latestBBox
+    )
+      return;
 
     closeGuidedTour();
     // Always centerlize the grid whenever the user clicks on Map
@@ -270,9 +286,9 @@ export const TryFairPage = () => {
     );
 
     predict({
-      model: selectedModel,
-      localModelUri: selectedModel?.assets?.model?.href ?? "",
-      tileServiceUrl: tileserverURL,
+      model: modelForMapping,
+      modelUri,
+      imageUri: tileserverURL,
       bbox: latestBBox,
       gridZoom: latestGridZoom ?? undefined,
       resolution,
@@ -283,9 +299,10 @@ export const TryFairPage = () => {
       showErrorToast(error);
     }
   }, [
-    selectedModel,
+    modelForMapping,
+    mappingModelId,
+    modelUri,
     latestBBox,
-    demoConfig,
     paramValues,
     predict,
     tileserverURL,
@@ -294,13 +311,20 @@ export const TryFairPage = () => {
     predictionInputsSnapshot,
     closeGuidedTour,
     recordMapRun,
+    hasNoModelsForFeature,
   ]);
   useEffect(() => {
     if (error) {
       showErrorToast(error);
     }
   }, [error]);
-  const isMapButtonDisabled = !isDirty || !latestBBox || !demoConfig;
+  const isMapButtonDisabled =
+    hasNoModelsForFeature ||
+    !isDirty ||
+    !latestBBox ||
+    !modelForMapping ||
+    !mappingModelId ||
+    !modelUri;
 
   const handleOutputTypeChange = (type: TryFairMapOutputType) => {
     setOutputType(type);
@@ -309,7 +333,6 @@ export const TryFairPage = () => {
       handleMap();
     }
   };
-
   const handleApplyImagery = useCallback(
     (selection: ImagerySelection) => {
       setCurrentModelType(ModelType.IMAGERY);
@@ -342,7 +365,6 @@ export const TryFairPage = () => {
       setShowChooseLocationModal,
     ],
   );
-
   // Sync prediction state into the global store so the navbar Export button can access it.
   useEffect(() => {
     setPredictionsInStore(predictions);
@@ -360,7 +382,7 @@ export const TryFairPage = () => {
         closeDialog={closeModelPickerDialog}
       >
         <ModelPickerContent
-          selectedModel={selectedModel}
+          selectedModel={modelForMapping}
           onSelect={handleSelectModel}
           models={models}
           onClose={closeModelPickerDialog}
@@ -411,7 +433,7 @@ export const TryFairPage = () => {
             predictionGridZoom={predictionGridZoom}
             imageryCenter={imageryCenter}
             resolution={resolution}
-            modelId={modelId}
+            modelId={mappingModelId ?? modelId}
             isPredicting={isPredicting}
             canFitToBounds={true}
             onHelp={openGuidedTour}
@@ -420,7 +442,7 @@ export const TryFairPage = () => {
           {!isSmallViewport && (
             <div className="absolute top-4 left-4 z-10">
               <TryFairSidebar
-                selectedModel={selectedModel}
+                selectedModel={modelForMapping}
                 models={models}
                 modelsLoading={modelsLoading || localModelLoading}
                 onSelectModel={handleSelectModel}
@@ -453,7 +475,7 @@ export const TryFairPage = () => {
                 handleOnly
               >
                 <TryFairSidebar
-                  selectedModel={selectedModel}
+                  selectedModel={modelForMapping}
                   models={models}
                   modelsLoading={modelsLoading || localModelLoading}
                   onSelectModel={handleSelectModel}

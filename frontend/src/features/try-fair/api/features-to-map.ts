@@ -1,27 +1,6 @@
 import { API_ENDPOINTS, apiClient } from "@/services";
 import { useQuery } from "@tanstack/react-query";
-
-export type FeatureToMapItem = {
-  value: string;
-  label: string;
-};
-
-export type FeaturesToMapResponse = FeatureToMapItem[];
-
-const getFeaturesToMap = async (): Promise<FeatureToMapItem[]> => {
-  const res = await apiClient.get<FeatureToMapItem[]>(
-    API_ENDPOINTS.GET_BASE_MODELS_CATEGORIES,
-  );
-  return res.data;
-};
-
-export const useGetFeaturesToMap = () => {
-  return useQuery({
-    queryKey: ["features-to-map"],
-    queryFn: getFeaturesToMap,
-  });
-};
-
+import { BaseModelStacItem } from "./stac";
 export type APIBaseModelUser = {
   osm_id: number;
   username: string;
@@ -41,6 +20,7 @@ export type APIBaseModelItem = {
   user: APIBaseModelUser;
   created_at: string;
   last_modified: string;
+  stac: BaseModelStacItem;
 };
 
 export type APIBaseModelsResponse = {
@@ -48,6 +28,35 @@ export type APIBaseModelsResponse = {
   next: string | null;
   previous: string | null;
   results: APIBaseModelItem[];
+};
+export type FeatureToMapItem = {
+  slug: string;
+  id: number;
+  description: string;
+  last_modified: string;
+  created_at: string;
+  label: string;
+};
+
+export type FeaturesToMapResponse = {
+  results: FeatureToMapItem[];
+  count: number;
+  next: string | null;
+  previous: string | null;
+};
+
+const getFeaturesToMap = async (): Promise<FeaturesToMapResponse> => {
+  const res = await apiClient.get<FeaturesToMapResponse>(
+    API_ENDPOINTS.GET_CATEGORIES,
+  );
+  return res.data;
+};
+
+export const useGetFeaturesToMap = () => {
+  return useQuery({
+    queryKey: ["features-to-map"],
+    queryFn: getFeaturesToMap,
+  });
 };
 
 export const getAPIBaseModels = async (
@@ -59,10 +68,27 @@ export const getAPIBaseModels = async (
   return res.data;
 };
 
-export const useGetAPIBaseModels = (category: string) => {
+export const useGetAPIBaseModels = (category: string, enabled = true) => {
   return useQuery({
     queryKey: ["api-base-models", category],
     queryFn: () => getAPIBaseModels(category),
-    enabled: Boolean(category),
+    enabled: enabled && Boolean(category),
+  });
+};
+
+export const getAPILocalModels = async (
+  category: string,
+): Promise<APIBaseModelsResponse> => {
+  const res = await apiClient.get<APIBaseModelsResponse>(
+    API_ENDPOINTS.GET_API_LOCAL_MODELS(category),
+  );
+  return res.data;
+};
+
+export const useGetAPILocalModels = (category: string, enabled = true) => {
+  return useQuery({
+    queryKey: ["api-local-models", category],
+    queryFn: () => getAPILocalModels(category),
+    enabled: enabled && Boolean(category),
   });
 };
