@@ -18,10 +18,13 @@ from accounts.permissions import (
 from shared.enums import Visibility
 from shared.integrations.stac import (
     BASE_MODELS_COLLECTION,
+    FAIR_CATEGORY_PROPERTY,
     FAIR_PINNED_PROPERTY,
     FAIR_PREVIEW_LOCATION_PROPERTY,
     FAIR_SOURCE_IMAGERY_PROPERTY,
     LOCAL_MODELS_COLLECTION,
+    bulk_get_cached_items,
+    get_cached_item,
     set_item_properties,
 )
 from shared.integrations.zenml import list_runs_for_model
@@ -56,6 +59,52 @@ def _apply_pin(model, collection: str, data: dict) -> None:
     set_item_properties(collection, model.stac_item_id, properties)
 
 
+def _wants_expand_stac(request) -> bool:
+    return request.query_params.get("expand") == "stac"
+
+
+class StacExpandMixin:
+    """`?expand=stac` inlines each row's STAC item under a `stac` field.
+
+    Subclasses set `stac_collection`. Default responses stay DB-only (`stac` is
+    null); expansion is opt-in and only fetches items with a `stac_item_id`.
+    """
+
+    stac_collection: str = ""
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["stac_items_by_id"] = self._stac_items_for_request()
+        return context
+
+    def _stac_items_for_request(self) -> dict:
+        if not _wants_expand_stac(self.request):
+            return {}
+        collection = self.stac_collection
+        if self.action == "retrieve":
+            obj = self.get_object()
+            if not obj.stac_item_id:
+                return {}
+            return {(collection, obj.stac_item_id): get_cached_item(collection, obj.stac_item_id)}
+        if self.action == "list":
+            page = self.paginate_queryset(self.filter_queryset(self.get_queryset()))
+            if page is None:
+                page = list(self.filter_queryset(self.get_queryset()))
+            self._cached_page = page
+            pairs = [(collection, o.stac_item_id) for o in page if o.stac_item_id]
+            return bulk_get_cached_items(pairs)
+        return {}
+
+    def list(self, request, *args, **kwargs):
+        if _wants_expand_stac(request):
+            self.get_serializer_context()
+            page = getattr(self, "_cached_page", None)
+            if page is not None and self.paginator is not None:
+                serializer = self.get_serializer(page, many=True)
+                return self.get_paginated_response(serializer.data)
+        return super().list(request, *args, **kwargs)
+
+
 def _fetch_stac_item(url: str) -> dict:
     """Fetch and return the STAC item JSON at `url`.
 
@@ -79,8 +128,12 @@ def _fetch_stac_item(url: str) -> dict:
 
 
 @extend_schema_view(
-    list=extend_schema(description="List local (finetuned) models."),
-    retrieve=extend_schema(description="Retrieve one local model by id."),
+    list=extend_schema(
+        description="List local (finetuned) models. `?expand=stac` inlines each STAC item."
+    ),
+    retrieve=extend_schema(
+        description="Retrieve one local model by id. `?expand=stac` inlines the STAC item."
+    ),
     pin=extend_schema(
         description=(
             "Pin/unpin a model (admin only). Flips the DB `is_pinned` flag and, "
@@ -91,7 +144,8 @@ def _fetch_stac_item(url: str) -> dict:
     ),
     runs=extend_schema(description="List ZenML pipeline runs that produced this model."),
 )
-class LocalModelViewSet(viewsets.ReadOnlyModelViewSet):
+class LocalModelViewSet(StacExpandMixin, viewsets.ReadOnlyModelViewSet):
+    stac_collection = LOCAL_MODELS_COLLECTION
     queryset = LocalModel.objects.all()
     serializer_class = LocalModelSerializer
     authentication_classes = [OsmAuthentication]
@@ -163,8 +217,14 @@ class LocalModelViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 @extend_schema_view(
-    list=extend_schema(description="List registered base models (family records)."),
-    retrieve=extend_schema(description="Retrieve one base model by id."),
+    list=extend_schema(
+        description=(
+            "List registered base models (family records). `?expand=stac` inlines each STAC item."
+        )
+    ),
+    retrieve=extend_schema(
+        description="Retrieve one base model by id. `?expand=stac` inlines the STAC item."
+    ),
     create=extend_schema(
         description=(
             "Register a base model from an inline STAC item JSON or a URL to one "
@@ -214,11 +274,13 @@ class LocalModelViewSet(viewsets.ReadOnlyModelViewSet):
     ),
 )
 class BaseModelViewSet(
+    StacExpandMixin,
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
     viewsets.GenericViewSet,
 ):
+    stac_collection = BASE_MODELS_COLLECTION
     queryset = BaseModel.objects.all()
     serializer_class = BaseModelSerializer
     authentication_classes = [OsmAuthentication]
@@ -265,9 +327,7 @@ class BaseModelViewSet(
                 "type": "application/json",
                 "roles": ["mlm:inference-endpoint"],
             }
-        keywords = stac_item.setdefault("properties", {}).setdefault("keywords", [])
-        if category.slug not in keywords:
-            keywords.append(category.slug)
+        stac_item.setdefault("properties", {})[FAIR_CATEGORY_PROPERTY] = category.slug
         name = stac_item["properties"]["mlm:name"]
 
         base_model, created = BaseModel.objects.get_or_create(

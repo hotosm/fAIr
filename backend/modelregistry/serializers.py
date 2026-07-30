@@ -1,8 +1,11 @@
 from typing import Any, cast
 
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from notifications.serializers import UserSerializer
+from shared.integrations.stac import BASE_MODELS_COLLECTION, LOCAL_MODELS_COLLECTION
+from shared.serializers import StacFacetSerializer
 
 from .models import BaseModel, Category, LocalModel
 
@@ -22,6 +25,7 @@ class LocalModelSerializer(serializers.ModelSerializer):
     star_count = serializers.IntegerField(read_only=True, default=0)
     is_starred = serializers.BooleanField(read_only=True, default=False)
     run_count = serializers.IntegerField(read_only=True, default=0)
+    stac = serializers.SerializerMethodField()
 
     class Meta:
         model = LocalModel
@@ -39,6 +43,7 @@ class LocalModelSerializer(serializers.ModelSerializer):
             "star_count",
             "is_starred",
             "run_count",
+            "stac",
             "created_at",
             "last_modified",
         ]
@@ -52,9 +57,15 @@ class LocalModelSerializer(serializers.ModelSerializer):
             "star_count",
             "is_starred",
             "run_count",
+            "stac",
             "created_at",
             "last_modified",
         ]
+
+    @extend_schema_field(StacFacetSerializer(allow_null=True))
+    def get_stac(self, obj: LocalModel) -> dict | None:
+        items = self.context.get("stac_items_by_id") or {}
+        return items.get((LOCAL_MODELS_COLLECTION, obj.stac_item_id))
 
 
 class BaseModelSerializer(serializers.ModelSerializer):
@@ -62,6 +73,7 @@ class BaseModelSerializer(serializers.ModelSerializer):
     category = serializers.SlugRelatedField(slug_field="slug", read_only=True)
     star_count = serializers.IntegerField(read_only=True, default=0)
     is_starred = serializers.BooleanField(read_only=True, default=False)
+    stac = serializers.SerializerMethodField()
 
     class Meta:
         model = BaseModel
@@ -77,10 +89,16 @@ class BaseModelSerializer(serializers.ModelSerializer):
             "is_starred",
             "error",
             "user",
+            "stac",
             "created_at",
             "last_modified",
         ]
         read_only_fields = fields
+
+    @extend_schema_field(StacFacetSerializer(allow_null=True))
+    def get_stac(self, obj: BaseModel) -> dict | None:
+        items = self.context.get("stac_items_by_id") or {}
+        return items.get((BASE_MODELS_COLLECTION, obj.stac_item_id))
 
 
 class BaseModelRegisterSerializer(serializers.Serializer):

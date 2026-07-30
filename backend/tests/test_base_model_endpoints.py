@@ -58,7 +58,7 @@ def test_register_creates_row_and_returns_202(mock_task, admin: OsmUser) -> None
     assert base_model.category_id == "other"
     item = mock_task.enqueue.call_args.kwargs["stac_item"]
     assert item["properties"]["mlm:name"] == "test-basemodel"
-    assert "other" in item["properties"]["keywords"]
+    assert item["properties"]["fair:category"] == "other"
 
 
 @patch("modelregistry.views.register_base_model")
@@ -71,7 +71,7 @@ def test_register_stores_category(mock_task, admin: OsmUser) -> None:
     assert resp.status_code == 202
     assert BaseModel.objects.get(name="test-basemodel").category_id == "buildings"
     item = mock_task.enqueue.call_args.kwargs["stac_item"]
-    assert "buildings" in item["properties"]["keywords"]
+    assert item["properties"]["fair:category"] == "buildings"
 
 
 @patch("modelregistry.views.register_base_model")
@@ -121,7 +121,7 @@ def test_register_from_url_stores_fetched_item(
     assert BaseModel.objects.get(name="url-model").category_id == "roads"
     item = mock_task.enqueue.call_args.kwargs["stac_item"]
     assert item["properties"]["mlm:name"] == "url-model"
-    assert "roads" in item["properties"]["keywords"]
+    assert item["properties"]["fair:category"] == "roads"
 
 
 def test_register_rejects_both_sources(admin: OsmUser) -> None:
@@ -267,6 +267,25 @@ def test_base_model_pin_blocks_non_admin(user: OsmUser, admin: OsmUser) -> None:
         f"/api/v1/base-models/{base_model.id}/pin/", {"is_pinned": True}, format="json"
     )
     assert resp.status_code == 403
+
+
+def test_base_model_expand_stac_inlines_item(admin: OsmUser) -> None:
+    base_model = BaseModel.objects.create(name="dino", user=admin, stac_item_id="dino-v1")
+    fake_item = {"id": "dino-v1", "properties": {"mlm:name": "dino"}, "assets": {}}
+    with patch("modelregistry.views.get_cached_item", return_value=fake_item) as mock_get:
+        resp = _client(admin).get(f"/api/v1/base-models/{base_model.id}/?expand=stac")
+    assert resp.status_code == 200
+    assert resp.data["stac"] == fake_item
+    mock_get.assert_called_once_with("base-models", "dino-v1")
+
+
+def test_base_model_default_response_has_null_stac(admin: OsmUser) -> None:
+    base_model = BaseModel.objects.create(name="dino", user=admin, stac_item_id="dino-v1")
+    with patch("modelregistry.views.get_cached_item") as mock_get:
+        resp = _client(admin).get(f"/api/v1/base-models/{base_model.id}/")
+    assert resp.status_code == 200
+    assert resp.data["stac"] is None
+    mock_get.assert_not_called()
 
 
 def test_local_model_has_category(admin: OsmUser) -> None:

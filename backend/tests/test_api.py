@@ -454,7 +454,7 @@ def test_local_model_retrieve_returns_record(client, local_model):
     assert body["visibility"] == "private"
     assert body["star_count"] == 0
     assert body["run_count"] == 0
-    assert "stac" not in body
+    assert body["stac"] is None
 
 
 @patch("modelregistry.views.list_runs_for_model")

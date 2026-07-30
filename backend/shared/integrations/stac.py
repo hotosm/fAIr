@@ -23,6 +23,7 @@ from .zenml import get_master_client
 __all__ = [
     "BASE_MODELS_COLLECTION",
     "DATASETS_COLLECTION",
+    "FAIR_CATEGORY_PROPERTY",
     "FAIR_PINNED_PROPERTY",
     "FAIR_PREVIEW_LOCATION_PROPERTY",
     "FAIR_SOURCE_IMAGERY_PROPERTY",
@@ -47,6 +48,7 @@ __all__ = [
 FAIR_PINNED_PROPERTY = "fair:pinned"
 FAIR_SOURCE_IMAGERY_PROPERTY = "fair:source_imagery"
 FAIR_PREVIEW_LOCATION_PROPERTY = "fair:preview_location"
+FAIR_CATEGORY_PROPERTY = "fair:category"
 
 _CACHE_TTL_SECONDS = settings.STAC_CACHE_TTL
 _BULK_FETCH_MAX_WORKERS = settings.STAC_BULK_FETCH_WORKERS
