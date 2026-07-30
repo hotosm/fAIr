@@ -1,9 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import {
-  HOT_IMAGERY_COLLECTION_ID,
-  HOT_IMAGERY_STAC_API_URL,
-} from "@/config";
+import { HOT_IMAGERY_COLLECTION_ID, HOT_IMAGERY_STAC_API_URL } from "@/config";
 import { OAMImageryItem } from "@/features/try-fair/api/hot-imagery";
 
 type StacItemRaw = {

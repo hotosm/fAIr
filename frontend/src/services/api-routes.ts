@@ -130,7 +130,13 @@ export const API_ENDPOINTS = {
     `/collections/local-models/items/?limit=${limit}`,
   GET_BASE_MODEL_BY_ID: (id: string): string =>
     `/collections/base-models/items/${id}`,
+
+
   GET_BASE_MODELS_CATEGORIES: "/base-models/categories/",
+  GET_API_BASE_MODELS: (category: string) => `/base-models/?category=${category}`,
   // Map large area
   MAP_LARGE_AREA_REQUEST: "/predictions/submit/",
+
+  // Base
+
 };

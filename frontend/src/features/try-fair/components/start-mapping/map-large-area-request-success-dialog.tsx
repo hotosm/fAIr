@@ -30,10 +30,11 @@ export const MapLargeAreaRequestSuccess = ({
         <div className="flex flex-col items-center w-full md:w-fit md:flex-row gap-4 md:gap-4 justify-between ">
           <Button
             variant={ButtonVariant.DARK}
-            onClick={() => navigate(APPLICATION_ROUTES.PROFILE_OFFLINE_PREDICTIONS)}
+            onClick={() =>
+              navigate(APPLICATION_ROUTES.PROFILE_OFFLINE_PREDICTIONS)
+            }
             className="md:!w-fit"
             size="medium"
-
             rounded
           >
             View requests

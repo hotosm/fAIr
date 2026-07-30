@@ -1,7 +1,4 @@
-import {
-  MAX_TRAINING_AREA_SIZE,
-  MIN_TRAINING_AREA_SIZE,
-} from "@/config";
+import { MAX_TRAINING_AREA_SIZE, MIN_TRAINING_AREA_SIZE } from "@/config";
 import { DrawingModes } from "@/enums";
 import { useMapInstance } from "@/hooks/use-map-instance";
 import { BBOX, Feature } from "@/types";
@@ -449,7 +446,7 @@ export const useMapLargeArea = ({
         ? { bbox: getGeoJSONFeatureBounds(selectedAOI) }
         : { geom: selectedAOI.geometry }),
     };
-   
+
     submitMapLargeArea(payload, {
       onSuccess: () => {
         showSuccessToast("Map large area request submitted successfully.");

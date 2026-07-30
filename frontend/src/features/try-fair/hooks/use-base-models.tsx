@@ -39,7 +39,7 @@ export const useBaseModels = () => {
     queryFn: async () => {
       const res = await getBaseModels({ limit: 100 });
       return (res.features as BaseModelStacItem[]).filter(
-        (f) => f.properties["fair:pinned"],
+        (f) => f.properties["fair:pinned"] && f.properties.deprecated === false,
       );
     },
   });
@@ -56,12 +56,14 @@ export const useLocalModels = () => {
     queryKey: ["fair-local-models"],
     queryFn: async () => {
       const res = await getLocalModels({ limit: 100 });
+    
       return (res.features as BaseModelStacItem[]).filter(
-        (f) => f.properties["fair:pinned"],
+        // only return models that are pinned and not deprecated
+        (f) => f.properties["fair:pinned"] && f.properties.deprecated === false,
       );
     },
   });
-
+  console.log(data, "local models");
   return {
     models: data ?? [],
     loading: isLoading,

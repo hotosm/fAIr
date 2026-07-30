@@ -267,7 +267,7 @@ export const ModelPickerContent = ({
           }`}
         >
           <div className="flex space-y-2 items-start justify-between gap-2 mb-1">
-            <p className="text-dark capitalize text-sm font-medium leading-tight ">
+            <p className="text-dark capitalize text-sm font-medium leading-tight flex-1 min-w-0 break-words">
               {imageryTitle}
             </p>
 

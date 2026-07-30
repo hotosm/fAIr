@@ -3,7 +3,6 @@ import { TRY_FAIR_PAGE_CONTENT } from "@/constants/ui-contents/try-fair-contents
 import {
   ImagerySource,
   ModelType,
-  TileServiceType,
   TryFairMapOutputType,
   TryFairResolution,
 } from "@/enums";
@@ -12,13 +11,8 @@ import { TryFairSidebar } from "@/features/try-fair/components/try-fair-sidebar"
 import { ModelPickerContent } from "@/features/try-fair/components/model-picker-modal";
 import { getSelectedModel } from "@/features/try-fair/utils/models";
 import { useMapInstance } from "@/hooks/use-map-instance";
-import { useTileservice } from "@/hooks/use-tileservice";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {
-  getTileServerRegex,
-  getTileServerTypeFromURL,
-  showErrorToast,
-} from "@/utils";
+import { showErrorToast } from "@/utils";
 import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
 import {
   useBaseModels,
@@ -27,11 +21,8 @@ import {
 import { BBOX } from "@/types";
 import { MapLargeAreaModal } from "@/features/try-fair/components/start-mapping/map-large-area-modal";
 import { useFairPredict } from "@/features/try-fair/hooks/use-fair-predict";
-import { useOAMItem } from "@/features/try-fair/hooks/use-oam-item";
-import {
-  getTryFairGuidedTourSteps,
-  getTryFairStartMappingStep,
-} from "@/constants/site-tour";
+import { useTryFairImagery } from "@/features/try-fair/hooks/use-try-fair-imagery";
+import { useTryFairTour } from "@/features/try-fair/hooks/use-try-fair-tour";
 import {
   BaseModelStacItem,
   getInferenceParams,
@@ -39,23 +30,13 @@ import {
 } from "@/features/try-fair/api/stac";
 import useScreenSize from "@/hooks/use-screen-size";
 import { MobileDrawer } from "@/components/ui/drawer";
-import { TRY_FAIR_TOUR_START_MAPPING_BUTTON_SEEN_LOCAL_STORAGE_KEY } from "@/config";
-import { useLocalStorage } from "@/hooks/use-storage";
-import { useTour, type StepType } from "@reactour/tour";
-import {
-  DEFAULT_FAIR_IMAGERY_CENTER,
-  FALLBACK_FAIR_IMAGERY,
-  FALLBACK_FAIR_IMAGERY_CENTER,
-  getModelOutputType,
-  TRY_FAIR_INITIAL_MAP_ZOOM,
-} from "@/features/try-fair/utils/common";
+import { getModelOutputType } from "@/features/try-fair/utils/common";
 import { Dialog } from "@/components/ui/dialog";
 import { useDialog } from "@/hooks/use-dialog";
 import { ImageryLocationDialog } from "@/features/try-fair/components/imagery/imagery-location-modal";
 import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
 import { SignInPromptDialog } from "@/features/try-fair/components/modals/sign-in-prompt";
 import { DISABLE_AUTH_ON_TRY_FAIR } from "@/config";
-import { getImageryTileUrl } from "@/features/try-fair/api/hot-imagery";
 import type { ImagerySelection } from "@/features/try-fair/types/imagery-types";
 import { MapLargeAreaRequestSuccess } from "@/features/try-fair/components/start-mapping/map-large-area-request-success-dialog";
 
@@ -67,10 +48,6 @@ export const TryFairPage = () => {
     setShowChooseLocationModal,
     showSigninModal,
     setShowSigninModal,
-    currentModelType,
-    setCurrentModelType,
-    setSeletedImagery,
-    selectedImagery,
     downloadType,
     setDownloadType,
     setPredictions: setPredictionsInStore,
@@ -78,8 +55,8 @@ export const TryFairPage = () => {
     setPredictionGridZoom: setPredictionGridZoomInStore,
     setOutputType: setOutputTypeInStore,
   } = useStartMappingStore();
-  const { getValue, setValue } = useLocalStorage();
-  const { setIsOpen: setIsSiteTourOpen, setCurrentStep, setSteps } = useTour();
+  const { closeGuidedTour, openGuidedTour, recordMapRun } =
+    useTryFairTour(isSmallViewport);
 
   const {
     modelId,
@@ -102,8 +79,6 @@ export const TryFairPage = () => {
     resetParameters,
   } = useTryFairParams();
 
-  const { item: sharedOAMItem } = useOAMItem(oamItemId);
-
   const { models: allModels, loading: modelsLoading } = useBaseModels();
   const { models: localModels, loading: localModelLoading } = useLocalModels();
 
@@ -120,6 +95,23 @@ export const TryFairPage = () => {
       selectedModel ? getSelectedModel(models, selectedModel.id) : undefined,
     [selectedModel],
   );
+
+  const {
+    imageryBounds,
+    imageryCenter,
+    setCurrentModelType,
+    setSeletedImagery,
+    tileLoading,
+    tileServiceTypeValidity,
+    tileserverURL,
+  } = useTryFairImagery({
+    map,
+    selectedModel,
+    mode,
+    imageryUrl,
+    imageryTileServiceType,
+    oamItemId,
+  });
 
   const inferenceParams: InferenceParam[] = useMemo(
     () => (selectedModel ? getInferenceParams(selectedModel) : []),
@@ -162,39 +154,6 @@ export const TryFairPage = () => {
     closeDialog: closeModelPickerDialog,
   } = useDialog();
 
-  const [mapClickCount, setMapClickCount] = useState<number>(0);
-
-  const [tourStepStartMappingButtonSeen, setTourStepStartMappingButtonSeen] =
-    useState<boolean>(
-      () =>
-        getValue(TRY_FAIR_TOUR_START_MAPPING_BUTTON_SEEN_LOCAL_STORAGE_KEY) ===
-        "true",
-    );
-
-  const tileServiceUrl = useMemo(() => {
-    const modelImagery =
-      currentModelType === ModelType.DEMO
-        ? selectedModel?.properties["fair:source_imagery"]
-        : selectedImagery?.tileUrl;
-    if (!modelImagery) return FALLBACK_FAIR_IMAGERY;
-    const regex = getTileServerRegex(getTileServerTypeFromURL(modelImagery));
-    return regex.test(modelImagery) ? modelImagery : FALLBACK_FAIR_IMAGERY;
-  }, [selectedModel, currentModelType, selectedImagery]);
-
-  const tileServiceType =
-    currentModelType === ModelType.IMAGERY &&
-    selectedImagery?.source === ImagerySource.CUSTOM
-      ? selectedImagery.tileServiceType
-      : imageryTileServiceType ?? getTileServerTypeFromURL(tileServiceUrl);
-
-  const {
-    tileserverURL,
-    setTileserverURL,
-    setTileServiceType,
-    loading: tileLoading,
-    tileJSONMetadata,
-    tileServiceTypeValidity,
-  } = useTileservice(tileServiceType, tileServiceUrl);
   // Site tour trigger logic based on map interactions and prediction state.
   const GRID_ZOOM_IN_DURATION = 1500;
 
@@ -228,107 +187,6 @@ export const TryFairPage = () => {
     }
   }, [latestBBox, map]);
 
-  useEffect(() => {
-    setTileserverURL(tileServiceUrl);
-    setTileServiceType(tileServiceType);
-  }, [tileServiceType, tileServiceUrl, setTileServiceType, setTileserverURL]);
-
-  // Recreate the selected imagery from a shared URL. Bounds intentionally are
-  // not persisted: OAM provides them with the item, and TileJSON metadata
-  // provides them for compatible custom imagery.
-  useEffect(() => {
-    if (mode === ModelType.DEMO) {
-      setCurrentModelType(ModelType.DEMO);
-      return;
-    }
-
-    if (oamItemId) {
-      if (!sharedOAMItem) return;
-      setCurrentModelType(ModelType.IMAGERY);
-      setSeletedImagery({
-        source: ImagerySource.OPEN_AERIAL_MAP,
-        item: sharedOAMItem,
-        tileUrl: getImageryTileUrl(sharedOAMItem.id, sharedOAMItem.assetName),
-        bounds: sharedOAMItem.bbox,
-      });
-      return;
-    }
-
-    if (imageryUrl) {
-      setCurrentModelType(ModelType.IMAGERY);
-      setSeletedImagery({
-        source: ImagerySource.CUSTOM,
-        tileUrl: imageryUrl,
-        tileServiceType:
-          imageryTileServiceType ?? getTileServerTypeFromURL(imageryUrl),
-        bounds: null,
-      });
-    }
-  }, [
-    imageryUrl,
-    imageryTileServiceType,
-    mode,
-    oamItemId,
-    setCurrentModelType,
-    setSeletedImagery,
-    sharedOAMItem,
-  ]);
-
-  const imageryCenter = useMemo((): [number, number] => {
-    // A selected imagery's own bounds take priority, so applying imagery
-    // re-centers the map on it (OAM XYZ tiles carry no TileJSON center).
-    if (currentModelType === ModelType.IMAGERY && selectedImagery?.bounds) {
-      const [w, s, e, n] = selectedImagery.bounds;
-      return [(w + e) / 2, (s + n) / 2];
-    }
-    // Custom imagery can provide its extent through TileJSON after the URL is
-    // loaded. Prefer it to the selected model's preview location.
-    if (currentModelType === ModelType.IMAGERY && tileJSONMetadata?.center) {
-      return [tileJSONMetadata.center[0], tileJSONMetadata.center[1]];
-    }
-    if (currentModelType === ModelType.IMAGERY && tileJSONMetadata?.bounds) {
-      const [w, s, e, n] = tileJSONMetadata.bounds as [
-        number,
-        number,
-        number,
-        number,
-      ];
-      return [(w + e) / 2, (s + n) / 2];
-    }
-    const previewLocation = selectedModel?.properties["fair:preview_location"];
-    if (previewLocation) {
-      return previewLocation.coordinates;
-    }
-    return tileServiceUrl === FALLBACK_FAIR_IMAGERY
-      ? FALLBACK_FAIR_IMAGERY_CENTER
-      : DEFAULT_FAIR_IMAGERY_CENTER;
-  }, [
-    currentModelType,
-    tileJSONMetadata,
-    tileServiceUrl,
-    selectedImagery,
-    selectedModel,
-  ]);
-
-  // TMS URL templates do not provide trustworthy imagery bounds. Preserve the
-  // current view on selection so the user can navigate to their intended area.
-  const isCustomTMSImagery =
-    (currentModelType === ModelType.IMAGERY &&
-      selectedImagery?.source === ImagerySource.CUSTOM &&
-      selectedImagery.tileServiceType === TileServiceType.TMS) ||
-    (mode === ModelType.IMAGERY &&
-      Boolean(imageryUrl) &&
-      imageryTileServiceType === TileServiceType.TMS);
-
-  // The current imagery's extent, used as the "Whole Imagery" AOI in the
-  // Map Large Area modal.
-  const imageryBounds = useMemo<BBOX | null>(() => {
-    if (currentModelType !== ModelType.IMAGERY) return null;
-    if (selectedImagery?.bounds) return selectedImagery.bounds;
-    if (tileJSONMetadata?.bounds) return tileJSONMetadata.bounds as BBOX;
-    return null;
-  }, [currentModelType, selectedImagery, tileJSONMetadata]);
-
   // Map Large Area (Export → Map Large Area). Opens when downloadType is set to
   const [isLargeAreaSuccessDialogOpen, setIsLargeAreaSuccessDialogOpen] =
     useState(false);
@@ -336,42 +194,6 @@ export const TryFairPage = () => {
     setDownloadType("");
     setIsLargeAreaSuccessDialogOpen(true);
   };
-  const mapFlownRef = useRef(false);
-  useEffect(() => {
-    if (!map || !selectedModel || !imageryCenter || isCustomTMSImagery) return;
-    const doFly = () => {
-      mapFlownRef.current = true;
-      map.flyTo({
-        center: imageryCenter,
-        zoom: TRY_FAIR_INITIAL_MAP_ZOOM,
-        essential: true,
-      });
-    };
-    // After the first successful fly, fly directly on every center change.
-    // `isStyleLoaded()` transiently reports false while a newly-applied imagery
-    // source loads, and the map's one-shot `load` event has already fired — so
-    // re-gating on it here would trap the camera and it would never move.
-    if (mapFlownRef.current || map.isStyleLoaded()) {
-      doFly();
-    } else {
-      map.once("load", doFly);
-      return () => {
-        map.off("load", doFly);
-      };
-    }
-  }, [map, selectedModel, imageryCenter, isCustomTMSImagery]);
-
-  // A shared imagery link is rehydrated after the map has mounted. Fit its
-  // actual extent once available so the recipient lands on the imagery rather
-  // than the selected model's default preview location.
-  useEffect(() => {
-    if (!map || !imageryBounds || isCustomTMSImagery) return;
-    map.fitBounds(
-      [imageryBounds[0], imageryBounds[1], imageryBounds[2], imageryBounds[3]],
-      { padding: 40, duration: 0, essential: true },
-    );
-  }, [imageryBounds, isCustomTMSImagery, map]);
-
   useEffect(() => {
     if (
       selectedModel &&
@@ -429,47 +251,16 @@ export const TryFairPage = () => {
     setLatestGridZoom(tileZoom);
   }, []);
 
-  const guidedTourSteps = useMemo<StepType[]>(
-    () => getTryFairGuidedTourSteps(isSmallViewport),
-    [isSmallViewport],
-  );
-
-  const startMappingStep = useMemo<StepType>(
-    () => getTryFairStartMappingStep(),
-    [],
-  );
-
-  const openGuidedTour = useCallback(() => {
-    const firstSelector = guidedTourSteps[0]?.selector;
-    if (
-      typeof firstSelector === "string" &&
-      !document.querySelector(firstSelector)
-    )
-      return;
-    setSteps?.(guidedTourSteps);
-    setCurrentStep(0);
-    setIsSiteTourOpen(true);
-  }, [guidedTourSteps, setCurrentStep, setIsSiteTourOpen, setSteps]);
-
-  const openStartMappingStep = useCallback(() => {
-    const selector = startMappingStep.selector;
-    if (typeof selector === "string" && !document.querySelector(selector))
-      return;
-    setSteps?.([startMappingStep]);
-    setCurrentStep(0);
-    setIsSiteTourOpen(true);
-  }, [startMappingStep, setCurrentStep, setIsSiteTourOpen, setSteps]);
-
   const handleMap = useCallback(() => {
     if (!selectedModel || !latestBBox || !demoConfig) return;
 
-    setIsSiteTourOpen(false);
+    closeGuidedTour();
     // Always centerlize the grid whenever the user clicks on Map
     // This is to prevent situations whereby the user drags the grid to another place and the prediction is not visible to them.
     handleZoomToGrid();
     // Save what we just submitted so we can detect duplicate runs
     lastPredictedInputsRef.current = predictionInputsSnapshot;
-    setMapClickCount((n) => n + 1);
+    recordMapRun();
     const apiParams = Object.fromEntries(
       Object.entries(paramValues).map(([parameterName, parameterValue]) =>
         parameterName === "confidence_threshold"
@@ -501,6 +292,8 @@ export const TryFairPage = () => {
     latestGridZoom,
     resolution,
     predictionInputsSnapshot,
+    closeGuidedTour,
+    recordMapRun,
   ]);
   useEffect(() => {
     if (error) {
@@ -508,27 +301,6 @@ export const TryFairPage = () => {
     }
   }, [error]);
   const isMapButtonDisabled = !isDirty || !latestBBox || !demoConfig;
-
-  useEffect(() => {
-    if (
-      mapClickCount === 4 &&
-      !isSmallViewport &&
-      !tourStepStartMappingButtonSeen
-    ) {
-      openStartMappingStep();
-      setValue(
-        TRY_FAIR_TOUR_START_MAPPING_BUTTON_SEEN_LOCAL_STORAGE_KEY,
-        "true",
-      );
-      setTourStepStartMappingButtonSeen(true);
-    }
-  }, [
-    mapClickCount,
-    isSmallViewport,
-    tourStepStartMappingButtonSeen,
-    openStartMappingStep,
-    setValue,
-  ]);
 
   const handleOutputTypeChange = (type: TryFairMapOutputType) => {
     setOutputType(type);
@@ -637,9 +409,7 @@ export const TryFairPage = () => {
             predictions={predictions}
             predictionBBox={predictionBBox}
             predictionGridZoom={predictionGridZoom}
-            imageryCenter={
-              isCustomTMSImagery ? undefined : imageryCenter
-            }
+            imageryCenter={imageryCenter}
             resolution={resolution}
             modelId={modelId}
             isPredicting={isPredicting}

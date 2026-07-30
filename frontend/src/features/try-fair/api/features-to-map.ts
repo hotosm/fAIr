@@ -21,3 +21,48 @@ export const useGetFeaturesToMap = () => {
     queryFn: getFeaturesToMap,
   });
 };
+
+export type APIBaseModelUser = {
+  osm_id: number;
+  username: string;
+};
+
+export type APIBaseModelItem = {
+  id: number;
+  name: string;
+  category: string;
+  stac_item_id: string;
+  status: string;
+  visibility: string;
+  is_pinned: boolean;
+  star_count: number;
+  is_starred: boolean;
+  error: string;
+  user: APIBaseModelUser;
+  created_at: string;
+  last_modified: string;
+};
+
+export type APIBaseModelsResponse = {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: APIBaseModelItem[];
+};
+
+export const getAPIBaseModels = async (
+  category: string,
+): Promise<APIBaseModelsResponse> => {
+  const res = await apiClient.get<APIBaseModelsResponse>(
+    API_ENDPOINTS.GET_API_BASE_MODELS(category),
+  );
+  return res.data;
+};
+
+export const useGetAPIBaseModels = (category: string) => {
+  return useQuery({
+    queryKey: ["api-base-models", category],
+    queryFn: () => getAPIBaseModels(category),
+    enabled: Boolean(category),
+  });
+};
