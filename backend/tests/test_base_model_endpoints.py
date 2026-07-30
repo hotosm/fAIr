@@ -288,6 +288,43 @@ def test_base_model_default_response_has_null_stac(admin: OsmUser) -> None:
     mock_get.assert_not_called()
 
 
+def test_pinned_models_returns_base_and_local(admin: OsmUser) -> None:
+    base = BaseModel.objects.create(
+        name="pinned-base", user=admin, stac_item_id="pb", is_pinned=True, visibility="public"
+    )
+    LocalModel.objects.create(
+        name="pinned-local", base_model=base, user=admin, is_pinned=True, visibility="public"
+    )
+    BaseModel.objects.create(name="unpinned-base", user=admin, is_pinned=False)
+    resp = _client(admin).get("/api/v1/pinned-models/")
+    assert resp.status_code == 200
+    assert resp.data["count"] == 2
+    by_type = {(r["model_type"], r["name"]) for r in resp.data["results"]}
+    assert ("base", "pinned-base") in by_type
+    assert ("local", "pinned-local") in by_type
+    assert all("unpinned" not in r["name"] for r in resp.data["results"])
+
+
+def test_pinned_models_is_public(db) -> None:
+    from rest_framework.test import APIClient
+
+    resp = APIClient().get("/api/v1/pinned-models/")
+    assert resp.status_code == 200
+    assert "results" in resp.data
+
+
+def test_pinned_models_expand_stac_inlines(admin: OsmUser) -> None:
+    BaseModel.objects.create(
+        name="pinned-base", user=admin, stac_item_id="pb", is_pinned=True, visibility="public"
+    )
+    fake = {"id": "pb", "properties": {"fair:pinned": True}, "assets": {}}
+    with patch("modelregistry.views.bulk_get_cached_items", return_value={("base-models", "pb"): fake}):
+        resp = _client(admin).get("/api/v1/pinned-models/?expand=stac")
+    assert resp.status_code == 200
+    row = next(r for r in resp.data["results"] if r["name"] == "pinned-base")
+    assert row["stac"] == fake
+
+
 def test_local_model_has_category(admin: OsmUser) -> None:
     base_model = BaseModel.objects.create(name="dino-base", user=admin, stac_item_id="dino-base")
     model = LocalModel.objects.create(name="lm1", base_model=base_model, user=admin)

@@ -1,12 +1,19 @@
 import httpx
 from django.db.models import Count, Q
 from django_filters.rest_framework import DjangoFilterBackend
-from drf_spectacular.utils import OpenApiExample, extend_schema, extend_schema_view
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import (
+    OpenApiExample,
+    OpenApiResponse,
+    extend_schema,
+    extend_schema_view,
+)
 from rest_framework import filters, mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from accounts.authentication import OsmAuthentication
 from accounts.permissions import (
@@ -346,6 +353,58 @@ class BaseModelViewSet(
 
         register_base_model.enqueue(base_model_id=base_model.id, stac_item=stac_item)
         return Response(BaseModelSerializer(base_model).data, status=status.HTTP_202_ACCEPTED)
+
+
+class PinnedModelsView(APIView):
+    """One feed of all pinned models (base + local) for a featured view.
+
+    Public read, visibility-filtered. `?expand=stac` inlines each STAC item so
+    the pin preview metadata (`fair:source_imagery` / `fair:preview_location`)
+    comes back in the same call.
+    """
+
+    authentication_classes = [OsmAuthentication]
+    permission_classes = [AllowAny]
+
+    @extend_schema(
+        description=(
+            "List all pinned models (base + local) in one response, each tagged "
+            "with `model_type`. `?expand=stac` inlines the full STAC item."
+        ),
+        responses=OpenApiResponse(OpenApiTypes.OBJECT, description="`{count, results[]}`"),
+    )
+    def get(self, request) -> Response:
+        user = request.user
+        base_qs = BaseModel.objects.filter(is_pinned=True)
+        local_qs = (
+            LocalModel.objects.filter(is_pinned=True)
+            .select_related("base_model")
+            .annotate(run_count=Count("runs"))
+        )
+        if not (user and user.is_authenticated):
+            base_qs = base_qs.filter(visibility=Visibility.PUBLIC)
+            local_qs = local_qs.filter(visibility=Visibility.PUBLIC)
+        elif not _is_admin(user):
+            base_qs = base_qs.filter(Q(user=user) | Q(visibility=Visibility.PUBLIC))
+            local_qs = local_qs.filter(Q(user=user) | Q(visibility=Visibility.PUBLIC))
+        base = list(annotate_stars(base_qs, request, key_field="name"))
+        local = list(annotate_stars(local_qs, request, key_field="name"))
+
+        context = {"request": request, "stac_items_by_id": {}}
+        if _wants_expand_stac(request):
+            pairs = [(BASE_MODELS_COLLECTION, m.stac_item_id) for m in base if m.stac_item_id]
+            pairs += [(LOCAL_MODELS_COLLECTION, m.stac_item_id) for m in local if m.stac_item_id]
+            context["stac_items_by_id"] = bulk_get_cached_items(pairs)
+
+        results = [
+            {"model_type": "base", **row}
+            for row in BaseModelSerializer(base, many=True, context=context).data
+        ]
+        results += [
+            {"model_type": "local", **row}
+            for row in LocalModelSerializer(local, many=True, context=context).data
+        ]
+        return Response({"count": len(results), "results": results})
 
 
 @extend_schema_view(
