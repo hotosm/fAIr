@@ -43,6 +43,8 @@ type TryFairSidebarProps = {
   onMap: () => void;
   isPredicting: boolean;
   isMapButtonDisabled: boolean;
+  feature: string;
+  onFeatureChange: (feature: string) => void;
   className?: string;
   openMobileModelPickerDialog?: () => void;
 };
@@ -64,6 +66,8 @@ export const TryFairSidebar = ({
   onMap,
   isPredicting,
   isMapButtonDisabled,
+  feature,
+  onFeatureChange,
   className,
   openMobileModelPickerDialog,
 }: TryFairSidebarProps) => {
@@ -123,7 +127,11 @@ export const TryFairSidebar = ({
       </div>
 
       {currentModelType !== ModelType.DEMO && (
-        <FeatureToMapDropdown disabled={isPredicting} />
+        <FeatureToMapDropdown
+          disabled={isPredicting}
+          value={feature}
+          onChange={onFeatureChange}
+        />
       )}
 
       <div className="">

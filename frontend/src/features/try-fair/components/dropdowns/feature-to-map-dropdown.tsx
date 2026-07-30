@@ -12,6 +12,8 @@ import { useState } from "react";
 
 type FeatureToMapDropdownProps = {
   disabled?: boolean;
+  value: string;
+  onChange: (value: string) => void;
 };
 
 const FEATURE_ICONS: Record<string, React.FC<IconProps>> = {
@@ -27,16 +29,15 @@ const getFeatureIcon = (value: string): React.FC<IconProps> => {
 
 const FeatureToMapDropdown = ({
   disabled = false,
+  value,
+  onChange,
 }: FeatureToMapDropdownProps) => {
   const { data: features, isLoading } = useGetFeaturesToMap();
   const { onDropdownHide, dropdownRef } = useDropdownMenu();
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [selectedFeatureValue, setSelectedFeatureValue] = useState("buildings");
 
   const featureList = features ?? [];
-  const selectedFeature = featureList.find(
-    (feat) => feat.value === selectedFeatureValue,
-  ) ??
+  const selectedFeature = featureList.find((feat) => feat.value === value) ??
     featureList[0] ?? { value: "buildings", label: "Buildings" };
 
   const SelectedIcon = getFeatureIcon(selectedFeature.value);
@@ -87,7 +88,7 @@ const FeatureToMapDropdown = ({
                 type="button"
                 className="text-dark bg-[#FAFAFA] hover:bg-gray-100 rounded-lg flex justify-between items-center w-full py-3 px-2 transition-colors cursor-pointer"
                 onClick={() => {
-                  setSelectedFeatureValue(feature.value);
+                  onChange(feature.value);
                   onDropdownHide();
                 }}
               >

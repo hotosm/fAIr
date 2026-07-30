@@ -60,11 +60,14 @@ export const CustomImageryForm = ({
 
   const handleApply = () => {
     if (!isValid.valid) return;
-    // Capture what the preview is showing as the imagery's extent, so its
-    // location can be labelled (place + country) on the model-picker card.
+    // TMS endpoints do not describe an imagery extent. Keeping the preview
+    // viewport as their bounds would make the main map fly to an arbitrary
+    // location, so let the user choose the area instead.
     const b = map?.getBounds();
     const bounds: BBOX | null = b
-      ? [b.getWest(), b.getSouth(), b.getEast(), b.getNorth()]
+      ? tileServiceType === TileServiceType.TMS
+        ? null
+        : [b.getWest(), b.getSouth(), b.getEast(), b.getNorth()]
       : null;
     onApply({ tileUrl: tileServerURL, tileServiceType, bounds });
     clearForm();

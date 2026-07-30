@@ -3,48 +3,49 @@ import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { Image } from "@/components/ui/image";
 import { APPLICATION_ROUTES } from "@/constants";
-import { ButtonVariant } from "@/enums/common";
+import { ButtonVariant, SHOELACE_SIZES } from "@/enums";
 import { useNavigate } from "react-router-dom";
 
-export const OfflinePredictionRequestSuccess = ({
+/** Confirmation shown after a Try fAIr Map Large Area request is submitted. */
+export const MapLargeAreaRequestSuccess = ({
   isOpen,
   onClose,
-  continueLabel = "Done",
 }: {
   isOpen: boolean;
   onClose: () => void;
-  /** Label for the action that closes the confirmation and keeps the user mapping. */
-  continueLabel?: string;
 }) => {
   const navigate = useNavigate();
 
   return (
-    <Dialog isOpened={isOpen} closeDialog={onClose}>
-      <div className="flex flex-col items-center gap-y-4 h-full  w-full justify-center">
+    <Dialog isOpened={isOpen} size={SHOELACE_SIZES.SMALL} closeDialog={onClose}>
+      <div className="flex flex-col items-center gap-y-4 h-full w-full justify-center">
         <div className="bg-secondary p-2 rounded-full flex items-center justify-center">
           <Image src={ModelFormConfirmation} alt="Success Icon" />
         </div>
-        <h1 className="text-title-3 font-semibold">Prediction Request Sent</h1>
+        <h1 className="text-title-3 font-semibold">Map Area Request Sent</h1>
         <p className="text-body-3 text-center">
-          We have received the request to run prediction on your specified area.
-          You will be notified when the prediction is done.
+          We have received your request to map the selected area. You will be
+          notified when the prediction is ready.
         </p>
-        <div className="flex flex-col md:flex-row gap-y-3 md:gap-0 justify-between w-full">
+        <div className="flex flex-col items-center w-full md:w-fit md:flex-row gap-4 md:gap-4 justify-between ">
           <Button
             variant={ButtonVariant.DARK}
-            onClick={() => {
-              navigate(APPLICATION_ROUTES.PROFILE_OFFLINE_PREDICTIONS);
-            }}
+            onClick={() => navigate(APPLICATION_ROUTES.PROFILE_OFFLINE_PREDICTIONS)}
             className="md:!w-fit"
+            size="medium"
+
+            rounded
           >
             View requests
           </Button>
           <Button
             onClick={onClose}
+            rounded
+            size="medium"
             variant={ButtonVariant.PRIMARY}
             className="md:!w-fit"
           >
-            {continueLabel}
+            Continue mapping
           </Button>
         </div>
       </div>

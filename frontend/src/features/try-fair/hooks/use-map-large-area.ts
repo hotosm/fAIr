@@ -1,13 +1,19 @@
+import {
+  MAX_TRAINING_AREA_SIZE,
+  MIN_TRAINING_AREA_SIZE,
+} from "@/config";
 import { DrawingModes } from "@/enums";
 import { useMapInstance } from "@/hooks/use-map-instance";
 import { BBOX, Feature } from "@/types";
 import {
   featureIsWithinBounds,
+  formatAreaInAppropriateUnit,
   getGeoJSONFeatureBounds,
   showErrorToast,
   showSuccessToast,
   showWarningToast,
   uuid4,
+  validateGeoJSONArea,
 } from "@/utils";
 import { GeoJSONStoreFeatures } from "terra-draw";
 import { FeatureCollection, Polygon } from "geojson";
@@ -47,7 +53,7 @@ const createFeatureFromBounds = (bounds: BBOX): Feature => {
 
 interface UseMapLargeAreaOptions {
   imageryBounds?: BBOX | null;
-  onSubmit: (aoi: Feature) => void;
+  onSubmit: () => void;
   closeDialog: () => void;
 }
 
@@ -235,6 +241,19 @@ export const useMapLargeArea = ({
 
     const latestFeature = snapshot[snapshot.length - 1];
 
+    // Match the size limits used by the offline prediction AOI upload flow.
+    if (validateGeoJSONArea(latestFeature)) {
+      showWarningToast(
+        `Area must be between ${formatAreaInAppropriateUnit(
+          MIN_TRAINING_AREA_SIZE,
+        )} and ${formatAreaInAppropriateUnit(MAX_TRAINING_AREA_SIZE)}.`,
+      );
+      terraDraw.clear();
+      setSelectedAOI(null);
+      setDrawingMode(DrawingModes.POLYGON);
+      return;
+    }
+
     if (imageryBounds && imageryBounds.length === 4) {
       if (!featureIsWithinBounds(imageryBounds, latestFeature)) {
         showWarningToast(
@@ -405,9 +424,6 @@ export const useMapLargeArea = ({
   const handleSubmit = () => {
     if (!selectedAOI) return;
 
-    // Calculate BBOX array [minX, minY, maxX, maxY] from drawn or uploaded AOI
-    const bbox = getGeoJSONFeatureBounds(selectedAOI);
-
     // Convert resolution to numeric zoom level
     const zoomNumber = TRY_FAIR_RESOLUTION_ZOOM[resolution] ?? 18;
 
@@ -424,19 +440,20 @@ export const useMapLargeArea = ({
     const payload: MapLargeAreaRequest = {
       model_stac_id: selectedModel?.id ?? modelId,
       image_uri: selectedImagery?.tileUrl ?? "",
-      bbox,
       zoom: zoomNumber,
       params: {
         confidence_threshold: confidence,
         ...extraParams,
       },
+      ...(activeTab === "whole"
+        ? { bbox: getGeoJSONFeatureBounds(selectedAOI) }
+        : { geom: selectedAOI.geometry }),
     };
-
-    onSubmit(selectedAOI);
-
+   
     submitMapLargeArea(payload, {
       onSuccess: () => {
         showSuccessToast("Map large area request submitted successfully.");
+        onSubmit();
         closeDialog();
       },
       onError: (err) => {

@@ -1,4 +1,9 @@
-import { TryFairMapOutputType, TryFairResolution } from "@/enums/try-fair";
+import {
+  ModelType,
+  TileServiceType,
+  TryFairMapOutputType,
+  TryFairResolution,
+} from "@/enums";
 import { parseAsFloat, parseAsString, useQueryStates } from "nuqs";
 import { useBaseModels, useLocalModels } from "./use-base-models";
 import { useMemo } from "react";
@@ -14,6 +19,8 @@ export const TRY_FAIR_PARAM_DEFAULTS = {
   output: TryFairMapOutputType.POLYGON,
   resolution: TryFairResolution.LOW,
   confidence: 0.7,
+  feature: "buildings",
+  mode: ModelType.DEMO,
 } as const;
 
 /**
@@ -24,6 +31,11 @@ export const TRY_FAIR_PARAM_DEFAULTS = {
  *   output     — visualization type: "polygon" | "points" | "cluster"
  *   resolution — zoom resolution: "low" | "mid" | "high"
  *   confidence — confidence threshold (0–1), e.g. 0.5
+ *   feature    — selected feature category when mapping user-supplied imagery
+ *   mode       — whether model demo imagery or user-selected imagery is active
+ *   imagery    — custom imagery tile URL (never a bbox)
+ *   imageryType — selected custom imagery service type
+ *   oamItem    — OpenAerialMap item ID; its URL and bbox are hydrated on load
  */
 export const useTryFairParams = () => {
   const [params, setParams] = useQueryStates(
@@ -32,6 +44,11 @@ export const useTryFairParams = () => {
       output: parseAsString.withDefault(TRY_FAIR_PARAM_DEFAULTS.output),
       resolution: parseAsString.withDefault(TRY_FAIR_PARAM_DEFAULTS.resolution),
       confidence: parseAsFloat,
+      feature: parseAsString.withDefault(TRY_FAIR_PARAM_DEFAULTS.feature),
+      mode: parseAsString.withDefault(TRY_FAIR_PARAM_DEFAULTS.mode),
+      imagery: parseAsString,
+      imageryType: parseAsString,
+      oamItem: parseAsString,
     },
     { history: "replace" },
   );
@@ -74,6 +91,15 @@ export const useTryFairParams = () => {
 
   const confidence = params.confidence ?? defaultConfidence;
 
+  const mode =
+    params.mode === ModelType.IMAGERY ? ModelType.IMAGERY : ModelType.DEMO;
+
+  const imageryTileServiceType = Object.values(TileServiceType).includes(
+    params.imageryType as TileServiceType,
+  )
+    ? (params.imageryType as TileServiceType)
+    : null;
+
   const isParametersDefault =
     resolution === TRY_FAIR_PARAM_DEFAULTS.resolution &&
     (params.confidence === null || params.confidence === defaultConfidence);
@@ -91,11 +117,32 @@ export const useTryFairParams = () => {
     outputType,
     resolution,
     confidence,
+    feature: params.feature,
+    mode,
+    imageryUrl: params.imagery,
+    imageryTileServiceType,
+    oamItemId: params.oamItem,
 
     setModelId: (id: string) => setParams({ model: id }),
     setOutputType: (type: TryFairMapOutputType) => setParams({ output: type }),
     setResolution: (res: TryFairResolution) => setParams({ resolution: res }),
     setConfidence: (val: number | null) => setParams({ confidence: val }),
+    setFeature: (feature: string) => setParams({ feature }),
+    setMode: (mode: ModelType) => setParams({ mode }),
+    setImagery: ({
+      url,
+      tileServiceType,
+      oamItemId,
+    }: {
+      url: string | null;
+      tileServiceType: TileServiceType | null;
+      oamItemId: string | null;
+    }) =>
+      setParams({
+        imagery: url,
+        imageryType: tileServiceType,
+        oamItem: oamItemId,
+      }),
 
     isParametersDefault,
     resetParameters,

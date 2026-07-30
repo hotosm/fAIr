@@ -9,7 +9,7 @@ import {
   AOITab,
   useMapLargeArea,
 } from "@/features/try-fair/hooks/use-map-large-area";
-import { BBOX, Feature, IconProps } from "@/types";
+import { BBOX, IconProps } from "@/types";
 import { cn } from "@/utils";
 import { ToolTip } from "@/components/ui/tooltip";
 
@@ -29,7 +29,7 @@ const MapLargeAreaContent = ({
 }: {
   tileServerURL?: string;
   imageryBounds?: BBOX | null;
-  onSubmit: (aoi: Feature) => void;
+  onSubmit: () => void;
   closeDialog: () => void;
 }) => {
   const {
@@ -187,7 +187,7 @@ export const MapLargeAreaModal = ({
   closeDialog: () => void;
   tileServerURL?: string;
   imageryBounds: BBOX | null;
-  onSubmit: (aoi: Feature) => void;
+  onSubmit: () => void;
 }) => {
   return (
     <Dialog

@@ -1,6 +1,12 @@
 import { Head } from "@/components/seo";
 import { TRY_FAIR_PAGE_CONTENT } from "@/constants/ui-contents/try-fair-contents";
-import { ModelType, TryFairMapOutputType, TryFairResolution } from "@/enums";
+import {
+  ImagerySource,
+  ModelType,
+  TileServiceType,
+  TryFairMapOutputType,
+  TryFairResolution,
+} from "@/enums";
 import { TryFairMap } from "@/features/try-fair/components/map/try-fair-map";
 import { TryFairSidebar } from "@/features/try-fair/components/try-fair-sidebar";
 import { ModelPickerContent } from "@/features/try-fair/components/model-picker-modal";
@@ -18,10 +24,10 @@ import {
   useBaseModels,
   useLocalModels,
 } from "@/features/try-fair/hooks/use-base-models";
-import { BBOX, Feature } from "@/types";
-import { showSuccessToast } from "@/utils";
+import { BBOX } from "@/types";
 import { MapLargeAreaModal } from "@/features/try-fair/components/start-mapping/map-large-area-modal";
 import { useFairPredict } from "@/features/try-fair/hooks/use-fair-predict";
+import { useOAMItem } from "@/features/try-fair/hooks/use-oam-item";
 import {
   getTryFairGuidedTourSteps,
   getTryFairStartMappingStep,
@@ -48,9 +54,10 @@ import { useDialog } from "@/hooks/use-dialog";
 import { ImageryLocationDialog } from "@/features/try-fair/components/imagery/imagery-location-modal";
 import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
 import { SignInPromptDialog } from "@/features/try-fair/components/modals/sign-in-prompt";
-import { useNavigate } from "react-router-dom";
-import { APPLICATION_ROUTES } from "@/constants";
 import { DISABLE_AUTH_ON_TRY_FAIR } from "@/config";
+import { getImageryTileUrl } from "@/features/try-fair/api/hot-imagery";
+import type { ImagerySelection } from "@/features/try-fair/types/imagery-types";
+import { MapLargeAreaRequestSuccess } from "@/features/try-fair/components/start-mapping/map-large-area-request-success-dialog";
 
 export const TryFairPage = () => {
   const { map, mapContainerRef } = useMapInstance(false, false);
@@ -83,9 +90,19 @@ export const TryFairPage = () => {
     setOutputType,
     setResolution,
     setConfidence,
+    feature,
+    setFeature,
+    mode,
+    setMode,
+    imageryUrl,
+    imageryTileServiceType,
+    oamItemId,
+    setImagery,
     isParametersDefault,
     resetParameters,
   } = useTryFairParams();
+
+  const { item: sharedOAMItem } = useOAMItem(oamItemId);
 
   const { models: allModels, loading: modelsLoading } = useBaseModels();
   const { models: localModels, loading: localModelLoading } = useLocalModels();
@@ -164,13 +181,20 @@ export const TryFairPage = () => {
     return regex.test(modelImagery) ? modelImagery : FALLBACK_FAIR_IMAGERY;
   }, [selectedModel, currentModelType, selectedImagery]);
 
+  const tileServiceType =
+    currentModelType === ModelType.IMAGERY &&
+    selectedImagery?.source === ImagerySource.CUSTOM
+      ? selectedImagery.tileServiceType
+      : imageryTileServiceType ?? getTileServerTypeFromURL(tileServiceUrl);
+
   const {
     tileserverURL,
     setTileserverURL,
+    setTileServiceType,
     loading: tileLoading,
     tileJSONMetadata,
     tileServiceTypeValidity,
-  } = useTileservice(getTileServerTypeFromURL(tileServiceUrl), tileServiceUrl);
+  } = useTileservice(tileServiceType, tileServiceUrl);
   // Site tour trigger logic based on map interactions and prediction state.
   const GRID_ZOOM_IN_DURATION = 1500;
 
@@ -206,23 +230,63 @@ export const TryFairPage = () => {
 
   useEffect(() => {
     setTileserverURL(tileServiceUrl);
-  }, [tileServiceUrl, setTileserverURL]);
+    setTileServiceType(tileServiceType);
+  }, [tileServiceType, tileServiceUrl, setTileServiceType, setTileserverURL]);
+
+  // Recreate the selected imagery from a shared URL. Bounds intentionally are
+  // not persisted: OAM provides them with the item, and TileJSON metadata
+  // provides them for compatible custom imagery.
+  useEffect(() => {
+    if (mode === ModelType.DEMO) {
+      setCurrentModelType(ModelType.DEMO);
+      return;
+    }
+
+    if (oamItemId) {
+      if (!sharedOAMItem) return;
+      setCurrentModelType(ModelType.IMAGERY);
+      setSeletedImagery({
+        source: ImagerySource.OPEN_AERIAL_MAP,
+        item: sharedOAMItem,
+        tileUrl: getImageryTileUrl(sharedOAMItem.id, sharedOAMItem.assetName),
+        bounds: sharedOAMItem.bbox,
+      });
+      return;
+    }
+
+    if (imageryUrl) {
+      setCurrentModelType(ModelType.IMAGERY);
+      setSeletedImagery({
+        source: ImagerySource.CUSTOM,
+        tileUrl: imageryUrl,
+        tileServiceType:
+          imageryTileServiceType ?? getTileServerTypeFromURL(imageryUrl),
+        bounds: null,
+      });
+    }
+  }, [
+    imageryUrl,
+    imageryTileServiceType,
+    mode,
+    oamItemId,
+    setCurrentModelType,
+    setSeletedImagery,
+    sharedOAMItem,
+  ]);
 
   const imageryCenter = useMemo((): [number, number] => {
     // A selected imagery's own bounds take priority, so applying imagery
     // re-centers the map on it (OAM XYZ tiles carry no TileJSON center).
-    if (selectedImagery?.bounds) {
+    if (currentModelType === ModelType.IMAGERY && selectedImagery?.bounds) {
       const [w, s, e, n] = selectedImagery.bounds;
       return [(w + e) / 2, (s + n) / 2];
     }
-    const previewLocation = selectedModel?.properties["fair:preview_location"];
-    if (previewLocation) {
-      return previewLocation.coordinates;
-    }
-    if (tileJSONMetadata?.center) {
+    // Custom imagery can provide its extent through TileJSON after the URL is
+    // loaded. Prefer it to the selected model's preview location.
+    if (currentModelType === ModelType.IMAGERY && tileJSONMetadata?.center) {
       return [tileJSONMetadata.center[0], tileJSONMetadata.center[1]];
     }
-    if (tileJSONMetadata?.bounds) {
+    if (currentModelType === ModelType.IMAGERY && tileJSONMetadata?.bounds) {
       const [w, s, e, n] = tileJSONMetadata.bounds as [
         number,
         number,
@@ -231,31 +295,50 @@ export const TryFairPage = () => {
       ];
       return [(w + e) / 2, (s + n) / 2];
     }
+    const previewLocation = selectedModel?.properties["fair:preview_location"];
+    if (previewLocation) {
+      return previewLocation.coordinates;
+    }
     return tileServiceUrl === FALLBACK_FAIR_IMAGERY
       ? FALLBACK_FAIR_IMAGERY_CENTER
       : DEFAULT_FAIR_IMAGERY_CENTER;
-  }, [tileJSONMetadata, tileServiceUrl, selectedImagery, selectedModel]);
+  }, [
+    currentModelType,
+    tileJSONMetadata,
+    tileServiceUrl,
+    selectedImagery,
+    selectedModel,
+  ]);
+
+  // TMS URL templates do not provide trustworthy imagery bounds. Preserve the
+  // current view on selection so the user can navigate to their intended area.
+  const isCustomTMSImagery =
+    (currentModelType === ModelType.IMAGERY &&
+      selectedImagery?.source === ImagerySource.CUSTOM &&
+      selectedImagery.tileServiceType === TileServiceType.TMS) ||
+    (mode === ModelType.IMAGERY &&
+      Boolean(imageryUrl) &&
+      imageryTileServiceType === TileServiceType.TMS);
 
   // The current imagery's extent, used as the "Whole Imagery" AOI in the
   // Map Large Area modal.
   const imageryBounds = useMemo<BBOX | null>(() => {
+    if (currentModelType !== ModelType.IMAGERY) return null;
     if (selectedImagery?.bounds) return selectedImagery.bounds;
     if (tileJSONMetadata?.bounds) return tileJSONMetadata.bounds as BBOX;
     return null;
-  }, [selectedImagery, tileJSONMetadata]);
+  }, [currentModelType, selectedImagery, tileJSONMetadata]);
 
   // Map Large Area (Export → Map Large Area). Opens when downloadType is set to
-  const navigate = useNavigate();
-  const largeAreaAOIRef = useRef<Feature | null>(null);
-  const handleLargeAreaSubmit = (aoi: Feature) => {
-    largeAreaAOIRef.current = aoi;
-    showSuccessToast("Area selected for mapping.");
+  const [isLargeAreaSuccessDialogOpen, setIsLargeAreaSuccessDialogOpen] =
+    useState(false);
+  const handleLargeAreaSubmit = () => {
     setDownloadType("");
-    navigate(APPLICATION_ROUTES.PROFILE_OFFLINE_PREDICTIONS);
+    setIsLargeAreaSuccessDialogOpen(true);
   };
   const mapFlownRef = useRef(false);
   useEffect(() => {
-    if (!map || !selectedModel || !imageryCenter) return;
+    if (!map || !selectedModel || !imageryCenter || isCustomTMSImagery) return;
     const doFly = () => {
       mapFlownRef.current = true;
       map.flyTo({
@@ -276,7 +359,18 @@ export const TryFairPage = () => {
         map.off("load", doFly);
       };
     }
-  }, [map, selectedModel, imageryCenter]);
+  }, [map, selectedModel, imageryCenter, isCustomTMSImagery]);
+
+  // A shared imagery link is rehydrated after the map has mounted. Fit its
+  // actual extent once available so the recipient lands on the imagery rather
+  // than the selected model's default preview location.
+  useEffect(() => {
+    if (!map || !imageryBounds || isCustomTMSImagery) return;
+    map.fitBounds(
+      [imageryBounds[0], imageryBounds[1], imageryBounds[2], imageryBounds[3]],
+      { padding: 40, duration: 0, essential: true },
+    );
+  }, [imageryBounds, isCustomTMSImagery, map]);
 
   useEffect(() => {
     if (
@@ -301,6 +395,8 @@ export const TryFairPage = () => {
   const handleSelectModel = (model: BaseModelStacItem) => {
     setModelId(model.id);
     setCurrentModelType(ModelType.DEMO);
+    setMode(ModelType.DEMO);
+    setImagery({ url: null, tileServiceType: null, oamItemId: null });
     setResolution(TryFairResolution.MID);
 
     // Reset confidence threshold to model's spec default if available
@@ -442,6 +538,39 @@ export const TryFairPage = () => {
     }
   };
 
+  const handleApplyImagery = useCallback(
+    (selection: ImagerySelection) => {
+      setCurrentModelType(ModelType.IMAGERY);
+      setSeletedImagery(selection);
+      setMode(ModelType.IMAGERY);
+      setImagery({
+        url:
+          selection.source === ImagerySource.CUSTOM ? selection.tileUrl : null,
+        tileServiceType:
+          selection.source === ImagerySource.CUSTOM
+            ? selection.tileServiceType
+            : null,
+        oamItemId:
+          selection.source === ImagerySource.OPEN_AERIAL_MAP
+            ? selection.item.id
+            : null,
+      });
+      // Invalidate the last prediction so the Map button re-enables and stale
+      // predictions clear when the imagery changes.
+      lastPredictedInputsRef.current = null;
+      clearPredictions();
+      setShowChooseLocationModal(false);
+    },
+    [
+      clearPredictions,
+      setCurrentModelType,
+      setImagery,
+      setMode,
+      setSeletedImagery,
+      setShowChooseLocationModal,
+    ],
+  );
+
   // Sync prediction state into the global store so the navbar Export button can access it.
   useEffect(() => {
     setPredictionsInStore(predictions);
@@ -470,16 +599,7 @@ export const TryFairPage = () => {
       <ImageryLocationDialog
         isOpened={showChooseLocationModal}
         closeDialog={() => setShowChooseLocationModal(false)}
-        onApply={(selection) => {
-          setCurrentModelType(ModelType.IMAGERY);
-          setSeletedImagery(selection);
-          // Invalidate the last prediction so the Map button re-enables and
-          // stale predictions clear when the imagery changes. The map re-centers
-          // on the new imagery via the imageryCenter/flyTo effect.
-          lastPredictedInputsRef.current = null;
-          clearPredictions();
-          setShowChooseLocationModal(false);
-        }}
+        onApply={handleApplyImagery}
       />
       {!DISABLE_AUTH_ON_TRY_FAIR && (
         <SignInPromptDialog
@@ -497,6 +617,11 @@ export const TryFairPage = () => {
         onSubmit={handleLargeAreaSubmit}
       />
 
+      <MapLargeAreaRequestSuccess
+        isOpen={isLargeAreaSuccessDialogOpen}
+        onClose={() => setIsLargeAreaSuccessDialogOpen(false)}
+      />
+
       {/* Signin Prompt */}
 
       <div className="flex h-screen md:h-[92vh] flex-col fullscreen">
@@ -512,7 +637,9 @@ export const TryFairPage = () => {
             predictions={predictions}
             predictionBBox={predictionBBox}
             predictionGridZoom={predictionGridZoom}
-            imageryCenter={imageryCenter}
+            imageryCenter={
+              isCustomTMSImagery ? undefined : imageryCenter
+            }
             resolution={resolution}
             modelId={modelId}
             isPredicting={isPredicting}
@@ -539,6 +666,8 @@ export const TryFairPage = () => {
                 onMap={handleMap}
                 isPredicting={isPredicting}
                 isMapButtonDisabled={isMapButtonDisabled}
+                feature={feature}
+                onFeatureChange={setFeature}
               />
             </div>
           )}
@@ -570,6 +699,8 @@ export const TryFairPage = () => {
                   onMap={handleMap}
                   isPredicting={isPredicting}
                   isMapButtonDisabled={isMapButtonDisabled}
+                  feature={feature}
+                  onFeatureChange={setFeature}
                   className="w-full shadow-none"
                   openMobileModelPickerDialog={openModelPickerDialog}
                 />
