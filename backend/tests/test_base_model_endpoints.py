@@ -221,7 +221,13 @@ def test_base_model_pin_sets_db_flag_and_stac(mock_stac, admin: OsmUser) -> None
 
 
 @patch("modelregistry.views.set_item_properties")
-def test_base_model_pin_writes_imagery_and_location_to_stac(mock_stac, admin: OsmUser) -> None:
+@patch(
+    "modelregistry.views.get_cached_item",
+    return_value={"geometry": {"type": "Point", "coordinates": [-13.23723, 8.47532]}},
+)
+def test_base_model_pin_writes_imagery_and_location_to_stac(
+    mock_get, mock_stac, admin: OsmUser
+) -> None:
     base_model = BaseModel.objects.create(name="pin-me", user=admin, stac_item_id="pin-me")
     resp = _client(admin).patch(
         f"/api/v1/base-models/{base_model.id}/pin/",
@@ -237,6 +243,10 @@ def test_base_model_pin_writes_imagery_and_location_to_stac(mock_stac, admin: Os
     assert props["fair:pinned"] is True
     assert props["fair:source_imagery"] == "https://tiles.example/{z}/{x}/{y}.png"
     assert props["fair:preview_location"] == {"type": "Point", "coordinates": [-13.23723, 8.47532]}
+    # place/country reverse-geocoded from the location (kept consistent)
+    assert props["fair:preview_country"]
+    assert props["fair:preview_place"]
+    assert props["fair:preview_country_code"]
 
 
 @patch("modelregistry.views.set_item_properties")

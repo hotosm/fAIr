@@ -51,9 +51,22 @@ from .tasks import register_base_model
 _STAC_FETCH_TIMEOUT_S = 30
 
 
+def _derive_preview_props(collection: str, item_id: str, properties: dict) -> dict:
+    """Reverse-geocode place/country from the pinned location via fair-py-ops so
+    the preview props stay consistent with how registration derives them."""
+    from fair.stac.location import derive_location_props
+    from shapely.geometry import shape
+
+    geometry = get_cached_item(collection, item_id).get("geometry")
+    if not geometry:
+        return {}
+    return derive_location_props(properties, list(shape(geometry).bounds))
+
+
 def _apply_pin(model, collection: str, data: dict) -> None:
     """Flip the DB flag, then mirror it (plus optional preview metadata) onto
-    the model's STAC item when the model has been published."""
+    the model's STAC item when the model has been published. A new preview
+    location re-derives the place/country props so they stay consistent."""
     model.is_pinned = data["is_pinned"]
     model.save(update_fields=["is_pinned", "last_modified"])
     if not model.stac_item_id:
@@ -61,8 +74,9 @@ def _apply_pin(model, collection: str, data: dict) -> None:
     properties: dict = {FAIR_PINNED_PROPERTY: model.is_pinned}
     if data.get("source_imagery"):
         properties[FAIR_SOURCE_IMAGERY_PROPERTY] = data["source_imagery"]
-    if data.get("pinned_location"):
-        properties[FAIR_PREVIEW_LOCATION_PROPERTY] = data["pinned_location"]
+    if location := data.get("pinned_location"):
+        properties[FAIR_PREVIEW_LOCATION_PROPERTY] = location
+        properties.update(_derive_preview_props(collection, model.stac_item_id, properties))
     set_item_properties(collection, model.stac_item_id, properties)
 
 
