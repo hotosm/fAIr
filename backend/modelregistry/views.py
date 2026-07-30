@@ -16,6 +16,14 @@ from accounts.permissions import (
     _is_admin,
 )
 from shared.enums import Visibility
+from shared.integrations.stac import (
+    BASE_MODELS_COLLECTION,
+    FAIR_PINNED_PROPERTY,
+    FAIR_PREVIEW_LOCATION_PROPERTY,
+    FAIR_SOURCE_IMAGERY_PROPERTY,
+    LOCAL_MODELS_COLLECTION,
+    set_item_properties,
+)
 from shared.integrations.zenml import list_runs_for_model
 from shared.stars import annotate_stars
 
@@ -25,11 +33,27 @@ from .serializers import (
     BaseModelSerializer,
     CategorySerializer,
     LocalModelSerializer,
+    ModelPinSerializer,
     TrainingRunSummarySerializer,
 )
 from .tasks import register_base_model
 
 _STAC_FETCH_TIMEOUT_S = 30
+
+
+def _apply_pin(model, collection: str, data: dict) -> None:
+    """Flip the DB flag, then mirror it (plus optional preview metadata) onto
+    the model's STAC item when the model has been published."""
+    model.is_pinned = data["is_pinned"]
+    model.save(update_fields=["is_pinned", "last_modified"])
+    if not model.stac_item_id:
+        return
+    properties: dict = {FAIR_PINNED_PROPERTY: model.is_pinned}
+    if data.get("source_imagery"):
+        properties[FAIR_SOURCE_IMAGERY_PROPERTY] = data["source_imagery"]
+    if data.get("pinned_location"):
+        properties[FAIR_PREVIEW_LOCATION_PROPERTY] = data["pinned_location"]
+    set_item_properties(collection, model.stac_item_id, properties)
 
 
 def _fetch_stac_item(url: str) -> dict:
@@ -59,8 +83,10 @@ def _fetch_stac_item(url: str) -> dict:
     retrieve=extend_schema(description="Retrieve one local model by id."),
     pin=extend_schema(
         description=(
-            "Toggle the `is_pinned` curation flag on a model (admin only). "
-            'PATCH body `{"is_pinned": true|false}`; defaults to true.'
+            "Pin/unpin a model (admin only). Flips the DB `is_pinned` flag and, "
+            "for a published model, mirrors it to `fair:pinned` on the STAC item. "
+            "Optional `source_imagery` (TMS) and `pinned_location` (GeoJSON Point) "
+            "are written as `fair:source_imagery` / `fair:preview_location`."
         ),
     ),
     runs=extend_schema(description="List ZenML pipeline runs that produced this model."),
@@ -107,11 +133,13 @@ class LocalModelViewSet(viewsets.ReadOnlyModelViewSet):
         model.save(update_fields=["visibility", "last_modified"])
         return Response(self.get_serializer(model).data, status=status.HTTP_200_OK)
 
+    @extend_schema(request=ModelPinSerializer, responses={200: LocalModelSerializer})
     @action(detail=True, methods=["patch"], url_path="pin")
     def pin(self, request, pk: int | None = None) -> Response:
         model = self.get_object()
-        model.is_pinned = bool(request.data.get("is_pinned", True))
-        model.save(update_fields=["is_pinned", "last_modified"])
+        serializer = ModelPinSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        _apply_pin(model, LOCAL_MODELS_COLLECTION, serializer.validated_data)
         return Response(self.get_serializer(model).data, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=["get"], url_path="runs")
@@ -216,12 +244,13 @@ class BaseModelViewSet(
             return [AllowAny()]
         return [IsAuthenticated()]
 
-    @extend_schema(request=None, responses={200: BaseModelSerializer})
+    @extend_schema(request=ModelPinSerializer, responses={200: BaseModelSerializer})
     @action(detail=True, methods=["patch"], url_path="pin")
     def pin(self, request, pk: int | None = None) -> Response:
         model = self.get_object()
-        model.is_pinned = bool(request.data.get("is_pinned", True))
-        model.save(update_fields=["is_pinned", "last_modified"])
+        serializer = ModelPinSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        _apply_pin(model, BASE_MODELS_COLLECTION, serializer.validated_data)
         return Response(BaseModelSerializer(model).data, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs) -> Response:

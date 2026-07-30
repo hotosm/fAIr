@@ -204,7 +204,8 @@ def test_register_task_stores_stac_item_id(admin: OsmUser) -> None:
     assert base_model.status == BaseModel.Status.ACTIVE
 
 
-def test_base_model_pin_sets_db_flag(admin: OsmUser) -> None:
+@patch("modelregistry.views.set_item_properties")
+def test_base_model_pin_sets_db_flag_and_stac(mock_stac, admin: OsmUser) -> None:
     base_model = BaseModel.objects.create(name="pin-me", user=admin, stac_item_id="pin-me")
     resp = _client(admin).patch(
         f"/api/v1/base-models/{base_model.id}/pin/", {"is_pinned": True}, format="json"
@@ -213,6 +214,51 @@ def test_base_model_pin_sets_db_flag(admin: OsmUser) -> None:
     assert resp.data["is_pinned"] is True
     base_model.refresh_from_db()
     assert base_model.is_pinned is True
+    collection, item_id, props = mock_stac.call_args.args
+    assert collection == "base-models"
+    assert item_id == "pin-me"
+    assert props == {"fair:pinned": True}
+
+
+@patch("modelregistry.views.set_item_properties")
+def test_base_model_pin_writes_imagery_and_location_to_stac(mock_stac, admin: OsmUser) -> None:
+    base_model = BaseModel.objects.create(name="pin-me", user=admin, stac_item_id="pin-me")
+    resp = _client(admin).patch(
+        f"/api/v1/base-models/{base_model.id}/pin/",
+        {
+            "is_pinned": True,
+            "source_imagery": "https://tiles.example/{z}/{x}/{y}.png",
+            "pinned_location": {"type": "Point", "coordinates": [-13.23723, 8.47532]},
+        },
+        format="json",
+    )
+    assert resp.status_code == 200
+    props = mock_stac.call_args.args[2]
+    assert props["fair:pinned"] is True
+    assert props["fair:source_imagery"] == "https://tiles.example/{z}/{x}/{y}.png"
+    assert props["fair:preview_location"] == {"type": "Point", "coordinates": [-13.23723, 8.47532]}
+
+
+@patch("modelregistry.views.set_item_properties")
+def test_base_model_pin_skips_stac_when_unpublished(mock_stac, admin: OsmUser) -> None:
+    base_model = BaseModel.objects.create(name="pin-me", user=admin)
+    resp = _client(admin).patch(
+        f"/api/v1/base-models/{base_model.id}/pin/", {"is_pinned": True}, format="json"
+    )
+    assert resp.status_code == 200
+    base_model.refresh_from_db()
+    assert base_model.is_pinned is True
+    mock_stac.assert_not_called()
+
+
+def test_base_model_pin_rejects_invalid_location(admin: OsmUser) -> None:
+    base_model = BaseModel.objects.create(name="pin-me", user=admin, stac_item_id="pin-me")
+    resp = _client(admin).patch(
+        f"/api/v1/base-models/{base_model.id}/pin/",
+        {"is_pinned": True, "pinned_location": {"type": "Polygon", "coordinates": []}},
+        format="json",
+    )
+    assert resp.status_code == 400
 
 
 def test_base_model_pin_blocks_non_admin(user: OsmUser, admin: OsmUser) -> None:

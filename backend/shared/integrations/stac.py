@@ -1,9 +1,10 @@
 """STAC catalog access for the fAIr backend.
 
 Wraps fair-py-ops' backend Protocol with a Django LocMem cache layer and
-helpers used by the API serializers and pin/unpin actions. Property
-mutations go through ``patch_item`` (single roundtrip via JSON Merge Patch);
-``set_item_property`` is the convenience wrapper for the one-key case.
+helpers used by the API serializers and pin/unpin actions. Property mutations
+read-modify-write the item (``get_item`` then ``publish_item``/PUT) because the
+STAC API does not accept HTTP PATCH; ``set_item_property`` is the single-key
+convenience wrapper.
 """
 
 from concurrent.futures import ThreadPoolExecutor
@@ -23,6 +24,8 @@ __all__ = [
     "BASE_MODELS_COLLECTION",
     "DATASETS_COLLECTION",
     "FAIR_PINNED_PROPERTY",
+    "FAIR_PREVIEW_LOCATION_PROPERTY",
+    "FAIR_SOURCE_IMAGERY_PROPERTY",
     "LOCAL_MODELS_COLLECTION",
     "bulk_get_cached_items",
     "deprecate_item",
@@ -37,10 +40,13 @@ __all__ = [
     "list_datasets",
     "list_local_models",
     "serialize_item",
+    "set_item_properties",
     "set_item_property",
 ]
 
 FAIR_PINNED_PROPERTY = "fair:pinned"
+FAIR_SOURCE_IMAGERY_PROPERTY = "fair:source_imagery"
+FAIR_PREVIEW_LOCATION_PROPERTY = "fair:preview_location"
 
 _CACHE_TTL_SECONDS = settings.STAC_CACHE_TTL
 _BULK_FETCH_MAX_WORKERS = settings.STAC_BULK_FETCH_WORKERS
@@ -169,7 +175,16 @@ def get_active_local_model_item(model_name: str) -> pystac.Item | None:
 
 def set_item_property(collection_id: str, item_id: str, key: str, value: object) -> dict:
     # JSON Merge Patch single-key write. Refreshes the cache to the new value.
-    patched = _backend().patch_item(collection_id, item_id, {"properties": {key: value}})
-    payload = serialize_item(patched)
+    return set_item_properties(collection_id, item_id, {key: value})
+
+
+def set_item_properties(collection_id: str, item_id: str, properties: dict) -> dict:
+    # Read-modify-write: the STAC API rejects PATCH, so merge onto the current
+    # item and PUT it back via publish_item. Refreshes the cache.
+    backend = _backend()
+    item = backend.get_item(collection_id, item_id)
+    item.properties.update(properties)
+    published = backend.publish_item(collection_id, item)
+    payload = serialize_item(published)
     cache.set(_cache_key(collection_id, item_id), payload, _CACHE_TTL_SECONDS)
     return payload
