@@ -101,6 +101,7 @@ export const TryFairPage = () => {
     () => [...allModels, ...localModels],
     [allModels, localModels],
   );
+
   const selectedModel = useMemo(
     () => getSelectedModel(models, modelId),
     [models, modelId],
@@ -138,7 +139,6 @@ export const TryFairPage = () => {
   const [latestBBox, setLatestBBox] = useState<BBOX | null>(null);
 
   const [latestGridZoom, setLatestGridZoom] = useState<number | null>(null);
-
   // Snapshot of the current prediction inputs vs what was last submitted,
   const lastPredictedInputsRef = useRef<string | null>(null);
 

@@ -44,8 +44,14 @@ export const useImageryMappingModel = ({
     ];
     return apiModels[0]?.stac ?? null;
   }, [apiBaseModels, apiLocalModels]);
-
   const modelForMapping = isImageryMode ? imageryModel : selectedModel;
+  // Some category API responses embed STAC metadata without the top-level
+  // STAC `id`. `mlm:name` and the model asset URL are stable fallbacks used
+  // only for client-side grid and input-change tracking.
+  const mappingModelId =
+    modelForMapping?.id ??
+    modelForMapping?.properties["mlm:name"] ??
+    modelForMapping?.assets.model?.href;
   const hasNoModelsForFeature =
     isImageryMode &&
     hasLoadedApiBaseModels &&
@@ -80,7 +86,7 @@ export const useImageryMappingModel = ({
 
   return {
     modelForMapping,
-    mappingModelId: modelForMapping?.id,
+    mappingModelId,
     modelUri: modelForMapping?.assets.model?.href,
     hasNoModelsForFeature,
     inferenceParams,

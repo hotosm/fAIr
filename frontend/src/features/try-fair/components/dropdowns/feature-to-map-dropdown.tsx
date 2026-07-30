@@ -4,7 +4,7 @@ import { BuildingIcon } from "@/components/ui/icons/buildings-icon";
 import { FeatureCheckIcon } from "@/components/ui/icons/feature-check-icon";
 import { SolarPanelIcon } from "@/components/ui/icons/solar-panel-icon";
 import { TreesIcon } from "@/components/ui/icons/trees-icon";
-import {  useGetFeaturesToMap } from "@/features/try-fair/api/features-to-map";
+import { useGetFeaturesToMap } from "@/features/try-fair/api/features-to-map";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { IconProps } from "@/types";
 import { cn } from "@/utils";
@@ -39,11 +39,10 @@ const FeatureToMapDropdown = ({
     (feature) => feature.slug !== "other",
   );
 
-
-  const selectedFeature =
-    featureList.find((feature) => feature.slug === value) ??
-    featureList[0] ??
-    { slug: "buildings", label: "Buildings" };
+  const selectedFeature = featureList.find(
+    (feature) => feature.slug === value,
+  ) ??
+    featureList[0] ?? { slug: "buildings", label: "Buildings" };
 
   const SelectedIcon = getFeatureIcon(selectedFeature.slug);
 
@@ -101,9 +100,7 @@ const FeatureToMapDropdown = ({
                   <FeatureIcon className="w-4 h-4 text-dark shrink-0" />
                   <p className="text-xs font-medium">{feature.label}</p>
                 </div>
-                {selectedFeature.slug === feature.slug && (
-                  <FeatureCheckIcon />
-                )}
+                {selectedFeature.slug === feature.slug && <FeatureCheckIcon />}
               </button>
             );
           })}
