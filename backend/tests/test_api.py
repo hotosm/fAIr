@@ -17,12 +17,12 @@ from django.test import override_settings
 from rest_framework.test import APIClient
 
 from accounts.models import OsmUser
-from shared.storage import BackendLocalModelPaths
 from datasets.models import AOI, Dataset
 from feedback.models import Feedback
 from modelregistry.models import BaseModel, LocalModel
 from notifications.models import Banner, UserNotification
 from predictions.models import Prediction
+from shared.storage import BackendLocalModelPaths
 from trainings.models import TrainingRunRef
 
 
@@ -220,7 +220,9 @@ def test_auth_me_profile_stats_reflect_owned_records(client, user):
     geom = Polygon(((0, 0), (0, 1), (1, 1), (1, 0), (0, 0)), srid=4326)
     base = BaseModel.objects.create(name="b", stac_item_id="b", user=user)
     LocalModel.objects.create(name="m1", base_model=base, user=user)
-    Dataset.objects.create(stac_id="d1", title="D1", source_imagery="https://x/{z}/{x}/{y}", user=user)
+    Dataset.objects.create(
+        stac_id="d1", title="D1", source_imagery="https://x/{z}/{x}/{y}", user=user
+    )
     Feedback.objects.create(stac_id="s1", action=FeedbackAction.ACCEPT, geom=geom, user=user)
     Feedback.objects.create(stac_id="s2", action=FeedbackAction.REJECT, geom=geom, user=user)
     UserNotification.objects.create(user=user, message="hi", is_read=False)
@@ -893,12 +895,19 @@ def test_storage_paths_are_deterministic_and_round_trip(settings):
     from shared.storage import StoragePaths
 
     settings.BUCKET_NAME = "fair-bucket"
-    assert StoragePaths.dataset_chips_dir_key("ds-1") == "datasets/ds-1/chips"
-    assert StoragePaths.dataset_labels_geojson_key("ds-1") == "datasets/ds-1/labels/labels.geojson"
-    assert StoragePaths.prediction_geojson_key(7) == "predict/7/output/predictions.geojson"
-    assert StoragePaths.prediction_pmtiles_uri(7) == "s3://fair-bucket/predict/7/output/predictions.pmtiles"
+    settings.PARENT_BUCKET_FOLDER = "dev"
+    assert StoragePaths.dataset_chips_dir_key("ds-1") == "dev/datasets/ds-1/chips"
+    labels_key = StoragePaths.dataset_labels_geojson_key("ds-1")
+    assert labels_key == "dev/datasets/ds-1/labels/labels.geojson"
+    geojson_key = StoragePaths.prediction_geojson_key(7)
+    assert geojson_key == "dev/predict/7/output/predictions.geojson"
     # uri = s3:// + bucket + key (so callers stay consistent across both forms)
-    assert StoragePaths.dataset_chips_dir_uri("ds-1") == "s3://fair-bucket/datasets/ds-1/chips"
+    assert StoragePaths.prediction_pmtiles_uri(7) == (
+        "s3://fair-bucket/" + StoragePaths.prediction_pmtiles_key(7)
+    )
+    assert StoragePaths.dataset_chips_dir_uri("ds-1") == (
+        "s3://fair-bucket/" + StoragePaths.dataset_chips_dir_key("ds-1")
+    )
 
 
 def test_prediction_assets_populated_when_completed(client, prediction):

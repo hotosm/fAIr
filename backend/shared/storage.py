@@ -10,12 +10,18 @@ def presigned_get_url(key: str) -> str:
     )
 
 
+def _folder() -> str:
+    # Per-environment key prefix (e.g. "dev/"), shared with the pipeline paths so
+    # a bucket can host several environments side by side. Empty disables it.
+    prefix = settings.PARENT_BUCKET_FOLDER
+    return f"{prefix}/" if prefix else ""
+
+
 class StoragePaths:
-    # Source of truth for every S3 path the backend writes or reads. Roots
-    # live as class attrs so a future scheme tweak (e.g. tenant prefix) is
-    # one edit. Methods come in two flavours per artifact:
-    #   - `*_key()`  -> "{key}"               — for boto3 presigning.
-    #   - `*_uri()`  -> "s3://{bucket}/{key}" — for upath/fsspec writes.
+    # Source of truth for every S3 path the backend writes or reads. Every key is
+    # rooted under `_folder()` so all environments share one bucket cleanly.
+    #   - `*_key()`  -> "{folder}{key}"               — for boto3 presigning.
+    #   - `*_uri()`  -> "s3://{bucket}/{folder}{key}" — for upath/fsspec writes.
 
     DATASETS_ROOT = "datasets"
     DATASETS_DOWNLOAD_SUBDIR = "download"
@@ -43,7 +49,7 @@ class StoragePaths:
 
     @classmethod
     def dataset_chips_dir_key(cls, stac_id: str) -> str:
-        return f"{cls.DATASETS_ROOT}/{stac_id}/chips"
+        return f"{_folder()}{cls.DATASETS_ROOT}/{stac_id}/chips"
 
     @classmethod
     def dataset_chips_dir_uri(cls, stac_id: str) -> str:
@@ -51,7 +57,7 @@ class StoragePaths:
 
     @classmethod
     def dataset_labels_dir_key(cls, stac_id: str) -> str:
-        return f"{cls.DATASETS_ROOT}/{stac_id}/labels"
+        return f"{_folder()}{cls.DATASETS_ROOT}/{stac_id}/labels"
 
     @classmethod
     def dataset_labels_dir_uri(cls, stac_id: str) -> str:
@@ -67,13 +73,13 @@ class StoragePaths:
 
     @classmethod
     def dataset_download_key(cls, stac_id: str, filename: str) -> str:
-        return f"{cls.DATASETS_ROOT}/{stac_id}/{cls.DATASETS_DOWNLOAD_SUBDIR}/{filename}"
+        return f"{_folder()}{cls.DATASETS_ROOT}/{stac_id}/{cls.DATASETS_DOWNLOAD_SUBDIR}/{filename}"
 
     # --- predictions: input chips ---
 
     @classmethod
     def prediction_input_dir_key(cls, prediction_id: int) -> str:
-        return f"{cls.PREDICTIONS_ROOT}/{prediction_id}/input"
+        return f"{_folder()}{cls.PREDICTIONS_ROOT}/{prediction_id}/input"
 
     @classmethod
     def prediction_input_dir_uri(cls, prediction_id: int) -> str:
@@ -83,7 +89,7 @@ class StoragePaths:
 
     @classmethod
     def prediction_output_dir_key(cls, prediction_id: int) -> str:
-        return f"{cls.PREDICTIONS_ROOT}/{prediction_id}/output"
+        return f"{_folder()}{cls.PREDICTIONS_ROOT}/{prediction_id}/output"
 
     @classmethod
     def prediction_output_dir_uri(cls, prediction_id: int) -> str:
@@ -126,7 +132,7 @@ class StoragePaths:
 
     @classmethod
     def local_model_item_dir_key(cls, item_id: str) -> str:
-        return f"{cls.LOCAL_MODELS_ROOT}/{item_id}"
+        return f"{_folder()}{cls.LOCAL_MODELS_ROOT}/{item_id}"
 
     @classmethod
     def local_model_checkpoint_key(cls, item_id: str) -> str:
@@ -145,12 +151,12 @@ class StoragePaths:
 
 
 class BackendLocalModelPaths(LocalModelStoragePaths):
-    ROOT = StoragePaths.LOCAL_MODELS_ROOT
+    ROOT = f"{_folder()}{StoragePaths.LOCAL_MODELS_ROOT}"
     CHECKPOINT_SUBDIR = StoragePaths.LOCAL_MODELS_CHECKPOINT_SUBDIR
     MODEL_SUBDIR = StoragePaths.LOCAL_MODELS_MODEL_SUBDIR
     METRICS_SUBDIR = StoragePaths.LOCAL_MODELS_METRICS_SUBDIR
 
 
 class BackendDatasetPaths(DatasetStoragePaths):
-    ROOT = StoragePaths.DATASETS_ROOT
+    ROOT = f"{_folder()}{StoragePaths.DATASETS_ROOT}"
     DOWNLOAD_SUBDIR = StoragePaths.DATASETS_DOWNLOAD_SUBDIR
