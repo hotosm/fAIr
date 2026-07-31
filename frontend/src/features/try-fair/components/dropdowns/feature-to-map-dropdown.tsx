@@ -4,7 +4,12 @@ import { BuildingIcon } from "@/components/ui/icons/buildings-icon";
 import { FeatureCheckIcon } from "@/components/ui/icons/feature-check-icon";
 import { SolarPanelIcon } from "@/components/ui/icons/solar-panel-icon";
 import { TreesIcon } from "@/components/ui/icons/trees-icon";
-import { useGetFeaturesToMap } from "@/features/try-fair/api/features-to-map";
+import {
+  FeatureToMapItem,
+  useGetAPIBaseModels,
+  useGetAPILocalModels,
+  useGetFeaturesToMap,
+} from "@/features/try-fair/api/features-to-map";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { IconProps } from "@/types";
 import { cn } from "@/utils";
@@ -25,6 +30,48 @@ const FEATURE_ICONS: Record<string, React.FC<IconProps>> = {
 
 const getFeatureIcon = (value: string): React.FC<IconProps> => {
   return FEATURE_ICONS[value] || BuildingIcon;
+};
+
+type FeatureOptionProps = {
+  disabled: boolean;
+  feature: FeatureToMapItem;
+  isSelected: boolean;
+  onSelect: (value: string) => void;
+};
+
+const FeatureOption = ({
+  disabled,
+  feature,
+  isSelected,
+  onSelect,
+}: FeatureOptionProps) => {
+  const { data: baseModels, isPending: isBaseModelsPending } =
+    useGetAPIBaseModels(feature.slug);
+  const { data: localModels, isPending: isLocalModelsPending } =
+    useGetAPILocalModels(feature.slug);
+  const hasNoModels =
+    baseModels?.results.length === 0 && localModels?.results.length === 0;
+  const isDisabled =
+    disabled || isBaseModelsPending || isLocalModelsPending || hasNoModels;
+  const FeatureIcon = getFeatureIcon(feature.slug);
+
+  return (
+    <button
+      type="button"
+      disabled={isDisabled}
+      title={
+        hasNoModels ? "No models are available for this feature" : undefined
+      }
+      className="text-dark bg-[#FAFAFA] hover:bg-gray-100 rounded-lg flex justify-between items-center w-full py-3 px-2 transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-[#FAFAFA]"
+      onClick={() => onSelect(feature.slug)}
+    >
+      <div className="flex items-center gap-2">
+        <FeatureIcon className="w-4 h-4 text-dark shrink-0" />
+        <p className="text-xs font-medium">{feature.label}</p>
+      </div>
+      {isSelected && <FeatureCheckIcon />}
+    </button>
+  );
 };
 
 const FeatureToMapDropdown = ({
@@ -85,23 +132,17 @@ const FeatureToMapDropdown = ({
       >
         <div className="bg-white rounded-md flex items-start p-2 gap-3 flex-col w-full">
           {featureList.map((feature) => {
-            const FeatureIcon = getFeatureIcon(feature.slug);
             return (
-              <button
+              <FeatureOption
                 key={feature.slug}
-                type="button"
-                className="text-dark bg-[#FAFAFA] hover:bg-gray-100 rounded-lg flex justify-between items-center w-full py-3 px-2 transition-colors cursor-pointer"
-                onClick={() => {
-                  onChange(feature.slug);
+                disabled={disabled}
+                feature={feature}
+                isSelected={selectedFeature.slug === feature.slug}
+                onSelect={(slug) => {
+                  onChange(slug);
                   onDropdownHide();
                 }}
-              >
-                <div className="flex items-center gap-2">
-                  <FeatureIcon className="w-4 h-4 text-dark shrink-0" />
-                  <p className="text-xs font-medium">{feature.label}</p>
-                </div>
-                {selectedFeature.slug === feature.slug && <FeatureCheckIcon />}
-              </button>
+              />
             );
           })}
         </div>

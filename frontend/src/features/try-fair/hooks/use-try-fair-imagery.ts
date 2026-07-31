@@ -159,8 +159,9 @@ export const useTryFairImagery = ({
       imageryTileServiceType === TileServiceType.TMS);
 
   const imageryBounds = useMemo<BBOX | null>(() => {
-    if (currentModelType !== ModelType.IMAGERY) return null;
-    if (selectedImagery?.bounds) return selectedImagery.bounds;
+    if (currentModelType === ModelType.IMAGERY && selectedImagery?.bounds) {
+      return selectedImagery.bounds;
+    }
     if (tileJSONMetadata?.bounds) return tileJSONMetadata.bounds as BBOX;
     return null;
   }, [currentModelType, selectedImagery, tileJSONMetadata]);

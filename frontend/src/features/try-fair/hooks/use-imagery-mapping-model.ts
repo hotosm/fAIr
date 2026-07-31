@@ -8,8 +8,7 @@ import {
   getInferenceParams,
 } from "@/features/try-fair/api/stac";
 import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
-import { showWarningToast } from "@/utils";
-import { useEffect, useMemo, useRef } from "react";
+import { useMemo } from "react";
 
 type UseImageryMappingModelOptions = {
   feature: string;
@@ -57,29 +56,18 @@ export const useImageryMappingModel = ({
     hasLoadedApiBaseModels &&
     hasLoadedApiLocalModels &&
     imageryModel === null;
-  const noModelsToastFeatureRef = useRef<string | null>(null);
-
-  useEffect(() => {
-    noModelsToastFeatureRef.current = null;
-  }, [feature]);
-
-  useEffect(() => {
-    if (!hasNoModelsForFeature || noModelsToastFeatureRef.current === feature) {
-      return;
-    }
-
-    showWarningToast(`No models are available for mapping ${feature}.`);
-    noModelsToastFeatureRef.current = feature;
-  }, [feature, hasNoModelsForFeature]);
-
   const inferenceParams = useMemo(
     () => (modelForMapping ? getInferenceParams(modelForMapping) : []),
     [modelForMapping],
   );
   const paramValues = useMemo(() => {
-    const values: Record<string, number | string | boolean> = {};
+    const values: Record<string, number | string | boolean> = {
+      confidence_threshold: confidence,
+    };
     inferenceParams.forEach(({ key, spec }) => {
-      values[key] = key === "confidence_threshold" ? confidence : spec.default;
+      if (key !== "confidence_threshold") {
+        values[key] = spec.default;
+      }
     });
     return values;
   }, [confidence, inferenceParams]);

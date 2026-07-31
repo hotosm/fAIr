@@ -59,13 +59,19 @@ export const useMapLargeArea = ({
   onSubmit,
   closeDialog,
 }: UseMapLargeAreaOptions) => {
+  const { selectedImagery } = useStartMappingStore();
+  const activeImageryBounds = imageryBounds ?? selectedImagery?.bounds ?? null;
   const { mapContainerRef, map, drawingMode, setDrawingMode, terraDraw } =
-    useMapInstance(undefined, undefined, "red", imageryBounds ?? undefined);
+    useMapInstance(
+      undefined,
+      undefined,
+      "red",
+      activeImageryBounds ?? undefined,
+    );
 
   const { mutate: submitMapLargeArea, isPending: isSubmittingMapLargeArea } =
     useSubmitMapLargeArea();
 
-  const { selectedImagery } = useStartMappingStore();
   const { modelId, selectedModel, inferenceParams, resolution, confidence } =
     useTryFairParams();
   const [activeTab, setActiveTab] = useState<AOITab>("draw");
@@ -83,17 +89,22 @@ export const useMapLargeArea = ({
 
   // Resize map & fit bounds initially
   useEffect(() => {
-    if (!map || !imageryBounds) return;
+    if (!map || !activeImageryBounds) return;
     map.resize();
     map.fitBounds(
-      [imageryBounds[0], imageryBounds[1], imageryBounds[2], imageryBounds[3]],
+      [
+        activeImageryBounds[0],
+        activeImageryBounds[1],
+        activeImageryBounds[2],
+        activeImageryBounds[3],
+      ],
       {
         padding: 40,
         maxZoom: 18,
         essential: true,
       },
     );
-  }, [map, imageryBounds]);
+  }, [map, activeImageryBounds]);
 
   // Render selected AOI directly on MapLibre style layer for guaranteed visual rendering
   useEffect(() => {
@@ -187,8 +198,8 @@ export const useMapLargeArea = ({
       clearTerraDraw();
 
       if (tab === "whole") {
-        if (imageryBounds && imageryBounds.length === 4) {
-          const wholeFeature = createFeatureFromBounds(imageryBounds);
+        if (activeImageryBounds && activeImageryBounds.length === 4) {
+          const wholeFeature = createFeatureFromBounds(activeImageryBounds);
           if (terraDraw) {
             terraDraw.addFeatures([wholeFeature] as GeoJSONStoreFeatures[]);
           }
@@ -196,10 +207,10 @@ export const useMapLargeArea = ({
           if (map) {
             map.fitBounds(
               [
-                imageryBounds[0],
-                imageryBounds[1],
-                imageryBounds[2],
-                imageryBounds[3],
+                activeImageryBounds[0],
+                activeImageryBounds[1],
+                activeImageryBounds[2],
+                activeImageryBounds[3],
               ],
               {
                 padding: 40,
@@ -208,8 +219,6 @@ export const useMapLargeArea = ({
               },
             );
           }
-        } else {
-          showWarningToast("Imagery bounds are not available.");
         }
       } else if (tab === "draw") {
         setTimeout(() => {
@@ -220,7 +229,7 @@ export const useMapLargeArea = ({
         triggerFileSelect();
       }
     },
-    [clearTerraDraw, imageryBounds, map, setDrawingMode, terraDraw],
+    [activeImageryBounds, clearTerraDraw, map, setDrawingMode, terraDraw],
   );
 
   // Set default mode on initial mount if tab is draw
@@ -229,6 +238,18 @@ export const useMapLargeArea = ({
       setDrawingMode(DrawingModes.POLYGON);
     }
   }, [activeTab, setDrawingMode]);
+
+  // TileJSON bounds can arrive after the user selects the whole-imagery tab.
+  // Create the AOI once those bounds become available.
+  useEffect(() => {
+    if (activeTab !== "whole" || !activeImageryBounds || selectedAOI) return;
+
+    const wholeFeature = createFeatureFromBounds(activeImageryBounds);
+    if (terraDraw) {
+      terraDraw.addFeatures([wholeFeature] as GeoJSONStoreFeatures[]);
+    }
+    setSelectedAOI(wholeFeature);
+  }, [activeImageryBounds, activeTab, selectedAOI, terraDraw]);
 
   // TerraDraw finish listener
   const handleDrawFinish = useCallback(() => {
@@ -251,8 +272,8 @@ export const useMapLargeArea = ({
       return;
     }
 
-    if (imageryBounds && imageryBounds.length === 4) {
-      if (!featureIsWithinBounds(imageryBounds, latestFeature)) {
+    if (activeImageryBounds && activeImageryBounds.length === 4) {
+      if (!featureIsWithinBounds(activeImageryBounds, latestFeature)) {
         showWarningToast(
           "The drawn polygon extends beyond the imagery bounds. Please draw within the imagery bounds.",
         );
@@ -274,7 +295,7 @@ export const useMapLargeArea = ({
 
     setSelectedAOI(latestFeature);
     setDrawingMode(DrawingModes.STATIC);
-  }, [terraDraw, imageryBounds, setDrawingMode]);
+  }, [activeImageryBounds, terraDraw, setDrawingMode]);
 
   useEffect(() => {
     if (!terraDraw) return;
@@ -350,8 +371,8 @@ export const useMapLargeArea = ({
         geometry: polygonGeometry,
       };
 
-      if (imageryBounds && imageryBounds.length === 4) {
-        if (!featureIsWithinBounds(imageryBounds, uploadedFeature)) {
+      if (activeImageryBounds && activeImageryBounds.length === 4) {
+        if (!featureIsWithinBounds(activeImageryBounds, uploadedFeature)) {
           showErrorToast(
             undefined,
             "The uploaded polygon is outside the imagery bounds. Please upload a polygon that lies within the imagery.",
