@@ -298,4 +298,7 @@ class TrainingViewSet(viewsets.ReadOnlyModelViewSet):
         run_ref.local_model.stac_item_id = local_id
         run_ref.local_model.save(update_fields=["status", "stac_item_id", "last_modified"])
         invalidate_stac_cache(LOCAL_MODELS_COLLECTION, run_ref.local_model.name)
+        from modelregistry.tasks import mirror_stac_assets_task
+
+        mirror_stac_assets_task.enqueue(collection_id=LOCAL_MODELS_COLLECTION, item_id=local_id)
         return Response({"local_model_stac_id": local_id}, status=status.HTTP_201_CREATED)

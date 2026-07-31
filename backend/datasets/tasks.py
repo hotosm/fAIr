@@ -71,6 +71,9 @@ def build_dataset(
         dataset.status = Dataset.Status.BUILT
         dataset.save(update_fields=["stac_id", "status", "last_modified"])
         invalidate_stac_cache(DATASETS_COLLECTION, published_id)
+        from modelregistry.tasks import mirror_stac_assets_task
+
+        mirror_stac_assets_task.enqueue(collection_id=DATASETS_COLLECTION, item_id=published_id)
     except Exception:
         logger.exception("dataset build failed for %s", dataset_id)
         dataset.status = Dataset.Status.FAILED

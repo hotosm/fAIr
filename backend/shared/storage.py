@@ -26,6 +26,7 @@ class StoragePaths:
     DATASETS_ROOT = "datasets"
     DATASETS_DOWNLOAD_SUBDIR = "download"
     PREDICTIONS_ROOT = "predict"
+    STAC_DOWNLOADS_ROOT = "downloads"
     LOCAL_MODELS_ROOT = "local-models"
     LOCAL_MODELS_CHECKPOINT_SUBDIR = "checkpoint"
     LOCAL_MODELS_MODEL_SUBDIR = "model"
@@ -45,7 +46,13 @@ class StoragePaths:
     def _uri(cls, key: str) -> str:
         return f"s3://{cls._bucket()}/{key}"
 
-    # --- datasets ---
+    #  STAC downloads
+
+    @classmethod
+    def stac_download_prefix(cls, collection: str, item_id: str, asset: str) -> str:
+        return f"{_folder()}{cls.STAC_DOWNLOADS_ROOT}/{collection}/{item_id}/{asset}/"
+
+    #  datasets
 
     @classmethod
     def dataset_chips_dir_key(cls, stac_id: str) -> str:
@@ -75,7 +82,7 @@ class StoragePaths:
     def dataset_download_key(cls, stac_id: str, filename: str) -> str:
         return f"{_folder()}{cls.DATASETS_ROOT}/{stac_id}/{cls.DATASETS_DOWNLOAD_SUBDIR}/{filename}"
 
-    # --- predictions: input chips ---
+    #  predictions: input chips
 
     @classmethod
     def prediction_input_dir_key(cls, prediction_id: int) -> str:
@@ -85,7 +92,7 @@ class StoragePaths:
     def prediction_input_dir_uri(cls, prediction_id: int) -> str:
         return cls._uri(cls.prediction_input_dir_key(prediction_id))
 
-    # --- predictions: outputs (deterministic; populated by post_run) ---
+    #  predictions: outputs (deterministic; populated by post_run)
 
     @classmethod
     def prediction_output_dir_key(cls, prediction_id: int) -> str:
@@ -128,7 +135,7 @@ class StoragePaths:
     def prediction_removed_osm_uri(cls, prediction_id: int) -> str:
         return cls._uri(cls.prediction_removed_osm_key(prediction_id))
 
-    # --- local models ---
+    #  local models
 
     @classmethod
     def local_model_item_dir_key(cls, item_id: str) -> str:

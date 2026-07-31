@@ -5,12 +5,24 @@ from pathlib import Path
 
 from django_tasks import task
 
-from shared.integrations.stac import BASE_MODELS_COLLECTION, invalidate_stac_cache
+from shared.integrations.stac import (
+    BASE_MODELS_COLLECTION,
+    invalidate_stac_cache,
+    mirror_and_relink_assets,
+)
 from shared.integrations.zenml import for_user
 
 from .models import BaseModel
 
 logger = logging.getLogger(__name__)
+
+
+@task()
+def mirror_stac_assets_task(*, collection_id: str, item_id: str) -> None:
+    """Mirror a published item's downloadable assets into our bucket and repoint
+    their hrefs at the presign endpoint. Enqueued after every publish so public
+    STAC links stay downloadable without blocking the publish request."""
+    mirror_and_relink_assets(collection_id, item_id)
 
 
 @task()
@@ -36,6 +48,7 @@ def register_base_model(*, base_model_id: int, stac_item: dict) -> None:
         base_model.error = ""
         base_model.save(update_fields=["stac_item_id", "status", "error", "last_modified"])
         invalidate_stac_cache(BASE_MODELS_COLLECTION, base_model.name)
+        mirror_stac_assets_task.enqueue(collection_id=BASE_MODELS_COLLECTION, item_id=published_id)
     except Exception as exc:
         logger.exception("base model registration failed for %s", base_model_id)
         base_model.status = BaseModel.Status.FAILED

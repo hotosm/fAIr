@@ -1,5 +1,6 @@
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
+import pystac
 import pytest
 from rest_framework.test import APIClient
 
@@ -328,7 +329,8 @@ def test_pinned_models_expand_stac_inlines(admin: OsmUser) -> None:
         name="pinned-base", user=admin, stac_item_id="pb", is_pinned=True, visibility="public"
     )
     fake = {"id": "pb", "properties": {"fair:pinned": True}, "assets": {}}
-    with patch("modelregistry.views.bulk_get_cached_items", return_value={("base-models", "pb"): fake}):
+    bulk = {("base-models", "pb"): fake}
+    with patch("modelregistry.views.bulk_get_cached_items", return_value=bulk):
         resp = _client(admin).get("/api/v1/pinned-models/?expand=stac")
     assert resp.status_code == 200
     row = next(r for r in resp.data["results"] if r["name"] == "pinned-base")
@@ -383,3 +385,50 @@ def test_category_delete_blocked_when_in_use(admin: OsmUser) -> None:
 def test_category_delete_unused_ok(admin: OsmUser) -> None:
     resp = _client(admin).delete("/api/v1/categories/trees/")
     assert resp.status_code == 204
+
+
+def test_stac_asset_download_redirects_to_presigned(db, settings) -> None:
+    settings.S3_CLIENT = MagicMock()
+    settings.BUCKET_NAME = "fair-dev"
+    settings.S3_CLIENT.list_objects_v2.return_value = {
+        "Contents": [{"Key": "dev/downloads/base-models/dino/model/m.onnx"}]
+    }
+    with patch("shared.storage.presigned_get_url", return_value="https://fair-dev.s3/x?sig") as p:
+        resp = APIClient().get("/api/v1/stac-assets/base-models/dino/model/")
+    assert resp.status_code == 302
+    assert resp["Location"] == "https://fair-dev.s3/x?sig"
+    p.assert_called_once_with("dev/downloads/base-models/dino/model/m.onnx")
+
+
+def test_stac_asset_download_404_for_unknown_collection_or_asset(db) -> None:
+    assert APIClient().get("/api/v1/stac-assets/ghost/x/model/").status_code == 404
+    assert APIClient().get("/api/v1/stac-assets/base-models/x/readme/").status_code == 404
+
+
+def test_stac_asset_download_404_when_object_missing(db, settings) -> None:
+    settings.S3_CLIENT = MagicMock()
+    settings.S3_CLIENT.list_objects_v2.return_value = {}
+    assert APIClient().get("/api/v1/stac-assets/base-models/x/model/").status_code == 404
+
+
+def test_mirror_and_relink_rewrites_only_downloadable_assets(settings) -> None:
+    settings.API_BASE_URL = "https://dev.example/api/v1"
+    item = MagicMock()
+    item.assets = {
+        "model": pystac.Asset(href="http://minio:9000/zenml/base-models/x/model/m.onnx"),
+        "readme": pystac.Asset(href="https://github.com/readme"),
+    }
+    backend = MagicMock()
+    backend.get_item.return_value = item
+    with (
+        patch("shared.integrations.stac._backend", return_value=backend),
+        patch("shared.integrations.stac._stream_href_to_bucket") as mock_stream,
+        patch("shared.integrations.stac.invalidate_stac_cache"),
+    ):
+        from shared.integrations.stac import mirror_and_relink_assets
+
+        mirror_and_relink_assets("base-models", "x")
+    assert item.assets["model"].href == "https://dev.example/api/v1/stac-assets/base-models/x/model/"
+    assert item.assets["readme"].href == "https://github.com/readme"
+    mock_stream.assert_called_once()
+    backend.publish_item.assert_called_once()

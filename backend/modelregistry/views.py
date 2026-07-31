@@ -1,5 +1,7 @@
 import httpx
+from django.conf import settings
 from django.db.models import Count, Q
+from django.http import HttpResponseRedirect
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import (
@@ -10,7 +12,7 @@ from drf_spectacular.utils import (
 )
 from rest_framework import filters, mixins, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import NotFound, ValidationError
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -25,6 +27,8 @@ from accounts.permissions import (
 from shared.enums import Visibility
 from shared.integrations.stac import (
     BASE_MODELS_COLLECTION,
+    DATASETS_COLLECTION,
+    DOWNLOADABLE_STAC_ASSETS,
     FAIR_CATEGORY_PROPERTY,
     FAIR_PINNED_PROPERTY,
     FAIR_PREVIEW_LOCATION_PROPERTY,
@@ -419,6 +423,39 @@ class PinnedModelsView(APIView):
             for row in LocalModelSerializer(local, many=True, context=context).data
         ]
         return Response({"count": len(results), "results": results})
+
+
+class StacAssetDownloadView(APIView):
+    """Public 302 to a fresh presigned URL for a mirrored STAC asset. The object
+    stays private in the bucket; the STAC href stays stable and downloadable."""
+
+    authentication_classes: list = []
+    permission_classes = [AllowAny]
+
+    _COLLECTIONS = {BASE_MODELS_COLLECTION, LOCAL_MODELS_COLLECTION, DATASETS_COLLECTION}
+
+    @extend_schema(
+        description="Redirect to a presigned download for a model or dataset STAC asset.",
+        responses={302: None},
+    )
+    def get(self, request, collection: str, item_id: str, asset: str) -> HttpResponseRedirect:
+        from botocore.exceptions import ClientError
+
+        from shared.storage import StoragePaths, presigned_get_url
+
+        if collection not in self._COLLECTIONS or asset not in DOWNLOADABLE_STAC_ASSETS:
+            raise NotFound("Unknown STAC asset.")
+        prefix = StoragePaths.stac_download_prefix(collection, item_id, asset)
+        try:
+            listing = settings.S3_CLIENT.list_objects_v2(
+                Bucket=settings.BUCKET_NAME, Prefix=prefix, MaxKeys=1
+            )
+        except ClientError as exc:
+            raise NotFound("Asset not available.") from exc
+        contents = listing.get("Contents") or []
+        if not contents:
+            raise NotFound("Asset not available.")
+        return HttpResponseRedirect(presigned_get_url(contents[0]["Key"]))
 
 
 @extend_schema_view(

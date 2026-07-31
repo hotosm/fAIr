@@ -7,8 +7,10 @@ STAC API does not accept HTTP PATCH; ``set_item_property`` is the single-key
 convenience wrapper.
 """
 
+import tempfile
 from concurrent.futures import ThreadPoolExecutor
 
+import httpx
 import pystac
 from django.conf import settings
 from django.core.cache import cache
@@ -40,10 +42,16 @@ __all__ = [
     "list_base_models",
     "list_datasets",
     "list_local_models",
+    "mirror_and_relink_assets",
     "serialize_item",
     "set_item_properties",
     "set_item_property",
 ]
+
+# Assets whose bytes we mirror into our own bucket so the public STAC item can
+# link to a stable, presign-backed download instead of the internal store.
+DOWNLOADABLE_STAC_ASSETS = ("model", "checkpoint", "training-metrics", "download")
+_ASSET_MIRROR_TIMEOUT_S = 900
 
 FAIR_PINNED_PROPERTY = "fair:pinned"
 FAIR_SOURCE_IMAGERY_PROPERTY = "fair:source_imagery"
@@ -190,3 +198,45 @@ def set_item_properties(collection_id: str, item_id: str, properties: dict) -> d
     payload = serialize_item(published)
     cache.set(_cache_key(collection_id, item_id), payload, _CACHE_TTL_SECONDS)
     return payload
+
+
+def _stream_href_to_bucket(source_href: str, prefix: str) -> None:
+    # Copy the object at `source_href` (readable internal store URL) into our
+    # bucket under `prefix`, preserving its filename. Streams via a temp file so
+    # large weights never sit in memory.
+    filename = source_href.rsplit("/", 1)[-1].split("?", 1)[0] or "asset"
+    key = f"{prefix}{filename}"
+    with (
+        httpx.stream(
+            "GET", source_href, timeout=_ASSET_MIRROR_TIMEOUT_S, follow_redirects=True
+        ) as response,
+        tempfile.NamedTemporaryFile() as tmp,
+    ):
+        response.raise_for_status()
+        for chunk in response.iter_bytes(chunk_size=1 << 20):
+            tmp.write(chunk)
+        tmp.flush()
+        settings.S3_CLIENT.upload_file(tmp.name, settings.BUCKET_NAME, key)
+
+
+def mirror_and_relink_assets(collection_id: str, item_id: str) -> None:
+    """Mirror an item's downloadable assets into our bucket and repoint their
+    hrefs at the presign-redirect endpoint, so public STAC links stay
+    downloadable while the objects stay private. Idempotent."""
+    from shared.storage import StoragePaths
+
+    backend = _backend()
+    item = backend.get_item(collection_id, item_id)
+    base = settings.API_BASE_URL.rstrip("/")
+    changed = False
+    for name in DOWNLOADABLE_STAC_ASSETS:
+        asset = item.assets.get(name)
+        if asset is None or not asset.href or "/stac-assets/" in asset.href:
+            continue
+        prefix = StoragePaths.stac_download_prefix(collection_id, item_id, name)
+        _stream_href_to_bucket(asset.href, prefix)
+        asset.href = f"{base}/stac-assets/{collection_id}/{item_id}/{name}/"
+        changed = True
+    if changed:
+        backend.publish_item(collection_id, item)
+        invalidate_stac_cache(collection_id, item_id)
