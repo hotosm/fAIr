@@ -20,8 +20,8 @@ def _folder() -> str:
 class StoragePaths:
     # Source of truth for every S3 path the backend writes or reads. Every key is
     # rooted under `_folder()` so all environments share one bucket cleanly.
-    #   - `*_key()`  -> "{folder}{key}"               — for boto3 presigning.
-    #   - `*_uri()`  -> "s3://{bucket}/{folder}{key}" — for upath/fsspec writes.
+    # `*_key()` returns "{folder}{key}" (for boto3 presigning); `*_uri()` returns
+    # "s3://{bucket}/{folder}{key}" (for upath/fsspec writes).
 
     DATASETS_ROOT = "datasets"
     DATASETS_DOWNLOAD_SUBDIR = "download"

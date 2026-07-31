@@ -184,7 +184,7 @@ def get_active_local_model_item(model_name: str) -> pystac.Item | None:
 
 
 def set_item_property(collection_id: str, item_id: str, key: str, value: object) -> dict:
-    # JSON Merge Patch single-key write. Refreshes the cache to the new value.
+    # Single-key convenience wrapper over the read-modify-write below.
     return set_item_properties(collection_id, item_id, {key: value})
 
 

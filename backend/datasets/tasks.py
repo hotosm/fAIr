@@ -98,8 +98,8 @@ def _stamp_class_label(feat: dict[str, Any], label_classes: list[dict[str, Any]]
     """Stamp `properties.label = i+1` for the first matching label_classes entry.
 
     Returns the assigned class index (1-based; 0 reserved for background) or
-    ``None`` if no class matched (defensive — raw-data API only returns
-    matching features, so this should not fire in practice).
+    ``None`` if no class matched. The raw-data API only returns matching
+    features, so a no-match is not expected in practice.
     """
     tags = (feat.get("properties") or {}).get("tags") or {}
     for index, cls in enumerate(label_classes, start=1):

@@ -439,19 +439,14 @@ class StacAssetDownloadView(APIView):
         responses={302: None},
     )
     def get(self, request, collection: str, item_id: str, asset: str) -> HttpResponseRedirect:
-        from botocore.exceptions import ClientError
-
         from shared.storage import StoragePaths, presigned_get_url
 
         if collection not in self._COLLECTIONS or asset not in DOWNLOADABLE_STAC_ASSETS:
             raise NotFound("Unknown STAC asset.")
         prefix = StoragePaths.stac_download_prefix(collection, item_id, asset)
-        try:
-            listing = settings.S3_CLIENT.list_objects_v2(
-                Bucket=settings.BUCKET_NAME, Prefix=prefix, MaxKeys=1
-            )
-        except ClientError as exc:
-            raise NotFound("Asset not available.") from exc
+        listing = settings.S3_CLIENT.list_objects_v2(
+            Bucket=settings.BUCKET_NAME, Prefix=prefix, MaxKeys=1
+        )
         contents = listing.get("Contents") or []
         if not contents:
             raise NotFound("Asset not available.")
