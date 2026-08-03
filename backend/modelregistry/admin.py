@@ -32,6 +32,9 @@ class LocalModelAdmin(admin.ModelAdmin):
     list_per_page = 50
     autocomplete_fields = ["user", "base_model"]
 
+    def has_add_permission(self, request) -> bool:
+        return False
+
     @admin.display(boolean=True, description="Promoted")
     def is_promoted(self, obj) -> bool:
         return bool(obj.stac_item_id)
@@ -43,11 +46,14 @@ class BaseModelAdmin(admin.ModelAdmin):
     list_editable = ["category", "status", "visibility", "is_pinned"]
     list_filter = ["status", "category", "visibility", "is_pinned", "created_at"]
     search_fields = ["name", "user__username"]
-    readonly_fields = ["created_at", "last_modified"]
+    readonly_fields = ["stac_item_id", "error", "created_at", "last_modified"]
     date_hierarchy = "created_at"
     list_per_page = 50
     autocomplete_fields = ["user"]
     actions = ["register_in_stac"]
+
+    def has_add_permission(self, request) -> bool:
+        return False
 
     @admin.action(description="Re-register selected from STAC")
     def register_in_stac(self, request, queryset) -> None:
