@@ -16,3 +16,4 @@ export const TreesIcon: React.FC<IconProps> = (props) => (
     ></path>
   </svg>
 );
+

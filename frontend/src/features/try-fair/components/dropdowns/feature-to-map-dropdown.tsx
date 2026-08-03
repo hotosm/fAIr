@@ -2,7 +2,9 @@ import { DropDown } from "@/components/ui/dropdown";
 import { ChevronDownIcon } from "@/components/ui/icons";
 import { BuildingIcon } from "@/components/ui/icons/buildings-icon";
 import { FeatureCheckIcon } from "@/components/ui/icons/feature-check-icon";
+import { RoadsIcon } from "@/components/ui/icons/roads-icon";
 import { SolarPanelIcon } from "@/components/ui/icons/solar-panel-icon";
+import { SwimmingPoolIcon } from "@/components/ui/icons/swimming-pool-icon";
 import { TreesIcon } from "@/components/ui/icons/trees-icon";
 import {
   FeatureToMapItem,
@@ -24,8 +26,9 @@ type FeatureToMapDropdownProps = {
 const FEATURE_ICONS: Record<string, React.FC<IconProps>> = {
   buildings: BuildingIcon,
   "solar-panels": SolarPanelIcon,
-  "solar-panel": SolarPanelIcon,
+  "swimming-pool": SwimmingPoolIcon,
   trees: TreesIcon,
+  roads: RoadsIcon
 };
 
 const getFeatureIcon = (value: string): React.FC<IconProps> => {
@@ -107,9 +110,8 @@ const FeatureToMapDropdown = ({
         <p className="text-xs text-dark">{selectedFeature.label}</p>
       </div>
       <ChevronDownIcon
-        className={`w-4 h-4 shrink-0 text-grey transition-transform ${
-          isOpen ? "rotate-180" : ""
-        }`}
+        className={`w-4 h-4 shrink-0 text-grey transition-transform ${isOpen ? "rotate-180" : ""
+          }`}
       />
     </div>
   );
