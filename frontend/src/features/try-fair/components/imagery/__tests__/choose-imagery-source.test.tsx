@@ -15,7 +15,9 @@ describe("ImagerySourceToggle", () => {
       />,
     );
 
-    const radiogroup = screen.getByRole("radiogroup", { name: /imagery source/i });
+    const radiogroup = screen.getByRole("radiogroup", {
+      name: /imagery source/i,
+    });
     expect(radiogroup).toBeInTheDocument();
 
     const radios = screen.getAllByRole("radio");

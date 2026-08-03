@@ -3,9 +3,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useImageryModalMap } from "@/features/try-fair/hooks/use-imagery-modal-map";
 import { createImageryMap } from "@/features/try-fair/components/imagery/imagery-modal-map.layers";
 
-vi.mock("@/features/try-fair/components/imagery/imagery-modal-map.layers", () => ({
-  createImageryMap: vi.fn(),
-}));
+vi.mock(
+  "@/features/try-fair/components/imagery/imagery-modal-map.layers",
+  () => ({
+    createImageryMap: vi.fn(),
+  }),
+);
 
 describe("useImageryModalMap", () => {
   let mockMapInstance: any;
@@ -43,8 +46,14 @@ describe("useImageryModalMap", () => {
 
   it("should create map once container has non-zero width and height", () => {
     const container = document.createElement("div");
-    Object.defineProperty(container, "clientWidth", { value: 500, configurable: true });
-    Object.defineProperty(container, "clientHeight", { value: 400, configurable: true });
+    Object.defineProperty(container, "clientWidth", {
+      value: 500,
+      configurable: true,
+    });
+    Object.defineProperty(container, "clientHeight", {
+      value: 400,
+      configurable: true,
+    });
 
     const { result, unmount } = renderHook(() => {
       const hook = useImageryModalMap();

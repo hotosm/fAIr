@@ -1,4 +1,10 @@
-import { render, screen, fireEvent, cleanup, act } from "@testing-library/react";
+import {
+  render,
+  screen,
+  fireEvent,
+  cleanup,
+  act,
+} from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { LocationSearch } from "@/features/try-fair/components/imagery/location-search";
 import { geocodeSuggestions } from "@/features/try-fair/api/hot-imagery";
@@ -63,7 +69,11 @@ describe("LocationSearch", () => {
       vi.advanceTimersByTime(400);
     });
 
-    expect(geocodeSuggestions).toHaveBeenCalledWith("Nairobi", 5, expect.any(AbortSignal));
+    expect(geocodeSuggestions).toHaveBeenCalledWith(
+      "Nairobi",
+      5,
+      expect.any(AbortSignal),
+    );
     expect(screen.getByText("Nairobi, Kenya")).toBeInTheDocument();
   });
 

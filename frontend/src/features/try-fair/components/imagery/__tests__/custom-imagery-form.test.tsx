@@ -28,7 +28,12 @@ vi.mock("@/hooks/use-map-instance", () => ({
 }));
 
 vi.mock("@/components/shared/form/xyz-tile-server-input", () => ({
-  XYZTileServerInput: ({ tileServerURL, setTileServerURL, buttonOnclick, isValid }: any) => (
+  XYZTileServerInput: ({
+    tileServerURL,
+    setTileServerURL,
+    buttonOnclick,
+    isValid,
+  }: any) => (
     <div data-testid="xyz-input">
       <input
         type="text"

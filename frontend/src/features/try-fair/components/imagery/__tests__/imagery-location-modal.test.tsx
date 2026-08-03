@@ -1,11 +1,19 @@
-import { render, screen, fireEvent, waitFor, cleanup } from "@testing-library/react";
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  cleanup,
+} from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ImageryLocationDialog } from "@/features/try-fair/components/imagery/imagery-location-modal";
 import { searchImagery } from "@/features/try-fair/api/hot-imagery";
 
 vi.mock("@/features/try-fair/api/hot-imagery", () => ({
   searchImagery: vi.fn(),
-  getImageryTileUrl: vi.fn(() => "https://oam.example.com/tiles/{z}/{x}/{y}.png"),
+  getImageryTileUrl: vi.fn(
+    () => "https://oam.example.com/tiles/{z}/{x}/{y}.png",
+  ),
 }));
 
 vi.mock("@/components/map", () => ({
@@ -63,7 +71,9 @@ describe("ImageryLocationDialog", () => {
       />,
     );
 
-    expect(screen.getByRole("radiogroup", { name: /imagery source/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("radiogroup", { name: /imagery source/i }),
+    ).toBeInTheDocument();
     expect(screen.getByTestId("mock-oam-imagery-map")).toBeInTheDocument();
   });
 

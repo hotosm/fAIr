@@ -69,7 +69,10 @@ describe("OamImageryMap", () => {
 
     expect(addImageryLayers).toHaveBeenCalledWith(mockMapInstance);
     expect(mockOnMapReady).toHaveBeenCalledWith(mockMapInstance);
-    expect(mockMapInstance.on).toHaveBeenCalledWith("click", expect.any(Function));
+    expect(mockMapInstance.on).toHaveBeenCalledWith(
+      "click",
+      expect.any(Function),
+    );
 
     // Simulate clicking map point
     mockClickCallback({ point: { x: 100, y: 200 } });
@@ -108,7 +111,10 @@ describe("OamImageryMap", () => {
       />,
     );
 
-    expect(showImageryPreview).toHaveBeenCalledWith(mockMapInstance, mockSelectedItem);
+    expect(showImageryPreview).toHaveBeenCalledWith(
+      mockMapInstance,
+      mockSelectedItem,
+    );
   });
 
   it("should call clearImageryPreview when selectedItem is null", () => {
@@ -137,7 +143,9 @@ describe("OamImageryMap", () => {
       />,
     );
 
-    const button = screen.getAllByRole("button", { name: /toggle location search/i })[0];
+    const button = screen.getAllByRole("button", {
+      name: /toggle location search/i,
+    })[0];
     fireEvent.click(button);
 
     expect(handleToggleSearch).toHaveBeenCalled();

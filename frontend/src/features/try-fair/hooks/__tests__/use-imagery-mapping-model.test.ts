@@ -3,7 +3,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useImageryMappingModel } from "@/features/try-fair/hooks/use-imagery-mapping-model";
 import { ModelType } from "@/enums";
 import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
-import { useGetAPIBaseModels, useGetAPILocalModels } from "@/features/try-fair/api/features-to-map";
+import {
+  useGetAPIBaseModels,
+  useGetAPILocalModels,
+} from "@/features/try-fair/api/features-to-map";
 
 vi.mock("@/features/try-fair/api/features-to-map", () => ({
   useGetAPIBaseModels: vi.fn(),
