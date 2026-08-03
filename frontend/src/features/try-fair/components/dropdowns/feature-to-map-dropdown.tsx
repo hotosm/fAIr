@@ -28,7 +28,7 @@ const FEATURE_ICONS: Record<string, React.FC<IconProps>> = {
   "solar-panels": SolarPanelIcon,
   "swimming-pool": SwimmingPoolIcon,
   trees: TreesIcon,
-  roads: RoadsIcon
+  roads: RoadsIcon,
 };
 
 const getFeatureIcon = (value: string): React.FC<IconProps> => {
@@ -110,8 +110,9 @@ const FeatureToMapDropdown = ({
         <p className="text-xs text-dark">{selectedFeature.label}</p>
       </div>
       <ChevronDownIcon
-        className={`w-4 h-4 shrink-0 text-grey transition-transform ${isOpen ? "rotate-180" : ""
-          }`}
+        className={`w-4 h-4 shrink-0 text-grey transition-transform ${
+          isOpen ? "rotate-180" : ""
+        }`}
       />
     </div>
   );
