@@ -296,7 +296,7 @@ export const TryFairPage = () => {
       },
       {
         onError: (error) => {
-           showErrorToast(error ?? 'An Error Occured.');
+          showErrorToast(error ?? "An Error Occured.");
           lastPredictedInputsRef.current = null;
         },
       },
