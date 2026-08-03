@@ -97,3 +97,8 @@ export enum NotificationType {
   PREDICTION = "Prediction",
   TRAINING = "Training",
 }
+
+export enum ImagerySource {
+  OPEN_AERIAL_MAP = "openAerialMap",
+  CUSTOM = "custom",
+}

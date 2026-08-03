@@ -1,4 +1,4 @@
-import { TryFairMapOutputType, TryFairResolution } from "@/enums/try-fair";
+import { ModelType, TryFairMapOutputType, TryFairResolution } from "@/enums";
 import { ModelPicker } from "./model-picker-modal";
 import { TRY_FAIR_PAGE_CONTENT } from "@/constants/ui-contents/try-fair-contents";
 import { APP_TOUR_IDS } from "@/constants/site-tour";
@@ -8,7 +8,9 @@ import { ParametersIcon } from "@/components/ui/icons/parameters-icon";
 import { SnowflakeIcon } from "@/components/ui/icons/snow-flake-icon";
 import { GridIcon } from "@/components/ui/icons/grid-icon";
 import { FlameIcon } from "@/components/ui/icons/flame-icon";
+
 import {
+  getAccuracyLabel,
   getModelOutputType,
   OUTPUT_TYPES,
   RESOLUTIONS,
@@ -19,6 +21,10 @@ import {
 } from "@/features/try-fair/api/stac";
 import { cn } from "@/utils";
 import useScreenSize from "@/hooks/use-screen-size";
+import { RefreshIcon } from "@/components/ui/icons";
+import { ToolTip } from "@/components/ui/tooltip";
+import FeatureToMapDropdown from "@/features/try-fair/components/dropdowns/feature-to-map-dropdown";
+import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
 
 type TryFairSidebarProps = {
   selectedModel: BaseModelStacItem | null;
@@ -32,9 +38,13 @@ type TryFairSidebarProps = {
   inferenceParams: InferenceParam[];
   paramValues: Record<string, number | string | boolean>;
   onParamChange: (key: string, value: number | string | boolean) => void;
+  onResetParameters: () => void;
+  isParametersDefault: boolean;
   onMap: () => void;
   isPredicting: boolean;
   isMapButtonDisabled: boolean;
+  feature: string;
+  onFeatureChange: (feature: string) => void;
   className?: string;
   openMobileModelPickerDialog?: () => void;
 };
@@ -51,17 +61,30 @@ export const TryFairSidebar = ({
   inferenceParams,
   paramValues,
   onParamChange,
+  onResetParameters,
+  isParametersDefault,
   onMap,
   isPredicting,
   isMapButtonDisabled,
+  feature,
+  onFeatureChange,
   className,
   openMobileModelPickerDialog,
 }: TryFairSidebarProps) => {
   const { isSmallViewport } = useScreenSize();
-
+  const currentModelType = useStartMappingStore(
+    (state) => state.currentModelType,
+  );
   const supportsPolygon = selectedModel
     ? getModelOutputType(selectedModel) === TryFairMapOutputType.POLYGON
     : true;
+  const confidenceParam = inferenceParams.find(
+    (param) => param.key === "confidence_threshold",
+  );
+  const confidenceValue =
+    paramValues.confidence_threshold ?? confidenceParam?.spec.default ?? 0.7;
+  const confidenceMin = confidenceParam?.spec.min ?? 0;
+  const confidenceMax = confidenceParam?.spec.max ?? 1;
 
   return (
     <div
@@ -112,6 +135,14 @@ export const TryFairSidebar = ({
         </div>
       </div>
 
+      {currentModelType !== ModelType.DEMO && (
+        <FeatureToMapDropdown
+          disabled={isPredicting}
+          value={feature}
+          onChange={onFeatureChange}
+        />
+      )}
+
       <div className="">
         <p className="text-dark text-xs mb-2">
           {TRY_FAIR_PAGE_CONTENT.sidebar.mapOutput.label}
@@ -149,11 +180,28 @@ export const TryFairSidebar = ({
         className="p-3 border bg-[#FAFAFA] rounded-lg border-gray-border space-y-4 flex flex-col"
       >
         {/* Section header */}
-        <div className="flex items-center gap-2">
-          <ParametersIcon />
-          <p className="text-dark font-bold uppercase text-xs">
-            {TRY_FAIR_PAGE_CONTENT.sidebar.parameters.label}
-          </p>
+        <div className="flex w-full justify-between items-center">
+          <div className="flex items-center gap-2">
+            <ParametersIcon />
+            <p className="text-dark font-bold uppercase text-xs">
+              {TRY_FAIR_PAGE_CONTENT.sidebar.parameters.label}
+            </p>
+          </div>
+
+          <ToolTip content={"Reset Parameters"}>
+            <button
+              type="button"
+              className={`border p-2 rounded-md transition-opacity ${
+                isParametersDefault || isPredicting
+                  ? "bg-[#F0EFEF] opacity-40 cursor-not-allowed"
+                  : "bg-[#F0EFEF] hover:bg-[#E5E4E4]"
+              }`}
+              disabled={isParametersDefault || isPredicting}
+              onClick={onResetParameters}
+            >
+              <RefreshIcon />
+            </button>
+          </ToolTip>
         </div>
 
         {/* Description */}
@@ -191,45 +239,46 @@ export const TryFairSidebar = ({
           </div>
         </div>
 
-        {inferenceParams
-          .filter((p) => p.key === "confidence_threshold")
-          .map(({ key, spec }) => {
-            const value = paramValues[key] ?? spec.default;
-            const min = spec.min ?? 0;
-            const max = spec.max ?? 1;
+        <div>
+          <div className="flex items-center gap-2 mb-1.5">
+            <p className="text-dark text-xs font-medium">Accuracy</p>
+            <span className="text-[#404446] bg-off-white p-1 rounded-md text-xs ">
+              {getAccuracyLabel(confidenceValue)}
+            </span>
+          </div>
 
-            return (
-              <div key={key}>
-                <div className="flex items-center justify-between mb-1.5">
-                  <p className="text-dark text-xs font-medium">Confidence</p>
-                  <span className="text-dark text-xs font-semibold">
-                    {Math.round(Number(value) * 100)}%
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <SnowflakeIcon />
-                  <input
-                    type="range"
-                    min={min}
-                    max={max}
-                    step={0.01}
-                    disabled={isPredicting}
-                    value={Number(value)}
-                    onChange={(e) =>
-                      onParamChange(key, parseFloat(e.target.value))
-                    }
-                    className="try-fair-confidence-slider disabled:cursor-wait flex-1 appearance-none cursor-pointer outline-none"
-                  />
-                  <FlameIcon />
-                </div>
-                <div className="flex text-dark text-xs items-center justify-between">
-                  <small>Low</small>
-                  <small>High</small>
-                </div>
-              </div>
-            );
-          })}
+          <div className="flex items-center gap-2">
+            <SnowflakeIcon />
+            <div className="relative flex-1">
+              {[25, 50, 75].map((pct) => (
+                <div
+                  key={pct}
+                  className="absolute top-1/2 -translate-y-1/2 w-0.5 h-3 bg-white/80 pointer-events-none z-10"
+                  style={{ left: `${pct}%` }}
+                />
+              ))}
+              <input
+                type="range"
+                min={confidenceMin}
+                max={confidenceMax}
+                step={0.25}
+                disabled={isPredicting}
+                value={Number(confidenceValue)}
+                onChange={(e) =>
+                  onParamChange(
+                    "confidence_threshold",
+                    parseFloat(e.target.value),
+                  )
+                }
+                className="try-fair-confidence-slider disabled:cursor-wait w-full h-1.5 rounded-full appearance-none cursor-pointer outline-none"
+                style={{
+                  background: `linear-gradient(90deg, #0088FF 0%, #FF383C 100%)`,
+                }}
+              />
+            </div>
+            <FlameIcon />
+          </div>
+        </div>
       </div>
     </div>
   );

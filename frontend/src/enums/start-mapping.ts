@@ -1,5 +1,10 @@
 import { BASE_MODELS } from "./common";
 
+export enum ModelType {
+  DEMO = "demo",
+  IMAGERY = "imagery",
+}
+
 export enum PredictionImagerySource {
   ModelDefault = "Model's Default",
   CustomImagery = "Custom Imagery",
