@@ -36,10 +36,10 @@ const Dialog: React.FC<DialogProps> = ({
 
   const { isLaptop, isSmallViewport } = useScreenSize();
 
-  const size_ = size
-    ? size
-    : isSmallViewport
-      ? SHOELACE_SIZES.EXTRA_LARGE
+  const size_ = isSmallViewport
+    ? SHOELACE_SIZES.EXTRA_LARGE
+    : size
+      ? size
       : isLaptop
         ? SHOELACE_SIZES.LARGE
         : SHOELACE_SIZES.MEDIUM;

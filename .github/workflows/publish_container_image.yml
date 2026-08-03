@@ -1,0 +1,32 @@
+name: Build and Publish Docker Images
+
+on:
+  push:
+    branches:
+      - master
+      - stage
+      - develop
+    paths-ignore:
+      - ".github/workflows/backend_build.yml"
+      - ".github/workflows/frontend_build.yml"
+      - ".github/workflows/frontend_build_push.yml"
+  release:
+    types: [released]
+  workflow_dispatch:
+
+jobs:
+  # Backend API image. amd64-only (GDAL + source-built tippecanoe make arm64
+  # emulation slow)
+  backend-build:
+    uses: hotosm/gh-workflows/.github/workflows/image_build.yml@4.0.3
+    with:
+      context: backend/
+      dockerfile: Dockerfile
+      image_name: ghcr.io/${{ github.repository_owner }}/fair/api
+
+  frontend-build:
+    uses: hotosm/gh-workflows/.github/workflows/image_build.yml@4.0.3
+    with:
+      context: frontend/
+      dockerfile: Dockerfile.prod
+      image_name: ghcr.io/${{ github.repository_owner }}/fair/frontend

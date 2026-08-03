@@ -10,6 +10,7 @@ import {
 
 const SOURCE_ID = "try-fair-predictions";
 const FILL_LAYER = "try-fair-predictions-fill";
+const CASING_LAYER = "try-fair-predictions-casing";
 const OUTLINE_LAYER = "try-fair-predictions-outline";
 const CIRCLE_LAYER = "try-fair-predictions-circle";
 const CLUSTER_LAYER = "try-fair-predictions-cluster";
@@ -20,6 +21,7 @@ const POINT_SOURCE_ID = `${SOURCE_ID}-points`;
 
 const ALL_LAYER_IDS = [
   FILL_LAYER,
+  CASING_LAYER,
   OUTLINE_LAYER,
   CIRCLE_LAYER,
   CLUSTER_LAYER,
@@ -99,7 +101,17 @@ export const TryFairPredictionsLayer = ({
         id: FILL_LAYER,
         type: "fill",
         source: SOURCE_ID,
-        paint: { "fill-color": "#A243DC", "fill-opacity": 0.5 },
+        paint: { "fill-color": "#A243DC", "fill-opacity": 0.3 },
+      });
+      map.addLayer({
+        id: CASING_LAYER,
+        type: "line",
+        source: SOURCE_ID,
+        paint: {
+          "line-color": "#ffffff",
+          "line-width": 3,
+          "line-opacity": 0.9,
+        },
       });
       map.addLayer({
         id: OUTLINE_LAYER,
@@ -122,10 +134,20 @@ export const TryFairPredictionsLayer = ({
         paint: { "fill-color": "#E5CEF2", "fill-opacity": 0.4 },
       });
       map.addLayer({
+        id: CASING_LAYER,
+        type: "line",
+        source: SOURCE_ID,
+        paint: {
+          "line-color": "#ffffff",
+          "line-width": 3,
+          "line-opacity": 0.9,
+        },
+      });
+      map.addLayer({
         id: OUTLINE_LAYER,
         type: "line",
         source: SOURCE_ID,
-        paint: { "line-color": "#A243DC", "line-width": 1.3 },
+        paint: { "line-color": "#A243DC", "line-width": 1.5 },
       });
 
       // Add a second source for the point centroids
@@ -142,8 +164,8 @@ export const TryFairPredictionsLayer = ({
         paint: {
           "circle-radius": 4,
           "circle-color": "#A147D8",
-          "circle-stroke-color": "#A147D8",
-          "circle-stroke-width": 1,
+          "circle-stroke-color": "#ffffff",
+          "circle-stroke-width": 1.5,
         },
       });
 
@@ -239,7 +261,7 @@ export const TryFairPredictionsLayer = ({
       <div className="relative" style={{ transform: "translate(12px, -50%)" }}>
         <div className="bg-white/95 backdrop-blur-sm border border-gray-border rounded-lg shadow-lg px-3 py-2 flex flex-col items-start gap-0.5 min-w-[120px]">
           <p className="text-[10px] font-medium text-grey uppercase tracking-wide leading-none">
-            Buildings detected
+            objects detected
           </p>
           <p className="text-base font-bold text-purple-700 leading-tight">
             {tooltip.count.toLocaleString()}

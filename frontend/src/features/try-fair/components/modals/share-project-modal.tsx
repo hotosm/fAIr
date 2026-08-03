@@ -1,24 +1,10 @@
-import { useForm, Controller } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 import Dialog from "@/components/ui/dialog/dialog";
 import { Button } from "@/components/ui/button";
-import { CopyButton } from "@/components/ui/copy-button";
-import { Input, Switch } from "@/components/ui/form";
-import { CloseIcon, LinkIcon } from "@/components/ui/icons";
+import { CloseIcon, InfoIcon, LinkIcon } from "@/components/ui/icons";
 import { SHOELACE_SIZES } from "@/enums";
 import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
-import { showSuccessToast } from "@/utils";
-
-const shareProjectSchema = z.object({
-  email: z
-    .string()
-    .min(1, "Email is required")
-    .email("Please enter a valid email address"),
-  includeMapOutcome: z.boolean(),
-});
-
-type ShareProjectFormValues = z.infer<typeof shareProjectSchema>;
+import useCopyToClipboard from "@/hooks/use-clipboard";
+import { CheckIcon } from "@/components/ui/icons";
 
 interface ShareProjectModalProps {
   isOpened?: boolean;
@@ -35,32 +21,16 @@ export const ShareProjectModal: React.FC<ShareProjectModalProps> = ({
   );
 
   const isOpened = externalIsOpened ?? storeIsOpened;
+  const { copyToClipboard, isCopied } = useCopyToClipboard();
 
-  const {
-    handleSubmit,
-    control,
-    reset,
-    formState: { errors },
-  } = useForm<ShareProjectFormValues>({
-    resolver: zodResolver(shareProjectSchema),
-    defaultValues: {
-      email: "",
-      includeMapOutcome: true,
-    },
-  });
+  const currentUrl = typeof window !== "undefined" ? window.location.href : "";
 
   const handleClose = () => {
-    reset();
     if (externalCloseDialog) {
       externalCloseDialog();
     } else {
       storeSetIsOpened(false);
     }
-  };
-
-  const onSubmit = (data: ShareProjectFormValues) => {
-    showSuccessToast(`Invitation sent to ${data.email}`);
-    reset({ email: "", includeMapOutcome: data.includeMapOutcome });
   };
 
   return (
@@ -71,10 +41,13 @@ export const ShareProjectModal: React.FC<ShareProjectModalProps> = ({
       borderRadius="rounded"
       size={SHOELACE_SIZES.SMALL}
     >
-      <div className="flex flex-col p-1 sm:p-2">
+      <div className="flex flex-col p-1 sm:p-2 gap-5">
         {/* Header */}
         <div className="flex items-center justify-between pb-3 border-b border-gray-border">
-          <h3 className="text-sm font-medium text-dark">Share project</h3>
+          <div className="flex items-center gap-2">
+            <LinkIcon className="size-4 text-dark" />
+            <h3 className="text-sm font-semibold text-dark">Share session</h3>
+          </div>
           <button
             type="button"
             onClick={handleClose}
@@ -85,75 +58,44 @@ export const ShareProjectModal: React.FC<ShareProjectModalProps> = ({
           </button>
         </div>
 
-        {/* Form Body */}
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col gap-4 pt-4"
+        {/* URL preview pill */}
+        <div className="flex items-center gap-2 bg-[#F5F5F5] border border-gray-border rounded-lg px-3 py-2.5 min-w-0">
+          <LinkIcon className="size-3.5 text-grey shrink-0" />
+          <span className="text-xs text-grey truncate flex-1 font-mono select-all">
+            {currentUrl}
+          </span>
+        </div>
+
+        {/* Copy button */}
+        <Button
+          type="button"
+          size="medium"
+          rounded
+          className="w-full flex items-center justify-center gap-2"
+          fontSize="13px"
+          onClick={() => copyToClipboard(currentUrl)}
         >
-          {/* Email input + Invite button */}
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-3">
-              <Controller
-                name="email"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    value={field.value}
-                    handleInput={(e) => field.onChange(e.target.value)}
-                    placeholder="Email"
-                    className="flex-1"
-                    showBorder
-                    isValid={errors.email ? false : undefined}
-                  />
-                )}
-              />
-              <Button type="submit" rounded className="!w-fit min-w-[80px]">
-                Invite
-              </Button>
-            </div>
-            {errors.email && (
-              <span className="text-xs text-red-500 font-medium px-1">
-                {errors.email.message}
-              </span>
-            )}
-          </div>
+          {isCopied ? (
+            <>
+              <CheckIcon className="size-4" />
+              Link copied!
+            </>
+          ) : (
+            <>
+              <LinkIcon className="size-4" />
+              Copy link
+            </>
+          )}
+        </Button>
 
-          {/* Toggle row */}
-          <div className="flex items-center justify-between py-2 border-b border-gray-border">
-            <div className="flex flex-col pr-4">
-              <span className="text-sm font-medium text-dark">
-                Include map outcome (Predictions)
-              </span>
-              <span className="text-xs text-grey mt-0.5">
-                Allow user to access the mapping result
-              </span>
-            </div>
-
-            <Controller
-              name="includeMapOutcome"
-              control={control}
-              render={({ field }) => (
-                <Switch
-                  checked={field.value}
-                  handleSwitchChange={(e: any) =>
-                    field.onChange(e.target.checked)
-                  }
-                />
-              )}
-            />
-          </div>
-
-          {/* Bottom Copy Link */}
-          <div className="pt-2 flex justify-end">
-            <CopyButton
-              text={typeof window !== "undefined" ? window.location.href : ""}
-              label="Copy Link"
-              size="small"
-              icon={LinkIcon}
-              iconClassName="size-4"
-            />
-          </div>
-        </form>
+        {/* Info note */}
+        <div className="flex items-start gap-2 text-grey">
+          <InfoIcon className="size-3.5 shrink-0 mt-0.5" />
+          <p className="text-xs leading-relaxed">
+            Anyone with this link can open the same session — model, imagery,
+            resolution and parameters will all be restored.
+          </p>
+        </div>
       </div>
     </Dialog>
   );

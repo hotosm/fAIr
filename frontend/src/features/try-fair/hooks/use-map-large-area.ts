@@ -1,18 +1,28 @@
+import { MAX_TRAINING_AREA_SIZE, MIN_TRAINING_AREA_SIZE } from "@/config";
 import { DrawingModes } from "@/enums";
 import { useMapInstance } from "@/hooks/use-map-instance";
 import { BBOX, Feature } from "@/types";
 import {
   featureIsWithinBounds,
+  formatAreaInAppropriateUnit,
   getGeoJSONFeatureBounds,
   showErrorToast,
   showSuccessToast,
   showWarningToast,
   uuid4,
+  validateGeoJSONArea,
 } from "@/utils";
 import { GeoJSONStoreFeatures } from "terra-draw";
 import { FeatureCollection, Polygon } from "geojson";
 import { GeoJSONSource } from "maplibre-gl";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
+import {
+  MapLargeAreaRequest,
+  useSubmitMapLargeArea,
+} from "@/features/try-fair/api/map-large-area";
+import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
+import { TRY_FAIR_RESOLUTION_ZOOM } from "@/features/try-fair/utils/common";
 
 export type AOITab = "whole" | "draw" | "upload";
 
@@ -40,7 +50,7 @@ const createFeatureFromBounds = (bounds: BBOX): Feature => {
 
 interface UseMapLargeAreaOptions {
   imageryBounds?: BBOX | null;
-  onSubmit: (aoi: Feature) => void;
+  onSubmit: () => void;
   closeDialog: () => void;
 }
 
@@ -49,8 +59,21 @@ export const useMapLargeArea = ({
   onSubmit,
   closeDialog,
 }: UseMapLargeAreaOptions) => {
+  const { selectedImagery } = useStartMappingStore();
+  const activeImageryBounds = imageryBounds ?? selectedImagery?.bounds ?? null;
   const { mapContainerRef, map, drawingMode, setDrawingMode, terraDraw } =
-    useMapInstance(undefined, undefined, "red");
+    useMapInstance(
+      undefined,
+      undefined,
+      "red",
+      activeImageryBounds ?? undefined,
+    );
+
+  const { mutate: submitMapLargeArea, isPending: isSubmittingMapLargeArea } =
+    useSubmitMapLargeArea();
+
+  const { modelId, selectedModel, inferenceParams, resolution, confidence } =
+    useTryFairParams();
   const [activeTab, setActiveTab] = useState<AOITab>("draw");
   const [selectedAOI, setSelectedAOI] = useState<Feature | null>(null);
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
@@ -66,17 +89,22 @@ export const useMapLargeArea = ({
 
   // Resize map & fit bounds initially
   useEffect(() => {
-    if (!map || !imageryBounds) return;
+    if (!map || !activeImageryBounds) return;
     map.resize();
     map.fitBounds(
-      [imageryBounds[0], imageryBounds[1], imageryBounds[2], imageryBounds[3]],
+      [
+        activeImageryBounds[0],
+        activeImageryBounds[1],
+        activeImageryBounds[2],
+        activeImageryBounds[3],
+      ],
       {
         padding: 40,
         maxZoom: 18,
         essential: true,
       },
     );
-  }, [map, imageryBounds]);
+  }, [map, activeImageryBounds]);
 
   // Render selected AOI directly on MapLibre style layer for guaranteed visual rendering
   useEffect(() => {
@@ -141,30 +169,37 @@ export const useMapLargeArea = ({
     }
   }, [map, selectedAOI]);
 
+  const clearTerraDraw = useCallback(() => {
+    if (terraDraw) {
+      try {
+        const snapshot = terraDraw.getSnapshot();
+        if (snapshot && snapshot.length > 0) {
+          const ids = snapshot
+            .map((f) => f.id)
+            .filter((id): id is string | number => id !== undefined);
+          if (ids.length > 0) {
+            terraDraw.removeFeatures(ids);
+          }
+        }
+        terraDraw.clear();
+      } catch (err) {
+        console.error("Failed to clear TerraDraw:", err);
+      }
+    }
+  }, [terraDraw]);
+
   // Handle Tab Switch
   const handleTabChange = useCallback(
     (tab: AOITab) => {
       setActiveTab(tab);
+      setSelectedAOI(null);
+      setUploadedFileName(null);
+      setDrawingMode(DrawingModes.STATIC);
+      clearTerraDraw();
 
       if (tab === "whole") {
-        setDrawingMode(DrawingModes.STATIC);
-        setUploadedFileName(null);
-        if (terraDraw) {
-          try {
-            const snapshot = terraDraw.getSnapshot();
-            if (snapshot && snapshot.length > 0) {
-              const ids = snapshot
-                .map((f) => f.id)
-                .filter((id): id is string | number => id !== undefined);
-              if (ids.length > 0) terraDraw.removeFeatures(ids);
-            }
-            terraDraw.clear();
-          } catch {
-            // ignore
-          }
-        }
-        if (imageryBounds && imageryBounds.length === 4) {
-          const wholeFeature = createFeatureFromBounds(imageryBounds);
+        if (activeImageryBounds && activeImageryBounds.length === 4) {
+          const wholeFeature = createFeatureFromBounds(activeImageryBounds);
           if (terraDraw) {
             terraDraw.addFeatures([wholeFeature] as GeoJSONStoreFeatures[]);
           }
@@ -172,10 +207,10 @@ export const useMapLargeArea = ({
           if (map) {
             map.fitBounds(
               [
-                imageryBounds[0],
-                imageryBounds[1],
-                imageryBounds[2],
-                imageryBounds[3],
+                activeImageryBounds[0],
+                activeImageryBounds[1],
+                activeImageryBounds[2],
+                activeImageryBounds[3],
               ],
               {
                 padding: 40,
@@ -184,18 +219,17 @@ export const useMapLargeArea = ({
               },
             );
           }
-        } else {
-          showWarningToast("Imagery bounds are not available.");
         }
       } else if (tab === "draw") {
-        setDrawingMode(DrawingModes.POLYGON);
-        setUploadedFileName(null);
+        setTimeout(() => {
+          clearTerraDraw();
+          setDrawingMode(DrawingModes.POLYGON);
+        }, 50);
       } else if (tab === "upload") {
-        setDrawingMode(DrawingModes.STATIC);
         triggerFileSelect();
       }
     },
-    [imageryBounds, map, setDrawingMode, terraDraw],
+    [activeImageryBounds, clearTerraDraw, map, setDrawingMode, terraDraw],
   );
 
   // Set default mode on initial mount if tab is draw
@@ -205,6 +239,18 @@ export const useMapLargeArea = ({
     }
   }, [activeTab, setDrawingMode]);
 
+  // TileJSON bounds can arrive after the user selects the whole-imagery tab.
+  // Create the AOI once those bounds become available.
+  useEffect(() => {
+    if (activeTab !== "whole" || !activeImageryBounds || selectedAOI) return;
+
+    const wholeFeature = createFeatureFromBounds(activeImageryBounds);
+    if (terraDraw) {
+      terraDraw.addFeatures([wholeFeature] as GeoJSONStoreFeatures[]);
+    }
+    setSelectedAOI(wholeFeature);
+  }, [activeImageryBounds, activeTab, selectedAOI, terraDraw]);
+
   // TerraDraw finish listener
   const handleDrawFinish = useCallback(() => {
     if (!terraDraw) return;
@@ -213,13 +259,27 @@ export const useMapLargeArea = ({
 
     const latestFeature = snapshot[snapshot.length - 1];
 
-    if (imageryBounds && imageryBounds.length === 4) {
-      if (!featureIsWithinBounds(imageryBounds, latestFeature)) {
+    // Match the size limits used by the offline prediction AOI upload flow.
+    if (validateGeoJSONArea(latestFeature)) {
+      showWarningToast(
+        `Area must be between ${formatAreaInAppropriateUnit(
+          MIN_TRAINING_AREA_SIZE,
+        )} and ${formatAreaInAppropriateUnit(MAX_TRAINING_AREA_SIZE)}.`,
+      );
+      terraDraw.clear();
+      setSelectedAOI(null);
+      setDrawingMode(DrawingModes.POLYGON);
+      return;
+    }
+
+    if (activeImageryBounds && activeImageryBounds.length === 4) {
+      if (!featureIsWithinBounds(activeImageryBounds, latestFeature)) {
         showWarningToast(
           "The drawn polygon extends beyond the imagery bounds. Please draw within the imagery bounds.",
         );
         terraDraw.clear();
         setSelectedAOI(null);
+        setDrawingMode(DrawingModes.POLYGON);
         return;
       }
     }
@@ -234,7 +294,8 @@ export const useMapLargeArea = ({
     }
 
     setSelectedAOI(latestFeature);
-  }, [terraDraw, imageryBounds]);
+    setDrawingMode(DrawingModes.STATIC);
+  }, [activeImageryBounds, terraDraw, setDrawingMode]);
 
   useEffect(() => {
     if (!terraDraw) return;
@@ -310,11 +371,13 @@ export const useMapLargeArea = ({
         geometry: polygonGeometry,
       };
 
-      if (imageryBounds && imageryBounds.length === 4) {
-        if (!featureIsWithinBounds(imageryBounds, uploadedFeature)) {
-          showWarningToast(
-            "The uploaded polygon extends beyond the imagery bounds. Zooming to polygon location.",
+      if (activeImageryBounds && activeImageryBounds.length === 4) {
+        if (!featureIsWithinBounds(activeImageryBounds, uploadedFeature)) {
+          showErrorToast(
+            undefined,
+            "The uploaded polygon is outside the imagery bounds. Please upload a polygon that lies within the imagery.",
           );
+          return;
         }
       }
 
@@ -357,40 +420,64 @@ export const useMapLargeArea = ({
       e.stopPropagation();
       e.preventDefault();
     }
-    if (terraDraw) {
-      try {
-        const snapshot = terraDraw.getSnapshot();
-        if (snapshot && snapshot.length > 0) {
-          const ids = snapshot
-            .map((f) => f.id)
-            .filter((id): id is string | number => id !== undefined);
-          if (ids.length > 0) {
-            terraDraw.removeFeatures(ids);
-          }
-        }
-        terraDraw.clear();
-      } catch (err) {
-        console.error("Failed to clear TerraDraw:", err);
-      }
-    }
+    clearTerraDraw();
     setSelectedAOI(null);
     setUploadedFileName(null);
-
-    if (activeTab === "draw") {
-      setDrawingMode(DrawingModes.STATIC);
-      setTimeout(() => {
-        setDrawingMode(DrawingModes.POLYGON);
-      }, 50);
-    } else {
-      setDrawingMode(DrawingModes.STATIC);
-    }
+    setDrawingMode(DrawingModes.STATIC);
     showSuccessToast("Selected area cleared.");
   };
 
+  /**
+   * Called by the floating draw button in the modal.
+   * Clears any existing drawing and re-enables polygon drawing mode.
+   */
+  const handleEnableDrawing = useCallback(() => {
+    clearTerraDraw();
+    setSelectedAOI(null);
+    setTimeout(() => {
+      setDrawingMode(DrawingModes.POLYGON);
+    }, 50);
+  }, [clearTerraDraw, setDrawingMode]);
+
   const handleSubmit = () => {
     if (!selectedAOI) return;
-    onSubmit(selectedAOI);
-    closeDialog();
+
+    // Convert resolution to numeric zoom level
+    const zoomNumber = TRY_FAIR_RESOLUTION_ZOOM[resolution] ?? 18;
+
+    // Extra dynamic inference parameters from STAC
+    const extraParams: Record<string, unknown> = {};
+    if (inferenceParams && inferenceParams.length > 0) {
+      inferenceParams.forEach((param) => {
+        if (param.key !== "confidence_threshold") {
+          extraParams[param.key] = param.value;
+        }
+      });
+    }
+
+    const payload: MapLargeAreaRequest = {
+      model_stac_id: selectedModel?.id ?? modelId,
+      image_uri: selectedImagery?.tileUrl ?? "",
+      zoom: zoomNumber,
+      params: {
+        confidence_threshold: confidence,
+        ...extraParams,
+      },
+      ...(activeTab === "whole"
+        ? { bbox: getGeoJSONFeatureBounds(selectedAOI) }
+        : { geom: selectedAOI.geometry }),
+    };
+
+    submitMapLargeArea(payload, {
+      onSuccess: () => {
+        showSuccessToast("Map large area request submitted successfully.");
+        onSubmit();
+        closeDialog();
+      },
+      onError: (err) => {
+        showErrorToast(err, "Failed to submit map large area request.");
+      },
+    });
   };
 
   return {
@@ -403,9 +490,11 @@ export const useMapLargeArea = ({
     selectedAOI,
     uploadedFileName,
     fileInputRef,
+    isSubmittingMapLargeArea,
     handleTabChange,
     handleFileChange,
     handleClearArea,
+    handleEnableDrawing,
     handleSubmit,
   };
 };

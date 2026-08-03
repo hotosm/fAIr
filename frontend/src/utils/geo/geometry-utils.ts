@@ -5,7 +5,11 @@ import { createFeatureCollection } from "./geo-utils";
 import { Feature, FeatureCollection, Polygon, Position } from "geojson";
 import { LngLatBoundsLike, Map } from "maplibre-gl";
 import { roundNumber } from "../number-utils";
-import { TModelPredictionFeature, TModelPredictionsConfig } from "@/types";
+import {
+  BBOX,
+  TModelPredictionFeature,
+  TModelPredictionsConfig,
+} from "@/types";
 import { uuid4 } from "../general-utils";
 import { booleanWithin } from "@turf/boolean-within";
 import { PredictedFeatureStatus } from "@/enums/start-mapping";
@@ -58,14 +62,12 @@ export function formatAreaInAppropriateUnit(area: number) {
  *
  * @param {Feature} geojsonFeature - The GeoJSON feature for which to calculate the bounding box.
  *
- * @returns {LngLatBoundsLike} The bounding box as an array of coordinates
+ * @returns {BBOX} The bounding box as an array of coordinates
  * in the format [west, south, east, north].
  */
 
-export const getGeoJSONFeatureBounds = (
-  geojsonFeature: Feature,
-): LngLatBoundsLike => {
-  return bboxPolygon(geojsonFeature) as [number, number, number, number];
+export const getGeoJSONFeatureBounds = (geojsonFeature: Feature): BBOX => {
+  return bboxPolygon(geojsonFeature) as BBOX;
 };
 
 // Ref - https://github.com/hotosm/fAIr/blob/master/frontend/src/utils.js
@@ -446,6 +448,23 @@ export const featureIsWithinBounds = (
     },
   };
   return booleanWithin(feature, OAMFeature as Feature);
+};
+
+/**
+ * Checks if a single [lng, lat] coordinate falls within the specified bounding box.
+ *
+ * @param {LngLatBoundsLike} bounds - The bounding box [west, south, east, north].
+ * @param {[number, number]} point - The [longitude, latitude] coordinate to check.
+ *
+ * @returns {boolean} True if the point is within the bounds, false otherwise.
+ */
+export const pointIsWithinBounds = (
+  bounds: LngLatBoundsLike,
+  point: [number, number],
+): boolean => {
+  const [west, south, east, north] = bounds as [number, number, number, number];
+  const [lng, lat] = point;
+  return lng >= west && lng <= east && lat >= south && lat <= north;
 };
 
 /**

@@ -55,6 +55,14 @@ export const NODE_ENV: string = parseStringEnv(ENVS.NODE_ENV, "development");
 export const IS_DEV = NODE_ENV === "development";
 export const IS_PROD = NODE_ENV === "production";
 
+/**
+ * When true, bypasses authentication checks on the Try fAIr page,
+ * allowing access to imagery/location flows without signing in.
+ * Default: false.
+ */
+export const DISABLE_AUTH_ON_TRY_FAIR: boolean =
+  parseStringEnv(ENVS.DISABLE_AUTH_ON_TRY_FAIR, "true") === "true";
+
 // ==============================================================================================================================
 // API Endpoints
 // ==============================================================================================================================

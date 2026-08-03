@@ -9,9 +9,12 @@ import { useNavigate } from "react-router-dom";
 export const OfflinePredictionRequestSuccess = ({
   isOpen,
   onClose,
+  continueLabel = "Done",
 }: {
   isOpen: boolean;
   onClose: () => void;
+  /** Label for the action that closes the confirmation and keeps the user mapping. */
+  continueLabel?: string;
 }) => {
   const navigate = useNavigate();
 
@@ -41,7 +44,7 @@ export const OfflinePredictionRequestSuccess = ({
             variant={ButtonVariant.PRIMARY}
             className="md:!w-fit"
           >
-            Done
+            {continueLabel}
           </Button>
         </div>
       </div>

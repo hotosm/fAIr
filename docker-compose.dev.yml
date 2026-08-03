@@ -1,143 +1,77 @@
-name: fair
-
-x-common-env: &common-env
-  env_file:
-    - .env.dev
-
-x-common-volumes: &common-volumes
-  volumes:
-    - ./fair-app-data/log:/app/log
-    - ./fair-app-data/ramp:/ramp
-    - ./fair-app-data/trainings:/trainings
-    - ./backend/core:/app/core
-    - ./backend/login:/app/login
-    - ./backend/fairproject:/app/fairproject
-    - ./backend/api_static:/app/api_static
-
+# fair-dev instance override, layered on top of docker-compose.yml.
 services:
-  postgres:
-    <<: *common-env
-    image: postgis/postgis:17-3.5-alpine
-    container_name: fair-postgres
+  frontend-assets:
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-ai}
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin}
-    volumes:
-      - ./fair-app-data/postgres:/var/lib/postgresql/data
-    ports:
-      - "5434:5432"
-    networks:
-      - fair-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      VITE_BASE_API_URL: ${VITE_BASE_API_URL}
+      VITE_AUTH_PROVIDER: ${VITE_AUTH_PROVIDER}
+      VITE_HANKO_URL: ${VITE_HANKO_URL}
+      VITE_FAIR_STAC_CATALOG_BASE_URL: ${VITE_FAIR_STAC_CATALOG_BASE_URL}
+      VITE_NODE_ENV: ${VITE_NODE_ENV}
+      VITE_FAIR_PROD_URL: ${VITE_FAIR_PROD_URL}
 
-  redis:
-    <<: *common-env
-    image: redis:8-alpine
-    container_name: fair-redis
-    volumes:
-      - ./fair-app-data/redis:/data
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
     ports:
-      - "6378:6379"
-    networks:
-      - fair-network
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      - "80:80"
+      - "443:443"
+    configs:
+      - source: caddyfile
+        target: /etc/caddy/Caddyfile
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - api
+
+  postgres:
+    restart: unless-stopped
+
+  minio:
+    restart: unless-stopped
+
+  stac:
+    restart: unless-stopped
+
+  mlflow:
+    restart: unless-stopped
+
+  zenml:
+    restart: unless-stopped
 
   api:
-    <<: [*common-env, *common-volumes]
-    build:
-      context: ./backend
-      dockerfile: Dockerfile.API
-      args:
-        BUILD_TARGET: predictor
-    container_name: fair-api
-    command: python manage.py runserver_with_q 0.0.0.0:8000
-    ports:
-      - "8200:8000"
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - fair-network
+    restart: unless-stopped
+    entrypoint: ["sh", "-c", 'zenml init && zenml stack set fair-compose && python manage.py collectstatic --noinput && exec "$$@"', "--"]
+    command:
+      - gunicorn
+      - --bind=0.0.0.0:8000
+      - --workers=3
+      - --timeout=120
+      - config.wsgi:application
 
-  worker-cpu:
-    <<: [*common-env, *common-volumes]
-    profiles: ["cpu"]
-    build:
-      context: ./backend
-      dockerfile: Dockerfile.workers
-      args:
-        BUILD_TYPE: cpu
-    container_name: fair-worker-cpu
-    command: watchmedo auto-restart -d /app -p '*.py' --recursive -- celery -A fairproject worker --loglevel=INFO --concurrency=1 -Q ramp_training,yolo_training
-    depends_on:
-      - api
-    networks:
-      - fair-network
+  worker:
+    restart: unless-stopped
 
-  worker-gpu:
-    <<: [*common-env, *common-volumes]
-    profiles: ["gpu"]
-    build:
-      context: ./backend
-      dockerfile: Dockerfile.workers
-      args:
-        BUILD_TYPE: gpu
-    container_name: fair-worker-gpu
-    command: watchmedo auto-restart -d /app -p '*.py' --recursive -- celery -A fairproject worker --loglevel=INFO --concurrency=1 -Q ramp_training,yolo_training --pool=solo
-    depends_on:
-      - api
-    networks:
-      - fair-network
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              capabilities: [gpu]
+configs:
+  caddyfile:
+    content: |
+      {
+        email ${CADDY_ACME_EMAIL:-sysadmin@hotosm.org}
+      }
+      ${PUBLIC_DOMAIN:-dev.ai.hotosm.org}, fair-dev.hotosm.org {
+        handle_path /stac/* {
+          reverse_proxy stac:8080
+        }
+        reverse_proxy api:8000
+      }
+      stac.${PUBLIC_DOMAIN:-dev.ai.hotosm.org} {
+        reverse_proxy stac:8080
+      }
+      # mlflow.${PUBLIC_DOMAIN:-dev.ai.hotosm.org} { reverse_proxy mlflow:5000 }
+      # zenml.${PUBLIC_DOMAIN:-dev.ai.hotosm.org} { reverse_proxy zenml:8080 }
+      # minio.${PUBLIC_DOMAIN:-dev.ai.hotosm.org} { reverse_proxy minio:9000 }
+      # console.${PUBLIC_DOMAIN:-dev.ai.hotosm.org} { reverse_proxy minio:9001 }
 
-  predictor:
-    <<: [*common-env, *common-volumes]
-    build:
-      context: ./backend
-      dockerfile: Dockerfile.API
-      args:
-        BUILD_TARGET: predictor
-    container_name: fair-predictor
-    command: celery -A fairproject worker --loglevel=INFO --concurrency=1 -Q predictions --pool=solo
-    depends_on:
-      - api
-    networks:
-      - fair-network
-
-  frontend:
-    <<: *common-env
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile.dev
-    container_name: fair-frontend
-    command: pnpm run dev --host 0.0.0.0 --port 3000
-    ports:
-      - "3500:3000"
-    volumes:
-      - ./frontend/src:/app/src
-      - ./frontend/public:/app/public
-    networks:
-      - fair-network
-    depends_on:
-      - api
-
-networks:
-  fair-network:
-    name: fair-network
-    driver: bridge
+volumes:
+  caddy_data:
+  caddy_config:

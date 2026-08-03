@@ -8,8 +8,10 @@ import { ParametersIcon } from "@/components/ui/icons/parameters-icon";
 import { SnowflakeIcon } from "@/components/ui/icons/snow-flake-icon";
 import { GridIcon } from "@/components/ui/icons/grid-icon";
 import { FlameIcon } from "@/components/ui/icons/flame-icon";
+
 import {
   getAccuracyLabel,
+  getModelOutputType,
   OUTPUT_TYPES,
   RESOLUTIONS,
 } from "@/features/try-fair/utils/common";
@@ -41,6 +43,8 @@ type TryFairSidebarProps = {
   onMap: () => void;
   isPredicting: boolean;
   isMapButtonDisabled: boolean;
+  feature: string;
+  onFeatureChange: (feature: string) => void;
   className?: string;
   openMobileModelPickerDialog?: () => void;
 };
@@ -62,11 +66,26 @@ export const TryFairSidebar = ({
   onMap,
   isPredicting,
   isMapButtonDisabled,
+  feature,
+  onFeatureChange,
   className,
   openMobileModelPickerDialog,
 }: TryFairSidebarProps) => {
   const { isSmallViewport } = useScreenSize();
-  const { currentModelType } = useStartMappingStore();
+  const currentModelType = useStartMappingStore(
+    (state) => state.currentModelType,
+  );
+  const supportsPolygon = selectedModel
+    ? getModelOutputType(selectedModel) === TryFairMapOutputType.POLYGON
+    : true;
+  const confidenceParam = inferenceParams.find(
+    (param) => param.key === "confidence_threshold",
+  );
+  const confidenceValue =
+    paramValues.confidence_threshold ?? confidenceParam?.spec.default ?? 0.7;
+  const confidenceMin = confidenceParam?.spec.min ?? 0;
+  const confidenceMax = confidenceParam?.spec.max ?? 1;
+
   return (
     <div
       className={cn(
@@ -116,30 +135,42 @@ export const TryFairSidebar = ({
         </div>
       </div>
 
-      {currentModelType !== ModelType.DEMO && <FeatureToMapDropdown />}
+      {currentModelType !== ModelType.DEMO && (
+        <FeatureToMapDropdown
+          disabled={isPredicting}
+          value={feature}
+          onChange={onFeatureChange}
+        />
+      )}
 
       <div className="">
         <p className="text-dark text-xs mb-2">
           {TRY_FAIR_PAGE_CONTENT.sidebar.mapOutput.label}
         </p>
         <div className="flex items-center gap-2">
-          {OUTPUT_TYPES.map(({ type, label, icon }) => (
-            <button
-              key={type}
-              type="button"
-              onClick={() => onOutputTypeChange(type)}
-              title={label}
-              disabled={isPredicting}
-              aria-label={label}
-              className={`flex-1 flex disabled:cursor-wait items-center justify-center py-2 rounded-lg ${
-                outputType === type
-                  ? "bg-secondary text-primary border-[#D63F4080] border"
-                  : "bg-off-white"
-              }`}
-            >
-              {icon}
-            </button>
-          ))}
+          {OUTPUT_TYPES.map(({ type, label, icon }) => {
+            const optionDisabled =
+              isPredicting ||
+              (type === TryFairMapOutputType.POLYGON && !supportsPolygon);
+            return (
+              <button
+                key={type}
+                type="button"
+                onClick={() => onOutputTypeChange(type)}
+                title={label}
+                disabled={optionDisabled}
+                aria-label={label}
+                className={cn(
+                  "flex-1 flex items-center justify-center py-2 rounded-lg disabled:cursor-not-allowed disabled:opacity-40",
+                  outputType === type
+                    ? "bg-secondary text-primary border-[#D63F4080] border"
+                    : "bg-off-white",
+                )}
+              >
+                {icon}
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -208,53 +239,46 @@ export const TryFairSidebar = ({
           </div>
         </div>
 
-        {inferenceParams
-          .filter((p) => p.key === "confidence_threshold")
-          .map(({ key, spec }) => {
-            const value = paramValues[key] ?? spec.default;
-            const min = spec.min ?? 0;
-            const max = spec.max ?? 1;
+        <div>
+          <div className="flex items-center gap-2 mb-1.5">
+            <p className="text-dark text-xs font-medium">Accuracy</p>
+            <span className="text-[#404446] bg-off-white p-1 rounded-md text-xs ">
+              {getAccuracyLabel(confidenceValue)}
+            </span>
+          </div>
 
-            return (
-              <div key={key}>
-                <div className="flex items-center gap-2 mb-1.5">
-                  <p className="text-dark text-xs font-medium">Accuracy</p>
-                  <span className="text-[#404446] bg-off-white p-1 rounded-md text-xs ">
-                    {getAccuracyLabel(value)}
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <SnowflakeIcon />
-                  <div className="relative flex-1">
-                    {[25, 50, 75].map((pct) => (
-                      <div
-                        key={pct}
-                        className="absolute top-1/2 -translate-y-1/2 w-0.5 h-3 bg-white/80 pointer-events-none z-10"
-                        style={{ left: `${pct}%` }}
-                      />
-                    ))}
-                    <input
-                      type="range"
-                      min={min}
-                      max={max}
-                      step={0.25}
-                      disabled={isPredicting}
-                      value={Number(value)}
-                      onChange={(e) =>
-                        onParamChange(key, parseFloat(e.target.value))
-                      }
-                      className="try-fair-confidence-slider disabled:cursor-wait w-full h-1.5 rounded-full appearance-none cursor-pointer outline-none"
-                      style={{
-                        background: `linear-gradient(90deg, #0088FF 0%, #FF383C 100%)`,
-                      }}
-                    />
-                  </div>
-                  <FlameIcon />
-                </div>
-              </div>
-            );
-          })}
+          <div className="flex items-center gap-2">
+            <SnowflakeIcon />
+            <div className="relative flex-1">
+              {[25, 50, 75].map((pct) => (
+                <div
+                  key={pct}
+                  className="absolute top-1/2 -translate-y-1/2 w-0.5 h-3 bg-white/80 pointer-events-none z-10"
+                  style={{ left: `${pct}%` }}
+                />
+              ))}
+              <input
+                type="range"
+                min={confidenceMin}
+                max={confidenceMax}
+                step={0.25}
+                disabled={isPredicting}
+                value={Number(confidenceValue)}
+                onChange={(e) =>
+                  onParamChange(
+                    "confidence_threshold",
+                    parseFloat(e.target.value),
+                  )
+                }
+                className="try-fair-confidence-slider disabled:cursor-wait w-full h-1.5 rounded-full appearance-none cursor-pointer outline-none"
+                style={{
+                  background: `linear-gradient(90deg, #0088FF 0%, #FF383C 100%)`,
+                }}
+              />
+            </div>
+            <FlameIcon />
+          </div>
+        </div>
       </div>
     </div>
   );

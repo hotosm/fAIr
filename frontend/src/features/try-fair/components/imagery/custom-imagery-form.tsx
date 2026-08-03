@@ -60,11 +60,14 @@ export const CustomImageryForm = ({
 
   const handleApply = () => {
     if (!isValid.valid) return;
-    // Capture what the preview is showing as the imagery's extent, so its
-    // location can be labelled (place + country) on the model-picker card.
+    // TMS endpoints do not describe an imagery extent. Keeping the preview
+    // viewport as their bounds would make the main map fly to an arbitrary
+    // location, so let the user choose the area instead.
     const b = map?.getBounds();
     const bounds: BBOX | null = b
-      ? [b.getWest(), b.getSouth(), b.getEast(), b.getNorth()]
+      ? tileServiceType === TileServiceType.TMS
+        ? null
+        : [b.getWest(), b.getSouth(), b.getEast(), b.getNorth()]
       : null;
     onApply({ tileUrl: tileServerURL, tileServiceType, bounds });
     clearForm();
@@ -88,7 +91,7 @@ export const CustomImageryForm = ({
 
       {/* The preview map stays mounted; the empty state overlays it until the
           URL is valid, so the map instance is never torn down. */}
-      <div className="relative flex-1 min-h-[620px] rounded-[18px] overflow-hidden w-full z-10">
+      <div className="relative flex-1 h-[400px] md:min-h-[620px] rounded-[18px] overflow-hidden w-full z-10">
         <MapComponent
           map={map}
           mapContainerRef={mapContainerRef}
@@ -106,7 +109,7 @@ export const CustomImageryForm = ({
 };
 
 const CustomImageEmptyState = () => (
-  <div className="bg-[#E9E9E9] flex-col h-full rounded-lg flex justify-center space-y-2 items-center">
+  <div className="bg-off-white flex-col h-full rounded-lg flex justify-center space-y-2 items-center">
     <MapIcon className="size-6" />
     <h4 className="text-sm font-medium">No Imagery to preview</h4>
     <p className="text-dark text-xs">

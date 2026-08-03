@@ -34,19 +34,20 @@ Before you start contributing code, set up your local development environment:
 2. **Set up Docker environment** (recommended):
 
    ```bash
-   ./setup.sh
+   docker compose up  
+   cp backend/.env.example backend/.env
+   docker compose up api worker
    ```
-
-   This will build all images, set up the database, and start all services.
 
 3. **Access the application**:
    - Frontend: <http://localhost:3500>
-   - API: <http://localhost:8200/api>
-   - API Docs: <http://localhost:8200/api/swagger>
+   - API root: <http://localhost:8000/api/>
+   - Swagger UI: <http://localhost:8000/api/docs/>
+   - ReDoc: <http://localhost:8000/api/redoc/>
 
 4. **Make your changes** and see them live with hot reload!
 
-For detailed setup instructions, see [Docker Installation Guide](./docs/Docker-installation.md).
+For detailed setup instructions, see [Docker Installation Guide](./docs/Docker-installation.md) and [backend/README.md](./backend/README.md).
 
 ### Making Changes
 

@@ -100,13 +100,11 @@ export const useTileGrid = ({
     previousResolutionRef.current = resolution;
     previousImageryCenterRef.current = imageryCenter;
 
-    // Model changed — recenter from the map center (new imagery).
     if (modelChanged && modelId) {
-      const mapCenter = map.getCenter();
-      const nextAnchor = computeCenteredAnchor(
-        { lng: mapCenter.lng, lat: mapCenter.lat },
-        tileZoom,
-      );
+      const target = imageryCenter
+        ? { lng: imageryCenter[0], lat: imageryCenter[1] }
+        : map.getCenter();
+      const nextAnchor = computeCenteredAnchor(target, tileZoom);
       setAnchor(nextAnchor);
       return;
     }

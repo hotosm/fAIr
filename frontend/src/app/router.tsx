@@ -1,4 +1,5 @@
 import { APPLICATION_ROUTES } from "@/constants";
+import { isNavigationRouteEnabled } from "@/constants/general";
 import { MainErrorFallback } from "@/components/errors";
 import {
   ModelFormsLayout,
@@ -10,13 +11,34 @@ import {
   Navigate,
   RouterProvider,
   createBrowserRouter,
+  useLocation,
 } from "react-router-dom";
 import { ModelsProvider } from "@/app/providers/models-provider";
 import { NuqsAdapter } from "nuqs/adapters/react-router/v6";
 
+const RouteAvailabilityGuard = ({ children }: React.PropsWithChildren) => {
+  const location = useLocation();
+
+  if (!isNavigationRouteEnabled(location.pathname)) {
+    return (
+      <Navigate
+        to={APPLICATION_ROUTES.NOTFOUND}
+        replace
+        state={{ from: location.pathname }}
+      />
+    );
+  }
+
+  return children;
+};
+
 const router = createBrowserRouter([
   {
-    element: <RootLayout />,
+    element: (
+      <RouteAvailabilityGuard>
+        <RootLayout />
+      </RouteAvailabilityGuard>
+    ),
     children: [
       /**
        * Landing page route starts

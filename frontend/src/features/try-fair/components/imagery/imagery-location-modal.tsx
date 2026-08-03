@@ -111,6 +111,7 @@ export const ImageryLocationDialog = ({
     setSelectedItem(null);
     mapRef.current?.flyTo({ center: [0, 20], zoom: 1.4 });
   };
+  // const {isLargeScreen} = useScreenSize()
   const isOAM = source === ImagerySource.OPEN_AERIAL_MAP;
   return (
     <Dialog
@@ -121,7 +122,7 @@ export const ImageryLocationDialog = ({
     >
       {isOpened && (
         <div className="flex flex-col gap-4">
-          <p className="text-grey text-sm w-1/2 -mt-6">
+          <p className="text-grey text-sm w-full md:w-1/2 -mt-6">
             Select an imagery source to preview and map your location. You can
             choose pre-existing imagery from OpenAerialMap or enter a custom
             tile server URL.
@@ -129,7 +130,7 @@ export const ImageryLocationDialog = ({
           <ImagerySourceToggle value={source} onChange={setSource} />
           {!isOAM && <Divider />}
 
-          <div className="relative w-full h-[620px] rounded-lg overflow-hidden">
+          <div className="relative w-full h-[420px] md:h-[620px] rounded-lg overflow-hidden">
             <div className={cn("absolute inset-0", !isOAM && "invisible")}>
               <OamImageryMap
                 highlightGeometry={

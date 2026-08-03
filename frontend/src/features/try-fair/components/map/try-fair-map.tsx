@@ -21,6 +21,7 @@ import { cn } from "@/utils";
 import { GlobeSearchIcon } from "@/components/ui/icons/globe-search-icon";
 import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
 import { useAuth } from "@/app/providers/auth-provider";
+import { DISABLE_AUTH_ON_TRY_FAIR } from "@/config";
 
 type TryFairMapProps = {
   map: Map | null;
@@ -65,7 +66,8 @@ export const TryFairMap = ({
   const { isSmallViewport } = useScreenSize();
   const { setShowChooseLocationModal, setShowSigninModal } =
     useStartMappingStore();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated: _isAuthenticated } = useAuth();
+  const isAuthenticated = DISABLE_AUTH_ON_TRY_FAIR || _isAuthenticated;
   const [choroplethBuckets, setChoroplethBuckets] = useState<
     ChoroplethBucket[] | null
   >(null);
@@ -191,8 +193,12 @@ export const TryFairMap = ({
                   setShowSigninModal(true);
                 }
               }}
+              disabled={isPredicting}
               aria-label="Choose a different location"
-              className={mapActionButtonClassName}
+              className={cn(
+                mapActionButtonClassName,
+                isPredicting && "!disabled:cursor-wait",
+              )}
             >
               <GlobeSearchIcon />
             </button>

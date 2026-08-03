@@ -5,34 +5,78 @@ import {
   CloudDownloadIcon,
   MapIcon,
 } from "@/components/ui/icons";
-import { DropdownPlacement } from "@/enums";
+import { DropdownPlacement, TryFairMapOutputType } from "@/enums";
 import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
+import {
+  buildChoropleth,
+  toPointCollection,
+} from "@/features/try-fair/utils/helpers";
+import { geoJSONDowloader } from "@/utils/geo/geo-utils";
 
-export const EXPORT_MAP_MENU_ITEMS: Omit<DropdownMenuItem, "onClick">[] = [
-  {
-    label: "Download Map Result",
-    value: "download",
-    Icon: CloudDownloadIcon,
-  },
-  {
-    label: "Map Large Area",
-    value: "large-area",
-    Icon: MapIcon,
-    dividerBefore: true,
-  },
-];
+const getDownloadData = (
+  predictions: GeoJSON.FeatureCollection,
+  outputType: TryFairMapOutputType,
+  predictionBBox: [number, number, number, number] | null,
+  predictionGridZoom: number | null,
+): GeoJSON.FeatureCollection => {
+  if (outputType === TryFairMapOutputType.POINTS) {
+    return toPointCollection(predictions);
+  }
+  if (outputType === TryFairMapOutputType.CLUSTER && predictionBBox) {
+    return buildChoropleth(
+      predictions,
+      predictionBBox,
+      predictionGridZoom ?? undefined,
+    );
+  }
+  return predictions;
+};
 
 const ExportMapResults = () => {
-  const { setDownloadType } = useStartMappingStore();
+  const {
+    setDownloadType,
+    predictions,
+    outputType,
+    predictionBBox,
+    predictionGridZoom,
+  } = useStartMappingStore();
+
+  const hasPredictions = Boolean(predictions?.features?.length);
 
   const handleSelect = (value: string) => {
+    if (value === "download") {
+      if (!predictions) return;
+      const exportData = getDownloadData(
+        predictions,
+        outputType,
+        predictionBBox,
+        predictionGridZoom,
+      );
+      geoJSONDowloader(
+        exportData,
+        `fair-predictions-${outputType.toLowerCase()}`,
+      );
+      return;
+    }
     setDownloadType(value);
   };
 
-  const menuItems: DropdownMenuItem[] = EXPORT_MAP_MENU_ITEMS.map((item) => ({
-    ...item,
-    onClick: () => handleSelect(item.value),
-  }));
+  const menuItems: DropdownMenuItem[] = [
+    {
+      label: "Download Map Result",
+      value: "download",
+      Icon: CloudDownloadIcon,
+      disabled: !hasPredictions,
+      onClick: () => handleSelect("download"),
+    },
+    {
+      label: "Map Large Area",
+      value: "large-area",
+      Icon: MapIcon,
+      dividerBefore: true,
+      onClick: () => handleSelect("large-area"),
+    },
+  ];
 
   return (
     <DropDown

@@ -5,12 +5,18 @@ import DropDown from "@/components/ui/dropdown/dropdown";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { ChevronDownIcon } from "@/components/ui/icons";
 import { BuildingIcon } from "@/components/ui/icons/buildings-icon";
+import { TreesIcon } from "@/components/ui/icons/trees-icon";
+import { SwimmingPoolIcon } from "@/components/ui/icons/swimming-pool-icon";
+import { ParkingIcon } from "@/components/ui/icons/parking-icon";
+import { IconProps } from "@/types";
 import { Button } from "@/components/ui/button";
 import { GlobeSearchIcon } from "@/components/ui/icons/globe-search-icon";
 import { ModelType } from "@/enums";
 import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
 import { useAuth } from "@/app/providers/auth-provider";
+import { DISABLE_AUTH_ON_TRY_FAIR } from "@/config";
 import { ImagerySource } from "@/features/try-fair/components/imagery/imagery-location-modal";
+import { flagEmoji } from "@/features/try-fair/utils/common";
 
 type ModelPickerProps = {
   selectedModel: BaseModelStacItem | null;
@@ -22,13 +28,20 @@ type ModelPickerProps = {
   openMobileDialog?: () => void;
 };
 
+const FEATURE_ICONS: Record<string, React.FC<IconProps>> = {
+  building: BuildingIcon,
+  tree: TreesIcon,
+  swimming_pool: SwimmingPoolIcon,
+  parking: ParkingIcon,
+};
+
 const FeatureBadge = ({ label }: { label: string | undefined }) => {
-  const featureLabel =
-    label ?? "".replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  const Icon = FEATURE_ICONS[label ?? ""] ?? BuildingIcon;
+  const featureLabel = (label ?? "").replace(/[-_]/g, " ");
 
   return (
     <span className="inline-flex gap-2 items-center px-2 py-0.5 capitalize rounded bg-grey text-white text-xs font-medium">
-      <BuildingIcon />
+      <Icon />
       {featureLabel}
     </span>
   );
@@ -44,14 +57,6 @@ const RadioDot = ({ selected }: { selected: boolean }) => (
     {selected && <span className="w-2 h-2 rounded-full bg-primary" />}
   </span>
 );
-
-/** ISO 3166-1 alpha-2 code → flag emoji (regional indicator symbols). */
-const flagEmoji = (code: string): string =>
-  code.length === 2
-    ? String.fromCodePoint(
-        ...[...code.toUpperCase()].map((c) => 0x1f1e6 + c.charCodeAt(0) - 65),
-      )
-    : "🏳️";
 
 const CountryBadge = ({ country, code }: { country: string; code: string }) => (
   <span className="inline-flex gap-1.5 items-center px-2 py-0.5 rounded bg-grey text-white text-xs font-medium">
@@ -71,6 +76,12 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
 }) => {
   const { onDropdownHide, dropdownRef } = useDropdownMenu();
   const [isOpen, setIsOpen] = useState(false);
+  const selectedLocation = [
+    selectedModel?.properties["fair:preview_place"],
+    selectedModel?.properties["fair:preview_country"],
+  ]
+    .filter(Boolean)
+    .join(", ");
   const { currentModelType, selectedImagery } = useStartMappingStore();
 
   // When imagery is the active source, the trigger shows the imagery's name
@@ -94,9 +105,16 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
         ) : models.length === 0 ? (
           <p className="text-grey text-xs">No models available</p>
         ) : selectedModel ? (
-          <p className="font-medium text-dark text-xs leading-tight">
-            {selectedModel.properties.title}
-          </p>
+          <>
+            <p className="font-medium text-dark text-xs leading-tight">
+              {selectedModel.properties.title}
+            </p>
+            {selectedLocation && (
+              <p className="text-grey text-[10px] leading-tight truncate">
+                {selectedLocation}
+              </p>
+            )}
+          </>
         ) : (
           <p className="text-grey text-xs">Select a model</p>
         )}
@@ -173,7 +191,8 @@ export const ModelPickerContent = ({
   /** Close the picker after a choice is applied. */
   onClose?: () => void;
 }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated: _isAuthenticated } = useAuth();
+  const isAuthenticated = DISABLE_AUTH_ON_TRY_FAIR || _isAuthenticated;
   const {
     setShowChooseLocationModal,
     setShowSigninModal,
@@ -237,7 +256,7 @@ export const ModelPickerContent = ({
   };
 
   return (
-    <div className="bg-white rounded-xl p-4 space-y-4 max-h-[70vh] overflow-y-auto">
+    <div className="bg-white rounded-xl p-2 md:p-4 space-y-4 max-h-[70vh] overflow-y-auto">
       {selectedImagery && (
         <button
           key="imagery"
@@ -248,7 +267,7 @@ export const ModelPickerContent = ({
           }`}
         >
           <div className="flex space-y-2 items-start justify-between gap-2 mb-1">
-            <p className="text-dark capitalize text-sm font-medium leading-tight ">
+            <p className="text-dark capitalize text-sm font-medium leading-tight flex-1 min-w-0 break-words">
               {imageryTitle}
             </p>
 

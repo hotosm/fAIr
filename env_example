@@ -1,0 +1,25 @@
+# cp env_example .env && docker compose up
+
+
+DEBUG=true
+SECRET_KEY=dev-secret-change-me
+DATABASE_URL=postgis://admin:password@postgres:5432/fair
+FRONTEND_URL=http://localhost:8000
+API_BASE_URL=http://localhost:8000/api/v1
+
+# Static-token auth for local use
+AUTH_PROVIDER=dev
+FAIR_DEV_TOKEN=dev-token
+
+# ZENML_STORE_* are read by the zenml library itself; the server's default user
+# has an empty password. Point the FAIR_* pair at a remote deployment to use one.
+FAIR_ZENML_STORE_URL=http://zenml:8080
+FAIR_STAC_API_URL=http://stac:8080
+ZENML_STORE_URL=http://zenml:8080
+ZENML_STORE_USERNAME=default
+ZENML_STORE_PASSWORD=
+
+BUCKET_NAME=fair-data
+AWS_ENDPOINT_URL=http://minio:9000
+AWS_ACCESS_KEY_ID=minioadmin
+AWS_SECRET_ACCESS_KEY=minioadmin
