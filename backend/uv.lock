@@ -1053,7 +1053,7 @@ requires-dist = [
     { name = "djangorestframework", specifier = ">=3.15" },
     { name = "djangorestframework-gis", specifier = ">=1.1" },
     { name = "drf-spectacular", specifier = ">=0.29" },
-    { name = "fair-py-ops", extras = ["k8s"], specifier = "==0.3.4" },
+    { name = "fair-py-ops", extras = ["k8s"], specifier = "==0.3.5" },
     { name = "geomltoolkits", specifier = ">=2.1.0" },
     { name = "geopandas", specifier = ">=1.0" },
     { name = "gpxpy", specifier = ">=1.6" },
@@ -1087,7 +1087,7 @@ test = [
 
 [[package]]
 name = "fair-py-ops"
-version = "0.3.4"
+version = "0.3.5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "httpx" },
@@ -1099,9 +1099,9 @@ dependencies = [
     { name = "universal-pathlib" },
     { name = "zenml" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/df/ea/a66bbd5df22d6606ac92cd53fa14fc81b27fe3af8b884dcf5a10285253d5/fair_py_ops-0.3.4.tar.gz", hash = "sha256:62603211b9deeb81651656ba02679678f8119a0a8e42564dd24ed76acf73691e", size = 3928323, upload-time = "2026-07-29T21:15:51.178Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/b5/56/0c02e5ab3296c440146b1ca07da054544faa26eb7ff24ff89646f283ff7a/fair_py_ops-0.3.5.tar.gz", hash = "sha256:b6cb596518814e3feb892548cffa37e4b1eba426ca8c271d4d671c8f795ebae2", size = 3928428, upload-time = "2026-08-03T15:11:11.014Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/5e/60/cba68a1c69581259e1b7de868461859dc052556c693449d520072baa95d3/fair_py_ops-0.3.4-py3-none-any.whl", hash = "sha256:6df2c2c887a0663cb54b88551597f87d8bcb8c4766caedaa2c5f90786f0430e8", size = 4119501, upload-time = "2026-07-29T21:15:49.612Z" },
+    { url = "https://files.pythonhosted.org/packages/41/1e/d94d1f66fcf4da771f026f00f936b11fcda596e0f2b4ed0973e5a421d625/fair_py_ops-0.3.5-py3-none-any.whl", hash = "sha256:6b4b9d9edfdf1344bc40a5f6507c97c1c0925b3520842c60abe22fc7eb893dcb", size = 4119598, upload-time = "2026-08-03T15:11:09.546Z" },
 ]
 
 [package.optional-dependencies]
