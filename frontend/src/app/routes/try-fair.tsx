@@ -35,6 +35,7 @@ import { useDialog } from "@/hooks/use-dialog";
 import { ImageryLocationDialog } from "@/features/try-fair/components/imagery/imagery-location-modal";
 import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
 import { SignInPromptDialog } from "@/features/try-fair/components/modals/sign-in-prompt";
+import { useAuth } from "@/app/providers/auth-provider";
 import { DISABLE_AUTH_ON_TRY_FAIR } from "@/config";
 import type { ImagerySelection } from "@/features/try-fair/types/imagery-types";
 import { MapLargeAreaRequestSuccess } from "@/features/try-fair/components/start-mapping/map-large-area-request-success-dialog";
@@ -44,9 +45,10 @@ import { showErrorToast } from "@/utils";
 export const TryFairPage = () => {
   const { map, mapContainerRef } = useMapInstance(false, false);
   const { isSmallViewport } = useScreenSize();
+  const { isAuthenticated: _isAuthenticated } = useAuth();
+  const isAuthenticated = DISABLE_AUTH_ON_TRY_FAIR || _isAuthenticated;
+
   const {
-    showChooseLocationModal,
-    setShowChooseLocationModal,
     showSigninModal,
     setShowSigninModal,
     downloadType,
@@ -57,8 +59,6 @@ export const TryFairPage = () => {
     setOutputType: setOutputTypeInStore,
   } = useStartMappingStore(
     useShallow((state) => ({
-      showChooseLocationModal: state.showChooseLocationModal,
-      setShowChooseLocationModal: state.setShowChooseLocationModal,
       showSigninModal: state.showSigninModal,
       setShowSigninModal: state.setShowSigninModal,
       downloadType: state.downloadType,
@@ -89,9 +89,13 @@ export const TryFairPage = () => {
     imageryTileServiceType,
     oamItemId,
     setImagery,
+    chooseLocation,
+    setChooseLocation,
     isParametersDefault,
     resetParameters,
   } = useTryFairParams();
+
+  const isChooseLocationOpen = Boolean(chooseLocation && isAuthenticated);
 
   const { models: allModels, loading: modelsLoading } = useStacBaseModels();
   const { models: localModels, loading: localModelLoading } =
@@ -353,7 +357,7 @@ export const TryFairPage = () => {
       // predictions clear when the imagery changes.
       lastPredictedInputsRef.current = null;
       clearPredictions();
-      setShowChooseLocationModal(false);
+      setChooseLocation(false);
     },
     [
       clearPredictions,
@@ -361,7 +365,7 @@ export const TryFairPage = () => {
       setImagery,
       setMode,
       setSeletedImagery,
-      setShowChooseLocationModal,
+      setChooseLocation,
     ],
   );
   // Sync prediction state into the global store so the navbar Export button can access it.
@@ -390,8 +394,8 @@ export const TryFairPage = () => {
 
       {/* Imagery/location dialog – rendered at page level */}
       <ImageryLocationDialog
-        isOpened={showChooseLocationModal}
-        closeDialog={() => setShowChooseLocationModal(false)}
+        isOpened={isChooseLocationOpen}
+        closeDialog={() => setChooseLocation(false)}
         onApply={handleApplyImagery}
       />
       {!DISABLE_AUTH_ON_TRY_FAIR && (

@@ -21,7 +21,7 @@ import { cn } from "@/utils";
 import { GlobeSearchIcon } from "@/components/ui/icons/globe-search-icon";
 import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
 import { useAuth } from "@/app/providers/auth-provider";
-import { DISABLE_AUTH_ON_TRY_FAIR } from "@/config";
+import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
 
 type TryFairMapProps = {
   map: Map | null;
@@ -64,10 +64,9 @@ export const TryFairMap = ({
   onHelp,
 }: TryFairMapProps) => {
   const { isSmallViewport } = useScreenSize();
-  const { setShowChooseLocationModal, setShowSigninModal } =
-    useStartMappingStore();
-  const { isAuthenticated: _isAuthenticated } = useAuth();
-  const isAuthenticated = DISABLE_AUTH_ON_TRY_FAIR || _isAuthenticated;
+  const { setChooseLocation } = useTryFairParams();
+  const { setShowSigninModal } = useStartMappingStore();
+  const { isAuthenticated } = useAuth();
   const [choroplethBuckets, setChoroplethBuckets] = useState<
     ChoroplethBucket[] | null
   >(null);
@@ -187,9 +186,8 @@ export const TryFairMap = ({
             <button
               type="button"
               onClick={() => {
-                if (isAuthenticated) {
-                  setShowChooseLocationModal(true);
-                } else {
+                setChooseLocation(true);
+                if (!isAuthenticated) {
                   setShowSigninModal(true);
                 }
               }}

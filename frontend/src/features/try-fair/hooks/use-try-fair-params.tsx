@@ -4,7 +4,12 @@ import {
   TryFairMapOutputType,
   TryFairResolution,
 } from "@/enums";
-import { parseAsFloat, parseAsString, useQueryStates } from "nuqs";
+import {
+  parseAsBoolean,
+  parseAsFloat,
+  parseAsString,
+  useQueryStates,
+} from "nuqs";
 import { useStacBaseModels, useStacLocalModels } from "./use-base-models";
 import { useMemo } from "react";
 import { getSelectedModel } from "@/features/try-fair/utils/models";
@@ -27,15 +32,16 @@ export const TRY_FAIR_PARAM_DEFAULTS = {
  * Persists the Try fAIr sidebar UI state in URL search params via nuqs.
  *
  * Params:
- *   model      — base model ID, e.g. "unet-segmentation"
- *   output     — visualization type: "polygon" | "points" | "cluster"
- *   resolution — zoom resolution: "low" | "mid" | "high"
- *   confidence — confidence threshold (0–1), e.g. 0.5
- *   feature    — selected feature category when mapping user-supplied imagery
- *   mode       — whether model demo imagery or user-selected imagery is active
- *   imagery    — custom imagery tile URL (never a bbox)
- *   imageryType — selected custom imagery service type
- *   oamItem    — OpenAerialMap item ID; its URL and bbox are hydrated on load
+ *   model          — base model ID, e.g. "unet-segmentation"
+ *   output         — visualization type: "polygon" | "points" | "cluster"
+ *   resolution     — zoom resolution: "low" | "mid" | "high"
+ *   confidence     — confidence threshold (0–1), e.g. 0.5
+ *   feature        — selected feature category when mapping user-supplied imagery
+ *   mode           — whether model demo imagery or user-selected imagery is active
+ *   imagery        — custom imagery tile URL (never a bbox)
+ *   imageryType    — selected custom imagery service type
+ *   oamItem        — OpenAerialMap item ID; its URL and bbox are hydrated on load
+ *   chooseLocation — boolean indicating whether the change location imagery modal is open
  */
 export const useTryFairParams = () => {
   const [params, setParams] = useQueryStates(
@@ -49,6 +55,7 @@ export const useTryFairParams = () => {
       imagery: parseAsString,
       imageryType: parseAsString,
       oamItem: parseAsString,
+      chooseLocation: parseAsBoolean.withDefault(false),
     },
     { history: "replace" },
   );
@@ -122,6 +129,7 @@ export const useTryFairParams = () => {
     imageryUrl: params.imagery,
     imageryTileServiceType,
     oamItemId: params.oamItem,
+    chooseLocation: params.chooseLocation,
 
     setModelId: (id: string) => setParams({ model: id }),
     setOutputType: (type: TryFairMapOutputType) => setParams({ output: type }),
@@ -129,6 +137,8 @@ export const useTryFairParams = () => {
     setConfidence: (val: number | null) => setParams({ confidence: val }),
     setFeature: (feature: string) => setParams({ feature }),
     setMode: (mode: ModelType) => setParams({ mode }),
+    setChooseLocation: (show: boolean) =>
+      setParams({ chooseLocation: show ? true : null }),
     setImagery: ({
       url,
       tileServiceType,

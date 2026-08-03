@@ -17,6 +17,7 @@ import { useAuth } from "@/app/providers/auth-provider";
 import { DISABLE_AUTH_ON_TRY_FAIR } from "@/config";
 import { ImagerySource } from "@/features/try-fair/components/imagery/imagery-location-modal";
 import { flagEmoji } from "@/features/try-fair/utils/common";
+import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
 
 type ModelPickerProps = {
   selectedModel: BaseModelStacItem | null;
@@ -59,7 +60,7 @@ const RadioDot = ({ selected }: { selected: boolean }) => (
 );
 
 const CountryBadge = ({ country, code }: { country: string; code: string }) => (
-  <span className="inline-flex gap-1.5 items-center px-2 py-0.5 rounded bg-grey text-white text-xs font-medium">
+  <span className="inline-flex gap-1.5 truncate items-center px-2 py-0.5 rounded bg-grey text-white text-xs font-medium">
     <span aria-hidden>{flagEmoji(code)}</span>
     {country}
   </span>
@@ -193,8 +194,8 @@ export const ModelPickerContent = ({
 }) => {
   const { isAuthenticated: _isAuthenticated } = useAuth();
   const isAuthenticated = DISABLE_AUTH_ON_TRY_FAIR || _isAuthenticated;
+  const { setChooseLocation } = useTryFairParams();
   const {
-    setShowChooseLocationModal,
     setShowSigninModal,
     setCurrentModelType,
     currentModelType,
@@ -346,9 +347,8 @@ export const ModelPickerContent = ({
         <button
           className="flex gap-2 items-center"
           onClick={() => {
-            if (isAuthenticated) {
-              setShowChooseLocationModal(true);
-            } else {
+            setChooseLocation(true);
+            if (!isAuthenticated) {
               setShowSigninModal(true);
             }
           }}
