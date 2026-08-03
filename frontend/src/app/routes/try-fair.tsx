@@ -12,7 +12,6 @@ import { ModelPickerContent } from "@/features/try-fair/components/model-picker-
 import { getSelectedModel } from "@/features/try-fair/utils/models";
 import { useMapInstance } from "@/hooks/use-map-instance";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { showErrorToast } from "@/utils";
 import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
 import {
   useStacBaseModels,
@@ -40,6 +39,7 @@ import { DISABLE_AUTH_ON_TRY_FAIR } from "@/config";
 import type { ImagerySelection } from "@/features/try-fair/types/imagery-types";
 import { MapLargeAreaRequestSuccess } from "@/features/try-fair/components/start-mapping/map-large-area-request-success-dialog";
 import { useShallow } from "zustand/react/shallow";
+import { showErrorToast } from "@/utils";
 
 export const TryFairPage = () => {
   const { map, mapContainerRef } = useMapInstance(false, false);
@@ -220,7 +220,6 @@ export const TryFairPage = () => {
     predictionBBox,
     predictionGridZoom,
     clearPredictions,
-    error,
   } = useFairPredict();
 
   const handleSelectModel = (model: BaseModelStacItem) => {
@@ -285,19 +284,23 @@ export const TryFairPage = () => {
       ),
     );
 
-    predict({
-      model: modelForMapping,
-      modelUri,
-      imageUri: tileserverURL,
-      bbox: latestBBox,
-      gridZoom: latestGridZoom ?? undefined,
-      resolution,
-      params: apiParams,
-    });
-    if (error) {
-      console.log(error);
-      showErrorToast(error);
-    }
+    predict(
+      {
+        model: modelForMapping,
+        modelUri,
+        imageUri: tileserverURL,
+        bbox: latestBBox,
+        gridZoom: latestGridZoom ?? undefined,
+        resolution,
+        params: apiParams,
+      },
+      {
+        onError: (error) => {
+           showErrorToast(error ?? 'An Error Occured.');
+          lastPredictedInputsRef.current = null;
+        },
+      },
+    );
   }, [
     modelForMapping,
     mappingModelId,
@@ -313,11 +316,7 @@ export const TryFairPage = () => {
     recordMapRun,
     hasNoModelsForFeature,
   ]);
-  useEffect(() => {
-    if (error) {
-      showErrorToast(error);
-    }
-  }, [error]);
+
   const isMapButtonDisabled =
     hasNoModelsForFeature ||
     !isDirty ||
