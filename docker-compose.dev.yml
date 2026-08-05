@@ -53,9 +53,7 @@ services:
     restart: unless-stopped
 
 configs:
-  # Dev runs data storage on real AWS S3 (bucket via backend .env) using the
-  # instance IAM role, so the pipeline containers get no MinIO AWS creds/endpoint
-  # and fall back to the role. ZenML's own artifact store stays on MinIO.
+  # ZenML artifact store on real AWS (same bucket + instance IAM role as backend storage).
   zenml_stack:
     content: |
       stack_name: fair-compose
@@ -78,11 +76,7 @@ configs:
           flavor: s3
           type: artifact_store
           configuration:
-            path: s3://zenml
-            key: ${MINIO_ROOT_USER:-minioadmin}
-            secret: ${MINIO_ROOT_PASSWORD:-minioadmin}
-            client_kwargs:
-              endpoint_url: "http://minio:9000"
+            path: s3://${BUCKET_NAME:-fair-dev}/${PARENT_BUCKET_FOLDER:-dev}/zenml
         experiment_tracker:
           name: mlflow_compose
           flavor: mlflow
