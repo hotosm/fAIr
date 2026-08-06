@@ -58,7 +58,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       : getValue(HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY),
   );
 
-  
   const [user, setUser] = useState<TUser | undefined>(undefined);
 
   const isAuthenticated =
@@ -157,13 +156,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setUser(undefined);
           return;
         }
-        
+
         const user = await authService.getUser();
         setUser(user);
         handleRedirection();
       }
     } catch (error) {
-      
       if (AUTH_PROVIDER !== "hanko") {
         showErrorToast(error);
       }

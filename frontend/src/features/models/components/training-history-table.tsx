@@ -308,7 +308,7 @@ const TrainingHistoryTable: React.FC<TrainingHistoryTableProps> = ({
   const { data, isPending, isPlaceholderData, refetch } = useTrainingHistory(
     offset,
     PAGE_LIMIT,
-    "-id",
+    "-submitted_at",
     showUserTrainingHistory ? undefined : modelId,
     showUserTrainingHistory ? user.osm_id : undefined,
     !!modelId || showUserTrainingHistory,
