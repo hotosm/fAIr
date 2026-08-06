@@ -18,14 +18,18 @@ import { DropDown } from "@/components/ui/dropdown";
 import {
   AUTH_PROVIDER,
   BASE_API_URL,
+  DISABLE_AUTH_ON_TRY_FAIR,
   FRONTEND_URL,
   HANKO_URL,
   IS_DEV,
-  FAIR_PROD_URL,
 } from "@/config";
 import "@hotosm/tool-menu";
 import { Divider } from "@/components/ui/divider";
 import { ToolTip } from "@/components/ui/tooltip";
+import ExportMapResults from "@/features/try-fair/components/start-mapping/export-map-results";
+import MappingMode from "@/features/try-fair/components/mapping-mode";
+import { ShareProjectModal } from "@/features/try-fair/components/modals/share-project-modal";
+import { StartMappingNavlinks } from "@/features/try-fair/components/try-fair-nav-links";
 
 if (AUTH_PROVIDER === "hanko") {
   import("@hotosm/hanko-auth");
@@ -48,12 +52,14 @@ const HankoAuthComponent = ({ displayBar }: { displayBar?: boolean }) => (
 export const NavBar = () => {
   const [open, setOpen] = useState(false);
 
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated: _isAuthenticated } = useAuth();
 
   const navigate = useNavigate();
 
   const location = useLocation();
   const isTryFairPage = location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR);
+  const isAuthenticated =
+    (isTryFairPage && DISABLE_AUTH_ON_TRY_FAIR) || _isAuthenticated;
   const isHankoAuth = AUTH_PROVIDER === "hanko";
   return (
     <>
@@ -81,12 +87,12 @@ export const NavBar = () => {
               />
             </div>
           )}
-          {isAuthenticated && <Divider />}
+          {_isAuthenticated && <Divider />}
 
           <div className={styles.loginButtonContainer}>
             {isHankoAuth && !IS_DEV && !isTryFairPage ? (
               <>
-                {isAuthenticated && (
+                {_isAuthenticated && (
                   <UserProfile
                     isHanko
                     hideFullName
@@ -105,7 +111,7 @@ export const NavBar = () => {
                   </span>
                 </>
               </>
-            ) : isAuthenticated ? (
+            ) : _isAuthenticated ? (
               <UserProfile
                 isHanko={isHankoAuth}
                 hideFullName={isHankoAuth}
@@ -131,16 +137,12 @@ export const NavBar = () => {
                         : ButtonVariant.PRIMARY
                     }
                     onClick={() => {
-                      if (isTryFairPage) {
-                        window.location.href = FAIR_PROD_URL;
-                      } else {
-                        /*
-                         * Set the `backgroundLocation` in location state so that when we open the authentication modal we still see the current page in the background.
-                         */
-                        navigate(location, {
-                          state: { backgroundLocation: location },
-                        });
-                      }
+                      /*
+                       * Set the `backgroundLocation` in location state so that when we open the authentication modal we still see the current page in the background.
+                       */
+                      navigate(location, {
+                        state: { backgroundLocation: location },
+                      });
                     }}
                   >
                     {isTryFairPage
@@ -157,23 +159,31 @@ export const NavBar = () => {
       <nav
         className={`${styles.nav} app-padding z-20 py-1 border-b border-gray-border`}
       >
-        <NavLogo />
-        {!isTryFairPage && (
-          <div className="hidden sm:flex">
-            <NavBarLinks className={styles.webNavLinks} />
-          </div>
-        )}
-        <div className="hidden sm:flex items-center gap-x-3">
+        <div className="flex-1 flex items-center justify-start">
+          <NavLogo />
+        </div>
+
+        <div className="flex-1 hidden sm:flex items-center justify-center">
+          {!isTryFairPage && <NavBarLinks className={styles.webNavLinks} />}
+          {isTryFairPage && isAuthenticated && <MappingMode />}
+        </div>
+
+        <div className="flex-1 hidden sm:flex items-center justify-end gap-x-3">
           {isHankoAuth && !IS_DEV && !isTryFairPage ? (
             <>
-              {isAuthenticated && <UserNotifications />}
-              {isAuthenticated && <UserProfile isHanko hideFullName />}
+              {_isAuthenticated && <UserNotifications />}
+              {_isAuthenticated && <UserProfile isHanko hideFullName />}
               <HankoAuthComponent />
             </>
           ) : isAuthenticated ? (
             <>
-              <UserNotifications />
-              <UserProfile isHanko={isHankoAuth} hideFullName={isHankoAuth} />
+              {isTryFairPage && <StartMappingNavlinks />}
+
+              {!isTryFairPage && _isAuthenticated && <UserNotifications />}
+
+              {isTryFairPage && <ExportMapResults />}
+
+              {_isAuthenticated && <UserProfile />}
             </>
           ) : (
             <div
@@ -201,16 +211,12 @@ export const NavBar = () => {
                   size={isTryFairPage ? "medium" : "large"}
                   rounded={isTryFairPage}
                   onClick={() => {
-                    if (isTryFairPage) {
-                      window.location.href = FAIR_PROD_URL;
-                    } else {
-                      /*
-                       * Set the `backgroundLocation` in location state so that when we open the authentication modal we still see the current page in the background.
-                       */
-                      navigate(location, {
-                        state: { backgroundLocation: location },
-                      });
-                    }
+                    /*
+                     * Set the `backgroundLocation` in location state so that when we open the authentication modal we still see the current page in the background.
+                     */
+                    navigate(location, {
+                      state: { backgroundLocation: location },
+                    });
                   }}
                 >
                   {isTryFairPage
@@ -224,7 +230,7 @@ export const NavBar = () => {
         </div>
         <div className="flex items-center gap-x-2 sm:hidden">
           {/* Notification bell on the small screens */}
-          {isAuthenticated && <UserNotifications />}
+          {_isAuthenticated && <UserNotifications />}
           <button
             className={styles.hamburgerMenu}
             onClick={() => setOpen(true)}
@@ -239,6 +245,7 @@ export const NavBar = () => {
           </button>
         </div>
       </nav>
+      <ShareProjectModal />
     </>
   );
 };

@@ -18,6 +18,10 @@ import useScreenSize from "@/hooks/use-screen-size";
 import { LocateGridIcon } from "@/components/ui/icons/locate-grid-icon";
 import { TryFairDownloadButton } from "@/features/try-fair/components/map/try-fair-download-button";
 import { cn } from "@/utils";
+import { GlobeSearchIcon } from "@/components/ui/icons/globe-search-icon";
+import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
+import { useAuth } from "@/app/providers/auth-provider";
+import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
 
 type TryFairMapProps = {
   map: Map | null;
@@ -60,18 +64,14 @@ export const TryFairMap = ({
   onHelp,
 }: TryFairMapProps) => {
   const { isSmallViewport } = useScreenSize();
+  const { setChooseLocation } = useTryFairParams();
+  const { setShowSigninModal } = useStartMappingStore();
+  const { isAuthenticated } = useAuth();
   const [choroplethBuckets, setChoroplethBuckets] = useState<
     ChoroplethBucket[] | null
   >(null);
   const gridBBoxRef = useRef<BBOX | null>(null);
-
-  const handleBBoxChange = useCallback(
-    (bbox: BBOX, tileZoom: number) => {
-      gridBBoxRef.current = bbox;
-      onBBoxChange(bbox, tileZoom);
-    },
-    [onBBoxChange],
-  );
+  const fitPendingRef = useRef(false);
 
   const handleFitToGrid = useCallback(() => {
     if (!canFitToBounds) return;
@@ -82,6 +82,33 @@ export const TryFairMap = ({
       essential: true,
     });
   }, [map, canFitToBounds]);
+
+  const handleBBoxChange = useCallback(
+    (bbox: BBOX, tileZoom: number) => {
+      gridBBoxRef.current = bbox;
+      onBBoxChange(bbox, tileZoom);
+      // If a resolution change triggered a grid recalculation, fit now.
+      if (fitPendingRef.current) {
+        fitPendingRef.current = false;
+        if (map && canFitToBounds) {
+          map.fitBounds([bbox[0], bbox[1], bbox[2], bbox[3]], {
+            padding: 40,
+            essential: true,
+          });
+        }
+      }
+    },
+    [onBBoxChange, map, canFitToBounds],
+  );
+
+  // When resolution changes, flag that we want to fit once the grid recalculates.
+  const prevResolutionRef = useRef(resolution);
+  useEffect(() => {
+    if (resolution !== prevResolutionRef.current) {
+      prevResolutionRef.current = resolution;
+      fitPendingRef.current = true;
+    }
+  }, [resolution]);
 
   useEffect(() => {
     if (!map) return;
@@ -155,6 +182,26 @@ export const TryFairMap = ({
 
       {map && (
         <div className="absolute top-5 right-3 map-elements-z-index flex flex-col gap-y-4">
+          <ToolTip content="Change Imagery">
+            <button
+              type="button"
+              onClick={() => {
+                setChooseLocation(true);
+                if (!isAuthenticated) {
+                  setShowSigninModal(true);
+                }
+              }}
+              disabled={isPredicting}
+              aria-label="Choose a different location"
+              className={cn(
+                mapActionButtonClassName,
+                isPredicting && "!disabled:cursor-wait",
+              )}
+            >
+              <GlobeSearchIcon />
+            </button>
+          </ToolTip>
+
           {/* Group 1: Zoom In, Zoom Out, Fit to bounds */}
           <div className="flex bg-white rounded-[4px] border border-gray-border md:border-0 shadow-sm flex-col gap-y-0">
             <ZoomControls

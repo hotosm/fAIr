@@ -1,5 +1,7 @@
 import { Alert } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 import { HelpText, Input, Select } from "@/components/ui/form";
+import { ToolTip } from "@/components/ui/tooltip";
 import {
   INPUT_TYPES,
   SHOELACE_SELECT_SIZES,
@@ -40,6 +42,10 @@ export const XYZTileServerInput = ({
   size,
   tileServiceType,
   setTileServiceType,
+  variant = "horizontal",
+  showButton,
+  buttonOnclick,
+  useAlert = true,
 }: {
   tileServerURL: string;
   setTileServerURL: (url: string) => void;
@@ -47,16 +53,32 @@ export const XYZTileServerInput = ({
   labelWithTooltip?: boolean;
   showBorder?: boolean;
   size?: SHOELACE_SIZES;
+  variant?: "horizontal" | "vertical";
   validationStateUpdateCallback?: (validationState: {
     valid: boolean;
     message: string;
   }) => void;
   pattern?: string;
   tileServiceType: TileServiceType;
+  buttonOnclick?: () => void;
+  showButton?: boolean;
+  useAlert?: boolean;
   setTileServiceType: (tileServiceType: TileServiceType) => void;
 }) => {
+  const isApplyDisabled =
+    !tileServerURL ||
+    !tileServerURL.trim() ||
+    !isValid.valid ||
+    !tileServiceType;
+
   return (
-    <div className="flex flex-col gap-2">
+    <div
+      className={
+        variant === "horizontal"
+          ? "flex flex-col gap-2"
+          : "grid grid-cols-1 md:grid-cols-2 gap-3"
+      }
+    >
       <Select
         label="Tile Service Type"
         options={TILE_SERVICE_TYPES}
@@ -67,38 +89,55 @@ export const XYZTileServerInput = ({
         defaultValue={tileServiceType}
         size={size as unknown as SHOELACE_SELECT_SIZES}
       />
-      <Input
-        label={`${tileServiceType ?? ""} ${tileServiceType !== TileServiceType.TILEJSON ? "Tile Server" : ""} URL`}
-        labelWithTooltip={labelWithTooltip}
-        value={tileServerURL}
-        toolTipContent={
-          tileServiceType === TileServiceType.TILEJSON
-            ? "Provide the URL to the TileJSON metadata file. For example, use a TileJSON link from a supported service."
-            : "Provide the URL template for your XYZ or TMS tile server. For example, use the TMS link from OpenAerialMap (OAM) or a custom URL."
-        }
-        placeholder={
-          tileServiceType === TileServiceType.TILEJSON
-            ? "e.g. https://example.com/tiles.json"
-            : tileServiceType === TileServiceType.XYZ
-              ? "e.g. https://tiles.example.com/{z}/{x}/{y}.png"
-              : "e.g. https://tiles.example.com/{z}/{x}/{-y}.png"
-        }
-        showBorder={showBorder}
-        pattern={getTileServerRegex(tileServiceType).source}
-        handleInput={(e) => setTileServerURL(e.target.value)}
-        type={INPUT_TYPES.URL}
-        validationStateUpdateCallback={validationStateUpdateCallback}
-        isValid={tileServerURL.length > 0 && isValid.valid}
-        size={size}
-      />
-      {tileServerURL.length > 0 && !isValid.valid && (
-        <HelpText>
-          <span className="text-primary">{isValid.message}</span>
-        </HelpText>
-      )}
-      <Alert>
+      <div className="flex flex-col gap-1">
+        <Input
+          label={`${tileServiceType ?? ""} ${tileServiceType !== TileServiceType.TILEJSON ? "Tile Server" : ""} URL`}
+          labelWithTooltip={labelWithTooltip}
+          value={tileServerURL}
+          toolTipContent={
+            tileServiceType === TileServiceType.TILEJSON
+              ? "Provide the URL to the TileJSON metadata file. For example, use a TileJSON link from a supported service."
+              : "Provide the URL template for your XYZ or TMS tile server. For example, use the TMS link from OpenAerialMap (OAM) or a custom URL."
+          }
+          placeholder={
+            tileServiceType === TileServiceType.TILEJSON
+              ? "e.g. https://example.com/tiles.json"
+              : tileServiceType === TileServiceType.XYZ
+                ? "e.g. https://tiles.example.com/{z}/{x}/{y}.png"
+                : "e.g. https://tiles.example.com/{z}/{x}/{-y}.png"
+          }
+          showBorder={showBorder}
+          pattern={getTileServerRegex(tileServiceType).source}
+          handleInput={(e) => setTileServerURL(e.target.value)}
+          type={INPUT_TYPES.URL}
+          validationStateUpdateCallback={validationStateUpdateCallback}
+          isValid={tileServerURL.length > 0 && isValid.valid}
+          size={size}
+        />
+        {tileServerURL.length > 0 && !isValid.valid && (
+          <HelpText>
+            <span className="text-primary">{isValid.message}</span>
+          </HelpText>
+        )}
+      </div>
+
+      {useAlert ? (
+        <Alert>
+          <span className="text-wrap text-xs">
+            Ensure your imagery URL has CORS enabled and adheres to the{" "}
+            <a
+              href="https://github.com/hotosm/fair?tab=readme-ov-file#imagery-license"
+              target="_blank"
+              className="text-primary underline"
+            >
+              license requirements
+            </a>
+            .
+          </span>
+        </Alert>
+      ) : (
         <span className="text-wrap text-xs">
-          Ensure your imagery URL has CORS enabled and adheres to the{" "}
+          Ensure your imagery URL has CORS enabled and <br /> adheres to the{" "}
           <a
             href="https://github.com/hotosm/fair?tab=readme-ov-file#imagery-license"
             target="_blank"
@@ -108,7 +147,35 @@ export const XYZTileServerInput = ({
           </a>
           .
         </span>
-      </Alert>
+      )}
+
+      {showButton && (
+        <div className="flex justify-end items-end">
+          <ToolTip
+            content={
+              isApplyDisabled
+                ? !tileServiceType
+                  ? "Select a tile service type"
+                  : !tileServerURL || !tileServerURL.trim()
+                    ? "Enter a tile server URL"
+                    : isValid.message || "Enter a valid tile server URL"
+                : "Apply custom tile server"
+            }
+          >
+            <span className="inline-block">
+              <Button
+                size="medium"
+                onClick={buttonOnclick}
+                disabled={isApplyDisabled}
+                rounded
+                className="!w-fit"
+              >
+                Apply
+              </Button>
+            </span>
+          </ToolTip>
+        </div>
+      )}
     </div>
   );
 };

@@ -12,7 +12,7 @@ type TBannerResponse = {
 
 const fetchBanner = async (): Promise<TBannerResponse[]> => {
   const { data } = await apiClient.get(API_ENDPOINTS.GET_BANNER);
-  return data;
+  return data.results;
 };
 
 const Banner = () => {

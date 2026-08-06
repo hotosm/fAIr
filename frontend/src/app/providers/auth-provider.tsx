@@ -4,6 +4,7 @@ import { authService } from "@/services";
 import {
   AUTH_PROVIDER,
   BASE_API_URL,
+  DISABLE_AUTH_ON_TRY_FAIR,
   HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY,
   HOT_FAIR_LOGIN_SUCCESSFUL_SESSION_KEY,
   HOT_FAIR_SESSION_REDIRECT_KEY,
@@ -165,6 +166,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   useEffect(() => {
+    if (DISABLE_AUTH_ON_TRY_FAIR) return;
     if (AUTH_PROVIDER === "hanko") {
       fetchUserProfile();
     } else if (token) {
@@ -234,6 +236,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   useEffect(() => {
     if (AUTH_PROVIDER !== "hanko") return;
+    if (DISABLE_AUTH_ON_TRY_FAIR) return;
 
     const handleLogin = (e: Event) => {
       const user = (e as CustomEvent).detail?.user;
@@ -261,6 +264,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
    * This is majorly to keep the user profile information up to date, especially when the user is logged in.
    */
   useEffect(() => {
+    if (DISABLE_AUTH_ON_TRY_FAIR) return;
     const intervalId = setInterval(() => {
       if (AUTH_PROVIDER === "hanko" && !IS_DEV) {
         fetch(`${BASE_API_URL}auth/me/`, { credentials: "include" })
