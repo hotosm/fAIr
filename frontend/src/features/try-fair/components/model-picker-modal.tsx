@@ -95,7 +95,7 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
       : "Custom Imagery";
 
   const trigger = (
-    <div className="flex justify-between items-center">
+    <div className="flex   justify-between items-center">
       <div className="w-full md:w-28 text-left flex-1 min-w-0">
         {loading ? (
           <p className="text-grey text-xs animate-pulse">Loading models…</p>
@@ -135,7 +135,7 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
         type="button"
         disabled={disabled}
         onClick={openMobileDialog}
-        className="w-full rounded-xl border px-3 py-2 bg-white"
+        className="w-full rounded-xl border px-3  py-2 bg-white"
       >
         {trigger}
       </button>
@@ -144,7 +144,7 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
 
   return (
     <DropDown
-      className="rounded-xl w-full md:w-32 !disabled:cursor-wait"
+      className="rounded-xl   w-full md:w-32 !disabled:cursor-wait"
       disabled={disabled}
       ref={dropdownRef}
       onDropdownShow={() => setIsOpen(true)}
@@ -257,7 +257,7 @@ export const ModelPickerContent = ({
   };
 
   return (
-    <div className="bg-white rounded-xl p-2 md:p-4 space-y-4 max-h-[70vh] overflow-y-auto">
+    <div className="bg-white  rounded-xl p-2 md:p-4 space-y-4 max-h-[70vh] overflow-y-auto">
       {selectedImagery && (
         <button
           key="imagery"

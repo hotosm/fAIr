@@ -95,7 +95,7 @@ export const TryFairSidebar = ({
     >
       <div
         className={cn(
-          "flex bg-[#FAFAFA] border p-2.5 rounded-lg",
+          "flex bg-[#FAFAFA] border-[#687075] border  p-2.5 rounded-lg",
           isSmallViewport
             ? "flex-col items-stretch gap-2"
             : "items-center gap-2",
