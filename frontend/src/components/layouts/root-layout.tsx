@@ -6,12 +6,10 @@ import { NavBar } from "@/components/layouts";
 import { Outlet, useLocation, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useScrollToTop } from "@/hooks/use-scroll-to-element";
-import { useAuth } from "@/app/providers/auth-provider";
-import { AuthenticationModal } from "@/components/auth";
 import { BANNER_TIMEOUT_DURATION } from "@/config";
 
 export const RootLayout = () => {
-  const { pathname, state } = useLocation();
+  const { pathname } = useLocation();
   const { scrollToTop } = useScrollToTop();
 
   /**
@@ -21,8 +19,7 @@ export const RootLayout = () => {
     scrollToTop();
   }, [pathname]);
 
-  const { isAuthenticated } = useAuth();
-
+  
   const [showBanner, setShowBanner] = useState<boolean>(false);
 
   /**
@@ -46,11 +43,6 @@ export const RootLayout = () => {
   return (
     <>
       <HotTracking />
-
-      {/* Show the auth modal when a `backgroundLocation` is set and when the user is not authenticated. */}
-      <AuthenticationModal
-        isOpen={state?.backgroundLocation && !isAuthenticated}
-      />
       <main className="min-h-screen relative flex flex-col">
         {!pathname.includes(APPLICATION_ROUTES.AUTH_CALLBACK) &&
           !pathname.includes(APPLICATION_ROUTES.EMAIL_VERIFICATION_CALLBACK) &&
