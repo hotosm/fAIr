@@ -2,9 +2,9 @@ import { TrainingStatusBadge } from "@/components/shared/training-status-badge";
 import { Button } from "@/components/ui/button";
 import { ButtonVariant, DropdownPlacement, SHOELACE_SIZES } from "@/enums";
 import { TOfflinePrediction } from "@/types";
-import { formatDate, formatDuration, formatNumber } from "@/utils";
+import { formatDate, formatDuration } from "@/utils";
 import { OfflinePredictionActions } from "./offline-predictions-actions";
-import { MapIcon } from "@/components/ui/icons";
+// import { MapIcon } from "@/components/ui/icons";
 import { MapSwipeProjectIsActive } from "./mapswipe-project-active";
 import { getDisplayStatus } from "@/features/user-profile/utils/get-display-status";
 
@@ -45,7 +45,7 @@ export const OfflinePredictionCard = ({
         <TrainingStatusBadge
           status={getDisplayStatus(
             predictionResult.status,
-            predictionResult.published,
+            predictionResult.visibility === "public",
           )}
         />
 
@@ -62,33 +62,33 @@ export const OfflinePredictionCard = ({
             className="!w-fit"
             size={SHOELACE_SIZES.SMALL}
           >
-            <p>Zoom: {predictionResult.config.zoom_level}</p>
+            <p>Zoom: {predictionResult.zoom}</p>
           </Button>
           <MapSwipeProjectIsActive
-            MapSwipeId={predictionResult.mapswipe_id as string}
+            MapSwipeId={predictionResult.mapswipe_project_id as string}
             isCard
           />
         </div>
-        <p className="text-dark text-body-3">
+        {/* <p className="text-dark text-body-3">
           <MapIcon className="icon" />{" "}
           {formatNumber((predictionResult?.result?.count as number) ?? 0)}{" "}
           detected features
-        </p>
+        </p> */}
         <p className="text-dark text-body-3">
           Date Submitted:{" "}
           <span className="font-semibold">
-            {predictionResult.created_at
-              ? formatDate(predictionResult.created_at)
+            {predictionResult.submitted_at
+              ? formatDate(predictionResult.submitted_at)
               : "-"}
           </span>
         </p>
         <p className="text-dark text-body-3">
           Duration:{" "}
           <span className="font-semibold">
-            {predictionResult.created_at && predictionResult.finished_at
+            {predictionResult.submitted_at && predictionResult.last_polled_at
               ? formatDuration(
-                  new Date(predictionResult.finished_at),
-                  new Date(predictionResult.created_at),
+                  new Date(predictionResult.last_polled_at),
+                  new Date(predictionResult.submitted_at),
                 )
               : "-"}
           </span>

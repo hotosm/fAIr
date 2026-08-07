@@ -17,7 +17,11 @@ export const MapLargeAreaRequestSuccess = ({
   const navigate = useNavigate();
 
   return (
-    <Dialog isOpened={isOpen} size={SHOELACE_SIZES.SMALL} closeDialog={onClose}>
+    <Dialog
+      isOpened={isOpen}
+      size={SHOELACE_SIZES.MEDIUM}
+      closeDialog={onClose}
+    >
       <div className="flex flex-col items-center gap-y-4 h-full w-full justify-center">
         <div className="bg-secondary p-2 rounded-full flex items-center justify-center">
           <Image src={ModelFormConfirmation} alt="Success Icon" />

@@ -1,7 +1,7 @@
 import { useAuth } from "@/app/providers/auth-provider";
 import { Head } from "@/components/seo";
 
-import { Button} from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Input, Switch } from "@/components/ui/form";
 
 import { USER_PROFILE_PAGE_CONTENT } from "@/constants/ui-contents/user-profile-content";
@@ -24,7 +24,7 @@ export const UserProfileSettingsPage = () => {
       message: "",
     },
   );
- 
+
   const [showForm, setShowForm] = useState<boolean>(user?.email.length === 0);
 
   const [isEmailPending, setIsEmailPending] = useState<boolean>(false);
@@ -61,7 +61,7 @@ export const UserProfileSettingsPage = () => {
       },
     },
   });
-  
+
   const {
     mutate: requestEmailVerification,
     isPending: emailVerificationRequestIsPending,
@@ -77,7 +77,6 @@ export const UserProfileSettingsPage = () => {
       },
     },
   });
-  
 
   const { mutate: updateNotifications } = useUpdateUserProfile({
     mutationConfig: {
@@ -98,16 +97,12 @@ export const UserProfileSettingsPage = () => {
     updateEmail({ email });
   };
 
-
   return (
     <>
-      
       <Head title={USER_PROFILE_PAGE_CONTENT.settings.pageTitle} />
-      
+
       <div className="flex justify-center items-center">
         <div className="w-full md:max-w-[400px] flex flex-col gap-y-10">
-          
-
           {showForm && (
             <div className="flex flex-col gap-y-6">
               <SectionHeader
@@ -252,7 +247,6 @@ export const UserProfileSettingsPage = () => {
               )}
             </div>
           </div>
-          
         </div>
       </div>
     </>

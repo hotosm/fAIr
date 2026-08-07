@@ -60,7 +60,7 @@ export const PublishedPredictionDetailDialog = ({
   onClose,
 }: PublishedPredictionDetailDialogProps) => {
   const title = prediction.description || `Prediction ${prediction.id}`;
-  const featureCount = prediction.result?.count ?? 0;
+  const featureCount =  0;
 
   return (
     <Dialog

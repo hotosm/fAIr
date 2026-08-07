@@ -7,7 +7,7 @@ import { SlDropdown } from "@shoelace-style/shoelace";
 import { MutableRefObject } from "react";
 
 export const OfflinePredictionsSettingsInfo = ({
-  predictionConfig,
+  // predictionConfig,
   dropdownRef,
   disableSettingsInfoIcon,
   placement = DropdownPlacement.BOTTOM_END,
@@ -41,7 +41,7 @@ export const OfflinePredictionsSettingsInfo = ({
     >
       <div className="flex flex-col gap-2 bg-white p-4 min-w-48">
         <p className="font-bold text-body-3  text-dark text-start">Settings</p>
-        {Object.entries(predictionConfig)
+        {/* {Object.entries(predictionConfig)
           .filter(
             ([key]) =>
               !["checkpoint", "source", "model_id", "bbox"].includes(key),
@@ -60,7 +60,7 @@ export const OfflinePredictionsSettingsInfo = ({
                   : String(value)}
               </span>
             </span>
-          ))}
+          ))} */}
       </div>
     </DropDown>
   );
