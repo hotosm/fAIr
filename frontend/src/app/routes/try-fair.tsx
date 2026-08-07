@@ -380,7 +380,7 @@ export const TryFairPage = () => {
 
       {/* Model picker dialog – rendered at page level so it's not trapped inside MobileDrawer */}
       <Dialog
-        label="Where do you want to map?"
+        label="What do you want to map?"
         isOpened={isModelPickerDialogOpened}
         closeDialog={closeModelPickerDialog}
       >
@@ -389,6 +389,15 @@ export const TryFairPage = () => {
           onSelect={handleSelectModel}
           models={models}
           onClose={closeModelPickerDialog}
+          feature={feature}
+          onFeatureChange={setFeature}
+          onChooseImagery={() => {
+            closeModelPickerDialog();
+            setChooseLocation(true);
+            if (!isAuthenticated) {
+              setShowSigninModal(true);
+            }
+          }}
         />
       </Dialog>
 
@@ -461,8 +470,7 @@ export const TryFairPage = () => {
                 onMap={handleMap}
                 isPredicting={isPredicting}
                 isMapButtonDisabled={isMapButtonDisabled}
-                feature={feature}
-                onFeatureChange={setFeature}
+                openMobileModelPickerDialog={openModelPickerDialog}
               />
             </div>
           )}
@@ -494,8 +502,6 @@ export const TryFairPage = () => {
                   onMap={handleMap}
                   isPredicting={isPredicting}
                   isMapButtonDisabled={isMapButtonDisabled}
-                  feature={feature}
-                  onFeatureChange={setFeature}
                   className="w-full shadow-none"
                   openMobileModelPickerDialog={openModelPickerDialog}
                 />

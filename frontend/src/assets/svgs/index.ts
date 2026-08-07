@@ -9,5 +9,5 @@ export { default as YouTubeIcon } from "@/assets/svgs/socials/youtube_logo.svg";
 export { default as InstagramIcon } from "@/assets/svgs/socials/instagram_logo.svg";
 export { default as XIcon } from "@/assets/svgs/socials/x_logo.svg";
 export { default as GitHubIcon } from "@/assets/svgs/socials/github_logo.svg";
-export { default as HOTLogo } from "@/assets/svgs/hot-logo-icon.svg";
 export { default as MapSwipeLogo } from "@/assets/svgs/mapswipe_logo-compact.svg";
+export { default as fAIrLogo } from "@/assets/svgs/fair.svg";

@@ -50,6 +50,7 @@ const MapLargeAreaContent = ({
     handleSubmit,
   } = useMapLargeArea({
     imageryBounds,
+    tileServerURL,
     onSubmit,
     closeDialog,
   });

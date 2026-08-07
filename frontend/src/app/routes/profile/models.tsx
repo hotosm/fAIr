@@ -1,7 +1,5 @@
 import { Head } from "@/components/seo";
 
-import { APPLICATION_ROUTES } from "@/constants";
-
 import { useAuth } from "@/app/providers/auth-provider";
 
 import { USER_PROFILE_PAGE_CONTENT } from "@/constants/ui-contents/user-profile-content";
@@ -14,8 +12,8 @@ export const UserModelsPage = () => {
       <Head title={USER_PROFILE_PAGE_CONTENT.models.pageTitle} />
       <ModelExplorer
         title="My Models"
-        createButtonAlt={USER_PROFILE_PAGE_CONTENT.models.createNewButtonText}
-        createRoute={APPLICATION_ROUTES.CREATE_NEW_MODEL}
+        // createButtonAlt={USER_PROFILE_PAGE_CONTENT.models.createNewButtonText}
+        // createRoute={APPLICATION_ROUTES.CREATE_NEW_MODEL}
         userId={user?.osm_id}
       />
     </>

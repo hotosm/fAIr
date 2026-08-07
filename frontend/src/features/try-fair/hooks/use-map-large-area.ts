@@ -1,5 +1,6 @@
 import { MAX_TRAINING_AREA_SIZE, MIN_TRAINING_AREA_SIZE } from "@/config";
-import { DrawingModes } from "@/enums";
+import { DrawingModes, ModelType } from "@/enums";
+
 import { useMapInstance } from "@/hooks/use-map-instance";
 import { BBOX, Feature } from "@/types";
 import {
@@ -50,16 +51,19 @@ const createFeatureFromBounds = (bounds: BBOX): Feature => {
 
 interface UseMapLargeAreaOptions {
   imageryBounds?: BBOX | null;
+  /** Fully resolved tile URL from useTileservice – covers both demo and custom imagery. */
+  tileServerURL?: string;
   onSubmit: () => void;
   closeDialog: () => void;
 }
 
 export const useMapLargeArea = ({
   imageryBounds,
+  tileServerURL,
   onSubmit,
   closeDialog,
 }: UseMapLargeAreaOptions) => {
-  const { selectedImagery } = useStartMappingStore();
+  const { selectedImagery, currentModelType } = useStartMappingStore();
   const activeImageryBounds = imageryBounds ?? selectedImagery?.bounds ?? null;
   const { mapContainerRef, map, drawingMode, setDrawingMode, terraDraw } =
     useMapInstance(
@@ -457,7 +461,10 @@ export const useMapLargeArea = ({
 
     const payload: MapLargeAreaRequest = {
       model_stac_id: selectedModel?.id ?? modelId,
-      image_uri: selectedImagery?.tileUrl ?? "",
+      image_uri:
+        currentModelType === ModelType.DEMO
+          ? (tileServerURL ?? "")
+          : (selectedImagery?.tileUrl ?? ""),
       zoom: zoomNumber,
       params: {
         confidence_threshold: confidence,
@@ -465,7 +472,7 @@ export const useMapLargeArea = ({
       },
       ...(activeTab === "whole"
         ? { bbox: getGeoJSONFeatureBounds(selectedAOI) }
-        : { geom: selectedAOI.geometry }),
+        : { geometry: selectedAOI.geometry }),
     };
 
     submitMapLargeArea(payload, {

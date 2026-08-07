@@ -50,11 +50,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const { getSessionValue, removeSessionValue, setSessionValue } =
     useSessionStorage();
 
+  const isTryFairPage = location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR);
+
   const [token, setToken] = useState<string | undefined>(
     AUTH_PROVIDER === "hanko" && !IS_DEV
       ? "hanko-cookie-auth"
       : getValue(HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY),
   );
+
   const [user, setUser] = useState<TUser | undefined>(undefined);
 
   const isAuthenticated =
@@ -153,6 +156,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setUser(undefined);
           return;
         }
+
         const user = await authService.getUser();
         setUser(user);
         handleRedirection();
@@ -166,7 +170,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   useEffect(() => {
-    if (DISABLE_AUTH_ON_TRY_FAIR) return;
+    if (DISABLE_AUTH_ON_TRY_FAIR && isTryFairPage) return;
     if (AUTH_PROVIDER === "hanko") {
       fetchUserProfile();
     } else if (token) {

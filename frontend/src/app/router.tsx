@@ -435,38 +435,6 @@ const router = createBrowserRouter([
        */
 
       /**
-       * Auth route starts.
-       */
-      {
-        path: APPLICATION_ROUTES.AUTH_CALLBACK,
-        lazy: async () => {
-          const { AuthenticationCallbackPage } = await import(
-            "@/app/routes/authenticate"
-          );
-          return { Component: AuthenticationCallbackPage };
-        },
-      },
-      /**
-       * Auth route ends.
-       */
-
-      /**
-       * Email verification route starts.
-       */
-      {
-        path: APPLICATION_ROUTES.EMAIL_VERIFICATION_CALLBACK,
-        lazy: async () => {
-          const { EmailVerificationCallbackPage } = await import(
-            "@/app/routes/verify-email"
-          );
-          return { Component: EmailVerificationCallbackPage };
-        },
-      },
-      /**
-       * Email verification route ends.
-       */
-
-      /**
        * 404 route.
        */
       {
