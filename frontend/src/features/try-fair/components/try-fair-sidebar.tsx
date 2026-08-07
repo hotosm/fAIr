@@ -25,7 +25,6 @@ import { RefreshIcon } from "@/components/ui/icons";
 import { ToolTip } from "@/components/ui/tooltip";
 import { LocationSearchIcon } from "@/components/ui/icons/location-search-icon";
 
-
 type TryFairSidebarProps = {
   selectedModel: BaseModelStacItem | null;
   models: BaseModelStacItem[];

@@ -69,13 +69,7 @@ const RadioDot = ({ selected }: { selected: boolean }) => (
 );
 
 /** Country flag chip. */
-const CountryBadge = ({
-  country,
-  code,
-}: {
-  country: string;
-  code: string;
-}) => (
+const CountryBadge = ({ country, code }: { country: string; code: string }) => (
   <span className="inline-flex gap-1.5 truncate items-center px-2 py-0.5 rounded bg-grey text-white text-xs font-medium">
     <span aria-hidden>{flagEmoji(code)}</span>
     {country}
@@ -203,17 +197,12 @@ const FeatureListItem = ({
     <button
       type="button"
       disabled={isItemDisabled}
-      title={
-        hasNoModels ? "No models available for this feature" : undefined
-      }
+      title={hasNoModels ? "No models available for this feature" : undefined}
       onClick={() => onSelect(feature.slug)}
       className={cn(
         "flex items-center justify-between w-full py-3 px-3 rounded-lg transition-colors text-left",
-        isSelected
-          ? ""
-          : "",
-        isItemDisabled &&
-          "opacity-40 cursor-not-allowed hover:bg-transparent",
+        isSelected ? "" : "",
+        isItemDisabled && "opacity-40 cursor-not-allowed hover:bg-transparent",
       )}
     >
       <div className="flex items-center gap-2">
@@ -301,9 +290,7 @@ export const ModelPickerContent = ({
     (f) => f.slug !== "other",
   );
   const selectedFeature =
-    featureList.find((f) => f.slug === feature) ??
-    featureList[0] ??
-    null;
+    featureList.find((f) => f.slug === feature) ?? featureList[0] ?? null;
 
   // Key helpers
   const keyOf = (choice: StagedChoice): string =>
@@ -378,7 +365,7 @@ export const ModelPickerContent = ({
                 <strong>location</strong> to map
               </p>
             </div>
-       <DoubleArrowIcon />
+            <DoubleArrowIcon />
           </button>
 
           {/* Model cards grid */}
@@ -470,7 +457,9 @@ export const ModelPickerContent = ({
                     onClick={() => setStaged({ type: "imagery" })}
                     className={cn(
                       "text-left p-3 w-full bg-frosted-blue rounded-lg transition-colors",
-                      imageryActive ? "border-primary border-2" : "border border-transparent",
+                      imageryActive
+                        ? "border-primary border-2"
+                        : "border border-transparent",
                     )}
                   >
                     <div className="flex items-start justify-between gap-2 mb-1">
@@ -516,7 +505,6 @@ export const ModelPickerContent = ({
               </div>
             )}
           </div>
-
         </div>
       )}
 
