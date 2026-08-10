@@ -99,6 +99,14 @@ def deprecate_item(collection_id: str, item_id: str) -> pystac.Item:
     return _backend().deprecate_item(collection_id, item_id)
 
 
+def _public_links(links: list[dict]) -> list[dict]:
+    # Internal STAC-host links are dead publicly; consumers navigate via this backend, so drop them.
+    internal = settings.FAIR_STAC_API_URL
+    if not internal:
+        return links
+    return [link for link in links if not str(link.get("href", "")).startswith(internal)]
+
+
 def serialize_item(item: pystac.Item) -> dict:
     """JSON-safe extract of the STAC fields the API exposes.
 
@@ -114,7 +122,7 @@ def serialize_item(item: pystac.Item) -> dict:
         "geometry": raw.get("geometry"),
         "assets": raw.get("assets") or {},
         "properties": properties,
-        "links": raw.get("links") or [],
+        "links": _public_links(raw.get("links") or []),
     }
 
 
