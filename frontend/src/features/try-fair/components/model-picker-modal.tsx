@@ -1,11 +1,6 @@
 import { useEffect, useState } from "react";
 import { BaseModelStacItem } from "@/features/try-fair/api/stac";
 import { useImageryCountry } from "@/features/try-fair/hooks/use-imagery-country";
-import { BuildingIcon } from "@/components/ui/icons/buildings-icon";
-import { TreesIcon } from "@/components/ui/icons/trees-icon";
-import { SwimmingPoolIcon } from "@/components/ui/icons/swimming-pool-icon";
-import { ParkingIcon } from "@/components/ui/icons/parking-icon";
-import { IconProps } from "@/types";
 import { Button } from "@/components/ui/button";
 import { GlobeSearchIcon } from "@/components/ui/icons/globe-search-icon";
 import { ModelType } from "@/enums";
@@ -13,68 +8,23 @@ import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-st
 import { useAuth } from "@/app/providers/auth-provider";
 import { DISABLE_AUTH_ON_TRY_FAIR } from "@/config";
 import { ImagerySource } from "@/features/try-fair/components/imagery/imagery-location-modal";
-import { flagEmoji } from "@/features/try-fair/utils/common";
 import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
 import {
-  FeatureToMapItem,
-  useGetAPIBaseModels,
-  useGetAPILocalModels,
   useGetFeaturesToMap,
 } from "@/features/try-fair/api/features-to-map";
-import { RoadsIcon } from "@/components/ui/icons/roads-icon";
-import { SolarPanelIcon } from "@/components/ui/icons/solar-panel-icon";
 import { cn } from "@/utils";
 import { ChooseImageryIcon } from "@/components/ui/icons/choose-imagery-icon";
 import { DoubleArrowIcon } from "@/components/ui/icons/double-arrow-icon";
+import { ChevronDownIcon } from "@/components/ui/icons";
+import { FeatureListItem } from "@/features/try-fair/components/model-picker/feature-to-map-list";
+import { RadioDot, FeatureBadge } from "@/features/try-fair/components/model-picker/model-picker-badges";
+import { ImageryPreviewCard } from "@/features/try-fair/components/model-picker/imagery-preview-card";
+import { RecentImageriesList } from "@/features/try-fair/components/model-picker/recent-imageries-list";
+import type { RecentImageryEntry } from "@/features/try-fair/hooks/use-recent-imageries";
 
-// ─── Shared sub-components ────────────────────────────────────────────────────
 
-const FEATURE_ICONS: Record<string, React.FC<IconProps>> = {
-  building: BuildingIcon,
-  buildings: BuildingIcon,
-  tree: TreesIcon,
-  trees: TreesIcon,
-  swimming_pool: SwimmingPoolIcon,
-  "swimming-pool": SwimmingPoolIcon,
-  parking: ParkingIcon,
-  roads: RoadsIcon,
-  "solar-panels": SolarPanelIcon,
-  solar_panels: SolarPanelIcon,
-};
 
-const getFeatureIcon = (slug: string): React.FC<IconProps> =>
-  FEATURE_ICONS[slug] ?? BuildingIcon;
 
-/** Small coloured chip: icon + label. */
-const FeatureBadge = ({ label }: { label: string | undefined }) => {
-  const Icon = FEATURE_ICONS[label ?? ""] ?? BuildingIcon;
-  const featureLabel = (label ?? "").replace(/[-_]/g, " ");
-  return (
-    <span className="inline-flex gap-2 items-center px-2 py-0.5 capitalize rounded bg-grey text-white text-xs font-medium">
-      <Icon />
-      {featureLabel}
-    </span>
-  );
-};
-
-/** Radio indicator dot. */
-const RadioDot = ({ selected }: { selected: boolean }) => (
-  <span
-    className={`mt-0.5 shrink-0 w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-      selected ? "border-primary" : "border-gray-border"
-    }`}
-  >
-    {selected && <span className="w-2 h-2 rounded-full bg-primary" />}
-  </span>
-);
-
-/** Country flag chip. */
-const CountryBadge = ({ country, code }: { country: string; code: string }) => (
-  <span className="inline-flex gap-1.5 truncate items-center px-2 py-0.5 rounded bg-grey text-white text-xs font-medium">
-    <span aria-hidden>{flagEmoji(code)}</span>
-    {country}
-  </span>
-);
 
 // ─── ModelPicker trigger ──────────────────────────────────────────────────────
 
@@ -161,70 +111,14 @@ const IMAGERY_KEY = "imagery";
 
 type StagedChoice =
   | { type: "model"; model: BaseModelStacItem }
-  | { type: "imagery" };
+  | { type: "imagery"; entry?: RecentImageryEntry };
 
 // ─── Tab constants ────────────────────────────────────────────────────────────
 
 const TAB_SAMPLES = "Samples";
 const TAB_CHOOSE = "Choose your own";
 
-// ─── Feature list item (Choose your own tab) ─────────────────────────────────
 
-type FeatureListItemProps = {
-  feature: FeatureToMapItem;
-  isSelected: boolean;
-  disabled: boolean;
-  onSelect: (slug: string) => void;
-};
-
-const FeatureListItem = ({
-  feature,
-  isSelected,
-  disabled,
-  onSelect,
-}: FeatureListItemProps) => {
-  const { data: baseModels, isPending: isBaseModelsPending } =
-    useGetAPIBaseModels(feature.slug);
-  const { data: localModels, isPending: isLocalModelsPending } =
-    useGetAPILocalModels(feature.slug);
-  const hasNoModels =
-    baseModels?.results.length === 0 && localModels?.results.length === 0;
-  const isItemDisabled =
-    disabled || isBaseModelsPending || isLocalModelsPending || hasNoModels;
-  const FeatureIcon = getFeatureIcon(feature.slug);
-
-  return (
-    <button
-      type="button"
-      disabled={isItemDisabled}
-      title={hasNoModels ? "No models available for this feature" : undefined}
-      onClick={() => onSelect(feature.slug)}
-      className={cn(
-        "flex items-center justify-between w-full py-3 px-3 rounded-lg transition-colors text-left",
-        isSelected ? "" : "",
-        isItemDisabled && "opacity-40 cursor-not-allowed hover:bg-transparent",
-      )}
-    >
-      <div className="flex items-center gap-2">
-        <FeatureIcon className="w-4 h-4 text-dark shrink-0" />
-        <span className="text-xs font-medium text-dark">{feature.label}</span>
-      </div>
-      {isSelected && (
-        <span className="w-5 h-5 rounded-full bg-primary flex items-center justify-center shrink-0">
-          <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-            <path
-              d="M1 4L3.5 6.5L9 1"
-              stroke="white"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </span>
-      )}
-    </button>
-  );
-};
 
 // ─── ModelPickerContent ───────────────────────────────────────────────────────
 
@@ -241,18 +135,18 @@ export const ModelPickerContent = ({
   feature,
   onFeatureChange,
   onChooseImagery,
+  recentImageries = [],
+  onApplyRecentImagery,
 }: {
   selectedModel: BaseModelStacItem | null;
   onSelect: (model: BaseModelStacItem) => void;
   models: BaseModelStacItem[];
-  /** Close the picker after a choice is applied. */
   onClose?: () => void;
-  /** Currently selected feature slug (for "Choose your own" tab). */
   feature?: string;
-  /** Called when the user picks a feature in "Choose your own". */
   onFeatureChange?: (slug: string) => void;
-  /** Called when the user clicks "Choose Imagery" in "Choose your own". */
   onChooseImagery?: () => void;
+  recentImageries?: RecentImageryEntry[];
+  onApplyRecentImagery?: (entry: RecentImageryEntry) => void;
 }) => {
   const { isAuthenticated: _isAuthenticated } = useAuth();
   const isAuthenticated = DISABLE_AUTH_ON_TRY_FAIR || _isAuthenticated;
@@ -267,6 +161,9 @@ export const ModelPickerContent = ({
   // Active tab
   const [activeTab, setActiveTab] = useState<string>(TAB_SAMPLES);
 
+  // Imagery panel sub-view: "preview" shows the map card, "recent" shows the list.
+  const [imageryView, setImageryView] = useState<"preview" | "recent">("preview");
+
   // Staged choice (committed only on Apply)
   const [staged, setStaged] = useState<StagedChoice | null>(null);
 
@@ -275,13 +172,21 @@ export const ModelPickerContent = ({
     setStaged(null);
   }, [selectedModel, currentModelType]);
 
+  // Active imagery choice (staged selection or committed imagery)
+  const activeImagery =
+    staged?.type === "imagery" && staged.entry
+      ? staged.entry.selection
+      : selectedImagery;
+
   // Imagery metadata
-  const imageryCountry = useImageryCountry(selectedImagery?.bounds ?? null);
+  const imageryCountry = useImageryCountry(activeImagery?.bounds ?? null);
   const isOamImagery =
-    selectedImagery?.source === ImagerySource.OPEN_AERIAL_MAP;
-  const imageryTitle = isOamImagery
-    ? selectedImagery.item.title
-    : (imageryCountry?.place ?? "Custom Imagery");
+    activeImagery?.source === ImagerySource.OPEN_AERIAL_MAP;
+  const imageryTitle = activeImagery
+    ? isOamImagery
+      ? activeImagery.item.title
+      : (imageryCountry?.place ?? "Custom Imagery")
+    : "";
   const imagerySourceLabel = isOamImagery ? "OpenAerialMap" : "Custom";
 
   // Feature list from API
@@ -294,15 +199,16 @@ export const ModelPickerContent = ({
 
   // Key helpers
   const keyOf = (choice: StagedChoice): string =>
-    choice.type === "imagery" ? IMAGERY_KEY : choice.model.id;
+    choice.type === "imagery"
+      ? (choice.entry?.tileUrl ?? IMAGERY_KEY)
+      : choice.model.id;
 
   const committedKey =
     currentModelType === ModelType.IMAGERY
-      ? IMAGERY_KEY
+      ? (selectedImagery?.tileUrl ?? IMAGERY_KEY)
       : (selectedModel?.id ?? null);
   const stagedKey = staged ? keyOf(staged) : null;
   const activeKey = stagedKey ?? committedKey;
-  const imageryActive = activeKey === IMAGERY_KEY;
   const hasChange = stagedKey !== null && stagedKey !== committedKey;
 
   const handleApply = () => {
@@ -310,7 +216,11 @@ export const ModelPickerContent = ({
     if (staged.type === "model") {
       onSelect(staged.model);
     } else {
-      setCurrentModelType(ModelType.IMAGERY);
+      if (staged.entry) {
+        onApplyRecentImagery?.(staged.entry);
+      } else {
+        setCurrentModelType(ModelType.IMAGERY);
+      }
     }
     setStaged(null);
     onClose?.();
@@ -351,7 +261,7 @@ export const ModelPickerContent = ({
 
       {/* ── Samples tab ── */}
       {activeTab === TAB_SAMPLES && (
-        <div className="space-y-4">
+        <div className="space-y-4 min-h-[420px]">
           {/* Banner: navigate to choose-your-own */}
           <button
             type="button"
@@ -417,13 +327,13 @@ export const ModelPickerContent = ({
 
       {/* ── Choose your own tab ── */}
       {activeTab === TAB_CHOOSE && (
-        <div className="flex gap-4 min-h-[320px]">
+        <div className="flex gap-4 min-h-[420px]">
           {/* Left: Feature list */}
-          <div className="w-[180px] shrink-0 border border-gray-border rounded-xl overflow-hidden flex flex-col">
+          <div className="w-[180px] shrink-0 border  rounded-lg overflow-hidden flex flex-col">
             <p className="text-xs font-semibold text-grey px-3 pt-3 pb-2">
               Feature to map
             </p>
-            <div className="flex flex-col flex-1 px-1 pb-2 overflow-y-auto">
+            <div className="flex flex-col bg-frosted-blue flex-1 px-1 pb-2 overflow-y-auto">
               {featureList.map((f) => (
                 <FeatureListItem
                   key={f.slug}
@@ -437,51 +347,43 @@ export const ModelPickerContent = ({
           </div>
 
           {/* Right: Imagery panel */}
-          <div className="flex-1 border border-gray-border rounded-xl overflow-hidden flex flex-col">
-            {selectedImagery ? (
-              /* Listed imagery — top-aligned like sample cards */
-              <>
-                <div className="flex items-center justify-between px-3 pt-3 pb-2">
-                  <p className="text-xs font-semibold text-grey">Imagery</p>
-                  <button
-                    type="button"
-                    onClick={handleChooseOwnImagery}
-                    className="text-primary text-xs font-medium"
-                  >
-                    + Add imagery
-                  </button>
-                </div>
-                <div className="flex-1 overflow-y-auto px-2 pb-2 space-y-2">
-                  <button
-                    type="button"
-                    onClick={() => setStaged({ type: "imagery" })}
-                    className={cn(
-                      "text-left p-3 w-full bg-frosted-blue rounded-lg transition-colors",
-                      imageryActive
-                        ? "border-primary border-2"
-                        : "border border-transparent",
-                    )}
-                  >
-                    <div className="flex items-start justify-between gap-2 mb-1">
-                      <p className="text-dark capitalize text-sm font-medium leading-tight flex-1 min-w-0 break-words">
-                        {imageryTitle}
-                      </p>
-                      <RadioDot selected={imageryActive} />
-                    </div>
-                    <p className="text-grey text-xs">
-                      Imagery: {imagerySourceLabel}
-                    </p>
-                    {imageryCountry && (
-                      <div className="mt-2">
-                        <CountryBadge
-                          country={imageryCountry.country}
-                          code={imageryCountry.countryCode}
-                        />
-                      </div>
-                    )}
-                  </button>
-                </div>
-              </>
+          <div className="flex-1 overflow-hidden flex flex-col">
+            {activeImagery ? (
+              imageryView === "recent" ? (
+                /* Recent imageries list sub-view */
+                <RecentImageriesList
+                  recentImageries={recentImageries}
+                  currentTileUrl={activeImagery.tileUrl}
+                  onSelectRecent={(entry) => {
+                    setStaged({ type: "imagery", entry });
+                    setImageryView("preview");
+                  }}
+                  onBack={() => setImageryView("preview")}
+                />
+              ) : (
+                /* Imagery preview with map — default sub-view */
+                <>
+                  <div className="flex items-center justify-between  pb-2">
+                    <p className="text-sm  text-dark">Imagery</p>
+                    <button
+                      type="button"
+                      onClick={() => setImageryView("recent")}
+                      className="text-primary flex items-center gap-1 text-xs font-medium"
+                    >
+                      Recent <ChevronDownIcon className="size-3 -rotate-90" />
+                    </button>
+                  </div>
+                  <div className="flex-1 overflow-y-auto px-2 pb-2 space-y-2">
+                    <ImageryPreviewCard
+                      selectedImagery={activeImagery}
+                      imageryTitle={imageryTitle}
+                      imagerySourceLabel={imagerySourceLabel}
+                      imageryCountry={imageryCountry}
+                      onChangeImagery={handleChooseOwnImagery}
+                    />
+                  </div>
+                </>
+              )
             ) : (
               /* Empty state — centered */
               <div className="flex-1 flex flex-col items-center justify-center p-6 text-center gap-4">
@@ -509,7 +411,7 @@ export const ModelPickerContent = ({
       )}
 
       {/* ── Footer: Apply button ── */}
-      <div className="flex justify-end mt-4 pt-3 border-t border-gray-border">
+      <div className="flex justify-end mt-4 pt-3">
         <Button
           type="button"
           size="medium"
