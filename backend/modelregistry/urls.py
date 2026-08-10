@@ -2,6 +2,7 @@ from django.urls import include, path
 from rest_framework import routers
 
 from .views import (
+    ArtifactPresignView,
     BaseModelViewSet,
     CategoryViewSet,
     LocalModelViewSet,
@@ -20,6 +21,11 @@ urlpatterns = [
         "stac-assets/<str:collection>/<str:item_id>/<str:asset>/",
         StacAssetDownloadView.as_view(),
         name="stac-asset",
+    ),
+    path(
+        "artifacts/<str:bucket>/<path:key>",
+        ArtifactPresignView.as_view(),
+        name="artifact-presign",
     ),
     path("", include(router.urls)),
 ]

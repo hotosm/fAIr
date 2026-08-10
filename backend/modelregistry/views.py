@@ -1,7 +1,7 @@
 import httpx
 from django.conf import settings
 from django.db.models import Count, Q
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import (
@@ -451,6 +451,42 @@ class StacAssetDownloadView(APIView):
         if not contents:
             raise NotFound("Asset not available.")
         return HttpResponseRedirect(presigned_get_url(contents[0]["Key"]))
+
+
+class ArtifactPresignView(APIView):
+    """HEAD 200 (checked via the IAM role) so fair's public asset-URL check passes; GET 302 to a
+    presigned URL. Scoped to the artifact-store model/dataset prefixes; objects stay private.
+    """
+
+    authentication_classes: list = []
+    permission_classes = [AllowAny]
+
+    @staticmethod
+    def _validated_key(bucket: str, key: str) -> str:
+        allowed = tuple(
+            f"{settings.PARENT_BUCKET_FOLDER}/zenml/{collection}/"
+            for collection in (BASE_MODELS_COLLECTION, LOCAL_MODELS_COLLECTION, DATASETS_COLLECTION)
+        )
+        if bucket != settings.BUCKET_NAME or ".." in key or not key.startswith(allowed):
+            raise NotFound("Unknown artifact.")
+        return key
+
+    def head(self, request, bucket: str, key: str) -> HttpResponse:
+        from botocore.exceptions import ClientError
+
+        resolved = self._validated_key(bucket, key)
+        try:
+            settings.S3_CLIENT.head_object(Bucket=settings.BUCKET_NAME, Key=resolved)
+        except ClientError as exc:
+            if exc.response.get("Error", {}).get("Code") in {"404", "NoSuchKey"}:
+                raise NotFound("Artifact not available.") from exc
+            raise
+        return HttpResponse(status=200)
+
+    def get(self, request, bucket: str, key: str) -> HttpResponseRedirect:
+        from shared.storage import presigned_get_url
+
+        return HttpResponseRedirect(presigned_get_url(self._validated_key(bucket, key)))
 
 
 @extend_schema_view(

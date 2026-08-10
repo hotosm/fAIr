@@ -231,7 +231,11 @@ def mirror_and_relink_assets(collection_id: str, item_id: str) -> None:
     changed = False
     for name in DOWNLOADABLE_STAC_ASSETS:
         asset = item.assets.get(name)
-        if asset is None or not asset.href or "/stac-assets/" in asset.href:
+        if asset is None or not asset.href:
+            continue
+        if (
+            "/stac-assets/" in asset.href or "/artifacts/" in asset.href
+        ):  # this is poor choice , TODO : Change this to check the fair proxy itself
             continue
         prefix = StoragePaths.stac_download_prefix(collection_id, item_id, name)
         _stream_href_to_bucket(asset.href, prefix)
