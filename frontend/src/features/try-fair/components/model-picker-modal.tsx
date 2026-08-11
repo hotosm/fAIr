@@ -112,8 +112,8 @@ type StagedChoice =
 
 // ─── Tab constants ────────────────────────────────────────────────────────────
 
-const TAB_SAMPLES = "Samples";
-const TAB_CHOOSE = "Choose your own";
+export const TAB_SAMPLES = "Samples";
+export const TAB_CHOOSE = "Choose your own";
 
 // ─── ModelPickerContent ───────────────────────────────────────────────────────
 
@@ -293,7 +293,7 @@ export const ModelPickerContent = ({
                       <p className="text-dark capitalize text-sm font-bold leading-tight">
                         {model?.properties?.title ?? ""}
                       </p>
-                      <RadioDot selected={isSelected} />
+                      <RadioDot darkBorder={true} selected={isSelected} />
                     </div>
                     <p className="text-grey text-xs mb-0.5">
                       Model: {model?.properties?.["mlm:name"] ?? ""}
@@ -325,11 +325,9 @@ export const ModelPickerContent = ({
       {activeTab === TAB_CHOOSE && (
         <div className="flex gap-4 min-h-[420px]">
           {/* Left: Feature list */}
-          <div className="w-[180px] shrink-0 border  rounded-lg overflow-hidden flex flex-col">
-            <p className="text-xs font-semibold text-grey px-3 pt-3 pb-2">
-              Feature to map
-            </p>
-            <div className="flex flex-col bg-frosted-blue flex-1 px-1 pb-2 overflow-y-auto">
+          <div className="w-[180px] shrink-0  overflow-hidden flex flex-col">
+            <p className="text-xs pb-2">Feature to map</p>
+            <div className="flex flex-col bg-frosted-blue border  rounded-lg flex-1 px-1  overflow-y-auto">
               {featureList.map((f) => (
                 <FeatureListItem
                   key={f.slug}
@@ -382,24 +380,28 @@ export const ModelPickerContent = ({
               )
             ) : (
               /* Empty state — centered */
-              <div className="flex-1 flex flex-col items-center justify-center p-6 text-center gap-4">
-                <div>
-                  <ChooseImageryIcon />
+              <div>
+                <p className="text-sm pb-2 text-dark">Imagery</p>
+
+                <div className="flex-1 h-full min-h-[360px] flex border border-gray-border rounded-lg flex-col items-center justify-center p-6 text-center gap-4">
+                  <div>
+                    <ChooseImageryIcon />
+                  </div>
+                  <p className="text-grey max-w-lg text-xs">
+                    Choose an imagery to map{" "}
+                    <span>{selectedFeature?.label ?? "buildings"}</span>
+                  </p>
+                  <Button
+                    type="button"
+                    size="medium"
+                    className="!w-fit"
+                    fontSize="12px"
+                    rounded
+                    onClick={handleChooseOwnImagery}
+                  >
+                    Choose Imagery
+                  </Button>
                 </div>
-                <p className="text-grey max-w-lg text-xs">
-                  Choose an imagery to map{" "}
-                  <span>{selectedFeature?.label ?? "buildings"}</span>
-                </p>
-                <Button
-                  type="button"
-                  size="medium"
-                  className="!w-fit"
-                  fontSize="12px"
-                  rounded
-                  onClick={handleChooseOwnImagery}
-                >
-                  Choose Imagery
-                </Button>
               </div>
             )}
           </div>

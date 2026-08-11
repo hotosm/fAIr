@@ -7,6 +7,8 @@ import { TreesIcon } from "@/components/ui/icons/trees-icon";
 import { flagEmoji } from "@/features/try-fair/utils/common";
 import { IconProps } from "@/types";
 
+import { cn } from "@/utils";
+
 const FEATURE_ICONS: Record<string, React.FC<IconProps>> = {
   building: BuildingIcon,
   buildings: BuildingIcon,
@@ -24,11 +26,22 @@ export const getFeatureIcon = (slug: string): React.FC<IconProps> =>
   FEATURE_ICONS[slug] ?? BuildingIcon;
 
 /** Radio indicator dot. */
-export const RadioDot = ({ selected }: { selected: boolean }) => (
+export const RadioDot = ({
+  selected,
+  darkBorder = false,
+}: {
+  selected: boolean;
+  darkBorder?: boolean;
+}) => (
   <span
-    className={`mt-0.5 shrink-0 w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-      selected ? "border-primary" : "border-gray-border"
-    }`}
+    className={cn(
+      "mt-0.5 shrink-0 w-4 h-4 rounded-full border-2 flex items-center justify-center",
+      selected
+        ? "border-primary"
+        : darkBorder
+          ? "border-dark"
+          : "border-gray-border",
+    )}
   >
     {selected && <span className="w-2 h-2 rounded-full bg-primary" />}
   </span>

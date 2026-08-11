@@ -1,7 +1,6 @@
-import { ModelFormConfirmation } from "@/assets/images";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
-import { Image } from "@/components/ui/image";
+import { SuccessCheckIcon } from "@/components/ui/icons/success-check-icon";
 import { APPLICATION_ROUTES } from "@/constants";
 import { ButtonVariant, SHOELACE_SIZES } from "@/enums";
 import { useNavigate } from "react-router-dom";
@@ -17,36 +16,42 @@ export const MapLargeAreaRequestSuccess = ({
   const navigate = useNavigate();
 
   return (
-    <Dialog isOpened={isOpen} size={SHOELACE_SIZES.SMALL} closeDialog={onClose}>
-      <div className="flex flex-col items-center gap-y-4 h-full w-full justify-center">
-        <div className="bg-secondary p-2 rounded-full flex items-center justify-center">
-          <Image src={ModelFormConfirmation} alt="Success Icon" />
+    <Dialog
+      noPadding
+      isOpened={isOpen}
+      size={SHOELACE_SIZES.SMALL}
+      closeDialog={onClose}
+    >
+      <div className="flex flex-col items-center pb-4 gap-y-8 justify-between">
+        <div className="flex justify-center items-center flex-col gap-2">
+          <div>
+            <SuccessCheckIcon />
+          </div>
+          <h1 className="text-base font-medium">Mapping Requested!</h1>
         </div>
-        <h1 className="text-title-3 font-semibold">Map Area Request Sent</h1>
-        <p className="text-body-3 text-center">
-          We have received your request to map the selected area. You will be
-          notified when the prediction is ready.
-        </p>
-        <div className="flex flex-col items-center w-full md:w-fit md:flex-row gap-4 md:gap-4 justify-between ">
+
+        <div className="flex flex-row items-center w-full md:w-fit md:flex-row gap-4 md:gap-4 justify-between ">
           <Button
-            variant={ButtonVariant.DARK}
+            variant={ButtonVariant.TERTIARY}
             onClick={() =>
               navigate(APPLICATION_ROUTES.PROFILE_OFFLINE_PREDICTIONS)
             }
-            className="md:!w-fit"
+            className="md:!w-36"
             size="medium"
+            fontSize={"12px"}
             rounded
           >
-            View requests
+            Go to Requests
           </Button>
           <Button
             onClick={onClose}
             rounded
             size="medium"
+            fontSize={"12px"}
             variant={ButtonVariant.PRIMARY}
-            className="md:!w-fit"
+            className=" md:!w-36"
           >
-            Continue mapping
+            Done
           </Button>
         </div>
       </div>
