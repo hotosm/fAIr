@@ -6,8 +6,6 @@ import { PictureIcon } from "@/components/ui/icons/picture-icon";
 import { FeatureCheckIcon } from "@/components/ui/icons/feature-check-icon";
 import { useImageryCountry } from "@/features/try-fair/hooks/use-imagery-country";
 
-
-
 // ── Component ─────────────────────────────────────────────────────────────────
 
 type RecentImageriesListProps = {
@@ -32,7 +30,9 @@ const RecentItemRow = ({
   isActive: boolean;
   onSelectRecent: (entry: RecentImageryEntry) => void;
 }) => {
-  const fallbackCountry = useImageryCountry(entry.country ? null : entry.bounds);
+  const fallbackCountry = useImageryCountry(
+    entry.country ? null : entry.bounds,
+  );
   const countryName = entry.country || fallbackCountry?.country;
   const countryCode = entry.countryCode || fallbackCountry?.countryCode;
 
@@ -42,9 +42,7 @@ const RecentItemRow = ({
       onClick={() => onSelectRecent(entry)}
       className={cn(
         "w-full text-left bg-frosted-blue flex items-center gap-3 p-3 rounded-lg transition-colors",
-        isActive
-          ? "border-2 border-primary "
-          : "",
+        isActive ? "border-2 border-primary " : "",
       )}
     >
       {/* Thumbnail */}
@@ -72,7 +70,11 @@ const RecentItemRow = ({
         </p>
         {countryName && (
           <div className="mt-1">
-            <CountryBadge showBg={false} country={countryName} code={countryCode ?? ""} />
+            <CountryBadge
+              showBg={false}
+              country={countryName}
+              code={countryCode ?? ""}
+            />
           </div>
         )}
       </div>

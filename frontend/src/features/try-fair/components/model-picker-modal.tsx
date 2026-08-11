@@ -9,22 +9,19 @@ import { useAuth } from "@/app/providers/auth-provider";
 import { DISABLE_AUTH_ON_TRY_FAIR } from "@/config";
 import { ImagerySource } from "@/features/try-fair/components/imagery/imagery-location-modal";
 import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
-import {
-  useGetFeaturesToMap,
-} from "@/features/try-fair/api/features-to-map";
+import { useGetFeaturesToMap } from "@/features/try-fair/api/features-to-map";
 import { cn } from "@/utils";
 import { ChooseImageryIcon } from "@/components/ui/icons/choose-imagery-icon";
 import { DoubleArrowIcon } from "@/components/ui/icons/double-arrow-icon";
 import { ChevronDownIcon } from "@/components/ui/icons";
 import { FeatureListItem } from "@/features/try-fair/components/model-picker/feature-to-map-list";
-import { RadioDot, FeatureBadge } from "@/features/try-fair/components/model-picker/model-picker-badges";
+import {
+  RadioDot,
+  FeatureBadge,
+} from "@/features/try-fair/components/model-picker/model-picker-badges";
 import { ImageryPreviewCard } from "@/features/try-fair/components/model-picker/imagery-preview-card";
 import { RecentImageriesList } from "@/features/try-fair/components/model-picker/recent-imageries-list";
 import type { RecentImageryEntry } from "@/features/try-fair/hooks/use-recent-imageries";
-
-
-
-
 
 // ─── ModelPicker trigger ──────────────────────────────────────────────────────
 
@@ -118,8 +115,6 @@ type StagedChoice =
 const TAB_SAMPLES = "Samples";
 const TAB_CHOOSE = "Choose your own";
 
-
-
 // ─── ModelPickerContent ───────────────────────────────────────────────────────
 
 /**
@@ -162,7 +157,9 @@ export const ModelPickerContent = ({
   const [activeTab, setActiveTab] = useState<string>(TAB_SAMPLES);
 
   // Imagery panel sub-view: "preview" shows the map card, "recent" shows the list.
-  const [imageryView, setImageryView] = useState<"preview" | "recent">("preview");
+  const [imageryView, setImageryView] = useState<"preview" | "recent">(
+    "preview",
+  );
 
   // Staged choice (committed only on Apply)
   const [staged, setStaged] = useState<StagedChoice | null>(null);
@@ -180,8 +177,7 @@ export const ModelPickerContent = ({
 
   // Imagery metadata
   const imageryCountry = useImageryCountry(activeImagery?.bounds ?? null);
-  const isOamImagery =
-    activeImagery?.source === ImagerySource.OPEN_AERIAL_MAP;
+  const isOamImagery = activeImagery?.source === ImagerySource.OPEN_AERIAL_MAP;
   const imageryTitle = activeImagery
     ? isOamImagery
       ? activeImagery.item.title

@@ -341,7 +341,7 @@ export const TryFairPage = () => {
       handleMap();
     }
   };
-   const handleApplyImagery = useCallback(
+  const handleApplyImagery = useCallback(
     (selection: ImagerySelection) => {
       setCurrentModelType(ModelType.IMAGERY);
       setSeletedImagery(selection);

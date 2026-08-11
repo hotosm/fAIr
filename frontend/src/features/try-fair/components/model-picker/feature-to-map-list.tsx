@@ -1,7 +1,11 @@
 // ─── Feature list item (Choose your own tab) ─────────────────────────────────
 
 import { FeatureCheckIcon } from "@/components/ui/icons/feature-check-icon";
-import { FeatureToMapItem, useGetAPIBaseModels, useGetAPILocalModels } from "@/features/try-fair/api/features-to-map";
+import {
+  FeatureToMapItem,
+  useGetAPIBaseModels,
+  useGetAPILocalModels,
+} from "@/features/try-fair/api/features-to-map";
 import { getFeatureIcon } from "@/features/try-fair/components/model-picker/model-picker-badges";
 import { cn } from "@/utils";
 
@@ -44,9 +48,7 @@ export const FeatureListItem = ({
         <FeatureIcon className="w-4 h-4 text-dark shrink-0" />
         <span className="text-xs font-medium text-dark">{feature.label}</span>
       </div>
-      {isSelected && (
-         <FeatureCheckIcon />
-      )}
+      {isSelected && <FeatureCheckIcon />}
     </button>
   );
 };

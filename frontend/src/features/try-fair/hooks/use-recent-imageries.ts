@@ -111,9 +111,13 @@ export const useRecentImageries = () => {
     // Remove duplicate if it already exists (matched by id).
     const filtered = current.filter((e) => e.id !== entry.id);
     // Append the new entry at the end.
-    const updated = [...filtered, { ...entry, addedAt: new Date().toISOString() }];
+    const updated = [
+      ...filtered,
+      { ...entry, addedAt: new Date().toISOString() },
+    ];
     // Trim to max entries — drop the oldest (first) item.
-    const trimmed = updated.length > MAX_ENTRIES ? updated.slice(-MAX_ENTRIES) : updated;
+    const trimmed =
+      updated.length > MAX_ENTRIES ? updated.slice(-MAX_ENTRIES) : updated;
     emitChange(trimmed);
   }, []);
 
