@@ -292,7 +292,7 @@ export const TryFairPage = () => {
           : [parameterName, parameterValue],
       ),
     );
-console.log(modelForMapping, 'model for mapping')
+    console.log(modelForMapping, "model for mapping");
     predict(
       {
         model: modelForMapping,
