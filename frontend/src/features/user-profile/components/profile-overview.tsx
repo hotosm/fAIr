@@ -20,10 +20,13 @@ export const ProfileOverview = ({ user }: { user: TUser }) => {
           </h1>
           <small className="text-grey text-body-4 md:text-body-3">
             {USER_PROFILE_PAGE_CONTENT.overview.dateJoinedPrefix}{" "}
-            {new Date(user.date_joined ?? new Date()).toLocaleString("default", {
-              month: "long",
-              year: "numeric",
-            })}
+            {new Date(user.date_joined ?? new Date()).toLocaleString(
+              "default",
+              {
+                month: "long",
+                year: "numeric",
+              },
+            )}
           </small>
         </div>
       </div>

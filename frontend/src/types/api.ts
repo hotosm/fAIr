@@ -3,6 +3,7 @@ import {
   MapSwipeProcessingStatus,
   ModelTrainingStatus,
   PmtilesConversionStatus,
+  PredictionRequestStatus,
 } from "@/enums";
 import { BBOX } from "./common";
 import { GeoJsonProperties, Geometry } from "geojson";
@@ -259,7 +260,7 @@ export type TModelPredictionFeature = {
   id?: string | number;
 };
 
-export type TOfflinePrediction = {
+export type TOfflinePredictionold = {
   id: number;
   geom: Geometry;
   description: string | null;
@@ -361,4 +362,69 @@ export type TBaseModelVariant = {
   name: string;
   classes: string;
   notes: string;
+};
+
+/** Params attached to a large-area prediction request. */
+export type TPredictionRequestParams = {
+  confidence_threshold: number;
+  simplify_m?: number;
+  min_area_m2?: number;
+  h_maxima_depth?: number;
+  sliding_stride?: number;
+  seed_min_distance?: number;
+  large_blob_area_px?: number;
+  regularize_area_threshold?: number;
+  regularize_overlap_tol_m2?: number;
+  [key: string]: number | undefined;
+};
+
+/** Downloadable output assets attached to a completed prediction request. */
+export type TPredictionRequestAssets = {
+  geojson: string;
+  fgb: string;
+  pmtiles: string;
+} | null;
+
+/**
+ * A single prediction request returned by the Map Large Area API.
+ * Covers both in-progress requests (assets: null) and completed ones.
+ */
+export type TOfflinePrediction = {
+  id: number;
+  zenml_run_id: string | null;
+  local_model_stac_id: string;
+  image_uri: string;
+  /** GeoJSON polygon describing the area of interest. null when bbox was used. */
+  geometry: Geometry | null;
+  /** Bounding box used when the whole imagery extent was selected. */
+  bbox?: [number, number, number, number] | null;
+  zoom: number;
+  params: TPredictionRequestParams;
+  remove_osm: boolean;
+  visibility: "private" | "public";
+  description: string;
+  status: PredictionRequestStatus;
+  results_ready: boolean;
+  assets: TPredictionRequestAssets;
+  mapswipe_project_id: string;
+  user: {
+    osm_id: number;
+    username: string;
+  };
+  submitted_at: string;
+  last_polled_at: string | null;
+  // Old Offline
+
+  geom: Geometry;
+  created_at: string;
+  started_at: string | null;
+  finished_at: string | null;
+  published_at: string | null;
+  task_id: string;
+  mapswipe_id: string | null;
+
+  model_name: string;
+  config: TModelPredictionsConfig;
+  result_count: number;
+  published: boolean;
 };

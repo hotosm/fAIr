@@ -83,7 +83,7 @@ export const UserProfileOfflinePredictionsPage = () => {
   const handleCreateOrViewMapSwipeProject = (
     prediction: TOfflinePrediction,
   ) => {
-    const mapSwipeProjectExists = prediction.mapswipe_id;
+    const mapSwipeProjectExists = prediction.mapswipe_project_id;
     if (!mapSwipeProjectExists) {
       openMapSwipeProjectCreationDialog();
     } else {
@@ -105,7 +105,7 @@ export const UserProfileOfflinePredictionsPage = () => {
         <MapswipeProjectStatusDialog
           isOpen={isMapSwipeProjectStatusDialogOpened}
           onClose={closeMapSwipeProjectStatusDialog}
-          mapSwipeProjectId={activePrediction.mapswipe_id as string}
+          mapSwipeProjectId={activePrediction.mapswipe_project_id as string}
           handleMapSwipeProjectResultMapModal={
             handleMapSwipeProjectResultMapModal
           }
@@ -114,9 +114,8 @@ export const UserProfileOfflinePredictionsPage = () => {
 
       {activePrediction && MapSwipeResultsPmtiles && (
         <MapSwipeProjectResultMapDrawer
-          tileServiceUrl={activePrediction.config.source}
+          tileServiceUrl={activePrediction.image_uri}
           predictionId={activePrediction.id}
-          folder={activePrediction.config.folder}
           isOpened={isMapSwipeProjectResultMapOpened}
           closeDialog={handleCloseMapSwipeProjectResultMapModal}
           pmtilesUrl={MapSwipeResultsPmtiles}
@@ -124,9 +123,8 @@ export const UserProfileOfflinePredictionsPage = () => {
       )}
       {activePrediction && (
         <PredictionResultDrawer
-          tileServiceUrl={activePrediction.config.source}
+          tileServiceUrl={activePrediction.image_uri}
           predictionId={activePrediction.id}
-          folder={activePrediction.config.folder}
           isOpened={isPredictionResultOpened}
           closeDialog={() => {
             // Cleanup to ensure fresh rendering

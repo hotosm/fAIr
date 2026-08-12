@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { NoTrainingAreaIcon, MapIcon } from "@/components/ui/icons";
+import { NoTrainingAreaIcon } from "@/components/ui/icons";
 import { TOfflinePrediction } from "@/types";
-import { formatDate, formatNumber } from "@/utils";
+import { formatDate } from "@/utils";
 
 type AIPredictionsListProps = {
   data: TOfflinePrediction[];
@@ -89,12 +89,12 @@ export const AIPredictionsList = ({
                     {prediction.id}
                   </span>
                 </td>
-                <td className="py-3 px-4">
+                {/* <td className="py-3 px-4">
                   <span className="flex items-center gap-x-1">
                     <MapIcon className="icon shrink-0" />
                     {formatNumber(prediction.result?.count ?? 0)}
                   </span>
-                </td>
+                </td> */}
                 <td className="py-3 px-4">
                   {prediction.config.model_id || "-"}
                 </td>

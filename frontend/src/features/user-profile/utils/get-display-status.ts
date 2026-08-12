@@ -1,4 +1,4 @@
-import { ModelTrainingStatus } from "@/enums";
+import { ModelTrainingStatus, PredictionRequestStatus } from "@/enums";
 
 /**
  * Determines the display status of a prediction.
@@ -8,10 +8,13 @@ import { ModelTrainingStatus } from "@/enums";
  * (for other statuses), return the API status as-is.
  */
 export const getDisplayStatus = (
-  status: ModelTrainingStatus,
-  published: boolean,
+  status: ModelTrainingStatus | PredictionRequestStatus,
+  published?: boolean,
 ): string => {
-  if (status === ModelTrainingStatus.FINISHED && published) {
+  if (
+    status === ModelTrainingStatus.FINISHED ||
+    (status === PredictionRequestStatus.COMPLETED && published)
+  ) {
     return "PUBLISHED";
   }
   return status;
