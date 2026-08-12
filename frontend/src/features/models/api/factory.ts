@@ -40,7 +40,7 @@ export const getModelsQueryOptions = ({
 }: TModelQueryOptions) => {
   return queryOptions({
     queryKey: [
-      "models",
+      "local-models",
       {
         status,
         searchQuery,
