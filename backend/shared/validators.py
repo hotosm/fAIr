@@ -1,6 +1,7 @@
 import json
 
 from django.contrib.gis.geos import GEOSException, GEOSGeometry
+from shapely.errors import GEOSException as ShapelyGEOSException
 from shapely.geometry import shape
 from shapely.validation import make_valid
 
@@ -40,7 +41,7 @@ def validate_geometry(geom_data):
                     raise handle_geometry_error(
                         geom_type, "Geometry is invalid and cannot be repaired automatically"
                     )
-            except Exception as repair_error:
+            except (GEOSException, ShapelyGEOSException, ValueError, TypeError) as repair_error:
                 raise handle_geometry_error(
                     geom_type, f"Geometry repair failed: {repair_error!s}"
                 ) from repair_error

@@ -5,13 +5,16 @@ from .models import AOI, Dataset
 
 @geoadmin.register(Dataset)
 class DatasetAdmin(geoadmin.GISModelAdmin):
-    list_display = ["title", "stac_id", "status", "visibility", "user", "created_at"]
-    list_filter = ["status", "visibility", "created_at"]
+    list_display = ["title", "stac_id", "category", "status", "visibility", "user", "created_at"]
+    list_filter = ["category", "status", "visibility", "created_at"]
     search_fields = ["title", "stac_id", "user__username"]
-    readonly_fields = ["created_at", "last_modified"]
+    readonly_fields = ["stac_id", "created_at", "last_modified"]
     date_hierarchy = "created_at"
     list_per_page = 50
     autocomplete_fields = ["user"]
+
+    def has_add_permission(self, request) -> bool:
+        return False
 
 
 @geoadmin.register(AOI)

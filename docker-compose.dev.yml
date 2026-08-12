@@ -53,6 +53,39 @@ services:
     restart: unless-stopped
 
 configs:
+  # ZenML artifact store on real AWS (same bucket + instance IAM role as backend storage).
+  zenml_stack:
+    content: |
+      stack_name: fair-compose
+      zenml_version: 0.94.2
+      components:
+        orchestrator:
+          name: docker_compose
+          flavor: local_docker
+          type: orchestrator
+          configuration:
+            synchronous: false
+            run_args:
+              network: fair-net
+              user: "0"
+              environment:
+                NVIDIA_VISIBLE_DEVICES: all
+                NVIDIA_DRIVER_CAPABILITIES: compute,utility
+        artifact_store:
+          name: s3_compose
+          flavor: s3
+          type: artifact_store
+          configuration:
+            path: s3://${BUCKET_NAME:-fair-dev}/${PARENT_BUCKET_FOLDER:-dev}/zenml
+        experiment_tracker:
+          name: mlflow_compose
+          flavor: mlflow
+          type: experiment_tracker
+          configuration:
+            tracking_uri: "http://mlflow:5000"
+            tracking_username: admin
+            tracking_password: admin
+
   caddyfile:
     content: |
       {

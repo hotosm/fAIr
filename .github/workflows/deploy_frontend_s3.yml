@@ -3,7 +3,7 @@ name: Deploy Production Frontend to S3 & CloudFront
 on:
   push:
     branches:
-      - main
+      - develop
     paths:
       - 'frontend/**'
       - '.github/workflows/deploy_frontend_s3.yml'

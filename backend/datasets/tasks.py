@@ -71,6 +71,9 @@ def build_dataset(
         dataset.status = Dataset.Status.BUILT
         dataset.save(update_fields=["stac_id", "status", "last_modified"])
         invalidate_stac_cache(DATASETS_COLLECTION, published_id)
+        from modelregistry.tasks import mirror_stac_assets_task
+
+        mirror_stac_assets_task.enqueue(collection_id=DATASETS_COLLECTION, item_id=published_id)
     except Exception:
         logger.exception("dataset build failed for %s", dataset_id)
         dataset.status = Dataset.Status.FAILED
@@ -95,8 +98,8 @@ def _stamp_class_label(feat: dict[str, Any], label_classes: list[dict[str, Any]]
     """Stamp `properties.label = i+1` for the first matching label_classes entry.
 
     Returns the assigned class index (1-based; 0 reserved for background) or
-    ``None`` if no class matched (defensive — raw-data API only returns
-    matching features, so this should not fire in practice).
+    ``None`` if no class matched. The raw-data API only returns matching
+    features, so a no-match is not expected in practice.
     """
     tags = (feat.get("properties") or {}).get("tags") or {}
     for index, cls in enumerate(label_classes, start=1):

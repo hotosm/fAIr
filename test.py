@@ -152,6 +152,7 @@ def build_dataset(fair: Fair, ctx: dict) -> str:
             "title": f"e2e-banepa-{int(time.time())}",
             "description": "end-to-end verification",
             "source_imagery": IMAGERY,
+            "category": "buildings",
             "zoom": 19,
             "aoi_ids": [ctx["aoi_id"]],
             "label_tasks": ["semantic-segmentation"],

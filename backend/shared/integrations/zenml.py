@@ -1,3 +1,4 @@
+import os
 import tempfile
 from functools import lru_cache
 from pathlib import Path
@@ -57,6 +58,8 @@ def _config_dir() -> Path:
 @lru_cache(maxsize=1)
 def get_master_client() -> FairClient:
     """Process-wide FairClient. setup() runs once per worker."""
+    # Point fair's mirrored-asset hrefs at our presign proxy so they stay private but accessible.
+    os.environ.setdefault("FAIR_S3_PUBLIC_URL", f"{settings.API_BASE_URL.rstrip('/')}/artifacts")
     client = FairClient(
         zenml_store_url=_required_setting("FAIR_ZENML_STORE_URL"),
         stac_api_url=_required_setting("FAIR_STAC_API_URL"),

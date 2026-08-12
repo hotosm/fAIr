@@ -89,6 +89,7 @@ def test_dataset_build_rejects_unknown_aoi(client):
             "title": "My dataset",
             "description": "demo",
             "source_imagery": "https://tiles.example/{z}/{x}/{y}.png",
+            "category": "buildings",
             "zoom": 19,
             "aoi_ids": [99999],
             "label_tasks": ["semantic-segmentation"],
@@ -101,6 +102,26 @@ def test_dataset_build_rejects_unknown_aoi(client):
     assert response.status_code == 404
 
 
+def test_dataset_build_requires_category(client, aoi):
+    response = client.post(
+        "/api/v1/datasets/build/",
+        data={
+            "title": "My dataset",
+            "description": "demo",
+            "source_imagery": "https://tiles.example/{z}/{x}/{y}.png",
+            "zoom": 19,
+            "aoi_ids": [aoi.id],
+            "label_tasks": ["semantic-segmentation"],
+            "label_classes": [{"name": "building", "classes": ["yes"]}],
+            "keywords": ["buildings"],
+            "geometry_type": "polygon",
+        },
+        format="json",
+    )
+    assert response.status_code == 400
+    assert "category" in response.json()["error"]["details"]
+
+
 @patch("datasets.views.build_dataset")
 def test_dataset_build_enqueues_task_and_returns_202(mock_task, client, aoi):
     response = client.post(
@@ -109,6 +130,7 @@ def test_dataset_build_enqueues_task_and_returns_202(mock_task, client, aoi):
             "title": "Buildings Banepa",
             "description": "demo",
             "source_imagery": "https://tiles.example/{z}/{x}/{y}.png",
+            "category": "buildings",
             "zoom": 19,
             "aoi_ids": [aoi.id],
             "label_tasks": ["semantic-segmentation"],
@@ -120,6 +142,9 @@ def test_dataset_build_enqueues_task_and_returns_202(mock_task, client, aoi):
         format="json",
     )
     assert response.status_code == 202
+    from datasets.models import Dataset
+
+    assert Dataset.objects.get(title="Buildings Banepa").category_id == "buildings"
     body = response.json()
     assert body["status"] == "building"
     assert body["title"] == "Buildings Banepa"

@@ -19,6 +19,7 @@ export const RootLayout = () => {
     scrollToTop();
   }, [pathname]);
 
+  
   const [showBanner, setShowBanner] = useState<boolean>(false);
 
   /**

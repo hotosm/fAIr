@@ -1,13 +1,16 @@
 """STAC catalog access for the fAIr backend.
 
 Wraps fair-py-ops' backend Protocol with a Django LocMem cache layer and
-helpers used by the API serializers and pin/unpin actions. Property
-mutations go through ``patch_item`` (single roundtrip via JSON Merge Patch);
-``set_item_property`` is the convenience wrapper for the one-key case.
+helpers used by the API serializers and pin/unpin actions. Property mutations
+read-modify-write the item (``get_item`` then ``publish_item``/PUT) because the
+STAC API does not accept HTTP PATCH; ``set_item_property`` is the single-key
+convenience wrapper.
 """
 
+import tempfile
 from concurrent.futures import ThreadPoolExecutor
 
+import httpx
 import pystac
 from django.conf import settings
 from django.core.cache import cache
@@ -22,7 +25,10 @@ from .zenml import get_master_client
 __all__ = [
     "BASE_MODELS_COLLECTION",
     "DATASETS_COLLECTION",
+    "FAIR_CATEGORY_PROPERTY",
     "FAIR_PINNED_PROPERTY",
+    "FAIR_PREVIEW_LOCATION_PROPERTY",
+    "FAIR_SOURCE_IMAGERY_PROPERTY",
     "LOCAL_MODELS_COLLECTION",
     "bulk_get_cached_items",
     "deprecate_item",
@@ -36,11 +42,21 @@ __all__ = [
     "list_base_models",
     "list_datasets",
     "list_local_models",
+    "mirror_and_relink_assets",
     "serialize_item",
+    "set_item_properties",
     "set_item_property",
 ]
 
+# Assets whose bytes we mirror into our own bucket so the public STAC item can
+# link to a stable, presign-backed download instead of the internal store.
+DOWNLOADABLE_STAC_ASSETS = ("model", "checkpoint", "training-metrics", "download")
+_ASSET_MIRROR_TIMEOUT_S = 900
+
 FAIR_PINNED_PROPERTY = "fair:pinned"
+FAIR_SOURCE_IMAGERY_PROPERTY = "fair:source_imagery"
+FAIR_PREVIEW_LOCATION_PROPERTY = "fair:preview_location"
+FAIR_CATEGORY_PROPERTY = "fair:category"
 
 _CACHE_TTL_SECONDS = settings.STAC_CACHE_TTL
 _BULK_FETCH_MAX_WORKERS = settings.STAC_BULK_FETCH_WORKERS
@@ -83,6 +99,14 @@ def deprecate_item(collection_id: str, item_id: str) -> pystac.Item:
     return _backend().deprecate_item(collection_id, item_id)
 
 
+def _public_links(links: list[dict]) -> list[dict]:
+    # Internal STAC-host links are dead publicly; consumers navigate via this backend, so drop them.
+    internal = settings.FAIR_STAC_API_URL
+    if not internal:
+        return links
+    return [link for link in links if not str(link.get("href", "")).startswith(internal)]
+
+
 def serialize_item(item: pystac.Item) -> dict:
     """JSON-safe extract of the STAC fields the API exposes.
 
@@ -98,7 +122,7 @@ def serialize_item(item: pystac.Item) -> dict:
         "geometry": raw.get("geometry"),
         "assets": raw.get("assets") or {},
         "properties": properties,
-        "links": raw.get("links") or [],
+        "links": _public_links(raw.get("links") or []),
     }
 
 
@@ -168,8 +192,63 @@ def get_active_local_model_item(model_name: str) -> pystac.Item | None:
 
 
 def set_item_property(collection_id: str, item_id: str, key: str, value: object) -> dict:
-    # JSON Merge Patch single-key write. Refreshes the cache to the new value.
-    patched = _backend().patch_item(collection_id, item_id, {"properties": {key: value}})
-    payload = serialize_item(patched)
+    # Single-key convenience wrapper over the read-modify-write below.
+    return set_item_properties(collection_id, item_id, {key: value})
+
+
+def set_item_properties(collection_id: str, item_id: str, properties: dict) -> dict:
+    # Read-modify-write: the STAC API rejects PATCH, so merge onto the current
+    # item and PUT it back via publish_item. Refreshes the cache.
+    backend = _backend()
+    item = backend.get_item(collection_id, item_id)
+    item.properties.update(properties)
+    published = backend.publish_item(collection_id, item)
+    payload = serialize_item(published)
     cache.set(_cache_key(collection_id, item_id), payload, _CACHE_TTL_SECONDS)
     return payload
+
+
+def _stream_href_to_bucket(source_href: str, prefix: str) -> None:
+    # Copy the object at `source_href` (readable internal store URL) into our
+    # bucket under `prefix`, preserving its filename. Streams via a temp file so
+    # large weights never sit in memory.
+    filename = source_href.rsplit("/", 1)[-1].split("?", 1)[0] or "asset"
+    key = f"{prefix}{filename}"
+    with (
+        httpx.stream(
+            "GET", source_href, timeout=_ASSET_MIRROR_TIMEOUT_S, follow_redirects=True
+        ) as response,
+        tempfile.NamedTemporaryFile() as tmp,
+    ):
+        response.raise_for_status()
+        for chunk in response.iter_bytes(chunk_size=1 << 20):
+            tmp.write(chunk)
+        tmp.flush()
+        settings.S3_CLIENT.upload_file(tmp.name, settings.BUCKET_NAME, key)
+
+
+def mirror_and_relink_assets(collection_id: str, item_id: str) -> None:
+    """Mirror an item's downloadable assets into our bucket and repoint their
+    hrefs at the presign-redirect endpoint, so public STAC links stay
+    downloadable while the objects stay private. Idempotent."""
+    from shared.storage import StoragePaths
+
+    backend = _backend()
+    item = backend.get_item(collection_id, item_id)
+    base = settings.API_BASE_URL.rstrip("/")
+    changed = False
+    for name in DOWNLOADABLE_STAC_ASSETS:
+        asset = item.assets.get(name)
+        if asset is None or not asset.href:
+            continue
+        if (
+            "/stac-assets/" in asset.href or "/artifacts/" in asset.href
+        ):  # this is poor choice , TODO : Change this to check the fair proxy itself
+            continue
+        prefix = StoragePaths.stac_download_prefix(collection_id, item_id, name)
+        _stream_href_to_bucket(asset.href, prefix)
+        asset.href = f"{base}/stac-assets/{collection_id}/{item_id}/{name}/"
+        changed = True
+    if changed:
+        backend.publish_item(collection_id, item)
+        invalidate_stac_cache(collection_id, item_id)
