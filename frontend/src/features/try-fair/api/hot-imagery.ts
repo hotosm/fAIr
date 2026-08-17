@@ -91,7 +91,22 @@ export const getImageryTileUrl = (
   itemId: string,
   assetName: string = "visual",
 ): string =>
-  `${HOT_IMAGERY_RASTER_API_URL}/collections/${HOT_IMAGERY_COLLECTION_ID}/items/${itemId}/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?assets=${assetName}&nodata=0`;
+  // Note: no `@1x` scale suffix — this titiler rejects it with a 422
+  // (it parses `{y}@1x` as the y coordinate). Plain {z}/{x}/{y} is correct.
+  `${HOT_IMAGERY_RASTER_API_URL}/collections/${HOT_IMAGERY_COLLECTION_ID}/items/${itemId}/tiles/WebMercatorQuad/{z}/{x}/{y}?assets=${assetName}&nodata=0`;
+
+/**
+ * TileJSON URL for an OpenAerialMap item. Preferred when applying imagery to a
+ * map: MapLibre reads its `bounds`/`minzoom`/`maxzoom`, so it only requests
+ * tiles that exist — no 404 flood on tiles just outside the image footprint
+ * (the bare XYZ template above is unbounded). `tilesize=256` matches the
+ * default raster tile size.
+ */
+export const getImageryTileJSONUrl = (
+  itemId: string,
+  assetName: string = "visual",
+): string =>
+  `${HOT_IMAGERY_RASTER_API_URL}/collections/${HOT_IMAGERY_COLLECTION_ID}/items/${itemId}/WebMercatorQuad/tilejson.json?assets=${assetName}&tilesize=256`;
 
 // ── API calls ─────────────────────────────────────────────────────────────────
 
