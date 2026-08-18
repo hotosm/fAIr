@@ -49,8 +49,9 @@ def test_register_requires_admin(user: OsmUser) -> None:
     assert not BaseModel.objects.exists()
 
 
+@patch("modelregistry.views.deploy_model_to_knative")
 @patch("modelregistry.views.register_base_model")
-def test_register_creates_row_and_returns_202(mock_task, admin: OsmUser) -> None:
+def test_register_creates_row_and_returns_202(mock_task, mock_deploy, admin: OsmUser) -> None:
     resp = _client(admin).post("/api/v1/base-models/", {"stac_item": VALID_ITEM}, format="json")
     assert resp.status_code == 202
     base_model = BaseModel.objects.get(name="test-basemodel")
@@ -62,8 +63,9 @@ def test_register_creates_row_and_returns_202(mock_task, admin: OsmUser) -> None
     assert item["properties"]["fair:category"] == "other"
 
 
+@patch("modelregistry.views.deploy_model_to_knative")
 @patch("modelregistry.views.register_base_model")
-def test_register_stores_category(mock_task, admin: OsmUser) -> None:
+def test_register_stores_category(mock_task, mock_deploy, admin: OsmUser) -> None:
     resp = _client(admin).post(
         "/api/v1/base-models/",
         {"stac_item": VALID_ITEM, "category": "buildings"},
@@ -75,8 +77,9 @@ def test_register_stores_category(mock_task, admin: OsmUser) -> None:
     assert item["properties"]["fair:category"] == "buildings"
 
 
+@patch("modelregistry.views.deploy_model_to_knative")
 @patch("modelregistry.views.register_base_model")
-def test_register_with_inference_endpoint_sets_asset(mock_task, admin: OsmUser) -> None:
+def test_register_with_inference_endpoint_sets_asset(mock_task, mock_deploy, admin: OsmUser) -> None:
     resp = _client(admin).post(
         "/api/v1/base-models/",
         {"stac_item": VALID_ITEM, "inference_endpoint": "https://predict.example.com/m"},
@@ -88,8 +91,9 @@ def test_register_with_inference_endpoint_sets_asset(mock_task, admin: OsmUser) 
     assert asset["roles"] == ["mlm:inference-endpoint"]
 
 
+@patch("modelregistry.views.deploy_model_to_knative")
 @patch("modelregistry.views.register_base_model")
-def test_register_without_inference_endpoint_leaves_item(mock_task, admin: OsmUser) -> None:
+def test_register_without_inference_endpoint_leaves_item(mock_task, mock_deploy, admin: OsmUser) -> None:
     resp = _client(admin).post("/api/v1/base-models/", {"stac_item": VALID_ITEM}, format="json")
     assert resp.status_code == 202
     item = mock_task.enqueue.call_args.kwargs["stac_item"]
@@ -104,9 +108,10 @@ def test_register_rejects_missing_mlm_name(admin: OsmUser) -> None:
     assert not BaseModel.objects.exists()
 
 
+@patch("modelregistry.views.deploy_model_to_knative")
 @patch("modelregistry.views.register_base_model")
 def test_register_from_url_stores_fetched_item(
-    mock_task, admin: OsmUser, monkeypatch: pytest.MonkeyPatch
+    mock_task, mock_deploy, admin: OsmUser, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     fetched = {"type": "Feature", "properties": {"mlm:name": "url-model"}, "assets": {}}
     monkeypatch.setattr(
