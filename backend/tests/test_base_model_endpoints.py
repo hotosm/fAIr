@@ -93,11 +93,16 @@ def test_register_with_inference_endpoint_sets_asset(mock_task, mock_deploy, adm
 
 @patch("modelregistry.views.deploy_model_to_knative")
 @patch("modelregistry.views.register_base_model")
-def test_register_without_inference_endpoint_leaves_item(mock_task, mock_deploy, admin: OsmUser) -> None:
+def test_register_without_inference_endpoint_auto_generates_knative_url(mock_task, mock_deploy, admin: OsmUser) -> None:
     resp = _client(admin).post("/api/v1/base-models/", {"stac_item": VALID_ITEM}, format="json")
     assert resp.status_code == 202
+    
     item = mock_task.enqueue.call_args.kwargs["stac_item"]
-    assert "mlm:inference-endpoint" not in item.get("assets", {})
+    
+    # Verify the inference endpoint was automatically injected by our Knative deployer block
+    asset = item.get("assets", {})["mlm:inference-endpoint"]
+    assert asset["href"] == "https://test-basemodel.predict.ai.hotosm.org/predict"
+    assert asset["roles"] == ["mlm:inference-endpoint"]
 
 
 def test_register_rejects_missing_mlm_name(admin: OsmUser) -> None:
