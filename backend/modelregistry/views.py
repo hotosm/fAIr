@@ -349,7 +349,7 @@ class BaseModelViewSet(
         category = data.get("category") or Category.objects.get(slug="other")
         stac_item = data.get("stac_item") or _fetch_stac_item(data["stac_item_url"])
         
-        # ---> KNATIVE DEPLOYMENT BLOCK START <---
+# ---> KNATIVE DEPLOYMENT BLOCK START <---
         # 1. Fetch the STAC name (fallback to fair-base-model if missing)
         stac_name = stac_item.get("properties", {}).get("mlm:name", "fair-base-model")
         
@@ -360,21 +360,24 @@ class BaseModelViewSet(
             # 3. Dynamic namespace detection based on Django environment
             namespace = "fair-prod" if not settings.DEBUG else "fair-staging"
             
-            # 4. Trigger deployment
-            knative_url = deploy_model_to_knative(
+            # 4. Trigger deployment (We still run this to create the pod in the cluster)
+            deploy_model_to_knative(
                 model_name=model_name,
                 stac_item_url=data.get("stac_item_url") or "",
                 category=category.slug,
                 namespace=namespace
             )
             
-            # 5. Save the endpoint as a standard property in STAC
-            stac_item.setdefault("properties", {})["knative_endpoint"] = knative_url
+            # 5. Construct the exact inference URL for the deployed model 
+            # Using the sanitized model_name to ensure valid DNS formatting
+            expected_predict_url = f"https://{model_name}.predict.ai.hotosm.org/predict"
+            
+            # 6. Save the correctly formatted endpoint into the STAC properties
+            stac_item.setdefault("properties", {})["knative_endpoint"] = expected_predict_url
 
-            # 6. Smart Fallback: Automatically register the Knative URL as the STAC
-            # mlm:inference-endpoint asset if a custom one was not manually provided.
+            # 7. Register the Knative URL as the STAC mlm:inference-endpoint asset
             if not data.get("inference_endpoint"):
-                data["inference_endpoint"] = knative_url
+                data["inference_endpoint"] = expected_predict_url
 
         except Exception as e:
             # Safely abort STAC registration and alert the client if the cluster errors out
