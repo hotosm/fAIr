@@ -1,6 +1,6 @@
-from .utils.knative_deployer import deploy_model_to_knative
-import httpx
 import re  # Added for model name sanitization
+
+import httpx
 from django.conf import settings
 from django.db.models import Count, Q
 from django.http import HttpResponseRedirect
@@ -53,6 +53,7 @@ from .serializers import (
     TrainingRunSummarySerializer,
 )
 from .tasks import register_base_model
+from .utils.knative_deployer import deploy_model_to_knative
 
 _STAC_FETCH_TIMEOUT_S = 30
 
@@ -348,30 +349,30 @@ class BaseModelViewSet(
         data = serializer.validated_data
         category = data.get("category") or Category.objects.get(slug="other")
         stac_item = data.get("stac_item") or _fetch_stac_item(data["stac_item_url"])
-        
-# ---> KNATIVE DEPLOYMENT BLOCK START <---
+
+        # ---> KNATIVE DEPLOYMENT BLOCK START <---
         # 1. Fetch the STAC name (fallback to fair-base-model if missing)
         stac_name = stac_item.get("properties", {}).get("mlm:name", "fair-base-model")
-        
+
         # 2. Sanitize to ensure the name is Kubernetes-safe for Knative
-        model_name = re.sub(r'[^a-z0-9-]', '-', stac_name.lower())
+        model_name = re.sub(r"[^a-z0-9-]", "-", stac_name.lower())
 
         try:
             # 3. Dynamic namespace detection based on Django environment
             namespace = "fair-prod" if not settings.DEBUG else "fair-staging"
-            
+
             # 4. Trigger deployment (We still run this to create the pod in the cluster)
             deploy_model_to_knative(
                 model_name=model_name,
                 stac_item_url=data.get("stac_item_url") or "",
                 category=category.slug,
-                namespace=namespace
+                namespace=namespace,
             )
-            
-            # 5. Construct the exact inference URL for the deployed model 
+
+            # 5. Construct the exact inference URL for the deployed model
             # Using the sanitized model_name to ensure valid DNS formatting
             expected_predict_url = f"https://{model_name}.predict.ai.hotosm.org/predict"
-            
+
             # 6. Save the correctly formatted endpoint into the STAC properties
             stac_item.setdefault("properties", {})["knative_endpoint"] = expected_predict_url
 
@@ -382,8 +383,8 @@ class BaseModelViewSet(
         except Exception as e:
             # Safely abort STAC registration and alert the client if the cluster errors out
             return Response(
-                {"error": f"Failed to deploy to Knative cluster: {str(e)}"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                {"error": f"Failed to deploy to Knative cluster: {e!s}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
         # ---> KNATIVE DEPLOYMENT BLOCK END <---
 

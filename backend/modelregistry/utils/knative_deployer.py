@@ -1,8 +1,10 @@
 import os
-import yaml
 import time
+
+import yaml
 from kubernetes import client, config
 from kubernetes.client.rest import ApiException
+
 
 def deploy_model_to_knative(model_name, stac_item_url, category, namespace="fair-staging"):
     """
@@ -18,7 +20,7 @@ def deploy_model_to_knative(model_name, stac_item_url, category, namespace="fair
 
     # 2. Setup the Custom Objects API (required for Knative CRDs)
     api_instance = client.CustomObjectsApi()
-    
+
     # Knative API Group definitions
     group = "serving.knative.dev"
     version = "v1"
@@ -26,9 +28,11 @@ def deploy_model_to_knative(model_name, stac_item_url, category, namespace="fair
 
     # 3. Load and populate the YAML template
     # Adjust the path based on where this script runs relative to project root
-    template_path = os.path.join(os.path.dirname(__file__), '../../infra/knative-model-template.yaml')
-    
-    with open(template_path, 'r') as file:
+    template_path = os.path.join(
+        os.path.dirname(__file__), "../../infra/knative-model-template.yaml"
+    )
+
+    with open(template_path) as file:
         manifest_str = file.read()
 
     # Determine dynamic image - assuming a base model server image for now
@@ -40,7 +44,7 @@ def deploy_model_to_knative(model_name, stac_item_url, category, namespace="fair
         namespace=namespace,
         image_url=image_url,
         stac_item_url=stac_item_url,
-        category=category
+        category=category,
     )
     manifest = yaml.safe_load(manifest_str)
 
@@ -54,7 +58,7 @@ def deploy_model_to_knative(model_name, stac_item_url, category, namespace="fair
             body=manifest,
         )
     except ApiException as e:
-        if e.status == 409: # Conflict: Service already exists, patch it instead
+        if e.status == 409:  # Conflict: Service already exists, patch it instead
             api_instance.patch_namespaced_custom_object(
                 group=group,
                 version=version,
@@ -73,8 +77,8 @@ def deploy_model_to_knative(model_name, stac_item_url, category, namespace="fair
             resource = api_instance.get_namespaced_custom_object(
                 group=group, version=version, namespace=namespace, plural=plural, name=model_name
             )
-            if 'status' in resource and 'url' in resource['status']:
-                return resource['status']['url']
+            if "status" in resource and "url" in resource["status"]:
+                return resource["status"]["url"]
         except ApiException:
             pass
         time.sleep(1)
