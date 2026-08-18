@@ -1,0 +1,24 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: "{model_name}"
+  # Namespace will be injected dynamically (fair-staging or fair-prod)
+  namespace: "{namespace}"
+spec:
+  template:
+    metadata:
+      annotations:
+        # Scale to zero when inactive to save cluster resources
+        autoscaling.knative.dev/min-scale: "0"
+    spec:
+      # Optional: Only add the serviceAccountName if the model pod ITSELF needs EKS permissions
+      # serviceAccountName: "fair-model-deployer" 
+      containers:
+        - image: "{image_url}"
+          env:
+            - name: MODEL_STAC_URL
+              value: "{stac_item_url}"
+            - name: CATEGORY
+              value: "{category}"
+          ports:
+            - containerPort: 8080
