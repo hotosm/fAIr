@@ -18,7 +18,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const handleLogin = () => {
     if (AUTH_PROVIDER === "hanko") {
       const returnTo = `${FRONTEND_URL}${location.pathname}${location.search}`;
-      window.location.href = `${HANKO_URL}/app?return_to=${encodeURIComponent(returnTo)}`;
+      window.location.href = `${HANKO_URL}?return_to=${encodeURIComponent(returnTo)}`;
     } else {
       /*
        * Set the `backgroundLocation` in location state so that when we open the authentication modal we still see the current page in the background.
