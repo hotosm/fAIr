@@ -1,12 +1,21 @@
 import httpx
+from django.conf import settings
 from django.db.models import Count, Q
+from django.http import HttpResponse, HttpResponseRedirect
 from django_filters.rest_framework import DjangoFilterBackend
-from drf_spectacular.utils import OpenApiExample, extend_schema, extend_schema_view
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import (
+    OpenApiExample,
+    OpenApiResponse,
+    extend_schema,
+    extend_schema_view,
+)
 from rest_framework import filters, mixins, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import NotFound, ValidationError
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from accounts.authentication import OsmAuthentication
 from accounts.permissions import (
@@ -15,22 +24,30 @@ from accounts.permissions import (
     PublishedReadOrAuthenticatedWrite,
     _is_admin,
 )
-from shared.enums import ModelCategory, Visibility
+from shared.enums import Visibility
 from shared.integrations.stac import (
+    BASE_MODELS_COLLECTION,
+    DATASETS_COLLECTION,
+    DOWNLOADABLE_STAC_ASSETS,
+    FAIR_CATEGORY_PROPERTY,
     FAIR_PINNED_PROPERTY,
+    FAIR_PREVIEW_LOCATION_PROPERTY,
+    FAIR_SOURCE_IMAGERY_PROPERTY,
     LOCAL_MODELS_COLLECTION,
-    get_active_local_model_item,
-    set_item_property,
+    bulk_get_cached_items,
+    get_cached_item,
+    set_item_properties,
 )
 from shared.integrations.zenml import list_runs_for_model
 from shared.stars import annotate_stars
 
-from .models import BaseModel, LocalModel
+from .models import BaseModel, Category, LocalModel
 from .serializers import (
-    BaseModelCategorySerializer,
     BaseModelRegisterSerializer,
     BaseModelSerializer,
+    CategorySerializer,
     LocalModelSerializer,
+    ModelPinSerializer,
     TrainingRunSummarySerializer,
 )
 from .tasks import register_base_model
@@ -38,12 +55,87 @@ from .tasks import register_base_model
 _STAC_FETCH_TIMEOUT_S = 30
 
 
-def _fetch_mlm_name(url: str) -> str:
-    """Fetch the STAC item at `url` and return its ``mlm:name`` chain key.
+def _derive_preview_props(collection: str, item_id: str, properties: dict) -> dict:
+    """Reverse-geocode place/country from the pinned location via fair-py-ops so
+    the preview props stay consistent with how registration derives them."""
+    from fair.stac.location import derive_location_props
+    from shapely.geometry import shape
 
-    Registration stores only the link, so the name (unique per family) is read
-    once here to key the row. A bad URL or a payload without the field is a
-    caller error surfaced as a 400.
+    geometry = get_cached_item(collection, item_id).get("geometry")
+    if not geometry:
+        return {}
+    return derive_location_props(properties, list(shape(geometry).bounds))
+
+
+def _apply_pin(model, collection: str, data: dict) -> None:
+    """Flip the DB flag, then mirror it (plus optional preview metadata) onto
+    the model's STAC item when the model has been published. A new preview
+    location re-derives the place/country props so they stay consistent."""
+    model.is_pinned = data["is_pinned"]
+    model.save(update_fields=["is_pinned", "last_modified"])
+    if not model.stac_item_id:
+        return
+    properties: dict = {FAIR_PINNED_PROPERTY: model.is_pinned}
+    if data.get("source_imagery"):
+        properties[FAIR_SOURCE_IMAGERY_PROPERTY] = data["source_imagery"]
+    if location := data.get("pinned_location"):
+        properties[FAIR_PREVIEW_LOCATION_PROPERTY] = location
+        properties.update(_derive_preview_props(collection, model.stac_item_id, properties))
+    set_item_properties(collection, model.stac_item_id, properties)
+
+
+def _wants_expand_stac(request) -> bool:
+    return request.query_params.get("expand") == "stac"
+
+
+class StacExpandMixin:
+    """`?expand=stac` inlines each row's STAC item under a `stac` field.
+
+    Subclasses set `stac_collection`. Default responses stay DB-only (`stac` is
+    null); expansion is opt-in and only fetches items with a `stac_item_id`.
+    """
+
+    stac_collection: str = ""
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["stac_items_by_id"] = self._stac_items_for_request()
+        return context
+
+    def _stac_items_for_request(self) -> dict:
+        if not _wants_expand_stac(self.request):
+            return {}
+        collection = self.stac_collection
+        if self.action == "retrieve":
+            obj = self.get_object()
+            if not obj.stac_item_id:
+                return {}
+            return {(collection, obj.stac_item_id): get_cached_item(collection, obj.stac_item_id)}
+        if self.action == "list":
+            page = self.paginate_queryset(self.filter_queryset(self.get_queryset()))
+            if page is None:
+                page = list(self.filter_queryset(self.get_queryset()))
+            self._cached_page = page
+            pairs = [(collection, o.stac_item_id) for o in page if o.stac_item_id]
+            return bulk_get_cached_items(pairs)
+        return {}
+
+    def list(self, request, *args, **kwargs):
+        if _wants_expand_stac(request):
+            self.get_serializer_context()
+            page = getattr(self, "_cached_page", None)
+            if page is not None and self.paginator is not None:
+                serializer = self.get_serializer(page, many=True)
+                return self.get_paginated_response(serializer.data)
+        return super().list(request, *args, **kwargs)
+
+
+def _fetch_stac_item(url: str) -> dict:
+    """Fetch and return the STAC item JSON at `url`.
+
+    A URL is a convenience input: the item is fetched once here and stored
+    inline, so the link itself is never persisted. A bad URL or a payload
+    without ``properties['mlm:name']`` is a caller error surfaced as a 400.
     """
     try:
         response = httpx.get(url, timeout=_STAC_FETCH_TIMEOUT_S, follow_redirects=True)
@@ -57,34 +149,41 @@ def _fetch_mlm_name(url: str) -> str:
         raise ValidationError(
             {"stac_item_url": "fetched STAC item is missing properties['mlm:name']."}
         )
-    return name
+    return item
 
 
 @extend_schema_view(
-    list=extend_schema(description="List local (finetuned) models."),
-    retrieve=extend_schema(description="Retrieve one local model by id."),
+    list=extend_schema(
+        description="List local (finetuned) models. `?expand=stac` inlines each STAC item."
+    ),
+    retrieve=extend_schema(
+        description="Retrieve one local model by id. `?expand=stac` inlines the STAC item."
+    ),
     pin=extend_schema(
         description=(
-            "Toggle the `fair:pinned` STAC property on a model (admin only). "
-            "Writes to STAC; the DB row is unchanged."
+            "Pin/unpin a model (admin only). Flips the DB `is_pinned` flag and, "
+            "for a published model, mirrors it to `fair:pinned` on the STAC item. "
+            "Optional `source_imagery` (TMS) and `pinned_location` (GeoJSON Point) "
+            "are written as `fair:source_imagery` / `fair:preview_location`."
         ),
     ),
     runs=extend_schema(description="List ZenML pipeline runs that produced this model."),
 )
-class LocalModelViewSet(viewsets.ReadOnlyModelViewSet):
+class LocalModelViewSet(StacExpandMixin, viewsets.ReadOnlyModelViewSet):
+    stac_collection = LOCAL_MODELS_COLLECTION
     queryset = LocalModel.objects.all()
     serializer_class = LocalModelSerializer
     authentication_classes = [OsmAuthentication]
     permission_classes = [PublishedReadOrAuthenticatedWrite]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ["status", "visibility", "category", "user"]
+    filterset_fields = ["status", "visibility", "category", "base_model", "is_pinned", "user"]
     search_fields = ["name"]
     ordering_fields = ["created_at", "last_modified"]
 
     def get_queryset(self):
-        qs = LocalModel.objects.all().annotate(run_count=Count("runs"))
+        qs = LocalModel.objects.select_related("base_model").all().annotate(run_count=Count("runs"))
         user = self.request.user
-        if not user.is_authenticated:
+        if not (user and user.is_authenticated):
             qs = qs.filter(visibility=Visibility.PUBLIC)
         elif not _is_admin(user):
             qs = qs.filter(Q(user=user) | Q(visibility=Visibility.PUBLIC))
@@ -113,24 +212,13 @@ class LocalModelViewSet(viewsets.ReadOnlyModelViewSet):
         model.save(update_fields=["visibility", "last_modified"])
         return Response(self.get_serializer(model).data, status=status.HTTP_200_OK)
 
+    @extend_schema(request=ModelPinSerializer, responses={200: LocalModelSerializer})
     @action(detail=True, methods=["patch"], url_path="pin")
     def pin(self, request, pk: int | None = None) -> Response:
         model = self.get_object()
-        # STAC items are keyed by version UUID; the active version is
-        # whichever STAC item has mlm:name == model.name.
-        active = get_active_local_model_item(model.name)
-        if active is None:
-            return Response(
-                {
-                    "detail": (
-                        f"Model '{model.name}' has no active STAC version. "
-                        "Promote at least one training run before pinning."
-                    ),
-                },
-                status=status.HTTP_409_CONFLICT,
-            )
-        desired = bool(request.data.get("is_pinned", True))
-        set_item_property(LOCAL_MODELS_COLLECTION, active.id, FAIR_PINNED_PROPERTY, desired)
+        serializer = ModelPinSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        _apply_pin(model, LOCAL_MODELS_COLLECTION, serializer.validated_data)
         return Response(self.get_serializer(model).data, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=["get"], url_path="runs")
@@ -154,8 +242,14 @@ class LocalModelViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 @extend_schema_view(
-    list=extend_schema(description="List registered base models (family records)."),
-    retrieve=extend_schema(description="Retrieve one base model by id."),
+    list=extend_schema(
+        description=(
+            "List registered base models (family records). `?expand=stac` inlines each STAC item."
+        )
+    ),
+    retrieve=extend_schema(
+        description="Retrieve one base model by id. `?expand=stac` inlines the STAC item."
+    ),
     create=extend_schema(
         description=(
             "Register a base model from an inline STAC item JSON or a URL to one "
@@ -187,72 +281,240 @@ class LocalModelViewSet(viewsets.ReadOnlyModelViewSet):
                 },
                 request_only=True,
             ),
+            OpenApiExample(
+                "With an inference endpoint",
+                value={
+                    "stac_item": {
+                        "type": "Feature",
+                        "id": "ramp-buildings",
+                        "properties": {"mlm:name": "ramp-buildings"},
+                        "assets": {},
+                    },
+                    "category": "buildings",
+                    "inference_endpoint": "https://predict.example.com/ramp-buildings",
+                },
+                request_only=True,
+            ),
         ],
     ),
 )
 class BaseModelViewSet(
+    StacExpandMixin,
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
     viewsets.GenericViewSet,
 ):
+    stac_collection = BASE_MODELS_COLLECTION
     queryset = BaseModel.objects.all()
     serializer_class = BaseModelSerializer
     authentication_classes = [OsmAuthentication]
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ["status", "visibility", "category", "user"]
+    filterset_fields = ["status", "visibility", "category", "is_pinned", "user"]
     search_fields = ["name"]
     ordering_fields = ["created_at", "last_modified"]
 
+    def get_queryset(self):
+        qs = BaseModel.objects.all()
+        user = self.request.user
+        if not (user and user.is_authenticated):
+            qs = qs.filter(visibility=Visibility.PUBLIC)
+        elif not _is_admin(user):
+            qs = qs.filter(Q(user=user) | Q(visibility=Visibility.PUBLIC))
+        return annotate_stars(qs, self.request, key_field="name")
+
     def get_permissions(self):
-        if self.action == "create":
+        if self.action in {"create", "pin"}:
             return [IsAuthenticated(), IsAdmin()]
-        if self.action == "categories":
+        if self.action in {"list", "retrieve"}:
             return [AllowAny()]
         return [IsAuthenticated()]
+
+    @extend_schema(request=ModelPinSerializer, responses={200: BaseModelSerializer})
+    @action(detail=True, methods=["patch"], url_path="pin")
+    def pin(self, request, pk: int | None = None) -> Response:
+        model = self.get_object()
+        serializer = ModelPinSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        _apply_pin(model, BASE_MODELS_COLLECTION, serializer.validated_data)
+        return Response(BaseModelSerializer(model).data, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs) -> Response:
         serializer = BaseModelRegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
-        category = data["category"]
-        stac_item = data.get("stac_item") or {}
-        stac_item_url = data.get("stac_item_url") or ""
-        name = stac_item["properties"]["mlm:name"] if stac_item else _fetch_mlm_name(stac_item_url)
+        category = data.get("category") or Category.objects.get(slug="other")
+        stac_item = data.get("stac_item") or _fetch_stac_item(data["stac_item_url"])
+        if inference_endpoint := data.get("inference_endpoint"):
+            stac_item.setdefault("assets", {})["mlm:inference-endpoint"] = {
+                "href": inference_endpoint,
+                "type": "application/json",
+                "roles": ["mlm:inference-endpoint"],
+            }
+        stac_item.setdefault("properties", {})[FAIR_CATEGORY_PROPERTY] = category.slug
+        name = stac_item["properties"]["mlm:name"]
 
         base_model, created = BaseModel.objects.get_or_create(
             name=name,
             defaults={
                 "user": request.user,
                 "category": category,
-                "stac_item": stac_item,
-                "stac_item_url": stac_item_url,
                 "status": BaseModel.Status.REGISTERING,
             },
         )
         if not created:
             base_model.category = category
-            base_model.stac_item = stac_item
-            base_model.stac_item_url = stac_item_url
             base_model.status = BaseModel.Status.REGISTERING
             base_model.error = ""
-            base_model.save(
-                update_fields=[
-                    "category",
-                    "stac_item",
-                    "stac_item_url",
-                    "status",
-                    "error",
-                    "last_modified",
-                ]
-            )
+            base_model.save(update_fields=["category", "status", "error", "last_modified"])
 
-        register_base_model.enqueue(base_model_id=base_model.id)
+        register_base_model.enqueue(base_model_id=base_model.id, stac_item=stac_item)
         return Response(BaseModelSerializer(base_model).data, status=status.HTTP_202_ACCEPTED)
 
-    @extend_schema(responses=BaseModelCategorySerializer(many=True))
-    @action(detail=False, methods=["get"], url_path="categories")
-    def categories(self, request) -> Response:
-        data = [{"value": value, "label": label} for value, label in ModelCategory.choices]
-        return Response(BaseModelCategorySerializer(data, many=True).data)
+
+class PinnedModelsView(APIView):
+    """One feed of all pinned models (base + local) for a featured view.
+
+    Public read, visibility-filtered. `?expand=stac` inlines each STAC item so
+    the pin preview metadata (`fair:source_imagery` / `fair:preview_location`)
+    comes back in the same call.
+    """
+
+    authentication_classes = [OsmAuthentication]
+    permission_classes = [AllowAny]
+
+    @extend_schema(
+        description=(
+            "List all pinned models (base + local) in one response, each tagged "
+            "with `model_type`. `?expand=stac` inlines the full STAC item."
+        ),
+        responses=OpenApiResponse(OpenApiTypes.OBJECT, description="`{count, results[]}`"),
+    )
+    def get(self, request) -> Response:
+        user = request.user
+        base_qs = BaseModel.objects.filter(is_pinned=True)
+        local_qs = (
+            LocalModel.objects.filter(is_pinned=True)
+            .select_related("base_model")
+            .annotate(run_count=Count("runs"))
+        )
+        if not (user and user.is_authenticated):
+            base_qs = base_qs.filter(visibility=Visibility.PUBLIC)
+            local_qs = local_qs.filter(visibility=Visibility.PUBLIC)
+        elif not _is_admin(user):
+            base_qs = base_qs.filter(Q(user=user) | Q(visibility=Visibility.PUBLIC))
+            local_qs = local_qs.filter(Q(user=user) | Q(visibility=Visibility.PUBLIC))
+        base = list(annotate_stars(base_qs, request, key_field="name"))
+        local = list(annotate_stars(local_qs, request, key_field="name"))
+
+        context = {"request": request, "stac_items_by_id": {}}
+        if _wants_expand_stac(request):
+            pairs = [(BASE_MODELS_COLLECTION, m.stac_item_id) for m in base if m.stac_item_id]
+            pairs += [(LOCAL_MODELS_COLLECTION, m.stac_item_id) for m in local if m.stac_item_id]
+            context["stac_items_by_id"] = bulk_get_cached_items(pairs)
+
+        results = [
+            {"model_type": "base", **row}
+            for row in BaseModelSerializer(base, many=True, context=context).data
+        ]
+        results += [
+            {"model_type": "local", **row}
+            for row in LocalModelSerializer(local, many=True, context=context).data
+        ]
+        return Response({"count": len(results), "results": results})
+
+
+class StacAssetDownloadView(APIView):
+    """Public 302 to a fresh presigned URL for a mirrored STAC asset. The object
+    stays private in the bucket; the STAC href stays stable and downloadable."""
+
+    authentication_classes: list = []
+    permission_classes = [AllowAny]
+
+    _COLLECTIONS = {BASE_MODELS_COLLECTION, LOCAL_MODELS_COLLECTION, DATASETS_COLLECTION}
+
+    @extend_schema(
+        description="Redirect to a presigned download for a model or dataset STAC asset.",
+        responses={302: None},
+    )
+    def get(self, request, collection: str, item_id: str, asset: str) -> HttpResponseRedirect:
+        from shared.storage import StoragePaths, presigned_get_url
+
+        if collection not in self._COLLECTIONS or asset not in DOWNLOADABLE_STAC_ASSETS:
+            raise NotFound("Unknown STAC asset.")
+        prefix = StoragePaths.stac_download_prefix(collection, item_id, asset)
+        listing = settings.S3_CLIENT.list_objects_v2(
+            Bucket=settings.BUCKET_NAME, Prefix=prefix, MaxKeys=1
+        )
+        contents = listing.get("Contents") or []
+        if not contents:
+            raise NotFound("Asset not available.")
+        return HttpResponseRedirect(presigned_get_url(contents[0]["Key"]))
+
+
+class ArtifactPresignView(APIView):
+    """HEAD 200 (checked via the IAM role) so fair's public asset-URL check passes; GET 302 to a
+    presigned URL. Scoped to the artifact-store model/dataset prefixes; objects stay private.
+    """
+
+    authentication_classes: list = []
+    permission_classes = [AllowAny]
+
+    @staticmethod
+    def _validated_key(bucket: str, key: str) -> str:
+        allowed = tuple(
+            f"{settings.PARENT_BUCKET_FOLDER}/zenml/{collection}/"
+            for collection in (BASE_MODELS_COLLECTION, LOCAL_MODELS_COLLECTION, DATASETS_COLLECTION)
+        )
+        if bucket != settings.BUCKET_NAME or ".." in key or not key.startswith(allowed):
+            raise NotFound("Unknown artifact.")
+        return key
+
+    def head(self, request, bucket: str, key: str) -> HttpResponse:
+        from botocore.exceptions import ClientError
+
+        resolved = self._validated_key(bucket, key)
+        try:
+            settings.S3_CLIENT.head_object(Bucket=settings.BUCKET_NAME, Key=resolved)
+        except ClientError as exc:
+            if exc.response.get("Error", {}).get("Code") in {"404", "NoSuchKey"}:
+                raise NotFound("Artifact not available.") from exc
+            raise
+        return HttpResponse(status=200)
+
+    def get(self, request, bucket: str, key: str) -> HttpResponseRedirect:
+        from shared.storage import presigned_get_url
+
+        return HttpResponseRedirect(presigned_get_url(self._validated_key(bucket, key)))
+
+
+@extend_schema_view(
+    list=extend_schema(description="List model categories. No authentication required."),
+    retrieve=extend_schema(description="Retrieve one category by slug."),
+    create=extend_schema(description="Create a category (admin only)."),
+    update=extend_schema(description="Update a category (admin only)."),
+    partial_update=extend_schema(description="Partially update a category (admin only)."),
+    destroy=extend_schema(description="Delete a category (admin); blocked if a model uses it."),
+)
+class CategoryViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    authentication_classes = [OsmAuthentication]
+    lookup_field = "slug"
+
+    def get_permissions(self):
+        if self.action in {"list", "retrieve"}:
+            return [AllowAny()]
+        return [IsAuthenticated(), IsAdmin()]
+
+    def destroy(self, request, *args, **kwargs):
+        from django.db.models import ProtectedError
+
+        try:
+            return super().destroy(request, *args, **kwargs)
+        except ProtectedError:
+            return Response(
+                {"detail": "Category is in use by one or more models and cannot be deleted."},
+                status=status.HTTP_409_CONFLICT,
+            )

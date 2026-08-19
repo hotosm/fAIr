@@ -8,7 +8,7 @@ class Prediction(models.Model):
     zenml_run_id = models.CharField(max_length=64, unique=True, null=True, blank=True)
     local_model_stac_id = models.CharField(max_length=64)
     image_uri = models.URLField()
-    bbox = models.JSONField()
+    geometry = models.JSONField()
     zoom = models.PositiveSmallIntegerField()
     params = models.JSONField(default=dict, blank=True)
     remove_osm = models.BooleanField(default=False)

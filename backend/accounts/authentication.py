@@ -24,7 +24,7 @@ class HankoAuthentication(authentication.BaseAuthentication):
 
         if not hanko_user:
             logger.debug("No Hanko user in request")
-            return (None, None)
+            return None
 
         mapped_osm_id = get_mapped_user_id(hanko_user, app_name="fair")
 
@@ -45,7 +45,7 @@ class HankoAuthentication(authentication.BaseAuthentication):
         request.needs_onboarding = True
         request.hanko_user_for_onboarding = hanko_user
         logger.debug(f"Hanko user {hanko_user.email} needs onboarding (no mapping)")
-        return (None, None)
+        return None
 
 
 _DEV_USER_OSM_ID = 1

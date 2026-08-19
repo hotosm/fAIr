@@ -1,15 +1,9 @@
 import { useAuth } from "@/app/providers/auth-provider";
-import { AUTH_PROVIDER } from "@/config";
-import { ModelFormConfirmation } from "@/assets/images";
 import { Head } from "@/components/seo";
-import { DeleteModal } from "@/components/shared/modals";
-import { Button, ButtonWithIcon } from "@/components/ui/button";
-import { Dialog } from "@/components/ui/dialog";
+
+import { Button } from "@/components/ui/button";
 import { Input, Switch } from "@/components/ui/form";
-import { CheckIcon, ClipboardIcon, DeleteIcon } from "@/components/ui/icons";
-import { Image } from "@/components/ui/image";
-import { ToolTip } from "@/components/ui/tooltip";
-import { HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY } from "@/config";
+
 import { USER_PROFILE_PAGE_CONTENT } from "@/constants/ui-contents/user-profile-content";
 import { ButtonVariant, INPUT_TYPES } from "@/enums";
 import { NotificationDeliveryMethod } from "@/enums/user-profile";
@@ -17,10 +11,8 @@ import {
   useEmailVerification,
   useUpdateUserProfile,
 } from "@/features/user-profile/hooks/use-user-profile";
-import useCopyToClipboard from "@/hooks/use-clipboard";
-import { useDialog } from "@/hooks/use-dialog";
-import { useLocalStorage } from "@/hooks/use-storage";
-import { showErrorToast, showSuccessToast, truncateString } from "@/utils";
+
+import { showErrorToast, showSuccessToast } from "@/utils";
 import { useState } from "react";
 
 export const UserProfileSettingsPage = () => {
@@ -32,8 +24,7 @@ export const UserProfileSettingsPage = () => {
       message: "",
     },
   );
-  const { getValue } = useLocalStorage();
-  const { copyToClipboard } = useCopyToClipboard();
+
   const [showForm, setShowForm] = useState<boolean>(user?.email.length === 0);
 
   const [isEmailPending, setIsEmailPending] = useState<boolean>(false);
@@ -70,30 +61,6 @@ export const UserProfileSettingsPage = () => {
       },
     },
   });
-  const { isOpened, openDialog, closeDialog } = useDialog();
-
-  const {
-    isOpened: isSuccessDialogOpened,
-    openDialog: openSuccessDialog,
-    closeDialog: closeSuccessDialog,
-  } = useDialog();
-
-  const {
-    mutate: requestAccountDeletion,
-    isPending: accountDeletionRequestIsPending,
-  } = useUpdateUserProfile({
-    mutationConfig: {
-      onSuccess: (data) => {
-        showSuccessToast("Account deletion request successful.");
-        setUser(data);
-        closeDialog();
-        openSuccessDialog();
-      },
-      onError: (error) => {
-        showErrorToast(error, "Account deletion request failed.");
-      },
-    },
-  });
 
   const {
     mutate: requestEmailVerification,
@@ -110,12 +77,6 @@ export const UserProfileSettingsPage = () => {
       },
     },
   });
-  const handleCopyAccessToken = async () => {
-    await copyToClipboard(
-      getValue(HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY) as string,
-    );
-    showSuccessToast("Access token copied to clipboard.");
-  };
 
   const { mutate: updateNotifications } = useUpdateUserProfile({
     mutationConfig: {
@@ -136,96 +97,12 @@ export const UserProfileSettingsPage = () => {
     updateEmail({ email });
   };
 
-  const handleDeleteAccount = () => {
-    requestAccountDeletion({ account_deletion_requested: true });
-  };
-
   return (
     <>
-      {/* Delete success dialog */}
-      <Dialog isOpened={isSuccessDialogOpened} closeDialog={closeSuccessDialog}>
-        <div className="flex flex-col items-center gap-y-4 h-full w-full justify-center">
-          <Image
-            src={ModelFormConfirmation}
-            alt="Model Creation Success Icon"
-          />
-          <h1 className="text-title-3 font-semibold">
-            {
-              USER_PROFILE_PAGE_CONTENT.settings.account.deleteModal
-                .deletionSuccessTitle
-            }
-          </h1>
-          <p className="text-body-3 text-center">
-            {
-              USER_PROFILE_PAGE_CONTENT.settings.account.deleteModal
-                .deletionSuccessDescription
-            }
-          </p>
-          <div className="flex  w-full items-center justify-center">
-            <Button
-              onClick={closeSuccessDialog}
-              className="md:!w-fit !px-4 py-2"
-              contentClassName="md:!px-8"
-            >
-              {
-                USER_PROFILE_PAGE_CONTENT.settings.account.deleteModal
-                  .buttonText
-              }
-            </Button>
-          </div>
-        </div>
-      </Dialog>
       <Head title={USER_PROFILE_PAGE_CONTENT.settings.pageTitle} />
-      <DeleteModal
-        isOpen={isOpened}
-        onClose={closeDialog}
-        title={USER_PROFILE_PAGE_CONTENT.settings.account.deleteModal.title}
-        messageSuffix={
-          USER_PROFILE_PAGE_CONTENT.settings.account.deleteModal.messageSuffix
-        }
-        onDelete={handleDeleteAccount}
-        isDeleting={accountDeletionRequestIsPending}
-      />
 
       <div className="flex justify-center items-center">
         <div className="w-full md:max-w-[400px] flex flex-col gap-y-10">
-          {!showForm && (
-            <>
-              <SectionHeader
-                sectionTitle={
-                  USER_PROFILE_PAGE_CONTENT.settings.form
-                    .emailAddressSectionHeading
-                }
-              />
-              <div className="flex flex-col md:flex-row gap-y-2 md:gap-0 justify-between md:items-center">
-                <p className="text-body-3 md:text-body-2 flex items-center gap-x-2">
-                  {truncateString(email)}
-                  {user.email_verified && (
-                    <ToolTip
-                      content={
-                        USER_PROFILE_PAGE_CONTENT.settings.form
-                          .emailVerifiedTooltip
-                      }
-                    >
-                      <span className="w-5 h-5 p-1 rounded-full bg-green-500 flex items-center justify-center">
-                        <CheckIcon className="icon text-white" />
-                      </span>
-                    </ToolTip>
-                  )}
-                </p>
-                <Button
-                  variant={ButtonVariant.TERTIARY}
-                  onClick={() => setShowForm(true)}
-                  className="!w-fit"
-                  contentClassName="md:!p-0.5 text-body-4"
-                  size="small"
-                >
-                  {USER_PROFILE_PAGE_CONTENT.settings.form.editEmail}
-                </Button>
-              </div>
-            </>
-          )}
-
           {showForm && (
             <div className="flex flex-col gap-y-6">
               <SectionHeader
@@ -370,62 +247,6 @@ export const UserProfileSettingsPage = () => {
               )}
             </div>
           </div>
-          {AUTH_PROVIDER !== "hanko" && (
-            <div className="flex flex-col gap-y-6">
-              <SectionHeader
-                sectionTitle={
-                  USER_PROFILE_PAGE_CONTENT.settings.account.sectionTitle
-                }
-              />
-              <div className="flex flex-col gap-y-6">
-                <div className="flex flex-col gap-y-1">
-                  <p className="text-body-3 md:text-body-2">
-                    {USER_PROFILE_PAGE_CONTENT.settings.account.title}
-                  </p>
-                  <p className="text-grey text-body-3">
-                    {!user.account_deletion_requested
-                      ? USER_PROFILE_PAGE_CONTENT.settings.account.description
-                      : USER_PROFILE_PAGE_CONTENT.settings.account
-                          .deleteRequestPending}
-                  </p>
-                </div>
-                <ButtonWithIcon
-                  label={
-                    USER_PROFILE_PAGE_CONTENT.settings.account.deleteButtonText
-                  }
-                  variant={ButtonVariant.PRIMARY}
-                  prefixIcon={DeleteIcon}
-                  className="!w-fit"
-                  textClassName="p-0.5 md:px-1 md:py-2 text-body-4"
-                  onClick={openDialog}
-                  size="small"
-                  disabled={user.account_deletion_requested}
-                />
-              </div>
-            </div>
-          )}
-          {AUTH_PROVIDER !== "hanko" && (
-            <div className="flex flex-col gap-y-6">
-              <div className="flex flex-col gap-y-6">
-                <div className="flex flex-col gap-y-1">
-                  <p className="text-body-3 md:text-body-2">Access Token</p>
-                  <p className="text-grey text-body-3">
-                    ⚠️ Keep this token safe. Anyone with it can access your
-                    account.
-                  </p>
-                </div>
-                <ButtonWithIcon
-                  label={"Copy Access Token"}
-                  variant={ButtonVariant.PRIMARY}
-                  prefixIcon={ClipboardIcon}
-                  className="!w-fit"
-                  textClassName="p-0.5 md:px-1 md:py-2 text-body-4"
-                  onClick={handleCopyAccessToken}
-                  size="small"
-                />
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </>

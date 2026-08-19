@@ -6,7 +6,18 @@ from predictions.models import Prediction
 from shared.enums import Visibility
 
 _TMS = "https://tiles.example.com/{z}/{x}/{y}"
-_BBOX = [85.51678, 27.63133, 85.52323, 27.63743]
+_GEOM = {
+    "type": "Polygon",
+    "coordinates": [
+        [
+            [85.51678, 27.63133],
+            [85.52323, 27.63133],
+            [85.52323, 27.63743],
+            [85.51678, 27.63743],
+            [85.51678, 27.63133],
+        ]
+    ],
+}
 
 
 @pytest.fixture
@@ -18,7 +29,7 @@ def _prediction(owner: OsmUser, visibility: str) -> Prediction:
     return Prediction.objects.create(
         local_model_stac_id="m-1",
         image_uri=_TMS,
-        bbox=_BBOX,
+        geometry=_GEOM,
         zoom=19,
         visibility=visibility,
         user=owner,

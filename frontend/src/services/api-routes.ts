@@ -23,10 +23,10 @@ export const API_ENDPOINTS = {
 
   GET_MODEL_PREDICTIONS: FAIR_PREDICTOR_API_ENDPOINT,
 
-  CREATE_OFFLINE_PREDICTION: "prediction/",
-  GET_OFFLINE_PREDICTIONS: "prediction/",
-  UPDATE_OFFLINE_PREDICTION: (id: number) => `prediction/${id}/`,
-  GET_AI_PREDICTIONS: "prediction/",
+  CREATE_OFFLINE_PREDICTION: "predictions/",
+  GET_OFFLINE_PREDICTIONS: "predictions/",
+  UPDATE_OFFLINE_PREDICTION: (id: number) => `predictions/${id}/`,
+  GET_AI_PREDICTIONS: "predictions/",
   GET_AI_PREDICTIONS_CENTROIDS: "predictions/centroid/",
 
   // Feedbacks
@@ -48,7 +48,7 @@ export const API_ENDPOINTS = {
 
   // Models
 
-  GET_MODELS: "model/",
+  GET_MODELS: "local-models/",
   CREATE_MODEL: "model/",
   UPDATE_MODEL: (modelId: string) => `model/${modelId}/`,
   GET_MODEL_DETAILS: (id: string) => `model/${id}`,
@@ -59,7 +59,7 @@ export const API_ENDPOINTS = {
   GET_TRAINING_DETAILS: (id: number) => `training/${id}`,
   GET_TRAINING_DATASETS: (searchQuery: string, ordering: string) =>
     `dataset/?search=${searchQuery}&ordering=${ordering}`,
-  GET_TRAINING_DATASETS_V2: "dataset/",
+  GET_TRAINING_DATASETS_V2: "datasets/",
   GET_TRAINING_DATASET: (id: number) => `dataset/${id}`,
   GET_TRAINING_AREA_GPX: (aoiId: number) => `aoi/gpx/${aoiId}`,
   GET_TRAINING_AREA_LABELS_FROM_OSM: (aoiId: number) =>
@@ -71,7 +71,7 @@ export const API_ENDPOINTS = {
     `aoi/?dataset=${datasetId}&offset=${offset}&limit=${limit}`,
   GET_TRAINING_AREA: (aoiId: number) => `aoi/${aoiId}/`,
   GET_TRAINING_STATUS: (taskId: string) => `task/status/${taskId}`,
-  GET_TRAINING_HISTORY: "training/",
+  GET_TRAINING_HISTORY: "trainings/",
   GET_TRAINING_FEEDBACKS: (trainingId: number) =>
     `feedback/?training=${trainingId}`,
   CREATE_TRAINING_DATASET: "dataset/",
@@ -130,4 +130,15 @@ export const API_ENDPOINTS = {
     `/collections/local-models/items/?limit=${limit}`,
   GET_BASE_MODEL_BY_ID: (id: string): string =>
     `/collections/base-models/items/${id}`,
+
+  GET_CATEGORIES: "/categories/",
+  GET_API_BASE_MODELS: (category: string) =>
+    `/base-models/?category=${category}&ordering=star_count&expand=stac&is_pinned=true`,
+
+  GET_API_LOCAL_MODELS: (category: string) =>
+    `/local-models/?category=${category}&ordering=star_count&expand=stac&is_pinned=true`,
+  // Map large area
+  MAP_LARGE_AREA_REQUEST: "/predictions/submit/",
+
+  // Base
 };

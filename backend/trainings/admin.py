@@ -22,7 +22,10 @@ class TrainingRunRefAdmin(admin.ModelAdmin):
         "base_model_stac_id",
         "user__username",
     ]
-    readonly_fields = ["submitted_at", "last_polled_at"]
+    readonly_fields = ["zenml_run_id", "base_model_stac_id", "submitted_at", "last_polled_at"]
     date_hierarchy = "submitted_at"
     list_per_page = 50
     autocomplete_fields = ["local_model", "dataset", "user"]
+
+    def has_add_permission(self, request) -> bool:
+        return False

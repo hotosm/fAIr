@@ -22,16 +22,16 @@ import {
   ModelListGridLayout,
   ModelListTableLayout,
 } from "@/features/models/layouts";
-import { AddIcon } from "@/components/ui/icons";
-import { ButtonWithIcon } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
-import { ButtonVariant } from "@/enums";
+// import { AddIcon } from "@/components/ui/icons";
+// import { ButtonWithIcon } from "@/components/ui/button";
+// import { useNavigate } from "react-router-dom";
+// import { ButtonVariant } from "@/enums";
 import { SEARCH_PARAMS } from "@/utils/search-params";
 
 export const ModelExplorer = ({
   title,
-  createRoute,
-  createButtonAlt,
+  // createRoute,
+  // createButtonAlt,
   userId,
   datasetId,
   disableStatusFilter,
@@ -39,8 +39,8 @@ export const ModelExplorer = ({
 }: {
   disableCreateNewButton?: boolean;
   title?: string;
-  createRoute?: string;
-  createButtonAlt?: string;
+  // createRoute?: string;
+  // createButtonAlt?: string;
   userId?: number;
   datasetId?: number;
   disableStatusFilter?: boolean;
@@ -57,11 +57,11 @@ export const ModelExplorer = ({
     query,
     updateQuery,
   } = useModelsListFilters(status, userId, datasetId);
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
-  const handleClick = () => {
-    navigate(createRoute as string);
-  };
+  // const handleClick = () => {
+  //   navigate(createRoute as string);
+  // };
 
   const renderContent = () => {
     if (data?.count === 0) {
@@ -102,14 +102,14 @@ export const ModelExplorer = ({
           <h1 className="font-bold text-title-3 md:text-title-2 self-start">
             {title}
           </h1>
-          {createRoute && createButtonAlt && (
+          {/* {createRoute && createButtonAlt && (
             <ButtonWithIcon
               onClick={handleClick}
               variant={ButtonVariant.PRIMARY}
               prefixIcon={AddIcon}
               label={createButtonAlt}
             />
-          )}
+          )} */}
         </div>
         {/* Filters */}
         <div className="sticky top-0 bg-white z-10 py-1">

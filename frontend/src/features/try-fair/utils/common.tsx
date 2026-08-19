@@ -6,6 +6,14 @@ import { ClusterIcon } from "@/components/ui/icons/cluster-icon";
 import { PolygonIcon } from "@/components/ui/icons/polygon-icon";
 import React from "react";
 import { TRY_FAIR_GRID_SIZE } from "@/config";
+import { ImagerySource } from "@/enums";
+import {
+  DatePreset,
+  ResolutionPreset,
+} from "@/features/try-fair/types/imagery-types";
+import { BuildingIcon } from "@/components/ui/icons/buildings-icon";
+import { SolarPanelIcon } from "@/components/ui/icons/solar-panel-icon";
+import { TreesIcon } from "@/components/ui/icons/trees-icon";
 
 // This is the default zoom level to start mapping.
 
@@ -64,9 +72,9 @@ export const OUTPUT_TYPES: {
 ];
 
 export const TRY_FAIR_RESOLUTION_ZOOM: Record<TryFairResolution, number> = {
-  [TryFairResolution.LOW]: 18,
+  [TryFairResolution.LOW]: 20,
   [TryFairResolution.MID]: 19,
-  [TryFairResolution.HIGH]: 20,
+  [TryFairResolution.HIGH]: 18,
 };
 
 /**
@@ -118,3 +126,91 @@ export const DEFAULT_SELECTED_GRID: SelectedGridSpec = {
 
 /** The grid footprint is a constant size, independent of zoom/resolution. */
 export const getGridSpec = (): SelectedGridSpec => DEFAULT_SELECTED_GRID;
+
+/**
+ * Maps a numeric, string, or boolean confidence threshold value to a discrete accuracy label.
+ *
+ * @param value - The raw parameter value representing the confidence threshold (typically between 0 and 1).
+ * @returns A discrete accuracy label string: "Low", "Medium", or "High" (or empty string if invalid).
+ */
+export const getAccuracyLabel = (value: number | string | boolean): string => {
+  const percentage = Math.round(Number(value) * 100);
+  if (isNaN(percentage)) return "";
+  if (percentage <= 25) {
+    return "Low";
+  }
+  if (percentage <= 50) {
+    return "Medium";
+  }
+  return "High";
+};
+
+export const IMAGERY_SOURCES: { value: ImagerySource; label: string }[] = [
+  { value: ImagerySource.OPEN_AERIAL_MAP, label: "OpenAerialMap" },
+  { value: ImagerySource.CUSTOM, label: "Custom Imagery" },
+];
+
+export const IMAGERY_DATE_OPTIONS: { label: string; value: DatePreset }[] = [
+  { label: "Any date", value: "" },
+  { label: "Past week", value: "week" },
+  { label: "Past month", value: "month" },
+  { label: "Past year", value: "year" },
+];
+
+export const IMAGERY_RESOLUTION_PRESETS: {
+  label: string;
+  value: ResolutionPreset;
+}[] = [
+  { label: "Any resolution", value: "" },
+  { label: "< 0.5 m", value: "lt05" },
+  { label: "0.5 – 2 m", value: "05to2" },
+  { label: "2 – 10 m", value: "2to10" },
+  { label: "> 10 m", value: "gt10" },
+];
+
+export const DAY_MS = 86_400_000;
+
+export const withinDate = (iso: string | null, preset: DatePreset): boolean => {
+  if (!preset) return true;
+  if (!iso) return false;
+  const days = preset === "week" ? 7 : preset === "month" ? 30 : 365;
+  return new Date(iso).getTime() >= Date.now() - days * DAY_MS;
+};
+
+export const withinResolution = (
+  gsd: number | null,
+  preset: ResolutionPreset,
+): boolean => {
+  if (!preset) return true;
+  if (gsd == null) return false;
+  if (preset === "lt05") return gsd < 0.5;
+  if (preset === "05to2") return gsd >= 0.5 && gsd <= 2;
+  if (preset === "2to10") return gsd > 2 && gsd <= 10;
+  return gsd > 10;
+};
+
+export const FEATURES_TO_MAP = [
+  {
+    label: "Buildings",
+    Icon: BuildingIcon,
+    value: "buildings",
+  },
+  {
+    label: "Solar Panels",
+    Icon: SolarPanelIcon,
+    value: "solar-panel",
+  },
+  {
+    label: "Trees",
+    Icon: TreesIcon,
+    value: "trees",
+  },
+];
+
+/** ISO 3166-1 alpha-2 code → flag emoji (regional indicator symbols). */
+export const flagEmoji = (code: string): string =>
+  code.length === 2
+    ? String.fromCodePoint(
+        ...[...code.toUpperCase()].map((c) => 0x1f1e6 + c.charCodeAt(0) - 65),
+      )
+    : "🏳️";

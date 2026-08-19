@@ -52,6 +52,7 @@ export const PublishPredictionFlow = ({
       onClose={handleClose}
       onConfirm={handleConfirm}
       isConfirming={isPending}
+      rounded
       message={
         isPublished
           ? "Confirm you want to Retract this prediction from public view"

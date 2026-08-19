@@ -17,12 +17,12 @@ from django.test import override_settings
 from rest_framework.test import APIClient
 
 from accounts.models import OsmUser
-from shared.storage import BackendLocalModelPaths
 from datasets.models import AOI, Dataset
 from feedback.models import Feedback
-from modelregistry.models import LocalModel
+from modelregistry.models import BaseModel, LocalModel
 from notifications.models import Banner, UserNotification
 from predictions.models import Prediction
+from shared.storage import BackendLocalModelPaths
 from trainings.models import TrainingRunRef
 
 
@@ -70,9 +70,20 @@ def aoi(db, user: OsmUser) -> AOI:
 
 
 @pytest.fixture
-def local_model(db, user: OsmUser) -> LocalModel:
+def registered_base_model(db, user: OsmUser) -> BaseModel:
+    return BaseModel.objects.create(
+        name="unet-segmentation",
+        stac_item_id="unet-segmentation",
+        category_id="buildings",
+        user=user,
+    )
+
+
+@pytest.fixture
+def local_model(db, user: OsmUser, registered_base_model: BaseModel) -> LocalModel:
     return LocalModel.objects.create(
         name="my-finetuned",
+        base_model=registered_base_model,
         status=LocalModel.Status.ACTIVE,
         user=user,
     )
@@ -110,7 +121,12 @@ def prediction(db, user: OsmUser) -> Prediction:
         zenml_run_id="pred-run-1",
         local_model_stac_id="3a0374bf-d73c-4b4d-b165-081ffa2a18ad",
         image_uri="https://tiles.example/{z}/{x}/{y}.png",
-        bbox=[85.5, 27.6, 85.51, 27.61],
+        geometry={
+            "type": "Polygon",
+            "coordinates": [
+                [[85.5, 27.6], [85.51, 27.6], [85.51, 27.61], [85.5, 27.61], [85.5, 27.6]]
+            ],
+        },
         zoom=19,
         params={},
         description="p1",
@@ -181,6 +197,42 @@ def test_auth_me_get_returns_user_profile(client, user):
     assert body["osm_id"] == user.osm_id
     assert body["username"] == "alice"
     assert body["email_verified"] is False
+    assert body["date_joined"] is not None
+    for key in (
+        "models_count",
+        "datasets_count",
+        "feedbacks_count",
+        "approved_predictions_count",
+        "unread_notifications_count",
+    ):
+        assert body[key] == 0
+    # Base 25%; no img_url, email, or verification on this fixture user.
+    assert body["profile_completion_percentage"] == 25
+
+
+def test_auth_me_profile_stats_reflect_owned_records(client, user):
+    from datasets.models import Dataset
+    from feedback.models import Feedback
+    from modelregistry.models import BaseModel, LocalModel
+    from notifications.models import UserNotification
+    from shared.enums import FeedbackAction
+
+    geom = Polygon(((0, 0), (0, 1), (1, 1), (1, 0), (0, 0)), srid=4326)
+    base = BaseModel.objects.create(name="b", stac_item_id="b", user=user)
+    LocalModel.objects.create(name="m1", base_model=base, user=user)
+    Dataset.objects.create(
+        stac_id="d1", title="D1", source_imagery="https://x/{z}/{x}/{y}", user=user
+    )
+    Feedback.objects.create(stac_id="s1", action=FeedbackAction.ACCEPT, geom=geom, user=user)
+    Feedback.objects.create(stac_id="s2", action=FeedbackAction.REJECT, geom=geom, user=user)
+    UserNotification.objects.create(user=user, message="hi", is_read=False)
+
+    body = client.get("/api/v1/auth/me/").json()
+    assert body["models_count"] == 1
+    assert body["datasets_count"] == 1
+    assert body["approved_predictions_count"] == 1
+    assert body["feedbacks_count"] == 1
+    assert body["unread_notifications_count"] == 1
 
 
 def test_auth_me_patch_updates_email(client):
@@ -249,6 +301,7 @@ def test_dataset_build_creates_record_and_enqueues(mock_task, client, aoi):
         "title": "Buildings Banepa",
         "description": "demo",
         "source_imagery": "https://tiles.example/{z}/{x}/{y}.png",
+        "category": "buildings",
         "zoom": 19,
         "aoi_ids": [aoi.id],
         "label_tasks": ["semantic-segmentation"],
@@ -403,7 +456,7 @@ def test_local_model_retrieve_returns_record(client, local_model):
     assert body["visibility"] == "private"
     assert body["star_count"] == 0
     assert body["run_count"] == 0
-    assert "stac" not in body
+    assert body["stac"] is None
 
 
 @patch("modelregistry.views.list_runs_for_model")
@@ -443,97 +496,48 @@ def test_local_model_pin_blocks_non_admin(client, local_model):
     assert response.status_code == 403
 
 
-@patch("modelregistry.views.get_active_local_model_item")
-@patch("modelregistry.views.set_item_property")
-def test_local_model_pin_writes_fair_pinned_to_active_version(
-    mock_set, mock_active, admin_client, local_model
-):
-    active_item = MagicMock()
-    active_item.id = "ea6d758d-version-uuid"
-    mock_active.return_value = active_item
-    mock_set.return_value = {
-        "description": "demo",
-        "datetime": None,
-        "geometry": None,
-        "assets": {},
-        "properties": {"fair:pinned": True},
-        "links": [],
-    }
+def test_local_model_pin_sets_db_flag(admin_client, local_model):
+    assert local_model.is_pinned is False
     response = admin_client.patch(
         f"/api/v1/local-models/{local_model.id}/pin/",
         data={"is_pinned": True},
         format="json",
     )
     assert response.status_code == 200
-    mock_active.assert_called_once_with(local_model.name)
-    args = mock_set.call_args.args
-    assert args[0] == "local-models"
-    # NOTE: pinned is set on the active VERSION's item id (UUID), not on the
-    # family slug, since the version UUID is what STAC keys items by.
-    assert args[1] == "ea6d758d-version-uuid"
-    assert args[2] == "fair:pinned"
-    assert args[3] is True
-    assert "stac" not in response.json()
+    assert response.json()["is_pinned"] is True
+    local_model.refresh_from_db()
+    assert local_model.is_pinned is True
 
 
-@patch("modelregistry.views.get_active_local_model_item", return_value=None)
-@patch("modelregistry.views.set_item_property")
-def test_local_model_pin_409s_when_no_active_version(
-    mock_set, mock_active, admin_client, local_model
-):
+def test_local_model_unpin_clears_db_flag(admin_client, local_model):
+    local_model.is_pinned = True
+    local_model.save(update_fields=["is_pinned"])
     response = admin_client.patch(
         f"/api/v1/local-models/{local_model.id}/pin/",
-        data={"is_pinned": True},
+        data={"is_pinned": False},
         format="json",
     )
-    assert response.status_code == 409
-    mock_set.assert_not_called()
-
-
-def test_local_model_pin_integration_with_real_stac_backend(
-    admin_client, local_model, tmp_path
-):
-    # Boundary-level integration: real StacCatalogManager + real patch_item
-    # round-trip. Without this, mocked unit tests can codify the wrong
-    # arg shapes (as the original pin bug did).
-    from fair.stac.catalog_manager import StacCatalogManager
-    from fair.stac.collections import initialize_catalog
-    from datetime import UTC, datetime
-
-    import pystac
-
-    catalog_path = str(tmp_path / "catalog.json")
-    initialize_catalog(catalog_path)
-    backend = StacCatalogManager(catalog_path)
-
-    item = pystac.Item(
-        id="version-uuid-1",
-        geometry={
-            "type": "Polygon",
-            "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]],
-        },
-        bbox=[0, 0, 1, 1],
-        datetime=datetime.now(UTC),
-        properties={"mlm:name": local_model.name, "deprecated": False},
-    )
-    backend.publish_item("local-models", item)
-
-    with patch("shared.integrations.stac._backend", return_value=backend):
-        response = admin_client.patch(
-            f"/api/v1/local-models/{local_model.id}/pin/",
-            data={"is_pinned": True},
-            format="json",
-        )
-
     assert response.status_code == 200
-    refetched = backend.get_item("local-models", "version-uuid-1")
-    assert refetched.properties.get("fair:pinned") is True
+    assert response.json()["is_pinned"] is False
+    local_model.refresh_from_db()
+    assert local_model.is_pinned is False
+
+
+def test_local_models_filter_by_is_pinned(admin_client, local_model, admin_user):
+    base = local_model.base_model
+    LocalModel.objects.create(
+        name="pinned-one", base_model=base, user=admin_user, is_pinned=True
+    )
+    response = admin_client.get("/api/v1/local-models/?is_pinned=true")
+    assert response.status_code == 200
+    names = {row["name"] for row in response.json()["results"]}
+    assert names == {"pinned-one"}
 
 
 @patch("trainings.views.item_exists", return_value=True)
 @patch("trainings.views.submit_training")
 def test_training_submit_creates_run_and_enqueues(
-    mock_task, mock_item_exists, client, published_dataset
+    mock_task, mock_item_exists, client, published_dataset, registered_base_model
 ):
     payload = {
         "base_model_stac_id": "unet-segmentation",
@@ -550,14 +554,16 @@ def test_training_submit_creates_run_and_enqueues(
     assert body["overrides"] == {"epochs": 3, "learning_rate": 0.001}
     assert body["description"] == "First attempt"
     assert body["base_model_stac_id"] == "unet-segmentation"
-    assert TrainingRunRef.objects.filter(local_model__name="tuned-v1").exists()
+    run = TrainingRunRef.objects.get(local_model__name="tuned-v1")
+    assert run.local_model.base_model_id == registered_base_model.id
+    assert run.local_model.category_id == registered_base_model.category_id == "buildings"
     mock_task.enqueue.assert_called_once()
 
 
 @patch("trainings.views.item_exists", return_value=True)
 @patch("trainings.views.submit_training")
 def test_training_submit_persists_title_on_run_ref(
-    mock_task, mock_item_exists, client, published_dataset
+    mock_task, mock_item_exists, client, published_dataset, registered_base_model
 ):
     response = client.post(
         "/api/v1/trainings/submit/",
@@ -578,7 +584,7 @@ def test_training_submit_persists_title_on_run_ref(
 @patch("trainings.views.item_exists", return_value=True)
 @patch("trainings.views.submit_training")
 def test_training_submit_persists_keywords_on_run_ref(
-    mock_task, mock_item_exists, client, published_dataset
+    mock_task, mock_item_exists, client, published_dataset, registered_base_model
 ):
     response = client.post(
         "/api/v1/trainings/submit/",
@@ -598,7 +604,7 @@ def test_training_submit_persists_keywords_on_run_ref(
 @patch("trainings.views.item_exists", return_value=True)
 @patch("trainings.views.submit_training")
 def test_training_submit_dedupes_keywords(
-    mock_task, mock_item_exists, client, published_dataset
+    mock_task, mock_item_exists, client, published_dataset, registered_base_model
 ):
     response = client.post(
         "/api/v1/trainings/submit/",
@@ -615,10 +621,7 @@ def test_training_submit_dedupes_keywords(
     assert run.keywords == ["building", "high-resolution", "march"]
 
 
-@patch("trainings.views.item_exists", return_value=False)
-def test_training_submit_404s_when_base_model_missing_in_stac(
-    mock_item_exists, client, published_dataset
-):
+def test_training_submit_404s_when_base_model_not_registered(client, published_dataset):
     response = client.post(
         "/api/v1/trainings/submit/",
         data={
@@ -629,12 +632,13 @@ def test_training_submit_404s_when_base_model_missing_in_stac(
         format="json",
     )
     assert response.status_code == 404
+    assert "not a registered base model" in response.json()["error"]["details"]["detail"]
 
 
 @patch("trainings.views.item_exists", return_value=True)
 @patch("trainings.views.submit_training")
 def test_training_submit_slugifies_model_name(
-    mock_task, mock_item_exists, client, published_dataset
+    mock_task, mock_item_exists, client, published_dataset, registered_base_model
 ):
     response = client.post(
         "/api/v1/trainings/submit/",
@@ -668,11 +672,11 @@ def test_training_submit_rejects_unslugifiable_model_name(
 @patch("trainings.views.item_exists", return_value=True)
 @patch("trainings.views.submit_training")
 def test_training_submit_403s_when_model_owned_by_other_user(
-    mock_task, mock_item_exists, client, published_dataset, db
+    mock_task, mock_item_exists, client, published_dataset, registered_base_model, db
 ):
     # `client` fixture authenticates as `alice`; create a model owned by bob.
     bob = OsmUser.objects.create(osm_id=999, username="bob")
-    LocalModel.objects.create(name="bobs-model", user=bob)
+    LocalModel.objects.create(name="bobs-model", base_model=registered_base_model, user=bob)
     response = client.post(
         "/api/v1/trainings/submit/",
         data={
@@ -783,6 +787,8 @@ def test_training_publish_publishes_local_model(mock_for_user, client, training_
     )
     assert response.status_code == 201
     assert response.json() == {"local_model_stac_id": "local-model-id-xyz"}
+    training_ref.local_model.refresh_from_db()
+    assert training_ref.local_model.stac_item_id == "local-model-id-xyz"
     mock_for_user.assert_called_once_with(str(training_ref.user.osm_id))
     mock_for_user.return_value.promote.assert_called_once_with(
         training_ref.local_model.name,
@@ -872,7 +878,7 @@ def test_prediction_submit_creates_record_and_enqueues(mock_task, mock_item_exis
     assert response.status_code == 202, response.content
     body = response.json()
     assert body["local_model_stac_id"] == payload["model_stac_id"]
-    assert body["bbox"] == payload["bbox"]
+    assert body["geometry"]["type"] == "Polygon"
     assert body["zoom"] == 19
     assert body["remove_osm"] is True
     assert body["status"] == "initializing"
@@ -889,12 +895,19 @@ def test_storage_paths_are_deterministic_and_round_trip(settings):
     from shared.storage import StoragePaths
 
     settings.BUCKET_NAME = "fair-bucket"
-    assert StoragePaths.dataset_chips_dir_key("ds-1") == "datasets/ds-1/chips"
-    assert StoragePaths.dataset_labels_geojson_key("ds-1") == "datasets/ds-1/labels/labels.geojson"
-    assert StoragePaths.prediction_geojson_key(7) == "predict/7/output/predictions.geojson"
-    assert StoragePaths.prediction_pmtiles_uri(7) == "s3://fair-bucket/predict/7/output/predictions.pmtiles"
+    settings.PARENT_BUCKET_FOLDER = "dev"
+    assert StoragePaths.dataset_chips_dir_key("ds-1") == "dev/datasets/ds-1/chips"
+    labels_key = StoragePaths.dataset_labels_geojson_key("ds-1")
+    assert labels_key == "dev/datasets/ds-1/labels/labels.geojson"
+    geojson_key = StoragePaths.prediction_geojson_key(7)
+    assert geojson_key == "dev/predict/7/output/predictions.geojson"
     # uri = s3:// + bucket + key (so callers stay consistent across both forms)
-    assert StoragePaths.dataset_chips_dir_uri("ds-1") == "s3://fair-bucket/datasets/ds-1/chips"
+    assert StoragePaths.prediction_pmtiles_uri(7) == (
+        "s3://fair-bucket/" + StoragePaths.prediction_pmtiles_key(7)
+    )
+    assert StoragePaths.dataset_chips_dir_uri("ds-1") == (
+        "s3://fair-bucket/" + StoragePaths.dataset_chips_dir_key("ds-1")
+    )
 
 
 def test_prediction_assets_populated_when_completed(client, prediction):
@@ -986,7 +999,7 @@ def test_prediction_retrieve_returns_record(client, prediction):
     body = response.json()
     assert body["zenml_run_id"] == "pred-run-1"
     assert body["status"] == "completed"
-    assert body["bbox"] == [85.5, 27.6, 85.51, 27.61]
+    assert body["geometry"]["type"] == "Polygon"
 
 
 @patch("predictions.views.get_run_status")
@@ -1281,7 +1294,7 @@ def test_sync_prediction_runs_post_process_when_status_jumps_to_completed(
         zenml_run_id="rid-1",
         local_model_stac_id="m-uuid",
         image_uri="https://t/{z}/{x}/{y}.png",
-        bbox=[0, 0, 1, 1],
+        geometry={"type": "Polygon", "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]]},
         zoom=19,
         status="completed",
         results_ready=False,
@@ -1307,7 +1320,7 @@ def test_sync_prediction_skips_post_process_when_already_ready(
         zenml_run_id="rid-2",
         local_model_stac_id="m-uuid",
         image_uri="https://t/{z}/{x}/{y}.png",
-        bbox=[0, 0, 1, 1],
+        geometry={"type": "Polygon", "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]]},
         zoom=19,
         status="completed",
         results_ready=True,

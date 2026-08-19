@@ -1,7 +1,4 @@
-from typing import Any
-
 from drf_spectacular.utils import extend_schema_field
-from pydantic import BaseModel, Field, ValidationError, model_validator
 from rest_framework import serializers
 
 from notifications.serializers import UserSerializer
@@ -12,31 +9,13 @@ _MIN_ZOOM = 14
 _MAX_ZOOM = 22
 
 
-class _PredictInputSchema(BaseModel):
-    """Mirrors the request shape served by fair-py-ops' Knative pipeline.
-
-    the serve runtime in fair-py-ops uses the same field names and ranges so
-    any model image trained today consumes the
-    same input contract whether it serves via Knative or runs as a ZenML job.
-    """
-
-    image_uri: str = Field(min_length=1)
-    bbox: list[float] = Field(min_length=4, max_length=4)
-    zoom: int = Field(ge=_MIN_ZOOM, le=_MAX_ZOOM)
-    params: dict[str, Any] = Field(default_factory=dict)
-
-    @model_validator(mode="after")
-    def _check_bbox(self):
-        west, south, east, north = self.bbox
-        if west >= east or south >= north:
-            raise ValueError("bbox must satisfy west<east and south<north")
-        return self
-
-
 class PredictionSubmitSerializer(serializers.Serializer):
     model_stac_id = serializers.CharField(max_length=64)
     image_uri = serializers.URLField()
-    bbox = serializers.ListField(child=serializers.FloatField(), min_length=4, max_length=4)
+    bbox = serializers.ListField(
+        child=serializers.FloatField(), min_length=4, max_length=4, required=False
+    )
+    geometry = serializers.JSONField(required=False)
     zoom = serializers.IntegerField(min_value=_MIN_ZOOM, max_value=_MAX_ZOOM)
     params = serializers.DictField(required=False, default=dict)
     remove_osm = serializers.BooleanField(
@@ -50,18 +29,36 @@ class PredictionSubmitSerializer(serializers.Serializer):
     )
     description = serializers.CharField(required=False, allow_blank=True, default="")
 
+    def validate_geometry(self, value):
+        if not isinstance(value, dict) or value.get("type") not in ("Polygon", "MultiPolygon"):
+            raise serializers.ValidationError("geometry must be a GeoJSON Polygon or MultiPolygon.")
+        return value
+
     def validate(self, attrs):
-        try:
-            _PredictInputSchema.model_validate(
-                {
-                    "image_uri": attrs["image_uri"],
-                    "bbox": attrs["bbox"],
-                    "zoom": attrs["zoom"],
-                    "params": attrs.get("params", {}),
-                }
-            )
-        except ValidationError as exc:
-            raise serializers.ValidationError(exc.errors()) from exc
+        bbox = attrs.pop("bbox", None)
+        geometry = attrs.get("geometry")
+        if bool(bbox) == bool(geometry):
+            raise serializers.ValidationError("Provide exactly one of 'bbox' or 'geometry'.")
+        if bbox:
+            west, south, east, north = bbox
+            if west >= east or south >= north:
+                raise serializers.ValidationError(
+                    {"bbox": "bbox must satisfy west<east and south<north"}
+                )
+            attrs["geometry"] = {
+                "type": "Polygon",
+                "coordinates": [
+                    [[west, south], [east, south], [east, north], [west, north], [west, south]]
+                ],
+            }
+        else:
+            from shapely.errors import GEOSException
+            from shapely.geometry import shape
+
+            try:
+                shape(geometry)
+            except (ValueError, KeyError, TypeError, GEOSException) as exc:
+                raise serializers.ValidationError({"geometry": f"invalid geometry: {exc}"}) from exc
         return attrs
 
 
@@ -103,7 +100,7 @@ class PredictionSerializer(serializers.ModelSerializer):
             "zenml_run_id",
             "local_model_stac_id",
             "image_uri",
-            "bbox",
+            "geometry",
             "zoom",
             "params",
             "remove_osm",

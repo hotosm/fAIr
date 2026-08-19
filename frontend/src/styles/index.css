@@ -437,47 +437,26 @@ sl-alert.success::part(base) {
 hotosm-auth {
   --login-btn-border-radius: 0px;
 }
-
 /* Try fAIr confidence slider starts */
-.try-fair-confidence-slider {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 100%;
-  height: 24px;
-  background: transparent;
-  cursor: pointer;
-  touch-action: none;
-}
-
-.try-fair-confidence-slider::-webkit-slider-runnable-track {
-  height: 6px;
-  border-radius: 9999px;
-  background: linear-gradient(90deg, #0088ff 0%, #ff383c 100%);
-}
-
 .try-fair-confidence-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
   appearance: none;
-  width: 18px;
-  height: 18px;
-  margin-top: -6px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   background: #687075;
   cursor: pointer;
-}
-
-.try-fair-confidence-slider::-moz-range-track {
-  height: 6px;
-  border-radius: 9999px;
-  background: linear-gradient(90deg, #0088ff 0%, #ff383c 100%);
+  position: relative;
+  z-index: 20;
 }
 
 .try-fair-confidence-slider::-moz-range-thumb {
-  width: 18px;
-  height: 18px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   background: #687075;
   cursor: pointer;
   border: none;
+  position: relative;
+  z-index: 20;
 }
 /* Try fAIr confidence slider ends */

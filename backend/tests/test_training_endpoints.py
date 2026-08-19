@@ -5,7 +5,7 @@ from rest_framework.test import APIClient
 
 from accounts.models import OsmUser
 from datasets.models import Dataset
-from modelregistry.models import LocalModel
+from modelregistry.models import BaseModel, LocalModel
 from trainings.models import TrainingRunRef
 
 
@@ -33,9 +33,21 @@ def published_dataset(db, authed_user: OsmUser) -> Dataset:
 
 
 @pytest.fixture
-def local_model(db, authed_user: OsmUser) -> LocalModel:
+def registered_base_model(db, authed_user: OsmUser) -> BaseModel:
+    return BaseModel.objects.create(
+        name="unet-segmentation",
+        stac_item_id="unet-segmentation",
+        user=authed_user,
+    )
+
+
+@pytest.fixture
+def local_model(
+    db, authed_user: OsmUser, registered_base_model: BaseModel
+) -> LocalModel:
     return LocalModel.objects.create(
         name="my-existing-finetune",
+        base_model=registered_base_model,
         status=LocalModel.Status.ACTIVE,
         user=authed_user,
     )
@@ -59,7 +71,7 @@ def training_ref(
 @patch("trainings.views.item_exists")
 @patch("trainings.views.submit_training")
 def test_training_submit_creates_run_ref_and_enqueues(
-    mock_task, mock_item_exists, client, published_dataset
+    mock_task, mock_item_exists, client, published_dataset, registered_base_model
 ):
     mock_item_exists.return_value = True
     response = client.post(
@@ -81,10 +93,9 @@ def test_training_submit_creates_run_ref_and_enqueues(
     mock_task.enqueue.assert_called_once()
 
 
-@patch("trainings.views.item_exists")
-def test_training_submit_404s_unknown_base_model(mock_item_exists, client, published_dataset):
-    # First call (BASE) returns False -> 404 before we even check dataset.
-    mock_item_exists.return_value = False
+def test_training_submit_404s_unknown_base_model(client, published_dataset):
+    # Base model is resolved from the DB; an unregistered id 404s before the
+    # dataset is checked.
     response = client.post(
         "/api/v1/trainings/submit/",
         data={
@@ -97,9 +108,10 @@ def test_training_submit_404s_unknown_base_model(mock_item_exists, client, publi
     assert response.status_code == 404
 
 
-@patch("trainings.views.item_exists")
-def test_training_submit_404s_dataset_not_in_stac(mock_item_exists, client):
-    mock_item_exists.side_effect = [True, False]  # BASE exists, dataset doesn't
+@patch("trainings.views.item_exists", return_value=False)
+def test_training_submit_404s_dataset_not_in_stac(
+    mock_item_exists, client, registered_base_model
+):
     response = client.post(
         "/api/v1/trainings/submit/",
         data={
@@ -113,7 +125,9 @@ def test_training_submit_404s_dataset_not_in_stac(mock_item_exists, client):
 
 
 @patch("trainings.views.item_exists", return_value=True)
-def test_training_submit_404s_dataset_not_published(mock_item_exists, client, authed_user):
+def test_training_submit_404s_dataset_not_published(
+    mock_item_exists, client, authed_user, registered_base_model
+):
     Dataset.objects.create(
         stac_id="building-ds",
         title="Building",

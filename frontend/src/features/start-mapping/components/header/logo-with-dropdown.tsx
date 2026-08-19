@@ -30,7 +30,7 @@ export const BrandLogoWithDropDown = ({
     <DropDown
       ref={dropdownRef}
       placement={DropdownPlacement.BOTTOM_START}
-      triggerComponent={<NavLogo onClick={() => null} smallerSize />}
+      triggerComponent={<NavLogo onClick={() => null} />}
       distance={ELEMENT_DISTANCE_FROM_NAVBAR}
       className="rounded-xl md:w-24 lg:w-fit max-w-fit"
     >

@@ -73,8 +73,7 @@ def _materialize_prediction_input(prediction: Prediction) -> str:
 
     image_uri: str = str(prediction.image_uri)
     zoom: int = int(prediction.zoom)
-    raw_bbox: list[float] = prediction.bbox  # type: ignore[assignment]
-    bbox: list[float] = [float(v) for v in raw_bbox]
+    geometry: dict = prediction.geometry  # type: ignore[assignment]
 
     with tempfile.TemporaryDirectory(prefix=f"fair-predict-{prediction.id}-") as tmp:
         local_chips_dir = Path(
@@ -83,7 +82,8 @@ def _materialize_prediction_input(prediction: Prediction) -> str:
                     tms=image_uri,
                     zoom=zoom,
                     out=tmp,
-                    bbox=bbox,
+                    geojson=geometry,
+                    within=True,
                     georeference=True,
                 )
             )

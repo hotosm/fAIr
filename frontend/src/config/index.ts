@@ -55,6 +55,14 @@ export const NODE_ENV: string = parseStringEnv(ENVS.NODE_ENV, "development");
 export const IS_DEV = NODE_ENV === "development";
 export const IS_PROD = NODE_ENV === "production";
 
+/**
+ * When true, bypasses authentication checks on the Try fAIr page,
+ * allowing access to imagery/location flows without signing in.
+ * Default: false.
+ */
+export const DISABLE_AUTH_ON_TRY_FAIR: boolean =
+  parseStringEnv(ENVS.DISABLE_AUTH_ON_TRY_FAIR, "true") === "true";
+
 // ==============================================================================================================================
 // API Endpoints
 // ==============================================================================================================================
@@ -601,4 +609,56 @@ export const TRY_FAIR_GRID_SIZE = parseIntEnv(ENVS.TRY_FAIR_GRID_SIZE, 5);
 export const FAIR_PROD_URL: string = parseStringEnv(
   ENVS.FAIR_PROD_URL,
   "https://fair.hotosm.org/",
+);
+
+/**
+ * PMTiles archive holding the pre-binned imagery coverage grid: count-per-cell
+ * squares with an aggregated image bbox each. Drives the density grid in the
+ * imagery picker. Mirrors imagery.hotosm.org/browse's global-coverage.pmtiles.
+ */
+export const HOT_IMAGERY_DENSITY_PMTILES_URL: string = parseStringEnv(
+  ENVS.HOT_IMAGERY_DENSITY_PMTILES_URL,
+  "https://s3.amazonaws.com/oin-hotosm-temp/global-coverage.pmtiles",
+);
+
+/**
+ * Vector layer name inside the density PMTiles archive.
+ */
+export const HOT_IMAGERY_DENSITY_SOURCE_LAYER: string = parseStringEnv(
+  ENVS.HOT_IMAGERY_DENSITY_SOURCE_LAYER,
+  "density",
+);
+
+/**
+ * The STAC API for HOT's imagery browser (imagery.hotosm.org). Used to search
+ * OpenAerialMap imagery by bounding box in the try-fAIr imagery picker.
+ */
+export const HOT_IMAGERY_STAC_API_URL: string = parseStringEnv(
+  ENVS.HOT_IMAGERY_STAC_API_URL,
+  "https://api.imagery.hotosm.org/stac",
+);
+
+/**
+ * The raster (titiler) API for HOT's imagery browser. Used to render imagery
+ * items from the STAC catalog as XYZ tiles on the map.
+ */
+export const HOT_IMAGERY_RASTER_API_URL: string = parseStringEnv(
+  ENVS.HOT_IMAGERY_RASTER_API_URL,
+  "https://api.imagery.hotosm.org/raster",
+);
+
+/**
+ * The STAC collection id holding the OpenAerialMap imagery items.
+ */
+export const HOT_IMAGERY_COLLECTION_ID: string = parseStringEnv(
+  ENVS.HOT_IMAGERY_COLLECTION_ID,
+  "openaerialmap",
+);
+
+/**
+ * The Nominatim geocoding API used by the imagery location search.
+ */
+export const NOMINATIM_API_URL: string = parseStringEnv(
+  ENVS.NOMINATIM_API_URL,
+  "https://nominatim.openstreetmap.org",
 );

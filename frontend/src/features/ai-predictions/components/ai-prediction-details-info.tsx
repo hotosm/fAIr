@@ -1,7 +1,7 @@
 import { DropDown } from "@/components/ui/dropdown";
 import { DropdownPlacement } from "@/enums";
 import { TOfflinePrediction } from "@/types";
-import { formatDate, formatNumber } from "@/utils";
+import { formatDate } from "@/utils";
 import { SlDropdown } from "@shoelace-style/shoelace";
 import { MutableRefObject, ReactNode } from "react";
 
@@ -20,7 +20,7 @@ export const AIPredictionDetailsInfo = ({
   placement?: DropdownPlacement;
   triggerComponent?: ReactNode;
 }) => {
-  const featureCount = prediction.result?.count ?? 0;
+  // const featureCount = prediction.result?.count ?? 0;
 
   const publishedDate = prediction.published_at
     ? formatDate(prediction.published_at)
@@ -42,10 +42,10 @@ export const AIPredictionDetailsInfo = ({
         <span className="text-body-3 text-dark flex items-center gap-x-2 justify-between text-nowrap">
           Created by: <span className="font-semibold">{createdBy}</span>
         </span>
-        <span className="text-body-3 text-dark flex items-center gap-x-2 justify-between text-nowrap">
+        {/* <span className="text-body-3 text-dark flex items-center gap-x-2 justify-between text-nowrap">
           Prediction Count:{" "}
           <span className="font-semibold">{formatNumber(featureCount)}</span>
-        </span>
+        </span> */}
         <span className="text-body-3 text-dark flex items-center gap-x-2 justify-between text-nowrap">
           Model Used: <span className="font-semibold">{modelUsed}</span>
         </span>
