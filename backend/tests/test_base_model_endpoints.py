@@ -158,7 +158,7 @@ def test_register_rejects_unreachable_url(admin: OsmUser, monkeypatch: pytest.Mo
 
 
 def test_list_visible_to_authenticated(user: OsmUser, admin: OsmUser) -> None:
-    BaseModel.objects.create(name="m1", user=admin)
+    BaseModel.objects.create(name="m1", user=admin, status=BaseModel.Status.ACTIVE)
     resp = _client(user).get("/api/v1/base-models/")
     assert resp.status_code == 200
     assert resp.data["count"] == 1
@@ -167,7 +167,9 @@ def test_list_visible_to_authenticated(user: OsmUser, admin: OsmUser) -> None:
 def test_list_is_public_and_hides_private(admin: OsmUser) -> None:
     from shared.enums import Visibility
 
-    BaseModel.objects.create(name="pub", user=admin, visibility=Visibility.PUBLIC)
+    BaseModel.objects.create(
+        name="pub", user=admin, visibility=Visibility.PUBLIC, status=BaseModel.Status.ACTIVE
+    )
     BaseModel.objects.create(name="priv", user=admin, visibility=Visibility.PRIVATE)
     resp = APIClient().get("/api/v1/base-models/")
     assert resp.status_code == 200
@@ -176,7 +178,7 @@ def test_list_is_public_and_hides_private(admin: OsmUser) -> None:
 
 
 def test_retrieve_is_public(admin: OsmUser) -> None:
-    model = BaseModel.objects.create(name="pub", user=admin)
+    model = BaseModel.objects.create(name="pub", user=admin, status=BaseModel.Status.ACTIVE)
     resp = APIClient().get(f"/api/v1/base-models/{model.id}/")
     assert resp.status_code == 200
     assert resp.data["name"] == "pub"
@@ -186,7 +188,7 @@ def test_retrieve_is_public(admin: OsmUser) -> None:
 def test_list_exposes_star_count(user: OsmUser, admin: OsmUser) -> None:
     from stars.models import Star
 
-    model = BaseModel.objects.create(name="ramp", user=admin)
+    model = BaseModel.objects.create(name="ramp", user=admin, status=BaseModel.Status.ACTIVE)
     Star.objects.create(target_id=model.name, user=user)
     resp = _client(user).get("/api/v1/base-models/")
     assert resp.status_code == 200
