@@ -73,6 +73,8 @@ FAIR_STAC_API_URL = (
 )
 FAIR_STAC_API_KEY = _secret(settings.fair_stac_api_key)
 
+KNATIVE_SERVICE_TEMPLATE = str(BASE_DIR / "modelregistry" / "knative-service.yaml")
+
 BUCKET_NAME = settings.bucket_name
 PARENT_BUCKET_FOLDER = settings.parent_bucket_folder
 AWS_REGION = settings.aws_region

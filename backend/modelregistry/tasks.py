@@ -3,6 +3,7 @@ import logging
 import tempfile
 from pathlib import Path
 
+from django.conf import settings
 from django_tasks import task
 
 from shared.integrations.stac import (
@@ -33,8 +34,6 @@ def register_base_model(*, base_model_id: int, stac_item: dict) -> None:
     for it. Runs off-request because registration mirrors the model weights from
     the source URLs into the artifact store, which can take minutes.
     """
-    # TODO: make fair-py-ops verify the inference URL from the STAC item instead
-    # of ensure_knative_service creating cluster resources on the prod path.
     base_model = BaseModel.objects.get(id=base_model_id)
     handle, item_path = tempfile.mkstemp(suffix=".json")
     try:
@@ -42,7 +41,9 @@ def register_base_model(*, base_model_id: int, stac_item: dict) -> None:
             raise ValueError("no stac_item supplied to register")
         with open(handle, "w") as fh:
             json.dump(stac_item, fh)
-        published_id = for_user(str(base_model.user.osm_id)).register_base_model(item_path)
+        published_id = for_user(str(base_model.user.osm_id)).register_base_model(
+            item_path, knative_template=settings.KNATIVE_SERVICE_TEMPLATE
+        )
         base_model.stac_item_id = published_id
         base_model.status = BaseModel.Status.ACTIVE
         base_model.error = ""

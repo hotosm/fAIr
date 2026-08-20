@@ -374,6 +374,8 @@ class BaseModelViewSet(
         register_base_model.enqueue(base_model_id=base_model.id, stac_item=stac_item)
         return Response(BaseModelSerializer(base_model).data, status=status.HTTP_202_ACCEPTED)
 
+    # TODO(E): on delete, deprovision the ksvc via fair.delete_knative_service.
+
 
 class PinnedModelsView(APIView):
     """One feed of all pinned models (base + local) for a featured view.
