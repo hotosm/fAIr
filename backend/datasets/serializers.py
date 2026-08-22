@@ -1,4 +1,5 @@
 from django.conf import settings
+from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
@@ -149,6 +150,18 @@ class DatasetSerializer(serializers.ModelSerializer):
 
 class AOISerializer(GeoFeatureModelSerializer):
     user = UserSerializer(read_only=True)
+    area = serializers.SerializerMethodField()
+
+    @extend_schema_field(OpenApiTypes.FLOAT)
+    def get_area(self, obj: AOI) -> float:
+        """Area in square meters, via a global equal-area projection (EPSG:6933).
+
+        obj.geom is stored in SRID 4326 (WGS84 degrees) and is also used
+        as-is for the feature's `geom` output, so transform on a clone --
+        transforming in place would corrupt the geometry in the response.
+        """
+        equal_area_geom = obj.geom.transform(6933, clone=True)
+        return round(equal_area_geom.area, 2)
 
     class Meta:
         model = AOI
@@ -156,6 +169,6 @@ class AOISerializer(GeoFeatureModelSerializer):
         # Inline the pk in `properties` rather than the GeoJSON top-level "id"
         # so drf-spectacular's GIS extension can build the schema cleanly.
         id_field = False
-        auto_bbox = False
-        fields = ["id", "dataset", "geom", "user", "created_at", "last_modified"]
-        read_only_fields = ["id", "user", "created_at", "last_modified"]
+        auto_bbox = True
+        fields = ["id", "dataset", "geom", "area", "user", "created_at", "last_modified"]
+        read_only_fields = ["id", "area", "user", "created_at", "last_modified"]
