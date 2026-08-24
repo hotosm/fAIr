@@ -9,7 +9,7 @@ import { TOfflinePrediction } from "@/types";
 import {
   extractDatePart,
   formatDate,
-  formatNumber,
+  // formatNumber,
   truncateString,
 } from "@/utils";
 import { MapSwipeProjectIsActive } from "@/features/user-profile/components/offline-predictions/mapswipe-project-active";
@@ -59,15 +59,15 @@ const columnDefinitions = (
       );
     },
   },
-  {
-    header: "Features",
-    accessorFn: (row) => row.result?.count ?? 0,
-    cell: ({ row }) => (
-      <span className="flex items-center gap-x-1">
-        {formatNumber(row.original.result?.count ?? 0)}
-      </span>
-    ),
-  },
+  // {
+  //   header: "Features",
+  //   accessorFn: (row) => row.result?.count ?? 0,
+  //   cell: ({ row }) => (
+  //     <span className="flex items-center gap-x-1">
+  //       {formatNumber(row.original.result?.count ?? 0)}
+  //     </span>
+  //   ),
+  // },
   {
     header: "Model",
     accessorFn: (row) => getModelUsed(row),

@@ -333,7 +333,6 @@ export const TryFairPage = () => {
     !modelForMapping ||
     !mappingModelId ||
     !modelUri;
-
   const handleOutputTypeChange = (type: TryFairMapOutputType) => {
     setOutputType(type);
     setOutputTypeInStore(type);

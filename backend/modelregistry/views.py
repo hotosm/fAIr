@@ -183,10 +183,11 @@ class LocalModelViewSet(StacExpandMixin, viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         qs = LocalModel.objects.select_related("base_model").all().annotate(run_count=Count("runs"))
         user = self.request.user
+        visible = Q(visibility=Visibility.PUBLIC, status=LocalModel.Status.ACTIVE)
         if not (user and user.is_authenticated):
-            qs = qs.filter(visibility=Visibility.PUBLIC)
+            qs = qs.filter(visible)
         elif not _is_admin(user):
-            qs = qs.filter(Q(user=user) | Q(visibility=Visibility.PUBLIC))
+            qs = qs.filter(visible | Q(user=user))
         return annotate_stars(qs, self.request, key_field="name")
 
     def get_permissions(self):
@@ -318,10 +319,11 @@ class BaseModelViewSet(
     def get_queryset(self):
         qs = BaseModel.objects.all()
         user = self.request.user
+        visible = Q(visibility=Visibility.PUBLIC, status=BaseModel.Status.ACTIVE)
         if not (user and user.is_authenticated):
-            qs = qs.filter(visibility=Visibility.PUBLIC)
+            qs = qs.filter(visible)
         elif not _is_admin(user):
-            qs = qs.filter(Q(user=user) | Q(visibility=Visibility.PUBLIC))
+            qs = qs.filter(visible | Q(user=user))
         return annotate_stars(qs, self.request, key_field="name")
 
     def get_permissions(self):
@@ -372,6 +374,8 @@ class BaseModelViewSet(
         register_base_model.enqueue(base_model_id=base_model.id, stac_item=stac_item)
         return Response(BaseModelSerializer(base_model).data, status=status.HTTP_202_ACCEPTED)
 
+    # TODO(E): on delete, deprovision the ksvc via fair.delete_knative_service.
+
 
 class PinnedModelsView(APIView):
     """One feed of all pinned models (base + local) for a featured view.
@@ -399,12 +403,14 @@ class PinnedModelsView(APIView):
             .select_related("base_model")
             .annotate(run_count=Count("runs"))
         )
+        base_visible = Q(visibility=Visibility.PUBLIC, status=BaseModel.Status.ACTIVE)
+        local_visible = Q(visibility=Visibility.PUBLIC, status=LocalModel.Status.ACTIVE)
         if not (user and user.is_authenticated):
-            base_qs = base_qs.filter(visibility=Visibility.PUBLIC)
-            local_qs = local_qs.filter(visibility=Visibility.PUBLIC)
+            base_qs = base_qs.filter(base_visible)
+            local_qs = local_qs.filter(local_visible)
         elif not _is_admin(user):
-            base_qs = base_qs.filter(Q(user=user) | Q(visibility=Visibility.PUBLIC))
-            local_qs = local_qs.filter(Q(user=user) | Q(visibility=Visibility.PUBLIC))
+            base_qs = base_qs.filter(base_visible | Q(user=user))
+            local_qs = local_qs.filter(local_visible | Q(user=user))
         base = list(annotate_stars(base_qs, request, key_field="name"))
         local = list(annotate_stars(local_qs, request, key_field="name"))
 

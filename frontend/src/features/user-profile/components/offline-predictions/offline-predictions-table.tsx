@@ -4,12 +4,7 @@ import { SortableHeader } from "@/features/models/components/table-header";
 import { TableSkeleton } from "@/features/models/components/skeletons";
 import { TOfflinePrediction } from "@/types";
 import { useState } from "react";
-import {
-  formatDate,
-  formatDuration,
-  roundNumber,
-  truncateString,
-} from "@/utils";
+import { formatDate, formatDuration, truncateString } from "@/utils";
 
 import { TrainingStatusBadge } from "@/components/shared/training-status-badge";
 import { OfflinePredictionsSettingsInfo } from "./offline-predictions-settings-info";
@@ -38,7 +33,9 @@ const columnDefinitions = (
   {
     header: "Prediction Name",
     accessorFn: (row) =>
-      row.description && row.description.length > 0 ? row.description : "-",
+      row.local_model_stac_id && row.local_model_stac_id.length > 0
+        ? row.local_model_stac_id
+        : "-",
     cell: (row) => {
       const value = row.getValue() as string;
       return (
@@ -53,14 +50,14 @@ const columnDefinitions = (
   {
     accessorKey: "created_at",
     accessorFn: (row) =>
-      row.created_at !== null ? formatDate(row.created_at) : "-",
+      row.submitted_at !== null ? formatDate(row.submitted_at) : "-",
     header: "Date Submitted",
     cell: (row) => {
       return <span>{row.getValue() as string}</span>;
     },
   },
   {
-    accessorFn: (row) => row.config.zoom_level,
+    accessorFn: (row) => row.zoom,
     header: "Zoom Level",
     cell: (row) => {
       return <span>{row.getValue() as string}</span>;
@@ -72,7 +69,7 @@ const columnDefinitions = (
     cell: ({ row }) => {
       const displayStatus = getDisplayStatus(
         row.original.status,
-        row.original.published,
+        row.original.visibility === "public",
       );
       return <TrainingStatusBadge status={displayStatus} />;
     },
@@ -81,29 +78,32 @@ const columnDefinitions = (
   {
     header: "Duration",
     accessorFn: (row) =>
-      row.finished_at && row.started_at
-        ? formatDuration(new Date(row.started_at), new Date(row.finished_at))
+      row.last_polled_at && row.submitted_at
+        ? formatDuration(
+            new Date(row.last_polled_at),
+            new Date(row.last_polled_at),
+          )
         : "-",
     cell: (row) => (
       <span title={row.getValue() as string}>{row.getValue() as string}</span>
     ),
   },
-  {
-    header: "Detected Features",
-    accessorFn: (row) => (row.result ? row.result["count"] : 0),
-    // accessorKey: "result_count",
-    cell: (row) => (
-      <span title={row.getValue() as string}>
-        {roundNumber(row.getValue() as number)}
-      </span>
-    ),
-  },
+  // {
+  //   header: "Detected Features",
+  //   accessorFn: (row) => (row.result ? row.result["count"] : 0),
+  //   // accessorKey: "result_count",
+  //   cell: (row) => (
+  //     <span title={row.getValue() as string}>
+  //       {roundNumber(row.getValue() as number)}
+  //     </span>
+  //   ),
+  // },
   {
     header: "MapSwipe",
     accessorKey: undefined,
     cell: (row) => (
       <MapSwipeProjectIsActive
-        MapSwipeId={row.row.original.mapswipe_id as string}
+        MapSwipeId={row.row.original.mapswipe_project_id as string}
       />
     ),
   },

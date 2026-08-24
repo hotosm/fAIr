@@ -1,0 +1,41 @@
+# Per-model KNative Service shape the backend hands to fair-py-ops on base-model
+# registration (settings.KNATIVE_SERVICE_TEMPLATE). fair injects the per-model fields
+# (name, namespace, image, MODEL_MODULE env, and any fair:cpu/memory/node overrides from
+# the STAC item). Edit here to retune resources, autoscaling, or env without a lib bump.
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: model
+  namespace: predict
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/min-scale: "0"
+        autoscaling.knative.dev/max-scale: "5"
+        autoscaling.knative.dev/scale-down-delay: "60s"
+    spec:
+      containerConcurrency: 1
+      containers:
+        - image: model
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - secretRef:
+                name: s3-credentials
+          env:
+            - name: FAIR_KNATIVE_ONNX_THREADS
+              value: "0"
+            - name: FAIR_KNATIVE_CORS_ORIGINS
+              value: "*"
+            - name: FAIR_KNATIVE_CORS_METHODS
+              value: "*"
+            - name: FAIR_KNATIVE_CORS_HEADERS
+              value: "*"
+          resources:
+            requests:
+              cpu: "500m"
+              memory: 1Gi
+            limits:
+              cpu: "2"
+              memory: 3Gi
