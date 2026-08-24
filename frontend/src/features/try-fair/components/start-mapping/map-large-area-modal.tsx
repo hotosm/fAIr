@@ -61,6 +61,15 @@ const MapLargeAreaContent = ({
 
   return (
     <div className="flex flex-col gap-2">
+      {/* Dynamic instruction based on active tab */}
+      <p className="text-grey text-sm -mt-6">
+        {activeTab === "whole"
+          ? "The entire imagery extent will be used as your area of interest. Review the highlighted boundary on the map, then provide a description and submit."
+          : activeTab === "draw"
+            ? "Use the draw tool on the map to outline a custom area of interest. Click points to form a polygon, then close it by clicking the first point."
+            : "Upload a GeoJSON file containing your area of interest. The uploaded boundary will be displayed on the map for review before submitting."}
+      </p>
+
       {/* Hidden file input for native OS file selection */}
       <input
         type="file"
@@ -124,14 +133,20 @@ const MapLargeAreaContent = ({
                   : "Whole Imagery AOI"}
             </span>
             {activeTab !== "whole" && (
-              <button
-                type="button"
-                onClick={handleClearArea}
-                className="ml-1 text-primary hover:text-primary transition-colors p-1 rounded-full"
-                title="Clear area"
+              <ToolTip
+                content={activeTab === "draw" ? "Delete drawn polygon" : "Delete uploaded aread of interest"}
               >
-                <DeleteIcon className="w-4 h-4" />
-              </button>
+
+
+                <button
+                  type="button"
+                  onClick={handleClearArea}
+                  className="ml-1 text-primary hover:text-primary transition-colors p-1 rounded-full"
+                  title="Clear area"
+                >
+                  <DeleteIcon className="w-4 h-4" />
+                </button>
+              </ToolTip>
             )}
           </div>
         )}

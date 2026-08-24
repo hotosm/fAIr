@@ -183,7 +183,9 @@ export const NavBar = () => {
 
               {isTryFairPage && <ExportMapResults />}
 
-              {_isAuthenticated && <UserProfile />}
+              {_isAuthenticated && <UserProfile isHanko hideFullName />}
+              <HankoAuthComponent />
+
             </>
           ) : (
             <div

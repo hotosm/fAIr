@@ -78,7 +78,7 @@ export const useMapLargeArea = ({
 
   const { modelId, selectedModel, inferenceParams, resolution, confidence } =
     useTryFairParams();
-  const [activeTab, setActiveTab] = useState<AOITab>("draw");
+  const [activeTab, setActiveTab] = useState<AOITab>("whole");
   const [selectedAOI, setSelectedAOI] = useState<Feature | null>(null);
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
   const [description, setDescription] = useState<string>("");
@@ -429,7 +429,6 @@ export const useMapLargeArea = ({
     setSelectedAOI(null);
     setUploadedFileName(null);
     setDrawingMode(DrawingModes.STATIC);
-    showSuccessToast("Selected area cleared.");
   };
 
   /**
