@@ -134,10 +134,12 @@ const MapLargeAreaContent = ({
             </span>
             {activeTab !== "whole" && (
               <ToolTip
-                content={activeTab === "draw" ? "Delete drawn polygon" : "Delete uploaded aread of interest"}
+                content={
+                  activeTab === "draw"
+                    ? "Delete drawn polygon"
+                    : "Delete uploaded aread of interest"
+                }
               >
-
-
                 <button
                   type="button"
                   onClick={handleClearArea}

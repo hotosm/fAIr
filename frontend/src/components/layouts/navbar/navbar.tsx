@@ -185,7 +185,6 @@ export const NavBar = () => {
 
               {_isAuthenticated && <UserProfile isHanko hideFullName />}
               <HankoAuthComponent />
-
             </>
           ) : (
             <div
