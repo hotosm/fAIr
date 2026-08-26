@@ -3,6 +3,8 @@ import { createRoot } from "react-dom/client";
 import { ErrorBoundary } from "react-error-boundary";
 import { MainErrorFallback } from "@/components/errors";
 import { StrictMode } from "react";
+import "@hotosm/ui/dist/style.css";
+import "@hotosm/ui/dist/webawesome-all.js";
 import "@/styles/hot-font-face.css";
 import "@/styles/hot-sl.css";
 import "@/styles/index.css";

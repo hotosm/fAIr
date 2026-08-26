@@ -23,7 +23,7 @@ import {
   HANKO_URL,
   IS_DEV,
 } from "@/config";
-import "@hotosm/tool-menu";
+import "@hotosm/ui/dist/components/tool-menu/tool-menu.js";
 import { Divider } from "@/components/ui/divider";
 import { ToolTip } from "@/components/ui/tooltip";
 import ExportMapResults from "@/features/try-fair/components/start-mapping/export-map-results";
