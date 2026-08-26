@@ -13,7 +13,7 @@ export type MapLargeAreaRequest = {
   /** Whole-imagery requests use the imagery extent. */
   bbox?: BBOX;
   /** Drawn/uploaded AOIs preserve their polygon in the request. */
-  geom?: GeoJSON.Geometry;
+  geometry?: GeoJSON.Geometry;
   zoom: number;
   params?: MapLargeAreaParams;
   description?: string;

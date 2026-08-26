@@ -78,9 +78,10 @@ export const useMapLargeArea = ({
 
   const { modelId, selectedModel, inferenceParams, resolution, confidence } =
     useTryFairParams();
-  const [activeTab, setActiveTab] = useState<AOITab>("draw");
+  const [activeTab, setActiveTab] = useState<AOITab>("whole");
   const [selectedAOI, setSelectedAOI] = useState<Feature | null>(null);
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
+  const [description, setDescription] = useState<string>("");
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -428,7 +429,6 @@ export const useMapLargeArea = ({
     setSelectedAOI(null);
     setUploadedFileName(null);
     setDrawingMode(DrawingModes.STATIC);
-    showSuccessToast("Selected area cleared.");
   };
 
   /**
@@ -444,7 +444,7 @@ export const useMapLargeArea = ({
   }, [clearTerraDraw, setDrawingMode]);
 
   const handleSubmit = () => {
-    if (!selectedAOI) return;
+    if (!selectedAOI || !description.trim()) return;
 
     // Convert resolution to numeric zoom level
     const zoomNumber = TRY_FAIR_RESOLUTION_ZOOM[resolution] ?? 18;
@@ -463,11 +463,10 @@ export const useMapLargeArea = ({
       model_stac_id: selectedModel?.id ?? modelId,
       image_uri:
         currentModelType === ModelType.DEMO
-          ? (selectedModel?.properties["fair:source_imagery"] ??
-            tileServerURL ??
-            "")
+          ? (tileServerURL ?? "")
           : (selectedImagery?.tileUrl ?? ""),
       zoom: zoomNumber,
+      description: description,
       params: {
         confidence_threshold: confidence,
         ...extraParams,
@@ -500,6 +499,8 @@ export const useMapLargeArea = ({
     uploadedFileName,
     fileInputRef,
     isSubmittingMapLargeArea,
+    description,
+    setDescription,
     handleTabChange,
     handleFileChange,
     handleClearArea,

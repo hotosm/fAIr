@@ -1,4 +1,4 @@
-import { ModelType, TryFairMapOutputType, TryFairResolution } from "@/enums";
+import { TryFairMapOutputType, TryFairResolution } from "@/enums";
 import { ModelPicker } from "./model-picker-modal";
 import { TRY_FAIR_PAGE_CONTENT } from "@/constants/ui-contents/try-fair-contents";
 import { APP_TOUR_IDS } from "@/constants/site-tour";
@@ -23,8 +23,7 @@ import { cn } from "@/utils";
 import useScreenSize from "@/hooks/use-screen-size";
 import { RefreshIcon } from "@/components/ui/icons";
 import { ToolTip } from "@/components/ui/tooltip";
-import FeatureToMapDropdown from "@/features/try-fair/components/dropdowns/feature-to-map-dropdown";
-import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
+import { LocationSearchIcon } from "@/components/ui/icons/location-search-icon";
 
 type TryFairSidebarProps = {
   selectedModel: BaseModelStacItem | null;
@@ -43,8 +42,6 @@ type TryFairSidebarProps = {
   onMap: () => void;
   isPredicting: boolean;
   isMapButtonDisabled: boolean;
-  feature: string;
-  onFeatureChange: (feature: string) => void;
   className?: string;
   openMobileModelPickerDialog?: () => void;
 };
@@ -66,15 +63,11 @@ export const TryFairSidebar = ({
   onMap,
   isPredicting,
   isMapButtonDisabled,
-  feature,
-  onFeatureChange,
   className,
   openMobileModelPickerDialog,
 }: TryFairSidebarProps) => {
   const { isSmallViewport } = useScreenSize();
-  const currentModelType = useStartMappingStore(
-    (state) => state.currentModelType,
-  );
+
   const supportsPolygon = selectedModel
     ? getModelOutputType(selectedModel) === TryFairMapOutputType.POLYGON
     : true;
@@ -95,12 +88,15 @@ export const TryFairSidebar = ({
     >
       <div
         className={cn(
-          "flex bg-[#FAFAFA] border p-2.5 rounded-lg",
+          "flex bg-[#FAFAFA] border-[#687075] border  p-2.5 rounded-lg",
           isSmallViewport
             ? "flex-col items-stretch gap-2"
             : "items-center gap-2",
         )}
       >
+        <div className="hidden md:inline-block">
+          <LocationSearchIcon />
+        </div>
         <div className="flex-1 min-w-0 items-center">
           <ModelPicker
             selectedModel={selectedModel}
@@ -134,14 +130,6 @@ export const TryFairSidebar = ({
           </Button>
         </div>
       </div>
-
-      {currentModelType !== ModelType.DEMO && (
-        <FeatureToMapDropdown
-          disabled={isPredicting}
-          value={feature}
-          onChange={onFeatureChange}
-        />
-      )}
 
       <div className="">
         <p className="text-dark text-xs mb-2">

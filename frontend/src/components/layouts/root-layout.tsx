@@ -18,7 +18,6 @@ export const RootLayout = () => {
   useEffect(() => {
     scrollToTop();
   }, [pathname]);
-
   const [showBanner, setShowBanner] = useState<boolean>(false);
 
   /**

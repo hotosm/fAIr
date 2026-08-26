@@ -41,6 +41,9 @@ import type { ImagerySelection } from "@/features/try-fair/types/imagery-types";
 import { MapLargeAreaRequestSuccess } from "@/features/try-fair/components/start-mapping/map-large-area-request-success-dialog";
 import { useShallow } from "zustand/react/shallow";
 import { showErrorToast } from "@/utils";
+import { reverseGeocodeCountry } from "@/features/try-fair/api/hot-imagery";
+import { useRecentImageries } from "@/features/try-fair/hooks/use-recent-imageries";
+import type { RecentImageryEntry } from "@/features/try-fair/hooks/use-recent-imageries";
 
 export const TryFairPage = () => {
   const { map, mapContainerRef } = useMapInstance(false, false);
@@ -96,6 +99,8 @@ export const TryFairPage = () => {
   } = useTryFairParams();
 
   const isChooseLocationOpen = Boolean(chooseLocation && isAuthenticated);
+
+  const { recentImageries, addRecentImagery } = useRecentImageries();
 
   const { models: allModels, loading: modelsLoading } = useStacBaseModels();
   const { models: localModels, loading: localModelLoading } =
@@ -287,7 +292,7 @@ export const TryFairPage = () => {
           : [parameterName, parameterValue],
       ),
     );
-
+    console.log(modelForMapping, "model for mapping");
     predict(
       {
         model: modelForMapping,
@@ -357,8 +362,43 @@ export const TryFairPage = () => {
       lastPredictedInputsRef.current = null;
       clearPredictions();
       setChooseLocation(false);
+
+      // Add to recent imageries list.
+      const isOam = selection.source === ImagerySource.OPEN_AERIAL_MAP;
+      const bounds = selection.bounds ?? null;
+      const center = bounds
+        ? [(bounds[0] + bounds[2]) / 2, (bounds[1] + bounds[3]) / 2]
+        : null;
+
+      const addEntry = (country = "", countryCode = "") => {
+        addRecentImagery({
+          id: isOam ? selection.item.id : selection.tileUrl,
+          title: isOam ? selection.item.title : "Custom Imagery",
+          sourceLabel: isOam ? "OpenAerialMap" : "Custom",
+          country,
+          countryCode,
+          tileUrl: selection.tileUrl,
+          bounds,
+          selection,
+          thumbnailUrl: isOam ? (selection.item.thumbnailUrl ?? null) : null,
+          addedAt: new Date().toISOString(),
+        });
+      };
+
+      if (center) {
+        reverseGeocodeCountry(center[0], center[1])
+          .then((res) => {
+            addEntry(res?.country ?? "", res?.countryCode ?? "");
+          })
+          .catch(() => {
+            addEntry("", "");
+          });
+      } else {
+        addEntry("", "");
+      }
     },
     [
+      addRecentImagery,
       clearPredictions,
       setCurrentModelType,
       setImagery,
@@ -367,6 +407,15 @@ export const TryFairPage = () => {
       setChooseLocation,
     ],
   );
+
+  /** Re-apply a previously used imagery from the recent list. */
+  const handleApplyRecentImagery = useCallback(
+    (entry: RecentImageryEntry) => {
+      handleApplyImagery(entry.selection);
+    },
+    [handleApplyImagery],
+  );
+
   // Sync prediction state into the global store so the navbar Export button can access it.
   useEffect(() => {
     setPredictionsInStore(predictions);
@@ -379,7 +428,7 @@ export const TryFairPage = () => {
 
       {/* Model picker dialog – rendered at page level so it's not trapped inside MobileDrawer */}
       <Dialog
-        label="Where do you want to map?"
+        label="What do you want to map?"
         isOpened={isModelPickerDialogOpened}
         closeDialog={closeModelPickerDialog}
       >
@@ -388,6 +437,17 @@ export const TryFairPage = () => {
           onSelect={handleSelectModel}
           models={models}
           onClose={closeModelPickerDialog}
+          feature={feature}
+          onFeatureChange={setFeature}
+          recentImageries={recentImageries}
+          onApplyRecentImagery={handleApplyRecentImagery}
+          onChooseImagery={() => {
+            closeModelPickerDialog();
+            setChooseLocation(true);
+            if (!isAuthenticated) {
+              setShowSigninModal(true);
+            }
+          }}
         />
       </Dialog>
 
@@ -460,8 +520,7 @@ export const TryFairPage = () => {
                 onMap={handleMap}
                 isPredicting={isPredicting}
                 isMapButtonDisabled={isMapButtonDisabled}
-                feature={feature}
-                onFeatureChange={setFeature}
+                openMobileModelPickerDialog={openModelPickerDialog}
               />
             </div>
           )}
@@ -493,8 +552,6 @@ export const TryFairPage = () => {
                   onMap={handleMap}
                   isPredicting={isPredicting}
                   isMapButtonDisabled={isMapButtonDisabled}
-                  feature={feature}
-                  onFeatureChange={setFeature}
                   className="w-full shadow-none"
                   openMobileModelPickerDialog={openModelPickerDialog}
                 />
