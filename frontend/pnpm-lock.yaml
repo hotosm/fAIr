@@ -18,8 +18,8 @@ importers:
         specifier: ^0.5.2
         version: 0.5.2
       '@hotosm/ui':
-        specifier: ^2.0.0
-        version: 2.0.0(@awesome.me/webawesome@3.11.0(@floating-ui/utils@0.2.12)(@types/react@19.1.8))
+        specifier: ^2.1.0
+        version: 2.1.0(@awesome.me/webawesome@3.11.0(@floating-ui/utils@0.2.12)(@types/react@19.1.8))
       '@reactour/tour':
         specifier: ^3.7.0
         version: 3.7.0(react@19.1.0)
@@ -590,8 +590,8 @@ packages:
   '@hotosm/hanko-auth@0.5.2':
     resolution: {integrity: sha512-dCCrNRyH2C2bS3TBDLJrX45rmHPgMzZHp8Il+LvEeh9mHzBB/iXro1bJZj5Fpmdhfy3HVN+v5PE2WhMK3ymznw==}
 
-  '@hotosm/ui@2.0.0':
-    resolution: {integrity: sha512-ypEE/zlo+BA8pNarzdrVgz6RQjDLKRUjHqM9aOyfkCG6c+u+d1djE9omnSrRoi9AbavYDh0goqyImKYd+CyOoA==}
+  '@hotosm/ui@2.1.0':
+    resolution: {integrity: sha512-jgTdzyyCUPVtQBR4ZRfh2Mskw47ct0FmWd7abT8s6DbxhSL8NOw8/Rcla5rTBaln7bsPqrKsFSrXv9ytbkGucQ==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       '@awesome.me/webawesome': 3.11.0
@@ -4091,7 +4091,7 @@ snapshots:
       '@teamhanko/hanko-elements': 2.5.0
       lit: 3.3.2
 
-  '@hotosm/ui@2.0.0(@awesome.me/webawesome@3.11.0(@floating-ui/utils@0.2.12)(@types/react@19.1.8))':
+  '@hotosm/ui@2.1.0(@awesome.me/webawesome@3.11.0(@floating-ui/utils@0.2.12)(@types/react@19.1.8))':
     dependencies:
       '@awesome.me/webawesome': 3.11.0(@floating-ui/utils@0.2.12)(@types/react@19.1.8)
 
