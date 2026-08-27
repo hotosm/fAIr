@@ -21,7 +21,7 @@ export const NavLogo = ({}: { onClick?: () => void }) => {
         className={"size-8 md:size-10"}
       />
       <p
-        className={`font-barlow font-bold text-dark leading-[1.2] text-body-1 md:text-title-2`}
+        className={`font-bold text-dark leading-[1.2] text-body-1 md:text-title-2`}
       >
         fAIr
       </p>
