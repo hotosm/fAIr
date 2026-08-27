@@ -1,4 +1,4 @@
 allowBuilds:
   esbuild: true
 minimumReleaseAgeExclude:
-  - "@hotosm/ui@1.0.0"
+  - '@hotosm/ui@1.0.0 || 1.0.1'
