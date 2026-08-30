@@ -40,13 +40,6 @@ class MapswipeClient:
           }
         }
     """
-    _ORGANIZATIONS_QUERY = """
-        query Organizations {
-          organizations {
-            results { id, name }
-          }
-        }
-    """
     _PROJECT_BY_ID_QUERY = """
         query ProjectById($id: ID!) {
           project(id: $id) {
@@ -193,14 +186,6 @@ class MapswipeClient:
         if "errors" in data:
             raise RuntimeError(f"GraphQL file upload errors: {data['errors']}")
         return data["data"]
-
-    # def get_first_organization_id(self) -> str:
-    #     """Fetches organizations and returns the ID of the first one."""
-    #     data = self._graphql_request(self._ORGANIZATIONS_QUERY, operation_name="Organizations")
-    #     organizations = data["organizations"]["results"]
-    #     if not organizations:
-    #         raise RuntimeError("No organizations found for the user.")
-    #     return organizations[0]["id"]
 
     def create_validation_project(
         self,
