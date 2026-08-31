@@ -292,7 +292,6 @@ export const TryFairPage = () => {
           : [parameterName, parameterValue],
       ),
     );
-    console.log(modelForMapping, "model for mapping");
     predict(
       {
         model: modelForMapping,
@@ -384,7 +383,6 @@ export const TryFairPage = () => {
           addedAt: new Date().toISOString(),
         });
       };
-
       if (center) {
         reverseGeocodeCountry(center[0], center[1])
           .then((res) => {

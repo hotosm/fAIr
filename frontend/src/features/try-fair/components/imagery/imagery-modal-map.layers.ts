@@ -15,7 +15,6 @@ import maplibregl, {
   GeoJSONSource,
   Map as MapLibreMap,
   PointLike,
-  StyleSpecification,
 } from "maplibre-gl";
 import { FetchSource, PMTiles, Protocol } from "pmtiles";
 import { BBOX } from "@/types";
@@ -110,31 +109,15 @@ const registerPmtilesProtocol = () => {
   pmtilesProtocolRegistered = true;
 };
 
-const baseStyle: StyleSpecification = {
-  version: 8,
-  // Needed so the density count labels can render text. demotiles serves the
-  // Noto Sans stack (Open Sans is not available there).
-  glyphs: "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
-  sources: {
-    [SOURCES.basemap]: {
-      type: "raster",
-      tiles: [
-        "https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
-        "https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
-      ],
-      tileSize: 256,
-      attribution: "&copy; OpenStreetMap &copy; CARTO",
-    },
-  },
-  layers: [{ id: LAYERS.basemap, type: "raster", source: SOURCES.basemap }],
-};
+/** OpenFreeMap Positron — a clean, light vector basemap (replaces CARTO raster). */
+const POSITRON_STYLE_URL = "https://tiles.openfreemap.org/styles/positron";
 
-/** Create the shared modal map (CARTO light basemap, world view). */
+/** Create the shared modal map (OpenFreeMap Positron basemap, world view). */
 export const createImageryMap = (container: HTMLDivElement): MapLibreMap => {
   registerPmtilesProtocol();
   return new maplibregl.Map({
     container,
-    style: baseStyle,
+    style: POSITRON_STYLE_URL,
     center: [0, 20],
     zoom: 1.4,
     minZoom: 1,
