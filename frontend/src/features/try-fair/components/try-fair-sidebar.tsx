@@ -249,7 +249,7 @@ export const TryFairSidebar = ({
                 type="range"
                 min={confidenceMin}
                 max={confidenceMax}
-                step={0.25}
+                step={0.5}
                 disabled={isPredicting}
                 value={Number(confidenceValue)}
                 onChange={(e) =>
