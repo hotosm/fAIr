@@ -250,7 +250,6 @@ export const TryFairPage = () => {
     // Invalidate so the Map button re-enables for the new model
     lastPredictedInputsRef.current = null;
     clearPredictions();
-    
   };
 
   const handleResolutionChange = (res: TryFairResolution) => {
@@ -409,7 +408,6 @@ export const TryFairPage = () => {
 
   /** Re-apply a previously used imagery from the recent list. */
   const handleApplyRecentImagery = useCallback(
-    
     (entry: RecentImageryEntry) => {
       handleApplyImagery(entry.selection);
     },
