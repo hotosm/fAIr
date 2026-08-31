@@ -101,14 +101,21 @@ export const TryFairMap = ({
     [onBBoxChange, map, canFitToBounds],
   );
 
-  // When resolution changes, flag that we want to fit once the grid recalculates.
+  // When resolution or imagery center changes, flag that we want to fit once
+  // the grid recalculates. The grid recenters asynchronously (via useTileGrid),
+  // and handleBBoxChange fires fitBounds when the flag is set.
   const prevResolutionRef = useRef(resolution);
+  const prevImageryCenterRef = useRef(imageryCenter);
   useEffect(() => {
     if (resolution !== prevResolutionRef.current) {
       prevResolutionRef.current = resolution;
       fitPendingRef.current = true;
     }
-  }, [resolution]);
+    if (imageryCenter !== prevImageryCenterRef.current) {
+      prevImageryCenterRef.current = imageryCenter;
+      fitPendingRef.current = true;
+    }
+  }, [resolution, imageryCenter]);
 
   useEffect(() => {
     if (!map) return;

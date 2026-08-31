@@ -238,7 +238,7 @@ export const TryFairSidebar = ({
           <div className="flex items-center gap-2">
             <SnowflakeIcon />
             <div className="relative flex-1">
-              {[25, 50, 75].map((pct) => (
+              {[50].map((pct) => (
                 <div
                   key={pct}
                   className="absolute top-1/2 -translate-y-1/2 w-0.5 h-3 bg-white/80 pointer-events-none z-10"
