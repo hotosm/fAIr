@@ -31,8 +31,9 @@ if settings.enable_sentry:
 LOG_PATH = str(settings.log_path)
 os.makedirs(LOG_PATH, exist_ok=True)
 
-FRONTEND_URL = str(settings.frontend_url)
-API_BASE_URL = str(settings.api_base_url)
+# AnyHttpUrl appends a trailing slash to a bare host, which breaks f-string joins.
+FRONTEND_URL = str(settings.frontend_url).rstrip("/")
+API_BASE_URL = str(settings.api_base_url).rstrip("/")
 HOSTNAME = settings.hostname
 
 RAW_DATA_API_URL = str(settings.raw_data_api_url)
@@ -47,7 +48,7 @@ if settings.auth_provider is AuthProvider.HANKO:
     COOKIE_DOMAIN = settings.cookie_domain
     COOKIE_SECURE = settings.cookie_secure if settings.cookie_secure is not None else not DEBUG
     JWT_AUDIENCE = settings.jwt_audience
-    LOGIN_URL = str(settings.login_url)
+    LOGIN_URL = str(settings.login_url).rstrip("/")
     OSM_REDIRECT_URI = _str(settings.osm_login_redirect_uri)
     LOGIN_INTERNAL_API_KEY = _secret(settings.login_internal_api_key) or ""
     LOGIN_BACKEND_URL = _str(settings.login_backend_url) or LOGIN_URL
