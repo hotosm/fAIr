@@ -132,9 +132,7 @@ export const TryFairDraggableGrid = ({
   const handleBringGridToView = () => {
     if (!map || !anchor) return;
     const center = map.getCenter();
-    setAnchor(
-      computeCenteredAnchor({ lng: center.lng, lat: center.lat }, anchor.z),
-    );
+    setAnchor(computeCenteredAnchor({ lng: center.lng, lat: center.lat }, anchor.z));
   };
 
   //  Render
@@ -163,9 +161,7 @@ export const TryFairDraggableGrid = ({
 
   const isChoroplethOutput = outputType === TryFairMapOutputType.CLUSTER;
 
-  const handleDragSurfacePointerMove = (
-    e: React.PointerEvent<SVGPolygonElement>,
-  ) => {
+  const handleDragSurfacePointerMove = (e: React.PointerEvent<SVGPolygonElement>) => {
     if (!map || !isChoroplethOutput) {
       setHoverTooltip(null);
       return;
@@ -261,20 +257,14 @@ export const TryFairDraggableGrid = ({
       </svg>
 
       {/* Nudge to bring the grid back when it's been panned off-screen */}
-      <GridOffScreenNudge
-        visibility={gridVisibility}
-        onBringGrid={handleBringGridToView}
-      />
+      <GridOffScreenNudge visibility={gridVisibility} onBringGrid={handleBringGridToView} />
 
       {hoverTooltip ? (
         <div
           className="pointer-events-none absolute z-50"
           style={{ left: hoverTooltip.x, top: hoverTooltip.y }}
         >
-          <div
-            className="relative"
-            style={{ transform: "translate(12px, -50%)" }}
-          >
+          <div className="relative" style={{ transform: "translate(12px, -50%)" }}>
             <div className="bg-white/95 backdrop-blur-sm border border-gray-border rounded-lg shadow-lg px-3 py-2 flex flex-col items-start gap-0.5 min-w-[120px]">
               <p className="text-[10px] font-medium text-grey uppercase tracking-wide leading-none">
                 Buildings detected

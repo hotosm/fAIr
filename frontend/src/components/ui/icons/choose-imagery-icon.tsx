@@ -32,24 +32,13 @@ export const ChooseImageryIcon: React.FC<IconProps> = (props) => (
       stroke="#CFCFCF"
       strokeWidth="0.8"
     />
-    <rect
-      width="17.9418"
-      height="17.9418"
-      transform="translate(47.3359 34.1328)"
-      fill="white"
-    />
+    <rect width="17.9418" height="17.9418" transform="translate(47.3359 34.1328)" fill="white" />
     <path
       opacity="0.4"
       d="M50.2451 49.1648C51.2852 50.2049 52.9591 50.2049 56.307 50.2049C59.6549 50.2049 61.3289 50.2049 62.369 49.1648L50.2451 37.041C49.2051 38.0811 49.2051 39.755 49.2051 43.1029C49.2051 46.4508 49.2051 48.1248 50.2451 49.1648Z"
       fill="#ACACAC"
     />
-    <circle
-      cx="59.6721"
-      cy="39.7395"
-      r="1.12136"
-      stroke="#ACACAC"
-      strokeWidth="1.12136"
-    />
+    <circle cx="59.6721" cy="39.7395" r="1.12136" stroke="#ACACAC" strokeWidth="1.12136" />
     <path
       d="M48.832 44.6999C49.3304 44.6327 49.8342 44.5995 50.3389 44.6006C52.4739 44.5587 54.5567 45.1765 56.2155 46.3436C57.754 47.4261 58.835 48.9158 59.2981 50.5792"
       stroke="#ACACAC"

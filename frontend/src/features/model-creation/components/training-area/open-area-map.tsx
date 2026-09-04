@@ -40,12 +40,7 @@ const OpenAerialMap = ({
       </p>
       <div className="flex flex-col w-full items-center justify-between gap-y-4">
         {error ? (
-          <p>
-            {
-              MODELS_CONTENT.modelCreation.trainingArea
-                .openAerialMapErrorMessage
-            }
-          </p>
+          <p>{MODELS_CONTENT.modelCreation.trainingArea.openAerialMapErrorMessage}</p>
         ) : loading ? (
           <div className="w-full h-16 bg-gray-border animate-pulse"></div>
         ) : (
@@ -60,8 +55,7 @@ const OpenAerialMap = ({
               <ToolTip
                 content={
                   hasBounds
-                    ? MODELS_CONTENT.modelCreation.trainingArea.toolTips
-                        .fitToTMSBounds
+                    ? MODELS_CONTENT.modelCreation.trainingArea.toolTips.fitToTMSBounds
                     : "This dataset does not have bounds. Zoom in to see the area of interest."
                 }
               >

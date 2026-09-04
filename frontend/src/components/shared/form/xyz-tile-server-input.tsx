@@ -2,12 +2,7 @@ import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { HelpText, Input, Select } from "@/components/ui/form";
 import { ToolTip } from "@/components/ui/tooltip";
-import {
-  INPUT_TYPES,
-  SHOELACE_SELECT_SIZES,
-  SHOELACE_SIZES,
-  TileServiceType,
-} from "@/enums";
+import { INPUT_TYPES, SHOELACE_SELECT_SIZES, SHOELACE_SIZES, TileServiceType } from "@/enums";
 import { getTileServerRegex } from "@/utils";
 
 const TILE_SERVICE_TYPES: {
@@ -54,10 +49,7 @@ export const XYZTileServerInput = ({
   showBorder?: boolean;
   size?: SHOELACE_SIZES;
   variant?: "horizontal" | "vertical";
-  validationStateUpdateCallback?: (validationState: {
-    valid: boolean;
-    message: string;
-  }) => void;
+  validationStateUpdateCallback?: (validationState: { valid: boolean; message: string }) => void;
   pattern?: string;
   tileServiceType: TileServiceType;
   buttonOnclick?: () => void;
@@ -66,17 +58,12 @@ export const XYZTileServerInput = ({
   setTileServiceType: (tileServiceType: TileServiceType) => void;
 }) => {
   const isApplyDisabled =
-    !tileServerURL ||
-    !tileServerURL.trim() ||
-    !isValid.valid ||
-    !tileServiceType;
+    !tileServerURL || !tileServerURL.trim() || !isValid.valid || !tileServiceType;
 
   return (
     <div
       className={
-        variant === "horizontal"
-          ? "flex flex-col gap-2"
-          : "grid grid-cols-1 md:grid-cols-2 gap-3"
+        variant === "horizontal" ? "flex flex-col gap-2" : "grid grid-cols-1 md:grid-cols-2 gap-3"
       }
     >
       <Select

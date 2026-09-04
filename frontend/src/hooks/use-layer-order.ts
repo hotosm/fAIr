@@ -12,10 +12,7 @@ type UseLayerReorderProps = {
  * - The TMS layer is below all feature layers.
  * - The boundary line layer is on top of everything.
  */
-export const useLayerReorder = (
-  map: Map | null,
-  { featureLayerIds }: UseLayerReorderProps,
-) => {
+export const useLayerReorder = (map: Map | null, { featureLayerIds }: UseLayerReorderProps) => {
   const didReorder = useRef<boolean>(false);
 
   useEffect(() => {

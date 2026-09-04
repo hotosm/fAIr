@@ -11,10 +11,7 @@ export const updateOfflinePrediction = async ({
   id,
   data,
 }: TOfflinePredictionUpdateArgs): Promise<TOfflinePrediction> => {
-  const res = await apiClient.patch(
-    API_ENDPOINTS.UPDATE_OFFLINE_PREDICTION(id),
-    { ...data },
-  );
+  const res = await apiClient.patch(API_ENDPOINTS.UPDATE_OFFLINE_PREDICTION(id), { ...data });
   return {
     ...res.data,
   };

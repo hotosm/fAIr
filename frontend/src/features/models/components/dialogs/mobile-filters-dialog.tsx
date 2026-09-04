@@ -18,13 +18,7 @@ type TrainingAreaDrawerProps = DialogProps & {
   disabled: boolean;
 };
 
-const FilterItem = ({
-  children,
-  title,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) => {
+const FilterItem = ({ children, title }: { title: string; children: React.ReactNode }) => {
   return (
     <div>
       <p className="mb-2">{title}</p>
@@ -49,11 +43,7 @@ const MobileModelFiltersDialog: React.FC<TrainingAreaDrawerProps> = ({
     <Dialog isOpened={isOpened} closeDialog={closeDialog} label={"Filter"}>
       <div className="flex flex-col gap-y-4">
         <FilterItem title="Sort by">
-          <OrderingFilter
-            query={query}
-            updateQuery={updateQuery}
-            isMobileFilterModal
-          />
+          <OrderingFilter query={query} updateQuery={updateQuery} isMobileFilterModal />
         </FilterItem>
         <FilterItem title="Filter by">
           <CategoryFilter disabled={true} isMobileFilterModal />
@@ -79,12 +69,7 @@ const MobileModelFiltersDialog: React.FC<TrainingAreaDrawerProps> = ({
           />
         </FilterItem>
         <div className="flex items-center justify-between gap-x-4">
-          <Button
-            slot="footer"
-            variant={ButtonVariant.DEFAULT}
-            onClick={closeDialog}
-            size="medium"
-          >
+          <Button slot="footer" variant={ButtonVariant.DEFAULT} onClick={closeDialog} size="medium">
             Close
           </Button>
         </div>

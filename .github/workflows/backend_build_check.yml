@@ -2,11 +2,11 @@ name: Build Docker Images
 on:
   pull_request:
     branches:
-      - master
+      - main
       - develop
     paths:
       - "backend/**"
-      - ".github/workflows/docker_build.yml"
+      - ".github/workflows/backend_build_check.yml"
 
 jobs:
   # Backend API image. amd64-only (GDAL + source-built tippecanoe make arm64

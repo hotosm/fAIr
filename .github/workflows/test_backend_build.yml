@@ -3,7 +3,7 @@ name: Backend lint and tests
 on:
   push:
     branches:
-      - master
+      - main
       - develop
     paths:
       - "backend/**"
@@ -11,7 +11,7 @@ on:
       - ".pre-commit-config.yaml"
   pull_request:
     branches:
-      - master
+      - main
       - develop
     paths:
       - "backend/**"
@@ -24,7 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b  # v8.1.0
+      - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
         with:
           enable-cache: true
           cache-dependency-glob: "backend/uv.lock"
@@ -56,7 +56,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b  # v8.1.0
+      - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
         with:
           enable-cache: true
           cache-dependency-glob: "backend/uv.lock"

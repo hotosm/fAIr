@@ -1,6 +1,6 @@
 # fAIr
 
-## :open_book: History 
+## :open_book: History
 
 We recognized the Open Cities Challenge for building segmentation mid-2020, and then around the end of 2020, HOT conducted research in collaboration with the Netherland Red Cross. Last year, HOT contributed to an academic research project investigating the capability of UAV imagery to be used for AI-assisted mapping on refugees camps in Africa, which proved that the use of localised AI models produces higher prediction accuracy in comparison to wide trained models.
 
@@ -10,8 +10,9 @@ In March 2022, we participated in an AI for Social good seminar in Frankfurt, Ge
 ![Screenshot+2022-11-02+at+14 09 49-94d2eb](https://github.com/hotosm/fAIr/assets/97789856/39222563-13cc-4813-80f4-982c9afa6491)
 
 ## Glossary
+
 fAIr is the product name. How come?:
-<img align="right" width="400px" src="https://github.com/hotosm/fAIr/assets/97789856/1c6bae28-9d09-4c5b-9382-dbc5a9d0417b"/> 
+<img align="right" width="400px" src="https://github.com/hotosm/fAIr/assets/97789856/1c6bae28-9d09-4c5b-9382-dbc5a9d0417b"/>
 
 f: for freedom and free and open-source software
 
@@ -24,7 +25,9 @@ AI models: AI is wide term and it includes lots of approaches and techniques. In
 <br>
 <br>
 <br>
+
 ## What , How and for Whom?
+
 Unlike other AI data producers, fAIr is an intuitive, fair and open-source AI-assisted mapping tool where AI models are created and trained by the people living and working in the local communities. By working with the local communities (and getting constant feedback on the models), we strive to eliminate model biases as we ensure the models are relevant to the communities where the maps are being created to improve the conditions of the people living there.
 
 ![OAM+pics](https://github.com/hotosm/fAIr/assets/97789856/c01a25fa-2a32-49a8-876e-0ab8f540766b)

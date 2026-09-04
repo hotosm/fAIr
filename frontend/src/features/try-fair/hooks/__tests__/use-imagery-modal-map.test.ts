@@ -3,12 +3,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useImageryModalMap } from "@/features/try-fair/hooks/use-imagery-modal-map";
 import { createImageryMap } from "@/features/try-fair/components/imagery/imagery-modal-map.layers";
 
-vi.mock(
-  "@/features/try-fair/components/imagery/imagery-modal-map.layers",
-  () => ({
-    createImageryMap: vi.fn(),
-  }),
-);
+vi.mock("@/features/try-fair/components/imagery/imagery-modal-map.layers", () => ({
+  createImageryMap: vi.fn(),
+}));
 
 describe("useImageryModalMap", () => {
   let mockMapInstance: any;

@@ -11,11 +11,7 @@
  *   basemap → density grid → count labels → selected-cell highlight → preview
  * The image preview is added last so it sits above the grid.
  */
-import maplibregl, {
-  GeoJSONSource,
-  Map as MapLibreMap,
-  PointLike,
-} from "maplibre-gl";
+import maplibregl, { GeoJSONSource, Map as MapLibreMap, PointLike } from "maplibre-gl";
 import { FetchSource, PMTiles, Protocol } from "pmtiles";
 import { BBOX } from "@/types";
 import {
@@ -23,10 +19,7 @@ import {
   HOT_IMAGERY_DENSITY_SOURCE_LAYER,
   MAX_ZOOM_LEVEL,
 } from "@/config";
-import {
-  getImageryTileUrl,
-  OAMImageryItem,
-} from "@/features/try-fair/api/hot-imagery";
+import { getImageryTileUrl, OAMImageryItem } from "@/features/try-fair/api/hot-imagery";
 
 // ── Ids ───────────────────────────────────────────────────────────────────────
 // Prefixed so they never collide with the try-fAIr map's own sources/layers.
@@ -144,18 +137,9 @@ export const addImageryLayers = (map: MapLibreMap): void => {
     source: SOURCES.density,
     "source-layer": HOT_IMAGERY_DENSITY_SOURCE_LAYER,
     // Only draw populated polygon cells (the archive also carries label points).
-    filter: [
-      "all",
-      ["==", ["geometry-type"], "Polygon"],
-      [">", ["get", "count"], 0],
-    ],
+    filter: ["all", ["==", ["geometry-type"], "Polygon"], [">", ["get", "count"], 0]],
     paint: {
-      "fill-color": [
-        "interpolate",
-        ["linear"],
-        ["get", "count"],
-        ...DENSITY_COLOR_RAMP,
-      ],
+      "fill-color": ["interpolate", ["linear"], ["get", "count"], ...DENSITY_COLOR_RAMP],
       "fill-opacity": 0.75,
       "fill-outline-color": "#ffffff",
     },
@@ -211,10 +195,7 @@ export const addImageryLayers = (map: MapLibreMap): void => {
  * `bboxW/S/E/N` (the aggregated image extent) is what the picker searches, not
  * the wider cell square; the cell polygon geometry is carried for the highlight.
  */
-export const readCellAt = (
-  map: MapLibreMap,
-  point: PointLike,
-): SelectedCell | null => {
+export const readCellAt = (map: MapLibreMap, point: PointLike): SelectedCell | null => {
   const hit = map.queryRenderedFeatures(point, {
     layers: [LAYERS.densityFill],
   })[0];
@@ -228,10 +209,7 @@ export const readCellAt = (
 };
 
 /** Paint (or clear, with null) the red highlight over the selected cell. */
-export const highlightCell = (
-  map: MapLibreMap,
-  geometry: GeoJSON.Geometry | null,
-): void => {
+export const highlightCell = (map: MapLibreMap, geometry: GeoJSON.Geometry | null): void => {
   const src = map.getSource(SOURCES.cell) as GeoJSONSource | undefined;
   src?.setData(
     geometry
@@ -245,20 +223,13 @@ export const highlightCell = (
 
 // ── Raster previews ───────────────────────────────────────────────────────────
 
-const removeLayerAndSource = (
-  map: MapLibreMap,
-  layerId: string,
-  sourceId: string,
-): void => {
+const removeLayerAndSource = (map: MapLibreMap, layerId: string, sourceId: string): void => {
   if (map.getLayer(layerId)) map.removeLayer(layerId);
   if (map.getSource(sourceId)) map.removeSource(sourceId);
 };
 
 /** Preview a selected OAM image's raster tiles and frame it. */
-export const showImageryPreview = (
-  map: MapLibreMap,
-  item: OAMImageryItem,
-): void => {
+export const showImageryPreview = (map: MapLibreMap, item: OAMImageryItem): void => {
   removeLayerAndSource(map, LAYERS.imagery, SOURCES.imagery);
   map.addSource(SOURCES.imagery, {
     type: "raster",

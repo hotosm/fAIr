@@ -52,16 +52,8 @@ const TrainingAreaList = ({
             ""
           ) : (
             <small>
-              {
-                MODELS_CONTENT.modelCreation.trainingArea.toolTips
-                  .lastUpdatedPrefix
-              }{" "}
-              {formatDuration(
-                new Date(String(osmData?.lastUpdated)),
-                new Date(),
-                1,
-              )}{" "}
-              ago
+              {MODELS_CONTENT.modelCreation.trainingArea.toolTips.lastUpdatedPrefix}{" "}
+              {formatDuration(new Date(String(osmData?.lastUpdated)), new Date(), 1)} ago
             </small>
           )}
         </span>
@@ -85,8 +77,8 @@ const TrainingAreaList = ({
           <div className="flex items-center justify-center flex-col gap-y-10 text-center">
             <NoTrainingAreaIcon />
             <p className="text-grey">
-              No Training Area (TA) added yet. Start by drawing a TA on the map
-              or upload a TA from your device.
+              No Training Area (TA) added yet. Start by drawing a TA on the map or upload a TA from
+              your device.
             </p>
           </div>
         ) : isPending ? (

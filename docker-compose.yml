@@ -114,7 +114,13 @@ services:
     ports:
       - "${STAC_PORT:-8082}:8080"
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/_mgmt/ping')"]
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:8080/_mgmt/ping')",
+        ]
       interval: 5s
       timeout: 3s
       retries: 30

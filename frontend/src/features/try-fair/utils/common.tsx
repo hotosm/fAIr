@@ -7,10 +7,7 @@ import { PolygonIcon } from "@/components/ui/icons/polygon-icon";
 import React from "react";
 import { TRY_FAIR_GRID_SIZE } from "@/config";
 import { ImagerySource } from "@/enums";
-import {
-  DatePreset,
-  ResolutionPreset,
-} from "@/features/try-fair/types/imagery-types";
+import { DatePreset, ResolutionPreset } from "@/features/try-fair/types/imagery-types";
 import { BuildingIcon } from "@/components/ui/icons/buildings-icon";
 import { SolarPanelIcon } from "@/components/ui/icons/solar-panel-icon";
 import { TreesIcon } from "@/components/ui/icons/trees-icon";
@@ -21,9 +18,7 @@ export const TRY_FAIR_INITIAL_MAP_ZOOM = 18;
 
 export const FALLBACK_FAIR_IMAGERY =
   "https://tiles.openaerialmap.org/62d85d11d8499800053796c1/0/62d85d11d8499800053796c2/{z}/{x}/{y}";
-export const FALLBACK_FAIR_IMAGERY_CENTER: [number, number] = [
-  85.5228, 27.6337,
-];
+export const FALLBACK_FAIR_IMAGERY_CENTER: [number, number] = [85.5228, 27.6337];
 export const DEFAULT_FAIR_IMAGERY_CENTER: [number, number] = [
   -13.237922723117881, 8.474166946427818,
 ];
@@ -82,9 +77,7 @@ export const TRY_FAIR_RESOLUTION_ZOOM: Record<TryFairResolution, number> = {
  * carried as one of the model's keywords (point | line | polygon): point output
  * needs the circle layer, line and polygon render via the fill/line layers.
  */
-export const getModelOutputType = (
-  model: BaseModelStacItem,
-): TryFairMapOutputType =>
+export const getModelOutputType = (model: BaseModelStacItem): TryFairMapOutputType =>
   model.properties.keywords.includes("point")
     ? TryFairMapOutputType.POINTS
     : TryFairMapOutputType.POLYGON;
@@ -177,10 +170,7 @@ export const withinDate = (iso: string | null, preset: DatePreset): boolean => {
   return new Date(iso).getTime() >= Date.now() - days * DAY_MS;
 };
 
-export const withinResolution = (
-  gsd: number | null,
-  preset: ResolutionPreset,
-): boolean => {
+export const withinResolution = (gsd: number | null, preset: ResolutionPreset): boolean => {
   if (!preset) return true;
   if (gsd == null) return false;
   if (preset === "lt05") return gsd < 0.5;
@@ -210,7 +200,5 @@ export const FEATURES_TO_MAP = [
 /** ISO 3166-1 alpha-2 code → flag emoji (regional indicator symbols). */
 export const flagEmoji = (code: string): string =>
   code.length === 2
-    ? String.fromCodePoint(
-        ...[...code.toUpperCase()].map((c) => 0x1f1e6 + c.charCodeAt(0) - 65),
-      )
+    ? String.fromCodePoint(...[...code.toUpperCase()].map((c) => 0x1f1e6 + c.charCodeAt(0) - 65))
     : "🏳️";

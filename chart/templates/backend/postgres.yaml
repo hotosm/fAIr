@@ -6,6 +6,8 @@ metadata:
   labels:
     {{- include "fair.labels" . | nindent 4 }}
     app.kubernetes.io/component: postgres
+  annotations:
+    {{- include "fair.syncWave" "-10" | nindent 4 }}
 type: Opaque
 stringData:
   POSTGRES_USER: {{ .Values.postgres.auth.username | quote }}
@@ -20,6 +22,8 @@ metadata:
   labels:
     {{- include "fair.labels" . | nindent 4 }}
     app.kubernetes.io/component: postgres
+  annotations:
+    {{- include "fair.syncWave" "-10" | nindent 4 }}
 spec:
   type: ClusterIP
   ports:
@@ -38,6 +42,8 @@ metadata:
   labels:
     {{- include "fair.labels" . | nindent 4 }}
     app.kubernetes.io/component: postgres
+  annotations:
+    {{- include "fair.syncWave" "-10" | nindent 4 }}
 spec:
   serviceName: {{ include "fair.postgresName" . }}
   replicas: 1

@@ -1,15 +1,7 @@
 import useScreenSize from "@/hooks/use-screen-size";
-import {
-  ControlsPosition,
-  DrawingModes,
-  TileServiceType,
-  ToolTipPlacement,
-} from "@/enums";
+import { ControlsPosition, DrawingModes, TileServiceType, ToolTipPlacement } from "@/enums";
 import { LngLatBoundsLike, Map } from "maplibre-gl";
-import {
-  Legend,
-  PredictedFeatureActionPopup,
-} from "@/features/start-mapping/components";
+import { Legend, PredictedFeatureActionPopup } from "@/features/start-mapping/components";
 import { DrawControl, MapComponent, MapCursorToolTip } from "@/components/map";
 import { RefObject, useEffect, useMemo } from "react";
 
@@ -21,16 +13,10 @@ import {
 } from "@/config";
 import bbox from "@turf/bbox";
 import { AllPredictionsLayer } from "@/features/start-mapping/components/map/layers";
-import {
-  PredictedFeatureStatus,
-  PredictionImagerySource,
-} from "@/enums/start-mapping";
+import { PredictedFeatureStatus, PredictionImagerySource } from "@/enums/start-mapping";
 import { useMapStore } from "@/store/map-store";
 import { PredictionRasterLayer } from "./layers/prediction-raster-layer";
-import {
-  extractTileJSONURL,
-  OPENAERIALMAP_TILESERVER_URL_REGEX_PATTERN,
-} from "@/utils";
+import { extractTileJSONURL, OPENAERIALMAP_TILESERVER_URL_REGEX_PATTERN } from "@/utils";
 import { useInitialHashFit } from "@/hooks/use-map-hash-sync";
 import { TerraDraw } from "terra-draw";
 import { ToolTip } from "@/components/ui/tooltip";
@@ -89,8 +75,7 @@ export const StartMappingMapComponent = ({
   const untouchedPredictedFeatures = useMemo(
     () =>
       modelPredictions.filter(
-        (feature) =>
-          feature.properties.status === PredictedFeatureStatus.UNTOUCHED,
+        (feature) => feature.properties.status === PredictedFeatureStatus.UNTOUCHED,
       ),
     [modelPredictions],
   );
@@ -136,8 +121,7 @@ export const StartMappingMapComponent = ({
   /**
    * It is used to show a tooltip when the user is zoomed out too far to start mapping.
    */
-  const shouldShowTooltip =
-    currentZoom < MIN_ZOOM_LEVEL_FOR_START_MAPPING_PREDICTION;
+  const shouldShowTooltip = currentZoom < MIN_ZOOM_LEVEL_FOR_START_MAPPING_PREDICTION;
 
   const memoizedToolTip = useMemo(() => {
     if (!map) return null;
@@ -162,8 +146,7 @@ export const StartMappingMapComponent = ({
    * Check if the tile server URL is an OpenAerialMap tile server URL.
    */
   const { sourceURL, isOpenAerialMap } = useMemo(() => {
-    const openAerial =
-      OPENAERIALMAP_TILESERVER_URL_REGEX_PATTERN.test(tileServerURL);
+    const openAerial = OPENAERIALMAP_TILESERVER_URL_REGEX_PATTERN.test(tileServerURL);
     return {
       isOpenAerialMap: openAerial,
       sourceURL: openAerial ? extractTileJSONURL(tileServerURL) : tileServerURL,
@@ -213,11 +196,7 @@ export const StartMappingMapComponent = ({
         />
       )}
       {memoizedToolTip}
-      <div
-        className={
-          "absolute top-40 left-3 map-elements-z-index hidden md:block"
-        }
-      >
+      <div className={"absolute top-40 left-3 map-elements-z-index hidden md:block"}>
         {terraDraw && map && (
           <DrawControl
             terraDraw={terraDraw}
@@ -236,9 +215,7 @@ export const StartMappingMapComponent = ({
         >
           <ToolTip
             content={
-              !hasDrawnAOI
-                ? "Upload AOI"
-                : "AOI already uploaded, delete to upload a new one"
+              !hasDrawnAOI ? "Upload AOI" : "AOI already uploaded, delete to upload a new one"
             }
             placement={ToolTipPlacement.RIGHT}
           >
@@ -247,9 +224,7 @@ export const StartMappingMapComponent = ({
               onClick={openFileUploadDialog}
               disabled={hasDrawnAOI}
             >
-              <FileUploadIcon
-                className={`icon-lg transition-colors duration-200`}
-              />
+              <FileUploadIcon className={`icon-lg transition-colors duration-200`} />
             </button>
           </ToolTip>
         </div>

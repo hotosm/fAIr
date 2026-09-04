@@ -2,12 +2,7 @@ import { IconProps } from "@/types";
 import React from "react";
 
 export const ArrowBackIcon: React.FC<IconProps> = (props) => (
-  <svg
-    {...props}
-    viewBox="0 0 28 27"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
+  <svg {...props} viewBox="0 0 28 27" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path
       fillRule="evenodd"
       clipRule="evenodd"

@@ -15,9 +15,7 @@ export type useCreateFeedbackOptions = {
   mutationConfig?: MutationConfig<typeof createFeedback>;
 };
 
-export const useCreateModelFeedback = ({
-  mutationConfig,
-}: useCreateFeedbackOptions) => {
+export const useCreateModelFeedback = ({ mutationConfig }: useCreateFeedbackOptions) => {
   const { ...restConfig } = mutationConfig || {};
   return useMutation({
     mutationFn: (args: TCreateFeedbackPayload) => createFeedback(args),
@@ -34,8 +32,7 @@ export const useCreateApprovedModelPrediction = ({
 }: useCreateApprovedPredictionsOptions) => {
   const { ...restConfig } = mutationConfig || {};
   return useMutation({
-    mutationFn: (args: TCreateApprovedPredictionPayload) =>
-      createApprovedPrediction(args),
+    mutationFn: (args: TCreateApprovedPredictionPayload) => createApprovedPrediction(args),
     ...restConfig,
   });
 };

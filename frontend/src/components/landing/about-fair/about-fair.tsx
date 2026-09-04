@@ -8,9 +8,7 @@ export const WhatIsFAIR = () => {
     <section className={styles.aboutfAIrContainer}>
       <div className={styles.featureContent}>
         <h1 className={styles.heading}>{SHARED_CONTENT.homepage.aboutTitle}</h1>
-        <p className={styles.paragraph}>
-          {SHARED_CONTENT.homepage.aboutContent}
-        </p>
+        <p className={styles.paragraph}>{SHARED_CONTENT.homepage.aboutContent}</p>
       </div>
       <div className={styles.imageContainer}>
         <Image src={fAIrWorkflowIllustration} alt="fAIr Workflow Illustration" />

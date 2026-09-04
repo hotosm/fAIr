@@ -17,14 +17,8 @@ type UseUpdateTrainingOptions = {
   modelId: number;
 };
 
-export const useUpdateTraining = ({
-  mutationConfig,
-  modelId,
-}: UseUpdateTrainingOptions) => {
-  const { refetch: refetchModelDetails } = useModelDetails(
-    String(modelId),
-    !!modelId,
-  );
+export const useUpdateTraining = ({ mutationConfig, modelId }: UseUpdateTrainingOptions) => {
+  const { refetch: refetchModelDetails } = useModelDetails(String(modelId), !!modelId);
   const { refetch: refetchTrainingHistory } = useTrainingHistory(
     0,
     PAGE_LIMIT,
@@ -47,10 +41,7 @@ export const useUpdateTraining = ({
   });
 };
 
-export const useTerminateTraining = ({
-  mutationConfig,
-  modelId,
-}: UseUpdateTrainingOptions) => {
+export const useTerminateTraining = ({ mutationConfig, modelId }: UseUpdateTrainingOptions) => {
   const { refetch: refetchTrainingHistory } = useTrainingHistory(
     0,
     PAGE_LIMIT,

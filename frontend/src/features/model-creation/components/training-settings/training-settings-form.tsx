@@ -4,11 +4,7 @@ import { CheckboxGroup, FormLabel, Input } from "@/components/ui/form";
 import { ChevronDownIcon } from "@/components/ui/icons";
 import { MODELS_CONTENT } from "@/constants";
 import { useEffect, useState } from "react";
-import {
-  AdvancedGuageIcon,
-  BasicGuageIcon,
-  IntermediateGuageIcon,
-} from "@/components/ui/icons";
+import { AdvancedGuageIcon, BasicGuageIcon, IntermediateGuageIcon } from "@/components/ui/icons";
 import {
   FORM_VALIDATION_CONFIG,
   MODEL_CREATION_FORM_NAME,
@@ -22,8 +18,7 @@ const trainingTypes = [
 ];
 
 const TrainingSettingsForm = () => {
-  const [showAdvancedSettings, setShowAdvancedSettings] =
-    useState<boolean>(false);
+  const [showAdvancedSettings, setShowAdvancedSettings] = useState<boolean>(false);
   const [validationMessage, setValidationMessage] = useState("");
   const { formData, handleChange } = useModelsContext();
 
@@ -37,26 +32,19 @@ const TrainingSettingsForm = () => {
     {
       label: MODELS_CONTENT.modelCreation.trainingSettings.form.batchSize.label,
       value: MODEL_CREATION_FORM_NAME.BATCH_SIZE,
-      toolTip:
-        MODELS_CONTENT.modelCreation.trainingSettings.form.batchSize.toolTip,
+      toolTip: MODELS_CONTENT.modelCreation.trainingSettings.form.batchSize.toolTip,
       enabled: true,
     },
     {
-      label:
-        MODELS_CONTENT.modelCreation.trainingSettings.form.contactSpacing.label,
+      label: MODELS_CONTENT.modelCreation.trainingSettings.form.contactSpacing.label,
       value: MODEL_CREATION_FORM_NAME.CONTACT_SPACING,
-      toolTip:
-        MODELS_CONTENT.modelCreation.trainingSettings.form.contactSpacing
-          .toolTip,
+      toolTip: MODELS_CONTENT.modelCreation.trainingSettings.form.contactSpacing.toolTip,
       enabled: formData.baseModel === BASE_MODELS.RAMP,
     },
     {
-      label:
-        MODELS_CONTENT.modelCreation.trainingSettings.form.boundaryWidth.label,
+      label: MODELS_CONTENT.modelCreation.trainingSettings.form.boundaryWidth.label,
       value: MODEL_CREATION_FORM_NAME.BOUNDARY_WIDTH,
-      toolTip:
-        MODELS_CONTENT.modelCreation.trainingSettings.form.boundaryWidth
-          .toolTip,
+      toolTip: MODELS_CONTENT.modelCreation.trainingSettings.form.boundaryWidth.toolTip,
       enabled: formData.baseModel === BASE_MODELS.RAMP,
     },
   ];
@@ -105,13 +93,9 @@ const TrainingSettingsForm = () => {
     <div className="flex flex-col gap-y-20 w-full">
       <div className="flex flex-col gap-y-6">
         <FormLabel
-          label={
-            MODELS_CONTENT.modelCreation.trainingSettings.form.zoomLevel.label
-          }
+          label={MODELS_CONTENT.modelCreation.trainingSettings.form.zoomLevel.label}
           withTooltip
-          toolTipContent={
-            MODELS_CONTENT.modelCreation.trainingSettings.form.zoomLevel.toolTip
-          }
+          toolTipContent={MODELS_CONTENT.modelCreation.trainingSettings.form.zoomLevel.toolTip}
           required
         />
         <CheckboxGroup
@@ -126,25 +110,16 @@ const TrainingSettingsForm = () => {
           ]}
           defaultSelectedOption={formData.zoomLevels}
           onCheck={(selection) =>
-            handleChange(
-              MODEL_CREATION_FORM_NAME.ZOOM_LEVELS,
-              selection.sort().map(Number),
-            )
+            handleChange(MODEL_CREATION_FORM_NAME.ZOOM_LEVELS, selection.sort().map(Number))
           }
         />
       </div>
 
       <div className="flex flex-col gap-y-6">
         <FormLabel
-          label={
-            MODELS_CONTENT.modelCreation.trainingSettings.form.trainingType
-              .label
-          }
+          label={MODELS_CONTENT.modelCreation.trainingSettings.form.trainingType.label}
           withTooltip
-          toolTipContent={
-            MODELS_CONTENT.modelCreation.trainingSettings.form.trainingType
-              .toolTip
-          }
+          toolTipContent={MODELS_CONTENT.modelCreation.trainingSettings.form.trainingType.toolTip}
           required
         />
         <div className="flex flex-col md:flex-row md:items-center gap-4 w-full justify-between overflow-x-auto">
@@ -152,24 +127,16 @@ const TrainingSettingsForm = () => {
             <ButtonWithIcon
               key={`training-type-${id}`}
               onClick={() => {
-                handleChange(
-                  MODEL_CREATION_FORM_NAME.TRAINING_TYPE,
-                  type.label,
-                );
+                handleChange(MODEL_CREATION_FORM_NAME.TRAINING_TYPE, type.label);
                 // reset training settings state when the buttons are switched, otherwise, after a first validation error, if the user
                 // switches to another training type e.g from Basic -> Advanced, they won't be able to proceed because of the previous validation error
                 // on one of the advanced settings in the previous traning type.
-                handleChange(
-                  MODEL_CREATION_FORM_NAME.TRAINING_SETTINGS_IS_VALID,
-                  true,
-                );
+                handleChange(MODEL_CREATION_FORM_NAME.TRAINING_SETTINGS_IS_VALID, true);
                 setValidationMessage("");
               }}
               label={type.label}
               variant={
-                formData.trainingType === type.label
-                  ? ButtonVariant.DARK
-                  : ButtonVariant.DEFAULT
+                formData.trainingType === type.label ? ButtonVariant.DARK : ButtonVariant.DEFAULT
               }
               prefixIcon={type.Icon}
               iconClassName="md:icon-lg"
@@ -181,14 +148,10 @@ const TrainingSettingsForm = () => {
       <div className="flex flex-col gap-y-6">
         <div className="flex items-center gap-x-4 w-full">
           <FormLabel
-            label={
-              MODELS_CONTENT.modelCreation.trainingSettings.form
-                .advancedSettings.label
-            }
+            label={MODELS_CONTENT.modelCreation.trainingSettings.form.advancedSettings.label}
             withTooltip
             toolTipContent={
-              MODELS_CONTENT.modelCreation.trainingSettings.form
-                .advancedSettings.toolTip
+              MODELS_CONTENT.modelCreation.trainingSettings.form.advancedSettings.toolTip
             }
           />
           <button
@@ -217,47 +180,33 @@ const TrainingSettingsForm = () => {
                       value={formData[setting.value]}
                       min={
                         // @ts-expect-error bad type definition
-                        FORM_VALIDATION_CONFIG[formData.baseModel][
-                          setting.value
-                        ].min
+                        FORM_VALIDATION_CONFIG[formData.baseModel][setting.value].min
                       }
                       max={
                         // @ts-expect-error bad type definition
-                        FORM_VALIDATION_CONFIG[formData.baseModel][
-                          setting.value
-                        ].max
+                        FORM_VALIDATION_CONFIG[formData.baseModel][setting.value].max
                       }
                       handleInput={(e) => {
                         const inputValue = Number(e.target.value);
 
                         const min =
                           // @ts-expect-error bad type definition
-                          FORM_VALIDATION_CONFIG[formData.baseModel][
-                            setting.value
-                          ].min;
+                          FORM_VALIDATION_CONFIG[formData.baseModel][setting.value].min;
                         const max =
                           // @ts-expect-error bad type definition
-                          FORM_VALIDATION_CONFIG[formData.baseModel][
-                            setting.value
-                          ].max;
+                          FORM_VALIDATION_CONFIG[formData.baseModel][setting.value].max;
                         handleChange(setting.value, inputValue);
                         if (inputValue < min || inputValue > max) {
                           // Set validation message for out-of-range values
                           setValidationMessage(
                             `${setting.label} must be between ${min} and ${max}.`,
                           );
-                          handleChange(
-                            MODEL_CREATION_FORM_NAME.TRAINING_SETTINGS_IS_VALID,
-                            false,
-                          );
+                          handleChange(MODEL_CREATION_FORM_NAME.TRAINING_SETTINGS_IS_VALID, false);
                         } else {
                           // Clear the validation message if the value is valid
                           setValidationMessage("");
                           handleChange(setting.value, inputValue);
-                          handleChange(
-                            MODEL_CREATION_FORM_NAME.TRAINING_SETTINGS_IS_VALID,
-                            true,
-                          );
+                          handleChange(MODEL_CREATION_FORM_NAME.TRAINING_SETTINGS_IS_VALID, true);
                         }
                       }}
                       toolTipContent={setting.toolTip}

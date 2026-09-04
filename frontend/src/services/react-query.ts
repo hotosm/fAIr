@@ -8,24 +8,19 @@ export const queryConfig = {
   },
 } satisfies DefaultOptions;
 
-export type ApiFnReturnType<FnType extends (...args: any) => Promise<any>> =
-  Awaited<ReturnType<FnType>>;
+export type ApiFnReturnType<FnType extends (...args: any) => Promise<any>> = Awaited<
+  ReturnType<FnType>
+>;
 
 export type QueryConfig<T extends (...args: any[]) => any> = Omit<
   ReturnType<T>,
   "queryKey" | "queryFn"
 >;
 
-export type MutationConfig<
-  MutationFnType extends (...args: any) => Promise<any>,
-> = UseMutationOptions<
-  ApiFnReturnType<MutationFnType>,
-  Error,
-  Parameters<MutationFnType>[0]
->;
+export type MutationConfig<MutationFnType extends (...args: any) => Promise<any>> =
+  UseMutationOptions<ApiFnReturnType<MutationFnType>, Error, Parameters<MutationFnType>[0]>;
 
 export const QUERY_KEYS = {
   MODEL_DETAILS: (modelId: string) => `model-details-${modelId}`,
-  TRAINING_AREAS: (datasetId: number, offset: number) =>
-    `training-areas-${datasetId}-${offset}`,
+  TRAINING_AREAS: (datasetId: number, offset: number) => `training-areas-${datasetId}-${offset}`,
 };

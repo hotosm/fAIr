@@ -41,27 +41,17 @@ export const FitToBounds = ({
   }, [map, bounds, onClick]);
 
   return (
-    <ToolTip
-      content={
-        tooltipContent
-          ? tooltipContent
-          : MAP_CONTENT.controls.fitToBounds.tooltip
-      }
-    >
+    <ToolTip content={tooltipContent ? tooltipContent : MAP_CONTENT.controls.fitToBounds.tooltip}>
       <button
         className={cn(
           "bg-white",
-          isSmallViewport
-            ? mobileClassName
-            : "p-1.5 flex justify-center items-center",
+          isSmallViewport ? mobileClassName : "p-1.5 flex justify-center items-center",
           rounded && "rounded-[4px]",
           buttonClassName,
         )}
         onClick={fitToBounds}
       >
-        {BoundsIcon ?? (
-          <ArrowMoveIcon className={cn("icon-lg", iconClassName)} />
-        )}
+        {BoundsIcon ?? <ArrowMoveIcon className={cn("icon-lg", iconClassName)} />}
       </button>
     </ToolTip>
   );

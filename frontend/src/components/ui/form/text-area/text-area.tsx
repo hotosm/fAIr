@@ -16,10 +16,7 @@ type TextAreaProps = {
   required?: boolean;
   maxLength?: number;
   minLength?: number;
-  validationStateUpdateCallback?: (validity: {
-    valid: boolean;
-    message: string;
-  }) => void;
+  validationStateUpdateCallback?: (validity: { valid: boolean; message: string }) => void;
   isValid?: boolean;
 };
 
@@ -77,11 +74,7 @@ const TextArea: React.FC<TextAreaProps> = ({
       )}
 
       {helpText && (
-        <HelpText
-          content={helpText}
-          isValid={isValid}
-          currentLength={String(value).length}
-        />
+        <HelpText content={helpText} isValid={isValid} currentLength={String(value).length} />
       )}
       {children}
     </SlTextarea>

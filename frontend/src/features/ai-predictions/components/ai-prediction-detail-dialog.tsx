@@ -43,9 +43,7 @@ const InfoBlock = ({
       className={`py-1 md:py-3 px-3 md:px-4 flex items-center h-8 md:h-10 rounded-full text-black ${className}`}
     >
       <div className="flex items-center justify-center w-full text-body-4 md:text-body-3">
-        <div
-          className={`${info && "mr-2"} flex-shrink-0 text-black size-3.5 md:size-4`}
-        >
+        <div className={`${info && "mr-2"} flex-shrink-0 text-black size-3.5 md:size-4`}>
           {icon}
         </div>
         {info}
@@ -102,19 +100,13 @@ export const PublishedPredictionDetailDialog = ({
           <div className="w-full justify-between flex items-center flex-wrap gap-4 2xl:gap-6">
             <div className="inline-flex items-center justify-between w-full gap-4 flex-wrap">
               <div className="inline-flex items-center gap-4 flex-wrap">
-                <InfoBlock
-                  icon={<MapIcon />}
-                  info={`${formatNumber(featureCount)} Features`}
-                />
+                <InfoBlock icon={<MapIcon />} info={`${formatNumber(featureCount)} Features`} />
                 <InfoBlock
                   icon={<DatabaseIcon />}
                   info={`Model: ${prediction.config.model_id || "-"}`}
                 />
                 {prediction.config.zoom_level && (
-                  <InfoBlock
-                    icon={<ZoomInIcon />}
-                    info={`Zoom: ${prediction.config.zoom_level}`}
-                  />
+                  <InfoBlock icon={<ZoomInIcon />} info={`Zoom: ${prediction.config.zoom_level}`} />
                 )}
                 {prediction.published_at && (
                   <InfoBlock
@@ -164,9 +156,7 @@ export const PublishedPredictionDetailDialog = ({
                 <p className="text-black text-body-4 md:text-body-3">
                   Date Submitted:{" "}
                   <span className="font-semibold text-black">
-                    {prediction.created_at
-                      ? formatDate(prediction.created_at)
-                      : "-"}
+                    {prediction.created_at ? formatDate(prediction.created_at) : "-"}
                   </span>
                 </p>
                 {prediction.config.source && (
@@ -237,9 +227,8 @@ export const PublishedPredictionDetailDialog = ({
                   Prediction overview
                 </h1>
                 <p className="text-body-4 md:text-body-3 text-black text-wrap max-w-lg md:max-w-4xl opacity-80">
-                  This prediction includes bounding boxes or polygon detections
-                  extracted by the AI model. Download the results as GeoJSON for
-                  Points or Polygons.
+                  This prediction includes bounding boxes or polygon detections extracted by the AI
+                  model. Download the results as GeoJSON for Points or Polygons.
                 </p>
               </div>
 

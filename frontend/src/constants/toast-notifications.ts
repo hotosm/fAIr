@@ -28,8 +28,7 @@ export const TOAST_NOTIFICATIONS = {
 
   // Map - Drawing mode activation
 
-  drawingModeActivated:
-    "Draw mode activated. Hover on the map to start drawing",
+  drawingModeActivated: "Draw mode activated. Hover on the map to start drawing",
 
   // Training area/aoi
   trainingAreasFileUploadSuccess: "Training areas created successfully.",
@@ -60,8 +59,7 @@ export const TOAST_NOTIFICATIONS = {
     "An error occurred while opening in JOSM. Confirm you have JOSM opened on your computer and remote control enabled.",
 
   // File download
-  fileDownloadBlocked:
-    "File download blocked by browser. Enable to download files.",
+  fileDownloadBlocked: "File download blocked by browser. Enable to download files.",
   fileDownloadFailed: "Failed to download file.",
   fileDownloadSuccess: "File downloaded successfully!",
 

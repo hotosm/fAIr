@@ -71,24 +71,17 @@ export const ModelDetailsPage = () => {
           openTrainingAreaDrawer={openDialog}
           trainingDataset={data?.dataset}
         />
-        <ModelDetailsSection
-          title={MODELS_CONTENT.models.modelsDetailsCard.propertiesSectionTitle}
-        >
+        <ModelDetailsSection title={MODELS_CONTENT.models.modelsDetailsCard.propertiesSectionTitle}>
           {!data?.published_training ? (
             <div className="rounded-xl w-full h-80 border border-gray-border text-center flex flex-col gap-y-6 items-center justify-center text-grey">
-              <Image
-                src={TrainingInProgressImage}
-                alt="Model training in progress"
-              />
+              <Image src={TrainingInProgressImage} alt="Model training in progress" />
               <p className="max-w-lg">
-                Model training is not activated yet. Properties will be
-                available after a successful and activated training.
+                Model training is not activated yet. Properties will be available after a successful
+                and activated training.
               </p>
             </div>
           ) : (
-            <ModelDetailsProperties
-              trainingId={data?.published_training as number}
-            />
+            <ModelDetailsProperties trainingId={data?.published_training as number} />
           )}
         </ModelDetailsSection>
         <div className="flex md:hidden">
@@ -103,9 +96,7 @@ export const ModelDetailsPage = () => {
         </div>
         {/* mobile */}
         <ModelDetailsSection
-          title={
-            MODELS_CONTENT.models.modelsDetailsCard.trainingHistorySectionTitle
-          }
+          title={MODELS_CONTENT.models.modelsDetailsCard.trainingHistorySectionTitle}
         >
           <div className="md:flex self-end hidden">
             <ButtonWithIcon

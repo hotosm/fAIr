@@ -39,9 +39,7 @@ export const VideoPlayerModal = ({
                     <BackChevronIcon className="h-5 w-5 text-white" />
                   </button>
 
-                  <h2 className="text-sm font-semibold text-white line-clamp-2">
-                    {video.name}
-                  </h2>
+                  <h2 className="text-sm font-semibold text-white line-clamp-2">{video.name}</h2>
                 </div>
                 <iframe
                   src={embedUrl}

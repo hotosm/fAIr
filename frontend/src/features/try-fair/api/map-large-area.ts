@@ -20,10 +20,7 @@ export type MapLargeAreaRequest = {
 };
 
 const submitMapLargeArea = async (payload: MapLargeAreaRequest) => {
-  const res = await apiClient.post(
-    API_ENDPOINTS.MAP_LARGE_AREA_REQUEST,
-    payload,
-  );
+  const res = await apiClient.post(API_ENDPOINTS.MAP_LARGE_AREA_REQUEST, payload);
   return res.data;
 };
 

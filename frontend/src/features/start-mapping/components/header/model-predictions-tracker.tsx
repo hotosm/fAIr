@@ -9,12 +9,8 @@ export const ModelPredictionsTracker = ({
   features: TModelPredictionFeature[];
   resetModelPredictions: (features: TModelPredictionFeature[]) => void;
 }) => {
-  const accepted = features.filter(
-    (f) => f.properties.status === PredictedFeatureStatus.ACCEPTED,
-  );
-  const rejected = features.filter(
-    (f) => f.properties.status === PredictedFeatureStatus.REJECTED,
-  );
+  const accepted = features.filter((f) => f.properties.status === PredictedFeatureStatus.ACCEPTED);
+  const rejected = features.filter((f) => f.properties.status === PredictedFeatureStatus.REJECTED);
 
   return (
     <div className="flex items-center gap-x-2">

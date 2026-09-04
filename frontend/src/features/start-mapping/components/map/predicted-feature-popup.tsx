@@ -60,10 +60,8 @@ const PredictedFeatureActionPopup = ({
     return {
       area_threshold: feature?.properties.config.area_threshold ?? 0,
       orthogonalize: feature?.properties.config.orthogonalize ?? false,
-      ortho_max_angle_change_deg:
-        feature?.properties.config.ortho_max_angle_change_deg ?? 0,
-      ortho_skew_tolerance_deg:
-        feature?.properties.config.ortho_skew_tolerance_deg ?? 0,
+      ortho_max_angle_change_deg: feature?.properties.config.ortho_max_angle_change_deg ?? 0,
+      ortho_skew_tolerance_deg: feature?.properties.config.ortho_skew_tolerance_deg ?? 0,
       zoom_level: feature?.properties.config.zoom_level ?? 0,
       confidence: feature?.properties.config.confidence ?? 0,
       tolerance: feature?.properties.config.tolerance ?? 0,
@@ -110,16 +108,8 @@ const PredictedFeatureActionPopup = ({
 
     return () => {
       popupInstanceRef.current?.remove();
-      map.off(
-        "mouseenter",
-        ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
-        handleMouseEnter,
-      );
-      map.off(
-        "mouseleave",
-        ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
-        handleMouseLeave,
-      );
+      map.off("mouseenter", ALL_MODEL_PREDICTIONS_FILL_LAYER_ID, handleMouseEnter);
+      map.off("mouseleave", ALL_MODEL_PREDICTIONS_FILL_LAYER_ID, handleMouseLeave);
       map.off("click", ALL_MODEL_PREDICTIONS_FILL_LAYER_ID, handleClick);
     };
   }, [map]);
@@ -132,21 +122,20 @@ const PredictedFeatureActionPopup = ({
 
   const handleRejection = () => setShowComment(true);
 
-  const createApprovedModelPredictionMutation =
-    useCreateApprovedModelPrediction({
-      mutationConfig: {
-        onSuccess: (data) => {
-          if (featureId !== null) {
-            updateFeatureStatus(featureId, PredictedFeatureStatus.ACCEPTED, {
-              _id: data.id,
-              ...data.properties,
-            });
-          }
-          closePopup();
-        },
-        onError: (error) => showErrorToast(error),
+  const createApprovedModelPredictionMutation = useCreateApprovedModelPrediction({
+    mutationConfig: {
+      onSuccess: (data) => {
+        if (featureId !== null) {
+          updateFeatureStatus(featureId, PredictedFeatureStatus.ACCEPTED, {
+            _id: data.id,
+            ...data.properties,
+          });
+        }
+        closePopup();
       },
-    });
+      onError: (error) => showErrorToast(error),
+    },
+  });
 
   const deleteModelFeedbackMutation = useDeleteModelPredictionFeedback({
     mutationConfig: {
@@ -176,11 +165,7 @@ const PredictedFeatureActionPopup = ({
           });
         } else {
           if (featureId !== null) {
-            updateFeatureStatus(
-              featureId,
-              PredictedFeatureStatus.UNTOUCHED,
-              {},
-            );
+            updateFeatureStatus(featureId, PredictedFeatureStatus.UNTOUCHED, {});
           }
         }
         closePopup();
@@ -329,9 +314,7 @@ const PredictedFeatureActionPopup = ({
             value={comment}
             showBorder
             label={START_MAPPING_PAGE_CONTENT.map.popup.comment.description}
-            placeholder={
-              START_MAPPING_PAGE_CONTENT.map.popup.comment.placeholder
-            }
+            placeholder={START_MAPPING_PAGE_CONTENT.map.popup.comment.placeholder}
             size={SHOELACE_SIZES.MEDIUM}
           />
           <button
@@ -340,16 +323,13 @@ const PredictedFeatureActionPopup = ({
             disabled={createModelFeedbackMutation.isPending}
           >
             {createModelFeedbackMutation.isPending
-              ? START_MAPPING_PAGE_CONTENT.map.popup.comment
-                  .submissionInProgress
+              ? START_MAPPING_PAGE_CONTENT.map.popup.comment.submissionInProgress
               : START_MAPPING_PAGE_CONTENT.map.popup.comment.submit}
           </button>
         </>
       ) : (
         <>
-          <p className="text-xs md:text-sm">
-            {START_MAPPING_PAGE_CONTENT.map.popup.description}
-          </p>
+          <p className="text-xs md:text-sm">{START_MAPPING_PAGE_CONTENT.map.popup.description}</p>
           <div className="flex justify-between items-center gap-x-6">
             <button
               className={`w-full ${primaryButton.className} text-white rounded-lg p-2 text-body-4 md:text-body-3 text-nowrap flex gap-x-3 justify-between items-center`}
@@ -391,7 +371,5 @@ const AcceptIcon = () => (
 );
 
 const ResolveIcon = () => (
-  <span className="w-4 h-4 border rounded-full flex items-center justify-center">
-    -
-  </span>
+  <span className="w-4 h-4 border rounded-full flex items-center justify-center">-</span>
 );

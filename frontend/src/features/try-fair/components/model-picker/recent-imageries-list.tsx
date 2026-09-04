@@ -30,9 +30,7 @@ const RecentItemRow = ({
   isActive: boolean;
   onSelectRecent: (entry: RecentImageryEntry) => void;
 }) => {
-  const fallbackCountry = useImageryCountry(
-    entry.country ? null : entry.bounds,
-  );
+  const fallbackCountry = useImageryCountry(entry.country ? null : entry.bounds);
   const countryName = entry.country || fallbackCountry?.country;
   const countryCode = entry.countryCode || fallbackCountry?.countryCode;
 
@@ -48,11 +46,7 @@ const RecentItemRow = ({
       {/* Thumbnail */}
       <div className="shrink-0 w-16 h-16 p-2 rounded-md overflow-hidden bg-white">
         {entry.thumbnailUrl ? (
-          <img
-            src={entry.thumbnailUrl}
-            alt={entry.title}
-            className="w-full h-full object-cover"
-          />
+          <img src={entry.thumbnailUrl} alt={entry.title} className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-grey">
             <PictureIcon className="size-5" />
@@ -62,19 +56,11 @@ const RecentItemRow = ({
 
       {/* Info */}
       <div className="flex-1 min-w-0">
-        <p className="text-dark text-xs font-semibold leading-tight truncate">
-          {entry.title}
-        </p>
-        <p className="text-grey text-[10px] leading-tight mt-0.5">
-          Source: {entry.sourceLabel}
-        </p>
+        <p className="text-dark text-xs font-semibold leading-tight truncate">{entry.title}</p>
+        <p className="text-grey text-[10px] leading-tight mt-0.5">Source: {entry.sourceLabel}</p>
         {countryName && (
           <div className="mt-1">
-            <CountryBadge
-              showBg={false}
-              country={countryName}
-              code={countryCode ?? ""}
-            />
+            <CountryBadge showBg={false} country={countryName} code={countryCode ?? ""} />
           </div>
         )}
       </div>
@@ -111,9 +97,7 @@ export const RecentImageriesList = ({
         {sortedEntries.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-10 text-center">
             <p className="text-grey text-xs">No recent imageries yet.</p>
-            <p className="text-grey text-[10px] mt-1">
-              Selected imageries will appear here.
-            </p>
+            <p className="text-grey text-[10px] mt-1">Selected imageries will appear here.</p>
           </div>
         ) : (
           sortedEntries.map((entry) => (

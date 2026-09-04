@@ -15,9 +15,7 @@ export const FAQs = ({
 }) => {
   return (
     <section className={styles.FAQS}>
-      <h1 className={styles.heading}>
-        {SHARED_CONTENT.homepage.faqs.sectionTitle}
-      </h1>
+      <h1 className={styles.heading}>{SHARED_CONTENT.homepage.faqs.sectionTitle}</h1>
       <div className={styles.FAQContentContainer}>
         <div>
           {faqs.map((faq, id) => (

@@ -8,7 +8,7 @@ For the cluster topology, deployment manifests, and ops notes specific to the Ku
 
 ## 1. End-to-end user flow
 
-The user makes five calls. 
+The user makes five calls.
 
 ```mermaid
 flowchart LR
@@ -20,19 +20,19 @@ flowchart LR
 
 What happens behind each step:
 
-| Step | What the backend does | Output |
-| --- | --- | --- |
-| **1. AOI** | Validates polygon, stores in postgres. | Row in `datasets_aoi`. |
-| **2. Build dataset** | Async worker downloads OAM tiles + OSM labels for the AOI, uploads chips + `labels.geojson` to MinIO, registers a STAC item under `datasets/`. | Built STAC dataset. Poll `GET /datasets/{id}/` until `status=built`. |
+| Step                   | What the backend does                                                                                                                                                                              | Output                                                                                                                                              |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **1. AOI**             | Validates polygon, stores in postgres.                                                                                                                                                             | Row in `datasets_aoi`.                                                                                                                              |
+| **2. Build dataset**   | Async worker downloads OAM tiles + OSM labels for the AOI, uploads chips + `labels.geojson` to MinIO, registers a STAC item under `datasets/`.                                                     | Built STAC dataset. Poll `GET /datasets/{id}/` until `status=built`.                                                                                |
 | **3. Submit training** | Async worker submits a ZenML pipeline. ZenML schedules an orchestrator + step pods on the autoscaling ml pool (`split -> train -> eval -> onnx`). Worker polls ZenML status into the DB every 30s. | Trained `weights.pt` + `model.onnx` in MinIO. Poll `GET /trainings/{id}/` until `status=completed`. Tail with `GET /trainings/runs/{run_id}/logs/`. |
-| **4. Promote** | API builds a versioned STAC `local-models/` item from the run's hyperparameters + asset URLs, validates against the base-model's `fair:hyperparameters_spec`, publishes. | `local_model_stac_id`. |
-| **5. Predict** | Async worker downloads chips for the requested bbox, submits an inference pipeline, then post-processes the geojson into `.fgb` + `.pmtiles` via tippecanoe. | Three presigned URLs at `GET /predictions/{id}/result/` once `results_ready=true`. |
+| **4. Promote**         | API builds a versioned STAC `local-models/` item from the run's hyperparameters + asset URLs, validates against the base-model's `fair:hyperparameters_spec`, publishes.                           | `local_model_stac_id`.                                                                                                                              |
+| **5. Predict**         | Async worker downloads chips for the requested bbox, submits an inference pipeline, then post-processes the geojson into `.fgb` + `.pmtiles` via tippecanoe.                                       | Three presigned URLs at `GET /predictions/{id}/result/` once `results_ready=true`.                                                                  |
 
 ### Key invariants
 
 - **Datasets, base-models, and local-models are STAC items.** The postgres tables (`datasets_dataset`, `modelregistry_localmodel`) are thin pointers that hold ownership + lifecycle state. Per-version metadata (assets, hyperparameter specs, mlm:training image, etc.) lives only in STAC.
 - **Training and prediction are async.** The `POST /…/submit/` endpoints return 202 + a row whose `zenml_run_id` is null until the worker actually submits the pipeline. Status flow: `initializing -> submitted -> provisioning -> running -> completed | failed | …`.
-- **`results_ready` on a Prediction is a separate flag from `status=completed`.** The worker's `post_run` step generates `.fgb` and `.pmtiles` from the geojson via tippecanoe *after* ZenML reports completion; until that finishes, `/predictions/{id}/result/` returns 409.
+- **`results_ready` on a Prediction is a separate flag from `status=completed`.** The worker's `post_run` step generates `.fgb` and `.pmtiles` from the geojson via tippecanoe _after_ ZenML reports completion; until that finishes, `/predictions/{id}/result/` returns 409.
 - **Publish is the only step that writes a versioned local-model STAC item.** It validates `mlm:hyperparameters` (logged by the training pipeline) against the base-model's `fair:hyperparameters_spec`. Any logged key not declared in the spec causes a 500 — the spec must stay in sync with the keys the training image actually emits.
 
 ---
@@ -128,6 +128,7 @@ erDiagram
         datetime last_polled_at
     }
 ```
+
 ---
 
 ## 3. API reference
@@ -136,38 +137,38 @@ All endpoints live under `/api/v1/`. Writes and owner-scoped reads require `Auth
 
 ### Core flow
 
-| Method | Path | Purpose |
-| --- | --- | --- |
-| GET | `/health/` | Liveness/readiness |
-| POST | `/aois/` | Create an AOI polygon (GeoJSON Feature) |
-| GET | `/aois/` | List AOIs (bbox-filterable) |
-| POST | `/datasets/build/` | Enqueue a dataset build job. `aoi_ids`, `source_imagery` (TMS), `zoom`, `label_tasks`, `label_classes`, `keywords` (allowed: `building`, `road`, `tree`, `water`, `landuse`), `label_type`, `geometry_type` |
-| GET | `/datasets/{id}/?expand=stac` | Inspect dataset, with STAC metadata + presigned `chips`/`labels` URLs once `status=built` |
-| POST | `/datasets/{id}/{publish,unpublish}/` | Toggle dataset `visibility` (anonymous read) |
-| GET | `/local-models/` | List local models (filterable by `status`, `visibility`, `user`) |
-| GET | `/local-models/{id}/runs/` | List ZenML pipeline runs that produced this model |
-| POST | `/local-models/{id}/{publish,unpublish}/` | Toggle local-model `visibility` (anonymous read) |
-| POST | `/trainings/submit/` | Enqueue a finetune. `base_model_stac_id`, `dataset_stac_id`, `model_name`, `overrides` (must match base-model's `fair:hyperparameters_spec`) |
-| GET | `/trainings/{id}/` | Run state including `zenml_run_id` |
-| GET | `/trainings/runs/{run_id}/status/` | Force-poll ZenML; refreshes the DB row |
-| GET | `/trainings/runs/{run_id}/logs/?tail=N&step=name` | Tail orchestrator or step logs |
-| POST | `/trainings/runs/{run_id}/cancel/?graceful=true` | Stop a running pipeline |
-| POST | `/trainings/{id}/publish/` | Promote a completed run to a versioned local-model. Validates against base-model spec; writes a new STAC item under `local-models/`. Returns `local_model_stac_id` |
-| POST | `/predictions/submit/` | Enqueue inference. `model_stac_id`, `image_uri` (TMS), `bbox`, `zoom`, `params`, `remove_osm` |
-| GET | `/predictions/{id}/` | Status + assets (presigned) once `results_ready=true` |
-| GET | `/predictions/{id}/result/` | Just the three presigned URLs (geojson / fgb / pmtiles); 409 until `results_ready` |
-| GET | `/predictions/runs/{run_id}/{status,logs}/` | Same shape as trainings |
-| POST | `/predictions/{id}/{publish,unpublish}/` | Toggle prediction `visibility` (anonymous read of result) |
+| Method | Path                                              | Purpose                                                                                                                                                                                                     |
+| ------ | ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GET    | `/health/`                                        | Liveness/readiness                                                                                                                                                                                          |
+| POST   | `/aois/`                                          | Create an AOI polygon (GeoJSON Feature)                                                                                                                                                                     |
+| GET    | `/aois/`                                          | List AOIs (bbox-filterable)                                                                                                                                                                                 |
+| POST   | `/datasets/build/`                                | Enqueue a dataset build job. `aoi_ids`, `source_imagery` (TMS), `zoom`, `label_tasks`, `label_classes`, `keywords` (allowed: `building`, `road`, `tree`, `water`, `landuse`), `label_type`, `geometry_type` |
+| GET    | `/datasets/{id}/?expand=stac`                     | Inspect dataset, with STAC metadata + presigned `chips`/`labels` URLs once `status=built`                                                                                                                   |
+| POST   | `/datasets/{id}/{publish,unpublish}/`             | Toggle dataset `visibility` (anonymous read)                                                                                                                                                                |
+| GET    | `/local-models/`                                  | List local models (filterable by `status`, `visibility`, `user`)                                                                                                                                            |
+| GET    | `/local-models/{id}/runs/`                        | List ZenML pipeline runs that produced this model                                                                                                                                                           |
+| POST   | `/local-models/{id}/{publish,unpublish}/`         | Toggle local-model `visibility` (anonymous read)                                                                                                                                                            |
+| POST   | `/trainings/submit/`                              | Enqueue a finetune. `base_model_stac_id`, `dataset_stac_id`, `model_name`, `overrides` (must match base-model's `fair:hyperparameters_spec`)                                                                |
+| GET    | `/trainings/{id}/`                                | Run state including `zenml_run_id`                                                                                                                                                                          |
+| GET    | `/trainings/runs/{run_id}/status/`                | Force-poll ZenML; refreshes the DB row                                                                                                                                                                      |
+| GET    | `/trainings/runs/{run_id}/logs/?tail=N&step=name` | Tail orchestrator or step logs                                                                                                                                                                              |
+| POST   | `/trainings/runs/{run_id}/cancel/?graceful=true`  | Stop a running pipeline                                                                                                                                                                                     |
+| POST   | `/trainings/{id}/publish/`                        | Promote a completed run to a versioned local-model. Validates against base-model spec; writes a new STAC item under `local-models/`. Returns `local_model_stac_id`                                          |
+| POST   | `/predictions/submit/`                            | Enqueue inference. `model_stac_id`, `image_uri` (TMS), `bbox`, `zoom`, `params`, `remove_osm`                                                                                                               |
+| GET    | `/predictions/{id}/`                              | Status + assets (presigned) once `results_ready=true`                                                                                                                                                       |
+| GET    | `/predictions/{id}/result/`                       | Just the three presigned URLs (geojson / fgb / pmtiles); 409 until `results_ready`                                                                                                                          |
+| GET    | `/predictions/runs/{run_id}/{status,logs}/`       | Same shape as trainings                                                                                                                                                                                     |
+| POST   | `/predictions/{id}/{publish,unpublish}/`          | Toggle prediction `visibility` (anonymous read of result)                                                                                                                                                   |
 
 ### Schema endpoints
 
-| Method | Path |
-| --- | --- |
-| GET | `/api/schema/` (raw OpenAPI) |
-| GET | `/api/docs/` (Swagger UI) |
-| GET | `/api/redoc/` (ReDoc) |
+| Method | Path                         |
+| ------ | ---------------------------- |
+| GET    | `/api/schema/` (raw OpenAPI) |
+| GET    | `/api/docs/` (Swagger UI)    |
+| GET    | `/api/redoc/` (ReDoc)        |
 
-### User test 
+### User test
 
 Send these one at a time from Swagger (`/api/docs/`) or any HTTP client. Every request needs `Authorization: Bearer <FAIR_DEV_TOKEN>`. Substitute the IDs returned from each step into the next.
 
@@ -178,11 +179,15 @@ Send these one at a time from Swagger (`/api/docs/`) or any HTTP client. Every r
   "type": "Feature",
   "geometry": {
     "type": "Polygon",
-    "coordinates": [[
-      [85.51678, 27.63133], [85.52323, 27.63133],
-      [85.52323, 27.63743], [85.51678, 27.63743],
-      [85.51678, 27.63133]
-    ]]
+    "coordinates": [
+      [
+        [85.51678, 27.63133],
+        [85.52323, 27.63133],
+        [85.52323, 27.63743],
+        [85.51678, 27.63743],
+        [85.51678, 27.63133]
+      ]
+    ]
   },
   "properties": { "dataset": null }
 }

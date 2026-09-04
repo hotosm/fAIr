@@ -1,8 +1,4 @@
-import {
-  AdvancedCourseImage,
-  BeginnerCourseImage,
-  IntermediateCourseImage,
-} from "@/assets/images";
+import { AdvancedCourseImage, BeginnerCourseImage, IntermediateCourseImage } from "@/assets/images";
 import { BookTemplateIcon, DesktopCursorIcon } from "@/components/ui/icons";
 import { TLearnPageContent } from "@/types";
 

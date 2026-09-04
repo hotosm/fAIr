@@ -9,8 +9,7 @@ metadata:
     {{- include "fair.labels" . | nindent 4 }}
     app.kubernetes.io/component: cloudfront-deploy
   annotations:
-    # Run after the backend rollout (migrate hook is weight -5) so the API is
-    # live before the new frontend starts serving traffic.
+    # Publish after the backend rollout.
     "helm.sh/hook": post-install,post-upgrade
     "helm.sh/hook-weight": "5"
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded

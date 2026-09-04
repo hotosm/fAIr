@@ -11,9 +11,7 @@ export const PageNotFound = () => {
 
   const modelNotFound = fromPath.includes(APPLICATION_ROUTES.MODELS);
 
-  const trainingDatasetNotFound = fromPath.includes(
-    APPLICATION_ROUTES.DATASETS,
-  );
+  const trainingDatasetNotFound = fromPath.includes(APPLICATION_ROUTES.DATASETS);
 
   const fallbackRedirectPath = modelNotFound
     ? APPLICATION_ROUTES.MODELS
@@ -49,11 +47,7 @@ export const PageNotFound = () => {
           404
           <span className="absolute flex items-center w-full justify-center h-full">
             {/* Icon */}
-            <svg
-              viewBox="0 0 408 193"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
+            <svg viewBox="0 0 408 193" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path
                 d="M40.1829 174.379L58.5117 48.149L121.653 12.8012L120.508 120.275L40.1829 174.379Z"
                 fill="#D33132"

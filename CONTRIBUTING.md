@@ -34,7 +34,7 @@ Before you start contributing code, set up your local development environment:
 2. **Set up Docker environment** (recommended):
 
    ```bash
-   docker compose up  
+   docker compose up
    cp backend/.env.example backend/.env
    docker compose up api worker
    ```
@@ -57,5 +57,5 @@ Create pull requests (PRs) for changes that you think are needed to the document
 
 ## :handshake: Thank you
 
-Thank you very much in advance for your contributions!! Please ensure you refer to our [Code of Conduct](https://github.com/hotosm/fAIr/blob/master/docs/Code-of-Conduct.md).
+Thank you very much in advance for your contributions!! Please ensure you refer to our [Code of Conduct](https://github.com/hotosm/fAIr/blob/main/docs/Code-of-Conduct.md).
 If you've read the guidelines, but you are still not sure how to contribute on Github, please reach out to us via our Slack #geospatial-tech-and-innovation.

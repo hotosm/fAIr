@@ -10,9 +10,7 @@ type useUpdateProfileOptions = {
   mutationConfig?: MutationConfig<typeof updateUserProfile>;
 };
 
-export const useUpdateUserProfile = ({
-  mutationConfig,
-}: useUpdateProfileOptions) => {
+export const useUpdateUserProfile = ({ mutationConfig }: useUpdateProfileOptions) => {
   const { onSuccess, ...restConfig } = mutationConfig || {};
   return useMutation({
     mutationFn: (args: TUpdateUserProfileArgs) => updateUserProfile(args),
@@ -27,9 +25,7 @@ type useEmailVerificationOptions = {
   mutationConfig?: MutationConfig<typeof requestEmailVerification>;
 };
 
-export const useEmailVerification = ({
-  mutationConfig,
-}: useEmailVerificationOptions) => {
+export const useEmailVerification = ({ mutationConfig }: useEmailVerificationOptions) => {
   const { onSuccess, ...restConfig } = mutationConfig || {};
   return useMutation({
     mutationFn: requestEmailVerification,

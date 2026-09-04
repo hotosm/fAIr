@@ -6,11 +6,7 @@ import { Map } from "maplibre-gl";
 import { ToolTip } from "@/components/ui/tooltip";
 import { useEffect, useMemo, useState } from "react";
 import { cn } from "@/utils";
-import {
-  GOOGLE_SATELLITE_BASEMAP_LAYER_ID,
-  OSM_BASEMAP_LAYER_ID,
-  TMS_LAYER_ID,
-} from "@/config";
+import { GOOGLE_SATELLITE_BASEMAP_LAYER_ID, OSM_BASEMAP_LAYER_ID, TMS_LAYER_ID } from "@/config";
 
 type TLayers = { id?: string; subLayers: string[]; value: string }[];
 type TBasemaps = { id?: string; subLayer: string; value: string }[];
@@ -61,8 +57,7 @@ export const LayerControl = ({
   useEffect(() => {
     const initialVisibility = layerControlData.layers_.reduce(
       (acc, { value }) => {
-        acc[value] =
-          layerVisibility[value] !== undefined ? layerVisibility[value] : true;
+        acc[value] = layerVisibility[value] !== undefined ? layerVisibility[value] : true;
         return acc;
       },
       {} as { [key: string]: boolean },
@@ -74,10 +69,7 @@ export const LayerControl = ({
   useEffect(() => {
     const initialVisibility = layerControlData.baseLayers.reduce(
       (acc, { value }) => {
-        acc[value] =
-          basemapVisibility[value] !== undefined
-            ? basemapVisibility[value]
-            : true;
+        acc[value] = basemapVisibility[value] !== undefined ? basemapVisibility[value] : true;
         return acc;
       },
       {} as { [key: string]: boolean },
@@ -146,9 +138,7 @@ export const LayerControl = ({
         withCheckbox
         distance={10}
       >
-        <div
-          className={`bg-white px-4 py-2 text-nowrap rounded-md w-full flex flex-col gap-y-4`}
-        >
+        <div className={`bg-white px-4 py-2 text-nowrap rounded-md w-full flex flex-col gap-y-4`}>
           {layerControlData.baseLayers.length > 0 ? (
             <>
               <p className="text-sm">Basemap</p>

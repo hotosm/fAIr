@@ -22,12 +22,7 @@ export const DatasetAOIEditDrawer: React.FC<TrainingAreaDrawerProps> = ({
       noHeader={false}
     >
       <div className="w-full h-full">
-        {isOpened && (
-          <TrainingAreaForm
-            isDatasetEditMode
-            trainingDataset={trainingDataset}
-          />
-        )}
+        {isOpened && <TrainingAreaForm isDatasetEditMode trainingDataset={trainingDataset} />}
       </div>
     </Drawer>
   );

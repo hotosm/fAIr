@@ -57,10 +57,7 @@ const buildAgreementColorExpression = (
   colors.purple,
 ];
 
-const getLayerConfigs = (
-  layerType: string,
-  isPredictionResult: boolean = false,
-) => {
+const getLayerConfigs = (layerType: string, isPredictionResult: boolean = false) => {
   const isAoi = layerType === "aois";
 
   const defaultFillColor = isAoi
@@ -73,10 +70,7 @@ const getLayerConfigs = (
   return {
     fill: {
       "fill-color": isPredictionResult
-        ? buildAgreementColorExpression(
-            defaultFillColor,
-            MAPSWIPE_AGREEMENT_FILL_COLORS,
-          )
+        ? buildAgreementColorExpression(defaultFillColor, MAPSWIPE_AGREEMENT_FILL_COLORS)
         : defaultFillColor,
       "fill-opacity": isPredictionResult
         ? 0.6
@@ -86,10 +80,7 @@ const getLayerConfigs = (
     },
     outline: {
       "line-color": isPredictionResult
-        ? buildAgreementColorExpression(
-            defaultOutlineColor,
-            MAPSWIPE_AGREEMENT_OUTLINE_COLORS,
-          )
+        ? buildAgreementColorExpression(defaultOutlineColor, MAPSWIPE_AGREEMENT_OUTLINE_COLORS)
         : defaultOutlineColor,
       "line-width": isAoi
         ? TRAINING_AREAS_AOI_OUTLINE_WIDTH
@@ -152,10 +143,7 @@ export const TrainingAreaMap = ({
   const mapLayers: LayerSpecification[] = useMemo(
     () =>
       vectorLayers.flatMap((layer) => {
-        const { fill, outline, circle } = getLayerConfigs(
-          layer.id,
-          isPredictionResult,
-        );
+        const { fill, outline, circle } = getLayerConfigs(layer.id, isPredictionResult);
 
         const layers: LayerSpecification[] = [
           {
@@ -240,10 +228,7 @@ export const TrainingAreaMap = ({
           [x + radius, y + radius],
         ],
         {
-          layers: vectorLayers.flatMap((layer) => [
-            `${layer.id}_fill`,
-            `${layer.id}_outline`,
-          ]),
+          layers: vectorLayers.flatMap((layer) => [`${layer.id}_fill`, `${layer.id}_outline`]),
         },
       );
 
@@ -317,9 +302,7 @@ export const TrainingAreaMap = ({
         const metadata = (await pmtilesFile.getMetadata()) as Metadata;
         const layers = metadata.vector_layers;
         if (isPredictionResult) {
-          setHasAgreement(
-            layers.some((layer) => layer.fields && "agreement" in layer.fields),
-          );
+          setHasAgreement(layers.some((layer) => layer.fields && "agreement" in layer.fields));
         }
         setVectorLayers(layers);
       } catch (error) {

@@ -70,9 +70,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
         <>
           <div
             className={`absolute top-5 ${
-              controlsPosition === ControlsPosition.TOP_RIGHT
-                ? "right-3"
-                : "left-3"
+              controlsPosition === ControlsPosition.TOP_RIGHT ? "right-3" : "left-3"
             } map-elements-z-index flex flex-col gap-y-[1px]`}
           >
             {zoomControls ? <ZoomControls map={map} /> : null}
@@ -83,9 +81,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
               <FitToBounds bounds={bounds} map={map} />
             </div>
           )}
-          <div
-            className={`absolute top-5 right-3 map-elements-z-index items-center flex gap-x-4`}
-          >
+          <div className={`absolute top-5 right-3 map-elements-z-index items-center flex gap-x-4`}>
             {showCurrentZoom ? <ZoomLevel /> : null}
             {layerControl && (
               <LayerControl
@@ -108,9 +104,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
         />
       )}
       {children}
-      {showTileBoundaries && (
-        <TileBoundaries map={map} zoom={tileBoundaryZoom} />
-      )}
+      {showTileBoundaries && <TileBoundaries map={map} zoom={tileBoundaryZoom} />}
     </div>
   );
 };

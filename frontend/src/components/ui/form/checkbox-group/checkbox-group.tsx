@@ -58,9 +58,7 @@ const CheckboxGroup: React.FC<CheckboxGroupProps> = ({
     }
 
     setSelectedOptions(updatedOptions);
-    onCheck(
-      updatedOptions.map((opt) => (isNaN(Number(opt)) ? opt : Number(opt))),
-    );
+    onCheck(updatedOptions.map((opt) => (isNaN(Number(opt)) ? opt : Number(opt))));
   };
 
   return (
@@ -72,9 +70,7 @@ const CheckboxGroup: React.FC<CheckboxGroupProps> = ({
             size={SHOELACE_SIZES.SMALL}
             //@ts-expect-error bad type definition
             value={option.apiValue ?? option.value}
-            checked={selectedOptions.includes(
-              String(option.apiValue ?? option.value),
-            )}
+            checked={selectedOptions.includes(String(option.apiValue ?? option.value))}
             className={variant}
             onSlChange={(e) => {
               e.preventDefault();

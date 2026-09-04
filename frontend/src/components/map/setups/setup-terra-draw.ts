@@ -21,8 +21,7 @@ export type TerraDrawStyleVariant = "default" | "red";
 export const DEFAULT_AOI_STYLE = {
   fillColor: TRAINING_AREAS_AOI_FILL_COLOR as TerraDrawExtend.HexColorStyling,
   fillOpacity: TRAINING_AREAS_AOI_FILL_OPACITY,
-  outlineColor:
-    TRAINING_AREAS_AOI_OUTLINE_COLOR as TerraDrawExtend.HexColorStyling,
+  outlineColor: TRAINING_AREAS_AOI_OUTLINE_COLOR as TerraDrawExtend.HexColorStyling,
   outlineWidth: TRAINING_AREAS_AOI_OUTLINE_WIDTH,
 };
 
@@ -41,9 +40,7 @@ const allCoordsWithinBounds = (coords: number[][], bounds: BBOX): boolean => {
   const [west, south, east, north] = bounds;
   // Exclude the closing duplicate (last coord === first coord)
   const ring = coords.slice(0, -1);
-  return ring.every(
-    ([lng, lat]) => lng >= west && lng <= east && lat >= south && lat <= north,
-  );
+  return ring.every(([lng, lat]) => lng >= west && lng <= east && lat >= south && lat <= north);
 };
 
 export const setupTerraDraw = (
@@ -91,8 +88,7 @@ export const setupTerraDraw = (
         validation: (feature, { updateType }) => {
           if (updateType === "commit" && imageryBounds) {
             // Reject any vertex committed outside the imagery bounds.
-            const coords = (feature.geometry as { coordinates: number[][][] })
-              ?.coordinates?.[0];
+            const coords = (feature.geometry as { coordinates: number[][][] })?.coordinates?.[0];
             if (coords && !allCoordsWithinBounds(coords, imageryBounds)) {
               return {
                 valid: false,

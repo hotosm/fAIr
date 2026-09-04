@@ -1,16 +1,9 @@
 import { DropDown } from "@/components/ui/dropdown";
 import { DropdownMenuItem } from "@/components/ui/dropdown/dropdown";
-import {
-  ChevronDownIcon,
-  CloudDownloadIcon,
-  MapIcon,
-} from "@/components/ui/icons";
+import { ChevronDownIcon, CloudDownloadIcon, MapIcon } from "@/components/ui/icons";
 import { DropdownPlacement, TryFairMapOutputType } from "@/enums";
 import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
-import {
-  buildChoropleth,
-  toPointCollection,
-} from "@/features/try-fair/utils/helpers";
+import { buildChoropleth, toPointCollection } from "@/features/try-fair/utils/helpers";
 import { geoJSONDowloader } from "@/utils/geo/geo-utils";
 
 const getDownloadData = (
@@ -23,23 +16,14 @@ const getDownloadData = (
     return toPointCollection(predictions);
   }
   if (outputType === TryFairMapOutputType.CLUSTER && predictionBBox) {
-    return buildChoropleth(
-      predictions,
-      predictionBBox,
-      predictionGridZoom ?? undefined,
-    );
+    return buildChoropleth(predictions, predictionBBox, predictionGridZoom ?? undefined);
   }
   return predictions;
 };
 
 const ExportMapResults = () => {
-  const {
-    setDownloadType,
-    predictions,
-    outputType,
-    predictionBBox,
-    predictionGridZoom,
-  } = useStartMappingStore();
+  const { setDownloadType, predictions, outputType, predictionBBox, predictionGridZoom } =
+    useStartMappingStore();
 
   const hasPredictions = Boolean(predictions?.features?.length);
 
@@ -52,10 +36,7 @@ const ExportMapResults = () => {
         predictionBBox,
         predictionGridZoom,
       );
-      geoJSONDowloader(
-        exportData,
-        `fair-predictions-${outputType.toLowerCase()}`,
-      );
+      geoJSONDowloader(exportData, `fair-predictions-${outputType.toLowerCase()}`);
       return;
     }
     setDownloadType(value);

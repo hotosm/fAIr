@@ -35,9 +35,7 @@ export const DatasetCard = ({
       disableLinkStyle
       nativeAnchor={false}
       title={dataset.name}
-      href={
-        navigateOnClick ? `${APPLICATION_ROUTES.DATASETS}/${dataset.id}` : "#"
-      }
+      href={navigateOnClick ? `${APPLICATION_ROUTES.DATASETS}/${dataset.id}` : "#"}
       onClick={!navigateOnClick ? handleClick : undefined}
       onKeyDown={handleKeyDown}
     >

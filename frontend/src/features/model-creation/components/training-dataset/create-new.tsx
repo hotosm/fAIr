@@ -1,8 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  MODEL_CREATION_FORM_NAME,
-  useModelsContext,
-} from "@/app/providers/models-provider";
+import { MODEL_CREATION_FORM_NAME, useModelsContext } from "@/app/providers/models-provider";
 import { MapIcon } from "@/components/ui/icons";
 import { useMapInstance } from "@/hooks/use-map-instance";
 import { MapComponent } from "@/components/map";
@@ -69,27 +66,17 @@ const CreateNewTrainingDatasetForm = () => {
         layout: { visibility: "visible" },
       });
     } catch (e) {
-      setError(
-        "Unable to load the tile server. Please verify the URL and try again.",
-      );
+      setError("Unable to load the tile server. Please verify the URL and try again.");
     } finally {
       setLoading(false);
     }
 
     return () => {
       if (!map || !map?.getStyle()) return;
-      if (map.getLayer(PREVIEW_TMS_LAYER_ID))
-        map.removeLayer(PREVIEW_TMS_LAYER_ID);
-      if (map.getSource(PREVIEW_TMS_SOURCE_ID))
-        map.removeSource(PREVIEW_TMS_SOURCE_ID);
+      if (map.getLayer(PREVIEW_TMS_LAYER_ID)) map.removeLayer(PREVIEW_TMS_LAYER_ID);
+      if (map.getSource(PREVIEW_TMS_SOURCE_ID)) map.removeSource(PREVIEW_TMS_SOURCE_ID);
     };
-  }, [
-    map,
-    sourceURL,
-    tileServiceType,
-    tileServiceTypeValidity.valid,
-    isOpenAerialMap,
-  ]);
+  }, [map, sourceURL, tileServiceType, tileServiceTypeValidity.valid, isOpenAerialMap]);
 
   useEffect(() => {
     if (!tileJSONMetadata?.bounds || !map) return;
@@ -102,12 +89,7 @@ const CreateNewTrainingDatasetForm = () => {
         <NewTrainingDatasetForm
           datasetName={formData.datasetName}
           tileServiceType={tileServiceType}
-          onClick={() =>
-            handleChange(
-              MODEL_CREATION_FORM_NAME.TILESERVICE_TYPE,
-              tileServiceType,
-            )
-          }
+          onClick={() => handleChange(MODEL_CREATION_FORM_NAME.TILESERVICE_TYPE, tileServiceType)}
           setTileServiceType={setTileServiceType}
           isCreateNewDataset
           setTileServiceTypeValidity={setTileServiceTypeValidity}
@@ -123,10 +105,7 @@ const CreateNewTrainingDatasetForm = () => {
               MODEL_CREATION_FORM_NAME.TILESERVICE_TYPE,
               getTileServerTypeFromURL(data.source_imagery),
             );
-            handleChange(
-              MODEL_CREATION_FORM_NAME.SELECTED_TRAINING_DATASET_ID,
-              data.id,
-            );
+            handleChange(MODEL_CREATION_FORM_NAME.SELECTED_TRAINING_DATASET_ID, data.id);
             handleChange(MODEL_CREATION_FORM_NAME.DATASET_OFFSET, data.offset);
           }}
         />
@@ -153,8 +132,8 @@ const CreateNewTrainingDatasetForm = () => {
         </div>
         {tileServiceType !== TileServiceType.TILEJSON && (
           <p className="text-body-4 text-grey mt-2">
-            Selected {tileServiceType} tile service. Consider using TileJSON or
-            OpenAerialMap TMS, for automatic bounds detection and metadata.
+            Selected {tileServiceType} tile service. Consider using TileJSON or OpenAerialMap TMS,
+            for automatic bounds detection and metadata.
           </p>
         )}
       </div>

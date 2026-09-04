@@ -35,8 +35,7 @@ export const USER_PROFILE_PAGE_CONTENT: TUserProfilePageContent = {
       submitButton: "Submit",
       submissionInProgress: "Submitting...",
       emailVerifiedTooltip: "Email verified",
-      emailNotVerifiedMessage:
-        "Please verify your email address to receive notifications.",
+      emailNotVerifiedMessage: "Please verify your email address to receive notifications.",
       verifyEmailButtonText: "Verify Email",
     },
     notifications: {
@@ -67,10 +66,8 @@ export const USER_PROFILE_PAGE_CONTENT: TUserProfilePageContent = {
     account: {
       sectionTitle: "Account",
       title: "Delete Account",
-      description:
-        "If you no longer want to use fAIr, request to delete your account.",
-      deleteRequestPending:
-        "⚠️ Your request to delete your account is pending.",
+      description: "If you no longer want to use fAIr, request to delete your account.",
+      deleteRequestPending: "⚠️ Your request to delete your account is pending.",
       deleteButtonText: "Delete My Account",
       deleteModal: {
         title: "Delete Account",

@@ -35,11 +35,7 @@ const ModelDetailsInfo = ({
 
   return (
     <>
-      <ModelDetailsUpdateDialog
-        isOpened={isOpened}
-        closeDialog={closeDialog}
-        data={data}
-      />
+      <ModelDetailsUpdateDialog isOpened={isOpened} closeDialog={closeDialog} data={data} />
       <ModelDetailsSection title="">
         <div className="flex flex-col gap-y-8">
           <div className="inline-flex flex-col gap-y-4">
@@ -56,8 +52,7 @@ const ModelDetailsInfo = ({
                 </h1>
                 <p className="text-body-3 text-grey md:text-body-2 text-wrap max-w-lg md:max-w-xl xl:max-w-4xl">
                   {data?.description ??
-                    MODELS_CONTENT.models.modelsDetailsCard
-                      .modelDescriptionNotAvailable}
+                    MODELS_CONTENT.models.modelsDetailsCard.modelDescriptionNotAvailable}
                 </p>
               </div>
               <div className="max-w-fit">
@@ -68,19 +63,14 @@ const ModelDetailsInfo = ({
                   prefixIcon={MapIcon}
                   disabled={data?.published_training === null}
                   onClick={() => {
-                    navigate(
-                      `${APPLICATION_ROUTES.START_MAPPING_BASE}${data.id}`,
-                    );
+                    navigate(`${APPLICATION_ROUTES.START_MAPPING_BASE}${data.id}`);
                   }}
                 />
               </div>
             </div>
           </div>
         </div>
-        <TrainingAreaButton
-          onClick={openTrainingAreaDrawer}
-          disabled={!data.published_training}
-        />
+        <TrainingAreaButton onClick={openTrainingAreaDrawer} disabled={!data.published_training} />
       </ModelDetailsSection>
       <Divider />
       <ModelDetailsSection title="Details">
@@ -104,9 +94,7 @@ const ModelDetailsInfo = ({
               <span className="text-grey">
                 {MODELS_CONTENT.models.modelsDetailsCard.datasetName}
               </span>
-              <p title={trainingDataset?.name}>
-                {truncateString(trainingDataset?.name, 40)}
-              </p>
+              <p title={trainingDataset?.name}>{truncateString(trainingDataset?.name, 40)}</p>
             </div>
 
             <Link
@@ -116,9 +104,7 @@ const ModelDetailsInfo = ({
               disableLinkStyle
               nativeAnchor={false}
             >
-              <span className="text-grey">
-                {MODELS_CONTENT.models.modelsDetailsCard.datasetId}
-              </span>
+              <span className="text-grey">{MODELS_CONTENT.models.modelsDetailsCard.datasetId}</span>
               <p className="underline">{data?.dataset?.id}</p>
             </Link>
 
@@ -131,18 +117,9 @@ const ModelDetailsInfo = ({
           <div className="col-span-1 flex flex-col md:items-end md:justify-between gap-y-4">
             <div>
               {isAuthenticated && user?.osm_id === data?.user?.osm_id && (
-                <button
-                  className="flex items-center gap-x-4"
-                  onClick={openDialog}
-                >
+                <button className="flex items-center gap-x-4" onClick={openDialog}>
                   <PenIcon className="icon" />{" "}
-                  <span>
-                    {" "}
-                    {
-                      MODELS_CONTENT.models.modelsDetailsCard.modelUpdate
-                        .editButtonText
-                    }
-                  </span>
+                  <span> {MODELS_CONTENT.models.modelsDetailsCard.modelUpdate.editButtonText}</span>
                 </button>
               )}
             </div>

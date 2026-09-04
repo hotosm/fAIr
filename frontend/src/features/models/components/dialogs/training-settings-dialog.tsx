@@ -7,10 +7,7 @@ import { PAGE_LIMIT } from "@/components/shared";
 import { useEffect } from "react";
 import { useTrainingHistory } from "@/features/models/hooks/use-training";
 
-import {
-  MODEL_CREATION_FORM_NAME,
-  useModelsContext,
-} from "@/app/providers/models-provider";
+import { MODEL_CREATION_FORM_NAME, useModelsContext } from "@/app/providers/models-provider";
 import { ButtonVariant } from "@/enums";
 
 type ModelEnhancementDialogProps = {
@@ -24,37 +21,22 @@ const ModelTrainingSettingsDialog: React.FC<ModelEnhancementDialogProps> = ({
   closeDialog,
   modelId,
 }) => {
-  const {
-    handleChange,
-    formData,
-    createNewTrainingRequestMutation,
-    data,
-    isPending,
-    isError,
-  } = useModelsContext();
+  const { handleChange, formData, createNewTrainingRequestMutation, data, isPending, isError } =
+    useModelsContext();
 
   {
-    /*  
+    /*
     Update the base model in the state since it's required for enabling/disabling some advanced settings. 
   */
   }
   useEffect(() => {
     if (!data) return;
-    handleChange(
-      MODEL_CREATION_FORM_NAME.BASE_MODELS,
-      data?.base_model as string,
-    );
+    handleChange(MODEL_CREATION_FORM_NAME.BASE_MODELS, data?.base_model as string);
   }, [data?.base_model]);
 
-  const disableButton =
-    formData.zoomLevels.length === 0 || !formData.trainingSettingsIsValid;
+  const disableButton = formData.zoomLevels.length === 0 || !formData.trainingSettingsIsValid;
 
-  const { refetch: refetchTrainingHistory } = useTrainingHistory(
-    0,
-    PAGE_LIMIT,
-    "-id",
-    modelId,
-  );
+  const { refetch: refetchTrainingHistory } = useTrainingHistory(0, PAGE_LIMIT, "-id", modelId);
 
   const handleClick = () => {
     createNewTrainingRequestMutation.mutate(
@@ -84,9 +66,7 @@ const ModelTrainingSettingsDialog: React.FC<ModelEnhancementDialogProps> = ({
       isOpened={isOpened}
       closeDialog={closeDialog}
       labelColor="primary"
-      label={
-        MODELS_CONTENT.models.modelsDetailsCard.trainingSettings.dialogHeading
-      }
+      label={MODELS_CONTENT.models.modelsDetailsCard.trainingSettings.dialogHeading}
     >
       {isError ? (
         <p>Error retrieving model details</p>
@@ -95,14 +75,9 @@ const ModelTrainingSettingsDialog: React.FC<ModelEnhancementDialogProps> = ({
       ) : (
         <div className="flex flex-col gap-y-6 w-full">
           <p className="text-grey">
-            {
-              MODELS_CONTENT.models.modelsDetailsCard.trainingSettings
-                .description
-            }
+            {MODELS_CONTENT.models.modelsDetailsCard.trainingSettings.description}
           </p>
-          <h1 className="text-title-3 lg:text-title-1 font-semibold">
-            {data.name}
-          </h1>
+          <h1 className="text-title-3 lg:text-title-1 font-semibold">{data.name}</h1>
           <TrainingSettingsForm />
           <div className="self-end">
             <ButtonWithIcon
@@ -110,10 +85,7 @@ const ModelTrainingSettingsDialog: React.FC<ModelEnhancementDialogProps> = ({
               variant={ButtonVariant.PRIMARY}
               suffixIcon={ChevronDownIcon}
               onClick={handleClick}
-              label={
-                MODELS_CONTENT.models.modelsDetailsCard.trainingSettings
-                  .submitButtonText
-              }
+              label={MODELS_CONTENT.models.modelsDetailsCard.trainingSettings.submitButtonText}
               iconClassName="-rotate-90"
             />
           </div>

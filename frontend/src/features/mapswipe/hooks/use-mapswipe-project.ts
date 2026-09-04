@@ -10,13 +10,10 @@ export type useCreateMapSwipeProjectOptions = {
   mutationConfig?: MutationConfig<typeof createMapSwipeProject>;
 };
 
-export const useCreateMapSwipeProject = ({
-  mutationConfig,
-}: useCreateMapSwipeProjectOptions) => {
+export const useCreateMapSwipeProject = ({ mutationConfig }: useCreateMapSwipeProjectOptions) => {
   const { onSuccess, ...restConfig } = mutationConfig || {};
   return useMutation({
-    mutationFn: (args: TMapSwipeProjectCreateArgs) =>
-      createMapSwipeProject(args),
+    mutationFn: (args: TMapSwipeProjectCreateArgs) => createMapSwipeProject(args),
     onSuccess: (...args) => {
       onSuccess?.(...args);
     },

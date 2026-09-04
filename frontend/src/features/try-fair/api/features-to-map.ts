@@ -46,9 +46,7 @@ export type FeaturesToMapResponse = {
 };
 
 const getFeaturesToMap = async (): Promise<FeaturesToMapResponse> => {
-  const res = await apiClient.get<FeaturesToMapResponse>(
-    API_ENDPOINTS.GET_CATEGORIES,
-  );
+  const res = await apiClient.get<FeaturesToMapResponse>(API_ENDPOINTS.GET_CATEGORIES);
   return res.data;
 };
 
@@ -59,9 +57,7 @@ export const useGetFeaturesToMap = () => {
   });
 };
 
-export const getAPIBaseModels = async (
-  category: string,
-): Promise<APIBaseModelsResponse> => {
+export const getAPIBaseModels = async (category: string): Promise<APIBaseModelsResponse> => {
   const res = await apiClient.get<APIBaseModelsResponse>(
     API_ENDPOINTS.GET_API_BASE_MODELS(category),
   );
@@ -76,9 +72,7 @@ export const useGetAPIBaseModels = (category: string, enabled = true) => {
   });
 };
 
-export const getAPILocalModels = async (
-  category: string,
-): Promise<APIBaseModelsResponse> => {
+export const getAPILocalModels = async (category: string): Promise<APIBaseModelsResponse> => {
   const res = await apiClient.get<APIBaseModelsResponse>(
     API_ENDPOINTS.GET_API_LOCAL_MODELS(category),
   );

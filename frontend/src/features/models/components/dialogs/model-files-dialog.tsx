@@ -18,22 +18,13 @@ const ModelFilesDialog: React.FC<TrainingAreaDrawerProps> = ({
     <Dialog
       isOpened={isOpened}
       closeDialog={closeDialog}
-      label={
-        MODELS_CONTENT.models.modelsDetailsCard.modelFilesDialog.dialogTitle
-      }
+      label={MODELS_CONTENT.models.modelsDetailsCard.modelFilesDialog.dialogTitle}
     >
       <p className="text-dark text-body-2base px-2 mb-4">
-        {
-          MODELS_CONTENT.models.modelsDetailsCard.modelFilesDialog
-            .dialogDescription
-        }
+        {MODELS_CONTENT.models.modelsDetailsCard.modelFilesDialog.dialogDescription}
       </p>
       {isOpened && (
-        <DirectoryTree
-          trainingId={trainingId}
-          datasetId={datasetId}
-          isOpened={isOpened}
-        />
+        <DirectoryTree trainingId={trainingId} datasetId={datasetId} isOpened={isOpened} />
       )}
     </Dialog>
   );

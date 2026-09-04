@@ -10,10 +10,7 @@ import {
 } from "@/features/model-creation/api/get-trainings";
 import { QUERY_KEYS } from "@/services";
 
-export const getTrainingAreasQueryOptions = (
-  datasetId: number,
-  offset: number,
-) => {
+export const getTrainingAreasQueryOptions = (datasetId: number, offset: number) => {
   return queryOptions({
     queryKey: [QUERY_KEYS.TRAINING_AREAS(datasetId, offset)],
     queryFn: () => getTrainingAreas(datasetId, offset),
@@ -28,20 +25,14 @@ export const getTMSTileJSONQueryOptions = (url: string) => {
   });
 };
 
-export const createTrainingDatasetsQueryOptions = ({
-  name,
-  source_imagery,
-}: TTrainingDataset) => {
+export const createTrainingDatasetsQueryOptions = ({ name, source_imagery }: TTrainingDataset) => {
   return queryOptions({
     queryKey: ["create-training-datasets", source_imagery, name],
     queryFn: () => createTrainingDataset({ name, source_imagery }),
   });
 };
 
-export const getTrainingDatasetLabelsQueryOptions = (
-  aoiDatasetId: number,
-  bbox: string,
-) => {
+export const getTrainingDatasetLabelsQueryOptions = (aoiDatasetId: number, bbox: string) => {
   return queryOptions({
     queryKey: ["training-dataset-labels", aoiDatasetId, bbox],
     queryFn: () => getTrainingDatasetLabels(aoiDatasetId, bbox),

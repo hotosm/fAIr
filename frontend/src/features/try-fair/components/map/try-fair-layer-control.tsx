@@ -9,11 +9,7 @@ import {
   EyeClosedIcon,
 } from "@/components/ui/icons";
 import { ToolTip } from "@/components/ui/tooltip";
-import {
-  GOOGLE_SATELLITE_BASEMAP_LAYER_ID,
-  OSM_BASEMAP_LAYER_ID,
-  TMS_LAYER_ID,
-} from "@/config";
+import { GOOGLE_SATELLITE_BASEMAP_LAYER_ID, OSM_BASEMAP_LAYER_ID, TMS_LAYER_ID } from "@/config";
 import { ToolTipPlacement } from "@/enums";
 import { cn } from "@/utils";
 import { Map } from "maplibre-gl";
@@ -44,14 +40,7 @@ const LayerRow = ({ label, active, icon, onClick }: LayerRowProps) => (
       // active ? "opacity-100" : "opacity-45",
     )}
   >
-    <div
-      className={cn(
-        "transition-opacity",
-        active ? "opacity-100" : "opacity-45",
-      )}
-    >
-      {icon}
-    </div>
+    <div className={cn("transition-opacity", active ? "opacity-100" : "opacity-45")}>{icon}</div>
     <span className="text-dark text-left">{label}</span>
   </button>
 );
@@ -79,9 +68,7 @@ const LayerToggleRow = ({
     )}
   >
     <div className={cn("flex gap-4 items-center gap-x-2 text-xs")}>
-      {icon ?? (
-        <span className={cn("w-3 h-3 rounded-[3px]", swatchClassName)} />
-      )}
+      {icon ?? <span className={cn("w-3 h-3 rounded-[3px]", swatchClassName)} />}
       <span className="text-dark">{label}</span>
     </div>
     <div
@@ -115,9 +102,7 @@ const Section = ({ title, open, onToggle, children }: SectionProps) => (
       onClick={onToggle}
     >
       {title}
-      <ChevronDownIcon
-        className={cn("w-3 h-3 transition-transform", open && "rotate-180")}
-      />
+      <ChevronDownIcon className={cn("w-3 h-3 transition-transform", open && "rotate-180")} />
     </button>
     {open ? <div className="flex flex-col gap-y-3">{children}</div> : null}
   </div>
@@ -167,10 +152,7 @@ export const TryFairLayerControl = ({
 
   const toggleBasemap = (layer: "osm" | "googleSatellite") => {
     setMapLayerVisibility(OSM_BASEMAP_LAYER_ID, layer === "osm");
-    setMapLayerVisibility(
-      GOOGLE_SATELLITE_BASEMAP_LAYER_ID,
-      layer === "googleSatellite",
-    );
+    setMapLayerVisibility(GOOGLE_SATELLITE_BASEMAP_LAYER_ID, layer === "googleSatellite");
     setLayersVisibility((prev) => ({
       ...prev,
       osm: layer === "osm",
@@ -191,10 +173,7 @@ export const TryFairLayerControl = ({
       }
 
       setMapLayerVisibility(OSM_BASEMAP_LAYER_ID, layersVisibility.osm);
-      setMapLayerVisibility(
-        GOOGLE_SATELLITE_BASEMAP_LAYER_ID,
-        layersVisibility.googleSatellite,
-      );
+      setMapLayerVisibility(GOOGLE_SATELLITE_BASEMAP_LAYER_ID, layersVisibility.googleSatellite);
     };
 
     applyVisibility();
@@ -268,20 +247,12 @@ export const TryFairLayerControl = ({
           <Section
             title="Basemap"
             open={sectionsOpen.basemap}
-            onToggle={() =>
-              setSectionsOpen((prev) => ({ ...prev, basemap: !prev.basemap }))
-            }
+            onToggle={() => setSectionsOpen((prev) => ({ ...prev, basemap: !prev.basemap }))}
           >
             <LayerRow
               label="OpenstreetMap"
               active={layersVisibility.osm}
-              icon={
-                layersVisibility.osm ? (
-                  <TryFairOSMIcon />
-                ) : (
-                  <TryFairGoogleSatelliteIcon />
-                )
-              }
+              icon={layersVisibility.osm ? <TryFairOSMIcon /> : <TryFairGoogleSatelliteIcon />}
               onClick={() => toggleBasemap("osm")}
             />
             <LayerRow

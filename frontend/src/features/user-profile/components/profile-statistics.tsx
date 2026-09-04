@@ -27,8 +27,7 @@ export const ProfileStatistics = () => {
     {
       stat: user.approved_predictions_count,
       icon: ProductionCheckmarkIcon,
-      label:
-        USER_PROFILE_PAGE_CONTENT.overview.statistics.acceptedFeaturesTitle,
+      label: USER_PROFILE_PAGE_CONTENT.overview.statistics.acceptedFeaturesTitle,
     },
     {
       stat: user.datasets_count,

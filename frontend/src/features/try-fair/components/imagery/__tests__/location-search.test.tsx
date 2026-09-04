@@ -1,10 +1,4 @@
-import {
-  render,
-  screen,
-  fireEvent,
-  cleanup,
-  act,
-} from "@testing-library/react";
+import { render, screen, fireEvent, cleanup, act } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { LocationSearch } from "@/features/try-fair/components/imagery/location-search";
 import { geocodeSuggestions } from "@/features/try-fair/api/hot-imagery";
@@ -29,17 +23,9 @@ describe("LocationSearch", () => {
   });
 
   it("should render search input and placeholder", () => {
-    render(
-      <LocationSearch
-        onPick={mockOnPick}
-        onClear={mockOnClear}
-        onClose={mockOnClose}
-      />,
-    );
+    render(<LocationSearch onPick={mockOnPick} onClear={mockOnClear} onClose={mockOnClose} />);
 
-    expect(
-      screen.getByPlaceholderText("Search for a place to map"),
-    ).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Search for a place to map")).toBeInTheDocument();
   });
 
   it("should fetch geocode suggestions after debounced query input", async () => {
@@ -54,13 +40,7 @@ describe("LocationSearch", () => {
 
     (geocodeSuggestions as any).mockResolvedValue(mockSuggestions);
 
-    render(
-      <LocationSearch
-        onPick={mockOnPick}
-        onClear={mockOnClear}
-        onClose={mockOnClose}
-      />,
-    );
+    render(<LocationSearch onPick={mockOnPick} onClear={mockOnClear} onClose={mockOnClose} />);
 
     const input = screen.getByPlaceholderText("Search for a place to map");
     fireEvent.change(input, { target: { value: "Nairobi" } });
@@ -69,11 +49,7 @@ describe("LocationSearch", () => {
       vi.advanceTimersByTime(400);
     });
 
-    expect(geocodeSuggestions).toHaveBeenCalledWith(
-      "Nairobi",
-      5,
-      expect.any(AbortSignal),
-    );
+    expect(geocodeSuggestions).toHaveBeenCalledWith("Nairobi", 5, expect.any(AbortSignal));
     expect(screen.getByText("Nairobi, Kenya")).toBeInTheDocument();
   });
 
@@ -89,13 +65,7 @@ describe("LocationSearch", () => {
 
     (geocodeSuggestions as any).mockResolvedValue(mockSuggestions);
 
-    render(
-      <LocationSearch
-        onPick={mockOnPick}
-        onClear={mockOnClear}
-        onClose={mockOnClose}
-      />,
-    );
+    render(<LocationSearch onPick={mockOnPick} onClear={mockOnClear} onClose={mockOnClose} />);
 
     const input = screen.getByPlaceholderText("Search for a place to map");
     fireEvent.change(input, { target: { value: "Nairobi" } });
@@ -112,13 +82,7 @@ describe("LocationSearch", () => {
   });
 
   it("should clear search and fire onClear and onClose when clear button is clicked", () => {
-    render(
-      <LocationSearch
-        onPick={mockOnPick}
-        onClear={mockOnClear}
-        onClose={mockOnClose}
-      />,
-    );
+    render(<LocationSearch onPick={mockOnPick} onClear={mockOnClear} onClose={mockOnClose} />);
 
     const input = screen.getByPlaceholderText("Search for a place to map");
     fireEvent.change(input, { target: { value: "Nairobi" } });

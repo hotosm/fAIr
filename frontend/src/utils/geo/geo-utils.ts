@@ -20,9 +20,7 @@ import { API_ENDPOINTS } from "@/services";
  *
  * @param {Feature[]} features - The GeoJSON features. If it's not provided, it creates an empty FeatureCollection.
  */
-export const createFeatureCollection = (
-  features: Feature[] = [],
-): FeatureCollection => {
+export const createFeatureCollection = (features: Feature[] = []): FeatureCollection => {
   return {
     type: "FeatureCollection",
     features: features,
@@ -84,10 +82,7 @@ export const validateGeoJSONArea = (geojsonFeature: Feature) => {
  * @param {Feature|FeatureCollection} geojson - The GeoJSON Feature or FeatureCollection to download.
  * @param {string} filename  The name to save the downloaded file, without the extension.
  */
-export const geoJSONDowloader = (
-  geojson: FeatureCollection | Feature,
-  filename: string,
-) => {
+export const geoJSONDowloader = (geojson: FeatureCollection | Feature, filename: string) => {
   const geojsonStr = JSON.stringify(geojson);
   const blob = new Blob([geojsonStr], { type: "application/json" });
   const link = document.createElement("a");
@@ -125,10 +120,7 @@ export const openInJOSM = async (
       loadurl.searchParams.set("top", String(bounds[3]));
       loadurl.searchParams.set("left", String(bounds[0]));
       loadurl.searchParams.set("right", String(bounds[2]));
-      loadurl.searchParams.set(
-        "changeset_tags",
-        `comment=${OSM_HASHTAGS}|source=${oamTileName}`,
-      );
+      loadurl.searchParams.set("changeset_tags", `comment=${OSM_HASHTAGS}|source=${oamTileName}`);
       await fetch(loadurl);
       showSuccessToast(TOAST_NOTIFICATIONS.josmOpenSuccess);
     } catch (error) {

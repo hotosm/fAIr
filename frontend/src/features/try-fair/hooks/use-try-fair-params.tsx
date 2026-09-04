@@ -1,15 +1,5 @@
-import {
-  ModelType,
-  TileServiceType,
-  TryFairMapOutputType,
-  TryFairResolution,
-} from "@/enums";
-import {
-  parseAsBoolean,
-  parseAsFloat,
-  parseAsString,
-  useQueryStates,
-} from "nuqs";
+import { ModelType, TileServiceType, TryFairMapOutputType, TryFairResolution } from "@/enums";
+import { parseAsBoolean, parseAsFloat, parseAsString, useQueryStates } from "nuqs";
 import { useStacBaseModels, useStacLocalModels } from "./use-base-models";
 import { useMemo } from "react";
 import { getSelectedModel } from "@/features/try-fair/utils/models";
@@ -63,10 +53,7 @@ export const useTryFairParams = () => {
   const { models: allModels } = useStacBaseModels();
   const { models: localModels } = useStacLocalModels();
 
-  const models = useMemo(
-    () => [...allModels, ...localModels],
-    [allModels, localModels],
-  );
+  const models = useMemo(() => [...allModels, ...localModels], [allModels, localModels]);
 
   const selectedModel = useMemo(
     () => getSelectedModel(models, params.model),
@@ -79,9 +66,7 @@ export const useTryFairParams = () => {
   );
 
   const defaultConfidence = useMemo(() => {
-    const confidenceParam = inferenceParams.find(
-      (param) => param.key === "confidence_threshold",
-    );
+    const confidenceParam = inferenceParams.find((param) => param.key === "confidence_threshold");
     if (confidenceParam && typeof confidenceParam.spec.default === "number") {
       return confidenceParam.spec.default;
     }
@@ -98,8 +83,7 @@ export const useTryFairParams = () => {
 
   const confidence = params.confidence ?? defaultConfidence;
 
-  const mode =
-    params.mode === ModelType.IMAGERY ? ModelType.IMAGERY : ModelType.DEMO;
+  const mode = params.mode === ModelType.IMAGERY ? ModelType.IMAGERY : ModelType.DEMO;
 
   const imageryTileServiceType = Object.values(TileServiceType).includes(
     params.imageryType as TileServiceType,
@@ -137,8 +121,7 @@ export const useTryFairParams = () => {
     setConfidence: (val: number | null) => setParams({ confidence: val }),
     setFeature: (feature: string) => setParams({ feature }),
     setMode: (mode: ModelType) => setParams({ mode }),
-    setChooseLocation: (show: boolean) =>
-      setParams({ chooseLocation: show ? true : null }),
+    setChooseLocation: (show: boolean) => setParams({ chooseLocation: show ? true : null }),
     setImagery: ({
       url,
       tileServiceType,

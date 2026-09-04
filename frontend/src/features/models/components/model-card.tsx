@@ -41,11 +41,7 @@ const ModelCard: React.FC<ModelCardProps> = ({ model }) => {
           <Image
             height="256px"
             width="256px"
-            src={
-              model.thumbnail_url
-                ? `${model.thumbnail_url}.png`
-                : FairModelPlaceholderImage
-            }
+            src={model.thumbnail_url ? `${model.thumbnail_url}.png` : FairModelPlaceholderImage}
             alt={model.name}
             placeHolder={FairModelPlaceholderImage}
             className="w-full h-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-105"
@@ -80,20 +76,14 @@ const ModelCard: React.FC<ModelCardProps> = ({ model }) => {
 
           {/* Name, date and base model */}
           <div className="inline-flex flex-col gap-y-2 flex-grow">
-            <p className="font-semibold text-body-2base text-dark">
-              {model.user.username}
-            </p>
+            <p className="font-semibold text-body-2base text-dark">{model.user.username}</p>
             <p className="text-grey text-body-3">
               {MODELS_CONTENT.models.modelsList.modelCard.lastModified}{" "}
-              <span className="font-bold">
-                {extractDatePart(model.last_modified)}
-              </span>
+              <span className="font-bold">{extractDatePart(model.last_modified)}</span>
             </p>
             <p className="text-grey text-body-3 flex gap-x-2">
               {MODELS_CONTENT.models.modelsList.modelCard.baseModel}
-              <span className="font-bold text-dark">
-                {extractDatePart(model.base_model)}
-              </span>
+              <span className="font-bold text-dark">{extractDatePart(model.base_model)}</span>
             </p>
           </div>
         </div>

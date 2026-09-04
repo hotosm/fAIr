@@ -44,15 +44,14 @@ export const ImageryLocationDialog = ({
   closeDialog: () => void;
   onApply: (selection: ImagerySelection) => void;
 }) => {
-  const [source, setSource] = useState<ImagerySource>(
-    ImagerySource.OPEN_AERIAL_MAP,
-  );
+  const [source, setSource] = useState<ImagerySource>(ImagerySource.OPEN_AERIAL_MAP);
   const [selectedCell, setSelectedCell] = useState<SelectedCell | null>(null);
   const [cellImages, setCellImages] = useState<OAMImageryItem[]>([]);
   const [cellLoading, setCellLoading] = useState<boolean>(false);
   const [selectedItem, setSelectedItem] = useState<OAMImageryItem | null>(null);
-  const [appliedCustomImagery, setAppliedCustomImagery] =
-    useState<AppliedCustomImagery | null>(null);
+  const [appliedCustomImagery, setAppliedCustomImagery] = useState<AppliedCustomImagery | null>(
+    null,
+  );
   const [showSearch, setShowSearch] = useState<boolean>(false);
   const mapRef = useRef<MapLibreMap | null>(null);
   const searchAbortRef = useRef<AbortController | null>(null);
@@ -123,9 +122,8 @@ export const ImageryLocationDialog = ({
       {isOpened && (
         <div className="flex flex-col gap-4">
           <p className="text-grey text-sm w-full md:w-1/2 -mt-6">
-            Select an imagery source to preview and map your location. You can
-            choose pre-existing imagery from OpenAerialMap or enter a custom
-            tile server URL.
+            Select an imagery source to preview and map your location. You can choose pre-existing
+            imagery from OpenAerialMap or enter a custom tile server URL.
           </p>
           <ImagerySourceToggle value={source} onChange={setSource} />
           {!isOAM && <Divider />}
@@ -133,14 +131,10 @@ export const ImageryLocationDialog = ({
           <div className="relative w-full h-[420px] md:h-[620px] rounded-lg overflow-hidden">
             <div className={cn("absolute inset-0", !isOAM && "invisible")}>
               <OamImageryMap
-                highlightGeometry={
-                  selectedCell && !selectedItem ? selectedCell.geometry : null
-                }
+                highlightGeometry={selectedCell && !selectedItem ? selectedCell.geometry : null}
                 selectedItem={selectedItem}
                 onCellSelect={setSelectedCell}
-                searchIconTooltipContent={
-                  showSearch ? "Hide search bar" : "Show search bar"
-                }
+                searchIconTooltipContent={showSearch ? "Hide search bar" : "Show search bar"}
                 onMapReady={(map) => {
                   mapRef.current = map;
                 }}

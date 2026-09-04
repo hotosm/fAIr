@@ -19,9 +19,7 @@ const ModelDetailsUpdateDialog: React.FC<ModelDetailsUpdateDialogProps> = ({
   data,
 }) => {
   const [modelName, setModelName] = useState(data.name ?? "");
-  const [modelDescription, setModelDescription] = useState(
-    data.description ?? "",
-  );
+  const [modelDescription, setModelDescription] = useState(data.description ?? "");
   const modelUpdateMutation = useUpdateModel({
     modelId: data.id,
     mutationConfig: {
@@ -49,10 +47,7 @@ const ModelDetailsUpdateDialog: React.FC<ModelDetailsUpdateDialogProps> = ({
       label={MODELS_CONTENT.models.modelsDetailsCard.modelUpdate.dialogHeading}
     >
       <div className="flex flex-col gap-y-4">
-        <ModelNameFormInput
-          value={modelName}
-          handleChange={(value) => setModelName(value)}
-        />
+        <ModelNameFormInput value={modelName} handleChange={(value) => setModelName(value)} />
         <ModelDescriptionFormInput
           value={modelDescription}
           handleChange={(value) => setModelDescription(value)}

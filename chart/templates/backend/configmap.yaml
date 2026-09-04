@@ -5,6 +5,8 @@ metadata:
   labels:
     {{- include "fair.labels" . | nindent 4 }}
     app.kubernetes.io/component: backend
+  annotations:
+    {{- include "fair.syncWave" "-10" | nindent 4 }}
 data:
   {{- if eq (.Values.frontend.mode | default "bundleWithBackend") "bundleWithBackend" }}
   # Serve the SPA baked into the fair/api image via Django/WhiteNoise.

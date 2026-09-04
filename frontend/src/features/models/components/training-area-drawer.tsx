@@ -14,12 +14,8 @@ type TAPIResponse = {
   result: string;
 };
 
-const getTrainingAreaPMTilesUrl = async (
-  trainingAreaId: number,
-): Promise<TAPIResponse> => {
-  const { data } = await apiClient.get(
-    API_ENDPOINTS.GET_PMTILES_URL(trainingAreaId),
-  );
+const getTrainingAreaPMTilesUrl = async (trainingAreaId: number): Promise<TAPIResponse> => {
+  const { data } = await apiClient.get(API_ENDPOINTS.GET_PMTILES_URL(trainingAreaId));
   if (!data || !data.result) {
     showErrorToast(undefined, errorMessages.MAP_LOAD_FAILURE);
     throw new Error(errorMessages.MAP_LOAD_FAILURE);
@@ -56,9 +52,7 @@ export const TrainingAreaDrawer: React.FC<TrainingAreaDrawerProps> = ({
         {isLoading && (
           <div className="flex flex-col items-center justify-center">
             <Spinner />
-            <span className="text-grey">
-              {MODELS_CONTENT.trainingArea.map.loadingText}
-            </span>
+            <span className="text-grey">{MODELS_CONTENT.trainingArea.map.loadingText}</span>
           </div>
         )}
 

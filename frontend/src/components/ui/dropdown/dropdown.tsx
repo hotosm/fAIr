@@ -7,14 +7,7 @@ import { SlDropdown } from "@shoelace-style/shoelace/dist/react";
 import { SlMenu } from "@shoelace-style/shoelace/dist/react";
 import { SlMenuItem } from "@shoelace-style/shoelace/dist/react";
 
-import {
-  forwardRef,
-  Fragment,
-  useEffect,
-  useImperativeHandle,
-  useRef,
-  useState,
-} from "react";
+import { forwardRef, Fragment, useEffect, useImperativeHandle, useRef, useState } from "react";
 import "./dropdown.css";
 import { SlDropdownType } from "@/types";
 
@@ -101,9 +94,7 @@ const DropDown = forwardRef<SlDropdownType, DropDownProps>((props, ref) => {
           let updatedSelectedItems;
 
           if (isSelected) {
-            updatedSelectedItems = prevSelectedItems.filter(
-              (item) => item !== value,
-            );
+            updatedSelectedItems = prevSelectedItems.filter((item) => item !== value);
           } else {
             updatedSelectedItems = [...prevSelectedItems, value];
           }
@@ -146,22 +137,13 @@ const DropDown = forwardRef<SlDropdownType, DropDownProps>((props, ref) => {
       hoist={hoist}
       stayOpenOnSelect={withCheckbox} // when selecting a single item, we can close the dropdown after selection.
     >
-      <div
-        slot="trigger"
-        className="inline-flex items-center w-full cursor-pointer"
-      >
+      <div slot="trigger" className="inline-flex items-center w-full cursor-pointer">
         {triggerComponent}
         {!disableCheveronIcon && (
-          <ChevronDownIcon
-            className={cn("w-3 h-3 text-dark  ml-2 transition-all")}
-          />
+          <ChevronDownIcon className={cn("w-3 h-3 text-dark  ml-2 transition-all")} />
         )}
       </div>
-      <div
-        className={cn(
-          `shadow-2xl z-[1000000000] map-elements-z-index ${className}`,
-        )}
-      >
+      <div className={cn(`shadow-2xl z-[1000000000] map-elements-z-index ${className}`)}>
         {menuItems && menuItems.length > 0 ? (
           <SlMenu onSlSelect={handleSelect}>
             {menuItems?.map((menuItem, id) => (
@@ -175,10 +157,7 @@ const DropDown = forwardRef<SlDropdownType, DropDownProps>((props, ref) => {
                 >
                   {/* Icon prefix: SVG component or image URL */}
                   {(menuItem.Icon || menuItem.imgSrc) && !withCheckbox && (
-                    <span
-                      slot="prefix"
-                      className="flex items-center justify-center size-5"
-                    >
+                    <span slot="prefix" className="flex items-center justify-center size-5">
                       {menuItem.imgSrc ? (
                         <img
                           src={menuItem.imgSrc}

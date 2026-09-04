@@ -19,9 +19,7 @@ export const ringCentroid = (ring: number[][]): [number, number] => {
  * - MultiPolygon → centroid computed across ALL sub-polygon exterior rings
  *                  (one representative point for the whole shape)
  */
-export const featureCentroid = (
-  feature: GeoJSON.Feature,
-): [number, number] | null => {
+export const featureCentroid = (feature: GeoJSON.Feature): [number, number] | null => {
   const geom = feature.geometry;
   if (geom.type === "Point") return geom.coordinates as [number, number];
   if (geom.type === "Polygon") {
@@ -36,9 +34,7 @@ export const featureCentroid = (
   return null;
 };
 
-export const toPointCollection = (
-  fc: GeoJSON.FeatureCollection,
-): GeoJSON.FeatureCollection => ({
+export const toPointCollection = (fc: GeoJSON.FeatureCollection): GeoJSON.FeatureCollection => ({
   type: "FeatureCollection",
   features: fc.features.flatMap((f) => {
     const coords = featureCentroid(f);
@@ -56,13 +52,7 @@ export const toPointCollection = (
 export const CHOROPLETH_GRID_COLS = 5;
 export const CHOROPLETH_GRID_ROWS = 5;
 
-export const CHOROPLETH_COLORS = [
-  "#E5CEF2",
-  "#C58EE4",
-  "#A14AD5",
-  "#6E2D93",
-  "#3B0764",
-] as const;
+export const CHOROPLETH_COLORS = ["#E5CEF2", "#C58EE4", "#A14AD5", "#6E2D93", "#3B0764"] as const;
 
 export type ChoroplethBucket = {
   min: number;
@@ -134,9 +124,7 @@ const buildTileAlignedChoropleth = (
   const numRows = selRows;
 
   // Count predictions per visual cell
-  const counts: number[][] = Array.from({ length: numRows }, () =>
-    Array(numCols).fill(0),
-  );
+  const counts: number[][] = Array.from({ length: numRows }, () => Array(numCols).fill(0));
   for (const feature of predictions.features) {
     const centroid = featureCentroid(feature);
     if (!centroid) continue;
@@ -201,20 +189,9 @@ const buildEqualDegreeChoropleth = (
     const centroid = featureCentroid(feature);
     if (!centroid) continue;
     const [cx, cy] = centroid;
-    const col = Math.min(
-      Math.floor((cx - west) / cellW),
-      CHOROPLETH_GRID_COLS - 1,
-    );
-    const row = Math.min(
-      Math.floor((cy - south) / cellH),
-      CHOROPLETH_GRID_ROWS - 1,
-    );
-    if (
-      col >= 0 &&
-      col < CHOROPLETH_GRID_COLS &&
-      row >= 0 &&
-      row < CHOROPLETH_GRID_ROWS
-    ) {
+    const col = Math.min(Math.floor((cx - west) / cellW), CHOROPLETH_GRID_COLS - 1);
+    const row = Math.min(Math.floor((cy - south) / cellH), CHOROPLETH_GRID_ROWS - 1);
+    if (col >= 0 && col < CHOROPLETH_GRID_COLS && row >= 0 && row < CHOROPLETH_GRID_ROWS) {
       counts[row][col]++;
     }
   }
@@ -277,8 +254,7 @@ export const computeChoroplethBuckets = (
   return CHOROPLETH_COLORS.map((color, i) => {
     const min = i * step + 1;
     const max = i === CHOROPLETH_COLORS.length - 1 ? Infinity : (i + 1) * step;
-    const label =
-      max === Infinity ? `${min}+` : min === max ? `${min}` : `${min}–${max}`; // en-dash
+    const label = max === Infinity ? `${min}+` : min === max ? `${min}` : `${min}–${max}`; // en-dash
     return { min, max, color, label };
   });
 };

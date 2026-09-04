@@ -7,16 +7,12 @@ import {
   TTrainingStatus,
 } from "@/types";
 
-export const getTrainingDetails = async (
-  id: number,
-): Promise<TTrainingDetails> => {
+export const getTrainingDetails = async (id: number): Promise<TTrainingDetails> => {
   const res = await apiClient.get(API_ENDPOINTS.GET_TRAINING_DETAILS(id));
   return res.data;
 };
 
-export const getTrainingStatus = async (
-  taskId: string,
-): Promise<TTrainingStatus> => {
+export const getTrainingStatus = async (taskId: string): Promise<TTrainingStatus> => {
   const res = await apiClient.get(API_ENDPOINTS.GET_TRAINING_STATUS(taskId));
   return res.data;
 };
@@ -44,9 +40,7 @@ export const getTrainingHistory = async (
   };
 };
 
-export const getTrainingFeedbacks = async (
-  id: number,
-): Promise<TTrainingFeedbacks> => {
+export const getTrainingFeedbacks = async (id: number): Promise<TTrainingFeedbacks> => {
   const res = await apiClient.get(API_ENDPOINTS.GET_TRAINING_FEEDBACKS(id));
   return res.data;
 };
@@ -55,8 +49,6 @@ export const getTrainingWorkspace = async (
   trainingId: number,
   directory_name: string,
 ): Promise<TrainingWorkspace> => {
-  const res = await apiClient.get(
-    API_ENDPOINTS.GET_TRAINING_WORKSPACE(trainingId, directory_name),
-  );
+  const res = await apiClient.get(API_ENDPOINTS.GET_TRAINING_WORKSPACE(trainingId, directory_name));
   return res.data;
 };

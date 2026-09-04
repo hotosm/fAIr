@@ -83,19 +83,15 @@ export const useModelsListFilters = (
 
   const defaultQueries = {
     [SEARCH_PARAMS.offset]: 0,
-    [SEARCH_PARAMS.searchQuery]:
-      searchParams.get(SEARCH_PARAMS.searchQuery) || "",
+    [SEARCH_PARAMS.searchQuery]: searchParams.get(SEARCH_PARAMS.searchQuery) || "",
     [SEARCH_PARAMS.ordering]:
-      searchParams.get(SEARCH_PARAMS.ordering) ||
-      (ORDERING_FIELDS[1].apiValue as string),
-    [SEARCH_PARAMS.mapIsActive]:
-      searchParams.get(SEARCH_PARAMS.mapIsActive) || false,
+      searchParams.get(SEARCH_PARAMS.ordering) || (ORDERING_FIELDS[1].apiValue as string),
+    [SEARCH_PARAMS.mapIsActive]: searchParams.get(SEARCH_PARAMS.mapIsActive) || false,
     [SEARCH_PARAMS.startDate]: searchParams.get(SEARCH_PARAMS.startDate) || "",
     [SEARCH_PARAMS.endDate]: searchParams.get(SEARCH_PARAMS.endDate) || "",
     [SEARCH_PARAMS.dateFilter]:
       searchParams.get(SEARCH_PARAMS.dateFilter) || dateFilters[0].searchParams,
-    [SEARCH_PARAMS.layout]:
-      searchParams.get(SEARCH_PARAMS.layout) || LayoutView.GRID,
+    [SEARCH_PARAMS.layout]: searchParams.get(SEARCH_PARAMS.layout) || LayoutView.GRID,
     [SEARCH_PARAMS.id]: searchParams.get(SEARCH_PARAMS.id) || "",
     // Status will be undefined for 'all' status filter in users models, so exclude it from the api call.
     ...(status !== undefined && {
@@ -104,10 +100,7 @@ export const useModelsListFilters = (
   };
   const [query, setQuery] = useState<TQueryParams>(defaultQueries);
 
-  const debouncedSearchText = useDebounce(
-    query[SEARCH_PARAMS.searchQuery] as string,
-    300,
-  );
+  const debouncedSearchText = useDebounce(query[SEARCH_PARAMS.searchQuery] as string, 300);
 
   const { data, isPending, isPlaceholderData, isError } = useModels({
     searchQuery: debouncedSearchText,
@@ -116,9 +109,7 @@ export const useModelsListFilters = (
     orderBy: query[SEARCH_PARAMS.ordering] as string,
     id: query[SEARCH_PARAMS.id] as number,
     dateFilters: buildDateFilterQueryString(
-      dateFilters.find(
-        (filter) => filter.searchParams === query[SEARCH_PARAMS.dateFilter],
-      ),
+      dateFilters.find((filter) => filter.searchParams === query[SEARCH_PARAMS.dateFilter]),
       query[SEARCH_PARAMS.startDate] as string,
       query[SEARCH_PARAMS.endDate] as string,
     ),
@@ -151,8 +142,7 @@ export const useModelsListFilters = (
   //reset offset back to 0 when searching or when ID filtering is applied from the map.
   useEffect(() => {
     if (
-      (query[SEARCH_PARAMS.searchQuery] !== "" ||
-        query[SEARCH_PARAMS.id] !== "") &&
+      (query[SEARCH_PARAMS.searchQuery] !== "" || query[SEARCH_PARAMS.id] !== "") &&
       (query[SEARCH_PARAMS.offset] as number) > 0
     ) {
       updateQuery({ [SEARCH_PARAMS.offset]: 0 });

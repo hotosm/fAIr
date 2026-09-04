@@ -40,12 +40,8 @@ export const ImageryPreviewCard = ({
     <div className="relative w-full h-full rounded-lg overflow-hidden border border-gray-border">
       {/* Overlay: imagery info card (top-left) */}
       <div className="absolute top-3 left-3 z-10 bg-[#FFFFFFCC] backdrop-blur-sm rounded-lg px-3 py-2 shadow-sm max-w-[250px]">
-        <p className="text-dark text-xs font-medium leading-tight truncate">
-          {imageryTitle}
-        </p>
-        <p className="text-grey text-xs leading-tight mt-0.5">
-          Source: {imagerySourceLabel}
-        </p>
+        <p className="text-dark text-xs font-medium leading-tight truncate">{imageryTitle}</p>
+        <p className="text-grey text-xs leading-tight mt-0.5">Source: {imagerySourceLabel}</p>
         {imageryCountry && (
           <div className="mt-1">
             <CountryBadge

@@ -1,10 +1,7 @@
 import { RefObject, useCallback, useEffect, useRef, useState } from "react";
 import { Map, LngLatLike } from "maplibre-gl";
 import { num2deg } from "@/utils/geo/geometry-utils";
-import {
-  TileAnchor,
-  getSelectedGridSpec,
-} from "@/features/try-fair/utils/tile-math";
+import { TileAnchor, getSelectedGridSpec } from "@/features/try-fair/utils/tile-math";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -32,9 +29,7 @@ export const screenLineToPointsAttr = (line: ScreenLine): string =>
 /** Returns true if any coordinate in the line set is non-finite (NaN / ±Infinity). */
 const hasInvalidCoordinates = (lines: ScreenLine[]): boolean =>
   lines.some((line) =>
-    [line.x1, line.y1, line.x2, line.y2].some(
-      (value) => !Number.isFinite(value),
-    ),
+    [line.x1, line.y1, line.x2, line.y2].some((value) => !Number.isFinite(value)),
   );
 
 // ── Hook ─────────────────────────────────────────────────────────────────────
@@ -116,10 +111,7 @@ export const useGridScreenGeometry = ({
 
     // Guard against projections that produce NaN (e.g. when the grid is
     // entirely outside the current viewport).
-    if (
-      hasInvalidCoordinates(verticalLines) ||
-      hasInvalidCoordinates(horizontalLines)
-    ) {
+    if (hasInvalidCoordinates(verticalLines) || hasInvalidCoordinates(horizontalLines)) {
       return;
     }
 

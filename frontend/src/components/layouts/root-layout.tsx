@@ -68,9 +68,7 @@ export const RootLayout = () => {
           !modelId &&
           !pathname.includes(APPLICATION_ROUTES.TRY_FAIR) &&
           !pathname.includes(APPLICATION_ROUTES.AUTH_CALLBACK) &&
-          !pathname.includes(
-            APPLICATION_ROUTES.EMAIL_VERIFICATION_CALLBACK,
-          ) && <Footer />}
+          !pathname.includes(APPLICATION_ROUTES.EMAIL_VERIFICATION_CALLBACK) && <Footer />}
       </main>
     </>
   );

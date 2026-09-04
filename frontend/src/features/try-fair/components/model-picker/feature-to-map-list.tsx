@@ -22,14 +22,10 @@ export const FeatureListItem = ({
   disabled,
   onSelect,
 }: FeatureListItemProps) => {
-  const { data: baseModels, isPending: isBaseModelsPending } =
-    useGetAPIBaseModels(feature.slug);
-  const { data: localModels, isPending: isLocalModelsPending } =
-    useGetAPILocalModels(feature.slug);
-  const hasNoModels =
-    baseModels?.results.length === 0 && localModels?.results.length === 0;
-  const isItemDisabled =
-    disabled || isBaseModelsPending || isLocalModelsPending || hasNoModels;
+  const { data: baseModels, isPending: isBaseModelsPending } = useGetAPIBaseModels(feature.slug);
+  const { data: localModels, isPending: isLocalModelsPending } = useGetAPILocalModels(feature.slug);
+  const hasNoModels = baseModels?.results.length === 0 && localModels?.results.length === 0;
+  const isItemDisabled = disabled || isBaseModelsPending || isLocalModelsPending || hasNoModels;
   const FeatureIcon = getFeatureIcon(feature.slug);
 
   return (

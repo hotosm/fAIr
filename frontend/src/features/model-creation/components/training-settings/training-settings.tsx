@@ -7,9 +7,7 @@ const TrainingSettingsStep = () => {
     <div className="flex flex-col gap-y-10 w-full">
       <StepHeading
         heading={MODELS_CONTENT.modelCreation.trainingSettings.pageTitle}
-        description={
-          MODELS_CONTENT.modelCreation.trainingSettings.pageDescription
-        }
+        description={MODELS_CONTENT.modelCreation.trainingSettings.pageDescription}
       />
       <TrainingSettingsForm />
     </div>

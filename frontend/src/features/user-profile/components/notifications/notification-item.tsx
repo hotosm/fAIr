@@ -28,16 +28,13 @@ export const NotificationItem = ({
 
       const modelId = notification.related_obj?.model ?? null;
       const shouldNavigateToModelsPage =
-        modelId !== null &&
-        notification.related_obj?.type === NotificationType.TRAINING;
+        modelId !== null && notification.related_obj?.type === NotificationType.TRAINING;
 
       const goToModel = () => {
         closeNotificationPanel();
         if (shouldNavigateToModelsPage) {
           navigate(`${APPLICATION_ROUTES.MODELS}/${modelId}`);
-        } else if (
-          notification.related_obj?.type === NotificationType.PREDICTION
-        ) {
+        } else if (notification.related_obj?.type === NotificationType.PREDICTION) {
           navigate(`${APPLICATION_ROUTES.PROFILE_OFFLINE_PREDICTIONS}`);
         } else {
           navigate(`${APPLICATION_ROUTES.PROFILE_BASE}`);
@@ -69,15 +66,11 @@ export const NotificationItem = ({
           <p className="text-body-4 h-1/2">{notification.message}</p>
         </div>
         <div className="w-1/4 flex items-center justify-end">
-          {!notification.is_read && (
-            <span className="w-2 h-2 bg-primary rounded-full" />
-          )}
+          {!notification.is_read && <span className="w-2 h-2 bg-primary rounded-full" />}
         </div>
       </div>
       <div className="w-full flex justify-between items-center group">
-        <p className="text-body-4 text-grey">
-          {formatDate(notification.created_at)}
-        </p>
+        <p className="text-body-4 text-grey">{formatDate(notification.created_at)}</p>
         <DropDown
           menuItems={[
             {

@@ -13,21 +13,19 @@ type ModelPredictionState = {
   clearFeatures: () => void;
 };
 
-export const useModelPredictionStore = create<ModelPredictionState>(
-  (set, get) => ({
-    features: [],
-    setFeatures: (features) => set({ features }),
-    updateFeatureStatus: (id, status, updatedProperties = {}) => {
-      const updated = get().features.map((f) =>
-        f.properties.id === id
-          ? {
-              ...f,
-              properties: { ...f.properties, status, ...updatedProperties },
-            }
-          : f,
-      );
-      set({ features: updated });
-    },
-    clearFeatures: () => set({ features: [] }),
-  }),
-);
+export const useModelPredictionStore = create<ModelPredictionState>((set, get) => ({
+  features: [],
+  setFeatures: (features) => set({ features }),
+  updateFeatureStatus: (id, status, updatedProperties = {}) => {
+    const updated = get().features.map((f) =>
+      f.properties.id === id
+        ? {
+            ...f,
+            properties: { ...f.properties, status, ...updatedProperties },
+          }
+        : f,
+    );
+    set({ features: updated });
+  },
+  clearFeatures: () => set({ features: [] }),
+}));

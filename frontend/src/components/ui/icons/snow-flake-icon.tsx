@@ -29,12 +29,7 @@ export const SnowflakeIcon: React.FC<IconProps> = (props) => (
       strokeWidth="1.25"
       d="m2.5 8.125.693.55c.788.624 1.182.937 1.182 1.325s-.394.7-1.182 1.326l-.693.549"
     ></path>
-    <path
-      stroke="#08F"
-      strokeLinejoin="round"
-      strokeWidth="1.25"
-      d="M15.625 10H4.375"
-    ></path>
+    <path stroke="#08F" strokeLinejoin="round" strokeWidth="1.25" d="M15.625 10H4.375"></path>
     <path
       stroke="#08F"
       strokeLinecap="round"

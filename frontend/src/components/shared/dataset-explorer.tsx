@@ -1,11 +1,6 @@
 import { DatasetList } from "@/features/datasets/components";
 import { useDatasetsQueryParams } from "@/features/datasets/hooks/use-query-params";
-import {
-  ClearFilters,
-  OrderingFilter,
-  Pagination,
-  SearchFilter,
-} from "@/components/shared";
+import { ClearFilters, OrderingFilter, Pagination, SearchFilter } from "@/components/shared";
 import { FeatureCollection, TTrainingDataset } from "@/types";
 import { MODELS_CONTENT } from "@/constants";
 import { HelpText } from "@/components/ui/form";
@@ -107,9 +102,7 @@ export const DatasetExplorer = ({
         {!disableSelectedDatasetText && (
           <p className="text-body-3 font-semibold">
             Selected dataset Id:{" "}
-            <span className="text-primary">
-              {selectedTrainingDatasetId || "None"}.
-            </span>
+            <span className="text-primary">{selectedTrainingDatasetId || "None"}.</span>
           </p>
         )}
       </div>
@@ -142,17 +135,12 @@ export const DatasetExplorer = ({
             className="row-start-1 md:border md:border-gray-border overflow-hidden rounded-md"
             id={mapViewElementId}
           >
-            {mapDataIsPending ||
-            mapDataIsError ||
-            mapData.features.length === 0 ? (
+            {mapDataIsPending || mapDataIsError || mapData.features.length === 0 ? (
               <div className="w-full h-full animate-pulse bg-light-gray flex items-center justify-center">
                 <Spinner />
               </div>
             ) : (
-              <DatasetsMap
-                mapResults={mapData as FeatureCollection}
-                updateQuery={updateQuery}
-              />
+              <DatasetsMap mapResults={mapData as FeatureCollection} updateQuery={updateQuery} />
             )}
           </div>
         )}

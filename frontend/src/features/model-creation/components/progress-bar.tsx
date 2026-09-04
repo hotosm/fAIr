@@ -11,11 +11,7 @@ type ProgressBarProps = {
   pages: { id: number; title: string; icon: React.ElementType; path: string }[];
 };
 
-const ProgressBar: React.FC<ProgressBarProps> = ({
-  currentPath,
-  currentPageIndex,
-  pages,
-}) => {
+const ProgressBar: React.FC<ProgressBarProps> = ({ currentPath, currentPageIndex, pages }) => {
   const navigate = useNavigate();
   const { getFullPath, isModelOwner, isEditMode } = useModelsContext();
   const activeStepRef = useRef<HTMLButtonElement | null>(null);
@@ -26,10 +22,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
       const container = containerRef.current;
       const activeStep = activeStepRef.current;
 
-      const offset =
-        activeStep.offsetLeft -
-        container.offsetWidth / 2 +
-        activeStep.offsetWidth / 2;
+      const offset = activeStep.offsetLeft - container.offsetWidth / 2 + activeStep.offsetWidth / 2;
       container.scrollTo({
         left: offset,
         behavior: "smooth",
@@ -47,9 +40,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
         // Disable the confirmation page button from been clickable.
         const isLastPage = index === pages.length - 1;
         // Disable other buttons when the user is on the confirmation page.
-        const isConfirmationPage = currentPath.includes(
-          MODELS_ROUTES.CONFIRMATION,
-        );
+        const isConfirmationPage = currentPath.includes(MODELS_ROUTES.CONFIRMATION);
         // Disable the model details and training dataset if the user is not the owner of the model and if in edit mode.
         const disableButton =
           isLastPage ||

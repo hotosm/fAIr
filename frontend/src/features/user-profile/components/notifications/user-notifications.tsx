@@ -12,8 +12,7 @@ import { NotificationType } from "@/enums/user-profile";
 const SMALL_VIEWPORT = 960;
 
 export const UserNotifications = () => {
-  const [showNotificationPanel, setShowNotificationPanel] =
-    useState<boolean>(false);
+  const [showNotificationPanel, setShowNotificationPanel] = useState<boolean>(false);
 
   const { user } = useAuth();
 
@@ -25,18 +24,11 @@ export const UserNotifications = () => {
     NotificationType.UNREAD,
   );
 
-  const {
-    data,
-    isPending,
-    isError,
-    fetchNextPage,
-    hasNextPage,
-    isFetching,
-    refetch,
-  } = useNotifications({
-    enabled: true,
-    is_read: undefined,
-  });
+  const { data, isPending, isError, fetchNextPage, hasNextPage, isFetching, refetch } =
+    useNotifications({
+      enabled: true,
+      is_read: undefined,
+    });
 
   const handleClick = () => {
     setShowNotificationPanel((prev) => !prev);

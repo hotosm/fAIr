@@ -27,8 +27,7 @@ type AIPredictionsListProps = {
   onViewResults: (prediction: TOfflinePrediction) => void;
 };
 
-const getPredictionTitle = (prediction: TOfflinePrediction) =>
-  prediction.description;
+const getPredictionTitle = (prediction: TOfflinePrediction) => prediction.description;
 
 const getModelUsed = (prediction: TOfflinePrediction) => prediction.model_name;
 
@@ -93,13 +92,9 @@ const columnDefinitions = (
   },
   {
     accessorKey: "published_at",
-    header: ({ column }) => (
-      <SortableHeader title={"Published"} column={column} />
-    ),
+    header: ({ column }) => <SortableHeader title={"Published"} column={column} />,
     cell: ({ row }) =>
-      row.original.published_at
-        ? formatDate(extractDatePart(row.original.published_at))
-        : "-",
+      row.original.published_at ? formatDate(extractDatePart(row.original.published_at)) : "-",
   },
   {
     header: "Info",
@@ -141,9 +136,7 @@ export const AIPredictionsListLayout = ({
   if (isError) {
     return (
       <div className="flex flex-col items-center justify-center w-full py-20 gap-y-4">
-        <p className="text-grey text-body-2base">
-          Error loading AI predictions.
-        </p>
+        <p className="text-grey text-body-2base">Error loading AI predictions.</p>
         <Button className="!w-fit" onClick={() => refetch()}>
           Retry
         </Button>

@@ -17,9 +17,7 @@ export const TrainingLogs = ({
   const [showLogs, setShowLogs] = useState<boolean>(expandByDefault);
 
   if (isPending) {
-    return (
-      <div className="h-40 col-span-5 w-full animate-pulse bg-light-gray"></div>
-    );
+    return <div className="h-40 col-span-5 w-full animate-pulse bg-light-gray"></div>;
   }
   return (
     <div className="col-span-3 flex flex-col gap-y-2 w-full">
@@ -28,9 +26,7 @@ export const TrainingLogs = ({
           onClick={() => setShowLogs(!showLogs)}
           className="flex items-center gap-x-2 text-grey text-body-2"
         >
-          <p>
-            {MODELS_CONTENT.models.modelsDetailsCard.trainingInfoDialog.logs}
-          </p>
+          <p>{MODELS_CONTENT.models.modelsDetailsCard.trainingInfoDialog.logs}</p>
           <ChevronDownIcon className={`icon ${showLogs && "rotate-180"}`} />
         </button>
       )}

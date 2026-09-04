@@ -1,10 +1,5 @@
 import { Input } from "@/components/ui/form";
-import {
-  CheckIcon,
-  ChevronDownIcon,
-  DirectionIcon,
-  ResetIcon,
-} from "@/components/ui/icons";
+import { CheckIcon, ChevronDownIcon, DirectionIcon, ResetIcon } from "@/components/ui/icons";
 import { ToolTip } from "@/components/ui/tooltip";
 import { OFFSET_STEP } from "@/config";
 import { SHOELACE_SIZES, ToolTipPlacement } from "@/enums";
@@ -12,10 +7,7 @@ import useDebounce from "@/hooks/use-debounce";
 import { useEffect, useMemo, useState } from "react";
 import { useUpdateTrainingDataset } from "@/features/model-creation/hooks/use-training-datasets";
 import { showErrorToast, showSuccessToast } from "@/utils";
-import {
-  MODEL_CREATION_FORM_NAME,
-  useModelsContext,
-} from "@/app/providers/models-provider";
+import { MODEL_CREATION_FORM_NAME, useModelsContext } from "@/app/providers/models-provider";
 
 const DirectionalButton = ({
   positionClasses,
@@ -68,8 +60,7 @@ export const TrainingLabelsOffset = ({
   /**
    * State to control the visibility of the offset controller.
    */
-  const [showOffsetController, setShowOffsetController] =
-    useState<boolean>(false);
+  const [showOffsetController, setShowOffsetController] = useState<boolean>(false);
 
   /**
    * Local state to manage the input value for the offset.
@@ -114,10 +105,7 @@ export const TrainingLabelsOffset = ({
       onSuccess: (data) => {
         // Update local input with the new offset values.
         setLocalInput(`${data.offset[0]}, ${data.offset[1]}`);
-        handleChange(MODEL_CREATION_FORM_NAME.DATASET_OFFSET, [
-          data.offset[0],
-          data.offset[1],
-        ]);
+        handleChange(MODEL_CREATION_FORM_NAME.DATASET_OFFSET, [data.offset[0], data.offset[1]]);
         showSuccessToast("Offset saved successfully.");
       },
       onError: (error) => {
@@ -146,8 +134,7 @@ export const TrainingLabelsOffset = ({
     () =>
       (trainingDatasetOffset.x === initialOffset.x &&
         trainingDatasetOffset.y === initialOffset.y &&
-        localInput ===
-          `${initialOffset.x.toFixed(2)}, ${initialOffset.y.toFixed(2)}`) ||
+        localInput === `${initialOffset.x.toFixed(2)}, ${initialOffset.y.toFixed(2)}`) ||
       isPending,
     [trainingDatasetOffset, initialOffset, localInput, isPending],
   );
@@ -158,9 +145,7 @@ export const TrainingLabelsOffset = ({
       <button
         tabIndex={0}
         onClick={() => setShowOffsetController(!showOffsetController)}
-        onKeyDown={(e) =>
-          e.key === "Enter" && setShowOffsetController(!showOffsetController)
-        }
+        onKeyDown={(e) => e.key === "Enter" && setShowOffsetController(!showOffsetController)}
         className="font-semibold text-sm flex items-center justify-between gap-x-2 p-2 rounded hover:bg-hover-accent transition"
       >
         <span>Imagery Offset</span>
@@ -173,8 +158,7 @@ export const TrainingLabelsOffset = ({
       {showOffsetController && (
         <div className="max-w-sm mx-auto rounded-xl border space-y-6 p-4">
           <p className="text-start text-dark text-sm">
-            Adjust the fetched training labels offset, or enter the offset
-            values in meters.
+            Adjust the fetched training labels offset, or enter the offset values in meters.
           </p>
 
           <div className="rounded-lg p-2 bg-gray-border">
@@ -182,30 +166,20 @@ export const TrainingLabelsOffset = ({
               <div className="relative w-full h-full bg-white rounded-lg p-1 flex items-center justify-center">
                 <DirectionalButton
                   positionClasses="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-10"
-                  icon={
-                    <DirectionIcon className="size-3 text-dark -rotate-90" />
-                  }
+                  icon={<DirectionIcon className="size-3 text-dark -rotate-90" />}
                   tooltip="Move Up"
                   onClick={() => {
-                    updateOffset(
-                      trainingDatasetOffset.x,
-                      trainingDatasetOffset.y + OFFSET_STEP,
-                    );
+                    updateOffset(trainingDatasetOffset.x, trainingDatasetOffset.y + OFFSET_STEP);
                   }}
                 />
 
                 <DirectionalButton
                   positionClasses="absolute top-1/2 left-0 -translate-y-1/2 w-10 h-12"
-                  icon={
-                    <DirectionIcon className="size-3 text-dark -rotate-180" />
-                  }
+                  icon={<DirectionIcon className="size-3 text-dark -rotate-180" />}
                   tooltip="Move Left"
                   toolTipPlacement={ToolTipPlacement.LEFT}
                   onClick={() => {
-                    updateOffset(
-                      trainingDatasetOffset.x - OFFSET_STEP,
-                      trainingDatasetOffset.y,
-                    );
+                    updateOffset(trainingDatasetOffset.x - OFFSET_STEP, trainingDatasetOffset.y);
                   }}
                 />
 
@@ -215,25 +189,17 @@ export const TrainingLabelsOffset = ({
                   tooltip="Move Right"
                   toolTipPlacement={ToolTipPlacement.RIGHT}
                   onClick={() => {
-                    updateOffset(
-                      trainingDatasetOffset.x + OFFSET_STEP,
-                      trainingDatasetOffset.y,
-                    );
+                    updateOffset(trainingDatasetOffset.x + OFFSET_STEP, trainingDatasetOffset.y);
                   }}
                 />
 
                 <DirectionalButton
                   positionClasses="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-10"
-                  icon={
-                    <DirectionIcon className="size-3 text-dark rotate-90" />
-                  }
+                  icon={<DirectionIcon className="size-3 text-dark rotate-90" />}
                   tooltip="Move Down"
                   toolTipPlacement={ToolTipPlacement.BOTTOM}
                   onClick={() => {
-                    updateOffset(
-                      trainingDatasetOffset.x,
-                      trainingDatasetOffset.y - OFFSET_STEP,
-                    );
+                    updateOffset(trainingDatasetOffset.x, trainingDatasetOffset.y - OFFSET_STEP);
                   }}
                   isDiv
                 />
@@ -241,16 +207,12 @@ export const TrainingLabelsOffset = ({
                 <DirectionalButton
                   positionClasses="absolute bottom-1 left-1 p-1 rounded"
                   icon={
-                    <ResetIcon
-                      className={`icon  ${disabled ? "text-gray-border" : "text-dark"}`}
-                    />
+                    <ResetIcon className={`icon  ${disabled ? "text-gray-border" : "text-dark"}`} />
                   }
                   tooltip="Reset Offset"
                   onClick={() => {
                     handleOffsetReset();
-                    setLocalInput(
-                      `${initialOffset.x.toFixed(2)}, ${initialOffset.y.toFixed(2)}`,
-                    );
+                    setLocalInput(`${initialOffset.x.toFixed(2)}, ${initialOffset.y.toFixed(2)}`);
                   }}
                   iconClass="text-red-500 text-xl"
                   disabled={disabled}

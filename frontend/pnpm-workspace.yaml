@@ -2,8 +2,8 @@
 # ignored by pnpm >= 11, which silently drops these overrides from the lockfile
 # and breaks --frozen-lockfile in CI (ERR_PNPM_LOCKFILE_CONFIG_MISMATCH).
 overrides:
-  cross-spawn@>=7.0.0 <7.0.5: '>=7.0.5'
-  '@eslint/plugin-kit@<0.2.3': '>=0.2.3'
+  cross-spawn@>=7.0.0 <7.0.5: ">=7.0.5"
+  "@eslint/plugin-kit@<0.2.3": ">=0.2.3"
 
 # onlyBuiltDependencies is the pnpm 10 spelling of allowBuilds (pnpm 11);
 # both are needed while CI runs pnpm 10 and devs run pnpm 11.
@@ -13,4 +13,4 @@ allowBuilds:
   esbuild: true
 
 minimumReleaseAgeExclude:
-  - '@hotosm/ui@1.0.0 || 1.0.1 || 2.0.0 || 2.1.0'
+  - "@hotosm/ui@1.0.0 || 1.0.1 || 2.0.0 || 2.1.0"

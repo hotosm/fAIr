@@ -23,8 +23,7 @@ export const roundNumber = (num: number, round: number = 2): number => {
   const factor = Math.pow(10, round);
   const sign = Math.sign(num); // Will be 1, -1, or 0 (but we handled 0 already)
 
-  const absoluteRounded =
-    Math.round(Math.abs(num) * factor + Number.EPSILON) / factor;
+  const absoluteRounded = Math.round(Math.abs(num) * factor + Number.EPSILON) / factor;
 
   const result = sign * absoluteRounded;
 

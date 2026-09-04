@@ -15,9 +15,7 @@ type ModelSelectorTriggerButtonProps = {
   predictionModelCheckpoint: string;
   setPredictionModelCheckpoint: React.Dispatch<React.SetStateAction<string>>;
   customPredictionModelCheckpointPath: string;
-  setCustomPredictionModelCheckpointPath: React.Dispatch<
-    React.SetStateAction<string>
-  >;
+  setCustomPredictionModelCheckpointPath: React.Dispatch<React.SetStateAction<string>>;
   isSmallViewport: boolean;
   openMobileDialog?: () => void;
 };
@@ -34,9 +32,7 @@ export const ModelSelectorTriggerButton = ({
   openMobileDialog,
 }: ModelSelectorTriggerButtonProps) => {
   const dropdownLabel =
-    predictionModel === PredictionModel.DEFAULT
-      ? modelInfo?.name
-      : predictionModel;
+    predictionModel === PredictionModel.DEFAULT ? modelInfo?.name : predictionModel;
 
   const dropdownContent = useMemo(
     () => (
@@ -47,12 +43,8 @@ export const ModelSelectorTriggerButton = ({
         setPredictionModelCheckpoint={setPredictionModelCheckpoint}
         isMobile={isSmallViewport}
         defaultPredictionModel={modelInfo?.name}
-        customPredictionModelCheckpointPath={
-          customPredictionModelCheckpointPath
-        }
-        setCustomPredictionModelCheckpointPath={
-          setCustomPredictionModelCheckpointPath
-        }
+        customPredictionModelCheckpointPath={customPredictionModelCheckpointPath}
+        setCustomPredictionModelCheckpointPath={setCustomPredictionModelCheckpointPath}
         modelInfo={modelInfo}
       />
     ),
@@ -103,15 +95,11 @@ const DropdownButton = ({ label, isSmallViewport, onClick }: ButtonProps) => (
     <button
       onClick={onClick}
       className={`${
-        isSmallViewport
-          ? "w-fit max-w-[100px]"
-          : "max-w-[50px] lg:max-w-[200px]"
+        isSmallViewport ? "w-fit max-w-[100px]" : "max-w-[50px] lg:max-w-[200px]"
       } text-body-4 overflow-hidden text-ellipsis whitespace-nowrap`}
     >
       {label}
     </button>
-    <ChevronDownIcon
-      className={`transition-all ${isSmallViewport ? "-rotate-90" : ""} w-3 h-3`}
-    />
+    <ChevronDownIcon className={`transition-all ${isSmallViewport ? "-rotate-90" : ""} w-3 h-3`} />
   </div>
 );

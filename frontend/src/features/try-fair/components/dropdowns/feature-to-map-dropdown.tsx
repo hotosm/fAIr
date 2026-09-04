@@ -42,29 +42,18 @@ type FeatureOptionProps = {
   onSelect: (value: string) => void;
 };
 
-const FeatureOption = ({
-  disabled,
-  feature,
-  isSelected,
-  onSelect,
-}: FeatureOptionProps) => {
-  const { data: baseModels, isPending: isBaseModelsPending } =
-    useGetAPIBaseModels(feature.slug);
-  const { data: localModels, isPending: isLocalModelsPending } =
-    useGetAPILocalModels(feature.slug);
-  const hasNoModels =
-    baseModels?.results.length === 0 && localModels?.results.length === 0;
-  const isDisabled =
-    disabled || isBaseModelsPending || isLocalModelsPending || hasNoModels;
+const FeatureOption = ({ disabled, feature, isSelected, onSelect }: FeatureOptionProps) => {
+  const { data: baseModels, isPending: isBaseModelsPending } = useGetAPIBaseModels(feature.slug);
+  const { data: localModels, isPending: isLocalModelsPending } = useGetAPILocalModels(feature.slug);
+  const hasNoModels = baseModels?.results.length === 0 && localModels?.results.length === 0;
+  const isDisabled = disabled || isBaseModelsPending || isLocalModelsPending || hasNoModels;
   const FeatureIcon = getFeatureIcon(feature.slug);
 
   return (
     <button
       type="button"
       disabled={isDisabled}
-      title={
-        hasNoModels ? "No models are available for this feature" : undefined
-      }
+      title={hasNoModels ? "No models are available for this feature" : undefined}
       className="text-dark bg-[#FAFAFA] hover:bg-gray-100 rounded-lg flex justify-between items-center w-full py-3 px-2 transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-[#FAFAFA]"
       onClick={() => onSelect(feature.slug)}
     >
@@ -77,21 +66,13 @@ const FeatureOption = ({
   );
 };
 
-const FeatureToMapDropdown = ({
-  disabled = false,
-  value,
-  onChange,
-}: FeatureToMapDropdownProps) => {
+const FeatureToMapDropdown = ({ disabled = false, value, onChange }: FeatureToMapDropdownProps) => {
   const { data: features, isLoading } = useGetFeaturesToMap();
   const { onDropdownHide, dropdownRef } = useDropdownMenu();
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const featureList = (features?.results ?? []).filter(
-    (feature) => feature.slug !== "other",
-  );
+  const featureList = (features?.results ?? []).filter((feature) => feature.slug !== "other");
 
-  const selectedFeature = featureList.find(
-    (feature) => feature.slug === value,
-  ) ??
+  const selectedFeature = featureList.find((feature) => feature.slug === value) ??
     featureList[0] ?? { slug: "buildings", label: "Buildings" };
 
   const SelectedIcon = getFeatureIcon(selectedFeature.slug);
@@ -100,9 +81,7 @@ const FeatureToMapDropdown = ({
     <div
       className={cn(
         "flex bg-[#FAFAFA] border w-full md:w-[280px] p-2 rounded-md border-gray-border justify-between items-center transition-opacity",
-        disabled || isLoading
-          ? "opacity-50 cursor-not-allowed"
-          : "cursor-pointer",
+        disabled || isLoading ? "opacity-50 cursor-not-allowed" : "cursor-pointer",
       )}
     >
       <div className="flex items-center gap-2">
@@ -110,9 +89,7 @@ const FeatureToMapDropdown = ({
         <p className="text-xs text-dark">{selectedFeature.label}</p>
       </div>
       <ChevronDownIcon
-        className={`w-4 h-4 shrink-0 text-grey transition-transform ${
-          isOpen ? "rotate-180" : ""
-        }`}
+        className={`w-4 h-4 shrink-0 text-grey transition-transform ${isOpen ? "rotate-180" : ""}`}
       />
     </div>
   );

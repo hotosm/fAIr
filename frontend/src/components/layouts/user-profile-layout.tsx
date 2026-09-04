@@ -1,8 +1,5 @@
 import { useAuth } from "@/app/providers/auth-provider";
-import {
-  ProfileNavigationTabs,
-  ProfileOverview,
-} from "@/features/user-profile/components";
+import { ProfileNavigationTabs, ProfileOverview } from "@/features/user-profile/components";
 import { Outlet } from "react-router-dom";
 
 export const UserProfileLayout = () => {

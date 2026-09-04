@@ -51,37 +51,21 @@ export const LearnPage = () => {
         <div className="flex flex-col gap-y-8 basis-1/2">
           <h1 className="font-semibold text-title-2 xl:text-title-1">
             {LEARN_PAGE_CONTENT.heroHeading.firstSegment}{" "}
-            <span className="text-primary">
-              {LEARN_PAGE_CONTENT.heroHeading.secondSegment}
-            </span>{" "}
+            <span className="text-primary">{LEARN_PAGE_CONTENT.heroHeading.secondSegment}</span>{" "}
             {LEARN_PAGE_CONTENT.heroHeading.thirdSegment}{" "}
-            <span className="text-primary">
-              {LEARN_PAGE_CONTENT.heroHeading.fourthSegment}
-            </span>{" "}
+            <span className="text-primary">{LEARN_PAGE_CONTENT.heroHeading.fourthSegment}</span>{" "}
             {LEARN_PAGE_CONTENT.heroHeading.fifthSegment}{" "}
-            <span className="text-primary">
-              {LEARN_PAGE_CONTENT.heroHeading.sixthSegment}
-            </span>{" "}
+            <span className="text-primary">{LEARN_PAGE_CONTENT.heroHeading.sixthSegment}</span>{" "}
             {LEARN_PAGE_CONTENT.heroHeading.seventhSegment}
           </h1>
-          <p className="text-body-2base md:text-body-2">
-            {LEARN_PAGE_CONTENT.heroDescription}
-          </p>
+          <p className="text-body-2base md:text-body-2">{LEARN_PAGE_CONTENT.heroDescription}</p>
         </div>
         <div className="w-[284px] h-[203px] md:w-[401px] md:h-[286px]">
-          <Image
-            src={fAIrValues}
-            alt="fAIr Values"
-            width="100%"
-            height="100%"
-          />
+          <Image src={fAIrValues} alt="fAIr Values" width="100%" height="100%" />
         </div>
       </section>
 
-      <section
-        aria-labelledby="updates-section-header"
-        className="overflow-visible"
-      >
+      <section aria-labelledby="updates-section-header" className="overflow-visible">
         <SectionHeader title={LEARN_PAGE_CONTENT.sectionHeaders.updates} />
 
         <Carousel
@@ -93,10 +77,7 @@ export const LearnPage = () => {
           carouselClassName="updates-carousel"
           renderSkeleton={(index) => <UpdateCardSkeleton key={index} />}
           renderItem={(update) => (
-            <UpdateCard
-              update={update}
-              onClick={() => handleVideoSelect(update)}
-            />
+            <UpdateCard update={update} onClick={() => handleVideoSelect(update)} />
           )}
         />
       </section>

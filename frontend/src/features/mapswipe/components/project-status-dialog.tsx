@@ -61,8 +61,8 @@ const ProjectStatusErrorSkeleton = ({ retry }: { retry: () => void }) => {
     <div className="flex flex-col items-center gap-4 h-40 w-full justify-between text-center">
       <p className="font-semibold text-lg">Oops! Something went wrong.</p>
       <p>
-        The project status couldn't be loaded. It will retry automatically, or
-        you can try again manually.
+        The project status couldn't be loaded. It will retry automatically, or you can try again
+        manually.
       </p>
       <Button onClick={retry}>Retry</Button>
     </div>
@@ -85,12 +85,8 @@ const InfoBlock = ({
       variant={variant as TBadgeVariants}
       className={`py-1 md:py-3 px-3 md:px-4 flex items-center h-8 md:h-10 rounded-full text-black ${className}`}
     >
-      <div
-        className={`flex items-center justify-center w-full text-body-4 md:text-body-3`}
-      >
-        <div
-          className={`${info && "mr-2"} flex-shrink-0  text-black size-3.5 md:size-4`}
-        >
+      <div className={`flex items-center justify-center w-full text-body-4 md:text-body-3`}>
+        <div className={`${info && "mr-2"} flex-shrink-0  text-black size-3.5 md:size-4`}>
           {icon}
         </div>
         {info}
@@ -109,8 +105,10 @@ export const MapswipeProjectStatusDialog = ({
   mapSwipeProjectId: string;
   handleMapSwipeProjectResultMapModal: (pmtiles: string) => void;
 }) => {
-  const { isLoading, data, isError, isRefetching, refetch } =
-    useMapSwipeProjectStatus(mapSwipeProjectId, isOpen);
+  const { isLoading, data, isError, isRefetching, refetch } = useMapSwipeProjectStatus(
+    mapSwipeProjectId,
+    isOpen,
+  );
 
   const pmStatus = data?.results?.mapswipe?.pmtiles_conversion_status as
     | PmtilesConversionStatus
@@ -129,11 +127,7 @@ export const MapswipeProjectStatusDialog = ({
   })();
 
   return (
-    <Dialog
-      isOpened={isOpen}
-      closeDialog={onClose}
-      label={"MapSwipe Project Status"}
-    >
+    <Dialog isOpened={isOpen} closeDialog={onClose} label={"MapSwipe Project Status"}>
       {isLoading ? (
         <ProjectStatusLoadingSkeleton />
       ) : isError ? (
@@ -188,21 +182,13 @@ export const MapswipeProjectStatusDialog = ({
 
               <ToolTip
                 content={
-                  !VALID_PROJECT_STATUSES.includes(
-                    data?.status as MapSwipeProcessingStatus,
-                  )
+                  !VALID_PROJECT_STATUSES.includes(data?.status as MapSwipeProcessingStatus)
                     ? "This project isn't published yet. It will be viewable once published."
                     : "Open the project on MapSwipe Web."
                 }
               >
-                {VALID_PROJECT_STATUSES.includes(
-                  data?.status as MapSwipeProcessingStatus,
-                ) ? (
-                  <a
-                    href={data.webUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
+                {VALID_PROJECT_STATUSES.includes(data?.status as MapSwipeProcessingStatus) ? (
+                  <a href={data.webUrl} target="_blank" rel="noopener noreferrer">
                     <InfoBlock
                       icon={<ExternalLinkIcon />}
                       info="Open in MapSwipe"
@@ -274,10 +260,8 @@ export const MapswipeProjectStatusDialog = ({
                 <div className="flex items-center justify-between  text-nowrap text-grey font-medium text-body-4 md:text-body-3">
                   <p>Project Completion</p>
                   <p>
-                    <span className="font-bold">
-                      {Math.round((data?.progress ?? 0) * 100)}
-                    </span>
-                    % Complete
+                    <span className="font-bold">{Math.round((data?.progress ?? 0) * 100)}</span>%
+                    Complete
                   </p>
                 </div>
 
@@ -319,10 +303,7 @@ export const MapswipeProjectStatusDialog = ({
                       onClick: (e) => {
                         e.stopPropagation();
 
-                        downloadFile(
-                          data?.results?.mapswipe?.exportResults?.file
-                            .url as string,
-                        );
+                        downloadFile(data?.results?.mapswipe?.exportResults?.file.url as string);
                       },
                     },
                     {
@@ -331,8 +312,7 @@ export const MapswipeProjectStatusDialog = ({
                       onClick: (e) => {
                         e.stopPropagation();
                         downloadFile(
-                          data?.results?.mapswipe
-                            ?.exportAggregatedResultsWithGeometry?.file
+                          data?.results?.mapswipe?.exportAggregatedResultsWithGeometry?.file
                             ?.url as string,
                         );
                       },
@@ -353,9 +333,7 @@ export const MapswipeProjectStatusDialog = ({
 
                   <p>
                     Contributors:{" "}
-                    <span className="text-black">
-                      {data?.numberOfContributorUsers}
-                    </span>
+                    <span className="text-black">{data?.numberOfContributorUsers}</span>
                   </p>
                 </>
               ) : null}

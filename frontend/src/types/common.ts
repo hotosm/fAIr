@@ -18,10 +18,7 @@ export type DateFilter = {
   searchParams: string;
 };
 
-export type TQueryParams = Record<
-  string,
-  string | number | boolean | undefined
->;
+export type TQueryParams = Record<string, string | number | boolean | undefined>;
 
 export type TBadgeVariants = "green" | "red" | "yellow" | "blue" | "default";
 

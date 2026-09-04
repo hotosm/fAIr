@@ -1,10 +1,5 @@
 import { FeatureCollection } from "@/types";
-import {
-  FitToBounds,
-  LayerControl,
-  MapComponent,
-  ZoomLevel,
-} from "@/components/map";
+import { FitToBounds, LayerControl, MapComponent, ZoomLevel } from "@/components/map";
 import { useEffect, useMemo, useRef } from "react";
 import { useMapInstance } from "@/hooks/use-map-instance";
 import bbox from "@turf/bbox";
@@ -24,10 +19,7 @@ type ModelsMapProps = {
 
 type TBounds = [[number, number], [number, number]];
 
-export const FeedbacksMap: React.FC<ModelsMapProps> = ({
-  mapData,
-  tileServiceURL,
-}) => {
+export const FeedbacksMap: React.FC<ModelsMapProps> = ({ mapData, tileServiceURL }) => {
   const { map, mapContainerRef } = useMapInstance();
 
   const boundsRef = useRef<TBounds>([

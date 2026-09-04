@@ -109,3 +109,14 @@ that would otherwise come from `externalDatabase`.
       name: {{ include "fair.postgresName" . }}
       key: DATABASE_URL
 {{- end }}
+
+{{/* Argo CD sync wave; ignored by Helm. */}}
+{{- define "fair.syncWave" -}}
+argocd.argoproj.io/sync-wave: {{ . | quote }}
+{{- end }}
+
+{{/* Migration Job name with a revision-preserving suffix. */}}
+{{- define "fair.migrateJobName" -}}
+{{- $suffix := printf "-migrate-%d" (.Release.Revision | int) -}}
+{{- printf "%s%s" (include "fair.backend.fullname" . | trunc (int (sub 63 (len $suffix))) | trimSuffix "-") $suffix -}}
+{{- end }}

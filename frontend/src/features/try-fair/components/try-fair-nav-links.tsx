@@ -11,9 +11,7 @@ const startMappingLinks = [
   },
 ];
 export const StartMappingNavlinks: React.FC = () => {
-  const setShowShareModal = useStartMappingStore(
-    (state) => state.setShowShareModal,
-  );
+  const setShowShareModal = useStartMappingStore((state) => state.setShowShareModal);
 
   return (
     <ul className="hidden lg:flex items-center gap-3">
@@ -21,9 +19,7 @@ export const StartMappingNavlinks: React.FC = () => {
         <li key={link.title} className="px-2 py-2  text-body-2 ">
           <button
             type="button"
-            onClick={() =>
-              link.title === "Share" ? setShowShareModal(true) : ""
-            }
+            onClick={() => (link.title === "Share" ? setShowShareModal(true) : "")}
             className="hover:text-gray-900 transition-colors text-inherit font-inherit cursor-pointer"
           >
             {link.title}

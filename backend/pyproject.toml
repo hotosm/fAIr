@@ -9,33 +9,33 @@ authors = [{ name = "HOTOSM", email = "sysadmin@hotosm.org" }]
 maintainers = [{ name = "Kshitij Raj Sharma", email = "krschap@proton.me" }]
 
 dependencies = [
-    "adrf>=0.1.12",
-    "boto3>=1.40",
-    "dj-database-url>=2.3",
-    "django>=6.0,<6.1",
-    "django-cors-headers>=4.6",
-    "django-filter>=24.3",
-    "django-tasks>=0.12",
-    "django-tasks-db>=0.5",
-    "djangorestframework>=3.15",
-    "djangorestframework-gis>=1.1",
-    "drf-spectacular>=0.29",
-    "fair-py-ops[k8s]==0.3.6",
-    "geomltoolkits>=2.1.0",
-    "geopandas>=1.0",
-    "gpxpy>=1.6",
-    "gunicorn>=23.0",
-    "hotosm-auth[django]==0.2.12",
-    "httpx>=0.28.1",
-    "numpy>=2.0",
-    "psycopg-pool>=3.3.1",
-    "psycopg[binary]>=3.2",
-    "pydantic>=2.10",
-    "pydantic-settings>=2.7",
-    "pyogrio>=0.10",
-    "python-ulid>=3.1",
-    "shapely>=2.0",
-    "whitenoise>=6.6",
+  "adrf>=0.1.12",
+  "boto3>=1.40",
+  "dj-database-url>=2.3",
+  "django>=6.0,<6.1",
+  "django-cors-headers>=4.6",
+  "django-filter>=24.3",
+  "django-tasks>=0.12",
+  "django-tasks-db>=0.5",
+  "djangorestframework>=3.15",
+  "djangorestframework-gis>=1.1",
+  "drf-spectacular>=0.29",
+  "fair-py-ops[k8s]==0.3.6",
+  "geomltoolkits>=2.1.0",
+  "geopandas>=1.0",
+  "gpxpy>=1.6",
+  "gunicorn>=23.0",
+  "hotosm-auth[django]==0.2.12",
+  "httpx>=0.28.1",
+  "numpy>=2.0",
+  "psycopg-pool>=3.3.1",
+  "psycopg[binary]>=3.2",
+  "pydantic>=2.10",
+  "pydantic-settings>=2.7",
+  "pyogrio>=0.10",
+  "python-ulid>=3.1",
+  "shapely>=2.0",
+  "whitenoise>=6.6",
 ]
 
 [dependency-groups]
@@ -51,12 +51,7 @@ override-dependencies = ["pyjwt[crypto]>=2.8.0,<3"]
 [tool.ruff]
 target-version = "py312"
 line-length = 100
-extend-exclude = [
-    "**/migrations/**",
-    "shared/integrations/mapswipe.py",
-    "tests/**",
-    "login/**",
-]
+extend-exclude = ["**/migrations/**", "shared/integrations/mapswipe.py", "tests/**", "login/**"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "N", "UP", "B", "SIM", "RUF"]
@@ -77,12 +72,7 @@ deprecated = "ignore"
 missing-argument = "ignore"
 
 [tool.ty.src]
-exclude = [
-    "**/migrations/**",
-    "**/tests/**",
-    "shared/integrations/mapswipe.py",
-    "login/**",
-]
+exclude = ["**/migrations/**", "**/tests/**", "shared/integrations/mapswipe.py", "login/**"]
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "config.settings"
@@ -91,17 +81,17 @@ addopts = "-ra --strict-markers"
 
 [tool.coverage.run]
 source = [
-    "datasets",
-    "feedback",
-    "login",
-    "modelregistry",
-    "notifications",
-    "prediction",
-    "shared",
-    "system",
-    "training",
-    "workspace",
-    "config",
+  "datasets",
+  "feedback",
+  "login",
+  "modelregistry",
+  "notifications",
+  "prediction",
+  "shared",
+  "system",
+  "training",
+  "workspace",
+  "config",
 ]
 omit = ["**/migrations/**", "**/tests/**"]
 

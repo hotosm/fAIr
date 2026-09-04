@@ -61,9 +61,7 @@ export const PredictionResultDrawer: React.FC<PredictionResultProps> = ({
         {isLoading && (
           <div className="flex flex-col items-center justify-center">
             <Spinner />
-            <span className="text-grey">
-              {MODELS_CONTENT.trainingArea.map.loadingText}
-            </span>
+            <span className="text-grey">{MODELS_CONTENT.trainingArea.map.loadingText}</span>
           </div>
         )}
 
@@ -110,10 +108,7 @@ export const PredictionResultDrawer: React.FC<PredictionResultProps> = ({
                     onClick: () => {
                       const downloadUrl =
                         BASE_API_URL +
-                        API_ENDPOINTS.DOWNLOAD_PREDICTION_LABELS_FILE(
-                          predictionId,
-                          folder,
-                        );
+                        API_ENDPOINTS.DOWNLOAD_PREDICTION_LABELS_FILE(predictionId, folder);
                       window.open(downloadUrl, "_blank");
                     },
                   },

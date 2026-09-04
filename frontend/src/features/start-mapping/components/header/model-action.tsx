@@ -42,9 +42,7 @@ const ModelAction = ({
   customPredictionModelCheckpointPath?: string;
 }) => {
   const { modelId } = useParams();
-  const [predictionZoomLevel, setPredictionZoomLevel] = useState<number | null>(
-    null,
-  );
+  const [predictionZoomLevel, setPredictionZoomLevel] = useState<number | null>(null);
   const currentZoom = useMapStore((state) => state.zoom);
 
   const getTrainingConfig = useCallback((): TModelPredictionsConfig => {
@@ -79,17 +77,11 @@ const ModelAction = ({
   const modelPredictionMutation = useGetModelPredictions({
     mutationConfig: {
       onSuccess: (data) => {
-        showSuccessToast(
-          TOAST_NOTIFICATIONS.startMapping.modelPrediction.success,
-        );
-        const conflatedResults = handleConflation(
-          modelPredictions,
-          data.features,
-          {
-            ...getTrainingConfig(),
-            zoom_level: predictionZoomLevel ?? currentZoom,
-          },
-        );
+        showSuccessToast(TOAST_NOTIFICATIONS.startMapping.modelPrediction.success);
+        const conflatedResults = handleConflation(modelPredictions, data.features, {
+          ...getTrainingConfig(),
+          zoom_level: predictionZoomLevel ?? currentZoom,
+        });
         setModelPredictions(conflatedResults);
       },
       onError: (error) => showErrorToast(error),
@@ -114,17 +106,11 @@ const ModelAction = ({
   return (
     <div className="flex gap-y-3 flex-col-reverse flex-wrap  md:items-center md:flex-row md:justify-between md:gap-x-2 md:flex-nowrap">
       <ToolTip
-        content={
-          disablePredictionButton
-            ? START_MAPPING_PAGE_CONTENT.buttons.tooltip
-            : null
-        }
+        content={disablePredictionButton ? START_MAPPING_PAGE_CONTENT.buttons.tooltip : null}
       >
         <button
           disabled={disablePredictionButton}
-          onClick={
-            hasDrawnAOI ? openOfflinePredictionRequestDialog : handlePrediction
-          }
+          onClick={hasDrawnAOI ? openOfflinePredictionRequestDialog : handlePrediction}
           className={`w-full text-nowrap bg-primary px-3 py-3 md:py-1.5 rounded-md text-white ${disablePredictionButton ? "opacity-50" : ""}`}
         >
           <span className="capitalize text-body-4">

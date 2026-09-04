@@ -44,13 +44,7 @@ export const geojsonToOsmPolygons = (geojson: FeatureCollection): string => {
       return;
     }
 
-    processPolygon(
-      geometry.coordinates,
-      properties || {},
-      ways,
-      nodes,
-      nodesIndex,
-    );
+    processPolygon(geometry.coordinates, properties || {}, ways, nodes, nodesIndex);
   });
 
   // Create XML document
@@ -125,9 +119,7 @@ const processPolygon = (
   });
 };
 
-const mapPropertiesToTags = (
-  properties: Record<string, any>,
-): Record<string, string> => {
+const mapPropertiesToTags = (properties: Record<string, any>): Record<string, string> => {
   const tags: Record<string, string> = {};
 
   const { source, building } = properties;

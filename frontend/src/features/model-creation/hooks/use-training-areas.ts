@@ -36,10 +36,7 @@ export const useCreateTrainingArea = ({
   datasetId,
   offset,
 }: useCreateTrainingAreaOptions) => {
-  const { refetch: refetchTrainingAreas } = useGetTrainingAreas(
-    datasetId,
-    offset,
-  );
+  const { refetch: refetchTrainingAreas } = useGetTrainingAreas(datasetId, offset);
 
   const { onSuccess, ...restConfig } = mutationConfig || {};
 
@@ -62,8 +59,7 @@ export const useCreateTrainingLabelsForAOI = ({
 }: useCreateTrainingLabelsForAOIOptions) => {
   const { onSuccess, ...restConfig } = mutationConfig || {};
   return useMutation({
-    mutationFn: (args: TCreateTrainingLabelsForAOIArgs) =>
-      createTrainingLabelsForAOI(args),
+    mutationFn: (args: TCreateTrainingLabelsForAOIArgs) => createTrainingLabelsForAOI(args),
     onSuccess: (...args) => {
       onSuccess?.(...args);
     },
@@ -82,10 +78,7 @@ export const useDeleteTrainingArea = ({
   datasetId,
   offset,
 }: useDeleteTrainingAreaOptions) => {
-  const { refetch: refetchTrainingAreas } = useGetTrainingAreas(
-    datasetId,
-    offset,
-  );
+  const { refetch: refetchTrainingAreas } = useGetTrainingAreas(datasetId, offset);
 
   const { onSuccess, ...restConfig } = mutationConfig || {};
 
@@ -112,8 +105,7 @@ export const useGetTrainingAreaLabelsFromOSM = ({
   const { onSuccess, ...restConfig } = mutationConfig || {};
 
   return useMutation({
-    mutationFn: (args: TGetTrainingAreaLabelsFromOSMArgs) =>
-      getTrainingAreaLabelsFromOSM(args),
+    mutationFn: (args: TGetTrainingAreaLabelsFromOSMArgs) => getTrainingAreaLabelsFromOSM(args),
     onSuccess: (...args) => {
       onSuccess?.(...args);
     },
@@ -129,8 +121,7 @@ export const useGetTrainingDatasetLabels = (
   return useQuery({
     ...getTrainingDatasetLabelsQueryOptions(datasetId, bbox),
     // Don't fetch when the bbox is empty
-    enabled:
-      bbox !== "" && currentZoom >= MIN_ZOOM_LEVEL_FOR_TRAINING_AREA_LABELS,
+    enabled: bbox !== "" && currentZoom >= MIN_ZOOM_LEVEL_FOR_TRAINING_AREA_LABELS,
   });
 };
 
@@ -141,11 +132,7 @@ export const useGetTrainingAreaLabels = (aoiId: number, enabled: boolean) => {
   });
 };
 
-export const useGetTrainingArea = (
-  aoiId: number,
-  enabled: boolean,
-  refetchInterval: number,
-) => {
+export const useGetTrainingArea = (aoiId: number, enabled: boolean, refetchInterval: number) => {
   return useQuery({
     ...getTrainingAreaQueryOptions(aoiId),
     enabled: enabled,
@@ -157,10 +144,7 @@ type TOSMDatabaseResponse = {
   lastUpdated: string;
 };
 
-export const fetchOSMDatabaseLastUpdated =
-  async (): Promise<TOSMDatabaseResponse> => {
-    const { data } = await axios.get(
-      API_ENDPOINTS.GET_OSM_DATABASE_LAST_UPDATED,
-    );
-    return data;
-  };
+export const fetchOSMDatabaseLastUpdated = async (): Promise<TOSMDatabaseResponse> => {
+  const { data } = await axios.get(API_ENDPOINTS.GET_OSM_DATABASE_LAST_UPDATED);
+  return data;
+};

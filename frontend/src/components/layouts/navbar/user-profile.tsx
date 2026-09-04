@@ -115,17 +115,9 @@ export const UserProfile = ({
       hoist
       triggerComponent={
         <div className={styles.userProfile}>
-          {!isHanko && (
-            <Avatar
-              label={user?.username}
-              size={size}
-              imageUrl={user?.img_url}
-            />
-          )}
+          {!isHanko && <Avatar label={user?.username} size={size} imageUrl={user?.img_url} />}
           {!hideFullName && (
-            <p className={styles.userProfileName}>
-              {truncateString(user?.username, 20)}
-            </p>
+            <p className={styles.userProfileName}>{truncateString(user?.username, 20)}</p>
           )}
         </div>
       }

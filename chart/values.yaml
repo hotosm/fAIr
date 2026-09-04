@@ -90,7 +90,7 @@ backend:
   podSecurityContext: {}
   securityContext: {}
 
-  # -- Run Django migrations as a pre-install/upgrade hook
+  # -- Run Django migrations during install and upgrade
   migrate:
     enabled: true
 

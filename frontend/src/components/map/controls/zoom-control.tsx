@@ -21,10 +21,7 @@ export const ZoomButton = ({
   iconClassName?: string;
 }) => (
   <button
-    className={cn(
-      `p-2 bg-white ${rounded ? "rounded-[4px]" : ""} `,
-      buttonClassName,
-    )}
+    className={cn(`p-2 bg-white ${rounded ? "rounded-[4px]" : ""} `, buttonClassName)}
     onClick={onClick}
     disabled={disabled}
   >
