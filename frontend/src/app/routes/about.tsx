@@ -1,5 +1,5 @@
 import { ABOUT_PAGE_CONTENT } from "@/constants";
-import { AIIcon } from "@/assets/svgs";
+import { fAIrWorkflowIllustration } from "@/assets/images";
 import { Head } from "@/components/seo";
 import { Header } from "@/components/shared";
 import { HOTTeamLandscape } from "@/assets/images";
@@ -36,7 +36,7 @@ export const AboutPage = () => {
           </p>
           <p>{ABOUT_PAGE_CONTENT.bodyContent.secondParagraph}</p>
         </div>
-        <Image src={AIIcon} alt="AI Icon" width="300px" height="300px" />
+        <Image src={fAIrWorkflowIllustration} alt="fAIr Workflow Illustration" width="300px" height="300px" />
       </section>
     </main>
   );

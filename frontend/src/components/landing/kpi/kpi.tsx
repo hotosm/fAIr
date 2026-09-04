@@ -78,7 +78,7 @@ export const Kpi = () => {
     <section className="p-4 grid grid-cols-1 gap-y-4 sm:grid-cols-2 min-h-40 place-items-center lg:grid-cols-4 justify-items-center bg-off-white">
       {KPIs.map((kpi, id) => (
         <div
-          className={`flex gap-x-3 items-center h-24 w-48`}
+          className={`flex gap-x-3 items-center h-24 w-52`}
           key={`kpi-${id}`}
         >
           <div className="bg-primary rounded-full flex items-center justify-center p-2">
