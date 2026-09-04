@@ -7,9 +7,8 @@ on:
       - stage
       - develop
     paths-ignore:
-      - ".github/workflows/backend_build.yml"
-      - ".github/workflows/frontend_build.yml"
-      - ".github/workflows/frontend_build_push.yml"
+      - ".github/workflows/backend_build_check.yml"
+      - ".github/workflows/frontend_build_check.yml"
   release:
     types: [released]
   workflow_dispatch:
