@@ -47,6 +47,7 @@ backend:
 | `backend.djangoQ.enabled` | Run Django-Q sidecar for async tasks | `true` |
 | `backend.migrate.enabled` | Run migrations on install/upgrade | `true` |
 | `ingress.enabled` | Create Ingress resource | `false` |
+| `serviceAccount.knativeRbac` | Role/RoleBinding to manage Knative Services in the release namespace | `true` |
 | `frontend.mode` | `"bundleWithBackend"` or `"cloudfront"` | `"bundleWithBackend"` |
 
 ## Frontend
@@ -114,16 +115,5 @@ the role ARN yourself.
 
 #### HOT deployment
 
-The chart-managed deployment runs alongside the existing `fair.hotosm.org`
-frontend, which remains managed by CI:
-
-```
-ai.hotosm.org       -> CloudFront -> S3        (this chart)
-api.ai.hotosm.org   -> nginx ingress -> API    (this chart)
-fair.hotosm.org     -> CloudFront -> S3        (existing CI deployment)
-```
-
-Set `frontend.runtimeEnv.VITE_BASE_API_URL` to
-`https://api.ai.hotosm.org/api/v1/` and allow `https://ai.hotosm.org` in the
-API's CORS settings. Production values are in
-[`k8s-infra/apps/fair/backend/helm/values.yaml`](https://github.com/hotosm/k8s-infra/blob/main/apps/fair/backend/helm/values.yaml).
+We set up the S3 bucket and AWS stuff using the k8s-infra
+repo, via OpenTofu in production.

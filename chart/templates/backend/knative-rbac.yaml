@@ -1,0 +1,28 @@
+{{- if and .Values.serviceAccount.create .Values.serviceAccount.knativeRbac -}}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "fair.fullname" . }}-knative-model-deployer
+  labels:
+    {{- include "fair.labels" . | nindent 4 }}
+rules:
+  # Scoped to Knative Serving; the backend creates one Service per base model.
+  - apiGroups: ["serving.knative.dev"]
+    resources: ["services", "configurations", "routes", "revisions"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "fair.fullname" . }}-knative-model-deployer
+  labels:
+    {{- include "fair.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "fair.fullname" . }}-knative-model-deployer
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "fair.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+{{- end }}

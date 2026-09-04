@@ -13,6 +13,9 @@ fullnameOverride: ""
 
 serviceAccount:
   create: true
+  # Role + RoleBinding to manage Knative Services in the release namespace.
+  # Deploying models to another namespace needs a RoleBinding there too.
+  knativeRbac: true
   annotations: {}
   name: ""
 

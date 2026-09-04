@@ -79,8 +79,10 @@ spec:
 
               # ── 2. Find or create CloudFront distribution ───────────────────
               echo "Looking up CloudFront distribution for ${BUCKET}..."
+              # starts_with matches both the global `<bucket>.s3.amazonaws.com`
+              # and regional `<bucket>.s3.<region>.amazonaws.com` origin forms.
               DIST_ID=$(aws cloudfront list-distributions \
-                --query "DistributionList.Items[?Origins.Items[0].DomainName=='${BUCKET}.s3.amazonaws.com'].Id | [0]" \
+                --query "DistributionList.Items[?starts_with(Origins.Items[0].DomainName, '${BUCKET}.s3.')].Id | [0]" \
                 --output text 2>/dev/null || true)
               [ "${DIST_ID}" = "None" ] && DIST_ID=""
 
