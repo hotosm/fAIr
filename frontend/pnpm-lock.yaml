@@ -19,8 +19,8 @@ importers:
         specifier: ^5.4.0
         version: 5.4.0(react-hook-form@7.82.0(react@19.1.0))
       '@hotosm/hanko-auth':
-        specifier: ^0.5.2
-        version: 0.5.2
+        specifier: ^0.5.5
+        version: 0.5.5
       '@hotosm/ui':
         specifier: ^2.1.0
         version: 2.1.0(@awesome.me/webawesome@3.11.0(@floating-ui/utils@0.2.12)(@types/react@19.1.8))
@@ -588,8 +588,8 @@ packages:
     peerDependencies:
       react-hook-form: ^7.55.0
 
-  '@hotosm/hanko-auth@0.5.2':
-    resolution: {integrity: sha512-dCCrNRyH2C2bS3TBDLJrX45rmHPgMzZHp8Il+LvEeh9mHzBB/iXro1bJZj5Fpmdhfy3HVN+v5PE2WhMK3ymznw==}
+  '@hotosm/hanko-auth@0.5.5':
+    resolution: {integrity: sha512-op2fxmnzFAxSQObCgLVAmphmPBhIrtcm+RpUcu1ekBbTeCuihjSbZo+9ZA2tOvg0LZIauHEs/q3yHAUWCweKog==}
 
   '@hotosm/ui@2.1.0':
     resolution: {integrity: sha512-jgTdzyyCUPVtQBR4ZRfh2Mskw47ct0FmWd7abT8s6DbxhSL8NOw8/Rcla5rTBaln7bsPqrKsFSrXv9ytbkGucQ==}
@@ -4082,7 +4082,7 @@ snapshots:
       '@standard-schema/utils': 0.3.0
       react-hook-form: 7.82.0(react@19.1.0)
 
-  '@hotosm/hanko-auth@0.5.2':
+  '@hotosm/hanko-auth@0.5.5':
     dependencies:
       '@teamhanko/hanko-elements': 2.5.0
       lit: 3.3.2

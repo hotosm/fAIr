@@ -25,6 +25,7 @@ const HankoAuthComponent = () => (
     redirect-after-login={FRONTEND_URL}
     redirect-after-logout={FRONTEND_URL}
     mapping-check-url={`${BASE_API_URL}auth/status/`}
+    onboarding-url={`${BASE_API_URL}auth/onboarding/`}
     app-id="fair"
   />
 );

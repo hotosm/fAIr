@@ -16,6 +16,7 @@ declare module "react" {
         "auto-connect"?: string | boolean;
         "verify-session"?: string | boolean;
         "mapping-check-url"?: string;
+        "onboarding-url"?: string;
         "app-id"?: string;
         "button-variant"?: string;
         "button-color"?: string;

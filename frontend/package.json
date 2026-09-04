@@ -16,7 +16,7 @@
   "dependencies": {
     "@awesome.me/webawesome": "3.11.0",
     "@hookform/resolvers": "^5.4.0",
-    "@hotosm/hanko-auth": "^0.5.2",
+    "@hotosm/hanko-auth": "^0.5.5",
     "@hotosm/ui": "^2.1.0",
     "@reactour/tour": "^3.7.0",
     "@shoelace-style/shoelace": "^2.17.1",

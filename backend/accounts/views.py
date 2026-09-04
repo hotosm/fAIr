@@ -232,10 +232,12 @@ class OnboardingCallback(APIView):
                     f"'{osm_connection.osm_username}'. "
                     f"Please select 'No, I'm new' to create a new account."
                 )
+                # The callback is served by the API, not the frontend origin.
                 params = urlencode(
                     {
                         "onboarding": "fair",
                         "return_to": frontend_url,
+                        "callback": f"{settings.API_BASE_URL.rstrip('/')}/auth/onboarding/",
                         "error": error_msg,
                     }
                 )

@@ -2,14 +2,16 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ include "fair.backend.fullname" . }}-migrate
+  # Job specs are immutable, so use a new name for each Helm revision.
+  name: {{ include "fair.migrateJobName" . }}
   labels:
     {{- include "fair.labels" . | nindent 4 }}
     app.kubernetes.io/component: backend
   annotations:
-    "helm.sh/hook": post-install,post-upgrade
-    "helm.sh/hook-weight": "-5"
-    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+    # Argo CD: dependencies (-10), migration (-5), workloads (0).
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+    {{- include "fair.syncWave" "-5" | nindent 4 }}
 spec:
   template:
     metadata:
