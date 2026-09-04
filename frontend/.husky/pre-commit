@@ -1,3 +1,0 @@
-cd frontend
-pnpm format
-pnpm build

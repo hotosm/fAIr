@@ -11,8 +11,7 @@
     "format": "prettier --write 'src/**/*.{js,jsx,ts,tsx,json,css,scss,md}'",
     "format:check": "prettier --check 'src/**/*.{js,jsx,ts,tsx,json,css,scss,md}'",
     "test": "vitest",
-    "coverage": "vitest run --coverage",
-    "prepare": "cd .. && husky frontend/.husky"
+    "coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
@@ -79,7 +78,6 @@
     "eslint-plugin-react-refresh": "^0.4.12",
     "eslint-plugin-tailwindcss": "^3.17.5",
     "globals": "^15.10.0",
-    "husky": "^9.1.7",
     "jsdom": "^26.0.0",
     "postcss": "^8.4.47",
     "prettier": "3.3.3",
