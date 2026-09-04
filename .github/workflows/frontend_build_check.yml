@@ -2,12 +2,12 @@ name: Frontend Build
 
 on:
   push:
-    branches: [master, develop]
+    branches: [main, develop]
     paths:
       - "frontend/**"
       - ".github/workflows/frontend_build.yml"
   pull_request:
-    branches: [master, develop]
+    branches: [main, develop]
     paths:
       - "frontend/**"
       - ".github/workflows/frontend_build.yml"
@@ -55,7 +55,7 @@ jobs:
         run: pnpm run build
 
   # Build-only checks for PRs. Push happens in docker_publish_image.yml on
-  # merge to master/stage/develop.
+  # merge to main/stage/develop.
   docker-build-dev:
     needs: [frontend-unit-test]
     uses: hotosm/gh-workflows/.github/workflows/image_build.yml@4.0.3

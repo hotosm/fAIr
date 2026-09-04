@@ -70,7 +70,7 @@ export const getGeoJSONFeatureBounds = (geojsonFeature: Feature): BBOX => {
   return bboxPolygon(geojsonFeature) as BBOX;
 };
 
-// Ref - https://github.com/hotosm/fAIr/blob/master/frontend/src/utils.js
+// Ref - https://github.com/hotosm/fAIr/blob/main/frontend/src/utils.js
 
 /**
  * Converts degrees to radians.

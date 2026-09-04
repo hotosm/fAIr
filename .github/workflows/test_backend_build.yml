@@ -3,7 +3,7 @@ name: Backend lint and tests
 on:
   push:
     branches:
-      - master
+      - main
       - develop
     paths:
       - "backend/**"
@@ -11,7 +11,7 @@ on:
       - ".pre-commit-config.yaml"
   pull_request:
     branches:
-      - master
+      - main
       - develop
     paths:
       - "backend/**"

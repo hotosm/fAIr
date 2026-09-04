@@ -212,7 +212,7 @@ https://github.com/hotosm/fAIr/assets/97789856/f4eae99f-e9a2-4424-806f-fdfce80e6
 
 ## Help and Support
 If you encounter any issues or need assistance while using fAIr, you can access the following resources:
-- Check the [FAQs](https://github.com/hotosm/fAIr/blob/master/docs/FAQ.md) .
+- Check the [FAQs](https://github.com/hotosm/fAIr/blob/main/docs/FAQ.md) .
 - Join our Slack channel.
 
 ## Thank you 
