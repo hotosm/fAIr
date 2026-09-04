@@ -16,6 +16,17 @@ export default defineConfig({
     port: 3500,
   },
 
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          // keep WebAwesome cached independently of app deploys
+          if (id.includes("@awesome.me/webawesome")) return "webawesome";
+        },
+      },
+    },
+  },
+
   test: {
     environment: 'jsdom',
     setupFiles: ['./test-setup.ts'],
