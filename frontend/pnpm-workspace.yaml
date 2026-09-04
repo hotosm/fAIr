@@ -14,3 +14,4 @@ allowBuilds:
 
 minimumReleaseAgeExclude:
   - "@hotosm/ui@1.0.0 || 1.0.1 || 2.0.0 || 2.1.0"
+  - '@hotosm/hanko-auth@0.5.5'
