@@ -17,7 +17,7 @@
 <!-- prettier-ignore-start -->
 <div align="center">
 
-| **CI/CD** | | [![Backend Build](https://github.com/hotosm/fair/actions/workflows/backend_build_check.yml/badge.svg?branch=develop)](https://github.com/hotosm/fair/actions/workflows/backend_build_check.yml) [![Frontend Build](https://github.com/hotosm/fair/actions/workflows/frontend_build_check.yml/badge.svg?branch=develop)](https://github.com/hotosm/fair/actions/workflows/frontend_build_check.yml) |
+| **CI/CD** | | [![Backend Build](https://github.com/hotosm/fAIr/actions/workflows/test_backend_build.yml/badge.svg?branch=develop)](https://github.com/hotosm/fAIr/actions/workflows/test_backend_build.yml) [![Frontend Build](https://github.com/hotosm/fAIr/actions/workflows/frontend_build_check.yml/badge.svg?branch=develop)](https://github.com/hotosm/fAIr/actions/workflows/frontend_build_check.yml) |
 | :--- | :--- | :--- |
 | **Tech Stack** | | ![Django](https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django) ![React](https://img.shields.io/badge/React-20232A.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB) ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192.svg?style=for-the-badge&logo=postgresql&logoColor=white) ![TensorFlow](https://img.shields.io/badge/TensorFlow-FF6F00.svg?style=for-the-badge&logo=TensorFlow&logoColor=white) ![PyTorch](https://img.shields.io/badge/PyTorch-EE4C2C.svg?style=for-the-badge&logo=PyTorch&logoColor=white) |
 | **Code Style** | | [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://pre-commit.com) [![Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black) |
@@ -118,7 +118,7 @@ Checkout Docker Installation [docs](./docs/Docker-installation.md)
 
 ## Get involved!
 
-- Start by reading our [Code of conduct](https://github.com/hotosm/fAIr/blob/master/docs/Code-of-Conduct.md)
+- Start by reading our [Code of conduct](docs/Code-of-Conduct.md)
 - Get familiar with our [contributor guidelines](CONTRIBUTING.md) explaining the different ways in which you can support this project! We need your help!
 
 # Licenses
