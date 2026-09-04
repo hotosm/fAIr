@@ -1,4 +1,4 @@
-We use [commitizen](https://pypi.org/project/commitizen/) to manage our release version 
+We use [commitizen](https://pypi.org/project/commitizen/) to manage our release version
 
 - Install commitizen
   ```bash

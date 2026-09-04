@@ -15,10 +15,7 @@ import {
   OUTPUT_TYPES,
   RESOLUTIONS,
 } from "@/features/try-fair/utils/common";
-import {
-  BaseModelStacItem,
-  InferenceParam,
-} from "@/features/try-fair/api/stac";
+import { BaseModelStacItem, InferenceParam } from "@/features/try-fair/api/stac";
 import { cn } from "@/utils";
 import useScreenSize from "@/hooks/use-screen-size";
 import { RefreshIcon } from "@/components/ui/icons";
@@ -71,11 +68,8 @@ export const TryFairSidebar = ({
   const supportsPolygon = selectedModel
     ? getModelOutputType(selectedModel) === TryFairMapOutputType.POLYGON
     : true;
-  const confidenceParam = inferenceParams.find(
-    (param) => param.key === "confidence_threshold",
-  );
-  const confidenceValue =
-    paramValues.confidence_threshold ?? confidenceParam?.spec.default ?? 0.7;
+  const confidenceParam = inferenceParams.find((param) => param.key === "confidence_threshold");
+  const confidenceValue = paramValues.confidence_threshold ?? confidenceParam?.spec.default ?? 0.7;
   const confidenceMin = confidenceParam?.spec.min ?? 0;
   const confidenceMax = confidenceParam?.spec.max ?? 1;
 
@@ -89,9 +83,7 @@ export const TryFairSidebar = ({
       <div
         className={cn(
           "flex bg-[#FAFAFA] border-[#687075] border  p-2.5 rounded-lg",
-          isSmallViewport
-            ? "flex-col items-stretch gap-2"
-            : "items-center gap-2",
+          isSmallViewport ? "flex-col items-stretch gap-2" : "items-center gap-2",
         )}
       >
         <div className="hidden md:inline-block">
@@ -110,9 +102,7 @@ export const TryFairSidebar = ({
         </div>
 
         {/* Vertical divider */}
-        {!isSmallViewport && (
-          <div className="self-stretch w-px bg-gray-border shrink-0" />
-        )}
+        {!isSmallViewport && <div className="self-stretch w-px bg-gray-border shrink-0" />}
 
         <div id={APP_TOUR_IDS.TRY_FAIR_MAP_BUTTON_TOOLTIP}>
           <Button
@@ -132,14 +122,11 @@ export const TryFairSidebar = ({
       </div>
 
       <div className="">
-        <p className="text-dark text-xs mb-2">
-          {TRY_FAIR_PAGE_CONTENT.sidebar.mapOutput.label}
-        </p>
+        <p className="text-dark text-xs mb-2">{TRY_FAIR_PAGE_CONTENT.sidebar.mapOutput.label}</p>
         <div className="flex items-center gap-2">
           {OUTPUT_TYPES.map(({ type, label, icon }) => {
             const optionDisabled =
-              isPredicting ||
-              (type === TryFairMapOutputType.POLYGON && !supportsPolygon);
+              isPredicting || (type === TryFairMapOutputType.POLYGON && !supportsPolygon);
             return (
               <button
                 key={type}
@@ -215,9 +202,7 @@ export const TryFairSidebar = ({
                 disabled={isPredicting}
                 onClick={() => onResolutionChange(value)}
                 className={`flex-1 gap-1 flex disabled:cursor-wait text-xs items-center justify-center py-2 rounded-lg ${
-                  resolution === value
-                    ? "bg-secondary border-[#D63F4080] border"
-                    : "bg-off-white"
+                  resolution === value ? "bg-secondary border-[#D63F4080] border" : "bg-off-white"
                 }`}
               >
                 <GridIcon width={size} height={size} />
@@ -252,12 +237,7 @@ export const TryFairSidebar = ({
                 step={0.5}
                 disabled={isPredicting}
                 value={Number(confidenceValue)}
-                onChange={(e) =>
-                  onParamChange(
-                    "confidence_threshold",
-                    parseFloat(e.target.value),
-                  )
-                }
+                onChange={(e) => onParamChange("confidence_threshold", parseFloat(e.target.value))}
                 className="try-fair-confidence-slider disabled:cursor-wait w-full h-1.5 rounded-full appearance-none cursor-pointer outline-none"
                 style={{
                   background: `linear-gradient(90deg, #0088FF 0%, #FF383C 100%)`,

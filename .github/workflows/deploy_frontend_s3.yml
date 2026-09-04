@@ -5,8 +5,8 @@ on:
     branches:
       - develop
     paths:
-      - 'frontend/**'
-      - '.github/workflows/deploy_frontend_s3.yml'
+      - "frontend/**"
+      - ".github/workflows/deploy_frontend_s3.yml"
   workflow_dispatch:
 
 permissions:

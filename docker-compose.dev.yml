@@ -41,7 +41,13 @@ services:
 
   api:
     restart: unless-stopped
-    entrypoint: ["sh", "-c", 'zenml init && zenml stack set fair-compose && python manage.py collectstatic --noinput && exec "$$@"', "--"]
+    entrypoint:
+      [
+        "sh",
+        "-c",
+        'zenml init && zenml stack set fair-compose && python manage.py collectstatic --noinput && exec "$$@"',
+        "--",
+      ]
     command:
       - gunicorn
       - --bind=0.0.0.0:8000

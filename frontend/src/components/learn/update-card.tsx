@@ -6,13 +6,7 @@ import { APPLICATION_ROUTES } from "@/constants";
 import useCopyToClipboard from "@/hooks/use-clipboard";
 import { ToolTip } from "@/components/ui/tooltip";
 
-export const UpdateCard = ({
-  update,
-  onClick,
-}: {
-  update: TFairVideo;
-  onClick?: () => void;
-}) => {
+export const UpdateCard = ({ update, onClick }: { update: TFairVideo; onClick?: () => void }) => {
   const { copyToClipboard, isCopied } = useCopyToClipboard();
   const handleShareClick = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -53,11 +47,7 @@ export const UpdateCard = ({
         <div className="flex justify-between w-full">
           <p className="text-sm text-white">{formatDate(update.date, true)}</p>
           <ToolTip
-            content={
-              isCopied
-                ? "Video link copied to clipboard"
-                : "Copy link to this update video"
-            }
+            content={isCopied ? "Video link copied to clipboard" : "Copy link to this update video"}
           >
             <button
               onClick={handleShareClick}

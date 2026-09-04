@@ -21,18 +21,14 @@ type StacItemRaw = {
 };
 
 const toOAMItem = (raw: StacItemRaw): OAMImageryItem => {
-  const assetName = raw.assets.visual
-    ? "visual"
-    : (Object.keys(raw.assets)[0] ?? "visual");
+  const assetName = raw.assets.visual ? "visual" : (Object.keys(raw.assets)[0] ?? "visual");
   return {
     id: raw.id,
     bbox: raw.bbox,
     geometry: raw.geometry,
     title: raw.properties.title ?? "Untitled Image",
     provider:
-      raw.properties["oam:producer_name"] ??
-      raw.properties.providers?.[0]?.name ??
-      "Unknown",
+      raw.properties["oam:producer_name"] ?? raw.properties.providers?.[0]?.name ?? "Unknown",
     gsd: raw.properties.gsd ?? null,
     acquiredAt: raw.properties.end_datetime ?? raw.properties.created ?? null,
     license: raw.properties.license ?? null,

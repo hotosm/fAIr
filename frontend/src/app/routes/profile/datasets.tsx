@@ -9,15 +9,8 @@ import { TTrainingDataset } from "@/types";
 
 export const UserProfileDatasetsPage = () => {
   const { user } = useAuth();
-  const {
-    data,
-    isError,
-    isPending,
-    isPlaceholderData,
-    refetch,
-    query,
-    updateQuery,
-  } = useDatasetsQueryParams(user.osm_id);
+  const { data, isError, isPending, isPlaceholderData, refetch, query, updateQuery } =
+    useDatasetsQueryParams(user.osm_id);
 
   return (
     <>
@@ -25,9 +18,7 @@ export const UserProfileDatasetsPage = () => {
       <div className="space-y-8">
         {/* Section heading */}
         <div className="w-full gap-y-6 sm:gap-y-0 flex flex-col sm:flex-row justify-between items-start sm:items-center">
-          <ProfileSectionHeader
-            title={USER_PROFILE_PAGE_CONTENT.datasets.sectionTitle}
-          />
+          <ProfileSectionHeader title={USER_PROFILE_PAGE_CONTENT.datasets.sectionTitle} />
           <SearchFilter
             query={query}
             updateQuery={updateQuery}

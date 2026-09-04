@@ -19,15 +19,8 @@ import { MapSwipeProjectResultMapDrawer } from "@/features/mapswipe/components/p
 
 export const UserProfileOfflinePredictionsPage = () => {
   const { user } = useAuth();
-  const {
-    data,
-    isError,
-    isPending,
-    isPlaceholderData,
-    query,
-    updateQuery,
-    refetch,
-  } = useOfflinePredictionsQueryParams(user.osm_id);
+  const { data, isError, isPending, isPlaceholderData, query, updateQuery, refetch } =
+    useOfflinePredictionsQueryParams(user.osm_id);
   const { isOpened, openDialog, closeDialog } = useDialog();
   const {
     isOpened: isPredictionResultOpened,
@@ -54,12 +47,9 @@ export const UserProfileOfflinePredictionsPage = () => {
   } = useDialog();
 
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
-  const [activePrediction, setActivePrediction] =
-    useState<TOfflinePrediction | null>(null);
+  const [activePrediction, setActivePrediction] = useState<TOfflinePrediction | null>(null);
 
-  const [MapSwipeResultsPmtiles, setMapSwipeResultsPmtiles] = useState<
-    string | null
-  >(null);
+  const [MapSwipeResultsPmtiles, setMapSwipeResultsPmtiles] = useState<string | null>(null);
   const handleTrainingLogsModal = (taskId: string) => {
     setActiveTaskId(taskId);
     openDialog();
@@ -80,9 +70,7 @@ export const UserProfileOfflinePredictionsPage = () => {
     openMapSwipeProjectStatusDialog();
     setMapSwipeResultsPmtiles(null);
   };
-  const handleCreateOrViewMapSwipeProject = (
-    prediction: TOfflinePrediction,
-  ) => {
+  const handleCreateOrViewMapSwipeProject = (prediction: TOfflinePrediction) => {
     const mapSwipeProjectExists = prediction.mapswipe_project_id;
     if (!mapSwipeProjectExists) {
       openMapSwipeProjectCreationDialog();
@@ -106,9 +94,7 @@ export const UserProfileOfflinePredictionsPage = () => {
           isOpen={isMapSwipeProjectStatusDialogOpened}
           onClose={closeMapSwipeProjectStatusDialog}
           mapSwipeProjectId={activePrediction.mapswipe_project_id as string}
-          handleMapSwipeProjectResultMapModal={
-            handleMapSwipeProjectResultMapModal
-          }
+          handleMapSwipeProjectResultMapModal={handleMapSwipeProjectResultMapModal}
         />
       )}
 
@@ -134,11 +120,7 @@ export const UserProfileOfflinePredictionsPage = () => {
         />
       )}
       {activeTaskId && (
-        <TrainingLogsDialog
-          taskId={activeTaskId}
-          isOpened={isOpened}
-          closeDialog={closeDialog}
-        />
+        <TrainingLogsDialog taskId={activeTaskId} isOpened={isOpened} closeDialog={closeDialog} />
       )}
       <Head title="Prediction Requests" />
       <div className="space-y-8 h-full">
@@ -158,12 +140,7 @@ export const UserProfileOfflinePredictionsPage = () => {
               {data?.count} prediction
               {data?.count && data?.count > 1 ? "s" : ""}
             </p>
-            <LayoutToggle
-              query={query}
-              updateQuery={updateQuery}
-              isMobile
-              iconSize="icon"
-            />
+            <LayoutToggle query={query} updateQuery={updateQuery} isMobile iconSize="icon" />
           </div>
           <div className="flex w-full justify-between md:justify-end items-center md:gap-x-4">
             <OrderingFilter
@@ -185,11 +162,7 @@ export const UserProfileOfflinePredictionsPage = () => {
                 scrollToTopOnPageSwitch
               />
             </div>
-            <LayoutToggle
-              query={query}
-              updateQuery={updateQuery}
-              iconSize="icon"
-            />
+            <LayoutToggle query={query} updateQuery={updateQuery} iconSize="icon" />
           </div>
         </div>
         {query[SEARCH_PARAMS.layout] === LayoutView.LIST ? (
@@ -199,9 +172,7 @@ export const UserProfileOfflinePredictionsPage = () => {
             isPending={isPending}
             handleTrainingLogsModal={handleTrainingLogsModal}
             handlePredictionResultModal={handlePredictionResultModal}
-            handleCreateOrViewMapSwipeProject={
-              handleCreateOrViewMapSwipeProject
-            }
+            handleCreateOrViewMapSwipeProject={handleCreateOrViewMapSwipeProject}
           />
         ) : (
           <OfflinePredictionsList
@@ -211,9 +182,7 @@ export const UserProfileOfflinePredictionsPage = () => {
             refetch={refetch}
             handleTrainingLogsModal={handleTrainingLogsModal}
             handlePredictionResultModal={handlePredictionResultModal}
-            handleCreateOrViewMapSwipeProject={
-              handleCreateOrViewMapSwipeProject
-            }
+            handleCreateOrViewMapSwipeProject={handleCreateOrViewMapSwipeProject}
           />
         )}
       </div>

@@ -22,10 +22,7 @@ const GridSkeleton = ({ isMapview }: { isMapview?: boolean }) => (
     }
   >
     {Array.from({ length: 12 }).map((_, index) => (
-      <div
-        key={index}
-        className="w-full h-48 bg-light-gray rounded-lg animate-pulse"
-      />
+      <div key={index} className="w-full h-48 bg-light-gray rounded-lg animate-pulse" />
     ))}
   </div>
 );
@@ -46,9 +43,7 @@ export const AIPredictionsGrid = ({
   if (isError) {
     return (
       <div className="flex flex-col items-center justify-center w-full py-20 gap-y-4">
-        <p className="text-grey text-body-2base">
-          Error loading AI predictions.
-        </p>
+        <p className="text-grey text-body-2base">Error loading AI predictions.</p>
         <Button className="!w-fit" onClick={() => refetch()}>
           Retry
         </Button>

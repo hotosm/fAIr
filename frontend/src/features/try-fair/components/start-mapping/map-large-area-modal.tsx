@@ -6,10 +6,7 @@ import { DeleteIcon, InfoIcon, UploadIcon } from "@/components/ui/icons";
 import { DrawIcon } from "@/components/ui/icons/draw-icon";
 import { PictureIcon } from "@/components/ui/icons/picture-icon";
 import { ControlsPosition, DrawingModes, SHOELACE_SIZES } from "@/enums";
-import {
-  AOITab,
-  useMapLargeArea,
-} from "@/features/try-fair/hooks/use-map-large-area";
+import { AOITab, useMapLargeArea } from "@/features/try-fair/hooks/use-map-large-area";
 import { BBOX, IconProps } from "@/types";
 import { cn } from "@/utils";
 import { ToolTip } from "@/components/ui/tooltip";
@@ -87,9 +84,7 @@ const MapLargeAreaContent = ({
             onClick={() => handleTabChange(value)}
             className={cn(
               "p-2 lg:p-3 gap-2 text-dark rounded-lg flex items-center justify-between w-full transition-colors",
-              activeTab === value
-                ? "bg-secondary border-[#D63F4080] border"
-                : "bg-off-white",
+              activeTab === value ? "bg-secondary border-[#D63F4080] border" : "bg-off-white",
             )}
             key={value}
           >
@@ -211,9 +206,7 @@ const MapLargeAreaContent = ({
           className="!w-fit shrink-0"
           fontSize="14px"
           size="medium"
-          disabled={
-            !selectedAOI || !description.trim() || isSubmittingMapLargeArea
-          }
+          disabled={!selectedAOI || !description.trim() || isSubmittingMapLargeArea}
           spinner={isSubmittingMapLargeArea}
           onClick={handleSubmit}
           rounded

@@ -75,9 +75,7 @@ export const StartMappingMobileDrawer = ({
   predictionModelCheckpoint: string;
   setPredictionModelCheckpoint: React.Dispatch<React.SetStateAction<string>>;
   customPredictionModelCheckpointPath: string;
-  setCustomPredictionModelCheckpointPath: React.Dispatch<
-    React.SetStateAction<string>
-  >;
+  setCustomPredictionModelCheckpointPath: React.Dispatch<React.SetStateAction<string>>;
   openModelSelectionDialog: () => void;
   tileServerURL: string;
   tileServiceType: TileServiceType;
@@ -101,19 +99,13 @@ export const StartMappingMobileDrawer = ({
   hasDrawnAOI: boolean;
   openOfflinePredictionRequestDialog: () => void;
 }) => {
-  const [showDownloadOptions, setShowDownloadOptions] =
-    useState<boolean>(false);
+  const [showDownloadOptions, setShowDownloadOptions] = useState<boolean>(false);
   const currentZoom = useMapStore((state) => state.zoom);
 
-  const disablePrediction =
-    currentZoom < MIN_ZOOM_LEVEL_FOR_START_MAPPING_PREDICTION;
+  const disablePrediction = currentZoom < MIN_ZOOM_LEVEL_FOR_START_MAPPING_PREDICTION;
 
   return (
-    <MobileDrawer
-      open={isOpen}
-      dialogTitle="Start Mapping Mobile Dialog"
-      snapPoints={[0.2, 0.9]}
-    >
+    <MobileDrawer open={isOpen} dialogTitle="Start Mapping Mobile Dialog" snapPoints={[0.2, 0.9]}>
       <div className="mb-20">
         {disablePrediction && (
           <p className="text-center italic text-body-4 text-primary w-full">
@@ -133,9 +125,7 @@ export const StartMappingMobileDrawer = ({
                 setModelPredictions={setModelPredictions}
                 isOfflineMode={isOfflineMode}
                 hasDrawnAOI={hasDrawnAOI}
-                openOfflinePredictionRequestDialog={
-                  openOfflinePredictionRequestDialog
-                }
+                openOfflinePredictionRequestDialog={openOfflinePredictionRequestDialog}
               />
             </div>
             <div className="bg-off-white rounded-md p-1">
@@ -156,12 +146,8 @@ export const StartMappingMobileDrawer = ({
                 setPredictionModelCheckpoint={setPredictionModelCheckpoint}
                 predictionModel={predictionModel}
                 predictionModelCheckpoint={predictionModelCheckpoint}
-                customPredictionModelCheckpointPath={
-                  customPredictionModelCheckpointPath
-                }
-                setCustomPredictionModelCheckpointPath={
-                  setCustomPredictionModelCheckpointPath
-                }
+                customPredictionModelCheckpointPath={customPredictionModelCheckpointPath}
+                setCustomPredictionModelCheckpointPath={setCustomPredictionModelCheckpointPath}
                 openMobileDialog={openModelSelectionDialog}
                 isSmallViewport={isSmallViewport}
               />
@@ -206,9 +192,7 @@ export const StartMappingMobileDrawer = ({
               <ToolTip
                 content={
                   disablePrediction
-                    ? START_MAPPING_PAGE_CONTENT.actions.disabledModeTooltip(
-                        "see download options",
-                      )
+                    ? START_MAPPING_PAGE_CONTENT.actions.disabledModeTooltip("see download options")
                     : null
                 }
               >
@@ -226,10 +210,7 @@ export const StartMappingMobileDrawer = ({
                   .filter((option) => option.showOnMobile)
                   .map((option) => (
                     <li key={option.value}>
-                      <button
-                        className="flex items-center gap-x-4"
-                        onClick={option.onClick}
-                      >
+                      <button className="flex items-center gap-x-4" onClick={option.onClick}>
                         {option.name} <CloudDownloadIcon className="w-5 h-5" />
                       </button>
                     </li>

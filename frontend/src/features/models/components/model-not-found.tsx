@@ -18,48 +18,12 @@ const ModelNotFound = () => {
             stroke="#C7C7C7"
             strokeWidth="4.46429"
           />
-          <rect
-            x="31.25"
-            y="0.778992"
-            width="5.35714"
-            height="8.92857"
-            fill="#C7C7C7"
-          />
-          <rect
-            x="47.3213"
-            y="0.778992"
-            width="5.35714"
-            height="8.92857"
-            fill="#C7C7C7"
-          />
-          <rect
-            x="63.3926"
-            y="0.778992"
-            width="5.35714"
-            height="8.92857"
-            fill="#C7C7C7"
-          />
-          <rect
-            x="31.25"
-            y="91.8504"
-            width="5.35714"
-            height="8.92857"
-            fill="#C7C7C7"
-          />
-          <rect
-            x="47.3213"
-            y="91.8504"
-            width="5.35714"
-            height="8.92857"
-            fill="#C7C7C7"
-          />
-          <rect
-            x="63.3926"
-            y="91.8504"
-            width="5.35714"
-            height="8.92857"
-            fill="#C7C7C7"
-          />
+          <rect x="31.25" y="0.778992" width="5.35714" height="8.92857" fill="#C7C7C7" />
+          <rect x="47.3213" y="0.778992" width="5.35714" height="8.92857" fill="#C7C7C7" />
+          <rect x="63.3926" y="0.778992" width="5.35714" height="8.92857" fill="#C7C7C7" />
+          <rect x="31.25" y="91.8504" width="5.35714" height="8.92857" fill="#C7C7C7" />
+          <rect x="47.3213" y="91.8504" width="5.35714" height="8.92857" fill="#C7C7C7" />
+          <rect x="63.3926" y="91.8504" width="5.35714" height="8.92857" fill="#C7C7C7" />
           <rect
             y="69.529"
             width="5.35714"

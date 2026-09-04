@@ -18,20 +18,15 @@ export const SearchFilter: React.FC<SearchFilterProps> = ({
   placeholder,
   className,
 }) => {
-  const onSearchInput = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      const value = event.target.value;
-      updateQuery({
-        [SEARCH_PARAMS.searchQuery]: value,
-      });
-    },
-    [],
-  );
+  const onSearchInput = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    updateQuery({
+      [SEARCH_PARAMS.searchQuery]: value,
+    });
+  }, []);
 
   return (
-    <div
-      className={`flex max-w-[60%] items-center border border-gray-border ${className}`}
-    >
+    <div className={`flex max-w-[60%] items-center border border-gray-border ${className}`}>
       <SearchIcon className={`ml-2 icon-lg text-dark`} />
       <Input
         handleInput={onSearchInput}

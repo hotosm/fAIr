@@ -82,12 +82,7 @@ export const OamImageryMap = ({
 
   return (
     <div className="relative w-full h-full overflow-hidden">
-      <MapComponent
-        basemaps
-        map={map}
-        mapContainerRef={mapContainerRef}
-        zoomControls
-      >
+      <MapComponent basemaps map={map} mapContainerRef={mapContainerRef} zoomControls>
         <div className="absolute top-[25%] md:top-[18%] right-3 map-elements-z-index flex flex-col gap-y-4">
           <ToolTip content={searchIconTooltipContent}>
             <button

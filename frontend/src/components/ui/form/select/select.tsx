@@ -40,9 +40,7 @@ const Select: React.FC<SelectProps> = ({
 
   const getSize = (): TShoelaceSize | string => {
     if (size) return size;
-    return isMobile
-      ? SHOELACE_SELECT_SIZES.MEDIUM
-      : SHOELACE_SELECT_SIZES.LARGE;
+    return isMobile ? SHOELACE_SELECT_SIZES.MEDIUM : SHOELACE_SELECT_SIZES.LARGE;
   };
 
   return (

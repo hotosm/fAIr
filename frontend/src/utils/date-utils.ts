@@ -142,11 +142,7 @@ export const formatDate = (dateString: string, short?: boolean): string => {
  * @param {Date} endDate - The ending date and time.
  * @returns {string} - The formatted duration string (e.g., "2hr 15 Mins 30 Secs").
  */
-export const formatDuration = (
-  startDate: Date,
-  endDate: Date,
-  maxUnits: number = 4,
-): string => {
+export const formatDuration = (startDate: Date, endDate: Date, maxUnits: number = 4): string => {
   const diff = Math.abs(endDate.getTime() - startDate.getTime());
 
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));

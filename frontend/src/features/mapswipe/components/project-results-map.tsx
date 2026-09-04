@@ -10,9 +10,13 @@ type PredictionResultProps = DialogProps & {
   pmtilesUrl: string;
 };
 
-export const MapSwipeProjectResultMapDrawer: React.FC<
-  PredictionResultProps
-> = ({ isOpened, closeDialog, predictionId, tileServiceUrl, pmtilesUrl }) => {
+export const MapSwipeProjectResultMapDrawer: React.FC<PredictionResultProps> = ({
+  isOpened,
+  closeDialog,
+  predictionId,
+  tileServiceUrl,
+  pmtilesUrl,
+}) => {
   return (
     <Drawer
       open={isOpened}

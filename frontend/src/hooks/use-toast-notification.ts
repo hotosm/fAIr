@@ -16,12 +16,7 @@ import "@shoelace-style/shoelace/dist/components/alert/alert.js";
 export const useToastNotification = () => {
   const toast = (
     message: string,
-    variant:
-      | "primary"
-      | "success"
-      | "neutral"
-      | "warning"
-      | "danger" = "primary",
+    variant: "primary" | "success" | "neutral" | "warning" | "danger" = "primary",
     duration: number = 3000,
   ) => {
     const alert = Object.assign(document.createElement("sl-alert"), {

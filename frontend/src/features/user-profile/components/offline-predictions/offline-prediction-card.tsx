@@ -37,9 +37,7 @@ export const OfflinePredictionCard = ({
             predictionResult={predictionResult}
             showSettingsInfo
             placement={DropdownPlacement.BOTTOM_START}
-            handleCreateOrViewMapSwipeProject={
-              handleCreateOrViewMapSwipeProject
-            }
+            handleCreateOrViewMapSwipeProject={handleCreateOrViewMapSwipeProject}
           />
         </div>
         <TrainingStatusBadge
@@ -50,18 +48,10 @@ export const OfflinePredictionCard = ({
         />
 
         <div className="flex gap-x-4 mt-2">
-          <Button
-            variant={ButtonVariant.TERTIARY}
-            className="!w-fit"
-            size={SHOELACE_SIZES.SMALL}
-          >
+          <Button variant={ButtonVariant.TERTIARY} className="!w-fit" size={SHOELACE_SIZES.SMALL}>
             <p>ID: {predictionResult.id}</p>
           </Button>
-          <Button
-            variant={ButtonVariant.DARK}
-            className="!w-fit"
-            size={SHOELACE_SIZES.SMALL}
-          >
+          <Button variant={ButtonVariant.DARK} className="!w-fit" size={SHOELACE_SIZES.SMALL}>
             <p>Zoom: {predictionResult.zoom}</p>
           </Button>
           <MapSwipeProjectIsActive
@@ -77,9 +67,7 @@ export const OfflinePredictionCard = ({
         <p className="text-dark text-body-3">
           Date Submitted:{" "}
           <span className="font-semibold">
-            {predictionResult.submitted_at
-              ? formatDate(predictionResult.submitted_at)
-              : "-"}
+            {predictionResult.submitted_at ? formatDate(predictionResult.submitted_at) : "-"}
           </span>
         </p>
         <p className="text-dark text-body-3">

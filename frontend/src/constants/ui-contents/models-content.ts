@@ -60,11 +60,9 @@ export const MODELS_CONTENT: TModelsContent = {
       form: {
         datasetName: {
           label: "Dataset Name",
-          helpText:
-            "Dataset name should be at least 10 characters and at most 40 characters.",
+          helpText: "Dataset name should be at least 10 characters and at most 40 characters.",
           placeholder: "E.g Kakuma OpenAerial Imagery",
-          toolTip:
-            "Dataset name should be at least 10 characters and at most 40 characters.",
+          toolTip: "Dataset name should be at least 10 characters and at most 40 characters.",
         },
         existingTrainingDatasetSectionDescription:
           "Browse or search for a dataset name. Select a dataset to proceed.",
@@ -73,8 +71,7 @@ export const MODELS_CONTENT: TModelsContent = {
           placeholder: "Enter a dataset name to search",
         },
       },
-      editModePageDescription:
-        "You cannot edit a model dataset when editing...",
+      editModePageDescription: "You cannot edit a model dataset when editing...",
       pageDescription:
         "A training dataset consists of high-resolution aerial imagery used as the base layer for fine-tuning your AI model. You can either create a new dataset or select existing imagery that covers your area of interest.",
     },
@@ -88,12 +85,10 @@ export const MODELS_CONTENT: TModelsContent = {
         openINJOSM: "Click to open this training area in JOSM.",
         openInIdEditor: "Click to open this training area in ID Editor.",
         downloadAOI: "Click to download this training area as GeoJSON.",
-        downloadLabels:
-          "Click to download the labels in this training area as GeoJSON.",
+        downloadLabels: "Click to download the labels in this training area as GeoJSON.",
         uploadLabels: "Click to upload training labels for this training area.",
         deleteAOI: "Click to delete this training area.",
-        fitToTMSBounds:
-          "Click to adjust the map view to fit the imagery bounds.",
+        fitToTMSBounds: "Click to adjust the map view to fit the imagery bounds.",
       },
       pageTitle: "Create Training Area",
       datasetID: "Dataset ID:",
@@ -114,10 +109,8 @@ export const MODELS_CONTENT: TModelsContent = {
       },
       fileUploadDialog: {
         title: "Upload Training Area(s)",
-        mainInstruction:
-          "Drag 'n' drop some files here, or click to select files",
-        fleSizeInstruction:
-          "Supports only GeoJSON (.geojson) files. (1MB max.)",
+        mainInstruction: "Drag 'n' drop some files here, or click to select files",
+        fleSizeInstruction: "Supports only GeoJSON (.geojson) files. (1MB max.)",
       },
       pageDescription:
         "Make sure you create at least one training area and data is accurate for each training area",
@@ -142,10 +135,8 @@ export const MODELS_CONTENT: TModelsContent = {
         goToModel: "go to model",
         exploreModels: "explore models",
       },
-      description:
-        "Your created model was successful, and it is now undergoing a training.",
-      updateDescription:
-        "Model update was successful, and it is now undergoing a training.",
+      description: "Your created model was successful, and it is now undergoing a training.",
+      updateDescription: "Model update was successful, and it is now undergoing a training.",
     },
     trainingSettings: {
       form: {
@@ -161,18 +152,15 @@ export const MODELS_CONTENT: TModelsContent = {
         },
         advancedSettings: {
           label: "Advanced Settings",
-          toolTip:
-            "Modify additional parameters for fine-tuning your model training.",
+          toolTip: "Modify additional parameters for fine-tuning your model training.",
         },
         epoch: {
           label: "Epoch",
-          toolTip:
-            "Specify the number of training iterations. A higher number improves learning.",
+          toolTip: "Specify the number of training iterations. A higher number improves learning.",
         },
         contactSpacing: {
           label: "Contact Spacing",
-          toolTip:
-            "Defines the minimum spacing between detected objects during training.",
+          toolTip: "Defines the minimum spacing between detected objects during training.",
         },
         batchSize: {
           label: "Batch Size",
@@ -242,8 +230,7 @@ export const MODELS_CONTENT: TModelsContent = {
       properties: {
         zoomLevels: {
           title: "Zoom Levels",
-          tooltip:
-            "Those are the zoom level tiles imagery that was used when training this model",
+          tooltip: "Those are the zoom level tiles imagery that was used when training this model",
         },
         epochs: {
           title: "Epochs",

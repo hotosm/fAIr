@@ -24,9 +24,7 @@ export const createMapSwipeProject = async ({
 export const getMapSwipeProjectStatus = async (
   projectId: string,
 ): Promise<TMapSwipeProjectStatus> => {
-  const res = await apiClient.get(
-    API_ENDPOINTS.GET_MAPSWIPE_PROJECT_STATUS(projectId),
-  );
+  const res = await apiClient.get(API_ENDPOINTS.GET_MAPSWIPE_PROJECT_STATUS(projectId));
   return {
     ...res.data.data,
   };

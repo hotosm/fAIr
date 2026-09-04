@@ -14,10 +14,7 @@ type AllPredictionsLayerProps = {
   features: Feature[];
 };
 
-export const AllPredictionsLayer = ({
-  map,
-  features,
-}: AllPredictionsLayerProps) => {
+export const AllPredictionsLayer = ({ map, features }: AllPredictionsLayerProps) => {
   const geoJsonData = useMemo(
     () => ({
       type: "FeatureCollection",
@@ -97,9 +94,7 @@ export const AllPredictionsLayer = ({
 
   useEffect(() => {
     if (!map || !features || !map.getStyle()) return;
-    const source = map.getSource(
-      ALL_MODEL_PREDICTIONS_SOURCE_ID,
-    ) as GeoJSONSource;
+    const source = map.getSource(ALL_MODEL_PREDICTIONS_SOURCE_ID) as GeoJSONSource;
     if (source) {
       source.setData(geoJsonData as GeoJSONType);
     }

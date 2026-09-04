@@ -34,7 +34,7 @@ Before you start contributing code, set up your local development environment:
 2. **Set up Docker environment** (recommended):
 
    ```bash
-   docker compose up  
+   docker compose up
    cp backend/.env.example backend/.env
    docker compose up api worker
    ```

@@ -78,11 +78,7 @@ export const TrainingDatasetsDetailPage = () => {
       <Head title={`${data.name} Dataset`} />
       {showEditOptions && (
         <>
-          <DatasetEditDialog
-            data={data}
-            isOpened={isOpened}
-            closeDialog={closeDialog}
-          />
+          <DatasetEditDialog data={data} isOpened={isOpened} closeDialog={closeDialog} />
           <DatasetAOIEditDrawer
             isOpened={AOIEditDrawerIsOpened}
             closeDialog={closeAOIEditDrawer}
@@ -112,12 +108,10 @@ export const TrainingDatasetsDetailPage = () => {
                 {data.models_count > 1 ? "models" : "model"}
               </p>
               <p className="text-dark text-body-2 text-nowrap">
-                <span className="text-grey">Created by:</span>{" "}
-                {data.user.username}
+                <span className="text-grey">Created by:</span> {data.user.username}
               </p>
               <p className="text-dark text-body-2">
-                <span className="text-grey">Last Modified:</span>{" "}
-                {formatDate(data.last_modified)}
+                <span className="text-grey">Last Modified:</span> {formatDate(data.last_modified)}
               </p>
             </div>
             <div className="flex items-center text-body-2 text-dark">
@@ -138,10 +132,7 @@ export const TrainingDatasetsDetailPage = () => {
               }}
               className="!w-fit"
             />
-            <DatasetAreaButton
-              onClick={openDatasetAreaDrawer}
-              disabled={false}
-            />
+            <DatasetAreaButton onClick={openDatasetAreaDrawer} disabled={false} />
             {/* Edit Dropdown  */}
             <div className="flex justify-start lg:justify-end items-start">
               {showEditOptions && (

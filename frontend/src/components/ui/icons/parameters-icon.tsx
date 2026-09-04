@@ -14,12 +14,7 @@ export const ParametersIcon: React.FC<IconProps> = (props) => (
       stroke="#141B34"
       d="M6.649 3.167v1.326c0 .932 0 1.398.124 1.846.125.447.37.858.86 1.68l.662 1.113c1.247 2.095 1.87 3.142 1.36 3.918l-.009.011c-.519.773-1.839.773-4.48.773-2.64 0-3.96 0-4.479-.772L.68 13.05c-.511-.777.112-1.824 1.359-3.918l.663-1.113c.49-.822.734-1.233.859-1.68.125-.448.125-.914.125-1.846V3.167"
     ></path>
-    <path
-      stroke="#141B34"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M3.168 3.167h4"
-    ></path>
+    <path stroke="#141B34" strokeLinecap="round" strokeLinejoin="round" d="M3.168 3.167h4"></path>
     <path
       stroke="#141B34"
       strokeLinecap="round"

@@ -47,8 +47,7 @@ type AuthProviderProps = {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const { getValue, setValue, removeValue } = useLocalStorage();
-  const { getSessionValue, removeSessionValue, setSessionValue } =
-    useSessionStorage();
+  const { getSessionValue, removeSessionValue, setSessionValue } = useSessionStorage();
 
   const isTryFairPage = location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR);
 
@@ -61,9 +60,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<TUser | undefined>(undefined);
 
   const isAuthenticated =
-    AUTH_PROVIDER === "hanko"
-      ? user !== undefined
-      : user !== undefined && token !== undefined;
+    AUTH_PROVIDER === "hanko" ? user !== undefined : user !== undefined && token !== undefined;
 
   /**
    * Set token globally to eliminate the need to rewrite it.
@@ -73,9 +70,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   if (AUTH_PROVIDER === "hanko" && !IS_DEV) {
     apiClient.defaults.withCredentials = true;
   } else {
-    apiClient.defaults.headers.common["Authorization"] = token
-      ? `Bearer ${token}`
-      : null;
+    apiClient.defaults.headers.common["Authorization"] = token ? `Bearer ${token}` : null;
   }
 
   const handleRedirection = () => {
@@ -91,9 +86,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
    * To show the login success after completing redirection if any.
    */
   useEffect(() => {
-    const loginSuccessful = getSessionValue(
-      HOT_FAIR_LOGIN_SUCCESSFUL_SESSION_KEY,
-    );
+    const loginSuccessful = getSessionValue(HOT_FAIR_LOGIN_SUCCESSFUL_SESSION_KEY);
     if (loginSuccessful == "success") {
       showSuccessToast(TOAST_NOTIFICATIONS.loginSuccess);
       removeSessionValue(HOT_FAIR_LOGIN_SUCCESSFUL_SESSION_KEY);
@@ -138,9 +131,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         if (response.ok) {
           const userData = await response.json();
           if (!userData.img_url) {
-            const hankoUser = JSON.parse(
-              localStorage.getItem("hotosm-auth-user") || "{}",
-            );
+            const hankoUser = JSON.parse(localStorage.getItem("hotosm-auth-user") || "{}");
             if (hankoUser.avatarUrl) {
               userData.img_url = hankoUser.avatarUrl;
             }
@@ -275,9 +266,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           .then((res) => (res.ok ? res.json() : Promise.reject()))
           .then((userData) => {
             if (!userData.img_url) {
-              const hankoUser = JSON.parse(
-                localStorage.getItem("hotosm-auth-user") || "{}",
-              );
+              const hankoUser = JSON.parse(localStorage.getItem("hotosm-auth-user") || "{}");
               if (hankoUser.avatarUrl) {
                 userData.img_url = hankoUser.avatarUrl;
               }

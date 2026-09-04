@@ -14,10 +14,7 @@ type GridOffScreenNudgeProps = {
  * an arrow pointing toward it) that lets the user bring the grid to the current
  * view with one tap.
  */
-export const GridOffScreenNudge = ({
-  visibility,
-  onBringGrid,
-}: GridOffScreenNudgeProps) => {
+export const GridOffScreenNudge = ({ visibility, onBringGrid }: GridOffScreenNudgeProps) => {
   if (!visibility.isOffScreen) return null;
 
   const { angleRad } = visibility;

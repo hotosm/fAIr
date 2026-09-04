@@ -23,8 +23,7 @@ export const clamp = (value: number, min: number, max: number): number =>
  * constant N×N tile block. Its cell count is independent of zoom — only its
  * on-screen size changes with the tile zoom.
  */
-export const getSelectedGridSpec = (): SelectedGridSpec =>
-  DEFAULT_SELECTED_GRID;
+export const getSelectedGridSpec = (): SelectedGridSpec => DEFAULT_SELECTED_GRID;
 
 /**
  * Convert a geographic lng/lat to fractional tile coordinates at `tileZoom`.
@@ -106,20 +105,10 @@ export const computeCenteredAnchor = (
 export const computeGridBBox = (anchor: TileAnchor): BBOX => {
   const gridSpec = getSelectedGridSpec();
   const northWest = num2deg(anchor.x, anchor.y, anchor.z);
-  const southEast = num2deg(
-    anchor.x + gridSpec.columns,
-    anchor.y + gridSpec.rows,
-    anchor.z,
-  );
-  return [
-    northWest.lon_deg,
-    southEast.lat_deg,
-    southEast.lon_deg,
-    northWest.lat_deg,
-  ];
+  const southEast = num2deg(anchor.x + gridSpec.columns, anchor.y + gridSpec.rows, anchor.z);
+  return [northWest.lon_deg, southEast.lat_deg, southEast.lon_deg, northWest.lat_deg];
 };
 
 /** Map a resolution enum to its corresponding tile zoom level. Defaults to MID. */
-export const getTileZoomForResolution = (
-  resolution?: TryFairResolution,
-): number => TRY_FAIR_RESOLUTION_ZOOM[resolution ?? TryFairResolution.MID];
+export const getTileZoomForResolution = (resolution?: TryFairResolution): number =>
+  TRY_FAIR_RESOLUTION_ZOOM[resolution ?? TryFairResolution.MID];

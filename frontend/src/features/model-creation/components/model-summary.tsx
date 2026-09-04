@@ -94,12 +94,7 @@ const ModelSummaryForm = () => {
         description={MODELS_CONTENT.modelCreation.modelSummary.pageDescription}
       />
       {summaryData.map((item, index) => (
-        <SummaryItem
-          key={index}
-          icon={item.icon}
-          label={item.label}
-          content={item.content}
-        />
+        <SummaryItem key={index} icon={item.icon} label={item.label} content={item.content} />
       ))}
     </div>
   );

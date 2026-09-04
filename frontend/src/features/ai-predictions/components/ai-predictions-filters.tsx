@@ -61,8 +61,7 @@ export const AIPredictionsFilters = ({
     [SEARCH_PARAMS.layout]: layout,
     [SEARCH_PARAMS.mapIsActive]: mapViewIsActive,
   };
-  const endIndex =
-    offset + PAGE_LIMIT < totalCount ? offset + PAGE_LIMIT : totalCount;
+  const endIndex = offset + PAGE_LIMIT < totalCount ? offset + PAGE_LIMIT : totalCount;
 
   return (
     <div className="space-y-4">
@@ -71,9 +70,7 @@ export const AIPredictionsFilters = ({
         <div className="flex items-center border border-gray-border w-full sm:max-w-xs">
           <SearchIcon className="ml-2 icon-lg text-dark" />
           <Input
-            handleInput={(e: React.ChangeEvent<HTMLInputElement>) =>
-              onSearchChange(e.target.value)
-            }
+            handleInput={(e: React.ChangeEvent<HTMLInputElement>) => onSearchChange(e.target.value)}
             value={search}
             placeholder="Search"
             className="w-full outline-none border-none focus:outline-none focus:ring-0"
@@ -96,17 +93,13 @@ export const AIPredictionsFilters = ({
             <DropDown
               menuItems={orderingMenuItems}
               handleMenuSelection={(selectedLabel: string) => {
-                const opt = ORDERING_OPTIONS.find(
-                  (o) => o.label === selectedLabel,
-                );
+                const opt = ORDERING_OPTIONS.find((o) => o.label === selectedLabel);
                 if (opt) onOrderingChange(opt.value);
               }}
               withCheckbox
               defaultSelectedItem={selectedOrderingLabel}
               triggerComponent={
-                <p className="text-xs md:text-sm text-dark text-nowrap cursor-pointer">
-                  Sort by
-                </p>
+                <p className="text-xs md:text-sm text-dark text-nowrap cursor-pointer">Sort by</p>
               }
             />
 
@@ -119,23 +112,13 @@ export const AIPredictionsFilters = ({
               />
 
               {/* Layout toggle */}
-              <ToolTip
-                content={`Show as ${isGridView ? LayoutView.LIST : LayoutView.GRID}`}
-              >
+              <ToolTip content={`Show as ${isGridView ? LayoutView.LIST : LayoutView.GRID}`}>
                 <button
                   className="border border-gray-border p-2 items-center flex justify-center text-dark cursor-pointer"
                   disabled={mapViewIsActive}
-                  onClick={() =>
-                    onLayoutChange(
-                      isGridView ? LayoutView.LIST : LayoutView.GRID,
-                    )
-                  }
+                  onClick={() => onLayoutChange(isGridView ? LayoutView.LIST : LayoutView.GRID)}
                 >
-                  {isGridView ? (
-                    <ListIcon className="icon" />
-                  ) : (
-                    <CategoryIcon className="icon" />
-                  )}
+                  {isGridView ? <ListIcon className="icon" /> : <CategoryIcon className="icon" />}
                 </button>
               </ToolTip>
             </div>

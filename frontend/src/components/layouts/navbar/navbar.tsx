@@ -58,8 +58,7 @@ export const NavBar = () => {
 
   const location = useLocation();
   const isTryFairPage = location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR);
-  const isAuthenticated =
-    (isTryFairPage && DISABLE_AUTH_ON_TRY_FAIR) || _isAuthenticated;
+  const isAuthenticated = (isTryFairPage && DISABLE_AUTH_ON_TRY_FAIR) || _isAuthenticated;
   const isHankoAuth = AUTH_PROVIDER === "hanko";
   return (
     <>
@@ -72,19 +71,13 @@ export const NavBar = () => {
         <div className={styles.drawerContentContainer}>
           <div className={styles.drawerHeaderContainer}>
             <NavLogo />
-            <button
-              onClick={() => setOpen(false)}
-              className={styles.closeButton}
-            >
+            <button onClick={() => setOpen(false)} className={styles.closeButton}>
               &#x2715;
             </button>
           </div>
           {!isTryFairPage && (
             <div className={styles.navLinksContainer}>
-              <NavBarLinks
-                className={styles.mobileNavLinks}
-                setOpen={setOpen}
-              />
+              <NavBarLinks className={styles.mobileNavLinks} setOpen={setOpen} />
             </div>
           )}
           {_isAuthenticated && <Divider />}
@@ -102,11 +95,7 @@ export const NavBar = () => {
                   />
                 )}
                 <>
-                  <span
-                    className={
-                      isAuthenticated ? "border-t-2 w-full mt-2" : "pb-4 pl-4"
-                    }
-                  >
+                  <span className={isAuthenticated ? "border-t-2 w-full mt-2" : "pb-4 pl-4"}>
                     <HankoAuthComponent displayBar />
                   </span>
                 </>
@@ -123,19 +112,13 @@ export const NavBar = () => {
               <div className="relative pb-4 pl-4">
                 <ToolTip
                   content={
-                    isTryFairPage
-                      ? "Sign in to access full mapping tools and features"
-                      : undefined
+                    isTryFairPage ? "Sign in to access full mapping tools and features" : undefined
                   }
                 >
                   <Button
                     rounded={isTryFairPage}
                     size={isTryFairPage ? "medium" : "large"}
-                    variant={
-                      isTryFairPage
-                        ? ButtonVariant.TERTIARY
-                        : ButtonVariant.PRIMARY
-                    }
+                    variant={isTryFairPage ? ButtonVariant.TERTIARY : ButtonVariant.PRIMARY}
                     onClick={() => {
                       /*
                        * Set the `backgroundLocation` in location state so that when we open the authentication modal we still see the current page in the background.
@@ -156,9 +139,7 @@ export const NavBar = () => {
         </div>
       </Drawer>
 
-      <nav
-        className={`${styles.nav} app-padding z-20 py-1 border-b border-gray-border`}
-      >
+      <nav className={`${styles.nav} app-padding z-20 py-1 border-b border-gray-border`}>
         <div className="flex-1 flex items-center justify-start">
           <NavLogo />
         </div>
@@ -189,26 +170,16 @@ export const NavBar = () => {
           ) : (
             <div
               className="relative"
-              id={
-                isTryFairPage
-                  ? APP_TOUR_IDS.TRY_FAIR_START_MAPPING_BUTTON
-                  : undefined
-              }
+              id={isTryFairPage ? APP_TOUR_IDS.TRY_FAIR_START_MAPPING_BUTTON : undefined}
             >
               <ToolTip
                 content={
-                  isTryFairPage
-                    ? "Sign in to access full mapping tools and features"
-                    : undefined
+                  isTryFairPage ? "Sign in to access full mapping tools and features" : undefined
                 }
               >
                 <Button
                   className={styles.loginButton}
-                  variant={
-                    isTryFairPage
-                      ? ButtonVariant.TERTIARY
-                      : ButtonVariant.PRIMARY
-                  }
+                  variant={isTryFairPage ? ButtonVariant.TERTIARY : ButtonVariant.PRIMARY}
                   size={isTryFairPage ? "medium" : "large"}
                   rounded={isTryFairPage}
                   onClick={() => {
@@ -232,10 +203,7 @@ export const NavBar = () => {
         <div className="flex items-center gap-x-2 sm:hidden">
           {/* Notification bell on the small screens */}
           {_isAuthenticated && <UserNotifications />}
-          <button
-            className={styles.hamburgerMenu}
-            onClick={() => setOpen(true)}
-          >
+          <button className={styles.hamburgerMenu} onClick={() => setOpen(true)}>
             <Image
               src={HamburgerIcon}
               alt={SHARED_CONTENT.navbar.hamburgerMenuAlt}
@@ -269,10 +237,7 @@ const NavBarLinks: React.FC<NavBarLinksProps> = ({ className, setOpen }) => {
         .map((link, id) => {
           const isActive =
             location.pathname.includes(link.href) ||
-            (link.children?.some((child) =>
-              location.pathname.includes(child.href),
-            ) ??
-              false);
+            (link.children?.some((child) => location.pathname.includes(child.href)) ?? false);
 
           return (
             <li

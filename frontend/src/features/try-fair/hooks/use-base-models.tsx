@@ -7,9 +7,7 @@ export type TGetBaseModelsParams = {
   page?: number;
 };
 
-export const getBaseModels = async ({
-  limit = 20,
-}: TGetBaseModelsParams = {}) => {
+export const getBaseModels = async ({ limit = 20 }: TGetBaseModelsParams = {}) => {
   const res = await stacClient.get(API_ENDPOINTS.GET_BASE_MODELS(limit));
   return {
     ...res.data,
@@ -17,9 +15,7 @@ export const getBaseModels = async ({
     hasPrev: res.data.previous,
   };
 };
-export const getLocalModels = async ({
-  limit = 20,
-}: TGetBaseModelsParams = {}) => {
+export const getLocalModels = async ({ limit = 20 }: TGetBaseModelsParams = {}) => {
   const res = await stacClient.get(API_ENDPOINTS.GET_LOCAL_MODELS(limit));
   return {
     ...res.data,

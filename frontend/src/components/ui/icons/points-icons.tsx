@@ -10,19 +10,7 @@ export const PointsIcon: React.FC<IconProps> = (props) => (
     {...props}
     viewBox="0 0 15 15"
   >
-    <circle
-      cx="7.167"
-      cy="7.167"
-      r="6.667"
-      fill="#687075"
-      opacity="0.4"
-    ></circle>
-    <circle
-      cx="7.167"
-      cy="7.167"
-      r="6.667"
-      stroke="#687075"
-      strokeLinejoin="round"
-    ></circle>
+    <circle cx="7.167" cy="7.167" r="6.667" fill="#687075" opacity="0.4"></circle>
+    <circle cx="7.167" cy="7.167" r="6.667" stroke="#687075" strokeLinejoin="round"></circle>
   </svg>
 );

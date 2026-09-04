@@ -20,9 +20,7 @@ const ModelFeedbacks = ({ trainingId }: { trainingId: number }) => {
           size="medium"
           disabled={trainingId === null || data?.count === 0}
           onClick={() => {
-            navigate(
-              `${currentPath}/${APPLICATION_ROUTES.MODEL_FEEDBACKS_BASE_ROUTE}`,
-            );
+            navigate(`${currentPath}/${APPLICATION_ROUTES.MODEL_FEEDBACKS_BASE_ROUTE}`);
           }}
         >
           {`${MODELS_CONTENT.models.modelsDetailsCard.feedbacks} (${data?.count ?? 0})`}

@@ -5,10 +5,7 @@ import { PaginatedTrainingArea } from "@/types";
 import { MapComponent } from "@/components/map";
 import { RefObject, useCallback, useEffect, useState } from "react";
 import { useGetTrainingDatasetLabels } from "@/features/model-creation/hooks/use-training-areas";
-import {
-  MAP_STYLES_PREFIX,
-  MIN_ZOOM_LEVEL_FOR_TRAINING_AREA_LABELS,
-} from "@/config";
+import { MAP_STYLES_PREFIX, MIN_ZOOM_LEVEL_FOR_TRAINING_AREA_LABELS } from "@/config";
 
 import {
   TrainingAreasLayers,
@@ -50,12 +47,11 @@ export const DatasetAreaMap = ({
 
   const debouncedZoom = useDebounce(currentZoom.toString(), DEBOUNCE_DELAY);
 
-  const { data: labels, isPending: trainingAreasLabelsIsPending } =
-    useGetTrainingDatasetLabels(
-      trainingDatasetId,
-      debouncedBbox,
-      Number(debouncedZoom),
-    );
+  const { data: labels, isPending: trainingAreasLabelsIsPending } = useGetTrainingDatasetLabels(
+    trainingDatasetId,
+    debouncedBbox,
+    Number(debouncedZoom),
+  );
 
   const updateBbox = useCallback(() => {
     if (!map) return;
@@ -87,10 +83,7 @@ export const DatasetAreaMap = ({
           ? [
               {
                 value: "Training Labels",
-                subLayers: [
-                  trainingAreasLabelsFillLayerId,
-                  trainingAreasLabelsOutlineLayerId,
-                ],
+                subLayers: [trainingAreasLabelsFillLayerId, trainingAreasLabelsOutlineLayerId],
               },
             ]
           : []),
@@ -98,10 +91,7 @@ export const DatasetAreaMap = ({
           ? [
               {
                 value: "Training Areas",
-                subLayers: [
-                  trainingAreasOutlineLayerId,
-                  trainingAreasFillLayerId,
-                ],
+                subLayers: [trainingAreasOutlineLayerId, trainingAreasFillLayerId],
               },
             ]
           : []),
@@ -117,8 +107,7 @@ export const DatasetAreaMap = ({
         />
       )}
 
-      {!trainingAreasLabelsIsPending &&
-      currentZoom >= MIN_ZOOM_LEVEL_FOR_TRAINING_AREA_LABELS ? (
+      {!trainingAreasLabelsIsPending && currentZoom >= MIN_ZOOM_LEVEL_FOR_TRAINING_AREA_LABELS ? (
         <TrainingAreasLabelsLayers
           map={map}
           features={labels?.features}

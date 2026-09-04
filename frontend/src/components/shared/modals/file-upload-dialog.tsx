@@ -37,9 +37,7 @@ type FileUploadDialogProps = DialogProps & {
   additionalInstruction?: string;
 };
 
-const isPolygonGeometry = (
-  geometry: Geometry,
-): geometry is Polygon | MultiPolygon => {
+const isPolygonGeometry = (geometry: Geometry): geometry is Polygon | MultiPolygon => {
   return geometry.type === "Polygon" || geometry.type === "MultiPolygon";
 };
 
@@ -70,10 +68,7 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
     (files: FileWithPath[]) => {
       const initialValidFiles = files.filter((file) => {
         if (!file.name.endsWith(".geojson") && !file.name.endsWith(".json")) {
-          showErrorToast(
-            undefined,
-            `File ${file.name} is not a supported format`,
-          );
+          showErrorToast(undefined, `File ${file.name} is not a supported format`);
           return false;
         }
         if (file.size > MAX_TRAINING_AREA_UPLOAD_FILE_SIZE) {
@@ -105,10 +100,7 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
                 }
               }
               validFiles.push({ file, id: generateUniqueId() });
-            } else if (
-              !disableFileSizeValidation &&
-              validateGeoJSONArea(geojson as Feature)
-            ) {
+            } else if (!disableFileSizeValidation && validateGeoJSONArea(geojson as Feature)) {
               showErrorToast(
                 undefined,
                 `The area of ${file.name} does not satisfy the required size constraints.`,
@@ -145,8 +137,7 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
     disabled:
       disabled ||
       uploadInProgress ||
-      acceptedFiles.length ===
-        MAX_GEOJSON_FILE_UPLOAD_FOR_TRAINING_AREA_LABELS ||
+      acceptedFiles.length === MAX_GEOJSON_FILE_UPLOAD_FOR_TRAINING_AREA_LABELS ||
       acceptedFiles.length === MAX_GEOJSON_FILE_UPLOAD_FOR_TRAINING_AREAS,
   });
 
@@ -176,14 +167,8 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
           if (isAOILabelsUpload) {
             rawFiles.push(file);
           } else {
-            if (
-              !disableFileSizeValidation &&
-              validateGeoJSONArea(geojson as Feature)
-            ) {
-              showErrorToast(
-                undefined,
-                `File area for ${file.name} does not satisfy size limit.`,
-              );
+            if (!disableFileSizeValidation && validateGeoJSONArea(geojson as Feature)) {
+              showErrorToast(undefined, `File area for ${file.name} does not satisfy size limit.`);
               continue;
             }
             if (geojson.type === "FeatureCollection") {
@@ -191,10 +176,7 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
                 .map((feature) => feature.geometry)
                 .filter(isPolygonGeometry);
               if (polygons.length === 0) {
-                showErrorToast(
-                  undefined,
-                  `No valid Polygon features found in ${file.name}.`,
-                );
+                showErrorToast(undefined, `No valid Polygon features found in ${file.name}.`);
                 continue;
               }
               allGeometries.push(...polygons);
@@ -202,10 +184,7 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
               if (isPolygonGeometry(geojson.geometry)) {
                 allGeometries.push(geojson.geometry);
               } else {
-                showErrorToast(
-                  undefined,
-                  `Feature geometry in ${file.name} is not a Polygon.`,
-                );
+                showErrorToast(undefined, `Feature geometry in ${file.name} is not a Polygon.`);
                 continue;
               }
             } else {
@@ -259,9 +238,7 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
                 <FileIcon className="icon " />
               </span>
               <div>
-                <p className="text-dark text-body-3">
-                  {truncateString(file.file.name)}
-                </p>
+                <p className="text-dark text-body-3">{truncateString(file.file.name)}</p>
                 <SlFormatBytes value={file.file.size} className="text-sm" />
               </div>
             </div>
@@ -293,22 +270,14 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
           <UploadIcon className="icon-lg w-10 h-10 " />
           <input {...getInputProps()} />
           {isDragActive ? (
-            <p className="text-body-4 md:text-body-3 text-center">
-              Drop the files here ...
-            </p>
+            <p className="text-body-4 md:text-body-3 text-center">Drop the files here ...</p>
           ) : (
             <>
               <p className="text-body-4 md:text-body-3 text-center">
-                {
-                  MODELS_CONTENT.modelCreation.trainingArea.fileUploadDialog
-                    .mainInstruction
-                }
+                {MODELS_CONTENT.modelCreation.trainingArea.fileUploadDialog.mainInstruction}
               </p>
               <small className="text-body-4 md:text-body-3 text-center">
-                {
-                  MODELS_CONTENT.modelCreation.trainingArea.fileUploadDialog
-                    .fleSizeInstruction
-                }
+                {MODELS_CONTENT.modelCreation.trainingArea.fileUploadDialog.fleSizeInstruction}
               </small>
 
               {!disableFileSizeValidation && (
@@ -333,14 +302,10 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
           )}
         </div>
         <small>{acceptedFiles.length} file(s) selected</small>
-        <ul className="flex flex-col gap-y-2 overflow-y-auto max-h-40">
-          {files}
-        </ul>
+        <ul className="flex flex-col gap-y-2 overflow-y-auto max-h-40">{files}</ul>
         <div className="self-end">
           <Button
-            disabled={
-              acceptedFiles.length === 0 || disabled || uploadInProgress
-            }
+            disabled={acceptedFiles.length === 0 || disabled || uploadInProgress}
             onClick={handleUpload}
             className="flex items-center gap-x-2"
           >

@@ -1,8 +1,5 @@
 import { Map } from "maplibre-gl";
-import {
-  GOOGLE_SATELLITE_BASEMAP_LAYER_ID,
-  GOOGLE_SATELLITE_BASEMAP_SOURCE_ID,
-} from "@/config";
+import { GOOGLE_SATELLITE_BASEMAP_LAYER_ID, GOOGLE_SATELLITE_BASEMAP_SOURCE_ID } from "@/config";
 import { useMapLayers } from "@/hooks/use-map-layer";
 
 export const GoogleBasemapLayer = ({ map }: { map: Map | null }) => {

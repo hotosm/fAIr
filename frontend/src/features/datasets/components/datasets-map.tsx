@@ -43,17 +43,7 @@ const maplibreLayerDefn = (
     layout: {},
     paint: {
       "circle-color": "rgba(214, 63, 64,0.8)",
-      "circle-radius": [
-        "step",
-        ["get", "point_count"],
-        14,
-        10,
-        22,
-        50,
-        30,
-        500,
-        37,
-      ],
+      "circle-radius": ["step", ["get", "point_count"], 14, 10, 22, 50, 30, 500, 37],
     },
   });
 
@@ -104,8 +94,7 @@ const maplibreLayerDefn = (
   });
 
   map.on("click", "models-unclustered-points", (e: any) => {
-    const value =
-      e.features && e.features[0].properties && e.features[0].properties.did;
+    const value = e.features && e.features[0].properties && e.features[0].properties.did;
     handleClickOnModelID(value);
   });
 };
@@ -115,10 +104,7 @@ type ModelsMapProps = {
   updateQuery: (newParams: TQueryParams) => void;
 };
 
-export const DatasetsMap: React.FC<ModelsMapProps> = ({
-  mapResults,
-  updateQuery,
-}) => {
+export const DatasetsMap: React.FC<ModelsMapProps> = ({ mapResults, updateQuery }) => {
   const { map, mapContainerRef } = useMapInstance(false, false);
 
   const handleClickOnModelID = useCallback(
@@ -133,30 +119,20 @@ export const DatasetsMap: React.FC<ModelsMapProps> = ({
   useEffect(() => {
     if (!map || !mapResults) return;
 
-    const someResultsReady =
-      mapResults.features && mapResults.features.length > 0;
+    const someResultsReady = mapResults.features && mapResults.features.length > 0;
     const mapReadyModelsReady =
-      map.isStyleLoaded() &&
-      map.getSource(mapSourceName) === undefined &&
-      someResultsReady;
+      map.isStyleLoaded() && map.getSource(mapSourceName) === undefined && someResultsReady;
 
     if (mapReadyModelsReady) {
       maplibreLayerDefn(map, mapResults, handleClickOnModelID);
     } else {
-      map.on("load", () =>
-        maplibreLayerDefn(map, mapResults, handleClickOnModelID),
-      );
+      map.on("load", () => maplibreLayerDefn(map, mapResults, handleClickOnModelID));
     }
   }, [map, mapResults, handleClickOnModelID]);
 
   return (
     <div className="h-full w-full">
-      <MapComponent
-        geolocationControl
-        map={map}
-        mapContainerRef={mapContainerRef}
-        zoomControls
-      />
+      <MapComponent geolocationControl map={map} mapContainerRef={mapContainerRef} zoomControls />
     </div>
   );
 };

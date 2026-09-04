@@ -27,10 +27,7 @@ export const useHistory = () => {
      * So rather that trying to hack the history stack, we just redirect them to the model details page.
      * For other pages, we just navigate back in history.
      */
-    if (
-      location.pathname.includes(APPLICATION_ROUTES.START_MAPPING_BASE) &&
-      modelId
-    ) {
+    if (location.pathname.includes(APPLICATION_ROUTES.START_MAPPING_BASE) && modelId) {
       navigate(`${APPLICATION_ROUTES.MODELS}/${modelId}`, {
         replace: true,
         state: { from: location.pathname },

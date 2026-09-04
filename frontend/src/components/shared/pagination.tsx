@@ -82,10 +82,7 @@ export const Pagination: React.FC<PaginationProps> = ({
               ? _offset + pageLimit
               : totalLength}
           </span>{" "}
-          <span className="md:font-semibold text-body-4">
-            {" "}
-            of {totalLength}
-          </span>
+          <span className="md:font-semibold text-body-4"> of {totalLength}</span>
         </p>
       </div>
       <div>

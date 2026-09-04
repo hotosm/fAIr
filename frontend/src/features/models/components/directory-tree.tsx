@@ -1,9 +1,5 @@
 import { API_ENDPOINTS, apiClient } from "@/services";
-import {
-  CloudDownloadIcon,
-  DirectoryIcon,
-  FileIcon,
-} from "@/components/ui/icons";
+import { CloudDownloadIcon, DirectoryIcon, FileIcon } from "@/components/ui/icons";
 import { getTrainingWorkspaceQueryOptions } from "@/features/models/api/factory";
 import { MODELS_CONTENT, TOAST_NOTIFICATIONS } from "@/constants";
 import { showErrorToast, showSuccessToast, truncateString } from "@/utils";
@@ -11,11 +7,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { TCSSWithVars } from "@/types";
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import {
-  SlFormatBytes,
-  SlTree,
-  SlTreeItem,
-} from "@shoelace-style/shoelace/dist/react";
+import { SlFormatBytes, SlTree, SlTreeItem } from "@shoelace-style/shoelace/dist/react";
 import { ToolTip } from "@/components/ui/tooltip";
 import { BASE_API_URL } from "@/config";
 import { CopyButton } from "@/components/ui/copy-button";
@@ -29,10 +21,7 @@ type DirectoryTreeProps = {
 const DirectoryLoadingSkeleton = () => (
   <ul className="flex gap-y-4 flex-col w-full">
     {new Array(3).fill(null).map((_, id) => (
-      <li
-        key={`model-file-${id}`}
-        className="h-10 flex gap-x-4 w-full items-center"
-      >
+      <li key={`model-file-${id}`} className="h-10 flex gap-x-4 w-full items-center">
         <div className="h-6 w-[10%] animate-pulse bg-light-gray"></div>
         <div className="h-6 w-[90%] animate-pulse bg-light-gray"></div>
       </li>
@@ -76,10 +65,7 @@ const FileItem = ({
               </button>
             </ToolTip>
             <CopyButton
-              text={
-                BASE_API_URL +
-                API_ENDPOINTS.DOWNLOAD_TRAINING_FILE(trainingId, validPath)
-              }
+              text={BASE_API_URL + API_ENDPOINTS.DOWNLOAD_TRAINING_FILE(trainingId, validPath)}
               size="small"
               tooltipContent="Click to copy file download link. You can open this link in a new tab to download the file."
             />
@@ -112,9 +98,7 @@ const DirectoryItem = ({
           <span className="text-grey text-body-3 text-nowrap">
             <SlFormatBytes value={size} />
           </span>
-          <span className="text-grey text-body-3 text-nowrap">
-            {length} items
-          </span>
+          <span className="text-grey text-body-3 text-nowrap">{length} items</span>
         </div>
       </div>
     </div>
@@ -122,10 +106,7 @@ const DirectoryItem = ({
   </>
 );
 
-const DirectoryTree: React.FC<DirectoryTreeProps> = ({
-  datasetId,
-  trainingId,
-}) => {
+const DirectoryTree: React.FC<DirectoryTreeProps> = ({ datasetId, trainingId }) => {
   const [directoryTree, setDirectoryTree] = useState<any>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [hasError, setHasError] = useState<boolean>(false);
@@ -164,9 +145,7 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
       dir && currentDepth < maxDepth
         ? await Promise.all(
             Object.keys(dir).map(async (key: string) => {
-              const fullPath = currentDirectory
-                ? `${currentDirectory}/${key}/`
-                : key;
+              const fullPath = currentDirectory ? `${currentDirectory}/${key}/` : key;
               const subDirData = await fetchDirectoryRecursive(
                 fullPath,
                 currentDepth + 1,
@@ -247,17 +226,12 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
     };
 
     return Object.entries(combinedItems).map(([key, value]: [string, any]) => {
-      const isDirectory =
-        value.hasOwnProperty("dir") || value.hasOwnProperty("length");
+      const isDirectory = value.hasOwnProperty("dir") || value.hasOwnProperty("length");
       const currentPath = parentKey ? `${parentKey}/${key}` : key;
       return (
         <SlTreeItem key={currentPath}>
           {isDirectory ? (
-            <DirectoryItem
-              keyName={key}
-              size={value.size}
-              length={value.length}
-            >
+            <DirectoryItem keyName={key} size={value.size} length={value.length}>
               {renderTreeItems(value, currentPath)}
             </DirectoryItem>
           ) : (
@@ -276,23 +250,13 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
   };
 
   if (isLoading) return <DirectoryLoadingSkeleton />;
-  if (hasError)
-    return (
-      <div>
-        {MODELS_CONTENT.models.modelsDetailsCard.modelFilesDialog.error}
-      </div>
-    );
+  if (hasError) return <div>{MODELS_CONTENT.models.modelsDetailsCard.modelFilesDialog.error}</div>;
 
   return (
     <SlTree style={{ "--indent-guide-width": "1px" } as TCSSWithVars}>
       <SlTreeItem key="root">
         <DirectoryIcon className="w-4 h-4 mr-2" />
-        <span>
-          {
-            MODELS_CONTENT.models.modelsDetailsCard.modelFilesDialog
-              .rootDirectory
-          }
-        </span>
+        <span>{MODELS_CONTENT.models.modelsDetailsCard.modelFilesDialog.rootDirectory}</span>
         {directoryTree && renderTreeItems(directoryTree)}
       </SlTreeItem>
     </SlTree>

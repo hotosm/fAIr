@@ -4,23 +4,12 @@ import { Head } from "@/components/seo";
 import { LayoutView } from "@/enums";
 import { MobileModelFiltersDialog } from "@/features/models/components/dialogs";
 import { MODELS_CONTENT } from "@/constants";
-import {
-  ClearFilters,
-  OrderingFilter,
-  Pagination,
-  SearchFilter,
-} from "@/components/shared";
+import { ClearFilters, OrderingFilter, Pagination, SearchFilter } from "@/components/shared";
 import { PageHeader } from "@/features/models/components/";
 import { useDialog } from "@/hooks/use-dialog";
 import { useEffect } from "react";
-import {
-  useModelsListFilters,
-  useModelsMapData,
-} from "@/features/models/hooks/use-models";
-import {
-  ModelListGridLayout,
-  ModelListTableLayout,
-} from "@/features/models/layouts";
+import { useModelsListFilters, useModelsMapData } from "@/features/models/hooks/use-models";
+import { ModelListGridLayout, ModelListTableLayout } from "@/features/models/layouts";
 import { LayoutToggle } from "@/components/shared/layout-toggle";
 import { ModelsMap } from "@/features/models/components";
 import {
@@ -29,10 +18,7 @@ import {
   MobileFilter,
 } from "@/features/models/components/filters";
 
-import {
-  useScrollToElement,
-  useScrollToTop,
-} from "@/hooks/use-scroll-to-element";
+import { useScrollToElement, useScrollToTop } from "@/hooks/use-scroll-to-element";
 import { Spinner } from "@/components/ui/spinner";
 import ShowMapToggle from "@/components/shared/show-map-toggle";
 import { SEARCH_PARAMS } from "@/utils/search-params";
@@ -79,24 +65,15 @@ export const ModelsPage = () => {
       return (
         <div className="w-full grid grid-cols-1 grid-rows-2 lg:grid-rows-1 lg:grid-cols-2 md:border rounded-md lg:p-2 md:border-gray-border gap-x-2 mt-10  gap-y-6 lg:gap-y-0 h-screen">
           <div className="w-full overflow-y-auto lg:row-start-1">
-            <ModelListGridLayout
-              models={data?.results}
-              isPending={isPending}
-              isError={isError}
-            />
+            <ModelListGridLayout models={data?.results} isPending={isPending} isError={isError} />
           </div>
           <div className="row-start-1" id={mapViewElementId}>
-            {modelsMapDataIsPending ||
-            modelsMapDataIsError ||
-            mapData.features.length === 0 ? (
+            {modelsMapDataIsPending || modelsMapDataIsError || mapData.features.length === 0 ? (
               <div className="w-full h-full animate-pulse bg-light-gray flex items-center justify-center">
                 <Spinner />
               </div>
             ) : (
-              <ModelsMap
-                mapResults={mapData as FeatureCollection}
-                updateQuery={updateQuery}
-              />
+              <ModelsMap mapResults={mapData as FeatureCollection} updateQuery={updateQuery} />
             )}
           </div>
         </div>
@@ -106,21 +83,11 @@ export const ModelsPage = () => {
     if (query[SEARCH_PARAMS.layout] === LayoutView.LIST) {
       return (
         <div className="col-span-5 overflow-x-auto ">
-          <ModelListTableLayout
-            isPending={isPending}
-            models={data?.results}
-            isError={isError}
-          />
+          <ModelListTableLayout isPending={isPending} models={data?.results} isError={isError} />
         </div>
       );
     }
-    return (
-      <ModelListGridLayout
-        isPending={isPending}
-        models={data?.results}
-        isError={isError}
-      />
-    );
+    return <ModelListGridLayout isPending={isPending} models={data?.results} isError={isError} />;
   };
 
   return (
@@ -143,10 +110,7 @@ export const ModelsPage = () => {
                 <SearchFilter
                   updateQuery={updateQuery}
                   query={query}
-                  placeholder={
-                    MODELS_CONTENT.models.modelsList.filtersSection
-                      .searchPlaceHolder
-                  }
+                  placeholder={MODELS_CONTENT.models.modelsList.filtersSection.searchPlaceHolder}
                 />
                 <CategoryFilter disabled={isPending} />
                 {/* Mobile filters */}
@@ -159,11 +123,7 @@ export const ModelsPage = () => {
                     disabled={Boolean(mapViewIsActive)}
                   />
                 </div>
-                <DateRangeFilter
-                  disabled={isPending}
-                  updateQuery={updateQuery}
-                  query={query}
-                />
+                <DateRangeFilter disabled={isPending} updateQuery={updateQuery} query={query} />
                 {/* Desktop */}
                 <ClearFilters query={query} clearAllFilters={clearAllFilters} />
               </div>
@@ -179,11 +139,7 @@ export const ModelsPage = () => {
             </div>
             {/* Mobile */}
             <div className="self-start">
-              <ClearFilters
-                query={query}
-                clearAllFilters={clearAllFilters}
-                isMobile
-              />
+              <ClearFilters query={query} clearAllFilters={clearAllFilters} isMobile />
             </div>
           </div>
           {isPending ? (
@@ -193,23 +149,12 @@ export const ModelsPage = () => {
               <div className="w-full flex items-center justify-between">
                 <p className="font-semibold text-body-3">
                   {data?.count}{" "}
-                  {
-                    MODELS_CONTENT.models.modelsList.sortingAndPaginationSection
-                      .modelCountSuffix
-                  }
+                  {MODELS_CONTENT.models.modelsList.sortingAndPaginationSection.modelCountSuffix}
                 </p>
-                <ShowMapToggle
-                  query={query}
-                  updateQuery={updateQuery}
-                  isMobile
-                />
+                <ShowMapToggle query={query} updateQuery={updateQuery} isMobile />
               </div>
               <div className="flex items-center gap-x-9">
-                <OrderingFilter
-                  disabled={isPending}
-                  query={query}
-                  updateQuery={updateQuery}
-                />
+                <OrderingFilter disabled={isPending} query={query} updateQuery={updateQuery} />
                 <div className="hidden md:flex">
                   <Pagination
                     totalLength={data?.count}

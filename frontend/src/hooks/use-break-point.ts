@@ -79,14 +79,7 @@ export const useBreakpoint = () => {
   }, []);
 
   // Helper functions
-  const breakpointOrder: Breakpoint[] = [
-    "mobile",
-    "sm",
-    "md",
-    "lg",
-    "xl",
-    "2xl",
-  ];
+  const breakpointOrder: Breakpoint[] = ["mobile", "sm", "md", "lg", "xl", "2xl"];
   const currentIndex = breakpointOrder.indexOf(currentBreakpoint);
 
   const isAbove = (breakpoint: Breakpoint): boolean => {

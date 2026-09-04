@@ -61,24 +61,19 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
     if (currentPath.includes(MODELS_ROUTES.DETAILS)) {
       return (
         formData.modelName.length >=
-          FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.MODEL_NAME]
-            .minLength &&
+          FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.MODEL_NAME].minLength &&
         formData.modelDescription.length >=
-          FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.MODEL_DESCRIPTION]
-            .minLength
+          FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.MODEL_DESCRIPTION].minLength
       );
     } else if (currentPath.includes(MODELS_ROUTES.TRAINING_DATASET)) {
       if (formData.trainingDatasetOption === TrainingDatasetOption.CREATE_NEW) {
         return (
           formData.datasetName.length > 0 &&
           formData.tmsURL.length >=
-            FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.DATASET_NAME]
-              .minLength &&
+            FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.DATASET_NAME].minLength &&
           formData.selectedTrainingDatasetId
         );
-      } else if (
-        formData.trainingDatasetOption === TrainingDatasetOption.USE_EXISTING
-      ) {
+      } else if (formData.trainingDatasetOption === TrainingDatasetOption.USE_EXISTING) {
         // If selecting existing, ensure that a training dataset is selected
         return formData.selectedTrainingDatasetId && formData.tmsURL;
       } else {
@@ -106,11 +101,7 @@ const ProgressButtons: React.FC<ProgressButtonsProps> = ({
          * If the user is not the owner of the model and they are in edit mode, then don't let them go back on
          * the training area page. Since the back page is training dataset, which they're not authorized to change.
          */
-        disabled={
-          !isModelOwner &&
-          isEditMode &&
-          currentPath.includes(MODELS_ROUTES.TRAINING_AREA)
-        }
+        disabled={!isModelOwner && isEditMode && currentPath.includes(MODELS_ROUTES.TRAINING_AREA)}
       />
       <ButtonWithIcon
         variant={ButtonVariant.PRIMARY}

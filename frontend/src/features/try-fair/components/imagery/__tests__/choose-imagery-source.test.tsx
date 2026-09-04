@@ -8,12 +8,7 @@ describe("ImagerySourceToggle", () => {
     cleanup();
   });
   it("should render both OpenAerialMap and Custom Imagery radio options", () => {
-    render(
-      <ImagerySourceToggle
-        value={ImagerySource.OPEN_AERIAL_MAP}
-        onChange={vi.fn()}
-      />,
-    );
+    render(<ImagerySourceToggle value={ImagerySource.OPEN_AERIAL_MAP} onChange={vi.fn()} />);
 
     const radiogroup = screen.getByRole("radiogroup", {
       name: /imagery source/i,
@@ -28,12 +23,7 @@ describe("ImagerySourceToggle", () => {
   });
 
   it("should mark OpenAerialMap as checked when value is OPEN_AERIAL_MAP", () => {
-    render(
-      <ImagerySourceToggle
-        value={ImagerySource.OPEN_AERIAL_MAP}
-        onChange={vi.fn()}
-      />,
-    );
+    render(<ImagerySourceToggle value={ImagerySource.OPEN_AERIAL_MAP} onChange={vi.fn()} />);
 
     const radios = screen.getAllByRole("radio");
     expect(radios[0]).toHaveAttribute("aria-checked", "true");
@@ -41,9 +31,7 @@ describe("ImagerySourceToggle", () => {
   });
 
   it("should mark Custom Imagery as checked when value is CUSTOM", () => {
-    render(
-      <ImagerySourceToggle value={ImagerySource.CUSTOM} onChange={vi.fn()} />,
-    );
+    render(<ImagerySourceToggle value={ImagerySource.CUSTOM} onChange={vi.fn()} />);
 
     const radios = screen.getAllByRole("radio");
     expect(radios[0]).toHaveAttribute("aria-checked", "false");
@@ -52,12 +40,7 @@ describe("ImagerySourceToggle", () => {
 
   it("should call onChange with selected ImagerySource when clicked", () => {
     const handleChange = vi.fn();
-    render(
-      <ImagerySourceToggle
-        value={ImagerySource.OPEN_AERIAL_MAP}
-        onChange={handleChange}
-      />,
-    );
+    render(<ImagerySourceToggle value={ImagerySource.OPEN_AERIAL_MAP} onChange={handleChange} />);
 
     const customRadio = screen.getByText("Custom Imagery");
     fireEvent.click(customRadio);

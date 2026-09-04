@@ -13,10 +13,7 @@ import { UploadIcon, YouTubePlayIcon } from "@/components/ui/icons";
 import { useDialog } from "@/hooks/use-dialog";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useMapInstance } from "@/hooks/use-map-instance";
-import {
-  MODEL_CREATION_FORM_NAME,
-  useModelsContext,
-} from "@/app/providers/models-provider";
+import { MODEL_CREATION_FORM_NAME, useModelsContext } from "@/app/providers/models-provider";
 import {
   useCreateTrainingArea,
   useGetTrainingAreas,
@@ -36,15 +33,13 @@ const TrainingAreaForm = ({
   trainingDataset?: TTrainingDataset;
 }) => {
   const { formData, handleChange } = useModelsContext();
-  const { map, mapContainerRef, drawingMode, setDrawingMode, terraDraw } =
-    useMapInstance();
+  const { map, mapContainerRef, drawingMode, setDrawingMode, terraDraw } = useMapInstance();
 
   const initialOffset = {
     x: trainingDataset?.offset?.[0] ?? formData.datasetOffset?.[0] ?? 0,
     y: trainingDataset?.offset?.[1] ?? formData.datasetOffset?.[1] ?? 0,
   };
-  const [trainingDatasetOffset, setTrainingDatasetOffset] =
-    useState(initialOffset);
+  const [trainingDatasetOffset, setTrainingDatasetOffset] = useState(initialOffset);
 
   const { closeDialog, isOpened, toggle } = useDialog();
 
@@ -98,11 +93,10 @@ const TrainingAreaForm = ({
   /**
    * * Tile Service Layer.
    */
-  const { hasBounds, fitToBounds, loading, tileJSONMetadata, error } =
-    useTileServiceLayer({
-      map,
-      tileServiceURL: trainingDataset?.source_imagery ?? formData.tmsURL,
-    });
+  const { hasBounds, fitToBounds, loading, tileJSONMetadata, error } = useTileServiceLayer({
+    map,
+    tileServiceURL: trainingDataset?.source_imagery ?? formData.tmsURL,
+  });
 
   return (
     <>
@@ -120,9 +114,7 @@ const TrainingAreaForm = ({
             <div className="basis-2/3">
               <StepHeading
                 heading={MODELS_CONTENT.modelCreation.trainingArea.pageTitle}
-                description={
-                  MODELS_CONTENT.modelCreation.trainingArea.pageDescription
-                }
+                description={MODELS_CONTENT.modelCreation.trainingArea.pageDescription}
               />
             </div>
           )}
@@ -174,9 +166,7 @@ const TrainingAreaForm = ({
         >
           <div className="w-full h-[90vh] col-span-12 lg:col-span-6 2xl:col-span-7 pr-2 lg:pr-0">
             <TrainingAreaMap
-              tileServiceURL={
-                trainingDataset?.source_imagery ?? formData.tmsURL
-              }
+              tileServiceURL={trainingDataset?.source_imagery ?? formData.tmsURL}
               data={trainingAreasData}
               trainingDatasetId={datasetId}
               offset={offset}

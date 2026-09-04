@@ -1,7 +1,4 @@
-import {
-  getTryFairGuidedTourSteps,
-  getTryFairStartMappingStep,
-} from "@/constants/site-tour";
+import { getTryFairGuidedTourSteps, getTryFairStartMappingStep } from "@/constants/site-tour";
 import { TRY_FAIR_TOUR_START_MAPPING_BUTTON_SEEN_LOCAL_STORAGE_KEY } from "@/config";
 import { useLocalStorage } from "@/hooks/use-storage";
 import { useTour, type StepType } from "@reactour/tour";
@@ -13,27 +10,18 @@ export const useTryFairTour = (isSmallViewport: boolean) => {
   const { setIsOpen, setCurrentStep, setSteps } = useTour();
   const [mapClickCount, setMapClickCount] = useState(0);
   const [hasSeenStartMappingStep, setHasSeenStartMappingStep] = useState(
-    () =>
-      getValue(TRY_FAIR_TOUR_START_MAPPING_BUTTON_SEEN_LOCAL_STORAGE_KEY) ===
-      "true",
+    () => getValue(TRY_FAIR_TOUR_START_MAPPING_BUTTON_SEEN_LOCAL_STORAGE_KEY) === "true",
   );
 
   const guidedTourSteps = useMemo<StepType[]>(
     () => getTryFairGuidedTourSteps(isSmallViewport),
     [isSmallViewport],
   );
-  const startMappingStep = useMemo<StepType>(
-    () => getTryFairStartMappingStep(),
-    [],
-  );
+  const startMappingStep = useMemo<StepType>(() => getTryFairStartMappingStep(), []);
 
   const openGuidedTour = useCallback(() => {
     const firstSelector = guidedTourSteps[0]?.selector;
-    if (
-      typeof firstSelector === "string" &&
-      !document.querySelector(firstSelector)
-    )
-      return;
+    if (typeof firstSelector === "string" && !document.querySelector(firstSelector)) return;
 
     setSteps?.(guidedTourSteps);
     setCurrentStep(0);
@@ -42,8 +30,7 @@ export const useTryFairTour = (isSmallViewport: boolean) => {
 
   const openStartMappingStep = useCallback(() => {
     const selector = startMappingStep.selector;
-    if (typeof selector === "string" && !document.querySelector(selector))
-      return;
+    if (typeof selector === "string" && !document.querySelector(selector)) return;
 
     setSteps?.([startMappingStep]);
     setCurrentStep(0);
@@ -59,19 +46,12 @@ export const useTryFairTour = (isSmallViewport: boolean) => {
   }, [setIsOpen]);
 
   useEffect(() => {
-    if (mapClickCount !== 4 || isSmallViewport || hasSeenStartMappingStep)
-      return;
+    if (mapClickCount !== 4 || isSmallViewport || hasSeenStartMappingStep) return;
 
     openStartMappingStep();
     setValue(TRY_FAIR_TOUR_START_MAPPING_BUTTON_SEEN_LOCAL_STORAGE_KEY, "true");
     setHasSeenStartMappingStep(true);
-  }, [
-    hasSeenStartMappingStep,
-    isSmallViewport,
-    mapClickCount,
-    openStartMappingStep,
-    setValue,
-  ]);
+  }, [hasSeenStartMappingStep, isSmallViewport, mapClickCount, openStartMappingStep, setValue]);
 
   return { closeGuidedTour, openGuidedTour, recordMapRun };
 };

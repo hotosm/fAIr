@@ -35,16 +35,10 @@ export const ModelDetailsInfoButton = ({
       distance={ELEMENT_DISTANCE_FROM_NAVBAR}
       triggerComponent={
         <ToolTip
-          content={
-            !isSmallViewport
-              ? START_MAPPING_PAGE_CONTENT.modelDetails.tooltip
-              : null
-          }
+          content={!isSmallViewport ? START_MAPPING_PAGE_CONTENT.modelDetails.tooltip : null}
         >
           <button
-            className={
-              "p-1 flex items-center justify-center hover:icon-interaction"
-            }
+            className={"p-1 flex items-center justify-center hover:icon-interaction"}
             onClick={handleClick}
           >
             <TagsInfoIcon className="icon-lg md:size-5 text-grey" />

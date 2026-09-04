@@ -4,6 +4,7 @@ Our standard deployment process for other apps is
 [here](https://docs.hotosm.org/devops/deployment-process)
 
 fAIr differs slightly, because we have:
+
 - Versioning of both software, as well as AI models.
 - A dedicated dev instance EC2 for easier development with all components.
 
@@ -11,6 +12,7 @@ Currently model development happens in the `fAIr-models` repo, but this
 might eventually move to the `fAIr` monorepo.
 
 The model flow works like this:
+
 - Each model dir has a `stac-item.json`. These point at the moving
   `dev-inference` image tag, and only seed a STAC the first time it starts up
   (on dev, or a brand new prod).
@@ -27,6 +29,7 @@ The model flow works like this:
 
 > [!NOTE]
 > The Environment
+>
 > - Single EC2, lightweight k3s cluster.
 > - Manually updated / synced with dev.
 > - Model registration in STAC etc is all manual.
@@ -45,6 +48,7 @@ The model flow works like this:
 
 > [!NOTE]
 > The Environment
+>
 > - Runs all the same components as production, but
 >   start up via PR from `staging` --> `main`.
 > - The components run inside the `fair-staging`
@@ -70,6 +74,7 @@ The model flow works like this:
 
 > [!NOTE]
 > The Environment
+>
 > - Runs through tagged releases on Github, where ArgoCD
 >   picks up the latest helm chart tag and deploys.
 

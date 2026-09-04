@@ -5,11 +5,7 @@ import { Input, TextArea } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { ButtonVariant, INPUT_TYPES } from "@/enums";
 import { TOfflinePrediction } from "@/types";
-import {
-  BASE_API_URL,
-  MAPSWIPE_GROUP_SIZE,
-  MAPSWIPE_VERIFICATION_NUMBER,
-} from "@/config";
+import { BASE_API_URL, MAPSWIPE_GROUP_SIZE, MAPSWIPE_VERIFICATION_NUMBER } from "@/config";
 import { API_ENDPOINTS } from "@/services";
 import { MapswipeProjectCreationSuccess } from "@/features/mapswipe/components/project-success-dialog";
 import { useDialog } from "@/hooks/use-dialog";
@@ -43,13 +39,11 @@ export const CreateMapswipeProjectDialog = ({
     closeDialog: closeSuccessDialog,
     openDialog: openSuccessDialog,
   } = useDialog();
-  const [localPrediction, setLocalPrediction] =
-    useState<TOfflinePrediction>(predictionResult);
+  const [localPrediction, setLocalPrediction] = useState<TOfflinePrediction>(predictionResult);
 
   const [loading, setLoading] = useState<boolean>(false);
 
-  const { mutateAsync: MapSwipeProjectAsyncMutation } =
-    useCreateMapSwipeProject({});
+  const { mutateAsync: MapSwipeProjectAsyncMutation } = useCreateMapSwipeProject({});
 
   // default values for the MapSwipe project creation form
   const DEFAULT_FORMDATA = {
@@ -57,9 +51,7 @@ export const CreateMapswipeProjectDialog = ({
     region: "",
     description: "",
     instruction: "",
-    geojson_url:
-      BASE_API_URL +
-      API_ENDPOINTS.DOWNLOAD_PREDICTION_LABELS_FILE(localPrediction.id),
+    geojson_url: BASE_API_URL + API_ENDPOINTS.DOWNLOAD_PREDICTION_LABELS_FILE(localPrediction.id),
     tms_url: localPrediction.config.source,
     look_for: "buildings",
   };
@@ -167,9 +159,7 @@ export const CreateMapswipeProjectDialog = ({
           },
         });
       } else {
-        showErrorToast(
-          "An error occurred while creating the MapSwipe project. Please try again.",
-        );
+        showErrorToast("An error occurred while creating the MapSwipe project. Please try again.");
       }
     } catch (error) {
       setLoading(false);
@@ -314,12 +304,7 @@ export const CreateMapswipeProjectDialog = ({
               onClick={handleMapswipeProjectCreation}
               className="md:!w-fit"
               disabled={
-                loading ||
-                !(
-                  topicIsValid.valid &&
-                  regionIsValid.valid &&
-                  descriptionIsValid.valid
-                )
+                loading || !(topicIsValid.valid && regionIsValid.valid && descriptionIsValid.valid)
               }
             >
               {loading ? "Creating..." : "Create Project"}

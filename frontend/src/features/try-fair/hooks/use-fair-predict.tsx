@@ -22,20 +22,8 @@ type PredictArgs = {
 };
 
 export const useFairPredict = () => {
-  const { mutate, isPending, data, error, reset } = useMutation<
-    PredictResult,
-    Error,
-    PredictArgs
-  >({
-    mutationFn: async ({
-      model,
-      modelUri,
-      imageUri,
-      bbox,
-      gridZoom,
-      resolution,
-      params,
-    }) => {
+  const { mutate, isPending, data, error, reset } = useMutation<PredictResult, Error, PredictArgs>({
+    mutationFn: async ({ model, modelUri, imageUri, bbox, gridZoom, resolution, params }) => {
       const inferenceEndpoint = model.assets["mlm:inference-endpoint"]?.href;
       if (!inferenceEndpoint) {
         throw new Error("Selected model is missing an inference endpoint.");

@@ -25,23 +25,15 @@ const ModelEnhancementDialog: React.FC<ModelEnhancementDialogProps> = ({
 
   const options = [
     {
-      name: MODELS_CONTENT.models.modelsDetailsCard.modelEnhancement.newSettings
-        .title,
-      description:
-        MODELS_CONTENT.models.modelsDetailsCard.modelEnhancement.newSettings
-          .description,
+      name: MODELS_CONTENT.models.modelsDetailsCard.modelEnhancement.newSettings.title,
+      description: MODELS_CONTENT.models.modelsDetailsCard.modelEnhancement.newSettings.description,
       onClick: openDialog,
     },
     {
-      name: MODELS_CONTENT.models.modelsDetailsCard.modelEnhancement
-        .trainingData.title,
+      name: MODELS_CONTENT.models.modelsDetailsCard.modelEnhancement.trainingData.title,
       description:
-        MODELS_CONTENT.models.modelsDetailsCard.modelEnhancement.trainingData
-          .description,
-      onClick: () =>
-        navigate(
-          MODELS_BASE + "/" + modelId + "/" + MODELS_ROUTES.TRAINING_AREA,
-        ),
+        MODELS_CONTENT.models.modelsDetailsCard.modelEnhancement.trainingData.description,
+      onClick: () => navigate(MODELS_BASE + "/" + modelId + "/" + MODELS_ROUTES.TRAINING_AREA),
     },
   ];
 
@@ -55,9 +47,7 @@ const ModelEnhancementDialog: React.FC<ModelEnhancementDialogProps> = ({
       <Dialog
         isOpened={isOpened}
         closeDialog={closeDialog}
-        label={
-          MODELS_CONTENT.models.modelsDetailsCard.modelEnhancement.dialogHeading
-        }
+        label={MODELS_CONTENT.models.modelsDetailsCard.modelEnhancement.dialogHeading}
       >
         <ModelTrainingSettingsDialog
           isOpened={isTrainingSettingsDialogOpened}
@@ -71,10 +61,7 @@ const ModelEnhancementDialog: React.FC<ModelEnhancementDialogProps> = ({
               key={`mode-enhancement-option-${id}`}
               className="border border-gray-border rounded-lg px-2 hover:border-primary flex items-center justify-between"
             >
-              <button
-                className="text-start transition-colors p-6 w-5/6"
-                onClick={option.onClick}
-              >
+              <button className="text-start transition-colors p-6 w-5/6" onClick={option.onClick}>
                 <span className="flex flex-col gap-y-2">
                   <p className="text-dark text-body-1">{option.name}</p>
                   <p className="text-grey text-body-3">{option.description}</p>

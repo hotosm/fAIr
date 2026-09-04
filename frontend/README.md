@@ -116,7 +116,7 @@ Here's an overview of the folder structure:
 │ ├── utils/ - Utility functions, application content and constants.
 │ └── main.tsx - Entry point of the React app.
 ├── docs/ - ARD documentation for some of the decisions made for the app.
-└── vercel.json  - To prevent the custom 404 page from Vercel when a route is visited. (This is just for the demo site deployed on Vercel.)
+└── vercel.json - To prevent the custom 404 page from Vercel when a route is visited. (This is just for the demo site deployed on Vercel.)
 └── ... Other configuration files like tsconfig.json, vite.config.mts etc.
 ```
 

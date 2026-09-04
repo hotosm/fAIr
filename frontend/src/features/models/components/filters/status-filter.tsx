@@ -69,9 +69,7 @@ const StatusFilter: React.FC<StatusFilterProps> = ({
           defaultSelectedItem={categoryLabel[0]?.value}
           withCheckbox
           triggerComponent={
-            <p className="text-sm text-dark text-nowrap">
-              {categoryLabel[0]?.value}
-            </p>
+            <p className="text-sm text-dark text-nowrap">{categoryLabel[0]?.value}</p>
           }
         ></DropDown>
       </div>

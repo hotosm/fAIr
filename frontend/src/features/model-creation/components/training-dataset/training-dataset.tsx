@@ -3,10 +3,7 @@ import SelectExistingTrainingDatasetForm from "@/features/model-creation/compone
 import { MODELS_CONTENT } from "@/constants";
 import { StepHeading } from "@/features/model-creation/components/";
 import { TrainingDatasetOption } from "@/enums";
-import {
-  MODEL_CREATION_FORM_NAME,
-  useModelsContext,
-} from "@/app/providers/models-provider";
+import { MODEL_CREATION_FORM_NAME, useModelsContext } from "@/app/providers/models-provider";
 import { useCallback } from "react";
 import { TabGroup } from "@/components/ui/tab-group";
 
@@ -27,16 +24,11 @@ const TrainingDatasetForm = () => {
     <div className="flex flex-col gap-y-6 w-full">
       <StepHeading
         heading={MODELS_CONTENT.modelCreation.trainingDataset.pageTitle}
-        description={
-          MODELS_CONTENT.modelCreation.trainingDataset.pageDescription
-        }
+        description={MODELS_CONTENT.modelCreation.trainingDataset.pageDescription}
       />
       {/* Tabs Switcher */}
       <TabGroup
-        tabs={[
-          TrainingDatasetOption.USE_EXISTING,
-          TrainingDatasetOption.CREATE_NEW,
-        ]}
+        tabs={[TrainingDatasetOption.USE_EXISTING, TrainingDatasetOption.CREATE_NEW]}
         activeTab={formData.trainingDatasetOption}
         setActiveTab={(tab) => {
           handleChange(MODEL_CREATION_FORM_NAME.TRAINING_DATASET_OPTION, tab);

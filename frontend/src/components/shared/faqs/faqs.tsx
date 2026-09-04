@@ -14,17 +14,11 @@ export const FAQs = ({
 }) => {
   return (
     <section className={styles.FAQS}>
-      <h1 className={styles.heading}>
-        {SHARED_CONTENT.homepage.faqs.sectionTitle}
-      </h1>
+      <h1 className={styles.heading}>{SHARED_CONTENT.homepage.faqs.sectionTitle}</h1>
       <div className={styles.FAQContentContainer}>
         <div>
           {faqs.map((faq, id) => (
-            <Accordion
-              summary={faq.question}
-              content={faq.answer}
-              key={`faq-item-${id}`}
-            />
+            <Accordion summary={faq.question} content={faq.answer} key={`faq-item-${id}`} />
           ))}
         </div>
         {!disableSeeMoreButton && (

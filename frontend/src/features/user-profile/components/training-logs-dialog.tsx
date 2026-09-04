@@ -13,11 +13,7 @@ export const TrainingLogsDialog: React.FC<TrainingLogsDialogProps> = ({
 }) => {
   return (
     <>
-      <Dialog
-        isOpened={isOpened}
-        closeDialog={closeDialog}
-        label={"Training Logs"}
-      >
+      <Dialog isOpened={isOpened} closeDialog={closeDialog} label={"Training Logs"}>
         <TrainingLogs taskId={taskId} expandByDefault disableExpandButton />
       </Dialog>
     </>

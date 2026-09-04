@@ -10,46 +10,26 @@ import { PredictedFeatureStatus } from "@/enums/start-mapping";
 /**
  * Helper function to safely parse environment variables as integers.
  */
-export const parseIntEnv = (
-  value: string | undefined,
-  defaultValue: number,
-): number =>
-  value !== undefined && !isNaN(parseInt(value, 10))
-    ? parseInt(value, 10)
-    : defaultValue;
+export const parseIntEnv = (value: string | undefined, defaultValue: number): number =>
+  value !== undefined && !isNaN(parseInt(value, 10)) ? parseInt(value, 10) : defaultValue;
 
 /**
  * Helper function to safely parse environment variables as floats.
  */
-export const parseFloatEnv = (
-  value: string | undefined,
-  defaultValue: number,
-): number =>
-  value !== undefined && !isNaN(parseFloat(value))
-    ? parseFloat(value)
-    : defaultValue;
+export const parseFloatEnv = (value: string | undefined, defaultValue: number): number =>
+  value !== undefined && !isNaN(parseFloat(value)) ? parseFloat(value) : defaultValue;
 
 /**
  * Helper function to safely parse environment variables as strings.
  */
-export const parseStringEnv = (
-  value: string | undefined,
-  defaultValue: string,
-): string => (value && value.trim() !== "" ? value.trim() : defaultValue);
+export const parseStringEnv = (value: string | undefined, defaultValue: string): string =>
+  value && value.trim() !== "" ? value.trim() : defaultValue;
 
 // Authentication
-export const AUTH_PROVIDER: string = parseStringEnv(
-  ENVS.AUTH_PROVIDER,
-  "legacy",
-);
-export const HANKO_URL: string = parseStringEnv(
-  ENVS.HANKO_URL,
-  "https://dev.login.hotosm.org",
-);
+export const AUTH_PROVIDER: string = parseStringEnv(ENVS.AUTH_PROVIDER, "legacy");
+export const HANKO_URL: string = parseStringEnv(ENVS.HANKO_URL, "https://dev.login.hotosm.org");
 export const FRONTEND_URL: string =
-  typeof window !== "undefined"
-    ? window.location.origin
-    : "http://localhost:5173";
+  typeof window !== "undefined" ? window.location.origin : "http://localhost:5173";
 
 export const NODE_ENV: string = parseStringEnv(ENVS.NODE_ENV, "development");
 export const IS_DEV = NODE_ENV === "development";
@@ -146,20 +126,17 @@ export const BACKUP_VIDEO_URL: string = parseStringEnv(
 /**
  * The key used to store the access token in local storage for the application.
  */
-export const HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY: string =
-  "___hot_fAIr_access_token";
+export const HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY: string = "___hot_fAIr_access_token";
 
 /**
  * The key used to store the redirect URL after login in session storage for the application.
  */
-export const HOT_FAIR_SESSION_REDIRECT_KEY: string =
-  "___hot_fAIr_redirect_after_login";
+export const HOT_FAIR_SESSION_REDIRECT_KEY: string = "___hot_fAIr_redirect_after_login";
 
 /**
  * The key used to indicate a successful login session for the application.
  */
-export const HOT_FAIR_LOGIN_SUCCESSFUL_SESSION_KEY: string =
-  "__hot_fair_login_successful";
+export const HOT_FAIR_LOGIN_SUCCESSFUL_SESSION_KEY: string = "__hot_fair_login_successful";
 
 /**
  * The key used to store the model form data in session storage to preserve the state incase the user
@@ -172,21 +149,18 @@ export const HOT_FAIR_MODEL_CREATION_LOCAL_STORAGE_KEY: string =
 /**
  * The key used to store the banner state in local storage for the application.
  */
-export const HOT_FAIR_BANNER_LOCAL_STORAGE_KEY: string =
-  "__hot_fair_banner_closed";
+export const HOT_FAIR_BANNER_LOCAL_STORAGE_KEY: string = "__hot_fair_banner_closed";
 
 /**
  * The key used to store the predictions for the specific model in the users local storage.
  */
-export const HOT_FAIR_MODEL_PREDICTIONS_LOCAL_STORAGE_KEY = (
-  modelId: string,
-): string => `__hot_fair_model_predictions_for_model_${modelId}`;
+export const HOT_FAIR_MODEL_PREDICTIONS_LOCAL_STORAGE_KEY = (modelId: string): string =>
+  `__hot_fair_model_predictions_for_model_${modelId}`;
 
 /**
  * The key used to store the training area tour seen status in local storage for the application.
  */
-export const TRAINING_AREA_TOUR_LOCAL_STORAGE_KEY =
-  "__fAIr_training_area_tour_seen";
+export const TRAINING_AREA_TOUR_LOCAL_STORAGE_KEY = "__fAIr_training_area_tour_seen";
 
 /**
  * The key used to store whether a user has seen Try fAIr tour start mapping button.
@@ -201,19 +175,13 @@ export const TRY_FAIR_TOUR_START_MAPPING_BUTTON_SEEN_LOCAL_STORAGE_KEY =
 /**
  * The maximum allowed area size (in square meters) for training areas.
  */
-export const MAX_TRAINING_AREA_SIZE: number = parseIntEnv(
-  ENVS.MAX_TRAINING_AREA_SIZE,
-  5000000,
-);
+export const MAX_TRAINING_AREA_SIZE: number = parseIntEnv(ENVS.MAX_TRAINING_AREA_SIZE, 5000000);
 
 /**
  * The minimum allowed area size (in square meters) for training areas.
  * The default is set to 5797 sq. meters (1.43 acres).
  */
-export const MIN_TRAINING_AREA_SIZE: number = parseIntEnv(
-  ENVS.MIN_TRAINING_AREA_SIZE,
-  5797,
-);
+export const MIN_TRAINING_AREA_SIZE: number = parseIntEnv(ENVS.MIN_TRAINING_AREA_SIZE, 5797);
 
 /**
  * The maximum file size (in bytes) allowed for training area upload.
@@ -228,8 +196,10 @@ export const MAX_TRAINING_AREA_UPLOAD_FILE_SIZE: number = parseIntEnv(
  * The maximum GeoJSON file(s) containing the training labels, a user can upload for an AOI/Training Area.
  * Default value: 1 (1 GeoJSON file).
  */
-export const MAX_GEOJSON_FILE_UPLOAD_FOR_TRAINING_AREA_LABELS: number =
-  parseIntEnv(ENVS.MAX_GEOJSON_FILE_UPLOAD_FOR_TRAINING_AREA_LABELS, 1);
+export const MAX_GEOJSON_FILE_UPLOAD_FOR_TRAINING_AREA_LABELS: number = parseIntEnv(
+  ENVS.MAX_GEOJSON_FILE_UPLOAD_FOR_TRAINING_AREA_LABELS,
+  1,
+);
 
 /**
  * The maximum GeoJSON file(s) containing the training areas/AOI polygon geometry that a user can upload.
@@ -244,8 +214,10 @@ export const MAX_GEOJSON_FILE_UPLOAD_FOR_TRAINING_AREAS: number = parseIntEnv(
  * The maximum polygon geometry a single training area GeoJSON file can contain.
  * Default value: 10 (10 polygon geometries).
  */
-export const MAX_ACCEPTABLE_POLYGON_IN_TRAINING_AREA_GEOJSON_FILE: number =
-  parseIntEnv(ENVS.MAX_ACCEPTABLE_POLYGON_IN_TRAINING_AREA_GEOJSON_FILE, 10);
+export const MAX_ACCEPTABLE_POLYGON_IN_TRAINING_AREA_GEOJSON_FILE: number = parseIntEnv(
+  ENVS.MAX_ACCEPTABLE_POLYGON_IN_TRAINING_AREA_GEOJSON_FILE,
+  10,
+);
 
 // ==============================================================================================================================
 // Map Configurations
@@ -329,8 +301,7 @@ export const GOOGLE_SATELLITE_BASEMAP_SOURCE_ID: string = `${MAP_STYLES_PREFIX}-
 // Start Mapping
 export const ALL_MODEL_PREDICTIONS_SOURCE_ID: string = "all-predictions-source";
 export const ALL_MODEL_PREDICTIONS_FILL_LAYER_ID: string = `${MAP_STYLES_PREFIX}-all-predictions-fill-layer`;
-export const ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID: string =
-  "all-predictions-outline-layer";
+export const ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID: string = "all-predictions-outline-layer";
 
 // Layer status and corresponding colors
 export const PREDICTED_LAYER_STATUS_COLORS: Record<string, string> = {
@@ -417,10 +388,7 @@ export const MATOMO_ID: string = parseStringEnv(ENVS.MATOMO_ID, "0");
 /**
  * The matomo application domain.
  */
-export const MATOMO_APP_DOMAIN: string = parseStringEnv(
-  ENVS.MATOMO_APP_DOMAIN,
-  "fair.hotosm.org",
-);
+export const MATOMO_APP_DOMAIN: string = parseStringEnv(ENVS.MATOMO_APP_DOMAIN, "fair.hotosm.org");
 
 /**
  * The matomo tracking URL.
@@ -435,10 +403,7 @@ export const MATOMO_TRACKING_URL: string = parseStringEnv(
  */
 export const HOT_TRACKING_HTML_TAG_NAME: string = "hot-tracking";
 
-export const BANNER_TIMEOUT_DURATION: number = parseIntEnv(
-  ENVS.BANNER_TIMEOUT_DURATION,
-  3000,
-);
+export const BANNER_TIMEOUT_DURATION: number = parseIntEnv(ENVS.BANNER_TIMEOUT_DURATION, 3000);
 
 /**
  * The file extensions for the prediction api.
@@ -483,10 +448,7 @@ export const FAIR_VERSION: string = parseStringEnv(ENVS.FAIR_VERSION, "v0.1");
  * Comma separated hashtags to add to the OSM ID Editor redirection.
  * This is used in the OSM redirect callback when a training area is opened in OSM.
  */
-export const OSM_HASHTAGS: string = parseStringEnv(
-  ENVS.OSM_HASHTAGS,
-  "#HOT-fAIr",
-);
+export const OSM_HASHTAGS: string = parseStringEnv(ENVS.OSM_HASHTAGS, "#HOT-fAIr");
 
 /**
  * Configuration for KPI Statistics Refetching Interval.
@@ -503,8 +465,7 @@ const REFRESH_BUFFER_MS: number = 1000;
  * It includes an additional buffer to ensure fresh data retrieval.
  */
 export const KPI_STATS_CACHE_TIME_MS: number =
-  parseIntEnv(ENVS.KPI_STATS_CACHE_TIME, DEFAULT_KPI_STATS_CACHE_TIME_SECONDS) *
-    1000 +
+  parseIntEnv(ENVS.KPI_STATS_CACHE_TIME, DEFAULT_KPI_STATS_CACHE_TIME_SECONDS) * 1000 +
   REFRESH_BUFFER_MS;
 
 /**
@@ -518,19 +479,15 @@ export const MAXIMUM_PREDICTION_TOLERANCE: number = parseIntEnv(
 /**
  * The maximum area for a prediction to be considered valid in the start mapping page.
  */
-export const MAXIMUM_PREDICTION_AREA: number = parseIntEnv(
-  ENVS.MAXIMUM_PREDICTION_AREA,
-  20,
-);
+export const MAXIMUM_PREDICTION_AREA: number = parseIntEnv(ENVS.MAXIMUM_PREDICTION_AREA, 20);
 
 /**
  * The maximum value for the ortho_skew_tolerance_deg and ortho_max_angle_change_deg prediction settings.
  */
-export const MAXIMUM_ORTHO_SKEW_TOLEARANCE_AND_MAX_ANGLE_CHANGE_IN_DEGREES: number =
-  parseIntEnv(
-    ENVS.MAXIMUM_ORTHO_SKEW_TOLEARANCE_AND_MAX_ANGLE_CHANGE_IN_DEGREES,
-    45,
-  );
+export const MAXIMUM_ORTHO_SKEW_TOLEARANCE_AND_MAX_ANGLE_CHANGE_IN_DEGREES: number = parseIntEnv(
+  ENVS.MAXIMUM_ORTHO_SKEW_TOLEARANCE_AND_MAX_ANGLE_CHANGE_IN_DEGREES,
+  45,
+);
 
 /**
  * The base path to the model checkpoint files.
@@ -570,10 +527,7 @@ export const MAPSWIPE_VERIFICATION_NUMBER: number = parseIntEnv(
   4,
 );
 
-export const MAPSWIPE_GROUP_SIZE: number = parseIntEnv(
-  ENVS.MAPSWIPE_GROUP_SIZE,
-  25,
-);
+export const MAPSWIPE_GROUP_SIZE: number = parseIntEnv(ENVS.MAPSWIPE_GROUP_SIZE, 25);
 
 /**
  * Mapswipe agreement colors for fill and outline.
@@ -606,10 +560,7 @@ export const TRY_FAIR_GRID_SIZE = parseIntEnv(ENVS.TRY_FAIR_GRID_SIZE, 5);
 /**
  * The URL to the production environment of fAIr.
  */
-export const FAIR_PROD_URL: string = parseStringEnv(
-  ENVS.FAIR_PROD_URL,
-  "https://fair.hotosm.org/",
-);
+export const FAIR_PROD_URL: string = parseStringEnv(ENVS.FAIR_PROD_URL, "https://fair.hotosm.org/");
 
 /**
  * PMTiles archive holding the pre-binned imagery coverage grid: count-per-cell

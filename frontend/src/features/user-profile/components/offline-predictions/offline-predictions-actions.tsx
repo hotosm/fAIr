@@ -19,23 +19,21 @@ import { TOfflinePrediction } from "@/types";
 // import { PublishPredictionFlow } from "@/features/user-profile/components/offline-predictions/publish-prediction-flow";
 // import { useState } from "react";
 
-export const OfflinePredictionActions = (
-  {
-    // handlePredictionResultModal,
-    // handleTrainingLogsModal,
-    // predictionResult,
-    // showSettingsInfo = false,
-    // placement,
-    // handleCreateOrViewMapSwipeProject,
-  }: {
-    handlePredictionResultModal: (prediction: any) => void;
-    handleTrainingLogsModal: (taskId: string) => void;
-    predictionResult: TOfflinePrediction;
-    showSettingsInfo?: boolean;
-    placement?: DropdownPlacement;
-    handleCreateOrViewMapSwipeProject: (prediction: TOfflinePrediction) => void;
-  },
-) => {
+export const OfflinePredictionActions = ({
+  // handlePredictionResultModal,
+  // handleTrainingLogsModal,
+  // predictionResult,
+  // showSettingsInfo = false,
+  // placement,
+  // handleCreateOrViewMapSwipeProject,
+}: {
+  handlePredictionResultModal: (prediction: any) => void;
+  handleTrainingLogsModal: (taskId: string) => void;
+  predictionResult: TOfflinePrediction;
+  showSettingsInfo?: boolean;
+  placement?: DropdownPlacement;
+  handleCreateOrViewMapSwipeProject: (prediction: TOfflinePrediction) => void;
+}) => {
   // const { copyToClipboard } = useCopyToClipboard();
   // const { dropdownRef } = useDropdownMenu();
   // const [isPublishFlowOpen, setIsPublishFlowOpen] = useState<boolean>(false);

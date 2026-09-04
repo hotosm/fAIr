@@ -37,18 +37,18 @@ it at a stack on other ports with `--api`, `--stac`, and `--minio`.
 
 ## Services
 
-| Service | URL | Credentials |
-| --- | --- | --- |
-| fAIr frontend and API | <http://localhost:8000> | Bearer `dev-token` |
-| Swagger UI | <http://localhost:8000/api/docs/> | |
-| ReDoc | <http://localhost:8000/api/redoc/> | |
-| OpenAPI schema | <http://localhost:8000/api/schema/> | |
-| Health probes | <http://localhost:8000/api/v1/health/> | |
-| ZenML | <http://localhost:8080> | `default`, empty password |
-| STAC | <http://localhost:8082/collections> | |
-| MLflow | <http://localhost:5000> | |
-| MinIO console | <http://localhost:9001> | `minioadmin` / `minioadmin` |
-| PostgreSQL | `localhost:5434` | `admin` / `password` |
+| Service               | URL                                    | Credentials                 |
+| --------------------- | -------------------------------------- | --------------------------- |
+| fAIr frontend and API | <http://localhost:8000>                | Bearer `dev-token`          |
+| Swagger UI            | <http://localhost:8000/api/docs/>      |                             |
+| ReDoc                 | <http://localhost:8000/api/redoc/>     |                             |
+| OpenAPI schema        | <http://localhost:8000/api/schema/>    |                             |
+| Health probes         | <http://localhost:8000/api/v1/health/> |                             |
+| ZenML                 | <http://localhost:8080>                | `default`, empty password   |
+| STAC                  | <http://localhost:8082/collections>    |                             |
+| MLflow                | <http://localhost:5000>                |                             |
+| MinIO console         | <http://localhost:9001>                | `minioadmin` / `minioadmin` |
+| PostgreSQL            | `localhost:5434`                       | `admin` / `password`        |
 
 All v1 routes are under `/api/v1/`. Versioning uses DRF `NamespaceVersioning`,
 so `request.version` is set per request and `/api/v2/` is one URL line away when

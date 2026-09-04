@@ -1,12 +1,6 @@
 import { ModelType } from "@/enums";
-import {
-  useGetAPIBaseModels,
-  useGetAPILocalModels,
-} from "@/features/try-fair/api/features-to-map";
-import {
-  BaseModelStacItem,
-  getInferenceParams,
-} from "@/features/try-fair/api/stac";
+import { useGetAPIBaseModels, useGetAPILocalModels } from "@/features/try-fair/api/features-to-map";
+import { BaseModelStacItem, getInferenceParams } from "@/features/try-fair/api/stac";
 import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
 import { useMemo } from "react";
 
@@ -27,20 +21,19 @@ export const useImageryMappingModel = ({
   confidence,
   selectedModel,
 }: UseImageryMappingModelOptions) => {
-  const currentModelType = useStartMappingStore(
-    (state) => state.currentModelType,
-  );
+  const currentModelType = useStartMappingStore((state) => state.currentModelType);
   const isImageryMode = currentModelType === ModelType.IMAGERY;
-  const { data: apiBaseModels, isSuccess: hasLoadedApiBaseModels } =
-    useGetAPIBaseModels(feature, isImageryMode);
-  const { data: apiLocalModels, isSuccess: hasLoadedApiLocalModels } =
-    useGetAPILocalModels(feature, isImageryMode);
+  const { data: apiBaseModels, isSuccess: hasLoadedApiBaseModels } = useGetAPIBaseModels(
+    feature,
+    isImageryMode,
+  );
+  const { data: apiLocalModels, isSuccess: hasLoadedApiLocalModels } = useGetAPILocalModels(
+    feature,
+    isImageryMode,
+  );
 
   const imageryModel = useMemo(() => {
-    const apiModels = [
-      ...(apiBaseModels?.results ?? []),
-      ...(apiLocalModels?.results ?? []),
-    ];
+    const apiModels = [...(apiBaseModels?.results ?? []), ...(apiLocalModels?.results ?? [])];
     return apiModels[0]?.stac ?? null;
   }, [apiBaseModels, apiLocalModels]);
   const modelForMapping = isImageryMode ? imageryModel : selectedModel;
@@ -52,10 +45,7 @@ export const useImageryMappingModel = ({
     modelForMapping?.properties["mlm:name"] ??
     modelForMapping?.assets.model?.href;
   const hasNoModelsForFeature =
-    isImageryMode &&
-    hasLoadedApiBaseModels &&
-    hasLoadedApiLocalModels &&
-    imageryModel === null;
+    isImageryMode && hasLoadedApiBaseModels && hasLoadedApiLocalModels && imageryModel === null;
   const inferenceParams = useMemo(
     () => (modelForMapping ? getInferenceParams(modelForMapping) : []),
     [modelForMapping],

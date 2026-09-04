@@ -10,10 +10,7 @@ export const PageUnderConstruction = () => {
         </p>
       </div>
 
-      <Button
-        onClick={() => window.location.assign(window.location.origin)}
-        className="max-w-80"
-      >
+      <Button onClick={() => window.location.assign(window.location.origin)} className="max-w-80">
         {SHARED_CONTENT.construction.button}
       </Button>
     </section>

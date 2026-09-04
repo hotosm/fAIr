@@ -33,10 +33,7 @@ type UseTileGridReturn = {
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 /** Returns true if two [lng, lat] tuples differ. */
-const centersAreDifferent = (
-  a: [number, number] | null,
-  b: [number, number] | null,
-): boolean => {
+const centersAreDifferent = (a: [number, number] | null, b: [number, number] | null): boolean => {
   if (a === null || b === null) return a !== b;
   return a[0] !== b[0] || a[1] !== b[1];
 };
@@ -72,12 +69,8 @@ export const useTileGrid = ({
   // ── Track previous values to detect what changed ─────────────────────────
 
   const previousModelIdRef = useRef<string | null | undefined>(modelId);
-  const previousResolutionRef = useRef<TryFairResolution | undefined>(
-    resolution,
-  );
-  const previousImageryCenterRef = useRef<[number, number] | undefined>(
-    imageryCenter,
-  );
+  const previousResolutionRef = useRef<TryFairResolution | undefined>(resolution);
+  const previousImageryCenterRef = useRef<[number, number] | undefined>(imageryCenter);
   const anchorRef = useRef<TileAnchor | null>(null);
 
   useEffect(() => {
@@ -170,8 +163,7 @@ export const useTileGrid = ({
     const currentBBox = computeGridBBox(snappedAnchor);
 
     const bboxChanged =
-      !previousBBoxRef.current ||
-      !bboxesAreEqual(previousBBoxRef.current, currentBBox);
+      !previousBBoxRef.current || !bboxesAreEqual(previousBBoxRef.current, currentBBox);
 
     if (bboxChanged) {
       previousBBoxRef.current = currentBBox;

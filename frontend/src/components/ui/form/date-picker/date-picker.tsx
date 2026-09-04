@@ -52,24 +52,12 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
 
       {/* Only show when there is at least an input in either of the dates */}
       {(startDate || endDate) && (
-        <div
-          className={cn(
-            `flex ${!isMobileFilterModal && "self-end"} items-center gap-x-3`,
-          )}
-        >
-          <Button
-            variant={ButtonVariant.DEFAULT}
-            size={SHOELACE_SIZES.MEDIUM}
-            onClick={onClear}
-          >
+        <div className={cn(`flex ${!isMobileFilterModal && "self-end"} items-center gap-x-3`)}>
+          <Button variant={ButtonVariant.DEFAULT} size={SHOELACE_SIZES.MEDIUM} onClick={onClear}>
             Clear
           </Button>
 
-          <Button
-            variant={ButtonVariant.TERTIARY}
-            size={SHOELACE_SIZES.MEDIUM}
-            onClick={onApply}
-          >
+          <Button variant={ButtonVariant.TERTIARY} size={SHOELACE_SIZES.MEDIUM} onClick={onApply}>
             Apply
           </Button>
         </div>

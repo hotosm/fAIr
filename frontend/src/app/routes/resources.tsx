@@ -17,9 +17,7 @@ export const ResourcesPage = () => {
         <div className="flex flex-col gap-y-8 basis-1/2">
           <h1 className="font-semibold text-title-2 xl:text-title-1">
             {RESOURCES_PAGE_CONTENT.hero.firstSegment}{" "}
-            <span className="text-primary">
-              {RESOURCES_PAGE_CONTENT.hero.secondSegment}
-            </span>{" "}
+            <span className="text-primary">{RESOURCES_PAGE_CONTENT.hero.secondSegment}</span>{" "}
             {RESOURCES_PAGE_CONTENT.hero.thirdSegment}{" "}
           </h1>
         </div>

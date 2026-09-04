@@ -16,22 +16,19 @@ export type LegendItem = {
 const statusLegend = [
   {
     status: PredictedFeatureStatus.ACCEPTED,
-    label:
-      START_MAPPING_PAGE_CONTENT.map.controls.legendControl.acceptedPredictions,
+    label: START_MAPPING_PAGE_CONTENT.map.controls.legendControl.acceptedPredictions,
     fillColor: PREDICTED_LAYER_STATUS_COLORS[PredictedFeatureStatus.ACCEPTED],
     fillOpacity: 0.3,
   },
   {
     status: PredictedFeatureStatus.REJECTED,
-    label:
-      START_MAPPING_PAGE_CONTENT.map.controls.legendControl.rejectedPredictions,
+    label: START_MAPPING_PAGE_CONTENT.map.controls.legendControl.rejectedPredictions,
     fillColor: PREDICTED_LAYER_STATUS_COLORS[PredictedFeatureStatus.REJECTED],
     fillOpacity: 0.3,
   },
   {
     status: PredictedFeatureStatus.UNTOUCHED,
-    label:
-      START_MAPPING_PAGE_CONTENT.map.controls.legendControl.predictionResults,
+    label: START_MAPPING_PAGE_CONTENT.map.controls.legendControl.predictionResults,
     fillColor: PREDICTED_LAYER_STATUS_COLORS[PredictedFeatureStatus.UNTOUCHED],
     fillOpacity: 0.3,
   },
@@ -81,9 +78,7 @@ export const Legend = ({
   const legendItems: LegendItem[] = items
     ? items
     : statusLegend.filter((v) =>
-        disableDefaultPrediction
-          ? v.status !== PredictedFeatureStatus.UNTOUCHED
-          : v,
+        disableDefaultPrediction ? v.status !== PredictedFeatureStatus.UNTOUCHED : v,
       );
 
   return (
@@ -98,11 +93,7 @@ export const Legend = ({
       onClick={handleToggleExpand}
     >
       {!expandLegend && isSmallViewport && (
-        <ToolTip
-          content={
-            START_MAPPING_PAGE_CONTENT.map.controls.legendControl.toolTip.show
-          }
-        >
+        <ToolTip content={START_MAPPING_PAGE_CONTENT.map.controls.legendControl.toolTip.show}>
           <LegendBookIcon className="icon-lg" />
         </ToolTip>
       )}
@@ -110,9 +101,7 @@ export const Legend = ({
       {!isSmallViewport && (
         <div className="w-full flex items-start justify-between gap-x-10">
           <div className="w-full">
-            <p className="w-full text-dark font-semibold text-body-2base">
-              {title}
-            </p>
+            <p className="w-full text-dark font-semibold text-body-2base">{title}</p>
             {subtitle && expandLegend && (
               <p className="w-full text-grey text-body-4 mt-0.5">{subtitle}</p>
             )}
@@ -120,10 +109,8 @@ export const Legend = ({
           <ToolTip
             content={
               expandLegend
-                ? START_MAPPING_PAGE_CONTENT.map.controls.legendControl.toolTip
-                    .hide
-                : START_MAPPING_PAGE_CONTENT.map.controls.legendControl.toolTip
-                    .show
+                ? START_MAPPING_PAGE_CONTENT.map.controls.legendControl.toolTip.hide
+                : START_MAPPING_PAGE_CONTENT.map.controls.legendControl.toolTip.show
             }
           >
             <LegendBookIcon className="icon shrink-0" />
@@ -132,19 +119,13 @@ export const Legend = ({
       )}
 
       {expandLegend && (
-        <div
-          className={`flex w-full ${isSmallViewport ? "flex-row gap-x-2" : "flex-col"} gap-y-3`}
-        >
+        <div className={`flex w-full ${isSmallViewport ? "flex-row gap-x-2" : "flex-col"} gap-y-3`}>
           {legendItems.map(({ label, fillColor, fillOpacity, shape }, id) => (
             <p
               className="w-full flex items-center text-dark gap-x-2 text-body-4 md:text-body-3 text-nowrap"
               key={id}
             >
-              <FillLegendStyle
-                fillColor={fillColor}
-                fillOpacity={fillOpacity}
-                shape={shape}
-              />
+              <FillLegendStyle fillColor={fillColor} fillOpacity={fillOpacity} shape={shape} />
               {label}
             </p>
           ))}
@@ -152,11 +133,7 @@ export const Legend = ({
       )}
 
       {expandLegend && isSmallViewport && (
-        <ToolTip
-          content={
-            START_MAPPING_PAGE_CONTENT.map.controls.legendControl.toolTip.hide
-          }
-        >
+        <ToolTip content={START_MAPPING_PAGE_CONTENT.map.controls.legendControl.toolTip.hide}>
           <LegendBookIcon className="icon-lg" />
         </ToolTip>
       )}

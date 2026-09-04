@@ -36,11 +36,7 @@ export const RadioDot = ({
   <span
     className={cn(
       "mt-0.5 shrink-0 w-4 h-4 rounded-full border-2 flex items-center justify-center",
-      selected
-        ? "border-primary"
-        : darkBorder
-          ? "border-dark"
-          : "border-gray-border",
+      selected ? "border-primary" : darkBorder ? "border-dark" : "border-gray-border",
     )}
   >
     {selected && <span className="w-2 h-2 rounded-full bg-primary" />}

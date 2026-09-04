@@ -16,8 +16,7 @@ export const TILEJSON_TILESERVER_URL_REGEX_PATTERN =
 export const VALID_CHARACTER_PATTERN = /^[a-zA-Z0-9\s]*$/;
 
 // Matches valid model checkpoint URLs with .onnx or .tflite extensions.
-export const VALID_MODEL_CHECKPOINT_PATH =
-  /^https?:\/\/.*\/[^\/]+\.(onnx|tflite)\/?/;
+export const VALID_MODEL_CHECKPOINT_PATH = /^https?:\/\/.*\/[^\/]+\.(onnx|tflite)\/?/;
 
 // Matches valid OpenAerialMap tile server URLs.
 export const OPENAERIALMAP_TILESERVER_URL_REGEX_PATTERN =
@@ -61,9 +60,7 @@ export const extractYouTubeVideoId = (url: string): string | null => {
  * @param tileServiceURL - The URL of the tile service.
  * @returns The type of tile service if matched, otherwise null.
  */
-export const getTileServerTypeFromURL = (
-  tileServiceURL: string,
-): TileServiceType => {
+export const getTileServerTypeFromURL = (tileServiceURL: string): TileServiceType => {
   if (TILEJSON_TILESERVER_URL_REGEX_PATTERN.test(tileServiceURL)) {
     return TileServiceType.TILEJSON;
   }

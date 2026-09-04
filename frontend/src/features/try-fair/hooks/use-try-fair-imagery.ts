@@ -37,19 +37,15 @@ export const useTryFairImagery = ({
   imageryTileServiceType,
   oamItemId,
 }: UseTryFairImageryOptions) => {
-  const {
-    currentModelType,
-    setCurrentModelType,
-    selectedImagery,
-    setSeletedImagery,
-  } = useStartMappingStore(
-    useShallow((state) => ({
-      currentModelType: state.currentModelType,
-      setCurrentModelType: state.setCurrentModelType,
-      selectedImagery: state.selectedImagery,
-      setSeletedImagery: state.setSeletedImagery,
-    })),
-  );
+  const { currentModelType, setCurrentModelType, selectedImagery, setSeletedImagery } =
+    useStartMappingStore(
+      useShallow((state) => ({
+        currentModelType: state.currentModelType,
+        setCurrentModelType: state.setCurrentModelType,
+        selectedImagery: state.selectedImagery,
+        setSeletedImagery: state.setSeletedImagery,
+      })),
+    );
   const { item: sharedOAMItem } = useOAMItem(oamItemId);
 
   const tileServiceUrl = useMemo(() => {
@@ -63,8 +59,7 @@ export const useTryFairImagery = ({
   }, [currentModelType, selectedImagery, selectedModel]);
 
   const tileServiceType =
-    currentModelType === ModelType.IMAGERY &&
-    selectedImagery?.source === ImagerySource.CUSTOM
+    currentModelType === ModelType.IMAGERY && selectedImagery?.source === ImagerySource.CUSTOM
       ? selectedImagery.tileServiceType
       : (imageryTileServiceType ?? getTileServerTypeFromURL(tileServiceUrl));
 
@@ -107,8 +102,7 @@ export const useTryFairImagery = ({
       setSeletedImagery({
         source: ImagerySource.CUSTOM,
         tileUrl: imageryUrl,
-        tileServiceType:
-          imageryTileServiceType ?? getTileServerTypeFromURL(imageryUrl),
+        tileServiceType: imageryTileServiceType ?? getTileServerTypeFromURL(imageryUrl),
         bounds: null,
       });
     }
@@ -140,13 +134,7 @@ export const useTryFairImagery = ({
     return tileServiceUrl === FALLBACK_FAIR_IMAGERY
       ? FALLBACK_FAIR_IMAGERY_CENTER
       : DEFAULT_FAIR_IMAGERY_CENTER;
-  }, [
-    currentModelType,
-    selectedImagery,
-    selectedModel,
-    tileJSONMetadata,
-    tileServiceUrl,
-  ]);
+  }, [currentModelType, selectedImagery, selectedModel, tileJSONMetadata, tileServiceUrl]);
 
   // TMS templates do not provide a reliable imagery extent, so preserve the
   // user's current view both on selection and on a shared-link initial load.
@@ -191,10 +179,11 @@ export const useTryFairImagery = ({
 
   useEffect(() => {
     if (!map || !imageryBounds || isCustomTMSImagery) return;
-    map.fitBounds(
-      [imageryBounds[0], imageryBounds[1], imageryBounds[2], imageryBounds[3]],
-      { padding: 40, duration: 0, essential: true },
-    );
+    map.fitBounds([imageryBounds[0], imageryBounds[1], imageryBounds[2], imageryBounds[3]], {
+      padding: 40,
+      duration: 0,
+      essential: true,
+    });
   }, [imageryBounds, isCustomTMSImagery, map]);
 
   return {

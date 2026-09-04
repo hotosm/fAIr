@@ -1,11 +1,6 @@
 import useDebounce from "@/hooks/use-debounce";
 import { useCallback, useEffect } from "react";
-import {
-  parseAsBoolean,
-  parseAsInteger,
-  parseAsString,
-  useQueryStates,
-} from "nuqs";
+import { parseAsBoolean, parseAsInteger, parseAsString, useQueryStates } from "nuqs";
 import { useQuery } from "@tanstack/react-query";
 import {
   getAIPredictionsMapDataQueryOptions,

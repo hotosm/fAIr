@@ -44,9 +44,7 @@ export const CopyButton = ({
         </span>
 
         {label && (
-          <span className="ml-2 text-body-4 md:text-body-3 whitespace-nowrap">
-            {label}
-          </span>
+          <span className="ml-2 text-body-4 md:text-body-3 whitespace-nowrap">{label}</span>
         )}
       </button>
     </ToolTip>

@@ -15,10 +15,7 @@ export const TabGroup = ({
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (
-        event.target instanceof HTMLButtonElement &&
-        tabRefs.current.includes(event.target)
-      ) {
+      if (event.target instanceof HTMLButtonElement && tabRefs.current.includes(event.target)) {
         const currentIndex = tabs.indexOf(activeTab);
         if (event.key === "ArrowRight") {
           event.preventDefault();

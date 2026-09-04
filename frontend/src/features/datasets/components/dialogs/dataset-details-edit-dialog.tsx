@@ -23,18 +23,11 @@ export const DatasetEditDialog: React.FC<DatasetEditDialogProps> = ({
     tileServiceTypeValidity,
     setTileServiceTypeValidity,
     loading,
-  } = useTileservice(
-    getTileServerTypeFromURL(data.source_imagery),
-    data.source_imagery,
-  );
+  } = useTileservice(getTileServerTypeFromURL(data.source_imagery), data.source_imagery);
 
   getTileServerRegex;
   return (
-    <Dialog
-      isOpened={isOpened}
-      closeDialog={closeDialog}
-      label={"Edit Dataset Details"}
-    >
+    <Dialog isOpened={isOpened} closeDialog={closeDialog} label={"Edit Dataset Details"}>
       <div className="w-full">
         <NewTrainingDatasetForm
           datasetName={data.name}

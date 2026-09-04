@@ -22,8 +22,8 @@ export const MapswipeProjectCreationSuccess = ({
         </div>
         <h1 className="text-title-3 font-semibold">MapSwipe Project Created</h1>
         <p className="text-body-3 text-center">
-          Your MapSwipe project has been successfully created. You can now ask
-          managers to approve or wait for this project to be approved
+          Your MapSwipe project has been successfully created. You can now ask managers to approve
+          or wait for this project to be approved
         </p>
         <div className="flex flex-col md:flex-row gap-y-3 md:gap-0 justify-between w-full">
           <Button
@@ -33,11 +33,7 @@ export const MapswipeProjectCreationSuccess = ({
           >
             Open
           </Button>
-          <Button
-            onClick={onClose}
-            variant={ButtonVariant.PRIMARY}
-            className="md:!w-fit"
-          >
+          <Button onClick={onClose} variant={ButtonVariant.PRIMARY} className="md:!w-fit">
             Done
           </Button>
         </div>

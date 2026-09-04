@@ -17,8 +17,7 @@ export const TRY_FAIR_PAGE_CONTENT: TTryFairPageContent = {
     },
     parameters: {
       label: "Parameters",
-      description:
-        "Adjust size and accuracy to explore different prediction results.",
+      description: "Adjust size and accuracy to explore different prediction results.",
       learnMore: "Learn more",
       resolution: {
         label: "Size",

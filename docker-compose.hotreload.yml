@@ -1,8 +1,7 @@
-# Opt-in local hot reload: bind-mounts ./backend into the api and worker 
+# Opt-in local hot reload: bind-mounts ./backend into the api and worker
 # TODO : add frontend support
 # Enable by appending this file to COMPOSE_FILE, e.g.:
 #   COMPOSE_FILE=docker-compose.yml:docker-compose.hotreload.yml docker compose up
-
 
 services:
   api:

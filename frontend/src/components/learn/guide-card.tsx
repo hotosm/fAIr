@@ -13,9 +13,7 @@ export const GuideCard = ({ guide }: { guide: TGuide }) => {
           <h1 className="text-body-1 md:text-title-3 font-bold text-dark text-nowrap">
             {guide.title}
           </h1>
-          <p className="text-body-2base md:text-body-2 text-grey">
-            {guide.description}
-          </p>
+          <p className="text-body-2base md:text-body-2 text-grey">{guide.description}</p>
         </div>
         <div className="rounded-full w-12 h-12 bg-light-gray p-1 flex items-center justify-center">
           <guide.icon className="icon-lg" />
@@ -28,12 +26,7 @@ export const GuideCard = ({ guide }: { guide: TGuide }) => {
             {LEARN_PAGE_CONTENT.comingSoonText}
           </Button>
         ) : guide.isLink ? (
-          <Link
-            href={guide.href as string}
-            nativeAnchor
-            blank
-            title={guide.buttonText}
-          >
+          <Link href={guide.href as string} nativeAnchor blank title={guide.buttonText}>
             <Button onClick={guide.onClick} size={SHOELACE_SIZES.MEDIUM}>
               {guide.buttonText}
               {guide.isLink && <ExternalLinkIcon className="icon" />}
@@ -42,9 +35,7 @@ export const GuideCard = ({ guide }: { guide: TGuide }) => {
         ) : (
           <Button onClick={guide.onClick} size={SHOELACE_SIZES.MEDIUM}>
             {guide.buttonText}
-            {guide.isVideo && (
-              <YouTubePlayCircleIcon className="icon text-white" />
-            )}
+            {guide.isVideo && <YouTubePlayCircleIcon className="icon text-white" />}
           </Button>
         )}
       </div>

@@ -14,9 +14,7 @@ const redStatuses = new Set([
   MapSwipeProcessingStatus.PUBLISHING_FAILED,
 ]);
 
-export const statusToVariant = (
-  status: MapSwipeProcessingStatus,
-): TBadgeVariants => {
+export const statusToVariant = (status: MapSwipeProcessingStatus): TBadgeVariants => {
   if (greenStatuses.has(status)) return "green";
   if (redStatuses.has(status)) return "red";
   return "yellow";

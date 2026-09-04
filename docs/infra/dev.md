@@ -15,11 +15,11 @@ branch: CI builds the images on every push, and a redeploy pulls them.
 
 Everything lives in `/opt/fAIr-app` (a `develop` checkout):
 
-| File | Purpose |
-|---|---|
-| `docker-compose.yml` | base stack (api, worker, postgres, minio, stac, mlflow, zenml, frontend) |
-| `docker-compose.dev.yml` | dev override: Caddy ingress, restart policies, the inline Caddyfile |
-| `.env` | all runtime config and secrets (not in git) |
+| File                     | Purpose                                                                  |
+| ------------------------ | ------------------------------------------------------------------------ |
+| `docker-compose.yml`     | base stack (api, worker, postgres, minio, stac, mlflow, zenml, frontend) |
+| `docker-compose.dev.yml` | dev override: Caddy ingress, restart policies, the inline Caddyfile      |
+| `.env`                   | all runtime config and secrets (not in git)                              |
 
 `.env` sets `COMPOSE_FILE=docker-compose.yml:docker-compose.dev.yml`, so plain
 `docker compose` commands pick up both files. The stack is managed by the

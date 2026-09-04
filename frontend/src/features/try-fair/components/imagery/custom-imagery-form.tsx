@@ -32,9 +32,7 @@ export const CustomImageryForm = ({
   const [tileServiceType, setTileServiceType] = useState<TileServiceType>(
     applied?.tileServiceType ?? TileServiceType.XYZ,
   );
-  const [tileServerURL, setTileServerURL] = useState<string>(
-    applied?.tileUrl ?? "",
-  );
+  const [tileServerURL, setTileServerURL] = useState<string>(applied?.tileUrl ?? "");
   // Remount key: bump it to reset the (uncontrolled) tile-type Select on clear.
   const [formKey, setFormKey] = useState(0);
 
@@ -43,12 +41,10 @@ export const CustomImageryForm = ({
   // late, which made the preview feel unresponsive until the field was cleared).
   const isValid = useMemo(() => {
     const url = tileServerURL.trim();
-    const valid =
-      url.length > 0 && getTileServerRegex(tileServiceType).test(url);
+    const valid = url.length > 0 && getTileServerRegex(tileServiceType).test(url);
     return {
       valid,
-      message:
-        valid || url.length === 0 ? "" : "Enter a valid tile server URL.",
+      message: valid || url.length === 0 ? "" : "Enter a valid tile server URL.",
     };
   }, [tileServerURL, tileServiceType]);
 
@@ -113,8 +109,7 @@ const CustomImageEmptyState = () => (
     <MapIcon className="size-6" />
     <h4 className="text-sm font-medium">No Imagery to preview</h4>
     <p className="text-dark text-xs">
-      Once all fields are populated correctly, the imagery will be displayed
-      here
+      Once all fields are populated correctly, the imagery will be displayed here
     </p>
   </div>
 );

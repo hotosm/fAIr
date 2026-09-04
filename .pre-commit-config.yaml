@@ -29,6 +29,19 @@ repos:
         files: ^backend/(pyproject\.toml|uv\.lock)$
         pass_filenames: false
 
+  # Autoformat: YAML, JSON, Markdown, etc.
+  - repo: local
+    hooks:
+      - id: oxfmt
+        name: oxfmt
+        files: ^
+        # oxfmt batches it's runs, so using !/path/to/file in args can cause issues
+        exclude: ^(?:CHANGELOG\.md|frontend/pnpm-lock\.yaml|chart)
+        entry: oxfmt --no-error-on-unmatched-pattern --write
+        language: node
+        "types": [text]
+        additional_dependencies: ["oxfmt@0.35.0"]
+
       - id: pytest
         name: pytest (backend)
         entry: uv run --directory backend pytest

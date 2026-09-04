@@ -1,7 +1,4 @@
-import {
-  FORM_VALIDATION_CONFIG,
-  MODEL_CREATION_FORM_NAME,
-} from "@/app/providers/models-provider";
+import { FORM_VALIDATION_CONFIG, MODEL_CREATION_FORM_NAME } from "@/app/providers/models-provider";
 import { XYZTileServerInput } from "@/components/shared/form/xyz-tile-server-input";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/form";
@@ -17,15 +14,11 @@ import { showErrorToast, showSuccessToast } from "@/utils";
 import { TTrainingDataset } from "@/types";
 
 const validateDatasetName = (name: string) => {
-  const min =
-    FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.DATASET_NAME].minLength;
-  const max =
-    FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.DATASET_NAME].maxLength;
+  const min = FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.DATASET_NAME].minLength;
+  const max = FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.DATASET_NAME].maxLength;
 
-  if (name.length < min)
-    return { valid: false, message: `Must be at least ${min} characters.` };
-  if (name.length > max)
-    return { valid: false, message: `Must not exceed ${max} characters.` };
+  if (name.length < min) return { valid: false, message: `Must be at least ${min} characters.` };
+  if (name.length > max) return { valid: false, message: `Must not exceed ${max} characters.` };
 
   return { valid: true, message: "" };
 };
@@ -53,10 +46,7 @@ export const NewTrainingDatasetForm = ({
   tileserverURL: string;
   setTileserverURL: (url: string) => void;
   tileServiceTypeValidity: { valid: boolean; message: string };
-  setTileServiceTypeValidity: (validity: {
-    valid: boolean;
-    message: string;
-  }) => void;
+  setTileServiceTypeValidity: (validity: { valid: boolean; message: string }) => void;
   loading?: boolean;
   tileJSONMetadata?: any | null;
   buttonText?: string;
@@ -64,8 +54,7 @@ export const NewTrainingDatasetForm = ({
   onSuccess?: (data: TTrainingDataset) => void;
   trainingDatasetId?: number;
 }) => {
-  const [trainingdatasetName, setTrainingDatasetName] =
-    useState<string>(datasetName);
+  const [trainingdatasetName, setTrainingDatasetName] = useState<string>(datasetName);
   const [datasetNameValidity, setDatasetNameValidity] = useState({
     valid: false,
     message: "",
@@ -124,12 +113,7 @@ export const NewTrainingDatasetForm = ({
       handleTrainingDatasetUpdate();
     }
     onClick && onClick();
-  }, [
-    isCreateNewDataset,
-    handleTrainingDatasetCreation,
-    handleTrainingDatasetUpdate,
-    onClick,
-  ]);
+  }, [isCreateNewDataset, handleTrainingDatasetCreation, handleTrainingDatasetUpdate, onClick]);
 
   /**
    * Set the validity of the dataset name on component mount.
@@ -138,36 +122,22 @@ export const NewTrainingDatasetForm = ({
     setDatasetNameValidity(validateDatasetName(trainingdatasetName));
   }, [trainingdatasetName]);
 
-  const disabled =
-    datasetCreateMutation.isPending || datasetUpdateMutation.isPending;
+  const disabled = datasetCreateMutation.isPending || datasetUpdateMutation.isPending;
   return (
     <div className="flex flex-col gap-y-10 w-full">
       <Input
         handleInput={(e) => setTrainingDatasetName(e.target.value)}
         value={trainingdatasetName}
-        toolTipContent={
-          MODELS_CONTENT.modelCreation.trainingDataset.form.datasetName.toolTip
-        }
-        label={
-          MODELS_CONTENT.modelCreation.trainingDataset.form.datasetName.label
-        }
+        toolTipContent={MODELS_CONTENT.modelCreation.trainingDataset.form.datasetName.toolTip}
+        label={MODELS_CONTENT.modelCreation.trainingDataset.form.datasetName.label}
         labelWithTooltip
-        placeholder={
-          MODELS_CONTENT.modelCreation.trainingDataset.form.datasetName
-            .placeholder
-        }
+        placeholder={MODELS_CONTENT.modelCreation.trainingDataset.form.datasetName.placeholder}
         isValid={datasetNameValidity.valid}
         validationStateUpdateCallback={handleDatasetNameValidity}
         showBorder
         helpText={datasetNameValidity.message}
-        maxLength={
-          FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.DATASET_NAME]
-            .maxLength
-        }
-        minLength={
-          FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.DATASET_NAME]
-            .minLength
-        }
+        maxLength={FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.DATASET_NAME].maxLength}
+        minLength={FORM_VALIDATION_CONFIG[MODEL_CREATION_FORM_NAME.DATASET_NAME].minLength}
       />
       <div>
         <XYZTileServerInput
@@ -197,10 +167,7 @@ export const NewTrainingDatasetForm = ({
         className="w-full md:w-1/2"
         onClick={handleClick}
         disabled={
-          disabled ||
-          !tileServiceTypeValidity.valid ||
-          !datasetNameValidity.valid ||
-          loading
+          disabled || !tileServiceTypeValidity.valid || !datasetNameValidity.valid || loading
         }
       >
         {disabled ? <Spinner /> : buttonText}

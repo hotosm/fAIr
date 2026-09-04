@@ -24,18 +24,9 @@ export const ModelConfirmationPage = () => {
   }, []);
 
   return (
-    <div
-      className={
-        "col-span-12 md:col-start-3 md:col-span-8 flex flex-col gap-y-10"
-      }
-    >
+    <div className={"col-span-12 md:col-start-3 md:col-span-8 flex flex-col gap-y-10"}>
       <div className="flex items-center justify-center w-full h-full flex-col gap-y-10 text-center">
-        <ConfettiExplosion
-          force={0.2}
-          duration={5000}
-          particleCount={250}
-          height={10000}
-        />
+        <ConfettiExplosion force={0.2} duration={5000} particleCount={250} height={10000} />
         <Image src={ModelFormConfirmation} alt="Model Creation Success Icon" />
         <p className="text-title-2">
           Model {modelId} is {isEditMode ? "Updated" : "Created"}!
@@ -51,15 +42,11 @@ export const ModelConfirmationPage = () => {
             title={MODELS_CONTENT.modelCreation.confirmation.buttons.goToModel}
             nativeAnchor={false}
           >
-            <Button>
-              {MODELS_CONTENT.modelCreation.confirmation.buttons.goToModel}
-            </Button>
+            <Button>{MODELS_CONTENT.modelCreation.confirmation.buttons.goToModel}</Button>
           </Link>
           <Link
             href={`${APPLICATION_ROUTES.MODELS}`}
-            title={
-              MODELS_CONTENT.modelCreation.confirmation.buttons.exploreModels
-            }
+            title={MODELS_CONTENT.modelCreation.confirmation.buttons.exploreModels}
           >
             <Button variant={ButtonVariant.DARK}>
               {MODELS_CONTENT.modelCreation.confirmation.buttons.exploreModels}

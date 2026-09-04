@@ -15,10 +15,7 @@ type AIPredictionsListProps = {
 const ListSkeleton = () => (
   <div className="space-y-3">
     {Array.from({ length: 8 }).map((_, index) => (
-      <div
-        key={index}
-        className="w-full h-16 bg-light-gray rounded-lg animate-pulse"
-      />
+      <div key={index} className="w-full h-16 bg-light-gray rounded-lg animate-pulse" />
     ))}
   </div>
 );
@@ -38,9 +35,7 @@ export const AIPredictionsList = ({
   if (isError) {
     return (
       <div className="flex flex-col items-center justify-center w-full py-20 gap-y-4">
-        <p className="text-grey text-body-2base">
-          Error loading AI predictions.
-        </p>
+        <p className="text-grey text-body-2base">Error loading AI predictions.</p>
         <Button className="!w-fit" onClick={() => refetch()}>
           Retry
         </Button>
@@ -72,8 +67,7 @@ export const AIPredictionsList = ({
         </thead>
         <tbody>
           {data.map((prediction) => {
-            const title =
-              prediction.description || `Prediction ${prediction.id}`;
+            const title = prediction.description || `Prediction ${prediction.id}`;
             return (
               <tr
                 key={prediction.id}
@@ -81,9 +75,7 @@ export const AIPredictionsList = ({
                 onClick={() => onViewDetails(prediction)}
                 data-testid={`published-prediction-row-${prediction.id}`}
               >
-                <td className="py-3 px-4 font-medium text-dark max-w-[200px] truncate">
-                  {title}
-                </td>
+                <td className="py-3 px-4 font-medium text-dark max-w-[200px] truncate">{title}</td>
                 <td className="py-3 px-4">
                   <span className="text-[#D3180C] bg-[#FFE5E5] rounded-2xl py-1 px-3 text-body-4 font-medium">
                     {prediction.id}
@@ -95,13 +87,9 @@ export const AIPredictionsList = ({
                     {formatNumber(prediction.result?.count ?? 0)}
                   </span>
                 </td> */}
+                <td className="py-3 px-4">{prediction.config.model_id || "-"}</td>
                 <td className="py-3 px-4">
-                  {prediction.config.model_id || "-"}
-                </td>
-                <td className="py-3 px-4">
-                  {prediction.published_at
-                    ? formatDate(prediction.published_at, true)
-                    : "-"}
+                  {prediction.published_at ? formatDate(prediction.published_at, true) : "-"}
                 </td>
                 <td className="py-3 px-4">
                   <Button

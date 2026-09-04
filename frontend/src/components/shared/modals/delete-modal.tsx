@@ -27,22 +27,12 @@ export const DeleteModal = ({
           <DeleteIcon className="icon-lg text-primary" />
         </div>
         <h1 className="text-title-3 font-semibold">{title}</h1>
-        <p className="text-body-3 text-center">
-          Are you sure you want to delete {messageSuffix}?
-        </p>
+        <p className="text-body-3 text-center">Are you sure you want to delete {messageSuffix}?</p>
         <div className="flex flex-col md:flex-row gap-y-3 md:gap-0 justify-between w-full">
-          <Button
-            disabled={isDeleting}
-            onClick={onDelete}
-            className="md:!w-fit"
-          >
+          <Button disabled={isDeleting} onClick={onDelete} className="md:!w-fit">
             Delete
           </Button>
-          <Button
-            onClick={onClose}
-            variant={ButtonVariant.TERTIARY}
-            className="md:!w-fit"
-          >
+          <Button onClick={onClose} variant={ButtonVariant.TERTIARY} className="md:!w-fit">
             Cancel
           </Button>
         </div>

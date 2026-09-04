@@ -44,9 +44,7 @@ type Props = {
   predictionBBox: BBOX | null;
   predictionGridZoom?: number;
   outputType: TryFairMapOutputType;
-  onChoroplethBucketsChange?: (
-    buckets: ReturnType<typeof computeChoroplethBuckets> | null,
-  ) => void;
+  onChoroplethBucketsChange?: (buckets: ReturnType<typeof computeChoroplethBuckets> | null) => void;
 };
 
 type HoverTooltip = {
@@ -64,18 +62,10 @@ export const TryFairPredictionsLayer = ({
   onChoroplethBucketsChange,
 }: Props) => {
   const { choropleth, buckets } = useMemo(() => {
-    if (
-      outputType !== TryFairMapOutputType.CLUSTER ||
-      !predictions ||
-      !predictionBBox
-    ) {
+    if (outputType !== TryFairMapOutputType.CLUSTER || !predictions || !predictionBBox) {
       return { choropleth: null, buckets: null };
     }
-    const fc = buildChoropleth(
-      predictions,
-      predictionBBox,
-      predictionGridZoom ?? undefined,
-    );
+    const fc = buildChoropleth(predictions, predictionBBox, predictionGridZoom ?? undefined);
     return { choropleth: fc, buckets: computeChoroplethBuckets(fc) };
   }, [outputType, predictions, predictionBBox, predictionGridZoom]);
 
@@ -253,10 +243,7 @@ export const TryFairPredictionsLayer = ({
   if (!tooltip) return null;
 
   return (
-    <div
-      className="pointer-events-none absolute z-50"
-      style={{ left: tooltip.x, top: tooltip.y }}
-    >
+    <div className="pointer-events-none absolute z-50" style={{ left: tooltip.x, top: tooltip.y }}>
       {/* Offset so the tooltip doesn't sit directly under the cursor */}
       <div className="relative" style={{ transform: "translate(12px, -50%)" }}>
         <div className="bg-white/95 backdrop-blur-sm border border-gray-border rounded-lg shadow-lg px-3 py-2 flex flex-col items-start gap-0.5 min-w-[120px]">

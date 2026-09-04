@@ -1,9 +1,6 @@
 import { HelpText } from "@/components/ui/form";
 import { MODELS_CONTENT } from "@/constants";
-import {
-  MODEL_CREATION_FORM_NAME,
-  useModelsContext,
-} from "@/app/providers/models-provider";
+import { MODEL_CREATION_FORM_NAME, useModelsContext } from "@/app/providers/models-provider";
 import { TTrainingDataset } from "@/types";
 import { DatasetExplorer } from "@/components/shared/dataset-explorer";
 
@@ -23,15 +20,9 @@ const SelectExistingTrainingDatasetForm = () => {
         disableInstruction
         navigateOnClick={false}
         onDatasetSelect={(dataset: TTrainingDataset) => {
-          handleChange(
-            MODEL_CREATION_FORM_NAME.SELECTED_TRAINING_DATASET_ID,
-            dataset.id,
-          );
+          handleChange(MODEL_CREATION_FORM_NAME.SELECTED_TRAINING_DATASET_ID, dataset.id);
           handleChange(MODEL_CREATION_FORM_NAME.DATASET_NAME, dataset.name);
-          handleChange(
-            MODEL_CREATION_FORM_NAME.TMS_URL,
-            dataset.source_imagery,
-          );
+          handleChange(MODEL_CREATION_FORM_NAME.TMS_URL, dataset.source_imagery);
         }}
       />
     </div>

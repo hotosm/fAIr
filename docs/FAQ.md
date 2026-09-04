@@ -1,6 +1,7 @@
 # Frequently Asked Questions (FAQs)
 
 ## Users
+
 **Q : What is fAIr?**
 
 A : fAIr is an open-source toolkit developed by the Humanitarian OpenStreetMap Team (HOT) that enables the integration of artificial intelligence (AI) into humanitarian mapping workflows. It provides AI models and tools to automate mapping tasks, improving efficiency and accuracy.

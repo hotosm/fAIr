@@ -62,16 +62,12 @@ const PropertyDisplay: React.FC<PropertyDisplayProps> = ({
           className="flex items-center gap-x-3"
           title={label}
         >
-          <span className="text-dark font-semibold text-body-2 md:text-body-1">
-            {value}
-          </span>
+          <span className="text-dark font-semibold text-body-2 md:text-body-1">{value}</span>
           <ExternalLinkIcon className="icon" />
         </Link>
       ) : isCopy ? (
         <div className="flex items-center gap-x-3">
-          <span className="text-dark font-semibold text-body-2 md:text-body-1">
-            URL
-          </span>
+          <span className="text-dark font-semibold text-body-2 md:text-body-1">URL</span>
           <CopyButton text={value as string} />
         </div>
       ) : (
@@ -96,10 +92,7 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
   trainingId,
   isTrainingDetailsDialog = false,
 }) => {
-  const { isPending, data, error, isError } = useTrainingDetails(
-    trainingId,
-    10000,
-  );
+  const { isPending, data, error, isError } = useTrainingDetails(trainingId, 10000);
 
   const { isOpened, closeDialog, openDialog } = useDialog();
 
@@ -154,89 +147,47 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
         >
           <div className="col-span-3 grid grid-cols-1 sm:grid-cols-2 grid-rows-4 gap-y-4 md:gap-y-8">
             <PropertyDisplay
-              label={
-                MODELS_CONTENT.models.modelsDetailsCard.properties.zoomLevels
-                  .title
-              }
+              label={MODELS_CONTENT.models.modelsDetailsCard.properties.zoomLevels.title}
               value={zoom_level?.join(" ") || "N/A"}
-              tooltip={
-                MODELS_CONTENT.models.modelsDetailsCard.properties.zoomLevels
-                  .tooltip
-              }
+              tooltip={MODELS_CONTENT.models.modelsDetailsCard.properties.zoomLevels.tooltip}
             />
             <PropertyDisplay
-              label={
-                MODELS_CONTENT.models.modelsDetailsCard.properties.accuracy
-                  .title
-              }
-              tooltip={
-                MODELS_CONTENT.models.modelsDetailsCard.properties.accuracy
-                  .tooltip
-              }
+              label={MODELS_CONTENT.models.modelsDetailsCard.properties.accuracy.title}
+              tooltip={MODELS_CONTENT.models.modelsDetailsCard.properties.accuracy.tooltip}
               value={trainingAccuracy}
               isAccuracy
             />
             <PropertyDisplay
-              label={
-                MODELS_CONTENT.models.modelsDetailsCard.properties.epochs.title
-              }
+              label={MODELS_CONTENT.models.modelsDetailsCard.properties.epochs.title}
               value={epochs}
-              tooltip={
-                MODELS_CONTENT.models.modelsDetailsCard.properties.epochs
-                  .tooltip
-              }
+              tooltip={MODELS_CONTENT.models.modelsDetailsCard.properties.epochs.tooltip}
             />
             <PropertyDisplay
-              label={
-                MODELS_CONTENT.models.modelsDetailsCard.properties.batchSize
-                  .title
-              }
+              label={MODELS_CONTENT.models.modelsDetailsCard.properties.batchSize.title}
               value={batch_size}
-              tooltip={
-                MODELS_CONTENT.models.modelsDetailsCard.properties.batchSize
-                  .tooltip
-              }
+              tooltip={MODELS_CONTENT.models.modelsDetailsCard.properties.batchSize.tooltip}
             />
             <PropertyDisplay
-              label={
-                MODELS_CONTENT.models.modelsDetailsCard.properties
-                  .contactSpacing.title
-              }
+              label={MODELS_CONTENT.models.modelsDetailsCard.properties.contactSpacing.title}
               value={input_contact_spacing}
-              tooltip={
-                MODELS_CONTENT.models.modelsDetailsCard.properties
-                  .contactSpacing.tooltip
-              }
+              tooltip={MODELS_CONTENT.models.modelsDetailsCard.properties.contactSpacing.tooltip}
             />
             <PropertyDisplay
-              label={
-                MODELS_CONTENT.models.modelsDetailsCard.properties.boundaryWidth
-                  .title
-              }
+              label={MODELS_CONTENT.models.modelsDetailsCard.properties.boundaryWidth.title}
               value={input_boundary_width}
-              tooltip={
-                MODELS_CONTENT.models.modelsDetailsCard.properties.boundaryWidth
-                  .tooltip
-              }
+              tooltip={MODELS_CONTENT.models.modelsDetailsCard.properties.boundaryWidth.tooltip}
             />
             <PropertyDisplay
-              label={
-                MODELS_CONTENT.models.modelsDetailsCard.properties
-                  .currentDatasetSize.title
-              }
+              label={MODELS_CONTENT.models.modelsDetailsCard.properties.currentDatasetSize.title}
               value={`${chips_length} Images`}
               tooltip={
-                MODELS_CONTENT.models.modelsDetailsCard.properties
-                  .currentDatasetSize.tooltip
+                MODELS_CONTENT.models.modelsDetailsCard.properties.currentDatasetSize.tooltip
               }
             />
             {/* Animate the status when it's in progress. */}
             {isTrainingDetailsDialog && (
               <PropertyDisplay
-                label={
-                  MODELS_CONTENT.models.modelsDetailsCard.trainingInfoDialog
-                    .status
-                }
+                label={MODELS_CONTENT.models.modelsDetailsCard.trainingInfoDialog.status}
                 value={data?.status}
                 animate={
                   data?.status === TrainingStatus.IN_PROGRESS ||
@@ -245,39 +196,23 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
               />
             )}
             <PropertyDisplay
-              label={
-                MODELS_CONTENT.models.modelsDetailsCard.properties.baseModel
-                  .title
-              }
+              label={MODELS_CONTENT.models.modelsDetailsCard.properties.baseModel.title}
               value={model.base_model}
               isLink
               href={
-                MODELS_CONTENT.models.modelsDetailsCard.properties.baseModel
-                  .href[model.base_model]
+                MODELS_CONTENT.models.modelsDetailsCard.properties.baseModel.href[model.base_model]
               }
             />
 
             <PropertyDisplay
-              label={
-                MODELS_CONTENT.models.modelsDetailsCard.properties.sourceImage
-                  .title
-              }
-              tooltip={
-                MODELS_CONTENT.models.modelsDetailsCard.properties.sourceImage
-                  .tooltip
-              }
+              label={MODELS_CONTENT.models.modelsDetailsCard.properties.sourceImage.title}
+              tooltip={MODELS_CONTENT.models.modelsDetailsCard.properties.sourceImage.tooltip}
               value={source_imagery}
               isCopy
             />
             <PropertyDisplay
-              label={
-                MODELS_CONTENT.models.modelsDetailsCard.properties.trainingId
-                  .title
-              }
-              tooltip={
-                MODELS_CONTENT.models.modelsDetailsCard.properties.trainingId
-                  .tooltip
-              }
+              label={MODELS_CONTENT.models.modelsDetailsCard.properties.trainingId.title}
+              tooltip={MODELS_CONTENT.models.modelsDetailsCard.properties.trainingId.tooltip}
               value={data?.id ? data?.id : "N/A"}
             />
 
@@ -313,8 +248,7 @@ const ModelProperties: React.FC<ModelPropertiesProps> = ({
 
           {/* Show logs only in modal and when status failed or running */}
           {isTrainingDetailsDialog &&
-            (data?.status === TrainingStatus.FAILED ||
-              data?.status === TrainingStatus.RUNNING) && (
+            (data?.status === TrainingStatus.FAILED || data?.status === TrainingStatus.RUNNING) && (
               <TrainingLogs taskId={data?.task_id ?? ""} />
             )}
         </div>

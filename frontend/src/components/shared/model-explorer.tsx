@@ -3,12 +3,7 @@ import { LayoutToggle } from "@/components/shared/layout-toggle";
 import { LayoutView } from "@/enums";
 import { MobileModelFiltersDialog } from "@/features/models/components/dialogs";
 import { MODELS_CONTENT } from "@/constants";
-import {
-  ClearFilters,
-  OrderingFilter,
-  PAGE_LIMIT,
-  SearchFilter,
-} from "@/components/shared";
+import { ClearFilters, OrderingFilter, PAGE_LIMIT, SearchFilter } from "@/components/shared";
 import { Pagination } from "@/components/shared";
 import { useDialog } from "@/hooks/use-dialog";
 import { useModelsListFilters } from "@/features/models/hooks/use-models";
@@ -18,10 +13,7 @@ import {
   MobileFilter,
   StatusFilter,
 } from "@/features/models/components/filters";
-import {
-  ModelListGridLayout,
-  ModelListTableLayout,
-} from "@/features/models/layouts";
+import { ModelListGridLayout, ModelListTableLayout } from "@/features/models/layouts";
 // import { AddIcon } from "@/components/ui/icons";
 // import { ButtonWithIcon } from "@/components/ui/button";
 // import { useNavigate } from "react-router-dom";
@@ -48,15 +40,8 @@ export const ModelExplorer = ({
 }) => {
   const { isOpened, openDialog, closeDialog } = useDialog();
 
-  const {
-    clearAllFilters,
-    data,
-    isError,
-    isPending,
-    isPlaceholderData,
-    query,
-    updateQuery,
-  } = useModelsListFilters(status, userId, datasetId);
+  const { clearAllFilters, data, isError, isPending, isPlaceholderData, query, updateQuery } =
+    useModelsListFilters(status, userId, datasetId);
   // const navigate = useNavigate();
 
   // const handleClick = () => {
@@ -71,21 +56,11 @@ export const ModelExplorer = ({
     if (query[SEARCH_PARAMS.layout] === LayoutView.LIST) {
       return (
         <div className="col-span-5">
-          <ModelListTableLayout
-            isPending={isPending}
-            models={data?.results}
-            isError={isError}
-          />
+          <ModelListTableLayout isPending={isPending} models={data?.results} isError={isError} />
         </div>
       );
     }
-    return (
-      <ModelListGridLayout
-        isPending={isPending}
-        models={data?.results}
-        isError={isError}
-      />
-    );
+    return <ModelListGridLayout isPending={isPending} models={data?.results} isError={isError} />;
   };
 
   return (
@@ -99,9 +74,7 @@ export const ModelExplorer = ({
       />
       <section className="min-h-screen gap-y-2 flex flex-col">
         <div className="flex justify-between items-center">
-          <h1 className="font-bold text-title-3 md:text-title-2 self-start">
-            {title}
-          </h1>
+          <h1 className="font-bold text-title-3 md:text-title-2 self-start">{title}</h1>
           {/* {createRoute && createButtonAlt && (
             <ButtonWithIcon
               onClick={handleClick}
@@ -119,33 +92,18 @@ export const ModelExplorer = ({
                 <SearchFilter
                   updateQuery={updateQuery}
                   query={query}
-                  placeholder={
-                    MODELS_CONTENT.models.modelsList.filtersSection
-                      .searchPlaceHolder
-                  }
+                  placeholder={MODELS_CONTENT.models.modelsList.filtersSection.searchPlaceHolder}
                 />
                 <CategoryFilter disabled={isPending} />
                 {disableStatusFilter ? null : (
-                  <StatusFilter
-                    disabled={isPending}
-                    updateQuery={updateQuery}
-                    query={query}
-                  />
+                  <StatusFilter disabled={isPending} updateQuery={updateQuery} query={query} />
                 )}
                 {/* Mobile filters */}
                 <div className="flex md:hidden items-center gap-x-4">
                   <MobileFilter openMobileFilterModal={openDialog} />
-                  <LayoutToggle
-                    updateQuery={updateQuery}
-                    query={query}
-                    isMobile
-                  />
+                  <LayoutToggle updateQuery={updateQuery} query={query} isMobile />
                 </div>
-                <DateRangeFilter
-                  disabled={isPending}
-                  updateQuery={updateQuery}
-                  query={query}
-                />
+                <DateRangeFilter disabled={isPending} updateQuery={updateQuery} query={query} />
                 {/* Desktop */}
                 <ClearFilters query={query} clearAllFilters={clearAllFilters} />
               </div>
@@ -156,11 +114,7 @@ export const ModelExplorer = ({
             </div>
             {/* Mobile */}
             <div className="self-start">
-              <ClearFilters
-                query={query}
-                clearAllFilters={clearAllFilters}
-                isMobile
-              />
+              <ClearFilters query={query} clearAllFilters={clearAllFilters} isMobile />
             </div>
           </div>
           {isPending ? (
@@ -170,18 +124,11 @@ export const ModelExplorer = ({
               <div className="w-full flex items-center justify-between">
                 <p className="font-semibold text-body-3">
                   {data?.count}{" "}
-                  {
-                    MODELS_CONTENT.models.modelsList.sortingAndPaginationSection
-                      .modelCountSuffix
-                  }
+                  {MODELS_CONTENT.models.modelsList.sortingAndPaginationSection.modelCountSuffix}
                 </p>
               </div>
               <div className="flex items-center gap-x-9">
-                <OrderingFilter
-                  disabled={isPending}
-                  query={query}
-                  updateQuery={updateQuery}
-                />
+                <OrderingFilter disabled={isPending} query={query} updateQuery={updateQuery} />
                 <div className="hidden md:flex">
                   <Pagination
                     totalLength={data?.count}

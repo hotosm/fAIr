@@ -1,10 +1,7 @@
 import { DrawingModes } from "@/enums";
 import { Map } from "maplibre-gl";
 import { setupMaplibreMap } from "@/components/map/setups/setup-maplibre";
-import {
-  setupTerraDraw,
-  TerraDrawStyleVariant,
-} from "@/components/map/setups/setup-terra-draw";
+import { setupTerraDraw, TerraDrawStyleVariant } from "@/components/map/setups/setup-terra-draw";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useMapStore } from "@/store/map-store";
 import { BBOX } from "@/types";
@@ -26,9 +23,7 @@ export const useMapInstance = (
 ) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<Map | null>(null);
-  const [drawingMode, setDrawingMode] = useState<DrawingModes>(
-    DrawingModes.STATIC,
-  );
+  const [drawingMode, setDrawingMode] = useState<DrawingModes>(DrawingModes.STATIC);
 
   const setZoom = useMapStore((state) => state.setZoom);
 

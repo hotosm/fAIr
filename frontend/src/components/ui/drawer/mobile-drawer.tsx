@@ -37,13 +37,9 @@ export const MobileDrawer = ({
     const start = pressStart.current;
     pressStart.current = null;
     if (!start) return;
-    const moved =
-      Math.abs(event.clientX - start.x) > 8 ||
-      Math.abs(event.clientY - start.y) > 8;
+    const moved = Math.abs(event.clientX - start.x) > 8 || Math.abs(event.clientY - start.y) > 8;
     if (moved) return;
-    setSnap((current) =>
-      current === lastSnapPoint ? snapPoints[0] : lastSnapPoint,
-    );
+    setSnap((current) => (current === lastSnapPoint ? snapPoints[0] : lastSnapPoint));
   };
 
   return (
@@ -57,9 +53,7 @@ export const MobileDrawer = ({
       modal={modal}
       handleOnly={handleOnly}
     >
-      {showOverlay ? (
-        <Drawer.Overlay className="fixed inset-0 bg-black/40" />
-      ) : null}
+      {showOverlay ? <Drawer.Overlay className="fixed inset-0 bg-black/40" /> : null}
       <Drawer.Portal>
         <Drawer.Content
           data-testid="content"
@@ -75,10 +69,7 @@ export const MobileDrawer = ({
             )}
           >
             {canClose ? (
-              <Drawer.Close
-                className="w-full flex justify-end app-padding"
-                onClick={closeDrawer}
-              >
+              <Drawer.Close className="w-full flex justify-end app-padding" onClick={closeDrawer}>
                 <span className="text-body-2 text-grey icon-interaction w-fit py-1 px-2.5 rounded-full">
                   {" "}
                   &#x2715;

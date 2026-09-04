@@ -8,11 +8,7 @@ import { Feature, TModelDetails, TQueryParams } from "@/types";
 import { Button } from "@/components/ui/button";
 import { ButtonVariant } from "@/enums";
 import { Alert } from "@/components/ui/alert";
-import {
-  calculateGeoJSONArea,
-  formatAreaInAppropriateUnit,
-  showErrorToast,
-} from "@/utils";
+import { calculateGeoJSONArea, formatAreaInAppropriateUnit, showErrorToast } from "@/utils";
 import { useSubmitOfflinePredictionsRequest } from "@/features/start-mapping/hooks/use-model-predictions";
 import { SEARCH_PARAMS } from "@/app/routes/start-mapping";
 import { useParams } from "react-router-dom";
@@ -50,8 +46,7 @@ export const OfflinePredictionRequestDialog = ({
   predictionModel: string;
 }) => {
   const { modelId } = useParams();
-  const [predictionRequestName, setPredictionRequestName] =
-    useState<string>("");
+  const [predictionRequestName, setPredictionRequestName] = useState<string>("");
   const [zoomLevel, setZoomLevel] = useState<string>("18");
   const { isOpened, openDialog, closeDialog } = useDialog();
   const modelPredictionMutation = useSubmitOfflinePredictionsRequest({
@@ -79,10 +74,7 @@ export const OfflinePredictionRequestDialog = ({
 
   return (
     <>
-      <OfflinePredictionRequestSuccess
-        isOpen={isOpened}
-        onClose={closeDialog}
-      />
+      <OfflinePredictionRequestSuccess isOpen={isOpened} onClose={closeDialog} />
       <Dialog
         isOpened={isOpen}
         closeDialog={onClose}
@@ -91,10 +83,9 @@ export const OfflinePredictionRequestDialog = ({
       >
         <Alert>
           <small className="text-xs md:text-body-3">
-            Set the parameters for your prediction request. Selected model and
-            imagery will be used to generate predictions for the selected zoom
-            level. You can also set advanced settings for your prediction
-            request.
+            Set the parameters for your prediction request. Selected model and imagery will be used
+            to generate predictions for the selected zoom level. You can also set advanced settings
+            for your prediction request.
           </small>
         </Alert>
         <div className="border border-gray-border rounded-md mt-2">
@@ -191,8 +182,7 @@ export const OfflinePredictionRequestDialog = ({
               className="md:!w-fit"
               variant={ButtonVariant.PRIMARY}
               disabled={
-                predictionRequestName.trim().length <
-                  MINIMUM_PREDICTION_NAME_LENGTH ||
+                predictionRequestName.trim().length < MINIMUM_PREDICTION_NAME_LENGTH ||
                 modelPredictionMutation.isPending
               }
               onClick={() => {
@@ -202,22 +192,14 @@ export const OfflinePredictionRequestDialog = ({
                   config: {
                     tolerance: query[SEARCH_PARAMS.tolerance] as number,
                     area_threshold: query[SEARCH_PARAMS.area] as number,
-                    orthogonalize: query[
-                      SEARCH_PARAMS.orthogonalize
-                    ] as boolean,
+                    orthogonalize: query[SEARCH_PARAMS.orthogonalize] as boolean,
                     confidence: query[SEARCH_PARAMS.confidenceLevel] as number,
                     checkpoint: predictionModelCheckpoint,
-                    ortho_max_angle_change_deg: query[
-                      SEARCH_PARAMS.maxAngleChange
-                    ] as number,
+                    ortho_max_angle_change_deg: query[SEARCH_PARAMS.maxAngleChange] as number,
                     zoom_level: parseInt(zoomLevel, 10),
                     model_id: modelId as string,
-                    ortho_skew_tolerance_deg: query[
-                      SEARCH_PARAMS.skewTolerance
-                    ] as number,
-                    source:
-                      tileServerURL ??
-                      (modelInfo?.dataset?.source_imagery as string),
+                    ortho_skew_tolerance_deg: query[SEARCH_PARAMS.skewTolerance] as number,
+                    source: tileServerURL ?? (modelInfo?.dataset?.source_imagery as string),
                     model_name: getModelName() as string,
                   },
                 });

@@ -38,38 +38,46 @@ The stack:
 ### Why ZenML
 
 **Good fit for a small team**
+
 - Works out-of-the-box on Kubernetes without needing Kubeflow or a heavy control plane.
 - Provides a ready-made ML workflow layer so we don’t have to build one ourselves.
 
 **Lower maintenance than DIY**
+
 - Gives us pipeline orchestration, artifact storage, and run metadata in one system.
 - Reduces the amount of custom glue code we would otherwise need to maintain.
 
 **Reproducibility by default**
+
 - Tracks code, environments, artifacts, and pipeline versions automatically.
 - Builds lineage between inputs, runs, and outputs without manual effort.
 
 **Easy integration with fAIr**
+
 - Can be triggered programmatically via the ZenML Python client, keeping a clean boundary:
-  - fAIr = user workflows  
+  - fAIr = user workflows
   - ZenML = ML infrastructure
 
 **Works with our stack**
+
 - Native integrations with S3, MLflow, WandB, and model serving tools (Seldon/KServe).
 - Runs directly on Kubernetes using ZenML’s built-in executor.
 
 **STAC integration should be simple**
+
 - ZenML will be our source of truth for ML run metadata and artifacts.
 - We will publish selected outputs to pgSTAC via a simple post-run hook or final pipeline step.
 
 ### Why not the others
 
 **Metaflow:**
+
 - No automatic environment capture (depends on team discipline)
 - Reproducibility is manual, not enforced
 - We'd be building what ZenML already provides
 
 **Flyte:**
+
 - Heavier control plane (FlyteAdmin, FlyteConsole, separate database)
 - More complex to operate than ZenML
 - Built for larger scale than we currently need
@@ -81,6 +89,7 @@ Flyte is excellent but overkill for our current needs.
 ### When we'd reconsider
 
 We'd move to **Flyte** if:
+
 - We scale to 100+ runs per day
 - We need multi-cluster execution across regions
 - We add separate teams needing strict isolation
@@ -90,6 +99,7 @@ We'd move to **Flyte** if:
 ## Architecture
 
 **Training & data processing:**
+
 - Runs as ZenML pipelines
 - Executes on Kubernetes (via ZenML's native orchestrator)
 - Reads input data from S3/STAC
@@ -97,25 +107,27 @@ We'd move to **Flyte** if:
 - All metadata tracked automatically
 
 **Metadata registration:**
+
 - ZenML tracks all pipeline/artifact metadata internally
 - Post-run hook publishes summary to pgSTAC for geospatial discovery
 - Optional: track experiments in MLflow/WandB via ZenML integrations
 
 **Inference:**
+
 - Deploy to Seldon/KServe via ZenML model deployer
 - Or export to ONNX for client-side execution
 
 ## Trade-offs
 
-- ✅ Automatic reproducibility without team discipline required  
-- ✅ Minimal custom code to maintain  
-- ✅ Built for small teams without platform engineers  
-- ✅ First-class integrations with our stack (S3, Seldon, MLflow)  
-- ✅ Easy programmatic triggering from fAIr  
-- ✅ Full lineage tracking and metadata management built-in  
-- ✅ Clean separation: fAIr handles user workflows, ZenML handles ML infrastructure  
-- ✅ Can migrate to Flyte later if needed (similar abstractions)  
+- ✅ Automatic reproducibility without team discipline required
+- ✅ Minimal custom code to maintain
+- ✅ Built for small teams without platform engineers
+- ✅ First-class integrations with our stack (S3, Seldon, MLflow)
+- ✅ Easy programmatic triggering from fAIr
+- ✅ Full lineage tracking and metadata management built-in
+- ✅ Clean separation: fAIr handles user workflows, ZenML handles ML infrastructure
+- ✅ Can migrate to Flyte later if needed (similar abstractions)
 - ❌ Adds MySQL database to maintain
-- ❌ Learning curve for ZenML concepts (stacks, materializers)  
+- ❌ Learning curve for ZenML concepts (stacks, materializers)
 - ❌ Slightly more opinionated than raw Metaflow
 - ❌ ZenML's Kubernetes orchestrator is less mature than Argo Workflows

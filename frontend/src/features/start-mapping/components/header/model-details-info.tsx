@@ -31,10 +31,7 @@ export const ModelDetailsInfo = ({
   const { isSmallViewport } = useScreenSize();
 
   const popupContent = (
-    <SkeletonWrapper
-      showSkeleton={modelInfoRequestIsPending}
-      skeletonClassName="h-40"
-    >
+    <SkeletonWrapper showSkeleton={modelInfoRequestIsPending} skeletonClassName="h-40">
       {predictionModel === PredictionModel.DEFAULT ? (
         <div className="flex flex-col gap-y-3 text-dark font-normal text-body-3">
           <p>
@@ -61,14 +58,8 @@ export const ModelDetailsInfo = ({
           </p>
           <p className="flex items-center gap-x-1 text-nowrap flex-wrap">
             {START_MAPPING_PAGE_CONTENT.modelDetails.popover.datasetName}:{" "}
-            <SkeletonWrapper
-              showSkeleton={modelInfoRequestIsPending}
-              skeletonClassName="w-20 h-4"
-            >
-              <span
-                className="text-dark font-medium text-wrap"
-                title={modelInfo?.dataset?.name}
-              >
+            <SkeletonWrapper showSkeleton={modelInfoRequestIsPending} skeletonClassName="w-20 h-4">
+              <span className="text-dark font-medium text-wrap" title={modelInfo?.dataset?.name}>
                 {modelInfoRequestIsError
                   ? "N/A"
                   : truncateString(modelInfo?.dataset?.name, 40)}{" "}
@@ -78,10 +69,7 @@ export const ModelDetailsInfo = ({
 
           <p className="flex items-center gap-x-1 text-nowrap flex-wrap">
             {START_MAPPING_PAGE_CONTENT.modelDetails.popover.zoomLevel}:{" "}
-            <SkeletonWrapper
-              showSkeleton={trainingDetailsIsPending}
-              skeletonClassName="w-20 h-4"
-            >
+            <SkeletonWrapper showSkeleton={trainingDetailsIsPending} skeletonClassName="w-20 h-4">
               <span className="text-dark font-medium">
                 {trainingDetailsError
                   ? "N/A"
@@ -92,9 +80,7 @@ export const ModelDetailsInfo = ({
 
           <p>
             {START_MAPPING_PAGE_CONTENT.modelDetails.popover.accuracy}:{" "}
-            <span className="font-medium">
-              {roundNumber(modelInfo?.accuracy as number, 2)}%
-            </span>
+            <span className="font-medium">{roundNumber(modelInfo?.accuracy as number, 2)}%</span>
           </p>
           <p>
             {START_MAPPING_PAGE_CONTENT.modelDetails.popover.baseModel}:{" "}

@@ -83,10 +83,7 @@ const LabelFetchStatus = ({
     };
 
     updateTimeSince();
-    const intervalId = setInterval(
-      updateTimeSince,
-      TRAINING_AREA_LABELS_FETCH_POOLING_TIME_MS,
-    );
+    const intervalId = setInterval(updateTimeSince, TRAINING_AREA_LABELS_FETCH_POOLING_TIME_MS);
     return () => clearInterval(intervalId);
   }, [fetchedDate]);
 
@@ -94,15 +91,12 @@ const LabelFetchStatus = ({
     if (isFetching)
       return (
         <span className="inline-flex items-center gap-x-1">
-          {status === LabelStatus.DOWNLOADING ? "Fetching..." : "Queued"}{" "}
-          <Spinner />
+          {status === LabelStatus.DOWNLOADING ? "Fetching..." : "Queued"} <Spinner />
         </span>
       );
     if (isError) return "Error occurred. Please retry.";
     if (status === LabelStatus.DOWNLOADED) {
-      return timeSince
-        ? `Labels fetched ${timeSince} ago`
-        : "Labels fetched recently";
+      return timeSince ? `Labels fetched ${timeSince} ago` : "Labels fetched recently";
     }
     return "No labels yet";
   };
@@ -146,11 +140,7 @@ const DropdownMenu = ({
               {Item.isIcon ? (
                 Item.Icon && <Item.Icon className="icon md:icon-lg" />
               ) : (
-                <img
-                  src={Item.imageSrc}
-                  className="icon md:icon-lg"
-                  alt={Item.tooltip}
-                />
+                <img src={Item.imageSrc} className="icon md:icon-lg" alt={Item.tooltip} />
               )}
             </button>
           </ToolTip>
@@ -173,8 +163,7 @@ export const TrainingAreaItem: React.FC<
     isFetching: false,
     error: false,
     fetchedDate: trainingArea?.properties?.label_fetched || "",
-    status:
-      trainingArea?.properties?.label_status || LabelStatus.NOT_DOWNLOADED,
+    status: trainingArea?.properties?.label_status || LabelStatus.NOT_DOWNLOADED,
     errorToastShown: false,
     shouldPoll: false,
   };
@@ -189,10 +178,7 @@ export const TrainingAreaItem: React.FC<
   const { formData } = useModelsContext();
   const [isDeletingTA, setIsDeletingTA] = useState<boolean>(false);
 
-  const getTrainingAreaLabels = useGetTrainingAreaLabels(
-    trainingArea.id,
-    false,
-  );
+  const getTrainingAreaLabels = useGetTrainingAreaLabels(trainingArea.id, false);
 
   const getTrainingArea = useGetTrainingArea(
     trainingArea.id,
@@ -210,10 +196,7 @@ export const TrainingAreaItem: React.FC<
     }));
 
     if (!labelState.errorToastShown) {
-      showErrorToast(
-        undefined,
-        `Could not fetch labels for AOI ${trainingArea.id}. Please retry.`,
-      );
+      showErrorToast(undefined, `Could not fetch labels for AOI ${trainingArea.id}. Please retry.`);
       setLabelState((prev) => ({ ...prev, errorToastShown: true }));
     }
   }, [labelState.errorToastShown, trainingArea.id]);
@@ -299,9 +282,7 @@ export const TrainingAreaItem: React.FC<
           const fetchedDate = res.data.properties.label_fetched;
           if (res.data?.properties.label_status === LabelStatus.DOWNLOADED) {
             handleLabelSuccess(fetchedDate);
-          } else if (
-            res.data?.properties.label_status === LabelStatus.NOT_DOWNLOADED
-          ) {
+          } else if (res.data?.properties.label_status === LabelStatus.NOT_DOWNLOADED) {
             setLabelState((prev) => ({
               ...prev,
               status: LabelStatus.NOT_DOWNLOADED,
@@ -370,12 +351,10 @@ export const TrainingAreaItem: React.FC<
       isIcon: false,
       imageSrc: JOSMLogo,
       disabled: false,
-      onClick: () =>
-        openInJOSM(formData.datasetName, formData.tmsURL, [trainingArea]),
+      onClick: () => openInJOSM(formData.datasetName, formData.tmsURL, [trainingArea]),
     },
     {
-      tooltip:
-        MODELS_CONTENT.modelCreation.trainingArea.toolTips.openInIdEditor,
+      tooltip: MODELS_CONTENT.modelCreation.trainingArea.toolTips.openInIdEditor,
       isIcon: false,
       imageSrc: OSMLogo,
       disabled: false,
@@ -399,8 +378,7 @@ export const TrainingAreaItem: React.FC<
       },
     },
     {
-      tooltip:
-        MODELS_CONTENT.modelCreation.trainingArea.toolTips.downloadLabels,
+      tooltip: MODELS_CONTENT.modelCreation.trainingArea.toolTips.downloadLabels,
       isIcon: true,
       disabled: false,
       Icon: CloudDownloadIcon,
@@ -416,8 +394,7 @@ export const TrainingAreaItem: React.FC<
     },
     {
       tooltip: disableLabelsFetchOrUpload
-        ? MODELS_CONTENT.modelCreation.trainingArea.toolTips
-            .labelsFetchInProgress
+        ? MODELS_CONTENT.modelCreation.trainingArea.toolTips.labelsFetchInProgress
         : MODELS_CONTENT.modelCreation.trainingArea.toolTips.uploadLabels,
       isIcon: true,
       Icon: UploadIcon,
@@ -481,17 +458,12 @@ export const TrainingAreaItem: React.FC<
             isFetching={labelState.isFetching}
           />
         </div>
-        <div
-          className="flex items-center gap-x-3"
-          id={APP_TOUR_IDS.TRAINING_AREA_TOOLS}
-        >
+        <div className="flex items-center gap-x-3" id={APP_TOUR_IDS.TRAINING_AREA_TOOLS}>
           <ToolTip
             content={
               disableLabelsFetchOrUpload
-                ? MODELS_CONTENT.modelCreation.trainingArea.toolTips
-                    .labelsFetchInProgress
-                : MODELS_CONTENT.modelCreation.trainingArea.toolTips
-                    .fetchOSMLabels
+                ? MODELS_CONTENT.modelCreation.trainingArea.toolTips.labelsFetchInProgress
+                : MODELS_CONTENT.modelCreation.trainingArea.toolTips.fetchOSMLabels
             }
           >
             <button
@@ -503,23 +475,13 @@ export const TrainingAreaItem: React.FC<
               <MapIcon className="icon md:icon-lg text-green-primary" />
             </button>
           </ToolTip>
-          <ToolTip
-            content={
-              MODELS_CONTENT.modelCreation.trainingArea.toolTips.zoomToAOI
-            }
-          >
-            <button
-              className="bg-off-white px-2 py-1 rounded-md"
-              onClick={handleFitToBounds}
-            >
+          <ToolTip content={MODELS_CONTENT.modelCreation.trainingArea.toolTips.zoomToAOI}>
+            <button className="bg-off-white px-2 py-1 rounded-md" onClick={handleFitToBounds}>
               <FullScreenIcon className="icon" />
             </button>
           </ToolTip>
           <div id={APP_TOUR_IDS.MORE_INFORMATION}>
-            <DropdownMenu
-              dropdownMenuItems={dropdownMenuItems}
-              dropdownRef={dropdownRef}
-            />
+            <DropdownMenu dropdownMenuItems={dropdownMenuItems} dropdownRef={dropdownRef} />
           </div>
         </div>
       </div>

@@ -1,7 +1,4 @@
-import {
-  FAIR_PREDICTOR_API_ENDPOINT,
-  OSM_DATABASE_STATUS_API_ENDPOINT,
-} from "@/config";
+import { FAIR_PREDICTOR_API_ENDPOINT, OSM_DATABASE_STATUS_API_ENDPOINT } from "@/config";
 
 /**
  * The backend API endpoints.
@@ -62,8 +59,7 @@ export const API_ENDPOINTS = {
   GET_TRAINING_DATASETS_V2: "datasets/",
   GET_TRAINING_DATASET: (id: number) => `dataset/${id}`,
   GET_TRAINING_AREA_GPX: (aoiId: number) => `aoi/gpx/${aoiId}`,
-  GET_TRAINING_AREA_LABELS_FROM_OSM: (aoiId: number) =>
-    `label/osm/fetch/${aoiId}/`,
+  GET_TRAINING_AREA_LABELS_FROM_OSM: (aoiId: number) => `label/osm/fetch/${aoiId}/`,
   GET_TRAINING_AREA_LABELS: (aoiId: number) => `label/?aoi=${aoiId}`,
   GET_TRAINING_DATASET_LABELS: (aoiDatasetId: number, bbox: string) =>
     `label/?aoi__dataset=${aoiDatasetId}&in__bbox=${bbox}/`,
@@ -72,8 +68,7 @@ export const API_ENDPOINTS = {
   GET_TRAINING_AREA: (aoiId: number) => `aoi/${aoiId}/`,
   GET_TRAINING_STATUS: (taskId: string) => `task/status/${taskId}`,
   GET_TRAINING_HISTORY: "trainings/",
-  GET_TRAINING_FEEDBACKS: (trainingId: number) =>
-    `feedback/?training=${trainingId}`,
+  GET_TRAINING_FEEDBACKS: (trainingId: number) => `feedback/?training=${trainingId}`,
   CREATE_TRAINING_DATASET: "dataset/",
   CREATE_TRAINING_AREA: "aoi/",
   CREATE_TRAINING_REQUEST: "training/",
@@ -94,10 +89,7 @@ export const API_ENDPOINTS = {
     folder
       ? `workspace/download/${folder}/labels.geojson`
       : `workspace/download/prediction_${predictionID}/labels.geojson`,
-  DOWNLOAD_PREDICTION_RESULTS_POINTS_LABELS_FILE_: (
-    predictionID: number,
-    folder?: string,
-  ) =>
+  DOWNLOAD_PREDICTION_RESULTS_POINTS_LABELS_FILE_: (predictionID: number, folder?: string) =>
     folder
       ? `workspace/download/${folder}/labels_points.geojson`
       : `workspace/download/prediction_${predictionID}/labels_points.geojson`,
@@ -120,16 +112,12 @@ export const API_ENDPOINTS = {
 
   CREATE_MAPSWIPE_PROJECT: "mapswipe-project/",
 
-  GET_MAPSWIPE_PROJECT_STATUS: (projectId: string) =>
-    `mapswipe-project/${projectId}/`,
+  GET_MAPSWIPE_PROJECT_STATUS: (projectId: string) => `mapswipe-project/${projectId}/`,
 
   // STAC
-  GET_BASE_MODELS: (limit: number): string =>
-    `/collections/base-models/items/?limit=${limit}`,
-  GET_LOCAL_MODELS: (limit: number): string =>
-    `/collections/local-models/items/?limit=${limit}`,
-  GET_BASE_MODEL_BY_ID: (id: string): string =>
-    `/collections/base-models/items/${id}`,
+  GET_BASE_MODELS: (limit: number): string => `/collections/base-models/items/?limit=${limit}`,
+  GET_LOCAL_MODELS: (limit: number): string => `/collections/local-models/items/?limit=${limit}`,
+  GET_BASE_MODEL_BY_ID: (id: string): string => `/collections/base-models/items/${id}`,
 
   GET_CATEGORIES: "/categories/",
   GET_API_BASE_MODELS: (category: string) =>

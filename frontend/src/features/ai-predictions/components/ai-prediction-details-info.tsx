@@ -22,9 +22,7 @@ export const AIPredictionDetailsInfo = ({
 }) => {
   // const featureCount = prediction.result?.count ?? 0;
 
-  const publishedDate = prediction.published_at
-    ? formatDate(prediction.published_at)
-    : "-";
+  const publishedDate = prediction.published_at ? formatDate(prediction.published_at) : "-";
   return (
     <DropDown
       // @ts-ignore

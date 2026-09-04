@@ -33,9 +33,7 @@ export const ModelSelector = ({
   defaultPredictionModel?: string;
   customModelCheckpointPath?: string;
   customPredictionModelCheckpointPath: string;
-  setCustomPredictionModelCheckpointPath: React.Dispatch<
-    React.SetStateAction<string>
-  >;
+  setCustomPredictionModelCheckpointPath: React.Dispatch<React.SetStateAction<string>>;
   modelInfo: TModelDetails;
 }) => {
   const PredictionModels = useMemo(
@@ -49,9 +47,7 @@ export const ModelSelector = ({
         value: PredictionModel.RAMP,
         label: "RAMP",
         tooltip:
-          MODELS_CONTENT.modelCreation.modelDetails.form.baseModel.suffixes[
-            PredictionModel.RAMP
-          ],
+          MODELS_CONTENT.modelCreation.modelDetails.form.baseModel.suffixes[PredictionModel.RAMP],
       },
       {
         value: PredictionModel.YOLOV8_V1,
@@ -88,10 +84,8 @@ export const ModelSelector = ({
         },
       ),
       [PredictionModel.RAMP]: FAIR_BASE_MODELS_PATH[PredictionModel.RAMP],
-      [PredictionModel.YOLOV8_V1]:
-        FAIR_BASE_MODELS_PATH[PredictionModel.YOLOV8_V1],
-      [PredictionModel.YOLOV8_V2]:
-        FAIR_BASE_MODELS_PATH[PredictionModel.YOLOV8_V2],
+      [PredictionModel.YOLOV8_V1]: FAIR_BASE_MODELS_PATH[PredictionModel.YOLOV8_V1],
+      [PredictionModel.YOLOV8_V2]: FAIR_BASE_MODELS_PATH[PredictionModel.YOLOV8_V2],
       [PredictionModel.CUSTOM]: predictionModelCheckpoint,
     }),
     [predictionModelCheckpoint, modelInfo, predictionModel],
@@ -178,9 +172,8 @@ const CustomModelInput = ({
           isValid.message
         ) : (
           <span className="text-wrap text-xs">
-            The custom model checkpoint path should point to a valid model file.
-            For example, you can use a URL like:{" "}
-            {`https://your-server/checkpoint.tflite`}.
+            The custom model checkpoint path should point to a valid model file. For example, you
+            can use a URL like: {`https://your-server/checkpoint.tflite`}.
           </span>
         )}
       </HelpText>

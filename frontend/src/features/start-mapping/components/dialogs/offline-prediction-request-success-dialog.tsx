@@ -26,8 +26,8 @@ export const OfflinePredictionRequestSuccess = ({
         </div>
         <h1 className="text-title-3 font-semibold">Prediction Request Sent</h1>
         <p className="text-body-3 text-center">
-          We have received the request to run prediction on your specified area.
-          You will be notified when the prediction is done.
+          We have received the request to run prediction on your specified area. You will be
+          notified when the prediction is done.
         </p>
         <div className="flex flex-col md:flex-row gap-y-3 md:gap-0 justify-between w-full">
           <Button
@@ -39,11 +39,7 @@ export const OfflinePredictionRequestSuccess = ({
           >
             View requests
           </Button>
-          <Button
-            onClick={onClose}
-            variant={ButtonVariant.PRIMARY}
-            className="md:!w-fit"
-          >
+          <Button onClick={onClose} variant={ButtonVariant.PRIMARY} className="md:!w-fit">
             {continueLabel}
           </Button>
         </div>
