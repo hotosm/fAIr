@@ -274,8 +274,8 @@ export const ModelPickerContent = ({
                       isSelected ? "border-primary border-2" : "",
                     )}
                   >
-                    <div className="flex space-y-2 items-start justify-between gap-2 mb-1">
-                      <p className="text-dark capitalize text-sm font-bold leading-tight">
+                    <div className="flex items-start justify-between gap-2 mb-1">
+                      <p className="text-dark capitalize text-sm font-bold leading-tight flex-1 min-w-0 break-words">
                         {model?.properties?.title ?? ""}
                       </p>
                       <RadioDot darkBorder={true} selected={isSelected} />

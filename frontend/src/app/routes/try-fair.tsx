@@ -213,7 +213,7 @@ export const TryFairPage = () => {
     setCurrentModelType(ModelType.DEMO);
     setMode(ModelType.DEMO);
     setImagery({ url: null, tileServiceType: null, oamItemId: null });
-    setResolution(TryFairResolution.MID);
+    setResolution(TryFairResolution.LOW);
 
     // Reset confidence threshold to model's spec default if available
     const infParams = getInferenceParams(model);
