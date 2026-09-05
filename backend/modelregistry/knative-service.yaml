@@ -24,8 +24,9 @@ spec:
             - secretRef:
                 name: s3-credentials
           env:
+            # Match limits.cpu so onnxruntime does not oversubscribe the pod's cgroup CPU quota.
             - name: FAIR_KNATIVE_ONNX_THREADS
-              value: "0"
+              value: "2"
             - name: FAIR_KNATIVE_CORS_ORIGINS
               value: "*"
             - name: FAIR_KNATIVE_CORS_METHODS

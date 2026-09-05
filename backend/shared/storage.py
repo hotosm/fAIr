@@ -158,7 +158,7 @@ class StoragePaths:
 
 
 class BackendLocalModelPaths(LocalModelStoragePaths):
-    ROOT = f"{_folder()}{StoragePaths.LOCAL_MODELS_ROOT}"
+    ROOT = StoragePaths.LOCAL_MODELS_ROOT
     CHECKPOINT_SUBDIR = StoragePaths.LOCAL_MODELS_CHECKPOINT_SUBDIR
     MODEL_SUBDIR = StoragePaths.LOCAL_MODELS_MODEL_SUBDIR
     METRICS_SUBDIR = StoragePaths.LOCAL_MODELS_METRICS_SUBDIR
