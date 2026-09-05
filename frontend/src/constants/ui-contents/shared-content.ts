@@ -43,8 +43,7 @@ export const SHARED_CONTENT: TSharedContent = {
   },
   homepage: {
     jumbotronTitle: "Your AI Mapping Partner",
-    jumbotronHeadline:
-      "AI-powered assistant that amplify your mapping efforts intelligently and quickly, helping you map smarter and faster.",
+    jumbotronHeadline: "Map smarter and faster using AI assisted workflows.",
     ctaPrimaryButton: "Try fAIr",
     ctaSecondaryButton: "Start Mapping",
     jumbotronImageAlt: "A user engaging in a mapping activity",
@@ -55,7 +54,7 @@ export const SHARED_CONTENT: TSharedContent = {
       acceptedPrediction: "Accepted Prediction",
     },
     aboutTitle: "WHAT IS fAIr?",
-    aboutContent: `fAIr is an open AI-assisted mapping service developed by the Humanitarian OpenStreetMap Team (HOT) that aims to improve the efficiency and accuracy of mapping efforts for humanitarian purposes. The service uses AI models, specifically computer vision techniques, to detect objects in satellite and UAV imagery.`,
+    aboutContent: `fAIr is HOT’s open GeoAI platform that connects mappers with GeoAI models they can use and adapt in their own areas for mapping for social good. Mappers can pick a model, run it. Adapt it to their locality and improve it.`,
     fairProcess: {
       title: "fAIr process",
       stepOne: {
@@ -81,13 +80,13 @@ export const SHARED_CONTENT: TSharedContent = {
     },
     coreFeatures: {
       featureOne: "Time Efficient",
-      featureTwo: "High Accuracy",
-      featureThree: "Re-usable/Resilience",
+      featureTwo: "Transparent",
+      featureThree: "Reusable",
     },
     coreValues: {
       sectionTitle: {
         firstSegment: `It's`,
-        secondSegment: "your map,",
+        secondSegment: "your map data,",
         thirdSegment: "fAIr",
         fourthSegment: "just makes it",
         fifthSegment: "faster",
@@ -108,19 +107,51 @@ export const SHARED_CONTENT: TSharedContent = {
       cta: "See more",
       content: [
         {
-          question: "What is fAIr?",
+          question: "So what is fAIr?",
           answer:
-            "fAIr is a free and open source AI assisted mapping tool that gives local communities the ability to create their localized AI models to amplify their humanitarian mapping efforts.",
+            "A platform connecting mappers and AI models. It lets mappers find geo-AI models and use or adapt them in their own area. It is not a single AI doing the mapping.",
         },
         {
-          question: "Who can use fAIr?",
-          answer:
-            "Anyone can use fAIr with basic authentication (log in) and they will be able to explore the community crated AI models and use them for mapping and create their own new models.",
+          question: "For whom is fAIr?",
+          answer: `People meet fAIr at different levels:
+- Model developers: can share and publish their models on fAIr
+- Advanced Users: can finetune and republish localised models on fAIr
+- Mapper: can pick a model and start mapping with AI`,
         },
         {
-          question: "Can I use fAIr without having a sound knowledge of AI?",
+          question: "What does the workflow look like?",
           answer:
-            "fAIr is designed for users without the need for Python or any programming skills. However, basic knowledge in  humanitarian mapping and Geographical Information Systems (GIS) would be sufficient for self exploration.",
+            "[View the workflow explainer](https://drive.google.com/file/d/14yGyEY_IxH5Na5XeK50TG3616PsWWUBB/view?usp=drive_lin)",
+        },
+        {
+          question: "Do I need high-res imagery? Will Sentinel work?",
+          answer:
+            "fAIr only works with RGB high-res imagery (CC BY 4.0) at the moment. Imagery is crucial and should ideally be hosted on OpenAerialMap or a public-domain TMS server. In the future, we might support Street Level Imagery.",
+        },
+        {
+          question: "How do I validate its output? I don't trust AI.",
+          answer:
+            "You will get the GeoJSON as output, and you have flexibility on what to use for validation. You can: confirm features in MapSwipe, verify on the ground with field mapping tools like Chatmap or Field TM or trace and fix manually in the mapping editors.",
+        },
+        {
+          question: "Do I have to be an advanced user to start?",
+          answer:
+            "No. Begin as a mapper using a model someone already made. When you want it tuned to your area, you grow into adapting and publishing your own.",
+        },
+        {
+          question: "Can I add my own model?",
+          answer:
+            "Yes. Developers write model code and publish it to fAIr, where it becomes available to every kind of user.",
+        },
+        {
+          question: "Where does the finished data go?",
+          answer:
+            "It's your choice: You can bring it into OpenStreetMap or other open platforms like HDX, or download outputs as points, lines or polygons.",
+        },
+        {
+          question: "Is merging with OSM data automatic?",
+          answer:
+            "No, not at the moment. fAIr doesn't push data to OSM; it's the user who decides what to do with it. We are working with MapSwipe on a project to assist with this.",
         },
       ],
     },

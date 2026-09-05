@@ -29,38 +29,12 @@
 }
 
 .textBlock h2 {
-  font-size: var(--hot-fair-font-size-title-2);
-  margin-bottom: 20px;
+  font-weight: var(--hot-fair-font-weight-bold);
+  font-size: var(--hot-fair-font-size-title-3);
+  margin-bottom: var(--sl-spacing-large);
 }
 
-.svgContainer {
-  display: inline-block;
-  position: relative;
-  width: fit-content;
-}
-
-.svgText {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 0 var(--sl-spacing-x-small);
-  color: var(--hot-fair-color-white);
-  font-size: var(--hot-fair-font-size-body-text-1);
-  text-wrap: nowrap;
-}
-
-.svgIcon {
-  width: 120px;
-  height: auto;
-  display: block;
-  position: relative;
-  z-index: -1;
-}
+/* Section title */
 
 .sectionTitle {
   display: flex;
@@ -76,7 +50,9 @@
 }
 
 .sectionTitle h1 {
+  margin: 0;
   font-size: var(--hot-fair-font-size-body-text-1);
+  line-height: 1.1;
 }
 
 .stretch {
@@ -85,11 +61,46 @@
   justify-content: center;
 }
 
-.textBlock h2 {
-  font-weight: var(--hot-fair-font-weight-bold);
-  font-size: var(--hot-fair-font-size-title-3);
-  margin-bottom: var(--sl-spacing-large);
+/* SVG title segment */
+
+.svgContainer {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: clamp(180px, 60vw, 300px);
+  flex: 0 0 auto;
 }
+
+.svgIcon {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.svgText {
+  position: absolute;
+  inset: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin: 0;
+  padding: 0 9%;
+
+  color: var(--hot-fair-color-white);
+
+  font-size: clamp(1.45rem, 5vw, 2rem);
+  font-weight: var(--hot-fair-font-weight-regular);
+  line-height: 1;
+
+  white-space: nowrap;
+  text-align: center;
+
+  pointer-events: none;
+}
+
+/* Connector */
 
 .dashedLineWrapper {
   display: none;
@@ -101,7 +112,8 @@
   z-index: -10;
 }
 
-/* Image rectangles style begins */
+/* Image rectangles */
+
 .primaryRectangle {
   position: absolute;
   width: 8px;
@@ -134,18 +146,12 @@
   right: 0;
 }
 
-/* Image rectangles style ends */
+/* Tablet */
 
-/* md: */
 @media (min-width: 768px) {
   .coreValues {
     padding: 0 var(--hot-fair-spacing-extra-large);
     margin-bottom: 200px;
-    /* Adding the height of the rectangle */
-  }
-
-  .svgIcon {
-    width: 170px;
   }
 
   .sectionTitle {
@@ -156,9 +162,17 @@
     margin-left: 10px;
   }
 
-  .svgText,
   .sectionTitle h1 {
     font-size: var(--hot-fair-font-size-title-2);
+  }
+
+  .svgContainer {
+    width: clamp(250px, 34vw, 330px);
+  }
+
+  .svgText {
+    font-size: clamp(1.6rem, 3.2vw, 2.2rem);
+    padding: 0 10%;
   }
 
   .container {
@@ -196,7 +210,30 @@
   }
 }
 
-/* : */
+/* Problem tablet range */
+
+@media (min-width: 826px) and (max-width: 935px) {
+  .svgContainer {
+    width: 330px;
+  }
+
+  .svgText {
+    font-size: 1.9rem;
+    padding: 0 11%;
+  }
+
+  .sectionTitle {
+    column-gap: 8px;
+    row-gap: 12px;
+  }
+
+  .sectionTitle > * + * {
+    margin-left: 4px;
+  }
+}
+
+/* Desktop */
+
 @media (min-width: 1024px) {
   .textBlock {
     max-width: 35%;
@@ -226,18 +263,54 @@
     font-size: var(--hot-fair-font-size-large-title);
   }
 
-  .svgText {
-    font-size: var(--hot-fair-font-size-large-title);
+  .svgContainer {
+    width: clamp(360px, 30vw, 450px);
   }
 
-  .svgIcon {
-    width: 300px;
+  .svgText {
+    font-size: clamp(2.3rem, 3vw, 3.6rem);
+    padding: 0 8%;
   }
 }
 
-/* lg: */
+/* Large desktop */
+
 @media (min-width: 1280px) {
   .dashedLineWrapper {
     top: 320px;
+  }
+
+  .svgContainer {
+    width: 450px;
+  }
+}
+
+@media (min-width: 1035px) and (max-width: 1286px) {
+  .svgContainer {
+    width: clamp(380px, 34vw, 430px);
+  }
+
+  .svgText {
+    font-size: clamp(2rem, 2.6vw, 2.55rem);
+    padding: 0 11%;
+  }
+
+  .sectionTitle h1 {
+    font-size: clamp(
+      2.4rem,
+      4vw,
+      var(--hot-fair-font-size-large-title)
+    );
+  }
+}
+
+@media (min-width: 1287px) {
+  .svgContainer {
+    width: 450px;
+  }
+
+  .svgText {
+    font-size: clamp(2.4rem, 2.8vw, 3.2rem);
+    padding: 0 9%;
   }
 }

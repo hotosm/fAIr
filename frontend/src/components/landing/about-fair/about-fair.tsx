@@ -1,5 +1,5 @@
 import styles from "./about-fair.module.css";
-import { AIIcon } from "@/assets/svgs";
+import { fAIrWorkflowIllustration } from "@/assets/images";
 import { Image } from "@/components/ui/image";
 import { SHARED_CONTENT } from "@/constants";
 
@@ -11,8 +11,7 @@ export const WhatIsFAIR = () => {
         <p className={styles.paragraph}>{SHARED_CONTENT.homepage.aboutContent}</p>
       </div>
       <div className={styles.imageContainer}>
-        <Image src={AIIcon} alt="AI Icon" />
-        <div className={`${styles.dottedBorder}`}></div>
+        <Image src={fAIrWorkflowIllustration} alt="fAIr Workflow Illustration" />
       </div>
     </section>
   );

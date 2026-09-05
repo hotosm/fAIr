@@ -10,11 +10,11 @@ type TCoreFeatures = {
 const coreFeatures: TCoreFeatures[] = [
   {
     title: SHARED_CONTENT.homepage.coreFeatures.featureOne,
-    icon: TimerIcon,
+    icon: GuageIcon,
   },
   {
     title: SHARED_CONTENT.homepage.coreFeatures.featureTwo,
-    icon: GuageIcon,
+    icon: TimerIcon,
   },
   {
     title: SHARED_CONTENT.homepage.coreFeatures.featureThree,
