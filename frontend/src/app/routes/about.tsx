@@ -34,7 +34,12 @@ export const AboutPage = () => {
           </p>
           <p>{ABOUT_PAGE_CONTENT.bodyContent.secondParagraph}</p>
         </div>
-        <Image src={fAIrWorkflowIllustration} alt="fAIr Workflow Illustration" width="300px" height="300px" />
+        <Image
+          src={fAIrWorkflowIllustration}
+          alt="fAIr Workflow Illustration"
+          width="300px"
+          height="300px"
+        />
       </section>
     </main>
   );

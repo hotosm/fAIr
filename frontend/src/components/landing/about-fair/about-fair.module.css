@@ -68,11 +68,10 @@
 
 /* lg: */
 @media (min-width: 1024px) {
-  
-.featureContent {
-  flex: 1 1 48%;
-}
-.aboutfAIrContainer {
+  .featureContent {
+    flex: 1 1 48%;
+  }
+  .aboutfAIrContainer {
     padding: 100px var(--hot-fair-spacing-extra-large);
     flex-direction: row;
     justify-content: center;
@@ -84,10 +83,8 @@
     margin-left: var(--sl-spacing-3x-large);
   }
 
-.imageContainer {
-  flex: 1 1 52%;
-  max-width: 650px;
-}
-
-
+  .imageContainer {
+    flex: 1 1 52%;
+    max-width: 650px;
+  }
 }

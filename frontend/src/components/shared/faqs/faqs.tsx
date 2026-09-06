@@ -21,7 +21,12 @@ export const FAQs = ({
           {faqs.map((faq, id) => (
             <Accordion
               summary={faq.question}
-              content={<MarkdownRenderer content={faq.answer} className="markdown-prose text-body-2base text-dark font-semibold"/>}
+              content={
+                <MarkdownRenderer
+                  content={faq.answer}
+                  className="markdown-prose text-body-2base text-dark font-semibold"
+                />
+              }
               key={`faq-item-${id}`}
             />
           ))}

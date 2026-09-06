@@ -296,11 +296,7 @@
   }
 
   .sectionTitle h1 {
-    font-size: clamp(
-      2.4rem,
-      4vw,
-      var(--hot-fair-font-size-large-title)
-    );
+    font-size: clamp(2.4rem, 4vw, var(--hot-fair-font-size-large-title));
   }
 }
 

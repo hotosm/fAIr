@@ -10,35 +10,30 @@ export const Corevalues = () => {
       <div className={styles.sectionTitle}>
         <h1>{SHARED_CONTENT.homepage.coreValues.sectionTitle.firstSegment}</h1>
 
-    
         <span className={styles.svgContainer}>
-            <svg
-              className={styles.svgIcon}
-              viewBox="0 0 232 84"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M0.900024 83.0566L37.5904 9.37025L83.4256 0.433594L61.0515 66.0872L0.900024 83.0566Z"
-                fill="#D33132"
-              />
-              <path
-                d="M61.0515 66.1002L118.103 83.0492L122.685 9.72963L83.4256 0.446289L61.0515 66.1002Z"
-                fill="#D63F40"
-              />
-              <path
-                d="M172.314 68.0681L163.653 2.86572L122.685 9.73041L118.103 83.0473L172.314 68.0681Z"
-                fill="#D33132"
-              />
-              <path
-                d="M172.308 68.0775L231.13 83.011L202.518 14.4951L163.652 2.86719L172.308 68.0775Z"
-                fill="#D63F40"
-              />
-            </svg>
+          <svg className={styles.svgIcon} viewBox="0 0 232 84" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M0.900024 83.0566L37.5904 9.37025L83.4256 0.433594L61.0515 66.0872L0.900024 83.0566Z"
+              fill="#D33132"
+            />
+            <path
+              d="M61.0515 66.1002L118.103 83.0492L122.685 9.72963L83.4256 0.446289L61.0515 66.1002Z"
+              fill="#D63F40"
+            />
+            <path
+              d="M172.314 68.0681L163.653 2.86572L122.685 9.73041L118.103 83.0473L172.314 68.0681Z"
+              fill="#D33132"
+            />
+            <path
+              d="M172.308 68.0775L231.13 83.011L202.518 14.4951L163.652 2.86719L172.308 68.0775Z"
+              fill="#D63F40"
+            />
+          </svg>
 
-            <h1 className={styles.svgText}>
-              {SHARED_CONTENT.homepage.coreValues.sectionTitle.secondSegment}
-            </h1>
-          </span>
+          <h1 className={styles.svgText}>
+            {SHARED_CONTENT.homepage.coreValues.sectionTitle.secondSegment}
+          </h1>
+        </span>
 
         <h1>
           <strong>{SHARED_CONTENT.homepage.coreValues.sectionTitle.thirdSegment}</strong>
