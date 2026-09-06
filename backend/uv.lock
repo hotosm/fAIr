@@ -1053,7 +1053,7 @@ requires-dist = [
     { name = "djangorestframework", specifier = ">=3.15" },
     { name = "djangorestframework-gis", specifier = ">=1.1" },
     { name = "drf-spectacular", specifier = ">=0.29" },
-    { name = "fair-py-ops", extras = ["k8s"], specifier = "==0.3.6" },
+    { name = "fair-py-ops", extras = ["k8s"], specifier = "==0.3.10" },
     { name = "geomltoolkits", specifier = ">=2.1.0" },
     { name = "geopandas", specifier = ">=1.0" },
     { name = "gpxpy", specifier = ">=1.6" },
@@ -1087,7 +1087,7 @@ test = [
 
 [[package]]
 name = "fair-py-ops"
-version = "0.3.6"
+version = "0.3.10"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "httpx" },
@@ -1099,9 +1099,9 @@ dependencies = [
     { name = "universal-pathlib" },
     { name = "zenml" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/50/2f/dc1e4d60ce56215eb506b8270774559cdf3b04914498514fb962ed28fbe9/fair_py_ops-0.3.6.tar.gz", hash = "sha256:1dd4a743d5dd1d1514a0c3d33103c399039c30eeea2f013c72f92eacff4c5e4b", size = 3942090, upload-time = "2026-08-20T21:15:08.289Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/0e/f6/02b9d9249f72720dd8238087259bd910501319bc778c1df045801c02d23b/fair_py_ops-0.3.10.tar.gz", hash = "sha256:d444aa091b93a8e07875aba9528655c210ce2c93cc20bec7f148c3d31f0c7da5", size = 3932508, upload-time = "2026-09-06T14:07:14.657Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ce/55/f5ee696ab9fb0fa375c5dae80e83802ae67ef6af11d529a35918bcc3aacf/fair_py_ops-0.3.6-py3-none-any.whl", hash = "sha256:5983d43b3f36b4bb943ed545e4512ef160d4cd9d4eee656010a2200348a98460", size = 4077447, upload-time = "2026-08-20T21:15:06.69Z" },
+    { url = "https://files.pythonhosted.org/packages/81/b6/20412a26611c1f7abb63f6e6a5bcba22e09ec3e7c34b0852afc24c7e93b4/fair_py_ops-0.3.10-py3-none-any.whl", hash = "sha256:2d787ff45ce1e9d410fa770a6bc97cf32ca9649763bfc5f67c08ca3815f35fa5", size = 4078814, upload-time = "2026-09-06T14:07:12.964Z" },
 ]
 
 [package.optional-dependencies]
