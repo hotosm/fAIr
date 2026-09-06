@@ -48,15 +48,15 @@ export const useTryFairImagery = ({
     );
   const { item: sharedOAMItem } = useOAMItem(oamItemId);
 
+  const preview = useMemo(() => selectedModel?.properties["fair:preview"], [selectedModel]);
+
   const tileServiceUrl = useMemo(() => {
     const modelImagery =
-      currentModelType === ModelType.DEMO
-        ? selectedModel?.properties["fair:source_imagery"]
-        : selectedImagery?.tileUrl;
+      currentModelType === ModelType.DEMO ? preview?.imagery.url : selectedImagery?.tileUrl;
     if (!modelImagery) return FALLBACK_FAIR_IMAGERY;
     const regex = getTileServerRegex(getTileServerTypeFromURL(modelImagery));
     return regex.test(modelImagery) ? modelImagery : FALLBACK_FAIR_IMAGERY;
-  }, [currentModelType, selectedImagery, selectedModel]);
+  }, [currentModelType, selectedImagery, preview]);
 
   const tileServiceType =
     currentModelType === ModelType.IMAGERY && selectedImagery?.source === ImagerySource.CUSTOM
@@ -128,13 +128,12 @@ export const useTryFairImagery = ({
       const [w, s, e, n] = tileJSONMetadata.bounds as BBOX;
       return [(w + e) / 2, (s + n) / 2];
     }
-    const previewLocation = selectedModel?.properties["fair:preview_location"];
-    if (previewLocation) return previewLocation.coordinates;
+    if (preview?.center) return preview.center;
 
     return tileServiceUrl === FALLBACK_FAIR_IMAGERY
       ? FALLBACK_FAIR_IMAGERY_CENTER
       : DEFAULT_FAIR_IMAGERY_CENTER;
-  }, [currentModelType, selectedImagery, selectedModel, tileJSONMetadata, tileServiceUrl]);
+  }, [currentModelType, selectedImagery, preview, tileJSONMetadata, tileServiceUrl]);
 
   // TMS templates do not provide a reliable imagery extent, so preserve the
   // user's current view both on selection and on a shared-link initial load.

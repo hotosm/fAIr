@@ -430,7 +430,69 @@ def test_mirror_and_relink_rewrites_only_downloadable_assets(settings) -> None:
         from shared.integrations.stac import mirror_and_relink_assets
 
         mirror_and_relink_assets("base-models", "x")
-    assert item.assets["model"].href == "https://dev.example/api/v1/stac-assets/base-models/x/model/"
+    assert (
+        item.assets["model"].href == "https://dev.example/api/v1/stac-assets/base-models/x/model/"
+    )
     assert item.assets["readme"].href == "https://github.com/readme"
     mock_stream.assert_called_once()
     backend.publish_item.assert_called_once()
+
+
+def _stac_item_dict(item_id: str = "meta-model") -> dict:
+    from datetime import UTC, datetime
+
+    item = pystac.Item(
+        id=item_id,
+        geometry={"type": "Point", "coordinates": [0, 0]},
+        bbox=[0, 0, 0, 0],
+        datetime=datetime.now(UTC),
+        properties={"title": "Old title", "description": "Old", "mlm:name": item_id},
+    )
+    return item.to_dict()
+
+
+@patch("modelregistry.views.set_item_properties")
+@patch("modelregistry.views.get_cached_item", return_value=_stac_item_dict())
+@patch("fair.stac.validators.validate_item", return_value=[])
+def test_base_model_metadata_edits_title_description_and_preview(
+    mock_validate, mock_get, mock_set, admin: OsmUser
+) -> None:
+    model = BaseModel.objects.create(name="meta-model", user=admin, stac_item_id="meta-model")
+    preview = {
+        "center": [1.0, 2.0],
+        "zoom": {"recommended": 19},
+        "imagery": {"url": "https://t/{z}/{x}/{y}"},
+    }
+    resp = _client(admin).patch(
+        f"/api/v1/base-models/{model.id}/metadata/",
+        {"title": "New title", "description": "New description", "fair_preview": preview},
+        format="json",
+    )
+    assert resp.status_code == 200
+    props = mock_set.call_args.args[2]
+    assert props["title"] == "New title"
+    assert props["description"] == "New description"
+    assert props["fair:preview"] == preview
+    mock_validate.assert_called_once()
+
+
+@patch("modelregistry.views.set_item_properties")
+@patch("modelregistry.views.get_cached_item", return_value=_stac_item_dict())
+@patch("fair.stac.validators.validate_item", return_value=["mlm:tasks is a required property"])
+def test_base_model_metadata_rejects_invalid_edit(
+    mock_validate, mock_get, mock_set, admin: OsmUser
+) -> None:
+    model = BaseModel.objects.create(name="meta-model", user=admin, stac_item_id="meta-model")
+    resp = _client(admin).patch(
+        f"/api/v1/base-models/{model.id}/metadata/", {"title": "New"}, format="json"
+    )
+    assert resp.status_code == 400
+    mock_set.assert_not_called()
+
+
+def test_base_model_metadata_requires_admin(user: OsmUser) -> None:
+    model = BaseModel.objects.create(name="meta-model", user=user, stac_item_id="meta-model")
+    resp = _client(user).patch(
+        f"/api/v1/base-models/{model.id}/metadata/", {"title": "New"}, format="json"
+    )
+    assert resp.status_code == 403

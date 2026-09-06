@@ -31,7 +31,6 @@ __all__ = [
     "FAIR_SOURCE_IMAGERY_PROPERTY",
     "LOCAL_MODELS_COLLECTION",
     "bulk_get_cached_items",
-    "deprecate_item",
     "get_active_local_model_item",
     "get_base_model",
     "get_cached_item",
@@ -92,11 +91,6 @@ def list_local_models(*, limit: int | None = None) -> list[pystac.Item]:
 
 def item_exists(collection_id: str, item_id: str) -> bool:
     return _backend().item_exists(collection_id, item_id)
-
-
-def deprecate_item(collection_id: str, item_id: str) -> pystac.Item:
-    invalidate_stac_cache(collection_id, item_id)
-    return _backend().deprecate_item(collection_id, item_id)
 
 
 def _public_links(links: list[dict]) -> list[dict]:

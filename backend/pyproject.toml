@@ -51,7 +51,7 @@ override-dependencies = ["pyjwt[crypto]>=2.8.0,<3"]
 [tool.ruff]
 target-version = "py312"
 line-length = 100
-extend-exclude = ["**/migrations/**", "shared/integrations/mapswipe.py", "tests/**", "login/**"]
+extend-exclude = ["**/migrations/**", "shared/integrations/mapswipe.py", "tests/**"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "N", "UP", "B", "SIM", "RUF"]
@@ -72,7 +72,7 @@ deprecated = "ignore"
 missing-argument = "ignore"
 
 [tool.ty.src]
-exclude = ["**/migrations/**", "**/tests/**", "shared/integrations/mapswipe.py", "login/**"]
+exclude = ["**/migrations/**", "**/tests/**", "shared/integrations/mapswipe.py"]
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "config.settings"
@@ -81,16 +81,17 @@ addopts = "-ra --strict-markers"
 
 [tool.coverage.run]
 source = [
+  "accounts",
   "datasets",
-  "feedback",
-  "login",
   "modelregistry",
+  "trainings",
+  "predictions",
+  "feedback",
   "notifications",
-  "prediction",
-  "shared",
-  "system",
-  "training",
+  "stars",
   "workspace",
+  "system",
+  "shared",
   "config",
 ]
 omit = ["**/migrations/**", "**/tests/**"]

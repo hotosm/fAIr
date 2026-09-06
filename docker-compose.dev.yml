@@ -15,6 +15,8 @@ services:
     ports:
       - "80:80"
       - "443:443"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     configs:
       - source: caddyfile
         target: /etc/caddy/Caddyfile
@@ -96,6 +98,9 @@ configs:
     content: |
       {
         email ${CADDY_ACME_EMAIL:-sysadmin@hotosm.org}
+        on_demand_tls {
+          ask http://127.0.0.1:5555/check
+        }
       }
       ${PUBLIC_DOMAIN:-dev.ai.hotosm.org}, fair-dev.hotosm.org {
         handle_path /stac/* {
@@ -105,6 +110,17 @@ configs:
       }
       stac.${PUBLIC_DOMAIN:-dev.ai.hotosm.org} {
         reverse_proxy stac:8080
+      }
+      # Per-model knative predict endpoints. Kourier is HTTP-only (NodePort), so
+      # Caddy terminates TLS per host on demand and proxies to the node ingress.
+      :5555 {
+        respond /check 200
+      }
+      *.predict.${PUBLIC_DOMAIN:-dev.ai.hotosm.org} {
+        tls {
+          on_demand
+        }
+        reverse_proxy ${KNATIVE_KOURIER_ADDR:-host.docker.internal:31751}
       }
       # mlflow.${PUBLIC_DOMAIN:-dev.ai.hotosm.org} { reverse_proxy mlflow:5000 }
       # zenml.${PUBLIC_DOMAIN:-dev.ai.hotosm.org} { reverse_proxy zenml:8080 }

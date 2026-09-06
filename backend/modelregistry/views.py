@@ -47,6 +47,7 @@ from .serializers import (
     BaseModelSerializer,
     CategorySerializer,
     LocalModelSerializer,
+    ModelMetadataSerializer,
     ModelPinSerializer,
     TrainingRunSummarySerializer,
 )
@@ -82,6 +83,63 @@ def _apply_pin(model, collection: str, data: dict) -> None:
         properties[FAIR_PREVIEW_LOCATION_PROPERTY] = location
         properties.update(_derive_preview_props(collection, model.stac_item_id, properties))
     set_item_properties(collection, model.stac_item_id, properties)
+
+
+def _apply_metadata(collection: str, item_id: str, data: dict) -> None:
+    """Write title/description/fair:preview onto the item, re-validating the merged
+    item against the fAIr schema first so an edit can never leave it invalid."""
+    import pystac
+    from fair.stac.validators import validate_item
+
+    properties: dict = {}
+    if data.get("title"):
+        properties["title"] = data["title"]
+    if data.get("description"):
+        properties["description"] = data["description"]
+    if data.get("fair_preview") is not None:
+        properties["fair:preview"] = data["fair_preview"]
+
+    current = get_cached_item(collection, item_id)
+    merged = {**current, "properties": {**current.get("properties", {}), **properties}}
+    if errors := validate_item(pystac.Item.from_dict(merged)):
+        raise ValidationError({"stac": errors})
+    set_item_properties(collection, item_id, properties)
+
+
+class ModelMetadataMixin:
+    """Adds a `metadata` action that edits a published model's STAC title, description,
+    and fair:preview, with schema re-validation. Host viewset sets `stac_collection`."""
+
+    stac_collection: str = ""
+
+    @extend_schema(
+        request=ModelMetadataSerializer,
+        responses={200: OpenApiTypes.OBJECT},
+        examples=[
+            OpenApiExample(
+                "Edit title and preview",
+                value={
+                    "title": "Buildings, Freetown",
+                    "description": "Updated description.",
+                    "fair_preview": {
+                        "center": [-13.23723, 8.47532],
+                        "zoom": {"recommended": 19},
+                        "imagery": {"url": "https://tiles.example/{z}/{x}/{y}", "type": "tms"},
+                    },
+                },
+                request_only=True,
+            )
+        ],
+    )
+    @action(detail=True, methods=["patch"], url_path="metadata")
+    def metadata(self, request, pk: int | None = None) -> Response:
+        model = self.get_object()
+        if not model.stac_item_id:
+            raise ValidationError("Model has no published STAC item to edit.")
+        serializer = ModelMetadataSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        _apply_metadata(self.stac_collection, model.stac_item_id, serializer.validated_data)
+        return Response(self.get_serializer(model).data)
 
 
 def _wants_expand_stac(request) -> bool:
@@ -169,7 +227,7 @@ def _fetch_stac_item(url: str) -> dict:
     ),
     runs=extend_schema(description="List ZenML pipeline runs that produced this model."),
 )
-class LocalModelViewSet(StacExpandMixin, viewsets.ReadOnlyModelViewSet):
+class LocalModelViewSet(StacExpandMixin, ModelMetadataMixin, viewsets.ReadOnlyModelViewSet):
     stac_collection = LOCAL_MODELS_COLLECTION
     queryset = LocalModel.objects.all()
     serializer_class = LocalModelSerializer
@@ -193,7 +251,7 @@ class LocalModelViewSet(StacExpandMixin, viewsets.ReadOnlyModelViewSet):
     def get_permissions(self):
         if self.action == "pin":
             return [IsAuthenticated(), IsAdmin()]
-        if self.action in {"publish", "unpublish"}:
+        if self.action in {"publish", "unpublish", "metadata"}:
             return [IsAuthenticated(), IsOwnerOrAdmin()]
         return super().get_permissions()
 
@@ -301,6 +359,7 @@ class LocalModelViewSet(StacExpandMixin, viewsets.ReadOnlyModelViewSet):
 )
 class BaseModelViewSet(
     StacExpandMixin,
+    ModelMetadataMixin,
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
@@ -327,7 +386,7 @@ class BaseModelViewSet(
         return annotate_stars(qs, self.request, key_field="name")
 
     def get_permissions(self):
-        if self.action in {"create", "pin"}:
+        if self.action in {"create", "pin", "metadata"}:
             return [IsAuthenticated(), IsAdmin()]
         if self.action in {"list", "retrieve"}:
             return [AllowAny()]

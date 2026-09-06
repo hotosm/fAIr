@@ -43,12 +43,8 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
   isSmallViewport,
   openMobileDialog,
 }) => {
-  const selectedLocation = [
-    selectedModel?.properties["fair:preview_place"],
-    selectedModel?.properties["fair:preview_country"],
-  ]
-    .filter(Boolean)
-    .join(", ");
+  const place = selectedModel?.properties["fair:preview"]?.place;
+  const selectedLocation = [place?.name, place?.country].filter(Boolean).join(", ");
 
   const { currentModelType, selectedImagery } = useStartMappingStore();
 

@@ -175,6 +175,22 @@ class ModelPinSerializer(serializers.Serializer):
         return location
 
 
+class ModelMetadataSerializer(serializers.Serializer):
+    """Edit a published model's STAC metadata. Any supplied field is written to the
+    item; the merged item is then re-validated against the fAIr schema before it is saved."""
+
+    title = serializers.CharField(required=False)
+    description = serializers.CharField(required=False)
+    fair_preview = serializers.JSONField(required=False)
+
+    def validate(self, attrs: dict[str, Any]) -> dict[str, Any]:
+        if not attrs:
+            raise serializers.ValidationError(
+                "Provide at least one of: title, description, fair_preview."
+            )
+        return attrs
+
+
 class TrainingRunSummarySerializer(serializers.Serializer):
     """ZenML run summary, populated from fair.zenml.runs.RunSummary."""
 

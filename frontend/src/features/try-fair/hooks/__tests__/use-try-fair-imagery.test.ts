@@ -56,13 +56,14 @@ describe("useTryFairImagery", () => {
     unmount();
   });
 
-  it("should use selected model preview_location if available", () => {
+  it("should use the selected model's fair:preview center if available", () => {
     const mockMap = createMockMap();
     const mockModel: any = {
       properties: {
-        "fair:preview_location": {
-          type: "Point",
-          coordinates: [10.5, 45.2],
+        "fair:preview": {
+          center: [10.5, 45.2],
+          zoom: { recommended: 18 },
+          imagery: { url: "https://tiles.example.com/{z}/{x}/{y}" },
         },
       },
     };

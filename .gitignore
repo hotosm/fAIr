@@ -70,3 +70,4 @@ fair-app-data/*
 
 # helm charts
 fair-*.tgz
+.claude/

@@ -69,25 +69,3 @@ def create_osm_user(
     )
     logger.info(f"Created OsmUser: osm_id={osm_id}, username={final_username}")
     return user
-
-
-class HankoUserFilterMixin:
-    """Mixin to filter queryset by authenticated user when ?mine=true is passed."""
-
-    def get_queryset(self):
-        queryset = super().get_queryset()
-
-        mine_param = self.request.query_params.get("mine", "").lower()
-        if mine_param == "true":
-            if (
-                hasattr(self.request, "user")
-                and self.request.user
-                and self.request.user.is_authenticated
-            ):
-                queryset = queryset.filter(user=self.request.user)
-                logger.debug(f"Filtered by user {self.request.user.osm_id} (mine=true)")
-            else:
-                queryset = queryset.none()
-                logger.debug("mine=true requested but user not authenticated, returning empty")
-
-        return queryset

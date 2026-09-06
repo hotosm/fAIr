@@ -22,7 +22,7 @@ just setup
 cp env_example .env
 just migrate
 just run
-just worker               tasks
+just worker   # runs async jobs (django_tasks)
 ```
 
 The two sample files differ only in host names: the root `env_example` uses
