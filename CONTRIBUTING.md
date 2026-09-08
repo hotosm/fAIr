@@ -26,26 +26,37 @@ Before you start contributing code, set up your local development environment:
 
 1. **Fork and clone** the repository:
 
+   Fork the repository on GitHub, then replace `YOUR_USERNAME` with your GitHub username:
+
    ```bash
-   git clone https://github.com/hotosm/fAIr.git
+   git clone https://github.com/YOUR_USERNAME/fAIr.git
    cd fAIr
+   git remote add upstream https://github.com/hotosm/fAIr.git
+   git switch -c my-contribution
    ```
 
 2. **Set up Docker environment** (recommended):
 
    ```bash
+   cp env_example .env
    docker compose up
-   cp backend/.env.example backend/.env
-   docker compose up api worker
    ```
 
+   This uses prebuilt images. To build from your local source, run `docker compose build` before starting the stack.
+
 3. **Access the application**:
-   - Frontend: <http://localhost:3500>
+   - Frontend: <http://localhost:8000>
    - API root: <http://localhost:8000/api/>
    - Swagger UI: <http://localhost:8000/api/docs/>
    - ReDoc: <http://localhost:8000/api/redoc/>
 
-4. **Make your changes** and see them live with hot reload!
+4. **Make your changes**. For backend hot reload, start the stack with the optional override:
+
+   ```bash
+   docker compose -f docker-compose.yml -f docker-compose.hotreload.yml up
+   ```
+
+   The override mounts your local backend source into the API and worker containers. It does not enable frontend hot reload; see [frontend/README.md](./frontend/README.md) for frontend development instructions.
 
 For detailed setup instructions, see [Docker Installation Guide](./docs/Docker-installation.md) and [backend/README.md](./backend/README.md).
 
