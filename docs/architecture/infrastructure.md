@@ -1,9 +1,11 @@
-# Infrastructure & Deployment Flow
+---
+icon: lucide/server-cog
+description: How fAIr is deployed across development, staging, and production, and how model versions flow through STAC.
+---
 
-Our standard deployment process for other apps is
-[here](https://docs.hotosm.org/devops/deployment-process)
+# Infrastructure and deployment
 
-fAIr differs slightly, because we have:
+HOT's standard deployment process for other apps is documented in the [DevOps deployment guide](https://docs.hotosm.org/devops/deployment-process). fAIr differs slightly, because it has:
 
 - Versioning of both software, as well as AI models.
 - A dedicated dev instance EC2 for easier development with all components.
@@ -27,12 +29,11 @@ The model flow works like this:
 
 ## Step 1: Development
 
-> [!NOTE]
-> The Environment
->
-> - Single EC2, lightweight k3s cluster.
-> - Manually updated / synced with dev.
-> - Model registration in STAC etc is all manual.
+!!! note "The environment"
+
+    - Single EC2, lightweight k3s cluster.
+    - Manually updated and synced with dev.
+    - Model registration in STAC is all manual.
 
 1. Users work on models in development, versioned as `-dev`
    with a specific SHA tag too.
@@ -46,16 +47,14 @@ The model flow works like this:
 
 ## Step 2: Staging
 
-> [!NOTE]
-> The Environment
->
-> - Runs all the same components as production, but
->   start up via PR from `staging` --> `main`.
-> - The components run inside the `fair-staging`
->   namespace of the Kubernetes cluster, under
->   domain `https://stage.ai.hotosm.org`.
-> - Does not run it's own `knative` controller,
->   instead using the cluster-wide instance.
+!!! note "The environment"
+
+    - Runs all the same components as production, but starts up via a PR from
+      `staging` to `main`.
+    - The components run inside the `fair-staging` namespace of the Kubernetes
+      cluster, under domain `https://stage.ai.hotosm.org`.
+    - Does not run its own `knative` controller, instead using the cluster-wide
+      instance.
 
 1. When we want to stabilise and push out a **new model**, or **updates to the
    API / website**, we use the staging setup.
@@ -72,11 +71,10 @@ The model flow works like this:
 
 ## Step 3: Production
 
-> [!NOTE]
-> The Environment
->
-> - Runs through tagged releases on Github, where ArgoCD
->   picks up the latest helm chart tag and deploys.
+!!! note "The environment"
+
+    - Runs through tagged releases on GitHub, where ArgoCD picks up the latest
+      Helm chart tag and deploys.
 
 1. A new tagged version is made from the latest `main` code.
 2. This triggers a redeploy of the fAIr website / API.

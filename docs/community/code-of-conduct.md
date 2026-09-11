@@ -1,3 +1,8 @@
+---
+icon: lucide/heart-handshake
+description: The code of conduct for the fAIr community.
+---
+
 # Code of conduct
 
 (The latest version can be found at <https://www.hotosm.org/code-of-conduct>)
@@ -78,4 +83,4 @@ As a first measure, it is preferable to work out issues directly with the people
 
 - Contact the HOT Community Partnerships Manager.
 
-When these informal processes fail, or when a situation warrants an immediate response by HOT, you can evoke the **HOT Policy and Code of Conduct Complaint Handling Process**. This process was adopted by HOT Voting Members in 2016 to provide a more formal means of enforcement for our community standards. You start it by emailing [complaints@hotosm.org](mailto:compaints@hotosm.org) with a description of your complaint, your name, and the name of the offending party. All complaints will be considered confidential. The full process is described [here](https://docs.google.com/document/d/1xb-SPADtSbgwl6mAgglHMPHpknt-E7lKRoIcSbW431A/edit)
+When these informal processes fail, or when a situation warrants an immediate response by HOT, you can evoke the **HOT Policy and Code of Conduct Complaint Handling Process**. This process was adopted by HOT Voting Members in 2016 to provide a more formal means of enforcement for our community standards. You start it by emailing [complaints@hotosm.org](mailto:complaints@hotosm.org) with a description of your complaint, your name, and the name of the offending party. All complaints will be considered confidential. The full process is described [here](https://docs.google.com/document/d/1xb-SPADtSbgwl6mAgglHMPHpknt-E7lKRoIcSbW431A/edit)

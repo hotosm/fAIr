@@ -1,3 +1,8 @@
+---
+icon: lucide/upload-cloud
+description: How an admin registers a base model into fAIr from a STAC item.
+---
+
 # Registering a base model
 
 A base model is a pretrained model family that users fine-tune to create their
@@ -5,7 +10,7 @@ own local models. Registration validates a STAC item, publishes it to the
 `base-models` collection, and makes the model available for training and
 prediction.
 
-Registration is **admin only** and runs asynchronously.
+Registration is **admin only** and runs asynchronously. Anyone can contribute a model to fAIr through a pull request to the [fAIr-models catalog](https://hotosm.github.io/fAIr-models/); once the pull request is merged, an admin can trigger registration.
 
 ## What you need
 

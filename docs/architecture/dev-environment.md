@@ -1,3 +1,8 @@
+---
+icon: lucide/hard-drive
+description: The single-EC2 development instance that runs the whole fAIr stack and tracks the develop branch.
+---
+
 # fAIr dev environment
 
 > Temporary setup. This Compose-on-EC2 deployment will be replaced by a k3s

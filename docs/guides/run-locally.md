@@ -1,11 +1,16 @@
-# fAIr Development Setup
+---
+icon: lucide/container
+description: Run the full fAIr stack locally with Docker Compose.
+---
+
+# Run locally
 
 ## Prerequisites
 
 - Docker Engine or Docker Desktop, with Docker Compose 2.23.1 or newer
   (`docker compose version`)
 - Git
-- 4GB+ RAM
+- 8GB or more of RAM (the full stack runs several services)
 
 ## Quick start
 
@@ -16,8 +21,8 @@ cp env_example .env
 docker compose up
 ```
 
-Open <http://localhost:8000>. The first boot pulls images and seeds the model
-catalog, so it takes a few minutes; later starts are quick.
+Open <http://localhost:8000>. The first boot pulls images and applies database
+migrations, so it takes a few minutes; later starts are quick.
 
 This runs the API, the frontend, a background worker, and the full dependency
 set: Postgres with PostGIS, MinIO, a STAC catalog, MLflow, and a ZenML server.
@@ -27,6 +32,10 @@ To run from source instead, run `docker compose build` first.
 
 `test.py` at the repository root walks the whole flow one request at a time:
 area of interest, dataset build, training, promotion, prediction.
+
+The training step needs a base model to fine-tune, and a fresh stack has none.
+Register one first (admin only, see [Register a base model](register-a-base-model.md)),
+otherwise `test.py` stops at its first check.
 
 ```bash
 uv run test.py
@@ -73,7 +82,7 @@ compose service names as hosts.
 
 To run Django on the host against the containerised dependencies, use
 `backend/env_example` instead, which points at `localhost` and the published
-ports. See [backend/README.md](../backend/README.md) for every variable.
+ports. See [backend/README.md](https://github.com/hotosm/fAIr/blob/develop/backend/README.md) for every variable.
 
 ## Notes
 
@@ -86,5 +95,6 @@ into the worker.
 
 ## Help
 
-- [Backend docs](../backend/README.md)
+- [Developer setup](developer-setup.md)
+- [backend/README.md](https://github.com/hotosm/fAIr/blob/develop/backend/README.md)
 - <https://github.com/hotosm/fAIr/issues>
