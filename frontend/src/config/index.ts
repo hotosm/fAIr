@@ -61,7 +61,7 @@ export const BASE_API_URL: string = parseStringEnv(
  */
 export const STAC_CATALOG_API_URL: string = parseStringEnv(
   ENVS.FAIR_STAC_CATALOG_BASE_URL,
-  "https://stac.fair.krschap.tech/stac/",
+  "https://stac.dev.ai.hotosm.org/",
 );
 
 /**
