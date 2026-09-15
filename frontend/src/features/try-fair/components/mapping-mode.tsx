@@ -33,9 +33,10 @@ const MappingMode = () => {
       placement={DropdownPlacement.BOTTOM_START}
       disableCheveronIcon
       menuItems={menuItems}
+
       triggerComponent={
-        <div className="bg-light-gray cursor-pointer rounded-[55px] py-2 px-2 items-center flex gap-8">
-          <div className="gap-2 items-center flex">
+        <div className="bg-light-gray cursor-pointer w-[162px] rounded-[55px] py-2 justify-between px-2 items-center flex gap-8">
+          <div className="gap-2 items-center flex ">
             <CurrentIcon />
             <p className="text-dark">{MODES[mode].label}</p>
           </div>

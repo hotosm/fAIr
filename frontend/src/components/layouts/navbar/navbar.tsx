@@ -165,7 +165,7 @@ export const NavBar = () => {
 
               {isTryFairPage && <ExportMapResults />}
 
-              {_isAuthenticated && <UserProfile isHanko hideFullName />}
+              {/* {_isAuthenticated && <UserProfile isHanko hideFullName />} */}
               <HankoAuthComponent />
             </>
           ) : (
