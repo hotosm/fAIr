@@ -48,7 +48,7 @@ backend/shared/           # shared helpers
 backend/tests/            # backend tests
 frontend/src/             # React + Vite SPA
 chart/                    # Helm chart
-docs/                     # MkDocs documentation and decision records
+docs/                     # Documentation site (Zensical) and decision records
 infra/                    # infrastructure config
 ```
 

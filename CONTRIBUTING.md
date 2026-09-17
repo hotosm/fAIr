@@ -47,7 +47,7 @@ Before you start contributing code, set up your local development environment:
 
 4. **Make your changes** and see them live with hot reload!
 
-For detailed setup instructions, see [Docker Installation Guide](./docs/Docker-installation.md) and [backend/README.md](./backend/README.md).
+For detailed setup instructions, see [Run locally](./docs/guides/run-locally.md) and [backend/README.md](./backend/README.md).
 
 ### Making Changes
 
@@ -72,5 +72,5 @@ For full policy details, see: [AI-assisted coding guide](https://responsibleai.g
 
 ## :handshake: Thank you
 
-Thank you very much in advance for your contributions!! Please ensure you refer to our [Code of Conduct](https://github.com/hotosm/fAIr/blob/main/docs/Code-of-Conduct.md).
+Thank you very much in advance for your contributions!! Please ensure you refer to our [Code of Conduct](./docs/community/code-of-conduct.md).
 If you've read the guidelines, but you are still not sure how to contribute on Github, please reach out to us via our Slack #geospatial-tech-and-innovation.
