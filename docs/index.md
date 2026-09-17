@@ -23,27 +23,27 @@ fAIr has grown into an open collection of community-validated models, and is bei
 
 - :lucide-mouse-pointer-click: &nbsp; **Mapper**
 
-  ***
+    ---
 
-  Picks a model and runs it on their own area, then validates the results.
+    Picks a model and runs it on their own area, then validates the results.
 
-  [:lucide-arrow-right: Learn more](overview/who-uses-it.md#mapper)
+    [:lucide-arrow-right: Learn more](overview/who-uses-it.md#mapper)
 
 - :lucide-square-pen: &nbsp; **Advanced user**
 
-  ***
+    ---
 
-  Retrains a model for their area and publishes the local version.
+    Retrains a model for their area and publishes the local version.
 
-  [:lucide-arrow-right: Learn more](overview/who-uses-it.md#advanced-user)
+    [:lucide-arrow-right: Learn more](overview/who-uses-it.md#advanced-user)
 
 - :lucide-box: &nbsp; **Developer**
 
-  ***
+    ---
 
-  Writes new geo-AI models and adds them to fAIr for others to use.
+    Writes new geo-AI models and adds them to fAIr for others to use.
 
-  [:lucide-arrow-right: Learn more](overview/who-uses-it.md#developer)
+    [:lucide-arrow-right: Learn more](overview/who-uses-it.md#developer)
 
 </div>
 
@@ -53,58 +53,58 @@ fAIr has grown into an open collection of community-validated models, and is bei
 
 - :lucide-help-circle: &nbsp; **What is fAIr**
 
-  ***
+    ---
 
-  What it is and why it exists.
+    What it is and why it exists.
 
-  [:lucide-arrow-right: Open](overview/what-is-fair.md)
+    [:lucide-arrow-right: Open](overview/what-is-fair.md)
 
 - :lucide-workflow: &nbsp; **How it works**
 
-  ***
+    ---
 
-  The model loop and the data pipeline.
+    The model loop and the data pipeline.
 
-  [:lucide-arrow-right: Open](overview/how-it-works.md)
+    [:lucide-arrow-right: Open](overview/how-it-works.md)
 
 - :lucide-boxes: &nbsp; **Models**
 
-  ***
+    ---
 
-  What fAIr can map, and the open model catalog.
+    What fAIr can map, and the open model catalog.
 
-  [:lucide-arrow-right: Open](overview/models.md)
+    [:lucide-arrow-right: Open](overview/models.md)
 
 - :lucide-book-open: &nbsp; **Using fAIr**
 
-  ***
+    ---
 
-  Step-by-step guide to run a model and validate the results.
+    Step-by-step guide to run a model and validate the results.
 
-  [:lucide-arrow-right: Open](guides/using-fair.md)
+    [:lucide-arrow-right: Open](guides/using-fair.md)
 
 - :lucide-terminal: &nbsp; **Developer setup**
 
-  ***
+    ---
 
-  Run the full stack locally and start iterating.
+    Run the full stack locally and start iterating.
 
-  [:lucide-arrow-right: Open](guides/developer-setup.md)
+    [:lucide-arrow-right: Open](guides/developer-setup.md)
 
 - :lucide-database: &nbsp; **Datasets**
 
-  ***
+    ---
 
-  Published training and prediction data.
+    Published training and prediction data.
 
-  [:lucide-arrow-right: Open](datasets/index.md)
+    [:lucide-arrow-right: Open](datasets/index.md)
 
 - :lucide-map: &nbsp; **Roadmap**
 
-  ***
+    ---
 
-  History and what is planned next.
+    History and what is planned next.
 
-  [:lucide-arrow-right: Open](roadmap/index.md)
+    [:lucide-arrow-right: Open](roadmap/index.md)
 
 </div>

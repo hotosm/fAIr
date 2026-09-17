@@ -36,7 +36,9 @@ repos:
         name: oxfmt
         files: ^
         # oxfmt batches it's runs, so using !/path/to/file in args can cause issues
-        exclude: ^(?:CHANGELOG\.md|frontend/pnpm-lock\.yaml|chart)
+        # docs/ markdown uses MkDocs Material syntax (grid cards need a 4-space
+        # `---` divider) that a generic formatter rewrites and breaks.
+        exclude: ^(?:CHANGELOG\.md|frontend/pnpm-lock\.yaml|chart|docs/.*\.md)
         entry: oxfmt --no-error-on-unmatched-pattern --write
         language: node
         "types": [text]

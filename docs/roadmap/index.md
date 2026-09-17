@@ -27,19 +27,21 @@ Planned for 2026, targeted for the end of the year.
 
 - :lucide-circle-dot: &nbsp; **Now**
 
-  ***
-  - A UI/UX refactor is underway
-  - Mapper view: pick any model, apply it to any imagery, and see the results
-  - Prediction requests over larger areas
-  - Targeted for the end of September 2026
+    ---
+
+    - A UI/UX refactor is underway
+    - Mapper view: pick any model, apply it to any imagery, and see the results
+    - Prediction requests over larger areas
+    - Targeted for the end of September 2026
 
 - :lucide-circle-dashed: &nbsp; **Later**
 
-  ***
-  - Feedback on model results
-  - Improving a model with more training data to create a local version
-  - Rating a model
-  - Targeted for the end of 2026
+    ---
+
+    - Feedback on model results
+    - Improving a model with more training data to create a local version
+    - Rating a model
+    - Targeted for the end of 2026
 
 </div>
 
