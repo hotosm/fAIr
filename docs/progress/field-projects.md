@@ -1,13 +1,13 @@
 ---
 icon: lucide/map-pinned
-description: Community hub and fAIrSwipe field projects that create and validate training data for fAIr.
+description: Open Mapping Gurus and fAIrSwipe field projects that create and validate training data for fAIr.
 ---
 
 # Field projects
 
 fAIr's training data is created and validated in the field by community mappers, through two programs: **Open Mapping Gurus** and **fAIrSwipe**. The sections below track the active projects.
 
-## Hub training-data projects
+## Open Mapping Gurus
 
 <!-- TODO: fill in with the latest info - Tasking Manager links and per-location training datasets -->
 

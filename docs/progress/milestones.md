@@ -14,21 +14,21 @@ A summary of what fAIr is working toward and where each effort stands. It is mea
 | Goal                                                      | Target       | Status (September 2026)                                                  |
 | --------------------------------------------------------- | ------------ | ------------------------------------------------------------------------ |
 | Open geo-AI model library                                 | 20 models    | 4 features available (6 model variants), more in development and planned |
-| Guru deployments (manual training datasets)               | 12 locations | 5 secured, 63 Gurus deployed                                             |
+| Open Mapping Gurus (manual training datasets)             | 12 locations | 5 secured, 63 Gurus deployed                                             |
 | fAIrSwipe community projects (MapSwipe training datasets) | 12 projects  | 6 underway                                                               |
 
 ## Model pipeline
 
 fAIr is building an open library of geo-AI models across features, working toward around 20. Four features are available today (six model variants, since the buildings model covers RAMP, DINO, and YOLO), with more in development and planned. The full list and status is on the [Models](../overview/models.md) page, and the [catalog](https://hotosm.github.io/fAIr-models/) is the source of truth.
 
-## Community hub deployments
+## Open Mapping Gurus
 
-Training data is created by community mappers (Open Mapping Gurus) organized through HOT's regional hubs. As of 9 September 2026:
+Training data is created by community mappers organized through HOT's regional hubs. As of 9 September 2026:
 
 - **63** unique Gurus deployed globally.
 - **5 of 12** deployment locations secured; further locations are in the pipeline, including 4 being set up in the Philippines.
 
-Mapping outputs across the five deployments:
+Cumulative mapping output from Open Mapping Gurus to date:
 
 | Output            | Count  |
 | ----------------- | ------ |
