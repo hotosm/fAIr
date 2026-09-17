@@ -44,13 +44,16 @@ type Props = {
   predictionBBox: BBOX | null;
   predictionGridZoom?: number;
   outputType: TryFairMapOutputType;
-  onChoroplethBucketsChange?: (buckets: ReturnType<typeof computeChoroplethBuckets> | null) => void;
+  onChoroplethBucketsChange?: (
+    buckets: ReturnType<typeof computeChoroplethBuckets> | null,
+  ) => void;
 };
 
 type HoverTooltip = {
   x: number;
   y: number;
-  count: number;
+  label: string;
+  value: string;
 } | null;
 
 export const TryFairPredictionsLayer = ({
@@ -62,10 +65,18 @@ export const TryFairPredictionsLayer = ({
   onChoroplethBucketsChange,
 }: Props) => {
   const { choropleth, buckets } = useMemo(() => {
-    if (outputType !== TryFairMapOutputType.CLUSTER || !predictions || !predictionBBox) {
+    if (
+      outputType !== TryFairMapOutputType.CLUSTER ||
+      !predictions ||
+      !predictionBBox
+    ) {
       return { choropleth: null, buckets: null };
     }
-    const fc = buildChoropleth(predictions, predictionBBox, predictionGridZoom ?? undefined);
+    const fc = buildChoropleth(
+      predictions,
+      predictionBBox,
+      predictionGridZoom ?? undefined,
+    );
     return { choropleth: fc, buckets: computeChoroplethBuckets(fc) };
   }, [outputType, predictions, predictionBBox, predictionGridZoom]);
 
@@ -221,7 +232,12 @@ export const TryFairPredictionsLayer = ({
       }
       const count = (features[0].properties?.count as number) ?? 0;
       map.getCanvas().style.cursor = "pointer";
-      setTooltip({ x: e.point.x, y: e.point.y, count });
+      setTooltip({
+        x: e.point.x,
+        y: e.point.y,
+        label: "Objects detected",
+        value: count.toLocaleString(),
+      });
     };
 
     const handleMouseLeave = () => {
@@ -240,18 +256,69 @@ export const TryFairPredictionsLayer = ({
     };
   }, [map, outputType]);
 
+  useEffect(() => {
+    const predictionLayer =
+      outputType === TryFairMapOutputType.POINTS
+        ? CIRCLE_LAYER
+        : outputType === TryFairMapOutputType.POLYGON
+          ? FILL_LAYER
+          : null;
+    if (!map || !predictionLayer) {
+      setTooltip(null);
+      return;
+    }
+
+    const handleMouseMove = (e: MapMouseEvent) => {
+      const feature = map.queryRenderedFeatures(e.point, {
+        layers: [predictionLayer],
+      })[0];
+      const score = feature?.properties?.score;
+      if (typeof score !== "number") {
+        setTooltip(null);
+        map.getCanvas().style.cursor = "";
+        return;
+      }
+
+      map.getCanvas().style.cursor = "pointer";
+      setTooltip({
+        x: e.point.x,
+        y: e.point.y,
+        label: "Accuracy",
+        value: `${(score * 100).toFixed(1)}%`,
+      });
+    };
+
+    const handleMouseLeave = () => {
+      setTooltip(null);
+      map.getCanvas().style.cursor = "";
+    };
+
+    map.on("mousemove", predictionLayer, handleMouseMove);
+    map.on("mouseleave", predictionLayer, handleMouseLeave);
+
+    return () => {
+      map.off("mousemove", predictionLayer, handleMouseMove);
+      map.off("mouseleave", predictionLayer, handleMouseLeave);
+      map.getCanvas().style.cursor = "";
+      setTooltip(null);
+    };
+  }, [map, outputType]);
+
   if (!tooltip) return null;
 
   return (
-    <div className="pointer-events-none absolute z-50" style={{ left: tooltip.x, top: tooltip.y }}>
+    <div
+      className="pointer-events-none absolute z-50"
+      style={{ left: tooltip.x, top: tooltip.y }}
+    >
       {/* Offset so the tooltip doesn't sit directly under the cursor */}
       <div className="relative" style={{ transform: "translate(12px, -50%)" }}>
         <div className="bg-white/95 backdrop-blur-sm border border-gray-border rounded-lg shadow-lg px-3 py-2 flex flex-col items-start gap-0.5 min-w-[120px]">
           <p className="text-[10px] font-medium text-grey uppercase tracking-wide leading-none">
-            objects detected
+            {tooltip.label}
           </p>
           <p className="text-base font-bold text-purple-700 leading-tight">
-            {tooltip.count.toLocaleString()}
+            {tooltip.value}
           </p>
         </div>
         <div

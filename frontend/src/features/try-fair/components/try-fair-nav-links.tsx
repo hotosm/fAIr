@@ -1,31 +1,101 @@
+import { useAuth } from "@/app/providers/auth-provider";
+import { CloudDownloadIcon } from "@/components/ui/icons";
+import { ShareIcon } from "@/components/ui/icons/share-icon";
+import { ToolTip } from "@/components/ui/tooltip";
+import { getDownloadData } from "@/features/try-fair/components/start-mapping/export-map-results";
+import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
 import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
+import { geoJSONDowloader } from "@/utils";
 
-const startMappingLinks = [
-  // {
-  //   title: "Help",
-  //   value: "help",
-  // },
-  {
-    title: "Share",
-    value: "share",
-  },
-];
 export const StartMappingNavlinks: React.FC = () => {
-  const setShowShareModal = useStartMappingStore((state) => state.setShowShareModal);
+  const { setDownloadType, setShowSigninModal, setShowShareModal, predictions, outputType, predictionBBox, predictionGridZoom } =
+    useStartMappingStore();
+  const hasPredictions = Boolean(predictions?.features?.length);
+  const { setChooseLocation } = useTryFairParams();
+  const { isAuthenticated } = useAuth();
 
+  const handleSelect = (value: string) => {
+    if (value === "download") {
+      if (!predictions) return;
+      const exportData = getDownloadData(
+        predictions,
+        outputType,
+        predictionBBox,
+        predictionGridZoom,
+      );
+      geoJSONDowloader(exportData, `fair-predictions-${outputType.toLowerCase()}`);
+      return;
+    }
+    setDownloadType(value);
+  };
   return (
-    <ul className="hidden lg:flex items-center gap-3">
-      {startMappingLinks.map((link) => (
-        <li key={link.title} className="px-2 py-2  text-body-2 ">
-          <button
-            type="button"
-            onClick={() => (link.title === "Share" ? setShowShareModal(true) : "")}
-            className="hover:text-gray-900 transition-colors text-inherit font-inherit cursor-pointer"
-          >
-            {link.title}
-          </button>
-        </li>
-      ))}
-    </ul>
+    <div className="hidden lg:flex items-center gap-3">
+      {/* Help — text link */}
+
+      {/* Download — icon button */}
+      <ToolTip content={
+        hasPredictions ?
+
+          "Download results" :
+          "Map to generate results"
+      }>
+        <button
+          disabled={!hasPredictions}
+          type="button"
+          onClick={() => handleSelect("download")}
+          className="flex items-center hover:text-gray-900 transition-colors text-inherit font-inherit cursor-pointer"
+        >
+          <CloudDownloadIcon className="size-6" />
+        </button>
+      </ToolTip>
+      {/* Share — icon button */}
+      <ToolTip content="Share">
+        <button
+          type="button"
+          onClick={() => setShowShareModal(true)}
+          className="flex items-center hover:text-gray-900 transition-colors text-inherit font-inherit cursor-pointer"
+        >
+          <ShareIcon className="size-6" />
+        </button>
+      </ToolTip>
+
+
+
+      {/* Choose your own */}
+      <ToolTip content="Change Imagery">
+        <button
+          type="button"
+          onClick={() => {
+            setChooseLocation(true);
+            if (!isAuthenticated) {
+              setShowSigninModal(true);
+            }
+          }}
+          className="bg-grey text-xs px-3 flex items-center text-white !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem]"
+          aria-label="Choose a different location"
+        >
+          Choose your own
+        </button>
+      </ToolTip>
+
+      {/* Map Large Area */}
+      <ToolTip content="Map a large area">
+        <button
+          type="button"
+          onClick={() => {
+            if (!isAuthenticated) {
+              setShowSigninModal(true);
+            }
+            handleSelect("large-area")
+
+          }}
+          className="bg-dark text-xs px-3 flex items-center text-white !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem]"
+          aria-label="Map a large area"
+        >
+          Map Large Area
+        </button>
+      </ToolTip>
+
+    </div>
   );
 };

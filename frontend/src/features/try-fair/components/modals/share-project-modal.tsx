@@ -38,6 +38,7 @@ export const ShareProjectModal: React.FC<ShareProjectModalProps> = ({
       noHeader
       borderRadius="rounded"
       size={SHOELACE_SIZES.SMALL}
+
     >
       <div className="flex flex-col p-1 sm:p-2 gap-5">
         {/* Header */}

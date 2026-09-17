@@ -8,6 +8,7 @@ import { TryFairPredictionsLayer } from "@/features/try-fair/components/map/try-
 import { ChoroplethBucket } from "@/features/try-fair/utils/helpers";
 import { TryFairChoroplethLegend } from "@/features/try-fair/components/map/chloropleth-legend";
 import { TryFairPointsLegend } from "@/features/try-fair/components/map/points-legend";
+import { TryFairPolygonLegend } from "@/features/try-fair/components/map/polygon-legend";
 import { FitToBounds, ZoomControls } from "@/components/map/controls";
 import { InfoIcon } from "@/components/ui/icons";
 import { ToolTip } from "@/components/ui/tooltip";
@@ -67,7 +68,9 @@ export const TryFairMap = ({
   const { setChooseLocation } = useTryFairParams();
   const { setShowSigninModal } = useStartMappingStore();
   const { isAuthenticated } = useAuth();
-  const [choroplethBuckets, setChoroplethBuckets] = useState<ChoroplethBucket[] | null>(null);
+  const [choroplethBuckets, setChoroplethBuckets] = useState<
+    ChoroplethBucket[] | null
+  >(null);
   const gridBBoxRef = useRef<BBOX | null>(null);
   const fitPendingRef = useRef(false);
 
@@ -145,6 +148,8 @@ export const TryFairMap = ({
       <TryFairChoroplethLegend buckets={choroplethBuckets} />
     ) : outputType === TryFairMapOutputType.POINTS ? (
       <TryFairPointsLegend totalCount={predictions?.features.length ?? 0} />
+    ) : outputType === TryFairMapOutputType.POLYGON ? (
+      <TryFairPolygonLegend totalCount={predictions?.features.length ?? 0} />
     ) : null;
 
   return (
@@ -198,7 +203,10 @@ export const TryFairMap = ({
               }}
               disabled={isPredicting}
               aria-label="Choose a different location"
-              className={cn(mapActionButtonClassName, isPredicting && "!disabled:cursor-wait")}
+              className={cn(
+                mapActionButtonClassName,
+                isPredicting && "!disabled:cursor-wait",
+              )}
             >
               <GlobeSearchIcon />
             </button>

@@ -121,14 +121,16 @@ export const ImageryLocationDialog = ({
     >
       {isOpened && (
         <div className="flex flex-col gap-4">
-          <p className="text-grey text-sm w-full md:w-1/2 -mt-6">
+          <p className="text-grey text-sm w-full md:w-1/2 -mt-6 shrink-0">
             Select an imagery source to preview and map your location. You can choose pre-existing
             imagery from OpenAerialMap or enter a custom tile server URL.
           </p>
-          <ImagerySourceToggle value={source} onChange={setSource} />
-          {!isOAM && <Divider />}
+          <div className="shrink-0">
+            <ImagerySourceToggle value={source} onChange={setSource} />
+            {!isOAM && <Divider />}
+          </div>
 
-          <div className="relative w-full h-[420px] md:h-[620px] rounded-lg overflow-hidden">
+          <div className="relative w-full rounded-lg overflow-hidden" style={{ height: "min(620px, calc(92vh - 220px))" }}>
             <div className={cn("absolute inset-0", !isOAM && "invisible")}>
               <OamImageryMap
                 highlightGeometry={selectedCell && !selectedItem ? selectedCell.geometry : null}

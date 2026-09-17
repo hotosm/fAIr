@@ -54,7 +54,7 @@ const FeatureOption = ({ disabled, feature, isSelected, onSelect }: FeatureOptio
       type="button"
       disabled={isDisabled}
       title={hasNoModels ? "No models are available for this feature" : undefined}
-      className="text-dark bg-[#FAFAFA] hover:bg-gray-100 rounded-lg flex justify-between items-center w-full py-3 px-2 transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-[#FAFAFA]"
+      className="text-dark bg-gray-white hover:bg-gray-100 rounded-lg flex justify-between items-center w-full py-3 px-2 transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-gray-white"
       onClick={() => onSelect(feature.slug)}
     >
       <div className="flex items-center gap-2">
@@ -80,7 +80,7 @@ const FeatureToMapDropdown = ({ disabled = false, value, onChange }: FeatureToMa
   const trigger = (
     <div
       className={cn(
-        "flex bg-[#FAFAFA] border w-full md:w-[280px] p-2 rounded-md border-gray-border justify-between items-center transition-opacity",
+        "flex bg-gray-white border w-full md:w-[280px] p-2 rounded-md border-gray-border justify-between items-center transition-opacity",
         disabled || isLoading ? "opacity-50 cursor-not-allowed" : "cursor-pointer",
       )}
     >

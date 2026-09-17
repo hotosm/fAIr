@@ -26,7 +26,6 @@ import {
 import "@hotosm/ui/dist/components/tool-menu/tool-menu.js";
 import { Divider } from "@/components/ui/divider";
 import { ToolTip } from "@/components/ui/tooltip";
-import ExportMapResults from "@/features/try-fair/components/start-mapping/export-map-results";
 import MappingMode from "@/features/try-fair/components/mapping-mode";
 import { ShareProjectModal } from "@/features/try-fair/components/modals/share-project-modal";
 import { StartMappingNavlinks } from "@/features/try-fair/components/try-fair-nav-links";
@@ -147,6 +146,8 @@ export const NavBar = () => {
 
         <div className="flex-1 hidden sm:flex items-center justify-center">
           {!isTryFairPage && <NavBarLinks className={styles.webNavLinks} />}
+               {isTryFairPage && isAuthenticated && <MappingMode />}
+
         </div>
 
         <div className="flex-1 hidden sm:flex items-center justify-end gap-x-3">
@@ -157,22 +158,16 @@ export const NavBar = () => {
               <HankoAuthComponent />
             </>
           ) : isAuthenticated ? (
-            <>
-              {isTryFairPage && isAuthenticated && <MappingMode />}
+            <div className="flex items-center gap-x-2">
               {isTryFairPage && <StartMappingNavlinks />}
-
-              {!isTryFairPage && _isAuthenticated && <UserNotifications />}
-
-              {isTryFairPage && <ExportMapResults />}
-
-              {/* {_isAuthenticated && <UserProfile isHanko hideFullName />} */}
               <HankoAuthComponent />
-            </>
+            </div>
           ) : (
             <div
-              className="relative"
+              className="relative flex items-center gap-x-2"
               id={isTryFairPage ? APP_TOUR_IDS.TRY_FAIR_START_MAPPING_BUTTON : undefined}
             >
+              {isTryFairPage && <StartMappingNavlinks />}
               <ToolTip
                 content={
                   isTryFairPage ? "Sign in to access full mapping tools and features" : undefined
@@ -184,7 +179,6 @@ export const NavBar = () => {
                   size={isTryFairPage ? "medium" : "large"}
                   rounded={isTryFairPage}
                   onClick={() => {
-                
                     navigate(location, {
                       state: { backgroundLocation: location },
                     });

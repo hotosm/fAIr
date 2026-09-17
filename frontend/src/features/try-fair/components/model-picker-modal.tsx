@@ -22,6 +22,7 @@ import {
 import { ImageryPreviewCard } from "@/features/try-fair/components/model-picker/imagery-preview-card";
 import { RecentImageriesList } from "@/features/try-fair/components/model-picker/recent-imageries-list";
 import type { RecentImageryEntry } from "@/features/try-fair/hooks/use-recent-imageries";
+import { cleanFeatureLabel } from "@/features/try-fair/utils/common";
 
 // ─── ModelPicker trigger ──────────────────────────────────────────────────────
 
@@ -45,7 +46,7 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
 }) => {
   const place = selectedModel?.properties["fair:preview"]?.place;
   const selectedLocation = [place?.name, place?.country].filter(Boolean).join(", ");
-
+  const { feature } = useTryFairParams();
   const { currentModelType, selectedImagery } = useStartMappingStore();
 
   const showImagery = currentModelType === ModelType.IMAGERY && !!selectedImagery;
@@ -58,9 +59,15 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
     <div className="flex justify-between items-center">
       <div className="w-full text-left flex-1 min-w-0">
         {showImagery ? (
-          <p className="font-semibold text-dark text-xs leading-tight capitalize truncate">
-            {imageryName}
-          </p>
+          <>
+            <p className="font-semibold text-dark text-xs leading-tight capitalize truncate">
+              {imageryName}
+            </p>
+            <p className="text-grey capitalize font-semibold text-[10px] leading-tight truncate">
+              {cleanFeatureLabel(feature)}
+            </p>
+          </>
+
         ) : loading ? (
           <p className="text-grey text-xs animate-pulse">Loading models…</p>
         ) : selectedModel ? (

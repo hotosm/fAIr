@@ -18,6 +18,8 @@ import {
 const GRID_LINE_COLOR = "#EF4444";
 
 const CHOROPLETH_FILL_LAYER_ID = "try-fair-predictions-choropleth-fill";
+const PREDICTION_FILL_LAYER_ID = "try-fair-predictions-fill";
+const PREDICTION_CIRCLE_LAYER_ID = "try-fair-predictions-circle";
 
 type TryFairDraggableGridProps = {
   map: Map | null;
@@ -42,7 +44,8 @@ type TryFairDraggableGridProps = {
 type HoverTooltip = {
   x: number;
   y: number;
-  count: number;
+  label: string;
+  value: string;
 } | null;
 
 export const TryFairDraggableGrid = ({
@@ -132,7 +135,9 @@ export const TryFairDraggableGrid = ({
   const handleBringGridToView = () => {
     if (!map || !anchor) return;
     const center = map.getCenter();
-    setAnchor(computeCenteredAnchor({ lng: center.lng, lat: center.lat }, anchor.z));
+    setAnchor(
+      computeCenteredAnchor({ lng: center.lng, lat: center.lat }, anchor.z),
+    );
   };
 
   //  Render
@@ -159,10 +164,18 @@ export const TryFairDraggableGrid = ({
       ? "cursor-grabbing"
       : "cursor-grab";
 
-  const isChoroplethOutput = outputType === TryFairMapOutputType.CLUSTER;
-
-  const handleDragSurfacePointerMove = (e: React.PointerEvent<SVGPolygonElement>) => {
-    if (!map || !isChoroplethOutput) {
+  const handleDragSurfacePointerMove = (
+    e: React.PointerEvent<SVGPolygonElement>,
+  ) => {
+    const predictionLayer =
+      outputType === TryFairMapOutputType.CLUSTER
+        ? CHOROPLETH_FILL_LAYER_ID
+        : outputType === TryFairMapOutputType.POINTS
+          ? PREDICTION_CIRCLE_LAYER_ID
+          : outputType === TryFairMapOutputType.POLYGON
+            ? PREDICTION_FILL_LAYER_ID
+            : null;
+    if (!map || !predictionLayer) {
       setHoverTooltip(null);
       return;
     }
@@ -174,16 +187,36 @@ export const TryFairDraggableGrid = ({
     };
     const queryPoint: [number, number] = [point.x, point.y];
 
-    const features = map.queryRenderedFeatures(queryPoint, {
-      layers: [CHOROPLETH_FILL_LAYER_ID],
+    const feature = map.queryRenderedFeatures(queryPoint, {
+      layers: [predictionLayer],
     });
-    if (!features.length) {
+    if (!feature.length) {
       setHoverTooltip(null);
       return;
     }
 
-    const count = Number(features[0].properties?.count ?? 0);
-    setHoverTooltip({ x: point.x, y: point.y, count });
+    if (outputType === TryFairMapOutputType.CLUSTER) {
+      setHoverTooltip({
+        x: point.x,
+        y: point.y,
+        label: "Objects detected",
+        value: Number(feature[0].properties?.count ?? 0).toLocaleString(),
+      });
+      return;
+    }
+
+    const score = feature[0].properties?.score;
+    if (typeof score !== "number") {
+      setHoverTooltip(null);
+      return;
+    }
+
+    setHoverTooltip({
+      x: point.x,
+      y: point.y,
+      label: "Accuracy",
+      value: `${(score * 100).toFixed(1)}%`,
+    });
   };
 
   const handleDragSurfaceWheel = (e: React.WheelEvent<SVGPolygonElement>) => {
@@ -257,20 +290,26 @@ export const TryFairDraggableGrid = ({
       </svg>
 
       {/* Nudge to bring the grid back when it's been panned off-screen */}
-      <GridOffScreenNudge visibility={gridVisibility} onBringGrid={handleBringGridToView} />
+      <GridOffScreenNudge
+        visibility={gridVisibility}
+        onBringGrid={handleBringGridToView}
+      />
 
       {hoverTooltip ? (
         <div
           className="pointer-events-none absolute z-50"
           style={{ left: hoverTooltip.x, top: hoverTooltip.y }}
         >
-          <div className="relative" style={{ transform: "translate(12px, -50%)" }}>
+          <div
+            className="relative"
+            style={{ transform: "translate(12px, -50%)" }}
+          >
             <div className="bg-white/95 backdrop-blur-sm border border-gray-border rounded-lg shadow-lg px-3 py-2 flex flex-col items-start gap-0.5 min-w-[120px]">
               <p className="text-[10px] font-medium text-grey uppercase tracking-wide leading-none">
-                Buildings detected
+                {hoverTooltip.label}
               </p>
               <p className="text-base font-bold text-purple-700 leading-tight">
-                {hoverTooltip.count.toLocaleString()}
+                {hoverTooltip.value}
               </p>
             </div>
             <div

@@ -202,3 +202,8 @@ export const flagEmoji = (code: string): string =>
   code.length === 2
     ? String.fromCodePoint(...[...code.toUpperCase()].map((c) => 0x1f1e6 + c.charCodeAt(0) - 65))
     : "🏳️";
+
+// Function to remove underscores from feature type
+export const cleanFeatureLabel = (label: string) =>{
+  return (label ?? "").replace(/[-_]/g, " ");
+}

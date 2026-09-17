@@ -21,6 +21,8 @@ import useScreenSize from "@/hooks/use-screen-size";
 import { RefreshIcon } from "@/components/ui/icons";
 import { ToolTip } from "@/components/ui/tooltip";
 import { LocationSearchIcon } from "@/components/ui/icons/location-search-icon";
+import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
+import { AdvancedModelPicker } from "@/features/try-fair/components/model-picker/advanced-model-picker-dialog";
 
 type TryFairSidebarProps = {
   selectedModel: BaseModelStacItem | null;
@@ -41,6 +43,7 @@ type TryFairSidebarProps = {
   isMapButtonDisabled: boolean;
   className?: string;
   openMobileModelPickerDialog?: () => void;
+  openAdvancedModelPickerDialog?: () => void;
 };
 
 export const TryFairSidebar = ({
@@ -62,8 +65,10 @@ export const TryFairSidebar = ({
   isMapButtonDisabled,
   className,
   openMobileModelPickerDialog,
+  openAdvancedModelPickerDialog,
 }: TryFairSidebarProps) => {
   const { isSmallViewport } = useScreenSize();
+  const { mappingMode } = useTryFairParams();
 
   const supportsPolygon = selectedModel
     ? getModelOutputType(selectedModel) === TryFairMapOutputType.POLYGON
@@ -82,7 +87,7 @@ export const TryFairSidebar = ({
     >
       <div
         className={cn(
-          "flex bg-[#FAFAFA] border-[#687075] border  p-2.5 rounded-lg",
+          "flex bg-gray-white border-[#687075] border  p-2.5 rounded-lg",
           isSmallViewport ? "flex-col items-stretch gap-2" : "items-center gap-2",
         )}
       >
@@ -121,6 +126,16 @@ export const TryFairSidebar = ({
         </div>
       </div>
 
+      {/* ── Model selector (advanced mode only) ── */}
+      {mappingMode === "advanced" && (
+        <AdvancedModelPicker
+          selectedModel={selectedModel}
+          disabled={isPredicting}
+          loading={modelsLoading}
+          openDialog={openAdvancedModelPickerDialog}
+        />
+      )}
+
       <div className="">
         <p className="text-dark text-xs mb-2">{TRY_FAIR_PAGE_CONTENT.sidebar.mapOutput.label}</p>
         <div className="flex items-center gap-2">
@@ -152,7 +167,7 @@ export const TryFairSidebar = ({
       {/* ── Parameters ── */}
       <div
         id={APP_TOUR_IDS.TRY_FAIR_PARAMETERS}
-        className="p-3 border bg-[#FAFAFA] rounded-lg border-gray-border space-y-4 flex flex-col"
+        className="p-3 border bg-gray-white rounded-lg border-gray-border space-y-4 flex flex-col"
       >
         {/* Section header */}
         <div className="flex w-full justify-between items-center">

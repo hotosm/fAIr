@@ -6,7 +6,7 @@ import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-st
 import { buildChoropleth, toPointCollection } from "@/features/try-fair/utils/helpers";
 import { geoJSONDowloader } from "@/utils/geo/geo-utils";
 
-const getDownloadData = (
+export const getDownloadData = (
   predictions: GeoJSON.FeatureCollection,
   outputType: TryFairMapOutputType,
   predictionBBox: [number, number, number, number] | null,
@@ -66,7 +66,7 @@ const ExportMapResults = () => {
       disableCheveronIcon
       menuItems={menuItems}
       triggerComponent={
-        <button className="bg-[#687075] gap-3 px-3 flex text-white items-center !w-fit !h-10 md:min-w-fit !rounded-md min-w-[7.5rem]">
+        <button className="bg-[#687075] gap-3 px-3 flex text-white items-center !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem]">
           Export
           <ChevronDownIcon className="size-4" />
         </button>
