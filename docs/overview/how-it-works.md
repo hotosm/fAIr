@@ -20,7 +20,7 @@ The loop has four steps:
 
 ![Developers build models, mappers use them, and advanced users retrain and republish local versions.](../assets/flyer/user-bases.png)
 
-The three roles that meet fAIr at this loop are described in [Who uses it](who-uses-it.md).
+The three roles that meet fAIr at this loop are described in [User bases](who-uses-it.md).
 
 ## The data pipeline
 
@@ -49,4 +49,4 @@ Validated data can be published to the [Humanitarian Data Exchange](https://data
 
 !!! note "OSM merges stay manual"
 
-    fAIr does not push data into OpenStreetMap automatically. A mapper reviews predictions and decides what to add.
+    The mapper reviews predictions and decides what to add to OpenStreetMap.

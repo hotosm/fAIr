@@ -1,6 +1,6 @@
 ## Architectural Decisions
 
-The `architecture` folder comprises of subfolders and markdowns that documents the architectural decisions made when deciding on the tools used in developing this project. The template used is based on the simple and popular template -- [Documenting architecture decisions - Michael Nygard](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions), however slightly modified to include the **Date** of the decision. The folder is updated continually when decision making need arises until the end of the project.
+The `architecture` folder comprises of subfolders and markdowns that documents the architectural decisions made when deciding on the tools used in developing this project. The template used is based on the simple and popular template, [Documenting architecture decisions - Michael Nygard](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions), however slightly modified to include the **Date** of the decision. The folder is updated continually when decision making need arises until the end of the project.
 
 ## Folder Arrangement
 

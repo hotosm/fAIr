@@ -5,10 +5,7 @@ description: How an admin registers a base model into fAIr from a STAC item.
 
 # Registering a base model
 
-A base model is a pretrained model family that users fine-tune to create their
-own local models. Registration validates a STAC item, publishes it to the
-`base-models` collection, and makes the model available for training and
-prediction.
+Registration adds a base model (see [Models](../overview/models.md)) to fAIr: it validates a STAC item, publishes it to the `base-models` collection, and makes the model available for training and prediction.
 
 Registration is **admin only** and runs asynchronously. Anyone can contribute a model to fAIr through a pull request to the [fAIr-models catalog](https://hotosm.github.io/fAIr-models/); once the pull request is merged, an admin can trigger registration.
 
@@ -75,8 +72,8 @@ The response is `202 Accepted` with the DB record and `status: "registering"`.
 
 - Writes the chosen category onto the item as `fair:category`.
 - Adds the `mlm:inference-endpoint` asset when `inference_endpoint` is supplied.
-- Publishes the item to the `base-models` collection off-request. The STAC item,
-  not the database, is the source of truth for version metadata.
+- Publishes the item to the `base-models` collection off-request, where the
+  version metadata lives.
 - On success sets the DB row `status` to `active` and records `stac_item_id`.
   On failure sets `status` to `failed` and records the error.
 

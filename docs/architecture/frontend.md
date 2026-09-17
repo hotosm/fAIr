@@ -1,23 +1,11 @@
 ---
 icon: lucide/layout-dashboard
-description: The React single-page app, its stack, and its feature-sliced structure.
+description: The React single-page app and its feature-sliced structure.
 ---
 
 # Frontend
 
-The frontend is a React single-page app built with Vite and managed with pnpm. Runtime configuration is read from `config.js`, so the same build runs against different environments.
-
-## Stack
-
-- **React 19** with **Vite** and **TypeScript**
-- **MapLibre GL** for the map, **terra-draw** for drawing
-- **TanStack Query** and **TanStack Table** for data fetching and tables
-- **zustand** for local state
-- **react-hook-form** with **zod** for forms and validation
-- **Tailwind CSS** for styling
-- **Hanko** for authentication
-
-The reasoning behind these choices is recorded in the [frontend decision records](decisions/frontend/README.md).
+The frontend is a React 19 single-page app built with Vite and TypeScript, managed with pnpm. It renders maps with MapLibre GL and is styled with Tailwind CSS. Runtime configuration is read from `config.js`, so the same build runs against different environments. The full library choices, from data fetching to forms and authentication, are recorded in the [frontend decision records](decisions/frontend/README.md).
 
 ## Structure
 

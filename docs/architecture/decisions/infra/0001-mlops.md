@@ -119,15 +119,20 @@ We'd move to **Flyte** if:
 
 ## Trade-offs
 
-- ✅ Automatic reproducibility without team discipline required
-- ✅ Minimal custom code to maintain
-- ✅ Built for small teams without platform engineers
-- ✅ First-class integrations with our stack (S3, Seldon, MLflow)
-- ✅ Easy programmatic triggering from fAIr
-- ✅ Full lineage tracking and metadata management built-in
-- ✅ Clean separation: fAIr handles user workflows, ZenML handles ML infrastructure
-- ✅ Can migrate to Flyte later if needed (similar abstractions)
-- ❌ Adds MySQL database to maintain
-- ❌ Learning curve for ZenML concepts (stacks, materializers)
-- ❌ Slightly more opinionated than raw Metaflow
-- ❌ ZenML's Kubernetes orchestrator is less mature than Argo Workflows
+Strengths:
+
+- Automatic reproducibility without team discipline required
+- Minimal custom code to maintain
+- Built for small teams without platform engineers
+- First-class integrations with our stack (S3, Seldon, MLflow)
+- Easy programmatic triggering from fAIr
+- Full lineage tracking and metadata management built-in
+- Clean separation: fAIr handles user workflows, ZenML handles ML infrastructure
+- Can migrate to Flyte later if needed (similar abstractions)
+
+Costs:
+
+- Adds MySQL database to maintain
+- Learning curve for ZenML concepts (stacks, materializers)
+- Slightly more opinionated than raw Metaflow
+- ZenML's Kubernetes orchestrator is less mature than Argo Workflows

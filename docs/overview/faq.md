@@ -7,7 +7,7 @@ description: Common questions about fAIr, imagery, validation, models, and where
 
 ### So what is fAIr, really?
 
-A marketplace and connector. It lets mappers find geo-AI models and use or adapt them in their own area. It is not a single AI doing the mapping.
+A marketplace and connector. It lets mappers find geo-AI models and use or adapt them in their own area. A mapper stays in control at each step.
 
 ### Is it AI on its own?
 
@@ -35,4 +35,4 @@ It is your choice. You can bring it into OpenStreetMap, publish it to open platf
 
 ### Is merging with OpenStreetMap automatic?
 
-No. fAIr does not push data into OpenStreetMap. The mapper decides what to add. A MapSwipe project to assist with this is in progress.
+No. Merging is a manual step: the mapper decides what to add to OpenStreetMap, and a MapSwipe project to assist with this is in progress. See [How it works](how-it-works.md#4-use-and-share).

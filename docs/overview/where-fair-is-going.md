@@ -3,7 +3,7 @@ icon: lucide/compass
 description: How fAIr is positioned and the direction it is heading, for partners, contributors, and newcomers.
 ---
 
-# Where fAIr is going
+# Vision
 
 This page explains how fAIr is positioned and the direction it is heading. It is written for partners, contributors, and anyone trying to understand where the work fits.
 
@@ -30,13 +30,11 @@ Alongside the models themselves, fAIr provides:
 
 ## Current initiatives
 
-- **fAIrSwipe.** Connects the MapSwipe community to fAIr to create and validate training data. See [Field projects](../progress/field-projects.md) and the [community call](https://hotosm.github.io/fAIrswipe-call-2026/).
-- **Open Mapping Gurus.** Community mappers creating training datasets that are released openly, such as the [buildings](https://huggingface.co/datasets/hotosm/fAIr-guru-td-buildings) and [highways](https://huggingface.co/datasets/hotosm/fAIr-guru-td-highways) datasets.
-- **Street-level imagery.** An early experiment with street-level datasets, such as [street-level poles](https://huggingface.co/datasets/hotosm/streetlevel-poles).
-- **Crisis response.** Prediction outputs from fAIr have been published to the [Humanitarian Data Exchange](https://data.humdata.org/) for flood and earthquake response.
-- **Integrating open-source models.** An [open call](https://hotosm.org/en/request-for-proposals/open-call-for-earth-observation-geoai-models/) to bring existing open-source geo-AI models into fAIr, so the platform serves as a shared home for many models.
+- **Community training data.** fAIrSwipe and the Open Mapping Gurus program create open training data with community mappers; see [Field projects](../progress/field-projects.md).
+- **Crisis response.** Prediction outputs are published as open data for flood and earthquake response; see [Datasets](../datasets/index.md).
+- **Integrating open-source models.** An [open call](https://hotosm.org/en/request-for-proposals/open-call-for-earth-observation-geoai-models/) brings existing open-source geo-AI models into fAIr, so the platform serves as a shared home for many models.
 
-The structured plan is on the [Roadmap](../roadmap/index.md), and field-project status is tracked on [Field projects](../progress/field-projects.md).
+The structured plan is on the [Roadmap](../roadmap/index.md).
 
 ## The direction
 

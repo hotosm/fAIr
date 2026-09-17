@@ -16,9 +16,9 @@ nav = [
   { "Overview" = [
     { "What is fAIr" = "overview/what-is-fair.md" },
     { "How it works" = "overview/how-it-works.md" },
-    { "Who uses it" = "overview/who-uses-it.md" },
+    { "User bases" = "overview/who-uses-it.md" },
     { "Models" = "overview/models.md" },
-    { "Evaluation and accuracy" = "overview/evaluation.md" },
+    { "Evaluation" = "overview/evaluation.md" },
     { "FAQ" = "overview/faq.md" },
   ] },
   { "Guides" = [
@@ -35,17 +35,18 @@ nav = [
     { "Operations" = [
       { "Infrastructure" = "architecture/infrastructure.md" },
       { "Dev environment" = "architecture/dev-environment.md" },
+      { "Decision records" = "architecture/decisions/index.md" },
     ] },
-    { "Decision records" = "architecture/decisions/index.md" },
   ] },
   { "Progress" = [
-    { "Milestones" = "progress/milestones.md" },
     { "Field projects" = "progress/field-projects.md" },
+    { "Activations" = "progress/activations.md" },
     { "Datasets" = "datasets/index.md" },
   ] },
-  { "Project" = [
+  { "Roadmap" = [
     { "Roadmap" = "roadmap/index.md" },
-    { "Where fAIr is going" = "overview/where-fair-is-going.md" },
+    { "Milestones" = "progress/milestones.md" },
+    { "Vision" = "overview/where-fair-is-going.md" },
     { "About" = "overview/about.md" },
   ] },
   { "Community" = [
@@ -57,6 +58,8 @@ nav = [
 [project.theme]
 language = "en"
 features = [
+  "content.action.edit",
+  "content.action.view",
   "content.code.annotate",
   "content.code.copy",
   "content.code.select",

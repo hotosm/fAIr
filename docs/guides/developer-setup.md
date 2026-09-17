@@ -15,14 +15,7 @@ This page covers running fAIr for development. For a guided Docker install, see 
 
 ## Full stack
 
-Build and run everything from source:
-
-```bash
-cp env_example .env
-docker compose up --build
-```
-
-The app and API are served at `http://localhost:8000`, with Swagger at `/api/docs/`. Local auth uses `AUTH_PROVIDER=dev`: authorize with the bearer token `dev-token`.
+Build and run the whole stack from source with [Run locally](run-locally.md). The rest of this page covers backend-only iteration and tooling.
 
 ## Backend only
 

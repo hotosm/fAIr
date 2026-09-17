@@ -5,16 +5,13 @@ description: How registration, training, and prediction run across ZenML, STAC, 
 
 # ML pipeline
 
-The backend never trains or runs inference inline. It submits pipelines to ZenML and polls their state. The choice of ZenML as the orchestrator is recorded in the [MLOps decision record](decisions/infra/0001-mlops.md).
+The backend never trains or runs inference inline. It submits pipelines to ZenML and polls their state. The choice of ZenML as the orchestrator is recorded in the [MLOps decision record](decisions/infra/0001-mlops.md). The services behind the pipeline (STAC, MinIO, MLflow, and ZenML) and their roles are listed in the [Architecture overview](index.md#components).
 
-## Roles
+## Deployment architecture
 
-| Service                          | Role                                                                                |
-| -------------------------------- | ----------------------------------------------------------------------------------- |
-| **STAC** (pgSTAC + stac-fastapi) | Source of truth for dataset, base-model, and local-model metadata and asset URLs.   |
-| **MinIO** (S3)                   | Stores chips, `labels.geojson`, `weights.pt`, `model.onnx`, and prediction outputs. |
-| **MLflow**                       | Tracks training experiments.                                                        |
-| **ZenML**                        | Orchestrates pipeline steps and records run status and artifacts.                   |
+These services run together on a Kubernetes setup. The fAIr backend submits jobs to ZenML, which trains on autoscaling GPU nodes and serves ONNX inference through Knative, with STAC as the source of truth for dataset and model metadata, S3 for artifacts, MLflow for experiment tracking, and Postgres for state. How HOT runs this on open source over AWS is described in the AWS Public Sector post [How HOT uses open source on AWS to power humanitarian AI](https://aws.amazon.com/blogs/publicsector/how-hot-uses-open-source-on-aws-to-power-humanitarian-ai/).
+
+![fAIr deployment architecture: developers push to fAIr-models on GitHub, CI/CD builds the model image to the registry and registers base models in the STAC model registry; the fAIr backend submits jobs to ZenML, which orchestrates training on autoscaling GPU nodes and ONNX inference through Knative on CPU nodes, with S3 as the artifact store, MLflow as the experiment tracker, and Postgres for state.](../assets/flyer/aws-architecture.jpg)
 
 ## Contribute and register a model
 

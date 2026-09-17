@@ -55,7 +55,7 @@ Further sources:
 
 - [Ada Initiative: HOWTO design a code of conduct for your community](https://adainitiative.org/2014/02/18/howto-design-a-code-of-conduct-for-your-community/)
 
-- [Algorithm Club Code of Conduct](https://github.com/drtortoise/critical-algorithm-studies/blob/master/code-of-conduct.md)
+- [HOT Code of Conduct](https://www.hotosm.org/en/policies/hots-code-of-conduct/)
 
 - [American Red Cross GIS Team Code of Conduct](https://github.com/AmericanRedCross/team-code-of-conduct)
 

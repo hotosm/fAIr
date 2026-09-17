@@ -41,7 +41,7 @@ A model can report the metrics that fit it, as long as they are clearly defined 
 
 A few practices keep a metric meaningful. They are guidance rather than rules, and the right choice can depend on the task.
 
-**Split data spatially, not randomly.** Image tiles next to each other are highly correlated. If training, validation, and test tiles are drawn at random, neighbouring tiles leak across the splits and the reported accuracy looks better than the model's true performance on unseen areas. A spatial split keeps whole areas together and, ideally, separates the held-out validation and test areas from the training area with a buffer, so tiles do not leak across the boundary. It also helps to hold out a separate test set that is never used for tuning, so the final numbers are not measured on the same data that guided model selection. This can vary for specific use cases, but as a default it keeps the reported accuracy representative of unseen areas.
+**Split data spatially.** Image tiles next to each other are highly correlated, so a random train, validation, and test split lets neighbouring tiles leak across the boundary and inflates the reported accuracy. A spatial split keeps whole areas together, ideally separated by a buffer, and a held-out test set reserved for the final numbers keeps the accuracy representative of unseen areas. The right balance can vary by use case.
 
 ![Random sampling mixes neighbouring tiles across splits. A spatial split keeps the training area, a buffer, and the held-out validation and test areas apart.](../assets/spatial-split.svg)
 
@@ -53,7 +53,7 @@ The buildings model below uses a spatial block split (whole tile blocks assigned
 
 ![Ten touching buildings, predicted as one merged shape. Pixel overlap stays high, but only one object is found where there are ten.](../assets/pixel-vs-object.svg)
 
-For example, ten touching buildings can be predicted as one merged shape that covers almost the same pixels. Pixel IoU stays high, around 98 percent, because only the thin gaps between buildings are missed, yet the object count is wrong: one found where there are ten. Object-level metrics count objects and catch this; pixel-level metrics cannot tell one merged shape from ten separate footprints.
+Pixel IoU can sit near 98 percent while ten touching buildings are predicted as a single shape, so object-level metrics are the ones that catch the merge.
 
 ## Example: the buildings model
 
@@ -85,25 +85,20 @@ The evaluation set is defined in the same item, so results are reproducible:
 }
 ```
 
-The model card reports the numbers. On a Banepa, Nepal scene (2,720 OSM ground-truth buildings), the buildings model measured both pixel-level and object-level metrics:
+The model card reports the numbers. On a Banepa, Nepal scene (2,720 OSM ground-truth buildings), the buildings model was measured two ways: the **global model** (fAIr's base model) run zero-shot with no local training, and a **local model** fine-tuned on a sample of Banepa's own chips. The fine-tuned figures show performance within Banepa itself, where the model was tuned.
 
-| Metric                       | Level  | Zero-shot | Per-area fine-tuned |
-| ---------------------------- | ------ | --------- | ------------------- |
-| Pixel IoU                    | pixel  | 0.495     | 0.604               |
-| Instance precision @ IoU>0.5 | object | 0.354     | 0.394               |
-| Instance recall @ IoU>0.5    | object | 0.261     | 0.295               |
-| Instance F1 @ IoU>0.5        | object | 0.300     | 0.337               |
-| Mean IoU (matched)           | object | 0.677     | 0.690               |
+| Metric                       | Level  | Global model | Local model |
+| ---------------------------- | ------ | ------------ | ----------- |
+| Pixel IoU                    | pixel  | 0.495        | 0.604       |
+| Instance precision @ IoU>0.5 | object | 0.354        | 0.394       |
+| Instance recall @ IoU>0.5    | object | 0.261        | 0.295       |
+| Instance F1 @ IoU>0.5        | object | 0.300        | 0.337       |
+| Mean IoU (matched)           | object | 0.677        | 0.690       |
 
-"Mean IoU (matched)" is the average pixel IoU over predicted and ground-truth buildings that were matched at IoU>0.5, that is, geometry quality on the buildings that were found; it is not the per-class mIoU. The `IoU>0.5` threshold is a deliberate, lenient choice: a building that overlaps just past half counts as matched. Where boundary precision matters, it helps to also report at a stricter threshold or across a range.
-
-Two more caveats when reading these numbers. Zero-shot is performance on Banepa with no local training; the per-area fine-tuned column first trains on a sample of Banepa's own chips, so it measures in-area performance rather than transfer to new places. The same card states the limitations plainly, for example that this smaller model matches fewer building instances than its larger variant, trading some F1 for size and inference cost. The full table and notes are in the [model README](https://github.com/hotosm/fAIr-models/blob/develop/models/dinov3s_buildings/README.md).
+The full table, how each metric is defined, and the model's limitations are in the [model README](https://github.com/hotosm/fAIr-models/blob/develop/models/dinov3s_buildings/README.md).
 
 ## Summary
 
 - The metric is chosen to fit the task, and is defined in the model card and STAC item.
-- Data is split spatially, ideally with a buffer, so held-out areas are not correlated with training.
-- Per-class metrics are preferred when background pixels dominate.
-- Object-level metrics are recommended for end users; pixel-level metrics are used for internal evaluation.
+- Data is split spatially, and object-level metrics are used for map-data outputs.
 - Community visual assessment complements the numbers.
-- Advantages and limitations are documented in the model card.

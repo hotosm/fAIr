@@ -34,9 +34,10 @@ Validated predictions and crisis-response data produced with fAIr, published as 
 
 On the Humanitarian Data Exchange:
 
-| Dataset                                                                                                     | Description                                                                                 | Source |
-| ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ------ |
-| [Nepal Flood 2026: fAIr Damage Assessment](https://data.humdata.org/dataset/hot_flood_npl_buildings_damage) | Building damage assessment for the Upper Trishuli and Bhote Koshi flood, produced with fAIr | HDX    |
+| Dataset                                                                                                                                     | Description                                                                                    | Source |
+| ------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | ------ |
+| [Nepal Flood 2026: fAIr Damage Assessment](https://data.humdata.org/dataset/hot_flood_npl_buildings_damage)                                 | Building damage assessment for the Upper Trishuli and Bhote Koshi flood, produced with fAIr    | HDX    |
+| [Venezuela Earthquake 2026: fAIr Damage Assessment](https://data.humdata.org/dataset/venezuela-m-7-5-earthquake-building-damage-assessment) | MapSwipe-validated building damage assessment for the June 2026 earthquake, produced with fAIr | HDX    |
 
 On Hugging Face (cumulative downloads as of 9 September 2026):
 

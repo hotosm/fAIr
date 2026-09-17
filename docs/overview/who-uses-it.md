@@ -3,7 +3,7 @@ icon: lucide/users
 description: The three roles that use fAIr, mapper, advanced user, and developer, and what each one does.
 ---
 
-# Who uses it
+# User bases
 
 People meet fAIr at three levels. Each one draws from the same model collection and feeds something back, so the work keeps improving.
 
@@ -24,7 +24,7 @@ A mapper runs an existing model and reviews what it finds.
 
 Validation can happen by hand, in the field, or at scale; see [How it works](how-it-works.md#3-validate).
 
-Do not see a model for the feature you want? Ask the team in **#fair-coord** on [Slack](https://slack.hotosm.org/).
+Need a model for a different feature? Ask the team in **#fair-coord** on [Slack](https://slack.hotosm.org/).
 
 ## Advanced user
 

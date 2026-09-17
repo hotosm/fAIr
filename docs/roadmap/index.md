@@ -5,7 +5,7 @@ description: Where fAIr came from, what has shipped, and what is being worked on
 
 # Roadmap
 
-Where fAIr came from, what has shipped, and what is being worked on. For the bigger picture and how fAIr is positioned, see [Where fAIr is going](../overview/where-fair-is-going.md).
+Where fAIr came from, what has shipped, and what is being worked on. For the bigger picture and how fAIr is positioned, see [Vision](../overview/where-fair-is-going.md).
 
 ## Timeline
 
@@ -13,38 +13,45 @@ Where fAIr came from, what has shipped, and what is being worked on. For the big
 %%{init: {'theme':'base','themeVariables':{'cScale0':'#eceef2','cScale1':'#eceef2','cScale2':'#eceef2','cScale3':'#eceef2','cScaleLabel0':'#1f2733','cScaleLabel1':'#1f2733','cScaleLabel2':'#1f2733','cScaleLabel3':'#1f2733','lineColor':'#9aa0aa','fontFamily':'system-ui, sans-serif'}}}%%
 timeline
     2023-2025 : Shipped the v2 platform, training, offline prediction and fAIrSwipe
-    2026 : 6 of 20 base models available : 5 of 12 hub locations secured, 63 Gurus deployed : fAIrSwipe LOCATE and Validate in use : Open-source model integration underway
-    2027 : Model library toward 20 : In-browser predictions for every model : Direct support for Tasking Manager projects : Street-level imagery
+    2026 : UI/UX refactor and mapper view : Larger-area predictions : Model feedback and local versions
+    2027 : Street-level imagery : In-browser predictions : Infrastructure scale-up
 ```
 
-## Now, next, later
+Current figures for each effort are tracked on the [Milestones](../progress/milestones.md) page.
+
+## Now and later
+
+Planned for 2026, targeted for the end of the year.
 
 <div class="grid cards" markdown>
 
 - :lucide-circle-dot: &nbsp; **Now**
 
   ***
-  - fAIrSwipe (fAIr plus MapSwipe): LOCATE for training data and Validate for checking predictions
-  - Open Mapping Gurus releasing open training datasets
-  - Integrating open-source geo-AI models into fAIr
-  - Private and public models and datasets
-
-- :lucide-arrow-right-circle: &nbsp; **Next**
-
-  ***
-  - A public list of prediction requests and results
-  - Wider feature coverage: roads and highways, solar panels, seagrass
+  - A UI/UX refactor is underway
+  - Mapper view: pick any model, apply it to any imagery, and see the results
+  - Prediction requests over larger areas
+  - Targeted for the end of September 2026
 
 - :lucide-circle-dashed: &nbsp; **Later**
 
   ***
-  - In-browser predictions for every model
-  - Direct support for Tasking Manager projects (licensed imagery, validated tasks)
-  - Street-level imagery
-  - Cloning a model with its dataset to develop it further
-  - Discussion and feedback on public models
+  - Feedback on model results
+  - Improving a model with more training data to create a local version
+  - Rating a model
+  - Targeted for the end of 2026
 
 </div>
+
+## Exploring next year
+
+Options under exploration for 2027.
+
+- Street-level imagery
+- Scaling up the infrastructure and stabilizing the server
+- Simplifying the user base
+- In-browser predictions
+- Public STAC endpoints released with the training datasets
 
 !!! note "This roadmap is a living summary"
 

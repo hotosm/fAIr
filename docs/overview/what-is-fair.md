@@ -7,13 +7,13 @@ description: What fAIr is, why it exists, and how it works as a collection of mo
 
 fAIr connects mappers with geo-AI models they can run and adapt in their own area. It is a shared collection of models: you choose one, run it over your area, validate what it finds, and improve it.
 
-fAIr is developed by the Humanitarian OpenStreetMap Team (HOT). The software is free and open source.
+fAIr is developed by the Humanitarian OpenStreetMap Team (HOT) and the friends who contribute to it. The software is free and open source.
 
 ## Why it exists
 
 In humanitarian and development work, the places that are hardest to reach are often the least mapped. AI can speed up mapping, but AI-generated map data is only as good as the data it was trained on and the people who validate it.
 
-fAIr is built so that the communities who will use a model are the ones who train and validate it. Corrections made by mappers feed back into the models, so the models get better where they are actually used.
+fAIr is built so that the communities who will use a model are the ones who train and validate it. Corrections made by mappers feed back into the models, so the models get better where they are used.
 
 ## Key characteristics
 
