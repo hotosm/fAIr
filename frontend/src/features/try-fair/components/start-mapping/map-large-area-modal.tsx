@@ -184,9 +184,7 @@ const MapLargeAreaContent = ({
       <div className="flex flex-col gap-2 pt-1">
         {/* Label row */}
         <div className="flex items-center gap-1.5">
-          <label className="text-dark text-sm font-semibold">
-            Map Request Name
-          </label>
+          <label className="text-dark text-sm font-semibold">Map Request Name</label>
           <ToolTip content="Enter map request name for your prediction request">
             <button
               type="button"
@@ -220,9 +218,7 @@ const MapLargeAreaContent = ({
             className="!w-fit shrink-0"
             fontSize="14px"
             size="medium"
-            disabled={
-              !selectedAOI || !description.trim() || isSubmittingMapLargeArea
-            }
+            disabled={!selectedAOI || !description.trim() || isSubmittingMapLargeArea}
             spinner={isSubmittingMapLargeArea}
             onClick={handleSubmit}
             rounded

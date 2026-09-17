@@ -178,14 +178,10 @@ export const ModelPickerContent = ({
 
   // Feature list from API
   const { data: featuresData } = useGetFeaturesToMap();
-  const featureList = (featuresData?.results ?? []).filter(
-    (f) => f.slug !== "other",
-  );
+  const featureList = (featuresData?.results ?? []).filter((f) => f.slug !== "other");
   const effectiveFeatureSlug = stagedFeature ?? feature;
   const selectedFeature =
-    featureList.find((f) => f.slug === effectiveFeatureSlug) ??
-    featureList[0] ??
-    null;
+    featureList.find((f) => f.slug === effectiveFeatureSlug) ?? featureList[0] ?? null;
 
   // Key helpers
   const keyOf = (choice: StagedChoice): string =>
@@ -198,8 +194,7 @@ export const ModelPickerContent = ({
   const stagedKey = staged ? keyOf(staged) : null;
   const activeKey = stagedKey ?? committedKey;
   const hasFeatureChange = stagedFeature !== null && stagedFeature !== feature;
-  const hasChange =
-    (stagedKey !== null && stagedKey !== committedKey) || hasFeatureChange;
+  const hasChange = (stagedKey !== null && stagedKey !== committedKey) || hasFeatureChange;
 
   const handleApply = () => {
     if (!staged && !hasFeatureChange) return;
