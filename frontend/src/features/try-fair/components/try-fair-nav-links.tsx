@@ -96,6 +96,27 @@ export const StartMappingNavlinks: React.FC = () => {
         </button>
       </ToolTip>
 
+      {
+        isAuthenticated && (
+          <ToolTip content="Map a large area">
+            <button
+              type="button"
+              onClick={() => {
+                if (!isAuthenticated) {
+                  setShowSigninModal(true);
+                }
+                handleSelect("large-area")
+
+              }}
+              className="bg-dark text-xs px-3 flex items-center text-white !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem]"
+              aria-label="Map a large area"
+            >
+              My Dashboard
+            </button>
+          </ToolTip>
+        )
+      }
+
     </div>
   );
 };

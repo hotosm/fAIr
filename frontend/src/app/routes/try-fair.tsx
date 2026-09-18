@@ -188,6 +188,13 @@ export const TryFairPage = () => {
     isOpened: isModelPickerDialogOpened,
     closeDialog: closeModelPickerDialog,
   } = useDialog();
+  const [stagedImagery, setStagedImagery] = useState<ImagerySelection | null>(
+    null,
+  );
+  const [
+    isChoosingImageryFromModelPicker,
+    setIsChoosingImageryFromModelPicker,
+  ] = useState(false);
 
   const {
     openDialog: openAdvancedModelPickerDialog,
@@ -464,10 +471,16 @@ export const TryFairPage = () => {
           onClose={closeModelPickerDialog}
           feature={feature}
           onFeatureChange={setFeature}
+          stagedImagery={stagedImagery}
+          onApplyStagedImagery={(selection) => {
+            setStagedImagery(null);
+            handleApplyImagery(selection);
+          }}
           recentImageries={recentImageries}
           onApplyRecentImagery={handleApplyRecentImagery}
           onChooseImagery={() => {
             closeModelPickerDialog();
+            setIsChoosingImageryFromModelPicker(true);
             setChooseLocation(true);
             if (!isAuthenticated) {
               setShowSigninModal(true);
@@ -492,8 +505,26 @@ export const TryFairPage = () => {
       {/* Imagery/location dialog – rendered at page level */}
       <ImageryLocationDialog
         isOpened={isChooseLocationOpen}
-        closeDialog={() => setChooseLocation(false)}
-        onApply={handleApplyImagery}
+        closeDialog={() => {
+          setChooseLocation(false);
+          setIsChoosingImageryFromModelPicker(false);
+        }}
+        onBackToModelPicker={
+          isChoosingImageryFromModelPicker
+            ? () => {
+                setChooseLocation(false);
+                setIsChoosingImageryFromModelPicker(false);
+                openModelPickerDialog();
+              }
+            : undefined
+        }
+        onApply={(selection) => {
+          if (isChoosingImageryFromModelPicker) {
+            setStagedImagery(selection);
+            return;
+          }
+          handleApplyImagery(selection);
+        }}
       />
       {!DISABLE_AUTH_ON_TRY_FAIR && (
         <SignInPromptDialog

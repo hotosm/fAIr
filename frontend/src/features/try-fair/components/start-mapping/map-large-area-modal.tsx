@@ -77,20 +77,20 @@ const MapLargeAreaContent = ({
       />
 
       {/* Header Tabs */}
-      <div className="flex border border-gray-border gap-2 md:flex-row flex-col justify-between w-full p-1.5 rounded-lg bg-white">
+      <div className="grid grid-cols-3 border border-gray-border gap-2 w-full p-1.5 rounded-lg bg-white">
         {TABS.map(({ value, label, Icon }) => (
           <button
             type="button"
             onClick={() => handleTabChange(value)}
             className={cn(
-              "p-2 lg:p-3 gap-2 text-dark rounded-lg flex items-center justify-between w-full transition-colors",
+              "p-2 gap-2 text-dark rounded-lg flex items-center justify-between min-w-0 transition-colors",
               activeTab === value ? "bg-secondary border-[#D63F4080] border" : "bg-off-white",
             )}
             key={value}
           >
-            <div className="flex items-center gap-2">
-              <Icon className="size-5 text-dark" />
-              <span className="text-xs md:text-sm">{label}</span>
+            <div className="flex items-center gap-1.5 min-w-0">
+              <Icon className="size-4 shrink-0 text-dark" />
+              <span className="text-xs leading-tight">{label}</span>
             </div>
             <RadioDot selected={activeTab === value} />
           </button>
@@ -98,7 +98,10 @@ const MapLargeAreaContent = ({
       </div>
 
       {/* Map Container */}
-      <div className="relative h-[450px] md:h-[540px] rounded-lg overflow-hidden w-full z-10 border border-gray-border">
+      <div
+        className="relative rounded-lg overflow-hidden w-full z-10 border border-gray-border"
+        style={{ height: "min(500px, calc(92vh - 280px))" }}
+      >
         <MapComponent
           map={map}
           terraDraw={terraDraw}
@@ -181,7 +184,7 @@ const MapLargeAreaContent = ({
       </div>
 
       {/* Footer Controls */}
-      <div className="flex flex-col gap-2 pt-1">
+      <div className="flex flex-col gap-1">
         {/* Label row */}
         <div className="flex items-center gap-1.5">
           <label className="text-dark text-sm font-semibold">
@@ -197,7 +200,6 @@ const MapLargeAreaContent = ({
             </button>
           </ToolTip>
         </div>
-
         {/* Input */}
         <Input
           value={description}
@@ -210,15 +212,11 @@ const MapLargeAreaContent = ({
           showBorder
           maxLength={20}
         />
-
-        {/* Character counter */}
-        <p className="text-grey text-xs">{description.length}/20</p>
-
-        {/* Submit button */}
-        <div className="flex justify-end">
+        <div className="flex items-center justify-between">
+          <p className="text-grey text-xs">{description.length}/20</p>
           <Button
             className="!w-fit shrink-0"
-            fontSize="14px"
+            fontSize="13px"
             size="medium"
             disabled={
               !selectedAOI || !description.trim() || isSubmittingMapLargeArea
