@@ -1,12 +1,12 @@
 import { Dialog } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ButtonVariant, SHOELACE_SIZES } from "@/enums";
-import { useLogin } from "@/hooks/use-login";
 import { CautionIcon } from "@/components/ui/icons/caution-icon";
+import { HANKO_URL } from "@/config";
 
 /**
- * Prompt shown when an unauthenticated user tries to change the
- * imagery/location on the try-fAIr page.
+ * Prompt shown when an unauthenticated user tries to map a large area
+ * on the Try fAIr page.
  */
 export const SignInPromptDialog = ({
   isOpened,
@@ -15,7 +15,9 @@ export const SignInPromptDialog = ({
   isOpened: boolean;
   closeDialog: () => void;
 }) => {
-  const { handleLogin, loading } = useLogin();
+  const handleHankoLogin = () => {
+    window.location.href = `${HANKO_URL}/app?return_to=${encodeURIComponent(window.location.href)}`;
+  };
 
   return (
     <Dialog
@@ -30,7 +32,9 @@ export const SignInPromptDialog = ({
           <CautionIcon />
         </div>
 
-        <p className="text-dark text-lg text-center">You must sign in to change the imagery.</p>
+        <p className="text-dark text-lg text-center">
+          You must sign in to map a large area.
+        </p>
 
         <div className="flex items-center justify-between gap-3">
           <Button
@@ -42,7 +46,7 @@ export const SignInPromptDialog = ({
           >
             Cancel
           </Button>
-          <Button rounded size="medium" spinner={loading} onClick={handleLogin}>
+          <Button rounded size="medium" onClick={handleHankoLogin}>
             Sign In
           </Button>
         </div>

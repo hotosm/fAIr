@@ -1,9 +1,17 @@
 import { DropDown } from "@/components/ui/dropdown";
 import { DropdownMenuItem } from "@/components/ui/dropdown/dropdown";
-import { ChevronDownIcon, CloudDownloadIcon, MapIcon } from "@/components/ui/icons";
+import {
+  ChevronDownIcon,
+  CloudDownloadIcon,
+  MapIcon,
+} from "@/components/ui/icons";
 import { DropdownPlacement, TryFairMapOutputType } from "@/enums";
+import { useAuth } from "@/app/providers/auth-provider";
 import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
-import { buildChoropleth, toPointCollection } from "@/features/try-fair/utils/helpers";
+import {
+  buildChoropleth,
+  toPointCollection,
+} from "@/features/try-fair/utils/helpers";
 import { geoJSONDowloader } from "@/utils/geo/geo-utils";
 
 export const getDownloadData = (
@@ -16,14 +24,25 @@ export const getDownloadData = (
     return toPointCollection(predictions);
   }
   if (outputType === TryFairMapOutputType.CLUSTER && predictionBBox) {
-    return buildChoropleth(predictions, predictionBBox, predictionGridZoom ?? undefined);
+    return buildChoropleth(
+      predictions,
+      predictionBBox,
+      predictionGridZoom ?? undefined,
+    );
   }
   return predictions;
 };
 
 const ExportMapResults = () => {
-  const { setDownloadType, predictions, outputType, predictionBBox, predictionGridZoom } =
-    useStartMappingStore();
+  const {
+    setDownloadType,
+    setShowSigninModal,
+    predictions,
+    outputType,
+    predictionBBox,
+    predictionGridZoom,
+  } = useStartMappingStore();
+  const { isAuthenticated } = useAuth();
 
   const hasPredictions = Boolean(predictions?.features?.length);
 
@@ -36,10 +55,22 @@ const ExportMapResults = () => {
         predictionBBox,
         predictionGridZoom,
       );
-      geoJSONDowloader(exportData, `fair-predictions-${outputType.toLowerCase()}`);
+      geoJSONDowloader(
+        exportData,
+        `fair-predictions-${outputType.toLowerCase()}`,
+      );
       return;
     }
     setDownloadType(value);
+  };
+
+  const handleMapLargeArea = () => {
+    if (!isAuthenticated) {
+      setShowSigninModal(true);
+      return;
+    }
+
+    handleSelect("large-area");
   };
 
   const menuItems: DropdownMenuItem[] = [
@@ -55,7 +86,7 @@ const ExportMapResults = () => {
       value: "large-area",
       Icon: MapIcon,
       dividerBefore: true,
-      onClick: () => handleSelect("large-area"),
+      onClick: handleMapLargeArea,
     },
   ];
 

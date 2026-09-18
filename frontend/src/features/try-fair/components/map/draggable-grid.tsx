@@ -29,10 +29,9 @@ type TryFairDraggableGridProps = {
   center?: [number, number];
   /** Current resolution selection — triggers a re-center when it changes. */
   resolution?: TryFairResolution;
-  /** Selected model ID — triggers a re-center when the model changes. */
-  modelId?: string | null;
   /** When true, grid dragging is disabled. */
   isPredicting?: boolean;
+  hasNoResults?: boolean;
   /** Currently selected output type — used to name the export file. */
   outputType?: TryFairMapOutputType;
   /** Bounding box used for the current prediction result. */
@@ -54,21 +53,42 @@ export const TryFairDraggableGrid = ({
   onBBoxChange,
   center: imageryCenter,
   resolution,
-  modelId,
   isPredicting = false,
+  hasNoResults = false,
   outputType,
 }: TryFairDraggableGridProps) => {
   // Grid anchor & bbox management
 
   const { isSmallViewport } = useScreenSize();
+  const [isNoResultsDismissed, setIsNoResultsDismissed] = useState(false);
 
   const { anchor, setAnchor, tileZoom } = useTileGrid({
     map,
     imageryCenter,
     resolution,
-    modelId,
     onBBoxChange,
   });
+
+  useEffect(() => {
+    if (hasNoResults) setIsNoResultsDismissed(false);
+  }, [hasNoResults]);
+
+  useEffect(() => {
+    if (!map || !hasNoResults) return;
+
+    const dismiss = () => setIsNoResultsDismissed(true);
+    map.on("click", dismiss);
+    map.on("mousedown", dismiss);
+    map.on("touchstart", dismiss);
+    map.on("zoomstart", dismiss);
+
+    return () => {
+      map.off("click", dismiss);
+      map.off("mousedown", dismiss);
+      map.off("touchstart", dismiss);
+      map.off("zoomstart", dismiss);
+    };
+  }, [hasNoResults, map]);
 
   useEffect(() => {
     if (!isSmallViewport || !map) return;
@@ -145,6 +165,12 @@ export const TryFairDraggableGrid = ({
   if (!screenGeometry) return null;
 
   const { verticalLines, horizontalLines } = screenGeometry;
+  const gridCenter = {
+    x: (verticalLines[0].x1 + verticalLines[verticalLines.length - 1].x1) / 2,
+    y:
+      (horizontalLines[0].y1 + horizontalLines[horizontalLines.length - 1].y1) /
+      2,
+  };
 
   // Four corners of the grid boundary for the transparent drag polygon.
   // The right edge is the last vertical line (count varies by tile zoom).
@@ -221,6 +247,7 @@ export const TryFairDraggableGrid = ({
 
   const handleDragSurfaceWheel = (e: React.WheelEvent<SVGPolygonElement>) => {
     if (!map || isPredicting) return;
+    setIsNoResultsDismissed(true);
 
     // The draggable overlay sits on top of the map and captures wheel/trackpad
     // gestures. Forward zoom intent to the map so users can zoom while hovering
@@ -252,7 +279,10 @@ export const TryFairDraggableGrid = ({
           fill="transparent"
           className={`${dragDisabled ? "pointer-events-none" : "pointer-events-auto"} ${cursorStyle}`}
           style={{ touchAction: "none" }}
-          onPointerDown={handlePointerDown}
+          onPointerDown={(event) => {
+            setIsNoResultsDismissed(true);
+            handlePointerDown(event);
+          }}
           onPointerMove={handleDragSurfacePointerMove}
           onPointerLeave={() => setHoverTooltip(null)}
           onWheel={handleDragSurfaceWheel}
@@ -294,6 +324,15 @@ export const TryFairDraggableGrid = ({
         visibility={gridVisibility}
         onBringGrid={handleBringGridToView}
       />
+
+      {hasNoResults && !isNoResultsDismissed && (
+        <div
+          className="absolute z-30 -translate-x-1/2 -translate-y-1/2 rounded-full border border-gray-border bg-white px-3 py-1.5 text-xs font-medium text-dark shadow-md"
+          style={{ left: gridCenter.x, top: gridCenter.y }}
+        >
+          No results returned
+        </div>
+      )}
 
       {hoverTooltip ? (
         <div

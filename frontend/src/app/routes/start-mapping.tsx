@@ -1,6 +1,15 @@
 import useScreenSize from "@/hooks/use-screen-size";
-import { APPLICATION_ROUTES, START_MAPPING_PAGE_CONTENT, TOAST_NOTIFICATIONS } from "@/constants";
-import { DrawControl, FitToBounds, LayerControl, ZoomLevel } from "@/components/map";
+import {
+  APPLICATION_ROUTES,
+  START_MAPPING_PAGE_CONTENT,
+  TOAST_NOTIFICATIONS,
+} from "@/constants";
+import {
+  DrawControl,
+  FitToBounds,
+  LayerControl,
+  ZoomLevel,
+} from "@/components/map";
 import { Head } from "@/components/seo";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useMapInstance } from "@/hooks/use-map-instance";
@@ -37,7 +46,12 @@ import { ImagerySourceSelector } from "@/features/start-mapping/components/repli
 import { useDialog } from "@/hooks/use-dialog";
 import { useModelPredictionStore } from "@/store/model-prediction-store";
 import { ModelSelector } from "@/features/start-mapping/components/replicable-models/model-selector";
-import { BASE_MODELS, DrawingModes, TileServiceType, ToolTipPlacement } from "@/enums";
+import {
+  BASE_MODELS,
+  DrawingModes,
+  TileServiceType,
+  ToolTipPlacement,
+} from "@/enums";
 import { useTileservice } from "@/hooks/use-tileservice";
 import {
   ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
@@ -85,7 +99,9 @@ const defaultQuery = {
   [SEARCH_PARAMS.maxAngleChange]: 15,
 };
 
-const getMergedQueryFromSearchParams = (params: URLSearchParams): TQueryParams => {
+const getMergedQueryFromSearchParams = (
+  params: URLSearchParams,
+): TQueryParams => {
   return {
     [SEARCH_PARAMS.orthogonalize]:
       params.get(SEARCH_PARAMS.orthogonalize) !== null
@@ -116,7 +132,8 @@ const getMergedQueryFromSearchParams = (params: URLSearchParams): TQueryParams =
     [SEARCH_PARAMS.imagery]: params.get(SEARCH_PARAMS.imagery) ?? undefined,
     [SEARCH_PARAMS.predictionModelCheckpoint]:
       params.get(SEARCH_PARAMS.predictionModelCheckpoint) ?? undefined,
-    [SEARCH_PARAMS.tileserver]: params.get(SEARCH_PARAMS.tileserver) ?? undefined,
+    [SEARCH_PARAMS.tileserver]:
+      params.get(SEARCH_PARAMS.tileserver) ?? undefined,
     [SEARCH_PARAMS.mode]: params.get(SEARCH_PARAMS.mode) ?? undefined,
   };
 };
@@ -124,7 +141,10 @@ const getMergedQueryFromSearchParams = (params: URLSearchParams): TQueryParams =
 export const StartMappingPage = () => {
   const { modelId } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { map, mapContainerRef, setDrawingMode, terraDraw } = useMapInstance(false, true);
+  const { map, mapContainerRef, setDrawingMode, terraDraw } = useMapInstance(
+    false,
+    true,
+  );
 
   const { isSmallViewport } = useScreenSize();
   const { goBack } = useHistory();
@@ -135,23 +155,30 @@ export const StartMappingPage = () => {
     clearFeatures,
   } = useModelPredictionStore();
 
-  const [offlinePredictionAOI, setOfflinePredictionAOI] = useState<Feature | null>(null);
+  const [offlinePredictionAOI, setOfflinePredictionAOI] =
+    useState<Feature | null>(null);
 
   const acceptedFeatures = useMemo(
-    () => modelPredictions.filter((f) => f.properties.status === PredictedFeatureStatus.ACCEPTED),
+    () =>
+      modelPredictions.filter(
+        (f) => f.properties.status === PredictedFeatureStatus.ACCEPTED,
+      ),
     [modelPredictions],
   );
 
   const navigate = useNavigate();
 
-  const [openMobileDrawer, setOpenMobileDrawer] = useState<boolean>(isSmallViewport);
+  const [openMobileDrawer, setOpenMobileDrawer] =
+    useState<boolean>(isSmallViewport);
 
   useEffect(() => {
     setOpenMobileDrawer(isSmallViewport);
   }, [isSmallViewport]);
 
-  const [customPredictionModelCheckpointPath, setCustomPredictionModelCheckpointPath] =
-    useState<string>("");
+  const [
+    customPredictionModelCheckpointPath,
+    setCustomPredictionModelCheckpointPath,
+  ] = useState<string>("");
 
   const updateQuery = useCallback(
     (newParams: TQueryParams) => {
@@ -163,7 +190,11 @@ export const StartMappingPage = () => {
         for (const [key, value] of Object.entries(updated)) {
           // Skip keys equal to default or null/undefined
           // This is to prevent the same settings from repeating in the url
-          if (value !== undefined && value !== null && value !== defaultQuery[key]) {
+          if (
+            value !== undefined &&
+            value !== null &&
+            value !== defaultQuery[key]
+          ) {
             updatedParams.set(key, String(value));
           }
         }
@@ -201,9 +232,11 @@ export const StartMappingPage = () => {
     updateQuery({ [SEARCH_PARAMS.imagery]: newValue });
   };
 
-  const [predictionModelCheckpoint, setPredictionModelCheckpoint] = useState<string>("");
+  const [predictionModelCheckpoint, setPredictionModelCheckpoint] =
+    useState<string>("");
 
-  const predictionModel = searchParams.get(SEARCH_PARAMS.model) ?? PredictionModel.DEFAULT;
+  const predictionModel =
+    searchParams.get(SEARCH_PARAMS.model) ?? PredictionModel.DEFAULT;
 
   const setPredictionModel = (newValue: string) => {
     updateQuery({ [SEARCH_PARAMS.model]: newValue });
@@ -275,10 +308,15 @@ export const StartMappingPage = () => {
      * Only update the checkpoint if the modelInfo is available and
      * the predictionModel is not set or is set to the default model.
      */
-    if (modelInfo && (!predictionModel || predictionModel === PredictionModel.DEFAULT)) {
+    if (
+      modelInfo &&
+      (!predictionModel || predictionModel === PredictionModel.DEFAULT)
+    ) {
       setPredictionModelCheckpoint(constructModelCheckpointPath(modelInfo));
     } else if (predictionModel && predictionModel !== PredictionModel.CUSTOM) {
-      setPredictionModelCheckpoint(FAIR_BASE_MODELS_PATH[predictionModel as BASE_MODELS]);
+      setPredictionModelCheckpoint(
+        FAIR_BASE_MODELS_PATH[predictionModel as BASE_MODELS],
+      );
     }
   }, [predictionModel, modelInfo]);
 
@@ -315,7 +353,8 @@ export const StartMappingPage = () => {
   useEffect(() => {
     if (customPredictionModelCheckpointPath) {
       updateQuery({
-        [SEARCH_PARAMS.predictionModelCheckpoint]: customPredictionModelCheckpointPath,
+        [SEARCH_PARAMS.predictionModelCheckpoint]:
+          customPredictionModelCheckpointPath,
       });
     } else {
       updateQuery({ [SEARCH_PARAMS.predictionModelCheckpoint]: undefined });
@@ -373,7 +412,10 @@ export const StartMappingPage = () => {
   /**
    * Check if the offline prediction AOI is valid.
    */
-  const isOfflineMode = useMemo(() => currentMode === MapMode.OFFLINE, [currentMode]);
+  const isOfflineMode = useMemo(
+    () => currentMode === MapMode.OFFLINE,
+    [currentMode],
+  );
 
   /**
    * Handle the finish event of the TerraDraw instance.
@@ -513,7 +555,9 @@ export const StartMappingPage = () => {
       ...(modelPredictions.length > 0
         ? [
             {
-              value: START_MAPPING_PAGE_CONTENT.map.controls.legendControl.predictionResults,
+              value:
+                START_MAPPING_PAGE_CONTENT.map.controls.legendControl
+                  .predictionResults,
               subLayers: [
                 ALL_MODEL_PREDICTIONS_FILL_LAYER_ID,
                 ALL_MODEL_PREDICTIONS_OUTLINE_LAYER_ID,
@@ -580,7 +624,12 @@ export const StartMappingPage = () => {
   const handleFeaturesDownloadToJOSM = useCallback(
     (features: Feature[]) => {
       if (!map || !modelInfo?.dataset) return;
-      openInJOSM(modelInfo.dataset.name, modelInfo.dataset.source_imagery, features, true);
+      openInJOSM(
+        modelInfo.dataset.name,
+        modelInfo.dataset.source_imagery,
+        features,
+        true,
+      );
     },
     [map, modelInfo],
   );
@@ -616,21 +665,28 @@ export const StartMappingPage = () => {
       name: START_MAPPING_PAGE_CONTENT.buttons.download.options.acceptedFeatures(
         isSmallViewport ? "Accepted" : "Download accepted",
       ),
-      value: START_MAPPING_PAGE_CONTENT.buttons.download.options.acceptedFeatures(
-        isSmallViewport ? "Accepted" : "Download accepted",
-      ),
+      value:
+        START_MAPPING_PAGE_CONTENT.buttons.download.options.acceptedFeatures(
+          isSmallViewport ? "Accepted" : "Download accepted",
+        ),
       onClick: handleAcceptedFeaturesDownload,
       showOnMobile: true,
     },
     {
-      name: START_MAPPING_PAGE_CONTENT.buttons.download.options.openAllFeaturesInJOSM,
-      value: START_MAPPING_PAGE_CONTENT.buttons.download.options.openAllFeaturesInJOSM,
+      name: START_MAPPING_PAGE_CONTENT.buttons.download.options
+        .openAllFeaturesInJOSM,
+      value:
+        START_MAPPING_PAGE_CONTENT.buttons.download.options
+          .openAllFeaturesInJOSM,
       onClick: handleAllFeaturesDownloadToJOSM,
       showOnMobile: false,
     },
     {
-      name: START_MAPPING_PAGE_CONTENT.buttons.download.options.openAcceptedFeaturesInJOSM,
-      value: START_MAPPING_PAGE_CONTENT.buttons.download.options.openAcceptedFeaturesInJOSM,
+      name: START_MAPPING_PAGE_CONTENT.buttons.download.options
+        .openAcceptedFeaturesInJOSM,
+      value:
+        START_MAPPING_PAGE_CONTENT.buttons.download.options
+          .openAcceptedFeaturesInJOSM,
       onClick: handleAcceptedFeaturesDownloadToJOSM,
       showOnMobile: false,
     },
@@ -764,8 +820,12 @@ export const StartMappingPage = () => {
               setPredictionModel={setPredictionModel}
               predictionModelCheckpoint={predictionModelCheckpoint}
               setPredictionModelCheckpoint={setPredictionModelCheckpoint}
-              customPredictionModelCheckpointPath={customPredictionModelCheckpointPath}
-              setCustomPredictionModelCheckpointPath={setCustomPredictionModelCheckpointPath}
+              customPredictionModelCheckpointPath={
+                customPredictionModelCheckpointPath
+              }
+              setCustomPredictionModelCheckpointPath={
+                setCustomPredictionModelCheckpointPath
+              }
               defaultPredictionModel={modelInfo?.name}
               isMobile
             />
@@ -810,8 +870,12 @@ export const StartMappingPage = () => {
             setPredictionModel={setPredictionModel}
             predictionModelCheckpoint={predictionModelCheckpoint}
             setPredictionModelCheckpoint={setPredictionModelCheckpoint}
-            customPredictionModelCheckpointPath={customPredictionModelCheckpointPath}
-            setCustomPredictionModelCheckpointPath={setCustomPredictionModelCheckpointPath}
+            customPredictionModelCheckpointPath={
+              customPredictionModelCheckpointPath
+            }
+            setCustomPredictionModelCheckpointPath={
+              setCustomPredictionModelCheckpointPath
+            }
             openModelSelectionDialog={handlePredictionModelDialogOpen}
             setTileServiceType={setTileServiceType}
             setTileserverURL={setTileserverURL}
@@ -825,7 +889,9 @@ export const StartMappingPage = () => {
             isSmallViewport={isSmallViewport}
             isOfflineMode={isOfflineMode}
             hasDrawnAOI={hasDrawnAOI}
-            openOfflinePredictionRequestDialog={handleOfflinePredictionRequestDialogOpen}
+            openOfflinePredictionRequestDialog={
+              handleOfflinePredictionRequestDialogOpen
+            }
           />
         )}
         {/* Mobile bottom sheet */}
@@ -848,8 +914,12 @@ export const StartMappingPage = () => {
             setPredictionModel={setPredictionModel}
             predictionModelCheckpoint={predictionModelCheckpoint}
             setPredictionModelCheckpoint={setPredictionModelCheckpoint}
-            customPredictionModelCheckpointPath={customPredictionModelCheckpointPath}
-            setCustomPredictionModelCheckpointPath={setCustomPredictionModelCheckpointPath}
+            customPredictionModelCheckpointPath={
+              customPredictionModelCheckpointPath
+            }
+            setCustomPredictionModelCheckpointPath={
+              setCustomPredictionModelCheckpointPath
+            }
             setTileServiceType={setTileServiceType}
             setTileserverURL={setTileserverURL}
             tileServiceTypeValidity={tileServiceTypeValidity}
@@ -862,7 +932,9 @@ export const StartMappingPage = () => {
             isSmallViewport={isSmallViewport}
             isOfflineMode={isOfflineMode}
             hasDrawnAOI={hasDrawnAOI}
-            openOfflinePredictionRequestDialog={handleOfflinePredictionRequestDialogOpen}
+            openOfflinePredictionRequestDialog={
+              handleOfflinePredictionRequestDialogOpen
+            }
             stopMappingFn={stopMapping}
           />
         </div>
@@ -894,7 +966,9 @@ export const StartMappingPage = () => {
               >
                 <ToolTip
                   content={
-                    !hasDrawnAOI ? "Upload AOI" : "AOI already uploaded, delete to upload a new one"
+                    !hasDrawnAOI
+                      ? "Upload AOI"
+                      : "AOI already uploaded, delete to upload a new one"
                   }
                   placement={ToolTipPlacement.RIGHT}
                 >
@@ -903,14 +977,22 @@ export const StartMappingPage = () => {
                     onClick={openFileUploadDialog}
                     disabled={hasDrawnAOI}
                   >
-                    <FileUploadIcon className={`icon-lg transition-colors duration-200`} />
+                    <FileUploadIcon
+                      className={`icon-lg transition-colors duration-200`}
+                    />
                   </button>
                 </ToolTip>
               </div>
             )}
             <div className="absolute top-[10vh] right-4 z-[2] flex flex-col gap-y-4 items-end">
               <ZoomLevel />
-              <LayerControl layers={mapLayers} map={map} hasTileServiceLayer basemaps rounded />
+              <LayerControl
+                layers={mapLayers}
+                map={map}
+                hasTileServiceLayer
+                basemaps
+                rounded
+              />
             </div>
             <div className="absolute bottom-[30vh] flex flex-col gap-y-4 right-4 z-[1] items-end">
               <FitToBounds bounds={tileJSONMetadata?.bounds} map={map} />

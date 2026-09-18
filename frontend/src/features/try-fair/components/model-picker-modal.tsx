@@ -5,8 +5,6 @@ import { Button } from "@/components/ui/button";
 import { GlobeSearchIcon } from "@/components/ui/icons/globe-search-icon";
 import { ModelType } from "@/enums";
 import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
-import { useAuth } from "@/app/providers/auth-provider";
-import { DISABLE_AUTH_ON_TRY_FAIR } from "@/config";
 import { ImagerySource } from "@/features/try-fair/components/imagery/imagery-location-modal";
 import type { ImagerySelection } from "@/features/try-fair/types/imagery-types";
 import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
@@ -152,15 +150,9 @@ export const ModelPickerContent = ({
   recentImageries?: RecentImageryEntry[];
   onApplyRecentImagery?: (entry: RecentImageryEntry) => void;
 }) => {
-  const { isAuthenticated: _isAuthenticated } = useAuth();
-  const isAuthenticated = DISABLE_AUTH_ON_TRY_FAIR || _isAuthenticated;
   const { setChooseLocation } = useTryFairParams();
-  const {
-    setShowSigninModal,
-    setCurrentModelType,
-    currentModelType,
-    selectedImagery,
-  } = useStartMappingStore();
+  const { setCurrentModelType, currentModelType, selectedImagery } =
+    useStartMappingStore();
 
   // Active tab
   const [activeTab, setActiveTab] = useState<string>(TAB_SAMPLES);
@@ -256,9 +248,6 @@ export const ModelPickerContent = ({
       onChooseImagery();
     } else {
       setChooseLocation(true);
-      if (!isAuthenticated) {
-        setShowSigninModal(true);
-      }
     }
     onClose?.();
   };

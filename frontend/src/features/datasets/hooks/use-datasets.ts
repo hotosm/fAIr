@@ -20,7 +20,13 @@ export const useGetTrainingDatasetsV2 = (
   id?: number,
 ) => {
   return useQuery({
-    ...getTrainingDatasetsQueryOptionsV2(searchQuery, ordering, userId, offset, id),
+    ...getTrainingDatasetsQueryOptionsV2(
+      searchQuery,
+      ordering,
+      userId,
+      offset,
+      id,
+    ),
   });
 };
 

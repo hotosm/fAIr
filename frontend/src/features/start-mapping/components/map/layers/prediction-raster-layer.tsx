@@ -7,7 +7,11 @@ import {
 import { TileServiceType } from "@/enums";
 import { PredictionImagerySource } from "@/enums/start-mapping";
 import { useDynamicMapLayer } from "@/hooks/use-map-layer";
-import { Map, RasterLayerSpecification, RasterSourceSpecification } from "maplibre-gl";
+import {
+  Map,
+  RasterLayerSpecification,
+  RasterSourceSpecification,
+} from "maplibre-gl";
 import { useMemo } from "react";
 
 export const PredictionRasterLayer = ({

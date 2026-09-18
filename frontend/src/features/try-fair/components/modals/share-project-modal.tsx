@@ -16,12 +16,15 @@ export const ShareProjectModal: React.FC<ShareProjectModalProps> = ({
   closeDialog: externalCloseDialog,
 }) => {
   const storeIsOpened = useStartMappingStore((state) => state.showShareModal);
-  const storeSetIsOpened = useStartMappingStore((state) => state.setShowShareModal);
+  const storeSetIsOpened = useStartMappingStore(
+    (state) => state.setShowShareModal,
+  );
 
   const isOpened = externalIsOpened ?? storeIsOpened;
   const { copyToClipboard, isCopied } = useCopyToClipboard();
 
-  const currentUrl = typeof window !== "undefined" ? window.location.href : "";
+  const currentUrl =
+    typeof window !== "undefined" ? encodeURI(window.location.href) : "";
 
   const handleClose = () => {
     if (externalCloseDialog) {
@@ -38,7 +41,6 @@ export const ShareProjectModal: React.FC<ShareProjectModalProps> = ({
       noHeader
       borderRadius="rounded"
       size={SHOELACE_SIZES.SMALL}
-
     >
       <div className="flex flex-col p-1 sm:p-2 gap-5">
         {/* Header */}
@@ -91,8 +93,8 @@ export const ShareProjectModal: React.FC<ShareProjectModalProps> = ({
         <div className="flex items-start gap-2 text-grey">
           <InfoIcon className="size-3.5 shrink-0 mt-0.5" />
           <p className="text-xs leading-relaxed">
-            Anyone with this link can open the same session — model, imagery, resolution and
-            parameters will all be restored.
+            Anyone with this link can open the same session — model, imagery,
+            resolution and parameters will all be restored.
           </p>
         </div>
       </div>

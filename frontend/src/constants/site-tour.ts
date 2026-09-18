@@ -17,12 +17,14 @@ export const APP_TOUR_IDS = {
 export const APP_TOUR_STEPS = [
   {
     selector: `#${APP_TOUR_IDS.DRAW_TRAINING_AREA}`,
-    content: "Define a training area on the map. This area will be used for model training.",
+    content:
+      "Define a training area on the map. This area will be used for model training.",
     position: "top",
   },
   {
     selector: `#${APP_TOUR_IDS.TRAINING_AREA_TOOLS}`,
-    content: "Hover on each tool to see its function. Use the tools to modify the training area.",
+    content:
+      "Hover on each tool to see its function. Use the tools to modify the training area.",
   },
   {
     selector: `#${APP_TOUR_IDS.FETCH_OSM_DATA}`,
@@ -31,7 +33,8 @@ export const APP_TOUR_STEPS = [
   },
   {
     selector: `#${APP_TOUR_IDS.MORE_INFORMATION}`,
-    content: "Access additional options and details about the training area by clicking this icon.",
+    content:
+      "Access additional options and details about the training area by clicking this icon.",
   },
   {
     selector: `#${APP_TOUR_IDS.TUTORIAL_BUTTON}`,
@@ -51,7 +54,9 @@ const popoverStyle = (base: any) => ({
 /**
  * The guided "how it works" tour, launched from the Help button.
  */
-export const getTryFairGuidedTourSteps = (isSmallViewport: boolean): StepType[] => [
+export const getTryFairGuidedTourSteps = (
+  isSmallViewport: boolean,
+): StepType[] => [
   {
     selector: `#${APP_TOUR_IDS.TRY_FAIR_MAP_BUTTON_TOOLTIP}`,
     content: "Click Map to run a prediction over the highlighted grid.",
@@ -63,7 +68,8 @@ export const getTryFairGuidedTourSteps = (isSmallViewport: boolean): StepType[] 
   },
   {
     selector: `#${APP_TOUR_IDS.TRY_FAIR_PARAMETERS}`,
-    content: "Adjust confidence and resolution to explore how prediction output changes.",
+    content:
+      "Adjust confidence and resolution to explore how prediction output changes.",
     position: isSmallViewport ? "top" : "bottom",
     styles: {
       popover: popoverStyle,
@@ -81,7 +87,8 @@ export const getTryFairGuidedTourSteps = (isSmallViewport: boolean): StepType[] 
   },
   {
     selector: `#${APP_TOUR_IDS.TRY_FAIR_DOWNLOAD_PREDICTIONS_BUTTON}`,
-    content: "Click here to download prediction data generated from the output you selected.",
+    content:
+      "Click here to download prediction data generated from the output you selected.",
     position: isSmallViewport ? "top" : "bottom",
     styles: {
       popover: (base: any) => ({
@@ -95,7 +102,8 @@ export const getTryFairGuidedTourSteps = (isSmallViewport: boolean): StepType[] 
 
 export const getTryFairStartMappingStep = (): StepType => ({
   selector: `#${APP_TOUR_IDS.TRY_FAIR_START_MAPPING_BUTTON}`,
-  content: "Ready for full mapping? Click Start Mapping to access advanced tools.",
+  content:
+    "Ready for full mapping? Click Start Mapping to access advanced tools.",
   styles: {
     close: (base) => ({ ...base, right: 12, top: 12 }),
     maskWrapper: hideMask,

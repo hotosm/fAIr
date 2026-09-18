@@ -8,8 +8,15 @@ import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-st
 import { geoJSONDowloader } from "@/utils";
 
 export const StartMappingNavlinks: React.FC = () => {
-  const { setDownloadType, setShowSigninModal, setShowShareModal, predictions, outputType, predictionBBox, predictionGridZoom } =
-    useStartMappingStore();
+  const {
+    setDownloadType,
+    setShowSigninModal,
+    setShowShareModal,
+    predictions,
+    outputType,
+    predictionBBox,
+    predictionGridZoom,
+  } = useStartMappingStore();
   const hasPredictions = Boolean(predictions?.features?.length);
   const { setChooseLocation } = useTryFairParams();
   const { isAuthenticated } = useAuth();
@@ -23,7 +30,10 @@ export const StartMappingNavlinks: React.FC = () => {
         predictionBBox,
         predictionGridZoom,
       );
-      geoJSONDowloader(exportData, `fair-predictions-${outputType.toLowerCase()}`);
+      geoJSONDowloader(
+        exportData,
+        `fair-predictions-${outputType.toLowerCase()}`,
+      );
       return;
     }
     setDownloadType(value);
@@ -33,12 +43,11 @@ export const StartMappingNavlinks: React.FC = () => {
       {/* Help — text link */}
 
       {/* Download — icon button */}
-      <ToolTip content={
-        hasPredictions ?
-
-          "Download results" :
-          "Map to generate results"
-      }>
+      <ToolTip
+        content={
+          hasPredictions ? "Download results" : "Map to generate results"
+        }
+      >
         <button
           disabled={!hasPredictions}
           type="button"
@@ -59,17 +68,12 @@ export const StartMappingNavlinks: React.FC = () => {
         </button>
       </ToolTip>
 
-
-
       {/* Choose your own */}
       <ToolTip content="Change Imagery">
         <button
           type="button"
           onClick={() => {
             setChooseLocation(true);
-            if (!isAuthenticated) {
-              setShowSigninModal(true);
-            }
           }}
           className="bg-grey text-xs px-3 flex items-center text-white !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem]"
           aria-label="Choose a different location"
@@ -85,9 +89,9 @@ export const StartMappingNavlinks: React.FC = () => {
           onClick={() => {
             if (!isAuthenticated) {
               setShowSigninModal(true);
+            } else {
+              handleSelect("large-area");
             }
-            handleSelect("large-area")
-
           }}
           className="bg-dark text-xs px-3 flex items-center text-white !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem]"
           aria-label="Map a large area"
@@ -96,27 +100,27 @@ export const StartMappingNavlinks: React.FC = () => {
         </button>
       </ToolTip>
 
-      {
-        isAuthenticated && (
-          <ToolTip content="Map a large area">
-            <button
-              type="button"
-              onClick={() => {
-                if (!isAuthenticated) {
-                  setShowSigninModal(true);
-                }
-                handleSelect("large-area")
-
-              }}
-              className="bg-dark text-xs px-3 flex items-center text-white !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem]"
-              aria-label="Map a large area"
-            >
-              My Dashboard
-            </button>
-          </ToolTip>
-        )
-      }
-
+      {isAuthenticated ? (
+        <ToolTip content="Go to your dashboard">
+          <button
+            type="button"
+            className="bg-dark text-xs px-3 flex items-center text-white !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem]"
+            aria-label="Go to your dashboard"
+          >
+            My Dashboard
+          </button>
+        </ToolTip>
+      ) : (
+        <ToolTip content="Go to your dashboard">
+          <button
+            type="button"
+            className="bg-dark text-xs px-3 flex items-center text-white !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem]"
+            aria-label="Go to your dashboard"
+          >
+            Log in
+          </button>
+        </ToolTip>
+      )}
     </div>
   );
 };

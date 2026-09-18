@@ -75,12 +75,14 @@ export const ImagerySourceSelector = ({
   const [localTileServiceType, setLocalTileServiceType] =
     useState<TileServiceType>(tileServiceType);
 
-  const [localTileServerURL, setLocalTileServerURL] = useState<string>(tileServerURL);
+  const [localTileServerURL, setLocalTileServerURL] =
+    useState<string>(tileServerURL);
 
-  const [localTileServiceTypeValidity, setLocalTileServiceTypeValidity] = useState<{
-    valid: boolean;
-    message: string;
-  }>(tileServiceTypeValidity);
+  const [localTileServiceTypeValidity, setLocalTileServiceTypeValidity] =
+    useState<{
+      valid: boolean;
+      message: string;
+    }>(tileServiceTypeValidity);
   const PredictionImagerySourceURLs = useMemo(
     () => ({
       [PredictionImagerySource.CustomImagery]: localTileServerURL,
@@ -94,9 +96,12 @@ export const ImagerySourceSelector = ({
     setPredictionImagerySource(localPredictionImagerySource);
     setTileServiceType(localTileServiceType);
     setTileserverURL(
-      (PredictionImagerySourceURLs as Record<PredictionImagerySource, string | undefined>)[
-        localPredictionImagerySource
-      ] || "",
+      (
+        PredictionImagerySourceURLs as Record<
+          PredictionImagerySource,
+          string | undefined
+        >
+      )[localPredictionImagerySource] || "",
     );
     setTileServiceTypeValidity(localTileServiceTypeValidity);
     if (!loading) onDropdownHide();
@@ -134,7 +139,8 @@ export const ImagerySourceSelector = ({
         value={localPredictionImagerySource}
         withTooltip
       />
-      {localPredictionImagerySource === PredictionImagerySource.CustomImagery && (
+      {localPredictionImagerySource ===
+        PredictionImagerySource.CustomImagery && (
         <div className="flex flex-col gap-y-2 mt-2">
           <XYZTileServerInput
             tileServiceType={localTileServiceType}
@@ -147,7 +153,8 @@ export const ImagerySourceSelector = ({
           />
         </div>
       )}
-      {localPredictionImagerySource !== PredictionImagerySource.ModelDefault && (
+      {localPredictionImagerySource !==
+        PredictionImagerySource.ModelDefault && (
         <small className="text-xs text-grey">
           {START_MAPPING_PAGE_CONTENT.replicableModel.info}
         </small>
@@ -157,7 +164,8 @@ export const ImagerySourceSelector = ({
         <Button
           size={SHOELACE_SIZES.SMALL}
           disabled={
-            (localPredictionImagerySource === PredictionImagerySource.CustomImagery &&
+            (localPredictionImagerySource ===
+              PredictionImagerySource.CustomImagery &&
               !localTileServiceTypeValidity.valid) ||
             loading
           }

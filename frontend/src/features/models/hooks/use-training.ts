@@ -7,7 +7,10 @@ import {
   getTrainingWorkspaceQueryOptions,
 } from "../api/factory";
 
-export const useTrainingDetails = (id: number, refetchInterval: boolean | number = false) => {
+export const useTrainingDetails = (
+  id: number,
+  refetchInterval: boolean | number = false,
+) => {
   return useQuery({
     ...getTrainingDetailsQueryOptions(id),
     //@ts-expect-error bad type definition
@@ -29,7 +32,10 @@ export const useTrainingFeedbacks = (id: number) => {
     enabled: id !== null,
   });
 };
-export const useTrainingWorkspace = (trainingId: number, directory_name = "") => {
+export const useTrainingWorkspace = (
+  trainingId: number,
+  directory_name = "",
+) => {
   return useQuery({
     ...getTrainingWorkspaceQueryOptions(trainingId, directory_name),
     enabled: trainingId !== null,

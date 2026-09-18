@@ -31,7 +31,11 @@ const TrainingDetailsDialog: React.FC<TrainingDetailsDialogProps> = ({
 
   return (
     <>
-      <Dialog isOpened={isOpened} closeDialog={closeDialog} label={`Training ${trainingId}`}>
+      <Dialog
+        isOpened={isOpened}
+        closeDialog={closeDialog}
+        label={`Training ${trainingId}`}
+      >
         <ModelProperties trainingId={trainingId} isTrainingDetailsDialog />
       </Dialog>
     </>

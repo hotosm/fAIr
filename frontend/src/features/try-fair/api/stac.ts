@@ -68,7 +68,9 @@ export type InferenceParam = {
  * Reads keys prefixed with "inference." from mlm:hyperparameters, then pairs
  * each with its entry in fair:hyperparameters_spec for min / max / default.
  */
-export const getInferenceParams = (item: BaseModelStacItem): InferenceParam[] => {
+export const getInferenceParams = (
+  item: BaseModelStacItem,
+): InferenceParam[] => {
   const hyper = item.properties["mlm:hyperparameters"];
   const specs = item.properties["fair:hyperparameters_spec"] ?? [];
 
@@ -78,7 +80,9 @@ export const getInferenceParams = (item: BaseModelStacItem): InferenceParam[] =>
       const paramKey = k.replace("inference.", "");
       const spec = specs.find((s) => s.key === paramKey);
       if (!spec) return [];
-      return [{ key: paramKey, value: value as number | string | boolean, spec }];
+      return [
+        { key: paramKey, value: value as number | string | boolean, spec },
+      ];
     });
 };
 
@@ -94,9 +98,11 @@ export type PredictPayload = {
 export const runPredict = async (
   inferenceEndpoint: string,
   payload: PredictPayload,
+  signal?: AbortSignal,
 ): Promise<GeoJSON.FeatureCollection> => {
   const { data } = await axios.post(inferenceEndpoint, payload, {
     timeout: 300_000,
+    signal,
   });
   return data;
 };

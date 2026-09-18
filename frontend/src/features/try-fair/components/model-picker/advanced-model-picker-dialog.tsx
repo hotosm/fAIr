@@ -1,5 +1,8 @@
 import { useState, useMemo } from "react";
-import { useGetAPIBaseModels, useGetAPILocalModels } from "@/features/try-fair/api/features-to-map";
+import {
+  useGetAPIBaseModels,
+  useGetAPILocalModels,
+} from "@/features/try-fair/api/features-to-map";
 import type { APIBaseModelItem } from "@/features/try-fair/api/features-to-map";
 import { RadioDot } from "@/features/try-fair/components/model-picker/model-picker-badges";
 import { SearchIcon } from "@/components/ui/icons/search-icon";
@@ -44,9 +47,11 @@ export const AdvancedModelPicker: React.FC<AdvancedModelPickerProps> = ({
       >
         <span className="text-dark text-sm font-medium truncate">
           {loading ? (
-            <span className="text-grey text-xs animate-pulse">Loading models…</span>
+            <span className="text-grey text-xs animate-pulse">
+              Loading models…
+            </span>
           ) : (
-            selectedModel?.properties.title ?? "Select a model"
+            (selectedModel?.properties.title ?? "Select a model")
           )}
         </span>
         <ChevronDownIcon className="size-4 text-grey shrink-0" />
@@ -73,21 +78,21 @@ export const AdvancedModelPickerContent = ({
   const { onDropdownHide, dropdownRef } = useDropdownMenu();
   const { selectedModelId, setSelectedModelId } = useTryFairParams();
 
-
-  const { data: baseModelsData, isLoading: baseLoading } = useGetAPIBaseModels(feature);
-  const { data: localModelsData, isLoading: localLoading } = useGetAPILocalModels(feature);
+  const { data: baseModelsData, isLoading: baseLoading } =
+    useGetAPIBaseModels(feature);
+  const { data: localModelsData, isLoading: localLoading } =
+    useGetAPILocalModels(feature);
 
   const models = useMemo(() => {
-    const raw = source === "base"
-      ? (baseModelsData?.results ?? [])
-      : (localModelsData?.results ?? []);
+    const raw =
+      source === "base"
+        ? (baseModelsData?.results ?? [])
+        : (localModelsData?.results ?? []);
 
     if (!search.trim()) return raw;
     const q = search.toLowerCase();
     return raw.filter(
-      (m) =>
-        m.name.toLowerCase().includes(q) ||
-        String(m.id).includes(q),
+      (m) => m.name.toLowerCase().includes(q) || String(m.id).includes(q),
     );
   }, [source, baseModelsData, localModelsData, search]);
 
@@ -144,22 +149,22 @@ export const AdvancedModelPickerContent = ({
           }
         >
           <div className="bg-white rounded-lg p-1 min-w-[140px]">
-            {(Object.entries(MODEL_SOURCE_LABELS) as [ModelSource, string][]).map(
-              ([key, label]) => (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => {
-                    setSource(key);
-                    setPage(0);
-                    onDropdownHide();
-                  }}
-                  className="w-full text-left px-3 py-2 text-sm text-dark rounded-md hover:bg-light-gray transition-colors"
-                >
-                  {label}
-                </button>
-              ),
-            )}
+            {(
+              Object.entries(MODEL_SOURCE_LABELS) as [ModelSource, string][]
+            ).map(([key, label]) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => {
+                  setSource(key);
+                  setPage(0);
+                  onDropdownHide();
+                }}
+                className="w-full text-left px-3 py-2 text-sm text-dark rounded-md hover:bg-light-gray transition-colors"
+              >
+                {label}
+              </button>
+            ))}
           </div>
         </DropDown>
 
@@ -197,7 +202,9 @@ export const AdvancedModelPickerContent = ({
         </div>
       ) : models.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-center">
-          <p className="text-dark font-semibold text-sm mb-1">No models found</p>
+          <p className="text-dark font-semibold text-sm mb-1">
+            No models found
+          </p>
           <p className="text-grey text-xs max-w-xs">
             {search
               ? "Try a different search term."
@@ -214,9 +221,7 @@ export const AdvancedModelPickerContent = ({
                 type="button"
                 onClick={() => handleSelectModel(model)}
                 className={`text-left p-3 bg-frosted-blue min-h-[98px] rounded-lg border transition-colors ${
-                  isSelected
-                    ? "border-primary border-2 "
-                    : ""
+                  isSelected ? "border-primary border-2 " : ""
                 }`}
               >
                 <div className="flex items-start justify-between gap-2 mb-2">
@@ -230,7 +235,7 @@ export const AdvancedModelPickerContent = ({
                 </div>
                 <div className="flex items-center justify-between mt-3">
                   <div className="flex items-center gap-1 text-grey text-xs">
-                  <StarredIcon />
+                    <StarredIcon />
                     <span>({model.star_count})</span>
                   </div>
                   {/* <span className="text-dark underline text-xs font-medium">

@@ -1,5 +1,9 @@
 import { queryOptions } from "@tanstack/react-query";
-import { getDatasetsMapData, getTrainingDataset, getTrainingDatasetsV2 } from "./get-datasets";
+import {
+  getDatasetsMapData,
+  getTrainingDataset,
+  getTrainingDatasetsV2,
+} from "./get-datasets";
 
 export const getTrainingDatasetQueryOptions = (id: number) => {
   return queryOptions({
@@ -16,8 +20,16 @@ export const getTrainingDatasetsQueryOptionsV2 = (
   id?: number,
 ) => {
   return queryOptions({
-    queryKey: ["training-datasets-v2", searchQuery, ordering, userId, offset, id],
-    queryFn: () => getTrainingDatasetsV2(searchQuery, ordering, userId, offset, id),
+    queryKey: [
+      "training-datasets-v2",
+      searchQuery,
+      ordering,
+      userId,
+      offset,
+      id,
+    ],
+    queryFn: () =>
+      getTrainingDatasetsV2(searchQuery, ordering, userId, offset, id),
   });
 };
 

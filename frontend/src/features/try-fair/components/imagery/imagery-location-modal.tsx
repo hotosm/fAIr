@@ -131,17 +131,14 @@ export const ImageryLocationDialog = ({
       {isOpened && (
         <div className="flex flex-col gap-4">
           {onBackToModelPicker && (
-
             <button
               type="button"
               onClick={onBackToModelPicker}
               className="text-primary mt-1 mb-3 flex items-center gap-1 text-sm font-medium"
             >
               <ChevronDownIcon className="size-3 rotate-90" />
-              Back 
+              Back
             </button>
-
-
           )}
           <p className="text-grey text-sm w-full md:w-1/2 -mt-6 shrink-0">
             Select an imagery source to preview and map your location. You can

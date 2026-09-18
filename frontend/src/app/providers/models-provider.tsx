@@ -5,11 +5,21 @@ import {
   MODELS_ROUTES,
   TOAST_NOTIFICATIONS,
 } from "@/constants";
-import { BASE_MODELS, TileServiceType, TrainingDatasetOption, TrainingType } from "@/enums";
+import {
+  BASE_MODELS,
+  TileServiceType,
+  TrainingDatasetOption,
+  TrainingType,
+} from "@/enums";
 import { HOT_FAIR_MODEL_CREATION_LOCAL_STORAGE_KEY } from "@/config";
 import { LngLatBoundsLike } from "maplibre-gl";
 
-import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import {
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 import { useModelDetails } from "@/features/models/hooks/use-models";
 import { UseMutationResult } from "@tanstack/react-query";
 import { useLocalStorage } from "@/hooks/use-storage";
@@ -165,7 +175,8 @@ const initialFormState: FormData = {
   [MODEL_CREATION_FORM_NAME.MODEL_NAME]: "",
   [MODEL_CREATION_FORM_NAME.MODEL_DESCRIPTION]: "",
   [MODEL_CREATION_FORM_NAME.BASE_MODELS]: BASE_MODELS.RAMP,
-  [MODEL_CREATION_FORM_NAME.TRAINING_DATASET_OPTION]: TrainingDatasetOption.USE_EXISTING,
+  [MODEL_CREATION_FORM_NAME.TRAINING_DATASET_OPTION]:
+    TrainingDatasetOption.USE_EXISTING,
   // create new dataset form
   [MODEL_CREATION_FORM_NAME.DATASET_NAME]: "",
   [MODEL_CREATION_FORM_NAME.TMS_URL]: "",
@@ -254,7 +265,9 @@ export const ModelsProvider: React.FC<{
    */
   const datasetId = searchParams.get(DatasetURLParams.DATASET_ID);
   const datasetName = searchParams.get(DatasetURLParams.DATASET_NAME);
-  const datasetSourceImagery = searchParams.get(DatasetURLParams.DATASET_SOURCE_IMAGERY);
+  const datasetSourceImagery = searchParams.get(
+    DatasetURLParams.DATASET_SOURCE_IMAGERY,
+  );
   const { setValue, removeValue, getValue } = useLocalStorage();
   const storedFormData = getValue(HOT_FAIR_MODEL_CREATION_LOCAL_STORAGE_KEY);
   const [formData, setFormData] = useState<typeof initialFormState>(
@@ -274,7 +287,10 @@ export const ModelsProvider: React.FC<{
   ) => {
     setFormData((prev) => {
       const updatedData = { ...prev, [field]: value };
-      setValue(HOT_FAIR_MODEL_CREATION_LOCAL_STORAGE_KEY, JSON.stringify(updatedData));
+      setValue(
+        HOT_FAIR_MODEL_CREATION_LOCAL_STORAGE_KEY,
+        JSON.stringify(updatedData),
+      );
       return updatedData;
     });
   };
@@ -295,7 +311,8 @@ export const ModelsProvider: React.FC<{
   const isModelOwner = isAuthenticated && data?.user?.osm_id === user?.osm_id;
 
   // Will be used in the route validator component to delay the redirection for a while until the data are retrieved
-  const validateEditMode = formData.selectedTrainingDatasetId !== "" && formData.tmsURL !== "";
+  const validateEditMode =
+    formData.selectedTrainingDatasetId !== "" && formData.tmsURL !== "";
 
   useEffect(() => {
     if (isError && error) {
@@ -321,7 +338,10 @@ export const ModelsProvider: React.FC<{
   // Prefill dataset id if available in the URL.
   useEffect(() => {
     if (datasetId && datasetName && datasetSourceImagery) {
-      handleChange(MODEL_CREATION_FORM_NAME.SELECTED_TRAINING_DATASET_ID, datasetId);
+      handleChange(
+        MODEL_CREATION_FORM_NAME.SELECTED_TRAINING_DATASET_ID,
+        datasetId,
+      );
       handleChange(MODEL_CREATION_FORM_NAME.DATASET_NAME, datasetName);
       handleChange(MODEL_CREATION_FORM_NAME.TMS_URL, datasetSourceImagery);
     }
@@ -338,11 +358,23 @@ export const ModelsProvider: React.FC<{
     if (!isEditMode || isPending || !data || isError) return;
 
     handleChange(MODEL_CREATION_FORM_NAME.BASE_MODELS, data.base_model);
-    handleChange(MODEL_CREATION_FORM_NAME.MODEL_DESCRIPTION, data.description ?? "");
+    handleChange(
+      MODEL_CREATION_FORM_NAME.MODEL_DESCRIPTION,
+      data.description ?? "",
+    );
     handleChange(MODEL_CREATION_FORM_NAME.MODEL_NAME, data.name ?? "");
-    handleChange(MODEL_CREATION_FORM_NAME.SELECTED_TRAINING_DATASET_ID, data.dataset.id);
-    handleChange(MODEL_CREATION_FORM_NAME.DATASET_NAME, data.dataset.name ?? "");
-    handleChange(MODEL_CREATION_FORM_NAME.TMS_URL, data.dataset.source_imagery ?? "");
+    handleChange(
+      MODEL_CREATION_FORM_NAME.SELECTED_TRAINING_DATASET_ID,
+      data.dataset.id,
+    );
+    handleChange(
+      MODEL_CREATION_FORM_NAME.DATASET_NAME,
+      data.dataset.name ?? "",
+    );
+    handleChange(
+      MODEL_CREATION_FORM_NAME.TMS_URL,
+      data.dataset.source_imagery ?? "",
+    );
     handleChange(
       MODEL_CREATION_FORM_NAME.TILESERVICE_TYPE,
       getTileServerTypeFromURL(data.dataset.source_imagery ?? ""),
@@ -452,7 +484,9 @@ export const ModelsProvider: React.FC<{
   const hasAOIsWithGeometry = useMemo(
     () =>
       formData.trainingAreas.length > 0 &&
-      formData.trainingAreas.every((aoi: TTrainingAreaFeature) => aoi.geometry !== null),
+      formData.trainingAreas.every(
+        (aoi: TTrainingAreaFeature) => aoi.geometry !== null,
+      ),
     [formData],
   );
 
@@ -529,7 +563,11 @@ export const ModelsProvider: React.FC<{
     ],
   );
 
-  return <ModelsContext.Provider value={memoizedValues}>{children}</ModelsContext.Provider>;
+  return (
+    <ModelsContext.Provider value={memoizedValues}>
+      {children}
+    </ModelsContext.Provider>
+  );
 };
 
 export const useModelsContext = () => useContext(ModelsContext);

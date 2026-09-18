@@ -22,6 +22,11 @@ export const TryFairChoroplethLegend = ({
   }));
 
   return (
-    <Legend position="bottom-right" title={title} subtitle="Buildings per cell" items={items} />
+    <Legend
+      position="bottom-right"
+      title={title}
+      subtitle="Buildings per cell"
+      items={items}
+    />
   );
 };

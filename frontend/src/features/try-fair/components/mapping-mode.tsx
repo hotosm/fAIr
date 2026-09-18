@@ -5,7 +5,10 @@ import { FeatureCheckIcon } from "@/components/ui/icons/feature-check-icon";
 import { DropDown } from "@/components/ui/dropdown";
 import { DropdownPlacement } from "@/enums";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
-import { useTryFairParams, type MappingModeType } from "@/features/try-fair/hooks/use-try-fair-params";
+import {
+  useTryFairParams,
+  type MappingModeType,
+} from "@/features/try-fair/hooks/use-try-fair-params";
 
 const MODES = {
   basic: { label: "Basic", Icon: ModeIcon },

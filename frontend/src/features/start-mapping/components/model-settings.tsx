@@ -11,7 +11,12 @@ import { SettingsIcon } from "@/components/ui/icons";
 import { ToolTip } from "@/components/ui/tooltip";
 import { START_MAPPING_PAGE_CONTENT } from "@/constants";
 
-import { DropdownPlacement, INPUT_TYPES, SHOELACE_SELECT_SIZES, SHOELACE_SIZES } from "@/enums";
+import {
+  DropdownPlacement,
+  INPUT_TYPES,
+  SHOELACE_SELECT_SIZES,
+  SHOELACE_SIZES,
+} from "@/enums";
 import { useEffect, useState } from "react";
 
 const confidenceLevels = [
@@ -50,7 +55,8 @@ export const ModelSettings = ({
 
   const [toleranceValidity, setToleranceValidity] = useState<boolean>(true);
   const [areaValidity, setAreaValidity] = useState<boolean>(true);
-  const [skewToleranceValidity, setSkewToleranceValidity] = useState<boolean>(true);
+  const [skewToleranceValidity, setSkewToleranceValidity] =
+    useState<boolean>(true);
   const [maxAngleValidity, setMaxAngleValidity] = useState<boolean>(true);
 
   /**
@@ -70,7 +76,12 @@ export const ModelSettings = ({
     if (!maxAngleValidity) {
       handleQueryUpdate(SEARCH_PARAMS.area, 0);
     }
-  }, [toleranceValidity, areaValidity, maxAngleValidity, skewToleranceValidity]);
+  }, [
+    toleranceValidity,
+    areaValidity,
+    maxAngleValidity,
+    skewToleranceValidity,
+  ]);
 
   const modelSettings = (
     <div className="flex flex-col bg-white p-3 justify-between rounded-xl flex-wrap gap-y-4">
@@ -78,13 +89,18 @@ export const ModelSettings = ({
         <FormLabel
           label={START_MAPPING_PAGE_CONTENT.settings.orthogonalize.label}
           withTooltip
-          toolTipContent={START_MAPPING_PAGE_CONTENT.settings.orthogonalize.tooltip}
+          toolTipContent={
+            START_MAPPING_PAGE_CONTENT.settings.orthogonalize.tooltip
+          }
           position="left"
         />
         <Switch
           checked={query[SEARCH_PARAMS.orthogonalize] as boolean}
           handleSwitchChange={(event) => {
-            handleQueryUpdate(SEARCH_PARAMS.orthogonalize, event.target.checked);
+            handleQueryUpdate(
+              SEARCH_PARAMS.orthogonalize,
+              event.target.checked,
+            );
           }}
         />
       </div>
@@ -92,7 +108,9 @@ export const ModelSettings = ({
         <FormLabel
           label={START_MAPPING_PAGE_CONTENT.settings.skewTolerance.label}
           withTooltip
-          toolTipContent={START_MAPPING_PAGE_CONTENT.settings.skewTolerance.tooltip}
+          toolTipContent={
+            START_MAPPING_PAGE_CONTENT.settings.skewTolerance.tooltip
+          }
           position="left"
         />
         <Input
@@ -103,7 +121,10 @@ export const ModelSettings = ({
           type={INPUT_TYPES.NUMBER}
           showBorder
           handleInput={(event) =>
-            handleQueryUpdate(SEARCH_PARAMS.skewTolerance, Number(event.target.value))
+            handleQueryUpdate(
+              SEARCH_PARAMS.skewTolerance,
+              Number(event.target.value),
+            )
           }
           min={0}
           step={5}
@@ -117,7 +138,9 @@ export const ModelSettings = ({
         <FormLabel
           label={START_MAPPING_PAGE_CONTENT.settings.maxAngleChange.label}
           withTooltip
-          toolTipContent={START_MAPPING_PAGE_CONTENT.settings.maxAngleChange.tooltip}
+          toolTipContent={
+            START_MAPPING_PAGE_CONTENT.settings.maxAngleChange.tooltip
+          }
           position="left"
         />
         <Input
@@ -128,7 +151,10 @@ export const ModelSettings = ({
           type={INPUT_TYPES.NUMBER}
           showBorder
           handleInput={(event) =>
-            handleQueryUpdate(SEARCH_PARAMS.maxAngleChange, Number(event.target.value))
+            handleQueryUpdate(
+              SEARCH_PARAMS.maxAngleChange,
+              Number(event.target.value),
+            )
           }
           min={0}
           step={5}
@@ -142,7 +168,9 @@ export const ModelSettings = ({
         <FormLabel
           label={START_MAPPING_PAGE_CONTENT.settings.confidence.label}
           withTooltip
-          toolTipContent={START_MAPPING_PAGE_CONTENT.settings.confidence.tooltip}
+          toolTipContent={
+            START_MAPPING_PAGE_CONTENT.settings.confidence.tooltip
+          }
           position="left"
         />
         <Select
@@ -170,7 +198,10 @@ export const ModelSettings = ({
           type={INPUT_TYPES.NUMBER}
           showBorder
           handleInput={(event) =>
-            handleQueryUpdate(SEARCH_PARAMS.tolerance, Number(event.target.value))
+            handleQueryUpdate(
+              SEARCH_PARAMS.tolerance,
+              Number(event.target.value),
+            )
           }
           validationStateUpdateCallback={(validity) => {
             setToleranceValidity(validity.valid);
@@ -194,7 +225,9 @@ export const ModelSettings = ({
           labelWithTooltip
           type={INPUT_TYPES.NUMBER}
           showBorder
-          handleInput={(event) => handleQueryUpdate(SEARCH_PARAMS.area, Number(event.target.value))}
+          handleInput={(event) =>
+            handleQueryUpdate(SEARCH_PARAMS.area, Number(event.target.value))
+          }
           min={0}
           max={MAXIMUM_PREDICTION_AREA}
           validationStateUpdateCallback={(validity) => {

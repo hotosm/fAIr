@@ -17,7 +17,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   const handleLogin = () => {
     if (AUTH_PROVIDER === "hanko") {
-      const returnTo = `${FRONTEND_URL}${location.pathname}${location.search}`;
+      const returnTo = `${FRONTEND_URL}${location.pathname}${location.search}${location.hash}`;
       window.location.href = `${HANKO_URL}/app?return_to=${encodeURIComponent(returnTo)}`;
     } else {
       /*

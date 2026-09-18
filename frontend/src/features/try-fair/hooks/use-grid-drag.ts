@@ -1,4 +1,10 @@
-import { PointerEvent as ReactPointerEvent, RefObject, useEffect, useRef, useState } from "react";
+import {
+  PointerEvent as ReactPointerEvent,
+  RefObject,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { Map } from "maplibre-gl";
 import {
   TileAnchor,
@@ -86,8 +92,15 @@ export const useGridDrag = ({
     if (!container) return;
 
     const containerRect = container.getBoundingClientRect();
-    const lngLat = map.unproject([e.clientX - containerRect.left, e.clientY - containerRect.top]);
-    const { tileX, tileY } = lngLatToTileCoords(lngLat.lat, lngLat.lng, anchor.z);
+    const lngLat = map.unproject([
+      e.clientX - containerRect.left,
+      e.clientY - containerRect.top,
+    ]);
+    const { tileX, tileY } = lngLatToTileCoords(
+      lngLat.lat,
+      lngLat.lng,
+      anchor.z,
+    );
 
     // Save drag-start state in refs.
     dragStartAnchorRef.current = anchor;
@@ -123,7 +136,11 @@ export const useGridDrag = ({
         clientX - containerRect.left,
         clientY - containerRect.top,
       ]);
-      const { tileX, tileY } = lngLatToTileCoords(lngLat.lat, lngLat.lng, startAnchor.z);
+      const { tileX, tileY } = lngLatToTileCoords(
+        lngLat.lat,
+        lngLat.lng,
+        startAnchor.z,
+      );
 
       const tileDeltaX = tileX - startTile.x;
       const tileDeltaY = tileY - startTile.y;
@@ -171,7 +188,11 @@ export const useGridDrag = ({
 
       // Restore map interactions.
       const currentMap = mapRef.current;
-      if (dragPanWasEnabledRef.current && currentMap?.dragPan && !currentMap.dragPan.isEnabled()) {
+      if (
+        dragPanWasEnabledRef.current &&
+        currentMap?.dragPan &&
+        !currentMap.dragPan.isEnabled()
+      ) {
         currentMap.dragPan.enable();
       }
 
@@ -182,7 +203,9 @@ export const useGridDrag = ({
       }
 
       // Snap anchor to the nearest integer tile boundary on release.
-      setAnchorRef.current((prev) => (prev ? snapAnchorToTileBoundary(prev) : prev));
+      setAnchorRef.current((prev) =>
+        prev ? snapAnchorToTileBoundary(prev) : prev,
+      );
 
       // Reset drag state.
       dragStartAnchorRef.current = null;

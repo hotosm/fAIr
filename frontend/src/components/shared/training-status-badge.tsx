@@ -12,7 +12,9 @@ export const TrainingStatusBadge = ({ status }: { status: string }) => {
   };
 
   return (
-    <Badge variant={statusToVariant[status.toLocaleLowerCase()] as TBadgeVariants}>
+    <Badge
+      variant={statusToVariant[status.toLocaleLowerCase()] as TBadgeVariants}
+    >
       {status.toLocaleLowerCase() as string}
     </Badge>
   );

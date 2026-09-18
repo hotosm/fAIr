@@ -1,11 +1,17 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createModel, TCreateModelArgs } from "@/features/model-creation/api/create-models";
+import {
+  createModel,
+  TCreateModelArgs,
+} from "@/features/model-creation/api/create-models";
 import { MutationConfig, QUERY_KEYS } from "@/services";
 import {
   createTrainingRequest,
   TCreateTrainingRequestArgs,
 } from "@/features/model-creation/api/create-trainings";
-import { TUpdateModelArgs, updateModel } from "@/features/model-creation/api/update-models";
+import {
+  TUpdateModelArgs,
+  updateModel,
+} from "@/features/model-creation/api/update-models";
 
 type useCreateModelOptions = {
   mutationConfig?: MutationConfig<typeof createModel>;
@@ -33,7 +39,8 @@ export const useCreateModelTrainingRequest = ({
   const { onSuccess, ...restConfig } = mutationConfig || {};
 
   return useMutation({
-    mutationFn: (args: TCreateTrainingRequestArgs) => createTrainingRequest(args),
+    mutationFn: (args: TCreateTrainingRequestArgs) =>
+      createTrainingRequest(args),
     onSuccess: (...args) => {
       onSuccess?.(...args);
     },
@@ -46,7 +53,10 @@ type useUpdateModelOptions = {
   modelId: string;
 };
 
-export const useUpdateModel = ({ mutationConfig, modelId }: useUpdateModelOptions) => {
+export const useUpdateModel = ({
+  mutationConfig,
+  modelId,
+}: useUpdateModelOptions) => {
   const queryClient = useQueryClient();
   const { onSuccess, ...restConfig } = mutationConfig || {};
 

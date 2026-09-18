@@ -41,8 +41,9 @@ export const OrderingFilter: React.FC<OrderingFilterProps> = ({
 }) => {
   const onSortSelect = (selectedItem: string) => {
     updateQuery({
-      [SEARCH_PARAMS.ordering]: ORDERING_FIELDS.find((v) => v.value === selectedItem)
-        ?.apiValue as string,
+      [SEARCH_PARAMS.ordering]: ORDERING_FIELDS.find(
+        (v) => v.value === selectedItem,
+      )?.apiValue as string,
     });
   };
 
@@ -55,11 +56,16 @@ export const OrderingFilter: React.FC<OrderingFilterProps> = ({
           disabled={disabled}
           withCheckbox
           defaultSelectedItem={
-            ORDERING_FIELDS.find((v) => v.apiValue === query[SEARCH_PARAMS.ordering])?.value
+            ORDERING_FIELDS.find(
+              (v) => v.apiValue === query[SEARCH_PARAMS.ordering],
+            )?.value
           }
           triggerComponent={
             <p className="text-xs md:text-sm text-dark text-nowrap">
-              {MODELS_CONTENT.models.modelsList.sortingAndPaginationSection.sortingTitle}
+              {
+                MODELS_CONTENT.models.modelsList.sortingAndPaginationSection
+                  .sortingTitle
+              }
             </p>
           }
         ></DropDown>
@@ -74,7 +80,9 @@ export const OrderingFilter: React.FC<OrderingFilterProps> = ({
       // @ts-expect-error bad type definition
       onCheck={onSortSelect}
       defaultSelectedOption={
-        ORDERING_FIELDS.find((v) => v.apiValue === query[SEARCH_PARAMS.ordering])?.value
+        ORDERING_FIELDS.find(
+          (v) => v.apiValue === query[SEARCH_PARAMS.ordering],
+        )?.value
       }
     ></CheckboxGroup>
   );

@@ -3,7 +3,12 @@ import { BrandLogoWithDropDown } from "@/features/start-mapping/components/heade
 import { ButtonWithIcon } from "@/components/ui/button";
 import { ChevronDownIcon } from "@/components/ui/icons";
 import { DropDown } from "@/components/ui/dropdown";
-import { ButtonVariant, DropdownPlacement, SHOELACE_SIZES, TileServiceType } from "@/enums";
+import {
+  ButtonVariant,
+  DropdownPlacement,
+  SHOELACE_SIZES,
+  TileServiceType,
+} from "@/enums";
 import { ELEMENT_DISTANCE_FROM_NAVBAR } from "@/config";
 import { Map } from "maplibre-gl";
 import { ModelPredictionsTracker } from "@/features/start-mapping/components/header/model-predictions-tracker";
@@ -70,7 +75,9 @@ const StartMappingHeader = memo(
     predictionModelCheckpoint: string;
     setPredictionModelCheckpoint: React.Dispatch<React.SetStateAction<string>>;
     customPredictionModelCheckpointPath: string;
-    setCustomPredictionModelCheckpointPath: React.Dispatch<React.SetStateAction<string>>;
+    setCustomPredictionModelCheckpointPath: React.Dispatch<
+      React.SetStateAction<string>
+    >;
     tileServerURL: string;
     tileServiceType: TileServiceType;
     tileServiceTypeValidity: {
@@ -111,8 +118,12 @@ const StartMappingHeader = memo(
                   setPredictionModelCheckpoint={setPredictionModelCheckpoint}
                   predictionModel={predictionModel}
                   predictionModelCheckpoint={predictionModelCheckpoint}
-                  customPredictionModelCheckpointPath={customPredictionModelCheckpointPath}
-                  setCustomPredictionModelCheckpointPath={setCustomPredictionModelCheckpointPath}
+                  customPredictionModelCheckpointPath={
+                    customPredictionModelCheckpointPath
+                  }
+                  setCustomPredictionModelCheckpointPath={
+                    setCustomPredictionModelCheckpointPath
+                  }
                   isSmallViewport={isSmallViewport}
                 />
                 <div className="hidden lg:inline-block">
@@ -156,13 +167,17 @@ const StartMappingHeader = memo(
                     <ToolTip
                       content={
                         !modelPredictionsExist
-                          ? START_MAPPING_PAGE_CONTENT.actions.disabledModeTooltip("see actions")
+                          ? START_MAPPING_PAGE_CONTENT.actions.disabledModeTooltip(
+                              "see actions",
+                            )
                           : null
                       }
                     >
                       <ButtonWithIcon
                         suffixIcon={ChevronDownIcon}
-                        label={START_MAPPING_PAGE_CONTENT.buttons.download.label}
+                        label={
+                          START_MAPPING_PAGE_CONTENT.buttons.download.label
+                        }
                         size={SHOELACE_SIZES.SMALL}
                         textClassName="text-body-4"
                         variant={ButtonVariant.SECONDARY}
@@ -179,12 +194,16 @@ const StartMappingHeader = memo(
                 modelInfo={modelInfo}
                 tileServerURL={tileServerURL}
                 predictionModelCheckpoint={predictionModelCheckpoint}
-                customPredictionModelCheckpointPath={customPredictionModelCheckpointPath}
+                customPredictionModelCheckpointPath={
+                  customPredictionModelCheckpointPath
+                }
                 setModelPredictions={setModelPredictions}
                 modelPredictions={modelPredictions}
                 isOfflineMode={isOfflineMode}
                 hasDrawnAOI={hasDrawnAOI}
-                openOfflinePredictionRequestDialog={openOfflinePredictionRequestDialog}
+                openOfflinePredictionRequestDialog={
+                  openOfflinePredictionRequestDialog
+                }
               />
               <UserProfile hideFullName smallerSize />
             </div>

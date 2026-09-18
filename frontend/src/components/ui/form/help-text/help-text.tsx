@@ -6,7 +6,12 @@ type HelptextProps = {
   helpTextClassName?: string;
 };
 
-const HelpText: React.FC<HelptextProps> = ({ content, isValid, currentLength, children }) => {
+const HelpText: React.FC<HelptextProps> = ({
+  content,
+  isValid,
+  currentLength,
+  children,
+}) => {
   return (
     <p
       className={` font-medium text-xs text-grey text-wrap ${isValid !== undefined && currentLength && currentLength > 0 && !isValid && "text-primary"}`}

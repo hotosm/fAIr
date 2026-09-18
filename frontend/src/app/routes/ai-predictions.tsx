@@ -10,7 +10,10 @@ import { MapSwipeProjectResultMapDrawer } from "@/features/mapswipe/components/p
 
 import PageHeader from "@/features/models/components/header";
 import { MapswipeProjectStatusDialog } from "@/features/mapswipe/components/project-status-dialog";
-import { useScrollToElement, useScrollToTop } from "@/hooks/use-scroll-to-element";
+import {
+  useScrollToElement,
+  useScrollToTop,
+} from "@/hooks/use-scroll-to-element";
 import { LayoutView } from "@/enums";
 import { AIPredictionsListLayout } from "@/features/ai-predictions/components/ai-predictions-table";
 import { Spinner } from "@/components/ui/spinner";
@@ -46,7 +49,9 @@ export const AIPredictionsPage = () => {
     openDialog: openMapSwipeProjectStatusDialog,
     closeDialog: closeMapSwipeProjectStatusDialog,
   } = useDialog();
-  const [mapSwipeResultsPmtiles, setMapSwipeResultsPmtiles] = useState<string | null>(null);
+  const [mapSwipeResultsPmtiles, setMapSwipeResultsPmtiles] = useState<
+    string | null
+  >(null);
 
   const {
     isOpened: isMapSwipeProjectResultMapOpened,
@@ -70,7 +75,8 @@ export const AIPredictionsPage = () => {
     setMapSwipeResultsPmtiles(null);
     openMapSwipeProjectStatusDialog();
   };
-  const [activePrediction, setActivePrediction] = useState<TOfflinePrediction | null>(null);
+  const [activePrediction, setActivePrediction] =
+    useState<TOfflinePrediction | null>(null);
 
   const {
     isOpened: isPredictionResultOpened,
@@ -113,7 +119,10 @@ export const AIPredictionsPage = () => {
             />
           </div>
           <div className="row-start-1" id={mapViewElementId}>
-            {isMapDataPending || isMapDataError || !mapData || mapData.features.length === 0 ? (
+            {isMapDataPending ||
+            isMapDataError ||
+            !mapData ||
+            mapData.features.length === 0 ? (
               <div className="w-full h-full animate-pulse bg-light-gray flex items-center justify-center">
                 <Spinner />
               </div>
@@ -177,7 +186,9 @@ export const AIPredictionsPage = () => {
           isOpen={isMapswipeDialogOpen}
           onClose={closeMapSwipeProjectStatusDialog}
           mapSwipeProjectId={activePrediction.mapswipe_id ?? ""}
-          handleMapSwipeProjectResultMapModal={handleMapSwipeProjectResultMapModal}
+          handleMapSwipeProjectResultMapModal={
+            handleMapSwipeProjectResultMapModal
+          }
         />
       )}
 

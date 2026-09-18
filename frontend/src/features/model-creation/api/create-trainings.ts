@@ -1,6 +1,10 @@
 import { API_ENDPOINTS, apiClient } from "@/services";
 
-import { TTrainingAreaFeature, TTrainingDataset, TTrainingDetails } from "@/types";
+import {
+  TTrainingAreaFeature,
+  TTrainingDataset,
+  TTrainingDetails,
+} from "@/types";
 
 export type TCreateTrainingDatasetArgs = {
   name: string;
@@ -109,7 +113,10 @@ export const createTrainingLabelsForAOI = async ({
   formData,
 }: TCreateTrainingLabelsForAOIArgs): Promise<String> => {
   return await (
-    await apiClient.post(API_ENDPOINTS.UPLOAD_TRAINING_AREA_LABELS(aoiId), formData)
+    await apiClient.post(
+      API_ENDPOINTS.UPLOAD_TRAINING_AREA_LABELS(aoiId),
+      formData,
+    )
   ).data.status;
 };
 
