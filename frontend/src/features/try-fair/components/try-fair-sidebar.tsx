@@ -7,7 +7,7 @@ import { ModelPicker } from "./model-picker-modal";
 import { TRY_FAIR_PAGE_CONTENT } from "@/constants/ui-contents/try-fair-contents";
 import { APP_TOUR_IDS } from "@/constants/site-tour";
 import { Button } from "@/components/ui/button";
-import { MapPlayIcon } from "@/components/ui/icons/map-play-icon";
+import { MapPlayIcon, MapStopIcon } from "@/components/ui/icons/map-play-icon";
 import { ParametersIcon } from "@/components/ui/icons/parameters-icon";
 import { SnowflakeIcon } from "@/components/ui/icons/snow-flake-icon";
 import { GridIcon } from "@/components/ui/icons/grid-icon";
@@ -26,7 +26,7 @@ import {
 } from "@/features/try-fair/api/stac";
 import { cn } from "@/utils";
 import useScreenSize from "@/hooks/use-screen-size";
-import { RefreshIcon } from "@/components/ui/icons";
+import { ChevronDownIcon, RefreshIcon } from "@/components/ui/icons";
 import { ToolTip } from "@/components/ui/tooltip";
 import { LocationSearchIcon } from "@/components/ui/icons/location-search-icon";
 import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
@@ -116,7 +116,7 @@ export const TryFairSidebar = ({
         )}
       >
         <div className="hidden md:inline-block">
-          <LocationSearchIcon />
+          <LocationSearchIcon className="size-5" />
         </div>
         <div className="flex-1 min-w-0 items-center">
           <ModelPicker
@@ -129,6 +129,7 @@ export const TryFairSidebar = ({
             openMobileDialog={openMobileModelPickerDialog}
           />
         </div>
+          <ChevronDownIcon className="size-3" />
 
         {/* Vertical divider */}
         {!isSmallViewport && (
@@ -146,10 +147,12 @@ export const TryFairSidebar = ({
                 type="button"
                 size="medium"
                 rounded
+              className="flex gap-2 items-center"
                 variant={ButtonVariant.TERTIARY}
                 onClick={onCancelPrediction}
                 fontSize="12px"
               >
+                <MapStopIcon className="size-4" />
                 Cancel
               </Button>
             </>

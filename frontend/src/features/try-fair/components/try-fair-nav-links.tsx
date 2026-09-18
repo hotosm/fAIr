@@ -39,7 +39,7 @@ export const StartMappingNavlinks: React.FC = () => {
     setDownloadType(value);
   };
   return (
-    <div className="hidden lg:flex items-center gap-3">
+    <div className="hidden lg:flex shrink-0 items-center gap-3">
       {/* Help — text link */}
 
       {/* Download — icon button */}
@@ -75,7 +75,7 @@ export const StartMappingNavlinks: React.FC = () => {
           onClick={() => {
             setChooseLocation(true);
           }}
-          className="bg-grey text-xs px-3 flex items-center text-white !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem]"
+          className="bg-grey text-xs px-3 flex shrink-0 items-center whitespace-nowrap text-white !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem]"
           aria-label="Choose a different location"
         >
           Choose your own
@@ -93,7 +93,7 @@ export const StartMappingNavlinks: React.FC = () => {
               handleSelect("large-area");
             }
           }}
-          className="bg-dark text-xs px-3 flex items-center text-white !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem]"
+          className="bg-dark text-xs px-3 flex shrink-0 items-center whitespace-nowrap text-white !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem]"
           aria-label="Map a large area"
         >
           Map Large Area
@@ -104,7 +104,7 @@ export const StartMappingNavlinks: React.FC = () => {
         <ToolTip content="Go to your dashboard">
           <button
             type="button"
-            className="bg-dark text-xs px-3 flex items-center text-white !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem]"
+            className="bg-dark text-xs px-3 flex shrink-0 items-center whitespace-nowrap text-white !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem]"
             aria-label="Go to your dashboard"
           >
             My Dashboard
@@ -114,7 +114,7 @@ export const StartMappingNavlinks: React.FC = () => {
         <ToolTip content="Go to your dashboard">
           <button
             type="button"
-            className="bg-dark text-xs px-3 flex items-center text-white !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem]"
+            className="bg-dark text-xs px-3 flex shrink-0 items-center whitespace-nowrap text-white !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem]"
             aria-label="Go to your dashboard"
           >
             Log in

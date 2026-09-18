@@ -180,12 +180,16 @@ export const NavBar = () => {
             <>
               {isAuthenticated && <UserNotifications />}
               {isAuthenticated && <UserProfile isHanko hideFullName />}
-              <HankoAuthComponent redirectAfterLogin={returnTo} />
+              <div className={styles.headerHankoAuth}>
+                <HankoAuthComponent redirectAfterLogin={returnTo} />
+              </div>
             </>
           ) : isAuthenticated ? (
             <div className="flex items-center gap-x-2">
               {isTryFairPage && <StartMappingNavlinks />}
-              <HankoAuthComponent redirectAfterLogin={returnTo} />
+              <div className={styles.headerHankoAuth}>
+                <HankoAuthComponent redirectAfterLogin={returnTo} />
+              </div>
             </div>
           ) : (
             <div

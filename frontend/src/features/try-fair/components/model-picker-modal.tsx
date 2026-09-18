@@ -101,7 +101,9 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
       )}
     >
       {trigger}
+
     </button>
+
   );
 };
 
