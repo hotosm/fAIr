@@ -74,6 +74,17 @@ export const TryFairDraggableGrid = ({
   }, [hasNoResults]);
 
   useEffect(() => {
+    if (!hasNoResults) return;
+
+    const timeoutId = window.setTimeout(
+      () => setIsNoResultsDismissed(true),
+      5_000,
+    );
+
+    return () => window.clearTimeout(timeoutId);
+  }, [hasNoResults]);
+
+  useEffect(() => {
     if (!map || !hasNoResults) return;
 
     const dismiss = () => setIsNoResultsDismissed(true);

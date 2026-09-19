@@ -16,9 +16,6 @@ type AdvancedSettingsPanelProps = {
   isPredicting: boolean;
 };
 
-const getParameterLabel = (key: string) =>
-  key.replace(/[_-]/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
-
 export const AdvancedSettingsPanel = ({
   closePanel,
   inferenceParams,
@@ -49,7 +46,9 @@ export const AdvancedSettingsPanel = ({
         <div className="flex flex-col gap-3.5">
           {advancedParams.map(({ key, spec }) => {
             const value = paramValues[key] ?? spec.default;
-            const label = getParameterLabel(key);
+            const label = key
+              .replace(/[_-]/g, " ")
+              .replace(/\b\w/g, (letter) => letter.toUpperCase());
 
             if (spec.type === "bool") {
               return (
