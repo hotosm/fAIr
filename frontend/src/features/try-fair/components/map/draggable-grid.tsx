@@ -212,7 +212,7 @@ export const TryFairDraggableGrid = ({
           : outputType === TryFairMapOutputType.POLYGON
             ? PREDICTION_FILL_LAYER_ID
             : null;
-    if (!map || !predictionLayer) {
+    if (!map || !predictionLayer || !map.getLayer(predictionLayer)) {
       setHoverTooltip(null);
       return;
     }
