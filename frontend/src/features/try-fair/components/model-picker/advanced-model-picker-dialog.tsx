@@ -120,7 +120,7 @@ export const AdvancedModelPickerContent = ({
   return (
     <div className="space-y-4 min-h-[428px]">
       {/* Toolbar */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center  gap-3">
         {/* Search */}
         <div className="flex items-center gap-2 border border-gray-border rounded-lg px-3 py-2 bg-white flex-shrink-0">
           <SearchIcon className="size-4 text-grey" />
@@ -132,7 +132,7 @@ export const AdvancedModelPickerContent = ({
               setSearch(e.target.value);
               setPage(0);
             }}
-            className="bg-transparent outline-none text-sm text-dark placeholder:text-grey w-24"
+            className="bg-transparent outline-none text-sm text-dark placeholder:text-grey w-48"
           />
         </div>
 

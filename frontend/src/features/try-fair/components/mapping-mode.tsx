@@ -29,16 +29,16 @@ const MappingMode = () => {
       placement={DropdownPlacement.BOTTOM_START}
       disableCheveronIcon
       triggerComponent={
-        <div className="bg-light-gray cursor-pointer w-[162px] rounded-[55px] py-2 justify-between px-2 items-center flex gap-8">
+        <div className="bg-light-gray cursor-pointer w-[155px] rounded-[55px] py-2 justify-between px-2 items-center flex gap-2">
           <div className="gap-2 items-center flex ">
             <CurrentIcon />
-            <p className="text-dark">{MODES[mode].label}</p>
+            <p className="text-dark texts-xs">{MODES[mode].label}</p>
           </div>
-          <ChevronDownIcon className="text-dark size-4" />
+          <ChevronDownIcon className="text-dark h-2 w-4 shrink-0" />
         </div>
       }
     >
-      <div className="bg-white rounded-lg p-1 w-[162px]">
+      <div className="bg-white rounded-lg p-1 w-[155px]">
         {Object.entries(MODES).map(([key, { label, Icon }]) => {
           const isSelected = key === mode;
           return (
@@ -53,7 +53,7 @@ const MappingMode = () => {
             >
               <div className="flex items-center gap-2">
                 <Icon className="size-5" />
-                <span className="text-dark text-sm">{label}</span>
+                <span className="text-dark text-xs">{label}</span>
               </div>
               {isSelected && <FeatureCheckIcon className="size-4" />}
             </button>

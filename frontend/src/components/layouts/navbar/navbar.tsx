@@ -201,7 +201,14 @@ export const NavBar = () => {
               }
             >
               {isTryFairPage && <StartMappingNavlinks />}
-              {!isTryFairPage && (
+                 {
+                  !isTryFairPage && (
+                     <div className={styles.headerHankoAuth}>
+                <HankoAuthComponent redirectAfterLogin={returnTo} />
+              </div>
+                  )
+                 }
+              {/* {!isTryFairPage && (
                 <ToolTip
                   content={
                     isTryFairPage
@@ -227,7 +234,7 @@ export const NavBar = () => {
                     {SHARED_CONTENT.navbar.loginButton}
                   </Button>
                 </ToolTip>
-              )}
+              )} */}
             </div>
           )}
           {isHankoAuth && <hotosm-tool-menu></hotosm-tool-menu>}

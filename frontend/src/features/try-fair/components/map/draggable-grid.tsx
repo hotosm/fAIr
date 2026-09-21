@@ -236,7 +236,7 @@ export const TryFairDraggableGrid = ({
       setHoverTooltip({
         x: point.x,
         y: point.y,
-        label: "Objects detected",
+        label: "Features detected",
         value: Number(feature[0].properties?.count ?? 0).toLocaleString(),
       });
       return;

@@ -10,7 +10,7 @@ export const TryFairPolygonLegend = ({ totalCount }: Props) => {
 
   const items: LegendItem[] = [
     {
-      label: `${totalCount.toLocaleString()} features detected`,
+      label: `${totalCount.toLocaleString()} feature${totalCount === 1 ? "" : "s"} detected`,
       fillColor: "#A243DC",
       fillOpacity: 0.3,
     },

@@ -172,7 +172,7 @@ export const MODELS_CONTENT: TModelsContent = {
         contactSpacing: {
           label: "Contact Spacing",
           toolTip:
-            "Defines the minimum spacing between detected objects during training.",
+            "Defines the minimum spacing between detected features during training.",
         },
         batchSize: {
           label: "Batch Size",
@@ -182,7 +182,7 @@ export const MODELS_CONTENT: TModelsContent = {
         boundaryWidth: {
           label: "Boundary Width",
           toolTip:
-            "Determines the width of the boundary around detected objects, affecting how edges are handled.",
+            "Determines the width of the boundary around detected features, affecting how edges are handled.",
         },
       },
       pageTitle: "Model Training Settings",

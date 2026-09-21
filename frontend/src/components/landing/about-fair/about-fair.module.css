@@ -32,8 +32,8 @@
 .imageContainer {
   width: 100%;
   height: 100%;
-  max-width: 284px;
-  max-height: 284px;
+  max-width: 384px;
+  max-height: 384px;
   margin-right: 0;
   box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
   display: flex;

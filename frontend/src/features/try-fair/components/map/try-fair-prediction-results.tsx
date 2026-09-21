@@ -235,7 +235,7 @@ export const TryFairPredictionsLayer = ({
       setTooltip({
         x: e.point.x,
         y: e.point.y,
-        label: "Objects detected",
+        label: "Features detected",
         value: count.toLocaleString(),
       });
     };

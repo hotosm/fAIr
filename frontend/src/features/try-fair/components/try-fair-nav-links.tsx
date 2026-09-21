@@ -2,10 +2,13 @@ import { useAuth } from "@/app/providers/auth-provider";
 import { CloudDownloadIcon } from "@/components/ui/icons";
 import { ShareIcon } from "@/components/ui/icons/share-icon";
 import { ToolTip } from "@/components/ui/tooltip";
+import { HANKO_URL } from "@/config";
+import { APPLICATION_ROUTES } from "@/constants/routes";
 import { getDownloadData } from "@/features/try-fair/components/start-mapping/export-map-results";
 import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
 import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
 import { geoJSONDowloader } from "@/utils";
+import { useNavigate } from "react-router-dom";
 
 export const StartMappingNavlinks: React.FC = () => {
   const {
@@ -20,7 +23,10 @@ export const StartMappingNavlinks: React.FC = () => {
   const hasPredictions = Boolean(predictions?.features?.length);
   const { setChooseLocation } = useTryFairParams();
   const { isAuthenticated } = useAuth();
-
+ const handleHankoLogin = () => {
+    window.location.href = `${HANKO_URL}/app?return_to=${encodeURIComponent(window.location.href)}`;
+  };
+  const navigate = useNavigate();
   const handleSelect = (value: string) => {
     if (value === "download") {
       if (!predictions) return;
@@ -69,7 +75,7 @@ export const StartMappingNavlinks: React.FC = () => {
       </ToolTip>
 
       {/* Choose your own */}
-      <ToolTip content="Change Imagery">
+      {/* <ToolTip content="Change Imagery">
         <button
           type="button"
           onClick={() => {
@@ -80,7 +86,7 @@ export const StartMappingNavlinks: React.FC = () => {
         >
           Choose your own
         </button>
-      </ToolTip>
+      </ToolTip> */}
 
       {/* Map Large Area */}
       <ToolTip content="Map a large area">
@@ -93,7 +99,7 @@ export const StartMappingNavlinks: React.FC = () => {
               handleSelect("large-area");
             }
           }}
-          className="bg-dark text-xs px-3 flex shrink-0 items-center whitespace-nowrap text-white !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem]"
+          className="bg-grey text-xs px-3 flex shrink-0 items-center whitespace-nowrap text-white !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem]"
           aria-label="Map a large area"
         >
           Map Large Area
@@ -104,18 +110,20 @@ export const StartMappingNavlinks: React.FC = () => {
         <ToolTip content="Go to your dashboard">
           <button
             type="button"
+            onClick={() => navigate(APPLICATION_ROUTES.PROFILE_BASE)}
             className="bg-dark text-xs px-3 flex shrink-0 items-center whitespace-nowrap text-white !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem]"
             aria-label="Go to your dashboard"
           >
-            My Dashboard
+          Dashboard
           </button>
         </ToolTip>
       ) : (
-        <ToolTip content="Go to your dashboard">
+        <ToolTip content="Login">
           <button
             type="button"
+            onClick={handleHankoLogin}
             className="bg-dark text-xs px-3 flex shrink-0 items-center whitespace-nowrap text-white !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem]"
-            aria-label="Go to your dashboard"
+            aria-label="Login"
           >
             Log in
           </button>

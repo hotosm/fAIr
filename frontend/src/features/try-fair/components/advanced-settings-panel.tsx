@@ -1,7 +1,6 @@
 import type { InferenceParam } from "@/features/try-fair/api/stac";
 import {
   CloseIcon,
-  ElipsisIcon,
   InfoIcon,
   RefreshIcon,
 } from "@/components/ui/icons";
@@ -190,7 +189,9 @@ export const AdvancedSettingsPanel = ({
             >
               <UndoIcon />
             </button>
-            <button
+            
+          </div>
+         <button
               type="button"
               onClick={onReset}
               disabled={isPredicting}
@@ -199,14 +200,6 @@ export const AdvancedSettingsPanel = ({
               <RefreshIcon />
               Reset
             </button>
-          </div>
-          <button
-            type="button"
-            className="flex size-8 items-center justify-center rounded bg-off-white text-dark"
-            aria-label="More advanced settings actions"
-          >
-            <ElipsisIcon className="size-3.5" />
-          </button>
         </div>
       </div>
     </aside>

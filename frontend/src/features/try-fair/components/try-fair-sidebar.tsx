@@ -153,7 +153,7 @@ export const TryFairSidebar = ({
                 fontSize="12px"
               >
                 <MapStopIcon className="size-4" />
-                Cancel
+                Stop
               </Button>
             </>
           ) : (
@@ -166,7 +166,7 @@ export const TryFairSidebar = ({
               disabled={isMapButtonDisabled}
               fontSize="12px"
             >
-              <MapPlayIcon />
+              <MapPlayIcon className="size-4" />
               Map
             </Button>
           )}
