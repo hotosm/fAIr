@@ -7,7 +7,7 @@ Model code lives in per-model docker images that the ZenML orchestrator pulls.
 ## Quick start
 
 The compose file at the repository root runs this backend and everything it
-depends on. See [docs/Docker-installation.md](../docs/Docker-installation.md).
+depends on. See [Run locally](../docs/guides/run-locally.md).
 
 ### Running the backend on the host
 

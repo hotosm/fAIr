@@ -1,5 +1,13 @@
 from rest_framework import serializers
 
+# Placeholders a TMS tile URL template must contain
+TMS_PLACEHOLDERS = ("{x}", "{y}", "{z}")
+
+# TMS tile zoom bounds accepted for dataset creation and prediction submission
+# (not the config-driven PMTiles generation range).
+MIN_ZOOM = 14
+MAX_ZOOM = 22
+
 
 class StacAssetSerializer(serializers.Serializer):
     href = serializers.CharField()

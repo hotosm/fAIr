@@ -134,7 +134,7 @@ def _materialize_dataset_assets(
     stac_id = str(dataset.stac_id)
     chips_prefix = UPath(StoragePaths.dataset_chips_dir_uri(stac_id))
     labels_prefix = UPath(StoragePaths.dataset_labels_dir_uri(stac_id))
-    labels_file = labels_prefix / "labels.geojson"
+    labels_file = labels_prefix / StoragePaths.LABELS_GEOJSON_FILENAME
 
     union = dataset.aois.aggregate(geom=GeomUnion("geom"))["geom"]
     geometry: dict[str, Any] = json.loads(union.geojson)

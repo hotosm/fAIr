@@ -2,11 +2,9 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from notifications.serializers import UserSerializer
+from shared.serializers import MAX_ZOOM, MIN_ZOOM
 
 from .models import Prediction
-
-_MIN_ZOOM = 14
-_MAX_ZOOM = 22
 
 
 class PredictionSubmitSerializer(serializers.Serializer):
@@ -16,7 +14,7 @@ class PredictionSubmitSerializer(serializers.Serializer):
         child=serializers.FloatField(), min_length=4, max_length=4, required=False
     )
     geometry = serializers.JSONField(required=False)
-    zoom = serializers.IntegerField(min_value=_MIN_ZOOM, max_value=_MAX_ZOOM)
+    zoom = serializers.IntegerField(min_value=MIN_ZOOM, max_value=MAX_ZOOM)
     params = serializers.DictField(required=False, default=dict)
     remove_osm = serializers.BooleanField(
         required=False,

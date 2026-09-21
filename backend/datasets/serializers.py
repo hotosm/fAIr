@@ -6,15 +6,13 @@ from rest_framework_gis.serializers import GeoFeatureModelSerializer
 from modelregistry.models import Category
 from notifications.serializers import UserSerializer
 from shared.integrations.stac import DATASETS_COLLECTION
-from shared.serializers import StacFacetSerializer
+from shared.serializers import MAX_ZOOM, MIN_ZOOM, TMS_PLACEHOLDERS, StacFacetSerializer
 
 from .models import AOI, Dataset
 
-_TMS_PLACEHOLDERS = ("{x}", "{y}", "{z}")
-
 
 def _validate_tms_url(value: str) -> str:
-    missing = [p for p in _TMS_PLACEHOLDERS if p not in value]
+    missing = [p for p in TMS_PLACEHOLDERS if p not in value]
     if missing:
         raise serializers.ValidationError(
             f"TMS URL must contain placeholders: {', '.join(missing)}"
@@ -27,7 +25,7 @@ class DatasetCreateSerializer(serializers.Serializer):
     description = serializers.CharField()
     source_imagery = serializers.URLField()
     category = serializers.SlugRelatedField(slug_field="slug", queryset=Category.objects.all())
-    zoom = serializers.IntegerField(min_value=14, max_value=22)
+    zoom = serializers.IntegerField(min_value=MIN_ZOOM, max_value=MAX_ZOOM)
     aoi_ids = serializers.ListField(child=serializers.IntegerField(), min_length=1)
     label_tasks = serializers.ListField(
         child=serializers.ChoiceField(

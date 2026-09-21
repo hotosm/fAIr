@@ -13,10 +13,7 @@ export const WhatIsFAIR = () => {
         </p>
       </div>
       <div className={styles.imageContainer}>
-        <Image
-          src={fAIrWorkflowIllustration}
-          alt="fAIr Workflow Illustration"
-        />
+        <Image src={fAIrWorkflowIllustration} alt="fAIr Workflow Illustration" />
       </div>
     </section>
   );

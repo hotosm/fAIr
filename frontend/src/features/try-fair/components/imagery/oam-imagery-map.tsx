@@ -87,9 +87,7 @@ export const OamImageryMap = ({
     map.on("idle", handleIdle);
 
     // If the map is already idle when this effect runs, clear loading.
-    if (
-      typeof map.areTilesLoaded === "function" ? map.areTilesLoaded() : true
-    ) {
+    if (typeof map.areTilesLoaded === "function" ? map.areTilesLoaded() : true) {
       setTilesLoading(false);
     }
 
@@ -144,9 +142,7 @@ export const OamImageryMap = ({
                 } as Record<string, string>
               }
             />
-            <span className="text-dark text-base font-medium">
-              Loading imagery coverage…
-            </span>
+            <span className="text-dark text-base font-medium">Loading imagery coverage…</span>
           </div>
         </div>
       )}

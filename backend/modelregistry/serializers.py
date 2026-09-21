@@ -5,7 +5,7 @@ from rest_framework import serializers
 
 from notifications.serializers import UserSerializer
 from shared.integrations.stac import BASE_MODELS_COLLECTION, LOCAL_MODELS_COLLECTION
-from shared.serializers import StacFacetSerializer
+from shared.serializers import TMS_PLACEHOLDERS, StacFacetSerializer
 
 from .models import BaseModel, Category, LocalModel
 
@@ -150,16 +150,14 @@ class ModelPinSerializer(serializers.Serializer):
     are written onto the model's STAC item as `fair:source_imagery` and
     `fair:preview_location`."""
 
-    _TMS_PLACEHOLDERS = ("{x}", "{y}", "{z}")
-
     is_pinned = serializers.BooleanField(default=True)
     source_imagery = serializers.CharField(required=False, allow_blank=True, default="")
     pinned_location = serializers.JSONField(required=False)
 
     def validate_source_imagery(self, value: str) -> str:
-        if value and any(p not in value for p in self._TMS_PLACEHOLDERS):
+        if value and any(p not in value for p in TMS_PLACEHOLDERS):
             raise serializers.ValidationError(
-                f"source_imagery must contain placeholders: {', '.join(self._TMS_PLACEHOLDERS)}"
+                f"source_imagery must contain placeholders: {', '.join(TMS_PLACEHOLDERS)}"
             )
         return value
 
