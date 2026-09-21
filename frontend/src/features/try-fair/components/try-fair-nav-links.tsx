@@ -5,7 +5,6 @@ import { ToolTip } from "@/components/ui/tooltip";
 import { HANKO_URL } from "@/config";
 import { APPLICATION_ROUTES } from "@/constants/routes";
 import { getDownloadData } from "@/features/try-fair/components/start-mapping/export-map-results";
-import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
 import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
 import { geoJSONDowloader } from "@/utils";
 import { useNavigate } from "react-router-dom";
@@ -21,7 +20,6 @@ export const StartMappingNavlinks: React.FC = () => {
     predictionGridZoom,
   } = useStartMappingStore();
   const hasPredictions = Boolean(predictions?.features?.length);
-  const { setChooseLocation } = useTryFairParams();
   const { isAuthenticated } = useAuth();
  const handleHankoLogin = () => {
     window.location.href = `${HANKO_URL}/app?return_to=${encodeURIComponent(window.location.href)}`;

@@ -302,6 +302,14 @@ export const MAP_STYLES: Record<string, string | StyleSpecification> = {
       },
     },
     layers: [
+      // A neutral background under the raster tiles so the canvas isn't white
+      // before OSM tiles load (and during imagery layer swaps) — removes the
+      // white flash on refresh.
+      {
+        id: "background",
+        type: "background",
+        paint: { "background-color": "#e8e8e8" },
+      },
       {
         id: "simple-tiles",
         type: "raster",

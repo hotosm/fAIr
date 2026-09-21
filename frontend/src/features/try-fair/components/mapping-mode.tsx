@@ -5,6 +5,7 @@ import { FeatureCheckIcon } from "@/components/ui/icons/feature-check-icon";
 import { DropDown } from "@/components/ui/dropdown";
 import { DropdownPlacement } from "@/enums";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
+import { useAuth } from "@/app/providers/auth-provider";
 import {
   useTryFairParams,
   type MappingModeType,
@@ -19,9 +20,11 @@ type ModeKey = keyof typeof MODES;
 
 const MappingMode = () => {
   const { mappingMode, setMappingMode } = useTryFairParams();
-  const mode = mappingMode as ModeKey;
+  const { isAuthenticated } = useAuth();
+  const mode: ModeKey = isAuthenticated ? mappingMode : "basic";
   const CurrentIcon = MODES[mode].Icon;
   const { onDropdownHide, dropdownRef } = useDropdownMenu();
+  const availableModes = isAuthenticated ? MODES : { basic: MODES.basic };
 
   return (
     <DropDown
@@ -39,7 +42,7 @@ const MappingMode = () => {
       }
     >
       <div className="bg-white rounded-lg p-1 w-[155px]">
-        {Object.entries(MODES).map(([key, { label, Icon }]) => {
+        {Object.entries(availableModes).map(([key, { label, Icon }]) => {
           const isSelected = key === mode;
           return (
             <button

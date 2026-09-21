@@ -36,6 +36,7 @@ import { useRef } from "react";
 import { AdvancedSettingsPanel } from "@/features/try-fair/components/advanced-settings-panel";
 import { DropDown } from "@/components/ui/dropdown";
 import type { SlDropdownType } from "@/types";
+import { useAuth } from "@/app/providers/auth-provider";
 
 type TryFairSidebarProps = {
   selectedModel: BaseModelStacItem | null;
@@ -84,7 +85,9 @@ export const TryFairSidebar = ({
 }: TryFairSidebarProps) => {
   const { isSmallViewport } = useScreenSize();
   const { mappingMode } = useTryFairParams();
+  const { isAuthenticated } = useAuth();
   const advancedSettingsDropdownRef = useRef<SlDropdownType>(null);
+  const isAdvancedMode = isAuthenticated && mappingMode === "advanced";
 
   const supportsPolygon = selectedModel
     ? getModelOutputType(selectedModel) === TryFairMapOutputType.POLYGON
@@ -129,7 +132,7 @@ export const TryFairSidebar = ({
             openMobileDialog={openMobileModelPickerDialog}
           />
         </div>
-          <ChevronDownIcon className="size-3" />
+        <ChevronDownIcon className="size-3" />
 
         {/* Vertical divider */}
         {!isSmallViewport && (
@@ -147,7 +150,7 @@ export const TryFairSidebar = ({
                 type="button"
                 size="medium"
                 rounded
-              className="flex gap-2 items-center"
+                className="flex gap-2 items-center"
                 variant={ButtonVariant.TERTIARY}
                 onClick={onCancelPrediction}
                 fontSize="12px"
@@ -174,7 +177,7 @@ export const TryFairSidebar = ({
       </div>
 
       {/* ── Model selector (advanced mode only) ── */}
-      {mappingMode === "advanced" && (
+      {isAdvancedMode && (
         <AdvancedModelPicker
           selectedModel={selectedModel}
           disabled={isPredicting}
@@ -320,7 +323,7 @@ export const TryFairSidebar = ({
           </div>
         </div>
 
-        {hasAdvancedSettings && mappingMode === "advanced" && (
+        {hasAdvancedSettings && isAdvancedMode && (
           <DropDown
             ref={advancedSettingsDropdownRef}
             placement={
