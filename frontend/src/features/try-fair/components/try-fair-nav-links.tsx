@@ -4,6 +4,7 @@ import { ShareIcon } from "@/components/ui/icons/share-icon";
 import { ToolTip } from "@/components/ui/tooltip";
 import { HANKO_URL } from "@/config";
 import { APPLICATION_ROUTES } from "@/constants/routes";
+import { APP_TOUR_IDS } from "@/constants/site-tour";
 import { getDownloadData } from "@/features/try-fair/components/start-mapping/export-map-results";
 import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
 import { geoJSONDowloader } from "@/utils";
@@ -65,6 +66,7 @@ export const StartMappingNavlinks: React.FC = () => {
       <ToolTip content="Share">
         <button
           type="button"
+          id={APP_TOUR_IDS.TRY_FAIR_SHARE_BUTTON}
           onClick={() => setShowShareModal(true)}
           className="flex items-center hover:text-gray-900 transition-colors text-inherit font-inherit cursor-pointer"
         >
@@ -90,6 +92,7 @@ export const StartMappingNavlinks: React.FC = () => {
       <ToolTip content="Map a large area">
         <button
           type="button"
+          id={APP_TOUR_IDS.TRY_FAIR_MAP_LARGE_AREA_BUTTON}
           onClick={() => {
             if (!isAuthenticated) {
               setShowSigninModal(true);

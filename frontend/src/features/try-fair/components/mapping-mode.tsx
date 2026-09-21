@@ -1,3 +1,4 @@
+import { APP_TOUR_IDS } from "@/constants/site-tour";
 import { ChevronDownIcon } from "@/components/ui/icons";
 import { AdvanceIcon } from "@/components/ui/icons/advance-icon";
 import { ModeIcon } from "@/components/ui/icons/mode-icon";
@@ -32,7 +33,10 @@ const MappingMode = () => {
       placement={DropdownPlacement.BOTTOM_START}
       disableCheveronIcon
       triggerComponent={
-        <div className="bg-light-gray cursor-pointer w-[155px] rounded-[55px] py-2 justify-between px-2 items-center flex gap-2">
+        <div
+          id={APP_TOUR_IDS.TRY_FAIR_MAPPING_MODE}
+          className="bg-light-gray cursor-pointer w-[155px] rounded-[55px] py-2 justify-between px-2 items-center flex gap-2"
+        >
           <div className="gap-2 items-center flex ">
             <CurrentIcon />
             <p className="text-dark texts-xs">{MODES[mode].label}</p>

@@ -28,14 +28,20 @@ export const useTryFairTour = (isSmallViewport: boolean) => {
   );
 
   const openGuidedTour = useCallback(() => {
-    const firstSelector = guidedTourSteps[0]?.selector;
-    if (
-      typeof firstSelector === "string" &&
-      !document.querySelector(firstSelector)
-    )
-      return;
+    // Only tour elements that are actually on the page right now. Some steps
+    // target items that render conditionally — Mapping Mode appears only when
+    // signed in, and Share / Map Large Area live in a desktop-only header
+    // cluster — so filtering by DOM presence keeps the tour from landing on a
+    // missing target (which blanks reactour's popover).
+    const visibleSteps = guidedTourSteps.filter(
+      (step) =>
+        typeof step.selector !== "string" ||
+        Boolean(document.querySelector(step.selector)),
+    );
 
-    setSteps?.(guidedTourSteps);
+    if (visibleSteps.length === 0) return;
+
+    setSteps?.(visibleSteps);
     setCurrentStep(0);
     setIsOpen(true);
   }, [guidedTourSteps, setCurrentStep, setIsOpen, setSteps]);
