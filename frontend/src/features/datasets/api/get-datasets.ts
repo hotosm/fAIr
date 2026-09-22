@@ -2,7 +2,9 @@ import { PAGE_LIMIT } from "@/components/shared";
 import { API_ENDPOINTS, apiClient } from "@/services";
 import { FeatureCollection, TTrainingDataset } from "@/types";
 
-export const getTrainingDataset = async (id: number): Promise<TTrainingDataset> => {
+export const getTrainingDataset = async (
+  id: number,
+): Promise<TTrainingDataset> => {
   const res = await apiClient.get(API_ENDPOINTS.GET_TRAINING_DATASET(id));
   return res.data;
 };
@@ -41,6 +43,8 @@ export const getTrainingDatasetsV2 = async (
 };
 
 export const getDatasetsMapData = async (): Promise<FeatureCollection> => {
-  const res = await apiClient.get(API_ENDPOINTS.GET_TRAINING_DATASETS_CENTROIDS);
+  const res = await apiClient.get(
+    API_ENDPOINTS.GET_TRAINING_DATASETS_CENTROIDS,
+  );
   return res.data;
 };

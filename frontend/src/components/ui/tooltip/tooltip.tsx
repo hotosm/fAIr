@@ -1,6 +1,8 @@
 import { InfoIcon } from "@/components/ui/icons";
 import { ToolTipPlacement } from "@/enums";
-import SlTooltip, { SlHideEvent } from "@shoelace-style/shoelace/dist/react/tooltip/index.js";
+import SlTooltip, {
+  SlHideEvent,
+} from "@shoelace-style/shoelace/dist/react/tooltip/index.js";
 
 type ToolTipProps = {
   content?: string | React.ReactElement | null;
@@ -28,7 +30,9 @@ const ToolTip: React.FC<ToolTipProps> = ({
       placement={placement}
       {...(open !== undefined ? { open } : {})}
     >
-      <span slot="content">{typeof content === "string" ? <span>{content}</span> : content}</span>
+      <span slot="content">
+        {typeof content === "string" ? <span>{content}</span> : content}
+      </span>
       {!children && <InfoIcon className="icon" />}
       {children}
     </SlTooltip>

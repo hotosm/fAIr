@@ -6,7 +6,10 @@ type Props = IconProps & {
   outputType: TryFairMapOutputType;
 };
 
-export const TryFairPredictionOutputIcon: React.FC<Props> = ({ outputType, ...props }) => {
+export const TryFairPredictionOutputIcon: React.FC<Props> = ({
+  outputType,
+  ...props
+}) => {
   if (outputType === TryFairMapOutputType.POINTS) {
     return (
       <svg

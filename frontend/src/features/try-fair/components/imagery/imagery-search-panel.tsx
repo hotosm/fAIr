@@ -6,7 +6,10 @@ import { ExpandIcon } from "@/components/ui/icons/expand-icon";
 import { CloseIcon } from "@/components/ui/icons";
 import { Select } from "@/components/ui/form";
 import { SHOELACE_SELECT_SIZES } from "@/enums";
-import { DatePreset, ResolutionPreset } from "@/features/try-fair/types/imagery-types";
+import {
+  DatePreset,
+  ResolutionPreset,
+} from "@/features/try-fair/types/imagery-types";
 import {
   IMAGERY_DATE_OPTIONS,
   IMAGERY_RESOLUTION_PRESETS,
@@ -22,7 +25,8 @@ const formatGsd = (gsd: number | null): string => {
   return gsd < 1 ? `${Math.round(gsd * 100)} cm` : `${gsd.toFixed(1)} m`;
 };
 
-const formatDate = (iso: string | null): string => (iso ? extractDatePart(iso) : "Unknown date");
+const formatDate = (iso: string | null): string =>
+  iso ? extractDatePart(iso) : "Unknown date";
 
 const FilterSelect = <V extends string>({
   value,
@@ -48,7 +52,8 @@ const FilterSelect = <V extends string>({
       size={SHOELACE_SELECT_SIZES.SMALL}
       className={cn(
         "flex-grow",
-        value && "[&::part(combobox)]:border-primary [&::part(display-input)]:text-primary",
+        value &&
+          "[&::part(combobox)]:border-primary [&::part(display-input)]:text-primary",
       )}
       placeholder={label}
     />
@@ -72,7 +77,10 @@ const ImageryCard = ({
     )}
   >
     <div>
-      <p className="text-dark text-xs font-medium truncate w-full" title={item.title}>
+      <p
+        className="text-dark text-xs font-medium truncate w-full"
+        title={item.title}
+      >
         {item.title}
       </p>
       <p className="text-grey text-xs">
@@ -127,12 +135,15 @@ export const OAMImageryPanel = ({
   onClose: () => void;
 }) => {
   const [dateFilter, setDateFilter] = useState<DatePreset>("");
-  const [resolutionFilter, setResolutionFilter] = useState<ResolutionPreset>("");
+  const [resolutionFilter, setResolutionFilter] =
+    useState<ResolutionPreset>("");
 
   const filtered = useMemo(
     () =>
       images.filter(
-        (i) => withinDate(i.acquiredAt, dateFilter) && withinResolution(i.gsd, resolutionFilter),
+        (i) =>
+          withinDate(i.acquiredAt, dateFilter) &&
+          withinResolution(i.gsd, resolutionFilter),
       ),
     [images, dateFilter, resolutionFilter],
   );
@@ -190,7 +201,9 @@ export const OAMImageryPanel = ({
                   key={item.id}
                   item={item}
                   isSelected={selectedItem?.id === item.id}
-                  onSelect={(clicked) => onSelect(selectedItem?.id === clicked.id ? null : clicked)}
+                  onSelect={(clicked) =>
+                    onSelect(selectedItem?.id === clicked.id ? null : clicked)
+                  }
                 />
               ))}
             </div>

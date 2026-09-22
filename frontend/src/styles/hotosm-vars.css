@@ -1144,8 +1144,16 @@
     --wa-color-text-normal: var(--wa-color-neutral-10);
     --wa-color-text-quiet: var(--wa-color-neutral-40);
     --wa-color-text-link: var(--wa-color-brand-40);
-    --wa-color-overlay-modal: color-mix(in oklab, var(--wa-color-neutral-05) 50%, transparent);
-    --wa-color-overlay-inline: color-mix(in oklab, var(--wa-color-neutral-80) 25%, transparent);
+    --wa-color-overlay-modal: color-mix(
+      in oklab,
+      var(--wa-color-neutral-05) 50%,
+      transparent
+    );
+    --wa-color-overlay-inline: color-mix(
+      in oklab,
+      var(--wa-color-neutral-80) 25%,
+      transparent
+    );
     --wa-color-shadow: color-mix(
       in oklab,
       var(--wa-color-neutral-05) calc(var(--wa-shadow-blur-scale) * 4% + 8%),
@@ -1209,16 +1217,25 @@
     color: var(--wa-color-text-normal);
     --wa-color-surface-raised: var(--wa-color-neutral-10);
     --wa-color-surface-default: var(--wa-color-neutral-05);
-    --wa-color-surface-lowered: color-mix(in oklab, var(--wa-color-surface-default), black 20%);
+    --wa-color-surface-lowered: color-mix(
+      in oklab,
+      var(--wa-color-surface-default),
+      black 20%
+    );
     --wa-color-surface-border: var(--wa-color-neutral-20);
     --wa-color-text-normal: var(--wa-color-neutral-95);
     --wa-color-text-quiet: var(--wa-color-neutral-60);
     --wa-color-text-link: var(--wa-color-brand-70);
     --wa-color-overlay-modal: color-mix(in oklab, black 60%, transparent);
-    --wa-color-overlay-inline: color-mix(in oklab, var(--wa-color-neutral-50) 10%, transparent);
+    --wa-color-overlay-inline: color-mix(
+      in oklab,
+      var(--wa-color-neutral-50) 10%,
+      transparent
+    );
     --wa-color-shadow: color-mix(
       in oklab,
-      var(--wa-color-surface-lowered) calc(var(--wa-shadow-blur-scale) * 32% + 40%),
+      var(--wa-color-surface-lowered)
+        calc(var(--wa-shadow-blur-scale) * 32% + 40%),
       transparent
     );
     --wa-color-focus: var(--wa-color-brand-60);
@@ -1288,10 +1305,22 @@
     --wa-font-size-m: calc(1rem * var(--wa-font-size-scale));
     --wa-font-size-l: round(calc(var(--wa-font-size-m) * 1.125 * 1.125), 1px);
     --wa-font-size-xl: round(calc(var(--wa-font-size-l) * 1.125 * 1.125), 1px);
-    --wa-font-size-2xl: round(calc(var(--wa-font-size-xl) * 1.125 * 1.125), 1px);
-    --wa-font-size-3xl: round(calc(var(--wa-font-size-2xl) * 1.125 * 1.125), 1px);
-    --wa-font-size-4xl: round(calc(var(--wa-font-size-3xl) * 1.125 * 1.125), 1px);
-    --wa-font-size-5xl: round(calc(var(--wa-font-size-4xl) * 1.125 * 1.125), 1px);
+    --wa-font-size-2xl: round(
+      calc(var(--wa-font-size-xl) * 1.125 * 1.125),
+      1px
+    );
+    --wa-font-size-3xl: round(
+      calc(var(--wa-font-size-2xl) * 1.125 * 1.125),
+      1px
+    );
+    --wa-font-size-4xl: round(
+      calc(var(--wa-font-size-3xl) * 1.125 * 1.125),
+      1px
+    );
+    --wa-font-size-5xl: round(
+      calc(var(--wa-font-size-4xl) * 1.125 * 1.125),
+      1px
+    );
     --wa-font-size-smaller: round(calc(1em / 1.125), 1px);
     --wa-font-size-larger: round(calc(1em * 1.125 * 1.125), 1px);
     --wa-font-weight-light: 300;
@@ -1306,8 +1335,8 @@
     --wa-line-height-condensed: 1.2;
     --wa-line-height-normal: 1.6;
     --wa-line-height-expanded: 2;
-    --wa-link-decoration-default: underline color-mix(in oklab, currentColor 70%, transparent)
-      dotted;
+    --wa-link-decoration-default: underline
+      color-mix(in oklab, currentColor 70%, transparent) dotted;
     --wa-link-decoration-hover: underline;
     --wa-space-scale: 1;
     --wa-space-3xs: calc(var(--wa-space-scale) * 0.125rem);
@@ -1336,7 +1365,8 @@
     --wa-border-radius-square: 0px;
     --wa-focus-ring-style: solid;
     --wa-focus-ring-width: 0.1875rem;
-    --wa-focus-ring: var(--wa-focus-ring-style) var(--wa-focus-ring-width) var(--wa-color-focus);
+    --wa-focus-ring: var(--wa-focus-ring-style) var(--wa-focus-ring-width)
+      var(--wa-color-focus);
     --wa-focus-ring-offset: 0.0625rem;
     --wa-shadow-offset-x-scale: 0;
     --wa-shadow-offset-x-s: calc(var(--wa-shadow-offset-x-scale) * 0.125rem);
@@ -1354,12 +1384,12 @@
     --wa-shadow-spread-s: calc(var(--wa-shadow-spread-scale) * 0.125rem);
     --wa-shadow-spread-m: calc(var(--wa-shadow-spread-scale) * 0.25rem);
     --wa-shadow-spread-l: calc(var(--wa-shadow-spread-scale) * 0.5rem);
-    --wa-shadow-s: var(--wa-shadow-offset-x-s) var(--wa-shadow-offset-y-s) var(--wa-shadow-blur-s)
-      var(--wa-shadow-spread-s) var(--wa-color-shadow);
-    --wa-shadow-m: var(--wa-shadow-offset-x-m) var(--wa-shadow-offset-y-m) var(--wa-shadow-blur-m)
-      var(--wa-shadow-spread-m) var(--wa-color-shadow);
-    --wa-shadow-l: var(--wa-shadow-offset-x-l) var(--wa-shadow-offset-y-l) var(--wa-shadow-blur-l)
-      var(--wa-shadow-spread-l) var(--wa-color-shadow);
+    --wa-shadow-s: var(--wa-shadow-offset-x-s) var(--wa-shadow-offset-y-s)
+      var(--wa-shadow-blur-s) var(--wa-shadow-spread-s) var(--wa-color-shadow);
+    --wa-shadow-m: var(--wa-shadow-offset-x-m) var(--wa-shadow-offset-y-m)
+      var(--wa-shadow-blur-m) var(--wa-shadow-spread-m) var(--wa-color-shadow);
+    --wa-shadow-l: var(--wa-shadow-offset-x-l) var(--wa-shadow-offset-y-l)
+      var(--wa-shadow-blur-l) var(--wa-shadow-spread-l) var(--wa-color-shadow);
     --wa-transition-easing: ease;
     --wa-transition-slow: 0.3s;
     --wa-transition-normal: 0.15s;
@@ -1387,7 +1417,8 @@
     --wa-form-control-padding-inline: 1em;
     --wa-form-control-height: round(
       calc(
-        2 * var(--wa-form-control-padding-block) + 1em * var(--wa-form-control-value-line-height)
+        2 * var(--wa-form-control-padding-block) + 1em *
+          var(--wa-form-control-value-line-height)
       ),
       1px
     );
@@ -1430,8 +1461,16 @@
     --wa-color-text-normal: var(--hot-color-neutral-900);
     --wa-color-text-quiet: var(--hot-color-neutral-600);
     --wa-color-text-link: var(--hot-color-primary-600);
-    --wa-color-overlay-modal: color-mix(in oklab, var(--hot-color-neutral-950) 50%, transparent);
-    --wa-color-overlay-inline: color-mix(in oklab, var(--hot-color-neutral-200) 25%, transparent);
+    --wa-color-overlay-modal: color-mix(
+      in oklab,
+      var(--hot-color-neutral-950) 50%,
+      transparent
+    );
+    --wa-color-overlay-inline: color-mix(
+      in oklab,
+      var(--hot-color-neutral-200) 25%,
+      transparent
+    );
     --wa-color-shadow: color-mix(
       in oklab,
       var(--hot-color-neutral-950) calc(var(--wa-shadow-blur-scale) * 4% + 8%),
@@ -1595,19 +1634,20 @@
   .wa-placeholder {
     align-self: stretch;
     background-color: var(--wa-color-neutral-fill-quiet);
-    border: dashed var(--wa-border-width-s) var(--wa-color-neutral-border-normal);
+    border: dashed var(--wa-border-width-s)
+      var(--wa-color-neutral-border-normal);
     border-radius: var(--wa-border-radius-l);
     padding: var(--wa-space-3xl);
   }
 }
 @layer wa-utilities {
   :where(
-    .wa-align-items-start,
-    .wa-align-items-end,
-    .wa-align-items-center,
-    .wa-align-items-stretch,
-    .wa-align-items-baseline
-  ) {
+      .wa-align-items-start,
+      .wa-align-items-end,
+      .wa-align-items-center,
+      .wa-align-items-stretch,
+      .wa-align-items-baseline
+    ) {
     display: flex;
   }
   .wa-align-items-start {
@@ -1643,13 +1683,13 @@
 }
 @layer wa-utilities {
   :where(
-    .wa-justify-content-start,
-    .wa-justify-content-end,
-    .wa-justify-content-center,
-    .wa-justify-content-space-around,
-    .wa-justify-content-space-between,
-    .wa-justify-content-space-evenly
-  ) {
+      .wa-justify-content-start,
+      .wa-justify-content-end,
+      .wa-justify-content-center,
+      .wa-justify-content-space-around,
+      .wa-justify-content-space-between,
+      .wa-justify-content-space-evenly
+    ) {
     display: flex;
   }
   .wa-justify-content-start {
@@ -1707,19 +1747,19 @@
 }
 @layer wa-utilities {
   :where(
-    .wa-gap-0,
-    .wa-gap-3xs,
-    .wa-gap-2xs,
-    .wa-gap-xs,
-    .wa-gap-s,
-    .wa-gap-m,
-    .wa-gap-l,
-    .wa-gap-xl,
-    .wa-gap-2xl,
-    .wa-gap-3xl,
-    .wa-gap-4xl,
-    .wa-gap-5xl
-  ) {
+      .wa-gap-0,
+      .wa-gap-3xs,
+      .wa-gap-2xs,
+      .wa-gap-xs,
+      .wa-gap-s,
+      .wa-gap-m,
+      .wa-gap-l,
+      .wa-gap-xl,
+      .wa-gap-2xl,
+      .wa-gap-3xl,
+      .wa-gap-4xl,
+      .wa-gap-5xl
+    ) {
     display: flex;
   }
   .wa-gap-0 {
@@ -1926,7 +1966,11 @@
     -webkit-text-decoration: var(--wa-link-decoration-default);
     @media (hover: hover) {
       &:hover {
-        color: color-mix(in oklab, var(--wa-color-text-link) 100%, var(--wa-color-mix-hover));
+        color: color-mix(
+          in oklab,
+          var(--wa-color-text-link) 100%,
+          var(--wa-color-mix-hover)
+        );
         text-decoration: var(--wa-link-decoration-hover);
         -webkit-text-decoration: var(--wa-link-decoration-hover);
       }
@@ -1985,13 +2029,13 @@
     margin-inline: 0;
   }
   :where(
-    [class*="wa-cluster"],
-    [class*="wa-flank"],
-    [class*="wa-frame"],
-    [class*="wa-grid"],
-    [class*="wa-stack"],
-    [class*="wa-split"]
-  ) {
+      [class*="wa-cluster"],
+      [class*="wa-flank"],
+      [class*="wa-frame"],
+      [class*="wa-grid"],
+      [class*="wa-stack"],
+      [class*="wa-split"]
+    ) {
     gap: var(--wa-space-m);
   }
   [class*="wa-cluster"] {
@@ -2057,7 +2101,10 @@
   }
   [class*="wa-grid"] {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(var(--min-column-size, 20ch), 100%), 1fr));
+    grid-template-columns: repeat(
+      auto-fit,
+      minmax(min(var(--min-column-size, 20ch), 100%), 1fr)
+    );
     --min-column-size: initial;
   }
   .wa-span-grid {
@@ -2099,14 +2146,30 @@
   @scope (.wa-prose) to (.wa-not-prose) {
     :where(:scope) {
       --wa-prose-rhythm-scale: 1;
-      --wa-prose-rhythm-2xs: calc(0.25em * var(--wa-space-scale) * var(--wa-prose-rhythm-scale));
-      --wa-prose-rhythm-xs: calc(0.5em * var(--wa-space-scale) * var(--wa-prose-rhythm-scale));
-      --wa-prose-rhythm-s: calc(0.75em * var(--wa-space-scale) * var(--wa-prose-rhythm-scale));
-      --wa-prose-rhythm-m: calc(1em * var(--wa-space-scale) * var(--wa-prose-rhythm-scale));
-      --wa-prose-rhythm-l: calc(1.5em * var(--wa-space-scale) * var(--wa-prose-rhythm-scale));
-      --wa-prose-rhythm-xl: calc(2em * var(--wa-space-scale) * var(--wa-prose-rhythm-scale));
-      --wa-prose-rhythm-2xl: calc(2.5em * var(--wa-space-scale) * var(--wa-prose-rhythm-scale));
-      --wa-prose-rhythm-3xl: calc(3em * var(--wa-space-scale) * var(--wa-prose-rhythm-scale));
+      --wa-prose-rhythm-2xs: calc(
+        0.25em * var(--wa-space-scale) * var(--wa-prose-rhythm-scale)
+      );
+      --wa-prose-rhythm-xs: calc(
+        0.5em * var(--wa-space-scale) * var(--wa-prose-rhythm-scale)
+      );
+      --wa-prose-rhythm-s: calc(
+        0.75em * var(--wa-space-scale) * var(--wa-prose-rhythm-scale)
+      );
+      --wa-prose-rhythm-m: calc(
+        1em * var(--wa-space-scale) * var(--wa-prose-rhythm-scale)
+      );
+      --wa-prose-rhythm-l: calc(
+        1.5em * var(--wa-space-scale) * var(--wa-prose-rhythm-scale)
+      );
+      --wa-prose-rhythm-xl: calc(
+        2em * var(--wa-space-scale) * var(--wa-prose-rhythm-scale)
+      );
+      --wa-prose-rhythm-2xl: calc(
+        2.5em * var(--wa-space-scale) * var(--wa-prose-rhythm-scale)
+      );
+      --wa-prose-rhythm-3xl: calc(
+        3em * var(--wa-space-scale) * var(--wa-prose-rhythm-scale)
+      );
       --wa-prose-line-length: 65ch;
       max-inline-size: var(--wa-prose-line-length);
       font-variant-numeric: oldstyle-nums proportional-nums;
@@ -2178,13 +2241,15 @@
         margin-block-end: var(--wa-prose-rhythm-xl);
       }
       :where(
-        :not(h1, h2, h3, h4, h5, h6) + :is(pre, figure, table, blockquote, wa-callout, details)
-      ) {
+          :not(h1, h2, h3, h4, h5, h6)
+            + :is(pre, figure, table, blockquote, wa-callout, details)
+        ) {
         margin-block-start: var(--wa-prose-rhythm-xl);
       }
       :where(
-        :is(h1, h2, h3, h4, h5, h6) + :is(pre, figure, table, blockquote, wa-callout, details)
-      ) {
+          :is(h1, h2, h3, h4, h5, h6)
+            + :is(pre, figure, table, blockquote, wa-callout, details)
+        ) {
         margin-block-start: var(--wa-prose-rhythm-m);
       }
     }

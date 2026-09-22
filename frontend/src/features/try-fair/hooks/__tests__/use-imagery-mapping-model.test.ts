@@ -3,7 +3,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useImageryMappingModel } from "@/features/try-fair/hooks/use-imagery-mapping-model";
 import { ModelType } from "@/enums";
 import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
-import { useGetAPIBaseModels, useGetAPILocalModels } from "@/features/try-fair/api/features-to-map";
+import {
+  useGetAPIBaseModels,
+  useGetAPILocalModels,
+} from "@/features/try-fair/api/features-to-map";
 
 vi.mock("@/features/try-fair/api/features-to-map", () => ({
   useGetAPIBaseModels: vi.fn(),
@@ -70,6 +73,7 @@ describe("useImageryMappingModel", () => {
     useStartMappingStore.setState({ currentModelType: ModelType.IMAGERY });
 
     const mockApiModel = {
+      stac_item_id: "api-imagery-model-1",
       stac: {
         id: "api-imagery-model-1",
         properties: {
@@ -98,8 +102,64 @@ describe("useImageryMappingModel", () => {
 
     expect(result.current.modelForMapping).toBe(mockApiModel.stac);
     expect(result.current.mappingModelId).toBe("api-imagery-model-1");
+    expect(result.current.imageryModelId).toBe("api-imagery-model-1");
     expect(result.current.modelUri).toBe("s3://models/api-model.pt");
     expect(result.current.hasNoModelsForFeature).toBe(false);
+  });
+
+  it("should use the explicitly selected imagery model", () => {
+    useStartMappingStore.setState({ currentModelType: ModelType.IMAGERY });
+
+    const defaultModel = {
+      stac_item_id: "default-model",
+      stac: mockSelectedModel,
+    };
+    const selectedImageryModel = {
+      stac_item_id: "selected-model",
+      stac: { ...mockSelectedModel, id: "selected-model" },
+    };
+
+    (useGetAPIBaseModels as any).mockReturnValue({
+      data: { results: [defaultModel, selectedImageryModel] },
+      isSuccess: true,
+    });
+
+    const { result } = renderHook(() =>
+      useImageryMappingModel({
+        feature: "buildings",
+        confidence: 0.7,
+        selectedModel: mockSelectedModel,
+        selectedModelId: "selected-model",
+      }),
+    );
+
+    expect(result.current.modelForMapping).toBe(selectedImageryModel.stac);
+    expect(result.current.mappingModelId).toBe("selected-model");
+    expect(result.current.imageryModelId).toBe("selected-model");
+  });
+
+  it("should use the API model ID when an API STAC item has no ID", () => {
+    useStartMappingStore.setState({ currentModelType: ModelType.IMAGERY });
+
+    const modelWithoutId = {
+      stac_item_id: "model-without-id",
+      stac: { ...mockSelectedModel, id: undefined },
+    };
+
+    (useGetAPIBaseModels as any).mockReturnValue({
+      data: { results: [modelWithoutId] },
+      isSuccess: true,
+    });
+
+    const { result } = renderHook(() =>
+      useImageryMappingModel({
+        feature: "buildings",
+        confidence: 0.7,
+        selectedModel: mockSelectedModel,
+      }),
+    );
+
+    expect(result.current.mappingModelId).toBe("model-without-id");
   });
 
   it("should set hasNoModelsForFeature to true when in IMAGERY mode and no compatible models are found", () => {

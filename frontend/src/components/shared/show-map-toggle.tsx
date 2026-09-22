@@ -41,7 +41,9 @@ const ShowMapToggle = ({
       <p className="text-body-2base text-nowrap">
         {MODELS_CONTENT.models.modelsList.filtersSection.mapViewToggleText}
       </p>
-      <ToolTip content={`${disabled ? "Toggle off listview to show map" : "Show map"}`}>
+      <ToolTip
+        content={`${disabled ? "Toggle off listview to show map" : "Show map"}`}
+      >
         <Switch
           checked={query[SEARCH_PARAMS.mapIsActive] as boolean}
           disabled={disabled}

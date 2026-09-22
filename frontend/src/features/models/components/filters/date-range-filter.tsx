@@ -34,8 +34,12 @@ const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
 }) => {
   const { onDropdownHide, dropdownRef } = useDropdownMenu();
 
-  const [startDate, setStartDate] = useState<string>(query[SEARCH_PARAMS.startDate] as string);
-  const [endDate, setEndDate] = useState<string>(query[SEARCH_PARAMS.endDate] as string);
+  const [startDate, setStartDate] = useState<string>(
+    query[SEARCH_PARAMS.startDate] as string,
+  );
+  const [endDate, setEndDate] = useState<string>(
+    query[SEARCH_PARAMS.endDate] as string,
+  );
   const [triggerText, setTriggerText] = useState<string>("Date");
 
   const onApply = () => {
@@ -80,7 +84,9 @@ const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
         <DropDown
           ref={dropdownRef}
           disabled={disabled}
-          triggerComponent={<p className="text-sm text-dark text-nowrap">{triggerText}</p>}
+          triggerComponent={
+            <p className="text-sm text-dark text-nowrap">{triggerText}</p>
+          }
         >
           <div className="flex flex-col gap-y-4 w-full p-4 bg-white">
             {/* The user can only select one at a time*/}
@@ -89,7 +95,9 @@ const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
                 <SlCheckbox
                   key={`date-filter-${id}`}
                   size="small"
-                  checked={query[SEARCH_PARAMS.dateFilter] === datefilter.searchParams}
+                  checked={
+                    query[SEARCH_PARAMS.dateFilter] === datefilter.searchParams
+                  }
                   onSlChange={() =>
                     updateQuery({
                       [SEARCH_PARAMS.dateFilter]: datefilter.searchParams,
@@ -122,7 +130,9 @@ const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
           <SlCheckbox
             key={`date-filter-${id}`}
             size="small"
-            checked={query[SEARCH_PARAMS.dateFilter] === datefilter.searchParams}
+            checked={
+              query[SEARCH_PARAMS.dateFilter] === datefilter.searchParams
+            }
             onSlChange={() =>
               updateQuery({
                 [SEARCH_PARAMS.dateFilter]: datefilter.searchParams,

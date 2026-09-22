@@ -20,7 +20,9 @@ export const PublishPredictionFlow = ({
     mutationConfig: {
       onSuccess: () => {
         showSuccessToast(
-          isPublished ? "Prediction retracted successfully." : "Prediction published successfully.",
+          isPublished
+            ? "Prediction retracted successfully."
+            : "Prediction published successfully.",
         );
         onClose();
       },

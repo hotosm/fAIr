@@ -5,9 +5,8 @@ import { Button } from "@/components/ui/button";
 import { GlobeSearchIcon } from "@/components/ui/icons/globe-search-icon";
 import { ModelType } from "@/enums";
 import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
-import { useAuth } from "@/app/providers/auth-provider";
-import { DISABLE_AUTH_ON_TRY_FAIR } from "@/config";
 import { ImagerySource } from "@/features/try-fair/components/imagery/imagery-location-modal";
+import type { ImagerySelection } from "@/features/try-fair/types/imagery-types";
 import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
 import { useGetFeaturesToMap } from "@/features/try-fair/api/features-to-map";
 import { cn } from "@/utils";
@@ -22,6 +21,7 @@ import {
 import { ImageryPreviewCard } from "@/features/try-fair/components/model-picker/imagery-preview-card";
 import { RecentImageriesList } from "@/features/try-fair/components/model-picker/recent-imageries-list";
 import type { RecentImageryEntry } from "@/features/try-fair/hooks/use-recent-imageries";
+import { cleanFeatureLabel } from "@/features/try-fair/utils/common";
 
 // ─── ModelPicker trigger ──────────────────────────────────────────────────────
 
@@ -44,11 +44,14 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
   openMobileDialog,
 }) => {
   const place = selectedModel?.properties["fair:preview"]?.place;
-  const selectedLocation = [place?.name, place?.country].filter(Boolean).join(", ");
-
+  const selectedLocation = [place?.name, place?.country]
+    .filter(Boolean)
+    .join(", ");
+  const { feature } = useTryFairParams();
   const { currentModelType, selectedImagery } = useStartMappingStore();
 
-  const showImagery = currentModelType === ModelType.IMAGERY && !!selectedImagery;
+  const showImagery =
+    currentModelType === ModelType.IMAGERY && !!selectedImagery;
   const imageryName =
     selectedImagery?.source === ImagerySource.OPEN_AERIAL_MAP
       ? selectedImagery.item.title
@@ -58,9 +61,14 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
     <div className="flex justify-between items-center">
       <div className="w-full text-left flex-1 min-w-0">
         {showImagery ? (
-          <p className="font-semibold text-dark text-xs leading-tight capitalize truncate">
-            {imageryName}
-          </p>
+          <>
+            <p className="font-semibold text-dark text-xs leading-tight capitalize truncate">
+              {imageryName}
+            </p>
+            <p className="text-grey capitalize font-semibold text-[10px] leading-tight truncate">
+              {cleanFeatureLabel(feature)}
+            </p>
+          </>
         ) : loading ? (
           <p className="text-grey text-xs animate-pulse">Loading models…</p>
         ) : selectedModel ? (
@@ -93,7 +101,9 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
       )}
     >
       {trigger}
+
     </button>
+
   );
 };
 
@@ -125,6 +135,8 @@ export const ModelPickerContent = ({
   feature,
   onFeatureChange,
   onChooseImagery,
+  stagedImagery,
+  onApplyStagedImagery,
   recentImageries = [],
   onApplyRecentImagery,
 }: {
@@ -135,20 +147,22 @@ export const ModelPickerContent = ({
   feature?: string;
   onFeatureChange?: (slug: string) => void;
   onChooseImagery?: () => void;
+  stagedImagery?: ImagerySelection | null;
+  onApplyStagedImagery?: (selection: ImagerySelection) => void;
   recentImageries?: RecentImageryEntry[];
   onApplyRecentImagery?: (entry: RecentImageryEntry) => void;
 }) => {
-  const { isAuthenticated: _isAuthenticated } = useAuth();
-  const isAuthenticated = DISABLE_AUTH_ON_TRY_FAIR || _isAuthenticated;
   const { setChooseLocation } = useTryFairParams();
-  const { setShowSigninModal, setCurrentModelType, currentModelType, selectedImagery } =
+  const { setCurrentModelType, currentModelType, selectedImagery } =
     useStartMappingStore();
 
   // Active tab
   const [activeTab, setActiveTab] = useState<string>(TAB_SAMPLES);
 
   // Imagery panel sub-view: "preview" shows the map card, "recent" shows the list.
-  const [imageryView, setImageryView] = useState<"preview" | "recent">("preview");
+  const [imageryView, setImageryView] = useState<"preview" | "recent">(
+    "preview",
+  );
 
   // Staged choice (committed only on Apply)
   const [staged, setStaged] = useState<StagedChoice | null>(null);
@@ -164,7 +178,9 @@ export const ModelPickerContent = ({
 
   // Active imagery choice (staged selection or committed imagery)
   const activeImagery =
-    staged?.type === "imagery" && staged.entry ? staged.entry.selection : selectedImagery;
+    staged?.type === "imagery" && staged.entry
+      ? staged.entry.selection
+      : (stagedImagery ?? selectedImagery);
 
   // Imagery metadata
   const imageryCountry = useImageryCountry(activeImagery?.bounds ?? null);
@@ -178,26 +194,36 @@ export const ModelPickerContent = ({
 
   // Feature list from API
   const { data: featuresData } = useGetFeaturesToMap();
-  const featureList = (featuresData?.results ?? []).filter((f) => f.slug !== "other");
+  const featureList = (featuresData?.results ?? []).filter(
+    (f) => f.slug !== "other",
+  );
   const effectiveFeatureSlug = stagedFeature ?? feature;
   const selectedFeature =
-    featureList.find((f) => f.slug === effectiveFeatureSlug) ?? featureList[0] ?? null;
+    featureList.find((f) => f.slug === effectiveFeatureSlug) ??
+    featureList[0] ??
+    null;
 
   // Key helpers
   const keyOf = (choice: StagedChoice): string =>
-    choice.type === "imagery" ? (choice.entry?.tileUrl ?? IMAGERY_KEY) : choice.model.id;
+    choice.type === "imagery"
+      ? (choice.entry?.tileUrl ?? IMAGERY_KEY)
+      : choice.model.id;
 
   const committedKey =
     currentModelType === ModelType.IMAGERY
       ? (selectedImagery?.tileUrl ?? IMAGERY_KEY)
       : (selectedModel?.id ?? null);
   const stagedKey = staged ? keyOf(staged) : null;
-  const activeKey = stagedKey ?? committedKey;
+  const imageryKey = stagedImagery?.tileUrl ?? null;
+  const activeKey = stagedKey ?? imageryKey ?? committedKey;
   const hasFeatureChange = stagedFeature !== null && stagedFeature !== feature;
-  const hasChange = (stagedKey !== null && stagedKey !== committedKey) || hasFeatureChange;
+  const hasChange =
+    ((stagedKey ?? imageryKey) !== null &&
+      (stagedKey ?? imageryKey) !== committedKey) ||
+    hasFeatureChange;
 
   const handleApply = () => {
-    if (!staged && !hasFeatureChange) return;
+    if (!staged && !stagedImagery && !hasFeatureChange) return;
     if (staged) {
       if (staged.type === "model") {
         onSelect(staged.model);
@@ -208,6 +234,8 @@ export const ModelPickerContent = ({
           setCurrentModelType(ModelType.IMAGERY);
         }
       }
+    } else if (stagedImagery) {
+      onApplyStagedImagery?.(stagedImagery);
     }
     if (hasFeatureChange && stagedFeature) {
       onFeatureChange?.(stagedFeature);
@@ -222,9 +250,6 @@ export const ModelPickerContent = ({
       onChooseImagery();
     } else {
       setChooseLocation(true);
-      if (!isAuthenticated) {
-        setShowSigninModal(true);
-      }
     }
     onClose?.();
   };
@@ -262,7 +287,8 @@ export const ModelPickerContent = ({
             <div className="flex items-center gap-3">
               <GlobeSearchIcon className="text-white shrink-0" />
               <p className="text-sm">
-                Choose your own <strong>feature</strong> and <strong>location</strong> to map
+                Choose your own <strong>feature</strong> and{" "}
+                <strong>location</strong> to map
               </p>
             </div>
             <DoubleArrowIcon />
@@ -295,13 +321,17 @@ export const ModelPickerContent = ({
                     <p className="text-grey text-xs mb-2">
                       By: {model?.properties?.providers[0]?.name ?? ""}
                     </p>
-                    <FeatureBadge label={model?.properties?.keywords[0] ?? ""} />
+                    <FeatureBadge
+                      label={model?.properties?.keywords[0] ?? ""}
+                    />
                   </button>
                 );
               })
             ) : (
               <div className="col-span-2 flex flex-col items-center justify-center py-10 px-4 text-center">
-                <p className="text-dark font-semibold text-sm mb-1">No models available</p>
+                <p className="text-dark font-semibold text-sm mb-1">
+                  No models available
+                </p>
                 <p className="text-grey text-xs max-w-xs">
                   There are currently no models available for use.
                 </p>
@@ -381,7 +411,8 @@ export const ModelPickerContent = ({
                     <ChooseImageryIcon />
                   </div>
                   <p className="text-grey max-w-lg text-xs">
-                    Choose an imagery to map <span>{selectedFeature?.label ?? "buildings"}</span>
+                    Choose an imagery to map{" "}
+                    <span>{selectedFeature?.label ?? "buildings"}</span>
                   </p>
                   <Button
                     type="button"

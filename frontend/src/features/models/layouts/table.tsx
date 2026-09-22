@@ -25,7 +25,9 @@ const columnDefinitions: ColumnDef<TModel>[] = [
     accessorKey: "name",
     header: "Model Name",
     cell: ({ row }) => (
-      <span title={row.getValue("name")}>{truncateString(row.getValue("name"), 50)}</span>
+      <span title={row.getValue("name")}>
+        {truncateString(row.getValue("name"), 50)}
+      </span>
     ),
   },
   {
@@ -34,7 +36,9 @@ const columnDefinitions: ColumnDef<TModel>[] = [
   },
   {
     accessorKey: "created_at",
-    header: ({ column }) => <SortableHeader title={"Date Created"} column={column} />,
+    header: ({ column }) => (
+      <SortableHeader title={"Date Created"} column={column} />
+    ),
     cell: ({ row }) => {
       return <span>{formatDate(row.getValue("created_at"))}</span>;
     },
@@ -48,14 +52,20 @@ const columnDefinitions: ColumnDef<TModel>[] = [
   },
   {
     accessorKey: "accuracy",
-    header: ({ column }) => <SortableHeader title={"Accuracy (%)"} column={column} />,
+    header: ({ column }) => (
+      <SortableHeader title={"Accuracy (%)"} column={column} />
+    ),
     cell: ({ row }) => {
       return <span>{roundNumber(row.getValue("accuracy") ?? 0)}</span>;
     },
   },
 ];
 
-const ModelListTableLayout: React.FC<ModelListProps> = ({ models, isPending, isError }) => {
+const ModelListTableLayout: React.FC<ModelListProps> = ({
+  models,
+  isPending,
+  isError,
+}) => {
   if (isPending || isError) return <TableSkeleton />;
   const [sorting, setSorting] = useState<SortingState>([]);
   const navigate = useNavigate();

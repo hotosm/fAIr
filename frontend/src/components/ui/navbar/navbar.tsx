@@ -37,7 +37,9 @@ export const NavBar = () => {
 
   const LegacyLoginButton = ({ className }: { className?: string }) => (
     <Button className={className} onClick={handleLogin} spinner={loading}>
-      {loading ? SHARED_CONTENT.loginButtonLoading : SHARED_CONTENT.navbar.loginButton}
+      {loading
+        ? SHARED_CONTENT.loginButtonLoading
+        : SHARED_CONTENT.navbar.loginButton}
     </Button>
   );
 
@@ -47,7 +49,10 @@ export const NavBar = () => {
         <div className={styles.drawerContentContainer}>
           <div className={styles.drawerHeaderContainer}>
             <NavLogo />
-            <button onClick={() => setOpen(false)} className={styles.closeButton}>
+            <button
+              onClick={() => setOpen(false)}
+              className={styles.closeButton}
+            >
               &#x2715;
             </button>
           </div>

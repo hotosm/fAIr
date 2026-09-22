@@ -30,6 +30,7 @@ body {
   --hot-fair-color-status-pending-color: #fff9da;
   --hot-fair-color-status-changes-color: #ffe3da;
   --hot-fair-color-yellow-secondary: #fffddb;
+  --hot-fair-color-gray-white: #fafafa;
 
   /* Font sizes in rem */
   --hot-fair-font-size-extra-large: 4.25rem;

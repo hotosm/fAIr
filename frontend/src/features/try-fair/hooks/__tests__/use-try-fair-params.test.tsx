@@ -5,7 +5,12 @@ import {
   TRY_FAIR_PARAM_DEFAULTS,
   useTryFairParams,
 } from "@/features/try-fair/hooks/use-try-fair-params";
-import { ModelType, TileServiceType, TryFairMapOutputType, TryFairResolution } from "@/enums";
+import {
+  ModelType,
+  TileServiceType,
+  TryFairMapOutputType,
+  TryFairResolution,
+} from "@/enums";
 import React from "react";
 
 vi.mock("../use-base-models", () => ({
@@ -16,7 +21,9 @@ vi.mock("../use-base-models", () => ({
 describe("useTryFairParams", () => {
   const createWrapper = (searchParams?: Record<string, string>) => {
     return ({ children }: { children: React.ReactNode }) => (
-      <NuqsTestingAdapter searchParams={searchParams}>{children}</NuqsTestingAdapter>
+      <NuqsTestingAdapter searchParams={searchParams}>
+        {children}
+      </NuqsTestingAdapter>
     );
   };
 
@@ -60,7 +67,9 @@ describe("useTryFairParams", () => {
     expect(result.current.confidence).toBe(0.85);
     expect(result.current.feature).toBe("roads");
     expect(result.current.mode).toBe(ModelType.IMAGERY);
-    expect(result.current.imageryUrl).toBe("https://example.com/tiles/{z}/{x}/{y}.png");
+    expect(result.current.imageryUrl).toBe(
+      "https://example.com/tiles/{z}/{x}/{y}.png",
+    );
     expect(result.current.imageryTileServiceType).toBe(TileServiceType.XYZ);
     expect(result.current.oamItemId).toBe("item-123");
     expect(result.current.chooseLocation).toBe(true);
@@ -120,7 +129,9 @@ describe("useTryFairParams", () => {
       });
     });
 
-    expect(result.current.imageryUrl).toBe("https://tiles.example.com/{z}/{x}/{y}.png");
+    expect(result.current.imageryUrl).toBe(
+      "https://tiles.example.com/{z}/{x}/{y}.png",
+    );
     expect(result.current.imageryTileServiceType).toBe(TileServiceType.TMS);
     expect(result.current.oamItemId).toBe("oam-999");
   });

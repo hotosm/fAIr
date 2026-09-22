@@ -7,7 +7,11 @@ type SwitchProps = {
   handleSwitchChange: (args: any) => void;
   checked: boolean;
 };
-const Switch: React.FC<SwitchProps> = ({ checked, disabled, handleSwitchChange }) => {
+const Switch: React.FC<SwitchProps> = ({
+  checked,
+  disabled,
+  handleSwitchChange,
+}) => {
   return (
     <SlSwitch
       checked={checked}

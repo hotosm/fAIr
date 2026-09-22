@@ -1,6 +1,11 @@
 import { Head } from "@/components/seo";
 import { TRY_FAIR_PAGE_CONTENT } from "@/constants/ui-contents/try-fair-contents";
-import { ImagerySource, ModelType, TryFairMapOutputType, TryFairResolution } from "@/enums";
+import {
+  ImagerySource,
+  ModelType,
+  TryFairMapOutputType,
+  TryFairResolution,
+} from "@/enums";
 import { TryFairMap } from "@/features/try-fair/components/map/try-fair-map";
 import { TryFairSidebar } from "@/features/try-fair/components/try-fair-sidebar";
 import { ModelPickerContent } from "@/features/try-fair/components/model-picker-modal";
@@ -8,24 +13,29 @@ import { getSelectedModel } from "@/features/try-fair/utils/models";
 import { useMapInstance } from "@/hooks/use-map-instance";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
-import { useStacBaseModels, useStacLocalModels } from "@/features/try-fair/hooks/use-base-models";
+import {
+  useStacBaseModels,
+  useStacLocalModels,
+} from "@/features/try-fair/hooks/use-base-models";
 import { BBOX } from "@/types";
 import { MapLargeAreaModal } from "@/features/try-fair/components/start-mapping/map-large-area-modal";
 import { useFairPredict } from "@/features/try-fair/hooks/use-fair-predict";
 import { useTryFairImagery } from "@/features/try-fair/hooks/use-try-fair-imagery";
 import { useTryFairTour } from "@/features/try-fair/hooks/use-try-fair-tour";
-import { BaseModelStacItem, getInferenceParams } from "@/features/try-fair/api/stac";
+import {
+  BaseModelStacItem,
+  getInferenceParams,
+} from "@/features/try-fair/api/stac";
 import { useImageryMappingModel } from "@/features/try-fair/hooks/use-imagery-mapping-model";
 import useScreenSize from "@/hooks/use-screen-size";
 import { MobileDrawer } from "@/components/ui/drawer";
 import { getModelOutputType } from "@/features/try-fair/utils/common";
 import { Dialog } from "@/components/ui/dialog";
 import { useDialog } from "@/hooks/use-dialog";
+import { AdvancedModelPickerContent } from "@/features/try-fair/components/model-picker/advanced-model-picker-dialog";
 import { ImageryLocationDialog } from "@/features/try-fair/components/imagery/imagery-location-modal";
 import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
 import { SignInPromptDialog } from "@/features/try-fair/components/modals/sign-in-prompt";
-import { useAuth } from "@/app/providers/auth-provider";
-import { DISABLE_AUTH_ON_TRY_FAIR } from "@/config";
 import type { ImagerySelection } from "@/features/try-fair/types/imagery-types";
 import { MapLargeAreaRequestSuccess } from "@/features/try-fair/components/start-mapping/map-large-area-request-success-dialog";
 import { useShallow } from "zustand/react/shallow";
@@ -37,8 +47,6 @@ import type { RecentImageryEntry } from "@/features/try-fair/hooks/use-recent-im
 export const TryFairPage = () => {
   const { map, mapContainerRef } = useMapInstance(false, false);
   const { isSmallViewport } = useScreenSize();
-  const { isAuthenticated: _isAuthenticated } = useAuth();
-  const isAuthenticated = DISABLE_AUTH_ON_TRY_FAIR || _isAuthenticated;
 
   const {
     showSigninModal,
@@ -61,14 +69,17 @@ export const TryFairPage = () => {
       setOutputType: state.setOutputType,
     })),
   );
-  const { closeGuidedTour, openGuidedTour, recordMapRun } = useTryFairTour(isSmallViewport);
+  const { closeGuidedTour, openGuidedTour, recordMapRun } =
+    useTryFairTour(isSmallViewport);
 
   const {
     modelId,
+    selectedModelId,
     outputType,
     resolution,
     confidence,
     setModelId,
+    setSelectedModelId,
     setOutputType,
     setResolution,
     setConfidence,
@@ -82,20 +93,27 @@ export const TryFairPage = () => {
     setImagery,
     chooseLocation,
     setChooseLocation,
-    isParametersDefault,
+    isParametersDefault: hasDefaultParameters,
     resetParameters,
   } = useTryFairParams();
 
-  const isChooseLocationOpen = Boolean(chooseLocation && isAuthenticated);
+  const isChooseLocationOpen = Boolean(chooseLocation);
 
   const { recentImageries, addRecentImagery } = useRecentImageries();
 
   const { models: allModels, loading: modelsLoading } = useStacBaseModels();
-  const { models: localModels, loading: localModelLoading } = useStacLocalModels();
+  const { models: localModels, loading: localModelLoading } =
+    useStacLocalModels();
 
-  const models = useMemo(() => [...allModels, ...localModels], [allModels, localModels]);
+  const models = useMemo(
+    () => [...allModels, ...localModels],
+    [allModels, localModels],
+  );
 
-  const selectedModel = useMemo(() => getSelectedModel(models, modelId), [models, modelId]);
+  const selectedModel = useMemo(
+    () => getSelectedModel(models, modelId),
+    [models, modelId],
+  );
   const {
     imageryBounds,
     imageryCenter,
@@ -116,19 +134,46 @@ export const TryFairPage = () => {
   const {
     modelForMapping,
     mappingModelId,
+    imageryModelId,
     modelUri,
     hasNoModelsForFeature,
     inferenceParams,
-    paramValues,
+    paramValues: defaultParamValues,
   } = useImageryMappingModel({
     feature,
     confidence,
     selectedModel,
+    selectedModelId,
   });
+
+  useEffect(() => {
+    if (modelForMapping?.id && modelForMapping.id !== modelId) {
+      setModelId(modelForMapping.id);
+    }
+  }, [modelForMapping?.id, modelId, setModelId]);
+
+  useEffect(() => {
+    if (imageryModelId && imageryModelId !== selectedModelId) {
+      setSelectedModelId(imageryModelId);
+    }
+  }, [imageryModelId, selectedModelId, setSelectedModelId]);
 
   const [latestBBox, setLatestBBox] = useState<BBOX | null>(null);
 
   const [latestGridZoom, setLatestGridZoom] = useState<number | null>(null);
+  const [parameterOverrides, setParameterOverrides] = useState<
+    Record<string, number | string | boolean>
+  >({});
+  const paramValues = useMemo(
+    () => ({ ...defaultParamValues, ...parameterOverrides }),
+    [defaultParamValues, parameterOverrides],
+  );
+  const isParametersDefault =
+    hasDefaultParameters && Object.keys(parameterOverrides).length === 0;
+
+  useEffect(() => {
+    setParameterOverrides({});
+  }, [mappingModelId]);
   // Snapshot of the current prediction inputs vs what was last submitted,
   const lastPredictedInputsRef = useRef<string | null>(null);
 
@@ -152,6 +197,19 @@ export const TryFairPage = () => {
     isOpened: isModelPickerDialogOpened,
     closeDialog: closeModelPickerDialog,
   } = useDialog();
+  const [stagedImagery, setStagedImagery] = useState<ImagerySelection | null>(
+    null,
+  );
+  const [
+    isChoosingImageryFromModelPicker,
+    setIsChoosingImageryFromModelPicker,
+  ] = useState(false);
+
+  const {
+    openDialog: openAdvancedModelPickerDialog,
+    isOpened: isAdvancedModelPickerDialogOpened,
+    closeDialog: closeAdvancedModelPickerDialog,
+  } = useDialog();
 
   // Site tour trigger logic based on map interactions and prediction state.
   const GRID_ZOOM_IN_DURATION = 1500;
@@ -166,11 +224,14 @@ export const TryFairPage = () => {
       map.dragRotate.disable();
       map.touchZoomRotate.disable();
       map.touchPitch.disable();
-      map.fitBounds([latestBBox[0], latestBBox[1], latestBBox[2], latestBBox[3]], {
-        padding: 40,
-        duration: GRID_ZOOM_IN_DURATION,
-        essential: true,
-      });
+      map.fitBounds(
+        [latestBBox[0], latestBBox[1], latestBBox[2], latestBBox[3]],
+        {
+          padding: 40,
+          duration: GRID_ZOOM_IN_DURATION,
+          essential: true,
+        },
+      );
       map.once("moveend", () => {
         map.dragPan.enable();
         map.scrollZoom.enable();
@@ -184,7 +245,8 @@ export const TryFairPage = () => {
   }, [latestBBox, map]);
 
   // Map Large Area (Export → Map Large Area). Opens when downloadType is set to
-  const [isLargeAreaSuccessDialogOpen, setIsLargeAreaSuccessDialogOpen] = useState(false);
+  const [isLargeAreaSuccessDialogOpen, setIsLargeAreaSuccessDialogOpen] =
+    useState(false);
   const handleLargeAreaSubmit = () => {
     setDownloadType("");
     setIsLargeAreaSuccessDialogOpen(true);
@@ -206,18 +268,30 @@ export const TryFairPage = () => {
     predictionBBox,
     predictionGridZoom,
     clearPredictions,
+    cancelPrediction,
   } = useFairPredict();
 
+  const handleCancelPrediction = useCallback(() => {
+    cancelPrediction();
+    lastPredictedInputsRef.current = null;
+  }, [cancelPrediction]);
   const handleSelectModel = (model: BaseModelStacItem) => {
     setModelId(model.id);
-    setCurrentModelType(ModelType.DEMO);
-    setMode(ModelType.DEMO);
-    setImagery({ url: null, tileServiceType: null, oamItemId: null });
-    setResolution(TryFairResolution.LOW);
+
+    // Only reset imagery & mode when the user was on a sample/demo location.
+    // If they have their own imagery selected, keep it intact.
+    if (mode !== ModelType.IMAGERY) {
+      setCurrentModelType(ModelType.DEMO);
+      setMode(ModelType.DEMO);
+      setImagery({ url: null, tileServiceType: null, oamItemId: null });
+      setResolution(TryFairResolution.LOW);
+    }
 
     // Reset confidence threshold to model's spec default if available
     const infParams = getInferenceParams(model);
-    const confidenceParam = infParams.find((p) => p.key === "confidence_threshold");
+    const confidenceParam = infParams.find(
+      (p) => p.key === "confidence_threshold",
+    );
     if (confidenceParam && typeof confidenceParam.spec.default === "number") {
       setConfidence(confidenceParam.spec.default);
     }
@@ -233,18 +307,32 @@ export const TryFairPage = () => {
 
   const handleParamChange = useCallback(
     (key: string, value: number | string | boolean) => {
-      if (key === "confidence_threshold") setConfidence(value as number);
+      if (key === "confidence_threshold") {
+        setConfidence(value as number);
+        return;
+      }
+      setParameterOverrides((current) => ({ ...current, [key]: value }));
     },
     [setConfidence],
   );
+
+  const handleResetAllParameters = useCallback(() => {
+    resetParameters();
+    setParameterOverrides({});
+  }, [resetParameters]);
 
   const handleBBoxChange = useCallback((bbox: BBOX, tileZoom: number) => {
     setLatestBBox(bbox);
     setLatestGridZoom(tileZoom);
   }, []);
-
   const handleMap = useCallback(() => {
-    if (hasNoModelsForFeature || !modelForMapping || !mappingModelId || !modelUri || !latestBBox)
+    if (
+      hasNoModelsForFeature ||
+      !modelForMapping ||
+      !mappingModelId ||
+      !modelUri ||
+      !latestBBox
+    )
       return;
 
     closeGuidedTour();
@@ -273,6 +361,7 @@ export const TryFairPage = () => {
       },
       {
         onError: (error) => {
+          if ((error as { code?: string }).code === "ERR_CANCELED") return;
           showErrorToast(error ?? "An Error Occured.");
           lastPredictedInputsRef.current = null;
         },
@@ -314,10 +403,16 @@ export const TryFairPage = () => {
       setSeletedImagery(selection);
       setMode(ModelType.IMAGERY);
       setImagery({
-        url: selection.source === ImagerySource.CUSTOM ? selection.tileUrl : null,
+        url:
+          selection.source === ImagerySource.CUSTOM ? selection.tileUrl : null,
         tileServiceType:
-          selection.source === ImagerySource.CUSTOM ? selection.tileServiceType : null,
-        oamItemId: selection.source === ImagerySource.OPEN_AERIAL_MAP ? selection.item.id : null,
+          selection.source === ImagerySource.CUSTOM
+            ? selection.tileServiceType
+            : null,
+        oamItemId:
+          selection.source === ImagerySource.OPEN_AERIAL_MAP
+            ? selection.item.id
+            : null,
       });
       // Invalidate the last prediction so the Map button re-enables and stale
       // predictions clear when the imagery changes.
@@ -328,7 +423,9 @@ export const TryFairPage = () => {
       // Add to recent imageries list.
       const isOam = selection.source === ImagerySource.OPEN_AERIAL_MAP;
       const bounds = selection.bounds ?? null;
-      const center = bounds ? [(bounds[0] + bounds[2]) / 2, (bounds[1] + bounds[3]) / 2] : null;
+      const center = bounds
+        ? [(bounds[0] + bounds[2]) / 2, (bounds[1] + bounds[3]) / 2]
+        : null;
 
       const addEntry = (country = "", countryCode = "") => {
         addRecentImagery({
@@ -381,6 +478,7 @@ export const TryFairPage = () => {
     setPredictionBBoxInStore(predictionBBox);
     setPredictionGridZoomInStore(predictionGridZoom);
   }, [predictions, predictionBBox, predictionGridZoom]);
+
   return (
     <>
       <Head title={TRY_FAIR_PAGE_CONTENT.pageTitle} />
@@ -398,30 +496,62 @@ export const TryFairPage = () => {
           onClose={closeModelPickerDialog}
           feature={feature}
           onFeatureChange={setFeature}
+          stagedImagery={stagedImagery}
+          onApplyStagedImagery={(selection) => {
+            setStagedImagery(null);
+            handleApplyImagery(selection);
+          }}
           recentImageries={recentImageries}
           onApplyRecentImagery={handleApplyRecentImagery}
           onChooseImagery={() => {
             closeModelPickerDialog();
+            setIsChoosingImageryFromModelPicker(true);
             setChooseLocation(true);
-            if (!isAuthenticated) {
-              setShowSigninModal(true);
-            }
           }}
+        />
+      </Dialog>
+
+      {/* Advanced Model picker dialog */}
+      <Dialog
+        label="Select a Model"
+        isOpened={isAdvancedModelPickerDialogOpened}
+        closeDialog={closeAdvancedModelPickerDialog}
+      >
+        <AdvancedModelPickerContent
+          feature={feature}
+          onSelect={handleSelectModel}
+          onClose={closeAdvancedModelPickerDialog}
         />
       </Dialog>
 
       {/* Imagery/location dialog – rendered at page level */}
       <ImageryLocationDialog
         isOpened={isChooseLocationOpen}
-        closeDialog={() => setChooseLocation(false)}
-        onApply={handleApplyImagery}
+        closeDialog={() => {
+          setChooseLocation(false);
+          setIsChoosingImageryFromModelPicker(false);
+        }}
+        onBackToModelPicker={
+          isChoosingImageryFromModelPicker
+            ? () => {
+                setChooseLocation(false);
+                setIsChoosingImageryFromModelPicker(false);
+                openModelPickerDialog();
+              }
+            : undefined
+        }
+        onApply={(selection) => {
+          if (isChoosingImageryFromModelPicker) {
+            setStagedImagery(selection);
+            return;
+          }
+          handleApplyImagery(selection);
+        }}
       />
-      {!DISABLE_AUTH_ON_TRY_FAIR && (
-        <SignInPromptDialog
-          isOpened={showSigninModal}
-          closeDialog={() => setShowSigninModal(false)}
-        />
-      )}
+      <SignInPromptDialog
+        isOpened={showSigninModal}
+        closeDialog={() => setShowSigninModal(false)}
+      />
 
       {/* Map Large Area (Export → Map Large Area) */}
       <MapLargeAreaModal
@@ -437,8 +567,6 @@ export const TryFairPage = () => {
         onClose={() => setIsLargeAreaSuccessDialogOpen(false)}
       />
 
-      {/* Signin Prompt */}
-
       <div className="flex h-screen md:h-[92vh] flex-col fullscreen">
         <div className="flex-grow relative">
           <TryFairMap
@@ -452,9 +580,12 @@ export const TryFairPage = () => {
             predictions={predictions}
             predictionBBox={predictionBBox}
             predictionGridZoom={predictionGridZoom}
+            hasNoResults={
+              !isPredicting &&
+              Boolean(predictions && !predictions.features.length)
+            }
             imageryCenter={imageryCenter}
             resolution={resolution}
-            modelId={mappingModelId ?? modelId}
             isPredicting={isPredicting}
             canFitToBounds={true}
             onHelp={openGuidedTour}
@@ -474,12 +605,14 @@ export const TryFairPage = () => {
                 inferenceParams={inferenceParams}
                 paramValues={paramValues}
                 onParamChange={handleParamChange}
-                onResetParameters={resetParameters}
+                onResetParameters={handleResetAllParameters}
                 isParametersDefault={isParametersDefault}
                 onMap={handleMap}
+                onCancelPrediction={handleCancelPrediction}
                 isPredicting={isPredicting}
                 isMapButtonDisabled={isMapButtonDisabled}
                 openMobileModelPickerDialog={openModelPickerDialog}
+                openAdvancedModelPickerDialog={openAdvancedModelPickerDialog}
               />
             </div>
           )}
@@ -506,13 +639,15 @@ export const TryFairPage = () => {
                   inferenceParams={inferenceParams}
                   paramValues={paramValues}
                   onParamChange={handleParamChange}
-                  onResetParameters={resetParameters}
+                  onResetParameters={handleResetAllParameters}
                   isParametersDefault={isParametersDefault}
                   onMap={handleMap}
+                  onCancelPrediction={handleCancelPrediction}
                   isPredicting={isPredicting}
                   isMapButtonDisabled={isMapButtonDisabled}
                   className="w-full shadow-none"
                   openMobileModelPickerDialog={openModelPickerDialog}
+                  openAdvancedModelPickerDialog={openAdvancedModelPickerDialog}
                 />
               </MobileDrawer>
             </div>

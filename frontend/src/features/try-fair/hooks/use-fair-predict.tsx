@@ -3,6 +3,7 @@ import { BaseModelStacItem, runPredict } from "../api/stac";
 import { TryFairResolution } from "@/enums/try-fair";
 import { BBOX } from "@/types";
 import { TRY_FAIR_RESOLUTION_ZOOM } from "@/features/try-fair/utils/common";
+import { useRef } from "react";
 type PredictResult = {
   predictions: GeoJSON.FeatureCollection;
   bbox: BBOX;
@@ -22,21 +23,46 @@ type PredictArgs = {
 };
 
 export const useFairPredict = () => {
-  const { mutate, isPending, data, error, reset } = useMutation<PredictResult, Error, PredictArgs>({
-    mutationFn: async ({ model, modelUri, imageUri, bbox, gridZoom, resolution, params }) => {
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const { mutate, isPending, data, error, reset } = useMutation<
+    PredictResult,
+    Error,
+    PredictArgs
+  >({
+    mutationFn: async ({
+      model,
+      modelUri,
+      imageUri,
+      bbox,
+      gridZoom,
+      resolution,
+      params,
+    }) => {
       const inferenceEndpoint = model.assets["mlm:inference-endpoint"]?.href;
       if (!inferenceEndpoint) {
         throw new Error("Selected model is missing an inference endpoint.");
       }
 
-      const predictions = await runPredict(inferenceEndpoint, {
-        model_uri: modelUri,
-        image_uri: imageUri,
-        bbox,
-        zoom: gridZoom ?? TRY_FAIR_RESOLUTION_ZOOM[resolution],
-        params,
-      });
-      return { predictions, bbox, gridZoom };
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+      try {
+        const predictions = await runPredict(
+          inferenceEndpoint,
+          {
+            model_uri: modelUri,
+            image_uri: imageUri,
+            bbox,
+            zoom: gridZoom ?? TRY_FAIR_RESOLUTION_ZOOM[resolution],
+            params,
+          },
+          controller.signal,
+        );
+        return { predictions, bbox, gridZoom };
+      } finally {
+        if (abortControllerRef.current === controller) {
+          abortControllerRef.current = null;
+        }
+      }
     },
   });
 
@@ -48,5 +74,6 @@ export const useFairPredict = () => {
     predictionGridZoom: data?.gridZoom ?? null,
     error: error?.message ?? null,
     clearPredictions: reset,
+    cancelPrediction: () => abortControllerRef.current?.abort(),
   };
 };

@@ -55,6 +55,8 @@ describe("parseStringEnv()", () => {
   });
 
   it("should trim spaces from a valid input", () => {
-    expect(parseStringEnv("  example.com  ", "default.com")).toBe("example.com");
+    expect(parseStringEnv("  example.com  ", "default.com")).toBe(
+      "example.com",
+    );
   });
 });

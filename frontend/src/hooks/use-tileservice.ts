@@ -15,20 +15,28 @@ export const useTileservice = (
   defaultTileServiceType: TileServiceType,
   defaultTileserverURL: string,
 ) => {
-  const [tileServiceType, setTileServiceType] = useState<TileServiceType>(defaultTileServiceType);
+  const [tileServiceType, setTileServiceType] = useState<TileServiceType>(
+    defaultTileServiceType,
+  );
 
   const [loading, setLoading] = useState<boolean>(false);
 
-  const [tileJSONMetadata, setTileJSONMetadata] = useState<TileJSON | null>(null);
+  const [tileJSONMetadata, setTileJSONMetadata] = useState<TileJSON | null>(
+    null,
+  );
 
-  const [tileserverURL, setTileserverURL] = useState<string>(defaultTileserverURL);
+  const [tileserverURL, setTileserverURL] =
+    useState<string>(defaultTileserverURL);
 
   const [tileServiceTypeValidity, setTileServiceTypeValidity] = useState({
     valid: false,
     message: "",
   });
 
-  const currentRegex = useMemo(() => getTileServerRegex(tileServiceType), [tileServiceType]);
+  const currentRegex = useMemo(
+    () => getTileServerRegex(tileServiceType),
+    [tileServiceType],
+  );
   const isValidTileserverURL = useMemo(
     () => currentRegex.test(tileserverURL),
     [tileserverURL, currentRegex],
@@ -40,12 +48,15 @@ export const useTileservice = (
   useEffect(() => {
     setTileServiceTypeValidity({
       valid: isValidTileserverURL,
-      message: isValidTileserverURL ? "" : "Invalid tile server URL. Please provide a valid URL.",
+      message: isValidTileserverURL
+        ? ""
+        : "Invalid tile server URL. Please provide a valid URL.",
     });
   }, [tileserverURL, tileServiceType]);
 
   const { sourceURL, isOpenAerialMap } = useMemo(() => {
-    const openAerial = OPENAERIALMAP_TILESERVER_URL_REGEX_PATTERN.test(tileserverURL);
+    const openAerial =
+      OPENAERIALMAP_TILESERVER_URL_REGEX_PATTERN.test(tileserverURL);
     return {
       isOpenAerialMap: openAerial,
       sourceURL: openAerial ? extractTileJSONURL(tileserverURL) : tileserverURL,
@@ -81,7 +92,12 @@ export const useTileservice = (
     };
 
     fetchTileJSONMetadata();
-  }, [tileServiceType, tileServiceTypeValidity.valid, sourceURL, isOpenAerialMap]);
+  }, [
+    tileServiceType,
+    tileServiceTypeValidity.valid,
+    sourceURL,
+    isOpenAerialMap,
+  ]);
 
   return {
     tileserverURL,
@@ -130,7 +146,8 @@ export const useTileServiceLayer = ({
   }, [tileServiceURL]);
 
   useEffect(() => {
-    if (!tileServiceTypeValidity.valid || !map || !sourceURL || !addLayerToMap) return;
+    if (!tileServiceTypeValidity.valid || !map || !sourceURL || !addLayerToMap)
+      return;
 
     const source = map.getSource(TMS_SOURCE_ID);
 
@@ -163,7 +180,9 @@ export const useTileServiceLayer = ({
         layout: { visibility: "visible" },
       });
     } catch (e) {
-      setError("Unable to load the tile server. Please verify the URL and try again.");
+      setError(
+        "Unable to load the tile server. Please verify the URL and try again.",
+      );
     } finally {
       setLoading(false);
     }
@@ -173,7 +192,13 @@ export const useTileServiceLayer = ({
       if (map.getLayer(TMS_LAYER_ID)) map.removeLayer(TMS_LAYER_ID);
       if (map.getSource(TMS_SOURCE_ID)) map.removeSource(TMS_SOURCE_ID);
     };
-  }, [map, sourceURL, tileServiceType, tileServiceTypeValidity.valid, isOpenAerialMap]);
+  }, [
+    map,
+    sourceURL,
+    tileServiceType,
+    tileServiceTypeValidity.valid,
+    isOpenAerialMap,
+  ]);
 
   useEffect(() => {
     if (error) {

@@ -39,7 +39,9 @@ export const ImagerySourceToggle = ({
               isSelected ? "border-primary" : "border-gray-border",
             )}
           >
-            {isSelected && <span className="w-2.5 h-2.5 rounded-full bg-primary" />}
+            {isSelected && (
+              <span className="w-2.5 h-2.5 rounded-full bg-primary" />
+            )}
           </span>
         </button>
       );

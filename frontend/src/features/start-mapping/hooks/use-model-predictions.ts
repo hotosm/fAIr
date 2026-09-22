@@ -8,7 +8,9 @@ export type useGetModelPredictionsOptions = {
   mutationConfig?: MutationConfig<typeof getModelPredictions>;
 };
 
-export const useGetModelPredictions = ({ mutationConfig }: useGetModelPredictionsOptions) => {
+export const useGetModelPredictions = ({
+  mutationConfig,
+}: useGetModelPredictionsOptions) => {
   const { onSuccess, ...restConfig } = mutationConfig || {};
   return useMutation({
     mutationFn: (args: TModelPredictionsConfig) => getModelPredictions(args),
@@ -28,7 +30,8 @@ export const useSubmitOfflinePredictionsRequest = ({
 }: useSubmitOfflinePredictionsOptions) => {
   const { onSuccess, ...restConfig } = mutationConfig || {};
   return useMutation({
-    mutationFn: (args: TOfflinePredictionsConfig) => submitOfflinePredictionRequest(args),
+    mutationFn: (args: TOfflinePredictionsConfig) =>
+      submitOfflinePredictionRequest(args),
     onSuccess: (...args) => {
       onSuccess?.(...args);
     },

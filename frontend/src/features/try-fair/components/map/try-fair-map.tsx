@@ -8,6 +8,7 @@ import { TryFairPredictionsLayer } from "@/features/try-fair/components/map/try-
 import { ChoroplethBucket } from "@/features/try-fair/utils/helpers";
 import { TryFairChoroplethLegend } from "@/features/try-fair/components/map/chloropleth-legend";
 import { TryFairPointsLegend } from "@/features/try-fair/components/map/points-legend";
+import { TryFairPolygonLegend } from "@/features/try-fair/components/map/polygon-legend";
 import { FitToBounds, ZoomControls } from "@/components/map/controls";
 import { InfoIcon } from "@/components/ui/icons";
 import { ToolTip } from "@/components/ui/tooltip";
@@ -18,10 +19,6 @@ import useScreenSize from "@/hooks/use-screen-size";
 import { LocateGridIcon } from "@/components/ui/icons/locate-grid-icon";
 import { TryFairDownloadButton } from "@/features/try-fair/components/map/try-fair-download-button";
 import { cn } from "@/utils";
-import { GlobeSearchIcon } from "@/components/ui/icons/globe-search-icon";
-import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
-import { useAuth } from "@/app/providers/auth-provider";
-import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
 
 type TryFairMapProps = {
   map: Map | null;
@@ -34,9 +31,9 @@ type TryFairMapProps = {
   predictions: GeoJSON.FeatureCollection | null;
   predictionBBox: BBOX | null;
   predictionGridZoom?: number | null;
+  hasNoResults?: boolean;
   imageryCenter?: [number, number];
   resolution?: TryFairResolution;
-  modelId?: string | null;
   isPredicting?: boolean;
   canFitToBounds: boolean;
   /** Opens the guided "how it works" tour. */
@@ -56,18 +53,17 @@ export const TryFairMap = ({
   predictions,
   predictionBBox,
   predictionGridZoom,
+  hasNoResults = false,
   imageryCenter,
   resolution,
-  modelId,
   isPredicting = false,
   canFitToBounds,
   onHelp,
 }: TryFairMapProps) => {
   const { isSmallViewport } = useScreenSize();
-  const { setChooseLocation } = useTryFairParams();
-  const { setShowSigninModal } = useStartMappingStore();
-  const { isAuthenticated } = useAuth();
-  const [choroplethBuckets, setChoroplethBuckets] = useState<ChoroplethBucket[] | null>(null);
+  const [choroplethBuckets, setChoroplethBuckets] = useState<
+    ChoroplethBucket[] | null
+  >(null);
   const gridBBoxRef = useRef<BBOX | null>(null);
   const fitPendingRef = useRef(false);
 
@@ -145,6 +141,8 @@ export const TryFairMap = ({
       <TryFairChoroplethLegend buckets={choroplethBuckets} />
     ) : outputType === TryFairMapOutputType.POINTS ? (
       <TryFairPointsLegend totalCount={predictions?.features.length ?? 0} />
+    ) : outputType === TryFairMapOutputType.POLYGON ? (
+      <TryFairPolygonLegend totalCount={predictions?.features.length ?? 0} />
     ) : null;
 
   return (
@@ -177,8 +175,8 @@ export const TryFairMap = ({
           onBBoxChange={handleBBoxChange}
           center={imageryCenter}
           resolution={resolution}
-          modelId={modelId}
           isPredicting={isPredicting}
+          hasNoResults={hasNoResults}
           outputType={outputType}
           predictionBBox={predictionBBox}
           predictionGridZoom={predictionGridZoom}
@@ -187,23 +185,6 @@ export const TryFairMap = ({
 
       {map && (
         <div className="absolute top-5 right-3 map-elements-z-index flex flex-col gap-y-4">
-          <ToolTip content="Change Imagery">
-            <button
-              type="button"
-              onClick={() => {
-                setChooseLocation(true);
-                if (!isAuthenticated) {
-                  setShowSigninModal(true);
-                }
-              }}
-              disabled={isPredicting}
-              aria-label="Choose a different location"
-              className={cn(mapActionButtonClassName, isPredicting && "!disabled:cursor-wait")}
-            >
-              <GlobeSearchIcon />
-            </button>
-          </ToolTip>
-
           {/* Group 1: Zoom In, Zoom Out, Fit to bounds */}
           <div className="flex bg-white rounded-[4px] border border-gray-border md:border-0 shadow-sm flex-col gap-y-0">
             <ZoomControls

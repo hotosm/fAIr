@@ -1,4 +1,10 @@
-import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
 import { useLocalStorage } from "@/hooks/use-storage";
 import { useTour } from "@reactour/tour";
@@ -33,7 +39,9 @@ type AppTourProviderProps = {
   children: React.ReactNode;
 };
 
-export const AppTourProvider: React.FC<AppTourProviderProps> = ({ children }) => {
+export const AppTourProvider: React.FC<AppTourProviderProps> = ({
+  children,
+}) => {
   const { setIsOpen, setCurrentStep, setSteps } = useTour();
   const { getValue, setValue } = useLocalStorage();
   const [showTourModal, setShowTourModal] = useState<boolean>(false);
@@ -45,7 +53,9 @@ export const AppTourProvider: React.FC<AppTourProviderProps> = ({ children }) =>
     setIsOpen(true);
     // @ts-expect-error bad types definition
     setSteps((prevSteps) => {
-      const visibleSteps = APP_TOUR_STEPS.filter((step) => document.querySelector(step.selector));
+      const visibleSteps = APP_TOUR_STEPS.filter((step) =>
+        document.querySelector(step.selector),
+      );
       return visibleSteps;
     });
     setCurrentStep(0);

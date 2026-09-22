@@ -52,7 +52,9 @@ describe("OAMImageryPanel", () => {
   });
 
   it("should render nothing when cellSelected is false", () => {
-    const { container } = render(<OAMImageryPanel {...defaultProps} cellSelected={false} />);
+    const { container } = render(
+      <OAMImageryPanel {...defaultProps} cellSelected={false} />,
+    );
     expect(container.firstChild).toBeNull();
   });
 
@@ -80,7 +82,9 @@ describe("OAMImageryPanel", () => {
 
   it("should render empty state when no images are present in area", () => {
     render(<OAMImageryPanel {...defaultProps} images={[]} />);
-    expect(screen.getByText("No imagery available in this area.")).toBeInTheDocument();
+    expect(
+      screen.getByText("No imagery available in this area."),
+    ).toBeInTheDocument();
   });
 
   it("should disable Use this image button when no image is selected", () => {

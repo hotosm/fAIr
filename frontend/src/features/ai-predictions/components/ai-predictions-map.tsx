@@ -23,7 +23,9 @@ const getPredictionId = (feature: FeatureCollection["features"][number]) => {
       ? (feature.properties as Record<string, unknown>)
       : {};
 
-  return properties.id ?? properties.pid ?? properties.prediction_id ?? feature.id;
+  return (
+    properties.id ?? properties.pid ?? properties.prediction_id ?? feature.id
+  );
 };
 
 const maplibreLayerDefn = (
@@ -53,7 +55,17 @@ const maplibreLayerDefn = (
     layout: {},
     paint: {
       "circle-color": "rgba(214, 63, 64,0.8)",
-      "circle-radius": ["step", ["get", "point_count"], 14, 10, 22, 50, 30, 500, 37],
+      "circle-radius": [
+        "step",
+        ["get", "point_count"],
+        14,
+        10,
+        22,
+        50,
+        30,
+        500,
+        37,
+      ],
     },
   });
 
@@ -103,7 +115,9 @@ const maplibreLayerDefn = (
 
   map.on("click", "published-predictions-unclustered-points", (e: any) => {
     const clickedFeature = e.features?.[0];
-    const clickedPredictionId = clickedFeature ? getPredictionId(clickedFeature) : undefined;
+    const clickedPredictionId = clickedFeature
+      ? getPredictionId(clickedFeature)
+      : undefined;
 
     if (clickedPredictionId) {
       handleClickOnPredictionID(String(clickedPredictionId));
@@ -145,22 +159,32 @@ export const AIPredictionsMap: React.FC<AIPredictionsMapProps> = ({
   useEffect(() => {
     if (!map || !mapResults) return;
 
-    const someResultsReady = mapResults.features && mapResults.features.length > 0;
+    const someResultsReady =
+      mapResults.features && mapResults.features.length > 0;
     const mapReadyPredictionsReady =
-      map.isStyleLoaded() && map.getSource(mapSourceName) === undefined && someResultsReady;
+      map.isStyleLoaded() &&
+      map.getSource(mapSourceName) === undefined &&
+      someResultsReady;
 
     const labeledMapResults = getMapResultsWithLabels();
 
     if (mapReadyPredictionsReady) {
       maplibreLayerDefn(map, labeledMapResults, handleClickOnPredictionID);
     } else {
-      map.on("load", () => maplibreLayerDefn(map, labeledMapResults, handleClickOnPredictionID));
+      map.on("load", () =>
+        maplibreLayerDefn(map, labeledMapResults, handleClickOnPredictionID),
+      );
     }
   }, [map, mapResults, getMapResultsWithLabels, handleClickOnPredictionID]);
 
   return (
     <div className="h-full w-full">
-      <MapComponent geolocationControl map={map} mapContainerRef={mapContainerRef} zoomControls />
+      <MapComponent
+        geolocationControl
+        map={map}
+        mapContainerRef={mapContainerRef}
+        zoomControls
+      />
     </div>
   );
 };

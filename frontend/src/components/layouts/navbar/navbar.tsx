@@ -18,7 +18,6 @@ import { DropDown } from "@/components/ui/dropdown";
 import {
   AUTH_PROVIDER,
   BASE_API_URL,
-  DISABLE_AUTH_ON_TRY_FAIR,
   FRONTEND_URL,
   HANKO_URL,
   IS_DEV,
@@ -26,7 +25,6 @@ import {
 import "@hotosm/ui/dist/components/tool-menu/tool-menu.js";
 import { Divider } from "@/components/ui/divider";
 import { ToolTip } from "@/components/ui/tooltip";
-import ExportMapResults from "@/features/try-fair/components/start-mapping/export-map-results";
 import MappingMode from "@/features/try-fair/components/mapping-mode";
 import { ShareProjectModal } from "@/features/try-fair/components/modals/share-project-modal";
 import { StartMappingNavlinks } from "@/features/try-fair/components/try-fair-nav-links";
@@ -35,11 +33,17 @@ if (AUTH_PROVIDER === "hanko") {
   import("@hotosm/hanko-auth");
 }
 
-const HankoAuthComponent = ({ displayBar }: { displayBar?: boolean }) => (
+const HankoAuthComponent = ({
+  displayBar,
+  redirectAfterLogin,
+}: {
+  displayBar?: boolean;
+  redirectAfterLogin: string;
+}) => (
   <hotosm-auth
     hanko-url={HANKO_URL}
     base-path={HANKO_URL}
-    redirect-after-login={FRONTEND_URL}
+    redirect-after-login={redirectAfterLogin}
     redirect-after-logout={FRONTEND_URL}
     mapping-check-url={`${BASE_API_URL}auth/status/`}
     onboarding-url={`${BASE_API_URL}auth/onboarding/`}
@@ -53,14 +57,14 @@ const HankoAuthComponent = ({ displayBar }: { displayBar?: boolean }) => (
 export const NavBar = () => {
   const [open, setOpen] = useState(false);
 
-  const { isAuthenticated: _isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
 
   const navigate = useNavigate();
 
   const location = useLocation();
   const isTryFairPage = location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR);
-  const isAuthenticated = (isTryFairPage && DISABLE_AUTH_ON_TRY_FAIR) || _isAuthenticated;
   const isHankoAuth = AUTH_PROVIDER === "hanko";
+  const returnTo = `${FRONTEND_URL}${location.pathname}${location.search}${location.hash}`;
   return (
     <>
       <Drawer
@@ -72,21 +76,27 @@ export const NavBar = () => {
         <div className={styles.drawerContentContainer}>
           <div className={styles.drawerHeaderContainer}>
             <NavLogo />
-            <button onClick={() => setOpen(false)} className={styles.closeButton}>
+            <button
+              onClick={() => setOpen(false)}
+              className={styles.closeButton}
+            >
               &#x2715;
             </button>
           </div>
           {!isTryFairPage && (
             <div className={styles.navLinksContainer}>
-              <NavBarLinks className={styles.mobileNavLinks} setOpen={setOpen} />
+              <NavBarLinks
+                className={styles.mobileNavLinks}
+                setOpen={setOpen}
+              />
             </div>
           )}
-          {_isAuthenticated && <Divider />}
+          {isAuthenticated && <Divider />}
 
           <div className={styles.loginButtonContainer}>
             {isHankoAuth && !IS_DEV && !isTryFairPage ? (
               <>
-                {_isAuthenticated && (
+                {isAuthenticated && (
                   <UserProfile
                     isHanko
                     hideFullName
@@ -96,12 +106,19 @@ export const NavBar = () => {
                   />
                 )}
                 <>
-                  <span className={isAuthenticated ? "border-t-2 w-full mt-2" : "pb-4 pl-4"}>
-                    <HankoAuthComponent displayBar />
+                  <span
+                    className={
+                      isAuthenticated ? "border-t-2 w-full mt-2" : "pb-4 pl-4"
+                    }
+                  >
+                    <HankoAuthComponent
+                      displayBar
+                      redirectAfterLogin={returnTo}
+                    />
                   </span>
                 </>
               </>
-            ) : _isAuthenticated ? (
+            ) : isAuthenticated ? (
               <UserProfile
                 isHanko={isHankoAuth}
                 hideFullName={isHankoAuth}
@@ -113,13 +130,19 @@ export const NavBar = () => {
               <div className="relative pb-4 pl-4">
                 <ToolTip
                   content={
-                    isTryFairPage ? "Sign in to access full mapping tools and features" : undefined
+                    isTryFairPage
+                      ? "Sign in to access full mapping tools and features"
+                      : undefined
                   }
                 >
                   <Button
                     rounded={isTryFairPage}
                     size={isTryFairPage ? "medium" : "large"}
-                    variant={isTryFairPage ? ButtonVariant.TERTIARY : ButtonVariant.PRIMARY}
+                    variant={
+                      isTryFairPage
+                        ? ButtonVariant.TERTIARY
+                        : ButtonVariant.PRIMARY
+                    }
                     onClick={() => {
                       /*
                        * Set the `backgroundLocation` in location state so that when we open the authentication modal we still see the current page in the background.
@@ -140,72 +163,89 @@ export const NavBar = () => {
         </div>
       </Drawer>
 
-      <nav className={`${styles.nav} app-padding z-20 py-1 border-b border-gray-border`}>
+      <nav
+        className={`${styles.nav} app-padding z-20 py-1 border-b border-gray-border`}
+      >
         <div className="flex-1 flex items-center justify-start">
           <NavLogo />
         </div>
 
         <div className="flex-1 hidden sm:flex items-center justify-center">
           {!isTryFairPage && <NavBarLinks className={styles.webNavLinks} />}
+          {isTryFairPage && isAuthenticated && <MappingMode />}
         </div>
 
         <div className="flex-1 hidden sm:flex items-center justify-end gap-x-3">
           {isHankoAuth && !IS_DEV && !isTryFairPage ? (
             <>
-              {_isAuthenticated && <UserNotifications />}
-              {_isAuthenticated && <UserProfile isHanko hideFullName />}
-              <HankoAuthComponent />
+              {isAuthenticated && <UserNotifications />}
+              {isAuthenticated && <UserProfile isHanko hideFullName />}
+              <div className={styles.headerHankoAuth}>
+                <HankoAuthComponent redirectAfterLogin={returnTo} />
+              </div>
             </>
           ) : isAuthenticated ? (
-            <>
-              {isTryFairPage && isAuthenticated && <MappingMode />}
-
+            <div className="flex items-center gap-x-2">
               {isTryFairPage && <StartMappingNavlinks />}
-
-              {!isTryFairPage && _isAuthenticated && <UserNotifications />}
-
-              {isTryFairPage && <ExportMapResults />}
-
-              {_isAuthenticated && <UserProfile isHanko hideFullName />}
-              <HankoAuthComponent />
-            </>
+              <div className={styles.headerHankoAuth}>
+                <HankoAuthComponent redirectAfterLogin={returnTo} />
+              </div>
+            </div>
           ) : (
             <div
-              className="relative"
-              id={isTryFairPage ? APP_TOUR_IDS.TRY_FAIR_START_MAPPING_BUTTON : undefined}
+              className="relative flex items-center gap-x-2"
+              id={
+                isTryFairPage
+                  ? APP_TOUR_IDS.TRY_FAIR_START_MAPPING_BUTTON
+                  : undefined
+              }
             >
-              <ToolTip
-                content={
-                  isTryFairPage ? "Sign in to access full mapping tools and features" : undefined
-                }
-              >
-                <Button
-                  className={styles.loginButton}
-                  variant={isTryFairPage ? ButtonVariant.TERTIARY : ButtonVariant.PRIMARY}
-                  size={isTryFairPage ? "medium" : "large"}
-                  rounded={isTryFairPage}
-                  onClick={() => {
-                    /*
-                     * Set the `backgroundLocation` in location state so that when we open the authentication modal we still see the current page in the background.
-                     */
-                    navigate(location, {
-                      state: { backgroundLocation: location },
-                    });
-                  }}
+              {isTryFairPage && <StartMappingNavlinks />}
+                 {
+                  !isTryFairPage && (
+                     <div className={styles.headerHankoAuth}>
+                <HankoAuthComponent redirectAfterLogin={returnTo} />
+              </div>
+                  )
+                 }
+              {/* {!isTryFairPage && (
+                <ToolTip
+                  content={
+                    isTryFairPage
+                      ? "Sign in to access full mapping tools and features"
+                      : undefined
+                  }
                 >
-                  {isTryFairPage
-                    ? `${SHARED_CONTENT.homepage.ctaSecondaryButton}`
-                    : SHARED_CONTENT.navbar.loginButton}
-                </Button>
-              </ToolTip>
+                  <Button
+                    className={styles.loginButton}
+                    variant={
+                      isTryFairPage
+                        ? ButtonVariant.TERTIARY
+                        : ButtonVariant.PRIMARY
+                    }
+                    size={isTryFairPage ? "medium" : "large"}
+                    rounded={isTryFairPage}
+                    onClick={() => {
+                      navigate(location, {
+                        state: { backgroundLocation: location },
+                      });
+                    }}
+                  >
+                    {SHARED_CONTENT.navbar.loginButton}
+                  </Button>
+                </ToolTip>
+              )} */}
             </div>
           )}
           {isHankoAuth && <hotosm-tool-menu></hotosm-tool-menu>}
         </div>
         <div className="flex items-center gap-x-2 sm:hidden">
           {/* Notification bell on the small screens */}
-          {_isAuthenticated && <UserNotifications />}
-          <button className={styles.hamburgerMenu} onClick={() => setOpen(true)}>
+          {isAuthenticated && <UserNotifications />}
+          <button
+            className={styles.hamburgerMenu}
+            onClick={() => setOpen(true)}
+          >
             <Image
               src={HamburgerIcon}
               alt={SHARED_CONTENT.navbar.hamburgerMenuAlt}
@@ -239,7 +279,10 @@ const NavBarLinks: React.FC<NavBarLinksProps> = ({ className, setOpen }) => {
         .map((link, id) => {
           const isActive =
             location.pathname.includes(link.href) ||
-            (link.children?.some((child) => location.pathname.includes(child.href)) ?? false);
+            (link.children?.some((child) =>
+              location.pathname.includes(child.href),
+            ) ??
+              false);
 
           return (
             <li

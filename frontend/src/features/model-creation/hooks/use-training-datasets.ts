@@ -12,11 +12,14 @@ type useCreateTrainingDatasetOptions = {
   mutationConfig?: MutationConfig<typeof createTrainingDataset>;
 };
 
-export const useCreateTrainingDataset = ({ mutationConfig }: useCreateTrainingDatasetOptions) => {
+export const useCreateTrainingDataset = ({
+  mutationConfig,
+}: useCreateTrainingDatasetOptions) => {
   const { onSuccess, ...restConfig } = mutationConfig || {};
 
   return useMutation({
-    mutationFn: (args: TCreateTrainingDatasetArgs) => createTrainingDataset(args),
+    mutationFn: (args: TCreateTrainingDatasetArgs) =>
+      createTrainingDataset(args),
     onSuccess: (...args) => {
       onSuccess?.(...args);
     },
@@ -36,7 +39,8 @@ export const useUpdateTrainingDataset = ({
   const { onSuccess, ...restConfig } = mutationConfig || {};
   const { refetch } = useGetTrainingDataset(datasetId);
   return useMutation({
-    mutationFn: (args: TUpdateTrainingDatasetArgs) => updateTrainingDataset(args),
+    mutationFn: (args: TUpdateTrainingDatasetArgs) =>
+      updateTrainingDataset(args),
     onSuccess: (...args) => {
       onSuccess?.(...args);
       refetch();

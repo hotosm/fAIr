@@ -49,7 +49,9 @@ export const useGridVisibility = ({
       return;
     }
 
-    const [west, south, east, north] = computeGridBBox(snapAnchorToTileBoundary(anchor));
+    const [west, south, east, north] = computeGridBBox(
+      snapAnchorToTileBoundary(anchor),
+    );
     const bounds = map.getBounds();
     const mapWest = bounds.getWest();
     const mapEast = bounds.getEast();
@@ -57,7 +59,12 @@ export const useGridVisibility = ({
     const mapNorth = bounds.getNorth();
 
     // The grid is visible if its bbox overlaps the viewport bbox at all.
-    const intersects = !(east < mapWest || west > mapEast || north < mapSouth || south > mapNorth);
+    const intersects = !(
+      east < mapWest ||
+      west > mapEast ||
+      north < mapSouth ||
+      south > mapNorth
+    );
 
     if (intersects) {
       setVisibility((prev) => (prev.isOffScreen ? HIDDEN : prev));
@@ -75,7 +82,10 @@ export const useGridVisibility = ({
     const centerX = (container?.clientWidth ?? 0) / 2;
     const centerY = (container?.clientHeight ?? 0) / 2;
 
-    const angleRad = Math.atan2(gridCenterPixel.y - centerY, gridCenterPixel.x - centerX);
+    const angleRad = Math.atan2(
+      gridCenterPixel.y - centerY,
+      gridCenterPixel.x - centerX,
+    );
 
     setVisibility({ isOffScreen: true, angleRad });
   }, [map, anchor, mapContainerRef, disabled]);

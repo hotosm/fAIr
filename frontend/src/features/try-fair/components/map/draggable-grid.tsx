@@ -18,6 +18,8 @@ import {
 const GRID_LINE_COLOR = "#EF4444";
 
 const CHOROPLETH_FILL_LAYER_ID = "try-fair-predictions-choropleth-fill";
+const PREDICTION_FILL_LAYER_ID = "try-fair-predictions-fill";
+const PREDICTION_CIRCLE_LAYER_ID = "try-fair-predictions-circle";
 
 type TryFairDraggableGridProps = {
   map: Map | null;
@@ -27,10 +29,9 @@ type TryFairDraggableGridProps = {
   center?: [number, number];
   /** Current resolution selection — triggers a re-center when it changes. */
   resolution?: TryFairResolution;
-  /** Selected model ID — triggers a re-center when the model changes. */
-  modelId?: string | null;
   /** When true, grid dragging is disabled. */
   isPredicting?: boolean;
+  hasNoResults?: boolean;
   /** Currently selected output type — used to name the export file. */
   outputType?: TryFairMapOutputType;
   /** Bounding box used for the current prediction result. */
@@ -42,7 +43,8 @@ type TryFairDraggableGridProps = {
 type HoverTooltip = {
   x: number;
   y: number;
-  count: number;
+  label: string;
+  value: string;
 } | null;
 
 export const TryFairDraggableGrid = ({
@@ -51,21 +53,53 @@ export const TryFairDraggableGrid = ({
   onBBoxChange,
   center: imageryCenter,
   resolution,
-  modelId,
   isPredicting = false,
+  hasNoResults = false,
   outputType,
 }: TryFairDraggableGridProps) => {
   // Grid anchor & bbox management
 
   const { isSmallViewport } = useScreenSize();
+  const [isNoResultsDismissed, setIsNoResultsDismissed] = useState(false);
 
   const { anchor, setAnchor, tileZoom } = useTileGrid({
     map,
     imageryCenter,
     resolution,
-    modelId,
     onBBoxChange,
   });
+
+  useEffect(() => {
+    if (hasNoResults) setIsNoResultsDismissed(false);
+  }, [hasNoResults]);
+
+  useEffect(() => {
+    if (!hasNoResults) return;
+
+    const timeoutId = window.setTimeout(
+      () => setIsNoResultsDismissed(true),
+      5_000,
+    );
+
+    return () => window.clearTimeout(timeoutId);
+  }, [hasNoResults]);
+
+  useEffect(() => {
+    if (!map || !hasNoResults) return;
+
+    const dismiss = () => setIsNoResultsDismissed(true);
+    map.on("click", dismiss);
+    map.on("mousedown", dismiss);
+    map.on("touchstart", dismiss);
+    map.on("zoomstart", dismiss);
+
+    return () => {
+      map.off("click", dismiss);
+      map.off("mousedown", dismiss);
+      map.off("touchstart", dismiss);
+      map.off("zoomstart", dismiss);
+    };
+  }, [hasNoResults, map]);
 
   useEffect(() => {
     if (!isSmallViewport || !map) return;
@@ -132,7 +166,9 @@ export const TryFairDraggableGrid = ({
   const handleBringGridToView = () => {
     if (!map || !anchor) return;
     const center = map.getCenter();
-    setAnchor(computeCenteredAnchor({ lng: center.lng, lat: center.lat }, anchor.z));
+    setAnchor(
+      computeCenteredAnchor({ lng: center.lng, lat: center.lat }, anchor.z),
+    );
   };
 
   //  Render
@@ -140,6 +176,12 @@ export const TryFairDraggableGrid = ({
   if (!screenGeometry) return null;
 
   const { verticalLines, horizontalLines } = screenGeometry;
+  const gridCenter = {
+    x: (verticalLines[0].x1 + verticalLines[verticalLines.length - 1].x1) / 2,
+    y:
+      (horizontalLines[0].y1 + horizontalLines[horizontalLines.length - 1].y1) /
+      2,
+  };
 
   // Four corners of the grid boundary for the transparent drag polygon.
   // The right edge is the last vertical line (count varies by tile zoom).
@@ -159,10 +201,18 @@ export const TryFairDraggableGrid = ({
       ? "cursor-grabbing"
       : "cursor-grab";
 
-  const isChoroplethOutput = outputType === TryFairMapOutputType.CLUSTER;
-
-  const handleDragSurfacePointerMove = (e: React.PointerEvent<SVGPolygonElement>) => {
-    if (!map || !isChoroplethOutput) {
+  const handleDragSurfacePointerMove = (
+    e: React.PointerEvent<SVGPolygonElement>,
+  ) => {
+    const predictionLayer =
+      outputType === TryFairMapOutputType.CLUSTER
+        ? CHOROPLETH_FILL_LAYER_ID
+        : outputType === TryFairMapOutputType.POINTS
+          ? PREDICTION_CIRCLE_LAYER_ID
+          : outputType === TryFairMapOutputType.POLYGON
+            ? PREDICTION_FILL_LAYER_ID
+            : null;
+    if (!map || !predictionLayer || !map.getLayer(predictionLayer)) {
       setHoverTooltip(null);
       return;
     }
@@ -174,20 +224,41 @@ export const TryFairDraggableGrid = ({
     };
     const queryPoint: [number, number] = [point.x, point.y];
 
-    const features = map.queryRenderedFeatures(queryPoint, {
-      layers: [CHOROPLETH_FILL_LAYER_ID],
+    const feature = map.queryRenderedFeatures(queryPoint, {
+      layers: [predictionLayer],
     });
-    if (!features.length) {
+    if (!feature.length) {
       setHoverTooltip(null);
       return;
     }
 
-    const count = Number(features[0].properties?.count ?? 0);
-    setHoverTooltip({ x: point.x, y: point.y, count });
+    if (outputType === TryFairMapOutputType.CLUSTER) {
+      setHoverTooltip({
+        x: point.x,
+        y: point.y,
+        label: "Features detected",
+        value: Number(feature[0].properties?.count ?? 0).toLocaleString(),
+      });
+      return;
+    }
+
+    const score = feature[0].properties?.score;
+    if (typeof score !== "number") {
+      setHoverTooltip(null);
+      return;
+    }
+
+    setHoverTooltip({
+      x: point.x,
+      y: point.y,
+      label: "Accuracy",
+      value: `${(score * 100).toFixed(1)}%`,
+    });
   };
 
   const handleDragSurfaceWheel = (e: React.WheelEvent<SVGPolygonElement>) => {
     if (!map || isPredicting) return;
+    setIsNoResultsDismissed(true);
 
     // The draggable overlay sits on top of the map and captures wheel/trackpad
     // gestures. Forward zoom intent to the map so users can zoom while hovering
@@ -219,7 +290,10 @@ export const TryFairDraggableGrid = ({
           fill="transparent"
           className={`${dragDisabled ? "pointer-events-none" : "pointer-events-auto"} ${cursorStyle}`}
           style={{ touchAction: "none" }}
-          onPointerDown={handlePointerDown}
+          onPointerDown={(event) => {
+            setIsNoResultsDismissed(true);
+            handlePointerDown(event);
+          }}
           onPointerMove={handleDragSurfacePointerMove}
           onPointerLeave={() => setHoverTooltip(null)}
           onWheel={handleDragSurfaceWheel}
@@ -257,20 +331,35 @@ export const TryFairDraggableGrid = ({
       </svg>
 
       {/* Nudge to bring the grid back when it's been panned off-screen */}
-      <GridOffScreenNudge visibility={gridVisibility} onBringGrid={handleBringGridToView} />
+      <GridOffScreenNudge
+        visibility={gridVisibility}
+        onBringGrid={handleBringGridToView}
+      />
+
+      {hasNoResults && !isNoResultsDismissed && (
+        <div
+          className="absolute z-30 -translate-x-1/2 -translate-y-1/2 rounded-full border border-gray-border bg-white px-3 py-1.5 text-xs font-medium text-dark shadow-md"
+          style={{ left: gridCenter.x, top: gridCenter.y }}
+        >
+          No results returned
+        </div>
+      )}
 
       {hoverTooltip ? (
         <div
           className="pointer-events-none absolute z-50"
           style={{ left: hoverTooltip.x, top: hoverTooltip.y }}
         >
-          <div className="relative" style={{ transform: "translate(12px, -50%)" }}>
+          <div
+            className="relative"
+            style={{ transform: "translate(12px, -50%)" }}
+          >
             <div className="bg-white/95 backdrop-blur-sm border border-gray-border rounded-lg shadow-lg px-3 py-2 flex flex-col items-start gap-0.5 min-w-[120px]">
               <p className="text-[10px] font-medium text-grey uppercase tracking-wide leading-none">
-                Buildings detected
+                {hoverTooltip.label}
               </p>
               <p className="text-base font-bold text-purple-700 leading-tight">
-                {hoverTooltip.count.toLocaleString()}
+                {hoverTooltip.value}
               </p>
             </div>
             <div

@@ -18,7 +18,10 @@ import { FeatureCollection, Polygon } from "geojson";
 import { GeoJSONSource } from "maplibre-gl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
-import { MapLargeAreaRequest, useSubmitMapLargeArea } from "@/features/try-fair/api/map-large-area";
+import {
+  MapLargeAreaRequest,
+  useSubmitMapLargeArea,
+} from "@/features/try-fair/api/map-large-area";
 import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
 import { TRY_FAIR_RESOLUTION_ZOOM } from "@/features/try-fair/utils/common";
 
@@ -62,17 +65,19 @@ export const useMapLargeArea = ({
 }: UseMapLargeAreaOptions) => {
   const { selectedImagery, currentModelType } = useStartMappingStore();
   const activeImageryBounds = imageryBounds ?? selectedImagery?.bounds ?? null;
-  const { mapContainerRef, map, drawingMode, setDrawingMode, terraDraw } = useMapInstance(
-    undefined,
-    undefined,
-    "red",
-    activeImageryBounds ?? undefined,
-  );
+  const { mapContainerRef, map, drawingMode, setDrawingMode, terraDraw } =
+    useMapInstance(
+      undefined,
+      undefined,
+      "red",
+      activeImageryBounds ?? undefined,
+    );
 
   const { mutate: submitMapLargeArea, isPending: isSubmittingMapLargeArea } =
     useSubmitMapLargeArea();
 
-  const { modelId, selectedModel, inferenceParams, resolution, confidence } = useTryFairParams();
+  const { modelId, selectedModel, inferenceParams, resolution, confidence } =
+    useTryFairParams();
   const [activeTab, setActiveTab] = useState<AOITab>("whole");
   const [selectedAOI, setSelectedAOI] = useState<Feature | null>(null);
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
@@ -316,7 +321,9 @@ export const useMapLargeArea = ({
   }, [terraDraw, handleDrawFinish]);
 
   // Handle uploaded GeoJSON file directly via native file picker
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -329,14 +336,19 @@ export const useMapLargeArea = ({
 
       if (parsed.type === "FeatureCollection") {
         const firstFeature = parsed.features?.find(
-          (f: Feature) => f.geometry?.type === "Polygon" || f.geometry?.type === "MultiPolygon",
+          (f: Feature) =>
+            f.geometry?.type === "Polygon" ||
+            f.geometry?.type === "MultiPolygon",
         );
         if (firstFeature) {
           extractedFeature = firstFeature;
           polygonGeometry = firstFeature.geometry as Polygon;
         }
       } else if (parsed.type === "Feature") {
-        if (parsed.geometry?.type === "Polygon" || parsed.geometry?.type === "MultiPolygon") {
+        if (
+          parsed.geometry?.type === "Polygon" ||
+          parsed.geometry?.type === "MultiPolygon"
+        ) {
           extractedFeature = parsed;
           polygonGeometry = parsed.geometry as Polygon;
         }
@@ -351,7 +363,10 @@ export const useMapLargeArea = ({
       }
 
       if (!polygonGeometry || !extractedFeature) {
-        showErrorToast(undefined, `No valid Polygon feature found in ${file.name}.`);
+        showErrorToast(
+          undefined,
+          `No valid Polygon feature found in ${file.name}.`,
+        );
         return;
       }
 

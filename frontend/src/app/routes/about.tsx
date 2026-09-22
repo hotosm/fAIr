@@ -14,7 +14,9 @@ export const AboutPage = () => {
         <div className="flex flex-col gap-y-8 basis-1/2">
           <h1 className="font-semibold text-title-2 xl:text-title-1">
             {ABOUT_PAGE_CONTENT.heroHeading.firstSegment}{" "}
-            <span className="text-primary">{ABOUT_PAGE_CONTENT.heroHeading.secondSegment}</span>{" "}
+            <span className="text-primary">
+              {ABOUT_PAGE_CONTENT.heroHeading.secondSegment}
+            </span>{" "}
             {ABOUT_PAGE_CONTENT.heroHeading.thirdSegment}{" "}
           </h1>
         </div>

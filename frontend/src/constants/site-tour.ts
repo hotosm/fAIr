@@ -12,17 +12,22 @@ export const APP_TOUR_IDS = {
   TRY_FAIR_MAP_BUTTON_TOOLTIP: "try-fair-map-button-tooltip",
   TRY_FAIR_START_MAPPING_BUTTON: "try-fair-start-mapping-button",
   TRY_FAIR_DOWNLOAD_PREDICTIONS_BUTTON: "try-fair-download-predictions-button",
+  TRY_FAIR_MAPPING_MODE: "try-fair-mapping-mode",
+  TRY_FAIR_SHARE_BUTTON: "try-fair-share-button",
+  TRY_FAIR_MAP_LARGE_AREA_BUTTON: "try-fair-map-large-area-button",
 };
 
 export const APP_TOUR_STEPS = [
   {
     selector: `#${APP_TOUR_IDS.DRAW_TRAINING_AREA}`,
-    content: "Define a training area on the map. This area will be used for model training.",
+    content:
+      "Define a training area on the map. This area will be used for model training.",
     position: "top",
   },
   {
     selector: `#${APP_TOUR_IDS.TRAINING_AREA_TOOLS}`,
-    content: "Hover on each tool to see its function. Use the tools to modify the training area.",
+    content:
+      "Hover on each tool to see its function. Use the tools to modify the training area.",
   },
   {
     selector: `#${APP_TOUR_IDS.FETCH_OSM_DATA}`,
@@ -31,7 +36,8 @@ export const APP_TOUR_STEPS = [
   },
   {
     selector: `#${APP_TOUR_IDS.MORE_INFORMATION}`,
-    content: "Access additional options and details about the training area by clicking this icon.",
+    content:
+      "Access additional options and details about the training area by clicking this icon.",
   },
   {
     selector: `#${APP_TOUR_IDS.TUTORIAL_BUTTON}`,
@@ -51,7 +57,19 @@ const popoverStyle = (base: any) => ({
 /**
  * The guided "how it works" tour, launched from the Help button.
  */
-export const getTryFairGuidedTourSteps = (isSmallViewport: boolean): StepType[] => [
+export const getTryFairGuidedTourSteps = (
+  isSmallViewport: boolean,
+): StepType[] => [
+  {
+    selector: `#${APP_TOUR_IDS.TRY_FAIR_MAPPING_MODE}`,
+    content:
+      "Switch between Basic and Advanced mapping modes to unlock more tools and settings.",
+    position: isSmallViewport ? "top" : "bottom",
+    styles: {
+      popover: popoverStyle,
+      maskWrapper: hideMask,
+    },
+  },
   {
     selector: `#${APP_TOUR_IDS.TRY_FAIR_MAP_BUTTON_TOOLTIP}`,
     content: "Click Map to run a prediction over the highlighted grid.",
@@ -63,8 +81,9 @@ export const getTryFairGuidedTourSteps = (isSmallViewport: boolean): StepType[] 
   },
   {
     selector: `#${APP_TOUR_IDS.TRY_FAIR_PARAMETERS}`,
-    content: "Adjust confidence and resolution to explore how prediction output changes.",
-    position: isSmallViewport ? "top" : "bottom",
+    content:
+      "Adjust confidence and resolution to explore how prediction output changes.",
+    position: isSmallViewport ? "top" : "right",
     styles: {
       popover: popoverStyle,
       maskWrapper: hideMask,
@@ -81,7 +100,8 @@ export const getTryFairGuidedTourSteps = (isSmallViewport: boolean): StepType[] 
   },
   {
     selector: `#${APP_TOUR_IDS.TRY_FAIR_DOWNLOAD_PREDICTIONS_BUTTON}`,
-    content: "Click here to download prediction data generated from the output you selected.",
+    content:
+      "Click here to download prediction data generated from the output you selected.",
     position: isSmallViewport ? "top" : "bottom",
     styles: {
       popover: (base: any) => ({
@@ -91,11 +111,32 @@ export const getTryFairGuidedTourSteps = (isSmallViewport: boolean): StepType[] 
       maskWrapper: hideMask,
     },
   },
+  {
+    selector: `#${APP_TOUR_IDS.TRY_FAIR_SHARE_BUTTON}`,
+    content:
+      "Share your current view and results with others using a shareable link.",
+    position: isSmallViewport ? "top" : "bottom",
+    styles: {
+      popover: popoverStyle,
+      maskWrapper: hideMask,
+    },
+  },
+  {
+    selector: `#${APP_TOUR_IDS.TRY_FAIR_MAP_LARGE_AREA_BUTTON}`,
+    content:
+      "Need to go bigger? Map a large area beyond the preview grid for full-scale predictions.",
+    position: isSmallViewport ? "top" : "bottom",
+    styles: {
+      popover: popoverStyle,
+      maskWrapper: hideMask,
+    },
+  },
 ];
 
 export const getTryFairStartMappingStep = (): StepType => ({
   selector: `#${APP_TOUR_IDS.TRY_FAIR_START_MAPPING_BUTTON}`,
-  content: "Ready for full mapping? Click Start Mapping to access advanced tools.",
+  content:
+    "Ready for full mapping? Click Start Mapping to access advanced tools.",
   styles: {
     close: (base) => ({ ...base, right: 12, top: 12 }),
     maskWrapper: hideMask,

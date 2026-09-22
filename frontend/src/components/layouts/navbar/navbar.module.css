@@ -73,6 +73,11 @@ nav {
   align-items: center;
 }
 
+.headerHankoAuth {
+  flex: none;
+  width: 4.5rem;
+}
+
 .closeButton {
   font-size: var(--hot-fair-font-size-title-3);
 }

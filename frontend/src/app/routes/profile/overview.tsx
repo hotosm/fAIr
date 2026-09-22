@@ -1,6 +1,9 @@
 import { Head } from "@/components/seo";
 import { USER_PROFILE_PAGE_CONTENT } from "@/constants/ui-contents/user-profile-content";
-import { ProfileStatistics, UserTrainingHistory } from "@/features/user-profile/components";
+import {
+  ProfileStatistics,
+  UserTrainingHistory,
+} from "@/features/user-profile/components";
 
 export const UserProfileOverviewPage = () => {
   return (

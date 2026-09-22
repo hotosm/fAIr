@@ -15,8 +15,14 @@ export const NavLogo = ({}: { onClick?: () => void }) => {
       title={SHARED_CONTENT.navbar.logoAlt}
       className="flex items-center gap-2"
     >
-      <Image src={fAIrLogo} alt={SHARED_CONTENT.navbar.logoAlt} className={"size-8 md:size-10"} />
-      <p className={`font-bold font-barlow text-dark leading-[1.2] text-body-1 md:text-title-2`}>
+      <Image
+        src={fAIrLogo}
+        alt={SHARED_CONTENT.navbar.logoAlt}
+        className={"size-8 md:size-10"}
+      />
+      <p
+        className={`font-bold font-barlow text-dark leading-[1.2] text-body-1 md:text-title-2`}
+      >
         fAIr
       </p>
     </button>

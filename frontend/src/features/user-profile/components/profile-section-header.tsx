@@ -18,7 +18,9 @@ export const ProfileSectionHeader = ({
   };
   return (
     <div className="flex justify-between items-center">
-      <h1 className="font-bold text-title-3 md:text-title-2 self-start">{title}</h1>
+      <h1 className="font-bold text-title-3 md:text-title-2 self-start">
+        {title}
+      </h1>
       {createRoute && createButtonAlt && (
         <ButtonWithIcon
           onClick={handleClick}
