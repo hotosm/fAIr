@@ -90,6 +90,8 @@ class Settings(BaseSettings):
     fair_zenml_store_api_key: SecretStr | None = None
     fair_stac_api_url: AnyHttpUrl | None = None
     fair_stac_api_key: SecretStr | None = None
+    # Optional: write STAC items to pgstac directly
+    fair_stac_dsn: SecretStr | None = None
 
     # Object storage (S3 / MinIO)
     bucket_name: str | None = None

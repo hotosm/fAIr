@@ -73,6 +73,7 @@ FAIR_STAC_API_URL = (
     _str(settings.fair_stac_api_url).rstrip("/") if settings.fair_stac_api_url else None
 )
 FAIR_STAC_API_KEY = _secret(settings.fair_stac_api_key)
+FAIR_STAC_DSN = _secret(settings.fair_stac_dsn)
 
 KNATIVE_SERVICE_TEMPLATE = str(BASE_DIR / "modelregistry" / "knative-service.yaml")
 
