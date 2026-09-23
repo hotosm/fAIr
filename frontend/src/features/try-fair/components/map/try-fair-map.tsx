@@ -19,6 +19,7 @@ import { TryFairLayerControl } from "@/features/try-fair/components/map/try-fair
 import useScreenSize from "@/hooks/use-screen-size";
 import { LocateGridIcon } from "@/components/ui/icons/locate-grid-icon";
 import { TryFairDownloadButton } from "@/features/try-fair/components/map/try-fair-download-button";
+import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/utils";
 
 // When the fly-to animation is disabled (VITE_TRY_FAIR_FLY_TO_ANIMATION=false)
@@ -70,6 +71,9 @@ export const TryFairMap = ({
   const [choroplethBuckets, setChoroplethBuckets] = useState<
     ChoroplethBucket[] | null
   >(null);
+  // True while the imagery raster tiles are actually fetching, so we can show a
+  // spinner over the map instead of a blank canvas when imagery changes.
+  const [imageryLoading, setImageryLoading] = useState(false);
   const gridBBoxRef = useRef<BBOX | null>(null);
   const fitPendingRef = useRef(false);
 
@@ -165,7 +169,18 @@ export const TryFairMap = ({
         zoomControls={false}
         basemaps
         onTileServiceFitToBounds={handleFitToGrid}
+        onTileServiceLoadingChange={setImageryLoading}
       />
+
+      {imageryLoading && (
+        <div
+          className="absolute inset-0 z-[5] flex items-center justify-center bg-white/40 pointer-events-none"
+          aria-live="polite"
+          aria-busy="true"
+        >
+          <Spinner style={{ fontSize: "2.5rem" }} />
+        </div>
+      )}
 
       <TryFairPredictionsLayer
         map={map}

@@ -11,8 +11,8 @@ import { searchImagery } from "@/features/try-fair/api/hot-imagery";
 
 vi.mock("@/features/try-fair/api/hot-imagery", () => ({
   searchImagery: vi.fn(),
-  getImageryTileUrl: vi.fn(
-    () => "https://oam.example.com/tiles/{z}/{x}/{y}.png",
+  getImageryTileJSONUrl: vi.fn(
+    () => "https://oam.example.com/WebMercatorQuad/tilejson.json?assets=visual",
   ),
 }));
 
