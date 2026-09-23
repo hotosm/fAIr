@@ -170,6 +170,25 @@ export const useTryFairParams = () => {
         oamItem: oamItemId,
       }),
 
+    /** Atomically switches to imagery mode and persists all imagery params in
+     *  one `setParams` call, preventing the intermediate render where
+     *  `mode=imagery` but the imagery URL hasn't been written yet. */
+    setImageryMode: ({
+      url,
+      tileServiceType,
+      oamItemId,
+    }: {
+      url: string | null;
+      tileServiceType: TileServiceType | null;
+      oamItemId: string | null;
+    }) =>
+      setParams({
+        mode: ModelType.IMAGERY,
+        imagery: url,
+        imageryType: tileServiceType,
+        oamItem: oamItemId,
+      }),
+
     isParametersDefault,
     resetParameters,
   };

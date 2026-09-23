@@ -23,9 +23,17 @@ export const AdvancedSettingsPanel = ({
   onReset,
   isPredicting,
 }: AdvancedSettingsPanelProps) => {
-  const advancedParams = inferenceParams.filter(
+  // Surface Accuracy (confidence_threshold) here too, first, so it can be set
+  // to a precise number — the sidebar only exposes it as a coarse slider.
+  const confidenceParam = inferenceParams.find(
+    ({ key }) => key === "confidence_threshold",
+  );
+  const otherParams = inferenceParams.filter(
     ({ key }) => key !== "confidence_threshold",
   );
+  const advancedParams = confidenceParam
+    ? [confidenceParam, ...otherParams]
+    : otherParams;
 
   return (
     <aside className="max-h-[500px] w-[302px] hide-scrollbar overflow-y-auto rounded-[10px] border border-gray-border bg-white p-4 shadow-xl">
@@ -45,9 +53,12 @@ export const AdvancedSettingsPanel = ({
         <div className="flex flex-col gap-3.5">
           {advancedParams.map(({ key, spec }) => {
             const value = paramValues[key] ?? spec.default;
-            const label = key
-              .replace(/[_-]/g, " ")
-              .replace(/\b\w/g, (letter) => letter.toUpperCase());
+            const isConfidence = key === "confidence_threshold";
+            const label = isConfidence
+              ? "Accuracy"
+              : key
+                  .replace(/[_-]/g, " ")
+                  .replace(/\b\w/g, (letter) => letter.toUpperCase());
 
             if (spec.type === "bool") {
               return (
@@ -116,7 +127,9 @@ export const AdvancedSettingsPanel = ({
 
             const numericValue = Number(value);
             const min = spec.min ?? 0;
-            const max = spec.max ?? Math.max(numericValue * 2, 1);
+            const max =
+              spec.max ??
+              (isConfidence ? 1 : Math.max(numericValue * 2, 1));
             const step = spec.type === "int" ? 1 : 0.01;
             const progress = ((numericValue - min) / (max - min)) * 100;
             const numericPattern =

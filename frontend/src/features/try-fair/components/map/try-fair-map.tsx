@@ -13,12 +13,18 @@ import { FitToBounds, ZoomControls } from "@/components/map/controls";
 import { InfoIcon } from "@/components/ui/icons";
 import { ToolTip } from "@/components/ui/tooltip";
 import { PREDICTION_LAYER_IDS } from "@/features/try-fair/utils/common";
+import { TRY_FAIR_FLY_TO_ANIMATION } from "@/config";
 import { getTileZoomForResolution } from "@/features/try-fair/utils/tile-math";
 import { TryFairLayerControl } from "@/features/try-fair/components/map/try-fair-layer-control";
 import useScreenSize from "@/hooks/use-screen-size";
 import { LocateGridIcon } from "@/components/ui/icons/locate-grid-icon";
 import { TryFairDownloadButton } from "@/features/try-fair/components/map/try-fair-download-button";
 import { cn } from "@/utils";
+
+// When the fly-to animation is disabled (VITE_TRY_FAIR_FLY_TO_ANIMATION=false)
+// the camera jumps to the grid instantly instead of easing; otherwise MapLibre
+// uses its default animated transition.
+const FLY_TO_OPTIONS = TRY_FAIR_FLY_TO_ANIMATION ? {} : { duration: 0 };
 
 type TryFairMapProps = {
   map: Map | null;
@@ -74,6 +80,7 @@ export const TryFairMap = ({
     map.fitBounds([bbox[0], bbox[1], bbox[2], bbox[3]], {
       padding: 40,
       essential: true,
+      ...FLY_TO_OPTIONS,
     });
   }, [map, canFitToBounds]);
 
@@ -88,6 +95,7 @@ export const TryFairMap = ({
           map.fitBounds([bbox[0], bbox[1], bbox[2], bbox[3]], {
             padding: 40,
             essential: true,
+            ...FLY_TO_OPTIONS,
           });
         }
       }

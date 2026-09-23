@@ -1,23 +1,23 @@
 import { ImagerySource, ModelType, TileServiceType } from "@/enums";
 import { BaseModelStacItem } from "@/features/try-fair/api/stac";
-import { getImageryTileJSONUrl } from "@/features/try-fair/api/hot-imagery";
+import {
+  getImageryTileJSONUrl,
+  getImageryTileUrl,
+} from "@/features/try-fair/api/hot-imagery";
 import { useOAMItem } from "@/features/try-fair/hooks/use-oam-item";
 import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
 import {
   DEFAULT_FAIR_IMAGERY_CENTER,
   FALLBACK_FAIR_IMAGERY,
   FALLBACK_FAIR_IMAGERY_CENTER,
-  TRY_FAIR_INITIAL_MAP_ZOOM,
 } from "@/features/try-fair/utils/common";
 import { useTileservice } from "@/hooks/use-tileservice";
 import { BBOX } from "@/types";
 import { getTileServerRegex, getTileServerTypeFromURL } from "@/utils";
-import { Map } from "maplibre-gl";
 import { useEffect, useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
 
 type UseTryFairImageryOptions = {
-  map: Map | null;
   selectedModel: BaseModelStacItem | null;
   mode: ModelType;
   imageryUrl: string | null;
@@ -26,11 +26,15 @@ type UseTryFairImageryOptions = {
 };
 
 /**
- * Resolves the active imagery, restores it from shared URLs, and keeps the
- * map camera aligned to imagery that has known bounds.
+ * Resolves the active imagery and restores it from shared URLs. It exposes the
+ * imagery's center/bounds and the URLs for map display and prediction, but it
+ * does NOT move the camera — the map fits to the tile grid (the AOI) in
+ * try-fair-map, which is the single owner of camera moves. Keeping camera
+ * control in one place is what makes the zoom-to-grid behaviour stable; a
+ * second controller here used to race it (sometimes fitting the whole image,
+ * sometimes nothing).
  */
 export const useTryFairImagery = ({
-  map,
   selectedModel,
   mode,
   imageryUrl,
@@ -194,39 +198,50 @@ export const useTryFairImagery = ({
     return null;
   }, [currentModelType, selectedImagery, tileJSONMetadata]);
 
-  // Single, reliable camera move for the imagery. `map` here is only ever set
-  // after MapLibre's `load` (see useMapInstance), so it's already loaded — the
-  // previous `isStyleLoaded()` / `once("load")` guard could silently skip the
-  // zoom (the one-shot `load` had already fired), which is why the map
-  // sometimes stayed at world view, and Safari hit that window more often.
-  // Fit the imagery's bounds when known, otherwise fly to its center.
-  useEffect(() => {
-    if (!map || isCustomTMSImagery) return;
-    // Prefer fitting known bounds — this is what makes the zoom reliable and it
-    // must not wait on `selectedModel` (on a shared-link refresh the imagery's
-    // bounds resolve before/without a model), otherwise the map can stay at
-    // world view. Fit instantly (duration: 0) so a refresh lands at the right
-    // zoom without a mid-animation that could be interrupted; only fall back to
-    // an animated flyTo (which needs a model's preview center) when there are
-    // no bounds to fit.
-    if (imageryBounds) {
-      map.fitBounds(
-        [imageryBounds[0], imageryBounds[1], imageryBounds[2], imageryBounds[3]],
-        { padding: 40, duration: 0, essential: true },
+  // URL handed to the prediction backend, which downloads raster "chips" from
+  // it — so it MUST be an XYZ `{z}/{x}/{y}` tile template, not a tilejson.json
+  // URL. `tileserverURL` for OAM is the tilejson URL (used for map display, so
+  // MapLibre can read the bounds); passing that to the backend makes it save
+  // the JSON document as a `.tif`, which GDAL rejects ("not recognized as being
+  // in a supported file format"). OAM's own frontend uses the same split:
+  // `{z}/{x}/{y}` for tiles, tilejson.json only for bounds.
+  const predictionImageUri = useMemo(() => {
+    if (
+      currentModelType === ModelType.IMAGERY &&
+      selectedImagery?.source === ImagerySource.OPEN_AERIAL_MAP
+    ) {
+      return getImageryTileUrl(
+        selectedImagery.item.id,
+        selectedImagery.item.assetName,
       );
-    } else if (selectedModel) {
-      map.flyTo({
-        center: imageryCenter,
-        zoom: TRY_FAIR_INITIAL_MAP_ZOOM,
-        essential: true,
-      });
     }
-  }, [imageryBounds, imageryCenter, isCustomTMSImagery, map, selectedModel]);
+    // Shared-link restore before `selectedImagery` has resolved.
+    if (mode === ModelType.IMAGERY && !selectedImagery && oamItemId) {
+      return getImageryTileUrl(oamItemId);
+    }
+    // A TileJSON source advertises its real tile template under `tiles`; prefer
+    // that over the tilejson URL itself so the backend still gets {z}/{x}/{y}.
+    if (
+      getTileServerTypeFromURL(tileserverURL) === TileServiceType.TILEJSON &&
+      tileJSONMetadata?.tiles?.[0]
+    ) {
+      return tileJSONMetadata.tiles[0];
+    }
+    return tileserverURL;
+  }, [
+    currentModelType,
+    selectedImagery,
+    mode,
+    oamItemId,
+    tileserverURL,
+    tileJSONMetadata,
+  ]);
 
   return {
     currentModelType,
     imageryBounds,
     imageryCenter: isCustomTMSImagery ? undefined : imageryCenter,
+    predictionImageUri,
     selectedImagery,
     setCurrentModelType,
     setSeletedImagery,
