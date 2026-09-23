@@ -496,3 +496,132 @@ def test_base_model_metadata_requires_admin(user: OsmUser) -> None:
         f"/api/v1/base-models/{model.id}/metadata/", {"title": "New"}, format="json"
     )
     assert resp.status_code == 403
+
+
+@patch("modelregistry.views.set_item_properties")
+@patch("modelregistry.views.get_cached_item", return_value=_stac_item_dict())
+@patch("fair.stac.validators.validate_item", return_value=[])
+def test_base_model_stac_patch_merges_arbitrary_properties(
+    mock_validate, mock_get, mock_set, admin: OsmUser
+) -> None:
+    model = BaseModel.objects.create(name="meta-model", user=admin, stac_item_id="meta-model")
+    resp = _client(admin).patch(
+        f"/api/v1/base-models/{model.id}/stac/",
+        {
+            "properties": {
+                "fair:source_imagery": "https://tiles.example/{z}/{x}/{y}.png",
+                "fair:preview_location": {"type": "Point", "coordinates": [85.3, 27.7]},
+                "description": "Synced",
+            }
+        },
+        format="json",
+    )
+    assert resp.status_code == 200
+    collection, item_id, props = mock_set.call_args.args
+    assert collection == "base-models"
+    assert item_id == "meta-model"
+    assert props["fair:source_imagery"] == "https://tiles.example/{z}/{x}/{y}.png"
+    assert props["fair:preview_location"] == {"type": "Point", "coordinates": [85.3, 27.7]}
+    assert props["description"] == "Synced"
+    mock_validate.assert_called_once()
+
+
+@patch("modelregistry.views.set_item_properties")
+@patch("modelregistry.views.get_cached_item", return_value=_stac_item_dict())
+@patch("fair.stac.validators.validate_item", return_value=["mlm:tasks is a required property"])
+def test_base_model_stac_patch_rejects_invalid_merge(
+    mock_validate, mock_get, mock_set, admin: OsmUser
+) -> None:
+    model = BaseModel.objects.create(name="meta-model", user=admin, stac_item_id="meta-model")
+    resp = _client(admin).patch(
+        f"/api/v1/base-models/{model.id}/stac/", {"properties": {"title": "x"}}, format="json"
+    )
+    assert resp.status_code == 400
+    mock_set.assert_not_called()
+
+
+def test_base_model_stac_patch_rejects_empty_properties(admin: OsmUser) -> None:
+    model = BaseModel.objects.create(name="meta-model", user=admin, stac_item_id="meta-model")
+    resp = _client(admin).patch(
+        f"/api/v1/base-models/{model.id}/stac/", {"properties": {}}, format="json"
+    )
+    assert resp.status_code == 400
+
+
+def test_base_model_stac_patch_requires_published_item(admin: OsmUser) -> None:
+    model = BaseModel.objects.create(name="meta-model", user=admin)
+    resp = _client(admin).patch(
+        f"/api/v1/base-models/{model.id}/stac/", {"properties": {"title": "x"}}, format="json"
+    )
+    assert resp.status_code == 400
+
+
+def test_base_model_stac_patch_requires_admin(user: OsmUser) -> None:
+    model = BaseModel.objects.create(name="meta-model", user=user, stac_item_id="meta-model")
+    resp = _client(user).patch(
+        f"/api/v1/base-models/{model.id}/stac/", {"properties": {"title": "x"}}, format="json"
+    )
+    assert resp.status_code == 403
+
+
+def test_register_task_infra_error_records_infrastructure_message(admin: OsmUser) -> None:
+    base_model = BaseModel.objects.create(name="dino", user=admin)
+    with patch("modelregistry.tasks.for_user") as mock_for_user:
+        mock_for_user.return_value.register_base_model.side_effect = TimeoutError("connect timeout")
+        with pytest.raises(TimeoutError):
+            register_base_model.func(base_model_id=base_model.id, stac_item=VALID_ITEM)
+    base_model.refresh_from_db()
+    assert base_model.status == BaseModel.Status.FAILED
+    assert "infrastructure" in base_model.error.lower()
+
+
+def test_register_task_user_error_keeps_raw_message(admin: OsmUser) -> None:
+    base_model = BaseModel.objects.create(name="dino", user=admin)
+    with patch("modelregistry.tasks.for_user") as mock_for_user:
+        mock_for_user.return_value.register_base_model.side_effect = ValueError("bad weights url")
+        with pytest.raises(ValueError):
+            register_base_model.func(base_model_id=base_model.id, stac_item=VALID_ITEM)
+    base_model.refresh_from_db()
+    assert base_model.status == BaseModel.Status.FAILED
+    assert base_model.error == "bad weights url"
+
+
+def test_is_infra_error_walks_cause_chain() -> None:
+    from modelregistry.tasks import _is_infra_error
+
+    try:
+        try:
+            raise TimeoutError("[Errno 110] Connection timed out")
+        except TimeoutError as root:
+            raise RuntimeError("knative install check failed") from root
+    except RuntimeError as wrapped:
+        assert _is_infra_error(wrapped) is True
+    assert _is_infra_error(ValueError("stac item missing mlm:name")) is False
+
+
+def test_is_infra_error_matches_urllib3_style_name() -> None:
+    from modelregistry.tasks import _is_infra_error
+
+    class MaxRetryError(Exception):  # not an OSError subclass: matched by name only
+        pass
+
+    assert _is_infra_error(MaxRetryError("pool timed out")) is True
+
+
+def test_local_model_stac_patch_requires_admin(user: OsmUser) -> None:
+    base = BaseModel.objects.create(name="base-lm", user=user, stac_item_id="base-lm")
+    model = LocalModel.objects.create(name="lm", base_model=base, user=user, stac_item_id="lm")
+    resp = _client(user).patch(
+        f"/api/v1/local-models/{model.id}/stac/", {"properties": {"title": "x"}}, format="json"
+    )
+    assert resp.status_code == 403
+
+
+def test_base_model_stac_patch_rejects_identity_keys(admin: OsmUser) -> None:
+    model = BaseModel.objects.create(name="meta-model", user=admin, stac_item_id="meta-model")
+    resp = _client(admin).patch(
+        f"/api/v1/base-models/{model.id}/stac/",
+        {"properties": {"mlm:name": "renamed", "description": "ok"}},
+        format="json",
+    )
+    assert resp.status_code == 400

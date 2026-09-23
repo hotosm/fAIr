@@ -189,6 +189,31 @@ class ModelMetadataSerializer(serializers.Serializer):
         return attrs
 
 
+class StacPropertiesPatchSerializer(serializers.Serializer):
+    """Admin patch of a published model's STAC item properties.
+
+    ``properties`` is shallow-merged onto the item's existing properties, so an
+    admin can sync changed metadata or imagery from an updated source. The merged
+    item is re-validated against the fAIr schema before it is written. Identity keys
+    the database mirrors (``mlm:name``, ``fair:category``) are rejected, so the row
+    and the STAC item cannot drift apart.
+    """
+
+    _DENIED_KEYS = frozenset({"mlm:name", "fair:category"})
+
+    properties = serializers.JSONField()
+
+    def validate_properties(self, value: object) -> dict[str, Any]:
+        if not isinstance(value, dict) or not value:
+            raise serializers.ValidationError("properties must be a non-empty JSON object.")
+        properties = cast("dict[str, Any]", value)
+        if denied := self._DENIED_KEYS & properties.keys():
+            raise serializers.ValidationError(
+                f"These identity keys cannot be patched here: {', '.join(sorted(denied))}."
+            )
+        return properties
+
+
 class TrainingRunSummarySerializer(serializers.Serializer):
     """ZenML run summary, populated from fair.zenml.runs.RunSummary."""
 

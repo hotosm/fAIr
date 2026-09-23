@@ -1,8 +1,8 @@
 import { ImagerySource, ModelType, TileServiceType } from "@/enums";
 import { BaseModelStacItem } from "@/features/try-fair/api/stac";
 import {
+  getImageryPredictionTileUrl,
   getImageryTileJSONUrl,
-  getImageryTileUrl,
 } from "@/features/try-fair/api/hot-imagery";
 import { useOAMItem } from "@/features/try-fair/hooks/use-oam-item";
 import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
@@ -41,25 +41,18 @@ export const useTryFairImagery = ({
   imageryTileServiceType,
   oamItemId,
 }: UseTryFairImageryOptions) => {
-  const {
-    currentModelType,
-    setCurrentModelType,
-    selectedImagery,
-    setSeletedImagery,
-  } = useStartMappingStore(
-    useShallow((state) => ({
-      currentModelType: state.currentModelType,
-      setCurrentModelType: state.setCurrentModelType,
-      selectedImagery: state.selectedImagery,
-      setSeletedImagery: state.setSeletedImagery,
-    })),
-  );
+  const { currentModelType, setCurrentModelType, selectedImagery, setSeletedImagery } =
+    useStartMappingStore(
+      useShallow((state) => ({
+        currentModelType: state.currentModelType,
+        setCurrentModelType: state.setCurrentModelType,
+        selectedImagery: state.selectedImagery,
+        setSeletedImagery: state.setSeletedImagery,
+      })),
+    );
   const { item: sharedOAMItem } = useOAMItem(oamItemId);
 
-  const preview = useMemo(
-    () => selectedModel?.properties["fair:preview"],
-    [selectedModel],
-  );
+  const preview = useMemo(() => selectedModel?.properties["fair:preview"], [selectedModel]);
 
   const tileServiceUrl = useMemo(() => {
     // On a shared-link refresh the store starts empty, so `selectedImagery`
@@ -80,18 +73,10 @@ export const useTryFairImagery = ({
     if (!candidate) return FALLBACK_FAIR_IMAGERY;
     const regex = getTileServerRegex(getTileServerTypeFromURL(candidate));
     return regex.test(candidate) ? candidate : FALLBACK_FAIR_IMAGERY;
-  }, [
-    currentModelType,
-    selectedImagery,
-    preview,
-    mode,
-    oamItemId,
-    imageryUrl,
-  ]);
+  }, [currentModelType, selectedImagery, preview, mode, oamItemId, imageryUrl]);
 
   const tileServiceType =
-    currentModelType === ModelType.IMAGERY &&
-    selectedImagery?.source === ImagerySource.CUSTOM
+    currentModelType === ModelType.IMAGERY && selectedImagery?.source === ImagerySource.CUSTOM
       ? selectedImagery.tileServiceType
       : (imageryTileServiceType ?? getTileServerTypeFromURL(tileServiceUrl));
 
@@ -126,10 +111,7 @@ export const useTryFairImagery = ({
       setSeletedImagery({
         source: ImagerySource.OPEN_AERIAL_MAP,
         item: sharedOAMItem,
-        tileUrl: getImageryTileJSONUrl(
-          sharedOAMItem.id,
-          sharedOAMItem.assetName,
-        ),
+        tileUrl: getImageryTileJSONUrl(sharedOAMItem.id, sharedOAMItem.assetName),
         bounds: sharedOAMItem.bbox,
       });
       return;
@@ -140,8 +122,7 @@ export const useTryFairImagery = ({
       setSeletedImagery({
         source: ImagerySource.CUSTOM,
         tileUrl: imageryUrl,
-        tileServiceType:
-          imageryTileServiceType ?? getTileServerTypeFromURL(imageryUrl),
+        tileServiceType: imageryTileServiceType ?? getTileServerTypeFromURL(imageryUrl),
         bounds: null,
       });
     }
@@ -172,13 +153,7 @@ export const useTryFairImagery = ({
     return tileServiceUrl === FALLBACK_FAIR_IMAGERY
       ? FALLBACK_FAIR_IMAGERY_CENTER
       : DEFAULT_FAIR_IMAGERY_CENTER;
-  }, [
-    currentModelType,
-    selectedImagery,
-    preview,
-    tileJSONMetadata,
-    tileServiceUrl,
-  ]);
+  }, [currentModelType, selectedImagery, preview, tileJSONMetadata, tileServiceUrl]);
 
   // TMS templates do not provide a reliable imagery extent, so preserve the
   // user's current view both on selection and on a shared-link initial load.
@@ -210,14 +185,11 @@ export const useTryFairImagery = ({
       currentModelType === ModelType.IMAGERY &&
       selectedImagery?.source === ImagerySource.OPEN_AERIAL_MAP
     ) {
-      return getImageryTileUrl(
-        selectedImagery.item.id,
-        selectedImagery.item.assetName,
-      );
+      return getImageryPredictionTileUrl(selectedImagery.item.id, selectedImagery.item.assetName);
     }
     // Shared-link restore before `selectedImagery` has resolved.
     if (mode === ModelType.IMAGERY && !selectedImagery && oamItemId) {
-      return getImageryTileUrl(oamItemId);
+      return getImageryPredictionTileUrl(oamItemId);
     }
     // A TileJSON source advertises its real tile template under `tiles`; prefer
     // that over the tilejson URL itself so the backend still gets {z}/{x}/{y}.
@@ -228,14 +200,7 @@ export const useTryFairImagery = ({
       return tileJSONMetadata.tiles[0];
     }
     return tileserverURL;
-  }, [
-    currentModelType,
-    selectedImagery,
-    mode,
-    oamItemId,
-    tileserverURL,
-    tileJSONMetadata,
-  ]);
+  }, [currentModelType, selectedImagery, mode, oamItemId, tileserverURL, tileJSONMetadata]);
 
   return {
     currentModelType,
