@@ -276,6 +276,8 @@ _log_handlers: dict[str, Any] = {
     "console": {
         "level": "DEBUG" if DEBUG else "INFO",
         "class": "logging.StreamHandler",
+        # stdout: ZenML records anything written to stderr as ERROR.
+        "stream": "ext://sys.stdout",
         "formatter": "simple",
     },
 }
