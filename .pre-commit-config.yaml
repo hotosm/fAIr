@@ -45,8 +45,8 @@ repos:
         additional_dependencies: ["oxfmt@0.35.0"]
 
       - id: pytest
-        name: pytest (backend)
-        entry: uv run --directory backend pytest
+        name: pytest (backend, db-free subset)
+        entry: uv run --directory backend pytest -m "not django_db"
         language: system
         types: [python]
         files: ^backend/

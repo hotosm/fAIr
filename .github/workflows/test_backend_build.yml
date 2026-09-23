@@ -1,4 +1,4 @@
-name: Backend lint and tests
+name: Lint and backend tests
 
 on:
   push:
