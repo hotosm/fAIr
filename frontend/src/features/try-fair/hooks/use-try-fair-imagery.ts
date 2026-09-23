@@ -41,18 +41,25 @@ export const useTryFairImagery = ({
   imageryTileServiceType,
   oamItemId,
 }: UseTryFairImageryOptions) => {
-  const { currentModelType, setCurrentModelType, selectedImagery, setSeletedImagery } =
-    useStartMappingStore(
-      useShallow((state) => ({
-        currentModelType: state.currentModelType,
-        setCurrentModelType: state.setCurrentModelType,
-        selectedImagery: state.selectedImagery,
-        setSeletedImagery: state.setSeletedImagery,
-      })),
-    );
+  const {
+    currentModelType,
+    setCurrentModelType,
+    selectedImagery,
+    setSeletedImagery,
+  } = useStartMappingStore(
+    useShallow((state) => ({
+      currentModelType: state.currentModelType,
+      setCurrentModelType: state.setCurrentModelType,
+      selectedImagery: state.selectedImagery,
+      setSeletedImagery: state.setSeletedImagery,
+    })),
+  );
   const { item: sharedOAMItem } = useOAMItem(oamItemId);
 
-  const preview = useMemo(() => selectedModel?.properties["fair:preview"], [selectedModel]);
+  const preview = useMemo(
+    () => selectedModel?.properties["fair:preview"],
+    [selectedModel],
+  );
 
   const tileServiceUrl = useMemo(() => {
     // On a shared-link refresh the store starts empty, so `selectedImagery`
@@ -76,7 +83,8 @@ export const useTryFairImagery = ({
   }, [currentModelType, selectedImagery, preview, mode, oamItemId, imageryUrl]);
 
   const tileServiceType =
-    currentModelType === ModelType.IMAGERY && selectedImagery?.source === ImagerySource.CUSTOM
+    currentModelType === ModelType.IMAGERY &&
+    selectedImagery?.source === ImagerySource.CUSTOM
       ? selectedImagery.tileServiceType
       : (imageryTileServiceType ?? getTileServerTypeFromURL(tileServiceUrl));
 
@@ -111,7 +119,10 @@ export const useTryFairImagery = ({
       setSeletedImagery({
         source: ImagerySource.OPEN_AERIAL_MAP,
         item: sharedOAMItem,
-        tileUrl: getImageryTileJSONUrl(sharedOAMItem.id, sharedOAMItem.assetName),
+        tileUrl: getImageryTileJSONUrl(
+          sharedOAMItem.id,
+          sharedOAMItem.assetName,
+        ),
         bounds: sharedOAMItem.bbox,
       });
       return;
@@ -122,7 +133,8 @@ export const useTryFairImagery = ({
       setSeletedImagery({
         source: ImagerySource.CUSTOM,
         tileUrl: imageryUrl,
-        tileServiceType: imageryTileServiceType ?? getTileServerTypeFromURL(imageryUrl),
+        tileServiceType:
+          imageryTileServiceType ?? getTileServerTypeFromURL(imageryUrl),
         bounds: null,
       });
     }
@@ -153,7 +165,13 @@ export const useTryFairImagery = ({
     return tileServiceUrl === FALLBACK_FAIR_IMAGERY
       ? FALLBACK_FAIR_IMAGERY_CENTER
       : DEFAULT_FAIR_IMAGERY_CENTER;
-  }, [currentModelType, selectedImagery, preview, tileJSONMetadata, tileServiceUrl]);
+  }, [
+    currentModelType,
+    selectedImagery,
+    preview,
+    tileJSONMetadata,
+    tileServiceUrl,
+  ]);
 
   // TMS templates do not provide a reliable imagery extent, so preserve the
   // user's current view both on selection and on a shared-link initial load.
@@ -185,7 +203,10 @@ export const useTryFairImagery = ({
       currentModelType === ModelType.IMAGERY &&
       selectedImagery?.source === ImagerySource.OPEN_AERIAL_MAP
     ) {
-      return getImageryPredictionTileUrl(selectedImagery.item.id, selectedImagery.item.assetName);
+      return getImageryPredictionTileUrl(
+        selectedImagery.item.id,
+        selectedImagery.item.assetName,
+      );
     }
     // Shared-link restore before `selectedImagery` has resolved.
     if (mode === ModelType.IMAGERY && !selectedImagery && oamItemId) {
@@ -200,7 +221,14 @@ export const useTryFairImagery = ({
       return tileJSONMetadata.tiles[0];
     }
     return tileserverURL;
-  }, [currentModelType, selectedImagery, mode, oamItemId, tileserverURL, tileJSONMetadata]);
+  }, [
+    currentModelType,
+    selectedImagery,
+    mode,
+    oamItemId,
+    tileserverURL,
+    tileJSONMetadata,
+  ]);
 
   return {
     currentModelType,

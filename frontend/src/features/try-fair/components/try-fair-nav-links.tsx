@@ -22,7 +22,7 @@ export const StartMappingNavlinks: React.FC = () => {
   } = useStartMappingStore();
   const hasPredictions = Boolean(predictions?.features?.length);
   const { isAuthenticated } = useAuth();
- const handleHankoLogin = () => {
+  const handleHankoLogin = () => {
     window.location.href = `${HANKO_URL}/app?return_to=${encodeURIComponent(window.location.href)}`;
   };
   const navigate = useNavigate();
@@ -115,7 +115,7 @@ export const StartMappingNavlinks: React.FC = () => {
             className="bg-dark text-xs px-3 flex shrink-0 items-center whitespace-nowrap text-white !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem]"
             aria-label="Go to your dashboard"
           >
-          Dashboard
+            Dashboard
           </button>
         </ToolTip>
       ) : (

@@ -35,14 +35,21 @@ repos:
       - id: oxfmt
         name: oxfmt
         files: ^
-        # oxfmt batches it's runs, so using !/path/to/file in args can cause issues
-        # docs/ markdown uses MkDocs Material syntax (grid cards need a 4-space
-        # `---` divider) that a generic formatter rewrites and breaks.
-        exclude: ^(?:CHANGELOG\.md|frontend/pnpm-lock\.yaml|chart|docs/.*\.md)
+        # Scope via exclude (oxfmt batches runs, so !/path args misbehave):
+        # frontend/ is prettier's (see the prettier hook), docs/ markdown is
+        # MkDocs Material whose 4-space `---` grid dividers a generic formatter breaks.
+        exclude: ^(?:CHANGELOG\.md|signed-contributors\.json|frontend/|chart|docs/.*\.md)
         entry: oxfmt --no-error-on-unmatched-pattern --write
         language: node
         "types": [text]
         additional_dependencies: ["oxfmt@0.35.0"]
+
+      - id: prettier
+        name: prettier (frontend)
+        entry: prettier --write
+        language: node
+        additional_dependencies: ["prettier@3.3.3"]
+        files: ^frontend/src/.*\.(js|jsx|ts|tsx|json|css|scss|md)$
 
       - id: pytest
         name: pytest (backend, db-free subset)

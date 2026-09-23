@@ -59,13 +59,18 @@ type StacSearchResponse = {
 
 const toImageryItem = (feature: StacImageryFeature): OAMImageryItem => {
   const { properties, assets } = feature;
-  const assetName = assets.visual ? "visual" : (Object.keys(assets)[0] ?? "visual");
+  const assetName = assets.visual
+    ? "visual"
+    : (Object.keys(assets)[0] ?? "visual");
   return {
     id: feature.id,
     bbox: feature.bbox,
     geometry: feature.geometry,
     title: properties.title ?? "Untitled Image",
-    provider: properties["oam:producer_name"] ?? properties.providers?.[0]?.name ?? "Unknown",
+    provider:
+      properties["oam:producer_name"] ??
+      properties.providers?.[0]?.name ??
+      "Unknown",
     gsd: properties.gsd ?? null,
     acquiredAt: properties.end_datetime ?? properties.created ?? null,
     license: properties.license ?? null,
@@ -82,12 +87,18 @@ const toImageryItem = (feature: StacImageryFeature): OAMImageryItem => {
  * (titiler) API — the same scheme imagery.hotosm.org uses. The item id and
  * asset name come straight from the footprint PMTiles feature.
  */
-export const getImageryTileUrl = (itemId: string, assetName: string = "visual"): string =>
+export const getImageryTileUrl = (
+  itemId: string,
+  assetName: string = "visual",
+): string =>
   // Note: no `@1x` scale suffix — this titiler rejects it with a 422
   // (it parses `{y}@1x` as the y coordinate). Plain {z}/{x}/{y} is correct.
   `${HOT_IMAGERY_RASTER_API_URL}/collections/${HOT_IMAGERY_COLLECTION_ID}/items/${itemId}/tiles/WebMercatorQuad/{z}/{x}/{y}?assets=${assetName}&nodata=0`;
 
-export const getImageryPredictionTileUrl = (itemId: string, assetName: string = "visual"): string =>
+export const getImageryPredictionTileUrl = (
+  itemId: string,
+  assetName: string = "visual",
+): string =>
   `${HOT_IMAGERY_RASTER_API_URL}/collections/${HOT_IMAGERY_COLLECTION_ID}/items/${itemId}/tiles/WebMercatorQuad/{z}/{x}/{y}?assets=${assetName}&format=jpeg`;
 
 /**
@@ -97,7 +108,10 @@ export const getImageryPredictionTileUrl = (itemId: string, assetName: string = 
  * (the bare XYZ template above is unbounded). `tilesize=256` matches the
  * default raster tile size.
  */
-export const getImageryTileJSONUrl = (itemId: string, assetName: string = "visual"): string =>
+export const getImageryTileJSONUrl = (
+  itemId: string,
+  assetName: string = "visual",
+): string =>
   `${HOT_IMAGERY_RASTER_API_URL}/collections/${HOT_IMAGERY_COLLECTION_ID}/items/${itemId}/WebMercatorQuad/tilejson.json?assets=${assetName}&tilesize=256`;
 
 // ── API calls ─────────────────────────────────────────────────────────────────
@@ -171,13 +185,23 @@ export const reverseGeocodeCountry = async (
   lat: number,
   signal?: AbortSignal,
 ): Promise<CountryResult | null> => {
-  const { data } = await axios.get<{ address?: NominatimAddress }>(`${NOMINATIM_API_URL}/reverse`, {
-    params: { format: "json", lat, lon, zoom: 10, addressdetails: 1 },
-    signal,
-  });
+  const { data } = await axios.get<{ address?: NominatimAddress }>(
+    `${NOMINATIM_API_URL}/reverse`,
+    {
+      params: { format: "json", lat, lon, zoom: 10, addressdetails: 1 },
+      signal,
+    },
+  );
   const a = data?.address;
   if (!a?.country) return null;
-  const place = a.city || a.town || a.village || a.municipality || a.county || a.state || a.country;
+  const place =
+    a.city ||
+    a.town ||
+    a.village ||
+    a.municipality ||
+    a.county ||
+    a.state ||
+    a.country;
   return {
     place,
     country: a.country,
@@ -194,9 +218,12 @@ export const geocodeSuggestions = async (
   limit = 5,
   signal?: AbortSignal,
 ): Promise<GeocodeResult[]> => {
-  const { data } = await axios.get<NominatimResult[]>(`${NOMINATIM_API_URL}/search`, {
-    params: { format: "json", q: query, limit },
-    signal,
-  });
+  const { data } = await axios.get<NominatimResult[]>(
+    `${NOMINATIM_API_URL}/search`,
+    {
+      params: { format: "json", q: query, limit },
+      signal,
+    },
+  );
   return (data ?? []).map(toGeocodeResult);
 };

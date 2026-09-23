@@ -201,13 +201,11 @@ export const NavBar = () => {
               }
             >
               {isTryFairPage && <StartMappingNavlinks />}
-                 {
-                  !isTryFairPage && (
-                     <div className={styles.headerHankoAuth}>
-                <HankoAuthComponent redirectAfterLogin={returnTo} />
-              </div>
-                  )
-                 }
+              {!isTryFairPage && (
+                <div className={styles.headerHankoAuth}>
+                  <HankoAuthComponent redirectAfterLogin={returnTo} />
+                </div>
+              )}
               {/* {!isTryFairPage && (
                 <ToolTip
                   content={

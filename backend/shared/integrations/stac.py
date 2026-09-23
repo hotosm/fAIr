@@ -77,6 +77,11 @@ def get_local_model(item_id: str) -> pystac.Item:
     return _backend().get_item(LOCAL_MODELS_COLLECTION, item_id)
 
 
+def get_item(collection_id: str, item_id: str) -> pystac.Item:
+    """The full pystac Item, unlike the serialized facet `get_cached_item` returns."""
+    return _backend().get_item(collection_id, item_id)
+
+
 def list_base_models(*, limit: int | None = None) -> list[pystac.Item]:
     return _backend().list_items(BASE_MODELS_COLLECTION, limit=limit)
 

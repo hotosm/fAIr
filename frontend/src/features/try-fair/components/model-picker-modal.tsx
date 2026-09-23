@@ -75,9 +75,11 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
             <p className="font-semibold text-dark text-xs leading-tight capitalize truncate">
               {selectedModel.properties.title}
             </p>
-              <p className="text-grey capitalize font-semibold text-[10px] leading-tight truncate">
-                {cleanFeatureLabel(selectedModel.properties["fair:category"] ?? "Building")}
-              </p>
+            <p className="text-grey capitalize font-semibold text-[10px] leading-tight truncate">
+              {cleanFeatureLabel(
+                selectedModel.properties["fair:category"] ?? "Building",
+              )}
+            </p>
           </>
         ) : (
           <p className="text-grey text-xs">Select a model</p>
@@ -99,9 +101,7 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
       )}
     >
       {trigger}
-
     </button>
-
   );
 };
 
@@ -443,8 +443,6 @@ export const ModelPickerContent = ({
           </div>
         </div>
       )}
-
-
     </div>
   );
 };

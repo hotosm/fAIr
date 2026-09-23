@@ -135,8 +135,7 @@ export const getTryFairGuidedTourSteps = (
 
 export const getTryFairStartMappingStep = (): StepType => ({
   selector: `#${APP_TOUR_IDS.TRY_FAIR_START_MAPPING_BUTTON}`,
-  content:
-    "Ready for full mapping? Click login to access advanced tools.",
+  content: "Ready for full mapping? Click login to access advanced tools.",
   styles: {
     close: (base) => ({ ...base, right: 12, top: 12 }),
     maskWrapper: hideMask,

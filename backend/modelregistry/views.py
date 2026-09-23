@@ -36,6 +36,7 @@ from shared.integrations.stac import (
     LOCAL_MODELS_COLLECTION,
     bulk_get_cached_items,
     get_cached_item,
+    get_item,
     set_item_properties,
 )
 from shared.integrations.zenml import list_runs_for_model
@@ -90,12 +91,11 @@ def _merge_validate_write(collection: str, item_id: str, properties: dict) -> No
     """Shallow-merge `properties` onto the item, re-validate the merged item against
     the fAIr schema, then write. The single read-validate-write path, so a metadata
     edit or an arbitrary property patch can never leave the item invalid."""
-    import pystac
     from fair.stac.validators import validate_item
 
-    current = get_cached_item(collection, item_id)
-    merged = {**current, "properties": {**current.get("properties", {}), **properties}}
-    if errors := validate_item(pystac.Item.from_dict(merged)):
+    item = get_item(collection, item_id)
+    item.properties.update(properties)
+    if errors := validate_item(item):
         raise ValidationError({"stac": errors})
     set_item_properties(collection, item_id, properties)
 

@@ -210,8 +210,15 @@ export const OAMImageryPanel = ({
           )}
         </div>
         <div className="p-3 border-t border-gray-border bg-white flex justify-end shrink-0 sticky bottom-0">
-          <ToolTip content={!selectedItem ? "Select an image first" : undefined}>
-            <Button size="medium" rounded disabled={!selectedItem} onClick={handleApplyOAMItem}>
+          <ToolTip
+            content={!selectedItem ? "Select an image first" : undefined}
+          >
+            <Button
+              size="medium"
+              rounded
+              disabled={!selectedItem}
+              onClick={handleApplyOAMItem}
+            >
               Use this image
             </Button>
           </ToolTip>

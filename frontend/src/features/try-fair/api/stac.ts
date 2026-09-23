@@ -44,7 +44,7 @@ export type BaseModelStacItem = {
     "fair:hyperparameters_spec": HyperParamSpec[];
     "fair:preview"?: FairPreview;
     "fair:base_model_title"?: string;
-    "fair:category":string;
+    "fair:category": string;
     keywords: string[];
     providers: Array<{ name: string; description?: string; url?: string }>;
   };

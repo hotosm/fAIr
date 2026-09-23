@@ -7,6 +7,7 @@ from rest_framework.test import APIClient
 from accounts.models import OsmUser
 from modelregistry.models import BaseModel, LocalModel
 from modelregistry.tasks import register_base_model
+from shared.integrations.stac import serialize_item
 
 VALID_ITEM = {
     "type": "Feature",
@@ -451,8 +452,20 @@ def _stac_item_dict(item_id: str = "meta-model") -> dict:
     return item.to_dict()
 
 
+def _stac_item(*_: object) -> pystac.Item:
+    return pystac.Item.from_dict(_stac_item_dict())
+
+
+def test_serialized_facet_cannot_rebuild_a_stac_item() -> None:
+    # The cache facet drops top-level `type`/`id`, so _merge_validate_write must
+    # validate the full item from get_item, never the get_cached_item facet.
+    facet = serialize_item(pystac.Item.from_dict(_stac_item_dict()))
+    with pytest.raises(pystac.errors.STACTypeError):
+        pystac.Item.from_dict(facet)
+
+
 @patch("modelregistry.views.set_item_properties")
-@patch("modelregistry.views.get_cached_item", return_value=_stac_item_dict())
+@patch("modelregistry.views.get_item", side_effect=_stac_item)
 @patch("fair.stac.validators.validate_item", return_value=[])
 def test_base_model_metadata_edits_title_description_and_preview(
     mock_validate, mock_get, mock_set, admin: OsmUser
@@ -473,11 +486,15 @@ def test_base_model_metadata_edits_title_description_and_preview(
     assert props["title"] == "New title"
     assert props["description"] == "New description"
     assert props["fair:preview"] == preview
-    mock_validate.assert_called_once()
+    mock_get.assert_called_once_with("base-models", "meta-model")
+    validated = mock_validate.call_args.args[0]
+    assert isinstance(validated, pystac.Item)
+    assert validated.properties["title"] == "New title"
+    assert validated.properties["fair:preview"] == preview
 
 
 @patch("modelregistry.views.set_item_properties")
-@patch("modelregistry.views.get_cached_item", return_value=_stac_item_dict())
+@patch("modelregistry.views.get_item", side_effect=_stac_item)
 @patch("fair.stac.validators.validate_item", return_value=["mlm:tasks is a required property"])
 def test_base_model_metadata_rejects_invalid_edit(
     mock_validate, mock_get, mock_set, admin: OsmUser
@@ -499,7 +516,7 @@ def test_base_model_metadata_requires_admin(user: OsmUser) -> None:
 
 
 @patch("modelregistry.views.set_item_properties")
-@patch("modelregistry.views.get_cached_item", return_value=_stac_item_dict())
+@patch("modelregistry.views.get_item", side_effect=_stac_item)
 @patch("fair.stac.validators.validate_item", return_value=[])
 def test_base_model_stac_patch_merges_arbitrary_properties(
     mock_validate, mock_get, mock_set, admin: OsmUser
@@ -523,11 +540,14 @@ def test_base_model_stac_patch_merges_arbitrary_properties(
     assert props["fair:source_imagery"] == "https://tiles.example/{z}/{x}/{y}.png"
     assert props["fair:preview_location"] == {"type": "Point", "coordinates": [85.3, 27.7]}
     assert props["description"] == "Synced"
-    mock_validate.assert_called_once()
+    mock_get.assert_called_once_with("base-models", "meta-model")
+    validated = mock_validate.call_args.args[0]
+    assert isinstance(validated, pystac.Item)
+    assert validated.properties["fair:source_imagery"] == "https://tiles.example/{z}/{x}/{y}.png"
 
 
 @patch("modelregistry.views.set_item_properties")
-@patch("modelregistry.views.get_cached_item", return_value=_stac_item_dict())
+@patch("modelregistry.views.get_item", side_effect=_stac_item)
 @patch("fair.stac.validators.validate_item", return_value=["mlm:tasks is a required property"])
 def test_base_model_stac_patch_rejects_invalid_merge(
     mock_validate, mock_get, mock_set, admin: OsmUser
