@@ -15,7 +15,7 @@ import {
 } from "@/features/try-fair/components/imagery/oam-imagery-map";
 import {
   GeocodeResult,
-  getImageryTileUrl,
+  getImageryTileJSONUrl,
   OAMImageryItem,
   searchImagery,
 } from "@/features/try-fair/api/hot-imagery";
@@ -89,7 +89,12 @@ export const ImageryLocationDialog = ({
     onApply({
       source: ImagerySource.OPEN_AERIAL_MAP,
       item: selectedItem,
-      tileUrl: getImageryTileUrl(selectedItem.id, selectedItem.assetName),
+      // The map renders this URL, so it must be the bounded TileJSON — MapLibre
+      // reads its bounds/minzoom and only requests tiles that exist. The bare
+      // XYZ template is unbounded and floods the map with 404s (tiles outside
+      // the image footprint), leaving it blank. The backend still receives the
+      // XYZ template separately via `predictionImageUri`.
+      tileUrl: getImageryTileJSONUrl(selectedItem.id, selectedItem.assetName),
       bounds: selectedItem.bbox,
     });
     if (onBackToModelPicker) {

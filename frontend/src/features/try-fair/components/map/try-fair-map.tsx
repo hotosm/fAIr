@@ -13,12 +13,19 @@ import { FitToBounds, ZoomControls } from "@/components/map/controls";
 import { InfoIcon } from "@/components/ui/icons";
 import { ToolTip } from "@/components/ui/tooltip";
 import { PREDICTION_LAYER_IDS } from "@/features/try-fair/utils/common";
+import { TRY_FAIR_FLY_TO_ANIMATION } from "@/config";
 import { getTileZoomForResolution } from "@/features/try-fair/utils/tile-math";
 import { TryFairLayerControl } from "@/features/try-fair/components/map/try-fair-layer-control";
 import useScreenSize from "@/hooks/use-screen-size";
 import { LocateGridIcon } from "@/components/ui/icons/locate-grid-icon";
 import { TryFairDownloadButton } from "@/features/try-fair/components/map/try-fair-download-button";
+import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/utils";
+
+// When the fly-to animation is disabled (VITE_TRY_FAIR_FLY_TO_ANIMATION=false)
+// the camera jumps to the grid instantly instead of easing; otherwise MapLibre
+// uses its default animated transition.
+const FLY_TO_OPTIONS = TRY_FAIR_FLY_TO_ANIMATION ? {} : { duration: 0 };
 
 type TryFairMapProps = {
   map: Map | null;
@@ -64,6 +71,9 @@ export const TryFairMap = ({
   const [choroplethBuckets, setChoroplethBuckets] = useState<
     ChoroplethBucket[] | null
   >(null);
+  // True while the imagery raster tiles are actually fetching, so we can show a
+  // spinner over the map instead of a blank canvas when imagery changes.
+  const [imageryLoading, setImageryLoading] = useState(false);
   const gridBBoxRef = useRef<BBOX | null>(null);
   const fitPendingRef = useRef(false);
 
@@ -74,6 +84,7 @@ export const TryFairMap = ({
     map.fitBounds([bbox[0], bbox[1], bbox[2], bbox[3]], {
       padding: 40,
       essential: true,
+      ...FLY_TO_OPTIONS,
     });
   }, [map, canFitToBounds]);
 
@@ -88,6 +99,7 @@ export const TryFairMap = ({
           map.fitBounds([bbox[0], bbox[1], bbox[2], bbox[3]], {
             padding: 40,
             essential: true,
+            ...FLY_TO_OPTIONS,
           });
         }
       }
@@ -157,7 +169,18 @@ export const TryFairMap = ({
         zoomControls={false}
         basemaps
         onTileServiceFitToBounds={handleFitToGrid}
+        onTileServiceLoadingChange={setImageryLoading}
       />
+
+      {imageryLoading && (
+        <div
+          className="absolute inset-0 z-[5] flex items-center justify-center bg-white/40 pointer-events-none"
+          aria-live="polite"
+          aria-busy="true"
+        >
+          <Spinner style={{ fontSize: "2.5rem" }} />
+        </div>
+      )}
 
       <TryFairPredictionsLayer
         map={map}

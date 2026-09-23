@@ -15,6 +15,7 @@ vi.mock("@/hooks/use-map-instance", () => ({
       })),
       getSource: vi.fn(() => null),
       getStyle: vi.fn(() => ({})),
+      isStyleLoaded: vi.fn(() => true),
       getLayer: vi.fn(() => null),
       addSource: vi.fn(),
       removeSource: vi.fn(),

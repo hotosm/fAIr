@@ -21,14 +21,6 @@ vi.mock("../use-oam-item", () => ({
 }));
 
 describe("useTryFairImagery", () => {
-  const createMockMap = () => ({
-    flyTo: vi.fn(),
-    fitBounds: vi.fn(),
-    isStyleLoaded: vi.fn(() => true),
-    once: vi.fn(),
-    off: vi.fn(),
-  });
-
   beforeEach(() => {
     vi.clearAllMocks();
     useStartMappingStore.setState({
@@ -38,10 +30,8 @@ describe("useTryFairImagery", () => {
   });
 
   it("should return default tileServiceUrl and fallback imagery center in DEMO mode", () => {
-    const mockMap = createMockMap();
     const { result, unmount } = renderHook(() =>
       useTryFairImagery({
-        map: mockMap as any,
         selectedModel: null,
         mode: ModelType.DEMO,
         imageryUrl: null,
@@ -57,7 +47,6 @@ describe("useTryFairImagery", () => {
   });
 
   it("should use the selected model's fair:preview center if available", () => {
-    const mockMap = createMockMap();
     const mockModel: any = {
       properties: {
         "fair:preview": {
@@ -70,7 +59,6 @@ describe("useTryFairImagery", () => {
 
     const { result, unmount } = renderHook(() =>
       useTryFairImagery({
-        map: mockMap as any,
         selectedModel: mockModel,
         mode: ModelType.DEMO,
         imageryUrl: null,
@@ -84,7 +72,6 @@ describe("useTryFairImagery", () => {
   });
 
   it("should compute center from selectedImagery bounds in IMAGERY mode", () => {
-    const mockMap = createMockMap();
     useStartMappingStore.setState({
       currentModelType: ModelType.IMAGERY,
       selectedImagery: {
@@ -97,7 +84,6 @@ describe("useTryFairImagery", () => {
 
     const { result, unmount } = renderHook(() =>
       useTryFairImagery({
-        map: mockMap as any,
         selectedModel: null,
         mode: ModelType.IMAGERY,
         imageryUrl: null,
@@ -112,7 +98,6 @@ describe("useTryFairImagery", () => {
   });
 
   it("should return undefined imageryCenter when isCustomTMSImagery is true", () => {
-    const mockMap = createMockMap();
     useStartMappingStore.setState({
       currentModelType: ModelType.IMAGERY,
       selectedImagery: {
@@ -125,7 +110,6 @@ describe("useTryFairImagery", () => {
 
     const { result, unmount } = renderHook(() =>
       useTryFairImagery({
-        map: mockMap as any,
         selectedModel: null,
         mode: ModelType.IMAGERY,
         imageryUrl: "https://tms.example.com/{z}/{x}/{-y}.png",
@@ -134,14 +118,13 @@ describe("useTryFairImagery", () => {
       }),
     );
 
+    // TMS has no reliable extent, so the grid/camera stays put — the hook
+    // reports no center to fit to.
     expect(result.current.imageryCenter).toBeUndefined();
-    expect(mockMap.flyTo).not.toHaveBeenCalled();
-    expect(mockMap.fitBounds).not.toHaveBeenCalled();
     unmount();
   });
 
-  it("should trigger map.fitBounds when imageryBounds are present and not TMS", () => {
-    const mockMap = createMockMap();
+  it("should expose OAM bounds and an XYZ prediction URL (not the tilejson URL)", () => {
     const mockOamItem: any = {
       id: "oam-item-1",
       bbox: [-10, 5, 20, 15],
@@ -166,9 +149,8 @@ describe("useTryFairImagery", () => {
       },
     });
 
-    const { unmount } = renderHook(() =>
+    const { result, unmount } = renderHook(() =>
       useTryFairImagery({
-        map: mockMap as any,
         selectedModel: null,
         mode: ModelType.IMAGERY,
         imageryUrl: null,
@@ -177,11 +159,13 @@ describe("useTryFairImagery", () => {
       }),
     );
 
-    expect(mockMap.fitBounds).toHaveBeenCalledWith([-10, 5, 20, 15], {
-      padding: 40,
-      duration: 0,
-      essential: true,
-    });
+    expect(result.current.imageryBounds).toEqual([-10, 5, 20, 15]);
+    // The backend must receive the raster XYZ template, never the tilejson URL.
+    expect(result.current.predictionImageUri).toContain(
+      "/items/oam-item-1/tiles/WebMercatorQuad/{z}/{x}/{y}",
+    );
+    expect(result.current.predictionImageUri).toContain("assets=visual");
+    expect(result.current.predictionImageUri).not.toContain("tilejson");
     unmount();
   });
 });

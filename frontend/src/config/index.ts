@@ -612,6 +612,17 @@ export const MAPSWIPE_AGREEMENT_OUTLINE_COLORS = {
 export const TRY_FAIR_GRID_SIZE = parseIntEnv(ENVS.TRY_FAIR_GRID_SIZE, 5);
 
 /**
+ * Toggles the animated camera "fly to" when the Try fAIr map fits to the grid
+ * (on imagery selection, refresh, and resolution changes). When "true" the
+ * camera eases to the grid; when "false" it jumps instantly (duration 0),
+ * which is useful for low-powered devices or to avoid motion.
+ *
+ * Controlled by VITE_TRY_FAIR_FLY_TO_ANIMATION. Defaults to "true" (animated).
+ */
+export const TRY_FAIR_FLY_TO_ANIMATION: boolean =
+  parseStringEnv(ENVS.TRY_FAIR_FLY_TO_ANIMATION, "true") === "true";
+
+/**
  * The URL to the production environment of fAIr.
  */
 export const FAIR_PROD_URL: string = parseStringEnv(

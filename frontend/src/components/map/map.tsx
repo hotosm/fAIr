@@ -43,6 +43,8 @@ type MapComponentProps = {
   hasTileServiceLayer?: boolean;
   /** Override the default fitBounds-to-imagery behavior when tileJSON loads. */
   onTileServiceFitToBounds?: () => void;
+  /** Notified as the tile-service raster tiles start/finish loading. */
+  onTileServiceLoadingChange?: (loading: boolean) => void;
 };
 
 export const MapComponent: React.FC<MapComponentProps> = ({
@@ -63,6 +65,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
   tileServiceURL,
   hasTileServiceLayer = false,
   onTileServiceFitToBounds,
+  onTileServiceLoadingChange,
 }) => {
   return (
     <div className={`h-full relative w-full`} ref={mapContainerRef}>
@@ -105,6 +108,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
           tileServiceURL={tileServiceURL}
           map={map}
           onFitToBounds={onTileServiceFitToBounds}
+          onLoadingChange={onTileServiceLoadingChange}
         />
       )}
       {children}

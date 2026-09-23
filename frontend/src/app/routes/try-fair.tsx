@@ -91,6 +91,7 @@ export const TryFairPage = () => {
     imageryTileServiceType,
     oamItemId,
     setImagery,
+    setImageryMode,
     chooseLocation,
     setChooseLocation,
     isParametersDefault: hasDefaultParameters,
@@ -117,13 +118,13 @@ export const TryFairPage = () => {
   const {
     imageryBounds,
     imageryCenter,
+    predictionImageUri,
     setCurrentModelType,
     setSeletedImagery,
     tileLoading,
     tileServiceTypeValidity,
     tileserverURL,
   } = useTryFairImagery({
-    map,
     selectedModel,
     mode,
     imageryUrl,
@@ -275,11 +276,12 @@ export const TryFairPage = () => {
     cancelPrediction();
     lastPredictedInputsRef.current = null;
   }, [cancelPrediction]);
+
   const handleSelectModel = (model: BaseModelStacItem) => {
     setModelId(model.id);
 
     // Only reset imagery & mode when the user was on a sample/demo location.
-    // If they have their own imagery selected, keep it intact.
+    // If they have their own imagery selected (advanced picker usage), keep it.
     if (mode !== ModelType.IMAGERY) {
       setCurrentModelType(ModelType.DEMO);
       setMode(ModelType.DEMO);
@@ -299,6 +301,20 @@ export const TryFairPage = () => {
     // Invalidate so the Map button re-enables for the new model
     lastPredictedInputsRef.current = null;
     clearPredictions();
+  };
+
+  /**
+   * Called when the user picks a model from the Samples tab.
+   * Always switches to DEMO mode and clears any active imagery,
+   * regardless of the current mode.
+   */
+  const handleSelectSampleModel = (model: BaseModelStacItem) => {
+    setStagedImagery(null);
+    setSeletedImagery(null);
+    setCurrentModelType(ModelType.DEMO);
+    setMode(ModelType.DEMO);
+    setImagery({ url: null, tileServiceType: null, oamItemId: null });
+    handleSelectModel(model);
   };
 
   const handleResolutionChange = (res: TryFairResolution) => {
@@ -353,7 +369,7 @@ export const TryFairPage = () => {
       {
         model: modelForMapping,
         modelUri,
-        imageUri: tileserverURL,
+        imageUri: predictionImageUri,
         bbox: latestBBox,
         gridZoom: latestGridZoom ?? undefined,
         resolution,
@@ -374,7 +390,7 @@ export const TryFairPage = () => {
     latestBBox,
     paramValues,
     predict,
-    tileserverURL,
+    predictionImageUri,
     latestGridZoom,
     resolution,
     predictionInputsSnapshot,
@@ -399,10 +415,13 @@ export const TryFairPage = () => {
   };
   const handleApplyImagery = useCallback(
     (selection: ImagerySelection) => {
-      setCurrentModelType(ModelType.IMAGERY);
       setSeletedImagery(selection);
-      setMode(ModelType.IMAGERY);
-      setImagery({
+      setCurrentModelType(ModelType.IMAGERY);
+      // Use the atomic setter so mode + imagery URL land in a single nuqs
+      // update. Two separate setParams calls (setMode then setImagery) leave
+      // an intermediate render where mode=IMAGERY but imageryUrl is still
+      // null, which made use-try-fair-imagery fall back to the sample imagery.
+      setImageryMode({
         url:
           selection.source === ImagerySource.CUSTOM ? selection.tileUrl : null,
         tileServiceType:
@@ -457,8 +476,7 @@ export const TryFairPage = () => {
       addRecentImagery,
       clearPredictions,
       setCurrentModelType,
-      setImagery,
-      setMode,
+      setImageryMode,
       setSeletedImagery,
       setChooseLocation,
     ],
@@ -491,7 +509,7 @@ export const TryFairPage = () => {
       >
         <ModelPickerContent
           selectedModel={modelForMapping}
-          onSelect={handleSelectModel}
+          onSelect={handleSelectSampleModel}
           models={models}
           onClose={closeModelPickerDialog}
           feature={feature}
@@ -502,7 +520,10 @@ export const TryFairPage = () => {
             handleApplyImagery(selection);
           }}
           recentImageries={recentImageries}
-          onApplyRecentImagery={handleApplyRecentImagery}
+          onApplyRecentImagery={(entry) => {
+            setStagedImagery(null);
+            handleApplyRecentImagery(entry);
+          }}
           onChooseImagery={() => {
             closeModelPickerDialog();
             setIsChoosingImageryFromModelPicker(true);

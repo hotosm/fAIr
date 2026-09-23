@@ -26,7 +26,7 @@ import {
 } from "@/features/try-fair/api/stac";
 import { cn } from "@/utils";
 import useScreenSize from "@/hooks/use-screen-size";
-import { ChevronDownIcon, RefreshIcon } from "@/components/ui/icons";
+import { RefreshIcon } from "@/components/ui/icons";
 import { ToolTip } from "@/components/ui/tooltip";
 import { LocationSearchIcon } from "@/components/ui/icons/location-search-icon";
 import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
@@ -132,7 +132,6 @@ export const TryFairSidebar = ({
             openMobileDialog={openMobileModelPickerDialog}
           />
         </div>
-        <ChevronDownIcon className="size-3" />
 
         {/* Vertical divider */}
         {!isSmallViewport && (

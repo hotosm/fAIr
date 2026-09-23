@@ -43,10 +43,10 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
   isSmallViewport,
   openMobileDialog,
 }) => {
-  const place = selectedModel?.properties["fair:preview"]?.place;
-  const selectedLocation = [place?.name, place?.country]
-    .filter(Boolean)
-    .join(", ");
+  // const place = selectedModel?.properties["fair:preview"]?.place;
+  // const selectedLocation = [place?.name, place?.country]
+  //   .filter(Boolean)
+  //   .join(", ");
   const { feature } = useTryFairParams();
   const { currentModelType, selectedImagery } = useStartMappingStore();
 
@@ -56,7 +56,6 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
     selectedImagery?.source === ImagerySource.OPEN_AERIAL_MAP
       ? selectedImagery.item.title
       : "Custom Imagery";
-
   const trigger = (
     <div className="flex justify-between items-center">
       <div className="w-full text-left flex-1 min-w-0">
@@ -73,19 +72,18 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
           <p className="text-grey text-xs animate-pulse">Loading models…</p>
         ) : selectedModel ? (
           <>
-            <p className="font-semibold text-dark text-xs leading-tight">
+            <p className="font-semibold text-dark text-xs leading-tight capitalize truncate">
               {selectedModel.properties.title}
             </p>
-            {selectedLocation && (
-              <p className="text-grey font-semibold text-[10px] leading-tight truncate">
-                {selectedLocation}
+              <p className="text-grey capitalize font-semibold text-[10px] leading-tight truncate">
+                {cleanFeatureLabel(selectedModel.properties["fair:category"] ?? "Building")}
               </p>
-            )}
           </>
         ) : (
           <p className="text-grey text-xs">Select a model</p>
         )}
       </div>
+      <ChevronDownIcon className="size-3 shrink-0" />
     </div>
   );
 
@@ -256,23 +254,38 @@ export const ModelPickerContent = ({
 
   return (
     <div className="flex flex-col">
-      {/* ── Tabs header ── */}
-      <div className="flex border-b border-gray-border mb-4">
-        {[TAB_SAMPLES, TAB_CHOOSE].map((tab) => (
-          <button
-            key={tab}
+      {/* ── Tabs header + Apply ── */}
+      <div className="flex items-center border-b border-gray-border mb-4">
+        <div className="flex flex-1">
+          {[TAB_SAMPLES, TAB_CHOOSE].map((tab) => (
+            <button
+              key={tab}
+              type="button"
+              onClick={() => setActiveTab(tab)}
+              className={cn(
+                "px-4 pb-3 text-sm font-medium transition-colors border-b-2 -mb-px",
+                activeTab === tab
+                  ? "border-primary text-dark"
+                  : "border-transparent text-grey hover:text-dark",
+              )}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+        <div className="pb-3">
+          <Button
             type="button"
-            onClick={() => setActiveTab(tab)}
-            className={cn(
-              "px-4 pb-3 text-sm font-medium transition-colors border-b-2 -mb-px",
-              activeTab === tab
-                ? "border-primary text-dark"
-                : "border-transparent text-grey hover:text-dark",
-            )}
+            size="medium"
+            className="!w-fit"
+            rounded
+            fontSize="12px"
+            disabled={!hasChange}
+            onClick={handleApply}
           >
-            {tab}
-          </button>
-        ))}
+            Apply
+          </Button>
+        </div>
       </div>
 
       {/* ── Samples tab ── */}
@@ -431,20 +444,7 @@ export const ModelPickerContent = ({
         </div>
       )}
 
-      {/* ── Footer: Apply button ── */}
-      <div className="flex justify-end mt-4 pt-3">
-        <Button
-          type="button"
-          size="medium"
-          className="!w-fit"
-          rounded
-          fontSize="12px"
-          disabled={!hasChange}
-          onClick={handleApply}
-        >
-          Apply
-        </Button>
-      </div>
+
     </div>
   );
 };

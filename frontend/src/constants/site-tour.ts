@@ -82,7 +82,7 @@ export const getTryFairGuidedTourSteps = (
   {
     selector: `#${APP_TOUR_IDS.TRY_FAIR_PARAMETERS}`,
     content:
-      "Adjust confidence and resolution to explore how prediction output changes.",
+      "Adjust accuracy and size to explore how prediction output changes.",
     position: isSmallViewport ? "top" : "right",
     styles: {
       popover: popoverStyle,
@@ -136,7 +136,7 @@ export const getTryFairGuidedTourSteps = (
 export const getTryFairStartMappingStep = (): StepType => ({
   selector: `#${APP_TOUR_IDS.TRY_FAIR_START_MAPPING_BUTTON}`,
   content:
-    "Ready for full mapping? Click Start Mapping to access advanced tools.",
+    "Ready for full mapping? Click login to access advanced tools.",
   styles: {
     close: (base) => ({ ...base, right: 12, top: 12 }),
     maskWrapper: hideMask,
