@@ -1053,7 +1053,7 @@ requires-dist = [
     { name = "djangorestframework", specifier = ">=3.15" },
     { name = "djangorestframework-gis", specifier = ">=1.1" },
     { name = "drf-spectacular", specifier = ">=0.29" },
-    { name = "fair-py-ops", extras = ["k8s"], specifier = "==0.3.10" },
+    { name = "fair-py-ops", extras = ["k8s"], specifier = "==0.3.13" },
     { name = "geomltoolkits", specifier = ">=2.1.0" },
     { name = "geopandas", specifier = ">=1.0" },
     { name = "gpxpy", specifier = ">=1.6" },
@@ -1087,7 +1087,7 @@ test = [
 
 [[package]]
 name = "fair-py-ops"
-version = "0.3.10"
+version = "0.3.13"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "httpx" },
@@ -1099,9 +1099,9 @@ dependencies = [
     { name = "universal-pathlib" },
     { name = "zenml" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/0e/f6/02b9d9249f72720dd8238087259bd910501319bc778c1df045801c02d23b/fair_py_ops-0.3.10.tar.gz", hash = "sha256:d444aa091b93a8e07875aba9528655c210ce2c93cc20bec7f148c3d31f0c7da5", size = 3932508, upload-time = "2026-09-06T14:07:14.657Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/02/6c/ad7b2ececf355cc3bf52dc0cd8b1e30be696d196f213c110611fb41aad7d/fair_py_ops-0.3.13.tar.gz", hash = "sha256:7dd33e97c56e81076818a199b17503b1bb70227080e9dc129e781f5c3f7c5345", size = 3961960, upload-time = "2026-09-23T21:12:31.305Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/81/b6/20412a26611c1f7abb63f6e6a5bcba22e09ec3e7c34b0852afc24c7e93b4/fair_py_ops-0.3.10-py3-none-any.whl", hash = "sha256:2d787ff45ce1e9d410fa770a6bc97cf32ca9649763bfc5f67c08ca3815f35fa5", size = 4078814, upload-time = "2026-09-06T14:07:12.964Z" },
+    { url = "https://files.pythonhosted.org/packages/a4/42/abb01e4ac588b51871e40a8bb9fbeb3c0ca9034146f09e8e65cb6a7107a3/fair_py_ops-0.3.13-py3-none-any.whl", hash = "sha256:20b26d80e1da013ad4c0b59d5c03ced1b0e322c5bb776f7092ed3501270fa97d", size = 4125877, upload-time = "2026-09-23T21:12:29.969Z" },
 ]
 
 [package.optional-dependencies]
