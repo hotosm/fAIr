@@ -32,7 +32,8 @@ Two rules to keep in mind:
   Do not put the category slug in `keywords`; the category is written
   separately as the `fair:category` property during registration.
 - Model weight assets (`model`, `checkpoint`) should point to a location the
-  platform can read. The published item keeps the asset hrefs you provide.
+  platform can read. Registration mirrors them into the artifact store under a
+  versioned path and publishes the mirrored hrefs.
 
 A complete reference item lives in the fAIr-models repository, for example
 `models/dinov3s_buildings/stac-item.json`.
@@ -68,16 +69,39 @@ curl -X POST https://<host>/api/v1/base-models/ \
 
 The response is `202 Accepted` with the DB record and `status: "registering"`.
 
+For a release, first pin a local copy of the item:
+
+```bash
+fair basemodel pin item.json
+```
+
+Submit that exact file as inline `stac_item` in staging and, after testing, in
+production. Do not fetch or pin it again between environments: mutable tags may
+have moved.
+
 ## What registration does
 
 - Writes the chosen category onto the item as `fair:category`.
+- Pins the `mlm:training` and `mlm:inference` image tags to digests.
+- Rejects the item (400) unless `mlm:entrypoint` is `models.<model>.pipeline:<function>`
+  and bundled in the backend image. New models need a `fair-py-ops` release, then a
+  backend release.
 - Adds the `mlm:inference-endpoint` asset when `inference_endpoint` is supplied.
+- Mirrors downloadable model assets into a version-specific artifact path.
+- Applies the model's Knative service. With `FAIR_KNATIVE_TAG=staging`, the new
+  revision is served at `https://staging-<model>.predict.<domain>` and the live
+  route is unchanged. Without it, the live route moves after the new revision's
+  `/health` readiness probe succeeds.
 - Publishes the item to the `base-models` collection off-request, where the
   version metadata lives.
 - On success sets the DB row `status` to `active` and records `stac_item_id`.
   On failure sets `status` to `failed` and records the error.
 
 The request does not block on publishing. Poll the record until it settles.
+
+A `reconcile_knative` CronJob re-applies services for all active base models.
+Releasing services whose model left STAC (`--prune`) stays off until STAC item
+listing handles every result page.
 
 ## Verify
 
