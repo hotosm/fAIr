@@ -59,7 +59,16 @@ COPY --from=builder /app /app
 RUN printf '.venv/\nartifacts/\n.zen/\n*.pyc\n__pycache__/\n*.log\n' > /app/.gitignore \
     && git -C /app init -q -b main
 
+# Bundle the matching fAIr-models release.
+RUN ref="v$(/app/.venv/bin/python -c 'from importlib.metadata import version; print(version("fair-py-ops"))')" \
+    && git -c advice.detachedHead=false clone -q --depth 1 --branch "$ref" https://github.com/hotosm/fAIr-models /tmp/fair-models \
+    && mkdir -p /opt/fair-models \
+    && mv /tmp/fair-models/models /opt/fair-models/ \
+    && git -C /tmp/fair-models rev-parse HEAD > /opt/fair-models/REVISION \
+    && rm -rf /tmp/fair-models
+
 ENV PATH="/app/.venv/bin:${PATH}" \
+    PYTHONPATH=/opt/fair-models \
     PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
 

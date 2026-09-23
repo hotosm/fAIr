@@ -1,3 +1,5 @@
+import importlib.util
+
 import httpx
 from django.conf import settings
 from django.db.models import Count, Q
@@ -224,6 +226,23 @@ class StacExpandMixin:
         return super().list(request, *args, **kwargs)
 
 
+def _pipeline_error(stac_item: dict) -> str | None:
+    source = (stac_item.get("assets") or {}).get("source-code") or {}
+    module, _, function = str(source.get("mlm:entrypoint") or "").partition(":")
+    if not module.startswith("models.") or not function:
+        return "source-code mlm:entrypoint must be 'models.<model>.pipeline:<function>'."
+    try:
+        bundled = importlib.util.find_spec(module) is not None
+    except ModuleNotFoundError:
+        bundled = False
+    if not bundled:
+        return (
+            f"Pipeline module '{module}' is not in this backend image. "
+            "Release fair-py-ops with the model, then the backend."
+        )
+    return None
+
+
 def _fetch_stac_item(url: str) -> dict:
     """Fetch and return the STAC item JSON at `url`.
 
@@ -443,6 +462,8 @@ class BaseModelViewSet(
         data = serializer.validated_data
         category = data.get("category") or Category.objects.get(slug="other")
         stac_item = data.get("stac_item") or _fetch_stac_item(data["stac_item_url"])
+        if error := _pipeline_error(stac_item):
+            raise ValidationError({"stac_item": error})
         if inference_endpoint := data.get("inference_endpoint"):
             stac_item.setdefault("assets", {})["mlm:inference-endpoint"] = {
                 "href": inference_endpoint,

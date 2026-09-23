@@ -9,12 +9,22 @@ from modelregistry.models import BaseModel, LocalModel
 from modelregistry.tasks import register_base_model
 from shared.integrations.stac import serialize_item
 
+BUNDLED_ENTRYPOINT = "models.demo.pipeline:predict"
+SOURCE_CODE = {"href": "https://example.com/src", "mlm:entrypoint": BUNDLED_ENTRYPOINT}
 VALID_ITEM = {
     "type": "Feature",
     "id": "test-basemodel",
     "properties": {"mlm:name": "test-basemodel"},
-    "assets": {},
+    "assets": {"source-code": SOURCE_CODE},
 }
+
+
+@pytest.fixture(autouse=True)
+def _bundled_pipeline(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        "modelregistry.views.importlib.util.find_spec",
+        lambda name: object() if name == BUNDLED_ENTRYPOINT.split(":")[0] else None,
+    )
 
 
 class _FakeResponse:
@@ -97,6 +107,21 @@ def test_register_without_inference_endpoint_leaves_item(mock_task, admin: OsmUs
     assert "mlm:inference-endpoint" not in item.get("assets", {})
 
 
+@pytest.mark.parametrize(
+    "entrypoint",
+    [None, "json:loads", "models.demo.pipeline", "models.not_bundled.pipeline:predict"],
+)
+def test_register_rejects_unbundled_pipeline(admin: OsmUser, entrypoint: str | None) -> None:
+    source = {"href": "https://example.com/src"}
+    if entrypoint:
+        source["mlm:entrypoint"] = entrypoint
+    item = {**VALID_ITEM, "assets": {"source-code": source}}
+    resp = _client(admin).post("/api/v1/base-models/", {"stac_item": item}, format="json")
+    assert resp.status_code == 400
+    assert "entrypoint" in str(resp.data) or "not in this backend image" in str(resp.data)
+    assert not BaseModel.objects.exists()
+
+
 def test_register_rejects_missing_mlm_name(admin: OsmUser) -> None:
     resp = _client(admin).post(
         "/api/v1/base-models/", {"stac_item": {"properties": {}}}, format="json"
@@ -109,7 +134,11 @@ def test_register_rejects_missing_mlm_name(admin: OsmUser) -> None:
 def test_register_from_url_stores_fetched_item(
     mock_task, admin: OsmUser, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    fetched = {"type": "Feature", "properties": {"mlm:name": "url-model"}, "assets": {}}
+    fetched = {
+        "type": "Feature",
+        "properties": {"mlm:name": "url-model"},
+        "assets": {"source-code": SOURCE_CODE},
+    }
     monkeypatch.setattr(
         "modelregistry.views.httpx.get",
         lambda *args, **kwargs: _FakeResponse(fetched),
@@ -645,3 +674,50 @@ def test_base_model_stac_patch_rejects_identity_keys(admin: OsmUser) -> None:
         format="json",
     )
     assert resp.status_code == 400
+
+
+def _admin_action(admin_user: OsmUser, queryset) -> list[str]:
+    from django.contrib.admin.sites import AdminSite
+    from django.contrib.messages.storage.fallback import FallbackStorage
+    from django.test import RequestFactory
+
+    from modelregistry.admin import BaseModelAdmin
+
+    request = RequestFactory().post("/")
+    request.user = admin_user
+    request.session = {}
+    storage = FallbackStorage(request)
+    request._messages = storage
+    BaseModelAdmin(BaseModel, AdminSite()).register_in_stac(request, queryset)
+    return [str(m) for m in storage]
+
+
+@patch("modelregistry.tasks.register_base_model")
+@patch("shared.integrations.stac.get_item")
+def test_admin_reregister_enqueues_full_stac_item(mock_get, mock_task, admin: OsmUser) -> None:
+    item = _stac_item_dict()
+    item["assets"]["source-code"] = SOURCE_CODE
+    mock_get.return_value = pystac.Item.from_dict(item)
+    base = BaseModel.objects.create(name="m", user=admin, stac_item_id=item["id"])
+
+    _admin_action(admin, BaseModel.objects.filter(id=base.id))
+
+    enqueued = mock_task.enqueue.call_args.kwargs["stac_item"]
+    assert enqueued["id"] == item["id"] and enqueued["type"] == "Feature"
+    pystac.Item.from_dict(enqueued)  # a real item, unlike the cached facet
+    base.refresh_from_db()
+    assert base.status == BaseModel.Status.REGISTERING
+
+
+@patch("modelregistry.tasks.register_base_model")
+@patch("shared.integrations.stac.get_item")
+def test_admin_reregister_skips_unbundled_pipeline(mock_get, mock_task, admin: OsmUser) -> None:
+    item = _stac_item_dict()
+    item["assets"]["source-code"] = {"href": "https://example.com/src", "mlm:entrypoint": "json:loads"}
+    mock_get.return_value = pystac.Item.from_dict(item)
+    base = BaseModel.objects.create(name="m", user=admin, stac_item_id=item["id"])
+
+    messages = _admin_action(admin, BaseModel.objects.filter(id=base.id))
+
+    mock_task.enqueue.assert_not_called()
+    assert any("entrypoint" in m for m in messages)
