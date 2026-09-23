@@ -17,6 +17,7 @@ fAIr is a Django REST backend, a React single-page app, and an ML layer built on
 | **MinIO** (S3-compatible)                | Artifact store for chips, labels, weights, ONNX models, and prediction outputs.                                                                              |
 | **MLflow**                               | Experiment tracking for training runs.                                                                                                                       |
 | **ZenML**                                | Orchestrates the training and inference pipelines and tracks run state.                                                                                      |
+| **Knative**                              | Serves one digest-pinned inference service per base model, with separate staging and live routes.                                                            |
 
 The ML pipeline and how these services fit together are described in [ML pipeline](ml-pipeline.md).
 
