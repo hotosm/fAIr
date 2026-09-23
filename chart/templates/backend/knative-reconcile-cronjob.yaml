@@ -1,0 +1,62 @@
+{{- if .Values.backend.knativeReconcile.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "fair.backend.fullname" . }}-knative-reconcile
+  labels:
+    {{- include "fair.labels" . | nindent 4 }}
+    app.kubernetes.io/component: backend
+spec:
+  schedule: {{ .Values.backend.knativeReconcile.schedule | quote }}
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      activeDeadlineSeconds: 3600
+      template:
+        metadata:
+          labels:
+            {{- include "fair.labels" . | nindent 12 }}
+            app.kubernetes.io/component: knative-reconcile
+        spec:
+          {{- with .Values.imagePullSecrets }}
+          imagePullSecrets:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          serviceAccountName: {{ include "fair.serviceAccountName" . }}
+          restartPolicy: Never
+          containers:
+            - name: reconcile
+              image: {{ include "fair.backend.image" . }}
+              imagePullPolicy: {{ .Values.image.backend.pullPolicy }}
+              command:
+                - python
+                - manage.py
+                - reconcile_knative
+                {{- if .Values.backend.knativeReconcile.prune }}
+                - --prune
+                {{- end }}
+              envFrom:
+                - configMapRef:
+                    name: {{ include "fair.backend.fullname" . }}
+                {{- with .Values.backend.envFrom }}
+                {{- toYaml . | nindent 16 }}
+                {{- end }}
+              env:
+                {{- if .Values.postgres.enabled }}
+                {{- include "fair.postgresDatabaseUrlEnv" . | nindent 16 }}
+                {{- else }}
+                - name: DATABASE_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      {{- if .Values.externalDatabase.existingSecret }}
+                      name: {{ .Values.externalDatabase.existingSecret }}
+                      key: {{ .Values.externalDatabase.existingSecretKey }}
+                      {{- else }}
+                      name: {{ include "fair.backend.fullname" . }}-db
+                      key: password
+                      {{- end }}
+                - name: DATABASE_URL
+                  value: {{ include "fair.databaseUrl" . | quote }}
+                {{- end }}
+{{- end }}

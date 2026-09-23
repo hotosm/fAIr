@@ -46,9 +46,16 @@ backend:
 | `externalDatabase.existingSecret` | Secret containing DB password | `""` |
 | `backend.djangoQ.enabled` | Run Django-Q sidecar for async tasks | `true` |
 | `backend.migrate.enabled` | Run migrations on install/upgrade | `true` |
+| `backend.knativeReconcile.enabled` | Enable periodic Knative reconciliation | `false` |
+| `backend.knativeReconcile.schedule` | Reconciliation schedule | `*/15 * * * *` |
+| `backend.knativeReconcile.prune` | Remove Knative services not in STAC | `false` |
 | `ingress.enabled` | Create Ingress resource | `false` |
 | `serviceAccount.knativeRbac` | Role/RoleBinding to manage Knative Services in the release namespace | `true` |
 | `frontend.mode` | `"bundleWithBackend"` or `"cloudfront"` | `"bundleWithBackend"` |
+
+The reconciler restores services from active STAC base models. Keep `prune`
+disabled until fair-py-ops follows all STAC pagination links; jobs forbid
+overlap and stop after one hour.
 
 ## Frontend
 

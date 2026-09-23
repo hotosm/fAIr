@@ -1,7 +1,4 @@
-# Per-model KNative Service shape the backend hands to fair-py-ops on base-model
-# registration (settings.KNATIVE_SERVICE_TEMPLATE). fair injects the per-model fields
-# (name, namespace, image, MODEL_MODULE env, and any fair:cpu/memory/node overrides from
-# the STAC item). Edit here to retune resources, autoscaling, or env without a lib bump.
+# fair-py-ops fills model-specific fields from STAC during registration.
 apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
@@ -20,11 +17,16 @@ spec:
         - image: model
           ports:
             - containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
           envFrom:
             - secretRef:
                 name: s3-credentials
+                optional: true
           env:
-            # Match limits.cpu so onnxruntime does not oversubscribe the pod's cgroup CPU quota.
+            # Keep ONNX Runtime within the pod's CPU limit.
             - name: FAIR_KNATIVE_ONNX_THREADS
               value: "2"
             - name: FAIR_KNATIVE_CORS_ORIGINS
