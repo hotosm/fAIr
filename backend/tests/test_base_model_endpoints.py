@@ -19,6 +19,23 @@ VALID_ITEM = {
 }
 
 
+def _stac_item_dict(item_id: str = "meta-model") -> dict:
+    from datetime import UTC, datetime
+
+    item = pystac.Item(
+        id=item_id,
+        geometry={"type": "Point", "coordinates": [0, 0]},
+        bbox=[0, 0, 0, 0],
+        datetime=datetime.now(UTC),
+        properties={"title": "Old title", "description": "Old", "mlm:name": item_id},
+    )
+    return item.to_dict()
+
+
+def _stac_item(*_: object) -> pystac.Item:
+    return pystac.Item.from_dict(_stac_item_dict())
+
+
 @pytest.fixture(autouse=True)
 def _bundled_pipeline(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(
@@ -238,7 +255,11 @@ def test_register_task_stores_stac_item_id(admin: OsmUser) -> None:
 
 
 @patch("modelregistry.views.set_item_properties")
-def test_base_model_pin_sets_db_flag_and_stac(mock_stac, admin: OsmUser) -> None:
+@patch("modelregistry.views.get_item", side_effect=_stac_item)
+@patch("fair.stac.validators.validate_item", return_value=[])
+def test_base_model_pin_sets_db_flag_and_stac(
+    mock_validate, mock_get, mock_stac, admin: OsmUser
+) -> None:
     base_model = BaseModel.objects.create(name="pin-me", user=admin, stac_item_id="pin-me")
     resp = _client(admin).patch(
         f"/api/v1/base-models/{base_model.id}/pin/", {"is_pinned": True}, format="json"
@@ -254,12 +275,14 @@ def test_base_model_pin_sets_db_flag_and_stac(mock_stac, admin: OsmUser) -> None
 
 
 @patch("modelregistry.views.set_item_properties")
+@patch("modelregistry.views.get_item", side_effect=_stac_item)
+@patch("fair.stac.validators.validate_item", return_value=[])
 @patch(
     "modelregistry.views.get_cached_item",
     return_value={"geometry": {"type": "Point", "coordinates": [-13.23723, 8.47532]}},
 )
 def test_base_model_pin_writes_imagery_and_location_to_stac(
-    mock_get, mock_stac, admin: OsmUser
+    mock_cached, mock_validate, mock_getitem, mock_stac, admin: OsmUser
 ) -> None:
     base_model = BaseModel.objects.create(name="pin-me", user=admin, stac_item_id="pin-me")
     resp = _client(admin).patch(
@@ -466,23 +489,6 @@ def test_mirror_and_relink_rewrites_only_downloadable_assets(settings) -> None:
     assert item.assets["readme"].href == "https://github.com/readme"
     mock_stream.assert_called_once()
     backend.publish_item.assert_called_once()
-
-
-def _stac_item_dict(item_id: str = "meta-model") -> dict:
-    from datetime import UTC, datetime
-
-    item = pystac.Item(
-        id=item_id,
-        geometry={"type": "Point", "coordinates": [0, 0]},
-        bbox=[0, 0, 0, 0],
-        datetime=datetime.now(UTC),
-        properties={"title": "Old title", "description": "Old", "mlm:name": item_id},
-    )
-    return item.to_dict()
-
-
-def _stac_item(*_: object) -> pystac.Item:
-    return pystac.Item.from_dict(_stac_item_dict())
 
 
 def test_serialized_facet_cannot_rebuild_a_stac_item() -> None:
@@ -713,7 +719,10 @@ def test_admin_reregister_enqueues_full_stac_item(mock_get, mock_task, admin: Os
 @patch("shared.integrations.stac.get_item")
 def test_admin_reregister_skips_unbundled_pipeline(mock_get, mock_task, admin: OsmUser) -> None:
     item = _stac_item_dict()
-    item["assets"]["source-code"] = {"href": "https://example.com/src", "mlm:entrypoint": "json:loads"}
+    item["assets"]["source-code"] = {
+        "href": "https://example.com/src",
+        "mlm:entrypoint": "json:loads",
+    }
     mock_get.return_value = pystac.Item.from_dict(item)
     base = BaseModel.objects.create(name="m", user=admin, stac_item_id=item["id"])
 

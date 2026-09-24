@@ -5,7 +5,7 @@ DEBUG=true
 SECRET_KEY=dev-secret-change-me
 DATABASE_URL=postgis://admin:password@postgres:5432/fair
 FRONTEND_URL=http://localhost:8000
-API_BASE_URL=http://localhost:8000/api/v1
+API_BASE_URL=http://api:8000/api/v1
 
 # Static-token auth for local use
 AUTH_PROVIDER=dev

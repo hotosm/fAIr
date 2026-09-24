@@ -86,7 +86,7 @@ def _apply_pin(model, collection: str, data: dict) -> None:
     if location := data.get("pinned_location"):
         properties[FAIR_PREVIEW_LOCATION_PROPERTY] = location
         properties.update(_derive_preview_props(collection, model.stac_item_id, properties))
-    set_item_properties(collection, model.stac_item_id, properties)
+    _merge_validate_write(collection, model.stac_item_id, properties)
 
 
 def _merge_validate_write(collection: str, item_id: str, properties: dict) -> None:
