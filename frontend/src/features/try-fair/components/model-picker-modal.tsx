@@ -13,6 +13,7 @@ import { cn } from "@/utils";
 import { ChooseImageryIcon } from "@/components/ui/icons/choose-imagery-icon";
 import { DoubleArrowIcon } from "@/components/ui/icons/double-arrow-icon";
 import { ChevronDownIcon } from "@/components/ui/icons";
+import { LocationSearchIcon } from "@/components/ui/icons/location-search-icon";
 import { FeatureListItem } from "@/features/try-fair/components/model-picker/feature-to-map-list";
 import {
   RadioDot,
@@ -57,7 +58,8 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
       ? selectedImagery.item.title
       : "Custom Imagery";
   const trigger = (
-    <div className="flex justify-between items-center">
+    <div className="flex items-center justify-between gap-2 w-full">
+      <LocationSearchIcon className="size-5 shrink-0 hidden md:inline-block" />
       <div className="w-full text-left flex-1 min-w-0">
         {showImagery ? (
           <>
@@ -94,14 +96,12 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
       disabled={disabled}
       onClick={openMobileDialog}
       className={cn(
-        "w-full text-left",
+        "w-full h-full flex items-center text-left cursor-pointer",
         isSmallViewport ? "rounded-xl border px-3 py-2 bg-white" : "",
       )}
     >
       {trigger}
-
     </button>
-
   );
 };
 
@@ -150,12 +150,21 @@ export const ModelPickerContent = ({
   recentImageries?: RecentImageryEntry[];
   onApplyRecentImagery?: (entry: RecentImageryEntry) => void;
 }) => {
-  const { setChooseLocation } = useTryFairParams();
+  const { setChooseLocation, mode } = useTryFairParams();
   const { setCurrentModelType, currentModelType, selectedImagery } =
     useStartMappingStore();
 
-  // Active tab
-  const [activeTab, setActiveTab] = useState<string>(TAB_SAMPLES);
+  const isCustomImagery =
+    currentModelType === ModelType.IMAGERY || mode === ModelType.IMAGERY;
+
+  const tabs = isCustomImagery
+    ? [TAB_CHOOSE, TAB_SAMPLES]
+    : [TAB_SAMPLES, TAB_CHOOSE];
+
+  // Active tab: defaults to whichever mode is currently active
+  const [activeTab, setActiveTab] = useState<string>(() =>
+    isCustomImagery ? TAB_CHOOSE : TAB_SAMPLES,
+  );
 
   // Imagery panel sub-view: "preview" shows the map card, "recent" shows the list.
   const [imageryView, setImageryView] = useState<"preview" | "recent">(
@@ -168,11 +177,16 @@ export const ModelPickerContent = ({
   // Staged feature (committed only on Apply)
   const [stagedFeature, setStagedFeature] = useState<string | null>(null);
 
-  // Drop staged choice when committed selection changes.
+  // Drop staged choice and sync tab when committed selection changes.
   useEffect(() => {
     setStaged(null);
     setStagedFeature(null);
-  }, [selectedModel, currentModelType]);
+    setActiveTab(
+      currentModelType === ModelType.IMAGERY || mode === ModelType.IMAGERY
+        ? TAB_CHOOSE
+        : TAB_SAMPLES,
+    );
+  }, [selectedModel, currentModelType, mode]);
 
   // Active imagery choice (staged selection or committed imagery)
   const activeImagery =
@@ -257,7 +271,7 @@ export const ModelPickerContent = ({
       {/* ── Tabs header + Apply ── */}
       <div className="flex items-center border-b border-gray-border mb-4">
         <div className="flex flex-1">
-          {[TAB_SAMPLES, TAB_CHOOSE].map((tab) => (
+          {tabs.map((tab) => (
             <button
               key={tab}
               type="button"

@@ -28,7 +28,6 @@ import { cn } from "@/utils";
 import useScreenSize from "@/hooks/use-screen-size";
 import { RefreshIcon } from "@/components/ui/icons";
 import { ToolTip } from "@/components/ui/tooltip";
-import { LocationSearchIcon } from "@/components/ui/icons/location-search-icon";
 import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
 import { AdvancedModelPicker } from "@/features/try-fair/components/model-picker/advanced-model-picker-dialog";
 import { Spinner } from "@/components/ui/spinner";
@@ -112,16 +111,22 @@ export const TryFairSidebar = ({
     >
       <div
         className={cn(
-          "flex bg-gray-white border-[#687075] border  p-2.5 rounded-lg",
+          "flex bg-gray-white border-[#687075] border rounded-lg overflow-hidden",
           isSmallViewport
-            ? "flex-col items-stretch gap-2"
-            : "items-center gap-2",
+            ? "flex-col items-stretch p-2.5 gap-2"
+            : "items-stretch",
         )}
       >
-        <div className="hidden md:inline-block">
-          <LocationSearchIcon className="size-5" />
-        </div>
-        <div className="flex-1 min-w-0 items-center">
+        <div
+          onClick={isPredicting ? undefined : openMobileModelPickerDialog}
+          className={cn(
+            "flex-1 min-w-0 flex items-center",
+            isPredicting
+              ? "cursor-not-allowed opacity-60"
+              : "cursor-pointer hover:bg-black/[0.02] transition-colors",
+            !isSmallViewport && "pl-2.5 pr-2 py-2 rounded-l-lg",
+          )}
+        >
           <ModelPicker
             selectedModel={selectedModel}
             onSelect={onSelectModel}
@@ -135,12 +140,15 @@ export const TryFairSidebar = ({
 
         {/* Vertical divider */}
         {!isSmallViewport && (
-          <div className="self-stretch w-px bg-gray-border shrink-0" />
+          <div className="w-px my-2 bg-gray-border shrink-0" />
         )}
 
         <div
           id={APP_TOUR_IDS.TRY_FAIR_MAP_BUTTON_TOOLTIP}
-          className="flex items-center gap-2"
+          className={cn(
+            "flex items-center gap-2",
+            !isSmallViewport ? "p-2.5" : "",
+          )}
         >
           {isPredicting ? (
             <>

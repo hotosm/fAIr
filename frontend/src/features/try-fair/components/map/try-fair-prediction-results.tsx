@@ -283,7 +283,7 @@ export const TryFairPredictionsLayer = ({
       setTooltip({
         x: e.point.x,
         y: e.point.y,
-        label: "Accuracy",
+        label: "Confidence",
         value: `${(score * 100).toFixed(1)}%`,
       });
     };
