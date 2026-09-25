@@ -43,6 +43,7 @@ import { showErrorToast } from "@/utils";
 import { reverseGeocodeCountry } from "@/features/try-fair/api/hot-imagery";
 import { useRecentImageries } from "@/features/try-fair/hooks/use-recent-imageries";
 import type { RecentImageryEntry } from "@/features/try-fair/hooks/use-recent-imageries";
+import { getPredictionClassStyle } from "@/features/try-fair/utils/prediction-classes";
 
 export const TryFairPage = () => {
   const { map, mapContainerRef } = useMapInstance(false, false);
@@ -146,6 +147,16 @@ export const TryFairPage = () => {
     selectedModel,
     selectedModelId,
   });
+
+  const predictionClassStyle = useMemo(
+    () => getPredictionClassStyle(modelForMapping),
+    [modelForMapping],
+  );
+
+  const preImageryUrl =
+    mode === ModelType.DEMO
+      ? (modelForMapping?.properties["fair:preview"]?.pre_imagery?.url ?? null)
+      : null;
 
   useEffect(() => {
     if (modelForMapping?.id && modelForMapping.id !== modelId) {
@@ -608,6 +619,8 @@ export const TryFairPage = () => {
             imageryCenter={imageryCenter}
             resolution={resolution}
             isPredicting={isPredicting}
+            preImageryUrl={preImageryUrl}
+            predictionClassStyle={predictionClassStyle}
             canFitToBounds={true}
             onHelp={openGuidedTour}
           />

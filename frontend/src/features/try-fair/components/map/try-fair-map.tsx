@@ -5,6 +5,8 @@ import { TryFairMapOutputType, TryFairResolution } from "@/enums/try-fair";
 import { BBOX } from "@/types";
 import { TryFairDraggableGrid } from "@/features/try-fair/components/map/draggable-grid";
 import { TryFairPredictionsLayer } from "@/features/try-fair/components/map/try-fair-prediction-results";
+import { TryFairSwipe } from "@/features/try-fair/components/map/try-fair-swipe";
+import { PredictionClassStyle } from "@/features/try-fair/utils/prediction-classes";
 import { ChoroplethBucket } from "@/features/try-fair/utils/helpers";
 import { TryFairChoroplethLegend } from "@/features/try-fair/components/map/chloropleth-legend";
 import { TryFairPointsLegend } from "@/features/try-fair/components/map/points-legend";
@@ -42,6 +44,8 @@ type TryFairMapProps = {
   imageryCenter?: [number, number];
   resolution?: TryFairResolution;
   isPredicting?: boolean;
+  preImageryUrl?: string | null;
+  predictionClassStyle?: PredictionClassStyle | null;
   canFitToBounds: boolean;
   /** Opens the guided "how it works" tour. */
   onHelp?: () => void;
@@ -64,6 +68,8 @@ export const TryFairMap = ({
   imageryCenter,
   resolution,
   isPredicting = false,
+  preImageryUrl,
+  predictionClassStyle,
   canFitToBounds,
   onHelp,
 }: TryFairMapProps) => {
@@ -152,13 +158,19 @@ export const TryFairMap = ({
     outputType === TryFairMapOutputType.CLUSTER ? (
       <TryFairChoroplethLegend buckets={choroplethBuckets} />
     ) : outputType === TryFairMapOutputType.POINTS ? (
-      <TryFairPointsLegend totalCount={predictions?.features.length ?? 0} />
+      <TryFairPointsLegend
+        predictions={predictions}
+        classStyle={predictionClassStyle}
+      />
     ) : outputType === TryFairMapOutputType.POLYGON ? (
-      <TryFairPolygonLegend totalCount={predictions?.features.length ?? 0} />
+      <TryFairPolygonLegend
+        predictions={predictions}
+        classStyle={predictionClassStyle}
+      />
     ) : null;
 
   return (
-    <div className="relative w-full h-full overflow-hidden">
+    <div className="relative isolate w-full h-full overflow-hidden">
       <MapComponent
         map={map}
         mapContainerRef={mapContainerRef}
@@ -182,6 +194,16 @@ export const TryFairMap = ({
         </div>
       )}
 
+      <TryFairSwipe
+        map={map}
+        preImageryUrl={preImageryUrl}
+        predictions={predictions}
+        predictionBBox={predictionBBox}
+        predictionGridZoom={predictionGridZoom ?? undefined}
+        outputType={outputType}
+        classStyle={predictionClassStyle}
+      />
+
       <TryFairPredictionsLayer
         map={map}
         predictions={predictions}
@@ -189,6 +211,7 @@ export const TryFairMap = ({
         predictionGridZoom={predictionGridZoom ?? undefined}
         outputType={outputType}
         onChoroplethBucketsChange={setChoroplethBuckets}
+        classStyle={predictionClassStyle}
       />
 
       {map && (

@@ -23,8 +23,20 @@ export type FairPreview = {
   bbox?: BBOX;
   zoom: { recommended: number; min?: number; max?: number };
   imagery: { url: string; type?: string; name?: string; attribution?: string };
+  pre_imagery?: { url: string; type?: string; name?: string };
   thumbnail_href?: string;
   place?: { name?: string; country?: string; country_code?: string };
+};
+
+export type ClassificationClass = {
+  name: string;
+  title?: string;
+  color_hint?: string;
+};
+
+export type ModelOutput = {
+  name: string;
+  "classification:classes"?: ClassificationClass[];
 };
 
 export type BaseModelStacItem = {
@@ -41,6 +53,7 @@ export type BaseModelStacItem = {
     "mlm:framework": string;
     "fair:pinned": boolean;
     "mlm:hyperparameters": Record<string, string | number | boolean>;
+    "mlm:output"?: ModelOutput[];
     "fair:hyperparameters_spec": HyperParamSpec[];
     "fair:preview"?: FairPreview;
     "fair:base_model_title"?: string;

@@ -7,6 +7,11 @@ import {
   computeChoroplethBuckets,
   toPointCollection,
 } from "@/features/try-fair/utils/helpers";
+import {
+  buildClassColorExpression,
+  DEFAULT_PREDICTION_COLOR,
+  PredictionClassStyle,
+} from "@/features/try-fair/utils/prediction-classes";
 
 const SOURCE_ID = "try-fair-predictions";
 const FILL_LAYER = "try-fair-predictions-fill";
@@ -44,6 +49,7 @@ type Props = {
   predictionBBox: BBOX | null;
   predictionGridZoom?: number;
   outputType: TryFairMapOutputType;
+  classStyle?: PredictionClassStyle | null;
   onChoroplethBucketsChange?: (
     buckets: ReturnType<typeof computeChoroplethBuckets> | null,
   ) => void;
@@ -62,6 +68,7 @@ export const TryFairPredictionsLayer = ({
   predictionBBox,
   predictionGridZoom,
   outputType,
+  classStyle,
   onChoroplethBucketsChange,
 }: Props) => {
   const { choropleth, buckets } = useMemo(() => {
@@ -94,6 +101,9 @@ export const TryFairPredictionsLayer = ({
     if (!map || !map.getStyle()) return;
     removeLayers(map);
     if (!predictions || !predictions.features.length) return;
+    const classColor = classStyle
+      ? buildClassColorExpression(classStyle)
+      : DEFAULT_PREDICTION_COLOR;
 
     // ── Polygon ──────────────────────────────────────────────────────────────
     if (outputType === TryFairMapOutputType.POLYGON) {
@@ -102,7 +112,7 @@ export const TryFairPredictionsLayer = ({
         id: FILL_LAYER,
         type: "fill",
         source: SOURCE_ID,
-        paint: { "fill-color": "#A243DC", "fill-opacity": 0.3 },
+        paint: { "fill-color": classColor, "fill-opacity": 0.3 },
       });
       map.addLayer({
         id: CASING_LAYER,
@@ -118,7 +128,7 @@ export const TryFairPredictionsLayer = ({
         id: OUTLINE_LAYER,
         type: "line",
         source: SOURCE_ID,
-        paint: { "line-color": "#A243DC", "line-width": 1.5 },
+        paint: { "line-color": classColor, "line-width": 1.5 },
       });
 
       // ── Points ───────────────────────────────────────────────────────────────
@@ -148,7 +158,7 @@ export const TryFairPredictionsLayer = ({
         id: OUTLINE_LAYER,
         type: "line",
         source: SOURCE_ID,
-        paint: { "line-color": "#A243DC", "line-width": 1.5 },
+        paint: { "line-color": classColor, "line-width": 1.5 },
       });
 
       // Add a second source for the point centroids
@@ -164,7 +174,7 @@ export const TryFairPredictionsLayer = ({
         source: POINT_SOURCE_ID,
         paint: {
           "circle-radius": 4,
-          "circle-color": "#A147D8",
+          "circle-color": classStyle ? classColor : "#A147D8",
           "circle-stroke-color": "#ffffff",
           "circle-stroke-width": 1.5,
         },
@@ -212,7 +222,15 @@ export const TryFairPredictionsLayer = ({
     return () => {
       if (map.getStyle()) removeLayers(map);
     };
-  }, [map, predictions, predictionBBox, outputType, choropleth, buckets]);
+  }, [
+    map,
+    predictions,
+    predictionBBox,
+    outputType,
+    choropleth,
+    buckets,
+    classStyle,
+  ]);
 
   // ── Choropleth hover interactions ──────────────────────────────────────────
   useEffect(() => {
