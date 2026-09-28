@@ -73,7 +73,6 @@ type AdvancedModelPickerContentProps = {
 export const AdvancedModelPickerContent = ({
   feature,
   onSelect,
-  onClose,
   onFeatureChange,
 }: Omit<AdvancedModelPickerContentProps, "selectedModelId">) => {
   const [source, setSource] = useState<ModelSource>("base");
@@ -90,10 +89,7 @@ export const AdvancedModelPickerContent = ({
   const [stagedFeature, setStagedFeature] = useState<string | null>(null);
 
   const effectiveFeatureSlug = stagedFeature ?? feature;
-  const selectedFeature =
-    featureList.find((f) => f.slug === effectiveFeatureSlug) ??
-    featureList[0] ??
-    null;
+  
 
   // Drop staged feature when the committed feature changes externally.
   useEffect(() => {

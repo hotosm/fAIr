@@ -8,13 +8,13 @@ import { MapRequestsFilters } from "@/features/user-profile/components/map-reque
 import { MapRequestsToolbar } from "@/features/user-profile/components/map-requests/map-requests-toolbar";
 import { MapRequestsActionsMenu } from "@/features/user-profile/components/map-requests/map-requests-actions-menu";
 import { useOfflinePredictionsQueryParams } from "@/features/user-profile/hooks/use-predictions";
-import { TOfflinePrediction } from "@/types";
+import { TNewOfflinePrediction } from "@/types";
 
 export const UserProfileOfflinePredictionsPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const viewResult = (prediction: TOfflinePrediction) =>
+  const viewResult = (prediction: TNewOfflinePrediction) =>
     navigate(
       APPLICATION_ROUTES.MAP_REQUEST_RESULT.replace(":id", String(prediction.id)),
       { state: { prediction } },
