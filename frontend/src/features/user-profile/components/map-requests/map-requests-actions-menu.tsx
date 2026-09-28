@@ -1,93 +1,100 @@
 import { DropDown } from "@/components/ui/dropdown";
+import { DropdownMenuItem } from "@/components/ui/dropdown/dropdown";
 import { ElipsisIcon } from "@/components/ui/icons";
-import { DropdownPlacement } from "@/enums";
-import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
+import { BASE_API_URL } from "@/config";
+import { DropdownPlacement, PredictionRequestStatus } from "@/enums";
 import useCopyToClipboard from "@/hooks/use-clipboard";
+import { API_ENDPOINTS } from "@/services";
 import { TOfflinePrediction } from "@/types";
-import { showSuccessToast } from "@/utils";
+import { downloadFileAs, showSuccessToast } from "@/utils";
 
 type MapRequestsActionsMenuProps = {
   prediction: TOfflinePrediction;
-  /** Provided handlers gate which items appear. */
-  onDownloadResult?: (prediction: TOfflinePrediction) => void;
-  onCopyResultLink?: (prediction: TOfflinePrediction) => void;
   onCreateMapswipe?: (prediction: TOfflinePrediction) => void;
   onPublishResult?: (prediction: TOfflinePrediction) => void;
 };
 
+const hasResults = (prediction: TOfflinePrediction): boolean =>
+  prediction.results_ready ||
+  prediction.status?.toLowerCase() === PredictionRequestStatus.COMPLETED;
+
 export const MapRequestsActionsMenu = ({
   prediction,
-  onDownloadResult,
-  onCopyResultLink,
   onCreateMapswipe,
   onPublishResult,
 }: MapRequestsActionsMenuProps) => {
-  const { onDropdownHide, dropdownRef } = useDropdownMenu();
   const { copyToClipboard } = useCopyToClipboard();
 
-  const items: { label: string; onClick: () => void }[] = [];
+  const resultReady = hasResults(prediction);
+  const resultLink =
+    BASE_API_URL + API_ENDPOINTS.DOWNLOAD_PREDICTION_LABELS_FILE(prediction.id);
 
-  if (onDownloadResult)
-    items.push({
+  const menuItems: DropdownMenuItem[] = [
+    {
       label: "Download result",
-      onClick: () => onDownloadResult(prediction),
-    });
-
-  if (onCopyResultLink)
-    items.push({
-      label: "Copy result link",
-      onClick: () => onCopyResultLink(prediction),
-    });
-
-  if (onCreateMapswipe)
-    items.push({
-      label: prediction.mapswipe_project_id
-        ? "View MapSwipe project"
-        : "Create MapSwipe project",
-      onClick: () => onCreateMapswipe(prediction),
-    });
-
-  items.push({
-    label: "Copy imagery link",
-    onClick: async () => {
-      await copyToClipboard(prediction.image_uri ?? "");
-      showSuccessToast("Copied imagery link to clipboard.");
+      value: "download-result",
+      disabled: !resultReady,
+      onClick: () =>
+        prediction.assets?.geojson &&
+        downloadFileAs(
+          prediction.assets.geojson,
+          `prediction-${prediction.id}.geojson`,
+        ),
     },
-  });
-
-  if (onPublishResult)
-    items.push({
-      label: prediction.published ? "Retract result" : "Publish Result",
-      onClick: () => onPublishResult(prediction),
-    });
+    {
+      label: "Copy result link",
+      value: "copy-result-link",
+      disabled: !resultReady,
+      onClick: async () => {
+        await copyToClipboard(resultLink);
+        showSuccessToast("Copied result link to clipboard.");
+      },
+    },
+    ...(onCreateMapswipe
+      ? [
+          {
+            label: prediction.mapswipe_project_id
+              ? "View MapSwipe project"
+              : "Create MapSwipe project",
+            value: "mapswipe",
+            disabled: !resultReady,
+            onClick: () => onCreateMapswipe(prediction),
+          },
+        ]
+      : []),
+    {
+      label: "Copy imagery link",
+      value: "copy-imagery-link",
+      onClick: async () => {
+        await copyToClipboard(prediction.image_uri ?? "");
+        showSuccessToast("Copied imagery link to clipboard.");
+      },
+    },
+    ...(onPublishResult
+      ? [
+          {
+            label: prediction.published ? "Retract result" : "Publish Result",
+            value: "publish",
+            disabled: !resultReady,
+            onClick: () => onPublishResult(prediction),
+          },
+        ]
+      : []),
+  ];
 
   return (
     <DropDown
-      ref={dropdownRef}
       placement={DropdownPlacement.BOTTOM_END}
       disableCheveronIcon
+      hoist
       distance={8}
+      className="text-left"
       triggerComponent={
         <span className="flex size-8 items-center justify-center rounded-[9.33px] bg-off-white text-dark">
           <ElipsisIcon className="size-4 rotate-90" />
         </span>
       }
-    >
-      <div className="w-[200px] rounded-lg bg-white p-1 shadow-lg">
-        {items.map((item) => (
-          <button
-            key={item.label}
-            type="button"
-            onClick={() => {
-              item.onClick();
-              onDropdownHide();
-            }}
-            className="w-full rounded-md px-3 py-2.5 text-left text-body-3 text-dark hover:bg-off-white"
-          >
-            {item.label}
-          </button>
-        ))}
-      </div>
-    </DropDown>
+      menuItems={menuItems}
+    />
   );
 };

@@ -21,8 +21,10 @@ export const USER_PROFILE_PAGE_CONTENT: TUserProfilePageContent = {
     createNewButtonText: "Create New",
   },
   datasets: {
-    pageTitle: "My Datasets",
-    sectionTitle: "My Datasets",
+    pageTitle: "Datasets",
+    sectionTitle: "Datasets",
+    
+
   },
   settings: {
     pageTitle: "Profile Settings",

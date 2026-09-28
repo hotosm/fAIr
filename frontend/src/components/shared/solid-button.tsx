@@ -1,10 +1,11 @@
 import { ButtonHTMLAttributes } from "react";
 
-export type SolidButtonVariant = "dark" | "grey";
+export type SolidButtonVariant = "dark" | "grey" | "primary";
 
 const VARIANT_CLASSES: Record<SolidButtonVariant, string> = {
   dark: "bg-dark",
   grey: "bg-grey",
+  primary: "bg-primary"
 };
 
 interface SolidButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {

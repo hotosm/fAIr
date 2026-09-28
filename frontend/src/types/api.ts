@@ -413,18 +413,18 @@ export type TOfflinePrediction = {
   };
   submitted_at: string;
   last_polled_at: string | null;
-  // Old Offline
 
-  geom: Geometry;
-  created_at: string;
-  started_at: string | null;
-  finished_at: string | null;
-  published_at: string | null;
-  task_id: string;
-  mapswipe_id: string | null;
-
-  model_name: string;
-  config: TModelPredictionsConfig;
-  result_count: number;
-  published: boolean;
+  // Legacy offline-prediction fields — not present on the current prediction
+  // request response, kept optional for older consumers.
+  geom?: Geometry;
+  created_at?: string;
+  started_at?: string | null;
+  finished_at?: string | null;
+  published_at?: string | null;
+  task_id?: string;
+  mapswipe_id?: string | null;
+  model_name?: string;
+  config?: TModelPredictionsConfig;
+  result_count?: number;
+  published?: boolean;
 };

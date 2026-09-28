@@ -21,6 +21,8 @@ import MappingMode from "@/features/try-fair/components/mapping-mode";
 import { ShareProjectModal } from "@/features/try-fair/components/modals/share-project-modal";
 import { NavBarLinks } from "@/components/layouts/navbar/navbar-links";
 import { MobileAuthSection, DesktopAuthSection } from "@/components/layouts/navbar/device-navbars";
+import { BackButton } from "@/components/ui/button";
+import { DownloadResultButton } from "@/features/user-profile/components/map-requests/download-result-button";
 
 const IS_HANKO_AUTH = AUTH_PROVIDER === "hanko";
 
@@ -37,6 +39,7 @@ export const NavBar = () => {
 
   const isTryFairPage = location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR);
   const isProfilePage = location.pathname.includes(APPLICATION_ROUTES.PROFILE_BASE);
+  const isMapRequestsPage = location.pathname.includes(APPLICATION_ROUTES.MAP_REQUEST_BASE)
   const returnTo = `${FRONTEND_URL}${location.pathname}${location.search}${location.hash}`;
 
   return (
@@ -49,7 +52,9 @@ export const NavBar = () => {
       >
         <div className={styles.drawerContentContainer}>
           <div className={styles.drawerHeaderContainer}>
+
             <NavLogo />
+
             <button onClick={() => setOpen(false)} className={styles.closeButton}>
               &#x2715;
             </button>
@@ -77,7 +82,13 @@ export const NavBar = () => {
 
       <nav className={`${styles.nav} app-padding z-20 py-1 border-b border-gray-border`}>
         <div className="flex-1 flex gap-4 items-center justify-start">
-          <NavLogo />
+          {
+            isMapRequestsPage ?
+              <BackButton />
+
+              :
+              <NavLogo />
+          }
           {isAuthenticated && isTryFairPage && (
             <ToolTip content="Go to your dashboard">
               <Link
@@ -95,7 +106,7 @@ export const NavBar = () => {
           {!isTryFairPage && !isProfilePage && (
             <NavBarLinks className={styles.webNavLinks} />
           )}
-          {isTryFairPage && isAuthenticated && <MappingMode />}
+          {isTryFairPage && isAuthenticated && !isMapRequestsPage && <MappingMode />}
         </div>
 
         <div className="flex-1 hidden sm:flex items-center justify-end gap-x-3">
@@ -111,6 +122,8 @@ export const NavBar = () => {
 
         <div className="flex items-center gap-x-2 sm:hidden">
           {isAuthenticated && <UserNotifications />}
+          {isMapRequestsPage && <DownloadResultButton />}
+
           <button className={styles.hamburgerMenu} onClick={() => setOpen(true)}>
             <Image
               src={HamburgerIcon}

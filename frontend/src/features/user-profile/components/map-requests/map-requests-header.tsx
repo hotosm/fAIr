@@ -1,11 +1,7 @@
-import { ArrowBackIcon, ChevronDownIcon } from "@/components/ui/icons";
+import {  ChevronDownIcon } from "@/components/ui/icons";
 import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
 import { useNavigate } from "react-router-dom";
 
-/**
- * Map Requests page header. The Back button is shown only in basic mode — in
- * advanced mode the profile sidebar provides navigation, so no Back button.
- */
 export const MapRequestsHeader = () => {
   const navigate = useNavigate();
   const { mappingMode } = useTryFairParams();

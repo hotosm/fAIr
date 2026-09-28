@@ -67,6 +67,25 @@ const router = createBrowserRouter([
       /**
        * Try fAIr route ends.
        */
+
+      /**
+       * Map Request result (full-screen, protected) route.
+       */
+      {
+        path: APPLICATION_ROUTES.MAP_REQUEST_RESULT,
+        lazy: async () => {
+          const { MapRequestResultPage } = await import(
+            "@/app/routes/map-request-result"
+          );
+          return {
+            Component: () => (
+              <ProtectedRoute>
+                <MapRequestResultPage />
+              </ProtectedRoute>
+            ),
+          };
+        },
+      },
       {
         path: APPLICATION_ROUTES.LEARN,
         lazy: async () => {

@@ -94,8 +94,9 @@ export const TryFairSidebar = ({
   const confidenceParam = inferenceParams.find(
     (param) => param.key === "confidence_threshold",
   );
-  const confidenceValue =
-    paramValues.confidence_threshold ?? confidenceParam?.spec.default ?? 0.7;
+  const confidenceValue = Number(
+    paramValues.confidence_threshold ?? confidenceParam?.spec.default ?? 0.7,
+  );
   // The Accuracy slider exposes three fixed stops: Low (0.25), Medium (0.5),
   // High (0.75) — driven by min/max/step below rather than the model spec.
   const confidenceMin = 0.25;
@@ -302,40 +303,42 @@ export const TryFairSidebar = ({
               </span>
             </div>
 
-          <div className="flex items-center gap-2">
-            <SnowflakeIcon />
-            <div className="relative flex-1">
-              {[50].map((pct) => (
-                <div
-                  key={pct}
-                  className="absolute top-1/2 -translate-y-1/2 w-0.5 h-3 bg-white/80 pointer-events-none z-10"
-                  style={{ left: `${pct}%` }}
+            <div className="flex items-center gap-2">
+              <SnowflakeIcon />
+              <div className="relative flex-1">
+                {[50].map((pct) => (
+                  <div
+                    key={pct}
+                    className="absolute top-1/2 -translate-y-1/2 w-0.5 h-3 bg-white/80 pointer-events-none z-10"
+                    style={{ left: `${pct}%` }}
+                  />
+                ))}
+                <input
+                  type="range"
+                  min={confidenceMin}
+                  max={confidenceMax}
+                  step={0.25}
+                  disabled={isPredicting}
+                  // Inverted: the left/min end is High (0.75) and the right/max
+                  // end is Low (0.25). A range input requires min < max, so we
+                  // map the raw track position to its mirror around the midpoint.
+                  value={confidenceMin + confidenceMax - confidenceValue}
+                  onChange={(e) =>
+                    onParamChange(
+                      "confidence_threshold",
+                      confidenceMin +
+                        confidenceMax -
+                        parseFloat(e.target.value),
+                    )
+                  }
+                  className="try-fair-confidence-slider disabled:cursor-wait w-full h-1.5 rounded-full appearance-none cursor-pointer outline-none"
+                  style={{
+                    background: `linear-gradient(90deg, #0088FF 0%, #FF383C 100%)`,
+                  }}
                 />
-              ))}
-              <input
-                type="range"
-                min={confidenceMin}
-                max={confidenceMax}
-                step={0.25}
-                disabled={isPredicting}
-                // Inverted: the left/min end is High (0.75) and the right/max
-                // end is Low (0.25). A range input requires min < max, so we
-                // map the raw track position to its mirror around the midpoint.
-                value={Number(confidenceMin + confidenceMax - confidenceValue)}
-                onChange={(e) =>
-                  onParamChange(
-                    "confidence_threshold",
-                    confidenceMin + confidenceMax - parseFloat(e.target.value),
-                  )
-                }
-                className="try-fair-confidence-slider disabled:cursor-wait w-full h-1.5 rounded-full appearance-none cursor-pointer outline-none"
-                style={{
-                  background: `linear-gradient(90deg, #0088FF 0%, #FF383C 100%)`,
-                }}
-              />
+              </div>
+              <FlameIcon />
             </div>
-            <FlameIcon />
-          </div>
           </div>
         )}
 

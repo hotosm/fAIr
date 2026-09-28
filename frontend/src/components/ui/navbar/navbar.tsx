@@ -36,6 +36,7 @@ export const NavBar = () => {
   const { isAuthenticated } = useAuth();
   const { handleLogin, loading } = useLogin();
   const navigate = useNavigate()
+
   const LegacyLoginButton = ({ className }: { className?: string }) => (
     <Button className={className} onClick={handleLogin} spinner={loading}>
       {loading
@@ -60,6 +61,7 @@ export const NavBar = () => {
           <div className={styles.navLinksContainer}>
             <NavBarLinks className={styles.mobileNavLinks} setOpen={setOpen} />
           </div>
+
           <div className={styles.loginButtonContainer}>
             {AUTH_PROVIDER === "hanko" ? (
               <HankoAuthComponent />
@@ -74,19 +76,19 @@ export const NavBar = () => {
       <nav className={`${styles.nav} app-padding`}>
         <div className="flex gap-2 items-center">
           <NavLogo />
-        {isAuthenticated && (
-          <ToolTip content="Go to your dashboard">
-            <button
-              type="button"
-              onClick={() => navigate(APPLICATION_ROUTES.PROFILE_BASE)}
-              className="bg-dark text-xs px-3 flex shrink-0 items-center whitespace-nowrap text-white !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem]"
-              aria-label="Go to your dashboard"
-            >
-              Dashboard
-            </button>
-          </ToolTip>
+          {isAuthenticated && (
+            <ToolTip content="Go to your dashboard">
+              <button
+                type="button"
+                onClick={() => navigate(APPLICATION_ROUTES.PROFILE_BASE)}
+                className="bg-dark text-xs px-3 flex shrink-0 items-center whitespace-nowrap text-white !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem]"
+                aria-label="Go to your dashboard"
+              >
+                Dashboard
+              </button>
+            </ToolTip>
 
-        )}
+          )}
         </div>
         <div>
           <NavBarLinks className={styles.webNavLinks} />
