@@ -16,7 +16,7 @@ export const UserProfileLayout = () => {
           <div className="hidden lg:block h-full shrink-0">
             <UserSidebar />
           </div>
-          <div className="flex-1 min-w-0 h-full overflow-y-auto">
+          <div className="flex-1 min-w-0 h-full hide-scrollbar overflow-y-auto">
             <Outlet />
           </div>
         </div>

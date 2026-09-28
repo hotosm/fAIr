@@ -80,7 +80,15 @@ export const TryFairMap = ({
   const handleFitToGrid = useCallback(() => {
     if (!canFitToBounds) return;
     const bbox = gridBBoxRef.current;
-    if (!map || !bbox) return;
+    // The imagery can finish loading before the draggable grid has reported its
+    // first bbox (common on a fresh navigation from the landing page). Instead
+    // of dropping the fit — which leaves the map stuck at the global zoom until
+    // a refresh — defer it, so it runs as soon as the grid reports its bbox in
+    // handleBBoxChange.
+    if (!map || !bbox) {
+      fitPendingRef.current = true;
+      return;
+    }
     map.fitBounds([bbox[0], bbox[1], bbox[2], bbox[3]], {
       padding: 40,
       essential: true,
