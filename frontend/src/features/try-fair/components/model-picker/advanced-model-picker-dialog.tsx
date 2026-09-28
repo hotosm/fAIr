@@ -1,7 +1,8 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import {
   useGetAPIBaseModels,
   useGetAPILocalModels,
+  useGetFeaturesToMap,
 } from "@/features/try-fair/api/features-to-map";
 import type { APIBaseModelItem } from "@/features/try-fair/api/features-to-map";
 import { RadioDot } from "@/features/try-fair/components/model-picker/model-picker-badges";
@@ -13,6 +14,7 @@ import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import type { BaseModelStacItem } from "@/features/try-fair/api/stac";
 import { StarredIcon } from "@/components/ui/icons/starred-icon";
 import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
+import { FeatureListItem } from "@/features/try-fair/components/model-picker/feature-to-map-list";
 
 type ModelSource = "base" | "local";
 
@@ -65,12 +67,14 @@ type AdvancedModelPickerContentProps = {
   selectedModelId: string | null;
   onSelect: (model: BaseModelStacItem) => void;
   onClose?: () => void;
+  onFeatureChange?: (slug: string) => void;
 };
 
 export const AdvancedModelPickerContent = ({
   feature,
   onSelect,
   onClose,
+  onFeatureChange,
 }: Omit<AdvancedModelPickerContentProps, "selectedModelId">) => {
   const [source, setSource] = useState<ModelSource>("base");
   const [search, setSearch] = useState("");
@@ -78,10 +82,29 @@ export const AdvancedModelPickerContent = ({
   const { onDropdownHide, dropdownRef } = useDropdownMenu();
   const { selectedModelId, setSelectedModelId } = useTryFairParams();
 
+  // Feature list from API
+  const { data: featuresData } = useGetFeaturesToMap();
+  const featureList = (featuresData?.results ?? []).filter(
+    (f) => f.slug !== "other",
+  );
+  const [stagedFeature, setStagedFeature] = useState<string | null>(null);
+
+  const effectiveFeatureSlug = stagedFeature ?? feature;
+  const selectedFeature =
+    featureList.find((f) => f.slug === effectiveFeatureSlug) ??
+    featureList[0] ??
+    null;
+
+  // Drop staged feature when the committed feature changes externally.
+  useEffect(() => {
+    setStagedFeature(null);
+  }, [feature]);
+
+  // Fetch models for the effective (staged or committed) feature
   const { data: baseModelsData, isLoading: baseLoading } =
-    useGetAPIBaseModels(feature);
+    useGetAPIBaseModels(effectiveFeatureSlug);
   const { data: localModelsData, isLoading: localLoading } =
-    useGetAPILocalModels(feature);
+    useGetAPILocalModels(effectiveFeatureSlug);
 
   const models = useMemo(() => {
     const raw =
@@ -109,17 +132,81 @@ export const AdvancedModelPickerContent = ({
   const startIdx = models.length > 0 ? safePage * ITEMS_PER_PAGE + 1 : 0;
   const endIdx = Math.min((safePage + 1) * ITEMS_PER_PAGE, models.length);
 
-  const handleSelectModel = (item: APIBaseModelItem) => {
-    if (item.stac) {
-      onSelect(item.stac);
-      setSelectedModelId(item.stac_item_id);
-      onClose?.();
+  const applyModel = (item: APIBaseModelItem, featureSlug?: string) => {
+    if (!item.stac) return;
+    onSelect(item.stac);
+    setSelectedModelId(item.stac_item_id);
+    if (featureSlug && featureSlug !== feature) {
+      onFeatureChange?.(featureSlug);
     }
   };
 
+  const handleSelectModel = (item: APIBaseModelItem) => {
+    applyModel(item, stagedFeature ?? undefined);
+  };
+
+  const handleFeatureSelect = (slug: string) => {
+    setStagedFeature(slug);
+    setPage(0);
+    setSearch("");
+  };
+
+  // Auto-change the model to the selected feature's default, mirroring the
+  // basic model picker: picking a feature should switch the model to a
+  // compatible one (base first, then local) rather than requiring a separate
+  // model click. Runs once per feature, and only when the currently selected
+  // model isn't already valid for that feature (so it never overrides a manual
+  // pick or the model restored on open).
+  const baseModels = baseModelsData?.results ?? [];
+  const localModels = localModelsData?.results ?? [];
+  const autoSelectedFeatureRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (baseLoading || localLoading) return;
+
+    const featureModels = [...baseModels, ...localModels];
+    if (featureModels.length === 0) return;
+    if (autoSelectedFeatureRef.current === effectiveFeatureSlug) return;
+
+    const currentModelIsValid = featureModels.some(
+      (model) => model.stac_item_id === selectedModelId,
+    );
+    if (!currentModelIsValid) {
+      const defaultModel = baseModels[0] ?? localModels[0];
+      if (defaultModel) {
+        applyModel(defaultModel, stagedFeature ?? undefined);
+      }
+    }
+
+    autoSelectedFeatureRef.current = effectiveFeatureSlug;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    effectiveFeatureSlug,
+    baseLoading,
+    localLoading,
+    baseModelsData,
+    localModelsData,
+    selectedModelId,
+  ]);
   return (
-    <div className="space-y-4 min-h-[428px]">
-      {/* Toolbar */}
+    <div className="flex flex-col min-h-[428px]">
+      <div className="flex gap-4 flex-1">
+        <div className="w-[180px] shrink-0 overflow-hidden flex flex-col">
+          <p className="text-xs pb-2">Feature to map</p>
+          <div className="flex flex-col bg-frosted-blue border rounded-lg flex-1 px-1 overflow-y-auto">
+            {featureList.map((f) => (
+              <FeatureListItem
+                key={f.slug}
+                feature={f}
+                isSelected={effectiveFeatureSlug === f.slug}
+                disabled={false}
+                onSelect={handleFeatureSelect}
+              />
+            ))}
+          </div>
+        </div>
+        <div className="flex-1 space-y-4">
+        {/* Toolbar */}
       <div className="flex items-center  gap-3">
         {/* Search */}
         <div className="flex items-center gap-2 border border-gray-border rounded-lg px-3 py-2 bg-white flex-shrink-0">
@@ -247,6 +334,8 @@ export const AdvancedModelPickerContent = ({
           })}
         </div>
       )}
+        </div>
+      </div>
     </div>
   );
 };

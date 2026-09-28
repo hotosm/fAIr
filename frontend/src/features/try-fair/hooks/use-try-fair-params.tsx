@@ -32,6 +32,30 @@ export const TRY_FAIR_PARAM_DEFAULTS = {
 export type MappingModeType = "basic" | "advanced";
 
 /**
+ * Mapping mode is a user preference, so it's persisted to localStorage in
+ * addition to the URL param. This is what keeps it stable across the profile
+ * pages, whose nav links don't carry the query string (and across reloads).
+ */
+const MAPPING_MODE_STORAGE_KEY = "fair-mapping-mode";
+
+const readStoredMappingMode = (): MappingModeType | null => {
+  try {
+    const stored = localStorage.getItem(MAPPING_MODE_STORAGE_KEY);
+    return stored === "advanced" || stored === "basic" ? stored : null;
+  } catch {
+    return null;
+  }
+};
+
+const writeStoredMappingMode = (mode: MappingModeType) => {
+  try {
+    localStorage.setItem(MAPPING_MODE_STORAGE_KEY, mode);
+  } catch {
+    // Ignore (private mode / storage disabled) — the URL param still works.
+  }
+};
+
+/**
  * Persists the Try fAIr sidebar UI state in URL search params via nuqs.
  *
  * Params:
@@ -55,9 +79,9 @@ export const useTryFairParams = () => {
       confidence: parseAsFloat,
       feature: parseAsString.withDefault(TRY_FAIR_PARAM_DEFAULTS.feature),
       mode: parseAsString.withDefault(TRY_FAIR_PARAM_DEFAULTS.mode),
-      mappingMode: parseAsString.withDefault(
-        TRY_FAIR_PARAM_DEFAULTS.mappingMode,
-      ),
+      // Nullable (no default) so an absent param can fall back to the
+      // persisted preference rather than always resetting to "basic".
+      mappingMode: parseAsString,
       imagery: parseAsString,
       imageryType: parseAsString,
       oamItem: parseAsString,
@@ -108,8 +132,14 @@ export const useTryFairParams = () => {
   const mode =
     params.mode === ModelType.IMAGERY ? ModelType.IMAGERY : ModelType.DEMO;
 
+  // URL param wins when present; otherwise fall back to the persisted
+  // preference so the mode survives profile navigation and reloads.
   const mappingMode: MappingModeType =
-    params.mappingMode === "advanced" ? "advanced" : "basic";
+    params.mappingMode === "advanced"
+      ? "advanced"
+      : params.mappingMode === "basic"
+        ? "basic"
+        : (readStoredMappingMode() ?? "basic");
 
   const imageryTileServiceType = Object.values(TileServiceType).includes(
     params.imageryType as TileServiceType,
@@ -151,8 +181,10 @@ export const useTryFairParams = () => {
     setConfidence: (val: number | null) => setParams({ confidence: val }),
     setFeature: (feature: string) => setParams({ feature }),
     setMode: (mode: ModelType) => setParams({ mode }),
-    setMappingMode: (mappingMode: MappingModeType) =>
-      setParams({ mappingMode }),
+    setMappingMode: (mappingMode: MappingModeType) => {
+      writeStoredMappingMode(mappingMode);
+      setParams({ mappingMode });
+    },
     setChooseLocation: (show: boolean) =>
       setParams({ chooseLocation: show ? true : null }),
     setImagery: ({

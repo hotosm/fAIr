@@ -160,9 +160,10 @@ nav {
     width: 100%;
     justify-content: space-between;
     align-items: center;
-    height: 80px;
+    height: 60px;
     gap: var(--sl-spacing-medium);
   }
+  
 
   .webNavLinks {
     display: flex;

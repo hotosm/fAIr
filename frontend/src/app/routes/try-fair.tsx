@@ -534,14 +534,17 @@ export const TryFairPage = () => {
 
       {/* Advanced Model picker dialog */}
       <Dialog
-        label="Select a Model"
+        // size={SHOELACE_SIZES.LARGE}
+        label="Which model do you want to use?"
         isOpened={isAdvancedModelPickerDialogOpened}
+        preventClose
         closeDialog={closeAdvancedModelPickerDialog}
       >
         <AdvancedModelPickerContent
           feature={feature}
           onSelect={handleSelectModel}
           onClose={closeAdvancedModelPickerDialog}
+          onFeatureChange={setFeature}
         />
       </Dialog>
 
@@ -555,10 +558,10 @@ export const TryFairPage = () => {
         onBackToModelPicker={
           isChoosingImageryFromModelPicker
             ? () => {
-                setChooseLocation(false);
-                setIsChoosingImageryFromModelPicker(false);
-                openModelPickerDialog();
-              }
+              setChooseLocation(false);
+              setIsChoosingImageryFromModelPicker(false);
+              openModelPickerDialog();
+            }
             : undefined
         }
         onApply={(selection) => {

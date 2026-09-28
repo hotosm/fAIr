@@ -7,7 +7,6 @@ import {
 import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
 
 export const UserProfileOverviewPage = () => {
-  // Basic vs Advanced is the same global mode toggled from the navbar.
   const { mappingMode } = useTryFairParams();
 
   return (

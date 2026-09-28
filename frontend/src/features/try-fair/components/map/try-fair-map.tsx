@@ -215,8 +215,8 @@ export const TryFairMap = ({
               rounded={false}
               className="gap-y-0"
               buttonClassName="size-8 p-1.5 bg-white border-0 flex items-center justify-center text-dark rounded-none"
-              zoomInClassName="border-b border-[#E4E4E4] border-t-0 border-x-0 rounded-t-[4px]"
-              zoomOutClassName="border-b border-[#E4E4E4] border-t-0 border-x-0 rounded-none"
+              zoomInClassName="border-b text-dark border-[#E4E4E4] border-t-0 border-x-0 rounded-t-[4px]"
+              zoomOutClassName="border-b text-dark border-[#E4E4E4] border-t-0 border-x-0 rounded-none"
               iconClassName="size-4 p-0 text-base leading-none"
             />
             <FitToBounds

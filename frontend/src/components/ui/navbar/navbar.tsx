@@ -8,11 +8,12 @@ import { Image } from "@/components/ui/image";
 import { Link } from "@/components/ui/link";
 import { NavLogo } from "@/components/layouts";
 import { useAuth } from "@/app/providers/auth-provider";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useLogin } from "@/hooks/use-login";
 import { UserProfile } from "@/components/layouts";
 import { useState } from "react";
 import { AUTH_PROVIDER, BASE_API_URL, FRONTEND_URL, HANKO_URL } from "@/config";
+import { ToolTip } from "@/components/ui/tooltip";
 
 if (AUTH_PROVIDER === "hanko") {
   import("@hotosm/hanko-auth");
@@ -34,7 +35,7 @@ export const NavBar = () => {
   const [open, setOpen] = useState(false);
   const { isAuthenticated } = useAuth();
   const { handleLogin, loading } = useLogin();
-
+  const navigate = useNavigate()
   const LegacyLoginButton = ({ className }: { className?: string }) => (
     <Button className={className} onClick={handleLogin} spinner={loading}>
       {loading
@@ -71,7 +72,22 @@ export const NavBar = () => {
         </div>
       </Drawer>
       <nav className={`${styles.nav} app-padding`}>
-        <NavLogo />
+        <div className="flex gap-2 items-center">
+          <NavLogo />
+        {isAuthenticated && (
+          <ToolTip content="Go to your dashboard">
+            <button
+              type="button"
+              onClick={() => navigate(APPLICATION_ROUTES.PROFILE_BASE)}
+              className="bg-dark text-xs px-3 flex shrink-0 items-center whitespace-nowrap text-white !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem]"
+              aria-label="Go to your dashboard"
+            >
+              Dashboard
+            </button>
+          </ToolTip>
+
+        )}
+        </div>
         <div>
           <NavBarLinks className={styles.webNavLinks} />
         </div>

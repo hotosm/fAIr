@@ -216,6 +216,20 @@ export const MIN_TRAINING_AREA_SIZE: number = parseIntEnv(
 );
 
 /**
+ * The maximum allowed area (in square kilometers) for a "Map Large Area"
+ * request. There is no minimum limit. Controlled by
+ * VITE_MAP_LARGE_AREA_MAX_SIZE_SQKM; defaults to 5000 km².
+ */
+export const MAP_LARGE_AREA_MAX_SIZE_SQKM: number = parseIntEnv(
+  ENVS.MAP_LARGE_AREA_MAX_SIZE_SQKM,
+  5000,
+);
+
+/** The same Map Large Area limit expressed in square meters (turf area unit). */
+export const MAP_LARGE_AREA_MAX_SIZE_SQM: number =
+  MAP_LARGE_AREA_MAX_SIZE_SQKM * 1_000_000;
+
+/**
  * The maximum file size (in bytes) allowed for training area upload.
  * The default is set to 1 MB.
  */

@@ -1,3 +1,4 @@
+import { MAP_LARGE_AREA_MAX_SIZE_SQKM } from "@/config";
 import { MapComponent } from "@/components/map";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
@@ -18,8 +19,8 @@ import { RadioDot } from "@/features/try-fair/components/model-picker/model-pick
 // ── Tabs ────────────────────────────────────────────────────────────────────────
 
 const TABS: { value: AOITab; label: string; Icon: React.FC<IconProps> }[] = [
-  { value: "whole", label: "Map Whole Area", Icon: PictureIcon },
   { value: "draw", label: "Draw Specific Area", Icon: DrawIcon },
+  { value: "whole", label: "Map Whole Area", Icon: PictureIcon },
   { value: "upload", label: "Upload Area of Interest", Icon: UploadIcon },
 ];
 
@@ -52,6 +53,7 @@ const MapLargeAreaContent = ({
     handleClearArea,
     handleEnableDrawing,
     handleSubmit,
+    isWholeAreaDisabled,
   } = useMapLargeArea({
     imageryBounds,
     tileServerURL,
@@ -81,25 +83,40 @@ const MapLargeAreaContent = ({
 
       {/* Header Tabs */}
       <div className="grid grid-cols-3 border border-gray-border gap-2 w-full p-1.5 rounded-lg bg-white">
-        {TABS.map(({ value, label, Icon }) => (
-          <button
-            type="button"
-            onClick={() => handleTabChange(value)}
-            className={cn(
-              "p-2 gap-2 text-dark rounded-lg flex items-center justify-between min-w-0 transition-colors",
-              activeTab === value
-                ? "bg-secondary border-[#D63F4080] border"
-                : "bg-off-white",
-            )}
-            key={value}
-          >
-            <div className="flex items-center gap-1.5 min-w-0">
-              <Icon className="size-4 shrink-0 text-dark" />
-              <span className="text-xs leading-tight">{label}</span>
-            </div>
-            <RadioDot selected={activeTab === value} />
-          </button>
-        ))}
+        {TABS.map(({ value, label, Icon }) => {
+          const disabled = value === "whole" && isWholeAreaDisabled;
+          const tabButton = (
+            <button
+              type="button"
+              disabled={disabled}
+              onClick={() => handleTabChange(value)}
+              className={cn(
+                "w-full p-2 gap-2 text-dark rounded-lg flex items-center justify-between min-w-0 transition-colors",
+                activeTab === value
+                  ? "bg-secondary border-[#D63F4080] border"
+                  : "bg-off-white",
+                disabled && "opacity-40 cursor-not-allowed",
+              )}
+            >
+              <div className="flex items-center gap-1.5 min-w-0">
+                <Icon className="size-4 shrink-0 text-dark" />
+                <span className="text-xs leading-tight">{label}</span>
+              </div>
+              <RadioDot selected={activeTab === value} />
+            </button>
+          );
+
+          return disabled ? (
+            <ToolTip
+              key={value}
+              content={`The imagery is larger than the ${MAP_LARGE_AREA_MAX_SIZE_SQKM.toLocaleString()} km² limit. Draw or upload a smaller area instead.`}
+            >
+              {tabButton}
+            </ToolTip>
+          ) : (
+            <div key={value}>{tabButton}</div>
+          );
+        })}
       </div>
 
       {/* Map Container */}
@@ -207,16 +224,16 @@ const MapLargeAreaContent = ({
         <Input
           value={description}
           handleInput={(e) => {
-            if (e.target.value.length <= 20) setDescription(e.target.value);
+            if (e.target.value.length <= 50) setDescription(e.target.value);
           }}
           placeholder="Enter map request name"
           size={SHOELACE_SIZES.MEDIUM}
           className="w-full"
           showBorder
-          maxLength={20}
+          maxLength={50}
         />
         <div className="flex items-center justify-between">
-          <p className="text-grey text-xs">{description.length}/20</p>
+          <p className="text-grey text-xs">{description.length}/50</p>
           <Button
             className="!w-fit shrink-0"
             fontSize="13px"
@@ -251,6 +268,7 @@ export const MapLargeAreaModal = ({
     <Dialog
       label="Map Large Area"
       isOpened={isOpened}
+      preventClose
       closeDialog={closeDialog}
       size={SHOELACE_SIZES.MEDIUM}
     >

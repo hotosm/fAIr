@@ -35,9 +35,18 @@ const isPublished = (p: TOfflinePrediction): boolean =>
 // Column definitions
 // ---------------------------------------------------------------------------
 
-const columnDefinitions = (
-  goToRequests: () => void,
-): ColumnDef<TOfflinePrediction>[] => [
+type RowActions = {
+  onViewResult: (prediction: TOfflinePrediction) => void;
+  onOpenMenu: (prediction: TOfflinePrediction) => void;
+  /** When provided, renders a custom kebab menu instead of the default button. */
+  renderRowMenu?: (prediction: TOfflinePrediction) => React.ReactNode;
+};
+
+const columnDefinitions = ({
+  onViewResult,
+  onOpenMenu,
+  renderRowMenu,
+}: RowActions): ColumnDef<TOfflinePrediction>[] => [
   {
     id: "name",
     header: ({ column }) => (
@@ -109,7 +118,7 @@ const columnDefinitions = (
           <button
             type="button"
             disabled={!resultReady}
-            onClick={goToRequests}
+            onClick={() => onViewResult(row.original)}
             className={cn(
               "rounded-[9.3px] border bg-off-white  px-3 py-1.5  text-dark transition-colors",
               resultReady
@@ -119,14 +128,18 @@ const columnDefinitions = (
           >
             View result
           </button>
-          <button
-            type="button"
-            onClick={goToRequests}
-            aria-label="More actions"
-            className="flex size-8 items-center justify-center rounded-[9.33px]  text-dark bg-off-white"
-          >
-            <ElipsisIcon className="size-4 rotate-90" />
-          </button>
+          {renderRowMenu ? (
+            renderRowMenu(row.original)
+          ) : (
+            <button
+              type="button"
+              onClick={() => onOpenMenu(row.original)}
+              aria-label="More actions"
+              className="flex size-8 items-center justify-center rounded-[9.33px]  text-dark bg-off-white"
+            >
+              <ElipsisIcon className="size-4 rotate-90" />
+            </button>
+          )}
         </div>
       );
     },
@@ -141,16 +154,26 @@ type MapRequestsTableProps = {
   requests: TOfflinePrediction[];
   isPending: boolean;
   isError: boolean;
+  /**
+   * Row actions. When omitted (e.g. the Overview preview) both fall back to
+   * navigating to the full Map Requests page.
+   */
+  onViewResult?: (prediction: TOfflinePrediction) => void;
+  onOpenMenu?: (prediction: TOfflinePrediction) => void;
+  renderRowMenu?: (prediction: TOfflinePrediction) => React.ReactNode;
 };
 
 export const MapRequestsTable = ({
   requests,
   isPending,
   isError,
+  onViewResult,
+  onOpenMenu,
+  renderRowMenu,
 }: MapRequestsTableProps) => {
   const navigate = useNavigate();
   const [sorting, setSorting] = useState<SortingState>([]);
-  
+
   const goToRequests = () =>
     navigate(APPLICATION_ROUTES.PROFILE_OFFLINE_PREDICTIONS);
 
@@ -161,7 +184,11 @@ export const MapRequestsTable = ({
       <DataTable
         // @ts-ignore
         data={requests}
-        columns={columnDefinitions(goToRequests)}
+        columns={columnDefinitions({
+          onViewResult: onViewResult ?? goToRequests,
+          onOpenMenu: onOpenMenu ?? goToRequests,
+          renderRowMenu,
+        })}
         sorting={sorting}
         setSorting={setSorting}
       />

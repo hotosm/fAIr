@@ -56,9 +56,9 @@ const UserSidebar = () => {
             Join the <br />
             Community
           </h4>
-         <div className="p-4 rounded-full bg-white">
-           <ChevronDownIcon className="size-4 -rotate-90 text-primary" />
-         </div>
+          <div className="p-4 rounded-full bg-white">
+            <ChevronDownIcon className="size-4 -rotate-90 text-primary" />
+          </div>
         </div>
         <div className={`w-full h-[150px] rounded-xl overflow-hidden `}>
           <Image
@@ -109,15 +109,15 @@ const SIDEBAR_LINKS = [
   {
     id: 2,
     title: "AI Models",
-    href: APPLICATION_ROUTES.AI_PREDICTIONS,
-      Icon: AIModelIcon,
+    href: APPLICATION_ROUTES.PROFILE_MODELS,
+    Icon: AIModelIcon,
 
   },
   {
     id: 3,
     title: "Datasets",
-    href: APPLICATION_ROUTES.MODELS,
-        Icon: DatabaseIcon,
+    href: APPLICATION_ROUTES.PROFILE_DATASETS,
+    Icon: DatabaseIcon,
 
   },
 
@@ -127,10 +127,5 @@ const SIDEBAR_LINKS = [
     href: APPLICATION_ROUTES.PROFILE_OFFLINE_PREDICTIONS,
     Icon: TimerIcon,
   },
-  // {
-  //   id: 6,
-  //   title: "Community Projects",
-  //   href: APPLICATION_ROUTES.MODELS,
-  //   Icon: GlobeIcon,
-  // },
+
 ];

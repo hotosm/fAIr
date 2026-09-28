@@ -96,8 +96,10 @@ export const TryFairSidebar = ({
   );
   const confidenceValue =
     paramValues.confidence_threshold ?? confidenceParam?.spec.default ?? 0.7;
-  const confidenceMin = confidenceParam?.spec.min ?? 0;
-  const confidenceMax = confidenceParam?.spec.max ?? 1;
+  // The Accuracy slider exposes three fixed stops: Low (0.25), Medium (0.5),
+  // High (0.75) — driven by min/max/step below rather than the model spec.
+  const confidenceMin = 0.25;
+  const confidenceMax = 0.75;
   const hasAdvancedSettings = inferenceParams.some(
     ({ key }) => key !== "confidence_threshold",
   );
@@ -289,13 +291,16 @@ export const TryFairSidebar = ({
           </div>
         </div>
 
-        <div>
-          <div className="flex items-center gap-2 mb-1.5">
-            <p className="text-dark text-xs font-medium">Accuracy</p>
-            <span className="text-[#404446] bg-off-white p-1 rounded-md text-xs ">
-              {getAccuracyLabel(confidenceValue)}
-            </span>
-          </div>
+        {/* Accuracy (confidence) is basic-mode only — advanced users adjust it
+            in the Advanced Settings panel instead. */}
+        {!isAdvancedMode && (
+          <div>
+            <div className="flex items-center gap-2 mb-1.5">
+              <p className="text-dark text-xs font-medium">Accuracy</p>
+              <span className="text-[#404446] bg-off-white p-1 rounded-md text-xs ">
+                {getAccuracyLabel(confidenceValue)}
+              </span>
+            </div>
 
           <div className="flex items-center gap-2">
             <SnowflakeIcon />
@@ -311,13 +316,16 @@ export const TryFairSidebar = ({
                 type="range"
                 min={confidenceMin}
                 max={confidenceMax}
-                step={0.5}
+                step={0.25}
                 disabled={isPredicting}
-                value={Number(confidenceValue)}
+                // Inverted: the left/min end is High (0.75) and the right/max
+                // end is Low (0.25). A range input requires min < max, so we
+                // map the raw track position to its mirror around the midpoint.
+                value={Number(confidenceMin + confidenceMax - confidenceValue)}
                 onChange={(e) =>
                   onParamChange(
                     "confidence_threshold",
-                    parseFloat(e.target.value),
+                    confidenceMin + confidenceMax - parseFloat(e.target.value),
                   )
                 }
                 className="try-fair-confidence-slider disabled:cursor-wait w-full h-1.5 rounded-full appearance-none cursor-pointer outline-none"
@@ -328,7 +336,8 @@ export const TryFairSidebar = ({
             </div>
             <FlameIcon />
           </div>
-        </div>
+          </div>
+        )}
 
         {hasAdvancedSettings && isAdvancedMode && (
           <DropDown

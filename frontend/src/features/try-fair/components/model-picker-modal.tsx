@@ -51,20 +51,20 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
   const { feature } = useTryFairParams();
   const { currentModelType, selectedImagery } = useStartMappingStore();
 
-  const showImagery =
+  const isImagerySelected =
     currentModelType === ModelType.IMAGERY && !!selectedImagery;
-  const imageryName =
+  const selectedImageryName =
     selectedImagery?.source === ImagerySource.OPEN_AERIAL_MAP
       ? selectedImagery.item.title
       : "Custom Imagery";
-  const trigger = (
+  const triggerContent = (
     <div className="flex items-center justify-between gap-2 w-full">
       <LocationSearchIcon className="size-5 shrink-0 hidden md:inline-block" />
       <div className="w-full text-left flex-1 min-w-0">
-        {showImagery ? (
+        {isImagerySelected ? (
           <>
             <p className="font-semibold text-dark text-xs leading-tight capitalize truncate">
-              {imageryName}
+              {selectedImageryName}
             </p>
             <p className="text-grey capitalize font-semibold text-[10px] leading-tight truncate">
               {cleanFeatureLabel(feature)}
@@ -100,7 +100,7 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
         isSmallViewport ? "rounded-xl border px-3 py-2 bg-white" : "",
       )}
     >
-      {trigger}
+      {triggerContent}
     </button>
   );
 };
@@ -118,13 +118,7 @@ type StagedChoice =
 export const TAB_SAMPLES = "Samples";
 export const TAB_CHOOSE = "Choose your own";
 
-// ─── ModelPickerContent ───────────────────────────────────────────────────────
 
-/**
- * Standalone content rendered inside the page-level Dialog.
- * Contains two tabs: "Samples" (default-location model cards) and
- * "Choose your own" (feature list + imagery panel).
- */
 export const ModelPickerContent = ({
   selectedModel,
   onSelect,
@@ -154,33 +148,35 @@ export const ModelPickerContent = ({
   const { setCurrentModelType, currentModelType, selectedImagery } =
     useStartMappingStore();
 
-  const isCustomImagery =
+  const isImageryModeActive =
     currentModelType === ModelType.IMAGERY || mode === ModelType.IMAGERY;
 
-  const tabs = isCustomImagery
+  const tabs = isImageryModeActive
     ? [TAB_CHOOSE, TAB_SAMPLES]
     : [TAB_SAMPLES, TAB_CHOOSE];
 
   // Active tab: defaults to whichever mode is currently active
   const [activeTab, setActiveTab] = useState<string>(() =>
-    isCustomImagery ? TAB_CHOOSE : TAB_SAMPLES,
+    isImageryModeActive ? TAB_CHOOSE : TAB_SAMPLES,
   );
 
   // Imagery panel sub-view: "preview" shows the map card, "recent" shows the list.
-  const [imageryView, setImageryView] = useState<"preview" | "recent">(
-    "preview",
+  const [imageryPanelView, setImageryPanelView] = useState<
+    "preview" | "recent"
+  >("preview");
+
+  // Choice staged in the picker but not yet applied (committed only on Apply).
+  const [stagedChoice, setStagedChoice] = useState<StagedChoice | null>(null);
+
+  // Feature staged in the picker but not yet applied (committed only on Apply).
+  const [stagedFeatureSlug, setStagedFeatureSlug] = useState<string | null>(
+    null,
   );
-
-  // Staged choice (committed only on Apply)
-  const [staged, setStaged] = useState<StagedChoice | null>(null);
-
-  // Staged feature (committed only on Apply)
-  const [stagedFeature, setStagedFeature] = useState<string | null>(null);
 
   // Drop staged choice and sync tab when committed selection changes.
   useEffect(() => {
-    setStaged(null);
-    setStagedFeature(null);
+    setStagedChoice(null);
+    setStagedFeatureSlug(null);
     setActiveTab(
       currentModelType === ModelType.IMAGERY || mode === ModelType.IMAGERY
         ? TAB_CHOOSE
@@ -188,60 +184,69 @@ export const ModelPickerContent = ({
     );
   }, [selectedModel, currentModelType, mode]);
 
-  // Active imagery choice (staged selection or committed imagery)
-  const activeImagery =
-    staged?.type === "imagery" && staged.entry
-      ? staged.entry.selection
+  // Imagery currently shown (staged selection, else the applied imagery).
+  const activeImagerySelection =
+    stagedChoice?.type === "imagery" && stagedChoice.entry
+      ? stagedChoice.entry.selection
       : (stagedImagery ?? selectedImagery);
 
   // Imagery metadata
-  const imageryCountry = useImageryCountry(activeImagery?.bounds ?? null);
-  const isOamImagery = activeImagery?.source === ImagerySource.OPEN_AERIAL_MAP;
-  const imageryTitle = activeImagery
-    ? isOamImagery
-      ? activeImagery.item.title
+  const imageryCountry = useImageryCountry(
+    activeImagerySelection?.bounds ?? null,
+  );
+  const isOpenAerialMapImagery =
+    activeImagerySelection?.source === ImagerySource.OPEN_AERIAL_MAP;
+  const activeImageryTitle = activeImagerySelection
+    ? isOpenAerialMapImagery
+      ? activeImagerySelection.item.title
       : (imageryCountry?.place ?? "Custom Imagery")
     : "";
-  const imagerySourceLabel = isOamImagery ? "OpenAerialMap" : "Custom";
+  const activeImagerySourceLabel = isOpenAerialMapImagery
+    ? "OpenAerialMap"
+    : "Custom";
 
   // Feature list from API
-  const { data: featuresData } = useGetFeaturesToMap();
-  const featureList = (featuresData?.results ?? []).filter(
-    (f) => f.slug !== "other",
+  const { data: featuresResponse } = useGetFeaturesToMap();
+  const featureOptions = (featuresResponse?.results ?? []).filter(
+    (featureOption) => featureOption.slug !== "other",
   );
-  const effectiveFeatureSlug = stagedFeature ?? feature;
-  const selectedFeature =
-    featureList.find((f) => f.slug === effectiveFeatureSlug) ??
-    featureList[0] ??
+  const activeFeatureSlug = stagedFeatureSlug ?? feature;
+  const activeFeature =
+    featureOptions.find(
+      (featureOption) => featureOption.slug === activeFeatureSlug,
+    ) ??
+    featureOptions[0] ??
     null;
 
-  // Key helpers
-  const keyOf = (choice: StagedChoice): string =>
+  // A stable key identifying a model/imagery selection, used to detect changes.
+  const getChoiceKey = (choice: StagedChoice): string =>
     choice.type === "imagery"
       ? (choice.entry?.tileUrl ?? IMAGERY_KEY)
       : choice.model.id;
 
-  const committedKey =
+  const appliedSelectionKey =
     currentModelType === ModelType.IMAGERY
       ? (selectedImagery?.tileUrl ?? IMAGERY_KEY)
       : (selectedModel?.id ?? null);
-  const stagedKey = staged ? keyOf(staged) : null;
-  const imageryKey = stagedImagery?.tileUrl ?? null;
-  const activeKey = stagedKey ?? imageryKey ?? committedKey;
-  const hasFeatureChange = stagedFeature !== null && stagedFeature !== feature;
-  const hasChange =
-    ((stagedKey ?? imageryKey) !== null &&
-      (stagedKey ?? imageryKey) !== committedKey) ||
-    hasFeatureChange;
+  const stagedChoiceKey = stagedChoice ? getChoiceKey(stagedChoice) : null;
+  const stagedImageryKey = stagedImagery?.tileUrl ?? null;
+  const activeSelectionKey =
+    stagedChoiceKey ?? stagedImageryKey ?? appliedSelectionKey;
+  const hasStagedFeatureChange =
+    stagedFeatureSlug !== null && stagedFeatureSlug !== feature;
+  const hasUnappliedChanges =
+    ((stagedChoiceKey ?? stagedImageryKey) !== null &&
+      (stagedChoiceKey ?? stagedImageryKey) !== appliedSelectionKey) ||
+    hasStagedFeatureChange;
 
   const handleApply = () => {
-    if (!staged && !stagedImagery && !hasFeatureChange) return;
-    if (staged) {
-      if (staged.type === "model") {
-        onSelect(staged.model);
+    if (!stagedChoice && !stagedImagery && !hasStagedFeatureChange) return;
+    if (stagedChoice) {
+      if (stagedChoice.type === "model") {
+        onSelect(stagedChoice.model);
       } else {
-        if (staged.entry) {
-          onApplyRecentImagery?.(staged.entry);
+        if (stagedChoice.entry) {
+          onApplyRecentImagery?.(stagedChoice.entry);
         } else {
           setCurrentModelType(ModelType.IMAGERY);
         }
@@ -249,11 +254,11 @@ export const ModelPickerContent = ({
     } else if (stagedImagery) {
       onApplyStagedImagery?.(stagedImagery);
     }
-    if (hasFeatureChange && stagedFeature) {
-      onFeatureChange?.(stagedFeature);
+    if (hasStagedFeatureChange && stagedFeatureSlug) {
+      onFeatureChange?.(stagedFeatureSlug);
     }
-    setStaged(null);
-    setStagedFeature(null);
+    setStagedChoice(null);
+    setStagedFeatureSlug(null);
     onClose?.();
   };
 
@@ -267,7 +272,7 @@ export const ModelPickerContent = ({
   };
 
   return (
-    <div className="flex flex-col">
+    <div className="flex  flex-col">
       {/* ── Tabs header + Apply ── */}
       <div className="flex items-center border-b border-gray-border mb-4">
         <div className="flex flex-1">
@@ -294,7 +299,7 @@ export const ModelPickerContent = ({
             className="!w-fit"
             rounded
             fontSize="12px"
-            disabled={!hasChange}
+            disabled={!hasUnappliedChanges}
             onClick={handleApply}
           >
             Apply
@@ -304,7 +309,7 @@ export const ModelPickerContent = ({
 
       {/* ── Samples tab ── */}
       {activeTab === TAB_SAMPLES && (
-        <div className="space-y-4 min-h-[420px]">
+        <div className="space-y-4 h-[520px]">
           {/* Banner: navigate to choose-your-own */}
           <button
             type="button"
@@ -325,22 +330,22 @@ export const ModelPickerContent = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {models.length > 0 ? (
               models.map((model) => {
-                const isSelected = activeKey === model.id;
+                const isModelSelected = activeSelectionKey === model.id;
                 return (
                   <button
                     key={model.id}
                     type="button"
-                    onClick={() => setStaged({ type: "model", model })}
+                    onClick={() => setStagedChoice({ type: "model", model })}
                     className={cn(
                       "text-left p-3 bg-frosted-blue rounded-lg transition-colors",
-                      isSelected ? "border-primary border-2" : "",
+                      isModelSelected ? "border-primary border-2" : "",
                     )}
                   >
                     <div className="flex items-start justify-between gap-2 mb-1">
                       <p className="text-dark capitalize text-sm font-bold leading-tight flex-1 min-w-0 break-words">
                         {model?.properties?.title ?? ""}
                       </p>
-                      <RadioDot darkBorder={true} selected={isSelected} />
+                      <RadioDot darkBorder={true} selected={isModelSelected} />
                     </div>
                     <p className="text-grey text-xs mb-0.5">
                       Model: {model?.properties?.["mlm:name"] ?? ""}
@@ -370,39 +375,36 @@ export const ModelPickerContent = ({
 
       {/* ── Choose your own tab ── */}
       {activeTab === TAB_CHOOSE && (
-        <div className="flex gap-4 min-h-[420px]">
+        <div className="flex gap-4 h-[520px]">
           {/* Left: Feature list */}
           <div className="w-[180px] shrink-0  overflow-hidden flex flex-col">
             <p className="text-xs pb-2">Feature to map</p>
             <div className="flex flex-col bg-frosted-blue border  rounded-lg flex-1 px-1  overflow-y-auto">
-              {featureList.map((f) => {
-                const effectiveFeature = stagedFeature ?? feature;
-                return (
-                  <FeatureListItem
-                    key={f.slug}
-                    feature={f}
-                    isSelected={effectiveFeature === f.slug}
-                    disabled={false}
-                    onSelect={(slug) => setStagedFeature(slug)}
-                  />
-                );
-              })}
+              {featureOptions.map((featureOption) => (
+                <FeatureListItem
+                  key={featureOption.slug}
+                  feature={featureOption}
+                  isSelected={activeFeatureSlug === featureOption.slug}
+                  disabled={false}
+                  onSelect={(slug) => setStagedFeatureSlug(slug)}
+                />
+              ))}
             </div>
           </div>
 
           {/* Right: Imagery panel */}
           <div className="flex-1 overflow-hidden flex flex-col">
-            {activeImagery ? (
-              imageryView === "recent" ? (
+            {activeImagerySelection ? (
+              imageryPanelView === "recent" ? (
                 /* Recent imageries list sub-view */
                 <RecentImageriesList
                   recentImageries={recentImageries}
-                  currentTileUrl={activeImagery.tileUrl}
+                  currentTileUrl={activeImagerySelection.tileUrl}
                   onSelectRecent={(entry) => {
-                    setStaged({ type: "imagery", entry });
-                    setImageryView("preview");
+                    setStagedChoice({ type: "imagery", entry });
+                    setImageryPanelView("preview");
                   }}
-                  onBack={() => setImageryView("preview")}
+                  onBack={() => setImageryPanelView("preview")}
                 />
               ) : (
                 /* Imagery preview with map — default sub-view */
@@ -411,7 +413,7 @@ export const ModelPickerContent = ({
                     <p className="text-sm  text-dark">Imagery</p>
                     <button
                       type="button"
-                      onClick={() => setImageryView("recent")}
+                      onClick={() => setImageryPanelView("recent")}
                       className="text-primary flex items-center gap-1 text-xs font-medium"
                     >
                       Recent <ChevronDownIcon className="size-3 -rotate-90" />
@@ -419,9 +421,9 @@ export const ModelPickerContent = ({
                   </div>
                   <div className="flex-1 overflow-y-auto px-2 pb-2 space-y-2">
                     <ImageryPreviewCard
-                      selectedImagery={activeImagery}
-                      imageryTitle={imageryTitle}
-                      imagerySourceLabel={imagerySourceLabel}
+                      selectedImagery={activeImagerySelection}
+                      imageryTitle={activeImageryTitle}
+                      imagerySourceLabel={activeImagerySourceLabel}
                       imageryCountry={imageryCountry}
                       onChangeImagery={handleChooseOwnImagery}
                     />
@@ -439,7 +441,7 @@ export const ModelPickerContent = ({
                   </div>
                   <p className="text-grey max-w-lg text-xs">
                     Choose an imagery to map{" "}
-                    <span>{selectedFeature?.label ?? "buildings"}</span>
+                    <span>{activeFeature?.label ?? "buildings"}</span>
                   </p>
                   <Button
                     type="button"
