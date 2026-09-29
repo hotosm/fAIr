@@ -1,24 +1,50 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import type { BaseModelStacItem } from "@/features/try-fair/api/stac";
 import {
   buildClassColorExpression,
   buildClassLegendItems,
   DEFAULT_PREDICTION_COLOR,
+  describePredictedFeature,
   getPredictionClassStyle,
 } from "@/features/try-fair/utils/prediction-classes";
 
-const modelWithClasses = (classes: unknown[], outputName = "damage") =>
-  ({
-    id: "test-model",
-    properties: {
-      "mlm:output": [{ name: outputName, "classification:classes": classes }],
-    },
-  }) as unknown as BaseModelStacItem;
+const modelWith = (properties: Record<string, unknown>) =>
+  ({ id: "test-model", properties }) as unknown as BaseModelStacItem;
 
-const damageModel = modelWithClasses([
-  { name: "no-damage", title: "No damage", color_hint: "43A047" },
-  { name: "destroyed", title: "Destroyed", color_hint: "e53935" },
-]);
+const damageClasses = [
+  { value: 0, name: "no-damage", title: "No damage", color_hint: "43A047" },
+  { value: 3, name: "destroyed", title: "Destroyed", color_hint: "E53935" },
+  { value: -1, name: "no-data", title: "No data", color_hint: "9E9E9E" },
+];
+
+const damageModel = modelWith({
+  "mlm:output": [
+    { name: "damage logits" },
+    {
+      name: "buildings",
+      variables: ["damage_class", "damage_confidence"],
+      "classification:classes": damageClasses,
+    },
+  ],
+  "cube:variables": {
+    damage_class: { values: [0, 3, -1], nodata: -1 },
+    damage_confidence: { extent: [0, 1] },
+  },
+});
+
+const buildingModel = modelWith({
+  "mlm:output": [
+    { name: "segmentation logits" },
+    {
+      name: "buildings",
+      variables: ["class", "score"],
+      "classification:classes": [
+        { value: 1, name: "building", description: "Building" },
+      ],
+    },
+  ],
+  "cube:variables": { class: { values: [1] }, score: { extent: [0, 1] } },
+});
 
 const featureWith = (properties: Record<string, unknown>) => ({
   type: "Feature" as const,
@@ -27,65 +53,138 @@ const featureWith = (properties: Record<string, unknown>) => ({
 });
 
 describe("getPredictionClassStyle", () => {
-  it("keys classes on the output name and prefixes colour hints with #", () => {
-    expect(getPredictionClassStyle(damageModel)).toEqual({
-      property: "damage",
-      classes: [
-        { name: "no-damage", label: "No damage", color: "#43A047" },
-        { name: "destroyed", label: "Destroyed", color: "#e53935" },
-      ],
-    });
+  it("reads the class variable from the output that lists MLM variables", () => {
+    const style = getPredictionClassStyle(damageModel)!;
+
+    expect(style.property).toBe("damage_class");
+    expect(style.colored).toBe(true);
+    expect(
+      style.classes.map((item) => [item.value, item.color, item.nodata]),
+    ).toEqual([
+      [0, "#43A047", false],
+      [3, "#E53935", false],
+      [-1, "#9E9E9E", true],
+    ]);
   });
 
-  it("returns null for a model whose classes carry no colour hints", () => {
-    const buildingModel = modelWithClasses(
-      [{ name: "building" }],
-      "segmentation logits",
-    );
+  it("keeps the default colour for classes without colour hints", () => {
+    const style = getPredictionClassStyle(buildingModel)!;
 
-    expect(getPredictionClassStyle(buildingModel)).toBeNull();
+    expect(style.property).toBe("class");
+    expect(style.colored).toBe(false);
+    expect(style.classes[0].color).toBe(DEFAULT_PREDICTION_COLOR);
+  });
+
+  it("returns null for an item whose outputs list no variables", () => {
+    const itemWithoutVariables = modelWith({
+      "mlm:output": [
+        { name: "damage", "classification:classes": damageClasses },
+      ],
+    });
+
+    expect(getPredictionClassStyle(itemWithoutVariables)).toBeNull();
+  });
+
+  it("leaves predictions unclassed when no variable's values match the class values", () => {
+    const consoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+    const style = getPredictionClassStyle(
+      modelWith({
+        "mlm:output": [
+          {
+            name: "buildings",
+            variables: ["label", "score"],
+            "classification:classes": [{ value: 1, name: "building" }],
+          },
+        ],
+        "cube:variables": { label: { values: ["building"] }, score: {} },
+      }),
+    )!;
+
+    expect(style.property).toBeNull();
+    expect(style.colored).toBe(false);
+    expect(consoleError).toHaveBeenCalledWith(
+      expect.stringMatching(/no variable's values match/),
+    );
+    consoleError.mockRestore();
   });
 
   it("returns null when no model is selected", () => {
     expect(getPredictionClassStyle(null)).toBeNull();
   });
 
-  it("throws on a colour hint that is not six hex digits", () => {
-    const model = modelWithClasses([{ name: "destroyed", color_hint: "red" }]);
+  describe("with an invalid class definition", () => {
+    afterEach(() => vi.restoreAllMocks());
 
-    expect(() => getPredictionClassStyle(model)).toThrow(/invalid color_hint/);
-  });
+    const expectDefaultColourFallback = (
+      classes: unknown[],
+      problem: RegExp,
+    ) => {
+      const consoleError = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
 
-  it("throws when class names repeat", () => {
-    const model = modelWithClasses([
-      { name: "destroyed", color_hint: "E53935" },
-      { name: "destroyed", color_hint: "FB8C00" },
-    ]);
+      const values = (classes as { value: number }[]).map((item) => item.value);
+      const style = getPredictionClassStyle(
+        modelWith({
+          "mlm:output": [
+            {
+              name: "buildings",
+              variables: ["class"],
+              "classification:classes": classes,
+            },
+          ],
+          "cube:variables": { class: { values } },
+        }),
+      )!;
 
-    expect(() => getPredictionClassStyle(model)).toThrow(/must be unique/);
-  });
+      expect(style.colored).toBe(false);
+      expect(consoleError).toHaveBeenCalledWith(expect.stringMatching(problem));
+    };
 
-  it("throws when only some classes carry a colour hint", () => {
-    const model = modelWithClasses([
-      { name: "destroyed", color_hint: "E53935" },
-      { name: "no-damage" },
-    ]);
+    it("falls back to the default colour on a colour hint that is not six hex digits", () => {
+      expectDefaultColourFallback(
+        [{ value: 3, name: "destroyed", color_hint: "red" }],
+        /invalid color_hint "red"/,
+      );
+    });
 
-    expect(() => getPredictionClassStyle(model)).toThrow(/every class/);
+    it("falls back to the default colour when class values repeat", () => {
+      expectDefaultColourFallback(
+        [
+          { value: 3, name: "destroyed", color_hint: "E53935" },
+          { value: 3, name: "major-damage", color_hint: "FB8C00" },
+        ],
+        /must be unique/,
+      );
+    });
+
+    it("falls back to the default colour when only some classes carry a colour hint", () => {
+      expectDefaultColourFallback(
+        [
+          { value: 3, name: "destroyed", color_hint: "E53935" },
+          { value: 0, name: "no-damage" },
+        ],
+        /every class/,
+      );
+    });
   });
 });
 
 describe("buildClassColorExpression", () => {
-  it("matches the class property and falls back to the default colour", () => {
-    const style = getPredictionClassStyle(damageModel)!;
-
-    expect(buildClassColorExpression(style)).toEqual([
+  it("matches the class variable on class values", () => {
+    expect(
+      buildClassColorExpression(getPredictionClassStyle(damageModel)!),
+    ).toEqual([
       "match",
-      ["get", "damage"],
-      "no-damage",
+      ["get", "damage_class"],
+      0,
       "#43A047",
-      "destroyed",
-      "#e53935",
+      3,
+      "#E53935",
+      -1,
+      "#9E9E9E",
       DEFAULT_PREDICTION_COLOR,
     ]);
   });
@@ -103,23 +202,51 @@ describe("buildClassLegendItems", () => {
   it("counts each class present, in class order", () => {
     expect(
       legendRows([
-        featureWith({ damage: "destroyed" }),
-        featureWith({ damage: "no-damage" }),
-        featureWith({ damage: "destroyed" }),
+        featureWith({ damage_class: 3 }),
+        featureWith({ damage_class: 0 }),
+        featureWith({ damage_class: 3 }),
       ]),
     ).toEqual([
       ["No damage (1)", "#43A047"],
-      ["Destroyed (2)", "#e53935"],
+      ["Destroyed (2)", "#E53935"],
     ]);
   });
 
-  it("counts unknown, numeric and missing class values as unclassified", () => {
+  it("leaves the datacube no-data value out of the legend and the unclassified count", () => {
     expect(
       legendRows([
-        featureWith({ damage: "flooded" }),
-        featureWith({ damage: 3 }),
-        featureWith({}),
+        featureWith({ damage_class: -1 }),
+        featureWith({ damage_class: 3 }),
       ]),
-    ).toEqual([["Unclassified (3)", DEFAULT_PREDICTION_COLOR]]);
+    ).toEqual([["Destroyed (1)", "#E53935"]]);
+  });
+
+  it("counts undeclared and missing class values as unclassified", () => {
+    expect(
+      legendRows([featureWith({ damage_class: 7 }), featureWith({})]),
+    ).toEqual([["Unclassified (2)", DEFAULT_PREDICTION_COLOR]]);
+  });
+});
+
+describe("describePredictedFeature", () => {
+  it("shows the class title and each other declared variable, probabilities as percent", () => {
+    expect(
+      describePredictedFeature(getPredictionClassStyle(damageModel)!, {
+        damage_class: 3,
+        damage_confidence: 0.875,
+        osm_id: 42,
+      }),
+    ).toEqual([
+      { label: "class", value: "Destroyed" },
+      { label: "damage confidence", value: "87.5%" },
+    ]);
+  });
+
+  it("skips declared variables the feature does not carry", () => {
+    expect(
+      describePredictedFeature(getPredictionClassStyle(buildingModel)!, {
+        class: 1,
+      }),
+    ).toEqual([{ label: "class", value: "building" }]);
   });
 });

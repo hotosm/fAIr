@@ -10,6 +10,7 @@ import {
 import {
   buildClassColorExpression,
   DEFAULT_PREDICTION_COLOR,
+  describePredictedFeature,
   PredictionClassStyle,
 } from "@/features/try-fair/utils/prediction-classes";
 
@@ -58,8 +59,7 @@ type Props = {
 type HoverTooltip = {
   x: number;
   y: number;
-  label: string;
-  value: string;
+  rows: { label: string; value: string }[];
 } | null;
 
 export const TryFairPredictionsLayer = ({
@@ -101,7 +101,7 @@ export const TryFairPredictionsLayer = ({
     if (!map || !map.getStyle()) return;
     removeLayers(map);
     if (!predictions || !predictions.features.length) return;
-    const classColor = classStyle
+    const classColor = classStyle?.colored
       ? buildClassColorExpression(classStyle)
       : DEFAULT_PREDICTION_COLOR;
 
@@ -174,7 +174,7 @@ export const TryFairPredictionsLayer = ({
         source: POINT_SOURCE_ID,
         paint: {
           "circle-radius": 4,
-          "circle-color": classStyle ? classColor : "#A147D8",
+          "circle-color": classStyle?.colored ? classColor : "#A147D8",
           "circle-stroke-color": "#ffffff",
           "circle-stroke-width": 1.5,
         },
@@ -253,8 +253,7 @@ export const TryFairPredictionsLayer = ({
       setTooltip({
         x: e.point.x,
         y: e.point.y,
-        label: "Features detected",
-        value: count.toLocaleString(),
+        rows: [{ label: "Features detected", value: count.toLocaleString() }],
       });
     };
 
@@ -281,7 +280,7 @@ export const TryFairPredictionsLayer = ({
         : outputType === TryFairMapOutputType.POLYGON
           ? FILL_LAYER
           : null;
-    if (!map || !predictionLayer) {
+    if (!map || !predictionLayer || !classStyle) {
       setTooltip(null);
       return;
     }
@@ -290,20 +289,17 @@ export const TryFairPredictionsLayer = ({
       const feature = map.queryRenderedFeatures(e.point, {
         layers: [predictionLayer],
       })[0];
-      const score = feature?.properties?.score;
-      if (typeof score !== "number") {
+      const rows = feature
+        ? describePredictedFeature(classStyle, feature.properties ?? {})
+        : [];
+      if (!rows.length) {
         setTooltip(null);
         map.getCanvas().style.cursor = "";
         return;
       }
 
       map.getCanvas().style.cursor = "pointer";
-      setTooltip({
-        x: e.point.x,
-        y: e.point.y,
-        label: "Accuracy",
-        value: `${(score * 100).toFixed(1)}%`,
-      });
+      setTooltip({ x: e.point.x, y: e.point.y, rows });
     };
 
     const handleMouseLeave = () => {
@@ -320,7 +316,7 @@ export const TryFairPredictionsLayer = ({
       map.getCanvas().style.cursor = "";
       setTooltip(null);
     };
-  }, [map, outputType]);
+  }, [map, outputType, classStyle]);
 
   if (!tooltip) return null;
 
@@ -332,12 +328,16 @@ export const TryFairPredictionsLayer = ({
       {/* Offset so the tooltip doesn't sit directly under the cursor */}
       <div className="relative" style={{ transform: "translate(12px, -50%)" }}>
         <div className="bg-white/95 backdrop-blur-sm border border-gray-border rounded-lg shadow-lg px-3 py-2 flex flex-col items-start gap-0.5 min-w-[120px]">
-          <p className="text-[10px] font-medium text-grey uppercase tracking-wide leading-none">
-            {tooltip.label}
-          </p>
-          <p className="text-base font-bold text-purple-700 leading-tight">
-            {tooltip.value}
-          </p>
+          {tooltip.rows.map((row) => (
+            <div key={row.label} className="flex flex-col gap-0.5">
+              <p className="text-[10px] font-medium text-grey uppercase tracking-wide leading-none">
+                {row.label}
+              </p>
+              <p className="text-base font-bold text-purple-700 leading-tight">
+                {row.value}
+              </p>
+            </div>
+          ))}
         </div>
         <div
           className="absolute top-1/2 -left-[6px] -translate-y-1/2 w-0 h-0"

@@ -16,7 +16,7 @@ export const TryFairPointsLegend = ({ predictions, classStyle }: Props) => {
   const totalCount = predictions?.features.length ?? 0;
   if (!predictions || totalCount === 0) return null;
 
-  const items: LegendItem[] = classStyle
+  const items: LegendItem[] = classStyle?.colored
     ? buildClassLegendItems(classStyle, predictions, "circle", 1)
     : [
         {
@@ -26,6 +26,8 @@ export const TryFairPointsLegend = ({ predictions, classStyle }: Props) => {
           shape: "circle",
         },
       ];
+
+  if (!items.length) return null;
 
   return <Legend position="bottom-right" title="Legend" items={items} />;
 };

@@ -29,14 +29,25 @@ export type FairPreview = {
 };
 
 export type ClassificationClass = {
+  value: number;
   name: string;
   title?: string;
   color_hint?: string;
+  nodata?: boolean;
 };
 
 export type ModelOutput = {
   name: string;
+  variables?: (string | { name: string })[];
   "classification:classes"?: ClassificationClass[];
+};
+
+/** Datacube extension Variable Object, as referenced by an MLM output's `variables`. */
+export type CubeVariable = {
+  description?: string;
+  values?: (number | string)[];
+  extent?: [number | null, number | null];
+  nodata?: number | string;
 };
 
 export type BaseModelStacItem = {
@@ -54,6 +65,7 @@ export type BaseModelStacItem = {
     "fair:pinned": boolean;
     "mlm:hyperparameters": Record<string, string | number | boolean>;
     "mlm:output"?: ModelOutput[];
+    "cube:variables"?: Record<string, CubeVariable>;
     "fair:hyperparameters_spec": HyperParamSpec[];
     "fair:preview"?: FairPreview;
     "fair:base_model_title"?: string;
