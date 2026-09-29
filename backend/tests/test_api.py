@@ -22,6 +22,7 @@ from feedback.models import Feedback
 from modelregistry.models import BaseModel, LocalModel
 from notifications.models import Banner, UserNotification
 from predictions.models import Prediction
+from predictions.post_run import PredictionOutputError
 from shared.storage import BackendLocalModelPaths
 from trainings.models import TrainingRunRef
 
@@ -1288,6 +1289,72 @@ def test_sync_prediction_skips_post_process_when_already_ready(
 
     mock_post_run.assert_not_called()
     mock_get_status.assert_not_called()
+
+
+def _completed_prediction(user, run_id: str) -> Prediction:
+    return Prediction.objects.create(
+        zenml_run_id=run_id,
+        local_model_stac_id="m-uuid",
+        image_uri="https://t/{z}/{x}/{y}.png",
+        geometry={"type": "Polygon", "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]]},
+        zoom=19,
+        status="completed",
+        results_ready=False,
+        user=user,
+    )
+
+
+@pytest.mark.parametrize(
+    ("found_in", "expected_collection"),
+    [([True], "local-models"), ([False, True], "base-models")],
+)
+@patch("predictions.post_run.UPath")
+@patch("predictions.post_run.get_item")
+@patch("predictions.post_run._load_geojson", return_value={"type": "FeatureCollection"})
+@patch(
+    "fair.stac.validators.validate_predictions_geojson",
+    return_value=["features[0].properties missing declared variable 'class'"],
+)
+def test_post_process_rejects_predictions_not_matching_model_item(
+    mock_validate, mock_load, mock_get_item, mock_upath, found_in, expected_collection, db, user
+):
+    from predictions.post_run import post_process_prediction
+
+    with (
+        patch("predictions.post_run.item_exists", side_effect=found_in),
+        pytest.raises(PredictionOutputError, match="1 prediction errors"),
+    ):
+        post_process_prediction(_completed_prediction(user, "rid-3"))
+
+    mock_get_item.assert_called_once_with(expected_collection, "m-uuid")
+    mock_upath.assert_not_called()
+
+
+@patch("predictions.post_run._load_geojson", return_value={"type": "FeatureCollection"})
+@patch("predictions.post_run.item_exists", return_value=False)
+def test_post_process_rejects_model_missing_from_stac(mock_exists, mock_load, db, user):
+    from predictions.post_run import post_process_prediction
+
+    with pytest.raises(PredictionOutputError, match="not found in STAC"):
+        post_process_prediction(_completed_prediction(user, "rid-5"))
+
+
+@patch("predictions.tasks.post_process_prediction", side_effect=PredictionOutputError("mismatch"))
+@patch("predictions.tasks.get_run_status", return_value="completed")
+def test_sync_prediction_fails_prediction_on_rejected_outputs(
+    mock_get_status, mock_post_run, db, user
+):
+    from predictions.tasks import sync_prediction_status
+
+    prediction = _completed_prediction(user, "rid-4")
+
+    sync_prediction_status.func(prediction_id=prediction.id)
+    sync_prediction_status.func(prediction_id=prediction.id)
+
+    prediction.refresh_from_db()
+    assert prediction.status == "failed"
+    assert prediction.results_ready is False
+    assert mock_get_status.call_count == 1
 
 
 # --- Visibility / anonymous-read matrix ---------------------------------

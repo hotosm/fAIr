@@ -9,11 +9,12 @@ from django.utils import timezone
 from django_tasks import task
 from upath import UPath
 
+from shared.enums import PipelineRunStatus
 from shared.integrations.zenml import for_user, get_run_status, is_terminal
 from shared.storage import StoragePaths
 
 from .models import Prediction
-from .post_run import post_process_prediction
+from .post_run import PredictionOutputError, post_process_prediction
 
 logger = logging.getLogger(__name__)
 
@@ -61,7 +62,13 @@ def sync_prediction_status(*, prediction_id: int) -> None:
         ).enqueue(prediction_id=prediction_id)
 
     if needs_postrun:
-        post_process_prediction(prediction)
+        try:
+            post_process_prediction(prediction)
+        except PredictionOutputError:
+            # A model/STAC mismatch is permanent; a terminal status stops the poller.
+            logger.exception("Prediction %s: outputs rejected", prediction_id)
+            Prediction.objects.filter(id=prediction_id).update(status=PipelineRunStatus.FAILED)
+            return
         Prediction.objects.filter(id=prediction_id).update(results_ready=True)
 
 

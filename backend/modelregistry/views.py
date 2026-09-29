@@ -1,4 +1,5 @@
 import importlib.util
+from collections.abc import Sequence
 
 import httpx
 from django.conf import settings
@@ -36,6 +37,7 @@ from shared.integrations.stac import (
     FAIR_PREVIEW_LOCATION_PROPERTY,
     FAIR_SOURCE_IMAGERY_PROPERTY,
     LOCAL_MODELS_COLLECTION,
+    add_stac_extensions,
     bulk_get_cached_items,
     get_cached_item,
     get_item,
@@ -89,7 +91,9 @@ def _apply_pin(model, collection: str, data: dict) -> None:
     _merge_validate_write(collection, model.stac_item_id, properties)
 
 
-def _merge_validate_write(collection: str, item_id: str, properties: dict) -> None:
+def _merge_validate_write(
+    collection: str, item_id: str, properties: dict, stac_extensions: Sequence[str] = ()
+) -> None:
     """Shallow-merge `properties` onto the item, re-validate the merged item against
     the fAIr schema, then write. The single read-validate-write path, so a metadata
     edit or an arbitrary property patch can never leave the item invalid."""
@@ -97,9 +101,10 @@ def _merge_validate_write(collection: str, item_id: str, properties: dict) -> No
 
     item = get_item(collection, item_id)
     item.properties.update(properties)
+    add_stac_extensions(item, stac_extensions)
     if errors := validate_item(item):
         raise ValidationError({"stac": errors})
-    set_item_properties(collection, item_id, properties)
+    set_item_properties(collection, item_id, properties, stac_extensions=stac_extensions)
 
 
 def _apply_metadata(collection: str, item_id: str, data: dict) -> None:
@@ -163,7 +168,21 @@ class ModelMetadataMixin:
                     }
                 },
                 request_only=True,
-            )
+            ),
+            OpenApiExample(
+                "Declare prediction variables",
+                value={
+                    "properties": {
+                        "cube:variables": {
+                            "class": {"dimensions": ["features"], "type": "data", "values": [1]}
+                        }
+                    },
+                    "stac_extensions": [
+                        "https://stac-extensions.github.io/datacube/v2.3.0/schema.json"
+                    ],
+                },
+                request_only=True,
+            ),
         ],
     )
     @action(detail=True, methods=["patch"], url_path="stac")
@@ -175,7 +194,10 @@ class ModelMetadataMixin:
         serializer = StacPropertiesPatchSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         _merge_validate_write(
-            self.stac_collection, model.stac_item_id, serializer.validated_data["properties"]
+            self.stac_collection,
+            model.stac_item_id,
+            serializer.validated_data["properties"],
+            serializer.validated_data["stac_extensions"],
         )
         return Response(self.get_serializer(model).data)
 

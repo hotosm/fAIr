@@ -196,12 +196,18 @@ class StacPropertiesPatchSerializer(serializers.Serializer):
     admin can sync changed metadata or imagery from an updated source. The merged
     item is re-validated against the fAIr schema before it is written. Identity keys
     the database mirrors (``mlm:name``, ``fair:category``) are rejected, so the row
-    and the STAC item cannot drift apart.
+    and the STAC item cannot drift apart. ``stac_extensions`` lists schema URLs to add,
+    so newly patched fields such as ``cube:variables`` are validated by their extension.
     """
 
     _DENIED_KEYS = frozenset({"mlm:name", "fair:category"})
+    # Validation fetches each listed schema, so only the official extension host is accepted.
+    _EXTENSION_HOST = "https://stac-extensions.github.io/"
 
     properties = serializers.JSONField()
+    stac_extensions = serializers.ListField(
+        child=serializers.URLField(), required=False, default=list
+    )
 
     def validate_properties(self, value: object) -> dict[str, Any]:
         if not isinstance(value, dict) or not value:
@@ -212,6 +218,13 @@ class StacPropertiesPatchSerializer(serializers.Serializer):
                 f"These identity keys cannot be patched here: {', '.join(sorted(denied))}."
             )
         return properties
+
+    def validate_stac_extensions(self, value: list[str]) -> list[str]:
+        if outside := [url for url in value if not url.startswith(self._EXTENSION_HOST)]:
+            raise serializers.ValidationError(
+                f"Only {self._EXTENSION_HOST} schemas can be added: {', '.join(outside)}."
+            )
+        return value
 
 
 class TrainingRunSummarySerializer(serializers.Serializer):

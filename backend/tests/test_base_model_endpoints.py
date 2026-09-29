@@ -581,6 +581,51 @@ def test_base_model_stac_patch_merges_arbitrary_properties(
     assert validated.properties["fair:source_imagery"] == "https://tiles.example/{z}/{x}/{y}.png"
 
 
+_DATACUBE_SCHEMA = "https://stac-extensions.github.io/datacube/v2.3.0/schema.json"
+
+
+@patch("modelregistry.views.set_item_properties")
+@patch("modelregistry.views.get_item", side_effect=_stac_item)
+@patch("fair.stac.validators.validate_item", return_value=[])
+def test_base_model_stac_patch_adds_extension_before_validating(
+    mock_validate, mock_get, mock_set, admin: OsmUser
+) -> None:
+    model = BaseModel.objects.create(name="meta-model", user=admin, stac_item_id="meta-model")
+    variables = {"class": {"dimensions": ["features"], "type": "data", "values": [1]}}
+    resp = _client(admin).patch(
+        f"/api/v1/base-models/{model.id}/stac/",
+        {"properties": {"cube:variables": variables}, "stac_extensions": [_DATACUBE_SCHEMA]},
+        format="json",
+    )
+    assert resp.status_code == 200
+    validated = mock_validate.call_args.args[0]
+    assert _DATACUBE_SCHEMA in validated.stac_extensions
+    assert validated.properties["cube:variables"] == variables
+    assert mock_set.call_args.kwargs["stac_extensions"] == [_DATACUBE_SCHEMA]
+
+
+@patch("modelregistry.views.set_item_properties")
+@patch("modelregistry.views.get_item", side_effect=_stac_item)
+def test_base_model_stac_patch_rejects_extension_from_other_hosts(
+    mock_get, mock_set, admin: OsmUser
+) -> None:
+    model = BaseModel.objects.create(name="meta-model", user=admin, stac_item_id="meta-model")
+    resp = _client(admin).patch(
+        f"/api/v1/base-models/{model.id}/stac/",
+        {
+            "properties": {"title": "x"},
+            "stac_extensions": [
+                "https://example.com/schema.json",
+                "https://stac-extensions.github.io.evil.com/datacube/schema.json",
+            ],
+        },
+        format="json",
+    )
+    assert resp.status_code == 400
+    mock_get.assert_not_called()
+    mock_set.assert_not_called()
+
+
 @patch("modelregistry.views.set_item_properties")
 @patch("modelregistry.views.get_item", side_effect=_stac_item)
 @patch("fair.stac.validators.validate_item", return_value=["mlm:tasks is a required property"])
