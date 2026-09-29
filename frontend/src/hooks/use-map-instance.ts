@@ -72,6 +72,15 @@ export const useMapInstance = (
     };
   }, [map, setZoom]);
 
+
+  useEffect(() => {
+    if (!map || !mapContainerRef.current) return;
+    const container = mapContainerRef.current;
+    const observer = new ResizeObserver(() => map.resize());
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [map]);
+
   return {
     mapContainerRef,
     map,

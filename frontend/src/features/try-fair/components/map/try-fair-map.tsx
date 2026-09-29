@@ -80,15 +80,12 @@ export const TryFairMap = ({
   const handleFitToGrid = useCallback(() => {
     if (!canFitToBounds) return;
     const bbox = gridBBoxRef.current;
-    // The imagery can finish loading before the draggable grid has reported its
-    // first bbox (common on a fresh navigation from the landing page). Instead
-    // of dropping the fit — which leaves the map stuck at the global zoom until
-    // a refresh — defer it, so it runs as soon as the grid reports its bbox in
-    // handleBBoxChange.
     if (!map || !bbox) {
       fitPendingRef.current = true;
       return;
     }
+ 
+    map.resize();
     map.fitBounds([bbox[0], bbox[1], bbox[2], bbox[3]], {
       padding: 40,
       essential: true,
@@ -100,19 +97,14 @@ export const TryFairMap = ({
     (bbox: BBOX, tileZoom: number) => {
       gridBBoxRef.current = bbox;
       onBBoxChange(bbox, tileZoom);
-      // If a resolution change triggered a grid recalculation, fit now.
+      // If a resolution change (or a deferred initial fit) is pending, fit now
+      // that the grid has recalculated. handleFitToGrid resizes then fits.
       if (fitPendingRef.current) {
         fitPendingRef.current = false;
-        if (map && canFitToBounds) {
-          map.fitBounds([bbox[0], bbox[1], bbox[2], bbox[3]], {
-            padding: 40,
-            essential: true,
-            ...FLY_TO_OPTIONS,
-          });
-        }
+        handleFitToGrid();
       }
     },
-    [onBBoxChange, map, canFitToBounds],
+    [onBBoxChange, handleFitToGrid],
   );
 
   // When resolution or imagery center changes, flag that we want to fit once
