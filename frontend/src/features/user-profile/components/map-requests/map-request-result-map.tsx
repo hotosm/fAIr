@@ -166,13 +166,9 @@ export const MapRequestResultMap = ({
         />
 
         {outputType === TryFairMapOutputType.POINTS ? (
-          <TryFairPointsLegend
-            totalCount={predictions?.features.length ?? 0}
-          />
+          <TryFairPointsLegend predictions={predictions} />
         ) : outputType === TryFairMapOutputType.POLYGON ? (
-          <TryFairPolygonLegend
-            totalCount={predictions?.features.length ?? 0}
-          />
+          <TryFairPolygonLegend predictions={predictions} />
         ) : null}
       </MapComponent>
 

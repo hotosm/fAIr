@@ -7,6 +7,10 @@ import {
   computeChoroplethBuckets,
   toPointCollection,
 } from "@/features/try-fair/utils/helpers";
+import {
+  buildClassColorExpression,
+  PredictionClassStyle,
+} from "@/features/try-fair/utils/prediction-classes";
 
 const SOURCE_ID = "try-fair-predictions";
 const FILL_LAYER = "try-fair-predictions-fill";
@@ -47,6 +51,8 @@ type Props = {
   onChoroplethBucketsChange?: (
     buckets: ReturnType<typeof computeChoroplethBuckets> | null,
   ) => void;
+  /** When set and `colored`, features are coloured by their predicted class. */
+  classStyle?: PredictionClassStyle | null;
 };
 
 type HoverTooltip = {
@@ -63,6 +69,7 @@ export const TryFairPredictionsLayer = ({
   predictionGridZoom,
   outputType,
   onChoroplethBucketsChange,
+  classStyle,
 }: Props) => {
   const { choropleth, buckets } = useMemo(() => {
     if (
@@ -95,6 +102,15 @@ export const TryFairPredictionsLayer = ({
     removeLayers(map);
     if (!predictions || !predictions.features.length) return;
 
+    // Colour features by their predicted class when a coloured class style is
+    // provided; otherwise fall back to the default single colour.
+    const polygonFillColor = classStyle?.colored
+      ? buildClassColorExpression(classStyle)
+      : "#A243DC";
+    const circleColor = classStyle?.colored
+      ? buildClassColorExpression(classStyle)
+      : "#A147D8";
+
     // ── Polygon ──────────────────────────────────────────────────────────────
     if (outputType === TryFairMapOutputType.POLYGON) {
       map.addSource(SOURCE_ID, { type: "geojson", data: predictions });
@@ -102,7 +118,7 @@ export const TryFairPredictionsLayer = ({
         id: FILL_LAYER,
         type: "fill",
         source: SOURCE_ID,
-        paint: { "fill-color": "#A243DC", "fill-opacity": 0.3 },
+        paint: { "fill-color": polygonFillColor, "fill-opacity": 0.3 },
       });
       map.addLayer({
         id: CASING_LAYER,
@@ -164,7 +180,7 @@ export const TryFairPredictionsLayer = ({
         source: POINT_SOURCE_ID,
         paint: {
           "circle-radius": 4,
-          "circle-color": "#A147D8",
+          "circle-color": circleColor,
           "circle-stroke-color": "#ffffff",
           "circle-stroke-width": 1.5,
         },
@@ -212,7 +228,15 @@ export const TryFairPredictionsLayer = ({
     return () => {
       if (map.getStyle()) removeLayers(map);
     };
-  }, [map, predictions, predictionBBox, outputType, choropleth, buckets]);
+  }, [
+    map,
+    predictions,
+    predictionBBox,
+    outputType,
+    choropleth,
+    buckets,
+    classStyle,
+  ]);
 
   // ── Choropleth hover interactions ──────────────────────────────────────────
   useEffect(() => {
