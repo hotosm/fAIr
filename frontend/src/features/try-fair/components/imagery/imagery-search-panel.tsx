@@ -4,8 +4,8 @@ import { Spinner } from "@/components/ui/spinner";
 import { OAMImageryItem } from "@/features/try-fair/api/hot-imagery";
 import { ExpandIcon } from "@/components/ui/icons/expand-icon";
 import { CloseIcon } from "@/components/ui/icons";
-import { Select } from "@/components/ui/form";
-import { SHOELACE_SELECT_SIZES } from "@/enums";
+import { Input, Select } from "@/components/ui/form";
+import { INPUT_TYPES, SHOELACE_SELECT_SIZES, SHOELACE_SIZES } from "@/enums";
 import {
   DatePreset,
   ResolutionPreset,
@@ -134,19 +134,22 @@ export const OAMImageryPanel = ({
   /** Close the images panel (clears the selected grid cell). */
   onClose: () => void;
 }) => {
+  const [nameFilter, setNameFilter] = useState("");
   const [dateFilter, setDateFilter] = useState<DatePreset>("");
   const [resolutionFilter, setResolutionFilter] =
     useState<ResolutionPreset>("");
 
-  const filtered = useMemo(
-    () =>
-      images.filter(
-        (i) =>
-          withinDate(i.acquiredAt, dateFilter) &&
-          withinResolution(i.gsd, resolutionFilter),
-      ),
-    [images, dateFilter, resolutionFilter],
-  );
+  const filtered = useMemo(() => {
+    const query = nameFilter.trim().toLowerCase();
+    return images.filter(
+      (i) =>
+        withinDate(i.acquiredAt, dateFilter) &&
+        withinResolution(i.gsd, resolutionFilter) &&
+        (query === "" ||
+          i.title.toLowerCase().includes(query) ||
+          i.provider.toLowerCase().includes(query)),
+    );
+  }, [images, nameFilter, dateFilter, resolutionFilter]);
 
   if (!cellSelected) return null;
 
@@ -168,6 +171,18 @@ export const OAMImageryPanel = ({
           >
             <CloseIcon className="w-4 h-4" />
           </button>
+        </div>
+
+        <div className="px-3 pb-2">
+          <Input
+            type={INPUT_TYPES.TEXT}
+            value={nameFilter}
+            handleInput={(e) => setNameFilter(e.target.value)}
+            placeholder="Search by name"
+            size={SHOELACE_SIZES.SMALL}
+            clearable
+            showBorder
+          />
         </div>
 
         <div className="px-3 pb-2 flex md:flex-row flex-col items-center gap-2">

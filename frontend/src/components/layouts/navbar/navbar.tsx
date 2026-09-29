@@ -23,6 +23,7 @@ import { NavBarLinks } from "@/components/layouts/navbar/navbar-links";
 import { MobileAuthSection, DesktopAuthSection } from "@/components/layouts/navbar/device-navbars";
 import { BackButton } from "@/components/ui/button";
 import { DownloadResultButton } from "@/features/user-profile/components/map-requests/download-result-button";
+import { useNavbarState } from "@/components/layouts/navbar/hooks/use-navbar-state";
 
 const IS_HANKO_AUTH = AUTH_PROVIDER === "hanko";
 
@@ -36,6 +37,8 @@ export const NavBar = () => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const {
+    showBackButton, showDownloadResult } = useNavbarState()
 
   const isTryFairPage = location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR);
   const isProfilePage = location.pathname.includes(APPLICATION_ROUTES.PROFILE_BASE);
@@ -83,9 +86,8 @@ export const NavBar = () => {
       <nav className={`${styles.nav} app-padding z-20 py-1 border-b border-gray-border`}>
         <div className="flex-1 flex gap-4 items-center justify-start">
           {
-            isMapRequestsPage ?
+            showBackButton ?
               <BackButton />
-
               :
               <NavLogo />
           }
@@ -122,7 +124,7 @@ export const NavBar = () => {
 
         <div className="flex items-center gap-x-2 sm:hidden">
           {isAuthenticated && <UserNotifications />}
-          {isMapRequestsPage && <DownloadResultButton />}
+          {showDownloadResult && <DownloadResultButton />}
 
           <button className={styles.hamburgerMenu} onClick={() => setOpen(true)}>
             <Image

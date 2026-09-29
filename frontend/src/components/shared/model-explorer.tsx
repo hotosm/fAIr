@@ -1,8 +1,7 @@
-import ModelNotFound from "@/features/models/components/model-not-found";
 import { LayoutToggle } from "@/components/shared/layout-toggle";
 import { LayoutView } from "@/enums";
 import { MobileModelFiltersDialog } from "@/features/models/components/dialogs";
-import { MODELS_CONTENT } from "@/constants";
+import { APPLICATION_ROUTES, MODELS_CONTENT } from "@/constants";
 import {
   ClearFilters,
   OrderingFilter,
@@ -27,6 +26,7 @@ import {
 // import { useNavigate } from "react-router-dom";
 // import { ButtonVariant } from "@/enums";
 import { SEARCH_PARAMS } from "@/utils/search-params";
+import PageEmptyState from "@/features/user-profile/components/page-empty-state";
 
 export const ModelExplorer = ({
   title,
@@ -57,15 +57,24 @@ export const ModelExplorer = ({
     query,
     updateQuery,
   } = useModelsListFilters(status, userId, datasetId);
-  // const navigate = useNavigate();
+
+const hasData = data?.count !== 0;  // const navigate = useNavigate();
 
   // const handleClick = () => {
   //   navigate(createRoute as string);
   // };
 
   const renderContent = () => {
-    if (data?.count === 0) {
-      return <ModelNotFound />;
+    if (!hasData) {
+      return <div className="w-full  flex flex-col  justify-center items-center  h-4/5">
+
+        <PageEmptyState
+          heading="No Models Yet"
+          subHeading="You have not created any models. Get started by creating your first models."
+          ctaText="Create Model"
+          ctaHref={APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_DATASET}
+        />
+      </div>;
     }
 
     if (query[SEARCH_PARAMS.layout] === LayoutView.LIST) {
@@ -112,7 +121,9 @@ export const ModelExplorer = ({
           )} */}
         </div>
         {/* Filters */}
-        <div className="sticky top-0 bg-white z-10 py-1">
+       {
+        hasData && (
+           <div className="sticky top-0 bg-white z-10 py-1">
           <div className="flex flex-col gap-y-1">
             <div className=" flex items-center justify-between w-full ">
               <div className="flex items-center justify-between w-full md:gap-x-4 gap-y-2 md:gap-y-0  md:w-auto">
@@ -200,6 +211,8 @@ export const ModelExplorer = ({
             </div>
           )}
         </div>
+        )
+       }
 
         {renderContent()}
 

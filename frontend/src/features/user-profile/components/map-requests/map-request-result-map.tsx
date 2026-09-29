@@ -101,6 +101,7 @@ export const MapRequestResultMap = ({
           predictionBBox={bounds}
           predictionGridZoom={gridZoom}
           outputType={outputType}
+          
         />
       </MapComponent>
 
