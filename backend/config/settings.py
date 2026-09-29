@@ -125,6 +125,7 @@ INSTALLED_APPS = [
     "feedback",
     "notifications",
     "stars",
+    "userstate",
     "system",
 ]
 
@@ -355,6 +356,7 @@ SPECTACULAR_SETTINGS = {
         {"name": "notifications", "description": "Per-user notification feed."},
         {"name": "workspace", "description": "S3 listing + presigned URLs."},
         {"name": "stars", "description": "Anonymous-friendly star/unstar."},
+        {"name": "user-state", "description": "Per-user frontend state, private to its owner."},
         {"name": "system", "description": "Health + dependency probes."},
     ],
     "SWAGGER_UI_SETTINGS": {
