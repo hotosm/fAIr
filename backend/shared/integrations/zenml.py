@@ -64,6 +64,7 @@ def get_master_client() -> FairClient:
         zenml_store_url=_required_setting("FAIR_ZENML_STORE_URL"),
         stac_api_url=_required_setting("FAIR_STAC_API_URL"),
         stac_api_key=getattr(settings, "FAIR_STAC_API_KEY", None),
+        dsn=getattr(settings, "FAIR_STAC_DSN", None),
         user_id="fair-backend",
         config_dir=str(_config_dir()),
         upload_artifacts=True,

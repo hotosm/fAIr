@@ -16,7 +16,12 @@ export const MapLargeAreaRequestSuccess = ({
   const navigate = useNavigate();
 
   return (
-    <Dialog noPadding isOpened={isOpen} size={SHOELACE_SIZES.SMALL} closeDialog={onClose}>
+    <Dialog
+      noPadding
+      isOpened={isOpen}
+      size={SHOELACE_SIZES.SMALL}
+      closeDialog={onClose}
+    >
       <div className="flex flex-col items-center p-5 gap-y-8 justify-between">
         <div className="flex justify-center items-center flex-col gap-2">
           <div>
@@ -28,7 +33,9 @@ export const MapLargeAreaRequestSuccess = ({
         <div className="flex flex-row items-center w-full md:w-fit md:flex-row gap-4 md:gap-4 justify-between ">
           <Button
             variant={ButtonVariant.TERTIARY}
-            onClick={() => navigate(APPLICATION_ROUTES.PROFILE_OFFLINE_PREDICTIONS)}
+            onClick={() =>
+              navigate(APPLICATION_ROUTES.PROFILE_OFFLINE_PREDICTIONS)
+            }
             className="md:!w-36"
             size="medium"
             fontSize={"12px"}

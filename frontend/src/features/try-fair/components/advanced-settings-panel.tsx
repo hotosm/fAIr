@@ -127,8 +127,7 @@ export const AdvancedSettingsPanel = ({
             const numericValue = Number(value);
             const min = spec.min ?? 0;
             const max =
-              spec.max ??
-              (isConfidence ? 1 : Math.max(numericValue * 2, 1));
+              spec.max ?? (isConfidence ? 1 : Math.max(numericValue * 2, 1));
             const step = spec.type === "int" ? 1 : 0.01;
             const progress = ((numericValue - min) / (max - min)) * 100;
             const numericPattern =
@@ -201,17 +200,16 @@ export const AdvancedSettingsPanel = ({
             >
               <UndoIcon />
             </button>
-            
           </div>
-         <button
-              type="button"
-              onClick={onReset}
-              disabled={isPredicting}
-              className="flex h-8 items-center gap-1.5 rounded-md bg-off-white px-2.5 text-xs text-dark hover:bg-gray-border disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <RefreshIcon />
-              Reset
-            </button>
+          <button
+            type="button"
+            onClick={onReset}
+            disabled={isPredicting}
+            className="flex h-8 items-center gap-1.5 rounded-md bg-off-white px-2.5 text-xs text-dark hover:bg-gray-border disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <RefreshIcon />
+            Reset
+          </button>
         </div>
       </div>
     </aside>

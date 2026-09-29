@@ -36,7 +36,7 @@ with. Set that explicitly in your shell config before creating the alias,
 for example:
 
 ```sh
-export ZENML_VERSION=0.94.1
+export ZENML_VERSION=0.94.2
 ```
 
 Then create a shell alias in your bashrc or fish config:
@@ -44,12 +44,12 @@ Then create a shell alias in your bashrc or fish config:
 ```sh
 # Default - override in your session if needed,
 # or update in your config file
-export ZENML_VERSION=0.94.1
-# For fish: set -x ZENML_VERSION 0.94.1
+export ZENML_VERSION=0.94.2
+# For fish: set -x ZENML_VERSION 0.94.2
 
 alias fair-cli='sh -c '"'"'
 if [ -z "${ZENML_VERSION:-}" ]; then
-  echo "Set ZENML_VERSION to the matching ZenML version, e.g. ZENML_VERSION=0.94.1" >&2
+  echo "Set ZENML_VERSION to the matching ZenML version, e.g. ZENML_VERSION=0.94.2" >&2
   exit 1
 fi
 

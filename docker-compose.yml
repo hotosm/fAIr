@@ -251,7 +251,7 @@ configs:
           flavor: s3
           type: artifact_store
           configuration:
-            path: s3://zenml
+            path: s3://fair-data/dev/zenml
             key: ${MINIO_ROOT_USER:-minioadmin}
             secret: ${MINIO_ROOT_PASSWORD:-minioadmin}
             client_kwargs:

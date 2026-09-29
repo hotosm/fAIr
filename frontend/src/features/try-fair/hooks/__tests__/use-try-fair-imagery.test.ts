@@ -166,6 +166,9 @@ describe("useTryFairImagery", () => {
     );
     expect(result.current.predictionImageUri).toContain("assets=visual");
     expect(result.current.predictionImageUri).not.toContain("tilejson");
+    // 3-band RGB for the model; an alpha band (from nodata=0) breaks it.
+    expect(result.current.predictionImageUri).toContain("format=jpeg");
+    expect(result.current.predictionImageUri).not.toContain("nodata");
     unmount();
   });
 });

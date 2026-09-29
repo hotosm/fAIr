@@ -9,26 +9,54 @@ The backend never trains or runs inference inline. It submits pipelines to ZenML
 
 ## Deployment architecture
 
-These services run together on a Kubernetes setup. The fAIr backend submits jobs to ZenML, which trains on autoscaling GPU nodes and serves ONNX inference through Knative, with STAC as the source of truth for dataset and model metadata, S3 for artifacts, MLflow for experiment tracking, and Postgres for state. How HOT runs this on open source over AWS is described in the AWS Public Sector post [How HOT uses open source on AWS to power humanitarian AI](https://aws.amazon.com/blogs/publicsector/how-hot-uses-open-source-on-aws-to-power-humanitarian-ai/).
+These services run together on Kubernetes. The fAIr backend submits pipelines
+to ZenML and manages ONNX serving through Knative. STAC is the source of truth
+for dataset and model metadata, S3 stores artifacts, MLflow tracks experiments,
+and Postgres stores service state. How HOT runs this on open source over AWS is
+described in [How HOT uses open source on AWS to power humanitarian AI](https://aws.amazon.com/blogs/publicsector/how-hot-uses-open-source-on-aws-to-power-humanitarian-ai/).
 
 ![fAIr deployment architecture: developers push to fAIr-models on GitHub, CI/CD builds the model image to the registry and registers base models in the STAC model registry; the fAIr backend submits jobs to ZenML, which orchestrates training on autoscaling GPU nodes and ONNX inference through Knative on CPU nodes, with S3 as the artifact store, MLflow as the experiment tracker, and Postgres for state.](../assets/flyer/aws-architecture.jpg)
 
+```mermaid
+flowchart LR
+    M[fAIr-models] -->|CI builds images| R[GHCR]
+    A[Admin] -->|register pinned item| B[fAIr backend]
+    R --> Z
+    R --> K
+    B --> S[(STAC)]
+    B --> O[(S3 artifacts)]
+    B --> P[(Postgres)]
+    B --> K[Knative serving]
+    B --> Z[ZenML]
+    Z --> G[Autoscaling GPU jobs]
+    Z --> O
+    Z --> F[MLflow]
+    K --> C[CPU inference]
+```
+
 ## Contribute and register a model
 
-A model developer contributes through the [fAIr-models catalog](https://hotosm.github.io/fAIr-models/): they open a pull request, and after review and merge, the model's image is built, its weights are uploaded to object storage, and a STAC item is registered in the `base-models` collection. The backend then serves the approved model.
+A model developer contributes through the [fAIr-models catalog](https://hotosm.github.io/fAIr-models/). CI validates the pull request and, after merge, publishes its training and inference images. An admin pins both image references to digests once and registers the same item in staging and production. Registration mirrors the weights into object storage and publishes the item to the environment's `base-models` collection.
 
 ```mermaid
 flowchart TD
     A[Model developer] -->|Prepares PR| B[fAIr-models GitHub]
     B -->|CI: build, validate, test| C{Review}
-    C -->|Merge| D[Post-merge CI]
-    D --> E[Build and push Docker image]
-    D --> F[Upload weights to S3]
-    D --> G[Register STAC item in base-models]
-    G --> H[STAC: base-models/model v1]
+    C -->|Merge| D[Publish training + inference images]
+    D --> E[Admin pins image digests once]
+    E -->|same item| F[Register and test in staging]
+    F -->|approve| G[Register in production]
+    G --> H[Production STAC + live Knative route]
 ```
 
-Inside fAIr, registration is admin-only and asynchronous: the backend hands the STAC item to fair-py-ops, which mirrors the model weights into the artifact store, deploys the inference service on the Knative and Kubernetes setup, stamps the category into `fair:category`, and marks the model active. The step-by-step API flow is in [Register a base model](../guides/register-a-base-model.md).
+Inside fAIr, registration is admin-only and asynchronous: the backend checks
+that the pipeline module is bundled, then hands the STAC item to fair-py-ops.
+It mirrors weights into a versioned artifact path, deploys a digest-pinned
+inference revision, stamps the category into `fair:category`, publishes the
+next integer STAC version, and marks the model active. Staging uses a tagged
+Knative route without moving live traffic; production promotes the Ready
+revision. The step-by-step API flow is in
+[Register a base model](../guides/register-a-base-model.md).
 
 !!! note "Local compose has no Knative"
 

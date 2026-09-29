@@ -211,7 +211,10 @@ const DropDown = forwardRef<SlDropdownType, DropDownProps>((props, ref) => {
                   )}
                   {menuItem.label ?? menuItem.value}
                   {(menuItem.SuffixIcon || menuItem.suffix) && (
-                    <span slot="suffix" className="flex items-center justify-center">
+                    <span
+                      slot="suffix"
+                      className="flex items-center justify-center"
+                    >
                       {menuItem.SuffixIcon ? (
                         <menuItem.SuffixIcon className="size-4" />
                       ) : (

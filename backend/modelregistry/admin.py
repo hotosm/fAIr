@@ -57,9 +57,10 @@ class BaseModelAdmin(admin.ModelAdmin):
 
     @admin.action(description="Re-register selected from STAC")
     def register_in_stac(self, request, queryset) -> None:
-        from shared.integrations.stac import BASE_MODELS_COLLECTION, get_cached_item
+        from shared.integrations.stac import BASE_MODELS_COLLECTION, get_item
 
         from .tasks import register_base_model
+        from .views import _pipeline_error
 
         enqueued = 0
         for base_model in queryset:
@@ -69,7 +70,13 @@ class BaseModelAdmin(admin.ModelAdmin):
                     f"{base_model.name}: never published, re-submit via the API to register.",
                 )
                 continue
-            stac_item = get_cached_item(BASE_MODELS_COLLECTION, base_model.stac_item_id)
+            # The full item: the cached facet drops `id`/`type` and cannot be re-registered.
+            stac_item = get_item(BASE_MODELS_COLLECTION, base_model.stac_item_id).to_dict(
+                include_self_link=False, transform_hrefs=False
+            )
+            if error := _pipeline_error(stac_item):
+                messages.error(request, f"{base_model.name}: {error}")
+                continue
             base_model.status = BaseModel.Status.REGISTERING
             base_model.error = ""
             base_model.save(update_fields=["status", "error", "last_modified"])
