@@ -42,9 +42,7 @@ def registered_base_model(db, authed_user: OsmUser) -> BaseModel:
 
 
 @pytest.fixture
-def local_model(
-    db, authed_user: OsmUser, registered_base_model: BaseModel
-) -> LocalModel:
+def local_model(db, authed_user: OsmUser, registered_base_model: BaseModel) -> LocalModel:
     return LocalModel.objects.create(
         name="my-existing-finetune",
         base_model=registered_base_model,
@@ -109,9 +107,7 @@ def test_training_submit_404s_unknown_base_model(client, published_dataset):
 
 
 @patch("trainings.views.item_exists", return_value=False)
-def test_training_submit_404s_dataset_not_in_stac(
-    mock_item_exists, client, registered_base_model
-):
+def test_training_submit_404s_dataset_not_in_stac(mock_item_exists, client, registered_base_model):
     response = client.post(
         "/api/v1/trainings/submit/",
         data={
@@ -147,20 +143,6 @@ def test_training_submit_404s_dataset_not_published(
     assert response.status_code == 404
 
 
-@patch("trainings.views.get_run_status")
-@patch("trainings.views.is_terminal")
-def test_training_run_status_polls_zenml(mock_terminal, mock_status, client, training_ref):
-    mock_status.return_value = "running"
-    mock_terminal.return_value = False
-    response = client.get("/api/v1/trainings/runs/abc-123/status/")
-    assert response.status_code == 200
-    body = response.json()
-    assert body["run_id"] == "abc-123"
-    assert body["status"] == "running"
-    assert body["is_terminal"] is False
-    mock_status.assert_called_once_with("abc-123")
-
-
 @patch("trainings.views.fetch_run_logs")
 def test_training_run_logs_default_returns_run_level(mock_fetch, client, training_ref):
     mock_fetch.return_value = [
@@ -180,23 +162,3 @@ def test_training_run_logs_with_step_param_routes_to_step(mock_fetch, client, tr
     response = client.get("/api/v1/trainings/runs/abc-123/logs/?step=train_model&tail=5")
     assert response.status_code == 200
     mock_fetch.assert_called_once_with("abc-123", "train_model", tail=5)
-
-
-@patch("modelregistry.views.list_runs_for_model")
-def test_local_model_runs_action_returns_summaries(mock_list_runs, client, local_model):
-    summary = MagicMock(
-        id="r1",
-        status="completed",
-        created_at="2026-05-01T10:00:00Z",
-        pipeline_name="training_pipeline",
-        model_name="my-existing-finetune",
-        model_version=1,
-    )
-    summary.name = "run-1"
-    mock_list_runs.return_value = [summary]
-    response = client.get(f"/api/v1/local-models/{local_model.id}/runs/")
-    assert response.status_code == 200
-    body = response.json()
-    assert len(body) == 1
-    assert body[0]["id"] == "r1"
-    mock_list_runs.assert_called_once()

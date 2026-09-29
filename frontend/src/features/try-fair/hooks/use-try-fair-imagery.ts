@@ -1,8 +1,8 @@
 import { ImagerySource, ModelType, TileServiceType } from "@/enums";
 import { BaseModelStacItem } from "@/features/try-fair/api/stac";
 import {
+  getImageryPredictionTileUrl,
   getImageryTileJSONUrl,
-  getImageryTileUrl,
 } from "@/features/try-fair/api/hot-imagery";
 import { useOAMItem } from "@/features/try-fair/hooks/use-oam-item";
 import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
@@ -80,14 +80,7 @@ export const useTryFairImagery = ({
     if (!candidate) return FALLBACK_FAIR_IMAGERY;
     const regex = getTileServerRegex(getTileServerTypeFromURL(candidate));
     return regex.test(candidate) ? candidate : FALLBACK_FAIR_IMAGERY;
-  }, [
-    currentModelType,
-    selectedImagery,
-    preview,
-    mode,
-    oamItemId,
-    imageryUrl,
-  ]);
+  }, [currentModelType, selectedImagery, preview, mode, oamItemId, imageryUrl]);
 
   const tileServiceType =
     currentModelType === ModelType.IMAGERY &&
@@ -210,14 +203,14 @@ export const useTryFairImagery = ({
       currentModelType === ModelType.IMAGERY &&
       selectedImagery?.source === ImagerySource.OPEN_AERIAL_MAP
     ) {
-      return getImageryTileUrl(
+      return getImageryPredictionTileUrl(
         selectedImagery.item.id,
         selectedImagery.item.assetName,
       );
     }
     // Shared-link restore before `selectedImagery` has resolved.
     if (mode === ModelType.IMAGERY && !selectedImagery && oamItemId) {
-      return getImageryTileUrl(oamItemId);
+      return getImageryPredictionTileUrl(oamItemId);
     }
     // A TileJSON source advertises its real tile template under `tiles`; prefer
     // that over the tilejson URL itself so the backend still gets {z}/{x}/{y}.

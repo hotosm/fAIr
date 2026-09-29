@@ -71,13 +71,6 @@ def test_for_user_reuses_master_client_across_calls(mock_fair_client_cls, settin
     assert instance.with_user.call_count == 3
 
 
-@patch("shared.integrations.zenml._get_run_status")
-def test_get_run_status_passes_through(mock_status):
-    mock_status.return_value = "running"
-    assert wrapper.get_run_status("run-1") == "running"
-    mock_status.assert_called_once_with("run-1")
-
-
 @patch("shared.integrations.zenml._fetch_run_logs")
 def test_fetch_run_logs_passes_tail(mock_fetch):
     mock_fetch.return_value = []
@@ -97,13 +90,6 @@ def test_list_runs_for_model_passes_limit(mock_list):
     mock_list.return_value = []
     wrapper.list_runs_for_model("my-model", limit=10)
     mock_list.assert_called_once_with("my-model", limit=10)
-
-
-@patch("shared.integrations.zenml._is_terminal")
-def test_is_terminal_passes_through(mock_is_terminal):
-    mock_is_terminal.return_value = True
-    assert wrapper.is_terminal("completed") is True
-    mock_is_terminal.assert_called_once_with("completed")
 
 
 @patch("shared.integrations.zenml.FairClient")

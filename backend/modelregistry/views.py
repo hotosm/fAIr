@@ -1,3 +1,6 @@
+import importlib.util
+from collections.abc import Sequence
+
 import httpx
 from django.conf import settings
 from django.db.models import Count, Q
@@ -34,8 +37,10 @@ from shared.integrations.stac import (
     FAIR_PREVIEW_LOCATION_PROPERTY,
     FAIR_SOURCE_IMAGERY_PROPERTY,
     LOCAL_MODELS_COLLECTION,
+    add_stac_extensions,
     bulk_get_cached_items,
     get_cached_item,
+    get_item,
     set_item_properties,
 )
 from shared.integrations.zenml import list_runs_for_model
@@ -49,6 +54,7 @@ from .serializers import (
     LocalModelSerializer,
     ModelMetadataSerializer,
     ModelPinSerializer,
+    StacPropertiesPatchSerializer,
     TrainingRunSummarySerializer,
 )
 from .tasks import register_base_model
@@ -82,15 +88,27 @@ def _apply_pin(model, collection: str, data: dict) -> None:
     if location := data.get("pinned_location"):
         properties[FAIR_PREVIEW_LOCATION_PROPERTY] = location
         properties.update(_derive_preview_props(collection, model.stac_item_id, properties))
-    set_item_properties(collection, model.stac_item_id, properties)
+    _merge_validate_write(collection, model.stac_item_id, properties)
+
+
+def _merge_validate_write(
+    collection: str, item_id: str, properties: dict, stac_extensions: Sequence[str] = ()
+) -> None:
+    """Shallow-merge `properties` onto the item, re-validate the merged item against
+    the fAIr schema, then write. The single read-validate-write path, so a metadata
+    edit or an arbitrary property patch can never leave the item invalid."""
+    from fair.stac.validators import validate_item
+
+    item = get_item(collection, item_id)
+    item.properties.update(properties)
+    add_stac_extensions(item, stac_extensions)
+    if errors := validate_item(item):
+        raise ValidationError({"stac": errors})
+    set_item_properties(collection, item_id, properties, stac_extensions=stac_extensions)
 
 
 def _apply_metadata(collection: str, item_id: str, data: dict) -> None:
-    """Write title/description/fair:preview onto the item, re-validating the merged
-    item against the fAIr schema first so an edit can never leave it invalid."""
-    import pystac
-    from fair.stac.validators import validate_item
-
+    """Write the supplied title/description/fair:preview fields onto the item."""
     properties: dict = {}
     if data.get("title"):
         properties["title"] = data["title"]
@@ -98,17 +116,13 @@ def _apply_metadata(collection: str, item_id: str, data: dict) -> None:
         properties["description"] = data["description"]
     if data.get("fair_preview") is not None:
         properties["fair:preview"] = data["fair_preview"]
-
-    current = get_cached_item(collection, item_id)
-    merged = {**current, "properties": {**current.get("properties", {}), **properties}}
-    if errors := validate_item(pystac.Item.from_dict(merged)):
-        raise ValidationError({"stac": errors})
-    set_item_properties(collection, item_id, properties)
+    _merge_validate_write(collection, item_id, properties)
 
 
 class ModelMetadataMixin:
-    """Adds a `metadata` action that edits a published model's STAC title, description,
-    and fair:preview, with schema re-validation. Host viewset sets `stac_collection`."""
+    """Adds two admin actions on a published model's STAC item: `metadata` (title,
+    description, fair:preview) and `stac` (a general property patch). Both re-validate
+    against the fAIr schema. Host viewset sets `stac_collection`."""
 
     stac_collection: str = ""
 
@@ -139,6 +153,52 @@ class ModelMetadataMixin:
         serializer = ModelMetadataSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         _apply_metadata(self.stac_collection, model.stac_item_id, serializer.validated_data)
+        return Response(self.get_serializer(model).data)
+
+    @extend_schema(
+        request=StacPropertiesPatchSerializer,
+        responses={200: OpenApiTypes.OBJECT},
+        examples=[
+            OpenApiExample(
+                "Sync imagery and description",
+                value={
+                    "properties": {
+                        "fair:source_imagery": "https://tiles.example/{z}/{x}/{y}.png",
+                        "description": "Synced from the updated model card.",
+                    }
+                },
+                request_only=True,
+            ),
+            OpenApiExample(
+                "Declare prediction variables",
+                value={
+                    "properties": {
+                        "cube:variables": {
+                            "class": {"dimensions": ["features"], "type": "data", "values": [1]}
+                        }
+                    },
+                    "stac_extensions": [
+                        "https://stac-extensions.github.io/datacube/v2.3.0/schema.json"
+                    ],
+                },
+                request_only=True,
+            ),
+        ],
+    )
+    @action(detail=True, methods=["patch"], url_path="stac")
+    def stac_properties(self, request, pk: int | None = None) -> Response:
+        """Admin patch of arbitrary STAC item properties (shallow merge, re-validated)."""
+        model = self.get_object()
+        if not model.stac_item_id:
+            raise ValidationError("Model has no published STAC item to patch.")
+        serializer = StacPropertiesPatchSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        _merge_validate_write(
+            self.stac_collection,
+            model.stac_item_id,
+            serializer.validated_data["properties"],
+            serializer.validated_data["stac_extensions"],
+        )
         return Response(self.get_serializer(model).data)
 
 
@@ -186,6 +246,23 @@ class StacExpandMixin:
                 serializer = self.get_serializer(page, many=True)
                 return self.get_paginated_response(serializer.data)
         return super().list(request, *args, **kwargs)
+
+
+def _pipeline_error(stac_item: dict) -> str | None:
+    source = (stac_item.get("assets") or {}).get("source-code") or {}
+    module, _, function = str(source.get("mlm:entrypoint") or "").partition(":")
+    if not module.startswith("models.") or not function:
+        return "source-code mlm:entrypoint must be 'models.<model>.pipeline:<function>'."
+    try:
+        bundled = importlib.util.find_spec(module) is not None
+    except ModuleNotFoundError:
+        bundled = False
+    if not bundled:
+        return (
+            f"Pipeline module '{module}' is not in this backend image. "
+            "Release fair-py-ops with the model, then the backend."
+        )
+    return None
 
 
 def _fetch_stac_item(url: str) -> dict:
@@ -249,7 +326,7 @@ class LocalModelViewSet(StacExpandMixin, ModelMetadataMixin, viewsets.ReadOnlyMo
         return annotate_stars(qs, self.request, key_field="name")
 
     def get_permissions(self):
-        if self.action == "pin":
+        if self.action in {"pin", "stac_properties"}:
             return [IsAuthenticated(), IsAdmin()]
         if self.action in {"publish", "unpublish", "metadata"}:
             return [IsAuthenticated(), IsOwnerOrAdmin()]
@@ -386,7 +463,7 @@ class BaseModelViewSet(
         return annotate_stars(qs, self.request, key_field="name")
 
     def get_permissions(self):
-        if self.action in {"create", "pin", "metadata"}:
+        if self.action in {"create", "pin", "metadata", "stac_properties"}:
             return [IsAuthenticated(), IsAdmin()]
         if self.action in {"list", "retrieve"}:
             return [AllowAny()]
@@ -407,6 +484,8 @@ class BaseModelViewSet(
         data = serializer.validated_data
         category = data.get("category") or Category.objects.get(slug="other")
         stac_item = data.get("stac_item") or _fetch_stac_item(data["stac_item_url"])
+        if error := _pipeline_error(stac_item):
+            raise ValidationError({"stac_item": error})
         if inference_endpoint := data.get("inference_endpoint"):
             stac_item.setdefault("assets", {})["mlm:inference-endpoint"] = {
                 "href": inference_endpoint,

@@ -8,6 +8,7 @@ convenience wrapper.
 """
 
 import tempfile
+from collections.abc import Sequence
 from concurrent.futures import ThreadPoolExecutor
 
 import httpx
@@ -30,6 +31,7 @@ __all__ = [
     "FAIR_PREVIEW_LOCATION_PROPERTY",
     "FAIR_SOURCE_IMAGERY_PROPERTY",
     "LOCAL_MODELS_COLLECTION",
+    "add_stac_extensions",
     "bulk_get_cached_items",
     "get_active_local_model_item",
     "get_base_model",
@@ -75,6 +77,11 @@ def get_dataset(item_id: str) -> pystac.Item:
 
 def get_local_model(item_id: str) -> pystac.Item:
     return _backend().get_item(LOCAL_MODELS_COLLECTION, item_id)
+
+
+def get_item(collection_id: str, item_id: str) -> pystac.Item:
+    """The full pystac Item, unlike the serialized facet `get_cached_item` returns."""
+    return _backend().get_item(collection_id, item_id)
 
 
 def list_base_models(*, limit: int | None = None) -> list[pystac.Item]:
@@ -185,17 +192,28 @@ def get_active_local_model_item(model_name: str) -> pystac.Item | None:
     return None
 
 
+def add_stac_extensions(item: pystac.Item, stac_extensions: Sequence[str]) -> None:
+    item.stac_extensions.extend(url for url in stac_extensions if url not in item.stac_extensions)
+
+
 def set_item_property(collection_id: str, item_id: str, key: str, value: object) -> dict:
     # Single-key convenience wrapper over the read-modify-write below.
     return set_item_properties(collection_id, item_id, {key: value})
 
 
-def set_item_properties(collection_id: str, item_id: str, properties: dict) -> dict:
+def set_item_properties(
+    collection_id: str,
+    item_id: str,
+    properties: dict,
+    *,
+    stac_extensions: Sequence[str] = (),
+) -> dict:
     # Read-modify-write: the STAC API rejects PATCH, so merge onto the current
     # item and PUT it back via publish_item. Refreshes the cache.
     backend = _backend()
     item = backend.get_item(collection_id, item_id)
     item.properties.update(properties)
+    add_stac_extensions(item, stac_extensions)
     published = backend.publish_item(collection_id, item)
     payload = serialize_item(published)
     cache.set(_cache_key(collection_id, item_id), payload, _CACHE_TTL_SECONDS)

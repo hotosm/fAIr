@@ -202,9 +202,10 @@ Response carries `properties.id` -> call this `AOI_ID`.
   "title": "smoke-banepa",
   "description": "e2e test",
   "source_imagery": "https://tiles.openaerialmap.org/62d85d11d8499800053796c1/0/62d85d11d8499800053796c2/{z}/{x}/{y}",
+  "category": "buildings",
   "zoom": 19,
   "aoi_ids": [AOI_ID],
-  "label_tasks": ["object-detection"],
+  "label_tasks": ["semantic-segmentation"],
   "label_classes": [{ "name": "building", "classes": ["*"] }],
   "keywords": ["building"],
   "label_type": "vector",
@@ -222,19 +223,16 @@ Poll until `status == "built"` (~2 min for this AOI). To make it readable by ano
 
 ```json
 {
-  "base_model_stac_id": "yolo11n-detection",
+  "base_model_stac_id": "sklearn-rgb-segmentation",
   "dataset_stac_id": "STAC_ID",
-  "model_name": "yolo11n-detection-finetuned-banepa-smoke",
+  "model_name": "sklearn-rgb-segmentation-banepa-smoke",
   "overrides": {
-    "epochs": 3,
-    "batch_size": 2,
-    "learning_rate": 0.01,
-    "chip_size": 640
+    "max_iter": 200
   }
 }
 ```
 
-Response: `id` -> `TR_ID`. Poll `GET /api/v1/trainings/{TR_ID}/` until `status == "completed"` (~22 min, ml-pool autoscale + 4 pipeline steps). Tail logs anytime with `GET /api/v1/trainings/runs/{zenml_run_id}/logs/?tail=100`.
+Response: `id` -> `TR_ID`. Poll `GET /api/v1/trainings/{TR_ID}/` until `status == "completed"` (ml-pool autoscale + 4 pipeline steps). Tail logs anytime with `GET /api/v1/trainings/runs/{zenml_run_id}/logs/?tail=100`.
 
 **5. Promote** — `POST /api/v1/trainings/{TR_ID}/publish/`
 
@@ -260,4 +258,4 @@ Response: `id` -> `PRED_ID`. Poll `GET /api/v1/predictions/{PRED_ID}/` until `re
 
 **7. Fetch the results** : `GET /api/v1/predictions/{PRED_ID}/result/`
 
-Returns three presigned URLs (`geojson`, `fgb`, `pmtiles`). Open the geojson , expect ~150-200 building bounding-box polygons for this AOI.
+Returns three presigned URLs (`geojson`, `fgb`, `pmtiles`). Open the geojson and expect building polygons for this AOI.

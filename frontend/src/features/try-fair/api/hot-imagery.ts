@@ -95,6 +95,12 @@ export const getImageryTileUrl = (
   // (it parses `{y}@1x` as the y coordinate). Plain {z}/{x}/{y} is correct.
   `${HOT_IMAGERY_RASTER_API_URL}/collections/${HOT_IMAGERY_COLLECTION_ID}/items/${itemId}/tiles/WebMercatorQuad/{z}/{x}/{y}?assets=${assetName}&nodata=0`;
 
+export const getImageryPredictionTileUrl = (
+  itemId: string,
+  assetName: string = "visual",
+): string =>
+  `${HOT_IMAGERY_RASTER_API_URL}/collections/${HOT_IMAGERY_COLLECTION_ID}/items/${itemId}/tiles/WebMercatorQuad/{z}/{x}/{y}?assets=${assetName}&format=jpeg`;
+
 /**
  * TileJSON URL for an OpenAerialMap item. Preferred when applying imagery to a
  * map: MapLibre reads its `bounds`/`minzoom`/`maxzoom`, so it only requests

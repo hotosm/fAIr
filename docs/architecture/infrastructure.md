@@ -15,17 +15,39 @@ might eventually move to the `fAIr` monorepo.
 
 The model flow works like this:
 
-- Each model dir has a `stac-item.json`. These point at the moving
-  `dev-inference` image tag, and only seed a STAC the first time it starts up
-  (on dev, or a brand new prod).
-- After that the STAC database is the source of truth, updated through the
-  Django admin.
+- Each model dir has a `stac-item.json`. During development it may point at
+  moving image tags; a release copy is pinned to digests before registration.
 - A CI matrix workflow builds an image for each dir under `./models` when its
-  contents change, tagged with the git SHA.
-- In the Django admin we give a SHA a version (`vX.Y.Z-rc.N`, then `vX.Y.Z`)
-  and register it in the STAC, pinned to the image digest ('rc' release candidates are used for staging, before full production tagging).
+  contents change. Merges publish `v<version>` and `latest` training images,
+  plus the matching `-inference` tags.
+- An admin runs `fair basemodel pin` once, then submits the same pinned item to
+  staging and production through `POST /api/v1/base-models/`.
+- Registration mirrors weights into a versioned artifact path, publishes an
+  integer STAC version, and updates the model's single Knative service. Staging
+  gets a tagged route; production moves the live route only after the revision
+  is Ready, including its `/health` readiness probe.
 - A `BaseModel` table holds the model name and its status. The version details
-  live entirely in the STAC though.
+  live entirely in each environment's STAC catalog.
+- A scheduled reconciler restores Knative services from active STAC items.
+  Destructive pruning remains disabled until STAC listing is paginated.
+
+```mermaid
+flowchart LR
+    A[fAIr-models PR] -->|CI: validate and test| B[Merge]
+    B -->|publish training + inference images| C[GHCR]
+    B --> D[Pin both image refs<br/>to digests once]
+    C --> D
+    D -->|same pinned item| E[Staging API]
+    E --> F[Staging STAC +<br/>staging Knative route]
+    F -->|train, publish, predict| G{Approved?}
+    G -->|same pinned item| H[Production API]
+    H --> I[Production STAC +<br/>live Knative route]
+```
+
+The backend image bundles `models/` from the same `fAIr-models` release as its
+`fair-py-ops` dependency. Registration rejects a pipeline module that is not in
+that bundle, so pipeline-code changes require a backend release; metadata,
+weights, and inference-image-only changes do not.
 
 ## Step 1: Development
 
@@ -35,9 +57,9 @@ The model flow works like this:
     - Manually updated and synced with dev.
     - Model registration in STAC is all manual.
 
-1. Users work on models in development, versioned as `-dev`
-   with a specific SHA tag too.
-2. Development model image (deps + code) is pushed to GHCR.
+1. Users work on models in development using the `dev` and `dev-inference`
+   images built for the pull request.
+2. Development model images (training and inference) are pushed to GHCR.
 3. On the dev EC2 they run a script to update the **dev** STAC
    and knative records.
 4. Any changes to the frontend / API are manually synced to
@@ -61,11 +83,11 @@ The model flow works like this:
 2. First a PR must be raised on the fAIr repo from `staging` --> `main`.
    This will set up `https://stage.ai.hotosm.org` with ZenML / STAC /
    Knative registration.
-3. On boot the **staging** STAC is seeded (read-only) from the current
-   **production** STAC, so it mirrors live.
-4. CI has already built the model image, tagged by SHA. In the Django admin,
-   give that SHA a candidate version (`vX.Y.Z-rc.N`), register it in the
-   staging STAC, and test it.
+3. The **staging** STAC is separate from production and persists between PRs.
+4. After merge, pin both image references in a copy of the STAC item with
+   `fair basemodel pin`. Register that file through the staging API. It is
+   served at `https://staging-<model>.predict.ai.hotosm.org` without changing
+   production traffic. Then test training, publishing, and prediction.
 5. Once it looks good, register the model in production (Step 3) before merging
    the PR to `main`. Merging shuts the staging env down.
 
@@ -78,6 +100,6 @@ The model flow works like this:
 
 1. A new tagged version is made from the latest `main` code.
 2. This triggers a redeploy of the fAIr website / API.
-3. In the production Django admin, give the tested SHA a release version
-   (`vX.Y.Z`), register its STAC item pinned to the digest, and make it live.
-   The image is already in GHCR, so it is available straight away.
+3. Register the exact pinned STAC item tested in staging through the production
+   API. This publishes the next integer STAC version and moves live traffic to
+   the Ready revision. The images are already in GHCR.

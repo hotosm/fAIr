@@ -94,6 +94,13 @@ backend:
   migrate:
     enabled: true
 
+  # -- Reconcile Knative services with active STAC base models
+  knativeReconcile:
+    enabled: false
+    schedule: "*/15 * * * *"
+    # Disabled until fair-py-ops handles STAC pagination.
+    prune: false
+
   service:
     type: ClusterIP
     port: 8000

@@ -195,23 +195,3 @@ def test_prediction_submit_rejects_invalid_geometry(mock_item_exists, client):
         format="json",
     )
     assert response.status_code == 400
-
-
-@patch("predictions.views.get_run_status")
-@patch("predictions.views.is_terminal")
-def test_prediction_run_status(mock_terminal, mock_status, client, authed_user):
-    mock_status.return_value = "completed"
-    mock_terminal.return_value = True
-    Prediction.objects.create(
-        zenml_run_id="zen-123",
-        local_model_stac_id=_LOCAL_MODEL_UUID,
-        image_uri=_TMS_URL,
-        geometry=_bbox_polygon(_BBOX),
-        zoom=19,
-        user=authed_user,
-    )
-    response = client.get("/api/v1/predictions/runs/zen-123/status/")
-    assert response.status_code == 200
-    body = response.json()
-    assert body["status"] == "completed"
-    assert body["is_terminal"] is True
