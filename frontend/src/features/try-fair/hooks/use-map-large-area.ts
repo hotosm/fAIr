@@ -1,7 +1,9 @@
 import {
   MAP_LARGE_AREA_MAX_SIZE_SQKM,
   MAP_LARGE_AREA_MAX_SIZE_SQM,
+  TMS_SOURCE_ID,
 } from "@/config";
+import { RasterTileSource } from "maplibre-gl";
 import { DrawingModes, ModelType } from "@/enums";
 
 import { useMapInstance } from "@/hooks/use-map-instance";
@@ -103,23 +105,46 @@ export const useMapLargeArea = ({
     }
   };
 
-  // Resize map & fit bounds initially
+  // Resize map & fit bounds initially.
   useEffect(() => {
     if (!map || !activeImageryBounds) return;
     map.resize();
-    map.fitBounds(
-      [
-        activeImageryBounds[0],
-        activeImageryBounds[1],
-        activeImageryBounds[2],
-        activeImageryBounds[3],
-      ],
-      {
-        padding: 40,
-        maxZoom: 18,
-        essential: true,
-      },
-    );
+    const frame: [number, number, number, number] = [
+      activeImageryBounds[0],
+      activeImageryBounds[1],
+      activeImageryBounds[2],
+      activeImageryBounds[3],
+    ];
+    const frameImagery = () =>
+      map.fitBounds(frame, { padding: 40, maxZoom: 18, essential: true });
+    frameImagery();
+
+    // Cap the map's minimum zoom at the imagery's own minzoom so users can't zoom
+    // out past where the bounded raster has tiles — below it the imagery simply
+    // disappears (large coastal scenes otherwise fit below it and show empty).
+    // setMinZoom also lifts the current view up if the fit landed below it. The
+    // AOI (including "whole imagery") comes from bounds, not the view, so this
+    // only affects what the user sees. minzoom is known once the TileJSON loads.
+    let applied = false;
+    const lockMinZoom = (event: {
+      sourceId?: string;
+      isSourceLoaded?: boolean;
+    }) => {
+      if (applied || event.sourceId !== TMS_SOURCE_ID || !event.isSourceLoaded)
+        return;
+      const source = map.getSource(TMS_SOURCE_ID) as
+        | RasterTileSource
+        | undefined;
+      if (typeof source?.minzoom !== "number") return;
+      applied = true;
+      map.setMinZoom(source.minzoom);
+      frameImagery();
+    };
+    map.on("sourcedata", lockMinZoom);
+    return () => {
+      map.off("sourcedata", lockMinZoom);
+      if (map.getStyle()) map.setMinZoom(undefined);
+    };
   }, [map, activeImageryBounds]);
 
   // Render selected AOI directly on MapLibre style layer for guaranteed visual rendering

@@ -1,19 +1,19 @@
-import { ChevronDownIcon } from "@/components/ui/icons";
+// import { ChevronDownIcon } from "@/components/ui/icons";
 import { SearchIcon } from "@/components/ui/icons/search-icon";
 import { TQueryParams } from "@/types";
 import { SEARCH_PARAMS } from "@/utils/search-params";
 
 /** A styled dropdown-look trigger (Category / Date). Presentational for now —
  *  the requests query only supports search + ordering. */
-const FilterPill = ({ label }: { label: string }) => (
-  <button
-    type="button"
-    className="flex items-center gap-x-2 rounded-lg border border-gray-border bg-white px-3.5 py-2.5 text-body-3 text-dark"
-  >
-    {label}
-    <ChevronDownIcon className="size-3 text-grey" />
-  </button>
-);
+// const FilterPill = ({ label }: { label: string }) => (
+//   <button
+//     type="button"
+//     className="flex items-center gap-x-2 rounded-lg border border-gray-border bg-white px-3.5 py-2.5 text-body-3 text-dark"
+//   >
+//     {label}
+//     <ChevronDownIcon className="size-3 text-grey" />
+//   </button>
+// );
 
 export const MapRequestsFilters = ({
   query,
@@ -39,8 +39,8 @@ export const MapRequestsFilters = ({
         />
       </div>
 
-      <FilterPill label="Category" />
-      <FilterPill label="Date" />
+      {/* <FilterPill label="Category" /> */}
+      {/* <FilterPill label="Date" /> */}
     </div>
   );
 };

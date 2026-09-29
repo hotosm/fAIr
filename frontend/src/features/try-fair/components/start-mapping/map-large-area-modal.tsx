@@ -82,7 +82,7 @@ const MapLargeAreaContent = ({
       />
 
       {/* Header Tabs */}
-      <div className="grid grid-cols-3 border border-gray-border gap-2 w-full p-1.5 rounded-lg bg-white">
+      <div className="grid grid-cols-1 md:grid-cols-3 border border-gray-border gap-2 w-full p-1.5 rounded-lg bg-white">
         {TABS.map(({ value, label, Icon }) => {
           const disabled = value === "whole" && isWholeAreaDisabled;
           const tabButton = (

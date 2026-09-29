@@ -7,6 +7,11 @@ import { ButtonVariant, TryFairMapOutputType } from "@/enums";
 import { getImageryTileJSONUrl } from "@/features/try-fair/api/hot-imagery";
 import { useOAMItem } from "@/features/try-fair/hooks/use-oam-item";
 import { OUTPUT_TYPES } from "@/features/try-fair/utils/common";
+
+/** Output types available in the map-request result view (choropleth excluded). */
+const MAP_REQUEST_OUTPUT_TYPES = OUTPUT_TYPES.filter(
+  ({ type }) => type !== TryFairMapOutputType.CLUSTER,
+);
 import { MapRequestResultMap } from "@/features/user-profile/components/map-requests/map-request-result-map";
 import { useGetSinglePrediction } from "@/features/user-profile/hooks/use-predictions";
 import { Spinner } from "@/components/ui/spinner";
@@ -85,7 +90,7 @@ const ResultInfoCard = ({
     <div>
       <p className="text-dark text-xs mb-2">Map Output</p>
       <div className="flex items-center gap-2">
-        {OUTPUT_TYPES.map(({ type, label, icon }) => (
+        {MAP_REQUEST_OUTPUT_TYPES.map(({ type, label, icon }) => (
           <button
             key={type}
             type="button"
