@@ -68,7 +68,7 @@ const MapLargeAreaContent = ({
         {activeTab === "whole"
           ? "The entire imagery extent will be used as your area of interest. Review the highlighted boundary on the map, then provide a description and submit."
           : activeTab === "draw"
-            ? "Use the draw tool on the map to outline a custom area of interest. Click points to form a polygon, then close it by clicking the first point."
+            ? "Use the draw tool on the map to outline a custom area of interest. Click to add points, then double-click to finish drawing."
             : "Upload a GeoJSON file containing your area of interest. The uploaded boundary will be displayed on the map for review before submitting."}
       </p>
 
@@ -270,7 +270,7 @@ export const MapLargeAreaModal = ({
 }) => {
   return (
     <Dialog
-      label="Map Large Area"
+      label="Map an area"
       isOpened={isOpened}
       preventClose
       closeDialog={closeDialog}

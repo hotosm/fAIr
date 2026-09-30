@@ -13,7 +13,6 @@ import { UserNotifications } from "@/features/user-profile/components/notificati
 import { AUTH_PROVIDER, FRONTEND_URL } from "@/config";
 import "@hotosm/ui/dist/components/tool-menu/tool-menu.js";
 import { Divider } from "@/components/ui/divider";
-import { ToolTip } from "@/components/ui/tooltip";
 import MappingMode from "@/features/try-fair/components/mapping-mode";
 import { ShareProjectModal } from "@/features/try-fair/components/modals/share-project-modal";
 import { NavBarLinks } from "@/components/layouts/navbar/navbar-links";
@@ -36,14 +35,16 @@ export const NavBar = () => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const { showBackButton, showDownloadResult } = useNavbarState();
+  const {
+    showBackButton,
+    showDownloadResult,
+    showMappingMode,
+    showDashboardLink,
+  } = useNavbarState();
 
   const isTryFairPage = location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR);
   const isProfilePage = location.pathname.includes(
     APPLICATION_ROUTES.PROFILE_BASE,
-  );
-  const isMapRequestsPage = location.pathname.includes(
-    APPLICATION_ROUTES.MAP_REQUEST_BASE,
   );
   const returnTo = `${FRONTEND_URL}${location.pathname}${location.search}${location.hash}`;
 
@@ -78,6 +79,8 @@ export const NavBar = () => {
 
           {isAuthenticated && <Divider />}
 
+          {showMappingMode && <MappingMode />}
+
           <div className={styles.loginButtonContainer}>
             <MobileAuthSection
               isAuthenticated={isAuthenticated}
@@ -95,16 +98,16 @@ export const NavBar = () => {
       >
         <div className="flex-1 flex gap-4 items-center justify-start">
           {showBackButton ? <BackButton /> : <NavLogo />}
-          {isAuthenticated && isTryFairPage && (
-            <ToolTip content="Go to your dashboard">
-              <Link
-                href={APPLICATION_ROUTES.PROFILE_BASE}
-                className="text-sm font-normal text-[#2E2929] whitespace-nowrap"
-                title="Go to your dashboard"
-              >
-                Dashboard
-              </Link>
-            </ToolTip>
+          {showDashboardLink && (
+            <Link
+              href={APPLICATION_ROUTES.PROFILE_BASE}
+              nativeAnchor={false}
+              disableLinkStyle
+              className="inline-flex h-10 items-center text-sm leading-none font-normal text-dark whitespace-nowrap"
+              title="Go to your dashboard"
+            >
+              Dashboard
+            </Link>
           )}
         </div>
 
@@ -112,16 +115,13 @@ export const NavBar = () => {
           {!isTryFairPage && !isProfilePage && (
             <NavBarLinks className={styles.webNavLinks} />
           )}
-          {isTryFairPage && isAuthenticated && !isMapRequestsPage && (
-            <MappingMode />
-          )}
+          {showMappingMode && <MappingMode />}
         </div>
 
         <div className="flex-1 hidden sm:flex items-center justify-end gap-x-3">
           <DesktopAuthSection
             isAuthenticated={isAuthenticated}
             isTryFairPage={isTryFairPage}
-            isProfilePage={isProfilePage}
             returnTo={returnTo}
             navigate={navigate}
           />

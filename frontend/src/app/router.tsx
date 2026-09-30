@@ -32,6 +32,16 @@ const RouteAvailabilityGuard = ({ children }: React.PropsWithChildren) => {
   return children;
 };
 
+const LegacyMapRequestsRedirect = () => {
+  const { search, hash } = useLocation();
+  return (
+    <Navigate
+      to={`${APPLICATION_ROUTES.PROFILE_OFFLINE_PREDICTIONS}${search}${hash}`}
+      replace
+    />
+  );
+};
+
 const router = createBrowserRouter([
   {
     element: (
@@ -411,6 +421,10 @@ const router = createBrowserRouter([
                 Component: () => <UserProfileDatasetsPage />,
               };
             },
+          },
+          {
+            path: "/profile/prediction-requests",
+            element: <LegacyMapRequestsRedirect />,
           },
           {
             path: APPLICATION_ROUTES.PROFILE_OFFLINE_PREDICTIONS,

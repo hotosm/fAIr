@@ -27,6 +27,7 @@ const UserSidebar = () => {
               title={link.title}
               key={link.id}
               href={link.href}
+              nativeAnchor={false}
               disableLinkStyle
             >
               <div
@@ -50,7 +51,13 @@ const UserSidebar = () => {
         })}
       </div>
 
-      <div className="p-3 bg-white justify-between rounded-xl flex flex-col ">
+      <Link
+        href="https://slack.hotosm.org/"
+        title="Join the Community"
+        blank
+        disableLinkStyle
+        className="p-3 bg-white justify-between rounded-xl flex flex-col"
+      >
         <div className="flex justify-between wave-bg items-center py-8 px-3">
           <h4 className="font-semibold text-lg text-gray">
             Join the <br />
@@ -67,7 +74,7 @@ const UserSidebar = () => {
             className={`h-full w-full object-cover`}
           />
         </div>
-      </div>
+      </Link>
 
       <div className="p-3">
         <Link

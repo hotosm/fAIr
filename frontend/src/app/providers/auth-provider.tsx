@@ -21,6 +21,7 @@ type TAuthContext = {
   authenticateUser: (state: string, code: string) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
+  isAuthLoading: boolean;
   setUser: (user: TUser) => void;
 };
 
@@ -30,6 +31,7 @@ const AuthContext = createContext<TAuthContext>({
   authenticateUser: async () => Promise.resolve(),
   logout: () => {},
   isAuthenticated: false,
+  isAuthLoading: true,
   setUser: () => {},
 });
 
@@ -59,6 +61,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   );
 
   const [user, setUser] = useState<TUser | undefined>(undefined);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
 
   const isAuthenticated =
     AUTH_PROVIDER === "hanko"
@@ -130,6 +133,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
    * For legacy auth, uses authService.getUser().
    */
   const fetchUserProfile = async () => {
+    setIsAuthLoading(true);
     try {
       if (AUTH_PROVIDER === "hanko" && !IS_DEV) {
         const response = await fetch(`${BASE_API_URL}auth/me/`, {
@@ -166,15 +170,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         showErrorToast(error);
       }
       setUser(undefined);
+    } finally {
+      setIsAuthLoading(false);
     }
   };
 
   useEffect(() => {
-    if (DISABLE_AUTH_ON_TRY_FAIR && isTryFairPage) return;
+    if (DISABLE_AUTH_ON_TRY_FAIR && isTryFairPage) {
+      setIsAuthLoading(false);
+      return;
+    }
     if (AUTH_PROVIDER === "hanko") {
       fetchUserProfile();
     } else if (token) {
       fetchUserProfile();
+    } else {
+      setIsAuthLoading(false);
     }
   }, [token]);
 
@@ -354,6 +365,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         authenticateUser,
         logout,
         isAuthenticated,
+        isAuthLoading,
         setUser,
       }}
     >

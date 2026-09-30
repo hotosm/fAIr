@@ -1,86 +1,19 @@
-// import { useAuth } from "@/app/providers/auth-provider";
 import { Head } from "@/components/seo";
-import { APPLICATION_ROUTES } from "@/constants";
-// import { OrderingFilter, Pagination, SearchFilter } from "@/components/shared";
 import { USER_PROFILE_PAGE_CONTENT } from "@/constants/ui-contents/user-profile-content";
 import { ProfileSectionHeader } from "@/features/user-profile/components";
-// import { DatasetList } from "@/features/datasets/components";
-// import { useDatasetsQueryParams } from "@/features/datasets/hooks/use-query-params";
-// import { ProfileSectionHeader } from "@/features/user-profile/components";
 import PageEmptyState from "@/features/user-profile/components/page-empty-state";
-// import { TTrainingDataset } from "@/types";
 
-export const UserProfileDatasetsPage = () => {
-  // const { user } = useAuth();
-  // const {
-  //   data,
-  //   isError,
-  //   isPending,
-  //   isPlaceholderData,
-  //   refetch,
-  //   query,
-  //   updateQuery,
-  // } = useDatasetsQueryParams(user.osm_id);
-
-  return (
-    <>
-      <Head title={USER_PROFILE_PAGE_CONTENT.datasets.pageTitle} />
-      <ProfileSectionHeader
-        title={USER_PROFILE_PAGE_CONTENT.datasets.sectionTitle}
+export const UserProfileDatasetsPage = () => (
+  <>
+    <Head title={USER_PROFILE_PAGE_CONTENT.datasets.pageTitle} />
+    <ProfileSectionHeader
+      title={USER_PROFILE_PAGE_CONTENT.datasets.sectionTitle}
+    />
+    <div className="w-full flex flex-col justify-center items-center min-h-[360px] py-12">
+      <PageEmptyState
+        heading="Coming soon"
+        subHeading="Creating and managing your own datasets is coming soon."
       />
-      <div className="w-full  flex flex-col  justify-center items-center  h-4/5">
-        <PageEmptyState
-          heading="No Datasets Yet"
-          subHeading="You have not created any datasets. Get started by creating your first dataset."
-          ctaText="Create Dataset"
-          ctaHref={APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_DATASET}
-        />
-      </div>
-
-      {/* <div className="space-y-8">
-        <div className="w-full gap-y-6 sm:gap-y-0 flex flex-col sm:flex-row justify-between items-start sm:items-center">
-          <ProfileSectionHeader
-            title={USER_PROFILE_PAGE_CONTENT.datasets.sectionTitle}
-          />
-          <SearchFilter
-            query={query}
-            updateQuery={updateQuery}
-            placeholder="Search datasets..."
-            className="w-full max-w-full sm:w-auto"
-          />
-        </div>
-        <div className="flex flex-col gap-y-6 md:gap-y-0 w-full justify-between">
-          <p className="text-body-3 font-semibold">{data?.count} datasets</p>
-          <div className="flex w-full justify-between md:justify-end items-center md:gap-x-4">
-            <OrderingFilter
-              query={query}
-              updateQuery={updateQuery}
-              disabled={isError || isPending}
-              className="inline-flex"
-            />
-            <div>
-              <Pagination
-                totalLength={data?.count as number}
-                hasNextPage={data?.hasNext as boolean}
-                hasPrevPage={data?.hasPrev as boolean}
-                disableNextPage={!data?.hasNext || isPlaceholderData}
-                disablePrevPage={!data?.hasPrev}
-                query={query}
-                updateQuery={updateQuery}
-                isPlaceholderData={isPlaceholderData}
-                scrollToTopOnPageSwitch
-              />
-            </div>
-          </div>
-        </div>
-        <DatasetList
-          isError={isError}
-          datasets={data?.results as TTrainingDataset[]}
-          isPending={isPending}
-          refetch={refetch}
-          navigateOnClick
-        />
-      </div> */}
-    </>
-  );
-};
+    </div>
+  </>
+);
