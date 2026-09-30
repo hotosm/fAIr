@@ -24,11 +24,7 @@ const bboxFromFeatureCollection = (
     north = -Infinity;
 
   const visit = (
-    coords:
-      | number[]
-      | number[][]
-      | number[][][]
-      | number[][][][],
+    coords: number[] | number[][] | number[][][] | number[][][][],
   ) => {
     if (typeof coords[0] === "number") {
       const [lng, lat] = coords as number[];
@@ -123,7 +119,12 @@ export const MapRequestResultMap = ({
     if (!map || !effectiveBounds) return;
     map.resize();
     map.fitBounds(
-      [effectiveBounds[0], effectiveBounds[1], effectiveBounds[2], effectiveBounds[3]],
+      [
+        effectiveBounds[0],
+        effectiveBounds[1],
+        effectiveBounds[2],
+        effectiveBounds[3],
+      ],
       { padding: 20, duration: 0, animate: false, essential: true },
     );
   }, [map, effectiveBounds]);

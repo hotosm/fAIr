@@ -6,8 +6,6 @@ import { OverviewHero } from "./overview-hero";
 import { RecentActivities } from "./recent-activities";
 import { GlobeIcon } from "@/components/ui/icons/globe-icon";
 
-
-
 const HeaderAction = ({
   href,
   external,

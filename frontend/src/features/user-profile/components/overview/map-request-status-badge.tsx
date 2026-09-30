@@ -2,7 +2,6 @@ import { Badge } from "@/components/ui/badge";
 import { PredictionRequestStatus } from "@/enums";
 import { TBadgeVariants } from "@/types";
 
-
 const STATUS_PRESENTATION: Record<
   string,
   { label: string; variant: TBadgeVariants }
@@ -21,12 +20,18 @@ const STATUS_PRESENTATION: Record<
     label: "In Progress",
     variant: "yellow",
   },
-  [PredictionRequestStatus.RUNNING]: { label: "In Progress", variant: "yellow" },
+  [PredictionRequestStatus.RUNNING]: {
+    label: "In Progress",
+    variant: "yellow",
+  },
   [PredictionRequestStatus.RETRYING]: {
     label: "In Progress",
     variant: "yellow",
   },
-  [PredictionRequestStatus.RETRIED]: { label: "In Progress", variant: "yellow" },
+  [PredictionRequestStatus.RETRIED]: {
+    label: "In Progress",
+    variant: "yellow",
+  },
   [PredictionRequestStatus.STOPPING]: { label: "Stopping", variant: "yellow" },
   [PredictionRequestStatus.FAILED]: { label: "Failed", variant: "red" },
   [PredictionRequestStatus.STOPPED]: { label: "Stopped", variant: "red" },
@@ -42,7 +47,11 @@ export const MapRequestStatusBadge = ({ status }: { status: string }) => {
   };
 
   return (
-    <Badge variant={presentation.variant} rounded className="!h-fit font-medium !px-3">
+    <Badge
+      variant={presentation.variant}
+      rounded
+      className="!h-fit font-medium !px-3"
+    >
       {presentation.label}
     </Badge>
   );

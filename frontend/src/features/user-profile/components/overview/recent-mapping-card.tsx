@@ -19,12 +19,20 @@ export const RecentMappingCard = () => {
         </div>
 
         <div className="mt-auto flex flex-wrap gap-3 pt-8">
-          <Link href={APPLICATION_ROUTES.TRY_FAIR} nativeAnchor={false} title="Resume Mapping">
+          <Link
+            href={APPLICATION_ROUTES.TRY_FAIR}
+            nativeAnchor={false}
+            title="Resume Mapping"
+          >
             <Button rounded capitalize={false}>
               Resume Mapping
             </Button>
           </Link>
-          <Link href={APPLICATION_ROUTES.TRY_FAIR} nativeAnchor={false} title="Start New Mapping">
+          <Link
+            href={APPLICATION_ROUTES.TRY_FAIR}
+            nativeAnchor={false}
+            title="Start New Mapping"
+          >
             <Button
               rounded
               capitalize={false}

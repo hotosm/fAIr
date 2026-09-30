@@ -29,7 +29,6 @@ export const UserProfileDatasetsPage = () => {
         title={USER_PROFILE_PAGE_CONTENT.datasets.sectionTitle}
       />
       <div className="w-full  flex flex-col  justify-center items-center  h-4/5">
-
         <PageEmptyState
           heading="No Datasets Yet"
           subHeading="You have not created any datasets. Get started by creating your first dataset."

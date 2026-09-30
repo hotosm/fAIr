@@ -10,17 +10,17 @@ import { useAuth } from "@/app/providers/auth-provider";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { UserNotifications } from "@/features/user-profile/components/notifications/user-notifications";
-import {
-  AUTH_PROVIDER,
-  FRONTEND_URL,
-} from "@/config";
+import { AUTH_PROVIDER, FRONTEND_URL } from "@/config";
 import "@hotosm/ui/dist/components/tool-menu/tool-menu.js";
 import { Divider } from "@/components/ui/divider";
 import { ToolTip } from "@/components/ui/tooltip";
 import MappingMode from "@/features/try-fair/components/mapping-mode";
 import { ShareProjectModal } from "@/features/try-fair/components/modals/share-project-modal";
 import { NavBarLinks } from "@/components/layouts/navbar/navbar-links";
-import { MobileAuthSection, DesktopAuthSection } from "@/components/layouts/navbar/device-navbars";
+import {
+  MobileAuthSection,
+  DesktopAuthSection,
+} from "@/components/layouts/navbar/device-navbars";
 import { BackButton } from "@/components/ui/button";
 import { DownloadResultButton } from "@/features/user-profile/components/map-requests/download-result-button";
 import { useNavbarState } from "@/components/layouts/navbar/hooks/use-navbar-state";
@@ -31,18 +31,20 @@ if (IS_HANKO_AUTH) {
   import("@hotosm/hanko-auth");
 }
 
-
 export const NavBar = () => {
   const [open, setOpen] = useState(false);
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const {
-    showBackButton, showDownloadResult } = useNavbarState()
+  const { showBackButton, showDownloadResult } = useNavbarState();
 
   const isTryFairPage = location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR);
-  const isProfilePage = location.pathname.includes(APPLICATION_ROUTES.PROFILE_BASE);
-  const isMapRequestsPage = location.pathname.includes(APPLICATION_ROUTES.MAP_REQUEST_BASE)
+  const isProfilePage = location.pathname.includes(
+    APPLICATION_ROUTES.PROFILE_BASE,
+  );
+  const isMapRequestsPage = location.pathname.includes(
+    APPLICATION_ROUTES.MAP_REQUEST_BASE,
+  );
   const returnTo = `${FRONTEND_URL}${location.pathname}${location.search}${location.hash}`;
 
   return (
@@ -55,17 +57,22 @@ export const NavBar = () => {
       >
         <div className={styles.drawerContentContainer}>
           <div className={styles.drawerHeaderContainer}>
-
             <NavLogo />
 
-            <button onClick={() => setOpen(false)} className={styles.closeButton}>
+            <button
+              onClick={() => setOpen(false)}
+              className={styles.closeButton}
+            >
               &#x2715;
             </button>
           </div>
 
           {!isTryFairPage && (
             <div className={styles.navLinksContainer}>
-              <NavBarLinks className={styles.mobileNavLinks} setOpen={setOpen} />
+              <NavBarLinks
+                className={styles.mobileNavLinks}
+                setOpen={setOpen}
+              />
             </div>
           )}
 
@@ -83,14 +90,11 @@ export const NavBar = () => {
         </div>
       </Drawer>
 
-      <nav className={`${styles.nav} app-padding z-20 py-1 border-b border-gray-border`}>
+      <nav
+        className={`${styles.nav} app-padding z-20 py-1 border-b border-gray-border`}
+      >
         <div className="flex-1 flex gap-4 items-center justify-start">
-          {
-            showBackButton ?
-              <BackButton />
-              :
-              <NavLogo />
-          }
+          {showBackButton ? <BackButton /> : <NavLogo />}
           {isAuthenticated && isTryFairPage && (
             <ToolTip content="Go to your dashboard">
               <Link
@@ -108,7 +112,9 @@ export const NavBar = () => {
           {!isTryFairPage && !isProfilePage && (
             <NavBarLinks className={styles.webNavLinks} />
           )}
-          {isTryFairPage && isAuthenticated && !isMapRequestsPage && <MappingMode />}
+          {isTryFairPage && isAuthenticated && !isMapRequestsPage && (
+            <MappingMode />
+          )}
         </div>
 
         <div className="flex-1 hidden sm:flex items-center justify-end gap-x-3">
@@ -126,7 +132,10 @@ export const NavBar = () => {
           {isAuthenticated && <UserNotifications />}
           {showDownloadResult && <DownloadResultButton />}
 
-          <button className={styles.hamburgerMenu} onClick={() => setOpen(true)}>
+          <button
+            className={styles.hamburgerMenu}
+            onClick={() => setOpen(true)}
+          >
             <Image
               src={HamburgerIcon}
               alt={SHARED_CONTENT.navbar.hamburgerMenuAlt}
@@ -141,4 +150,3 @@ export const NavBar = () => {
     </>
   );
 };
-

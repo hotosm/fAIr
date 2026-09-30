@@ -14,7 +14,7 @@ export const MapRequestsSection = ({
   className?: string;
 }) => {
   const { requests, isPending, isError, isEmpty } = useRecentMapRequests();
-  console.log(requests)
+  console.log(requests);
 
   return (
     <section
@@ -36,17 +36,17 @@ export const MapRequestsSection = ({
         </Link>
       </div>
 
-     <div className="bg-fros">
-       {isEmpty && !isPending && !isError ? (
-        <OverviewEmptyState message="No map request yet" />
-      ) : (
-        <MapRequestsTable
-          requests={requests}
-          isPending={isPending}
-          isError={isError}
-        />
-      )}
-     </div>
+      <div className="bg-fros">
+        {isEmpty && !isPending && !isError ? (
+          <OverviewEmptyState message="No map request yet" />
+        ) : (
+          <MapRequestsTable
+            requests={requests}
+            isPending={isPending}
+            isError={isError}
+          />
+        )}
+      </div>
     </section>
   );
 };

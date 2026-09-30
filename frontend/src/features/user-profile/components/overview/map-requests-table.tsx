@@ -22,7 +22,7 @@ const getModelUsed = (p: TOfflinePrediction): string =>
   p.model_name || p.local_model_stac_id || "-";
 
 const getPredictionName = (p: TOfflinePrediction): string =>
-  p.description  || `Prediction #${p.id}`;
+  p.description || `Prediction #${p.id}`;
 
 const isResultReady = (p: TOfflinePrediction): boolean =>
   p.results_ready ||
@@ -93,7 +93,9 @@ const columnDefinitions = ({
     accessorFn: (row) =>
       row.submitted_at ? formatDate(row.submitted_at) : "-",
     cell: (ctx) => (
-      <span className="whitespace-nowrap font-medium">{ctx.getValue() as string}</span>
+      <span className="whitespace-nowrap font-medium">
+        {ctx.getValue() as string}
+      </span>
     ),
   },
   {
@@ -121,9 +123,7 @@ const columnDefinitions = ({
             onClick={() => onViewResult(row.original)}
             className={cn(
               "rounded-[9.3px] border bg-off-white  px-3 py-1.5  text-dark transition-colors",
-              resultReady
-                ? "cursor-pointer "
-                : "cursor-not-allowed opacity-40",
+              resultReady ? "cursor-pointer " : "cursor-not-allowed opacity-40",
             )}
           >
             View result

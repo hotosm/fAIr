@@ -5,13 +5,12 @@ export type SolidButtonVariant = "dark" | "grey" | "primary";
 const VARIANT_CLASSES: Record<SolidButtonVariant, string> = {
   dark: "bg-dark",
   grey: "bg-grey",
-  primary: "bg-primary"
+  primary: "bg-primary",
 };
 
 interface SolidButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: SolidButtonVariant;
 }
-
 
 export const SolidButton = ({
   variant = "dark",

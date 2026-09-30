@@ -2,7 +2,7 @@ import { IconProps } from "@/types";
 import React from "react";
 
 export const MapZoomInIcon: React.FC<IconProps> = (props) => (
- <svg
+  <svg
     xmlns="http://www.w3.org/2000/svg"
     width="20"
     height="20"
@@ -18,7 +18,7 @@ export const MapZoomInIcon: React.FC<IconProps> = (props) => (
 );
 
 export const MapZoomOutIcon: React.FC<IconProps> = (props) => (
- <svg
+  <svg
     xmlns="http://www.w3.org/2000/svg"
     width="20"
     height="20"
@@ -32,4 +32,3 @@ export const MapZoomOutIcon: React.FC<IconProps> = (props) => (
     ></path>
   </svg>
 );
-

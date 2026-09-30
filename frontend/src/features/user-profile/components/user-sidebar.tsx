@@ -111,14 +111,12 @@ const SIDEBAR_LINKS = [
     title: "AI Models",
     href: APPLICATION_ROUTES.PROFILE_MODELS,
     Icon: AIModelIcon,
-
   },
   {
     id: 3,
     title: "Datasets",
     href: APPLICATION_ROUTES.PROFILE_DATASETS,
     Icon: DatabaseIcon,
-
   },
 
   {
@@ -127,5 +125,4 @@ const SIDEBAR_LINKS = [
     href: APPLICATION_ROUTES.PROFILE_OFFLINE_PREDICTIONS,
     Icon: TimerIcon,
   },
-
 ];

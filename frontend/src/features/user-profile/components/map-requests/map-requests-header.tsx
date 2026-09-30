@@ -1,4 +1,4 @@
-import {  ChevronDownIcon } from "@/components/ui/icons";
+import { ChevronDownIcon } from "@/components/ui/icons";
 import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
 import { useNavigate } from "react-router-dom";
 

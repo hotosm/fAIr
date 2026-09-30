@@ -18,9 +18,7 @@ export const RecentActivities = ({
       )}
     >
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-dark">
-          Recent Activities
-        </h2>
+        <h2 className="text-sm font-semibold text-dark">Recent Activities</h2>
         {showFilter && (
           <button
             type="button"

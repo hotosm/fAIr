@@ -75,7 +75,6 @@ export const TryFairDraggableGrid = ({
     if (hasNoResults) setIsNoResultsDismissed(false);
   }, [hasNoResults]);
 
-
   useEffect(() => {
     if (!map || !hasNoResults) return;
 

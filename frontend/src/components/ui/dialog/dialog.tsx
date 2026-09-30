@@ -15,6 +15,7 @@ type DialogProps = {
   noHeader?: boolean;
   noPadding?: boolean;
   preventEscapeClose?: boolean;
+  className?: string;
 };
 const Dialog: React.FC<DialogProps> = ({
   isOpened,
@@ -27,8 +28,8 @@ const Dialog: React.FC<DialogProps> = ({
   size,
   noHeader = false,
   noPadding = false,
-  preventEscapeClose
-
+  preventEscapeClose,
+  className = "",
 }) => {
   // Prevent the dialog from closing when the user clicks on the overlay
   function handleRequestClose(event: any) {
@@ -54,7 +55,7 @@ const Dialog: React.FC<DialogProps> = ({
       open={isOpened}
       onKeyDownCapture={(event) => {
         if (event.keyCode === 27 && preventEscapeClose) {
-          event.preventDefault() 
+          event.preventDefault();
         }
       }}
       onSlRequestClose={preventClose ? handleRequestClose : () => null}
@@ -63,7 +64,7 @@ const Dialog: React.FC<DialogProps> = ({
           closeDialog();
         }
       }}
-      className={`sl-dialog ${labelColor} ${borderRadius} ${noPadding ? " no-padding" : ""}`}
+      className={`sl-dialog ${labelColor} ${borderRadius} ${noPadding ? " no-padding" : ""} ${className}`}
       style={{
         //@ts-expect-error bad type definition
 

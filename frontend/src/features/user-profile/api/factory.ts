@@ -14,11 +14,7 @@ export const getPredictionsQueryOptions = (
   });
 };
 
-
-export const getSinglePredictionsQuery = (
-  predictionId: string,
-
-) => {
+export const getSinglePredictionsQuery = (predictionId: string) => {
   return queryOptions({
     queryKey: ["offline-predictions", predictionId],
     queryFn: () => getSinglePrediction(predictionId),

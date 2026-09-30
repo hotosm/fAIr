@@ -170,11 +170,11 @@ sl-alert.success::part(base) {
   padding-bottom: 0.5rem;
 }
 
-.markdown-prose>*:first-child {
+.markdown-prose > *:first-child {
   margin-top: 0;
 }
 
-.markdown-prose>*:last-child {
+.markdown-prose > *:last-child {
   margin-bottom: 0;
 }
 
@@ -474,7 +474,6 @@ hotosm-auth {
 }
 
 /* Try fAIr confidence slider ends */
-
 
 .contour-bg {
   background-image: url("../assets/svgs/contour_background.svg");

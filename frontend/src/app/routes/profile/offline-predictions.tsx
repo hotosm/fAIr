@@ -16,24 +16,15 @@ export const UserProfileOfflinePredictionsPage = () => {
 
   const viewResult = (prediction: TNewOfflinePrediction) =>
     navigate(
-      APPLICATION_ROUTES.MAP_REQUEST_RESULT.replace(":id", String(prediction.id)),
+      APPLICATION_ROUTES.MAP_REQUEST_RESULT.replace(
+        ":id",
+        String(prediction.id),
+      ),
       { state: { prediction } },
     );
 
-  const {
-    data,
-    isError,
-    isPending,
-    isPlaceholderData,
-    query,
-    updateQuery,
-  } = useOfflinePredictionsQueryParams(user.osm_id);
-
-
- 
-  
-
-
+  const { data, isError, isPending, isPlaceholderData, query, updateQuery } =
+    useOfflinePredictionsQueryParams(user.osm_id);
 
   return (
     <>
@@ -66,7 +57,7 @@ export const UserProfileOfflinePredictionsPage = () => {
         />
       )}
      */}
-    
+
       <Head title="Map Requests" />
       <div className="space-y-6 h-full">
         <MapRequestsHeader />
@@ -88,9 +79,7 @@ export const UserProfileOfflinePredictionsPage = () => {
           isPending={isPending}
           onViewResult={viewResult}
           renderRowMenu={(prediction) => (
-            <MapRequestsActionsMenu
-              prediction={prediction}
-            />
+            <MapRequestsActionsMenu prediction={prediction} />
           )}
         />
       </div>

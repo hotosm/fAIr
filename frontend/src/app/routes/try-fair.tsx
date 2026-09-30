@@ -101,7 +101,8 @@ export const TryFairPage = () => {
 
   const isChooseLocationOpen = Boolean(chooseLocation);
 
-  const { recentImageries, addRecentImagery } = useRecentImageries();
+  const { recentImageries, addRecentImagery, clearRecentImageries } =
+    useRecentImageries();
 
   const { models: allModels, loading: modelsLoading } = useStacBaseModels();
   const { models: localModels, loading: localModelLoading } =
@@ -531,6 +532,7 @@ export const TryFairPage = () => {
             handleApplyImagery(selection);
           }}
           recentImageries={recentImageries}
+          onClearRecentImageries={clearRecentImageries}
           onApplyRecentImagery={(entry) => {
             setStagedImagery(null);
             handleApplyRecentImagery(entry);
@@ -569,10 +571,10 @@ export const TryFairPage = () => {
         onBackToModelPicker={
           isChoosingImageryFromModelPicker
             ? () => {
-              setChooseLocation(false);
-              setIsChoosingImageryFromModelPicker(false);
-              openModelPickerDialog();
-            }
+                setChooseLocation(false);
+                setIsChoosingImageryFromModelPicker(false);
+                openModelPickerDialog();
+              }
             : undefined
         }
         onApply={(selection) => {

@@ -23,8 +23,6 @@ export const USER_PROFILE_PAGE_CONTENT: TUserProfilePageContent = {
   datasets: {
     pageTitle: "Datasets",
     sectionTitle: "Datasets",
-    
-
   },
   settings: {
     pageTitle: "Profile Settings",

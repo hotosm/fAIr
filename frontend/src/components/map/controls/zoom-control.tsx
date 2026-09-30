@@ -28,11 +28,7 @@ export const ZoomButton = ({
     onClick={onClick}
     disabled={disabled}
   >
-    <span
-      className={disabled ? "cursor-not-allowed" : ""}
-    >
-      {icon}
-    </span>
+    <span className={disabled ? "cursor-not-allowed" : ""}>{icon}</span>
   </button>
 );
 

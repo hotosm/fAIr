@@ -264,16 +264,52 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   /**
-   * Poll the backend for the user profile information every 15 seconds.
-   * This is majorly to keep the user profile information up to date, especially when the user is logged in.
+   * Refresh signed-in profiles once a minute. Stop on session rejection and
+   * wait for the login flow to establish a session before polling again.
    */
   useEffect(() => {
-    if (DISABLE_AUTH_ON_TRY_FAIR) return;
-    const intervalId = setInterval(() => {
-      if (AUTH_PROVIDER === "hanko" && !IS_DEV) {
-        fetch(`${BASE_API_URL}auth/me/`, { credentials: "include" })
-          .then((res) => (res.ok ? res.json() : Promise.reject()))
-          .then((userData) => {
+    if (DISABLE_AUTH_ON_TRY_FAIR || !isAuthenticated) return;
+
+    const pollInterval = 60_000;
+    let retryDelay = pollInterval;
+    let cancelled = false;
+    let timeoutId: ReturnType<typeof setTimeout>;
+    const controller = new AbortController();
+
+    const refreshProfile = async () => {
+      let nextDelay = pollInterval;
+      try {
+        if (document.visibilityState === "hidden") return;
+
+        if (AUTH_PROVIDER === "hanko" && !IS_DEV) {
+          const response = await fetch(`${BASE_API_URL}auth/me/`, {
+            credentials: "include",
+            signal: controller.signal,
+          });
+          if (cancelled) return;
+
+          if (response.status === 401 || response.status === 403) {
+            cancelled = true;
+            setUser(undefined);
+            return;
+          }
+
+          if (!response.ok) {
+            const retryAfter = response.headers.get("Retry-After");
+            if (retryAfter) {
+              const seconds = Number(retryAfter);
+              const delay = Number.isFinite(seconds)
+                ? seconds * 1000
+                : Date.parse(retryAfter) - Date.now();
+              if (Number.isFinite(delay)) {
+                nextDelay = Math.max(pollInterval, delay);
+              }
+            }
+            throw new Error(`Profile refresh failed (${response.status})`);
+          }
+
+          const userData: TUser = await response.json();
+          if (!cancelled) {
             if (!userData.img_url) {
               const hankoUser = JSON.parse(
                 localStorage.getItem("hotosm-auth-user") || "{}",
@@ -283,15 +319,32 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               }
             }
             setUser(userData);
-          })
-          .catch(() => setUser(undefined));
-      } else if (token) {
-        authService.getUser().then(setUser).catch(showErrorToast);
+          }
+        } else if (token) {
+          const userData = await authService.getUser();
+          if (!cancelled) setUser(userData);
+        }
+        retryDelay = pollInterval;
+      } catch (error) {
+        if (cancelled) return;
+        // Network errors and throttling do not mean the session has expired.
+        retryDelay = Math.min(retryDelay * 2, 5 * pollInterval);
+        nextDelay = Math.max(nextDelay, retryDelay);
+        if (AUTH_PROVIDER !== "hanko") showErrorToast(error);
+      } finally {
+        if (!cancelled) {
+          timeoutId = setTimeout(refreshProfile, nextDelay);
+        }
       }
-    }, 15000);
+    };
 
-    return () => clearInterval(intervalId);
-  }, [token]);
+    timeoutId = setTimeout(refreshProfile, pollInterval);
+    return () => {
+      cancelled = true;
+      clearTimeout(timeoutId);
+      controller.abort();
+    };
+  }, [token, isAuthenticated]);
 
   return (
     <AuthContext.Provider

@@ -90,7 +90,7 @@ export const TryFairMap = ({
       fitPendingRef.current = true;
       return;
     }
- 
+
     map.resize();
     map.fitBounds([bbox[0], bbox[1], bbox[2], bbox[3]], {
       padding: 40,

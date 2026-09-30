@@ -31,7 +31,6 @@ export const getPredictions = async (
   };
 };
 
-
 /** Fetches a single prediction request by id. */
 export const getSinglePrediction = async (
   predictionId: string,

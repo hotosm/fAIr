@@ -9,15 +9,21 @@ type NavBarLinksProps = {
   setOpen?: (arg: boolean) => void;
 };
 
-export const NavBarLinks: React.FC<NavBarLinksProps> = ({ className, setOpen }) => {
+export const NavBarLinks: React.FC<NavBarLinksProps> = ({
+  className,
+  setOpen,
+}) => {
   const location = useLocation();
   const navigate = useNavigate();
 
   const isLinkActive = (link: (typeof navLinks)[number]) =>
     location.pathname.includes(link.href) ||
-    (link.children?.some((child) => location.pathname.includes(child.href)) ?? false);
+    (link.children?.some((child) => location.pathname.includes(child.href)) ??
+      false);
 
-  const visibleLinks = navLinks.filter((link) => link.href !== "" && link.active);
+  const visibleLinks = navLinks.filter(
+    (link) => link.href !== "" && link.active,
+  );
 
   return (
     <ul className={className}>
@@ -27,8 +33,9 @@ export const NavBarLinks: React.FC<NavBarLinksProps> = ({ className, setOpen }) 
           onClick={() => {
             if (!link.children) setOpen?.(false);
           }}
-          className={`${styles.navLinkItem} ${isLinkActive(link) ? styles.activeLink : ""} ${link.children ? "flex items-center" : ""
-            }`}
+          className={`${styles.navLinkItem} ${isLinkActive(link) ? styles.activeLink : ""} ${
+            link.children ? "flex items-center" : ""
+          }`}
         >
           {link.children ? (
             <DropDown
@@ -51,7 +58,12 @@ export const NavBarLinks: React.FC<NavBarLinksProps> = ({ className, setOpen }) 
               }))}
             />
           ) : (
-            <Link href={link.href} title={link.title} nativeAnchor={false} className="capitalize">
+            <Link
+              href={link.href}
+              title={link.title}
+              nativeAnchor={false}
+              className="capitalize"
+            >
               {link.title}
             </Link>
           )}

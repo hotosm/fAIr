@@ -8,15 +8,11 @@ import { useParams } from "react-router-dom";
 const hasResults = (prediction?: TOfflinePrediction): boolean =>
   Boolean(
     prediction &&
-      (prediction.results_ready ||
-        prediction.status?.toLowerCase() === PredictionRequestStatus.COMPLETED),
+    (prediction.results_ready ||
+      prediction.status?.toLowerCase() === PredictionRequestStatus.COMPLETED),
   );
 
-export const DownloadResultButton = ({
-  className,
-}: {
-  className?: string;
-}) => {
+export const DownloadResultButton = ({ className }: { className?: string }) => {
   const { id } = useParams();
   const { data: prediction } = useGetSinglePrediction(id);
 

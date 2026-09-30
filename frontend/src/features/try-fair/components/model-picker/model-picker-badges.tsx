@@ -25,6 +25,20 @@ const FEATURE_ICONS: Record<string, React.FC<IconProps>> = {
 export const getFeatureIcon = (slug: string): React.FC<IconProps> =>
   FEATURE_ICONS[slug] ?? BuildingIcon;
 
+export const ExperimentalModelBadge = ({
+  category,
+}: {
+  category: string | undefined;
+}) => {
+  if (category !== "building-damage") return null;
+
+  return (
+    <span className="inline-flex shrink-0 items-center rounded border border-amber-300 bg-amber-50 px-2 py-0.5 text-[10px] font-semibold leading-tight text-amber-900">
+      Experimental
+    </span>
+  );
+};
+
 /** Radio indicator dot. */
 export const RadioDot = ({
   selected,

@@ -17,7 +17,6 @@ if (IS_HANKO_AUTH) {
   import("@hotosm/hanko-auth");
 }
 
-
 type AuthSectionProps = {
   isAuthenticated: boolean;
   isTryFairPage: boolean;
@@ -47,7 +46,9 @@ export const MobileAuthSection = ({
           />
         )}
 
-        <span className={isAuthenticated ? "border-t-2 w-full mt-2" : "pb-4 pl-4"}>
+        <span
+          className={isAuthenticated ? "border-t-2 w-full mt-2" : "pb-4 pl-4"}
+        >
           <HankoAuthComponent displayBar redirectAfterLogin={returnTo} />
         </span>
       </>
@@ -78,7 +79,6 @@ export const MobileAuthSection = ({
   );
 };
 
-
 export const DesktopAuthSection = ({
   isAuthenticated,
   isTryFairPage,
@@ -87,13 +87,20 @@ export const DesktopAuthSection = ({
   navigate,
 }: AuthSectionProps & { isProfilePage: boolean }) => {
   const showHankoBar = IS_HANKO_AUTH && !IS_DEV && !isTryFairPage;
-  const isMapRequestsPage = location.pathname.includes(APPLICATION_ROUTES.MAP_REQUEST_BASE)
+  const isMapRequestsPage = location.pathname.includes(
+    APPLICATION_ROUTES.MAP_REQUEST_BASE,
+  );
 
   if (showHankoBar) {
     return (
       <>
         {isAuthenticated && <UserNotifications />}
-        {isAuthenticated && <SolidButton onClick={() => navigate(APPLICATION_ROUTES.PROFILE_BASE)} variant="dark" />}
+        {isAuthenticated && (
+          <SolidButton
+            onClick={() => navigate(APPLICATION_ROUTES.PROFILE_BASE)}
+            variant="dark"
+          />
+        )}
         <div className={styles.headerHankoAuth}>
           <HankoAuthComponent redirectAfterLogin={returnTo} />
         </div>
@@ -107,13 +114,19 @@ export const DesktopAuthSection = ({
         {isTryFairPage && <StartMappingNavlinks />}
         {isProfilePage && <MappingMode />}
         {!isTryFairPage && !isMapRequestsPage && <UserNotifications />}
-        {!isTryFairPage && !isProfilePage && !isMapRequestsPage && <SolidButton onClick={() => navigate(APPLICATION_ROUTES.PROFILE_BASE)} variant="dark"  >Dashboard </SolidButton>}
+        {!isTryFairPage && !isProfilePage && !isMapRequestsPage && (
+          <SolidButton
+            onClick={() => navigate(APPLICATION_ROUTES.PROFILE_BASE)}
+            variant="dark"
+          >
+            Dashboard{" "}
+          </SolidButton>
+        )}
         {isMapRequestsPage && <DownloadResultButton />}
 
         <div className={styles.headerHankoAuth}>
           <HankoAuthComponent redirectAfterLogin={returnTo} />
         </div>
-
       </div>
     );
   }

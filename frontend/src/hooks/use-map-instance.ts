@@ -26,6 +26,7 @@ export const useMapInstance = (
 ) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<Map | null>(null);
+  const activeDrawRef = useRef<ReturnType<typeof setupTerraDraw> | null>(null);
   const [drawingMode, setDrawingMode] = useState<DrawingModes>(
     DrawingModes.STATIC,
   );
@@ -42,16 +43,32 @@ export const useMapInstance = (
       setZoom(Math.floor(map.getZoom()));
     });
 
-    return () => map.remove();
+    return () => {
+      // The adapter must release its sources while the map still exists.
+      activeDrawRef.current?.stop();
+      activeDrawRef.current = null;
+      map.remove();
+    };
   }, [mapContainerRef]);
 
   const terraDraw = useMemo(() => {
     if (map) {
-      const draw = setupTerraDraw(map, styleVariant, imageryBounds);
-      draw.start();
-      return draw;
+      return setupTerraDraw(map, styleVariant, imageryBounds);
     }
   }, [map, styleVariant, imageryBounds]);
+
+  useEffect(() => {
+    if (!terraDraw) return;
+    terraDraw.start();
+    activeDrawRef.current = terraDraw;
+
+    return () => {
+      if (activeDrawRef.current === terraDraw) {
+        terraDraw.stop();
+        activeDrawRef.current = null;
+      }
+    };
+  }, [terraDraw]);
 
   // Sync the drawing modes between terraDraw
   // and the application state
@@ -59,7 +76,6 @@ export const useMapInstance = (
     if (!terraDraw) return;
     terraDraw?.setMode(drawingMode);
   }, [terraDraw, drawingMode]);
-
   useEffect(() => {
     if (!map) return;
     const updateZoom = () => {
@@ -71,7 +87,6 @@ export const useMapInstance = (
       map.off("zoomend", updateZoom);
     };
   }, [map, setZoom]);
-
 
   useEffect(() => {
     if (!map || !mapContainerRef.current) return;

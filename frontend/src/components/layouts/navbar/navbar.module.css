@@ -163,7 +163,6 @@ nav {
     height: 60px;
     gap: var(--sl-spacing-medium);
   }
-  
 
   .webNavLinks {
     display: flex;

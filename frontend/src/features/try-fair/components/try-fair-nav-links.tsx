@@ -9,7 +9,7 @@ import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-st
 import { geoJSONDowloader } from "@/utils";
 
 export const StartMappingNavlinks: React.FC = () => {
-  const { setChooseLocation } = useTryFairParams()
+  const { setChooseLocation } = useTryFairParams();
   const {
     setDownloadType,
     setShowSigninModal,
@@ -21,7 +21,7 @@ export const StartMappingNavlinks: React.FC = () => {
   } = useStartMappingStore();
   const hasPredictions = Boolean(predictions?.features?.length);
   const { isAuthenticated } = useAuth();
- 
+
   const handleSelect = (value: string) => {
     if (value === "download") {
       if (!predictions) return;
@@ -46,7 +46,7 @@ export const StartMappingNavlinks: React.FC = () => {
       {/* Download — icon button */}
       <ToolTip
         content={
-          hasPredictions ? "Download results" : "Map to generate results"
+          hasPredictions ? "Download results" : "Map to download results"
         }
       >
         <button
@@ -70,11 +70,19 @@ export const StartMappingNavlinks: React.FC = () => {
         </button>
       </ToolTip>
 
-      {/* Choose your own */}
-
-
-      {/* Map Large Area */}
-      <ToolTip content="Map a large area">
+      <ToolTip content="Change imagery">
+        <button
+          type="button"
+          onClick={() => {
+            setChooseLocation(true);
+          }}
+          className="bg-dark text-xs px-3 flex shrink-0 items-center whitespace-nowrap text-white !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem]"
+          aria-label="Change imagery"
+        >
+          Change imagery
+        </button>
+      </ToolTip>
+      <ToolTip content="Map an area">
         <button
           type="button"
           id={APP_TOUR_IDS.TRY_FAIR_MAP_LARGE_AREA_BUTTON}
@@ -86,24 +94,11 @@ export const StartMappingNavlinks: React.FC = () => {
             }
           }}
           className="bg-grey text-xs px-3 flex shrink-0 items-center whitespace-nowrap text-white !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem]"
-          aria-label="Map a large area"
+          aria-label="Map an area"
         >
-          Map Large Area
+          Map an area
         </button>
       </ToolTip>
-      <ToolTip content="Change Imagery">
-        <button
-          type="button"
-          onClick={() => {
-            setChooseLocation(true);
-          }}
-          className="bg-dark text-xs px-3 flex shrink-0 items-center whitespace-nowrap text-white !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem]"
-          aria-label="Choose a different location"
-        >
-          Choose your own
-        </button>
-      </ToolTip>
-
     </div>
   );
 };

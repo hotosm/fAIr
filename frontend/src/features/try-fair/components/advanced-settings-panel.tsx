@@ -1,8 +1,5 @@
 import type { InferenceParam } from "@/features/try-fair/api/stac";
-import {
-  CloseIcon,
-  RefreshIcon,
-} from "@/components/ui/icons";
+import { CloseIcon, RefreshIcon } from "@/components/ui/icons";
 import { RedoIcon, UndoIcon } from "@/components/ui/icons/undo-icon";
 
 type AdvancedSettingsPanelProps = {
@@ -22,7 +19,7 @@ export const AdvancedSettingsPanel = ({
   onReset,
   isPredicting,
 }: AdvancedSettingsPanelProps) => {
-  // Surface Accuracy (confidence_threshold) here too, first, so it can be set
+  // Surface Confidence (confidence_threshold) here too, first, so it can be set
   // to a precise number — the sidebar only exposes it as a coarse slider.
   const confidenceParam = inferenceParams.find(
     ({ key }) => key === "confidence_threshold",
@@ -54,7 +51,7 @@ export const AdvancedSettingsPanel = ({
             const value = paramValues[key] ?? spec.default;
             const isConfidence = key === "confidence_threshold";
             const label = isConfidence
-              ? "Accuracy"
+              ? "Confidence"
               : key
                   .replace(/[_-]/g, " ")
                   .replace(/\b\w/g, (letter) => letter.toUpperCase());

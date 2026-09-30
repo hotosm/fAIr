@@ -6,8 +6,6 @@ import { useMapInstance } from "@/hooks/use-map-instance";
 import { useEffect } from "react";
 import { SHARED_CONTENT } from "@/constants";
 
-
-
 const HeroMap = () => {
   const { mapContainerRef, map } = useMapInstance();
 
@@ -41,17 +39,20 @@ export const OverviewHero = () => {
   return (
     <section className="flex  contour-bg flex-1 gap-4 font-archivo rounded-md bg-dark p-4 text-white ">
       <div className="flex w-full flex-col sm:max-w-[220px] gap-y-8 p-4">
-        <h1 className="font-semibold text-2xl">{SHARED_CONTENT.homepage.jumbotronTitle}</h1>
-        <p className="text-off-white text-sm">AI-powered assistant that replicates your mapping samples intelligently and quickly, helping you map smarter and faster.</p>
+        <h1 className="font-semibold text-2xl">
+          {SHARED_CONTENT.homepage.jumbotronTitle}
+        </h1>
+        <p className="text-off-white text-sm">
+          AI-powered assistant that replicates your mapping samples
+          intelligently and quickly, helping you map smarter and faster.
+        </p>
         <Link
           href={APPLICATION_ROUTES.TRY_FAIR}
           nativeAnchor={false}
           title=""
           className="w-fit"
         >
-          <Button
-            fontSize={"14px"}
-            rounded capitalize={false}>
+          <Button fontSize={"14px"} rounded capitalize={false}>
             Start Mapping
           </Button>
         </Link>
@@ -60,8 +61,6 @@ export const OverviewHero = () => {
       <div className="flex-1 sm:flex hidden rounded-md w-full overflow-hidden">
         <HeroMap />
       </div>
-     
     </section>
   );
 };
-

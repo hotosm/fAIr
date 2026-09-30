@@ -70,7 +70,6 @@ export const RootLayout = () => {
           !pathname.includes(APPLICATION_ROUTES.AUTH_CALLBACK) &&
           !pathname.includes(APPLICATION_ROUTES.PROFILE_BASE) &&
           !pathname.includes(APPLICATION_ROUTES.MAP_REQUEST_BASE) &&
-
           !pathname.includes(
             APPLICATION_ROUTES.EMAIL_VERIFICATION_CALLBACK,
           ) && <Footer />}

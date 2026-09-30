@@ -35,7 +35,7 @@ export const NavBar = () => {
   const [open, setOpen] = useState(false);
   const { isAuthenticated } = useAuth();
   const { handleLogin, loading } = useLogin();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const LegacyLoginButton = ({ className }: { className?: string }) => (
     <Button className={className} onClick={handleLogin} spinner={loading}>
@@ -87,7 +87,6 @@ export const NavBar = () => {
                 Dashboard
               </button>
             </ToolTip>
-
           )}
         </div>
         <div>

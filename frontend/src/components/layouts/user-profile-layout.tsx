@@ -5,7 +5,6 @@ import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params"
 export const UserProfileLayout = () => {
   const { mappingMode } = useTryFairParams();
 
-
   if (mappingMode === "advanced") {
     return (
       <main className="mt-6 mb-6">

@@ -14,6 +14,8 @@ for (const [key, value] of Object.entries(runtime)) {
 }
 
 export const ENVS = {
+  EXPANDED_IMAGERY_SELECTOR: env.VITE_EXPANDED_IMAGERY_SELECTOR === "true",
+
   BASE_API_URL: env.VITE_BASE_API_URL,
 
   AUTH_PROVIDER: env.VITE_AUTH_PROVIDER,

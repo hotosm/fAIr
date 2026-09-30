@@ -18,6 +18,7 @@ import { FeatureListItem } from "@/features/try-fair/components/model-picker/fea
 import {
   RadioDot,
   FeatureBadge,
+  ExperimentalModelBadge,
 } from "@/features/try-fair/components/model-picker/model-picker-badges";
 import { ImageryPreviewCard } from "@/features/try-fair/components/model-picker/imagery-preview-card";
 import { RecentImageriesList } from "@/features/try-fair/components/model-picker/recent-imageries-list";
@@ -77,9 +78,16 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
             <p className="font-semibold text-dark text-xs leading-tight capitalize truncate">
               {selectedModel.properties.title}
             </p>
+            <div className="flex flex-wrap items-center gap-1">
               <p className="text-grey capitalize font-semibold text-[10px] leading-tight truncate">
-                {cleanFeatureLabel(selectedModel.properties["fair:category"] ?? "Building")}
+                {cleanFeatureLabel(
+                  selectedModel.properties["fair:category"] ?? "Building",
+                )}
               </p>
+              <ExperimentalModelBadge
+                category={selectedModel.properties["fair:category"]}
+              />
+            </div>
           </>
         ) : (
           <p className="text-grey text-xs">Select a model</p>
@@ -116,8 +124,7 @@ type StagedChoice =
 // ─── Tab constants ────────────────────────────────────────────────────────────
 
 export const TAB_SAMPLES = "Samples";
-export const TAB_CHOOSE = "Choose your own";
-
+export const TAB_CHOOSE = "Custom setup";
 
 export const ModelPickerContent = ({
   selectedModel,
@@ -131,6 +138,7 @@ export const ModelPickerContent = ({
   onApplyStagedImagery,
   recentImageries = [],
   onApplyRecentImagery,
+  onClearRecentImageries,
 }: {
   selectedModel: BaseModelStacItem | null;
   onSelect: (model: BaseModelStacItem) => void;
@@ -143,6 +151,7 @@ export const ModelPickerContent = ({
   onApplyStagedImagery?: (selection: ImagerySelection) => void;
   recentImageries?: RecentImageryEntry[];
   onApplyRecentImagery?: (entry: RecentImageryEntry) => void;
+  onClearRecentImageries: () => void;
 }) => {
   const { setChooseLocation, mode } = useTryFairParams();
   const { setCurrentModelType, currentModelType, selectedImagery } =
@@ -353,9 +362,14 @@ export const ModelPickerContent = ({
                     <p className="text-grey text-xs mb-2">
                       By: {model?.properties?.providers[0]?.name ?? ""}
                     </p>
-                    <FeatureBadge
-                      label={model?.properties?.keywords[0] ?? ""}
-                    />
+                    <div className="flex flex-wrap items-center gap-2">
+                      <FeatureBadge
+                        label={model?.properties?.keywords[0] ?? ""}
+                      />
+                      <ExperimentalModelBadge
+                        category={model.properties["fair:category"]}
+                      />
+                    </div>
                   </button>
                 );
               })
@@ -373,7 +387,7 @@ export const ModelPickerContent = ({
         </div>
       )}
 
-      {/* ── Choose your own tab ── */}
+      {/* ── Custom setup tab ── */}
       {activeTab === TAB_CHOOSE && (
         <div className="flex gap-4 h-[520px]">
           {/* Left: Feature list */}
@@ -405,6 +419,7 @@ export const ModelPickerContent = ({
                     setImageryPanelView("preview");
                   }}
                   onBack={() => setImageryPanelView("preview")}
+                  onClear={onClearRecentImageries}
                 />
               ) : (
                 /* Imagery preview with map — default sub-view */
@@ -459,8 +474,6 @@ export const ModelPickerContent = ({
           </div>
         </div>
       )}
-
-
     </div>
   );
 };

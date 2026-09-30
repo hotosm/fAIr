@@ -19,9 +19,9 @@ export const OverviewEmptyState = ({
         className,
       )}
     >
-     <div className="p-0.5 rounded-md bg-white border-gray-border border">
-      <EmptyGridIcon />
-     </div>
+      <div className="p-0.5 rounded-md bg-white border-gray-border border">
+        <EmptyGridIcon />
+      </div>
       <p className="text-[#687075] text-sm">{message}</p>
     </div>
   );
