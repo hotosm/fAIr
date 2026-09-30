@@ -15,7 +15,6 @@ export const MapRequestsSection = ({
   className?: string;
 }) => {
   const { requests, isPending, isError, isEmpty } = useRecentMapRequests();
-  console.log(requests);
 
   return (
     <section

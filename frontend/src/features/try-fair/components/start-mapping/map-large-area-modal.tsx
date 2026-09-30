@@ -14,6 +14,7 @@ import {
 import { BBOX, IconProps } from "@/types";
 import { cn } from "@/utils";
 import { ToolTip } from "@/components/ui/tooltip";
+import "./map-large-area-modal.css";
 import { RadioDot } from "@/features/try-fair/components/model-picker/model-picker-badges";
 
 // ── Tabs ────────────────────────────────────────────────────────────────────────
@@ -62,9 +63,9 @@ const MapLargeAreaContent = ({
   });
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex min-w-0 flex-col gap-4">
       {/* Dynamic instruction based on active tab */}
-      <p className="text-grey text-sm -mt-6">
+      <p className="text-grey text-sm">
         {activeTab === "whole"
           ? "The entire imagery extent will be used as your area of interest. Review the highlighted boundary on the map, then provide a description and submit."
           : activeTab === "draw"
@@ -82,7 +83,7 @@ const MapLargeAreaContent = ({
       />
 
       {/* Header Tabs */}
-      <div className="grid grid-cols-1 md:grid-cols-3 border border-gray-border gap-2 w-full p-1.5 rounded-lg bg-white">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))] border border-gray-border gap-2 w-full p-1.5 rounded-lg bg-white">
         {TABS.map(({ value, label, Icon }) => {
           const disabled = value === "whole" && isWholeAreaDisabled;
           const tabButton = (
@@ -91,7 +92,7 @@ const MapLargeAreaContent = ({
               disabled={disabled}
               onClick={() => handleTabChange(value)}
               className={cn(
-                "w-full p-2 gap-2 text-dark rounded-lg flex items-center justify-between min-w-0 transition-colors",
+                "h-full w-full p-3 gap-2 text-dark rounded-lg flex items-center justify-between min-w-0 transition-colors",
                 activeTab === value
                   ? "bg-secondary border-[#D63F4080] border"
                   : "bg-off-white",
@@ -114,16 +115,15 @@ const MapLargeAreaContent = ({
               {tabButton}
             </ToolTip>
           ) : (
-            <div key={value}>{tabButton}</div>
+            <div key={value} className="min-w-0">
+              {tabButton}
+            </div>
           );
         })}
       </div>
 
       {/* Map Container */}
-      <div
-        className="relative rounded-lg overflow-hidden w-full z-10 border border-gray-border"
-        style={{ height: "min(500px, calc(92vh - 280px))" }}
-      >
+      <div className="map-area-preview relative shrink-0 rounded-lg overflow-hidden w-full z-10 border border-gray-border">
         <MapComponent
           map={map}
           terraDraw={terraDraw}
@@ -133,19 +133,51 @@ const MapLargeAreaContent = ({
           tileServiceURL={tileServerURL}
           zoomControls={true}
           controlsPosition={ControlsPosition.TOP_LEFT}
+          extraControls={
+            activeTab === "draw" ? (
+              <ToolTip
+                content={
+                  drawingMode === DrawingModes.POLYGON
+                    ? "Drawing active – double-click to finish"
+                    : "Click to draw a new area"
+                }
+                placement={undefined}
+              >
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (drawingMode === DrawingModes.POLYGON) return;
+                    handleEnableDrawing();
+                  }}
+                  aria-label="Enable drawing mode"
+                  className={cn(
+                    "size-[38px] p-2  border flex items-center justify-center transition-colors",
+                    drawingMode === DrawingModes.POLYGON
+                      ? "bg-primary text-white border-primary cursor-default"
+                      : "bg-white text-dark   cursor-pointer",
+                  )}
+                >
+                  <DrawIcon className="size-4" />
+                </button>
+              </ToolTip>
+            ) : undefined
+          }
         />
 
         {/* Selected AOI Status Floating Badge (Top Right) */}
         {selectedAOI && (
-          <div className="absolute top-4 right-4 z-20 bg-white/95  border border-border-gray rounded-full px-3.5 py-1.5 shadow-sm flex items-center gap-2 text-xs  text-grey">
+          <div className="absolute top-4 right-4 max-w-[calc(100%-5rem)] z-20 bg-white/95  border border-border-gray rounded-full px-3.5 py-1.5 shadow-sm flex items-center gap-2 text-xs  text-grey">
             {activeTab === "whole" ? (
-              <PictureIcon className="w-4 h-4 text-dark" />
+              <PictureIcon className="w-4 h-4 shrink-0 text-dark" />
             ) : activeTab === "draw" ? (
-              <DrawIcon className="w-4 h-4 text-dark" />
+              <DrawIcon className="w-4 h-4 shrink-0 text-dark" />
             ) : (
-              <UploadIcon className="w-4 h-4 text-dark" />
+              <UploadIcon className="w-4 h-4 shrink-0 text-dark" />
             )}
-            <span>
+            <span
+              className="min-w-0 truncate"
+              title={uploadedFileName || undefined}
+            >
               {activeTab === "upload"
                 ? uploadedFileName || "Mapping AOI.geojson"
                 : activeTab === "draw"
@@ -163,44 +195,13 @@ const MapLargeAreaContent = ({
                 <button
                   type="button"
                   onClick={handleClearArea}
-                  className="ml-1 text-primary hover:text-primary transition-colors p-1 rounded-full"
+                  className="ml-1 shrink-0 text-primary hover:text-primary transition-colors p-1 rounded-full"
                   title="Clear area"
                 >
                   <DeleteIcon className="w-4 h-4" />
                 </button>
               </ToolTip>
             )}
-          </div>
-        )}
-
-        {/* Floating draw toggle button – only visible in draw mode */}
-        {map && activeTab === "draw" && (
-          <div className="absolute left-3 map-elements-z-index top-[24%] md:top-[20%]">
-            <ToolTip
-              content={
-                drawingMode === DrawingModes.POLYGON
-                  ? "Drawing active – click the first point to close"
-                  : "Click to draw a new area"
-              }
-              placement={undefined}
-            >
-              <button
-                type="button"
-                onClick={() => {
-                  if (drawingMode === DrawingModes.POLYGON) return;
-                  handleEnableDrawing();
-                }}
-                aria-label="Enable drawing mode"
-                className={cn(
-                  "size-[38px] p-2  border flex items-center justify-center transition-colors",
-                  drawingMode === DrawingModes.POLYGON
-                    ? "bg-primary text-white border-primary cursor-default"
-                    : "bg-white text-dark   cursor-pointer",
-                )}
-              >
-                <DrawIcon className="size-4" />
-              </button>
-            </ToolTip>
           </div>
         )}
       </div>
@@ -271,6 +272,7 @@ export const MapLargeAreaModal = ({
   return (
     <Dialog
       label="Map an area"
+      className="map-area-dialog"
       isOpened={isOpened}
       preventClose
       closeDialog={closeDialog}
