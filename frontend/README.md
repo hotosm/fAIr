@@ -237,5 +237,5 @@ the build-time value. The search/zoom overlap fix applies to both layouts.
 
 ### Dashboard button
 
-Signed-in users on Try fAIr see the outlined Dashboard button beside the profile
+Signed-in users on Try fAIr see the dark Dashboard button beside the profile
 controls by default. No environment variable is needed.

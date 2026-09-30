@@ -79,7 +79,7 @@ export const NavBar = () => {
 
           {isAuthenticated && <Divider />}
 
-          {showMappingMode && <MappingMode />}
+          {showMappingMode && <MappingMode tourTarget={false} />}
 
           <div className={styles.loginButtonContainer}>
             <MobileAuthSection
@@ -104,11 +104,10 @@ export const NavBar = () => {
           {!isTryFairPage && !isProfilePage && (
             <NavBarLinks className={styles.webNavLinks} />
           )}
-          {showMappingMode && isTryFairPage && <MappingMode />}
         </div>
 
         <div className="flex-1 hidden sm:flex items-center justify-end gap-x-3">
-          {showMappingMode && isProfilePage && <MappingMode />}
+          {showMappingMode && <MappingMode />}
           <DesktopAuthSection
             isAuthenticated={isAuthenticated}
             isTryFairPage={isTryFairPage}

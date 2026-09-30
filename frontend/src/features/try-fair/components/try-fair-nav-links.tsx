@@ -77,7 +77,7 @@ export const StartMappingNavlinks: React.FC = () => {
           onClick={() => {
             setChooseLocation(true);
           }}
-          className={`${isAuthenticated ? "bg-dark" : "bg-grey"} text-xs px-3 flex shrink-0 items-center whitespace-nowrap text-white !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem]`}
+          className="border border-dark bg-white text-dark hover:bg-off-white transition-colors text-xs px-3 flex shrink-0 items-center whitespace-nowrap !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem]"
           aria-label="Change imagery"
         >
           Change imagery
@@ -86,7 +86,11 @@ export const StartMappingNavlinks: React.FC = () => {
       <ToolTip content={isAuthenticated ? "Map an area" : "Login"}>
         <button
           type="button"
-          id={APP_TOUR_IDS.TRY_FAIR_MAP_LARGE_AREA_BUTTON}
+          id={
+            isAuthenticated
+              ? APP_TOUR_IDS.TRY_FAIR_MAP_LARGE_AREA_BUTTON
+              : undefined
+          }
           onClick={() => {
             if (!isAuthenticated) {
               window.location.href = `${HANKO_URL}/app?return_to=${encodeURIComponent(window.location.href)}`;
