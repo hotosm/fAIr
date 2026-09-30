@@ -1,16 +1,16 @@
+import { NavigateFunction } from "react-router-dom";
 import styles from "@/components/layouts/navbar/navbar.module.css";
 import { HankoAuthComponent } from "@/components/layouts/navbar/hanko-auth";
 import { LoginButton } from "@/components/layouts/navbar/login-button";
 import { UserProfile } from "@/components/layouts/navbar/user-profile";
 import { AUTH_PROVIDER, IS_DEV } from "@/config";
 import { APP_TOUR_IDS } from "@/constants/site-tour";
-import MappingMode from "@/features/try-fair/components/mapping-mode";
 import { StartMappingNavlinks } from "@/features/try-fair/components/try-fair-nav-links";
 import { UserNotifications } from "@/features/user-profile/components/notifications/user-notifications";
-import { NavigateFunction } from "react-router-dom";
-import { SolidButton } from "@/components/shared/solid-button";
 import { DownloadResultButton } from "@/features/user-profile/components/map-requests/download-result-button";
 import { APPLICATION_ROUTES } from "@/constants";
+import { SolidButton } from "@/components/shared/solid-button";
+import { useLocation } from "react-router-dom";
 const IS_HANKO_AUTH = AUTH_PROVIDER === "hanko";
 
 if (IS_HANKO_AUTH) {
@@ -82,10 +82,19 @@ export const MobileAuthSection = ({
 export const DesktopAuthSection = ({
   isAuthenticated,
   isTryFairPage,
-  isProfilePage,
   returnTo,
   navigate,
-}: AuthSectionProps & { isProfilePage: boolean }) => {
+}: AuthSectionProps) => {
+  const { pathname } = useLocation();
+  const dashboardButton =
+    isAuthenticated && pathname === APPLICATION_ROUTES.HOMEPAGE ? (
+      <SolidButton
+        onClick={() => navigate(APPLICATION_ROUTES.PROFILE_BASE)}
+        variant="dark"
+      >
+        Dashboard
+      </SolidButton>
+    ) : null;
   const showHankoBar = IS_HANKO_AUTH && !IS_DEV && !isTryFairPage;
   const isMapRequestsPage = location.pathname.includes(
     APPLICATION_ROUTES.MAP_REQUEST_BASE,
@@ -95,13 +104,11 @@ export const DesktopAuthSection = ({
     return (
       <>
         {isAuthenticated && <UserNotifications />}
-        {isAuthenticated && (
-          <SolidButton
-            onClick={() => navigate(APPLICATION_ROUTES.PROFILE_BASE)}
-            variant="dark"
-          />
-        )}
-        <div className={styles.headerHankoAuth}>
+        {dashboardButton}
+        {isAuthenticated && isMapRequestsPage && <DownloadResultButton />}
+        <div
+          className={`${styles.headerHankoAuth} ${isAuthenticated && isTryFairPage ? "border-l border-gray-border pl-3 ml-1 !w-auto" : ""}`}
+        >
           <HankoAuthComponent redirectAfterLogin={returnTo} />
         </div>
       </>
@@ -112,19 +119,13 @@ export const DesktopAuthSection = ({
     return (
       <div className="flex items-center gap-x-2">
         {isTryFairPage && <StartMappingNavlinks />}
-        {isProfilePage && <MappingMode />}
         {!isTryFairPage && !isMapRequestsPage && <UserNotifications />}
-        {!isTryFairPage && !isProfilePage && !isMapRequestsPage && (
-          <SolidButton
-            onClick={() => navigate(APPLICATION_ROUTES.PROFILE_BASE)}
-            variant="dark"
-          >
-            Dashboard{" "}
-          </SolidButton>
-        )}
+        {dashboardButton}
         {isMapRequestsPage && <DownloadResultButton />}
 
-        <div className={styles.headerHankoAuth}>
+        <div
+          className={`${styles.headerHankoAuth} ${isAuthenticated && isTryFairPage ? "border-l border-gray-border pl-3 ml-1 !w-auto" : ""}`}
+        >
           <HankoAuthComponent redirectAfterLogin={returnTo} />
         </div>
       </div>
@@ -140,7 +141,9 @@ export const DesktopAuthSection = ({
     >
       {isTryFairPage && <StartMappingNavlinks />}
       {!isTryFairPage && (
-        <div className={styles.headerHankoAuth}>
+        <div
+          className={`${styles.headerHankoAuth} ${isAuthenticated && isTryFairPage ? "border-l border-gray-border pl-3 ml-1 !w-auto" : ""}`}
+        >
           <HankoAuthComponent redirectAfterLogin={returnTo} />
         </div>
       )}

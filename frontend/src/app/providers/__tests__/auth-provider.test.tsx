@@ -196,3 +196,34 @@ describe("AuthProvider profile polling", () => {
     },
   );
 });
+
+describe("initial session loading", () => {
+  it.each([200, 403])(
+    "waits for the profile response before deciding authentication (%s)",
+    async (status) => {
+      let resolveProfile!: (response: Response) => void;
+      fetchMock.mockReturnValue(
+        new Promise<Response>((resolve) => {
+          resolveProfile = resolve;
+        }),
+      );
+      const { result } = await mountProvider();
+      expect(result.current.isAuthLoading).toBe(true);
+      expect(result.current.isAuthenticated).toBe(false);
+      await act(async () => {
+        resolveProfile(
+          status === 200 ? profileResponse() : new Response(null, { status }),
+        );
+      });
+      expect(result.current.isAuthLoading).toBe(false);
+      expect(result.current.isAuthenticated).toBe(status === 200);
+    },
+  );
+
+  it("finishes the loading state when the profile request fails", async () => {
+    fetchMock.mockRejectedValue(new TypeError("Network error"));
+    const { result } = await mountProvider();
+    expect(result.current.isAuthLoading).toBe(false);
+    expect(result.current.isAuthenticated).toBe(false);
+  });
+});

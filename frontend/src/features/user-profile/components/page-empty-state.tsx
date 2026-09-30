@@ -11,8 +11,8 @@ const PageEmptyState = ({
 }: {
   heading: string;
   subHeading: string;
-  ctaText: string;
-  ctaHref: string;
+  ctaText?: string;
+  ctaHref?: string;
 }) => {
   const navigate = useNavigate();
   return (
@@ -21,16 +21,18 @@ const PageEmptyState = ({
       <h1 className="text-lg text-dark font-semibold">{heading}</h1>
       <p className="text-center text-sm text-grey max-w-sm">{subHeading}</p>
 
-      <SolidButton
-        onClick={() => navigate(ctaHref)}
-        variant="primary"
-        className="flex items-center gap-3"
-      >
-        <span className="bg-white rounded-full p-1">
-          <AddIcon className="text-primary size-3" />
-        </span>
-        {ctaText}
-      </SolidButton>
+      {ctaText && ctaHref && (
+        <SolidButton
+          onClick={() => navigate(ctaHref)}
+          variant="primary"
+          className="flex items-center gap-3"
+        >
+          <span className="bg-white rounded-full p-1">
+            <AddIcon className="text-primary size-3" />
+          </span>
+          {ctaText}
+        </SolidButton>
+      )}
     </div>
   );
 };

@@ -24,7 +24,8 @@ export function useNavbarState() {
     showDashboardLink: isAuthenticated && isTryFair,
     showDesktopLinks: !isTryFair && !isProfile,
     showMobileLinks: !isTryFair,
-    showMappingMode: isAuthenticated && isTryFair && !isMapRequests,
+    showMappingMode:
+      isAuthenticated && (isTryFair || isProfile) && !isMapRequests,
     showNotifications: isAuthenticated,
     showDownloadResult: isMapRequests,
   };
