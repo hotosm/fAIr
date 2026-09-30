@@ -14,6 +14,7 @@ for (const [key, value] of Object.entries(runtime)) {
 }
 
 export const ENVS = {
+  OUTLINED_DASHBOARD_BUTTON: env.VITE_OUTLINED_DASHBOARD_BUTTON === "true",
   EXPANDED_IMAGERY_SELECTOR: env.VITE_EXPANDED_IMAGERY_SELECTOR === "true",
 
   BASE_API_URL: env.VITE_BASE_API_URL,

@@ -5,6 +5,7 @@ import { MapRequestsTable } from "./map-requests-table";
 import { OverviewEmptyState } from "./overview-empty-state";
 import { useRecentMapRequests } from "./use-recent-map-requests";
 import { ChevronDownIcon } from "@/components/ui/icons";
+import { MapRequestsActionsMenu } from "../map-requests/map-requests-actions-menu";
 
 export const MapRequestsSection = ({
   title = "Map Requests",
@@ -44,6 +45,9 @@ export const MapRequestsSection = ({
             requests={requests}
             isPending={isPending}
             isError={isError}
+            renderRowMenu={(prediction) => (
+              <MapRequestsActionsMenu prediction={prediction} />
+            )}
           />
         )}
       </div>
