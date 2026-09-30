@@ -9,8 +9,6 @@ import {
 } from "@/features/try-fair/utils/helpers";
 import {
   buildClassColorExpression,
-  DEFAULT_PREDICTION_COLOR,
-  describePredictedFeature,
   PredictionClassStyle,
 } from "@/features/try-fair/utils/prediction-classes";
 
@@ -50,16 +48,18 @@ type Props = {
   predictionBBox: BBOX | null;
   predictionGridZoom?: number;
   outputType: TryFairMapOutputType;
-  classStyle?: PredictionClassStyle | null;
   onChoroplethBucketsChange?: (
     buckets: ReturnType<typeof computeChoroplethBuckets> | null,
   ) => void;
+  /** When set and `colored`, features are coloured by their predicted class. */
+  classStyle?: PredictionClassStyle | null;
 };
 
 type HoverTooltip = {
   x: number;
   y: number;
-  rows: { label: string; value: string }[];
+  label: string;
+  value: string;
 } | null;
 
 export const TryFairPredictionsLayer = ({
@@ -68,8 +68,8 @@ export const TryFairPredictionsLayer = ({
   predictionBBox,
   predictionGridZoom,
   outputType,
-  classStyle,
   onChoroplethBucketsChange,
+  classStyle,
 }: Props) => {
   const { choropleth, buckets } = useMemo(() => {
     if (
@@ -101,9 +101,15 @@ export const TryFairPredictionsLayer = ({
     if (!map || !map.getStyle()) return;
     removeLayers(map);
     if (!predictions || !predictions.features.length) return;
-    const classColor = classStyle?.colored
+
+    // Colour features by their predicted class when a coloured class style is
+    // provided; otherwise fall back to the default single colour.
+    const polygonFillColor = classStyle?.colored
       ? buildClassColorExpression(classStyle)
-      : DEFAULT_PREDICTION_COLOR;
+      : "#A243DC";
+    const circleColor = classStyle?.colored
+      ? buildClassColorExpression(classStyle)
+      : "#A147D8";
 
     // ── Polygon ──────────────────────────────────────────────────────────────
     if (outputType === TryFairMapOutputType.POLYGON) {
@@ -112,7 +118,7 @@ export const TryFairPredictionsLayer = ({
         id: FILL_LAYER,
         type: "fill",
         source: SOURCE_ID,
-        paint: { "fill-color": classColor, "fill-opacity": 0.3 },
+        paint: { "fill-color": polygonFillColor, "fill-opacity": 0.3 },
       });
       map.addLayer({
         id: CASING_LAYER,
@@ -128,7 +134,7 @@ export const TryFairPredictionsLayer = ({
         id: OUTLINE_LAYER,
         type: "line",
         source: SOURCE_ID,
-        paint: { "line-color": classColor, "line-width": 1.5 },
+        paint: { "line-color": "#A243DC", "line-width": 1.5 },
       });
 
       // ── Points ───────────────────────────────────────────────────────────────
@@ -158,7 +164,7 @@ export const TryFairPredictionsLayer = ({
         id: OUTLINE_LAYER,
         type: "line",
         source: SOURCE_ID,
-        paint: { "line-color": classColor, "line-width": 1.5 },
+        paint: { "line-color": "#A243DC", "line-width": 1.5 },
       });
 
       // Add a second source for the point centroids
@@ -174,7 +180,7 @@ export const TryFairPredictionsLayer = ({
         source: POINT_SOURCE_ID,
         paint: {
           "circle-radius": 4,
-          "circle-color": classStyle?.colored ? classColor : "#A147D8",
+          "circle-color": circleColor,
           "circle-stroke-color": "#ffffff",
           "circle-stroke-width": 1.5,
         },
@@ -253,7 +259,8 @@ export const TryFairPredictionsLayer = ({
       setTooltip({
         x: e.point.x,
         y: e.point.y,
-        rows: [{ label: "Features detected", value: count.toLocaleString() }],
+        label: "Features detected",
+        value: count.toLocaleString(),
       });
     };
 
@@ -280,7 +287,7 @@ export const TryFairPredictionsLayer = ({
         : outputType === TryFairMapOutputType.POLYGON
           ? FILL_LAYER
           : null;
-    if (!map || !predictionLayer || !classStyle) {
+    if (!map || !predictionLayer) {
       setTooltip(null);
       return;
     }
@@ -289,17 +296,20 @@ export const TryFairPredictionsLayer = ({
       const feature = map.queryRenderedFeatures(e.point, {
         layers: [predictionLayer],
       })[0];
-      const rows = feature
-        ? describePredictedFeature(classStyle, feature.properties ?? {})
-        : [];
-      if (!rows.length) {
+      const score = feature?.properties?.score;
+      if (typeof score !== "number") {
         setTooltip(null);
         map.getCanvas().style.cursor = "";
         return;
       }
 
       map.getCanvas().style.cursor = "pointer";
-      setTooltip({ x: e.point.x, y: e.point.y, rows });
+      setTooltip({
+        x: e.point.x,
+        y: e.point.y,
+        label: "Confidence",
+        value: `${(score * 100).toFixed(1)}%`,
+      });
     };
 
     const handleMouseLeave = () => {
@@ -316,7 +326,7 @@ export const TryFairPredictionsLayer = ({
       map.getCanvas().style.cursor = "";
       setTooltip(null);
     };
-  }, [map, outputType, classStyle]);
+  }, [map, outputType]);
 
   if (!tooltip) return null;
 
@@ -328,16 +338,12 @@ export const TryFairPredictionsLayer = ({
       {/* Offset so the tooltip doesn't sit directly under the cursor */}
       <div className="relative" style={{ transform: "translate(12px, -50%)" }}>
         <div className="bg-white/95 backdrop-blur-sm border border-gray-border rounded-lg shadow-lg px-3 py-2 flex flex-col items-start gap-0.5 min-w-[120px]">
-          {tooltip.rows.map((row) => (
-            <div key={row.label} className="flex flex-col gap-0.5">
-              <p className="text-[10px] font-medium text-grey uppercase tracking-wide leading-none">
-                {row.label}
-              </p>
-              <p className="text-base font-bold text-purple-700 leading-tight">
-                {row.value}
-              </p>
-            </div>
-          ))}
+          <p className="text-[10px] font-medium text-grey uppercase tracking-wide leading-none">
+            {tooltip.label}
+          </p>
+          <p className="text-base font-bold text-purple-700 leading-tight">
+            {tooltip.value}
+          </p>
         </div>
         <div
           className="absolute top-1/2 -left-[6px] -translate-y-1/2 w-0 h-0"

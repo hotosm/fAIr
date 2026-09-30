@@ -90,7 +90,7 @@ const ModelTrainingSettingsDialog: React.FC<ModelEnhancementDialogProps> = ({
     >
       {isError ? (
         <p>Error retrieving model details</p>
-      ) : isPending ? (
+      ) : isPending || !data ? (
         <div className="h-40 w-full animate-pulse bg-light-gray"></div>
       ) : (
         <div className="flex flex-col gap-y-6 w-full">

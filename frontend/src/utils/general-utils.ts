@@ -135,6 +135,31 @@ export const downloadFile = (url: string) => {
   window.open(url, "_blank");
 };
 
+/**
+ * Downloads a remote file and saves it under `filename` instead of opening it
+ * in a new tab. Presigned S3 URLs (e.g. a prediction's `.geojson` asset) are
+ * served inline, so `window.open` would just render them; fetching the blob and
+ * triggering an anchor download forces a real save. Falls back to opening the
+ * URL directly when the fetch is blocked (e.g. CORS).
+ */
+export const downloadFileAs = async (url: string, filename: string) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(String(response.status));
+    const blob = await response.blob();
+    const objectUrl = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = objectUrl;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(objectUrl);
+  } catch {
+    window.open(url, "_blank", "noopener,noreferrer");
+  }
+};
+
 export const getValidVideoUrl = (url: string): string => {
   const videoId = extractYouTubeVideoId(url);
   return videoId ? url : BACKUP_VIDEO_URL;

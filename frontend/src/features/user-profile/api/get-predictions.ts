@@ -30,3 +30,13 @@ export const getPredictions = async (
     hasPrev: res.data.previous !== null,
   };
 };
+
+/** Fetches a single prediction request by id. */
+export const getSinglePrediction = async (
+  predictionId: string,
+): Promise<TOfflinePrediction> => {
+  const res = await apiClient.get<TOfflinePrediction>(
+    API_ENDPOINTS.GET_SINGLE_OFFLINE_PREDICTIONS(predictionId),
+  );
+  return res.data;
+};

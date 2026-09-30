@@ -389,6 +389,46 @@ export type TPredictionRequestAssets = {
  * A single prediction request returned by the Map Large Area API.
  * Covers both in-progress requests (assets: null) and completed ones.
  */
+export type TNewOfflinePrediction = {
+  id: number;
+  zenml_run_id: string | null;
+  local_model_stac_id: string;
+  image_uri: string;
+  /** GeoJSON polygon describing the area of interest. null when bbox was used. */
+  geometry: Geometry | null;
+  /** Bounding box used when the whole imagery extent was selected. */
+  bbox?: [number, number, number, number] | null;
+  zoom: number;
+  params: TPredictionRequestParams;
+  remove_osm: boolean;
+  visibility: "private" | "public";
+  description: string;
+  status: PredictionRequestStatus;
+  results_ready: boolean;
+  assets: TPredictionRequestAssets;
+  mapswipe_project_id: string;
+  user: {
+    osm_id: number;
+    username: string;
+  };
+  submitted_at: string;
+  last_polled_at: string | null;
+
+  // Legacy offline-prediction fields — not present on the current prediction
+  // request response, kept optional for older consumers.
+  geom?: Geometry;
+  created_at?: string;
+  started_at?: string | null;
+  finished_at?: string | null;
+  published_at?: string | null;
+  task_id?: string;
+  mapswipe_id?: string | null;
+  model_name?: string;
+  config?: TModelPredictionsConfig;
+  result_count?: number;
+  published?: boolean;
+};
+
 export type TOfflinePrediction = {
   id: number;
   zenml_run_id: string | null;

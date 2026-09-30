@@ -6,6 +6,8 @@ import { ORDERING_FIELDS } from "@/components/shared/filters/ordering-filter";
 import { SEARCH_PARAMS } from "@/utils/search-params";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getPredictionsQueryOptions } from "@/features/user-profile/api/factory";
+import { getSinglePrediction } from "@/features/user-profile/api/get-predictions";
+import { TOfflinePrediction } from "@/types";
 import { LayoutView } from "@/enums";
 import {
   TOfflinePredictionUpdateArgs,
@@ -21,6 +23,23 @@ export const useGetPredictions = (
 ) => {
   return useQuery({
     ...getPredictionsQueryOptions(searchQuery, ordering, userId, offset),
+  });
+};
+
+/**
+ * Fetches a single prediction request by id. `initialData` (e.g. the row the
+ * user clicked) lets the results page render instantly and stay refresh-safe.
+ */
+export const useGetSinglePrediction = (
+  predictionId?: string | number,
+  initialData?: TOfflinePrediction,
+) => {
+  const id = predictionId !== undefined ? String(predictionId) : undefined;
+  return useQuery({
+    queryKey: ["prediction", id],
+    queryFn: () => getSinglePrediction(id as string),
+    enabled: id !== undefined,
+    initialData,
   });
 };
 

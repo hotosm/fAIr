@@ -14,6 +14,7 @@ type RecentImageriesListProps = {
   currentTileUrl: string | null;
   onSelectRecent: (entry: RecentImageryEntry) => void;
   onBack: () => void;
+  onClear: () => void;
 };
 
 /**
@@ -90,6 +91,7 @@ export const RecentImageriesList = ({
   currentTileUrl,
   onSelectRecent,
   onBack,
+  onClear,
 }: RecentImageriesListProps) => {
   // Show most recent first.
   const sortedEntries = [...recentImageries].reverse();
@@ -100,11 +102,24 @@ export const RecentImageriesList = ({
       <button
         type="button"
         onClick={onBack}
-        className="flex items-center gap-1   pb-2 text-xs font-semibold text-dark hover:text-primary transition-colors"
+        className="self-start flex items-center gap-1 pb-2 text-xs font-semibold text-dark hover:text-primary transition-colors"
       >
         <ChevronDownIcon className="size-3 rotate-90" />
-        Recent Imageries
+        Back to imagery
       </button>
+
+      <div className="flex items-center justify-between gap-3 pb-2">
+        <h2 className="text-sm text-dark">Recent imagery</h2>
+        {sortedEntries.length > 0 && (
+          <button
+            type="button"
+            onClick={onClear}
+            className="text-xs font-medium text-primary hover:underline"
+          >
+            Clear recent
+          </button>
+        )}
+      </div>
 
       {/* List */}
       <div className="flex-1 overflow-y-auto p-3 rounded-lg border border-gray-border space-y-2">

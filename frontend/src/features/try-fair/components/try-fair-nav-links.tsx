@@ -2,15 +2,14 @@ import { useAuth } from "@/app/providers/auth-provider";
 import { CloudDownloadIcon } from "@/components/ui/icons";
 import { ShareIcon } from "@/components/ui/icons/share-icon";
 import { ToolTip } from "@/components/ui/tooltip";
-import { HANKO_URL } from "@/config";
-import { APPLICATION_ROUTES } from "@/constants/routes";
 import { APP_TOUR_IDS } from "@/constants/site-tour";
 import { getDownloadData } from "@/features/try-fair/components/start-mapping/export-map-results";
+import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
 import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
 import { geoJSONDowloader } from "@/utils";
-import { useNavigate } from "react-router-dom";
 
 export const StartMappingNavlinks: React.FC = () => {
+  const { setChooseLocation } = useTryFairParams();
   const {
     setDownloadType,
     setShowSigninModal,
@@ -22,10 +21,7 @@ export const StartMappingNavlinks: React.FC = () => {
   } = useStartMappingStore();
   const hasPredictions = Boolean(predictions?.features?.length);
   const { isAuthenticated } = useAuth();
-  const handleHankoLogin = () => {
-    window.location.href = `${HANKO_URL}/app?return_to=${encodeURIComponent(window.location.href)}`;
-  };
-  const navigate = useNavigate();
+
   const handleSelect = (value: string) => {
     if (value === "download") {
       if (!predictions) return;
@@ -50,7 +46,7 @@ export const StartMappingNavlinks: React.FC = () => {
       {/* Download — icon button */}
       <ToolTip
         content={
-          hasPredictions ? "Download results" : "Map to generate results"
+          hasPredictions ? "Download results" : "Map to download results"
         }
       >
         <button
@@ -74,22 +70,19 @@ export const StartMappingNavlinks: React.FC = () => {
         </button>
       </ToolTip>
 
-      {/* Choose your own */}
-      {/* <ToolTip content="Change Imagery">
+      <ToolTip content="Change imagery">
         <button
           type="button"
           onClick={() => {
             setChooseLocation(true);
           }}
-          className="bg-grey text-xs px-3 flex shrink-0 items-center whitespace-nowrap text-white !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem]"
-          aria-label="Choose a different location"
+          className="bg-dark text-xs px-3 flex shrink-0 items-center whitespace-nowrap text-white !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem]"
+          aria-label="Change imagery"
         >
-          Choose your own
+          Change imagery
         </button>
-      </ToolTip> */}
-
-      {/* Map Large Area */}
-      <ToolTip content="Map a large area">
+      </ToolTip>
+      <ToolTip content="Map an area">
         <button
           type="button"
           id={APP_TOUR_IDS.TRY_FAIR_MAP_LARGE_AREA_BUTTON}
@@ -101,35 +94,11 @@ export const StartMappingNavlinks: React.FC = () => {
             }
           }}
           className="bg-grey text-xs px-3 flex shrink-0 items-center whitespace-nowrap text-white !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem]"
-          aria-label="Map a large area"
+          aria-label="Map an area"
         >
-          Map Large Area
+          Map an area
         </button>
       </ToolTip>
-
-      {isAuthenticated ? (
-        <ToolTip content="Go to your dashboard">
-          <button
-            type="button"
-            onClick={() => navigate(APPLICATION_ROUTES.PROFILE_BASE)}
-            className="bg-dark text-xs px-3 flex shrink-0 items-center whitespace-nowrap text-white !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem]"
-            aria-label="Go to your dashboard"
-          >
-            Dashboard
-          </button>
-        </ToolTip>
-      ) : (
-        <ToolTip content="Login">
-          <button
-            type="button"
-            onClick={handleHankoLogin}
-            className="bg-dark text-xs px-3 flex shrink-0 items-center whitespace-nowrap text-white !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem]"
-            aria-label="Login"
-          >
-            Log in
-          </button>
-        </ToolTip>
-      )}
     </div>
   );
 };

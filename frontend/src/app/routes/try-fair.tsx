@@ -101,7 +101,8 @@ export const TryFairPage = () => {
 
   const isChooseLocationOpen = Boolean(chooseLocation);
 
-  const { recentImageries, addRecentImagery } = useRecentImageries();
+  const { recentImageries, addRecentImagery, clearRecentImageries } =
+    useRecentImageries();
 
   const { models: allModels, loading: modelsLoading } = useStacBaseModels();
   const { models: localModels, loading: localModelLoading } =
@@ -531,6 +532,7 @@ export const TryFairPage = () => {
             handleApplyImagery(selection);
           }}
           recentImageries={recentImageries}
+          onClearRecentImageries={clearRecentImageries}
           onApplyRecentImagery={(entry) => {
             setStagedImagery(null);
             handleApplyRecentImagery(entry);
@@ -545,14 +547,17 @@ export const TryFairPage = () => {
 
       {/* Advanced Model picker dialog */}
       <Dialog
-        label="Select a Model"
+        // size={SHOELACE_SIZES.LARGE}
+        label="Which model do you want to use?"
         isOpened={isAdvancedModelPickerDialogOpened}
+        preventClose
         closeDialog={closeAdvancedModelPickerDialog}
       >
         <AdvancedModelPickerContent
           feature={feature}
           onSelect={handleSelectModel}
           onClose={closeAdvancedModelPickerDialog}
+          onFeatureChange={setFeature}
         />
       </Dialog>
 

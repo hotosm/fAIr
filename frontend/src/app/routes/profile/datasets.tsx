@@ -1,29 +1,43 @@
-import { useAuth } from "@/app/providers/auth-provider";
+// import { useAuth } from "@/app/providers/auth-provider";
 import { Head } from "@/components/seo";
-import { OrderingFilter, Pagination, SearchFilter } from "@/components/shared";
+import { APPLICATION_ROUTES } from "@/constants";
+// import { OrderingFilter, Pagination, SearchFilter } from "@/components/shared";
 import { USER_PROFILE_PAGE_CONTENT } from "@/constants/ui-contents/user-profile-content";
-import { DatasetList } from "@/features/datasets/components";
-import { useDatasetsQueryParams } from "@/features/datasets/hooks/use-query-params";
 import { ProfileSectionHeader } from "@/features/user-profile/components";
-import { TTrainingDataset } from "@/types";
+// import { DatasetList } from "@/features/datasets/components";
+// import { useDatasetsQueryParams } from "@/features/datasets/hooks/use-query-params";
+// import { ProfileSectionHeader } from "@/features/user-profile/components";
+import PageEmptyState from "@/features/user-profile/components/page-empty-state";
+// import { TTrainingDataset } from "@/types";
 
 export const UserProfileDatasetsPage = () => {
-  const { user } = useAuth();
-  const {
-    data,
-    isError,
-    isPending,
-    isPlaceholderData,
-    refetch,
-    query,
-    updateQuery,
-  } = useDatasetsQueryParams(user.osm_id);
+  // const { user } = useAuth();
+  // const {
+  //   data,
+  //   isError,
+  //   isPending,
+  //   isPlaceholderData,
+  //   refetch,
+  //   query,
+  //   updateQuery,
+  // } = useDatasetsQueryParams(user.osm_id);
 
   return (
     <>
       <Head title={USER_PROFILE_PAGE_CONTENT.datasets.pageTitle} />
-      <div className="space-y-8">
-        {/* Section heading */}
+      <ProfileSectionHeader
+        title={USER_PROFILE_PAGE_CONTENT.datasets.sectionTitle}
+      />
+      <div className="w-full  flex flex-col  justify-center items-center  h-4/5">
+        <PageEmptyState
+          heading="No Datasets Yet"
+          subHeading="You have not created any datasets. Get started by creating your first dataset."
+          ctaText="Create Dataset"
+          ctaHref={APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_DATASET}
+        />
+      </div>
+
+      {/* <div className="space-y-8">
         <div className="w-full gap-y-6 sm:gap-y-0 flex flex-col sm:flex-row justify-between items-start sm:items-center">
           <ProfileSectionHeader
             title={USER_PROFILE_PAGE_CONTENT.datasets.sectionTitle}
@@ -59,7 +73,6 @@ export const UserProfileDatasetsPage = () => {
             </div>
           </div>
         </div>
-        {/* Dataset List */}
         <DatasetList
           isError={isError}
           datasets={data?.results as TTrainingDataset[]}
@@ -67,7 +80,7 @@ export const UserProfileDatasetsPage = () => {
           refetch={refetch}
           navigateOnClick
         />
-      </div>
+      </div> */}
     </>
   );
 };

@@ -29,6 +29,7 @@ type MapComponentProps = {
   /** Fixed zoom for the tile-boundary layer (defaults to the map zoom). */
   tileBoundaryZoom?: number;
   children?: React.ReactNode;
+  extraControls?: React.ReactNode;
   basemaps?: boolean;
   fitToBounds?: boolean;
   bounds?: LngLatBoundsLike;
@@ -57,6 +58,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
   tileBoundaryZoom,
   basemaps = false,
   children,
+  extraControls,
   fitToBounds,
   bounds,
   mapContainerRef,
@@ -80,6 +82,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
           >
             {zoomControls ? <ZoomControls map={map} /> : null}
             {geolocationControl && <GeolocationControl map={map} />}
+            {extraControls}
           </div>
           {fitToBounds && (
             <div className="absolute left-3 z-[1] top-28">

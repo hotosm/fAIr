@@ -1642,12 +1642,12 @@
 }
 @layer wa-utilities {
   :where(
-      .wa-align-items-start,
-      .wa-align-items-end,
-      .wa-align-items-center,
-      .wa-align-items-stretch,
-      .wa-align-items-baseline
-    ) {
+    .wa-align-items-start,
+    .wa-align-items-end,
+    .wa-align-items-center,
+    .wa-align-items-stretch,
+    .wa-align-items-baseline
+  ) {
     display: flex;
   }
   .wa-align-items-start {
@@ -1683,13 +1683,13 @@
 }
 @layer wa-utilities {
   :where(
-      .wa-justify-content-start,
-      .wa-justify-content-end,
-      .wa-justify-content-center,
-      .wa-justify-content-space-around,
-      .wa-justify-content-space-between,
-      .wa-justify-content-space-evenly
-    ) {
+    .wa-justify-content-start,
+    .wa-justify-content-end,
+    .wa-justify-content-center,
+    .wa-justify-content-space-around,
+    .wa-justify-content-space-between,
+    .wa-justify-content-space-evenly
+  ) {
     display: flex;
   }
   .wa-justify-content-start {
@@ -1747,19 +1747,19 @@
 }
 @layer wa-utilities {
   :where(
-      .wa-gap-0,
-      .wa-gap-3xs,
-      .wa-gap-2xs,
-      .wa-gap-xs,
-      .wa-gap-s,
-      .wa-gap-m,
-      .wa-gap-l,
-      .wa-gap-xl,
-      .wa-gap-2xl,
-      .wa-gap-3xl,
-      .wa-gap-4xl,
-      .wa-gap-5xl
-    ) {
+    .wa-gap-0,
+    .wa-gap-3xs,
+    .wa-gap-2xs,
+    .wa-gap-xs,
+    .wa-gap-s,
+    .wa-gap-m,
+    .wa-gap-l,
+    .wa-gap-xl,
+    .wa-gap-2xl,
+    .wa-gap-3xl,
+    .wa-gap-4xl,
+    .wa-gap-5xl
+  ) {
     display: flex;
   }
   .wa-gap-0 {
@@ -2029,13 +2029,13 @@
     margin-inline: 0;
   }
   :where(
-      [class*="wa-cluster"],
-      [class*="wa-flank"],
-      [class*="wa-frame"],
-      [class*="wa-grid"],
-      [class*="wa-stack"],
-      [class*="wa-split"]
-    ) {
+    [class*="wa-cluster"],
+    [class*="wa-flank"],
+    [class*="wa-frame"],
+    [class*="wa-grid"],
+    [class*="wa-stack"],
+    [class*="wa-split"]
+  ) {
     gap: var(--wa-space-m);
   }
   [class*="wa-cluster"] {
@@ -2241,15 +2241,15 @@
         margin-block-end: var(--wa-prose-rhythm-xl);
       }
       :where(
-          :not(h1, h2, h3, h4, h5, h6)
-            + :is(pre, figure, table, blockquote, wa-callout, details)
-        ) {
+        :not(h1, h2, h3, h4, h5, h6)
+          + :is(pre, figure, table, blockquote, wa-callout, details)
+      ) {
         margin-block-start: var(--wa-prose-rhythm-xl);
       }
       :where(
-          :is(h1, h2, h3, h4, h5, h6)
-            + :is(pre, figure, table, blockquote, wa-callout, details)
-        ) {
+        :is(h1, h2, h3, h4, h5, h6)
+          + :is(pre, figure, table, blockquote, wa-callout, details)
+      ) {
         margin-block-start: var(--wa-prose-rhythm-m);
       }
     }

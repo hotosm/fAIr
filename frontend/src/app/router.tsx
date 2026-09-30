@@ -67,6 +67,24 @@ const router = createBrowserRouter([
       /**
        * Try fAIr route ends.
        */
+
+      /**
+       * Map Request result (full-screen, protected) route.
+       */
+      {
+        path: APPLICATION_ROUTES.MAP_REQUEST_RESULT,
+        lazy: async () => {
+          const { MapRequestResultPage } =
+            await import("@/app/routes/map-request-result");
+          return {
+            Component: () => (
+              <ProtectedRoute>
+                <MapRequestResultPage />
+              </ProtectedRoute>
+            ),
+          };
+        },
+      },
       {
         path: APPLICATION_ROUTES.LEARN,
         lazy: async () => {
@@ -95,9 +113,8 @@ const router = createBrowserRouter([
       {
         path: APPLICATION_ROUTES.MODEL_DETAILS,
         lazy: async () => {
-          const { ModelDetailsPage } = await import(
-            "@/app/routes/models/model-details-card"
-          );
+          const { ModelDetailsPage } =
+            await import("@/app/routes/models/model-details-card");
           return {
             Component: () => (
               <ModelsProvider>
@@ -111,9 +128,8 @@ const router = createBrowserRouter([
       {
         path: APPLICATION_ROUTES.MODEL_FEEDBACKS,
         lazy: async () => {
-          const { ModelFeedbacksPage } = await import(
-            "@/app/routes/models/feedbacks"
-          );
+          const { ModelFeedbacksPage } =
+            await import("@/app/routes/models/feedbacks");
           return {
             Component: () => (
               <ModelsProvider>
@@ -126,9 +142,8 @@ const router = createBrowserRouter([
       {
         path: APPLICATION_ROUTES.MODELS,
         lazy: async () => {
-          const { ModelsPage } = await import(
-            "@/app/routes/models/models-list"
-          );
+          const { ModelsPage } =
+            await import("@/app/routes/models/models-list");
           return {
             Component: () => <ModelsPage />,
           };
@@ -141,9 +156,8 @@ const router = createBrowserRouter([
       {
         path: APPLICATION_ROUTES.AI_PREDICTIONS,
         lazy: async () => {
-          const { AIPredictionsPage } = await import(
-            "@/app/routes/ai-predictions"
-          );
+          const { AIPredictionsPage } =
+            await import("@/app/routes/ai-predictions");
           return {
             Component: () => <AIPredictionsPage />,
           };
@@ -166,9 +180,8 @@ const router = createBrowserRouter([
           {
             path: APPLICATION_ROUTES.CREATE_NEW_MODEL,
             lazy: async () => {
-              const { ModelDetailsFormPage } = await import(
-                "@/app/routes/models/model-details-form"
-              );
+              const { ModelDetailsFormPage } =
+                await import("@/app/routes/models/model-details-form");
               return {
                 Component: () => <ModelDetailsFormPage />,
               };
@@ -177,9 +190,8 @@ const router = createBrowserRouter([
           {
             path: APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_DATASET,
             lazy: async () => {
-              const { ModelTrainingDatasetPage } = await import(
-                "@/app/routes/models/training-dataset"
-              );
+              const { ModelTrainingDatasetPage } =
+                await import("@/app/routes/models/training-dataset");
               return {
                 Component: () => <ModelTrainingDatasetPage />,
               };
@@ -188,9 +200,8 @@ const router = createBrowserRouter([
           {
             path: APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_AREA,
             lazy: async () => {
-              const { ModelTrainingAreaPage } = await import(
-                "@/app/routes/models/training-area"
-              );
+              const { ModelTrainingAreaPage } =
+                await import("@/app/routes/models/training-area");
               return {
                 Component: () => <ModelTrainingAreaPage />,
               };
@@ -199,9 +210,8 @@ const router = createBrowserRouter([
           {
             path: APPLICATION_ROUTES.CREATE_NEW_MODEL_TRAINING_SETTINGS,
             lazy: async () => {
-              const { ModelTrainingSettingsPage } = await import(
-                "@/app/routes/models/training-settings"
-              );
+              const { ModelTrainingSettingsPage } =
+                await import("@/app/routes/models/training-settings");
               return {
                 Component: () => <ModelTrainingSettingsPage />,
               };
@@ -210,9 +220,8 @@ const router = createBrowserRouter([
           {
             path: APPLICATION_ROUTES.CREATE_NEW_MODEL_SUMMARY,
             lazy: async () => {
-              const { ModelSummaryPage } = await import(
-                "@/app/routes/models/summary"
-              );
+              const { ModelSummaryPage } =
+                await import("@/app/routes/models/summary");
               return {
                 Component: () => <ModelSummaryPage />,
               };
@@ -221,9 +230,8 @@ const router = createBrowserRouter([
           {
             path: APPLICATION_ROUTES.CREATE_NEW_MODEL_CONFIRMATION,
             lazy: async () => {
-              const { ModelConfirmationPage } = await import(
-                "@/app/routes/models/confirmation"
-              );
+              const { ModelConfirmationPage } =
+                await import("@/app/routes/models/confirmation");
               return {
                 Component: () => <ModelConfirmationPage />,
               };
@@ -239,9 +247,8 @@ const router = createBrowserRouter([
           {
             path: APPLICATION_ROUTES.EDIT_MODEL_DETAILS,
             lazy: async () => {
-              const { ModelDetailsFormPage } = await import(
-                "@/app/routes/models/model-details-form"
-              );
+              const { ModelDetailsFormPage } =
+                await import("@/app/routes/models/model-details-form");
               return {
                 Component: () => <ModelDetailsFormPage />,
               };
@@ -250,9 +257,8 @@ const router = createBrowserRouter([
           {
             path: APPLICATION_ROUTES.EDIT_MODEL_TRAINING_DATASET,
             lazy: async () => {
-              const { ModelTrainingDatasetPage } = await import(
-                "@/app/routes/models/training-dataset"
-              );
+              const { ModelTrainingDatasetPage } =
+                await import("@/app/routes/models/training-dataset");
               return {
                 Component: () => <ModelTrainingDatasetPage />,
               };
@@ -261,9 +267,8 @@ const router = createBrowserRouter([
           {
             path: APPLICATION_ROUTES.EDIT_MODEL_TRAINING_AREA,
             lazy: async () => {
-              const { ModelTrainingAreaPage } = await import(
-                "@/app/routes/models/training-area"
-              );
+              const { ModelTrainingAreaPage } =
+                await import("@/app/routes/models/training-area");
               return {
                 Component: () => <ModelTrainingAreaPage />,
               };
@@ -272,9 +277,8 @@ const router = createBrowserRouter([
           {
             path: APPLICATION_ROUTES.EDIT_MODEL_TRAINING_SETTINGS,
             lazy: async () => {
-              const { ModelTrainingSettingsPage } = await import(
-                "@/app/routes/models/training-settings"
-              );
+              const { ModelTrainingSettingsPage } =
+                await import("@/app/routes/models/training-settings");
               return {
                 Component: () => <ModelTrainingSettingsPage />,
               };
@@ -283,9 +287,8 @@ const router = createBrowserRouter([
           {
             path: APPLICATION_ROUTES.EDIT_MODEL_SUMMARY,
             lazy: async () => {
-              const { ModelSummaryPage } = await import(
-                "@/app/routes/models/summary"
-              );
+              const { ModelSummaryPage } =
+                await import("@/app/routes/models/summary");
               return {
                 Component: () => <ModelSummaryPage />,
               };
@@ -294,9 +297,8 @@ const router = createBrowserRouter([
           {
             path: APPLICATION_ROUTES.EDIT_MODEL_CONFIRMATION,
             lazy: async () => {
-              const { ModelConfirmationPage } = await import(
-                "@/app/routes/models/confirmation"
-              );
+              const { ModelConfirmationPage } =
+                await import("@/app/routes/models/confirmation");
               return {
                 Component: () => <ModelConfirmationPage />,
               };
@@ -313,9 +315,8 @@ const router = createBrowserRouter([
       {
         path: APPLICATION_ROUTES.DATASET_DETAILS,
         lazy: async () => {
-          const { TrainingDatasetsDetailPage } = await import(
-            "@/app/routes/datasets/dataset-detail"
-          );
+          const { TrainingDatasetsDetailPage } =
+            await import("@/app/routes/datasets/dataset-detail");
           return {
             Component: () => <TrainingDatasetsDetailPage />,
           };
@@ -328,9 +329,8 @@ const router = createBrowserRouter([
       {
         path: APPLICATION_ROUTES.DATASETS,
         lazy: async () => {
-          const { DatasetExplorerPage } = await import(
-            "@/app/routes/datasets/dataset-list"
-          );
+          const { DatasetExplorerPage } =
+            await import("@/app/routes/datasets/dataset-list");
           return {
             Component: () => <DatasetExplorerPage />,
           };
@@ -347,9 +347,8 @@ const router = createBrowserRouter([
       {
         path: APPLICATION_ROUTES.START_MAPPING,
         lazy: async () => {
-          const { StartMappingPage } = await import(
-            "@/app/routes/start-mapping"
-          );
+          const { StartMappingPage } =
+            await import("@/app/routes/start-mapping");
           return {
             Component: () => (
               <ProtectedRoute>
@@ -376,9 +375,8 @@ const router = createBrowserRouter([
           {
             path: APPLICATION_ROUTES.PROFILE_BASE,
             lazy: async () => {
-              const { UserProfileOverviewPage } = await import(
-                "@/app/routes/profile/overview"
-              );
+              const { UserProfileOverviewPage } =
+                await import("@/app/routes/profile/overview");
               return {
                 Component: () => <UserProfileOverviewPage />,
               };
@@ -387,9 +385,8 @@ const router = createBrowserRouter([
           {
             path: APPLICATION_ROUTES.PROFILE_SETTINGS,
             lazy: async () => {
-              const { UserProfileSettingsPage } = await import(
-                "@/app/routes/profile/settings"
-              );
+              const { UserProfileSettingsPage } =
+                await import("@/app/routes/profile/settings");
               return {
                 Component: () => <UserProfileSettingsPage />,
               };
@@ -398,9 +395,8 @@ const router = createBrowserRouter([
           {
             path: APPLICATION_ROUTES.PROFILE_MODELS,
             lazy: async () => {
-              const { UserModelsPage } = await import(
-                "@/app/routes/profile/models"
-              );
+              const { UserModelsPage } =
+                await import("@/app/routes/profile/models");
               return {
                 Component: () => <UserModelsPage />,
               };
@@ -409,9 +405,8 @@ const router = createBrowserRouter([
           {
             path: APPLICATION_ROUTES.PROFILE_DATASETS,
             lazy: async () => {
-              const { UserProfileDatasetsPage } = await import(
-                "@/app/routes/profile/datasets"
-              );
+              const { UserProfileDatasetsPage } =
+                await import("@/app/routes/profile/datasets");
               return {
                 Component: () => <UserProfileDatasetsPage />,
               };
@@ -420,9 +415,8 @@ const router = createBrowserRouter([
           {
             path: APPLICATION_ROUTES.PROFILE_OFFLINE_PREDICTIONS,
             lazy: async () => {
-              const { UserProfileOfflinePredictionsPage } = await import(
-                "@/app/routes/profile/offline-predictions"
-              );
+              const { UserProfileOfflinePredictionsPage } =
+                await import("@/app/routes/profile/offline-predictions");
               return {
                 Component: () => <UserProfileOfflinePredictionsPage />,
               };

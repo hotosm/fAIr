@@ -32,8 +32,17 @@ vi.mock("../imagery-modal-map.layers", () => ({
 }));
 
 vi.mock("@/components/map", () => ({
-  MapComponent: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="mock-map-component">{children}</div>
+  MapComponent: ({
+    children,
+    extraControls,
+  }: {
+    children: React.ReactNode;
+    extraControls?: React.ReactNode;
+  }) => (
+    <div data-testid="mock-map-component">
+      {extraControls}
+      {children}
+    </div>
   ),
 }));
 

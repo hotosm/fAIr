@@ -28,7 +28,6 @@ import { cn } from "@/utils";
 import useScreenSize from "@/hooks/use-screen-size";
 import { RefreshIcon } from "@/components/ui/icons";
 import { ToolTip } from "@/components/ui/tooltip";
-import { LocationSearchIcon } from "@/components/ui/icons/location-search-icon";
 import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
 import { AdvancedModelPicker } from "@/features/try-fair/components/model-picker/advanced-model-picker-dialog";
 import { Spinner } from "@/components/ui/spinner";
@@ -95,10 +94,13 @@ export const TryFairSidebar = ({
   const confidenceParam = inferenceParams.find(
     (param) => param.key === "confidence_threshold",
   );
-  const confidenceValue =
-    paramValues.confidence_threshold ?? confidenceParam?.spec.default ?? 0.7;
-  const confidenceMin = confidenceParam?.spec.min ?? 0;
-  const confidenceMax = confidenceParam?.spec.max ?? 1;
+  const confidenceValue = Number(
+    paramValues.confidence_threshold ?? confidenceParam?.spec.default ?? 0.7,
+  );
+  // The Accuracy slider exposes three fixed stops: Low (0.25), Medium (0.5),
+  // High (0.75) — driven by min/max/step below rather than the model spec.
+  const confidenceMin = 0.25;
+  const confidenceMax = 0.75;
   const hasAdvancedSettings = inferenceParams.some(
     ({ key }) => key !== "confidence_threshold",
   );
@@ -112,16 +114,22 @@ export const TryFairSidebar = ({
     >
       <div
         className={cn(
-          "flex bg-gray-white border-[#687075] border  p-2.5 rounded-lg",
+          "flex bg-gray-white border-[#687075] border rounded-lg overflow-hidden",
           isSmallViewport
-            ? "flex-col items-stretch gap-2"
-            : "items-center gap-2",
+            ? "flex-col items-stretch p-2.5 gap-2"
+            : "items-stretch",
         )}
       >
-        <div className="hidden md:inline-block">
-          <LocationSearchIcon className="size-5" />
-        </div>
-        <div className="flex-1 min-w-0 items-center">
+        <div
+          onClick={isPredicting ? undefined : openMobileModelPickerDialog}
+          className={cn(
+            "flex-1 min-w-0 flex items-center",
+            isPredicting
+              ? "cursor-not-allowed opacity-60"
+              : "cursor-pointer hover:bg-black/[0.02] transition-colors",
+            !isSmallViewport && "pl-2.5 pr-2 py-2 rounded-l-lg",
+          )}
+        >
           <ModelPicker
             selectedModel={selectedModel}
             onSelect={onSelectModel}
@@ -135,12 +143,15 @@ export const TryFairSidebar = ({
 
         {/* Vertical divider */}
         {!isSmallViewport && (
-          <div className="self-stretch w-px bg-gray-border shrink-0" />
+          <div className="w-px my-2 bg-gray-border shrink-0" />
         )}
 
         <div
           id={APP_TOUR_IDS.TRY_FAIR_MAP_BUTTON_TOOLTIP}
-          className="flex items-center gap-2"
+          className={cn(
+            "flex items-center gap-2",
+            !isSmallViewport ? "p-2.5" : "",
+          )}
         >
           {isPredicting ? (
             <>
@@ -281,46 +292,55 @@ export const TryFairSidebar = ({
           </div>
         </div>
 
-        <div>
-          <div className="flex items-center gap-2 mb-1.5">
-            <p className="text-dark text-xs font-medium">Accuracy</p>
-            <span className="text-[#404446] bg-off-white p-1 rounded-md text-xs ">
-              {getAccuracyLabel(confidenceValue)}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <SnowflakeIcon />
-            <div className="relative flex-1">
-              {[50].map((pct) => (
-                <div
-                  key={pct}
-                  className="absolute top-1/2 -translate-y-1/2 w-0.5 h-3 bg-white/80 pointer-events-none z-10"
-                  style={{ left: `${pct}%` }}
-                />
-              ))}
-              <input
-                type="range"
-                min={confidenceMin}
-                max={confidenceMax}
-                step={0.5}
-                disabled={isPredicting}
-                value={Number(confidenceValue)}
-                onChange={(e) =>
-                  onParamChange(
-                    "confidence_threshold",
-                    parseFloat(e.target.value),
-                  )
-                }
-                className="try-fair-confidence-slider disabled:cursor-wait w-full h-1.5 rounded-full appearance-none cursor-pointer outline-none"
-                style={{
-                  background: `linear-gradient(90deg, #0088FF 0%, #FF383C 100%)`,
-                }}
-              />
+        {/* Accuracy (confidence) is basic-mode only — advanced users adjust it
+            in the Advanced Settings panel instead. */}
+        {!isAdvancedMode && (
+          <div>
+            <div className="flex items-center gap-2 mb-1.5">
+              <p className="text-dark text-xs font-medium">Accuracy</p>
+              <span className="text-[#404446] bg-off-white p-1 rounded-md text-xs ">
+                {getAccuracyLabel(confidenceValue)}
+              </span>
             </div>
-            <FlameIcon />
+
+            <div className="flex items-center gap-2">
+              <SnowflakeIcon />
+              <div className="relative flex-1">
+                {[50].map((pct) => (
+                  <div
+                    key={pct}
+                    className="absolute top-1/2 -translate-y-1/2 w-0.5 h-3 bg-white/80 pointer-events-none z-10"
+                    style={{ left: `${pct}%` }}
+                  />
+                ))}
+                <input
+                  type="range"
+                  min={confidenceMin}
+                  max={confidenceMax}
+                  step={0.25}
+                  disabled={isPredicting}
+                  // Inverted: the left/min end is High (0.75) and the right/max
+                  // end is Low (0.25). A range input requires min < max, so we
+                  // map the raw track position to its mirror around the midpoint.
+                  value={confidenceMin + confidenceMax - confidenceValue}
+                  onChange={(e) =>
+                    onParamChange(
+                      "confidence_threshold",
+                      confidenceMin +
+                        confidenceMax -
+                        parseFloat(e.target.value),
+                    )
+                  }
+                  className="try-fair-confidence-slider disabled:cursor-wait w-full h-1.5 rounded-full appearance-none cursor-pointer outline-none"
+                  style={{
+                    background: `linear-gradient(90deg, #0088FF 0%, #FF383C 100%)`,
+                  }}
+                />
+              </div>
+              <FlameIcon />
+            </div>
           </div>
-        </div>
+        )}
 
         {hasAdvancedSettings && isAdvancedMode && (
           <DropDown

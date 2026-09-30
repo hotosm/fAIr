@@ -118,4 +118,30 @@ describe("OAMImageryPanel", () => {
 
     expect(handleClose).toHaveBeenCalled();
   });
+
+  it("collapses results for a preview and expands them for a new area", () => {
+    const { rerender } = render(<OAMImageryPanel expanded {...defaultProps} />);
+    fireEvent.click(screen.getByRole("button", { name: /Nairobi High Res/ }));
+    expect(defaultProps.onSelect).toHaveBeenCalledWith(mockImages[0]);
+    expect(
+      screen.getByRole("button", { name: "Expand imagery results" }),
+    ).toHaveAttribute("aria-expanded", "false");
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Expand imagery results" }),
+    );
+    expect(
+      screen.getByRole("button", { name: "Collapse imagery results" }),
+    ).toHaveAttribute("aria-expanded", "true");
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Collapse imagery results" }),
+    );
+    rerender(
+      <OAMImageryPanel expanded {...defaultProps} images={[mockImages[1]]} />,
+    );
+    expect(
+      screen.getByRole("button", { name: "Collapse imagery results" }),
+    ).toHaveAttribute("aria-expanded", "true");
+  });
 });

@@ -1,5 +1,5 @@
 import type { InferenceParam } from "@/features/try-fair/api/stac";
-import { CloseIcon, InfoIcon, RefreshIcon } from "@/components/ui/icons";
+import { CloseIcon, RefreshIcon } from "@/components/ui/icons";
 import { RedoIcon, UndoIcon } from "@/components/ui/icons/undo-icon";
 
 type AdvancedSettingsPanelProps = {
@@ -19,7 +19,7 @@ export const AdvancedSettingsPanel = ({
   onReset,
   isPredicting,
 }: AdvancedSettingsPanelProps) => {
-  // Surface Accuracy (confidence_threshold) here too, first, so it can be set
+  // Surface Confidence (confidence_threshold) here too, first, so it can be set
   // to a precise number — the sidebar only exposes it as a coarse slider.
   const confidenceParam = inferenceParams.find(
     ({ key }) => key === "confidence_threshold",
@@ -32,7 +32,7 @@ export const AdvancedSettingsPanel = ({
     : otherParams;
 
   return (
-    <aside className="max-h-[500px] w-[302px] hide-scrollbar overflow-y-auto rounded-[10px] border border-gray-border bg-white p-4 shadow-xl">
+    <aside className="max-h-[450px] w-[302px] hide-scrollbar overflow-y-auto rounded-[10px] border border-gray-border bg-white p-4 shadow-xl">
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-medium text-dark">Advanced Settings</h2>
@@ -51,7 +51,7 @@ export const AdvancedSettingsPanel = ({
             const value = paramValues[key] ?? spec.default;
             const isConfidence = key === "confidence_threshold";
             const label = isConfidence
-              ? "Accuracy"
+              ? "Confidence"
               : key
                   .replace(/[_-]/g, " ")
                   .replace(/\b\w/g, (letter) => letter.toUpperCase());
@@ -64,7 +64,7 @@ export const AdvancedSettingsPanel = ({
                 >
                   <span className="flex items-center gap-2">
                     {label}
-                    <InfoIcon className="size-3 text-grey" />
+                    {/* <InfoIcon className="size-3 text-grey" /> */}
                   </span>
                   <span className="relative inline-flex h-4 w-8 items-center">
                     <input
@@ -91,7 +91,7 @@ export const AdvancedSettingsPanel = ({
                 >
                   <span className="flex items-center gap-2">
                     {label}
-                    <InfoIcon className="size-3 text-grey" />
+                    {/* <InfoIcon className="size-3 text-grey" /> */}
                   </span>
                   {spec.values?.length ? (
                     <select
@@ -141,7 +141,7 @@ export const AdvancedSettingsPanel = ({
                 <div className="flex items-center justify-between gap-3 text-xs text-dark">
                   <span className="flex items-center gap-2">
                     {label}
-                    <InfoIcon className="size-3 text-grey" />
+                    {/* <InfoIcon className="size-3 text-grey" /> */}
                   </span>
                   <input
                     type="text"

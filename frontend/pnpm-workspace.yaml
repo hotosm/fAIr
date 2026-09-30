@@ -1,3 +1,7 @@
+# Explicitly include this package for compatibility with pnpm 9.
+packages:
+  - "."
+
 # pnpm >= 10.6 reads its settings from here. The "pnpm" field in package.json is
 # ignored by pnpm >= 11, which silently drops these overrides from the lockfile
 # and breaks --frozen-lockfile in CI (ERR_PNPM_LOCKFILE_CONFIG_MISMATCH).

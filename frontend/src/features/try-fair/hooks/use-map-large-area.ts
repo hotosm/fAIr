@@ -1,9 +1,15 @@
-import { MAX_TRAINING_AREA_SIZE, MIN_TRAINING_AREA_SIZE } from "@/config";
+import {
+  MAP_LARGE_AREA_MAX_SIZE_SQKM,
+  MAP_LARGE_AREA_MAX_SIZE_SQM,
+  TMS_SOURCE_ID,
+} from "@/config";
+import { RasterTileSource } from "maplibre-gl";
 import { DrawingModes, ModelType } from "@/enums";
 
 import { useMapInstance } from "@/hooks/use-map-instance";
 import { BBOX, Feature } from "@/types";
 import {
+  calculateGeoJSONArea,
   featureIsWithinBounds,
   formatAreaInAppropriateUnit,
   getGeoJSONFeatureBounds,
@@ -11,12 +17,11 @@ import {
   showSuccessToast,
   showWarningToast,
   uuid4,
-  validateGeoJSONArea,
 } from "@/utils";
 import { GeoJSONStoreFeatures } from "terra-draw";
 import { FeatureCollection, Polygon } from "geojson";
 import { GeoJSONSource } from "maplibre-gl";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
 import {
   MapLargeAreaRequest,
@@ -65,20 +70,28 @@ export const useMapLargeArea = ({
 }: UseMapLargeAreaOptions) => {
   const { selectedImagery, currentModelType } = useStartMappingStore();
   const activeImageryBounds = imageryBounds ?? selectedImagery?.bounds ?? null;
+  // Pass no bounds so drawing isn't constrained to the imagery extent — the
+  // user can click/draw anywhere on the map.
   const { mapContainerRef, map, drawingMode, setDrawingMode, terraDraw } =
-    useMapInstance(
-      undefined,
-      undefined,
-      "red",
-      activeImageryBounds ?? undefined,
+    useMapInstance(undefined, undefined, "red", null);
+
+  // "Map Whole Area" is disabled when the imagery footprint alone already
+  // exceeds the Map Large Area limit — in that case only a drawn/uploaded
+  // sub-area can be requested.
+  const isWholeAreaDisabled = useMemo(() => {
+    if (!activeImageryBounds || activeImageryBounds.length !== 4) return false;
+    const imageryArea = calculateGeoJSONArea(
+      createFeatureFromBounds(activeImageryBounds),
     );
+    return imageryArea > MAP_LARGE_AREA_MAX_SIZE_SQM;
+  }, [activeImageryBounds]);
 
   const { mutate: submitMapLargeArea, isPending: isSubmittingMapLargeArea } =
     useSubmitMapLargeArea();
 
   const { modelId, selectedModel, inferenceParams, resolution, confidence } =
     useTryFairParams();
-  const [activeTab, setActiveTab] = useState<AOITab>("whole");
+  const [activeTab, setActiveTab] = useState<AOITab>("draw");
   const [selectedAOI, setSelectedAOI] = useState<Feature | null>(null);
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
   const [description, setDescription] = useState<string>("");
@@ -92,23 +105,46 @@ export const useMapLargeArea = ({
     }
   };
 
-  // Resize map & fit bounds initially
+  // Resize map & fit bounds initially.
   useEffect(() => {
     if (!map || !activeImageryBounds) return;
     map.resize();
-    map.fitBounds(
-      [
-        activeImageryBounds[0],
-        activeImageryBounds[1],
-        activeImageryBounds[2],
-        activeImageryBounds[3],
-      ],
-      {
-        padding: 40,
-        maxZoom: 18,
-        essential: true,
-      },
-    );
+    const frame: [number, number, number, number] = [
+      activeImageryBounds[0],
+      activeImageryBounds[1],
+      activeImageryBounds[2],
+      activeImageryBounds[3],
+    ];
+    const frameImagery = () =>
+      map.fitBounds(frame, { padding: 40, maxZoom: 18, essential: true });
+    frameImagery();
+
+    // Cap the map's minimum zoom at the imagery's own minzoom so users can't zoom
+    // out past where the bounded raster has tiles — below it the imagery simply
+    // disappears (large coastal scenes otherwise fit below it and show empty).
+    // setMinZoom also lifts the current view up if the fit landed below it. The
+    // AOI (including "whole imagery") comes from bounds, not the view, so this
+    // only affects what the user sees. minzoom is known once the TileJSON loads.
+    let applied = false;
+    const lockMinZoom = (event: {
+      sourceId?: string;
+      isSourceLoaded?: boolean;
+    }) => {
+      if (applied || event.sourceId !== TMS_SOURCE_ID || !event.isSourceLoaded)
+        return;
+      const source = map.getSource(TMS_SOURCE_ID) as
+        | RasterTileSource
+        | undefined;
+      if (typeof source?.minzoom !== "number") return;
+      applied = true;
+      map.setMinZoom(source.minzoom);
+      frameImagery();
+    };
+    map.on("sourcedata", lockMinZoom);
+    return () => {
+      map.off("sourcedata", lockMinZoom);
+      if (map.getStyle()) map.setMinZoom(undefined);
+    };
   }, [map, activeImageryBounds]);
 
   // Render selected AOI directly on MapLibre style layer for guaranteed visual rendering
@@ -196,6 +232,8 @@ export const useMapLargeArea = ({
   // Handle Tab Switch
   const handleTabChange = useCallback(
     (tab: AOITab) => {
+      // "Map Whole Area" is unavailable when the imagery exceeds the limit.
+      if (tab === "whole" && isWholeAreaDisabled) return;
       // For upload tab, open the file picker immediately (within the user
       // gesture) so the browser doesn't block it. Cleanup runs after.
       if (tab === "upload") {
@@ -238,7 +276,14 @@ export const useMapLargeArea = ({
         }, 50);
       }
     },
-    [activeImageryBounds, clearTerraDraw, map, setDrawingMode, terraDraw],
+    [
+      activeImageryBounds,
+      clearTerraDraw,
+      map,
+      setDrawingMode,
+      terraDraw,
+      isWholeAreaDisabled,
+    ],
   );
 
   // Set default mode on initial mount if tab is draw
@@ -268,29 +313,19 @@ export const useMapLargeArea = ({
 
     const latestFeature = snapshot[snapshot.length - 1];
 
-    // Match the size limits used by the offline prediction AOI upload flow.
-    if (validateGeoJSONArea(latestFeature)) {
+    // Only a maximum limit applies to a Map Large Area request — there is no
+    // minimum, and the area may extend beyond the imagery bounds.
+    const drawnArea = calculateGeoJSONArea(latestFeature);
+    if (drawnArea > MAP_LARGE_AREA_MAX_SIZE_SQM) {
       showWarningToast(
-        `Area must be between ${formatAreaInAppropriateUnit(
-          MIN_TRAINING_AREA_SIZE,
-        )} and ${formatAreaInAppropriateUnit(MAX_TRAINING_AREA_SIZE)}.`,
+        `The selected area (${formatAreaInAppropriateUnit(
+          drawnArea,
+        )}) is larger than the ${MAP_LARGE_AREA_MAX_SIZE_SQKM.toLocaleString()} km² limit. Please draw a smaller area.`,
       );
       terraDraw.clear();
       setSelectedAOI(null);
       setDrawingMode(DrawingModes.POLYGON);
       return;
-    }
-
-    if (activeImageryBounds && activeImageryBounds.length === 4) {
-      if (!featureIsWithinBounds(activeImageryBounds, latestFeature)) {
-        showWarningToast(
-          "The drawn polygon extends beyond the imagery bounds. Please draw within the imagery bounds.",
-        );
-        terraDraw.clear();
-        setSelectedAOI(null);
-        setDrawingMode(DrawingModes.POLYGON);
-        return;
-      }
     }
 
     if (snapshot.length > 1) {
@@ -319,6 +354,22 @@ export const useMapLargeArea = ({
       terraDraw.off("finish", onFinish);
     };
   }, [terraDraw, handleDrawFinish]);
+
+  // Escape should stop an active drawing rather than bubble up and close the
+  // modal. Intercept it in the capture phase while drawing is in progress.
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      if (drawingMode !== DrawingModes.POLYGON) return;
+      event.preventDefault();
+      event.stopPropagation();
+      clearTerraDraw();
+      setSelectedAOI(null);
+      setDrawingMode(DrawingModes.STATIC);
+    };
+    window.addEventListener("keydown", onKeyDown, true);
+    return () => window.removeEventListener("keydown", onKeyDown, true);
+  }, [drawingMode, clearTerraDraw, setDrawingMode]);
 
   // Handle uploaded GeoJSON file directly via native file picker
   const handleFileChange = async (
@@ -510,5 +561,6 @@ export const useMapLargeArea = ({
     handleClearArea,
     handleEnableDrawing,
     handleSubmit,
+    isWholeAreaDisabled,
   };
 };
