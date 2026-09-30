@@ -1,7 +1,6 @@
 import { matchPath, useLocation } from "react-router-dom";
 import { useAuth } from "@/app/providers/auth-provider";
 import { APPLICATION_ROUTES } from "@/constants";
-import { ENVS } from "@/config/env";
 
 const isUnder = (pathname: string, base: string) =>
   pathname === base || pathname.startsWith(`${base}/`);
@@ -26,8 +25,6 @@ export function useNavbarState() {
     // use this approach to specify what shows where, if a new condition is to be added, you can add it here
     showBackButton: isMapRequests,
     showDashboardLink: isAuthenticated && isTryFair,
-    showOutlinedDashboardButton:
-      isAuthenticated && isTryFair && ENVS.OUTLINED_DASHBOARD_BUTTON,
     showDesktopLinks: !isTryFair && !isProfile,
     showMobileLinks: !isTryFair,
     showMappingMode:

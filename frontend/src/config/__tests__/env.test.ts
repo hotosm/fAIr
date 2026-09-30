@@ -8,7 +8,6 @@ afterEach(() => {
 
 describe.each([
   ["VITE_EXPANDED_IMAGERY_SELECTOR", "EXPANDED_IMAGERY_SELECTOR"],
-  ["VITE_OUTLINED_DASHBOARD_BUTTON", "OUTLINED_DASHBOARD_BUTTON"],
 ] as const)("%s flag", (variable, key) => {
   it.each([undefined, "false", "", "1", "true"])(
     "only enables the new layout for the exact value true (value=%s)",

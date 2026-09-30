@@ -3,6 +3,7 @@ import { CloudDownloadIcon } from "@/components/ui/icons";
 import { ShareIcon } from "@/components/ui/icons/share-icon";
 import { ToolTip } from "@/components/ui/tooltip";
 import { APP_TOUR_IDS } from "@/constants/site-tour";
+import { HANKO_URL } from "@/config";
 import { getDownloadData } from "@/features/try-fair/components/start-mapping/export-map-results";
 import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
 import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
@@ -12,7 +13,6 @@ export const StartMappingNavlinks: React.FC = () => {
   const { setChooseLocation } = useTryFairParams();
   const {
     setDownloadType,
-    setShowSigninModal,
     setShowShareModal,
     predictions,
     outputType,
@@ -77,27 +77,27 @@ export const StartMappingNavlinks: React.FC = () => {
           onClick={() => {
             setChooseLocation(true);
           }}
-          className="bg-dark text-xs px-3 flex shrink-0 items-center whitespace-nowrap text-white !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem]"
+          className={`${isAuthenticated ? "bg-dark" : "bg-grey"} text-xs px-3 flex shrink-0 items-center whitespace-nowrap text-white !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem]`}
           aria-label="Change imagery"
         >
           Change imagery
         </button>
       </ToolTip>
-      <ToolTip content="Map an area">
+      <ToolTip content={isAuthenticated ? "Map an area" : "Login"}>
         <button
           type="button"
           id={APP_TOUR_IDS.TRY_FAIR_MAP_LARGE_AREA_BUTTON}
           onClick={() => {
             if (!isAuthenticated) {
-              setShowSigninModal(true);
+              window.location.href = `${HANKO_URL}/app?return_to=${encodeURIComponent(window.location.href)}`;
             } else {
               handleSelect("large-area");
             }
           }}
-          className="bg-grey text-xs px-3 flex shrink-0 items-center whitespace-nowrap text-white !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem]"
-          aria-label="Map an area"
+          className={`${isAuthenticated ? "bg-grey" : "bg-dark"} text-xs px-3 flex shrink-0 items-center whitespace-nowrap text-white !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem]`}
+          aria-label={isAuthenticated ? "Map an area" : "Login"}
         >
-          Map an area
+          {isAuthenticated ? "Map an area" : "Login"}
         </button>
       </ToolTip>
     </div>

@@ -91,7 +91,7 @@ export const DesktopAuthSection = ({
   const {
     isMapRequests: isMapRequestsPage,
     showDownloadResult,
-    showOutlinedDashboardButton,
+    showDashboardLink,
   } = useNavbarState();
   const dashboardButton =
     isAuthenticated && pathname === APPLICATION_ROUTES.HOMEPAGE ? (
@@ -127,7 +127,7 @@ export const DesktopAuthSection = ({
         {dashboardButton}
         {showDownloadResult && <DownloadResultButton />}
 
-        {showOutlinedDashboardButton && <DashboardLink />}
+        {showDashboardLink && <DashboardLink />}
         <div
           className={`${styles.headerHankoAuth} ${isAuthenticated && isTryFairPage ? "border-l border-gray-border pl-3 ml-1 !w-auto" : ""}`}
         >

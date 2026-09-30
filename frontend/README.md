@@ -235,16 +235,7 @@ at startup through the existing runtime configuration; restart the container and
 reload the page after changing it. Runtime configuration takes precedence over
 the build-time value. The search/zoom overlap fix applies to both layouts.
 
-### Outlined Dashboard button
+### Dashboard button
 
-Try fAIr shows the Dashboard text beside the logo by default. To use the outlined
-button beside the profile controls instead, set:
-
-```dotenv
-VITE_OUTLINED_DASHBOARD_BUTTON=true
-```
-
-Only `true` enables it; unset or `false` restores the original text. Both versions
-require sign-in. Restart Vite after changing `frontend/.env.local`. For deployment,
-rebuild with the variable or supply it through the existing runtime configuration
-(which takes precedence) and restart the container.
+Signed-in users on Try fAIr see the outlined Dashboard button beside the profile
+controls by default. No environment variable is needed.
