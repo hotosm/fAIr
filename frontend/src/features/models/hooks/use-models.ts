@@ -56,7 +56,7 @@ export const useModels = ({
 export const useModelDetails = (
   id: string,
   enabled: boolean = false,
-  refetchInterval: boolean | number = false,
+  refetchInterval: false | number = false,
 ) => {
   return useQuery({
     ...getModelDetailsQueryOptions(id, refetchInterval, enabled),

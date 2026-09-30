@@ -224,7 +224,7 @@ const ModelsContext = createContext<{
   validateEditMode: boolean;
   isError: boolean;
   isPending: boolean;
-  data: TModelDetails;
+  data: TModelDetails | undefined;
   isModelOwner: boolean;
   modelCreationOrUpdateInProgress: boolean;
 }>({
@@ -248,7 +248,7 @@ const ModelsContext = createContext<{
   validateEditMode: false,
   isPending: false,
   isError: false,
-  data: {} as TModelDetails,
+  data: undefined,
   isModelOwner: false,
   modelCreationOrUpdateInProgress: false,
 });

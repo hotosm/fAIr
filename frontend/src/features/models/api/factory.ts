@@ -1,4 +1,8 @@
-import { keepPreviousData, queryOptions } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  queryOptions,
+  skipToken,
+} from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/services";
 import {
   getModels,
@@ -70,13 +74,12 @@ export const getModelsQueryOptions = ({
 
 export const getModelDetailsQueryOptions = (
   id: string,
-  refetchInterval: boolean | number,
+  refetchInterval: false | number,
   enabled: boolean,
 ) => {
   return queryOptions({
     queryKey: [QUERY_KEYS.MODEL_DETAILS(id)],
     queryFn: () => getModelDetails(id),
-    //@ts-expect-error bad type definition
     refetchInterval: refetchInterval,
     enabled: enabled,
   });
@@ -106,10 +109,10 @@ export const getTrainingStatusQueryOptions = (taskId: string) => {
   });
 };
 
-export const getTrainingFeedbacksQueryOptions = (id: number) => {
+export const getTrainingFeedbacksQueryOptions = (id: number | undefined) => {
   return queryOptions({
     queryKey: ["training-feedbacks", id],
-    queryFn: () => getTrainingFeedbacks(id),
+    queryFn: id == null ? skipToken : () => getTrainingFeedbacks(id),
   });
 };
 
