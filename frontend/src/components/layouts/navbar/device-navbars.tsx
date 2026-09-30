@@ -11,6 +11,8 @@ import { DownloadResultButton } from "@/features/user-profile/components/map-req
 import { APPLICATION_ROUTES } from "@/constants";
 import { SolidButton } from "@/components/shared/solid-button";
 import { useLocation } from "react-router-dom";
+import { useNavbarState } from "./hooks/use-navbar-state";
+import { DashboardLink } from "./dashboard-link";
 const IS_HANKO_AUTH = AUTH_PROVIDER === "hanko";
 
 if (IS_HANKO_AUTH) {
@@ -86,6 +88,11 @@ export const DesktopAuthSection = ({
   navigate,
 }: AuthSectionProps) => {
   const { pathname } = useLocation();
+  const {
+    isMapRequests: isMapRequestsPage,
+    showDownloadResult,
+    showOutlinedDashboardButton,
+  } = useNavbarState();
   const dashboardButton =
     isAuthenticated && pathname === APPLICATION_ROUTES.HOMEPAGE ? (
       <SolidButton
@@ -96,16 +103,13 @@ export const DesktopAuthSection = ({
       </SolidButton>
     ) : null;
   const showHankoBar = IS_HANKO_AUTH && !IS_DEV && !isTryFairPage;
-  const isMapRequestsPage = location.pathname.includes(
-    APPLICATION_ROUTES.MAP_REQUEST_BASE,
-  );
 
   if (showHankoBar) {
     return (
       <>
         {isAuthenticated && <UserNotifications />}
         {dashboardButton}
-        {isAuthenticated && isMapRequestsPage && <DownloadResultButton />}
+        {showDownloadResult && <DownloadResultButton />}
         <div
           className={`${styles.headerHankoAuth} ${isAuthenticated && isTryFairPage ? "border-l border-gray-border pl-3 ml-1 !w-auto" : ""}`}
         >
@@ -121,8 +125,9 @@ export const DesktopAuthSection = ({
         {isTryFairPage && <StartMappingNavlinks />}
         {!isTryFairPage && !isMapRequestsPage && <UserNotifications />}
         {dashboardButton}
-        {isMapRequestsPage && <DownloadResultButton />}
+        {showDownloadResult && <DownloadResultButton />}
 
+        {showOutlinedDashboardButton && <DashboardLink />}
         <div
           className={`${styles.headerHankoAuth} ${isAuthenticated && isTryFairPage ? "border-l border-gray-border pl-3 ml-1 !w-auto" : ""}`}
         >

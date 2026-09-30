@@ -37,8 +37,8 @@ const HeroMap = () => {
 
 export const OverviewHero = () => {
   return (
-    <section className="flex  contour-bg flex-1 gap-4 font-archivo rounded-md bg-dark p-4 text-white ">
-      <div className="flex w-full flex-col sm:max-w-[220px] gap-y-8 p-4">
+    <section className="grid min-w-0 grid-cols-1 sm:grid-cols-2 contour-bg gap-4 font-archivo rounded-md bg-dark p-4 text-white">
+      <div className="flex min-w-0 flex-col gap-y-6 p-2 sm:p-4">
         <h1 className="font-semibold text-2xl">
           {SHARED_CONTENT.homepage.jumbotronTitle}
         </h1>
@@ -58,7 +58,7 @@ export const OverviewHero = () => {
         </Link>
       </div>
 
-      <div className="flex-1 sm:flex hidden rounded-md w-full overflow-hidden">
+      <div className="hidden min-h-64 min-w-0 rounded-md w-full overflow-hidden sm:block">
         <HeroMap />
       </div>
     </section>

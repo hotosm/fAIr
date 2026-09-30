@@ -7,15 +7,12 @@ export const UserProfileLayout = () => {
 
   if (mappingMode === "advanced") {
     return (
-      <main className="mt-6 mb-6">
-        {/* Fixed-height row: the sidebar stays pinned while only the content
-            column scrolls, so the sidebar never moves with the page. */}
-        <div className="flex gap-4 h-[calc(100vh-10rem)]">
-          {/* Sidebar — hidden on small screens where it can't fit. */}
-          <div className="hidden lg:block h-full shrink-0">
+      <main className="my-6 min-w-0">
+        <div className="flex min-w-0 flex-col items-start gap-4 lg:flex-row lg:gap-6">
+          <div className="w-full min-w-0 lg:w-60 lg:shrink-0 xl:w-64">
             <UserSidebar />
           </div>
-          <div className="flex-1 min-w-0 h-full hide-scrollbar overflow-y-auto">
+          <div className="w-full min-w-0 flex-1">
             <Outlet />
           </div>
         </div>
@@ -24,7 +21,7 @@ export const UserProfileLayout = () => {
   }
 
   return (
-    <main className="min-h-screen mt-6 mb-10">
+    <main className="min-w-0 mt-6 mb-10">
       <Outlet />
     </main>
   );

@@ -6,28 +6,28 @@ afterEach(() => {
   vi.resetModules();
 });
 
-describe("expanded imagery selector flag", () => {
+describe.each([
+  ["VITE_EXPANDED_IMAGERY_SELECTOR", "EXPANDED_IMAGERY_SELECTOR"],
+  ["VITE_OUTLINED_DASHBOARD_BUTTON", "OUTLINED_DASHBOARD_BUTTON"],
+] as const)("%s flag", (variable, key) => {
   it.each([undefined, "false", "", "1", "true"])(
     "only enables the new layout for the exact value true (value=%s)",
     async (value) => {
-      vi.stubEnv("VITE_EXPANDED_IMAGERY_SELECTOR", value);
+      vi.stubEnv(variable, value);
       vi.resetModules();
       const { ENVS } = await import("../env");
-      expect(ENVS.EXPANDED_IMAGERY_SELECTOR).toBe(value === "true");
+      expect(ENVS[key]).toBe(value === "true");
     },
   );
 
   it.each(["true", "false"])(
     "prefers the runtime flag (%s) over the build-time flag",
     async (value) => {
-      vi.stubEnv(
-        "VITE_EXPANDED_IMAGERY_SELECTOR",
-        value === "true" ? "false" : "true",
-      );
-      window.__RUNTIME_CONFIG__ = { VITE_EXPANDED_IMAGERY_SELECTOR: value };
+      vi.stubEnv(variable, value === "true" ? "false" : "true");
+      window.__RUNTIME_CONFIG__ = { [variable]: value };
       vi.resetModules();
       const { ENVS } = await import("../env");
-      expect(ENVS.EXPANDED_IMAGERY_SELECTOR).toBe(value === "true");
+      expect(ENVS[key]).toBe(value === "true");
     },
   );
 });

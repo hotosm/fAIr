@@ -5,6 +5,7 @@ import { MapRequestsTable } from "./map-requests-table";
 import { OverviewEmptyState } from "./overview-empty-state";
 import { useRecentMapRequests } from "./use-recent-map-requests";
 import { ChevronDownIcon } from "@/components/ui/icons";
+import { MapRequestsActionsMenu } from "../map-requests/map-requests-actions-menu";
 
 export const MapRequestsSection = ({
   title = "Map Requests",
@@ -14,16 +15,15 @@ export const MapRequestsSection = ({
   className?: string;
 }) => {
   const { requests, isPending, isError, isEmpty } = useRecentMapRequests();
-  console.log(requests);
 
   return (
     <section
       className={cn(
-        "rounded-lg border border-gray-border bg-frosted-blue p-4 sm:p-6",
+        "min-w-0 rounded-lg border border-gray-border bg-frosted-blue p-4 sm:p-6",
         className,
       )}
     >
-      <div className="mb-2 flex items-center justify-between">
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-sm font-semibold text-dark">{title}</h2>
         <Link
           href={APPLICATION_ROUTES.PROFILE_OFFLINE_PREDICTIONS}
@@ -44,6 +44,9 @@ export const MapRequestsSection = ({
             requests={requests}
             isPending={isPending}
             isError={isError}
+            renderRowMenu={(prediction) => (
+              <MapRequestsActionsMenu prediction={prediction} />
+            )}
           />
         )}
       </div>

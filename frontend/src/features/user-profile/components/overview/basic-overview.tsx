@@ -34,7 +34,7 @@ export const BasicOverview = () => {
     <div className="flex flex-col gap-y-6">
       <div className="flex flex-col gap-y-4 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-title-2 font-bold text-dark">Dashboard</h1>
-        <div className="flex items-center gap-x-3">
+        <div className="flex flex-wrap items-center gap-3">
           <HeaderAction
             href={APPLICATION_ROUTES.LEARN_BASE}
             icon={<LegendBookIcon className="size-4" />}
@@ -49,7 +49,7 @@ export const BasicOverview = () => {
         </div>
       </div>
 
-      <div className="flex sm:flex-row flex-col min-h-[410px] w-full gap-4 ">
+      <div className="grid w-full min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,28rem),1fr))] gap-4">
         <OverviewHero />
         <RecentActivities />
       </div>

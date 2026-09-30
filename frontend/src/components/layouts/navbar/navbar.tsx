@@ -3,6 +3,7 @@ import { Drawer } from "@/components/ui/drawer";
 import { DrawerPlacements } from "@/enums";
 import { HamburgerIcon } from "@/assets/svgs";
 import { Image } from "@/components/ui/image";
+import { DashboardLink } from "./dashboard-link";
 import { Link } from "@/components/ui/link";
 import { NavLogo } from "@/components/layouts";
 import { APPLICATION_ROUTES, SHARED_CONTENT } from "@/constants";
@@ -40,6 +41,7 @@ export const NavBar = () => {
     showDownloadResult,
     showMappingMode,
     showDashboardLink,
+    showOutlinedDashboardButton,
   } = useNavbarState();
 
   const isTryFairPage = location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR);
@@ -98,7 +100,7 @@ export const NavBar = () => {
       >
         <div className="flex-1 flex gap-4 items-center justify-start">
           {showBackButton ? <BackButton /> : <NavLogo />}
-          {showDashboardLink && (
+          {showDashboardLink && !showOutlinedDashboardButton && (
             <Link
               href={APPLICATION_ROUTES.PROFILE_BASE}
               nativeAnchor={false}
@@ -115,10 +117,11 @@ export const NavBar = () => {
           {!isTryFairPage && !isProfilePage && (
             <NavBarLinks className={styles.webNavLinks} />
           )}
-          {showMappingMode && <MappingMode />}
+          {showMappingMode && isTryFairPage && <MappingMode />}
         </div>
 
         <div className="flex-1 hidden sm:flex items-center justify-end gap-x-3">
+          {showMappingMode && isProfilePage && <MappingMode />}
           <DesktopAuthSection
             isAuthenticated={isAuthenticated}
             isTryFairPage={isTryFairPage}
@@ -129,6 +132,7 @@ export const NavBar = () => {
         </div>
 
         <div className="flex items-center gap-x-2 sm:hidden">
+          {showOutlinedDashboardButton && <DashboardLink />}
           {isAuthenticated && <UserNotifications />}
           {showDownloadResult && <DownloadResultButton />}
 

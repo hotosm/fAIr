@@ -13,7 +13,7 @@ export const RecentActivities = ({
   return (
     <section
       className={cn(
-        "flex flex-col max-w-[460px] w-full rounded-md bg-frosted-blue p-4 sm:p-6",
+        "flex min-w-0 flex-col w-full rounded-md bg-frosted-blue p-4 sm:p-6",
         className,
       )}
     >

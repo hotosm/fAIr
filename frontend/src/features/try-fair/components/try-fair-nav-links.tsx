@@ -51,9 +51,10 @@ export const StartMappingNavlinks: React.FC = () => {
       >
         <button
           disabled={!hasPredictions}
+          aria-label="Download results"
           type="button"
           onClick={() => handleSelect("download")}
-          className="flex items-center hover:text-gray-900 transition-colors text-inherit font-inherit cursor-pointer"
+          className="flex items-center enabled:hover:text-gray-900 transition-colors text-inherit font-inherit cursor-pointer disabled:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <CloudDownloadIcon className="size-6" />
         </button>
