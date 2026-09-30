@@ -19,7 +19,7 @@ const MODES = {
 
 type ModeKey = keyof typeof MODES;
 
-const MappingMode = () => {
+const MappingMode = ({ tourTarget = true }: { tourTarget?: boolean }) => {
   const { mappingMode, setMappingMode } = useTryFairParams();
   const { isAuthenticated } = useAuth();
   const mode: ModeKey = isAuthenticated ? mappingMode : "basic";
@@ -34,12 +34,12 @@ const MappingMode = () => {
       disableCheveronIcon
       triggerComponent={
         <div
-          id={APP_TOUR_IDS.TRY_FAIR_MAPPING_MODE}
-          className="bg-light-gray cursor-pointer w-[155px] rounded-[55px] py-2 justify-between px-2 items-center flex gap-2"
+          id={tourTarget ? APP_TOUR_IDS.TRY_FAIR_MAPPING_MODE : undefined}
+          className="bg-light-gray cursor-pointer w-[136px] h-8 rounded-[55px] justify-between px-3 items-center flex gap-2"
         >
           <div className="gap-2 items-center flex ">
-            <CurrentIcon />
-            <p className="text-dark texts-xs">{MODES[mode].label}</p>
+            <CurrentIcon className="size-4 shrink-0" />
+            <p className="text-dark text-xs">{MODES[mode].label}</p>
           </div>
           <ChevronDownIcon className="text-dark h-2 w-4 shrink-0" />
         </div>

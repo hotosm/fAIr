@@ -9,7 +9,6 @@ import { StartMappingNavlinks } from "@/features/try-fair/components/try-fair-na
 import { UserNotifications } from "@/features/user-profile/components/notifications/user-notifications";
 import { DownloadResultButton } from "@/features/user-profile/components/map-requests/download-result-button";
 import { APPLICATION_ROUTES } from "@/constants";
-import { SolidButton } from "@/components/shared/solid-button";
 import { useLocation } from "react-router-dom";
 import { useNavbarState } from "./hooks/use-navbar-state";
 import { DashboardLink } from "./dashboard-link";
@@ -85,7 +84,6 @@ export const DesktopAuthSection = ({
   isAuthenticated,
   isTryFairPage,
   returnTo,
-  navigate,
 }: AuthSectionProps) => {
   const { pathname } = useLocation();
   const {
@@ -94,13 +92,13 @@ export const DesktopAuthSection = ({
     showDashboardLink,
   } = useNavbarState();
   const dashboardButton =
-    isAuthenticated && pathname === APPLICATION_ROUTES.HOMEPAGE ? (
-      <SolidButton
-        onClick={() => navigate(APPLICATION_ROUTES.PROFILE_BASE)}
-        variant="dark"
-      >
-        Dashboard
-      </SolidButton>
+    isAuthenticated &&
+    (pathname === APPLICATION_ROUTES.HOMEPAGE ||
+      pathname === APPLICATION_ROUTES.ABOUT ||
+      pathname === `${APPLICATION_ROUTES.ABOUT}/` ||
+      pathname === APPLICATION_ROUTES.LEARN_BASE ||
+      pathname.startsWith(`${APPLICATION_ROUTES.LEARN_BASE}/`)) ? (
+      <DashboardLink />
     ) : null;
   const showHankoBar = IS_HANKO_AUTH && !IS_DEV && !isTryFairPage;
 

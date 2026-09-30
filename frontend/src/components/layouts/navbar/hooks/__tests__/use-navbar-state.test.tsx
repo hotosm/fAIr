@@ -7,7 +7,7 @@ const auth = vi.hoisted(() => ({ isAuthenticated: true }));
 vi.mock("@/app/providers/auth-provider", () => ({ useAuth: () => auth }));
 afterEach(cleanup);
 
-describe("outlined Dashboard button", () => {
+describe("Dashboard button", () => {
   it.each([
     ["/try-fair", true, true],
     ["/try-fair", false, false],
