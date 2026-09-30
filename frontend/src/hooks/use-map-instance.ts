@@ -17,12 +17,14 @@ import { BBOX } from "@/types";
  * @param {TerraDrawStyleVariant} styleVariant - Optional drawing style variant ("default" | "red"). Defaults to "red".
  * @param {BBOX | null} imageryBounds - Optional imagery bounding box used to constrain polygon drawing to the imagery extent.
  * @returns {Object} - Contains map instance, zoom level, drawing mode, and container ref.
+ * @param {BBOX | null} initialBounds - Initial camera bounds only; does not constrain drawing.
  */
 export const useMapInstance = (
   pmtiles: boolean = false,
   hash: boolean = false,
   styleVariant: TerraDrawStyleVariant = "default",
   imageryBounds?: BBOX | null,
+  initialBounds?: BBOX | null,
 ) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<Map | null>(null);
@@ -36,7 +38,7 @@ export const useMapInstance = (
   useEffect(() => {
     if (!mapContainerRef.current) return;
 
-    const map = setupMaplibreMap(mapContainerRef, pmtiles, hash);
+    const map = setupMaplibreMap(mapContainerRef, pmtiles, hash, initialBounds);
 
     map.on("load", () => {
       setMap(map);

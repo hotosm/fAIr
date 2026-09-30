@@ -16,6 +16,7 @@ import { cn } from "@/utils";
 import { ToolTip } from "@/components/ui/tooltip";
 import "./map-large-area-modal.css";
 import { RadioDot } from "@/features/try-fair/components/model-picker/model-picker-badges";
+import { useEffect, useState } from "react";
 
 // ── Tabs ────────────────────────────────────────────────────────────────────────
 
@@ -26,11 +27,13 @@ const TABS: { value: AOITab; label: string; Icon: React.FC<IconProps> }[] = [
 ];
 
 const MapLargeAreaContent = ({
+  isOpened,
   tileServerURL,
   imageryBounds,
   onSubmit,
   closeDialog,
 }: {
+  isOpened: boolean;
   tileServerURL?: string;
   imageryBounds?: BBOX | null;
   onSubmit: () => void;
@@ -55,7 +58,9 @@ const MapLargeAreaContent = ({
     handleEnableDrawing,
     handleSubmit,
     isWholeAreaDisabled,
+    frameImagery,
   } = useMapLargeArea({
+    isOpened,
     imageryBounds,
     tileServerURL,
     onSubmit,
@@ -131,6 +136,7 @@ const MapLargeAreaContent = ({
           drawingMode={drawingMode}
           mapContainerRef={mapContainerRef}
           tileServiceURL={tileServerURL}
+          onTileServiceFitToBounds={frameImagery}
           zoomControls={true}
           controlsPosition={ControlsPosition.TOP_LEFT}
           extraControls={
@@ -269,6 +275,11 @@ export const MapLargeAreaModal = ({
   imageryBounds: BBOX | null;
   onSubmit: () => void;
 }) => {
+  const [hasOpened, setHasOpened] = useState(false);
+  useEffect(() => {
+    if (isOpened) setHasOpened(true);
+  }, [isOpened]);
+
   return (
     <Dialog
       label="Map an area"
@@ -278,8 +289,9 @@ export const MapLargeAreaModal = ({
       closeDialog={closeDialog}
       size={SHOELACE_SIZES.MEDIUM}
     >
-      {isOpened && (
+      {(isOpened || hasOpened) && (
         <MapLargeAreaContent
+          isOpened={isOpened}
           tileServerURL={tileServerURL}
           imageryBounds={imageryBounds}
           onSubmit={onSubmit}

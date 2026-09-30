@@ -60,11 +60,13 @@ let current: ReturnType<typeof useMapInstance>;
 function Harness({
   styleVariant = "default",
   bounds,
+  initialBounds,
 }: {
   styleVariant?: TerraDrawStyleVariant;
   bounds?: BBOX;
+  initialBounds?: BBOX;
 }) {
-  current = useMapInstance(false, false, styleVariant, bounds);
+  current = useMapInstance(false, false, styleVariant, bounds, initialBounds);
   return <div ref={current.mapContainerRef} />;
 }
 
@@ -91,6 +93,21 @@ afterEach(() => {
 });
 
 describe("useMapInstance drawing lifecycle", () => {
+  it("starts at the requested bounds without using them as a drawing constraint", () => {
+    const initialBounds: BBOX = [1, 2, 3, 4];
+    const view = render(<Harness initialBounds={initialBounds} />);
+    const map = loadMap();
+    expect(mocks.setupMap).toHaveBeenCalledWith(
+      expect.anything(),
+      false,
+      false,
+      initialBounds,
+    );
+    expect(mocks.setupDraw).toHaveBeenCalledWith(map, "default", undefined);
+    view.rerender(<Harness initialBounds={[5, 6, 7, 8]} />);
+    expect(mocks.setupMap).toHaveBeenCalledOnce();
+  });
+
   it("does not register duplicate sources during Strict Mode renders", () => {
     const view = render(<Harness />, { wrapper: StrictMode });
     const map = loadMap();

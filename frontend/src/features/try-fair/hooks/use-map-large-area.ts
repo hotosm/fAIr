@@ -55,6 +55,7 @@ const createFeatureFromBounds = (bounds: BBOX): Feature => {
 };
 
 interface UseMapLargeAreaOptions {
+  isOpened: boolean;
   imageryBounds?: BBOX | null;
   /** Fully resolved tile URL from useTileservice – covers both demo and custom imagery. */
   tileServerURL?: string;
@@ -63,6 +64,7 @@ interface UseMapLargeAreaOptions {
 }
 
 export const useMapLargeArea = ({
+  isOpened,
   imageryBounds,
   tileServerURL,
   onSubmit,
@@ -73,7 +75,7 @@ export const useMapLargeArea = ({
   // Pass no bounds so drawing isn't constrained to the imagery extent — the
   // user can click/draw anywhere on the map.
   const { mapContainerRef, map, drawingMode, setDrawingMode, terraDraw } =
-    useMapInstance(undefined, undefined, "red", null);
+    useMapInstance(undefined, undefined, "red", null, activeImageryBounds);
 
   // "Map Whole Area" is disabled when the imagery footprint alone already
   // exceeds the Map Large Area limit — in that case only a drawn/uploaded
@@ -105,9 +107,8 @@ export const useMapLargeArea = ({
     }
   };
 
-  // Resize map & fit bounds initially.
-  useEffect(() => {
-    if (!map || !activeImageryBounds) return;
+  const frameImagery = useCallback(() => {
+    if (!isOpened || !map || !activeImageryBounds) return;
     map.resize();
     const frame: [number, number, number, number] = [
       activeImageryBounds[0],
@@ -115,8 +116,11 @@ export const useMapLargeArea = ({
       activeImageryBounds[2],
       activeImageryBounds[3],
     ];
-    const frameImagery = () =>
-      map.fitBounds(frame, { padding: 40, maxZoom: 18, essential: true });
+    map.fitBounds(frame, { padding: 40, maxZoom: 18, duration: 0 });
+  }, [isOpened, map, activeImageryBounds]);
+
+  useEffect(() => {
+    if (!isOpened || !map) return;
     frameImagery();
 
     // Cap the map's minimum zoom at the imagery's own minzoom so users can't zoom
@@ -141,11 +145,18 @@ export const useMapLargeArea = ({
       frameImagery();
     };
     map.on("sourcedata", lockMinZoom);
+    // On reopening, cached imagery may already be loaded and emit no new event.
+    if (map.getSource(TMS_SOURCE_ID)) {
+      lockMinZoom({
+        sourceId: TMS_SOURCE_ID,
+        isSourceLoaded: map.isSourceLoaded(TMS_SOURCE_ID),
+      });
+    }
     return () => {
       map.off("sourcedata", lockMinZoom);
       if (map.getStyle()) map.setMinZoom(undefined);
     };
-  }, [map, activeImageryBounds]);
+  }, [map, isOpened, frameImagery, tileServerURL]);
 
   // Render selected AOI directly on MapLibre style layer for guaranteed visual rendering
   useEffect(() => {
@@ -203,11 +214,16 @@ export const useMapLargeArea = ({
       }
     };
 
-    if (map.isStyleLoaded()) {
+    // Existing GeoJSON sources can be updated while raster tiles are loading.
+    // Waiting for styledata here can leave the old AOI on the retained map.
+    if (map.getSource(SOURCE_ID) || map.isStyleLoaded()) {
       updateMapLayer();
     } else {
       map.once("styledata", updateMapLayer);
     }
+    return () => {
+      map.off("styledata", updateMapLayer);
+    };
   }, [map, selectedAOI]);
 
   const clearTerraDraw = useCallback(() => {
@@ -228,6 +244,18 @@ export const useMapLargeArea = ({
       }
     }
   }, [terraDraw]);
+
+  // Retain the map and its tiles, but start each request with a fresh form.
+  useEffect(() => {
+    if (isOpened) return;
+    clearTerraDraw();
+    setActiveTab("draw");
+    setSelectedAOI(null);
+    setUploadedFileName(null);
+    setDescription("");
+    setDrawingMode(DrawingModes.STATIC);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }, [isOpened, clearTerraDraw, setDrawingMode]);
 
   // Handle Tab Switch
   const handleTabChange = useCallback(
@@ -270,10 +298,7 @@ export const useMapLargeArea = ({
           }
         }
       } else if (tab === "draw") {
-        setTimeout(() => {
-          clearTerraDraw();
-          setDrawingMode(DrawingModes.POLYGON);
-        }, 50);
+        setDrawingMode(DrawingModes.POLYGON);
       }
     },
     [
@@ -286,24 +311,30 @@ export const useMapLargeArea = ({
     ],
   );
 
-  // Set default mode on initial mount if tab is draw
+  // Resume drawing only while the modal is open.
   useEffect(() => {
-    if (activeTab === "draw") {
+    if (isOpened && activeTab === "draw") {
       setDrawingMode(DrawingModes.POLYGON);
     }
-  }, [activeTab, setDrawingMode]);
+  }, [isOpened, activeTab, setDrawingMode]);
 
   // TileJSON bounds can arrive after the user selects the whole-imagery tab.
   // Create the AOI once those bounds become available.
   useEffect(() => {
-    if (activeTab !== "whole" || !activeImageryBounds || selectedAOI) return;
+    if (
+      !isOpened ||
+      activeTab !== "whole" ||
+      !activeImageryBounds ||
+      selectedAOI
+    )
+      return;
 
     const wholeFeature = createFeatureFromBounds(activeImageryBounds);
     if (terraDraw) {
       terraDraw.addFeatures([wholeFeature] as GeoJSONStoreFeatures[]);
     }
     setSelectedAOI(wholeFeature);
-  }, [activeImageryBounds, activeTab, selectedAOI, terraDraw]);
+  }, [isOpened, activeImageryBounds, activeTab, selectedAOI, terraDraw]);
 
   // TerraDraw finish listener
   const handleDrawFinish = useCallback(() => {
@@ -358,6 +389,7 @@ export const useMapLargeArea = ({
   // Escape should stop an active drawing rather than bubble up and close the
   // modal. Intercept it in the capture phase while drawing is in progress.
   useEffect(() => {
+    if (!isOpened) return;
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
       if (drawingMode !== DrawingModes.POLYGON) return;
@@ -369,7 +401,7 @@ export const useMapLargeArea = ({
     };
     window.addEventListener("keydown", onKeyDown, true);
     return () => window.removeEventListener("keydown", onKeyDown, true);
-  }, [drawingMode, clearTerraDraw, setDrawingMode]);
+  }, [isOpened, drawingMode, clearTerraDraw, setDrawingMode]);
 
   // Handle uploaded GeoJSON file directly via native file picker
   const handleFileChange = async (
@@ -493,9 +525,7 @@ export const useMapLargeArea = ({
   const handleEnableDrawing = useCallback(() => {
     clearTerraDraw();
     setSelectedAOI(null);
-    setTimeout(() => {
-      setDrawingMode(DrawingModes.POLYGON);
-    }, 50);
+    setDrawingMode(DrawingModes.POLYGON);
   }, [clearTerraDraw, setDrawingMode]);
 
   const handleSubmit = () => {
@@ -562,5 +592,6 @@ export const useMapLargeArea = ({
     handleEnableDrawing,
     handleSubmit,
     isWholeAreaDisabled,
+    frameImagery,
   };
 };
