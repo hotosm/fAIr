@@ -7,7 +7,7 @@ export const AdvancedOverview = () => {
     <div className="flex flex-1 flex-col gap-y-6">
       <h1 className="text-title-2 font-medium text-dark">Overview</h1>
 
-      <div className="flex sm:flex-row flex-col min-h-[410px] w-full gap-4 ">
+      <div className="grid w-full min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,28rem),1fr))] gap-4">
         <OverviewHero />
         <RecentActivities />
       </div>

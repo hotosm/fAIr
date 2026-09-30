@@ -17,8 +17,8 @@ const UserSidebar = () => {
   const { pathname } = useLocation();
 
   return (
-    <aside className="px-2 py-5 w-[300px] shadow-sm bg-frosted-blue h-full flex flex-col justify-between rounded-xl">
-      <div className="flex flex-col gap-2">
+    <aside className="w-full min-w-0 rounded-xl bg-frosted-blue p-2 shadow-sm flex flex-col gap-4 lg:py-4 lg:gap-6">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-1">
         {SIDEBAR_LINKS.map((link) => {
           const isActive = pathname === link.href;
           return (
@@ -32,7 +32,7 @@ const UserSidebar = () => {
             >
               <div
                 className={cn(
-                  "flex gap-4 py-3 px-5 rounded-xl items-center transition-all duration-300 ",
+                  "flex gap-2 py-3 px-2 lg:px-3 rounded-xl items-center text-sm transition-colors duration-300 ",
                   isActive
                     ? "bg-primary text-white shadow-sm font-medium"
                     : "text-lighter-ink hover:bg-[#FFEDED]/50 hover:text-primary",
@@ -40,7 +40,7 @@ const UserSidebar = () => {
               >
                 <link.Icon
                   className={cn(
-                    "size-[20px]",
+                    "size-5 shrink-0",
                     isActive ? "text-white" : "text-lighter-ink",
                   )}
                 />
@@ -56,7 +56,7 @@ const UserSidebar = () => {
         title="Join the Community"
         blank
         disableLinkStyle
-        className="p-3 bg-white justify-between rounded-xl flex flex-col"
+        className="hidden p-3 bg-white justify-between rounded-xl lg:flex lg:flex-col"
       >
         <div className="flex justify-between wave-bg items-center py-8 px-3">
           <h4 className="font-semibold text-lg text-gray">
@@ -76,7 +76,7 @@ const UserSidebar = () => {
         </div>
       </Link>
 
-      <div className="p-3">
+      <div className="px-2 py-2 lg:p-3">
         <Link
           nativeAnchor={false}
           href={APPLICATION_ROUTES.PROFILE_SETTINGS}

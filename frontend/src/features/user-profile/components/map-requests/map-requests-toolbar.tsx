@@ -49,7 +49,7 @@ export const MapRequestsToolbar = ({
         {count} Map Request{count === 1 ? "" : "s"}
       </p>
 
-      <div className="flex items-center gap-x-5">
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
         {/* Sort by */}
         <DropDown
           ref={dropdownRef}

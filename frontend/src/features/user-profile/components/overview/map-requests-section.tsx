@@ -20,11 +20,11 @@ export const MapRequestsSection = ({
   return (
     <section
       className={cn(
-        "rounded-lg border border-gray-border bg-frosted-blue p-4 sm:p-6",
+        "min-w-0 rounded-lg border border-gray-border bg-frosted-blue p-4 sm:p-6",
         className,
       )}
     >
-      <div className="mb-2 flex items-center justify-between">
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-sm font-semibold text-dark">{title}</h2>
         <Link
           href={APPLICATION_ROUTES.PROFILE_OFFLINE_PREDICTIONS}
