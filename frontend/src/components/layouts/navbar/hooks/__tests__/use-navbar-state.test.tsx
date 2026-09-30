@@ -4,31 +4,25 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { useNavbarState } from "../use-navbar-state";
 
 const auth = vi.hoisted(() => ({ isAuthenticated: true }));
-const flags = vi.hoisted(() => ({ OUTLINED_DASHBOARD_BUTTON: false }));
 vi.mock("@/app/providers/auth-provider", () => ({ useAuth: () => auth }));
-vi.mock("@/config/env", () => ({ ENVS: flags }));
 afterEach(cleanup);
 
 describe("outlined Dashboard button", () => {
   it.each([
-    ["/try-fair", true, false, true, false],
-    ["/try-fair", true, true, true, true],
-    ["/try-fair", false, true, false, false],
-    ["/try-fair", false, false, false, false],
-    ["/profile", true, true, false, false],
-    ["/", true, true, false, false],
+    ["/try-fair", true, true],
+    ["/try-fair", false, false],
+    ["/profile", true, false],
+    ["/", true, false],
   ])(
-    "gates route %s, authentication %s and flag %s",
-    (path, signedIn, enabled, showLink, outlined) => {
+    "uses route %s and authentication %s to show Dashboard %s",
+    (path, signedIn, expected) => {
       auth.isAuthenticated = signedIn;
-      flags.OUTLINED_DASHBOARD_BUTTON = enabled;
       const { result } = renderHook(useNavbarState, {
         wrapper: ({ children }) => (
           <MemoryRouter initialEntries={[path]}>{children}</MemoryRouter>
         ),
       });
-      expect(result.current.showDashboardLink).toBe(showLink);
-      expect(result.current.showOutlinedDashboardButton).toBe(outlined);
+      expect(result.current.showDashboardLink).toBe(expected);
     },
   );
 });

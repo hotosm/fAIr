@@ -4,7 +4,6 @@ import { DrawerPlacements } from "@/enums";
 import { HamburgerIcon } from "@/assets/svgs";
 import { Image } from "@/components/ui/image";
 import { DashboardLink } from "./dashboard-link";
-import { Link } from "@/components/ui/link";
 import { NavLogo } from "@/components/layouts";
 import { APPLICATION_ROUTES, SHARED_CONTENT } from "@/constants";
 import { useAuth } from "@/app/providers/auth-provider";
@@ -41,7 +40,6 @@ export const NavBar = () => {
     showDownloadResult,
     showMappingMode,
     showDashboardLink,
-    showOutlinedDashboardButton,
   } = useNavbarState();
 
   const isTryFairPage = location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR);
@@ -100,17 +98,6 @@ export const NavBar = () => {
       >
         <div className="flex-1 flex gap-4 items-center justify-start">
           {showBackButton ? <BackButton /> : <NavLogo />}
-          {showDashboardLink && !showOutlinedDashboardButton && (
-            <Link
-              href={APPLICATION_ROUTES.PROFILE_BASE}
-              nativeAnchor={false}
-              disableLinkStyle
-              className="inline-flex h-10 items-center text-sm leading-none font-normal text-dark whitespace-nowrap"
-              title="Go to your dashboard"
-            >
-              Dashboard
-            </Link>
-          )}
         </div>
 
         <div className="flex-1 hidden sm:flex items-center justify-center">
@@ -132,7 +119,7 @@ export const NavBar = () => {
         </div>
 
         <div className="flex items-center gap-x-2 sm:hidden">
-          {showOutlinedDashboardButton && <DashboardLink />}
+          {showDashboardLink && <DashboardLink />}
           {isAuthenticated && <UserNotifications />}
           {showDownloadResult && <DownloadResultButton />}
 
