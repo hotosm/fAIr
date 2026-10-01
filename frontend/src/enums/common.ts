@@ -40,7 +40,6 @@ export enum ToolTipPlacement {
 
 export enum BASEMAPS {
   OSM = "OSM",
-  GOOGLE_SATELLITE = "Google Satellite",
 }
 
 export enum INPUT_TYPES {
