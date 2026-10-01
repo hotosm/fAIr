@@ -1,4 +1,3 @@
-import { GoogleBasemapLayer } from "@/components/map/layers/google-basemap";
 import { ControlsPosition } from "@/enums";
 import { DrawingModes } from "@/enums";
 import { LngLatBoundsLike, Map } from "maplibre-gl";
@@ -105,7 +104,6 @@ export const MapComponent: React.FC<MapComponentProps> = ({
         </>
       ) : null}
       {/* Order according to how they'll be rendered */}
-      {basemaps && <GoogleBasemapLayer map={map} />}
       {tileServiceURL && (
         <TileServiceLayer
           tileServiceURL={tileServiceURL}

@@ -345,8 +345,6 @@ export const TILE_BOUNDARY_SOURCE_ID: string = `${MAP_STYLES_PREFIX}-tile-bounda
 export const TMS_LAYER_ID: string = `${MAP_STYLES_PREFIX}-tileservice-layer`;
 export const TMS_SOURCE_ID: string = `${MAP_STYLES_PREFIX}-tileservice-source`;
 export const OSM_BASEMAP_LAYER_ID: string = `${MAP_STYLES_PREFIX}-osm-layer`;
-export const GOOGLE_SATELLITE_BASEMAP_LAYER_ID: string = `${MAP_STYLES_PREFIX}-google-statellite-layer`;
-export const GOOGLE_SATELLITE_BASEMAP_SOURCE_ID: string = `${MAP_STYLES_PREFIX}-google-satellite`;
 
 // Start Mapping
 export const ALL_MODEL_PREDICTIONS_SOURCE_ID: string = "all-predictions-source";
