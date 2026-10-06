@@ -14,9 +14,7 @@ class UserStateSerializer(serializers.ModelSerializer):
         fields = ["pid", "state", "timestamp"]
         read_only_fields = ["pid", "timestamp"]
 
-    def validate_state(self, value: Any) -> dict[str, Any]:
-        if not isinstance(value, dict):
-            raise serializers.ValidationError("state must be a JSON object.")
+    def validate_state(self, value: Any) -> Any:
         if (
             len(json.dumps(value, separators=(",", ":"), ensure_ascii=False).encode())
             > MAX_STATE_BYTES

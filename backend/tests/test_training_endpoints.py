@@ -1,12 +1,15 @@
 from unittest.mock import MagicMock, patch
 
 import pytest
+from django.test import override_settings
 from rest_framework.test import APIClient
 
 from accounts.models import OsmUser
 from datasets.models import Dataset
 from modelregistry.models import BaseModel, LocalModel
+from shared.enums import PipelineRunStatus
 from trainings.models import TrainingRunRef
+from trainings.tasks import submit_training
 
 
 @pytest.fixture
@@ -162,3 +165,12 @@ def test_training_run_logs_with_step_param_routes_to_step(mock_fetch, client, tr
     response = client.get("/api/v1/trainings/runs/abc-123/logs/?step=train_model&tail=5")
     assert response.status_code == 200
     mock_fetch.assert_called_once_with("abc-123", "train_model", tail=5)
+
+
+@override_settings(TASKS={"default": {"BACKEND": "django_tasks.backends.immediate.ImmediateBackend"}})
+def test_failed_training_submission_marks_run_failed(training_ref: TrainingRunRef) -> None:
+    with patch("trainings.tasks.for_user", side_effect=RuntimeError("zenml unreachable")):
+        submit_training.enqueue(training_run_ref_id=training_ref.id)
+
+    training_ref.refresh_from_db()
+    assert training_ref.status == PipelineRunStatus.FAILED

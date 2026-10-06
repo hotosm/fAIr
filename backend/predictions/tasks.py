@@ -3,6 +3,7 @@ import logging
 import tempfile
 from datetime import timedelta
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from django.conf import settings
 from django.utils import timezone
@@ -75,6 +76,7 @@ def sync_prediction_status(*, prediction_id: int) -> None:
 def _materialize_prediction_input(prediction: Prediction) -> str:
     """Download TMS tiles for `prediction` and stage them on S3."""
     from geomltoolkits.downloader.tms import download_tiles
+    from geomltoolkits.geometry.tiles import get_tiles
 
     s3_prefix = UPath(StoragePaths.prediction_input_dir_uri(prediction.id))
 
@@ -82,6 +84,9 @@ def _materialize_prediction_input(prediction: Prediction) -> str:
     zoom: int = int(prediction.zoom)
     geometry: dict = prediction.geometry  # type: ignore[assignment]
 
+    tile_count = len(get_tiles(zoom=zoom, geojson=geometry, within=True))
+    if not tile_count:
+        raise ValueError(f"Prediction {prediction.id}: AOI covers no whole tile at zoom {zoom}")
     with tempfile.TemporaryDirectory(prefix=f"fair-predict-{prediction.id}-") as tmp:
         local_chips_dir = Path(
             asyncio.run(
@@ -92,6 +97,9 @@ def _materialize_prediction_input(prediction: Prediction) -> str:
                     geojson=geometry,
                     within=True,
                     georeference=True,
+                    is_tilejson=urlsplit(image_uri).path.endswith("tilejson.json"),
+                    # Edge tiles may miss the imagery; a run with no tile at all must stop.
+                    max_failures=tile_count - 1,
                 )
             )
         )

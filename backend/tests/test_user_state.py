@@ -121,17 +121,20 @@ def test_other_users_states_are_invisible(alice: OsmUser, bob: OsmUser) -> None:
     assert UserState.objects.get(pid=pid).state == {"secret": 1}
 
 
-@pytest.mark.parametrize("state", [[1, 2], "text", 5])
-def test_non_object_state_is_rejected(alice: OsmUser, state: object) -> None:
-    response = _client_for(alice).post(URL, {"state": state}, format="json")
+@pytest.mark.parametrize("state", [[1, {"zoom": 19}], "text", "", 5, 0, True, False])
+def test_non_object_state_is_stored_unchanged(alice: OsmUser, state: object) -> None:
+    client = _client_for(alice)
 
-    assert response.status_code == 400
-    assert not UserState.objects.exists()
+    created = client.post(URL, {"state": state}, format="json")
+    assert created.status_code == 201
+    fetched = client.get(f"{URL}{created.json()['pid']}/").json()["state"]
+
+    assert fetched == state
+    assert type(fetched) is type(state)
 
 
-def test_state_over_size_limit_is_rejected(alice: OsmUser) -> None:
-    oversized = {"blob": "x" * MAX_STATE_BYTES}
-
+@pytest.mark.parametrize("oversized", [{"blob": "x" * MAX_STATE_BYTES}, "x" * MAX_STATE_BYTES])
+def test_state_over_size_limit_is_rejected(alice: OsmUser, oversized: object) -> None:
     response = _client_for(alice).post(URL, {"state": oversized}, format="json")
 
     assert response.status_code == 400
