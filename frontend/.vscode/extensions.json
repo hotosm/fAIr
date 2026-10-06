@@ -1,6 +1,5 @@
 {
   "recommendations": [
-    "dbaeumer.vscode-eslint",
     "oxc.oxc-vscode",
     "dsznajder.es7-react-js-snippets",
     "mariusalchimavicius.json-to-ts",

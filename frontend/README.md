@@ -124,14 +124,6 @@ Here's an overview of the folder structure:
 
 The project standards are crucial for maintaining code quality, consistency, and scalability in a React application. By establishing and adhering to a set of best practices, developers can ensure that the codebase remains clean, organized, and easy to maintain.
 
-#### ESLint
-
-ESLint is used to maintain code quality and adhere to coding standards:
-
-```bash
-pnpm lint
-```
-
 #### Oxfmt
 
 Oxfmt maintains consistent source formatting using `.oxfmtrc.json`. The frontend
