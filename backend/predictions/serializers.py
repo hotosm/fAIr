@@ -76,6 +76,9 @@ class PredictionAssetsSerializer(serializers.Serializer):
 
 class PredictionSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
+    category = serializers.CharField(
+        read_only=True, allow_null=True, help_text="Category slug of the model that ran."
+    )
     assets = serializers.SerializerMethodField()
 
     @extend_schema_field(PredictionAssetsSerializer(allow_null=True))
@@ -97,6 +100,7 @@ class PredictionSerializer(serializers.ModelSerializer):
             "id",
             "zenml_run_id",
             "local_model_stac_id",
+            "category",
             "image_uri",
             "geometry",
             "zoom",
@@ -115,6 +119,7 @@ class PredictionSerializer(serializers.ModelSerializer):
         read_only_fields = [
             "id",
             "zenml_run_id",
+            "category",
             "status",
             "results_ready",
             "assets",

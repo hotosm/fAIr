@@ -1,7 +1,22 @@
 from django.db import models
+from django.db.models import OuterRef, Subquery
+from django.db.models.functions import Coalesce
 
 from accounts.models import OsmUser
+from modelregistry.models import BaseModel, LocalModel
 from shared.enums import PipelineRunStatus, Visibility
+
+
+def _model_category(model: type[BaseModel] | type[LocalModel]) -> Subquery:
+    rows = model.objects.filter(stac_item_id=OuterRef("local_model_stac_id"))
+    return Subquery(rows.values("category_id")[:1])
+
+
+class PredictionQuerySet(models.QuerySet):
+    def with_category(self) -> "PredictionQuerySet":
+        """Local model wins when both registries hold the stac id."""
+        category = Coalesce(_model_category(LocalModel), _model_category(BaseModel))
+        return self.annotate(category=category)
 
 
 class Prediction(models.Model):
@@ -31,6 +46,8 @@ class Prediction(models.Model):
     )
     submitted_at = models.DateTimeField(auto_now_add=True)
     last_polled_at = models.DateTimeField(null=True, blank=True)
+
+    objects = PredictionQuerySet.as_manager()
 
     class Meta:
         indexes = [
