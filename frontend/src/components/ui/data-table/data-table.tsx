@@ -56,7 +56,10 @@ const DataTable = <TData, TValue>({
                 <TableHead key={header.id}>
                   {header.isPlaceholder
                     ? null
-                    : flexRender(header.column.columnDef.header, header.getContext())}
+                    : flexRender(
+                        header.column.columnDef.header,
+                        header.getContext(),
+                      )}
                 </TableHead>
               );
             })}

@@ -1,6 +1,12 @@
 import { Link } from "@/components/ui/link";
 
-const ModelDetailUser = ({ label, value }: { label: string; value?: string }) => (
+const ModelDetailUser = ({
+  label,
+  value,
+}: {
+  label: string;
+  value?: string;
+}) => (
   <p className="text-dark text-body-2">
     <span className="text-grey">{label}: </span>
     <Link

@@ -14,7 +14,9 @@ const Head = ({ title, description }: HeadProps = {}) => {
       : defaultTitle.current;
     document.title = fullTitle;
 
-    let meta = document.querySelector<HTMLMetaElement>('meta[name="description"]');
+    let meta = document.querySelector<HTMLMetaElement>(
+      'meta[name="description"]',
+    );
 
     if (description) {
       if (!meta) {

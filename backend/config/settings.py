@@ -4,6 +4,7 @@ from urllib.parse import urlparse
 
 import boto3
 import dj_database_url
+from botocore.config import Config
 from corsheaders.defaults import default_headers
 from pydantic import SecretStr
 
@@ -73,6 +74,7 @@ FAIR_STAC_API_URL = (
     _str(settings.fair_stac_api_url).rstrip("/") if settings.fair_stac_api_url else None
 )
 FAIR_STAC_API_KEY = _secret(settings.fair_stac_api_key)
+FAIR_STAC_DSN = _secret(settings.fair_stac_dsn)
 
 KNATIVE_SERVICE_TEMPLATE = str(BASE_DIR / "modelregistry" / "knative-service.yaml")
 
@@ -84,6 +86,7 @@ AWS_SECRET_ACCESS_KEY = _secret(settings.aws_secret_access_key)
 AWS_ENDPOINT_URL = _str(settings.aws_endpoint_url)
 PRESIGNED_URL_EXPIRY = settings.presigned_url_expiry
 
+_S3_CONFIG = Config(signature_version="s3v4")
 if AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY:
     S3_CLIENT = boto3.client(
         "s3",
@@ -91,9 +94,12 @@ if AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY:
         aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
         region_name=AWS_REGION,
         endpoint_url=AWS_ENDPOINT_URL,
+        config=_S3_CONFIG,
     )
 else:
-    S3_CLIENT = boto3.client("s3", region_name=AWS_REGION, endpoint_url=AWS_ENDPOINT_URL)
+    S3_CLIENT = boto3.client(
+        "s3", region_name=AWS_REGION, endpoint_url=AWS_ENDPOINT_URL, config=_S3_CONFIG
+    )
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -119,6 +125,7 @@ INSTALLED_APPS = [
     "feedback",
     "notifications",
     "stars",
+    "userstate",
     "system",
 ]
 
@@ -270,6 +277,8 @@ _log_handlers: dict[str, Any] = {
     "console": {
         "level": "DEBUG" if DEBUG else "INFO",
         "class": "logging.StreamHandler",
+        # stdout: ZenML records anything written to stderr as ERROR.
+        "stream": "ext://sys.stdout",
         "formatter": "simple",
     },
 }
@@ -347,6 +356,7 @@ SPECTACULAR_SETTINGS = {
         {"name": "notifications", "description": "Per-user notification feed."},
         {"name": "workspace", "description": "S3 listing + presigned URLs."},
         {"name": "stars", "description": "Anonymous-friendly star/unstar."},
+        {"name": "user-state", "description": "Per-user frontend state, private to its owner."},
         {"name": "system", "description": "Health + dependency probes."},
     ],
     "SWAGGER_UI_SETTINGS": {

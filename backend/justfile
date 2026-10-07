@@ -7,7 +7,7 @@ default:
 [doc('Install dependencies and pre-commit hooks')]
 setup:
     uv sync
-    uv run pre-commit install --install-hooks --hook-type commit-msg --hook-type pre-commit
+    uv run pre-commit install --install-hooks --hook-type commit-msg --hook-type pre-commit --hook-type pre-push
 
 [doc('Run all linters and type checks via pre-commit')]
 lint:

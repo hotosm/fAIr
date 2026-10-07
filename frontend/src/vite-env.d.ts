@@ -6,7 +6,10 @@ import type React from "react";
 declare module "react" {
   namespace JSX {
     interface IntrinsicElements extends IntrinsicElements {
-      "hotosm-auth": React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
+      "hotosm-auth": React.DetailedHTMLProps<
+        React.HTMLAttributes<HTMLElement>,
+        HTMLElement
+      > & {
         "hanko-url"?: string;
         "base-path"?: string;
         "show-profile"?: string | boolean;
@@ -22,7 +25,10 @@ declare module "react" {
         "button-color"?: string;
         display?: string;
       };
-      "hotosm-tool-menu": React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
+      "hotosm-tool-menu": React.DetailedHTMLProps<
+        React.HTMLAttributes<HTMLElement>,
+        HTMLElement
+      >;
     }
   }
 }

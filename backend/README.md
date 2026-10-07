@@ -2,12 +2,14 @@
 
 Thin coordination layer for the fAIr AI-Assisted Mapping platform. Owns the public REST API, the user database, and the orchestration of dataset builds, training runs and predictions. ML pipelines and STAC catalog operations live in [fair-py-ops](https://github.com/hotosm/fAIr-models) and run on a ZenML stack.
 
-Model code lives in per-model docker images that the ZenML orchestrator pulls.
+Runtime dependencies live in per-model images that ZenML and Knative pull. The
+backend image also bundles the matching `fAIr-models/models/` pipeline modules;
+registration rejects a model whose entrypoint is not in that bundle.
 
 ## Quick start
 
 The compose file at the repository root runs this backend and everything it
-depends on. See [docs/Docker-installation.md](../docs/Docker-installation.md).
+depends on. See [Run locally](../docs/guides/run-locally.md).
 
 ### Running the backend on the host
 
@@ -82,6 +84,7 @@ same server. Authenticate with either an API key or a username and password.
 | `FAIR_ZENML_STORE_URL` | yes (at runtime) | `null`  | URL of the deployed ZenML server. Optional at boot, raises loud at first call site.                                 |
 | `FAIR_STAC_API_URL`    | yes (at runtime) | `null`  | URL of the STAC API root (eoapi-stac-fastapi). Trailing slashes are stripped.                                       |
 | `FAIR_STAC_API_KEY`    | prod             | `null`  | Bearer token for the STAC Transactions extension.                                                                   |
+| `FAIR_STAC_DSN`        | prod             | `null`  | pgstac Postgres DSN. When set, STAC writes go to pgstac directly, so the API can be read-only.                      |
 | `ZENML_STORE_URL`      | yes (at runtime) | `null`  | Same server as `FAIR_ZENML_STORE_URL`.                                                                              |
 | `ZENML_STORE_API_KEY`  | one of the two   | `null`  | Service-account key. Mint with `zenml service-account create fair-backend`.                                         |
 | `ZENML_STORE_USERNAME` | one of the two   | `null`  | Username, paired with `ZENML_STORE_PASSWORD`. The compose stack's default user is `default` with an empty password. |

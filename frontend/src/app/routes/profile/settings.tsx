@@ -18,10 +18,12 @@ import { useState } from "react";
 export const UserProfileSettingsPage = () => {
   const { user, setUser } = useAuth();
   const [email, setEmail] = useState<string>(user?.email || "");
-  const [validity, setValidity] = useState<{ valid: boolean; message: string }>({
-    valid: true,
-    message: "",
-  });
+  const [validity, setValidity] = useState<{ valid: boolean; message: string }>(
+    {
+      valid: true,
+      message: "",
+    },
+  );
 
   const [showForm, setShowForm] = useState<boolean>(user?.email.length === 0);
 
@@ -41,7 +43,8 @@ export const UserProfileSettingsPage = () => {
     ),
   });
 
-  const [isNotificationPending, setIsNotificationPending] = useState<boolean>(false);
+  const [isNotificationPending, setIsNotificationPending] =
+    useState<boolean>(false);
 
   const { mutate: updateEmail } = useUpdateUserProfile({
     mutationConfig: {
@@ -59,17 +62,21 @@ export const UserProfileSettingsPage = () => {
     },
   });
 
-  const { mutate: requestEmailVerification, isPending: emailVerificationRequestIsPending } =
-    useEmailVerification({
-      mutationConfig: {
-        onSuccess: () => {
-          showSuccessToast("Email verification instructions has been sent to your email address.");
-        },
-        onError: (error) => {
-          showErrorToast(error);
-        },
+  const {
+    mutate: requestEmailVerification,
+    isPending: emailVerificationRequestIsPending,
+  } = useEmailVerification({
+    mutationConfig: {
+      onSuccess: () => {
+        showSuccessToast(
+          "Email verification instructions has been sent to your email address.",
+        );
       },
-    });
+      onError: (error) => {
+        showErrorToast(error);
+      },
+    },
+  });
 
   const { mutate: updateNotifications } = useUpdateUserProfile({
     mutationConfig: {
@@ -99,21 +106,29 @@ export const UserProfileSettingsPage = () => {
           {showForm && (
             <div className="flex flex-col gap-y-6">
               <SectionHeader
-                sectionTitle={USER_PROFILE_PAGE_CONTENT.settings.form.sectionHeading}
+                sectionTitle={
+                  USER_PROFILE_PAGE_CONTENT.settings.form.sectionHeading
+                }
               />
               <div className="mt-2 flex flex-col space-y-6">
                 <Input
                   label={USER_PROFILE_PAGE_CONTENT.settings.form.formLabel}
                   showBorder
                   type={INPUT_TYPES.EMAIL}
-                  placeholder={USER_PROFILE_PAGE_CONTENT.settings.form.placeholder}
+                  placeholder={
+                    USER_PROFILE_PAGE_CONTENT.settings.form.placeholder
+                  }
                   value={email}
                   handleInput={(e) => setEmail(e.target.value)}
                   validationStateUpdateCallback={(e) => setValidity(e)}
                 />
-                {validity.message && <small className="text-primary">{validity.message}</small>}
+                {validity.message && (
+                  <small className="text-primary">{validity.message}</small>
+                )}
                 <Button
-                  disabled={!validity.valid || email.length === 0 || isEmailPending}
+                  disabled={
+                    !validity.valid || email.length === 0 || isEmailPending
+                  }
                   type="submit"
                   onClick={handleEmailSubmit}
                   className="!w-fit"
@@ -121,7 +136,8 @@ export const UserProfileSettingsPage = () => {
                   size="small"
                 >
                   {isEmailPending
-                    ? USER_PROFILE_PAGE_CONTENT.settings.form.submissionInProgress
+                    ? USER_PROFILE_PAGE_CONTENT.settings.form
+                        .submissionInProgress
                     : USER_PROFILE_PAGE_CONTENT.settings.form.submitButton}
                 </Button>
               </div>
@@ -130,7 +146,12 @@ export const UserProfileSettingsPage = () => {
 
           {!user.email_verified && user?.email.length > 0 && (
             <div className="text-sm flex flex-col gap-y-6 h-full bg-off-white rounded-md p-4">
-              <p>{USER_PROFILE_PAGE_CONTENT.settings.form.emailNotVerifiedMessage}</p>
+              <p>
+                {
+                  USER_PROFILE_PAGE_CONTENT.settings.form
+                    .emailNotVerifiedMessage
+                }
+              </p>
               <div className="flex justify-end">
                 <Button
                   variant={ButtonVariant.PRIMARY}
@@ -140,7 +161,10 @@ export const UserProfileSettingsPage = () => {
                   contentClassName="md:!p-0.5 text-body-4"
                   size="small"
                 >
-                  {USER_PROFILE_PAGE_CONTENT.settings.form.verifyEmailButtonText}
+                  {
+                    USER_PROFILE_PAGE_CONTENT.settings.form
+                      .verifyEmailButtonText
+                  }
                 </Button>
               </div>
             </div>
@@ -148,7 +172,9 @@ export const UserProfileSettingsPage = () => {
 
           <div className="flex flex-col gap-y-6">
             <SectionHeader
-              sectionTitle={USER_PROFILE_PAGE_CONTENT.settings.notifications.sectionTitle}
+              sectionTitle={
+                USER_PROFILE_PAGE_CONTENT.settings.notifications.sectionTitle
+              }
             />
             <div className="mt-2 space-y-4">
               {USER_PROFILE_PAGE_CONTENT.settings.notifications.notificationTypes.map(
@@ -158,7 +184,9 @@ export const UserProfileSettingsPage = () => {
                       className={`flex justify-between items-center transition-opacity duration-200 ${user.email.length === 0 && notification.key !== USER_PROFILE_PAGE_CONTENT.settings.notifications.notificationKeys.webTrainingNotification ? "opacity-50" : ""}`}
                     >
                       <div className="flex flex-col gap-y-1">
-                        <h3 className="text-body-3 md:text-body-2">{notification.label}</h3>
+                        <h3 className="text-body-3 md:text-body-2">
+                          {notification.label}
+                        </h3>
                         <p className="text-body-4 md:text-body-3 text-grey">
                           {notification.description}
                         </p>
@@ -168,14 +196,18 @@ export const UserProfileSettingsPage = () => {
                           isNotificationPending ||
                           (!user.email_verified &&
                             notification.key !==
-                              USER_PROFILE_PAGE_CONTENT.settings.notifications.notificationKeys
-                                .webTrainingNotification) ||
+                              USER_PROFILE_PAGE_CONTENT.settings.notifications
+                                .notificationKeys.webTrainingNotification) ||
                           (user.email.length === 0 &&
                             notification.key !==
-                              USER_PROFILE_PAGE_CONTENT.settings.notifications.notificationKeys
-                                .webTrainingNotification)
+                              USER_PROFILE_PAGE_CONTENT.settings.notifications
+                                .notificationKeys.webTrainingNotification)
                         }
-                        checked={notifications[notification.key as keyof typeof notifications]}
+                        checked={
+                          notifications[
+                            notification.key as keyof typeof notifications
+                          ]
+                        }
                         handleSwitchChange={(e) => {
                           const updatedNotifications = {
                             ...notifications,
@@ -184,7 +216,8 @@ export const UserProfileSettingsPage = () => {
                           setIsNotificationPending(true);
                           updateNotifications(
                             {
-                              newsletter_subscription: updatedNotifications.monthlyNewsletter,
+                              newsletter_subscription:
+                                updatedNotifications.monthlyNewsletter,
                               notifications_delivery_methods: [
                                 ...(updatedNotifications.emailTrainingNotification
                                   ? [NotificationDeliveryMethod.MAIL]
@@ -199,7 +232,10 @@ export const UserProfileSettingsPage = () => {
                                 setNotifications(updatedNotifications);
                               },
                               onError: (error) => {
-                                showErrorToast(error, "Error updating notifications");
+                                showErrorToast(
+                                  error,
+                                  "Error updating notifications",
+                                );
                               },
                             },
                           );
@@ -220,7 +256,9 @@ export const UserProfileSettingsPage = () => {
 const SectionHeader = ({ sectionTitle }: { sectionTitle: string }) => {
   return (
     <div>
-      <h2 className="text-body-1 md:text-title-4 font-semibold">{sectionTitle}</h2>
+      <h2 className="text-body-1 md:text-title-4 font-semibold">
+        {sectionTitle}
+      </h2>
     </div>
   );
 };

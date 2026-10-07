@@ -113,6 +113,8 @@ const DropdownButton = ({ label, isSmallViewport, onClick }: ButtonProps) => (
     >
       {label}
     </button>
-    <ChevronDownIcon className={`transition-all ${isSmallViewport ? "-rotate-90" : ""} w-3 h-3`} />
+    <ChevronDownIcon
+      className={`transition-all ${isSmallViewport ? "-rotate-90" : ""} w-3 h-3`}
+    />
   </div>
 );

@@ -41,7 +41,8 @@ export const useDynamicMapLayer = (
   belowLayerIds: string[] = [],
 ) => {
   useEffect(() => {
-    if (!map || !sourceSpec || !layerSpec || !enabled || !map.getStyle()) return;
+    if (!map || !sourceSpec || !layerSpec || !enabled || !map.getStyle())
+      return;
 
     if (map.getLayer(layerId)) {
       map.removeLayer(layerId);
@@ -65,5 +66,14 @@ export const useDynamicMapLayer = (
         map.removeSource(sourceId);
       }
     };
-  }, [map, sourceId, layerId, sourceSpec, layerSpec, enabled, ...dependencies, ...belowLayerIds]);
+  }, [
+    map,
+    sourceId,
+    layerId,
+    sourceSpec,
+    layerSpec,
+    enabled,
+    ...dependencies,
+    ...belowLayerIds,
+  ]);
 };

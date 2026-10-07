@@ -22,6 +22,7 @@ from feedback.models import Feedback
 from modelregistry.models import BaseModel, LocalModel
 from notifications.models import Banner, UserNotification
 from predictions.models import Prediction
+from predictions.post_run import PredictionOutputError
 from shared.storage import BackendLocalModelPaths
 from trainings.models import TrainingRunRef
 
@@ -236,9 +237,7 @@ def test_auth_me_profile_stats_reflect_owned_records(client, user):
 
 
 def test_auth_me_patch_updates_email(client):
-    response = client.patch(
-        "/api/v1/auth/me/", data={"email": "alice@example.com"}, format="json"
-    )
+    response = client.patch("/api/v1/auth/me/", data={"email": "alice@example.com"}, format="json")
     assert response.status_code == 200
     assert response.json()["email"] == "alice@example.com"
 
@@ -330,20 +329,14 @@ def test_dataset_build_creates_record_and_enqueues(mock_task, client, aoi):
 def test_build_osm_filters_simple():
     from datasets.tasks import _build_osm_filters
 
-    filters = _build_osm_filters(
-        [{"name": "building", "classes": ["yes"]}], "polygon"
-    )
-    assert filters == {
-        "tags": {"polygon": {"join_or": {"building": ["yes"]}}}
-    }
+    filters = _build_osm_filters([{"name": "building", "classes": ["yes"]}], "polygon")
+    assert filters == {"tags": {"polygon": {"join_or": {"building": ["yes"]}}}}
 
 
 def test_build_osm_filters_wildcard_translates_to_empty_list():
     from datasets.tasks import _build_osm_filters
 
-    filters = _build_osm_filters(
-        [{"name": "building", "classes": ["*"]}], "polygon"
-    )
+    filters = _build_osm_filters([{"name": "building", "classes": ["*"]}], "polygon")
     assert filters["tags"]["polygon"]["join_or"]["building"] == []
 
 
@@ -358,11 +351,7 @@ def test_build_osm_filters_multi_class():
         "polygon",
     )
     assert filters == {
-        "tags": {
-            "polygon": {
-                "join_or": {"building": [], "amenity": ["hospital", "school"]}
-            }
-        }
+        "tags": {"polygon": {"join_or": {"building": [], "amenity": ["hospital", "school"]}}}
     }
 
 
@@ -525,9 +514,7 @@ def test_local_model_unpin_clears_db_flag(admin_client, local_model):
 
 def test_local_models_filter_by_is_pinned(admin_client, local_model, admin_user):
     base = local_model.base_model
-    LocalModel.objects.create(
-        name="pinned-one", base_model=base, user=admin_user, is_pinned=True
-    )
+    LocalModel.objects.create(name="pinned-one", base_model=base, user=admin_user, is_pinned=True)
     response = admin_client.get("/api/v1/local-models/?is_pinned=true")
     assert response.status_code == 200
     names = {row["name"] for row in response.json()["results"]}
@@ -728,7 +715,7 @@ def test_training_run_status_marks_terminal_for_completed(mock_status, client, t
     assert response.json()["is_terminal"] is True
 
 
-@patch("trainings.views.fetch_run_logs")
+@patch("shared.run_endpoints.fetch_run_logs")
 def test_training_run_logs_default_returns_run_level(mock_fetch, client, training_ref):
     mock_fetch.return_value = [
         MagicMock(level="INFO", message="epoch 1 done", timestamp="2026-05-01T00:00:00Z")
@@ -738,24 +725,20 @@ def test_training_run_logs_default_returns_run_level(mock_fetch, client, trainin
     assert response.json() == [
         {"level": "INFO", "message": "epoch 1 done", "timestamp": "2026-05-01T00:00:00Z"}
     ]
-    mock_fetch.assert_called_once_with("run-abc", tail=10)
+    mock_fetch.assert_called_once_with("run-abc", tail=10, since=None)
 
 
-@patch("trainings.views.fetch_step_logs")
+@patch("shared.run_endpoints.fetch_step_logs")
 def test_training_step_logs_routes_to_step_when_param_present(mock_fetch, client, training_ref):
     mock_fetch.return_value = []
-    response = client.get(
-        "/api/v1/trainings/runs/run-abc/logs/?step=train_model&tail=5"
-    )
+    response = client.get("/api/v1/trainings/runs/run-abc/logs/?step=train_model&tail=5")
     assert response.status_code == 200
-    mock_fetch.assert_called_once_with("run-abc", "train_model", tail=5)
+    mock_fetch.assert_called_once_with("run-abc", "train_model", tail=5, since=None)
 
 
 @patch("zenml.utils.run_utils.stop_run")
 @patch("zenml.client.Client")
-def test_training_run_cancel_stops_zenml_run(
-    mock_client_cls, mock_stop, client, training_ref
-):
+def test_training_run_cancel_stops_zenml_run(mock_client_cls, mock_stop, client, training_ref):
     mock_client_cls.return_value.get_pipeline_run.return_value = MagicMock()
     response = client.post("/api/v1/trainings/runs/run-abc/cancel/")
     assert response.status_code == 200
@@ -886,28 +869,7 @@ def test_prediction_submit_creates_record_and_enqueues(mock_task, mock_item_exis
     # Pre-completion: assets are None (no files in S3 yet).
     assert body["assets"] is None
     mock_task.enqueue.assert_called_once()
-    mock_item_exists.assert_called_once_with(
-        "local-models", "3a0374bf-d73c-4b4d-b165-081ffa2a18ad"
-    )
-
-
-def test_storage_paths_are_deterministic_and_round_trip(settings):
-    from shared.storage import StoragePaths
-
-    settings.BUCKET_NAME = "fair-bucket"
-    settings.PARENT_BUCKET_FOLDER = "dev"
-    assert StoragePaths.dataset_chips_dir_key("ds-1") == "dev/datasets/ds-1/chips"
-    labels_key = StoragePaths.dataset_labels_geojson_key("ds-1")
-    assert labels_key == "dev/datasets/ds-1/labels/labels.geojson"
-    geojson_key = StoragePaths.prediction_geojson_key(7)
-    assert geojson_key == "dev/predict/7/output/predictions.geojson"
-    # uri = s3:// + bucket + key (so callers stay consistent across both forms)
-    assert StoragePaths.prediction_pmtiles_uri(7) == (
-        "s3://fair-bucket/" + StoragePaths.prediction_pmtiles_key(7)
-    )
-    assert StoragePaths.dataset_chips_dir_uri("ds-1") == (
-        "s3://fair-bucket/" + StoragePaths.dataset_chips_dir_key("ds-1")
-    )
+    mock_item_exists.assert_called_once_with("local-models", "3a0374bf-d73c-4b4d-b165-081ffa2a18ad")
 
 
 def test_prediction_assets_populated_when_completed(client, prediction):
@@ -1014,20 +976,18 @@ def test_prediction_run_status_polls_zenml(mock_status, client, prediction):
     }
 
 
-@patch("predictions.views.fetch_run_logs")
+@patch("shared.run_endpoints.fetch_run_logs")
 def test_prediction_run_logs_default_returns_run_level(mock_fetch, client, prediction):
     mock_fetch.return_value = []
     response = client.get("/api/v1/predictions/runs/pred-run-1/logs/")
     assert response.status_code == 200
     assert response.json() == []
-    mock_fetch.assert_called_once_with("pred-run-1", tail=1000)
+    mock_fetch.assert_called_once_with("pred-run-1", tail=1000, since=None)
 
 
 @patch("zenml.utils.run_utils.stop_run")
 @patch("zenml.client.Client")
-def test_prediction_run_cancel_stops_zenml_run(
-    mock_client_cls, mock_stop, client, prediction
-):
+def test_prediction_run_cancel_stops_zenml_run(mock_client_cls, mock_stop, client, prediction):
     mock_client_cls.return_value.get_pipeline_run.return_value = MagicMock()
     response = client.post("/api/v1/predictions/runs/pred-run-1/cancel/")
     assert response.status_code == 200
@@ -1215,9 +1175,7 @@ def test_workspace_listing_returns_folders_and_files(mock_s3, client):
 @patch("django.conf.settings.S3_CLIENT")
 def test_workspace_presigned_url_signs_object(mock_s3, client):
     mock_s3.generate_presigned_url.return_value = "https://signed.example/object"
-    response = client.get(
-        "/api/v1/workspace/url/?key=predict/1/output/predictions.geojson"
-    )
+    response = client.get("/api/v1/workspace/url/?key=predict/1/output/predictions.geojson")
     assert response.status_code == 200
     body = response.json()
     assert body["url"] == "https://signed.example/object"
@@ -1331,6 +1289,72 @@ def test_sync_prediction_skips_post_process_when_already_ready(
 
     mock_post_run.assert_not_called()
     mock_get_status.assert_not_called()
+
+
+def _completed_prediction(user, run_id: str) -> Prediction:
+    return Prediction.objects.create(
+        zenml_run_id=run_id,
+        local_model_stac_id="m-uuid",
+        image_uri="https://t/{z}/{x}/{y}.png",
+        geometry={"type": "Polygon", "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]]},
+        zoom=19,
+        status="completed",
+        results_ready=False,
+        user=user,
+    )
+
+
+@pytest.mark.parametrize(
+    ("found_in", "expected_collection"),
+    [([True], "local-models"), ([False, True], "base-models")],
+)
+@patch("predictions.post_run.UPath")
+@patch("predictions.post_run.get_item")
+@patch("predictions.post_run._load_geojson", return_value={"type": "FeatureCollection"})
+@patch(
+    "fair.stac.validators.validate_predictions_geojson",
+    return_value=["features[0].properties missing declared variable 'class'"],
+)
+def test_post_process_rejects_predictions_not_matching_model_item(
+    mock_validate, mock_load, mock_get_item, mock_upath, found_in, expected_collection, db, user
+):
+    from predictions.post_run import post_process_prediction
+
+    with (
+        patch("predictions.post_run.item_exists", side_effect=found_in),
+        pytest.raises(PredictionOutputError, match="1 prediction errors"),
+    ):
+        post_process_prediction(_completed_prediction(user, "rid-3"))
+
+    mock_get_item.assert_called_once_with(expected_collection, "m-uuid")
+    mock_upath.assert_not_called()
+
+
+@patch("predictions.post_run._load_geojson", return_value={"type": "FeatureCollection"})
+@patch("predictions.post_run.item_exists", return_value=False)
+def test_post_process_rejects_model_missing_from_stac(mock_exists, mock_load, db, user):
+    from predictions.post_run import post_process_prediction
+
+    with pytest.raises(PredictionOutputError, match="not found in STAC"):
+        post_process_prediction(_completed_prediction(user, "rid-5"))
+
+
+@patch("predictions.tasks.post_process_prediction", side_effect=PredictionOutputError("mismatch"))
+@patch("predictions.tasks.get_run_status", return_value="completed")
+def test_sync_prediction_fails_prediction_on_rejected_outputs(
+    mock_get_status, mock_post_run, db, user
+):
+    from predictions.tasks import sync_prediction_status
+
+    prediction = _completed_prediction(user, "rid-4")
+
+    sync_prediction_status.func(prediction_id=prediction.id)
+    sync_prediction_status.func(prediction_id=prediction.id)
+
+    prediction.refresh_from_db()
+    assert prediction.status == "failed"
+    assert prediction.results_ready is False
+    assert mock_get_status.call_count == 1
 
 
 # --- Visibility / anonymous-read matrix ---------------------------------

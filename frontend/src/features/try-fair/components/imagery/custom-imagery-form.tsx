@@ -6,6 +6,7 @@ import { XYZTileServerInput } from "@/components/shared/form/xyz-tile-server-inp
 import { useMapInstance } from "@/hooks/use-map-instance";
 import { MapComponent } from "@/components/map";
 import { MapIcon } from "@/components/ui/icons";
+import { Button } from "@/components/ui/button";
 
 export type AppliedCustomImagery = {
   tileUrl: string;
@@ -21,9 +22,11 @@ export type AppliedCustomImagery = {
  * Apply commits the imagery so the main map uses it.
  */
 export const CustomImageryForm = ({
+  expanded = false,
   applied,
   onApply,
 }: {
+  expanded?: boolean;
   applied: AppliedCustomImagery | null;
   onApply: (imagery: AppliedCustomImagery) => void;
 }) => {
@@ -32,7 +35,9 @@ export const CustomImageryForm = ({
   const [tileServiceType, setTileServiceType] = useState<TileServiceType>(
     applied?.tileServiceType ?? TileServiceType.XYZ,
   );
-  const [tileServerURL, setTileServerURL] = useState<string>(applied?.tileUrl ?? "");
+  const [tileServerURL, setTileServerURL] = useState<string>(
+    applied?.tileUrl ?? "",
+  );
   // Remount key: bump it to reset the (uncontrolled) tile-type Select on clear.
   const [formKey, setFormKey] = useState(0);
 
@@ -41,10 +46,12 @@ export const CustomImageryForm = ({
   // late, which made the preview feel unresponsive until the field was cleared).
   const isValid = useMemo(() => {
     const url = tileServerURL.trim();
-    const valid = url.length > 0 && getTileServerRegex(tileServiceType).test(url);
+    const valid =
+      url.length > 0 && getTileServerRegex(tileServiceType).test(url);
     return {
       valid,
-      message: valid || url.length === 0 ? "" : "Enter a valid tile server URL.",
+      message:
+        valid || url.length === 0 ? "" : "Enter a valid tile server URL.",
     };
   }, [tileServerURL, tileServiceType]);
 
@@ -69,25 +76,81 @@ export const CustomImageryForm = ({
     clearForm();
   };
 
+  if (!expanded) {
+    return (
+      <div className="flex flex-col gap-2 h-full">
+        <XYZTileServerInput
+          key={formKey}
+          tileServerURL={tileServerURL}
+          setTileServerURL={setTileServerURL}
+          tileServiceType={tileServiceType}
+          setTileServiceType={setTileServiceType}
+          isValid={isValid}
+          variant="vertical"
+          size={SHOELACE_SIZES.MEDIUM}
+          buttonOnclick={handleApply}
+          showButton
+          useAlert={false}
+        />
+
+        {/* The preview map stays mounted; the empty state overlays it until the
+          URL is valid, so the map instance is never torn down. */}
+        <div className="relative flex-1 h-[400px] md:min-h-[620px] rounded-[18px] overflow-hidden w-full z-10">
+          <MapComponent
+            map={map}
+            mapContainerRef={mapContainerRef}
+            tileServiceURL={isValid.valid ? tileServerURL : undefined}
+            zoomControls={false}
+          />
+          {!isValid.valid && (
+            <div className="absolute inset-0">
+              <CustomImageEmptyState />
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col gap-2 h-full">
-      <XYZTileServerInput
-        key={formKey}
-        tileServerURL={tileServerURL}
-        setTileServerURL={setTileServerURL}
-        tileServiceType={tileServiceType}
-        setTileServiceType={setTileServiceType}
-        isValid={isValid}
-        variant="vertical"
-        size={SHOELACE_SIZES.MEDIUM}
-        buttonOnclick={handleApply}
-        showButton
-        useAlert={false}
-      />
+    <div className="imagery-custom">
+      <div className="imagery-custom__form">
+        <div className="p-4 lg:p-6 border-b border-gray-border shrink-0">
+          <h3 className="text-dark font-semibold">Add your own imagery</h3>
+          <p className="text-grey text-sm mt-2 hidden lg:block">
+            Enter a tile service URL to preview your imagery before using it.
+          </p>
+        </div>
+        <div className="flex-1 min-h-0 overflow-y-auto p-4 lg:p-6">
+          <XYZTileServerInput
+            key={formKey}
+            tileServerURL={tileServerURL}
+            setTileServerURL={setTileServerURL}
+            tileServiceType={tileServiceType}
+            setTileServiceType={setTileServiceType}
+            isValid={isValid}
+            variant="horizontal"
+            size={SHOELACE_SIZES.MEDIUM}
+            buttonOnclick={handleApply}
+            showButton={false}
+            useAlert={false}
+          />
+        </div>
+        <div className="p-3 border-t border-gray-border shrink-0 flex justify-end">
+          <Button
+            size="medium"
+            rounded
+            disabled={!isValid.valid}
+            onClick={handleApply}
+          >
+            Use this image
+          </Button>
+        </div>
+      </div>
 
       {/* The preview map stays mounted; the empty state overlays it until the
           URL is valid, so the map instance is never torn down. */}
-      <div className="relative flex-1 h-[400px] md:min-h-[620px] rounded-[18px] overflow-hidden w-full z-10">
+      <div className="imagery-custom__map">
         <MapComponent
           map={map}
           mapContainerRef={mapContainerRef}
@@ -105,11 +168,12 @@ export const CustomImageryForm = ({
 };
 
 const CustomImageEmptyState = () => (
-  <div className="bg-off-white flex-col h-full rounded-lg flex justify-center space-y-2 items-center">
+  <div className="bg-off-white flex-col h-full flex justify-center space-y-2 items-center p-6 text-center">
     <MapIcon className="size-6" />
     <h4 className="text-sm font-medium">No Imagery to preview</h4>
     <p className="text-dark text-xs">
-      Once all fields are populated correctly, the imagery will be displayed here
+      Once all fields are populated correctly, the imagery will be displayed
+      here
     </p>
   </div>
 );

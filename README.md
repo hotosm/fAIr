@@ -114,11 +114,11 @@ The backend is using library we call it [fAIr utilities](https://github.com/hoto
 
 ## Local Installation [DEV]
 
-Checkout Docker Installation [docs](./docs/Docker-installation.md)
+Checkout Docker Installation [docs](./docs/guides/run-locally.md)
 
 ## Get involved!
 
-- Start by reading our [Code of conduct](docs/Code-of-Conduct.md)
+- Start by reading our [Code of conduct](docs/community/code-of-conduct.md)
 - Get familiar with our [contributor guidelines](CONTRIBUTING.md) explaining the different ways in which you can support this project! We need your help!
 
 # Licenses

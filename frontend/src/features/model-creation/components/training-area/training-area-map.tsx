@@ -83,11 +83,12 @@ const TrainingAreaMap = ({
 
   const debouncedZoom = useDebounce(currentZoom.toString(), DEBOUNCE_DELAY);
 
-  const { data: labels, isPending: trainingAreasLabelsIsPending } = useGetTrainingDatasetLabels(
-    trainingDatasetId,
-    debouncedBbox,
-    Number(debouncedZoom),
-  );
+  const { data: labels, isPending: trainingAreasLabelsIsPending } =
+    useGetTrainingDatasetLabels(
+      trainingDatasetId,
+      debouncedBbox,
+      Number(debouncedZoom),
+    );
 
   const createTrainingArea = useCreateTrainingArea({
     datasetId: Number(trainingDatasetId),
@@ -156,7 +157,8 @@ const TrainingAreaMap = ({
         await createTrainingArea.mutateAsync(
           { dataset: String(trainingDatasetId), geom: `SRID=4326;${wkt}` },
           {
-            onSuccess: () => showSuccessToast("Training area created successfully"),
+            onSuccess: () =>
+              showSuccessToast("Training area created successfully"),
           },
         );
         terraDraw.clear();
@@ -175,7 +177,10 @@ const TrainingAreaMap = ({
 
   const getTooltipColor = () => {
     if (featureArea !== 0) {
-      if (featureArea < MIN_TRAINING_AREA_SIZE || featureArea > MAX_TRAINING_AREA_SIZE)
+      if (
+        featureArea < MIN_TRAINING_AREA_SIZE ||
+        featureArea > MAX_TRAINING_AREA_SIZE
+      )
         return "bg-primary";
     }
     return "bg-black";
@@ -216,7 +221,10 @@ const TrainingAreaMap = ({
           ? [
               {
                 value: "Training Labels",
-                subLayers: [trainingAreasLabelsFillLayerId, trainingAreasLabelsOutlineLayerId],
+                subLayers: [
+                  trainingAreasLabelsFillLayerId,
+                  trainingAreasLabelsOutlineLayerId,
+                ],
               },
             ]
           : []),
@@ -224,7 +232,10 @@ const TrainingAreaMap = ({
           ? [
               {
                 value: "Training Areas",
-                subLayers: [trainingAreasOutlineLayerId, trainingAreasFillLayerId],
+                subLayers: [
+                  trainingAreasOutlineLayerId,
+                  trainingAreasFillLayerId,
+                ],
               },
             ]
           : []),
@@ -240,7 +251,8 @@ const TrainingAreaMap = ({
         />
       )}
 
-      {!trainingAreasLabelsIsPending && currentZoom >= MIN_ZOOM_LEVEL_FOR_TRAINING_AREA_LABELS ? (
+      {!trainingAreasLabelsIsPending &&
+      currentZoom >= MIN_ZOOM_LEVEL_FOR_TRAINING_AREA_LABELS ? (
         <TrainingAreasLabelsLayers
           map={map}
           features={labels?.features}
@@ -251,14 +263,19 @@ const TrainingAreaMap = ({
         />
       ) : null}
       {tileServiceBounds && mapBounds && (
-        <MaskBoundsLayers map={map} mapBounds={mapBounds} OAMBounds={tileServiceBounds} />
+        <MaskBoundsLayers
+          map={map}
+          mapBounds={mapBounds}
+          OAMBounds={tileServiceBounds}
+        />
       )}
       {map && (
         <MapCursorToolTip
           color={getTooltipColor()}
           map={map}
           showTooltip={
-            tooltipIsVisible || Boolean(drawingMode === DrawingModes.RECTANGLE || showLabelsToolTip)
+            tooltipIsVisible ||
+            Boolean(drawingMode === DrawingModes.RECTANGLE || showLabelsToolTip)
           }
           dependencies={[drawingMode]}
         >

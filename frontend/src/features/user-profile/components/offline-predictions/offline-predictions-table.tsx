@@ -33,7 +33,9 @@ const columnDefinitions = (
   {
     header: "Prediction Name",
     accessorFn: (row) =>
-      row.local_model_stac_id && row.local_model_stac_id.length > 0 ? row.local_model_stac_id : "-",
+      row.local_model_stac_id && row.local_model_stac_id.length > 0
+        ? row.local_model_stac_id
+        : "-",
     cell: (row) => {
       const value = row.getValue() as string;
       return (
@@ -47,7 +49,8 @@ const columnDefinitions = (
   },
   {
     accessorKey: "created_at",
-    accessorFn: (row) => (row.submitted_at !== null ? formatDate(row.submitted_at) : "-"),
+    accessorFn: (row) =>
+      row.submitted_at !== null ? formatDate(row.submitted_at) : "-",
     header: "Date Submitted",
     cell: (row) => {
       return <span>{row.getValue() as string}</span>;
@@ -76,9 +79,14 @@ const columnDefinitions = (
     header: "Duration",
     accessorFn: (row) =>
       row.last_polled_at && row.submitted_at
-        ? formatDuration(new Date(row.last_polled_at), new Date(row.last_polled_at))
+        ? formatDuration(
+            new Date(row.last_polled_at),
+            new Date(row.last_polled_at),
+          )
         : "-",
-    cell: (row) => <span title={row.getValue() as string}>{row.getValue() as string}</span>,
+    cell: (row) => (
+      <span title={row.getValue() as string}>{row.getValue() as string}</span>
+    ),
   },
   // {
   //   header: "Detected Features",
@@ -94,7 +102,9 @@ const columnDefinitions = (
     header: "MapSwipe",
     accessorKey: undefined,
     cell: (row) => (
-      <MapSwipeProjectIsActive MapSwipeId={row.row.original.mapswipe_project_id as string} />
+      <MapSwipeProjectIsActive
+        MapSwipeId={row.row.original.mapswipe_project_id as string}
+      />
     ),
   },
   {

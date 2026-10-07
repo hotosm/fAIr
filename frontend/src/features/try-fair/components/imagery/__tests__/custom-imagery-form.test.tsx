@@ -15,6 +15,7 @@ vi.mock("@/hooks/use-map-instance", () => ({
       })),
       getSource: vi.fn(() => null),
       getStyle: vi.fn(() => ({})),
+      isStyleLoaded: vi.fn(() => true),
       getLayer: vi.fn(() => null),
       addSource: vi.fn(),
       removeSource: vi.fn(),
@@ -28,7 +29,12 @@ vi.mock("@/hooks/use-map-instance", () => ({
 }));
 
 vi.mock("@/components/shared/form/xyz-tile-server-input", () => ({
-  XYZTileServerInput: ({ tileServerURL, setTileServerURL, buttonOnclick, isValid }: any) => (
+  XYZTileServerInput: ({
+    tileServerURL,
+    setTileServerURL,
+    buttonOnclick,
+    isValid,
+  }: any) => (
     <div data-testid="xyz-input">
       <input
         type="text"

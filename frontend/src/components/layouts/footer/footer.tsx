@@ -2,7 +2,13 @@ import { CreativeCommonsBadge } from "@/assets/images";
 import { Image } from "@/components/ui/image";
 import { Link } from "@/components/ui/link";
 import { SHARED_CONTENT } from "@/constants";
-import { FacebookIcon, GitHubIcon, InstagramIcon, XIcon, YouTubeIcon } from "@/assets/svgs";
+import {
+  FacebookIcon,
+  GitHubIcon,
+  InstagramIcon,
+  XIcon,
+  YouTubeIcon,
+} from "@/assets/svgs";
 import { MadeWithLove } from "@/components/shared";
 import { footerLinks } from "@/constants/general";
 
@@ -100,7 +106,11 @@ export const Footer = () => {
                   className="w-7 h-7 flex  items-center justify-center bg-white rounded-full"
                 >
                   <Link href={media.url} title={media.name} blank>
-                    <Image src={media.logo} alt={`${media.name} Icon`} title={`${media.name}`} />
+                    <Image
+                      src={media.logo}
+                      alt={`${media.name} Icon`}
+                      title={`${media.name}`}
+                    />
                   </Link>
                 </li>
               ))}

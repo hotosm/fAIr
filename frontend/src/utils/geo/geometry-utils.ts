@@ -5,7 +5,11 @@ import { createFeatureCollection } from "./geo-utils";
 import { Feature, FeatureCollection, Polygon, Position } from "geojson";
 import { LngLatBoundsLike, Map } from "maplibre-gl";
 import { roundNumber } from "../number-utils";
-import { BBOX, TModelPredictionFeature, TModelPredictionsConfig } from "@/types";
+import {
+  BBOX,
+  TModelPredictionFeature,
+  TModelPredictionsConfig,
+} from "@/types";
 import { uuid4 } from "../general-utils";
 import { booleanWithin } from "@turf/boolean-within";
 import { PredictedFeatureStatus } from "@/enums/start-mapping";
@@ -21,7 +25,9 @@ import { PredictedFeatureStatus } from "@/enums/start-mapping";
  *
  * @returns {number} The calculated area of the GeoJSON feature in square meters.
  */
-export const calculateGeoJSONArea = (geojsonFeature: Feature | FeatureCollection): number => {
+export const calculateGeoJSONArea = (
+  geojsonFeature: Feature | FeatureCollection,
+): number => {
   return area(geojsonFeature);
 };
 
@@ -101,7 +107,9 @@ export const deg2num = (
 
   const xtile = Math.floor(((lon_deg + 180.0) / 360.0) * n);
 
-  const ytile = Math.floor(((1.0 - Math.asinh(Math.tan(lat_rad)) / Math.PI) / 2.0) * n);
+  const ytile = Math.floor(
+    ((1.0 - Math.asinh(Math.tan(lat_rad)) / Math.PI) / 2.0) * n,
+  );
   return { xtile, ytile };
 };
 
@@ -232,7 +240,10 @@ const getClosestCorner = (
  * @returns {Array<[number, number]>} - An array of the approximated coordinates, where each point is replaced by
  * the closest tile corner at the specified zoom level.
  */
-export const approximateGeom = (coordinates: Position[], zoom = 19): [number, number][] => {
+export const approximateGeom = (
+  coordinates: Position[],
+  zoom = 19,
+): [number, number][] => {
   return coordinates.map(([lon, lat]) => {
     const closest = getClosestCorner(lat, lon, zoom);
     return closest ? [closest.lon_deg, closest.lat_deg] : [lon, lat];
@@ -249,7 +260,10 @@ export const approximateGeom = (coordinates: Position[], zoom = 19): [number, nu
  * @returns {FeatureCollection} - A GeoJSON FeatureCollection containing polygons that define the boundaries
  * of each tile within the visible map bounds at the given zoom level.
  */
-export const getTileBoundariesGeoJSON = (map: Map, zoom: number): FeatureCollection => {
+export const getTileBoundariesGeoJSON = (
+  map: Map,
+  zoom: number,
+): FeatureCollection => {
   const bounds = map.getBounds();
 
   const minTile = deg2num(bounds.getNorth(), bounds.getWest(), zoom);
@@ -261,7 +275,8 @@ export const getTileBoundariesGeoJSON = (map: Map, zoom: number): FeatureCollect
   // visible bounds can span an enormous number of tiles, which would freeze the
   // browser. Bail out (drawing nothing) rather than attempting to build them.
   const MAX_TILES = 2_000;
-  const tileCount = (maxTile.xtile - minTile.xtile + 1) * (maxTile.ytile - minTile.ytile + 1);
+  const tileCount =
+    (maxTile.xtile - minTile.xtile + 1) * (maxTile.ytile - minTile.ytile + 1);
   if (tileCount > MAX_TILES) {
     return createFeatureCollection(features);
   }
@@ -353,12 +368,14 @@ export const handleConflation = (
   for (const newFeature of newFeatures) {
     const intersectsAccepted = updated.some(
       (f) =>
-        f.properties.status === PredictedFeatureStatus.ACCEPTED && booleanIntersects(f, newFeature),
+        f.properties.status === PredictedFeatureStatus.ACCEPTED &&
+        booleanIntersects(f, newFeature),
     );
 
     const intersectsRejected = updated.some(
       (f) =>
-        f.properties.status === PredictedFeatureStatus.REJECTED && booleanIntersects(f, newFeature),
+        f.properties.status === PredictedFeatureStatus.REJECTED &&
+        booleanIntersects(f, newFeature),
     );
 
     if (intersectsAccepted || intersectsRejected) {
@@ -375,7 +392,10 @@ export const handleConflation = (
       ...newFeature,
       properties: {
         ...newFeature.properties,
-        id: intersectingIndex !== -1 ? updated[intersectingIndex].properties.id : uuid4(),
+        id:
+          intersectingIndex !== -1
+            ? updated[intersectingIndex].properties.id
+            : uuid4(),
         config: predictionConfig,
         status: PredictedFeatureStatus.UNTOUCHED,
       },
@@ -402,8 +422,16 @@ export const handleConflation = (
  *
  * @returns {boolean} True if the feature is within the bounding box, false otherwise.
  */
-export const featureIsWithinBounds = (OAMBounds: LngLatBoundsLike, feature: Feature): boolean => {
-  const [west, south, east, north] = OAMBounds as [number, number, number, number];
+export const featureIsWithinBounds = (
+  OAMBounds: LngLatBoundsLike,
+  feature: Feature,
+): boolean => {
+  const [west, south, east, north] = OAMBounds as [
+    number,
+    number,
+    number,
+    number,
+  ];
   const OAMFeature = {
     type: "Feature",
     geometry: {
@@ -430,7 +458,10 @@ export const featureIsWithinBounds = (OAMBounds: LngLatBoundsLike, feature: Feat
  *
  * @returns {boolean} True if the point is within the bounds, false otherwise.
  */
-export const pointIsWithinBounds = (bounds: LngLatBoundsLike, point: [number, number]): boolean => {
+export const pointIsWithinBounds = (
+  bounds: LngLatBoundsLike,
+  point: [number, number],
+): boolean => {
   const [west, south, east, north] = bounds as [number, number, number, number];
   const [lng, lat] = point;
   return lng >= west && lng <= east && lat >= south && lat <= north;

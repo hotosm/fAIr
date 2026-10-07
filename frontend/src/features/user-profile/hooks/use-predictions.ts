@@ -6,8 +6,13 @@ import { ORDERING_FIELDS } from "@/components/shared/filters/ordering-filter";
 import { SEARCH_PARAMS } from "@/utils/search-params";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getPredictionsQueryOptions } from "@/features/user-profile/api/factory";
+import { getSinglePrediction } from "@/features/user-profile/api/get-predictions";
+import { TOfflinePrediction } from "@/types";
 import { LayoutView } from "@/enums";
-import { TOfflinePredictionUpdateArgs, updateOfflinePrediction } from "../api/offline-predictions";
+import {
+  TOfflinePredictionUpdateArgs,
+  updateOfflinePrediction,
+} from "../api/offline-predictions";
 import { MutationConfig } from "@/services";
 
 export const useGetPredictions = (
@@ -21,27 +26,53 @@ export const useGetPredictions = (
   });
 };
 
+/**
+ * Fetches a single prediction request by id. `initialData` (e.g. the row the
+ * user clicked) lets the results page render instantly and stay refresh-safe.
+ */
+export const useGetSinglePrediction = (
+  predictionId?: string | number,
+  initialData?: TOfflinePrediction,
+) => {
+  const id = predictionId !== undefined ? String(predictionId) : undefined;
+  return useQuery({
+    queryKey: ["prediction", id],
+    queryFn: () => getSinglePrediction(id as string),
+    enabled: id !== undefined,
+    initialData,
+  });
+};
+
 export const useOfflinePredictionsQueryParams = (userId?: number) => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const defaultQueries = {
     [SEARCH_PARAMS.offset]: 0,
-    [SEARCH_PARAMS.searchQuery]: searchParams.get(SEARCH_PARAMS.searchQuery) || "",
+    [SEARCH_PARAMS.searchQuery]:
+      searchParams.get(SEARCH_PARAMS.searchQuery) || "",
     [SEARCH_PARAMS.ordering]:
-      searchParams.get(SEARCH_PARAMS.ordering) || (ORDERING_FIELDS[1].apiValue as string),
-    [SEARCH_PARAMS.layout]: searchParams.get(SEARCH_PARAMS.layout) || LayoutView.LIST,
+      searchParams.get(SEARCH_PARAMS.ordering) ||
+      (ORDERING_FIELDS[1].apiValue as string),
+    [SEARCH_PARAMS.layout]:
+      searchParams.get(SEARCH_PARAMS.layout) || LayoutView.LIST,
   };
 
   const [query, setQuery] = useState<TQueryParams>(defaultQueries);
 
-  const debouncedSearchText = useDebounce(query[SEARCH_PARAMS.searchQuery] as string, 300);
-
-  const { isPending, isError, data, refetch, isPlaceholderData } = useGetPredictions(
-    debouncedSearchText.length > 0 ? debouncedSearchText : undefined,
-    query[SEARCH_PARAMS.ordering] as string,
-    userId !== undefined ? userId : undefined,
-    query[SEARCH_PARAMS.offset] !== undefined ? (query[SEARCH_PARAMS.offset] as number) : undefined,
+  const debouncedSearchText = useDebounce(
+    query[SEARCH_PARAMS.searchQuery] as string,
+    300,
   );
+
+  const { isPending, isError, data, refetch, isPlaceholderData } =
+    useGetPredictions(
+      debouncedSearchText.length > 0 ? debouncedSearchText : undefined,
+      query[SEARCH_PARAMS.ordering] as string,
+      userId !== undefined ? userId : undefined,
+      query[SEARCH_PARAMS.offset] !== undefined
+        ? (query[SEARCH_PARAMS.offset] as number)
+        : undefined,
+    );
 
   const updateQuery = useCallback(
     (newParams: TQueryParams) => {
@@ -66,7 +97,10 @@ export const useOfflinePredictionsQueryParams = (userId?: number) => {
 
   //reset offset back to 0 when searching.
   useEffect(() => {
-    if (query[SEARCH_PARAMS.searchQuery] !== "" && (query[SEARCH_PARAMS.offset] as number) > 0) {
+    if (
+      query[SEARCH_PARAMS.searchQuery] !== "" &&
+      (query[SEARCH_PARAMS.offset] as number) > 0
+    ) {
       updateQuery({ [SEARCH_PARAMS.offset]: 0 });
     }
   }, [[query[SEARCH_PARAMS.searchQuery], query[SEARCH_PARAMS.offset]]]);
@@ -114,7 +148,8 @@ export const useUpdateOfflinePrediction = ({
   const { onSuccess, ...restConfig } = mutationConfig || {};
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (args: TOfflinePredictionUpdateArgs) => updateOfflinePrediction(args),
+    mutationFn: (args: TOfflinePredictionUpdateArgs) =>
+      updateOfflinePrediction(args),
     onSuccess: (...args) => {
       onSuccess?.(...args);
       // Refectch the prediction requests to sync the table.

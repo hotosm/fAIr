@@ -8,9 +8,11 @@ import { ModelDetailsInfoButton } from "@/features/start-mapping/components/head
 export const ModelFeedbacksPage = () => {
   const { data, isPending, isError } = useModelsContext();
 
-  const { data: feedbacksData, isLoading } = useTrainingFeedbacks(data?.published_training);
+  const { data: feedbacksData, isLoading } = useTrainingFeedbacks(
+    data?.published_training,
+  );
 
-  if (isLoading || isPending || isError) {
+  if (isLoading || isPending || isError || !data) {
     return (
       <div className="my-12 flex flex-col gap-y-10">
         <div className="h-24 md:w-32 bg-light-gray animated-pulse" />
@@ -37,7 +39,9 @@ export const ModelFeedbacksPage = () => {
                       Feedbacks
                     </h1>
                     <div className="flex gap-x-2 items-center">
-                      <span className="text-body-3 text-grey">Model Details</span>
+                      <span className="text-body-3 text-grey">
+                        Model Details
+                      </span>
                       <ModelDetailsInfoButton
                         modelInfo={data}
                         modelInfoRequestIsError={isError}
@@ -47,8 +51,8 @@ export const ModelFeedbacksPage = () => {
                     </div>
                   </div>
                   <p className="text-body-3 text-grey md:text-body-2 text-wrap max-w-lg md:max-w-xl xl:max-w-4xl">
-                    These are the rejected mapping results for this training by users. Some have
-                    comments attached to them.
+                    These are the rejected mapping results for this training by
+                    users. Some have comments attached to them.
                   </p>
                 </div>
               </div>

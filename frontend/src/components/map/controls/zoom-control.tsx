@@ -2,8 +2,9 @@ import { cn } from "@/utils";
 import { Map } from "maplibre-gl";
 import { ToolTip } from "../../ui/tooltip";
 import { ToolTipPlacement } from "@/enums";
-import { useCallback } from "react";
+import { ReactNode, useCallback } from "react";
 import { useMapStore } from "@/store/map-store";
+import { MapZoomInIcon, MapZoomOutIcon } from "@/components/ui/icons/map-zoom";
 
 export const ZoomButton = ({
   onClick,
@@ -11,31 +12,23 @@ export const ZoomButton = ({
   icon,
   rounded = false,
   buttonClassName,
-  iconClassName,
 }: {
   onClick: () => void;
   disabled: boolean;
-  icon: string;
+  icon: ReactNode;
   rounded?: boolean;
   buttonClassName?: string;
   iconClassName?: string;
 }) => (
   <button
-    className={cn(`p-2 bg-white ${rounded ? "rounded-[4px]" : ""} `, buttonClassName)}
+    className={cn(
+      `p-2 bg-white ${rounded ? "rounded-[4px]" : ""} `,
+      buttonClassName,
+    )}
     onClick={onClick}
     disabled={disabled}
   >
-    <span
-      className={cn(
-        "map-icon border-[2px] text-lg inline-flex items-center justify-center",
-        disabled
-          ? "border-gray-border text-gray-border cursor-not-allowed"
-          : "text-dark border-dark",
-        iconClassName,
-      )}
-    >
-      {icon}
-    </span>
+    <span className={disabled ? "cursor-not-allowed" : ""}>{icon}</span>
   </button>
 );
 
@@ -76,7 +69,7 @@ export const ZoomControls = ({
         <ZoomButton
           onClick={handleZoomIn}
           disabled={currentZoom >= Number(map?.getMaxZoom())}
-          icon="+"
+          icon={<MapZoomInIcon className="size-5" />}
           rounded={rounded}
           buttonClassName={cn(buttonClassName, zoomInClassName)}
           iconClassName={iconClassName}
@@ -86,7 +79,7 @@ export const ZoomControls = ({
         <ZoomButton
           onClick={handleZoomOut}
           disabled={currentZoom <= Number(map?.getMinZoom())}
-          icon="-"
+          icon={<MapZoomOutIcon className="size-5" />}
           rounded={rounded}
           buttonClassName={cn(buttonClassName, zoomOutClassName)}
           iconClassName={iconClassName}

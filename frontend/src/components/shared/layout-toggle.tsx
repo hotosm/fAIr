@@ -30,7 +30,9 @@ export const LayoutToggle = ({
         onClick={() => {
           updateQuery({
             [SEARCH_PARAMS.layout]:
-              activeLayout === LayoutView.GRID ? LayoutView.LIST : LayoutView.GRID,
+              activeLayout === LayoutView.GRID
+                ? LayoutView.LIST
+                : LayoutView.GRID,
           });
           scrollToTop();
         }}

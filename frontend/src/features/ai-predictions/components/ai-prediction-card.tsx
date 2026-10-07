@@ -140,7 +140,10 @@ export const AIPredictionCard = ({
             />
           </div>
           <div className="flex justify-between">
-            <Badge variant="default" className="rounded-[4px] bg-primary text-white font-semibold">
+            <Badge
+              variant="default"
+              className="rounded-[4px] bg-primary text-white font-semibold"
+            >
               <span className="text-body-3 uppercase">ID: {prediction.id}</span>
             </Badge>
 
@@ -166,7 +169,9 @@ export const AIPredictionCard = ({
                 Date Published:{" "}
                 <span className="text-dark font-semibold">
                   {prediction.published_at
-                    ? formatDate(extractDatePart(prediction.published_at as string))
+                    ? formatDate(
+                        extractDatePart(prediction.published_at as string),
+                      )
                     : "-"}
                 </span>
               </p>

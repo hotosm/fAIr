@@ -1,4 +1,8 @@
-import { BACKUP_VIDEO_URL, FAIR_MODELS_BASE_PATH, PREDICTION_API_FILE_EXTENSIONS } from "@/config";
+import {
+  BACKUP_VIDEO_URL,
+  FAIR_MODELS_BASE_PATH,
+  PREDICTION_API_FILE_EXTENSIONS,
+} from "@/config";
 import { BASE_MODELS } from "@/enums";
 import { useToastNotification } from "@/hooks/use-toast-notification";
 import { TModelDetails } from "@/types";
@@ -26,7 +30,10 @@ export const showErrorToast = (
   let message = "An unexpected error occurred";
   if (customMessage) {
     message = customMessage;
-  } else if (error?.response?.data && typeof error?.response?.data !== "object") {
+  } else if (
+    error?.response?.data &&
+    typeof error?.response?.data !== "object"
+  ) {
     message = error?.response?.data;
   } else if (
     error?.response?.data?.error?.details &&
@@ -34,11 +41,17 @@ export const showErrorToast = (
     error.response.data.error.details.length > 0
   ) {
     message = error.response.data.error.details[0];
-  } else if (error?.response?.data?.error && typeof error?.response?.data?.error !== "object") {
+  } else if (
+    error?.response?.data?.error &&
+    typeof error?.response?.data?.error !== "object"
+  ) {
     message = error.response.data.error;
   } else if (error?.response?.data?.message) {
     message = error.response.data.message;
-  } else if (error?.response?.data?.detail && typeof error?.response?.data?.detail !== "object") {
+  } else if (
+    error?.response?.data?.detail &&
+    typeof error?.response?.data?.detail !== "object"
+  ) {
     message = error?.response?.data?.detail;
   } else if (error?.response?.data[0]) {
     message = error?.response?.data[0];
@@ -88,10 +101,13 @@ export const uuid4 = function (): string {
  * @param modelInfo - The model information object containing dataset ID, training ID, and base model.
  * @returns {string} - The constructed model checkpoint path.
  */
-export const constructModelCheckpointPath = (modelInfo: TModelDetails): string => {
+export const constructModelCheckpointPath = (
+  modelInfo: TModelDetails,
+): string => {
   const datasetId = modelInfo?.dataset?.id;
   const trainingId = modelInfo?.published_training;
-  const fileExtension = PREDICTION_API_FILE_EXTENSIONS[modelInfo?.base_model as BASE_MODELS];
+  const fileExtension =
+    PREDICTION_API_FILE_EXTENSIONS[modelInfo?.base_model as BASE_MODELS];
 
   if (!datasetId || !trainingId || !fileExtension) {
     throw new Error(
@@ -119,6 +135,31 @@ export const downloadFile = (url: string) => {
   window.open(url, "_blank");
 };
 
+/**
+ * Downloads a remote file and saves it under `filename` instead of opening it
+ * in a new tab. Presigned S3 URLs (e.g. a prediction's `.geojson` asset) are
+ * served inline, so `window.open` would just render them; fetching the blob and
+ * triggering an anchor download forces a real save. Falls back to opening the
+ * URL directly when the fetch is blocked (e.g. CORS).
+ */
+export const downloadFileAs = async (url: string, filename: string) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(String(response.status));
+    const blob = await response.blob();
+    const objectUrl = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = objectUrl;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(objectUrl);
+  } catch {
+    window.open(url, "_blank", "noopener,noreferrer");
+  }
+};
+
 export const getValidVideoUrl = (url: string): string => {
   const videoId = extractYouTubeVideoId(url);
   return videoId ? url : BACKUP_VIDEO_URL;
@@ -131,7 +172,9 @@ export const getYouTubeThumbnail = (url: string): string => {
   const validUrl = getValidVideoUrl(url);
   const videoId = extractYouTubeVideoId(validUrl);
   // Use maxresdefault for highest quality, falls back to hqdefault
-  return videoId ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : UpdateCoverImage; //fallback image
+  return videoId
+    ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`
+    : UpdateCoverImage; //fallback image
 };
 
 export const getYouTubeEmbedUrl = (url: string) => {

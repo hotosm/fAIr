@@ -48,7 +48,7 @@ backend/shared/           # shared helpers
 backend/tests/            # backend tests
 frontend/src/             # React + Vite SPA
 chart/                    # Helm chart
-docs/                     # MkDocs documentation and decision records
+docs/                     # Documentation site (Zensical) and decision records
 infra/                    # infrastructure config
 ```
 
@@ -73,8 +73,7 @@ Frontend, from `frontend/`:
 pnpm dev            # vite dev server
 pnpm build          # tsc -b && vite build
 pnpm test           # vitest
-pnpm lint           # eslint .
-pnpm format         # prettier --write
+pnpm format         # oxfmt --write
 ```
 
 Chart: `just chart <args>` from the repo root.

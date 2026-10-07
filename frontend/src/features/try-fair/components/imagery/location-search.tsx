@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { CloseIcon } from "@/components/ui/icons";
 import { Spinner } from "@/components/ui/spinner";
-import { geocodeSuggestions, GeocodeResult } from "@/features/try-fair/api/hot-imagery";
+import {
+  geocodeSuggestions,
+  GeocodeResult,
+} from "@/features/try-fair/api/hot-imagery";
 import { ToolTip } from "@/components/ui/tooltip";
 
 const DEBOUNCE_MS = 350;
@@ -29,7 +32,9 @@ export const LocationSearch = ({
   const [open, setOpen] = useState<boolean>(false);
 
   const abortRef = useRef<AbortController | null>(null);
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  );
   const justPickedRef = useRef(false);
 
   // Debounced suggestion fetch.
@@ -95,7 +100,7 @@ export const LocationSearch = ({
   };
 
   return (
-    <div className="relative w-[min(340px,78vw)]">
+    <div className="relative w-full max-w-[384px]">
       <div className="flex items-center bg-white rounded-lg shadow-md border border-gray-border overflow-hidden">
         <input
           type="text"

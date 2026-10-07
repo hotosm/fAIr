@@ -1,5 +1,15 @@
-import { ModelType, TileServiceType, TryFairMapOutputType, TryFairResolution } from "@/enums";
-import { parseAsBoolean, parseAsFloat, parseAsString, useQueryStates } from "nuqs";
+import {
+  ModelType,
+  TileServiceType,
+  TryFairMapOutputType,
+  TryFairResolution,
+} from "@/enums";
+import {
+  parseAsBoolean,
+  parseAsFloat,
+  parseAsString,
+  useQueryStates,
+} from "nuqs";
 import { useStacBaseModels, useStacLocalModels } from "./use-base-models";
 import { useMemo } from "react";
 import { getSelectedModel } from "@/features/try-fair/utils/models";
@@ -16,7 +26,34 @@ export const TRY_FAIR_PARAM_DEFAULTS = {
   confidence: 0.7,
   feature: "buildings",
   mode: ModelType.DEMO,
+  mappingMode: "basic" as const,
 } as const;
+
+export type MappingModeType = "basic" | "advanced";
+
+/**
+ * Mapping mode is a user preference, so it's persisted to localStorage in
+ * addition to the URL param. This is what keeps it stable across the profile
+ * pages, whose nav links don't carry the query string (and across reloads).
+ */
+const MAPPING_MODE_STORAGE_KEY = "fair-mapping-mode";
+
+const readStoredMappingMode = (): MappingModeType | null => {
+  try {
+    const stored = localStorage.getItem(MAPPING_MODE_STORAGE_KEY);
+    return stored === "advanced" || stored === "basic" ? stored : null;
+  } catch {
+    return null;
+  }
+};
+
+const writeStoredMappingMode = (mode: MappingModeType) => {
+  try {
+    localStorage.setItem(MAPPING_MODE_STORAGE_KEY, mode);
+  } catch {
+    // Ignore (private mode / storage disabled) — the URL param still works.
+  }
+};
 
 /**
  * Persists the Try fAIr sidebar UI state in URL search params via nuqs.
@@ -42,10 +79,14 @@ export const useTryFairParams = () => {
       confidence: parseAsFloat,
       feature: parseAsString.withDefault(TRY_FAIR_PARAM_DEFAULTS.feature),
       mode: parseAsString.withDefault(TRY_FAIR_PARAM_DEFAULTS.mode),
+      // Nullable (no default) so an absent param can fall back to the
+      // persisted preference rather than always resetting to "basic".
+      mappingMode: parseAsString,
       imagery: parseAsString,
       imageryType: parseAsString,
       oamItem: parseAsString,
       chooseLocation: parseAsBoolean.withDefault(false),
+      selectedModelId: parseAsString,
     },
     { history: "replace" },
   );
@@ -53,7 +94,10 @@ export const useTryFairParams = () => {
   const { models: allModels } = useStacBaseModels();
   const { models: localModels } = useStacLocalModels();
 
-  const models = useMemo(() => [...allModels, ...localModels], [allModels, localModels]);
+  const models = useMemo(
+    () => [...allModels, ...localModels],
+    [allModels, localModels],
+  );
 
   const selectedModel = useMemo(
     () => getSelectedModel(models, params.model),
@@ -66,7 +110,9 @@ export const useTryFairParams = () => {
   );
 
   const defaultConfidence = useMemo(() => {
-    const confidenceParam = inferenceParams.find((param) => param.key === "confidence_threshold");
+    const confidenceParam = inferenceParams.find(
+      (param) => param.key === "confidence_threshold",
+    );
     if (confidenceParam && typeof confidenceParam.spec.default === "number") {
       return confidenceParam.spec.default;
     }
@@ -83,7 +129,17 @@ export const useTryFairParams = () => {
 
   const confidence = params.confidence ?? defaultConfidence;
 
-  const mode = params.mode === ModelType.IMAGERY ? ModelType.IMAGERY : ModelType.DEMO;
+  const mode =
+    params.mode === ModelType.IMAGERY ? ModelType.IMAGERY : ModelType.DEMO;
+
+  // URL param wins when present; otherwise fall back to the persisted
+  // preference so the mode survives profile navigation and reloads.
+  const mappingMode: MappingModeType =
+    params.mappingMode === "advanced"
+      ? "advanced"
+      : params.mappingMode === "basic"
+        ? "basic"
+        : (readStoredMappingMode() ?? "basic");
 
   const imageryTileServiceType = Object.values(TileServiceType).includes(
     params.imageryType as TileServiceType,
@@ -103,6 +159,7 @@ export const useTryFairParams = () => {
 
   return {
     modelId: params.model,
+    selectedModelId: params.selectedModelId,
     selectedModel,
     inferenceParams,
     outputType,
@@ -110,18 +167,26 @@ export const useTryFairParams = () => {
     confidence,
     feature: params.feature,
     mode,
+    mappingMode,
     imageryUrl: params.imagery,
     imageryTileServiceType,
     oamItemId: params.oamItem,
     chooseLocation: params.chooseLocation,
 
     setModelId: (id: string) => setParams({ model: id }),
+    setSelectedModelId: (id: string | null) =>
+      setParams({ selectedModelId: id }),
     setOutputType: (type: TryFairMapOutputType) => setParams({ output: type }),
     setResolution: (res: TryFairResolution) => setParams({ resolution: res }),
     setConfidence: (val: number | null) => setParams({ confidence: val }),
     setFeature: (feature: string) => setParams({ feature }),
     setMode: (mode: ModelType) => setParams({ mode }),
-    setChooseLocation: (show: boolean) => setParams({ chooseLocation: show ? true : null }),
+    setMappingMode: (mappingMode: MappingModeType) => {
+      writeStoredMappingMode(mappingMode);
+      setParams({ mappingMode });
+    },
+    setChooseLocation: (show: boolean) =>
+      setParams({ chooseLocation: show ? true : null }),
     setImagery: ({
       url,
       tileServiceType,
@@ -132,6 +197,25 @@ export const useTryFairParams = () => {
       oamItemId: string | null;
     }) =>
       setParams({
+        imagery: url,
+        imageryType: tileServiceType,
+        oamItem: oamItemId,
+      }),
+
+    /** Atomically switches to imagery mode and persists all imagery params in
+     *  one `setParams` call, preventing the intermediate render where
+     *  `mode=imagery` but the imagery URL hasn't been written yet. */
+    setImageryMode: ({
+      url,
+      tileServiceType,
+      oamItemId,
+    }: {
+      url: string | null;
+      tileServiceType: TileServiceType | null;
+      oamItemId: string | null;
+    }) =>
+      setParams({
+        mode: ModelType.IMAGERY,
         imagery: url,
         imageryType: tileServiceType,
         oamItem: oamItemId,

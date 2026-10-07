@@ -14,7 +14,10 @@ import { useAuth } from "@/app/providers/auth-provider";
 import { useDialog } from "@/hooks/use-dialog";
 import { useState } from "react";
 import { useTrainingHistory } from "@/features/models/hooks/use-training";
-import { useTerminateTraining, useUpdateTraining } from "@/features/models/api/update-trainings";
+import {
+  useTerminateTraining,
+  useUpdateTraining,
+} from "@/features/models/api/update-trainings";
 import {
   formatDate,
   formatDuration,
@@ -50,25 +53,36 @@ const columnDefinitions = (
     header: ({ column }) => <SortableHeader title={"ID"} column={column} />,
   },
   {
-    header: MODELS_CONTENT.models.modelsDetailsCard.trainingHistoryTableHeader.epochAndBatchSize,
+    header:
+      MODELS_CONTENT.models.modelsDetailsCard.trainingHistoryTableHeader
+        .epochAndBatchSize,
     accessorFn: (row) => `${row.epochs}/${row.batch_size}`,
-    cell: (row) => <span title={row.getValue() as string}>{row.getValue() as string}</span>,
+    cell: (row) => (
+      <span title={row.getValue() as string}>{row.getValue() as string}</span>
+    ),
   },
   {
     accessorKey: "started_at",
-    accessorFn: (row) => (row.started_at !== null ? formatDate(row.started_at) : "-"),
-    header: MODELS_CONTENT.models.modelsDetailsCard.trainingHistoryTableHeader.startedAt,
+    accessorFn: (row) =>
+      row.started_at !== null ? formatDate(row.started_at) : "-",
+    header:
+      MODELS_CONTENT.models.modelsDetailsCard.trainingHistoryTableHeader
+        .startedAt,
     cell: (row) => {
       return <span>{row.getValue() as string}</span>;
     },
   },
   {
-    header: MODELS_CONTENT.models.modelsDetailsCard.trainingHistoryTableHeader.duration,
+    header:
+      MODELS_CONTENT.models.modelsDetailsCard.trainingHistoryTableHeader
+        .duration,
     accessorFn: (row) =>
       row.finished_at && row.started_at
         ? formatDuration(new Date(row.started_at), new Date(row.finished_at))
         : "-",
-    cell: (row) => <span title={row.getValue() as string}>{row.getValue() as string}</span>,
+    cell: (row) => (
+      <span title={row.getValue() as string}>{row.getValue() as string}</span>
+    ),
   },
   ...(showUserTrainingHistory
     ? [
@@ -76,7 +90,10 @@ const columnDefinitions = (
           accessorKey: "model",
           header: ({ column }: { column: any }) => (
             <SortableHeader
-              title={MODELS_CONTENT.models.modelsDetailsCard.trainingHistoryTableHeader.model}
+              title={
+                MODELS_CONTENT.models.modelsDetailsCard
+                  .trainingHistoryTableHeader.model
+              }
               column={column}
             />
           ),
@@ -99,7 +116,9 @@ const columnDefinitions = (
     : [
         {
           accessorKey: "user.username",
-          header: MODELS_CONTENT.models.modelsDetailsCard.trainingHistoryTableHeader.sumittedBy,
+          header:
+            MODELS_CONTENT.models.modelsDetailsCard.trainingHistoryTableHeader
+              .sumittedBy,
           cell: ({ row }: { row: any }) => {
             return <span>{truncateString(row.original.user.username)}</span>;
           },
@@ -108,7 +127,8 @@ const columnDefinitions = (
 
   {
     accessorKey: "chips_length",
-    header: MODELS_CONTENT.models.modelsDetailsCard.trainingHistoryTableHeader.dsSize,
+    header:
+      MODELS_CONTENT.models.modelsDetailsCard.trainingHistoryTableHeader.dsSize,
     cell: ({ row }) => {
       return <span>{row.getValue("chips_length") ?? 0}</span>;
     },
@@ -117,20 +137,26 @@ const columnDefinitions = (
     accessorKey: "accuracy",
     header: ({ column }) => (
       <SortableHeader
-        title={MODELS_CONTENT.models.modelsDetailsCard.trainingHistoryTableHeader.accuracy}
+        title={
+          MODELS_CONTENT.models.modelsDetailsCard.trainingHistoryTableHeader
+            .accuracy
+        }
         column={column}
       />
     ),
     cell: ({ row }) => {
       return (
         <span>
-          {Number(row.getValue("accuracy")) > 0 ? roundNumber(row.getValue("accuracy") ?? 0) : "-"}
+          {Number(row.getValue("accuracy")) > 0
+            ? roundNumber(row.getValue("accuracy") ?? 0)
+            : "-"}
         </span>
       );
     },
   },
   {
-    header: MODELS_CONTENT.models.modelsDetailsCard.trainingHistoryTableHeader.status,
+    header:
+      MODELS_CONTENT.models.modelsDetailsCard.trainingHistoryTableHeader.status,
     accessorKey: "status",
     cell: (row) => {
       const statusToVariant: Record<string, TBadgeVariants> = {
@@ -142,7 +168,11 @@ const columnDefinitions = (
 
       return (
         <Badge
-          variant={statusToVariant[String(row.getValue()).toLocaleLowerCase() as TBadgeVariants]}
+          variant={
+            statusToVariant[
+              String(row.getValue()).toLocaleLowerCase() as TBadgeVariants
+            ]
+          }
         >
           {String(row.getValue()).toLocaleLowerCase() as string}
         </Badge>
@@ -152,7 +182,9 @@ const columnDefinitions = (
   ...(publishedTrainingId
     ? [
         {
-          header: MODELS_CONTENT.models.modelsDetailsCard.trainingHistoryTableHeader.inUse,
+          header:
+            MODELS_CONTENT.models.modelsDetailsCard.trainingHistoryTableHeader
+              .inUse,
 
           cell: ({ row }: { row: any }) => {
             return (
@@ -171,7 +203,9 @@ const columnDefinitions = (
   ...(modelOwner !== authUsername
     ? [
         {
-          header: MODELS_CONTENT.models.modelsDetailsCard.trainingHistoryTableHeader.info,
+          header:
+            MODELS_CONTENT.models.modelsDetailsCard.trainingHistoryTableHeader
+              .info,
 
           cell: ({ row }: { row: any }) => {
             return (
@@ -194,7 +228,9 @@ const columnDefinitions = (
   ...(modelOwner === authUsername && isAuthenticated
     ? [
         {
-          header: MODELS_CONTENT.models.modelsDetailsCard.trainingHistoryTableHeader.action,
+          header:
+            MODELS_CONTENT.models.modelsDetailsCard.trainingHistoryTableHeader
+              .action,
 
           cell: ({ row }: { row: any }) => {
             return (
@@ -226,7 +262,8 @@ const columnDefinitions = (
                     },
                     disabled:
                       row.getValue("status") === ModelTrainingStatus.FAILED ||
-                      row.getValue("status") === ModelTrainingStatus.IN_PROGRESS ||
+                      row.getValue("status") ===
+                        ModelTrainingStatus.IN_PROGRESS ||
                       row.getValue("status") === ModelTrainingStatus.SUBMITTED,
                   },
                   {
@@ -279,7 +316,9 @@ const TrainingHistoryTable: React.FC<TrainingHistoryTableProps> = ({
   );
 
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [activeTrainingId, setActiveTrainingId] = useState<number | undefined>(publishedTrainingId);
+  const [activeTrainingId, setActiveTrainingId] = useState<number | undefined>(
+    publishedTrainingId,
+  );
 
   const { isOpened, openDialog, closeDialog } = useDialog();
 

@@ -4,7 +4,13 @@ import { BotIcon, FeedbackIcon, PredictionsIcon } from "@/components/ui/icons";
 import { DesktopFlowIcon } from "@/components/ui/icons";
 import { IconProps } from "@/types";
 import { SHARED_CONTENT } from "@/constants";
-import React, { useCallback, useEffect, useMemo, useState, useRef } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useRef,
+} from "react";
 
 /**
  * The delay in seconds before switching to the next step. This can be adjust accordingly.
@@ -41,7 +47,11 @@ const steps: TSteps[] = [
   },
 ];
 
-export const TheFAIRProcess = ({ disableStyle = false }: { disableStyle?: boolean }) => {
+export const TheFAIRProcess = ({
+  disableStyle = false,
+}: {
+  disableStyle?: boolean;
+}) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<Array<React.RefObject<HTMLDivElement | null>>>(
     steps.map(() => React.createRef<HTMLDivElement>()),
@@ -88,7 +98,10 @@ export const TheFAIRProcess = ({ disableStyle = false }: { disableStyle?: boolea
   }, [steps.length, activeIndex]);
 
   return (
-    <section className={disableStyle ? "relative" : styles.fairProcess} ref={containerRef}>
+    <section
+      className={disableStyle ? "relative" : styles.fairProcess}
+      ref={containerRef}
+    >
       <h2 className="text-title-2 lg:text-4xl font-semibold mb-[73px]">
         {SHARED_CONTENT.homepage.fairProcess.title}
       </h2>

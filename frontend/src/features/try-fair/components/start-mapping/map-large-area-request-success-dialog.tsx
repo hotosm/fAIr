@@ -27,7 +27,13 @@ export const MapLargeAreaRequestSuccess = ({
           <div>
             <SuccessCheckIcon />
           </div>
-          <h1 className="text-base font-medium">Mapping Requested!</h1>
+          <h1 className="text-base font-medium text-center">
+            Mapping request submitted
+          </h1>
+          <p className="text-sm text-grey text-center">
+            Your area will be processed in the background. Track progress and
+            download the results from your requests.
+          </p>
         </div>
 
         <div className="flex flex-row items-center w-full md:w-fit md:flex-row gap-4 md:gap-4 justify-between ">
@@ -41,7 +47,7 @@ export const MapLargeAreaRequestSuccess = ({
             fontSize={"12px"}
             rounded
           >
-            Go to Requests
+            View requests
           </Button>
           <Button
             onClick={onClose}

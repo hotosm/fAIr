@@ -89,15 +89,3 @@ class TrainingPublishSerializer(serializers.Serializer):
             'Falls back to "{model_name} v{N}" when omitted.'
         ),
     )
-
-
-class RunStatusSerializer(serializers.Serializer):
-    run_id = serializers.CharField()
-    status = serializers.CharField()
-    is_terminal = serializers.BooleanField()
-
-
-class LogEntrySerializer(serializers.Serializer):
-    level = serializers.CharField()
-    message = serializers.CharField()
-    timestamp = serializers.CharField(allow_null=True)

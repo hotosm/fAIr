@@ -1,6 +1,14 @@
-import { keepPreviousData, queryOptions } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  queryOptions,
+  skipToken,
+} from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/services";
-import { getModels, getModelDetails, getModelsMapData } from "@/features/models/api/get-models";
+import {
+  getModels,
+  getModelDetails,
+  getModelsMapData,
+} from "@/features/models/api/get-models";
 import {
   getTrainingDetails,
   getTrainingFeedbacks,
@@ -49,20 +57,29 @@ export const getModelsQueryOptions = ({
       },
     ],
     queryFn: () =>
-      getModels(limit, offset, orderBy, status, searchQuery, dateFilters, id, userId, dataset),
+      getModels(
+        limit,
+        offset,
+        orderBy,
+        status,
+        searchQuery,
+        dateFilters,
+        id,
+        userId,
+        dataset,
+      ),
     placeholderData: keepPreviousData,
   });
 };
 
 export const getModelDetailsQueryOptions = (
   id: string,
-  refetchInterval: boolean | number,
+  refetchInterval: false | number,
   enabled: boolean,
 ) => {
   return queryOptions({
     queryKey: [QUERY_KEYS.MODEL_DETAILS(id)],
     queryFn: () => getModelDetails(id),
-    //@ts-expect-error bad type definition
     refetchInterval: refetchInterval,
     enabled: enabled,
   });
@@ -92,14 +109,17 @@ export const getTrainingStatusQueryOptions = (taskId: string) => {
   });
 };
 
-export const getTrainingFeedbacksQueryOptions = (id: number) => {
+export const getTrainingFeedbacksQueryOptions = (id: number | undefined) => {
   return queryOptions({
     queryKey: ["training-feedbacks", id],
-    queryFn: () => getTrainingFeedbacks(id),
+    queryFn: id == null ? skipToken : () => getTrainingFeedbacks(id),
   });
 };
 
-export const getTrainingWorkspaceQueryOptions = (trainingId: number, directory_name: string) => {
+export const getTrainingWorkspaceQueryOptions = (
+  trainingId: number,
+  directory_name: string,
+) => {
   return queryOptions({
     queryKey: ["training-workspace", trainingId, directory_name],
     queryFn: () => getTrainingWorkspace(trainingId, directory_name),

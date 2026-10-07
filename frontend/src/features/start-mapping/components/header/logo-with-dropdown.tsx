@@ -7,7 +7,11 @@ import { navLinks } from "@/constants/general";
 import { NavLogo } from "@/components/layouts";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 
-export const BrandLogoWithDropDown = ({ stopMappingFn }: { stopMappingFn: () => void }) => {
+export const BrandLogoWithDropDown = ({
+  stopMappingFn,
+}: {
+  stopMappingFn: () => void;
+}) => {
   const { dropdownRef } = useDropdownMenu();
   const navItems = navLinks.map((link, id) => (
     <li key={`${link.title}-${id}`}>

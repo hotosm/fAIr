@@ -5,23 +5,29 @@ import { TryFairMapOutputType, TryFairResolution } from "@/enums/try-fair";
 import { BBOX } from "@/types";
 import { TryFairDraggableGrid } from "@/features/try-fair/components/map/draggable-grid";
 import { TryFairPredictionsLayer } from "@/features/try-fair/components/map/try-fair-prediction-results";
+import { TryFairSwipe } from "@/features/try-fair/components/map/try-fair-swipe";
+import { PredictionClassStyle } from "@/features/try-fair/utils/prediction-classes";
 import { ChoroplethBucket } from "@/features/try-fair/utils/helpers";
 import { TryFairChoroplethLegend } from "@/features/try-fair/components/map/chloropleth-legend";
 import { TryFairPointsLegend } from "@/features/try-fair/components/map/points-legend";
+import { TryFairPolygonLegend } from "@/features/try-fair/components/map/polygon-legend";
 import { FitToBounds, ZoomControls } from "@/components/map/controls";
 import { InfoIcon } from "@/components/ui/icons";
 import { ToolTip } from "@/components/ui/tooltip";
 import { PREDICTION_LAYER_IDS } from "@/features/try-fair/utils/common";
+import { TRY_FAIR_FLY_TO_ANIMATION } from "@/config";
 import { getTileZoomForResolution } from "@/features/try-fair/utils/tile-math";
 import { TryFairLayerControl } from "@/features/try-fair/components/map/try-fair-layer-control";
 import useScreenSize from "@/hooks/use-screen-size";
 import { LocateGridIcon } from "@/components/ui/icons/locate-grid-icon";
 import { TryFairDownloadButton } from "@/features/try-fair/components/map/try-fair-download-button";
+import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/utils";
-import { GlobeSearchIcon } from "@/components/ui/icons/globe-search-icon";
-import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
-import { useAuth } from "@/app/providers/auth-provider";
-import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
+
+// When the fly-to animation is disabled (VITE_TRY_FAIR_FLY_TO_ANIMATION=false)
+// the camera jumps to the grid instantly instead of easing; otherwise MapLibre
+// uses its default animated transition.
+const FLY_TO_OPTIONS = TRY_FAIR_FLY_TO_ANIMATION ? {} : { duration: 0 };
 
 type TryFairMapProps = {
   map: Map | null;
@@ -34,10 +40,12 @@ type TryFairMapProps = {
   predictions: GeoJSON.FeatureCollection | null;
   predictionBBox: BBOX | null;
   predictionGridZoom?: number | null;
+  hasNoResults?: boolean;
   imageryCenter?: [number, number];
   resolution?: TryFairResolution;
-  modelId?: string | null;
   isPredicting?: boolean;
+  preImageryUrl?: string | null;
+  predictionClassStyle?: PredictionClassStyle | null;
   canFitToBounds: boolean;
   /** Opens the guided "how it works" tour. */
   onHelp?: () => void;
@@ -56,28 +64,38 @@ export const TryFairMap = ({
   predictions,
   predictionBBox,
   predictionGridZoom,
+  hasNoResults = false,
   imageryCenter,
   resolution,
-  modelId,
   isPredicting = false,
+  preImageryUrl,
+  predictionClassStyle,
   canFitToBounds,
   onHelp,
 }: TryFairMapProps) => {
   const { isSmallViewport } = useScreenSize();
-  const { setChooseLocation } = useTryFairParams();
-  const { setShowSigninModal } = useStartMappingStore();
-  const { isAuthenticated } = useAuth();
-  const [choroplethBuckets, setChoroplethBuckets] = useState<ChoroplethBucket[] | null>(null);
+  const [choroplethBuckets, setChoroplethBuckets] = useState<
+    ChoroplethBucket[] | null
+  >(null);
+  // True while the imagery raster tiles are actually fetching, so we can show a
+  // spinner over the map instead of a blank canvas when imagery changes.
+  const [imageryLoading, setImageryLoading] = useState(false);
   const gridBBoxRef = useRef<BBOX | null>(null);
   const fitPendingRef = useRef(false);
 
   const handleFitToGrid = useCallback(() => {
     if (!canFitToBounds) return;
     const bbox = gridBBoxRef.current;
-    if (!map || !bbox) return;
+    if (!map || !bbox) {
+      fitPendingRef.current = true;
+      return;
+    }
+
+    map.resize();
     map.fitBounds([bbox[0], bbox[1], bbox[2], bbox[3]], {
       padding: 40,
       essential: true,
+      ...FLY_TO_OPTIONS,
     });
   }, [map, canFitToBounds]);
 
@@ -85,18 +103,14 @@ export const TryFairMap = ({
     (bbox: BBOX, tileZoom: number) => {
       gridBBoxRef.current = bbox;
       onBBoxChange(bbox, tileZoom);
-      // If a resolution change triggered a grid recalculation, fit now.
+      // If a resolution change (or a deferred initial fit) is pending, fit now
+      // that the grid has recalculated. handleFitToGrid resizes then fits.
       if (fitPendingRef.current) {
         fitPendingRef.current = false;
-        if (map && canFitToBounds) {
-          map.fitBounds([bbox[0], bbox[1], bbox[2], bbox[3]], {
-            padding: 40,
-            essential: true,
-          });
-        }
+        handleFitToGrid();
       }
     },
-    [onBBoxChange, map, canFitToBounds],
+    [onBBoxChange, handleFitToGrid],
   );
 
   // When resolution or imagery center changes, flag that we want to fit once
@@ -144,11 +158,19 @@ export const TryFairMap = ({
     outputType === TryFairMapOutputType.CLUSTER ? (
       <TryFairChoroplethLegend buckets={choroplethBuckets} />
     ) : outputType === TryFairMapOutputType.POINTS ? (
-      <TryFairPointsLegend totalCount={predictions?.features.length ?? 0} />
+      <TryFairPointsLegend
+        predictions={predictions}
+        classStyle={predictionClassStyle}
+      />
+    ) : outputType === TryFairMapOutputType.POLYGON ? (
+      <TryFairPolygonLegend
+        predictions={predictions}
+        classStyle={predictionClassStyle}
+      />
     ) : null;
 
   return (
-    <div className="relative w-full h-full overflow-hidden">
+    <div className="relative isolate w-full h-full overflow-hidden">
       <MapComponent
         map={map}
         mapContainerRef={mapContainerRef}
@@ -159,6 +181,27 @@ export const TryFairMap = ({
         zoomControls={false}
         basemaps
         onTileServiceFitToBounds={handleFitToGrid}
+        onTileServiceLoadingChange={setImageryLoading}
+      />
+
+      {imageryLoading && (
+        <div
+          className="absolute inset-0 z-[5] flex items-center justify-center bg-white/40 pointer-events-none"
+          aria-live="polite"
+          aria-busy="true"
+        >
+          <Spinner style={{ fontSize: "2.5rem" }} />
+        </div>
+      )}
+
+      <TryFairSwipe
+        map={map}
+        preImageryUrl={preImageryUrl}
+        predictions={predictions}
+        predictionBBox={predictionBBox}
+        predictionGridZoom={predictionGridZoom ?? undefined}
+        outputType={outputType}
+        classStyle={predictionClassStyle}
       />
 
       <TryFairPredictionsLayer
@@ -168,6 +211,7 @@ export const TryFairMap = ({
         predictionGridZoom={predictionGridZoom ?? undefined}
         outputType={outputType}
         onChoroplethBucketsChange={setChoroplethBuckets}
+        classStyle={predictionClassStyle}
       />
 
       {map && (
@@ -177,8 +221,8 @@ export const TryFairMap = ({
           onBBoxChange={handleBBoxChange}
           center={imageryCenter}
           resolution={resolution}
-          modelId={modelId}
           isPredicting={isPredicting}
+          hasNoResults={hasNoResults}
           outputType={outputType}
           predictionBBox={predictionBBox}
           predictionGridZoom={predictionGridZoom}
@@ -187,23 +231,6 @@ export const TryFairMap = ({
 
       {map && (
         <div className="absolute top-5 right-3 map-elements-z-index flex flex-col gap-y-4">
-          <ToolTip content="Change Imagery">
-            <button
-              type="button"
-              onClick={() => {
-                setChooseLocation(true);
-                if (!isAuthenticated) {
-                  setShowSigninModal(true);
-                }
-              }}
-              disabled={isPredicting}
-              aria-label="Choose a different location"
-              className={cn(mapActionButtonClassName, isPredicting && "!disabled:cursor-wait")}
-            >
-              <GlobeSearchIcon />
-            </button>
-          </ToolTip>
-
           {/* Group 1: Zoom In, Zoom Out, Fit to bounds */}
           <div className="flex bg-white rounded-[4px] border border-gray-border md:border-0 shadow-sm flex-col gap-y-0">
             <ZoomControls
@@ -211,8 +238,8 @@ export const TryFairMap = ({
               rounded={false}
               className="gap-y-0"
               buttonClassName="size-8 p-1.5 bg-white border-0 flex items-center justify-center text-dark rounded-none"
-              zoomInClassName="border-b border-[#E4E4E4] border-t-0 border-x-0 rounded-t-[4px]"
-              zoomOutClassName="border-b border-[#E4E4E4] border-t-0 border-x-0 rounded-none"
+              zoomInClassName="border-b text-dark border-[#E4E4E4] border-t-0 border-x-0 rounded-t-[4px]"
+              zoomOutClassName="border-b text-dark border-[#E4E4E4] border-t-0 border-x-0 rounded-none"
               iconClassName="size-4 p-0 text-base leading-none"
             />
             <FitToBounds

@@ -18,8 +18,6 @@ type UseTileGridOptions = {
   imageryCenter?: [number, number];
   /** Current resolution selection. */
   resolution?: TryFairResolution;
-  /** Selected model ID — triggers a re-center when it changes. */
-  modelId?: string | null;
   /** Callback fired whenever the snapped grid bbox changes. */
   onBBoxChange: (bbox: BBOX, tileZoom: number) => void;
 };
@@ -33,7 +31,10 @@ type UseTileGridReturn = {
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 /** Returns true if two [lng, lat] tuples differ. */
-const centersAreDifferent = (a: [number, number] | null, b: [number, number] | null): boolean => {
+const centersAreDifferent = (
+  a: [number, number] | null,
+  b: [number, number] | null,
+): boolean => {
   if (a === null || b === null) return a !== b;
   return a[0] !== b[0] || a[1] !== b[1];
 };
@@ -51,16 +52,14 @@ const bboxesAreEqual = (a: BBOX, b: BBOX): boolean =>
  * Consolidates the four separate recentering effects from the original
  * implementation into a single effect with explicit priority:
  *
- *   1. Model changed   → recenter (new imagery)
- *   2. Resolution changed → recenter (grid size changes)
- *   3. Imagery center changed → recenter on new center
- *   4. No anchor yet    → initialize
+ *   1. Resolution changed → recenter (grid size changes)
+ *   2. Imagery center changed → recenter on new center
+ *   3. No anchor yet → initialize
  */
 export const useTileGrid = ({
   map,
   imageryCenter,
   resolution,
-  modelId,
   onBBoxChange,
 }: UseTileGridOptions): UseTileGridReturn => {
   const [anchor, setAnchor] = useState<TileAnchor | null>(null);
@@ -68,9 +67,12 @@ export const useTileGrid = ({
 
   // ── Track previous values to detect what changed ─────────────────────────
 
-  const previousModelIdRef = useRef<string | null | undefined>(modelId);
-  const previousResolutionRef = useRef<TryFairResolution | undefined>(resolution);
-  const previousImageryCenterRef = useRef<[number, number] | undefined>(imageryCenter);
+  const previousResolutionRef = useRef<TryFairResolution | undefined>(
+    resolution,
+  );
+  const previousImageryCenterRef = useRef<[number, number] | undefined>(
+    imageryCenter,
+  );
   const anchorRef = useRef<TileAnchor | null>(null);
 
   useEffect(() => {
@@ -81,7 +83,6 @@ export const useTileGrid = ({
   useEffect(() => {
     if (!map) return;
 
-    const modelChanged = modelId !== previousModelIdRef.current;
     const resolutionChanged = resolution !== previousResolutionRef.current;
     const imageryCenterChanged = centersAreDifferent(
       imageryCenter ?? null,
@@ -89,18 +90,8 @@ export const useTileGrid = ({
     );
 
     // Update refs for next comparison.
-    previousModelIdRef.current = modelId;
     previousResolutionRef.current = resolution;
     previousImageryCenterRef.current = imageryCenter;
-
-    if (modelChanged && modelId) {
-      const target = imageryCenter
-        ? { lng: imageryCenter[0], lat: imageryCenter[1] }
-        : map.getCenter();
-      const nextAnchor = computeCenteredAnchor(target, tileZoom);
-      setAnchor(nextAnchor);
-      return;
-    }
 
     // Resolution changed: resize the grid in place. Recenter on the current
     // grid center at the new tile zoom so the grid only grows/shrinks where it
@@ -145,7 +136,7 @@ export const useTileGrid = ({
     // initialise when there's no anchor. Subsequent anchor updates are
     // driven by dragging, not by this effect.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [map, modelId, resolution, imageryCenter, tileZoom]);
+  }, [map, resolution, imageryCenter, tileZoom]);
 
   //
   // The old code called onBBoxChange on every fractional anchor update during
@@ -163,7 +154,8 @@ export const useTileGrid = ({
     const currentBBox = computeGridBBox(snappedAnchor);
 
     const bboxChanged =
-      !previousBBoxRef.current || !bboxesAreEqual(previousBBoxRef.current, currentBBox);
+      !previousBBoxRef.current ||
+      !bboxesAreEqual(previousBBoxRef.current, currentBBox);
 
     if (bboxChanged) {
       previousBBoxRef.current = currentBBox;

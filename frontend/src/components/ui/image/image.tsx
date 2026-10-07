@@ -39,7 +39,9 @@ const Image: React.FC<ImageProps> = ({
   return (
     <>
       {isLoading && (
-        <div className={`animate-pulse bg-light-gray w-full h-full ${className}`}></div>
+        <div
+          className={`animate-pulse bg-light-gray w-full h-full ${className}`}
+        ></div>
       )}
       <img
         src={imageSrc}

@@ -20,7 +20,7 @@ This project is the frontend web application built using **React 19**, **TypeScr
 
 Before you begin, ensure you have the following installed:
 
-- [Node.js](https://nodejs.org/) v20.13.1 or higher
+- [Node.js](https://nodejs.org/) v20.19+ (20.x) or v22.12+ for Oxfmt
 - [pnpm](https://pnpm.io/) (recommended) or npm/yarn
 
 ## Installation
@@ -124,25 +124,42 @@ Here's an overview of the folder structure:
 
 The project standards are crucial for maintaining code quality, consistency, and scalability in a React application. By establishing and adhering to a set of best practices, developers can ensure that the codebase remains clean, organized, and easy to maintain.
 
-#### ESLint
+#### Oxfmt
 
-ESLint is used to maintain code quality and adhere to coding standards:
-
-```bash
-pnpm lint
-```
-
-#### Prettier
-
-Prettier is used to maintain consistent code formatting in the project:
+Oxfmt maintains consistent source formatting using `.oxfmtrc.json`. The frontend
+dependency and repository pre-commit hook use the same pinned version.
 
 ```bash
-# Format all files
+# Format source files
 pnpm format
 
 # Check formatting without making changes
 pnpm format:check
 ```
+
+#### Git hooks
+
+Use the repository's pre-commit hooks for frontend and backend changes. If
+upgrading a checkout that used Husky, first remove its local hook path:
+
+```bash
+# Only if `git config --local --get core.hooksPath` points to frontend/.husky/_:
+git config --local --unset core.hooksPath
+```
+
+Install the hooks from the repository root with [uv](https://docs.astral.sh/uv/):
+
+```bash
+uv run --directory backend pre-commit install --hook-type pre-commit --hook-type commit-msg --hook-type pre-push
+```
+
+Run the frontend formatting hook manually from the repository root:
+
+```bash
+uv run --directory backend pre-commit run oxfmt-frontend --all-files
+```
+
+The recommended VS Code formatter is the Oxc extension (`oxc.oxc-vscode`).
 
 #### TypeScript
 
@@ -193,3 +210,24 @@ fAIr also bundles portions of the following open source software.
 - [PMTiles (BSD-3-Clause)](https://github.com/protomaps/PMTiles).
 - [React Medium Image Zoom (BSD-3-Clause)](https://github.com/rpearce/react-medium-image-zoom).
 - Map fonts from [Maplibre Demo Tiles](https://github.com/maplibre/demotiles).
+
+### Expanded imagery selector
+
+The original imagery dialog is the default. To enable the expanded desktop layout
+and fullscreen mobile selector, add this to `frontend/.env.local`:
+
+```dotenv
+VITE_EXPANDED_IMAGERY_SELECTOR=true
+```
+
+Restart the Vite dev server after changing it. Unset the variable or set it to
+`false` to restore the original layout. Static deployments need a rebuild when
+changing build-time variables. Container deployments can pass the same variable
+at startup through the existing runtime configuration; restart the container and
+reload the page after changing it. Runtime configuration takes precedence over
+the build-time value. The search/zoom overlap fix applies to both layouts.
+
+### Dashboard button
+
+Signed-in users on Try fAIr see the dark Dashboard button beside the profile
+controls by default. No environment variable is needed.

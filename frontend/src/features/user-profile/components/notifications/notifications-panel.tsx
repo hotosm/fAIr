@@ -57,14 +57,16 @@ export const NotificationsPanel = ({
   hasNextPage: boolean;
   isFetching: boolean;
 }) => {
-  const { isPending: isNotificationsUpdatePending, mutate: updateNotifications } =
-    useUpdateNotifications({
-      mutationConfig: {
-        onError: (error) => {
-          showErrorToast(error);
-        },
+  const {
+    isPending: isNotificationsUpdatePending,
+    mutate: updateNotifications,
+  } = useUpdateNotifications({
+    mutationConfig: {
+      onError: (error) => {
+        showErrorToast(error);
       },
-    });
+    },
+  });
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const isFetchingRef = useRef<boolean>(false);
@@ -88,7 +90,9 @@ export const NotificationsPanel = ({
   }, [isFetching]);
 
   const notificationsToRender =
-    notificationType === NotificationType.UNREAD ? unReadNotifications : allNotifications;
+    notificationType === NotificationType.UNREAD
+      ? unReadNotifications
+      : allNotifications;
 
   const closeNotificationPanel = () => {
     setShowNotificationPanel(false);
@@ -204,7 +208,10 @@ export const NotificationsPanel = ({
         canClose
         closeDrawer={closeDrawer}
       >
-        <div className={` w-full p-3 py-4 flex flex-col gap-y-4`} onScroll={handleScroll}>
+        <div
+          className={` w-full p-3 py-4 flex flex-col gap-y-4`}
+          onScroll={handleScroll}
+        >
           {popUpContent()}
         </div>
       </MobileDrawer>

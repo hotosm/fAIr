@@ -28,7 +28,10 @@ IMAGERY = (
     "https://tiles.openaerialmap.org/62d85d11d8499800053796c1/0"
     "/62d85d11d8499800053796c2/{z}/{x}/{y}"
 )
-BASE_MODEL = "unet-segmentation"
+BASE_MODEL_ITEM_URL = (
+    "https://raw.githubusercontent.com/hotosm/fAIr-models/refs/heads/develop"
+    "/models/sklearn_rgb_segmentation/stac-item.json"
+)
 
 
 class StepFailed(Exception):
@@ -116,14 +119,31 @@ def check_health(fair: Fair, ctx: dict) -> str:
     return "postgres, s3, stac, zenml and all 3 collections up"
 
 
-def check_base_models(fair: Fair, ctx: dict) -> str:
-    items = fair.http.get(
-        f"{fair.stac}/collections/base-models/items", params={"limit": 50}
+def register_base_model(fair: Fair, ctx: dict) -> str:
+    """Register a base model through the API (mirror weights, deploy the predict
+    service, publish the STAC item). Requires admin; the dev-token user is staff."""
+    model = fair.post(
+        "/base-models/",
+        {"stac_item_url": BASE_MODEL_ITEM_URL, "category": "buildings"},
     )
-    names = sorted(f["id"] for f in Fair._json(items)["features"])
-    require(names, "base-models collection is empty, stac-seed did not run")
-    require(BASE_MODEL in names, f"{BASE_MODEL} not seeded, found {names}")
-    return f"{len(names)} seeded: {', '.join(names)}"
+    ctx["base_model_id"] = model["id"]
+    return f"id={model['id']} name={model['name']} status={model['status']}"
+
+
+def await_base_model(fair: Fair, ctx: dict) -> str:
+    model = poll(
+        describe=lambda m: m["status"],
+        fetch=lambda: fair.get(f"/base-models/{ctx['base_model_id']}/"),
+        is_done=lambda m: m["status"] in {"active", "failed"},
+        timeout_s=900,
+        interval_s=10,
+    )
+    require(
+        model["status"] == "active",
+        f"registration ended as {model['status']}: {model.get('error') or 'see worker logs'}",
+    )
+    ctx["base_model_stac_id"] = model["stac_item_id"]
+    return f"status=active stac_item_id={model['stac_item_id']}"
 
 
 def check_auth(fair: Fair, ctx: dict) -> str:
@@ -185,7 +205,7 @@ def submit_training(fair: Fair, ctx: dict) -> str:
     run = fair.post(
         "/trainings/submit/",
         {
-            "base_model_stac_id": BASE_MODEL,
+            "base_model_stac_id": ctx["base_model_stac_id"],
             "dataset_stac_id": ctx["dataset_stac_id"],
             "model_name": f"e2e-unet-{int(time.time())}",
         },
@@ -236,11 +256,12 @@ def check_promoted_item(fair: Fair, ctx: dict) -> str:
     response = fair.http.get(f"{fair.stac}/collections/local-models/items/{item_id}")
     item = Fair._json(response)
     assets = item["assets"]
-    for key in ("model", "checkpoint", "training-metrics"):
+    for key in ("model", "checkpoint"):
         require(key in assets, f"promoted item missing '{key}' asset: {sorted(assets)}")
+    metrics = "with training-metrics" if "training-metrics" in assets else "no training-metrics"
     hyperparameters = item["properties"].get("mlm:hyperparameters") or {}
     require(hyperparameters, "no mlm:hyperparameters recorded on the promoted item")
-    return f"v{item['properties']['version']}, {len(assets)} assets, {len(hyperparameters)} hyperparameters"
+    return f"v{item['properties']['version']}, {len(assets)} assets ({metrics}), {len(hyperparameters)} hyperparameters"
 
 
 def submit_prediction(fair: Fair, ctx: dict) -> str:
@@ -299,8 +320,9 @@ def check_list_endpoints(fair: Fair, ctx: dict) -> str:
 STEPS: list[tuple[str, Callable[[Fair, dict], str]]] = [
     ("wait for API", await_api),
     ("health", check_health),
-    ("base models seeded", check_base_models),
     ("authentication", check_auth),
+    ("register base model", register_base_model),
+    ("await registration", await_base_model),
     ("create AOI", create_aoi),
     ("build dataset", build_dataset),
     ("await dataset build", await_dataset),

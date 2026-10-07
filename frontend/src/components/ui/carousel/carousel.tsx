@@ -1,5 +1,8 @@
 import React from "react";
-import { SlCarousel, SlCarouselItem } from "@shoelace-style/shoelace/dist/react";
+import {
+  SlCarousel,
+  SlCarouselItem,
+} from "@shoelace-style/shoelace/dist/react";
 import { useBreakpoint, getSlidesPerPage } from "@/hooks/use-break-point";
 import "./carousel.css";
 

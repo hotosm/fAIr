@@ -45,8 +45,23 @@ export type FeaturesToMapResponse = {
   previous: string | null;
 };
 
+// Expanded API STAC metadata can omit its top-level ID. Selection and URL
+// state use that ID, so restore it from the registry's canonical pointer.
+const normalizeModelIds = (
+  data: APIBaseModelsResponse,
+): APIBaseModelsResponse => ({
+  ...data,
+  results: data.results.map((model) =>
+    model.stac
+      ? { ...model, stac: { ...model.stac, id: model.stac_item_id } }
+      : model,
+  ),
+});
+
 const getFeaturesToMap = async (): Promise<FeaturesToMapResponse> => {
-  const res = await apiClient.get<FeaturesToMapResponse>(API_ENDPOINTS.GET_CATEGORIES);
+  const res = await apiClient.get<FeaturesToMapResponse>(
+    API_ENDPOINTS.GET_CATEGORIES,
+  );
   return res.data;
 };
 
@@ -57,11 +72,13 @@ export const useGetFeaturesToMap = () => {
   });
 };
 
-export const getAPIBaseModels = async (category: string): Promise<APIBaseModelsResponse> => {
+export const getAPIBaseModels = async (
+  category: string,
+): Promise<APIBaseModelsResponse> => {
   const res = await apiClient.get<APIBaseModelsResponse>(
     API_ENDPOINTS.GET_API_BASE_MODELS(category),
   );
-  return res.data;
+  return normalizeModelIds(res.data);
 };
 
 export const useGetAPIBaseModels = (category: string, enabled = true) => {
@@ -72,11 +89,13 @@ export const useGetAPIBaseModels = (category: string, enabled = true) => {
   });
 };
 
-export const getAPILocalModels = async (category: string): Promise<APIBaseModelsResponse> => {
+export const getAPILocalModels = async (
+  category: string,
+): Promise<APIBaseModelsResponse> => {
   const res = await apiClient.get<APIBaseModelsResponse>(
     API_ENDPOINTS.GET_API_LOCAL_MODELS(category),
   );
-  return res.data;
+  return normalizeModelIds(res.data);
 };
 
 export const useGetAPILocalModels = (category: string, enabled = true) => {

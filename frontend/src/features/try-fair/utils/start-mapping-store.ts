@@ -35,7 +35,8 @@ export const useStartMappingStore = create<IStartMappingStore>((set) => ({
   downloadType: "",
   setDownloadType: (downloadType) => set({ downloadType }),
   showChooseLocationModal: false,
-  setShowChooseLocationModal: (showChooseLocationModal) => set({ showChooseLocationModal }),
+  setShowChooseLocationModal: (showChooseLocationModal) =>
+    set({ showChooseLocationModal }),
   showSigninModal: false,
   setShowSigninModal: (showSigninModal) => set({ showSigninModal }),
   showShareModal: false,

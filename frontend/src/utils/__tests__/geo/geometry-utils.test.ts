@@ -98,7 +98,11 @@ describe("handleConflation", () => {
       },
     ];
 
-    const result = handleConflation(existingFeatures, newFeatures, predictionConfig);
+    const result = handleConflation(
+      existingFeatures,
+      newFeatures,
+      predictionConfig,
+    );
     expect(result.length).toBe(1);
     expect(result[0].properties.status).toBe("untouched");
   });
@@ -144,7 +148,11 @@ describe("handleConflation", () => {
       },
     ];
 
-    const result = handleConflation(existingFeatures, newFeatures, predictionConfig);
+    const result = handleConflation(
+      existingFeatures,
+      newFeatures,
+      predictionConfig,
+    );
     expect(result.length).toBe(1);
     expect(result[0].properties.status).toBe("untouched");
     expect(result[0].properties.id).toBe("old-id"); // replaced by id
@@ -191,7 +199,11 @@ describe("handleConflation", () => {
       },
     ];
 
-    const result = handleConflation(existingFeatures, newFeatures, predictionConfig);
+    const result = handleConflation(
+      existingFeatures,
+      newFeatures,
+      predictionConfig,
+    );
     expect(result.length).toBe(1); // only the accepted one remains
     expect(result[0].properties.id).toBe("accepted-id");
   });
@@ -237,7 +249,11 @@ describe("handleConflation", () => {
       },
     ];
 
-    const result = handleConflation(existingFeatures, newFeatures, predictionConfig);
+    const result = handleConflation(
+      existingFeatures,
+      newFeatures,
+      predictionConfig,
+    );
     expect(result.length).toBe(1); // only the rejected one remains
     expect(result[0].properties.id).toBe("rejected-id");
   });
@@ -278,7 +294,11 @@ describe("handleConflation", () => {
       },
     ];
 
-    const result = handleConflation(existingFeatures, newFeatures, predictionConfig);
+    const result = handleConflation(
+      existingFeatures,
+      newFeatures,
+      predictionConfig,
+    );
     expect(result.length).toBe(1);
     expect(result.every((f) => f.properties.status === "untouched")).toBe(true);
   });

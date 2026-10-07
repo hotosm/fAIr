@@ -1,7 +1,10 @@
 import { DrawingModes } from "@/enums";
 import { Map } from "maplibre-gl";
 import { setupMaplibreMap } from "@/components/map/setups/setup-maplibre";
-import { setupTerraDraw, TerraDrawStyleVariant } from "@/components/map/setups/setup-terra-draw";
+import {
+  setupTerraDraw,
+  TerraDrawStyleVariant,
+} from "@/components/map/setups/setup-terra-draw";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useMapStore } from "@/store/map-store";
 import { BBOX } from "@/types";
@@ -14,39 +17,60 @@ import { BBOX } from "@/types";
  * @param {TerraDrawStyleVariant} styleVariant - Optional drawing style variant ("default" | "red"). Defaults to "red".
  * @param {BBOX | null} imageryBounds - Optional imagery bounding box used to constrain polygon drawing to the imagery extent.
  * @returns {Object} - Contains map instance, zoom level, drawing mode, and container ref.
+ * @param {BBOX | null} initialBounds - Initial camera bounds only; does not constrain drawing.
  */
 export const useMapInstance = (
   pmtiles: boolean = false,
   hash: boolean = false,
   styleVariant: TerraDrawStyleVariant = "default",
   imageryBounds?: BBOX | null,
+  initialBounds?: BBOX | null,
 ) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<Map | null>(null);
-  const [drawingMode, setDrawingMode] = useState<DrawingModes>(DrawingModes.STATIC);
+  const activeDrawRef = useRef<ReturnType<typeof setupTerraDraw> | null>(null);
+  const [drawingMode, setDrawingMode] = useState<DrawingModes>(
+    DrawingModes.STATIC,
+  );
 
   const setZoom = useMapStore((state) => state.setZoom);
 
   useEffect(() => {
     if (!mapContainerRef.current) return;
 
-    const map = setupMaplibreMap(mapContainerRef, pmtiles, hash);
+    const map = setupMaplibreMap(mapContainerRef, pmtiles, hash, initialBounds);
 
     map.on("load", () => {
       setMap(map);
       setZoom(Math.floor(map.getZoom()));
     });
 
-    return () => map.remove();
+    return () => {
+      // The adapter must release its sources while the map still exists.
+      activeDrawRef.current?.stop();
+      activeDrawRef.current = null;
+      map.remove();
+    };
   }, [mapContainerRef]);
 
   const terraDraw = useMemo(() => {
     if (map) {
-      const draw = setupTerraDraw(map, styleVariant, imageryBounds);
-      draw.start();
-      return draw;
+      return setupTerraDraw(map, styleVariant, imageryBounds);
     }
   }, [map, styleVariant, imageryBounds]);
+
+  useEffect(() => {
+    if (!terraDraw) return;
+    terraDraw.start();
+    activeDrawRef.current = terraDraw;
+
+    return () => {
+      if (activeDrawRef.current === terraDraw) {
+        terraDraw.stop();
+        activeDrawRef.current = null;
+      }
+    };
+  }, [terraDraw]);
 
   // Sync the drawing modes between terraDraw
   // and the application state
@@ -54,7 +78,6 @@ export const useMapInstance = (
     if (!terraDraw) return;
     terraDraw?.setMode(drawingMode);
   }, [terraDraw, drawingMode]);
-
   useEffect(() => {
     if (!map) return;
     const updateZoom = () => {
@@ -66,6 +89,14 @@ export const useMapInstance = (
       map.off("zoomend", updateZoom);
     };
   }, [map, setZoom]);
+
+  useEffect(() => {
+    if (!map || !mapContainerRef.current) return;
+    const container = mapContainerRef.current;
+    const observer = new ResizeObserver(() => map.resize());
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [map]);
 
   return {
     mapContainerRef,

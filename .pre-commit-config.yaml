@@ -35,16 +35,25 @@ repos:
       - id: oxfmt
         name: oxfmt
         files: ^
-        # oxfmt batches it's runs, so using !/path/to/file in args can cause issues
-        exclude: ^(?:CHANGELOG\.md|frontend/pnpm-lock\.yaml|chart)
+        # Scope via exclude (oxfmt batches runs, so !/path args misbehave):
+        # frontend/ uses its own config below; docs/ markdown is
+        # MkDocs Material whose 4-space `---` grid dividers a generic formatter breaks.
+        exclude: ^(?:CHANGELOG\.md|signed-contributors\.json|frontend/|chart|docs/.*\.md)
         entry: oxfmt --no-error-on-unmatched-pattern --write
         language: node
         "types": [text]
         additional_dependencies: ["oxfmt@0.35.0"]
 
+      - id: oxfmt-frontend
+        name: oxfmt (frontend)
+        entry: oxfmt --config frontend/.oxfmtrc.json --write
+        language: node
+        additional_dependencies: ["oxfmt@0.35.0"]
+        files: ^frontend/src/.*\.(js|jsx|ts|tsx|json|css|scss|md)$
+
       - id: pytest
-        name: pytest (backend)
-        entry: uv run --directory backend pytest
+        name: pytest (backend, db-free subset)
+        entry: uv run --directory backend pytest -m "not django_db"
         language: system
         types: [python]
         files: ^backend/
@@ -53,8 +62,9 @@ repos:
 
       - id: commitizen
         name: commitizen check
-        entry: uv run --project backend cz --config backend/pyproject.toml check --commit-msg-file
-        language: system
+        entry: cz --config backend/pyproject.toml check --commit-msg-file
+        language: python
+        additional_dependencies: ["commitizen==4.13.10"]
         stages: [commit-msg]
 
   - repo: https://github.com/betterleaks/betterleaks

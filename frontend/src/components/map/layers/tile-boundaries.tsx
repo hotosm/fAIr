@@ -40,7 +40,17 @@ export const TileBoundaries = ({ map, zoom }: TileBoundariesProps) => {
         paint: {
           "line-color": "#FFF",
           "line-opacity": 0.3,
-          "line-width": ["interpolate", ["linear"], ["zoom"], 16, 0.8, 20, 1.2, 22, 1.5],
+          "line-width": [
+            "interpolate",
+            ["linear"],
+            ["zoom"],
+            16,
+            0.8,
+            20,
+            1.2,
+            22,
+            1.5,
+          ],
         },
         layout: { visibility: "visible" },
       });

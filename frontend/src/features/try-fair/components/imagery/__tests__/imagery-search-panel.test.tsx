@@ -52,7 +52,9 @@ describe("OAMImageryPanel", () => {
   });
 
   it("should render nothing when cellSelected is false", () => {
-    const { container } = render(<OAMImageryPanel {...defaultProps} cellSelected={false} />);
+    const { container } = render(
+      <OAMImageryPanel {...defaultProps} cellSelected={false} />,
+    );
     expect(container.firstChild).toBeNull();
   });
 
@@ -80,7 +82,9 @@ describe("OAMImageryPanel", () => {
 
   it("should render empty state when no images are present in area", () => {
     render(<OAMImageryPanel {...defaultProps} images={[]} />);
-    expect(screen.getByText("No imagery available in this area.")).toBeInTheDocument();
+    expect(
+      screen.getByText("No imagery available in this area."),
+    ).toBeInTheDocument();
   });
 
   it("should disable Use this image button when no image is selected", () => {
@@ -113,5 +117,31 @@ describe("OAMImageryPanel", () => {
     fireEvent.click(closeButton);
 
     expect(handleClose).toHaveBeenCalled();
+  });
+
+  it("collapses results for a preview and expands them for a new area", () => {
+    const { rerender } = render(<OAMImageryPanel expanded {...defaultProps} />);
+    fireEvent.click(screen.getByRole("button", { name: /Nairobi High Res/ }));
+    expect(defaultProps.onSelect).toHaveBeenCalledWith(mockImages[0]);
+    expect(
+      screen.getByRole("button", { name: "Expand imagery results" }),
+    ).toHaveAttribute("aria-expanded", "false");
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Expand imagery results" }),
+    );
+    expect(
+      screen.getByRole("button", { name: "Collapse imagery results" }),
+    ).toHaveAttribute("aria-expanded", "true");
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Collapse imagery results" }),
+    );
+    rerender(
+      <OAMImageryPanel expanded {...defaultProps} images={[mockImages[1]]} />,
+    );
+    expect(
+      screen.getByRole("button", { name: "Collapse imagery results" }),
+    ).toHaveAttribute("aria-expanded", "true");
   });
 });

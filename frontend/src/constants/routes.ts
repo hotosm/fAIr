@@ -62,7 +62,11 @@ export const APPLICATION_ROUTES = {
   PROFILE_SETTINGS: "/profile/settings",
   PROFILE_MODELS: "/profile/models",
   PROFILE_DATASETS: "/profile/datasets",
-  PROFILE_OFFLINE_PREDICTIONS: "/profile/prediction-requests",
+  PROFILE_OFFLINE_PREDICTIONS: "/profile/map-requests",
+
+  MAP_REQUEST_BASE: "/map-requests",
+
+  MAP_REQUEST_RESULT: "/map-requests/:id",
   TRY_FAIR: "/try-fair",
 
   // Published AI Predictions

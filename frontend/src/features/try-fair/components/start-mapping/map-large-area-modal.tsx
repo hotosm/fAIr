@@ -1,3 +1,4 @@
+import { MAP_LARGE_AREA_MAX_SIZE_SQKM } from "@/config";
 import { MapComponent } from "@/components/map";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
@@ -6,26 +7,33 @@ import { DeleteIcon, InfoIcon, UploadIcon } from "@/components/ui/icons";
 import { DrawIcon } from "@/components/ui/icons/draw-icon";
 import { PictureIcon } from "@/components/ui/icons/picture-icon";
 import { ControlsPosition, DrawingModes, SHOELACE_SIZES } from "@/enums";
-import { AOITab, useMapLargeArea } from "@/features/try-fair/hooks/use-map-large-area";
+import {
+  AOITab,
+  useMapLargeArea,
+} from "@/features/try-fair/hooks/use-map-large-area";
 import { BBOX, IconProps } from "@/types";
 import { cn } from "@/utils";
 import { ToolTip } from "@/components/ui/tooltip";
+import "./map-large-area-modal.css";
 import { RadioDot } from "@/features/try-fair/components/model-picker/model-picker-badges";
+import { useEffect, useState } from "react";
 
 // ── Tabs ────────────────────────────────────────────────────────────────────────
 
 const TABS: { value: AOITab; label: string; Icon: React.FC<IconProps> }[] = [
-  { value: "whole", label: "Map Whole Area", Icon: PictureIcon },
   { value: "draw", label: "Draw Specific Area", Icon: DrawIcon },
+  { value: "whole", label: "Map Whole Area", Icon: PictureIcon },
   { value: "upload", label: "Upload Area of Interest", Icon: UploadIcon },
 ];
 
 const MapLargeAreaContent = ({
+  isOpened,
   tileServerURL,
   imageryBounds,
   onSubmit,
   closeDialog,
 }: {
+  isOpened: boolean;
   tileServerURL?: string;
   imageryBounds?: BBOX | null;
   onSubmit: () => void;
@@ -49,7 +57,10 @@ const MapLargeAreaContent = ({
     handleClearArea,
     handleEnableDrawing,
     handleSubmit,
+    isWholeAreaDisabled,
+    frameImagery,
   } = useMapLargeArea({
+    isOpened,
     imageryBounds,
     tileServerURL,
     onSubmit,
@@ -57,13 +68,13 @@ const MapLargeAreaContent = ({
   });
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex min-w-0 flex-col gap-4">
       {/* Dynamic instruction based on active tab */}
-      <p className="text-grey text-sm -mt-6">
+      <p className="text-grey text-sm">
         {activeTab === "whole"
           ? "The entire imagery extent will be used as your area of interest. Review the highlighted boundary on the map, then provide a description and submit."
           : activeTab === "draw"
-            ? "Use the draw tool on the map to outline a custom area of interest. Click points to form a polygon, then close it by clicking the first point."
+            ? "Use the draw tool on the map to outline a custom area of interest. Click to add points, then double-click to finish drawing."
             : "Upload a GeoJSON file containing your area of interest. The uploaded boundary will be displayed on the map for review before submitting."}
       </p>
 
@@ -77,28 +88,47 @@ const MapLargeAreaContent = ({
       />
 
       {/* Header Tabs */}
-      <div className="flex border border-gray-border gap-2 md:flex-row flex-col justify-between w-full p-1.5 rounded-lg bg-white">
-        {TABS.map(({ value, label, Icon }) => (
-          <button
-            type="button"
-            onClick={() => handleTabChange(value)}
-            className={cn(
-              "p-2 lg:p-3 gap-2 text-dark rounded-lg flex items-center justify-between w-full transition-colors",
-              activeTab === value ? "bg-secondary border-[#D63F4080] border" : "bg-off-white",
-            )}
-            key={value}
-          >
-            <div className="flex items-center gap-2">
-              <Icon className="size-5 text-dark" />
-              <span className="text-xs md:text-sm">{label}</span>
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))] border border-gray-border gap-2 w-full p-1.5 rounded-lg bg-white">
+        {TABS.map(({ value, label, Icon }) => {
+          const disabled = value === "whole" && isWholeAreaDisabled;
+          const tabButton = (
+            <button
+              type="button"
+              disabled={disabled}
+              onClick={() => handleTabChange(value)}
+              className={cn(
+                "h-full w-full p-3 gap-2 text-dark rounded-lg flex items-center justify-between min-w-0 transition-colors",
+                activeTab === value
+                  ? "bg-secondary border-[#D63F4080] border"
+                  : "bg-off-white",
+                disabled && "opacity-40 cursor-not-allowed",
+              )}
+            >
+              <div className="flex items-center gap-1.5 min-w-0">
+                <Icon className="size-4 shrink-0 text-dark" />
+                <span className="text-xs leading-tight">{label}</span>
+              </div>
+              <RadioDot selected={activeTab === value} />
+            </button>
+          );
+
+          return disabled ? (
+            <ToolTip
+              key={value}
+              content={`The imagery is larger than the ${MAP_LARGE_AREA_MAX_SIZE_SQKM.toLocaleString()} km² limit. Draw or upload a smaller area instead.`}
+            >
+              {tabButton}
+            </ToolTip>
+          ) : (
+            <div key={value} className="min-w-0">
+              {tabButton}
             </div>
-            <RadioDot selected={activeTab === value} />
-          </button>
-        ))}
+          );
+        })}
       </div>
 
       {/* Map Container */}
-      <div className="relative h-[450px] md:h-[540px] rounded-lg overflow-hidden w-full z-10 border border-gray-border">
+      <div className="map-area-preview relative shrink-0 rounded-lg overflow-hidden w-full z-10 border border-gray-border">
         <MapComponent
           map={map}
           terraDraw={terraDraw}
@@ -106,21 +136,54 @@ const MapLargeAreaContent = ({
           drawingMode={drawingMode}
           mapContainerRef={mapContainerRef}
           tileServiceURL={tileServerURL}
+          onTileServiceFitToBounds={frameImagery}
           zoomControls={true}
           controlsPosition={ControlsPosition.TOP_LEFT}
+          extraControls={
+            activeTab === "draw" ? (
+              <ToolTip
+                content={
+                  drawingMode === DrawingModes.POLYGON
+                    ? "Drawing active – double-click to finish"
+                    : "Click to draw a new area"
+                }
+                placement={undefined}
+              >
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (drawingMode === DrawingModes.POLYGON) return;
+                    handleEnableDrawing();
+                  }}
+                  aria-label="Enable drawing mode"
+                  className={cn(
+                    "size-[38px] p-2  border flex items-center justify-center transition-colors",
+                    drawingMode === DrawingModes.POLYGON
+                      ? "bg-primary text-white border-primary cursor-default"
+                      : "bg-white text-dark   cursor-pointer",
+                  )}
+                >
+                  <DrawIcon className="size-4" />
+                </button>
+              </ToolTip>
+            ) : undefined
+          }
         />
 
         {/* Selected AOI Status Floating Badge (Top Right) */}
         {selectedAOI && (
-          <div className="absolute top-4 right-4 z-20 bg-white/95  border border-border-gray rounded-full px-3.5 py-1.5 shadow-sm flex items-center gap-2 text-xs  text-grey">
+          <div className="absolute top-4 right-4 max-w-[calc(100%-5rem)] z-20 bg-white/95  border border-border-gray rounded-full px-3.5 py-1.5 shadow-sm flex items-center gap-2 text-xs  text-grey">
             {activeTab === "whole" ? (
-              <PictureIcon className="w-4 h-4 text-dark" />
+              <PictureIcon className="w-4 h-4 shrink-0 text-dark" />
             ) : activeTab === "draw" ? (
-              <DrawIcon className="w-4 h-4 text-dark" />
+              <DrawIcon className="w-4 h-4 shrink-0 text-dark" />
             ) : (
-              <UploadIcon className="w-4 h-4 text-dark" />
+              <UploadIcon className="w-4 h-4 shrink-0 text-dark" />
             )}
-            <span>
+            <span
+              className="min-w-0 truncate"
+              title={uploadedFileName || undefined}
+            >
               {activeTab === "upload"
                 ? uploadedFileName || "Mapping AOI.geojson"
                 : activeTab === "draw"
@@ -138,7 +201,7 @@ const MapLargeAreaContent = ({
                 <button
                   type="button"
                   onClick={handleClearArea}
-                  className="ml-1 text-primary hover:text-primary transition-colors p-1 rounded-full"
+                  className="ml-1 shrink-0 text-primary hover:text-primary transition-colors p-1 rounded-full"
                   title="Clear area"
                 >
                   <DeleteIcon className="w-4 h-4" />
@@ -147,41 +210,10 @@ const MapLargeAreaContent = ({
             )}
           </div>
         )}
-
-        {/* Floating draw toggle button – only visible in draw mode */}
-        {map && activeTab === "draw" && (
-          <div className="absolute left-3 map-elements-z-index top-[24%] md:top-[20%]">
-            <ToolTip
-              content={
-                drawingMode === DrawingModes.POLYGON
-                  ? "Drawing active – click the first point to close"
-                  : "Click to draw a new area"
-              }
-              placement={undefined}
-            >
-              <button
-                type="button"
-                onClick={() => {
-                  if (drawingMode === DrawingModes.POLYGON) return;
-                  handleEnableDrawing();
-                }}
-                aria-label="Enable drawing mode"
-                className={cn(
-                  "size-[38px] p-2  border flex items-center justify-center transition-colors",
-                  drawingMode === DrawingModes.POLYGON
-                    ? "bg-primary text-white border-primary cursor-default"
-                    : "bg-white text-dark   cursor-pointer",
-                )}
-              >
-                <DrawIcon className="size-4" />
-              </button>
-            </ToolTip>
-          </div>
-        )}
       </div>
 
       {/* Footer Controls */}
-      <div className="flex flex-col gap-2 pt-1">
+      <div className="flex flex-col gap-1">
         {/* Label row */}
         <div className="flex items-center gap-1.5">
           <label className="text-dark text-sm font-semibold">
@@ -197,28 +229,23 @@ const MapLargeAreaContent = ({
             </button>
           </ToolTip>
         </div>
-
         {/* Input */}
         <Input
           value={description}
           handleInput={(e) => {
-            if (e.target.value.length <= 20) setDescription(e.target.value);
+            if (e.target.value.length <= 50) setDescription(e.target.value);
           }}
           placeholder="Enter map request name"
           size={SHOELACE_SIZES.MEDIUM}
           className="w-full"
           showBorder
-          maxLength={20}
+          maxLength={50}
         />
-
-        {/* Character counter */}
-        <p className="text-grey text-xs">{description.length}/20</p>
-
-        {/* Submit button */}
-        <div className="flex justify-end">
+        <div className="flex items-center justify-between">
+          <p className="text-grey text-xs">{description.length}/50</p>
           <Button
             className="!w-fit shrink-0"
-            fontSize="14px"
+            fontSize="13px"
             size="medium"
             disabled={
               !selectedAOI || !description.trim() || isSubmittingMapLargeArea
@@ -248,15 +275,23 @@ export const MapLargeAreaModal = ({
   imageryBounds: BBOX | null;
   onSubmit: () => void;
 }) => {
+  const [hasOpened, setHasOpened] = useState(false);
+  useEffect(() => {
+    if (isOpened) setHasOpened(true);
+  }, [isOpened]);
+
   return (
     <Dialog
-      label="Map Large Area"
+      label="Map an area"
+      className="map-area-dialog"
       isOpened={isOpened}
+      preventClose
       closeDialog={closeDialog}
       size={SHOELACE_SIZES.MEDIUM}
     >
-      {isOpened && (
+      {(isOpened || hasOpened) && (
         <MapLargeAreaContent
+          isOpened={isOpened}
           tileServerURL={tileServerURL}
           imageryBounds={imageryBounds}
           onSubmit={onSubmit}

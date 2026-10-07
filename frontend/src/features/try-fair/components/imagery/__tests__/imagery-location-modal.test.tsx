@@ -1,11 +1,28 @@
-import { render, screen, fireEvent, waitFor, cleanup } from "@testing-library/react";
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  cleanup,
+} from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ImageryLocationDialog } from "@/features/try-fair/components/imagery/imagery-location-modal";
 import { searchImagery } from "@/features/try-fair/api/hot-imagery";
 
+const flags = vi.hoisted(() => ({ expanded: false }));
+vi.mock("@/config/env", () => ({
+  ENVS: {
+    get EXPANDED_IMAGERY_SELECTOR() {
+      return flags.expanded;
+    },
+  },
+}));
+
 vi.mock("@/features/try-fair/api/hot-imagery", () => ({
   searchImagery: vi.fn(),
-  getImageryTileUrl: vi.fn(() => "https://oam.example.com/tiles/{z}/{x}/{y}.png"),
+  getImageryTileJSONUrl: vi.fn(
+    () => "https://oam.example.com/WebMercatorQuad/tilejson.json?assets=visual",
+  ),
 }));
 
 vi.mock("@/components/map", () => ({
@@ -30,83 +47,120 @@ vi.mock("../oam-imagery-map", () => ({
   ),
 }));
 
-describe("ImageryLocationDialog", () => {
-  const mockCloseDialog = vi.fn();
-  const mockOnApply = vi.fn();
+describe.each([false, true])(
+  "ImageryLocationDialog (expanded=%s)",
+  (expanded) => {
+    const mockCloseDialog = vi.fn();
+    const mockOnApply = vi.fn();
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
+    beforeEach(() => {
+      vi.clearAllMocks();
+      flags.expanded = expanded;
+    });
 
-  afterEach(() => {
-    cleanup();
-  });
+    afterEach(() => {
+      cleanup();
+    });
 
-  it("should not render content when isOpened is false", () => {
-    render(
-      <ImageryLocationDialog
-        isOpened={false}
-        closeDialog={mockCloseDialog}
-        onApply={mockOnApply}
-      />,
-    );
+    it("should not render content when isOpened is false", () => {
+      render(
+        <ImageryLocationDialog
+          isOpened={false}
+          closeDialog={mockCloseDialog}
+          onApply={mockOnApply}
+        />,
+      );
 
-    expect(screen.queryByText("Imagery to map")).not.toBeInTheDocument();
-  });
+      expect(screen.queryByText("Imagery to map")).not.toBeInTheDocument();
+    });
 
-  it("should render dialog content and source toggle when isOpened is true", () => {
-    render(
-      <ImageryLocationDialog isOpened={true} closeDialog={mockCloseDialog} onApply={mockOnApply} />,
-    );
+    it("should render dialog content and source toggle when isOpened is true", () => {
+      render(
+        <ImageryLocationDialog
+          isOpened={true}
+          closeDialog={mockCloseDialog}
+          onApply={mockOnApply}
+        />,
+      );
 
-    expect(screen.getByRole("radiogroup", { name: /imagery source/i })).toBeInTheDocument();
-    expect(screen.getByTestId("mock-oam-imagery-map")).toBeInTheDocument();
-  });
+      expect(
+        screen.getByRole("radiogroup", { name: /imagery source/i }),
+      ).toBeInTheDocument();
+      expect(screen.getByTestId("mock-oam-imagery-map")).toBeInTheDocument();
+      expect(Boolean(document.querySelector(".imagery-dialog"))).toBe(expanded);
+      expect(Boolean(screen.queryByText("Choose imagery"))).toBe(expanded);
+    });
 
-  it("should search imagery when grid cell is selected", async () => {
-    const mockItems = [
-      {
-        id: "item-1",
-        bbox: [10, 20, 30, 40],
-        geometry: { type: "Polygon", coordinates: [] },
-        title: "Cell Image 1",
-        provider: "HOT",
-        gsd: 0.5,
-        acquiredAt: "2024-01-01",
-        license: "CC-BY",
-        platform: "drone",
-        thumbnailUrl: null,
-        assetName: "visual",
-      },
-    ];
+    it("should search imagery when grid cell is selected", async () => {
+      const mockItems = [
+        {
+          id: "item-1",
+          bbox: [10, 20, 30, 40],
+          geometry: { type: "Polygon", coordinates: [] },
+          title: "Cell Image 1",
+          provider: "HOT",
+          gsd: 0.5,
+          acquiredAt: "2024-01-01",
+          license: "CC-BY",
+          platform: "drone",
+          thumbnailUrl: null,
+          assetName: "visual",
+        },
+      ];
 
-    (searchImagery as any).mockResolvedValue(mockItems);
+      (searchImagery as any).mockResolvedValue(mockItems);
 
-    render(
-      <ImageryLocationDialog isOpened={true} closeDialog={mockCloseDialog} onApply={mockOnApply} />,
-    );
+      render(
+        <ImageryLocationDialog
+          isOpened={true}
+          closeDialog={mockCloseDialog}
+          onApply={mockOnApply}
+        />,
+      );
 
-    const selectCellButton = screen.getByText("Select Cell");
-    fireEvent.click(selectCellButton);
+      const selectCellButton = screen.getByText("Select Cell");
+      fireEvent.click(selectCellButton);
 
-    await waitFor(() =>
-      expect(searchImagery).toHaveBeenCalledWith({
-        bbox: [10, 20, 30, 40],
-        signal: expect.any(AbortSignal),
-      }),
-    );
+      await waitFor(() =>
+        expect(searchImagery).toHaveBeenCalledWith({
+          bbox: [10, 20, 30, 40],
+          signal: expect.any(AbortSignal),
+        }),
+      );
 
-    expect(await screen.findByText("Cell Image 1")).toBeInTheDocument();
-  });
+      expect(await screen.findByText("Cell Image 1")).toBeInTheDocument();
+    });
 
-  it("should switch to Custom Imagery source when toggled", () => {
-    render(
-      <ImageryLocationDialog isOpened={true} closeDialog={mockCloseDialog} onApply={mockOnApply} />,
-    );
+    it("should switch to Custom Imagery source when toggled", () => {
+      render(
+        <ImageryLocationDialog
+          isOpened={true}
+          closeDialog={mockCloseDialog}
+          onApply={mockOnApply}
+        />,
+      );
 
-    const customRadio = screen.getByText("Custom Imagery");
-    fireEvent.click(customRadio);
+      const customRadio = screen.getByText("Custom Imagery");
+      fireEvent.click(customRadio);
 
-    expect(screen.getByText("XYZ Tile Server URL")).toBeInTheDocument();
-  });
-});
+      expect(screen.getByText("XYZ Tile Server URL")).toBeInTheDocument();
+    });
+
+    it("should return to the model picker when opened from it", () => {
+      const onBackToModelPicker = vi.fn();
+
+      render(
+        <ImageryLocationDialog
+          isOpened={true}
+          closeDialog={mockCloseDialog}
+          onApply={mockOnApply}
+          onBackToModelPicker={onBackToModelPicker}
+        />,
+      );
+
+      fireEvent.click(screen.getByRole("button", { name: "Back" }));
+
+      expect(onBackToModelPicker).toHaveBeenCalledOnce();
+    });
+  },
+);

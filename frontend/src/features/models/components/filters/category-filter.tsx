@@ -42,7 +42,11 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({
           disabled={disabled}
           withCheckbox
           defaultSelectedItem={categories[0].value}
-          triggerComponent={<p className="text-sm text-dark text-nowrap">{categories[0].value}</p>}
+          triggerComponent={
+            <p className="text-sm text-dark text-nowrap">
+              {categories[0].value}
+            </p>
+          }
         ></DropDown>
       </div>
     );

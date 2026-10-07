@@ -5,19 +5,20 @@ import { ShieldIcon } from "@/components/ui/icons";
 import { useAuth } from "@/app/providers/auth-provider";
 import { useLocation, useNavigate } from "react-router-dom";
 import { AUTH_PROVIDER, HANKO_URL, FRONTEND_URL } from "@/config";
+import { Spinner } from "@/components/ui/spinner";
 
 type ProtectedRouteProps = {
   children: React.ReactNode;
 };
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isAuthLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   const handleLogin = () => {
     if (AUTH_PROVIDER === "hanko") {
-      const returnTo = `${FRONTEND_URL}${location.pathname}${location.search}`;
+      const returnTo = `${FRONTEND_URL}${location.pathname}${location.search}${location.hash}`;
       window.location.href = `${HANKO_URL}/app?return_to=${encodeURIComponent(returnTo)}`;
     } else {
       /*
@@ -26,6 +27,18 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
       navigate(location, { state: { backgroundLocation: location } });
     }
   };
+
+  if (isAuthLoading && !isAuthenticated) {
+    return (
+      <section
+        role="status"
+        aria-label="Checking your session"
+        className="min-h-[80vh] flex items-center justify-center"
+      >
+        <Spinner />
+      </section>
+    );
+  }
 
   if (!isAuthenticated) {
     return (

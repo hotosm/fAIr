@@ -1,4 +1,7 @@
-import { SlRadioGroup, SlRadio } from "@shoelace-style/shoelace/dist/react/index.js";
+import {
+  SlRadioGroup,
+  SlRadio,
+} from "@shoelace-style/shoelace/dist/react/index.js";
 import "./radio-group.css";
 import { ToolTip } from "@/components/ui/tooltip";
 
@@ -37,7 +40,9 @@ export const RadioGroup = ({
           <SlRadio key={option.value} value={option.value}>
             <span className={labelClassName}>{option.label}</span>
             <span className="ml-1">
-              {withTooltip && option.tooltip && <ToolTip content={option.tooltip} />}
+              {withTooltip && option.tooltip && (
+                <ToolTip content={option.tooltip} />
+              )}
             </span>
           </SlRadio>
         ))}

@@ -15,10 +15,14 @@ type UseNotificationsOptions = {
   is_read: boolean | undefined;
 };
 
-export const useNotifications = ({ enabled, is_read }: UseNotificationsOptions) => {
+export const useNotifications = ({
+  enabled,
+  is_read,
+}: UseNotificationsOptions) => {
   return useInfiniteQuery<PaginatedNotifications, PaginatedNotifications>({
     queryKey: ["user-notifications"],
-    queryFn: ({ pageParam: offset = 0 }) => getNotifications(is_read, offset as number),
+    queryFn: ({ pageParam: offset = 0 }) =>
+      getNotifications(is_read, offset as number),
     enabled,
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages) => {
@@ -35,7 +39,9 @@ type useUpdateNotificationOptions = {
   mutationConfig?: MutationConfig<typeof updateNotification>;
 };
 
-export const useUpdateNotification = ({ mutationConfig }: useUpdateNotificationOptions) => {
+export const useUpdateNotification = ({
+  mutationConfig,
+}: useUpdateNotificationOptions) => {
   const { onSuccess, ...restConfig } = mutationConfig || {};
   const { setUser } = useAuth();
   const { refetch } = useNotifications({
@@ -59,7 +65,9 @@ type useUpdateNotificationsOptions = {
   mutationConfig?: MutationConfig<typeof updateNotifications>;
 };
 
-export const useUpdateNotifications = ({ mutationConfig }: useUpdateNotificationsOptions) => {
+export const useUpdateNotifications = ({
+  mutationConfig,
+}: useUpdateNotificationsOptions) => {
   const { onSuccess, ...restConfig } = mutationConfig || {};
   const { refetch } = useNotifications({
     is_read: undefined,

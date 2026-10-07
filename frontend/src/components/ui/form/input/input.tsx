@@ -26,7 +26,10 @@ type InputProps = {
   maxLength?: number;
   minLength?: number;
   pattern?: RegExp | string;
-  validationStateUpdateCallback?: (validity: { valid: boolean; message: string }) => void;
+  validationStateUpdateCallback?: (validity: {
+    valid: boolean;
+    message: string;
+  }) => void;
   isValid?: boolean;
   min?: number;
   max?: number;
@@ -93,7 +96,9 @@ const Input: React.FC<InputProps> = ({
       ref={inputRef}
       label={label}
       // @ts-expect-error bad type definition
-      size={size ? size : isMobile ? SHOELACE_SIZES.MEDIUM : SHOELACE_SIZES.LARGE}
+      size={
+        size ? size : isMobile ? SHOELACE_SIZES.MEDIUM : SHOELACE_SIZES.LARGE
+      }
       minlength={minLength}
       maxlength={maxLength}
       // @ts-expect-error bad type definition
@@ -114,7 +119,13 @@ const Input: React.FC<InputProps> = ({
         />
       )}
 
-      {helpText && <HelpText content={helpText} isValid={isValid} currentLength={currentLength} />}
+      {helpText && (
+        <HelpText
+          content={helpText}
+          isValid={isValid}
+          currentLength={currentLength}
+        />
+      )}
       {/*
         We're using the native browser date picker. 
         In chrome it displays a calender icon which unfortunately could not be customized as at 08/10/2024.

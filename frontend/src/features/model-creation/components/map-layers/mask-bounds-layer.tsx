@@ -1,6 +1,11 @@
 import { TRAINING_AREAS_MASK_FILL_COLOR } from "@/config";
 import { Feature, GeoJSONType } from "@/types";
-import { GeoJSONSource, LngLatBounds, LngLatBoundsLike, Map } from "maplibre-gl";
+import {
+  GeoJSONSource,
+  LngLatBounds,
+  LngLatBoundsLike,
+  Map,
+} from "maplibre-gl";
 import { useEffect, useMemo } from "react";
 import { difference } from "@turf/difference";
 import { featureCollection } from "@turf/helpers";
@@ -19,7 +24,12 @@ export const MaskBoundsLayers = ({
   const maskBoundsSourceId = "mask-source";
   const maskBoundsTextLayerId = "mask-layer-text";
 
-  const [west, south, east, north] = OAMBounds as [number, number, number, number];
+  const [west, south, east, north] = OAMBounds as [
+    number,
+    number,
+    number,
+    number,
+  ];
   const maskBoundsFeature = useMemo(() => {
     const oamBoundsFeature: Feature = {
       type: "Feature",

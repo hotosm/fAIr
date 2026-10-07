@@ -24,7 +24,11 @@ export const ClearFilters = ({
       className={`w-fit ${isMobile === true ? "block md:hidden" : isMobile === false ? "hidden md:block" : "block"}`}
     >
       {canClearAllFilters ? (
-        <Button variant={ButtonVariant.TERTIARY} size="medium" onClick={clearAllFilters}>
+        <Button
+          variant={ButtonVariant.TERTIARY}
+          size="medium"
+          onClick={clearAllFilters}
+        >
           Clear filters
         </Button>
       ) : null}

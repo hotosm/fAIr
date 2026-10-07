@@ -7,6 +7,10 @@ import {
   computeChoroplethBuckets,
   toPointCollection,
 } from "@/features/try-fair/utils/helpers";
+import {
+  buildClassColorExpression,
+  PredictionClassStyle,
+} from "@/features/try-fair/utils/prediction-classes";
 
 const SOURCE_ID = "try-fair-predictions";
 const FILL_LAYER = "try-fair-predictions-fill";
@@ -44,13 +48,18 @@ type Props = {
   predictionBBox: BBOX | null;
   predictionGridZoom?: number;
   outputType: TryFairMapOutputType;
-  onChoroplethBucketsChange?: (buckets: ReturnType<typeof computeChoroplethBuckets> | null) => void;
+  onChoroplethBucketsChange?: (
+    buckets: ReturnType<typeof computeChoroplethBuckets> | null,
+  ) => void;
+  /** When set and `colored`, features are coloured by their predicted class. */
+  classStyle?: PredictionClassStyle | null;
 };
 
 type HoverTooltip = {
   x: number;
   y: number;
-  count: number;
+  label: string;
+  value: string;
 } | null;
 
 export const TryFairPredictionsLayer = ({
@@ -60,12 +69,21 @@ export const TryFairPredictionsLayer = ({
   predictionGridZoom,
   outputType,
   onChoroplethBucketsChange,
+  classStyle,
 }: Props) => {
   const { choropleth, buckets } = useMemo(() => {
-    if (outputType !== TryFairMapOutputType.CLUSTER || !predictions || !predictionBBox) {
+    if (
+      outputType !== TryFairMapOutputType.CLUSTER ||
+      !predictions ||
+      !predictionBBox
+    ) {
       return { choropleth: null, buckets: null };
     }
-    const fc = buildChoropleth(predictions, predictionBBox, predictionGridZoom ?? undefined);
+    const fc = buildChoropleth(
+      predictions,
+      predictionBBox,
+      predictionGridZoom ?? undefined,
+    );
     return { choropleth: fc, buckets: computeChoroplethBuckets(fc) };
   }, [outputType, predictions, predictionBBox, predictionGridZoom]);
 
@@ -84,6 +102,15 @@ export const TryFairPredictionsLayer = ({
     removeLayers(map);
     if (!predictions || !predictions.features.length) return;
 
+    // Colour features by their predicted class when a coloured class style is
+    // provided; otherwise fall back to the default single colour.
+    const polygonFillColor = classStyle?.colored
+      ? buildClassColorExpression(classStyle)
+      : "#A243DC";
+    const circleColor = classStyle?.colored
+      ? buildClassColorExpression(classStyle)
+      : "#A147D8";
+
     // ── Polygon ──────────────────────────────────────────────────────────────
     if (outputType === TryFairMapOutputType.POLYGON) {
       map.addSource(SOURCE_ID, { type: "geojson", data: predictions });
@@ -91,7 +118,7 @@ export const TryFairPredictionsLayer = ({
         id: FILL_LAYER,
         type: "fill",
         source: SOURCE_ID,
-        paint: { "fill-color": "#A243DC", "fill-opacity": 0.3 },
+        paint: { "fill-color": polygonFillColor, "fill-opacity": 0.3 },
       });
       map.addLayer({
         id: CASING_LAYER,
@@ -153,7 +180,7 @@ export const TryFairPredictionsLayer = ({
         source: POINT_SOURCE_ID,
         paint: {
           "circle-radius": 4,
-          "circle-color": "#A147D8",
+          "circle-color": circleColor,
           "circle-stroke-color": "#ffffff",
           "circle-stroke-width": 1.5,
         },
@@ -201,7 +228,15 @@ export const TryFairPredictionsLayer = ({
     return () => {
       if (map.getStyle()) removeLayers(map);
     };
-  }, [map, predictions, predictionBBox, outputType, choropleth, buckets]);
+  }, [
+    map,
+    predictions,
+    predictionBBox,
+    outputType,
+    choropleth,
+    buckets,
+    classStyle,
+  ]);
 
   // ── Choropleth hover interactions ──────────────────────────────────────────
   useEffect(() => {
@@ -221,7 +256,12 @@ export const TryFairPredictionsLayer = ({
       }
       const count = (features[0].properties?.count as number) ?? 0;
       map.getCanvas().style.cursor = "pointer";
-      setTooltip({ x: e.point.x, y: e.point.y, count });
+      setTooltip({
+        x: e.point.x,
+        y: e.point.y,
+        label: "Features detected",
+        value: count.toLocaleString(),
+      });
     };
 
     const handleMouseLeave = () => {
@@ -240,18 +280,69 @@ export const TryFairPredictionsLayer = ({
     };
   }, [map, outputType]);
 
+  useEffect(() => {
+    const predictionLayer =
+      outputType === TryFairMapOutputType.POINTS
+        ? CIRCLE_LAYER
+        : outputType === TryFairMapOutputType.POLYGON
+          ? FILL_LAYER
+          : null;
+    if (!map || !predictionLayer) {
+      setTooltip(null);
+      return;
+    }
+
+    const handleMouseMove = (e: MapMouseEvent) => {
+      const feature = map.queryRenderedFeatures(e.point, {
+        layers: [predictionLayer],
+      })[0];
+      const score = feature?.properties?.score;
+      if (typeof score !== "number") {
+        setTooltip(null);
+        map.getCanvas().style.cursor = "";
+        return;
+      }
+
+      map.getCanvas().style.cursor = "pointer";
+      setTooltip({
+        x: e.point.x,
+        y: e.point.y,
+        label: "Confidence",
+        value: `${(score * 100).toFixed(1)}%`,
+      });
+    };
+
+    const handleMouseLeave = () => {
+      setTooltip(null);
+      map.getCanvas().style.cursor = "";
+    };
+
+    map.on("mousemove", predictionLayer, handleMouseMove);
+    map.on("mouseleave", predictionLayer, handleMouseLeave);
+
+    return () => {
+      map.off("mousemove", predictionLayer, handleMouseMove);
+      map.off("mouseleave", predictionLayer, handleMouseLeave);
+      map.getCanvas().style.cursor = "";
+      setTooltip(null);
+    };
+  }, [map, outputType]);
+
   if (!tooltip) return null;
 
   return (
-    <div className="pointer-events-none absolute z-50" style={{ left: tooltip.x, top: tooltip.y }}>
+    <div
+      className="pointer-events-none absolute z-50"
+      style={{ left: tooltip.x, top: tooltip.y }}
+    >
       {/* Offset so the tooltip doesn't sit directly under the cursor */}
       <div className="relative" style={{ transform: "translate(12px, -50%)" }}>
         <div className="bg-white/95 backdrop-blur-sm border border-gray-border rounded-lg shadow-lg px-3 py-2 flex flex-col items-start gap-0.5 min-w-[120px]">
           <p className="text-[10px] font-medium text-grey uppercase tracking-wide leading-none">
-            objects detected
+            {tooltip.label}
           </p>
           <p className="text-base font-bold text-purple-700 leading-tight">
-            {tooltip.count.toLocaleString()}
+            {tooltip.value}
           </p>
         </div>
         <div

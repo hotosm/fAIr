@@ -12,7 +12,9 @@ describe("VideoPlayerModal", () => {
   };
 
   it("renders the video player modal", () => {
-    render(<VideoPlayerModal video={mockVideo} onClose={vi.fn()} isOpen={true} />);
+    render(
+      <VideoPlayerModal video={mockVideo} onClose={vi.fn()} isOpen={true} />,
+    );
 
     // Check if the iframe is rendered
     const iframe = screen.getByTitle("Test Video");

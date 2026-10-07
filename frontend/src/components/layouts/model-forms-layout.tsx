@@ -3,7 +3,10 @@ import { Head } from "@/components/seo";
 import { MODELS_CONTENT, MODELS_ROUTES } from "@/constants";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { ProgressBar, ProgressButtons } from "@/features/model-creation/components";
+import {
+  ProgressBar,
+  ProgressButtons,
+} from "@/features/model-creation/components";
 import {
   CloudIcon,
   DatabaseIcon,
@@ -12,7 +15,10 @@ import {
   StarIcon,
   TagsIcon,
 } from "@/components/ui/icons";
-import { ModelsProvider, useModelsContext } from "@/app/providers/models-provider";
+import {
+  ModelsProvider,
+  useModelsContext,
+} from "@/app/providers/models-provider";
 import { APP_TOUR_IDS } from "@/constants/site-tour";
 import { AppTourProvider } from "@/app/providers/tour-provider";
 import { TrainingAreaTourDialog } from "@/features/model-creation/components/dialogs/training-area-tour-dialog";
@@ -75,7 +81,10 @@ export const ModelFormsLayout = () => {
   return (
     <AppTourProvider>
       <ModelsProvider>
-        <ModelFormRouteValidator pathname={pathname} currentPageIndex={currentPageIndex} />
+        <ModelFormRouteValidator
+          pathname={pathname}
+          currentPageIndex={currentPageIndex}
+        />
         <TrainingAreaTourDialog />
         <Head title="Create New Model" />
         <div className="flex flex-col gap-y-2 my-6 w-full min-h-screen h-full">
@@ -125,8 +134,13 @@ const ModelFormRouteValidator = ({
   currentPageIndex: number;
 }) => {
   const navigate = useNavigate();
-  const { formData, hasLabeledTrainingAreas, getFullPath, validateEditMode, isEditMode } =
-    useModelsContext();
+  const {
+    formData,
+    hasLabeledTrainingAreas,
+    getFullPath,
+    validateEditMode,
+    isEditMode,
+  } = useModelsContext();
 
   useEffect(() => {
     if (isEditMode && !validateEditMode) return;
@@ -134,19 +148,26 @@ const ModelFormRouteValidator = ({
     const prevRoute = getFullPath(pages[currentPageIndex - 1].path);
     if (pathname.includes(MODELS_ROUTES.TRAINING_DATASET)) {
       // When a user is in the training dataset page, they must have filled the model details page form.
-      if (!formData.modelName && !formData.modelDescription) navigate(prevRoute);
+      if (!formData.modelName && !formData.modelDescription)
+        navigate(prevRoute);
     } else if (pathname.includes(MODELS_ROUTES.TRAINING_AREA)) {
       // When a user is in the training area, they must have completed the training dataset form
-      if (!formData.selectedTrainingDatasetId || !formData.tmsURL) navigate(prevRoute);
+      if (!formData.selectedTrainingDatasetId || !formData.tmsURL)
+        navigate(prevRoute);
     } else if (pathname.includes(MODELS_ROUTES.TRAINING_SETTINGS)) {
       // When a user is in the training settings, they must have completed the training area
 
-      if (!formData.datasetName || !hasLabeledTrainingAreas) navigate(prevRoute);
+      if (!formData.datasetName || !hasLabeledTrainingAreas)
+        navigate(prevRoute);
     } else if (pathname.includes(MODELS_ROUTES.MODEL_SUMMARY)) {
       // When a user is in the summary page, they must have zoom levels set from the settings
       // and datastet name set from the training dataset
       // and training areas with their labels fetched
-      if (formData.zoomLevels.length === 0 || !hasLabeledTrainingAreas || !formData.datasetName)
+      if (
+        formData.zoomLevels.length === 0 ||
+        !hasLabeledTrainingAreas ||
+        !formData.datasetName
+      )
         navigate(prevRoute);
     }
   }, [pathname, formData, currentPageIndex, validateEditMode]);

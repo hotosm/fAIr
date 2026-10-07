@@ -21,6 +21,7 @@ type TAuthContext = {
   authenticateUser: (state: string, code: string) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
+  isAuthLoading: boolean;
   setUser: (user: TUser) => void;
 };
 
@@ -30,6 +31,7 @@ const AuthContext = createContext<TAuthContext>({
   authenticateUser: async () => Promise.resolve(),
   logout: () => {},
   isAuthenticated: false,
+  isAuthLoading: true,
   setUser: () => {},
 });
 
@@ -47,7 +49,8 @@ type AuthProviderProps = {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const { getValue, setValue, removeValue } = useLocalStorage();
-  const { getSessionValue, removeSessionValue, setSessionValue } = useSessionStorage();
+  const { getSessionValue, removeSessionValue, setSessionValue } =
+    useSessionStorage();
 
   const isTryFairPage = location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR);
 
@@ -58,9 +61,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   );
 
   const [user, setUser] = useState<TUser | undefined>(undefined);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
 
   const isAuthenticated =
-    AUTH_PROVIDER === "hanko" ? user !== undefined : user !== undefined && token !== undefined;
+    AUTH_PROVIDER === "hanko"
+      ? user !== undefined
+      : user !== undefined && token !== undefined;
 
   /**
    * Set token globally to eliminate the need to rewrite it.
@@ -70,7 +76,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   if (AUTH_PROVIDER === "hanko" && !IS_DEV) {
     apiClient.defaults.withCredentials = true;
   } else {
-    apiClient.defaults.headers.common["Authorization"] = token ? `Bearer ${token}` : null;
+    apiClient.defaults.headers.common["Authorization"] = token
+      ? `Bearer ${token}`
+      : null;
   }
 
   const handleRedirection = () => {
@@ -86,7 +94,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
    * To show the login success after completing redirection if any.
    */
   useEffect(() => {
-    const loginSuccessful = getSessionValue(HOT_FAIR_LOGIN_SUCCESSFUL_SESSION_KEY);
+    const loginSuccessful = getSessionValue(
+      HOT_FAIR_LOGIN_SUCCESSFUL_SESSION_KEY,
+    );
     if (loginSuccessful == "success") {
       showSuccessToast(TOAST_NOTIFICATIONS.loginSuccess);
       removeSessionValue(HOT_FAIR_LOGIN_SUCCESSFUL_SESSION_KEY);
@@ -123,6 +133,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
    * For legacy auth, uses authService.getUser().
    */
   const fetchUserProfile = async () => {
+    setIsAuthLoading(true);
     try {
       if (AUTH_PROVIDER === "hanko" && !IS_DEV) {
         const response = await fetch(`${BASE_API_URL}auth/me/`, {
@@ -131,7 +142,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         if (response.ok) {
           const userData = await response.json();
           if (!userData.img_url) {
-            const hankoUser = JSON.parse(localStorage.getItem("hotosm-auth-user") || "{}");
+            const hankoUser = JSON.parse(
+              localStorage.getItem("hotosm-auth-user") || "{}",
+            );
             if (hankoUser.avatarUrl) {
               userData.img_url = hankoUser.avatarUrl;
             }
@@ -157,15 +170,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         showErrorToast(error);
       }
       setUser(undefined);
+    } finally {
+      setIsAuthLoading(false);
     }
   };
 
   useEffect(() => {
-    if (DISABLE_AUTH_ON_TRY_FAIR && isTryFairPage) return;
+    if (DISABLE_AUTH_ON_TRY_FAIR && isTryFairPage) {
+      setIsAuthLoading(false);
+      return;
+    }
     if (AUTH_PROVIDER === "hanko") {
       fetchUserProfile();
     } else if (token) {
       fetchUserProfile();
+    } else {
+      setIsAuthLoading(false);
     }
   }, [token]);
 
@@ -255,32 +275,87 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   /**
-   * Poll the backend for the user profile information every 15 seconds.
-   * This is majorly to keep the user profile information up to date, especially when the user is logged in.
+   * Refresh signed-in profiles once a minute. Stop on session rejection and
+   * wait for the login flow to establish a session before polling again.
    */
   useEffect(() => {
-    if (DISABLE_AUTH_ON_TRY_FAIR) return;
-    const intervalId = setInterval(() => {
-      if (AUTH_PROVIDER === "hanko" && !IS_DEV) {
-        fetch(`${BASE_API_URL}auth/me/`, { credentials: "include" })
-          .then((res) => (res.ok ? res.json() : Promise.reject()))
-          .then((userData) => {
+    if (DISABLE_AUTH_ON_TRY_FAIR || !isAuthenticated) return;
+
+    const pollInterval = 60_000;
+    let retryDelay = pollInterval;
+    let cancelled = false;
+    let timeoutId: ReturnType<typeof setTimeout>;
+    const controller = new AbortController();
+
+    const refreshProfile = async () => {
+      let nextDelay = pollInterval;
+      try {
+        if (document.visibilityState === "hidden") return;
+
+        if (AUTH_PROVIDER === "hanko" && !IS_DEV) {
+          const response = await fetch(`${BASE_API_URL}auth/me/`, {
+            credentials: "include",
+            signal: controller.signal,
+          });
+          if (cancelled) return;
+
+          if (response.status === 401 || response.status === 403) {
+            cancelled = true;
+            setUser(undefined);
+            return;
+          }
+
+          if (!response.ok) {
+            const retryAfter = response.headers.get("Retry-After");
+            if (retryAfter) {
+              const seconds = Number(retryAfter);
+              const delay = Number.isFinite(seconds)
+                ? seconds * 1000
+                : Date.parse(retryAfter) - Date.now();
+              if (Number.isFinite(delay)) {
+                nextDelay = Math.max(pollInterval, delay);
+              }
+            }
+            throw new Error(`Profile refresh failed (${response.status})`);
+          }
+
+          const userData: TUser = await response.json();
+          if (!cancelled) {
             if (!userData.img_url) {
-              const hankoUser = JSON.parse(localStorage.getItem("hotosm-auth-user") || "{}");
+              const hankoUser = JSON.parse(
+                localStorage.getItem("hotosm-auth-user") || "{}",
+              );
               if (hankoUser.avatarUrl) {
                 userData.img_url = hankoUser.avatarUrl;
               }
             }
             setUser(userData);
-          })
-          .catch(() => setUser(undefined));
-      } else if (token) {
-        authService.getUser().then(setUser).catch(showErrorToast);
+          }
+        } else if (token) {
+          const userData = await authService.getUser();
+          if (!cancelled) setUser(userData);
+        }
+        retryDelay = pollInterval;
+      } catch (error) {
+        if (cancelled) return;
+        // Network errors and throttling do not mean the session has expired.
+        retryDelay = Math.min(retryDelay * 2, 5 * pollInterval);
+        nextDelay = Math.max(nextDelay, retryDelay);
+        if (AUTH_PROVIDER !== "hanko") showErrorToast(error);
+      } finally {
+        if (!cancelled) {
+          timeoutId = setTimeout(refreshProfile, nextDelay);
+        }
       }
-    }, 15000);
+    };
 
-    return () => clearInterval(intervalId);
-  }, [token]);
+    timeoutId = setTimeout(refreshProfile, pollInterval);
+    return () => {
+      cancelled = true;
+      clearTimeout(timeoutId);
+      controller.abort();
+    };
+  }, [token, isAuthenticated]);
 
   return (
     <AuthContext.Provider
@@ -290,6 +365,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         authenticateUser,
         logout,
         isAuthenticated,
+        isAuthLoading,
         setUser,
       }}
     >

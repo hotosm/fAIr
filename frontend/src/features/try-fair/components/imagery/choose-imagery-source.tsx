@@ -7,16 +7,22 @@ import { IMAGERY_SOURCES } from "@/features/try-fair/utils/common";
  * imagery/location dialog.
  */
 export const ImagerySourceToggle = ({
+  expanded = false,
   value,
   onChange,
 }: {
+  expanded?: boolean;
   value: ImagerySource;
   onChange: (source: ImagerySource) => void;
 }) => (
   <div
     role="radiogroup"
     aria-label="Imagery source"
-    className="flex items-center max-w-[500px] w-full mx-auto md:flex-row flex-col justify-center gap-3"
+    className={
+      expanded
+        ? "flex items-center rounded-lg bg-off-white p-1 gap-1 w-full max-w-[420px] mx-auto"
+        : "flex items-center max-w-[500px] w-full mx-auto md:flex-row flex-col justify-center gap-3"
+    }
   >
     {IMAGERY_SOURCES.map((source) => {
       const isSelected = value === source.value;
@@ -27,20 +33,37 @@ export const ImagerySourceToggle = ({
           role="radio"
           aria-checked={isSelected}
           onClick={() => onChange(source.value)}
-          className={cn(
-            "flex items-center bg-frosted-blue justify-between gap-6 w-full md:min-w-[200px] px-4 py-2.5 rounded-lg transition-colors",
-            isSelected ? "border-primary border " : "  ",
-          )}
+          className={
+            expanded
+              ? cn(
+                  "flex flex-1 min-w-0 items-center justify-center gap-2 px-3 py-2.5 rounded-md border text-sm transition-colors",
+                  isSelected
+                    ? "border-gray-border bg-white text-dark shadow-sm font-semibold"
+                    : "border-transparent text-grey hover:text-dark",
+                )
+              : cn(
+                  "flex items-center bg-frosted-blue justify-between gap-6 w-full md:min-w-[200px] px-4 py-2.5 rounded-lg transition-colors",
+                  isSelected ? "border-primary border " : "  ",
+                )
+          }
         >
-          <span className="text-sm text-dark">{source.label}</span>
           <span
-            className={cn(
-              "w-4 h-4 rounded-full border flex items-center justify-center shrink-0",
-              isSelected ? "border-primary" : "border-gray-border",
-            )}
+            className={expanded ? "whitespace-nowrap" : "text-sm text-dark"}
           >
-            {isSelected && <span className="w-2.5 h-2.5 rounded-full bg-primary" />}
+            {source.label}
           </span>
+          {!expanded && (
+            <span
+              className={cn(
+                "w-4 h-4 rounded-full border flex items-center justify-center shrink-0",
+                isSelected ? "border-primary" : "border-gray-border",
+              )}
+            >
+              {isSelected && (
+                <span className="w-2.5 h-2.5 rounded-full bg-primary" />
+              )}
+            </span>
+          )}
         </button>
       );
     })}

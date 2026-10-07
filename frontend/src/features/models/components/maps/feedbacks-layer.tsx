@@ -15,7 +15,13 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 let markerIcon = new Image(17, 20);
 markerIcon.src = CommentIcon;
-export const FeedbacksLayer = ({ map, features }: { map: Map | null; features?: Feature[] }) => {
+export const FeedbacksLayer = ({
+  map,
+  features,
+}: {
+  map: Map | null;
+  features?: Feature[];
+}) => {
   const updatedFeatures = useMemo(() => {
     if (!features) return [];
     return features.map((feature) => ({
@@ -23,7 +29,9 @@ export const FeedbacksLayer = ({ map, features }: { map: Map | null; features?: 
       properties: {
         ...feature.properties,
         comment_length:
-          feature?.properties && "comments" in feature.properties && feature.properties.comments
+          feature?.properties &&
+          "comments" in feature.properties &&
+          feature.properties.comments
             ? feature.properties.comments.length
             : 0,
       },
@@ -40,10 +48,8 @@ export const FeedbacksLayer = ({ map, features }: { map: Map | null; features?: 
 
   const popupContainerRef = useRef<HTMLDivElement>(null);
   const popupInstanceRef = useRef<Popup | null>(null);
-  const [clickedFeatureProperties, setClickedFeatureProperties] = useState<Record<
-    string,
-    string
-  > | null>(null);
+  const [clickedFeatureProperties, setClickedFeatureProperties] =
+    useState<Record<string, string> | null>(null);
   useEffect(() => {
     if (!map) return;
     if (!map.getSource(MODEL_FEEDBACKS_SOURCE_ID)) {

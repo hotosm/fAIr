@@ -1,0 +1,17 @@
+.logo-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem 1.5rem;
+  align-items: center;
+  margin: 1rem 0 1.75rem;
+}
+.logo-grid img {
+  height: 90px;
+  width: auto;
+  max-width: 320px;
+  object-fit: contain;
+  background: #fff;
+  padding: 16px 26px;
+  border-radius: 10px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
+}

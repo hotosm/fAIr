@@ -3,17 +3,19 @@ import logging
 import tempfile
 from datetime import timedelta
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from django.conf import settings
 from django.utils import timezone
 from django_tasks import task
 from upath import UPath
 
+from shared.enums import PipelineRunStatus
 from shared.integrations.zenml import for_user, get_run_status, is_terminal
 from shared.storage import StoragePaths
 
 from .models import Prediction
-from .post_run import post_process_prediction
+from .post_run import PredictionOutputError, post_process_prediction
 
 logger = logging.getLogger(__name__)
 
@@ -61,13 +63,20 @@ def sync_prediction_status(*, prediction_id: int) -> None:
         ).enqueue(prediction_id=prediction_id)
 
     if needs_postrun:
-        post_process_prediction(prediction)
+        try:
+            post_process_prediction(prediction)
+        except PredictionOutputError:
+            # A model/STAC mismatch is permanent; a terminal status stops the poller.
+            logger.exception("Prediction %s: outputs rejected", prediction_id)
+            Prediction.objects.filter(id=prediction_id).update(status=PipelineRunStatus.FAILED)
+            return
         Prediction.objects.filter(id=prediction_id).update(results_ready=True)
 
 
 def _materialize_prediction_input(prediction: Prediction) -> str:
     """Download TMS tiles for `prediction` and stage them on S3."""
     from geomltoolkits.downloader.tms import download_tiles
+    from geomltoolkits.geometry.tiles import get_tiles
 
     s3_prefix = UPath(StoragePaths.prediction_input_dir_uri(prediction.id))
 
@@ -75,6 +84,9 @@ def _materialize_prediction_input(prediction: Prediction) -> str:
     zoom: int = int(prediction.zoom)
     geometry: dict = prediction.geometry  # type: ignore[assignment]
 
+    tile_count = len(get_tiles(zoom=zoom, geojson=geometry, within=True))
+    if not tile_count:
+        raise ValueError(f"Prediction {prediction.id}: AOI covers no whole tile at zoom {zoom}")
     with tempfile.TemporaryDirectory(prefix=f"fair-predict-{prediction.id}-") as tmp:
         local_chips_dir = Path(
             asyncio.run(
@@ -85,6 +97,9 @@ def _materialize_prediction_input(prediction: Prediction) -> str:
                     geojson=geometry,
                     within=True,
                     georeference=True,
+                    is_tilejson=urlsplit(image_uri).path.endswith("tilejson.json"),
+                    # Edge tiles may miss the imagery; a run with no tile at all must stop.
+                    max_failures=tile_count - 1,
                 )
             )
         )
