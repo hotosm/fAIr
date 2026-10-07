@@ -75,14 +75,14 @@ def test_for_user_reuses_master_client_across_calls(mock_fair_client_cls, settin
 def test_fetch_run_logs_passes_tail(mock_fetch):
     mock_fetch.return_value = []
     wrapper.fetch_run_logs("run-1", tail=200)
-    mock_fetch.assert_called_once_with("run-1", tail=200)
+    mock_fetch.assert_called_once_with("run-1", tail=200, since=None)
 
 
 @patch("shared.integrations.zenml._fetch_step_logs")
 def test_fetch_step_logs_passes_step(mock_fetch):
     mock_fetch.return_value = []
     wrapper.fetch_step_logs("run-1", "train_model", tail=50)
-    mock_fetch.assert_called_once_with("run-1", "train_model", tail=50)
+    mock_fetch.assert_called_once_with("run-1", "train_model", tail=50, since=None)
 
 
 @patch("shared.integrations.zenml._list_runs_for_model")

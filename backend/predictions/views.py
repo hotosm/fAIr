@@ -29,13 +29,12 @@ from shared.integrations.stac import (
     item_exists,
 )
 from shared.integrations.zenml import (
-    fetch_run_logs,
-    fetch_step_logs,
     get_run_status,
     is_terminal,
 )
+from shared.run_endpoints import read_run_logs, stop_pipeline_run
+from shared.serializers import LogEntrySerializer, RunLogsQuerySerializer, RunStatusSerializer
 from shared.storage import StoragePaths, presigned_get_url
-from trainings.serializers import LogEntrySerializer, RunStatusSerializer
 
 from .models import Prediction
 from .serializers import (
@@ -103,6 +102,8 @@ class PredictionViewSet(viewsets.ReadOnlyModelViewSet):
         return qs.filter(Q(user=user) | Q(visibility=Visibility.PUBLIC))
 
     def get_permissions(self):
+        if self.action in {"run_status", "run_logs"}:
+            return [IsAuthenticated()]
         if self.action in {"publish", "unpublish", "submit", "mapswipe", "run_cancel"}:
             return [IsAuthenticated(), IsOwnerOrAdmin()]
         return super().get_permissions()
@@ -303,28 +304,23 @@ class PredictionViewSet(viewsets.ReadOnlyModelViewSet):
     )
     @action(detail=False, methods=["post"], url_path=r"runs/(?P<run_id>[^/]+)/cancel")
     def run_cancel(self, request, run_id: str) -> Response:
-        from zenml.client import Client
-        from zenml.utils.run_utils import stop_run
-
         prediction = self._run_for_caller(run_id)
-        run = Client().get_pipeline_run(run_id)
         graceful = request.query_params.get("graceful", "false").lower() == "true"
-        stop_run(run, graceful=graceful)
+        stop_pipeline_run(run_id, graceful=graceful)
         Prediction.objects.filter(pk=prediction.pk).update(status="stopping")
         return Response({"run_id": run_id, "status": "stopping", "graceful": graceful})
 
-    @extend_schema(responses=LogEntrySerializer(many=True))
-    @action(detail=False, methods=["get"], url_path=r"runs/(?P<run_id>[^/]+)/logs")
+    @extend_schema(parameters=[RunLogsQuerySerializer], responses=LogEntrySerializer(many=True))
+    @action(
+        detail=False,
+        methods=["get"],
+        url_path=r"runs/(?P<run_id>[^/]+)/logs",
+        filter_backends=[],
+        pagination_class=None,
+    )
     def run_logs(self, request, run_id: str) -> Response:
         self._run_for_caller(run_id)
-        tail = int(request.query_params.get("tail", 1000))
-        step = request.query_params.get("step")
-        if step:
-            entries = fetch_step_logs(run_id, step, tail=tail)
-        else:
-            entries = fetch_run_logs(run_id, tail=tail)
-        data = [{"level": e.level, "message": e.message, "timestamp": e.timestamp} for e in entries]
-        return Response(LogEntrySerializer(data, many=True).data)
+        return Response(read_run_logs(run_id, request.query_params))
 
 
 def _presigned_result_urls(prediction: Prediction) -> dict[str, str]:

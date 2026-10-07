@@ -29,3 +29,21 @@ class StacFacetSerializer(serializers.Serializer):
     assets = serializers.DictField(child=StacAssetSerializer(), required=False)
     properties = serializers.DictField(required=False)
     links = serializers.ListField(child=serializers.DictField(), required=False)
+
+
+class RunStatusSerializer(serializers.Serializer):
+    run_id = serializers.CharField()
+    status = serializers.CharField()
+    is_terminal = serializers.BooleanField()
+
+
+class RunLogsQuerySerializer(serializers.Serializer):
+    tail = serializers.IntegerField(min_value=1, default=1000)
+    step = serializers.CharField(required=False)
+    since = serializers.DateTimeField(required=False)
+
+
+class LogEntrySerializer(serializers.Serializer):
+    level = serializers.CharField()
+    message = serializers.CharField()
+    timestamp = serializers.CharField(allow_null=True)

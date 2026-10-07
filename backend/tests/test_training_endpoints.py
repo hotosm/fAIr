@@ -146,7 +146,7 @@ def test_training_submit_404s_dataset_not_published(
     assert response.status_code == 404
 
 
-@patch("trainings.views.fetch_run_logs")
+@patch("shared.run_endpoints.fetch_run_logs")
 def test_training_run_logs_default_returns_run_level(mock_fetch, client, training_ref):
     mock_fetch.return_value = [
         MagicMock(level="INFO", message="hello", timestamp="2026-05-02T10:00:00Z")
@@ -156,15 +156,15 @@ def test_training_run_logs_default_returns_run_level(mock_fetch, client, trainin
     payload = response.json()
     assert len(payload) == 1
     assert payload[0]["message"] == "hello"
-    mock_fetch.assert_called_once_with("abc-123", tail=20)
+    mock_fetch.assert_called_once_with("abc-123", tail=20, since=None)
 
 
-@patch("trainings.views.fetch_step_logs")
+@patch("shared.run_endpoints.fetch_step_logs")
 def test_training_run_logs_with_step_param_routes_to_step(mock_fetch, client, training_ref):
     mock_fetch.return_value = []
     response = client.get("/api/v1/trainings/runs/abc-123/logs/?step=train_model&tail=5")
     assert response.status_code == 200
-    mock_fetch.assert_called_once_with("abc-123", "train_model", tail=5)
+    mock_fetch.assert_called_once_with("abc-123", "train_model", tail=5, since=None)
 
 
 @override_settings(TASKS={"default": {"BACKEND": "django_tasks.backends.immediate.ImmediateBackend"}})

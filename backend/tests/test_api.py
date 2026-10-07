@@ -715,7 +715,7 @@ def test_training_run_status_marks_terminal_for_completed(mock_status, client, t
     assert response.json()["is_terminal"] is True
 
 
-@patch("trainings.views.fetch_run_logs")
+@patch("shared.run_endpoints.fetch_run_logs")
 def test_training_run_logs_default_returns_run_level(mock_fetch, client, training_ref):
     mock_fetch.return_value = [
         MagicMock(level="INFO", message="epoch 1 done", timestamp="2026-05-01T00:00:00Z")
@@ -725,15 +725,15 @@ def test_training_run_logs_default_returns_run_level(mock_fetch, client, trainin
     assert response.json() == [
         {"level": "INFO", "message": "epoch 1 done", "timestamp": "2026-05-01T00:00:00Z"}
     ]
-    mock_fetch.assert_called_once_with("run-abc", tail=10)
+    mock_fetch.assert_called_once_with("run-abc", tail=10, since=None)
 
 
-@patch("trainings.views.fetch_step_logs")
+@patch("shared.run_endpoints.fetch_step_logs")
 def test_training_step_logs_routes_to_step_when_param_present(mock_fetch, client, training_ref):
     mock_fetch.return_value = []
     response = client.get("/api/v1/trainings/runs/run-abc/logs/?step=train_model&tail=5")
     assert response.status_code == 200
-    mock_fetch.assert_called_once_with("run-abc", "train_model", tail=5)
+    mock_fetch.assert_called_once_with("run-abc", "train_model", tail=5, since=None)
 
 
 @patch("zenml.utils.run_utils.stop_run")
@@ -976,13 +976,13 @@ def test_prediction_run_status_polls_zenml(mock_status, client, prediction):
     }
 
 
-@patch("predictions.views.fetch_run_logs")
+@patch("shared.run_endpoints.fetch_run_logs")
 def test_prediction_run_logs_default_returns_run_level(mock_fetch, client, prediction):
     mock_fetch.return_value = []
     response = client.get("/api/v1/predictions/runs/pred-run-1/logs/")
     assert response.status_code == 200
     assert response.json() == []
-    mock_fetch.assert_called_once_with("pred-run-1", tail=1000)
+    mock_fetch.assert_called_once_with("pred-run-1", tail=1000, since=None)
 
 
 @patch("zenml.utils.run_utils.stop_run")

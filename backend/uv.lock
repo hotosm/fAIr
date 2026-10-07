@@ -1065,7 +1065,7 @@ requires-dist = [
     { name = "djangorestframework", specifier = ">=3.15" },
     { name = "djangorestframework-gis", specifier = ">=1.1" },
     { name = "drf-spectacular", specifier = ">=0.29" },
-    { name = "fair-py-ops", extras = ["k8s"], specifier = "==0.3.15" },
+    { name = "fair-py-ops", extras = ["k8s"], specifier = "==0.3.16" },
     { name = "geomltoolkits", specifier = ">=2.1.0" },
     { name = "geopandas", specifier = ">=1.0" },
     { name = "gpxpy", specifier = ">=1.6" },
@@ -1099,7 +1099,7 @@ test = [
 
 [[package]]
 name = "fair-py-ops"
-version = "0.3.15"
+version = "0.3.16"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "httpx" },
@@ -1111,9 +1111,9 @@ dependencies = [
     { name = "universal-pathlib" },
     { name = "zenml" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/4b/76/43b7667692ef0f1e4db201c95f4a85c9fbc0a76c3710fdfd140d2b9c8b24/fair_py_ops-0.3.15.tar.gz", hash = "sha256:19a78af029360c793a8add68340c4a6e393a75a3050233364cc91f0e62de1354", size = 3964540, upload-time = "2026-10-06T12:33:06.905Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ac/54/84def37e240a323f9f5b4c14709b3320e1e7b4c8cda341a263272c070c03/fair_py_ops-0.3.16.tar.gz", hash = "sha256:0e8a8835c2a29bed4dfa0d5fea82ddddd0ac92cefce2214f670c2957451a6b8a", size = 3964626, upload-time = "2026-10-06T19:40:12.567Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/cb/29/9835dcfbefcbe85f96f13b945f8a9ae6972b8f73f8e8a9063def87073d28/fair_py_ops-0.3.15-py3-none-any.whl", hash = "sha256:2610655dee5c8e21187689ed803a53753e91e5c0ab3e18ed17b912975a4b2cff", size = 4127808, upload-time = "2026-10-06T12:33:05.264Z" },
+    { url = "https://files.pythonhosted.org/packages/b0/38/6b04251b39b6dcca73d9372f1aed4dcc3583e9008b7fe3c3e38c2c9c97f0/fair_py_ops-0.3.16-py3-none-any.whl", hash = "sha256:887f9d1af8cd317dd946034403b243da557f97f0fa8fa5cbc5d5504c4e151c4d", size = 4127882, upload-time = "2026-10-06T19:40:10.86Z" },
 ]
 
 [package.optional-dependencies]
