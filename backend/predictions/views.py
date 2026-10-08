@@ -87,8 +87,9 @@ class PredictionViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = PredictionSerializer
     authentication_classes = [OsmAuthentication]
     permission_classes = [PublishedReadOrAuthenticatedWrite, IsOwnerOrAdminOrReadOnly]
-    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ["local_model_stac_id", "user", "status", "visibility"]
+    search_fields = ["description"]
     ordering_fields = ["submitted_at", "last_polled_at"]
     throttle_scope = "prediction_submit"
 
@@ -351,6 +352,7 @@ class PublicPredictionViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = PredictionSerializer
     authentication_classes: list = []
     permission_classes = [AllowAny]
-    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ["local_model_stac_id"]
+    search_fields = ["description"]
     ordering_fields = ["submitted_at"]
