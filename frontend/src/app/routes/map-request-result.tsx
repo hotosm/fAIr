@@ -27,12 +27,7 @@ const getPredictionName = (prediction: TOfflinePrediction): string =>
   prediction.local_model_stac_id ||
   `Prediction #${prediction.id}`;
 
-/** Best-effort feature label derived from the model id (e.g. "…-buildings"). */
-const getFeatureMapped = (prediction: TOfflinePrediction): string => {
-  const slug = prediction.local_model_stac_id ?? "";
-  const last = slug.split("-").pop() ?? "";
-  return last ? last.charAt(0).toUpperCase() + last.slice(1) : "—";
-};
+
 
 /** Info card shown over the map — styled like the Try fAIr sidebar. */
 const ResultInfoCard = ({
@@ -205,7 +200,7 @@ export const MapRequestResultPage = () => {
             <div className="absolute top-4 left-4 z-10">
               <ResultInfoCard
                 imageryName={oamItem?.title || "Custom Imagery"}
-                featureMapped={getFeatureMapped(prediction)}
+                featureMapped={prediction?.category ?? '-'}
                 outputType={outputType}
                 onOutputTypeChange={setOutputType}
               />
@@ -224,7 +219,7 @@ export const MapRequestResultPage = () => {
               >
                 <ResultInfoCard
                   imageryName={oamItem?.title || "Custom Imagery"}
-                  featureMapped={getFeatureMapped(prediction)}
+                  featureMapped={prediction?.category ?? ''}
                   outputType={outputType}
                   onOutputTypeChange={setOutputType}
                   className="w-full shadow-none"

@@ -9,7 +9,7 @@ import { APPLICATION_ROUTES, SHARED_CONTENT } from "@/constants";
 import { useAuth } from "@/app/providers/auth-provider";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { UserNotifications } from "@/features/user-profile/components/notifications/user-notifications";
+// import { UserNotifications } from "@/features/user-profile/components/notifications/user-notifications";
 import { AUTH_PROVIDER, FRONTEND_URL } from "@/config";
 import "@hotosm/ui/dist/components/tool-menu/tool-menu.js";
 import { Divider } from "@/components/ui/divider";
@@ -119,7 +119,7 @@ export const NavBar = () => {
 
         <div className="flex items-center gap-x-2 sm:hidden">
           {showDashboardLink && <DashboardLink />}
-          {isAuthenticated && <UserNotifications />}
+          {/* {isAuthenticated && <UserNotifications />} */}
           {showDownloadResult && <DownloadResultButton />}
 
           <button

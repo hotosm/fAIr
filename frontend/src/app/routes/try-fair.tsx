@@ -148,7 +148,6 @@ export const TryFairPage = () => {
     selectedModel,
     selectedModelId,
   });
-
   const predictionClassStyle = useMemo(
     () => getPredictionClassStyle(modelForMapping),
     [modelForMapping],

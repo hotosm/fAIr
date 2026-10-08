@@ -29,6 +29,11 @@ export const useGetPredictions = (
 /**
  * Fetches a single prediction request by id. `initialData` (e.g. the row the
  * user clicked) lets the results page render instantly and stay refresh-safe.
+ *
+ * staleTime and refetchOnWindowFocus are disabled because this is used on the
+ * result page: we don't want the geojsonUrl to change under the map every time
+ * the user switches browser tabs, which would bust the GeoJSON query cache and
+ * flash a loading state.
  */
 export const useGetSinglePrediction = (
   predictionId?: string | number,
@@ -40,6 +45,10 @@ export const useGetSinglePrediction = (
     queryFn: () => getSinglePrediction(id as string),
     enabled: id !== undefined,
     initialData,
+    // Keep the prediction data stable so derived values (geojsonUrl, bounds)
+    // don't change on tab-switch, which would bust downstream query caches.
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
   });
 };
 

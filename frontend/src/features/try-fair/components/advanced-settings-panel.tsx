@@ -1,6 +1,7 @@
 import type { InferenceParam } from "@/features/try-fair/api/stac";
-import { CloseIcon, RefreshIcon } from "@/components/ui/icons";
+import { CloseIcon, InfoIcon, RefreshIcon } from "@/components/ui/icons";
 import { RedoIcon, UndoIcon } from "@/components/ui/icons/undo-icon";
+import { ToolTip } from "@/components/ui/tooltip";
 
 type AdvancedSettingsPanelProps = {
   closePanel: () => void;
@@ -141,7 +142,9 @@ export const AdvancedSettingsPanel = ({
                 <div className="flex items-center justify-between gap-3 text-xs text-dark">
                   <span className="flex items-center gap-2">
                     {label}
-                    {/* <InfoIcon className="size-3 text-grey" /> */}
+                   <ToolTip content={spec.description}>
+                     <InfoIcon className="size-3 text-grey" />
+                   </ToolTip>
                   </span>
                   <input
                     type="text"

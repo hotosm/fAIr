@@ -817,6 +817,7 @@ export type TTryFairPageContent = {
     parameters: {
       label: string;
       description: string;
+      advancedModeDescription: string;
       learnMore: string;
       resolution: {
         label: string;

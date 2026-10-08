@@ -16,7 +16,7 @@ import { PredictionRequestStatus } from "@/enums";
 // Field resolvers — single source of truth so nothing is spread across the JSX.
 // ---------------------------------------------------------------------------
 
-const getFeatureMapped = (_p: TOfflinePrediction): string => "-";
+const getFeatureMapped = (_p: TOfflinePrediction): string => _p?.category || "-";
 
 const getModelUsed = (p: TOfflinePrediction): string =>
   p.model_name || p.local_model_stac_id || "-";
@@ -68,7 +68,7 @@ const columnDefinitions = ({
     id: "feature_mapped",
     header: "Feature Mapped",
     accessorFn: (row) => getFeatureMapped(row),
-    cell: (ctx) => <span>{ctx.getValue() as string}</span>,
+    cell: (ctx) => <span className="capitalize">{ctx.getValue() as string}</span>,
   },
   {
     id: "model_used",
@@ -122,8 +122,8 @@ const columnDefinitions = ({
             disabled={!resultReady}
             onClick={() => onViewResult(row.original)}
             className={cn(
-              "rounded-[9.3px] border bg-off-white  px-3 py-1.5  text-dark transition-colors",
-              resultReady ? "cursor-pointer " : "cursor-not-allowed opacity-40",
+              "rounded-[9.3px] border  bg-off-white text-dark  px-3 py-1.5 transition-colors",
+              resultReady ? "cursor-pointer border-dark" : "cursor-not-allowed opacity-40",
             )}
           >
             View result
@@ -177,6 +177,14 @@ export const MapRequestsTable = ({
   const goToRequests = () =>
     navigate(APPLICATION_ROUTES.PROFILE_OFFLINE_PREDICTIONS);
 
+  const goToResult = (prediction: TOfflinePrediction) =>
+    navigate(
+      APPLICATION_ROUTES.MAP_REQUEST_RESULT.replace(
+        ":id",
+        String(prediction.id),
+      ),
+    );
+
   if (isPending || isError) return <TableSkeleton />;
 
   return (
@@ -185,7 +193,7 @@ export const MapRequestsTable = ({
         // @ts-ignore
         data={requests}
         columns={columnDefinitions({
-          onViewResult: onViewResult ?? goToRequests,
+          onViewResult: onViewResult ?? goToResult,
           onOpenMenu: onOpenMenu ?? goToRequests,
           renderRowMenu,
         })}
