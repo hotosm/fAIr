@@ -19,6 +19,7 @@ import {
   RadioDot,
   FeatureBadge,
   ExperimentalModelBadge,
+  SelectedModelBadge,
 } from "@/features/try-fair/components/model-picker/model-picker-badges";
 import { ImageryPreviewCard } from "@/features/try-fair/components/model-picker/imagery-preview-card";
 import { RecentImageriesList } from "@/features/try-fair/components/model-picker/recent-imageries-list";
@@ -339,22 +340,26 @@ export const ModelPickerContent = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {models.length > 0 ? (
               models.map((model) => {
-                const isModelSelected = activeSelectionKey === model.id;
+                const isApplied = appliedSelectionKey === model.id;
                 return (
                   <button
                     key={model.id}
                     type="button"
-                    onClick={() => setStagedChoice({ type: "model", model })}
+                    onClick={() => onSelect(model)}
                     className={cn(
                       "text-left p-3 bg-frosted-blue rounded-lg transition-colors",
-                      isModelSelected ? "border-primary border-2" : "",
+                      isApplied ? "border-primary border-2" : "",
                     )}
                   >
                     <div className="flex items-start justify-between gap-2 mb-1">
                       <p className="text-dark capitalize text-sm font-bold leading-tight flex-1 min-w-0 break-words">
                         {model?.properties?.title ?? ""}
                       </p>
-                      <RadioDot darkBorder={true} selected={isModelSelected} />
+                      {isApplied ? (
+                        <SelectedModelBadge selected={isApplied} />
+                      ) : (
+                        <RadioDot darkBorder={true} selected={false} />
+                      )}
                     </div>
                     <p className="text-grey text-xs mb-0.5">
                       Model: {model?.properties?.["mlm:name"] ?? ""}

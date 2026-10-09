@@ -43,11 +43,13 @@ export const ImageryLocationDialog = ({
   closeDialog,
   onApply,
   onBackToModelPicker,
+  isCustomImageryEnabled = true,
 }: {
   isOpened: boolean;
   closeDialog: () => void;
   onApply: (selection: ImagerySelection) => void;
   onBackToModelPicker?: () => void;
+  isCustomImageryEnabled?: boolean;
 }) => {
   const [source, setSource] = useState<ImagerySource>(
     ImagerySource.OPEN_AERIAL_MAP,
@@ -61,6 +63,12 @@ export const ImageryLocationDialog = ({
   const [showSearch, setShowSearch] = useState<boolean>(true);
   const mapRef = useRef<MapLibreMap | null>(null);
   const searchAbortRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    if (!isCustomImageryEnabled && source === ImagerySource.CUSTOM) {
+      setSource(ImagerySource.OPEN_AERIAL_MAP);
+    }
+  }, [isCustomImageryEnabled, source]);
 
   // Fetch the imagery inside the selected grid cell.
   useEffect(() => {
@@ -153,7 +161,11 @@ export const ImageryLocationDialog = ({
               tile server URL.
             </p>
             <div className="shrink-0">
-              <ImagerySourceToggle value={source} onChange={setSource} />
+              <ImagerySourceToggle
+                value={source}
+                onChange={setSource}
+                isCustomImageryEnabled={isCustomImageryEnabled}
+              />
               {!isOAM && <Divider />}
             </div>
 
@@ -255,6 +267,7 @@ export const ImageryLocationDialog = ({
                 expanded
                 value={source}
                 onChange={setSource}
+                isCustomImageryEnabled={isCustomImageryEnabled}
               />
             </div>
             <button

@@ -40,6 +40,8 @@ export const NavBar = () => {
     showDownloadResult,
     showMappingMode,
     showDashboardLink,
+    isMapRequestResult
+    
   } = useNavbarState();
 
   const isTryFairPage = location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR);
@@ -68,7 +70,7 @@ export const NavBar = () => {
             </button>
           </div>
 
-          {!isTryFairPage && (
+          {!isTryFairPage && !isMapRequestResult &&(
             <div className={styles.navLinksContainer}>
               <NavBarLinks
                 className={styles.mobileNavLinks}
@@ -101,7 +103,7 @@ export const NavBar = () => {
         </div>
 
         <div className="flex-1 hidden sm:flex items-center justify-center">
-          {!isTryFairPage && !isProfilePage && (
+          {!isTryFairPage && !isProfilePage && !isMapRequestResult && (
             <NavBarLinks className={styles.webNavLinks} />
           )}
         </div>

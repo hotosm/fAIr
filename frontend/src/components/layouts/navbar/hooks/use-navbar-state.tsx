@@ -21,6 +21,7 @@ export function useNavbarState() {
     isTryFair,
     isProfile,
     isMapRequests,
+    isMapRequestResult,
 
     // use this approach to specify what shows where, if a new condition is to be added, you can add it here
     showBackButton: isMapRequests,

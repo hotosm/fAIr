@@ -44,10 +44,12 @@ import { reverseGeocodeCountry } from "@/features/try-fair/api/hot-imagery";
 import { useRecentImageries } from "@/features/try-fair/hooks/use-recent-imageries";
 import type { RecentImageryEntry } from "@/features/try-fair/hooks/use-recent-imageries";
 import { getPredictionClassStyle } from "@/features/try-fair/utils/prediction-classes";
+import { useAuth } from "@/app/providers/auth-provider";
 
 export const TryFairPage = () => {
   const { map, mapContainerRef } = useMapInstance(false, false);
   const { isSmallViewport } = useScreenSize();
+  const { isAuthenticated } = useAuth();
 
   const {
     showSigninModal,
@@ -88,6 +90,7 @@ export const TryFairPage = () => {
     setFeature,
     mode,
     setMode,
+    mappingMode,
     imageryUrl,
     imageryTileServiceType,
     oamItemId,
@@ -563,6 +566,9 @@ export const TryFairPage = () => {
       {/* Imagery/location dialog – rendered at page level */}
       <ImageryLocationDialog
         isOpened={isChooseLocationOpen}
+        isCustomImageryEnabled={
+           mappingMode === "advanced"
+        }
         closeDialog={() => {
           setChooseLocation(false);
           setIsChoosingImageryFromModelPicker(false);
