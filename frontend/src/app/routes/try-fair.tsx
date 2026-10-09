@@ -45,11 +45,20 @@ import { useRecentImageries } from "@/features/try-fair/hooks/use-recent-imageri
 import type { RecentImageryEntry } from "@/features/try-fair/hooks/use-recent-imageries";
 import { getPredictionClassStyle } from "@/features/try-fair/utils/prediction-classes";
 import { useAuth } from "@/app/providers/auth-provider";
+import { useParams } from "react-router-dom";
+import { MappingProjectAutosave } from "@/features/try-fair/components/mapping-project-autosave";
+import type { SavedUserState } from "@/features/try-fair/api/user-state";
 
-export const TryFairPage = () => {
-  const { map, mapContainerRef } = useMapInstance(false, false);
+export const TryFairPage = ({ initialProject }: { initialProject?: SavedUserState }) => {
+  const { map, mapContainerRef } = useMapInstance(
+    false, false, "default", undefined, initialProject?.state.bbox,
+  );
   const { isSmallViewport } = useScreenSize();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
+  const { pid: projectId } = useParams();
+  const [hasSuccessfulPrediction, setHasSuccessfulPrediction] = useState(
+    initialProject?.state.type === "mapping",
+  );
 
   const {
     showSigninModal,
@@ -76,6 +85,7 @@ export const TryFairPage = () => {
     useTryFairTour(isSmallViewport);
 
   const {
+    urlState,
     modelId,
     selectedModelId,
     outputType,
@@ -104,6 +114,10 @@ export const TryFairPage = () => {
 
   const isChooseLocationOpen = Boolean(chooseLocation);
 
+  useEffect(() => {
+    if (mode === ModelType.DEMO) setHasSuccessfulPrediction(false);
+  }, [mode]);
+
   const { recentImageries, addRecentImagery, clearRecentImageries } =
     useRecentImageries();
 
@@ -121,6 +135,7 @@ export const TryFairPage = () => {
     [models, modelId],
   );
   const {
+    selectedImagery,
     imageryBounds,
     imageryCenter,
     predictionImageUri,
@@ -139,6 +154,7 @@ export const TryFairPage = () => {
 
   const {
     modelForMapping,
+    modelsReady,
     mappingModelId,
     imageryModelId,
     modelUri,
@@ -173,12 +189,15 @@ export const TryFairPage = () => {
     }
   }, [imageryModelId, selectedModelId, setSelectedModelId]);
 
-  const [latestBBox, setLatestBBox] = useState<BBOX | null>(null);
+  const [latestBBox, setLatestBBox] = useState<BBOX | null>(initialProject?.state.bbox ?? null);
 
-  const [latestGridZoom, setLatestGridZoom] = useState<number | null>(null);
+  const [latestGridZoom, setLatestGridZoom] = useState<number | null>(initialProject?.state.zoom ?? null);
   const [parameterOverrides, setParameterOverrides] = useState<
     Record<string, number | string | boolean>
-  >({});
+  >(() => Object.fromEntries(
+    Object.entries(initialProject?.state.params ?? {})
+      .filter(([key]) => key !== "confidence_threshold"),
+  ));
   const paramValues = useMemo(
     () => ({ ...defaultParamValues, ...parameterOverrides }),
     [defaultParamValues, parameterOverrides],
@@ -186,11 +205,39 @@ export const TryFairPage = () => {
   const isParametersDefault =
     hasDefaultParameters && Object.keys(parameterOverrides).length === 0;
 
+  const previousMappingModel = useRef(initialProject?.state.model.id);
   useEffect(() => {
-    setParameterOverrides({});
+    if (!mappingModelId) return;
+    if (previousMappingModel.current && previousMappingModel.current !== mappingModelId) {
+      setParameterOverrides({});
+    }
+    previousMappingModel.current = mappingModelId;
   }, [mappingModelId]);
+
+  // Keep the saved AOI centered while imagery metadata loads. A new imagery
+  // selection releases this override and uses that imagery's normal center.
+  const restoredCenter = useMemo<[number, number] | undefined>(() => {
+    const saved = initialProject?.state;
+    if (!saved?.bbox) return undefined;
+    const original = saved.url_params;
+    const sameImagery = original
+      ? mode === original.mode && imageryUrl === original.imagery && oamItemId === original.oamItem
+      : mode === ModelType.IMAGERY && imageryUrl === saved.imagery.url;
+    if (!sameImagery) return undefined;
+    const [w, s, e, n] = saved.bbox;
+    return [(w + e) / 2, (s + n) / 2];
+  }, [initialProject, mode, imageryUrl, oamItemId]);
   // Snapshot of the current prediction inputs vs what was last submitted,
-  const lastPredictedInputsRef = useRef<string | null>(null);
+  const restoredPrediction = initialProject?.state.prediction_result;
+  const lastPredictedInputsRef = useRef<string | null>(
+    restoredPrediction ? JSON.stringify({
+      mappingModelId: restoredPrediction.modelId,
+      bbox: restoredPrediction.bbox,
+      gridZoom: restoredPrediction.gridZoom,
+      resolution: restoredPrediction.resolution,
+      paramValues: restoredPrediction.params,
+    }) : null,
+  );
 
   const predictionInputsSnapshot = useMemo(() => {
     if (!latestBBox || !mappingModelId) return null;
@@ -284,7 +331,8 @@ export const TryFairPage = () => {
     predictionGridZoom,
     clearPredictions,
     cancelPrediction,
-  } = useFairPredict();
+    result: predictionResult,
+  } = useFairPredict(initialProject?.state.prediction_result ?? null);
 
   const handleCancelPrediction = useCallback(() => {
     cancelPrediction();
@@ -390,6 +438,9 @@ export const TryFairPage = () => {
         params: apiParams,
       },
       {
+        onSuccess: () => {
+          if (mode === ModelType.IMAGERY) setHasSuccessfulPrediction(true);
+        },
         onError: (error) => {
           if ((error as { code?: string }).code === "ERR_CANCELED") return;
           showErrorToast(error ?? "An Error Occured.");
@@ -411,6 +462,7 @@ export const TryFairPage = () => {
     closeGuidedTour,
     recordMapRun,
     hasNoModelsForFeature,
+    mode,
   ]);
 
   const isMapButtonDisabled =
@@ -514,6 +566,48 @@ export const TryFairPage = () => {
   return (
     <>
       <Head title={TRY_FAIR_PAGE_CONTENT.pageTitle} />
+      {isAuthenticated && (
+        <MappingProjectAutosave
+          key={`${user.osm_id}:${projectId ?? "new"}`}
+          enabled={
+            mode === ModelType.IMAGERY &&
+            hasSuccessfulPrediction &&
+            modelsReady &&
+            Boolean(selectedImagery) &&
+            tileServiceTypeValidity.valid &&
+            !isPredicting &&
+            !tileLoading
+          }
+          initialPid={projectId ? Number(projectId) : undefined}
+          skipInitialSave={Boolean(initialProject)}
+          payload={modelForMapping ? {
+            state: {
+              type: "mapping",
+              category: mode === ModelType.IMAGERY
+                ? feature
+                : modelForMapping.properties["fair:category"],
+              name: selectedImagery?.source === ImagerySource.OPEN_AERIAL_MAP
+                ? selectedImagery.item.title
+                : (modelForMapping.properties.title ?? "Mapping project"),
+              model: {
+                id: modelForMapping.id,
+                title: modelForMapping.properties.title ?? modelForMapping.id,
+              },
+              imagery: {
+                name: selectedImagery?.source === ImagerySource.OPEN_AERIAL_MAP
+                  ? selectedImagery.item.title
+                  : mode === ModelType.IMAGERY ? "Custom Imagery" : "Demo Imagery",
+                url: tileserverURL,
+              },
+              zoom: latestGridZoom,
+              bbox: latestBBox,
+              url_params: urlState,
+              params: paramValues,
+              prediction_result: predictionResult,
+            },
+          } : null}
+        />
+      )}
 
       {/* Model picker dialog – rendered at page level so it's not trapped inside MobileDrawer */}
       <Dialog
@@ -626,7 +720,7 @@ export const TryFairPage = () => {
               !isPredicting &&
               Boolean(predictions && !predictions.features.length)
             }
-            imageryCenter={imageryCenter}
+            imageryCenter={restoredCenter ?? imageryCenter}
             resolution={resolution}
             isPredicting={isPredicting}
             preImageryUrl={preImageryUrl}

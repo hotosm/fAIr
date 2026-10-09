@@ -31,7 +31,7 @@ export const DownloadResultButton = ({ className }: { className?: string }) => {
 
   return (
     <SolidButton
-      variant="primary"
+      variant="dark"
       disabled={!resultReady}
       onClick={handleDownload}
       className={cn(

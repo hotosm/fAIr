@@ -68,6 +68,7 @@ export const APPLICATION_ROUTES = {
 
   MAP_REQUEST_RESULT: "/map-requests/:id",
   TRY_FAIR: "/try-fair",
+  TRY_FAIR_PROJECT: "/try-fair/:pid",
 
   // Published AI Predictions
   AI_PREDICTIONS: "/ai-predictions",

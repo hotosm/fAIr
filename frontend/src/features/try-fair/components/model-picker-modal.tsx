@@ -194,6 +194,14 @@ export const ModelPickerContent = ({
     );
   }, [selectedModel, currentModelType, mode]);
 
+  // A new browser selection supersedes any unapplied recent-list choice.
+  useEffect(() => {
+    if (!stagedImagery) return;
+    setStagedChoice(null);
+    setImageryPanelView("preview");
+    setActiveTab(TAB_CHOOSE);
+  }, [stagedImagery]);
+
   // Imagery currently shown (staged selection, else the applied imagery).
   const activeImagerySelection =
     stagedChoice?.type === "imagery" && stagedChoice.entry
@@ -240,8 +248,6 @@ export const ModelPickerContent = ({
       : (selectedModel?.id ?? null);
   const stagedChoiceKey = stagedChoice ? getChoiceKey(stagedChoice) : null;
   const stagedImageryKey = stagedImagery?.tileUrl ?? null;
-  const activeSelectionKey =
-    stagedChoiceKey ?? stagedImageryKey ?? appliedSelectionKey;
   const hasStagedFeatureChange =
     stagedFeatureSlug !== null && stagedFeatureSlug !== feature;
   const hasUnappliedChanges =

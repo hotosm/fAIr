@@ -77,6 +77,20 @@ const router = createBrowserRouter([
       /**
        * Try fAIr route ends.
        */
+      {
+        path: APPLICATION_ROUTES.TRY_FAIR_PROJECT,
+        lazy: async () => {
+          const { TryFairProjectPage } =
+            await import("@/app/routes/try-fair/try-fair-projects");
+          return {
+            Component: () => (
+              <ProtectedRoute>
+                <TryFairProjectPage />
+              </ProtectedRoute>
+            ),
+          };
+      },
+      },
 
       /**
        * Map Request result (full-screen, protected) route.
