@@ -1,6 +1,7 @@
 import { ChevronDownIcon } from "@/components/ui/icons";
 import { cn } from "@/utils";
 import { OverviewEmptyState } from "./overview-empty-state";
+import { useGetUserStates } from "@/features/user-profile/api/user-state";
 
 export const RecentActivities = ({
   showFilter = false,
@@ -10,6 +11,8 @@ export const RecentActivities = ({
   showFilter?: boolean;
   className?: string;
 }) => {
+  const { data } = useGetUserStates()
+  console.log(data)
   return (
     <section
       className={cn(
@@ -30,8 +33,18 @@ export const RecentActivities = ({
           </button>
         )}
       </div>
+      <div>
+        {data?.results?.map((item) => (
+          <div key={item.state.prediction_id} className="mb-2 w-full justify-between flex">
+            <p className="text-sm capitalize text-ink">{item.state.name}</p>
+            <p className="text-sm capitalize text-ink">{item.state.type}</p>
 
-      <OverviewEmptyState message="No activities yet" className="flex-1" />
+            <ChevronDownIcon className="size-3 -rotate-90" />
+          </div>
+        ))}
+      </div>
+
+      {/* <OverviewEmptyState message="No activities yet" className="flex-1" /> */}
     </section>
   );
 };
